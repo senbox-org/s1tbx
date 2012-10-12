@@ -132,11 +132,9 @@ public class StxFactory {
     /**
      * Computes statistics for the given set of raster data nodes.
      *
-     *
      * @param roiMasks An array of roi masks, must be <code>null</code> or have the same length as <code>rasters</code>.
      * @param rasters  The raster data nodes.
      * @param pm       A progress monitor.
-     *
      * @return The statistics.
      */
     public Stx create(Mask[] roiMasks, RasterDataNode[] rasters, ProgressMonitor pm) {
@@ -256,22 +254,21 @@ public class StxFactory {
      *
      * @param raster The raster data node.
      * @param pm     A progress monitor.
-     *
      * @return The statistics.
      */
     public Stx create(RasterDataNode raster, ProgressMonitor pm) {
-        if(roiMask != null) {
-            return create(new Mask[] {roiMask}, new RasterDataNode[]{raster}, pm);
+        if (roiMask != null) {
+            return create(new Mask[]{roiMask}, new RasterDataNode[]{raster}, pm);
         }
         return create(null, new RasterDataNode[]{raster}, pm);
     }
 
-    static void accumulate(RasterDataNode rasterDataNode,
-                           int level,
-                           RenderedImage roiImage,
-                           Shape roiShape,
-                           StxOp op,
-                           ProgressMonitor pm) {
+    public static void accumulate(RasterDataNode rasterDataNode,
+                                  int level,
+                                  RenderedImage roiImage,
+                                  Shape roiShape,
+                                  StxOp op,
+                                  ProgressMonitor pm) {
 
         Assert.notNull(rasterDataNode, "raster");
         Assert.argument(level >= 0, "level");

@@ -1,12 +1,15 @@
 package org.esa.beam.statistics;
 
-import static org.junit.Assert.*;
-
-import java.io.IOException;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.OperatorException;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
+import java.io.IOException;
+
+import static org.junit.Assert.*;
 
 public class StatisticsOpTest_ValidateInputTest {
 
@@ -26,7 +29,7 @@ public class StatisticsOpTest_ValidateInputTest {
     }
 
     @Test
-    public void testPrecisionValidation() {
+    public void testValidation_PrecisionLessThanMinPrecision() {
         statisticsOp.precision = -1;
 
         try {
@@ -34,6 +37,18 @@ public class StatisticsOpTest_ValidateInputTest {
             fail();
         } catch (OperatorException expected) {
             assertEquals("Parameter 'precision' must be greater than or equal to 0", expected.getMessage());
+        }
+    }
+
+    @Test
+    public void testValidation_PrecisionGreaterThanMaxPrecision() {
+        statisticsOp.precision = 7;
+
+        try {
+            statisticsOp.validateInput();
+            fail();
+        } catch (OperatorException expected) {
+            assertEquals("Parameter 'precision' must be less than or equal to 6", expected.getMessage());
         }
     }
 

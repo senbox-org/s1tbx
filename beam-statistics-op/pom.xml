@@ -36,6 +36,10 @@
             <groupId>org.esa.beam</groupId>
             <artifactId>beam-gpf</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-all</artifactId>
+        </dependency>
     </dependencies>
 
     <repositories>
@@ -135,5 +139,5 @@
             </roles>
         </developer>
     </developers>
-    
+
 </project>

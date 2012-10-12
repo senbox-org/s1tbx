@@ -209,7 +209,7 @@ public class StatisticsOpTest {
         parameters.put("doOutputShapefile", true);
         parameters.put("shapefile", new File(getClass().getResource("4_pixels.shp").toURI()));
         parameters.put("bandConfigurations", new StatisticsOp.BandConfiguration[]{
-                    bandConfiguration_1,
+                bandConfiguration_1,
         });
         GPF.createProduct("StatisticsOp", parameters, TestUtil.getTestProduct());
 
@@ -359,36 +359,6 @@ public class StatisticsOpTest {
         @Override
         public void finaliseOutput() throws IOException {
         }
-    }
-
-    @Test
-    public void testCollectSourceProducts() throws IOException {
-        final StatisticsOp statisticsOp = new StatisticsOp();
-        final Product testProduct = TestUtil.getTestProduct();
-        final Product[] testProductArray = {testProduct};
-        statisticsOp.sourceProducts = testProductArray;
-        statisticsOp.sourceProductPaths = new String[]{testProduct.getFileLocation().getAbsolutePath()};
-
-        final Product[] collectedProducts = statisticsOp.collectSourceProducts();
-        assertArrayEquals(testProductArray, collectedProducts);
-        for (Product collectedProduct : collectedProducts) {
-            collectedProduct.dispose();
-        }
-    }
-
-    @Test
-    public void testCollectSourceProducts_UseOnlySourceProductPaths() throws IOException {
-        final StatisticsOp statisticsOp = new StatisticsOp();
-        final Product testProduct = TestUtil.getTestProduct();
-        statisticsOp.sourceProductPaths = new String[]{testProduct.getFileLocation().getAbsolutePath()};
-
-        final Product[] collectedProducts = statisticsOp.collectSourceProducts();
-        assertEquals(1, collectedProducts.length);
-        assertEquals(testProduct.getFileLocation().getAbsolutePath().toLowerCase(), collectedProducts[0].getFileLocation().getAbsolutePath().toLowerCase());
-        for (Product collectedProduct : collectedProducts) {
-            collectedProduct.dispose();
-        }
-        testProduct.dispose();
     }
 
     static File getTestFile(String fileName) {

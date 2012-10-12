@@ -99,30 +99,31 @@ public class StatisticsOp extends Operator implements Output {
     public static final String DATETIME_PATTERN = "yyyy-MM-dd HH:mm:ss";
     public static final String DEFAULT_PERCENTILES = "90,95";
     private static final int MAX_PRECISION = 6;
+    private static final int MIN_PRECISION = 0;
 
     @SourceProducts(description = "The source products to be considered for statistics computation. If not given, " +
-                                  "the parameter 'sourceProductPaths' must be provided.")
+            "the parameter 'sourceProductPaths' must be provided.")
     Product[] sourceProducts;
 
     @Parameter(description = "A comma-separated list of file paths specifying the source products.\n" +
-                             "Each path may contain the wildcards '**' (matches recursively any directory),\n" +
-                             "'*' (matches any character sequence in path names) and\n" +
-                             "'?' (matches any single character).")
+            "Each path may contain the wildcards '**' (matches recursively any directory),\n" +
+            "'*' (matches any character sequence in path names) and\n" +
+            "'?' (matches any single character).")
     String[] sourceProductPaths;
 
     @Parameter(description = "An ESRI shapefile, providing the considered geographical region(s) given as polygons. " +
-                             "If null, all pixels are considered.")
+            "If null, all pixels are considered.")
     File shapefile;
 
     // todo se ask really true?
     @Parameter(description = "The start date. If not given, taken from the 'oldest' source product. Products that " +
-                             "have a start date before the start date given by this parameter are not considered.",
+            "have a start date before the start date given by this parameter are not considered.",
                format = DATETIME_PATTERN, converter = UtcConverter.class)
     ProductData.UTC startDate;
 
     // todo se ask really true?
     @Parameter(description = "The end date. If not given, taken from the 'youngest' source product. Products that " +
-                             "have an end date after the end date given by this parameter are not considered.",
+            "have an end date after the end date given by this parameter are not considered.",
                format = DATETIME_PATTERN, converter = UtcConverter.class)
     ProductData.UTC endDate;
 
@@ -131,7 +132,7 @@ public class StatisticsOp extends Operator implements Output {
     BandConfiguration[] bandConfigurations;
 
     @Parameter(description = "Determines if a copy of the input shapefile shall be created and augmented with the " +
-                             "statistical data.")
+            "statistical data.")
     boolean doOutputShapefile;
 
     @Parameter(description = "The target file for shapefile output.")
@@ -148,7 +149,7 @@ public class StatisticsOp extends Operator implements Output {
     int[] percentiles;
 
     @Parameter(description = "The number of significant figures used for statistics computation. Higher numbers " +
-                             "indicate higher precision but may lead to a considerably longer computation time.",
+            "indicate higher precision but may lead to a considerably longer computation time.",
                defaultValue = "3")
     int precision;
 
@@ -165,18 +166,180 @@ public class StatisticsOp extends Operator implements Output {
     private PrintStream csvOutputStream;
 
     private PrintStream bandMappingOutputStream;
+    private StatisticsOutputContext statisticsOutputContext;
 
     @Override
     public void initialize() throws OperatorException {
         setDummyTargetProduct();
         validateInput();
         setupOutputter();
-        final Product[] allSourceProducts = collectSourceProducts();
-        initializeVectorDataNodes(allSourceProducts);
-        initializeOutput(allSourceProducts);
-        computeOutput(allSourceProducts);
-        writeOutput();
+
+        //****************************************
+        //****************************************
+        //****************************************
+
+
+        final StatisticComputer statisticComputer = new StatisticComputer(shapefile, bandConfigurations, computeBinCount(precision));
+
+        final ProductLoop productLoop = new ProductLoop(new ProductLoader(), statisticComputer, getLogger());
+        productLoop.loop(sourceProducts, getProductsToLoad());
+
+
+        final List<Product> products = new ArrayList<Product>();
+        collectedProducts = new HashSet<Product>();
+        if (sourceProducts != null) {
+            Collections.addAll(products, sourceProducts);
+        }
+        if (sourceProductPaths != null) {
+            SortedSet<File> fileSet = new TreeSet<File>();
+            for (String filePattern : sourceProductPaths) {
+                try {
+                    WildcardMatcher.glob(filePattern, fileSet);
+                } catch (IOException e) {
+                    logReadProductError(filePattern);
+                }
+            }
+            for (File file : fileSet) {
+                if (!isProductAlreadyOpened(products, file)) {
+                    try {
+                        Product sourceProduct = ProductIO.readProduct(file);
+                        if (sourceProduct != null) {
+                            products.add(sourceProduct);
+                            collectedProducts.add(sourceProduct);
+                        } else {
+                            logReadProductError(file.getAbsolutePath());
+                        }
+                    } catch (Exception e) {
+                        logReadProductError(file.getAbsolutePath());
+                    }
+                }
+            }
+        }
+
+        if (products.size() == 0) {
+            throw new OperatorException("No input products found.");
+        }
+
+        final Product[] allSourceProducts = products.toArray(new Product[products.size()]);
+
+        //****************************************
+        //****************************************
+        //****************************************
+
+        if (shapefile != null) {
+            for (Product sourceProduct : allSourceProducts) {
+                final VectorDataNode[] vectorDataNodes = createVectorDataNodes(sourceProduct);
+                for (final VectorDataNode vectorDataNode : vectorDataNodes) {
+                    regionNames.add(vectorDataNode.getName());
+                }
+                productVdnMap.put(sourceProduct, vectorDataNodes);
+            }
+        } else {
+            regionNames.add("world");
+        }
+
+        //****************************************
+        //****************************************
+        //****************************************
+
+        final List<String> bandNamesList = new ArrayList<String>();
+        for (BandConfiguration bandConfiguration : bandConfigurations) {
+            if (bandConfiguration.sourceBandName != null) {
+                bandNamesList.add(bandConfiguration.sourceBandName);
+            } else {
+                bandNamesList.add(bandConfiguration.expression);
+            }
+        }
+        final String[] algorithmNames = getAlgorithmNames();
+        final String[] bandNames = bandNamesList.toArray(new String[bandNamesList.size()]);
+        statisticsOutputContext = StatisticsOutputContext.create(allSourceProducts,
+                                                                 bandNames,
+                                                                 algorithmNames,
+                                                                 startDate,
+                                                                 endDate,
+                                                                 regionNames.toArray(new String[regionNames.size()]));
+        for (StatisticsOutputter statisticsOutputter : statisticsOutputters) {
+            statisticsOutputter.initialiseOutput(statisticsOutputContext);
+        }
+
+        //****************************************
+        //****************************************
+        //****************************************
+
+        final List<Band> bands = new ArrayList<Band>();
+        for (BandConfiguration configuration : bandConfigurations) {
+            final HashMap<String, List<Mask>> regionNameToMasks = new HashMap<String, List<Mask>>();
+            for (Product product : allSourceProducts) {
+                final Band band = getBand(configuration, product);
+                band.setValidPixelExpression(configuration.validPixelExpression);
+                bands.add(band);
+                fillRegionToMaskMap(regionNameToMasks, product);
+            }
+            for (String regionName : regionNames) {
+                final List<Mask> maskList = regionNameToMasks.get(regionName);
+                final Mask[] roiMasks = getMasksForBands(maskList, bands);
+                final Band[] bandsArray = bands.toArray(new Band[bands.size()]);
+                final Stx stx = new StxFactory()
+                        .withHistogramBinCount(computeBinCount(precision))
+                        .create(roiMasks, bandsArray, ProgressMonitor.NULL);
+                final HashMap<String, Number> stxMap = new HashMap<String, Number>();
+                Histogram histogram = stx.getHistogram();
+                stxMap.put("minimum", histogram.getLowValue(0));
+                stxMap.put("maximum", histogram.getHighValue(0));
+                stxMap.put("average", histogram.getMean()[0]);
+                stxMap.put("sigma", histogram.getStandardDeviation()[0]);
+                stxMap.put("total", histogram.getTotals()[0]);
+                stxMap.put("median", histogram.getPTileThreshold(0.5)[0]);
+                for (int percentile : percentiles) {
+                    stxMap.put(getPercentileName(percentile), computePercentile(percentile, histogram));
+                }
+                stxMap.put("pxx_max_error", Util.getBinWidth(histogram));
+                for (StatisticsOutputter statisticsOutputter : statisticsOutputters) {
+                    statisticsOutputter.addToOutput(bands.get(0).getName(), regionName, stxMap);
+                }
+            }
+            bands.clear();
+        }
+
+        //****************************************
+        //****************************************
+        //****************************************
+
+        try {
+            for (StatisticsOutputter statisticsOutputter : statisticsOutputters) {
+                statisticsOutputter.finaliseOutput();
+            }
+        } catch (IOException e) {
+            throw new OperatorException("Unable to write output.", e);
+        } finally {
+            if (metadataOutputStream != null) {
+                metadataOutputStream.close();
+            }
+            if (csvOutputStream != null) {
+                csvOutputStream.close();
+            }
+            if (bandMappingOutputStream != null) {
+                bandMappingOutputStream.close();
+            }
+        }
+
+        //****************************************
+        //****************************************
+        //****************************************
+
         getLogger().log(Level.INFO, "Successfully computed statistics.");
+    }
+
+    private File[] getProductsToLoad() {
+        SortedSet<File> fileSet = new TreeSet<File>();
+        for (String filePattern : sourceProductPaths) {
+            try {
+                WildcardMatcher.glob(filePattern, fileSet);
+            } catch (IOException e) {
+                logReadProductError(filePattern);
+            }
+        }
+        return fileSet.toArray(new File[fileSet.size()]);
     }
 
 
@@ -188,17 +351,18 @@ public class StatisticsOp extends Operator implements Output {
         }
     }
 
-    void initializeVectorDataNodes(Product[] allSourceProducts) {
-        if (shapefile != null) {
-            for (Product sourceProduct : allSourceProducts) {
-                productVdnMap.put(sourceProduct, createVectorDataNodes(sourceProduct));
-            }
-        } else {
-            regionNames.add("world");
-        }
-    }
+//    void initializeVectorDataNodes(Product[] allSourceProducts) {
+//        if (shapefile != null) {
+//            for (Product sourceProduct : allSourceProducts) {
+//                productVdnMap.put(sourceProduct, createVectorDataNodes(sourceProduct));
+//            }
+//        } else {
+//            regionNames.add("world");
+//        }
+//    }
 
     private VectorDataNode[] createVectorDataNodes(Product product) {
+
         final FeatureUtils.FeatureCrsProvider crsProvider = new FeatureUtils.FeatureCrsProvider() {
             @Override
             public CoordinateReferenceSystem getFeatureCrs(Product targetProduct) {
@@ -228,33 +392,30 @@ public class StatisticsOp extends Operator implements Output {
             result.add(new VectorDataNode(name, fc));
         }
 
-        for (final VectorDataNode vectorDataNode : result) {
-            regionNames.add(vectorDataNode.getName());
-        }
         return result.toArray(new VectorDataNode[result.size()]);
     }
 
-    void initializeOutput(Product[] allSourceProducts) {
-        final List<String> bandNamesList = new ArrayList<String>();
-        for (BandConfiguration bandConfiguration : bandConfigurations) {
-            if (bandConfiguration.sourceBandName != null) {
-                bandNamesList.add(bandConfiguration.sourceBandName);
-            } else {
-                bandNamesList.add(bandConfiguration.expression);
-            }
-        }
-        final String[] algorithmNames = getAlgorithmNames();
-        final String[] bandNames = bandNamesList.toArray(new String[bandNamesList.size()]);
-        final StatisticsOutputContext statisticsOutputContext = StatisticsOutputContext.create(allSourceProducts,
-                                                                                               bandNames,
-                                                                                               algorithmNames,
-                                                                                               startDate,
-                                                                                               endDate,
-                                                                                               regionNames.toArray(new String[regionNames.size()]));
-        for (StatisticsOutputter statisticsOutputter : statisticsOutputters) {
-            statisticsOutputter.initialiseOutput(statisticsOutputContext);
-        }
-    }
+//    void initializeOutput(Product[] allSourceProducts) {
+//        final List<String> bandNamesList = new ArrayList<String>();
+//        for (BandConfiguration bandConfiguration : bandConfigurations) {
+//            if (bandConfiguration.sourceBandName != null) {
+//                bandNamesList.add(bandConfiguration.sourceBandName);
+//            } else {
+//                bandNamesList.add(bandConfiguration.expression);
+//            }
+//        }
+//        final String[] algorithmNames = getAlgorithmNames();
+//        final String[] bandNames = bandNamesList.toArray(new String[bandNamesList.size()]);
+//        final StatisticsOutputContext statisticsOutputContext = StatisticsOutputContext.create(allSourceProducts,
+//                                                                                               bandNames,
+//                                                                                               algorithmNames,
+//                                                                                               startDate,
+//                                                                                               endDate,
+//                                                                                               regionNames.toArray(new String[regionNames.size()]));
+//        for (StatisticsOutputter statisticsOutputter : statisticsOutputters) {
+//            statisticsOutputter.initialiseOutput(statisticsOutputContext);
+//        }
+//    }
 
     private String[] getAlgorithmNames() {
         final List<String> algorithms = new ArrayList<String>();
@@ -304,54 +465,53 @@ public class StatisticsOp extends Operator implements Output {
                 throw new OperatorException("Unable to create shapefile outputter", e);
             }
         }
-
     }
 
-    void computeOutput(Product[] allSourceProducts) {
-        final List<Band> bands = new ArrayList<Band>();
-        for (BandConfiguration configuration : bandConfigurations) {
-            final HashMap<String, List<Mask>> regionNameToMasks = new HashMap<String, List<Mask>>();
-            for (Product product : allSourceProducts) {
-                final Band band = getBand(configuration, product);
-                band.setValidPixelExpression(configuration.validPixelExpression);
-                bands.add(band);
-                fillRegionToMaskMap(regionNameToMasks, product);
-            }
-            for (String regionName : regionNames) {
-                final List<Mask> maskList = regionNameToMasks.get(regionName);
-                final Mask[] roiMasks = getMasksForBands(maskList, bands);
-                final Band[] bandsArray = bands.toArray(new Band[bands.size()]);
-                final Stx stx = new StxFactory()
-                        .withHistogramBinCount(computeBinCount(precision))
-                        .create(roiMasks, bandsArray, ProgressMonitor.NULL);
-                final HashMap<String, Number> stxMap = new HashMap<String, Number>();
-                Histogram histogram = stx.getHistogram();
-                stxMap.put("minimum", histogram.getLowValue(0));
-                stxMap.put("maximum", histogram.getHighValue(0));
-                stxMap.put("average", histogram.getMean()[0]);
-                stxMap.put("sigma", histogram.getStandardDeviation()[0]);
-                stxMap.put("total", histogram.getTotals()[0]);
-                stxMap.put("median", histogram.getPTileThreshold(0.5)[0]);
-                for (int percentile : percentiles) {
-                    if (precision > MAX_PRECISION) {
-                        final PrecisePercentile precisePercentile = PrecisePercentile.createPrecisePercentile(
-                                bandsArray,
-                                histogram,
-                                percentile * 0.01);
-                        stxMap.put(getPercentileName(percentile), precisePercentile.percentile);
-                        stxMap.put("pxx_max_error", precisePercentile.maxError);
-                    } else {
-                        stxMap.put(getPercentileName(percentile), computePercentile(percentile, histogram));
-                        stxMap.put("pxx_max_error", Util.getBinWidth(histogram));
-                    }
-                }
-                for (StatisticsOutputter statisticsOutputter : statisticsOutputters) {
-                    statisticsOutputter.addToOutput(bands.get(0).getName(), regionName, stxMap);
-                }
-            }
-            bands.clear();
-        }
-    }
+//    void computeOutput(Product[] allSourceProducts) {
+//        final List<Band> bands = new ArrayList<Band>();
+//        for (BandConfiguration configuration : bandConfigurations) {
+//            final HashMap<String, List<Mask>> regionNameToMasks = new HashMap<String, List<Mask>>();
+//            for (Product product : allSourceProducts) {
+//                final Band band = getBand(configuration, product);
+//                band.setValidPixelExpression(configuration.validPixelExpression);
+//                bands.add(band);
+//                fillRegionToMaskMap(regionNameToMasks, product);
+//            }
+//            for (String regionName : regionNames) {
+//                final List<Mask> maskList = regionNameToMasks.get(regionName);
+//                final Mask[] roiMasks = getMasksForBands(maskList, bands);
+//                final Band[] bandsArray = bands.toArray(new Band[bands.size()]);
+//                final Stx stx = new StxFactory()
+//                            .withHistogramBinCount(computeBinCount(precision))
+//                            .create(roiMasks, bandsArray, ProgressMonitor.NULL);
+//                final HashMap<String, Number> stxMap = new HashMap<String, Number>();
+//                Histogram histogram = stx.getHistogram();
+//                stxMap.put("minimum", histogram.getLowValue(0));
+//                stxMap.put("maximum", histogram.getHighValue(0));
+//                stxMap.put("average", histogram.getMean()[0]);
+//                stxMap.put("sigma", histogram.getStandardDeviation()[0]);
+//                stxMap.put("total", histogram.getTotals()[0]);
+//                stxMap.put("median", histogram.getPTileThreshold(0.5)[0]);
+//                for (int percentile : percentiles) {
+//                    if (precision > MAX_PRECISION) {
+//                        final PrecisePercentile precisePercentile = PrecisePercentile.createPrecisePercentile(
+//                                    bandsArray,
+//                                    histogram,
+//                                    percentile * 0.01);
+//                        stxMap.put(getPercentileName(percentile), precisePercentile.percentile);
+//                        stxMap.put("pxx_max_error", precisePercentile.maxError);
+//                    } else {
+//                        stxMap.put(getPercentileName(percentile), computePercentile(percentile, histogram));
+//                        stxMap.put("pxx_max_error", Util.getBinWidth(histogram));
+//                    }
+//                }
+//                for (StatisticsOutputter statisticsOutputter : statisticsOutputters) {
+//                    statisticsOutputter.addToOutput(bands.get(0).getName(), regionName, stxMap);
+//                }
+//            }
+//            bands.clear();
+//        }
+//    }
 
     private Number computePercentile(int percentile, Histogram histogram) {
         return histogram.getPTileThreshold(percentile * 0.01)[0];
@@ -374,25 +534,28 @@ public class StatisticsOp extends Operator implements Output {
                 if (band.getProduct() == mask.getProduct()) {
                     masks[i] = mask;
                     break;
-                } else {
-                    masks[i] = band.getProduct().addMask("emptyMask", "false", "mask that accepts no value",
-                                                         Color.RED, 0.5);
                 }
+            }
+            if (masks[i] == null) {
+                masks[i] = band.getProduct().addMask("emptyMask", "false", "mask that accepts no value",
+                                                     Color.RED, 0.5);
             }
         }
 
         return masks;
     }
 
-    private void fillRegionToMaskMap(HashMap<String, List<Mask>> regionNameToMasks, Product product) {
+    private void fillRegionToMaskMap(HashMap<String, List<Mask>> regionNameToMasks, Product currentProduct) {
         if (shapefile != null) {
-            for (VectorDataNode vectorDataNode : productVdnMap.get(product)) {
-                product.getVectorDataGroup().add(vectorDataNode);
-                if (!regionNameToMasks.containsKey(vectorDataNode.getName())) {
-                    regionNameToMasks.put(vectorDataNode.getName(), new ArrayList<Mask>());
+            final VectorDataNode[] vectorDataNodes = productVdnMap.get(currentProduct);
+            for (VectorDataNode vectorDataNode : vectorDataNodes) {
+                currentProduct.getVectorDataGroup().add(vectorDataNode);
+                final String vdnName = vectorDataNode.getName();
+                if (!regionNameToMasks.containsKey(vdnName)) {
+                    regionNameToMasks.put(vdnName, new ArrayList<Mask>());
                 }
-                Mask currentMask = product.getMaskGroup().get(vectorDataNode.getName());
-                regionNameToMasks.get(vectorDataNode.getName()).add(currentMask);
+                Mask currentMask = currentProduct.getMaskGroup().get(vdnName);
+                regionNameToMasks.get(vdnName).add(currentMask);
             }
         } else {
             regionNameToMasks.put("world", new ArrayList<Mask>());
@@ -415,35 +578,38 @@ public class StatisticsOp extends Operator implements Output {
         return band;
     }
 
-    void writeOutput() {
-        try {
-            for (StatisticsOutputter statisticsOutputter : statisticsOutputters) {
-                statisticsOutputter.finaliseOutput();
-            }
-        } catch (IOException e) {
-            throw new OperatorException("Unable to write output.", e);
-        } finally {
-            if (metadataOutputStream != null) {
-                metadataOutputStream.close();
-            }
-            if (csvOutputStream != null) {
-                csvOutputStream.close();
-            }
-            if (bandMappingOutputStream != null) {
-                bandMappingOutputStream.close();
-            }
-        }
-    }
+//    void writeOutput() {
+//        try {
+//            for (StatisticsOutputter statisticsOutputter : statisticsOutputters) {
+//                statisticsOutputter.finaliseOutput();
+//            }
+//        } catch (IOException e) {
+//            throw new OperatorException("Unable to write output.", e);
+//        } finally {
+//            if (metadataOutputStream != null) {
+//                metadataOutputStream.close();
+//            }
+//            if (csvOutputStream != null) {
+//                csvOutputStream.close();
+//            }
+//            if (bandMappingOutputStream != null) {
+//                bandMappingOutputStream.close();
+//            }
+//        }
+//    }
 
     void validateInput() {
         if (startDate != null && endDate != null && endDate.getAsDate().before(startDate.getAsDate())) {
             throw new OperatorException("End date '" + this.endDate + "' before start date '" + this.startDate + "'");
         }
-        if (precision < 0) {
-            throw new OperatorException("Parameter 'precision' must be greater than or equal to 0");
+        if (precision < MIN_PRECISION) {
+            throw new OperatorException("Parameter 'precision' must be greater than or equal to " + MIN_PRECISION);
+        }
+        if (precision > MAX_PRECISION) {
+            throw new OperatorException("Parameter 'precision' must be less than or equal to " + MAX_PRECISION);
         }
         if ((sourceProducts == null || sourceProducts.length == 0) &&
-            (sourceProductPaths == null || sourceProductPaths.length == 0)) {
+                (sourceProductPaths == null || sourceProductPaths.length == 0)) {
             throw new OperatorException(
                     "Either source products must be given or parameter 'sourceProductPaths' must be specified");
         }
@@ -470,44 +636,45 @@ public class StatisticsOp extends Operator implements Output {
         }
     }
 
-    Product[] collectSourceProducts() {
-        final List<Product> products = new ArrayList<Product>();
-        collectedProducts = new HashSet<Product>();
-        if (sourceProducts != null) {
-            Collections.addAll(products, sourceProducts);
-        }
-        if (sourceProductPaths != null) {
-            SortedSet<File> fileSet = new TreeSet<File>();
-            for (String filePattern : sourceProductPaths) {
-                try {
-                    WildcardMatcher.glob(filePattern, fileSet);
-                } catch (IOException e) {
-                    logReadProductError(filePattern);
-                }
-            }
-            for (File file : fileSet) {
-                if (!isProductAlreadyOpened(products, file)) {
-                    try {
-                        Product sourceProduct = ProductIO.readProduct(file);
-                        if (sourceProduct != null) {
-                            products.add(sourceProduct);
-                            collectedProducts.add(sourceProduct);
-                        } else {
-                            logReadProductError(file.getAbsolutePath());
-                        }
-                    } catch (Exception e) {
-                        logReadProductError(file.getAbsolutePath());
-                    }
-                }
-            }
-        }
-
-        if (products.size() == 0) {
-            throw new OperatorException("No input products found.");
-        }
-
-        return products.toArray(new Product[products.size()]);
-    }
+    // todo remove?  because the method is integrated
+//    Product[] collectSourceProducts() {
+//        final List<Product> products = new ArrayList<Product>();
+//        collectedProducts = new HashSet<Product>();
+//        if (sourceProducts != null) {
+//            Collections.addAll(products, sourceProducts);
+//        }
+//        if (sourceProductPaths != null) {
+//            SortedSet<File> fileSet = new TreeSet<File>();
+//            for (String filePattern : sourceProductPaths) {
+//                try {
+//                    WildcardMatcher.glob(filePattern, fileSet);
+//                } catch (IOException e) {
+//                    logReadProductError(filePattern);
+//                }
+//            }
+//            for (File file : fileSet) {
+//                if (!isProductAlreadyOpened(products, file)) {
+//                    try {
+//                        Product sourceProduct = ProductIO.readProduct(file);
+//                        if (sourceProduct != null) {
+//                            products.add(sourceProduct);
+//                            collectedProducts.add(sourceProduct);
+//                        } else {
+//                            logReadProductError(file.getAbsolutePath());
+//                        }
+//                    } catch (Exception e) {
+//                        logReadProductError(file.getAbsolutePath());
+//                    }
+//                }
+//            }
+//        }
+//
+//        if (products.size() == 0) {
+//            throw new OperatorException("No input products found.");
+//        }
+//
+//        return products.toArray(new Product[products.size()]);
+//    }
 
     static boolean isProductAlreadyOpened(List<Product> products, File file) {
         for (Product product : products) {
@@ -531,16 +698,16 @@ public class StatisticsOp extends Operator implements Output {
     public static class BandConfiguration {
 
         @Parameter(description = "The name of the band in the source products. If empty, parameter 'expression' must " +
-                                 "be provided.")
+                "be provided.")
         String sourceBandName;
 
         @Parameter(description =
                            "The band maths expression serving as input band. If empty, parameter 'sourceBandName'" +
-                           "must be provided.")
+                                   "must be provided.")
         String expression;
 
         @Parameter(description = "The band maths expression serving as criterion for whether to consider pixels for " +
-                                 "computation.")
+                "computation.")
         String validPixelExpression;
 
         public BandConfiguration() {

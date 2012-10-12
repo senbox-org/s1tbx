@@ -92,29 +92,37 @@ public class FeatureUtils {
                                                                                               FeatureCrsProvider crsProvider, ProgressMonitor pm) throws IOException {
         pm.beginTask("Loading Shapefile", 100);
         try {
-            final URL url = file.toURI().toURL();
-            final CoordinateReferenceSystem targetCrs = ImageManager.getModelCrs(product.getGeoCoding());
-            final Geometry clipGeometry = createGeoBoundaryPolygon(product);
+            FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = loadFeatureCollectionFromShapefile(file);
             pm.worked(10);
-            FeatureSource<SimpleFeatureType, SimpleFeature> featureSource = getFeatureSource(url);
-            FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = featureSource.getFeatures();
-            pm.worked(10);
-            CoordinateReferenceSystem featureCrs = featureCollection.getSchema().getCoordinateReferenceSystem();
-            if (featureCrs == null) {
-                featureCrs = crsProvider.getFeatureCrs(product);
-            }
-            FeatureCollection<SimpleFeatureType, SimpleFeature> clippedCollection
-                    = FeatureUtils.clipCollection(featureCollection,
-                                                  featureCrs,
-                                                  clipGeometry,
-                                                  DefaultGeographicCRS.WGS84,
-                                                  null,
-                                                  targetCrs,
-                                                  SubProgressMonitor.create(pm, 80));
-            return clippedCollection;
+            return clipFeatureCollectionToProductBounds(featureCollection, product, crsProvider, pm);
         } finally {
             pm.done();
         }
+    }
+
+    //todo se ... norman zeigen
+    public static FeatureCollection<SimpleFeatureType, SimpleFeature> clipFeatureCollectionToProductBounds(FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection, Product product, FeatureCrsProvider crsProvider, ProgressMonitor pm) {
+        final CoordinateReferenceSystem targetCrs = ImageManager.getModelCrs(product.getGeoCoding());
+        final Geometry clipGeometry = createGeoBoundaryPolygon(product);
+        pm.worked(10);
+        CoordinateReferenceSystem featureCrs = featureCollection.getSchema().getCoordinateReferenceSystem();
+        if (featureCrs == null) {
+            featureCrs = crsProvider.getFeatureCrs(product);
+        }
+        return FeatureUtils.clipCollection(featureCollection,
+                                           featureCrs,
+                                           clipGeometry,
+                                           DefaultGeographicCRS.WGS84,
+                                           null,
+                                           targetCrs,
+                                           SubProgressMonitor.create(pm, 80));
+    }
+
+    //todo se ... norman zeigen
+    public static FeatureCollection<SimpleFeatureType, SimpleFeature> loadFeatureCollectionFromShapefile(File shapefile) throws IOException {
+        final URL shapefileUrl = shapefile.toURI().toURL();
+        FeatureSource<SimpleFeatureType, SimpleFeature> featureSource = getFeatureSource(shapefileUrl);
+        return featureSource.getFeatures();
     }
 
     public static String createFeatureTypeName(String defaultGeometry) {
@@ -280,7 +288,7 @@ public class FeatureUtils {
         GeometryFactory gf = new GeometryFactory();
         GeoPos[] geoPositions = ProductUtils.createGeoBoundary(product, 100);
         Coordinate[] coordinates;
-        if(geoPositions.length >= 0 && geoPositions.length <= 3) {
+        if (geoPositions.length >= 0 && geoPositions.length <= 3) {
             coordinates = new Coordinate[0];
         } else {
             coordinates = new Coordinate[geoPositions.length + 1];
