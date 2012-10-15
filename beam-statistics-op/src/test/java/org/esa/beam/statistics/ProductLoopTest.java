@@ -196,7 +196,7 @@ public class ProductLoopTest {
     }
 
     @Test
-    public void testThatAlreadyLoadedProductsMightBeNull() throws IOException {
+    public void testThatLoopWorksIfAlreadyLoadedProductsIsNull() throws IOException {
         //preparation
         File file = _validProductMock1.getFileLocation();
         when(_productLoaderMock.loadProduct(file)).thenReturn(_validProductMock1);
@@ -207,6 +207,51 @@ public class ProductLoopTest {
         //verification
         verify(_statisticComputerMock).computeStatistic(_validProductMock1);
         verify(_validProductMock1, times(1)).dispose();
+    }
+
+    @Test
+    public void testThatLoopWorksIfAlreadyLoadedProductsContainsNullValues() throws IOException {
+        //preparation
+        final Product[] alreadyLoadedProducts = {_validProductMock1, null, _validProductMock2};
+
+        //execution
+        _productLoop.loop(alreadyLoadedProducts, new File[0]);
+
+        //verification
+        verify(_statisticComputerMock).computeStatistic(_validProductMock1);
+        verify(_statisticComputerMock).computeStatistic(_validProductMock2);
+        verify(_validProductMock1, never()).dispose();
+        verify(_validProductMock2, never()).dispose();
+        final String[] productNames = _productLoop.getProductNames();
+        assertEquals(2, productNames.length);
+        assertEquals("mock_loc_4_3", productNames[0]);
+        assertEquals("mock_loc_7_2", productNames[1]);
+    }
+
+    @Test
+    public void testThatLoopWorksIfProductFilesToLoadContainsNullValues() throws IOException {
+        //preparation
+        final File file1 = _validProductMock1.getFileLocation();
+        final File file2 = _validProductMock2.getFileLocation();
+        final File[] productFilesToLoad = new File[]{file1, file2};
+        when(_productLoaderMock.loadProduct(file1)).thenReturn(_validProductMock1);
+        when(_productLoaderMock.loadProduct(file2)).thenReturn(_validProductMock2);
+
+        //execution
+        _productLoop.loop(null, productFilesToLoad);
+
+        //verification
+        verify(_productLoaderMock).loadProduct(file1);
+        verify(_productLoaderMock).loadProduct(file2);
+        verify(_statisticComputerMock).computeStatistic(_validProductMock1);
+        verify(_statisticComputerMock).computeStatistic(_validProductMock2);
+        verifyNoMoreInteractions(_statisticComputerMock, _productLoaderMock);
+        verify(_validProductMock1, times(1)).dispose();
+        verify(_validProductMock2, times(1)).dispose();
+        final String[] productNames = _productLoop.getProductNames();
+        assertEquals(2, productNames.length);
+        assertEquals("mock_loc_4_3", productNames[0]);
+        assertEquals("mock_loc_7_2", productNames[1]);
     }
 
     private Product createTimeValidProductMock(int startOffset, int numObservationDays) {

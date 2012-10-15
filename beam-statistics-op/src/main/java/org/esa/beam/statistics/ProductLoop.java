@@ -1,14 +1,13 @@
 package org.esa.beam.statistics;
 
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.gpf.OperatorException;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.gpf.OperatorException;
 
 public class ProductLoop {
 
@@ -39,6 +38,9 @@ public class ProductLoop {
             }
         }
         for (File productFile : productFilesToLoad) {
+            if (productFile == null) {
+                continue;
+            }
             if (isProductAlreadyOpened(alreadyLoadedProducts, productFile)) {
                 continue;
             }
@@ -71,15 +73,18 @@ public class ProductLoop {
     }
 
     private void compute(Product product) {
+        if (product == null) {
+            return;
+        }
         if (isInDateRange(product)) {
             statisticComputer.computeStatistic(product);
             productNames.add(product.getName());
         } else {
             logger.info("Product skipped. The product '"
-                                + product.getName()
-                                + "' is not inside the date range"
-                                + " from: " + startDate.format()
-                                + " to: " + endDate.format()
+                        + product.getName()
+                        + "' is not inside the date range"
+                        + " from: " + startDate.format()
+                        + " to: " + endDate.format()
             );
         }
     }
@@ -97,6 +102,9 @@ public class ProductLoop {
     static boolean isProductAlreadyOpened(Product[] alreadyLoadedProducts, File file) {
         if (alreadyLoadedProducts != null) {
             for (Product product : alreadyLoadedProducts) {
+                if (product == null) {
+                    continue;
+                }
                 if (product.getFileLocation().getAbsolutePath().equals(file.getAbsolutePath())) {
                     return true;
                 }
