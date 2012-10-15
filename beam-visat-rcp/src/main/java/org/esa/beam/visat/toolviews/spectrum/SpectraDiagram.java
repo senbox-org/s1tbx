@@ -75,8 +75,8 @@ class SpectraDiagram extends Diagram {
         DefaultDiagramGraphStyle style = (DefaultDiagramGraphStyle) spectrumGraph.getStyle();
         if (placemark != null) {
             final FigureStyle figureStyle = DefaultFigureStyle.createFromCss(placemark.getStyleCss());
-            style.setOutlineColor(figureStyle.getStrokeColor());
-            style.setOutlineStroke(figureStyle.getStroke());
+            style.setOutlineColor(figureStyle.getFillColor());
+            style.setOutlineStroke(new BasicStroke(1.5f));
             style.setFillPaint(figureStyle.getFillPaint());
         } else {
             style.setOutlineColor(Color.BLACK);

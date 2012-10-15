@@ -28,6 +28,8 @@
     <changelog>
         <![CDATA[
         <p>Changes in 4.10.4<br/>
+          [BEAM-1445] Pinned spectra barely visible in spectrum view<br/>
+          [BEAM-1443] Spectrum View line thickness too thin<br/>
           [BEAM-1439] Wrong assignment of frequencies to indexes<br/>
           [BEAM-1435] Name of scene view does not change if band is renamed<br/>
           [BEAM-1412] Profile plot uses wrong pixels for shape in projected products<br/>
