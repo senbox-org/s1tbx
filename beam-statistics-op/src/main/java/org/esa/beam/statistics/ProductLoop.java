@@ -33,12 +33,7 @@ public class ProductLoop {
 
     public void loop(Product[] alreadyLoadedProducts, File[] productFilesToLoad) {
         for (Product product : alreadyLoadedProducts) {
-//                if (product.getStartTime() == null && product.getEndTime() == null) {
             compute(product);
-//                    if(product.getEndTime().getAsCalendar().after(newestDate)) {
-//                        newestDate
-//                    }
-//                } else if (product.getStartTime() != null && startDate)
         }
         for (File productFile : productFilesToLoad) {
             if (isProductAlreadyOpened(alreadyLoadedProducts, productFile)) {
@@ -73,8 +68,23 @@ public class ProductLoop {
     }
 
     private void compute(Product product) {
-        statisticComputer.computeStatistic(product);
-        productNames.add(product.getName());
+        if (isInDateRange(product)) {
+            statisticComputer.computeStatistic(product);
+            productNames.add(product.getName());
+        } else {
+            logger.info("Product skipped. The product '"
+                        + product.getName()
+                        + "' is not inside the date range"
+                        + " from: " + startDate.format()
+                        + " to: " + endDate.format()
+            );
+        }
+    }
+
+    private boolean isInDateRange(Product product) {
+        final ProductData.UTC startTime = product.getStartTime();
+        final ProductData.UTC endTime = product.getEndTime();
+        return startDate.getMJD() <= startTime.getMJD() && endDate.getMJD() >= endTime.getMJD();
     }
 
     private void logReadProductError(File productFile) {
