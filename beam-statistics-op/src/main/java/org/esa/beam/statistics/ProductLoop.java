@@ -92,6 +92,9 @@ public class ProductLoop {
     private boolean isInDateRange(Product product) {
         final ProductData.UTC startTime = product.getStartTime();
         final ProductData.UTC endTime = product.getEndTime();
+        if (startTime == null && endTime == null) {
+            return true;
+        }
         return startDate.getMJD() <= startTime.getMJD() && endDate.getMJD() >= endTime.getMJD();
     }
 

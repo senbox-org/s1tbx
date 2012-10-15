@@ -254,6 +254,30 @@ public class ProductLoopTest {
         assertEquals("mock_loc_7_2", productNames[1]);
     }
 
+    @Test
+    public void testThatComputationIsPerformedWhenStartAndEndTimeOfProductAreNotSet() {
+        //preparation
+        final Product[] alreadyLoadedProducts = {_validProductMock1, _validProductMock2};
+        when(_validProductMock1.getStartTime()).thenReturn(null);
+        when(_validProductMock2.getStartTime()).thenReturn(null);
+        when(_validProductMock1.getEndTime()).thenReturn(null);
+        when(_validProductMock2.getEndTime()).thenReturn(null);
+
+        //execution
+        _productLoop.loop(alreadyLoadedProducts, new File[0]);
+
+        //verification
+        verify(_statisticComputerMock).computeStatistic(_validProductMock1);
+        verify(_statisticComputerMock).computeStatistic(_validProductMock2);
+        verifyNoMoreInteractions(_statisticComputerMock);
+        verify(_validProductMock1, never()).dispose();
+        verify(_validProductMock2, never()).dispose();
+        final String[] productNames = _productLoop.getProductNames();
+        assertEquals(2, productNames.length);
+        assertEquals(_validProductMock1.getName(), productNames[0]);
+        assertEquals(_validProductMock2.getName(), productNames[1]);
+    }
+
     private Product createTimeValidProductMock(int startOffset, int numObservationDays) {
         return createProductMock(startOffset, numObservationDays, false, false);
     }
