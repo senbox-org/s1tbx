@@ -1,13 +1,14 @@
 package org.esa.beam.statistics;
 
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.gpf.OperatorException;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.gpf.OperatorException;
 
 public class ProductLoop {
 
@@ -32,8 +33,10 @@ public class ProductLoop {
     }
 
     public void loop(Product[] alreadyLoadedProducts, File[] productFilesToLoad) {
-        for (Product product : alreadyLoadedProducts) {
-            compute(product);
+        if (alreadyLoadedProducts != null) {
+            for (Product product : alreadyLoadedProducts) {
+                compute(product);
+            }
         }
         for (File productFile : productFilesToLoad) {
             if (isProductAlreadyOpened(alreadyLoadedProducts, productFile)) {
@@ -73,10 +76,10 @@ public class ProductLoop {
             productNames.add(product.getName());
         } else {
             logger.info("Product skipped. The product '"
-                        + product.getName()
-                        + "' is not inside the date range"
-                        + " from: " + startDate.format()
-                        + " to: " + endDate.format()
+                                + product.getName()
+                                + "' is not inside the date range"
+                                + " from: " + startDate.format()
+                                + " to: " + endDate.format()
             );
         }
     }
@@ -92,9 +95,11 @@ public class ProductLoop {
     }
 
     static boolean isProductAlreadyOpened(Product[] alreadyLoadedProducts, File file) {
-        for (Product product : alreadyLoadedProducts) {
-            if (product.getFileLocation().getAbsolutePath().equals(file.getAbsolutePath())) {
-                return true;
+        if (alreadyLoadedProducts != null) {
+            for (Product product : alreadyLoadedProducts) {
+                if (product.getFileLocation().getAbsolutePath().equals(file.getAbsolutePath())) {
+                    return true;
+                }
             }
         }
         return false;

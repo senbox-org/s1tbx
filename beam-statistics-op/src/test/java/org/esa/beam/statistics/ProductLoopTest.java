@@ -1,17 +1,19 @@
 package org.esa.beam.statistics;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
-
-import java.io.File;
-import java.io.IOException;
-import java.text.ParseException;
-import java.util.logging.Logger;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.OperatorException;
-import org.junit.*;
+import org.junit.Before;
+import org.junit.Test;
 import org.mockito.InOrder;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.logging.Logger;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.*;
 
 public class ProductLoopTest {
 
@@ -190,6 +192,20 @@ public class ProductLoopTest {
         verifyNoMoreInteractions(_statisticComputerMock);
         verify(productMockBefore, times(1)).dispose();
         verify(productMockAfter, times(1)).dispose();
+        verify(_validProductMock1, times(1)).dispose();
+    }
+
+    @Test
+    public void testThatAlreadyLoadedProductsMightBeNull() throws IOException {
+        //preparation
+        File file = _validProductMock1.getFileLocation();
+        when(_productLoaderMock.loadProduct(file)).thenReturn(_validProductMock1);
+
+        //execution
+        _productLoop.loop(null, new File[]{file});
+
+        //verification
+        verify(_statisticComputerMock).computeStatistic(_validProductMock1);
         verify(_validProductMock1, times(1)).dispose();
     }
 
