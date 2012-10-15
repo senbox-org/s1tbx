@@ -23,8 +23,7 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 /**
  * @author Thomas Storm
@@ -36,10 +35,8 @@ public class FeatureStatisticsWriterTest {
         final URL originalShapefile = getClass().getResource("../4_pixels.shp");
         final FeatureStatisticsWriter featureStatisticsWriter = FeatureStatisticsWriter.createFeatureStatisticsWriter(originalShapefile, null, new BandNameCreator());
         final String[] algorithmNames = {"p90", "p95"};
-        final String[] productNames = new String[]{"prod_1"};
-        final String[] regionNames = new String[]{"region_1"};
 
-        featureStatisticsWriter.initialiseOutput(StatisticsOutputContext.create(productNames, new String[]{"algal_2"}, algorithmNames, null, null, regionNames));
+        featureStatisticsWriter.initialiseOutput(StatisticsOutputContext.create(new String[]{"algal_2"}, algorithmNames));
 
         HashMap<String, Number> statistics = new HashMap<String, Number>();
         statistics.put("p90", 0.1);
@@ -67,13 +64,11 @@ public class FeatureStatisticsWriterTest {
         final URL originalShapefile = getClass().getResource("../polygons.shp");
         final FeatureStatisticsWriter featureStatisticsWriter = FeatureStatisticsWriter.createFeatureStatisticsWriter(originalShapefile, null, new BandNameCreator());
         final String[] algorithmNames = {"p90", "p95"};
-        final String[] productNames = new String[]{"prod_1"};
-        final String[] regionNames = new String[]{"region_1"};
 
-        featureStatisticsWriter.initialiseOutput(StatisticsOutputContext.create(productNames, new String[]{
+        featureStatisticsWriter.initialiseOutput(StatisticsOutputContext.create(new String[]{
                 "algal_2",
                 "algal_2"
-        }, algorithmNames, null, null, regionNames));
+        }, algorithmNames));
 
         HashMap<String, Number> statistics = new HashMap<String, Number>();
 

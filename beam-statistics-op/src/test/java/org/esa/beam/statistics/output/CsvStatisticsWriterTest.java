@@ -24,7 +24,7 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.HashMap;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 /**
  * @author Thomas Storm
@@ -73,14 +73,12 @@ public class CsvStatisticsWriterTest {
 
     @Test
     public void testFinaliseOutput() throws Exception {
-        final String[] productNames = new String[]{"prod_1"};
-        final String[] regionNames = new String[]{"region_1"};
-        csvStatisticsWriter.initialiseOutput(StatisticsOutputContext.create(productNames, null, new String[]{
+        csvStatisticsWriter.initialiseOutput(StatisticsOutputContext.create(null, new String[]{
                 "p90",
                 "p95",
                 "max",
                 "min"
-        }, null, null, regionNames));
+        }));
         addOutput();
         csvStatisticsWriter.finaliseOutput();
         csvStream.close();

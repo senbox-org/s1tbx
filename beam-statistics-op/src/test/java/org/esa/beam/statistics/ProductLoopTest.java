@@ -65,8 +65,8 @@ public class ProductLoopTest {
         final InOrder inOrder = inOrder(statisticComputerMock);
         inOrder.verify(statisticComputerMock).computeStatistic(same(productMock1));
         inOrder.verify(statisticComputerMock).computeStatistic(same(productMock2));
-        verify(productMock1).dispose();
-        verify(productMock2).dispose();
+        verify(productMock1, times(1)).dispose();
+        verify(productMock2, times(1)).dispose();
     }
 
     @Test
@@ -89,7 +89,7 @@ public class ProductLoopTest {
         inOrder.verify(statisticComputerMock).computeStatistic(same(productMock2));
         inOrder.verify(statisticComputerMock).computeStatistic(same(productMock1));
         verify(productLoaderMock).loadProduct(eq(new File("1")));
-        verify(productMock1).dispose();
+        verify(productMock1, times(1)).dispose();
         verify(productMock2, atLeastOnce()).getFileLocation();
     }
 
