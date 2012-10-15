@@ -151,8 +151,6 @@ public class StatisticsOp extends Operator implements Output {
                defaultValue = "3")
     int precision;
 
-    Set<Product> collectedProducts;
-
     final Set<StatisticsOutputter> statisticsOutputters = new HashSet<StatisticsOutputter>();
 
     final Map<Product, VectorDataNode[]> productVdnMap = new HashMap<Product, VectorDataNode[]>();
@@ -283,15 +281,6 @@ public class StatisticsOp extends Operator implements Output {
             }
         }
         return fileSet.toArray(new File[fileSet.size()]);
-    }
-
-
-    @Override
-    public void dispose() {
-        super.dispose();
-        for (Product collectedProduct : collectedProducts) {
-            collectedProduct.dispose();
-        }
     }
 
 //    void initializeVectorDataNodes(Product[] allSourceProducts) {
