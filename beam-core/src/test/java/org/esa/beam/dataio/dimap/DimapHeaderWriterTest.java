@@ -265,96 +265,6 @@ public class DimapHeaderWriterTest extends TestCase {
         assertEquals(expectedForCrsGeoCoding, stringWriter.toString());
     }
 
-    private void addPinsToProduct() {
-        final PinDescriptor pinDescriptor = PinDescriptor.getInstance();
-        final Placemark placemark1 = Placemark.createPointPlacemark(pinDescriptor, "pin1", "pin1", "", null, new GeoPos(), product.getGeoCoding());
-        placemark1.setStyleCss("symbol:plus;stroke-width:2");
-        ProductNodeGroup<Placemark> pinGroup = product.getPinGroup();
-        pinGroup.add(placemark1);
-
-        final Placemark placemark2 = Placemark.createPointPlacemark(pinDescriptor, "pin2", "pin2", "", null, new GeoPos(4, 8), product.getGeoCoding());
-        placemark2.setDescription("desc2");
-        pinGroup.add(placemark2);
-
-        final Placemark placemark3 = Placemark.createPointPlacemark(pinDescriptor, "pin3", "pin3", "", null, new GeoPos(-23.1234f, -80.543f),
-                                                                    product.getGeoCoding());
-        pinGroup.add(placemark3);
-    }
-
-    private String getExpectedForWritePins() {
-        return
-                header +
-                        rasterDimensions +
-                        "    <Pin_Group>" + LS +
-                        "        <Placemark name=\"pin1\">" + LS +
-                        "            <LABEL>pin1</LABEL>" + LS +
-                        "            <DESCRIPTION />" + LS +
-                        "            <LATITUDE>0.0</LATITUDE>" + LS +
-                        "            <LONGITUDE>0.0</LONGITUDE>" + LS +
-                        "            <STYLE_CSS>symbol:plus;stroke-width:2</STYLE_CSS>" + LS +
-                        "        </Placemark>" + LS +
-                        "        <Placemark name=\"pin2\">" + LS +
-                        "            <LABEL>pin2</LABEL>" + LS +
-                        "            <DESCRIPTION>desc2</DESCRIPTION>" + LS +
-                        "            <LATITUDE>4.0</LATITUDE>" + LS +
-                        "            <LONGITUDE>8.0</LONGITUDE>" + LS +
-                        "        </Placemark>" + LS +
-                        "        <Placemark name=\"pin3\">" + LS +
-                        "            <LABEL>pin3</LABEL>" + LS +
-                        "            <DESCRIPTION />" + LS +
-                        "            <LATITUDE>-23.1234</LATITUDE>" + LS +
-                        "            <LONGITUDE>-80.543</LONGITUDE>" + LS +
-                        "        </Placemark>" + LS +
-                        "    </Pin_Group>" + LS +
-                        footer;
-    }
-
-    private void addGcpsToProduct() {
-        final GcpDescriptor gcpDescriptor = GcpDescriptor.getInstance();
-        final Placemark placemark1 = Placemark.createPointPlacemark(gcpDescriptor, "gcp1", "gcp1", "", null, new GeoPos(),
-                                                                    product.getGeoCoding());
-        ProductNodeGroup<Placemark> pinGroup = product.getGcpGroup();
-        pinGroup.add(placemark1);
-
-        final Placemark placemark2 = Placemark.createPointPlacemark(gcpDescriptor, "gcp2", "gcp2", "", null, new GeoPos(4, 8),
-                                                                    product.getGeoCoding());
-        placemark2.setDescription("desc2");
-        pinGroup.add(placemark2);
-        placemark2.setStyleCss("symbol:star");
-
-        final Placemark placemark3 = Placemark.createPointPlacemark(gcpDescriptor, "gcp3", "gcp3", "", null, new GeoPos(-23.1234f, -80.543f),
-                                                                    product.getGeoCoding());
-        pinGroup.add(placemark3);
-    }
-
-    private String getExpectedForWriteGcps() {
-        return
-                header +
-                        rasterDimensions +
-                        "    <Gcp_Group>" + LS +
-                        "        <Placemark name=\"gcp1\">" + LS +
-                        "            <LABEL>gcp1</LABEL>" + LS +
-                        "            <DESCRIPTION />" + LS +
-                        "            <LATITUDE>0.0</LATITUDE>" + LS +
-                        "            <LONGITUDE>0.0</LONGITUDE>" + LS +
-                        "        </Placemark>" + LS +
-                        "        <Placemark name=\"gcp2\">" + LS +
-                        "            <LABEL>gcp2</LABEL>" + LS +
-                        "            <DESCRIPTION>desc2</DESCRIPTION>" + LS +
-                        "            <LATITUDE>4.0</LATITUDE>" + LS +
-                        "            <LONGITUDE>8.0</LONGITUDE>" + LS +
-                        "            <STYLE_CSS>symbol:star</STYLE_CSS>" + LS +
-                        "        </Placemark>" + LS +
-                        "        <Placemark name=\"gcp3\">" + LS +
-                        "            <LABEL>gcp3</LABEL>" + LS +
-                        "            <DESCRIPTION />" + LS +
-                        "            <LATITUDE>-23.1234</LATITUDE>" + LS +
-                        "            <LONGITUDE>-80.543</LONGITUDE>" + LS +
-                        "        </Placemark>" + LS +
-                        "    </Gcp_Group>" + LS +
-                        footer;
-    }
-
     private void addBitmaskDefsToProduct() {
         BitmaskDef bitmaskDef1 = new BitmaskDef("bitmaskDef1", "description1", "!l1_flags.INVALID", Color.BLUE, 0.75f);
         product.addBitmaskDef(bitmaskDef1);
@@ -912,31 +822,6 @@ public class DimapHeaderWriterTest extends TestCase {
                 "        <LATITUDE_BAND>" + pixelGeoCoding.getLatBand().getName() + "</LATITUDE_BAND>" + LS +
                 "        <LONGITUDE_BAND>" + pixelGeoCoding.getLonBand().getName() + "</LONGITUDE_BAND>" + LS +
                 "        <SEARCH_RADIUS>" + pixelGeoCoding.getSearchRadius() + "</SEARCH_RADIUS>" + LS +
-                "        <Pixel_Position_Estimator>" + LS +
-                "            <Coordinate_Reference_System>" + LS +
-                "                <Horizontal_CS>" + LS +
-                "                    <HORIZONTAL_CS_TYPE>GEOGRAPHIC</HORIZONTAL_CS_TYPE>" + LS +
-                "                    <Geographic_CS>" + LS +
-                "                        <Horizontal_Datum>" + LS +
-                "                            <HORIZONTAL_DATUM_NAME>WGS-84</HORIZONTAL_DATUM_NAME>" + LS +
-                "                            <Ellipsoid>" + LS +
-                "                                <ELLIPSOID_NAME>WGS-84</ELLIPSOID_NAME>" + LS +
-                "                                <Ellipsoid_Parameters>" + LS +
-                "                                    <ELLIPSOID_MAJ_AXIS unit=\"M\">6378137.0</ELLIPSOID_MAJ_AXIS>" + LS +
-                "                                    <ELLIPSOID_MIN_AXIS unit=\"M\">6356752.3</ELLIPSOID_MIN_AXIS>" + LS +
-                "                                </Ellipsoid_Parameters>" + LS +
-                "                            </Ellipsoid>" + LS +
-                "                        </Horizontal_Datum>" + LS +
-                "                    </Geographic_CS>" + LS +
-                "                </Horizontal_CS>" + LS +
-                "            </Coordinate_Reference_System>" + LS +
-                "            <Geoposition>" + LS +
-                "                <Geoposition_Points>" + LS +
-                "                    <TIE_POINT_GRID_NAME_LAT>lat</TIE_POINT_GRID_NAME_LAT>" + LS +
-                "                    <TIE_POINT_GRID_NAME_LON>lon</TIE_POINT_GRID_NAME_LON>" + LS +
-                "                </Geoposition_Points>" + LS +
-                "            </Geoposition>" + LS +
-                "        </Pixel_Position_Estimator>" + LS +
                 "    </Geoposition>" + LS +
                 "    <Raster_Dimensions>" + LS +
                 "        <NCOLS>200</NCOLS>" + LS +

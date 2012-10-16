@@ -21,27 +21,6 @@ import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
 import com.bc.ceres.glevel.MultiLevelImage;
 import com.bc.jexp.ParseException;
-import org.esa.beam.framework.dataio.ProductSubsetDef;
-import org.esa.beam.framework.dataop.barithm.BandArithmetic;
-import org.esa.beam.framework.dataop.maptransf.Datum;
-import org.esa.beam.jai.ImageManager;
-import org.esa.beam.util.BitRaster;
-import org.esa.beam.util.Debug;
-import org.esa.beam.util.Guardian;
-import org.esa.beam.util.ProductUtils;
-import org.esa.beam.util.math.IndexValidator;
-import org.esa.beam.util.math.MathUtils;
-
-import javax.media.jai.ImageLayout;
-import javax.media.jai.Interpolation;
-import javax.media.jai.JAI;
-import javax.media.jai.PointOpImage;
-import javax.media.jai.RasterAccessor;
-import javax.media.jai.RasterFactory;
-import javax.media.jai.RasterFormatTag;
-import javax.media.jai.RenderedOp;
-import javax.media.jai.operator.CropDescriptor;
-import javax.media.jai.operator.ScaleDescriptor;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.image.ComponentSampleModel;
@@ -53,6 +32,26 @@ import java.awt.image.SampleModel;
 import java.awt.image.WritableRaster;
 import java.io.IOException;
 import java.util.Vector;
+import javax.media.jai.ImageLayout;
+import javax.media.jai.Interpolation;
+import javax.media.jai.JAI;
+import javax.media.jai.PointOpImage;
+import javax.media.jai.RasterAccessor;
+import javax.media.jai.RasterFactory;
+import javax.media.jai.RasterFormatTag;
+import javax.media.jai.RenderedOp;
+import javax.media.jai.operator.CropDescriptor;
+import javax.media.jai.operator.ScaleDescriptor;
+import org.esa.beam.framework.dataio.ProductSubsetDef;
+import org.esa.beam.framework.dataop.barithm.BandArithmetic;
+import org.esa.beam.framework.dataop.maptransf.Datum;
+import org.esa.beam.jai.ImageManager;
+import org.esa.beam.util.BitRaster;
+import org.esa.beam.util.Debug;
+import org.esa.beam.util.Guardian;
+import org.esa.beam.util.ProductUtils;
+import org.esa.beam.util.math.IndexValidator;
+import org.esa.beam.util.math.MathUtils;
 
 
 /**
@@ -124,6 +123,7 @@ public class PixelGeoCoding extends AbstractGeoCoding {
     private final boolean useTiling;
     private final boolean fractionAccuracy;
     private GeoCoding pixelPosEstimator;
+    private final boolean estimatorCreatedInternally;
     private PixelGrid latGrid;
     private PixelGrid lonGrid;
     private boolean initialized;
@@ -159,7 +159,7 @@ public class PixelGeoCoding extends AbstractGeoCoding {
         }
         if (latBand.getProduct().getSceneRasterWidth() < 2 || latBand.getProduct().getSceneRasterHeight() < 2) {
             throw new IllegalArgumentException(
-                    "latBand.getProduct().getSceneRasterWidth() < 2 || latBand.getProduct().getSceneRasterHeight() < 2");
+                        "latBand.getProduct().getSceneRasterWidth() < 2 || latBand.getProduct().getSceneRasterHeight() < 2");
         }
         this.latBand = latBand;
         this.lonBand = lonBand;
@@ -193,11 +193,11 @@ public class PixelGeoCoding extends AbstractGeoCoding {
             float yScale = (float) tpGridHeight / (float) rasterHeight;
 
             final RenderedOp tempLatImg = ScaleDescriptor.create(
-                    latImage, xScale, yScale, offsetX, offsetY, Interpolation.getInstance(Interpolation.INTERP_NEAREST), null);
+                        latImage, xScale, yScale, offsetX, offsetY, Interpolation.getInstance(Interpolation.INTERP_NEAREST), null);
 //            final RenderedOp tpLatImg = CropDescriptor.create(tempLatImg, 0f, 0f, (float) tpGridWidth, (float) tpGridHeight, null);
 
             final RenderedOp tempLonImg = ScaleDescriptor.create(
-                    lonImage, xScale, yScale, offsetX, offsetY, Interpolation.getInstance(Interpolation.INTERP_NEAREST), null);
+                        lonImage, xScale, yScale, offsetX, offsetY, Interpolation.getInstance(Interpolation.INTERP_NEAREST), null);
 //            final RenderedOp tpLonImg = CropDescriptor.create(tempLonImg, 0f, 0f, (float) tpGridWidth, (float) tpGridHeight, null);
 
             final int minX = tempLatImg.getMinX();
@@ -208,6 +208,9 @@ public class PixelGeoCoding extends AbstractGeoCoding {
             final TiePointGrid tpLatGrid = new TiePointGrid("lat", tpGridWidth, tpGridHeight, offsetX, offsetY, subSamplingX, subSamplingY, latTiePoints, containsAngles);
             final TiePointGrid tpLonGrid = new TiePointGrid("lon", tpGridWidth, tpGridHeight, offsetX, offsetY, subSamplingX, subSamplingY, lonTiePoints, containsAngles);
             pixelPosEstimator = new TiePointGeoCoding(tpLatGrid, tpLonGrid);
+            estimatorCreatedInternally = true;
+        } else {
+            estimatorCreatedInternally = false;
         }
 
         if (pixelPosEstimator != null) {
@@ -242,6 +245,7 @@ public class PixelGeoCoding extends AbstractGeoCoding {
      *                     e.g. for 300 meter pixels a search radius of 5 is a good choice. This parameter is ignored
      *                     if the source product is not geo-coded.
      * @param pm           a monitor to inform the user about progress
+     *
      * @throws IOException if an I/O error occurs while additional data is loaded from the source product
      */
     public PixelGeoCoding(final Band latBand, final Band lonBand, final String validMask, final int searchRadius,
@@ -363,6 +367,9 @@ public class PixelGeoCoding extends AbstractGeoCoding {
      * @return the underlying delegate geo-coding, can be null
      */
     public GeoCoding getPixelPosEstimator() {
+        if (estimatorCreatedInternally) {
+            return null;
+        }
         return pixelPosEstimator;
     }
 
@@ -431,6 +438,7 @@ public class PixelGeoCoding extends AbstractGeoCoding {
      * @param geoPos   the geographical position as lat/lon.
      * @param pixelPos an instance of <code>Point</code> to be used as retun value. If this parameter is
      *                 <code>null</code>, the method creates a new instance which it then returns.
+     *
      * @return the pixel co-ordinates as x/y
      */
     @Override
@@ -621,6 +629,7 @@ public class PixelGeoCoding extends AbstractGeoCoding {
      * @param pixelPos the pixel's co-ordinates given as x,y
      * @param geoPos   an instance of <code>GeoPos</code> to be used as retun value. If this parameter is
      *                 <code>null</code>, the method creates a new instance which it then returns.
+     *
      * @return the geographical position as lat/lon.
      */
     @Override
@@ -693,7 +702,7 @@ public class PixelGeoCoding extends AbstractGeoCoding {
             return false;
         }
         if (validMaskExpression != null ? !validMaskExpression.equals(
-                that.validMaskExpression) : that.validMaskExpression != null) {
+                    that.validMaskExpression) : that.validMaskExpression != null) {
             return false;
         }
 
@@ -730,8 +739,12 @@ public class PixelGeoCoding extends AbstractGeoCoding {
             latLonImage.dispose();
             latLonImage = null;
         }
-        // Don't dispose the estimator, it is not our's!
-        pixelPosEstimator = null;
+        // Don't dispose the estimator, if it is not our's!
+        if (estimatorCreatedInternally) {
+            pixelPosEstimator.dispose();
+        }
+            pixelPosEstimator = null;
+
     }
 
     private boolean quadTreeSearch(final int depth,
@@ -812,7 +825,7 @@ public class PixelGeoCoding extends AbstractGeoCoding {
                 System.out.print("  ");
             }
             System.out.println(
-                    depth + ": (" + x + "," + y + ") (" + w + "," + h + ") " + definitelyOutside + "  " + pixelFound);
+                        depth + ": (" + x + "," + y + ") (" + w + "," + h + ") " + definitelyOutside + "  " + pixelFound);
         }
         return pixelFound;
     }
@@ -1001,13 +1014,13 @@ public class PixelGeoCoding extends AbstractGeoCoding {
             int dy = bestY - y0;
             if (Math.abs(dx) >= searchRadius || Math.abs(dy) >= searchRadius) {
                 Debug.trace("WARNING: search radius reached at " +
-                                    "(x0 = " + x0 + ", y0 = " + y0 + "), " +
-                                    "(dx = " + dx + ", dy = " + dy + "), " +
-                                    "#best = " + bestCount);
+                            "(x0 = " + x0 + ", y0 = " + y0 + "), " +
+                            "(dx = " + dx + ", dy = " + dy + "), " +
+                            "#best = " + bestCount);
             }
         } else {
             Debug.trace("WARNING: no better pixel found at " +
-                                "(x0 = " + x0 + ", y0 = " + y0 + ")");
+                        "(x0 = " + x0 + ", y0 = " + y0 + ")");
         }
     }
 
@@ -1018,6 +1031,7 @@ public class PixelGeoCoding extends AbstractGeoCoding {
      * @param srcScene  the source scene
      * @param destScene the destination scene
      * @param subsetDef the definition of the subset, may be <code>null</code>
+     *
      * @return true, if the geo-coding could be transferred.
      */
     @Override
@@ -1035,7 +1049,7 @@ public class PixelGeoCoding extends AbstractGeoCoding {
             lonBand = createSubset(srcLonBand, destScene, subsetDef);
             destProduct.addBand(lonBand);
         }
-        if (pixelPosEstimator instanceof AbstractGeoCoding) {
+        if (pixelPosEstimator instanceof AbstractGeoCoding && !estimatorCreatedInternally) {
             AbstractGeoCoding origGeoCoding = (AbstractGeoCoding) pixelPosEstimator;
             origGeoCoding.transferGeoCoding(srcScene, destScene, subsetDef);
         }
