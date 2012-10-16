@@ -64,6 +64,10 @@
             <artifactId>ceres-jai</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.bc.ceres</groupId>
+            <artifactId>ceres-metadata</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.jidesoft</groupId>
             <artifactId>jide-dock</artifactId>
         </dependency>

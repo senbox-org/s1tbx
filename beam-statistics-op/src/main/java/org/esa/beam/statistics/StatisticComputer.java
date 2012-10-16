@@ -3,6 +3,16 @@ package org.esa.beam.statistics;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
 import com.bc.ceres.glevel.MultiLevelImage;
+import java.awt.Shape;
+import java.awt.image.DataBuffer;
+import java.io.File;
+import java.io.IOException;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import javax.media.jai.Histogram;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.HistogramStxOp;
 import org.esa.beam.framework.datamodel.Mask;
@@ -22,17 +32,6 @@ import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
-
-import javax.media.jai.Histogram;
-import java.awt.Shape;
-import java.awt.image.DataBuffer;
-import java.io.File;
-import java.io.IOException;
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class StatisticComputer {
 
@@ -151,6 +150,7 @@ public class StatisticComputer {
     }
 
     static class StxOpMapping {
+
         final Map<String, SummaryStxOp> summaryMap;
         final Map<String, HistogramStxOp> histogramMap;
         private final int initialBinCount;
@@ -195,40 +195,77 @@ public class StatisticComputer {
             HistogramStxOp histogramStxOp;
             final int oldBinCount = oldHistogram.getNumBins()[0];
             double binWidth = computeBinWidth(oldMin, oldMax, oldBinCount);
-            int numNewMinBins = 0;
-            int numNewMaxBins = 0;
+            double numNewMinBins = 0;
             if (minimum < oldMin) {
                 final double minDiff = oldMin - minimum;
-                numNewMinBins = (int) Math.ceil(minDiff / binWidth);
+                numNewMinBins = Math.ceil(minDiff / binWidth);
             }
-            if (maximum > oldMax) {
-                final double maxDiff = maximum - oldMax;
-                numNewMaxBins = (int) Math.ceil(maxDiff / binWidth);
-            }
-            double newMinimum = oldMin - numNewMinBins * binWidth;
-            double newMaximum = oldMax + numNewMaxBins * binWidth;
-            int newBinCount = oldBinCount + numNewMinBins + numNewMaxBins;
-
-            final int binRatio;
-            if (newBinCount > 2 * initialBinCount) {
-                binRatio = newBinCount / initialBinCount;
-                final int binRemainder = newBinCount % binRatio;
-                newMaximum += binRemainder * binWidth;
-                newBinCount = (newBinCount + binRemainder) / binRatio;
+            if (numNewMinBins > 200 * initialBinCount) {
+                histogramStxOp = new HistogramStxOp(initialBinCount, minimum, maximum, intHistogram, false);
+                migrateOldHistogramData(oldHistogram, histogramStxOp.getHistogram());
+                return histogramStxOp;
             } else {
-                binRatio = 1;
-            }
+                double numNewMaxBins = 0;
+                if (maximum > oldMax) {
+                    final double maxDiff = maximum - oldMax;
+                    numNewMaxBins = Math.ceil(maxDiff / binWidth);
+                }
+                double newMinimum = oldMin - numNewMinBins * binWidth;
+                double newMaximum = oldMax + numNewMaxBins * binWidth;
+                double newBinCount = oldBinCount + numNewMinBins + numNewMaxBins;
 
-            histogramStxOp = new HistogramStxOp(newBinCount, newMinimum, newMaximum, intHistogram, false);
-            migrateOldHistogramData(oldHistogram, histogramStxOp.getHistogram(), numNewMinBins, binRatio);
-            return histogramStxOp;
+                final int binRatio;
+                if (newBinCount > 2 * initialBinCount) {
+                    binRatio = (int) (newBinCount / initialBinCount);
+                    final int binRemainder = (int) (newBinCount % binRatio);
+                    newMaximum += binRemainder * binWidth;
+                    newBinCount = (newBinCount + binRemainder) / binRatio;
+                } else {
+                    binRatio = 1;
+                }
+
+                histogramStxOp = new HistogramStxOp((int) newBinCount, newMinimum, newMaximum, intHistogram, false);
+                migrateOldHistogramData(oldHistogram, histogramStxOp.getHistogram(), (int) numNewMinBins, binRatio);
+                return histogramStxOp;
+            }
+        }
+
+        private void migrateOldHistogramData(Histogram oldHistogram, Histogram newHistogram) {
+            final double oldMin = oldHistogram.getLowValue(0);
+            final double oldMax = oldHistogram.getHighValue(0);
+            final int[] oldBins = oldHistogram.getBins(0);
+            final int oldNumBins = oldBins.length;
+            final double oldBinWidth = computeBinWidth(oldMin, oldMax, oldNumBins);
+
+            final double newMin = newHistogram.getLowValue(0);
+            final double newMax = newHistogram.getHighValue(0);
+            final int[] newBins = newHistogram.getBins(0);
+            final int newNumBins = newBins.length;
+            final double newBinWidth = computeBinWidth(newMin, newMax, newNumBins);
+
+            for (int i = 0; i < oldBins.length; i++) {
+                int count = oldBins[i];
+                if (count == 0) {
+                    continue;
+                }
+                final double binCenterValue = oldMin + oldBinWidth * i + oldBinWidth / 2 ;
+                int newBinIndex = (int) Math.floor((binCenterValue - newMin) / newBinWidth);
+                if (newBinIndex >= newNumBins) {
+                    newBinIndex = newNumBins -1;
+                }
+                newBins[newBinIndex] += count;
+            }
         }
 
         private void migrateOldHistogramData(Histogram oldHistogram, Histogram newHistogram, int startOffset, int binRatio) {
             final int[] oldBins = oldHistogram.getBins(0);
             final int[] newBins = newHistogram.getBins(0);
+            final int newMaxIndex = newBins.length -1;
             for (int i = 0; i < oldBins.length; i++) {
                 int newBinsIndex = (startOffset + i) / binRatio;
+                if (newBinsIndex > newMaxIndex) {
+                    newBinsIndex = newMaxIndex;
+                }
                 newBins[newBinsIndex] += oldBins[i];
             }
         }
