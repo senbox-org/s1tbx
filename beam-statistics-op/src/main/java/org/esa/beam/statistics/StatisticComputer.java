@@ -38,11 +38,11 @@ public class StatisticComputer {
     private final FeatureCollection<SimpleFeatureType, SimpleFeature> features;
     private final FeatureUtils.FeatureCrsProvider crsProvider;
     private final ProgressMonitor pm;
-    private final StatisticsOp.BandConfiguration[] bandConfigurations;
-    private final Map<StatisticsOp.BandConfiguration, StxOpMapping> stxOpMappings;
+    private final BandConfiguration[] bandConfigurations;
+    private final Map<BandConfiguration, StxOpMapping> stxOpMappings;
     private final int initialBinCount;
 
-    public StatisticComputer(File shapefile, StatisticsOp.BandConfiguration[] bandConfigurations, int initialBinCount) {
+    public StatisticComputer(File shapefile, BandConfiguration[] bandConfigurations, int initialBinCount) {
         this.initialBinCount = initialBinCount;
         if (shapefile != null) {
             try {
@@ -64,7 +64,7 @@ public class StatisticComputer {
         };
         pm = ProgressMonitor.NULL;
         this.bandConfigurations = bandConfigurations;
-        stxOpMappings = new HashMap<StatisticsOp.BandConfiguration, StxOpMapping>();
+        stxOpMappings = new HashMap<BandConfiguration, StxOpMapping>();
     }
 
     public void computeStatistic(Product product) {
@@ -75,7 +75,7 @@ public class StatisticComputer {
             vectorDataNodes = createVectorDataNodes(productFeatures);
         }
         for (int i = 0; i < bandConfigurations.length; i++) {
-            StatisticsOp.BandConfiguration bandConfiguration = bandConfigurations[i];
+            BandConfiguration bandConfiguration = bandConfigurations[i];
             final Band band = getBand(bandConfiguration, product);
             band.setValidPixelExpression(bandConfiguration.validPixelExpression);
             final StxOpMapping stxOpsMapping = getStxOpsMapping(bandConfiguration);
@@ -104,7 +104,7 @@ public class StatisticComputer {
         StxFactory.accumulate(band, 0, roiImage, roiShape, histogramStxOp, SubProgressMonitor.create(pm, 50));
     }
 
-    private StxOpMapping getStxOpsMapping(StatisticsOp.BandConfiguration bandConfiguration) {
+    private StxOpMapping getStxOpsMapping(BandConfiguration bandConfiguration) {
         StxOpMapping stxOpMapping = stxOpMappings.get(bandConfiguration);
         if (stxOpMapping == null) {
             stxOpMapping = new StxOpMapping(initialBinCount);
@@ -129,7 +129,7 @@ public class StatisticComputer {
         return result.toArray(new VectorDataNode[result.size()]);
     }
 
-    static Band getBand(StatisticsOp.BandConfiguration configuration, Product product) {
+    static Band getBand(BandConfiguration configuration, Product product) {
         final Band band;
         if (configuration.sourceBandName != null) {
             band = product.getBand(configuration.sourceBandName);
@@ -145,7 +145,7 @@ public class StatisticComputer {
         return band;
     }
 
-    public Map<StatisticsOp.BandConfiguration, StxOpMapping> getResults() {
+    public Map<BandConfiguration, StxOpMapping> getResults() {
         return stxOpMappings;
     }
 

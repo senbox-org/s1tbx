@@ -19,6 +19,7 @@ package org.esa.beam.statistics;
 import com.bc.ceres.binding.ConversionException;
 import com.bc.ceres.binding.Converter;
 import com.bc.ceres.core.ProgressMonitor;
+import java.util.Arrays;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.HistogramStxOp;
 import org.esa.beam.framework.datamodel.Mask;
@@ -113,13 +114,11 @@ public class StatisticsOp extends Operator implements Output {
             "If null, all pixels are considered.")
     File shapefile;
 
-    // todo se ask really true?
     @Parameter(description = "The start date. If not given, taken from the 'oldest' source product. Products that " +
             "have a start date before the start date given by this parameter are not considered.",
                format = DATETIME_PATTERN, converter = UtcConverter.class)
     ProductData.UTC startDate;
 
-    // todo se ask really true?
     @Parameter(description = "The end date. If not given, taken from the 'youngest' source product. Products that " +
             "have an end date after the end date given by this parameter are not considered.",
                format = DATETIME_PATTERN, converter = UtcConverter.class)
@@ -168,7 +167,9 @@ public class StatisticsOp extends Operator implements Output {
         setupOutputter();
 
         final StatisticComputer statisticComputer = new StatisticComputer(shapefile, bandConfigurations, computeBinCount(precision));
-        final ProductLoop productLoop = new ProductLoop(new ProductLoader(), statisticComputer, startDate, endDate, getLogger());
+
+        final ProductValidator productValidator = new ProductValidator(Arrays.asList(bandConfigurations), startDate, endDate, getLogger());
+        final ProductLoop productLoop = new ProductLoop(new ProductLoader(),productValidator,  statisticComputer, startDate, endDate, getLogger());
         productLoop.loop(sourceProducts, getProductsToLoad());
 
         if (startDate == null) {
@@ -283,16 +284,6 @@ public class StatisticsOp extends Operator implements Output {
         return fileSet.toArray(new File[fileSet.size()]);
     }
 
-//    void initializeVectorDataNodes(Product[] allSourceProducts) {
-//        if (shapefile != null) {
-//            for (Product sourceProduct : allSourceProducts) {
-//                productVdnMap.put(sourceProduct, createVectorDataNodes(sourceProduct));
-//            }
-//        } else {
-//            regionNames.add("world");
-//        }
-//    }
-
     private VectorDataNode[] createVectorDataNodes(Product product) {
 
         final FeatureUtils.FeatureCrsProvider crsProvider = new FeatureUtils.FeatureCrsProvider() {
@@ -326,28 +317,6 @@ public class StatisticsOp extends Operator implements Output {
 
         return result.toArray(new VectorDataNode[result.size()]);
     }
-
-//    void initializeOutput(Product[] allSourceProducts) {
-//        final List<String> bandNamesList = new ArrayList<String>();
-//        for (BandConfiguration bandConfiguration : bandConfigurations) {
-//            if (bandConfiguration.sourceBandName != null) {
-//                bandNamesList.add(bandConfiguration.sourceBandName);
-//            } else {
-//                bandNamesList.add(bandConfiguration.expression);
-//            }
-//        }
-//        final String[] algorithmNames = getAlgorithmNames();
-//        final String[] bandNames = bandNamesList.toArray(new String[bandNamesList.size()]);
-//        final StatisticsOutputContext statisticsOutputContext = StatisticsOutputContext.create(allSourceProducts,
-//                                                                                               bandNames,
-//                                                                                               algorithmNames,
-//                                                                                               startDate,
-//                                                                                               endDate,
-//                                                                                               regionNames.toArray(new String[regionNames.size()]));
-//        for (StatisticsOutputter statisticsOutputter : statisticsOutputters) {
-//            statisticsOutputter.initialiseOutput(statisticsOutputContext);
-//        }
-//    }
 
     private String[] getAlgorithmNames() {
         final List<String> algorithms = new ArrayList<String>();
@@ -398,52 +367,6 @@ public class StatisticsOp extends Operator implements Output {
             }
         }
     }
-
-//    void computeOutput(Product[] allSourceProducts) {
-//        final List<Band> bands = new ArrayList<Band>();
-//        for (BandConfiguration configuration : bandConfigurations) {
-//            final HashMap<String, List<Mask>> regionNameToMasks = new HashMap<String, List<Mask>>();
-//            for (Product product : allSourceProducts) {
-//                final Band band = getBand(configuration, product);
-//                band.setValidPixelExpression(configuration.validPixelExpression);
-//                bands.add(band);
-//                fillRegionToMaskMap(regionNameToMasks, product);
-//            }
-//            for (String regionName : regionNames) {
-//                final List<Mask> maskList = regionNameToMasks.get(regionName);
-//                final Mask[] roiMasks = getMasksForBands(maskList, bands);
-//                final Band[] bandsArray = bands.toArray(new Band[bands.size()]);
-//                final Stx stx = new StxFactory()
-//                            .withHistogramBinCount(computeBinCount(precision))
-//                            .create(roiMasks, bandsArray, ProgressMonitor.NULL);
-//                final HashMap<String, Number> stxMap = new HashMap<String, Number>();
-//                Histogram histogram = stx.getHistogram();
-//                stxMap.put("minimum", histogram.getLowValue(0));
-//                stxMap.put("maximum", histogram.getHighValue(0));
-//                stxMap.put("average", histogram.getMean()[0]);
-//                stxMap.put("sigma", histogram.getStandardDeviation()[0]);
-//                stxMap.put("total", histogram.getTotals()[0]);
-//                stxMap.put("median", histogram.getPTileThreshold(0.5)[0]);
-//                for (int percentile : percentiles) {
-//                    if (precision > MAX_PRECISION) {
-//                        final PrecisePercentile precisePercentile = PrecisePercentile.createPrecisePercentile(
-//                                    bandsArray,
-//                                    histogram,
-//                                    percentile * 0.01);
-//                        stxMap.put(getPercentileName(percentile), precisePercentile.percentile);
-//                        stxMap.put("pxx_max_error", precisePercentile.maxError);
-//                    } else {
-//                        stxMap.put(getPercentileName(percentile), computePercentile(percentile, histogram));
-//                        stxMap.put("pxx_max_error", Util.getBinWidth(histogram));
-//                    }
-//                }
-//                for (StatisticsOutputter statisticsOutputter : statisticsOutputters) {
-//                    statisticsOutputter.addToOutput(bands.get(0).getName(), regionName, stxMap);
-//                }
-//            }
-//            bands.clear();
-//        }
-//    }
 
     private Number computePercentile(int percentile, Histogram histogram) {
         return histogram.getPTileThreshold(percentile * 0.01)[0];
@@ -510,26 +433,6 @@ public class StatisticsOp extends Operator implements Output {
         return band;
     }
 
-//    void writeOutput() {
-//        try {
-//            for (StatisticsOutputter statisticsOutputter : statisticsOutputters) {
-//                statisticsOutputter.finaliseOutput();
-//            }
-//        } catch (IOException e) {
-//            throw new OperatorException("Unable to write output.", e);
-//        } finally {
-//            if (metadataOutputStream != null) {
-//                metadataOutputStream.close();
-//            }
-//            if (csvOutputStream != null) {
-//                csvOutputStream.close();
-//            }
-//            if (bandMappingOutputStream != null) {
-//                bandMappingOutputStream.close();
-//            }
-//        }
-//    }
-
     void validateInput() {
         if (startDate != null && endDate != null && endDate.getAsDate().before(startDate.getAsDate())) {
             throw new OperatorException("End date '" + this.endDate + "' before start date '" + this.startDate + "'");
@@ -568,46 +471,6 @@ public class StatisticsOp extends Operator implements Output {
         }
     }
 
-    // todo remove?  because the method is integrated
-//    Product[] collectSourceProducts() {
-//        final List<Product> products = new ArrayList<Product>();
-//        collectedProducts = new HashSet<Product>();
-//        if (sourceProducts != null) {
-//            Collections.addAll(products, sourceProducts);
-//        }
-//        if (sourceProductPaths != null) {
-//            SortedSet<File> fileSet = new TreeSet<File>();
-//            for (String filePattern : sourceProductPaths) {
-//                try {
-//                    WildcardMatcher.glob(filePattern, fileSet);
-//                } catch (IOException e) {
-//                    logReadProductError(filePattern);
-//                }
-//            }
-//            for (File file : fileSet) {
-//                if (!isProductAlreadyOpened(products, file)) {
-//                    try {
-//                        Product sourceProduct = ProductIO.readProduct(file);
-//                        if (sourceProduct != null) {
-//                            products.add(sourceProduct);
-//                            collectedProducts.add(sourceProduct);
-//                        } else {
-//                            logReadProductError(file.getAbsolutePath());
-//                        }
-//                    } catch (Exception e) {
-//                        logReadProductError(file.getAbsolutePath());
-//                    }
-//                }
-//            }
-//        }
-//
-//        if (products.size() == 0) {
-//            throw new OperatorException("No input products found.");
-//        }
-//
-//        return products.toArray(new Product[products.size()]);
-//    }
-
     static boolean isProductAlreadyOpened(List<Product> products, File file) {
         for (Product product : products) {
             if (product.getFileLocation().getAbsolutePath().equals(file.getAbsolutePath())) {
@@ -625,26 +488,6 @@ public class StatisticsOp extends Operator implements Output {
         final Product product = new Product("dummy", "dummy", 2, 2);
         product.addBand("dummy", ProductData.TYPE_INT8);
         setTargetProduct(product);
-    }
-
-    public static class BandConfiguration {
-
-        @Parameter(description = "The name of the band in the source products. If empty, parameter 'expression' must " +
-                "be provided.")
-        String sourceBandName;
-
-        @Parameter(description =
-                           "The band maths expression serving as input band. If empty, parameter 'sourceBandName'" +
-                                   "must be provided.")
-        String expression;
-
-        @Parameter(description = "The band maths expression serving as criterion for whether to consider pixels for " +
-                "computation.")
-        String validPixelExpression;
-
-        public BandConfiguration() {
-            // used by DOM converter
-        }
     }
 
     public static class UtcConverter implements Converter<ProductData.UTC> {

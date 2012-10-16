@@ -1,14 +1,13 @@
 package org.esa.beam.statistics;
 
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.gpf.OperatorException;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.gpf.OperatorException;
 
 public class ProductLoop {
 
@@ -20,9 +19,11 @@ public class ProductLoop {
     private final ProductData.UTC endDate;
     private ProductData.UTC newestDate;
     private ProductData.UTC oldestDate;
+    private final ProductValidator productValidator;
 
-    public ProductLoop(ProductLoader loader, StatisticComputer statisticComputer, ProductData.UTC startDate, ProductData.UTC endDate, Logger logger) {
+    public ProductLoop(ProductLoader loader, ProductValidator productValidator, StatisticComputer statisticComputer, ProductData.UTC startDate, ProductData.UTC endDate, Logger logger) {
         this.loader = loader;
+        this.productValidator = productValidator;
         this.logger = logger;
         this.statisticComputer = statisticComputer;
         productNames = new ArrayList<String>();
@@ -74,22 +75,13 @@ public class ProductLoop {
     }
 
     private void compute(Product product) {
-        if (product == null) {
+        if (product == null || !productValidator.isValid(product)) {
             return;
         }
-        if (isInDateRange(product)) {
-            statisticComputer.computeStatistic(product);
-            productNames.add(product.getName());
-            System.out.println(productNames.size() + " computed");
-            System.out.println("   current product: " + product.getFileLocation().getAbsolutePath());
-        } else {
-            logger.info("Product skipped. The product '"
-                                + product.getName()
-                                + "' is not inside the date range"
-                                + " from: " + startDate.format()
-                                + " to: " + endDate.format()
-            );
-        }
+        statisticComputer.computeStatistic(product);
+        productNames.add(product.getName());
+        System.out.println(productNames.size() + " computed");
+        System.out.println("   current product: " + product.getFileLocation().getAbsolutePath());
     }
 
     private boolean isInDateRange(Product product) {
@@ -98,7 +90,8 @@ public class ProductLoop {
         if (startTime == null && endTime == null) {
             return true;
         }
-        return startDate.getMJD() <= startTime.getMJD() && endDate.getMJD() >= endTime.getMJD();
+        return startDate.getAsDate().getTime() <= startTime.getAsDate().getTime()
+               && endDate.getAsDate().getTime() >= endTime.getAsDate().getTime();
     }
 
     private void logReadProductError(File productFile) {

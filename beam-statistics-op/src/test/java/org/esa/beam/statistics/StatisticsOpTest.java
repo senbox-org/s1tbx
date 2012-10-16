@@ -73,9 +73,9 @@ public class StatisticsOpTest {
     @Test
     public void testStatisticsOp() throws Exception {
         final StatisticsOp statisticsOp = new StatisticsOp();
-        final StatisticsOp.BandConfiguration bandConfiguration = new StatisticsOp.BandConfiguration();
+        final BandConfiguration bandConfiguration = new BandConfiguration();
         bandConfiguration.sourceBandName = "algal_2";
-        statisticsOp.bandConfigurations = new StatisticsOp.BandConfiguration[]{bandConfiguration};
+        statisticsOp.bandConfigurations = new BandConfiguration[]{bandConfiguration};
         statisticsOp.sourceProducts = new Product[]{TestUtil.getTestProduct()};
         statisticsOp.shapefile = new File(getClass().getResource("4_pixels.shp").getFile());
         statisticsOp.doOutputAsciiFile = false;
@@ -101,9 +101,9 @@ public class StatisticsOpTest {
     @Test
     public void testStatisticsOp_WithPrecisePercentiles() throws Exception {
         final StatisticsOp statisticsOp = new StatisticsOp();
-        final StatisticsOp.BandConfiguration bandConfiguration = new StatisticsOp.BandConfiguration();
+        final BandConfiguration bandConfiguration = new BandConfiguration();
         bandConfiguration.sourceBandName = "algal_2";
-        statisticsOp.bandConfigurations = new StatisticsOp.BandConfiguration[]{bandConfiguration};
+        statisticsOp.bandConfigurations = new BandConfiguration[]{bandConfiguration};
         statisticsOp.sourceProducts = new Product[]{TestUtil.getTestProduct()};
         statisticsOp.shapefile = new File(getClass().getResource("4_pixels.shp").getFile());
         statisticsOp.doOutputAsciiFile = false;
@@ -130,9 +130,9 @@ public class StatisticsOpTest {
     @Test
     public void testStatisticsOp_WithExpression() throws Exception {
         final StatisticsOp statisticsOp = new StatisticsOp();
-        final StatisticsOp.BandConfiguration bandConfiguration = new StatisticsOp.BandConfiguration();
+        final BandConfiguration bandConfiguration = new BandConfiguration();
         bandConfiguration.expression = "algal_2 * PI";
-        statisticsOp.bandConfigurations = new StatisticsOp.BandConfiguration[]{bandConfiguration};
+        statisticsOp.bandConfigurations = new BandConfiguration[]{bandConfiguration};
         statisticsOp.sourceProducts = new Product[]{TestUtil.getTestProduct()};
         statisticsOp.shapefile = new File(getClass().getResource("4_pixels.shp").getFile());
         statisticsOp.doOutputAsciiFile = false;
@@ -158,10 +158,10 @@ public class StatisticsOpTest {
     @Test
     public void testStatisticsOp_WithValidExpression() throws Exception {
         final StatisticsOp statisticsOp = new StatisticsOp();
-        final StatisticsOp.BandConfiguration bandConfiguration = new StatisticsOp.BandConfiguration();
+        final BandConfiguration bandConfiguration = new BandConfiguration();
         bandConfiguration.sourceBandName = "algal_2";
         bandConfiguration.validPixelExpression = "algal_2 > 0.7";
-        statisticsOp.bandConfigurations = new StatisticsOp.BandConfiguration[]{bandConfiguration};
+        statisticsOp.bandConfigurations = new BandConfiguration[]{bandConfiguration};
         statisticsOp.sourceProducts = new Product[]{TestUtil.getTestProduct()};
         statisticsOp.shapefile = new File(getClass().getResource("4_pixels.shp").getFile());
         statisticsOp.doOutputAsciiFile = false;
@@ -186,7 +186,7 @@ public class StatisticsOpTest {
 
     @Test
     public void testGetBand() throws Exception {
-        final StatisticsOp.BandConfiguration configuration = new StatisticsOp.BandConfiguration();
+        final BandConfiguration configuration = new BandConfiguration();
         final Product testProduct = TestUtil.getTestProduct();
 
         configuration.expression = "algal_2 * PI";
@@ -199,7 +199,7 @@ public class StatisticsOpTest {
 
     @Test
     public void testStatisticsOp_WithGPF() throws Exception {
-        final StatisticsOp.BandConfiguration bandConfiguration_1 = new StatisticsOp.BandConfiguration();
+        final BandConfiguration bandConfiguration_1 = new BandConfiguration();
         bandConfiguration_1.sourceBandName = "algal_2";
 
         final HashMap<String, Object> parameters = new HashMap<String, Object>();
@@ -208,7 +208,7 @@ public class StatisticsOpTest {
         parameters.put("doOutputAsciiFile", true);
         parameters.put("doOutputShapefile", true);
         parameters.put("shapefile", new File(getClass().getResource("4_pixels.shp").toURI()));
-        parameters.put("bandConfigurations", new StatisticsOp.BandConfiguration[]{
+        parameters.put("bandConfigurations", new BandConfiguration[]{
                 bandConfiguration_1,
         });
         GPF.createProduct("StatisticsOp", parameters, TestUtil.getTestProduct());
@@ -222,9 +222,9 @@ public class StatisticsOpTest {
     @Test
     public void testStatisticsOp_WithDifferentPercentiles() throws Exception {
         final StatisticsOp statisticsOp = new StatisticsOp();
-        final StatisticsOp.BandConfiguration bandConfiguration = new StatisticsOp.BandConfiguration();
+        final BandConfiguration bandConfiguration = new BandConfiguration();
         bandConfiguration.sourceBandName = "algal_2";
-        statisticsOp.bandConfigurations = new StatisticsOp.BandConfiguration[]{bandConfiguration};
+        statisticsOp.bandConfigurations = new BandConfiguration[]{bandConfiguration};
         statisticsOp.sourceProducts = new Product[]{TestUtil.getTestProduct()};
         statisticsOp.shapefile = new File(getClass().getResource("4_pixels.shp").getFile());
         statisticsOp.doOutputAsciiFile = false;

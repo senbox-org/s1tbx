@@ -25,6 +25,7 @@ public class ProductLoopTest {
     private ProductData.UTC _endDate;
     private Product _validProductMock1;
     private Product _validProductMock2;
+    private ProductValidator _validatorMock;
 
     @Before
     public void setUp() throws Exception {
@@ -35,7 +36,9 @@ public class ProductLoopTest {
         _endDate = ProductData.UTC.parse("15-SEP-2008 00:00:00");
         _validProductMock1 = createTimeValidProductMock(4, 3);
         _validProductMock2 = createTimeValidProductMock(7, 2);
-        _productLoop = new ProductLoop(_productLoaderMock, _statisticComputerMock, _startDate, _endDate, _loggerMock);
+        _validatorMock = mock(ProductValidator.class);
+        when(_validatorMock.isValid(any(Product.class))).thenReturn(true);
+        _productLoop = new ProductLoop(_productLoaderMock, _validatorMock, _statisticComputerMock, _startDate, _endDate, _loggerMock);
     }
 
     @Test
@@ -152,14 +155,13 @@ public class ProductLoopTest {
         final Product productMockBefore = createProductMock(4, 2, true, false);
         final Product productMockAfter = createProductMock(4, 2, false, true);
         final Product[] alreadyLoadedProducts = {productMockBefore, productMockAfter, _validProductMock1};
+        when(_validatorMock.isValid(productMockBefore)).thenReturn(false);
+        when(_validatorMock.isValid(productMockAfter)).thenReturn(false);
 
         //execution
         _productLoop.loop(alreadyLoadedProducts, new File[0]);
 
         //verification
-        final InOrder inOrder = inOrder(_loggerMock);
-        inOrder.verify(_loggerMock).info("Product skipped. The product 'mock_loc_before_4_2' is not inside the date range from: 22-MAR-2008 00:00:00.000000 to: 15-SEP-2008 00:00:00.000000");
-        inOrder.verify(_loggerMock).info("Product skipped. The product 'mock_loc_after_4_2' is not inside the date range from: 22-MAR-2008 00:00:00.000000 to: 15-SEP-2008 00:00:00.000000");
         verify(_statisticComputerMock).computeStatistic(_validProductMock1);
         verifyNoMoreInteractions(_statisticComputerMock);
         verify(productMockBefore, never()).dispose();
@@ -180,14 +182,13 @@ public class ProductLoopTest {
         when(_productLoaderMock.loadProduct(file3)).thenReturn(_validProductMock1);
         final Product[] alreadyLoadedProducts = {};
         final File[] productFilesToLoad = new File[]{file1, file2, file3};
+        when(_validatorMock.isValid(productMockBefore)).thenReturn(false);
+        when(_validatorMock.isValid(productMockAfter)).thenReturn(false);
 
         //execution
         _productLoop.loop(alreadyLoadedProducts, productFilesToLoad);
 
         //verification
-        final InOrder inOrder = inOrder(_loggerMock);
-        inOrder.verify(_loggerMock).info("Product skipped. The product 'mock_loc_before_4_2' is not inside the date range from: 22-MAR-2008 00:00:00.000000 to: 15-SEP-2008 00:00:00.000000");
-        inOrder.verify(_loggerMock).info("Product skipped. The product 'mock_loc_after_4_2' is not inside the date range from: 22-MAR-2008 00:00:00.000000 to: 15-SEP-2008 00:00:00.000000");
         verify(_statisticComputerMock).computeStatistic(_validProductMock1);
         verifyNoMoreInteractions(_statisticComputerMock);
         verify(productMockBefore, times(1)).dispose();

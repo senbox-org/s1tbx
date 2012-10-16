@@ -86,8 +86,8 @@ public class StatisticsOpTest_ValidateInputTest {
 
     @Test
     public void testInvalidBandConfiguration() throws IOException {
-        final StatisticsOp.BandConfiguration configuration = new StatisticsOp.BandConfiguration();
-        statisticsOp.bandConfigurations = new StatisticsOp.BandConfiguration[]{configuration};
+        final BandConfiguration configuration = new BandConfiguration();
+        statisticsOp.bandConfigurations = new BandConfiguration[]{configuration};
 
         try {
             statisticsOp.validateInput();
@@ -108,8 +108,8 @@ public class StatisticsOpTest_ValidateInputTest {
 
     @Test
     public void testValidBandConfiguration() throws IOException {
-        final StatisticsOp.BandConfiguration configuration = new StatisticsOp.BandConfiguration();
-        statisticsOp.bandConfigurations = new StatisticsOp.BandConfiguration[]{configuration};
+        final BandConfiguration configuration = new BandConfiguration();
+        statisticsOp.bandConfigurations = new BandConfiguration[]{configuration};
 
         configuration.expression = "algal_2 * PI";
         statisticsOp.validateInput();
