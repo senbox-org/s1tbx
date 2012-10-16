@@ -248,13 +248,14 @@ public class NetCDFUtils {
         addAttributes(parentElem, parentGroup);
     }
 
-    public static void addAttributes(final MetadataElement parentElem, final String elemName, 
+    public static MetadataElement addAttributes(final MetadataElement parentElem, final String elemName,
                                            final List<Attribute> attribList) {
         final MetadataElement globalElem = new MetadataElement(elemName);
         parentElem.addElement(globalElem);
         for(Attribute at : attribList) {
             createMetadataAttributes(globalElem, at, at.getName());
         }
+        return globalElem;
     }
 
     private static void addAttributes(final MetadataElement parentElem, final Group parentGroup) {
