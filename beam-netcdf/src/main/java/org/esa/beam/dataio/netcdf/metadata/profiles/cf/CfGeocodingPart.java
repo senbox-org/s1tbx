@@ -74,7 +74,10 @@ public class CfGeocodingPart extends ProfilePartIO {
             final int w = product.getSceneRasterWidth();
             final int h = product.getSceneRasterHeight();
             final GeoPos br = geoCoding.getGeoPos(new PixelPos(w - 0.5f, h - 0.5f), null);
-            addGeographicCoordinateVariables(ncFile, ul, br);
+            final boolean latLonPresent = isLatLonPresent(ncFile);
+            if (!latLonPresent) {
+                addGeographicCoordinateVariables(ncFile, ul, br);
+            }
         } else {
             final boolean latLonPresent = isLatLonPresent(ncFile);
             if (!latLonPresent) {
@@ -140,7 +143,7 @@ public class CfGeocodingPart extends ProfilePartIO {
 
     static boolean isGeographicCRS(final GeoCoding geoCoding) {
         return (geoCoding instanceof CrsGeoCoding || geoCoding instanceof MapGeoCoding) &&
-               CRS.equalsIgnoreMetadata(geoCoding.getMapCRS(), DefaultGeographicCRS.WGS84);
+                CRS.equalsIgnoreMetadata(geoCoding.getMapCRS(), DefaultGeographicCRS.WGS84);
     }
 
     private void addGeographicCoordinateVariables(NFileWriteable ncFile, GeoPos ul, GeoPos br) throws IOException {

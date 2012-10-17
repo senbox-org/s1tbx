@@ -28,4 +28,11 @@ public class DimKeyTest {
         assertFalse(dimKey1.hashCode() == dimKey2.hashCode());
     }
 
+    @Test
+    public void testGetDimensionX() throws Exception {
+        final Dimension yDim = new Dimension("y", 256);
+        final Dimension xDim = new Dimension("x", 512);
+
+        assertSame(xDim, new DimKey(yDim, xDim).getDimensionX());
+    }
 }

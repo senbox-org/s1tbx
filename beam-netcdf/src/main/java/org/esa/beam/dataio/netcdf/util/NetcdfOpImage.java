@@ -25,8 +25,7 @@ import ucar.ma2.Section;
 import ucar.nc2.Variable;
 
 import javax.media.jai.PlanarImage;
-import java.awt.Dimension;
-import java.awt.Rectangle;
+import java.awt.*;
 import java.awt.image.RenderedImage;
 import java.awt.image.WritableRaster;
 import java.io.IOException;
@@ -110,14 +109,18 @@ public class NetcdfOpImage extends SingleBandedOpImage {
             origin[i] = 0;
             stride[i] = 1;
         }
-        final int xIndex = rank - 1;
-        final int yIndex = rank - 2;
+
+        DimKey rasterDim = new DimKey(variable.getDimensions().toArray(new ucar.nc2.Dimension[variable.getDimensions().size()]));
+        final int xIndex = rasterDim.findXDimensionIndex();
+        final int yIndex = rasterDim.findYDimensionIndex();
 
         shape[yIndex] = sourceRect.height;
         shape[xIndex] = sourceRect.width;
 
         if (imageOrigin.length >= 0) {
-            System.arraycopy(imageOrigin, 0, origin, 0, imageOrigin.length);
+            final int startIndexToCopy = DimKey.findStartIndexOfBandVariables(variable.getDimensions());
+            // todo: we need something for weird position of lat/lon in nc variables (e.g. bands data1, data2, lat, data3, lon, data4)
+            System.arraycopy(imageOrigin, 0, origin, startIndexToCopy, imageOrigin.length);
         }
         origin[yIndex] = flipY ? sourceHeight - sourceRect.y - sourceRect.height : sourceRect.y;
         origin[xIndex] = sourceRect.x;
@@ -126,7 +129,7 @@ public class NetcdfOpImage extends SingleBandedOpImage {
         stride[yIndex] = (int) scale;
         stride[xIndex] = (int) scale;
 
-        final Array array;
+        Array array;
         synchronized (readLock) {
             try {
                 final Section section = new Section(origin, shape, stride);
@@ -137,6 +140,12 @@ public class NetcdfOpImage extends SingleBandedOpImage {
                 throw new IllegalArgumentException(e);
             }
         }
+        if (xIndex < yIndex) {
+            array = array.transpose(xIndex, yIndex);
+//          array = array.permute(new int[]{yIndex, xIndex, 2, 3});
+        }
+        // todo: consider weird position of lat/lon in nc variables (e.g. bands data1, data2, lat, data3, lon, data4), see above
+
         final Array convertedArray = arrayConverter.convert(array);
         if (flipY) {
             tile.setDataElements(destRect.x, destRect.y,
@@ -145,7 +154,7 @@ public class NetcdfOpImage extends SingleBandedOpImage {
         } else {
             tile.setDataElements(destRect.x, destRect.y,
                                  destRect.width, destRect.height,
-                                 convertedArray.getStorage());
+                                 convertedArray.copyTo1DJavaArray());
         }
     }
 

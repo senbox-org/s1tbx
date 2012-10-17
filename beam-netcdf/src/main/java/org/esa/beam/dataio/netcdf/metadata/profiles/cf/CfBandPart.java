@@ -20,10 +20,7 @@ import org.esa.beam.dataio.netcdf.ProfileWriteContext;
 import org.esa.beam.dataio.netcdf.metadata.ProfilePartIO;
 import org.esa.beam.dataio.netcdf.nc.NFileWriteable;
 import org.esa.beam.dataio.netcdf.nc.NVariable;
-import org.esa.beam.dataio.netcdf.util.Constants;
-import org.esa.beam.dataio.netcdf.util.DataTypeUtils;
-import org.esa.beam.dataio.netcdf.util.NetcdfMultiLevelImage;
-import org.esa.beam.dataio.netcdf.util.ReaderUtils;
+import org.esa.beam.dataio.netcdf.util.*;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.DataNode;
 import org.esa.beam.framework.datamodel.FlagCoding;
@@ -57,13 +54,14 @@ public class CfBandPart extends ProfilePartIO {
                 addBand(ctx, p, variable, new int[]{}, bandBasename);
             } else {
                 final int[] sizeArray = new int[rank - 2];
-                System.arraycopy(variable.getShape(), 0, sizeArray, 0, sizeArray.length);
+                final int startIndexToCopy = DimKey.findStartIndexOfBandVariables(dimensions);
+                System.arraycopy(variable.getShape(), startIndexToCopy, sizeArray, 0, sizeArray.length);
                 ForLoop.execute(sizeArray, new ForLoop.Body() {
                     @Override
                     public void execute(int[] indexes, int[] sizes) {
                         final StringBuilder bandNameBuilder = new StringBuilder(bandBasename);
                         for (int i = 0; i < sizes.length; i++) {
-                            final Dimension zDim = dimensions.get(i);
+                            final Dimension zDim = dimensions.get(i + startIndexToCopy);
                             String zName = zDim.getName();
                             final String skipPrefix = "n_";
                             if (zName.toLowerCase().startsWith(skipPrefix)

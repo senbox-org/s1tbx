@@ -20,6 +20,8 @@ import com.bc.ceres.core.Assert;
 import ucar.nc2.Dimension;
 import ucar.nc2.Variable;
 
+import java.util.List;
+
 /**
  * Wraps a NetCDF dimension array so that it can be used as key.
  *
@@ -28,7 +30,12 @@ import ucar.nc2.Variable;
  */
 public class DimKey {
 
+    private static final String[] typicalXDimNames = new String[]{"lon", "long", "longitude", "ni", "NX", "SX", "x",};
+    private static final String[] typicalYDimNames = new String[]{"lat", "lat", "latitude", "nj", "NY", "SY", "y",};
+
     private final Dimension[] dims;
+    private final int xDimIndex;
+    private final int yDimIndex;
 
     public DimKey(Dimension... dims) {
         Assert.argument(dims.length >= 1, "dims.length >= 1");
@@ -36,6 +43,54 @@ public class DimKey {
             Assert.notNull(dim, "dim");
         }
         this.dims = dims;
+        xDimIndex = findXDimensionIndex();
+        yDimIndex = findYDimensionIndex();
+    }
+
+    public int findXDimensionIndex() {
+        for (int i = 0; i < dims.length; i++) {
+            final String dimName = dims[i].getName();
+            if (dimName != null) {
+                for (String typicalXDimName : typicalXDimNames) {
+                    if (dimName.equalsIgnoreCase(typicalXDimName)) {
+                        return i;
+                    }
+                }
+            }
+        }
+        // fallback rank-1
+        return getRank() - 1;
+    }
+
+    public int findYDimensionIndex() {
+        for (int i = 0; i < dims.length; i++) {
+            final String dimName = dims[i].getName();
+            if (dimName != null) {
+                for (String typicalYDimName : typicalYDimNames) {
+                    if (dims[i].getName().equalsIgnoreCase(typicalYDimName)) {
+                        return i;
+                    }
+                }
+            }
+        }
+        // fallback rank-2
+        return getRank() - 2;
+    }
+
+    public static int findStartIndexOfBandVariables(List<Dimension> dimensions) {
+        final DimKey rasterDim = new DimKey(dimensions.toArray(new Dimension[dimensions.size()]));
+        final int xIndex = rasterDim.findXDimensionIndex();
+        final int yIndex = rasterDim.findYDimensionIndex();
+        if (xIndex == 0 || yIndex == 0) {
+            // return 2 if lat/lon bands are first two variables
+            return 2;
+        } else if (xIndex == dimensions.size()-1 || yIndex == dimensions.size()-1) {
+            // return 0 if lat/lon bands are last two variables or if no lat/lon bands are found
+            return 0;
+        } else {
+            // todo: find something clever if lat/lon bands are any two variables (e.g. bands data1, data2, lat, data3, lon, data4)
+            return -1;
+        }
     }
 
     public int getRank() {
@@ -43,11 +98,11 @@ public class DimKey {
     }
 
     public Dimension getDimensionX() {
-        return getDimension(getRank() - 1);
+        return getDimension(xDimIndex);
     }
 
     public Dimension getDimensionY() {
-        return getDimension(getRank() - 2);
+        return getDimension(yDimIndex);
     }
 
     public Dimension getDimension(int index) {
@@ -55,13 +110,11 @@ public class DimKey {
     }
 
     public boolean isTypicalRasterDim() {
-        return matchesXYDimNames("lon", "lat") ||
-                matchesXYDimNames("long", "lat") ||
-                matchesXYDimNames("longitude", "latitude") ||
-                matchesXYDimNames("ni", "nj") ||
-                matchesXYDimNames("NX", "NY") ||
-                matchesXYDimNames("SX", "SY") ||
-                matchesXYDimNames("x", "y");
+        boolean isTypicalRasterDim = false;
+        for (int i = 0; i < typicalXDimNames.length; i++) {
+            isTypicalRasterDim = isTypicalRasterDim || matchesXYDimNames(typicalXDimNames[i], typicalXDimNames[i]);
+        }
+        return isTypicalRasterDim;
     }
 
     // Move to GeocodingUtils
