@@ -56,7 +56,10 @@ class AddCsvFileAction extends AbstractAction {
                     tableModel.addPlacemark(placemark);
                 }
             } catch (IOException exception) {
-                appContext.handleError(String.format("Error occurred while reading file: %s", selectedFile), exception);
+                appContext.handleError(String.format("Error occurred while reading file: %s \n" +
+                                                             exception.getLocalizedMessage() +
+                                                             "\nPossible reason: Other char separator than tabulator used",
+                                                     selectedFile), exception);
             }
         }
     }
