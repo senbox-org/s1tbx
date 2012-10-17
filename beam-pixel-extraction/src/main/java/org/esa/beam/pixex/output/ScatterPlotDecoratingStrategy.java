@@ -20,6 +20,7 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.measurement.Measurement;
 import org.esa.beam.measurement.writer.FormatStrategy;
 import org.esa.beam.pixex.PixExOp;
+import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.logging.BeamLogManager;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartUtilities;
@@ -147,16 +148,34 @@ public class ScatterPlotDecoratingStrategy implements FormatStrategy {
             Measurement originalMeasurement = MatchupFormatStrategy.findMatchingMeasurement(measurement,
                                                                                             originalMeasurements);
             final String[] originalAttributeNames = originalMeasurement.getOriginalAttributeNames();
-            Object originalValue = null;
+            String originalValue = "";
             for (int i = 0; i < originalAttributeNames.length; i++) {
                 final String attributeName = originalAttributeNames[i];
                 if (attributeName.equals(variableCombination.originalVariableName)) {
-                    originalValue = originalMeasurement.getValues()[i];
+                    originalValue = originalMeasurement.getValues()[i].toString();
                     break;
                 }
             }
             Object value = getValue(variableCombination.productVariableName, measurement);
-            data.add((Number) originalValue, (Number) value);
+            data.add(getOriginalMeasurementAsNumber(originalValue), (Number) value);
+        }
+    }
+
+    private Number getOriginalMeasurementAsNumber(String value) {
+        if (StringUtils.isNumeric(value, Integer.class)) {
+            return Integer.parseInt(value);
+        } else if (StringUtils.isNumeric(value, Double.class)) {
+            return Double.parseDouble(value);
+        } else if (StringUtils.isNumeric(value, Byte.class)) {
+            return Byte.parseByte(value);
+        } else if (StringUtils.isNumeric(value, Float.class)) {
+            return Float.parseFloat(value);
+        } else if (StringUtils.isNumeric(value, Long.class)) {
+            return Long.parseLong(value);
+        } else if (StringUtils.isNumeric(value, Short.class)) {
+            return Short.parseShort(value);
+        } else {
+            return Double.NaN;
         }
     }
 
