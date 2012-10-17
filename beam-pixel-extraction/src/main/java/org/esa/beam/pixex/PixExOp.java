@@ -684,6 +684,9 @@ public class PixExOp extends Operator implements Output {
             return coordinatesFound;
         }
 
+        ProductData.UTC[] oldTimeStamps = new ProductData.UTC[2];
+        oldTimeStamps[0] = product.getStartTime();
+        oldTimeStamps[1] = product.getEndTime();
         try {
             File file = product.getFileLocation();
             if (extractTimeFromFilename && file != null) {
@@ -737,6 +740,8 @@ public class PixExOp extends Operator implements Output {
             }
         } finally {
             validMaskImage.dispose();
+            product.setStartTime(oldTimeStamps[0]);
+            product.setEndTime(oldTimeStamps[1]);
         }
         return coordinatesFound;
     }
