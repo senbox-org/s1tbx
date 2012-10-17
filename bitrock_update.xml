@@ -1,8 +1,9 @@
 <project>
     <shortName>NEST</shortName>
     <fullName>NEST</fullName>
-    <version>5.0.0</version>
+    <version>5.0.1</version>
     <installerFilename></installerFilename>
+	<installationType>upgrade</installationType>
     <licenseFile>LICENSE.txt</licenseFile>
     <splashImage>nest-src/main/bin/common/res/nest_splash.png</splashImage>
     <componentList>
@@ -503,7 +504,7 @@ version_id = ${version}
 update_download_location = ${system_temp_directory}
 check_for_updates = 1
 </text>
-       </writeFile>
+        </writeFile>
     </postInstallationActionList>
     <postUninstallationActionList>
         <runConsoleProgram>
