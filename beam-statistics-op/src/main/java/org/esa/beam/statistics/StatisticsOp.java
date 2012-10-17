@@ -19,7 +19,6 @@ package org.esa.beam.statistics;
 import com.bc.ceres.binding.ConversionException;
 import com.bc.ceres.binding.Converter;
 import com.bc.ceres.core.ProgressMonitor;
-import java.util.Arrays;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.HistogramStxOp;
 import org.esa.beam.framework.datamodel.Mask;
@@ -64,6 +63,7 @@ import java.net.MalformedURLException;
 import java.text.MessageFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -129,16 +129,21 @@ public class StatisticsOp extends Operator implements Output {
     BandConfiguration[] bandConfigurations;
 
     @Parameter(description = "Determines if a copy of the input shapefile shall be created and augmented with the " +
-            "statistical data.")
+            "statistical data. Additionally, a band mapping file will be created which contains information" +
+            "about the meaning of the fields in the shapefile.", defaultValue = "false")
     boolean doOutputShapefile;
 
-    @Parameter(description = "The target file for shapefile output.")
+    @Parameter(description = "The target file for shapefile output. It must only be provided when doOutputShapefile " +
+            "is true. The band mapping file will have the suffix _band_mapping.txt.", notNull = false)
     File outputShapefile;
 
-    @Parameter(description = "Determines if the output shall be written into an ASCII file.")
+    @Parameter(description = "Determines if the output shall be written into an ASCII file." +
+            "This will also cause a metadata file to be written.", defaultValue = "false")
     boolean doOutputAsciiFile;
 
-    @Parameter(description = "The target file for ASCII output.")
+    @Parameter(description = "The target file for ASCII output." +
+            "The metadata file will have the suffix _metadata.txt" +
+            "Must only be provided when doOutputAsciiFile is true", notNull = false)
     File outputAsciiFile;
 
     @Parameter(description = "The percentile levels that shall be created. Must be in the interval [0..100]",
@@ -169,7 +174,7 @@ public class StatisticsOp extends Operator implements Output {
         final StatisticComputer statisticComputer = new StatisticComputer(shapefile, bandConfigurations, computeBinCount(precision));
 
         final ProductValidator productValidator = new ProductValidator(Arrays.asList(bandConfigurations), startDate, endDate, getLogger());
-        final ProductLoop productLoop = new ProductLoop(new ProductLoader(),productValidator,  statisticComputer, startDate, endDate, getLogger());
+        final ProductLoop productLoop = new ProductLoop(new ProductLoader(), productValidator, statisticComputer, startDate, endDate, getLogger());
         productLoop.loop(sourceProducts, getProductsToLoad());
 
         if (startDate == null) {
