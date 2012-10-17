@@ -3,16 +3,6 @@ package org.esa.beam.statistics;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
 import com.bc.ceres.glevel.MultiLevelImage;
-import java.awt.Shape;
-import java.awt.image.DataBuffer;
-import java.io.File;
-import java.io.IOException;
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import javax.media.jai.Histogram;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.HistogramStxOp;
 import org.esa.beam.framework.datamodel.Mask;
@@ -32,6 +22,17 @@ import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
+
+import javax.media.jai.Histogram;
+import java.awt.Shape;
+import java.awt.image.DataBuffer;
+import java.io.File;
+import java.io.IOException;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class StatisticComputer {
 
@@ -130,12 +131,17 @@ public class StatisticComputer {
     }
 
     static Band getBand(BandConfiguration configuration, Product product) {
-        final Band band;
+        Band band = null;
         if (configuration.sourceBandName != null) {
             band = product.getBand(configuration.sourceBandName);
             band.setNoDataValueUsed(true);
         } else {
-            band = product.addBand(configuration.expression.replace(" ", "_"), configuration.expression,
+            final String newBandName = configuration.expression.replace(" ", "_");
+            if (product.containsBand(newBandName)) {
+                throw new OperatorException(MessageFormat.format("Band ''{0}'' already exists in product ''{1}''.",
+                                                                 newBandName, product.getName()));
+            }
+            band = product.addBand(newBandName, configuration.expression,
                                    ProductData.TYPE_FLOAT64);
         }
         if (band == null) {
@@ -248,10 +254,10 @@ public class StatisticComputer {
                 if (count == 0) {
                     continue;
                 }
-                final double binCenterValue = oldMin + oldBinWidth * i + oldBinWidth / 2 ;
+                final double binCenterValue = oldMin + oldBinWidth * i + oldBinWidth / 2;
                 int newBinIndex = (int) Math.floor((binCenterValue - newMin) / newBinWidth);
                 if (newBinIndex >= newNumBins) {
-                    newBinIndex = newNumBins -1;
+                    newBinIndex = newNumBins - 1;
                 }
                 newBins[newBinIndex] += count;
             }
@@ -260,7 +266,7 @@ public class StatisticComputer {
         private void migrateOldHistogramData(Histogram oldHistogram, Histogram newHistogram, int startOffset, int binRatio) {
             final int[] oldBins = oldHistogram.getBins(0);
             final int[] newBins = newHistogram.getBins(0);
-            final int newMaxIndex = newBins.length -1;
+            final int newMaxIndex = newBins.length - 1;
             for (int i = 0; i < oldBins.length; i++) {
                 int newBinsIndex = (startOffset + i) / binRatio;
                 if (newBinsIndex > newMaxIndex) {

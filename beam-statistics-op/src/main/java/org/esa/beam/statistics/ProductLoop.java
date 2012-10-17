@@ -1,13 +1,14 @@
 package org.esa.beam.statistics;
 
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.gpf.OperatorException;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.gpf.OperatorException;
 
 public class ProductLoop {
 
@@ -78,10 +79,14 @@ public class ProductLoop {
         if (product == null || !productValidator.isValid(product)) {
             return;
         }
-        statisticComputer.computeStatistic(product);
-        productNames.add(product.getName());
-        System.out.println(productNames.size() + " computed");
-        System.out.println("   current product: " + product.getFileLocation().getAbsolutePath());
+        try {
+            statisticComputer.computeStatistic(product);
+            productNames.add(product.getName());
+            System.out.println(productNames.size() + " computed");
+            System.out.println("   current product: " + product.getFileLocation().getAbsolutePath());
+        } catch (OperatorException e) {
+            logger.severe(e.getMessage());
+        }
     }
 
     private boolean isInDateRange(Product product) {
@@ -91,7 +96,7 @@ public class ProductLoop {
             return true;
         }
         return startDate.getAsDate().getTime() <= startTime.getAsDate().getTime()
-               && endDate.getAsDate().getTime() >= endTime.getAsDate().getTime();
+                && endDate.getAsDate().getTime() >= endTime.getAsDate().getTime();
     }
 
     private void logReadProductError(File productFile) {
