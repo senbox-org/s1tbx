@@ -25,10 +25,12 @@ import ucar.ma2.Section;
 import ucar.nc2.Variable;
 
 import javax.media.jai.PlanarImage;
-import java.awt.*;
+import java.awt.Dimension;
+import java.awt.Rectangle;
 import java.awt.image.RenderedImage;
 import java.awt.image.WritableRaster;
 import java.io.IOException;
+import java.util.List;
 
 /**
  * An image that renders the data of a netcdf variable. Using the
@@ -42,6 +44,10 @@ public class NetcdfOpImage extends SingleBandedOpImage {
     private final int[] imageOrigin;
     private final Object readLock;
     private final ArrayConverter arrayConverter;
+    private final int xIndex;
+    private final int yIndex;
+    private final int startIndexToCopy;
+
 
     public static RenderedImage createLsbImage(Variable variable, int[] imageOrigin, boolean flipY,
                                                Object readLock, int dataBufferType,
@@ -89,6 +95,12 @@ public class NetcdfOpImage extends SingleBandedOpImage {
         this.flipY = flipY;
         this.sourceHeight = sourceHeight;
         this.arrayConverter = arrayConverter;
+
+        List<ucar.nc2.Dimension> variableDimensions = variable.getDimensions();
+        DimKey rasterDim = new DimKey(variableDimensions.toArray(new ucar.nc2.Dimension[variableDimensions.size()]));
+        xIndex = rasterDim.findXDimensionIndex();
+        yIndex = rasterDim.findYDimensionIndex();
+        startIndexToCopy = DimKey.findStartIndexOfBandVariables(variableDimensions);
     }
 
     @Override
@@ -110,15 +122,10 @@ public class NetcdfOpImage extends SingleBandedOpImage {
             stride[i] = 1;
         }
 
-        DimKey rasterDim = new DimKey(variable.getDimensions().toArray(new ucar.nc2.Dimension[variable.getDimensions().size()]));
-        final int xIndex = rasterDim.findXDimensionIndex();
-        final int yIndex = rasterDim.findYDimensionIndex();
-
         shape[yIndex] = sourceRect.height;
         shape[xIndex] = sourceRect.width;
 
         if (imageOrigin.length >= 0) {
-            final int startIndexToCopy = DimKey.findStartIndexOfBandVariables(variable.getDimensions());
             // todo: we need something for weird position of lat/lon in nc variables (e.g. bands data1, data2, lat, data3, lon, data4)
             System.arraycopy(imageOrigin, 0, origin, startIndexToCopy, imageOrigin.length);
         }
@@ -152,9 +159,15 @@ public class NetcdfOpImage extends SingleBandedOpImage {
                                  destRect.width, destRect.height,
                                  convertedArray.flip(yIndex).copyTo1DJavaArray());
         } else {
+            Object data;
+            if (xIndex < yIndex) {
+                data  = convertedArray.copyTo1DJavaArray();
+            } else {
+                data = convertedArray.getStorage();
+            }
             tile.setDataElements(destRect.x, destRect.y,
                                  destRect.width, destRect.height,
-                                 convertedArray.copyTo1DJavaArray());
+                                 data);
         }
     }
 
