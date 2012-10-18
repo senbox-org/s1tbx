@@ -461,8 +461,14 @@ public class StatisticsOp extends Operator implements Output {
                 throw new OperatorException("Configuration must contain either a source band name or an expression.");
             }
         }
+        if (doOutputAsciiFile && outputAsciiFile == null) {
+            throw new OperatorException("Parameter 'outputAsciiFile' must not be null when 'doOutputAsciiFile' is true.");
+        }
         if (outputAsciiFile != null && outputAsciiFile.isDirectory()) {
             throw new OperatorException("Parameter 'outputAsciiFile' must not point to a directory.");
+        }
+        if (doOutputShapefile && outputShapefile == null) {
+            throw new OperatorException("Parameter 'outputShapefile' must not be null when 'doOutputShapefile' is true.");
         }
         if (outputShapefile != null && outputShapefile.isDirectory()) {
             throw new OperatorException("Parameter 'outputShapefile' must not point to a directory.");
