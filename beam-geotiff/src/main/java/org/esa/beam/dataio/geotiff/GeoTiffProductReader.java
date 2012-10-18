@@ -320,8 +320,8 @@ public class GeoTiffProductReader extends AbstractProductReader {
         final int colorCount = colorModel.getMapSize();
         final ColorPaletteDef.Point[] points = new ColorPaletteDef.Point[colorCount];
         for (int j = 0; j < colorCount; j++) {
-            final String name = "I%3d";
-            indexCoding.addIndex(String.format(name, j), j, "");
+            final String name = String.format("I%3d", j);
+            indexCoding.addIndex(name, j, "");
             points[j] = new ColorPaletteDef.Point(j, new Color(colorModel.getRGB(j)), name);
         }
         product.getIndexCodingGroup().add(indexCoding);

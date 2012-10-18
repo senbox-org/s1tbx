@@ -17,7 +17,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-geotiff</symbolicName>
-    <version>1.2.1</version>
+    <version>1.2.2</version>
     <name>GeoTIFF Product Module</name>
     <description>A module for reading and writing GeoTIFF Data Products</description>
 
@@ -28,6 +28,8 @@
 
     <changelog>
         <![CDATA[
+        Changes in 1.2.1:<br/>
+        [BEAM-1446] Label of samples is wrong for index-coded bands<br>
         Changes in 1.2.1:<br/>
         Adapted to new Maven-architecture<br>
         Changes in 1.2:<br/>
