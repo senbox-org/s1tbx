@@ -1,5 +1,3 @@
-About NEST Version 4C
-
 The Next ESA SAR Toolbox (NEST) is a user friendly open source toolbox for reading, post-processing, analysing and visualising the large archive of data (from Level 1) from ESA SAR missions including ERS-1 & 2, ENVISAT and in the future Sentinel-1. In addition, NEST supports handling of products from third party missions including JERS-1, ALOS PALSAR, TerraSAR-X, Radarsat-2 and Cosmo-Skymed.
 
 NEST helps the remote sensing community by supporting the handling of various SAR products and complimenting existing software packages. NEST has been built using the BEAM Earth Observation Toolbox and Development Platform and it covers the functionality of the older Basic Envisat SAR Toolbox BEST. NEST is currently undergoing development with periodic new releases. The major new functionality in NEST over BEST is an integrated viewer and orthorectification and mosaicking of SAR images.
