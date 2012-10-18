@@ -1,15 +1,17 @@
 package org.esa.beam.statistics;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
-import org.junit.*;
+
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.*;
 
 public class ProductValidatorTest {
 
@@ -134,6 +136,26 @@ public class ProductValidatorTest {
         //verification
         assertEquals(false, valid);
         verify(_loggerMock).info("Product skipped. The product 'InvalidProduct' can not resolve the band arithmetic expression 'band_1 + 4'");
+        verifyNoMoreInteractions(_loggerMock);
+    }
+
+    @Test
+    public void testIsInvalid_IfProductAlreadyContainsBandWithExpressionName() {
+        //preparation
+        final BandConfiguration bandConfiguration = new BandConfiguration();
+        bandConfiguration.expression = "band_1 + 4";
+        _bandConfigurations.add(bandConfiguration);
+        final Product product = mock(Product.class);
+        when(product.isCompatibleBandArithmeticExpression("band_1 + 4")).thenReturn(true);
+        when(product.getName()).thenReturn("InvalidProduct");
+        when(product.containsBand("band_1_+_4")).thenReturn(true);
+
+        //execution
+        final boolean valid = _productValidator.isValid(product);
+
+        //verification
+        assertEquals(false, valid);
+        verify(_loggerMock).info("Product skipped. The product 'InvalidProduct' already contains a band 'band_1_+_4'");
         verifyNoMoreInteractions(_loggerMock);
     }
 

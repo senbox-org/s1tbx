@@ -1,9 +1,10 @@
 package org.esa.beam.statistics;
 
-import java.util.List;
-import java.util.logging.Logger;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
+
+import java.util.List;
+import java.util.logging.Logger;
 
 public class ProductValidator {
 
@@ -30,18 +31,27 @@ public class ProductValidator {
             if (bandName != null) {
                 if (!product.containsBand(bandName)) {
                     logger.info("Product skipped. The product '"
-                                + product.getName()
-                                + "' does not contain the band '" + bandName + "'"
+                                        + product.getName()
+                                        + "' does not contain the band '" + bandName + "'"
                     );
                     return false;
                 }
             } else {
                 if (!product.isCompatibleBandArithmeticExpression(expression)) {
                     logger.info("Product skipped. The product '"
-                                + product.getName()
-                                + "' can not resolve the band arithmetic expression '"+expression+ "'"
+                                        + product.getName()
+                                        + "' can not resolve the band arithmetic expression '" + expression + "'"
                     );
                     return false;
+                } else {
+                    final String replacedExpression = expression.replace(" ", "_");
+                    if (product.containsBand(replacedExpression)) {
+                        logger.info("Product skipped. The product '"
+                                            + product.getName()
+                                            + "' already contains a band '" + replacedExpression + "'"
+                        );
+                        return false;
+                    }
                 }
             }
         }
@@ -64,10 +74,10 @@ public class ProductValidator {
         final boolean valid = start_date <= start_time && end_date >= end_time;
         if (!valid) {
             logger.info("Product skipped. The product '"
-                        + product.getName()
-                        + "' is not inside the date range"
-                        + " from: " + startDate.format()
-                        + " to: " + endDate.format()
+                                + product.getName()
+                                + "' is not inside the date range"
+                                + " from: " + startDate.format()
+                                + " to: " + endDate.format()
             );
         }
         return valid;
