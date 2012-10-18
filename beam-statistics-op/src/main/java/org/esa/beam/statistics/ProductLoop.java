@@ -79,14 +79,10 @@ public class ProductLoop {
         if (product == null || !productValidator.isValid(product)) {
             return;
         }
-        try {
-            statisticComputer.computeStatistic(product);
-            productNames.add(product.getName());
-            System.out.println(productNames.size() + " computed");
-            System.out.println("   current product: " + product.getFileLocation().getAbsolutePath());
-        } catch (OperatorException e) {
-            logger.severe(e.getMessage());
-        }
+        statisticComputer.computeStatistic(product);
+        productNames.add(product.getName());
+        System.out.println(productNames.size() + " computed");
+        System.out.println("   current product: " + product.getFileLocation().getAbsolutePath());
     }
 
     private boolean isInDateRange(Product product) {

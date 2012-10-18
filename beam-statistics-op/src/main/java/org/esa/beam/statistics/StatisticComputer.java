@@ -131,17 +131,12 @@ public class StatisticComputer {
     }
 
     static Band getBand(BandConfiguration configuration, Product product) {
-        Band band = null;
+        final Band band;
         if (configuration.sourceBandName != null) {
             band = product.getBand(configuration.sourceBandName);
             band.setNoDataValueUsed(true);
         } else {
-            final String newBandName = configuration.expression.replace(" ", "_");
-            if (product.containsBand(newBandName)) {
-                throw new OperatorException(MessageFormat.format("Band ''{0}'' already exists in product ''{1}''.",
-                                                                 newBandName, product.getName()));
-            }
-            band = product.addBand(newBandName, configuration.expression,
+            band = product.addBand(configuration.expression.replace(" ", "_"), configuration.expression,
                                    ProductData.TYPE_FLOAT64);
         }
         if (band == null) {
