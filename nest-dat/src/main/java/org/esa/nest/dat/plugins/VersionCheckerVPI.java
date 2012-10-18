@@ -15,6 +15,7 @@
  */
 package org.esa.nest.dat.plugins;
 
+import com.bc.ceres.core.runtime.internal.Platform;
 import com.bc.ceres.swing.UriLabel;
 import org.esa.beam.framework.ui.command.CommandAdapter;
 import org.esa.beam.framework.ui.command.CommandEvent;
@@ -25,7 +26,6 @@ import org.esa.beam.util.VersionChecker;
 import org.esa.beam.visat.AbstractVisatPlugIn;
 import org.esa.beam.visat.VisatApp;
 import org.esa.nest.util.ResourceUtils;
-import org.esa.nest.util.Settings;
 import org.esa.nest.util.VersionUtil;
 
 import javax.swing.*;
@@ -153,7 +153,7 @@ public class VersionCheckerVPI extends AbstractVisatPlugIn {
             beamHomeLabel.setForeground(Color.BLUE.darker());
         }
         Object[] message = new Object[]{
-                "A new software version is available. "+remoteVersionStr+"\n" +
+                "A new software version is available. "+remoteVersionStr+'\n' +
                 "Would you like to update your software with the latest features and bug fixes?\n"
         };
         final int answer = JOptionPane.showConfirmDialog(VisatApp.getApp().getMainFrame(),
@@ -168,34 +168,44 @@ public class VersionCheckerVPI extends AbstractVisatPlugIn {
 
     private static void runAutoUpdate() {
         final File homeFolder = ResourceUtils.findHomeFolder();
+        final Platform platform = Platform.getCurrentPlatform();
+
+        String command;
         File autoUpdateExe;
-        if(Settings.isWindowsOS()) {
+        if(platform.getId() == Platform.ID.win) {
             autoUpdateExe = new File(homeFolder, "autoupdate-windows.exe");
+
+            final File program = new File(homeFolder, "bin"+File.separator+"exec1.bat");
+
+            final String arg = '\"' +autoUpdateExe.getParent()+"\" "+autoUpdateExe.getName();
+            command = program.getAbsolutePath() + ' ' + arg;
+        } else if(platform.getId() == Platform.ID.macosx) {
+            autoUpdateExe = new File(homeFolder, "autoupdate-osx.app");
+            command = autoUpdateExe.getAbsolutePath();
         } else {
-            autoUpdateExe = new File(homeFolder, "autoupdate-linux.bin");
+            if(platform.getBitCount() == 64) {
+                autoUpdateExe = new File(homeFolder, "autoupdate-linux-x64.run");
+            } else {
+                autoUpdateExe = new File(homeFolder, "autoupdate-linux.run");
+            }
+            command = autoUpdateExe.getAbsolutePath();
         }
         if(autoUpdateExe.exists()) {
             try {
                 String args = "";
-                externalExecute(autoUpdateExe, args);
+                externalExecute(command);
             } catch(Exception e) {
                 e.printStackTrace();
             }
         }
     }
 
-    private static void externalExecute(final File prog, final String args) {
-        final File homeFolder = ResourceUtils.findHomeFolder();
-        final File program = new File(homeFolder, "bin"+File.separator+"exec1.bat");
-
-        final String cmd = '\"' +prog.getParent()+"\" "+prog.getName()+args;
-
+    private static void externalExecute(final String command) {
         final Thread worker = new Thread() {
-
             @Override
             public void run() {
                 try {
-                    final Process proc = Runtime.getRuntime().exec(program.getAbsolutePath()+ ' ' +cmd);
+                    final Process proc = Runtime.getRuntime().exec(command);
 
                     outputTextBuffers(new BufferedReader(new InputStreamReader(proc.getInputStream())));
                     boolean hasErrors = outputTextBuffers(new BufferedReader(new InputStreamReader(proc.getErrorStream())));
