@@ -87,8 +87,8 @@
                     <windowsPath>${installdir}/</windowsPath>
                 </startMenuShortcut>
                 <startMenuShortcut>
-                    <comment>Next ESA SAR Toolbox</comment>
-                    <name>NEST</name>
+                    <comment>NEST Display and Anlaysis Tool</comment>
+                    <name>Next ESA SAR Toolbox</name>
                     <runAsAdmin>0</runAsAdmin>
                     <runInTerminal>0</runInTerminal>
                     <windowsExec>${installdir}/nest-dat64.exe</windowsExec>

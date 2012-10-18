@@ -257,8 +257,8 @@
                     <windowsPath>${installdir}/</windowsPath>
                 </startMenuShortcut>
                 <startMenuShortcut>
-                    <comment>Next ESA SAR Toolbox</comment>
-                    <name>NEST 4C</name>
+                    <comment>NEST Display and Anlaysis Tool</comment>
+                    <name>Next ESA SAR Toolbox</name>
                     <runAsAdmin>0</runAsAdmin>
                     <runInTerminal>0</runInTerminal>
                     <windowsExec>${installdir}/nest-dat.exe</windowsExec>
@@ -534,7 +534,7 @@ check_for_updates = 1
 	<installationType>upgrade</installationType>
     <outputDirectory>../../dist</outputDirectory>
     <saveRelativePaths>1</saveRelativePaths>
-    <startMenuGroupName>${product_fullname}-${product_version}</startMenuGroupName>
+    <startMenuGroupName>Next ESA SAR Toolbox</startMenuGroupName>
     <vendor>ESA</vendor>
     <parameterList>
         <directoryParameter>
