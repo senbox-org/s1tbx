@@ -61,6 +61,9 @@ public class PgxProductReaderPlugIn implements ProductReaderPlugIn {
     }
 
     private boolean canReadHeader(File file) {
+        if (!file.isFile() || file.length() == 0) {
+            return false;
+        }
         try {
             final FileImageInputStream stream = new FileImageInputStream(file);
             try {
