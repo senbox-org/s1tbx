@@ -125,7 +125,7 @@ public class StatisticsOp extends Operator implements Output {
     ProductData.UTC endDate;
 
     @Parameter(description = "The band configurations. These configurations determine the input of the operator.",
-               alias = "bandConfigurations", itemAlias = "bandConfiguration")
+               alias = "bandConfigurations", itemAlias = "bandConfiguration", notNull = true)
     BandConfiguration[] bandConfigurations;
 
     @Parameter(description = "Determines if a copy of the input shapefile shall be created and augmented with the " +
@@ -452,6 +452,9 @@ public class StatisticsOp extends Operator implements Output {
                 (sourceProductPaths == null || sourceProductPaths.length == 0)) {
             throw new OperatorException(
                     "Either source products must be given or parameter 'sourceProductPaths' must be specified");
+        }
+        if (bandConfigurations == null) {
+            throw new OperatorException("Parameter 'bandConfigurations' must be specified.");
         }
         for (BandConfiguration configuration : bandConfigurations) {
             if (configuration.sourceBandName == null && configuration.expression == null) {
