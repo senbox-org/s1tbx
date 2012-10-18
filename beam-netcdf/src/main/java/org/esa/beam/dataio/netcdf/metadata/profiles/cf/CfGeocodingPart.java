@@ -69,18 +69,15 @@ public class CfGeocodingPart extends ProfilePartIO {
         }
         geographicCRS = isGeographicCRS(geoCoding);
         final NFileWriteable ncFile = ctx.getNetcdfFileWriteable();
-        if (geographicCRS) {
-            final GeoPos ul = geoCoding.getGeoPos(new PixelPos(0.5f, 0.5f), null);
-            final int w = product.getSceneRasterWidth();
-            final int h = product.getSceneRasterHeight();
-            final GeoPos br = geoCoding.getGeoPos(new PixelPos(w - 0.5f, h - 0.5f), null);
-            final boolean latLonPresent = isLatLonPresent(ncFile);
-            if (!latLonPresent) {
+        final boolean latLonPresent = isLatLonPresent(ncFile);
+        if (!latLonPresent) {
+            if (geographicCRS) {
+                final GeoPos ul = geoCoding.getGeoPos(new PixelPos(0.5f, 0.5f), null);
+                final int w = product.getSceneRasterWidth();
+                final int h = product.getSceneRasterHeight();
+                final GeoPos br = geoCoding.getGeoPos(new PixelPos(w - 0.5f, h - 0.5f), null);
                 addGeographicCoordinateVariables(ncFile, ul, br);
-            }
-        } else {
-            final boolean latLonPresent = isLatLonPresent(ncFile);
-            if (!latLonPresent) {
+            } else {
                 addLatLonBands(ncFile, ImageManager.getPreferredTileSize(product));
             }
         }
