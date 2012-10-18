@@ -31,29 +31,29 @@ import java.util.List;
 
 public class ProductMetadataTable extends TreeTable {
 
-    public static final int ID_COL_INDEX = 0;
-    public static final int NAME_COL_INDEX = 1;
-    public static final int VALUE_COL_INDEX = 2;
-    public static final int TYPE_COL_INDEX = 3;
-    public static final int UNIT_COL_INDEX = 4;
-    public static final int DESCR_COL_INDEX = 5;
+    public static final int NAME_COL_INDEX = 0;
+    public static final int VALUE_COL_INDEX = 1;
+    public static final int TYPE_COL_INDEX = 2;
+    public static final int UNIT_COL_INDEX = 3;
+    public static final int DESCR_COL_INDEX = 4;
+    public static final int ID_COL_INDEX = 5;
 
     private static final String[] COLUMN_NAMES = {
-            "#",   // 0
-            "Name", // 1
-            "Value",// 2
-            "Type", // 3
-            "Unit", // 4
-            "Description" // 5
+            "Name", // 0
+            "Value", // 1
+            "Type", // 2
+            "Unit", // 3
+            "Description", // 4
+            "#"
     };
 
     private static final int[] COLUMN_WIDTHS = {
-            50, // 0
-            130,// 1
-            280,// 2
-            50, // 3
-            50, // 4
-            180 // 5
+            180, // 0
+            180, // 1
+            50, // 2
+            40, // 3
+            200,// 4
+            40  // 5
     };
 
     private static final int _DEFAULT_FONT_SIZE = 11;
@@ -71,8 +71,6 @@ public class ProductMetadataTable extends TreeTable {
         initFonts();
         setModel(new MDTableModel(rootElement));
         getTableHeader().setReorderingAllowed(false);
-        this.setShowGrid(true);
-        this.setShowHorizontalLines(true);
 
         //ElementRefCellRenderer renderer = new ElementRefCellRenderer();
         //renderer.setBorder(new EmptyBorder(2, 3, 2, 3));
@@ -80,10 +78,6 @@ public class ProductMetadataTable extends TreeTable {
         for (int i = 0; i < COLUMN_WIDTHS.length; i++) {
             TableColumn column = getColumnModel().getColumn(i);
             column.setPreferredWidth(COLUMN_WIDTHS[i]);
-            if(i==ID_COL_INDEX || i==TYPE_COL_INDEX || i==UNIT_COL_INDEX) {
-                column.setMaxWidth(COLUMN_WIDTHS[i]);
-                column.setMinWidth(COLUMN_WIDTHS[i]);
-            }
         }
     }
 
@@ -239,8 +233,8 @@ public class ProductMetadataTable extends TreeTable {
     }
 
     static class MDAttributeRow extends AbstractRow {
-        final MetadataAttribute attribute;
-        final int index;
+        MetadataAttribute attribute;
+        int index;
         final int id;
 
         MDAttributeRow(MetadataAttribute attribute, int index, int id) {

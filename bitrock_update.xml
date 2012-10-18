@@ -2,14 +2,13 @@
     <shortName>NEST</shortName>
     <fullName>NEST</fullName>
     <version>5.0.1</version>
-    <installerFilename></installerFilename>
-	<installationType>upgrade</installationType>
+    <installerFilename>${product_shortname}-${product_version}-${platform_name}-installer.${platform_exec_suffix}</installerFilename>
     <licenseFile>LICENSE.txt</licenseFile>
     <splashImage>nest-src/main/bin/common/res/nest_splash.png</splashImage>
     <componentList>
         <component>
-            <name>default</name>
-            <description>Default Component</description>
+            <name>NEST</name>
+            <description>Next ESA SAR Toolbox</description>
             <canBeEdited>1</canBeEdited>
             <selected>1</selected>
             <show>1</show>
@@ -18,7 +17,7 @@
                     <comment>NEST Display and Analysis Tool</comment>
                     <exec>${installdir}/dat.sh</exec>
                     <icon>${installdir}/res/dat.png</icon>
-                    <name>NEST 4C</name>
+                    <name>Next ESA SAR Toolbox</name>
                     <path>${installdir}</path>
                     <platforms>all</platforms>
                     <runAsAdmin>0</runAsAdmin>
@@ -530,8 +529,9 @@ check_for_updates = 1
         </deleteEnvironmentVariable>
     </postUninstallationActionList>
     <compressionAlgorithm>lzma</compressionAlgorithm>
-    <enableRollback>1</enableRollback>
+    <enableRollback>0</enableRollback>
     <enableTimestamp>1</enableTimestamp>
+	<installationType>upgrade</installationType>
     <outputDirectory>../../dist</outputDirectory>
     <saveRelativePaths>1</saveRelativePaths>
     <startMenuGroupName>${product_fullname}-${product_version}</startMenuGroupName>
@@ -542,7 +542,7 @@ check_for_updates = 1
             <description>Installer.Parameter.installdir.description</description>
             <explanation>Installer.Parameter.installdir.explanation</explanation>
             <value></value>
-            <default>${platform_install_prefix}/${product_shortname}${product_version}</default>
+            <default>${platform_install_prefix}/${product_shortname}</default>
             <allowEmptyValue>0</allowEmptyValue>
             <cliOptionName>prefix</cliOptionName>
             <mustBeWritable>yes</mustBeWritable>

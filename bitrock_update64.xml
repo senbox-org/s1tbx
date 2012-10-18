@@ -15,10 +15,10 @@
             <desktopShortcutList>
                 <shortcut>
                     <comment>NEST Display and Analysis Tool</comment>
-                    <exec> ${installdir}/dat.sh</exec>
-                    <icon> ${installdir}/res/dat.png</icon>
-                    <name>NEST</name>
-                    <path> ${installdir}</path>
+                    <exec>${installdir}/dat.sh</exec>
+                    <icon>${installdir}/res/dat.png</icon>
+                    <name>Next ESA SAR Toolbox</name>
+                    <path>${installdir}</path>
                     <platforms>all</platforms>
                     <runAsAdmin>0</runAsAdmin>
                     <runInTerminal>0</runInTerminal>
@@ -36,13 +36,7 @@
                     <platforms>all</platforms>
                     <distributionFileList>
                         <distributionDirectory>
-                            <origin>target/nest-5.0-bin-win64.dir/auxdata</origin>
-                        </distributionDirectory>
-                        <distributionDirectory>
                             <origin>target/nest-5.0-bin-win64.dir/bin</origin>
-                        </distributionDirectory>
-                        <distributionDirectory>
-                            <origin>target/nest-5.0-bin-win64.dir/commandline</origin>
                         </distributionDirectory>
                         <distributionDirectory>
                             <origin>target/nest-5.0-bin-win64.dir/config</origin>
@@ -51,19 +45,10 @@
                             <origin>target/nest-5.0-bin-win64.dir/graphs</origin>
                         </distributionDirectory>
                         <distributionDirectory>
-                            <origin>target/nest-5.0-bin-win64.dir/images</origin>
-                        </distributionDirectory>
-                        <distributionDirectory>
                             <origin>target/nest-5.0-bin-win64.dir/lib</origin>
                         </distributionDirectory>
                         <distributionDirectory>
-                            <origin>target/nest-5.0-bin-win64.dir/licenses</origin>
-                        </distributionDirectory>
-                        <distributionDirectory>
                             <origin>target/nest-5.0-bin-win64.dir/modules</origin>
-                        </distributionDirectory>
-                        <distributionDirectory>
-                            <origin>target/nest-5.0-bin-win64.dir/res</origin>
                         </distributionDirectory>
                     </distributionFileList>
                     <shortcutList>
@@ -88,74 +73,6 @@
                     <destination>${installdir}</destination>
                     <name>programfileswindows</name>
                     <platforms>windows</platforms>
-                    <distributionFileList>
-                        <distributionFile>
-                            <origin>target/nest-5.0-bin-win64.dir/cli.bat</origin>
-                        </distributionFile>
-                        <distributionFile>
-                            <origin>target/nest-5.0-bin-win64.dir/clib_jiio.dll</origin>
-                        </distributionFile>
-                        <distributionFile>
-                            <origin>target/nest-5.0-bin-win64.dir/clib_jiio_sse2.dll</origin>
-                        </distributionFile>
-                        <distributionFile>
-                            <origin>target/nest-5.0-bin-win64.dir/clib_jiio_util.dll</origin>
-                        </distributionFile>
-                        <distributionFile>
-                            <origin>target/nest-5.0-bin-win64.dir/dat.bat</origin>
-                        </distributionFile>
-                        <distributionFile>
-                            <origin>target/nest-5.0-bin-win64.dir/gluegen-rt.dll</origin>
-                        </distributionFile>
-                        <distributionFile>
-                            <origin>target/nest-5.0-bin-win64.dir/gpt.bat</origin>
-                        </distributionFile>
-                        <distributionFile>
-                            <origin>target/nest-5.0-bin-win64.dir/jogl.dll</origin>
-                        </distributionFile>
-                        <distributionFile>
-                            <origin>target/nest-5.0-bin-win64.dir/jogl_awt.dll</origin>
-                        </distributionFile>
-                        <distributionFile>
-                            <origin>target/nest-5.0-bin-win64.dir/jogl_cg.dll</origin>
-                        </distributionFile>
-                        <distributionFile>
-                            <origin>target/nest-5.0-bin-win64.dir/nest-dat64.exe</origin>
-                        </distributionFile>
-                        <distributionFile>
-                            <origin>target/nest-5.0-bin-win64.dir/post-uninstall.bat</origin>
-                        </distributionFile>
-                        <distributionFile>
-                            <origin>target/nest-5.0-bin-win64.dir/jhdf5.dll</origin>
-                        </distributionFile>
-                        <distributionFile>
-                            <origin>target/nest-5.0-bin-win64.dir/jhdf.dll</origin>
-                        </distributionFile>
-                        <distributionFile>
-                            <origin>target/nest-5.0-bin-win64.dir/nest-dat64.l4j.ini</origin>
-                        </distributionFile>
-                        <distributionFile>
-                            <origin>target/nest-5.0-bin-win64.dir/nest-clean.bat</origin>
-                        </distributionFile>
-                        <distributionFile>
-                            <origin>target/nest-5.0-bin-win64.dir/LIBGFORTRAN-3.dll</origin>
-                        </distributionFile>
-                        <distributionFile>
-                            <origin>target/nest-5.0-bin-win64.dir/CYGGCC_S-1.dll</origin>
-                        </distributionFile>
-                        <distributionFile>
-                            <origin>target/nest-5.0-bin-win64.dir/IESHIMS.dll</origin>
-                        </distributionFile>
-                        <distributionFile>
-                            <origin>target/nest-5.0-bin-win64.dir/LIBGCC_S_SJLJ-1.dll</origin>
-                        </distributionFile>
-                        <distributionFile>
-                            <origin>target/nest-5.0-bin-win64.dir/CYGWIN1.dll</origin>
-                        </distributionFile>
-                        <distributionFile>
-                            <origin>target/nest-5.0-bin-win64.dir/autoupdate-windows.exe</origin>
-                        </distributionFile>
-                    </distributionFileList>
                 </folder>
             </folderList>
             <startMenuShortcutList>
@@ -216,137 +133,11 @@
             </startMenuShortcutList>
         </component>
     </componentList>
-    <initializationActionList>
-        <showInfo>
-            <text>A previous version of NEST has been found on your system. 
-This installer will optionally remove the older version before installing a new one.</text>
-            <ruleList>
-                <fileExists>
-                    <path>C:\Program Files (x86)\NEST5.0\uninstall.exe</path>
-                </fileExists>
-            </ruleList>
-        </showInfo>
-        <showInfo>
-            <text>A previous version of NEST has been found on your system. 
-This installer will optionally remove the older version before installing a new one.</text>
-            <ruleList>
-                <fileExists>
-                    <path>C:\Program Files\NEST5.0\uninstall.exe</path>
-                </fileExists>
-            </ruleList>
-        </showInfo>
-        <showInfo>
-            <text>A previous version of NEST has been found on your system. 
-This installer will optionally remove the older version before installing a new one.</text>
-            <ruleList>
-                <fileExists>
-                    <path>C:\Program Files (x86)\NEST4B-1.1\uninstall.exe</path>
-                </fileExists>
-            </ruleList>
-        </showInfo>
-        <showInfo>
-            <text>A previous version of NEST has been found on your system. 
-This installer will optionally remove the older version before installing a new one.</text>
-            <ruleList>
-                <fileExists>
-                    <path>C:\Program Files\NEST4B-1.1\uninstall.exe</path>
-                </fileExists>
-            </ruleList>
-        </showInfo>
-        <showInfo>
-            <text>A previous version of NEST has been found on your system. 
-This installer will optionally remove the older version before installing a new one.</text>
-            <ruleList>
-                <fileExists>
-                    <path>C:\Program Files (x86)\NEST4B-1.0\uninstall.exe</path>
-                </fileExists>
-            </ruleList>
-        </showInfo>
-        <showInfo>
-            <text>A previous version of NEST has been found on your system. 
-This installer will optionally remove the older version before installing a new one.</text>
-            <ruleList>
-                <fileExists>
-                    <path>C:\Program Files\NEST4B-1.0\uninstall.exe</path>
-                </fileExists>
-            </ruleList>
-        </showInfo>
-    </initializationActionList>
     <preInstallationActionList>
         <deleteEnvironmentVariable>
             <name>NEST_HOME</name>
             <scope>user</scope>
         </deleteEnvironmentVariable>
-        <runProgram>
-            <abortOnError>0</abortOnError>
-            <program>C:\Program Files\NEST4B-1.1\uninstall.exe</program>
-            <programArguments></programArguments>
-            <showMessageOnError>0</showMessageOnError>
-            <ruleList>
-                <fileExists>
-                    <path>C:\Program Files\NEST4B-1.1\uninstall.exe</path>
-                </fileExists>
-            </ruleList>
-        </runProgram>
-        <runProgram>
-            <abortOnError>0</abortOnError>
-            <explanation>Removing previous version</explanation>
-            <program>C:\Program Files\NEST4B-1.0\uninstall.exe</program>
-            <programArguments></programArguments>
-            <progressText>Removing previous version</progressText>
-            <showMessageOnError>0</showMessageOnError>
-            <ruleList>
-                <fileExists>
-                    <path>C:\Program Files\NEST4B-1.0\uninstall.exe</path>
-                </fileExists>
-            </ruleList>
-        </runProgram>
-        <runProgram>
-            <abortOnError>0</abortOnError>
-            <program>C:\Program Files\NEST5.0\uninstall.exe</program>
-            <programArguments></programArguments>
-            <showMessageOnError>0</showMessageOnError>
-            <ruleList>
-                <fileExists>
-                    <path>C:\Program Files\NEST5.0\uninstall.exe</path>
-                </fileExists>
-            </ruleList>
-        </runProgram>
-        <runProgram>
-            <abortOnError>0</abortOnError>
-            <program>C:\Program Files (x86)\NEST4B-1.1\uninstall.exe</program>
-            <programArguments></programArguments>
-            <showMessageOnError>0</showMessageOnError>
-            <ruleList>
-                <fileExists>
-                    <path>C:\Program Files (x86)\NEST4B-1.1\uninstall.exe</path>
-                </fileExists>
-            </ruleList>
-        </runProgram>
-        <runProgram>
-            <abortOnError>0</abortOnError>
-            <program>C:\Program Files (x86)\NEST4B-1.0\uninstall.exe</program>
-            <programArguments></programArguments>
-            <showMessageOnError>0</showMessageOnError>
-            <ruleList>
-                <fileExists>
-                    <path>C:\Program Files (x86)\NEST4B-1.0\uninstall.exe</path>
-                </fileExists>
-            </ruleList>
-        </runProgram>
-        <runProgram>
-            <abortOnError>0</abortOnError>
-            <explanation>removing previous version</explanation>
-            <program>C:\Program Files (x86)\NEST5.0\uninstall.exe</program>
-            <programArguments></programArguments>
-            <progressText>removing previous version</progressText>
-            <showMessageOnError>0</showMessageOnError>
-            <ruleList>
-                <fileExists>
-                    <path>C:\Program Files (x86)\NEST5.0\uninstall.exe</path>
-                </fileExists>
-            </ruleList>
-        </runProgram>
     </preInstallationActionList>
     <postInstallationActionList>
         <associateWindowsFileExtension>
@@ -370,12 +161,6 @@ This installer will optionally remove the older version before installing a new 
             <insertAt>end</insertAt>
             <path>${installdir}</path>
         </addDirectoryToPath>
-        <deleteFile>
-            <abortOnError>0</abortOnError>
-            <path>"%USERPROFILE%\.nest"</path>
-            <show>0</show>
-            <showMessageOnError>0</showMessageOnError>
-        </deleteFile>
         <writeFile>
             <path>${installdir}/update.ini</path>
             <text>[Update]
@@ -407,12 +192,12 @@ check_for_updates = 1
         </removeDirectoryFromPath>
     </postUninstallationActionList>
     <compressionAlgorithm>lzma</compressionAlgorithm>
-    <enableRollback>1</enableRollback>
+    <enableRollback>0</enableRollback>
     <enableTimestamp>1</enableTimestamp>
     <installationType>upgrade</installationType>
     <outputDirectory>../../dist</outputDirectory>
     <saveRelativePaths>1</saveRelativePaths>
-    <startMenuGroupName>${product_fullname}-${product_version}</startMenuGroupName>
+    <startMenuGroupName>Next ESA SAR Toolbox</startMenuGroupName>
     <vendor>ESA</vendor>
     <windows64bitMode>1</windows64bitMode>
     <parameterList>
@@ -421,7 +206,7 @@ check_for_updates = 1
             <description>Installer.Parameter.installdir.description</description>
             <explanation>Installer.Parameter.installdir.explanation</explanation>
             <value></value>
-            <default>${platform_install_prefix}/${product_shortname}${product_version}</default>
+            <default>${platform_install_prefix}/${product_shortname}</default>
             <allowEmptyValue>0</allowEmptyValue>
             <cliOptionName>prefix</cliOptionName>
             <mustBeWritable>yes</mustBeWritable>
