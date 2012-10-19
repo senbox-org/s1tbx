@@ -20,7 +20,7 @@ public class StatisticsOpTest_ValidateInputTest {
         statisticsOp = new StatisticsOp();
         statisticsOp.startDate = ProductData.UTC.parse("2010-01-31 14:45:23", "yyyy-MM-ss hh:mm:ss");
         statisticsOp.endDate = ProductData.UTC.parse("2010-01-31 14:46:23", "yyyy-MM-ss hh:mm:ss");
-        statisticsOp.precision = 0;
+        statisticsOp.accuracy = 0;
         statisticsOp.sourceProducts = new Product[]{TestUtil.getTestProduct()};
     }
 
@@ -30,25 +30,25 @@ public class StatisticsOpTest_ValidateInputTest {
 
     @Test
     public void testValidation_PrecisionLessThanMinPrecision() {
-        statisticsOp.precision = -1;
+        statisticsOp.accuracy = -1;
 
         try {
             statisticsOp.validateInput();
             fail();
         } catch (OperatorException expected) {
-            assertEquals("Parameter 'precision' must be greater than or equal to 0", expected.getMessage());
+            assertEquals("Parameter 'accuracy' must be greater than or equal to 0", expected.getMessage());
         }
     }
 
     @Test
     public void testValidation_PrecisionGreaterThanMaxPrecision() {
-        statisticsOp.precision = 7;
+        statisticsOp.accuracy = 7;
 
         try {
             statisticsOp.validateInput();
             fail();
         } catch (OperatorException expected) {
-            assertEquals("Parameter 'precision' must be less than or equal to 6", expected.getMessage());
+            assertEquals("Parameter 'accuracy' must be less than or equal to 6", expected.getMessage());
         }
     }
 

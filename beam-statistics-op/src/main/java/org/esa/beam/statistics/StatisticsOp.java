@@ -97,8 +97,8 @@ public class StatisticsOp extends Operator implements Output {
 
     public static final String DATETIME_PATTERN = "yyyy-MM-dd HH:mm:ss";
     public static final String DEFAULT_PERCENTILES = "90,95";
-    private static final int MAX_PRECISION = 6;
-    private static final int MIN_PRECISION = 0;
+    private static final int MAX_ACCURACY = 6;
+    private static final int MIN_ACCURACY = 0;
 
     @SourceProducts(description = "The source products to be considered for statistics computation. If not given, " +
             "the parameter 'sourceProductPaths' must be provided.")
@@ -151,9 +151,9 @@ public class StatisticsOp extends Operator implements Output {
     int[] percentiles;
 
     @Parameter(description = "The number of significant figures used for statistics computation. Higher numbers " +
-            "indicate higher precision but may lead to a considerably longer computation time.",
+            "indicate higher accuracy but may lead to a considerably longer computation time.",
                defaultValue = "3")
-    int precision;
+    int accuracy;
 
     final Set<StatisticsOutputter> statisticsOutputters = new HashSet<StatisticsOutputter>();
 
@@ -171,7 +171,7 @@ public class StatisticsOp extends Operator implements Output {
         validateInput();
         setupOutputter();
 
-        final StatisticComputer statisticComputer = new StatisticComputer(shapefile, bandConfigurations, computeBinCount(precision));
+        final StatisticComputer statisticComputer = new StatisticComputer(shapefile, bandConfigurations, computeBinCount(accuracy));
 
         final ProductValidator productValidator = new ProductValidator(Arrays.asList(bandConfigurations), startDate, endDate, getLogger());
         final ProductLoop productLoop = new ProductLoop(new ProductLoader(), productValidator, statisticComputer, startDate, endDate, getLogger());
@@ -247,7 +247,7 @@ public class StatisticsOp extends Operator implements Output {
                 for (int percentile : percentiles) {
                     stxMap.put(getPercentileName(percentile), computePercentile(percentile, histogram));
                 }
-                stxMap.put("pxx_max_error", Util.getBinWidth(histogram));
+                stxMap.put("max_error", Util.getBinWidth(histogram));
                 for (StatisticsOutputter statisticsOutputter : statisticsOutputters) {
                     statisticsOutputter.addToOutput(bandName, regionName, stxMap);
                 }
@@ -333,13 +333,13 @@ public class StatisticsOp extends Operator implements Output {
         for (int percentile : percentiles) {
             algorithms.add(getPercentileName(percentile));
         }
-        algorithms.add("pxx_max_error");
+        algorithms.add("max_error");
         algorithms.add("total");
         return algorithms.toArray(new String[algorithms.size()]);
     }
 
     private String getPercentileName(int percentile) {
-        return "p" + percentile;
+        return "p" + percentile + "_threshold";
     }
 
     void setupOutputter() {
@@ -377,13 +377,13 @@ public class StatisticsOp extends Operator implements Output {
         return histogram.getPTileThreshold(percentile * 0.01)[0];
     }
 
-    public static int computeBinCount(int precision) {
-        if (precision < 0) {
-            throw new IllegalArgumentException("precision < 0");
-        } else if (precision > MAX_PRECISION) {
+    public static int computeBinCount(int accuracy) {
+        if (accuracy < 0) {
+            throw new IllegalArgumentException("accuracy < 0");
+        } else if (accuracy > MAX_ACCURACY) {
             return 1024 * 1024;
         }
-        return (int) Math.pow(10, precision);
+        return (int) Math.pow(10, accuracy);
     }
 
     private Mask[] getMasksForBands(List<Mask> allMasks, List<Band> bands) {
@@ -442,11 +442,11 @@ public class StatisticsOp extends Operator implements Output {
         if (startDate != null && endDate != null && endDate.getAsDate().before(startDate.getAsDate())) {
             throw new OperatorException("End date '" + this.endDate + "' before start date '" + this.startDate + "'");
         }
-        if (precision < MIN_PRECISION) {
-            throw new OperatorException("Parameter 'precision' must be greater than or equal to " + MIN_PRECISION);
+        if (accuracy < MIN_ACCURACY) {
+            throw new OperatorException("Parameter 'accuracy' must be greater than or equal to " + MIN_ACCURACY);
         }
-        if (precision > MAX_PRECISION) {
-            throw new OperatorException("Parameter 'precision' must be less than or equal to " + MAX_PRECISION);
+        if (accuracy > MAX_ACCURACY) {
+            throw new OperatorException("Parameter 'accuracy' must be less than or equal to " + MAX_ACCURACY);
         }
         if ((sourceProducts == null || sourceProducts.length == 0) &&
                 (sourceProductPaths == null || sourceProductPaths.length == 0)) {

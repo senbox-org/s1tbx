@@ -99,7 +99,7 @@ class StatisticsPanel extends PagePanel implements MultipleRoiComputePanel.Compu
     private Histogram[] histograms;
     private ExportStatisticsAsCsvAction exportAsCsvAction;
     private PutStatisticsIntoVectorDataAction putStatisticsIntoVectorDataAction;
-    private int precision = -1;
+    private int accuracy = -1;
 
     public StatisticsPanel(final ToolView parentDialog, String helpID) {
         super(parentDialog, helpID, TITLE_PREFIX);
@@ -124,7 +124,7 @@ class StatisticsPanel extends PagePanel implements MultipleRoiComputePanel.Compu
         final JPanel rightPanel = GridBagUtils.createPanel();
         GridBagConstraints extendedOptionsPanelConstraints = GridBagUtils.createConstraints("anchor=NORTHWEST,fill=HORIZONTAL,insets.top=2,weightx=1,insets.right=-2");
         GridBagUtils.addToPanel(rightPanel, computePanel, extendedOptionsPanelConstraints, "gridy=0,fill=BOTH,weighty=1");
-        GridBagUtils.addToPanel(rightPanel, createPrecisionPanel(), extendedOptionsPanelConstraints, "gridy=1,fill=BOTH,weighty=1");
+        GridBagUtils.addToPanel(rightPanel, createAccuracyPanel(), extendedOptionsPanelConstraints, "gridy=1,fill=BOTH,weighty=1");
         GridBagUtils.addToPanel(rightPanel, exportAndHelpPanel, extendedOptionsPanelConstraints, "gridy=2,anchor=SOUTHWEST,fill=HORIZONTAL,weighty=0");
 
         final ImageIcon collapseIcon = UIUtils.loadImageIcon("icons/PanelRight12.png");
@@ -175,12 +175,12 @@ class StatisticsPanel extends PagePanel implements MultipleRoiComputePanel.Compu
         add(layeredPane);
     }
 
-    private JPanel createPrecisionPanel() {
-        final JPanel precisionPanel = new JPanel(new GridBagLayout());
+    private JPanel createAccuracyPanel() {
+        final JPanel accuracyPanel = new JPanel(new GridBagLayout());
         final GridBagConstraints gbc = new GridBagConstraints();
-        final JLabel label = new JLabel("Statistical Precision:");
+        final JLabel label = new JLabel("Statistical Accuracy:");
         final JTextField textField = new JTextField("3");
-        final JCheckBox checkBox = new JCheckBox("Auto precision");
+        final JCheckBox checkBox = new JCheckBox("Auto accuracy");
         checkBox.setSelected(true);
         checkBox.addActionListener(new ActionListener() {
             @Override
@@ -188,9 +188,9 @@ class StatisticsPanel extends PagePanel implements MultipleRoiComputePanel.Compu
                 label.setEnabled(!checkBox.isSelected());
                 textField.setEnabled(!checkBox.isSelected());
                 if (!checkBox.isSelected()) {
-                    updatePrecision(textField);
+                    updateAccuracy(textField);
                 } else {
-                    precision = -1;
+                    accuracy = -1;
                 }
                 computePanel.updateEnablement();
             }
@@ -202,23 +202,23 @@ class StatisticsPanel extends PagePanel implements MultipleRoiComputePanel.Compu
         textField.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                updatePrecision(textField);
+                updateAccuracy(textField);
                 computePanel.updateEnablement();
             }
         });
 
-        GridBagUtils.addToPanel(precisionPanel, new TitledSeparator("Statistical Precision", SwingConstants.CENTER), gbc, "fill=HORIZONTAL, weightx=1.0,anchor=NORTH,gridwidth=2");
-        GridBagUtils.addToPanel(precisionPanel, checkBox, gbc, "gridy=1,insets.left=5,insets.top=2");
-        GridBagUtils.addToPanel(precisionPanel, label, gbc, "gridy=2, insets.left=26,weightx=0.0,fill=NONE,anchor=WEST,gridwidth=1");
-        GridBagUtils.addToPanel(precisionPanel, textField, gbc, "gridx=1,weightx=1.0,fill=HORIZONTAL,insets.right=5,insets.left=5");
-        return precisionPanel;
+        GridBagUtils.addToPanel(accuracyPanel, new TitledSeparator("Statistical accuracy", SwingConstants.CENTER), gbc, "fill=HORIZONTAL, weightx=1.0,anchor=NORTH,gridwidth=2");
+        GridBagUtils.addToPanel(accuracyPanel, checkBox, gbc, "gridy=1,insets.left=5,insets.top=2");
+        GridBagUtils.addToPanel(accuracyPanel, label, gbc, "gridy=2, insets.left=26,weightx=0.0,fill=NONE,anchor=WEST,gridwidth=1");
+        GridBagUtils.addToPanel(accuracyPanel, textField, gbc, "gridx=1,weightx=1.0,fill=HORIZONTAL,insets.right=5,insets.left=5");
+        return accuracyPanel;
     }
 
-    private void updatePrecision(JTextField textField) {
+    private void updateAccuracy(JTextField textField) {
         try {
-            precision = Integer.parseInt(textField.getText());
+            accuracy = Integer.parseInt(textField.getText());
         } catch (NumberFormatException e1) {
-            // do nothing, old precision is kept
+            // do nothing, old accuracy is kept
         }
     }
 
@@ -276,8 +276,8 @@ class StatisticsPanel extends PagePanel implements MultipleRoiComputePanel.Compu
                 pm.beginTask(title, selectedMasks.length);
                 try {
                     final int binCount;
-                    if (precision > 0) {
-                        binCount = StatisticsOp.computeBinCount(precision);
+                    if (accuracy > 0) {
+                        binCount = StatisticsOp.computeBinCount(accuracy);
                     } else {
                         binCount = StxFactory.DEFAULT_BIN_COUNT;
                     }
@@ -287,14 +287,14 @@ class StatisticsPanel extends PagePanel implements MultipleRoiComputePanel.Compu
                         ProgressMonitor subPm = SubProgressMonitor.create(pm, 1);
                         if (mask == null) {
                             stx = new StxFactory()
-                                        .withHistogramBinCount(binCount)
-                                        .create(getRaster(), subPm);
+                                    .withHistogramBinCount(binCount)
+                                    .create(getRaster(), subPm);
                             getRaster().setStx(stx);
                         } else {
                             stx = new StxFactory()
-                                        .withHistogramBinCount(binCount)
-                                        .withRoiMask(mask)
-                                        .create(getRaster(), subPm);
+                                    .withHistogramBinCount(binCount)
+                                    .withRoiMask(mask)
+                                    .create(getRaster(), subPm);
                         }
                         histograms[i] = stx.getHistogram();
                         publish(new ComputeResult(stx, mask));
@@ -387,17 +387,17 @@ class StatisticsPanel extends PagePanel implements MultipleRoiComputePanel.Compu
         ChartPanel percentilePanel = createChartPanel(percentileSeries, "Percentile (%)", "Value Threshold", new Color(127, 0, 0));
 
         Object[][] tableData = new Object[][]{
-                    new Object[]{"#Pixels total:", histogram.getTotals()[0]},
-                    new Object[]{"Minimum:", histogram.getLowValue()[0]},
-                    new Object[]{"Maximum:", histogram.getHighValue()[0]},
-                    new Object[]{"Mean:", histogram.getMean()[0]},
-                    new Object[]{"Sigma:", histogram.getStandardDeviation()[0]},
-                    new Object[]{"Median:", histogram.getPTileThreshold(0.5)[0]},
-                    new Object[]{"P75 threshold:", histogram.getPTileThreshold(0.75)[0]},
-                    new Object[]{"P80 threshold:", histogram.getPTileThreshold(0.80)[0]},
-                    new Object[]{"P85 threshold:", histogram.getPTileThreshold(0.85)[0]},
-                    new Object[]{"P90 threshold:", histogram.getPTileThreshold(0.90)[0]},
-                    new Object[]{"PXX max error:", getBinSize(histogram)},
+                new Object[]{"#Pixels total:", histogram.getTotals()[0]},
+                new Object[]{"Minimum:", histogram.getLowValue()[0]},
+                new Object[]{"Maximum:", histogram.getHighValue()[0]},
+                new Object[]{"Mean:", histogram.getMean()[0]},
+                new Object[]{"Sigma:", histogram.getStandardDeviation()[0]},
+                new Object[]{"Median:", histogram.getPTileThreshold(0.5)[0]},
+                new Object[]{"P75 threshold:", histogram.getPTileThreshold(0.75)[0]},
+                new Object[]{"P80 threshold:", histogram.getPTileThreshold(0.80)[0]},
+                new Object[]{"P85 threshold:", histogram.getPTileThreshold(0.85)[0]},
+                new Object[]{"P90 threshold:", histogram.getPTileThreshold(0.90)[0]},
+                new Object[]{"Max error:", getBinSize(histogram)},
         };
 
         JPanel plotContainerPanel = new JPanel(new GridLayout(1, 2));
@@ -547,7 +547,7 @@ class StatisticsPanel extends PagePanel implements MultipleRoiComputePanel.Compu
             sb.append("\n");
         }
 
-        sb.append("PXX threshold max error:\t");
+        sb.append("Threshold max error:\t");
         sb.append(getBinSize(stx.getHistogram()));
         sb.append("\t");
         sb.append(unit);
@@ -576,14 +576,14 @@ class StatisticsPanel extends PagePanel implements MultipleRoiComputePanel.Compu
 
     private static ChartPanel getHistogramPlotPanel(XIntervalSeriesCollection dataset, String xAxisLabel, String yAxisLabel, Color color) {
         JFreeChart chart = ChartFactory.createHistogram(
-                    null,
-                    xAxisLabel,
-                    yAxisLabel,
-                    dataset,
-                    PlotOrientation.VERTICAL,
-                    false,  // Legend?
-                    true,   // tooltips
-                    false   // url
+                null,
+                xAxisLabel,
+                yAxisLabel,
+                dataset,
+                PlotOrientation.VERTICAL,
+                false,  // Legend?
+                true,   // tooltips
+                false   // url
         );
         final XYPlot xyPlot = chart.getXYPlot();
         //xyPlot.setForegroundAlpha(0.85f);
