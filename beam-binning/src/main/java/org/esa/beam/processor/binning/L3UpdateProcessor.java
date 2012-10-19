@@ -196,7 +196,7 @@ public class L3UpdateProcessor extends L3SubProcessor {
             } else {
                 return prod;
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
             handleError(ref, e.getMessage());
         }
