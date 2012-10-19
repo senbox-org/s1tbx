@@ -322,7 +322,7 @@ public class StatisticsOpTest {
         public void initialiseOutput(StatisticsOutputContext statisticsOutputContext) {
             int numPercentiles = 0;
             for (String algorithmName : statisticsOutputContext.algorithmNames) {
-                if (algorithmName.matches("p\\d\\d")) {
+                if (algorithmName.matches("p\\d\\d_threshold")) {
                     numPercentiles++;
                 }
             }
@@ -350,7 +350,7 @@ public class StatisticsOpTest {
                     median = entry.getValue().doubleValue();
                 } else if (key.equalsIgnoreCase("sigma")) {
                     sigma = entry.getValue().doubleValue();
-                } else if (key.startsWith("p") && !key.endsWith("error")) {
+                } else if (key.startsWith("p") && key.endsWith("threshold")) {
                     percentiles[percentileIndex++] = entry.getValue().doubleValue();
                 }
             }
