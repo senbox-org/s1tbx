@@ -27,7 +27,6 @@ import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.LinearRing;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
-import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.PlacemarkDescriptor;
 import org.esa.beam.framework.datamodel.PointDescriptor;
 import org.esa.beam.framework.datamodel.Product;
@@ -73,7 +72,6 @@ import java.util.Map;
 public class VectorDataNodeReader {
 
     private final String sourceName;
-    private final GeoCoding geoCoding;
     private final Product product;
     private final FeatureUtils.FeatureCrsProvider crsProvider;
     private final PlacemarkDescriptorProvider placemarkDescriptorProvider;
@@ -93,7 +91,6 @@ public class VectorDataNodeReader {
         this.crsProvider = crsProvider;
         this.placemarkDescriptorProvider = placemarkDescriptorProvider;
         this.convertToVertices = convertToVertices;
-        this.geoCoding = product.getGeoCoding();
         this.sourceName = sourceName;
         this.reader = new CsvReader(reader, new char[]{delimiterChar}, true, "#");
     }
