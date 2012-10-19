@@ -2,7 +2,6 @@
     <shortName>NEST</shortName>
     <fullName>NEST</fullName>
     <version>5.0.0</version>
-    <installerFilename>${product_shortname}-${product_version}-${platform_name}-installer.${platform_exec_suffix}</installerFilename>
     <licenseFile>LICENSE.txt</licenseFile>
     <splashImage>nest-src/main/bin/common/res/nest_splash.png</splashImage>
     <componentList>
@@ -113,6 +112,9 @@
                         <distributionDirectory>
                             <origin>target/nest-5.0-bin-linux.dir/jre</origin>
                         </distributionDirectory>
+                        <distributionFile>
+                            <origin>target/nest-5.0-bin-linux.dir/autoupdate-linux.run</origin>
+                        </distributionFile>
                     </distributionFileList>
                 </folder>
                 <folder>
@@ -172,6 +174,9 @@
                         <distributionFile>
                             <origin>target/nest-5.0-bin-win.dir/nest-clean.bat</origin>
                         </distributionFile>
+                        <distributionFile>
+                            <origin>target/nest-5.0-bin-win.dir/autoupdate-windows.exe</origin>
+                        </distributionFile>
                     </distributionFileList>
                 </folder>
                 <folder>
@@ -203,6 +208,9 @@
                         </distributionFile>
                         <distributionFile>
                             <origin>target/nest-5.0-bin-linux64.dir/libjogl_cg.so</origin>
+                        </distributionFile>
+                        <distributionFile>
+                            <origin>target/nest-5.0-bin-linux64.dir/autoupdate-linux-x64.run</origin>
                         </distributionFile>
                     </distributionFileList>
                 </folder>
@@ -241,6 +249,9 @@
                         </distributionDirectory>
                         <distributionDirectory>
                             <origin>target/nest-5.0-bin-mac.dir/__MACOSX</origin>
+                        </distributionDirectory>
+                        <distributionDirectory>
+                            <origin>target/nest-5.0-bin-mac.dir/autoupdate-osx.app</origin>
                         </distributionDirectory>
                     </distributionFileList>
                 </folder>
@@ -438,7 +449,7 @@ This installer will optionally remove the older version before installing a new 
             <value>${installdir}</value>
         </addEnvironmentVariable>
         <changePermissions>
-            <files>*/*.sh;*/*.bin;*/*.command;${installdir}/*.command;${installdir}/dat.sh;${installdir}/gpt.sh;${installdir}/jre/bin/*;${installdir}/*.so;${installdir}/*.jnilib</files>
+            <files>*/*.sh;*/*.run;*/*.bin;*/*.command;${installdir}/*.command;${installdir}/dat.sh;${installdir}/gpt.sh;${installdir}/jre/bin/*;${installdir}/*.so;${installdir}/*.jnilib</files>
             <permissions>755</permissions>
         </changePermissions>
         <addDirectoryToPath>
@@ -495,7 +506,7 @@ This installer will optionally remove the older version before installing a new 
             <name>NEST_HOME</name>
             <value>${installdir}</value>
         </setEnvironmentVariable>
-		<writeFile>
+        <writeFile>
             <path>${installdir}/update.ini</path>
             <text>[Update]
 url = http://www.array.ca/nest-web/autoupdate/update.xml
@@ -503,7 +514,7 @@ version_id = ${version}
 update_download_location = ${system_temp_directory}
 check_for_updates = 1
 </text>
-       </writeFile>
+        </writeFile>
     </postInstallationActionList>
     <postUninstallationActionList>
         <runConsoleProgram>

@@ -28,6 +28,10 @@
             <outputDirectory>NEST.app</outputDirectory>
         </fileSet>
 		<fileSet>
+            <directory>nest-src/main/bin/macosx/autoupdate-osx.app</directory>
+            <outputDirectory>autoupdate-osx.app</outputDirectory>
+        </fileSet>
+		<fileSet>
             <directory>nest-src/main/bin/common/</directory>
             <outputDirectory></outputDirectory>
         </fileSet>

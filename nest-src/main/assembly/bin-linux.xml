@@ -38,6 +38,7 @@
             <outputDirectory></outputDirectory>
 			<includes>
 				<include>**/*.so</include>
+				<include>**/*.run</include>
 			</includes>
             <fileMode>0755</fileMode>
             <directoryMode>0755</directoryMode>
