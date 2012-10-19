@@ -187,7 +187,7 @@ public class StatisticsOp extends Operator implements Output {
 
         final String[] productNames = productLoop.getProductNames();
         if (productNames.length == 0) {
-            throw new OperatorException("No input products found.");
+            throw new OperatorException("No input products found that matches the criteria.");
         }
         final Map<BandConfiguration, StatisticComputer.StxOpMapping> results = statisticComputer.getResults();
         final String[] algorithmNames = getAlgorithmNames();
