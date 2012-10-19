@@ -382,7 +382,7 @@ This installer will optionally remove the older version before installing a new 
         <writeFile>
             <path>${installdir}/update.ini</path>
             <text>[Update]
-url = http://www.array.ca/nest-web/autoupdate/update.xml
+url = http://www.array.ca/nest-web/autoupdate/update64.xml
 version_id = ${version}
 update_download_location = ${system_temp_directory}
 check_for_updates = 1
