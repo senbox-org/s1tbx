@@ -22,6 +22,7 @@ import org.esa.beam.statistics.output.CsvStatisticsWriter;
 import org.esa.beam.statistics.output.MetadataWriter;
 import org.esa.beam.statistics.output.StatisticsOutputContext;
 import org.esa.beam.util.io.BeamFileChooser;
+import org.esa.beam.util.io.BeamFileFilter;
 import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.visat.VisatApp;
 
@@ -38,8 +39,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
-* @author Thomas Storm
-*/
+ * @author Thomas Storm
+ */
 class ExportStatisticsAsCsvAction extends AbstractAction {
 
     private static final String PROPERTY_KEY_EXPORT_DIR = "user.statistics.export.dir";
@@ -61,6 +62,8 @@ class ExportStatisticsAsCsvAction extends AbstractAction {
             baseDir = new File(exportDir);
         }
         BeamFileChooser fileChooser = new BeamFileChooser(baseDir);
+        final BeamFileFilter beamFileFilter = new BeamFileFilter("CSV", new String[]{".csv", ".txt"}, "CSV files");
+        fileChooser.setFileFilter(beamFileFilter);
         File outputAsciiFile;
         int result = fileChooser.showSaveDialog(VisatApp.getApp().getApplicationWindow());
         if (result == JFileChooser.APPROVE_OPTION) {
@@ -93,14 +96,14 @@ class ExportStatisticsAsCsvAction extends AbstractAction {
                 regionIds = new String[]{"full_scene"};
             }
             final String[] algorithmNames = {
-                        "minimum",
-                        "maximum",
-                        "median",
-                        "average",
-                        "sigma",
-                        "p90",
-                        "p95",
-                        "total"
+                    "minimum",
+                    "maximum",
+                    "median",
+                    "average",
+                    "sigma",
+                    "p90_threshold",
+                    "p95_threshold",
+                    "total"
             };
             final StatisticsOutputContext outputContext = StatisticsOutputContext.create(
                     new Product[]{dataProvider.getRasterDataNode().getProduct()}, algorithmNames, regionIds);
@@ -116,8 +119,8 @@ class ExportStatisticsAsCsvAction extends AbstractAction {
                 statistics.put("median", histogram.getPTileThreshold(0.5)[0]);
                 statistics.put("average", histogram.getMean()[0]);
                 statistics.put("sigma", histogram.getStandardDeviation()[0]);
-                statistics.put("p90", histogram.getPTileThreshold(0.9)[0]);
-                statistics.put("p95", histogram.getPTileThreshold(0.95)[0]);
+                statistics.put("p90_threshold", histogram.getPTileThreshold(0.9)[0]);
+                statistics.put("p95_threshold", histogram.getPTileThreshold(0.95)[0]);
                 statistics.put("total", histogram.getTotals()[0]);
                 csvStatisticsWriter.addToOutput(dataProvider.getRasterDataNode().getName(), regionIds[i], statistics);
                 statistics.clear();
@@ -126,7 +129,7 @@ class ExportStatisticsAsCsvAction extends AbstractAction {
         } catch (IOException exception) {
             JOptionPane.showMessageDialog(VisatApp.getApp().getApplicationWindow(),
                                           "Failed to export statistics.\nAn error occurred:" +
-                                          exception.getMessage(),
+                                                  exception.getMessage(),
                                           "Statistics export",
                                           JOptionPane.ERROR_MESSAGE);
         } finally {
@@ -139,7 +142,7 @@ class ExportStatisticsAsCsvAction extends AbstractAction {
         }
         JOptionPane.showMessageDialog(VisatApp.getApp().getApplicationWindow(),
                                       "The statistics have successfully been exported to '" + outputAsciiFile +
-                                      "'.",
+                                              "'.",
                                       "Statistics export",
                                       JOptionPane.INFORMATION_MESSAGE);
     }
