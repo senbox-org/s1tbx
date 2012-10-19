@@ -81,8 +81,15 @@ public class ProductLoop {
         }
         statisticComputer.computeStatistic(product);
         productNames.add(product.getName());
-        System.out.println(productNames.size() + " computed");
-        System.out.println("   current product: " + product.getFileLocation().getAbsolutePath());
+
+        final String path;
+        if (product.getFileLocation() != null) {
+            path = product.getFileLocation().getAbsolutePath();
+        } else {
+            path = product.getName();
+        }
+        logger.info("    " + productNames.size() + " computed:");
+        logger.info("        current product: " + path);
     }
 
     private boolean isInDateRange(Product product) {
