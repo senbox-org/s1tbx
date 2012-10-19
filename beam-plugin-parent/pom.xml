@@ -21,7 +21,8 @@
         <ceres.version>[0.13,0.14-SNAPSHOT)</ceres.version>
         <geotools.version>2.7.4</geotools.version>
         <jide.version>3.3.7</jide.version>
-        <hdf.version>2.7</hdf.version>
+        <!-- This property is set in beam-parent. Reason? See there!-->
+        <!--<hdf.version>2.7</hdf.version>-->
         <netcdf.version>4.2.20</netcdf.version>
     </properties>
 

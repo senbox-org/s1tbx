@@ -30,6 +30,8 @@
 
     <changelog>
         <![CDATA[
+        <p>From 4.10 to 4.10.4:<br/>
+            [BEAM-1225] gpt command-line. No data product writer for the 'HDF5' format available<br/>
         <p>From 4.9 to 4.10:<br/>
             [BEAM-1386] WriteOp shall never delete output on failure if source file already exists<br/>
             [BEAM-1375] Allow gpt to use template variables in parameter files<br/>

@@ -53,6 +53,12 @@
         <module>beam-plugin-parent</module>
     </modules>
 
+    <properties>
+        <!--This property needs to be set here and not in the one of the other parent poms, because it is used for
+        filtering the gpt scripts during the assembly phase. -->
+        <hdf.version>2.7</hdf.version>
+    </properties>
+
     <repositories>
         <repository>
             <id>bc-mvn</id>
@@ -136,6 +142,9 @@
                         <target>1.6</target>
                         <debug>true</debug>
                         <encoding>UTF-8</encoding>
+                        <excludes>
+                            <exclude>.gitignore</exclude>
+                        </excludes>
                     </configuration>
                 </plugin>
 
