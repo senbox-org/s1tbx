@@ -697,6 +697,19 @@
 	            <artifactId>jblas</artifactId>
 	        </dependency>
 			
+			<!-- 7zip   ###############################################-->
+			
+			<dependency>
+				<groupId>net.sf.sevenzipjbinding</groupId>
+				<artifactId>sevenzipjbinding</artifactId>
+				<version>4.65-1.04</version>
+			</dependency>
+			<dependency>
+				<groupId>net.sf.sevenzipjbinding</groupId>
+				<artifactId>native-libs</artifactId>
+				<version>4.65-1.04</version>
+			</dependency>
+			
 			<!-- World Wind   ###############################################-->
 			
 			<dependency>
