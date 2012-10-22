@@ -21,6 +21,7 @@ import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.math.MathUtils;
+import org.esa.beam.visat.VisatApp;
 import org.esa.nest.dataio.binary.BinaryRecord;
 import org.esa.nest.dataio.binary.IllegalBinaryFormatException;
 import org.esa.nest.dataio.ceos.CEOSImageFile;
@@ -178,6 +179,12 @@ class BasicCeosProductDirectory extends CEOSProductDirectory {
 
         if(mapProjRec == null) {
             setLatLonMetadata(product, absRoot);
+        }
+
+        if(VisatApp.getApp() != null) {
+            VisatApp.getApp().showWarningDialog("This product is for an unknown mission in CEOS format.\n" +
+                    "Some functionality may not be supported.\n" +
+                    "Please contact nest_pr@array.ca for further support.");
         }
 
         return product;
