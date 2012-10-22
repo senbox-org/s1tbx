@@ -1,0 +1,97 @@
+<!--
+  ~ Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+  ~
+  ~ This program is free software; you can redistribute it and/or modify it
+  ~ under the terms of the GNU General Public License as published by the Free
+  ~ Software Foundation; either version 3 of the License, or (at your option)
+  ~ any later version.
+  ~ This program is distributed in the hope that it will be useful, but WITHOUT
+  ~ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+  ~ FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+  ~ more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along
+  ~ with this program; if not, see http://www.gnu.org/licenses/
+  -->
+
+<html>
+<head>
+    <title>Level 3 Binning Operator (GPF)</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+
+<body>
+<table class="header">
+    <tr class="header">
+        <td class="header">&nbsp;
+            Level 3 Binning Operator (GPF)</td>
+        <td class="header" align="right"><a href="../general/BeamOverview.html"><img src="../images/BeamHeader.jpg" border=0></a>
+        </td>
+    </tr>
+</table>
+
+<h3>The user interface</h3>
+
+<h4>I/O Parameters</h4>
+
+<p>
+    Using the I/O Parameters tab, the input products can be set, as well as the target product's name and target directory.
+    See the screenshot below.
+</p>
+
+<p>
+    <img src="images/ui_io_parameters.png">
+</p>
+
+When the Run-button is clicked, the binning is performed according to the preferences that are specified in the
+"Filter-" and the "Configuration"-tabs.
+
+<h5>Filter</h5>
+
+screenshot
+explain target region
+explain time filter
+
+<h4>Configuration</h4>
+
+screenshot
+explain table
+explain valid expression
+explain target height
+
+<h4>Supersampling</h4>
+
+<p>
+    As long as the area of an input pixel is small compared to the area of a bin,
+    a simple binning is sufficient. In this case,
+    the geodetic center coordinate of the Level 2 pixel is used
+    to find the bin in the Level 3 grid whose area is intersected by this point.
+    If the area of the contributing pixel is equal or even larger than the bin area,
+    this simple binning will produce composites with insufficient accuracy and
+    visual artefacts such as Moiré effects will dominate the resulting datasets.</p>
+
+<p>
+    The following figure illustrates this problem.</p>
+
+<p><img src="images/chessGrid.png"></p>
+
+<p><i>Level 2 grid (blue) and Level 3 grid (yellow)</i></p>
+
+<p>The blue chessboard grid refers to the input data,
+    the yellow one refers to the final Level 3 grid. As the figure clearly shows,
+    single Level 2 pixels cannot be uniquely be assigned to single bins.</p>
+
+<p>
+    Supersampling parameter can be used to reduce or avoid the Moiré effect.
+    The Moirè effect usually occurs when the spatial resolution used for the
+    binning is similar to or smaller than the input pixel resolution. The supersampling
+    subdivides every input pixel to n x n subpixels which all have the same values but
+    different and unique geographical coordinates. This way, an input pixel may be
+    distributed to more than one adjacent bin cell.
+</p>
+
+explain output binned data
+
+<hr>
+</body>
+</html>

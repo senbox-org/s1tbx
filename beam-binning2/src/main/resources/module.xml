@@ -76,6 +76,7 @@
             <id>BinningNew</id>
             <text>Level-3 Binning (GPF)</text>
             <class>org.esa.beam.binning.operator.ui.BinningOperatorAction</class>
+            <helpId>gpf_binning_overview</helpId>
             <placeAfter>Binning</placeAfter>
             <operatorName>Binning</operatorName>
         </action>
@@ -92,6 +93,13 @@
             <!--<helpId>importMerisBinnedL3Product</helpId>-->
             <!--<placeAfter>importEnvisatProduct</placeAfter>-->
         </action>
+    </extension>
+
+    <extension point="beam-ui:helpSets">
+        <helpSet>
+            <parent>beam-help</parent>
+            <path>doc/help/gpf_binning.hs</path>
+        </helpSet>
     </extension>
 
 </module>
