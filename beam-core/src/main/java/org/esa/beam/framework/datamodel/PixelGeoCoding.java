@@ -21,6 +21,27 @@ import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
 import com.bc.ceres.glevel.MultiLevelImage;
 import com.bc.jexp.ParseException;
+import org.esa.beam.framework.dataio.ProductSubsetDef;
+import org.esa.beam.framework.dataop.barithm.BandArithmetic;
+import org.esa.beam.framework.dataop.maptransf.Datum;
+import org.esa.beam.jai.ImageManager;
+import org.esa.beam.util.BitRaster;
+import org.esa.beam.util.Debug;
+import org.esa.beam.util.Guardian;
+import org.esa.beam.util.ProductUtils;
+import org.esa.beam.util.math.IndexValidator;
+import org.esa.beam.util.math.MathUtils;
+
+import javax.media.jai.ImageLayout;
+import javax.media.jai.Interpolation;
+import javax.media.jai.JAI;
+import javax.media.jai.PointOpImage;
+import javax.media.jai.RasterAccessor;
+import javax.media.jai.RasterFactory;
+import javax.media.jai.RasterFormatTag;
+import javax.media.jai.RenderedOp;
+import javax.media.jai.operator.CropDescriptor;
+import javax.media.jai.operator.ScaleDescriptor;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.image.ComponentSampleModel;
@@ -32,26 +53,6 @@ import java.awt.image.SampleModel;
 import java.awt.image.WritableRaster;
 import java.io.IOException;
 import java.util.Vector;
-import javax.media.jai.ImageLayout;
-import javax.media.jai.Interpolation;
-import javax.media.jai.JAI;
-import javax.media.jai.PointOpImage;
-import javax.media.jai.RasterAccessor;
-import javax.media.jai.RasterFactory;
-import javax.media.jai.RasterFormatTag;
-import javax.media.jai.RenderedOp;
-import javax.media.jai.operator.CropDescriptor;
-import javax.media.jai.operator.ScaleDescriptor;
-import org.esa.beam.framework.dataio.ProductSubsetDef;
-import org.esa.beam.framework.dataop.barithm.BandArithmetic;
-import org.esa.beam.framework.dataop.maptransf.Datum;
-import org.esa.beam.jai.ImageManager;
-import org.esa.beam.util.BitRaster;
-import org.esa.beam.util.Debug;
-import org.esa.beam.util.Guardian;
-import org.esa.beam.util.ProductUtils;
-import org.esa.beam.util.math.IndexValidator;
-import org.esa.beam.util.math.MathUtils;
 
 
 /**
@@ -159,7 +160,7 @@ public class PixelGeoCoding extends AbstractGeoCoding {
         }
         if (latBand.getProduct().getSceneRasterWidth() < 2 || latBand.getProduct().getSceneRasterHeight() < 2) {
             throw new IllegalArgumentException(
-                        "latBand.getProduct().getSceneRasterWidth() < 2 || latBand.getProduct().getSceneRasterHeight() < 2");
+                    "latBand.getProduct().getSceneRasterWidth() < 2 || latBand.getProduct().getSceneRasterHeight() < 2");
         }
         this.latBand = latBand;
         this.lonBand = lonBand;
@@ -177,36 +178,46 @@ public class PixelGeoCoding extends AbstractGeoCoding {
 
         pixelPosEstimator = latBand.getProduct().getGeoCoding();
 
-        final int subSamplingX = 30;
-        final int subSamplingY = 30;
-        if (pixelPosEstimator == null && useTiling && rasterWidth / subSamplingX > 1 && rasterHeight / subSamplingY > 1) {
+        final int subSampling = 30;
+        if (pixelPosEstimator == null && useTiling && rasterWidth / subSampling > 1 && rasterHeight / subSampling > 1) {
 
-            final int tpGridWidth = rasterWidth / subSamplingX;
-            final int tpGridHeight = rasterHeight / subSamplingY;
-            final float offsetX = rasterWidth % subSamplingX / 2 + 0.5f;
-            final float offsetY = rasterHeight % subSamplingY / 2 + 0.5f;
-            final boolean containsAngles = true;
+            final int tpGridWidth = rasterWidth / subSampling;
+            final int tpGridHeight = rasterHeight / subSampling;
+            final float tpOffsetX = rasterWidth % subSampling / 2 + 0.5f;
+            final float tpOffsetY = rasterHeight % subSampling / 2 + 0.5f;
+            final float unscaledImageOffsetX = -tpOffsetX + subSampling / 2.0f;
+            final float unscaledImageOffsetY = -tpOffsetY + subSampling / 2.0f;
             final MultiLevelImage latImage = latBand.getGeophysicalImage();
             final MultiLevelImage lonImage = lonBand.getGeophysicalImage();
 
-            float xScale = (float) tpGridWidth / (float) rasterWidth;
-            float yScale = (float) tpGridHeight / (float) rasterHeight;
+            float scale = 1.0f / subSampling;
 
-            final RenderedOp tempLatImg = ScaleDescriptor.create(
-                        latImage, xScale, yScale, offsetX, offsetY, Interpolation.getInstance(Interpolation.INTERP_NEAREST), null);
-//            final RenderedOp tpLatImg = CropDescriptor.create(tempLatImg, 0f, 0f, (float) tpGridWidth, (float) tpGridHeight, null);
+            Interpolation nearestInterpolation = Interpolation.getInstance(Interpolation.INTERP_NEAREST);
+            final RenderedOp tempLatOffsetImg = ScaleDescriptor.create(latImage, 1.0f, 1.0f,
+                                                                       unscaledImageOffsetX, unscaledImageOffsetY,
+                                                                       nearestInterpolation, null);
+            final RenderedOp tempLatImg = ScaleDescriptor.create(tempLatOffsetImg, scale, scale, 0f, 0f,
+                                                                 nearestInterpolation, null);
 
-            final RenderedOp tempLonImg = ScaleDescriptor.create(
-                        lonImage, xScale, yScale, offsetX, offsetY, Interpolation.getInstance(Interpolation.INTERP_NEAREST), null);
-//            final RenderedOp tpLonImg = CropDescriptor.create(tempLonImg, 0f, 0f, (float) tpGridWidth, (float) tpGridHeight, null);
+            final RenderedOp tempLonOffsetImg = ScaleDescriptor.create(lonImage, 1.0f, 1.0f,
+                                                                       unscaledImageOffsetX, unscaledImageOffsetY,
+                                                                       nearestInterpolation, null);
+            final RenderedOp tempLonImg = ScaleDescriptor.create(tempLonOffsetImg, scale, scale, 0f, 0f,
+                                                                 nearestInterpolation, null);
 
             final int minX = tempLatImg.getMinX();
             final int minY = tempLatImg.getMinY();
-            final float[] latTiePoints = tempLatImg.getData().getPixels(minX, minY, tpGridWidth, tpGridHeight, new float[tpGridWidth * tpGridHeight]);
-            final float[] lonTiePoints = tempLonImg.getData().getPixels(minX, minY, tpGridWidth, tpGridHeight, new float[tpGridWidth * tpGridHeight]);
+            int numTiePoints = tpGridWidth * tpGridHeight;
+            final boolean containsAngles = true;
+            final float[] latTiePoints = tempLatImg.getData().getPixels(minX, minY, tpGridWidth, tpGridHeight,
+                                                                        new float[numTiePoints]);
+            final float[] lonTiePoints = tempLonImg.getData().getPixels(minX, minY, tpGridWidth, tpGridHeight,
+                                                                        new float[numTiePoints]);
 
-            final TiePointGrid tpLatGrid = new TiePointGrid("lat", tpGridWidth, tpGridHeight, offsetX, offsetY, subSamplingX, subSamplingY, latTiePoints, containsAngles);
-            final TiePointGrid tpLonGrid = new TiePointGrid("lon", tpGridWidth, tpGridHeight, offsetX, offsetY, subSamplingX, subSamplingY, lonTiePoints, containsAngles);
+            final TiePointGrid tpLatGrid = new TiePointGrid("lat", tpGridWidth, tpGridHeight, tpOffsetX, tpOffsetY,
+                                                            subSampling, subSampling, latTiePoints, containsAngles);
+            final TiePointGrid tpLonGrid = new TiePointGrid("lon", tpGridWidth, tpGridHeight, tpOffsetX, tpOffsetY,
+                                                            subSampling, subSampling, lonTiePoints, containsAngles);
             pixelPosEstimator = new TiePointGeoCoding(tpLatGrid, tpLonGrid);
             estimatorCreatedInternally = true;
         } else {
@@ -263,8 +274,8 @@ public class PixelGeoCoding extends AbstractGeoCoding {
             if (validMaskExpr != null && validMaskExpr.trim().length() > 0 && pixelPosEstimator != null) {
                 validMask = ImageManager.getInstance().getMaskImage(validMaskExpr, latBand.getProduct());
             }
-            latLonImage = new LatLonImage(this.latBand.getGeophysicalImage(), this.lonBand.getGeophysicalImage(), validMask,
-                                          pixelPosEstimator);
+            latLonImage = new LatLonImage(this.latBand.getGeophysicalImage(), this.lonBand.getGeophysicalImage(),
+                                          validMask, pixelPosEstimator);
         } else {
             try {
                 pm.beginTask("Preparing data for pixel based geo-coding...", 4);
@@ -489,7 +500,8 @@ public class PixelGeoCoding extends AbstractGeoCoding {
                 y1 = (int) Math.floor(pixelPos.y);
                 minDelta = findBestPixel(x1, y1, lat0, lon0, pixelPos);
             }
-            while (++cycles < MAX_SEARCH_CYCLES && (x1 != (int) pixelPos.x || y1 != (int) pixelPos.y) && bestPixelIsOnSearchBorder(x1, y1, pixelPos));
+            while (++cycles < MAX_SEARCH_CYCLES && (x1 != (int) pixelPos.x || y1 != (int) pixelPos.y) && bestPixelIsOnSearchBorder(
+                    x1, y1, pixelPos));
 
             if (Math.sqrt(minDelta) < deltaThreshold) {
                 pixelPos.setLocation(pixelPos.x + 0.5f, pixelPos.y + 0.5f);
@@ -548,7 +560,8 @@ public class PixelGeoCoding extends AbstractGeoCoding {
                         if (delta < minDelta) {
                             minDelta = delta;
                             bestPixel.setLocation(x, y);
-                        } else if (delta == minDelta && Math.abs(x - x0) + Math.abs(y - y0) > Math.abs(bestPixel.x - x0) + Math.abs(bestPixel.y - y0)) {
+                        } else if (delta == minDelta && Math.abs(x - x0) + Math.abs(y - y0) > Math.abs(
+                                bestPixel.x - x0) + Math.abs(bestPixel.y - y0)) {
                             bestPixel.setLocation(x, y);
                         }
                     }
@@ -702,7 +715,7 @@ public class PixelGeoCoding extends AbstractGeoCoding {
             return false;
         }
         if (validMaskExpression != null ? !validMaskExpression.equals(
-                    that.validMaskExpression) : that.validMaskExpression != null) {
+                that.validMaskExpression) : that.validMaskExpression != null) {
             return false;
         }
 
@@ -743,7 +756,7 @@ public class PixelGeoCoding extends AbstractGeoCoding {
         if (estimatorCreatedInternally) {
             pixelPosEstimator.dispose();
         }
-            pixelPosEstimator = null;
+        pixelPosEstimator = null;
 
     }
 
@@ -825,7 +838,7 @@ public class PixelGeoCoding extends AbstractGeoCoding {
                 System.out.print("  ");
             }
             System.out.println(
-                        depth + ": (" + x + "," + y + ") (" + w + "," + h + ") " + definitelyOutside + "  " + pixelFound);
+                    depth + ": (" + x + "," + y + ") (" + w + "," + h + ") " + definitelyOutside + "  " + pixelFound);
         }
         return pixelFound;
     }
@@ -866,7 +879,8 @@ public class PixelGeoCoding extends AbstractGeoCoding {
         return lonMin;
     }
 
-    static boolean isCrossingMeridianInsideQuad(boolean crossingMeridianInsideProduct, float lon0, float lon1, float lon2, float lon3) {
+    static boolean isCrossingMeridianInsideQuad(boolean crossingMeridianInsideProduct, float lon0, float lon1,
+                                                float lon2, float lon3) {
         if (!crossingMeridianInsideProduct) {
             return false;
         }
