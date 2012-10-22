@@ -153,7 +153,7 @@ public class VectorDataNodeReader {
         pm.worked(45);
 
         FeatureCollection<SimpleFeatureType, SimpleFeature> clippedCollection;
-        if (product.getGeoCoding() != null) {
+        if (product.getGeoCoding() != null && featureCollection.size() > 0) {
             final Geometry clipGeometry = FeatureUtils.createGeoBoundaryPolygon(product);
             clippedCollection = FeatureUtils.clipCollection(featureCollection,
                                                             null,
