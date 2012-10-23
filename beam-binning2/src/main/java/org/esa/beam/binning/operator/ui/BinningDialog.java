@@ -53,7 +53,7 @@ public class BinningDialog extends SingleTargetProductDialog {
     private final BinningFormModel formModel;
 
     protected BinningDialog(AppContext appContext, String title, String helpID) {
-        super(appContext, title, ID_APPLY_CLOSE, helpID, new TargetProductSelectorModel(), true);
+        super(appContext, title, ID_APPLY_CLOSE_HELP, helpID, new TargetProductSelectorModel(), true);
         if (appContext instanceof VisatApp) {
             ((VisatApp) appContext).getLogger().warning("");
         }

@@ -1,0 +1,193 @@
+<!--
+  ~ Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+  ~
+  ~ This program is free software; you can redistribute it and/or modify it
+  ~ under the terms of the GNU General Public License as published by the Free
+  ~ Software Foundation; either version 3 of the License, or (at your option)
+  ~ any later version.
+  ~ This program is distributed in the hope that it will be useful, but WITHOUT
+  ~ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+  ~ FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+  ~ more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along
+  ~ with this program; if not, see http://www.gnu.org/licenses/
+  -->
+
+<html>
+<head>
+    <title>Level 3 Binning Operator (GPF)</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+
+<body>
+<table class="header">
+    <tr class="header">
+        <td class="header">&nbsp;
+            Level 3 Binning Operator (GPF)</td>
+        <td class="header" align="right"><a href="../general/BeamOverview.html"><img src="../images/BeamHeader.jpg" border=0></a>
+        </td>
+    </tr>
+</table>
+
+<h3>The user interface</h3>
+
+<h4>I/O Parameters</h4>
+
+<p>
+    Using the I/O Parameters tab, the input products can be set, as well as the target product's name and target directory.
+    See the screenshot below.
+</p>
+
+<p>
+    <img src="images/ui_io_parameters.png">
+</p>
+
+<p>
+    When the Run-button is clicked, the binning is performed according to the preferences that are specified in the
+    "Filter-" and the "Configuration"-tabs.
+</p>
+
+<h4>Filter</h4>
+
+<p>
+    Two filters can be applied to limit the contents of the target product. See the screenshot below for the user
+    interface for the filters.
+</p>
+
+<p>
+    <img src="images/ui_filters.png">
+</p>
+
+<h5>Specify target region</h5>
+
+<p>
+    The target region filter can be used to set the bounds of the target product. It is able to operate in four
+    different modes:
+</p>
+
+<ol>
+    <li>
+        the bounds of the target product are inferred by the bounds of all inputs products; that is, the smallest
+        rectangular bounding box that contains all input products is being used.
+    </li>
+    <li>
+        the whole globe is used as region for the target product
+    </li>
+    <li>
+        the bounds of the target product are given by a user-provided WKT, according to this
+        <a href="http://docs.geotools.org/stable/javadocs/org/opengis/referencing/doc-files/WKT.html">specification</a>
+    </li>
+    <li>
+        the region of the target product can be drawn and entered using a dedicated world map component
+    </li>
+</ol>
+
+<h5>
+    Specify temporal filtering
+</h5>
+
+<p>
+    The temporal filter can be used in order to specify time bounds the source products have to comply with. Source
+    products that are not within these time bounds are not considered for level-3 generation. If the filter shall be
+    used, both a start date and an end date must be supplied. The following rules apply:
+</p>
+
+<ol>
+    <li>
+        If the product has a start time and an end time, the product is filtered out if its start time lies before the
+        specified start time or its end time lies after the specified end time.
+    </li>
+    <li>
+        If the product has a start time, but no end time, the product is filtered out if its start time lies before the
+        specified start time.
+    </li>
+    <li>
+        If the product has an end time, but no start time, the product is filtered out if its end time lies after the
+        specified end time.
+    </li>
+    <li>
+        If the product has neither start nor end time, it is never filtered out.
+    </li>
+</ol>
+
+<h4>Configuration</h4>
+
+The third tab allows the user to supply the general binning configuration. See the screenshot below for an example.
+
+<p>
+    <img src="images/ui_configuration.png">
+</p>
+
+<h5>The bands table</h5>
+
+<p>
+    Using the table, the user can specify the bands that shall appear in the target product. Using the <i>plus</i> and
+    <i>minus</i> buttons, bands can be added and removed.<br>
+    Each row in the table determines one or multiple output bands, depending on the aggregation method being chosen. If,
+    for example, the aggregation method AVG (average) is chosen in the third column, the target product will contain two
+    bands written by this output method: 1) the mean, 2) the standard deviation.<br>
+    In the first column, bands can be chosen. Either bands that are contained in the products the user entered in the
+    <i>IO Parameters</i> tab can be chosen, or band math expressions can be set by choosing the band
+    <i>&lt;expression_x&gt;</i>. In the latter case, a band maths expression can be entered in the second column, so that e.g.
+    simple algorithms such as NDVI can be computed on-the-fly.<br>
+    The <i>weight</i> and <i>percentile</i> columns are used only for specific aggregation methods; for example, when
+    using the <i>PERCENTILE</i> aggregation method, a percentile threshold has to be defined.<br>
+    The fill value can be set for all aggregation methods -- this is the value being set to the pixel if the aggregation
+    method yields no sensible value. This might happen if no valid source pixels are found for the pixel.
+</p>
+
+<h5>Valid expression and target height</h5>
+
+<p>
+    Using the valid expression, the user can specify which values in the source products shall be considered. Thus, a
+    boolean expression has to be set here. In the configuration of the example screenshot, only pixels that are not over
+    land are considered.<br>
+    The target height of the source product may be set, too; this value has direct influence on the spatial resolution.
+</p>
+
+<h5>Supersampling</h5>
+
+<p>
+    As long as the area of an input pixel is small compared to the area of a bin,
+    a simple binning is sufficient. In this case,
+    the geodetic center coordinate of the Level 2 pixel is used
+    to find the bin in the Level 3 grid whose area is intersected by this point.
+    If the area of the contributing pixel is equal or even larger than the bin area,
+    this simple binning will produce composites with insufficient accuracy and
+    visual artifacts such as Moir&eacute; effects will dominate the resulting datasets.</p>
+
+<p>
+    The following figure illustrates this problem.</p>
+
+<p>
+    <img src="images/chessGrid.png">
+</p>
+
+<p><i>Level 2 grid (blue) and Level 3 grid (yellow)</i></p>
+
+<p>The blue chessboard grid refers to the input data,
+    the yellow one refers to the final Level 3 grid. As the figure clearly shows,
+    single Level 2 pixels cannot be uniquely be assigned to single bins.</p>
+
+<p>
+    Supersampling parameter can be used to reduce or avoid the Moir&eacute; effect.
+    The Moir&eacute; effect usually occurs when the spatial resolution used for the
+    binning is similar to or smaller than the input pixel resolution. The supersampling
+    subdivides every input pixel to n x n subpixels which all have the same values but
+    different and unique geographical coordinates. This way, an input pixel may be
+    distributed to more than one adjacent bin cell.
+</p>
+
+<h5>Output binned data</h5>
+
+<p>
+    It is not only possible to write a target product in the standard format (that is, the binned data is mapped on a
+    rectangular lat/lon grid), but also to a NetCDF file whose contents are in compliance with the NASA Ocean Colour
+    Level-3 binned data products, as described
+    <a href="http://oceancolor.gsfc.nasa.gov/DOCS/Ocean_Level-3_Binned_Data_Products.pdf">here</a>.
+</p>
+
+<hr>
+</body>
+</html>
