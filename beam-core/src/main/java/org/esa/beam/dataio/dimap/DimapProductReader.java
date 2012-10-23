@@ -323,13 +323,15 @@ public class DimapProductReader extends AbstractProductReader {
                     if (pm.isCanceled()) {
                         break;
                     }
-                    final int sourcePosY = sourceY * sourceRasterWidth;
+                    final long sourcePosY = (long)sourceY * sourceRasterWidth;
                     if (sourceStepX == 1) {
-                        destBuffer.readFrom(destPos, destWidth, inputStream, sourcePosY + sourceMinX);
+                        long inputPos = sourcePosY + sourceMinX;
+                        destBuffer.readFrom(destPos, destWidth, inputStream, inputPos);
                         destPos += destWidth;
                     } else {
                         for (int sourceX = sourceMinX; sourceX <= sourceMaxX; sourceX += sourceStepX) {
-                            destBuffer.readFrom(destPos, 1, inputStream, sourcePosY + sourceX);
+                            long inputPos = sourcePosY + sourceX;
+                            destBuffer.readFrom(destPos, 1, inputStream, inputPos);
                             destPos++;
                         }
                     }

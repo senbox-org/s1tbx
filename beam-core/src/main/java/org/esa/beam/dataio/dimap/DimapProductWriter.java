@@ -21,7 +21,16 @@ import org.esa.beam.dataio.geometry.VectorDataNodeWriter;
 import org.esa.beam.framework.dataio.AbstractProductWriter;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductWriterPlugIn;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.FilterBand;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.ProductNode;
+import org.esa.beam.framework.datamodel.ProductNodeGroup;
+import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.datamodel.TiePointGrid;
+import org.esa.beam.framework.datamodel.VectorDataNode;
+import org.esa.beam.framework.datamodel.VirtualBand;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.io.FileUtils;
@@ -152,12 +161,12 @@ public class DimapProductWriter extends AbstractProductWriter {
         Guardian.assertNotNull("sourceBand", sourceBand);
         Guardian.assertNotNull("sourceBuffer", sourceBuffer);
         checkBufferSize(sourceWidth, sourceHeight, sourceBuffer);
-        final int sourceBandWidth = sourceBand.getSceneRasterWidth();
-        final int sourceBandHeight = sourceBand.getSceneRasterHeight();
+        final long sourceBandWidth = sourceBand.getSceneRasterWidth();
+        final long sourceBandHeight = sourceBand.getSceneRasterHeight();
         checkSourceRegionInsideBandRegion(sourceWidth, sourceBandWidth, sourceHeight, sourceBandHeight, sourceOffsetX,
                                           sourceOffsetY);
         final ImageOutputStream outputStream = getOrCreateImageOutputStream(sourceBand);
-        long outputPos = sourceOffsetY * sourceBandWidth + sourceOffsetX;
+        long outputPos = (long)sourceOffsetY * sourceBandWidth + (long)sourceOffsetX;
         pm.beginTask("Writing band '" + sourceBand.getName() + "'...", sourceHeight);
         try {
             for (int sourcePos = 0; sourcePos < sourceHeight * sourceWidth; sourcePos += sourceWidth) {
@@ -189,8 +198,8 @@ public class DimapProductWriter extends AbstractProductWriter {
         }
     }
 
-    private static void checkSourceRegionInsideBandRegion(int sourceWidth, final int sourceBandWidth, int sourceHeight,
-                                                          final int sourceBandHeight, int sourceOffsetX,
+    private static void checkSourceRegionInsideBandRegion(int sourceWidth, final long sourceBandWidth, int sourceHeight,
+                                                          final long sourceBandHeight, int sourceOffsetX,
                                                           int sourceOffsetY) {
         Guardian.assertWithinRange("sourceWidth", sourceWidth, 1, sourceBandWidth);
         Guardian.assertWithinRange("sourceHeight", sourceHeight, 1, sourceBandHeight);
