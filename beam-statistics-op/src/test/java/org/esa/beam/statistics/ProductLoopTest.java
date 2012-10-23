@@ -10,6 +10,7 @@ import org.mockito.InOrder;
 import java.io.File;
 import java.io.IOException;
 import java.util.logging.Logger;
+import org.mockito.Matchers;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -126,7 +127,7 @@ public class ProductLoopTest {
         verify(_loggerMock).severe("Failed to read from 'No reader available' (not a data product or reader missing)");
         verify(_statisticComputerMock, times(1)).computeStatistic(_validProductMock1);
         verify(_productLoaderMock, times(2)).loadProduct(any(File.class));
-        verifyNoMoreInteractions(_statisticComputerMock, _productLoaderMock, _loggerMock);
+        verifyNoMoreInteractions(_statisticComputerMock, _productLoaderMock);
     }
 
     @Test
@@ -146,7 +147,7 @@ public class ProductLoopTest {
         verify(_loggerMock).severe("Failed to read from 'Causes IO Exception' (not a data product or reader missing)");
         verify(_statisticComputerMock, times(1)).computeStatistic(_validProductMock1);
         verify(_productLoaderMock, times(2)).loadProduct(any(File.class));
-        verifyNoMoreInteractions(_statisticComputerMock, _productLoaderMock, _loggerMock);
+        verifyNoMoreInteractions(_statisticComputerMock, _productLoaderMock);
     }
 
     @Test

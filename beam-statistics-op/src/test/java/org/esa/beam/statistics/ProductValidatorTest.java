@@ -1,17 +1,16 @@
 package org.esa.beam.statistics;
 
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
-
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.*;
+import org.esa.beam.framework.datamodel.GeoCoding;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
+import org.junit.*;
 
 public class ProductValidatorTest {
 
@@ -22,6 +21,7 @@ public class ProductValidatorTest {
     private List<BandConfiguration> _bandConfigurations;
     private ProductValidator _productValidator;
     private Logger _loggerMock;
+    private Product _product;
 
     @Before
     public void setUp() throws Exception {
@@ -30,17 +30,18 @@ public class ProductValidatorTest {
         _startDate = ProductData.UTC.parse("2012-05-21 00:00:00", StatisticsOp.DATETIME_PATTERN);
         _endDate = ProductData.UTC.parse("2012-11-08 00:00:00", StatisticsOp.DATETIME_PATTERN);
         _productValidator = new ProductValidator(_bandConfigurations, _startDate, _endDate, _loggerMock);
+        _product = mock(Product.class);
+        when(_product.getGeoCoding()).thenReturn(mock(GeoCoding.class));
+        when(_product.getStartTime()).thenReturn(_startDate);
+        when(_product.getEndTime()).thenReturn(_endDate);
     }
 
     @Test
     public void testIsValid_IfIsEntirelyInTimeRange() {
         //preparation
-        final Product product = mock(Product.class);
-        when(product.getStartTime()).thenReturn(_startDate);
-        when(product.getEndTime()).thenReturn(_endDate);
 
         //execution
-        final boolean valid = _productValidator.isValid(product);
+        final boolean valid = _productValidator.isValid(_product);
 
         //verification
         assertEquals(true, valid);
@@ -48,15 +49,29 @@ public class ProductValidatorTest {
     }
 
     @Test
-    public void testIsInvalid_IfIsNotEntirelyInTimeRange_beforeTimeRange() {
+    public void testIsInvalid_IfProductDoesNotContainAGeoCoding() {
         //preparation
-        final Product product = mock(Product.class);
-        when(product.getStartTime()).thenReturn(smaller(_startDate));
-        when(product.getEndTime()).thenReturn(_endDate);
-        when(product.getName()).thenReturn("OutOfDateRange_before");
+        when(_product.getGeoCoding()).thenReturn(null);
+        when(_product.getName()).thenReturn("No Geocoding");
 
         //execution
-        final boolean valid = _productValidator.isValid(product);
+        final boolean valid = _productValidator.isValid(_product);
+
+        //verification
+        assertEquals(false, valid);
+        verify(_loggerMock).info("Product skipped. The product 'No Geocoding' does not contain a geo coding.");
+        verifyNoMoreInteractions(_loggerMock);
+    }
+
+    @Test
+    public void testIsInvalid_IfIsNotEntirelyInTimeRange_beforeTimeRange() {
+        //preparation
+        when(_product.getStartTime()).thenReturn(smaller(_startDate));
+        when(_product.getEndTime()).thenReturn(_endDate);
+        when(_product.getName()).thenReturn("OutOfDateRange_before");
+
+        //execution
+        final boolean valid = _productValidator.isValid(_product);
 
         //verification
         assertEquals(false, valid);
@@ -67,13 +82,12 @@ public class ProductValidatorTest {
     @Test
     public void testIsInvalid_IfIsNotEntirelyInTimeRange_afterTimeRange() {
         //preparation
-        final Product product = mock(Product.class);
-        when(product.getStartTime()).thenReturn(_startDate);
-        when(product.getEndTime()).thenReturn(bigger(_endDate));
-        when(product.getName()).thenReturn("OutOfDateRange_after");
+        when(_product.getStartTime()).thenReturn(_startDate);
+        when(_product.getEndTime()).thenReturn(bigger(_endDate));
+        when(_product.getName()).thenReturn("OutOfDateRange_after");
 
         //execution
-        final boolean valid = _productValidator.isValid(product);
+        final boolean valid = _productValidator.isValid(_product);
 
         //verification
         assertEquals(false, valid);
@@ -88,11 +102,10 @@ public class ProductValidatorTest {
         bandConfiguration.sourceBandName = "band-1";
         _bandConfigurations.add(bandConfiguration);
 
-        final Product product = mock(Product.class);
-        when(product.containsBand("band-1")).thenReturn(true);
+        when(_product.containsBand("band-1")).thenReturn(true);
 
         //execution
-        final boolean valid = _productValidator.isValid(product);
+        final boolean valid = _productValidator.isValid(_product);
 
         //verification
         assertEquals(true, valid);
@@ -106,12 +119,11 @@ public class ProductValidatorTest {
         bandConfiguration.sourceBandName = "band-1";
         _bandConfigurations.add(bandConfiguration);
 
-        final Product product = mock(Product.class);
-        when(product.containsBand("band-1")).thenReturn(false);
-        when(product.getName()).thenReturn("InvalidProduct");
+        when(_product.containsBand("band-1")).thenReturn(false);
+        when(_product.getName()).thenReturn("InvalidProduct");
 
         //execution
-        final boolean valid = _productValidator.isValid(product);
+        final boolean valid = _productValidator.isValid(_product);
 
         //verification
         assertEquals(false, valid);
@@ -126,12 +138,11 @@ public class ProductValidatorTest {
         bandConfiguration.expression = "band_1 + 4";
         _bandConfigurations.add(bandConfiguration);
 
-        final Product product = mock(Product.class);
-        when(product.isCompatibleBandArithmeticExpression("band_1 + 4")).thenReturn(false);
-        when(product.getName()).thenReturn("InvalidProduct");
+        when(_product.isCompatibleBandArithmeticExpression("band_1 + 4")).thenReturn(false);
+        when(_product.getName()).thenReturn("InvalidProduct");
 
         //execution
-        final boolean valid = _productValidator.isValid(product);
+        final boolean valid = _productValidator.isValid(_product);
 
         //verification
         assertEquals(false, valid);
@@ -145,13 +156,12 @@ public class ProductValidatorTest {
         final BandConfiguration bandConfiguration = new BandConfiguration();
         bandConfiguration.expression = "band_1 + 4";
         _bandConfigurations.add(bandConfiguration);
-        final Product product = mock(Product.class);
-        when(product.isCompatibleBandArithmeticExpression("band_1 + 4")).thenReturn(true);
-        when(product.getName()).thenReturn("InvalidProduct");
-        when(product.containsBand("band_1_+_4")).thenReturn(true);
+        when(_product.isCompatibleBandArithmeticExpression("band_1 + 4")).thenReturn(true);
+        when(_product.getName()).thenReturn("InvalidProduct");
+        when(_product.containsBand("band_1_+_4")).thenReturn(true);
 
         //execution
-        final boolean valid = _productValidator.isValid(product);
+        final boolean valid = _productValidator.isValid(_product);
 
         //verification
         assertEquals(false, valid);

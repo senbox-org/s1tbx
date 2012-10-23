@@ -1,10 +1,9 @@
 package org.esa.beam.statistics;
 
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
-
 import java.util.List;
 import java.util.logging.Logger;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
 
 public class ProductValidator {
 
@@ -21,7 +20,15 @@ public class ProductValidator {
     }
 
     public boolean isValid(Product product) {
-        return canHandleBandConfigurations(product) && isInDateRange(product);
+        return containsGeocoding(product) && canHandleBandConfigurations(product) && isInDateRange(product);
+    }
+
+    private boolean containsGeocoding(Product product) {
+        final boolean valid = product.getGeoCoding() != null;
+        if (!valid) {
+            logSkipped("The product '" + product.getName() + "' does not contain a geo coding.");
+        }
+        return valid;
     }
 
     private boolean canHandleBandConfigurations(Product product) {
@@ -30,26 +37,17 @@ public class ProductValidator {
             final String expression = bandConfiguration.expression;
             if (bandName != null) {
                 if (!product.containsBand(bandName)) {
-                    logger.info("Product skipped. The product '"
-                                        + product.getName()
-                                        + "' does not contain the band '" + bandName + "'"
-                    );
+                    logSkipped("The product '" + product.getName() + "' does not contain the band '" + bandName + "'");
                     return false;
                 }
             } else {
                 if (!product.isCompatibleBandArithmeticExpression(expression)) {
-                    logger.info("Product skipped. The product '"
-                                        + product.getName()
-                                        + "' can not resolve the band arithmetic expression '" + expression + "'"
-                    );
+                    logSkipped("The product '" + product.getName() + "' can not resolve the band arithmetic expression '" + expression + "'");
                     return false;
                 } else {
                     final String replacedExpression = expression.replace(" ", "_");
                     if (product.containsBand(replacedExpression)) {
-                        logger.info("Product skipped. The product '"
-                                            + product.getName()
-                                            + "' already contains a band '" + replacedExpression + "'"
-                        );
+                        logSkipped("The product '" + product.getName() + "' already contains a band '" + replacedExpression + "'");
                         return false;
                     }
                 }
@@ -73,14 +71,16 @@ public class ProductValidator {
         final long end_time = endTime.getAsDate().getTime();
         final boolean valid = start_date <= start_time && end_date >= end_time;
         if (!valid) {
-            logger.info("Product skipped. The product '"
-                                + product.getName()
-                                + "' is not inside the date range"
-                                + " from: " + startDate.format()
-                                + " to: " + endDate.format()
+            logSkipped("The product '" + product.getName() + "' is not inside the date range"
+                       + " from: " + startDate.format()
+                       + " to: " + endDate.format()
             );
         }
         return valid;
+    }
+
+    private void logSkipped(String message) {
+        logger.info("Product skipped. " + message);
     }
 
 }

@@ -169,7 +169,6 @@ public class StatisticsOp extends Operator implements Output {
     public void initialize() throws OperatorException {
         setDummyTargetProduct();
         validateInput();
-        setupOutputter();
 
         final StatisticComputer statisticComputer = new StatisticComputer(shapefile, bandConfigurations, computeBinCount(accuracy));
 
@@ -189,6 +188,7 @@ public class StatisticsOp extends Operator implements Output {
         if (productNames.length == 0) {
             throw new OperatorException("No input products found that matches the criteria.");
         }
+
         final Map<BandConfiguration, StatisticComputer.StxOpMapping> results = statisticComputer.getResults();
         final String[] algorithmNames = getAlgorithmNames();
 
@@ -215,6 +215,8 @@ public class StatisticsOp extends Operator implements Output {
                                                                                                startDate,
                                                                                                endDate,
                                                                                                regionNames.toArray(new String[regionNames.size()]));
+
+        setupOutputter();
 
         for (StatisticsOutputter statisticsOutputter : statisticsOutputters) {
             statisticsOutputter.initialiseOutput(statisticsOutputContext);
