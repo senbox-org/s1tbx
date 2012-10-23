@@ -18,42 +18,6 @@ package org.esa.beam.statistics;
 
 import com.bc.ceres.binding.ConversionException;
 import com.bc.ceres.binding.Converter;
-import com.bc.ceres.core.ProgressMonitor;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.HistogramStxOp;
-import org.esa.beam.framework.datamodel.Mask;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.datamodel.SummaryStxOp;
-import org.esa.beam.framework.datamodel.VectorDataNode;
-import org.esa.beam.framework.gpf.Operator;
-import org.esa.beam.framework.gpf.OperatorException;
-import org.esa.beam.framework.gpf.OperatorSpi;
-import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
-import org.esa.beam.framework.gpf.annotations.Parameter;
-import org.esa.beam.framework.gpf.annotations.SourceProducts;
-import org.esa.beam.framework.gpf.experimental.Output;
-import org.esa.beam.jai.ImageManager;
-import org.esa.beam.statistics.output.BandNameCreator;
-import org.esa.beam.statistics.output.CsvStatisticsWriter;
-import org.esa.beam.statistics.output.FeatureStatisticsWriter;
-import org.esa.beam.statistics.output.MetadataWriter;
-import org.esa.beam.statistics.output.StatisticsOutputContext;
-import org.esa.beam.statistics.output.StatisticsOutputter;
-import org.esa.beam.statistics.output.Util;
-import org.esa.beam.util.FeatureUtils;
-import org.esa.beam.util.io.FileUtils;
-import org.esa.beam.util.io.WildcardMatcher;
-import org.geotools.feature.DefaultFeatureCollection;
-import org.geotools.feature.FeatureCollection;
-import org.geotools.feature.FeatureIterator;
-import org.geotools.referencing.crs.DefaultGeographicCRS;
-import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
-
-import javax.media.jai.Histogram;
-import java.awt.Color;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -72,6 +36,28 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.logging.Level;
+import javax.media.jai.Histogram;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.HistogramStxOp;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.SummaryStxOp;
+import org.esa.beam.framework.gpf.Operator;
+import org.esa.beam.framework.gpf.OperatorException;
+import org.esa.beam.framework.gpf.OperatorSpi;
+import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
+import org.esa.beam.framework.gpf.annotations.Parameter;
+import org.esa.beam.framework.gpf.annotations.SourceProducts;
+import org.esa.beam.framework.gpf.experimental.Output;
+import org.esa.beam.statistics.output.BandNameCreator;
+import org.esa.beam.statistics.output.CsvStatisticsWriter;
+import org.esa.beam.statistics.output.FeatureStatisticsWriter;
+import org.esa.beam.statistics.output.MetadataWriter;
+import org.esa.beam.statistics.output.StatisticsOutputContext;
+import org.esa.beam.statistics.output.StatisticsOutputter;
+import org.esa.beam.statistics.output.Util;
+import org.esa.beam.util.io.FileUtils;
+import org.esa.beam.util.io.WildcardMatcher;
 
 /**
  * An operator that is used to compute statistics for any number of source products, restricted to regions given by an
@@ -97,8 +83,6 @@ public class StatisticsOp extends Operator implements Output {
 
     public static final String DATETIME_PATTERN = "yyyy-MM-dd HH:mm:ss";
     public static final String DEFAULT_PERCENTILES = "90,95";
-    private static final int MAX_ACCURACY = 6;
-    private static final int MIN_ACCURACY = 0;
 
     @SourceProducts(description = "The source products to be considered for statistics computation. If not given, " +
             "the parameter 'sourceProductPaths' must be provided.")
@@ -157,8 +141,6 @@ public class StatisticsOp extends Operator implements Output {
 
     final Set<StatisticsOutputter> statisticsOutputters = new HashSet<StatisticsOutputter>();
 
-    final Map<Product, VectorDataNode[]> productVdnMap = new HashMap<Product, VectorDataNode[]>();
-
     final SortedSet<String> regionNames = new TreeSet<String>();
 
     private PrintStream metadataOutputStream;
@@ -170,7 +152,7 @@ public class StatisticsOp extends Operator implements Output {
         setDummyTargetProduct();
         validateInput();
 
-        final StatisticComputer statisticComputer = new StatisticComputer(shapefile, bandConfigurations, computeBinCount(accuracy));
+        final StatisticComputer statisticComputer = new StatisticComputer(shapefile, bandConfigurations, Util.computeBinCount(accuracy));
 
         final ProductValidator productValidator = new ProductValidator(Arrays.asList(bandConfigurations), startDate, endDate, getLogger());
         final ProductLoop productLoop = new ProductLoop(new ProductLoader(), productValidator, statisticComputer, startDate, endDate, getLogger());
@@ -207,6 +189,11 @@ public class StatisticsOp extends Operator implements Output {
         regionNames.clear();
         for (StatisticComputer.StxOpMapping stxOpMapping : results.values()) {
             regionNames.addAll(stxOpMapping.summaryMap.keySet());
+        }
+
+        if (regionNames.size() == 0) {
+            getLogger().warning("No statistics computed because no input product intersects any feature from the given shapefile.");
+            return;
         }
 
         final StatisticsOutputContext statisticsOutputContext = StatisticsOutputContext.create(productNames,
@@ -291,40 +278,6 @@ public class StatisticsOp extends Operator implements Output {
         return fileSet.toArray(new File[fileSet.size()]);
     }
 
-    private VectorDataNode[] createVectorDataNodes(Product product) {
-
-        final FeatureUtils.FeatureCrsProvider crsProvider = new FeatureUtils.FeatureCrsProvider() {
-            @Override
-            public CoordinateReferenceSystem getFeatureCrs(Product targetProduct) {
-                if (ImageManager.getModelCrs(targetProduct.getGeoCoding()) == ImageManager.DEFAULT_IMAGE_CRS) {
-                    return ImageManager.DEFAULT_IMAGE_CRS;
-                }
-                return DefaultGeographicCRS.WGS84;
-            }
-        };
-
-        final FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection;
-        try {
-            featureCollection = FeatureUtils.loadShapefileForProduct(shapefile, product, crsProvider,
-                                                                     ProgressMonitor.NULL);
-        } catch (Exception e) {
-            throw new OperatorException("Unable to load shapefile '" + shapefile.getAbsolutePath() + "'.", e);
-        }
-
-        final FeatureIterator<SimpleFeature> featureIterator = featureCollection.features();
-        final List<VectorDataNode> result = new ArrayList<VectorDataNode>();
-        while (featureIterator.hasNext()) {
-            final SimpleFeature simpleFeature = featureIterator.next();
-            final DefaultFeatureCollection fc = new DefaultFeatureCollection(simpleFeature.getID(),
-                                                                             simpleFeature.getFeatureType());
-            fc.add(simpleFeature);
-            String name = Util.getFeatureName(simpleFeature);
-            result.add(new VectorDataNode(name, fc));
-        }
-
-        return result.toArray(new VectorDataNode[result.size()]);
-    }
-
     private String[] getAlgorithmNames() {
         final List<String> algorithms = new ArrayList<String>();
         algorithms.add("minimum");
@@ -379,51 +332,6 @@ public class StatisticsOp extends Operator implements Output {
         return histogram.getPTileThreshold(percentile * 0.01)[0];
     }
 
-    public static int computeBinCount(int accuracy) {
-        if (accuracy < 0) {
-            throw new IllegalArgumentException("accuracy < 0");
-        } else if (accuracy > MAX_ACCURACY) {
-            return 1024 * 1024;
-        }
-        return (int) Math.pow(10, accuracy);
-    }
-
-    private Mask[] getMasksForBands(List<Mask> allMasks, List<Band> bands) {
-        Mask[] masks = new Mask[bands.size()];
-        for (int i = 0; i < bands.size(); i++) {
-            final Band band = bands.get(i);
-            for (Mask mask : allMasks) {
-                if (band.getProduct() == mask.getProduct()) {
-                    masks[i] = mask;
-                    break;
-                }
-            }
-            if (masks[i] == null) {
-                masks[i] = band.getProduct().addMask("emptyMask", "false", "mask that accepts no value",
-                                                     Color.RED, 0.5);
-            }
-        }
-
-        return masks;
-    }
-
-    private void fillRegionToMaskMap(HashMap<String, List<Mask>> regionNameToMasks, Product currentProduct) {
-        if (shapefile != null) {
-            final VectorDataNode[] vectorDataNodes = productVdnMap.get(currentProduct);
-            for (VectorDataNode vectorDataNode : vectorDataNodes) {
-                currentProduct.getVectorDataGroup().add(vectorDataNode);
-                final String vdnName = vectorDataNode.getName();
-                if (!regionNameToMasks.containsKey(vdnName)) {
-                    regionNameToMasks.put(vdnName, new ArrayList<Mask>());
-                }
-                Mask currentMask = currentProduct.getMaskGroup().get(vdnName);
-                regionNameToMasks.get(vdnName).add(currentMask);
-            }
-        } else {
-            regionNameToMasks.put("world", new ArrayList<Mask>());
-        }
-    }
-
     static Band getBand(BandConfiguration configuration, Product product) {
         final Band band;
         if (configuration.sourceBandName != null) {
@@ -444,11 +352,11 @@ public class StatisticsOp extends Operator implements Output {
         if (startDate != null && endDate != null && endDate.getAsDate().before(startDate.getAsDate())) {
             throw new OperatorException("End date '" + this.endDate + "' before start date '" + this.startDate + "'");
         }
-        if (accuracy < MIN_ACCURACY) {
-            throw new OperatorException("Parameter 'accuracy' must be greater than or equal to " + MIN_ACCURACY);
+        if (accuracy < 0) {
+            throw new OperatorException("Parameter 'accuracy' must be greater than or equal to " + 0);
         }
-        if (accuracy > MAX_ACCURACY) {
-            throw new OperatorException("Parameter 'accuracy' must be less than or equal to " + MAX_ACCURACY);
+        if (accuracy > Util.MAX_ACCURACY) {
+            throw new OperatorException("Parameter 'accuracy' must be less than or equal to " + Util.MAX_ACCURACY);
         }
         if ((sourceProducts == null || sourceProducts.length == 0) &&
                 (sourceProductPaths == null || sourceProductPaths.length == 0)) {

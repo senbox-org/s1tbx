@@ -266,21 +266,6 @@ public class StatisticsOpTest {
     }
 
     @Test
-    public void testComputeBinCount() throws Exception {
-        assertEquals(1000, StatisticsOp.computeBinCount(3));
-        assertEquals(10000, StatisticsOp.computeBinCount(4));
-        assertEquals(1000000, StatisticsOp.computeBinCount(6));
-        assertEquals(1024 * 1024, StatisticsOp.computeBinCount(7));
-        assertEquals(1024 * 1024, StatisticsOp.computeBinCount(700));
-        try {
-            StatisticsOp.computeBinCount(-1);
-            fail();
-        } catch (IllegalArgumentException expected) {
-            // ok
-        }
-    }
-
-    @Test
     public void testProductAlreadyOpened() {
         final File file = new File("test.file");
 

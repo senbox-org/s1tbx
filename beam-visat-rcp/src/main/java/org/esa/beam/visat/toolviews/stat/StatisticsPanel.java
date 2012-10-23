@@ -16,33 +16,30 @@
 
 package org.esa.beam.visat.toolviews.stat;
 
+import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.PropertyDescriptor;
+import com.bc.ceres.binding.ValueRange;
+import com.bc.ceres.binding.validators.IntervalValidator;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
+import com.bc.ceres.swing.binding.BindingContext;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
 import com.jidesoft.swing.TitledSeparator;
-import org.esa.beam.framework.datamodel.Mask;
-import org.esa.beam.framework.datamodel.ProductNodeGroup;
-import org.esa.beam.framework.datamodel.RasterDataNode;
-import org.esa.beam.framework.datamodel.Stx;
-import org.esa.beam.framework.datamodel.StxFactory;
-import org.esa.beam.framework.datamodel.VectorDataNode;
-import org.esa.beam.framework.ui.GridBagUtils;
-import org.esa.beam.framework.ui.UIUtils;
-import org.esa.beam.framework.ui.application.ToolView;
-import org.esa.beam.framework.ui.tool.ToolButtonFactory;
-import org.esa.beam.statistics.StatisticsOp;
-import org.esa.beam.util.StringUtils;
-import org.jfree.chart.ChartFactory;
-import org.jfree.chart.ChartPanel;
-import org.jfree.chart.JFreeChart;
-import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.chart.plot.XYPlot;
-import org.jfree.chart.renderer.xy.StandardXYBarPainter;
-import org.jfree.chart.renderer.xy.XYBarRenderer;
-import org.jfree.data.xy.XIntervalSeries;
-import org.jfree.data.xy.XIntervalSeriesCollection;
-import org.jfree.ui.RectangleInsets;
-
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.GridLayout;
+import java.awt.Rectangle;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.util.List;
 import javax.media.jai.Histogram;
 import javax.swing.AbstractButton;
 import javax.swing.ImageIcon;
@@ -62,19 +59,28 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.GridLayout;
-import java.awt.Rectangle;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.util.List;
+import org.esa.beam.framework.datamodel.Mask;
+import org.esa.beam.framework.datamodel.ProductNodeGroup;
+import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.datamodel.Stx;
+import org.esa.beam.framework.datamodel.StxFactory;
+import org.esa.beam.framework.datamodel.VectorDataNode;
+import org.esa.beam.framework.ui.GridBagUtils;
+import org.esa.beam.framework.ui.UIUtils;
+import org.esa.beam.framework.ui.application.ToolView;
+import org.esa.beam.framework.ui.tool.ToolButtonFactory;
+import org.esa.beam.statistics.output.Util;
+import org.esa.beam.util.StringUtils;
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.renderer.xy.StandardXYBarPainter;
+import org.jfree.chart.renderer.xy.XYBarRenderer;
+import org.jfree.data.xy.XIntervalSeries;
+import org.jfree.data.xy.XIntervalSeriesCollection;
+import org.jfree.ui.RectangleInsets;
 
 /**
  * A general pane within the statistics window.
@@ -99,7 +105,7 @@ class StatisticsPanel extends PagePanel implements MultipleRoiComputePanel.Compu
     private Histogram[] histograms;
     private ExportStatisticsAsCsvAction exportAsCsvAction;
     private PutStatisticsIntoVectorDataAction putStatisticsIntoVectorDataAction;
-    private int accuracy = -1;
+    private AccuracyModel accuracyModel;
 
     public StatisticsPanel(final ToolView parentDialog, String helpID) {
         super(parentDialog, helpID, TITLE_PREFIX);
@@ -178,19 +184,29 @@ class StatisticsPanel extends PagePanel implements MultipleRoiComputePanel.Compu
     private JPanel createAccuracyPanel() {
         final JPanel accuracyPanel = new JPanel(new GridBagLayout());
         final GridBagConstraints gbc = new GridBagConstraints();
-        final JLabel label = new JLabel("Statistical Accuracy:");
+        final JLabel label = new JLabel("Statistical accuracy:");
+
+
+        accuracyModel = new AccuracyModel();
+        final BindingContext bindingContext = new BindingContext(PropertyContainer.createObjectBacked(accuracyModel));
         final JTextField textField = new JTextField("3");
+        bindingContext.bind("accuracy", textField);
         final JCheckBox checkBox = new JCheckBox("Auto accuracy");
+        bindingContext.bind("useAutoAccuracy", checkBox);
+
+        final IntervalValidator rangeValidator = new IntervalValidator(new ValueRange(0, Util.MAX_ACCURACY));
+        final PropertyDescriptor accuracyDescriptor = bindingContext.getPropertySet().getDescriptor("accuracy");
+        accuracyDescriptor.setValidator(rangeValidator);
+
         checkBox.setSelected(true);
-        checkBox.addActionListener(new ActionListener() {
+
+        bindingContext.getPropertySet().getProperty("useAutoAccuracy").addPropertyChangeListener(new PropertyChangeListener() {
             @Override
-            public void actionPerformed(ActionEvent e) {
+            public void propertyChange(PropertyChangeEvent evt) {
                 label.setEnabled(!checkBox.isSelected());
                 textField.setEnabled(!checkBox.isSelected());
-                if (!checkBox.isSelected()) {
-                    updateAccuracy(textField);
-                } else {
-                    accuracy = -1;
+                if (checkBox.isSelected()) {
+                    bindingContext.getBinding("accuracy").setPropertyValue(3);
                 }
                 computePanel.updateEnablement();
             }
@@ -202,7 +218,6 @@ class StatisticsPanel extends PagePanel implements MultipleRoiComputePanel.Compu
         textField.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                updateAccuracy(textField);
                 computePanel.updateEnablement();
             }
         });
@@ -212,14 +227,6 @@ class StatisticsPanel extends PagePanel implements MultipleRoiComputePanel.Compu
         GridBagUtils.addToPanel(accuracyPanel, label, gbc, "gridy=2, insets.left=26,weightx=0.0,fill=NONE,anchor=WEST,gridwidth=1");
         GridBagUtils.addToPanel(accuracyPanel, textField, gbc, "gridx=1,weightx=1.0,fill=HORIZONTAL,insets.right=5,insets.left=5");
         return accuracyPanel;
-    }
-
-    private void updateAccuracy(JTextField textField) {
-        try {
-            accuracy = Integer.parseInt(textField.getText());
-        } catch (NumberFormatException e1) {
-            // do nothing, old accuracy is kept
-        }
     }
 
     @Override
@@ -275,12 +282,7 @@ class StatisticsPanel extends PagePanel implements MultipleRoiComputePanel.Compu
             protected Object doInBackground(ProgressMonitor pm) {
                 pm.beginTask(title, selectedMasks.length);
                 try {
-                    final int binCount;
-                    if (accuracy > 0) {
-                        binCount = StatisticsOp.computeBinCount(accuracy);
-                    } else {
-                        binCount = StxFactory.DEFAULT_BIN_COUNT;
-                    }
+                    final int binCount = Util.computeBinCount(accuracyModel.accuracy);
                     for (int i = 0; i < selectedMasks.length; i++) {
                         final Mask mask = selectedMasks[i];
                         final Stx stx;
@@ -641,5 +643,11 @@ class StatisticsPanel extends PagePanel implements MultipleRoiComputePanel.Compu
             }
         }
     }
-
+    // The fields of this class are used by the binding framework
+    @SuppressWarnings("UnusedDeclaration")
+    static class AccuracyModel {
+        private int accuracy = 3;
+        private boolean useAutoAccuracy = true;
+    }
 }
+

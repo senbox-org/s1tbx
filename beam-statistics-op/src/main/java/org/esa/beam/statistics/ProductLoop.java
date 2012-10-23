@@ -90,8 +90,8 @@ public class ProductLoop {
         statisticComputer.computeStatistic(product);
         productNames.add(product.getName());
 
-        logger.info("    " + productNames.size() + " computed:");
-        logger.info("        product: " + path);
+        logger.fine("    " + productNames.size() + " computed:");
+        logger.fine("        product: " + path);
     }
 
     private boolean isInDateRange(Product product) {

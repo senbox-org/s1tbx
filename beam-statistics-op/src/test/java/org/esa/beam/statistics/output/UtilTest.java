@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation; either version 3 of the License, or (at your option)
@@ -9,7 +9,7 @@
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
  * more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
@@ -60,4 +60,28 @@ public class UtilTest {
         assertEquals(0.5, Util.getBinWidth(new Histogram(100, -25.0, 25.0, 1)), 1E-4);
         assertEquals(0.01, Util.getBinWidth(new Histogram(100, -1.0, 0.0, 1)), 1E-4);
     }
+
+    @Test
+    public void testComputeBinCount() throws Exception {
+        assertEquals(1000, Util.computeBinCount(3));
+        assertEquals(10000, Util.computeBinCount(4));
+        assertEquals(1000000, Util.computeBinCount(6));
+    }
+
+    @Test
+    public void testComputeBinCount_IllegalArgumentCases() {
+        tryIllegalArgument(7);
+        tryIllegalArgument(700);
+        tryIllegalArgument(-1);
+    }
+
+    private void tryIllegalArgument(int accuracy) {
+        try {
+            Util.computeBinCount(accuracy);
+            fail();
+        } catch (IllegalArgumentException expected) {
+            // ok
+        }
+    }
+
 }

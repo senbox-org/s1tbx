@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation; either version 3 of the License, or (at your option)
@@ -9,7 +9,7 @@
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
  * more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
@@ -123,9 +123,11 @@ class ExportStatisticsAsCsvAction extends AbstractAction {
                 statistics.put("p95_threshold", histogram.getPTileThreshold(0.95)[0]);
                 statistics.put("total", histogram.getTotals()[0]);
                 csvStatisticsWriter.addToOutput(dataProvider.getRasterDataNode().getName(), regionIds[i], statistics);
+                metadataWriter.addToOutput(dataProvider.getRasterDataNode().getName(), regionIds[i], statistics);
                 statistics.clear();
             }
             csvStatisticsWriter.finaliseOutput();
+            metadataWriter.finaliseOutput();
         } catch (IOException exception) {
             JOptionPane.showMessageDialog(VisatApp.getApp().getApplicationWindow(),
                                           "Failed to export statistics.\nAn error occurred:" +
