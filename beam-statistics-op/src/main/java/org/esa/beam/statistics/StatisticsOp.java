@@ -18,25 +18,6 @@ package org.esa.beam.statistics;
 
 import com.bc.ceres.binding.ConversionException;
 import com.bc.ceres.binding.Converter;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.net.MalformedURLException;
-import java.text.MessageFormat;
-import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
-import java.util.logging.Level;
-import javax.media.jai.Histogram;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.HistogramStxOp;
 import org.esa.beam.framework.datamodel.Product;
@@ -58,6 +39,26 @@ import org.esa.beam.statistics.output.StatisticsOutputter;
 import org.esa.beam.statistics.output.Util;
 import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.util.io.WildcardMatcher;
+
+import javax.media.jai.Histogram;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.net.MalformedURLException;
+import java.text.MessageFormat;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
+import java.util.logging.Level;
 
 /**
  * An operator that is used to compute statistics for any number of source products, restricted to regions given by an
@@ -91,7 +92,8 @@ public class StatisticsOp extends Operator implements Output {
     @Parameter(description = "A comma-separated list of file paths specifying the source products.\n" +
             "Each path may contain the wildcards '**' (matches recursively any directory),\n" +
             "'*' (matches any character sequence in path names) and\n" +
-            "'?' (matches any single character).")
+            "'?' (matches any single character).\n" +
+            "If, for example, all NetCDF files under /eodata/ shall be considered, use /eodata/**/.nc.")
     String[] sourceProductPaths;
 
     @Parameter(description = "An ESRI shapefile, providing the considered geographical region(s) given as polygons. " +
@@ -134,7 +136,7 @@ public class StatisticsOp extends Operator implements Output {
                notNull = false, defaultValue = DEFAULT_PERCENTILES)
     int[] percentiles;
 
-    @Parameter(description = "The number of significant figures used for statistics computation. Higher numbers " +
+    @Parameter(description = "The degree of accuracy used for statistics computation. Higher numbers " +
             "indicate higher accuracy but may lead to a considerably longer computation time.",
                defaultValue = "3")
     int accuracy;
