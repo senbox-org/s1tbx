@@ -63,7 +63,8 @@
             <groupId>org.geotools</groupId>
             <artifactId>gt-render</artifactId>
         </dependency>
-        <!-- TODO: replace this dependency! -->
+        <!-- TODO: remove this dependency as soon as beam-statistics-op has been moved to beam-core
+                  (prerequisite: beam-gpf needs to be moved to beam-core before) -->
         <dependency>
             <groupId>org.esa.beam</groupId>
             <artifactId>beam-statistics-op</artifactId>
