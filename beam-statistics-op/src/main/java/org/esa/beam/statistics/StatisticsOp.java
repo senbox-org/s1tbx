@@ -155,7 +155,7 @@ public class StatisticsOp extends Operator implements Output {
         final StatisticComputer statisticComputer = new StatisticComputer(shapefile, bandConfigurations, Util.computeBinCount(accuracy));
 
         final ProductValidator productValidator = new ProductValidator(Arrays.asList(bandConfigurations), startDate, endDate, getLogger());
-        final ProductLoop productLoop = new ProductLoop(new ProductLoader(), productValidator, statisticComputer, startDate, endDate, getLogger());
+        final ProductLoop productLoop = new ProductLoop(new ProductLoader(), productValidator, statisticComputer, getLogger());
         productLoop.loop(sourceProducts, getProductsToLoad());
 
         if (startDate == null) {

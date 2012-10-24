@@ -16,20 +16,16 @@ public class ProductLoop {
     private final Logger logger;
     private final StatisticComputer statisticComputer;
     private List<String> productNames;
-    private final ProductData.UTC startDate;
-    private final ProductData.UTC endDate;
     private ProductData.UTC newestDate;
     private ProductData.UTC oldestDate;
     private final ProductValidator productValidator;
 
-    public ProductLoop(ProductLoader loader, ProductValidator productValidator, StatisticComputer statisticComputer, ProductData.UTC startDate, ProductData.UTC endDate, Logger logger) {
+    public ProductLoop(ProductLoader loader, ProductValidator productValidator, StatisticComputer statisticComputer, Logger logger) {
         this.loader = loader;
         this.productValidator = productValidator;
         this.logger = logger;
         this.statisticComputer = statisticComputer;
         productNames = new ArrayList<String>();
-        this.startDate = startDate == null ? new ProductData.UTC(0) : startDate;
-        this.endDate = endDate == null ? new ProductData.UTC(Long.MAX_VALUE) : endDate;
         newestDate = null;
         oldestDate = null;
     }
@@ -92,16 +88,6 @@ public class ProductLoop {
 
         logger.fine("    " + productNames.size() + " computed:");
         logger.fine("        product: " + path);
-    }
-
-    private boolean isInDateRange(Product product) {
-        final ProductData.UTC startTime = product.getStartTime();
-        final ProductData.UTC endTime = product.getEndTime();
-        if (startTime == null && endTime == null) {
-            return true;
-        }
-        return startDate.getAsDate().getTime() <= startTime.getAsDate().getTime()
-                && endDate.getAsDate().getTime() >= endTime.getAsDate().getTime();
     }
 
     private void logReadProductError(File productFile) {

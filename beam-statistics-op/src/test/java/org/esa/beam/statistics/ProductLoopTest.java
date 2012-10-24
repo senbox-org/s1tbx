@@ -36,7 +36,7 @@ public class ProductLoopTest {
         _validProductMock2 = createTimeValidProductMock(7, 2);
         _validatorMock = mock(ProductValidator.class);
         when(_validatorMock.isValid(any(Product.class))).thenReturn(true);
-        _productLoop = new ProductLoop(_productLoaderMock, _validatorMock, _statisticComputerMock, _startDate, _endDate, _loggerMock);
+        _productLoop = new ProductLoop(_productLoaderMock, _validatorMock, _statisticComputerMock, _loggerMock);
     }
 
     @Test

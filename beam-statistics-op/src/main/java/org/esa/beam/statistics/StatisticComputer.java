@@ -75,14 +75,12 @@ public class StatisticComputer {
             productFeatures = FeatureUtils.clipFeatureCollectionToProductBounds(features, product, crsProvider, pm);
             vectorDataNodes = createVectorDataNodes(productFeatures);
         }
-        for (int i = 0; i < bandConfigurations.length; i++) {
-            BandConfiguration bandConfiguration = bandConfigurations[i];
+        for (BandConfiguration bandConfiguration : bandConfigurations) {
             final Band band = getBand(bandConfiguration, product);
             band.setValidPixelExpression(bandConfiguration.validPixelExpression);
             final StxOpMapping stxOpsMapping = getStxOpsMapping(bandConfiguration);
             if (features != null) {
-                for (int j = 0; j < vectorDataNodes.length; j++) {
-                    VectorDataNode vectorDataNode = vectorDataNodes[j];
+                for (VectorDataNode vectorDataNode : vectorDataNodes) {
                     product.getVectorDataGroup().add(vectorDataNode);
                     final String vdnName = vectorDataNode.getName();
                     Mask currentMask = product.getMaskGroup().get(vdnName);
