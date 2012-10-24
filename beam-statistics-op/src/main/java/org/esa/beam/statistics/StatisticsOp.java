@@ -73,11 +73,13 @@ import java.util.logging.Level;
  * Unlike most other operators, that can compute single {@link org.esa.beam.framework.gpf.Tile tiles},
  * the statistics operator processes all of its source products in its {@link #initialize()} method.
  *
+ * @author Sabine Embacher
+ * @author Tonio Fincke
  * @author Thomas Storm
  */
 @OperatorMetadata(alias = "StatisticsOp",
                   version = "1.0",
-                  authors = "Thomas Storm",
+                  authors = "Sabine Embacher, Tonio Fincke, Thomas Storm",
                   copyright = "(c) 2012 by Brockmann Consult GmbH",
                   description = "Computes statistics for an arbitrary number of source products.")
 public class StatisticsOp extends Operator implements Output {
@@ -119,8 +121,9 @@ public class StatisticsOp extends Operator implements Output {
             "about the meaning of the fields in the shapefile.", defaultValue = "false")
     boolean doOutputShapefile;
 
-    @Parameter(description = "The target file for shapefile output. It must only be provided when doOutputShapefile " +
-            "is true. The band mapping file will have the suffix _band_mapping.txt.", notNull = false)
+    @Parameter(description = "The target file for shapefile output.\n" +
+            "Shapefile output will only be written if this parameter is set. " +
+            "The band mapping file will have the suffix _band_mapping.txt.", notNull = false)
     File outputShapefile;
 
     @Parameter(description = "Determines if the output shall be written into an ASCII file." +
@@ -128,8 +131,8 @@ public class StatisticsOp extends Operator implements Output {
     boolean doOutputAsciiFile;
 
     @Parameter(description = "The target file for ASCII output." +
-            "The metadata file will have the suffix _metadata.txt" +
-            "Must only be provided when doOutputAsciiFile is true", notNull = false)
+            "The metadata file will have the suffix _metadata.txt.\n" +
+            "ASCII output will only be written if this parameter is set.", notNull = false)
     File outputAsciiFile;
 
     @Parameter(description = "The percentile levels that shall be created. Must be in the interval [0..100]",
