@@ -135,8 +135,9 @@ public class WindFieldEstimationOp extends Operator {
      */
     private void getMission() {
         mission = absRoot.getAttributeString(AbstractMetadata.MISSION);
-        if(!mission.equals("ERS") && !mission.equals("ENVISAT") && !mission.equals("ERS1") && !mission.equals("ERS2")) {
-            throw new OperatorException("Currently only ERS and ENVISAT products are supported");
+        if(!mission.equals("ERS") && !mission.equals("ENVISAT") && !mission.equals("ERS1") && !mission.equals("ERS2")
+           && !mission.contains("SENTINEL-1") && !mission.contains("RS2")) {
+            throw new OperatorException("Currently only C-Band SAR products are supported");
         }
     }
 

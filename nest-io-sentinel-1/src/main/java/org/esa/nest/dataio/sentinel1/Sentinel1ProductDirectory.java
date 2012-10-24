@@ -210,8 +210,13 @@ public class Sentinel1ProductDirectory extends XMLProductDirectory {
                 final String productType = generalProductInformation.getAttributeString("productType", defStr);
                 product.setProductType(productType);
                 AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PRODUCT_TYPE, productType);
-                if(productType.contains("SLC"))
+                if(productType.contains("SLC")) {
                     setSLC(true);
+                    AbstractMetadata.setAttribute(absRoot, AbstractMetadata.SAMPLE_TYPE, "COMPLEX");
+                } else {
+                    AbstractMetadata.setAttribute(absRoot, AbstractMetadata.SAMPLE_TYPE, "DETECTED");
+                    AbstractMetadata.setAttribute(absRoot, AbstractMetadata.srgr_flag, 1);
+                }
             }
         }
 

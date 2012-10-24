@@ -322,17 +322,19 @@ public class EnviHeader {
                 null, null, null, null,
                 null, null, null, null, null);
 
-            final String crsName = crs.getName().toString();
+            final String crsName = crs.getName().toString().toUpperCase();
             if(crsName.equals("WGS84(DD)")) {
                 mapProjectionName = "Geographic Lat/Lon";
                 mapUnits = "Degrees";
             } else if(crsName.contains("UTM")) {
                 mapProjectionName = "UTM";
-                String zoneStr = crsName.substring(crsName.indexOf("Zone")+5, crsName.indexOf('/')).trim();
-                if(zoneStr.contains(",")) {
-                    zoneStr = zoneStr.substring(0, zoneStr.indexOf(','));
+                String zoneStr = crsName.substring(crsName.indexOf("ZONE")+5, crsName.length()).trim();
+                int i=0;
+                String zoneNumStr = "";
+                while(Character.isDigit(zoneStr.charAt(i))) {
+                    zoneNumStr += zoneStr.charAt(i++);
                 }
-                utmZone = Integer.parseInt(zoneStr);
+                utmZone = Integer.parseInt(zoneNumStr);
 
                 GeoPos centrePos = crsGeoCoding.getGeoPos(new PixelPos(product.getSceneRasterWidth()/2,
                                                                 product.getSceneRasterHeight()/2), null);

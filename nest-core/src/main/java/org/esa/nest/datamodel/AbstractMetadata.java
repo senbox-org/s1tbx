@@ -337,7 +337,7 @@ public final class AbstractMetadata {
 
         addAbstractedAttribute(bandRoot, num_output_lines, ProductData.TYPE_UINT32, "lines", "Raster height");
         addAbstractedAttribute(bandRoot, num_samples_per_line, ProductData.TYPE_UINT32, "samples", "Raster width");
-        addAbstractedAttribute(absRoot, sample_type, ProductData.TYPE_ASCII, "", "DETECTED or COMPLEX");
+        addAbstractedAttribute(bandRoot, sample_type, ProductData.TYPE_ASCII, "", "DETECTED or COMPLEX");
 
         addAbstractedAttribute(bandRoot, calibration_factor, ProductData.TYPE_FLOAT64, "", "Calibration constant");
 

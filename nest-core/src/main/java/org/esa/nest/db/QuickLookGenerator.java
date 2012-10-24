@@ -189,8 +189,12 @@ public class QuickLookGenerator {
     private static File findProductBrowseImage(File productFile) {
 
         final File parentFolder = productFile.getParentFile();
+        // try Sentinel-1
+        File browseFile = new File(parentFolder, "preview"+File.separator+"quick-look.png");
+        if(browseFile.exists())
+            return browseFile;
         // try TerraSAR-X
-        File browseFile = new File(parentFolder, "PREVIEW"+File.separator+"BROWSE.tif");
+        browseFile = new File(parentFolder, "PREVIEW"+File.separator+"BROWSE.tif");
         if(browseFile.exists())
             return browseFile;
         // try Radarsat-2
