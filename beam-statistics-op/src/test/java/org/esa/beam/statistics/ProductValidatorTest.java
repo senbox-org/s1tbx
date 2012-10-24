@@ -1,20 +1,22 @@
 package org.esa.beam.statistics;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import org.esa.beam.framework.datamodel.GeoCoding;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
-import org.esa.beam.framework.datamodel.GeoCoding;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
-import org.junit.*;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 public class ProductValidatorTest {
 
-    private final int OneSecond = 1000; // == 1000 milliseconds
+    private final int oneSecond = 1000; // == 1000 milliseconds
 
     private ProductData.UTC _startDate;
     private ProductData.UTC _endDate;
@@ -66,7 +68,7 @@ public class ProductValidatorTest {
     @Test
     public void testIsInvalid_IfIsNotEntirelyInTimeRange_beforeTimeRange() {
         //preparation
-        when(_product.getStartTime()).thenReturn(smaller(_startDate));
+        when(_product.getStartTime()).thenReturn(before(_startDate));
         when(_product.getEndTime()).thenReturn(_endDate);
         when(_product.getName()).thenReturn("OutOfDateRange_before");
 
@@ -75,7 +77,7 @@ public class ProductValidatorTest {
 
         //verification
         assertEquals(false, valid);
-        verify(_loggerMock).info("Product skipped. The product 'OutOfDateRange_before' is not inside the date range from: 21-MAY-2012 00:00:00.000000 to: 08-NOV-2012 00:00:00.000000");
+        verify(_loggerMock).info("Product skipped. The product 'OutOfDateRange_before' is not inside the date range from 21-MAY-2012 00:00:00.000000 to 08-NOV-2012 00:00:00.000000");
         verifyNoMoreInteractions(_loggerMock);
     }
 
@@ -83,7 +85,7 @@ public class ProductValidatorTest {
     public void testIsInvalid_IfIsNotEntirelyInTimeRange_afterTimeRange() {
         //preparation
         when(_product.getStartTime()).thenReturn(_startDate);
-        when(_product.getEndTime()).thenReturn(bigger(_endDate));
+        when(_product.getEndTime()).thenReturn(after(_endDate));
         when(_product.getName()).thenReturn("OutOfDateRange_after");
 
         //execution
@@ -91,8 +93,72 @@ public class ProductValidatorTest {
 
         //verification
         assertEquals(false, valid);
-        verify(_loggerMock).info("Product skipped. The product 'OutOfDateRange_after' is not inside the date range from: 21-MAY-2012 00:00:00.000000 to: 08-NOV-2012 00:00:00.000000");
+        verify(_loggerMock).info("Product skipped. The product 'OutOfDateRange_after' is not inside the date range from 21-MAY-2012 00:00:00.000000 to 08-NOV-2012 00:00:00.000000");
         verifyNoMoreInteractions(_loggerMock);
+    }
+
+    @Test
+    public void testProductValidatorThatHasOnlyStartTime() throws Exception {
+        //preparation
+        _productValidator = new ProductValidator(_bandConfigurations, _startDate, null, _loggerMock);
+
+        //execution
+        //verification
+        assertTrue(isValid(configureProductTimes(_startDate, after(_endDate))));
+        assertTrue(isValid(configureProductTimes(_startDate, before(_endDate))));
+        assertTrue(isValid(configureProductTimes(_startDate, _endDate)));
+        assertTrue(isValid(configureProductTimes(_startDate, null)));
+
+        assertFalse(isValid(configureProductTimes(null, null)));
+        assertFalse(isValid(configureProductTimes(null, _endDate)));
+        assertFalse(isValid(configureProductTimes(before(_startDate), null)));
+        assertFalse(isValid(configureProductTimes(before(_startDate), _endDate)));
+    }
+
+    @Test
+    public void testProductValidatorThatHasOnlyEndTime() throws Exception {
+        //preparation
+        _productValidator = new ProductValidator(_bandConfigurations, null, _endDate, _loggerMock);
+
+        //execution
+        //verification
+        assertTrue(isValid(configureProductTimes(null, _endDate)));
+        assertTrue(isValid(configureProductTimes(after(_startDate), _endDate)));
+        assertTrue(isValid(configureProductTimes(before(_startDate), _endDate)));
+        assertTrue(isValid(configureProductTimes(_startDate, _endDate)));
+
+        assertFalse(isValid(configureProductTimes(null, null)));
+        assertFalse(isValid(configureProductTimes(_startDate, null)));
+        assertFalse(isValid(configureProductTimes(null, after(_endDate))));
+        assertFalse(isValid(configureProductTimes(_startDate, after(_endDate))));
+    }
+
+    @Test
+    public void testProductValidatorThatHasNoTimes() throws Exception {
+        //preparation
+        _productValidator = new ProductValidator(_bandConfigurations, null, null, _loggerMock);
+
+        //execution
+        //verification
+        assertTrue(isValid(configureProductTimes(null, _endDate)));
+        assertTrue(isValid(configureProductTimes(after(_startDate), _endDate)));
+        assertTrue(isValid(configureProductTimes(before(_startDate), _endDate)));
+        assertTrue(isValid(configureProductTimes(_startDate, _endDate)));
+
+        assertTrue(isValid(configureProductTimes(null, null)));
+        assertTrue(isValid(configureProductTimes(_startDate, null)));
+        assertTrue(isValid(configureProductTimes(null, after(_endDate))));
+        assertTrue(isValid(configureProductTimes(_startDate, after(_endDate))));
+    }
+
+    private boolean isValid(Product product) {
+        return _productValidator.isValid(product);
+    }
+
+    private Product configureProductTimes(ProductData.UTC startDate, ProductData.UTC endDate) {
+        when(_product.getStartTime()).thenReturn(startDate);
+        when(_product.getEndTime()).thenReturn(endDate);
+        return _product;
     }
 
     @Test
@@ -169,13 +235,13 @@ public class ProductValidatorTest {
         verifyNoMoreInteractions(_loggerMock);
     }
 
-    private ProductData.UTC smaller(ProductData.UTC date) {
-        final long time = date.getAsDate().getTime() - OneSecond;
+    private ProductData.UTC before(ProductData.UTC date) {
+        final long time = date.getAsDate().getTime() - oneSecond;
         return ProductData.UTC.create(new Date(time), 0);
     }
 
-    private ProductData.UTC bigger(ProductData.UTC date) {
-        final long time = date.getAsDate().getTime() + OneSecond;
+    private ProductData.UTC after(ProductData.UTC date) {
+        final long time = date.getAsDate().getTime() + oneSecond;
         return ProductData.UTC.create(new Date(time), 0);
     }
 }

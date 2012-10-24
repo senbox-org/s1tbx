@@ -100,7 +100,11 @@ public class ProductLoop {
                 if (product == null) {
                     continue;
                 }
-                if (product.getFileLocation().getAbsolutePath().equals(file.getAbsolutePath())) {
+                final File fileLocation = product.getFileLocation();
+                if (fileLocation == null) {
+                    continue;
+                }
+                if (fileLocation.getAbsolutePath().equals(file.getAbsolutePath())) {
                     return true;
                 }
             }

@@ -1,9 +1,10 @@
 package org.esa.beam.statistics;
 
-import java.util.List;
-import java.util.logging.Logger;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
+
+import java.util.List;
+import java.util.logging.Logger;
 
 public class ProductValidator {
 
@@ -60,23 +61,48 @@ public class ProductValidator {
         if (startDate == null && endDate == null) {
             return true;
         }
-        final ProductData.UTC startTime = product.getStartTime();
-        final ProductData.UTC endTime = product.getEndTime();
-        if (startTime == null && endTime == null) {
-            return true;
+        final ProductData.UTC productStartDate = product.getStartTime();
+        final ProductData.UTC productEndDate = product.getEndTime();
+        if (productStartDate == null && productEndDate == null) {
+            return false;
         }
-        final long start_date = startDate.getAsDate().getTime();
-        final long end_date = endDate.getAsDate().getTime();
-        final long start_time = startTime.getAsDate().getTime();
-        final long end_time = endTime.getAsDate().getTime();
-        final boolean valid = start_date <= start_time && end_date >= end_time;
-        if (!valid) {
-            logSkipped("The product '" + product.getName() + "' is not inside the date range"
-                       + " from: " + startDate.format()
-                       + " to: " + endDate.format()
-            );
+        if (startDate != null) {
+            if (productStartDate != null) {
+                final long startDateMillis = startDate.getAsDate().getTime();
+                final long productStartDateMillis = productStartDate.getAsDate().getTime();
+                if (productStartDateMillis < startDateMillis) {
+                    logSkippedDueToTimeRange(product);
+                    return false;
+                }
+            } else {
+                logSkippedDueToTimeRange(product);
+                return false;
+            }
         }
-        return valid;
+        if (endDate != null) {
+            if (productEndDate != null) {
+                final long endDateMillis = endDate.getAsDate().getTime();
+                final long productEndDateMillis = productEndDate.getAsDate().getTime();
+                if (productEndDateMillis > endDateMillis) {
+                    logSkippedDueToTimeRange(product);
+                    return false;
+                }
+            } else {
+                logSkippedDueToTimeRange(product);
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private void logSkippedDueToTimeRange(Product product) {
+        logSkipped("The product '" + product.getName() + "' is not inside the date range" + formatDateRange());
+    }
+
+    private String formatDateRange() {
+        return (startDate != null ? " from " + startDate.format() : " ")
+               + (endDate != null ? " to " + endDate.format() : "");
     }
 
     private void logSkipped(String message) {

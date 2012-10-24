@@ -19,10 +19,12 @@ package org.esa.beam.opendap.ui;
 import com.jidesoft.utils.Lm;
 import opendap.dap.DArrayDimension;
 import org.esa.beam.framework.gpf.ui.DefaultAppContext;
+import org.esa.beam.opendap.HeadlessTestRunner;
 import org.esa.beam.opendap.datamodel.DAPVariable;
 import org.esa.beam.opendap.datamodel.OpendapLeaf;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import thredds.catalog.InvDataset;
 
 import javax.swing.JCheckBox;
@@ -33,6 +35,7 @@ import static org.junit.Assert.*;
  * @author Thomas Storm
  * @author Tonio Fincke
  */
+@RunWith(HeadlessTestRunner.class)
 public class VariableFilterTest {
 
     private OpendapLeaf leaf;
