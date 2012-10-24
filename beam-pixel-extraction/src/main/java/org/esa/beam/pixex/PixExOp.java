@@ -359,7 +359,7 @@ public class PixExOp extends Operator implements Output {
 
     @SuppressWarnings("unchecked")
     private Measurement[] createOriginalMeasurements(List<Coordinate> coordinateList) {
-        if (!includeOriginalInput) {
+        if (!includeOriginalInput && (scatterPlotVariableCombinations == null || scatterPlotVariableCombinations.length == 0)) {
             return null;
         }
         Measurement[] result = new Measurement[coordinateList.size()];
@@ -405,7 +405,6 @@ public class PixExOp extends Operator implements Output {
             decoratedStrategy = new DefaultFormatStrategy(rasterNamesFactory, windowSize, expression,
                                                           exportExpressionResult);
         }
-
         if (scatterPlotVariableCombinations != null && scatterPlotVariableCombinations.length != 0) {
             return new ScatterPlotDecoratingStrategy(originalMeasurements, decoratedStrategy,
                                                      scatterPlotVariableCombinations, rasterNamesFactory,

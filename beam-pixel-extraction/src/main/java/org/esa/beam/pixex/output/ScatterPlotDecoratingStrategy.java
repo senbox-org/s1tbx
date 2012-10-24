@@ -98,6 +98,9 @@ public class ScatterPlotDecoratingStrategy implements FormatStrategy {
         decoratedStrategy.writeMeasurements(writer, measurements);
 
         for (PixExOp.VariableCombination variableCombination : scatterPlotVariableCombinations) {
+            if (!combinationHasData(variableCombination.productVariableName, measurements)) {
+                continue;
+            }
             if (!plots.containsKey(variableCombination)) {
                 String scatterPlotName = String.format("Scatter plot of '%s' and '%s'",
                                                        variableCombination.originalVariableName,
@@ -147,6 +150,9 @@ public class ScatterPlotDecoratingStrategy implements FormatStrategy {
         for (Measurement measurement : measurements) {
             Measurement originalMeasurement = MatchupFormatStrategy.findMatchingMeasurement(measurement,
                                                                                             originalMeasurements);
+            if (!combinationHasData(variableCombination.productVariableName, measurement.getProductId())) {
+                return;
+            }
             final String[] originalAttributeNames = originalMeasurement.getOriginalAttributeNames();
             String originalValue = "";
             for (int i = 0; i < originalAttributeNames.length; i++) {
@@ -183,6 +189,20 @@ public class ScatterPlotDecoratingStrategy implements FormatStrategy {
         long productId = measurement.getProductId();
         int columnIndex = rasterNamesIndices.get(productId).get(productVariableName);
         return measurement.getValues()[columnIndex];
+    }
+
+    private boolean combinationHasData(String productVariableName, Measurement[] measurements) {
+        for (Measurement measurement : measurements) {
+            long productId = measurement.getProductId();
+            if (combinationHasData(productVariableName, productId)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean combinationHasData(String productVariableName, long productId) {
+        return (rasterNamesIndices.containsKey(productId) && rasterNamesIndices.get(productId).containsKey(productVariableName));
     }
 
 }
