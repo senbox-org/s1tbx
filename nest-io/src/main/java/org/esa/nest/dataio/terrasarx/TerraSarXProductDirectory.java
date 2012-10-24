@@ -17,6 +17,7 @@ package org.esa.nest.dataio.terrasarx;
 
 import Jama.Matrix;
 import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.util.ProductUtils;
 import org.esa.nest.dataio.FileImageInputStreamExtImpl;
 import org.esa.nest.dataio.XMLProductDirectory;
@@ -412,7 +413,102 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
     @Override
     protected void addGeoCoding(final Product product) {
 
+        final File georefFile = new File(getBaseDir(), "ANNOTATION"+File.separator+"GEOREF.xml");
+        if(georefFile.exists()) {
+            try {
+                readGeoRef(product, georefFile);
+                return;
+            } catch(Exception e) {
+                //
+            }
+        }
+
         ReaderUtils.addGeoCoding(product, latCorners, lonCorners);
+    }
+
+    private void readGeoRef(final Product product, final File georefFile) throws IOException {
+        final org.jdom.Document xmlDoc = XMLSupport.LoadXML(georefFile.getAbsolutePath());
+        final Element root = xmlDoc.getRootElement();
+        final Element geoGrid = root.getChild("geolocationGrid");
+
+        final Element numGridPnt = geoGrid.getChild("numberOfGridPoints");
+        final Element numAzimuth = numGridPnt.getChild("azimuth");
+        final int numAz = Integer.parseInt(numAzimuth.getValue());
+        final Element numRange = numGridPnt.getChild("range");
+        final int numRg = Integer.parseInt(numRange.getValue());
+
+        final Element gridReferenceTime = geoGrid.getChild("gridReferenceTime");
+        final Element tReferenceTimeUTC = gridReferenceTime.getChild("tReferenceTimeUTC");
+
+        final int size = numAz*numRg;
+        final float[] latList = new float[size];
+        final float[] lonList = new float[size];
+        final float[] incList = new float[size];
+
+        final boolean flip = !isSLC();
+
+        int i = 0;
+        int r = numRg-1;
+        int c = 0;
+        final List<Element> grdPntList = geoGrid.getChildren("gridPoint");
+        for(Element pnt : grdPntList) {
+            int index = i;
+            if(flip) {
+                index = (numRg * c) + r;
+                --r;
+                if(r < 0) {
+                    r = numRg-1;
+                    ++c;
+                }
+            }
+
+            final Element tElem = pnt.getChild("t");
+            final double t = Double.parseDouble(tElem.getValue());
+
+            final Element latElem = pnt.getChild("lat");
+            latList[index] = Float.parseFloat(latElem.getValue());
+            final Element lonElem = pnt.getChild("lon");
+            lonList[index] = Float.parseFloat(lonElem.getValue());
+
+            int row = -1, col = -1;
+            final Element rowElem = pnt.getChild("row");
+            if(rowElem != null) {
+                row = Integer.parseInt(rowElem.getValue());
+            }
+            final Element colElem = pnt.getChild("col");
+            if(colElem != null) {
+                col = Integer.parseInt(colElem.getValue());
+            }
+
+            final Element incElem = pnt.getChild("inc");
+            incList[index] = Float.parseFloat(incElem.getValue());
+
+            ++i;
+        }
+
+        final int gridWidth = numRg;
+        final int gridHeight = numAz;
+        float subSamplingX = (float)product.getSceneRasterWidth() / (gridWidth - 1);
+        float subSamplingY = (float)product.getSceneRasterHeight() / (gridHeight - 1);
+
+        final TiePointGrid latGrid = new TiePointGrid(OperatorUtils.TPG_LATITUDE, gridWidth, gridHeight, 0.5f, 0.5f,
+                subSamplingX, subSamplingY, latList);
+        latGrid.setUnit(Unit.DEGREES);
+
+        final TiePointGrid lonGrid = new TiePointGrid(OperatorUtils.TPG_LONGITUDE, gridWidth, gridHeight, 0.5f, 0.5f,
+                subSamplingX, subSamplingY, lonList, TiePointGrid.DISCONT_AT_180);
+        lonGrid.setUnit(Unit.DEGREES);
+
+        final TiePointGeoCoding tpGeoCoding = new TiePointGeoCoding(latGrid, lonGrid, Datum.WGS_84);
+
+        product.addTiePointGrid(latGrid);
+        product.addTiePointGrid(lonGrid);
+        product.setGeoCoding(tpGeoCoding);
+
+        final TiePointGrid incidentAngleGrid = new TiePointGrid(OperatorUtils.TPG_INCIDENT_ANGLE, gridWidth, gridHeight, 0, 0,
+                subSamplingX, subSamplingY, incList);
+        incidentAngleGrid.setUnit(Unit.DEGREES);
+        product.addTiePointGrid(incidentAngleGrid);
     }
 
     @Override
@@ -423,24 +519,22 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
         final float subSamplingX = (float)product.getSceneRasterWidth() / (float)(gridWidth - 1);
         final float subSamplingY = (float)product.getSceneRasterHeight() / (float)(gridHeight - 1);
 
-        final float[] fineAngles = new float[gridWidth*gridHeight];
+        if(product.getTiePointGrid(OperatorUtils.TPG_INCIDENT_ANGLE) == null) {
+            final float[] fineAngles = new float[gridWidth*gridHeight];
+            ReaderUtils.createFineTiePointGrid(2, 2, gridWidth, gridHeight, incidenceCorners, fineAngles);
 
-        ReaderUtils.createFineTiePointGrid(2, 2, gridWidth, gridHeight, incidenceCorners, fineAngles);
-
-        final TiePointGrid incidentAngleGrid = new TiePointGrid(OperatorUtils.TPG_INCIDENT_ANGLE, gridWidth, gridHeight, 0, 0,
-                subSamplingX, subSamplingY, fineAngles);
-        incidentAngleGrid.setUnit(Unit.DEGREES);
-
-        product.addTiePointGrid(incidentAngleGrid);
+            final TiePointGrid incidentAngleGrid = new TiePointGrid(OperatorUtils.TPG_INCIDENT_ANGLE, gridWidth, gridHeight, 0, 0,
+                    subSamplingX, subSamplingY, fineAngles);
+            incidentAngleGrid.setUnit(Unit.DEGREES);
+            product.addTiePointGrid(incidentAngleGrid);
+        }
 
         final float[] fineSlantRange = new float[gridWidth*gridHeight];
-
         ReaderUtils.createFineTiePointGrid(2, 2, gridWidth, gridHeight, slantRangeCorners, fineSlantRange);
 
         final TiePointGrid slantRangeGrid = new TiePointGrid(OperatorUtils.TPG_SLANT_RANGE_TIME, gridWidth, gridHeight, 0, 0,
                 subSamplingX, subSamplingY, fineSlantRange);
         slantRangeGrid.setUnit(Unit.NANOSECONDS);
-
         product.addTiePointGrid(slantRangeGrid);
     }
 
