@@ -33,7 +33,7 @@ public class HeadlessTestRunner extends BlockJUnit4ClassRunner {
 
     @Override
     public void run(RunNotifier notifier) {
-        if (!GraphicsEnvironment.isHeadless()) {
+        if (GraphicsEnvironment.isHeadless()) {
             notifier.fireTestIgnored(getDescription());
             return;
         }
