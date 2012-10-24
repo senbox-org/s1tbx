@@ -116,19 +116,9 @@ public class StatisticsOp extends Operator implements Output {
                alias = "bandConfigurations", itemAlias = "bandConfiguration", notNull = true)
     BandConfiguration[] bandConfigurations;
 
-    @Parameter(description = "Determines if a copy of the input shapefile shall be created and augmented with the " +
-            "statistical data. Additionally, a band mapping file will be created which contains information" +
-            "about the meaning of the fields in the shapefile.", defaultValue = "false")
-    boolean doOutputShapefile;
-
-    @Parameter(description = "The target file for shapefile output.\n" +
-            "Shapefile output will only be written if this parameter is set. " +
-            "The band mapping file will have the suffix _band_mapping.txt.", notNull = false)
+    @Parameter(description = "The target file for shapefile output. It must only be provided when doOutputShapefile " +
+            "is true. The band mapping file will have the suffix _band_mapping.txt.", notNull = false)
     File outputShapefile;
-
-    @Parameter(description = "Determines if the output shall be written into an ASCII file." +
-            "This will also cause a metadata file to be written.", defaultValue = "false")
-    boolean doOutputAsciiFile;
 
     @Parameter(description = "The target file for ASCII output." +
             "The metadata file will have the suffix _metadata.txt.\n" +
@@ -303,7 +293,7 @@ public class StatisticsOp extends Operator implements Output {
     }
 
     void setupOutputter() {
-        if (doOutputAsciiFile) {
+        if (outputAsciiFile != null) {
             try {
                 final StringBuilder metadataFileName = new StringBuilder(
                         FileUtils.getFilenameWithoutExtension(outputAsciiFile));
@@ -317,7 +307,7 @@ public class StatisticsOp extends Operator implements Output {
                 throw new OperatorException(e);
             }
         }
-        if (doOutputShapefile) {
+        if (outputShapefile != null) {
             try {
                 final String baseName = FileUtils.getFilenameWithoutExtension(outputShapefile);
                 final File file = new File(outputShapefile.getParent(), baseName + "_band_mapping.txt");
@@ -379,14 +369,8 @@ public class StatisticsOp extends Operator implements Output {
                 throw new OperatorException("Configuration must contain either a source band name or an expression.");
             }
         }
-        if (doOutputAsciiFile && outputAsciiFile == null) {
-            throw new OperatorException("Parameter 'outputAsciiFile' must not be null when 'doOutputAsciiFile' is true.");
-        }
         if (outputAsciiFile != null && outputAsciiFile.isDirectory()) {
             throw new OperatorException("Parameter 'outputAsciiFile' must not point to a directory.");
-        }
-        if (doOutputShapefile && outputShapefile == null) {
-            throw new OperatorException("Parameter 'outputShapefile' must not be null when 'doOutputShapefile' is true.");
         }
         if (outputShapefile != null && outputShapefile.isDirectory()) {
             throw new OperatorException("Parameter 'outputShapefile' must not point to a directory.");
