@@ -1,10 +1,12 @@
 package org.esa.beam.opendap.ui;
 
 import org.esa.beam.framework.gpf.ui.DefaultAppContext;
+import org.esa.beam.opendap.HeadlessTestRunner;
 import org.esa.beam.opendap.datamodel.CatalogNode;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import thredds.catalog.InvAccessImpl;
 import thredds.catalog.InvCatalogImpl;
 import thredds.catalog.InvCatalogRef;
@@ -20,6 +22,7 @@ import java.net.URISyntaxException;
 
 import static org.junit.Assert.*;
 
+@RunWith(HeadlessTestRunner.class)
 public class CatalogTree_appendNodeUnitTest {
 
     private DefaultMutableTreeNode parentNode;
