@@ -93,7 +93,7 @@ public class StatisticsOp extends Operator implements Output {
             "Each path may contain the wildcards '**' (matches recursively any directory),\n" +
             "'*' (matches any character sequence in path names) and\n" +
             "'?' (matches any single character).\n" +
-            "If, for example, all NetCDF files under /eodata/ shall be considered, use /eodata/**/.nc.")
+            "If, for example, all NetCDF files under /eodata/ shall be considered, use '.../eodata/**/*.nc'.")
     String[] sourceProductPaths;
 
     @Parameter(description = "An ESRI shapefile, providing the considered geographical region(s) given as polygons. " +
