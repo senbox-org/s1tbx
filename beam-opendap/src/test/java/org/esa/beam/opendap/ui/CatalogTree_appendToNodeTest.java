@@ -1,7 +1,9 @@
 package org.esa.beam.opendap.ui;
 
 import org.esa.beam.framework.gpf.ui.DefaultAppContext;
+import org.esa.beam.opendap.HeadlessTestRunner;
 import org.junit.*;
+import org.junit.runner.RunWith;
 import thredds.catalog.*;
 import ucar.nc2.constants.FeatureType;
 
@@ -14,6 +16,7 @@ import java.util.ArrayList;
 
 import static org.junit.Assert.*;
 
+@RunWith(HeadlessTestRunner.class)
 public class CatalogTree_appendToNodeTest {
 
     private ArrayList<InvDataset> datasets;
