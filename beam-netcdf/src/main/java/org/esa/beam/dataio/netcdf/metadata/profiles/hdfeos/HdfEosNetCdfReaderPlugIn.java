@@ -36,7 +36,7 @@ public class HdfEosNetCdfReaderPlugIn extends AbstractNetCdfReaderPlugIn {
             }
             String projection = projectionElem.getValue();
             if (projection.equals("GCTP_GEO") || projection.equals("GCTP_SNSOID")) {
-                return DecodeQualification.SUITABLE;
+                return DecodeQualification.INTENDED;
             }
         } catch (Exception ignore) {
         }
