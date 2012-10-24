@@ -1,0 +1,39 @@
+Requirements on OPeNDAP client for BEAM
+
+- enter lat/lon and time bounds
+- enter file name pattern
+- set URL from where to download (pointing to directory containing product files)
+- set target directory (default possible)
+- tool shall download every file matching the specifications in the background
+- ProgressMonitor in front
+- try to open every product that has been downloaded
+
+(optionally)
+- if time series tool is installed: provide option to create time series from downloaded products
+- possibly support user authentication on OPeNDAP server
+- show file set matching specifications
+- create time series, if wished
+
+Possible problem: products may be scattered over server in different directories
+--> solved when THREDDS server is used
+--> solved, too, when hyrax server is used, since it supports the THREDDS catalog system
+--> clarify with ACRI
+
+Problem: geographic filtering
+--> two possibilities:
+    1) server somehow supports fast access to geographical bounding box of data files (opendap-support consulted already)
+    2) data files contain standardized meta data
+--> reading data inside the tool is not an option at all
+
+Problem: time filtering
+--> there is no standard on names for the time variable nor on the unit
+--> search for default name patterns inside global attributes (in NetCDF-case, it's NC_GLOBAL)
+--> search for default patterns inside file names
+--> if nothing's found: user can enter pattern to search for in file name
+--> if not applicable, don't filter
+
+Software:
+- for an URL pointing to a directory, return a set of filtered URLs pointing to products
+- FilterBuilder
+- download component: download data from a set of filtered URLs, store into target directory
+- UI

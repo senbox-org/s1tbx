@@ -44,6 +44,7 @@
         <module>../beam-mosaic</module>
         <module>../beam-netcdf</module>
         <module>../beam-obpg-reader</module>
+        <module>../beam-opendap</module>
         <module>../beam-pconvert</module>
         <module>../beam-pixel-extraction</module>
         <module>../beam-rtp-codec</module>
