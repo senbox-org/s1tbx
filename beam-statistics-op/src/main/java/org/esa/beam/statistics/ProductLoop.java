@@ -88,7 +88,7 @@ public class ProductLoop {
         logger.info("    current product: " + path);
 
         statisticComputer.computeStatistic(product);
-        productNames.add(product.getName());
+        productNames.add(path);
 
         logger.fine("    " + productNames.size() + " computed:");
         logger.fine("        product: " + path);
