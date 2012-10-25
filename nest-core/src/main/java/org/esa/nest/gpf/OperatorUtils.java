@@ -507,17 +507,30 @@ public final class OperatorUtils {
             }
         }
 
-        geoBoundary.lonMin = 360.0;
-        geoBoundary.lonMax = 0.0;
+        geoBoundary.lonMin = 180.0;
+        geoBoundary.lonMax = -180.0;
         for (double lon : lons) {
-            if (lon < 0) {
-                lon += 360;
-            }
             if (lon < geoBoundary.lonMin) {
                 geoBoundary.lonMin = lon;
             }
             if (lon > geoBoundary.lonMax) {
                 geoBoundary.lonMax = lon;
+            }
+        }
+
+        if (geoBoundary.lonMax - geoBoundary.lonMin >= 180) {
+            geoBoundary.lonMin = 360.0;
+            geoBoundary.lonMax = 0.0;
+            for (double lon : lons) {
+                if (lon < 0) {
+                    lon += 360;
+                }
+                if (lon < geoBoundary.lonMin) {
+                    geoBoundary.lonMin = lon;
+                }
+                if (lon > geoBoundary.lonMax) {
+                    geoBoundary.lonMax = lon;
+                }
             }
         }
 
