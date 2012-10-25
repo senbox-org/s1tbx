@@ -46,9 +46,10 @@ public class ScatterPlotDecoratingStrategy implements FormatStrategy {
     private final PixExOp.VariableCombination[] scatterPlotVariableCombinations;
 
     final Map<Long, Map<String, Integer>> rasterNamesIndices = new HashMap<Long, Map<String, Integer>>();
-    final Map<PixExOp.VariableCombination, JFreeChart> plots = new HashMap<PixExOp.VariableCombination, JFreeChart>();
+    final Map<Long, Map<PixExOp.VariableCombination, JFreeChart>> plotMaps = new HashMap<Long, Map<PixExOp.VariableCombination, JFreeChart>>();
     private final RasterNamesFactory rasterNamesFactory;
     private final ProductRegistry productRegistry;
+    private final Map<Long, String> productNames = new HashMap<Long, String>();
     private final File parent;
     private final String filePrefix;
 
@@ -73,6 +74,7 @@ public class ScatterPlotDecoratingStrategy implements FormatStrategy {
 
     void fillRasterNamesIndicesMap(Product product) {
         final long productId = getProductId(product);
+        productNames.put(productId, product.getName());
         if (!rasterNamesIndices.containsKey(productId)) {
             rasterNamesIndices.put(productId, new HashMap<String, Integer>());
         }
@@ -96,74 +98,94 @@ public class ScatterPlotDecoratingStrategy implements FormatStrategy {
     @Override
     public void writeMeasurements(PrintWriter writer, Measurement[] measurements) {
         decoratedStrategy.writeMeasurements(writer, measurements);
-
         for (PixExOp.VariableCombination variableCombination : scatterPlotVariableCombinations) {
             if (!combinationHasData(variableCombination.productVariableName, measurements)) {
                 continue;
             }
-            if (!plots.containsKey(variableCombination)) {
-                String scatterPlotName = String.format("Scatter plot of '%s' and '%s'",
-                                                       variableCombination.originalVariableName,
-                                                       variableCombination.productVariableName);
-                XYSeriesCollection dataset = createDataset(variableCombination, measurements);
-                JFreeChart scatterPlot = ChartFactory.createScatterPlot(scatterPlotName,
-                                                                        variableCombination.originalVariableName,
-                                                                        variableCombination.productVariableName,
-                                                                        dataset, PlotOrientation.VERTICAL, false, false,
-                                                                        false);
-                plots.put(variableCombination, scatterPlot);
-            } else {
-                addData(variableCombination, measurements,
-                        ((XYSeriesCollection) plots.get(variableCombination).getXYPlot().getDataset()).getSeries(0));
-            }
+            addData(variableCombination, measurements);
         }
     }
 
     @Override
     public void finish() {
-        for (Map.Entry<PixExOp.VariableCombination, JFreeChart> entry : plots.entrySet()) {
-            final PixExOp.VariableCombination variableCombination = entry.getKey();
-
-            try {
-                File targetFile = new File(parent,
-                                           String.format("%s_scatter_plot_%s_%s.png",
-                                                         filePrefix,
-                                                         variableCombination.originalVariableName,
-                                                         variableCombination.productVariableName));
-                ChartUtilities.saveChartAsPNG(targetFile, entry.getValue(), 600, 400);
-            } catch (IOException e) {
-                BeamLogManager.getSystemLogger().warning(e.getMessage());
+        for (Map.Entry<Long, Map<PixExOp.VariableCombination, JFreeChart>> mapEntry : plotMaps.entrySet()) {
+            final Map<PixExOp.VariableCombination, JFreeChart> plots = mapEntry.getValue();
+            final Long productId = mapEntry.getKey();
+            for (Map.Entry<PixExOp.VariableCombination, JFreeChart> entry : plots.entrySet()) {
+                final PixExOp.VariableCombination variableCombination = entry.getKey();
+                try {
+                    File targetFile = new File(parent,
+                                               String.format("%s_scatter_plot_%s_%s_%s.png",
+                                                             filePrefix,
+                                                             variableCombination.originalVariableName,
+                                                             variableCombination.productVariableName,
+                                                             productNames.get(productId))
+                    );
+                    ChartUtilities.saveChartAsPNG(targetFile, entry.getValue(), 600, 400);
+                } catch (IOException e) {
+                    BeamLogManager.getSystemLogger().warning(e.getMessage());
+                }
             }
         }
     }
 
-    private XYSeriesCollection createDataset(PixExOp.VariableCombination variableCombination,
-                                             Measurement[] measurements) {
-        final XYSeriesCollection dataSet = new XYSeriesCollection();
-        XYSeries data = new XYSeries("data");
-        addData(variableCombination, measurements, data);
-        dataSet.addSeries(data);
-        return dataSet;
+    private void addData(PixExOp.VariableCombination variableCombination, Measurement[] measurements) {
+        for (Measurement measurement : measurements) {
+            addData(variableCombination, measurement);
+        }
     }
 
-    private void addData(PixExOp.VariableCombination variableCombination, Measurement[] measurements, XYSeries data) {
-        for (Measurement measurement : measurements) {
-            Measurement originalMeasurement = MatchupFormatStrategy.findMatchingMeasurement(measurement,
-                                                                                            originalMeasurements);
-            if (!combinationHasData(variableCombination.productVariableName, measurement.getProductId())) {
-                return;
+    private void addData(PixExOp.VariableCombination variableCombination, Measurement measurement) {
+        final long productId = measurement.getProductId();
+        initPlotMaps(productId);
+        XYSeries xySeries = getXYSeries(variableCombination, productId);
+        Measurement originalMeasurement = MatchupFormatStrategy.findMatchingMeasurement(measurement,
+                                                                                        originalMeasurements);
+        if (!combinationHasData(variableCombination.productVariableName, measurement.getProductId())) {
+            return;
+        }
+        final String[] originalAttributeNames = originalMeasurement.getOriginalAttributeNames();
+        String originalValue = "";
+        for (int i = 0; i < originalAttributeNames.length; i++) {
+            final String attributeName = originalAttributeNames[i];
+            if (attributeName.equals(variableCombination.originalVariableName)) {
+                originalValue = originalMeasurement.getValues()[i].toString();
+                break;
             }
-            final String[] originalAttributeNames = originalMeasurement.getOriginalAttributeNames();
-            String originalValue = "";
-            for (int i = 0; i < originalAttributeNames.length; i++) {
-                final String attributeName = originalAttributeNames[i];
-                if (attributeName.equals(variableCombination.originalVariableName)) {
-                    originalValue = originalMeasurement.getValues()[i].toString();
-                    break;
-                }
-            }
-            Object value = getValue(variableCombination.productVariableName, measurement);
-            data.add(getOriginalMeasurementAsNumber(originalValue), (Number) value);
+        }
+        Object value = getValue(variableCombination.productVariableName, measurement);
+        xySeries.add(getOriginalMeasurementAsNumber(originalValue), (Number) value);
+    }
+
+    private XYSeries getXYSeries(PixExOp.VariableCombination variableCombination, long productId) {
+        final XYSeries xySeries;
+        if (plotMaps.get(productId).containsKey(variableCombination)) {
+            xySeries = ((XYSeriesCollection) plotMaps.get(productId).get(variableCombination).getXYPlot().getDataset()).getSeries(0);
+        } else {
+            xySeries = new XYSeries("data");
+            JFreeChart scatterPlot = createScatterPlot(variableCombination, xySeries, productId);
+            plotMaps.get(productId).put(variableCombination, scatterPlot);
+        }
+        return xySeries;
+    }
+
+    private JFreeChart createScatterPlot(PixExOp.VariableCombination variableCombination, XYSeries dataset, long productId) {
+        final XYSeriesCollection data = new XYSeriesCollection();
+        data.addSeries(dataset);
+        String scatterPlotName = String.format("Scatter plot of '%s' and '%s' for product '%s'",
+                                               variableCombination.originalVariableName,
+                                               variableCombination.productVariableName,
+                                               productNames.get(productId));
+        return ChartFactory.createScatterPlot(scatterPlotName,
+                                              variableCombination.originalVariableName,
+                                              variableCombination.productVariableName,
+                                              data, PlotOrientation.VERTICAL, false, false,
+                                              false);
+    }
+
+    private void initPlotMaps(long productId) {
+        if (!plotMaps.containsKey(productId)) {
+            plotMaps.put(productId, new HashMap<PixExOp.VariableCombination, JFreeChart>());
         }
     }
 

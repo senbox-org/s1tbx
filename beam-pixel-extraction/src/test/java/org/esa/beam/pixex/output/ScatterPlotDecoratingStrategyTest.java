@@ -38,7 +38,8 @@ import static org.junit.Assert.*;
  */
 public class ScatterPlotDecoratingStrategyTest {
 
-    private static final int PRODUCT_ID = 0;
+    private static final long PRODUCT_ID_0 = 0;
+    private static final long PRODUCT_ID_1 = 1;
     private ScatterPlotDecoratingStrategy strategy;
     private PixExOp.VariableCombination[] variableCombinations;
 
@@ -64,30 +65,32 @@ public class ScatterPlotDecoratingStrategyTest {
                                                      new ProductRegistry() {
                                                          @Override
                                                          public long getProductId(Product product) throws IOException {
-                                                             return 0;
+                                                             return product.getName().equals("newProduct") ? 0 : 1;
                                                          }
-                                                     }, null, null);
+                                                     }, null, "test");
 
     }
 
     @Test
-    public void testCreateScatterPlots() throws Exception {
+    public void testCreateScatterPlotsForSingleProduct() throws Exception {
         Measurement[] productMeasurements = new Measurement[]{
-                new Measurement(0, "someName", PRODUCT_ID, -1, -1, null, null, new Object[]{7, 4.0}, true),
-                new Measurement(1, "someOtherName", PRODUCT_ID, -1, -1, null, null, new Object[]{9, 3.0}, true)
+                new Measurement(0, "someName", PRODUCT_ID_0, -1, -1, null, null, new Object[]{7, 4.0}, true),
+                new Measurement(1, "someOtherName", PRODUCT_ID_0, -1, -1, null, null, new Object[]{9, 3.0}, true)
         };
 
-        assertTrue(strategy.plots.isEmpty());
+        assertTrue(strategy.plotMaps.isEmpty());
 
-        strategy.fillRasterNamesIndicesMap(createProduct());
+        strategy.writeHeader(null, createProduct("newProduct"));
         strategy.writeMeasurements(null, productMeasurements);
 
-        assertEquals(variableCombinations.length, strategy.plots.size());
+        assertEquals(1, strategy.plotMaps.size());
+        final int scatterPlotCountForProduct = strategy.plotMaps.get(PRODUCT_ID_0).size();
+        assertEquals(2, scatterPlotCountForProduct);
 
-        JFreeChart sstPlot = strategy.plots.get(variableCombinations[0]);
+        JFreeChart sstPlot = strategy.plotMaps.get(PRODUCT_ID_0).get(variableCombinations[0]);
         assertEquals("original_sst", sstPlot.getXYPlot().getDomainAxis().getLabel());
         assertEquals("product_sst", sstPlot.getXYPlot().getRangeAxis().getLabel());
-        assertEquals("Scatter plot of 'original_sst' and 'product_sst'", sstPlot.getTitle().getText());
+        assertEquals("Scatter plot of 'original_sst' and 'product_sst' for product 'newProduct'", sstPlot.getTitle().getText());
 
         XYDataset sstDataset = sstPlot.getXYPlot().getDataset();
         assertNotNull(sstDataset);
@@ -103,10 +106,10 @@ public class ScatterPlotDecoratingStrategyTest {
         assertEquals(8, sstDataset.getX(seriesIndex, 1));
         assertEquals(9, sstDataset.getY(seriesIndex, 1));
 
-        JFreeChart tsmPlot = strategy.plots.get(variableCombinations[1]);
+        JFreeChart tsmPlot = strategy.plotMaps.get(PRODUCT_ID_0).get(variableCombinations[1]);
         assertEquals("original_tsm", tsmPlot.getXYPlot().getDomainAxis().getLabel());
         assertEquals("product_tsm", tsmPlot.getXYPlot().getRangeAxis().getLabel());
-        assertEquals("Scatter plot of 'original_tsm' and 'product_tsm'", tsmPlot.getTitle().getText());
+        assertEquals("Scatter plot of 'original_tsm' and 'product_tsm' for product 'newProduct'", tsmPlot.getTitle().getText());
 
         XYDataset tsmDataset = tsmPlot.getXYPlot().getDataset();
         assertNotNull(tsmDataset);
@@ -122,19 +125,40 @@ public class ScatterPlotDecoratingStrategyTest {
     }
 
     @Test
+    public void testCreateScatterPlotsForMultipleProducts() throws Exception {
+        Measurement[] productMeasurements = new Measurement[]{
+                new Measurement(0, "someName", PRODUCT_ID_0, -1, -1, null, null, new Object[]{7, 4.0}, true),
+                new Measurement(1, "someOtherName", PRODUCT_ID_1, -1, -1, null, null, new Object[]{9, 3.0}, true)
+        };
+
+        assertTrue(strategy.plotMaps.isEmpty());
+
+        strategy.fillRasterNamesIndicesMap(createProduct("newProduct"));
+        strategy.fillRasterNamesIndicesMap(createProduct("newProduct_1"));
+        strategy.writeMeasurements(null, productMeasurements);
+
+        assertEquals(2, strategy.plotMaps.size());
+        final int scatterPlotCountForFirstProduct = strategy.plotMaps.get(PRODUCT_ID_0).size();
+        assertEquals(2, scatterPlotCountForFirstProduct);
+
+        final int scatterPlotCountForSecondProduct = strategy.plotMaps.get(PRODUCT_ID_1).size();
+        assertEquals(2, scatterPlotCountForSecondProduct);
+    }
+
+    @Test
     public void testFillRasterNamesIndicesMap() {
-        Product product = createProduct();
+        Product product = createProduct("newProduct");
         strategy.fillRasterNamesIndicesMap(product);
 
-        Map<String, Integer> rasterIndices = strategy.rasterNamesIndices.get((long) PRODUCT_ID);
+        Map<String, Integer> rasterIndices = strategy.rasterNamesIndices.get((long) PRODUCT_ID_0);
         assertNotNull(rasterIndices);
         assertEquals(2, rasterIndices.size());
         assertEquals(0, (int) rasterIndices.get("product_sst"));
         assertEquals(1, (int) rasterIndices.get("product_tsm"));
     }
 
-    private static Product createProduct() {
-        Product product = new Product("newProduct", "type", 10, 10);
+    private static Product createProduct(String productName) {
+        Product product = new Product(productName, "type", 10, 10);
         product.addBand("product_sst", ProductData.TYPE_INT32);
         product.addBand("product_tsm", ProductData.TYPE_FLOAT32);
         return product;
