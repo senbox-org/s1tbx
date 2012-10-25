@@ -43,7 +43,7 @@ import java.util.*;
 public class Sentinel1ProductDirectory extends XMLProductDirectory {
 
     private final transient Map<String, String> imgBandMetadataMap = new HashMap<String, String>(4);
-    private final Map<String, NetcdfFile> bandNCFileMap = new HashMap<String, NetcdfFile>(1);
+    private Sentinel1OCNReader OCNReader = null;
 
     public Sentinel1ProductDirectory(final File headerFile, final File imageFolder) {
         super(headerFile, imageFolder);
@@ -57,18 +57,9 @@ public class Sentinel1ProductDirectory extends XMLProductDirectory {
 
             setSceneWidthHeight(img.getSceneWidth(), img.getSceneHeight());
         } else if(name.endsWith(".nc")) {
-            final NetcdfFile netcdfFile = NetcdfFile.open(file.getPath());
-            readNetCDF(netcdfFile);
-            bandNCFileMap.put(name, netcdfFile);
-        }
-    }
-
-    private void readNetCDF(final NetcdfFile netcdfFile) {
-        final Map<NcRasterDim, List<Variable>> variableListMap = NetCDFUtils.getVariableListMap(netcdfFile.getRootGroup());
-        if (!variableListMap.isEmpty()) {
-            final NcRasterDim rasterDim = NetCDFUtils.getBestRasterDim(variableListMap);
-
-            setSceneWidthHeight(rasterDim.getDimX().getLength(), rasterDim.getDimY().getLength());
+            if(OCNReader == null )
+                OCNReader = new Sentinel1OCNReader(this);
+            OCNReader.addImageFile(file, name);
         }
     }
 
@@ -221,12 +212,12 @@ public class Sentinel1ProductDirectory extends XMLProductDirectory {
         }
 
         // get metadata for each band
-        addBandAbstractedMetadata(absRoot, origProdRoot);
+        addBandAbstractedMetadata(product, absRoot, origProdRoot);
         addCalibrationAbstractedMetadata(origProdRoot);
         addNoiseAbstractedMetadata(origProdRoot);
     }
 
-    private void addBandAbstractedMetadata(final MetadataElement absRoot,
+    private void addBandAbstractedMetadata(final Product product, final MetadataElement absRoot,
                                            final MetadataElement origProdRoot) throws IOException {
 
         MetadataElement annotationElement = origProdRoot.getElement("annotation");
@@ -236,11 +227,9 @@ public class Sentinel1ProductDirectory extends XMLProductDirectory {
         }
         final File annotationFolder = new File(getBaseDir(), "annotation");
         final File[] files = annotationFolder.listFiles();
-        if(files == null) {
+        if(files == null && OCNReader != null) {
             // add netcdf metadata for OCN products
-            if(!bandNCFileMap.isEmpty()) {
-                addNetCDFMetadata(annotationElement);
-            }
+            OCNReader.addNetCDFMetadata(product, annotationElement);
             return;
         }
 
@@ -329,29 +318,6 @@ public class Sentinel1ProductDirectory extends XMLProductDirectory {
                 rangeSpacingTotal / (double)numBands);
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_spacing,
                 azimuthSpacingTotal / (double)numBands);
-    }
-
-    private void addNetCDFMetadata(final MetadataElement annotationElement) {
-        Set<String> files = bandNCFileMap.keySet();
-        for(String file : files) {
-            final NetcdfFile netcdfFile = bandNCFileMap.get(file);
-            MetadataElement bandElem = NetCDFUtils.addAttributes(annotationElement, file,
-                    netcdfFile.getGlobalAttributes());
-
-            final Map<NcRasterDim, List<Variable>> variableListMap = NetCDFUtils.getVariableListMap(netcdfFile.getRootGroup());
-            if (!variableListMap.isEmpty()) {
-                // removeQuickLooks(variableListMap);
-
-                final NcRasterDim rasterDim = NetCDFUtils.getBestRasterDim(variableListMap);
-                final Variable[] rasterVariables = NetCDFUtils.getRasterVariables(variableListMap, rasterDim);
-                final Variable[] tiePointGridVariables = NetCDFUtils.getTiePointGridVariables(variableListMap, rasterVariables);
-                NcVariableMap variableMap = new NcVariableMap(rasterVariables);
-
-                for (final Variable variable : variableMap.getAll()) {
-                    NetCDFUtils.addAttributes(bandElem, variable.getName(), variable.getAttributes());
-                }
-            }
-        }
     }
 
     private void addCalibrationAbstractedMetadata(final MetadataElement origProdRoot) throws IOException {

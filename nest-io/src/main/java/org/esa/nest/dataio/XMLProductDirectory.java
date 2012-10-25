@@ -84,7 +84,7 @@ public class XMLProductDirectory {
         }
     }
 
-    protected void setSceneWidthHeight(final int width, final int height) {
+    public void setSceneWidthHeight(final int width, final int height) {
         sceneWidth = width;
         sceneHeight = height;
     }
