@@ -18,6 +18,25 @@ package org.esa.beam.statistics;
 
 import com.bc.ceres.binding.ConversionException;
 import com.bc.ceres.binding.Converter;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.net.MalformedURLException;
+import java.text.MessageFormat;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
+import java.util.logging.Level;
+import javax.media.jai.Histogram;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.HistogramStxOp;
 import org.esa.beam.framework.datamodel.Product;
@@ -39,26 +58,6 @@ import org.esa.beam.statistics.output.StatisticsOutputter;
 import org.esa.beam.statistics.output.Util;
 import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.util.io.WildcardMatcher;
-
-import javax.media.jai.Histogram;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.net.MalformedURLException;
-import java.text.MessageFormat;
-import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
-import java.util.logging.Level;
 
 /**
  * An operator that is used to compute statistics for any number of source products, restricted to regions given by an
@@ -376,8 +375,16 @@ public class StatisticsOp extends Operator implements Output {
         if (outputAsciiFile != null && outputAsciiFile.isDirectory()) {
             throw new OperatorException("Parameter 'outputAsciiFile' must not point to a directory.");
         }
-        if (outputShapefile != null && outputShapefile.isDirectory()) {
-            throw new OperatorException("Parameter 'outputShapefile' must not point to a directory.");
+        if (outputShapefile != null) {
+            if (outputShapefile.isDirectory()) {
+                throw new OperatorException("Parameter 'outputShapefile' must not point to a directory.");
+            }
+            if (shapefile == null) {
+                throw new OperatorException("Parameter 'shapefile' must be given if outputShapefile shoud be created.");
+            }
+            if (shapefile.isDirectory()) {
+                throw new OperatorException("Parameter 'shapefile' must not point to a directory.");
+            }
         }
 
 
