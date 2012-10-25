@@ -36,10 +36,12 @@ public class CRSGeoCodingHandler {
         final Rectangle2D bounds = new Rectangle2D.Double();
         double lonMin = imageGeoBoundary.lonMin;
         double lonMax = imageGeoBoundary.lonMax;
+        /*
         if(lonMin > 180)
             lonMin -= 360;
         if(lonMax > 180)
             lonMax -= 360;
+        */
         bounds.setFrameFromDiagonal(lonMin, imageGeoBoundary.latMin, lonMax, imageGeoBoundary.latMax);
         final ReferencedEnvelope boundsEnvelope = new ReferencedEnvelope(bounds, DefaultGeographicCRS.WGS84);
         final ReferencedEnvelope targetEnvelope = boundsEnvelope.transform(targetCRS, true);
