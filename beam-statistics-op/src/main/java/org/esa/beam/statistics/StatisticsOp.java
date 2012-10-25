@@ -116,8 +116,9 @@ public class StatisticsOp extends Operator implements Output {
                alias = "bandConfigurations", itemAlias = "bandConfiguration", notNull = true)
     BandConfiguration[] bandConfigurations;
 
-    @Parameter(description = "The target file for shapefile output. It must only be provided when doOutputShapefile " +
-                             "is true. The band mapping file will have the suffix _band_mapping.txt.", notNull = false)
+    @Parameter(description = "The target file for shapefile output. Shapefile output will only be written if this " +
+                             "parameter is set. The band mapping file will have the suffix _band_mapping.txt.",
+               notNull = false)
     File outputShapefile;
 
     @Parameter(description = "The target file for ASCII output." +
