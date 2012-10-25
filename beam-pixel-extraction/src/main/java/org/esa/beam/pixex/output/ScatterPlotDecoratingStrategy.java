@@ -69,10 +69,9 @@ public class ScatterPlotDecoratingStrategy implements FormatStrategy {
     @Override
     public void writeHeader(PrintWriter writer, Product product) {
         decoratedStrategy.writeHeader(writer, product);
-        fillRasterNamesIndicesMap(product);
     }
 
-    void fillRasterNamesIndicesMap(Product product) {
+    void updateRasterNamesMaps(Product product) {
         final long productId = getProductId(product);
         productNames.put(productId, product.getName());
         if (!rasterNamesIndices.containsKey(productId)) {
@@ -96,8 +95,9 @@ public class ScatterPlotDecoratingStrategy implements FormatStrategy {
     }
 
     @Override
-    public void writeMeasurements(PrintWriter writer, Measurement[] measurements) {
-        decoratedStrategy.writeMeasurements(writer, measurements);
+    public void writeMeasurements(Product product, PrintWriter writer, Measurement[] measurements) {
+        updateRasterNamesMaps(product);
+        decoratedStrategy.writeMeasurements(product, writer, measurements);
         for (PixExOp.VariableCombination variableCombination : scatterPlotVariableCombinations) {
             if (!combinationHasData(variableCombination.productVariableName, measurements)) {
                 continue;

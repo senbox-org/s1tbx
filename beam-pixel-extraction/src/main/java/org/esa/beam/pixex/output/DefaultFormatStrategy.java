@@ -40,7 +40,7 @@ public class DefaultFormatStrategy extends AbstractFormatStrategy {
     }
 
     @Override
-    public void writeMeasurements(PrintWriter writer, Measurement[] measurements) {
+    public void writeMeasurements(Product product, PrintWriter writer, Measurement[] measurements) {
         try {
             for (Measurement measurement : measurements) {
                 write(writer, measurement);

@@ -39,7 +39,7 @@ public class MatchupFormatStrategy extends AbstractFormatStrategy {
     }
 
     @Override
-    public void writeMeasurements(PrintWriter writer, Measurement[] measurements) {
+    public void writeMeasurements(Product product, PrintWriter writer, Measurement[] measurements) {
         for (Measurement measurement : measurements) {
             Measurement matchingMeasurement = findMatchingMeasurement(measurement, originalMeasurements);
             final boolean withExpression = expression != null && exportExpressionResult;

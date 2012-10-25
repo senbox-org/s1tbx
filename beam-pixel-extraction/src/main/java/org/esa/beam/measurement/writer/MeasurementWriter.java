@@ -58,7 +58,7 @@ public class MeasurementWriter {
             formatStrategy.writeHeader(writer, product);
         }
 
-        formatStrategy.writeMeasurements(writer, measurements);
+        formatStrategy.writeMeasurements(product, writer, measurements);
 
         if (writer.checkError()) {
             throw new IOException("Error occurred while writing measurement.");

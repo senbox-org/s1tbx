@@ -35,7 +35,7 @@ public class PixExFormatStrategyTest_writeMeasurement {
 
         // execution
         final StringWriter stringWriter = new StringWriter();
-        defaultFormat.writeMeasurements(new PrintWriter(stringWriter), oneMeasurement);
+        defaultFormat.writeMeasurements(null, new PrintWriter(stringWriter), oneMeasurement);
 
         // verifying
         final BufferedReader reader = new BufferedReader(new StringReader(stringWriter.toString()));
@@ -54,7 +54,7 @@ public class PixExFormatStrategyTest_writeMeasurement {
 
         // execution
         final StringWriter stringWriter = new StringWriter();
-        defaultFormat.writeMeasurements(new PrintWriter(stringWriter), oneMeasurement);
+        defaultFormat.writeMeasurements(null, new PrintWriter(stringWriter), oneMeasurement);
 
         // verifying
         final BufferedReader reader = new BufferedReader(new StringReader(stringWriter.toString()));
@@ -74,7 +74,7 @@ public class PixExFormatStrategyTest_writeMeasurement {
 
         // execution
         final StringWriter stringWriter = new StringWriter();
-        defaultFormat.writeMeasurements(new PrintWriter(stringWriter), new Measurement[]{measurement1, measurement2});
+        defaultFormat.writeMeasurements(null, new PrintWriter(stringWriter), new Measurement[]{measurement1, measurement2});
 
         // verifying
         final BufferedReader reader = new BufferedReader(new StringReader(stringWriter.toString()));

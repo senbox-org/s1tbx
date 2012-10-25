@@ -1,11 +1,14 @@
 package org.esa.beam.pixex.output;
 
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.measurement.Measurement;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
 import java.awt.Rectangle;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.measurement.Measurement;
-import org.junit.*;
 
 import static org.junit.Assert.*;
 
@@ -21,12 +24,10 @@ public class AbstractFormatStrategyTest_writeData {
         abstractFormatStrategy = new AbstractFormatStrategy(null, null, 1, true) {
             @Override
             public void writeHeader(PrintWriter writer, Product product) {
-                //Todo change body of created method. Use File | Settings | File Templates to change
             }
 
             @Override
-            public void writeMeasurements(PrintWriter writer, Measurement[] measurements) {
-                //Todo change body of created method. Use File | Settings | File Templates to change
+            public void writeMeasurements(Product product, PrintWriter writer, Measurement[] measurements) {
             }
         };
         stringWriter = new StringWriter();

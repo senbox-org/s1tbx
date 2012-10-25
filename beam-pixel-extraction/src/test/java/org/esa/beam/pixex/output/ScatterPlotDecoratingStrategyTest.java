@@ -80,8 +80,9 @@ public class ScatterPlotDecoratingStrategyTest {
 
         assertTrue(strategy.plotMaps.isEmpty());
 
-        strategy.writeHeader(null, createProduct("newProduct"));
-        strategy.writeMeasurements(null, productMeasurements);
+        final Product product = createProduct("newProduct");
+        strategy.writeHeader(null, product);
+        strategy.writeMeasurements(product, null, productMeasurements);
 
         assertEquals(1, strategy.plotMaps.size());
         final int scatterPlotCountForProduct = strategy.plotMaps.get(PRODUCT_ID_0).size();
@@ -133,9 +134,8 @@ public class ScatterPlotDecoratingStrategyTest {
 
         assertTrue(strategy.plotMaps.isEmpty());
 
-        strategy.fillRasterNamesIndicesMap(createProduct("newProduct"));
-        strategy.fillRasterNamesIndicesMap(createProduct("newProduct_1"));
-        strategy.writeMeasurements(null, productMeasurements);
+        strategy.updateRasterNamesMaps(createProduct("newProduct"));
+        strategy.writeMeasurements(createProduct("newProduct_1"), null, productMeasurements);
 
         assertEquals(2, strategy.plotMaps.size());
         final int scatterPlotCountForFirstProduct = strategy.plotMaps.get(PRODUCT_ID_0).size();
@@ -148,9 +148,9 @@ public class ScatterPlotDecoratingStrategyTest {
     @Test
     public void testFillRasterNamesIndicesMap() {
         Product product = createProduct("newProduct");
-        strategy.fillRasterNamesIndicesMap(product);
+        strategy.updateRasterNamesMaps(product);
 
-        Map<String, Integer> rasterIndices = strategy.rasterNamesIndices.get((long) PRODUCT_ID_0);
+        Map<String, Integer> rasterIndices = strategy.rasterNamesIndices.get(PRODUCT_ID_0);
         assertNotNull(rasterIndices);
         assertEquals(2, rasterIndices.size());
         assertEquals(0, (int) rasterIndices.get("product_sst"));
@@ -171,7 +171,7 @@ public class ScatterPlotDecoratingStrategyTest {
         }
 
         @Override
-        public void writeMeasurements(PrintWriter writer, Measurement[] measurements) {
+        public void writeMeasurements(Product product, PrintWriter writer, Measurement[] measurements) {
         }
 
         @Override
