@@ -508,6 +508,7 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
         final double rangeSpacing = absRoot.getAttributeDouble(AbstractMetadata.range_spacing, 0); // in m
         final boolean srgrFlag = absRoot.getAttributeInt(AbstractMetadata.srgr_flag) != 0;
         final boolean isDescending = absRoot.getAttributeString(AbstractMetadata.PASS).equals("DESCENDING");
+        final boolean isAntennaPointingRight = absRoot.getAttributeString(AbstractMetadata.antenna_pointing).equals("right");
 
         // get scene center latitude
         final GeoPos sceneCenterPos =
@@ -552,8 +553,9 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
             final double alpha = Math.acos((rtPlusH2 - ri*ri - rt2)/(2.0*ri*rt));
             if (i % subSamplingX == 0) {
                 int index = k++;
-                if(isDescending)   // flip for descending RS2
+                if(isDescending && isAntennaPointingRight || (!isDescending && !isAntennaPointingRight)) {// flip
                     index = gridWidth-1 - index;
+                }
                 incidenceAngles[index] = (float)(alpha * org.esa.beam.util.math.MathUtils.RTOD);
             }
 
