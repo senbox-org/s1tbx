@@ -56,6 +56,7 @@ public final class AbstractMetadata {
     public static final String PATH = "PATH";
     public static final String MISSION = "MISSION";
     public static final String ACQUISITION_MODE = "ACQUISITION_MODE";
+    public static final String antenna_pointing = "antenna_pointing";
     public static final String BEAMS = "BEAMS";
     public static final String annotation = "annotation";
     public static final String band_names = "band_names";
@@ -207,6 +208,7 @@ public final class AbstractMetadata {
         addAbstractedAttribute(absRoot, SPH_DESCRIPTOR, ProductData.TYPE_ASCII, "", "Description");
         addAbstractedAttribute(absRoot, MISSION, ProductData.TYPE_ASCII, "", "Satellite mission");
         addAbstractedAttribute(absRoot, ACQUISITION_MODE, ProductData.TYPE_ASCII, "", "Acquisition mode");
+        addAbstractedAttribute(absRoot, antenna_pointing, ProductData.TYPE_ASCII, "", "Right or left facing");
         addAbstractedAttribute(absRoot, BEAMS, ProductData.TYPE_ASCII, "", "Beams used");
         addAbstractedAttribute(absRoot, SWATH, ProductData.TYPE_ASCII, "", "Swath name");
         addAbstractedAttribute(absRoot, PROC_TIME, ProductData.TYPE_UTC, "utc", "Processed time");

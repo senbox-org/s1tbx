@@ -245,6 +245,9 @@ public class CosmoSkymedReader extends AbstractProductReader {
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ProcessingSystemIdentifier,
                 globalElem.getAttributeString("Processing Centre", defStr));
 
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.antenna_pointing,
+                globalElem.getAttributeString("Look Side", defStr).toLowerCase());
+
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ABS_ORBIT, globalElem.getAttributeInt("Orbit Number", defInt));
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PASS, globalElem.getAttributeString("Orbit Direction", defStr));
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.SAMPLE_TYPE, getSampleType(globalElem));

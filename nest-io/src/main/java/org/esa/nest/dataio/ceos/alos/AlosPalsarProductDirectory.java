@@ -507,6 +507,8 @@ class AlosPalsarProductDirectory extends CEOSProductDirectory {
                 sceneRec.getAttributeString("Product type descriptor"));
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.MISSION, getMission());
 
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.antenna_pointing, "right");
+
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PROC_TIME,
                 getProcTime(volumeDirectoryFile.getVolumeDescriptorRecord()));
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ProcessingSystemIdentifier,

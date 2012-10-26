@@ -211,6 +211,7 @@ class ERSProductDirectory extends CEOSProductDirectory {
                 sceneRec.getAttributeString("Product type descriptor"));
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.MISSION, getMission());
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ACQUISITION_MODE, "Stripmap");
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.antenna_pointing, "right");
 
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PROC_TIME,
                 getProcTime(volumeDirectoryFile.getVolumeDescriptorRecord()));
