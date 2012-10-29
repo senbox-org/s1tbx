@@ -63,6 +63,7 @@ class MaskTable extends JTable {
     }
 
     void setProduct(Product product, RasterDataNode visibleBand) {
+        saveColumnWidths();
         getModel().setProduct(product, visibleBand);
         reconfigureColumnModel();
     }
@@ -109,16 +110,25 @@ class MaskTable extends JTable {
         getModel().removeMask(mask);
     }
 
-    public void reconfigureColumnModel() {
+    private void saveColumnWidths() {
+        if (getRowCount() > 0) {
+            MaskTableModel maskTableModel = getModel();
+            for (int i = 0; i < maskTableModel.getColumnCount(); i++) {
+                maskTableModel.setPreferredColumnWidth(i, columnModel.getColumn(i).getPreferredWidth());
+            }
+        }
+    }
+
+    private void reconfigureColumnModel() {
         createDefaultColumnsFromModel();
         TableColumnModel columnModel = getColumnModel();
-        int vci = getModel().getVisibilityColumnIndex();
+        MaskTableModel maskTableModel = getModel();
+        int vci = maskTableModel.getVisibilityColumnIndex();
         if (vci >= 0) {
             columnModel.getColumn(vci).setHeaderRenderer(visibilityHR);
         }
-        for (int i = 0; i < getModel().getColumnCount(); i++) {
-            int columnWidth = getModel().getPreferredColumnWidth(i);
-            columnModel.getColumn(i).setPreferredWidth(columnWidth);
+        for (int i = 0; i < maskTableModel.getColumnCount(); i++) {
+            columnModel.getColumn(i).setPreferredWidth(maskTableModel.getPreferredColumnWidth(i));
         }
     }
 
