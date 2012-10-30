@@ -158,7 +158,7 @@ public class XMLProductDirectory {
     private void addMetaData(final Product product) throws IOException {
         final MetadataElement root = product.getMetadataRoot();
         final Element rootElement = xmlDoc.getRootElement();
-        AbstractMetadataIO.AddXMLMetadata(rootElement, AbstractMetadata.getOriginalProductMetadata(root));
+        AbstractMetadataIO.AddXMLMetadata(rootElement, AbstractMetadata.getOriginalProductMetadata(product));
 
         addAbstractedMetadataHeader(product, root);
     }

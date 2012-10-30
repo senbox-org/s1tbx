@@ -1,7 +1,7 @@
 New in NEST 5
 
 Autoupdate installation
-
+Support for left facing missions
 
 New in NEST 4C
 

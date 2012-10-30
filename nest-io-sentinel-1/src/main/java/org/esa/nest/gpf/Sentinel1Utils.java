@@ -16,13 +16,22 @@
 package org.esa.nest.gpf;
 
 import Jama.Matrix;
-import org.esa.beam.framework.datamodel.MetadataAttribute;
-import org.esa.beam.framework.datamodel.MetadataElement;
-import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.gpf.OperatorException;
+import org.esa.beam.util.StringUtils;
 import org.esa.nest.datamodel.AbstractMetadata;
+import org.esa.nest.datamodel.Unit;
+import org.esa.nest.util.XMLSupport;
+import org.esa.nest.dataio.sentinel1.Sentinel1Constants;
+import org.jdom.Element;
 
 import java.text.DateFormat;
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
+import java.util.StringTokenizer;
+import java.util.Map;
+import java.util.ArrayList;
 
 public final class Sentinel1Utils
 {
@@ -33,11 +42,10 @@ public final class Sentinel1Utils
 
     public static ProductData.UTC getTime(final MetadataElement elem, final String tag) {
 
-        final DateFormat dateFormat = ProductData.UTC.createDateFormat("yyyy-MM-dd_HH:mm:ss");
         String start = elem.getAttributeString(tag, AbstractMetadata.NO_METADATA_STRING);
         start = start.replace("T", "_");
 
-        return AbstractMetadata.parseUTC(start, dateFormat);
+        return AbstractMetadata.parseUTC(start, Sentinel1Constants.sentinelDateFormat);
     }
 
     public static int[] getIntArray(final MetadataElement elem, final String tag) {
@@ -62,5 +70,69 @@ public final class Sentinel1Utils
         }
 
         return array;
+    }
+
+    public static NoiseVector[] getNoiseVector(final Band band) {
+
+        final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(band.getProduct());
+        final MetadataElement bandAbsMetadata = AbstractMetadata.getBandAbsMetadata(absRoot, band);
+        final String annotation = bandAbsMetadata.getAttributeString(AbstractMetadata.annotation);
+        final MetadataElement origMetadata = AbstractMetadata.getOriginalProductMetadata(band.getProduct());
+
+        final MetadataElement noiseElem = origMetadata.getElement("noise");
+        final MetadataElement bandNoise = noiseElem.getElement(annotation);
+        final MetadataElement noise = bandNoise.getElement("noise");
+        final MetadataElement noiseVectorListElem = noise.getElement("noiseVectorList");
+        final MetadataElement[] list = noiseVectorListElem.getElements();
+
+        final List<NoiseVector> noiseVectorList = new ArrayList<NoiseVector>(5);
+        for(MetadataElement noiseVectorElem : list) {
+            final ProductData.UTC time = getTime(noiseVectorElem, "azimuthTime");
+            final int line = noiseVectorElem.getAttributeInt("line");
+
+            final MetadataElement pixelElem = noiseVectorElem.getElement("pixel");
+            final String pixel = pixelElem.getAttributeString("pixel");
+            final int count = pixelElem.getAttributeInt("count");
+            final MetadataElement noiseLutElem = noiseVectorElem.getElement("noiseLut");
+            final String noiseLUT = noiseLutElem.getAttributeString("noiseLut");
+
+            final int[] pixelArray = new int[count];
+            final float[] noiseLUTArray = new float[count];
+            addToArray(pixelArray, 0, pixel, " ");
+            addToArray(noiseLUTArray, 0, noiseLUT, " ");
+
+            noiseVectorList.add(new NoiseVector(time, line, pixelArray, noiseLUTArray));
+        }
+        return noiseVectorList.toArray(new NoiseVector[noiseVectorList.size()]);
+    }
+
+    private static int addToArray(final int[] array, int index, final String csvString, final String delim) {
+        final StringTokenizer tokenizer = new StringTokenizer(csvString, delim);
+        while (tokenizer.hasMoreTokens()) {
+            array[index++] = Integer.parseInt(tokenizer.nextToken());
+        }
+        return index;
+    }
+
+    private static int addToArray(final float[] array, int index, final String csvString, final String delim) {
+        final StringTokenizer tokenizer = new StringTokenizer(csvString, delim);
+        while (tokenizer.hasMoreTokens()) {
+            array[index++] = Float.parseFloat(tokenizer.nextToken());
+        }
+        return index;
+    }
+
+    public static class NoiseVector {
+        public final ProductData.UTC time;
+        public final int line;
+        public final int[] pixels;
+        public final float[] noiseLUT;
+
+        public NoiseVector(final ProductData.UTC time, final int line, final int[] pixels, final float[] noiseLUT) {
+            this.time = time;
+            this.line = line;
+            this.pixels = pixels;
+            this.noiseLUT = noiseLUT;
+        }
     }
 }

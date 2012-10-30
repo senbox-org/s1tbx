@@ -124,7 +124,7 @@ public class TerraSARXCalibrator extends BaseCalibrator implements Calibrator {
      * Get calibration factors for all polarizations.
      */
     private void getCalibrationFactor() {
-        final MetadataElement origProdRoot = AbstractMetadata.getOriginalProductMetadata(sourceProduct.getMetadataRoot());
+        final MetadataElement origProdRoot = AbstractMetadata.getOriginalProductMetadata(sourceProduct);
         final MetadataElement level1Product = origProdRoot.getElement("level1Product");
         final MetadataElement calibrationElem = level1Product.getElement("calibration");
         final MetadataElement[] subElems = calibrationElem.getElements();
@@ -150,7 +150,7 @@ public class TerraSARXCalibrator extends BaseCalibrator implements Calibrator {
      */
     private void getNoiseRecords() {
 
-        final MetadataElement origProdRoot = AbstractMetadata.getOriginalProductMetadata(sourceProduct.getMetadataRoot());
+        final MetadataElement origProdRoot = AbstractMetadata.getOriginalProductMetadata(sourceProduct);
         final MetadataElement level1Product = origProdRoot.getElement("level1Product");
         final MetadataElement[] subElems = level1Product.getElements();
         for (MetadataElement ele : subElems) {

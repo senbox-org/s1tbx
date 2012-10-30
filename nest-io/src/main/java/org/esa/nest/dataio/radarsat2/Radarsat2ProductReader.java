@@ -119,7 +119,7 @@ public class Radarsat2ProductReader extends AbstractProductReader {
         final File gammaLUT = new File(folder, lutgamma+".xml");
         final File betaLUT = new File(folder, lutbeta+".xml");
 
-        final MetadataElement origProdRoot = AbstractMetadata.getOriginalProductMetadata(product.getMetadataRoot());
+        final MetadataElement origProdRoot = AbstractMetadata.getOriginalProductMetadata(product);
 
         readCalibrationLUT(sigmaLUT, lutsigma, origProdRoot);
         readCalibrationLUT(gammaLUT, lutgamma, origProdRoot);

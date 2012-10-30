@@ -127,7 +127,7 @@ public class Radarsat2Calibrator extends BaseCalibrator implements Calibrator {
      * Get antenna pattern gain array from metadata.
      */
     private void getLUT() {
-        final MetadataElement origProdRoot = AbstractMetadata.getOriginalProductMetadata(sourceProduct.getMetadataRoot());
+        final MetadataElement origProdRoot = AbstractMetadata.getOriginalProductMetadata(sourceProduct);
         final MetadataElement lutSigmaElem = origProdRoot.getElement(lutsigma);
 
         if(lutSigmaElem != null) {
@@ -163,7 +163,7 @@ public class Radarsat2Calibrator extends BaseCalibrator implements Calibrator {
 
         abs.getAttribute(AbstractMetadata.abs_calibration_flag).getData().setElemBoolean(true);
 
-        final MetadataElement origProdRoot = AbstractMetadata.getOriginalProductMetadata(sourceProduct.getMetadataRoot());
+        final MetadataElement origProdRoot = AbstractMetadata.getOriginalProductMetadata(sourceProduct);
         origProdRoot.removeElement(origProdRoot.getElement(lutsigma));
         origProdRoot.removeElement(origProdRoot.getElement(lutgamma));
         origProdRoot.removeElement(origProdRoot.getElement(lutbeta));
