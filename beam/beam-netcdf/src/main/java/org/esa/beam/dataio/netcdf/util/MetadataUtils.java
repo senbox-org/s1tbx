@@ -96,7 +96,7 @@ public class MetadataUtils {
         return metadataElement;
     }
 
-    private static MetadataElement createMetadataElement(Variable variable) {
+    public static MetadataElement createMetadataElement(Variable variable) {
         final MetadataElement element = readAttributeList(variable.getAttributes(), variable.getName());
         if (variable.getRank() == 1) {
             final MetadataElement valuesElem = new MetadataElement("Values");

@@ -3,6 +3,11 @@ package org.esa.nest.dataio.sentinel1;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.dataio.netcdf.util.MetadataUtils;
+import org.esa.beam.dataio.netcdf.util.RasterDigest;
+import org.esa.beam.dataio.netcdf.metadata.profiles.cf.CfBandPart;
+import org.esa.beam.dataio.netcdf.ProfileReadContext;
+import org.esa.beam.dataio.netcdf.ProfileReadContextImpl;
 import org.esa.nest.dataio.netcdf.NcRasterDim;
 import org.esa.nest.dataio.netcdf.NcVariableMap;
 import org.esa.nest.dataio.netcdf.NetCDFUtils;
@@ -51,7 +56,26 @@ public class Sentinel1OCNReader {
             final MetadataElement bandElem = NetCDFUtils.addAttributes(annotationElement, file,
                     netcdfFile.getGlobalAttributes());
 
-            final Map<NcRasterDim, List<Variable>> variableListMap = NetCDFUtils.getVariableListMap(netcdfFile.getRootGroup());
+            final List<Variable> variableList = netcdfFile.getVariables();
+            for (Variable variable : variableList) {
+                bandElem.addElement(MetadataUtils.createMetadataElement(variable));
+            }
+
+            final ProfileReadContext context = new ProfileReadContextImpl(netcdfFile);
+            final RasterDigest rasterDigest = RasterDigest.createRasterDigest(netcdfFile.getRootGroup());
+            if (rasterDigest == null) {
+                return;
+            }
+            context.setRasterDigest(rasterDigest);
+
+            CfBandPart bandReader = new CfBandPart();
+            try {
+                bandReader.decode(context, product);
+            } catch(IOException e) {
+                
+            }
+
+       /*     final Map<NcRasterDim, List<Variable>> variableListMap = NetCDFUtils.getVariableListMap(netcdfFile.getRootGroup());
             if (!variableListMap.isEmpty()) {
                 // removeQuickLooks(variableListMap);
 
@@ -66,7 +90,7 @@ public class Sentinel1OCNReader {
 
                 // add bands
                 addBandsToProduct(product, rasterVariables);
-            }
+            } */
         }
     }
 

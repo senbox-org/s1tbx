@@ -22,7 +22,7 @@ import ucar.nc2.NetcdfFile;
 import java.util.HashMap;
 import java.util.Map;
 
-class ProfileReadContextImpl implements ProfileReadContext {
+public class ProfileReadContextImpl implements ProfileReadContext {
 
     private final Map<String, Object> propertyMap;
     private final NetcdfFile netcdfFile;
