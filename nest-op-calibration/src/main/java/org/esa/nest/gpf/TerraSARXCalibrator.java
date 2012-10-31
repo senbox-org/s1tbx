@@ -16,6 +16,7 @@
 package org.esa.nest.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
+import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
@@ -38,6 +39,8 @@ import java.util.Set;
 
 public class TerraSARXCalibrator extends BaseCalibrator implements Calibrator {
 
+    private String productType = null;
+    private Boolean useIncidenceAngleFromGIM = false;
     private double firstLineUTC = 0.0; // in days
     private double lineTimeInterval = 0.0; // in days
     private int sourceImageWidth = 0;
@@ -47,6 +50,7 @@ public class TerraSARXCalibrator extends BaseCalibrator implements Calibrator {
     private final HashMap<String, NoiseRecord[]> noiseRecord = new HashMap<String, NoiseRecord[]>(2);
     private final HashMap<String, int[]> rangeLineIndex = new HashMap<String, int[]>(2); // y indices of noise records
     private final HashMap<String, double[][]> rangeLineNoise = new HashMap<String, double[][]>(2);
+    private Product sourceGIMProduct = null;
 
     /**
      * Default constructor. The graph processing framework
@@ -67,7 +71,6 @@ public class TerraSARXCalibrator extends BaseCalibrator implements Calibrator {
     /**
      * Set auxiliary file flag.
      */
-    @Override
     public void setAuxFileFlag(String file) {
     }
 
@@ -87,6 +90,8 @@ public class TerraSARXCalibrator extends BaseCalibrator implements Calibrator {
 
             getMission();
 
+            getProductType();
+
             getCalibrationFlag();
 
             getSampleType();
@@ -98,6 +103,10 @@ public class TerraSARXCalibrator extends BaseCalibrator implements Calibrator {
             getNoiseRecords();
 
             getTiePointGridData();
+
+            if (useIncidenceAngleFromGIM) {
+                getGIMProduct();
+            }
 
             computeNoiseForRangeLines();
 
@@ -118,6 +127,16 @@ public class TerraSARXCalibrator extends BaseCalibrator implements Calibrator {
         if(!(mission.contains("TSX") || mission.contains("TDX")))
             throw new OperatorException("TerraSARXCalibrator: " + mission +
                     " is not a valid mission for TerraSAT-X Calibration");
+    }
+
+    /**
+     * Get product type.
+     */
+    private void getProductType() {
+        productType = absRoot.getAttributeString(AbstractMetadata.PRODUCT_TYPE);
+        if (productType.contains("EEC")) {
+            useIncidenceAngleFromGIM = true;
+        }
     }
 
     /**
@@ -232,6 +251,21 @@ public class TerraSARXCalibrator extends BaseCalibrator implements Calibrator {
     }
 
     /**
+     * Get GIM product.
+     */
+    private void getGIMProduct() {
+        try {
+            File sourceGIMFile =
+                    new File(sourceProduct.getFileLocation().getParentFile(), "AUXRASTER" + File.separator + "GIM.tif");
+
+            sourceGIMProduct = ProductIO.readProduct(sourceGIMFile);
+
+        } catch(Exception e) {
+            throw new OperatorException("TerraSARXCalibrator: " + e);
+        }
+    }
+
+    /**
      * Update the metadata in the target product.
      */
     private void updateTargetProductMetadata() {
@@ -281,7 +315,15 @@ public class TerraSARXCalibrator extends BaseCalibrator implements Calibrator {
             srcData2 = sourceRaster2.getDataBuffer();
         }
 
+        Tile srcGIMTile = null;
+        ProductData srcGIMData = null;
+        if (useIncidenceAngleFromGIM) {
+            srcGIMTile = calibrationOp.getSourceTile(sourceGIMProduct.getBand("band_1"), targetTileRectangle);
+            srcGIMData = srcGIMTile.getDataBuffer();
+        }
+
         final Unit.UnitType bandUnit = Unit.getUnitType(sourceBand1);
+        final double noDataValue = sourceBand1.getNoDataValue();
 
         // copy band if unit is phase
         if(bandUnit == Unit.UnitType.PHASE) {
@@ -315,6 +357,9 @@ public class TerraSARXCalibrator extends BaseCalibrator implements Calibrator {
 
                 if (bandUnit == Unit.UnitType.AMPLITUDE) {
                     dn = srcData1.getElemDoubleAt(index);
+                    if (dn == noDataValue) { // skip noDataValue
+                        continue;
+                    }
                     sigma = dn*dn;
                 } else if (bandUnit == Unit.UnitType.INTENSITY) {
                     sigma = srcData1.getElemDoubleAt(index);
@@ -326,8 +371,13 @@ public class TerraSARXCalibrator extends BaseCalibrator implements Calibrator {
                     throw new OperatorException("TerraSARXCalibrator: unhandled unit");
                 }
 
-                sigma = Ks*(sigma - tileNoise[y-y0][x-x0])*Math.sin(incidenceAngle.getPixelDouble(x, y)*MathUtils.DTOR);
-//                sigma *= Ks*Math.sin(incidenceAngle.getPixelDouble(x, y)*MathUtils.DTOR);
+                if (!useIncidenceAngleFromGIM) {
+                    sigma = Ks*(sigma - tileNoise[y-y0][x-x0])*Math.sin(incidenceAngle.getPixelDouble(x, y)*MathUtils.DTOR);
+                } else {
+                    final int gim = srcGIMData.getElemIntAt(index);
+                    final double inciAng = (gim - (gim%10))/100.0;
+                    sigma = Ks*(sigma - tileNoise[y-y0][x-x0])*Math.sin(inciAng*MathUtils.DTOR);
+                }
 
                 if (outputImageScaleInDb) { // convert calibration result to dB
                     if (sigma < underFlowFloat) {
