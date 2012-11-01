@@ -16,6 +16,7 @@
 package org.esa.nest.dat.toolviews.Projects;
 
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
+import com.bc.ceres.core.*;
 import org.esa.beam.dataio.dimap.DimapProductConstants;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.dataio.ProductReader;
@@ -33,6 +34,7 @@ import org.esa.nest.dat.plugins.graphbuilder.GraphBuilderDialog;
 import org.esa.nest.util.ProductFunctions;
 import org.esa.nest.util.ResourceUtils;
 import org.esa.nest.util.XMLSupport;
+import org.esa.nest.gpf.ThreadManager;
 import org.jdom.Attribute;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -42,6 +44,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.Timer;
+import java.util.List;
+import java.awt.*;
 
 /**
  * A Project helps to organize your data by storing all your work in one folder.
@@ -219,7 +223,7 @@ public class Project extends Observable {
         startUpdateTimer();
     }
 
-    private String[] getDefaultProjectFolders() {
+    private static String[] getDefaultProjectFolders() {
         String defaultProjectFolders = System.getProperty("defaultProjectFolders");
         if(defaultProjectFolders == null) {
             defaultProjectFolders = "Calibrated Products, Coregistered Products, Orthorectified Products";
@@ -401,17 +405,22 @@ public class Project extends Observable {
         return null;
     }
 
-    public void importFile(final ProjectSubFolder parentFolder, final File prodFile) {
-        if(parentFolder.getFolderType() == ProjectSubFolder.FolderType.PRODUCT) {
+    private static class ImportProducts extends ProgressMonitorSwingWorker {
+        final File[] productFilesToOpen;
+        final ProjectSubFolder importedFolder;
+        ImportProducts(final File[] productFilesToOpen, final ProjectSubFolder importedFolder) {
+            super(VisatApp.getApp().getMainFrame(), "Writing...");
+            this.productFilesToOpen = productFilesToOpen;
+            this.importedFolder = importedFolder;
+        }
 
-            final ProductReader reader = ProductIO.getProductReaderForFile(prodFile);
-            if (reader != null) {
-                final ProjectSubFolder importedFolder = projectSubFolders.findFolder("Imported Products");
-
-                final SwingWorker worker = new SwingWorker() {
-
-                    @Override
-                    protected Object doInBackground() throws Exception {
+        @Override
+        protected Object doInBackground(com.bc.ceres.core.ProgressMonitor pm) throws Exception {
+            pm.beginTask("Importing", productFilesToOpen.length);
+            if(importedFolder.getFolderType() == ProjectSubFolder.FolderType.PRODUCT) {
+                for(File prodFile : productFilesToOpen) {
+                    final ProductReader reader = ProductIO.getProductReaderForFile(prodFile);
+                    if (reader != null) {
                         try {
                             final Product product = reader.readProductNodes(prodFile, null);
                             if(product != null) {
@@ -421,36 +430,28 @@ public class Project extends Observable {
                                 }
                                 final File destFile = new File(importedFolder.getPath(), product.getName());
 
-                                VisatApp.getApp().writeProduct(product, destFile, "BEAM-DIMAP");
+                                VisatApp.getApp().writeProductImpl(product, destFile, "BEAM-DIMAP", false, false);
                             }
                         } catch(Exception e) {
                             VisatApp.getApp().showErrorDialog(e.getMessage());
-                        }                                   
-                        return null;
+                        }
                     }
-
-                    @Override
-                    public void done() {
-                        refreshProjectTree();
-                        notifyEvent(SAVE_PROJECT);
-                    }
-                };
-                worker.execute();
-
+                    pm.worked(1);
+                }
             }
+            pm.done();
+            return true;
         }
     }
 
     private void writeProduct(final Product product, final File destFile) {
 
         final SwingWorker worker = new SwingWorker() {
-
             @Override
             protected Object doInBackground() throws Exception {
                 VisatApp.getApp().writeProduct(product, destFile, "BEAM-DIMAP");
                 return null;
             }
-
             @Override
             public void done() {
                 refreshProjectTree();
@@ -464,11 +465,13 @@ public class Project extends Observable {
         if(!IsProjectOpen()) {
             CreateNewProject();
         }
-
         final ProjectSubFolder importedFolder = projectSubFolders.findFolder("Imported Products");
-        for(File f : productFilesToOpen) {
-            importFile(importedFolder, f);
-        }
+
+        final ImportProducts worker = new ImportProducts(productFilesToOpen, importedFolder);
+        worker.execute();
+
+        refreshProjectTree();
+        notifyEvent(SAVE_PROJECT);
     }
 
     public void deleteFolder(final ProjectSubFolder parentFolder, final ProjectSubFolder subFolder) {

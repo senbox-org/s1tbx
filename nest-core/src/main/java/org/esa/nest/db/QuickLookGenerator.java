@@ -99,36 +99,40 @@ public class QuickLookGenerator {
         return false;
     }
 
-    private static BufferedImage createQuickLookImage(final Product product) throws IOException {
-        final ProductSubsetDef productSubsetDef = new ProductSubsetDef("subset");
-        int scaleFactor = Math.max(product.getSceneRasterWidth(), product.getSceneRasterHeight()) / MAX_WIDTH;
-        if (scaleFactor < 1) {
-            scaleFactor = 1;
-        }
-        productSubsetDef.setSubSampling(scaleFactor, scaleFactor);
+    private static BufferedImage createQuickLookImage(final Product product, final boolean preprocess) throws IOException {
 
         final String quicklookBandName = ProductUtils.findSuitableQuicklookBandName(product);
-        final Band srcBand = product.getBand(quicklookBandName);
         String srcBandName = quicklookBandName;
-        // if not db make db using a virtual band
-        if(false) { //!srcBand.getUnit().contains("db")) {
-            final String expression = quicklookBandName + "==0 ? 0 : 10 * log10(abs("+quicklookBandName+"))";
-            final VirtualBand virtBand = new VirtualBand("QuickLook",
-                    ProductData.TYPE_FLOAT32,
-                    srcBand.getSceneRasterWidth(),
-                    srcBand.getSceneRasterHeight(),
-                    expression);
-            product.addBand(virtBand);
-            srcBandName = virtBand.getName();
-        } else {
-            // if not virtual set as single band in subset
-            if(!(srcBand instanceof VirtualBand)) {
-                productSubsetDef.setNodeNames(new String[] {quicklookBandName});    
+        Product productSubset = product;
+
+        if(preprocess) {
+            final ProductSubsetDef productSubsetDef = new ProductSubsetDef("subset");
+            int scaleFactor = Math.max(product.getSceneRasterWidth(), product.getSceneRasterHeight()) / MAX_WIDTH;
+            if (scaleFactor < 1) {
+                scaleFactor = 1;
             }
+            productSubsetDef.setSubSampling(scaleFactor, scaleFactor);
+
+            final Band srcBand = product.getBand(quicklookBandName);
+            // if not db make db using a virtual band
+            if(false) { //!srcBand.getUnit().contains("db")) {
+                final String expression = quicklookBandName + "==0 ? 0 : 10 * log10(abs("+quicklookBandName+"))";
+                final VirtualBand virtBand = new VirtualBand("QuickLook",
+                        ProductData.TYPE_FLOAT32,
+                        srcBand.getSceneRasterWidth(),
+                        srcBand.getSceneRasterHeight(),
+                        expression);
+                product.addBand(virtBand);
+                srcBandName = virtBand.getName();
+            } else {
+                // if not virtual set as single band in subset
+                if(!(srcBand instanceof VirtualBand)) {
+                    productSubsetDef.setNodeNames(new String[] {quicklookBandName});
+                }
+            }
+
+            productSubset = product.createSubset(productSubsetDef, null, null);
         }
-
-        final Product productSubset = product.createSubset(productSubsetDef, null, null);
-
         final BufferedImage image = ProductUtils.createColorIndexedImage(productSubset.getBand(srcBandName),
                                                                          ProgressMonitor.NULL);
         if(productSubset.isCorrupt()) {
@@ -186,7 +190,7 @@ public class QuickLookGenerator {
         return new BufferedImage(cm, writeraster, cm.isAlphaPremultiplied(), null);
     }
 
-    private static File findProductBrowseImage(File productFile) {
+    private static File findProductBrowseImage(final File productFile) {
 
         final File parentFolder = productFile.getParentFile();
         // try Sentinel-1
@@ -201,28 +205,22 @@ public class QuickLookGenerator {
         browseFile = new File(parentFolder, "BrowseImage.tif");
         if(browseFile.exists())
             return browseFile;
-        // try browse images
-        final File[] files = parentFolder.listFiles();
-        if(files != null) {
-            for(File f : files) {
-                final String name = f.getName().toLowerCase();
-                if(name.contains("browse") && (name.endsWith("jpg") || name.endsWith("png") || name.endsWith("tif")))
-                    return f;
-            }
-        }
-
-        return productFile;
+        return null;
     }
 
-    public static boolean createQuickLook(final int id, File productFile) throws IOException {
-
+    public static boolean createQuickLook(final int id, final File productFile) throws IOException {
+        boolean preprocess = false;
         // check if quicklook exist with product
-        productFile = findProductBrowseImage(productFile);
+        File browseFile = findProductBrowseImage(productFile);
+        if(browseFile == null) {
+            browseFile = productFile;
+            preprocess = true;
+        }
 
         boolean isCorrupt = false;
-        final Product sourceProduct = ProductIO.readProduct(productFile);
+        final Product sourceProduct = ProductIO.readProduct(browseFile);
         if(sourceProduct != null) {
-            createQuickLook(id, sourceProduct);
+            createQuickLook(id, sourceProduct, preprocess);
             isCorrupt = sourceProduct.isCorrupt();
 
             sourceProduct.dispose();
@@ -230,19 +228,19 @@ public class QuickLookGenerator {
         return isCorrupt;
     }
 
-    public static void createQuickLook(final int id, final Product product) {
+    public static void createQuickLook(final int id, final Product product, final boolean preprocess) {
         final File quickLookFile = getQuickLookFile(dbStorageDir, id);
         try {
             if(!dbStorageDir.exists())
                 dbStorageDir.mkdirs();
             quickLookFile.createNewFile();
-            final BufferedImage bufferedImage = createQuickLookImage(product);
+            final BufferedImage bufferedImage = createQuickLookImage(product, true);
 
-            //if(isComplex(product)) {
+            if(true) {
                 ImageIO.write(average(bufferedImage), "JPG", quickLookFile);
-            //} else {   // detected
-            //    ImageIO.write(bufferedImage, "JPG", quickLookFile);
-            //}
+            } else {   
+                ImageIO.write(bufferedImage, "JPG", quickLookFile);
+            }
         } catch(Exception e) {
             System.out.println("Quicklook create data failed :"+product.getFileLocation()+"\n"+e.getMessage());
             quickLookFile.delete();

@@ -139,7 +139,8 @@ public class ImageIOReader extends AbstractProductReader {
         ImageIOFile.BandInfo bandInfo = bandMap.get(destBand);
 
         imgIOFile.readImageIORasterBand(sourceOffsetX, sourceOffsetY, sourceWidth, sourceHeight, sourceStepX, sourceStepY,
-                                        destBuffer, destOffsetX, destOffsetY, destWidth, destHeight, bandInfo.imageID);
+                                        destBuffer, destOffsetX, destOffsetY, destWidth, destHeight,
+                                        bandInfo.imageID, bandInfo.bandSampleOffset);
     }
 
 }

@@ -126,7 +126,7 @@ public class Sentinel1ProductReader extends AbstractProductReader {
             } else {
                 bandInfo.img.readImageIORasterBand(sourceOffsetX, sourceOffsetY, sourceWidth, sourceHeight, sourceStepX, sourceStepY,
                                                 destBuffer, destOffsetX, destOffsetY, destWidth, destHeight,
-                                                bandInfo.bandSampleOffset);
+                                                bandInfo.imageID, bandInfo.bandSampleOffset);
             }
         }
     }

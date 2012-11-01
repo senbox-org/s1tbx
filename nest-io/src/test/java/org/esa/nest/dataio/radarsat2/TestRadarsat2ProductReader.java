@@ -117,7 +117,7 @@ public class TestRadarsat2ProductReader extends TestCase {
 
         for(int i=0; i < iterations; ++i) {
             final ProductData destBuffer = new ProductData.Double(size*size);
-            imageIOFile1.readImageIORasterBand(0,0, size,size,1,1, destBuffer, 0,0, size, size, 0);
+            imageIOFile1.readImageIORasterBand(0,0, size,size,1,1, destBuffer, 0,0, size, size, 0, 0);
         }
     }
 
@@ -126,7 +126,7 @@ public class TestRadarsat2ProductReader extends TestCase {
 
         for(int i=0; i < iterations; ++i) {
             final ProductData destBuffer = new ProductData.Int(size*size);
-            imageIOFile2.readImageIORasterBand(0,0, size,size,1,1, destBuffer, 0,0, size, size, 0);
+            imageIOFile2.readImageIORasterBand(0,0, size,size,1,1, destBuffer, 0,0, size, size, 0, 0);
         }
     }
 }

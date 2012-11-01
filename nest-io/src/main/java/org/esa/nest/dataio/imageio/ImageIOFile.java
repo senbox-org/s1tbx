@@ -203,7 +203,8 @@ public class ImageIOFile {
                                                    final ProductData destBuffer,
                                                    final int destOffsetX, final int destOffsetY,
                                                    final int destWidth, final int destHeight,
-                                                   final int imageID) throws IOException {
+                                                   final int imageID,
+                                                   final int bandSampleOffset) throws IOException {
 
         final ImageReadParam param = reader.getDefaultReadParam();
         param.setSourceSubsampling(sourceStepX, sourceStepY,
@@ -217,21 +218,22 @@ public class ImageIOFile {
         final SampleModel sampleModel = data.getSampleModel();
         final int dataBufferType = dataBuffer.getDataType();
         final int destSize = destWidth * destHeight;
+        final int sampleOffset = imageID + bandSampleOffset;
 
         if(dataBufferType == DataBuffer.TYPE_FLOAT &&
                 destBuffer.getElems() instanceof float[]) {
-            sampleModel.getSamples(0, 0, destWidth, destHeight, imageID, (float[])destBuffer.getElems(), dataBuffer);
+            sampleModel.getSamples(0, 0, destWidth, destHeight, sampleOffset, (float[])destBuffer.getElems(), dataBuffer);
 
         } else if(dataBufferType == DataBuffer.TYPE_INT &&
                 destBuffer.getElems() instanceof int[]) {
-            sampleModel.getSamples(0, 0, destWidth, destHeight, imageID, (int[])destBuffer.getElems(), dataBuffer);
+            sampleModel.getSamples(0, 0, destWidth, destHeight, sampleOffset, (int[])destBuffer.getElems(), dataBuffer);
         } else if(dataBufferType == DataBuffer.TYPE_SHORT &&
                 destBuffer.getElems() instanceof int[]) {
-            sampleModel.getSamples(0, 0, destWidth, destHeight, imageID, (int[])destBuffer.getElems(), dataBuffer);
+            sampleModel.getSamples(0, 0, destWidth, destHeight, sampleOffset, (int[])destBuffer.getElems(), dataBuffer);
         } else {
 
             final double[] dArray = new double[destSize];
-            sampleModel.getSamples(0, 0, destWidth, destHeight, imageID, dArray, dataBuffer);
+            sampleModel.getSamples(0, 0, destWidth, destHeight, sampleOffset, dArray, dataBuffer);
 
             final int length = dArray.length;
             if(destBuffer.getElems() instanceof double[]) {

@@ -119,7 +119,8 @@ public class TerraSarXProductReader extends AbstractProductReader {
             final ImageIOFile.BandInfo bandInfo = dataDir.getBandInfo(destBand);
             if(bandInfo != null && bandInfo.img != null) {
                 bandInfo.img.readImageIORasterBand(sourceOffsetX, sourceOffsetY, sourceWidth, sourceHeight, sourceStepX, sourceStepY,
-                        destBuffer, destOffsetX, destOffsetY, destWidth, destHeight, bandInfo.imageID);
+                        destBuffer, destOffsetX, destOffsetY, destWidth, destHeight,
+                        bandInfo.imageID, bandInfo.bandSampleOffset);
             } else {
                 boolean oneOfTwo = true;
                 if(destBand.getUnit().equals(Unit.IMAGINARY))

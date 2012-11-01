@@ -163,7 +163,7 @@ public class Radarsat2ProductReader extends AbstractProductReader {
         if(bandInfo != null && bandInfo.img != null) {
             bandInfo.img.readImageIORasterBand(sourceOffsetX, sourceOffsetY, sourceWidth, sourceHeight, sourceStepX, sourceStepY,
                                                 destBuffer, destOffsetX, destOffsetY, destWidth, destHeight,
-                                                bandInfo.bandSampleOffset);
+                                                bandInfo.imageID, bandInfo.bandSampleOffset);
         }
     }
 }

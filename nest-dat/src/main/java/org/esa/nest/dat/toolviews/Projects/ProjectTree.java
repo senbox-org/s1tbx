@@ -221,9 +221,8 @@ class ProjectTree extends JTree implements PopupMenuFactory, ActionListener {
             final ProjectFile file = (ProjectFile) menuContext;
             Project.openSubset(parentFolder, file.getFile());
         } else if(actionCmd.equals("Import as DIMAP")) {
-            final ProjectSubFolder parentFolder = (ProjectSubFolder)parentNode.getUserObject();
             final ProjectFile file = (ProjectFile) menuContext;
-            project.importFile(parentFolder, file.getFile());
+            project.ImportFileList(new File[] { file.getFile() });
         } else if(actionCmd.equals("Import Subset as DIMAP")) {
             final ProjectSubFolder parentFolder = (ProjectSubFolder)parentNode.getUserObject();
             final ProjectFile file = (ProjectFile) menuContext;

@@ -1573,7 +1573,7 @@ public class VisatApp extends BasicApp implements AppContext {
         return saveOk;
     }
 
-    private boolean writeProductImpl(final Product product, final File file, final String formatName,
+    public boolean writeProductImpl(final Product product, final File file, final String formatName,
                                      final boolean incremental, final boolean block) {
         Debug.assertNotNull(product);
 

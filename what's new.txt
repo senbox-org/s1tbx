@@ -2,6 +2,8 @@ New in NEST 5
 
 Autoupdate installation
 Support for left facing missions
+Rigourous TerraSAR-X calibration
+
 
 New in NEST 4C
 
