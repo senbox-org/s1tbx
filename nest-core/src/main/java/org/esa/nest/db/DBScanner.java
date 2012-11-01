@@ -75,7 +75,7 @@ public final class DBScanner extends SwingWorker {
             dirList.addAll(Arrays.asList(subDirs));
         }
 
-        final ProductFunctions.ValidProductFileFilter fileFilter = new ProductFunctions.ValidProductFileFilter(true);
+        final ProductFunctions.ValidProductFileFilter fileFilter = new ProductFunctions.ValidProductFileFilter(false);
         final List<File> fileList = new ArrayList<File>(dirList.size());
         for(File file : dirList) {
             fileList.addAll(Arrays.asList(file.listFiles(fileFilter)));
