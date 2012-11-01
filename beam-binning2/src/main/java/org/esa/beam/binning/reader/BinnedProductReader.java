@@ -23,6 +23,7 @@ import ucar.nc2.Variable;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -146,6 +147,8 @@ public class BinnedProductReader extends AbstractProductReader {
         product = new Product(productName, productType, sceneRasterWidth, sceneRasterHeight, this);
         product.setFileLocation(productFile);
         product.setAutoGrouping("adg:aph:atot:bl_Rrs:chlor_a:Rrs:water");
+        product.setStartTime(extractStartTime(netcdfFile));
+        product.setEndTime(extractEndTime(netcdfFile));
     }
 
     private void initPlanetaryGrid() {
@@ -454,6 +457,29 @@ public class BinnedProductReader extends AbstractProductReader {
     private static String getAttributeStringValue(Variable variable, String attributeName) {
         final Attribute att = variable.findAttribute(attributeName);
         return att != null ? att.getStringValue() : null;
+    }
+
+    static ProductData.UTC extractStartTime(NetcdfFile netcdfFile) {
+        return extractTime(netcdfFile, "time_coverage_start");
+    }
+
+    static ProductData.UTC extractEndTime(NetcdfFile netcdfFile) {
+        return extractTime(netcdfFile, "time_coverage_end");
+    }
+
+    private static ProductData.UTC extractTime(NetcdfFile netcdfFile, String attributeName) {
+        final Attribute timeAttribute = netcdfFile.findGlobalAttribute(attributeName);
+        if (timeAttribute == null) {
+            return null;
+        }
+        String timeAsString = timeAttribute.getStringValue();
+        timeAsString = timeAsString.substring(0, timeAsString.length() - 1);
+        ProductData.UTC parsedDate = null;
+        try {
+            parsedDate = ProductData.UTC.parse(timeAsString, "yyyyMMddHHmm");
+        } catch (ParseException ignored) {
+        }
+        return parsedDate;
     }
 
     private static class VariableMetadata {
