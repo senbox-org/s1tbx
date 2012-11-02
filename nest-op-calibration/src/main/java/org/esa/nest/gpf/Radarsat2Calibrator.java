@@ -141,8 +141,8 @@ public class Radarsat2Calibrator extends BaseCalibrator implements Calibrator {
             throw new OperatorException(lutsigma+" not found. Please ensure the look up table "+lutsigma+".xml is in the same folder as the original product");
         }
 
-        if(gains.length < targetProduct.getSceneRasterWidth()) {
-            throw new OperatorException("Calibration LUT is smaller than target product width");
+        if(gains.length < sourceProduct.getSceneRasterWidth()) {
+            throw new OperatorException("Calibration LUT is smaller than source product width");
         }
     }
 
