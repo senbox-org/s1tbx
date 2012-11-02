@@ -47,10 +47,11 @@ public class TiePointGridOpImage extends RasterDataNodeOpImage {
                                          ProgressMonitor.NULL);
         } else {
             final int sourceWidth = getSourceWidth(destRect.width);
-            ProductData lineData = ProductData.createInstance(getTiePointGrid().getDataType(), sourceWidth);
-            int[] sourceCoords = getSourceCoords(sourceWidth, destRect.width);
+            final ProductData lineData = ProductData.createInstance(getTiePointGrid().getDataType(), sourceWidth);
+            final int[] sourceCoords = getSourceCoords(sourceWidth, destRect.width);
+            final int srcX = getSourceX(destRect.x);
             for (int y = 0; y < destRect.height; y++) {
-                getTiePointGrid().readPixels(getSourceX(destRect.x),
+                getTiePointGrid().readPixels(srcX,
                                              getSourceY(destRect.y + y),
                                              sourceWidth, 1,
                                              (float[]) lineData.getElems(),
