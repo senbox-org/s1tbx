@@ -300,7 +300,7 @@ public class StatisticsOp extends Operator implements Output {
         if (outputAsciiFile != null) {
             try {
                 final StringBuilder metadataFileName = new StringBuilder(
-                            FileUtils.getFilenameWithoutExtension(outputAsciiFile));
+                        FileUtils.getFilenameWithoutExtension(outputAsciiFile));
                 metadataFileName.append("_metadata.txt");
                 final File metadataFile = new File(outputAsciiFile.getParent(), metadataFileName.toString());
                 metadataOutputStream = new PrintStream(new FileOutputStream(metadataFile));
@@ -320,9 +320,10 @@ public class StatisticsOp extends Operator implements Output {
                 BandNameCreator bandNameCreator = new BandNameCreator(bandMappingOutputStream);
                 statisticsOutputters.add(FeatureStatisticsWriter.createFeatureStatisticsWriter(shapefile.toURI().toURL(), outputShapefile.getAbsolutePath(), bandNameCreator));
             } catch (MalformedURLException e) {
-                throw new OperatorException("Unable to create shapefile outputter", e);
+                throw new OperatorException(
+                        "Unable to create shapefile outputter: shapefile '" + shapefile.getName() + "' is invalid.", e);
             } catch (FileNotFoundException e) {
-                throw new OperatorException("Unable to create shapefile outputter", e);
+                throw new OperatorException("Unable to create shapefile outputter: maybe shapefile output directory does not exist?", e);
             }
         }
     }
@@ -360,7 +361,7 @@ public class StatisticsOp extends Operator implements Output {
         if ((sourceProducts == null || sourceProducts.length == 0) &&
             (sourceProductPaths == null || sourceProductPaths.length == 0)) {
             throw new OperatorException(
-                        "Either source products must be given or parameter 'sourceProductPaths' must be specified");
+                    "Either source products must be given or parameter 'sourceProductPaths' must be specified");
         }
         if (bandConfigurations == null) {
             throw new OperatorException("Parameter 'bandConfigurations' must be specified.");
