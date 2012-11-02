@@ -120,12 +120,12 @@ public class Product extends ProductNode {
     /**
      * The scene width of the product
      */
-    private final int sceneRasterWidth;
+    private int sceneRasterWidth;
 
     /**
      * The scene height of the product
      */
-    private final int sceneRasterHeight;
+    private int sceneRasterHeight;
 
     /**
      * The start time of the first raster line.
@@ -739,6 +739,11 @@ public class Product extends ProductNode {
         return sceneRasterHeight;
     }
 
+    public void setSceneDimensions(final int w, final int h) {
+        sceneRasterWidth = w;
+        sceneRasterHeight = h;
+    }
+
     /**
      * Gets the (sensing) start time associated with the first raster data line.
      * <p/>
@@ -947,10 +952,10 @@ public class Product extends ProductNode {
      */
     public void addBand(final Band band) {
         Guardian.assertNotNull("band", band);
-        if (band.getSceneRasterWidth() != getSceneRasterWidth()
-            || band.getSceneRasterHeight() != getSceneRasterHeight()) {
+        //if (band.getSceneRasterWidth() != getSceneRasterWidth()
+        //    || band.getSceneRasterHeight() != getSceneRasterHeight()) {
            //NESTMOD throw new IllegalArgumentException("illegal raster dimensions");
-        }
+        //}
         if (containsRasterDataNode(band.getName())) {
             String name = band.getName();
             int i = name.lastIndexOf("__");
