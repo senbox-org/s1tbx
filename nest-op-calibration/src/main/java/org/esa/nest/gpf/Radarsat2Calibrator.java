@@ -163,7 +163,7 @@ public class Radarsat2Calibrator extends BaseCalibrator implements Calibrator {
 
         abs.getAttribute(AbstractMetadata.abs_calibration_flag).getData().setElemBoolean(true);
 
-        final MetadataElement origProdRoot = AbstractMetadata.getOriginalProductMetadata(sourceProduct);
+        final MetadataElement origProdRoot = AbstractMetadata.getOriginalProductMetadata(targetProduct);
         origProdRoot.removeElement(origProdRoot.getElement(lutsigma));
         origProdRoot.removeElement(origProdRoot.getElement(lutgamma));
         origProdRoot.removeElement(origProdRoot.getElement(lutbeta));
