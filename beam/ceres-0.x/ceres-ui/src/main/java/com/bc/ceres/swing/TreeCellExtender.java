@@ -225,19 +225,21 @@ public class TreeCellExtender {
 
             TreePath path = tree.getPathForRow(row);
             TreeCellRenderer renderer = tree.getCellRenderer();
-            Component rendererComponent = renderer.getTreeCellRendererComponent(tree,
+            if(path != null) {
+                Component rendererComponent = renderer.getTreeCellRendererComponent(tree,
                                                                                 path.getLastPathComponent(),
                                                                                 tree.isPathSelected(path),
                                                                                 tree.isExpanded(path),
                                                                                 true, // todo - leaf ?
                                                                                 row,
                                                                                 false); // has focus ?
-            rendererComponent.setSize(1024, height);
+                rendererComponent.setSize(1024, height);
 
-            Graphics g2 = g.create(0, 0, width, height);
-            g2.translate(-offset, 0);
-            rendererComponent.paint(g2);
-            g2.dispose();
+                Graphics g2 = g.create(0, 0, width, height);
+                g2.translate(-offset, 0);
+                rendererComponent.paint(g2);
+                g2.dispose();
+            }
         }
     }
 
