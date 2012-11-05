@@ -35,4 +35,16 @@ public class DimKeyTest {
 
         assertSame(xDim, new DimKey(yDim, xDim).getDimensionX());
     }
+
+    @Test
+    public void testGetDimensionsForSynVgtProducts() throws Exception {
+        final Dimension yDim = new Dimension("NY", 2800);
+        final Dimension xDim = new Dimension("NX", 4032);
+        final Dimension vDim = new Dimension("nv", 2);
+
+        final DimKey dimKey = new DimKey(yDim, xDim, vDim);
+
+        assertSame(xDim, dimKey.getDimensionX());
+        assertSame(yDim, dimKey.getDimensionY());
+    }
 }
