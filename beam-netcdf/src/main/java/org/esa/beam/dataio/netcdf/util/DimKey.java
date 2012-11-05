@@ -30,8 +30,8 @@ import java.util.List;
  */
 public class DimKey {
 
-    private static final String[] typicalXDimNames = new String[]{"lon", "long", "longitude", "ni", "NX", "SX", "x",};
-    private static final String[] typicalYDimNames = new String[]{"lat", "lat", "latitude", "nj", "NY", "SY", "y",};
+    private static final String[] TYPICAL_X_DIM_NAMES = new String[]{"lon", "long", "longitude", "ni", "NX", "SX", "x",};
+    private static final String[] TYPICAL_Y_DIM_NAMES = new String[]{"lat", "lat", "latitude", "nj", "NY", "SY", "y",};
 
     private final Dimension[] dims;
     private final int xDimIndex;
@@ -51,7 +51,7 @@ public class DimKey {
         for (int i = 0; i < dims.length; i++) {
             final String dimName = dims[i].getName();
             if (dimName != null) {
-                for (String typicalXDimName : typicalXDimNames) {
+                for (String typicalXDimName : TYPICAL_X_DIM_NAMES) {
                     if (dimName.equalsIgnoreCase(typicalXDimName)) {
                         return i;
                     }
@@ -66,7 +66,7 @@ public class DimKey {
         for (int i = 0; i < dims.length; i++) {
             final String dimName = dims[i].getName();
             if (dimName != null) {
-                for (String typicalYDimName : typicalYDimNames) {
+                for (String typicalYDimName : TYPICAL_Y_DIM_NAMES) {
                     if (dims[i].getName().equalsIgnoreCase(typicalYDimName)) {
                         return i;
                     }
@@ -111,8 +111,8 @@ public class DimKey {
 
     public boolean isTypicalRasterDim() {
         boolean isTypicalRasterDim = false;
-        for (int i = 0; i < typicalXDimNames.length; i++) {
-            isTypicalRasterDim = isTypicalRasterDim || matchesXYDimNames(typicalXDimNames[i], typicalXDimNames[i]);
+        for (int i = 0; i < TYPICAL_X_DIM_NAMES.length; i++) {
+            isTypicalRasterDim = isTypicalRasterDim || matchesXYDimNames(TYPICAL_X_DIM_NAMES[i], TYPICAL_Y_DIM_NAMES[i]);
         }
         return isTypicalRasterDim;
     }
