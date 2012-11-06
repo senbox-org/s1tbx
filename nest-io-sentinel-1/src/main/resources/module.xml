@@ -40,6 +40,19 @@
             <helpId>importS1Product</helpId>
         </action>
 
+        <action>
+	        <id>Sentinel1TOPSARDeburstOp</id>
+	        <helpId>Sentinel1TOPSARDeburstOp</helpId>
+	        <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <icon>esaIcon</icon>
+            <parent>ASARWSS</parent>
+	        <text>Sentinel1 TOPSAR Deburst</text>
+	        <operatorName>DeburstTOPSAR</operatorName>
+	        <dialogTitle>Sentinel1 TOPSAR Deburst operator</dialogTitle>
+            <shortDescr>Deburst a Sentinel1 TOPSAR product</shortDescr>
+            <targetProductNameSuffix>_Deburst</targetProductNameSuffix>
+        </action>
+
     </extension>
 
 </module>
