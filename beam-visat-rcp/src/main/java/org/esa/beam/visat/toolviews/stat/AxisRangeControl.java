@@ -144,8 +144,16 @@ class AxisRangeControl {
     }
 
     public void adjustComponents(double min, double max, int numDecimalPlaces) {
-        setMin(MathUtils.round(min, roundFactor(numDecimalPlaces)));
-        setMax(MathUtils.round(max, roundFactor(numDecimalPlaces)));
+        final Double oldMax = getMax();
+
+        if (min >= oldMax) {
+            setMax(MathUtils.round(max, roundFactor(numDecimalPlaces)));
+            setMin(MathUtils.round(min, roundFactor(numDecimalPlaces)));
+        } else {
+            setMin(MathUtils.round(min, roundFactor(numDecimalPlaces)));
+            setMax(MathUtils.round(max, roundFactor(numDecimalPlaces)));
+        }
+
     }
 
     public void adjustAxis(ValueAxis axis, int numDecimalPlaces) {
@@ -166,11 +174,11 @@ class AxisRangeControl {
         return (Double) getBindingContext().getPropertySet().getValue("max");
     }
 
-    public void setMin(double min) {
+    private void setMin(double min) {
         getBindingContext().getPropertySet().setValue("min", min);
     }
 
-    public void setMax(double max) {
+    private void setMax(double max) {
         getBindingContext().getPropertySet().setValue("max", max);
     }
 
