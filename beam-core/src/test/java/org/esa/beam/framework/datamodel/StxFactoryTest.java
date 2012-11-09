@@ -126,6 +126,55 @@ public class StxFactoryTest {
         assertArrayEquals(new int[]{1000, 0, 0, 0, 0, 0, 0, 0}, stx.getHistogramBins());
     }
 
+    @Test
+    public void testMinAndMaxAreTheSameVeryLargePositiveValue() throws Exception {
+        double aLargePositiveValue = Double.MAX_VALUE;
+        double aSlightlySmallerValue = Math.nextAfter(aLargePositiveValue, Double.NEGATIVE_INFINITY);
+        StxFactory factory = new StxFactory();
+        factory
+                .withMinimum(aLargePositiveValue)
+                .withMaximum(aLargePositiveValue)
+                .withHistogramBins(new int[]{1000, 0, 0, 0, 0, 0, 0, 0});
+        Stx stx = factory.create();
+
+        assertEquals(aLargePositiveValue, stx.getMinimum(), 1e-10);
+        assertEquals(aLargePositiveValue, stx.getMaximum(), 1e-10);
+        assertEquals(aLargePositiveValue, stx.getMean(), 1e-10);
+        assertEquals(aLargePositiveValue, stx.getMedian(), 1e-10);
+
+        assertNotNull(stx.getHistogram());
+        assertEquals(1, stx.getHistogram().getNumBands());
+        assertEquals(8, stx.getHistogram().getNumBins()[0]);
+        assertEquals(aSlightlySmallerValue, stx.getHistogram().getLowValue(0), 1E-10);
+        assertEquals(aLargePositiveValue, stx.getHistogram().getHighValue(0), 1E-10);
+        assertTrue(stx.getHistogram().getLowValue(0) < stx.getHistogram().getHighValue(0));
+        assertArrayEquals(new int[]{1000, 0, 0, 0, 0, 0, 0, 0}, stx.getHistogramBins());
+    }
+
+    @Test
+    public void testMinAndMaxAreTheSameVeryLargeNegativeValue() throws Exception {
+        double aLargeNegativeValue = -Double.MAX_VALUE;
+        double aSlightlyLargerValue = Math.nextUp(aLargeNegativeValue);
+        StxFactory factory = new StxFactory();
+        factory
+                .withMinimum(aLargeNegativeValue)
+                .withMaximum(aLargeNegativeValue)
+                .withHistogramBins(new int[]{1000, 0, 0, 0, 0, 0, 0, 0});
+        Stx stx = factory.create();
+
+        assertEquals(aLargeNegativeValue, stx.getMinimum(), 1e-10);
+        assertEquals(aLargeNegativeValue, stx.getMaximum(), 1e-10);
+        assertEquals(aLargeNegativeValue, stx.getMean(), 1e-10);
+        assertEquals(aLargeNegativeValue, stx.getMedian(), 1e-10);
+
+        assertNotNull(stx.getHistogram());
+        assertEquals(1, stx.getHistogram().getNumBands());
+        assertEquals(8, stx.getHistogram().getNumBins()[0]);
+        assertEquals(aLargeNegativeValue, stx.getHistogram().getLowValue(0), 1E-10);
+        assertEquals(aSlightlyLargerValue, stx.getHistogram().getHighValue(0), 1E-10);
+        assertTrue(stx.getHistogram().getLowValue(0) < stx.getHistogram().getHighValue(0));
+        assertArrayEquals(new int[]{1000, 0, 0, 0, 0, 0, 0, 0}, stx.getHistogramBins());
+    }
 
     @Test
     public void testSignedByteBandStatistics() throws Exception {
