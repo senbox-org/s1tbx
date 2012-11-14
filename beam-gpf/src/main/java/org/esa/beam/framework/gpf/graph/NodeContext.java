@@ -31,9 +31,9 @@ import javax.media.jai.PlanarImage;
 import java.lang.reflect.Field;
 
 /**
- * Default implementation for {@link org.esa.beam.framework.gpf.internal.OperatorContext}.
+ * @since Public since BEAM 4.10.3.
  */
-class NodeContext {
+public class NodeContext {
 
     private final GraphContext graphContext;
     private final Node node;
@@ -42,7 +42,7 @@ class NodeContext {
     private int referenceCount;
     private Product targetProduct;
 
-    public NodeContext(GraphContext graphContext, Node node) throws GraphException {
+    NodeContext(GraphContext graphContext, Node node) throws GraphException {
         this.graphContext = graphContext;
         this.node = node;
         initOperator();

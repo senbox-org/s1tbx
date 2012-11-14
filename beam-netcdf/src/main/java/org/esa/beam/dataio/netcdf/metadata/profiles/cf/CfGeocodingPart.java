@@ -18,6 +18,7 @@ package org.esa.beam.dataio.netcdf.metadata.profiles.cf;
 import org.esa.beam.dataio.netcdf.ProfileReadContext;
 import org.esa.beam.dataio.netcdf.ProfileWriteContext;
 import org.esa.beam.dataio.netcdf.metadata.ProfilePartIO;
+import org.esa.beam.dataio.netcdf.metadata.profiles.hdfeos.HdfEosGeocodingPart;
 import org.esa.beam.dataio.netcdf.nc.NFileWriteable;
 import org.esa.beam.dataio.netcdf.nc.NVariable;
 import org.esa.beam.dataio.netcdf.util.Constants;
@@ -54,12 +55,43 @@ public class CfGeocodingPart extends ProfilePartIO {
     public void decode(ProfileReadContext ctx, Product p) throws IOException {
         GeoCoding geoCoding = readConventionBasedMapGeoCoding(ctx, p);
         if (geoCoding == null) {
-            geoCoding = readPixelGeoCoding(ctx, p);
+            geoCoding = readPixelGeoCoding(p);
+        }
+        // If there is still no geocoding, check special case of netcdf file which was converted
+        // from hdf file and has 'StructMetadata.n' element.
+        // In this case, the HDF 'elements' were put into a single Netcdf String attribute
+        // todo: in fact this has been checked only for MODIS09 HDF-EOS product. Try to further generalize
+        if (geoCoding == null && hasHdfMetadataOrigin(ctx.getNetcdfFile().getGlobalAttributes())) {
+            hdfDecode(ctx, p);
         }
         if (geoCoding != null) {
             p.setGeoCoding(geoCoding);
         }
     }
+
+    private void hdfDecode(ProfileReadContext ctx, Product p) throws IOException {
+        final CfHdfEosGeoInfoExtractor cfHdfEosGeoInfoExtractor = new CfHdfEosGeoInfoExtractor(ctx.getNetcdfFile().getGlobalAttributes());
+        cfHdfEosGeoInfoExtractor.extractInfo();
+
+        String projection = cfHdfEosGeoInfoExtractor.getProjection();
+        double upperLeftLon = cfHdfEosGeoInfoExtractor.getUlLon();
+        double upperLeftLat = cfHdfEosGeoInfoExtractor.getUlLat();
+
+        double lowerRightLon = cfHdfEosGeoInfoExtractor.getLrLon();
+        double lowerRightLat = cfHdfEosGeoInfoExtractor.getLrLat();
+
+        HdfEosGeocodingPart.attachGeoCoding(p, upperLeftLon, upperLeftLat, lowerRightLon, lowerRightLat, projection);
+    }
+
+    private boolean hasHdfMetadataOrigin(List<Attribute> netcdfAttributes) {
+        for (Attribute att : netcdfAttributes) {
+            if (att.getName().startsWith("StructMetadata")) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 
     @Override
     public void preEncode(ProfileWriteContext ctx, Product product) throws IOException {
@@ -69,15 +101,15 @@ public class CfGeocodingPart extends ProfilePartIO {
         }
         geographicCRS = isGeographicCRS(geoCoding);
         final NFileWriteable ncFile = ctx.getNetcdfFileWriteable();
-        if (geographicCRS) {
-            final GeoPos ul = geoCoding.getGeoPos(new PixelPos(0.5f, 0.5f), null);
-            final int w = product.getSceneRasterWidth();
-            final int h = product.getSceneRasterHeight();
-            final GeoPos br = geoCoding.getGeoPos(new PixelPos(w - 0.5f, h - 0.5f), null);
-            addGeographicCoordinateVariables(ncFile, ul, br);
-        } else {
-            final boolean latLonPresent = isLatLonPresent(ncFile);
-            if (!latLonPresent) {
+        final boolean latLonPresent = isLatLonPresent(ncFile);
+        if (!latLonPresent) {
+            if (geographicCRS) {
+                final GeoPos ul = geoCoding.getGeoPos(new PixelPos(0.5f, 0.5f), null);
+                final int w = product.getSceneRasterWidth();
+                final int h = product.getSceneRasterHeight();
+                final GeoPos br = geoCoding.getGeoPos(new PixelPos(w - 0.5f, h - 0.5f), null);
+                addGeographicCoordinateVariables(ncFile, ul, br);
+            } else {
                 addLatLonBands(ncFile, ImageManager.getPreferredTileSize(product));
             }
         }
@@ -140,7 +172,7 @@ public class CfGeocodingPart extends ProfilePartIO {
 
     static boolean isGeographicCRS(final GeoCoding geoCoding) {
         return (geoCoding instanceof CrsGeoCoding || geoCoding instanceof MapGeoCoding) &&
-               CRS.equalsIgnoreMetadata(geoCoding.getMapCRS(), DefaultGeographicCRS.WGS84);
+                CRS.equalsIgnoreMetadata(geoCoding.getMapCRS(), DefaultGeographicCRS.WGS84);
     }
 
     private void addGeographicCoordinateVariables(NFileWriteable ncFile, GeoPos ul, GeoPos br) throws IOException {
@@ -280,7 +312,7 @@ public class CfGeocodingPart extends ProfilePartIO {
                                 pixelX, pixelY);
     }
 
-    private static GeoCoding readPixelGeoCoding(ProfileReadContext ctx, Product product) throws IOException {
+    private static GeoCoding readPixelGeoCoding(Product product) throws IOException {
         Band lonBand = product.getBand(Constants.LON_VAR_NAME);
         if (lonBand == null) {
             lonBand = product.getBand(Constants.LONGITUDE_VAR_NAME);
@@ -294,4 +326,5 @@ public class CfGeocodingPart extends ProfilePartIO {
         }
         return null;
     }
+
 }

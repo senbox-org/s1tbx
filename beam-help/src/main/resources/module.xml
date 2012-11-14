@@ -19,7 +19,7 @@
 
     <symbolicName>beam-help</symbolicName>
     <name>BEAM Help</name>
-    <version>4.10</version>
+    <version>5.0</version>
     <packaging>dir</packaging>
 
 
@@ -33,6 +33,8 @@
 
     <changelog>
         <![CDATA[
+        Changes in 4.10.1:<br>
+        [BEAM-1403] Broken links in VISAT help<br>
         Changes in 4.8:<br>
         [BEAM-1082] Installation instructions are wrong for GETASSE30<br>
         Changes in 4.2:<br>

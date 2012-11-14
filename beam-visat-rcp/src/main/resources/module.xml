@@ -17,7 +17,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-visat-rcp</symbolicName>
-    <version>4.10</version>
+    <version>5.0</version>
     <name>VISAT Rich Client Platform</name>
 
     <description>
@@ -27,6 +27,16 @@
 
     <changelog>
         <![CDATA[
+        <p>Changes in 4.10.4<br/>
+          [BEAM-1445] Pinned spectra barely visible in spectrum view<br/>
+          [BEAM-1443] Spectrum View line thickness too thin<br/>
+          [BEAM-1439] Wrong assignment of frequencies to indexes<br/>
+          [BEAM-1435] Name of scene view does not change if band is renamed<br/>
+          [BEAM-1412] Profile plot uses wrong pixels for shape in projected products<br/>
+        <p>Changes in 4.10.3<br/>
+          [BEAM-1409] Import vector data into reprojected product (e.g. LANDSAT) fails<br/>
+        <p>Changes in 4.10.1<br/>
+          [BEAM-1404] Image views shall draw pixel grid at high zoom levels<br/>
         <p>Changes in 4.10<br/>
           [BEAM-1123] Opened StatisticsDialog slows down performance of geometrc objects<br/>
           [BEAM-1385] Import images as products (missing RGB product reader)<br/>
@@ -229,6 +239,10 @@
     </dependency>
     <dependency>
         <module>ceres-ui</module>
+    </dependency>
+    <!-- TODO: replace this dependency! -->
+    <dependency>
+        <module>beam-statistics-op</module>
     </dependency>
 
     <categories>System,Application,VISAT</categories>
@@ -1019,6 +1033,7 @@
             <shortDescr>Export the currently displayed metadata.</shortDescr>
             <description>Export the currently displayed metadata as tab-separated text.</description>
             <context>metadata</context>
+            <popuptext>Export Product Metadata...</popuptext>
             <helpId>exportMetadata</helpId>
         </action>
 
@@ -1031,6 +1046,7 @@
             <shortDescr>Exports the currently selected geometry.</shortDescr>
             <description>Exports the currently selected geometry as ESRI Shapefile.</description>
             <context>vectorDataNode</context>
+            <popuptext>Export Geometry as Shapefile...</popuptext>
             <helpId>exportShapefile</helpId>
         </action>
 

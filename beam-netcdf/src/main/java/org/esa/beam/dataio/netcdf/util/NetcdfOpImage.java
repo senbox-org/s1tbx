@@ -30,6 +30,7 @@ import java.awt.Rectangle;
 import java.awt.image.RenderedImage;
 import java.awt.image.WritableRaster;
 import java.io.IOException;
+import java.util.List;
 
 /**
  * An image that renders the data of a netcdf variable. Using the
@@ -43,6 +44,10 @@ public class NetcdfOpImage extends SingleBandedOpImage {
     private final int[] imageOrigin;
     private final Object readLock;
     private final ArrayConverter arrayConverter;
+    private final int xIndex;
+    private final int yIndex;
+    private final int startIndexToCopy;
+
 
     public static RenderedImage createLsbImage(Variable variable, int[] imageOrigin, boolean flipY,
                                                Object readLock, int dataBufferType,
@@ -90,6 +95,12 @@ public class NetcdfOpImage extends SingleBandedOpImage {
         this.flipY = flipY;
         this.sourceHeight = sourceHeight;
         this.arrayConverter = arrayConverter;
+
+        List<ucar.nc2.Dimension> variableDimensions = variable.getDimensions();
+        DimKey rasterDim = new DimKey(variableDimensions.toArray(new ucar.nc2.Dimension[variableDimensions.size()]));
+        xIndex = rasterDim.findXDimensionIndex();
+        yIndex = rasterDim.findYDimensionIndex();
+        startIndexToCopy = DimKey.findStartIndexOfBandVariables(variableDimensions);
     }
 
     @Override
@@ -110,14 +121,13 @@ public class NetcdfOpImage extends SingleBandedOpImage {
             origin[i] = 0;
             stride[i] = 1;
         }
-        final int xIndex = rank - 1;
-        final int yIndex = rank - 2;
 
         shape[yIndex] = sourceRect.height;
         shape[xIndex] = sourceRect.width;
 
         if (imageOrigin.length >= 0) {
-            System.arraycopy(imageOrigin, 0, origin, 0, imageOrigin.length);
+            // todo: we need something for weird position of lat/lon in nc variables (e.g. bands data1, data2, lat, data3, lon, data4)
+            System.arraycopy(imageOrigin, 0, origin, startIndexToCopy, imageOrigin.length);
         }
         origin[yIndex] = flipY ? sourceHeight - sourceRect.y - sourceRect.height : sourceRect.y;
         origin[xIndex] = sourceRect.x;
@@ -126,7 +136,7 @@ public class NetcdfOpImage extends SingleBandedOpImage {
         stride[yIndex] = (int) scale;
         stride[xIndex] = (int) scale;
 
-        final Array array;
+        Array array;
         synchronized (readLock) {
             try {
                 final Section section = new Section(origin, shape, stride);
@@ -137,15 +147,27 @@ public class NetcdfOpImage extends SingleBandedOpImage {
                 throw new IllegalArgumentException(e);
             }
         }
+        if (xIndex < yIndex) {
+            array = array.transpose(xIndex, yIndex);
+//          array = array.permute(new int[]{yIndex, xIndex, 2, 3});
+        }
+        // todo: consider weird position of lat/lon in nc variables (e.g. bands data1, data2, lat, data3, lon, data4), see above
+
         final Array convertedArray = arrayConverter.convert(array);
         if (flipY) {
             tile.setDataElements(destRect.x, destRect.y,
                                  destRect.width, destRect.height,
                                  convertedArray.flip(yIndex).copyTo1DJavaArray());
         } else {
+            Object data;
+            if (xIndex < yIndex) {
+                data = convertedArray.copyTo1DJavaArray();
+            } else {
+                data = convertedArray.getStorage();
+            }
             tile.setDataElements(destRect.x, destRect.y,
                                  destRect.width, destRect.height,
-                                 convertedArray.getStorage());
+                                 data);
         }
     }
 

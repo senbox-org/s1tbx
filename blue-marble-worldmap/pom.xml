@@ -16,16 +16,18 @@
   -->
 
 <project>
-    <parent>
-        <artifactId>beam</artifactId>
-        <groupId>org.esa.beam</groupId>
-        <version>4.10</version>
-    </parent>
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.esa.beam</groupId>
     <artifactId>blue-marble-worldmap</artifactId>
     <name>BEAM NASA Blue Marble Worldmap</name>
-    <version>1.0.1</version>
+    <version>1.0.2.${beam.version}</version>
+
+    <parent>
+        <groupId>org.esa.beam</groupId>
+        <artifactId>beam-plugin-parent</artifactId>
+        <version>1.1-SNAPSHOT</version>
+        <relativePath>../beam-plugin-parent/pom.xml</relativePath>
+    </parent>
 
     <dependencies>
         <dependency>

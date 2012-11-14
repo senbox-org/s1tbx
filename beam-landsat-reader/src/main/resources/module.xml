@@ -1,19 +1,26 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-landsat-reader</symbolicName>
-    <version>1.3</version>
+    <version>1.3.2</version>
     <name>Landsat TM Product Reader</name>
     <description>
         A product reader for Landsat TM 5 (FAST and GeoTIFF) files.
     </description>
 
     <vendor>Christian Berwanger (ai0263@umwelt-campus.de)</vendor>
-    <copyright>(C) 2006 by Brockmann Consult</copyright>
+    <copyright>(C) 2006-2012 by Brockmann Consult</copyright>
     <url>http://envisat.esa.int/beam</url>
     <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
 
     <changelog>
         <![CDATA[
+        <!--From 1.3.2 to 1.3.3:<br/>-->
+            <!--Adapted to BEAM 5.0<br/>-->
+        From 1.3.1 to 1.3.2:<br/>
+            [BEAM-1425] NPE in Landsat GeoTIFF reader<br/>
+            [BEAM-1426] Landsat GeoTIFF reader hides other format readers<br/>
+        From 1.3 to 1.3.1:<br/>
+            Adapted to new Maven-architecture<br/>
         From 1.2 to 1.2.100:<br/>
             [BEAM-1186] The Landsat GeoTIFF reader should handle invalid input gracefully<br/>
         From 1.1.2 to 1.2:<br/>

@@ -23,11 +23,18 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.ui.UIUtils;
 
-import javax.swing.*;
+import javax.swing.ImageIcon;
+import javax.swing.JLabel;
+import javax.swing.JTable;
+import javax.swing.ListSelectionModel;
+import javax.swing.SwingConstants;
+import javax.swing.UIManager;
 import javax.swing.event.MouseInputAdapter;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumnModel;
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.event.MouseEvent;
 
 class MaskTable extends JTable {
@@ -63,6 +70,7 @@ class MaskTable extends JTable {
     }
 
     void setProduct(Product product, RasterDataNode visibleBand) {
+        saveColumnWidths();
         getModel().setProduct(product, visibleBand);
         reconfigureColumnModel();
     }
@@ -109,16 +117,25 @@ class MaskTable extends JTable {
         getModel().removeMask(mask);
     }
 
-    public void reconfigureColumnModel() {
+    private void saveColumnWidths() {
+        if (getRowCount() > 0) {
+            MaskTableModel maskTableModel = getModel();
+            for (int i = 0; i < maskTableModel.getColumnCount(); i++) {
+                maskTableModel.setPreferredColumnWidth(i, columnModel.getColumn(i).getPreferredWidth());
+            }
+        }
+    }
+
+    private void reconfigureColumnModel() {
         createDefaultColumnsFromModel();
         TableColumnModel columnModel = getColumnModel();
-        int vci = getModel().getVisibilityColumnIndex();
+        MaskTableModel maskTableModel = getModel();
+        int vci = maskTableModel.getVisibilityColumnIndex();
         if (vci >= 0) {
             columnModel.getColumn(vci).setHeaderRenderer(visibilityHR);
         }
-        for (int i = 0; i < getModel().getColumnCount(); i++) {
-            int columnWidth = getModel().getPreferredColumnWidth(i);
-            columnModel.getColumn(i).setPreferredWidth(columnWidth);
+        for (int i = 0; i < maskTableModel.getColumnCount(); i++) {
+            columnModel.getColumn(i).setPreferredWidth(maskTableModel.getPreferredColumnWidth(i));
         }
     }
 

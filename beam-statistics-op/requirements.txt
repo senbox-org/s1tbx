@@ -1,0 +1,23 @@
+Requirements for statistics operator
+
+- input set of data products
+- input a shapefile, which contains one ore more polygons determining regions
+- input temporal bounds
+- input temporal steps (every month, every week, every second months)
+- input statistical configuration (*)
+- input band names to consider
+- input valid pixel expression
+- input output configuration
+
+- output ASCII file containing statistics, grouped by regions
+- output product containing bands for each statistic (num_obs, num_passes, p50)
+
+(*)
+- xth percentile
+- median (as shortcut to 50th percentile)
+- mean/sigma
+- min/max
+
+This operator works on single pixels, not on bin cells; thus, it will not be able to fulfill the requirements of
+the weighted P90 tool, which needs to create output products. The beam-binning2 module will be needed to be extended
+accordingly.

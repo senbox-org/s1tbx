@@ -1,0 +1,526 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
+  ~
+  ~ This program is free software; you can redistribute it and/or modify it
+  ~ under the terms of the GNU General Public License as published by the Free
+  ~ Software Foundation; either version 3 of the License, or (at your option)
+  ~ any later version.
+  ~ This program is distributed in the hope that it will be useful, but WITHOUT
+  ~ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+  ~ FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+  ~ more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along
+  ~ with this program; if not, see http://www.gnu.org/licenses/
+  -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.esa.beam</groupId>
+        <artifactId>beam-parent</artifactId>
+        <version>1</version>
+    </parent>
+
+    <packaging>pom</packaging>
+
+    <name>BEAM Aggregator of System Level Modules</name>
+    <groupId>org.esa.beam</groupId>
+    <artifactId>beam-system</artifactId>
+    <description>This POM serves as aggregator for all BEAM system level modules.</description>
+    <version>5.0-SNAPSHOT</version>
+
+    <properties>
+        <!-- In version 3.0 of Maven the sourceEncoding property will be embedded in the build tag.
+        For now the convention is to that it as property.
+        TODO: Move the sourceEncoding property to the build tag if version 3.0 is released -->
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <beam.version>5.0-SNAPSHOT</beam.version>
+        <ceres.version>0.13.2-SNAPSHOT</ceres.version>
+        <geotools.version>2.7.4</geotools.version>
+        <jide.version>3.3.7</jide.version>
+        <!-- This property is set in beam-parent; reason? see there!-->
+        <!--<hdf.version>2.7</hdf.version>-->
+        <netcdf.version>4.2.20</netcdf.version>
+    </properties>
+    <modules>
+        <!-- the bootstrap module has no sources, its only purpose is to construct a class path for VISAT -->
+        <module>../beam-bootstrap</module>
+        <module>../beam-core</module>
+        <module>../beam-csv-dataio</module>
+        <module>../beam-examples</module>
+        <module>../beam-gpf</module>
+        <module>../beam-help</module>
+        <module>../beam-processing</module>
+        <module>../beam-scripting</module>
+        <module>../beam-ui</module>
+        <module>../beam-visat</module>
+        <module>../beam-visat-rcp</module>
+        <module>../beam-installer</module>
+    </modules>
+
+    <dependencyManagement>
+        <dependencies>
+
+            <!-- Ceres System Level Modules ############################################# -->
+
+            <dependency>
+                <groupId>com.bc.ceres</groupId>
+                <artifactId>ceres-launcher</artifactId>
+                <version>${ceres.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.bc.ceres</groupId>
+                <artifactId>ceres-core</artifactId>
+                <version>${ceres.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.bc.ceres</groupId>
+                <artifactId>ceres-binding</artifactId>
+                <version>${ceres.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.bc.ceres</groupId>
+                <artifactId>ceres-ui</artifactId>
+                <version>${ceres.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.bc.ceres</groupId>
+                <artifactId>ceres-binio</artifactId>
+                <version>${ceres.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.bc.ceres</groupId>
+                <artifactId>ceres-metadata</artifactId>
+                <version>${ceres.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.bc.ceres</groupId>
+                <artifactId>ceres-glayer</artifactId>
+                <version>${ceres.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.bc.ceres</groupId>
+                <artifactId>ceres-jai</artifactId>
+                <version>${ceres.version}</version>
+            </dependency>
+
+            <!-- BEAM System Level Modules ############################################# -->
+
+            <dependency>
+                <groupId>org.esa.beam</groupId>
+                <artifactId>beam-core</artifactId>
+                <version>${beam.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.esa.beam</groupId>
+                <artifactId>beam-gpf</artifactId>
+                <version>${beam.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.esa.beam</groupId>
+                <artifactId>beam-ui</artifactId>
+                <version>${beam.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.esa.beam</groupId>
+                <artifactId>beam-processing</artifactId>
+                <version>${beam.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.esa.beam</groupId>
+                <artifactId>beam-csv-dataio</artifactId>
+                <version>${beam.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.esa.beam</groupId>
+                <artifactId>beam-visat-rcp</artifactId>
+                <version>${beam.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.esa.beam</groupId>
+                <artifactId>beam-visat</artifactId>
+                <version>${beam.version}</version>
+            </dependency>
+
+            <!-- Miscellaneous 3rd party libraries ############################################# -->
+
+            <dependency>
+                <groupId>ncsa.hdf</groupId>
+                <artifactId>lib-hdf</artifactId>
+                <version>${hdf.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>edu.ucar</groupId>
+                <artifactId>netcdf</artifactId>
+                <version>${netcdf.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>edu.ucar</groupId>
+                <artifactId>nujan</artifactId>
+                <version>1.4.1</version>
+            </dependency>
+
+            <!-- GeoTools Libraries ############################################# -->
+            <!-- Sadly there is no global exclusion so every geotools artifact -->
+            <!-- has to exclude the 'wrong' jai version -->
+
+            <dependency>
+                <groupId>org.geotools</groupId>
+                <artifactId>gt-api</artifactId>
+                <version>${geotools.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>javax.media</groupId>
+                        <artifactId>jai_core</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>javax.media</groupId>
+                        <artifactId>jai_codec</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>javax.media</groupId>
+                        <artifactId>jai_imageio</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>xerces</groupId>
+                        <artifactId>xercesImpl</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.geotools</groupId>
+                <artifactId>gt-referencing</artifactId>
+                <version>${geotools.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>javax.media</groupId>
+                        <artifactId>jai_core</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>javax.media</groupId>
+                        <artifactId>jai_codec</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>javax.media</groupId>
+                        <artifactId>jai_imageio</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.geotools</groupId>
+                <artifactId>gt-main</artifactId>
+                <version>${geotools.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>javax.media</groupId>
+                        <artifactId>jai_core</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>javax.media</groupId>
+                        <artifactId>jai_codec</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>javax.media</groupId>
+                        <artifactId>jai_imageio</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>xerces</groupId>
+                        <artifactId>xercesImpl</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.geotools</groupId>
+                <artifactId>gt-epsg-hsql</artifactId>
+                <version>${geotools.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>javax.media</groupId>
+                        <artifactId>jai_core</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>javax.media</groupId>
+                        <artifactId>jai_codec</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>javax.media</groupId>
+                        <artifactId>jai_imageio</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>xerces</groupId>
+                        <artifactId>xercesImpl</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.geotools</groupId>
+                <artifactId>gt-wms</artifactId>
+                <version>${geotools.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>javax.media</groupId>
+                        <artifactId>jai_core</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>javax.media</groupId>
+                        <artifactId>jai_codec</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>javax.media</groupId>
+                        <artifactId>jai_imageio</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.geotools</groupId>
+                <artifactId>gt-shapefile</artifactId>
+                <version>${geotools.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>javax.media</groupId>
+                        <artifactId>jai_core</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>javax.media</groupId>
+                        <artifactId>jai_codec</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>javax.media</groupId>
+                        <artifactId>jai_imageio</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.geotools</groupId>
+                <artifactId>gt-render</artifactId>
+                <version>${geotools.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>javax.media</groupId>
+                        <artifactId>jai_core</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>javax.media</groupId>
+                        <artifactId>jai_codec</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>javax.media</groupId>
+                        <artifactId>jai_imageio</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.geotools</groupId>
+                <artifactId>gt-cql</artifactId>
+                <version>${geotools.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>javax.media</groupId>
+                        <artifactId>jai_core</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>javax.media</groupId>
+                        <artifactId>jai_codec</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>javax.media</groupId>
+                        <artifactId>jai_imageio</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.geotools</groupId>
+                <artifactId>gt-geotiff</artifactId>
+                <version>${geotools.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>javax.media</groupId>
+                        <artifactId>jai_core</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>javax.media</groupId>
+                        <artifactId>jai_codec</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>javax.media</groupId>
+                        <artifactId>jai_imageio</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <!-- JAI Libraries ############################################# -->
+
+            <dependency>
+                <groupId>javax.media.jai</groupId>
+                <artifactId>jai-core</artifactId>
+                <version>1.1.3</version>
+            </dependency>
+            <dependency>
+                <groupId>javax.media.jai</groupId>
+                <artifactId>jai-codec</artifactId>
+                <version>1.1.3</version>
+            </dependency>
+            <dependency>
+                <groupId>javax.media.jai</groupId>
+                <artifactId>mlibwrapper-jai</artifactId>
+                <version>1.1.3</version>
+            </dependency>
+            <dependency>
+                <groupId>com.sun.media</groupId>
+                <artifactId>jai-imageio</artifactId>
+                <version>1.2-20090918</version>
+            </dependency>
+            <dependency>
+                <groupId>com.sun.media</groupId>
+                <artifactId>clibwrapper-jiio</artifactId>
+                <version>1.2-20090918</version>
+            </dependency>
+
+            <!-- Java Help Library ############################################# -->
+
+            <dependency>
+                <groupId>javax.help</groupId>
+                <artifactId>javahelp</artifactId>
+                <version>2.0.02</version>
+            </dependency>
+
+            <!-- JDOM Library ############################################# -->
+
+            <dependency>
+                <groupId>jdom</groupId>
+                <artifactId>jdom</artifactId>
+                <version>1.1</version>
+            </dependency>
+
+            <!-- BC Neural Network Library ############################################# -->
+
+            <dependency>
+                <groupId>com.bc.jnn</groupId>
+                <artifactId>jnn</artifactId>
+                <version>1.6</version>
+            </dependency>
+
+            <!-- Jama Matrix Algebra Library ############################################# -->
+
+            <dependency>
+                <groupId>Jama</groupId>
+                <artifactId>Jama</artifactId>
+                <version>1.0.2</version>
+            </dependency>
+
+            <!-- Test Libraries ############################################# -->
+
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>4.8.2</version>
+                <!-- junit is also used in production code e.g. GlobalTestConfig, therefore we
+                can't declare the test scope -->
+                <!--<scope>test</scope>-->
+            </dependency>
+
+            <dependency>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-all</artifactId>
+                <version>1.9.0</version>
+                <scope>test</scope>
+            </dependency>
+
+            <!-- JIDE Swing Libraries ############################################# -->
+
+            <dependency>
+                <groupId>com.jidesoft</groupId>
+                <artifactId>jide-dock</artifactId>
+                <version>${jide.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.jidesoft</groupId>
+                <artifactId>jide-action</artifactId>
+                <version>${jide.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.jidesoft</groupId>
+                <artifactId>jide-grids</artifactId>
+                <version>${jide.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.jidesoft</groupId>
+                <artifactId>jide-components</artifactId>
+                <version>${jide.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.jidesoft</groupId>
+                <artifactId>jide-common</artifactId>
+                <version>${jide.version}</version>
+            </dependency>
+
+            <!-- XStream Libraries ############################################# -->
+
+            <dependency>
+                <groupId>com.thoughtworks.xstream</groupId>
+                <artifactId>xstream</artifactId>
+                <version>1.4.2</version>
+            </dependency>
+            <dependency>
+                <groupId>xpp3</groupId>
+                <artifactId>xpp3</artifactId>
+                <version>1.1.4c</version>
+            </dependency>
+
+            <!-- JFreeChart Libraries ############################################# -->
+
+            <dependency>
+                <groupId>jfree</groupId>
+                <artifactId>jfreechart</artifactId>
+                <version>1.0.13</version>
+            </dependency>
+            <dependency>
+                <groupId>jfree</groupId>
+                <artifactId>jcommon</artifactId>
+                <version>1.0.16</version>
+            </dependency>
+
+            <!-- Python scripting support ######################################## -->
+
+            <dependency>
+                <groupId>org.jython</groupId>
+                <artifactId>jython</artifactId>
+                <version>2.5.2</version>
+            </dependency>
+
+            <!-- TAR archive support ########################################  -->
+            <dependency>
+                <groupId>org.xeustechnologies</groupId>
+                <artifactId>jtar</artifactId>
+                <version>1.0.4</version>
+            </dependency>
+
+            <!-- APACHE velocity support ########################################  -->
+            <dependency>
+                <groupId>velocity</groupId>
+                <artifactId>velocity</artifactId>
+                <version>1.5</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>jdom</groupId>
+                        <artifactId>jdom</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+        </dependencies>
+    </dependencyManagement>
+
+</project>

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>beam-parent</artifactId>
+        <groupId>org.esa.beam</groupId>
+        <version>1</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <packaging>pom</packaging>
+
+    <name>BEAM Aggregator of Plugin Modules</name>
+    <groupId>org.esa.beam</groupId>
+    <artifactId>beam-plugins</artifactId>
+    <description>This POM serves as aggregator for all BEAM plugin modules.</description>
+    <!--The version number is never to be changed!
+    It has to remain at 1-SNAPSHOT! -->
+    <version>1-SNAPSHOT</version>
+
+    <modules>
+        <module>../beam-aatsr-sst</module>
+        <module>../beam-alos-reader</module>
+        <module>../beam-atsr-reader</module>
+        <module>../beam-avhrr-reader</module>
+        <module>../beam-binning</module>
+        <module>../beam-binning2</module>
+        <module>../beam-chris-reader</module>
+        <module>../beam-cluster-analysis</module>
+        <module>../beam-collocation</module>
+        <module>../beam-envisat-reader</module>
+        <module>../beam-flhmci</module>
+        <module>../beam-geotiff</module>
+        <module>../beam-getasse30-reader</module>
+        <module>../beam-hdf5-writer</module>
+        <module>../beam-landsat-reader</module>
+        <module>../beam-meris-cloud</module>
+        <module>../beam-meris-ndvi</module>
+        <module>../beam-meris-radiometry</module>
+        <module>../beam-meris-smac</module>
+        <module>../beam-merisl3-reader</module>
+        <module>../beam-modis-reader</module>
+        <module>../beam-mosaic</module>
+        <module>../beam-netcdf</module>
+        <module>../beam-obpg-reader</module>
+        <module>../beam-opendap</module>
+        <module>../beam-pconvert</module>
+        <module>../beam-pixel-extraction</module>
+        <module>../beam-rtp-codec</module>
+        <module>../beam-pgx-reader</module>
+        <module>../beam-spot-vgt-reader</module>
+        <module>../beam-statistics-op</module>
+        <module>../beam-unmix</module>
+        <module>../blue-marble-worldmap</module>
+        <module>../globcover-worldmap</module>
+        <module>../lib-hdf</module>
+    </modules>
+
+</project>

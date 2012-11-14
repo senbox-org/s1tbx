@@ -25,7 +25,7 @@
 
     <vendor>Brockmann Consult GmbH</vendor>
     <contactAddress>Max Planck Str.2, 21502 Geesthacht (Germany)</contactAddress>
-    <copyright>(C) 2007 by Brockmann Consult GmbH</copyright>
+    <copyright>(C) 2012 by Brockmann Consult GmbH</copyright>
     <url>http://envisat.esa.int/beam</url>
     <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
 
@@ -41,8 +41,17 @@
 
     <changelog>
         <![CDATA[
-        <p>Changes in 5.0:<br/>
+        <p>Changes in 4.10.4:<br/>
+        [BEAM-1447] Dimap reader\writer handling very very large files<br/>
+        <p>Changes in 4.10.3:<br/>
+        [BEAM-1427] Histogram for SPOT SM Band not correct<br/>
+        [BEAM-1410] PixelGeoCoding has accuracy problems<br/>
+        [BEAM-1407] Editing pin files and existing (edited) pin files does not work<br/>
+        <p>Changes in 4.10.2:<br/>
+        [BEAM-1402] Profile plot using correlative data and projected products used wrong pixels<br/>
+        <p>Changes in 4.10.1:<br/>
         [BEAM-1398] SLSTR oblique-view images cannot be opened<br/>
+        [BEAM-1394] Wildcard matching problem with GPF operator 'PixEx'<br/>
         <p>Changes in 4.10:<br/>
         [BEAM-1385] Import images as products (missing RGB product reader)<br/>
         [BEAM-1380] Compute statistics from geo-physical data, not raw data<br/>

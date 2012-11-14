@@ -22,7 +22,7 @@ import com.bc.ceres.swing.TableLayout;
 import com.bc.ceres.swing.binding.BindingContext;
 import com.jidesoft.combobox.DefaultDateModel;
 import com.jidesoft.grid.DateCellEditor;
-import org.esa.beam.framework.datamodel.GeoPos;
+import com.vividsolutions.jts.geom.Point;
 import org.esa.beam.framework.datamodel.Placemark;
 import org.esa.beam.framework.datamodel.PlacemarkGroup;
 import org.esa.beam.framework.datamodel.Product;
@@ -35,7 +35,9 @@ import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.product.ProductExpressionPane;
 import org.esa.beam.framework.ui.tool.ToolButtonFactory;
 import org.esa.beam.pixex.Coordinate;
+import org.esa.beam.pixex.PixExOp;
 import org.jfree.ui.DateCellRenderer;
+import org.opengis.feature.simple.SimpleFeature;
 
 import javax.swing.AbstractButton;
 import javax.swing.BoxLayout;
@@ -60,6 +62,8 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -93,6 +97,8 @@ class PixelExtractionParametersForm {
     private JSpinner timeSpinner;
     private JComboBox timeUnitComboBox;
     private String allowedTimeDifference = "";
+    private JComboBox aggregationStrategyChooser;
+    private JCheckBox includeOriginalInputBox;
 
     PixelExtractionParametersForm(AppContext appContext, PropertyContainer container) {
         this.appContext = appContext;
@@ -109,9 +115,15 @@ class PixelExtractionParametersForm {
         Coordinate[] coordinates = new Coordinate[coordinateTableModel.getRowCount()];
         for (int i = 0; i < coordinateTableModel.getRowCount(); i++) {
             final Placemark placemark = coordinateTableModel.getPlacemarkAt(i);
-            GeoPos geoPos = placemark.getGeoPos();
-            final Date dateTime = (Date) placemark.getFeature().getAttribute(Placemark.PROPERTY_NAME_DATETIME);
-            coordinates[i] = new Coordinate(placemark.getName(), geoPos.lat, geoPos.lon, dateTime);
+            SimpleFeature feature = placemark.getFeature();
+            final Date dateTime = (Date) feature.getAttribute(Placemark.PROPERTY_NAME_DATETIME);
+            final Coordinate.OriginalValue[] originalValues = PixExOp.getOriginalValues(feature);
+            if (placemark.getGeoPos() == null) {
+                final Point point = (Point) feature.getDefaultGeometry();
+                coordinates[i] = new Coordinate(placemark.getName(), (float) point.getY(), (float) point.getX(), dateTime, originalValues);
+            } else {
+                coordinates[i] = new Coordinate(placemark.getName(), placemark.getGeoPos().getLat(), placemark.getGeoPos().getLon(), dateTime, originalValues);
+            }
         }
         return coordinates;
     }
@@ -132,6 +144,10 @@ class PixelExtractionParametersForm {
         return exportExpressionResultButton.isSelected();
     }
 
+    public String getPixelValueAggregationMethod() {
+        return aggregationStrategyChooser.getSelectedItem().toString();
+    }
+
     private void createUi(PropertyContainer container) {
         final TableLayout tableLayout = new TableLayout(3);
         tableLayout.setTableAnchor(TableLayout.Anchor.NORTHWEST);
@@ -142,16 +158,17 @@ class PixelExtractionParametersForm {
         tableLayout.setColumnWeightX(1, 1.0);
         tableLayout.setCellFill(0, 1, TableLayout.Fill.BOTH); // coordinate table
         tableLayout.setCellWeightY(0, 1, 7.0);
-        tableLayout.setRowFill(3, TableLayout.Fill.BOTH); // windowSize
-        tableLayout.setCellPadding(4, 0, new Insets(8, 4, 4, 4)); // expression label
-        tableLayout.setCellFill(4, 1, TableLayout.Fill.BOTH); // expression panel
-        tableLayout.setCellPadding(4, 1, new Insets(0, 0, 0, 0));
-        tableLayout.setCellWeightX(4, 1, 1.0);
-        tableLayout.setCellWeightY(4, 1, 3.0);
-        tableLayout.setCellPadding(5, 0, new Insets(8, 4, 4, 4)); // Sub-scene label
-        tableLayout.setCellPadding(5, 1, new Insets(0, 0, 0, 0));
-        tableLayout.setCellPadding(6, 0, new Insets(8, 4, 4, 4)); // Sub-scene label
-        tableLayout.setCellPadding(6, 1, new Insets(0, 0, 0, 0));
+        tableLayout.setCellPadding(6, 0, new Insets(8, 4, 4, 4)); // expression label
+        tableLayout.setCellPadding(6, 1, new Insets(0, 0, 0, 0)); // expression panel
+        tableLayout.setCellWeightX(6, 1, 1.0);
+        tableLayout.setCellWeightY(6, 1, 3.0);
+        tableLayout.setCellFill(6, 1, TableLayout.Fill.BOTH);
+        tableLayout.setCellPadding(7, 0, new Insets(8, 4, 4, 4)); // Sub-scene label
+        tableLayout.setCellPadding(7, 1, new Insets(0, 0, 0, 0));
+        tableLayout.setCellPadding(8, 0, new Insets(8, 4, 4, 4)); // kmz export label
+        tableLayout.setCellPadding(8, 1, new Insets(0, 0, 0, 0));
+        tableLayout.setCellPadding(9, 0, new Insets(8, 4, 4, 4)); // output match label
+        tableLayout.setCellPadding(9, 1, new Insets(0, 0, 0, 0));
 
         mainPanel = new JPanel(tableLayout);
         mainPanel.add(new JLabel("Coordinates:"));
@@ -163,6 +180,13 @@ class PixelExtractionParametersForm {
             mainPanel.add(timeDeltaComponent);
         }
 
+        coordinateTableModel.addTableModelListener(new TableModelListener() {
+            @Override
+            public void tableChanged(TableModelEvent e) {
+                updateIncludeOriginalInputBox();
+            }
+        });
+
         final BindingContext bindingContext = new BindingContext(container);
 
         mainPanel.add(new JLabel("Export:"));
@@ -171,17 +195,27 @@ class PixelExtractionParametersForm {
 
         mainPanel.add(new JLabel("Window size:"));
         windowSpinner = createWindowSizeEditor(bindingContext);
-        windowSpinner.setPreferredSize(new Dimension(windowSpinner.getPreferredSize().width, 18));
         windowLabel = new JLabel();
         windowLabel.setHorizontalAlignment(SwingConstants.CENTER);
         windowSpinner.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
-                updateWindowLabel();
+                handleWindowSpinnerChange();
             }
         });
         mainPanel.add(windowSpinner);
         mainPanel.add(windowLabel);
+
+        mainPanel.add(new JLabel("Pixel value aggregation method:"));
+        aggregationStrategyChooser = new JComboBox(new String[]{
+                PixExOp.NO_AGGREGATION,
+                PixExOp.MEAN_AGGREGATION,
+                PixExOp.MIN_AGGREGATION,
+                PixExOp.MAX_AGGREGATION,
+                PixExOp.MEDIAN_AGGREGATION
+        });
+        mainPanel.add(aggregationStrategyChooser);
+        mainPanel.add(tableLayout.createVerticalSpacer());
 
         mainPanel.add(new JLabel("Expression:"));
         mainPanel.add(createExpressionPanel(bindingContext));
@@ -195,6 +229,25 @@ class PixelExtractionParametersForm {
         mainPanel.add(createKmzExportPanel(bindingContext));
         mainPanel.add(tableLayout.createHorizontalSpacer());
 
+        mainPanel.add(new JLabel("Match with original input:"));
+        mainPanel.add(createIncludeOriginalInputBox(bindingContext));
+        mainPanel.add(tableLayout.createHorizontalSpacer());
+
+    }
+
+    private JComponent createIncludeOriginalInputBox(BindingContext bindingContext) {
+        final TableLayout tableLayout = new TableLayout(1);
+        tableLayout.setTablePadding(4, 4);
+        tableLayout.setTableWeightX(1.0);
+        tableLayout.setTableWeightY(0.0);
+        tableLayout.setTableFill(TableLayout.Fill.BOTH);
+        tableLayout.setTableAnchor(TableLayout.Anchor.NORTHWEST);
+        final JPanel panel = new JPanel(tableLayout);
+        includeOriginalInputBox = new JCheckBox("Include original input");
+        bindingContext.bind("includeOriginalInput", includeOriginalInputBox);
+        panel.add(includeOriginalInputBox);
+        updateIncludeOriginalInputBox();
+        return panel;
     }
 
     private Component createKmzExportPanel(BindingContext bindingContext) {
@@ -237,16 +290,17 @@ class PixelExtractionParametersForm {
 
     private Component[] createTimeDeltaComponents(TableLayout tableLayout) {
         final JLabel boxLabel = new JLabel("Allowed time difference:");
-        final JCheckBox box = new JCheckBox("Use time difference constrain");
+        final JCheckBox box = new JCheckBox("Use time difference constraint");
         final Component horizontalSpacer = tableLayout.createHorizontalSpacer();
-        
+
         final Component horizontalSpacer2 = tableLayout.createHorizontalSpacer();
         timeSpinner = new JSpinner(new SpinnerNumberModel(1, 1, null, 1));
         timeSpinner.setEnabled(false);
         timeSpinner.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
-                allowedTimeDifference = String.valueOf(timeSpinner.getValue()) + timeUnitComboBox.getSelectedItem().toString().charAt(0);
+                allowedTimeDifference = String.valueOf(
+                        timeSpinner.getValue()) + timeUnitComboBox.getSelectedItem().toString().charAt(0);
             }
         });
         timeUnitComboBox = new JComboBox(new String[]{"Day(s)", "Hour(s)", "Minute(s)"});
@@ -254,7 +308,8 @@ class PixelExtractionParametersForm {
         timeUnitComboBox.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                allowedTimeDifference = String.valueOf(timeSpinner.getValue()) + timeUnitComboBox.getSelectedItem().toString().charAt(0);
+                allowedTimeDifference = String.valueOf(
+                        timeSpinner.getValue()) + timeUnitComboBox.getSelectedItem().toString().charAt(0);
             }
         });
 
@@ -266,13 +321,25 @@ class PixelExtractionParametersForm {
                 allowedTimeDifference = "";
             }
         });
-        
+
         return new Component[]{boxLabel, box, horizontalSpacer, horizontalSpacer2, timeSpinner, timeUnitComboBox};
     }
 
     private void updateUi() {
-        updateWindowLabel();
+        handleWindowSpinnerChange();
         updateExpressionComponents();
+        updateIncludeOriginalInputBox();
+    }
+
+    private void updateIncludeOriginalInputBox() {
+        includeOriginalInputBox.setEnabled(false);
+        final Coordinate[] coordinates = getCoordinates();
+        for (Coordinate coordinate : coordinates) {
+            if (coordinate.getOriginalValues().length > 0) {
+                includeOriginalInputBox.setEnabled(true);
+                return;
+            }
+        }
     }
 
     private void updateExpressionComponents() {
@@ -290,8 +357,11 @@ class PixelExtractionParametersForm {
         exportExpressionResultButton.setEnabled(useExpressionSelected);
     }
 
-    private void updateWindowLabel() {
-        windowLabel.setText(String.format("%1$d x %1$d", (Integer) windowSpinner.getValue()));
+    private void handleWindowSpinnerChange() {
+        final Integer windowSize = (Integer) windowSpinner.getValue();
+        windowLabel.setText(String.format("%1$d x %1$d", windowSize));
+        final boolean pixelsNeedToBeAggregated = windowSize > 1;
+        aggregationStrategyChooser.setEnabled(pixelsNeedToBeAggregated);
     }
 
     private JPanel createExportPanel(BindingContext bindingContext) {
@@ -385,16 +455,18 @@ class PixelExtractionParametersForm {
             }
         }
 
-        final JTable coordinateTable = new JTable(coordinateTableModel);
+        JTable coordinateTable = new JTable(coordinateTableModel);
         coordinateTable.setName("coordinateTable");
-        coordinateTable.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+        coordinateTable.setAutoResizeMode(JTable.AUTO_RESIZE_NEXT_COLUMN);
         coordinateTable.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
         coordinateTable.setRowSelectionAllowed(true);
         coordinateTable.getTableHeader().setReorderingAllowed(false);
         coordinateTable.setDefaultRenderer(Float.class, new DecimalTableCellRenderer(new DecimalFormat("0.0000")));
-        coordinateTable.setPreferredScrollableViewportSize(new Dimension(150, 100));
+        coordinateTable.setPreferredScrollableViewportSize(new Dimension(250, 100));
         coordinateTable.getColumnModel().getColumn(1).setCellEditor(new FloatCellEditor(-90, 90));
         coordinateTable.getColumnModel().getColumn(2).setCellEditor(new FloatCellEditor(-180, 180));
+        coordinateTable.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
+
         final DefaultDateModel dateModel = new DefaultDateModel();
         final DateFormat dateFormat = ProductData.UTC.createDateFormat("yyyy-MM-dd'T'HH:mm:ss"); // ISO 8601
         dateModel.setDateFormat(dateFormat);
@@ -455,6 +527,7 @@ class PixelExtractionParametersForm {
                 final Rectangle buttonBounds = component.getBounds();
                 popup.add(new AddCoordinateAction(coordinateTableModel));
                 popup.add(new AddPlacemarkFileAction(appContext, coordinateTableModel, mainPanel));
+                popup.add(new AddCsvFileAction(appContext, coordinateTableModel, mainPanel));
                 popup.show(component, 1, buttonBounds.height + 1);
             }
         }

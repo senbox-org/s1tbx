@@ -74,7 +74,6 @@ public class BeamFileFilter extends FileFilter {
      * <code>getExtensions</code> method.
      *
      * @return the default extension or <code>null</code> if no extensions have bees specified.
-     *
      * @see #getExtensions
      */
     public String getDefaultExtension() {
@@ -85,7 +84,6 @@ public class BeamFileFilter extends FileFilter {
      * Returns the accepted extensions of this filter. For example: <code>{".jpg", ".gif", ".png"}</code>.
      *
      * @return The array of extensions.
-     *
      * @see #setExtensions
      */
     public String[] getExtensions() {
@@ -96,7 +94,6 @@ public class BeamFileFilter extends FileFilter {
      * Sets the accepted extensions of this filter. For example: <code>{".jpg", ".gif", ".png"}</code>.
      *
      * @param extensions The array of extensions.
-     *
      * @see #getExtensions
      */
     public void setExtensions(String[] extensions) {
@@ -130,7 +127,6 @@ public class BeamFileFilter extends FileFilter {
      * list is missing in the description text, it is automatically appended.
      *
      * @param description The description, must not be null.
-     *
      * @see #getDescription
      */
     public void setDescription(String description) {
@@ -157,7 +153,6 @@ public class BeamFileFilter extends FileFilter {
      * Utility method which checks the extension the given file.
      *
      * @param file the file
-     *
      * @return <code>true</code> if the given file path ends with one of the registered extensions, <code>false</code>
      *         otherwise.
      */
@@ -169,7 +164,6 @@ public class BeamFileFilter extends FileFilter {
      * Utility method which checks the extension the given filename.
      *
      * @param filename the file name
-     *
      * @return <code>true</code> if the given file name ends with one of the registered extensions, <code>false</code>
      *         otherwise.
      */
@@ -180,8 +174,7 @@ public class BeamFileFilter extends FileFilter {
     /**
      * Utility method which checks the extension the given filename.
      *
-     * @param filename the file name
-     *
+     * @param filename   the file name
      * @param extensions the extension
      * @return <code>true</code> if the given file name ends with one of the registered extensions, <code>false</code>
      *         otherwise.
@@ -205,7 +198,6 @@ public class BeamFileFilter extends FileFilter {
      * if no extension are defined, the method always returns <code>true</code>
      *
      * @param file the file to be or not be accepted.
-     *
      * @return <code>true</code> if given file is accepted by this filter
      */
     @Override
@@ -231,7 +223,6 @@ public class BeamFileFilter extends FileFilter {
      * Clients may override.
      *
      * @param dir The directory to check.
-     *
      * @return {@code true} If the given directory represents a compound document.
      * @since BEAM 4.6.1
      */
@@ -255,14 +246,20 @@ public class BeamFileFilter extends FileFilter {
      * File selection modes.
      */
     public enum FileSelectionMode {
-        /** Instruction to display only files. */
+        /**
+         * Instruction to display only files.
+         */
         FILES_ONLY(JFileChooser.FILES_ONLY),
 
-        /** Instruction to display only directories. */
+        /**
+         * Instruction to display only directories.
+         */
         DIRECTORIES_ONLY(JFileChooser.DIRECTORIES_ONLY),
 
-        /** Instruction to display both files and directories. */
-        FILES_AND_DIRECTORIES (JFileChooser.FILES_AND_DIRECTORIES);
+        /**
+         * Instruction to display both files and directories.
+         */
+        FILES_AND_DIRECTORIES(JFileChooser.FILES_AND_DIRECTORIES);
 
         private final int value;
 
@@ -285,7 +282,10 @@ public class BeamFileFilter extends FileFilter {
     public static <T extends ProductIOPlugIn> List<BeamFileFilter> getSortedFileFilters(Iterator<T> pluginIterator) {
         List<BeamFileFilter> fileFilterList = new ArrayList<BeamFileFilter>();
         while (pluginIterator.hasNext()) {
-            fileFilterList.add(pluginIterator.next().getProductFileFilter());
+            final BeamFileFilter productFileFilter = pluginIterator.next().getProductFileFilter();
+            if (productFileFilter != null) {
+                fileFilterList.add(productFileFilter);
+            }
         }
         Collections.sort(fileFilterList, new Comparator<BeamFileFilter>() {
             @Override

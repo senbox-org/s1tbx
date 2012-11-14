@@ -409,7 +409,7 @@ class PixelInfoViewModelUpdater {
         }
         if (isPixelValid(band, _pixelX, _pixelY, _level)) {
             if (band.isFloatingPointType()) {
-                return String.valueOf(ProductUtils.getGeophysicalSampleDouble(band, _pixelX, _pixelY, _level));
+                return String.valueOf((float) ProductUtils.getGeophysicalSampleDouble(band, _pixelX, _pixelY, _level));
             } else {
                 return String.valueOf(ProductUtils.getGeophysicalSampleLong(band, _pixelX, _pixelY, _level));
             }
@@ -469,11 +469,11 @@ class PixelInfoViewModelUpdater {
 
     private boolean isSampleValueAvailable(int pixelX, int pixelY, boolean pixelValid) {
         return currentProduct != null
-               && pixelValid
-               && pixelX >= 0
-               && pixelY >= 0
-               && pixelX < currentProduct.getSceneRasterWidth()
-               && pixelY < currentProduct.getSceneRasterHeight();
+                && pixelValid
+                && pixelX >= 0
+                && pixelY >= 0
+                && pixelX < currentProduct.getSceneRasterWidth()
+                && pixelY < currentProduct.getSceneRasterHeight();
     }
 
     void clearProductNodeRefs() {

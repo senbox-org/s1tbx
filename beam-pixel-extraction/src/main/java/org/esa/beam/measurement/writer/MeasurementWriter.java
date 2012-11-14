@@ -13,27 +13,6 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-
-/*
- * - In den Konstructor nur noch die Factories rein reichen.
- *     // WriterFactory
- *     // MeasurementFactory
- * - Der MeasurementWriter bestimmt dann nur noch das WIE geschrieben wird
- *     // Die WriterFactory bestimmt das WOHIN
- *     // Die MeasurementFactory das WAS
- * - MeasurementWriter trennen von MeasurementFactory
- * - MeasurementWriter.write(Measurement ...)
- *     // ohne PrintWriter!
- *     // Dieser wird von der Factory geliefert
- *     // Ein Measurement hält auch das Product aus dem die Daten stammen und kann
- *     // somit auch zur Abfrage getWriter(product) an der Factory genutzt werden.
- * - WriteMeasurementRegion soll die Window size bekommen.
- *     // bzw. sobald eine MeasurementFactory existiert wird die window
- *     // size nur noch in der Factorymethode gebraucht, oder der Factory im
- *     // Konstructor mitgegeben werden.
- *
- */
-
 package org.esa.beam.measurement.writer;
 
 import org.esa.beam.framework.datamodel.Product;
@@ -66,10 +45,12 @@ public class MeasurementWriter {
                                   Product product, Raster validData) throws IOException {
 
         final Measurement[] measurements;
-        measurements = measurementFactory.createMeasurements(pixelX, pixelY, coordinateID, coordinateName, product, validData);
+        measurements = measurementFactory.createMeasurements(pixelX, pixelY, coordinateID, coordinateName, product,
+                                                             validData);
 
         final PrintWriter writer;
-        final boolean containsWriter = targetFactory.containsWriterFor(pixelX, pixelY, coordinateID, coordinateName, product, validData);
+        final boolean containsWriter = targetFactory.containsWriterFor(pixelX, pixelY, coordinateID, coordinateName,
+                                                                       product, validData);
         if (containsWriter) {
             writer = targetFactory.getWriterFor(pixelX, pixelY, coordinateID, coordinateName, product, validData);
         } else {
@@ -77,7 +58,7 @@ public class MeasurementWriter {
             formatStrategy.writeHeader(writer, product);
         }
 
-        formatStrategy.writeMeasurements(writer, measurements);
+        formatStrategy.writeMeasurements(product, writer, measurements);
 
         if (writer.checkError()) {
             throw new IOException("Error occurred while writing measurement.");

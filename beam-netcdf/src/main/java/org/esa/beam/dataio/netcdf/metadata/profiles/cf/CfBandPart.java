@@ -22,6 +22,7 @@ import org.esa.beam.dataio.netcdf.nc.NFileWriteable;
 import org.esa.beam.dataio.netcdf.nc.NVariable;
 import org.esa.beam.dataio.netcdf.util.Constants;
 import org.esa.beam.dataio.netcdf.util.DataTypeUtils;
+import org.esa.beam.dataio.netcdf.util.DimKey;
 import org.esa.beam.dataio.netcdf.util.NetcdfMultiLevelImage;
 import org.esa.beam.dataio.netcdf.util.ReaderUtils;
 import org.esa.beam.framework.datamodel.Band;
@@ -57,17 +58,18 @@ public class CfBandPart extends ProfilePartIO {
                 addBand(ctx, p, variable, new int[]{}, bandBasename);
             } else {
                 final int[] sizeArray = new int[rank - 2];
-                System.arraycopy(variable.getShape(), 0, sizeArray, 0, sizeArray.length);
+                final int startIndexToCopy = DimKey.findStartIndexOfBandVariables(dimensions);
+                System.arraycopy(variable.getShape(), startIndexToCopy, sizeArray, 0, sizeArray.length);
                 ForLoop.execute(sizeArray, new ForLoop.Body() {
                     @Override
                     public void execute(int[] indexes, int[] sizes) {
                         final StringBuilder bandNameBuilder = new StringBuilder(bandBasename);
                         for (int i = 0; i < sizes.length; i++) {
-                            final Dimension zDim = dimensions.get(i);
+                            final Dimension zDim = dimensions.get(i + startIndexToCopy);
                             String zName = zDim.getName();
                             final String skipPrefix = "n_";
                             if (zName.toLowerCase().startsWith(skipPrefix)
-                                && zName.length() > skipPrefix.length()) {
+                                    && zName.length() > skipPrefix.length()) {
                                 zName = zName.substring(skipPrefix.length());
                             }
                             if (zDim.getLength() > 1) {
@@ -83,7 +85,8 @@ public class CfBandPart extends ProfilePartIO {
         p.setAutoGrouping(getAutoGrouping(ctx));
     }
 
-    private static void addBand(ProfileReadContext ctx, Product p, Variable variable, int[] origin, String bandBasename) {
+    private static void addBand(ProfileReadContext ctx, Product p, Variable variable, int[] origin,
+                                String bandBasename) {
         final int rasterDataType = getRasterDataType(variable, dataTypeWorkarounds);
         if (variable.getDataType() == DataType.LONG) {
             final Band lowerBand = p.addBand(bandBasename + "_lsb", rasterDataType);
@@ -187,7 +190,7 @@ public class CfBandPart extends ProfilePartIO {
     }
 
     public static void defineRasterDataNodes(ProfileWriteContext ctx, RasterDataNode[] rasterDataNodes) throws
-                                                                                                        IOException {
+            IOException {
         final NFileWriteable ncFile = ctx.getNetcdfFileWriteable();
         final String dimensions = ncFile.getDimensions();
         for (RasterDataNode rasterDataNode : rasterDataNodes) {
@@ -252,32 +255,40 @@ public class CfBandPart extends ProfilePartIO {
 
     private static void addFlagCodingIfApplicable(Product p, Band band, Variable variable, String flagCodingName,
                                                   boolean msb) {
-        final Attribute flagMaskAttribute = variable.findAttribute("flag_masks");
-        final Attribute flagMeaningsAttribute = variable.findAttribute("flag_meanings");
+        Attribute flagValuesAttribute = variable.findAttribute("flag_values");
+        if (flagValuesAttribute == null) {
+            // in the common case that the flag values attribute is not present, use the flag masks as flag values
+            flagValuesAttribute = variable.findAttribute("flag_masks");
+        }
+        Attribute flagMeaningsAttribute = variable.findAttribute("flag_meanings");
+        if (flagMeaningsAttribute == null) {
+            flagMeaningsAttribute = variable.findAttribute("flag_meaning");
+        }
 
-        if (flagMaskAttribute != null && flagMeaningsAttribute != null) {
+        if (flagValuesAttribute != null && flagMeaningsAttribute != null) {
             if (!p.getFlagCodingGroup().contains(flagCodingName)) {
                 final FlagCoding flagCoding = new FlagCoding(flagCodingName);
-                final String[] flagMeanings = flagMeaningsAttribute.getStringValue().split(" ");
-                for (int i = 0; i < flagMaskAttribute.getLength(); i++) {
+                final String[] flagMeanings = getFlagMeanings(flagMeaningsAttribute);
+                for (int i = 0; i < flagValuesAttribute.getLength(); i++) {
                     if (i < flagMeanings.length) {
                         final String flagMeaning = flagMeanings[i];
-                        switch (flagMaskAttribute.getDataType()) {
+                        switch (flagValuesAttribute.getDataType()) {
                             case BYTE:
                                 flagCoding.addFlag(flagMeaning,
                                                    DataType.unsignedByteToShort(
-                                                           flagMaskAttribute.getNumericValue(i).byteValue()), null);
+                                                           flagValuesAttribute.getNumericValue(i).byteValue()), null);
                                 break;
                             case SHORT:
                                 flagCoding.addFlag(flagMeaning,
                                                    DataType.unsignedShortToInt(
-                                                           flagMaskAttribute.getNumericValue(i).shortValue()), null);
+                                                           flagValuesAttribute.getNumericValue(i).shortValue()), null);
                                 break;
                             case INT:
-                                flagCoding.addFlag(flagMeaning, flagMaskAttribute.getNumericValue(i).intValue(), null);
+                                flagCoding.addFlag(flagMeaning, flagValuesAttribute.getNumericValue(i).intValue(),
+                                                   null);
                                 break;
                             case LONG:
-                                final long value = flagMaskAttribute.getNumericValue(i).longValue();
+                                final long value = flagValuesAttribute.getNumericValue(i).longValue();
                                 if (msb) {
                                     final long flagMask = value >>> 32;
                                     if (flagMask > 0) {
@@ -297,5 +308,18 @@ public class CfBandPart extends ProfilePartIO {
             }
             band.setSampleCoding(p.getFlagCodingGroup().get(flagCodingName));
         }
+    }
+
+    private static String[] getFlagMeanings(Attribute flagMeaningsAttribute) {
+        final int flagMeaningsCount = flagMeaningsAttribute.getLength();
+        if (flagMeaningsCount > 1) {
+            // handle a common misunderstanding of CF conventions, where flag meanings are stored as array of strings
+            final String[] flagMeanings = new String[flagMeaningsCount];
+            for (int i = 0; i < flagMeanings.length; i++) {
+                flagMeanings[i] = flagMeaningsAttribute.getStringValue(i);
+            }
+            return flagMeanings;
+        }
+        return flagMeaningsAttribute.getStringValue().split(" ");
     }
 }

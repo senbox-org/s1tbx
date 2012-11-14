@@ -30,7 +30,6 @@ import javax.media.jai.operator.BandSelectDescriptor;
 import javax.media.jai.operator.FileLoadDescriptor;
 import java.awt.color.ColorSpace;
 import java.awt.image.ColorModel;
-import java.awt.image.DataBuffer;
 import java.awt.image.SampleModel;
 import java.io.File;
 import java.io.IOException;
@@ -92,14 +91,6 @@ public class ImageProductReader extends AbstractProductReader {
             if ((numBands == 3 || numBands == 4) && i < 3) {
                 band.setSpectralBandIndex(i);
                 band.setSpectralWavelength(RGB_WAVELENGTHS[i]);
-            }
-            if (bandImage.getSampleModel().getDataType() == DataBuffer.TYPE_BYTE) {
-                band.setScalingFactor(1.0 / 255.0);
-            } else if (bandImage.getSampleModel().getDataType() == DataBuffer.TYPE_USHORT) {
-                band.setScalingFactor(1.0 / (Short.MAX_VALUE - Short.MIN_VALUE));
-            } else if (bandImage.getSampleModel().getDataType() == DataBuffer.TYPE_SHORT) {
-                band.setScalingFactor(1.0 / (Short.MAX_VALUE - Short.MIN_VALUE));
-                band.setScalingOffset(-Short.MIN_VALUE / (Short.MAX_VALUE - Short.MIN_VALUE));
             }
         }
 

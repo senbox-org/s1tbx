@@ -99,10 +99,10 @@ public class RasterDigest {
         for (final Variable variable : variables) {
             final int rank = variable.getRank();
             if (rank >= 2 && (DataTypeUtils.isValidRasterDataType(variable.getDataType()) || variable.getDataType() == DataType.LONG)) {
-                final Dimension dimX = variable.getDimension(rank - 1);
-                final Dimension dimY = variable.getDimension(rank - 2);
+                DimKey rasterDim = new DimKey(variable.getDimensions().toArray(new Dimension[variable.getDimensions().size()]));
+                final Dimension dimX = rasterDim.getDimensionX();
+                final Dimension dimY = rasterDim.getDimensionY();
                 if (dimX.getLength() > 1 && dimY.getLength() > 1) {
-                    DimKey rasterDim = new DimKey(variable.getDimensions().toArray(new Dimension[variable.getDimensions().size()]));
                     List<Variable> list = variableLists.get(rasterDim);
                     if (list == null) {
                         list = new ArrayList<Variable>();

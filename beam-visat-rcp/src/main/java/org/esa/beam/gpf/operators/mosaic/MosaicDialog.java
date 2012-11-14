@@ -85,7 +85,8 @@ class MosaicDialog extends SingleTargetProductDialog {
             return false;
         }
         final boolean varsNotSpecified = mosaicModel.getVariables() == null || mosaicModel.getVariables().length == 0;
-        final boolean condsNotSpecified = mosaicModel.getConditions() == null || mosaicModel.getConditions().length == 0;
+        final boolean condsNotSpecified =
+                mosaicModel.getConditions() == null || mosaicModel.getConditions().length == 0;
         if (varsNotSpecified && condsNotSpecified) {
             showErrorDialog("No variables or conditions specified.");
             return false;

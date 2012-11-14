@@ -103,7 +103,7 @@ public class MosaicOp extends Operator {
                description = "The CRS of the target product, represented as WKT or authority code.")
     String crs;
 
-    @Parameter(description = "Wether the source product should be orthorectified.", defaultValue = "false")
+    @Parameter(description = "Whether the source product should be orthorectified.", defaultValue = "false")
     boolean orthorectify;
     @Parameter(description = "The name of the elevation model for the orthorectification.")
     String elevationModelName;
@@ -532,7 +532,7 @@ public class MosaicOp extends Operator {
 
     private static void initParameter(MetadataElement parentElement, Field field,
                                       Map<String, Object> parameters) throws
-                                                                      OperatorException {
+            OperatorException {
         Parameter annotation = field.getAnnotation(Parameter.class);
         String name = annotation.alias();
         if (name.isEmpty()) {

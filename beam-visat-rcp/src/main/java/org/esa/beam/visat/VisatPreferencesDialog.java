@@ -23,8 +23,18 @@ import com.bc.ceres.swing.TableLayout;
 import com.bc.ceres.swing.update.ConnectionConfigData;
 import com.bc.ceres.swing.update.ConnectionConfigPane;
 import org.esa.beam.framework.datamodel.Mask;
-import org.esa.beam.framework.param.*;
-import org.esa.beam.framework.ui.*;
+import org.esa.beam.framework.param.ParamChangeEvent;
+import org.esa.beam.framework.param.ParamChangeListener;
+import org.esa.beam.framework.param.ParamExceptionHandler;
+import org.esa.beam.framework.param.ParamGroup;
+import org.esa.beam.framework.param.ParamProperties;
+import org.esa.beam.framework.param.ParamValidateException;
+import org.esa.beam.framework.param.Parameter;
+import org.esa.beam.framework.ui.GridBagUtils;
+import org.esa.beam.framework.ui.PixelInfoView;
+import org.esa.beam.framework.ui.RGBImageProfilePane;
+import org.esa.beam.framework.ui.SuppressibleOptionPane;
+import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.config.ConfigDialog;
 import org.esa.beam.framework.ui.config.DefaultConfigPage;
 import org.esa.beam.framework.ui.product.ProductSceneView;
@@ -35,8 +45,28 @@ import org.esa.beam.util.PropertyMap;
 import org.esa.beam.util.SystemUtils;
 import org.esa.beam.visat.actions.ShowModuleManagerAction;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.BorderFactory;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.DefaultListCellRenderer;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.UIManager;
+import java.awt.BasicStroke;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.GraphicsEnvironment;
+import java.awt.GridBagConstraints;
+import java.awt.Insets;
+import java.awt.Rectangle;
+import java.awt.RenderingHints;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -108,7 +138,7 @@ public class VisatPreferencesDialog extends ConfigDialog {
             configParams.addParameter(param);
 
             param = new Parameter(PixelInfoView.PROPERTY_KEY_SHOW_ONLY_DISPLAYED_BAND_PIXEL_VALUES,
-                    PixelInfoView.PROPERTY_DEFAULT_SHOW_DISPLAYED_BAND_PIXEL_VALUES);
+                                  PixelInfoView.PROPERTY_DEFAULT_SHOW_DISPLAYED_BAND_PIXEL_VALUES);
             param.getProperties().setLabel("Show only pixel values of loaded or displayed bands"); /*I18N*/
             configParams.addParameter(param);
 
@@ -156,7 +186,7 @@ public class VisatPreferencesDialog extends ConfigDialog {
             GridBagUtils.addToPanel(memorySettingsPane, param.getEditor().getLabelComponent(), gbc, "weightx=0");
             GridBagUtils.addToPanel(memorySettingsPane, param.getEditor().getEditorComponent(), gbc, "weightx=1");
             GridBagUtils.addToPanel(memorySettingsPane, param.getEditor().getPhysUnitLabelComponent(), gbc,
-                    "weightx=0");
+                                    "weightx=0");
             gbc.gridy++;
 
             //////////////////////////////////////////////////////////////////////////////////////
@@ -336,9 +366,9 @@ public class VisatPreferencesDialog extends ConfigDialog {
         @Override
         public void setConfigParamValues(PropertyMap propertyMap, ParamExceptionHandler errorHandler) {
             String lafClassName = propertyMap.getPropertyString(PROPERTY_KEY_APP_UI_LAF,
-                    getDefaultLafClassName());
+                                                                getDefaultLafClassName());
             getConfigParams().getParameter(PROPERTY_KEY_APP_UI_LAF_NAME).setValue(getLafName(lafClassName),
-                    errorHandler);
+                                                                                  errorHandler);
             super.setConfigParamValues(propertyMap, errorHandler);
         }
 
@@ -501,7 +531,7 @@ public class VisatPreferencesDialog extends ConfigDialog {
                     final int maxPixelHeight = totHeight - 2 * borderSize;
                     final int pixelSize = Math.min(maxPixelHeight, maxPixelWidth);
                     final Rectangle pixel = new Rectangle((totWidth - pixelSize) / 2, (totHeight - pixelSize) / 2,
-                            pixelSize, pixelSize);
+                                                          pixelSize, pixelSize);
                     g2d.setColor(Color.blue);
                     g2d.drawRect(pixel.x, pixel.y, pixel.width, pixel.height);
 
@@ -557,14 +587,14 @@ public class VisatPreferencesDialog extends ConfigDialog {
             propShowDecimals.setDefaultValue(PROPERTY_DEFAULT_PIXEL_OFFSET_FOR_DISPLAY_SHOW_DECIMALS);
             propShowDecimals.setLabel("Show floating-point image coordinates");
             paramShowDecimals = new Parameter(PROPERTY_KEY_PIXEL_OFFSET_FOR_DISPLAY_SHOW_DECIMALS,
-                    propShowDecimals);
+                                              propShowDecimals);
             configParams.addParameter(paramShowDecimals);
 
             final ParamProperties propGeoLocationDisplay = new ParamProperties(Boolean.class);
             propGeoLocationDisplay.setDefaultValue(PROPERTY_DEFAULT_DISPLAY_GEOLOCATION_AS_DECIMAL);
             propGeoLocationDisplay.setLabel("Show geo-location coordinates in decimal degrees");
             paramGeolocationAsDecimal = new Parameter(PROPERTY_KEY_DISPLAY_GEOLOCATION_AS_DECIMAL,
-                    propGeoLocationDisplay);
+                                                      propGeoLocationDisplay);
             configParams.addParameter(paramGeolocationAsDecimal);
         }
     }
@@ -656,7 +686,7 @@ public class VisatPreferencesDialog extends ConfigDialog {
         protected void initConfigParams(ParamGroup configParams) {
             Parameter param;
 
-            param = new Parameter(ProductSceneView.PROPERTY_KEY_GRAPHICS_ANTIALIASING, Boolean.FALSE);
+            param = new Parameter(ProductSceneView.PROPERTY_KEY_GRAPHICS_ANTIALIASING, Boolean.TRUE);
             param.getProperties().setLabel("Use anti-aliasing for rendering text and vector graphics"); /*I18N*/
             configParams.addParameter(param);
 
@@ -749,8 +779,8 @@ public class VisatPreferencesDialog extends ConfigDialog {
             param.getProperties().setLabel("Image border colour"); /*I18N*/
             configParams.addParameter(param);
 
-            param = new Parameter("pixel.border.shown", Boolean.TRUE);
-            param.getProperties().setLabel("Show pixel border in magnified views"); /*I18N*/
+            param = new Parameter("pixel.border.shown", ImageLayer.DEFAULT_PIXEL_BORDER_SHOWN);
+            param.getProperties().setLabel("Show pixel borders in magnified views"); /*I18N*/
             param.addParamChangeListener(new ParamChangeListener() {
 
                 @Override
@@ -760,6 +790,13 @@ public class VisatPreferencesDialog extends ConfigDialog {
             });
             configParams.addParameter(param);
 
+            param = new Parameter("pixel.border.size", ImageLayer.DEFAULT_PIXEL_BORDER_WIDTH);
+            param.getProperties().setLabel("Pixel border size"); /*I18N*/
+            configParams.addParameter(param);
+
+            param = new Parameter("pixel.border.color", ImageLayer.DEFAULT_PIXEL_BORDER_COLOR);
+            param.getProperties().setLabel("Pixel border colour"); /*I18N*/
+            configParams.addParameter(param);
         }
 
         @Override
@@ -842,14 +879,35 @@ public class VisatPreferencesDialog extends ConfigDialog {
             gbc.gridy++;
             gbc.gridwidth = 1;
 
+            gbc.insets.top = _LINE_INSET_TOP;
+
+            param = getConfigParam("pixel.border.size");
+            gbc.weightx = 0;
+            pageUI.add(param.getEditor().getLabelComponent(), gbc);
+            gbc.weightx = 1;
+            pageUI.add(param.getEditor().getEditorComponent(), gbc);
+            gbc.gridy++;
+
+            param = getConfigParam("pixel.border.color");
+            gbc.gridwidth = 1;
+            gbc.weightx = 0;
+            pageUI.add(param.getEditor().getLabelComponent(), gbc);
+            gbc.weightx = 1;
+            pageUI.add(param.getEditor().getEditorComponent(), gbc);
+            gbc.gridy++;
+
             return createPageUIContentPane(pageUI);
         }
 
         @Override
         public void updatePageUI() {
-            boolean enabled = (Boolean) getConfigParam("image.border.shown").getValue();
-            setConfigParamUIEnabled("image.border.size", enabled);
-            setConfigParamUIEnabled("image.border.color", enabled);
+            boolean imageBorderEnabled = (Boolean) getConfigParam("image.border.shown").getValue();
+            setConfigParamUIEnabled("image.border.size", imageBorderEnabled);
+            setConfigParamUIEnabled("image.border.color", imageBorderEnabled);
+
+            boolean pixelBorderEnabled = (Boolean) getConfigParam("pixel.border.shown").getValue();
+            setConfigParamUIEnabled("pixel.border.size", pixelBorderEnabled);
+            setConfigParamUIEnabled("pixel.border.color", pixelBorderEnabled);
         }
     }
 
@@ -1161,7 +1219,7 @@ public class VisatPreferencesDialog extends ConfigDialog {
                 public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected,
                                                               boolean cellHasFocus) {
                     Component rendererComponent = super.getListCellRendererComponent(list, value, index, isSelected,
-                            cellHasFocus);
+                                                                                     cellHasFocus);
                     if (value instanceof WorldMapLayerType && rendererComponent instanceof JLabel) {
                         WorldMapLayerType worldMapLayerType = (WorldMapLayerType) value;
                         JLabel label = (JLabel) rendererComponent;
@@ -1437,7 +1495,7 @@ public class VisatPreferencesDialog extends ConfigDialog {
         @Override
         protected void initConfigParams(ParamGroup configParams) {
             Parameter param = new Parameter(PROPERTY_KEY_GEOLOCATION_EPS,
-                    new Float(PROPERTY_DEFAULT_GEOLOCATION_EPS));
+                                            new Float(PROPERTY_DEFAULT_GEOLOCATION_EPS));
             param.getProperties().setLabel("If their geo-locations differ less than: ");/*I18N*/
             param.getProperties().setPhysicalUnit("deg"); /*I18N*/
             param.getProperties().setMinValue(0.0f);
@@ -1462,7 +1520,7 @@ public class VisatPreferencesDialog extends ConfigDialog {
             GridBagUtils.addToPanel(productCompatibility, param.getEditor().getLabelComponent(), gbc, "gridwidth=1");
             GridBagUtils.addToPanel(productCompatibility, param.getEditor().getEditorComponent(), gbc, "weightx=1");
             GridBagUtils.addToPanel(productCompatibility, param.getEditor().getPhysUnitLabelComponent(), gbc,
-                    "weightx=0");
+                                    "weightx=0");
 
             // UI
             JPanel pageUI = GridBagUtils.createPanel();

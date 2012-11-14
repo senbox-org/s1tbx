@@ -17,7 +17,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-netcdf</symbolicName>
-    <version>1.1</version>
+    <version>1.1.2</version>
     <name>NetCDF Product Reader and Writer</name>
     <description>
         A product reader and writer for NetCDF files. It supports metadata profiles for CF, BEAM, HDF-EOS, ODESA.
@@ -31,6 +31,15 @@
 
     <changelog>
         <![CDATA[
+        <!--Changes in 1.1.3:<br/>-->
+        <!--Adapted to BEAM 5.0<br/>-->
+        Changes in 1.1.2:<br/>
+        Extend MetadataUtils with maxNumValuesRead in methods
+            readNetcdfMetadata(NetcdfFile, MetadataElement, int maxNumValuesRead)
+            readVariableDescriptions(List<Variable>, String, int maxNumValuesRead)
+        [BEAM-1421] - A file in NetCDF-BEAM format, which was created using the BandMaths gpf operator, can not be opened in VISAT<br/>
+        Changes in 1.1.1:<br/>
+        Adapted to new Maven-architecture<br/>
         Changes in 1.1:<br/>
         [BEAM-1381] - Statistics written to NetCDF files shall be in geo-physical units<br/>
         [BEAM-1363] - Write NetCDf 4 files using compression<br/>
@@ -121,8 +130,7 @@
             <description>Writes a product in NetCDF/BEAM format</description>
             <helpId>exportNetCdfProduct</helpId>
         </action>
-        <!--
-        <action>
+        <!--<action>
             <id>exportNetCdf4BEAMProduct</id>
             <class>org.esa.beam.visat.actions.ProductExportAction</class>
             <formatName>NetCDF4-BEAM</formatName>
@@ -130,8 +138,7 @@
             <shortDescr>Writes a product in NetCDF-4/BEAM format</shortDescr>
             <description>Writes a product in NetCDF-4/BEAM format</description>
             <helpId>exportNetCdf4Product</helpId>
-        </action>
-        -->
+        </action>-->
     </extension>
 
 </module>

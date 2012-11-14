@@ -19,18 +19,19 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <parent>
-        <artifactId>beam</artifactId>
-        <groupId>org.esa.beam</groupId>
-        <version>4.10</version>
-    </parent>
-
     <packaging>jar</packaging>
+
+    <parent>
+        <groupId>org.esa.beam</groupId>
+        <artifactId>beam-plugin-parent</artifactId>
+        <version>1.1-SNAPSHOT</version>
+        <relativePath>../beam-plugin-parent/pom.xml</relativePath>
+    </parent>
 
     <groupId>org.esa.beam</groupId>
     <artifactId>beam-chris-reader</artifactId>
     <name>BEAM CHRIS/Proba Product Reader</name>
-    <version>1.7</version>
+    <version>1.7.1.${beam.version}</version>
     <url>http://envisat.esa.int/beam/</url>
 
     <dependencies>

@@ -78,7 +78,7 @@ public class ModisConstantsTest extends TestCase {
      * Tests constants concerning general modis file constants
      */
     public void testFilePropertyConstants() {
-        assertEquals("hdf", ModisConstants.DEFAULT_FILE_EXTENSION);
+        assertEquals(".hdf", ModisConstants.DEFAULT_FILE_EXTENSION);
         assertEquals("MODIS HDF4 Data Products", ModisConstants.READER_DESCRIPTION);
         assertEquals("MODIS", ModisConstants.FORMAT_NAME);
     }
@@ -143,5 +143,13 @@ public class ModisConstantsTest extends TestCase {
         assertEquals("DAYNIGHTFLAG", ModisConstants.DAY_NIGHT_FLAG_KEY);
         assertEquals("Day", ModisConstants.DAY_NIGHT_FLAG_DAY_VALUE);
         assertEquals("long_name", ModisConstants.BAND_NAME_KEY);
+    }
+
+    public void testScalingConstants() {
+        assertEquals("exp", ModisConstants.EXPONENTIAL_SCALE_NAME);
+        assertEquals("lin", ModisConstants.LINEAR_SCALE_NAME);
+        assertEquals("lin_inv", ModisConstants.LINEAR_INVERTED_SCALE_NAME);
+        assertEquals("sli", ModisConstants.SLOPE_INTERCEPT_SCALE_NAME);
+        assertEquals("p10", ModisConstants.POW_10_SCALE_NAME);
     }
 }

@@ -2,6 +2,7 @@
 
 This file contains all significant changes for each BEAM release.
 
+    o 21.06.2012: Version 4.10.3
     o 09.05.2012: Version 4.10
     o 12.05.2011: Version 4.9
     o 29.07.2010: Version 4.8
@@ -26,6 +27,29 @@ This file contains all significant changes for each BEAM release.
     o 27.06.2003: Version 2.0
     o 07.03.2003: Version 1.1
     o 06.12.2002: Version 1.0
+
+_____________________________________________________________________________
+
+ Changes from 4.10 to 4.10.3
+_____________________________________________________________________________
+
+Complete list of BEAM 4.10.3 bug fixes and improvements
+
+Improvements
+
+[BEAM-1399] PixEx operator shall handle products without GeoCoding more gracefully
+[BEAM-1404] Image views shall draw pixel grid at high zoom levels
+
+Bugs
+
+[BEAM-1410] PixelGeoCoding has accuracy problems
+[BEAM-1405] Rounding errors in collocation of int32 bands
+[BEAM-1403] Broken links in VISAT help
+[BEAM-1402] Profile plot using correlative data and projected products used wrong pixels
+[BEAM-1401] Null pointer exception when closing image views
+[BEAM-1398] SLSTR oblique-view images cannot be opened
+[BEAM-1394] Wildcard matching problem with GPF operator 'PixEx'
+
 
  _____________________________________________________________________________
 

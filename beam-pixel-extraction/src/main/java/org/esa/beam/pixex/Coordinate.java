@@ -23,7 +23,8 @@ import org.esa.beam.framework.gpf.annotations.Parameter;
 import java.util.Date;
 
 /**
- * A coordinate is composed by a name, altitude, longitude and can optionally have a date.
+ * A coordinate is composed by a name, altitude, longitude and can optionally have a date and an arbitrary set of
+ * measurement values.
  */
 public class Coordinate {
 
@@ -37,6 +38,10 @@ public class Coordinate {
                description = "The date time of the coordinate in ISO 8601 format.\n The format pattern is 'yyyy-MM-dd'T'HH:mm:ssZ'",
                converter = ISO8601Converter.class)
     private Date dateTime;
+    @Parameter(description = "Original values associated with this coordinate.", itemAlias = "originalValue")
+    private OriginalValue[] originalValues;
+
+    private int id;
 
     @SuppressWarnings({"UnusedDeclaration"})
     public Coordinate() {
@@ -44,11 +49,16 @@ public class Coordinate {
     }
 
     public Coordinate(String name, Float lat, Float lon, Date dateTime) {
+        this(name, lat, lon, dateTime, new OriginalValue[0]);
+    }
+
+    public Coordinate(String name, Float lat, Float lon, Date dateTime, OriginalValue[] originalValues) {
         this.name = name;
         this.lat = lat;
         this.lon = lon;
         //noinspection AssignmentToDateFieldFromParameter
         this.dateTime = dateTime;
+        this.originalValues = originalValues;
     }
 
     public String getName() {
@@ -70,6 +80,18 @@ public class Coordinate {
         return null;
     }
 
+    public OriginalValue[] getOriginalValues() {
+        return originalValues;
+    }
+
+    public int getID() {
+        return id;
+    }
+
+    public void setID(int ID) {
+        this.id = ID;
+    }
+
     public static class ISO8601Converter extends DateFormatConverter {
 
         public ISO8601Converter() {
@@ -77,5 +99,22 @@ public class Coordinate {
         }
     }
 
+    public static class OriginalValue {
 
+        @Parameter(description = "The name of the variable the original value is associated with.")
+        String variableName;
+
+        @Parameter(description = "The original value.")
+        String value;
+
+        @SuppressWarnings({"UnusedDeclaration"})
+        public OriginalValue() {
+            // needed for serialize/de-serialize
+        }
+
+        public OriginalValue(String variableName, String value) {
+            this.variableName = variableName;
+            this.value = value;
+        }
+    }
 }

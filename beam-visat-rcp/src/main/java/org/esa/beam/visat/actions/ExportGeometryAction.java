@@ -40,6 +40,7 @@ import org.geotools.referencing.CRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
+import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import javax.swing.SwingWorker;
@@ -136,13 +137,13 @@ public class ExportGeometryAction extends ExecCommand {
     }
 
     private static void exportVectorDataNode(VectorDataNode vectorNode, File file, ProgressMonitor pm) throws
-                                                                                                       IOException {
+            IOException {
 
 
         Map<Class<?>, List<SimpleFeature>> featureListMap = createGeometryToFeaturesListMap(vectorNode);
         if (featureListMap.size() > 1) {
             final String msg = "The selected geometry contains different types of shapes.\n" +
-                               "Each type of shape will be exported as a separate shapefile.";
+                    "Each type of shape will be exported as a separate shapefile.";
             VisatApp.getApp().showInfoDialog(DLG_TITLE, msg, ExportGeometryAction.class.getName() + ".exportInfo");
         }
 
@@ -159,7 +160,7 @@ public class ExportGeometryAction extends ExecCommand {
     }
 
     public static void writeEsriShapefile(Class<?> geomType, List<SimpleFeature> features, File file) throws
-                                                                                                      IOException {
+            IOException {
         String geomName = geomType.getSimpleName();
         String basename = file.getName();
         if (basename.endsWith(FILE_EXTENSION_SHAPEFILE)) {
@@ -229,6 +230,11 @@ public class ExportGeometryAction extends ExecCommand {
         sftb.setCRS(original.getCoordinateReferenceSystem());
         sftb.setDefaultGeometry(original.getGeometryDescriptor().getLocalName());
         sftb.add(original.getGeometryDescriptor().getLocalName(), geometryType);
+        for (AttributeDescriptor descriptor : original.getAttributeDescriptors()) {
+            if (!original.getGeometryDescriptor().getLocalName().equals(descriptor.getLocalName())) {
+                sftb.add(descriptor);
+            }
+        }
         sftb.setName("FT_" + geometryType.getSimpleName());
         return sftb.buildFeatureType();
     }

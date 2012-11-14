@@ -6,12 +6,13 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.ProductNodeGroup;
 import org.esa.beam.framework.datamodel.TiePointGrid;
-import org.junit.*;
+import org.esa.beam.pixex.aggregators.AggregatorStrategy;
+import org.esa.beam.pixex.calvalus.ma.Record;
+import org.junit.Before;
+import org.junit.Test;
 
-import java.util.Arrays;
-
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.*;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.junit.Assert.assertThat;
 
 public class PixExRasterNamesFactoryTest {
 
@@ -39,11 +40,12 @@ public class PixExRasterNamesFactoryTest {
         final boolean exportBands = true;
         final boolean exportTiePoints = true;
         final boolean exportMasks = true;
-        final PixExRasterNamesFactory pixExRasterNamesFactory = new PixExRasterNamesFactory(exportBands, exportTiePoints, exportMasks);
+        final PixExRasterNamesFactory pixExRasterNamesFactory = new PixExRasterNamesFactory(exportBands,
+                                                                                            exportTiePoints,
+                                                                                            exportMasks, null);
 
         // execution
         final String[] rasterNames = pixExRasterNamesFactory.getRasterNames(product);
-        System.out.println("rasterNames = " + Arrays.toString(rasterNames));
 
         // verifying
         final String[] expected = {"val1", "val2", "val3", "tp1", "tp2", "tp3", "mask1", "mask2", "mask3"};
@@ -54,11 +56,11 @@ public class PixExRasterNamesFactoryTest {
     public void testGetRasterNamesToBeExported_exportBandsOnly() {
         // preparation
         final boolean exportBands = true;
-        final PixExRasterNamesFactory pixExRasterNamesFactory = new PixExRasterNamesFactory(exportBands, false, false);
+        final PixExRasterNamesFactory pixExRasterNamesFactory = new PixExRasterNamesFactory(exportBands, false, false,
+                                                                                            null);
 
         // execution
         final String[] rasterNames = pixExRasterNamesFactory.getRasterNames(product);
-        System.out.println("rasterNames = " + Arrays.toString(rasterNames));
 
         // verifying
         final String[] expected = {"val1", "val2", "val3"};
@@ -69,11 +71,11 @@ public class PixExRasterNamesFactoryTest {
     public void testGetRasterNamesToBeExported_exportTiepointsOnyl() {
         // preparation
         final boolean exportTiePoints = true;
-        final PixExRasterNamesFactory pixExRasterNamesFactory = new PixExRasterNamesFactory(false, exportTiePoints, false);
+        final PixExRasterNamesFactory pixExRasterNamesFactory = new PixExRasterNamesFactory(false, exportTiePoints,
+                                                                                            false, null);
 
         // execution
         final String[] rasterNames = pixExRasterNamesFactory.getRasterNames(product);
-        System.out.println("rasterNames = " + Arrays.toString(rasterNames));
 
         // verifying
         final String[] expected = {"tp1", "tp2", "tp3"};
@@ -84,14 +86,56 @@ public class PixExRasterNamesFactoryTest {
     public void testGetRasterNamesToBeExported_exportMasksOnly() {
         // preparation
         final boolean exportMasks = true;
-        final PixExRasterNamesFactory pixExRasterNamesFactory = new PixExRasterNamesFactory(false, false, exportMasks);
+        final PixExRasterNamesFactory pixExRasterNamesFactory = new PixExRasterNamesFactory(false, false, exportMasks,
+                                                                                            null);
 
         // execution
         final String[] rasterNames = pixExRasterNamesFactory.getRasterNames(product);
-        System.out.println("rasterNames = " + Arrays.toString(rasterNames));
 
         // verifying
         final String[] expected = {"mask1", "mask2", "mask3"};
+        assertThat(rasterNames, equalTo(expected));
+    }
+
+    @Test
+    public void testGetRasterNamesWithAggregationStrategy() {
+        // preparation
+        final AggregatorStrategy aggregatorStrategy = new AggregatorStrategy() {
+
+            @Override
+            public float[] getValues(Record record, int rasterIndex) {
+                return new float[0];
+            }
+
+            @Override
+            public int getValueCount() {
+                return 3;
+            }
+
+            @Override
+            public String[] getSuffixes() {
+                return new String[]{"first", "second", "last"};
+            }
+
+        };
+        final PixExRasterNamesFactory pixExRasterNamesFactory = new PixExRasterNamesFactory(true, false, false,
+                                                                                            aggregatorStrategy);
+
+        // execution
+        final String[] rasterNames = pixExRasterNamesFactory.getRasterNames(product);
+
+        // verifying
+        final String[] expected = {
+                "val1_first",
+                "val1_second",
+                "val1_last",
+                "val2_first",
+                "val2_second",
+                "val2_last",
+                "val3_first",
+                "val3_second",
+                "val3_last"
+        };
         assertThat(rasterNames, equalTo(expected));
     }
 

@@ -1,0 +1,108 @@
+<module>
+    <manifestVersion>1.0.0</manifestVersion>
+    <symbolicName>beam-binning2</symbolicName>
+    <version>0.8.1</version>
+    <name>Level-3 Binning Processor (GPF)</name>
+
+    <description>
+        The Level-3 Binning Processor performs a spatial and temporal aggregation of a number of input (Level-2)
+        products using the NASA SeaDAS binning scheme. This is the BEAM GPF version of the "old" BEAM Level-3
+        Binning Processor.
+    </description>
+
+    <vendor>Brockmann Consult GmbH</vendor>
+    <contactAddress>Max Planck Str.2, 21502 Geesthacht (Germany)</contactAddress>
+    <copyright>(C) 2012 by Brockmann Consult GmbH</copyright>
+    <url>http://envisat.esa.int/beam</url>
+    <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
+    <funding>ESA, EU (Project Aquamar)</funding>
+
+    <dependency>
+        <module>beam-gpf</module>
+    </dependency>
+    <dependency>
+        <module>beam-netcdf</module>
+    </dependency>
+    <dependency>
+        <module>beam-visat-rcp</module>
+        <optional>true</optional>
+    </dependency>
+
+    <changelog>
+        <![CDATA[
+        <!--Changes from version 0.8.1 to 0.8.2:<br\>-->
+        <!--<ol>-->
+        <!--<li>Adapted to BEAM 5.0<br>-->
+        Changes from version 0.8 to 0.8.1:<br\>
+        <ol>
+        <li>Adapted to new Maven-architecture
+        <li>Binning operator now usable via graphical user interface in VISAT
+        Changes from version 0.7 to 0.8:<br\>
+        <ol>
+        <li>Added 'comment' attribute for all BinIndex variables.</li>
+        <li>Fixed 'bi_start_num' being in wrong order.</li>
+        <li>Added new BinIndex variable 'bi_begin_offset' indicating the absolute offset of a data-containing bin
+            within the dataset. Offsets start with 0, -1 means no data in that row.</li>
+        <li>Changed meaning of 'bi_extent' from being bin number range into actual number of bins stored per row.</li>
+        <li>Fixed typo: 'bi_extend' --> 'bi_extent'.</li>
+        bi_begin_offset
+        </ol>
+        Changes from version 0.6 to 0.7:<br\>
+        <ol>
+        <li>Now writing NetCDF binned data file using the same bin numbering as SeaDAS.</li>
+        <li>The NetCDF binned data file now also contains the 'bi_begin' and 'bi_extend' fields found in SeaDAS.</li>
+        <li>Added new operator parameter 'metadataPropertiesFile' which specifies (constant) metadata key-values
+            to be written to the output product.</li>
+        <li>Added metadata element 'Global_Attributes' to the output product.</li>
+        </ol>
+        Changes from version 0.5 to 0.6:<br\>
+        <ol>
+        <li>Fixed content the 'BinIndex' annotation datasets (variable prefix 'bi_').</li>
+        <li>If no temporal bins are generated, no output will be written</li>
+        </ol>
+        Changes since initial version 0.5:<br\>
+        <ol>
+        <li>Introduced parameters 'sourceProductPaths' and 'outputBinnedData'</li>
+        </ol>
+        ]]>
+    </changelog>
+
+
+    <categories>Application,Processor,Geometry,VISAT,Level-3,Envisat,MERIS,AATSR,AVHRR,CHRIS</categories>
+
+    <extension point="ceres-core:serviceProviders">
+        <serviceProvider>org.esa.beam.binning.AggregatorDescriptor</serviceProvider>
+    </extension>
+
+    <extension point="beam-ui:actions">
+        <action>
+            <id>BinningNew</id>
+            <text>Level-3 Binning (GPF)</text>
+            <class>org.esa.beam.binning.operator.ui.BinningOperatorAction</class>
+            <helpId>gpf_binning_overview</helpId>
+            <placeAfter>Binning</placeAfter>
+            <operatorName>Binning</operatorName>
+        </action>
+    </extension>
+    <extension point="beam-ui:actions">
+        <action>
+            <id>importBinnedProduct</id>
+            <class>org.esa.beam.visat.actions.ProductImportAction</class>
+            <formatName>Binned_data_product</formatName>
+            <useAllFileFilter>true</useAllFileFilter>
+            <text>Binned SEADAS data</text>
+            <shortDescr>Import a SeaDAS-Level-3-alike NetCDF file.</shortDescr>
+            <description>Import a SeaDAS-Level-3-alike NetCDF file.</description>
+            <!--<helpId>importMerisBinnedL3Product</helpId>-->
+            <!--<placeAfter>importEnvisatProduct</placeAfter>-->
+        </action>
+    </extension>
+
+    <extension point="beam-ui:helpSets">
+        <helpSet>
+            <parent>beam-help</parent>
+            <path>doc/help/gpf_binning.hs</path>
+        </helpSet>
+    </extension>
+
+</module>

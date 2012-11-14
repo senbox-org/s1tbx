@@ -23,14 +23,15 @@
 
     <parent>
         <groupId>org.esa.beam</groupId>
-        <artifactId>beam</artifactId>
-        <version>4.10</version>
+        <artifactId>beam-plugin-parent</artifactId>
+        <version>1.1-SNAPSHOT</version>
+        <relativePath>../beam-plugin-parent/pom.xml</relativePath>
     </parent>
 
     <name>BEAM MERIS FLH/MCI Processor</name>
     <groupId>org.esa.beam</groupId>
     <artifactId>beam-flhmci</artifactId>
-    <version>1.6.102</version>
+    <version>1.6.103.${beam.version}</version>
 
     <packaging>jar</packaging>
 
@@ -50,6 +51,7 @@
             <plugin>
                 <groupId>com.bc.maven.plugins</groupId>
                 <artifactId>maven-javahelp-plugin</artifactId>
+                <version>1.0</version>
             </plugin>
         </plugins>
     </build>

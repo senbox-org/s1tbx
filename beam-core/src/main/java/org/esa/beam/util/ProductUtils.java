@@ -34,7 +34,6 @@ import org.esa.beam.framework.datamodel.IndexCoding;
 import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.MetadataAttribute;
 import org.esa.beam.framework.datamodel.MetadataElement;
-import org.esa.beam.framework.datamodel.PixelGeoCoding;
 import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
@@ -42,7 +41,6 @@ import org.esa.beam.framework.datamodel.ProductNodeGroup;
 import org.esa.beam.framework.datamodel.ProductVisitorAdapter;
 import org.esa.beam.framework.datamodel.RGBChannelDef;
 import org.esa.beam.framework.datamodel.RasterDataNode;
-import org.esa.beam.framework.datamodel.TiePointGeoCoding;
 import org.esa.beam.framework.datamodel.TiePointGrid;
 import org.esa.beam.framework.datamodel.VectorDataNode;
 import org.esa.beam.framework.datamodel.VirtualBand;
@@ -1305,11 +1303,6 @@ public class ProductUtils {
 
     /**
      * Copies the geocoding from the source product to target product.
-     * <p/>
-     * <p>If the geo-coding in the source product is a {@link TiePointGeoCoding} or a {@link PixelGeoCoding},
-     * the method expects existing latitude and longitude tie-point grids respectively existing latitude and longitude
-     * bands in the target product. The method will NOT automatically copy them as well.
-     * This behaviour may change in the future.</p>
      *
      * @param sourceProduct the source product
      * @param targetProduct the target product
@@ -1400,6 +1393,7 @@ public class ProductUtils {
                     targetProduct.getVectorDataGroup().add(new VectorDataNode(name, featureCollection.getSchema()));
                 }
                 VectorDataNode targetVDN = targetProduct.getVectorDataGroup().get(name);
+                targetVDN.getPlacemarkGroup();
                 targetVDN.getFeatureCollection().addAll(featureCollection);
                 targetVDN.setDefaultStyleCss(sourceVDN.getDefaultStyleCss());
                 targetVDN.setDescription(sourceVDN.getDescription());

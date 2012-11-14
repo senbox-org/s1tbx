@@ -126,6 +126,9 @@ public class RgbImageLayerType extends ImageLayer.Type {
         configuration.setValue(ImageLayer.PROPERTY_NAME_BORDER_SHOWN, true);
         configuration.setValue(ImageLayer.PROPERTY_NAME_BORDER_COLOR, ImageLayer.DEFAULT_BORDER_COLOR);
         configuration.setValue(ImageLayer.PROPERTY_NAME_BORDER_WIDTH, ImageLayer.DEFAULT_BORDER_WIDTH);
+        configuration.setValue(ImageLayer.PROPERTY_NAME_PIXEL_BORDER_SHOWN, true);
+        configuration.setValue(ImageLayer.PROPERTY_NAME_PIXEL_BORDER_COLOR, ImageLayer.DEFAULT_PIXEL_BORDER_COLOR);
+        configuration.setValue(ImageLayer.PROPERTY_NAME_PIXEL_BORDER_WIDTH, ImageLayer.DEFAULT_PIXEL_BORDER_WIDTH);
 
         return createLayer(null, configuration);
     }

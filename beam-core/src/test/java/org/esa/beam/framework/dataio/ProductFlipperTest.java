@@ -21,8 +21,6 @@ import org.esa.beam.framework.datamodel.TiePointGeoCoding;
 import org.esa.beam.framework.datamodel.TiePointGrid;
 import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.util.ProductUtils;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -30,6 +28,8 @@ import java.awt.geom.GeneralPath;
 import java.awt.geom.Rectangle2D;
 import java.io.IOException;
 import java.util.Arrays;
+
+import static org.junit.Assert.*;
 
 public class ProductFlipperTest {
 
@@ -244,5 +244,14 @@ public class ProductFlipperTest {
         assertEquals(2.25, sbFlippedT2.getOffsetY(), 1.0e-6);
         assertEquals(1.5, sbFlippedT2.getSubSamplingX(), 1.0e-6);
         assertEquals(1.5, sbFlippedT2.getSubSamplingY(), 1.0e-6);
+    }
+
+    @Test
+    public void testCreateFlipped_wrongFlipType() throws IOException {
+        try {
+            ProductFlipper.createFlippedProduct(product, 0, "bla", "blub");
+            fail("IllegalArgumentException expected");
+        } catch (IllegalArgumentException expected) {
+        }
     }
 }

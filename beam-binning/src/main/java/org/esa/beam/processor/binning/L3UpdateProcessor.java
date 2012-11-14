@@ -133,7 +133,7 @@ public class L3UpdateProcessor extends L3SubProcessor {
     }
 
     protected void loadContext() throws IOException,
-                                        ProcessorException {
+            ProcessorException {
         context = new L3Context();
         context.setAlgorithmCreator(new AlgorithmFactory());
         context.load(databaseDir);
@@ -182,11 +182,11 @@ public class L3UpdateProcessor extends L3SubProcessor {
      * @param ref the <code>ProductRef</code> designating the product to be loaded
      * @return the loaded and validated product
      */
-    protected Product loadValidatedProduct(ProductRef ref)  {
+    protected Product loadValidatedProduct(ProductRef ref) {
         try {
             Product prod = ProductIO.readProduct(ref.getFile());
             if (prod == null) {
-               handleError(ref, "Unknown type of product.");
+                handleError(ref, "Unknown type of product.");
             } else if (!productContainsBands(prod)) {
                 handleError(ref, "The product does not contain all the bands expected.");
             } else if (!bitmasksAreApplicable(prod)) {
@@ -196,7 +196,7 @@ public class L3UpdateProcessor extends L3SubProcessor {
             } else {
                 return prod;
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
             handleError(ref, e.getMessage());
         }
@@ -231,7 +231,7 @@ public class L3UpdateProcessor extends L3SubProcessor {
                 Product product = loadValidatedProduct(prodRef);
                 if (product != null) {
                     getLogger().info(L3Constants.LOG_MSG_PROCESS_PROD_1 + product.getName() +
-                                     L3Constants.LOG_MSG_PROCESS_PROD_2);
+                                             L3Constants.LOG_MSG_PROCESS_PROD_2);
 
                     pm.setSubTaskName("Processing input product " + product.getName());
                     final SpatialBinDatabase spatialDB = createSpatialDatabase(product);
@@ -254,8 +254,8 @@ public class L3UpdateProcessor extends L3SubProcessor {
                         getLogger().warning(e.getMessage());
                         getLogger().info("Continuing with the next input product");
                         addWarningMessage("Unable to process the input product '" +
-                                          product.getName() +
-                                          "' because an exception occurred.");
+                                                  product.getName() +
+                                                  "' because an exception occurred.");
                         addWarningMessage(e.getMessage());
                     } finally {
                         // delete the spatial database - not needed anymore
@@ -346,7 +346,7 @@ public class L3UpdateProcessor extends L3SubProcessor {
      * Trigger base class to load the bin database provided with the request file
      */
     protected void loadBinDatabase() throws IOException,
-                                            ProcessorException {
+            ProcessorException {
         temporalDB = new TemporalBinDatabase(context, BinDatabaseConstants.TEMP_DB_NAME);
         temporalDB.setNumVarsPerBand(context.getNumberOfAccumulatingVarsPerBand());
         temporalDB.open();
@@ -378,7 +378,7 @@ public class L3UpdateProcessor extends L3SubProcessor {
             if (!prod.containsBand(bandName)) {
                 raiseErrorFlag();
                 final String message = L3Constants.LOG_MSG_INPUT_NOT_EXIST_1 + prod.getName()
-                                       + L3Constants.LOG_MSG_NO_REQ_BAND + bandName + "'!";
+                        + L3Constants.LOG_MSG_NO_REQ_BAND + bandName + "'!";
                 getLogger().warning(message);
                 addWarningMessage(message);
                 return false;

@@ -1,0 +1,134 @@
+<html xmlns="http://www.w3.org/1999/html">
+<head>
+    <title>BEAM OPeNDAP client</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+<table class="header">
+    <tr class="header">
+        <td class="header">&nbsp;
+            OPeNDAP client overview
+        </td>
+        <td class="header" align="right"><img src="images/BeamHeader.jpg" border=0></td>
+    </tr>
+</table>
+
+<p>
+    The BEAM OPeNDAP client allows to access an OPeNDAP server and download files using the data access protocol
+    (DAP).
+    The client offers the possibility to filter the displayed catalog entries by various characteristics before
+    downloading.
+</p>
+
+<p align="center"><img src="images/opendapclient.png"></p>
+
+<h3>Access to servers</h3>
+
+<p>
+    Server access is established by entering the URL of a THREDDS catalog file of an arbitrary OPeNDAP server in the
+    "Root URL"-field and typing 'Return' or clicking <img src="images/icons/ViewRefresh22.png">. The catalog content
+    will then be displayed
+    as a tree structure. The application will remember previously entered URLs.
+</p>
+
+<h3>Navigating through the catalog tree</h3>
+
+<p>
+    The tree structure on the left displays the contents of the chosen server.
+    Files which can be accessed via DAP are displayed as <img src="images/icons/DRsProduct16.png"> .
+    For files accessible via DAP, their DDS and DAS are displayed in the information box below the tree. For more
+    information about DDS and DAS please refer to http://www.opendap.org/pdf/dap_2_data_model.pdf.<br>
+    Multiple files may be selected.
+</p>
+
+<h3>Using the filters</h3>
+
+<p>
+    The filters allow the user to narrow down the number of displayed files. A filter can be set after selecting the
+    respective check box. Note that the filters are not active before the apply button has been clicked.
+    The filters will become (in)active again after (de)selecting the check box. Multiple filters may be combined to
+    refine the search for files.<br>
+</p>
+
+<h4>Using the dataset name filter</h4>
+
+<p>
+    Using the dataset name filter a search for whole file names or parts appearing in a file name can be performed.
+    It supports the wildcards *, +, and ?'.<br>
+    For example, if the entered filter is *2007*, only file names that contain 2007 are listed.<br>
+    If the entered filter is *b+*, only file names containing at least one b in their file name.<br>
+    If the entered filter is *.dima?p?, all file names with the extensions dim and dimap are listed.
+</p>
+
+<h4>Using the time range filter</h4>
+
+<p>
+    The time range filter can perform a temporal restriction on the files files of the selected server.<br>
+    If the chosen OPeNDAP-server provides time coverage information for its files, these information are used. If not,
+    the filtering is performed using the file name. In the latter case both the date pattern and the filename pattern
+    need to be provided by the user.<br>
+    For example, the filename '<i>MER_RR__2PPBCM20080208_230550_000002002065_00451_31066_0001.N1</i>' employs the
+    date pattern <i>yyyyMMdd_hhmmss</i> and features a start time, so that the filename pattern <i>*CM${startDate}_*</i>
+    should be used. The filename '<i>sst_northsea_20010101_20010201.nc</i>' employs the date pattern <i>yyyyMMdd</i>
+    and features both start and stop time, so the filename pattern <i>*_${startDate}_${endDate}*</i> should be used.
+</p>
+
+<p>
+    Common pitfalls when using the time range filter:
+<ul>
+    <li>
+        If the date pattern matches multiple parts of the filename, the last match is considered the date. Thus, to
+        safely use the filter for the file '<i>sst_northsea_20090102_61504254.nc</i>',
+        the filename pattern '<i>*${startDate}*</i>' is
+        not sufficient; in this case, the more specific filename pattern '<i>*_${startDate}_*</i>' should be used.
+    </li>
+    <li>
+        For the same reason it is advisable to provide the patterns as precisely as possible. If for example a file
+        '<i>sst_northsea_20090102_100410_000000992075.nc</i>' shall be filtered, both the date patterns
+        <i>yyyyMMdd</i> and <i>yyyyMMdd_hhmmss</i> are potentially correct, but while the former matches two parts
+        of the filename and therefore yields wrong results, the latter is unique.
+    </li>
+</ul>
+</p>
+
+<p>
+    Setting only a start time will filter out all files before the given time, setting only an end time will filter out
+    all files after the given time, and setting both start and end time will filter out all files not completely within
+    the resulting temporal range.<br>
+
+    Files that carry no temporal information will not be filtered out.
+</p>
+
+<h4>Using the region filter</h4>
+
+<p>
+    The region filter filters out all products that do not intersect the chosen geographic region.
+    This filter relies on information about the files' geospatial extents.<br>
+
+    If the OPeNDAP server does not provide geospatial information about a specific file, that file will not be affected
+    by
+    the filter.
+</p>
+
+<h4>Using the variable filter</h4>
+
+<p>
+    The variable filter filters out products that do not contain certain variables.
+    Initially, no information about variables are available, so the filter will start scanning for variable information
+    when browsing through the catalog. It is applicable as soon as variable information are available.<br>
+    When applied, the filter will keep all files which contain at least one of the selected variables.
+</p>
+
+<h4>Downloading files</h4>
+
+<p>
+    The selected files are downloaded by clicking the "Download" button.
+    When the client is run in VISAT, the products can be opened immediately after their download is complete.
+</p>
+
+<br>
+<hr>
+</body>
+</html>

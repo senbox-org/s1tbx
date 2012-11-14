@@ -1,0 +1,42 @@
+<metadata>
+
+    <source>
+        <name>$sourceProduct.name</name>
+        <width>$sourceProduct.sceneRasterWidth</width>
+        <height>$sourceProduct.sceneRasterHeight</height>
+    </source>
+
+    <sources>
+        #foreach ($key in $sourceProducts.keySet())
+            <$key>$sourceProducts.get($key).name</$key>
+        #end
+    </sources>
+
+    <target>
+        <name>$targetProduct.name</name>
+        <width>$targetProduct.sceneRasterWidth</width>
+        <height>$targetProduct.sceneRasterHeight</height>
+    </target>
+
+    <parameterMetadata>
+        <parameters>
+            #foreach ($key in $parameters.keySet())
+                <$key>$parameters.get($key)</$key>
+            #end
+        </parameters>
+        <parameterFile>$parameterFile.path</parameterFile>
+        <parameterXml><![CDATA[$parameterFile.content]]></parameterXml>
+    </parameterMetadata>
+
+    <operatorMetadata>
+        <operatorName>$operatorName</operatorName>
+        <operatorVersion>$operatorMetadata.version()</operatorVersion>
+        <operatorClass>$operator.class</operatorClass>
+    </operatorMetadata>
+
+    <extraMetadata>
+        #foreach ($key in $metadata.map.keySet())
+            <$key>$metadata.map.get($key)</$key>
+        #end
+    </extraMetadata>
+</metadata>

@@ -17,15 +17,32 @@ package org.esa.beam.dataio.dimap;
 
 import com.bc.ceres.core.ProgressMonitor;
 import junit.framework.TestCase;
-import org.esa.beam.framework.datamodel.*;
-import org.esa.beam.framework.dataop.maptransf.*;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.BitmaskDef;
+import org.esa.beam.framework.datamodel.ConvolutionFilterBand;
+import org.esa.beam.framework.datamodel.CrsGeoCoding;
+import org.esa.beam.framework.datamodel.FXYGeoCoding;
+import org.esa.beam.framework.datamodel.GeneralFilterBand;
+import org.esa.beam.framework.datamodel.Kernel;
+import org.esa.beam.framework.datamodel.MapGeoCoding;
+import org.esa.beam.framework.datamodel.PixelGeoCoding;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.VirtualBand;
+import org.esa.beam.framework.dataop.maptransf.Datum;
+import org.esa.beam.framework.dataop.maptransf.Ellipsoid;
+import org.esa.beam.framework.dataop.maptransf.LambertConformalConicDescriptor;
+import org.esa.beam.framework.dataop.maptransf.MapInfo;
+import org.esa.beam.framework.dataop.maptransf.MapProjection;
+import org.esa.beam.framework.dataop.maptransf.MapTransform;
 import org.esa.beam.framework.dataop.resamp.Resampling;
 import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.math.FXYSum;
 import org.geotools.referencing.CRS;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.io.IOException;
 import java.io.StringWriter;
@@ -263,96 +280,6 @@ public class DimapHeaderWriterTest extends TestCase {
         dimapHeaderWriter.writeHeader();
 
         assertEquals(expectedForCrsGeoCoding, stringWriter.toString());
-    }
-
-    private void addPinsToProduct() {
-        final PinDescriptor pinDescriptor = PinDescriptor.getInstance();
-        final Placemark placemark1 = Placemark.createPointPlacemark(pinDescriptor, "pin1", "pin1", "", null, new GeoPos(), product.getGeoCoding());
-        placemark1.setStyleCss("symbol:plus;stroke-width:2");
-        ProductNodeGroup<Placemark> pinGroup = product.getPinGroup();
-        pinGroup.add(placemark1);
-
-        final Placemark placemark2 = Placemark.createPointPlacemark(pinDescriptor, "pin2", "pin2", "", null, new GeoPos(4, 8), product.getGeoCoding());
-        placemark2.setDescription("desc2");
-        pinGroup.add(placemark2);
-
-        final Placemark placemark3 = Placemark.createPointPlacemark(pinDescriptor, "pin3", "pin3", "", null, new GeoPos(-23.1234f, -80.543f),
-                                                                    product.getGeoCoding());
-        pinGroup.add(placemark3);
-    }
-
-    private String getExpectedForWritePins() {
-        return
-                header +
-                        rasterDimensions +
-                        "    <Pin_Group>" + LS +
-                        "        <Placemark name=\"pin1\">" + LS +
-                        "            <LABEL>pin1</LABEL>" + LS +
-                        "            <DESCRIPTION />" + LS +
-                        "            <LATITUDE>0.0</LATITUDE>" + LS +
-                        "            <LONGITUDE>0.0</LONGITUDE>" + LS +
-                        "            <STYLE_CSS>symbol:plus;stroke-width:2</STYLE_CSS>" + LS +
-                        "        </Placemark>" + LS +
-                        "        <Placemark name=\"pin2\">" + LS +
-                        "            <LABEL>pin2</LABEL>" + LS +
-                        "            <DESCRIPTION>desc2</DESCRIPTION>" + LS +
-                        "            <LATITUDE>4.0</LATITUDE>" + LS +
-                        "            <LONGITUDE>8.0</LONGITUDE>" + LS +
-                        "        </Placemark>" + LS +
-                        "        <Placemark name=\"pin3\">" + LS +
-                        "            <LABEL>pin3</LABEL>" + LS +
-                        "            <DESCRIPTION />" + LS +
-                        "            <LATITUDE>-23.1234</LATITUDE>" + LS +
-                        "            <LONGITUDE>-80.543</LONGITUDE>" + LS +
-                        "        </Placemark>" + LS +
-                        "    </Pin_Group>" + LS +
-                        footer;
-    }
-
-    private void addGcpsToProduct() {
-        final GcpDescriptor gcpDescriptor = GcpDescriptor.getInstance();
-        final Placemark placemark1 = Placemark.createPointPlacemark(gcpDescriptor, "gcp1", "gcp1", "", null, new GeoPos(),
-                                                                    product.getGeoCoding());
-        ProductNodeGroup<Placemark> pinGroup = product.getGcpGroup();
-        pinGroup.add(placemark1);
-
-        final Placemark placemark2 = Placemark.createPointPlacemark(gcpDescriptor, "gcp2", "gcp2", "", null, new GeoPos(4, 8),
-                                                                    product.getGeoCoding());
-        placemark2.setDescription("desc2");
-        pinGroup.add(placemark2);
-        placemark2.setStyleCss("symbol:star");
-
-        final Placemark placemark3 = Placemark.createPointPlacemark(gcpDescriptor, "gcp3", "gcp3", "", null, new GeoPos(-23.1234f, -80.543f),
-                                                                    product.getGeoCoding());
-        pinGroup.add(placemark3);
-    }
-
-    private String getExpectedForWriteGcps() {
-        return
-                header +
-                        rasterDimensions +
-                        "    <Gcp_Group>" + LS +
-                        "        <Placemark name=\"gcp1\">" + LS +
-                        "            <LABEL>gcp1</LABEL>" + LS +
-                        "            <DESCRIPTION />" + LS +
-                        "            <LATITUDE>0.0</LATITUDE>" + LS +
-                        "            <LONGITUDE>0.0</LONGITUDE>" + LS +
-                        "        </Placemark>" + LS +
-                        "        <Placemark name=\"gcp2\">" + LS +
-                        "            <LABEL>gcp2</LABEL>" + LS +
-                        "            <DESCRIPTION>desc2</DESCRIPTION>" + LS +
-                        "            <LATITUDE>4.0</LATITUDE>" + LS +
-                        "            <LONGITUDE>8.0</LONGITUDE>" + LS +
-                        "            <STYLE_CSS>symbol:star</STYLE_CSS>" + LS +
-                        "        </Placemark>" + LS +
-                        "        <Placemark name=\"gcp3\">" + LS +
-                        "            <LABEL>gcp3</LABEL>" + LS +
-                        "            <DESCRIPTION />" + LS +
-                        "            <LATITUDE>-23.1234</LATITUDE>" + LS +
-                        "            <LONGITUDE>-80.543</LONGITUDE>" + LS +
-                        "        </Placemark>" + LS +
-                        "    </Gcp_Group>" + LS +
-                        footer;
     }
 
     private void addBitmaskDefsToProduct() {

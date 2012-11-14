@@ -28,7 +28,7 @@ import org.esa.beam.framework.gpf.ui.TargetProductSelectorModel;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.util.ArrayUtils;
 
-import javax.swing.*;
+import javax.swing.JOptionPane;
 import java.util.HashMap;
 
 class RadiometryDialog extends SingleTargetProductDialog {

@@ -34,9 +34,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 public class PixExOpTest {
 
@@ -62,7 +60,7 @@ public class PixExOpTest {
                 new Coordinate("carlCoordinate", 60.1f, 3.0f, null),
                 new Coordinate("cassandraCoordinate", 59.1f, 0.5f, null)
         };
-        final File outputDir = getOutpuDir("testUsingGraph", getClass());
+        final File outputDir = getOutputDir("testUsingGraph", getClass());
         String graphOpXml =
                 "<graph id=\"someGraphId\">\n" +
                         "    <version>1.0</version>\n" +
@@ -108,7 +106,7 @@ public class PixExOpTest {
 
     @Test
     public void testGetParsedInputPaths() throws Exception {
-        final File testDir = getOutpuDir("testGetParsedInputPaths", getClass());
+        final File testDir = getOutputDir("testGetParsedInputPaths", getClass());
         final File subDir1 = new File(testDir, "subDir1");
         final File subDir2 = new File(testDir, "subDir2");
         final File subDir2_1 = new File(subDir2, "subDir2_1");
@@ -120,20 +118,24 @@ public class PixExOpTest {
         subDir2_2.mkdir();
 
         final String pattern = testDir.getCanonicalPath() + File.separator + PixExOp.RECURSIVE_INDICATOR;
-        Set<File> dirList = PixExOp.getSourceProductFileSet(null, new File[]{new File(pattern)}, Logger.getAnonymousLogger());
+        Set<File> dirList = PixExOp.getSourceProductFileSet(null, new File[]{new File(pattern)},
+                                                            Logger.getAnonymousLogger());
 
         //assertEquals(5, dirList.size());
         //assertTrue("Missing dir '" + testDir.getAbsolutePath() + "'.", dirList.contains(testDir));
         assertEquals(4, dirList.size());
         assertTrue("Missing dir '" + subDir1.getCanonicalPath() + "'.", dirList.contains(subDir1.getCanonicalFile()));
         assertTrue("Missing dir '" + subDir2.getCanonicalPath() + "'.", dirList.contains(subDir2.getCanonicalFile()));
-        assertTrue("Missing dir '" + subDir2_1.getCanonicalPath() + "'.", dirList.contains(subDir2_1.getCanonicalFile()));
-        assertTrue("Missing dir '" + subDir2_2.getCanonicalPath() + "'.", dirList.contains(subDir2_2.getCanonicalFile()));
+        assertTrue("Missing dir '" + subDir2_1.getCanonicalPath() + "'.",
+                   dirList.contains(subDir2_1.getCanonicalFile()));
+        assertTrue("Missing dir '" + subDir2_2.getCanonicalPath() + "'.",
+                   dirList.contains(subDir2_2.getCanonicalFile()));
 
         dirList = PixExOp.getSourceProductFileSet(null, new File[]{testDir, subDir2_1}, Logger.getAnonymousLogger());
         assertEquals(2, dirList.size());
         assertTrue("Missing dir '" + testDir.getCanonicalPath() + "'.", dirList.contains(testDir.getCanonicalFile()));
-        assertTrue("Missing dir '" + subDir2_1.getCanonicalPath() + "'.", dirList.contains(subDir2_1.getCanonicalFile()));
+        assertTrue("Missing dir '" + subDir2_1.getCanonicalPath() + "'.",
+                   dirList.contains(subDir2_1.getCanonicalFile()));
 
     }
 
@@ -147,7 +149,7 @@ public class PixExOpTest {
         int windowSize = 3;
 
         HashMap<String, Object> parameterMap = new HashMap<String, Object>();
-        final File outputDir = getOutpuDir("testSingleProduct", getClass());
+        final File outputDir = getOutputDir("testSingleProduct", getClass());
         parameterMap.put("outputDir", outputDir);
         parameterMap.put("outputFilePrefix", "pixels");
         parameterMap.put("exportTiePoints", false);
@@ -175,6 +177,52 @@ public class PixExOpTest {
     }
 
     @Test
+    public void testTimeExtractionFromFilename() throws Exception {
+
+        Coordinate[] coordinates = {new Coordinate("coord", 20.0f, 20.0f, null)};
+        int windowSize = 1;
+
+        HashMap<String, Object> parameterMap = new HashMap<String, Object>();
+        final File outputDir = getOutputDir("testSingleProduct", getClass());
+        parameterMap.put("outputDir", outputDir);
+        parameterMap.put("exportTiePoints", false);
+        parameterMap.put("exportMasks", false);
+        parameterMap.put("coordinates", coordinates);
+        parameterMap.put("windowSize", windowSize);
+        parameterMap.put("extractTimeFromFilename", true);
+        parameterMap.put("dateInterpretationPattern", "yyyyMMdd");
+        parameterMap.put("filenameInterpretationPattern", "*${startDate}*");
+
+        String[] bandNames = {"rad_1", "rad_2"};
+        Product p1 = createTestProduct("andi", "type1", bandNames);
+        p1.setStartTime(ProductData.UTC.parse("22/08/1999", "dd/MM/yyyy"));
+
+        Product p2 = createTestProduct("bob", "type1", bandNames);
+        p2.setFileLocation(new File("bob_20010320.nc"));
+        p2.setStartTime(ProductData.UTC.parse("30/03/1920", "dd/MM/yyyy"));
+
+        Product p3 = createTestProduct("jane", "type1", bandNames);
+        p3.setFileLocation(new File("bob_20101114.nc"));
+        Product[] sourceProducts = {p1, p2, p3};
+
+        computeData(parameterMap, sourceProducts);
+
+        final PixExMeasurementReader reader = new PixExMeasurementReader(outputDir);
+        try {
+            final List<Measurement> measurementList = convertToList(reader);
+            assertEquals(sourceProducts.length, measurementList.size());
+            assertEquals(ProductData.UTC.parse("22/08/1999", "dd/MM/yyyy").getAsDate(),
+                         measurementList.get(0).getTime().getAsDate());
+            assertEquals(ProductData.UTC.parse("20/03/2001", "dd/MM/yyyy").getAsDate(),
+                         measurementList.get(1).getTime().getAsDate());
+            assertEquals(ProductData.UTC.parse("14/11/2010", "dd/MM/yyyy").getAsDate(),
+                         measurementList.get(2).getTime().getAsDate());
+        } finally {
+            reader.close();
+        }
+    }
+
+    @Test
     public void testTwoProductsSameType() throws Exception {
 
         Coordinate[] coordinates = {
@@ -185,7 +233,7 @@ public class PixExOpTest {
         int windowSize = 5;
 
         HashMap<String, Object> parameterMap = new HashMap<String, Object>();
-        File outputDir = getOutpuDir("testTwoProductsSameType", getClass());
+        File outputDir = getOutputDir("testTwoProductsSameType", getClass());
         parameterMap.put("outputDir", outputDir);
         parameterMap.put("exportTiePoints", false);
         parameterMap.put("exportMasks", false);
@@ -221,7 +269,7 @@ public class PixExOpTest {
         int windowSize = 1;
 
         HashMap<String, Object> parameterMap = new HashMap<String, Object>();
-        File outputDir = getOutpuDir("testTwentyProductsSameType", getClass());
+        File outputDir = getOutputDir("testTwentyProductsSameType", getClass());
         parameterMap.put("outputDir", outputDir);
         parameterMap.put("exportTiePoints", false);
         parameterMap.put("exportMasks", false);
@@ -259,7 +307,7 @@ public class PixExOpTest {
         };
         int windowSize = 5;
 
-        File outputDir = getOutpuDir("testTwoProductsTwoDifferentTypes", getClass());
+        File outputDir = getOutputDir("testTwoProductsTwoDifferentTypes", getClass());
         parameterMap.put("outputDir", outputDir);
         parameterMap.put("exportTiePoints", false);
         parameterMap.put("exportMasks", false);
@@ -312,7 +360,7 @@ public class PixExOpTest {
 
 
         PixExOp pixEx = new PixExOp();
-        File outputDir = getOutpuDir("testTwoProductsWithTimeConstraints", getClass());
+        File outputDir = getOutputDir("testTwoProductsWithTimeConstraints", getClass());
         pixEx.setParameter("outputDir", outputDir);
         pixEx.setParameter("exportTiePoints", false);
         pixEx.setParameter("exportMasks", false);
@@ -344,7 +392,7 @@ public class PixExOpTest {
         int windowSize = 1;
 
         HashMap<String, Object> parameterMap = new HashMap<String, Object>();
-        File outputDir = getOutpuDir("testTwentyProductsWithDifferentTypes", getClass());
+        File outputDir = getOutputDir("testTwentyProductsWithDifferentTypes", getClass());
         parameterMap.put("outputDir", outputDir);
         parameterMap.put("exportTiePoints", false);
         parameterMap.put("exportMasks", false);
@@ -380,7 +428,32 @@ public class PixExOpTest {
         computeData(parameterMap, sourceProduct);
     }
 
-    public static File getOutpuDir(String methodName, Class testClass) {
+    @Test
+    public void testExtractMatchupCoordinates() throws Exception {
+        final File testFile = new File(getClass().getResource("test.csv").getFile());
+        final List<Coordinate> coordinates = PixExOp.extractMatchupCoordinates(testFile);
+
+        assertEquals(2, coordinates.size());
+        assertEquals("0", coordinates.get(0).getName());
+        assertEquals(56.0123, (double) coordinates.get(0).getLat(), 0.0001);
+        assertEquals(6.2345, (double) coordinates.get(0).getLon(), 0.0001);
+        final Coordinate.OriginalValue[] originalValues = coordinates.get(0).getOriginalValues();
+        assertEquals(4, originalValues.length);
+        assertEquals("test1.1", originalValues[1].value);
+        assertEquals(0.2F, Float.parseFloat(originalValues[2].value), 0.001);
+        assertEquals(0.3F, Float.parseFloat(originalValues[3].value), 0.001);
+
+        assertEquals("1", coordinates.get(1).getName());
+        assertEquals(56.0124, (double) coordinates.get(1).getLat(), 0.0001);
+        assertEquals(6.2346, (double) coordinates.get(1).getLon(), 0.0001);
+        final Coordinate.OriginalValue[] originalValues1 = coordinates.get(1).getOriginalValues();
+        assertEquals(4, originalValues.length);
+        assertEquals("test1.2", originalValues1[1].value);
+        assertEquals(0.21F, Float.parseFloat(originalValues1[2].value), 0.001);
+        assertEquals(0.31F, Float.parseFloat(originalValues1[3].value), 0.001);
+    }
+
+    public static File getOutputDir(String methodName, Class testClass) {
         final File tmpDir = new File(System.getProperty("java.io.tmpdir"));
         File baseTestDir = new File(tmpDir, testClass.getSimpleName());
         final File dir = new File(baseTestDir, methodName);

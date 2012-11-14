@@ -25,25 +25,29 @@ Options:
                      ''BEAM-DIMAP''. If not specified, format will be derived
                      from the target filename extension, if any, otherwise the
                      default format is ''{2}''. Ony used, if the graph
-                     in <graph-file> does not specify its own ''Write'' operator.
-  -p <file>          A (Java Properties) file containing processing
-                     parameters in the form <name>=<value> or a XML file
-                     containing a a parameter DOM for the operator. Entries in this
-                     file are overwritten by the -P<name>=<value> command-line
-                     option (see below). The following variables are substituted in
+                     in <graph-file> does not specify its own ''Write''
+                     operator.
+  -p <file>          A (Java Properties) file containing processing parameters
+                     in the form <name>=<value> or a XML file containing a
+                     parameter DOM for the operator. Entries in this file are
+                     overwritten by the -P<name>=<value> command-line option
+                     (see below). The following variables are substituted in
                      the parameters file:
-                         $'{gpt.operator'} (given by the 'op' argument)
-                         $'{gpt.graphFile'} (given by the 'graph-file' argument)
-                         $'{gpt.parametersFile'} (given by the -p option)
-                         $'{gpt.targetFile'} (given by the -t option)
-                         $'{gpt.targetFormat'} (given by the -f option)
+                         $'{system.<java-sys-property>'}
+                         $'{operatorName'} (given by the <op> argument)
+                         $'{graphFile'} (given by the <graph-file> argument)
+                         $'{targetFile'} (pull path given by the -t option)
+                         $'{targetDir'} (derived from -t option)
+                         $'{targetName'} (derived from -t option)
+                         $'{targetBaseName'} (derived from -t option)
+                         $'{targetFormat'} (given by the -f option)
   -c <cache-size>    Sets the tile cache size in bytes. Value can be suffixed
                      with ''K'', ''M'' and ''G''. Must be less than maximum
                      available heap space. If equal to or less than zero, tile
                      caching will be completely disabled. The default tile
                      cache size is ''{3}M''.
-  -q <parallelism>   Sets the maximum parallelism used for the computation, i.e.
-                     the maximum number of parallel (native) threads.
+  -q <parallelism>   Sets the maximum parallelism used for the computation,
+                     i.e. the maximum number of parallel (native) threads.
                      The default parallelism is ''{4}''.
   -x                 Clears the internal tile cache after writing a complete
                      row of tiles to the target product file. This option may
@@ -56,9 +60,18 @@ Options:
                      $'{<source>'} will be replaced with references to a source
                      product located at <file>.
   -P<name>=<value>   Defines a processing parameter, <name> is specific for the
-                     used operator or graph. In an XML graph, all occurrences of
-                     $'{<name>'} will be replaced with <value>. Overwrites
+                     used operator or graph. In an XML graph, all occurrences
+                     of $'{<name>'} will be replaced with <value>. Overwrites
                      parameter values specified by the ''-p'' option.
+  -v <dir>           A directory containing any number of Velocity templates.
+                     Each template generates a text output file along with the
+                     target product. This feature has been added to support a
+                     flexible generation of metadata files.
+                     See http://velocity.apache.org/ and option -m.
+  -m <file>          A (Java Properties) file containing (constant) metadata
+                     in the form <name>=<value> or any XML file. Its primary 
+					 usage is to provide an additional context to be used 
+					 from within the Velocity templates. See option -v.
 
 Operators:
 {5}

@@ -28,13 +28,21 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 /**
- * The common command-line for GPF.
+ * The parsed command-line arguments for GPT.
  */
-class CommandLineArgs {
+public class CommandLineArgs {
 
     private static final int K = 1024;
     private static final int M = K * 1024;
     private static final int G = M * 1024;
+    public static final String DEFAULT_TARGET_FILEPATH = "target.dim";
+    public static final String DEFAULT_METADATA_FILEPATH = "metadata.properties";
+    public static final String DEFAULT_VELOCITY_TEMPLATE_DIRPATH = ".";
+    public static final String DEFAULT_FORMAT_NAME = ProductIO.DEFAULT_FORMAT_NAME;
+    public static final int DEFAULT_TILE_CACHE_SIZE_IN_M = 512;
+    public static final int DEFAULT_TILE_SCHEDULER_PARALLELISM = Runtime.getRuntime().availableProcessors();
+    public static final String DEFAULT_MERGED_TEMPLATE_FILE_PATTERN = "${targetDir}/${targetBaseName}-${templateBaseName}";
+    public static final String VELOCITY_TEMPLATE_EXTENSION = ".vm";
 
     private String[] args;
     private String operatorName;
@@ -44,15 +52,23 @@ class CommandLineArgs {
     private TreeMap<String, String> sourceFilePathMap;
     private String targetFormatName;
     private String parameterFilePath;
+    private String metadataFilePath;
+    private String velocityTemplateDirPath;
     private TreeMap<String, String> targetFilePathMap;
     private boolean helpRequested;
     private boolean stackTraceDump;
     private boolean clearCacheAfterRowWrite;
-    private long tileCacheCapacity;
 
+    private long tileCacheCapacity;
     private int tileSchedulerParallelism;
 
-    public CommandLineArgs(String[] args) {
+    public static CommandLineArgs parseArgs(String... args) throws Exception {
+        CommandLineArgs lineArgs = new CommandLineArgs(args);
+        lineArgs.parseArgs();
+        return lineArgs;
+    }
+
+    private CommandLineArgs(String[] args) {
         this.args = args.clone();
         if (this.args.length == 0) {
             helpRequested = true;
@@ -61,18 +77,22 @@ class CommandLineArgs {
         sourceFilePathMap = new TreeMap<String, String>();
         targetFilePathMap = new TreeMap<String, String>();
         parameterMap = new TreeMap<String, String>();
-        tileCacheCapacity = CommandLineTool.DEFAULT_TILE_CACHE_SIZE_IN_M * M;
-        tileSchedulerParallelism = CommandLineTool.DEFAULT_TILE_SCHEDULER_PARALLELISM;
-
-        // look for "-e" early do enable verbose error reports 
-        for (String arg : this.args) {
-            if (arg.equals("-e")) {
-                stackTraceDump = true;
-            }
-        }
+        tileCacheCapacity = DEFAULT_TILE_CACHE_SIZE_IN_M * M;
+        tileSchedulerParallelism = DEFAULT_TILE_SCHEDULER_PARALLELISM;
+        stackTraceDump = isStackTraceDumpEnabled(args);
     }
 
-    public void parseArguments() throws Exception {
+    static boolean isStackTraceDumpEnabled(String[] args) {
+        // look for "-e" early do enable verbose error reports
+        for (String arg : args) {
+            if (arg.equals("-e")) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void parseArgs() throws Exception {
         int argCount = 0;
         for (int i = 0; i < this.args.length; i++) {
             String arg = this.args[i];
@@ -100,6 +120,12 @@ class CommandLineArgs {
                     i++;
                 } else if (arg.equals("-p")) {
                     parameterFilePath = parseOptionArgument(arg, i);
+                    i++;
+                } else if (arg.equals("-m")) {
+                    metadataFilePath = parseOptionArgument(arg, i);
+                    i++;
+                } else if (arg.equals("-v")) {
+                    velocityTemplateDirPath = parseOptionArgument(arg, i);
                     i++;
                 } else if (arg.equals("-q")) {
                     tileSchedulerParallelism = parseOptionArgumentInt(arg, i);
@@ -137,14 +163,19 @@ class CommandLineArgs {
         if (graphFilePath == null && !targetFilePathMap.isEmpty()) {
             throw error("Defined target products only valid for graph XML");
         }
+        if (metadataFilePath != null && metadataFilePath.isEmpty()) {
+            metadataFilePath = null;
+        }
+        if (velocityTemplateDirPath != null && velocityTemplateDirPath.isEmpty()) {
+            velocityTemplateDirPath = null;
+        }
         if (targetFilePath == null && targetFilePathMap.isEmpty()) {
-            targetFilePath = CommandLineTool.DEFAULT_TARGET_FILEPATH;
+            targetFilePath = DEFAULT_TARGET_FILEPATH;
         }
         if (targetFormatName == null && targetFilePath != null) {
             final String extension = FileUtils.getExtension(targetFilePath);
             if (extension == null || extension.isEmpty()) {
-                targetFormatName = ProductIO.DEFAULT_FORMAT_NAME;
-                // todo - decide if to append extension or not  (nf - 29.10.2007)
+                targetFormatName = DEFAULT_FORMAT_NAME;
             } else {
                 targetFormatName = detectWriterFormat(extension);
                 if (targetFormatName == null) {
@@ -154,6 +185,9 @@ class CommandLineArgs {
         }
     }
 
+    /**
+     * @return The raw, not yet parsed arguments passed to the command-line tool.
+     */
     public String[] getArgs() {
         return args;
     }
@@ -174,7 +208,15 @@ class CommandLineArgs {
         return targetFormatName;
     }
 
-    public String getParametersFilePath() {
+    public String getMetadataFilePath() {
+        return metadataFilePath;
+    }
+
+    public String getVelocityTemplateDirPath() {
+        return velocityTemplateDirPath;
+    }
+
+    public String getParameterFilePath() {
         return parameterFilePath;
     }
 
@@ -275,4 +317,5 @@ class CommandLineArgs {
     private static Exception error(String m) {
         return new Exception(m);
     }
+
 }

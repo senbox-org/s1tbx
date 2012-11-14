@@ -17,7 +17,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-visat</symbolicName>
-    <version>4.10</version>
+    <version>5.0</version>
     <name>BEAM VISAT Application</name>
 
     <description>
@@ -29,7 +29,7 @@
         <applicationDescriptor>
             <applicationId>VisatMain</applicationId>
             <displayName>VISAT</displayName>
-            <version>4.10</version>
+            <version>${beam.version}</version>
             <buildId>${beam.build.id}</buildId>
             <buildDate>${beam.build.date}</buildDate>
             <excludedToolViews>
@@ -41,6 +41,9 @@
 
     <changelog>
         <![CDATA[
+        <p>Changes in 4.10.4<br/>
+          [BEAM-1319] The beam.config file must be edit with administrator rights<br/>
+        </p>
         <p>Changes in 4.10<br/>
           [BEAM-1385] Import images as products (missing RGB product reader)<br/>
           [BEAM-1384] Synchronise image views via geographical center coordinates<br/>

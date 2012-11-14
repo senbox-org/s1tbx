@@ -1,0 +1,24 @@
+<parameters>
+    <sourceProductPaths>target/binning-test-io/**/obs?.dim</sourceProductPaths>
+    <region>POLYGON((-1 -1, 3 -1, 3 3, -1 3, -1 -1))</region>
+    <startDate>2002-01-01</startDate>
+    <endDate>2002-01-10</endDate>
+    <binningConfig>
+        <numRows>180</numRows>
+        <superSampling>1</superSampling>
+        <maskExpr>true</maskExpr>
+        <aggregators>
+            <aggregator>
+                <type>AVG</type>
+                <varName>chl</varName>
+                <weightCoeff>1.0</weightCoeff>
+                <fillValue>NaN</fillValue>
+            </aggregator>
+        </aggregators>
+    </binningConfig>
+    <formatterConfig>
+        <outputType>Product</outputType>
+        <outputFile>${targetFile}</outputFile>
+        <outputFormat>BEAM-DIMAP</outputFormat>
+    </formatterConfig>
+</parameters>

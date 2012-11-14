@@ -138,6 +138,7 @@ class PixelExtractionDialog extends ModelessDialog {
         parameterMap.put("expression", parametersForm.getExpression());
         parameterMap.put("timeDifference", parametersForm.getAllowedTimeDifference());
         parameterMap.put("exportExpressionResult", parametersForm.isExportExpressionResultSelected());
+        parameterMap.put("aggregatorStrategyType", parametersForm.getPixelValueAggregationMethod());
         ProgressMonitorSwingWorker worker = new MyProgressMonitorSwingWorker(getParent(), "Creating output file(s)...");
         worker.executeWithBlocking();
     }
@@ -195,7 +196,6 @@ class PixelExtractionDialog extends ModelessDialog {
                 } else {
                     message = "The pixel extraction tool has run successfully and written the result file to to std.out.";
                 }
-
                 JOptionPane.showMessageDialog(getJDialog(), message);
             } catch (InterruptedException ignore) {
             } catch (ExecutionException e) {

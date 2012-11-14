@@ -22,15 +22,16 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <artifactId>beam</artifactId>
         <groupId>org.esa.beam</groupId>
-        <version>4.10</version>
+        <artifactId>beam-plugin-parent</artifactId>
+        <version>1.1-SNAPSHOT</version>
+        <relativePath>../beam-plugin-parent/pom.xml</relativePath>
     </parent>
 
     <groupId>org.esa.beam</groupId>
     <artifactId>beam-merisl3-reader</artifactId>
     <name>BEAM MERIS Level-3 Product Reader</name>
-    <version>1.2</version>
+    <version>1.2.1.${beam.version}</version>
     <url>http://envisat.esa.int/beam/</url>
 
     <dependencies>
@@ -41,6 +42,12 @@
         <dependency>
             <groupId>org.esa.beam</groupId>
             <artifactId>beam-netcdf</artifactId>
+            <version>1.1.1</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>edu.ucar</groupId>
+            <artifactId>netcdf</artifactId>
         </dependency>
     </dependencies>
 

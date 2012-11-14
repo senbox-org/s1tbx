@@ -20,12 +20,13 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.measurement.Measurement;
 import org.esa.beam.measurement.writer.MeasurementWriter;
-import org.esa.beam.pixex.output.PixExFormatStrategy;
+import org.esa.beam.pixex.output.DefaultFormatStrategy;
 import org.esa.beam.pixex.output.PixExMeasurementFactory;
 import org.esa.beam.pixex.output.PixExProductRegistry;
 import org.esa.beam.pixex.output.PixExRasterNamesFactory;
 import org.esa.beam.pixex.output.PixExTargetFactory;
-import org.junit.*;
+import org.junit.Before;
+import org.junit.Test;
 
 import javax.media.jai.RenderedOp;
 import javax.media.jai.operator.ConstantDescriptor;
@@ -65,11 +66,13 @@ public class PixExMeasurementReaderTest {
         final String expression = "expression";
         final boolean exportExpressionResult = true;
 
-        final PixExRasterNamesFactory rasterNamesFactory = new PixExRasterNamesFactory(true, true, exportMasks);
+        final PixExRasterNamesFactory rasterNamesFactory = new PixExRasterNamesFactory(true, true, exportMasks, null);
         final PixExProductRegistry productRegistry = new PixExProductRegistry(filenamePrefix, inputDir);
-        final PixExMeasurementFactory measurementFactory = new PixExMeasurementFactory(rasterNamesFactory, windowSize, productRegistry);
+        final PixExMeasurementFactory measurementFactory = new PixExMeasurementFactory(rasterNamesFactory, windowSize,
+                                                                                       productRegistry);
         final PixExTargetFactory targetFactory = new PixExTargetFactory(filenamePrefix, inputDir);
-        final PixExFormatStrategy formatStrategy = new PixExFormatStrategy(rasterNamesFactory, windowSize, expression, exportExpressionResult);
+        final DefaultFormatStrategy formatStrategy = new DefaultFormatStrategy(rasterNamesFactory, windowSize, expression,
+                                                                               exportExpressionResult);
         final MeasurementWriter writer = new MeasurementWriter(measurementFactory, targetFactory, formatStrategy);
 
         final String[] radianceNames = {"rad_1", "rad_2", "rad_3"};
@@ -107,8 +110,8 @@ public class PixExMeasurementReaderTest {
     @Test
     public void testReadingWithEmptyColumns() throws Exception {
         final Measurement measurement = PixExMeasurementReader.readMeasurement(
-                    "12\t83744\t10083743\t57.936592\t10.130839\t520.5\t240.5\t2005-07-09\t10:12:03\t65.272634\t \t42.278252\t0\t500",
-                    false);
+                "12\t83744\t10083743\t57.936592\t10.130839\t520.5\t240.5\t2005-07-09\t10:12:03\t65.272634\t \t42.278252\t0\t500",
+                false);
         assertEquals(12, measurement.getProductId());
         assertEquals(83744, measurement.getCoordinateID());
         assertEquals("10083743", measurement.getCoordinateName());
@@ -118,12 +121,12 @@ public class PixExMeasurementReaderTest {
         assertEquals(240.5, measurement.getPixelY(), 1.0e-6);
         final Date expectedDate = ProductData.UTC.parse("2005-07-09T10:12:03", "yyyy-MM-dd'T'hh:mm:ss").getAsDate();
         assertEquals(expectedDate, measurement.getTime().getAsDate());
-        final Number[] values = measurement.getValues();
-        assertEquals(65.272634, values[0].doubleValue(), 1.0e-6);
-        assertEquals(Double.NaN, values[1].doubleValue(), 1.0e-6);
-        assertEquals(42.278252, values[2].doubleValue(), 1.0e-6);
-        assertEquals(0, values[3].intValue());
-        assertEquals(500, values[4].intValue());
+        final Object[] values = measurement.getValues();
+        assertEquals(65.272634, ((Number) values[0]).doubleValue(), 1.0e-6);
+        assertEquals(Double.NaN, ((Number) values[1]).doubleValue(), 1.0e-6);
+        assertEquals(42.278252, ((Number) values[2]).doubleValue(), 1.0e-6);
+        assertEquals(0, ((Number) values[3]).intValue());
+        assertEquals(500, ((Number) values[4]).intValue());
     }
 
     @Test(expected = UnsupportedOperationException.class)
@@ -135,9 +138,9 @@ public class PixExMeasurementReaderTest {
     private void testForExistingMeasurement(ArrayList<Measurement> measurementList, int coordId, String coordName) {
         for (Measurement measurement : measurementList) {
             if (measurement.getCoordinateID() == coordId &&
-                measurement.getCoordinateName().equals(coordName) &&
-                Double.compare(measurement.getPixelX(), 20.5) == 0 &&
-                Double.compare(measurement.getPixelY(), 42.5) == 0) {
+                    measurement.getCoordinateName().equals(coordName) &&
+                    Double.compare(measurement.getPixelX(), 20.5) == 0 &&
+                    Double.compare(measurement.getPixelY(), 42.5) == 0) {
                 return;
             }
         }

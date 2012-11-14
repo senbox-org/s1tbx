@@ -22,9 +22,10 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <artifactId>beam</artifactId>
+        <artifactId>beam-system</artifactId>
         <groupId>org.esa.beam</groupId>
-        <version>4.10</version>
+        <version>5.0-SNAPSHOT</version>
+        <relativePath>../beam-system/pom.xml</relativePath>
     </parent>
 
     <name>BEAM Graph Processing Framework (GPF)</name>
@@ -45,14 +46,14 @@
             <groupId>com.bc.ceres</groupId>
             <artifactId>ceres-binding</artifactId>
         </dependency>
-
-        <!-- todo - specify in main POM? -->
+        <dependency>
+            <groupId>com.bc.ceres</groupId>
+            <artifactId>ceres-metadata</artifactId>
+        </dependency>
         <dependency>
             <groupId>velocity</groupId>
             <artifactId>velocity</artifactId>
-            <version>1.5</version>
         </dependency>
-
     </dependencies>
 
     <profiles>

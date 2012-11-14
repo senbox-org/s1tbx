@@ -16,7 +16,7 @@
 
 package org.esa.beam.dataio.modis;
 
-class IncrementOffset {
+public class IncrementOffset {
 
     public int increment;
     public int offset;

@@ -21,6 +21,7 @@ import org.esa.beam.framework.datamodel.AbstractGeoCoding;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.PixelPos;
+import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductNode;
 import org.esa.beam.framework.datamodel.Scene;
 import org.esa.beam.framework.datamodel.TiePointGeoCoding;
@@ -30,7 +31,9 @@ import org.esa.beam.util.Guardian;
 import org.esa.beam.util.math.IndexValidator;
 import org.esa.beam.util.math.Range;
 
+import java.awt.Rectangle;
 import java.awt.geom.Line2D;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,16 +49,16 @@ import java.util.List;
  */
 public class ModisTiePointGeoCoding extends AbstractGeoCoding {
 
-    private final Datum _datum;
-    private TiePointGrid _latGrid;
-    private TiePointGrid _lonGrid;
-    private List<GeoCoding> _gcList;
-    private boolean _cross180;
-    private List<PolyLine> _centerLineList;
-    private int _lastCenterLineIndex;
-    private int _smallestValidIndex;
-    private int _biggestValidIndex;
-    private int _gcStripeSceneHeight;
+    private final Datum datum;
+    private TiePointGrid latgrid;
+    private TiePointGrid lonGrid;
+    private List<GeoCoding> gcList;
+    private boolean cross180;
+    private List<PolyLine> centerLineList;
+    private int lastCenterLineIndex;
+    private int smallestValidIndex;
+    private int biggestValidIndex;
+    private int gcStripeSceneHeight;
 
     /**
      * Constructs geo-coding based on two given tie-point grids.
@@ -79,17 +82,17 @@ public class ModisTiePointGeoCoding extends AbstractGeoCoding {
         Guardian.assertNotNull("lonGrid", lonGrid);
         Guardian.assertNotNull("datum", datum);
         if (latGrid.getRasterWidth() != lonGrid.getRasterWidth() ||
-            latGrid.getRasterHeight() != lonGrid.getRasterHeight() ||
-            latGrid.getOffsetX() != lonGrid.getOffsetX() ||
-            latGrid.getOffsetY() != lonGrid.getOffsetY() ||
-            latGrid.getSubSamplingX() != lonGrid.getSubSamplingX() ||
-            latGrid.getSubSamplingY() != lonGrid.getSubSamplingY()) {
+                latGrid.getRasterHeight() != lonGrid.getRasterHeight() ||
+                latGrid.getOffsetX() != lonGrid.getOffsetX() ||
+                latGrid.getOffsetY() != lonGrid.getOffsetY() ||
+                latGrid.getSubSamplingX() != lonGrid.getSubSamplingX() ||
+                latGrid.getSubSamplingY() != lonGrid.getSubSamplingY()) {
             throw new IllegalArgumentException("latGrid is not compatible with lonGrid");
         }
-        _latGrid = latGrid;
-        _lonGrid = lonGrid;
-        _datum = datum;
-        _lastCenterLineIndex = 0;
+        latgrid = latGrid;
+        this.lonGrid = lonGrid;
+        this.datum = datum;
+        lastCenterLineIndex = 0;
         init();
     }
 
@@ -117,7 +120,6 @@ public class ModisTiePointGeoCoding extends AbstractGeoCoding {
      * @param geoPos   the geographical position as lat/lon in the coodinate system determined by {@link #getDatum()}
      * @param pixelPos an instance of <code>Point</code> to be used as retun value. If this parameter is
      *                 <code>null</code>, the method creates a new instance which it then returns.
-     *
      * @return the pixel co-ordinates as x/y
      */
     public PixelPos getPixelPos(GeoPos geoPos, PixelPos pixelPos) {
@@ -128,7 +130,7 @@ public class ModisTiePointGeoCoding extends AbstractGeoCoding {
         pixelPos.y = -1;
 
         // tb 2009-01-21 - this shortcut check is numerically incorrect. MERCI fails to calculate intersection
-        // lines - althoiugh the operation should be consistent.
+        // lines - although the operation should be consistent.
         // - calculate geo-boundary of product
         // - intersect with search region
         // - re-transform intersection polygon points to x/y space
@@ -142,8 +144,8 @@ public class ModisTiePointGeoCoding extends AbstractGeoCoding {
 //        }
 
         final int index = getGeoCodingIndexfor(geoPos);
-        _lastCenterLineIndex = index;
-        final GeoCoding gc = _gcList.get(index);
+        lastCenterLineIndex = index;
+        final GeoCoding gc = gcList.get(index);
         if (gc != null) {
             gc.getPixelPos(geoPos, pixelPos);
         }
@@ -151,7 +153,7 @@ public class ModisTiePointGeoCoding extends AbstractGeoCoding {
         if (pixelPos.x == -1 || pixelPos.y == -1) {
             return pixelPos;
         }
-        pixelPos.y += (_lastCenterLineIndex * _gcStripeSceneHeight);
+        pixelPos.y += (lastCenterLineIndex * gcStripeSceneHeight);
         return pixelPos;
     }
 
@@ -161,14 +163,13 @@ public class ModisTiePointGeoCoding extends AbstractGeoCoding {
      * @param pixelPos the pixel's co-ordinates given as x,y
      * @param geoPos   an instance of <code>GeoPos</code> to be used as retun value. If this parameter is
      *                 <code>null</code>, the method creates a new instance which it then returns.
-     *
      * @return the geographical position as lat/lon in the coodinate system determined by {@link #getDatum()}
      */
     public GeoPos getGeoPos(PixelPos pixelPos, GeoPos geoPos) {
         final int index = computeIndex(pixelPos);
-        final GeoCoding gc = _gcList.get(index);
+        final GeoCoding gc = gcList.get(index);
         if (gc != null) {
-            return gc.getGeoPos(new PixelPos(pixelPos.x, pixelPos.y - _gcStripeSceneHeight * index), geoPos);
+            return gc.getGeoPos(new PixelPos(pixelPos.x, pixelPos.y - gcStripeSceneHeight * index), geoPos);
         } else {
             if (geoPos == null) {
                 geoPos = new GeoPos();
@@ -184,7 +185,7 @@ public class ModisTiePointGeoCoding extends AbstractGeoCoding {
      * @return the datum
      */
     public Datum getDatum() {
-        return _datum;
+        return datum;
     }
 
     @Override
@@ -197,16 +198,16 @@ public class ModisTiePointGeoCoding extends AbstractGeoCoding {
         }
 
         ModisTiePointGeoCoding that = (ModisTiePointGeoCoding) o;
-        if (_latGrid == null || that._latGrid == null) {
+        if (latgrid == null || that.latgrid == null) {
             return false;
         }
-        if (!_latGrid.equals(that._latGrid)) {
+        if (!latgrid.equals(that.latgrid)) {
             return false;
         }
-        if (_lonGrid == null || that._lonGrid == null) {
+        if (lonGrid == null || that.lonGrid == null) {
             return false;
         }
-        if (!_lonGrid.equals(that._lonGrid)) {
+        if (!lonGrid.equals(that.lonGrid)) {
             return false;
         }
 
@@ -215,8 +216,8 @@ public class ModisTiePointGeoCoding extends AbstractGeoCoding {
 
     @Override
     public int hashCode() {
-        int result = _latGrid != null ? _latGrid.hashCode() : 0;
-        result = 31 * result + (_lonGrid != null ? _lonGrid.hashCode() : 0);
+        int result = latgrid != null ? latgrid.hashCode() : 0;
+        result = 31 * result + (lonGrid != null ? lonGrid.hashCode() : 0);
         return result;
     }
 
@@ -229,14 +230,14 @@ public class ModisTiePointGeoCoding extends AbstractGeoCoding {
      */
     @Override
     public void dispose() {
-        for (GeoCoding gc : _gcList) {
+        for (GeoCoding gc : gcList) {
             if (gc != null) {
                 gc.dispose();
             }
         }
-        _gcList.clear();
-        _latGrid = null;
-        _lonGrid = null;
+        gcList.clear();
+        latgrid = null;
+        lonGrid = null;
     }
 
     /**
@@ -245,36 +246,36 @@ public class ModisTiePointGeoCoding extends AbstractGeoCoding {
      * @return <code>true</code>, if so
      */
     public boolean isCrossingMeridianAt180() {
-        return _cross180;
+        return cross180;
     }
 
     private void init() {
-        _cross180 = false;
-        _gcList = new ArrayList<GeoCoding>();
-        _centerLineList = new ArrayList<PolyLine>();
-        final float osX = _lonGrid.getOffsetX();
-        final float osY = _lonGrid.getOffsetY() + 0.5f;
-        final float ssX = _lonGrid.getSubSamplingX();
-        final float ssY = _lonGrid.getSubSamplingY();
+        cross180 = false;
+        gcList = new ArrayList<GeoCoding>();
+        centerLineList = new ArrayList<PolyLine>();
+        final float osX = lonGrid.getOffsetX();
+        final float osY = lonGrid.getOffsetY();
+        final float ssX = lonGrid.getSubSamplingX();
+        final float ssY = lonGrid.getSubSamplingY();
 
-        final float[] latFloats = (float[]) _latGrid.getDataElems();
-        final float[] lonFloats = (float[]) _lonGrid.getDataElems();
+        final float[] latFloats = (float[]) latgrid.getDataElems();
+        final float[] lonFloats = (float[]) lonGrid.getDataElems();
 
-        final int stripeW = _lonGrid.getRasterWidth();
-        final int gcStripeSceneWidth = _lonGrid.getSceneRasterWidth();
-        final int h = _lonGrid.getRasterHeight();
-        final int sceneHeight = _lonGrid.getSceneRasterHeight();
+        final int stripeW = lonGrid.getRasterWidth();
+        final int gcStripeSceneWidth = lonGrid.getSceneRasterWidth();
+        final int tpRasterHeight = lonGrid.getRasterHeight();
+        final int sceneHeight = lonGrid.getSceneRasterHeight();
         final int stripeH;
-        if (sceneHeight / h == 2) {
+        if (isHighResolution(sceneHeight, tpRasterHeight)) {
             stripeH = 10;
-            _gcStripeSceneHeight = 20;
+            gcStripeSceneHeight = 20;
         } else {
             stripeH = 2;
-            _gcStripeSceneHeight = 10;
+            gcStripeSceneHeight = 10;
         }
 
         final int gcRawWidth = stripeW * stripeH;
-        for (int y = 0; y < h; y += stripeH) {
+        for (int y = 0; y < tpRasterHeight; y += stripeH) {
             final float[] lats = new float[gcRawWidth];
             final float[] lons = new float[gcRawWidth];
             System.arraycopy(lonFloats, y * stripeW, lons, 0, stripeW * stripeH);
@@ -282,31 +283,31 @@ public class ModisTiePointGeoCoding extends AbstractGeoCoding {
 
             final Range range = Range.computeRangeFloat(lats, IndexValidator.TRUE, null, ProgressMonitor.NULL);
             if (range.getMin() < -90) {
-                _gcList.add(null);
-                _centerLineList.add(null);
+                gcList.add(null);
+                centerLineList.add(null);
             } else {
                 final ModisTiePointGrid latTPG = new ModisTiePointGrid("lat" + y, stripeW, stripeH, osX, osY, ssX, ssY, lats);
                 final ModisTiePointGrid lonTPG = new ModisTiePointGrid("lon" + y, stripeW, stripeH, osX, osY, ssX, ssY, lons, true);
 
-                final TiePointGeoCoding geoCoding = new TiePointGeoCoding(latTPG, lonTPG, _datum);
-                _cross180 = _cross180 || geoCoding.isCrossingMeridianAt180();
-                _gcList.add(geoCoding);
-                _centerLineList.add(createCenterPolyLine(geoCoding, gcStripeSceneWidth, _gcStripeSceneHeight));
+                final TiePointGeoCoding geoCoding = new TiePointGeoCoding(latTPG, lonTPG, datum);
+                cross180 = cross180 || geoCoding.isCrossingMeridianAt180();
+                gcList.add(geoCoding);
+                centerLineList.add(createCenterPolyLine(geoCoding, gcStripeSceneWidth, gcStripeSceneHeight));
             }
         }
         initSmallestAndLargestValidGeocodingIndices();
     }
 
     private void initSmallestAndLargestValidGeocodingIndices() {
-        for (int i = 0; i < _gcList.size(); i++) {
-            if (_gcList.get(i) != null) {
-                _smallestValidIndex = i;
+        for (int i = 0; i < gcList.size(); i++) {
+            if (gcList.get(i) != null) {
+                smallestValidIndex = i;
                 break;
             }
         }
-        for (int i = _gcList.size() - 1; i > 0; i--) {
-            if (_gcList.get(i) != null) {
-                _biggestValidIndex = i;
+        for (int i = gcList.size() - 1; i > 0; i--) {
+            if (gcList.get(i) != null) {
+                biggestValidIndex = i;
                 break;
             }
         }
@@ -348,34 +349,34 @@ public class ModisTiePointGeoCoding extends AbstractGeoCoding {
 
     private int computeIndex(PixelPos pixelPos) {
         final int y = (int) pixelPos.getY();
-        final int index = y / _gcStripeSceneHeight;
-        if (index < _smallestValidIndex) {
-            return _smallestValidIndex;
-        } else if (index > _biggestValidIndex) {
-            return _biggestValidIndex;
+        final int index = y / gcStripeSceneHeight;
+        if (index < smallestValidIndex) {
+            return smallestValidIndex;
+        } else if (index > biggestValidIndex) {
+            return biggestValidIndex;
         } else {
             return index;
         }
     }
 
     private int getGeoCodingIndexfor(final GeoPos geoPos) {
-        int index = _lastCenterLineIndex;
+        int index = lastCenterLineIndex;
         index = getNextCenterLineIndex(index, 1);
-        final PolyLine centerLine1 = _centerLineList.get(index);
+        final PolyLine centerLine1 = centerLineList.get(index);
         double v = centerLine1.getDistance(geoPos.lon, geoPos.lat);
         int vIndex = index;
 
         int direction = -1;
-        if (index == _smallestValidIndex) {
+        if (index == smallestValidIndex) {
             direction = +1;
         }
         while (true) {
             index += direction;
             index = getNextCenterLineIndex(index, direction);
-            final PolyLine centerLine2 = _centerLineList.get(index);
+            final PolyLine centerLine2 = centerLineList.get(index);
             final double v2 = centerLine2.getDistance(geoPos.lon, geoPos.lat);
             if (v2 < v) {
-                if (index == _smallestValidIndex || index == _biggestValidIndex) {
+                if (index == smallestValidIndex || index == biggestValidIndex) {
                     return index;
                 }
                 v = v2;
@@ -383,7 +384,7 @@ public class ModisTiePointGeoCoding extends AbstractGeoCoding {
             } else if (direction == -1) {
                 index++;
                 direction = +1;
-                if (index == _biggestValidIndex) {
+                if (index == biggestValidIndex) {
                     return index;
                 }
             } else if (direction == +1) {
@@ -393,12 +394,12 @@ public class ModisTiePointGeoCoding extends AbstractGeoCoding {
     }
 
     private int getNextCenterLineIndex(int index, final int direction) {
-        while (_centerLineList.get(index) == null) {
+        while (centerLineList.get(index) == null) {
             index += direction;
-            if (index < _smallestValidIndex) {
-                index = _biggestValidIndex;
-            } else if (index > _biggestValidIndex) {
-                index = _smallestValidIndex;
+            if (index < smallestValidIndex) {
+                index = biggestValidIndex;
+            } else if (index > biggestValidIndex) {
+                index = smallestValidIndex;
             }
         }
         return index;
@@ -411,13 +412,94 @@ public class ModisTiePointGeoCoding extends AbstractGeoCoding {
      * @param srcScene  the source scene
      * @param destScene the destination scene
      * @param subsetDef the definition of the subset, may be <code>null</code>
-     *
      * @return true, if the geo-coding could be transferred.
      */
     @Override
     public boolean transferGeoCoding(final Scene srcScene, final Scene destScene, final ProductSubsetDef subsetDef) {
-        final String latGridName = _latGrid.getName();
-        final String lonGridName = _lonGrid.getName();
+        final String latGridName = latgrid.getName();
+        final String lonGridName = lonGrid.getName();
+
+        if (mustRecalculateTiePointGrids(subsetDef)) {
+            try {
+                recalculateTiePointGrids(srcScene, destScene, subsetDef, latGridName, lonGridName);
+            } catch (IOException e) {
+                e.printStackTrace();
+                return false;
+            }
+        }
+        return createGeocoding(destScene);
+
+    }
+
+    private boolean recalculateTiePointGrids(Scene srcScene, Scene destScene, ProductSubsetDef subsetDef, String latGridName, String lonGridName) throws IOException {
+        // first step - remove location TP grids that have already been transferred. Their size is
+        // calculated wrong in most cases
+        final TiePointGrid falseTiePointGrid = destScene.getProduct().getTiePointGrid(latGridName);
+        final float rightOffsetX = falseTiePointGrid.getOffsetX();
+        final float falseOffsetY = falseTiePointGrid.getOffsetY();
+        final float rightSubsamplingX = falseTiePointGrid.getSubSamplingX();
+        final float rightSubsamplingY = falseTiePointGrid.getSubSamplingY();
+
+        removeTiePointGrid(destScene, latGridName);
+        removeTiePointGrid(destScene, lonGridName);
+
+        final Product srcProduct = srcScene.getProduct();
+        final int sceneRasterHeight = srcProduct.getSceneRasterHeight();
+        final int tpRasterHeight = srcProduct.getTiePointGrid(lonGridName).getRasterHeight();
+        final int scanlineHeight;
+        if (isHighResolution(sceneRasterHeight, tpRasterHeight)) {
+            scanlineHeight = 20;
+        } else {
+            scanlineHeight = 10;
+        }
+
+        final Rectangle region = subsetDef.getRegion();
+        final int startY = calculateStartLine(scanlineHeight, region);
+        final int stopY = calculateStopLine(scanlineHeight, region);
+        final int extendedHeight = stopY - startY;
+
+        float[] recalculatedLatFloats = new float[region.width * extendedHeight];
+        recalculatedLatFloats = srcProduct.getTiePointGrid(latGridName).getPixels(region.x, startY, region.width, extendedHeight, recalculatedLatFloats);
+
+        float[] recalculatedLonFloats = new float[region.width * extendedHeight];
+        recalculatedLonFloats = srcProduct.getTiePointGrid(lonGridName).getPixels(region.x, startY, region.width, extendedHeight, recalculatedLonFloats);
+
+
+        final int yOffsetIncrement = startY - region.y;
+        final TiePointGrid correctedLatTiePointGrid = new TiePointGrid(latGridName,
+                                                                       region.width,
+                                                                       extendedHeight,
+                                                                       rightOffsetX,
+                                                                       falseOffsetY + yOffsetIncrement,
+                                                                       rightSubsamplingX,
+                                                                       rightSubsamplingY,
+                                                                       recalculatedLatFloats
+        );
+        final TiePointGrid correctedLonTiePointGrid = new TiePointGrid(lonGridName,
+                                                                       region.width,
+                                                                       extendedHeight,
+                                                                       rightOffsetX,
+                                                                       falseOffsetY + yOffsetIncrement,
+                                                                       rightSubsamplingX,
+                                                                       rightSubsamplingY,
+                                                                       recalculatedLonFloats
+        );
+        destScene.getProduct().addTiePointGrid(correctedLatTiePointGrid);
+        destScene.getProduct().addTiePointGrid(correctedLonTiePointGrid);
+
+        return false;
+    }
+
+    private void removeTiePointGrid(Scene destScene, String gridName) {
+        final TiePointGrid tiePointGrid = destScene.getProduct().getTiePointGrid(gridName);
+        if (tiePointGrid != null) {
+            destScene.getProduct().removeTiePointGrid(tiePointGrid);
+        }
+    }
+
+    private boolean createGeocoding(Scene destScene) {
+        final String latGridName = latgrid.getName();
+        final String lonGridName = lonGrid.getName();
         final TiePointGrid latGrid = destScene.getProduct().getTiePointGrid(latGridName);
         final TiePointGrid lonGrid = destScene.getProduct().getTiePointGrid(lonGridName);
         if (latGrid != null && lonGrid != null) {
@@ -426,6 +508,25 @@ public class ModisTiePointGeoCoding extends AbstractGeoCoding {
         }
         return false;
     }
+
+    static boolean mustRecalculateTiePointGrids(ProductSubsetDef subsetDef) {
+        return subsetDef != null && subsetDef.getRegion() != null;
+    }
+
+    // note: this relation is ONLY valid for original Modis products, i.e. products that have not been
+    // subsetted or subsampled . tb 2012-06-15
+    static boolean isHighResolution(int sceneHeight, int tpRasterHeight) {
+        return sceneHeight / tpRasterHeight == 2;
+    }
+
+    static int calculateStartLine(int scanlineHeight, Rectangle region) {
+        return region.y / scanlineHeight * scanlineHeight;
+    }
+
+    static int calculateStopLine(int scanlineHeight, Rectangle region) {
+        return (region.y + region.height) / scanlineHeight * scanlineHeight + scanlineHeight;
+    }
+
 
     private static class PolyLine {
 
@@ -481,17 +582,13 @@ public class ModisTiePointGeoCoding extends AbstractGeoCoding {
             super(name, gridWidth, gridHeight, offsetX, offsetY, subSamplingX, subSamplingY, tiePoints);
         }
 
-        public ModisTiePointGrid(String name, int gridWidth, int gridHeight, float offsetX, float offsetY, float subSamplingX, float subSamplingY, float[] tiePoints, int discontinuity) {
-            super(name, gridWidth, gridHeight, offsetX, offsetY, subSamplingX, subSamplingY, tiePoints, discontinuity);
-        }
-
         public ModisTiePointGrid(String name, int gridWidth, int gridHeight, float offsetX, float offsetY, float subSamplingX, float subSamplingY, float[] tiePoints, boolean containsAngles) {
             super(name, gridWidth, gridHeight, offsetX, offsetY, subSamplingX, subSamplingY, tiePoints, containsAngles);
         }
 
         @Override
         public ProductNode getOwner() {
-            return _lonGrid.getOwner();
+            return lonGrid.getOwner();
         }
     }
 }

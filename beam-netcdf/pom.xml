@@ -20,15 +20,16 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <artifactId>beam</artifactId>
         <groupId>org.esa.beam</groupId>
-        <version>4.10</version>
+        <artifactId>beam-plugin-parent</artifactId>
+        <version>1.1-SNAPSHOT</version>
+        <relativePath>../beam-plugin-parent/pom.xml</relativePath>
     </parent>
 
     <groupId>org.esa.beam</groupId>
     <artifactId>beam-netcdf</artifactId>
     <name>BEAM NetCDF Product Reader and Writer</name>
-    <version>1.1</version>
+    <version>1.1.2.${beam.version}</version>
     <url>http://envisat.esa.int/beam/</url>
 
     <dependencies>
@@ -49,4 +50,5 @@
             <artifactId>mockito-all</artifactId>
         </dependency>
     </dependencies>
+
 </project>

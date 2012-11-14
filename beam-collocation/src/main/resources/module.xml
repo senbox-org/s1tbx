@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-collocation</symbolicName>
-    <version>1.4</version>
+    <version>1.4.1</version>
     <name>Collocation</name>
 
     <description>
@@ -10,6 +10,11 @@
 
     <changelog>
         <![CDATA[
+        <!--Changes in Version 1.4.2<br/>-->
+        <!--Adapted to BEAM 5.0<br>-->
+        Changes in 1.4.1:<br/>
+        Adapted to new Maven-architecture<br>
+        [BEAM-1405] Rounding errors in collocation of int32 bands<br/>
         Changes in 1.4:<br/>
         [BEAM-1314] Processor menus are not visible on Mac<br/>
         Changes in 1.3:<br/>

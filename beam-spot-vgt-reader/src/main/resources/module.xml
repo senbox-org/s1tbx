@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-spot-vgt-reader</symbolicName>
-    <version>1.2</version>
+    <version>1.2.3</version>
     <name>BEAM SPOT VGT Product Reader</name>
 
     <description>Enables BEAM to read SPOT VGT data products.</description>
@@ -14,6 +14,14 @@
 
     <changelog>
         <![CDATA[
+                <!--Changes in 1.2.4:<br>-->
+                <!--Adapted to BEAM 5.0<br/>-->
+                Changes in 1.2.3:<br>
+                [BEAM-1427] Histogram for SPOT SM Band not correct<br/>
+                Changes in 1.2.2:<br>
+                [BEAM-1413] Accuracy problem in geocoding fixed<br/>
+                Changes in 1.2.1:<br>
+                Adapted to new Maven-architecture<br/>
                 Changes in 1.2:<br>
                 [BEAM-1392] SPOT-VGT product fails in scatter plot between B0 and SZA<br/>
                 Changes in 1.1:<br>
