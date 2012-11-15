@@ -158,9 +158,9 @@ public class EnviProductReader extends AbstractProductReader {
                     if (pm.isCanceled()) {
                         break;
                     }
-                    final int sourcePosY = sourceY * sourceRasterWidth;
+                    final long sourcePosY = sourceY * sourceRasterWidth;
                     synchronized (imageInputStream) {
-                        long lineStartPos = headerOffset + sourceY * numBands * lineSizeInBytes + bandIndex * lineSizeInBytes;
+                        final long lineStartPos = headerOffset + sourceY * numBands * lineSizeInBytes + bandIndex * lineSizeInBytes;
                         imageInputStream.seek(lineStartPos + elemSize * sourceMinX);
                         destBuffer.readFrom(destPos, destWidth, imageInputStream);
                         destPos += destWidth;
@@ -176,7 +176,7 @@ public class EnviProductReader extends AbstractProductReader {
                     if (pm.isCanceled()) {
                         break;
                     }
-                    final int sourcePosY = sourceY * sourceRasterWidth;
+                    final long sourcePosY = sourceY * sourceRasterWidth;
                     synchronized (imageInputStream) {
                         if (sourceStepX == 1) {
                             imageInputStream.seek(bandOffset + elemSize * (sourcePosY + sourceMinX));

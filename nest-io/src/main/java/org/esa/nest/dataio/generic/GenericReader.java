@@ -186,7 +186,7 @@ public class GenericReader extends AbstractProductReader {
                 if (pm.isCanceled()) {
                     break;
                 }
-                final int sourcePosY = sourceY * sourceRasterWidth;
+                final long sourcePosY = sourceY * sourceRasterWidth;
                 synchronized (imageInputStream) {
                     if (sourceStepX == 1) {
                         imageInputStream.seek(bandOffset + elemSize * (sourcePosY + sourceMinX));
@@ -234,7 +234,7 @@ public class GenericReader extends AbstractProductReader {
                     break;
                 }
                 final int currentLineIndex = (sourceY - sourceOffsetY) * destWidth;
-                final int sourcePosY = sourceY * sourceRasterWidth;
+                final long sourcePosY = sourceY * sourceRasterWidth;
                 synchronized (imageInputStream) {
                     imageInputStream.seek(bandOffset + elemSize * (sourcePosY + sourceMinX));
                     imageInputStream.readFully(srcLine, 0, srcLine.length);

@@ -428,12 +428,15 @@ public final class MultilookOp extends Operator {
 
         double groundRangeSpacing = rangeSpacing;
         if(rangeSpacing == AbstractMetadata.NO_METADATA) {
-            rangeSpacing = 1;
             azimuthSpacing = 1;
             groundRangeSpacing = 1;
         } else if (!srgrFlag) {
-            final double incidenceAngleAtCentreRangePixel = getIncidenceAngleAtCentreRangePixel(srcProduct);
-            groundRangeSpacing /= Math.sin(incidenceAngleAtCentreRangePixel*MathUtils.DTOR);
+            final TiePointGrid incidenceAngle = OperatorUtils.getIncidenceAngle(srcProduct);
+            if(incidenceAngle != null) {
+                final double incidenceAngleAtCentreRangePixel = getIncidenceAngleAtCentreRangePixel(srcProduct,
+                                                                                                    incidenceAngle);
+                groundRangeSpacing /= Math.sin(incidenceAngleAtCentreRangePixel*MathUtils.DTOR);
+            }
         }
 
         final int nAzLooks = Math.max(1, (int)((double)nRgLooks * groundRangeSpacing / azimuthSpacing + 0.5));
@@ -444,20 +447,18 @@ public final class MultilookOp extends Operator {
 
     /**
      * Get incidence angle at centre range pixel (in degree).
-     * @param srcProduct The source product.
+     * @param srcProduct the source product
+     * @param incidenceAngle The incidenceAngle tie point grid.
      * @throws OperatorException if incidenceAngle is null
      * @return The incidence angle.
      */
-    private static double getIncidenceAngleAtCentreRangePixel(Product srcProduct) throws OperatorException {
+    private static double getIncidenceAngleAtCentreRangePixel(final Product srcProduct,
+                                                              final TiePointGrid incidenceAngle) throws OperatorException {
 
         final int sourceImageWidth = srcProduct.getSceneRasterWidth();
         final int sourceImageHeight = srcProduct.getSceneRasterHeight();
         final int x = sourceImageWidth / 2;
         final int y = sourceImageHeight / 2;
-        final TiePointGrid incidenceAngle = OperatorUtils.getIncidenceAngle(srcProduct);
-        if(incidenceAngle == null) {
-            throw new OperatorException("incidence_angle tie point grid not found in product");
-        }
         return incidenceAngle.getPixelFloat((float)x, (float)y);
     }
 

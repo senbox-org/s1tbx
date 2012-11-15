@@ -431,7 +431,7 @@ public class DimapProductReader extends AbstractProductReader {
                         }
                         vectorDataGroup.add(vectorDataNode);
                     }
-                } catch (IOException e) {
+                } catch (Exception e) {
                     BeamLogManager.getSystemLogger().log(Level.SEVERE, "Error reading '" + vectorFile + "'", e);
                 } finally {
                     if (reader != null) {
