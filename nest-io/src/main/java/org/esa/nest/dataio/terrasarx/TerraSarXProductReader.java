@@ -118,7 +118,7 @@ public class TerraSarXProductReader extends AbstractProductReader {
         try {
             final ImageIOFile.BandInfo bandInfo = dataDir.getBandInfo(destBand);
             if(bandInfo != null && bandInfo.img != null) {
-                bandInfo.img.readImageIORasterBand(sourceOffsetX, sourceOffsetY, sourceWidth, sourceHeight, sourceStepX, sourceStepY,
+                bandInfo.img.readImageIORasterBand(sourceOffsetX, sourceOffsetY, sourceStepX, sourceStepY,
                         destBuffer, destOffsetX, destOffsetY, destWidth, destHeight,
                         bandInfo.imageID, bandInfo.bandSampleOffset);
             } else {

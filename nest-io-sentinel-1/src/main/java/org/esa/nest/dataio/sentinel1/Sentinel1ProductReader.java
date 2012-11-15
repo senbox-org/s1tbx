@@ -124,7 +124,7 @@ public class Sentinel1ProductReader extends AbstractProductReader {
                         destBuffer, destOffsetX, destOffsetY, destWidth, destHeight,
                         bandInfo.bandSampleOffset, bandInfo.img, oneOfTwo);
             } else {
-                bandInfo.img.readImageIORasterBand(sourceOffsetX, sourceOffsetY, sourceWidth, sourceHeight, sourceStepX, sourceStepY,
+                bandInfo.img.readImageIORasterBand(sourceOffsetX, sourceOffsetY, sourceStepX, sourceStepY,
                                                 destBuffer, destOffsetX, destOffsetY, destWidth, destHeight,
                                                 bandInfo.imageID, bandInfo.bandSampleOffset);
             }
@@ -135,7 +135,7 @@ public class Sentinel1ProductReader extends AbstractProductReader {
                                                    final int sourceStepX, final int sourceStepY,
                                                    final ProductData destBuffer,
                                                    final int destOffsetX, final int destOffsetY,
-                                                   final int destWidth, final int destHeight,
+                                                   int destWidth, int destHeight,
                                                    final int imageID, final ImageIOFile img,
                                                    final boolean oneOfTwo) throws IOException {
 
@@ -149,6 +149,8 @@ public class Sentinel1ProductReader extends AbstractProductReader {
 
         final DataBuffer dataBuffer = data.getDataBuffer();
         final SampleModel sampleModel = data.getSampleModel();
+        destWidth = Math.min(destWidth, sampleModel.getWidth());
+        destHeight = Math.min(destHeight, sampleModel.getHeight());
 
         try {
             final int destSize = destWidth * destHeight;

@@ -38,18 +38,58 @@ import java.util.Iterator;
  */
 public class ImageIOFile {
 
+    private final File inputFile;
+    private final String name;
+
     private int sceneWidth = 0;
     private int sceneHeight = 0;
     private int dataType;
-    private final int numImages;
-    private int numBands;
-    private final String name;
+    private int numImages = 1;
+    private int numBands = 1;
     private ImageInfo imageInfo = null;
     private IndexCoding indexCoding = null;
     private boolean isIndexed = false;
 
     private ImageInputStream stream = null;
     private ImageReader reader = null;
+
+    public ImageIOFile(final File inputFile) {
+        this.inputFile = inputFile;
+        this.name = inputFile.getName();
+    }
+
+    public ImageIOFile(final File inputFile, final ImageReader iioReader) throws IOException {
+
+        this.inputFile = inputFile;
+        this.name = inputFile.getName();
+
+        createReader(iioReader);
+    }
+
+    private ImageReader createReader(final ImageReader iioReader) throws IOException {
+        stream = ImageIO.createImageInputStream(inputFile);
+        if(stream == null)
+            throw new IOException("Unable to open " + inputFile.toString());
+
+        reader = iioReader;
+        reader.setInput(stream);
+
+        numImages = reader.getNumImages(true);
+        numBands = 3;
+
+        dataType = ProductData.TYPE_INT32;
+        final ImageTypeSpecifier its = reader.getRawImageType(0);
+        if(its != null) {
+            numBands = reader.getRawImageType(0).getNumBands();
+            dataType = bufferImageTypeToProductType(its.getBufferedImageType());
+
+            if(its.getBufferedImageType() == BufferedImage.TYPE_BYTE_INDEXED) {
+                isIndexed = true;
+                createIndexedImageInfo(its.getColorModel());
+            }
+        }
+        return reader;
+    }
 
     public static ImageReader getIIOReader(final File inputFile) throws IOException {
         final ImageInputStream stream = ImageIO.createImageInputStream(inputFile);
@@ -59,7 +99,7 @@ public class ImageIOFile {
         final Iterator<ImageReader> imageReaders = ImageIO.getImageReaders(stream);
         if(!imageReaders.hasNext())
             throw new IOException("No ImageIO reader found for " + inputFile.toString());
-        
+
         return imageReaders.next();
     }
 
@@ -82,34 +122,11 @@ public class ImageIOFile {
         return reader;
     }
 
-    public ImageReader getReader() {
-        return reader;
-    }
-
-    public ImageIOFile(final File inputFile, final ImageReader iioReader) throws IOException {
-
-        stream = ImageIO.createImageInputStream(inputFile);
-        if(stream == null)
-            throw new IOException("Unable to open " + inputFile.toString());
-
-        reader = iioReader;
-        reader.setInput(stream);
-
-        name = inputFile.getName();
-        numImages = reader.getNumImages(true);
-        numBands = 3;
-
-        dataType = ProductData.TYPE_INT32;
-        final ImageTypeSpecifier its = reader.getRawImageType(0); 
-        if(its != null) {
-            numBands = reader.getRawImageType(0).getNumBands();
-            dataType = bufferImageTypeToProductType(its.getBufferedImageType());
-
-            if(its.getBufferedImageType() == BufferedImage.TYPE_BYTE_INDEXED) {
-                isIndexed = true;
-                createIndexedImageInfo(its.getColorModel());
-            }
+    public ImageReader getReader() throws IOException {
+        if(reader == null) {
+            reader = createReader(getTiffIIOReader(inputFile));
         }
+        return reader;
     }
 
     private static int bufferImageTypeToProductType(int biType) {
@@ -163,8 +180,10 @@ public class ImageIOFile {
     }
 
     public void close() throws IOException {
-        stream.close();
-        reader.dispose();
+        if(stream != null)
+            stream.close();
+        if(reader != null)
+            reader.dispose();
     }
 
     public String getName() {
@@ -198,7 +217,6 @@ public class ImageIOFile {
     }
 
     public synchronized void readImageIORasterBand(final int sourceOffsetX, final int sourceOffsetY,
-                                                   final int sourceWidth, final int sourceHeight,
                                                    final int sourceStepX, final int sourceStepY,
                                                    final ProductData destBuffer,
                                                    final int destOffsetX, final int destOffsetY,
@@ -206,12 +224,12 @@ public class ImageIOFile {
                                                    final int imageID,
                                                    final int bandSampleOffset) throws IOException {
 
-        final ImageReadParam param = reader.getDefaultReadParam();
+        final ImageReadParam param = getReader().getDefaultReadParam();
         param.setSourceSubsampling(sourceStepX, sourceStepY,
                                    sourceOffsetX % sourceStepX,
                                    sourceOffsetY % sourceStepY);
 
-        final RenderedImage image = reader.readAsRenderedImage(0, param);
+        final RenderedImage image = getReader().readAsRenderedImage(0, param);
         final Raster data = image.getData(new Rectangle(destOffsetX, destOffsetY, destWidth, destHeight));
 
         final DataBuffer dataBuffer = data.getDataBuffer();

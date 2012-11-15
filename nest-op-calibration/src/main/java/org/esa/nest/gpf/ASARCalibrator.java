@@ -326,7 +326,8 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
      */
     static int getNumOfRecordsInMainProcParam(Product sourceProduct) throws OperatorException {
 
-        final MetadataElement dsd = sourceProduct.getMetadataRoot().getElement("DSD").getElement("DSD.3");
+        final MetadataElement origRoot = AbstractMetadata.getOriginalProductMetadata(sourceProduct);
+        final MetadataElement dsd = origRoot.getElement("DSD").getElement("DSD.3");
         if (dsd == null) {
             throw new OperatorException("DSD not found");
         }
@@ -577,12 +578,12 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
      */
     private void getCalibrationFactorFromMetadata() {
 
+        final MetadataElement origRoot = AbstractMetadata.getOriginalProductMetadata(sourceProduct);
         MetadataElement ads;
-
         if (numMPPRecords == 1) {
-            ads = sourceProduct.getMetadataRoot().getElement("MAIN_PROCESSING_PARAMS_ADS");
+            ads = origRoot.getElement("MAIN_PROCESSING_PARAMS_ADS");
         } else {
-            ads = sourceProduct.getMetadataRoot().getElement("MAIN_PROCESSING_PARAMS_ADS").
+            ads = origRoot.getElement("MAIN_PROCESSING_PARAMS_ADS").
                     getElement("MAIN_PROCESSING_PARAMS_ADS.1");
         }
 

@@ -49,11 +49,9 @@ public class Sentinel1ProductDirectory extends XMLProductDirectory {
 
     protected void addImageFile(final File file) throws IOException {
         final String name = file.getName().toLowerCase();
-        if ((name.endsWith("tif") || name.endsWith("tiff")) && !name.contains("browse")) {
-            final ImageIOFile img = new ImageIOFile(file, ImageIOFile.getTiffIIOReader(file));
+        if (name.endsWith("tiff")) {
+            final ImageIOFile img = new ImageIOFile(file);
             bandImageFileMap.put(img.getName(), img);
-
-            setSceneWidthHeight(img.getSceneWidth(), img.getSceneHeight());
         } else if(name.endsWith(".nc")) {
             if(OCNReader == null )
                 OCNReader = new Sentinel1OCNReader(this);
@@ -81,7 +79,7 @@ public class Sentinel1ProductDirectory extends XMLProductDirectory {
 
             String tpgPrefix = "";
             String suffix = pol;
-            if(isSLC() && (acqMode.equals("IW") || acqMode.equals("EW"))) {
+            if(isSLC() && isTOPSAR()) {
                 suffix = swath +'_'+ pol;
                 tpgPrefix = swath;
             }
@@ -123,7 +121,7 @@ public class Sentinel1ProductDirectory extends XMLProductDirectory {
                 } else {
                     for(int b=0; b < img.getNumBands(); ++b) {
                         bandName = "Amplitude" +'_'+suffix;
-                        final Band band = new Band(bandName, img.getDataType(), width, height);
+                        final Band band = new Band(bandName, ProductData.TYPE_UINT16, width, height);
                         band.setUnit(Unit.AMPLITUDE);
 
                         product.addBand(band);
@@ -163,7 +161,7 @@ public class Sentinel1ProductDirectory extends XMLProductDirectory {
 
         for(MetadataElement metadataObject : metadataObjectList) {
             final String id = metadataObject.getAttributeString("ID", defStr);
-            if(id.endsWith("Annotation")) {
+            if(id.endsWith("Annotation") || id.endsWith("Schema")) {
                 // continue;
             } else if(id.equals("processing")) {
                 final MetadataElement processing = findElement(metadataObject, "processing");
@@ -221,6 +219,28 @@ public class Sentinel1ProductDirectory extends XMLProductDirectory {
         addBandAbstractedMetadata(product, absRoot, origProdRoot);
         addCalibrationAbstractedMetadata(origProdRoot);
         addNoiseAbstractedMetadata(origProdRoot);
+
+        determineProductDimensions(product, absRoot);
+    }
+
+    private void determineProductDimensions(final Product product, final MetadataElement absRoot) {
+        int width = 0, height = 0;
+        int totalWidth = 0, totalHeight = 0;
+        for (Map.Entry<String, ImageIOFile> stringImageIOFileEntry : bandImageFileMap.entrySet()) {
+            final ImageIOFile img = stringImageIOFileEntry.getValue();
+            final String imgName = img.getName().toLowerCase();
+            final MetadataElement bandMetadata = absRoot.getElement(imgBandMetadataMap.get(imgName));
+
+            width = bandMetadata.getAttributeInt(AbstractMetadata.num_samples_per_line);
+            height = bandMetadata.getAttributeInt(AbstractMetadata.num_output_lines);
+            totalWidth += width;
+            totalHeight += height;
+        }
+        if(isSLC() && isTOPSAR()) {  // approximate does not account for overlap
+            product.setSceneDimensions(totalWidth, totalHeight);
+        } else {
+            product.setSceneDimensions(width, height);
+        }
     }
 
     private void addBandAbstractedMetadata(final Product product, final MetadataElement absRoot,
@@ -640,6 +660,10 @@ public class Sentinel1ProductDirectory extends XMLProductDirectory {
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_near_long, lonGrid.getPixelFloat(0, h));
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_far_lat, latGrid.getPixelFloat(w, h));
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_far_long, lonGrid.getPixelFloat(w, h));
+    }
+
+    private boolean isTOPSAR() {
+        return acqMode.equals("IW") || acqMode.equals("EW");
     }
 
     @Override
