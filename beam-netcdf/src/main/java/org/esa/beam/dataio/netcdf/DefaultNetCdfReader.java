@@ -50,6 +50,9 @@ class DefaultNetCdfReader extends AbstractProductReader {
         final ProfileReadContext context = new ProfileReadContextImpl(netcdfFile);
         String filename = extractProductName(fileLocation);
         context.setProperty(Constants.PRODUCT_FILENAME_PROPERTY, filename);
+        if (getSubsetDef() != null) {
+            context.setProperty(Constants.PRODUCT_SUBSET_PROPERTY, getSubsetDef());
+        }
         plugIn.initReadContext(context);
         NetCdfReadProfile profile = new NetCdfReadProfile();
         configureProfile(plugIn, profile);

@@ -18,15 +18,20 @@ package org.esa.beam.dataio.netcdf;
 
 import org.esa.beam.dataio.netcdf.metadata.ProfileInitPartReader;
 import org.esa.beam.dataio.netcdf.metadata.ProfilePartReader;
+import org.esa.beam.dataio.netcdf.util.Constants;
 import org.esa.beam.dataio.netcdf.util.RasterDigest;
 import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
+import org.esa.beam.framework.dataio.ProductSubsetDef;
 import org.esa.beam.util.io.BeamFileFilter;
+import ucar.nc2.Group;
 import ucar.nc2.NetcdfFile;
+import ucar.nc2.Variable;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 public abstract class AbstractNetCdfReaderPlugIn implements ProductReaderPlugIn {
 
@@ -76,12 +81,25 @@ public abstract class AbstractNetCdfReaderPlugIn implements ProductReaderPlugIn 
      * When overriding this method at least the {@link RasterDigest} must be set to the context.
      *
      * @param ctx the context
-     *
      * @throws IOException if an IO-Error occurs
      */
     protected void initReadContext(ProfileReadContext ctx) throws IOException {
         NetcdfFile netcdfFile = ctx.getNetcdfFile();
-        final RasterDigest rasterDigest = RasterDigest.createRasterDigest(netcdfFile.getRootGroup());
+        Group group;
+        final Group rootGroup = netcdfFile.getRootGroup();
+        if (ctx.getProperty(Constants.PRODUCT_SUBSET_PROPERTY) != null) {
+            final ProductSubsetDef subset = (ProductSubsetDef) ctx.getProperty(Constants.PRODUCT_SUBSET_PROPERTY);
+            final List<Variable> variables = rootGroup.getVariables();
+            group = new Group(netcdfFile, rootGroup, "");
+            for (Variable variable : variables) {
+                if (subset.isNodeAccepted(variable.getName())) {
+                    group.addVariable(variable);
+                }
+            }
+        } else {
+            group = rootGroup;
+        }
+        final RasterDigest rasterDigest = RasterDigest.createRasterDigest(group);
         if (rasterDigest == null) {
             throw new IOException("File does not contain any bands.");
         }
@@ -92,7 +110,6 @@ public abstract class AbstractNetCdfReaderPlugIn implements ProductReaderPlugIn 
      * Gets the qualification of the product reader to decode the given {@link NetcdfFile NetCDF file}.
      *
      * @param netcdfFile the NetCDF file
-     *
      * @return the decode qualification
      */
     protected abstract DecodeQualification getDecodeQualification(NetcdfFile netcdfFile);
