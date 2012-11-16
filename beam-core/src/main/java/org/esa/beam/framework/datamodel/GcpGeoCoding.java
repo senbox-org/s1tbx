@@ -325,7 +325,7 @@ public class GcpGeoCoding extends AbstractGeoCoding {
     }
 
     static GeoPos calculateCentralGeoPos(double[] lons, double[] lats) {
-        // calculate (x, y, z) in order to avoid issues with anti-meridian
+        // calculate (x, y, z) in order to avoid issues with anti-meridian and poles
         final int size = lats.length;
         final double[] x = new double[size];
         final double[] y = new double[size];
