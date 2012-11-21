@@ -63,7 +63,7 @@ public final class BinaryDBReader {
         final Set<String> keys = metaMap.keySet();                           // The set of keys in the map.
         for (final String key : keys) {
             final Object value = metaMap.get(key);                   // Get the value for that key.
-            if (value == null) continue;
+            if (value == null || key.isEmpty()) continue;
 
             if(value instanceof String) {
                 elem.setAttributeString(key, value.toString());
