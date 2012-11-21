@@ -339,7 +339,8 @@ public class MosaicOp extends Operator {
         final MultiLevelImage sourceImage = product.getBandAt(0).getSourceImage();
         final ResolutionLevel resolutionLevel = ResolutionLevel.create(sourceImage.getModel(), 0);
         final float fillValue = 0.0f;
-        return VirtualBandOpImage.create(expression, ProductData.TYPE_FLOAT32, fillValue, product, resolutionLevel);
+        return VirtualBandOpImage.create(expression, ProductData.TYPE_FLOAT32, fillValue, product,
+                                         product.getSceneRasterWidth(), product.getSceneRasterHeight(), resolutionLevel);
     }
 
     private Product[] createReprojectedProducts() {

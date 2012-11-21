@@ -694,6 +694,7 @@ public class ImageManager {
                     public RenderedImage createImage(int level) {
                         return VirtualBandOpImage.createMask(expression,
                                                              product,
+                                                             product.getSceneRasterWidth(), product.getSceneRasterHeight(),
                                                              ResolutionLevel.create(getModel(), level));
                     }
                 };

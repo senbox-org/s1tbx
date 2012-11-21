@@ -427,6 +427,7 @@ public class ReprojectionOp extends Operator {
             public RenderedImage createImage(int level) {
                 return VirtualBandOpImage.create(expression, geoDataType,
                                                  noDataValue, sourceProduct,
+                                                 sourceProduct.getSceneRasterWidth(), sourceProduct.getSceneRasterHeight(),
                                                  ResolutionLevel.create(getModel(), level));
             }
         });

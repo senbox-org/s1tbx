@@ -532,11 +532,27 @@ public final class EnvisatProductReader extends AbstractProductReader {
         product.setPointingFactory(pointingFactory);
     }
 
+    /**
+     * Returns the orignal product metadata
+     * @param product input product
+     * @return original metadata
+     */
+    public static MetadataElement getOriginalProductMetadata(final Product product) {
+        final MetadataElement root = product.getMetadataRoot();
+        MetadataElement origMetadata = root.getElement("Original_Product_Metadata");
+        if(origMetadata == null) {
+            origMetadata = new MetadataElement("Original_Product_Metadata");
+            root.addElement(origMetadata);
+        }
+        return origMetadata;
+    }
+
     private void addHeaderAnnotationsToProduct(Product product) {
         Debug.assertNotNull(productFile);
         Debug.assertNotNull(product);
-        product.getMetadataRoot().addElement(createMetadataGroup("MPH", productFile.getMPH().getParams()));
-        product.getMetadataRoot().addElement(createMetadataGroup("SPH", productFile.getSPH().getParams()));
+        final MetadataElement metaRoot = getOriginalProductMetadata(product);
+        metaRoot.addElement(createMetadataGroup("MPH", productFile.getMPH().getParams()));
+        metaRoot.addElement(createMetadataGroup("SPH", productFile.getSPH().getParams()));
 
         final DSD[] dsds = productFile.getDsds();
         final MetadataElement dsdsGroup = new MetadataElement("DSD");
@@ -571,7 +587,7 @@ public final class EnvisatProductReader extends AbstractProductReader {
                 dsdsGroup.addElement(dsdGroup);
             }
         }
-        product.getMetadataRoot().addElement(dsdsGroup);
+        metaRoot.addElement(dsdsGroup);
     }
 
     private static String getNonNullString(String s) {
@@ -581,6 +597,7 @@ public final class EnvisatProductReader extends AbstractProductReader {
     private void addDatasetAnnotationsToProduct(final Product product) throws IOException {
         //Debug.assertNotNull(productFile);
         //Debug.assertNotNull(product);
+        final MetadataElement metaRoot = getOriginalProductMetadata(product);
         final String[] datasetNames = productFile.getValidDatasetNames();
         for (String datasetName : datasetNames) {
             final DSD dsd = productFile.getDSD(datasetName);
@@ -591,10 +608,10 @@ public final class EnvisatProductReader extends AbstractProductReader {
                 final int numRecords = recordReader.getNumRecords();
                 if (numRecords > 1) {
                     final MetadataElement group = createMetadataTableGroup(datasetName, recordReader);
-                    product.getMetadataRoot().addElement(group);
+                    metaRoot.addElement(group);
                 } else if (numRecords == 1) {
                     final MetadataElement table = createDatasetTable(datasetName, recordReader);
-                    product.getMetadataRoot().addElement(table);
+                    metaRoot.addElement(table);
                 }
             }
         }

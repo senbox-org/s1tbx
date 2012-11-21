@@ -63,22 +63,26 @@ public class VirtualBandOpImage extends SingleBandedOpImage {
                                                 ResolutionLevel level) {
         return createMask(raster.getValidMaskExpression(),
                           raster.getProduct(),
+                          raster.getRasterWidth(), raster.getRasterHeight(),
                           level);
     }
 
     public static VirtualBandOpImage createMask(String expression,
                                                 Product product,
+                                                int width, int height,
                                                 ResolutionLevel level) {
         return create(expression,
                       ProductData.TYPE_UINT8,
                       null,
                       true,
                       product,
+                      width, height,
                       level);
     }
 
     public static VirtualBandOpImage createMask(String expression,
                                                 Product[] products,
+                                                int width, int height,
                                                 int defaultProductIndex,
                                                 ResolutionLevel level) {
         return create(expression,
@@ -86,6 +90,7 @@ public class VirtualBandOpImage extends SingleBandedOpImage {
                       null,
                       true,
                       products,
+                      width, height,
                       defaultProductIndex,
                       level);
     }
@@ -94,12 +99,14 @@ public class VirtualBandOpImage extends SingleBandedOpImage {
                                             int dataType,
                                             Number fillValue,
                                             Product product,
+                                            int width, int height,
                                             ResolutionLevel level) {
         return create(expression,
                       dataType,
                       fillValue,
                       false,
                       product,
+                      width, height,
                       level);
     }
 
@@ -107,6 +114,7 @@ public class VirtualBandOpImage extends SingleBandedOpImage {
                                             int dataType,
                                             Number fillValue,
                                             Product[] products,
+                                            int width, int height,
                                             int defaultProductIndex,
                                             ResolutionLevel level) {
         return create(expression,
@@ -114,6 +122,7 @@ public class VirtualBandOpImage extends SingleBandedOpImage {
                       fillValue,
                       false,
                       products,
+                      width, height,
                       defaultProductIndex,
                       level);
     }
@@ -123,6 +132,7 @@ public class VirtualBandOpImage extends SingleBandedOpImage {
                                              Number fillValue,
                                              boolean mask,
                                              Product product,
+                                             int width, int height,
                                              ResolutionLevel level) {
         Assert.notNull(product, "product");
         Assert.notNull(level, "level");
@@ -144,6 +154,7 @@ public class VirtualBandOpImage extends SingleBandedOpImage {
                       fillValue,
                       mask,
                       products,
+                      width, height,
                       defaultProductIndex,
                       level);
     }
@@ -153,6 +164,7 @@ public class VirtualBandOpImage extends SingleBandedOpImage {
                                              Number fillValue,
                                              boolean mask,
                                              Product[] products,
+                                             int width, int height,
                                              int defaultProductIndex,
                                              ResolutionLevel level) {
         Assert.notNull(expression, "expression");
@@ -167,6 +179,7 @@ public class VirtualBandOpImage extends SingleBandedOpImage {
                                       fillValue,
                                       mask,
                                       products,
+                                      width, height,
                                       defaultProductIndex,
                                       level);
     }
@@ -176,11 +189,12 @@ public class VirtualBandOpImage extends SingleBandedOpImage {
                                Number fillValue,
                                boolean mask,
                                Product[] products,
+                               int width, int height,
                                int defaultProductIndex,
                                ResolutionLevel level) {
         super(ImageManager.getDataBufferType(dataType),
-              products[defaultProductIndex].getSceneRasterWidth(),
-              products[defaultProductIndex].getSceneRasterHeight(),
+              width,
+              height,
               products[defaultProductIndex].getPreferredTileSize(),
               null,
               level);
