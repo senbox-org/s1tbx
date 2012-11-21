@@ -25,6 +25,8 @@ import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.geom.Point2D;
 import java.awt.image.Raster;
+import java.util.ArrayList;
+import java.util.List;
 
 class Estimator implements GeoCoding {
 
@@ -41,7 +43,7 @@ class Estimator implements GeoCoding {
     }
 
     static RationalFunctionModel findBestModel(double[][] data, int[] indexes) {
-        return new RationalFunctionModel(2, 2, data, indexes, 0); // 2, 0
+        return new RationalFunctionModel(3, 3, data, indexes, 0); // 2, 0
     }
 
     @Override
@@ -242,7 +244,7 @@ class Estimator implements GeoCoding {
         final int stepX = stepping.getStepX();
         final int stepY = stepping.getStepY();
         final int pointCount = stepping.getPointCount();
-        final double[][] data = new double[pointCount][4];
+        final List<double[]> pointList = new ArrayList<double[]>(pointCount);
 
         for (int j = 0, k = 0; j < pointCountY; j++) {
             int y = minY + j * stepY;
@@ -256,14 +258,20 @@ class Estimator implements GeoCoding {
                 if (x > maxX) {
                     x = maxX;
                 }
-                data[k][LAT] = latData.getSampleDouble(x, y, 0);
-                data[k][LON] = lonData.getSampleDouble(x, y, 0);
-                data[k][X] = x + 0.5;
-                data[k][Y] = y + 0.5;
+                final double lat = latData.getSampleDouble(x, y, 0);
+                final double lon = lonData.getSampleDouble(x, y, 0);
+                if (lon >= -180.0 && lon <= 180.0 && lat >= -90.0 && lat <= 90.0) {
+                    final double[] point = new double[4];
+                    point[LAT] = lat;
+                    point[LON] = lon;
+                    point[X] = x + 0.5;
+                    point[Y] = y + 0.5;
+                    pointList.add(point);
+                }
             }
         }
 
-        return data;
+        return pointList.toArray(new double[pointList.size()][4]);
     }
 
     static final class Stepping {
