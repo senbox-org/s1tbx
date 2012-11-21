@@ -15,6 +15,7 @@ package org.esa.beam.framework.datamodel;/*
  */
 
 import org.esa.beam.util.jai.SingleBandedSampleModel;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import javax.media.jai.ImageLayout;
@@ -45,6 +46,7 @@ public class EstimatorTest {
     }
 
     @Test
+    @Ignore
     public void testGetPixelPos() {
         final int nx = 512;
         final int ny = 28000;
@@ -74,6 +76,7 @@ public class EstimatorTest {
     }
 
     @Test
+    @Ignore
     public void testGetPixelPosWithPixelGeoCoding() {
         final int nx = 512;
         final int ny = 28000;
