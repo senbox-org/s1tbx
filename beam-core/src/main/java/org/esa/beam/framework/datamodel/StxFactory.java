@@ -397,15 +397,18 @@ public class StxFactory {
 
     static Histogram createHistogram(int binCount, double minimum, double maximum, boolean logHistogram, boolean intHistogram) {
         Scaling histogramScaling = Stx.getHistogramScaling(logHistogram);
-        double adjustedMaximum = maximum;
         if (intHistogram) {
-            adjustedMaximum = maximum + 1.0;
-        } else if (minimum == maximum) {
-            adjustedMaximum = minimum + 1e-10;
+            maximum += 1.0;
+        } else if (maximum == minimum) {
+            if (maximum < Double.MAX_VALUE) {
+                maximum = Math.nextUp(maximum);
+            } else {
+                minimum = Math.nextAfter(minimum, Double.NEGATIVE_INFINITY);
+            }
         }
         return new Histogram(binCount,
                              histogramScaling.scale(minimum),
-                             histogramScaling.scale(adjustedMaximum),
+                             histogramScaling.scale(maximum),
                              1);
     }
 

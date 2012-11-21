@@ -91,6 +91,8 @@ class DensityPlotPanel extends ChartPagePanel {
     private static final int X_VAR = 0;
     private static final int Y_VAR = 1;
 
+    private static final int NUM_DECIMALS = 2;
+
     private BindingContext bindingContext;
     private DataSourceConfig dataSourceConfig;
     private Property xBandProperty;
@@ -157,6 +159,10 @@ class DensityPlotPanel extends ChartPagePanel {
         if (isRasterChanged() || isProductChanged()) {
             plot.setImage(null);
             plot.setDataset(null);
+            if (isProductChanged()) {
+                plot.getDomainAxis().setLabel("X");
+                plot.getRangeAxis().setLabel("Y");
+            }
             final ValueSet valueSet = new ValueSet(createAvailableBandList());
             xBandProperty.getDescriptor().setValueSet(valueSet);
             yBandProperty.getDescriptor().setValueSet(valueSet);
@@ -446,10 +452,8 @@ class DensityPlotPanel extends ChartPagePanel {
                     }
                     plot.setImage(densityPlotImage);
                     plot.setImageDataBounds(new Rectangle2D.Double(minX, minY, maxX - minX, maxY - minY));
-                    axisRangeControls[X_VAR].setMin(MathUtils.round(minX, Math.pow(10.0, 2)));
-                    axisRangeControls[X_VAR].setMax(MathUtils.round(maxX, Math.pow(10.0, 2)));
-                    axisRangeControls[Y_VAR].setMin(MathUtils.round(minY, Math.pow(10.0, 2)));
-                    axisRangeControls[Y_VAR].setMax(MathUtils.round(maxY, Math.pow(10.0, 2)));
+                    axisRangeControls[X_VAR].adjustComponents(minX, maxX, NUM_DECIMALS);
+                    axisRangeControls[Y_VAR].adjustComponents(minY, maxY, NUM_DECIMALS);
                     plot.getDomainAxis().setLabel(StatisticChartStyling.getAxisLabel(getRaster(X_VAR), "X", false));
                     plot.getRangeAxis().setLabel(StatisticChartStyling.getAxisLabel(getRaster(Y_VAR), "Y", false));
                     toggleColorCheckBox.setEnabled(true);
@@ -492,15 +496,15 @@ class DensityPlotPanel extends ChartPagePanel {
     }
 
     private void setRange(int varIndex, RasterDataNode raster, Mask mask, ProgressMonitor pm) throws IOException {
-        if (axisRangeControls[varIndex].isAutoMinMax()) {
+        final AxisRangeControl axisRangeControl = axisRangeControls[varIndex];
+        if (axisRangeControl.isAutoMinMax()) {
             Stx stx;
             if (mask == null) {
                 stx = raster.getStx(false, pm);
             } else {
                 stx = new StxFactory().withRoiMask(mask).create(raster, pm);
             }
-            axisRangeControls[varIndex].setMin(stx.getMinimum());
-            axisRangeControls[varIndex].setMax(stx.getMaximum());
+            axisRangeControl.adjustComponents(stx.getMinimum(), stx.getMaximum(), NUM_DECIMALS);
         }
     }
 

@@ -18,20 +18,13 @@ package org.esa.beam.dataio.netcdf.metadata.profiles.cf;
 import org.esa.beam.dataio.netcdf.ProfileReadContext;
 import org.esa.beam.dataio.netcdf.ProfileWriteContext;
 import org.esa.beam.dataio.netcdf.metadata.ProfilePartIO;
+import org.esa.beam.dataio.netcdf.metadata.profiles.hdfeos.HdfEosGeocodingPart;
 import org.esa.beam.dataio.netcdf.nc.NFileWriteable;
 import org.esa.beam.dataio.netcdf.nc.NVariable;
 import org.esa.beam.dataio.netcdf.util.Constants;
 import org.esa.beam.dataio.netcdf.util.DimKey;
 import org.esa.beam.dataio.netcdf.util.ReaderUtils;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.CrsGeoCoding;
-import org.esa.beam.framework.datamodel.GeoCoding;
-import org.esa.beam.framework.datamodel.GeoPos;
-import org.esa.beam.framework.datamodel.MapGeoCoding;
-import org.esa.beam.framework.datamodel.PixelGeoCoding;
-import org.esa.beam.framework.datamodel.PixelPos;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.logging.BeamLogManager;
 import org.geotools.referencing.CRS;
@@ -42,7 +35,7 @@ import ucar.ma2.Index;
 import ucar.nc2.Attribute;
 import ucar.nc2.Variable;
 
-import java.awt.Dimension;
+import java.awt.*;
 import java.io.IOException;
 import java.util.List;
 
@@ -54,12 +47,43 @@ public class CfGeocodingPart extends ProfilePartIO {
     public void decode(ProfileReadContext ctx, Product p) throws IOException {
         GeoCoding geoCoding = readConventionBasedMapGeoCoding(ctx, p);
         if (geoCoding == null) {
-            geoCoding = readPixelGeoCoding(ctx, p);
+            geoCoding = readPixelGeoCoding(p);
+        }
+        // If there is still no geocoding, check special case of netcdf file which was converted
+        // from hdf file and has 'StructMetadata.n' element.
+        // In this case, the HDF 'elements' were put into a single Netcdf String attribute
+        // todo: in fact this has been checked only for MODIS09 HDF-EOS product. Try to further generalize
+        if (geoCoding == null && hasHdfMetadataOrigin(ctx.getNetcdfFile().getGlobalAttributes())) {
+            hdfDecode(ctx, p);
         }
         if (geoCoding != null) {
             p.setGeoCoding(geoCoding);
         }
     }
+
+    private void hdfDecode(ProfileReadContext ctx, Product p) throws IOException {
+        final CfHdfEosGeoInfoExtractor cfHdfEosGeoInfoExtractor = new CfHdfEosGeoInfoExtractor(ctx.getNetcdfFile().getGlobalAttributes());
+        cfHdfEosGeoInfoExtractor.extractInfo();
+
+        String projection = cfHdfEosGeoInfoExtractor.getProjection();
+        double upperLeftLon = cfHdfEosGeoInfoExtractor.getUlLon();
+        double upperLeftLat = cfHdfEosGeoInfoExtractor.getUlLat();
+
+        double lowerRightLon = cfHdfEosGeoInfoExtractor.getLrLon();
+        double lowerRightLat = cfHdfEosGeoInfoExtractor.getLrLat();
+
+        HdfEosGeocodingPart.attachGeoCoding(p, upperLeftLon, upperLeftLat, lowerRightLon, lowerRightLat, projection);
+    }
+
+    private boolean hasHdfMetadataOrigin(List<Attribute> netcdfAttributes) {
+        for (Attribute att : netcdfAttributes) {
+            if (att.getName().startsWith("StructMetadata")) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 
     @Override
     public void preEncode(ProfileWriteContext ctx, Product product) throws IOException {
@@ -280,7 +304,7 @@ public class CfGeocodingPart extends ProfilePartIO {
                                 pixelX, pixelY);
     }
 
-    private static GeoCoding readPixelGeoCoding(ProfileReadContext ctx, Product product) throws IOException {
+    private static GeoCoding readPixelGeoCoding(Product product) throws IOException {
         Band lonBand = product.getBand(Constants.LON_VAR_NAME);
         if (lonBand == null) {
             lonBand = product.getBand(Constants.LONGITUDE_VAR_NAME);
@@ -294,4 +318,5 @@ public class CfGeocodingPart extends ProfilePartIO {
         }
         return null;
     }
+
 }

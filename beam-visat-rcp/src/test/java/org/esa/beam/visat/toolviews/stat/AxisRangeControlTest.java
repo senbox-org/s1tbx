@@ -35,8 +35,7 @@ public class AxisRangeControlTest {
     @Test
     public void testMinMaxSetterAndGetter() {
         final AxisRangeControl axisRangeControl = new AxisRangeControl("");
-        axisRangeControl.setMin(3.4);
-        axisRangeControl.setMax(13.8);
+        axisRangeControl.adjustComponents(3.4, 13.8, 2);
         assertEquals((Double)3.4, axisRangeControl.getMin());
         assertEquals((Double)13.8, axisRangeControl.getMax());
     }

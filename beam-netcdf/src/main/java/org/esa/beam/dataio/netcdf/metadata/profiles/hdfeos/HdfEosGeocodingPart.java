@@ -69,6 +69,22 @@ public class HdfEosGeocodingPart extends ProfilePartIO {
         double lowerRightLon = Double.parseDouble(lrLon);
         double lowerRightLat = Double.parseDouble(lrLat);
 
+        String projection = projectionElem.getValue();
+
+        attachGeoCoding(p, upperLeftLon, upperLeftLat, lowerRightLon, lowerRightLat, projection);
+    }
+
+    @Override
+    public void preEncode(ProfileWriteContext ctx, Product p) throws IOException {
+        throw new IllegalStateException();
+    }
+
+    public static void attachGeoCoding(Product p,
+                                       double upperLeftLon,
+                                       double upperLeftLat,
+                                       double lowerRightLon,
+                                       double lowerRightLat,
+                                       String projection) {
         double pixelSizeX = (lowerRightLon - upperLeftLon) / p.getSceneRasterWidth();
         double pixelSizeY = (upperLeftLat - lowerRightLat) / p.getSceneRasterHeight();
 
@@ -78,10 +94,9 @@ public class HdfEosGeocodingPart extends ProfilePartIO {
         transform.translate(-PIXEL_CENTER, -PIXEL_CENTER);
         Rectangle imageBounds = new Rectangle(p.getSceneRasterWidth(), p.getSceneRasterHeight());
 
-        String projection = projectionElem.getValue();
         if (projection.equals("GCTP_GEO")) {
-            if (isValidLonValue(upperLeftLon) && isValidLatitude(upperLeftLat) &&
-                    isValidLonValue(lowerRightLon) && isValidLatitude(lowerRightLat)) {
+            if ((upperLeftLon >= -180 && upperLeftLon <= 180) && (upperLeftLat >= -90 && upperLeftLat <= 90) &&
+                    (lowerRightLon >= -180 && lowerRightLon <= 180) && (lowerRightLat >= -90 && lowerRightLat <= 90)) {
                 try {
                     p.setGeoCoding(new CrsGeoCoding(DefaultGeographicCRS.WGS84, imageBounds, transform));
                 } catch (FactoryException ignore) {
@@ -119,16 +134,4 @@ public class HdfEosGeocodingPart extends ProfilePartIO {
         }
     }
 
-    private boolean isValidLonValue(double longitude) {
-        return (longitude >= -180 && longitude <= 180);
-    }
-
-    private boolean isValidLatitude(double latitude) {
-        return (latitude >= -90 && latitude <= 90);
-    }
-
-    @Override
-    public void preEncode(ProfileWriteContext ctx, Product p) throws IOException {
-        throw new IllegalStateException();
-    }
 }

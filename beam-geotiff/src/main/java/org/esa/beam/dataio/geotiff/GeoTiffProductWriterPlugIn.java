@@ -87,7 +87,7 @@ public class GeoTiffProductWriterPlugIn implements ProductWriterPlugIn {
      * <p/>
      * <p> In a GUI, the description returned could be used as tool-tip text.
      *
-     * @param name the local for the given decription string, if <code>null</code> the default locale is used
+     * @param name the local for the given description string, if <code>null</code> the default locale is used
      *
      * @return a textual description of this product reader/writer
      */

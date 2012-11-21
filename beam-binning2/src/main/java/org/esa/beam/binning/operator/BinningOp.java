@@ -689,10 +689,11 @@ public class BinningOp extends Operator implements Output {
         public void consumeSpatialBins(BinningContext binningContext, List<SpatialBin> spatialBins) {
 
             for (SpatialBin spatialBin : spatialBins) {
-                List<SpatialBin> spatialBinList = spatialBinMap.get(spatialBin.getIndex());
+                final long spatialBinIndex = spatialBin.getIndex();
+                List<SpatialBin> spatialBinList = spatialBinMap.get(spatialBinIndex);
                 if (spatialBinList == null) {
                     spatialBinList = new ArrayList<SpatialBin>();
-                    spatialBinMap.put(spatialBin.getIndex(), spatialBinList);
+                    spatialBinMap.put(spatialBinIndex, spatialBinList);
                 }
                 spatialBinList.add(spatialBin);
             }
