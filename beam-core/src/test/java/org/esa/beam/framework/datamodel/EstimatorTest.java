@@ -54,7 +54,7 @@ public class EstimatorTest {
         final OpImage[] images = generateSwathCoordinates(nx, ny, 0.009, 0.009, new Rotator(0.0, -5.0, 269.0));
         final OpImage lonImage = images[0];
         final OpImage latImage = images[1];
-        final Estimator estimator = new Estimator(lonImage, latImage, new Estimator.PixelSteppingFactory(), 10.0);
+        final Estimator estimator = new Estimator(lonImage, latImage, 0.5, 10.0, new Estimator.PixelSteppingFactory());
 
         final Raster lonData = lonImage.getData();
         final Raster latData = latImage.getData();
@@ -130,7 +130,7 @@ public class EstimatorTest {
 
         final double[][] data = Estimator.extractWarpPoints(lonData, latData, stepping);
 
-        final Estimator.Approximation a = Estimator.createApproximation(data);
+        final Estimator.Approximation a = Estimator.createApproximation(data, 0.5);
         final RationalFunctionModel fx = a.getFX();
         final RationalFunctionModel fy = a.getFY();
 

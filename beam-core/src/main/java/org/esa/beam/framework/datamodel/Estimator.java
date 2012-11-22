@@ -28,6 +28,13 @@ import java.awt.image.Raster;
 import java.util.ArrayList;
 import java.util.List;
 
+import static java.lang.Math.asin;
+import static java.lang.Math.atan2;
+import static java.lang.Math.cos;
+import static java.lang.Math.sin;
+import static java.lang.Math.toDegrees;
+import static java.lang.Math.toRadians;
+
 class Estimator implements GeoCoding {
 
     private static final int LAT = 0;
@@ -38,12 +45,87 @@ class Estimator implements GeoCoding {
     private static final int MAX_NUM_POINTS_PER_TILE = 1000;
     private final Approximation[] approximations;
 
-    Estimator(PlanarImage lonImage, PlanarImage latImage, SteppingFactory steppingFactory, double maxDegrees) {
-        approximations = createApproximations(lonImage, latImage, steppingFactory, maxDegrees);
+    Estimator(PlanarImage lonImage, PlanarImage latImage, double accuracy, double maxDegrees,
+              SteppingFactory steppingFactory) {
+        approximations = createApproximations(lonImage, latImage, accuracy, maxDegrees, steppingFactory);
     }
 
-    static RationalFunctionModel findBestModel(double[][] data, int[] indexes) {
-        return new RationalFunctionModel(3, 3, data, indexes, 0); // 2, 0
+    static RationalFunctionModel findBestModel(double[][] data, int[] indexes, double accuracy) {
+        RationalFunctionModel bestModel = null;
+        for (int degreeP = 0; degreeP <= 4; degreeP++) {
+            for (int degreeQ = 0; degreeQ <= 4; degreeQ++) {
+                final int termCountP = RationalFunctionModel.getTermCountP(degreeP);
+                final int termCountQ = RationalFunctionModel.getTermCountQ(degreeQ);
+                if (data.length >= termCountP + termCountQ) {
+                    final RationalFunctionModel model = createModel(degreeP, degreeQ, data, indexes);
+                    if (bestModel == null || model.getRmse() < bestModel.getRmse()) {
+                        bestModel = model;
+                    }
+                    if (bestModel.getRmse() < accuracy) {
+                        break;
+                    }
+                }
+            }
+        }
+        return bestModel;
+    }
+
+    static RationalFunctionModel createModel(int degreeP, int degreeQ, double[][] data, int[] indexes) {
+        final int ix = indexes[0];
+        final int iy = indexes[1];
+        final int iz = indexes[2];
+        final double[] x = new double[data.length];
+        final double[] y = new double[data.length];
+        final double[] g = new double[data.length];
+        for (int i = 0; i < data.length; i++) {
+            x[i] = data[i][ix];
+            y[i] = data[i][iy];
+            g[i] = data[i][iz];
+        }
+
+        return new RationalFunctionModel(degreeP, degreeQ, x, y, g);
+    }
+
+    static Point2D calculateCenter(double[][] data) {
+        // calculate (x, y, z) in order to avoid issues with anti-meridian and poles
+        final int size = data.length;
+        final double[] x = new double[size];
+        final double[] y = new double[size];
+        final double[] z = new double[size];
+
+        calculateXYZ(data, x, y, z);
+
+        double xc = 0.0;
+        double yc = 0.0;
+        double zc = 0.0;
+        for (int i = 0; i < size; i++) {
+            xc += x[i];
+            yc += y[i];
+            zc += z[i];
+        }
+        final double length = Math.sqrt(xc * xc + yc * yc + zc * zc);
+        xc /= length;
+        yc /= length;
+        zc /= length;
+
+        final double lat = toDegrees(asin(zc));
+        final double lon = toDegrees(atan2(yc, xc));
+
+        return new Point2D.Double(lon, lat);
+    }
+
+    static void calculateXYZ(double[][] data, double[] x, double[] y, double[] z) {
+        for (int i = 0; i < data.length; i++) {
+            final double lon = data[i][LON];
+            final double lat = data[i][LAT];
+            final double u = toRadians(lon);
+            final double v = toRadians(lat);
+            final double w = cos(v);
+
+            x[i] = cos(u) * w;
+            y[i] = sin(u) * w;
+            z[i] = sin(v);
+        }
     }
 
     @Override
@@ -70,7 +152,7 @@ class Estimator implements GeoCoding {
             if (geoPos.isValid()) {
                 double lat = geoPos.getLat();
                 double lon = geoPos.getLon();
-                final Approximation approximation = getBestApproximation(lat, lon);
+                final Approximation approximation = findBestApproximation(lat, lon);
                 if (approximation != null) {
                     final Rotator rotator = approximation.getRotator();
                     final Point2D p = new Point2D.Double(lon, lat);
@@ -123,7 +205,7 @@ class Estimator implements GeoCoding {
         return null;
     }
 
-    Approximation getBestApproximation(double lat, double lon) {
+    Approximation findBestApproximation(double lat, double lon) {
         Approximation bestApproximation = null;
         if (approximations.length == 1) {
             Approximation a = approximations[0];
@@ -146,12 +228,13 @@ class Estimator implements GeoCoding {
 
     static Approximation[] createApproximations(PlanarImage lonImage,
                                                 PlanarImage latImage,
-                                                SteppingFactory steppingFactory, double maxDegrees) {
+                                                double accuracy, double maxDegrees, SteppingFactory steppingFactory) {
         final int w = latImage.getWidth();
         final int h = latImage.getHeight();
         final int tileCount = calculateTileCount(lonImage, latImage, maxDegrees);
 
-        final Dimension tileDimension = MathUtils.fitDimension(tileCount, w, h); // TODO - check why this routine can yield less rectangles than given by tileCount
+        final Dimension tileDimension = MathUtils.fitDimension(tileCount, w,
+                                                               h); // TODO - check why this routine can yield less rectangles than given by tileCount
         final int tileCountX = tileDimension.width; // 4
         final int tileCountY = tileDimension.height; // 32
 
@@ -163,7 +246,7 @@ class Estimator implements GeoCoding {
             final Raster lonData = lonImage.getData(rectangles[i]);
             final Raster latData = latImage.getData(rectangles[i]);
             final double[][] data = extractWarpPoints(lonData, latData, stepping);
-            final Approximation approximation = createApproximation(data);
+            final Approximation approximation = createApproximation(data, accuracy);
             if (approximation == null) {
                 return null;
             }
@@ -199,8 +282,8 @@ class Estimator implements GeoCoding {
         return image.getTile(tileX, tileY).getSampleDouble(x, y, 0);
     }
 
-    static Approximation createApproximation(double[][] data) {
-        final Point2D centerPoint = Rotator.calculateCenter(data, LON, LAT);
+    static Approximation createApproximation(double[][] data, double accuracy) {
+        final Point2D centerPoint = calculateCenter(data);
         final double centerLon = centerPoint.getX();
         final double centerLat = centerPoint.getY();
         final double maxDistance = maxDistance(data, centerLat, centerLon);
@@ -211,8 +294,8 @@ class Estimator implements GeoCoding {
         final int[] xIndices = new int[]{LAT, LON, X};
         final int[] yIndices = new int[]{LAT, LON, Y};
 
-        final RationalFunctionModel fX = findBestModel(data, xIndices);
-        final RationalFunctionModel fY = findBestModel(data, yIndices);
+        final RationalFunctionModel fX = findBestModel(data, xIndices, accuracy);
+        final RationalFunctionModel fY = findBestModel(data, yIndices, accuracy);
 //        final FXYSum fX = TiePointGeoCoding.getBestPolynomial(data, xIndices);
 //        final FXYSum fY = TiePointGeoCoding.getBestPolynomial(data, yIndices);
         if (fX == null || fY == null) {

@@ -17,8 +17,13 @@
 package org.esa.beam.framework.datamodel;
 
 import java.awt.geom.Point2D;
-import static java.lang.Math.*;
 
+import static java.lang.Math.asin;
+import static java.lang.Math.atan2;
+import static java.lang.Math.cos;
+import static java.lang.Math.sin;
+import static java.lang.Math.toDegrees;
+import static java.lang.Math.toRadians;
 
 /**
  * Class for rotating geographical positions.
@@ -173,6 +178,25 @@ class Rotator {
         }
     }
 
+    void transform(double[][] data, final int lonIndex, final int latIndex) {
+        for (final double[] p : data) {
+            final double u = toRadians(p[lonIndex]);
+            final double v = toRadians(p[latIndex]);
+
+            final double w = cos(v);
+            final double x = cos(u) * w;
+            final double y = sin(u) * w;
+            final double z = sin(v);
+
+            final double x2 = a11 * x + a12 * y + a13 * z;
+            final double y2 = a21 * x + a22 * y + a23 * z;
+            final double z2 = a31 * x + a32 * y + a33 * z;
+
+            p[lonIndex] = toDegrees(atan2(y2, x2));
+            p[latIndex] = toDegrees(asin(z2));
+        }
+    }
+
     /**
      * Transforms a given geographical point back into the unrotated
      * coordinate system.
@@ -212,5 +236,4 @@ class Rotator {
             lons[i] = toDegrees(atan2(y2, x2));
         }
     }
-
 }
