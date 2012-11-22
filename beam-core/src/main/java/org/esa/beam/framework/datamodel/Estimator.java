@@ -1,4 +1,5 @@
-package org.esa.beam.framework.datamodel;/*
+package org.esa.beam.framework.datamodel;
+/*
  * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -30,6 +31,7 @@ import java.util.List;
 import static java.lang.Math.asin;
 import static java.lang.Math.atan2;
 import static java.lang.Math.cos;
+import static java.lang.Math.min;
 import static java.lang.Math.sin;
 import static java.lang.Math.toDegrees;
 import static java.lang.Math.toRadians;
@@ -40,8 +42,8 @@ class Estimator implements GeoCoding {
     private static final int LON = 1;
     private static final int X = 2;
     private static final int Y = 3;
-
     private static final int MAX_NUM_POINTS_PER_TILE = 1000;
+
     private final Approximation[] approximations;
 
     Estimator(PlanarImage lonImage, PlanarImage latImage, double accuracy, double maxDegrees,
@@ -66,7 +68,7 @@ class Estimator implements GeoCoding {
 
     @Override
     public PixelPos getPixelPos(GeoPos geoPos, PixelPos pixelPos) {
-        // TODO - hack for self-overlapping AATSR products (found in TiePointGeoCoding)
+        // TODO? - hack for self-overlapping AATSR products (found in TiePointGeoCoding)
         if (approximations != null) {
             if (pixelPos == null) {
                 pixelPos = new PixelPos();
@@ -157,7 +159,7 @@ class Estimator implements GeoCoding {
         final int h = latImage.getHeight();
         final int tileCount = calculateTileCount(lonImage, latImage, maxDegrees);
 
-        // TODO - check why this routine can yield 'less rectangles' than given by tileCount
+        // TODO? - check why this routine can yield 'less rectangles' than given by tileCount
         final Dimension tileDimension = MathUtils.fitDimension(tileCount, w, h);
         final int tileCountX = tileDimension.width;
         final int tileCountY = tileDimension.height;
@@ -182,28 +184,39 @@ class Estimator implements GeoCoding {
     static int calculateTileCount(PlanarImage lonImage, PlanarImage latImage, double maxDegrees) {
         final int w = latImage.getWidth();
         final int h = latImage.getHeight();
-        final double lat0 = getSampleDouble(latImage, w / 4, h / 4);
-        final double lon0 = getSampleDouble(lonImage, w / 4, h / 4);
-        final DistanceCalculator distanceCalculator = new ArcDistanceCalculator(lon0, lat0);
-        final double latX = getSampleDouble(latImage, 3 * w / 4, h / 4);
-        final double lonX = getSampleDouble(lonImage, 3 * w / 4, h / 4);
-        final double latY = getSampleDouble(latImage, w / 4, 3 * h / 4);
-        final double lonY = getSampleDouble(lonImage, w / 4, 3 * h / 4);
-        final double sizeX = Math.toDegrees(distanceCalculator.distance(lonX, latX)) / (w / 2);
-        final double sizeY = Math.toDegrees(distanceCalculator.distance(lonY, latY)) / (h / 2);
+        final double lat0 = getSampleDouble(latImage, w / 4, h / 4, -90.0, 90.0);
+        final double lon0 = getSampleDouble(lonImage, w / 4, h / 4, -180.0, 180.0);
+        final DistanceCalculator calculator = new ArcDistanceCalculator(lon0, lat0);
+        final double latX = getSampleDouble(latImage, 3 * w / 4, h / 4, -90.0, 90.0);
+        final double lonX = getSampleDouble(lonImage, 3 * w / 4, h / 4, -180.0, 180.0);
+        final double latY = getSampleDouble(latImage, w / 4, 3 * h / 4, -90.0, 90.0);
+        final double lonY = getSampleDouble(lonImage, w / 4, 3 * h / 4, -180.0, 180.0);
+        final double sizeX = Math.toDegrees(calculator.distance(lonX, latX)) / (w / 2);
+        final double sizeY = Math.toDegrees(calculator.distance(lonY, latY)) / (h / 2);
         final double tileSizeX = maxDegrees / sizeX;
         final double tileSizeY = maxDegrees / sizeY;
-        final int tileCountX = (int) (w / tileSizeX + 1);
-        final int tileCountY = (int) (h / tileSizeY + 1);
+        int tileCountX = (int) (w / tileSizeX + 1.0);
+        int tileCountY = (int) (h / tileSizeY + 1.0);
+
+        if (tileCountX == 0) { // calculation has failed due to NaN values
+            tileCountX = lonImage.getNumXTiles();
+        }
+        if (tileCountY == 0) { // calculation has failed due to NaN values
+            tileCountY = lonImage.getNumYTiles();
+        }
 
         return tileCountX * tileCountY;
     }
 
-    private static double getSampleDouble(PlanarImage image, int x, int y) {
+    private static double getSampleDouble(PlanarImage image, int x, int y, double minValue, double maxValue) {
         final int tileX = image.XToTileX(x);
         final int tileY = image.YToTileY(y);
 
-        return image.getTile(tileX, tileY).getSampleDouble(x, y, 0);
+        final double value = image.getTile(tileX, tileY).getSampleDouble(x, y, 0);
+        if (value >= minValue && value <= maxValue) {
+            return value;
+        }
+        return Double.NaN;
     }
 
     static Approximation createApproximation(double[][] data, double accuracy) {
