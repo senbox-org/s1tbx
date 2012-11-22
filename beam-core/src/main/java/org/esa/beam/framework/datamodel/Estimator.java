@@ -16,7 +16,6 @@ package org.esa.beam.framework.datamodel;/*
 
 import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.util.math.MathUtils;
-import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
 
@@ -225,7 +224,7 @@ class Estimator implements GeoCoding {
             return null;
         }
 
-        return new Approximation(fX, fY, centerLat, centerLon, maxDistance * 1.1, rotator,
+        return new Approximation(fX, fY, maxDistance * 1.1, rotator,
                                  new ArcDistanceCalculator(centerLon, centerLat));
     }
 
@@ -422,18 +421,14 @@ class Estimator implements GeoCoding {
 
         private final RationalFunctionModel fX;
         private final RationalFunctionModel fY;
-        private final double centerLat;
-        private final double centerLon;
         private final double maxDistance;
         private final Rotator rotator;
         private final DistanceCalculator calculator;
 
-        public Approximation(RationalFunctionModel fX, RationalFunctionModel fY, double centerLat, double centerLon,
-                             double maxDistance, Rotator rotator, DistanceCalculator calculator) {
+        public Approximation(RationalFunctionModel fX, RationalFunctionModel fY, double maxDistance,
+                             Rotator rotator, DistanceCalculator calculator) {
             this.fX = fX;
             this.fY = fY;
-            this.centerLat = centerLat;
-            this.centerLon = centerLon;
             this.maxDistance = maxDistance;
             this.rotator = rotator;
             this.calculator = calculator;
@@ -445,14 +440,6 @@ class Estimator implements GeoCoding {
 
         public RationalFunctionModel getFY() {
             return fY;
-        }
-
-        public double getCenterLat() {
-            return centerLat;
-        }
-
-        public double getCenterLon() {
-            return centerLon;
         }
 
         public double getMaxDistance() {
