@@ -50,6 +50,237 @@ class Estimator implements GeoCoding {
         approximations = createApproximations(lonImage, latImage, accuracy, maxDegrees, steppingFactory);
     }
 
+    @Override
+    public boolean isCrossingMeridianAt180() {
+        return false;
+    }
+
+    @Override
+    public boolean canGetPixelPos() {
+        return true;
+    }
+
+    @Override
+    public boolean canGetGeoPos() {
+        return false;
+    }
+
+    @Override
+    public PixelPos getPixelPos(GeoPos geoPos, PixelPos pixelPos) {
+        // TODO - hack for self-overlapping AATSR products (found in TiePointGeoCoding)
+        if (approximations != null) {
+            if (pixelPos == null) {
+                pixelPos = new PixelPos();
+            }
+            if (geoPos.isValid()) {
+                double lat = geoPos.getLat();
+                double lon = geoPos.getLon();
+                final Approximation approximation = findBestApproximation(lat, lon);
+                if (approximation != null) {
+                    final Rotator rotator = approximation.getRotator();
+                    final Point2D p = new Point2D.Double(lon, lat);
+                    rotator.transform(p);
+                    lon = p.getX();
+                    lat = p.getY();
+                    pixelPos.x = (float) approximation.getFX().getValue(lat, lon);
+                    pixelPos.y = (float) approximation.getFY().getValue(lat, lon);
+                } else {
+                    pixelPos.setInvalid();
+                }
+            } else {
+                pixelPos.setInvalid();
+            }
+        }
+        return pixelPos;
+    }
+
+    @Override
+    public GeoPos getGeoPos(PixelPos pixelPos, GeoPos geoPos) {
+        return geoPos;
+    }
+
+    @Override
+    public Datum getDatum() {
+        return null;
+    }
+
+    @Override
+    public void dispose() {
+    }
+
+    @Override
+    public CoordinateReferenceSystem getImageCRS() {
+        return null;
+    }
+
+    @Override
+    public CoordinateReferenceSystem getMapCRS() {
+        return null;
+    }
+
+    @Override
+    public CoordinateReferenceSystem getGeoCRS() {
+        return null;
+    }
+
+    @Override
+    public MathTransform getImageToMapTransform() {
+        return null;
+    }
+
+    Approximation findBestApproximation(double lat, double lon) {
+        Approximation bestApproximation = null;
+        if (approximations.length == 1) {
+            Approximation a = approximations[0];
+            final double distance = a.getDistance(lat, lon);
+            if (distance < a.getMaxDistance()) {
+                bestApproximation = a;
+            }
+        } else {
+            double minDistance = Double.MAX_VALUE;
+            for (final Approximation a : approximations) {
+                final double distance = a.getDistance(lat, lon);
+                if (distance < minDistance && distance < a.getMaxDistance()) {
+                    minDistance = distance;
+                    bestApproximation = a;
+                }
+            }
+        }
+        return bestApproximation;
+    }
+
+    static Approximation[] createApproximations(PlanarImage lonImage,
+                                                PlanarImage latImage,
+                                                double accuracy,
+                                                double maxDegrees,
+                                                SteppingFactory steppingFactory) {
+        final int w = latImage.getWidth();
+        final int h = latImage.getHeight();
+        final int tileCount = calculateTileCount(lonImage, latImage, maxDegrees);
+
+        // TODO - check why this routine can yield 'less rectangles' than given by tileCount
+        final Dimension tileDimension = MathUtils.fitDimension(tileCount, w, h);
+        final int tileCountX = tileDimension.width;
+        final int tileCountY = tileDimension.height;
+
+        // compute actual approximations for all tiles
+        final Approximation[] approximations = new Approximation[tileCountX * tileCountY];
+        final Rectangle[] rectangles = MathUtils.subdivideRectangle(w, h, tileCountX, tileCountY, 1);
+        for (int i = 0; i < rectangles.length; i++) {
+            final Stepping stepping = steppingFactory.createStepping(rectangles[i], MAX_NUM_POINTS_PER_TILE);
+            final Raster lonData = lonImage.getData(rectangles[i]);
+            final Raster latData = latImage.getData(rectangles[i]);
+            final double[][] data = extractWarpPoints(lonData, latData, stepping);
+            final Approximation approximation = createApproximation(data, accuracy);
+            if (approximation == null) {
+                return null;
+            }
+            approximations[i] = approximation;
+        }
+        return approximations;
+    }
+
+    static int calculateTileCount(PlanarImage lonImage, PlanarImage latImage, double maxDegrees) {
+        final int w = latImage.getWidth();
+        final int h = latImage.getHeight();
+        final double lat0 = getSampleDouble(latImage, w / 4, h / 4);
+        final double lon0 = getSampleDouble(lonImage, w / 4, h / 4);
+        final DistanceCalculator distanceCalculator = new ArcDistanceCalculator(lon0, lat0);
+        final double latX = getSampleDouble(latImage, 3 * w / 4, h / 4);
+        final double lonX = getSampleDouble(lonImage, 3 * w / 4, h / 4);
+        final double latY = getSampleDouble(latImage, w / 4, 3 * h / 4);
+        final double lonY = getSampleDouble(lonImage, w / 4, 3 * h / 4);
+        final double sizeX = Math.toDegrees(distanceCalculator.distance(lonX, latX)) / (w / 2);
+        final double sizeY = Math.toDegrees(distanceCalculator.distance(lonY, latY)) / (h / 2);
+        final double tileSizeX = maxDegrees / sizeX;
+        final double tileSizeY = maxDegrees / sizeY;
+        final int tileCountX = (int) (w / tileSizeX + 1);
+        final int tileCountY = (int) (h / tileSizeY + 1);
+
+        return tileCountX * tileCountY;
+    }
+
+    private static double getSampleDouble(PlanarImage image, int x, int y) {
+        final int tileX = image.XToTileX(x);
+        final int tileY = image.YToTileY(y);
+
+        return image.getTile(tileX, tileY).getSampleDouble(x, y, 0);
+    }
+
+    static Approximation createApproximation(double[][] data, double accuracy) {
+        final Point2D centerPoint = calculateCenter(data);
+        final double centerLon = centerPoint.getX();
+        final double centerLat = centerPoint.getY();
+        final double maxDistance = maxDistance(data, centerLat, centerLon);
+
+        final Rotator rotator = new Rotator(centerLon, centerLat);
+        rotator.transform(data, LON, LAT);
+
+        final int[] xIndices = new int[]{LAT, LON, X};
+        final int[] yIndices = new int[]{LAT, LON, Y};
+
+        final RationalFunctionModel fX = findBestModel(data, xIndices, accuracy);
+        final RationalFunctionModel fY = findBestModel(data, yIndices, accuracy);
+        if (fX == null || fY == null) {
+            return null;
+        }
+
+        return new Approximation(fX, fY, centerLat, centerLon, maxDistance * 1.1, rotator,
+                                 new ArcDistanceCalculator(centerLon, centerLat));
+    }
+
+    static double maxDistance(final double[][] data, double centerLat, double centerLon) {
+        final DistanceCalculator distanceCalculator = new ArcDistanceCalculator(centerLon, centerLat);
+        double maxDistance = 0.0;
+        for (final double[] p : data) {
+            final double d = distanceCalculator.distance(p[LON], p[LAT]);
+            if (d > maxDistance) {
+                maxDistance = d;
+            }
+        }
+        return maxDistance;
+    }
+
+    static double[][] extractWarpPoints(Raster lonData, Raster latData, Stepping stepping) {
+        final int minX = stepping.getMinX();
+        final int maxX = stepping.getMaxX();
+        final int minY = stepping.getMinY();
+        final int maxY = stepping.getMaxY();
+        final int pointCountX = stepping.getPointCountX();
+        final int pointCountY = stepping.getPointCountY();
+        final int stepX = stepping.getStepX();
+        final int stepY = stepping.getStepY();
+        final int pointCount = stepping.getPointCount();
+        final List<double[]> pointList = new ArrayList<double[]>(pointCount);
+
+        for (int j = 0, k = 0; j < pointCountY; j++) {
+            int y = minY + j * stepY;
+            // adjust bottom border
+            if (y > maxY) {
+                y = maxY;
+            }
+            for (int i = 0; i < pointCountX; i++, k++) {
+                int x = minX + i * stepX;
+                // adjust right border
+                if (x > maxX) {
+                    x = maxX;
+                }
+                final double lat = latData.getSampleDouble(x, y, 0);
+                final double lon = lonData.getSampleDouble(x, y, 0);
+                if (lon >= -180.0 && lon <= 180.0 && lat >= -90.0 && lat <= 90.0) {
+                    final double[] point = new double[4];
+                    point[LAT] = lat;
+                    point[LON] = lon;
+                    point[X] = x + 0.5;
+                    point[Y] = y + 0.5;
+                    pointList.add(point);
+                }
+            }
+        }
+
+        return pointList.toArray(new double[pointList.size()][4]);
+    }
+
     static RationalFunctionModel findBestModel(double[][] data, int[] indexes, double accuracy) {
         RationalFunctionModel bestModel = null;
         for (int degreeP = 0; degreeP <= 4; degreeP++) {
@@ -128,235 +359,6 @@ class Estimator implements GeoCoding {
         }
     }
 
-    @Override
-    public boolean isCrossingMeridianAt180() {
-        return false;
-    }
-
-    @Override
-    public boolean canGetPixelPos() {
-        return true;
-    }
-
-    @Override
-    public boolean canGetGeoPos() {
-        return false;
-    }
-
-    @Override
-    public PixelPos getPixelPos(GeoPos geoPos, PixelPos pixelPos) {
-        if (approximations != null) {
-            if (pixelPos == null) {
-                pixelPos = new PixelPos();
-            }
-            if (geoPos.isValid()) {
-                double lat = geoPos.getLat();
-                double lon = geoPos.getLon();
-                final Approximation approximation = findBestApproximation(lat, lon);
-                if (approximation != null) {
-                    final Rotator rotator = approximation.getRotator();
-                    final Point2D p = new Point2D.Double(lon, lat);
-                    rotator.transform(p);
-                    lon = p.getX();
-                    lat = p.getY();
-                    pixelPos.x = (float) approximation.getFX().getValue(lat, lon);
-                    pixelPos.y = (float) approximation.getFY().getValue(lat, lon);
-                } else {
-                    pixelPos.setInvalid();
-                }
-            } else {
-                pixelPos.setInvalid();
-            }
-        }
-        return pixelPos;
-    }
-
-    @Override
-    public GeoPos getGeoPos(PixelPos pixelPos, GeoPos geoPos) {
-        return geoPos;
-    }
-
-    @Override
-    public Datum getDatum() {
-        return Datum.WGS_84;
-    }
-
-    @Override
-    public void dispose() {
-    }
-
-    @Override
-    public CoordinateReferenceSystem getImageCRS() {
-        return null;
-    }
-
-    @Override
-    public CoordinateReferenceSystem getMapCRS() {
-        return DefaultGeographicCRS.WGS84;
-    }
-
-    @Override
-    public CoordinateReferenceSystem getGeoCRS() {
-        return DefaultGeographicCRS.WGS84;
-    }
-
-    @Override
-    public MathTransform getImageToMapTransform() {
-        return null;
-    }
-
-    Approximation findBestApproximation(double lat, double lon) {
-        Approximation bestApproximation = null;
-        if (approximations.length == 1) {
-            Approximation a = approximations[0];
-            final double distance = a.getDistance(lat, lon);
-            if (distance < a.getMaxDistance()) {
-                bestApproximation = a;
-            }
-        } else {
-            double minDistance = Double.MAX_VALUE;
-            for (final Approximation a : approximations) {
-                final double distance = a.getDistance(lat, lon);
-                if (distance < minDistance && distance < a.getMaxDistance()) {
-                    minDistance = distance;
-                    bestApproximation = a;
-                }
-            }
-        }
-        return bestApproximation;
-    }
-
-    static Approximation[] createApproximations(PlanarImage lonImage,
-                                                PlanarImage latImage,
-                                                double accuracy, double maxDegrees, SteppingFactory steppingFactory) {
-        final int w = latImage.getWidth();
-        final int h = latImage.getHeight();
-        final int tileCount = calculateTileCount(lonImage, latImage, maxDegrees);
-
-        final Dimension tileDimension = MathUtils.fitDimension(tileCount, w,
-                                                               h); // TODO - check why this routine can yield less rectangles than given by tileCount
-        final int tileCountX = tileDimension.width; // 4
-        final int tileCountY = tileDimension.height; // 32
-
-        // compute actual approximations for all tiles
-        final Approximation[] approximations = new Approximation[tileCountX * tileCountY];
-        final Rectangle[] rectangles = MathUtils.subdivideRectangle(w, h, tileCountX, tileCountY, 1);
-        for (int i = 0; i < rectangles.length; i++) {
-            final Stepping stepping = steppingFactory.createStepping(rectangles[i], MAX_NUM_POINTS_PER_TILE);
-            final Raster lonData = lonImage.getData(rectangles[i]);
-            final Raster latData = latImage.getData(rectangles[i]);
-            final double[][] data = extractWarpPoints(lonData, latData, stepping);
-            final Approximation approximation = createApproximation(data, accuracy);
-            if (approximation == null) {
-                return null;
-            }
-            approximations[i] = approximation;
-        }
-        return approximations;
-    }
-
-    static int calculateTileCount(PlanarImage lonImage, PlanarImage latImage, double maxDegrees) {
-        final int w = latImage.getWidth();
-        final int h = latImage.getHeight();
-        final double lat0 = getSampleDouble(latImage, w / 4, h / 4);
-        final double lon0 = getSampleDouble(lonImage, w / 4, h / 4);
-        final DistanceCalculator distanceCalculator = new ArcDistanceCalculator(lon0, lat0);
-        final double latX = getSampleDouble(latImage, 3 * w / 4, h / 4);
-        final double lonX = getSampleDouble(lonImage, 3 * w / 4, h / 4);
-        final double latY = getSampleDouble(latImage, w / 4, 3 * h / 4);
-        final double lonY = getSampleDouble(lonImage, w / 4, 3 * h / 4);
-        final double sizeX = Math.toDegrees(distanceCalculator.distance(lonX, latX)) / (w / 2);
-        final double sizeY = Math.toDegrees(distanceCalculator.distance(lonY, latY)) / (h / 2);
-        final double tileSizeX = maxDegrees / sizeX;
-        final double tileSizeY = maxDegrees / sizeY;
-        final int tileCountX = (int) (w / tileSizeX + 1);
-        final int tileCountY = (int) (h / tileSizeY + 1);
-
-        return tileCountX * tileCountY;
-    }
-
-    private static double getSampleDouble(PlanarImage image, int x, int y) {
-        final int tileX = image.XToTileX(x);
-        final int tileY = image.YToTileY(y);
-
-        return image.getTile(tileX, tileY).getSampleDouble(x, y, 0);
-    }
-
-    static Approximation createApproximation(double[][] data, double accuracy) {
-        final Point2D centerPoint = calculateCenter(data);
-        final double centerLon = centerPoint.getX();
-        final double centerLat = centerPoint.getY();
-        final double maxDistance = maxDistance(data, centerLat, centerLon);
-
-        final Rotator rotator = new Rotator(centerLon, centerLat);
-        rotator.transform(data, LON, LAT);
-
-        final int[] xIndices = new int[]{LAT, LON, X};
-        final int[] yIndices = new int[]{LAT, LON, Y};
-
-        final RationalFunctionModel fX = findBestModel(data, xIndices, accuracy);
-        final RationalFunctionModel fY = findBestModel(data, yIndices, accuracy);
-//        final FXYSum fX = TiePointGeoCoding.getBestPolynomial(data, xIndices);
-//        final FXYSum fY = TiePointGeoCoding.getBestPolynomial(data, yIndices);
-        if (fX == null || fY == null) {
-            return null;
-        }
-
-        return new Approximation(fX, fY, centerLat, centerLon, maxDistance * 1.1, rotator);
-    }
-
-    static double maxDistance(final double[][] data, double centerLat, double centerLon) {
-        final DistanceCalculator distanceCalculator = new ArcDistanceCalculator(centerLon, centerLat);
-        double maxDistance = 0.0;
-        for (final double[] p : data) {
-            final double d = distanceCalculator.distance(p[LON], p[LAT]);
-            if (d > maxDistance) {
-                maxDistance = d;
-            }
-        }
-        return maxDistance;
-    }
-
-    static double[][] extractWarpPoints(Raster lonData, Raster latData, Stepping stepping) {
-        final int minX = stepping.getMinX();
-        final int maxX = stepping.getMaxX();
-        final int minY = stepping.getMinY();
-        final int maxY = stepping.getMaxY();
-        final int pointCountX = stepping.getPointCountX();
-        final int pointCountY = stepping.getPointCountY();
-        final int stepX = stepping.getStepX();
-        final int stepY = stepping.getStepY();
-        final int pointCount = stepping.getPointCount();
-        final List<double[]> pointList = new ArrayList<double[]>(pointCount);
-
-        for (int j = 0, k = 0; j < pointCountY; j++) {
-            int y = minY + j * stepY;
-            // adjust bottom border
-            if (y > maxY) {
-                y = maxY;
-            }
-            for (int i = 0; i < pointCountX; i++, k++) {
-                int x = minX + i * stepX;
-                // adjust right border
-                if (x > maxX) {
-                    x = maxX;
-                }
-                final double lat = latData.getSampleDouble(x, y, 0);
-                final double lon = lonData.getSampleDouble(x, y, 0);
-                if (lon >= -180.0 && lon <= 180.0 && lat >= -90.0 && lat <= 90.0) {
-                    final double[] point = new double[4];
-                    point[LAT] = lat;
-                    point[LON] = lon;
-                    point[X] = x + 0.5;
-                    point[Y] = y + 0.5;
-                    pointList.add(point);
-                }
-            }
-        }
-
-        return pointList.toArray(new double[pointList.size()][4]);
-    }
-
     static final class Stepping {
 
         private final int minX;
@@ -424,17 +426,17 @@ class Estimator implements GeoCoding {
         private final double centerLon;
         private final double maxDistance;
         private final Rotator rotator;
-        private final DistanceCalculator distanceCalculator;
+        private final DistanceCalculator calculator;
 
         public Approximation(RationalFunctionModel fX, RationalFunctionModel fY, double centerLat, double centerLon,
-                             double maxDistance, Rotator rotator) {
+                             double maxDistance, Rotator rotator, DistanceCalculator calculator) {
             this.fX = fX;
             this.fY = fY;
             this.centerLat = centerLat;
             this.centerLon = centerLon;
             this.maxDistance = maxDistance;
             this.rotator = rotator;
-            this.distanceCalculator = new ArcDistanceCalculator(centerLon, centerLat);
+            this.calculator = calculator;
         }
 
         public RationalFunctionModel getFX() {
@@ -458,7 +460,7 @@ class Estimator implements GeoCoding {
         }
 
         public double getDistance(double lat, double lon) {
-            return distanceCalculator.distance(lon, lat);
+            return calculator.distance(lon, lat);
         }
 
         public Rotator getRotator() {

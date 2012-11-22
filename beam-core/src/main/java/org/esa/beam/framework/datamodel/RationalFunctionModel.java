@@ -40,10 +40,12 @@ public class RationalFunctionModel implements Cloneable {
      * Coefficients for the denominator polynomial Q.
      */
     private final double[] d;
+
     /**
      * The root mean square error of the approximation.
      */
     private final double rmse;
+
     /**
      * Constructs a rational function model for  approximating a function
      * g(x, y) with a rational function R(x, y) = P(x, y) / Q(x, y) where
