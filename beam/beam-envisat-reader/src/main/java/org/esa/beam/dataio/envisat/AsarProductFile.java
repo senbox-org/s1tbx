@@ -522,8 +522,7 @@ public class AsarProductFile extends ProductFile {
     }
 
     private static boolean productDDExists(String productType) {
-        String productInfoFilePath = "products/" + productType + ".dd";
-        return DDDB.databaseResourceExists(productInfoFilePath);
+        return DDDB.databaseResourceExists("products/" + productType + ".dd");
     }
 
     /**
