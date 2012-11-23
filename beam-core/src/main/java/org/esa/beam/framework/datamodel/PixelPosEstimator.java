@@ -19,6 +19,7 @@ import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.util.math.MathUtils;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import javax.media.jai.PlanarImage;
 import java.awt.Dimension;
@@ -36,7 +37,7 @@ import static java.lang.Math.sin;
 import static java.lang.Math.toDegrees;
 import static java.lang.Math.toRadians;
 
-class Estimator implements GeoCoding {
+class PixelPosEstimator implements GeoCoding {
 
     private static final int LAT = 0;
     private static final int LON = 1;
@@ -44,16 +45,16 @@ class Estimator implements GeoCoding {
     private static final int Y = 3;
     private static final int MAX_NUM_POINTS_PER_TILE = 1000;
 
-    private final Approximation[] approximations;
+    private final  Approximation[] approximations;
 
-    Estimator(PlanarImage lonImage, PlanarImage latImage, double accuracy, double maxDegrees,
-              SteppingFactory steppingFactory) {
-        approximations = createApproximations(lonImage, latImage, accuracy, maxDegrees, steppingFactory);
+    PixelPosEstimator(PlanarImage lonImage, PlanarImage latImage, double accuracy, double tiling,
+                      SteppingFactory steppingFactory) {
+        approximations = createApproximations(lonImage, latImage, accuracy, tiling, steppingFactory);
     }
 
     @Override
     public boolean isCrossingMeridianAt180() {
-        return false;
+        throw new NotImplementedException();
     }
 
     @Override
@@ -97,12 +98,12 @@ class Estimator implements GeoCoding {
 
     @Override
     public GeoPos getGeoPos(PixelPos pixelPos, GeoPos geoPos) {
-        return geoPos;
+        throw new NotImplementedException();
     }
 
     @Override
     public Datum getDatum() {
-        return null;
+        throw new NotImplementedException();
     }
 
     @Override
@@ -111,22 +112,22 @@ class Estimator implements GeoCoding {
 
     @Override
     public CoordinateReferenceSystem getImageCRS() {
-        return null;
+        throw new NotImplementedException();
     }
 
     @Override
     public CoordinateReferenceSystem getMapCRS() {
-        return null;
+        throw new NotImplementedException();
     }
 
     @Override
     public CoordinateReferenceSystem getGeoCRS() {
-        return null;
+        throw new NotImplementedException();
     }
 
     @Override
     public MathTransform getImageToMapTransform() {
-        return null;
+        throw new NotImplementedException();
     }
 
     Approximation findBestApproximation(double lat, double lon) {
@@ -153,11 +154,11 @@ class Estimator implements GeoCoding {
     static Approximation[] createApproximations(PlanarImage lonImage,
                                                 PlanarImage latImage,
                                                 double accuracy,
-                                                double maxDegrees,
+                                                double tiling,
                                                 SteppingFactory steppingFactory) {
         final int w = latImage.getWidth();
         final int h = latImage.getHeight();
-        final int tileCount = calculateTileCount(lonImage, latImage, maxDegrees);
+        final int tileCount = calculateTileCount(lonImage, latImage, tiling);
 
         // TODO? - check why this routine can yield 'less rectangles' than given by tileCount
         final Dimension tileDimension = MathUtils.fitDimension(tileCount, w, h);
@@ -181,7 +182,7 @@ class Estimator implements GeoCoding {
         return approximations;
     }
 
-    static int calculateTileCount(PlanarImage lonImage, PlanarImage latImage, double maxDegrees) {
+    static int calculateTileCount(PlanarImage lonImage, PlanarImage latImage, double tiling) {
         final int w = latImage.getWidth();
         final int h = latImage.getHeight();
         final double lat0 = getSampleDouble(latImage, w / 4, h / 4, -90.0, 90.0);
@@ -193,8 +194,8 @@ class Estimator implements GeoCoding {
         final double lonY = getSampleDouble(lonImage, w / 4, 3 * h / 4, -180.0, 180.0);
         final double sizeX = Math.toDegrees(calculator.distance(lonX, latX)) / (w / 2);
         final double sizeY = Math.toDegrees(calculator.distance(lonY, latY)) / (h / 2);
-        final double tileSizeX = maxDegrees / sizeX;
-        final double tileSizeY = maxDegrees / sizeY;
+        final double tileSizeX = tiling / sizeX;
+        final double tileSizeY = tiling / sizeY;
         int tileCountX = (int) (w / tileSizeX + 1.0);
         int tileCountY = (int) (h / tileSizeY + 1.0);
 
@@ -223,7 +224,7 @@ class Estimator implements GeoCoding {
         final Point2D centerPoint = calculateCenter(data);
         final double centerLon = centerPoint.getX();
         final double centerLat = centerPoint.getY();
-        final double maxDistance = maxDistance(data, centerLat, centerLon);
+        final double maxDistance = maxDistance(data, centerLon, centerLat);
 
         final Rotator rotator = new Rotator(centerLon, centerLat);
         rotator.transform(data, LON, LAT);
@@ -241,7 +242,7 @@ class Estimator implements GeoCoding {
                                  new ArcDistanceCalculator(centerLon, centerLat));
     }
 
-    static double maxDistance(final double[][] data, double centerLat, double centerLon) {
+    static double maxDistance(final double[][] data, double centerLon, double centerLat) {
         final DistanceCalculator distanceCalculator = new ArcDistanceCalculator(centerLon, centerLat);
         double maxDistance = 0.0;
         for (final double[] p : data) {

@@ -32,7 +32,7 @@ import java.awt.image.WritableRaster;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class EstimatorTest {
+public class PixelPosEstimatorTest {
 
     @Test
     public void testCalculateTileCount() throws Exception {
@@ -40,7 +40,7 @@ public class EstimatorTest {
         final int ny = 4000;
         final OpImage[] images = generateSwathCoordinates(nx, ny, 0.01, 0.01, new Rotator(0.0, 0.0, 265.0));
 
-        final int tileCount = Estimator.calculateTileCount(images[0], images[1], 10.0);
+        final int tileCount = PixelPosEstimator.calculateTileCount(images[0], images[1], 10.0);
 
         assertEquals(4, tileCount);
     }
@@ -54,7 +54,7 @@ public class EstimatorTest {
         final OpImage[] images = generateSwathCoordinates(nx, ny, 0.009, 0.009, new Rotator(0.0, -5.0, 269.0));
         final OpImage lonImage = images[0];
         final OpImage latImage = images[1];
-        final Estimator estimator = new Estimator(lonImage, latImage, 0.5, 10.0, new Estimator.PixelSteppingFactory());
+        final PixelPosEstimator estimator = new PixelPosEstimator(lonImage, latImage, 0.5, 10.0, new PixelPosEstimator.PixelSteppingFactory());
 
         final Raster lonData = lonImage.getData();
         final Raster latData = latImage.getData();
@@ -126,11 +126,11 @@ public class EstimatorTest {
         final Raster latData = latImage.getData();
 
         final Rectangle rectangle = new Rectangle(0, 0, 512, 512);
-        final Estimator.Stepping stepping = new Estimator.PixelSteppingFactory().createStepping(rectangle, 1000);
+        final PixelPosEstimator.Stepping stepping = new PixelPosEstimator.PixelSteppingFactory().createStepping(rectangle, 1000);
 
-        final double[][] data = Estimator.extractWarpPoints(lonData, latData, stepping);
+        final double[][] data = PixelPosEstimator.extractWarpPoints(lonData, latData, stepping);
 
-        final Estimator.Approximation a = Estimator.createApproximation(data, 0.5);
+        final PixelPosEstimator.Approximation a = PixelPosEstimator.createApproximation(data, 0.5);
         final RationalFunctionModel fx = a.getFX();
         final RationalFunctionModel fy = a.getFY();
 
@@ -161,7 +161,7 @@ public class EstimatorTest {
     @Test
     public void testStepping() {
         final Rectangle rectangle = new Rectangle(0, 0, 512, 512);
-        final Estimator.Stepping stepping = new Estimator.PixelSteppingFactory().createStepping(rectangle, 1000);
+        final PixelPosEstimator.Stepping stepping = new PixelPosEstimator.PixelSteppingFactory().createStepping(rectangle, 1000);
 
         assertEquals(0, stepping.getMinX());
         assertEquals(0, stepping.getMinY());
@@ -192,9 +192,9 @@ public class EstimatorTest {
         assertEquals(0.0, latData.getSampleDouble(nx / 2, ny / 2, 0), 0.0);
 
         final Rectangle rectangle = new Rectangle(0, 0, 512, 512);
-        final Estimator.Stepping stepping = new Estimator.PixelSteppingFactory().createStepping(rectangle, 1000);
+        final PixelPosEstimator.Stepping stepping = new PixelPosEstimator.PixelSteppingFactory().createStepping(rectangle, 1000);
 
-        final double[][] data = Estimator.extractWarpPoints(lonData, latData, stepping);
+        final double[][] data = PixelPosEstimator.extractWarpPoints(lonData, latData, stepping);
         assertEquals(stepping.getPointCount(), data.length);
 
         final double[] upperLeft = data[0];
@@ -220,7 +220,7 @@ public class EstimatorTest {
 
     @Test
     public void testArcDistance() {
-        final Estimator.DistanceCalculator distanceCalculator = new Estimator.ArcDistanceCalculator(0.0, 0.0);
+        final PixelPosEstimator.DistanceCalculator distanceCalculator = new PixelPosEstimator.ArcDistanceCalculator(0.0, 0.0);
         assertEquals(0.0, distanceCalculator.distance(0.0, 0.0), 0.0);
         assertEquals(1.0, Math.toDegrees(distanceCalculator.distance(1.0, 0.0)), 1.0e-10);
         assertEquals(1.0, Math.toDegrees(distanceCalculator.distance(0.0, 1.0)), 1.0e-10);
