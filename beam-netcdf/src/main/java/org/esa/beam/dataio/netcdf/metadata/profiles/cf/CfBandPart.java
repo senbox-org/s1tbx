@@ -271,20 +271,20 @@ public class CfBandPart extends ProfilePartIO {
                 final String[] flagMeanings = getFlagMeanings(flagMeaningsAttribute);
                 for (int i = 0; i < flagValuesAttribute.getLength(); i++) {
                     if (i < flagMeanings.length) {
-                        final String flagMeaning = flagMeanings[i];
+                        final String flagName = CfFlagCodingPart.replaceNonWordCharacters(flagMeanings[i]);
                         switch (flagValuesAttribute.getDataType()) {
                             case BYTE:
-                                flagCoding.addFlag(flagMeaning,
+                                flagCoding.addFlag(flagName,
                                                    DataType.unsignedByteToShort(
                                                            flagValuesAttribute.getNumericValue(i).byteValue()), null);
                                 break;
                             case SHORT:
-                                flagCoding.addFlag(flagMeaning,
+                                flagCoding.addFlag(flagName,
                                                    DataType.unsignedShortToInt(
                                                            flagValuesAttribute.getNumericValue(i).shortValue()), null);
                                 break;
                             case INT:
-                                flagCoding.addFlag(flagMeaning, flagValuesAttribute.getNumericValue(i).intValue(),
+                                flagCoding.addFlag(flagName, flagValuesAttribute.getNumericValue(i).intValue(),
                                                    null);
                                 break;
                             case LONG:
@@ -292,12 +292,12 @@ public class CfBandPart extends ProfilePartIO {
                                 if (msb) {
                                     final long flagMask = value >>> 32;
                                     if (flagMask > 0) {
-                                        flagCoding.addFlag(flagMeaning, (int) flagMask, null);
+                                        flagCoding.addFlag(flagName, (int) flagMask, null);
                                     }
                                 } else {
                                     final long flagMask = value & 0x00000000FFFFFFFFL;
                                     if (flagMask > 0) {
-                                        flagCoding.addFlag(flagMeaning, (int) flagMask, null);
+                                        flagCoding.addFlag(flagName, (int) flagMask, null);
                                     }
                                 }
                                 break;
