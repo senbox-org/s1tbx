@@ -44,30 +44,34 @@ public class ProductSetPanel extends JPanel {
     private final TargetFolderSelector targetProductSelector;
     private final AppContext appContext;
     private String targetProductNameSuffix = "";
+    private JPanel buttonPanel = null;
 
     public ProductSetPanel(final AppContext theAppContext, final String title) {
-        this(theAppContext, null, false, false);
-
-        setBorder(BorderFactory.createTitledBorder(title));
+        this(theAppContext, title, null, false, false);
     }
 
     public ProductSetPanel(final AppContext theAppContext, final String title, final FileTableModel fileModel) {
-        this(theAppContext, fileModel, false, false);
-
-        setBorder(BorderFactory.createTitledBorder(title));
+        this(theAppContext, title, fileModel, false, false);
     }
 
     public ProductSetPanel(final AppContext theAppContext) {
-        this(theAppContext, null, true, true);
+        this(theAppContext, null, null, true, true);
     }
 
-    public ProductSetPanel(final AppContext theAppContext, final FileTableModel fileModel,
+    public ProductSetPanel(final AppContext theAppContext, final String title, final FileTableModel fileModel,
                            final boolean incTrgProduct, final boolean incButtonPanel) {
         super(new BorderLayout());
         this.appContext = theAppContext;
 
+        if(title != null)
+            setBorder(BorderFactory.createTitledBorder(title));
+
         productSetTable = new FileTable(fileModel);
-        final JComponent productSetContent = createComponent(productSetTable, incButtonPanel);
+        final JPanel productSetContent = createComponent(productSetTable, false);
+        if(incButtonPanel) {
+            buttonPanel = createButtonPanel(productSetTable);
+            productSetContent.add(buttonPanel, BorderLayout.EAST);
+        }
         this.add(productSetContent, BorderLayout.CENTER);
 
         if(incTrgProduct) {
@@ -84,7 +88,11 @@ public class ProductSetPanel extends JPanel {
         }
     }
 
-    public static JComponent createComponent(final FileTable table, final boolean incButtonPanel) {
+    public JPanel getButtonPanel() {
+        return buttonPanel;
+    }
+
+    public static JPanel createComponent(final FileTable table, final boolean incButtonPanel) {
 
         final JPanel fileListPanel = new JPanel(new BorderLayout(4, 4));
 
@@ -92,13 +100,13 @@ public class ProductSetPanel extends JPanel {
         fileListPanel.add(scrollPane, BorderLayout.CENTER);
 
         if(incButtonPanel) {
-            final JPanel buttonPanel = initButtonPanel(table);
+            final JPanel buttonPanel = createButtonPanel(table);
             fileListPanel.add(buttonPanel, BorderLayout.EAST);
         }
         return fileListPanel;
     }
 
-    private static JPanel initButtonPanel(final FileTable table) {
+    public static JPanel createButtonPanel(final FileTable table) {
         final FileTableModel tableModel = table.getModel();
 
         final JPanel panel = new JPanel(new GridLayout(10, 1));

@@ -30,7 +30,8 @@ final class FixCompound extends AbstractCompound {
 
     FixCompound(DataContext context, CollectionData parent, CompoundType compoundType, Segment segment, int bufferOffset) {
         super(context, parent, compoundType, segment.getPosition() + bufferOffset);
-        for (int i = 0; i < compoundType.getMemberCount(); i++) {
+        final int cnt = compoundType.getMemberCount();
+        for (int i = 0; i < cnt; i++) {
             final Type memberType = compoundType.getMember(i).getType();
             setMemberInstance(i, InstanceFactory.createFixMember(context, this, memberType, segment, bufferOffset));
             bufferOffset += memberType.getSize();
