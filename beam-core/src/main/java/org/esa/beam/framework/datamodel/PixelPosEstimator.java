@@ -192,10 +192,10 @@ class PixelPosEstimator implements GeoCoding {
         final double lonX = getSampleDouble(lonImage, 3 * w / 4, h / 4, -180.0, 180.0);
         final double latY = getSampleDouble(latImage, w / 4, 3 * h / 4, -90.0, 90.0);
         final double lonY = getSampleDouble(lonImage, w / 4, 3 * h / 4, -180.0, 180.0);
-        final double sizeX = Math.toDegrees(calculator.distance(lonX, latX)) / (w / 2);
-        final double sizeY = Math.toDegrees(calculator.distance(lonY, latY)) / (h / 2);
-        final double tileSizeX = tiling / sizeX;
-        final double tileSizeY = tiling / sizeY;
+        final double pixelSizeX = Math.toDegrees(calculator.distance(lonX, latX)) / (w / 2);
+        final double pixelSizeY = Math.toDegrees(calculator.distance(lonY, latY)) / (h / 2);
+        final double tileSizeX = tiling / pixelSizeX;
+        final double tileSizeY = tiling / pixelSizeY;
         int tileCountX = (int) (w / tileSizeX + 1.0);
         int tileCountY = (int) (h / tileSizeY + 1.0);
 
