@@ -1,0 +1,28 @@
+<module>
+    <manifestVersion>1.0.0</manifestVersion>
+
+    <symbolicName>beam-interpolated-percentile-op</symbolicName>
+    <version>1.0</version>
+    <name>BEAM interpolated percentile operator</name>
+    <funding>EU</funding>
+
+    <description>
+        <![CDATA[
+            The beam-interpolated-percentile-op module contains an operator for computing a interpolated
+            percentile over a set of input products and named rasters.
+        ]]>
+    </description>
+
+    <vendor>Brockmann Consult GmbH</vendor>
+    <contactAddress>Max Planck Str.2, 21502 Geesthacht (Germany)</contactAddress>
+    <copyright>(C) 2012 by Brockmann Consult GmbH</copyright>
+    <url>http://envisat.esa.int/beam</url>
+    <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
+
+    <categories>Application,Processor,Geometry,VISAT,Level-3,Envisat,MERIS,AATSR,AVHRR,CHRIS</categories>
+
+    <dependency>
+        <module>beam-gpf</module>
+    </dependency>
+
+</module>
