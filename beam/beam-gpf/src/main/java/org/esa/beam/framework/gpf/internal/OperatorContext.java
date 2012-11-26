@@ -860,7 +860,7 @@ public class OperatorContext {
             }
             sourceProducts = getSourceProducts();
             if (sourceProducts.length > 0) {
-                setSourceProductsFieldValue(declaredField, getUnnamedProducts());
+                setSourceProductsFieldValue(declaredField, sourceProducts);//getUnnamedProducts()); // NESTMOD
             }
             if (sourceProductsAnnotation.count() < 0) {
                 if (sourceProducts.length == 0) {
