@@ -8,12 +8,12 @@ import java.awt.geom.GeneralPath;
 
 public class Utils {
 
-    public static Area createProductArea(Product targetProduct) {
-        GeneralPath[] targetBoundary = ProductUtils.createGeoBoundaryPaths(targetProduct);
-        Area targetArea = new Area();
-        for (GeneralPath generalPath : targetBoundary) {
-            targetArea.add(new Area(generalPath));
+    public static Area createProductArea(Product product) {
+        GeneralPath[] boundary = ProductUtils.createGeoBoundaryPaths(product);
+        Area area = new Area();
+        for (GeneralPath generalPath : boundary) {
+            area.add(new Area(generalPath));
         }
-        return targetArea;
+        return area;
     }
 }

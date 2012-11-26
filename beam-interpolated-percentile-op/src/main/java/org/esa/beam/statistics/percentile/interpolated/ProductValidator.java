@@ -1,5 +1,6 @@
 package org.esa.beam.statistics.percentile.interpolated;
 
+import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 
@@ -24,41 +25,39 @@ public class ProductValidator {
     }
 
     public boolean isValid(Product product) {
-        return containsGeocoding(product)
+        return containsGeoCodingWithReverseOperationSupport(product)
                && containsStartAndEndDate(product)
                && canHandleBandConfigurations(product)
                && isInDateRange(product)
                && intersectsTargetArea(product);
     }
 
-    private boolean intersectsTargetArea(Product product) {
-        Area productArea = Utils.createProductArea(product);
-        productArea.intersect(targetArea);
-        boolean valid = !productArea.isEmpty();
-        if (!valid) {
-            logSkipped("The product '" + product.getName() + "' does not intersect the target product.");
-        }
-
-        return valid;
-    }
-
-    private boolean containsGeocoding(Product product) {
-        final boolean valid = product.getGeoCoding() != null;
-        if (!valid) {
+    private boolean containsGeoCodingWithReverseOperationSupport(Product product) {
+        GeoCoding geoCoding = product.getGeoCoding();
+        if (geoCoding == null) {
             logSkipped("The product '" + product.getName() + "' does not contain a geo coding.");
+            return false;
         }
-        return valid;
+        if (!geoCoding.canGetPixelPos()) {
+            logSkipped("The geo-coding of the product '" + product.getName() + "' can not determine the pixel position from a geodetic position.");
+            return false;
+        }
+        return true;
     }
 
     private boolean containsStartAndEndDate(Product product) {
-        return product.getStartTime() != null && product.getEndTime() != null;
+        boolean valid = product.getStartTime() != null && product.getEndTime() != null;
+        if (!valid) {
+            logSkipped("The product '" + product.getName() + "' must contain start and end time.");
+        }
+        return valid;
     }
 
     private boolean canHandleBandConfigurations(Product product) {
         for (BandConfiguration bandConfiguration : bandConfigurations) {
             final String bandName = bandConfiguration.sourceBandName;
             if (!product.containsBand(bandName)) {
-                logSkipped("The product '" + product.getName() + "' does not contain the band '" + bandName + "'");
+                logSkipped("The product '" + product.getName() + "' does not contain the band '" + bandName + "'.");
                 return false;
             }
         }
@@ -87,6 +86,17 @@ public class ProductValidator {
         }
 
         return true;
+    }
+
+    private boolean intersectsTargetArea(Product product) {
+        Area productArea = Utils.createProductArea(product);
+        productArea.intersect(targetArea);
+        boolean valid = !productArea.isEmpty();
+        if (!valid) {
+            logSkipped("The product '" + product.getName() + "' does not intersect the target product.");
+        }
+
+        return valid;
     }
 
     private void logSkippedDueToTimeRange(Product product) {
