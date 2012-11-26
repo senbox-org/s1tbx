@@ -165,8 +165,9 @@ public class DefaultApplicationDescriptor implements ConfigurableExtension, Appl
         if (symbolicName == null) {
             symbolicName = declaringModule.getSymbolicName();
         }
-        if (version == null) {
-            version = declaringModule.getVersion().toString();
+        final String versionKey = SystemUtils.getApplicationContextId() + ".version";
+        if (version == null || String.format("${%s}", versionKey).equals(version)) {
+            version = System.getProperty(versionKey);
         }
         final String buildIdKey = SystemUtils.getApplicationContextId() + ".build.id";
         if (buildId == null || String.format("${%s}", buildIdKey).equals(buildId)) {

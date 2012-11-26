@@ -20,10 +20,20 @@ import com.bc.ceres.core.Assert;
 import com.jidesoft.grid.ColorCellEditor;
 import com.jidesoft.grid.ColorCellRenderer;
 import com.jidesoft.grid.SortableTable;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.ColorPaletteDef;
+import org.esa.beam.framework.datamodel.ImageInfo;
+import org.esa.beam.framework.datamodel.IndexCoding;
+import org.esa.beam.framework.datamodel.ProductNodeEvent;
+import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.datamodel.Stx;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 
-import javax.swing.*;
+import javax.swing.AbstractButton;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -176,12 +186,9 @@ class Discrete1BandTabularForm implements ColorManipulationChildForm {
                 if (raster instanceof Band) {
                     Band band = (Band) raster;
                     final IndexCoding indexCoding = band.getIndexCoding();
-                    if (indexCoding != null && rowIndex < indexCoding.getSampleCount()) {
-                        final int sampleValue = indexCoding.getSampleValue(rowIndex);
-                        if (sampleValue < frequencies.length) {
-                            final double frequency = frequencies[sampleValue];
-                            return frequency / stx.getSampleCount();
-                        }
+                    if (indexCoding != null && rowIndex < frequencies.length) {
+                        final double frequency = frequencies[rowIndex];
+                        return frequency / stx.getSampleCount();
                     }
                 }
                 return 0.0;

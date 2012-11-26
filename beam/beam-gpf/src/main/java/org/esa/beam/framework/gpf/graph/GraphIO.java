@@ -82,10 +82,10 @@ public class GraphIO {
         // todo - throw exception if a given variable does not exist in the graph definition or if variables are not set.
         Graph graph = (Graph) xStream.fromXML(inputReader);
         if (graph.getVersion() == null) {
-            throw new GraphException("No version is specified in the graph xml.");
+            throw new GraphException("No version is specified in the graph XML.");
         } else if (!Graph.CURRENT_VERSION.equals(graph.getVersion())) {
-            throw new GraphException("Wrong version given in the graph xml. " +
-                    "Given version: " + graph.getVersion() + " Current version: " + Graph.CURRENT_VERSION);
+            throw new GraphException("Wrong version given in the graph XML. " +
+                                             "Given version: " + graph.getVersion() + " Current version: " + Graph.CURRENT_VERSION);
         }
         return graph;
     }
@@ -93,7 +93,7 @@ public class GraphIO {
     private static void addSourceProductsVariable(Map<String, String> variables) {
         List<String> varValueList = new ArrayList<String>();
         for (Map.Entry<String, String> entry : variables.entrySet()) {
-            if(entry.getKey().matches("sourceProduct[0-9]+")) {
+            if (entry.getKey().matches("sourceProduct[0-9]+")) {
                 varValueList.add(entry.getValue());
             }
         }

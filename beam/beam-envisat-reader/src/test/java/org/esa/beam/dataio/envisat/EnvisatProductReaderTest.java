@@ -21,6 +21,7 @@ import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.TiePointGrid;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
@@ -40,6 +41,7 @@ public class EnvisatProductReaderTest {
         readerPlugIn = new EnvisatProductReaderPlugIn();
     }
 
+    @Ignore
     @Test
     public void testAatsrGeoLocation_UpperRightCorner() throws IOException, URISyntaxException {
         final EnvisatProductReader reader = (EnvisatProductReader) readerPlugIn.createReaderInstance();
@@ -88,6 +90,7 @@ public class EnvisatProductReaderTest {
         }
     }
 
+    @Ignore
     @Test
     public void testAatsrGeoLocation_Center() throws IOException, URISyntaxException {
         final EnvisatProductReader reader = (EnvisatProductReader) readerPlugIn.createReaderInstance();

@@ -44,7 +44,8 @@ public class GPT {
         }
         Locale.setDefault(Locale.ENGLISH); // Force usage of english locale
         SystemUtils.init3rdPartyLibs(GPT.class.getClassLoader());
-        new CommandLineTool().run(args);
+        final CommandLineTool commandLineTool = new CommandLineTool();
+        commandLineTool.run(args);
     }
 
 }

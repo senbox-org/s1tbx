@@ -227,7 +227,7 @@ public class WorldMapPane extends JPanel {
     }
 
 
-    private GeneralPath[] getGeoBoundaryPaths(Product product) {
+    public static GeneralPath[] getGeoBoundaryPaths(Product product) {
         final int step = Math.max(16, (product.getSceneRasterWidth() + product.getSceneRasterHeight()) / 250);
         return ProductUtils.createGeoBoundaryPaths(product, null, step);
     }

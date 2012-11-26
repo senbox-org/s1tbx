@@ -19,7 +19,6 @@ import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.help.HelpSys;
 
-import javax.swing.JComponent;
 import javax.swing.JDialog;
 import java.awt.Frame;
 

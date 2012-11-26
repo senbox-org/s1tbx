@@ -8,17 +8,17 @@ import com.bc.ceres.swing.binding.BindingContext;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductNodeGroup;
 import org.esa.beam.framework.datamodel.VectorDataNode;
-import org.esa.beam.util.Debug;
 import org.geotools.feature.NameImpl;
-import org.geotools.feature.type.AttributeDescriptorImpl;
-import org.geotools.feature.type.AttributeTypeImpl;
 import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.AttributeType;
 import org.opengis.feature.type.GeometryDescriptor;
 import org.opengis.feature.type.Name;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.DefaultListCellRenderer;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import java.awt.Component;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
@@ -67,7 +67,6 @@ class CorrelativeFieldSelector {
             public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
                 super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
                 if (value != null) {
-//                    this.setText(((AttributeDescriptor) value).getType().getName().getLocalPart());
                     this.setText(((AttributeDescriptor) value).getName().getLocalPart());
                 }
                 return this;
@@ -133,6 +132,14 @@ class CorrelativeFieldSelector {
             } catch (ValidationException ignore) {
             }
         }
+    }
+
+    public void tryToSelectPointDataSource(VectorDataNode pointDataSource) {
+        pointDataSourceList.setSelectedItem(pointDataSource);
+    }
+
+    public void tryToSelectDataField(AttributeDescriptor dataField) {
+        dataFieldList.setSelectedItem(dataField);
     }
 
     private class NullAttributeDescriptor implements AttributeDescriptor {

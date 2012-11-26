@@ -1,12 +1,10 @@
 package org.esa.beam.visat.toolviews.stat;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.IOException;
-import java.io.StringWriter;
-import java.util.Enumeration;
+import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.ui.application.ToolView;
+import org.esa.beam.framework.ui.io.TableModelCsvEncoder;
+import org.esa.beam.framework.ui.tool.ToolButtonFactory;
+
 import javax.swing.AbstractButton;
 import javax.swing.Icon;
 import javax.swing.JLabel;
@@ -17,9 +15,13 @@ import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
-import org.esa.beam.framework.ui.application.ToolView;
-import org.esa.beam.framework.ui.io.TableModelCsvEncoder;
-import org.esa.beam.framework.ui.tool.ToolButtonFactory;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.util.Enumeration;
 
 public class TableViewPagePanel extends PagePanel {
 
@@ -77,6 +79,17 @@ public class TableViewPagePanel extends PagePanel {
         } catch (IOException ignore) {
         }
         return writer.toString();
+    }
+
+    @Override
+    protected void showAlternativeView() {
+        super.showAlternativeView();
+        final PagePanel alternativeView = getAlternativeView();
+        alternativeView.handleLayerContentChanged();
+        final RasterDataNode raster = alternativeView.getRaster();
+        alternativeView.setRaster(null);
+        alternativeView.setRaster(raster);
+        alternativeView.handleNodeSelectionChanged();
     }
 
     void setModel(TableModel tableModel) {

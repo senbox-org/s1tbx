@@ -16,6 +16,7 @@
 package org.esa.nest.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
+import org.esa.beam.framework.dataio.ProductSubsetDef;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.dataop.dem.ElevationModel;
 import org.esa.beam.framework.dataop.resamp.Resampling;
@@ -215,6 +216,7 @@ public class RangeDopplerGeocodingOp extends Operator {
 
     private boolean nearRangeOnLeft = true; // temp fix for descending Radarsat2
     private String mission = null;
+    private boolean skipBistaticCorrection = false;
 
     public static final String USE_PROJECTED_INCIDENCE_ANGLE_FROM_DEM = "Use projected local incidence angle from DEM";
     public static final String USE_LOCAL_INCIDENCE_ANGLE_FROM_DEM = "Use local incidence angle from DEM";
@@ -355,6 +357,10 @@ public class RangeDopplerGeocodingOp extends Operator {
 
         mission = getMissionType(absRoot);
 
+        if (mission.contains("CSKS") || mission.contains("TSX") || mission.equals("RS2") || mission.contains("SENTINEL")) {
+            skipBistaticCorrection = true;
+        }
+
         srgrFlag = AbstractMetadata.getAttributeBoolean(absRoot, AbstractMetadata.srgr_flag);
 
         wavelength = OperatorUtils.getRadarFrequency(absRoot);
@@ -432,16 +438,6 @@ public class RangeDopplerGeocodingOp extends Operator {
             if(!productType.contains("1.1"))
                 throw new OperatorException("Detected ALOS PALSAR products are currently not supported");
         }
-
-        /*
-        if (mission.contains("TSX") || mission.contains("TDX")) {
-            final String sample = absRoot.getAttributeString(AbstractMetadata.SAMPLE_TYPE);
-            final String productType = absRoot.getAttributeString(AbstractMetadata.PRODUCT_TYPE).toUpperCase();
-            if(!(sample.equals("COMPLEX") || productType.contains("SSC"))) {
-                 throw new OperatorException("Only TerraSAR-X (SSC) products are currently supported");
-            }
-        }
-        */
         if (mission.equals("RS1")) {
             //throw new OperatorException("RadarSAT-1 product is currently not supported");
         }
@@ -936,7 +932,7 @@ public class RangeDopplerGeocodingOp extends Operator {
 
                     if(alt == demNoDataValue && !useAvgSceneHeight) {
                         if (nodataValueAtSea) {
-                            saveNoDataValueToTarget(index, trgTiles);
+                            //saveNoDataValueToTarget(index, trgTiles);
                             continue;
                         }
                     }
@@ -959,7 +955,7 @@ public class RangeDopplerGeocodingOp extends Operator {
                             lineTimeInterval, wavelength, earthPoint, sensorPosition, sensorVelocity);
 
                     if (Double.compare(zeroDopplerTime, NonValidZeroDopplerTime) == 0) {
-                        saveNoDataValueToTarget(index, trgTiles);
+                        //saveNoDataValueToTarget(index, trgTiles);
                         continue;
                     }
 
@@ -969,12 +965,10 @@ public class RangeDopplerGeocodingOp extends Operator {
                     double azimuthIndex = 0.0;
                     double rangeIndex = 0.0;
                     double zeroDoppler = zeroDopplerTime;
-                    if (!mission.contains("CSKS") && !mission.contains("TSX") && !mission.equals("RS2")) {
+                    if (!skipBistaticCorrection) {
                         // skip bistatic correction for COSMO, TerraSAR-X and RadarSAT-2
                         zeroDoppler = zeroDopplerTime + slantRange / Constants.lightSpeedInMetersPerDay;
                     }
-
-                    azimuthIndex = (zeroDoppler - firstLineUTC) / lineTimeInterval;
 
                     slantRange = computeSlantRange(
                             zeroDoppler, timeArray, xPosArray, yPosArray, zPosArray, earthPoint, sensorPos);
@@ -983,7 +977,7 @@ public class RangeDopplerGeocodingOp extends Operator {
                             rangeSpacing, zeroDoppler, slantRange, nearEdgeSlantRange, srgrConvParams);
 
                     if (rangeIndex == -1.0) {
-                        saveNoDataValueToTarget(index, trgTiles);
+                        //saveNoDataValueToTarget(index, trgTiles);
                         continue;
                     }
 
@@ -992,9 +986,11 @@ public class RangeDopplerGeocodingOp extends Operator {
                         rangeIndex = srcMaxRange - rangeIndex;
                     }
 
+                    azimuthIndex = (zeroDoppler - firstLineUTC) / lineTimeInterval;
+
                     if (!isValidCell(rangeIndex, azimuthIndex, lat, lon, latitude, longitude,
                             srcMaxRange, srcMaxAzimuth, sensorPos)) {
-                        saveNoDataValueToTarget(index, trgTiles);
+                        //saveNoDataValueToTarget(index, trgTiles);
                     } else {
                         double[] localIncidenceAngles = {NonValidIncidenceAngle, NonValidIncidenceAngle};
                         if (saveLocalIncidenceAngle || saveProjectedLocalIncidenceAngle || saveSigmaNought) {

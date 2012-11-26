@@ -30,7 +30,8 @@ import org.esa.beam.util.AwtGeomToJtsGeomConverter;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Shape;
 import java.awt.geom.Point2D;
 
 public class SimpleFeatureFigureFactory implements FigureFactory {
@@ -84,12 +85,20 @@ public class SimpleFeatureFigureFactory implements FigureFactory {
         }
     }
 
-    private String getStyleCss(SimpleFeature simpleFeature, String defaultStyleCss) {
+    static String getStyleCss(SimpleFeature simpleFeature, String defaultStyleCss) {
         Object styleAttribute = simpleFeature.getAttribute(PlainFeatureFactory.ATTRIB_NAME_STYLE_CSS);
         if (styleAttribute instanceof String) {
             String css = (String) styleAttribute;
             if (!css.trim().isEmpty()) {
-                return css;
+                final StringBuilder sb = new StringBuilder(css);
+                final String[] cssAttributes = defaultStyleCss.split(";");
+                for (String cssAttribute : cssAttributes) {
+                    if (!css.contains(cssAttribute.split(":")[0].trim())) {
+                        sb.append(";");
+                        sb.append(cssAttribute);
+                    }
+                }
+                return sb.toString();
             }
         }
         return defaultStyleCss;

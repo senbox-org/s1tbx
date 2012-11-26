@@ -57,7 +57,7 @@ public class VirtualBandMultiLevelImageTest {
             @Override
             public RenderedImage createImage(int level) {
                 return VirtualBandOpImage.createMask(expression, p, p.getSceneRasterWidth(), p.getSceneRasterHeight(),
-                        ResolutionLevel.create(getModel(), level));
+                                                        ResolutionLevel.create(getModel(), level));
             }
         }, expression, p);
     }

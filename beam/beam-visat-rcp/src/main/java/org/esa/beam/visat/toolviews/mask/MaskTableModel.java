@@ -16,10 +16,16 @@
 
 package org.esa.beam.visat.toolviews.mask;
 
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.Mask;
+import org.esa.beam.framework.datamodel.Placemark;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductNodeEvent;
+import org.esa.beam.framework.datamodel.ProductNodeGroup;
+import org.esa.beam.framework.datamodel.ProductNodeListenerAdapter;
+import org.esa.beam.framework.datamodel.RasterDataNode;
 
 import javax.swing.table.AbstractTableModel;
-import java.awt.*;
+import java.awt.Color;
 
 class MaskTableModel extends AbstractTableModel {
 
@@ -101,7 +107,7 @@ class MaskTableModel extends AbstractTableModel {
             true,
     };
 
-    static int[] COLUMN_WIDTHS = {
+    static int[] INITIAL_COLUMN_WIDTHS = {
             24,
             60,
             60,
@@ -110,17 +116,18 @@ class MaskTableModel extends AbstractTableModel {
             320,
     };
 
-
+    private final MaskPNL maskPNL;
     private final boolean inManagmentMode;
     private int[] modeIdxs;
     private Product product;
     private RasterDataNode visibleBand;
-    private final MaskPNL maskPNL;
+    private int[] columnWidths;
 
     MaskTableModel(boolean inManagmentMode) {
         this.inManagmentMode = inManagmentMode;
         updateModeIdxs();
         maskPNL = new MaskPNL();
+        columnWidths = INITIAL_COLUMN_WIDTHS.clone();
     }
 
     Product getProduct() {
@@ -195,8 +202,12 @@ class MaskTableModel extends AbstractTableModel {
         return -1;
     }
 
+    void setPreferredColumnWidth(int columnIndex, int width) {
+        columnWidths[modeIdxs[columnIndex]] = width;
+    }
+
     int getPreferredColumnWidth(int columnIndex) {
-        return COLUMN_WIDTHS[modeIdxs[columnIndex]];
+        return columnWidths[modeIdxs[columnIndex]];
     }
 
     private void updateModeIdxs() {

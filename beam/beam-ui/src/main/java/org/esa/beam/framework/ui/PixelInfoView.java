@@ -344,15 +344,16 @@ public class PixelInfoView extends JPanel {
     }
 
     void clearSelectionInRasterTables() {
-        if(modelUpdater == null || modelUpdater.getCurrentRaster() == null)
-            return;
-        final String rasterName = modelUpdater.getCurrentRaster().getName();
         final JTable bandTable = getTable(bandPixelInfoPane);
         final JTable tiePointGridTable = getTable(tiePointGridPixelInfoPane);
         bandTable.clearSelection();
         tiePointGridTable.clearSelection();
-        if (!selectCurrentRaster(rasterName, bandTable)) {
-            selectCurrentRaster(rasterName, tiePointGridTable);
+        final RasterDataNode raster = modelUpdater.getCurrentRaster();
+        if (raster != null) {
+            final String rasterName = raster.getName();
+            if (!selectCurrentRaster(rasterName, bandTable)) {
+                selectCurrentRaster(rasterName, tiePointGridTable);
+            }
         }
     }
 
@@ -389,7 +390,6 @@ public class PixelInfoView extends JPanel {
          * @param hasFocus   true if cell has focus
          * @param row        the row of the cell to render
          * @param column     the column of the cell to render
-         *
          * @return the default table cell renderer
          */
         @Override

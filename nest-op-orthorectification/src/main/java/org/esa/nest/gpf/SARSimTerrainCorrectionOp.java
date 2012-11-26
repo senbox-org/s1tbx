@@ -213,6 +213,7 @@ public class SARSimTerrainCorrectionOp extends Operator {
     private boolean useAvgSceneHeight = false;
     private Calibrator calibrator = null;
     private Band maskBand = null;
+    private boolean skipBistaticCorrection = false;
 
     private boolean orthoDataProduced = false;  // check if any ortho data is actually produced
     private boolean processingStarted = false;
@@ -341,6 +342,10 @@ public class SARSimTerrainCorrectionOp extends Operator {
         absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
 
         mission = RangeDopplerGeocodingOp.getMissionType(absRoot);
+
+        if (mission.contains("CSKS") || mission.contains("TSX") || mission.equals("RS2") || mission.contains("SENTINEL")) {
+            skipBistaticCorrection = true;
+        }
 
         srgrFlag = AbstractMetadata.getAttributeBoolean(absRoot, AbstractMetadata.srgr_flag);
 
@@ -884,11 +889,6 @@ public class SARSimTerrainCorrectionOp extends Operator {
         final RangeDopplerGeocodingOp.TileData[] trgTiles = trgTileList.toArray(new RangeDopplerGeocodingOp.TileData[trgTileList.size()]);
         final TileGeoreferencing tileGeoRef = new TileGeoreferencing(targetProduct, x0, y0, w, h);
 
-        boolean applyBiStaticCorrection = false;
-        if (!mission.contains("CSKS") && !mission.contains("TSX") && !mission.equals("RS2")) {
-            applyBiStaticCorrection = true;
-        }
-
         try {
             final float[][] localDEM = new float[h+2][w+2];
             if(useAvgSceneHeight) {
@@ -940,7 +940,7 @@ public class SARSimTerrainCorrectionOp extends Operator {
                             zeroDopplerTime, timeArray, xPosArray, yPosArray, zPosArray, earthPoint, sensorPos);
 
                     double zeroDoppler = zeroDopplerTime;
-                    if (applyBiStaticCorrection) {
+                    if (!skipBistaticCorrection) {
                         // skip bistatic correction for COSMO, TerraSAR-X and RadarSAT-2
                         zeroDoppler = zeroDopplerTime + slantRange / Constants.lightSpeedInMetersPerDay;
 

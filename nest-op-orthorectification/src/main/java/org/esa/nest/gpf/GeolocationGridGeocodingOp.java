@@ -319,6 +319,8 @@ public final class GeolocationGridGeocodingOp extends Operator {
         }
         final double srcBandNoDataValue = sourceBand1.getNoDataValue();
 
+        final double oneBillionHalfSpeedLight = Constants.oneBillion * Constants.halfLightSpeed;
+
         try {
             final ProductData trgData = targetTile.getDataBuffer();
             final int srcMaxRange = sourceImageWidth - 1;
@@ -341,7 +343,8 @@ public final class GeolocationGridGeocodingOp extends Operator {
                         continue;
                     }
 
-                    final double slantRange = computeSlantRange(pixPos);
+                    final double slantRange = slantRangeTime.getPixelFloat(pixPos.x, pixPos.y) / oneBillionHalfSpeedLight;
+
                     final double zeroDopplerTime = computeZeroDopplerTime(pixPos);
                     double azimuthIndex = 0.0;
                     double rangeIndex = 0.0;
@@ -376,21 +379,9 @@ public final class GeolocationGridGeocodingOp extends Operator {
      * @param sourceBand The source band.
      * @return The pixel position.
      */
-    private PixelPos computePixelPosition(final double lat, final double lon, final Band sourceBand) {
+    private static PixelPos computePixelPosition(final double lat, final double lon, final Band sourceBand) {
         // todo the following method is not accurate, should use point-in-polygon test
-        final GeoPos geoPos = new GeoPos((float)lat, (float)lon);
-        return sourceBand.getGeoCoding().getPixelPos(geoPos, null);
-    }
-
-    /**
-     * Compute slant range for a given pixel using biquadratic interpolation.
-     * @param pixPos The pixel position.
-     * @return The slant range in meters.
-     */
-    private double computeSlantRange(PixelPos pixPos) {
-//        return slantRangeTime.getPixelDouble(pixPos.x, pixPos.y, TiePointGrid.InterpMode.BIQUADRATIC) /
-        return slantRangeTime.getPixelFloat(pixPos.x, pixPos.y) /
-                1000000000.0 * Constants.halfLightSpeed;
+        return sourceBand.getGeoCoding().getPixelPos(new GeoPos((float)lat, (float)lon), null);
     }
 
     /**

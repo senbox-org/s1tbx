@@ -26,7 +26,8 @@ import org.esa.beam.framework.ui.diagram.Diagram;
 import org.esa.beam.framework.ui.diagram.DiagramAxis;
 import org.esa.beam.framework.ui.diagram.DiagramGraph;
 
-import java.awt.*;
+import java.awt.BasicStroke;
+import java.awt.Color;
 
 
 class SpectraDiagram extends Diagram {
@@ -75,8 +76,8 @@ class SpectraDiagram extends Diagram {
         DefaultDiagramGraphStyle style = (DefaultDiagramGraphStyle) spectrumGraph.getStyle();
         if (placemark != null) {
             final FigureStyle figureStyle = DefaultFigureStyle.createFromCss(placemark.getStyleCss());
-            style.setOutlineColor(figureStyle.getStrokeColor());
-            style.setOutlineStroke(figureStyle.getStroke());
+            style.setOutlineColor(figureStyle.getFillColor());
+            style.setOutlineStroke(new BasicStroke(1.5f));
             style.setFillPaint(figureStyle.getFillPaint());
         } else {
             style.setOutlineColor(Color.BLACK);

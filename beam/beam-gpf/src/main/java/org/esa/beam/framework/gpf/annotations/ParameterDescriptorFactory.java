@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -176,7 +176,7 @@ public class ParameterDescriptorFactory implements PropertyDescriptorFactory {
         registry.loadOperatorSpis();
         OperatorSpi operatorSpi = registry.getOperatorSpi(operatorName);
         if (operatorSpi == null) {
-            throw new IllegalStateException("Operator not found for [" + operatorName + "]");
+            throw new IllegalStateException("Operator SPI not found for operator [" + operatorName + "]");
         }
         return operatorSpi.getOperatorClass();
     }

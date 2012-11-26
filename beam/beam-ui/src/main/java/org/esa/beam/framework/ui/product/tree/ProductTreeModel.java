@@ -17,6 +17,7 @@ package org.esa.beam.framework.ui.product.tree;
 
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductManager;
+import org.esa.beam.framework.datamodel.ProductNode;
 import org.esa.beam.framework.datamodel.ProductNodeEvent;
 import org.esa.beam.framework.datamodel.ProductNodeListener;
 import org.esa.beam.framework.datamodel.ProductNodeListenerAdapter;
@@ -157,9 +158,9 @@ public class ProductTreeModel implements TreeModel {
 
         @Override
         public void nodeChanged(ProductNodeEvent event) {
-            if (event.getSourceNode() instanceof Product) {
-                Product product = (Product) event.getSourceNode();
-                TreePath path = getTreePath(product);
+            ProductNode sourceNode = event.getSourceNode();
+            if (sourceNode instanceof Product || sourceNode instanceof VectorDataNode) {
+                TreePath path = getTreePath(sourceNode);
                 if (path != null) {
                     fireTreeNodeChanged(path);
                 }

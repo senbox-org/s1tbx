@@ -108,6 +108,11 @@ public class JavaMathTest extends TestCase {
         assertEquals(Integer.MAX_VALUE, (int) Double.POSITIVE_INFINITY);
         assertEquals(Double.NaN, Math.max(Double.NaN, 5.4));
         assertFalse(Double.NaN < 5.4);
+        assertFalse(Double.NaN > 5.4);
+        assertFalse(Double.NaN == 5.4);
+        assertFalse(Double.NaN < Double.NEGATIVE_INFINITY);
+        assertFalse(Double.NaN > Double.NEGATIVE_INFINITY);
+
     }
 
     /**

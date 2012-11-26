@@ -277,18 +277,14 @@ public class BeamFileChooser extends JFileChooser {
     }
 
     private boolean isCompoundDocument(File file) {
-        try {
-            final FileFilter[] filters = getChoosableFileFilters();
-            for (FileFilter fileFilter : filters) {
-                if (fileFilter instanceof BeamFileFilter) {
-                    BeamFileFilter beamFileFilter = (BeamFileFilter) fileFilter;
-                    if (beamFileFilter.isCompoundDocument(file)) {
-                        return true;
-                    }
+        final FileFilter[] filters = getChoosableFileFilters();
+        for (FileFilter fileFilter : filters) {
+            if (fileFilter instanceof BeamFileFilter) {
+                BeamFileFilter beamFileFilter = (BeamFileFilter) fileFilter;
+                if (beamFileFilter.isCompoundDocument(file)) {
+                    return true;
                 }
             }
-        } catch(Exception e) {
-            //
         }
         return false;
     }

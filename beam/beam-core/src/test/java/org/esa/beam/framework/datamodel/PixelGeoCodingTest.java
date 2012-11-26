@@ -122,6 +122,7 @@ public class PixelGeoCodingTest extends TestCase {
         assertEquals(geoCoding1, geoCoding2);
         assertFalse(geoCoding1.equals(geoCoding3));
     }
+
     public void testGetPixelPos() throws IOException {
         Product product = createProduct();
         TiePointGeoCoding tiePointGeoCoding = (TiePointGeoCoding) product.getGeoCoding();
@@ -134,19 +135,19 @@ public class PixelGeoCodingTest extends TestCase {
         PixelPos pixelPos = pixelGeoCoding.getPixelPos(gp, null);
         assertEquals(new PixelPos(0.5f, 0.5f), pixelPos);
         System.out.println("----");
-        gp = new GeoPos((latGrid.getTiePoints()[0] + latGrid.getTiePoints()[1]) / 2 ,
-                               (lonGrid.getTiePoints()[0] + lonGrid.getTiePoints()[1]) / 2 );
-         pixelPos = pixelGeoCoding.getPixelPos(gp, null);
-         assertEquals(new PixelPos(2.5f, 0.5f), pixelPos);
+        gp = new GeoPos((latGrid.getTiePoints()[0] + latGrid.getTiePoints()[1]) / 2,
+                        (lonGrid.getTiePoints()[0] + lonGrid.getTiePoints()[1]) / 2);
+        pixelPos = pixelGeoCoding.getPixelPos(gp, null);
+        assertEquals(new PixelPos(2.5f, 0.5f), pixelPos);
     }
 
     public void testGetGeoPos() throws IOException {
         doTestGetGeoPos();
     }
 
-    public void testGetGeoPos_useTiling() throws IOException {
+    public void testGetGeoPos_useNoTiling() throws IOException {
         try {
-            System.setProperty("beam.pixelGeoCoding.useTiling", "true");
+            System.setProperty("beam.pixelGeoCoding.useTiling", "false");
             doTestGetGeoPos();
         } finally {
             System.clearProperty("beam.pixelGeoCoding.useTiling");
@@ -255,9 +256,9 @@ public class PixelGeoCodingTest extends TestCase {
         doTestTransferGeoCoding();
     }
 
-    public void testTransferGeoCoding_useTiling() throws IOException {
+    public void testTransferGeoCoding_useNoTiling() throws IOException {
         try {
-            System.setProperty("beam.pixelGeoCoding.useTiling", "true");
+            System.setProperty("beam.pixelGeoCoding.useTiling", "false");
             doTestTransferGeoCoding();
         } finally {
             System.clearProperty("beam.pixelGeoCoding.useTiling");
@@ -284,9 +285,9 @@ public class PixelGeoCodingTest extends TestCase {
         doTestTransferGeoCoding_WithSpatialSubset();
     }
 
-    public void testTransferGeoCoding_WithSpatialSubset_useTiling() throws IOException {
+    public void testTransferGeoCoding_WithSpatialSubset_useNoTiling() throws IOException {
         try {
-            System.setProperty("beam.pixelGeoCoding.useTiling", "true");
+            System.setProperty("beam.pixelGeoCoding.useTiling", "false");
             doTestTransferGeoCoding_WithSpatialSubset();
         } finally {
             System.clearProperty("beam.pixelGeoCoding.useTiling");
@@ -434,5 +435,209 @@ public class PixelGeoCodingTest extends TestCase {
         // In many cases, we use the tile rectangles in order to retrieve pixel data
         // So make sure it also considers the min X and Y
         assertEquals(new Rectangle(minX, minY, 8, 8), dst.getTileRect(0, 0));
+    }
+
+    public void testGetPositiveLonMin() throws Exception {
+        float lon0 = 160.0f;
+        float lon1 = 150.0f;
+        float lon2 = -169.0f;
+        float lon3 = 165.0f;
+        float result = PixelGeoCoding.getPositiveLonMin(lon0, lon1, lon2, lon3);
+        assertEquals(150.0f, result);
+
+        lon0 = -175.0f;
+        lon1 = 170.0f;
+        lon2 = -169.0f;
+        lon3 = -170.0f;
+        result = PixelGeoCoding.getPositiveLonMin(lon0, lon1, lon2, lon3);
+        assertEquals(170.0f, result);
+
+        lon0 = 170.0f;
+        lon1 = 160.0f;
+        lon2 = -175.0f;
+        lon3 = -165.0f;
+        result = PixelGeoCoding.getPositiveLonMin(lon0, lon1, lon2, lon3);
+        assertEquals(160.0f, result);
+
+        lon0 = -150.0f;
+        lon1 = +160.0f;
+        lon2 = -140.0f;
+        lon3 = -170.0f;
+        result = PixelGeoCoding.getPositiveLonMin(lon0, lon1, lon2, lon3);
+        assertEquals(160.0f, result);
+
+        lon0 = 170.0f;
+        lon1 = -175.0f;
+        lon2 = -165.0f;
+        lon3 = -150.0f;
+        result = PixelGeoCoding.getPositiveLonMin(lon0, lon1, lon2, lon3);
+        assertEquals(170.0f, result);
+
+        lon0 = 140.0f;
+        lon1 = 150.0f;
+        lon2 = 160.0f;
+        lon3 = -170.0f;
+        result = PixelGeoCoding.getPositiveLonMin(lon0, lon1, lon2, lon3);
+        assertEquals(140.0f, result);
+
+        lon0 = -175.0f;
+        lon1 = -165.0f;
+        lon2 = 170.0f;
+        lon3 = 160.0f;
+        result = PixelGeoCoding.getPositiveLonMin(lon0, lon1, lon2, lon3);
+        assertEquals(160.0f, result);
+
+        lon0 = 170.0f;
+        lon1 = -140.0f;
+        lon2 = 160.0f;
+        lon3 = -150.0f;
+        result = PixelGeoCoding.getPositiveLonMin(lon0, lon1, lon2, lon3);
+        assertEquals(160.0f, result);
+
+        lon0 = -160.0f;
+        lon1 = -150.0f;
+        lon2 = 170.0f;
+        lon3 = -170.0f;
+        result = PixelGeoCoding.getPositiveLonMin(lon0, lon1, lon2, lon3);
+        assertEquals(170.0f, result);
+
+        lon0 = 170.0f;
+        lon1 = -170.0f;
+        lon2 = 150.0f;
+        lon3 = 160.0f;
+        result = PixelGeoCoding.getPositiveLonMin(lon0, lon1, lon2, lon3);
+        assertEquals(150.0f, result);
+
+        lon0 = -170.0f;
+        lon1 = 150.0f;
+        lon2 = 160.0f;
+        lon3 = 140.0f;
+        result = PixelGeoCoding.getPositiveLonMin(lon0, lon1, lon2, lon3);
+        assertEquals(140.0f, result);
+
+        lon0 = -150.0f;
+        lon1 = -170.0f;
+        lon2 = -160.0f;
+        lon3 = 170.0f;
+        result = PixelGeoCoding.getPositiveLonMin(lon0, lon1, lon2, lon3);
+        assertEquals(170.0f, result);
+    }
+
+    public void testGetNegativeLonMax() throws Exception {
+        float lon0 = 160.0f;
+        float lon1 = 150.0f;
+        float lon2 = -169.0f;
+        float lon3 = 165.0f;
+        float result = PixelGeoCoding.getNegativeLonMax(lon0, lon1, lon2, lon3);
+        assertEquals(-169.0f, result);
+
+        lon0 = -175.0f;
+        lon1 = 170.0f;
+        lon2 = -169.0f;
+        lon3 = -170.0f;
+        result = PixelGeoCoding.getNegativeLonMax(lon0, lon1, lon2, lon3);
+        assertEquals(-169.0f, result);
+
+        lon0 = 170.0f;
+        lon1 = 160.0f;
+        lon2 = -175.0f;
+        lon3 = -165.0f;
+        result = PixelGeoCoding.getNegativeLonMax(lon0, lon1, lon2, lon3);
+        assertEquals(-165.0f, result);
+
+        lon0 = -150.0f;
+        lon1 = +160.0f;
+        lon2 = -140.0f;
+        lon3 = -170.0f;
+        result = PixelGeoCoding.getNegativeLonMax(lon0, lon1, lon2, lon3);
+        assertEquals(-140.0f, result);
+
+        lon0 = 170.0f;
+        lon1 = -175.0f;
+        lon2 = -165.0f;
+        lon3 = -150.0f;
+        result = PixelGeoCoding.getNegativeLonMax(lon0, lon1, lon2, lon3);
+        assertEquals(-150.0f, result);
+
+        lon0 = 140.0f;
+        lon1 = 150.0f;
+        lon2 = 160.0f;
+        lon3 = -170.0f;
+        result = PixelGeoCoding.getNegativeLonMax(lon0, lon1, lon2, lon3);
+        assertEquals(-170.0f, result);
+
+        lon0 = -175.0f;
+        lon1 = -165.0f;
+        lon2 = 170.0f;
+        lon3 = 160.0f;
+        result = PixelGeoCoding.getNegativeLonMax(lon0, lon1, lon2, lon3);
+        assertEquals(-165.0f, result);
+
+        lon0 = 170.0f;
+        lon1 = -140.0f;
+        lon2 = 160.0f;
+        lon3 = -150.0f;
+        result = PixelGeoCoding.getNegativeLonMax(lon0, lon1, lon2, lon3);
+        assertEquals(-140.0f, result);
+
+        lon0 = -160.0f;
+        lon1 = -150.0f;
+        lon2 = 170.0f;
+        lon3 = -170.0f;
+        result = PixelGeoCoding.getNegativeLonMax(lon0, lon1, lon2, lon3);
+        assertEquals(-150.0f, result);
+
+        lon0 = 170.0f;
+        lon1 = -170.0f;
+        lon2 = 150.0f;
+        lon3 = 160.0f;
+        result = PixelGeoCoding.getNegativeLonMax(lon0, lon1, lon2, lon3);
+        assertEquals(-170.0f, result);
+
+        lon0 = -170.0f;
+        lon1 = 150.0f;
+        lon2 = 160.0f;
+        lon3 = 140.0f;
+        result = PixelGeoCoding.getNegativeLonMax(lon0, lon1, lon2, lon3);
+        assertEquals(-170.0f, result);
+
+        lon0 = -150.0f;
+        lon1 = -170.0f;
+        lon2 = -160.0f;
+        lon3 = 170.0f;
+        result = PixelGeoCoding.getNegativeLonMax(lon0, lon1, lon2, lon3);
+        assertEquals(-150.0f, result);
+    }
+
+    public void testIsCrossingMeridianInsideQuad() throws Exception {
+        float lon0 = 160.0f;
+        float lon1 = 150.0f;
+        float lon2 = -169.0f;
+        float lon3 = 165.0f;
+        assertTrue(PixelGeoCoding.isCrossingMeridianInsideQuad(true, lon0, lon1, lon2, lon3));
+
+        lon0 = -160.0f;
+        lon1 = -150.0f;
+        lon2 = 170.0f;
+        lon3 = -170.0f;
+        assertTrue(PixelGeoCoding.isCrossingMeridianInsideQuad(true, lon0, lon1, lon2, lon3));
+
+        lon0 = 170.0f;
+        lon1 = 170.0f;
+        lon2 = 179.0f;
+        lon3 = 179.0f;
+        assertFalse(PixelGeoCoding.isCrossingMeridianInsideQuad(true, lon0, lon1, lon2, lon3));
+
+        lon0 = 170.0f;
+        lon1 = 170.0f;
+        lon2 = 179.0f;
+        lon3 = 179.0f;
+        assertFalse(PixelGeoCoding.isCrossingMeridianInsideQuad(false, lon0, lon1, lon2, lon3));
+
+        lon0 = -10.0f;
+        lon1 = -10.0f;
+        lon2 = 10.0f;
+        lon3 = 10.0f;
+        assertFalse(PixelGeoCoding.isCrossingMeridianInsideQuad(false, lon0, lon1, lon2, lon3));
     }
 }

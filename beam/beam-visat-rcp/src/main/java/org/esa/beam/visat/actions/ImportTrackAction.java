@@ -30,16 +30,21 @@ import org.esa.beam.framework.datamodel.VectorDataNode;
 import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.framework.ui.command.ExecCommand;
 import org.esa.beam.framework.ui.product.ProductSceneView;
+import org.esa.beam.util.FeatureUtils;
 import org.esa.beam.util.io.CsvReader;
 import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.visat.VisatApp;
 import org.geotools.data.collection.ListFeatureCollection;
 import org.geotools.feature.FeatureCollection;
+import org.geotools.feature.FeatureIterator;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
+import org.geotools.geometry.jts.GeometryCoordinateSequenceTransformer;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.referencing.operation.TransformException;
 
 import java.io.File;
 import java.io.FileReader;
@@ -147,7 +152,28 @@ public class ImportTrackAction extends ExecCommand {
             throw new IOException("No track point found or all of them are located outside the scene boundaries.");
         }
 
+        final CoordinateReferenceSystem mapCRS = geoCoding.getMapCRS();
+        if (!mapCRS.equals(DefaultGeographicCRS.WGS84)) {
+            try {
+                transformFeatureCollection(featureCollection, mapCRS);
+            } catch (TransformException e) {
+                throw new IOException("Cannot transform the ship track onto CRS '" + mapCRS.toWKT() + "'.", e);
+            }
+        }
+
         return featureCollection;
+    }
+
+    private static void transformFeatureCollection(FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection, CoordinateReferenceSystem targetCRS) throws TransformException {
+        final GeometryCoordinateSequenceTransformer transform = FeatureUtils.getTransform(DefaultGeographicCRS.WGS84, targetCRS);
+        final FeatureIterator<SimpleFeature> features = featureCollection.features();
+        final GeometryFactory geometryFactory = new GeometryFactory();
+        while (features.hasNext()) {
+            final SimpleFeature simpleFeature = features.next();
+            final Point sourcePoint = (Point) simpleFeature.getDefaultGeometry();
+            final Point targetPoint = transform.transformPoint(sourcePoint, geometryFactory);
+            simpleFeature.setDefaultGeometry(targetPoint);
+        }
     }
 
     private static SimpleFeatureType createTrackFeatureType(GeoCoding geoCoding) {
