@@ -87,6 +87,7 @@
 	        <dialogTitle>Simulate a SAR image</dialogTitle>
             <shortDescr>Simulate a SAR image based on a DEM</shortDescr>
             <targetProductNameSuffix>_Sim</targetProductNameSuffix>
+			<placeAfter>RangeDopplerGeocodingOp</placeAfter>
         </action>
 
         <action>
