@@ -319,11 +319,16 @@ public abstract class SingleTargetProductDialog extends ModelessDialog {
 
                 saveTime = System.currentTimeMillis() - t0;
                 if (model.isOpenInAppSelected()) {
-                    product = ProductIO.readProduct(model.getProductFile());
-                    if (product == null) {
-                        product = targetProduct; // todo - check - this cannot be ok!!! (nf)
+                    File targetFile = model.getProductFile();
+                    if(!targetFile.exists())
+                        targetFile = targetProduct.getFileLocation();
+                    if(targetFile.exists()) {
+                        product = ProductIO.readProduct(targetFile);
+                        if (product == null) {
+                            product = targetProduct; // todo - check - this cannot be ok!!! (nf)
+                        }
+                        pm.worked(5);
                     }
-                    pm.worked(5);
                 }
             } finally {
                 pm.done();

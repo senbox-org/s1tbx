@@ -59,6 +59,7 @@ public class EnviProductWriter extends AbstractProductWriter {
 
         ensureNamingConvention();
         getSourceProduct().setProductWriter(this);
+        getSourceProduct().setFileLocation(_outputDir);
         deleteRemovedNodes();
     }
 
