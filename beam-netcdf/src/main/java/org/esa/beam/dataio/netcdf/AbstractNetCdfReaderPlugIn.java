@@ -31,6 +31,7 @@ import ucar.nc2.Variable;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 public abstract class AbstractNetCdfReaderPlugIn implements ProductReaderPlugIn {
@@ -85,21 +86,21 @@ public abstract class AbstractNetCdfReaderPlugIn implements ProductReaderPlugIn 
      */
     protected void initReadContext(ProfileReadContext ctx) throws IOException {
         NetcdfFile netcdfFile = ctx.getNetcdfFile();
-        Group group;
         final Group rootGroup = netcdfFile.getRootGroup();
         if (ctx.getProperty(Constants.PRODUCT_SUBSET_PROPERTY) != null) {
             final ProductSubsetDef subset = (ProductSubsetDef) ctx.getProperty(Constants.PRODUCT_SUBSET_PROPERTY);
             final List<Variable> variables = rootGroup.getVariables();
-            group = new Group(netcdfFile, rootGroup, "");
+            List<String> variablesTobeDeleted = new ArrayList<String>();
             for (Variable variable : variables) {
-                if (subset.isNodeAccepted(variable.getName())) {
-                    group.addVariable(variable);
+                if (!subset.isNodeAccepted(variable.getName())) {
+                    variablesTobeDeleted.add(variable.getShortName());
                 }
             }
-        } else {
-            group = rootGroup;
+            for (String variableName : variablesTobeDeleted) {
+                rootGroup.removeVariable(variableName);
+            }
         }
-        final RasterDigest rasterDigest = RasterDigest.createRasterDigest(group);
+        final RasterDigest rasterDigest = RasterDigest.createRasterDigest(rootGroup);
         if (rasterDigest == null) {
             throw new IOException("File does not contain any bands.");
         }
