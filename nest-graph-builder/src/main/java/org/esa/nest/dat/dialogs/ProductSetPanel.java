@@ -62,9 +62,7 @@ public class ProductSetPanel extends JPanel {
                            final boolean incTrgProduct, final boolean incButtonPanel) {
         super(new BorderLayout());
         this.appContext = theAppContext;
-
-        if(title != null)
-            setBorder(BorderFactory.createTitledBorder(title));
+        setBorderTitle(title);
 
         productSetTable = new FileTable(fileModel);
         final JPanel productSetContent = createComponent(productSetTable, false);
@@ -86,6 +84,11 @@ public class ProductSetPanel extends JPanel {
         } else {
             targetProductSelector = null;
         }
+    }
+
+    public void setBorderTitle(final String title) {
+        if(title != null)
+            setBorder(BorderFactory.createTitledBorder(title));
     }
 
     public JPanel getButtonPanel() {
