@@ -1,8 +1,8 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html><head>
+<html><head><title>Help - Undersample</title>
+
   
-  <title>Help - Undersample</title><link rel="stylesheet" href="../style.css"></head>
-<body>
+  <link rel="stylesheet" href="../style.css"></head><body>
 <table class="header">
     <tbody>
     <tr class="header">
@@ -15,16 +15,17 @@
 
 <h3>Undersample Operator</h3>
 
-<p>This operator downsamples a real or complex image using sub-sampling method or kernel
+<p>This operator downsamples a real or complex image using sub-sampling method or lowpass
 filtering method.</p>
 <h4>Undersampling Method</h4>
 <ul><li>Sub-sampling method: The image is downsampled with user specified sub-sampling
-rates in both range and azimuth directions. For complex image, the i and q bands in
+rates in both range and azimuth directions. Here sub-sampling
+rates is a positive integer which is the step size in reading row/column pixels from product file. For complex image, the i and q bands in
 the image are downsampled separately, and the downsampled image is still a complex
-image.</li><li>Kernel-filtering method: The image is downsampled with a pre-defined low-pass kernel moving across
+image.</li><li>Lowpass-filtering method: The image is downsampled with a pre-defined low-pass kernel moving across
 the image with a step-size determined by the size of the required output image.&nbsp;For complex
-image, intensity image is computed from the i and q bands before kernel filtering is
-applied. The downsampled image is always real image.
+image, intensity image is computed from the i and q bands before lowpass filtering is
+applied. The downsampled image is always a real image.
 </li></ul><h4>Undersampled Image Size</h4><p>
 User can determine the output image size by specifying
 </p><ul>
@@ -43,25 +44,29 @@ selected, then by default all bands are selected.</li>
 <li> Sub-Sampling in X: User provided sub-sampling rate in range.</li>
 <li> Sub-Sampling in Y: User provided sub-sampling rate in azimuth.</li>
 </ol>
-<br><img style="width: 500px; height: 500px;" alt="" src="images/under_sample_dlg_1.jpg">
+<br><img style="width: 450px; height: 450px;" alt="" src="images/under_sample_dlg_1.jpg"><br>
+<br>
+
 
 <p></p><p>
-If the Kernel Filtering method is selected for the downsampling, and the downsampled
+If the Lowpass Filtering method is selected for the downsampling, and the downsampled
 image is output by image size, then the following parameters are used by the operator:
 </p>
 <ol>
 <li> Source Band: All bands (real or virtual) of the source product. User can
 select one or more bands for producing downsampled images. If no bands are
 selected, then by default all bands are selected.</li>
-<li> Under-Sampling Method: Kernel Filtering method.</li><li>Filter Size: The kernel filter size.
+<li> Under-Sampling Method: Kernel Filtering method.</li><li>Filter Size: The lowpass filter size.
 </li><li> Output Image By: The method for determining output image dimension.
 </li><li> Output Image Rows: The row size of the downsampled image.
 </li><li> Output Image Columns: The column size of the downsampled image.
 </li></ol>
-<br><img style="width: 500px; height: 500px;" alt="" src="images/under_sample_dlg_2.jpg">
+<br><img style="width: 450px; height: 450px;" alt="" src="images/under_sample_dlg_2.jpg"><br>
+<br>
+
 
 <p></p><p>
-If the Kernel Filtering method is selected for the downsampling, and the downsampled
+If the Lowpass Filtering method is selected for the downsampling, and the downsampled
 image is output by image dimension ratio, then the following parameters are used by
 the operator:
 </p>
@@ -69,29 +74,29 @@ the operator:
 <li> Source Band: All bands (real or virtual) of the source product. User can
 select one or more bands for producing downsampled images. If no bands are
 selected, then by default all bands are selected.</li>
-<li> Under-Sampling Method: Kernel Filtering method.</li><li>Filter Size: The kernel filter size.
+<li> Under-Sampling Method: Kernel Filtering method.</li><li>Filter Size: The lowpass filter size.
 </li><li> Output Image By: The method for determining output image dimension.
 </li><li> Width Ratio: The ratio of the downsampled image width and the source image width.
 </li><li> Height Ratio: The ratio of the downsampled image height and the source image height.
 </li></ol>
-<br><img style="width: 500px; height: 500px;" alt="" src="images/under_sample_dlg_3.jpg">
+<br><img style="width: 450px; height: 450px;" alt="" src="images/under_sample_dlg_3.jpg"><br>
+<br>
+
 
 <p></p><p>
-If the Kernel Filtering method is selected for the downsampling, and the downsampled
+If the Lowpass Filtering method is selected for the downsampling, and the downsampled
 image is output by pixel spacing, then the following parameters are used by the operator:
 </p>
 <ol>
 <li> Source Band: All bands (real or virtual) of the source product. User can
 select one or more bands for producing downsampled images. If no bands are
 selected, then by default all bands are selected.</li>
-<li> Under-Sampling Method: Kernel Filtering method.</li><li>Filter Size: The kernel filter size.
+<li> Under-Sampling Method: Lowpass Filtering method.</li><li>Filter Size: The lowpass filter size.
 </li><li> Output Image By: The method for determining output image dimension.
 </li><li> Range Spacing: The range pixel spacing of the downsampled image in meters.
 </li><li> Azimuth Spacing: The azimuth pixel spacing of the downsampled image in meters.
 </li></ol>
-<br><img style="width: 500px; height: 500px;" alt="" src="images/under_sample_dlg_4.jpg">
-
-<br>
+<br><img style="width: 450px; height: 450px;" alt="" src="images/under_sample_dlg_4.jpg">&nbsp;<br>
 
 <hr>
 </body></html>
