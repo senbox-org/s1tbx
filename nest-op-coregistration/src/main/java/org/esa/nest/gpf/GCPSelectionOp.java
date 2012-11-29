@@ -351,8 +351,9 @@ public class GCPSelectionOp extends Operator {
                         StringUtils.contains(masterBandNames, slaveBand.getName()))
                     continue;
                 if(!useAllPolarimetricBands) {
-                    final String slvProductName = StackUtils.getSlaveProductName(targetProduct, targetBand);
-                    if(singleSlvBandMap.get(slvProductName) != null) {
+                    final String mstPol = OperatorUtils.getPolarizationFromBandName(masterBand1.getName());
+                    final String slvProductName = StackUtils.getSlaveProductName(targetProduct, targetBand, mstPol);
+                    if(slvProductName == null || singleSlvBandMap.get(slvProductName) != null) {
                         continue;
                     }
                     singleSlvBandMap.put(slvProductName, targetBand);

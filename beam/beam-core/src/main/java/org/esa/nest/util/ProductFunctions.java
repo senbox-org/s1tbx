@@ -154,6 +154,8 @@ public class ProductFunctions {
             return ProductIO.readProduct(file, "GeoTIFF");
         } else if(file.isDirectory()) {
             return ProductIO.readProduct(file, "PolSARPro");
+        } else if(filename.endsWith("dbl")) {
+            return ProductIO.readProduct(file, "SMOS-DBL");
         }
         return null;
     }

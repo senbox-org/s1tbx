@@ -334,10 +334,10 @@ public class WarpOp extends Operator {
             ProductNodeGroup<Placemark> slaveGCPGroup = sourceProduct.getGcpGroup(srcBand);
             if (slaveGCPGroup.getNodeCount() < 3) {
                 // find others for same slave product
-                final String slvProductName = StackUtils.getSlaveProductName(sourceProduct, srcBand);
+                final String slvProductName = StackUtils.getSlaveProductName(sourceProduct, srcBand, null);
                 for(Band band : sourceProduct.getBands()) {
                     if(band != srcBand) {
-                        final String productName = StackUtils.getSlaveProductName(sourceProduct, band);
+                        final String productName = StackUtils.getSlaveProductName(sourceProduct, band, null);
                         if(slvProductName != null && slvProductName.equals(productName)) {
                             slaveGCPGroup = sourceProduct.getGcpGroup(band);
                             if (slaveGCPGroup.getNodeCount() >= 3)

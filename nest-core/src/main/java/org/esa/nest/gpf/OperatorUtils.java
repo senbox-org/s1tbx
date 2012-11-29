@@ -127,7 +127,7 @@ public final class OperatorUtils {
         }
     }
 
-    private static String getPolarizationFromBandName(final String bandName) {
+    public static String getPolarizationFromBandName(final String bandName) {
 
     	// Account for possibilities like "x_HH_dB" or "x_HH_times_VV_conj"
     	// where the last one will return an exception because it appears to contain

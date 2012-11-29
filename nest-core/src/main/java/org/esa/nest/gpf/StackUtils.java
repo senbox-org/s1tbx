@@ -100,15 +100,31 @@ public final class StackUtils {
         return new String[]{};
     }
 
-    public static String getSlaveProductName(final Product sourceProduct, final Band slvBand) {
+    public static String getSlaveProductName(final Product sourceProduct, final Band slvBand, final String mstPol) {
         final MetadataElement slaveMetadataRoot = sourceProduct.getMetadataRoot().getElement(
                                                         AbstractMetadata.SLAVE_METADATA_ROOT);
         if(slaveMetadataRoot != null) {
             final String slvBandName = slvBand.getName();
             for(MetadataElement elem : slaveMetadataRoot.getElements()) {
                 final String slvBandNames = elem.getAttributeString(AbstractMetadata.SLAVE_BANDS, "");
-                if(slvBandNames.contains(slvBandName))
+                if(mstPol == null && slvBandNames.contains(slvBandName)) {
                     return elem.getName();
+                } else if(mstPol != null) {
+                    // find slave with same pol
+                    final String[] bandNames = StringUtils.toStringArray(slvBandNames, " ");
+                    boolean polExist = false;
+                    for(String slvName : bandNames) {
+                        final String slvPol = OperatorUtils.getPolarizationFromBandName(slvName);
+                        if(slvPol.equalsIgnoreCase(mstPol)) {
+                            polExist = true;
+                            if(slvName.equals(slvBandName))
+                                return elem.getName();
+                        }
+                    }
+                    if(!polExist && slvBandNames.contains(slvBandName)) {
+                        return elem.getName();
+                    }
+                }
             }
         }
         return null;

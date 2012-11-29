@@ -84,9 +84,9 @@ public class InstanceFactory {
     }
 
     static MemberInstance createFixMember(DataContext context, CollectionData parent, Type type, Segment segment, int segmentOffset) {
-        if (!type.isSizeKnown()) {
-            throw new IllegalArgumentException("illegal type: " + type);
-        }
+        //if (!type.isSizeKnown()) {
+        //    throw new IllegalArgumentException("illegal type: " + type);
+        //}
         if (type.isSimpleType()) {
             return new SimpleMember(context, parent, (SimpleType) type, segment, segmentOffset);
         } else if (type.isSequenceType()) {
