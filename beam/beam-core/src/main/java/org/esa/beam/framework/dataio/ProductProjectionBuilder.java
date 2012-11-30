@@ -657,6 +657,14 @@ public class ProductProjectionBuilder extends AbstractProductBuilder {
             float[] lineSamples = (float[]) _lineCache.getObject((int)y);
             return lineSamples[(int)x];
         }
+
+        public void getSamples(int[] x, int[] y, float[][] samples) throws Exception {
+            for (int i = 0; i < y.length; i++) {
+                for (int j = 0; j < x.length; j++) {
+                    samples[i][j] = getSample(x[j], y[i]);
+                }
+            }
+        }
     }
 
     private static class SourceBandLineCache extends CachingObjectArray {
