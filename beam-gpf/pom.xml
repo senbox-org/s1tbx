@@ -50,10 +50,6 @@
             <groupId>com.bc.ceres</groupId>
             <artifactId>ceres-metadata</artifactId>
         </dependency>
-        <dependency>
-            <groupId>velocity</groupId>
-            <artifactId>velocity</artifactId>
-        </dependency>
     </dependencies>
 
     <profiles>
