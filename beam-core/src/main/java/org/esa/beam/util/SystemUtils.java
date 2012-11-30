@@ -589,6 +589,7 @@ public class SystemUtils {
     }
 
     private static void initJAI(ClassLoader cl) {
+        System.setProperty("com.sun.media.jai.disableMediaLib", "true");  // disable native libraries for JAI
         // Must use a new operation registry in order to register JAI operators defined in Ceres and BEAM
         OperationRegistry operationRegistry = OperationRegistry.getThreadSafeOperationRegistry();
         InputStream is = SystemUtils.class.getResourceAsStream(JAI_REGISTRY_PATH);
