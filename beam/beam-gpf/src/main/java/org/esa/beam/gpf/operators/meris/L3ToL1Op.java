@@ -174,6 +174,14 @@ public class L3ToL1Op extends MerisBasisOp {
             final double sample = tile.getSampleDouble((int)x, (int)y);
             return (float) sample;
         }
+
+        public void getSamples(int[] x, int[] y, float[][] samples) {
+            for (int i = 0; i < y.length; i++) {
+                for (int j = 0; j < x.length; j++) {
+                    samples[i][j] = getSample(x[j], y[i]);
+                }
+            }
+        }
     }
 
     public static class Spi extends OperatorSpi {
