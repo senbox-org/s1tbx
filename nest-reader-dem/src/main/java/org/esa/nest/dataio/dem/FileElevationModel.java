@@ -122,4 +122,11 @@ public class FileElevationModel implements ElevationModel, Resampling.Raster {
         return RASTER_HEIGHT;
     }
 
+    public void getSamples(int[] x, int[] y, float[][] samples) throws IOException {
+        for (int i = 0; i < y.length; i++) {
+            for (int j = 0; j < x.length; j++) {
+                samples[i][j] = getSample(x[j], y[i]);
+            }
+        }
+    }
 }
