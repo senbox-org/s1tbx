@@ -145,10 +145,6 @@ public class WarpOp extends Operator {
     @Override
     public void initialize() throws OperatorException {
         try {
-            // Disable JAI media library only for coregistration
-            // reenable it in the dispose
-            //System.setProperty("com.sun.media.jai.disableMediaLib", "true");
-
             // clear any old residual file
             final File residualsFile = getResidualsFile(sourceProduct);
             if (residualsFile.exists()) {
@@ -204,10 +200,6 @@ public class WarpOp extends Operator {
             openResidualsFile = true;
             OperatorUtils.catchOperatorException(getId(), e);
         } 
-    }
-
-    public void dispose() {
-        //System.setProperty("com.sun.media.jai.disableMediaLib", "false");
     }
 
     private void createInSARInterpTable(final int numberOfKernelPoints) {
