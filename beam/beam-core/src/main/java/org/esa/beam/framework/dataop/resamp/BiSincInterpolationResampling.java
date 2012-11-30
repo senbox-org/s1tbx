@@ -72,12 +72,21 @@ final class BiSincInterpolationResampling implements Resampling {
 
     public final float resample(final Raster raster,
                                 final Index index) throws Exception {
-        final double[][] v = new double[5][5];
+
+        int[] x = new int[5];
+        int[] y = new int[5];
+        float[][] samples = new float[5][5];
+
+        for (int i = 0; i < 5; i++) {
+            x[i] = (int)index.i[i];
+            y[i] = (int)index.j[i];
+        }
+        raster.getSamples(x, y, samples);
+
         for (int i = 0; i < 5; i++) {
             for (int j = 0; j < 5; j++) {
-                v[j][i] = raster.getSample(index.i[i], index.j[j]);
-                if(Double.isNaN(v[j][i])) {
-                    return raster.getSample(index.i0, index.j0);
+                if(Double.isNaN(samples[j][i])) {
+                    return samples[2][2];
                 }
             }
         }
@@ -92,11 +101,12 @@ final class BiSincInterpolationResampling implements Resampling {
         final double f4 = sinc(muX - 2.0) * hanning(muX - 2.0);
         final double sum = f0 + f1 + f2 + f3 + f4;
 
-        final double tmpV0 = (f0*v[0][0] + f1*v[0][1] + f2*v[0][2] + f3*v[0][3] + f4*v[0][4]) / sum;
-        final double tmpV1 = (f0*v[1][0] + f1*v[1][1] + f2*v[1][2] + f3*v[1][3] + f4*v[1][4]) / sum;
-        final double tmpV2 = (f0*v[2][0] + f1*v[2][1] + f2*v[2][2] + f3*v[2][3] + f4*v[2][4]) / sum;
-        final double tmpV3 = (f0*v[3][0] + f1*v[3][1] + f2*v[3][2] + f3*v[3][3] + f4*v[3][4]) / sum;
-        final double tmpV4 = (f0*v[4][0] + f1*v[4][1] + f2*v[4][2] + f3*v[4][3] + f4*v[4][4]) / sum;
+        final double tmpV0 = (f0*samples[0][0] + f1*samples[0][1] + f2*samples[0][2] + f3*samples[0][3] + f4*samples[0][4]) / sum;
+        final double tmpV1 = (f0*samples[1][0] + f1*samples[1][1] + f2*samples[1][2] + f3*samples[1][3] + f4*samples[1][4]) / sum;
+        final double tmpV2 = (f0*samples[2][0] + f1*samples[2][1] + f2*samples[2][2] + f3*samples[2][3] + f4*samples[2][4]) / sum;
+        final double tmpV3 = (f0*samples[3][0] + f1*samples[3][1] + f2*samples[3][2] + f3*samples[3][3] + f4*samples[3][4]) / sum;
+        final double tmpV4 = (f0*samples[4][0] + f1*samples[4][1] + f2*samples[4][2] + f3*samples[4][3] + f4*samples[4][4]) / sum;
+
         return (float)interpolationSinc(tmpV0, tmpV1, tmpV2, tmpV3, tmpV4, muY);
     }
 

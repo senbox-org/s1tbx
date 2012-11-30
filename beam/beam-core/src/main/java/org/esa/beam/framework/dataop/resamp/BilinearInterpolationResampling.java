@@ -17,6 +17,8 @@
 package org.esa.beam.framework.dataop.resamp;
 
 
+import com.sun.corba.se.spi.presentation.rmi.IDLNameTranslator;
+
 final class BilinearInterpolationResampling implements Resampling {
 
     public String getName() {
@@ -76,26 +78,23 @@ final class BilinearInterpolationResampling implements Resampling {
     public final float resample(final Raster raster,
                                 final Index index) throws Exception {
 
-        final double z11 = raster.getSample(index.i[0], index.j[0]);
-        if(Double.isNaN(z11))
-            return raster.getSample(index.i0, index.j0);
-        final double z12 = raster.getSample(index.i[1], index.j[0]);
-        if(Double.isNaN(z12))
-            return raster.getSample(index.i0, index.j0);
-        final double z21 = raster.getSample(index.i[0], index.j[1]);
-        if(Double.isNaN(z21))
-            return raster.getSample(index.i0, index.j0);
-        final double z22 = raster.getSample(index.i[1], index.j[1]);
-        if(Double.isNaN(z22))
-            return raster.getSample(index.i0, index.j0);
+        int[] x = new int[2];
+        int[] y = new int[2];
+        float[][] samples = new float[2][2];
+
+        for (int i = 0; i < 2; i++) {
+            x[i] = (int)index.i[i];
+            y[i] = (int)index.j[i];
+        }
+        raster.getSamples(x, y, samples);
 
         final double ki = index.ki[0];
         final double kj = index.kj[0];
 
-        return (float)(z11 * (1f - ki) * (1f - kj) +
-                z12 * ki * (1f - kj) +
-                z21 * (1f - ki) * kj +
-                z22 * ki * kj);
+        return (float)(samples[0][0] * (1f - ki) * (1f - kj) +
+                       samples[0][1] * ki * (1f - kj) +
+                       samples[1][0] * (1f - ki) * kj +
+                       samples[1][1] * ki * kj);
     }
 
     @Override

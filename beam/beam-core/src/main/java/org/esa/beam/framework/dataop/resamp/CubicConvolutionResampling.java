@@ -102,12 +102,28 @@ final class CubicConvolutionResampling implements Resampling {
     public final float resample(final Raster raster,
                                 final Index index) throws Exception {
 
-        final double[][] v = new double[4][4];
+        int[] x = new int[4];
+        int[] y = new int[4];
+        float[][] samples = new float[4][4];
+
+        for (int i = 0; i < 4; i++) {
+            x[i] = (int)index.i[i];
+            y[i] = (int)index.j[i];
+        }
+        raster.getSamples(x, y, samples);
+
         for (int i = 0; i < 4; i++) {
             for (int j = 0; j < 4; j++) {
-                v[j][i] = raster.getSample(index.i[i], index.j[j]);
-                if(Double.isNaN(v[j][i])) {
-                    return raster.getSample(index.i0, index.j0);
+                if(Double.isNaN(samples[j][i])) {
+                    if (index.i[1] == index.i0 && index.j[1] == index.j0) {
+                        return samples[1][1];
+                    } else if (index.i[1] == index.i0 && index.j[2] == index.j0) {
+                        return samples[2][1];
+                    } else if (index.i[2] == index.i0 && index.j[1] == index.j0) {
+                        return samples[1][2];
+                    } else if (index.i[2] == index.i0 && index.j[2] == index.j0) {
+                        return samples[2][2];
+                    }
                 }
             }
         }
@@ -123,10 +139,10 @@ final class CubicConvolutionResampling implements Resampling {
         final double c3 = 0.5*(-muX2 + muX3);
         final double sum = c0 + c1 + c2 + c3;
 
-        final double tmpV0 = (c0*v[0][0] + c1*v[0][1] + c2*v[0][2] + c3*v[0][3]) / sum;
-        final double tmpV1 = (c0*v[1][0] + c1*v[1][1] + c2*v[1][2] + c3*v[1][3]) / sum;
-        final double tmpV2 = (c0*v[2][0] + c1*v[2][1] + c2*v[2][2] + c3*v[2][3]) / sum;
-        final double tmpV3 = (c0*v[3][0] + c1*v[3][1] + c2*v[3][2] + c3*v[3][3]) / sum;
+        final double tmpV0 = (c0*samples[0][0] + c1*samples[0][1] + c2*samples[0][2] + c3*samples[0][3]) / sum;
+        final double tmpV1 = (c0*samples[1][0] + c1*samples[1][1] + c2*samples[1][2] + c3*samples[1][3]) / sum;
+        final double tmpV2 = (c0*samples[2][0] + c1*samples[2][1] + c2*samples[2][2] + c3*samples[2][3]) / sum;
+        final double tmpV3 = (c0*samples[3][0] + c1*samples[3][1] + c2*samples[3][2] + c3*samples[3][3]) / sum;
         return (float)interpolationCubic(tmpV0, tmpV1, tmpV2, tmpV3, muY, muY*muY, muY*muY*muY);
     }
 

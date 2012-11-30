@@ -113,16 +113,20 @@ final class BiCubicInterpolationResampling implements Resampling {
     public final float resample(final Raster raster,
                                 final Index index) throws Exception {
 
-        final double[][] v = new double[4][4];
-        final double x0 = index.i[0] - 1;
-        final double y0 = index.j[0] - 1;
+        int[] x = new int[4];
+        int[] y = new int[4];
+        float[][] samples = new float[4][4];
+
+        for (int i = 0; i < 4; i++) {
+            x[i] = (int)Index.crop(index.i[0] - 1 + i, index.width-1);
+            y[i] = (int)Index.crop(index.j[0] - 1 + i, index.height-1);
+        }
+        raster.getSamples(x, y, samples);
+
         for (int i = 0; i < 4; i++) {
             for (int j = 0; j < 4; j++) {
-                final double x = Index.crop(x0 + i, index.width-1);
-                final double y = Index.crop(y0 + j, index.height-1);
-                v[j][i] = raster.getSample(x, y);
-                if(Double.isNaN(v[j][i])) {
-                    return raster.getSample(index.i0, index.j0);
+                if(Double.isNaN(samples[j][i])) {
+                    return samples[1][1];
                 }
             }
         }
@@ -137,25 +141,25 @@ final class BiCubicInterpolationResampling implements Resampling {
         final double[] z2 = new double[4];    // 1st order derivative in x direction
         final double[] z12 = new double[4];   // cross derivative
 
-        z[0] = v[1][1];
-        z[1] = v[1][2];
-        z[2] = v[2][1];
-        z[3] = v[2][2];
+        z[0] = samples[1][1];
+        z[1] = samples[1][2];
+        z[2] = samples[2][1];
+        z[3] = samples[2][2];
 
-        z1[0] = (v[1][2] - v[1][0]) / 2.0;
-        z1[1] = (v[1][3] - v[1][1]) / 2.0;
-        z1[2] = (v[2][2] - v[2][0]) / 2.0;
-        z1[3] = (v[2][3] - v[2][1]) / 2.0;
+        z1[0] = (samples[1][2] - samples[1][0]) / 2.0;
+        z1[1] = (samples[1][3] - samples[1][1]) / 2.0;
+        z1[2] = (samples[2][2] - samples[2][0]) / 2.0;
+        z1[3] = (samples[2][3] - samples[2][1]) / 2.0;
 
-        z2[0] = (v[2][1] - v[0][1]) / 2.0;
-        z2[1] = (v[2][2] - v[0][2]) / 2.0;
-        z2[2] = (v[3][1] - v[1][1]) / 2.0;
-        z2[3] = (v[3][2] - v[1][2]) / 2.0;
+        z2[0] = (samples[2][1] - samples[0][1]) / 2.0;
+        z2[1] = (samples[2][2] - samples[0][2]) / 2.0;
+        z2[2] = (samples[3][1] - samples[1][1]) / 2.0;
+        z2[3] = (samples[3][2] - samples[1][2]) / 2.0;
 
-        z12[0] = (v[2][2] - v[2][0] - v[0][2] + v[0][0]) / 4.0;
-        z12[1] = (v[2][3] - v[2][1] - v[0][3] + v[0][1]) / 4.0;
-        z12[2] = (v[3][2] - v[3][0] - v[1][2] + v[1][0]) / 4.0;
-        z12[3] = (v[3][3] - v[3][1] - v[1][3] + v[1][1]) / 4.0;
+        z12[0] = (samples[2][2] - samples[2][0] - samples[0][2] + samples[0][0]) / 4.0;
+        z12[1] = (samples[2][3] - samples[2][1] - samples[0][3] + samples[0][1]) / 4.0;
+        z12[2] = (samples[3][2] - samples[3][0] - samples[1][2] + samples[1][0]) / 4.0;
+        z12[3] = (samples[3][3] - samples[3][1] - samples[1][3] + samples[1][1]) / 4.0;
 
         return bcuint(z, z1, z2, z12, index.ki[0], index.kj[0]);
     }
