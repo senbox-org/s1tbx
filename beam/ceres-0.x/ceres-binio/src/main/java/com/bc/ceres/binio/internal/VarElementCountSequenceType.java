@@ -34,6 +34,8 @@ public abstract class VarElementCountSequenceType extends AbstractType implement
         Assert.notNull(elementType, "elementType");
         this.name = name;
         this.elementType = elementType;
+
+        theType = TYPE.SEQUENCE;
     }
 
     @Override

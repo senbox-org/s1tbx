@@ -38,6 +38,8 @@ public final class GrowableSequenceTypeImpl extends AbstractType implements Sequ
         this.elementType = elementType;
         this.elementCount = 0;
         this.size = 0;
+
+        theType = TYPE.SEQUENCE;
     }
 
     @Override

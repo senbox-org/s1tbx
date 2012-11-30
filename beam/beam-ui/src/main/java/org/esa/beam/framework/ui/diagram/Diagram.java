@@ -346,11 +346,11 @@ public class Diagram {
 
         g2d.setClip(graphArea.x, graphArea.y, graphArea.width, graphArea.height);
 
-        Point2D.Double a = new Point2D.Double();
-        Point2D.Double b1 = new Point2D.Double();
-        Point2D.Double b2 = new Point2D.Double();
         DiagramGraph[] graphs = getGraphs();
         for (DiagramGraph graph : graphs) {
+            Point2D.Double a = new Point2D.Double();
+            Point2D.Double b1 = new Point2D.Double();
+            Point2D.Double b2 = new Point2D.Double();
             g2d.setStroke(graph.getStyle().getOutlineStroke());
             g2d.setColor(graph.getStyle().getOutlineColor());
             int n = graph.getNumValues();

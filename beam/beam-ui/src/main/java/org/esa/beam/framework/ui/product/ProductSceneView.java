@@ -1325,7 +1325,7 @@ public class ProductSceneView extends BasicView
             int currentPixelX = (int) Math.floor(imageLevelP.getX());
             int currentPixelY = (int) Math.floor(imageLevelP.getY());
             if (currentPixelX != currentLevelPixelX || currentPixelY != currentLevelPixelY || currentLevel != this.currentLevel) {
-                if (isPixelBorderDisplayEnabled() && (showBorder || pixelBorderDrawn)) {
+                if (currentLevel ==0 && isPixelBorderDisplayEnabled() && (showBorder || pixelBorderDrawn)) {
                     drawPixelBorder(currentPixelX, currentPixelY, currentLevel, showBorder);
                 }
                 currentLevelPixelX = currentPixelX;

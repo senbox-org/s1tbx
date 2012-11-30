@@ -32,6 +32,7 @@ public final class CompoundTypeImpl extends AbstractType implements CompoundType
 
     public CompoundTypeImpl(String name, CompoundMember[] members) {
         this(name, members, null);
+        theType = TYPE.COMPOUND;
     }
 
     public CompoundTypeImpl(String name, CompoundMember[] members, Object metadata) {

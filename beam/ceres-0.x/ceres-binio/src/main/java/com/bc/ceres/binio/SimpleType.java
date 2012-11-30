@@ -70,4 +70,8 @@ public final class SimpleType implements Type {
     public final boolean isCompoundType() {
         return false;
     }
+
+    public TYPE getType() {
+        return TYPE.SIMPLE;
+    }
 }

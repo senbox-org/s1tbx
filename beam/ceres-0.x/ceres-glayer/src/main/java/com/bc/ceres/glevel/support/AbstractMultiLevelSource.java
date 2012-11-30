@@ -131,6 +131,9 @@ public abstract class AbstractMultiLevelSource implements MultiLevelSource {
      * @return the dimension of the image at the level of interest.
      */
     public static Dimension getImageDimension(int width, int height, double scale) {
+        if(scale == 1.0) {
+            return new Dimension(width, height);       //NESTMOD
+        }
         final float scaleFactor = (float) (1.0 / scale);
 
         final RenderedOp c = ConstantDescriptor.create((float) width, (float) height, new Float[]{0.0f}, null);

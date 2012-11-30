@@ -19,8 +19,13 @@ package com.bc.ceres.binio.internal;
 import com.bc.ceres.binio.Type;
 
 public abstract class AbstractType implements Type {
+    protected TYPE theType;
 
     protected AbstractType() {
+    }
+
+    public final TYPE getType() {
+        return theType;
     }
 
     @Override

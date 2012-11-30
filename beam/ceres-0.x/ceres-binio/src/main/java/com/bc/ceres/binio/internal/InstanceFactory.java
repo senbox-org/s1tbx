@@ -29,7 +29,7 @@ public class InstanceFactory {
     public static CompoundInstance createCompound(DataContext context, CollectionData parent, CompoundType compoundType, long position, ByteOrder byteOrder) {
         if (compoundType.isSizeKnown()) {
             // COMPOUND(all members have known size)
-            return new FixCompound(context, parent, compoundType, position);
+            return new FixCompound(context, parent, compoundType, new Segment(position, compoundType.getSize()), 0);
         } else {
             // COMPOUND(some members have unknown size)
             return new VarCompound(context, parent, compoundType, position);
@@ -83,19 +83,29 @@ public class InstanceFactory {
         }
     }
 
-    static MemberInstance createFixMember(DataContext context, CollectionData parent, Type type, Segment segment, int segmentOffset) {
+    static MemberInstance createFixMember(final DataContext context, final CollectionData parent, final Type type,
+                                          final Segment segment, final int segmentOffset) {
         //if (!type.isSizeKnown()) {
         //    throw new IllegalArgumentException("illegal type: " + type);
         //}
-        if (type.isSimpleType()) {
+        Type.TYPE theType = type.getType();
+        if(theType.equals(Type.TYPE.SIMPLE))
             return new SimpleMember(context, parent, (SimpleType) type, segment, segmentOffset);
-        } else if (type.isSequenceType()) {
+        if(theType.equals(Type.TYPE.SEQUENCE))
             return createFixSequence(context, parent, (SequenceType) type, segment, segmentOffset);
-        } else if (type.isCompoundType()) {
+        if(theType.equals(Type.TYPE.COMPOUND))
             return createFixCompound(context, parent, (CompoundType) type, segment, segmentOffset);
-        } else {
-            throw new IllegalArgumentException("illegal type: " + type);
-        }
+        throw new IllegalArgumentException("illegal type: " + type);
+        /*
+       if (type.isSimpleType()) {
+           return new SimpleMember(context, parent, (SimpleType) type, segment, segmentOffset);
+       } else if (type.isSequenceType()) {
+           return createFixSequence(context, parent, (SequenceType) type, segment, segmentOffset);
+       } else if (type.isCompoundType()) {
+           return createFixCompound(context, parent, (CompoundType) type, segment, segmentOffset);
+       } else {
+           throw new IllegalArgumentException("illegal type: " + type);
+       } */
     }
 
     static CompoundInstance createFixCompound(DataContext context, CollectionData parent, CompoundType compoundType, Segment segment, int segmentOffset) {
