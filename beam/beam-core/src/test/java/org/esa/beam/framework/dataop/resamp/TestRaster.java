@@ -36,4 +36,12 @@ class TestRaster implements Resampling.Raster {
     public float getSample(double x, double y) {
         return array[(int)y][(int)x];
     }
+
+    public void getSamples(int[] x, int[] y, float[][] samples) {
+        for (int i = 0; i < y.length; i++) {
+            for (int j = 0; j < x.length; j++) {
+                samples[i][j] = getSample(x[j], y[i]);
+            }
+        }
+    }
 }
