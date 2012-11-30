@@ -24,9 +24,9 @@
             <artifactId>ceres-core</artifactId>
         </dependency>
         <dependency>
-            <groupId>velocity</groupId>
+            <groupId>org.apache.velocity</groupId>
             <artifactId>velocity</artifactId>
-            <version>1.5</version>
+            <version>1.7</version>
         </dependency>
         <dependency>
             <groupId>commons-cli</groupId>

@@ -19,7 +19,6 @@ package com.bc.ceres.resource;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 
-import java.io.IOException;
 import java.io.StringWriter;
 
 /**
@@ -81,23 +80,20 @@ public class ResourceEngine {
      * Evaluates the given {@link Resource} using the current {@link VelocityContext} and return the result.
      *
      * @param resource the resource
+     *
      * @return The result of the processing
      */
     public Resource processResource(Resource resource) {
         StringWriter stringWriter = new StringWriter();
-        try {
-            String content = resource.getContent();
-            velocityEngine.evaluate(velocityContext, stringWriter, "resourceEngine", content);
-            String processedContent = stringWriter.toString();
-            Resource processedResource = resource;
-            if (!processedContent.equals(content)) {
-                processedResource = new StringResource(resource.getPath(), processedContent, resource);
-            }
-
-            return processedResource;
-        } catch (IOException e) {
-            throw new IllegalArgumentException("", e);
+        String content = resource.getContent();
+        velocityEngine.evaluate(velocityContext, stringWriter, "resourceEngine", content);
+        String processedContent = stringWriter.toString();
+        Resource processedResource = resource;
+        if (!processedContent.equals(content)) {
+            processedResource = new StringResource(resource.getPath(), processedContent, resource);
         }
+
+        return processedResource;
     }
 
     /**
@@ -108,6 +104,7 @@ public class ResourceEngine {
      *
      * @param name     The name under which the resource is added
      * @param resource the resource
+     *
      * @return The result of the processing
      */
     public Resource processAndAddResource(String name, Resource resource) {
@@ -122,7 +119,9 @@ public class ResourceEngine {
      * If no resource is registered under the given name a {@link IllegalArgumentException} is thrown.
      *
      * @param name The name of the resource
+     *
      * @return The registered resource
+     *
      * @throws IllegalArgumentException If no resource of the given name exists.
      */
     public Resource getResource(String name) {
