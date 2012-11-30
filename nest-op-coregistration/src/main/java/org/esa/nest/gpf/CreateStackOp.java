@@ -908,6 +908,14 @@ public class CreateStackOp extends Operator {
             }
             return (float) sample;
         }
+
+        public void getSamples(int[] x, int[] y, float[][] samples) throws Exception {
+            for (int i = 0; i < y.length; i++) {
+                for (int j = 0; j < x.length; j++) {
+                    samples[i][j] = getSample(x[j], y[i]);
+                }
+            }
+        }
     }
 
     // for unit test
