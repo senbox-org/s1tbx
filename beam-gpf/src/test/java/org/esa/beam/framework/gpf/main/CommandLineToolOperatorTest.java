@@ -19,7 +19,11 @@ package org.esa.beam.framework.gpf.main;
 import com.sun.media.jai.util.SunTileScheduler;
 import junit.framework.TestCase;
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.gpf.*;
+import org.esa.beam.framework.gpf.GPF;
+import org.esa.beam.framework.gpf.Operator;
+import org.esa.beam.framework.gpf.OperatorException;
+import org.esa.beam.framework.gpf.OperatorSpiRegistry;
+import org.esa.beam.framework.gpf.TestOps;
 import org.esa.beam.framework.gpf.graph.Graph;
 import org.esa.beam.framework.gpf.graph.GraphException;
 import org.esa.beam.framework.gpf.graph.GraphProcessingObserver;
@@ -28,7 +32,13 @@ import org.esa.beam.framework.gpf.internal.OperatorProductReader;
 
 import javax.media.jai.JAI;
 import javax.media.jai.TileScheduler;
-import java.io.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.Reader;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -68,19 +78,19 @@ public class CommandLineToolOperatorTest extends TestCase {
 
     public void testPrintUsage() throws Exception {
         assertTrue(context.output.length() == 0);
-        clTool.run(new String[]{"-h"});
+        clTool.run("-h");
         assertTrue(context.output.startsWith("Usage:\n  gpt <op>|<graph-file> [options] "));
     }
 
     public void testPrintOp3Usage() throws Exception {
         assertTrue(context.output.length() == 0);
-        clTool.run(new String[]{"Op3", "-h"});
+        clTool.run("Op3", "-h");
         assertTrue(context.output.startsWith("Usage:\n  gpt Op3 [options] "));
     }
 
     public void testPrintOp4Usage() throws Exception {
         assertTrue(context.output.length() == 0);
-        clTool.run(new String[]{"Op4", "-h"});
+        clTool.run("Op4", "-h");
         assertTrue(context.output.startsWith(
                 "Usage:\n" +
                         "  gpt Op4 [options] \n" +
@@ -93,7 +103,7 @@ public class CommandLineToolOperatorTest extends TestCase {
     }
 
     public void testOperatorSingleSource() throws Exception {
-        clTool.run(new String[]{"Op3", "-Sinput1=vercingetorix.dim"});
+        clTool.run("Op3", "-Sinput1=vercingetorix.dim");
         assertEquals("s0=" + new File(
                 "vercingetorix.dim").getCanonicalPath() + ";o=Op3;t0=" + CommandLineArgs.DEFAULT_TARGET_FILEPATH + ";",
                      context.logString);
@@ -101,7 +111,7 @@ public class CommandLineToolOperatorTest extends TestCase {
     }
 
     public void testOperatorTwoSources() throws Exception {
-        clTool.run(new String[]{"Op3", "-Sinput1=vercingetorix.dim", "-Sinput2=asterix.N1"});
+        clTool.run("Op3", "-Sinput1=vercingetorix.dim", "-Sinput2=asterix.N1");
         String expectedLog = "s0=" + new File("vercingetorix.dim").getCanonicalPath() + ";" +
                 "s1=" + new File("asterix.N1").getCanonicalPath() + ";" +
                 "o=Op3;t0=" + CommandLineArgs.DEFAULT_TARGET_FILEPATH + ";";
@@ -111,7 +121,7 @@ public class CommandLineToolOperatorTest extends TestCase {
     }
 
     public void testOperatorMultiSources() throws Exception {
-        clTool.run(new String[]{"Op5", "-SVincent=vincent.dim", "asterix.N1", "obelix.nc"});
+        clTool.run("Op5", "-SVincent=vincent.dim", "asterix.N1", "obelix.nc");
         String expectedLog = "s0=" + new File("vincent.dim").getCanonicalPath() + ";" +
                 "s1=" + new File("asterix.N1").getCanonicalPath() + ";" +
                 "s2=" + new File("obelix.nc").getCanonicalPath() + ";" +
@@ -122,14 +132,14 @@ public class CommandLineToolOperatorTest extends TestCase {
     }
 
     public void testOperatorTargetProduct() throws Exception {
-        clTool.run(new String[]{"Op3", "-t", "obelix.dim"});
+        clTool.run("Op3", "-t", "obelix.dim");
         assertEquals("o=Op3;t0=obelix.dim;", context.logString);
         assertEquals("Op3", context.opName);
         assertNotNull(context.parameters);
     }
 
     public void testOperatorWithParametersFromLineArgs() throws Exception {
-        clTool.run(new String[]{"Op3", "-Pexpression=log(1+radiance_13)", "-PignoreSign=true", "-Pfactor=-0.025"});
+        clTool.run("Op3", "-Pexpression=log(1+radiance_13)", "-PignoreSign=true", "-Pfactor=-0.025");
         assertEquals("o=Op3;t0=" + CommandLineArgs.DEFAULT_TARGET_FILEPATH + ";", context.logString);
         assertEquals("Op3", context.opName);
 
@@ -143,7 +153,7 @@ public class CommandLineToolOperatorTest extends TestCase {
     }
 
     public void testOperatorWithParametersFromFile() throws Exception {
-        clTool.run(new String[]{"Op3", "-p", "testOperatorWithParametersFromFile"});
+        clTool.run("Op3", "-p", "testOperatorWithParametersFromFile");
         assertEquals("o=Op3;t0=" + CommandLineArgs.DEFAULT_TARGET_FILEPATH + ";", context.logString);
         assertEquals("Op3", context.opName);
 
@@ -157,7 +167,7 @@ public class CommandLineToolOperatorTest extends TestCase {
     }
 
     public void testOperatorWithParametersFromXMLFile() throws Exception {
-        clTool.run(new String[]{"Op3", "-p", "testOperatorWithParametersFromXMLFile"});
+        clTool.run("Op3", "-p", "testOperatorWithParametersFromXMLFile");
         assertEquals("o=Op3;t0=" + CommandLineArgs.DEFAULT_TARGET_FILEPATH + ";", context.logString);
         assertEquals("Op3", context.opName);
 
@@ -172,7 +182,7 @@ public class CommandLineToolOperatorTest extends TestCase {
 
 
     public void testThatOperatorLineArgsOverwriteParametersFromFile() throws Exception {
-        clTool.run(new String[]{"Op3", "-p", "testOperatorWithParametersFromFile", "-Pfactor=0.99"});
+        clTool.run("Op3", "-p", "testOperatorWithParametersFromFile", "-Pfactor=0.99");
         assertEquals("o=Op3;t0=" + CommandLineArgs.DEFAULT_TARGET_FILEPATH + ";", context.logString);
         assertEquals("Op3", context.opName);
 
@@ -186,7 +196,7 @@ public class CommandLineToolOperatorTest extends TestCase {
     }
 
     public void testOperatorImplementingOutputInterface() throws Exception {
-        clTool.run(new String[]{"OutputOp"});
+        clTool.run("OutputOp");
         assertEquals(0, context.writeProductCounter);
     }
 
@@ -199,7 +209,7 @@ public class CommandLineToolOperatorTest extends TestCase {
         });
 
         try {
-            tool.run(new String[]{"Op3", "-Sinput1=vercingetorix.dim", "-Sinput2=asterix.N1"});
+            tool.run("Op3", "-Sinput1=vercingetorix.dim", "-Sinput2=asterix.N1");
             fail("Exception expected for reason: " + "No reader found");
         } catch (Exception e) {
             // expected
