@@ -45,9 +45,7 @@ public class RangeDopplerGeocodingOpUI extends BaseOperatorUI {
 
     private final JComboBox demResamplingMethod = new JComboBox(ResamplingFactory.resamplingNames);
 
-    final JComboBox imgResamplingMethod = new JComboBox(new String[] {ResamplingFactory.NEAREST_NEIGHBOUR_NAME,
-                                                                      ResamplingFactory.BILINEAR_INTERPOLATION_NAME,
-                                                                      ResamplingFactory.CUBIC_CONVOLUTION_NAME });
+    final JComboBox imgResamplingMethod = new JComboBox(ResamplingFactory.resamplingNames);
 
     final JComboBox incidenceAngleForGamma0 = new JComboBox(new String[] {RangeDopplerGeocodingOp.USE_PROJECTED_INCIDENCE_ANGLE_FROM_DEM,
                                                                           RangeDopplerGeocodingOp.USE_LOCAL_INCIDENCE_ANGLE_FROM_DEM,

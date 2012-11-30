@@ -1272,6 +1272,7 @@ public class RangeDopplerGeocodingOp extends Operator {
      * @param srgrCoeff The SRGR coefficients for converting ground range to slant range.
      *                  Here it is assumed that the polinomial is given by
      *                  c0 + c1*x + c2*x^2 + ... + cn*x^n, where {c0, c1, ..., cn} are the SRGR coefficients.
+     * @param ground_range_origin The ground range origin.
      * @return The ground range in meters.
      */
     public static double computeGroundRange(final int sourceImageWidth, final double rangeSpacing,
@@ -1328,273 +1329,62 @@ public class RangeDopplerGeocodingOp extends Operator {
     private double getPixelValue(final double azimuthIndex, final double rangeIndex,
                                  final TileData tileData, Unit.UnitType bandUnit, int[] subSwathIndex) {
 
-        final Band[] srcBands = targetBandNameToSourceBand.get(tileData.bandName);
-        final Band iSrcBand = srcBands[0];
-        Tile sourceTile2 = null;
+        try {
+            final int x0 = (int)(rangeIndex + 0.5);
+            final int y0 = (int)(azimuthIndex + 0.5);
+            final Band[] srcBands = targetBandNameToSourceBand.get(tileData.bandName);
+            Rectangle srcRect = null;
+            Tile sourceTileI, sourceTileQ = null;
 
-        if (imgResampling.equals(Resampling.NEAREST_NEIGHBOUR)) {
+            if (imgResampling.equals(Resampling.NEAREST_NEIGHBOUR)) {
 
-            final Rectangle srcRect = new Rectangle((int)rangeIndex, (int)azimuthIndex, 1, 1);
-            final Tile sourceTile = getSourceTile(iSrcBand, srcRect);
+                srcRect = new Rectangle(x0, y0, 1, 1);
+
+            } else if (imgResampling.equals(Resampling.BILINEAR_INTERPOLATION)) {
+
+                srcRect = new Rectangle(Math.max(0, x0 - 1), Math.max(0, y0 - 1), 3, 3);
+
+            } else if (imgResampling.equals(Resampling.CUBIC_CONVOLUTION)) {
+
+                srcRect = new Rectangle(Math.max(0, x0 - 2), Math.max(0, y0 - 2), 5, 5);
+
+            } else if (imgResampling.equals(Resampling.BISINC_INTERPOLATION)) {
+
+                srcRect = new Rectangle(Math.max(0, x0 - 3), Math.max(0, y0 - 3), 6, 6);
+
+            } else if (imgResampling.equals(Resampling.BICUBIC_INTERPOLATION)) {
+
+                srcRect = new Rectangle(Math.max(0, x0 - 2), Math.max(0, y0 - 2), 5, 5);
+
+            } else {
+                throw new OperatorException("Unhandled interpolation method");
+            }
+
+            sourceTileI = getSourceTile(srcBands[0], srcRect);
             if (srcBands.length > 1) {
-                sourceTile2 = getSourceTile(srcBands[1], srcRect);
+                sourceTileQ = getSourceTile(srcBands[1], srcRect);
             }
-            return getPixelValueUsingNearestNeighbourInterp(
-                    azimuthIndex, rangeIndex, tileData, bandUnit, sourceTile, sourceTile2, subSwathIndex);
 
-        } else if (imgResampling.equals(Resampling.BILINEAR_INTERPOLATION)) {
+            final ResamplingRaster imgResamplingRaster = new ResamplingRaster(
+                    rangeIndex, azimuthIndex, isPolsar, tileData, bandUnit, sourceTileI, sourceTileQ, calibrator);
 
-            final Rectangle srcRect = new Rectangle((int)rangeIndex, (int)azimuthIndex, 2, 2);
-            final Tile sourceTile = getSourceTile(iSrcBand, srcRect);
-            if (srcBands.length > 1) {
-                sourceTile2 = getSourceTile(srcBands[1], srcRect);
-            }
-            return getPixelValueUsingBilinearInterp(azimuthIndex, rangeIndex,
-                    tileData, bandUnit, sourceImageWidth, sourceImageHeight, sourceTile, sourceTile2, subSwathIndex);
+            final Resampling resampling = imgResampling;
+            final Resampling.Index imgResamplingIndex = resampling.createIndex();
 
-        } else if (imgResampling.equals(Resampling.CUBIC_CONVOLUTION)) {
+            resampling.computeIndex(rangeIndex + 0.5, azimuthIndex + 0.5,
+                                       sourceImageWidth, sourceImageHeight, imgResamplingIndex);
 
-            final Rectangle srcRect = new Rectangle(Math.max(0, (int)rangeIndex - 1),
-                                         Math.max(0, (int)azimuthIndex - 1), 4, 4);
-            final Tile sourceTile = getSourceTile(iSrcBand, srcRect);
-            if (srcBands.length > 1) {
-                sourceTile2 = getSourceTile(srcBands[1], srcRect);
-            }
-            return getPixelValueUsingBicubicInterp(azimuthIndex, rangeIndex,
-                    tileData, bandUnit, sourceImageWidth, sourceImageHeight, sourceTile, sourceTile2, subSwathIndex);
-        } else {
-            throw new OperatorException("Unhandled interpolation method");
-        }
-    }
+            float v = resampling.resample(imgResamplingRaster, imgResamplingIndex);
 
-    /**
-     * Get source image pixel value using nearest neighbor interpolation.
-     * @param azimuthIndex The azimuth index for pixel in source image.
-     * @param rangeIndex The range index for pixel in source image.
-     * @param tileData The source tile information.
-     * @param bandUnit The source band unit.
-     * @param sourceTile  i
-     * @param sourceTile2 q
-     * @param subSwathIndex The sub swath index for current pixel for wide swath product case.
-     * @return The pixel value.
-     */
-    private double getPixelValueUsingNearestNeighbourInterp(final double azimuthIndex, final double rangeIndex,
-            final TileData tileData, final Unit.UnitType bandUnit, final Tile sourceTile, final Tile sourceTile2,
-            int[] subSwathIndex) {
+            subSwathIndex[0] = imgResamplingRaster.getSubSwathIndex();
 
-        final int x0 = (int)rangeIndex;
-        final int y0 = (int)azimuthIndex;
-
-        double v = sourceTile.getDataBuffer().getElemDoubleAt(sourceTile.getDataBufferIndex(x0, y0));
-        if (tileData.noDataValue != 0 && (v == tileData.noDataValue))
-            return tileData.noDataValue;
-
-        if (!isPolsar && (bandUnit == Unit.UnitType.REAL || bandUnit == Unit.UnitType.IMAGINARY)) {
-
-            final double vq = sourceTile2.getDataBuffer().getElemDoubleAt(sourceTile2.getDataBufferIndex(x0, y0));
-            if (tileData.noDataValue != 0 && vq == tileData.noDataValue)
-                return tileData.noDataValue;
-
-            v = v*v + vq*vq;
-        }
-
-        if (tileData.applyRetroCalibration) {
-            v = calibrator.applyRetroCalibration(x0, y0, v, tileData.bandPolar, bandUnit, subSwathIndex);
-        }
-
-        return v;
-    }
-
-    /**
-     * Get source image pixel value using bilinear interpolation.
-     * @param azimuthIndex The azimuth index for pixel in source image.
-     * @param rangeIndex The range index for pixel in source image.
-     * @param tileData The source tile information.
-     * @param bandUnit The source band unit.
-     * @param sceneRasterWidth the product width
-     * @param sceneRasterHeight the product height
-     * @param sourceTile  i
-     * @param sourceTile2 q
-     * @param subSwathIndex The sub swath index for current pixel for wide swath product case.
-     * @return The pixel value.
-     */
-    private double getPixelValueUsingBilinearInterp(final double azimuthIndex, final double rangeIndex,
-                                                    final TileData tileData, final Unit.UnitType bandUnit,
-                                                    final int sceneRasterWidth, final int sceneRasterHeight,
-                                                    final Tile sourceTile, final Tile sourceTile2, int[] subSwathIndex) {
-
-        final int x0 = (int)rangeIndex;
-        final int y0 = (int)azimuthIndex;
-        final int x1 = Math.min(x0 + 1, sceneRasterWidth - 1);
-        final int y1 = Math.min(y0 + 1, sceneRasterHeight - 1);
-        final double dx = rangeIndex - x0;
-        final double dy = azimuthIndex - y0;
-
-        final ProductData srcData = sourceTile.getDataBuffer();
-
-        double v00 = srcData.getElemDoubleAt(sourceTile.getDataBufferIndex(x0, y0));
-        if(v00 == tileData.noDataValue && tileData.noDataValue != 0)
-            return tileData.noDataValue;
-        double v01 = srcData.getElemDoubleAt(sourceTile.getDataBufferIndex(x1, y0));
-        if(v01 == tileData.noDataValue && tileData.noDataValue != 0)
-            return tileData.noDataValue;
-        double v10 = srcData.getElemDoubleAt(sourceTile.getDataBufferIndex(x0, y1));
-        if(v10 == tileData.noDataValue && tileData.noDataValue != 0)
-            return tileData.noDataValue;
-        double v11 = srcData.getElemDoubleAt(sourceTile.getDataBufferIndex(x1, y1));
-        if(v11 == tileData.noDataValue && tileData.noDataValue != 0)
-            return tileData.noDataValue;
-
-        if (!isPolsar && (bandUnit == Unit.UnitType.REAL || bandUnit == Unit.UnitType.IMAGINARY)) {
-
-            final ProductData srcData2 = sourceTile2.getDataBuffer();
-
-            final double vq00 = srcData2.getElemDoubleAt(sourceTile2.getDataBufferIndex(x0, y0));
-            if(vq00 == tileData.noDataValue && tileData.noDataValue != 0)
-                return tileData.noDataValue;
-            final double vq01 = srcData2.getElemDoubleAt(sourceTile2.getDataBufferIndex(x1, y0));
-            if(vq01 == tileData.noDataValue && tileData.noDataValue != 0)
-                return tileData.noDataValue;
-            final double vq10 = srcData2.getElemDoubleAt(sourceTile2.getDataBufferIndex(x0, y1));
-            if(vq10 == tileData.noDataValue && tileData.noDataValue != 0)
-                return tileData.noDataValue;
-            final double vq11 = srcData2.getElemDoubleAt(sourceTile2.getDataBufferIndex(x1, y1));
-            if(vq11 == tileData.noDataValue && tileData.noDataValue != 0)
-                return tileData.noDataValue;
-
-            v00 = v00*v00 + vq00*vq00;
-            v01 = v01*v01 + vq01*vq01;
-            v10 = v10*v10 + vq10*vq10;
-            v11 = v11*v11 + vq11*vq11;
-        }
-
-        final int[] subSwathIndex00 = {0};
-        final int[] subSwathIndex01 = {0};
-        final int[] subSwathIndex10 = {0};
-        final int[] subSwathIndex11 = {0};
-        double v = 0;
-
-        if (tileData.applyRetroCalibration) {
-
-            v00 = calibrator.applyRetroCalibration(x0, y0, v00, tileData.bandPolar, bandUnit, subSwathIndex00);
-            v01 = calibrator.applyRetroCalibration(x1, y0, v01, tileData.bandPolar, bandUnit, subSwathIndex01);
-            v10 = calibrator.applyRetroCalibration(x0, y1, v10, tileData.bandPolar, bandUnit, subSwathIndex10);
-            v11 = calibrator.applyRetroCalibration(x1, y1, v11, tileData.bandPolar, bandUnit, subSwathIndex11);
-            
-            if (dx <= 0.5 && dy <= 0.5) {
-                subSwathIndex[0] = subSwathIndex00[0];
-                v = v00;
-            } else if (dx > 0.5 && dy <= 0.5) {
-                subSwathIndex[0] = subSwathIndex01[0];
-                v = v01;
-            } else if (dx <= 0.5 && dy > 0.5) {
-                subSwathIndex[0] = subSwathIndex10[0];
-                v = v10;
-            } else if (dx > 0.5 && dy > 0.5) {
-                subSwathIndex[0] = subSwathIndex11[0];
-                v = v11;
-            }
-        }
-
-        if (subSwathIndex00[0] == subSwathIndex01[0] &&
-            subSwathIndex00[0] == subSwathIndex10[0] &&
-            subSwathIndex00[0] == subSwathIndex11[0]) {
-            return MathUtils.interpolationBiLinear(v00, v01, v10, v11, dx, dy);
-        } else {
             return v;
-        }
-    }
 
-    /**
-     * Get source image pixel value using bicubic interpolation.
-     * @param azimuthIndex The azimuth index for pixel in source image.
-     * @param rangeIndex The range index for pixel in source image.
-     * @param tileData The source tile information.
-     * @param bandUnit The source band unit.
-     * @param sceneRasterWidth the product width
-     * @param sceneRasterHeight the product height
-     * @param sourceTile  i
-     * @param sourceTile2 q
-     * @param subSwathIndex The sub swath index for current pixel for wide swath product case.
-     * @return The pixel value.
-     */
-    private double getPixelValueUsingBicubicInterp(final double azimuthIndex, final double rangeIndex,
-                                                   final TileData tileData, final Unit.UnitType bandUnit,
-                                                   final int sceneRasterWidth, final int sceneRasterHeight,
-                                                   final Tile sourceTile, final Tile sourceTile2, int[] subSwathIndex) {
-
-        final int [] x = new int[4];
-        x[1] = (int)rangeIndex;
-        x[0] = Math.max(0, x[1] - 1);
-        x[2] = Math.min(x[1] + 1, sceneRasterWidth - 1);
-        x[3] = Math.min(x[1] + 2, sceneRasterWidth - 1);
-
-        final int [] y = new int[4];
-        y[1] = (int)azimuthIndex;
-        y[0] = Math.max(0, y[1] - 1);
-        y[2] = Math.min(y[1] + 1, sceneRasterHeight - 1);
-        y[3] = Math.min(y[1] + 2, sceneRasterHeight - 1);
-
-        final ProductData srcData = sourceTile.getDataBuffer();
-
-        final double[][] v = new double[4][4];
-        if (!isPolsar && (bandUnit == Unit.UnitType.REAL || bandUnit == Unit.UnitType.IMAGINARY)) {
-
-            final ProductData srcData2 = sourceTile2.getDataBuffer();
-            for (int i = 0; i < y.length; i++) {
-                for (int j = 0; j < x.length; j++) {
-                    final double vi = srcData.getElemDoubleAt(sourceTile.getDataBufferIndex(x[j], y[i]));
-                    final double vq = srcData2.getElemDoubleAt(sourceTile2.getDataBufferIndex(x[j], y[i]));
-                    if (tileData.noDataValue != 0 && (vi == tileData.noDataValue || vq == tileData.noDataValue)) {
-                        return tileData.noDataValue;
-                    }
-                    v[i][j] = vi*vi + vq*vq;
-                }
-            }
-
-        } else {
-
-            for (int i = 0; i < y.length; i++) {
-                for (int j = 0; j < x.length; j++) {
-                    v[i][j] = srcData.getElemDoubleAt(sourceTile.getDataBufferIndex(x[j], y[i]));
-                    if (tileData.noDataValue != 0 && (v[i][j] == tileData.noDataValue)) {
-                        return tileData.noDataValue;
-                    }
-                }
-            }
+        } catch(Throwable e) {
+            OperatorUtils.catchOperatorException(getId(), e);
         }
 
-        final int[][][] ss = new int[4][4][1];
-        if (tileData.applyRetroCalibration) {
-            for (int i = 0; i < y.length; i++) {
-                for (int j = 0; j < x.length; j++) {
-                    v[i][j] = calibrator.applyRetroCalibration(x[j], y[i], v[i][j], tileData.bandPolar, bandUnit, ss[i][j]);
-                }
-            }
-        }
-
-        final double dx = rangeIndex - x[1];
-        final double dy = azimuthIndex - y[1];
-        double vv = 0;
-        if (dx <= 0.5 && dy <= 0.5) {
-            subSwathIndex[0] = ss[1][1][0];
-            vv = v[1][1];
-        } else if (dx > 0.5 && dy <= 0.5) {
-            subSwathIndex[0] = ss[1][2][0];
-            vv = v[1][2];
-        } else if (dx <= 0.5 && dy > 0.5) {
-            subSwathIndex[0] = ss[2][1][0];
-            vv = v[2][1];
-        } else if (dx > 0.5 && dy > 0.5) {
-            subSwathIndex[0] = ss[2][2][0];
-            vv = v[2][2];
-        }
-
-        if (ss[1][1][0] == ss[1][2][0] && ss[1][1][0] == ss[2][1][0] && ss[1][1][0] == ss[2][2][0]) {
-            return MathUtils.interpolationBiCubic(v, rangeIndex - x[1], azimuthIndex - y[1]);
-        } else {
-            return vv;
-        }
+        return 0;
     }
 
     public static void setLocalGeometry(final int x, final int y, final TileGeoreferencing tileGeoRef,
@@ -1969,6 +1759,129 @@ public class RangeDopplerGeocodingOp extends Operator {
             targetProduct.addBand(band);
         }
     }
+
+    private static class ResamplingRaster implements Resampling.Raster {
+
+        private final double rangeIndex, azimuthIndex;
+        private final boolean isPolsar;
+        private final TileData tileData;
+        private final Unit.UnitType bandUnit;
+        private final Tile sourceTileI, sourceTileQ;
+        private final double noDataValue;
+        private final ProductData dataBufferI, dataBufferQ;
+        private final Calibrator calibrator;
+        private int subSwathIndex;
+
+        public ResamplingRaster(final double rangeIndex, final double azimuthIndex, final boolean isPolsar,
+                                final TileData tileData, Unit.UnitType bandUnit, final Tile sourceTileI,
+                                final Tile sourceTileQ, final Calibrator calibrator) {
+
+            this.rangeIndex = rangeIndex;
+            this.azimuthIndex = azimuthIndex;
+            this.isPolsar = isPolsar;
+            this.tileData = tileData;
+            this.bandUnit = bandUnit;
+            this.sourceTileI = sourceTileI;
+            this.sourceTileQ = sourceTileQ;
+
+            this.dataBufferI = sourceTileI.getDataBuffer();
+            if (sourceTileQ != null) {
+                this.dataBufferQ = sourceTileQ.getDataBuffer();
+            } else {
+                this.dataBufferQ = null;
+            }
+
+            this.noDataValue = sourceTileI.getRasterDataNode().getNoDataValue();
+            this.calibrator = calibrator;
+        }
+
+        public final int getWidth() {
+            return sourceTileI.getWidth();
+        }
+
+        public final int getHeight() {
+            return sourceTileI.getHeight();
+        }
+
+        public void getSamples(int[] x, int[] y, float[][] samples) {
+
+            int[][] subSwathIndices = new int[y.length][x.length];
+            boolean allPixelsFromSameSubSwath = true;
+
+            for (int i = 0; i < y.length; i++) {
+                for (int j = 0; j < x.length; j++) {
+
+                    double v = (float)dataBufferI.getElemDoubleAt(sourceTileI.getDataBufferIndex(x[j], y[i]));
+                    if (noDataValue != 0 && (v == noDataValue)) {
+                        samples[i][j] = (float)noDataValue;
+                        continue;
+                    } else {
+                        samples[i][j] = (float)v;
+                    }
+
+                    if (!isPolsar && (bandUnit == Unit.UnitType.REAL || bandUnit == Unit.UnitType.IMAGINARY)) {
+
+                        final double vq = dataBufferQ.getElemDoubleAt(sourceTileQ.getDataBufferIndex(x[j], y[i]));
+                        if (noDataValue != 0 && vq == noDataValue) {
+                            samples[i][j] = (float)noDataValue;
+                            continue;
+                        }
+
+                        samples[i][j] = (float)(v*v + vq*vq);
+                    }
+
+                    int[] subSwathIndex = {-1};
+                    if (tileData.applyRetroCalibration) {
+                        samples[i][j] = (float)calibrator.applyRetroCalibration(
+                                x[j], y[i], samples[i][j], tileData.bandPolar, bandUnit, subSwathIndex);
+
+                        subSwathIndices[i][j] = subSwathIndex[0];
+                        if (subSwathIndex[0] != subSwathIndices[0][0]) {
+                            allPixelsFromSameSubSwath = false;
+                        }
+                    }
+                }
+            }
+
+            if (allPixelsFromSameSubSwath) {
+                this.subSwathIndex = subSwathIndices[0][0];
+
+            } else {
+
+                int xIdx = -1, yIdx = -1;
+                for (int i = 0; i < y.length; i++) {
+                    if (Math.abs(azimuthIndex - y[i]) <= 0.5) {
+                        yIdx = i;
+                        break;
+                    }
+                }
+
+                for (int j = 0; j < x.length; j++) {
+                    if (Math.abs(rangeIndex - x[j]) <= 0.5) {
+                        xIdx = j;
+                        break;
+                    }
+                }
+
+                if (xIdx != -1 && yIdx != -1) {
+                    this.subSwathIndex = subSwathIndices[yIdx][xIdx];
+                    float sample = samples[yIdx][xIdx];
+                    for (int i = 0; i < y.length; i++) {
+                        for (int j = 0; j < x.length; j++) {
+                            samples[i][j] = sample;
+                        }
+                    }
+                } else {
+                    throw new OperatorException("Invalid x and y input for getSamples");
+                }
+            }
+        }
+
+        public int getSubSwathIndex() {
+            return this.subSwathIndex;
+        }
+    }
+
 
     /**
      * The SPI is used to register this operator in the graph processing framework
