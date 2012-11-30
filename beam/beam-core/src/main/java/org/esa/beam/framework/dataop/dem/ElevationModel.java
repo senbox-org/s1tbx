@@ -87,4 +87,6 @@ public interface ElevationModel {
      * <p/>
      */
     void dispose();
+
+    void getSamples(int[] x, int[] y, float[][] samples) throws Exception;
 }
