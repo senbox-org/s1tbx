@@ -1760,7 +1760,7 @@ public class RangeDopplerGeocodingOp extends Operator {
         }
     }
 
-    private static class ResamplingRaster implements Resampling.Raster {
+    public static class ResamplingRaster implements Resampling.Raster {
 
         private final double rangeIndex, azimuthIndex;
         private final boolean isPolsar;
