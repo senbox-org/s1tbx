@@ -38,7 +38,7 @@ import java.awt.*;
 import java.util.HashMap;
 import java.util.Map;
 
-@OperatorMetadata(alias = "SubsetOp",
+@OperatorMetadata(alias = "Subset",
         category = "Utilities",
         description = "Create a spatial subset of the source product.")
 public class SubsetOp extends Operator {
@@ -57,9 +57,9 @@ public class SubsetOp extends Operator {
     private int regionX = 0;
     @Parameter(label = "Y", defaultValue="0")
     private int regionY = 0;
-    @Parameter(label = "Width", defaultValue="1000")
+    @Parameter(label = "Width")
     private int width = 1000;
-    @Parameter(label = "Height", defaultValue="1000")
+    @Parameter(label = "Height")
     private int height = 1000;
     @Parameter(defaultValue = "1")
     private int subSamplingX = 1;
@@ -77,6 +77,12 @@ public class SubsetOp extends Operator {
 
     @Override
     public void initialize() throws OperatorException {
+        if(width == 0) {
+            width = sourceProduct.getSceneRasterWidth() - regionX;
+        }
+        if(height == 0) {
+            height = sourceProduct.getSceneRasterHeight() - regionY;
+        }
         if(regionX+width > sourceProduct.getSceneRasterWidth()) {
             throw new OperatorException("Selected region must be within the source product dimensions of "+
                                         sourceProduct.getSceneRasterWidth()+" x "+ sourceProduct.getSceneRasterHeight());
@@ -156,6 +162,7 @@ public class SubsetOp extends Operator {
     public static class Spi extends OperatorSpi {
         public Spi() {
             super(SubsetOp.class);
+            setOperatorUI(SubsetUI.class);
         }
     }
 }

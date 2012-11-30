@@ -132,6 +132,10 @@ public class WorldMapUI {
         worldMapDataModel.setSelectedGeoBoundaries(geoBoundaries);
     }
 
+    public WorldMapPaneDataModel getModel() {
+        return worldMapDataModel;
+    }
+
     private class MouseHandler extends MouseInputAdapter {
 
         @Override

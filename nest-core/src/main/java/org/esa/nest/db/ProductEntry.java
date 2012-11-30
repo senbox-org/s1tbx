@@ -426,4 +426,12 @@ public class ProductEntry {
         }
         return entryList.toArray(new ProductEntry[entryList.size()]);
     }
+
+    public static ProductEntry[] createProductEntryList(final Product[] productList) {
+        final List<ProductEntry> entryList = new ArrayList<ProductEntry>(productList.length);
+        for(Product prod : productList) {
+            entryList.add(new ProductEntry(prod));
+        }
+        return entryList.toArray(new ProductEntry[entryList.size()]);
+    }
 }

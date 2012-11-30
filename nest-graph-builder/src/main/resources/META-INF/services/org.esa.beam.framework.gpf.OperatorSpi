@@ -1,3 +1,2 @@
 org.esa.nest.gpf.ProductSetReaderOp$Spi
-org.esa.nest.gpf.SubsetOp$Spi
 org.esa.nest.gpf.TileWriterOp$Spi

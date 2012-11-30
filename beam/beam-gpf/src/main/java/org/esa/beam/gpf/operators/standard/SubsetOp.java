@@ -70,7 +70,7 @@ import static java.lang.Math.*;
  * @author Marco Peters
  * @since BEAM 4.9
  */
-@OperatorMetadata(alias = "Subset",
+@OperatorMetadata(alias = "SubsetOp",
                   authors = "Marco Zuehlke, Norman Fomferra, Marco Peters",
                   version = "1.0",
                   copyright = "(c) 2011 by Brockmann Consult",
