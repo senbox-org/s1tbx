@@ -114,7 +114,9 @@ public interface Resampling {
          *
          * @throws Exception if a non-runtime error occurs, e.g I/O error
          */
-        float getSample(double x, double y) throws Exception;
+//        float getSample(double x, double y) throws Exception;
+
+        void getSamples(int[] x, int[] y, float[][] samples) throws Exception;
     }
 
     /**
