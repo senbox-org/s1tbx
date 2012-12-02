@@ -15,6 +15,7 @@
  */
 package org.esa.nest.gpf;
 
+import com.vividsolutions.jts.geom.*;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.gpf.ui.BaseOperatorUI;
 import org.esa.beam.framework.gpf.ui.UIValidation;
@@ -26,6 +27,7 @@ import org.esa.nest.util.DialogUtils;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.ArrayList;
 import java.util.Map;
 
 /**
@@ -120,7 +122,17 @@ public class SubsetUI extends BaseOperatorUI {
         if(!pixelCoords) {
             final GeoPos[] selectionBox = worldMapUI.getSelectionBox();
             if(selectionBox != null) {
+                final Coordinate[] coords = new Coordinate[selectionBox.length+1];
+                for(int i=0; i<selectionBox.length; ++i) {
+                    coords[i] = new Coordinate(selectionBox[i].getLon(), selectionBox[i].getLat());
+                }
+                coords[selectionBox.length] = new Coordinate(selectionBox[0].getLon(), selectionBox[0].getLat());
 
+                final GeometryFactory geometryFactory = new GeometryFactory();
+                final LinearRing linearRing = geometryFactory.createLinearRing(coords);
+
+                final Geometry geoRegion = geometryFactory.createPolygon(linearRing, null);
+                paramMap.put("geoRegion", geoRegion);
             }
         }
     }

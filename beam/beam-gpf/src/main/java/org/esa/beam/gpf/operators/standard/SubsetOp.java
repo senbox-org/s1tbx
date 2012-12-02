@@ -289,7 +289,7 @@ public class SubsetOp extends Operator {
                                                       product.getSceneRasterHeight()));
     }
 
-    static Geometry computeProductGeometry(Product product) {
+    public static Geometry computeProductGeometry(Product product) {
         final GeneralPath[] paths = ProductUtils.createGeoBoundaryPaths(product);
         final Polygon[] polygons = new Polygon[paths.length];
         final GeometryFactory factory = new GeometryFactory();
@@ -334,7 +334,7 @@ public class SubsetOp extends Operator {
         }
     }
 
-    private static class PixelRegionFinder implements CoordinateFilter {
+    public static class PixelRegionFinder implements CoordinateFilter {
 
         private final GeoCoding geoCoding;
         private int x1;
@@ -342,7 +342,7 @@ public class SubsetOp extends Operator {
         private int x2;
         private int y2;
 
-        private PixelRegionFinder(GeoCoding geoCoding) {
+        public PixelRegionFinder(GeoCoding geoCoding) {
             this.geoCoding = geoCoding;
             x1 = Integer.MAX_VALUE;
             x2 = Integer.MIN_VALUE;

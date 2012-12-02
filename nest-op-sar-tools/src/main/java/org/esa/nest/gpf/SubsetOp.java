@@ -104,10 +104,11 @@ public class SubsetOp extends Operator {
         subsetDef.setRegion(regionX, regionY, width, height);
 
         if (geoRegion != null) {
-            final Rectangle region = org.esa.beam.gpf.operators.standard.SubsetOp.computePixelRegion(sourceProduct, geoRegion, 0);
+            final Rectangle region = computePixelRegion(sourceProduct, geoRegion, 0);
             if (region != null) {
                 if (region.isEmpty()) {
-                    System.out.println("Subset: No intersection with source product boundary "+sourceProduct.getName());
+                    throw new OperatorException("Subset: No intersection with source product boundary "+sourceProduct.getName());
+                    //region.setSize(1,1);
                 }
                 subsetDef.setRegion(region);
             }
@@ -134,6 +135,21 @@ public class SubsetOp extends Operator {
         } catch (Throwable t) {
             throw new OperatorException(t);
         }
+    }
+
+    public static Rectangle computePixelRegion(Product product, Geometry geoRegion, int numBorderPixels) {
+        final Geometry productGeometry = org.esa.beam.gpf.operators.standard.SubsetOp.computeProductGeometry(product);
+        final Geometry regionIntersection = geoRegion.intersection(productGeometry);
+        if (regionIntersection.isEmpty()) {
+            return new Rectangle();
+        }
+        final org.esa.beam.gpf.operators.standard.SubsetOp.PixelRegionFinder pixelRegionFinder =
+                new org.esa.beam.gpf.operators.standard.SubsetOp.PixelRegionFinder(product.getGeoCoding());
+        regionIntersection.apply(pixelRegionFinder);
+        final Rectangle pixelRegion = pixelRegionFinder.getPixelRegion();
+        pixelRegion.grow(numBorderPixels, numBorderPixels);
+        return pixelRegion.intersection(new Rectangle(product.getSceneRasterWidth(),
+                product.getSceneRasterHeight()));
     }
 
     @Override
