@@ -93,6 +93,8 @@ public final class GeolocationGridGeocodingOp extends Operator {
     private int sourceImageHeight = 0;
 
     private TiePointGrid slantRangeTime = null;
+    private TiePointGrid latitude = null;
+    private TiePointGrid longitude = null;
     private GeoCoding targetGeoCoding = null;
 
     private double rangeSpacing = 0.0;
@@ -139,10 +141,10 @@ public final class GeolocationGridGeocodingOp extends Operator {
             getMetadata();
 
             imgResampling = ResamplingFactory.createResampling(imgResamplingMethod);
-            
-            createTargetProduct();
 
             getTiePointGrids();
+
+            createTargetProduct();
 
         } catch(Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
@@ -266,6 +268,16 @@ public final class GeolocationGridGeocodingOp extends Operator {
         AbstractMetadata.setAttribute(absTgt, AbstractMetadata.geo_ref_system, targetCRS.getName().getCode());
         AbstractMetadata.setAttribute(absTgt, AbstractMetadata.lat_pixel_res, delLat);
         AbstractMetadata.setAttribute(absTgt, AbstractMetadata.lon_pixel_res, delLon);
+
+        // save look directions for 5 range lines
+        final MetadataElement lookDirectionListElem = new MetadataElement("Look_Direction_List");
+        final int numOfDirections = 5;
+        for(int i=1; i <= numOfDirections; ++i) {
+            RangeDopplerGeocodingOp.addLookDirection("look_direction", lookDirectionListElem, i, numOfDirections,
+                    sourceImageWidth, sourceImageHeight, firstLineUTC, lineTimeInterval, nearRangeOnLeft, latitude,
+                    longitude);
+        }
+        absTgt.addElement(lookDirectionListElem);
     }
 
     /**
@@ -275,6 +287,16 @@ public final class GeolocationGridGeocodingOp extends Operator {
         slantRangeTime = OperatorUtils.getSlantRangeTime(sourceProduct);
         if (slantRangeTime == null) {
             throw new OperatorException("Product without slant range time tie point grid");
+        }
+
+        latitude = OperatorUtils.getLatitude(sourceProduct);
+        if (latitude == null) {
+            throw new OperatorException("Product without latitude tie point grid");
+        }
+
+        longitude = OperatorUtils.getLongitude(sourceProduct);
+        if (longitude == null) {
+            throw new OperatorException("Product without longitude tie point grid");
         }
     }
 
@@ -319,7 +341,7 @@ public final class GeolocationGridGeocodingOp extends Operator {
         }
         final double srcBandNoDataValue = sourceBand1.getNoDataValue();
 
-        final double oneBillionHalfSpeedLight = Constants.oneBillion * Constants.halfLightSpeed;
+        final double oneBillionthHalfSpeedLight = Constants.halfLightSpeed / Constants.oneBillion;
 
         try {
             final ProductData trgData = targetTile.getDataBuffer();
@@ -343,7 +365,7 @@ public final class GeolocationGridGeocodingOp extends Operator {
                         continue;
                     }
 
-                    final double slantRange = slantRangeTime.getPixelFloat(pixPos.x, pixPos.y) / oneBillionHalfSpeedLight;
+                    final double slantRange = slantRangeTime.getPixelFloat(pixPos.x, pixPos.y) * oneBillionthHalfSpeedLight;
 
                     final double zeroDopplerTime = computeZeroDopplerTime(pixPos);
                     double azimuthIndex = 0.0;

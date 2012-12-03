@@ -653,6 +653,16 @@ public class SARSimTerrainCorrectionOp extends Operator {
             AbstractMetadata.setAttribute(absTgt, AbstractMetadata.range_spacing, pixelSpacingInMeter);
             AbstractMetadata.setAttribute(absTgt, AbstractMetadata.azimuth_spacing, pixelSpacingInMeter);
         }
+
+        // save look directions for 5 range lines
+        final MetadataElement lookDirectionListElem = new MetadataElement("Look_Direction_List");
+        final int numOfDirections = 5;
+        for(int i=1; i <= numOfDirections; ++i) {
+            RangeDopplerGeocodingOp.addLookDirection("look_direction", lookDirectionListElem, i, numOfDirections,
+                    sourceImageWidth, sourceImageHeight, firstLineUTC, lineTimeInterval, nearRangeOnLeft, latitude,
+                    longitude);
+        }
+        absTgt.addElement(lookDirectionListElem);
     }
 
     private synchronized void getWarpData(final Set<Band> keySet, final Rectangle targetRectangle) {
