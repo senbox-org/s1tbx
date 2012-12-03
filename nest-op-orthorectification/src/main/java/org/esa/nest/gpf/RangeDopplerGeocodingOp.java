@@ -16,7 +16,6 @@
 package org.esa.nest.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.beam.framework.dataio.ProductSubsetDef;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.dataop.dem.ElevationModel;
 import org.esa.beam.framework.dataop.resamp.Resampling;
@@ -755,7 +754,45 @@ public class RangeDopplerGeocodingOp extends Operator {
             Double.compare(pixelSpacingInMeter, getPixelSpacing(sourceProduct)) != 0) {
             AbstractMetadata.setAttribute(absTgt, AbstractMetadata.range_spacing, pixelSpacingInMeter);
             AbstractMetadata.setAttribute(absTgt, AbstractMetadata.azimuth_spacing, pixelSpacingInMeter);
-        }        
+        }
+
+        // save look directions for the first, middle and last range lines
+        final MetadataElement lookDirectionListElem = new MetadataElement("Look_Direction_List");
+        final int numOfDirections = 5;
+        for(int i=1; i <= numOfDirections; ++i) {
+            addLookDirection("look_direction", lookDirectionListElem, i, numOfDirections);
+        }
+        absTgt.addElement(lookDirectionListElem);
+    }
+
+    private void addLookDirection(String name, MetadataElement lookDirectionListElem, final int index, final int num) {
+
+        final MetadataElement lookDirectionElem = new MetadataElement(name+index);
+
+        int xHead, xTail, y;
+        if (num == 1) {
+            y = sourceImageHeight/2;
+        } else if (num > 1) {
+            y = (index - 1)*sourceImageHeight / (num - 1);
+        } else {
+            throw new OperatorException("Invalid number of look directions");
+        }
+
+        final double time = firstLineUTC + y*lineTimeInterval;
+        lookDirectionElem.setAttributeUTC("time", new ProductData.UTC(time));
+
+        if (nearRangeOnLeft) {
+            xHead = sourceImageWidth - 1;
+            xTail = 0;
+        } else {
+            xHead = 0;
+            xTail = sourceImageWidth - 1;
+        }
+        lookDirectionElem.setAttributeDouble("head_lat", latitude.getPixelDouble(xHead, y));
+        lookDirectionElem.setAttributeDouble("head_lon", longitude.getPixelDouble(xHead, y));
+        lookDirectionElem.setAttributeDouble("tail_lat", latitude.getPixelDouble(xTail, y));
+        lookDirectionElem.setAttributeDouble("tail_lon", longitude.getPixelDouble(xTail, y));
+        lookDirectionListElem.addElement(lookDirectionElem);
     }
 
     /**
