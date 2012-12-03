@@ -7,6 +7,7 @@ import org.apache.velocity.VelocityContext;
 
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.Map;
 
 /**
@@ -44,6 +45,7 @@ public class MetadataEngineMain {
     public static final String KEY_SYSTEM = "system";
     public static final String KEY_ARGS = "commandLineArgs";
     public static final String KEY_DATE_FORMAT = "dateFormat";
+    public static final String KEY_DATE = "date";
     private MetadataResourceEngine metadataResourceEngine;
     private CliHandler cliHandler;
 
@@ -76,6 +78,7 @@ public class MetadataEngineMain {
     void processMetadata() throws Exception {
         VelocityContext velocityContext = metadataResourceEngine.getVelocityContext();
         velocityContext.put(KEY_DATE_FORMAT, new SimpleDateFormat("yyyy-MM-dd"));
+        velocityContext.put(KEY_DATE, new Date());
 
         String metadataPath = cliHandler.fetchGlobalMetadataFile();
         if (metadataPath != null) {
