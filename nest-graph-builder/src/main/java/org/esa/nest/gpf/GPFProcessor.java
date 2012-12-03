@@ -7,7 +7,7 @@ import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.graph.*;
 import org.esa.beam.gpf.operators.standard.ReadOp;
 import org.esa.beam.gpf.operators.standard.WriteOp;
-import org.esa.nest.util.FileUtils;
+import org.esa.nest.util.FileIOUtils;
 
 import java.io.File;
 import java.io.FileReader;
@@ -35,7 +35,7 @@ public class GPFProcessor {
             return readInGraph(graphFile, parameterMap);
         } catch(Exception e) {
             // check for old Xpp3DomElement and replace it with XppDomElement
-            FileUtils.replaceText(graphFile, graphFile, "Xpp3DomElement","XppDomElement");
+            FileIOUtils.replaceText(graphFile, graphFile, "Xpp3DomElement", "XppDomElement");
             return readInGraph(graphFile, parameterMap);
         }
     }

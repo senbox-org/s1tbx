@@ -44,11 +44,10 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.Map;
-//import java.nio.file.*;
-//import static java.nio.file.StandardCopyOption.*;
 
 public class ProductLibraryToolView extends AbstractToolView {
 
@@ -70,6 +69,10 @@ public class ProductLibraryToolView extends AbstractToolView {
     private JButton addButton;
     private JButton removeButton;
     private JButton updateButton;
+
+    private JMenuItem copyToItem;
+    private JMenuItem moveToItem;
+    private JMenuItem deleteItem;
 
     private LabelBarProgressMonitor progMon;
     private JProgressBar progressBar;
@@ -137,8 +140,22 @@ public class ProductLibraryToolView extends AbstractToolView {
         final ProductEntry[] selections = getSelectedProductEntries();
         setOpenProductButtonsEnabled(selections.length > 0);
 
+        updateContextMenu(selections);
         updateProductSelectionText(selections);
         worldMapUI.setSelectedProductEntryList(selections);
+    }
+
+    private void updateContextMenu(final ProductEntry[] selections) {
+        boolean allValid = true;
+        for(ProductEntry entry : selections) {
+            if(!ProductFileHandler.canMove(entry)) {
+                allValid = false;
+                break;
+            }
+        }
+        copyToItem.setEnabled(allValid);
+        moveToItem.setEnabled(allValid);
+        deleteItem.setEnabled(allValid);
     }
 
     private void updateProductSelectionText(final ProductEntry[] selections) {
@@ -201,15 +218,45 @@ public class ProductLibraryToolView extends AbstractToolView {
 
         final ProductEntry[] entries = getSelectedProductEntries();
         for(ProductEntry entry : entries) {
-          /*  if(entry.getMission().equals("ENVISAT")) {
-                try {
-                    final File newFile = new File(targetFolder, entry.getFile().getName());
-                    Files.copy(entry.getFile().toPath(), newFile.toPath(), REPLACE_EXISTING);
-                } catch(Exception e) {
-                    e.printStackTrace();
-                }
-            }  */
+            try {
+                ProductFileHandler.copyTo(entry, targetFolder);
+            } catch(Exception e) {
+                VisatApp.getApp().showErrorDialog("Unable to copy file "+entry.getFile().getAbsolutePath()+
+                        '\n'+e.getMessage());
+            }
         }
+    }
+
+    private void performMoveToAction() {
+        final File targetFolder = promptForRepositoryBaseDir();
+        if(targetFolder == null) return;
+
+        final ProductEntry[] entries = getSelectedProductEntries();
+        for(ProductEntry entry : entries) {
+            try {
+                ProductFileHandler.moveTo(entry, targetFolder);
+            } catch(Exception e) {
+                VisatApp.getApp().showErrorDialog("Unable to move file "+entry.getFile().getAbsolutePath()+
+                        '\n'+e.getMessage());
+            }
+        }
+        rescanFolder();
+        UpdateUI();
+    }
+
+    private void performDeleteAction() {
+        final ProductEntry[] entries = getSelectedProductEntries();
+        for(ProductEntry entry : entries) {
+            try {
+                ProductFileHandler.delete(entry);
+
+            } catch(Exception e) {
+                VisatApp.getApp().showErrorDialog("Unable to delete file "+entry.getFile().getAbsolutePath()+
+                        '\n'+e.getMessage());
+            }
+        }
+        rescanFolder();
+        UpdateUI();
     }
 
     private ProductEntry[] getSelectedProductEntries() {
@@ -263,13 +310,33 @@ public class ProductLibraryToolView extends AbstractToolView {
         });
         popup.add(copySelectedItem);
 
-        final JMenuItem copyToItem = new JMenuItem("Copy Selected To...");
+        popup.addSeparator();
+
+        copyToItem = new JMenuItem("Copy Selected Files To...");
         copyToItem.addActionListener(new ActionListener() {
             public void actionPerformed(final ActionEvent e) {
                 performCopyToAction();
             }
         });
-        //popup.add(copyToItem);
+        popup.add(copyToItem);
+
+        moveToItem = new JMenuItem("Move Selected Files To...");
+        moveToItem.addActionListener(new ActionListener() {
+            public void actionPerformed(final ActionEvent e) {
+                performMoveToAction();
+            }
+        });
+        popup.add(moveToItem);
+
+        deleteItem = new JMenuItem("Delete Selected Files");
+        deleteItem.addActionListener(new ActionListener() {
+            public void actionPerformed(final ActionEvent e) {
+                final int status = VisatApp.getApp().showQuestionDialog("Are you sure you want to delete these products", "");
+                if (status == JOptionPane.YES_OPTION)
+                    performDeleteAction();
+            }
+        });
+        popup.add(deleteItem);
 
         final JMenuItem exploreItem = new JMenuItem("Browse Folder");
         exploreItem.addActionListener(new ActionListener() {
@@ -290,6 +357,8 @@ public class ProductLibraryToolView extends AbstractToolView {
             }
         });
         popup.add(exploreItem);
+
+        popup.addSeparator();
 
         final JMenu sortMenu = new JMenu("Sort By");
         popup.add(sortMenu);
@@ -657,14 +726,7 @@ public class ProductLibraryToolView extends AbstractToolView {
                     mainPanel.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
                     progMon.setCanceled(true);
                 } else {
-                    if(repositoryListCombo.getSelectedIndex() != 0) {
-                        updateRepostitory((File)repositoryListCombo.getSelectedItem(), true, true);
-                    } else {
-                        final File[] baseDirList = libConfig.getBaseDirs();
-                        for(File f : baseDirList) {
-                             updateRepostitory(f, true, true);
-                        }
-                    }
+                    rescanFolder();
                 }
             }
         });
@@ -713,6 +775,17 @@ public class ProductLibraryToolView extends AbstractToolView {
         headerBar.add(helpButton, gbc);
 
         return headerBar;
+    }
+
+    private void rescanFolder() {
+        if(repositoryListCombo.getSelectedIndex() != 0) {
+            updateRepostitory((File)repositoryListCombo.getSelectedItem(), true, true);
+        } else {
+            final File[] baseDirList = libConfig.getBaseDirs();
+            for(File f : baseDirList) {
+                updateRepostitory(f, true, true);
+            }
+        }
     }
 
     private JButton createToolButton(final String name, final ImageIcon icon) {
