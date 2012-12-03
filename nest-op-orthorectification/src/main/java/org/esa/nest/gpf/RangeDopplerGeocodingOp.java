@@ -756,16 +756,21 @@ public class RangeDopplerGeocodingOp extends Operator {
             AbstractMetadata.setAttribute(absTgt, AbstractMetadata.azimuth_spacing, pixelSpacingInMeter);
         }
 
-        // save look directions for the first, middle and last range lines
+        // save look directions for 5 range lines
         final MetadataElement lookDirectionListElem = new MetadataElement("Look_Direction_List");
         final int numOfDirections = 5;
         for(int i=1; i <= numOfDirections; ++i) {
-            addLookDirection("look_direction", lookDirectionListElem, i, numOfDirections);
+            addLookDirection("look_direction", lookDirectionListElem, i, numOfDirections, sourceImageWidth,
+                    sourceImageHeight, firstLineUTC, lineTimeInterval, nearRangeOnLeft, latitude, longitude);
         }
         absTgt.addElement(lookDirectionListElem);
     }
 
-    private void addLookDirection(String name, MetadataElement lookDirectionListElem, final int index, final int num) {
+    public static void addLookDirection(final String name, final MetadataElement lookDirectionListElem, final int index,
+                                        final int num, final int sourceImageWidth, final int sourceImageHeight,
+                                        final double firstLineUTC, final double lineTimeInterval,
+                                        final boolean nearRangeOnLeft, final TiePointGrid latitude,
+                                        final TiePointGrid longitude) {
 
         final MetadataElement lookDirectionElem = new MetadataElement(name+index);
 
