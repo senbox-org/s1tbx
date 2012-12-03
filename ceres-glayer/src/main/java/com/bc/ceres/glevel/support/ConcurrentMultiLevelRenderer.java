@@ -252,7 +252,7 @@ public class ConcurrentMultiLevelRenderer implements MultiLevelRenderer {
         t.preConcatenate(m2v);
         g.setTransform(t);
         g.setColor(frameColor);
-        g.setStroke(new BasicStroke(0.0f));
+        g.setStroke(new BasicStroke(1.0f));
         for (TileIndex tileIndice : tileIndices) {
             g.draw(planarImage.getTileRect(tileIndice.tileX, tileIndice.tileY));
         }
@@ -489,8 +489,8 @@ public class ConcurrentMultiLevelRenderer implements MultiLevelRenderer {
 
         public TileImageCache() {
             cache = new HashMap<TileIndex, TileImage>(37);
-            retentionPeriod = 10000L;
-            capacity = 16L * (1024 * 1024);
+            retentionPeriod = Long.parseLong(System.getProperty("ceres.renderer.cache.retentionPeriod", "10000"));
+            capacity = Long.parseLong(System.getProperty("ceres.renderer.cache.capacity", "16")) * (1024 * 1024);
             maxSize = Math.round(0.75 * capacity);
         }
 
