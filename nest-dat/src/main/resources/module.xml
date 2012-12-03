@@ -66,6 +66,15 @@
     </extension>
 
 
+    <extension point="beam-ui:layerSources">
+        <layerSource>
+            <id>maptools-layer-source</id>
+            <name>Mapping Tools</name>
+            <description>Shows cartographic tools</description>
+            <class>org.esa.nest.dat.layers.maptools.MapToolsLayerSource</class>
+        </layerSource>
+    </extension>
+
     <extension point="beam-ui:toolViews">
 
         <toolView>

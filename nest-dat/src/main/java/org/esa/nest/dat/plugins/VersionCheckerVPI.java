@@ -252,7 +252,7 @@ public class VersionCheckerVPI extends AbstractVisatPlugIn {
     }
 
     private static boolean isVersionCheckEnabled() {
-        return getPreferences().getPropertyBool(VisatApp.PROPERTY_KEY_VERSION_CHECK_ENABLED, true);
+        return true;//getPreferences().getPropertyBool(VisatApp.PROPERTY_KEY_VERSION_CHECK_ENABLED, true);
     }
 
     private static boolean isVersionCheckQuestionSuppressed() {

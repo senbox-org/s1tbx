@@ -21,10 +21,12 @@ public class ScreenPixelConverter {
     private final AffineTransform i2m;
     private final Shape ibounds;
     private final MultiLevelImage mli;
+    private final double zoomFactor;
 
     public ScreenPixelConverter(final Viewport vp, final RasterDataNode raster) {
         
         mli = raster.getGeophysicalImage();
+        zoomFactor = vp.getZoomFactor();
 
         final AffineTransform m2i = mli.getModel().getModelToImageTransform(level);
         i2m = mli.getModel().getImageToModelTransform(level);
@@ -35,13 +37,24 @@ public class ScreenPixelConverter {
         m2v = vp.getModelToViewTransform();
     }
 
+    public double getZoomFactor() {
+        return zoomFactor;
+    }
+
     public boolean withInBounds() {
         final RenderedImage ri = mli.getImage(level);
         final Rectangle irect = ibounds.getBounds().intersection(new Rectangle(0, 0, ri.getWidth(), ri.getHeight()));
         return !irect.isEmpty();
     }
 
-    public void pixelToScreen(double x, double y, final double[] vpts) {
+    public void pixelToScreen(final Point pnt, final double[] vpts) {
+        ipts[0] = pnt.x;
+        ipts[1] = pnt.y;
+        i2m.transform(ipts, 0, mpts, 0, 1);
+        m2v.transform(mpts, 0, vpts, 0, 1);
+    }
+
+    public void pixelToScreen(final double x, final double y, final double[] vpts) {
         ipts[0] = x;
         ipts[1] = y;
         i2m.transform(ipts, 0, mpts, 0, 1);
