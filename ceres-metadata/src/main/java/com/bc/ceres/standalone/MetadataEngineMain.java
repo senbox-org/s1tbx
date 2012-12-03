@@ -66,10 +66,10 @@ public class MetadataEngineMain {
         } catch (IllegalArgumentException e) {
             System.err.println("Error in MetadataEngineMain:" + e.getMessage());
             metadataEngineMain.cliHandler.printUsage();
-            System.exit(1);
+            System.exit(2);
         } catch (Exception e) {
-            System.err.println("Error in MetadataEngineMain:" + e.getMessage());
-            System.exit(1);
+            System.err.println(e.getClass() + "Error in MetadataEngineMain:" + e.getMessage());
+            System.exit(3);
         }
     }
 

@@ -19,6 +19,9 @@ package com.bc.ceres.metadata;
 import com.bc.ceres.resource.ReaderResource;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.ls.DOMImplementationLS;
+import org.w3c.dom.ls.LSSerializer;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.OutputKeys;
@@ -26,6 +29,8 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -51,9 +56,38 @@ public class XPathHandler {
      */
     public String run(String xpath, Object document) {
         try {
+            final Document doc = transformToDocument(document);
+            return XPathFactory.newInstance().newXPath().evaluate(xpath, doc);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 
+    /**
+     * Run a XPath query.
+     * Call with $xpath.run("XPath expression", $source-XML) in the velocity template.
+     * e.g. $xpath.run("//creationDate", $metadata)
+     *
+     * @param xpath    The XPath expression
+     * @param document Either an instance of {@link ReaderResource}, {@link Element} or a raw xml {@link String}.
+     * @return The whole XML snippet, which starts with the tag selected in the xpath expression.
+     */
+    public String extractXml(String xpath, Object document) throws XPathExpressionException {
+        try {
+            final Document doc = transformToDocument(document);
+            final Node node = (Node) XPathFactory.newInstance().newXPath().evaluate(xpath, doc, XPathConstants.NODE);
 
+            Document newXmlDocument = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+            Node copyNode = newXmlDocument.importNode(node, true);
+            newXmlDocument.appendChild(copyNode);
+            return printXmlDocument(newXmlDocument);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 
+    private static Document transformToDocument(Object document) {
+        try {
             String docString;
             if (document instanceof ReaderResource) {
                 docString = ((ReaderResource) document).getContent();
@@ -74,13 +108,18 @@ public class XPathHandler {
             } else {
                 return null;
             }
-            InputStream is = new ByteArrayInputStream(docString.getBytes());
-            Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(is);
-            return XPathFactory.newInstance().newXPath().evaluate(xpath, doc);
 
+            InputStream is = new ByteArrayInputStream(docString.getBytes());
+            return DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(is);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
+    private static String printXmlDocument(Document document) {
+        DOMImplementationLS domImplementationLS = (DOMImplementationLS) document.getImplementation();
+        LSSerializer lsSerializer = domImplementationLS.createLSSerializer();
+        String string = lsSerializer.writeToString(document);
+        return string.replace("<?xml version=\"1.0\" encoding=\"UTF-16\"?>\n", "");
+    }
 }
