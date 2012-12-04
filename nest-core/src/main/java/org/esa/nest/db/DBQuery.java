@@ -17,7 +17,6 @@ package org.esa.nest.db;
 
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.util.Debug;
-import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.StringUtils;
 import org.esa.nest.datamodel.AbstractMetadata;
 import org.esa.nest.util.SQLUtils;
@@ -26,7 +25,6 @@ import org.jdom.Attribute;
 import org.jdom.Element;
 
 import java.awt.*;
-import java.awt.geom.GeneralPath;
 import java.awt.geom.Point2D;
 import java.io.File;
 import java.sql.SQLException;

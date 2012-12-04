@@ -37,7 +37,6 @@ import org.esa.nest.dataio.dem.FileElevationModel;
 import org.esa.nest.datamodel.*;
 import org.esa.nest.util.Constants;
 import org.esa.nest.util.GeoUtils;
-import org.esa.nest.util.MathUtils;
 import org.esa.nest.util.ResourceUtils;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 

@@ -15,13 +15,13 @@
  */
 package org.esa.nest.dataio.dem;
 
+import org.apache.commons.math.util.FastMath;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.nest.util.MathUtils;
 import org.esa.nest.util.Settings;
-import org.apache.commons.math.util.FastMath;
 
 import java.io.*;
 import java.util.StringTokenizer;

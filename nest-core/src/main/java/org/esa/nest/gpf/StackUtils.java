@@ -22,8 +22,8 @@ import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.util.StringUtils;
 import org.esa.nest.datamodel.AbstractMetadata;
 
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Helper methods for working with Stack products

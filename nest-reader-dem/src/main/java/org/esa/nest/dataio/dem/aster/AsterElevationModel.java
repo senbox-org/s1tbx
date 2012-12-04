@@ -24,8 +24,8 @@ import org.esa.beam.visat.VisatApp;
 import org.esa.nest.dataio.dem.BaseElevationModel;
 import org.esa.nest.dataio.dem.ElevationFile;
 
-import java.io.File;
 import java.awt.*;
+import java.io.File;
 
 public final class AsterElevationModel extends BaseElevationModel {
 

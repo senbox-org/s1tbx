@@ -28,10 +28,10 @@ import javax.media.jai.PlanarImage;
 import javax.media.jai.RasterFactory;
 import java.awt.*;
 import java.awt.image.*;
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.BufferedInputStream;
 
 /**
  Generates Quicklooks

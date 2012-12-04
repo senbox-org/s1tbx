@@ -1,7 +1,7 @@
 package org.esa.nest.gpf;
 
-import org.esa.beam.framework.datamodel.*;
 import com.bc.ceres.core.ProgressMonitor;
+import org.esa.beam.framework.datamodel.*;
 
 /**
  * Handle getting the georefereing for the tile

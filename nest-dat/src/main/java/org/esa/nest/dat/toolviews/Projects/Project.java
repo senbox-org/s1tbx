@@ -16,7 +16,6 @@
 package org.esa.nest.dat.toolviews.Projects;
 
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
-import com.bc.ceres.core.*;
 import org.esa.beam.dataio.dimap.DimapProductConstants;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.dataio.ProductReader;
@@ -34,7 +33,6 @@ import org.esa.nest.dat.plugins.graphbuilder.GraphBuilderDialog;
 import org.esa.nest.util.ProductFunctions;
 import org.esa.nest.util.ResourceUtils;
 import org.esa.nest.util.XMLSupport;
-import org.esa.nest.gpf.ThreadManager;
 import org.jdom.Attribute;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -44,8 +42,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.Timer;
-import java.util.List;
-import java.awt.*;
 
 /**
  * A Project helps to organize your data by storing all your work in one folder.

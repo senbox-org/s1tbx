@@ -21,7 +21,8 @@ import org.esa.beam.util.io.FileUtils;
 import org.esa.nest.dataio.dem.ElevationFile;
 import org.esa.nest.dataio.dem.ElevationTile;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 
 /**
  * Holds information about a dem file.

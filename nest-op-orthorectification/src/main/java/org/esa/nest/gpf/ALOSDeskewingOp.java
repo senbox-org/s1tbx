@@ -32,7 +32,9 @@ import org.esa.nest.util.GeoUtils;
 import org.esa.nest.util.MathUtils;
 
 import java.awt.*;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Skew correction for ALOS product

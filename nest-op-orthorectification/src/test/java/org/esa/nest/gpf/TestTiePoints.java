@@ -1,14 +1,13 @@
 package org.esa.nest.gpf;
 
+import com.bc.ceres.core.ProgressMonitor;
 import junit.framework.TestCase;
-import org.esa.nest.util.TestUtils;
+import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.TiePointGrid;
-import org.esa.beam.framework.dataio.ProductIO;
+import org.esa.nest.util.TestUtils;
 
 import java.io.File;
-
-import com.bc.ceres.core.ProgressMonitor;
 
 /**
  * Test performance of tie point grid geocoding

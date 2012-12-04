@@ -15,6 +15,7 @@
  */
 package org.esa.nest.db;
 
+import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.util.ProductUtils;
@@ -31,8 +32,6 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
-
-import com.bc.ceres.core.ProgressMonitor;
 
 /**
 
