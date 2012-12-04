@@ -25,7 +25,7 @@ import org.esa.beam.framework.ui.PixelPositionListener;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.visat.AbstractVisatPlugIn;
 import org.esa.beam.visat.VisatApp;
-import org.esa.nest.util.GraphicsUtils;
+import org.esa.nest.dat.layers.GraphicsUtils;
 
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;

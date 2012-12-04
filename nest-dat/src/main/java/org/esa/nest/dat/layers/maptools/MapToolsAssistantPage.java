@@ -24,7 +24,7 @@ import java.awt.*;
 class MapToolsAssistantPage extends AbstractLayerSourceAssistantPage {
 
     private final JCheckBox compass = new JCheckBox("Show Compass", true);
-    private final JCheckBox latLonGrid = new JCheckBox("Show Lat/lon Grid", true);
+    private final JCheckBox latLonGrid = new JCheckBox("Show Lat/lon Grid", false);
     private final JCheckBox lookDirection = new JCheckBox("Show Look Direction", true);
     private final JCheckBox nestLogo = new JCheckBox("Show NEST logo", true);
 
@@ -70,8 +70,8 @@ class MapToolsAssistantPage extends AbstractLayerSourceAssistantPage {
 
         panel.add(compass, gbc);
         gbc.gridy++;
-        panel.add(latLonGrid, gbc);
-        gbc.gridy++;
+        //panel.add(latLonGrid, gbc);
+        //gbc.gridy++;
         panel.add(lookDirection, gbc);
         gbc.gridy++;
         panel.add(nestLogo, gbc);

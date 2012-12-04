@@ -1,6 +1,7 @@
 package org.esa.nest.dat.layers.maptools.components;
 
 import org.esa.beam.framework.datamodel.*;
+import org.esa.nest.dat.layers.GraphicsUtils;
 import org.esa.nest.dat.layers.ScreenPixelConverter;
 import org.esa.nest.datamodel.AbstractMetadata;
 
@@ -15,6 +16,8 @@ public class LookDirectionComponent implements MapToolsComponent {
     private boolean valid = true;
     private final List<Point> tails = new ArrayList<Point>();
     private final List<Point> heads = new ArrayList<Point>();
+
+    private final static int arrowLength = 60;
 
     public LookDirectionComponent(final RasterDataNode raster) {
         try {
@@ -35,7 +38,7 @@ public class LookDirectionComponent implements MapToolsComponent {
                     final PixelPos headPix = geoCoding.getPixelPos(new GeoPos(headLat, headLon), null);
 
                     final double m = (headPix.getY()-tailPix.getY()) / (headPix.getX()-tailPix.getX());
-                    int length = 100;
+                    int length = arrowLength;
                     if(tailPix.getX() > headPix.getX())
                         length = -length;
                     final int x = (int)tailPix.getX() + length;
@@ -46,12 +49,26 @@ public class LookDirectionComponent implements MapToolsComponent {
                 }
             } else {
                 final String pass = absRoot.getAttributeString(AbstractMetadata.PASS, null);
-                final String antennaPointing = absRoot.getAttributeString(AbstractMetadata.antenna_pointing, null);
+                String antennaPointing = absRoot.getAttributeString(AbstractMetadata.antenna_pointing, null);
+                if(!antennaPointing.equalsIgnoreCase("right"))
+                    antennaPointing = "left";
 
                 int x = 0;
-                int y = raster.getSceneRasterHeight() / 2;
+                int length = arrowLength;
+                if((pass.equalsIgnoreCase("DESCENDING") && antennaPointing.equalsIgnoreCase("right")) ||
+                   (pass.equalsIgnoreCase("ASCENDING") && antennaPointing.equalsIgnoreCase("left"))) {
+                    x = raster.getRasterWidth();
+                    length = -length;
+                }
+                int y = 0;
                 tails.add(new Point(x, y));
-                heads.add(new Point(x+100, y));
+                heads.add(new Point(x+length, y));
+                y = raster.getSceneRasterHeight() / 2;
+                tails.add(new Point(x, y));
+                heads.add(new Point(x+length, y));
+                y = raster.getSceneRasterHeight();
+                tails.add(new Point(x, y));
+                heads.add(new Point(x+length, y));
             }
         } catch(Exception e) {
             valid = false;
@@ -61,14 +78,12 @@ public class LookDirectionComponent implements MapToolsComponent {
     public void render(final Graphics2D graphics, final ScreenPixelConverter screenPixel) {
         if(!valid) return;
 
-        graphics.setColor(Color.YELLOW);
-        final double[] tailpts = new double[2];
-        final double[] headpts = new double[2];
+        graphics.setColor(Color.CYAN);
         for(int i=0; i < tails.size(); ++i) {
-            screenPixel.pixelToScreen(tails.get(i), tailpts);
-            screenPixel.pixelToScreen(heads.get(i), headpts);
 
-            graphics.drawLine((int)tailpts[0], (int)tailpts[1], (int)headpts[0], (int)headpts[1]);
+            GraphicsUtils.drawArrow(graphics, screenPixel,
+                    (int) tails.get(i).getX(), (int) tails.get(i).getY(),
+                    (int) heads.get(i).getX(), (int) heads.get(i).getY());
         }
 
 

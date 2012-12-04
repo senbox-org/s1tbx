@@ -24,18 +24,18 @@ public class LogoComponent implements MapToolsComponent {
         final Graphics2D g = image.createGraphics();
         g.drawImage(procNestIcon.getImage(), null, null);
 
-        point = new Point(100,100);
+        point = new Point(raster.getRasterWidth()-image.getWidth(), raster.getRasterHeight()-image.getHeight());
     }
 
     public void render(final Graphics2D graphics, final ScreenPixelConverter screenPixel) {
+        final AffineTransform transformSave = graphics.getTransform();
+        try {
+            final AffineTransform transform = screenPixel.getImageTransform(transformSave);
+            transform.translate(point.x, point.y);
 
-        final double[] pts = new double[2];
-        screenPixel.pixelToScreen(point, pts);
-        final double zoom = screenPixel.getZoomFactor();
-
-        final AffineTransform at = new AffineTransform();
-        at.setToTranslation((int)pts[0], (int)pts[1]);
-        at.scale(zoom, zoom);
-        graphics.drawRenderedImage(image, at);
+            graphics.drawRenderedImage(image, transform);
+        } finally {
+            graphics.setTransform(transformSave);
+        }
     }
 }

@@ -61,7 +61,7 @@ public class MapToolsLayer extends Layer implements LayerSelection {
     public void regenerate() {
         components.clear();
         if(options.showCompass()) {
-            components.add(new CompassComponent());
+            components.add(new CompassComponent(raster));
         }
         if(options.showLatLonGrid()) {
             components.add(new LatLonGridComponent(raster));
@@ -88,45 +88,10 @@ public class MapToolsLayer extends Layer implements LayerSelection {
         }
         
         final Graphics2D graphics = rendering.getGraphics();
-        //graphics.setStroke(new BasicStroke(lineThickness));
-
-        final int maxX = product.getSceneRasterWidth();
-        final int maxY = product.getSceneRasterHeight();
-        final PixelPos pix = new PixelPos();
 
         for(MapToolsComponent component : components) {
             component.render(graphics, screenPixel);
         }
-
-
-   /*     for(GeoTagEntry entry : geoTags) {
-            geoCoding.getPixelPos(entry.getGeoPos(), pix);
-            if(!pix.isValid() || pix.getX() < 0 || pix.getY() < 0 ||
-                                 pix.getX() > maxX || pix.getY() > maxY)  {
-                continue;
-            }
-
-            screenPixel.pixelToScreen(pix.getX(), pix.getY(), vpts);
-
-            if(entry.getShowLabel()) {
-                graphics.setFont(new Font(fontName, Font.BOLD, entry.getSize()));
-                if(GeoTagSelectionManager.instance().isSelected(entry)) {
-                    GraphicsUtils.highlightText(graphics, entry.getColour(), entry.getName(), (int)vpts[0], (int)vpts[1],
-                                                Color.YELLOW);
-                } else {
-                    GraphicsUtils.outlineText(graphics, entry.getColour(), entry.getName(), (int)vpts[0], (int)vpts[1]);                    
-                }
-            }
-            if(entry.isSymbol()) {
-                final AffineTransform at = AffineTransform.getTranslateInstance((int)vpts[0], (int)vpts[1]);
-                final BufferedImage bi = SymbolLibrary.instance().getImage(entry.getIconFile());
-                graphics.drawRenderedImage(bi, at);
-                if(GeoTagSelectionManager.instance().isSelected(entry)) {
-                    graphics.setColor(Color.YELLOW);
-                    graphics.draw3DRect((int)vpts[0], (int)vpts[1], bi.getWidth(), bi.getHeight(), true);
-                }
-            }
-        }    */
     }
 
     public void selectRectangle(final Rectangle rect) {
