@@ -473,173 +473,111 @@ public final class GeolocationGridGeocodingOp extends Operator {
     private double getPixelValue(final double azimuthIndex, final double rangeIndex,
                                  final Band sourceBand1, final Band sourceBand2) {
 
-        if (imgResampling.equals(Resampling.NEAREST_NEIGHBOUR)) {
+        try {
+            final int x0 = (int)(rangeIndex + 0.5);
+            final int y0 = (int)(azimuthIndex + 0.5);
+            Rectangle srcRect = null;
+            Tile sourceTileI, sourceTileQ = null;
 
-            final Tile sourceTile = getSrcTile(sourceBand1, (int)rangeIndex, (int)azimuthIndex, 1, 1);
-            final Tile sourceTile2 = getSrcTile(sourceBand2, (int)rangeIndex, (int)azimuthIndex, 1, 1);
-            return getPixelValueUsingNearestNeighbourInterp(
-                    azimuthIndex, rangeIndex, sourceTile, sourceTile2);
+            if (imgResampling.equals(Resampling.NEAREST_NEIGHBOUR)) {
 
-        } else if (imgResampling.equals(Resampling.BILINEAR_INTERPOLATION)) {
+                srcRect = new Rectangle(x0, y0, 1, 1);
 
-            final Tile sourceTile = getSrcTile(sourceBand1, (int)rangeIndex, (int)azimuthIndex, 2, 2);
-            final Tile sourceTile2 = getSrcTile(sourceBand2, (int)rangeIndex, (int)azimuthIndex, 2, 2);
-            return getPixelValueUsingBilinearInterp(azimuthIndex, rangeIndex,
-                    sourceImageWidth, sourceImageHeight, sourceTile, sourceTile2);
+            } else if (imgResampling.equals(Resampling.BILINEAR_INTERPOLATION)) {
 
-        } else if (imgResampling.equals(Resampling.CUBIC_CONVOLUTION)) {
+                srcRect = new Rectangle(Math.max(0, x0 - 1), Math.max(0, y0 - 1), 3, 3);
 
-            final Tile sourceTile = getSrcTile(sourceBand1, Math.max(0, (int)rangeIndex - 1),
-                                                Math.max(0, (int)azimuthIndex - 1), 4, 4);
-            final Tile sourceTile2 = getSrcTile(sourceBand2, Math.max(0, (int)rangeIndex - 1),
-                                                Math.max(0, (int)azimuthIndex - 1), 4, 4);
-            return getPixelValueUsingBicubicInterp(azimuthIndex, rangeIndex,
-                    sourceImageWidth, sourceImageHeight, sourceTile, sourceTile2);
-        } else {
-            throw new OperatorException("Unknown interpolation method");
-        }
-    }
+            } else if (imgResampling.equals(Resampling.CUBIC_CONVOLUTION)) {
 
-    private Tile getSrcTile(Band sourceBand, int minX, int minY, int width, int height) {
-        if(sourceBand == null)
-            return null;
+                srcRect = new Rectangle(Math.max(0, x0 - 2), Math.max(0, y0 - 2), 5, 5);
 
-        final Rectangle srcRect = new Rectangle(minX, minY, width, height);
-        return getSourceTile(sourceBand, srcRect);
-    }
-    
-    /**
-     * Get source image pixel value using nearest neighbot interpolation.
-     * @param azimuthIndex The azimuth index for pixel in source image.
-     * @param rangeIndex The range index for pixel in source image.
-     * @param sourceTile  i
-     * @param sourceTile2 q
-     * @return The pixel value.
-     */
-    private static double getPixelValueUsingNearestNeighbourInterp(final double azimuthIndex, final double rangeIndex,
-            final Tile sourceTile, final Tile sourceTile2) {
+            } else if (imgResampling.equals(Resampling.BISINC_INTERPOLATION)) {
 
-        final int x0 = (int)rangeIndex;
-        final int y0 = (int)azimuthIndex;
+                srcRect = new Rectangle(Math.max(0, x0 - 3), Math.max(0, y0 - 3), 6, 6);
 
-        double v = 0.0;
-        if (sourceTile2 != null) {
+            } else if (imgResampling.equals(Resampling.BICUBIC_INTERPOLATION)) {
 
-            final double vi = sourceTile.getDataBuffer().getElemDoubleAt(sourceTile.getDataBufferIndex(x0, y0));
-            final double vq = sourceTile2.getDataBuffer().getElemDoubleAt(sourceTile2.getDataBufferIndex(x0, y0));
-            v = vi*vi + vq*vq;
+                srcRect = new Rectangle(Math.max(0, x0 - 2), Math.max(0, y0 - 2), 5, 5);
 
-        } else {
-            v = sourceTile.getDataBuffer().getElemDoubleAt(sourceTile.getDataBufferIndex(x0, y0));
-        }
-
-        return v;
-    }
-
-    /**
-     * Get source image pixel value using bilinear interpolation.
-     * @param azimuthIndex The azimuth index for pixel in source image.
-     * @param rangeIndex The range index for pixel in source image.
-     * @param sceneRasterWidth the product width
-     * @param sceneRasterHeight the product height
-     * @param sourceTile  i
-     * @param sourceTile2 q
-     * @return The pixel value.
-     */
-    private static double getPixelValueUsingBilinearInterp(final double azimuthIndex, final double rangeIndex,
-                                                    final int sceneRasterWidth, final int sceneRasterHeight,
-                                                    final Tile sourceTile, final Tile sourceTile2) {
-
-        final int x0 = (int)rangeIndex;
-        final int y0 = (int)azimuthIndex;
-        final int x1 = Math.min(x0 + 1, sceneRasterWidth - 1);
-        final int y1 = Math.min(y0 + 1, sceneRasterHeight - 1);
-        final double dx = rangeIndex - x0;
-        final double dy = azimuthIndex - y0;
-
-        final ProductData srcData = sourceTile.getDataBuffer();
-
-        double v00, v01, v10, v11;
-        if (sourceTile2 != null) {
-
-            final ProductData srcData2 = sourceTile2.getDataBuffer();
-
-            final double vi00 = srcData.getElemDoubleAt(sourceTile.getDataBufferIndex(x0, y0));
-            final double vi01 = srcData.getElemDoubleAt(sourceTile.getDataBufferIndex(x1, y0));
-            final double vi10 = srcData.getElemDoubleAt(sourceTile.getDataBufferIndex(x0, y1));
-            final double vi11 = srcData.getElemDoubleAt(sourceTile.getDataBufferIndex(x1, y1));
-
-            final double vq00 = srcData2.getElemDoubleAt(sourceTile2.getDataBufferIndex(x0, y0));
-            final double vq01 = srcData2.getElemDoubleAt(sourceTile2.getDataBufferIndex(x1, y0));
-            final double vq10 = srcData2.getElemDoubleAt(sourceTile2.getDataBufferIndex(x0, y1));
-            final double vq11 = srcData2.getElemDoubleAt(sourceTile2.getDataBufferIndex(x1, y1));
-
-            v00 = vi00*vi00 + vq00*vq00;
-            v01 = vi01*vi01 + vq01*vq01;
-            v10 = vi10*vi10 + vq10*vq10;
-            v11 = vi11*vi11 + vq11*vq11;
-
-        } else {
-
-            v00 = srcData.getElemDoubleAt(sourceTile.getDataBufferIndex(x0, y0));
-            v01 = srcData.getElemDoubleAt(sourceTile.getDataBufferIndex(x1, y0));
-            v10 = srcData.getElemDoubleAt(sourceTile.getDataBufferIndex(x0, y1));
-            v11 = srcData.getElemDoubleAt(sourceTile.getDataBufferIndex(x1, y1));
-        }
-
-        return MathUtils.interpolationBiLinear(v00, v01, v10, v11, dx, dy);
-    }
-
-    /**
-     * Get source image pixel value using bicubic interpolation.
-     * @param azimuthIndex The azimuth index for pixel in source image.
-     * @param rangeIndex The range index for pixel in source image.
-     * @param sceneRasterWidth the product width
-     * @param sceneRasterHeight the product height
-     * @param sourceTile  i
-     * @param sourceTile2 q
-     * @return The pixel value.
-     */
-    private static double getPixelValueUsingBicubicInterp(final double azimuthIndex, final double rangeIndex,
-                                                   final int sceneRasterWidth, final int sceneRasterHeight,
-                                                   final Tile sourceTile, final Tile sourceTile2) {
-
-        final int [] x = new int[4];
-        x[1] = (int)rangeIndex;
-        x[0] = Math.max(0, x[1] - 1);
-        x[2] = Math.min(x[1] + 1, sceneRasterWidth - 1);
-        x[3] = Math.min(x[1] + 2, sceneRasterWidth - 1);
-
-        final int [] y = new int[4];
-        y[1] = (int)azimuthIndex;
-        y[0] = Math.max(0, y[1] - 1);
-        y[2] = Math.min(y[1] + 1, sceneRasterHeight - 1);
-        y[3] = Math.min(y[1] + 2, sceneRasterHeight - 1);
-
-        final ProductData srcData = sourceTile.getDataBuffer();
-
-        final double[][] v = new double[4][4];
-        if (sourceTile2 != null) {
-
-            final ProductData srcData2 = sourceTile2.getDataBuffer();
-            for (int i = 0; i < y.length; i++) {
-                for (int j = 0; j < x.length; j++) {
-                    final double vi = srcData.getElemDoubleAt(sourceTile.getDataBufferIndex(x[j], y[i]));
-                    final double vq = srcData2.getElemDoubleAt(sourceTile2.getDataBufferIndex(x[j], y[i]));
-                    v[i][j] = vi*vi + vq*vq;
-                }
+            } else {
+                throw new OperatorException("Unhandled interpolation method");
             }
 
-        } else {
+            sourceTileI = getSourceTile(sourceBand1, srcRect);
+            if (sourceBand2 != null) {
+                sourceTileQ = getSourceTile(sourceBand2, srcRect);
+            }
+
+            final ResamplingRaster imgResamplingRaster = new ResamplingRaster(sourceTileI, sourceTileQ);
+            final Resampling resampling = imgResampling;
+            final Resampling.Index imgResamplingIndex = resampling.createIndex();
+
+            resampling.computeIndex(rangeIndex + 0.5, azimuthIndex + 0.5,
+                                       sourceImageWidth, sourceImageHeight, imgResamplingIndex);
+
+            return resampling.resample(imgResamplingRaster, imgResamplingIndex);
+
+        } catch(Throwable e) {
+            OperatorUtils.catchOperatorException(getId(), e);
+        }
+
+        return 0;
+    }
+
+    public static class ResamplingRaster implements Resampling.Raster {
+
+        private final Tile sourceTileI, sourceTileQ;
+        private final double noDataValue;
+        private final ProductData dataBufferI, dataBufferQ;
+
+        public ResamplingRaster(final Tile sourceTileI, final Tile sourceTileQ) {
+
+            this.sourceTileI = sourceTileI;
+            this.sourceTileQ = sourceTileQ;
+
+            this.dataBufferI = sourceTileI.getDataBuffer();
+            if (sourceTileQ != null) {
+                this.dataBufferQ = sourceTileQ.getDataBuffer();
+            } else {
+                this.dataBufferQ = null;
+            }
+
+            this.noDataValue = sourceTileI.getRasterDataNode().getNoDataValue();
+        }
+
+        public final int getWidth() {
+            return sourceTileI.getWidth();
+        }
+
+        public final int getHeight() {
+            return sourceTileI.getHeight();
+        }
+
+        public void getSamples(int[] x, int[] y, float[][] samples) {
 
             for (int i = 0; i < y.length; i++) {
                 for (int j = 0; j < x.length; j++) {
-                    v[i][j] = srcData.getElemDoubleAt(sourceTile.getDataBufferIndex(x[j], y[i]));
+
+                    double v = (float)dataBufferI.getElemDoubleAt(sourceTileI.getDataBufferIndex(x[j], y[i]));
+                    if (noDataValue != 0 && (v == noDataValue)) {
+                        samples[i][j] = (float)noDataValue;
+                        continue;
+                    } else {
+                        samples[i][j] = (float)v;
+                    }
+
+                    if (dataBufferQ != null) {
+                        final double vq = dataBufferQ.getElemDoubleAt(sourceTileQ.getDataBufferIndex(x[j], y[i]));
+                        if (noDataValue != 0 && vq == noDataValue) {
+                            samples[i][j] = (float)noDataValue;
+                            continue;
+                        }
+
+                        samples[i][j] = (float)(v*v + vq*vq);
+                    }
                 }
             }
         }
-
-        return MathUtils.interpolationBiCubic(v, rangeIndex - x[1], azimuthIndex - y[1]);
     }
 
     /**
