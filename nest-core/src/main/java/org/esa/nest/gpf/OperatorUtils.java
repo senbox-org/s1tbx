@@ -25,6 +25,7 @@ import org.esa.beam.util.math.MathUtils;
 import org.esa.nest.datamodel.AbstractMetadata;
 import org.esa.nest.datamodel.Unit;
 import org.esa.nest.util.Constants;
+import org.esa.nest.util.ExceptionLog;
 
 import java.awt.*;
 import java.text.DateFormat;
@@ -421,6 +422,7 @@ public final class OperatorUtils {
         else
             message += e.toString();
 
+        ExceptionLog.log(message);
         System.out.println(message);
         throw new OperatorException(message);
     }

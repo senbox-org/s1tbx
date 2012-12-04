@@ -631,7 +631,7 @@
         </action>
 
         <action>
-            <parent>exportRasterData</parent>
+            <parent>exportOther</parent>
             <id>exportKmzProduct</id>
             <class>org.esa.nest.dat.actions.ExportKmzProductAction</class>
             <text>Export Product as Google Earth KMZ...</text>
