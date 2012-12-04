@@ -42,8 +42,9 @@ public class CliHandler {
         return parse("t");
     }
 
-    public String fetchGlobalMetadataFile() throws ParseException {
-        return parse("m");
+    public HashMap<String, String> fetchGlobalMetadataFiles() throws ParseException {
+        String optionName = "m";
+        return parseKeyValueOption(optionName);
     }
 
     public String[] fetchArguments() throws ParseException {
@@ -100,9 +101,10 @@ public class CliHandler {
         options.addOption(OptionBuilder.create("S"));
 
         OptionBuilder.hasArg();
-        OptionBuilder.withArgName("filePath");
-        OptionBuilder.withDescription("Optional. The absolute path and name of a text file (e.g. global metadata) to be included as ceres-metadata - Resource. " +
-                "Refer to as $metadata in velocity templates. ($metadata.content; $metadata.map.get(\"key\") or $metadata.path)");
+        OptionBuilder.withArgName("myKey>=<filePath");
+        OptionBuilder.withDescription("Optional. The absolute path and name of text file(s) (e.g. global metadata, LUTs) to be included as " +
+                "ceres-metadata - Resource. Refer to as $myKey in velocity templates. ($myKey.content; $myKey.map.get(\"key\"), if it was " +
+                "a *.properties file or $myKey.path)");
         options.addOption(OptionBuilder.create("m"));
 
         return options;

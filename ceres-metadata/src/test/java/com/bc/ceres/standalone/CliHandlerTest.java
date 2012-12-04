@@ -21,7 +21,7 @@ public class CliHandlerTest {
                 "-v", "template1=/my/template/dir/veltemp.vm.txt", "-v", "template2=/my/template/dir/veltemp.vm.xml",
                 "-t", "/my/out/product.n1",
                 "-S", "source1=foo/baa/prod.N1", "-S", "source2=foo/bah/MER.N1", "-S", "source3=foo/bar/ATS.N1",
-                "-m", "/root/dir/global-metadata.txt",
+                "-m", "meta1=/root/dir/global-metadata.txt", "-m", "meta2=/root/dir/lut.properties",
                 "var1", "var2", "var3 var3a"};
         cliHandler = new CliHandler(command);
     }
@@ -62,9 +62,10 @@ public class CliHandlerTest {
         assertNotNull(option);
         assertFalse("static metadata are optional", option.isRequired());
         assertNull(option.getValue());
-        assertEquals("filePath", option.getArgName());
-        desc = "Optional. The absolute path and name of a text file (e.g. global metadata) to be included as ceres-metadata - Resource. " +
-                "Refer to as $metadata in velocity templates. ($metadata.content; $metadata.map.get(\"key\") or $metadata.path)";
+        assertEquals("myKey>=<filePath", option.getArgName());
+        desc = "Optional. The absolute path and name of text file(s) (e.g. global metadata, LUTs) to be included as ceres-metadata - Resource. " +
+                "Refer to as $myKey in velocity templates. ($myKey.content; $myKey.map.get(\"key\"), if it was a *.properties file " +
+                "or $myKey.path)";
         assertEquals(desc, option.getDescription());
     }
 
@@ -118,9 +119,11 @@ public class CliHandlerTest {
     }
 
     @Test
-    public void testParseStaticMetadataTextFile() throws Exception {
-        String metadataFile = cliHandler.fetchGlobalMetadataFile();
-        assertEquals("/root/dir/global-metadata.txt", metadataFile);
+    public void testParseStaticMetadataTextFiles() throws Exception {
+        HashMap<String, String> metadataFile = cliHandler.fetchGlobalMetadataFiles();
+        assertEquals(2, metadataFile.size());
+        assertEquals("/root/dir/global-metadata.txt", metadataFile.get("meta1"));
+        assertEquals("/root/dir/lut.properties", metadataFile.get("meta2"));
     }
 
     @Test

@@ -8,6 +8,7 @@ import org.apache.velocity.VelocityContext;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -80,9 +81,9 @@ public class MetadataEngineMain {
         velocityContext.put(KEY_DATE_FORMAT, new SimpleDateFormat("yyyy-MM-dd"));
         velocityContext.put(KEY_DATE, new Date());
 
-        String metadataPath = cliHandler.fetchGlobalMetadataFile();
-        if (metadataPath != null) {
-            metadataResourceEngine.readResource(KEY_METADATA, metadataPath);
+        HashMap<String, String> metadataPaths = cliHandler.fetchGlobalMetadataFiles();
+        for (String key : metadataPaths.keySet()) {
+            metadataResourceEngine.readResource(key, metadataPaths.get(key));
         }
 
         Map<String, String> sourcePaths = cliHandler.fetchSourceItemFiles();

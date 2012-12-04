@@ -23,23 +23,23 @@ public class MetadataEngineMainTest {
 
     @Test
     public void testProcessMetadata_usingXPath() throws Exception {
-        SimpleFileSystemMock simpleFileSystem = new SimpleFileSystemMock();
-        metadataEngineMain = new MetadataEngineMain(new MetadataResourceEngine(simpleFileSystem));
+        SimpleFileSystemMock simpleFileSystemMock = new SimpleFileSystemMock();
+        metadataEngineMain = new MetadataEngineMain(new MetadataResourceEngine(simpleFileSystemMock));
 
-        String[] args = {"-m", "static-metadata.xml",
+        String[] args = {"-m", "staticKey=static-metadata.xml",
                 "-v", "template1=/mine.xml.vm", "-v", "template2=/yours.txt.vm",
                 "-t", "/root/foo"};
         metadataEngineMain.setCliHandler(new CliHandler(args));
 
         String velocityTemplate1 = "" +
                 "<EX_GeographicBoundingBox>\n" +
-                "    <westBoundLongitude>$xpath.run(\"//west/@att\", $metadata)</westBoundLongitude>\n" +
-                "    <eastBoundLongitude>$xpath.run(\"//east\", $metadata)</eastBoundLongitude>\n" +
-                "    <southBoundLatitude>$xpath.run(\"//south\", $metadata)</southBoundLatitude>\n" +
-                "    <northBoundLatitude>$xpath.run(\"//north\", $metadata)</northBoundLatitude>\n" +
+                "    <westBoundLongitude>$xpath.run(\"//west/@att\", $staticKey)</westBoundLongitude>\n" +
+                "    <eastBoundLongitude>$xpath.run(\"//east\", $staticKey)</eastBoundLongitude>\n" +
+                "    <southBoundLatitude>$xpath.run(\"//south\", $staticKey)</southBoundLatitude>\n" +
+                "    <northBoundLatitude>$xpath.run(\"//north\", $staticKey)</northBoundLatitude>\n" +
                 "</EX_GeographicBoundingBox>\n";
 
-        String velocityTemplate2 = "$xpath.run(\"//south\", $metadata)";
+        String velocityTemplate2 = "$xpath.run(\"//south\", $staticKey)";
 
         String staticMetadata = "" +
                 "<metadata>" +
@@ -50,14 +50,14 @@ public class MetadataEngineMainTest {
                 "    <east>1.3</east>\n" +
                 "</metadata>";
 
-        simpleFileSystem.setReader("/mine.xml.vm", new StringReader(velocityTemplate1));
-        simpleFileSystem.setReader("/yours.txt.vm", new StringReader(velocityTemplate2));
-        simpleFileSystem.setReader("static-metadata.xml", new StringReader(staticMetadata));
+        simpleFileSystemMock.setReader("/mine.xml.vm", new StringReader(velocityTemplate1));
+        simpleFileSystemMock.setReader("/yours.txt.vm", new StringReader(velocityTemplate2));
+        simpleFileSystemMock.setReader("static-metadata.xml", new StringReader(staticMetadata));
 
         StringWriter metadataResult1 = new StringWriter();
-        simpleFileSystem.setWriter("/root/foo/mine.xml", metadataResult1);
+        simpleFileSystemMock.setWriter("/root/foo/mine.xml", metadataResult1);
         StringWriter metadataResult2 = new StringWriter();
-        simpleFileSystem.setWriter("/root/foo/yours.txt", metadataResult2);
+        simpleFileSystemMock.setWriter("/root/foo/yours.txt", metadataResult2);
 
         //execution
         metadataEngineMain.processMetadata();
@@ -80,7 +80,7 @@ public class MetadataEngineMainTest {
         SimpleFileSystemMock simpleFileSystem = new SimpleFileSystemMock();
         metadataEngineMain = new MetadataEngineMain(new MetadataResourceEngine(simpleFileSystem));
 
-        String[] args = {"-m", "/my/metadata.properties",
+        String[] args = {"-m", "dunkel=/my/metadata.properties", "-m", "hell=/my/lut.properties",
                 "-v", "template1=/my-template.xml.vm", "-v", "template2=/yours.txt.vm",
                 "-S", "source1=source/path/tsm-1.dim", "-S", "source2=source/path/tsm-2.N1", "-S", "source3=source/path/tsm-3.hdf",
                 "-t", "/my/chl-a.N1",
@@ -89,14 +89,15 @@ public class MetadataEngineMainTest {
 
         String velocityTemplate = "" +
                 "$commandLineArgs.get(0) $commandLineArgs.get(1). " +
-                "$metadata.getContent(). " +
+                "$dunkel.getContent(). " +
                 "Output item path: $targetPath. " +
                 "The source metadata: " +
                 "1) $sourceMetadata.get(\"source1\").get(\"metadata_txt\").content " +
                 "2) $sourceMetadata.get(\"source2\").get(\"blubber_xm\").content " +
                 "3) $sourceMetadata.get(\"source3\").get(\"report_txt\").content " +
                 "4) $sourceMetadata.get(\"source3\").get(\"report_xml\").content. " +
-                "A source path: $sourcePaths.get(\"source1\").";
+                "A source path: $sourcePaths.get(\"source1\")." +
+                "$hell.map.get(\"2643\")";
 
         String velocityTemplate2 = "" +
                 "<metadata>\n" +
@@ -107,9 +108,11 @@ public class MetadataEngineMainTest {
                 "    </sources>\n" +
                 "    <target>$targetPath</target>\n" +
                 "    <additional>$commandLineArgs.get(0) $commandLineArgs.get(1)</additional>\n" +
+                "    <2643>$hell.map.get(\"2643\")</2643>\n" +
                 "</metadata>";
 
         simpleFileSystem.setReader("/my/metadata.properties", new StringReader("my.key=my value"));
+        simpleFileSystem.setReader("/my/lut.properties", new StringReader("2643=WGS 84 / UTM"));
         simpleFileSystem.setReader("/my-template.xml.vm", new StringReader(velocityTemplate));
         simpleFileSystem.setReader("/yours.txt.vm", new StringReader(velocityTemplate2));
         simpleFileSystem.setDirectoryList("source/path",
@@ -133,7 +136,9 @@ public class MetadataEngineMainTest {
 
         assertEquals("Hello world. my.key=my value. Output item path: /my/chl-a.N1. " +
                 "The source metadata: 1) source 1 text 2) source 2 text 3) source 3-txt text 4) source 3-xml text. " +
-                "A source path: source/path/tsm-1.dim.", metadataResult.toString());
+                "A source path: source/path/tsm-1.dim." +
+                "WGS 84 / UTM", metadataResult.toString());
+
         assertEquals("" +
                 "<metadata>\n" +
                 "    <sources>\n" +
@@ -143,6 +148,7 @@ public class MetadataEngineMainTest {
                 "            </sources>\n" +
                 "    <target>/my/chl-a.N1</target>\n" +
                 "    <additional>Hello world</additional>\n" +
+                "    <2643>WGS 84 / UTM</2643>\n" +
                 "</metadata>", metadataResultXml.toString());
     }
 }

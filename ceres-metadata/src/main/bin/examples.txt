@@ -58,3 +58,69 @@ String[] args = {"-m", "/my/metadataXX.properties",
                 "-S", "source1=source/path/tsm-1.dim", "-S", "source2=source/path/tsm-2.N1", "-S", "source3=source/path/tsm-3.hdf",
                 "-t", "/my/chl-a.N1",
                 "Hello", "world"};
+
+ANOTHER COMMAND LINE EXAMPLE:
+-----------------------------
+metadata-engine.bat -m "metadata=C:\Software-Tests\ceres-metadata\data\resource\resource.xml" -m "lut=C:\Software-Tests\ceres-metadata\data\lut\resource.properties" -t "C:\Software-Tests\ceres-metadata\data\out" -v "template=C:\Software-Tests\ceres-metadata\data\template\product-data-sheet.html.vm"
+
+resource.xml:
+[..]
+            <gmd:spatialResolution>
+                <gmd:MD_Resolution>
+                    <gmd:distance>
+                        <gco:Distance uom="m">1000</gco:Distance>
+                    </gmd:distance>
+                </gmd:MD_Resolution>
+            </gmd:spatialResolution>
+[..]
+                   <gmd:temporalElement>
+                        <gmd:EX_TemporalExtent>
+                            <gmd:extent>
+                                <gml:TimePeriod gml:id="IDcd3b1c4f-b5f7-439a-afc4-3317a4cd89be" xsi:type="gml:TimePeriodType">
+                                    <gml:beginPosition>2009-06-26T09:59:14</gml:beginPosition>
+                                    <gml:endPosition>2009-06-26T09:59:14</gml:endPosition>
+                                </gml:TimePeriod>
+                            </gmd:extent>
+                        </gmd:EX_TemporalExtent>
+                    </gmd:temporalElement>
+                </gmd:EX_Extent>
+            </gmd:extent>
+        </gmd:MD_DataIdentification>
+    </gmd:identificationInfo>
+
+[..]
+
+resource.properties
+[..]
+4326 = GEOGCS["WGS84(DD)"]
+[..]
+
+product-data-sheet.html.vm:
+#set( $startDate = $xpath.run("//identificationInfo/MD_DataIdentification/extent/EX_Extent/temporalElement/EX_TemporalExtent/extent/TimePeriod/beginPosition", $metadata) )
+[..]
+<table>
+    <tr>
+        <td>Spatial Resolution:</td>
+        <td>
+            $xpath.run("//MD_Resolution/distance/Distance", $metadata) $xpath.run("//MD_Resolution/distance/Distance/@uom", $metadata)
+            -> result: 1000 m
+        </td>
+    </tr>
+    <tr>
+        <td>EPSG Code:</td>
+        <td>
+            $lut.map.get($epgsCode)
+            -> result: GEOGCS["WGS84(DD)"]
+        </td>
+    </tr>
+</table>
+<table>
+    <tr>
+        <td>Acquisition Date:</td>
+        <td>
+            $dateFormat.format($dateFormat.parse($startDate))
+            -> result: 2009-06-26
+        </td>
+    </tr>
+</table>
+[..]
