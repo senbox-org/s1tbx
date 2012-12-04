@@ -14,7 +14,9 @@ public class BandConfiguration {
 
     @Parameter(description = "The interpolation method.",
                defaultValue = "linear",
-               valueSet = {"linear", "spline", "quadratic"})
+               valueSet = {"linear", "spline"}
+//               valueSet = {"linear", "spline", "quadratic"}
+    )
     String interpolationMethod = "linear";
 
     @Parameter(description =

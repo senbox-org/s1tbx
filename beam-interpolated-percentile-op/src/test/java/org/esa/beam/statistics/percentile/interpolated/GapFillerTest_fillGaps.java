@@ -49,4 +49,30 @@ public class GapFillerTest_fillGaps {
         assertEquals(9, input.length);
         assertArrayEquals(expected, input, 1e-7f);
     }
+
+    @Test
+    public void testThatGapsAreFilledWithLinearInterpolation() {
+        configuration.interpolationMethod = "linear";
+
+        float[] input = {xx, xx, xx, xx, 5, xx, xx, xx, xx};
+        float[] expected = {1, 2, 3, 4, 5, 4.5f, 4, 3.5f, 3};
+
+        GapFiller.fillGaps(input, configuration);
+
+        assertEquals(9, input.length);
+        assertArrayEquals(expected, input, 1e-7f);
+    }
+
+    @Test
+    public void testThatGapsAreFilledWithSplineInterpolation() {
+        configuration.interpolationMethod = "spline";
+
+        float[] input = {xx, xx, xx, xx, 5, xx, xx, xx, xx};
+        float[] expected = {1, 2.3515625f, 3.5625f, 4.4921875f, 5, 4.9921875f, 4.5625f, 3.8515625f, 3};
+
+        GapFiller.fillGaps(input, configuration);
+
+        assertEquals(9, input.length);
+        assertArrayEquals(expected, input, 1e-7f);
+    }
 }

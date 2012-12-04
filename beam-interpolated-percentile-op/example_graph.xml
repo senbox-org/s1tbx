@@ -1,0 +1,30 @@
+<graph id="someGraphId">
+    <version>1.0</version>
+    <node id="someNodeId">
+        <operator>InterpolatedPercentile</operator>
+        <parameters>
+            <sourceProductPaths>./2007/*.N1</sourceProductPaths>
+            <startDate>2007-03-01 00:00:01</startDate>
+            <endDate>2007-10-31 23:59:59</endDate>
+            <bandConfiguration>
+                <sourceBandName>algal_2</sourceBandName>
+                <percentiles>5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,95</percentiles>
+                <interpolationMethod>linear</interpolationMethod>
+                <startValueFallback>0.0</startValueFallback>
+                <endValueFallback>0.0</endValueFallback>
+                <validPixelExpression>l2_flags.WATER AND NOT l2_flags.PCD_17</validPixelExpression>
+            </bandConfiguration>
+            <crs>EPSG:4326</crs>
+
+            <resampling>Nearest</resampling>
+
+            <!--Baltique Sea-->
+            <westBound>9</westBound>
+            <northBound>66</northBound>
+            <eastBound>30</eastBound>
+            <southBound>53</southBound>
+            <pixelSizeX>0.05</pixelSizeX>
+            <pixelSizeY>0.05</pixelSizeY>
+        </parameters>
+    </node>
+</graph>

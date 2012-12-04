@@ -1,24 +1,48 @@
 package org.esa.beam.statistics.percentile.interpolated;
 
+import org.esa.beam.apache.math3.LinearInterpolator;
+import org.esa.beam.apache.math3.PolynomialSplineFunction;
+import org.esa.beam.apache.math3.SplineInterpolator;
+
+import java.util.ArrayList;
+
 public class GapFiller {
 
     public static void fillGaps(float[] interpolationFloats, BandConfiguration bandConfiguration) {
         fillStartAndEndWithFallback(interpolationFloats, bandConfiguration);
-        float lastValue = interpolationFloats[0];
-        int lastIdx = 0;
-        for (int i = 1; i < interpolationFloats.length; i++) {
+
+        ArrayList<Double> xList = new ArrayList<Double>();
+        ArrayList<Double> yList = new ArrayList<Double>();
+
+        for (int i = 0; i < interpolationFloats.length; i++) {
             float value = interpolationFloats[i];
             if (!Float.isNaN(value)) {
-                final int interpolation = i - lastIdx; //
-                if (interpolation > 1) {
-                    final float part = (value - lastValue) / interpolation;
-                    for (int j = 1; j < interpolation; j++) {
-                        interpolationFloats[lastIdx + j] = lastValue + part * j;
-                    }
-                }
-                lastValue = value;
-                lastIdx = i;
+                xList.add((double) i);
+                yList.add((double) value);
             }
+        }
+
+        double[] nx = new double[xList.size()];
+        double[] ny = new double[yList.size()];
+
+        for (int i = 0; i < xList.size(); i++) {
+            nx[i] = xList.get(i);
+            ny[i] = yList.get(i);
+        }
+
+        final PolynomialSplineFunction interpolate;
+
+        final String interpolationMethod = bandConfiguration.interpolationMethod;
+        if ("linear".equalsIgnoreCase(interpolationMethod) || nx.length < 3) {
+            interpolate = LinearInterpolator.interpolate(nx, ny);
+        } else if ("spline".equalsIgnoreCase(interpolationMethod)) {
+            interpolate = SplineInterpolator.interpolate(nx, ny);
+        } else {
+            interpolate = null;
+        }
+
+        for (int i = 0; i < interpolationFloats.length; i++) {
+            interpolationFloats[i] = (float) interpolate.value(i);
         }
     }
 
