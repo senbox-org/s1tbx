@@ -122,6 +122,8 @@
                         <excludes>
                             <exclude>com.bc.ceres:ceres-*</exclude>
                             <exclude>org.esa.beam:beam-*</exclude>
+                            <exclude>org.esa.beam:blue-marble-worldmap</exclude>
+                            <exclude>org.esa.beam:globcover-worldmap</exclude>
                             <exclude>ncsa.hdf:*</exclude>
                             <exclude>gov.nasa.gsfc.seadas:seadas-reader*</exclude>
                         </excludes>
