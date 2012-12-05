@@ -138,12 +138,20 @@
             <name>NEST_HOME</name>
             <scope>user</scope>
         </deleteEnvironmentVariable>
+        <deleteFile>
+            <abortOnError>0</abortOnError>
+            <path>${InstallDir}/lib</path>
+        </deleteFile>
+        <deleteFile>
+            <abortOnError>0</abortOnError>
+            <path>${InstallDir}/modules</path>
+        </deleteFile>
     </preInstallationActionList>
     <postInstallationActionList>
         <associateWindowsFileExtension>
-            <extensions>N1 E1 E2</extensions>
+            <extensions>N1 E1 E2 SAFE</extensions>
             <friendlyName>Envisat</friendlyName>
-            <icon>C:\build\4C\nest\nest\nest-src\main\assembly\dat.ico</icon>
+            <icon>C:\build\5.0\nest\nest\nest-src\main\assembly\dat.ico</icon>
             <mimeType></mimeType>
             <progID>NEST</progID>
             <scope>user</scope>
@@ -164,7 +172,7 @@
         <writeFile>
             <path>${installdir}/update.ini</path>
             <text>[Update]
-url = http://www.array.ca/nest-web/autoupdate/update.xml
+url = http://corp.array.ca/nest-web/autoupdate/update64.xml
 version_id = ${version}
 update_download_location = ${system_temp_directory}
 check_for_updates = 1

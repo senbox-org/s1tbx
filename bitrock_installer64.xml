@@ -1,7 +1,7 @@
 <project>
     <shortName>NEST</shortName>
     <fullName>NEST</fullName>
-    <version>5.0.0</version>
+    <version>5.0.1</version>
     <installerFilename>${product_shortname}-${product_version}-${platform_name}64-installer.${platform_exec_suffix}</installerFilename>
     <licenseFile>LICENSE.txt</licenseFile>
     <splashImage>nest-src/main/bin/common/res/nest_splash.png</splashImage>
@@ -221,54 +221,37 @@
     </componentList>
     <initializationActionList>
         <showInfo>
+            <ruleEvaluationLogic>or</ruleEvaluationLogic>
             <text>A previous version of NEST has been found on your system. 
 This installer will optionally remove the older version before installing a new one.</text>
             <ruleList>
                 <fileExists>
-                    <path>C:\Program Files (x86)\NEST5.0\uninstall.exe</path>
+                    <path>C:\Program Files (x86)\NEST\uninstall.exe</path>
                 </fileExists>
-            </ruleList>
-        </showInfo>
-        <showInfo>
-            <text>A previous version of NEST has been found on your system. 
-This installer will optionally remove the older version before installing a new one.</text>
-            <ruleList>
                 <fileExists>
-                    <path>C:\Program Files\NEST5.0\uninstall.exe</path>
+                    <path>C:\Program Files (x86)\NEST4C-1.1\uninstall.exe</path>
                 </fileExists>
-            </ruleList>
-        </showInfo>
-        <showInfo>
-            <text>A previous version of NEST has been found on your system. 
-This installer will optionally remove the older version before installing a new one.</text>
-            <ruleList>
+                <fileExists>
+                    <path>C:\Program Files (x86)\NEST4C-1.0\uninstall.exe</path>
+                </fileExists>
                 <fileExists>
                     <path>C:\Program Files (x86)\NEST4B-1.1\uninstall.exe</path>
                 </fileExists>
-            </ruleList>
-        </showInfo>
-        <showInfo>
-            <text>A previous version of NEST has been found on your system. 
-This installer will optionally remove the older version before installing a new one.</text>
-            <ruleList>
-                <fileExists>
-                    <path>C:\Program Files\NEST4B-1.1\uninstall.exe</path>
-                </fileExists>
-            </ruleList>
-        </showInfo>
-        <showInfo>
-            <text>A previous version of NEST has been found on your system. 
-This installer will optionally remove the older version before installing a new one.</text>
-            <ruleList>
                 <fileExists>
                     <path>C:\Program Files (x86)\NEST4B-1.0\uninstall.exe</path>
                 </fileExists>
-            </ruleList>
-        </showInfo>
-        <showInfo>
-            <text>A previous version of NEST has been found on your system. 
-This installer will optionally remove the older version before installing a new one.</text>
-            <ruleList>
+                <fileExists>
+                    <path>C:\Program Files\NEST\uninstall.exe</path>
+                </fileExists>
+                <fileExists>
+                    <path>C:\Program Files\NEST4C-1.1\uninstall.exe</path>
+                </fileExists>
+                <fileExists>
+                    <path>C:\Program Files\NEST4C-1.0\uninstall.exe</path>
+                </fileExists>
+                <fileExists>
+                    <path>C:\Program Files\NEST4B-1.1\uninstall.exe</path>
+                </fileExists>
                 <fileExists>
                     <path>C:\Program Files\NEST4B-1.0\uninstall.exe</path>
                 </fileExists>
@@ -282,8 +265,10 @@ This installer will optionally remove the older version before installing a new 
         </deleteEnvironmentVariable>
         <runProgram>
             <abortOnError>0</abortOnError>
+            <explanation>Removing previous version</explanation>
             <program>C:\Program Files\NEST4B-1.1\uninstall.exe</program>
             <programArguments></programArguments>
+            <progressText>Removing previous version</progressText>
             <showMessageOnError>0</showMessageOnError>
             <ruleList>
                 <fileExists>
@@ -306,19 +291,10 @@ This installer will optionally remove the older version before installing a new 
         </runProgram>
         <runProgram>
             <abortOnError>0</abortOnError>
-            <program>C:\Program Files\NEST5.0\uninstall.exe</program>
-            <programArguments></programArguments>
-            <showMessageOnError>0</showMessageOnError>
-            <ruleList>
-                <fileExists>
-                    <path>C:\Program Files\NEST5.0\uninstall.exe</path>
-                </fileExists>
-            </ruleList>
-        </runProgram>
-        <runProgram>
-            <abortOnError>0</abortOnError>
+            <explanation>Removing previous version</explanation>
             <program>C:\Program Files (x86)\NEST4B-1.1\uninstall.exe</program>
             <programArguments></programArguments>
+            <progressText>Removing previous version</progressText>
             <showMessageOnError>0</showMessageOnError>
             <ruleList>
                 <fileExists>
@@ -328,8 +304,10 @@ This installer will optionally remove the older version before installing a new 
         </runProgram>
         <runProgram>
             <abortOnError>0</abortOnError>
+            <explanation>Removing previous version</explanation>
             <program>C:\Program Files (x86)\NEST4B-1.0\uninstall.exe</program>
             <programArguments></programArguments>
+            <progressText>Removing previous version</progressText>
             <showMessageOnError>0</showMessageOnError>
             <ruleList>
                 <fileExists>
@@ -339,14 +317,79 @@ This installer will optionally remove the older version before installing a new 
         </runProgram>
         <runProgram>
             <abortOnError>0</abortOnError>
-            <explanation>removing previous version</explanation>
-            <program>C:\Program Files (x86)\NEST5.0\uninstall.exe</program>
+            <explanation>Removing previous version</explanation>
+            <program>C:\Program Files\NEST4C-1.1\uninstall.exe</program>
             <programArguments></programArguments>
-            <progressText>removing previous version</progressText>
+            <progressText>Removing previous version</progressText>
             <showMessageOnError>0</showMessageOnError>
             <ruleList>
                 <fileExists>
-                    <path>C:\Program Files (x86)\NEST5.0\uninstall.exe</path>
+                    <path>C:\Program Files\NEST4C-1.1\uninstall.exe</path>
+                </fileExists>
+            </ruleList>
+        </runProgram>
+        <runProgram>
+            <abortOnError>0</abortOnError>
+            <explanation>Removing previous version</explanation>
+            <program>C:\Program Files\NEST4C-1.0\uninstall.exe</program>
+            <programArguments></programArguments>
+            <progressText>Removing previous version</progressText>
+            <showMessageOnError>0</showMessageOnError>
+            <ruleList>
+                <fileExists>
+                    <path>C:\Program Files\NEST4C-1.0\uninstall.exe</path>
+                </fileExists>
+            </ruleList>
+        </runProgram>
+        <runProgram>
+            <abortOnError>0</abortOnError>
+            <explanation>Removing previous version</explanation>
+            <program>C:\Program Files (x86)\NEST4C-1.1\uninstall.exe</program>
+            <programArguments></programArguments>
+            <progressText>Removing previous version</progressText>
+            <showMessageOnError>0</showMessageOnError>
+            <ruleList>
+                <fileExists>
+                    <path>C:\Program Files (x86)\NEST4C-1.1\uninstall.exe</path>
+                </fileExists>
+            </ruleList>
+        </runProgram>
+        <runProgram>
+            <abortOnError>0</abortOnError>
+            <explanation>Removing previous version</explanation>
+            <program>C:\Program Files (x86)\NEST4C-1.0\uninstall.exe</program>
+            <programArguments></programArguments>
+            <progressText>Removing previous version</progressText>
+            <showMessageOnError>0</showMessageOnError>
+            <ruleList>
+                <fileExists>
+                    <path>C:\Program Files (x86)\NEST4C-1.0\uninstall.exe</path>
+                </fileExists>
+            </ruleList>
+        </runProgram>
+        <runProgram>
+            <abortOnError>0</abortOnError>
+            <explanation>Removing previous version</explanation>
+            <program>C:\Program Files (x86)\NEST\uninstall.exe</program>
+            <programArguments></programArguments>
+            <progressText>Removing previous version</progressText>
+            <showMessageOnError>0</showMessageOnError>
+            <ruleList>
+                <fileExists>
+                    <path>C:\Program Files (x86)\NEST\uninstall.exe</path>
+                </fileExists>
+            </ruleList>
+        </runProgram>
+        <runProgram>
+            <abortOnError>0</abortOnError>
+            <explanation>Removing previous version</explanation>
+            <program>C:\Program Files\NEST\uninstall.exe</program>
+            <programArguments></programArguments>
+            <progressText>Removing previous version</progressText>
+            <showMessageOnError>0</showMessageOnError>
+            <ruleList>
+                <fileExists>
+                    <path>C:\Program Files\NEST\uninstall.exe</path>
                 </fileExists>
             </ruleList>
         </runProgram>
@@ -382,7 +425,7 @@ This installer will optionally remove the older version before installing a new 
         <writeFile>
             <path>${installdir}/update.ini</path>
             <text>[Update]
-url = http://www.array.ca/nest-web/autoupdate/update64.xml
+url = http://corp.array.ca/nest-web/autoupdate/update64.xml
 version_id = ${version}
 update_download_location = ${system_temp_directory}
 check_for_updates = 1

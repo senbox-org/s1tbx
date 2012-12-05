@@ -2,7 +2,7 @@
     <shortName>NEST</shortName>
     <fullName>NEST</fullName>
     <version>5.0.1</version>
-    <installerFilename>${product_shortname}-${product_version}-${platform_name}-installer.${platform_exec_suffix}</installerFilename>
+    <installerFilename>${product_shortname}-${product_version}-${platform_name}-update.${platform_exec_suffix}</installerFilename>
     <licenseFile>LICENSE.txt</licenseFile>
     <splashImage>nest-src/main/bin/common/res/nest_splash.png</splashImage>
     <componentList>
@@ -36,13 +36,7 @@
                     <platforms>all</platforms>
                     <distributionFileList>
                         <distributionDirectory>
-                            <origin>target/nest-5.0-bin-win64.dir/auxdata</origin>
-                        </distributionDirectory>
-                        <distributionDirectory>
                             <origin>target/nest-5.0-bin-win64.dir/bin</origin>
-                        </distributionDirectory>
-                        <distributionDirectory>
-                            <origin>target/nest-5.0-bin-win64.dir/commandline</origin>
                         </distributionDirectory>
                         <distributionDirectory>
                             <origin>target/nest-5.0-bin-win64.dir/config</origin>
@@ -51,13 +45,7 @@
                             <origin>target/nest-5.0-bin-win64.dir/graphs</origin>
                         </distributionDirectory>
                         <distributionDirectory>
-                            <origin>target/nest-5.0-bin-win64.dir/images</origin>
-                        </distributionDirectory>
-                        <distributionDirectory>
                             <origin>target/nest-5.0-bin-win64.dir/lib</origin>
-                        </distributionDirectory>
-                        <distributionDirectory>
-                            <origin>target/nest-5.0-bin-win64.dir/licenses</origin>
                         </distributionDirectory>
                         <distributionDirectory>
                             <origin>target/nest-5.0-bin-win64.dir/modules</origin>
@@ -91,158 +79,24 @@
                     <destination>${installdir}</destination>
                     <name>programfileslinux</name>
                     <platforms>linux</platforms>
-                    <distributionFileList>
-                        <distributionFile>
-                            <origin>target/nest-5.0-bin-linux.dir/dat.sh</origin>
-                        </distributionFile>
-                        <distributionFile>
-                            <origin>target/nest-5.0-bin-linux.dir/gpt.sh</origin>
-                        </distributionFile>
-                        <distributionFile>
-                            <origin>target/nest-5.0-bin-linux.dir/libgluegen-rt.so</origin>
-                        </distributionFile>
-                        <distributionFile>
-                            <origin>target/nest-5.0-bin-linux.dir/libjogl.so</origin>
-                        </distributionFile>
-                        <distributionFile>
-                            <origin>target/nest-5.0-bin-linux.dir/libjogl_awt.so</origin>
-                        </distributionFile>
-                        <distributionFile>
-                            <origin>target/nest-5.0-bin-linux.dir/libjogl_cg.so</origin>
-                        </distributionFile>
-                        <distributionDirectory>
-                            <origin>target/nest-5.0-bin-linux.dir/jre</origin>
-                        </distributionDirectory>
-                    </distributionFileList>
                 </folder>
                 <folder>
                     <description>Program Files</description>
                     <destination>${installdir}</destination>
                     <name>programfileswindows</name>
                     <platforms>windows</platforms>
-                    <distributionFileList>
-                        <distributionFile>
-                            <origin>target/nest-5.0-bin-win.dir/cli.bat</origin>
-                        </distributionFile>
-                        <distributionFile>
-                            <origin>target/nest-5.0-bin-win.dir/clib_jiio.dll</origin>
-                        </distributionFile>
-                        <distributionFile>
-                            <origin>target/nest-5.0-bin-win.dir/clib_jiio_sse2.dll</origin>
-                        </distributionFile>
-                        <distributionFile>
-                            <origin>target/nest-5.0-bin-win.dir/clib_jiio_util.dll</origin>
-                        </distributionFile>
-                        <distributionFile>
-                            <origin>target/nest-5.0-bin-win.dir/dat.bat</origin>
-                        </distributionFile>
-                        <distributionFile>
-                            <origin>target/nest-5.0-bin-win.dir/gluegen-rt.dll</origin>
-                        </distributionFile>
-                        <distributionFile>
-                            <origin>target/nest-5.0-bin-win.dir/gpt.bat</origin>
-                        </distributionFile>
-                        <distributionFile>
-                            <origin>target/nest-5.0-bin-win.dir/jhdf5.dll</origin>
-                        </distributionFile>
-                        <distributionFile>
-                            <origin>target/nest-5.0-bin-win.dir/jhdf.dll</origin>
-                        </distributionFile>
-                        <distributionFile>
-                            <origin>target/nest-5.0-bin-win.dir/jogl.dll</origin>
-                        </distributionFile>
-                        <distributionFile>
-                            <origin>target/nest-5.0-bin-win.dir/jogl_awt.dll</origin>
-                        </distributionFile>
-                        <distributionFile>
-                            <origin>target/nest-5.0-bin-win.dir/jogl_cg.dll</origin>
-                        </distributionFile>
-                        <distributionFile>
-                            <origin>target/nest-5.0-bin-win.dir/nest-dat.exe</origin>
-                        </distributionFile>
-                        <distributionFile>
-                            <origin>target/nest-5.0-bin-win.dir/post-uninstall.bat</origin>
-                        </distributionFile>
-                        <distributionDirectory>
-                            <origin>target/nest-5.0-bin-win.dir/jre</origin>
-                        </distributionDirectory>
-                        <distributionFile>
-                            <origin>target/nest-5.0-bin-win.dir/nest-dat.l4j.ini</origin>
-                        </distributionFile>
-                        <distributionFile>
-                            <origin>target/nest-5.0-bin-win.dir/nest-clean.bat</origin>
-                        </distributionFile>
-                    </distributionFileList>
                 </folder>
                 <folder>
                     <description>Program Files</description>
                     <destination>${installdir}</destination>
                     <name>programfileslinux64</name>
                     <platforms>linux-x64</platforms>
-                    <distributionFileList>
-                        <distributionFile>
-                            <origin>target/nest-5.0-bin-linux64.dir/dat.sh</origin>
-                        </distributionFile>
-                        <distributionFile>
-                            <origin>target/nest-5.0-bin-linux64.dir/gpt.sh</origin>
-                        </distributionFile>
-                        <distributionDirectory>
-                            <origin>target/nest-5.0-bin-linux64.dir/jre</origin>
-                        </distributionDirectory>
-                        <distributionFile>
-                            <origin>target/nest-5.0-bin-linux64.dir/libclib_jiio.so</origin>
-                        </distributionFile>
-                        <distributionFile>
-                            <origin>target/nest-5.0-bin-linux64.dir/libgluegen-rt.so</origin>
-                        </distributionFile>
-                        <distributionFile>
-                            <origin>target/nest-5.0-bin-linux64.dir/libjogl.so</origin>
-                        </distributionFile>
-                        <distributionFile>
-                            <origin>target/nest-5.0-bin-linux64.dir/libjogl_awt.so</origin>
-                        </distributionFile>
-                        <distributionFile>
-                            <origin>target/nest-5.0-bin-linux64.dir/libjogl_cg.so</origin>
-                        </distributionFile>
-                    </distributionFileList>
                 </folder>
                 <folder>
                     <description>Program Files</description>
                     <destination>${installdir}</destination>
                     <name>programfilesmacOSX</name>
                     <platforms>osx</platforms>
-                    <distributionFileList>
-                        <distributionFile>
-                            <origin>target/nest-5.0-bin-mac.dir/dat.command</origin>
-                        </distributionFile>
-                        <distributionFile>
-                            <origin>target/nest-5.0-bin-mac.dir/gpt.command</origin>
-                        </distributionFile>
-                        <distributionFile>
-                            <origin>target/nest-5.0-bin-mac.dir/libgluegen-rt.jnilib</origin>
-                        </distributionFile>
-                        <distributionFile>
-                            <origin>target/nest-5.0-bin-mac.dir/libjhdf.jnilib</origin>
-                        </distributionFile>
-                        <distributionFile>
-                            <origin>target/nest-5.0-bin-mac.dir/libjhdf5.jnilib</origin>
-                        </distributionFile>
-                        <distributionFile>
-                            <origin>target/nest-5.0-bin-mac.dir/libjogl.jnilib</origin>
-                        </distributionFile>
-                        <distributionFile>
-                            <origin>target/nest-5.0-bin-mac.dir/libjogl_awt.jnilib</origin>
-                        </distributionFile>
-                        <distributionFile>
-                            <origin>target/nest-5.0-bin-mac.dir/libjogl_cg.jnilib</origin>
-                        </distributionFile>
-                        <distributionDirectory>
-                            <origin>target/nest-5.0-bin-mac.dir/NEST.app</origin>
-                        </distributionDirectory>
-                        <distributionDirectory>
-                            <origin>target/nest-5.0-bin-mac.dir/__MACOSX</origin>
-                        </distributionDirectory>
-                    </distributionFileList>
                 </folder>
             </folderList>
             <startMenuShortcutList>
@@ -303,62 +157,6 @@
             </startMenuShortcutList>
         </component>
     </componentList>
-    <initializationActionList>
-        <showInfo>
-            <text>A previous version of NEST has been found on your system. 
-This installer will optionally remove the older version before installing a new one.</text>
-            <ruleList>
-                <fileExists>
-                    <path>C:\Program Files (x86)\NEST5.0\uninstall.exe</path>
-                </fileExists>
-            </ruleList>
-        </showInfo>
-        <showInfo>
-            <text>A previous version of NEST has been found on your system. 
-This installer will optionally remove the older version before installing a new one.</text>
-            <ruleList>
-                <fileExists>
-                    <path>C:\Program Files\NEST5.0\uninstall.exe</path>
-                </fileExists>
-            </ruleList>
-        </showInfo>
-        <showInfo>
-            <text>A previous version of NEST has been found on your system. 
-This installer will optionally remove the older version before installing a new one.</text>
-            <ruleList>
-                <fileExists>
-                    <path>C:\Program Files (x86)\NEST4B-1.1\uninstall.exe</path>
-                </fileExists>
-            </ruleList>
-        </showInfo>
-        <showInfo>
-            <text>A previous version of NEST has been found on your system. 
-This installer will optionally remove the older version before installing a new one.</text>
-            <ruleList>
-                <fileExists>
-                    <path>C:\Program Files\NEST4B-1.1\uninstall.exe</path>
-                </fileExists>
-            </ruleList>
-        </showInfo>
-        <showInfo>
-            <text>A previous version of NEST has been found on your system. 
-This installer will optionally remove the older version before installing a new one.</text>
-            <ruleList>
-                <fileExists>
-                    <path>C:\Program Files (x86)\NEST4B-1.0\uninstall.exe</path>
-                </fileExists>
-            </ruleList>
-        </showInfo>
-        <showInfo>
-            <text>A previous version of NEST has been found on your system. 
-This installer will optionally remove the older version before installing a new one.</text>
-            <ruleList>
-                <fileExists>
-                    <path>C:\Program Files\NEST4B-1.0\uninstall.exe</path>
-                </fileExists>
-            </ruleList>
-        </showInfo>
-    </initializationActionList>
     <preInstallationActionList>
         <deleteEnvironmentVariable>
             <abortOnError>0</abortOnError>
@@ -367,67 +165,20 @@ This installer will optionally remove the older version before installing a new 
             <show>0</show>
             <showMessageOnError>0</showMessageOnError>
         </deleteEnvironmentVariable>
-        <runProgram>
+        <deleteFile>
             <abortOnError>0</abortOnError>
-            <program>C:\Program Files (x86)\NEST5.0\uninstall.exe</program>
-            <programArguments></programArguments>
-            <showMessageOnError>0</showMessageOnError>
-            <ruleList>
-                <fileExists>
-                    <path>C:\Program Files (x86)\NEST5.0\uninstall.exe</path>
-                </fileExists>
-            </ruleList>
-        </runProgram>
-        <runProgram>
+            <path>${InstallDir}/lib</path>
+        </deleteFile>
+        <deleteFile>
             <abortOnError>0</abortOnError>
-            <program>C:\Program Files\NEST5.0\uninstall.exe</program>
-            <programArguments></programArguments>
-            <showMessageOnError>0</showMessageOnError>
-            <ruleList>
-                <fileExists>
-                    <path>C:\Program Files\NEST5.0\uninstall.exe</path>
-                </fileExists>
-            </ruleList>
-        </runProgram>
-        <runProgram>
-            <abortOnError>0</abortOnError>
-            <program>C:\Program Files (x86)\NEST4B-1.1\uninstall.exe</program>
-            <programArguments></programArguments>
-            <showMessageOnError>0</showMessageOnError>
-            <ruleList>
-                <fileExists>
-                    <path>C:\Program Files\NEST4B-1.1\uninstall.exe</path>
-                </fileExists>
-            </ruleList>
-        </runProgram>
-        <runProgram>
-            <abortOnError>0</abortOnError>
-            <program>C:\Program Files (x86)\NEST4B-1.0\uninstall.exe</program>
-            <programArguments></programArguments>
-            <showMessageOnError>0</showMessageOnError>
-            <ruleList>
-                <fileExists>
-                    <path>C:\Program Files (x86)\NEST4B-1.0\uninstall.exe</path>
-                </fileExists>
-            </ruleList>
-        </runProgram>
-        <runProgram>
-            <abortOnError>0</abortOnError>
-            <program>C:\Program Files\NEST4B-1.0\uninstall.exe</program>
-            <programArguments></programArguments>
-            <showMessageOnError>0</showMessageOnError>
-            <ruleList>
-                <fileExists>
-                    <path>C:\Program Files\NEST4B-1.0\uninstall.exe</path>
-                </fileExists>
-            </ruleList>
-        </runProgram>
+            <path>${InstallDir}/modules</path>
+        </deleteFile>
     </preInstallationActionList>
     <postInstallationActionList>
         <associateWindowsFileExtension>
-            <extensions>N1 E1 E2</extensions>
+            <extensions>N1 E1 E2 SAFE</extensions>
             <friendlyName>Envisat</friendlyName>
-            <icon>C:\build\4C\nest\nest\nest-src\main\assembly\dat.ico</icon>
+            <icon>C:\build\5.0\nest\nest\nest-src\main\assembly\dat.ico</icon>
             <mimeType></mimeType>
             <progID>NEST</progID>
             <scope>user</scope>
@@ -495,10 +246,10 @@ This installer will optionally remove the older version before installing a new 
             <name>NEST_HOME</name>
             <value>${installdir}</value>
         </setEnvironmentVariable>
-		<writeFile>
+        <writeFile>
             <path>${installdir}/update.ini</path>
             <text>[Update]
-url = http://www.array.ca/nest-web/autoupdate/update.xml
+url = http://corp.array.ca/nest-web/autoupdate/update.xml
 version_id = ${version}
 update_download_location = ${system_temp_directory}
 check_for_updates = 1
@@ -531,7 +282,7 @@ check_for_updates = 1
     <compressionAlgorithm>lzma</compressionAlgorithm>
     <enableRollback>0</enableRollback>
     <enableTimestamp>1</enableTimestamp>
-	<installationType>upgrade</installationType>
+    <installationType>upgrade</installationType>
     <outputDirectory>../../dist</outputDirectory>
     <saveRelativePaths>1</saveRelativePaths>
     <startMenuGroupName>Next ESA SAR Toolbox</startMenuGroupName>
