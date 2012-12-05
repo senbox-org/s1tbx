@@ -107,6 +107,7 @@ class StatisticsPanel extends PagePanel implements MultipleRoiComputePanel.Compu
     private ExportStatisticsAsCsvAction exportAsCsvAction;
     private PutStatisticsIntoVectorDataAction putStatisticsIntoVectorDataAction;
     private AccuracyModel accuracyModel;
+    private int maxMaskNameLength;
 
     public StatisticsPanel(final ToolView parentDialog, String helpID) {
         super(parentDialog, helpID, TITLE_PREFIX);
@@ -172,14 +173,46 @@ class StatisticsPanel extends PagePanel implements MultipleRoiComputePanel.Compu
         contentScrollPane.setBackground(Color.WHITE);
 
         backgroundPanel = new JPanel(new GridBagLayout());
-        GridBagConstraints gbc = new GridBagConstraints();
-        GridBagUtils.addToPanel(backgroundPanel, contentScrollPane, gbc, "fill=BOTH, weightx=1.0, weighty=1.0, anchor=NORTH");
-        GridBagUtils.addToPanel(backgroundPanel, rightPanel, gbc, "gridx=1, fill=VERTICAL, weightx=0.0");
+        backgroundPanel.add(contentScrollPane);
+        backgroundPanel.add(rightPanel);
+        adjustBackgroundPanelLayout();
 
         JLayeredPane layeredPane = new JLayeredPane();
         layeredPane.add(backgroundPanel, new Integer(0));
         layeredPane.add(hideAndShowButton, new Integer(1));
         add(layeredPane);
+    }
+
+    @Override
+    protected void handleNodeSelectionChanged() {
+        super.handleNodeSelectionChanged();
+        adjustBackgroundPanelLayout();
+    }
+
+    private void determineMaxMaskNameLength() {
+        maxMaskNameLength = 0;
+        if (getProduct() != null) {
+            final ProductNodeGroup<Mask> maskGroup = getProduct().getMaskGroup();
+            for (int i = 0; i < maskGroup.getNodeCount(); i++) {
+                final String maskName = maskGroup.get(i).getName();
+                if (maskName.length() > maxMaskNameLength) {
+                    maxMaskNameLength = maskName.length();
+                }
+            }
+        }
+
+    }
+
+    private void adjustBackgroundPanelLayout() {
+        determineMaxMaskNameLength();
+        int padx = maxMaskNameLength * 3 + 20;
+        GridBagConstraints gbc = new GridBagConstraints();
+        final Component[] components = backgroundPanel.getComponents();
+        backgroundPanel.removeAll();
+        GridBagUtils.addToPanel(backgroundPanel, components[0], gbc, "fill=BOTH, weightx=1.0, weighty=1.0, anchor=NORTH");
+        GridBagUtils.addToPanel(backgroundPanel, components[1], gbc, "gridx=1, fill=VERTICAL, weightx=0.0,ipadx=" + padx);
+        backgroundPanel.revalidate();
+        backgroundPanel.repaint();
     }
 
     private JPanel createAccuracyPanel() {
