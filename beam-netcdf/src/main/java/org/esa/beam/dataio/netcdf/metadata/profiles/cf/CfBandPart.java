@@ -359,10 +359,14 @@ public class CfBandPart extends ProfilePartIO {
                     final long sampleValue = sampleValues.getNumericValue(i).longValue();
                     if (msb) {
                         final long sampleValueMsb = sampleValue >>> 32;
-                        sampleCoding.addSample(sampleName, (int) sampleValueMsb, null);
+                        if (sampleValueMsb > 0) {
+                            sampleCoding.addSample(sampleName, (int) sampleValueMsb, null);
+                        }
                     } else {
                         final long sampleValueLsb = sampleValue & 0x00000000FFFFFFFFL;
-                        sampleCoding.addSample(sampleName, (int) sampleValueLsb, null);
+                        if (sampleValueLsb > 0 || sampleValue == 0L) {
+                            sampleCoding.addSample(sampleName, (int) sampleValueLsb, null);
+                        }
                     }
                     break;
             }
