@@ -87,6 +87,9 @@
     <dependency>
         <module>ceres-binding</module>
     </dependency>
+    <dependency>
+        blue-marble-worldmap
+    </dependency>
 
     <categories>System,Library</categories>
 
