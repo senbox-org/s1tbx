@@ -33,7 +33,7 @@ import static java.lang.Math.sin;
 import static java.lang.Math.toDegrees;
 import static java.lang.Math.toRadians;
 
-class PixelPosEstimator {
+public class PixelPosEstimator {
 
     private static final int LAT = 0;
     private static final int LON = 1;
@@ -44,8 +44,8 @@ class PixelPosEstimator {
     private final Approximation[] approximations;
     private final Dimension2D pixelDimension;
 
-    PixelPosEstimator(PlanarImage lonImage, PlanarImage latImage, double accuracy, double tiling,
-                      SteppingFactory steppingFactory) {
+    public PixelPosEstimator(PlanarImage lonImage, PlanarImage latImage, double accuracy, double tiling,
+                             SteppingFactory steppingFactory) {
         pixelDimension = calculatePixelDimension(lonImage, latImage);
         approximations = createApproximations(lonImage, latImage, accuracy, tiling, steppingFactory, pixelDimension);
     }
