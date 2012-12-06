@@ -38,8 +38,8 @@ import java.io.File;
 public class TestRangeDopplerOp extends TestCase {
 
     private OperatorSpi spi;
-    private final static String inputPathWSM =     TestUtils.rootPathExpectedProducts+"\\input\\subset_0_of_subset_1_of_ENVISAT-ASA_WSM_1PNPDE20080119_093446_000000852065_00165_30780_2977.dim";
-    private final static String expectedPathWSM =  TestUtils.rootPathExpectedProducts+"\\expected\\subset_0_of_subset_1_of_ENVISAT-ASA_WSM_1PNPDE20080119_093446_000000852065_00165_30780_2977_TC.dim";
+    private final static String inputPathWSM =     TestUtils.rootPathExpectedProducts+"\\input\\subset_1_of_ENVISAT-ASA_WSM_1PNPDE20080119_093446_000000852065_00165_30780_2977.dim";
+    private final static String expectedPathWSM =  TestUtils.rootPathExpectedProducts+"\\expected\\subset_1_of_ENVISAT-ASA_WSM_1PNPDE20080119_093446_000000852065_00165_30780_2977_TC.dim";
 
     private final static String inputPathIMS =     TestUtils.rootPathExpectedProducts+"\\input\\ENVISAT-ASA_IMS_1PNDPA20050405_211952_000000162036_00115_16201_8523.dim";
     private final static String expectedPathIMS =  TestUtils.rootPathExpectedProducts+"\\expected\\ENVISAT-ASA_IMS_1PNDPA20050405_211952_000000162036_00115_16201_8523_TC.dim";
@@ -85,7 +85,10 @@ public class TestRangeDopplerOp extends TestCase {
     public void testGetLocalDEM() throws Exception {
 
         final File inputFile = new File("P:\\nest\\nest\\ESA Data\\RADAR\\ASAR\\Image Mode Medium Resolution\\ASA_IMM_1PNIPA20080507_220932_000000502068_00230_32348_0581.N1");
-        if(!inputFile.exists()) return;
+        if(!inputFile.exists()) {
+            TestUtils.skipTest(this);
+            return;
+        }
 
         final ProductReader reader = ProductIO.getProductReaderForFile(inputFile);
         final Product sourceProduct = reader.readProductNodes(inputFile, null);

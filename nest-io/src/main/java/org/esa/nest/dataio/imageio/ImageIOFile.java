@@ -51,7 +51,7 @@ public class ImageIOFile {
     private boolean isIndexed = false;
 
     private ImageInputStream stream = null;
-    private ImageReader reader = null;
+    private ImageReader reader;
 
     public ImageIOFile(final File inputFile) {
         this.inputFile = inputFile;
@@ -66,7 +66,7 @@ public class ImageIOFile {
         createReader(iioReader);
     }
 
-    private ImageReader createReader(final ImageReader iioReader) throws IOException {
+    private synchronized void createReader(final ImageReader iioReader) throws IOException {
         stream = ImageIO.createImageInputStream(inputFile);
         if(stream == null)
             throw new IOException("Unable to open " + inputFile.toString());
@@ -88,7 +88,6 @@ public class ImageIOFile {
                 createIndexedImageInfo(its.getColorModel());
             }
         }
-        return reader;
     }
 
     public static ImageReader getIIOReader(final File inputFile) throws IOException {
@@ -124,7 +123,7 @@ public class ImageIOFile {
 
     public ImageReader getReader() throws IOException {
         if(reader == null) {
-            reader = createReader(getTiffIIOReader(inputFile));
+            createReader(getTiffIIOReader(inputFile));
         }
         return reader;
     }
@@ -216,21 +215,25 @@ public class ImageIOFile {
         return numBands;
     }
 
-    public synchronized void readImageIORasterBand(final int sourceOffsetX, final int sourceOffsetY,
+    public void readImageIORasterBand(final int sourceOffsetX, final int sourceOffsetY,
                                                    final int sourceStepX, final int sourceStepY,
                                                    final ProductData destBuffer,
                                                    final int destOffsetX, final int destOffsetY,
                                                    final int destWidth, final int destHeight,
                                                    final int imageID,
                                                    final int bandSampleOffset) throws IOException {
+        final Raster data;
 
-        final ImageReadParam param = getReader().getDefaultReadParam();
-        param.setSourceSubsampling(sourceStepX, sourceStepY,
-                                   sourceOffsetX % sourceStepX,
-                                   sourceOffsetY % sourceStepY);
+        synchronized(inputFile) {
+            final ImageReader reader = getReader();
+            final ImageReadParam param = reader.getDefaultReadParam();
+            param.setSourceSubsampling(sourceStepX, sourceStepY,
+                                       sourceOffsetX % sourceStepX,
+                                       sourceOffsetY % sourceStepY);
 
-        final RenderedImage image = getReader().readAsRenderedImage(0, param);
-        final Raster data = image.getData(new Rectangle(destOffsetX, destOffsetY, destWidth, destHeight));
+            final RenderedImage image = reader.readAsRenderedImage(0, param);
+            data = image.getData(new Rectangle(destOffsetX, destOffsetY, destWidth, destHeight));
+        }
 
         final DataBuffer dataBuffer = data.getDataBuffer();
         final SampleModel sampleModel = data.getSampleModel();
@@ -241,11 +244,7 @@ public class ImageIOFile {
         if(dataBufferType == DataBuffer.TYPE_FLOAT &&
                 destBuffer.getElems() instanceof float[]) {
             sampleModel.getSamples(0, 0, destWidth, destHeight, sampleOffset, (float[])destBuffer.getElems(), dataBuffer);
-
-        } else if(dataBufferType == DataBuffer.TYPE_INT &&
-                destBuffer.getElems() instanceof int[]) {
-            sampleModel.getSamples(0, 0, destWidth, destHeight, sampleOffset, (int[])destBuffer.getElems(), dataBuffer);
-        } else if((dataBufferType == DataBuffer.TYPE_SHORT || dataBufferType == DataBuffer.TYPE_USHORT) &&
+        } else if((dataBufferType == DataBuffer.TYPE_INT || dataBufferType == DataBuffer.TYPE_SHORT || dataBufferType == DataBuffer.TYPE_USHORT) &&
                 destBuffer.getElems() instanceof int[]) {
             sampleModel.getSamples(0, 0, destWidth, destHeight, sampleOffset, (int[])destBuffer.getElems(), dataBuffer);
         } else {

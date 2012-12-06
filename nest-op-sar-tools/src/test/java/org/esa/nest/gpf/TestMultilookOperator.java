@@ -33,8 +33,8 @@ public class TestMultilookOperator extends TestCase {
 
     private OperatorSpi spi;
 
-    private final static String inputPathWSM =     TestUtils.rootPathExpectedProducts+"\\input\\subset_0_of_subset_1_of_ENVISAT-ASA_WSM_1PNPDE20080119_093446_000000852065_00165_30780_2977.dim";
-    private final static String expectedPathWSM =  TestUtils.rootPathExpectedProducts+"\\expected\\subset_0_of_subset_1_of_ENVISAT-ASA_WSM_1PNPDE20080119_093446_000000852065_00165_30780_2977_ML.dim";
+    private final static String inputPathWSM =     TestUtils.rootPathExpectedProducts+"\\input\\subset_1_of_ENVISAT-ASA_WSM_1PNPDE20080119_093446_000000852065_00165_30780_2977.dim";
+    private final static String expectedPathWSM =  TestUtils.rootPathExpectedProducts+"\\expected\\subset_1_of_ENVISAT-ASA_WSM_1PNPDE20080119_093446_000000852065_00165_30780_2977_ML.dim";
 
     private String[] productTypeExemptions = { "_BP", "XCA", "WVW", "WVI", "WVS", "WSS", "DOR_VOR_AX" };
     private String[] exceptionExemptions = { "not supported" };

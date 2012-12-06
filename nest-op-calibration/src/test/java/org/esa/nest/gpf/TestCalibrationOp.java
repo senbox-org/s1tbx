@@ -28,8 +28,8 @@ public class TestCalibrationOp extends TestCase {
 
     private OperatorSpi spi;
 
-    private final static String inputPathWSM =     TestUtils.rootPathExpectedProducts+"\\input\\subset_0_of_subset_1_of_ENVISAT-ASA_WSM_1PNPDE20080119_093446_000000852065_00165_30780_2977.dim";
-    private final static String expectedPathWSM =  TestUtils.rootPathExpectedProducts+"\\expected\\subset_0_of_subset_1_of_ENVISAT-ASA_WSM_1PNPDE20080119_093446_000000852065_00165_30780_2977_Calib.dim";
+    private final static String inputPathWSM =     TestUtils.rootPathExpectedProducts+"\\input\\subset_1_of_ENVISAT-ASA_WSM_1PNPDE20080119_093446_000000852065_00165_30780_2977.dim";
+    private final static String expectedPathWSM =  TestUtils.rootPathExpectedProducts+"\\expected\\subset_1_of_ENVISAT-ASA_WSM_1PNPDE20080119_093446_000000852065_00165_30780_2977_Calib.dim";
 
     private final static String inputPathIMP =     TestUtils.rootPathExpectedProducts+"\\input\\subset_0_of_ERS-1_SAR_PRI-ORBIT_32506_DATE__02-OCT-1997_14_53_43.dim";
     private final static String expectedPathIMP =  TestUtils.rootPathExpectedProducts+"\\expected\\subset_0_of_ERS-1_SAR_PRI-ORBIT_32506_DATE__02-OCT-1997_14_53_43_Calib.dim";

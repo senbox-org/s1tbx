@@ -15,20 +15,11 @@
  */
 package org.esa.nest.dataio.radarsat2;
 
-import com.bc.ceres.core.ProgressMonitor;
 import junit.framework.TestCase;
-import org.esa.beam.framework.dataio.ProductIOPlugInManager;
 import org.esa.beam.framework.dataio.ProductReader;
-import org.esa.beam.framework.dataio.ProductReaderPlugIn;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.nest.dataio.imageio.ImageIOFile;
 import org.esa.nest.util.TestUtils;
 
-import javax.imageio.ImageReader;
 import java.io.File;
-import java.io.IOException;
-import java.util.Iterator;
 
 /**
  * Test Product Reader.
@@ -37,15 +28,8 @@ import java.util.Iterator;
  */
 public class TestRadarsat2ProductReader extends TestCase {
 
-    private final static File tiffFile1 = new File(TestUtils.rootPathExpectedProducts+"largeFiles\\Tiff\\imagery_HV.tif");
-    private final static File tiffFile2 = new File(TestUtils.rootPathExpectedProducts+"largeFiles\\Tiff\\srtm_39_04.tif");
-
     private Radarsat2ProductReaderPlugIn readerPlugin;
     private ProductReader reader;
-
-    private ImageIOFile imageIOFile1, imageIOFile2;
-    private Product product1, product2;
-    private ProductReader geoTiffReader;
 
     public TestRadarsat2ProductReader(String name) {
         super(name);
@@ -57,17 +41,6 @@ public class TestRadarsat2ProductReader extends TestCase {
         TestUtils.initTestEnvironment();
         readerPlugin = new Radarsat2ProductReaderPlugIn();
         reader = readerPlugin.createReaderInstance();
-
-        final ImageReader ioreader = ImageIOFile.getTiffIIOReader(tiffFile1);
-        imageIOFile1 = new ImageIOFile(tiffFile1, ioreader);
-        imageIOFile2 = new ImageIOFile(tiffFile2, ioreader);
-
-        final Iterator readerPlugIns = ProductIOPlugInManager.getInstance().getReaderPlugIns("GeoTIFF");
-        ProductReaderPlugIn readerPlugin = (ProductReaderPlugIn)readerPlugIns.next();
-
-        geoTiffReader = readerPlugin.createReaderInstance();
-        product1 = geoTiffReader.readProductNodes(tiffFile1, null);
-        product2 = geoTiffReader.readProductNodes(tiffFile2, null);
     }
 
     @Override
@@ -85,48 +58,12 @@ public class TestRadarsat2ProductReader extends TestCase {
     public void testOpenAll() throws Exception
     {
         final File folder = new File(TestUtils.rootPathRadarsat2);
-        if(!folder.exists()) return;
+        if(!folder.exists()) {
+            TestUtils.skipTest(this);
+            return;
+        }
 
-        if(TestUtils.canTestReadersOnAllProducts())
+        if(TestUtils.canTestReadersOnAllProducts)
             TestUtils.recurseReadFolder(folder, readerPlugin, reader, null, null);
-    }
-
-    private final static int size = 6000;
-    private final static int iterations = 20;
-
-    public void testBeamGeoTiffReaderDouble() throws IOException {
-        if(!tiffFile1.exists()) return;
-
-        for(int i=0; i < iterations; ++i) {
-            final ProductData destBuffer = new ProductData.Double(size*size);
-            geoTiffReader.readBandRasterData(product1.getBandAt(0), 0,0, size, size, destBuffer, ProgressMonitor.NULL);
-        }
-    }
-
-    public void testBeamGeoTiffReaderInt() throws IOException {
-        if(!tiffFile2.exists()) return;
-
-        for(int i=0; i < iterations; ++i) {
-            final ProductData destBuffer = new ProductData.Int(size*size);
-            geoTiffReader.readBandRasterData(product2.getBandAt(0), 0,0, size, size, destBuffer, ProgressMonitor.NULL);
-        }
-    }
-
-    public void testImageIOTiffReaderDouble() throws IOException {
-        if(!tiffFile1.exists()) return;
-
-        for(int i=0; i < iterations; ++i) {
-            final ProductData destBuffer = new ProductData.Double(size*size);
-            imageIOFile1.readImageIORasterBand(0,0,1,1, destBuffer, 0,0, size, size, 0, 0);
-        }
-    }
-
-    public void testImageIOTiffReaderInt() throws IOException {
-        if(!tiffFile2.exists()) return;
-
-        for(int i=0; i < iterations; ++i) {
-            final ProductData destBuffer = new ProductData.Int(size*size);
-            imageIOFile2.readImageIORasterBand(0,0,1,1, destBuffer, 0,0, size, size, 0, 0);
-        }
     }
 }

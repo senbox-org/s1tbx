@@ -65,6 +65,13 @@ public class TestUtils {
     private final static int subsetHeight = Integer.parseInt(testPreferences.getPropertyString(contextID+".test.subsetHeight"));
 
     private static final int maxIteration = Integer.parseInt(testPreferences.getPropertyString(contextID+".test.maxProductsPerRootFolder"));
+    private static final String testReadersOnAllProducts = testPreferences.getPropertyString(contextID+".test.ReadersOnAllProducts");
+    private static final String testProcessingOnAllProducts = testPreferences.getPropertyString(contextID+".test.ProcessingOnAllProducts");
+    private static final String testBenchmarks = testPreferences.getPropertyString(contextID+".test.RunBenchmarks");
+
+    public static final boolean canTestReadersOnAllProducts = testReadersOnAllProducts != null && testReadersOnAllProducts.equalsIgnoreCase("true");
+    public static final boolean canTestProcessingOnAllProducts = testProcessingOnAllProducts != null && testProcessingOnAllProducts.equalsIgnoreCase("true");
+    public static final boolean runBenchmarks = testBenchmarks != null && testBenchmarks.equalsIgnoreCase("true");
 
     private static final boolean DEBUG = true;
     private static final boolean FailOnSkip = true;
@@ -84,22 +91,10 @@ public class TestUtils {
         final File inputFile = new File(path);
         if(!inputFile.exists()) {
             throw new IOException(path + " not found");
-            //System.out.println("path + \" not found\"");
-            //return null;
         }
 
         final ProductReader reader = ProductIO.getProductReaderForFile(inputFile);
         return reader.readProductNodes(inputFile, null);
-    }
-
-    public static boolean canTestReadersOnAllProducts() {
-        final String testAllProducts = testPreferences.getPropertyString(contextID+".test.ReadersOnAllProducts");
-        return testAllProducts != null && testAllProducts.equalsIgnoreCase("true");
-    }
-
-    public static boolean canTestProcessingOnAllProducts() {
-        final String testAllProducts = testPreferences.getPropertyString(contextID+".test.ProcessingOnAllProducts");
-        return testAllProducts != null && testAllProducts.equalsIgnoreCase("true");
     }
 
     public static Product createProduct(final String type, final int w, final int h) {
@@ -229,8 +224,8 @@ public class TestUtils {
 
     public static void executeOperator(final Operator op) throws Exception {
         // get targetProduct: execute initialize()
- /*       final Product targetProduct = op.getTargetProduct();
-        TestUtils.verifyProduct(targetProduct, false, !isAlos(targetProduct));
+        final Product targetProduct = op.getTargetProduct();
+        TestUtils.verifyProduct(targetProduct, false, false);
 
         final Band targetBand = targetProduct.getBandAt(0);
         if(targetBand == null)
@@ -245,7 +240,20 @@ public class TestUtils {
                               within(subsetY, bandHeight),
                               within(subsetWidth, bandWidth),
                               within(subsetHeight, bandHeight), 
-                              floatValues, ProgressMonitor.NULL);   */
+                              floatValues, ProgressMonitor.NULL);
+    }
+
+    public static void executeOperator(final Operator op, final int dimensions) throws Exception {
+        // get targetProduct: execute initialize()
+        final Product targetProduct = op.getTargetProduct();
+        TestUtils.verifyProduct(targetProduct, false, false);
+
+        // readPixels: execute computeTiles()
+        final int w = Math.min(targetProduct.getSceneRasterWidth(), dimensions);
+        final int h = Math.min(targetProduct.getSceneRasterHeight(), dimensions);
+        final float[] floatValues = new float[w*h];
+        final Band targetBand = targetProduct.getBandAt(0);
+        targetBand.readPixels(0, 0, w, h, floatValues, ProgressMonitor.NULL);
     }
 
     public static Product createSubsetProduct(final Product sourceProduct) throws IOException {
@@ -350,7 +358,7 @@ public class TestUtils {
         final File folder = new File(folderPath);
         if(!folder.exists()) return;
 
-        if(canTestProcessingOnAllProducts()) {
+        if(canTestProcessingOnAllProducts) {
             int iterations = 0;
             recurseProcessFolder(spi, folder, iterations, productTypeExemptions, exceptionExemptions);
         }
@@ -371,7 +379,7 @@ public class TestUtils {
         final File folder = new File(folderPath);
         if(!folder.exists()) return;
 
-        if(canTestProcessingOnAllProducts()) {
+        if(canTestProcessingOnAllProducts) {
             int iterations = 0;
             processor.recurseProcessFolder(folder, iterations, productTypeExemptions, exceptionExemptions);
         }

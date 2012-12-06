@@ -46,10 +46,13 @@ public class TestOrthorectifyGraph extends TestCase {
 
     }
 
-    public void testOrthorectifyGraph() throws GraphException {
+    public void testOrthorectifyGraph() throws Exception {
         final File inputFile = new File(TestUtils.rootPathExpectedProducts, ASAR_IMM);
         final File outputFile = new File(ResourceUtils.getApplicationUserTempDataDir(), "tmpOut.dim");
-        if(!inputFile.exists()) return;
+        if(!inputFile.exists()) {
+            TestUtils.skipTest(this);
+            return;
+        }
 
     /*     final GraphExecuter graphEx = new GraphExecuter();
         graphEx.loadGraph(new File(ResourceUtils.getGraphFolder("User Graphs"), graphFile1), false);

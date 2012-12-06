@@ -65,7 +65,7 @@ public class TestAlosPalsarProductReader extends TestCase {
             return;
         }
 
-        if(TestUtils.canTestReadersOnAllProducts())
+        if(TestUtils.canTestReadersOnAllProducts)
             TestUtils.recurseReadFolder(folder, readerPlugin, reader, null, exceptionExemptions);
     }
 }

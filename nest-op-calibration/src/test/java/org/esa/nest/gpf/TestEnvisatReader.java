@@ -61,9 +61,12 @@ public class TestEnvisatReader extends TestCase {
     public void testOpenAll() throws Exception
     {
         final File folder = new File(TestUtils.rootPathASAR);
-        if(!folder.exists()) return;
+        if(!folder.exists()) {
+            TestUtils.skipTest(this);
+            return;
+        }
 
-        //if(TestUtils.canTestReadersOnAllProducts())
-        //    TestUtils.recurseReadFolder(folder, readerPlugin, reader, productTypeExemptions, null);
+        if(TestUtils.canTestReadersOnAllProducts)
+            TestUtils.recurseReadFolder(folder, readerPlugin, reader, productTypeExemptions, null);
     }
 }

@@ -60,9 +60,12 @@ public class TestCosmoSkymedReader extends TestCase {
     public void testOpenAll() throws Exception
     {
         final File folder = new File(TestUtils.rootPathCosmoSkymed);
-        if(!folder.exists()) return;
+        if(!folder.exists()) {
+            TestUtils.skipTest(this);
+            return;
+        }
 
-        if(TestUtils.canTestReadersOnAllProducts())
+        if(TestUtils.canTestReadersOnAllProducts)
             TestUtils.recurseReadFolder(folder, readerPlugin, reader, null, exceptionExemptions);
     }
 }

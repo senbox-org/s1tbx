@@ -34,8 +34,11 @@ public class TestTiePoints  extends TestCase {
 
     }
 
-    public void testGetPixelFloat() {
-        if(product1 == null) return;
+    public void testGetPixelFloat() throws Exception {
+        if(product1 == null) {
+            TestUtils.skipTest(this);
+            return;
+        }
         TiePointGrid tpg = product1.getTiePointGridAt(0);
         int w = product1.getSceneRasterWidth();
         int h = product1.getSceneRasterHeight();
@@ -50,8 +53,11 @@ public class TestTiePoints  extends TestCase {
 
     }
 
-    public void testGetPixelFloats() {
-        if(product2 == null) return;
+    public void testGetPixelFloats() throws Exception {
+        if(product2 == null) {
+            TestUtils.skipTest(this);
+            return;
+        }
         TiePointGrid tpg = product2.getTiePointGridAt(0);
         int w = product2.getSceneRasterWidth();
         int h = product2.getSceneRasterHeight();
@@ -60,8 +66,11 @@ public class TestTiePoints  extends TestCase {
         tpg.getPixels(0,0, w,h, floats, ProgressMonitor.NULL);
     }
 
-    public void testCompareFloats() {
-        if(product1 == null) return;
+    public void testCompareFloats() throws Exception {
+        if(product1 == null) {
+            TestUtils.skipTest(this);
+            return;
+        }
         TiePointGrid tpg = product1.getTiePointGridAt(0);
         int w = product1.getSceneRasterWidth();
         int h = product1.getSceneRasterHeight();

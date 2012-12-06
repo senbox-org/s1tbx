@@ -27,6 +27,7 @@ import org.esa.nest.datamodel.Unit;
 import org.esa.nest.gpf.ReaderUtils;
 
 import javax.imageio.ImageReadParam;
+import javax.imageio.ImageReader;
 import java.awt.*;
 import java.awt.image.DataBuffer;
 import java.awt.image.Raster;
@@ -131,53 +132,50 @@ public class Sentinel1ProductReader extends AbstractProductReader {
         }
     }
 
-    public synchronized void readSLCRasterBand(final int sourceOffsetX, final int sourceOffsetY,
+    public void readSLCRasterBand(final int sourceOffsetX, final int sourceOffsetY,
                                                    final int sourceStepX, final int sourceStepY,
                                                    final ProductData destBuffer,
                                                    final int destOffsetX, final int destOffsetY,
                                                    int destWidth, int destHeight,
                                                    final int imageID, final ImageIOFile img,
                                                    final boolean oneOfTwo) throws IOException {
+        final Raster data;
+        synchronized(dataDir) {
+            final ImageReader reader = img.getReader();
+            final ImageReadParam param = reader.getDefaultReadParam();
+            param.setSourceSubsampling(sourceStepX, sourceStepY, sourceOffsetX % sourceStepX, sourceOffsetY % sourceStepY);
 
-        final ImageReadParam param = img.getReader().getDefaultReadParam();
-        param.setSourceSubsampling(sourceStepX, sourceStepY,
-                sourceOffsetX % sourceStepX,
-                sourceOffsetY % sourceStepY);
+            final RenderedImage image = img.getReader().readAsRenderedImage(0, param);
+            data = image.getData(new Rectangle(destOffsetX, destOffsetY, destWidth, destHeight));
+        }
 
-        final RenderedImage image = img.getReader().readAsRenderedImage(0, param);
-        final Raster data = image.getData(new Rectangle(destOffsetX, destOffsetY, destWidth, destHeight));
-
-        final DataBuffer dataBuffer = data.getDataBuffer();
         final SampleModel sampleModel = data.getSampleModel();
         destWidth = Math.min(destWidth, sampleModel.getWidth());
         destHeight = Math.min(destHeight, sampleModel.getHeight());
 
         try {
-            final int destSize = destWidth * destHeight;
-            final double[] srcArray = new double[destSize];
-            sampleModel.getSamples(0, 0, destWidth, destHeight, imageID, srcArray, dataBuffer);
+            final double[] srcArray = new double[destWidth * destHeight];
+            sampleModel.getSamples(0, 0, destWidth, destHeight, imageID, srcArray, data.getDataBuffer());
 
-            final short[] destArray = new short[destWidth * destHeight];
             if (oneOfTwo)
-                copyLine1Of2(srcArray, destArray, sourceStepX);
+                copyLine1Of2(srcArray, (short[])destBuffer.getElems(), sourceStepX);
             else
-                copyLine2Of2(srcArray, destArray, sourceStepX);
+                copyLine2Of2(srcArray, (short[])destBuffer.getElems(), sourceStepX);
 
-            System.arraycopy(destArray, 0, destBuffer.getElems(), 0, destSize);
         } catch(Exception e) {
-            e.printStackTrace();
+            //e.printStackTrace();
         }
     }
 
     public static void copyLine1Of2(final double[] srcArray, final short[] destArray, final int sourceStepX) {
-        final int length = destArray.length;
+        final int length = srcArray.length;
         for (int i = 0; i < length; i += sourceStepX) {
             destArray[i] = (short)srcArray[i];
         }
     }
 
     public static void copyLine2Of2(final double[] srcArray, final short[] destArray, final int sourceStepX) {
-        final int length = destArray.length;
+        final int length = srcArray.length;
         for (int i = 0; i < length; i += sourceStepX) {
             destArray[i] = (short)((int)srcArray[i] >> 16);
         }
