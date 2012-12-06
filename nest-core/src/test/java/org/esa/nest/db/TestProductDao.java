@@ -52,9 +52,12 @@ public class TestProductDao extends TestCase {
         ProductDB.deleteInstance();
     }
 
-    public void testAddAll() throws IOException, SQLException {
+    public void testAddAll() throws Exception {
         final File folder1 = new File(TestUtils.rootPathASAR);
-        if(!folder1.exists()) return;
+        if(!folder1.exists()) {
+            TestUtils.skipTest(this);
+            return;
+        }
 
         recurseProcessFolder(folder1, db);
     }

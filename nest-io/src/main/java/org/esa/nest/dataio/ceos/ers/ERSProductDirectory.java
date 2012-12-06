@@ -22,6 +22,7 @@ import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.util.Guardian;
 import org.esa.nest.dataio.binary.BinaryRecord;
 import org.esa.nest.dataio.ceos.CEOSImageFile;
+import org.esa.nest.dataio.ceos.CEOSLeaderFile;
 import org.esa.nest.dataio.ceos.CEOSProductDirectory;
 import org.esa.nest.dataio.ceos.CeosHelper;
 import org.esa.nest.datamodel.AbstractMetadata;
@@ -147,7 +148,8 @@ class ERSProductDirectory extends CEOSProductDirectory {
         product.setEndTime(getUTCScanStopTime(leaderFile.getSceneRecord(), null));
         product.setDescription(getProductDescription());
 
-        ReaderUtils.addGeoCoding(product, leaderFile.getLatCorners(), leaderFile.getLonCorners());
+        ReaderUtils.addGeoCoding(product, CEOSLeaderFile.getLatCorners(leaderFile.getMapProjRecord()),
+                                          CEOSLeaderFile.getLonCorners(leaderFile.getMapProjRecord()));
         addTiePointGrids(product, leaderFile.getFacilityRecord(), leaderFile.getSceneRecord());
         addMetaData(product);
 

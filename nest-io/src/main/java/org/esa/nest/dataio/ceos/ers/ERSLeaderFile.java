@@ -95,26 +95,6 @@ class ERSLeaderFile {
         return _platformPositionRecord;
     }
 
-    public float[] getLatCorners() {
-        if(_mapProjRecord == null) return null;
-
-        final double latUL = _mapProjRecord.getAttributeDouble("1st line 1st pixel geodetic latitude");
-        final double latUR = _mapProjRecord.getAttributeDouble("1st line last valid pixel geodetic latitude");
-        final double latLL = _mapProjRecord.getAttributeDouble("Last line 1st pixel geodetic latitude");
-        final double latLR = _mapProjRecord.getAttributeDouble("Last line last valid pixel geodetic latitude");
-        return new float[]{(float)latUL, (float)latUR, (float)latLL, (float)latLR};
-    }
-
-    public float[] getLonCorners() {
-        if(_mapProjRecord == null) return null;
-
-        final double lonUL = _mapProjRecord.getAttributeDouble("1st line 1st pixel geodetic longitude");
-        final double lonUR = _mapProjRecord.getAttributeDouble("1st line last valid pixel geodetic longitude");
-        final double lonLL = _mapProjRecord.getAttributeDouble("Last line 1st pixel geodetic longitude");
-        final double lonLR = _mapProjRecord.getAttributeDouble("Last line last valid pixel geodetic longitude");
-        return new float[]{(float)lonUL, (float)lonUR, (float)lonLL, (float)lonLR};
-    }
-
     public void addLeaderMetadata(MetadataElement sphElem) {
 
         CeosHelper.addMetadata(sphElem, _leaderFDR, "Leader File Descriptor");

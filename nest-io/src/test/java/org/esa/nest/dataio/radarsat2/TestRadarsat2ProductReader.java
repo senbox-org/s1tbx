@@ -37,8 +37,8 @@ import java.util.Iterator;
  */
 public class TestRadarsat2ProductReader extends TestCase {
 
-    private final static File tiffFile1 = new File("G:\\data\\Tiff\\imagery_HV.tif");
-    private final static File tiffFile2 = new File("G:\\data\\Tiff\\srtm_51_05.tif");
+    private final static File tiffFile1 = new File(TestUtils.rootPathExpectedProducts+"largeFiles\\Tiff\\imagery_HV.tif");
+    private final static File tiffFile2 = new File(TestUtils.rootPathExpectedProducts+"largeFiles\\Tiff\\srtm_39_04.tif");
 
     private Radarsat2ProductReaderPlugIn readerPlugin;
     private ProductReader reader;

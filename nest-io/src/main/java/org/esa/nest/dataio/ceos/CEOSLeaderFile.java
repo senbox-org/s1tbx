@@ -182,24 +182,28 @@ public class CEOSLeaderFile {
         return _detailedProcessingRecord;
     }
 
-    public float[] getLatCorners() {
-        if(_mapProjRecord == null) return null;
+    public static float[] getLatCorners(final BinaryRecord mapProjRec) {
+        if(mapProjRec == null) return null;
 
-        final double latUL = _mapProjRecord.getAttributeDouble("1st line 1st pixel geodetic latitude");
-        final double latUR = _mapProjRecord.getAttributeDouble("1st line last valid pixel geodetic latitude");
-        final double latLL = _mapProjRecord.getAttributeDouble("Last line 1st pixel geodetic latitude");
-        final double latLR = _mapProjRecord.getAttributeDouble("Last line last valid pixel geodetic latitude");
-        return new float[]{(float)latUL, (float)latUR, (float)latLL, (float)latLR};
+        final Double latUL = mapProjRec.getAttributeDouble("1st line 1st pixel geodetic latitude");
+        final Double latUR = mapProjRec.getAttributeDouble("1st line last valid pixel geodetic latitude");
+        final Double latLL = mapProjRec.getAttributeDouble("Last line 1st pixel geodetic latitude");
+        final Double latLR = mapProjRec.getAttributeDouble("Last line last valid pixel geodetic latitude");
+        if(latUL == null || latUR == null || latLL == null || latLR == null)
+            return null;
+        return new float[]{latUL.floatValue(), latUR.floatValue(), latLL.floatValue(), latLR.floatValue()};
     }
 
-    public float[] getLonCorners() {
-        if(_mapProjRecord == null) return null;
+    public static float[] getLonCorners(final BinaryRecord mapProjRec) {
+        if(mapProjRec == null) return null;
 
-        final double lonUL = _mapProjRecord.getAttributeDouble("1st line 1st pixel geodetic longitude");
-        final double lonUR = _mapProjRecord.getAttributeDouble("1st line last valid pixel geodetic longitude");
-        final double lonLL = _mapProjRecord.getAttributeDouble("Last line 1st pixel geodetic longitude");
-        final double lonLR = _mapProjRecord.getAttributeDouble("Last line last valid pixel geodetic longitude");
-        return new float[]{(float)lonUL, (float)lonUR, (float)lonLL, (float)lonLR};
+        final Double lonUL = mapProjRec.getAttributeDouble("1st line 1st pixel geodetic longitude");
+        final Double lonUR = mapProjRec.getAttributeDouble("1st line last valid pixel geodetic longitude");
+        final Double lonLL = mapProjRec.getAttributeDouble("Last line 1st pixel geodetic longitude");
+        final Double lonLR = mapProjRec.getAttributeDouble("Last line last valid pixel geodetic longitude");
+        if(lonUL == null || lonUR == null || lonLL == null || lonLR == null)
+            return null;
+        return new float[]{lonUL.floatValue(), lonUR.floatValue(), lonLL.floatValue(), lonLR.floatValue()};
     }
 
     public void addMetadata(MetadataElement sphElem) {

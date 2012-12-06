@@ -198,10 +198,13 @@ public abstract class CEOSProductDirectory {
 
     protected static String getPass(final BinaryRecord mapProjRec, final BinaryRecord sceneRec) {
         if(mapProjRec != null) {
-            final double heading = mapProjRec.getAttributeDouble("Platform heading at nadir corresponding to scene centre");
-            if(heading > 90 && heading < 270) return "DESCENDING";
-            else return "ASCENDING";
-        } else if(sceneRec != null) {
+            final Double heading = mapProjRec.getAttributeDouble("Platform heading at nadir corresponding to scene centre");
+            if(heading != null) {
+                if(heading > 90 && heading < 270) return "DESCENDING";
+                else return "ASCENDING";
+            }
+        }
+        if(sceneRec != null) {
             String pass = sceneRec.getAttributeString("Ascending or Descending flag");
             if(pass == null) {
                 pass = sceneRec.getAttributeString("Time direction indicator along line direction");
@@ -343,16 +346,19 @@ public abstract class CEOSProductDirectory {
         final int year = platformPosRec.getAttributeInt("Year of data point");
         final int month = platformPosRec.getAttributeInt("Month of data point");
         final int day = platformPosRec.getAttributeInt("Day of data point");
-        final double secondsOfDay = platformPosRec.getAttributeDouble("Seconds of day");
+        Double secondsOfDay = platformPosRec.getAttributeDouble("Seconds of day");
+        if(secondsOfDay == null)
+            secondsOfDay = 0.0;
         final double hoursf = secondsOfDay / 3600f;
         final int hour = (int)hoursf;
         final double minutesf = (hoursf - hour) * 60f;
         final int minute = (int)minutesf;
         float second = ((float)minutesf - minute) * 60f;
 
-        final double interval = platformPosRec.getAttributeDouble("Time interval between DATA points");
-        if (interval <= 0.0) {
+        Double interval = platformPosRec.getAttributeDouble("Time interval between DATA points");
+        if (interval == null || interval <= 0.0) {
             System.out.println("CEOSProductDirectory: Time interval between DATA points in Platform Position Data is " + interval);
+            interval = 0.0;
         }
         second += interval * (num-1);
 

@@ -16,8 +16,10 @@ import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
  */
 public class ProductFileHandler {
 
-    private static final String[] singleFileExt = {"n1","e1","e2","tif","tiff","h5"};
-    private static final String[] folderMissions = {"RS2"};
+    private static final String[] singleFileExt = {"n1","e1","e2","tif","tiff"};
+    private static final String[] folderExt = {"safe"};
+    private static final String[] folderMissions = {"RS2","TSX","TDX","CSKS1","CSKS2","CSKS3","CSKS4",
+                                                    "ALOS","JERS1","RS1"};
 
     public static boolean canMove(final ProductEntry entry) {
         return isDimap(entry) || isFolderProduct(entry) || isSingleFile(entry) || isSMOS(entry);
@@ -116,6 +118,15 @@ public class ProductFileHandler {
         final String mission = entry.getMission();
         for(String folderMission : folderMissions) {
             if(mission.equals(folderMission))
+                return true;
+        }
+        final String fileName = entry.getFile().getName().toLowerCase();
+        for(String ext : folderExt) {
+            if(fileName.endsWith(ext))
+                return true;
+        }
+        if(mission.equals("ERS1") || mission.equals("ERS2")) {
+            if(!isSingleFile(entry))  // if not .e1 or .e2
                 return true;
         }
         return false;

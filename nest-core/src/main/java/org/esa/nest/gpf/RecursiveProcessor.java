@@ -17,6 +17,7 @@ package org.esa.nest.gpf;
 
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.util.StringUtils;
 import org.esa.nest.util.ProductFunctions;
 import org.esa.nest.util.TestUtils;
 
@@ -45,7 +46,7 @@ public abstract class RecursiveProcessor {
                 try {
                     final Product sourceProduct = ProductIO.readProduct(file);
                     if(sourceProduct != null) {
-                        if(TestUtils.contains(sourceProduct.getProductType(), productTypeExemptions))
+                        if(StringUtils.contains(productTypeExemptions, sourceProduct.getProductType()))
                             continue;
 
                         process(sourceProduct);

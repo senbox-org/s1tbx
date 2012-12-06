@@ -19,6 +19,7 @@ import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.runtime.RuntimeConfig;
 import com.bc.ceres.core.runtime.RuntimeConfigException;
 import com.bc.ceres.core.runtime.internal.DefaultRuntimeConfig;
+import junit.framework.TestCase;
 import org.esa.beam.dataio.dimap.DimapProductConstants;
 import org.esa.beam.framework.dataio.*;
 import org.esa.beam.framework.datamodel.*;
@@ -28,6 +29,7 @@ import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.gpf.operators.standard.WriteOp;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.PropertyMap;
+import org.esa.beam.util.StringUtils;
 import org.esa.nest.datamodel.AbstractMetadata;
 import org.esa.nest.gpf.ReaderUtils;
 import org.esa.nest.gpf.RecursiveProcessor;
@@ -63,6 +65,9 @@ public class TestUtils {
     private final static int subsetHeight = Integer.parseInt(testPreferences.getPropertyString(contextID+".test.subsetHeight"));
 
     private static final int maxIteration = Integer.parseInt(testPreferences.getPropertyString(contextID+".test.maxProductsPerRootFolder"));
+
+    private static final boolean DEBUG = true;
+    private static final boolean FailOnSkip = true;
 
     public static void initTestEnvironment() throws RuntimeConfigException {
         final RuntimeConfig runtimeConfig = new DefaultRuntimeConfig();
@@ -295,7 +300,7 @@ public class TestUtils {
                 final ProductReader reader = ProductIO.getProductReaderForFile(file);
                 if(reader != null) {
                     final Product sourceProduct = reader.readProductNodes(file, null);
-                    if(contains(sourceProduct.getProductType(), productTypeExemptions))
+                    if(StringUtils.contains(productTypeExemptions, sourceProduct.getProductType()))
                         continue;
 
                     TestUtils.verifyProduct(sourceProduct, false, false);
@@ -328,16 +333,6 @@ public class TestUtils {
             }
         }
         return iterations;
-    }
-
-    public static boolean contains(final String value, final String[] exemptions) {
-        if(exemptions != null) {
-            for(String type : exemptions) {
-                if(value.contains(type))
-                    return true;
-            }
-        }
-        return false;
     }
 
     /**
@@ -401,8 +396,8 @@ public class TestUtils {
                     //System.out.println("Reading "+ file.toString());
 
                     final Product product = reader.readProductNodes(file, null);
-                    if(contains(product.getProductType(), productTypeExemptions))
-                            continue;
+                    if(productTypeExemptions != null && StringUtils.contains(productTypeExemptions, product.getProductType()))
+                        continue;
                     ReaderUtils.verifyProduct(product, true);
                 } catch(Exception e) {
                     boolean ok = false;
@@ -421,6 +416,15 @@ public class TestUtils {
                     }
                 }
             }
+        }
+    }
+
+    public static void skipTest(final TestCase obj) throws Exception {
+        if(DEBUG) {
+            System.out.println(obj.getClass().getName()+':'+obj.getName()+" skipped");
+        }
+        if(FailOnSkip) {
+            throw new Exception(obj.getClass().getName()+':'+obj.getName()+" skipped");
         }
     }
 

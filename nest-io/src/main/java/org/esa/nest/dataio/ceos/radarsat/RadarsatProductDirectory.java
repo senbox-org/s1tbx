@@ -161,8 +161,8 @@ class RadarsatProductDirectory extends CEOSProductDirectory {
                     slantRangeTime*Constants.halfLightSpeed);
         }
 
-        float[] latCorners = leaderFile.getLatCorners();
-        float[] lonCorners = leaderFile.getLonCorners();
+        float[] latCorners = leaderFile.getLatCorners(leaderFile.getMapProjRecord());
+        float[] lonCorners = leaderFile.getLonCorners(leaderFile.getMapProjRecord());
         if(latCorners == null || lonCorners == null) {
             latCorners = imageFiles[0].getLatCorners();
             lonCorners = imageFiles[0].getLonCorners();

@@ -121,7 +121,7 @@ public class Sentinel1ProductDirectory extends XMLProductDirectory {
                 } else {
                     for(int b=0; b < img.getNumBands(); ++b) {
                         bandName = "Amplitude" +'_'+suffix;
-                        final Band band = new Band(bandName, ProductData.TYPE_UINT16, width, height);
+                        final Band band = new Band(bandName, ProductData.TYPE_INT32, width, height);
                         band.setUnit(Unit.AMPLITUDE);
 
                         product.addBand(band);

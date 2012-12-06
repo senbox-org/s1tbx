@@ -245,7 +245,7 @@ public class ImageIOFile {
         } else if(dataBufferType == DataBuffer.TYPE_INT &&
                 destBuffer.getElems() instanceof int[]) {
             sampleModel.getSamples(0, 0, destWidth, destHeight, sampleOffset, (int[])destBuffer.getElems(), dataBuffer);
-        } else if(dataBufferType == DataBuffer.TYPE_SHORT &&
+        } else if((dataBufferType == DataBuffer.TYPE_SHORT || dataBufferType == DataBuffer.TYPE_USHORT) &&
                 destBuffer.getElems() instanceof int[]) {
             sampleModel.getSamples(0, 0, destWidth, destHeight, sampleOffset, (int[])destBuffer.getElems(), dataBuffer);
         } else {

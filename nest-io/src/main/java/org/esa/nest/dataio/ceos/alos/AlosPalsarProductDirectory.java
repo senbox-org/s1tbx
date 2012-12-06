@@ -152,7 +152,8 @@ class AlosPalsarProductDirectory extends CEOSProductDirectory {
         addGeoCodingFromPixelToLatLonCoefficients(product, leaderFile.getFacilityRecord());
 
         if(product.getGeoCoding() == null) {
-            ReaderUtils.addGeoCoding(product, leaderFile.getLatCorners(), leaderFile.getLonCorners());
+            ReaderUtils.addGeoCoding(product, leaderFile.getLatCorners(leaderFile.getMapProjRecord()),
+                                              leaderFile.getLonCorners(leaderFile.getMapProjRecord()));
         }
         addTiePointGrids(product);
         addMetaData(product);

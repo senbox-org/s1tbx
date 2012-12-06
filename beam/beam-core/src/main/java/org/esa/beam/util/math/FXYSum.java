@@ -308,10 +308,14 @@ public class FXYSum {
      * @return the z value
      */
     public static double computeZ(final FXY[] f, double[] c, double x, double y) {
-        final int n = f.length;
+        //final int n = f.length;
         double z = 0.0;
-        for (int i = 0; i < n; i++) {
-            z += c[i] * f[i].f(x, y);
+        //for (int i = 0; i < n; i++) {
+        //    z += c[i] * f[i].f(x, y);
+        //}
+        int i = 0;
+        for(FXY fxy : f) {
+            z += c[i++] * fxy.f(x,y);
         }
         return z;
     }

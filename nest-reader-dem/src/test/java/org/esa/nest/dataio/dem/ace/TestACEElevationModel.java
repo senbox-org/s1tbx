@@ -19,6 +19,7 @@ import junit.framework.TestCase;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.dataop.dem.ElevationModel;
 import org.esa.beam.framework.dataop.resamp.Resampling;
+import org.esa.nest.util.TestUtils;
 
 /**
  * Created by IntelliJ IDEA.
@@ -36,12 +37,15 @@ public class TestACEElevationModel extends TestCase {
             614.25f, 393.0f, 525.75f, 2107.25f, 11.5f, 1529.75f, 655.25f, 185.5f, 96.25f, 820.0f, -500.0f, 1979.25f, 842.97363f
     };
 
-    public void testElevationModel() {
+    public void testElevationModel() throws Exception {
 
-        if(!demDescriptor.isDemInstalled()) return;
+        if(!demDescriptor.isDemInstalled()) {
+            TestUtils.skipTest(this);
+            return;
+        }
 
         final ElevationModel dem = demDescriptor.createDem(Resampling.BILINEAR_INTERPOLATION);
-        float[] demValues = new float[expectedValues.length];
+        final float[] demValues = new float[expectedValues.length];
         int count = 0;
 
         final GeoPos geoPos = new GeoPos(-18, 20);

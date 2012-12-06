@@ -122,7 +122,8 @@ class JERSProductDirectory extends CEOSProductDirectory {
         product.setEndTime(getUTCScanStopTime(leaderFile.getSceneRecord(), null));
         product.setDescription(getProductDescription());
 
-        ReaderUtils.addGeoCoding(product, leaderFile.getLatCorners(), leaderFile.getLonCorners());
+        ReaderUtils.addGeoCoding(product, leaderFile.getLatCorners(leaderFile.getMapProjRecord()),
+                                          leaderFile.getLonCorners(leaderFile.getMapProjRecord()));
         addTiePointGrids(product, leaderFile.getFacilityRecord(), leaderFile.getSceneRecord());
         addMetaData(product);
 
