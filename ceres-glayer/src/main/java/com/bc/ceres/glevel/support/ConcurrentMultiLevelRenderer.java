@@ -22,13 +22,39 @@ import com.bc.ceres.grender.InteractiveRendering;
 import com.bc.ceres.grender.Rendering;
 import com.bc.ceres.grender.Viewport;
 
-import javax.media.jai.*;
-import java.awt.*;
+import javax.media.jai.JAI;
+import javax.media.jai.PlanarImage;
+import javax.media.jai.TileCache;
+import javax.media.jai.TileComputationListener;
+import javax.media.jai.TileRequest;
+import javax.media.jai.TileScheduler;
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.GraphicsConfiguration;
+import java.awt.Point;
+import java.awt.Rectangle;
+import java.awt.Shape;
+import java.awt.Stroke;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
-import java.awt.image.*;
-import java.util.*;
+import java.awt.image.BufferedImage;
+import java.awt.image.ColorModel;
+import java.awt.image.DataBuffer;
+import java.awt.image.Raster;
+import java.awt.image.RenderedImage;
+import java.awt.image.SampleModel;
+import java.awt.image.WritableRaster;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 public class ConcurrentMultiLevelRenderer implements MultiLevelRenderer {
 
@@ -252,7 +278,7 @@ public class ConcurrentMultiLevelRenderer implements MultiLevelRenderer {
         t.preConcatenate(m2v);
         g.setTransform(t);
         g.setColor(frameColor);
-        g.setStroke(new BasicStroke(0.0f));
+        g.setStroke(new BasicStroke(1.0f));
         for (TileIndex tileIndice : tileIndices) {
             g.draw(planarImage.getTileRect(tileIndice.tileX, tileIndice.tileY));
         }
@@ -489,8 +515,8 @@ public class ConcurrentMultiLevelRenderer implements MultiLevelRenderer {
 
         public TileImageCache() {
             cache = new HashMap<TileIndex, TileImage>(37);
-            retentionPeriod = 10000L;
-            capacity = 16L * (1024 * 1024);
+            retentionPeriod = Long.parseLong(System.getProperty("ceres.renderer.cache.retentionPeriod", "10000"));
+            capacity = Long.parseLong(System.getProperty("ceres.renderer.cache.capacity", "16")) * (1024 * 1024);
             maxSize = Math.round(0.75 * capacity);
         }
 
