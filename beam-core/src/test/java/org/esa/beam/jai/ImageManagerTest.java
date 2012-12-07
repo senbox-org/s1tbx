@@ -16,6 +16,7 @@
 
 package org.esa.beam.jai;
 
+import com.bc.ceres.glevel.MultiLevelModel;
 import junit.framework.TestCase;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
@@ -34,6 +35,34 @@ public class ImageManagerTest extends TestCase {
 
     private static final double EPS_L = 1.0e-3;
     private static final double EPS_H = 1.0e-6;
+
+    /**
+     * Tests use of Product.getNumResolutionsMax in ImageManager.getMultiLevelModel introduced in BEAM 5.
+     * @throws Exception
+     */
+    public void testGetMultiLevelModel() throws Exception {
+        MultiLevelModel mlm1 , mlm2;
+        final Product p = new Product("P", "T", 10960, 10960);
+
+        final Band b1 = p.addBand("B1", "0"); // Virtual band image --> source image set
+        final Band b2 = p.addBand("B2", ProductData.TYPE_FLOAT32); // Normal band image --> source image NOT set
+
+        mlm1 = ImageManager.getMultiLevelModel(b1);
+        mlm2 = ImageManager.getMultiLevelModel(b2);
+        assertEquals(0, p.getNumResolutionsMax());
+        assertEquals(7, mlm1.getLevelCount());
+        assertEquals(7, mlm2.getLevelCount());
+
+        p.setNumResolutionsMax(3);
+
+        b1.getSourceImage();
+
+        mlm1 = ImageManager.getMultiLevelModel(b1);
+        mlm2 = ImageManager.getMultiLevelModel(b2);
+        assertEquals(3, p.getNumResolutionsMax());
+        assertEquals(3, mlm1.getLevelCount());
+        assertEquals(3, mlm2.getLevelCount());
+    }
 
     public void testBandWithNoScaling() {
         Band band = createBand(1.0, 0.0, false);
@@ -83,7 +112,8 @@ public class ImageManagerTest extends TestCase {
     }
 
     private Band createBand(double factor, double offset, boolean log10Scaled) {
-        Band band = new Band("b", ProductData.TYPE_INT8, 2, 2);
+        Product p = new Product("n", "t", 2, 2);
+        Band band = p.addBand("b", ProductData.TYPE_INT8);
         band.setScalingFactor(factor);
         band.setScalingOffset(offset);
         band.setLog10Scaled(log10Scaled);

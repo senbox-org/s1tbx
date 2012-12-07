@@ -41,18 +41,20 @@
 
     <changelog>
         <![CDATA[
-        <p>Changes in 4.10.4:<br/>
+        <p/>Changes in 5.0:<br/>
+        [BEAM-1456] All bands shall use same image pyramid model<br/>
+        <p/>Changes in 4.10.4:<br/>
         [BEAM-1447] Dimap reader\writer handling very very large files<br/>
-        <p>Changes in 4.10.3:<br/>
+        <p/>Changes in 4.10.3:<br/>
         [BEAM-1427] Histogram for SPOT SM Band not correct<br/>
         [BEAM-1410] PixelGeoCoding has accuracy problems<br/>
         [BEAM-1407] Editing pin files and existing (edited) pin files does not work<br/>
-        <p>Changes in 4.10.2:<br/>
+        <p/>Changes in 4.10.2:<br/>
         [BEAM-1402] Profile plot using correlative data and projected products used wrong pixels<br/>
-        <p>Changes in 4.10.1:<br/>
+        <p/>Changes in 4.10.1:<br/>
         [BEAM-1398] SLSTR oblique-view images cannot be opened<br/>
         [BEAM-1394] Wildcard matching problem with GPF operator 'PixEx'<br/>
-        <p>Changes in 4.10:<br/>
+        <p/>Changes in 4.10:<br/>
         [BEAM-1385] Import images as products (missing RGB product reader)<br/>
         [BEAM-1380] Compute statistics from geo-physical data, not raw data<br/>
         [BEAM-1376] ProductUtils.copyBand should copy source images if requested<br/>
@@ -62,7 +64,7 @@
         [BEAM-1345] Creating geophysical images for huge products fails<br/>
         [BEAM-1339] Reduce memory consumption<br/>
         [BEAM-1313] Sub-pixel geo-location is wrong for some product types<br/>
-        <p>Changes in 4.9:<br/>
+        <p/>Changes in 4.9:<br/>
         [BEAM-1291] Virtual bands may compute wrong results for non-zero levels of image pyramids<br/>
         [BEAM-1281] Orthorectification can not be used if tie-points are selected as elevation model<br/>
         [BEAM-1280] Configure image tile size for all readers<br/>
@@ -76,7 +78,7 @@
         [BEAM-1178] Attached GCP geo-coding is not saved<br/>
         [BEAM-1174] DIMAP stores the band grouping only if a product has a description<br/>
         [BEAM-1125] Outer scene region is not invalid for certain reprojected products<br/>
-        <p>Changes in 4.8:<br/>
+        <p/>Changes in 4.8:<br/>
         [BEAM-1168] Add Sinusoidal and Mollweide map projection<br/>
         [BEAM-1160] Auto-grouping of bands shall be controlled by data model<br/>
         [BEAM-1158] External JAI operators are not registered<br/>
@@ -84,7 +86,7 @@
         [BEAM-1147] Signed byte data type interpreted as unsigned byte<br/>
         [BEAM-1146] Images explicitly set on a Band have inappropriate image-to-model transformation<br/>
         [BEAM-1145] Image information gets lost during subset creation<br/>
-        <p>Changes in 4.7:<br/>
+        <p/>Changes in 4.7:<br/>
         [BEAM-1115] Make lookup tables thread safe<br/>
         [BEAM-1088] Orthorectification does a map projection only<br/>
         [BEAM-1065] Method TiePointGrid.cloneTiePointGrid() does not consider the unit<br/>
@@ -115,7 +117,7 @@
         [BEAM-809] Add 'median' and 'coefficient of variation' to statistics<br/>
         [BEAM-456] ROI includes also no-data pixels if "Include pixel by conditions" is selected<br/>
         </p>
-        <p>Changes in 4.6:<br/>
+        <p/>Changes in 4.6:<br/>
         [BEAM-993] Filter band not correct if band is UINT type and does not have scaling<br/>
         [BEAM-978] Data Flip shifts product geo-location<br/>
         [BEAM-977] Product marked "modified" after opening an image view<br/>
@@ -131,13 +133,13 @@
         [BEAM-882] Pin and GCP shapes grow when image is rotated<br/>
         [BEAM-878] ROI manager: unexpected behaviour with polylines<br/>
         </p>
-        <p>Changes in 4.5:<br/>
+        <p/>Changes in 4.5:<br/>
         [BEAM-868] Imaging shall be based on tiling and image pyramids<br/>
         [BEAM-864] Filtered bands shall use JAI<br/>
         [BEAM-854] ROI shifted by one pixel compared to shape<br/>
         [BEAM-844] False computation of bitmask overlay colours<br/>
         </p>
-        <p>Changes in 4.2:<br/>
+        <p/>Changes in 4.2:<br/>
         [BEAM-801] TiePointGeoCoding should consider non-linear distribution of longitude values across-track<br/>
         [BEAM-796] Index coding for classification bands<br/>
         [BEAM-775] "Write" operator not invoked if last node in graph<br/>
@@ -148,7 +150,7 @@
         [BEAM-522] Map-projection and orthorectification should also transform tie-point grids<br/>
         [BEAM-420] "Matrix is singular" error while computing geo-coding.<br/>
         </p>
-        <p>Changes in 4.1:<br/>
+        <p/>Changes in 4.1:<br/>
         [BEAM-607] Make "canDecodeInput" return more information<br/>
         [BEAM-615] Remove JAMA source code from BEAM<br/>
         [BEAM-617] Add linear, spectral unmixing math API<br/>

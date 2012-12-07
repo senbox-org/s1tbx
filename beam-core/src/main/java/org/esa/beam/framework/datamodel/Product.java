@@ -173,6 +173,13 @@ public class Product extends ProductNode {
     private final PlacemarkGroup gcpGroup;
 
     /**
+     * The maximum number of resolution levels common to all band images.
+     * Must be greater than zero, otherwise the  number of resolution levels is considered to be unknown.
+     * @since BEAM 5.0
+     */
+    private int numResolutionsMax;
+
+    /**
      * Creates a new product without any reader (in-memory product)
      *
      * @param name              the product name
@@ -1244,6 +1251,24 @@ public class Product extends ProductNode {
 
     //
     //////////////////////////////////////////////////////////////////////////
+
+    /**
+     * @return The maximum number of resolution levels common to all band images.
+     * If less than or equal to zero, the  number of resolution levels is considered to be unknown.
+     * @since BEAM 5.0
+     */
+    public int getNumResolutionsMax() {
+        return numResolutionsMax;
+    }
+
+    /**
+     * @param numResolutionsMax The maximum number of resolution levels common to all band images.
+     * If less than or equal to zero, the  number of resolution levels is considered to be unknown.
+     * @since BEAM 5.0
+     */
+    public void setNumResolutionsMax(int numResolutionsMax) {
+        this.numResolutionsMax = numResolutionsMax;
+    }
 
     /**
      * Checks whether or not the given product is compatible with this product.
