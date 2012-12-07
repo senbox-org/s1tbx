@@ -108,6 +108,7 @@ public final class ParserImpl implements Parser {
      *
      * @param code the code string, for the syntax of valid expressions refer
      *             to the class description
+     *
      * @throws ParseException if a parse reportError occurs
      */
     public final Term parse(final String code) throws ParseException {
@@ -121,6 +122,7 @@ public final class ParserImpl implements Parser {
      * @param code      the code string, for the syntax of valid expressions refer
      *                  to the class description
      * @param namespace the environment which is used to resolve names
+     *
      * @throws ParseException if a parse error occurs
      */
     public final Term parse(final String code, final Namespace namespace) throws ParseException {
@@ -143,6 +145,7 @@ public final class ParserImpl implements Parser {
      * and throws an exception if the next token is not the end-of-string.
      *
      * @return The generated term.
+     *
      * @throws ParseException if a parse error occurs
      */
     private Term parseImpl() throws ParseException {
@@ -160,7 +163,9 @@ public final class ParserImpl implements Parser {
      * operator '=' has the highest operator precedence.
      *
      * @param required true, if the expression is required.
+     *
      * @return The generated term.
+     *
      * @throws ParseException if a parse error occurs
      */
     private Term parseTerm(final boolean required) throws ParseException {
@@ -171,7 +176,9 @@ public final class ParserImpl implements Parser {
      * Parses an assignment expression <i>x '=' y</i>.
      *
      * @param required true, if the expression is required.
+     *
      * @return The generated term.
+     *
      * @throws ParseException if a parse error occurs
      */
     private Term parseAssign(final boolean required) throws ParseException {
@@ -197,7 +204,9 @@ public final class ParserImpl implements Parser {
      * Parses a conditional expression (not implemented).
      *
      * @param required true, if the expression is required.
+     *
      * @return The generated term.
+     *
      * @throws ParseException if a parse error occurs
      */
     private Term parseConditional(final boolean required) throws ParseException {
@@ -236,7 +245,9 @@ public final class ParserImpl implements Parser {
      * Parses a logical OR expression <i>x '||' y</i>.
      *
      * @param required true, if the expression is required.
+     *
      * @return The generated term.
+     *
      * @throws ParseException if a parse error occurs
      */
     private Term parseLogicalOr(final boolean required) throws ParseException {
@@ -263,7 +274,9 @@ public final class ParserImpl implements Parser {
      * Parses a logical AND expression <i>x '&&' y</i>.
      *
      * @param required true, if the expression is required.
+     *
      * @return The generated term.
+     *
      * @throws ParseException if a parse error occurs
      */
     private Term parseLogicalAnd(final boolean required) throws ParseException {
@@ -296,7 +309,9 @@ public final class ParserImpl implements Parser {
      * <i>x '>=' y</i>.
      *
      * @param required true, if the expression is required.
+     *
      * @return The generated term.
+     *
      * @throws ParseException if a parse error occurs
      */
     private Term parseComparison(final boolean required) throws ParseException {
@@ -381,7 +396,9 @@ public final class ParserImpl implements Parser {
      * Parses a bitwise OR expression <i>x '|' y</i>.
      *
      * @param required true, if the expression is required.
+     *
      * @return The generated term.
+     *
      * @throws ParseException if a parse error occurs
      */
     private Term parseBitwiseOr(final boolean required) throws ParseException {
@@ -407,7 +424,9 @@ public final class ParserImpl implements Parser {
      * Parses a bitwise XOR expression <i>x '^' y</i>.
      *
      * @param required true, if the expression is required.
+     *
      * @return The generated term.
+     *
      * @throws ParseException if a parse error occurs
      */
     private Term parseBtwiseXOr(final boolean required) throws ParseException {
@@ -434,7 +453,9 @@ public final class ParserImpl implements Parser {
      * Parses a bitwise AND expression <i>x '&' y</i>.
      *
      * @param required true, if the expression is required.
+     *
      * @return The generated term.
+     *
      * @throws ParseException if a parse error occurs
      */
     private Term parseBitwiseAnd(final boolean required) throws ParseException {
@@ -460,39 +481,59 @@ public final class ParserImpl implements Parser {
      * Parses an additive expression <i>x '+' y</i> or <i>x '-' y</i>.
      *
      * @param required true, if the expression is required.
+     *
      * @return The generated term.
+     *
      * @throws ParseException if a parse error occurs
      */
     private Term parseAdd(final boolean required) throws ParseException {
         Term t1 = parseMul(required);
         while (t1 != null) {
             int tt = tokenizer.next();
-            if (tt == '+') {
+            if (tt == Tokenizer.TT_DOUBLE) {
+                final double i = convertDoubleToken();
+                Term t2 = new Term.ConstD(i * -1);
+                t1 = substract(t1, t2);
+            } else if (tt == Tokenizer.TT_INT) {
+                final int i = convertIntToken();
+                Term t2 = new Term.ConstI(i * -1);
+                t1 = substract(t1, t2);
+            } else if (tt == '+') {
                 Term t2 = parseMul(true);
-                if (t1.isD() && t2.isN() || t1.isN() && t2.isD()) {
-                    t1 = new Term.Add(Term.TYPE_D, t1, t2);
-                } else if (t1.isI() && t2.isI()) {
-                    t1 = new Term.Add(Term.TYPE_I, t1, t2);
-                } else if (!isTypeChecking()) {
-                    t1 = new Term.Add(t1.isD() || t2.isD() ? Term.TYPE_D : Term.TYPE_I, t1, t2);
-                } else {
-                    reportTypeErrorN2("'+'");
-                }
+                t1 = add(t1, t2);
             } else if (tt == '-') {
                 Term t2 = parseMul(true);
-                if (t1.isD() && t2.isN() || t1.isN() && t2.isD()) {
-                    t1 = new Term.Sub(Term.TYPE_D, t1, t2);
-                } else if (t1.isI() && t2.isI()) {
-                    t1 = new Term.Sub(Term.TYPE_I, t1, t2);
-                } else if (!isTypeChecking()) {
-                    t1 = new Term.Sub(t1.isD() || t2.isD() ? Term.TYPE_D : Term.TYPE_I, t1, t2);
+                t1 = substract(t1, t2);
                 } else {
-                    reportTypeErrorN2("'-'");
-                }
-            } else {
                 tokenizer.pushBack();
                 break;
+                }
+        }
+        return t1;
+    }
+
+    private Term add(Term t1, Term t2) throws ParseException {
+        if (t1.isD() && t2.isN() || t1.isN() && t2.isD()) {
+            t1 = new Term.Add(Term.TYPE_D, t1, t2);
+        } else if (t1.isI() && t2.isI()) {
+            t1 = new Term.Add(Term.TYPE_I, t1, t2);
+        } else if (!isTypeChecking()) {
+            t1 = new Term.Add(t1.isD() || t2.isD() ? Term.TYPE_D : Term.TYPE_I, t1, t2);
+            } else {
+            reportTypeErrorN2("'+'");
             }
+        return t1;
+    }
+
+    private Term substract(Term t1, Term t2) throws ParseException {
+        if (t1.isD() && t2.isN() || t1.isN() && t2.isD()) {
+            t1 = new Term.Sub(Term.TYPE_D, t1, t2);
+        } else if (t1.isI() && t2.isI()) {
+            t1 = new Term.Sub(Term.TYPE_I, t1, t2);
+        } else if (!isTypeChecking()) {
+            t1 = new Term.Sub(t1.isD() || t2.isD() ? Term.TYPE_D : Term.TYPE_I, t1, t2);
+        } else {
+            reportTypeErrorN2("'-'");
         }
         return t1;
     }
@@ -502,7 +543,9 @@ public final class ParserImpl implements Parser {
      * or <i>x '%' y</i> (modulo).
      *
      * @param required true, if the expression is required.
+     *
      * @return The generated term.
+     *
      * @throws ParseException if a parse error occurs
      */
     private Term parseMul(final boolean required) throws ParseException {
@@ -555,7 +598,9 @@ public final class ParserImpl implements Parser {
      * Parses an unary expression <i>'+' x</i>, <i>'-' x</i>, <i>'!' x</i>, <i>'~' x</i>.
      *
      * @param required true, if the expression is required.
+     *
      * @return The generated term.
+     *
      * @throws ParseException if a parse error occurs
      */
     private Term parseUnary(final boolean required) throws ParseException {
@@ -610,7 +655,9 @@ public final class ParserImpl implements Parser {
      * Parses an postfix expression.
      *
      * @param required true, if the expression is required.
+     *
      * @return The generated term.
+     *
      * @throws ParseException if a parse error occurs
      */
     private Term parsePostfix(final boolean required) throws ParseException {
@@ -625,7 +672,9 @@ public final class ParserImpl implements Parser {
      * arg3 ',' ...')'</i>.
      *
      * @param required true, if the expression is required.
+     *
      * @return The generated term.
+     *
      * @throws ParseException if a parse error occurs
      */
     private Term parsePrimary(final boolean required) throws ParseException {
@@ -702,6 +751,7 @@ public final class ParserImpl implements Parser {
      * Parses a function argument list <i>'(' arg1 ',' arg2 ',' arg3 ',' ... ')'</i>
      *
      * @return The generated term.
+     *
      * @throws ParseException if a parse error occurs
      */
     private Term[] parseArgumentList() throws ParseException {
@@ -720,6 +770,7 @@ public final class ParserImpl implements Parser {
      * Parses a term list <i>t1 ',' t2 ',' t3 ',' ... ',' tN</i>
      *
      * @return The array of generated terms.
+     *
      * @throws ParseException if a parse error occurs
      */
     private Term[] parseTermList() throws ParseException {
@@ -886,6 +937,7 @@ public final class ParserImpl implements Parser {
      * Throws a <code>ParseException</code> with the given message
      *
      * @param message Error message.
+     *
      * @throws ParseException always
      */
     private void reportError(final String message) throws ParseException {

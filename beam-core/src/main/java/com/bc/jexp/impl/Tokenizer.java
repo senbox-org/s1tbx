@@ -265,9 +265,8 @@ public final class Tokenizer {
             }
 
             if (type != TT_SPECIAL) {
-                final int n = ordinaryChars.length;
-                for (int j = 0; j < n; j++) {
-                    if (ordinaryChars[j] == peek()) {
+                for (char ordinaryChar : ordinaryChars) {
+                    if (ordinaryChar == peek()) {
                         type = peek();
                         eat();
                         break;
@@ -285,6 +284,7 @@ public final class Tokenizer {
      * The keywords are not allowed as external names.
      *
      * @param name the name to test
+     *
      * @return <code>true</code> if the name is a valid external name, <code>false</code> otherwise
      */
     public static boolean isExternalName(final String name) {
@@ -308,6 +308,7 @@ public final class Tokenizer {
      * the name is escaped with single quotes.
      *
      * @param name the name
+     *
      * @return a valid external name
      */
     public static String createExternalName(final String name) {
@@ -399,6 +400,9 @@ public final class Tokenizer {
      */
     private void eatNumber() {
 
+        if (isMinus(pos)) {
+            eat(); // '-'
+        }
         while (isDigit()) {
             eat(); // digit
         }
@@ -503,7 +507,7 @@ public final class Tokenizer {
      * marks the beginning of a number (a digit or a '.').
      */
     private boolean isNumberStart() {
-        return isDigit() || isDotAndDigit();
+        return isDigit() || isDotAndDigit() || isMinusAndDigit(pos) || isMinusAndDotAndDigit(pos);
     }
 
     private boolean isHexNumberStart() {
@@ -526,6 +530,14 @@ public final class Tokenizer {
         return isSign(i) && isDigit(i + 1);
     }
 
+    private boolean isMinusAndDigit(final int i) {
+        return isMinus(i) && isDigit(i + 1);
+    }
+
+    private boolean isMinusAndDotAndDigit(int i) {
+        return isMinus(i) && isDotAndDigit(i + 1);
+    }
+
     private boolean isExpPartStart() {
         return (isChar('e') || isChar('E'))
                 && (isDigit(pos + 1) || isSignAndDigit(pos + 1));
@@ -540,7 +552,15 @@ public final class Tokenizer {
     }
 
     private boolean isSign(final int i) {
-        return isChar(i, '-') || isChar(i, '+');
+        return isMinus(i) || isPlus(i);
+    }
+
+    private boolean isPlus(int i) {
+        return isChar(i, '+');
+    }
+
+    private boolean isMinus(int i) {
+        return isChar(i, '-');
     }
 
     private boolean isChar(final char ch) {
