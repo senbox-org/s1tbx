@@ -15,6 +15,8 @@ package org.esa.beam.framework.datamodel;
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
+import org.esa.beam.util.math.ArcDistanceCalculator;
+import org.esa.beam.util.math.DistanceCalculator;
 import org.esa.beam.util.math.MathUtils;
 import org.esa.beam.util.math.Rotator;
 
@@ -26,13 +28,6 @@ import java.awt.geom.Point2D;
 import java.awt.image.Raster;
 import java.util.ArrayList;
 import java.util.List;
-
-import static java.lang.Math.asin;
-import static java.lang.Math.atan2;
-import static java.lang.Math.cos;
-import static java.lang.Math.sin;
-import static java.lang.Math.toDegrees;
-import static java.lang.Math.toRadians;
 
 public class PixelPosEstimator {
 
@@ -196,7 +191,7 @@ public class PixelPosEstimator {
     }
 
     static Approximation createApproximation(double[][] data, double accuracy, Stepping stepping) {
-        final Point2D centerPoint = calculateCenter(data);
+        final Point2D centerPoint = Rotator.calculateCenter(data, LON, LAT);
         final double centerLon = centerPoint.getX();
         final double centerLat = centerPoint.getY();
         final double maxDistance = maxDistance(data, centerLon, centerLat);
@@ -303,48 +298,6 @@ public class PixelPosEstimator {
         }
 
         return new RationalFunctionModel(degreeP, degreeQ, x, y, g);
-    }
-
-    static Point2D calculateCenter(double[][] data) {
-        // calculate (x, y, z) in order to avoid issues with anti-meridian and poles
-        final int size = data.length;
-        final double[] x = new double[size];
-        final double[] y = new double[size];
-        final double[] z = new double[size];
-
-        calculateXYZ(data, x, y, z);
-
-        double xc = 0.0;
-        double yc = 0.0;
-        double zc = 0.0;
-        for (int i = 0; i < size; i++) {
-            xc += x[i];
-            yc += y[i];
-            zc += z[i];
-        }
-        final double length = Math.sqrt(xc * xc + yc * yc + zc * zc);
-        xc /= length;
-        yc /= length;
-        zc /= length;
-
-        final double lat = toDegrees(asin(zc));
-        final double lon = toDegrees(atan2(yc, xc));
-
-        return new Point2D.Double(lon, lat);
-    }
-
-    static void calculateXYZ(double[][] data, double[] x, double[] y, double[] z) {
-        for (int i = 0; i < data.length; i++) {
-            final double lon = data[i][LON];
-            final double lat = data[i][LAT];
-            final double u = toRadians(lon);
-            final double v = toRadians(lat);
-            final double w = cos(v);
-
-            x[i] = cos(u) * w;
-            y[i] = sin(u) * w;
-            z[i] = sin(v);
-        }
     }
 
     static final class Stepping {
@@ -500,30 +453,6 @@ public class PixelPosEstimator {
             }
 
             return new Stepping(minX, minY, maxX, maxY, pointCountX, pointCountY, stepX, stepY);
-        }
-    }
-
-    interface DistanceCalculator {
-
-        double distance(double lon, double lat);
-    }
-
-    static final class ArcDistanceCalculator implements DistanceCalculator {
-
-        private final double lon;
-        private final double si;
-        private final double co;
-
-        ArcDistanceCalculator(double lon, double lat) {
-            this.lon = lon;
-            this.si = Math.sin(Math.toRadians(lat));
-            this.co = Math.cos(Math.toRadians(lat));
-        }
-
-        @Override
-        public double distance(double lon, double lat) {
-            final double phi = Math.toRadians(lat);
-            return Math.acos(si * Math.sin(phi) + co * Math.cos(phi) * Math.cos(Math.toRadians(lon - this.lon)));
         }
     }
 

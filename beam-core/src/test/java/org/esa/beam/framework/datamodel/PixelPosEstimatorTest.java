@@ -15,6 +15,8 @@ package org.esa.beam.framework.datamodel;/*
  */
 
 import org.esa.beam.util.jai.SingleBandedSampleModel;
+import org.esa.beam.util.math.ArcDistanceCalculator;
+import org.esa.beam.util.math.DistanceCalculator;
 import org.esa.beam.util.math.Rotator;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -224,15 +226,6 @@ public class PixelPosEstimatorTest {
         final double[] lowerRight = data[data.length - 1];
         assertEquals(511.5, lowerRight[2], 0.0);
         assertEquals(511.5, lowerRight[3], 0.0);
-    }
-
-    @Test
-    public void testArcDistance() {
-        final PixelPosEstimator.DistanceCalculator distanceCalculator = new PixelPosEstimator.ArcDistanceCalculator(0.0,
-                                                                                                                    0.0);
-        assertEquals(0.0, distanceCalculator.distance(0.0, 0.0), 0.0);
-        assertEquals(1.0, Math.toDegrees(distanceCalculator.distance(1.0, 0.0)), 1.0e-10);
-        assertEquals(1.0, Math.toDegrees(distanceCalculator.distance(0.0, 1.0)), 1.0e-10);
     }
 
     private static OpImage[] generateSwathCoordinates(int nx, int ny,
