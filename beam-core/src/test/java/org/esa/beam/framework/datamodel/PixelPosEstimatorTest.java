@@ -14,13 +14,12 @@ package org.esa.beam.framework.datamodel;/*
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.jai.SingleBandedSampleModel;
+import org.esa.beam.util.math.Rotator;
 import org.junit.Ignore;
 import org.junit.Test;
 
 import javax.media.jai.ImageLayout;
-import javax.media.jai.JAI;
 import javax.media.jai.OpImage;
 import javax.media.jai.PlanarImage;
 import javax.media.jai.SourcelessOpImage;

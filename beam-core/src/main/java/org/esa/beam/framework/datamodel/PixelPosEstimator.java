@@ -16,6 +16,7 @@ package org.esa.beam.framework.datamodel;
  */
 
 import org.esa.beam.util.math.MathUtils;
+import org.esa.beam.util.math.Rotator;
 
 import javax.media.jai.PlanarImage;
 import java.awt.Dimension;
