@@ -308,7 +308,7 @@ public class TestUtils {
                 final ProductReader reader = ProductIO.getProductReaderForFile(file);
                 if(reader != null) {
                     final Product sourceProduct = reader.readProductNodes(file, null);
-                    if(StringUtils.contains(productTypeExemptions, sourceProduct.getProductType()))
+                    if(productTypeExemptions != null && StringUtils.contains(productTypeExemptions, sourceProduct.getProductType()))
                         continue;
 
                     TestUtils.verifyProduct(sourceProduct, false, false);

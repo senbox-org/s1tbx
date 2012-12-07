@@ -46,7 +46,7 @@ public abstract class RecursiveProcessor {
                 try {
                     final Product sourceProduct = ProductIO.readProduct(file);
                     if(sourceProduct != null) {
-                        if(StringUtils.contains(productTypeExemptions, sourceProduct.getProductType()))
+                        if(productTypeExemptions != null && StringUtils.contains(productTypeExemptions, sourceProduct.getProductType()))
                             continue;
 
                         process(sourceProduct);
