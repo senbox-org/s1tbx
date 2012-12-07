@@ -899,9 +899,6 @@ public final class ParserImpl implements Parser {
 
     private int convertIntToken() throws ParseException {
         String token = tokenizer.getToken();
-        if (token.startsWith("+")) {
-            token = token.substring(1);
-        }
         try {
             long l = Long.parseLong(token);
             if (l >= Integer.MIN_VALUE && l <= Integer.MAX_VALUE) {
