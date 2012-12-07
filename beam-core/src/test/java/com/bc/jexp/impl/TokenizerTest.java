@@ -1,28 +1,10 @@
 package com.bc.jexp.impl;
 
-import com.bc.jexp.Term;
-import org.esa.beam.util.Debug;
-import org.junit.*;
-
 import static org.junit.Assert.*;
 
+import org.junit.*;
+
 public class TokenizerTest {
-
-    @BeforeClass
-    public static void setUpClass() {
-    }
-
-    @AfterClass
-    public static void tearDownClass() {
-    }
-
-    @Before
-    public void setUp() throws Exception {
-    }
-
-    @After
-    public void tearDown() throws Exception {
-    }
 
     @Test
     public void testPlusFour() {
@@ -30,7 +12,7 @@ public class TokenizerTest {
         assertEquals('+', tokenizer.next());
         assertEquals('+', tokenizer.getType());
         assertEquals("+", tokenizer.getToken());
-        assertEquals(Tokenizer.TT_INT , tokenizer.next());
+        assertEquals(Tokenizer.TT_INT, tokenizer.next());
         assertEquals(Tokenizer.TT_INT, tokenizer.getType());
         assertEquals("4", tokenizer.getToken());
         assertEquals(Tokenizer.TT_EOS, tokenizer.next());
@@ -39,7 +21,7 @@ public class TokenizerTest {
     @Test
     public void testMinusFour() {
         final Tokenizer tokenizer = new Tokenizer("-4");
-        assertEquals(Tokenizer.TT_INT , tokenizer.next());
+        assertEquals(Tokenizer.TT_INT, tokenizer.next());
         assertEquals(Tokenizer.TT_INT, tokenizer.getType());
         assertEquals("-4", tokenizer.getToken());
         assertEquals(Tokenizer.TT_EOS, tokenizer.next());
@@ -48,13 +30,13 @@ public class TokenizerTest {
     @Test
     public void testThreePlusFour() {
         final Tokenizer tokenizer = new Tokenizer("3+4");
-        assertEquals(Tokenizer.TT_INT , tokenizer.next());
+        assertEquals(Tokenizer.TT_INT, tokenizer.next());
         assertEquals(Tokenizer.TT_INT, tokenizer.getType());
         assertEquals("3", tokenizer.getToken());
         assertEquals('+', tokenizer.next());
         assertEquals('+', tokenizer.getType());
         assertEquals("+", tokenizer.getToken());
-        assertEquals(Tokenizer.TT_INT , tokenizer.next());
+        assertEquals(Tokenizer.TT_INT, tokenizer.next());
         assertEquals(Tokenizer.TT_INT, tokenizer.getType());
         assertEquals("4", tokenizer.getToken());
         assertEquals(Tokenizer.TT_EOS, tokenizer.next());
@@ -63,10 +45,10 @@ public class TokenizerTest {
     @Test
     public void testThreeMinusFour() {
         final Tokenizer tokenizer = new Tokenizer("3-4");
-        assertEquals(Tokenizer.TT_INT , tokenizer.next());
+        assertEquals(Tokenizer.TT_INT, tokenizer.next());
         assertEquals(Tokenizer.TT_INT, tokenizer.getType());
         assertEquals("3", tokenizer.getToken());
-        assertEquals(Tokenizer.TT_INT , tokenizer.next());
+        assertEquals(Tokenizer.TT_INT, tokenizer.next());
         assertEquals(Tokenizer.TT_INT, tokenizer.getType());
         assertEquals("-4", tokenizer.getToken());
         assertEquals(Tokenizer.TT_EOS, tokenizer.next());

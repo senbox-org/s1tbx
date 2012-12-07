@@ -16,11 +16,14 @@
 
 package com.bc.jexp;
 
-import com.bc.jexp.impl.*;
-import org.junit.Before;
-import org.junit.Test;
-
 import static org.junit.Assert.*;
+
+import com.bc.jexp.impl.AbstractSymbol;
+import com.bc.jexp.impl.DefaultNamespace;
+import com.bc.jexp.impl.NamespaceImpl;
+import com.bc.jexp.impl.ParserImpl;
+import com.bc.jexp.impl.SymbolFactory;
+import org.junit.*;
 
 public class ParserImplTest {
 
@@ -82,50 +85,51 @@ public class ParserImplTest {
     public void testPositiveNumber() throws ParseException {
         Term term = parser.parse("+4");
         assertEquals(4, term.evalI(env));
-        assertEquals("4",term.evalS(env));
-        assertEquals("4",term.toString());
+        assertEquals("4", term.evalS(env));
+        assertEquals("4", term.toString());
 
         term = parser.parse("4");
         assertEquals(4, term.evalI(env));
-        assertEquals("4",term.evalS(env));
-        assertEquals("4",term.toString());
+        assertEquals("4", term.evalS(env));
+        assertEquals("4", term.toString());
 
         term = parser.parse("+0.4");
         assertEquals(0.4, term.evalD(env), 1e-15);
-        assertEquals("0.4",term.evalS(env));
-        assertEquals("0.4",term.toString());
+        assertEquals("0.4", term.evalS(env));
+        assertEquals("0.4", term.toString());
 
         term = parser.parse("0.4");
         assertEquals(0.4, term.evalD(env), 1e-15);
-        assertEquals("0.4",term.evalS(env));
-        assertEquals("0.4",term.toString());
+        assertEquals("0.4", term.evalS(env));
+        assertEquals("0.4", term.toString());
 
         term = parser.parse("+.4");
         assertEquals(0.4, term.evalD(env), 1e-15);
-        assertEquals("0.4",term.evalS(env));
-        assertEquals("0.4",term.toString());
+        assertEquals("0.4", term.evalS(env));
+        assertEquals("0.4", term.toString());
 
         term = parser.parse(".4");
         assertEquals(0.4, term.evalD(env), 1e-15);
-        assertEquals("0.4",term.evalS(env));
-        assertEquals("0.4",term.toString());
+        assertEquals("0.4", term.evalS(env));
+        assertEquals("0.4", term.toString());
     }
+
     @Test
     public void testNegativeNumber() throws ParseException {
         Term term = parser.parse("-4");
         assertEquals(-4, term.evalI(env));
-        assertEquals("-4",term.evalS(env));
-        assertEquals("-4",term.toString());
+        assertEquals("-4", term.evalS(env));
+        assertEquals("-4", term.toString());
 
         term = parser.parse("-0.4");
         assertEquals(-0.4, term.evalD(env), 1e-15);
-        assertEquals("-0.4",term.evalS(env));
-        assertEquals("-0.4",term.toString());
+        assertEquals("-0.4", term.evalS(env));
+        assertEquals("-0.4", term.toString());
 
         term = parser.parse("-.4");
         assertEquals(-0.4, term.evalD(env), 1e-15);
-        assertEquals("-0.4",term.evalS(env));
-        assertEquals("-0.4",term.toString());
+        assertEquals("-0.4", term.evalS(env));
+        assertEquals("-0.4", term.toString());
     }
 
     @Test
