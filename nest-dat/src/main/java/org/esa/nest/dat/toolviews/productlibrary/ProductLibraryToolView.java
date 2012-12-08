@@ -500,7 +500,7 @@ public class ProductLibraryToolView extends AbstractToolView {
             try {
                 dbPane.getDB().removeAllProducts();
             } catch(Exception e) {
-                //
+                System.out.println("Failed to remove all products");
             }
         } else if(selectedItem instanceof File) {
             final File baseDir = (File)selectedItem;

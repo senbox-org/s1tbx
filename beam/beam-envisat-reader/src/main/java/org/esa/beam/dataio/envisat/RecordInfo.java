@@ -180,8 +180,8 @@ public final class RecordInfo extends ItemInfo {
      * @see <{FieldInfo}>
      */
     final void add(FieldInfo fieldInfo) {
-        Guardian.assertNotNull("fieldInfo", fieldInfo);
-        checkName(fieldInfo.getName());
+        //Guardian.assertNotNull("fieldInfo", fieldInfo);
+        //checkName(fieldInfo.getName());
         _fieldInfos.addElement(fieldInfo);
         updateSizeInBytes();
     }
@@ -214,7 +214,7 @@ public final class RecordInfo extends ItemInfo {
      *          if recordInfo is null or one of the fields already exists
      */
     final void add(RecordInfo recordInfo) {
-        Guardian.assertNotNull("recordInfo", recordInfo);
+        //Guardian.assertNotNull("recordInfo", recordInfo);
         for (int n = 0; n < recordInfo.getNumFieldInfos(); n++) {
             add(recordInfo.getFieldInfoAt(n));
         }

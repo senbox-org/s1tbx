@@ -192,7 +192,11 @@ public class ProductDB extends DAO {
         final List<ProductEntry> listEntries = new ArrayList<ProductEntry>();
 
         final Statement queryStatement = dbConnection.createStatement();
-        final ResultSet results = queryStatement.executeQuery(strGetProductsWhere + queryStr);
+        String whereStr = strGetProductsWhere;
+        if(queryStr.isEmpty()) {
+            whereStr = strGetProductsWhere.substring(0, strGetProductsWhere.lastIndexOf(" AND "));
+        }
+        final ResultSet results = queryStatement.executeQuery(whereStr + queryStr);
         while(results.next()) {
             listEntries.add(new ProductEntry(results));
         }

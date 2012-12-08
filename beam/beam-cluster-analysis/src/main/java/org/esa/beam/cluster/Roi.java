@@ -30,7 +30,7 @@ import java.util.List;
 import java.util.Set;
 
 
-class Roi {
+final class Roi {
 
     private final Set<RenderedImage> maskImageSet = new HashSet<RenderedImage>();
     private final RenderedImage combinedMaskImage;

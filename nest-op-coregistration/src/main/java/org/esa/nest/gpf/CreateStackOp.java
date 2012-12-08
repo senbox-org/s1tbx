@@ -840,34 +840,39 @@ public class CreateStackOp extends Operator {
         if (productPixelSpacingChecked) {
             return;
         }
-
         try {
-            double savedRangeSpacing = 0.0;
-            double savedAzimuthSpacing = 0.0;
-            for(final Product prod : sourceProduct) {
-                final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(prod);
-                if (absRoot == null) {
-                    throw new OperatorException(
-                            MessageFormat.format("Product ''{0}'' has no abstract metadata.", prod.getName()));
-                }
 
-                final double rangeSpacing = AbstractMetadata.getAttributeDouble(absRoot, AbstractMetadata.range_spacing);
-                final double azimuthSpacing = AbstractMetadata.getAttributeDouble(absRoot, AbstractMetadata.azimuth_spacing);
-                if(savedRangeSpacing > 0.0 && savedAzimuthSpacing > 0.0 &&
-                  (Math.abs(rangeSpacing - savedRangeSpacing) > 0.001 ||
-                   Math.abs(azimuthSpacing - savedAzimuthSpacing) > 0.001)) {
-                    throw new OperatorException("Resampling type cannot be NONE because pixel spacings" +
-                                    " are different for master and slave products");
-                } else {
-                    savedRangeSpacing = rangeSpacing;
-                    savedAzimuthSpacing = azimuthSpacing;
-                }
-            }
         } catch(Throwable e) {
             throw new OperatorException(e.getMessage());
         }
 
         productPixelSpacingChecked = true;
+    }
+
+    public static void checkPixelSpacing(final Product[] sourceProducts) throws Exception {
+        double savedRangeSpacing = 0.0;
+        double savedAzimuthSpacing = 0.0;
+        for(final Product prod : sourceProducts) {
+            final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(prod);
+            if (absRoot == null) {
+                throw new OperatorException(
+                        MessageFormat.format("Product ''{0}'' has no abstract metadata.", prod.getName()));
+            }
+
+            final double rangeSpacing = AbstractMetadata.getAttributeDouble(absRoot, AbstractMetadata.range_spacing);
+            final double azimuthSpacing = AbstractMetadata.getAttributeDouble(absRoot, AbstractMetadata.azimuth_spacing);
+            double a = Math.abs(rangeSpacing - savedRangeSpacing);
+            double b = Math.abs(azimuthSpacing - savedAzimuthSpacing);
+            if(savedRangeSpacing > 0.0 && savedAzimuthSpacing > 0.0 &&
+                    (Math.abs(rangeSpacing - savedRangeSpacing) > 0.05 ||
+                     Math.abs(azimuthSpacing - savedAzimuthSpacing) > 0.05)) {
+                throw new OperatorException("Resampling type cannot be NONE because pixel spacings" +
+                        " are different for master and slave products");
+            } else {
+                savedRangeSpacing = rangeSpacing;
+                savedAzimuthSpacing = azimuthSpacing;
+            }
+        }
     }
 
     private static class ResamplingRaster implements Resampling.Raster {

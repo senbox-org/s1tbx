@@ -333,6 +333,10 @@ public class Sentinel1ProductDirectory extends XMLProductDirectory {
                 AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_looks,
                         azimuthProcessing.getAttributeDouble("numberOfLooks"));
 
+                addOrbitStateVectors(absRoot, generalAnnotation.getElement("orbitList"));
+                addSRGRCoefficients(absRoot, prodElem.getElement("coordinateConversion"));
+                addDopplerCentroidCoefficients(absRoot, prodElem.getElement("dopplerCentroid"));
+
                 commonMetadataRetrieved = true;
             }
 
@@ -420,11 +424,11 @@ public class Sentinel1ProductDirectory extends XMLProductDirectory {
         return AbstractMetadata.parseUTC(start, dateFormat);
     }
     */
-    /*
-    private static void addOrbitStateVectors(final MetadataElement absRoot, final MetadataElement orbitInformation) {
+
+    private static void addOrbitStateVectors(final MetadataElement absRoot, final MetadataElement orbitList) {
         final MetadataElement orbitVectorListElem = absRoot.getElement(AbstractMetadata.orbit_state_vectors);
 
-        final MetadataElement[] stateVectorElems = orbitInformation.getElements();
+        final MetadataElement[] stateVectorElems = orbitList.getElements();
         for(int i=1; i <= stateVectorElems.length; ++i) {
             addVector(AbstractMetadata.orbit_vector, orbitVectorListElem, stateVectorElems[i-1], i);
         }
@@ -434,44 +438,41 @@ public class Sentinel1ProductDirectory extends XMLProductDirectory {
                 equalElems(new ProductData.UTC(0))) {
 
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.STATE_VECTOR_TIME,
-                ReaderUtils.getTime(stateVectorElems[0], "timeStamp", AbstractMetadata.dateFormat));
+                ReaderUtils.getTime(stateVectorElems[0], "time", AbstractMetadata.dateFormat));
         }
     }
 
-    private static void addVector(String name, MetadataElement orbitVectorListElem,
-                                  MetadataElement srcElem, int num) {
+    private static void addVector(final String name, final MetadataElement orbitVectorListElem,
+                                  final MetadataElement orbitElem, final int num) {
         final MetadataElement orbitVectorElem = new MetadataElement(name+num);
 
-        orbitVectorElem.setAttributeUTC(AbstractMetadata.orbit_vector_time,
-                ReaderUtils.getTime(srcElem, "timeStamp", AbstractMetadata.dateFormat));
+        final MetadataElement positionElem = orbitElem.getElement("position");
+        final MetadataElement velocityElem = orbitElem.getElement("velocity");
 
-        final MetadataElement xpos = srcElem.getElement("xPosition");
+        orbitVectorElem.setAttributeUTC(AbstractMetadata.orbit_vector_time,
+                ReaderUtils.getTime(orbitElem, "time", AbstractMetadata.dateFormat));
+
         orbitVectorElem.setAttributeDouble(AbstractMetadata.orbit_vector_x_pos,
-                xpos.getAttributeDouble("xPosition", 0));
-        final MetadataElement ypos = srcElem.getElement("yPosition");
+                positionElem.getAttributeDouble("x", 0));
         orbitVectorElem.setAttributeDouble(AbstractMetadata.orbit_vector_y_pos,
-                ypos.getAttributeDouble("yPosition", 0));
-        final MetadataElement zpos = srcElem.getElement("zPosition");
+                positionElem.getAttributeDouble("y", 0));
         orbitVectorElem.setAttributeDouble(AbstractMetadata.orbit_vector_z_pos,
-                zpos.getAttributeDouble("zPosition", 0));
-        final MetadataElement xvel = srcElem.getElement("xVelocity");
+                positionElem.getAttributeDouble("z", 0));
         orbitVectorElem.setAttributeDouble(AbstractMetadata.orbit_vector_x_vel,
-                xvel.getAttributeDouble("xVelocity", 0));
-        final MetadataElement yvel = srcElem.getElement("yVelocity");
+                velocityElem.getAttributeDouble("x", 0));
         orbitVectorElem.setAttributeDouble(AbstractMetadata.orbit_vector_y_vel,
-                yvel.getAttributeDouble("yVelocity", 0));
-        final MetadataElement zvel = srcElem.getElement("zVelocity");
+                velocityElem.getAttributeDouble("y", 0));
         orbitVectorElem.setAttributeDouble(AbstractMetadata.orbit_vector_z_vel,
-                zvel.getAttributeDouble("zVelocity", 0));
+                velocityElem.getAttributeDouble("z", 0));
 
         orbitVectorListElem.addElement(orbitVectorElem);
     }
 
-    private static void addSRGRCoefficients(final MetadataElement absRoot, final MetadataElement imageGenerationParameters) {
+    private static void addSRGRCoefficients(final MetadataElement absRoot, final MetadataElement coordinateConversion) {
         final MetadataElement srgrCoefficientsElem = absRoot.getElement(AbstractMetadata.srgr_coefficients);
 
-        int listCnt = 1;
-        for(MetadataElement elem : imageGenerationParameters.getElements()) {
+   /*     int listCnt = 1;
+        for(MetadataElement elem : coordinateConversion.getElements()) {
             if(elem.getName().equalsIgnoreCase("slantRangeToGroundRange")) {
                 final MetadataElement srgrListElem = new MetadataElement(AbstractMetadata.srgr_coef_list+'.'+listCnt);
                 srgrCoefficientsElem.addElement(srgrListElem);
@@ -501,15 +502,15 @@ public class Sentinel1ProductDirectory extends XMLProductDirectory {
                     }
                 }
             }
-        }
+        }       */
     }
 
     private static void addDopplerCentroidCoefficients(
-            final MetadataElement absRoot, final MetadataElement imageGenerationParameters) {
+            final MetadataElement absRoot, final MetadataElement dopplerCentroid) {
 
         final MetadataElement dopplerCentroidCoefficientsElem = absRoot.getElement(AbstractMetadata.dop_coefficients);
 
-        int listCnt = 1;
+   /*     int listCnt = 1;
         for(MetadataElement elem : imageGenerationParameters.getElements()) {
             if(elem.getName().equalsIgnoreCase("dopplerCentroid")) {
                 final MetadataElement dopplerListElem = new MetadataElement(AbstractMetadata.dop_coef_list+'.'+listCnt);
@@ -541,8 +542,8 @@ public class Sentinel1ProductDirectory extends XMLProductDirectory {
                     }
                 }
             }
-        }
-    }            */
+        }       */
+    }
 
     @Override
     protected void addGeoCoding(final Product product) {

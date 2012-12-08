@@ -425,11 +425,14 @@ public final class GeolocationGridGeocodingOp extends Operator {
      * @param slantRange The slant range in meters.
      * @return The range index.
      */
-    private double computeRangeIndex(double zeroDopplerTime, double slantRange) {
+    private double computeRangeIndex(double zeroDopplerTime, double slantRange) throws Exception {
 
         double rangeIndex = 0.0;
 
         if (srgrFlag) { // ground detected image
+
+            if(srgrConvParams.length == 0)
+                throw new Exception("SRGR coefficients not found in product");
 
             int idx = 0;
             for (int i = 0; i < srgrConvParams.length && zeroDopplerTime >= srgrConvParams[i].timeMJD; i++) {

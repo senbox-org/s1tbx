@@ -43,7 +43,7 @@ import java.util.List;
 /**
 
  */
-public class DatabasePane extends JPanel {
+public final class DatabasePane extends JPanel {
 
     private final JList missionJList = new JList();
     private final JList productTypeJList = new JList();

@@ -27,7 +27,6 @@ import org.esa.beam.util.Debug;
 import org.esa.beam.util.StringUtils;
 
 import javax.imageio.stream.ImageInputStream;
-import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -44,7 +43,7 @@ import com.bc.ceres.core.runtime.RuntimeContext;
  * @version $Revision$ $Date$
  * @see org.esa.beam.dataio.envisat.ProductFile
  */
-public class AsarProductFile extends ProductFile {
+public final class AsarProductFile extends ProductFile {
 
     /**
      * Number of pixels in across-track direction
@@ -117,6 +116,7 @@ public class AsarProductFile extends ProductFile {
      * The product type plus the IODD suffix
      */
     private String fullProductType = null;
+    private String versionSuffix = null;
 
     /**
      * Constructs a <code>MerisProductFile</code> for the given seekable data input stream. Attaches the
@@ -489,16 +489,13 @@ public class AsarProductFile extends ProductFile {
     @Override
     protected String getDddbProductType() {
         if(fullProductType == null) {
-            fullProductType = getDddbProductTypeReplacement(getProductType(), getIODDVersion());
+            fullProductType = getProductType() + getVersionSuffix(getProductType(), getIODDVersion());
         }
         return fullProductType != null ? fullProductType : super.getDddbProductType();
     }
 
-    static String getDddbProductTypeReplacement(final String productType, final IODD ioddVersion) {
-        return productType + getVersionSuffix(productType, ioddVersion);
-    }
+    static String createVersionSuffix(final String productType, final IODD ioddVersion) {
 
-    static String getVersionSuffix(final String productType, final IODD ioddVersion) {
         String suffix = "";
         if (ioddVersion == IODD.ASAR_3K) {
             if (productDDExists(productType + IODD3K_SUFFIX))
@@ -519,6 +516,13 @@ public class AsarProductFile extends ProductFile {
             suffix = "";
         }
         return suffix;
+    }
+
+    String getVersionSuffix(final String productType, final IODD ioddVersion) {
+        if(versionSuffix == null) {
+            versionSuffix = createVersionSuffix(productType, ioddVersion);
+        }
+        return versionSuffix;
     }
 
     private static boolean productDDExists(String productType) {
@@ -810,47 +814,34 @@ public class AsarProductFile extends ProductFile {
             recInfo.add("t", ProductData.TYPE_UTC, 1, "", "");
             final Record lineRecord = Record.create(recInfo);
 
-            final SwingWorker worker = new SwingWorker() {
+            try {
+                final BandLineReader bandLineReader = getBandLineReader(band);
+                final RecordReader recReader = bandLineReader.getPixelDataReader();
+                final ImageInputStream istream = getDataInputStream();
 
-                @Override
-                protected Object doInBackground() throws Exception {
-                    try {
-                        final BandLineReader bandLineReader = getBandLineReader(band);
-                        final RecordReader recReader = bandLineReader.getPixelDataReader();
-                        final ImageInputStream istream = getDataInputStream();
+                final long datasetOffset = recReader.getDSD().getDatasetOffset();
+                final long recordSize = recReader.getDSD().getRecordSize();
 
-                        final long datasetOffset = recReader.getDSD().getDatasetOffset();
-                        final long recordSize = recReader.getDSD().getRecordSize();
+                final int height = band.getRasterHeight();
+                final double[] timeData = new double[height];
+                for (int y = 0; y < height; ++y) {
 
-                        final int height = band.getRasterHeight();
-                        final double[] timeData = new double[height];
-                        for (int y = 0; y < height; ++y) {
-
-                            istream.seek(datasetOffset + (y * recordSize));
-                            lineRecord.readFrom(istream);
-                            Field f = lineRecord.getFieldAt(0);
-                            if(f.getData().getElemIntAt(0) == 0)
-                                timeData[y] = 0;
-                            else
-                                timeData[y] = ((ProductData.UTC) f.getData()).getMJD();
-                        }
-
-                        final MetadataAttribute attribute = new MetadataAttribute("t", ProductData.TYPE_FLOAT64, height);
-                        attribute.setDataElems(timeData);
-                        bandElemement.addAttribute(attribute);
-
-                    } catch (IOException e) {
-                        System.out.println("processWSSImageRecordMetadata " + e.toString());
-                    }
-                    return null;
+                    istream.seek(datasetOffset + (y * recordSize));
+                    lineRecord.readFrom(istream);
+                    final ProductData data = lineRecord.getFieldAt(0).getData();
+                    if(data.getElemIntAt(0) == 0)
+                        timeData[y] = 0;
+                    else
+                        timeData[y] = ((ProductData.UTC) data).getMJD();
                 }
 
-                @Override
-                public void done() {
+                final MetadataAttribute attribute = new MetadataAttribute("t", ProductData.TYPE_FLOAT64, height);
+                attribute.setDataElems(timeData);
+                bandElemement.addAttribute(attribute);
 
-                }
-            };
-            worker.execute();
+            } catch (IOException e) {
+                System.out.println("processWSSImageRecordMetadata " + e.toString());
+            }
         }
     }
 

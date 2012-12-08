@@ -26,7 +26,7 @@ import java.util.Iterator;
  * @version $Revision$ $Date$
  * @since BEAM 4.2
  */
-class PixelIter {
+final class PixelIter {
 
     private final Tile[] tiles;
     private final Iterator<Tile.Pos> iterator;
@@ -38,11 +38,12 @@ class PixelIter {
         iterator = tiles[0].iterator();
     }
 
-    double[] next(double[] samples) {
+    double[] next(final double[] samples) {
+        final int length = samples.length;
         while (iterator.hasNext()) {
             Tile.Pos nextPos = iterator.next();
-            if (roi == null || roi.contains(nextPos.x, nextPos.y)) {
-                for (int i = 0; i < samples.length; i++) {
+            if (roi.contains(nextPos.x, nextPos.y)) {
+                for (int i = 0; i < length; i++) {
                     samples[i] = tiles[i].getSampleDouble(nextPos.x, nextPos.y);
                 }
                 return samples;

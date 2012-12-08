@@ -48,9 +48,7 @@ public class AsarProductFileTest extends TestCase {
 
     private static void testDddbProductTypeReplacement(final String replacement, final String productType,
                                                 final AsarProductFile.IODD ioddVersion) {
-        String s;
-        s = AsarProductFile.getDddbProductTypeReplacement(productType,
-                                                           ioddVersion);
+        String s = productType + AsarProductFile.createVersionSuffix(productType, ioddVersion);
         assertEquals(replacement, s);
     }
 }
