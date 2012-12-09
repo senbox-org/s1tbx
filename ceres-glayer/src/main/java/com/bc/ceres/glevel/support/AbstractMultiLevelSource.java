@@ -23,8 +23,7 @@ import javax.media.jai.PlanarImage;
 import javax.media.jai.RenderedOp;
 import javax.media.jai.operator.ConstantDescriptor;
 import javax.media.jai.operator.ScaleDescriptor;
-import java.awt.Dimension;
-import java.awt.Shape;
+import java.awt.*;
 import java.awt.image.RenderedImage;
 
 /**
@@ -54,7 +53,6 @@ public abstract class AbstractMultiLevelSource implements MultiLevelSource {
      * {@link #createImage(int)} in order to retrieve the actual image instance.
      *
      * @param level The resolution level.
-     *
      * @return The {@code RenderedImage} at the given resolution level.
      */
     @Override
@@ -83,7 +81,6 @@ public abstract class AbstractMultiLevelSource implements MultiLevelSource {
      * given resolution level.
      *
      * @param level The resolution level.
-     *
      * @return An instance of a {@code RenderedImage} for the given resolution level.
      */
     protected abstract RenderedImage createImage(int level);
@@ -111,7 +108,6 @@ public abstract class AbstractMultiLevelSource implements MultiLevelSource {
      * Utility method which checks if a given level is valid.
      *
      * @param level The resolution level.
-     *
      * @throws IllegalArgumentException if {@code level &lt; 0 || level &gt;= getModel().getLevelCount()}
      */
     protected synchronized void checkLevel(int level) {
@@ -122,19 +118,36 @@ public abstract class AbstractMultiLevelSource implements MultiLevelSource {
 
     /**
      * Computes the dimension of an image at a certain level. The image dimension computed is the
-     * same as that obtained from {@code javax.media.jai.operatorScaleDescriptor.create(...)}.
+     * same as that obtained from {@code javax.media.jai.operator.ScaleDescriptor.create(...)}.
      *
      * @param width  The width of the image in pixels at level zero.
      * @param height The height of the image in pixels at level zero.
      * @param scale  The scale at the level of interest.
-     *
      * @return the dimension of the image at the level of interest.
      */
     public static Dimension getImageDimension(int width, int height, double scale) {
         final float scaleFactor = (float) (1.0 / scale);
-
         final RenderedOp c = ConstantDescriptor.create((float) width, (float) height, new Float[]{0.0f}, null);
         final RenderedOp s = ScaleDescriptor.create(c, scaleFactor, scaleFactor, 0.0f, 0.0f, null, null);
         return new Dimension(s.getWidth(), s.getHeight());
+    }
+
+    /**
+     * Computes the rectangle of an image at a certain level. The image rectangle computed is the
+     * same as that obtained from {@code javax.media.jai.operator.ScaleDescriptor.create(...)}.
+     *
+     * @param minX   The image's minimum X coordinate in pixels at level zero.
+     * @param minY   The image's minimum Y coordinate in pixels at level zero.
+     * @param width  The width of the image in pixels at level zero.
+     * @param height The height of the image in pixels at level zero.
+     * @param scale  The scale at the level of interest.
+     * @return the dimension of the image at the level of interest.
+     */
+    public static Rectangle getImageRectangle(int minX, int minY, int width, int height, double scale) {
+        final float scaleFactor = (float) (1.0 / scale);
+        final RenderedOp c = ConstantDescriptor.create((float) width, (float) height, new Float[]{0.0f}, null);
+        final RenderedOp s1 = ScaleDescriptor.create(c, 1.0F, 1.0F, (float) minX, (float) minY, null, null);
+        final RenderedOp s2 = ScaleDescriptor.create(s1, scaleFactor, scaleFactor, 0.0F, 0.0F, null, null);
+        return new Rectangle(s2.getMinX(), s2.getMinY(), s2.getWidth(), s2.getHeight());
     }
 }
