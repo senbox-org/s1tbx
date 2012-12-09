@@ -21,9 +21,7 @@ import com.bc.ceres.jai.NoDataRaster;
 import javax.media.jai.ImageLayout;
 import javax.media.jai.JAI;
 import javax.media.jai.SourcelessOpImage;
-import java.awt.Dimension;
-import java.awt.Point;
-import java.awt.Rectangle;
+import java.awt.*;
 import java.awt.image.DataBuffer;
 import java.awt.image.Raster;
 import java.awt.image.WritableRaster;
@@ -38,13 +36,13 @@ public abstract class SingleBandedOpImage extends SourcelessOpImage {
     private LevelImageSupport levelImageSupport;
 
     /**
-     * Used to construct an image.
+     * Constructor.
      *
      * @param dataBufferType The data type.
      * @param sourceWidth    The width of the level 0 image.
      * @param sourceHeight   The height of the level 0 image.
      * @param tileSize       The tile size for this image.
-     * @param configuration  The configuration map (can be null).
+     * @param configuration  The configuration map. May be {@code null}.
      * @param level          The resolution level.
      */
     protected SingleBandedOpImage(int dataBufferType,
@@ -53,7 +51,35 @@ public abstract class SingleBandedOpImage extends SourcelessOpImage {
                                   Dimension tileSize,
                                   Map configuration,
                                   ResolutionLevel level) {
+        this(dataBufferType,
+             null,
+             sourceWidth,
+             sourceHeight,
+             tileSize,
+             configuration,
+             level);
+    }
+
+    /**
+     * Constructor.
+     *
+     * @param dataBufferType The data type.
+     * @param sourcePos      The position of the level 0 image. May be {@code null}.
+     * @param sourceWidth    The width of the level 0 image.
+     * @param sourceHeight   The height of the level 0 image.
+     * @param tileSize       The tile size for this image.
+     * @param configuration  The configuration map. May be {@code null}.
+     * @param level          The resolution level.
+     */
+    protected SingleBandedOpImage(int dataBufferType,
+                                  Point sourcePos,
+                                  int sourceWidth,
+                                  int sourceHeight,
+                                  Dimension tileSize,
+                                  Map configuration,
+                                  ResolutionLevel level) {
         this(ImageManager.createSingleBandedImageLayout(dataBufferType,
+                                                        sourcePos,
                                                         sourceWidth,
                                                         sourceHeight,
                                                         tileSize,
@@ -125,9 +151,7 @@ public abstract class SingleBandedOpImage extends SourcelessOpImage {
      *
      * @param noDataValue The no-data value used to fill the data buffer
      *                    of the raster created.
-     *
      * @return the raster created.
-     *
      * @see {@link NoDataRaster}.
      */
     protected NoDataRaster createNoDataRaster(double noDataValue) {

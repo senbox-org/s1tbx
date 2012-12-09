@@ -25,22 +25,7 @@ import com.bc.ceres.glevel.MultiLevelSource;
 import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
 import com.bc.ceres.glevel.support.DefaultMultiLevelImage;
 import com.bc.ceres.glevel.support.DefaultMultiLevelModel;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.ColorPaletteDef;
-import org.esa.beam.framework.datamodel.GeoCoding;
-import org.esa.beam.framework.datamodel.ImageInfo;
-import org.esa.beam.framework.datamodel.IndexCoding;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.datamodel.ProductNode;
-import org.esa.beam.framework.datamodel.ProductNodeEvent;
-import org.esa.beam.framework.datamodel.ProductNodeListener;
-import org.esa.beam.framework.datamodel.ProductNodeListenerAdapter;
-import org.esa.beam.framework.datamodel.RGBChannelDef;
-import org.esa.beam.framework.datamodel.RasterDataNode;
-import org.esa.beam.framework.datamodel.Scene;
-import org.esa.beam.framework.datamodel.SceneFactory;
-import org.esa.beam.framework.datamodel.Stx;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.util.ImageUtils;
 import org.esa.beam.util.IntMap;
 import org.esa.beam.util.jai.JAIUtils;
@@ -53,34 +38,12 @@ import org.opengis.referencing.crs.ImageCRS;
 import org.opengis.referencing.datum.PixelInCell;
 import org.opengis.referencing.operation.MathTransform;
 
-import javax.media.jai.Histogram;
-import javax.media.jai.ImageLayout;
-import javax.media.jai.JAI;
-import javax.media.jai.LookupTableJAI;
-import javax.media.jai.PlanarImage;
-import javax.media.jai.RenderedOp;
-import javax.media.jai.operator.BandMergeDescriptor;
-import javax.media.jai.operator.ClampDescriptor;
-import javax.media.jai.operator.CompositeDescriptor;
-import javax.media.jai.operator.ConstantDescriptor;
-import javax.media.jai.operator.FormatDescriptor;
-import javax.media.jai.operator.InvertDescriptor;
-import javax.media.jai.operator.LookupDescriptor;
-import javax.media.jai.operator.MatchCDFDescriptor;
-import javax.media.jai.operator.MaxDescriptor;
-import javax.media.jai.operator.MultiplyConstDescriptor;
-import javax.media.jai.operator.RescaleDescriptor;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.RenderingHints;
-import java.awt.Transparency;
+import javax.media.jai.*;
+import javax.media.jai.operator.*;
+import java.awt.*;
 import java.awt.color.ColorSpace;
 import java.awt.geom.AffineTransform;
-import java.awt.image.ColorModel;
-import java.awt.image.ComponentColorModel;
-import java.awt.image.DataBuffer;
-import java.awt.image.RenderedImage;
-import java.awt.image.SampleModel;
+import java.awt.image.*;
 import java.awt.image.renderable.ParameterBlock;
 import java.lang.ref.WeakReference;
 import java.util.Arrays;
@@ -198,17 +161,38 @@ public class ImageManager {
         return createSingleBandedImageLayout(dataBufferType, width, height, tileSize.width, tileSize.height);
     }
 
-    public static ImageLayout createSingleBandedImageLayout(int dataType,
+    public static ImageLayout createSingleBandedImageLayout(int dataBufferType,
                                                             int width,
                                                             int height,
                                                             int tileWidth,
                                                             int tileHeight) {
-        SampleModel sampleModel = ImageUtils.createSingleBandedSampleModel(dataType, tileWidth, tileHeight);
+        SampleModel sampleModel = ImageUtils.createSingleBandedSampleModel(dataBufferType, tileWidth, tileHeight);
         ColorModel colorModel = PlanarImage.createColorModel(sampleModel);
-        return createImageLayout(width, height, tileWidth, tileHeight, sampleModel, colorModel);
+        return new ImageLayout(0, 0,
+                               width,
+                               height,
+                               0, 0,
+                               tileWidth,
+                               tileHeight,
+                               sampleModel,
+                               colorModel);
     }
 
     public static ImageLayout createSingleBandedImageLayout(int dataBufferType,
+                                                            int sourceWidth,
+                                                            int sourceHeight,
+                                                            Dimension tileSize,
+                                                            ResolutionLevel level) {
+           return createSingleBandedImageLayout(dataBufferType,
+                                                null,
+                                                sourceWidth,
+                                                sourceHeight,
+                                                tileSize,
+                                                level);
+    }
+
+    public static ImageLayout createSingleBandedImageLayout(int dataBufferType,
+                                                            Point sourcePos,
                                                             int sourceWidth,
                                                             int sourceHeight,
                                                             Dimension tileSize,
@@ -220,11 +204,13 @@ public class ImageManager {
             throw new IllegalArgumentException("sourceHeight");
         }
         Assert.notNull("level");
-        final Dimension destDimension = AbstractMultiLevelSource.getImageDimension(sourceWidth,
+        final Rectangle destRectangle = AbstractMultiLevelSource.getImageRectangle(sourcePos != null ? sourcePos.x : 0,
+                                                                                   sourcePos != null ? sourcePos.y : 0,
+                                                                                   sourceWidth,
                                                                                    sourceHeight,
                                                                                    level.getScale());
-        final int destWidth = destDimension.width;
-        final int destHeight = destDimension.height;
+        final int destWidth = destRectangle.width;
+        final int destHeight = destRectangle.height;
         tileSize = tileSize != null ? tileSize : JAIUtils.computePreferredTileSize(destWidth, destHeight, 1);
         SampleModel sampleModel = ImageUtils.createSingleBandedSampleModel(dataBufferType,
                                                                            tileSize.width, tileSize.height);
@@ -239,21 +225,13 @@ public class ImageManager {
                                                  dataType);
         }
 
-        return createImageLayout(destWidth, destHeight, tileSize.width, tileSize.height, sampleModel, colorModel);
-    }
-
-    private static ImageLayout createImageLayout(int width,
-                                                 int height,
-                                                 int tileWidth,
-                                                 int tileHeight,
-                                                 SampleModel sampleModel,
-                                                 ColorModel colorModel) {
-        return new ImageLayout(0, 0,
-                               width,
-                               height,
+        return new ImageLayout(destRectangle.x,
+                               destRectangle.y,
+                               destWidth,
+                               destHeight,
                                0, 0,
-                               tileWidth,
-                               tileHeight,
+                               tileSize.width,
+                               tileSize.height,
                                sampleModel,
                                colorModel);
     }
