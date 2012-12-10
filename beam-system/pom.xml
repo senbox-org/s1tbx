@@ -40,7 +40,7 @@
         TODO: Move the sourceEncoding property to the build tag if version 3.0 is released -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <beam.version>5.0-SNAPSHOT</beam.version>
-        <ceres.version>0.13.2-SNAPSHOT</ceres.version>
+        <ceres.version>0.14-SNAPSHOT</ceres.version>
         <geotools.version>2.7.4</geotools.version>
         <jide.version>3.3.7</jide.version>
         <!-- This property is set in beam-parent; reason? see there!-->
