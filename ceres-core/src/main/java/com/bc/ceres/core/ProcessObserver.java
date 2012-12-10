@@ -8,36 +8,36 @@ import java.io.InputStreamReader;
  * An observer that notifies its {@link ProcessObserver.Handler handlers} about lines of characters that have been written
  * by a process to both {@code stdout} and {@code stderr} output streams.
  * <p/>
- <pre>
- TODO
-
- Develop External Process Invocation API (EPIA)
-
-   - idea: use velocity to generate input files + command-line from current context
-   - address that executables might have different extensions (and paths) on different OS (.exe, .bat, .sh)
-
- Process Descriptor
-
- - name
- - description
-
- - n input descriptors (descriptor: name + type + description)
- - n output descriptors (descriptor: name + type + description)
- - n parameter descriptors (descriptor: name + type + description + attributes)
- - 1 command-line velocity template
- - 1 relative working directory template
- - n environment variables templates
- - n velocity file templates
- - n static files
- - n static archives to unpack
-
- Process Invocation
-
- - prepare context:
-   * set environment variables
-   * set inputs, outputs, parameters
-
- </pre>
+ * <pre>
+ * TODO
+ *
+ * Develop External Process Invocation API (EPIA)
+ *
+ * - idea: use velocity to generate input files + command-line from current context
+ * - address that executables might have different extensions (and paths) on different OS (.exe, .bat, .sh)
+ *
+ * Process Descriptor
+ *
+ * - name
+ * - description
+ *
+ * - n input descriptors (descriptor: name + type + description)
+ * - n output descriptors (descriptor: name + type + description)
+ * - n parameter descriptors (descriptor: name + type + description + attributes)
+ * - 1 command-line velocity template
+ * - 1 relative working directory template
+ * - n environment variables templates
+ * - n velocity file templates
+ * - n static files
+ * - n static archives to unpack
+ *
+ * Process Invocation
+ *
+ * - prepare context:
+ * set environment variables
+ * set inputs, outputs, parameters
+ *
+ * </pre>
  *
  * @author Norman Fomferra
  */
@@ -92,7 +92,7 @@ public class ProcessObserver {
         return name;
     }
 
-     /**
+    /**
      * Default is "process".
      *
      * @param name A name that represents the process.
@@ -105,11 +105,11 @@ public class ProcessObserver {
     }
 
     /**
-      * @return A handler.
-      */
-     public Handler getHandler() {
-         return handler;
-     }
+     * @return A handler.
+     */
+    public Handler getHandler() {
+        return handler;
+    }
 
 
     /**
@@ -163,11 +163,12 @@ public class ProcessObserver {
     }
 
     /**
-      * @return  Time in milliseconds between successive process status queries.
-      */
-     public int getPollPeriod() {
-         return pollPeriod;
-     }
+     * @return Time in milliseconds between successive process status queries.
+     */
+    public int getPollPeriod() {
+        return pollPeriod;
+    }
+
     /**
      * Default is 500 milliseconds.
      *

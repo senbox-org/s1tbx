@@ -39,9 +39,7 @@ public class CssColorConverter implements Converter<Color> {
      *
      * @param text The textual representation of the value. It must be either in hexadecimal format (e.g. "#FFFFFF" or
      *             "FFFFFF") or given by a string of comma-separated numbers, such as "255,255,255".
-     *
      * @return The converted value.
-     *
      * @throws com.bc.ceres.binding.ConversionException
      *          If the conversion fails.
      */
@@ -65,7 +63,6 @@ public class CssColorConverter implements Converter<Color> {
      * plain text representation.
      *
      * @param value The value to be converted to text.
-     *
      * @return The textual representation of the value.
      */
     @Override

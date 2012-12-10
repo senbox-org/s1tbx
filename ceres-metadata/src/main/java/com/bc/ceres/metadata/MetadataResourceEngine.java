@@ -25,9 +25,7 @@ import org.apache.velocity.VelocityContext;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
 
@@ -121,9 +119,9 @@ public class MetadataResourceEngine {
             Resource resource = new ReaderResource(path, reader);
 
             Resource processedResource = resourceEngine.processResource(resource);
-            resourceMap.put(metadataBaseName.replace(".", "_"), processedResource)  ;
+            resourceMap.put(metadataBaseName.replace(".", "_"), processedResource);
         }
-        getVelocityMapSafe("sourceMetadata").put(sourceId, resourceMap)  ;
+        getVelocityMapSafe("sourceMetadata").put(sourceId, resourceMap);
     }
 
     private Map<String, Map> getVelocityMapSafe(String name) {

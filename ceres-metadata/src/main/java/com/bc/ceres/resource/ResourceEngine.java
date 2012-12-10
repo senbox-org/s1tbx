@@ -80,7 +80,6 @@ public class ResourceEngine {
      * Evaluates the given {@link Resource} using the current {@link VelocityContext} and return the result.
      *
      * @param resource the resource
-     *
      * @return The result of the processing
      */
     public Resource processResource(Resource resource) {
@@ -104,7 +103,6 @@ public class ResourceEngine {
      *
      * @param name     The name under which the resource is added
      * @param resource the resource
-     *
      * @return The result of the processing
      */
     public Resource processAndAddResource(String name, Resource resource) {
@@ -119,9 +117,7 @@ public class ResourceEngine {
      * If no resource is registered under the given name a {@link IllegalArgumentException} is thrown.
      *
      * @param name The name of the resource
-     *
      * @return The registered resource
-     *
      * @throws IllegalArgumentException If no resource of the given name exists.
      */
     public Resource getResource(String name) {

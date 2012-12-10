@@ -19,7 +19,6 @@ package com.bc.ceres.resource;
 
 /**
  * A [@link Resource} reading its content from a @{link String}.
- *
  */
 public class StringResource extends Resource {
 

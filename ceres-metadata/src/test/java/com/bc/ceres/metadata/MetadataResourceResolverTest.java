@@ -20,7 +20,7 @@ import org.junit.Test;
 
 import java.util.SortedMap;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 public class MetadataResourceResolverTest {
 
@@ -75,7 +75,7 @@ public class MetadataResourceResolverTest {
         simpleFileSystem.setDirectoryList("/bla/bli", "file1", "product-file2.xml", "file3", "product-file4.properties");
         MetadataResourceResolver resolver = new MetadataResourceResolver(simpleFileSystem);
 
-        SortedMap<String,String> sourceMetadataPaths= resolver.getSourceMetadataPaths("/bla/bli/product.dim");
+        SortedMap<String, String> sourceMetadataPaths = resolver.getSourceMetadataPaths("/bla/bli/product.dim");
 
         assertEquals(2, sourceMetadataPaths.size());
         assertEquals("/bla/bli/product-file2.xml", sourceMetadataPaths.get("file2.xml"));

@@ -16,7 +16,12 @@
 
 package com.bc.ceres.binding.dom;
 
-import com.bc.ceres.binding.*;
+import com.bc.ceres.binding.ConversionException;
+import com.bc.ceres.binding.Converter;
+import com.bc.ceres.binding.ConverterRegistry;
+import com.bc.ceres.binding.PropertyDescriptor;
+import com.bc.ceres.binding.PropertyDescriptorFactory;
+import com.bc.ceres.binding.ValidationException;
 import com.thoughtworks.xstream.io.copy.HierarchicalStreamCopier;
 import com.thoughtworks.xstream.io.xml.XppDomWriter;
 import com.thoughtworks.xstream.io.xml.XppReader;
@@ -24,20 +29,26 @@ import com.thoughtworks.xstream.io.xml.xppdom.XppDom;
 import junit.framework.AssertionFailedError;
 import junit.framework.TestCase;
 
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Rectangle;
+import java.awt.Shape;
 import java.awt.geom.Arc2D;
 import java.awt.geom.Line2D;
 import java.io.File;
 import java.io.StringReader;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import java.util.*;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Stack;
 
 public class DefaultDomConverterTest extends TestCase {
 
     private static final PropertyDescriptorFactory VALUE_DESCRIPTOR_FACTORY = new PropertyDescriptorFactory() {
         @Override
-        public PropertyDescriptor createValueDescriptor(java.lang.reflect.Field field)  {
+        public PropertyDescriptor createValueDescriptor(java.lang.reflect.Field field) {
             final PropertyDescriptor descriptor = new PropertyDescriptor(field.getName(), field.getType());
             final X xAnnotation = field.getAnnotation(X.class);
             if (xAnnotation != null) {

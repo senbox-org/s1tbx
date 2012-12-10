@@ -25,11 +25,9 @@ import org.junit.Test;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.*;
-import static org.junit.Assert.assertEquals;
 
 public class MetadataResourceEngineTest {
 

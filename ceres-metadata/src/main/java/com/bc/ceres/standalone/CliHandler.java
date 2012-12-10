@@ -1,6 +1,12 @@
 package com.bc.ceres.standalone;
 
-import org.apache.commons.cli.*;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.OptionBuilder;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
+import org.apache.commons.cli.PosixParser;
 
 import java.util.HashMap;
 
@@ -86,25 +92,25 @@ public class CliHandler {
         OptionBuilder.hasArg();
         OptionBuilder.withArgName("filePath");
         OptionBuilder.withDescription("The absolute item path (e.g. a product), the metadata file will be placed next to the item. " +
-                "It gets the name 'itemName-templateName.templateSuffix'. Refer to as $targetPath in velocity templates. If the targetPath is a " +
-                "directory, the metadata file will get the name of the velocity template without the suffix *.vm");
+                                              "It gets the name 'itemName-templateName.templateSuffix'. Refer to as $targetPath in velocity templates. If the targetPath is a " +
+                                              "directory, the metadata file will get the name of the velocity template without the suffix *.vm");
         OptionBuilder.isRequired();
         options.addOption(OptionBuilder.create("t"));
 
         OptionBuilder.hasArg();
         OptionBuilder.withArgName("source>=<filePath");
         OptionBuilder.withDescription("Optional. The absolute path and name of the source items. Could be several given by key-value-pairs. " +
-                "In the velocity templates the key will give you the content of the associated metadata file(s). The reference $sourcePaths " +
-                "holds a map of the input item paths. The reference $sourceMetadata holds a map with all source-metadata, which can be " +
-                "referenced by their key. " +
-                "($sourceMetadata.get(\"source\").get(\"metadata_xml\").content");
+                                              "In the velocity templates the key will give you the content of the associated metadata file(s). The reference $sourcePaths " +
+                                              "holds a map of the input item paths. The reference $sourceMetadata holds a map with all source-metadata, which can be " +
+                                              "referenced by their key. " +
+                                              "($sourceMetadata.get(\"source\").get(\"metadata_xml\").content");
         options.addOption(OptionBuilder.create("S"));
 
         OptionBuilder.hasArg();
         OptionBuilder.withArgName("myKey>=<filePath");
         OptionBuilder.withDescription("Optional. The absolute path and name of text file(s) (e.g. global metadata, LUTs) to be included as " +
-                "ceres-metadata - Resource. Refer to as $myKey in velocity templates. ($myKey.content; $myKey.map.get(\"key\"), if it was " +
-                "a *.properties file or $myKey.path)");
+                                              "ceres-metadata - Resource. Refer to as $myKey in velocity templates. ($myKey.content; $myKey.map.get(\"key\"), if it was " +
+                                              "a *.properties file or $myKey.path)");
         options.addOption(OptionBuilder.create("m"));
 
         return options;

@@ -64,12 +64,12 @@ public class MetadataEngineMainTest {
 
         assertFalse(metadataResult1.toString().isEmpty());
         assertEquals("" +
-                "<EX_GeographicBoundingBox>\n" +
-                "    <westBoundLongitude>bla</westBoundLongitude>\n" +
-                "    <eastBoundLongitude>1.3</eastBoundLongitude>\n" +
-                "    <southBoundLatitude>3.2</southBoundLatitude>\n" +
-                "    <northBoundLatitude>4.5</northBoundLatitude>\n" +
-                "</EX_GeographicBoundingBox>", metadataResult1.toString());
+                             "<EX_GeographicBoundingBox>\n" +
+                             "    <westBoundLongitude>bla</westBoundLongitude>\n" +
+                             "    <eastBoundLongitude>1.3</eastBoundLongitude>\n" +
+                             "    <southBoundLatitude>3.2</southBoundLatitude>\n" +
+                             "    <northBoundLatitude>4.5</northBoundLatitude>\n" +
+                             "</EX_GeographicBoundingBox>", metadataResult1.toString());
 
         assertFalse(metadataResult2.toString().isEmpty());
         assertEquals("3.2", metadataResult2.toString());
@@ -116,9 +116,9 @@ public class MetadataEngineMainTest {
         simpleFileSystem.setReader("/my-template.xml.vm", new StringReader(velocityTemplate));
         simpleFileSystem.setReader("/yours.txt.vm", new StringReader(velocityTemplate2));
         simpleFileSystem.setDirectoryList("source/path",
-                "tsm-1.dim", "tsm-1.data", "tsm-1-metadata.txt",
-                "tsm-2.N1", "tsm-2-blubber.xm",
-                "tsm-3.hdf", "tsm-3-report.txt", "tsm-3-report.xml");
+                                          "tsm-1.dim", "tsm-1.data", "tsm-1-metadata.txt",
+                                          "tsm-2.N1", "tsm-2-blubber.xm",
+                                          "tsm-3.hdf", "tsm-3-report.txt", "tsm-3-report.xml");
         simpleFileSystem.setReader("source/path/tsm-1-metadata.txt", new StringReader("source 1 text"));
         simpleFileSystem.setReader("source/path/tsm-2-blubber.xm", new StringReader("source 2 text"));
         simpleFileSystem.setReader("source/path/tsm-3-report.txt", new StringReader("source 3-txt text"));
@@ -135,20 +135,20 @@ public class MetadataEngineMainTest {
         assertFalse(metadataResultXml.toString().isEmpty());
 
         assertEquals("Hello world. my.key=my value. Output item path: /my/chl-a.N1. " +
-                "The source metadata: 1) source 1 text 2) source 2 text 3) source 3-txt text 4) source 3-xml text. " +
-                "A source path: source/path/tsm-1.dim." +
-                "WGS 84 / UTM", metadataResult.toString());
+                             "The source metadata: 1) source 1 text 2) source 2 text 3) source 3-txt text 4) source 3-xml text. " +
+                             "A source path: source/path/tsm-1.dim." +
+                             "WGS 84 / UTM", metadataResult.toString());
 
         assertEquals("" +
-                "<metadata>\n" +
-                "    <sources>\n" +
-                "                    <source>source/path/tsm-3.hdf</source>\n" +
-                "                    <source>source/path/tsm-2.N1</source>\n" +
-                "                    <source>source/path/tsm-1.dim</source>\n" +
-                "            </sources>\n" +
-                "    <target>/my/chl-a.N1</target>\n" +
-                "    <additional>Hello world</additional>\n" +
-                "    <2643>WGS 84 / UTM</2643>\n" +
-                "</metadata>", metadataResultXml.toString());
+                             "<metadata>\n" +
+                             "    <sources>\n" +
+                             "                    <source>source/path/tsm-3.hdf</source>\n" +
+                             "                    <source>source/path/tsm-2.N1</source>\n" +
+                             "                    <source>source/path/tsm-1.dim</source>\n" +
+                             "            </sources>\n" +
+                             "    <target>/my/chl-a.N1</target>\n" +
+                             "    <additional>Hello world</additional>\n" +
+                             "    <2643>WGS 84 / UTM</2643>\n" +
+                             "</metadata>", metadataResultXml.toString());
     }
 }

@@ -21,7 +21,6 @@ import java.io.IOException;
 
 /**
  * A [@link Resource} reading its content from a @{link File}.
- *
  */
 public class FileResource extends Resource {
 

@@ -21,7 +21,6 @@ import org.apache.velocity.VelocityContext;
 import org.junit.Test;
 
 import static junit.framework.Assert.*;
-import static junit.framework.Assert.assertEquals;
 
 
 public class ResourceEngineTest {
