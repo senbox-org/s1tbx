@@ -62,8 +62,10 @@ public abstract class AbstractDomConverter implements DomConverter {
             if (!descriptor.isTransient()) {
                 final DomConverter domConverter = getDomConverter(descriptor);
                 if (domConverter != null) {
-                    final DomElement childElement = parentElement.createChild(getNameOrAlias(property));
-                    domConverter.convertValueToDom(property.getValue(), childElement);
+                    if (property.getValue() != null) {
+                        final DomElement childElement = parentElement.createChild(getNameOrAlias(property));
+                        domConverter.convertValueToDom(property.getValue(), childElement);
+                    }
                 } else if (isArrayTypeWithNamedItems(descriptor)) {
                     final DomElement childElement;
                     if (descriptor.getItemsInlined()) {
@@ -276,8 +278,10 @@ public abstract class AbstractDomConverter implements DomConverter {
                     final PropertyDescriptor descriptor = property.getDescriptor();
                     final DomConverter domConverter = getDomConverter(descriptor);
                     if (domConverter != null) {
-                        final DomElement childElement = element.createChild(getNameOrAlias(property));
-                        domConverter.convertValueToDom(property.getValue(), childElement);
+                        if (property.getValue() != null) {
+                            final DomElement childElement = element.createChild(getNameOrAlias(property));
+                            domConverter.convertValueToDom(property.getValue(), childElement);
+                        }
                     } else if (isArrayTypeWithNamedItems(descriptor)) {
                         final DomElement childElement;
                         if (descriptor.getItemsInlined()) {

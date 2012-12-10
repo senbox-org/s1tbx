@@ -37,13 +37,22 @@ public class DefaultDomConverterTest extends TestCase {
 
     private static final PropertyDescriptorFactory VALUE_DESCRIPTOR_FACTORY = new PropertyDescriptorFactory() {
         @Override
-        public PropertyDescriptor createValueDescriptor(java.lang.reflect.Field field) {
+        public PropertyDescriptor createValueDescriptor(java.lang.reflect.Field field)  {
             final PropertyDescriptor descriptor = new PropertyDescriptor(field.getName(), field.getType());
             final X xAnnotation = field.getAnnotation(X.class);
             if (xAnnotation != null) {
                 descriptor.setAlias(xAnnotation.alias());
                 descriptor.setItemAlias(xAnnotation.componentAlias());
                 descriptor.setItemsInlined(xAnnotation.inlined());
+                if (xAnnotation.domConverter() != DomConverter.class) {
+                    DomConverter domConverter;
+                    try {
+                        domConverter = xAnnotation.domConverter().newInstance();
+                    } catch (Throwable t) {
+                        throw new IllegalStateException("Failed to create domConverter.", t);
+                    }
+                    descriptor.setDomConverter(domConverter);
+                }
             }
             return descriptor;
         }
@@ -106,6 +115,71 @@ public class DefaultDomConverterTest extends TestCase {
         assertEquals(createDom(expectedXml), dom);
     }
 
+    public void testSimplePojoWithNullArrayToDom() throws ValidationException, ConversionException {
+        final String expectedXml = ""
+                + "<parameters>"
+                + "  <fileField>" + new File("C:/data/dat.ini") + "</fileField>"
+                + "  <intField>43</intField>"
+                + "  <stringField>This is a test.</stringField>"
+                + "  <doubleArrayField/>"
+                + "</parameters>";
+        final XppDom dom = new XppDom("parameters");
+        final SimplePojo value = new SimplePojo();
+        value.intField = 43;
+        value.stringField = "This is a test.";
+        value.doubleArrayField = null;
+        value.fileField = new File("C:/data/dat.ini");
+        convertValueToDom(value, dom);
+        assertEquals(createDom(expectedXml), dom);
+    }
+
+    public void testSimplePojoWithNullObjectToDom() throws ValidationException, ConversionException {
+        final String expectedXml = ""
+                + "<parameters>"
+                + "  <fileField/>"
+                + "  <intField>43</intField>"
+                + "  <stringField>This is a test.</stringField>"
+                + "  <doubleArrayField>0.1,0.2,-0.4</doubleArrayField>"
+                + "</parameters>";
+        final XppDom dom = new XppDom("parameters");
+        final SimplePojo value = new SimplePojo();
+        value.intField = 43;
+        value.stringField = "This is a test.";
+        value.doubleArrayField = new double[]{0.1, 0.2, -0.4};
+        value.fileField = null;
+        convertValueToDom(value, dom);
+        assertEquals(createDom(expectedXml), dom);
+    }
+
+    public void testArrayWithDomConverterPojoToDom() throws ValidationException, ConversionException {
+        final String expectedXml = ""
+                + "<parameters>"
+                + "  <allies>"
+                + "  <member><name>bibo</name></member>"
+                + "  <member><name>mimi</name></member>"
+                + "  </allies>"
+                + "</parameters>";
+        final XppDom dom = new XppDom("parameters");
+        final ArrayWithDomConverterPojo value = new ArrayWithDomConverterPojo();
+        value.allies = new Member[2];
+        value.allies[0] = new Member("bibo");
+        value.allies[1] = new Member("mimi");
+        convertValueToDom(value, dom);
+        assertEquals(createDom(expectedXml), dom);
+    }
+
+    public void testArrayWithDomConverterPojoToDom_NullValue() throws ValidationException, ConversionException {
+        final String expectedXml = ""
+                + "<parameters>"
+                + "</parameters>";
+        final XppDom dom = new XppDom("parameters");
+        final ArrayWithDomConverterPojo value = new ArrayWithDomConverterPojo();
+        value.allies = null;
+        convertValueToDom(value, dom);
+        assertEquals(createDom(expectedXml), dom);
+    }
+
+
     public void testWeirdPojoToDom() throws ValidationException, ConversionException {
         final String expectedXml = ""
                 + "<parameters>"
@@ -140,19 +214,19 @@ public class DefaultDomConverterTest extends TestCase {
     }
 
     public void testArrayPojoToDom() {
-        ConverterRegistry.getInstance().setConverter(ArrayPojo.Member.class, new Converter<ArrayPojo.Member>() {
+        ConverterRegistry.getInstance().setConverter(Member.class, new Converter<Member>() {
             @Override
-            public Class<? extends ArrayPojo.Member> getValueType() {
-                return ArrayPojo.Member.class;
+            public Class<? extends Member> getValueType() {
+                return Member.class;
             }
 
             @Override
-            public ArrayPojo.Member parse(String text) throws ConversionException {
-                return new ArrayPojo.Member(text);
+            public Member parse(String text) throws ConversionException {
+                return new Member(text);
             }
 
             @Override
-            public String format(ArrayPojo.Member field) {
+            public String format(Member field) {
                 return field.name;
             }
         });
@@ -165,10 +239,10 @@ public class DefaultDomConverterTest extends TestCase {
 
         final XppDom dom = new XppDom("parameters");
         final ArrayPojo arrayPojo = new ArrayPojo();
-        arrayPojo.prince = new ArrayPojo.Member("bert");
-        arrayPojo.allies = new ArrayPojo.Member[2];
-        arrayPojo.allies[0] = new ArrayPojo.Member("bibo");
-        arrayPojo.allies[1] = new ArrayPojo.Member("mimi");
+        arrayPojo.prince = new Member("bert");
+        arrayPojo.allies = new Member[2];
+        arrayPojo.allies[0] = new Member("bibo");
+        arrayPojo.allies[1] = new Member("mimi");
 
         convertValueToDom(arrayPojo, dom);
         assertEquals(createDom(expectedXml), dom);
@@ -666,18 +740,53 @@ public class DefaultDomConverterTest extends TestCase {
         AnnotatedPojo annotatedPojo;
     }
 
+    public static class MemberDomConverter implements DomConverter {
+
+        private final DefaultDomConverter memberConverter = new DefaultDomConverter(Member.class);
+
+        @Override
+        public Class<?> getValueType() {
+            return Member.class;
+        }
+
+        @Override
+        public Object convertDomToValue(DomElement parentElement, Object value) throws ConversionException, ValidationException {
+            DomElement[] children = parentElement.getChildren("member");
+            Member[] members = new Member[children.length];
+            for (int i = 0; i < children.length; i++) {
+                members[i] = (Member) memberConverter.convertDomToValue(children[i], null);
+            }
+            return members;
+        }
+
+        @Override
+        public void convertValueToDom(Object value, DomElement parentElement) throws ConversionException {
+            Member[] members = (Member[]) value;
+            for (Member member : members) {
+                DomElement aggregator = parentElement.createChild("member");
+                memberConverter.convertValueToDom(member, aggregator);
+            }
+        }
+    }
+
+    public static class ArrayWithDomConverterPojo {
+        @X(domConverter = MemberDomConverter.class)
+        Member[] allies;
+    }
+
     public static class ArrayPojo {
 
         Member prince;
         Member[] allies;
 
-        public static class Member {
+    }
 
-            private final String name;
+    public static class Member {
 
-            public Member(String name) {
-                this.name = name;
-            }
+        private final String name;
+
+        public Member(String name) {
+            this.name = name;
         }
     }
 
@@ -750,6 +859,8 @@ public class DefaultDomConverterTest extends TestCase {
         String componentAlias() default "";
 
         boolean inlined() default false;
+
+        Class<? extends DomConverter> domConverter() default DomConverter.class;
     }
 
 

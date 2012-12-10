@@ -59,7 +59,7 @@ public interface DomConverter {
      * DOM representation which may be further converted to XML. The given {@code value} can be
      * safely cast to the type returned by {@link #getValueType()}.
      *
-     * @param value         The value to be converted to the DOM.
+     * @param value         The value to be converted to the DOM. Never {@code null}.
      * @param parentElement The parent DOM element, which receives the DOM representation of the value.
      *
      * @throws com.bc.ceres.binding.ConversionException

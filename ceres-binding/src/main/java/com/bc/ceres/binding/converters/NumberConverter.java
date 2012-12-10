@@ -32,7 +32,7 @@ public abstract class NumberConverter<T extends Number > implements Converter<T>
         try {
             return parseNumber(trimNumberString(value));
         } catch (NumberFormatException e) {
-            throw new ConversionException("'" + value + "' cannot be converted to a number.");
+            throw new ConversionException("'" + value + "' cannot be converted to a " + getValueType().getSimpleName().toLowerCase() + ".");
         }
     }
 

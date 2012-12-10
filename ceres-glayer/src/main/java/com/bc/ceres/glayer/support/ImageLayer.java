@@ -45,6 +45,7 @@ import java.awt.RenderingHints;
 import java.awt.Shape;
 import java.awt.Stroke;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Line2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.RenderedImage;
 
@@ -61,10 +62,19 @@ public class ImageLayer extends Layer {
     public static final String PROPERTY_NAME_BORDER_SHOWN = "borderShown";
     public static final String PROPERTY_NAME_BORDER_WIDTH = "borderWidth";
     public static final String PROPERTY_NAME_BORDER_COLOR = "borderColor";
+    public static final String PROPERTY_NAME_PIXEL_BORDER_SHOWN = "pixelBorderShown";
+    public static final String PROPERTY_NAME_PIXEL_BORDER_WIDTH = "pixelBorderWidth";
+    public static final String PROPERTY_NAME_PIXEL_BORDER_COLOR = "pixelBorderColor";
 
     public static final boolean DEFAULT_BORDER_SHOWN = false;
-    public static final double DEFAULT_BORDER_WIDTH = 1.0;
     public static final Color DEFAULT_BORDER_COLOR = new Color(204, 204, 255);
+    public static final double DEFAULT_BORDER_WIDTH = 1.0;
+
+    public static final Boolean DEFAULT_PIXEL_BORDER_SHOWN = true;
+    public static final Color DEFAULT_PIXEL_BORDER_COLOR = new Color(255, 255, 204);
+    public static final double DEFAULT_PIXEL_BORDER_WIDTH = 0.0;
+
+    private static final double MIN_PIXEL_SIZE_IN_VIEW = 16.0;
 
     /**
      * @deprecated since BEAM 4.7, no replacement; kept for compatibility of sessions
@@ -106,7 +116,7 @@ public class ImageLayer extends Layer {
      * @param multiLevelSource the multi-resolution-level image
      */
     public ImageLayer(MultiLevelSource multiLevelSource) {
-        this(LAYER_TYPE, multiLevelSource,  initConfiguration(LAYER_TYPE.createLayerConfig(null), multiLevelSource));
+        this(LAYER_TYPE, multiLevelSource, initConfiguration(LAYER_TYPE.createLayerConfig(null), multiLevelSource));
     }
 
     public ImageLayer(Type layerType, MultiLevelSource multiLevelSource, PropertySet configuration) {
@@ -192,40 +202,91 @@ public class ImageLayer extends Layer {
         if (multiLevelSource == MultiLevelSource.NULL) {
             return;
         }
-        final Viewport vp = rendering.getViewport();
-        final int level = getLevel(vp);
+        final int level = getLevel(rendering.getViewport());
         final MultiLevelRenderer renderer = getRenderer(rendering);
         renderer.renderImage(rendering, multiLevelSource, level);
-
-        if (isBorderShown()) {
-            renderImageBorder(rendering, level);
-        }
+        renderImageGridIndicators(rendering, level);
     }
 
-    private void renderImageBorder(Rendering rendering, int level) {
-        final Graphics2D graphics2D = rendering.getGraphics();
-        final Viewport viewport = rendering.getViewport();
+    private void renderImageGridIndicators(Rendering rendering, int level) {
+        final boolean pixelBorderShown = level == 0 && isPixelBorderShown();
+        final boolean imageBorderShown = isBorderShown();
+        if (!pixelBorderShown && !imageBorderShown) {
+            return;
+        }
 
+        final Graphics2D graphics2D = rendering.getGraphics();
         final Object oldAntialiasing = graphics2D.getRenderingHint(RenderingHints.KEY_ANTIALIASING);
         final Paint oldPaint = graphics2D.getPaint();
         final Stroke oldStroke = graphics2D.getStroke();
-
         try {
-            AffineTransform i2m = multiLevelSource.getModel().getImageToModelTransform(level);
-            AffineTransform m2v = viewport.getModelToViewTransform();
-            RenderedImage image = multiLevelSource.getImage(level);
-            final Shape modelShape = i2m.createTransformedShape(
-                    new Rectangle(image.getMinX(), image.getMinY(), image.getWidth(), image.getHeight()));
-            Shape viewShape = m2v.createTransformedShape(modelShape);
-
-            graphics2D.setStroke(new BasicStroke((float) Math.max(0.0, getBorderWidth())));
-            graphics2D.setColor(getBorderColor());
             graphics2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            graphics2D.draw(viewShape);
+            if (pixelBorderShown) {
+                drawPixelBorders(rendering, graphics2D);
+            }
+            if (imageBorderShown) {
+                drawImageBorder(rendering, graphics2D, level);
+            }
         } finally {
+            graphics2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, oldAntialiasing);
             graphics2D.setPaint(oldPaint);
             graphics2D.setStroke(oldStroke);
-            graphics2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, oldAntialiasing);
+        }
+
+    }
+
+    private void drawImageBorder(Rendering rendering, Graphics2D graphics2D, int level) {
+        final RenderedImage image = multiLevelSource.getImage(level);
+        final Viewport viewport = rendering.getViewport();
+        final AffineTransform i2m = multiLevelSource.getModel().getImageToModelTransform(level);
+        final AffineTransform m2v = viewport.getModelToViewTransform();
+        // fixme: better concat transforms before (nf)
+        final Shape modelShape = i2m.createTransformedShape(
+                new Rectangle(image.getMinX(), image.getMinY(), image.getWidth(), image.getHeight()));
+        final Shape viewShape = m2v.createTransformedShape(modelShape);
+
+        graphics2D.setStroke(new BasicStroke((float) Math.max(0.0, getBorderWidth())));
+        graphics2D.setColor(getBorderColor());
+        graphics2D.draw(viewShape);
+    }
+
+    private void drawPixelBorders(Rendering rendering, Graphics2D graphics2D) {
+        final Viewport viewport = rendering.getViewport();
+        final AffineTransform m2i0 = multiLevelSource.getModel().getModelToImageTransform(0);
+        final AffineTransform i2m0 = multiLevelSource.getModel().getImageToModelTransform(0);
+        final AffineTransform v2m = viewport.getViewToModelTransform();
+        final AffineTransform m2v = viewport.getModelToViewTransform();
+        final Rectangle viewBounds = viewport.getViewBounds();
+        // fixme: better concat transforms before (nf)
+        final Shape imageShape = m2i0.createTransformedShape(v2m.createTransformedShape(viewBounds));
+        final Rectangle2D imageBounds = imageShape.getBounds2D();
+
+        final double pixelSizeInViewX = i2m0.getScaleX() * m2v.getScaleX();
+        final double pixelSizeInViewY = i2m0.getScaleY() * m2v.getScaleY();
+        if (pixelSizeInViewX >= MIN_PIXEL_SIZE_IN_VIEW || pixelSizeInViewY >= MIN_PIXEL_SIZE_IN_VIEW) {
+            RenderedImage image0 = multiLevelSource.getImage(0);
+            int x0 = Math.max(0, (int) Math.floor(imageBounds.getX()));
+            int y0 = Math.max(0, (int) Math.floor(imageBounds.getY()));
+            int x1 = Math.min(image0.getWidth(), x0 + (int) Math.round(imageBounds.getWidth()) + 1);
+            int y1 = Math.min(image0.getHeight(), y0 + (int) Math.round(imageBounds.getHeight()) + 1);
+
+            // fixme: the dashed stroke is slow (nf)
+            /*
+            graphics2D.setStroke(new BasicStroke((float) Math.max(0.0, getPixelBorderWidth()),
+                                                 BasicStroke.CAP_SQUARE,
+                                                 BasicStroke.JOIN_MITER,
+                                                 10.0f, new float[] {3.0F, 3.0F}, 0.0f));
+            */
+            graphics2D.setStroke(new BasicStroke((float) Math.max(0.0, getPixelBorderWidth())));
+            graphics2D.setColor(getPixelBorderColor());
+            for (int x = x0; x <= x1; x++) {
+                // fixme: better concat transforms before (nf)
+                graphics2D.draw(m2v.createTransformedShape(i2m0.createTransformedShape(new Line2D.Double(x, y0, x, y1))));
+            }
+            for (int y = y0; y <= y1; y++) {
+                // fixme: better concat transforms before (nf)
+                graphics2D.draw(m2v.createTransformedShape(i2m0.createTransformedShape(new Line2D.Double(x0, y, x1, y))));
+            }
         }
     }
 
@@ -274,6 +335,18 @@ public class ImageLayer extends Layer {
         return getConfigurationProperty(PROPERTY_NAME_BORDER_COLOR, DEFAULT_BORDER_COLOR);
     }
 
+    public boolean isPixelBorderShown() {
+        return getConfigurationProperty(PROPERTY_NAME_PIXEL_BORDER_SHOWN, DEFAULT_PIXEL_BORDER_SHOWN);
+    }
+
+    public double getPixelBorderWidth() {
+        return getConfigurationProperty(PROPERTY_NAME_PIXEL_BORDER_WIDTH, DEFAULT_PIXEL_BORDER_WIDTH);
+    }
+
+    public Color getPixelBorderColor() {
+        return getConfigurationProperty(PROPERTY_NAME_PIXEL_BORDER_COLOR, DEFAULT_PIXEL_BORDER_COLOR);
+    }
+
     private static PropertySet initConfiguration(PropertySet configuration, MultiLevelSource multiLevelSource) {
         configuration.setValue(PROPERTY_NAME_MULTI_LEVEL_SOURCE, multiLevelSource);
         return configuration;
@@ -306,19 +379,22 @@ public class ImageLayer extends Layer {
             template.addProperty(Property.create(ImageLayer.PROPERTY_NAME_BORDER_COLOR, Color.class, ImageLayer.DEFAULT_BORDER_COLOR, true));
             template.addProperty(Property.create(ImageLayer.PROPERTY_NAME_BORDER_WIDTH, Double.class, ImageLayer.DEFAULT_BORDER_WIDTH, true));
 
+            template.addProperty(Property.create(ImageLayer.PROPERTY_NAME_PIXEL_BORDER_SHOWN, Boolean.class, ImageLayer.DEFAULT_PIXEL_BORDER_SHOWN, true));
+            template.addProperty(Property.create(ImageLayer.PROPERTY_NAME_PIXEL_BORDER_COLOR, Color.class, ImageLayer.DEFAULT_PIXEL_BORDER_COLOR, true));
+            template.addProperty(Property.create(ImageLayer.PROPERTY_NAME_PIXEL_BORDER_WIDTH, Double.class, ImageLayer.DEFAULT_PIXEL_BORDER_WIDTH, true));
+
             return template;
         }
 
         private static Property addImageToModelTransformModel(PropertyContainer configuration) {
             Property property = configuration.getProperty(PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM);
             if (property == null) {
-                 property = Property.create(PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM, AffineTransform.class);
+                property = Property.create(PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM, AffineTransform.class);
                 configuration.addProperty(property);
             }
             property.getDescriptor().setTransient(true);
             return property;
-         }
-
+        }
 
         private static Property addMultiLevelSourceModel(PropertyContainer configuration) {
             if (configuration.getProperty(PROPERTY_NAME_MULTI_LEVEL_SOURCE) == null) {

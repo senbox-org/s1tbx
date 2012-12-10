@@ -22,6 +22,9 @@
     
     <changelog>
         <![CDATA[
+        <p>Changes in 0.13.1<br/>
+        [CERES-34] Module description misplaced in module manager GUI<br/>
+        </p>
         <p>Changes in 0.12<br/>
         [CERES-49] TableLayout yields wrong results if spacer is used<br/>
         </p>
