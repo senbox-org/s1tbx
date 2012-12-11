@@ -22,6 +22,7 @@ import org.esa.beam.framework.dataop.maptransf.Ellipsoid;
 import org.esa.beam.util.Debug;
 import org.geotools.factory.Hints;
 import org.geotools.geometry.DirectPosition2D;
+import org.geotools.geometry.GeneralDirectPosition;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.ReferencingFactoryFinder;
@@ -34,7 +35,6 @@ import org.opengis.geometry.DirectPosition;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.crs.DerivedCRS;
-import org.opengis.referencing.crs.GeneralDerivedCRS;
 import org.opengis.referencing.datum.GeodeticDatum;
 import org.opengis.referencing.operation.CoordinateOperationFactory;
 import org.opengis.referencing.operation.MathTransform;
@@ -214,13 +214,12 @@ public class CrsGeoCoding extends AbstractGeoCoding {
     }
 
     @Override
-    public GeoPos getGeoPos(PixelPos pixelPos, GeoPos geoPos) {
+    public final GeoPos getGeoPos(PixelPos pixelPos, GeoPos geoPos) {
         if (geoPos == null) {
             geoPos = new GeoPos();
         }
         try {
-            DirectPosition directPixelPos = new DirectPosition2D(pixelPos);
-            DirectPosition directGeoPos = imageToGeo.transform(directPixelPos, null);
+            DirectPosition directGeoPos = imageToGeo.transform(new DirectPosition2D(pixelPos), null);
             geoPos.setLocation((float) directGeoPos.getOrdinate(1), (float) directGeoPos.getOrdinate(0));
         } catch (Exception ignored) {
             geoPos.setInvalid();
@@ -228,14 +227,36 @@ public class CrsGeoCoding extends AbstractGeoCoding {
         return geoPos;
     }
 
+    public final void getPixels(final int x1, final int y1, final int w, final int h,
+                                  final float[] latPixels, final float[] lonPixels) {
+        final DirectPosition2D directPixPos = new DirectPosition2D();
+        final DirectPosition directGeoPos = new GeneralDirectPosition(0,0);
+        final int x2 = x1 + w;
+        final int y2 = y1 + h;
+        int pos = 0;
+        for (int y = y1; y < y2; ++y) {
+            for (int x = x1; x < x2; ++x) {
+                try {
+                    directPixPos.setLocation(x + 0.5, y + 0.5);
+                    imageToGeo.transform(directPixPos, directGeoPos);
+                    latPixels[pos] = (float) directGeoPos.getOrdinate(1);
+                    lonPixels[pos] = (float) directGeoPos.getOrdinate(0);
+                } catch (Exception ignored) {
+                    latPixels[pos] = Float.NaN;
+                    lonPixels[pos] = Float.NaN;
+                }
+                ++pos;
+            }
+        }
+    }
+
     @Override
-    public PixelPos getPixelPos(GeoPos geoPos, PixelPos pixelPos) {
+    public final PixelPos getPixelPos(GeoPos geoPos, PixelPos pixelPos) {
         if (pixelPos == null) {
             pixelPos = new PixelPos();
         }
         try {
-            DirectPosition directGeoPos = new DirectPosition2D(geoPos.getLon(), geoPos.getLat());
-            DirectPosition directPixelPos = geoToImage.transform(directGeoPos, null);
+            DirectPosition directPixelPos = geoToImage.transform(new DirectPosition2D(geoPos.getLon(), geoPos.getLat()), null);
             pixelPos.setLocation((float) directPixelPos.getOrdinate(0), (float) directPixelPos.getOrdinate(1));
         } catch (Exception ignored) {
             pixelPos.setInvalid();

@@ -16,9 +16,9 @@ public class TileGeoreferencing {
     final int y1;
     final int size;
 
-    boolean hasTPG;
-    float[] latPixels;
-    float[] lonPixels;
+    boolean isCached;
+    float[] latPixels = null;
+    float[] lonPixels = null;
 
     public TileGeoreferencing(final Product product, final int x1, final int y1, final int w, final int h) {
         geocoding = product.getGeoCoding();
@@ -29,31 +29,34 @@ public class TileGeoreferencing {
         width = w;
         size = w*h;
 
-        hasTPG = !(latTPG == null || lonTPG == null);
-
-        if(latTPG != null) {
-            latPixels = new float[size];
-            latTPG.getPixels(x1, y1, w, h, latPixels, ProgressMonitor.NULL);
-        } else {
-            latPixels = null;
-        }
+        final boolean isCrsGeoCoding = geocoding instanceof CrsGeoCoding;
+        isCached = !(latTPG == null || lonTPG == null) || isCrsGeoCoding;
 
         try {
-            if(lonTPG != null) {
+            if(isCrsGeoCoding) {
+                latPixels = new float[size];
                 lonPixels = new float[size];
-                lonTPG.getPixels(x1, y1, w, h, lonPixels, ProgressMonitor.NULL);
+                ((CrsGeoCoding)geocoding).getPixels(x1, y1, w, h, latPixels, lonPixels);
             } else {
-                lonPixels = null;
+                if(latTPG != null) {
+                    latPixels = new float[size];
+                    latTPG.getPixels(x1, y1, w, h, latPixels, ProgressMonitor.NULL);
+                }
+
+                if(lonTPG != null) {
+                    lonPixels = new float[size];
+                    lonTPG.getPixels(x1, y1, w, h, lonPixels, ProgressMonitor.NULL);
+                }
             }
         } catch(Exception e) {
             System.out.println("TileGeoreferencing tiepoint error "+e.getMessage());
-            hasTPG = false;
+            isCached = false;
         }
     }
 
     public void getGeoPos(final int x, final int y, final GeoPos geo) {
 
-        if(hasTPG) {
+        if(isCached) {
             final int xx = x - x1;
             final int yy = y - y1;
             final int pos = yy*width+xx;
@@ -67,7 +70,7 @@ public class TileGeoreferencing {
 
     public void getGeoPos(final PixelPos pix, final GeoPos geo) {
 
-        if(hasTPG) {
+        if(isCached) {
             final int xx = (int)pix.getX() - x1;
             final int yy = (int)pix.getY() - y1;
             final int pos = yy*width+xx;

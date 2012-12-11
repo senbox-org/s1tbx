@@ -34,7 +34,7 @@ import java.util.Iterator;
 /**
  * A {@link Tile} implementation backed by a {@link java.awt.image.Raster}.
  */
-public class TileImpl implements Tile {
+public final class TileImpl implements Tile {
 
     private final RasterDataNode rasterDataNode;
     private final Raster raster;
@@ -70,18 +70,18 @@ public class TileImpl implements Tile {
     }
 
     public TileImpl(RasterDataNode rasterDataNode, Raster raster, Rectangle rectangle, boolean target) {
-        Assert.notNull(rasterDataNode, "rasterDataNode");
-        Assert.argument(raster.getNumBands() == 1, "raster");
+        //Assert.notNull(rasterDataNode, "rasterDataNode");
+        //Assert.argument(raster.getNumBands() == 1, "raster");
         WritableRaster writableRaster = raster instanceof WritableRaster ? (WritableRaster) raster : null;
-        if (target) {
-            Assert.argument(writableRaster != null, "raster");
-        }
-        Assert.argument(raster.getSampleModel() instanceof ComponentSampleModel, "raster");
+        //if (target) {
+        //    Assert.argument(writableRaster != null, "raster");
+        //}
+        //Assert.argument(raster.getSampleModel() instanceof ComponentSampleModel, "raster");
         ComponentSampleModel sm = (ComponentSampleModel) raster.getSampleModel();
-        Assert.argument(sm.getNumBands() == 1, "raster");
+        //Assert.argument(sm.getNumBands() == 1, "raster");
         DataBuffer db = raster.getDataBuffer();
-        Assert.argument(db.getNumBanks() == 1, "raster");
-        Assert.notNull(rectangle, "rectangle");
+        //Assert.argument(db.getNumBanks() == 1, "raster");
+        //Assert.notNull(rectangle, "rectangle");
 
         this.rasterDataNode = rasterDataNode;
         this.raster = raster;

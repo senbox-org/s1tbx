@@ -31,7 +31,6 @@ import org.esa.beam.util.ProductUtils;
 import org.esa.nest.datamodel.AbstractMetadata;
 import org.esa.nest.datamodel.CRSGeoCodingHandler;
 import org.esa.nest.util.Constants;
-import org.esa.nest.util.MathUtils;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import java.awt.*;
@@ -342,23 +341,27 @@ public final class GeolocationGridGeocodingOp extends Operator {
         final double srcBandNoDataValue = sourceBand1.getNoDataValue();
 
         final double oneBillionthHalfSpeedLight = Constants.halfLightSpeed / Constants.oneBillion;
+        final TileGeoreferencing tileGeoRef = new TileGeoreferencing(targetProduct, x0, y0, w, h);
 
         try {
             final ProductData trgData = targetTile.getDataBuffer();
             final int srcMaxRange = sourceImageWidth - 1;
             final int srcMaxAzimuth = sourceImageHeight - 1;
-            GeoPos geoPos = null;
+            final GeoPos geoPos = new GeoPos();
+            final PixelPos pixPos = new PixelPos();
             for (int y = y0; y < y0 + h; y++) {
                 for (int x = x0; x < x0 + w; x++) {
 
                     final int index = targetTile.getDataBufferIndex(x, y);
-                    geoPos = targetGeoCoding.getGeoPos(new PixelPos(x,y), null);
-                    final double lat = geoPos.lat;
-                    double lon = geoPos.lon;
+
+                    tileGeoRef.getGeoPos(x, y, geoPos);
+                    final float lat = geoPos.lat;
+                    float lon = geoPos.lon;
                     if (lon >= 180.0) {
                         lon -= 360.0;
                     }
-                    final PixelPos pixPos = computePixelPosition(lat, lon, sourceBand1);
+                    geoPos.setLocation(lat, lon);
+                    sourceBand1.getGeoCoding().getPixelPos(geoPos, pixPos);
                     if (Float.isNaN(pixPos.x) || Float.isNaN(pixPos.y) ||
                         pixPos.x < 0.0 || pixPos.x >= srcMaxRange || pixPos.y < 0.0 || pixPos.y >= srcMaxAzimuth) {
                         trgData.setElemDoubleAt(index, srcBandNoDataValue);
@@ -392,18 +395,6 @@ public final class GeolocationGridGeocodingOp extends Operator {
         } finally {
             pm.done();
         }
-    }
-
-    /**
-     * Compute pixel position in source image for given latitude and longitude.
-     * @param lat The latitude in degrees.
-     * @param lon The longitude in degrees.
-     * @param sourceBand The source band.
-     * @return The pixel position.
-     */
-    private static PixelPos computePixelPosition(final double lat, final double lon, final Band sourceBand) {
-        // todo the following method is not accurate, should use point-in-polygon test
-        return sourceBand.getGeoCoding().getPixelPos(new GeoPos((float)lat, (float)lon), null);
     }
 
     /**

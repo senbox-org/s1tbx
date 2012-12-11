@@ -46,6 +46,7 @@ public final class ReaderUtils {
                 expression);
         virtBand.setUnit(Unit.PHASE);
         virtBand.setDescription("Phase from complex data");
+        virtBand.setNoDataValueUsed(true);
         product.addBand(virtBand);
     }
 
@@ -60,6 +61,7 @@ public final class ReaderUtils {
                 expression);
         virtBand.setUnit(Unit.INTENSITY);
         virtBand.setDescription("Intensity from complex data");
+        virtBand.setNoDataValueUsed(true);
         product.addBand(virtBand);
 
         // set as band to use for quicklook
@@ -76,6 +78,7 @@ public final class ReaderUtils {
                 expression);
         virtBand.setUnit(Unit.INTENSITY);
         virtBand.setDescription("Intensity from complex data");
+        virtBand.setNoDataValueUsed(true);
         product.addBand(virtBand);
     }
 

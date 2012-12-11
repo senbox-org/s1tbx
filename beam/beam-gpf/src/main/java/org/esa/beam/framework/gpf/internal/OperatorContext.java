@@ -388,7 +388,7 @@ public class OperatorContext {
         }
         //
         /////////////////////////////////////////////////////////////////////
-        return new TileImpl(rasterDataNode, awtRaster);
+        return new TileImpl(rasterDataNode, awtRaster, region, false);
     }
 
     public OperatorImage getTargetImage(Band band) {

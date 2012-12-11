@@ -29,7 +29,7 @@ import org.esa.beam.util.math.Range;
  * @author Marco Peters
  * @since BEAM 4.9.1
  */
-class SampleConverterFactory {
+final class SampleConverterFactory {
 
 
     private SampleConverterFactory() {
@@ -133,7 +133,7 @@ class SampleConverterFactory {
     }
 
 
-    private static class IdentityConverter extends SampleConverter {
+    private final static class IdentityConverter extends SampleConverter {
 
         private IdentityConverter(RasterDataNode rasterDataNode) {
             super(rasterDataNode);
@@ -158,14 +158,11 @@ class SampleConverterFactory {
     public abstract static class SampleConverter {
 
         private RasterDataNode rasterDataNode;
-        private Range rawValueRange;
-        private Range geoPhysicalValueRange;
+        private Range rawValueRange = null;
+        private Range geoPhysicalValueRange = null;
 
         protected SampleConverter(RasterDataNode rasterDataNode) {
             this.rasterDataNode = rasterDataNode;
-            rawValueRange = getValueRange(rasterDataNode.getDataType());
-            geoPhysicalValueRange = new Range(rasterDataNode.scale(rawValueRange.getMin()),
-                                              rasterDataNode.scale(rawValueRange.getMax()));
         }
 
         /**
@@ -196,10 +193,20 @@ class SampleConverterFactory {
         }
 
         protected double cropToRawValueRange(double sample) {
+            if(rawValueRange == null) {
+                rawValueRange = getValueRange(rasterDataNode.getDataType());
+            }
             return MathUtils.crop(sample, rawValueRange.getMin(), rawValueRange.getMax());
         }
 
         protected double cropToGeoPhysicalValueRange(double sample) {
+            if(geoPhysicalValueRange == null) {
+                if(rawValueRange == null) {
+                    rawValueRange = getValueRange(rasterDataNode.getDataType());
+                }
+                geoPhysicalValueRange = new Range(rasterDataNode.scale(rawValueRange.getMin()),
+                        rasterDataNode.scale(rawValueRange.getMax()));
+            }
             return MathUtils.crop(sample, geoPhysicalValueRange.getMin(), geoPhysicalValueRange.getMax());
         }
 

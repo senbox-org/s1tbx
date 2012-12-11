@@ -26,6 +26,7 @@ import org.esa.nest.datamodel.Unit;
 import org.esa.nest.gpf.OperatorUtils;
 import org.esa.nest.gpf.ReaderUtils;
 import org.esa.nest.gpf.Sentinel1Utils;
+import org.esa.nest.util.Constants;
 import org.esa.nest.util.XMLSupport;
 import org.jdom.Element;
 
@@ -155,6 +156,7 @@ public class Sentinel1ProductDirectory extends XMLProductDirectory {
         final String descriptor = contentUnit.getAttributeString("textInfo", defStr);
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.SPH_DESCRIPTOR,  descriptor);
         product.setDescription(descriptor);
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.antenna_pointing,  "right");
 
         final MetadataElement metadataSection = XFDU.getElement("metadataSection");
         final MetadataElement[] metadataObjectList = metadataSection.getElements();
@@ -309,6 +311,8 @@ public class Sentinel1ProductDirectory extends XMLProductDirectory {
                     imageInformation.getAttributeInt("numberOfLines"));
             AbstractMetadata.setAttribute(bandAbsRoot, AbstractMetadata.sample_type,
                     imageInformation.getAttributeString("pixelValue").toUpperCase());
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.slant_range_to_first_pixel,
+                    imageInformation.getAttributeDouble("slantRangeTime")* Constants.halfLightSpeed);
 
             if(!commonMetadataRetrieved) {
                 // these should be the same for all swaths
@@ -416,14 +420,6 @@ public class Sentinel1ProductDirectory extends XMLProductDirectory {
         }
         return null;
     }
-    /*
-    private ProductData.UTC getTime(final MetadataElement elem, final String tag) {
-        String start = elem.getAttributeString(tag, AbstractMetadata.NO_METADATA_STRING);
-        start = start.replace("T", "_");
-
-        return AbstractMetadata.parseUTC(start, dateFormat);
-    }
-    */
 
     private static void addOrbitStateVectors(final MetadataElement absRoot, final MetadataElement orbitList) {
         final MetadataElement orbitVectorListElem = absRoot.getElement(AbstractMetadata.orbit_state_vectors);
@@ -469,80 +465,82 @@ public class Sentinel1ProductDirectory extends XMLProductDirectory {
     }
 
     private static void addSRGRCoefficients(final MetadataElement absRoot, final MetadataElement coordinateConversion) {
+        if(coordinateConversion == null) return;
+        final MetadataElement coordinateConversionList = coordinateConversion.getElement("coordinateConversionList");
+        if(coordinateConversionList == null) return;
+
         final MetadataElement srgrCoefficientsElem = absRoot.getElement(AbstractMetadata.srgr_coefficients);
 
-   /*     int listCnt = 1;
-        for(MetadataElement elem : coordinateConversion.getElements()) {
-            if(elem.getName().equalsIgnoreCase("slantRangeToGroundRange")) {
-                final MetadataElement srgrListElem = new MetadataElement(AbstractMetadata.srgr_coef_list+'.'+listCnt);
-                srgrCoefficientsElem.addElement(srgrListElem);
-                ++listCnt;
+        int listCnt = 1;
+        for(MetadataElement elem : coordinateConversionList.getElements()) {
+            final MetadataElement srgrListElem = new MetadataElement(AbstractMetadata.srgr_coef_list+'.'+listCnt);
+            srgrCoefficientsElem.addElement(srgrListElem);
+            ++listCnt;
 
-                final ProductData.UTC utcTime = ReaderUtils.getTime(elem, "zeroDopplerAzimuthTime", AbstractMetadata.dateFormat);
-                srgrListElem.setAttributeUTC(AbstractMetadata.srgr_coef_time, utcTime);
+            final ProductData.UTC utcTime = ReaderUtils.getTime(elem, "azimuthTime", AbstractMetadata.dateFormat);
+            srgrListElem.setAttributeUTC(AbstractMetadata.srgr_coef_time, utcTime);
 
-                final double grOrigin = elem.getElement("groundRangeOrigin").getAttributeDouble("groundRangeOrigin", 0);
-                AbstractMetadata.addAbstractedAttribute(srgrListElem, AbstractMetadata.ground_range_origin,
-                        ProductData.TYPE_FLOAT64, "m", "Ground Range Origin");
-                AbstractMetadata.setAttribute(srgrListElem, AbstractMetadata.ground_range_origin, grOrigin);
+            final double grOrigin = elem.getAttributeDouble("gr0", 0);
+            AbstractMetadata.addAbstractedAttribute(srgrListElem, AbstractMetadata.ground_range_origin,
+                    ProductData.TYPE_FLOAT64, "m", "Ground Range Origin");
+            AbstractMetadata.setAttribute(srgrListElem, AbstractMetadata.ground_range_origin, grOrigin);
 
-                final String coeffStr = elem.getAttributeString("groundToSlantRangeCoefficients", "");
-                if(!coeffStr.isEmpty()) {
-                    final StringTokenizer st = new StringTokenizer(coeffStr);
-                    int cnt = 1;
-                    while(st.hasMoreTokens()) {
-                        final double coefValue = Double.parseDouble(st.nextToken());
+            final String coeffStr = elem.getElement("srgrCoefficients").getAttributeString("srgrCoefficients", "");
+            if(!coeffStr.isEmpty()) {
+                final StringTokenizer st = new StringTokenizer(coeffStr);
+                int cnt = 1;
+                while(st.hasMoreTokens()) {
+                    final double coefValue = Double.parseDouble(st.nextToken());
 
-                        final MetadataElement coefElem = new MetadataElement(AbstractMetadata.coefficient+'.'+cnt);
-                        srgrListElem.addElement(coefElem);
-                        ++cnt;
-                        AbstractMetadata.addAbstractedAttribute(coefElem, AbstractMetadata.srgr_coef,
-                                ProductData.TYPE_FLOAT64, "", "SRGR Coefficient");
-                        AbstractMetadata.setAttribute(coefElem, AbstractMetadata.srgr_coef, coefValue);
-                    }
+                    final MetadataElement coefElem = new MetadataElement(AbstractMetadata.coefficient+'.'+cnt);
+                    srgrListElem.addElement(coefElem);
+                    ++cnt;
+                    AbstractMetadata.addAbstractedAttribute(coefElem, AbstractMetadata.srgr_coef,
+                            ProductData.TYPE_FLOAT64, "", "SRGR Coefficient");
+                    AbstractMetadata.setAttribute(coefElem, AbstractMetadata.srgr_coef, coefValue);
                 }
             }
-        }       */
+        }
     }
 
     private static void addDopplerCentroidCoefficients(
             final MetadataElement absRoot, final MetadataElement dopplerCentroid) {
+        if(dopplerCentroid == null) return;
+        final MetadataElement dcEstimateList = dopplerCentroid.getElement("dcEstimateList");
+        if(dcEstimateList == null) return;
 
         final MetadataElement dopplerCentroidCoefficientsElem = absRoot.getElement(AbstractMetadata.dop_coefficients);
 
-   /*     int listCnt = 1;
-        for(MetadataElement elem : imageGenerationParameters.getElements()) {
-            if(elem.getName().equalsIgnoreCase("dopplerCentroid")) {
-                final MetadataElement dopplerListElem = new MetadataElement(AbstractMetadata.dop_coef_list+'.'+listCnt);
-                dopplerCentroidCoefficientsElem.addElement(dopplerListElem);
-                ++listCnt;
+        int listCnt = 1;
+        for(MetadataElement elem : dcEstimateList.getElements()) {
+            final MetadataElement dopplerListElem = new MetadataElement(AbstractMetadata.dop_coef_list+'.'+listCnt);
+            dopplerCentroidCoefficientsElem.addElement(dopplerListElem);
+            ++listCnt;
 
-                final ProductData.UTC utcTime = ReaderUtils.getTime(elem, "timeOfDopplerCentroidEstimate", AbstractMetadata.dateFormat);
-                dopplerListElem.setAttributeUTC(AbstractMetadata.dop_coef_time, utcTime);
+            final ProductData.UTC utcTime = ReaderUtils.getTime(elem, "azimuthTime", AbstractMetadata.dateFormat);
+            dopplerListElem.setAttributeUTC(AbstractMetadata.dop_coef_time, utcTime);
 
-                final double refTime = elem.getElement("dopplerCentroidReferenceTime").
-                        getAttributeDouble("dopplerCentroidReferenceTime", 0)*1e9; // s to ns
-                AbstractMetadata.addAbstractedAttribute(dopplerListElem, AbstractMetadata.slant_range_time,
-                        ProductData.TYPE_FLOAT64, "ns", "Slant Range Time");
-                AbstractMetadata.setAttribute(dopplerListElem, AbstractMetadata.slant_range_time, refTime);
+            final double refTime = elem.getAttributeDouble("t0", 0)*1e9; // s to ns
+            AbstractMetadata.addAbstractedAttribute(dopplerListElem, AbstractMetadata.slant_range_time,
+                    ProductData.TYPE_FLOAT64, "ns", "Slant Range Time");
+            AbstractMetadata.setAttribute(dopplerListElem, AbstractMetadata.slant_range_time, refTime);
 
-                final String coeffStr = elem.getAttributeString("dopplerCentroidCoefficients", "");
-                if(!coeffStr.isEmpty()) {
-                    final StringTokenizer st = new StringTokenizer(coeffStr);
-                    int cnt = 1;
-                    while(st.hasMoreTokens()) {
-                        final double coefValue = Double.parseDouble(st.nextToken());
+            final String coeffStr = elem.getElement("geometryDcPolynomial").getAttributeString("geometryDcPolynomial", "");
+            if(!coeffStr.isEmpty()) {
+                final StringTokenizer st = new StringTokenizer(coeffStr);
+                int cnt = 1;
+                while(st.hasMoreTokens()) {
+                    final double coefValue = Double.parseDouble(st.nextToken());
 
-                        final MetadataElement coefElem = new MetadataElement(AbstractMetadata.coefficient+'.'+cnt);
-                        dopplerListElem.addElement(coefElem);
-                        ++cnt;
-                        AbstractMetadata.addAbstractedAttribute(coefElem, AbstractMetadata.dop_coef,
-                                ProductData.TYPE_FLOAT64, "", "Doppler Centroid Coefficient");
-                        AbstractMetadata.setAttribute(coefElem, AbstractMetadata.dop_coef, coefValue);
-                    }
+                    final MetadataElement coefElem = new MetadataElement(AbstractMetadata.coefficient+'.'+cnt);
+                    dopplerListElem.addElement(coefElem);
+                    ++cnt;
+                    AbstractMetadata.addAbstractedAttribute(coefElem, AbstractMetadata.dop_coef,
+                            ProductData.TYPE_FLOAT64, "", "Doppler Centroid Coefficient");
+                    AbstractMetadata.setAttribute(coefElem, AbstractMetadata.dop_coef, coefValue);
                 }
             }
-        }       */
+        }
     }
 
     @Override
