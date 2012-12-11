@@ -21,9 +21,9 @@
 
     <parent>
         <groupId>org.esa.beam</groupId>
-        <artifactId>beam-plugin-parent</artifactId>
-        <version>1.0</version>
-        <relativePath>../beam-plugin-parent/pom.xml</relativePath>
+        <artifactId>beam-parent</artifactId>
+        <version>1</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <name>HDF Library</name>
