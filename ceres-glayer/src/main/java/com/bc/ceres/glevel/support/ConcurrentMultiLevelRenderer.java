@@ -163,6 +163,7 @@ public class ConcurrentMultiLevelRenderer implements MultiLevelRenderer {
         if (DEBUG) {
             // Draw tile frames
             final AffineTransform i2m = multiLevelSource.getModel().getImageToModelTransform(currentLevel);
+            //drawTileImageFrames(graphics, viewport, availableTileIndexList, i2m, Color.YELLOW);
             drawTileFrames(graphics, viewport, planarImage, missingTileIndexList, i2m, Color.RED);
             drawTileFrames(graphics, viewport, planarImage, availableTileIndexList, i2m, Color.BLUE);
         }
@@ -267,7 +268,33 @@ public class ConcurrentMultiLevelRenderer implements MultiLevelRenderer {
         ti.timeStamp = System.currentTimeMillis();
     }
 
-    private static void drawTileFrames(Graphics2D g, Viewport vp, PlanarImage planarImage, List<TileIndex> tileIndices,
+    private void drawTileImageFrames(Graphics2D g, Viewport vp, List<TileIndex> tileIndices,
+                                            AffineTransform i2m, Color frameColor) {
+        final AffineTransform m2v = vp.getModelToViewTransform();
+        final AffineTransform oldTransform = g.getTransform();
+        final Color oldColor = g.getColor();
+        final Stroke oldStroke = g.getStroke();
+        final AffineTransform t = new AffineTransform();
+        t.preConcatenate(i2m);
+        t.preConcatenate(m2v);
+        g.setTransform(t);
+        g.setColor(frameColor);
+        g.setStroke(new BasicStroke(3.0f));
+        for (final TileIndex tileIndex : tileIndices) {
+            final TileImage tileImage = localTileCache.get(tileIndex);
+            final Rectangle tileRect = new Rectangle(tileImage.x, tileImage.y, tileImage.image.getWidth(), tileImage.image.getHeight());
+            g.draw(tileRect);
+            System.out.println("Tile image bounds: " + tileRect);
+        }
+        g.setStroke(oldStroke);
+        g.setColor(oldColor);
+        g.setTransform(oldTransform);
+
+    }
+
+
+    private static void drawTileFrames(Graphics2D g, Viewport vp, PlanarImage planarImage,
+                                       List<TileIndex> tileIndices,
                                        AffineTransform i2m, Color frameColor) {
         final AffineTransform m2v = vp.getModelToViewTransform();
         final AffineTransform oldTransform = g.getTransform();
