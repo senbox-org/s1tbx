@@ -266,6 +266,7 @@ public class PixelPosEstimator {
 
     static RationalFunctionModel findBestModel(double[][] data, int[] indexes, double accuracy) {
         RationalFunctionModel bestModel = null;
+        search:
         for (int degreeP = 0; degreeP <= 4; degreeP++) {
             for (int degreeQ = 0; degreeQ <= degreeP; degreeQ++) {
                 final int termCountP = RationalFunctionModel.getTermCountP(degreeP);
@@ -276,7 +277,7 @@ public class PixelPosEstimator {
                         bestModel = model;
                     }
                     if (bestModel.getRmse() < accuracy) {
-                        break;
+                        break search;
                     }
                 }
             }
