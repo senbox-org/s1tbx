@@ -237,7 +237,7 @@ class BasicCeosProductDirectory extends CEOSProductDirectory {
 
     private void addMetaData(final Product product) throws IOException {
 
-        final MetadataElement root = product.getMetadataRoot();
+        final MetadataElement root = AbstractMetadata.addOriginalProductMetadata(product);
 
         final MetadataElement leadMetadata = new MetadataElement("Leader");
         leaderFile.addMetadata(leadMetadata);
@@ -266,7 +266,7 @@ class BasicCeosProductDirectory extends CEOSProductDirectory {
         //final File txtFile = FileUtils.exchangeExtension(volFile, ".txt");
         //addSummaryMetadata(txtFile, "Scene Description", root);
 
-        addAbstractedMetadataHeader(product, root);
+        addAbstractedMetadataHeader(product, product.getMetadataRoot());
     }
 
     private void addAbstractedMetadataHeader(Product product, MetadataElement root) {
@@ -443,7 +443,7 @@ class BasicCeosProductDirectory extends CEOSProductDirectory {
 
     private static void addGeoCodingFromSceneLabel(Product product) {
 
-        final MetadataElement sceneLabelElem = product.getMetadataRoot().getElement("Scene Label");
+        final MetadataElement sceneLabelElem = AbstractMetadata.getOriginalProductMetadata(product).getElement("Scene Label");
         if (sceneLabelElem != null) {
 
             try {

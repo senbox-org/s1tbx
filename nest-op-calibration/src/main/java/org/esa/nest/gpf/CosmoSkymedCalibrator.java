@@ -85,6 +85,7 @@ public class CosmoSkymedCalibrator extends BaseCalibrator implements Calibrator 
             targetProduct = tgtProduct;
 
             absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
+            origMetadataRoot = AbstractMetadata.getOriginalProductMetadata(sourceProduct);
 
             final String mission = absRoot.getAttributeString(AbstractMetadata.MISSION);
             if(!mission.startsWith("CSK"))
@@ -146,8 +147,7 @@ public class CosmoSkymedCalibrator extends BaseCalibrator implements Calibrator 
         	applyRangeSpreadingLossCorrection = true;
         }
 
-        final MetadataElement root = sourceProduct.getMetadataRoot();
-        final MetadataElement globalElem = root.getElement("Global_Attributes");
+        final MetadataElement globalElem = origMetadataRoot.getElement("Global_Attributes");
         constantCompFlag = AbstractMetadata.getAttributeBoolean(globalElem, "Calibration Constant Compensation Flag");
         if (!constantCompFlag) {
             applyConstantCorrection = true;
@@ -161,8 +161,7 @@ public class CosmoSkymedCalibrator extends BaseCalibrator implements Calibrator 
 
     	String pol;
     	double factor = 0.0;
-        final MetadataElement root = sourceProduct.getMetadataRoot();
-        final MetadataElement globalElem = root.getElement("Global_Attributes");
+        final MetadataElement globalElem = origMetadataRoot.getElement("Global_Attributes");
         final MetadataElement s01Elem = globalElem.getElement("S01");
         if(s01Elem != null) {
         	pol = s01Elem.getAttributeString("Polarisation").toUpperCase();

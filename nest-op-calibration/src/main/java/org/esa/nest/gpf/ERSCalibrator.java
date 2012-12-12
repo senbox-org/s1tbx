@@ -191,6 +191,7 @@ public final class ERSCalibrator extends BaseCalibrator implements Calibrator {
         //System.out.println("sourceImageWidth = " + sourceImageWidth + ", sourceImageHeight = " + sourceImageHeight);
 
         absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
+        origMetadataRoot = AbstractMetadata.getOriginalProductMetadata(sourceProduct);
 
         getImportantTimes();
         getMissionType(); // abs
@@ -513,7 +514,7 @@ public final class ERSCalibrator extends BaseCalibrator implements Calibrator {
     private void getProcessingFacilityIDFromCEOS() {
 
         // Field 81 in PRI Data Set Summary Record
-        final MetadataElement facility = sourceProduct.getMetadataRoot().getElement("Leader").getElement("Scene Parameters");
+        final MetadataElement facility = origMetadataRoot.getElement("Leader").getElement("Scene Parameters");
         if (facility == null) {
             throw new OperatorException("Scene Parameters not found");
         }
@@ -556,7 +557,7 @@ public final class ERSCalibrator extends BaseCalibrator implements Calibrator {
     private void getProcessingVersionID() {
 
         // Field 83 in PRI Data Set Summary Record
-        final MetadataElement facility = sourceProduct.getMetadataRoot().getElement("Leader").getElement("Scene Parameters");
+        final MetadataElement facility = origMetadataRoot.getElement("Leader").getElement("Scene Parameters");
         if (facility == null) {
             throw new OperatorException("Scene Parameters not found");
         }
@@ -703,7 +704,7 @@ public final class ERSCalibrator extends BaseCalibrator implements Calibrator {
      */
     private void getCalibrationConstantFromCEOS() {
         // Field 62 in PRI Facility Related Data Record
-        final MetadataElement facility = sourceProduct.getMetadataRoot().getElement("Leader").getElement("Facility Related");
+        final MetadataElement facility = origMetadataRoot.getElement("Leader").getElement("Facility Related");
         if (facility == null) {
             throw new OperatorException("Facility Related not found");
         }
@@ -722,7 +723,7 @@ public final class ERSCalibrator extends BaseCalibrator implements Calibrator {
      */
     private void getSceneCentreLatitude() {
         // Field 13 in PRI Data Set Summary Record (in degree)
-        final MetadataElement facility = sourceProduct.getMetadataRoot().getElement("Leader").getElement("Scene Parameters");
+        final MetadataElement facility = origMetadataRoot.getElement("Leader").getElement("Scene Parameters");
         if (facility == null) {
             throw new OperatorException("Scene Parameters not found");
         }
@@ -1046,7 +1047,7 @@ public final class ERSCalibrator extends BaseCalibrator implements Calibrator {
      */
     private double getReplicaPulsePowerForCEOS() {
         // Field 55 in PRI Facility Related Data Record
-        final MetadataElement facility = sourceProduct.getMetadataRoot().getElement("Leader").getElement("Facility Related");
+        final MetadataElement facility = origMetadataRoot.getElement("Leader").getElement("Facility Related");
         if (facility == null) {
             throw new OperatorException("Facility Related not found");
         }
@@ -1162,7 +1163,7 @@ public final class ERSCalibrator extends BaseCalibrator implements Calibrator {
      */
     private double getIncidenceAngleAtFirstRangePixel() {
         // Field 56 in PRI Facility Related Data Record (in degree)
-        final MetadataElement facility = sourceProduct.getMetadataRoot().getElement("Leader").getElement("Facility Related");
+        final MetadataElement facility = origMetadataRoot.getElement("Leader").getElement("Facility Related");
         if (facility == null) {
             throw new OperatorException("Facility Related not found");
         }
@@ -1182,7 +1183,7 @@ public final class ERSCalibrator extends BaseCalibrator implements Calibrator {
      */
     private double getSlantRangeTimeToFirstRangePixel() {
         // Field 126/1 in PRI Data Set Summary Record (in millisec)
-        final MetadataElement facility = sourceProduct.getMetadataRoot().getElement("Leader").getElement("Scene Parameters");
+        final MetadataElement facility = origMetadataRoot.getElement("Leader").getElement("Scene Parameters");
         if (facility == null) {
             throw new OperatorException("Scene Parameters not found");
         }
@@ -1203,7 +1204,7 @@ public final class ERSCalibrator extends BaseCalibrator implements Calibrator {
     private double getTimeIntervalBetweenDataPoints() {
 
         // Field 20 in PRI Platform Position Data Set Record (in s)
-        final MetadataElement facility = sourceProduct.getMetadataRoot().getElement("Leader").getElement("Platform Position");
+        final MetadataElement facility = origMetadataRoot.getElement("Leader").getElement("Platform Position");
         if (facility == null) {
             throw new OperatorException("Platform Position not found");
         }
@@ -1222,7 +1223,7 @@ public final class ERSCalibrator extends BaseCalibrator implements Calibrator {
      */
     private double getZeroDopplerAzimuthTimeOfFirstAzimuthPixel() {
         // Field 126/5 in PRI Data Set Summary Record (in UTC)
-        final MetadataElement facility = sourceProduct.getMetadataRoot().getElement("Leader").getElement("Scene Parameters");
+        final MetadataElement facility = origMetadataRoot.getElement("Leader").getElement("Scene Parameters");
         if (facility == null) {
             throw new OperatorException("Scene Parameters not found");
         }
@@ -1241,7 +1242,7 @@ public final class ERSCalibrator extends BaseCalibrator implements Calibrator {
      */
     private double getZeroDopplerAzimuthTimeOfCentreAzimuthPixel() {
         // Field 126/5 in PRI Data Set Summary Record (in UTC)
-        final MetadataElement facility = sourceProduct.getMetadataRoot().getElement("Leader").getElement("Scene Parameters");
+        final MetadataElement facility = origMetadataRoot.getElement("Leader").getElement("Scene Parameters");
         if (facility == null) {
             throw new OperatorException("Scene Parameters not found");
         }
@@ -1267,7 +1268,7 @@ public final class ERSCalibrator extends BaseCalibrator implements Calibrator {
         }
 
         // Fields 29 to (29 + number of data points) in PRI Platform Position Data Set Record
-        final MetadataElement facility = sourceProduct.getMetadataRoot().getElement("Leader").getElement("Platform Position");
+        final MetadataElement facility = origMetadataRoot.getElement("Leader").getElement("Platform Position");
         if (facility == null) {
             throw new OperatorException("Platform Position not found");
         }
@@ -1299,7 +1300,7 @@ public final class ERSCalibrator extends BaseCalibrator implements Calibrator {
     private int getNumOfDataPoints() {
 
         // Field 14 in PRI Platform Position Data Set Record
-        final MetadataElement facility = sourceProduct.getMetadataRoot().getElement("Leader").getElement("Platform Position");
+        final MetadataElement facility = origMetadataRoot.getElement("Leader").getElement("Platform Position");
         if (facility == null) {
             throw new OperatorException("Platform Position not found");
         }
@@ -2143,7 +2144,7 @@ public final class ERSCalibrator extends BaseCalibrator implements Calibrator {
      */
     private void getProcessingFacilityIDFromENVISAT() {
 
-        MetadataElement mph = sourceProduct.getMetadataRoot().getElement("MPH");
+        MetadataElement mph = origMetadataRoot.getElement("MPH");
         if (mph == null) {
             throw new OperatorException("MPH not found");
         }
@@ -2167,7 +2168,7 @@ public final class ERSCalibrator extends BaseCalibrator implements Calibrator {
      */
     private void getNumOfRecordsInMainProcParam() {
 
-        MetadataElement dsd = sourceProduct.getMetadataRoot().getElement("DSD").getElement("DSD.3");
+        MetadataElement dsd = origMetadataRoot.getElement("DSD").getElement("DSD.3");
         if (dsd == null) {
             throw new OperatorException("DSD not found");
         }
@@ -2191,9 +2192,9 @@ public final class ERSCalibrator extends BaseCalibrator implements Calibrator {
         MetadataElement ads;
 
         if (numMPPRecords == 1) {
-            ads = sourceProduct.getMetadataRoot().getElement("MAIN_PROCESSING_PARAMS_ADS");
+            ads = origMetadataRoot.getElement("MAIN_PROCESSING_PARAMS_ADS");
         } else {
-            ads = sourceProduct.getMetadataRoot().getElement("MAIN_PROCESSING_PARAMS_ADS").
+            ads = origMetadataRoot.getElement("MAIN_PROCESSING_PARAMS_ADS").
                     getElement("MAIN_PROCESSING_PARAMS_ADS.1");
         }
 
@@ -2285,7 +2286,7 @@ public final class ERSCalibrator extends BaseCalibrator implements Calibrator {
      */
     private double getSatelliteToEarthCenterDistanceForENVISAT() {
 
-        final MetadataElement mppAds = sourceProduct.getMetadataRoot().getElement("MAIN_PROCESSING_PARAMS_ADS");
+        final MetadataElement mppAds = origMetadataRoot.getElement("MAIN_PROCESSING_PARAMS_ADS");
         if (mppAds == null) {
             throw new OperatorException("MAIN_PROCESSING_PARAMS_ADS not found");
         }
@@ -2332,7 +2333,7 @@ public final class ERSCalibrator extends BaseCalibrator implements Calibrator {
      */
     private double getReplicaPulsePowerForENVISAT() {
         // Field 9 in CHIRP_PARAMS_ADS
-        final MetadataElement dsd = sourceProduct.getMetadataRoot().getElement("CHIRP_PARAMS_ADS");
+        final MetadataElement dsd = origMetadataRoot.getElement("CHIRP_PARAMS_ADS");
         if (dsd == null) {
             throw new OperatorException("CHIRP_PARAMS_ADS not found");
         }
@@ -2351,7 +2352,7 @@ public final class ERSCalibrator extends BaseCalibrator implements Calibrator {
 
     private double getSatelliteToEarthCenterDistanceForCEOS() {
         // Field 99 - 101 in PRI Facility Related Data Record
-        final MetadataElement facility = sourceProduct.getMetadataRoot().getElement("Leader").getElement("Facility Related");
+        final MetadataElement facility = origMetadataRoot.getElement("Leader").getElement("Facility Related");
         if (facility == null) {
             throw new OperatorException("Facility Related not found");
         }

@@ -234,7 +234,7 @@ class RadarsatProductDirectory extends CEOSProductDirectory {
 
     private void addMetaData(final Product product) throws IOException {
 
-        final MetadataElement root = product.getMetadataRoot();
+        final MetadataElement root = AbstractMetadata.addOriginalProductMetadata(product);
 
         final MetadataElement leadMetadata = new MetadataElement("Leader");
         leaderFile.addMetadata(leadMetadata);
@@ -263,7 +263,7 @@ class RadarsatProductDirectory extends CEOSProductDirectory {
         //final File txtFile = FileUtils.exchangeExtension(volFile, ".txt");
         //addSummaryMetadata(txtFile, "Scene Description", root);
 
-        addAbstractedMetadataHeader(product, root);
+        addAbstractedMetadataHeader(product, product.getMetadataRoot());
     }
 
     private void addAbstractedMetadataHeader(Product product, MetadataElement root) {
@@ -439,7 +439,7 @@ class RadarsatProductDirectory extends CEOSProductDirectory {
 
     private static void addGeoCodingFromSceneLabel(Product product) {
 
-        final MetadataElement sceneLabelElem = product.getMetadataRoot().getElement("Scene Label");
+        final MetadataElement sceneLabelElem = AbstractMetadata.getOriginalProductMetadata(product).getElement("Scene Label");
         if (sceneLabelElem != null) {
 
             try {

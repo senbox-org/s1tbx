@@ -5,6 +5,7 @@ import org.esa.beam.framework.ui.BasicView;
 import org.esa.beam.framework.ui.product.ProductNodeView;
 import org.esa.beam.framework.ui.product.ProductSceneImage;
 import org.esa.beam.visat.VisatApp;
+import org.esa.nest.datamodel.AbstractMetadata;
 import org.esa.nest.util.ResourceUtils;
 
 import javax.swing.*;
@@ -131,7 +132,7 @@ public final class PolarView extends BasicView implements ProductNodeView, Actio
     }
 
     private void getMetadata() {
-        final MetadataElement root = product.getMetadataRoot();
+        final MetadataElement root = AbstractMetadata.getOriginalProductMetadata(product);
         final MetadataElement sph = root.getElement("SPH");
         numDirBins = sph.getAttributeInt("NUM_DIR_BINS", 0);
         numWLBins = sph.getAttributeInt("NUM_WL_BINS", 0);

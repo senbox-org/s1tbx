@@ -386,7 +386,7 @@ class AlosPalsarProductDirectory extends CEOSProductDirectory {
     private static void addGeoCodingFromWorkReport(Product product) {
 
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
-        final MetadataElement workReportElem = product.getMetadataRoot().getElement("Work Report");
+        final MetadataElement workReportElem = AbstractMetadata.getOriginalProductMetadata(product).getElement("Work Report");
         if(workReportElem != null) {
 
             try {
@@ -464,7 +464,7 @@ class AlosPalsarProductDirectory extends CEOSProductDirectory {
     }
 
     private void addMetaData(final Product product) throws IOException {
-        final MetadataElement root = product.getMetadataRoot();
+        final MetadataElement root = AbstractMetadata.addOriginalProductMetadata(product);
 
         if(leaderFile != null) {
             final MetadataElement leadMetadata = new MetadataElement("Leader");
@@ -490,7 +490,7 @@ class AlosPalsarProductDirectory extends CEOSProductDirectory {
         addSummaryMetadata(new File(baseDir, AlosPalsarConstants.SUMMARY_FILE_NAME), "Summary Information", root);
         addSummaryMetadata(new File(baseDir, AlosPalsarConstants.WORKREPORT_FILE_NAME), "Work Report", root);
         
-        addAbstractedMetadataHeader(product, root);
+        addAbstractedMetadataHeader(product, product.getMetadataRoot());
     }
 
     private void addAbstractedMetadataHeader(Product product, MetadataElement root) {

@@ -18,7 +18,7 @@ package com.bc.jexp.impl;
 /**
  * An extension the the {@link java.lang.Math class}.
  */
-public class ExtMath {
+public final class ExtMath {
 
     private static final double INV_LN_10 = 1.0 / Math.log(10.0);
 

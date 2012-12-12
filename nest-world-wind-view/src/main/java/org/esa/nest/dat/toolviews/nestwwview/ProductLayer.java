@@ -207,7 +207,7 @@ public class ProductLayer extends RenderableLayer {
     }
 
     private void addWaveProduct(final Product product) {
-        final MetadataElement root = product.getMetadataRoot();
+        final MetadataElement root = AbstractMetadata.getOriginalProductMetadata(product);
         final MetadataElement ggADS = root.getElement("GEOLOCATION_GRID_ADS");
         if (ggADS == null) return;
 

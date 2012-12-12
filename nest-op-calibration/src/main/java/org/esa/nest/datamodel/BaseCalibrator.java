@@ -47,6 +47,7 @@ public class BaseCalibrator {
     protected String incidenceAngleSelection = null;
 
     protected MetadataElement absRoot = null;
+    protected MetadataElement origMetadataRoot = null;
 
     protected static final double underFlowFloat = 1.0e-30;
 

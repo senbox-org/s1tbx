@@ -87,18 +87,6 @@ public class QuickLookGenerator {
         return bufferedImage;
     }
 
-    private static boolean isComplex(Product product) {
-        //!todo replace with entry.getSampleType
-
-        final MetadataElement root = product.getMetadataRoot();
-        if(root != null) {
-            final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
-            if(absRoot != null && absRoot.getAttributeString(AbstractMetadata.SAMPLE_TYPE, "").equals("COMPLEX"))
-                return true;
-        }
-        return false;
-    }
-
     private static BufferedImage createQuickLookImage(final Product product, final boolean preprocess) throws IOException {
 
         final String quicklookBandName = ProductUtils.findSuitableQuicklookBandName(product);

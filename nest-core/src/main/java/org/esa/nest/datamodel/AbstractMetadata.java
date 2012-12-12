@@ -371,11 +371,25 @@ public final class AbstractMetadata {
     }
 
     /**
-     * Returns the orignal product metadata
+     * Returns the orignal product metadata or the root if not found
      * @param product input product
      * @return original metadata
      */
     public static MetadataElement getOriginalProductMetadata(final Product product) {
+        final MetadataElement root = product.getMetadataRoot();
+        MetadataElement origMetadata = root.getElement(ORIGINAL_PRODUCT_METADATA);
+        if(origMetadata == null) {
+            return root;
+        }
+        return origMetadata;
+    }
+
+    /**
+     * Creates and returns the orignal product metadata
+     * @param product input product
+     * @return original metadata
+     */
+    public static MetadataElement addOriginalProductMetadata(final Product product) {
         final MetadataElement root = product.getMetadataRoot();
         MetadataElement origMetadata = root.getElement(ORIGINAL_PRODUCT_METADATA);
         if(origMetadata == null) {

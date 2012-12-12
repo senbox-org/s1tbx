@@ -179,7 +179,7 @@ class ERSProductDirectory extends CEOSProductDirectory {
     }
 
     private void addMetaData(final Product product) throws IOException {
-        final MetadataElement root = product.getMetadataRoot();
+        final MetadataElement root = AbstractMetadata.addOriginalProductMetadata(product);
 
         final MetadataElement leadMetadata = new MetadataElement("Leader");
         leaderFile.addLeaderMetadata(leadMetadata);
@@ -195,7 +195,7 @@ class ERSProductDirectory extends CEOSProductDirectory {
         }
 
         addSummaryMetadata(new File(baseDir, ERSConstants.SUMMARY_FILE_NAME), "Summary Information", root);
-        addAbstractedMetadataHeader(product, root);
+        addAbstractedMetadataHeader(product, product.getMetadataRoot());
     }
 
     private void addAbstractedMetadataHeader(Product product, MetadataElement root) {

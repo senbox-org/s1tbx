@@ -20,6 +20,7 @@ import junit.framework.TestCase;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorSpi;
+import org.esa.nest.datamodel.AbstractMetadata;
 
 /**
  * Unit test for SingleTileOperator.
@@ -94,7 +95,7 @@ public class TestDataAnalysisOperator extends TestCase {
         MetadataElement sph = new MetadataElement("SPH");
         sph.addAttribute(new MetadataAttribute("sample_type",
                 ProductData.createInstance("DETECTED"), false));
-        testProduct.getMetadataRoot().addElement(sph);
+        AbstractMetadata.getOriginalProductMetadata(testProduct).addElement(sph);
         return testProduct;
     }
 }

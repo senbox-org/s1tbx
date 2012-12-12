@@ -16,6 +16,7 @@
 package org.esa.nest.util;
 
 import Jama.Matrix;
+import org.apache.commons.math.util.FastMath;
 import org.esa.beam.framework.gpf.OperatorException;
 
 public final class MathUtils
@@ -238,7 +239,7 @@ public final class MathUtils
         if (Double.compare(x, 0.0) == 0) {
             return 1.0;
         } else {
-            return Math.sin(x*Math.PI) / (x*Math.PI);
+            return FastMath.sin(x * Math.PI) / (x*Math.PI);
         }
     }
 
@@ -251,7 +252,7 @@ public final class MathUtils
     public static double hanning(final double x, final int windowLength) {
 
         if (x >= -0.5*windowLength && x <= 0.5*windowLength) {
-            return 0.5*(1.0 + Math.cos(Constants.TWO_PI*x/(windowLength + 1)));
+            return 0.5*(1.0 + FastMath.cos(Constants.TWO_PI*x/(windowLength + 1)));
         } else {
             return 0.0;
         }

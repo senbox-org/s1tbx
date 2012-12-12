@@ -308,7 +308,7 @@ public class TestUtils {
                 final ProductReader reader = ProductIO.getProductReaderForFile(file);
                 if(reader != null) {
                     final Product sourceProduct = reader.readProductNodes(file, null);
-                    if(productTypeExemptions != null && StringUtils.contains(productTypeExemptions, sourceProduct.getProductType()))
+                    if(productTypeExemptions != null && containsProductType(productTypeExemptions, sourceProduct.getProductType()))
                         continue;
 
                     TestUtils.verifyProduct(sourceProduct, false, false);
@@ -341,6 +341,17 @@ public class TestUtils {
             }
         }
         return iterations;
+    }
+
+    public static boolean containsProductType(final String[] productTypeExemptions, final String productType) {
+        if(productTypeExemptions != null) {
+            for (String str : productTypeExemptions) {
+                if (productType.contains(str)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     /**
@@ -404,14 +415,14 @@ public class TestUtils {
                     //System.out.println("Reading "+ file.toString());
 
                     final Product product = reader.readProductNodes(file, null);
-                    if(productTypeExemptions != null && StringUtils.contains(productTypeExemptions, product.getProductType()))
+                    if(productTypeExemptions != null && containsProductType(productTypeExemptions, product.getProductType()))
                         continue;
                     ReaderUtils.verifyProduct(product, true);
                 } catch(Exception e) {
                     boolean ok = false;
                     if(exceptionExemptions != null) {
                         for(String excemption : exceptionExemptions) {
-                            if(e.getMessage().contains(excemption)) {
+                            if(e.getMessage() != null && e.getMessage().contains(excemption)) {
                                 ok = true;
                                 System.out.println("Excemption for "+e.getMessage());
                                 break;

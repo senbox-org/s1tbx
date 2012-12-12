@@ -17,6 +17,8 @@
 package org.esa.beam.framework.dataop.resamp;
 
 
+import org.apache.commons.math.util.FastMath;
+
 final class BiSincInterpolationResampling implements Resampling {
 
     private static final double DoublePI = 2.0*Math.PI;
@@ -73,9 +75,9 @@ final class BiSincInterpolationResampling implements Resampling {
     public final float resample(final Raster raster,
                                 final Index index) throws Exception {
 
-        int[] x = new int[5];
-        int[] y = new int[5];
-        float[][] samples = new float[5][5];
+        final int[] x = new int[5];
+        final int[] y = new int[5];
+        final float[][] samples = new float[5][5];
 
         for (int i = 0; i < 5; i++) {
             x[i] = (int)index.i[i];
@@ -123,12 +125,12 @@ final class BiSincInterpolationResampling implements Resampling {
     }
 
     private static double sinc(final double x) {
-        return (Double.compare(x, 0.0) == 0) ? 1.0 : Math.sin(x*Math.PI) / (x*Math.PI);
+        return (Double.compare(x, 0.0) == 0) ? 1.0 : FastMath.sin(x*Math.PI) / (x*Math.PI);
     }
 
     public static double hanning(final double x) {
         return (x >= -halfFilterLength && x <= halfFilterLength) ?
-             0.5*(1.0 + Math.cos(DoublePI*x/(filterLength + 1))) : 0.0;
+             0.5*(1.0 + FastMath.cos(DoublePI * x / (filterLength + 1))) : 0.0;
     }
 
     @Override

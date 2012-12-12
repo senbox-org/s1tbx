@@ -170,7 +170,7 @@ public abstract class BaseElevationModel implements ElevationModel, Resampling.R
         return (ProductReaderPlugIn) readerPlugIns.next();
     }
 
-    public void getSamples(int[] x, int[] y, float[][] samples) throws Exception {
+    public final void getSamples(final int[] x, final int[] y, final float[][] samples) throws Exception {
 
         for (int i = 0; i < y.length; i++) {
             final int tileYIndex = (int)(y[i] * NUM_PIXELS_PER_TILEinv);

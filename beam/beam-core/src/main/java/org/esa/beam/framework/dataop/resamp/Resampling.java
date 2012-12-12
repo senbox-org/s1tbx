@@ -116,7 +116,7 @@ public interface Resampling {
          */
 //        float getSample(double x, double y) throws Exception;
 
-        void getSamples(int[] x, int[] y, float[][] samples) throws Exception;
+        void getSamples(final int[] x, final int[] y, final float[][] samples) throws Exception;
     }
 
     /**

@@ -188,10 +188,7 @@ public class MosaicOp extends Operator {
      * Update metadata in the target product.
      */
     private void updateTargetProductMetadata() {
-        MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(targetProduct);
-        if(absRoot == null) {
-            absRoot = AbstractMetadata.addAbstractedMetadataHeader(targetProduct.getMetadataRoot());
-        }
+        final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(targetProduct);
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_spacing, pixelSize);
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_spacing, pixelSize);
     }

@@ -210,7 +210,7 @@ public class OversamplingOp extends Operator {
 
         // Get coefficients of Doppler frequency polynomial from
         // fields 105, 106 and 107 in PRI Data Set Summary Record
-        final MetadataElement facility = sourceProduct.getMetadataRoot().getElement("Leader").getElement("Scene Parameters");
+        final MetadataElement facility = AbstractMetadata.getOriginalProductMetadata(sourceProduct).getElement("Leader").getElement("Scene Parameters");
         if (facility == null) {
             throw new OperatorException("Scene Parameters not found");
         }
@@ -248,7 +248,7 @@ public class OversamplingOp extends Operator {
     private void computeDopplerCentroidFreqForENVISATProd() {
 
         // get slant range time origin in second
-        final MetadataElement dsd = sourceProduct.getMetadataRoot().getElement("DOP_CENTROID_COEFFS_ADS");
+        final MetadataElement dsd = AbstractMetadata.getOriginalProductMetadata(sourceProduct).getElement("DOP_CENTROID_COEFFS_ADS");
         if (dsd == null) {
             throw new OperatorException("DOP_CENTROID_COEFFS_ADS not found");
         }

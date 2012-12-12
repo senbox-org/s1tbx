@@ -180,14 +180,14 @@ public class CosmoSkymedReader extends AbstractProductReader {
 
     private void addMetadataToProduct() throws IOException {
 
-        NetCDFUtils.addAttributes(product.getMetadataRoot(), NetcdfConstants.GLOBAL_ATTRIBUTES_NAME,
+        final MetadataElement origMetadataRoot = AbstractMetadata.addOriginalProductMetadata(product);
+        NetCDFUtils.addAttributes(origMetadataRoot, NetcdfConstants.GLOBAL_ATTRIBUTES_NAME,
                                   netcdfFile.getGlobalAttributes());
 
         addDeliveryNote(product);
 
         for (final Variable variable : variableMap.getAll()) {
-            NetCDFUtils.addAttributes(product.getMetadataRoot(), variable.getName(),
-                                  variable.getAttributes());
+            NetCDFUtils.addAttributes(origMetadataRoot, variable.getName(), variable.getAttributes());
         }
 
         //final Group rootGroup = netcdfFile.getRootGroup();
@@ -211,7 +211,7 @@ public class CosmoSkymedReader extends AbstractProductReader {
                 final org.jdom.Document xmlDoc = XMLSupport.LoadXML(dnFile.getAbsolutePath());
                 final Element rootElement = xmlDoc.getRootElement();
 
-                AbstractMetadataIO.AddXMLMetadata(rootElement, product.getMetadataRoot());
+                AbstractMetadataIO.AddXMLMetadata(rootElement, AbstractMetadata.getOriginalProductMetadata(product));
             }
         } catch(IOException e) {
             //System.out.println("Unable to read Delivery Note for "+product.getName());
@@ -225,7 +225,8 @@ public class CosmoSkymedReader extends AbstractProductReader {
         final String defStr = AbstractMetadata.NO_METADATA_STRING;
         final int defInt = AbstractMetadata.NO_METADATA;
 
-        final MetadataElement globalElem = root.getElement(NetcdfConstants.GLOBAL_ATTRIBUTES_NAME);
+        final MetadataElement globalElem = AbstractMetadata.addOriginalProductMetadata(product).
+                getElement(NetcdfConstants.GLOBAL_ATTRIBUTES_NAME);
 
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PRODUCT, globalElem.getAttributeString("Product Filename", defStr));
         final String productType = globalElem.getAttributeString("Product Type", defStr);
@@ -407,7 +408,7 @@ public class CosmoSkymedReader extends AbstractProductReader {
     private void addDopplerCentroidCoefficients() {
 
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
-        final MetadataElement root = product.getMetadataRoot();
+        final MetadataElement root = AbstractMetadata.getOriginalProductMetadata(product);
         final MetadataElement globalElem = root.getElement(NetcdfConstants.GLOBAL_ATTRIBUTES_NAME);
 
         final MetadataElement dopplerCentroidCoefficientsElem = absRoot.getElement(AbstractMetadata.dop_coefficients);
@@ -434,7 +435,7 @@ public class CosmoSkymedReader extends AbstractProductReader {
 
     private void addFirstLastLineTimes(final int rasterHeight) {
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
-        final MetadataElement root = product.getMetadataRoot();
+        final MetadataElement root = AbstractMetadata.getOriginalProductMetadata(product);
         final MetadataElement globalElem = root.getElement(NetcdfConstants.GLOBAL_ATTRIBUTES_NAME);
         final MetadataElement bandElem = getBandElement(product.getBandAt(0));
         
@@ -464,7 +465,7 @@ public class CosmoSkymedReader extends AbstractProductReader {
 
         // For detail of ground range to slant range conversion, please see P80 in COSMO-SkyMed SAR Products Handbook.
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
-        final MetadataElement root = product.getMetadataRoot();
+        final MetadataElement root = AbstractMetadata.getOriginalProductMetadata(product);
         final MetadataElement globalElem = root.getElement(NetcdfConstants.GLOBAL_ATTRIBUTES_NAME);
 
         final MetadataAttribute attribute = globalElem.getAttribute("Ground Projection Polynomial Reference Range");
@@ -559,7 +560,7 @@ public class CosmoSkymedReader extends AbstractProductReader {
 
     private static String getPolarization(final Product product, final int cnt) {
 
-        final MetadataElement globalElem = product.getMetadataRoot().getElement(NetcdfConstants.GLOBAL_ATTRIBUTES_NAME);
+        final MetadataElement globalElem = AbstractMetadata.getOriginalProductMetadata(product).getElement(NetcdfConstants.GLOBAL_ATTRIBUTES_NAME);
         if(globalElem != null) {
             final MetadataElement s01Elem = globalElem.getElement("S0"+cnt);
             if(s01Elem != null) {
@@ -633,7 +634,7 @@ public class CosmoSkymedReader extends AbstractProductReader {
     }
 
     private MetadataElement getBandElement(final Band band) {
-        final MetadataElement root = product.getMetadataRoot();
+        final MetadataElement root = AbstractMetadata.getOriginalProductMetadata(product);
         final Variable variable = bandMap.get(band);
         final String varName = variable.getName();
         MetadataElement bandElem = null;

@@ -78,14 +78,14 @@ final class BilinearInterpolationResampling implements Resampling {
     public final float resample(final Raster raster,
                                 final Index index) throws Exception {
 
-        int[] x = new int[2];
-        int[] y = new int[2];
-        float[][] samples = new float[2][2];
+        final int[] x = new int[2];
+        final int[] y = new int[2];
+        final float[][] samples = new float[2][2];
 
-        for (int i = 0; i < 2; i++) {
-            x[i] = (int)index.i[i];
-            y[i] = (int)index.j[i];
-        }
+        x[0] = (int)index.i[0];
+        y[0] = (int)index.j[0];
+        x[1] = (int)index.i[1];
+        y[1] = (int)index.j[1];
         raster.getSamples(x, y, samples);
 
         final double ki = index.ki[0];

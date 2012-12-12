@@ -150,7 +150,7 @@ public class TestSRGROperator extends TestCase {
         testProduct.addTiePointGrid(latGrid);
         testProduct.addTiePointGrid(lonGrid);
 
-        testProduct.getMetadataRoot().addElement(abs);
+        AbstractMetadata.getOriginalProductMetadata(testProduct).addElement(abs);
 
         // create geoCoding
         testProduct.setGeoCoding(new TiePointGeoCoding(latGrid, lonGrid));

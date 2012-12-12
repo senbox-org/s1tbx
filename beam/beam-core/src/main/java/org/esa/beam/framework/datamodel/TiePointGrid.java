@@ -927,8 +927,8 @@ public class TiePointGrid extends RasterDataNode {
         final float[] cosTiePoints = new float[tiePoints.length];
         for (int i = 0; i < tiePoints.length; i++) {
             float tiePoint = tiePoints[i];
-            sinTiePoints[i] = (float) Math.sin(MathUtils.DTOR * tiePoint);
-            cosTiePoints[i] = (float) Math.cos(MathUtils.DTOR * tiePoint);
+            sinTiePoints[i] = (float) FastMath.sin(MathUtils.DTOR * tiePoint);
+            cosTiePoints[i] = (float) FastMath.cos(MathUtils.DTOR * tiePoint);
         }
         sinGrid = new TiePointGrid(base.getName(),
                                     base.getRasterWidth(),
