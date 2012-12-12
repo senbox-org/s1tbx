@@ -39,6 +39,7 @@
       <coherenceThreshold>0.4</coherenceThreshold>
       <useSlidingWindow>true</useSlidingWindow>
 	  <computeOffset>false</computeOffset>
+	  <onlyGCPsOnLand>false</onlyGCPsOnLand>
     </parameters>
   </node>
   <node id="4-Warp">

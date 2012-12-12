@@ -18,6 +18,10 @@ package org.esa.nest.gpf;
 import com.bc.ceres.core.ProgressMonitor;
 import edu.emory.mathcs.jtransforms.fft.DoubleFFT_1D;
 import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.dataop.dem.ElevationModel;
+import org.esa.beam.framework.dataop.dem.ElevationModelDescriptor;
+import org.esa.beam.framework.dataop.dem.ElevationModelRegistry;
+import org.esa.beam.framework.dataop.resamp.ResamplingFactory;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
@@ -72,13 +76,13 @@ public class GCPSelectionOp extends Operator {
     @TargetProduct
     private Product targetProduct;
 
-     @Parameter(description = "The number of GCPs to use in a grid", interval = "(10, 10000]", defaultValue = "200",
+     @Parameter(description = "The number of GCPs to use in a grid", interval = "(10, 100000]", defaultValue = "200",
                 label="Number of GCPs")
     private int numGCPtoGenerate = 200;
 
-    @Parameter(valueSet = {"32","64","128","256","512","1024"}, defaultValue = "128", label="Coarse Registration Window Width")
+    @Parameter(valueSet = {"32","64","128","256","512","1024","2048"}, defaultValue = "128", label="Coarse Registration Window Width")
     private String coarseRegistrationWindowWidth = "128";
-    @Parameter(valueSet = {"32","64","128","256","512","1024"}, defaultValue = "128", label="Coarse Registration Window Height")
+    @Parameter(valueSet = {"32","64","128","256","512","1024","2048"}, defaultValue = "128", label="Coarse Registration Window Height")
     private String coarseRegistrationWindowHeight = "128";
     @Parameter(valueSet = {"2","4","8","16"}, defaultValue = "2", label="Row Interpolation Factor")
     private String rowInterpFactor = "2";
@@ -95,10 +99,10 @@ public class GCPSelectionOp extends Operator {
     @Parameter(defaultValue="true", label="Apply Fine Registration")
     private boolean applyFineRegistration = true;
 
-    @Parameter(valueSet = {"32","64","128","256","512","1024"}, defaultValue = "128", label="Fine Registration Window Width")
-    private String fineRegistrationWindowWidth = "128";
-    @Parameter(valueSet = {"32","64","128","256","512","1024"}, defaultValue = "128", label="Fine Registration Window Height")
-    private String fineRegistrationWindowHeight = "128";
+    @Parameter(valueSet = {"8","16","32","64","128","256","512"}, defaultValue = "32", label="Fine Registration Window Width")
+    private String fineRegistrationWindowWidth = "32";
+    @Parameter(valueSet = {"8","16","32","64","128","256","512"}, defaultValue = "32", label="Fine Registration Window Height")
+    private String fineRegistrationWindowHeight = "32";
     @Parameter(description = "The coherence window size", interval = "(1, 10]", defaultValue = "3",
                 label="Coherence Window Size")
     private int coherenceWindowSize = 3;
@@ -120,6 +124,8 @@ public class GCPSelectionOp extends Operator {
     // =========================================================================================
     @Parameter(defaultValue="false", label="Estimate Coarse Offset")
     private boolean computeOffset = false;
+    @Parameter(defaultValue="false", label="Test GCPs are on land")
+    private boolean onlyGCPsOnLand = false;
 
 
     private Band masterBand1 = null;
@@ -156,6 +162,8 @@ public class GCPSelectionOp extends Operator {
     private Band primarySlaveBand = null;    // the slave band to process
     private boolean gcpsCalculated = false;
     private boolean collocatedStack = false;
+
+    private ElevationModel dem = null;
 
     /**
      * Default constructor. The graph processing framework
@@ -314,6 +322,17 @@ public class GCPSelectionOp extends Operator {
         }
     }
 
+    private synchronized void createDEM() {
+        if(dem != null) return;
+
+        final ElevationModelRegistry elevationModelRegistry = ElevationModelRegistry.getInstance();
+        final ElevationModelDescriptor demDescriptor = elevationModelRegistry.getDescriptor("SRTM 3Sec");
+        if (demDescriptor.isInstallingDem()) {
+            throw new OperatorException("The DEM is currently being installed.");
+        }
+        dem = demDescriptor.createDem(ResamplingFactory.createResampling(ResamplingFactory.NEAREST_NEIGHBOUR_NAME));
+    }
+
     /**
      * Called by the framework in order to compute a tile for the given target band.
      * <p>The default implementation throws a runtime exception with the message "not implemented".</p>
@@ -333,6 +352,10 @@ public class GCPSelectionOp extends Operator {
             //int w = targetRectangle.width;
             //int h = targetRectangle.height;
             //System.out.println("x0 = " + x0 + ", y0 = " + y0 + ", w = " + w + ", h = " + h);
+
+            if(onlyGCPsOnLand && dem == null) {
+                createDEM();
+            }
 
             final String[] masterBandNames = StackUtils.getMasterBandNames(sourceProduct);
             
@@ -436,12 +459,11 @@ public class GCPSelectionOp extends Operator {
             checkForCancellation();
 
             final Placemark mPin = masterGcpGroup.get(i);
-            final PixelPos mGCPPixelPos = mPin.getPixelPos();
 
-            if (checkMasterGCPValidity(mGCPPixelPos)) {
+            if (checkMasterGCPValidity(mPin)) {
 
                 final GeoPos mGCPGeoPos = mPin.getGeoPos();
-//                final PixelPos sGCPPixelPos = mPin.getPixelPos();
+                final PixelPos mGCPPixelPos = mPin.getPixelPos();
                 final PixelPos sGCPPixelPos = new PixelPos(mPin.getPixelPos().x + offset[0],
                                                            mPin.getPixelPos().y + offset[1]);
                 if (!checkSlaveGCPValidity(sGCPPixelPos)) {
@@ -713,12 +735,17 @@ public class GCPSelectionOp extends Operator {
 
     /**
      * Check if a given master GCP is within the given tile and the GCP imagette is within the image.
-     * @param pixelPos The GCP pixel position.
+     * @param mPin The GCP position.
      * @return flag Return true if the GCP is within the given tile and the GCP imagette is within the image,
      *              false otherwise.
      */
-    private boolean checkMasterGCPValidity(final PixelPos pixelPos) {
-
+    private boolean checkMasterGCPValidity(final Placemark mPin) throws Exception {
+        final PixelPos pixelPos = mPin.getPixelPos();
+        if(onlyGCPsOnLand) {
+            float alt = dem.getElevation(mPin.getGeoPos());
+            if(alt == dem.getDescriptor().getNoDataValue())
+                return false;
+        }
         return (pixelPos.x - cHalfWindowWidth + 1 >= 0 && pixelPos.x + cHalfWindowWidth <= sourceImageWidth - 1) &&
                (pixelPos.y - cHalfWindowHeight + 1 >= 0 && pixelPos.y + cHalfWindowHeight <= sourceImageHeight -1);
     }

@@ -53,6 +53,7 @@
       <coherenceThreshold>0.6</coherenceThreshold>
       <useSlidingWindow>false</useSlidingWindow>
       <computeOffset>false</computeOffset>
+	  <onlyGCPsOnLand>false</onlyGCPsOnLand>
     </parameters>
   </node>
   <node id="5-SARSim-Terrain-Correction">

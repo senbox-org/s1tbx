@@ -117,11 +117,11 @@ public class CreateLandMaskOp extends Operator {
                 virtBand.setDescription(srcBand.getDescription());
                 sourceProduct.addBand(virtBand);
 
-                final Band targetBand = ProductUtils.copyBand(virtBand.getName(), sourceProduct, targetProduct);
+                final Band targetBand = ProductUtils.copyBand(virtBand.getName(), sourceProduct, targetProduct, false);
                 targetBand.setName(srcBand.getName());
                 targetBand.setSourceImage(virtBand.getSourceImage());
             } else {
-                final Band targetBand = ProductUtils.copyBand(srcBand.getName(), sourceProduct, targetProduct);
+                final Band targetBand = ProductUtils.copyBand(srcBand.getName(), sourceProduct, targetProduct, false);
                 if(byPass) {
                     targetBand.setSourceImage(srcBand.getSourceImage());
                 }
@@ -165,10 +165,10 @@ public class CreateLandMaskOp extends Operator {
             final int maxY = targetRectangle.y + targetRectangle.height;
             boolean valid;
 
-            final TileIndex tileIndex = new TileIndex(trgTiles[0].srcTile);        
-            final float demNoDataValue = dem.getDescriptor().getNoDataValue();
-
+            final TileIndex tileIndex = new TileIndex(trgTiles[0].srcTile);
             final TileGeoreferencing tileGeoRef = new TileGeoreferencing(targetProduct, minX, minY, maxX-minX, maxY-minY);
+
+            final float demNoDataValue = dem.getDescriptor().getNoDataValue();
             final float[][] localDEM = new float[maxY-minY+2][maxX-minX+2];
             DEMFactory.getLocalDEM(dem, demNoDataValue, tileGeoRef, minX, minY, maxX-minX, maxY-minY, localDEM);
 

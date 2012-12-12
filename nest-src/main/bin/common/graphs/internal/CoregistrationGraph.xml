@@ -35,12 +35,13 @@
       <maxIteration>2</maxIteration>
       <gcpTolerance>0.5</gcpTolerance>
       <applyFineRegistration>false</applyFineRegistration>
-      <fineRegistrationWindowWidth>64</fineRegistrationWindowWidth>
-      <fineRegistrationWindowHeight>64</fineRegistrationWindowHeight>
+      <fineRegistrationWindowWidth>32</fineRegistrationWindowWidth>
+      <fineRegistrationWindowHeight>32</fineRegistrationWindowHeight>
       <coherenceWindowSize>3</coherenceWindowSize>
       <coherenceThreshold>0.6</coherenceThreshold>
       <useSlidingWindow>false</useSlidingWindow>
       <computeOffset>false</computeOffset>
+	  <onlyGCPsOnLand>false</onlyGCPsOnLand>
     </parameters>
   </node>
   <node id="4-Warp">

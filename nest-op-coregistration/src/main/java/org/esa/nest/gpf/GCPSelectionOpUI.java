@@ -34,9 +34,9 @@ import java.util.Map;
 public class GCPSelectionOpUI extends BaseOperatorUI {
 
     private final JComboBox coarseRegistrationWindowWidth = new JComboBox(
-            new String[] { "32","64","128","256","512","1024" } );
+            new String[] { "32","64","128","256","512","1024","2048" } );
     private final JComboBox coarseRegistrationWindowHeight = new JComboBox(
-            new String[] { "32","64","128","256","512","1024" } );
+            new String[] { "32","64","128","256","512","1024","2048" } );
     private final JComboBox rowInterpFactor = new JComboBox(
             new String[] { "2","4","8","16" } );
     private final JComboBox columnInterpFactor = new JComboBox(
@@ -49,9 +49,9 @@ public class GCPSelectionOpUI extends BaseOperatorUI {
     // for complex products
     final JCheckBox applyFineRegistrationCheckBox = new JCheckBox("Apply Fine Registration");
     private final JComboBox fineRegistrationWindowWidth = new JComboBox(
-            new String[] { "32","64","128","256","512","1024" } );
+            new String[] { "8","16","32","64","128","256","512" } );
     private final JComboBox fineRegistrationWindowHeight = new JComboBox(
-            new String[] { "32","64","128","256","512","1024" } );
+            new String[] { "8","16","32","64","128","256","512" } );
 
     private final JTextField coherenceWindowSize = new JTextField("");
     private final JTextField coherenceThreshold = new JTextField("");
@@ -63,6 +63,8 @@ public class GCPSelectionOpUI extends BaseOperatorUI {
 
     final JCheckBox computeOffsetCheckBox = new JCheckBox("Estimate Coarse Offset");
     private boolean computeOffset = false;
+    final JCheckBox onlyGCPsOnLandCheckBox = new JCheckBox("Test GCPs are on land");
+    private boolean onlyGCPsOnLand = false;
 
     @Override
     public JComponent CreateOpTab(String operatorName, Map<String, Object> parameterMap, AppContext appContext) {
@@ -82,6 +84,11 @@ public class GCPSelectionOpUI extends BaseOperatorUI {
                 public void itemStateChanged(ItemEvent e) {
                     computeOffset = (e.getStateChange() == ItemEvent.SELECTED);
                 }
+        });
+        onlyGCPsOnLandCheckBox.addItemListener(new ItemListener() {
+            public void itemStateChanged(ItemEvent e) {
+                onlyGCPsOnLand = (e.getStateChange() == ItemEvent.SELECTED);
+            }
         });
 
         return new JScrollPane(panel);
@@ -115,8 +122,10 @@ public class GCPSelectionOpUI extends BaseOperatorUI {
         enableComplexFields();
 
         computeOffset = (Boolean)paramMap.get("computeOffset");
-        //computeOffsetCheckBox.getModel().setPressed(computeOffset);
         computeOffsetCheckBox.setSelected(computeOffset);
+
+        onlyGCPsOnLand = (Boolean)paramMap.get("onlyGCPsOnLand");
+        onlyGCPsOnLandCheckBox.setSelected(onlyGCPsOnLand);
     }
 
     @Override
@@ -153,6 +162,7 @@ public class GCPSelectionOpUI extends BaseOperatorUI {
         }
 
         paramMap.put("computeOffset", computeOffset);
+        paramMap.put("onlyGCPsOnLand", onlyGCPsOnLand);
     }
 
     private JComponent createPanel() {
@@ -201,6 +211,8 @@ public class GCPSelectionOpUI extends BaseOperatorUI {
 
         gbc.gridy++;
         contentPane.add(computeOffsetCheckBox, gbc);
+        gbc.gridy++;
+        contentPane.add(onlyGCPsOnLandCheckBox, gbc);
 
         DialogUtils.fillPanel(contentPane, gbc);
 
