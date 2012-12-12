@@ -85,6 +85,9 @@ public abstract class BaseElevationModel implements ElevationModel, Resampling.R
     }
 
     public final synchronized float getElevation(final GeoPos geoPos) throws Exception {
+        if (geoPos.lon > 180) {
+            geoPos.lon -= 360;
+        }
         final double pixelY = getIndexY(geoPos);
         if (pixelY < 0) {
             return NO_DATA_VALUE;
