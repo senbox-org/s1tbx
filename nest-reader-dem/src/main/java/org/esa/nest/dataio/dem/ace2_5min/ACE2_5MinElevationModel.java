@@ -34,18 +34,18 @@ public class ACE2_5MinElevationModel extends BaseElevationModel {
 
     @Override
     public double getIndexX(final GeoPos geoPos) {
-        return (geoPos.lon + 180.0) / DEGREE_RES_BY_NUM_PIXELS_PER_TILE;
+        return (geoPos.lon + 180.0) * DEGREE_RES_BY_NUM_PIXELS_PER_TILEinv;
     }
 
     @Override
     public double getIndexY(final GeoPos geoPos) {
-        return RASTER_HEIGHT - (geoPos.lat + 90.0) / DEGREE_RES_BY_NUM_PIXELS_PER_TILE;
+        return RASTER_HEIGHT - (geoPos.lat + 90.0) * DEGREE_RES_BY_NUM_PIXELS_PER_TILEinv;
     }
 
     @Override
     public GeoPos getGeoPos(final PixelPos pixelPos) {
-        final float pixelLat = (float)((RASTER_HEIGHT - pixelPos.y) / DEGREE_RES_BY_NUM_PIXELS_PER_TILE - 90.0);
-        final float pixelLon = (float)(pixelPos.x / DEGREE_RES_BY_NUM_PIXELS_PER_TILE - 180.0);
+        final float pixelLat = (float)(90.0 - pixelPos.y * DEGREE_RES_BY_NUM_PIXELS_PER_TILE);
+        final float pixelLon = (float)(pixelPos.x * DEGREE_RES_BY_NUM_PIXELS_PER_TILE - 180.0);
         return new GeoPos(pixelLat, pixelLon);
     }
 
