@@ -81,4 +81,11 @@ public class TileGeoreferencing {
         }
         geocoding.getGeoPos(pix, geo);
     }
+
+    public void getPixelPos(final GeoPos geo, final PixelPos pix) {
+        if (geo.lon < 0) {
+            geo.lon += 360;
+        }
+        geocoding.getPixelPos(geo, pix);
+    }
 }
