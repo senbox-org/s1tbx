@@ -172,11 +172,18 @@ public class TriangleUtils {
                 zj = triangle.getA().z;
                 zk = triangle.getB().z;
                 zl = triangle.getC().z;
-                zkj = zk - zj;
-                zlj = zl - zj;
-                a[zLoop] = -f * (ykj * zlj - zkj * ylj);
-                b[zLoop] = -f * (zkj * xlj - xkj * zlj);
-                c[zLoop] = -a[zLoop] * vx[1] - b[zLoop] * vy[1] + zk;
+
+                if (zj == nodata || zk == nodata || zl == nodata) {
+                    a[zLoop] = 0;
+                    b[zLoop] = 0;
+                    c[zLoop] = nodata;
+                } else {
+                    zkj = zk - zj;
+                    zlj = zl - zj;
+                    a[zLoop] = -f * (ykj * zlj - zkj * ylj);
+                    b[zLoop] = -f * (zkj * xlj - xkj * zlj);
+                    c[zLoop] = -a[zLoop] * vx[1] - b[zLoop] * vy[1] + zk;
+                }
             }
 
             for (i = (int) i_min; i <= i_max; i++) {
