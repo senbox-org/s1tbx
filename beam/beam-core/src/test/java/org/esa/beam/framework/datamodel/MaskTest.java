@@ -58,7 +58,7 @@ public class MaskTest {
         Product product = new Product("t", "d", 1, 1);
         Band band = product.addBand("b", ProductData.TYPE_INT8);
         Mask mask = new Mask("m", 1, 1, Mask.BandMathsType.INSTANCE);
-        Mask.BandMathsType.setExpression(mask, "b == 2");
+        mask.setExpression("b == 2");
         product.getMaskGroup().add(mask);
         
         String expression = Mask.BandMathsType.getExpression(mask);

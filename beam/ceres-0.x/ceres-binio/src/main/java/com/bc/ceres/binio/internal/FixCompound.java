@@ -21,8 +21,14 @@ import com.bc.ceres.binio.CompoundType;
 import com.bc.ceres.binio.DataContext;
 import com.bc.ceres.binio.Type;
 
+import java.io.IOException;
+import java.util.ArrayList;
+
 
 final class FixCompound extends AbstractCompound {
+    private Segment segment;
+    private CompoundType compoundType;
+    private int[] offsetList;
 
     FixCompound(DataContext context, CollectionData parent, CompoundType compoundType, long position) {
         this(context, parent, compoundType, new Segment(position, compoundType.getSize()), 0);
@@ -30,13 +36,26 @@ final class FixCompound extends AbstractCompound {
 
     FixCompound(DataContext context, CollectionData parent, CompoundType compoundType, Segment segment, int bufferOffset) {
         super(context, parent, compoundType, segment.getPosition() + bufferOffset);
+        this.segment = segment;
+        this.compoundType = compoundType;
         final int cnt = compoundType.getMemberCount();
+        offsetList = new int[cnt];
         for (int i = 0; i < cnt; i++) {
             final Type memberType = compoundType.getMember(i).getType();
-            setMemberInstance(i, InstanceFactory.createFixMember(context, this, memberType, segment, bufferOffset));
+     //       setMemberInstance(i, InstanceFactory.createFixMember(context, this, memberType, segment, bufferOffset));
+            offsetList[i] = bufferOffset;
             bufferOffset += memberType.getSize();
         }
     }
+
+    protected final MemberInstance getMemberInstance(int index) throws IOException {
+        if(members[index] == null) {
+            members[index] = InstanceFactory.createFixMember(getContext(), this,
+                    compoundType.getMember(index).getType(), segment, offsetList[index]);
+        }
+        return members[index];
+    }
+
 
     @Override
     public long getSize() {
