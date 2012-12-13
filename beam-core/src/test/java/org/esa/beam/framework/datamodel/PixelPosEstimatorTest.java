@@ -15,8 +15,6 @@ package org.esa.beam.framework.datamodel;/*
  */
 
 import org.esa.beam.util.jai.SingleBandedSampleModel;
-import org.esa.beam.util.math.ArcDistanceCalculator;
-import org.esa.beam.util.math.DistanceCalculator;
 import org.esa.beam.util.math.Rotator;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -24,7 +22,9 @@ import org.junit.Test;
 import javax.media.jai.ImageLayout;
 import javax.media.jai.OpImage;
 import javax.media.jai.PlanarImage;
+import javax.media.jai.RenderedOp;
 import javax.media.jai.SourcelessOpImage;
+import javax.media.jai.operator.ConstantDescriptor;
 import java.awt.Rectangle;
 import java.awt.geom.Dimension2D;
 import java.awt.geom.Point2D;
@@ -42,26 +42,26 @@ public class PixelPosEstimatorTest {
     public void testCalculateTileCount() throws Exception {
         final int nx = 500;
         final int ny = 4000;
-        final OpImage[] images = generateSwathCoordinates(nx, ny, 0.01, 0.01, new Rotator(0.0, 0.0, 265.0));
+        final PlanarImage[] images = generateSwathCoordinates(nx, ny, 0.01, 0.01, new Rotator(0.0, 0.0, 265.0));
 
-        final Dimension2D pixelDimension = PixelPosEstimator.calculatePixelDimension(images[0], images[1]);
+        final Dimension2D pixelDimension = PixelPosEstimator.calculatePixelDimension(images[0], images[1], images[2]);
         assertEquals(0.01, pixelDimension.getWidth(), 0.001);
         assertEquals(0.01, pixelDimension.getHeight(), 0.001);
 
         final int tileCount = PixelPosEstimator.calculateTileCount(images[0], images[1], 10.0, pixelDimension);
-        assertEquals(4, tileCount);
+        assertEquals(5, tileCount);
     }
 
     @Test
-    @Ignore
     public void testGetPixelPos() {
         final int nx = 512;
         final int ny = 36000;
 
-        final OpImage[] images = generateSwathCoordinates(nx, ny, 0.009, 0.009, new Rotator(0.0, -5.0, 269.0));
-        final OpImage lonImage = images[0];
-        final OpImage latImage = images[1];
-        final PixelPosEstimator estimator = new PixelPosEstimator(lonImage, latImage, 0.5, 10.0,
+        final PlanarImage[] images = generateSwathCoordinates(nx, ny, 0.009, 0.009, new Rotator(0.0, -5.0, 269.0));
+        final PlanarImage lonImage = images[0];
+        final PlanarImage latImage = images[1];
+        final PlanarImage maskImage = images[2];
+        final PixelPosEstimator estimator = new PixelPosEstimator(lonImage, latImage, maskImage, 0.5, 10.0,
                                                                   new PixelPosEstimator.PixelSteppingFactory());
 
         final Raster lonData = lonImage.getData();
@@ -90,9 +90,9 @@ public class PixelPosEstimatorTest {
         final int nx = 512;
         final int ny = 256;
 
-        final OpImage[] images = generateSwathCoordinates(nx, ny, 0.009, 0.009, new Rotator(0.0, -5.0, 269.0));
-        final OpImage lonImage = images[0];
-        final OpImage latImage = images[1];
+        final PlanarImage[] images = generateSwathCoordinates(nx, ny, 0.009, 0.009, new Rotator(0.0, -5.0, 269.0));
+        final PlanarImage lonImage = images[0];
+        final PlanarImage latImage = images[1];
 
         final Product product = new Product("P", "T", nx, ny);
         final Band latBand = product.addBand("lat", ProductData.TYPE_FLOAT64);
@@ -130,14 +130,16 @@ public class PixelPosEstimatorTest {
 
         final RenderedImage lonImage = images[0];
         final RenderedImage latImage = images[1];
+        final RenderedImage maskImage = images[2];
         final Raster lonData = lonImage.getData();
         final Raster latData = latImage.getData();
+        final Raster maskData = maskImage.getData();
 
         final Rectangle rectangle = new Rectangle(0, 0, 512, 512);
         final PixelPosEstimator.Stepping stepping = new PixelPosEstimator.PixelSteppingFactory().createStepping(
                 rectangle, 1000);
 
-        final double[][] data = PixelPosEstimator.extractWarpPoints(lonData, latData, stepping);
+        final double[][] data = PixelPosEstimator.extractWarpPoints(lonData, latData, maskData, stepping);
         final PixelPosEstimator.Approximation a = PixelPosEstimator.createApproximation(data, 0.5, stepping);
         final RationalFunctionModel fx = a.getFX();
         final RationalFunctionModel fy = a.getFY();
@@ -194,8 +196,10 @@ public class PixelPosEstimatorTest {
 
         final RenderedImage lonImage = images[0];
         final RenderedImage latImage = images[1];
+        final RenderedImage maskImage = images[2];
         final Raster lonData = lonImage.getData();
         final Raster latData = latImage.getData();
+        final Raster maskData = maskImage.getData();
 
         assertEquals(0.0, lonData.getSampleDouble(nx / 2, ny / 2, 0), 0.0);
         assertEquals(0.0, latData.getSampleDouble(nx / 2, ny / 2, 0), 0.0);
@@ -204,7 +208,7 @@ public class PixelPosEstimatorTest {
         final PixelPosEstimator.Stepping stepping = new PixelPosEstimator.PixelSteppingFactory().createStepping(
                 rectangle, 1000);
 
-        final double[][] data = PixelPosEstimator.extractWarpPoints(lonData, latData, stepping);
+        final double[][] data = PixelPosEstimator.extractWarpPoints(lonData, latData, maskData, stepping);
         assertEquals(stepping.getPointCount(), data.length);
 
         final double[] upperLeft = data[0];
@@ -228,10 +232,10 @@ public class PixelPosEstimatorTest {
         assertEquals(511.5, lowerRight[3], 0.0);
     }
 
-    private static OpImage[] generateSwathCoordinates(int nx, int ny,
-                                                      final double lonResolution,
-                                                      final double latResolution,
-                                                      Rotator rotator) {
+    private static PlanarImage[] generateSwathCoordinates(int nx, int ny,
+                                                          final double lonResolution,
+                                                          final double latResolution,
+                                                          Rotator rotator) {
         final OpImage lonImage = new CoordinateOpImage(nx, ny, lonResolution, latResolution, rotator) {
 
             @Override
@@ -247,7 +251,11 @@ public class PixelPosEstimatorTest {
             }
         };
 
-        return new OpImage[]{lonImage, latImage};
+        final RenderedOp maskImage = ConstantDescriptor.create((float) lonImage.getWidth(),
+                                                               (float) lonImage.getHeight(),
+                                                               new Byte[]{1}, null);
+
+        return new PlanarImage[]{lonImage, latImage, maskImage};
     }
 
     private static abstract class CoordinateOpImage extends SourcelessOpImage {

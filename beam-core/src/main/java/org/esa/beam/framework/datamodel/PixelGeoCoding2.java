@@ -15,8 +15,10 @@
  */
 package org.esa.beam.framework.datamodel;
 
+import com.bc.ceres.glevel.MultiLevelImage;
 import org.esa.beam.framework.dataio.ProductSubsetDef;
 import org.esa.beam.framework.dataop.maptransf.Datum;
+import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.math.MathUtils;
@@ -129,9 +131,9 @@ class PixelGeoCoding2 extends AbstractGeoCoding {
 
         lonImage = lonBand.getGeophysicalImage();
         latImage = latBand.getGeophysicalImage();
-
         pixelPosEstimator = new PixelPosEstimator(lonImage,
                                                   latImage,
+                                                  null,
                                                   0.5, 10.0, new PixelPosEstimator.PixelSteppingFactory());
         final Dimension2D pixelDimension = pixelPosEstimator.getPixelDimension();
         final double pixelSizeX = pixelDimension.getWidth();
