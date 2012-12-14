@@ -33,7 +33,7 @@ import org.esa.beam.util.ProductUtils;
 import org.esa.nest.gpf.OperatorUtils;
 import org.esa.nest.gpf.TileIndex;
 import org.esa.nest.gpf.TileGeoreferencing;
-import org.esa.nest.gpf.DEMFactory;
+import org.esa.nest.dataio.dem.DEMFactory;
 
 import java.awt.*;
 import java.util.ArrayList;
