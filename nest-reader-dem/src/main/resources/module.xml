@@ -22,7 +22,10 @@
     <dependency>
         <module>beam-geotiff</module>
     </dependency>
-		
+    <dependency>
+        <module>jdoris-core</module>
+    </dependency>
+
     <categories>Reader,DEM</categories>
 
     <extension point="beam-ui:actions">
