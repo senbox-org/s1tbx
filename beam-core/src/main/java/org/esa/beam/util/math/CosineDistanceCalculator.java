@@ -15,9 +15,10 @@ package org.esa.beam.util.math;/*
  */
 
 /**
- * This class computes the arc distance (in Radian) between two (lon, lat) points.
+ * This class uses the negative cosine of the spherical distance as a distance
+ * measure between two (lon, lat) points.
  */
-public final class ArcDistanceCalculator implements DistanceCalculator {
+public class CosineDistanceCalculator implements DistanceCalculator {
 
     private final double lon;
     private final double si;
@@ -29,25 +30,25 @@ public final class ArcDistanceCalculator implements DistanceCalculator {
      * @param lon The reference longitude of this distance calculator.
      * @param lat The reference latitude of this distance calculator.
      */
-    public ArcDistanceCalculator(double lon, double lat) {
+    public CosineDistanceCalculator(double lon, double lat) {
         this.lon = lon;
         this.si = Math.sin(Math.toRadians(lat));
         this.co = Math.cos(Math.toRadians(lat));
     }
 
     /**
-     * Returns the arc distance (in Radian) of a given (lon, lat) point to
+     * Returns the negative cosine of the spherical distance of a given (lon, lat) point to
      * the reference (lon, lat) point.
      *
      * @param lon The longitude.
      * @param lat The latitude.
      *
-     * @return the arc distance (in Radian) of the given (lon, lat) point
+     * @return the negative cosine of the spherical distance of the given (lon, lat) point
      *         to the reference (lon, lat) point.
      */
     @Override
     public double distance(double lon, double lat) {
         final double phi = Math.toRadians(lat);
-        return Math.acos(si * Math.sin(phi) + co * Math.cos(phi) * Math.cos(Math.toRadians(lon - this.lon)));
+        return -(si * Math.sin(phi) + co * Math.cos(phi) * Math.cos(Math.toRadians(lon - this.lon)));
     }
 }

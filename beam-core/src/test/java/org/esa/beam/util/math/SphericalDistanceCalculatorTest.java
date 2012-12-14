@@ -18,11 +18,11 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
-public class ArcDistanceCalculatorTest {
+public class SphericalDistanceCalculatorTest {
 
     @Test
     public void testArcDistance() {
-        final DistanceCalculator distanceCalculator = new ArcDistanceCalculator(0.0, 0.0);
+        final DistanceCalculator distanceCalculator = new SphericalDistanceCalculator(0.0, 0.0);
         assertEquals(0.0, distanceCalculator.distance(0.0, 0.0), 0.0);
         assertEquals(1.0, Math.toDegrees(distanceCalculator.distance(1.0, 0.0)), 1.0e-10);
         assertEquals(1.0, Math.toDegrees(distanceCalculator.distance(0.0, 1.0)), 1.0e-10);

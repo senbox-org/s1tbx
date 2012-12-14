@@ -15,10 +15,11 @@ package org.esa.beam.framework.datamodel;
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-import org.esa.beam.util.math.ArcDistanceCalculator;
+import org.esa.beam.util.math.CosineDistanceCalculator;
 import org.esa.beam.util.math.DistanceCalculator;
 import org.esa.beam.util.math.MathUtils;
 import org.esa.beam.util.math.Rotator;
+import org.esa.beam.util.math.SphericalDistanceCalculator;
 
 import javax.media.jai.PlanarImage;
 import javax.media.jai.operator.ConstantDescriptor;
@@ -52,12 +53,25 @@ public class PixelPosEstimator {
                                               pixelDimension);
     }
 
+    public PixelPosEstimator(PixelPosEstimator pixelPosEstimator) {
+        this.approximations = pixelPosEstimator.getApproximations();
+        this.pixelDimension = pixelPosEstimator.getPixelDimension();
+    }
+
+    public final Approximation[] getApproximations() {
+        return approximations;
+    }
+
     public final Dimension2D getPixelDimension() {
-        return pixelDimension;
+        return new PixelDimension(pixelDimension);
+    }
+
+    public final boolean canGetPixelPos() {
+        return approximations != null;
     }
 
     public Approximation getPixelPos(GeoPos geoPos, PixelPos pixelPos) {
-        // TODO? - hack for self-overlapping AATSR products (found in TiePointGeoCoding)
+        // TODO? - self-overlapping AATSR products (found in TiePointGeoCoding)
         Approximation approximation = null;
         if (approximations != null) {
             if (pixelPos == null) {
@@ -169,7 +183,7 @@ public class PixelPosEstimator {
                 if (getSampleBoolean(maskImage, x0, y0)) {
                     final double lat0 = getSampleDouble(latImage, x0, y0, -90.0, 90.0);
                     final double lon0 = getSampleDouble(lonImage, x0, y0, -180.0, 180.0);
-                    final DistanceCalculator calculator = new ArcDistanceCalculator(lon0, lat0);
+                    final DistanceCalculator calculator = new SphericalDistanceCalculator(lon0, lat0);
                     final int x1 = ((i - 1) * w) / i;
 
                     if (getSampleBoolean(maskImage, x1, y0)) {
@@ -221,11 +235,11 @@ public class PixelPosEstimator {
         }
 
         return new Approximation(fX, fY, maxDistance * 1.1, rotator,
-                                 new ArcDistanceCalculator(centerLon, centerLat), stepping);
+                                 new CosineDistanceCalculator(centerLon, centerLat), stepping);
     }
 
     static double maxDistance(final double[][] data, double centerLon, double centerLat) {
-        final DistanceCalculator distanceCalculator = new ArcDistanceCalculator(centerLon, centerLat);
+        final DistanceCalculator distanceCalculator = new SphericalDistanceCalculator(centerLon, centerLat);
         double maxDistance = 0.0;
         for (final double[] p : data) {
             final double d = distanceCalculator.distance(p[LON], p[LAT]);
@@ -485,6 +499,10 @@ public class PixelPosEstimator {
         private PixelDimension(double pixelSizeX, double pixelSizeY) {
             this.pixelSizeX = pixelSizeX;
             this.pixelSizeY = pixelSizeY;
+        }
+
+        private PixelDimension(Dimension2D pixelDimension) {
+            this(pixelDimension.getWidth(), pixelDimension.getHeight());
         }
 
         @Override
