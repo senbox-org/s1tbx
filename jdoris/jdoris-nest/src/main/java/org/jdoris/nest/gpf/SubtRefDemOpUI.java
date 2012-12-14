@@ -6,7 +6,6 @@ import org.esa.beam.framework.gpf.ui.BaseOperatorUI;
 import org.esa.beam.framework.gpf.ui.UIValidation;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.visat.VisatApp;
-import org.esa.nest.gpf.DEMFactory;
 import org.esa.nest.gpf.OperatorUIUtils;
 import org.esa.nest.util.DialogUtils;
 
@@ -67,7 +66,7 @@ public class SubtRefDemOpUI extends BaseOperatorUI {
 
         demName.addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent event) {
-                final String item = ((String)demName.getSelectedItem()).replace(DEMFactory.AUTODEM, "");
+                final String item = ((String)demName.getSelectedItem()).replace(" (Auto Download)", "");
                 if(item.equals(externalDEMStr)) {
                     enableExternalDEM(true);
                 } else {
@@ -77,7 +76,7 @@ public class SubtRefDemOpUI extends BaseOperatorUI {
             }
         });
         externalDEMFile.setColumns(30);
-        final String demItem = ((String)demName.getSelectedItem()).replace(DEMFactory.AUTODEM, "");
+        final String demItem = ((String)demName.getSelectedItem()).replace(" (Auto Download)", "");
         enableExternalDEM(demItem.equals(externalDEMStr));
 
         externalDEMBrowseButton.addActionListener(new ActionListener() {
