@@ -23,6 +23,7 @@ import org.esa.beam.framework.gpf.ui.BaseOperatorUI;
 import org.esa.beam.framework.gpf.ui.UIValidation;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.visat.VisatApp;
+import org.esa.nest.dataio.dem.DEMFactory;
 import org.esa.nest.datamodel.AbstractMetadata;
 import org.esa.nest.datamodel.MapProjectionHandler;
 import org.esa.nest.util.DialogUtils;
@@ -31,6 +32,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
+
 import java.util.Map;
 
 /**
@@ -43,7 +45,7 @@ public class RangeDopplerGeocodingOpUI extends BaseOperatorUI {
 
     private static final String externalDEMStr = "External DEM";
 
-    private final JComboBox demResamplingMethod = new JComboBox(ResamplingFactory.resamplingNames);
+    private JComboBox demResamplingMethod = new JComboBox(ResamplingFactory.resamplingNames);
 
     final JComboBox imgResamplingMethod = new JComboBox(ResamplingFactory.resamplingNames);
 
@@ -115,6 +117,8 @@ public class RangeDopplerGeocodingOpUI extends BaseOperatorUI {
             demName.addItem(DEMFactory.appendAutoDEM(dem.getName()));
         }
         demName.addItem(externalDEMStr);
+
+        demResamplingMethod.addItem(RangeDopplerGeocodingOp.DELAUNAY_INTERPOLATION);
 
         initializeOperatorUI(operatorName, parameterMap);
 

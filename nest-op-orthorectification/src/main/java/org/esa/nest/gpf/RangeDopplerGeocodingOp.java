@@ -30,15 +30,19 @@ import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.visat.VisatApp;
+import org.esa.nest.dataio.dem.DEMFactory;
 import org.esa.nest.dataio.dem.EarthGravitationalModel96;
 import org.esa.nest.dataio.dem.FileElevationModel;
 import org.esa.nest.datamodel.*;
 import org.esa.nest.util.Constants;
 import org.esa.nest.util.GeoUtils;
 import org.esa.nest.util.MathUtils;
+import org.jdoris.core.*;
+import org.jdoris.core.utils.TriangleUtils;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import java.awt.*;
+import java.awt.Window;
 import java.io.File;
 import java.util.*;
 import java.util.List;
@@ -221,6 +225,7 @@ public class RangeDopplerGeocodingOp extends Operator {
     public static final String USE_LOCAL_INCIDENCE_ANGLE_FROM_DEM = "Use local incidence angle from DEM";
     public static final String USE_INCIDENCE_ANGLE_FROM_ELLIPSOID = "Use incidence angle from Ellipsoid";
     public static final double NonValidIncidenceAngle = -99999.0;
+    public static final String DELAUNAY_INTERPOLATION = "DELAUNAY_INTERPOLATION";
 
     /**
      * Initializes this operator and sets the one and only target product.
@@ -472,15 +477,24 @@ public class RangeDopplerGeocodingOp extends Operator {
         if(isElevationModelAvailable) return;
         if(externalDEMFile != null) { // if external DEM file is specified by user
 
-            dem = new FileElevationModel(externalDEMFile,
-                                         ResamplingFactory.createResampling(demResamplingMethod),
-                                         (float)externalDEMNoDataValue);
+            if (demResamplingMethod.equals(DELAUNAY_INTERPOLATION)) {
+                throw new OperatorException("Delaunay interpolation for DEM file is currently not supported");
+            } else {
+                dem = new FileElevationModel(externalDEMFile,
+                                             ResamplingFactory.createResampling(demResamplingMethod),
+                                             (float)externalDEMNoDataValue);
+            }
 
             demNoDataValue = (float) externalDEMNoDataValue;
             demName = externalDEMFile.getName();
 
         } else {
-            dem = DEMFactory.createElevationModel(demName, demResamplingMethod);                  
+
+            if (demResamplingMethod.equals(DELAUNAY_INTERPOLATION)) {
+                dem = DEMFactory.createElevationModel(demName, ResamplingFactory.NEAREST_NEIGHBOUR_NAME);
+            } else {
+                dem = DEMFactory.createElevationModel(demName, demResamplingMethod);
+            }
             demNoDataValue = dem.getDescriptor().getNoDataValue();
         }
         isElevationModelAvailable = true;
@@ -903,7 +917,13 @@ public class RangeDopplerGeocodingOp extends Operator {
             if(useAvgSceneHeight) {
                 DEMFactory.fillDEM(localDEM, (float)avgSceneHeight);
             } else {
-                final boolean valid = DEMFactory.getLocalDEM(dem, demNoDataValue, tileGeoRef, x0, y0, w, h, localDEM);
+                boolean valid;
+                if (demResamplingMethod.equals(DELAUNAY_INTERPOLATION)) {
+                    valid = DEMFactory.getLocalDEMUsingDelaunayInterpolation(dem, demNoDataValue, tileGeoRef, x0, y0, w, h, localDEM);
+                } else {
+                    valid = DEMFactory.getLocalDEM(dem, demNoDataValue, tileGeoRef, x0, y0, w, h, localDEM);
+                }
+
                 if(!valid && nodataValueAtSea)
                     return;
             }
