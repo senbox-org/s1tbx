@@ -31,7 +31,7 @@ import java.io.IOException;
  * <li> {@link #decode(org.esa.beam.dataio.netcdf.ProfileReadContext , Product)}</li>
  * </ol>
  * If two parts of one {@link org.esa.beam.dataio.netcdf.AbstractNetCdfReaderPlugIn AbstractNetCdfReaderPlugIn}
- * implementation depend on each other, the twofold decoding helps two transport information from one part to the other.
+ * implementation depend on each other, the twofold decoding helps to transport information from one part to the other.
  * One part can store information in the {@link ProfileReadContext context} and the other can retrieve it in the
  * successive decoding step.
  */
