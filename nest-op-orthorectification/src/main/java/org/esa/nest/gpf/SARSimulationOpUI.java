@@ -22,6 +22,7 @@ import org.esa.beam.framework.gpf.ui.BaseOperatorUI;
 import org.esa.beam.framework.gpf.ui.UIValidation;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.visat.VisatApp;
+import org.esa.nest.dataio.dem.DEMFactory;
 import org.esa.nest.util.DialogUtils;
 
 import javax.swing.*;

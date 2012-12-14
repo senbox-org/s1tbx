@@ -33,6 +33,7 @@ import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.visat.VisatApp;
 import org.esa.nest.dat.dialogs.AutoCloseOptionPane;
+import org.esa.nest.dataio.dem.DEMFactory;
 import org.esa.nest.dataio.dem.FileElevationModel;
 import org.esa.nest.datamodel.*;
 import org.esa.nest.util.Constants;
