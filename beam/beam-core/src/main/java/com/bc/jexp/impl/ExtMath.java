@@ -60,7 +60,7 @@ public final class ExtMath {
      * @return true, if x1 and x2 are not equal
      */
     public static boolean fneq(final double x1, final double x2, final double eps) {
-        return !feq(x1, x2, eps);
+        return !(x1 == x2 || Math.abs(x1 - x2) <= eps);
     }
 
     /**

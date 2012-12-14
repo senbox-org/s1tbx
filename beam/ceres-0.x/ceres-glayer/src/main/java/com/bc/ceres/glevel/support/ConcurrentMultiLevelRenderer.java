@@ -37,6 +37,9 @@ public class ConcurrentMultiLevelRenderer implements MultiLevelRenderer {
     private final Map<TileIndex, TileRequest> scheduledTileRequests;
     private final TileImageCache localTileCache;
 
+    private final static DescendingLevelsComparator descendingLevelsComparator = new DescendingLevelsComparator();
+    private final static AscendingLevelsComparator ascendingLevelsComparator = new AscendingLevelsComparator();
+
     public ConcurrentMultiLevelRenderer() {
         scheduledTileRequests = Collections.synchronizedMap(new HashMap<TileIndex, TileRequest>(37));
         localTileCache = new TileImageCache();
@@ -126,7 +129,7 @@ public class ConcurrentMultiLevelRenderer implements MultiLevelRenderer {
 
         // Draw missing tiles from other levels (if any)
         drawTentativeTileImages(graphics, viewport,
-                                multiLevelSource, currentLevel, planarImage, missingTileIndexList);
+                                multiLevelSource, currentLevel, planarImage, missingTileIndexList.toArray(new TileIndex[missingTileIndexList.size()]));
 
         // Draw available tiles
         for (final TileIndex tileIndex : availableTileIndexList) {
@@ -149,7 +152,7 @@ public class ConcurrentMultiLevelRenderer implements MultiLevelRenderer {
         }
 
         // Remove any tile images that are older than the retention period.
-        localTileCache.trim(currentLevel);
+       // localTileCache.trim(currentLevel);
     }
 
     private void drawTentativeTileImages(Graphics2D g,
@@ -157,15 +160,15 @@ public class ConcurrentMultiLevelRenderer implements MultiLevelRenderer {
                                          MultiLevelSource multiLevelSource,
                                          int level,
                                          PlanarImage planarImage,
-                                         List<TileIndex> missingTileIndexList) {
+                                         TileIndex[] missingTileIndexList) {
         final AffineTransform i2m = multiLevelSource.getModel().getImageToModelTransform(level);
+        final Collection<TileImage> tileImages = localTileCache.getAll();
         for (final TileIndex tileIndex : missingTileIndexList) {
 
             final Rectangle tileRect = planarImage.getTileRect(tileIndex.tileX, tileIndex.tileY);
             final Rectangle2D bounds = i2m.createTransformedShape(tileRect).getBounds2D();
 
-            final TreeSet<TileImage> tentativeTileImageSet = new TreeSet<TileImage>(new DescendingLevelsComparator());
-            final Collection<TileImage> tileImages = localTileCache.getAll();
+            final TreeSet<TileImage> tentativeTileImageSet = new TreeSet<TileImage>(descendingLevelsComparator);
 
             // Search for a tile image at the nearest higher resolution which is contained by bounds
             TileImage containedTileImage = null;
@@ -483,7 +486,7 @@ public class ConcurrentMultiLevelRenderer implements MultiLevelRenderer {
 
     }
 
-    private final class TileImageCache {
+    private static class TileImageCache {
         private final Map<TileIndex, TileImage> cache;
         private long size;
         private final long capacity;
@@ -555,7 +558,7 @@ public class ConcurrentMultiLevelRenderer implements MultiLevelRenderer {
         }
 
         private void removeOld(final long now, int currentLevel) {
-            final TreeSet<TileImage> treeSet = new TreeSet<TileImage>(new AscendingLevelsComparator());
+            final TreeSet<TileImage> treeSet = new TreeSet<TileImage>(ascendingLevelsComparator);
             treeSet.addAll(cache.values());
             // try to remove "old" tiles from other levels first
             for (TileImage image : treeSet) {
