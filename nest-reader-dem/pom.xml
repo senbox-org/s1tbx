@@ -34,5 +34,9 @@
             <artifactId>junit</artifactId>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>org.jdoris</groupId>
+            <artifactId>jdoris-core</artifactId>
+        </dependency>
     </dependencies>
 </project>
