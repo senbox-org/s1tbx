@@ -53,6 +53,7 @@ public class PixelPosEstimatorTest {
     }
 
     @Test
+    @Ignore
     public void testGetPixelPos() {
         final int nx = 512;
         final int ny = 36000;
