@@ -25,9 +25,9 @@
     <dependency>
         <module>nest-core</module>
     </dependency>
-	<dependency>
+	<!--dependency>
         <module>nest-reader-dem</module>
-    </dependency>
+    </dependency -->
     <dependency>
         <module>nest-graph-builder</module>
     </dependency>
