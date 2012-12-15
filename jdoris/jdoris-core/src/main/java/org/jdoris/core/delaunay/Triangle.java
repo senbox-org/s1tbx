@@ -25,7 +25,7 @@ import static org.jdoris.core.delaunay.MathUtils.*;
  * </ul>
  */
 
-public class Triangle {
+public final class Triangle {
 
 
     /**

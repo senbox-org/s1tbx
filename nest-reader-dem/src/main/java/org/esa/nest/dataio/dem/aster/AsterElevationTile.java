@@ -15,53 +15,25 @@
  */
 package org.esa.nest.dataio.dem.aster;
 
-import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.GeoPos;
-import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.nest.dataio.dem.BaseElevationTile;
 import org.esa.nest.dataio.dem.EarthGravitationalModel96;
+import org.esa.nest.gpf.TileGeoreferencing;
 
 public final class AsterElevationTile extends BaseElevationTile {
-    /*
-    private final float[][] egmArray;
 
     public AsterElevationTile(final AsterElevationModel dem, final Product product) {
         super(dem, product);
-
-        egmArray = EarthGravitationalModel96.instance().computeEGMArray(product.getGeoCoding(), 4, 4);
     }
 
     protected void addGravitationalModel(final int index, final float[] line) {
-        final int rowIdxInEGMArray = index / 900; // tile_height / numEGMSamplesInCol = 3600 / 4 = 900
-        for (int i = 0; i < 3600; i++) {
-            try {
+        final GeoPos geoPos = new GeoPos();
+        final TileGeoreferencing tileGeoRef = new TileGeoreferencing(product, 0, index, line.length, 1);
+        for (int i = 0; i < line.length; i++) {
             if (line[i] != noDataValue) {
-                line[i] += egmArray[rowIdxInEGMArray][i/900];
-            }
-            } catch(Exception e) {
-                System.out.print(e.getMessage());
-            }
-        }
-    }
-    */
-
-    private GeoCoding geoCoding = null;
-
-    public AsterElevationTile(final AsterElevationModel dem, final Product product) {
-        super(dem, product);
-        geoCoding = product.getGeoCoding();
-    }
-
-    protected void addGravitationalModel(final int index, final float[] line) {
-        for (int i = 0; i < 3600; i++) {
-            try {
-            if (line[i] != noDataValue) {
-                final GeoPos geoPos = geoCoding.getGeoPos(new PixelPos(i,index), null);
+                tileGeoRef.getGeoPos(i,index, geoPos);
                 line[i] += EarthGravitationalModel96.instance().getEGM(geoPos.lat, geoPos.lon);
-            }
-            } catch(Exception e) {
-                System.out.print(e.getMessage());
             }
         }
     }

@@ -15,50 +15,26 @@
  */
 package org.esa.nest.dataio.dem.srtm3_geotiff;
 
-import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.GeoPos;
-import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.nest.dataio.dem.BaseElevationTile;
 import org.esa.nest.dataio.dem.EarthGravitationalModel96;
+import org.esa.nest.gpf.TileGeoreferencing;
 
 public final class SRTM3GeoTiffElevationTile extends BaseElevationTile {
-    /*
-    private final float[][] egmArray;
 
     public SRTM3GeoTiffElevationTile(final SRTM3GeoTiffElevationModel dem, final Product product) {
         super(dem, product);
-
-        egmArray = EarthGravitationalModel96.instance().computeEGMArray(product.getGeoCoding(), 20, 20);
-    }
-
-    protected void addGravitationalModel(final int index, final float[] line) {
-        final int rowIdxInEGMArray = index / 300; // tile_height / numEGMSamplesInCol
-        for (int i = 0; i < line.length; i++) {
-            if (line[i] != noDataValue) {
-                //final int colIdxInEGMArray = i/300; // tile_width / numEGMSamplesInRow = 6000 / 20 = 300
-                line[i] += egmArray[rowIdxInEGMArray][i/300];
-            }
-        }
-    }
-    */
-
-    private GeoCoding geoCoding = null;
-
-    public SRTM3GeoTiffElevationTile(final SRTM3GeoTiffElevationModel dem, final Product product) {
-        super(dem, product);
-        geoCoding = product.getGeoCoding();
     }
 
     protected void addGravitationalModel(final int index, final float[] line) {
         final GeoPos geoPos = new GeoPos();
-        final PixelPos pixPos = new PixelPos();
+        final TileGeoreferencing tileGeoRef = new TileGeoreferencing(product, 0, index, line.length, 1);
         for (int i = 0; i < line.length; i++) {
             if (line[i] != noDataValue) {
-                pixPos.setLocation(i, index);
-                geoCoding.getGeoPos(pixPos, geoPos);
+                tileGeoRef.getGeoPos(i,index, geoPos);
                 line[i] += EarthGravitationalModel96.instance().getEGM(geoPos.lat, geoPos.lon);
             }
-        }   
+        }
     }
 }

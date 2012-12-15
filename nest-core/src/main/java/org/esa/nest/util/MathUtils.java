@@ -132,9 +132,9 @@ public final class MathUtils
      * @return The interpolated sample value.
      */
     public static double interpolationBiCubic(final double[][] v, final double muX, final double muY) {
-        if (v.length != 4 || v[0].length != 4 || v[1].length != 4 || v[2].length != 4 || v[3].length != 4) {
-            throw new OperatorException("Incorrect sample array length");
-        }
+        //if (v.length != 4 || v[0].length != 4 || v[1].length != 4 || v[2].length != 4 || v[3].length != 4) {
+        //    throw new OperatorException("Incorrect sample array length");
+        //}
         return interpolationCubic(interpolationCubic(v[0][0], v[0][1], v[0][2], v[0][3], muX),
                                 interpolationCubic(v[1][0], v[1][1], v[1][2], v[1][3], muX),
                                 interpolationCubic(v[2][0], v[2][1], v[2][2], v[2][3], muX),
@@ -152,14 +152,13 @@ public final class MathUtils
      * @return The interpolated sample value.
      */
     public static double interpolationBiCubic2(final double[][] v, final double muX, final double muY) {
-        if (v.length != 4 || v[0].length != 4 || v[1].length != 4 || v[2].length != 4 || v[3].length != 4) {
-            throw new OperatorException("Incorrect sample array length");
-        }
-        final double tmpV0 = interpolationCubic2(v[0][0], v[0][1], v[0][2], v[0][3], muX);
-        final double tmpV1 = interpolationCubic2(v[1][0], v[1][1], v[1][2], v[1][3], muX);
-        final double tmpV2 = interpolationCubic2(v[2][0], v[2][1], v[2][2], v[2][3], muX);
-        final double tmpV3 = interpolationCubic2(v[3][0], v[3][1], v[3][2], v[3][3], muX);
-        return interpolationCubic2(tmpV0, tmpV1, tmpV2, tmpV3, muY);
+        //if (v.length != 4 || v[0].length != 4 || v[1].length != 4 || v[2].length != 4 || v[3].length != 4) {
+        //    throw new OperatorException("Incorrect sample array length");
+        //}
+        return interpolationCubic2(interpolationCubic2(v[0][0], v[0][1], v[0][2], v[0][3], muX),
+                                   interpolationCubic2(v[1][0], v[1][1], v[1][2], v[1][3], muX),
+                                   interpolationCubic2(v[2][0], v[2][1], v[2][2], v[2][3], muX),
+                                   interpolationCubic2(v[3][0], v[3][1], v[3][2], v[3][3], muX), muY);
     }
 
     /**
@@ -172,10 +171,10 @@ public final class MathUtils
      * @return The interpolated sample value.
      */
     public static double interpolationBiSinc(final double[][] v, final double muX, final double muY) {
-        if (v.length != 5 ||
-            v[0].length != 5 || v[1].length != 5 || v[2].length != 5 || v[3].length != 5 || v[4].length != 5) {
-            throw new OperatorException("Incorrect sample array length");
-        }
+        //if (v.length != 5 ||
+        //    v[0].length != 5 || v[1].length != 5 || v[2].length != 5 || v[3].length != 5 || v[4].length != 5) {
+        //    throw new OperatorException("Incorrect sample array length");
+        //}
         final double tmpV0 = interpolationSinc(v[0][0], v[0][1], v[0][2], v[0][3], v[0][4], muX);
         final double tmpV1 = interpolationSinc(v[1][0], v[1][1], v[1][2], v[1][3], v[1][4], muX);
         final double tmpV2 = interpolationSinc(v[2][0], v[2][1], v[2][2], v[2][3], v[2][4], muX);

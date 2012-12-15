@@ -24,7 +24,7 @@ import java.util.Arrays;
 
 public class BaseElevationTile implements ElevationTile {
 
-    private Product product;
+    protected Product product;
     private final Band band;
     private final int bandWidth;
     protected final float noDataValue;

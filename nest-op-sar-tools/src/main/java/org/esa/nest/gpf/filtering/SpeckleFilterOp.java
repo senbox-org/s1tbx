@@ -857,12 +857,17 @@ public class SpeckleFilterOp extends Operator {
         final double[][] neighborPixelValues = new double[filterSizeY][filterSizeX];
         final ProductData trgData = targetTile.getDataBuffer();
 
+        final ProductData srcData1 = sourceRaster1.getDataBuffer();
+        ProductData srcData2 = null;
+        if(sourceRaster2 != null)
+            srcData2 = sourceRaster2.getDataBuffer();
+
         final int maxY = y0 + h;
         final int maxX = x0 + w;
         for (int y = y0; y < maxY; ++y) {
             for (int x = x0; x < maxX; ++x) {
                 final int n = getNeighborValuesWithoutBorderExt(
-                        x, y, sx0, sy0, sw, sh, sourceRaster1, sourceRaster2, bandUnit, neighborPixelValues);
+                        x, y, sx0, sy0, sw, sh, sourceRaster1, srcData1, srcData2, bandUnit, neighborPixelValues);
 
                 trgData.setElemDoubleAt(targetTile.getDataBufferIndex(x, y), getRefinedLeeValue(n, neighborPixelValues));
             }
@@ -879,7 +884,8 @@ public class SpeckleFilterOp extends Operator {
      * @param sw Source tile width.
      * @param sh Source tile height.
      * @param sourceRaster1 The source tile for the 1st band.
-     * @param sourceRaster2 The source tile for the 2nd band.
+     * @param srcData1 databuffer 1
+     * @param srcData2 databuffer 2
      * @param bandUnit Unit for the 1st band.
      * @param neighborPixelValues 2-D array holding the pixel valuse.
      * @return The number of valid pixels.
@@ -888,22 +894,25 @@ public class SpeckleFilterOp extends Operator {
      */
     private int getNeighborValuesWithoutBorderExt(final int x, final int y, final int sx0, final int sy0,
                                                   final int sw, final int sh, final Tile sourceRaster1,
-                                                  final Tile sourceRaster2, final Unit.UnitType bandUnit,
+                                                  final ProductData srcData1, final ProductData srcData2,
+                                                  final Unit.UnitType bandUnit,
                                                   double[][] neighborPixelValues) {
-
-        final ProductData srcData1 = sourceRaster1.getDataBuffer();
-        ProductData srcData2 = null;
-        if(sourceRaster2 != null)
-            srcData2 = sourceRaster2.getDataBuffer();
-
+        final int maxY = sy0 + sh;
+        final int maxX = sx0 + sw;
         int k = 0;
         if (bandUnit == Unit.UnitType.REAL || bandUnit == Unit.UnitType.IMAGINARY) {
 
             for (int j = 0; j < filterSizeY; ++j) {
                 final int yj = y - halfSizeY + j;
+                if(yj < sy0 || yj >= maxY) {
+                    for (int i = 0; i < filterSizeX; ++i) {
+                        neighborPixelValues[j][i] = NonValidPixelValue;
+                    }
+                    continue;
+                }
                 for (int i = 0; i < filterSizeX; ++i) {
                     final int xi = x - halfSizeX + i;
-                    if (xi < sx0 || xi >= sx0 + sw || yj < sy0 || yj >= sy0 + sh) {
+                    if (xi < sx0 || xi >= maxX) {
                         neighborPixelValues[j][i] = NonValidPixelValue;
                     } else {
                         final int idx = sourceRaster1.getDataBufferIndex(xi, yj);
@@ -919,9 +928,15 @@ public class SpeckleFilterOp extends Operator {
 
             for (int j = 0; j < filterSizeY; ++j) {
                 final int yj = y - halfSizeY + j;
+                if(yj < sy0 || yj >= maxY) {
+                    for (int i = 0; i < filterSizeX; ++i) {
+                        neighborPixelValues[j][i] = NonValidPixelValue;
+                    }
+                    continue;
+                }
                 for (int i = 0; i < filterSizeX; ++i) {
                     final int xi = x - halfSizeX + i;
-                    if (xi < sx0 || xi >= sx0 + sw || yj < sy0 || yj >= sy0 + sh) {
+                    if (xi < sx0 || xi >= maxX) {
                         neighborPixelValues[j][i] = NonValidPixelValue;
                     } else {
                         neighborPixelValues[j][i] = srcData1.getElemDoubleAt(sourceRaster1.getDataBufferIndex(xi, yj));

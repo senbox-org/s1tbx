@@ -16,7 +16,7 @@ import static org.jdoris.core.delaunay.MathUtils.*;
  * Fast Delaunay Triangulator.
  */
 
-public class FastDelaunayTriangulator extends AbstractInMemoryTriangulator {
+public final class FastDelaunayTriangulator extends AbstractInMemoryTriangulator {
 
     /**
      * A phantom Triangle located out of the convex hull and having HORIZON as
@@ -189,7 +189,7 @@ public class FastDelaunayTriangulator extends AbstractInMemoryTriangulator {
     * @param t triangle to check and to modify (if needed)
     * @return true if a flip occured during the delaunay property check
     */
-    private void delaunay (Triangle t, int side) {
+    private void delaunay (final Triangle t, final int side) {
 
         if (t.getEdgeType(side)==Triangle.EdgeType.HARDBREAK) return;
 

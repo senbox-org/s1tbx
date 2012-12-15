@@ -16,9 +16,6 @@
 package org.esa.nest.dataio.dem;
 
 import org.apache.commons.math.util.FastMath;
-import org.esa.beam.framework.datamodel.GeoCoding;
-import org.esa.beam.framework.datamodel.GeoPos;
-import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.nest.util.MathUtils;
 import org.esa.nest.util.Settings;
@@ -52,7 +49,7 @@ import java.util.StringTokenizer;
  *                        0.00 E           360.00 E
  */
 
-public class EarthGravitationalModel96 {
+public final class EarthGravitationalModel96 {
 
     private static final String NAME = "ww15mgh_b.grd";
     private static final int NUM_LATS = 721; // 180*4 + 1  (cover 90 degree to -90 degree)
@@ -144,65 +141,25 @@ public class EarthGravitationalModel96 {
         final double r = (90 - lat) / 0.25;
         final double c = (lon < 0? lon + 360 : lon)/ 0.25;
 
-        /*
-        final int r0 = (int)r;
-        final int c0 = (int)c;
-        final int r1 = Math.min(r0 + 1, NUM_LATS - 1);
-        final int c1 = Math.min(c0 + 1, NUM_LONS - 1);
-
-        final double n00 = egm[r0][c0];
-        final double n01 = egm[r0][c1];
-        final double n10 = egm[r1][c0];
-        final double n11 = egm[r1][c1];
-
-        final double dRow = r - r0;
-        final double dCol = c - c0;
-
-        return (float)MathUtils.interpolationBiLinear(n00, n01, n10, n11, dCol, dRow);
-        */
         final double[][] v = new double[4][4];
-        final int r0 = ((int)r-1);
-        final int c0 = ((int)c-1);
-        final double dRow = r - (r0+1);
-        final double dCol = c - (c0+1);
+        final int r0 = FastMath.max(((int)r-1), 0);
+        final int c0 = FastMath.max(((int)c-1), 0);
+
+        final int ci0 = FastMath.min(c0    , MAX_LONS);
+        final int ci1 = FastMath.min(c0 + 1, MAX_LONS);
+        final int ci2 = FastMath.min(c0 + 2, MAX_LONS);
+        final int ci3 = FastMath.min(c0 + 3, MAX_LONS);
+
         for (int i = 0; i < 4; i++) {
-            final int ri = FastMath.min(FastMath.max(r0 + i, 0), MAX_LATS);
-            //for (int j = 0; j < 4; j++) {
-            //    final int cj = Math.min(Math.max(c0 + j, 0), MAX_LONS);
-            //    v[i][j] = egm[ri][cj];
-            //}
+            final int ri = FastMath.min(r0 + i, MAX_LATS);
 
             //unrolled loop
-            v[i][0] = egm[ri][FastMath.min(FastMath.max(c0    , 0), MAX_LONS)];
-            v[i][1] = egm[ri][FastMath.min(FastMath.max(c0 + 1, 0), MAX_LONS)];
-            v[i][2] = egm[ri][FastMath.min(FastMath.max(c0 + 2, 0), MAX_LONS)];
-            v[i][3] = egm[ri][FastMath.min(FastMath.max(c0 + 3, 0), MAX_LONS)];
+            v[i][0] = egm[ri][ci0];
+            v[i][1] = egm[ri][ci1];
+            v[i][2] = egm[ri][ci2];
+            v[i][3] = egm[ri][ci3];
         }
 
-        return (float)MathUtils.interpolationBiCubic(v, dCol, dRow);
-
-    }
-
-    public float[][] computeEGMArray(final GeoCoding geoCoding,
-                                             final int numEGMSamplesInRow, final int numEGMSamplesInCol) {
-
-        final float[][] egmArray = new float[numEGMSamplesInRow][numEGMSamplesInCol]; // 5 deg / 15 min
-
-        if(geoCoding == null) {
-            throw new OperatorException("Product does not contain a geocoding");
-        }
-        final GeoPos geoPosFirstNear = geoCoding.getGeoPos(new PixelPos(0,0), null);
-        final double lat0 = geoPosFirstNear.getLat() + 0.125; // + half of 15 min
-        final double lon0 = geoPosFirstNear.getLon() + 0.125; // + half of 15 min
-
-        final double delLat = 0.25; // 15 min
-        final double delLon = 0.25; // 15 min
-        for (int r = 0; r < numEGMSamplesInCol; r++) {
-            final double lat = lat0 - delLat*r;
-            for (int c = 0; c < numEGMSamplesInRow; c++) {
-                egmArray[r][c] = getEGM(lat, lon0 + delLon*c);
-            }
-        }
-        return egmArray;
+        return (float)MathUtils.interpolationBiCubic(v, c - (c0+1), r - (r0+1));
     }
 }

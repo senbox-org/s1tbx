@@ -46,6 +46,8 @@ public class SRTM3GeoTiffElevationModelDescriptor extends AbstractElevationModel
 
     private File demInstallDir = null;
 
+    private static SRTM3GeoTiffElevationModel demModel = null;
+
     public SRTM3GeoTiffElevationModelDescriptor() {
     }
 
@@ -113,17 +115,23 @@ public class SRTM3GeoTiffElevationModelDescriptor extends AbstractElevationModel
     }
 
     @Deprecated
-    public ElevationModel createDem() {
+    public synchronized ElevationModel createDem() {
         try {
-            return new SRTM3GeoTiffElevationModel(this, Resampling.BILINEAR_INTERPOLATION);
+            if(demModel == null) {
+                demModel = new SRTM3GeoTiffElevationModel(this, Resampling.BILINEAR_INTERPOLATION);
+            }
+            return demModel;
         } catch (Exception e) {
             return null;
         }
     }
 
-    public ElevationModel createDem(Resampling resamplingMethod) {
+    public synchronized ElevationModel createDem(Resampling resamplingMethod) {
         try {
-            return new SRTM3GeoTiffElevationModel(this, resamplingMethod);
+            if(demModel == null) {
+                demModel = new SRTM3GeoTiffElevationModel(this, resamplingMethod);
+            }
+            return demModel;
         } catch (Exception e) {
             return null;
         }
