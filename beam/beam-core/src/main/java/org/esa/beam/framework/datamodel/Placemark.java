@@ -95,8 +95,8 @@ public class Placemark extends ProductNode {
         super(feature.getID(), getStringAttribute(feature, PROPERTY_NAME_TEXT));
         this.descriptor = descriptor;
         this.feature = feature;
-        Debug.trace(
-                "Placemark created: descriptor=" + descriptor.getClass() + ", featureType=" + feature.getFeatureType().getTypeName() + ", feature=" + feature);
+        //Debug.trace(
+        //        "Placemark created: descriptor=" + descriptor.getClass() + ", featureType=" + feature.getFeatureType().getTypeName() + ", feature=" + feature);
     }
 
     /**

@@ -26,6 +26,7 @@ import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.visat.AbstractVisatPlugIn;
 import org.esa.beam.visat.VisatApp;
 import org.esa.nest.dat.layers.GraphicsUtils;
+import org.esa.nest.dat.layers.ScreenPixelConverter;
 
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
@@ -133,7 +134,8 @@ public class StatusBarVPI extends AbstractVisatPlugIn {
                 if(prodNode != null) {
                     final Band band = prod.getBand(prodNode.getName());
                     if(band != null) {
-                        PixelPos pixelPos = computeLevelZeroPixelPos(imageLayer, pixelX, pixelY, currentLevel);
+                        PixelPos pixelPos = ScreenPixelConverter.computeLevelZeroPixelPos(imageLayer,
+                                                                                        pixelX, pixelY, currentLevel);
 
                         valueStatusBarItem.setText(GraphicsUtils.padString(
                                 band.getPixelString((int)pixelPos.getX(), (int)pixelPos.getY()), 15));
@@ -142,19 +144,6 @@ public class StatusBarVPI extends AbstractVisatPlugIn {
             } else {
                 dimensionStatusBarItem.setText(_EMPTYSTR);
                 valueStatusBarItem.setText(_EMPTYSTR);
-            }
-        }
-
-        private PixelPos computeLevelZeroPixelPos(ImageLayer imageLayer, int pixelX, int pixelY, int currentLevel) {
-            if (currentLevel != 0) {
-                AffineTransform i2mTransform = imageLayer.getImageToModelTransform(currentLevel);
-                Point2D modelP = i2mTransform.transform(new Point2D.Double(pixelX, pixelY), null);
-                AffineTransform m2iTransform = imageLayer.getModelToImageTransform();
-                Point2D imageP = m2iTransform.transform(modelP, null);
-
-                return new PixelPos(new Float(imageP.getX()), new Float(imageP.getY()));
-            } else {
-                return new PixelPos(pixelX + 0.5f, pixelY + 0.5f);
             }
         }
 

@@ -698,8 +698,9 @@ public class GCPSelectionOp extends Operator {
             for (int y = yStart; y < yEnd; y++) {
                 srcIndex.calculateStride(y);
                 for (int x = xStart; x < xEnd; x++) {
-                    v1 = srcData1.getElemDoubleAt(srcIndex.getIndex(x));
-                    v2 = srcData2.getElemDoubleAt(srcIndex.getIndex(x));
+                    final int idx = srcIndex.getIndex(x);
+                    v1 = srcData1.getElemDoubleAt(idx);
+                    v2 = srcData2.getElemDoubleAt(idx);
                     meanValue += v1*v1 + v2*v2;
                 }
             }
