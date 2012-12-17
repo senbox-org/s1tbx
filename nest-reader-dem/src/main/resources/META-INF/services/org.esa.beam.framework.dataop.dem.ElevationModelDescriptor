@@ -1,5 +1,6 @@
 org.esa.nest.dataio.dem.ace.ACEElevationModelDescriptor
 org.esa.nest.dataio.dem.ace2_5min.ACE2_5MinElevationModelDescriptor
 org.esa.nest.dataio.dem.srtm3_geotiff.SRTM3GeoTiffElevationModelDescriptor
+org.esa.nest.dataio.dem.srtm1_esrigrid.SRTM1GridElevationModelDescriptor
 org.esa.nest.dataio.dem.aster.AsterElevationModelDescriptor
 org.esa.nest.dataio.dem.getasse30.GETASSE30ElevationModelDescriptor
