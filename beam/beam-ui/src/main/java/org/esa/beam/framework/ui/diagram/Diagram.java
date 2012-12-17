@@ -346,8 +346,12 @@ public class Diagram {
 
         g2d.setClip(graphArea.x, graphArea.y, graphArea.width, graphArea.height);
 
+        final Line2D.Double line = new Line2D.Double();
+        final Rectangle2D.Double box = new Rectangle2D.Double();
+
         DiagramGraph[] graphs = getGraphs();
         for (DiagramGraph graph : graphs) {
+            final boolean isShowingPoints = graph.getStyle().isShowingPoints();
             Point2D.Double a = new Point2D.Double();
             Point2D.Double b1 = new Point2D.Double();
             Point2D.Double b2 = new Point2D.Double();
@@ -362,25 +366,8 @@ public class Diagram {
                     b1.setLocation(b2);
                     transform.transformA2B(a, b2);
                     if (i > 0) {
-                        g2d.draw(new Line2D.Double(b1, b2));
-                    }
-                }
-            }
-            g2d.setStroke(new BasicStroke(0.5f));
-            if (graph.getStyle().isShowingPoints()) {
-                for (int i = 0; i < n; i++) {
-                    double xa = graph.getXValueAt(i);
-                    double ya = graph.getYValueAt(i);
-                    if (!Double.isNaN(ya)) {
-                        a.setLocation(xa, ya);
-                        transform.transformA2B(a, b1);
-                        Rectangle2D.Double r = new Rectangle2D.Double(b1.getX() - 1.5,
-                                                                      b1.getY() - 1.5,
-                                                                      3.0, 3.0);
-                        g2d.setPaint(graph.getStyle().getFillPaint());
-                        g2d.fill(r);
-                        g2d.setColor(graph.getStyle().getOutlineColor());
-                        g2d.draw(r);
+                        line.setLine(b1, b2);
+                        g2d.draw(line);
                     }
                 }
             }
@@ -445,7 +432,10 @@ public class Diagram {
         n2 = yAxis.getNumMinorTicks();
         n = (n1 - 1) * (n2 + 1) + 1;
         for (int i = 0; i < n; i++) {
-            y0 = yMin + (i * (yMax - yMin)) / (n - 1);
+            if(yAxis.isMinToMax())
+                y0 = yMin + (i * (yMax - yMin)) / (n - 1);
+            else
+                y0 = yMax - (i * (yMax - yMin)) / (n - 1);
             if (i % (n2 + 1) == 0) {
                 x2 = x1 - majorTickLength;
                 text = yTickTexts[n1 - 1 - (i / (n2 + 1))];
@@ -494,7 +484,7 @@ public class Diagram {
         g2d.setColor(oldColor);
     }
 
-    private String getAxisText(DiagramAxis axis) {
+    private static String getAxisText(DiagramAxis axis) {
         StringBuilder sb = new StringBuilder(37);
         if (axis.getName() != null && axis.getName().length() > 0) {
             sb.append(axis.getName());
