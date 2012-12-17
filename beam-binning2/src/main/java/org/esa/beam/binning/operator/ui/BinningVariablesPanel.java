@@ -221,7 +221,7 @@ class BinningVariablesPanel extends JPanel {
 
     private static class IntegerTextField extends JTextField {
 
-        private final static String disallowedChars = "`~!@#$%^&*()_+=\\|\"':;?/>.<,- ";
+        private final static String disallowedChars = "`§~!@#$%^&*()_+=\\|\"':;?/>.<,- ";
 
         public IntegerTextField(int defaultValue) {
             super(defaultValue + "");
