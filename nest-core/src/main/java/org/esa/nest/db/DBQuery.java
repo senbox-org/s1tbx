@@ -325,57 +325,50 @@ public class DBQuery {
 
     private ProductEntry[] instersectMapSelection(final ProductEntry[] resultsList) {
 
-        if(selectionRectangle != null && selectionRectangle.getWidth() != 0 && selectionRectangle.getHeight() != 0) {
-            final List<ProductEntry> intersectList = new ArrayList<ProductEntry>(resultsList.length);
+        if(selectionRectangle == null)
+            return resultsList;
 
-            //System.out.println("selBox x="+selectionRectangle.getX()+" y="+selectionRectangle.getY()+
-            //                         " w="+selectionRectangle.getWidth()+" h="+selectionRectangle.getHeight());
-            for(ProductEntry entry : resultsList) {
-                final GeoPos start = entry.getFirstNearGeoPos();
-                final GeoPos end = entry.getLastFarGeoPos();
-                if(selectionRectangle.contains(new Point2D.Float(start.getLat(), start.getLon())) ||
-                        selectionRectangle.contains(new Point2D.Float(end.getLat(), end.getLon()))) {
+        final List<ProductEntry> intersectList = new ArrayList<ProductEntry>(resultsList.length);
+        final int mult = 100000; //float to integer
+        final Rectangle selRect = new Rectangle((int)(selectionRectangle.x*mult), (int)(selectionRectangle.y*mult),
+                (int)(selectionRectangle.width*mult), (int)(selectionRectangle.height*mult));
+
+        final boolean singlePointSelection = selectionRectangle.getWidth() == 0 && selectionRectangle.getHeight() == 0;
+
+        final Polygon p = new Polygon();
+        for(final ProductEntry entry : resultsList) {
+            p.reset();
+            final GeoPos[] geoBox = entry.getBox();
+            for(GeoPos geo : geoBox) {
+                p.addPoint((int)(geo.getLat()*mult), (int)(geo.getLon()*mult));
+            }
+            p.addPoint((int)(geoBox[0].getLat()*mult), (int)(geoBox[0].getLon()*mult));
+            if(singlePointSelection) {
+                if(p.contains(selRect.x, selRect.y)) {
+                    intersectList.add(entry);
+                }
+            } else {
+                if(p.contains(selRect)) {
                     intersectList.add(entry);
                 } else {
-                    final GeoPos[] geoBoundary = entry.getGeoBoundary();
-                    boolean found = false;
-                    // for all points
+                    // check all points
                     boolean allPoints = true;
-                    for(GeoPos pos : geoBoundary) {
-                        if(!selectionRectangle.contains(new Point2D.Float(pos.getLat(), pos.getLon()))) {
+                    for(GeoPos geo : geoBox) {
+                        if(!selRect.contains((int)(geo.getLat()*mult), (int)(geo.getLon()*mult))) {
                             allPoints = false;
                             break;
                         }
                     }
-                    if(allPoints) {
+                    if(allPoints)
                         intersectList.add(entry);
-                        found = true;
-                    }
-
-                    // for any points
-                   /* for(GeoPos pos : geoBoundary) {
-                        if(selectionRectangle.contains(new Point2D.Float(pos.getLat(), pos.getLon()))) {
-                            intersectList.add(entry);
-                            found = true;
-                            break;
-                        }
-                    }  */
-                 /*   if(!found) {
-                        // check if path intersect selection box
-                        final List<GeneralPath> pathList = ProductUtils.assemblePathList(geoBoundary);
-
-                        for(GeneralPath path : pathList) {
-                            if(path.contains(selectionRectangle.getCenterX(), selectionRectangle.getCenterY())) {
-                                intersectList.add(entry);
-                                break;
-                            }
-                        }
-                    }     */
                 }
             }
-            return intersectList.toArray(new ProductEntry[intersectList.size()]);
         }
-        return resultsList;
+
+        if(singlePointSelection && intersectList.isEmpty())
+            return resultsList;
+
+        return intersectList.toArray(new ProductEntry[intersectList.size()]);
     }
 
     public static Rectangle.Float getBoundingRect(final GeoPos[] geoPositions) {

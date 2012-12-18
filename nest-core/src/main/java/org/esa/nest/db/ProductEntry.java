@@ -403,7 +403,7 @@ public class ProductEntry {
         return fileList;
     }
 
-    private GeoPos[] getBox() {
+    public GeoPos[] getBox() {
         final GeoPos[] geoBound = new GeoPos[4];
         geoBound[0] = getFirstNearGeoPos();
         geoBound[1] = getFirstFarGeoPos();
