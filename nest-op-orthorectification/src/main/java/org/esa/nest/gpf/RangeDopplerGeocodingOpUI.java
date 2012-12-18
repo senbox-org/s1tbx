@@ -329,7 +329,7 @@ public class RangeDopplerGeocodingOpUI extends BaseOperatorUI {
                 sourcePixelSpacingsLabelPart2.setText(text);
             }
 
-            if(pixelSpacingInMeter.getText().isEmpty() || productChanged) {
+            if(pixelSpacingInMeter.getText().isEmpty()) {
                 Double pixM, pixD;
                 try {
                     pixM = Math.max(azimuthPixelSpacing, rangePixelSpacing);
