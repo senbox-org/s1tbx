@@ -590,7 +590,7 @@
             <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
-                <version>4.10</version>
+                <version>4.11</version>
             </dependency>
 			
 			<dependency>
@@ -673,7 +673,7 @@
 			<dependency>
 	            <groupId>commons-net</groupId>
 	            <artifactId>commons-net</artifactId>
-	            <version>3.1</version>
+	            <version>3.2</version>
 	        </dependency>
             <dependency>
                 <groupId>commons-io</groupId>
@@ -842,8 +842,8 @@
                     <configuration>
                         <downloadSources>true</downloadSources>
                         <downloadJavadocs>true</downloadJavadocs>
-                        <jdkName>1.6</jdkName>
-                        <jdkLevel>1.6</jdkLevel>
+                        <jdkName>1.7</jdkName>
+                        <jdkLevel>1.7</jdkLevel>
                         <exclude>target</exclude>
 						<useShortDependencyNames>true</useShortDependencyNames>
                     </configuration>
