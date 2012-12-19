@@ -747,7 +747,7 @@ public final class OperatorUtils {
         final int rasterHeight = sourceProduct.getSceneRasterHeight()-margin-margin;
         final int rasterWidth = sourceProduct.getSceneRasterWidth()-margin-margin;
 
-        final Rectangle boundary = new Rectangle(rasterWidth, rasterHeight);
+        final Rectangle boundary = new Rectangle(margin, margin, rasterWidth, rasterHeight);
 
         final int tileCountX = MathUtils.ceilInt(boundary.width / (double) tileSize.width);
         final int tileCountY = MathUtils.ceilInt(boundary.height / (double) tileSize.height);
