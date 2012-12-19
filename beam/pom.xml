@@ -37,7 +37,7 @@
 
         <beam.version>5.0-4.10.4</beam.version>
         <ceres.version>5.0-0.14</ceres.version>
-        <geotools.version>8.4</geotools.version>
+        <geotools.version>9.0-M0</geotools.version>
         <jide.version>3.3.7</jide.version>
         <hdf.version>2.7</hdf.version>
         <netcdf.version>4.2.20</netcdf.version>
@@ -532,7 +532,7 @@
 			<dependency>
 				<groupId>com.vividsolutions</groupId>
                 <artifactId>jts</artifactId>
-                <version>1.10</version>
+                <version>1.13</version>
 			</dependency>
 			
             <!-- JAI Libraries ############################################# -->
