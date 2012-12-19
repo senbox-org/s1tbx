@@ -225,7 +225,6 @@ public class RangeDopplerGeocodingOp extends Operator {
     public static final String USE_LOCAL_INCIDENCE_ANGLE_FROM_DEM = "Use local incidence angle from DEM";
     public static final String USE_INCIDENCE_ANGLE_FROM_ELLIPSOID = "Use incidence angle from Ellipsoid";
     public static final double NonValidIncidenceAngle = -99999.0;
-    public static final String DELAUNAY_INTERPOLATION = "DELAUNAY_INTERPOLATION";
 
     /**
      * Initializes this operator and sets the one and only target product.
@@ -477,24 +476,19 @@ public class RangeDopplerGeocodingOp extends Operator {
         if(isElevationModelAvailable) return;
         if(externalDEMFile != null) { // if external DEM file is specified by user
 
-            if (demResamplingMethod.equals(DELAUNAY_INTERPOLATION)) {
-                throw new OperatorException("Delaunay interpolation for DEM file is currently not supported");
-            } else {
-                dem = new FileElevationModel(externalDEMFile,
+            if (demResamplingMethod.equals(DEMFactory.DELAUNAY_INTERPOLATION))
+                throw new OperatorException("Delaunay interpolation for an external DEM file is currently not supported");
+
+            dem = new FileElevationModel(externalDEMFile,
                                              ResamplingFactory.createResampling(demResamplingMethod),
                                              (float)externalDEMNoDataValue);
-            }
 
             demNoDataValue = (float) externalDEMNoDataValue;
             demName = externalDEMFile.getName();
 
         } else {
 
-            if (demResamplingMethod.equals(DELAUNAY_INTERPOLATION)) {
-                dem = DEMFactory.createElevationModel(demName, ResamplingFactory.NEAREST_NEIGHBOUR_NAME);
-            } else {
-                dem = DEMFactory.createElevationModel(demName, demResamplingMethod);
-            }
+            dem = DEMFactory.createElevationModel(demName, demResamplingMethod);
             demNoDataValue = dem.getDescriptor().getNoDataValue();
         }
         isElevationModelAvailable = true;
@@ -917,13 +911,7 @@ public class RangeDopplerGeocodingOp extends Operator {
             if(useAvgSceneHeight) {
                 DEMFactory.fillDEM(localDEM, (float)avgSceneHeight);
             } else {
-                boolean valid;
-                if (demResamplingMethod.equals(DELAUNAY_INTERPOLATION)) {
-                    valid = DEMFactory.getLocalDEMUsingDelaunayInterpolation(dem, demNoDataValue, tileGeoRef, x0, y0, w, h, localDEM);
-                } else {
-                    valid = DEMFactory.getLocalDEM(dem, demNoDataValue, tileGeoRef, x0, y0, w, h, localDEM);
-                }
-
+                final boolean valid = DEMFactory.getLocalDEM(dem, demNoDataValue, tileGeoRef, x0, y0, w, h, localDEM);
                 if(!valid && nodataValueAtSea)
                     return;
             }

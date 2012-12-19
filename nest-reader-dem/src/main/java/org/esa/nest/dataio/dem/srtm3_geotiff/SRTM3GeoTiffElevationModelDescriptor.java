@@ -116,25 +116,11 @@ public class SRTM3GeoTiffElevationModelDescriptor extends AbstractElevationModel
 
     @Deprecated
     public synchronized ElevationModel createDem() {
-        try {
-            if(demModel == null) {
-                demModel = new SRTM3GeoTiffElevationModel(this, Resampling.BILINEAR_INTERPOLATION);
-            }
-            return demModel;
-        } catch (Exception e) {
-            return null;
-        }
+        return new SRTM3GeoTiffElevationModel(this, Resampling.BILINEAR_INTERPOLATION);
     }
 
     public synchronized ElevationModel createDem(Resampling resamplingMethod) {
-        try {
-            if(demModel == null) {
-                demModel = new SRTM3GeoTiffElevationModel(this, resamplingMethod);
-            }
-            return demModel;
-        } catch (Exception e) {
-            return null;
-        }
+        return new SRTM3GeoTiffElevationModel(this, resamplingMethod);
     }
 
     public String createTileFilename(final int tileX, final int tileY) {

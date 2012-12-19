@@ -7,6 +7,7 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.dataop.dem.ElevationModel;
 import org.esa.beam.framework.dataop.dem.ElevationModelDescriptor;
 import org.esa.beam.framework.dataop.dem.ElevationModelRegistry;
+import org.esa.beam.framework.dataop.resamp.Resampling;
 import org.esa.beam.framework.dataop.resamp.ResamplingFactory;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.visat.VisatApp;
@@ -19,9 +20,24 @@ import java.util.Arrays;
  */
 public class DEMFactory {
 
-    public final static String AUTODEM = " (Auto Download)";
-    
-    public static ElevationModel createElevationModel(final String demName, final String demResamplingMethod) {
+    public static final String AUTODEM = " (Auto Download)";
+    public static final String DELAUNAY_INTERPOLATION = "DELAUNAY_INTERPOLATION";
+
+    private static final ElevationModelDescriptor[] descriptors = ElevationModelRegistry.getInstance().getAllDescriptors();
+    private static final String[] demNameList = new String[descriptors.length];
+
+    static {
+        for (int i = 0; i < descriptors.length; i++) {
+            demNameList[i] = DEMFactory.appendAutoDEM(descriptors[i].getName());
+        }
+    }
+
+    public static String[] getDEMNameList() {
+        return  demNameList;
+    }
+
+    public static ElevationModel createElevationModel(final String demName, String demResamplingMethod) {
+
         final ElevationModelRegistry elevationModelRegistry = ElevationModelRegistry.getInstance();
         final ElevationModelDescriptor demDescriptor = elevationModelRegistry.getDescriptor(demName);
         if (demDescriptor == null) {
@@ -32,7 +48,11 @@ public class DEMFactory {
             throw new OperatorException("The DEM '" + demName + "' is currently being installed.");
         }
 
-        ElevationModel dem = demDescriptor.createDem(ResamplingFactory.createResampling(demResamplingMethod));
+        Resampling resampleMethod = null;
+        if(!demResamplingMethod.equals(DELAUNAY_INTERPOLATION))               // resampling not actual used for Delaunay
+            resampleMethod = ResamplingFactory.createResampling(demResamplingMethod);
+
+        final ElevationModel dem = demDescriptor.createDem(resampleMethod);
         if(dem == null) {
             throw new OperatorException("The DEM '" + demName + "' has not been installed.");
         }
@@ -103,6 +123,9 @@ public class DEMFactory {
                                        final int x0, final int y0,
                                        final int tileWidth, final int tileHeight,
                                        final float[][] localDEM) throws Exception {
+        if(dem.getResampling() == null) {
+            return getLocalDEMUsingDelaunayInterpolation(dem, demNoDataValue, tileGeoRef, x0, y0, tileWidth, tileHeight, localDEM);
+        }
 
         // Note: the localDEM covers current tile with 1 extra row above, 1 extra row below, 1 extra column to
         //       the left and 1 extra column to the right of the tile.
@@ -146,29 +169,29 @@ public class DEMFactory {
 
         final int maxY = y0 + tileHeight + 1;
         final int maxX = x0 + tileWidth + 1;
-        PixelPos pixelPos = new PixelPos();
+        final PixelPos pixelPos = new PixelPos();
         final org.jdoris.core.Window tileWindow = new org.jdoris.core.Window(y0-1, y0 + tileHeight, x0-1, x0 + tileWidth);
 
-        GeoPos tgtUL = new GeoPos();
-        GeoPos tgtUR = new GeoPos();
-        GeoPos tgtLL = new GeoPos();
-        GeoPos tgtLR = new GeoPos();
+        final GeoPos tgtUL = new GeoPos();
+        final GeoPos tgtUR = new GeoPos();
+        final GeoPos tgtLL = new GeoPos();
+        final GeoPos tgtLR = new GeoPos();
 
         tileGeoRef.getGeoPos(x0-1, y0-1, tgtUL);
         tileGeoRef.getGeoPos(x0+tileWidth, y0-1, tgtUR);
         tileGeoRef.getGeoPos(x0-1, y0+tileHeight, tgtLL);
         tileGeoRef.getGeoPos(x0+tileWidth, y0+tileHeight, tgtLR);
 
-        double latMin = Math.min(Math.min(Math.min(tgtUL.lat, tgtUR.lat), tgtLL.lat), tgtLR.lat);
-        double latMax = Math.max(Math.max(Math.max(tgtUL.lat, tgtUR.lat), tgtLL.lat), tgtLR.lat);
-        double lonMin = Math.min(Math.min(Math.min(tgtUL.lon, tgtUR.lon), tgtLL.lon), tgtLR.lon);
-        double lonMax = Math.max(Math.max(Math.max(tgtUL.lon, tgtUR.lon), tgtLL.lon), tgtLR.lon);
+        final double latMin = Math.min(Math.min(Math.min(tgtUL.lat, tgtUR.lat), tgtLL.lat), tgtLR.lat);
+        final double latMax = Math.max(Math.max(Math.max(tgtUL.lat, tgtUR.lat), tgtLL.lat), tgtLR.lat);
+        final double lonMin = Math.min(Math.min(Math.min(tgtUL.lon, tgtUR.lon), tgtLL.lon), tgtLR.lon);
+        final double lonMax = Math.max(Math.max(Math.max(tgtUL.lon, tgtUR.lon), tgtLL.lon), tgtLR.lon);
 
-        GeoPos upperLeftCorner = new GeoPos((float)latMax, (float)lonMin);
-        GeoPos lowerRightCorner = new GeoPos((float)latMin, (float)lonMax);
+        final GeoPos upperLeftCorner = new GeoPos((float)latMax, (float)lonMin);
+        final GeoPos lowerRightCorner = new GeoPos((float)latMin, (float)lonMax);
 
         GeoPos[] geoCorners = {upperLeftCorner, lowerRightCorner};
-        GeoPos geoExtent = new GeoPos((float)(0.25*(latMax - latMin)), (float)(0.25*(lonMax - lonMin)));
+        final GeoPos geoExtent = new GeoPos((float)(0.25*(latMax - latMin)), (float)(0.25*(lonMax - lonMin)));
         geoCorners = org.jdoris.core.utils.GeoUtils.extendCorners(geoExtent, geoCorners);
 
         if (geoCorners[0].lon > 180) {
@@ -192,20 +215,22 @@ public class DEMFactory {
         double[][] x_in = null;
         double[][] y_in = null;
         double[][] z_in = null;
-        int nLatPixels = (int) Math.abs(lowerRightCornerPos.y - upperLeftCornerPos.y);
+        final int nLatPixels = (int) Math.abs(lowerRightCornerPos.y - upperLeftCornerPos.y);
+        final PixelPos pos = new PixelPos();
         if (!crossMeridian) {
 
-            int nLonPixels = (int) Math.abs(lowerRightCornerPos.x - upperLeftCornerPos.x);
+            final int nLonPixels = (int) Math.abs(lowerRightCornerPos.x - upperLeftCornerPos.x);
             x_in = new double[nLatPixels][nLonPixels];
             y_in = new double[nLatPixels][nLonPixels];
             z_in = new double[nLatPixels][nLonPixels];
-            int startX = (int) upperLeftCornerPos.x;
-            int endX = startX + nLonPixels;
-            int startY = (int) upperLeftCornerPos.y;
-            int endY = startY + nLatPixels;
+            final int startX = (int) upperLeftCornerPos.x;
+            final int endX = startX + nLonPixels;
+            final int startY = (int) upperLeftCornerPos.y;
+            final int endY = startY + nLatPixels;
             for (int y = startY, i = 0; y < endY; y++, i++) {
                 for (int x = startX, j = 0; x < endX; x++, j++) {
-                    tileGeoRef.getPixelPos(dem.getGeoPos(new PixelPos(x,y)), pixelPos);
+                    pos.setLocation(x,y);
+                    tileGeoRef.getPixelPos(dem.getGeoPos(pos), pixelPos);
                     x_in[i][j] = pixelPos.x; // lon
                     y_in[i][j] = pixelPos.y; // lat
                     try {
@@ -221,18 +246,19 @@ public class DEMFactory {
 
         } else {
 
-            PixelPos endPixelPos = dem.getIndex(new GeoPos(geoCorners[0].lat, 180));
-            int nLonPixels = (int) (Math.abs(upperLeftCornerPos.x - endPixelPos.x) + lowerRightCornerPos.x);
+            final PixelPos endPixelPos = dem.getIndex(new GeoPos(geoCorners[0].lat, 180));
+            final int nLonPixels = (int) (Math.abs(upperLeftCornerPos.x - endPixelPos.x) + lowerRightCornerPos.x);
             x_in = new double[nLatPixels][nLonPixels];
             y_in = new double[nLatPixels][nLonPixels];
             z_in = new double[nLatPixels][nLonPixels];
-            int startX = (int) upperLeftCornerPos.x;
-            int endX = (int)endPixelPos.x;
-            int startY = (int) upperLeftCornerPos.y;
-            int endY = startY + nLatPixels;
+            final int startX = (int) upperLeftCornerPos.x;
+            final int endX = (int)endPixelPos.x;
+            final int startY = (int) upperLeftCornerPos.y;
+            final int endY = startY + nLatPixels;
             for (int y = startY, i = 0; y < endY; y++, i++) {
                 for (int x = startX, j = 0; x < endX; x++, j++) {
-                    tileGeoRef.getPixelPos(dem.getGeoPos(new PixelPos(x,y)), pixelPos);
+                    pos.setLocation(x,y);
+                    tileGeoRef.getPixelPos(dem.getGeoPos(pos), pixelPos);
                     x_in[i][j] = pixelPos.x; // lon
                     y_in[i][j] = pixelPos.y; // lat
                     try {
@@ -248,7 +274,8 @@ public class DEMFactory {
 
             for (int y = startY, i = 0; y < endY; y++, i++) {
                 for (int x = 0, j = endX - startX; x < (int)lowerRightCornerPos.x; x++, j++) {
-                    tileGeoRef.getPixelPos(dem.getGeoPos(new PixelPos(x,y)), pixelPos);
+                    pos.setLocation(x,y);
+                    tileGeoRef.getPixelPos(dem.getGeoPos(pos), pixelPos);
                     x_in[i][j] = pixelPos.x; // lon
                     y_in[i][j] = pixelPos.y; // lat
                     try {

@@ -53,7 +53,11 @@ public abstract class BaseElevationModel implements ElevationModel, Resampling.R
     public BaseElevationModel(final ElevationModelDescriptor descriptor, final Resampling resamplingMethod) {
         this.descriptor = descriptor;
         this.resampling = resamplingMethod;
-        this.resamplingIndex = resampling.createIndex();
+        if(this.resampling != null) {
+            this.resamplingIndex = resampling.createIndex();
+        } else {
+            this.resamplingIndex = null;
+        }
         this.resamplingRaster = this;
 
         NUM_X_TILES = descriptor.getNumXTiles();

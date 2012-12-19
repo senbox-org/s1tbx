@@ -97,14 +97,10 @@ public final class CreateElevationOp extends Operator {
 
         try {
 
-            final ElevationModelRegistry elevationModelRegistry = ElevationModelRegistry.getInstance();
-            final ElevationModelDescriptor demDescriptor = elevationModelRegistry.getDescriptor(demName);
-            if (demDescriptor == null)
-                throw new OperatorException("The DEM '" + demName + "' is not supported.");
-            if (demDescriptor.isInstallingDem())
-                throw new OperatorException("The DEM '" + demName + "' is currently being installed.");
-
             if(externalDEM != null && !externalDEM.trim().isEmpty()) {
+
+                if (resamplingMethod.equals(DEMFactory.DELAUNAY_INTERPOLATION))
+                    throw new OperatorException("Delaunay interpolation for an external DEM file is currently not supported");
 
                 fileElevationModel = new FileElevationModel(new File(externalDEM),
                         ResamplingFactory.createResampling(resamplingMethod));
@@ -115,7 +111,7 @@ public final class CreateElevationOp extends Operator {
                 noDataValue = dem.getDescriptor().getNoDataValue();
             }
             
-            createTargetProduct(demDescriptor);
+            createTargetProduct();
 
         } catch(Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
@@ -124,9 +120,8 @@ public final class CreateElevationOp extends Operator {
 
     /**
      * Create target product.
-     * @param demDescriptor dem
      */
-    void createTargetProduct(final ElevationModelDescriptor demDescriptor) {
+    void createTargetProduct() {
 
         targetProduct = new Product(sourceProduct.getName(),
                                     sourceProduct.getProductType(),
@@ -148,7 +143,7 @@ public final class CreateElevationOp extends Operator {
                 targetProduct.addBand(targetBand);
                 sourceRasterMap.put(targetBand, band);
             } else {
-                final Band targetBand = ProductUtils.copyBand(band.getName(), sourceProduct, targetProduct);
+                final Band targetBand = ProductUtils.copyBand(band.getName(), sourceProduct, targetProduct, false);
                 targetBand.setSourceImage(band.getSourceImage());
                 sourceRasterMap.put(targetBand, band);
             }
@@ -157,7 +152,7 @@ public final class CreateElevationOp extends Operator {
         elevationBand = targetProduct.addBand(elevationBandName, ProductData.TYPE_FLOAT32);
         elevationBand.setNoDataValue(noDataValue);
         elevationBand.setUnit(Unit.METERS);
-        elevationBand.setDescription(demDescriptor.getName());
+        elevationBand.setDescription(dem.getDescriptor().getName());
     }
 
      /**

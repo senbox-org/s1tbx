@@ -15,12 +15,11 @@
  */
 package org.esa.nest.gpf;
 
-import org.esa.beam.framework.dataop.dem.ElevationModelDescriptor;
-import org.esa.beam.framework.dataop.dem.ElevationModelRegistry;
 import org.esa.beam.framework.dataop.resamp.ResamplingFactory;
 import org.esa.beam.framework.gpf.ui.BaseOperatorUI;
 import org.esa.beam.framework.gpf.ui.UIValidation;
 import org.esa.beam.framework.ui.AppContext;
+import org.esa.nest.dataio.dem.DEMFactory;
 import org.esa.nest.util.DialogUtils;
 
 import javax.swing.*;
@@ -32,24 +31,17 @@ import java.util.Map;
  */
 public class CreateElevationOpUI extends BaseOperatorUI {
 
-    private static final ElevationModelDescriptor[] descriptors = ElevationModelRegistry.getInstance().getAllDescriptors();
-    private static final String[] demValueSet = new String[descriptors.length];
-
-    static {
-        for (int i = 0; i < descriptors.length; i++) {
-            demValueSet[i] = descriptors[i].getName();
-        }
-    }
-
-    private final JComboBox demName = new JComboBox(demValueSet);
+    private final JComboBox<String> demName = new JComboBox<String>(DEMFactory.getDEMNameList());
 
     private final JTextField elevationBandName = new JTextField("");
     private final JTextField externalDEM = new JTextField("");
 
-    private final JComboBox resamplingMethod = new JComboBox(ResamplingFactory.resamplingNames);
+    private final JComboBox demResamplingMethod = new JComboBox<String>(ResamplingFactory.resamplingNames);
 
     @Override
     public JComponent CreateOpTab(String operatorName, Map<String, Object> parameterMap, AppContext appContext) {
+
+        demResamplingMethod.addItem(DEMFactory.DELAUNAY_INTERPOLATION);
 
         initializeOperatorUI(operatorName, parameterMap);
         final JComponent panel = createPanel();
@@ -61,10 +53,12 @@ public class CreateElevationOpUI extends BaseOperatorUI {
     @Override
     public void initParameters() {
 
-        demName.setSelectedItem(paramMap.get("demName"));
+        final String demNameParam = (String)paramMap.get("demName");
+        if(demNameParam != null)
+            demName.setSelectedItem(DEMFactory.appendAutoDEM(demNameParam));
         elevationBandName.setText(String.valueOf(paramMap.get("elevationBandName")));
         externalDEM.setText(String.valueOf(paramMap.get("externalDEM")));
-        resamplingMethod.setSelectedItem(paramMap.get("resamplingMethod"));
+        demResamplingMethod.setSelectedItem(paramMap.get("resamplingMethod"));
     }
 
     @Override
@@ -76,10 +70,10 @@ public class CreateElevationOpUI extends BaseOperatorUI {
     @Override
     public void updateParameters() {
 
-        paramMap.put("demName", demName.getSelectedItem());
+        paramMap.put("demName", ((String)demName.getSelectedItem()).replace(DEMFactory.AUTODEM, ""));
         paramMap.put("elevationBandName", elevationBandName.getText());
         paramMap.put("externalDEM", externalDEM.getText());
-        paramMap.put("resamplingMethod", resamplingMethod.getSelectedItem());
+        paramMap.put("resamplingMethod", demResamplingMethod.getSelectedItem());
     }
 
     private JComponent createPanel() {
@@ -93,9 +87,9 @@ public class CreateElevationOpUI extends BaseOperatorUI {
         gbc.gridy++;
         DialogUtils.addComponent(contentPane, gbc, "External DEM:", externalDEM);
         gbc.gridy++;
-        DialogUtils.addComponent(contentPane, gbc, "Elevation Band Name:", elevationBandName);
+        DialogUtils.addComponent(contentPane, gbc, "Resampling Method:", demResamplingMethod);
         gbc.gridy++;
-        DialogUtils.addComponent(contentPane, gbc, "Resampling Method:", resamplingMethod);
+        DialogUtils.addComponent(contentPane, gbc, "Elevation Band Name:", elevationBandName);
         gbc.gridy++;
 
         DialogUtils.fillPanel(contentPane, gbc);
