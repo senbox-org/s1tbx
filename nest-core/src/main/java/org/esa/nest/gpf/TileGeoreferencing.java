@@ -83,7 +83,7 @@ public class TileGeoreferencing {
     }
 
     public void getPixelPos(final GeoPos geo, final PixelPos pix) {
-        if (geo.lon < 0) {
+        if (geocoding.isCrossingMeridianAt180() && geo.lon < 0) {
             geo.lon += 360;
         }
         geocoding.getPixelPos(geo, pix);
