@@ -16,14 +16,13 @@
 package org.esa.nest.gpf;
 
 import org.esa.beam.framework.datamodel.MetadataElement;
-import org.esa.beam.framework.dataop.maptransf.MapProjection;
-import org.esa.beam.framework.dataop.maptransf.MapProjectionRegistry;
 import org.esa.beam.framework.dataop.resamp.ResamplingFactory;
 import org.esa.beam.framework.gpf.ui.BaseOperatorUI;
 import org.esa.beam.framework.gpf.ui.UIValidation;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.nest.datamodel.AbstractMetadata;
 import org.esa.nest.util.DialogUtils;
+import org.esa.nest.util.ResourceUtils;
 
 import javax.swing.*;
 import java.awt.*;
@@ -40,53 +39,80 @@ public class MosaicOpUI extends BaseOperatorUI {
 
     private final JList bandList = new JList();
 
-    private final JComboBox resamplingMethod = new JComboBox(ResamplingFactory.resamplingNames);
+    private final JComboBox<String> resamplingMethod = new JComboBox<String>(ResamplingFactory.resamplingNames);
 
     private final JTextField pixelSize = new JTextField("");
     private final JTextField sceneWidth = new JTextField("");
     private final JTextField sceneHeight = new JTextField("");
     private final JTextField feather = new JTextField("");
+    private final JTextField maxIterations = new JTextField("");
+    private final JTextField convergenceThreshold = new JTextField("");
+
+    private final JLabel maxIterationsLabel = new JLabel("Maximum Iterations");
+    private final JLabel convergenceThresholdLabel = new JLabel("Convergence Threshold");
+
     private final JCheckBox averageCheckBox = new JCheckBox("Weighted Average of Overlap");
     private final JCheckBox normalizeByMeanCheckBox = new JCheckBox("Normalize");
+    private final JCheckBox gradientDomainMosaicCheckBox = new JCheckBox("Gradient Domain Mosaic");
 
     private boolean changedByUser = false;
     private boolean average = false;
     private boolean normalizeByMean = false;
+    private boolean gradientDomainMosaic = false;
 
     private double widthHeightRatio = 1;
     private double pixelSizeHeightRatio = 1;
     private final OperatorUtils.SceneProperties scnProp = new OperatorUtils.SceneProperties();
 
-    //protected final JButton crsButton = new JButton();
-    //private final MapProjectionHandler mapProjHandler = new MapProjectionHandler();
+    private final static String useGradientDomainStr = System.getProperty(ResourceUtils.getContextID()+".mosaic.allow.gradient.domain");
+    private final static boolean useGradientDomain = useGradientDomainStr != null && useGradientDomainStr.equals("true");
 
     @Override
     public JComponent CreateOpTab(String operatorName, Map<String, Object> parameterMap, AppContext appContext) {
-
 
         initializeOperatorUI(operatorName, parameterMap);
         final JComponent panel = createPanel();
         initParameters();
 
         averageCheckBox.addItemListener(new ItemListener() {
-                public void itemStateChanged(ItemEvent e) {
-                    average = (e.getStateChange() == ItemEvent.SELECTED);
+            public void itemStateChanged(ItemEvent e) {
+                average = (e.getStateChange() == ItemEvent.SELECTED);
+                if (average) {
+                    gradientDomainMosaic = false;
+                    gradientDomainMosaicCheckBox.getModel().setSelected(gradientDomainMosaic);
+                    maxIterations.setVisible(false);
+                    convergenceThreshold.setVisible(false);
+                    maxIterationsLabel.setVisible(false);
+                    convergenceThresholdLabel.setVisible(false);
                 }
+            }
         });
 
         normalizeByMeanCheckBox.addItemListener(new ItemListener() {
-                public void itemStateChanged(ItemEvent e) {
-                    normalizeByMean = (e.getStateChange() == ItemEvent.SELECTED);
+            public void itemStateChanged(ItemEvent e) {
+                normalizeByMean = (e.getStateChange() == ItemEvent.SELECTED);
+                if (normalizeByMean) {
+                    maxIterations.setVisible(gradientDomainMosaic);
+                    convergenceThreshold.setVisible(gradientDomainMosaic);
+                    maxIterationsLabel.setVisible(gradientDomainMosaic);
+                    convergenceThresholdLabel.setVisible(gradientDomainMosaic);
                 }
+            }
         });
 
-        /*
-        crsButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                mapProjHandler.promptForFeatureCrs(sourceProducts);
-                crsButton.setText(mapProjHandler.getCRSName());
+        gradientDomainMosaicCheckBox.addItemListener(new ItemListener() {
+            public void itemStateChanged(ItemEvent e) {
+                gradientDomainMosaic = (e.getStateChange() == ItemEvent.SELECTED);
+                if (gradientDomainMosaic) {
+                    average = false;
+                    averageCheckBox.getModel().setSelected(average);
+                }
+                maxIterations.setVisible(gradientDomainMosaic);
+                convergenceThreshold.setVisible(gradientDomainMosaic);
+                maxIterationsLabel.setVisible(gradientDomainMosaic);
+                convergenceThresholdLabel.setVisible(gradientDomainMosaic);
             }
-        });     */
+        });
 
         pixelSize.addKeyListener(new TextAreaKeyListener());
         sceneWidth.addKeyListener(new TextAreaKeyListener());
@@ -102,12 +128,6 @@ public class MosaicOpUI extends BaseOperatorUI {
 
         resamplingMethod.setSelectedItem(paramMap.get("resamplingMethod"));
 
-        /*
-        final String mapProjection = (String)paramMap.get("mapProjection");
-        mapProjHandler.initParameters(mapProjection, sourceProducts);
-        crsButton.setText(mapProjHandler.getCRSName());
-          */
-
         Double pixSize = (Double)paramMap.get("pixelSize");
         if(pixSize == null) pixSize = 0.0;
         Integer width = (Integer)paramMap.get("sceneWidth");
@@ -116,6 +136,10 @@ public class MosaicOpUI extends BaseOperatorUI {
         if(height == null) height = 0;
         Integer featherVal = (Integer)paramMap.get("feather");
         if(featherVal == null) featherVal = 0;
+        Integer maxIterationsVal = (Integer)paramMap.get("maxIterations");
+        if(maxIterationsVal == null) maxIterationsVal = 0;
+        Double convergenceThresholdVal = (Double)paramMap.get("convergenceThreshold");
+        if(convergenceThresholdVal == null) convergenceThresholdVal = 0.0;
 
         if(!changedByUser && sourceProducts != null) {
             try {
@@ -126,7 +150,7 @@ public class MosaicOpUI extends BaseOperatorUI {
                 final double azimuthSpacing = AbstractMetadata.getAttributeDouble(absRoot, AbstractMetadata.azimuth_spacing);
                 final double minSpacing = Math.min(rangeSpacing, azimuthSpacing);
                 pixSize = minSpacing;
-                
+
                 OperatorUtils.getSceneDimensions(minSpacing, scnProp);
 
                 width = scnProp.sceneWidth;
@@ -150,6 +174,8 @@ public class MosaicOpUI extends BaseOperatorUI {
         sceneWidth.setText(String.valueOf(width));
         sceneHeight.setText(String.valueOf(height));
         feather.setText(String.valueOf(featherVal));
+        maxIterations.setText(String.valueOf(maxIterationsVal));
+        convergenceThreshold.setText(String.valueOf(convergenceThresholdVal));
 
         average = (Boolean)paramMap.get("average");
         averageCheckBox.getModel().setSelected(average);
@@ -157,6 +183,13 @@ public class MosaicOpUI extends BaseOperatorUI {
         normalizeByMean = (Boolean)paramMap.get("normalizeByMean");
         normalizeByMeanCheckBox.getModel().setSelected(normalizeByMean);
 
+        gradientDomainMosaic = (Boolean)paramMap.get("gradientDomainMosaic");
+        gradientDomainMosaicCheckBox.getModel().setSelected(gradientDomainMosaic);
+
+        maxIterations.setVisible(gradientDomainMosaic);
+        convergenceThreshold.setVisible(gradientDomainMosaic);
+        maxIterationsLabel.setVisible(gradientDomainMosaic);
+        convergenceThresholdLabel.setVisible(gradientDomainMosaic);
     }
 
     @Override
@@ -171,19 +204,16 @@ public class MosaicOpUI extends BaseOperatorUI {
         OperatorUIUtils.updateBandList(bandList, paramMap, OperatorUIUtils.SOURCE_BAND_NAMES);
         paramMap.put("resamplingMethod", resamplingMethod.getSelectedItem());
 
-        /*
-        if(mapProjHandler.getCRS() != null) {
-            paramMap.put("mapProjection", mapProjHandler.getCRS().toWKT());
-        }
-          */
-
         paramMap.put("pixelSize", Double.parseDouble(pixelSize.getText()));
         paramMap.put("sceneWidth", Integer.parseInt(sceneWidth.getText()));
         paramMap.put("sceneHeight", Integer.parseInt(sceneHeight.getText()));
         paramMap.put("feather", Integer.parseInt(feather.getText()));
+        paramMap.put("maxIterations", Integer.parseInt(maxIterations.getText()));
+        paramMap.put("convergenceThreshold", Double.parseDouble(convergenceThreshold.getText()));
 
         paramMap.put("average", average);
         paramMap.put("normalizeByMean", normalizeByMean);
+        paramMap.put("gradientDomainMosaic", gradientDomainMosaic);
     }
 
     private JComponent createPanel() {
@@ -201,8 +231,6 @@ public class MosaicOpUI extends BaseOperatorUI {
         gbc.gridx = 0;
         gbc.gridy++;
         DialogUtils.addComponent(contentPane, gbc, "Resampling Method:", resamplingMethod);
-        //gbc.gridy++;
-        //DialogUtils.addComponent(contentPane, gbc, "Map Projection:", crsButton);
         gbc.gridy++;
         DialogUtils.addComponent(contentPane, gbc, "Pixel Size (m):", pixelSize);
         gbc.gridy++;
@@ -211,24 +239,22 @@ public class MosaicOpUI extends BaseOperatorUI {
         DialogUtils.addComponent(contentPane, gbc, "Scene Height (pixels)", sceneHeight);
         gbc.gridy++;
         DialogUtils.addComponent(contentPane, gbc, "Feather (pixels)", feather);
-        
+        gbc.gridy++;
+        DialogUtils.addComponent(contentPane, gbc, maxIterationsLabel, maxIterations);
+        gbc.gridy++;
+        DialogUtils.addComponent(contentPane, gbc, convergenceThresholdLabel, convergenceThreshold);
+
         gbc.gridy++;
         contentPane.add(averageCheckBox, gbc);
         gbc.gridy++;
         contentPane.add(normalizeByMeanCheckBox, gbc);
+        gbc.gridy++;
+        if(useGradientDomain)
+            contentPane.add(gradientDomainMosaicCheckBox, gbc);
 
         DialogUtils.fillPanel(contentPane, gbc);
 
         return contentPane;
-    }
-
-    private static String[] getProjectionsValueSet() {
-        final MapProjection[] projections = MapProjectionRegistry.getProjections();
-        final String[] projectionsValueSet = new String[projections.length];
-        for (int i = 0; i < projectionsValueSet.length; i++) {
-            projectionsValueSet[i] = projections[i].getName();
-        }
-        return projectionsValueSet;
     }
 
     private class TextAreaKeyListener implements KeyListener {

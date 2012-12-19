@@ -15,13 +15,16 @@
     <parameters>
       <sourceBands>
       </sourceBands>
-      <resamplingMethod>NEAREST_NEIGHBOUR</resamplingMethod>
+      <resamplingMethod>BILINEAR_INTERPOLATION</resamplingMethod>
 	  <average>true</average>
 	  <normalizeByMean>true</normalizeByMean>
+	  <gradientDomainMosaic>false</gradientDomainMosaic>
 	  <pixelSize>0</pixelSize>
       <sceneWidth>0</sceneWidth>
       <sceneHeight>0</sceneHeight>
 	  <feather>5</feather>
+	  <maxIterations>5000</maxIterations>
+	  <convergenceThreshold>1e-4</convergenceThreshold>
     </parameters>
   </node>
   <node id="3-Write">
