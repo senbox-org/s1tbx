@@ -40,30 +40,23 @@ public class PixelPosEstimator {
     private static final int MAX_POINT_COUNT_PER_TILE = 1000;
 
     private final Approximation[] approximations;
-    private final Dimension2D pixelDimension;
 
     public PixelPosEstimator(PlanarImage lonImage, PlanarImage latImage, PlanarImage maskImage, double accuracy,
-                             double tiling, SteppingFactory steppingFactory) {
+                             double tiling, SteppingFactory steppingFactory, Dimension2D pixelDimension) {
         if (maskImage == null) {
             maskImage = ConstantDescriptor.create((float) lonImage.getWidth(), (float) lonImage.getHeight(),
                                                   new Byte[]{1}, null);
         }
-        pixelDimension = calculatePixelDimension(lonImage, latImage, maskImage);
         approximations = createApproximations(lonImage, latImage, maskImage, accuracy, tiling, steppingFactory,
                                               pixelDimension);
     }
 
     public PixelPosEstimator(PixelPosEstimator pixelPosEstimator) {
-        this.approximations = pixelPosEstimator.getApproximations();
-        this.pixelDimension = pixelPosEstimator.getPixelDimension();
+        approximations = pixelPosEstimator.getApproximations();
     }
 
     public final Approximation[] getApproximations() {
         return approximations;
-    }
-
-    public final Dimension2D getPixelDimension() {
-        return new PixelDimension(pixelDimension);
     }
 
     public final boolean canGetPixelPos() {
@@ -169,51 +162,6 @@ public class PixelPosEstimator {
         }
 
         return tileCountX * tileCountY;
-    }
-
-    static Dimension2D calculatePixelDimension(PlanarImage lonImage, PlanarImage latImage, PlanarImage maskImage) {
-        final int w = latImage.getWidth();
-        final int h = latImage.getHeight();
-
-        double pixelSizeX = Double.NaN;
-        for (int i = 5; i > 2; i--) {
-            if (Double.isNaN(pixelSizeX)) {
-                final int x0 = w / i;
-                final int y0 = h / i;
-                if (getSampleBoolean(maskImage, x0, y0)) {
-                    final double lat0 = getSampleDouble(latImage, x0, y0, -90.0, 90.0);
-                    final double lon0 = getSampleDouble(lonImage, x0, y0, -180.0, 180.0);
-                    final DistanceCalculator calculator = new SphericalDistanceCalculator(lon0, lat0);
-                    final int x1 = ((i - 1) * w) / i;
-
-                    if (getSampleBoolean(maskImage, x1, y0)) {
-                        final double latX = getSampleDouble(latImage, x1, y0, -90.0, 90.0);
-                        final double lonX = getSampleDouble(lonImage, x1, y0, -180.0, 180.0);
-                        pixelSizeX = Math.toDegrees(calculator.distance(lonX, latX)) / ((w * (i - 2)) / i);
-                    }
-                }
-            }
-        }
-
-        return new PixelDimension(pixelSizeX);
-    }
-
-    private static boolean getSampleBoolean(PlanarImage image, int x, int y) {
-        final int tileX = image.XToTileX(x);
-        final int tileY = image.YToTileY(y);
-
-        return image.getTile(tileX, tileY).getSample(x, y, 0) != 0;
-    }
-
-    private static double getSampleDouble(PlanarImage image, int x, int y, double minValue, double maxValue) {
-        final int tileX = image.XToTileX(x);
-        final int tileY = image.YToTileY(y);
-
-        final double value = image.getTile(tileX, tileY).getSampleDouble(x, y, 0);
-        if (value >= minValue && value <= maxValue) {
-            return value;
-        }
-        return Double.NaN;
     }
 
     static Approximation createApproximation(double[][] data, double accuracy, Stepping stepping) {
@@ -486,39 +434,4 @@ public class PixelPosEstimator {
         }
     }
 
-    private static final class PixelDimension extends Dimension2D {
-
-        public double pixelSizeX;
-        public double pixelSizeY;
-
-        private PixelDimension(double pixelSizeX) {
-            //noinspection SuspiciousNameCombination
-            this(pixelSizeX, pixelSizeX);
-        }
-
-        private PixelDimension(double pixelSizeX, double pixelSizeY) {
-            this.pixelSizeX = pixelSizeX;
-            this.pixelSizeY = pixelSizeY;
-        }
-
-        private PixelDimension(Dimension2D pixelDimension) {
-            this(pixelDimension.getWidth(), pixelDimension.getHeight());
-        }
-
-        @Override
-        public double getWidth() {
-            return pixelSizeX;
-        }
-
-        @Override
-        public double getHeight() {
-            return pixelSizeY;
-        }
-
-        @Override
-        public void setSize(double width, double height) {
-            pixelSizeX = width;
-            pixelSizeY = height;
-        }
-    }
 }

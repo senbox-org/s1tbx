@@ -46,7 +46,9 @@ public class PixelPosEstimatorTest {
         final int ny = 4000;
         final PlanarImage[] images = generateSwathCoordinates(nx, ny, 0.01, 0.01, new Rotator(0.0, 0.0, 265.0));
 
-        final Dimension2D pixelDimension = PixelPosEstimator.calculatePixelDimension(images[0], images[1], images[2]);
+        final Dimension2D pixelDimension = new SimplePixelDimensionEstimator().getPixelDimension(images[0],
+                                                                                                 images[1],
+                                                                                                 images[2]);
         assertEquals(0.01, pixelDimension.getWidth(), 0.001);
         assertEquals(0.01, pixelDimension.getHeight(), 0.001);
 
@@ -64,8 +66,12 @@ public class PixelPosEstimatorTest {
         final PlanarImage lonImage = images[0];
         final PlanarImage latImage = images[1];
         final PlanarImage maskImage = images[2];
+        final Dimension2D pixelDimension = new SimplePixelDimensionEstimator().getPixelDimension(lonImage,
+                                                                                                 latImage,
+                                                                                                 maskImage);
         final PixelPosEstimator estimator = new PixelPosEstimator(lonImage, latImage, maskImage, 0.5, 10.0,
-                                                                  new PixelPosEstimator.PixelSteppingFactory());
+                                                                  new PixelPosEstimator.PixelSteppingFactory(),
+                                                                  pixelDimension);
 
         final Raster lonData = lonImage.getData();
         final Raster latData = latImage.getData();
@@ -245,6 +251,7 @@ public class PixelPosEstimatorTest {
                 return p.getX();
             }
         };
+
         final OpImage latImage = new CoordinateOpImage(nx, ny, lonResolution, latResolution, rotator) {
 
             @Override

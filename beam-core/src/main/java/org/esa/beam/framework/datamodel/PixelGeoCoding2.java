@@ -37,21 +37,26 @@ import java.awt.image.RenderedImage;
 public class PixelGeoCoding2 extends AbstractGeoCoding {
 
     private static final String SYSPROP_PIXEL_GEO_CODING_FRACTION_ACCURACY = "beam.pixelGeoCoding.fractionAccuracy";
-    private static final int MAX_SEARCH_CYCLES = 30;
 
-    private Band latBand;
-    private Band lonBand;
     private final String maskExpression;
-
     private final int rasterW;
     private final int rasterH;
     private final boolean fractionAccuracy = Boolean.getBoolean(SYSPROP_PIXEL_GEO_CODING_FRACTION_ACCURACY);
+    private final double pixelDiagonalSquared;
 
+    private Band latBand;
+    private Band lonBand;
     private PixelPosEstimator pixelPosEstimator;
+    private final PixelFinder pixelFinder;
+
     private PlanarImage lonImage;
     private PlanarImage latImage;
     private PlanarImage maskImage;
-    private final double pixelDiagonalSquared;
+
+    public interface PixelFinder {
+
+        void findPixelPos(GeoPos geoPos, PixelPos pixelPos);
+    }
 
     /**
      * Constructs a new pixel-based geo-coding.
@@ -85,6 +90,7 @@ public class PixelGeoCoding2 extends AbstractGeoCoding {
 
         this.latBand = latBand;
         this.lonBand = lonBand;
+
         final String validLatExpression = latBand.getValidMaskExpression();
         final String validLonExpression = lonBand.getValidMaskExpression();
 
@@ -92,15 +98,16 @@ public class PixelGeoCoding2 extends AbstractGeoCoding {
         if (maskExpression == null) {
             expressionBuilder = new StringBuilder();
         } else {
-            expressionBuilder = new StringBuilder(maskExpression.trim());
+            expressionBuilder = new StringBuilder("(" + maskExpression + ")");
         }
-        if (validLatExpression != null) {
+        if (validLatExpression != null && !validLatExpression.equals(maskExpression)) {
             if (expressionBuilder.length() > 0) {
                 expressionBuilder.append(" && ");
             }
             expressionBuilder.append("(").append(validLatExpression).append(")");
         }
-        if (validLonExpression != null && !validLonExpression.equals(validLatExpression)) {
+        if (validLonExpression != null && !validLonExpression.equals(maskExpression) && !validLonExpression.equals(
+                validLatExpression)) {
             if (expressionBuilder.length() > 0) {
                 expressionBuilder.append(" && ");
             }
@@ -134,15 +141,20 @@ public class PixelGeoCoding2 extends AbstractGeoCoding {
                                                   new Byte[]{1}, null);
         }
 
+        final PixelDimensionEstimator pixelDimensionEstimator = new SimplePixelDimensionEstimator();
+        final Dimension2D pixelDimension = pixelDimensionEstimator.getPixelDimension(lonImage,
+                                                                                     latImage,
+                                                                                     maskImage);
+        final double pixelSizeX = pixelDimension.getWidth();
+        final double pixelSizeY = pixelDimension.getHeight();
+        pixelDiagonalSquared = pixelSizeX * pixelSizeX + pixelSizeY * pixelSizeY;
+
         pixelPosEstimator = new PixelPosEstimator(lonImage,
                                                   latImage,
                                                   maskImage,
-                                                  0.5, 10.0, new PixelPosEstimator.PixelSteppingFactory());
-        final Dimension2D pixelDimension = pixelPosEstimator.getPixelDimension();
-        final double pixelSizeX = pixelDimension.getWidth();
-        final double pixelSizeY = pixelDimension.getHeight();
-
-        this.pixelDiagonalSquared = pixelSizeX * pixelSizeX + pixelSizeY * pixelSizeY;
+                                                  0.5, 10.0, new PixelPosEstimator.PixelSteppingFactory(),
+                                                  pixelDimension);
+        pixelFinder = new DefaultPixelFinder(lonImage, latImage, maskImage);
     }
 
     public Band getLatBand() {
@@ -192,97 +204,12 @@ public class PixelGeoCoding2 extends AbstractGeoCoding {
             pixelPosEstimator.getPixelPos(geoPos, pixelPos);
 
             if (pixelPos.isValid()) {
-                int x0 = (int) Math.floor(pixelPos.x);
-                int y0 = (int) Math.floor(pixelPos.y);
-
-                if (x0 >= 0 && x0 < rasterW && y0 >= 0 && y0 < rasterH) {
-                    final int searchRadius = 2 * MAX_SEARCH_CYCLES;
-
-                    int x1 = Math.max(x0 - searchRadius, 0);
-                    int y1 = Math.max(y0 - searchRadius, 0);
-                    int x2 = Math.min(x0 + searchRadius, rasterW - 1);
-                    int y2 = Math.min(y0 + searchRadius, rasterH - 1);
-
-                    final Rectangle rectangle = new Rectangle(x1, y1, x2 - x1 + 1, y2 - y1 + 1);
-                    final Raster latData = latImage.getData(rectangle);
-                    final Raster lonData = lonImage.getData(rectangle);
-                    final Raster maskData = maskImage.getData(rectangle);
-
-                    final double lat0 = geoPos.lat;
-                    final double lon0 = geoPos.lon;
-                    final DistanceCalculator dc = new SinusoidalDistanceCalculator(lon0, lat0);
-
-                    double minDelta;
-                    if (maskData.getSampleDouble(x0, y0, 0) != 0) {
-                        minDelta = dc.distance(lonData.getSampleDouble(x0, y0, 0), latData.getSampleDouble(x0, y0, 0));
-                    } else {
-                        minDelta = Double.NaN;
-                    }
-                    for (int i = 0; i < MAX_SEARCH_CYCLES; i++) {
-                        x1 = x0;
-                        y1 = y0;
-                        minDelta = findNearestPixel(x1, y1, pixelPos, latData, lonData, maskData, dc);
-                        x0 = (int) Math.floor(pixelPos.x);
-                        y0 = (int) Math.floor(pixelPos.y);
-                        if (x1 == x0 && y1 == y0) {
-                            break;
-                        }
-                    }
-                    if (minDelta * minDelta < pixelDiagonalSquared) {
-                        pixelPos.setLocation(x0 + 0.5f, y0 + 0.5f);
-                    } else {
-                        pixelPos.setInvalid();
-                    }
-                } else {
-                    pixelPos.setInvalid();
-                }
+                pixelFinder.findPixelPos(geoPos, pixelPos);
             }
         } else {
             pixelPos.setInvalid();
         }
         return pixelPos;
-    }
-
-    private double findNearestPixel(int x0, int y0, PixelPos pixelPos, Raster latData, Raster lonData, Raster maskData,
-                                    DistanceCalculator dc) {
-        final int minX = Math.max(x0 - 2, 0);
-        final int minY = Math.max(y0 - 2, 0);
-        final int maxX = Math.min(x0 + 2, rasterW - 1);
-        final int maxY = Math.min(y0 + 2, rasterH - 1);
-
-        int x1 = x0;
-        int y1 = y0;
-
-        double minDelta = Double.POSITIVE_INFINITY;
-        for (int y = minY; y <= maxY; y++) {
-            for (int x = minX; x <= maxX; x++) {
-                if (maskData.getSample(x, y, 0) != 0) {
-                    final double lat = latData.getSampleDouble(x, y, 0);
-                    if (lat >= -90.0 && lat <= 90.0) {
-                        final double lon = lonData.getSampleDouble(x, y, 0);
-                        if (lon >= -180.0 && lon <= 180.0) {
-                            // TODO - use these values to compute average pixel size for the rectangle and use this instead of 'pixelSize' field
-                            final double delta = dc.distance(lon, lat);
-                            if (delta < minDelta) {
-                                x1 = x;
-                                y1 = y;
-                                minDelta = delta;
-                            } else {
-                                if (delta == minDelta) {
-                                    if (Math.abs(x - x0) + Math.abs(y - y0) > Math.abs(x1 - x0) + Math.abs(x1 - y0)) {
-                                        x1 = x;
-                                        y1 = y;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        pixelPos.setLocation(x1, y1);
-
-        return minDelta;
     }
 
     /**
@@ -305,34 +232,34 @@ public class PixelGeoCoding2 extends AbstractGeoCoding {
             int y0 = (int) Math.floor(pixelPos.getY());
             if (x0 >= 0 && x0 < rasterW && y0 >= 0 && y0 < rasterH) {
                 final Raster maskData = maskImage.getData(new Rectangle(x0, y0, 2, 2));
-                if (maskData.getSample(x0, y0, 0) == 0) {
-                    geoPos.setInvalid();
-                } else if (fractionAccuracy) {
-                    if (x0 > 0 && pixelPos.x - x0 < 0.5f || x0 == rasterW - 1) {
-                        x0 -= 1;
-                    }
-                    if (y0 > 0 && pixelPos.y - y0 < 0.5f || y0 == rasterH - 1) {
-                        y0 -= 1;
-                    }
+                if (maskData.getSample(x0, y0, 0) != 0) {
+                    if (fractionAccuracy) {
+                        if (x0 > 0 && pixelPos.x - x0 < 0.5f || x0 == rasterW - 1) {
+                            x0 -= 1;
+                        }
+                        if (y0 > 0 && pixelPos.y - y0 < 0.5f || y0 == rasterH - 1) {
+                            y0 -= 1;
+                        }
 
-                    final boolean b00 = maskData.getSample(x0, y0, 0) == 0;
-                    final boolean b10 = maskData.getSample(x0 + 1, y0, 0) == 0;
-                    final boolean b01 = maskData.getSample(x0, y0 + 1, 0) == 0;
-                    final boolean b11 = maskData.getSample(x0 + 1, y0 + 1, 0) == 0;
+                        final boolean b00 = maskData.getSample(x0, y0, 0) == 0;
+                        final boolean b10 = maskData.getSample(x0 + 1, y0, 0) == 0;
+                        final boolean b01 = maskData.getSample(x0, y0 + 1, 0) == 0;
+                        final boolean b11 = maskData.getSample(x0 + 1, y0 + 1, 0) == 0;
 
-                    if (b00 || b10 || b01 || b11) {
-                        getGeoPosInternal(x0, y0, geoPos);
+                        if (b00 || b10 || b01 || b11) {
+                            getGeoPos(x0, y0, geoPos);
+                        } else {
+                            final float wx = pixelPos.x - (x0 + 0.5f);
+                            final float wy = pixelPos.y - (y0 + 0.5f);
+                            final Raster latData = latImage.getData(new Rectangle(x0, y0, 2, 2));
+                            final Raster lonData = lonImage.getData(new Rectangle(x0, y0, 2, 2));
+                            final float lat = interpolate(wx, wy, latData);
+                            final float lon = interpolate(wx, wy, lonData);
+                            geoPos.setLocation(lat, lon);
+                        }
                     } else {
-                        final float wx = pixelPos.x - (x0 + 0.5f);
-                        final float wy = pixelPos.y - (y0 + 0.5f);
-                        final Raster latData = latImage.getData(new Rectangle(x0, y0, 2, 2));
-                        final Raster lonData = lonImage.getData(new Rectangle(x0, y0, 2, 2));
-                        final float lat = interpolate(wx, wy, latData);
-                        final float lon = interpolate(wx, wy, lonData);
-                        geoPos.setLocation(lat, lon);
+                        getGeoPos(x0, y0, geoPos);
                     }
-                } else {
-                    getGeoPosInternal(x0, y0, geoPos);
                 }
             }
         }
@@ -348,7 +275,6 @@ public class PixelGeoCoding2 extends AbstractGeoCoding {
         final float d10 = raster.getSampleFloat(x1, y0, 0);
         final float d01 = raster.getSampleFloat(x0, y1, 0);
         final float d11 = raster.getSampleFloat(x1, y1, 0);
-        // TODO - check if values are in [-90, 90] and [-180, 180]
 
         return MathUtils.interpolate2D(wx, wy, d00, d10, d01, d11);
     }
@@ -401,7 +327,7 @@ public class PixelGeoCoding2 extends AbstractGeoCoding {
         maskImage = null;
     }
 
-    private void getGeoPosInternal(int pixelX, int pixelY, GeoPos geoPos) {
+    private void getGeoPos(int pixelX, int pixelY, GeoPos geoPos) {
         final int x = lonImage.getMinX() + pixelX;
         final int y = lonImage.getMinY() + pixelY;
         final Raster lonData = lonImage.getData(new Rectangle(x, y, 1, 1));
@@ -418,7 +344,6 @@ public class PixelGeoCoding2 extends AbstractGeoCoding {
      * @param a2 the second angle in degrees (-180 <= a2 <= 180)
      * @return the difference between 0 and 180 degrees
      */
-
 
     /**
      * Transfers the geo-coding of the {@link org.esa.beam.framework.datamodel.Scene srcScene} to the {@link org.esa.beam.framework.datamodel.Scene destScene} with respect to the given
@@ -445,7 +370,7 @@ public class PixelGeoCoding2 extends AbstractGeoCoding {
             lonBand = createSubset(srcLonBand, destScene, subsetDef);
             destProduct.addBand(lonBand);
         }
-        // TODO - copy referenced rasters or de-serialize pixel position estimator
+        // TODO - copy rasters referenced in mask expression and de-serialize pixel position estimator
         destScene.setGeoCoding(new PixelGeoCoding2(latBand, lonBand, maskExpression));
 
         return true;
@@ -496,4 +421,115 @@ public class PixelGeoCoding2 extends AbstractGeoCoding {
         return Datum.WGS_84;
     }
 
+    private class DefaultPixelFinder implements PixelFinder {
+
+        private final RenderedImage lonImage;
+        private final RenderedImage latImage;
+        private final RenderedImage maskImage;
+        private final int maxSearchCycleCount = 30;
+        private final int imageW;
+        private final int imageH;
+
+        private DefaultPixelFinder(RenderedImage lonImage, RenderedImage latImage, RenderedImage maskImage) {
+            this.lonImage = lonImage;
+            this.latImage = latImage;
+            this.maskImage = maskImage;
+
+            imageW = lonImage.getWidth();
+            imageH = lonImage.getHeight();
+        }
+
+        @Override
+        public void findPixelPos(GeoPos geoPos, PixelPos pixelPos) {
+            int x0 = (int) Math.floor(pixelPos.x);
+            int y0 = (int) Math.floor(pixelPos.y);
+
+            if (x0 >= 0 && x0 < imageW && y0 >= 0 && y0 < imageH) {
+                final int searchRegion = 2 * maxSearchCycleCount;
+
+                int x1 = Math.max(x0 - searchRegion, 0);
+                int y1 = Math.max(y0 - searchRegion, 0);
+                int x2 = Math.min(x0 + searchRegion, imageW - 1);
+                int y2 = Math.min(y0 + searchRegion, imageH - 1);
+
+                final Rectangle rectangle = new Rectangle(x1, y1, x2 - x1 + 1, y2 - y1 + 1);
+                final Raster latData = latImage.getData(rectangle);
+                final Raster lonData = lonImage.getData(rectangle);
+                final Raster maskData = maskImage.getData(rectangle);
+
+                final int rasterMinX = maskData.getMinX();
+                final int rasterMinY = maskData.getMinY();
+                final int rasterMaxX = rasterMinX + maskData.getWidth() - 1;
+                final int rasterMaxY = rasterMinY + maskData.getHeight() - 1;
+
+                final double lat0 = geoPos.lat;
+                final double lon0 = geoPos.lon;
+                final DistanceCalculator dc = new SinusoidalDistanceCalculator(lon0, lat0);
+
+                double minDistance;
+                if (maskData.getSampleDouble(x0, y0, 0) != 0) {
+                    minDistance = dc.distance(lonData.getSampleDouble(x0, y0, 0), latData.getSampleDouble(x0, y0, 0));
+                } else {
+                    minDistance = Double.POSITIVE_INFINITY;
+                }
+
+                for (int i = 0; i < maxSearchCycleCount; i++) {
+                    x1 = x0;
+                    y1 = y0;
+
+                    int minX = Math.max(x1 - 2, rasterMinX);
+                    int minY = Math.max(y1 - 2, rasterMinY);
+                    int maxX = Math.min(x1 + 2, rasterMaxX);
+                    int maxY = Math.min(y1 + 2, rasterMaxY);
+
+                    while (minX > rasterMinX) {
+                        if (maskData.getSample(minX, y1, 0) != 0) {
+                            break;
+                        }
+                        if (minX > rasterMinX) {
+                            minX--;
+                        }
+                    }
+                    while (maxX < rasterMaxX) {
+                        if (maskData.getSample(maxX, y1, 0) != 0) {
+                            break;
+                        }
+                        if (maxX < rasterMaxX) {
+                            maxX++;
+                        }
+                    }
+
+                    for (int y = minY; y <= maxY; y++) {
+                        for (int x = minX; x <= maxX; x++) {
+                            if (y != y0 || x != x0) {
+                                if (maskData.getSample(x, y, 0) != 0) {
+                                    final double lat = latData.getSampleDouble(x, y, 0);
+                                    final double lon = lonData.getSampleDouble(x, y, 0);
+                                    final double d = dc.distance(lon, lat);
+                                    if (d < minDistance) {
+                                        x1 = x;
+                                        y1 = y;
+                                        minDistance = d;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    if (x1 == x0 && y1 == y0) {
+                        break;
+                    }
+
+                    x0 = x1;
+                    y0 = y1;
+                }
+                if (minDistance * minDistance < pixelDiagonalSquared) {
+                    pixelPos.setLocation(x0 + 0.5f, y0 + 0.5f);
+                } else {
+                    pixelPos.setInvalid();
+                }
+            } else {
+                pixelPos.setInvalid();
+            }
+        }
+    }
 }
