@@ -76,7 +76,7 @@
                 <enabled>true</enabled>
             </snapshots>
         </repository>
-        <repository>
+        <!--repository>
           <id>repo1.maven.org</id>
           <name>maven repository</name>
           <url>http://repo1.maven.org/maven2/</url>
@@ -89,7 +89,7 @@
 		<repository>
 		  <id>maven.iscpif.fr</id>
 		  <url>http://maven.iscpif.fr/public</url>
-		</repository>
+		</repository-->
     </repositories>
 
     <pluginRepositories>

@@ -7,7 +7,7 @@ TC of TerraSAR-X detected products
 copy, move, delete from product library
 graphical subset selection
 mapping tools layers
-
+Mosaic several bands at once to create RGB mosaics
 
 New in NEST 4C
 
