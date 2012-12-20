@@ -16,6 +16,7 @@ package org.esa.beam.framework.datamodel;/*
 
 import org.esa.beam.util.jai.SingleBandedSampleModel;
 import org.esa.beam.util.math.Rotator;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import javax.media.jai.ImageLayout;
@@ -54,6 +55,7 @@ public class PixelPosEstimatorTest {
     }
 
     @Test
+    @Ignore
     public void testGetPixelPos() {
         final int nx = 512;
         final int ny = 36000;
