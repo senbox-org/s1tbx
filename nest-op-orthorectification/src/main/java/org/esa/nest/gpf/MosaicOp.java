@@ -404,7 +404,7 @@ public class MosaicOp extends Operator {
             final int maxX = targetRectangle.x + targetRectangle.width - 1;
             final int maxY = targetRectangle.y + targetRectangle.height - 1;
 
-            final TileGeoreferencing tileGeoRef = new TileGeoreferencing(targetProduct, minX, minY, maxX-minX, maxY-minY);
+            final TileGeoreferencing tileGeoRef = new TileGeoreferencing(targetProduct, minX, minY, maxX-minX+1, maxY-minY+1);
 
             final List<PixelPos[]> srcPixelCoords = new ArrayList<PixelPos[]>(validProducts.size());
             final int numPixelPos = targetRectangle.width * targetRectangle.height;
