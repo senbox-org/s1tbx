@@ -189,7 +189,7 @@
             <value>${installdir}</value>
         </addEnvironmentVariable>
         <changePermissions>
-            <files>*/*.sh;*/*.bin;*/*.command;${installdir}/*.command;${installdir}/dat.sh;${installdir}/gpt.sh;${installdir}/jre/bin/*;${installdir}/*.so;${installdir}/*.jnilib</files>
+            <files>*/*.sh;*/*.run;*/*.bin;*/*.command;${installdir}/*.command;${installdir}/*.sh;${installdir}/*.run;${installdir}/jre/bin/*;${installdir}/*.so;${installdir}/*.jnilib</files>
             <permissions>755</permissions>
         </changePermissions>
         <addDirectoryToPath>
