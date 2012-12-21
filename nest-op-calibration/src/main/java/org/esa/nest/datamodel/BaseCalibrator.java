@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -15,21 +15,10 @@
  */
 package org.esa.nest.datamodel;
 
-import com.bc.ceres.core.ProgressMonitor;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.MetadataElement;
+import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
-import org.esa.beam.framework.gpf.Tile;
-import org.esa.beam.util.math.MathUtils;
-import org.esa.nest.datamodel.AbstractMetadata;
-import org.esa.nest.datamodel.Calibrator;
-import org.esa.nest.datamodel.Unit;
-import org.esa.nest.gpf.OperatorUtils;
-import org.esa.nest.gpf.TileIndex;
-
-import java.awt.*;
-import java.io.File;
-import java.util.HashMap;
 
 /**
  * Calibration base class.

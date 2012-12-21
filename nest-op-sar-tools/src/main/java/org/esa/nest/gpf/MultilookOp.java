@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -51,7 +51,7 @@ import java.util.HashMap;
 
 @OperatorMetadata(alias="Multilook",
         category = "SAR Tools",
-        authors = "NEST team", copyright = "(c) 2012 by Array Systems Computing Inc.",
+        authors = "NEST team", copyright = "(C) 2013 by Array Systems Computing Inc.",
         description="Averages the power across a number of lines in both the azimuth and range directions")
 public final class MultilookOp extends Operator {
 

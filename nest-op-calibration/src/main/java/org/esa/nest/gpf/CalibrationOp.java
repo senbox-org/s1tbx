@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -25,7 +25,10 @@ import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
-import org.esa.nest.datamodel.*;
+import org.esa.nest.datamodel.AbstractMetadata;
+import org.esa.nest.datamodel.CalibrationFactory;
+import org.esa.nest.datamodel.Calibrator;
+import org.esa.nest.datamodel.Unit;
 
 import java.io.File;
 import java.util.HashMap;

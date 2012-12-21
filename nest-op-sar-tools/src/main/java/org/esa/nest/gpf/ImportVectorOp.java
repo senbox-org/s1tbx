@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2013 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -57,7 +57,7 @@ import java.util.Arrays;
  */
 @OperatorMetadata(alias = "Import-Vector",
         category = "Utilities",
-        authors = "NEST team", copyright = "(c) 2012 by Array Systems Computing Inc.",
+        authors = "NEST team", copyright = "(C) 2013 by Array Systems Computing Inc.",
         description = "Imports a shape file into a product")
 public class ImportVectorOp extends Operator {
 
