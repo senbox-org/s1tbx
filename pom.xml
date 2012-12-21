@@ -76,7 +76,7 @@
                 <enabled>true</enabled>
             </snapshots>
         </repository>
-        <repository>
+        <!--repository>
           <id>repo1.maven.org</id>
           <name>maven repository</name>
           <url>http://repo1.maven.org/maven2/</url>
@@ -99,7 +99,7 @@
 			<id>opengeo</id>
 			<name>GeoTools Maven Repository</name>
 			<url>http://repo.opengeo.org/</url>
-        </repository>
+        </repository-->
     </repositories>
 
     <pluginRepositories>
@@ -156,7 +156,7 @@
 		<module>nest-world-wind-view</module>
 		<module>nest-reader-dem</module>
 		<module>nest-io</module>
-		<module>nest-io-sentinel-1</module>
+		<module>nest-io-sentinel1</module>
 	    <module>nest-op-calibration</module>
 	    <module>nest-op-coregistration</module>
 	    <module>nest-op-sar-tools</module>

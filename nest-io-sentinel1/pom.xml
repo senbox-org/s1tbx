@@ -10,7 +10,7 @@
     </parent>
 
     <groupId>org.esa.nest</groupId>
-    <artifactId>nest-io-sentinel-1</artifactId>
+    <artifactId>nest-io-sentinel1</artifactId>
     <name>NEST Sentinel-1 Reader</name>
     <version>5.0</version>
 	
