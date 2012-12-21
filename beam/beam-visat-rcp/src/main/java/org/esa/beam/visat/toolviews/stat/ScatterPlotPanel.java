@@ -207,7 +207,7 @@ class ScatterPlotPanel extends ChartPagePanel {
 
     @Override
     protected void handleLayerContentChanged() {
-        System.out.println("     handleLayerContentChanged");
+        //System.out.println("     handleLayerContentChanged");
         computeChartDataIfPossible();
     }
 
@@ -319,7 +319,7 @@ class ScatterPlotPanel extends ChartPagePanel {
         final PropertyChangeListener recomputeListener = new PropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
-                System.out.println("     recomputeListener");
+                //System.out.println("     recomputeListener");
                 computeChartDataIfPossible();
             }
         };
@@ -655,7 +655,7 @@ class ScatterPlotPanel extends ChartPagePanel {
             compute(scatterPlotModel.useRoiMask ? scatterPlotModel.roiMask : null);
         } else {
             scatterpointsDataset.removeAllSeries();
-            System.out.println("     scatterpointsDataset.removeAllSeries();");
+            //System.out.println("     scatterpointsDataset.removeAllSeries();");
             acceptableDeviationDataset.removeAllSeries();
             regressionDataset.removeAllSeries();
             getPlot().removeAnnotation(r2Annotation);
