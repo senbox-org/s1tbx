@@ -17,6 +17,7 @@ package org.esa.nest.util;
 
 import Jama.Matrix;
 import org.apache.commons.math.util.FastMath;
+import org.esa.nest.eo.Constants;
 
 public final class MathUtils
 {    

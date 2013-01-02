@@ -3,8 +3,8 @@ package org.jdoris.core;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.nest.datamodel.AbstractMetadata;
-import org.esa.nest.util.Constants;
-import org.esa.nest.util.GeoUtils;
+import org.esa.nest.eo.Constants;
+import org.esa.nest.eo.GeoUtils;
 import org.jdoris.core.io.ResFile;
 import org.jdoris.core.utils.DateUtils;
 

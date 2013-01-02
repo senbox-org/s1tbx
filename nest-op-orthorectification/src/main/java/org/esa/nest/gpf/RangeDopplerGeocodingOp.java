@@ -34,8 +34,9 @@ import org.esa.nest.dataio.dem.DEMFactory;
 import org.esa.nest.dataio.dem.EarthGravitationalModel96;
 import org.esa.nest.dataio.dem.FileElevationModel;
 import org.esa.nest.datamodel.*;
-import org.esa.nest.util.Constants;
-import org.esa.nest.util.GeoUtils;
+import org.esa.nest.eo.CRSGeoCodingHandler;
+import org.esa.nest.eo.Constants;
+import org.esa.nest.eo.GeoUtils;
 import org.esa.nest.util.MathUtils;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 

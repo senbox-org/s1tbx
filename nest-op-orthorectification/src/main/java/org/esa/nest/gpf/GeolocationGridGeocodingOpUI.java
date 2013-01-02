@@ -19,7 +19,7 @@ import org.esa.beam.framework.dataop.resamp.ResamplingFactory;
 import org.esa.beam.framework.gpf.ui.BaseOperatorUI;
 import org.esa.beam.framework.gpf.ui.UIValidation;
 import org.esa.beam.framework.ui.AppContext;
-import org.esa.nest.datamodel.MapProjectionHandler;
+import org.esa.nest.eo.MapProjectionHandler;
 import org.esa.nest.util.DialogUtils;
 
 import javax.swing.*;

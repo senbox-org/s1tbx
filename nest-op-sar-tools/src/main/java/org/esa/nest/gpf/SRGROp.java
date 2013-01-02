@@ -29,7 +29,7 @@ import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
 import org.esa.nest.datamodel.AbstractMetadata;
 import org.esa.nest.datamodel.Unit;
-import org.esa.nest.util.GeoUtils;
+import org.esa.nest.eo.GeoUtils;
 import org.esa.nest.util.MathUtils;
 
 import java.awt.*;

@@ -24,7 +24,7 @@ import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.math.MathUtils;
 import org.esa.nest.datamodel.AbstractMetadata;
 import org.esa.nest.datamodel.Unit;
-import org.esa.nest.util.Constants;
+import org.esa.nest.eo.Constants;
 import org.esa.nest.util.ExceptionLog;
 
 import java.awt.*;

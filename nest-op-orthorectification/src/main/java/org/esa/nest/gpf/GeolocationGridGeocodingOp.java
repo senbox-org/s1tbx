@@ -29,8 +29,8 @@ import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
 import org.esa.nest.datamodel.AbstractMetadata;
-import org.esa.nest.datamodel.CRSGeoCodingHandler;
-import org.esa.nest.util.Constants;
+import org.esa.nest.eo.CRSGeoCodingHandler;
+import org.esa.nest.eo.Constants;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import java.awt.*;
@@ -105,14 +105,12 @@ public final class GeolocationGridGeocodingOp extends Operator {
     private double delLon = 0.0;
 
     private AbstractMetadata.SRGRCoefficientList[] srgrConvParams = null;
-    private final Map<String, String[]> targetBandNameToSourceBandName = new HashMap<String, String[]>();
+    private final Map<String, String[]> targetBandNameToSourceBandName = new HashMap<String, String[]>(10);
 
     private Resampling imgResampling = null;
 
-    private String mission = null;
     private boolean nearRangeOnLeft = true;
     private boolean unBiasedZeroDoppler = false;
-    private boolean isPolsar = false;
 
     /**
      * Initializes this operator and sets the one and only target product.
@@ -157,7 +155,7 @@ public final class GeolocationGridGeocodingOp extends Operator {
     private void getMetadata() throws Exception {
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
 
-        mission = RangeDopplerGeocodingOp.getMissionType(absRoot);
+        final String mission = RangeDopplerGeocodingOp.getMissionType(absRoot);
 
         srgrFlag = AbstractMetadata.getAttributeBoolean(absRoot, AbstractMetadata.srgr_flag);
 
@@ -175,10 +173,8 @@ public final class GeolocationGridGeocodingOp extends Operator {
             unBiasedZeroDoppler = true;
         }
 
-        TiePointGrid incidenceAngle = OperatorUtils.getIncidenceAngle(sourceProduct);
+        final TiePointGrid incidenceAngle = OperatorUtils.getIncidenceAngle(sourceProduct);
         nearRangeOnLeft = RangeDopplerGeocodingOp.isNearRangeOnLeft(incidenceAngle, sourceImageWidth);
-
-        isPolsar = absRoot.getAttributeInt(AbstractMetadata.polsarData, 0) == 1;
     }
 
     /**
@@ -196,9 +192,9 @@ public final class GeolocationGridGeocodingOp extends Operator {
     private void createTargetProduct() throws OperatorException {
 
         try {
-            double pixelSpacingInMeter = Math.max(RangeDopplerGeocodingOp.getAzimuthPixelSpacing(sourceProduct),
+            final double pixelSpacingInMeter = Math.max(RangeDopplerGeocodingOp.getAzimuthPixelSpacing(sourceProduct),
                     RangeDopplerGeocodingOp.getRangePixelSpacing(sourceProduct));
-            double pixelSpacingInDegree = RangeDopplerGeocodingOp.getPixelSpacingInDegree(pixelSpacingInMeter);
+            final double pixelSpacingInDegree = RangeDopplerGeocodingOp.getPixelSpacingInDegree(pixelSpacingInMeter);
 
             delLat = pixelSpacingInDegree;
             delLon = pixelSpacingInDegree;
@@ -402,7 +398,7 @@ public final class GeolocationGridGeocodingOp extends Operator {
      * @param pixPos The pixel position.
      * @return The zero Doppler time in days.
      */
-    private double computeZeroDopplerTime(PixelPos pixPos) {
+    private double computeZeroDopplerTime(final PixelPos pixPos) {
         // todo Guide requires using biquadratic interpolation, is it necessary?
         final int j0 = (int)pixPos.y;
         final double t0 = firstLineUTC + j0*lineTimeInterval;
@@ -444,9 +440,9 @@ public final class GeolocationGridGeocodingOp extends Operator {
             final int azimuthIndex = (int)((zeroDopplerTime - firstLineUTC) / lineTimeInterval);
             double r0;
             if (nearRangeOnLeft) {
-                r0 = slantRangeTime.getPixelDouble(0, azimuthIndex) / 1000000000.0*Constants.halfLightSpeed;
+                r0 = slantRangeTime.getPixelDouble(0, azimuthIndex) / Constants.oneBillion*Constants.halfLightSpeed;
             } else {
-                r0 = slantRangeTime.getPixelDouble(sourceImageWidth-1, azimuthIndex)/1000000000.0*Constants.halfLightSpeed;
+                r0 = slantRangeTime.getPixelDouble(sourceImageWidth-1, azimuthIndex)/Constants.oneBillion*Constants.halfLightSpeed;
             }
             rangeIndex = (slantRange - r0) / rangeSpacing;
         }

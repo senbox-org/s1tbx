@@ -29,7 +29,7 @@ import org.esa.nest.datamodel.AbstractMetadata;
 import org.esa.nest.datamodel.Orbits;
 import org.esa.nest.datamodel.Unit;
 import org.esa.nest.gpf.OperatorUtils;
-import org.esa.nest.util.GeoUtils;
+import org.esa.nest.eo.GeoUtils;
 
 import java.io.File;
 

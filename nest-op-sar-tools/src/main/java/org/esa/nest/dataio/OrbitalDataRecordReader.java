@@ -17,7 +17,7 @@ package org.esa.nest.dataio;
 
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.OperatorException;
-import org.esa.nest.util.GeoUtils;
+import org.esa.nest.eo.GeoUtils;
 import org.esa.nest.util.MathUtils;
 import org.esa.nest.util.ResourceUtils;
 

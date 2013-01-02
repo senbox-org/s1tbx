@@ -28,7 +28,7 @@ import org.esa.beam.framework.dataop.maptransf.MapInfo;
 import org.esa.beam.framework.dataop.maptransf.MapProjectionRegistry;
 import org.esa.beam.util.ProductUtils;
 import org.esa.nest.datamodel.AbstractMetadata;
-import org.esa.nest.util.GeoUtils;
+import org.esa.nest.eo.GeoUtils;
 
 import javax.swing.*;
 import java.awt.*;
