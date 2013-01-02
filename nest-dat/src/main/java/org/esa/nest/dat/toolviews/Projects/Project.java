@@ -155,6 +155,10 @@ public class Project extends Observable {
         return projectFolder;
     }
 
+    public File getProjectFile() {
+        return projectFile;
+    }
+
     String getProjectName() {
         final String name = projectFile.getName();
         if(name.endsWith(".xml"))
@@ -526,10 +530,6 @@ public class Project extends Observable {
         return projectSubFolders != null;
     }
 
-    public void SaveWorkSpace() {
-
-    }
-
     public void SaveProjectAs() {
         final File file = ResourceUtils.GetFilePath("Save Project", "XML", "xml", getProjectName(), "Project File", true);
         if(file == null) return;
@@ -563,6 +563,11 @@ public class Project extends Observable {
 
         final File file = ResourceUtils.GetFilePath("Load Project", "XML", "xml", "", "Project File", false);
         if(file == null) return;
+
+        LoadProject(file);
+    }
+
+    public void LoadProject(final File file) {
 
         initProject(file);
 

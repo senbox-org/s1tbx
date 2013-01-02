@@ -39,7 +39,7 @@ public class SaveSessionAsAction extends ExecCommand {
     public static final String ID = "saveSessionAs";
     
     @Override
-    public final void actionPerformed(final CommandEvent event) {
+    public void actionPerformed(final CommandEvent event) {
         final SaveSessionAction action = (SaveSessionAction) VisatApp.getApp().getCommandManager().getCommand(SaveSessionAction.ID);
         action.saveSession(true);
     }

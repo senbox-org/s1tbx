@@ -101,7 +101,11 @@ public class OpenSessionAction extends ExecCommand {
         worker.execute();
     }
 
-    private static class OpenSessionWorker extends ProgressMonitorSwingWorker<RestoredSession, Object> {
+    protected void restoreProject(final RestoredSession restoredSession) {
+
+    }
+
+    private class OpenSessionWorker extends ProgressMonitorSwingWorker<RestoredSession, Object> {
 
         private final VisatApp app;
         private final File sessionFile;
@@ -197,6 +201,8 @@ public class OpenSessionAction extends ExecCommand {
                     internalFrame.setBounds(bounds);
                 }
             }
+
+            restoreProject(restoredSession);
         }
 
         private <T> T getAction(String actionId) {

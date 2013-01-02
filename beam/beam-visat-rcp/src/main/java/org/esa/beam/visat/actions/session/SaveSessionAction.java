@@ -83,7 +83,7 @@ public class SaveSessionAction extends ExecCommand {
         }
     }
 
-    private boolean saveProductsOrLetItBe(VisatApp app, File sessionFile) {
+    private static boolean saveProductsOrLetItBe(VisatApp app, File sessionFile) {
         final Product[] products = app.getProductManager().getProducts();
 
         for (Product product : products) {
@@ -128,7 +128,7 @@ public class SaveSessionAction extends ExecCommand {
         return true;
     }
 
-    private void saveProducts(ArrayList<Product> unsavedProducts, File sessionDir) {
+    private static void saveProducts(ArrayList<Product> unsavedProducts, File sessionDir) {
         for (Product product : unsavedProducts) {
             if (product.getFileLocation() == null) {
                 product.setFileLocation(new File(sessionDir, product.getName() + ".dim"));
@@ -137,7 +137,7 @@ public class SaveSessionAction extends ExecCommand {
         }
     }
 
-    private Session createSession(VisatApp app) {
+    protected Session createSession(VisatApp app) {
         ArrayList<ProductNodeView> nodeViews = new ArrayList<ProductNodeView>();
         final JInternalFrame[] internalFrames = app.getAllInternalFrames();
         for (JInternalFrame internalFrame : internalFrames) {

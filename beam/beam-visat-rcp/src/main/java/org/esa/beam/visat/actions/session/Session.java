@@ -85,6 +85,8 @@ public class Session {
     ProductRef[] productRefs;
     @XStreamAlias("views")
     ViewRef[] viewRefs;
+    @XStreamAlias("project")
+    File projectFile = null;
 
     /**
      * No-arg constructor required by XStream.
@@ -280,7 +282,7 @@ public class Session {
             ProductNodeView[] views = restoreViews(productManager, appContext.getPreferences(), SubProgressMonitor.create(pm, 20), problems
             );
             return new RestoredSession(productManager.getProducts(),
-                                       views,
+                                       views, projectFile,
                                        problems.toArray(new Exception[problems.size()]));
         } finally {
             pm.done();
@@ -490,6 +492,10 @@ public class Session {
             }
         }
         return null;
+    }
+
+    public void setProjectFile(final File file) {
+        projectFile = file;
     }
 
     public static interface ProblemSolver {

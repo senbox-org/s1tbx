@@ -19,6 +19,8 @@ package org.esa.beam.visat.actions.session;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.product.ProductNodeView;
 
+import java.io.File;
+
 /**
  * A restored session comprising products and views.
  *
@@ -30,11 +32,13 @@ public class RestoredSession {
 
     private final Product[] products;
     private final ProductNodeView[] views;
+    private final File projectFile;
     private final Exception[] problems;
 
-    public RestoredSession(Product[] products, ProductNodeView[] views, Exception[] problems) {
+    public RestoredSession(Product[] products, ProductNodeView[] views, File projectFile, Exception[] problems) {
         this.products = products;
         this.views = views;
+        this.projectFile = projectFile;
         this.problems = problems;
     }
 
@@ -44,6 +48,10 @@ public class RestoredSession {
 
     public ProductNodeView[] getViews() {
         return views.clone();
+    }
+
+    public File getProjectFile() {
+        return projectFile;
     }
 
     public Exception[] getProblems() {

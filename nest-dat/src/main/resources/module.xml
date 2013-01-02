@@ -57,6 +57,9 @@
                     <id>PCAOp</id>
                     <id>importMermaid</id>
                     <id>importSeaDASTrack</id>
+                    <id>openSession</id>
+                    <id>saveSession</id>
+                    <id>saveSessionAs</id>
                 </excludedActions>
                 <excludedToolViews>
                     <id>org.esa.beam.visat.toolviews.spectrum.SpectrumToolView</id>
@@ -225,6 +228,40 @@
             <placeAfter>saveProjectAs</placeAfter>
             <shortDescr>Close current project</shortDescr>
             <description>Close current project</description>
+      </action>
+
+      <action>
+            <parent>Session</parent>
+            <id>openDATSession</id>
+            <class>org.esa.nest.dat.actions.session.OpenDATSessionAction</class>
+            <text>Open Session...</text>
+            <accelerator>shift control O</accelerator>
+            <shortDescr>Open a session.</shortDescr>
+            <longDescr>Open a session.</longDescr>
+            <helpId>openSession</helpId>
+      </action>
+
+      <action>
+            <parent>Session</parent>
+            <id>saveDATSession</id>
+            <class>org.esa.nest.dat.actions.session.SaveDATSessionAction</class>
+            <text>Save Session</text>
+            <accelerator>shift control S</accelerator>
+            <shortDescr>Save the current session.</shortDescr>
+            <longDescr>Save the current session.</longDescr>
+            <helpId>saveSession</helpId>
+      </action>
+
+      <action>
+            <parent>Session</parent>
+            <placeAfter>saveDATSession</placeAfter>
+            <id>saveDATSessionAs</id>
+            <class>org.esa.nest.dat.actions.session.SaveDATSessionAsAction</class>
+            <text>Save Session As...</text>
+            <separatorAfter>true</separatorAfter>
+            <shortDescr>Save the current session using a different name.</shortDescr>
+            <longDescr>Save the current session using a different name.</longDescr>
+            <helpId>saveSessionAs</helpId>
       </action>
 
       <action>
