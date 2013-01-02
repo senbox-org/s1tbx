@@ -304,8 +304,8 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
         }
 
         // set state vector time
-        if(absRoot.getAttributeUTC(AbstractMetadata.STATE_VECTOR_TIME, new ProductData.UTC(0)).
-                equalElems(new ProductData.UTC(0))) {
+        if(absRoot.getAttributeUTC(AbstractMetadata.STATE_VECTOR_TIME, AbstractMetadata.NO_METADATA_UTC).
+                equalElems(AbstractMetadata.NO_METADATA_UTC)) {
 
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.STATE_VECTOR_TIME,
                 ReaderUtils.getTime(stateVectorElems[0], "timeStamp", AbstractMetadata.dateFormat));
@@ -611,7 +611,7 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
 
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
         final double lineTimeInterval = absRoot.getAttributeDouble(AbstractMetadata.line_time_interval, 0);
-        final ProductData.UTC startTime = absRoot.getAttributeUTC(AbstractMetadata.first_line_time, new ProductData.UTC(0));
+        final ProductData.UTC startTime = absRoot.getAttributeUTC(AbstractMetadata.first_line_time, AbstractMetadata.NO_METADATA_UTC);
         final double startSeconds = startTime.getMJD() * 24 * 3600;
         final double pixelSpacing = absRoot.getAttributeDouble(AbstractMetadata.range_spacing, 0);
         final boolean isDescending = absRoot.getAttributeString(AbstractMetadata.PASS).equals("DESCENDING");

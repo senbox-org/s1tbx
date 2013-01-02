@@ -432,8 +432,8 @@ public class Sentinel1ProductDirectory extends XMLProductDirectory {
         }
 
         // set state vector time
-        if(absRoot.getAttributeUTC(AbstractMetadata.STATE_VECTOR_TIME, new ProductData.UTC(0)).
-                equalElems(new ProductData.UTC(0))) {
+        if(absRoot.getAttributeUTC(AbstractMetadata.STATE_VECTOR_TIME, AbstractMetadata.NO_METADATA_UTC).
+                equalElems(AbstractMetadata.NO_METADATA_UTC)) {
 
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.STATE_VECTOR_TIME,
                 ReaderUtils.getTime(stateVectorElems[0], "time", AbstractMetadata.dateFormat));

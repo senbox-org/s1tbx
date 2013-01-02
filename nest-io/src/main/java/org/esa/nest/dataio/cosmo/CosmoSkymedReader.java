@@ -415,7 +415,7 @@ public class CosmoSkymedReader extends AbstractProductReader {
         final MetadataElement dopplerListElem = new MetadataElement(AbstractMetadata.dop_coef_list + ".1");
         dopplerCentroidCoefficientsElem.addElement(dopplerListElem);
 
-        final ProductData.UTC utcTime = absRoot.getAttributeUTC(AbstractMetadata.first_line_time, new ProductData.UTC(0));
+        final ProductData.UTC utcTime = absRoot.getAttributeUTC(AbstractMetadata.first_line_time, AbstractMetadata.NO_METADATA_UTC);
         dopplerListElem.setAttributeUTC(AbstractMetadata.dop_coef_time, utcTime);
 
         AbstractMetadata.addAbstractedAttribute(dopplerListElem, AbstractMetadata.slant_range_time,
@@ -482,7 +482,7 @@ public class CosmoSkymedReader extends AbstractProductReader {
         final MetadataElement srgrListElem = new MetadataElement(AbstractMetadata.srgr_coef_list);
         srgrCoefficientsElem.addElement(srgrListElem);
 
-        final ProductData.UTC utcTime = absRoot.getAttributeUTC(AbstractMetadata.first_line_time, new ProductData.UTC(0));
+        final ProductData.UTC utcTime = absRoot.getAttributeUTC(AbstractMetadata.first_line_time, AbstractMetadata.NO_METADATA_UTC);
         srgrListElem.setAttributeUTC(AbstractMetadata.srgr_coef_time, utcTime);
         AbstractMetadata.addAbstractedAttribute(srgrListElem, AbstractMetadata.ground_range_origin,
                 ProductData.TYPE_FLOAT64, "m", "Ground Range Origin");

@@ -623,8 +623,8 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
         }
 
         // set state vector time
-        if(absRoot.getAttributeUTC(AbstractMetadata.STATE_VECTOR_TIME, new ProductData.UTC(0)).
-                equalElems(new ProductData.UTC(0))) {
+        if(absRoot.getAttributeUTC(AbstractMetadata.STATE_VECTOR_TIME, AbstractMetadata.NO_METADATA_UTC).
+                equalElems(AbstractMetadata.NO_METADATA_UTC)) {
 
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.STATE_VECTOR_TIME,
                 ReaderUtils.getTime(stateVectorElems[1], "timeUTC", AbstractMetadata.dateFormat));
@@ -726,7 +726,7 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
         final MetadataElement srgrCoefficientsElem = absRoot.getElement(AbstractMetadata.srgr_coefficients);
         final MetadataElement srgrListElem = new MetadataElement(AbstractMetadata.srgr_coef_list);
         srgrCoefficientsElem.addElement(srgrListElem);
-        final ProductData.UTC utcTime = absRoot.getAttributeUTC(AbstractMetadata.first_line_time, new ProductData.UTC(0));
+        final ProductData.UTC utcTime = absRoot.getAttributeUTC(AbstractMetadata.first_line_time, AbstractMetadata.NO_METADATA_UTC);
         srgrListElem.setAttributeUTC(AbstractMetadata.srgr_coef_time, utcTime);
         AbstractMetadata.addAbstractedAttribute(srgrListElem, AbstractMetadata.ground_range_origin,
                 ProductData.TYPE_FLOAT64, "m", "Ground Range Origin");

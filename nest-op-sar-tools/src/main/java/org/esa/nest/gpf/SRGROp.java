@@ -409,7 +409,7 @@ public class SRGROp extends Operator {
         final MetadataElement srgrListElem = new MetadataElement(AbstractMetadata.srgr_coef_list);
         srgrCoefficientsElem.addElement(srgrListElem);
 
-        final ProductData.UTC utcTime = absTgt.getAttributeUTC(AbstractMetadata.first_line_time, new ProductData.UTC(0));
+        final ProductData.UTC utcTime = absTgt.getAttributeUTC(AbstractMetadata.first_line_time, AbstractMetadata.NO_METADATA_UTC);
         srgrListElem.setAttributeUTC(AbstractMetadata.srgr_coef_time, utcTime);
 
         AbstractMetadata.addAbstractedAttribute(srgrListElem, AbstractMetadata.ground_range_origin,

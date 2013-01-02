@@ -176,6 +176,8 @@ public final class ReaderUtils {
     }
 
     public static double getLineTimeInterval(final ProductData.UTC startUTC, final ProductData.UTC endUTC, final int sceneHeight) {
+        if(startUTC == null || endUTC == null)
+            return 0;
         final double startTime = startUTC.getMJD() * 24.0 * 3600.0;
         final double stopTime = endUTC.getMJD() * 24.0 * 3600.0;
         return (stopTime-startTime) / (double)(sceneHeight-1);

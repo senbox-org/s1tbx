@@ -500,8 +500,8 @@ class BasicCeosProductDirectory extends CEOSProductDirectory {
                 addVector(AbstractMetadata.orbit_vector, orbitVectorListElem, platformPosRec, theta, i);
             }
 
-            if(absRoot.getAttributeUTC(AbstractMetadata.STATE_VECTOR_TIME, new ProductData.UTC(0)).
-                    equalElems(new ProductData.UTC(0))) {
+            if(absRoot.getAttributeUTC(AbstractMetadata.STATE_VECTOR_TIME, AbstractMetadata.NO_METADATA_UTC).
+                    equalElems(AbstractMetadata.NO_METADATA_UTC)) {
 
                 AbstractMetadata.setAttribute(absRoot, AbstractMetadata.STATE_VECTOR_TIME,
                     getOrbitTime(platformPosRec, 1));

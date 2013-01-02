@@ -198,8 +198,8 @@ public final class DeburstWSSOp extends Operator {
         final MetadataElement srcMPPRootElem = srcOrigRoot.getElement("MAIN_PROCESSING_PARAMS_ADS");
         final MetadataElement srcMPP = srcMPPRootElem.getElementAt(subSwathNum);
 
-        final ProductData.UTC startTime = srcMPP.getAttributeUTC("first_zero_doppler_time", new ProductData.UTC(0));
-        final ProductData.UTC endTime = srcMPP.getAttributeUTC("last_zero_doppler_time", new ProductData.UTC(0));
+        final ProductData.UTC startTime = srcMPP.getAttributeUTC("first_zero_doppler_time", AbstractMetadata.NO_METADATA_UTC);
+        final ProductData.UTC endTime = srcMPP.getAttributeUTC("last_zero_doppler_time", AbstractMetadata.NO_METADATA_UTC);
         absTgt.setAttributeUTC(AbstractMetadata.first_line_time, startTime);
         absTgt.setAttributeUTC(AbstractMetadata.last_line_time, endTime);
         lineTimeInterval = srcMPP.getAttributeDouble(AbstractMetadata.line_time_interval);
