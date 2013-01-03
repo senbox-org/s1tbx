@@ -17,7 +17,6 @@ package org.esa.nest.eo;
 
 import org.esa.beam.framework.datamodel.CrsGeoCoding;
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.nest.eo.MapProjectionHandler;
 import org.esa.nest.gpf.OperatorUtils;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.crs.DefaultGeographicCRS;

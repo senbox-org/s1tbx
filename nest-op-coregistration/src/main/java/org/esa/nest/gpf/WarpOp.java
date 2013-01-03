@@ -257,7 +257,7 @@ public class WarpOp extends Operator {
             Band targetBand;
             if (srcBand == masterBand || srcBand == masterBand2 ||
                     StringUtils.contains(masterBandNames, srcBand.getName())) {
-                targetBand = ProductUtils.copyBand(srcBand.getName(), sourceProduct, targetProduct);
+                targetBand = ProductUtils.copyBand(srcBand.getName(), sourceProduct, targetProduct, false);
                 targetBand.setSourceImage(srcBand.getSourceImage());
             } else {
                 targetBand = targetProduct.addBand(srcBand.getName(), ProductData.TYPE_FLOAT32);
@@ -270,7 +270,7 @@ public class WarpOp extends Operator {
                 Band targetBandQ;
                 if (srcBand == masterBand || srcBand == masterBand2 ||
                         StringUtils.contains(masterBandNames, srcBand.getName())) {
-                    targetBandQ = ProductUtils.copyBand(srcBandQ.getName(), sourceProduct, targetProduct);
+                    targetBandQ = ProductUtils.copyBand(srcBandQ.getName(), sourceProduct, targetProduct, false);
                     targetBandQ.setSourceImage(srcBandQ.getSourceImage());
                 } else {
                     targetBandQ = targetProduct.addBand(srcBandQ.getName(), ProductData.TYPE_FLOAT32);

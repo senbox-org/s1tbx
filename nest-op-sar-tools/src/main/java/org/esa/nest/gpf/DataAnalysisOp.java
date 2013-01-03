@@ -170,7 +170,7 @@ public class DataAnalysisOp extends Operator {
         OperatorUtils.copyProductNodes(sourceProduct, targetProduct);
 
         for(Band band : sourceProduct.getBands()) {
-            ProductUtils.copyBand(band.getName(), sourceProduct, targetProduct);
+            ProductUtils.copyBand(band.getName(), sourceProduct, targetProduct, false);
         }
     }
 

@@ -84,7 +84,7 @@ public class ReplaceMetadataOp extends Operator {
             final Band[] bands = masterProduct.getBands();
             for (Band srcBand : bands) {
     
-                final Band targetBand = ProductUtils.copyBand(srcBand.getName(), masterProduct, targetProduct);
+                final Band targetBand = ProductUtils.copyBand(srcBand.getName(), masterProduct, targetProduct, false);
                 targetBand.setSourceImage(srcBand.getSourceImage());
             }
 

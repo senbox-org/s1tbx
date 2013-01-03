@@ -15,9 +15,9 @@
  */
 package org.esa.nest.datamodel;
 
-import org.esa.beam.framework.datamodel.MetadataElement;
-import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.gpf.OperatorException;
+import org.esa.nest.eo.Constants;
 import org.esa.nest.gpf.*;
 
 /**
@@ -49,6 +49,155 @@ public class CalibrationFactory {
         	return new CosmoSkymedCalibrator();
         } else {
             throw new OperatorException("Mission " + mission + " is currently not supported for calibration.");
+        }
+    }
+
+    //================================== Create Sigma0, Gamma0 and Beta0 virtual bands ====================================
+
+    /**
+     * Create Sigma0 image as a virtual band using incidence angle from ellipsoid.
+     */
+    public static void createSigmaNoughtVirtualBand(final Product targetProduct, final String incidenceAngleForSigma0) {
+
+        if (incidenceAngleForSigma0.contains(Constants.USE_PROJECTED_INCIDENCE_ANGLE_FROM_DEM)) {
+            return;
+        }
+
+        final Band[] bands = targetProduct.getBands();
+        for(Band trgBand : bands) {
+
+            final String trgBandName = trgBand.getName();
+            if (trgBand instanceof VirtualBand || !trgBandName.contains("Sigma0")) {
+                continue;
+            }
+
+            String expression = null;
+            String sigmaNoughtVirtualBandName = null;
+            String description = null;
+
+            if (incidenceAngleForSigma0.contains(Constants.USE_INCIDENCE_ANGLE_FROM_ELLIPSOID)) {
+
+                expression = trgBandName +
+                        "==" + trgBand.getNoDataValue() + '?' + trgBand.getNoDataValue() +
+                        ':' + trgBandName + " / sin(projectedIncidenceAngle * PI/180.0)" +
+                        " * sin(incidenceAngleFromEllipsoid * PI/180)";
+
+                sigmaNoughtVirtualBandName = trgBandName + "_use_inci_angle_from_ellipsoid";
+
+                description = "Sigma0 image created using inci angle from ellipsoid";
+
+            } else if (incidenceAngleForSigma0.contains(Constants.USE_LOCAL_INCIDENCE_ANGLE_FROM_DEM)) {
+
+                expression = trgBandName +
+                        "==" + trgBand.getNoDataValue() + '?' + trgBand.getNoDataValue() +
+                        ':' + trgBandName + " / sin(projectedIncidenceAngle * PI/180.0)" +
+                        " * sin(incidenceAngle * PI/180)";
+
+                sigmaNoughtVirtualBandName = trgBandName + "_use_local_inci_angle_from_dem";
+
+                description = "Sigma0 image created using local inci angle from DEM";
+            }
+
+            final VirtualBand band = new VirtualBand(sigmaNoughtVirtualBandName,
+                    ProductData.TYPE_FLOAT32,
+                    trgBand.getSceneRasterWidth(),
+                    trgBand.getSceneRasterHeight(),
+                    expression);
+            band.setUnit(trgBand.getUnit());
+            band.setDescription(description);
+            targetProduct.addBand(band);
+        }
+    }
+
+    /**
+     * Create Gamma0 image as a virtual band.
+     */
+    public static void createGammaNoughtVirtualBand(Product targetProduct, String incidenceAngleForGamma0) {
+
+        final Band[] bands = targetProduct.getBands();
+        for(Band trgBand : bands) {
+
+            final String trgBandName = trgBand.getName();
+            if (trgBand instanceof VirtualBand || !trgBandName.contains("Sigma0")) {
+                continue;
+            }
+
+            final String incidenceAngle;
+            if (incidenceAngleForGamma0.contains(Constants.USE_INCIDENCE_ANGLE_FROM_ELLIPSOID)) {
+                incidenceAngle = "incidenceAngleFromEllipsoid";
+            } else if (incidenceAngleForGamma0.contains(Constants.USE_LOCAL_INCIDENCE_ANGLE_FROM_DEM)) {
+                incidenceAngle = "incidenceAngle";
+            } else { // USE_PROJECTED_INCIDENCE_ANGLE_FROM_DEM
+                incidenceAngle = "projectedIncidenceAngle";
+            }
+
+            final String expression = trgBandName +
+                    "==" + trgBand.getNoDataValue() + '?' + trgBand.getNoDataValue() +
+                    ':' + trgBandName + " / sin(projectedIncidenceAngle * PI/180.0)" +
+                    " * sin(" + incidenceAngle + " * PI/180)" + " / cos(" + incidenceAngle + " * PI/180)";
+
+            String gammaNoughtVirtualBandName;
+            String description;
+            if (incidenceAngleForGamma0.contains(Constants.USE_INCIDENCE_ANGLE_FROM_ELLIPSOID)) {
+                gammaNoughtVirtualBandName = "_use_inci_angle_from_ellipsoid";
+                description = "Gamma0 image created using inci angle from ellipsoid";
+            } else if (incidenceAngleForGamma0.contains(Constants.USE_LOCAL_INCIDENCE_ANGLE_FROM_DEM)) {
+                gammaNoughtVirtualBandName = "_use_local_inci_angle_from_dem";
+                description = "Gamma0 image created using local inci angle from DEM";
+            } else { // USE_PROJECTED_INCIDENCE_ANGLE_FROM_DEM
+                gammaNoughtVirtualBandName = "_use_projected_local_inci_angle_from_dem";
+                description = "Gamma0 image created using projected local inci angle from dem";
+            }
+
+            if(trgBandName.contains("_HH")) {
+                gammaNoughtVirtualBandName = "Gamma0_HH" + gammaNoughtVirtualBandName;
+            } else if(trgBandName.contains("_VV")) {
+                gammaNoughtVirtualBandName = "Gamma0_VV" + gammaNoughtVirtualBandName;
+            } else if(trgBandName.contains("_HV")) {
+                gammaNoughtVirtualBandName = "Gamma0_HV" + gammaNoughtVirtualBandName;
+            } else if(trgBandName.contains("_VH")) {
+                gammaNoughtVirtualBandName = "Gamma0_VH" + gammaNoughtVirtualBandName;
+            } else {
+                gammaNoughtVirtualBandName = "Gamma0" + gammaNoughtVirtualBandName;
+            }
+
+            final VirtualBand band = new VirtualBand(gammaNoughtVirtualBandName,
+                    ProductData.TYPE_FLOAT32,
+                    trgBand.getSceneRasterWidth(),
+                    trgBand.getSceneRasterHeight(),
+                    expression);
+            band.setUnit(trgBand.getUnit());
+            band.setDescription(description);
+            targetProduct.addBand(band);
+        }
+    }
+
+    /**
+     * Create Beta0 image as a virtual band.
+     */
+    public static void createBetaNoughtVirtualBand(final Product targetProduct) {
+
+        final Band[] bands = targetProduct.getBands();
+        for(Band trgBand : bands) {
+
+            final String trgBandName = trgBand.getName();
+            if (trgBand instanceof VirtualBand || !trgBandName.contains("Sigma0")) {
+                continue;
+            }
+
+            final String expression = trgBandName +
+                    "==" + trgBand.getNoDataValue() + '?' + trgBand.getNoDataValue() +
+                    ':' + trgBandName + " / sin(projectedIncidenceAngle * PI/180.0)";
+
+            String betaNoughtVirtualBandName = "Beta0";
+            final VirtualBand band = new VirtualBand(betaNoughtVirtualBandName,
+                    ProductData.TYPE_FLOAT32,
+                    trgBand.getSceneRasterWidth(),
+                    trgBand.getSceneRasterHeight(),
+                    expression);
+            band.setUnit(trgBand.getUnit());
+            band.setDescription("Beta0 image");
+            targetProduct.addBand(band);
         }
     }
 }

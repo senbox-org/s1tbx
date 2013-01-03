@@ -181,7 +181,7 @@ public class AdaptiveThresholdingOp extends Operator {
                 final String targetBandName = srcBandNames + SHIPMASK_NAME;
                 targetBandNameToSourceBandName.put(targetBandName, srcBandNames);
 
-                final Band targetBand = ProductUtils.copyBand(srcBand.getName(), sourceProduct, targetProduct);
+                final Band targetBand = ProductUtils.copyBand(srcBand.getName(), sourceProduct, targetProduct, false);
                 targetBand.setSourceImage(srcBand.getSourceImage());
 
                 final Band targetBandMask = new Band(targetBandName,

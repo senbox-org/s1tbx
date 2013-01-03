@@ -31,6 +31,7 @@ import org.esa.beam.util.ProductUtils;
 import org.esa.nest.datamodel.AbstractMetadata;
 import org.esa.nest.eo.CRSGeoCodingHandler;
 import org.esa.nest.eo.Constants;
+import org.esa.nest.eo.SARGeocoding;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import java.awt.*;
@@ -174,7 +175,7 @@ public final class GeolocationGridGeocodingOp extends Operator {
         }
 
         final TiePointGrid incidenceAngle = OperatorUtils.getIncidenceAngle(sourceProduct);
-        nearRangeOnLeft = RangeDopplerGeocodingOp.isNearRangeOnLeft(incidenceAngle, sourceImageWidth);
+        nearRangeOnLeft = SARGeocoding.isNearRangeOnLeft(incidenceAngle, sourceImageWidth);
     }
 
     /**
@@ -192,9 +193,9 @@ public final class GeolocationGridGeocodingOp extends Operator {
     private void createTargetProduct() throws OperatorException {
 
         try {
-            final double pixelSpacingInMeter = Math.max(RangeDopplerGeocodingOp.getAzimuthPixelSpacing(sourceProduct),
-                    RangeDopplerGeocodingOp.getRangePixelSpacing(sourceProduct));
-            final double pixelSpacingInDegree = RangeDopplerGeocodingOp.getPixelSpacingInDegree(pixelSpacingInMeter);
+            final double pixelSpacingInMeter = Math.max(SARGeocoding.getAzimuthPixelSpacing(sourceProduct),
+                                                        SARGeocoding.getRangePixelSpacing(sourceProduct));
+            final double pixelSpacingInDegree = SARGeocoding.getPixelSpacingInDegree(pixelSpacingInMeter);
 
             delLat = pixelSpacingInDegree;
             delLon = pixelSpacingInDegree;
@@ -268,7 +269,7 @@ public final class GeolocationGridGeocodingOp extends Operator {
         final MetadataElement lookDirectionListElem = new MetadataElement("Look_Direction_List");
         final int numOfDirections = 5;
         for(int i=1; i <= numOfDirections; ++i) {
-            RangeDopplerGeocodingOp.addLookDirection("look_direction", lookDirectionListElem, i, numOfDirections,
+            SARGeocoding.addLookDirection("look_direction", lookDirectionListElem, i, numOfDirections,
                     sourceImageWidth, sourceImageHeight, firstLineUTC, lineTimeInterval, nearRangeOnLeft, latitude,
                     longitude);
         }
@@ -425,7 +426,7 @@ public final class GeolocationGridGeocodingOp extends Operator {
             for (int i = 0; i < srgrConvParams.length && zeroDopplerTime >= srgrConvParams[i].timeMJD; i++) {
                 idx = i;
             }
-            final double groundRange = RangeDopplerGeocodingOp.computeGroundRange(
+            final double groundRange = SARGeocoding.computeGroundRange(
                     sourceImageWidth, rangeSpacing, slantRange, srgrConvParams[idx].coefficients,
                     srgrConvParams[idx].ground_range_origin);
 

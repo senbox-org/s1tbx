@@ -84,7 +84,7 @@ public final class BandSelectOp extends Operator {
         final Band[] sourceBands = OperatorUtils.getSourceBands(sourceProduct, sourceBandNames);
 
         for (Band srcBand : sourceBands) {
-            final Band targetBand = ProductUtils.copyBand(srcBand.getName(), sourceProduct, targetProduct);
+            final Band targetBand = ProductUtils.copyBand(srcBand.getName(), sourceProduct, targetProduct, false);
             targetBand.setSourceImage(srcBand.getSourceImage());
         }
     }

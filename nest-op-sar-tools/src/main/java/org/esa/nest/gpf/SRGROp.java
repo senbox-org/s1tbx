@@ -467,31 +467,29 @@ public class SRGROp extends Operator {
      */
     private void addGeoCoding() {
 
-        TiePointGrid lat = OperatorUtils.getLatitude(sourceProduct);
-        TiePointGrid lon = OperatorUtils.getLongitude(sourceProduct);
-        TiePointGrid incidenceAngle = OperatorUtils.getIncidenceAngle(sourceProduct);
-        TiePointGrid slantRgTime = OperatorUtils.getSlantRangeTime(sourceProduct);
+        final TiePointGrid lat = OperatorUtils.getLatitude(sourceProduct);
+        final TiePointGrid lon = OperatorUtils.getLongitude(sourceProduct);
+        final TiePointGrid incidenceAngle = OperatorUtils.getIncidenceAngle(sourceProduct);
+        final TiePointGrid slantRgTime = OperatorUtils.getSlantRangeTime(sourceProduct);
         if (lat == null || lon == null || incidenceAngle == null || slantRgTime == null) { // for unit test
             ProductUtils.copyTiePointGrids(sourceProduct, targetProduct);
             ProductUtils.copyGeoCoding(sourceProduct, targetProduct);
             return;
         }
 
-        int gridWidth = 11;
-        int gridHeight = 11;
-        float subSamplingX = targetImageWidth / (gridWidth - 1.0f);
-        float subSamplingY = targetImageHeight / (gridHeight - 1.0f);
-        PixelPos[] newTiePointPos = new PixelPos[gridWidth*gridHeight];
+        final int gridWidth = 11;
+        final int gridHeight = 11;
+        final float subSamplingX = targetImageWidth / (gridWidth - 1.0f);
+        final float subSamplingY = targetImageHeight / (gridHeight - 1.0f);
+        final PixelPos[] newTiePointPos = new PixelPos[gridWidth*gridHeight];
 
         int k = 0;
         for (int j = 0; j < gridHeight; j++) {
-            float y = Math.min(j*subSamplingY, targetImageHeight - 1);
+            final float y = Math.min(j*subSamplingY, targetImageHeight - 1);
             for (int i = 0; i < gridWidth; i++) {
-                float tx = Math.min(i*subSamplingX, targetImageWidth - 1);
-                float x = (float)getSlantRangePixelPosition((double)tx);
-                newTiePointPos[k] = new PixelPos();
-                newTiePointPos[k].x = x;
-                newTiePointPos[k].y = y;
+                final float tx = Math.min(i*subSamplingX, targetImageWidth - 1);
+                final float x = (float)getSlantRangePixelPosition((double)tx);
+                newTiePointPos[k] = new PixelPos(x, y);
                 k++;
             }
         }

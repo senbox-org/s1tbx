@@ -35,10 +35,11 @@ import org.esa.beam.visat.VisatApp;
 import org.esa.nest.dat.dialogs.AutoCloseOptionPane;
 import org.esa.nest.dataio.dem.DEMFactory;
 import org.esa.nest.dataio.dem.FileElevationModel;
-import org.esa.nest.datamodel.*;
-import org.esa.nest.eo.CRSGeoCodingHandler;
-import org.esa.nest.eo.Constants;
-import org.esa.nest.eo.GeoUtils;
+import org.esa.nest.datamodel.AbstractMetadata;
+import org.esa.nest.datamodel.CalibrationFactory;
+import org.esa.nest.datamodel.Calibrator;
+import org.esa.nest.datamodel.Unit;
+import org.esa.nest.eo.*;
 import org.esa.nest.util.ResourceUtils;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
@@ -130,17 +131,17 @@ public class SARSimTerrainCorrectionOp extends Operator {
     @Parameter(defaultValue="false", label="Save Beta0 as a band")
     private boolean saveBetaNought = false;
 
-    @Parameter(valueSet = {RangeDopplerGeocodingOp.USE_INCIDENCE_ANGLE_FROM_ELLIPSOID,
-                           RangeDopplerGeocodingOp.USE_PROJECTED_INCIDENCE_ANGLE_FROM_DEM,
-                           RangeDopplerGeocodingOp.USE_LOCAL_INCIDENCE_ANGLE_FROM_DEM},
-            defaultValue = RangeDopplerGeocodingOp.USE_PROJECTED_INCIDENCE_ANGLE_FROM_DEM, label="")
-    private String incidenceAngleForSigma0 = RangeDopplerGeocodingOp.USE_PROJECTED_INCIDENCE_ANGLE_FROM_DEM;
+    @Parameter(valueSet = {Constants.USE_INCIDENCE_ANGLE_FROM_ELLIPSOID,
+            Constants.USE_PROJECTED_INCIDENCE_ANGLE_FROM_DEM,
+            Constants.USE_LOCAL_INCIDENCE_ANGLE_FROM_DEM},
+            defaultValue = Constants.USE_PROJECTED_INCIDENCE_ANGLE_FROM_DEM, label="")
+    private String incidenceAngleForSigma0 = Constants.USE_PROJECTED_INCIDENCE_ANGLE_FROM_DEM;
 
-    @Parameter(valueSet = {RangeDopplerGeocodingOp.USE_INCIDENCE_ANGLE_FROM_ELLIPSOID,
-                           RangeDopplerGeocodingOp.USE_PROJECTED_INCIDENCE_ANGLE_FROM_DEM,
-                           RangeDopplerGeocodingOp.USE_LOCAL_INCIDENCE_ANGLE_FROM_DEM},
-            defaultValue = RangeDopplerGeocodingOp.USE_PROJECTED_INCIDENCE_ANGLE_FROM_DEM, label="")
-    private String incidenceAngleForGamma0 = RangeDopplerGeocodingOp.USE_PROJECTED_INCIDENCE_ANGLE_FROM_DEM;
+    @Parameter(valueSet = {Constants.USE_INCIDENCE_ANGLE_FROM_ELLIPSOID,
+            Constants.USE_PROJECTED_INCIDENCE_ANGLE_FROM_DEM,
+            Constants.USE_LOCAL_INCIDENCE_ANGLE_FROM_DEM},
+            defaultValue = Constants.USE_PROJECTED_INCIDENCE_ANGLE_FROM_DEM, label="")
+    private String incidenceAngleForGamma0 = Constants.USE_PROJECTED_INCIDENCE_ANGLE_FROM_DEM;
 
     @Parameter(valueSet = {CalibrationOp.LATEST_AUX, CalibrationOp.PRODUCT_AUX, CalibrationOp.EXTERNAL_AUX},
             description = "The auxiliary file", defaultValue=CalibrationOp.LATEST_AUX, label="Auxiliary File")
@@ -317,18 +318,18 @@ public class SARSimTerrainCorrectionOp extends Operator {
         }
 
         if (saveBetaNought || saveGammaNought ||
-            (saveSigmaNought && incidenceAngleForSigma0.contains(RangeDopplerGeocodingOp.USE_INCIDENCE_ANGLE_FROM_ELLIPSOID))) {
+            (saveSigmaNought && incidenceAngleForSigma0.contains(Constants.USE_INCIDENCE_ANGLE_FROM_ELLIPSOID))) {
             saveSigmaNought = true;
             saveProjectedLocalIncidenceAngle = true;
         }
 
-        if ((saveGammaNought && incidenceAngleForGamma0.contains(RangeDopplerGeocodingOp.USE_INCIDENCE_ANGLE_FROM_ELLIPSOID)) ||
-            (saveSigmaNought && incidenceAngleForSigma0.contains(RangeDopplerGeocodingOp.USE_INCIDENCE_ANGLE_FROM_ELLIPSOID))) {
+        if ((saveGammaNought && incidenceAngleForGamma0.contains(Constants.USE_INCIDENCE_ANGLE_FROM_ELLIPSOID)) ||
+            (saveSigmaNought && incidenceAngleForSigma0.contains(Constants.USE_INCIDENCE_ANGLE_FROM_ELLIPSOID))) {
             saveIncidenceAngleFromEllipsoid = true;
         }
 
-        if ((saveGammaNought && incidenceAngleForGamma0.contains(RangeDopplerGeocodingOp.USE_LOCAL_INCIDENCE_ANGLE_FROM_DEM)) ||
-            (saveSigmaNought && incidenceAngleForSigma0.contains(RangeDopplerGeocodingOp.USE_LOCAL_INCIDENCE_ANGLE_FROM_DEM))) {
+        if ((saveGammaNought && incidenceAngleForGamma0.contains(Constants.USE_LOCAL_INCIDENCE_ANGLE_FROM_DEM)) ||
+            (saveSigmaNought && incidenceAngleForSigma0.contains(Constants.USE_LOCAL_INCIDENCE_ANGLE_FROM_DEM))) {
             saveLocalIncidenceAngle = true;
         }
 
@@ -387,7 +388,7 @@ public class SARSimTerrainCorrectionOp extends Operator {
             }
         }
 
-        nearRangeOnLeft = RangeDopplerGeocodingOp.isNearRangeOnLeft(incidenceAngle, sourceImageWidth);
+        nearRangeOnLeft = SARGeocoding.isNearRangeOnLeft(incidenceAngle, sourceImageWidth);
 
         isPolsar = absRoot.getAttributeInt(AbstractMetadata.polsarData, 0) == 1;
     }
@@ -445,9 +446,9 @@ public class SARSimTerrainCorrectionOp extends Operator {
     private void createTargetProduct() throws Exception {
 
         if (pixelSpacingInMeter <= 0.0) {
-            pixelSpacingInMeter = Math.max(RangeDopplerGeocodingOp.getAzimuthPixelSpacing(sourceProduct),
-                                           RangeDopplerGeocodingOp.getRangePixelSpacing(sourceProduct));
-            pixelSpacingInDegree = RangeDopplerGeocodingOp.getPixelSpacingInDegree(pixelSpacingInMeter);
+            pixelSpacingInMeter = Math.max(SARGeocoding.getAzimuthPixelSpacing(sourceProduct),
+                                           SARGeocoding.getRangePixelSpacing(sourceProduct));
+            pixelSpacingInDegree = SARGeocoding.getPixelSpacingInDegree(pixelSpacingInMeter);
         }
         delLat = pixelSpacingInDegree;
         delLon = pixelSpacingInDegree;
@@ -594,16 +595,16 @@ public class SARSimTerrainCorrectionOp extends Operator {
             addTargetBand("incidenceAngleFromEllipsoid", Unit.DEGREES, null);
         }
 
-        if (saveSigmaNought && !incidenceAngleForSigma0.contains(RangeDopplerGeocodingOp.USE_PROJECTED_INCIDENCE_ANGLE_FROM_DEM)) {
-            RangeDopplerGeocodingOp.createSigmaNoughtVirtualBand(targetProduct, incidenceAngleForSigma0);
+        if (saveSigmaNought && !incidenceAngleForSigma0.contains(Constants.USE_PROJECTED_INCIDENCE_ANGLE_FROM_DEM)) {
+            CalibrationFactory.createSigmaNoughtVirtualBand(targetProduct, incidenceAngleForSigma0);
         }
 
         if (saveGammaNought) {
-            RangeDopplerGeocodingOp.createGammaNoughtVirtualBand(targetProduct, incidenceAngleForGamma0);
+            CalibrationFactory.createGammaNoughtVirtualBand(targetProduct, incidenceAngleForGamma0);
         }
 
         if (saveBetaNought) {
-            RangeDopplerGeocodingOp.createBetaNoughtVirtualBand(targetProduct);
+            CalibrationFactory.createBetaNoughtVirtualBand(targetProduct);
         }
     }
 
@@ -659,7 +660,7 @@ public class SARSimTerrainCorrectionOp extends Operator {
         final MetadataElement lookDirectionListElem = new MetadataElement("Look_Direction_List");
         final int numOfDirections = 5;
         for(int i=1; i <= numOfDirections; ++i) {
-            RangeDopplerGeocodingOp.addLookDirection("look_direction", lookDirectionListElem, i, numOfDirections,
+            SARGeocoding.addLookDirection("look_direction", lookDirectionListElem, i, numOfDirections,
                     sourceImageWidth, sourceImageHeight, firstLineUTC, lineTimeInterval, nearRangeOnLeft, latitude,
                     longitude);
         }
@@ -814,7 +815,7 @@ public class SARSimTerrainCorrectionOp extends Operator {
         sensorPosition = new double[sourceImageHeight][3]; // xPos, yPos, zPos
         sensorVelocity = new double[sourceImageHeight][3]; // xVel, yVel, zVel
 
-        RangeDopplerGeocodingOp.computeSensorPositionsAndVelocities(orbitStateVectors, timeArray, xPosArray, yPosArray, zPosArray,
+        SARGeocoding.computeSensorPositionsAndVelocities(orbitStateVectors, timeArray, xPosArray, yPosArray, zPosArray,
                 sensorPosition, sensorVelocity, firstLineUTC, lineTimeInterval, sourceImageHeight);
     }
 
@@ -924,7 +925,7 @@ public class SARSimTerrainCorrectionOp extends Operator {
                     }
 
                     if (!useAvgSceneHeight && alt == demNoDataValue) {
-                        saveNoDataValueToTarget(index, trgTiles);
+                        //saveNoDataValueToTarget(index, trgTiles);
                         continue;
                     }
 
@@ -943,11 +944,11 @@ public class SARSimTerrainCorrectionOp extends Operator {
                     final double zeroDopplerTime = getEarthPointZeroDopplerTime(earthPoint);
 
                     if (Double.compare(zeroDopplerTime, NonValidZeroDopplerTime) == 0) {
-                        saveNoDataValueToTarget(index, trgTiles);
+                        //saveNoDataValueToTarget(index, trgTiles);
                         continue;
                     }
 
-                    double slantRange = RangeDopplerGeocodingOp.computeSlantRange(
+                    double slantRange = SARGeocoding.computeSlantRange(
                             zeroDopplerTime, timeArray, xPosArray, yPosArray, zPosArray, earthPoint, sensorPos);
 
                     double zeroDoppler = zeroDopplerTime;
@@ -955,13 +956,13 @@ public class SARSimTerrainCorrectionOp extends Operator {
                         // skip bistatic correction for COSMO, TerraSAR-X and RadarSAT-2
                         zeroDoppler = zeroDopplerTime + slantRange / Constants.lightSpeedInMetersPerDay;
 
-                        slantRange = RangeDopplerGeocodingOp.computeSlantRange(
+                        slantRange = SARGeocoding.computeSlantRange(
                             zeroDoppler, timeArray, xPosArray, yPosArray, zPosArray, earthPoint, sensorPos);
                     }
 
                     final double azimuthIndex = (zeroDoppler - firstLineUTC) / lineTimeInterval;
 
-                    double rangeIndex = RangeDopplerGeocodingOp.computeRangeIndex(srgrFlag, sourceImageWidth, firstLineUTC, lastLineUTC,
+                    double rangeIndex = SARGeocoding.computeRangeIndex(srgrFlag, sourceImageWidth, firstLineUTC, lastLineUTC,
                             rangeSpacing, zeroDoppler, slantRange, nearEdgeSlantRange, srgrConvParams);
 
                     // temp fix for descending Radarsat2
@@ -969,30 +970,26 @@ public class SARSimTerrainCorrectionOp extends Operator {
                         rangeIndex = srcMaxRange - rangeIndex;
                     }
 
-                    if (!RangeDopplerGeocodingOp.isValidCell(rangeIndex, azimuthIndex, lat, lon, latitude, longitude,
+                    if (!SARGeocoding.isValidCell(rangeIndex, azimuthIndex, lat, lon, latitude, longitude,
                             srcMaxRange, srcMaxAzimuth, sensorPos)) {
-                        saveNoDataValueToTarget(index, trgTiles);
+                        //saveNoDataValueToTarget(index, trgTiles);
                     } else {
                         final double[] localIncidenceAngles =
-                                {RangeDopplerGeocodingOp.NonValidIncidenceAngle, RangeDopplerGeocodingOp.NonValidIncidenceAngle};
+                                {SARGeocoding.NonValidIncidenceAngle, SARGeocoding.NonValidIncidenceAngle};
 
                         if (saveLocalIncidenceAngle || saveProjectedLocalIncidenceAngle || saveSigmaNought) {
 
-                            RangeDopplerGeocodingOp.LocalGeometry localGeometry =
-                                    new RangeDopplerGeocodingOp.LocalGeometry();
+                            final LocalGeometry localGeometry = new LocalGeometry(x, y, tileGeoRef, earthPoint, sensorPos);
 
-                            RangeDopplerGeocodingOp.setLocalGeometry(
-                                    x, y, tileGeoRef, earthPoint, sensorPos, localGeometry);
-
-                            RangeDopplerGeocodingOp.computeLocalIncidenceAngle(
+                            SARGeocoding.computeLocalIncidenceAngle(
                                     localGeometry, demNoDataValue, saveLocalIncidenceAngle, saveProjectedLocalIncidenceAngle,
                                     saveSigmaNought, x0, y0, x, y, localDEM, localIncidenceAngles); // in degrees
 
-                            if (saveLocalIncidenceAngle && localIncidenceAngles[0] != RangeDopplerGeocodingOp.NonValidIncidenceAngle) {
+                            if (saveLocalIncidenceAngle && localIncidenceAngles[0] != SARGeocoding.NonValidIncidenceAngle) {
                                 incidenceAngleBuffer.setElemDoubleAt(index, localIncidenceAngles[0]);
                             }
 
-                            if (saveProjectedLocalIncidenceAngle && localIncidenceAngles[1] != RangeDopplerGeocodingOp.NonValidIncidenceAngle) {
+                            if (saveProjectedLocalIncidenceAngle && localIncidenceAngles[1] != SARGeocoding.NonValidIncidenceAngle) {
                                 projectedIncidenceAngleBuffer.setElemDoubleAt(index, localIncidenceAngles[1]);
                             }
                         }
@@ -1012,11 +1009,11 @@ public class SARSimTerrainCorrectionOp extends Operator {
 
                         for(RangeDopplerGeocodingOp.TileData tileData : trgTiles) {
 
-                            Unit.UnitType bandUnit = getBandUnit(tileData.bandName);
+                            final Unit.UnitType bandUnit = getBandUnit(tileData.bandName);
                             final String[] srcBandName = targetBandNameToSourceBandName.get(tileData.bandName);
                             final Band srcBand = sourceProduct.getBand(srcBandName[0]);
                             final PixelPos pixelPos = new PixelPos();
-                            WarpOp.WarpData warpData = warpDataMap.get(srcBand);
+                            final WarpOp.WarpData warpData = warpDataMap.get(srcBand);
                             if (warpData.notEnoughGCPs) {
                                 continue;
                             }
@@ -1032,7 +1029,7 @@ public class SARSimTerrainCorrectionOp extends Operator {
 
                             if (v != tileData.noDataValue && tileData.applyRadiometricNormalization) {
 
-                                if (localIncidenceAngles[1] != RangeDopplerGeocodingOp.NonValidIncidenceAngle) {
+                                if (localIncidenceAngles[1] != SARGeocoding.NonValidIncidenceAngle) {
                                     final double satelliteHeight = Math.sqrt(
                                             sensorPos[0]*sensorPos[0] + sensorPos[1]*sensorPos[1] + sensorPos[2]*sensorPos[2]);
 
@@ -1141,7 +1138,7 @@ public class SARSimTerrainCorrectionOp extends Operator {
      * @param bandName The target band name.
      * @return The source band unit.
      */
-    private Unit.UnitType getBandUnit(String bandName) {
+    private Unit.UnitType getBandUnit(final String bandName) {
         final String[] srcBandNames = targetBandNameToSourceBandName.get(bandName);
         return Unit.getUnitType(sourceProduct.getBand(srcBandNames[0]));
     }
@@ -1156,8 +1153,8 @@ public class SARSimTerrainCorrectionOp extends Operator {
      * @return The pixel value.
      */
     private double getPixelValue(final double azimuthIndex, final double rangeIndex,
-                                 final RangeDopplerGeocodingOp.TileData tileData, Unit.UnitType bandUnit, int[] subSwathIndex) {
-
+                                 final RangeDopplerGeocodingOp.TileData tileData,
+                                 final Unit.UnitType bandUnit, final int[] subSwathIndex) {
 
         try {
             final int x0 = (int)(rangeIndex + 0.5);
@@ -1288,7 +1285,7 @@ public class SARSimTerrainCorrectionOp extends Operator {
     }
 
     private static File getFile(final Product sourceProduct, final String name) {
-        String fileName = sourceProduct.getName() + name;
+        final String fileName = sourceProduct.getName() + name;
         final File appUserDir = new File(ResourceUtils.getApplicationUserDir(true).getAbsolutePath() + File.separator + "log");
         if(!appUserDir.exists()) {
             appUserDir.mkdirs();
