@@ -284,7 +284,7 @@ public class ALOSDeskewingOp extends Operator {
             final int txMax = tx0 + tw;
             //System.out.println("x0 = " + tx0 + ", y0 = " + ty0 + ", w = " + tw + ", h = " + th);
 
-            final int maxShift = (int)computeMaxShift(txMax);
+            final int maxShift = (int)computeMaxShift(txMax, ty0);
 
             final Rectangle sourceRectangle = getSourceRectangle(tx0, ty0, tw, th, maxShift);
             final int sx0 = sourceRectangle.x;
@@ -336,9 +336,13 @@ public class ALOSDeskewingOp extends Operator {
         }
     }
 
-    private double computeMaxShift(final int txMax) {
+    private double computeMaxShift(final int txMax, final int ty0) throws Exception {
 
-        return absShift + Math.round(txMax*fracShift);
+        if (useMapreadyShiftOnly) {
+            return Math.round(txMax*fracShift);
+        } else {
+            return computeShift(txMax, ty0) + Math.round(txMax*fracShift);
+        }
     }
 
     private Rectangle getSourceRectangle(final int tx0, final int ty0, final int tw, final int th, final int maxShift) {
