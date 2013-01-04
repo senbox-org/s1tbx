@@ -169,19 +169,6 @@ public class ProductEntry {
         if (gc == null)
             return new GeoPos[0];
 
-    /*    final MetadataElement root = product.getMetadataRoot();
-        final MetadataElement absRoot = root.getElement("Abstracted_Metadata");
-        final MetadataElement hdr = root.getElement("Variable_Header");
-        final MetadataElement specificHdr = hdr.getElement("Specific_Product_Header");
-        MetadataElement productLocation = specificHdr.getElement("L2_Product_Location");
-        if(productLocation == null) {
-            productLocation = specificHdr.getElement("Product_Location");   
-        }
-        final String pass = absRoot.getAttributeString("PASS");
-
-        final double midLat = productLocation.getAttributeDouble("Mid_Lat");
-        final double midLon = productLocation.getAttributeDouble("Mid_Lon");   */
-
         Band band = product.getBand("Latitude");
         if(band == null)
             band = product.getBandAt(0);   
@@ -404,6 +391,9 @@ public class ProductEntry {
     }
 
     public GeoPos[] getBox() {
+        if(mission.equals("SMOS") && geoboundary != null && geoboundary.length != 0) {
+            return geoboundary;
+        }
         final GeoPos[] geoBound = new GeoPos[4];
         geoBound[0] = getFirstNearGeoPos();
         geoBound[1] = getFirstFarGeoPos();
