@@ -30,9 +30,6 @@
     <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
 
     <dependency>
-        <module>ceres-core</module>
-    </dependency>
-    <dependency>
         <module>ceres-glayer</module>
     </dependency>
     <dependency>

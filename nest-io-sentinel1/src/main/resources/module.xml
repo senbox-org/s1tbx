@@ -12,7 +12,10 @@
     <url>http://www.array.ca/nest</url>
     <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
 	<funding>European Space Agency</funding>
-	
+
+    <dependency>
+        <module>nest-graph-builder</module>
+    </dependency>
     <dependency>
         <module>beam-core</module>
     </dependency>

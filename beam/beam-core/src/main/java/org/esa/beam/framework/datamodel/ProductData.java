@@ -1464,7 +1464,7 @@ public abstract class ProductData implements Cloneable {
          */
         @Override
         public void setElemFloatAt(int index, float value) {
-            _array[index] = (short) Math.round(value);
+            _array[index] = (short) value;//Math.round(value);
         }
 
         /**
@@ -1472,7 +1472,7 @@ public abstract class ProductData implements Cloneable {
          */
         @Override
         public void setElemDoubleAt(int index, double value) {
-            _array[index] = (short) Math.round(value);
+            _array[index] = (short) value;//Math.round(value);
         }
 
         /**
@@ -1805,7 +1805,7 @@ public abstract class ProductData implements Cloneable {
          */
         @Override
         public void setElemFloatAt(int index, float value) {
-            _array[index] = Math.round(value);
+            _array[index] = (int)value;//Math.round(value);
         }
 
         /**
@@ -1813,7 +1813,7 @@ public abstract class ProductData implements Cloneable {
          */
         @Override
         public void setElemDoubleAt(int index, double value) {
-            _array[index] = (int) Math.round(value);
+            _array[index] = (int) value;//Math.round(value);
         }
 
         /**

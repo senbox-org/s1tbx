@@ -13,6 +13,9 @@
     <funding>European Space Agency</funding>
 
     <dependency>
+        <module>nest-graph-builder</module>
+    </dependency>
+    <dependency>
         <module>beam-visat</module>
         <optional>true</optional>
     </dependency>
@@ -28,9 +31,6 @@
 	<!--dependency>
         <module>nest-reader-dem</module>
     </dependency -->
-    <dependency>
-        <module>nest-graph-builder</module>
-    </dependency>
 	<dependency>
         <module>jdoris-core</module>
     </dependency>

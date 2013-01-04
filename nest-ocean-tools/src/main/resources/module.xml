@@ -13,13 +13,13 @@
 	<funding>European Space Agency</funding>
 
     <dependency>
+        <module>nest-graph-builder</module>
+    </dependency>
+    <dependency>
       <module>nest-dat</module>
     </dependency>
     <dependency>
       <module>nest-reader-dem</module>
-    </dependency>
-    <dependency>
-      <module>nest-graph-builder</module>
     </dependency>
     <dependency>
       <module>nest-reader-dem</module>
