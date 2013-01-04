@@ -1,5 +1,6 @@
 package org.esa.nest.eo;
 
+import org.apache.commons.math.util.FastMath;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.nest.datamodel.AbstractMetadata;
@@ -360,7 +361,7 @@ public class SARGeocoding {
         final double nsInnerProduct = MathUtils.innerProduct(n, s);
 
         if (saveLocalIncidenceAngle) { // local incidence angle
-            localIncidenceAngles[0] = Math.acos(nsInnerProduct) * org.esa.beam.util.math.MathUtils.RTOD;
+            localIncidenceAngles[0] = FastMath.acos(nsInnerProduct) * org.esa.beam.util.math.MathUtils.RTOD;
         }
 
         if (saveProjectedLocalIncidenceAngle || saveSigmaNought) { // projected local incidence angle
@@ -369,7 +370,7 @@ public class SARGeocoding {
             final double mnInnerProduct = MathUtils.innerProduct(m, n);
             final double[] n1 = {n[0] - m[0]*mnInnerProduct, n[1] - m[1]*mnInnerProduct, n[2] - m[2]*mnInnerProduct};
             MathUtils.normalizeVector(n1);
-            localIncidenceAngles[1] = Math.acos(MathUtils.innerProduct(n1, s)) * org.esa.beam.util.math.MathUtils.RTOD;
+            localIncidenceAngles[1] = FastMath.acos(MathUtils.innerProduct(n1, s)) * org.esa.beam.util.math.MathUtils.RTOD;
         }
     }
 
@@ -397,7 +398,7 @@ public class SARGeocoding {
         if (srgrFlag) {
             return rangeSpacing;
         } else {
-            return rangeSpacing/Math.sin(getIncidenceAngleAtCentreRangePixel(srcProduct));
+            return rangeSpacing/FastMath.sin(getIncidenceAngleAtCentreRangePixel(srcProduct));
         }
     }
 
@@ -415,7 +416,7 @@ public class SARGeocoding {
         if (srgrFlag) {
             return Math.min(rangeSpacing, azimuthSpacing);
         } else {
-            return Math.min(rangeSpacing/Math.sin(getIncidenceAngleAtCentreRangePixel(srcProduct)), azimuthSpacing);
+            return Math.min(rangeSpacing/FastMath.sin(getIncidenceAngleAtCentreRangePixel(srcProduct)), azimuthSpacing);
         }
     }
 

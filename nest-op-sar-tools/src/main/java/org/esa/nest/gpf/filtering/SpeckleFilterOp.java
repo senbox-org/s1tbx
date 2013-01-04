@@ -16,6 +16,7 @@
 package org.esa.nest.gpf.filtering;
 
 import com.bc.ceres.core.ProgressMonitor;
+import org.apache.commons.math.util.FastMath;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
@@ -677,7 +678,7 @@ public class SpeckleFilterOp extends Operator {
         double sum = 0.0;
         double totalWeight = 0.0;
         for (int i = 0; i < neighborValues.length; i++) {
-            final double weight = Math.exp(-k*mask[i]);
+            final double weight = FastMath.exp(-k * mask[i]);
             sum += weight * neighborValues[i];
             totalWeight += weight;
         }

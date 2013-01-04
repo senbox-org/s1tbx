@@ -29,6 +29,8 @@ final class FixCompound extends AbstractCompound {
     private Segment segment;
     private CompoundType compoundType;
     private int[] offsetList;
+    private boolean offsetsCalculated = false;
+    private int baseOffset;
 
     FixCompound(DataContext context, CollectionData parent, CompoundType compoundType, long position) {
         this(context, parent, compoundType, new Segment(position, compoundType.getSize()), 0);
@@ -38,20 +40,27 @@ final class FixCompound extends AbstractCompound {
         super(context, parent, compoundType, segment.getPosition() + bufferOffset);
         this.segment = segment;
         this.compoundType = compoundType;
-        final int cnt = compoundType.getMemberCount();
-        offsetList = new int[cnt];
-        for (int i = 0; i < cnt; i++) {
-            final Type memberType = compoundType.getMember(i).getType();
-     //       setMemberInstance(i, InstanceFactory.createFixMember(context, this, memberType, segment, bufferOffset));
-            offsetList[i] = bufferOffset;
-            bufferOffset += memberType.getSize();
-        }
+        this.baseOffset = bufferOffset;
+        offsetList = new int[compoundType.getMemberCount()];
+        offsetList[0] = bufferOffset;
     }
 
-    protected final MemberInstance getMemberInstance(int index) throws IOException {
+    private void calculateOffsets() {
+        final int cnt = compoundType.getMemberCount();
+        int bufferOffset = baseOffset;
+        for (int i = 0; i < cnt; i++) {
+            offsetList[i] = bufferOffset;
+            bufferOffset += compoundType.getMemberSize(i);
+        }
+        offsetsCalculated = true;
+    }
+
+    protected final MemberInstance getMemberInstance(final int index) throws IOException {
         if(members[index] == null) {
+            if(index > 0 && !offsetsCalculated)
+                calculateOffsets();
             members[index] = InstanceFactory.createFixMember(getContext(), this,
-                    compoundType.getMember(index).getType(), segment, offsetList[index]);
+                    compoundType.getMemberType(index), segment, offsetList[index]);
         }
         return members[index];
     }

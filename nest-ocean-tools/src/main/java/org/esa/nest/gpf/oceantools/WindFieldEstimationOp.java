@@ -18,6 +18,7 @@ package org.esa.nest.gpf.oceantools;
 import Jama.Matrix;
 import com.bc.ceres.core.ProgressMonitor;
 import edu.emory.mathcs.jtransforms.fft.DoubleFFT_1D;
+import org.apache.commons.math.util.FastMath;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
@@ -922,14 +923,14 @@ public class WindFieldEstimationOp extends Operator {
             final double gamma = c9 + c10*x + c11*xx;
             final double s0 = c12 + c13*x;
             final double s = a2*v;
-            double a3 = 1.0 / (1.0 + Math.exp(-Math.max(s, s0)));
+            double a3 = 1.0 / (1.0 + FastMath.exp(-Math.max(s, s0)));
             if (s < s0) {
                 a3 = a3*Math.pow((s/s0), s0*(1.0 - a3));
             }
 
             final double b0 = Math.pow(a3, gamma) * Math.pow(10.0, a0 + a1*v);
-            double b1 = c15*v*(0.5 + x - Math.tanh(4.0*(x + c16 + c17*v)));
-            b1 = (c14*(1.0 + x) - b1) / (Math.exp(0.34*(v - c18) ) + 1);
+            double b1 = c15*v*(0.5 + x - FastMath.tanh(4.0*(x + c16 + c17*v)));
+            b1 = (c14*(1.0 + x) - b1) / (FastMath.exp(0.34*(v - c18) ) + 1);
             final double v0 = c21 + c22*x + c23*xx;
             final double d1 = c24 + c25*x + c26*xx;
             final double d2 = c27 + c28*x;

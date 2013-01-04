@@ -15,6 +15,7 @@
  */
 package org.esa.nest.dat.layers.maptools.components;
 
+import org.apache.commons.math.util.FastMath;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.PixelPos;
@@ -53,8 +54,8 @@ public class CompassComponent implements MapToolsComponent {
         final PixelPos point2 = geoCoding.getPixelPos(new GeoPos(point2Geo.getLat(), point1Geo.getLon()), null);
 
         final double op = point1.x-point2.x;
-        final double hyp = Math.hypot(op, point1.y-point2.y);
-        angle = Math.asin(op/hyp);
+        final double hyp = FastMath.hypot(op, point1.y-point2.y);
+        angle = FastMath.asin(op / hyp);
 
         if(point1Geo.getLat() < point2Geo.getLat()) {
             tail = point1;

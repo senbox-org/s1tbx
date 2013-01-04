@@ -103,7 +103,8 @@ public class Mask extends Band {
         if(imageConfig == null) {
             this.imageConfig = imageType.createImageConfig();
             this.imageConfig.addPropertyChangeListener(imageConfigListener);
-            setImageColor(initialColor);
+            if(initialColor != null)
+                setImageColor(initialColor);
             setImageTransparency(initialTransparency);
             setExpression(initialExpression);
         }
@@ -132,7 +133,7 @@ public class Mask extends Band {
 
     public void setExpression(String expression) {
         this.initialExpression = expression;
-        if(imageConfig != null)
+        if(imageConfig != null && expression != null)
             getImageConfig().setValue(BandMathsType.PROPERTY_NAME_EXPRESSION, expression);
     }
 

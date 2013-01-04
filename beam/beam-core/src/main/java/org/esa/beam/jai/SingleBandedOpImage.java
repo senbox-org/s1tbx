@@ -134,7 +134,8 @@ public abstract class SingleBandedOpImage extends SourcelessOpImage {
         final Raster raster = createWritableRaster(getSampleModel(), new Point(0, 0));
         final DataBuffer buffer = raster.getDataBuffer();
 
-        for (int i = 0; i < buffer.getSize(); i++) {
+        final int size = buffer.getSize();
+        for (int i = 0; i < size; i++) {
             buffer.setElemDouble(i, noDataValue);
         }
 

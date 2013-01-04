@@ -45,14 +45,6 @@ final class SimpleMember implements MemberInstance {
         return parent;
     }
 
-    public Segment getSegment() {
-        return segment;
-    }
-
-    public int getSegmentOffset() {
-        return segmentOffset;
-    }
-
     @Override
     public long getPosition() {
         return segment.getPosition() + segmentOffset;

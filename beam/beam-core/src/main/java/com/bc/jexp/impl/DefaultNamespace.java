@@ -203,7 +203,7 @@ public final class DefaultNamespace extends NamespaceImpl {
 
         registerFunction(new AbstractFunction.D("round", 1) {
             public double evalD(EvalEnv env, Term[] args) throws EvalException {
-                return Math.round(args[0].evalD(env));
+                return FastMath.round(args[0].evalD(env));
             }
         });
 

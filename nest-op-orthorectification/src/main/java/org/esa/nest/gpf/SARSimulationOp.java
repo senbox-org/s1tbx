@@ -759,7 +759,7 @@ public final class SARSimulationOp extends Operator {
         final double H2 = sensorPos[0]*sensorPos[0] + sensorPos[1]*sensorPos[1] + sensorPos[2]*sensorPos[2];
         final double R2 = earthPoint[0]*earthPoint[0] + earthPoint[1]*earthPoint[1] + earthPoint[2]*earthPoint[2];
 
-        return Math.acos((slantRange*slantRange + H2 - R2)/(2*slantRange*Math.sqrt(H2)))*
+        return FastMath.acos((slantRange*slantRange + H2 - R2)/(2*slantRange*Math.sqrt(H2)))*
                 org.esa.beam.util.math.MathUtils.RTOD;
     }
     
