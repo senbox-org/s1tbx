@@ -120,6 +120,8 @@ public final class MapReProjectionOp extends ReprojectionOp {
             ProductUtils.copyMasks(sourceProduct, targetProduct);
             ProductUtils.copyOverlayMasks(sourceProduct, targetProduct);
             ProductUtils.copyRoiMasks(sourceProduct, targetProduct);
+            targetProduct.setStartTime(sourceProduct.getStartTime());
+            targetProduct.setEndTime(sourceProduct.getEndTime());
             targetProduct.setAutoGrouping(sourceProduct.getAutoGrouping());
 
             updateMetadata(targetProduct);

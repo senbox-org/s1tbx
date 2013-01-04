@@ -497,6 +497,8 @@ public class RangeDopplerGeocodingOp extends Operator {
             ProductUtils.copyMetadata(sourceProduct, targetProduct);
             ProductUtils.copyMasks(sourceProduct, targetProduct);
             ProductUtils.copyVectorData(sourceProduct, targetProduct);
+            targetProduct.setStartTime(sourceProduct.getStartTime());
+            targetProduct.setEndTime(sourceProduct.getEndTime());
             targetProduct.setDescription(sourceProduct.getDescription());
 
             try {
