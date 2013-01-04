@@ -25,6 +25,7 @@ import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.glevel.MultiLevelSource;
 import org.esa.beam.glayer.WorldMapLayerType;
 import org.esa.beam.glevel.TiledFileMultiLevelSource;
+import org.esa.beam.util.SystemUtils;
 import org.geotools.referencing.AbstractIdentifiedObject;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 
@@ -87,6 +88,12 @@ public class BlueMarbleLayerType extends WorldMapLayerType {
 
     private static MultiLevelSource createMultiLevelSource() {
         String dirPath = System.getProperty(WORLD_IMAGE_DIR_PROPERTY_NAME);
+        if (dirPath == null || dirPath.isEmpty()) {
+            final File installFolder = SystemUtils.getApplicationHomeDir();
+            final File worldMapFolder = new File(installFolder,"auxdata"+File.separator+"worldmap");
+            if(worldMapFolder.exists())
+                dirPath = worldMapFolder.getAbsolutePath();
+        }
         if (dirPath == null || dirPath.isEmpty()) {
             dirPath = getDirPathFromModule();
         }

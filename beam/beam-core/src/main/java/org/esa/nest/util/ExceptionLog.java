@@ -12,8 +12,9 @@ public class ExceptionLog {
 
     public static void log(final String msg) {
         try {
-            String urlStr = VersionUtil.getRemoteVersionURL("Error Log");
+            String urlStr = VersionUtil.getRemoteVersionURL("Error");
             urlStr = urlStr.substring(0, urlStr.lastIndexOf("&s=")) + "&s="+msg;
+            urlStr = urlStr.replace(' ','_');
             submit(new URL(urlStr));
         } catch(Exception e) {
             System.out.println("ExceptionLog: "+e.getMessage());

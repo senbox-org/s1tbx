@@ -27,6 +27,7 @@ public class VersionUtil {
         remoteVersionUrl += "getversion.php?u="+System.getProperty("user.name")+"&a="+contextID+appName+
                 "&r="+System.getProperty("user.country")+"&v="+System.getProperty(contextID+".version")+
                 "&o="+os+"&s="+src;
+        remoteVersionUrl = remoteVersionUrl.replace(' ','_');
         return remoteVersionUrl;
     }
 
