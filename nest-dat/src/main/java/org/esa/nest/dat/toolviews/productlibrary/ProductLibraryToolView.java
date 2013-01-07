@@ -835,13 +835,13 @@ public class ProductLibraryToolView extends AbstractToolView {
                 "The follow files have errors:\n"+ str.toString() + question,
                 null)== 0) {
 
-            File file = ResourceUtils.GetSaveFilePath("Save as...", "Text", ".txt",
+            File file = ResourceUtils.GetSaveFilePath("Save as...", "Text", "txt",
                                    "ProductErrorList", "Products with errors");
             try {
                 writeErrors(errorList, file);
             } catch(Exception e) {
                 VisatApp.getApp().showErrorDialog("Unable to save to "+file.getAbsolutePath());
-                file = ResourceUtils.GetSaveFilePath("Save as...", "Text", ".txt",
+                file = ResourceUtils.GetSaveFilePath("Save as...", "Text", "txt",
                                    "ProductErrorList", "Products with errors");
                 try {
                     writeErrors(errorList, file);
