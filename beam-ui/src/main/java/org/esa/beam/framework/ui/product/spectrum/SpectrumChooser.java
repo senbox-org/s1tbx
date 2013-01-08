@@ -57,17 +57,17 @@ public class SpectrumChooser extends ModalDialog {
     private static final Font _SMALL_PLAIN_FONT = new Font("SansSerif", Font.PLAIN, 10);
     private static final Font _SMALL_ITALIC_FONT = _SMALL_PLAIN_FONT.deriveFont(Font.ITALIC);
 
-    public static final int spectrumSelectedIndex = 0;
-    public static final int spectrumNameIndex = 1;
-    public static final int spectrumDescriptionIndex = 2;
-    public static final int spectrumPatternIndex = 3;
-    public static final int spectrumColorIndex = 4;
+    private static final int spectrumSelectedIndex = 0;
+    private static final int spectrumNameIndex = 1;
+    private static final int spectrumDescriptionIndex = 2;
+    private static final int spectrumPatternIndex = 3;
+    private static final int spectrumColorIndex = 4;
 
-    public static final int bandSelectedIndex = 0;
-    public static final int bandNameIndex = 1;
-    public static final int bandDescriptionIndex = 2;
-    public static final int bandWavelengthIndex = 3;
-    public static final int bandBandwidthIndex = 4;
+    private static final int bandSelectedIndex = 0;
+    private static final int bandNameIndex = 1;
+    private static final int bandDescriptionIndex = 2;
+    private static final int bandWavelengthIndex = 3;
+    private static final int bandBandwidthIndex = 4;
     private final Band[] availableSpectralBands;
 
     public List<Spectrum> spectra;
