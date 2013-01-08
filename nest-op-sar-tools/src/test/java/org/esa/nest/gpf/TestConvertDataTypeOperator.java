@@ -62,7 +62,7 @@ public class TestConvertDataTypeOperator extends TestCase {
 
         final double[] values = convert(ProductData.TYPESTRING_INT16, ConvertDataTypeOp.SCALING_LINEAR);
 
-        final double[] expectedValues = {-32768.0, -23406.0, -14044.0, -4682.0, 4681.0, 14043.0, 23405.0, 32767.0};
+        final double[] expectedValues = {-32768.0, -23405.0, -14043.0, -4681.0, 4680.0, 14042.0, 23404.0, 32767.0};
         assertTrue(Arrays.equals(expectedValues, values));
     }
 
@@ -86,7 +86,7 @@ public class TestConvertDataTypeOperator extends TestCase {
 
         final double[] values = convert(ProductData.TYPESTRING_UINT16, ConvertDataTypeOp.SCALING_LINEAR);
 
-        final double[] expectedValues = {0.0, 9362.0, 18724.0, 28086.0, 37449.0, 46811.0, 56173.0, 65535.0};
+        final double[] expectedValues = {0.0, 9362.0, 18724.0, 28086.0, 37448.0, 46810.0, 56172.0, 65535.0};
         assertTrue(Arrays.equals(expectedValues, values));
     }
 
@@ -135,7 +135,7 @@ public class TestConvertDataTypeOperator extends TestCase {
 
         final double[] values = convert(ProductData.TYPESTRING_INT16, ConvertDataTypeOp.SCALING_LOGARITHMIC);
 
-        final double[] expectedValues = {0.0, 0.0, 0.0, 0.0, 37.0, 41.0, 44.0, 45.0};
+        final double[] expectedValues = {0.0, 0.0, 0.0, 0.0, 36.0, 41.0, 43.0, 45.0};
         assertTrue(Arrays.equals(expectedValues, values));
     }
 

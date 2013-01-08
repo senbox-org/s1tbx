@@ -164,10 +164,10 @@ public class TestRangeDopplerOp extends TestCase {
         TestUtils.testProcessAllInPath(spi, TestUtils.rootPathERS, productTypeExemptions, exceptionExemptions);
     }
 
-    public void testProcessAllALOS() throws Exception
+  /*  public void testProcessAllALOS() throws Exception
     {
         TestUtils.testProcessAllInPath(spi, TestUtils.rootPathALOS, null, exceptionExemptions);
-    }
+    }     */
 
     public void testProcessAllRadarsat2() throws Exception
     {

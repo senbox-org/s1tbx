@@ -395,20 +395,34 @@ public class TestUtils {
         }
     }
 
+    private final static ProductFunctions.ValidProductFileFilter fileFilter = new ProductFunctions.ValidProductFileFilter(false);
+
     public static void recurseReadFolder(final File origFolder,
                                          final ProductReaderPlugIn readerPlugin,
                                          final ProductReader reader,
                                          final String[] productTypeExemptions,
                                          final String[] exceptionExemptions) throws Exception {
+        recurseReadFolder(origFolder, readerPlugin, reader, productTypeExemptions, exceptionExemptions, 0);
+    }
+
+    public static int recurseReadFolder(final File origFolder,
+                                         final ProductReaderPlugIn readerPlugin,
+                                         final ProductReader reader,
+                                         final String[] productTypeExemptions,
+                                         final String[] exceptionExemptions,
+                                         int iterations) throws Exception {
         final File[] folderList = origFolder.listFiles(ProductFunctions.directoryFileFilter);
         for(File folder : folderList) {
             if(!folder.getName().contains("skipTest")) {
-                recurseReadFolder(folder, readerPlugin, reader, productTypeExemptions, exceptionExemptions);
+                iterations = recurseReadFolder(folder, readerPlugin, reader, productTypeExemptions, exceptionExemptions, iterations);
+                if(iterations >= getMaxIterations())
+                    return iterations;
             }
         }
 
-        for(File file : origFolder.listFiles()) {
-            if(!file.isDirectory() && readerPlugin.getDecodeQualification(file) == DecodeQualification.INTENDED) {
+        final File[] files = origFolder.listFiles(fileFilter);
+        for(File file : files) {
+            if(readerPlugin.getDecodeQualification(file) == DecodeQualification.INTENDED) {
 
                 try {
                     //System.out.println("Reading "+ file.toString());
@@ -417,6 +431,10 @@ public class TestUtils {
                     if(productTypeExemptions != null && containsProductType(productTypeExemptions, product.getProductType()))
                         continue;
                     ReaderUtils.verifyProduct(product, true);
+                    ++iterations;
+
+                    if(iterations >= getMaxIterations())
+                        break;
                 } catch(Exception e) {
                     boolean ok = false;
                     if(exceptionExemptions != null) {
@@ -435,6 +453,7 @@ public class TestUtils {
                 }
             }
         }
+        return iterations;
     }
 
     public static void skipTest(final TestCase obj) throws Exception {

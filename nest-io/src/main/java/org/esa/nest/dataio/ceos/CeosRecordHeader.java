@@ -45,7 +45,7 @@ public class CeosRecordHeader {
             thirdRecordSubtype = reader.readB1();
             recordLength = reader.readB4();
         } catch(Exception e) {
-            System.out.println(e.toString() + ':' +e.getCause().toString());
+            //System.out.println(e.toString() + ':' +e.getCause().toString());
         }
         //System.out.println("\nrec "+recordNum+" type "+recordTypeCode+" length "+recordLength);
 

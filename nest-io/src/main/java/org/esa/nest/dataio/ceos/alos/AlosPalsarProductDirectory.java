@@ -163,13 +163,14 @@ class AlosPalsarProductDirectory extends CEOSProductDirectory {
         }
 
         if (product.getGeoCoding() == null) {
-            double refLat = leaderFile.getSceneRecord().getAttributeDouble("scene centre geodetic latitude");
-            double refLon = leaderFile.getSceneRecord().getAttributeDouble("scene centre geodetic longitude");
-            if(refLat==0 || refLon==0) {
+            Double refLat = leaderFile.getSceneRecord().getAttributeDouble("scene centre geodetic latitude");
+            Double refLon = leaderFile.getSceneRecord().getAttributeDouble("scene centre geodetic longitude");
+            if(refLat == null || refLat==0 || refLon == null || refLon==0) {
                 refLat = leaderFile.getFacilityRecord().getAttributeDouble("Origin Latitude");
                 refLon = leaderFile.getFacilityRecord().getAttributeDouble("Origin Longitude");
             }
-            addTPGGeoCoding(product, refLat, refLon);
+            if(refLat != null && refLon != null)
+                addTPGGeoCoding(product, refLat, refLon);
         }
 
         updateMetadata(product);
