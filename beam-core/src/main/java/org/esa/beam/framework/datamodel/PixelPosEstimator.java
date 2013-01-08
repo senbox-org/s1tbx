@@ -15,9 +15,14 @@ package org.esa.beam.framework.datamodel;
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
+import org.esa.beam.util.math.CosineDistanceCalculator;
+import org.esa.beam.util.math.DistanceCalculator;
 import org.esa.beam.util.math.MathUtils;
+import org.esa.beam.util.math.Rotator;
+import org.esa.beam.util.math.SphericalDistanceCalculator;
 
 import javax.media.jai.PlanarImage;
+import javax.media.jai.operator.ConstantDescriptor;
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.geom.Dimension2D;
@@ -26,14 +31,7 @@ import java.awt.image.Raster;
 import java.util.ArrayList;
 import java.util.List;
 
-import static java.lang.Math.asin;
-import static java.lang.Math.atan2;
-import static java.lang.Math.cos;
-import static java.lang.Math.sin;
-import static java.lang.Math.toDegrees;
-import static java.lang.Math.toRadians;
-
-class PixelPosEstimator {
+public class PixelPosEstimator {
 
     private static final int LAT = 0;
     private static final int LON = 1;
@@ -42,20 +40,31 @@ class PixelPosEstimator {
     private static final int MAX_POINT_COUNT_PER_TILE = 1000;
 
     private final Approximation[] approximations;
-    private final Dimension2D pixelDimension;
 
-    PixelPosEstimator(PlanarImage lonImage, PlanarImage latImage, double accuracy, double tiling,
-                      SteppingFactory steppingFactory) {
-        pixelDimension = calculatePixelDimension(lonImage, latImage);
-        approximations = createApproximations(lonImage, latImage, accuracy, tiling, steppingFactory, pixelDimension);
+    public PixelPosEstimator(PlanarImage lonImage, PlanarImage latImage, PlanarImage maskImage, double accuracy,
+                             double tiling, SteppingFactory steppingFactory, Dimension2D pixelDimension) {
+        if (maskImage == null) {
+            maskImage = ConstantDescriptor.create((float) lonImage.getWidth(), (float) lonImage.getHeight(),
+                                                  new Byte[]{1}, null);
+        }
+        approximations = createApproximations(lonImage, latImage, maskImage, accuracy, tiling, steppingFactory,
+                                              pixelDimension);
     }
 
-    public final Dimension2D getPixelDimension() {
-        return pixelDimension;
+    public PixelPosEstimator(PixelPosEstimator pixelPosEstimator) {
+        approximations = pixelPosEstimator.getApproximations();
+    }
+
+    public final Approximation[] getApproximations() {
+        return approximations;
+    }
+
+    public final boolean canGetPixelPos() {
+        return approximations != null;
     }
 
     public Approximation getPixelPos(GeoPos geoPos, PixelPos pixelPos) {
-        // TODO? - hack for self-overlapping AATSR products (found in TiePointGeoCoding)
+        // TODO? - self-overlapping AATSR products (found in TiePointGeoCoding)
         Approximation approximation = null;
         if (approximations != null) {
             if (pixelPos == null) {
@@ -106,6 +115,7 @@ class PixelPosEstimator {
 
     static Approximation[] createApproximations(PlanarImage lonImage,
                                                 PlanarImage latImage,
+                                                PlanarImage maskImage,
                                                 double accuracy,
                                                 double tiling,
                                                 SteppingFactory steppingFactory, Dimension2D pixelDimension) {
@@ -113,25 +123,25 @@ class PixelPosEstimator {
         final int h = latImage.getHeight();
         final int tileCount = calculateTileCount(lonImage, latImage, tiling, pixelDimension);
 
-        // TODO? - check why this routine can yield 'less rectangles' than given by tileCount
         final Dimension tileCounts = MathUtils.fitDimension(tileCount, w, h);
         final int tileCountX = tileCounts.width;
         final int tileCountY = tileCounts.height;
 
-        // compute actual approximations for all tiles
         final Rectangle[] rectangles = MathUtils.subdivideRectangle(w, h, tileCountX, tileCountY, 1);
         final Approximation[] approximations = new Approximation[rectangles.length];
         for (int i = 0; i < rectangles.length; i++) {
             final Stepping stepping = steppingFactory.createStepping(rectangles[i], MAX_POINT_COUNT_PER_TILE);
             final Raster lonData = lonImage.getData(rectangles[i]);
             final Raster latData = latImage.getData(rectangles[i]);
-            final double[][] data = extractWarpPoints(lonData, latData, stepping);
+            final Raster maskData = maskImage.getData(rectangles[i]);
+            final double[][] data = extractWarpPoints(lonData, latData, maskData, stepping);
             final Approximation approximation = createApproximation(data, accuracy, stepping);
             if (approximation == null) {
                 return null;
             }
             approximations[i] = approximation;
         }
+
         return approximations;
     }
 
@@ -154,48 +164,8 @@ class PixelPosEstimator {
         return tileCountX * tileCountY;
     }
 
-    static Dimension2D calculatePixelDimension(PlanarImage lonImage, PlanarImage latImage) {
-        final int w = latImage.getWidth();
-        final int h = latImage.getHeight();
-        final PixelDimension d = new PixelDimension();
-
-        for (int i = 5; i > 2; i--) {
-            final double lat0 = getSampleDouble(latImage, w / i, h / i, -90.0, 90.0);
-            final double lon0 = getSampleDouble(lonImage, w / i, h / i, -180.0, 180.0);
-            final DistanceCalculator calculator = new ArcDistanceCalculator(lon0, lat0);
-            if (Double.isNaN(d.getWidth())) {
-                final double latX = getSampleDouble(latImage, ((i - 1) * w) / i, h / i, -90.0, 90.0);
-                final double lonX = getSampleDouble(lonImage, ((i - 1) * w) / i, h / i, -180.0, 180.0);
-                final double pixelSizeX = Math.toDegrees(calculator.distance(lonX, latX)) / ((w * (i - 2)) / i);
-                d.setSize(pixelSizeX, d.getHeight());
-            }
-            if (Double.isNaN(d.getHeight())) {
-                final double latY = getSampleDouble(latImage, w / i, ((i - 1) * h) / i, -90.0, 90.0);
-                final double lonY = getSampleDouble(lonImage, w / i, ((i - 1) * h) / i, -180.0, 180.0);
-                final double pixelSizeY = Math.toDegrees(calculator.distance(lonY, latY)) / ((h * (i - 2)) / i);
-                d.setSize(d.getWidth(), pixelSizeY);
-            }
-            if (!Double.isNaN(d.getWidth()) && !Double.isNaN(d.getHeight())) {
-                break;
-            }
-        }
-
-        return d;
-    }
-
-    private static double getSampleDouble(PlanarImage image, int x, int y, double minValue, double maxValue) {
-        final int tileX = image.XToTileX(x);
-        final int tileY = image.YToTileY(y);
-
-        final double value = image.getTile(tileX, tileY).getSampleDouble(x, y, 0);
-        if (value >= minValue && value <= maxValue) {
-            return value;
-        }
-        return Double.NaN;
-    }
-
     static Approximation createApproximation(double[][] data, double accuracy, Stepping stepping) {
-        final Point2D centerPoint = calculateCenter(data);
+        final Point2D centerPoint = Rotator.calculateCenter(data, LON, LAT);
         final double centerLon = centerPoint.getX();
         final double centerLat = centerPoint.getY();
         final double maxDistance = maxDistance(data, centerLon, centerLat);
@@ -213,11 +183,11 @@ class PixelPosEstimator {
         }
 
         return new Approximation(fX, fY, maxDistance * 1.1, rotator,
-                                 new ArcDistanceCalculator(centerLon, centerLat), stepping);
+                                 new CosineDistanceCalculator(centerLon, centerLat), stepping);
     }
 
     static double maxDistance(final double[][] data, double centerLon, double centerLat) {
-        final DistanceCalculator distanceCalculator = new ArcDistanceCalculator(centerLon, centerLat);
+        final DistanceCalculator distanceCalculator = new SphericalDistanceCalculator(centerLon, centerLat);
         double maxDistance = 0.0;
         for (final double[] p : data) {
             final double d = distanceCalculator.distance(p[LON], p[LAT]);
@@ -228,7 +198,7 @@ class PixelPosEstimator {
         return maxDistance;
     }
 
-    static double[][] extractWarpPoints(Raster lonData, Raster latData, Stepping stepping) {
+    static double[][] extractWarpPoints(Raster lonData, Raster latData, Raster maskData, Stepping stepping) {
         final int minX = stepping.getMinX();
         final int maxX = stepping.getMaxX();
         final int minY = stepping.getMinY();
@@ -252,15 +222,18 @@ class PixelPosEstimator {
                 if (x > maxX) {
                     x = maxX;
                 }
-                final double lat = latData.getSampleDouble(x, y, 0);
-                final double lon = lonData.getSampleDouble(x, y, 0);
-                if (lon >= -180.0 && lon <= 180.0 && lat >= -90.0 && lat <= 90.0) {
-                    final double[] point = new double[4];
-                    point[LAT] = lat;
-                    point[LON] = lon;
-                    point[X] = x + 0.5;
-                    point[Y] = y + 0.5;
-                    pointList.add(point);
+                final int mask = maskData.getSample(x, y, 0);
+                if (mask != 0) {
+                    final double lat = latData.getSampleDouble(x, y, 0);
+                    final double lon = lonData.getSampleDouble(x, y, 0);
+                    if (lon >= -180.0 && lon <= 180.0 && lat >= -90.0 && lat <= 90.0) {
+                        final double[] point = new double[4];
+                        point[LAT] = lat;
+                        point[LON] = lon;
+                        point[X] = x + 0.5;
+                        point[Y] = y + 0.5;
+                        pointList.add(point);
+                    }
                 }
             }
         }
@@ -270,8 +243,9 @@ class PixelPosEstimator {
 
     static RationalFunctionModel findBestModel(double[][] data, int[] indexes, double accuracy) {
         RationalFunctionModel bestModel = null;
+        search:
         for (int degreeP = 0; degreeP <= 4; degreeP++) {
-            for (int degreeQ = 0; degreeQ <= 4; degreeQ++) {
+            for (int degreeQ = 0; degreeQ <= degreeP; degreeQ++) {
                 final int termCountP = RationalFunctionModel.getTermCountP(degreeP);
                 final int termCountQ = RationalFunctionModel.getTermCountQ(degreeQ);
                 if (data.length >= termCountP + termCountQ) {
@@ -280,7 +254,7 @@ class PixelPosEstimator {
                         bestModel = model;
                     }
                     if (bestModel.getRmse() < accuracy) {
-                        break;
+                        break search;
                     }
                 }
             }
@@ -302,48 +276,6 @@ class PixelPosEstimator {
         }
 
         return new RationalFunctionModel(degreeP, degreeQ, x, y, g);
-    }
-
-    static Point2D calculateCenter(double[][] data) {
-        // calculate (x, y, z) in order to avoid issues with anti-meridian and poles
-        final int size = data.length;
-        final double[] x = new double[size];
-        final double[] y = new double[size];
-        final double[] z = new double[size];
-
-        calculateXYZ(data, x, y, z);
-
-        double xc = 0.0;
-        double yc = 0.0;
-        double zc = 0.0;
-        for (int i = 0; i < size; i++) {
-            xc += x[i];
-            yc += y[i];
-            zc += z[i];
-        }
-        final double length = Math.sqrt(xc * xc + yc * yc + zc * zc);
-        xc /= length;
-        yc /= length;
-        zc /= length;
-
-        final double lat = toDegrees(asin(zc));
-        final double lon = toDegrees(atan2(yc, xc));
-
-        return new Point2D.Double(lon, lat);
-    }
-
-    static void calculateXYZ(double[][] data, double[] x, double[] y, double[] z) {
-        for (int i = 0; i < data.length; i++) {
-            final double lon = data[i][LON];
-            final double lat = data[i][LAT];
-            final double u = toRadians(lon);
-            final double v = toRadians(lat);
-            final double w = cos(v);
-
-            x[i] = cos(u) * w;
-            y[i] = sin(u) * w;
-            z[i] = sin(v);
-        }
     }
 
     static final class Stepping {
@@ -502,49 +434,4 @@ class PixelPosEstimator {
         }
     }
 
-    interface DistanceCalculator {
-
-        double distance(double lon, double lat);
-    }
-
-    static final class ArcDistanceCalculator implements DistanceCalculator {
-
-        private final double lon;
-        private final double si;
-        private final double co;
-
-        ArcDistanceCalculator(double lon, double lat) {
-            this.lon = lon;
-            this.si = Math.sin(Math.toRadians(lat));
-            this.co = Math.cos(Math.toRadians(lat));
-        }
-
-        @Override
-        public double distance(double lon, double lat) {
-            final double phi = Math.toRadians(lat);
-            return Math.acos(si * Math.sin(phi) + co * Math.cos(phi) * Math.cos(Math.toRadians(lon - this.lon)));
-        }
-    }
-
-    private static final class PixelDimension extends Dimension2D {
-
-        public double pixelSizeX = Double.NaN;
-        public double pixelSizeY = Double.NaN;
-
-        @Override
-        public double getWidth() {
-            return pixelSizeX;
-        }
-
-        @Override
-        public double getHeight() {
-            return pixelSizeY;
-        }
-
-        @Override
-        public void setSize(double width, double height) {
-            pixelSizeX = width;
-            pixelSizeY = height;
-        }
-    }
 }

@@ -1816,7 +1816,6 @@
             <shortDescr>Reset to initial layout.</shortDescr>
         </action>
 
-        <!--
                 <action>
                     <id>createXYDisplacementBandsAction</id>
                     <class>org.esa.beam.visat.actions.CreateXYDisplacementBandsAction</class>
@@ -1829,7 +1828,6 @@
                     <separatorAfter>false</separatorAfter>
                 </action>
 
-        -->
     </extension>
 
 </module>

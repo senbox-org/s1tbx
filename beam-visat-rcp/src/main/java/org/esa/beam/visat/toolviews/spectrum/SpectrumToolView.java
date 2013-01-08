@@ -16,7 +16,14 @@
 package org.esa.beam.visat.toolviews.spectrum;
 
 import com.bc.ceres.glayer.support.ImageLayer;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.DataNode;
+import org.esa.beam.framework.datamodel.Placemark;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductManager;
+import org.esa.beam.framework.datamodel.ProductNodeEvent;
+import org.esa.beam.framework.datamodel.ProductNodeGroup;
+import org.esa.beam.framework.datamodel.ProductNodeListenerAdapter;
 import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.framework.ui.GridBagUtils;
 import org.esa.beam.framework.ui.ModalDialog;
@@ -30,11 +37,19 @@ import org.esa.beam.framework.ui.tool.ToolButtonFactory;
 import org.esa.beam.util.Debug;
 import org.esa.beam.visat.VisatApp;
 
-import javax.swing.*;
+import javax.swing.AbstractButton;
+import javax.swing.BorderFactory;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.border.BevelBorder;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
@@ -50,7 +65,7 @@ import java.util.Map;
 public class SpectrumToolView extends AbstractToolView {
 
     public static final String ID = SpectrumToolView.class.getName();
-    
+
     private static final String SUPPRESS_MESSAGE_KEY = "plugin.spectrum.tip";
     private static final String MSG_NO_SPECTRAL_BANDS = "No spectral bands.";   /*I18N*/
 
@@ -58,7 +73,7 @@ public class SpectrumToolView extends AbstractToolView {
     private final ProductNodeListenerAdapter productNodeHandler;
     private final PinSelectionChangeListener pinSelectionChangeListener;
     private final CursorSpectrumPPL ppl;
-    
+
     private DiagramCanvas diagramCanvas;
     private AbstractButton filterButton;
     private AbstractButton showSpectrumForCursorButton;
@@ -403,9 +418,10 @@ public class SpectrumToolView extends AbstractToolView {
         if (selectedBands == null) {
             selectedBands = allBandNames;
         }
+        final Product.AutoGrouping autoGrouping = this.getCurrentProduct().getAutoGrouping();
         BandChooser bandChooser = new BandChooser(getPaneWindow(), "Available Spectral Bands",
-                                                  getDescriptor().getHelpId(),
-                                                  allBandNames, selectedBands);
+                                                  getDescriptor().getHelpId(), allBandNames, selectedBands,
+                                                  autoGrouping);
         if (bandChooser.show() == ModalDialog.ID_OK) {
             Band[] userSelectedBands = bandChooser.getSelectedBands();
             boolean userSelection = (userSelectedBands.length != allBandNames.length);
@@ -606,14 +622,14 @@ public class SpectrumToolView extends AbstractToolView {
             return isVisible() && getCurrentProduct() != null;
         }
     }
-    
+
     private class PinSelectionChangeListener implements PropertyChangeListener {
 
         @Override
         public void propertyChange(PropertyChangeEvent evt) {
             recreateSpectraDiagram();
         }
-        
+
     }
 
 }

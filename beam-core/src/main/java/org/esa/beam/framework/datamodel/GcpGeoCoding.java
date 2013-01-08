@@ -18,6 +18,7 @@ package org.esa.beam.framework.datamodel;
 
 import org.esa.beam.framework.dataio.ProductSubsetDef;
 import org.esa.beam.framework.dataop.maptransf.Datum;
+import org.esa.beam.util.math.Rotator;
 
 import java.awt.geom.Point2D;
 import java.util.Arrays;
@@ -377,12 +378,12 @@ public class GcpGeoCoding extends AbstractGeoCoding {
         }
     }
 
-    static class RationalFunctionMap2D {
+    public static class RationalFunctionMap2D {
 
         private final RationalFunctionModel um;
         private final RationalFunctionModel vm;
 
-        RationalFunctionMap2D(int degreeP, int degreeQ, double[] x, double[] y, double[] u, double[] v) {
+        public RationalFunctionMap2D(int degreeP, int degreeQ, double[] x, double[] y, double[] u, double[] v) {
             um = new RationalFunctionModel(degreeP, degreeQ, x, y, u);
             vm = new RationalFunctionModel(degreeP, degreeQ, x, y, v);
         }
@@ -402,7 +403,6 @@ public class GcpGeoCoding extends AbstractGeoCoding {
         public double getRmseV() {
             return vm.getRmse();
         }
-
     }
 
     /**

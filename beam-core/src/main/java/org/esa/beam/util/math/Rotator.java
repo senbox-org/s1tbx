@@ -14,7 +14,7 @@
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-package org.esa.beam.framework.datamodel;
+package org.esa.beam.util.math;
 
 import java.awt.geom.Point2D;
 
@@ -31,7 +31,7 @@ import static java.lang.Math.toRadians;
  * @author Ralf Quast
  * @version $Revision$ $Date$
  */
-class Rotator {
+public class Rotator {
 
     private final double a11;
     private final double a12;
@@ -138,6 +138,48 @@ class Rotator {
         this(point.getX(), point.getY(), alpha);
     }
 
+    public static Point2D calculateCenter(double[][] data, int lonIndex, int latIndex) {
+        // calculate (x, y, z) in order to avoid issues with anti-meridian and poles
+        final int size = data.length;
+        final double[] x = new double[size];
+        final double[] y = new double[size];
+        final double[] z = new double[size];
+
+        calculateXYZ(data, x, y, z, lonIndex, latIndex);
+
+        double xc = 0.0;
+        double yc = 0.0;
+        double zc = 0.0;
+        for (int i = 0; i < size; i++) {
+            xc += x[i];
+            yc += y[i];
+            zc += z[i];
+        }
+        final double length = Math.sqrt(xc * xc + yc * yc + zc * zc);
+        xc /= length;
+        yc /= length;
+        zc /= length;
+
+        final double lat = toDegrees(asin(zc));
+        final double lon = toDegrees(atan2(yc, xc));
+
+        return new Point2D.Double(lon, lat);
+    }
+
+    static void calculateXYZ(double[][] data, double[] x, double[] y, double[] z, int lonIndex, int latIndex) {
+        for (int i = 0; i < data.length; i++) {
+            final double lon = data[i][lonIndex];
+            final double lat = data[i][latIndex];
+            final double u = toRadians(lon);
+            final double v = toRadians(lat);
+            final double w = cos(v);
+
+            x[i] = cos(u) * w;
+            y[i] = sin(u) * w;
+            z[i] = sin(v);
+        }
+    }
+
     /**
      * Transforms a given geographical point into the rotated coordinate
      * system.
@@ -178,7 +220,15 @@ class Rotator {
         }
     }
 
-    void transform(double[][] data, final int lonIndex, final int latIndex) {
+    /**
+     * Transforms a given set of data containing geographical longitudes and latitudes
+     * into the rotated coordinate system.
+     *
+     * @param data     the data array.
+     * @param lonIndex the index in the data corresponding to longitude.
+     * @param latIndex the index in the data corresponding to latitude.
+     */
+    public void transform(double[][] data, final int lonIndex, final int latIndex) {
         for (final double[] p : data) {
             final double u = toRadians(p[lonIndex]);
             final double v = toRadians(p[latIndex]);

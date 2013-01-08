@@ -110,6 +110,7 @@
                     </templates>
                 </configuration>
             </plugin>
+            <!--
             <plugin>
                 <artifactId>maven-dependency-plugin</artifactId>
                 <executions>
@@ -163,8 +164,7 @@
                     </execution>
                 </executions>
             </plugin>
-
-
+            -->
         </plugins>
     </build>
 

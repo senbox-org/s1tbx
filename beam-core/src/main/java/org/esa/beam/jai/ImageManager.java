@@ -87,6 +87,14 @@ public class ImageManager {
         maskImageMap.clear();
     }
 
+    /**
+     * Gets the model that describes an image pyramid.
+     * If the given raster data node gas a source image set, its model will be returned.
+     * Otherwise a new model will be created using {@link #createMultiLevelModel}.
+     *
+     * @param rasterDataNode The raster data node, for which an image pyramid model is requested.
+     * @return The image pyramid model.
+     */
     public static MultiLevelModel getMultiLevelModel(RasterDataNode rasterDataNode) {
         if (rasterDataNode.isSourceImageSet()) {
             return rasterDataNode.getSourceImage().getModel();
@@ -153,17 +161,38 @@ public class ImageManager {
         return createSingleBandedImageLayout(dataBufferType, width, height, tileSize.width, tileSize.height);
     }
 
-    public static ImageLayout createSingleBandedImageLayout(int dataType,
+    public static ImageLayout createSingleBandedImageLayout(int dataBufferType,
                                                             int width,
                                                             int height,
                                                             int tileWidth,
                                                             int tileHeight) {
-        SampleModel sampleModel = ImageUtils.createSingleBandedSampleModel(dataType, tileWidth, tileHeight);
+        SampleModel sampleModel = ImageUtils.createSingleBandedSampleModel(dataBufferType, tileWidth, tileHeight);
         ColorModel colorModel = PlanarImage.createColorModel(sampleModel);
-        return createImageLayout(width, height, tileWidth, tileHeight, sampleModel, colorModel);
+        return new ImageLayout(0, 0,
+                               width,
+                               height,
+                               0, 0,
+                               tileWidth,
+                               tileHeight,
+                               sampleModel,
+                               colorModel);
     }
 
     public static ImageLayout createSingleBandedImageLayout(int dataBufferType,
+                                                            int sourceWidth,
+                                                            int sourceHeight,
+                                                            Dimension tileSize,
+                                                            ResolutionLevel level) {
+           return createSingleBandedImageLayout(dataBufferType,
+                                                null,
+                                                sourceWidth,
+                                                sourceHeight,
+                                                tileSize,
+                                                level);
+    }
+
+    public static ImageLayout createSingleBandedImageLayout(int dataBufferType,
+                                                            Point sourcePos,
                                                             int sourceWidth,
                                                             int sourceHeight,
                                                             Dimension tileSize,
@@ -175,11 +204,13 @@ public class ImageManager {
             throw new IllegalArgumentException("sourceHeight");
         }
         Assert.notNull("level");
-        final Dimension destDimension = AbstractMultiLevelSource.getImageDimension(sourceWidth,
+        final Rectangle destRectangle = AbstractMultiLevelSource.getImageRectangle(sourcePos != null ? sourcePos.x : 0,
+                                                                                   sourcePos != null ? sourcePos.y : 0,
+                                                                                   sourceWidth,
                                                                                    sourceHeight,
                                                                                    level.getScale());
-        final int destWidth = destDimension.width;
-        final int destHeight = destDimension.height;
+        final int destWidth = destRectangle.width;
+        final int destHeight = destRectangle.height;
         tileSize = tileSize != null ? tileSize : JAIUtils.computePreferredTileSize(destWidth, destHeight, 1);
         SampleModel sampleModel = ImageUtils.createSingleBandedSampleModel(dataBufferType,
                                                                            tileSize.width, tileSize.height);
@@ -194,21 +225,13 @@ public class ImageManager {
                                                  dataType);
         }
 
-        return createImageLayout(destWidth, destHeight, tileSize.width, tileSize.height, sampleModel, colorModel);
-    }
-
-    private static ImageLayout createImageLayout(int width,
-                                                 int height,
-                                                 int tileWidth,
-                                                 int tileHeight,
-                                                 SampleModel sampleModel,
-                                                 ColorModel colorModel) {
-        return new ImageLayout(0, 0,
-                               width,
-                               height,
+        return new ImageLayout(destRectangle.x,
+                               destRectangle.y,
+                               destWidth,
+                               destHeight,
                                0, 0,
-                               tileWidth,
-                               tileHeight,
+                               tileSize.width,
+                               tileSize.height,
                                sampleModel,
                                colorModel);
     }
@@ -282,6 +305,14 @@ public class ImageManager {
         }
     }
 
+    /**
+     * Creates a model for an image pyramid. The method makes us of the
+     * {@link org.esa.beam.framework.datamodel.Product#getNumResolutionsMax()} method in order to determine the
+     * number of resolution levels for the pyramid.
+     *
+     * @param productNode The product node requesting the model.
+     * @return A new image pyramid model.
+     */
     public static MultiLevelModel createMultiLevelModel(ProductNode productNode) {
         final Scene scene = SceneFactory.createScene(productNode);
         if (scene == null) {
@@ -291,7 +322,12 @@ public class ImageManager {
         final int h = scene.getRasterHeight();
 
         final AffineTransform i2mTransform = getImageToModelTransform(scene.getGeoCoding());
-        return new DefaultMultiLevelModel(i2mTransform, w, h);
+        final Product product = scene.getProduct();
+        if (product != null && product.getNumResolutionsMax() > 0) {
+            return new DefaultMultiLevelModel(product.getNumResolutionsMax(), i2mTransform, w, h);
+        } else {
+            return new DefaultMultiLevelModel(i2mTransform, w, h);
+        }
     }
 
     private RenderedImage createColored1BandImage(RasterDataNode raster, ImageInfo imageInfo, int level) {

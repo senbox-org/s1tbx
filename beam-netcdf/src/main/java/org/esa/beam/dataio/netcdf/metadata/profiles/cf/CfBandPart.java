@@ -331,7 +331,7 @@ public class CfBandPart extends ProfilePartIO {
 
     private static void addMask(Product p, Band band, String flagName, long flagMask, long flagValue) {
         p.addMask(band.getName() + "_" + flagName,
-                  band.getName() + " & " + flagMask + " == " + flagValue, null, Color.RED, 0.5);
+                  "(" + band.getName() + " & " + flagMask + ") == " + flagValue, null, Color.RED, 0.5);
     }
 
     private static void addSamples(SampleCoding sampleCoding, Attribute sampleMeanings, Attribute sampleValues,
