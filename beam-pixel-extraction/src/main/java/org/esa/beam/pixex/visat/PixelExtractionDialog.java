@@ -50,13 +50,15 @@ import java.util.concurrent.ExecutionException;
 
 class PixelExtractionDialog extends ModelessDialog {
 
+    public final static String HELP_ID_JAVA_HELP = "pixelExtraction";
+
     private final Map<String, Object> parameterMap;
     private final AppContext appContext;
     private final PixelExtractionIOForm ioForm;
     private final PixelExtractionParametersForm parametersForm;
 
     PixelExtractionDialog(AppContext appContext, String title) {
-        super(appContext.getApplicationWindow(), title, ID_OK | ID_CLOSE | ID_HELP, "pixelExtraction");
+        super(appContext.getApplicationWindow(), title, ID_OK | ID_CLOSE | ID_HELP, HELP_ID_JAVA_HELP);
 
         this.appContext = appContext;
 
