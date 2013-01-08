@@ -367,7 +367,6 @@ public class BinningOp extends Operator implements Output {
     }
 
     static Product[] filterSourceProducts(Product[] sourceProducts, ProductData.UTC startTime, ProductData.UTC endTime) {
-        final List<Product> filteredSourceProducts = new ArrayList<Product>();
         if (sourceProducts == null) {
             return null;
         }
@@ -375,26 +374,27 @@ public class BinningOp extends Operator implements Output {
             return sourceProducts;
         }
 
+        final List<Product> acceptedByFilter = new ArrayList<Product>();
         for (Product sourceProduct : sourceProducts) {
             final ProductData.UTC productStartTime = sourceProduct.getStartTime();
             final ProductData.UTC productEndTime = sourceProduct.getEndTime();
             final boolean hasStartTime = productStartTime != null;
             final boolean hasEndTime = productEndTime != null;
             if (hasStartTime && productStartTime.getAsDate().after(startTime.getAsDate())
-                    && hasEndTime && productEndTime.getAsDate().before(endTime.getAsDate())) {
-                filteredSourceProducts.add(sourceProduct);
+                && hasEndTime && productEndTime.getAsDate().before(endTime.getAsDate())) {
+                acceptedByFilter.add(sourceProduct);
             } else if (!hasStartTime && !hasEndTime) {
-                filteredSourceProducts.add(sourceProduct);
-            } else if (hasStartTime && productStartTime.getAsDate().after(startTime.getAsDate())
-                    && !hasEndTime) {
-                filteredSourceProducts.add(sourceProduct);
+                acceptedByFilter.add(sourceProduct);
+            } else if (hasStartTime && productStartTime.getAsDate().after(startTime.getAsDate()) && !hasEndTime) {
+                acceptedByFilter.add(sourceProduct);
             } else if (!hasStartTime && productEndTime.getAsDate().before(endTime.getAsDate())) {
-                filteredSourceProducts.add(sourceProduct);
+                acceptedByFilter.add(sourceProduct);
             } else {
                 Debug.trace("Filtered out product '" + sourceProduct.getName() + "'");
+                sourceProduct.dispose();
             }
         }
-        return filteredSourceProducts.toArray(new Product[filteredSourceProducts.size()]);
+        return acceptedByFilter.toArray(new Product[acceptedByFilter.size()]);
     }
 
     private void cleanSourceProducts() {
