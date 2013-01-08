@@ -88,6 +88,8 @@ public class ProductFunctions {
             final String name = file.getName().toLowerCase();
             for(String ext : validExtensions) {
                 if(name.endsWith(ext)) {
+                    if(name.startsWith("asa_wss"))
+                        return false;
                     return true;
                 }
             }

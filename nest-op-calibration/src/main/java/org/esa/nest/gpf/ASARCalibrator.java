@@ -585,6 +585,8 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
         } else {
             ads = origRoot.getElement("MAIN_PROCESSING_PARAMS_ADS").
                     getElement("MAIN_PROCESSING_PARAMS_ADS.1");
+            if(ads == null)
+                ads = origRoot.getElement("MAIN_PROCESSING_PARAMS_ADS");
         }
 
         if (ads == null) {
@@ -933,7 +935,7 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
                 // apply calibration constant and incidence angle corrections
                 sigma *= Math.sin(incidenceAnglesArray[xx] * MathUtils.DTOR) / theCalibrationFactor;
 
-                if (applyRangeSpreadingCorr) { // apply range spreading loss compensation
+                if (applyRangeSpreadingCorr && targetTileSlantRange != null) { // apply range spreading loss compensation
                     /*
                     time = slantRangeTimeArray[xx] / 1000000000.0; //convert ns to s
                     sigma *= Math.pow(time * halfLightSpeedByRefSlantRange, rangeSpreadingCompPower);

@@ -72,6 +72,7 @@
         <band>Intensity_SS1</band>
       </sourceBands>
       <externalAuxFile/>
+	  <outputImageInComplex>false</outputImageInComplex>
       <outputImageScaleInDb>false</outputImageScaleInDb>
       <createGammaBand>false</createGammaBand>
       <createBetaBand>false</createBetaBand>
@@ -87,6 +88,7 @@
         <band>Intensity_SS2</band>
       </sourceBands>
       <externalAuxFile/>
+	  <outputImageInComplex>false</outputImageInComplex>
       <outputImageScaleInDb>false</outputImageScaleInDb>
       <createGammaBand>false</createGammaBand>
       <createBetaBand>false</createBetaBand>
@@ -102,6 +104,7 @@
         <band>Intensity_SS3</band>
       </sourceBands>
       <externalAuxFile/>
+	  <outputImageInComplex>false</outputImageInComplex>
       <outputImageScaleInDb>false</outputImageScaleInDb>
       <createGammaBand>false</createGammaBand>
       <createBetaBand>false</createBetaBand>
@@ -117,6 +120,7 @@
         <band>Intensity_SS4</band>
       </sourceBands>
       <externalAuxFile/>
+	  <outputImageInComplex>false</outputImageInComplex>
       <outputImageScaleInDb>false</outputImageScaleInDb>
       <createGammaBand>false</createGammaBand>
       <createBetaBand>false</createBetaBand>
@@ -132,6 +136,7 @@
         <band>Intensity_SS5</band>
       </sourceBands>
       <externalAuxFile/>
+	  <outputImageInComplex>false</outputImageInComplex>
       <outputImageScaleInDb>false</outputImageScaleInDb>
       <createGammaBand>false</createGammaBand>
       <createBetaBand>false</createBetaBand>
@@ -146,6 +151,7 @@
       <sourceBands/>
       <nRgLooks>2</nRgLooks>
       <nAzLooks>1</nAzLooks>
+	  <outputIntensity>true</outputIntensity>
       <note>Currently, detection for complex data is performed without any resampling</note>
     </parameters>
   </node>
@@ -158,6 +164,7 @@
       <sourceBands/>
       <nRgLooks>2</nRgLooks>
       <nAzLooks>1</nAzLooks>
+	  <outputIntensity>true</outputIntensity>
       <note>Currently, detection for complex data is performed without any resampling</note>
     </parameters>
   </node>
@@ -170,6 +177,7 @@
       <sourceBands/>
       <nRgLooks>2</nRgLooks>
       <nAzLooks>1</nAzLooks>
+	  <outputIntensity>true</outputIntensity>
       <note>Currently, detection for complex data is performed without any resampling</note>
     </parameters>
   </node>
@@ -182,6 +190,7 @@
       <sourceBands/>
       <nRgLooks>2</nRgLooks>
       <nAzLooks>1</nAzLooks>
+	  <outputIntensity>true</outputIntensity>
       <note>Currently, detection for complex data is performed without any resampling</note>
     </parameters>
   </node>
@@ -194,6 +203,7 @@
       <sourceBands/>
       <nRgLooks>2</nRgLooks>
       <nAzLooks>1</nAzLooks>
+	  <outputIntensity>true</outputIntensity>
       <note>Currently, detection for complex data is performed without any resampling</note>
     </parameters>
   </node>
