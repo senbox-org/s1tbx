@@ -1,8 +1,8 @@
 package com.bc.jexp.impl;
 
-import static org.junit.Assert.*;
+import org.junit.Test;
 
-import org.junit.*;
+import static org.junit.Assert.assertEquals;
 
 public class TokenizerTest {
 
@@ -56,23 +56,15 @@ public class TokenizerTest {
 
     @Test
     public void testParseInt() {
-        Integer.parseInt("4");
-        Integer.parseInt("-4");
-        try {
-            Integer.parseInt("+4");
-            fail("Should not come here.");
-        } catch (NumberFormatException ignore) {
-        }
+        assertEquals(4, Integer.parseInt("4"));
+        assertEquals(-4, Integer.parseInt("-4"));
+        assertEquals(4, Integer.parseInt("+4"));
     }
 
     @Test
     public void testParseLong() {
-        Long.parseLong("4");
-        Long.parseLong("-4");
-        try {
-            Long.parseLong("+4");
-            fail("Should not come here.");
-        } catch (NumberFormatException ignore) {
-        }
+        assertEquals(4, Long.parseLong("4"));
+        assertEquals(-4, Long.parseLong("-4"));
+        assertEquals(4, Long.parseLong("+4"));
     }
 }
