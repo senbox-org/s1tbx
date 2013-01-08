@@ -24,15 +24,7 @@ import org.esa.beam.util.PropertyMap;
 import org.esa.beam.util.SystemUtils;
 
 import javax.swing.AbstractAction;
-import javax.swing.JComponent;
-import javax.swing.JDialog;
 import javax.swing.JFileChooser;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
-import java.awt.BorderLayout;
-import java.awt.Frame;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.io.File;
@@ -53,7 +45,7 @@ class AddDirectoryAction extends AbstractAction {
     }
 
     private AddDirectoryAction(boolean recursive) {
-        this("Add directory(s)" + (recursive ? " recursively" : "") + "...");
+        this("Add directory" + (recursive ? " recursively" : "(s)") + "...");
         this.recursive = recursive;
     }
 
@@ -73,35 +65,33 @@ class AddDirectoryAction extends AbstractAction {
         }
         folderChooser.setMultiSelectionEnabled(!recursive);
 
-        final int result = folderChooser.showOpenDialog(appContext.getApplicationWindow());
+        final Window parent = appContext.getApplicationWindow();
+
+        final int result = folderChooser.showOpenDialog(parent);
         if (result != JFileChooser.APPROVE_OPTION) {
             return;
         }
+
+        final String defaultPattern = recursive ? "*.dim" : "*";
+        final FileSelectionPatternDialog dialog = new FileSelectionPatternDialog(defaultPattern, parent, PixelExtractionDialog.HELP_ID_JAVA_HELP);
+        if (dialog.show() != ModalDialog.ID_OK) {
+            return;
+        }
+        final String pattern = dialog.getPattern();
 
         File[] selectedDirs;
         if (recursive) {
             File selectedDir = folderChooser.getSelectedFolder();
             selectedDir = new File(selectedDir, "**");
-            final JPanel contentPane = new JPanel(new BorderLayout(8, 8));
-            contentPane.add(new JLabel("Please define a file selection pattern. For example '*.nc'"), BorderLayout.NORTH);
-            contentPane.add(new JLabel("Pattern:"), BorderLayout.WEST);
-            final JTextField textField = new JTextField("*.dim");
-            contentPane.add(textField, BorderLayout.CENTER);
-            final ModalDialog dialog = new ModalDialog(null, "File Selection Pattern", contentPane, ModalDialog.ID_OK_CANCEL_HELP, PixelExtractionDialog.HELP_ID_JAVA_HELP);
-            final int button = dialog.show();
-            if (button != ModalDialog.ID_OK) {
-                return;
-            }
-            final String text = textField.getText();
-            if (text == null || text.trim().length() == 0) {
-                JOptionPane.showMessageDialog(null, "Pattern field may not be empty.", "File Selection Pattern", JOptionPane.ERROR_MESSAGE);
-                return;
-            } else {
-                selectedDir = new File(selectedDir, text.trim());
-                selectedDirs = new File[]{selectedDir};
-            }
+            selectedDir = new File(selectedDir, pattern);
+            selectedDirs = new File[]{selectedDir};
         } else {
-            selectedDirs = folderChooser.getSelectedFiles();
+            final File[] selectedPaths = folderChooser.getSelectedFiles();
+            selectedDirs = new File[selectedPaths.length];
+            for (int i = 0; i < selectedPaths.length; i++) {
+                File selectedFile = selectedPaths[i];
+                selectedDirs[i] = new File(selectedFile, pattern);
+            }
         }
         try {
             listModel.addElements(selectedDirs);
