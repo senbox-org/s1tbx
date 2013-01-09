@@ -56,6 +56,7 @@ public class SpatialProductBinner {
      * @param product         The source product.
      * @param spatialBinner   The spatial binner to be used.
      * @param superSampling   The super-sampling rate.
+     * @param addedBands      A container for the bands that are added during processing.
      * @param progressMonitor A progress monitor.
      *
      * @return The total number of observations processed.
