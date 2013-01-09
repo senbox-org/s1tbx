@@ -85,7 +85,7 @@ public class SpatialProductBinner {
             StopWatch stopWatch = new StopWatch();
             stopWatch.start();
             numObsTotal += processSlice(spatialBinner, progressMonitor, superSamplingSteps, maskImage, varImages,
-                                       product.getGeoCoding(), numObsTotal, sliceRectangles[idx]);
+                                        product.getGeoCoding(), sliceRectangles[idx]);
             stopWatch.stopAndTrace(String.format("Processed slice %d of %d", idx, sliceRectangles.length));
         }
         spatialBinner.complete();
@@ -161,7 +161,7 @@ public class SpatialProductBinner {
 
     private static long processSlice(SpatialBinner spatialBinner, ProgressMonitor progressMonitor,
                                      float[] superSamplingSteps, MultiLevelImage maskImage, MultiLevelImage[] varImages,
-                                     GeoCoding geoCoding, long numObsTotal, Rectangle sliceRect) {
+                                     GeoCoding geoCoding, Rectangle sliceRect) {
         final Raster maskTile = maskImage != null ? maskImage.getData(sliceRect) : null;
         final Raster[] varTiles = new Raster[varImages.length];
         for (int i = 0; i < varImages.length; i++) {
@@ -170,9 +170,9 @@ public class SpatialProductBinner {
 
         final ObservationSlice observationSlice = new ObservationSlice(varTiles, maskTile, geoCoding,
                                                                        superSamplingSteps);
-        numObsTotal += spatialBinner.processObservationSlice(observationSlice);
+        long numObservations = spatialBinner.processObservationSlice(observationSlice);
         progressMonitor.worked(1);
-        return numObsTotal;
+        return numObservations;
     }
 
 
