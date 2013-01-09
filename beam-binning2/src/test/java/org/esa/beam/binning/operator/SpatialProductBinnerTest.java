@@ -23,6 +23,7 @@ import org.esa.beam.binning.PlanetaryGrid;
 import org.esa.beam.binning.SpatialBin;
 import org.esa.beam.binning.SpatialBinConsumer;
 import org.esa.beam.binning.SpatialBinner;
+import org.esa.beam.binning.VariableContext;
 import org.esa.beam.binning.aggregators.AggregatorAverage;
 import org.esa.beam.binning.support.BinningContextImpl;
 import org.esa.beam.binning.support.SEAGrid;
@@ -37,8 +38,7 @@ import org.junit.Test;
 import java.util.HashMap;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 public class SpatialProductBinnerTest {
 
@@ -80,6 +80,27 @@ public class SpatialProductBinnerTest {
         SpatialProductBinner.processProduct(product, new SpatialBinner(ctx, mySpatialBinConsumer),
                                             superSampling, new HashMap<Product, List<Band>>(), ProgressMonitor.NULL);
         Assert.assertEquals(32 * 256 * superSampling * superSampling, mySpatialBinConsumer.numObs);
+    }
+
+    @Test
+    public void testAddedBands() throws Exception {
+
+        BinningContext ctx = createValidCtx();
+        Product product = createProduct();
+
+        HashMap<Product, List<Band>> productBandListMap = new HashMap<Product, List<Band>>();
+        SpatialProductBinner.processProduct(product, new SpatialBinner(ctx, new MySpatialBinConsumer()),
+                                            1, productBandListMap, ProgressMonitor.NULL);
+
+        assertEquals(1, productBandListMap.size());
+        List<Band> bandList = productBandListMap.get(product);
+        assertNotNull(bandList);
+        VariableContext variableContext = ctx.getVariableContext();
+        assertEquals(variableContext.getVariableCount(), bandList.size());
+        for(int i = 0; i < bandList.size(); i++) {
+            assertEquals(variableContext.getVariableName(i), bandList.get(i).getName());
+        }
+
     }
 
     @Test

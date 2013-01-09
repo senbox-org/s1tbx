@@ -56,7 +56,6 @@ public class SpatialProductBinner {
      * @param product         The source product.
      * @param spatialBinner   The spatial binner to be used.
      * @param superSampling   The super-sampling rate.
-     * @param addedBands      A container for the bands that are added during processing.
      * @param progressMonitor A progress monitor.
      * @return The total number of observations processed.
      * @throws IOException If an I/O error occurs.
@@ -74,39 +73,16 @@ public class SpatialProductBinner {
 
         final VariableContext variableContext = spatialBinner.getBinningContext().getVariableContext();
 
-        for (int i = 0; i < variableContext.getVariableCount(); i++) {
-            String variableName = variableContext.getVariableName(i);
-            String variableExpr = variableContext.getVariableExpression(i);
-            if (variableExpr != null) {
-                VirtualBand band = new VirtualBand(variableName,
-                                                   ProductData.TYPE_FLOAT32,
-                                                   product.getSceneRasterWidth(),
-                                                   product.getSceneRasterHeight(),
-                                                   variableExpr);
-                band.setValidPixelExpression(variableContext.getValidMaskExpression());
-                product.addBand(band);
-                if (!addedBands.containsKey(product)) {
-                    addedBands.put(product, new ArrayList<Band>());
-                }
-                addedBands.get(product).add(band);
-            }
-        }
+        addVariablesToProduct(variableContext, product, addedBands);
+
+        Dimension slice = getSliceDimension(product);
 
         final String maskExpr = variableContext.getValidMaskExpression();
-        final int sliceWidth = product.getSceneRasterWidth();
-        Dimension preferredTileSize = product.getPreferredTileSize();
-        int sliceHeight;
-        if (preferredTileSize != null) {
-            sliceHeight = preferredTileSize.height;
-        } else {
-            sliceHeight = ImageManager.getPreferredTileSize(product).height;
-        }
         boolean hasFullWidthTiles = false;
         MultiLevelImage maskImage = null;
         if (StringUtils.isNotNullAndNotEmpty(maskExpr)) {
             maskImage = ImageManager.getInstance().getMaskImage(maskExpr, product);
-            sliceHeight = maskImage.getTileHeight();
-            hasFullWidthTiles = areTileSizesCompatible(maskImage, sliceWidth, sliceHeight);
+            hasFullWidthTiles = areTileSizesCompatible(maskImage, slice.width, slice.height);
         }
 
         final MultiLevelImage[] varImages = new MultiLevelImage[variableContext.getVariableCount()];
@@ -114,7 +90,7 @@ public class SpatialProductBinner {
             final String nodeName = variableContext.getVariableName(i);
             final RasterDataNode node = getRasterDataNode(product, nodeName);
             final MultiLevelImage varImage = node.getGeophysicalImage();
-            hasFullWidthTiles = hasFullWidthTiles && areTileSizesCompatible(varImage, sliceWidth, sliceHeight);
+            hasFullWidthTiles = hasFullWidthTiles && areTileSizesCompatible(varImage, slice.width, slice.height);
             varImages[i] = varImage;
         }
 
@@ -139,18 +115,13 @@ public class SpatialProductBinner {
             progressMonitor.done();
         } else {
             int sceneHeight = referenceImage.getHeight();
-            int numSlices = MathUtils.ceilInt(sceneHeight / (double) sliceHeight);
-            int currentSliceHeight = sliceHeight;
+            int numSlices = MathUtils.ceilInt(sceneHeight / (double) slice.height);
             progressMonitor.beginTask("Spatially binning of " + product.getName(), numSlices);
             for (int sliceIndex = 0; sliceIndex < numSlices; sliceIndex++) {
                 StopWatch stopWatch = new StopWatch();
                 stopWatch.start();
 
-                int sliceY = sliceIndex * sliceHeight;
-                if (sliceY + sliceHeight > sceneHeight) {
-                    currentSliceHeight = sceneHeight - sliceY;
-                }
-                Rectangle sliceRect = new Rectangle(0, sliceIndex * sliceHeight, sliceWidth, currentSliceHeight);
+                Rectangle sliceRect = computeCurrentSliceRectangle(slice, sliceIndex, sceneHeight);
 
                 final Raster[] varTiles = new Raster[varImages.length];
                 for (int i = 0; i < varImages.length; i++) {
@@ -168,6 +139,48 @@ public class SpatialProductBinner {
 
         spatialBinner.complete();
         return numObsTotal;
+    }
+
+    private static Rectangle computeCurrentSliceRectangle(Dimension defaultSlice, int sliceIndex, int sceneHeight) {
+        int sliceY = sliceIndex * defaultSlice.height;
+        int currentSliceHeight = defaultSlice.height;
+        if (sliceY + defaultSlice.height > sceneHeight) {
+            currentSliceHeight = sceneHeight - sliceY;
+        }
+        return new Rectangle(0, sliceIndex * defaultSlice.height, defaultSlice.width, currentSliceHeight);
+    }
+
+    private static Dimension getSliceDimension(Product product) {
+        final int sliceWidth = product.getSceneRasterWidth();
+        Dimension preferredTileSize = product.getPreferredTileSize();
+        int sliceHeight;
+        if (preferredTileSize != null) {
+            sliceHeight = preferredTileSize.height;
+        }else {
+            sliceHeight = ImageManager.getPreferredTileSize(product).height;
+        }
+        return new Dimension(sliceWidth, sliceHeight);
+    }
+
+    private static void addVariablesToProduct(VariableContext variableContext, Product product,
+                                              Map<Product, List<Band>> addedBands) {
+        for (int i = 0; i < variableContext.getVariableCount(); i++) {
+            String variableName = variableContext.getVariableName(i);
+            String variableExpr = variableContext.getVariableExpression(i);
+            if (variableExpr != null) {
+                VirtualBand band = new VirtualBand(variableName,
+                                                   ProductData.TYPE_FLOAT32,
+                                                   product.getSceneRasterWidth(),
+                                                   product.getSceneRasterHeight(),
+                                                   variableExpr);
+                band.setValidPixelExpression(variableContext.getValidMaskExpression());
+                product.addBand(band);
+                if (!addedBands.containsKey(product)) {
+                    addedBands.put(product, new ArrayList<Band>());
+                }
+                addedBands.get(product).add(band);
+            }
+        }
     }
 
     static float[] getSuperSamplingSteps(Integer superSampling) {
@@ -188,7 +201,7 @@ public class SpatialProductBinner {
                                                            RenderedImage[] varImages,
                                                            Point tileIndex,
                                                            float[] superSamplingSteps) {
-        final Raster maskTile = maskImage.getTile(tileIndex.x, tileIndex.y);
+        final Raster maskTile = maskImage != null ? maskImage.getTile(tileIndex.x, tileIndex.y) : null;
         final Raster[] varTiles = new Raster[varImages.length];
         for (int i = 0; i < varImages.length; i++) {
             varTiles[i] = varImages[i].getTile(tileIndex.x, tileIndex.y);
