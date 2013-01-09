@@ -36,7 +36,6 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.image.Raster;
-import java.awt.image.RenderedImage;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -70,76 +69,85 @@ public class SpatialProductBinner {
             throw new IllegalArgumentException("product.getGeoCoding() == null");
         }
 
-        final float[] superSamplingSteps = getSuperSamplingSteps(superSampling);
-
         final VariableContext variableContext = spatialBinner.getBinningContext().getVariableContext();
 
         addVariablesToProduct(variableContext, product, addedBands);
 
-        Dimension slice = getSliceDimension(product);
+        final MultiLevelImage maskImage = getMaskImage(product, variableContext.getValidMaskExpression());
+        final MultiLevelImage[] varImages = getVariableImages(product, variableContext);
 
-        final String maskExpr = variableContext.getValidMaskExpression();
-        boolean hasFullWidthTiles = false;
-        MultiLevelImage maskImage = null;
-        if (StringUtils.isNotNullAndNotEmpty(maskExpr)) {
-            maskImage = ImageManager.getInstance().getMaskImage(maskExpr, product);
-            hasFullWidthTiles = areTileSizesCompatible(maskImage, slice.width, slice.height);
+        final Dimension defaultSliceDimension = getDefaultSliceDimension(product);
+        final Rectangle[] sliceRectangles = computeDataSliceRectangles(maskImage, varImages, defaultSliceDimension);
+        final float[] superSamplingSteps = getSuperSamplingSteps(superSampling);
+        long numObsTotal = 0;
+        progressMonitor.beginTask("Spatially binning of " + product.getName(), sliceRectangles.length);
+        for (int idx = 0; idx < sliceRectangles.length; idx++) {
+            StopWatch stopWatch = new StopWatch();
+            stopWatch.start();
+            numObsTotal += processSlice(spatialBinner, progressMonitor, superSamplingSteps, maskImage, varImages,
+                                       product.getGeoCoding(), numObsTotal, sliceRectangles[idx]);
+            stopWatch.stopAndTrace(String.format("Processed slice %d of %d", idx, sliceRectangles.length));
         }
+        spatialBinner.complete();
+        return numObsTotal;
+    }
 
+    private static MultiLevelImage[] getVariableImages(Product product, VariableContext variableContext) {
         final MultiLevelImage[] varImages = new MultiLevelImage[variableContext.getVariableCount()];
         for (int i = 0; i < variableContext.getVariableCount(); i++) {
             final String nodeName = variableContext.getVariableName(i);
             final RasterDataNode node = getRasterDataNode(product, nodeName);
             final MultiLevelImage varImage = node.getGeophysicalImage();
-            hasFullWidthTiles = hasFullWidthTiles && areTileSizesCompatible(varImage, slice.width, slice.height);
             varImages[i] = varImage;
         }
+        return varImages;
+    }
 
-        final GeoCoding geoCoding = product.getGeoCoding();
-        long numObsTotal = 0;
+    private static MultiLevelImage getMaskImage(Product product, String maskExpr) {
+        MultiLevelImage maskImage = null;
+        if (StringUtils.isNotNullAndNotEmpty(maskExpr)) {
+            maskImage = ImageManager.getInstance().getMaskImage(maskExpr, product);
+        }
+        return maskImage;
+    }
+
+    private static Rectangle[] computeDataSliceRectangles(MultiLevelImage maskImage, MultiLevelImage[] varImages,
+                                                          Dimension defaultSliceSize) {
+
         MultiLevelImage referenceImage = varImages[0];
-        if (hasFullWidthTiles) {
+        Rectangle[] rectangles;
+        if (areTilesDirectlyUsable(maskImage, varImages, defaultSliceSize)) {
             final Point[] tileIndices = referenceImage.getTileIndices(null);
-            progressMonitor.beginTask("Spatially binning of " + product.getName(), tileIndices.length);
-            for (Point tileIndex : tileIndices) {
-                int currentTileIndex = referenceImage.getNumXTiles() * tileIndex.y + tileIndex.x;
-                StopWatch stopWatch = new StopWatch();
-                stopWatch.start();
-                final ObservationSlice observationSlice = createObservationSlice(geoCoding,
-                                                                                 maskImage, varImages,
-                                                                                 tileIndex,
-                                                                                 superSamplingSteps);
-                numObsTotal += spatialBinner.processObservationSlice(observationSlice);
-                progressMonitor.worked(1);
-                stopWatch.stopAndTrace(String.format("Processed tile %d of %d", currentTileIndex, tileIndices.length));
+            rectangles = new Rectangle[tileIndices.length];
+            for (int i = 0; i < tileIndices.length; i++) {
+                Point tileIndex = tileIndices[i];
+                rectangles[i] = referenceImage.getTileRect(tileIndex.x, tileIndex.y);
             }
-            progressMonitor.done();
         } else {
             int sceneHeight = referenceImage.getHeight();
-            int numSlices = MathUtils.ceilInt(sceneHeight / (double) slice.height);
-            progressMonitor.beginTask("Spatially binning of " + product.getName(), numSlices);
-            for (int sliceIndex = 0; sliceIndex < numSlices; sliceIndex++) {
-                StopWatch stopWatch = new StopWatch();
-                stopWatch.start();
-
-                Rectangle sliceRect = computeCurrentSliceRectangle(slice, sliceIndex, sceneHeight);
-
-                final Raster[] varTiles = new Raster[varImages.length];
-                for (int i = 0; i < varImages.length; i++) {
-                    varTiles[i] = varImages[i].getData(sliceRect);
-                }
-                Raster maskTile = maskImage != null ? maskImage.getData(sliceRect) : null;
-                final ObservationSlice observationSlice = createObservationSlice(geoCoding, maskTile, varTiles,
-                                                                                 superSamplingSteps);
-                numObsTotal += spatialBinner.processObservationSlice(observationSlice);
-                progressMonitor.worked(1);
-                stopWatch.stopAndTrace(String.format("Processed slice %d of %d", sliceIndex, numSlices));
+            int numSlices = MathUtils.ceilInt(sceneHeight / (double) defaultSliceSize.height);
+            rectangles = new Rectangle[numSlices];
+            for (int i = 0; i < numSlices; i++) {
+                rectangles[i] = computeCurrentSliceRectangle(defaultSliceSize, i, sceneHeight);
             }
-            progressMonitor.done();
         }
+        return rectangles;
+    }
 
-        spatialBinner.complete();
-        return numObsTotal;
+    private static boolean areTilesDirectlyUsable(MultiLevelImage maskImage, MultiLevelImage[] varImages,
+                                                  Dimension defaultSliceSize) {
+        boolean areTilesUsable = false;
+        if (maskImage != null) {
+            areTilesUsable = isTileSizeCompatible(maskImage, defaultSliceSize);
+        }
+        for (MultiLevelImage varImage : varImages) {
+            areTilesUsable = areTilesUsable && isTileSizeCompatible(varImage, defaultSliceSize);
+        }
+        return areTilesUsable;
+    }
+
+    private static boolean isTileSizeCompatible(MultiLevelImage image, Dimension defaultSliceSize) {
+        return image.getTileWidth() == defaultSliceSize.width && image.getTileHeight() == defaultSliceSize.height;
     }
 
     private static Rectangle computeCurrentSliceRectangle(Dimension defaultSlice, int sliceIndex, int sceneHeight) {
@@ -151,13 +159,30 @@ public class SpatialProductBinner {
         return new Rectangle(0, sliceIndex * defaultSlice.height, defaultSlice.width, currentSliceHeight);
     }
 
-    private static Dimension getSliceDimension(Product product) {
+    private static long processSlice(SpatialBinner spatialBinner, ProgressMonitor progressMonitor,
+                                     float[] superSamplingSteps, MultiLevelImage maskImage, MultiLevelImage[] varImages,
+                                     GeoCoding geoCoding, long numObsTotal, Rectangle sliceRect) {
+        final Raster maskTile = maskImage != null ? maskImage.getData(sliceRect) : null;
+        final Raster[] varTiles = new Raster[varImages.length];
+        for (int i = 0; i < varImages.length; i++) {
+            varTiles[i] = varImages[i].getData(sliceRect);
+        }
+
+        final ObservationSlice observationSlice = new ObservationSlice(varTiles, maskTile, geoCoding,
+                                                                       superSamplingSteps);
+        numObsTotal += spatialBinner.processObservationSlice(observationSlice);
+        progressMonitor.worked(1);
+        return numObsTotal;
+    }
+
+
+    private static Dimension getDefaultSliceDimension(Product product) {
         final int sliceWidth = product.getSceneRasterWidth();
         Dimension preferredTileSize = product.getPreferredTileSize();
         int sliceHeight;
         if (preferredTileSize != null) {
             sliceHeight = preferredTileSize.height;
-        }else {
+        } else {
             sliceHeight = ImageManager.getPreferredTileSize(product).height;
         }
         return new Dimension(sliceWidth, sliceHeight);
@@ -196,26 +221,6 @@ public class SpatialProductBinner {
         }
     }
 
-
-    private static ObservationSlice createObservationSlice(GeoCoding geoCoding,
-                                                           RenderedImage maskImage,
-                                                           RenderedImage[] varImages,
-                                                           Point tileIndex,
-                                                           float[] superSamplingSteps) {
-        final Raster maskTile = maskImage != null ? maskImage.getTile(tileIndex.x, tileIndex.y) : null;
-        final Raster[] varTiles = new Raster[varImages.length];
-        for (int i = 0; i < varImages.length; i++) {
-            varTiles[i] = varImages[i].getTile(tileIndex.x, tileIndex.y);
-        }
-        return createObservationSlice(geoCoding, maskTile, varTiles, superSamplingSteps);
-    }
-
-    private static ObservationSlice createObservationSlice(GeoCoding geoCoding, Raster maskTile, Raster[] varTiles,
-                                                           float[] superSamplingSteps) {
-
-        return new ObservationSlice(varTiles, maskTile, geoCoding, superSamplingSteps);
-    }
-
     private static RasterDataNode getRasterDataNode(Product product, String nodeName) {
         final RasterDataNode node = product.getRasterDataNode(nodeName);
         if (node == null) {
@@ -223,9 +228,5 @@ public class SpatialProductBinner {
                                                           nodeName, product.getName()));
         }
         return node;
-    }
-
-    private static boolean areTileSizesCompatible(MultiLevelImage image, int sliceWidth, int sliceHeight) {
-        return image.getTileWidth() == sliceWidth && image.getTileHeight() == sliceHeight;
     }
 }
