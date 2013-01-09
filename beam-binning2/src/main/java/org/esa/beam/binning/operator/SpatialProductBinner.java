@@ -86,7 +86,7 @@ public class SpatialProductBinner {
         for (int idx = 0; idx < sliceRectangles.length; idx++) {
             StopWatch stopWatch = new StopWatch();
             stopWatch.start();
-            numObsTotal = processSlice(spatialBinner, progressMonitor, superSamplingSteps, maskImage, varImages,
+            numObsTotal += processSlice(spatialBinner, progressMonitor, superSamplingSteps, maskImage, varImages,
                                        product.getGeoCoding(), numObsTotal, sliceRectangles[idx]);
             stopWatch.stopAndTrace(String.format("Processed slice %d of %d", idx, sliceRectangles.length));
         }
