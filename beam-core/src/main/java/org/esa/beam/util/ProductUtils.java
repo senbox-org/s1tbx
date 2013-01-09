@@ -85,6 +85,7 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -697,12 +698,73 @@ public class ProductUtils {
         if (gc == null) {
             throw new IllegalArgumentException(UtilConstants.MSG_NO_GEO_CODING);
         }
-        PixelPos[] points = createPixelBoundary(product, region, step, usePixelCenter);
+        if (region == null) {
+            region = new Rectangle(0,
+                                   0,
+                                   product.getSceneRasterWidth(),
+                                   product.getSceneRasterHeight());
+        }
+        PixelPos[] points = createRectBoundary(region, step, usePixelCenter);
         GeoPos[] geoPoints = new GeoPos[points.length];
         for (int i = 0; i < geoPoints.length; i++) {
-            geoPoints[i] = gc.getGeoPos(points[i], null);
+            final PixelPos pixelPos = points[i];
+            final GeoPos gcGeoPos = gc.getGeoPos(pixelPos, null);
+            if (gcGeoPos.isValid()) {
+                geoPoints[i] = gcGeoPos;
+            } else {
+                geoPoints[i] = getClosestGeoPos(gc, pixelPos, region, step / 4);
+            }
         }
         return geoPoints;
+    }
+
+    /**
+     * Searches for a valid GeoPos by considering the vicinity of a vicinity of a {@link PixelPos}. It does not check
+     * the original pixel position bu uses it for determining which pixel positions to examine.
+     *
+     * @param gc      the GeoCoding, must not be null
+     * @param origPos the original pixel position, must not be null
+     * @param region  the rectangle which determines the valid pixel positions, must not be null
+     * @param step    determines the step size between pixels which is used in the search process. Small step
+     *                sizes will increase the accuracy, but need more computational time
+     * @return a {@link GeoPos}. This will be valid if the search was successful. If not, a {@link GeoPos} with
+     *         NaN-values for latitude and longitude will be returned.
+     */
+    public static GeoPos getClosestGeoPos(GeoCoding gc, PixelPos origPos, Rectangle region, int step) {
+        if (gc == null || origPos == null || region == null) {
+            return new GeoPos(Float.NaN, Float.NaN);
+        }
+        int manhattanDistance = step;
+        final int breakCriterion = (int) Math.max(region.getWidth(), region.getHeight());
+        while (manhattanDistance < breakCriterion) {
+            List<PixelPos> candidatePositions = new ArrayList<PixelPos>();
+            for (int i = 0; i < manhattanDistance; i += step) {
+                final PixelPos newPos1 = new PixelPos(origPos.x + manhattanDistance - i, origPos.y + i);
+                if (region.contains(newPos1.getX(), newPos1.getY())) {
+                    candidatePositions.add(newPos1);
+                }
+                final PixelPos newPos2 = new PixelPos(origPos.x - manhattanDistance + i, origPos.y - i);
+                if (region.contains(newPos2.getX(), newPos2.getY())) {
+                    candidatePositions.add(newPos2);
+                }
+                final PixelPos newPos3 = new PixelPos(origPos.x + i, origPos.y - manhattanDistance + i);
+                if (region.contains(newPos3.getX(), newPos3.getY())) {
+                    candidatePositions.add(newPos3);
+                }
+                final PixelPos newPos4 = new PixelPos(origPos.x - i, origPos.y + manhattanDistance - i);
+                if (region.contains(newPos4.getX(), newPos4.getY())) {
+                    candidatePositions.add(newPos4);
+                }
+            }
+            for (PixelPos candidatePosition : candidatePositions) {
+                final GeoPos gcGeoPos = gc.getGeoPos(candidatePosition, null);
+                if (gcGeoPos.isValid()) {
+                    return gcGeoPos;
+                }
+            }
+            manhattanDistance += step;
+        }
+        return new GeoPos(Float.NaN, Float.NaN);
     }
 
     /**
