@@ -19,6 +19,7 @@ package org.esa.beam.visat.actions;
 import com.bc.ceres.swing.progress.DialogProgressMonitor;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.PixelGeoCoding;
+import org.esa.beam.framework.datamodel.PixelGeoCoding2;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.ExpressionPane;
 import org.esa.beam.framework.ui.GridBagUtils;
@@ -66,7 +67,8 @@ public class AttachPixelGeoCodingAction extends ExecCommand {
         boolean enabled = false;
         final Product product = VisatApp.getApp().getSelectedProduct();
         if (product != null) {
-            final boolean hasPixelGeoCoding = product.getGeoCoding() instanceof PixelGeoCoding;
+            final boolean hasPixelGeoCoding = product.getGeoCoding() instanceof PixelGeoCoding ||
+                    product.getGeoCoding() instanceof PixelGeoCoding2;
             final boolean hasSomeBands = product.getNumBands() >= 2;
             enabled = !hasPixelGeoCoding && hasSomeBands;
         }
