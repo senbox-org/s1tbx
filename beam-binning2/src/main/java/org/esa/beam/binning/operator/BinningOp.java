@@ -21,6 +21,7 @@ import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
+import org.apache.velocity.runtime.RuntimeConstants;
 import org.esa.beam.binning.BinningContext;
 import org.esa.beam.binning.SpatialBin;
 import org.esa.beam.binning.SpatialBinConsumer;
@@ -86,20 +87,12 @@ todo - address the following BinningOp requirements (nf, 2012-03-09)
     to NetCDF global attributes. See http://oceancolor.gsfc.nasa.gov/DOCS/Ocean_Level-3_Binned_Data_Products.pdf
     for possible attributes. Ideally, we treat the metadata file as a template and fill in placeholders, e.g.
     ${operatorParameters}, or ${operatorName} or ${operatorVersion} ...
-(2) We shall not only rely on the @SourceProducts annotation, but also use an input directory which we scan by
-    globbing (using filename wildcards). This is important for windows users because the DOS shell does not allow
-    for argument expansion using wildcard. PixExOp follows a similar approach but used a weird pattern. (check!)
-(3) For simplicity, we shall not use BinningConfig and FormatterConfig but simply move their @Parameter declarations
+(2) For simplicity, we shall not use BinningConfig and FormatterConfig but simply move their @Parameter declarations
     into the BinningOp class.
-(4) It shall be possible to output both or either one, a mapped product file AND/OR the SeaDAS-like binned data
-    file (SeaDAS).
-(5) For dealing with really large amounts of bins (global binning), we need SpatialBinConsumer and TemporalBinSource
+(3) For dealing with really large amounts of bins (global binning), we need SpatialBinConsumer and TemporalBinSource
     implementations that write to and read from local files. (E.g. use memory-mapped file I/O, see
     MappedByteBufferTest.java)
-(6) If the 'region' parameter is not given, the geographical extend of the mapped product shall be limited to the one
-    given by the all the participating bin cells. This is in line with the case where the parameters 'startDate' and
-    'endDate' are omitted: The actual start and end dates are computed from the source products.
-(7) For simplicity, we shall introduce a Boolean parameter 'global'. If it is true, 'region' will be ignored.
+(4) For simplicity, we shall introduce a Boolean parameter 'global'. If it is true, 'region' will be ignored.
 
 */
 
@@ -116,6 +109,7 @@ todo - address the following BinningOp requirements (nf, 2012-03-09)
  * @author Marco Zühlke
  * @author Thomas Storm
  */
+@SuppressWarnings("UnusedDeclaration")
 @OperatorMetadata(alias = "Binning",
                   version = "0.8.1",
                   authors = "Norman Fomferra, Marco Zühlke, Thomas Storm",
@@ -169,10 +163,14 @@ public class BinningOp extends Operator implements Output {
                description = "The configuration used for the output formatting process.")
     FormatterConfig formatterConfig;
 
-    @Parameter(description = "The name of the file containing metadata key-value pairs (google \"Java Properties file format\").", defaultValue = "./metadata.properties")
+    @Parameter(
+            description = "The name of the file containing metadata key-value pairs (google \"Java Properties file format\").",
+            defaultValue = "./metadata.properties")
     File metadataPropertiesFile;
 
-    @Parameter(description = "The name of the directory containing metadata templates (google \"Apache Velocity VTL format\").", defaultValue = ".")
+    @Parameter(
+            description = "The name of the directory containing metadata templates (google \"Apache Velocity VTL format\").",
+            defaultValue = ".")
     File metadataTemplateDir;
 
     private transient BinningContext binningContext;
@@ -318,7 +316,8 @@ public class BinningOp extends Operator implements Output {
                         sourceProduct.dispose();
                     }
                 } else {
-                    getLogger().severe(String.format("Failed to read file '%s' (not a data product or reader missing)", file));
+                    String msgPattern = "Failed to read file '%s' (not a data product or reader missing)";
+                    getLogger().severe(String.format(msgPattern, file));
                 }
             }
         }
@@ -343,7 +342,8 @@ public class BinningOp extends Operator implements Output {
             throw new OperatorException("End date '" + this.endDate + "' before start date '" + this.startDate + "'");
         }
         if (sourceProducts == null && (sourceProductPaths == null || sourceProductPaths.length == 0)) {
-            throw new OperatorException("Either source products must be given or parameter 'sourceProductPaths' must be specified");
+            String msg = "Either source products must be given or parameter 'sourceProductPaths' must be specified";
+            throw new OperatorException(msg);
         }
         if (binningConfig == null) {
             throw new OperatorException("Missing operator parameter 'binningConfig'");
@@ -361,12 +361,13 @@ public class BinningOp extends Operator implements Output {
             metadataTemplateDir = new File(".");
         }
         if (!metadataTemplateDir.exists()) {
-            throw new OperatorException(
-                    "Directory given by 'metadataTemplateDir' does not exist: " + metadataTemplateDir);
+            String msgPattern = "Directory given by 'metadataTemplateDir' does not exist: %s";
+            throw new OperatorException(String.format(msgPattern, metadataTemplateDir));
         }
     }
 
-    static Product[] filterSourceProducts(Product[] sourceProducts, ProductData.UTC startTime, ProductData.UTC endTime) {
+    static Product[] filterSourceProducts(Product[] sourceProducts, ProductData.UTC startTime,
+                                          ProductData.UTC endTime) {
         if (sourceProducts == null) {
             return null;
         }
@@ -426,7 +427,8 @@ public class BinningOp extends Operator implements Output {
         try {
             ve.init(veConfig);
         } catch (Exception e) {
-            getLogger().log(Level.SEVERE, String.format("Can't generate metadata file(s): Failed to initialise Velocity engine: %s", e.getMessage()), e);
+            String msgPattern = "Can't generate metadata file(s): Failed to initialise Velocity engine: %s";
+            getLogger().log(Level.SEVERE, String.format(msgPattern, e.getMessage()), e);
             return;
         }
 
@@ -448,14 +450,13 @@ public class BinningOp extends Operator implements Output {
             getLogger().info(String.format("Writing metadata file '%s'...", outputName));
             Writer writer = new FileWriter(outputName);
             try {
-                ve.mergeTemplate(templateName, vc, writer);
+                ve.mergeTemplate(templateName, RuntimeConstants.ENCODING_DEFAULT, vc, writer);
             } finally {
                 writer.close();
             }
         } catch (Exception e) {
-            getLogger().log(Level.SEVERE,
-                            String.format("Failed to generate metadata file from template '%s': %s", templateName, e.getMessage()),
-                            e);
+            String msgPattern = "Failed to generate metadata file from template '%s': %s";
+            getLogger().log(Level.SEVERE, String.format(msgPattern, templateName, e.getMessage()), e);
         }
 
     }
@@ -463,10 +464,12 @@ public class BinningOp extends Operator implements Output {
     private void initMetadataProperties() {
         final SimpleDateFormat dateFormat = new SimpleDateFormat(DATETIME_PATTERN, Locale.ENGLISH);
 
-        metadataProperties.put("product_name", FileUtils.getFilenameWithoutExtension(new File(formatterConfig.getOutputFile())));
-        metadataProperties.put("software_qualified_name", getSpi().getOperatorClass().getName());
-        metadataProperties.put("software_name", getSpi().getOperatorClass().getAnnotation(OperatorMetadata.class).alias());
-        metadataProperties.put("software_version", getSpi().getOperatorClass().getAnnotation(OperatorMetadata.class).version());
+        File outputFile = new File(formatterConfig.getOutputFile());
+        Class<? extends Operator> operatorClass = getSpi().getOperatorClass();
+        metadataProperties.put("product_name", FileUtils.getFilenameWithoutExtension(outputFile));
+        metadataProperties.put("software_qualified_name", operatorClass.getName());
+        metadataProperties.put("software_name", operatorClass.getAnnotation(OperatorMetadata.class).alias());
+        metadataProperties.put("software_version", operatorClass.getAnnotation(OperatorMetadata.class).version());
         metadataProperties.put("processing_time", dateFormat.format(new Date()));
 
         if (metadataPropertiesFile != null) {
@@ -486,14 +489,17 @@ public class BinningOp extends Operator implements Output {
                         reader.close();
                     }
                 } catch (IOException e) {
-                    getLogger().warning(String.format("Failed to load metadata properties file '%s': %s", metadataPropertiesFile, e.getMessage()));
+                    String msgPattern = "Failed to load metadata properties file '%s': %s";
+                    getLogger().warning(String.format(msgPattern, metadataPropertiesFile, e.getMessage()));
                 }
             }
         }
     }
 
     private static Product copyProduct(Product writtenProduct) {
-        Product targetProduct = new Product(writtenProduct.getName(), writtenProduct.getProductType(), writtenProduct.getSceneRasterWidth(), writtenProduct.getSceneRasterHeight());
+        Product targetProduct = new Product(writtenProduct.getName(), writtenProduct.getProductType(),
+                                            writtenProduct.getSceneRasterWidth(),
+                                            writtenProduct.getSceneRasterHeight());
         targetProduct.setStartTime(writtenProduct.getStartTime());
         targetProduct.setEndTime(writtenProduct.getEndTime());
         ProductUtils.copyMetadata(writtenProduct, targetProduct);
@@ -536,7 +542,8 @@ public class BinningOp extends Operator implements Output {
                         sourceProduct.dispose();
                     }
                 } else {
-                    getLogger().severe(String.format("Failed to read file '%s' (not a data product or reader missing)", file));
+                    String msgPattern = "Failed to read file '%s' (not a data product or reader missing)";
+                    getLogger().severe(String.format(msgPattern, file));
                 }
             }
         }
@@ -550,9 +557,12 @@ public class BinningOp extends Operator implements Output {
         stopWatch.start();
         updateDateRangeUtc(sourceProduct);
         getLogger().info(String.format("Spatial binning of product '%s'...", sourceProduct.getName()));
-        final long numObs = SpatialProductBinner.processProduct(sourceProduct, spatialBinner, binningContext.getSuperSampling(), addedBands, ProgressMonitor.NULL);
+        final long numObs = SpatialProductBinner.processProduct(sourceProduct, spatialBinner,
+                                                                binningContext.getSuperSampling(), addedBands,
+                                                                ProgressMonitor.NULL);
         stopWatch.stop();
-        getLogger().info(String.format("Spatial binning of product '%s' done, %d observations seen, took %s", sourceProduct.getName(), numObs, stopWatch));
+        getLogger().info(String.format("Spatial binning of product '%s' done, %d observations seen, took %s",
+                                       sourceProduct.getName(), numObs, stopWatch));
         sourceProductCount++;
     }
 
@@ -575,7 +585,8 @@ public class BinningOp extends Operator implements Output {
         return temporalBins;
     }
 
-    private void writeOutput(List<TemporalBin> temporalBins, ProductData.UTC startTime, ProductData.UTC stopTime) throws Exception {
+    private void writeOutput(List<TemporalBin> temporalBins, ProductData.UTC startTime, ProductData.UTC stopTime) throws
+                                                                                                                  Exception {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
@@ -585,11 +596,11 @@ public class BinningOp extends Operator implements Output {
             File binnedDataFile = FileUtils.exchangeExtension(new File(formatterConfig.getOutputFile()), "-bins.nc");
             try {
                 getLogger().info(String.format("Writing binned data to '%s'...", binnedDataFile));
-                writeNetcdfBinFile(binnedDataFile,
-                                   temporalBins, startTime, stopTime);
+                writeNetCDFBinFile(binnedDataFile, temporalBins, startTime, stopTime);
                 getLogger().info(String.format("Writing binned data to '%s' done.", binnedDataFile));
             } catch (Exception e) {
-                getLogger().log(Level.SEVERE, String.format("Failed to write binned data to '%s': %s", binnedDataFile, e.getMessage()), e);
+                getLogger().log(Level.SEVERE, String.format("Failed to write binned data to '%s': %s", binnedDataFile,
+                                                            e.getMessage()), e);
             }
         }
 
@@ -604,7 +615,8 @@ public class BinningOp extends Operator implements Output {
                          globalAttributes);
         stopWatch.stop();
 
-        getLogger().info(String.format("Writing mapped product '%s' done, took %s", formatterConfig.getOutputFile(), stopWatch));
+        String msgPattern = "Writing mapped product '%s' done, took %s";
+        getLogger().info(String.format(msgPattern, formatterConfig.getOutputFile(), stopWatch));
     }
 
     private MetadataElement createGlobalAttributesElement() {
@@ -620,7 +632,8 @@ public class BinningOp extends Operator implements Output {
         return new SimpleTemporalBinSource(temporalBins);
     }
 
-    private void writeNetcdfBinFile(File file, List<TemporalBin> temporalBins, ProductData.UTC startTime, ProductData.UTC stopTime) throws IOException {
+    private void writeNetCDFBinFile(File file, List<TemporalBin> temporalBins, ProductData.UTC startTime,
+                                    ProductData.UTC stopTime) throws IOException {
         final BinWriter writer = new BinWriter(binningContext, getLogger(), region,
                                                startTime != null ? startTime : minDateUtc,
                                                stopTime != null ? stopTime : maxDateUtc);
