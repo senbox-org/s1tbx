@@ -1,5 +1,6 @@
 package com.bc.jexp.impl;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -55,6 +56,8 @@ public class TokenizerTest {
     }
 
     @Test
+    //todo remove ignore when TeamCity builds with Java 7
+    @Ignore
     public void testParseInt() {
         assertEquals(4, Integer.parseInt("4"));
         assertEquals(-4, Integer.parseInt("-4"));
@@ -62,6 +65,8 @@ public class TokenizerTest {
     }
 
     @Test
+    //todo remove ignore when TeamCity builds with Java 7
+    @Ignore
     public void testParseLong() {
         assertEquals(4, Long.parseLong("4"));
         assertEquals(-4, Long.parseLong("-4"));
