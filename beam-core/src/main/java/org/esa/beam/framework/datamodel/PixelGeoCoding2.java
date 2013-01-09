@@ -175,6 +175,10 @@ public class PixelGeoCoding2 extends AbstractGeoCoding {
         return false;
     }
 
+    public String getValidMask() {
+        return maskExpression;
+    }
+
     /**
      * Checks whether or not this geo-coding can determine the pixel position from a geodetic position.
      *
@@ -218,7 +222,6 @@ public class PixelGeoCoding2 extends AbstractGeoCoding {
      * @param pixelPos the pixel's co-ordinates given as x,y
      * @param geoPos   an instance of <code>GeoPos</code> to be used as retun value. If this parameter is
      *                 <code>null</code>, the method creates a new instance which it then returns.
-     *
      * @return the geographical position as lat/lon.
      */
     @Override
@@ -352,7 +355,6 @@ public class PixelGeoCoding2 extends AbstractGeoCoding {
      * @param srcScene  the source scene
      * @param destScene the destination scene
      * @param subsetDef the definition of the subset, may be <code>null</code>
-     *
      * @return true, if the geo-coding could be transferred.
      */
     @Override
