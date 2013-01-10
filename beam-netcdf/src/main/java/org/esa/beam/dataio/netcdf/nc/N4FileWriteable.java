@@ -66,8 +66,9 @@ public class N4FileWriteable implements NFileWriteable {
         NhGroup rootGroup = nhFileWriter.getRootGroup();
         NhDimension[] dimensions = rootGroup.getDimensions();
         StringBuilder out = new StringBuilder();
-        for (NhDimension dim : dimensions)
+        for (NhDimension dim : dimensions) {
             out.append(dim.getName()).append(" ");
+        }
         return out.toString();
     }
 
@@ -96,7 +97,8 @@ public class N4FileWriteable implements NFileWriteable {
     }
 
     @Override
-    public NVariable addVariable(String name, DataType dataType, Dimension tileSize, String dimensions) throws IOException {
+    public NVariable addVariable(String name, DataType dataType, Dimension tileSize, String dimensions) throws
+                                                                                                        IOException {
         NhGroup rootGroup = nhFileWriter.getRootGroup();
         boolean unsigned = false; // TODO
         int nhType = N4DataType.convert(dataType, unsigned);
@@ -109,6 +111,15 @@ public class N4FileWriteable implements NFileWriteable {
         if (tileSize != null) {
             chunkLens[0] = tileSize.height;
             chunkLens[1] = tileSize.width;
+            // compute tile size so that number of tiles is considerably smaller than Short.MAX_VALUE
+            long imageWidth = nhDims[1].getLength();
+            long imageHeight = nhDims[0].getLength();
+            long imageSize = imageHeight * imageWidth;
+            for (int scalingFactor = 2; imageSize / (chunkLens[0] * chunkLens[1]) > Short.MAX_VALUE / 2; scalingFactor *= 2) {
+                chunkLens[0] = tileSize.height * scalingFactor;
+                chunkLens[1] = tileSize.width * scalingFactor;
+            }
+            tileSize = new Dimension(chunkLens[1], chunkLens[0]);
         } else {
             for (int i = 0; i < dims.length; i++) {
                 chunkLens[i] = nhDims[i].getLength();
@@ -117,7 +128,8 @@ public class N4FileWriteable implements NFileWriteable {
 
         Object fillValue = null; // TODO
         try {
-            NhVariable variable = rootGroup.addVariable(name, nhType, nhDims, chunkLens, fillValue, DEFAULT_COMPRESSION);
+            NhVariable variable = rootGroup.addVariable(name, nhType, nhDims, chunkLens, fillValue,
+                                                        DEFAULT_COMPRESSION);
             NVariable nVariable = new N4Variable(variable, tileSize);
             variables.put(name, nVariable);
             return nVariable;
