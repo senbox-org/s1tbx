@@ -570,17 +570,17 @@ public class BinningOp extends Operator implements Output {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
-        getLogger().info(String.format("Temporal binning of %d bins", spatialBinMap.size()));
+        int numberOfBins = spatialBinMap.size();
         final TemporalBinner temporalBinner = new TemporalBinner(binningContext);
         final ArrayList<TemporalBin> temporalBins = new ArrayList<TemporalBin>();
-        Long[] keys = spatialBinMap.keySet().toArray(new Long[spatialBinMap.size()]);
+        Long[] keys = spatialBinMap.keySet().toArray(new Long[numberOfBins]);
         for (Long key : keys) {
             List<SpatialBin> value = spatialBinMap.remove(key);
             final TemporalBin temporalBin = temporalBinner.processSpatialBins(key, value);
             temporalBins.add(temporalBin);
         }
         stopWatch.stop();
-        getLogger().info(String.format("Temporal binning of %d bins done, took %s", spatialBinMap.size(), stopWatch));
+        getLogger().info(String.format("Temporal binning of %d bins done, took %s", numberOfBins, stopWatch));
 
         return temporalBins;
     }
