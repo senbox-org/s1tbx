@@ -719,8 +719,8 @@ public class ProductUtils {
     }
 
     /**
-     * Searches for a valid GeoPos by considering the vicinity of a vicinity of a {@link PixelPos}. It does not check
-     * the original pixel position bu uses it for determining which pixel positions to examine.
+     * Searches for a valid GeoPos by considering the vicinity of a {@link PixelPos}. It does not check
+     * the original pixel position, but uses it for determining which pixel positions to examine.
      *
      * @param gc      the GeoCoding, must not be null
      * @param origPos the original pixel position, must not be null
