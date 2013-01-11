@@ -24,7 +24,6 @@ import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.runtime.RuntimeConstants;
 import org.esa.beam.binning.BinningContext;
 import org.esa.beam.binning.SpatialBin;
-import org.esa.beam.binning.SpatialBinConsumer;
 import org.esa.beam.binning.SpatialBinner;
 import org.esa.beam.binning.TemporalBin;
 import org.esa.beam.binning.TemporalBinSource;
@@ -183,7 +182,7 @@ public class BinningOp extends Operator implements Output {
     private final Map<Product, List<Band>> addedBands;
 
     public BinningOp() {
-        this(new SpatialBinStoreImpl());
+        this(new SimpleSpatialBinStore());
     }
 
     private BinningOp(SpatialBinStore spatialBinStore) {
@@ -678,42 +677,6 @@ public class BinningOp extends Operator implements Output {
             return ProductData.UTC.parse(date, DATE_PATTERN);
         } catch (ParseException e) {
             throw new OperatorException(String.format("Invalid parameter '%s': %s", name, e.getMessage()));
-        }
-    }
-
-    static interface SpatialBinStore extends SpatialBinConsumer {
-
-        SortedMap<Long, List<SpatialBin>> getSpatialBinMap() throws IOException;
-
-        void consumingCompleted() throws IOException;
-    }
-
-    private static class SpatialBinStoreImpl implements SpatialBinStore {
-
-        // Note, we use a sorted map in order to sort entries on-the-fly
-        final private SortedMap<Long, List<SpatialBin>> spatialBinMap = new TreeMap<Long, List<SpatialBin>>();
-
-        @Override
-        public SortedMap<Long, List<SpatialBin>> getSpatialBinMap() {
-            return spatialBinMap;
-        }
-
-        @Override
-        public void consumeSpatialBins(BinningContext binningContext, List<SpatialBin> spatialBins) {
-
-            for (SpatialBin spatialBin : spatialBins) {
-                final long spatialBinIndex = spatialBin.getIndex();
-                List<SpatialBin> spatialBinList = spatialBinMap.get(spatialBinIndex);
-                if (spatialBinList == null) {
-                    spatialBinList = new ArrayList<SpatialBin>();
-                    spatialBinMap.put(spatialBinIndex, spatialBinList);
-                }
-                spatialBinList.add(spatialBin);
-            }
-        }
-
-        @Override
-        public void consumingCompleted() {
         }
     }
 
