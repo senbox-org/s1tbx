@@ -37,7 +37,7 @@ import java.util.TreeMap;
  *
  * @author Thomas Storm
  */
-class MemoryMappedFileSpatialBinStore implements BinningOp.SpatialBinStore {
+class MemoryMappedFileSpatialBinStore implements SpatialBinStore {
 
     private final File file;
     private final MappedByteBuffer consumeBuffer;

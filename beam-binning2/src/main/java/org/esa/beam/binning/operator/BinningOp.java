@@ -24,7 +24,6 @@ import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.runtime.RuntimeConstants;
 import org.esa.beam.binning.BinningContext;
 import org.esa.beam.binning.SpatialBin;
-import org.esa.beam.binning.SpatialBinConsumer;
 import org.esa.beam.binning.SpatialBinner;
 import org.esa.beam.binning.TemporalBin;
 import org.esa.beam.binning.TemporalBinSource;
@@ -183,7 +182,7 @@ public class BinningOp extends Operator implements Output {
     private final Map<Product, List<Band>> addedBands;
 
     public BinningOp() {
-        this(new SpatialBinStoreImpl());
+        this(new SimpleSpatialBinStore());
     }
 
     private BinningOp(SpatialBinStore spatialBinStore) {
@@ -570,17 +569,17 @@ public class BinningOp extends Operator implements Output {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
-        getLogger().info(String.format("Temporal binning of %d bins", spatialBinMap.size()));
+        int numberOfBins = spatialBinMap.size();
         final TemporalBinner temporalBinner = new TemporalBinner(binningContext);
         final ArrayList<TemporalBin> temporalBins = new ArrayList<TemporalBin>();
-        Long[] keys = spatialBinMap.keySet().toArray(new Long[spatialBinMap.size()]);
+        Long[] keys = spatialBinMap.keySet().toArray(new Long[numberOfBins]);
         for (Long key : keys) {
             List<SpatialBin> value = spatialBinMap.remove(key);
             final TemporalBin temporalBin = temporalBinner.processSpatialBins(key, value);
             temporalBins.add(temporalBin);
         }
         stopWatch.stop();
-        getLogger().info(String.format("Temporal binning of %d bins done, took %s", spatialBinMap.size(), stopWatch));
+        getLogger().info(String.format("Temporal binning of %d bins done, took %s", numberOfBins, stopWatch));
 
         return temporalBins;
     }
@@ -678,41 +677,6 @@ public class BinningOp extends Operator implements Output {
             return ProductData.UTC.parse(date, DATE_PATTERN);
         } catch (ParseException e) {
             throw new OperatorException(String.format("Invalid parameter '%s': %s", name, e.getMessage()));
-        }
-    }
-
-    static interface SpatialBinStore extends SpatialBinConsumer {
-
-        SortedMap<Long, List<SpatialBin>> getSpatialBinMap() throws IOException;
-
-        void consumingCompleted() throws IOException;
-    }
-
-    private static class SpatialBinStoreImpl implements SpatialBinStore {
-
-        // Note, we use a sorted map in order to sort entries on-the-fly
-        final private SortedMap<Long, List<SpatialBin>> spatialBinMap = new TreeMap<Long, List<SpatialBin>>();
-
-        @Override
-        public SortedMap<Long, List<SpatialBin>> getSpatialBinMap() {
-            return spatialBinMap;
-        }
-
-        @Override
-        public void consumeSpatialBins(BinningContext binningContext, List<SpatialBin> spatialBins) {
-
-            for (SpatialBin spatialBin : spatialBins) {
-                List<SpatialBin> spatialBinList = spatialBinMap.get(spatialBin.getIndex());
-                if (spatialBinList == null) {
-                    spatialBinList = new ArrayList<SpatialBin>();
-                    spatialBinMap.put(spatialBin.getIndex(), spatialBinList);
-                }
-                spatialBinList.add(spatialBin);
-            }
-        }
-
-        @Override
-        public void consumingCompleted() {
         }
     }
 
