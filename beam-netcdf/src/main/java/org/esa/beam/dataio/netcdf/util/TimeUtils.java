@@ -25,6 +25,8 @@ import java.text.ParseException;
 
 public class TimeUtils {
 
+    private static final String ALTERNATIVE_DATE_TIME_PATTERN = "yyyy-MM-dd'T'HH:mm:ss";
+
     public static ProductData.UTC getSceneRasterTime(NetcdfFile ncFile, String dateAttrName, String timeAttrName) {
         final Attribute dateAttr = ncFile.findGlobalAttribute(dateAttrName);
         final Attribute timeAttr = ncFile.findGlobalAttribute(timeAttrName);
@@ -39,11 +41,21 @@ public class TimeUtils {
     public static String getDateTimeString(Attribute dateAttr, Attribute timeAttr) {
         String date = dateAttr != null ? dateAttr.getStringValue() : null;
         String time = timeAttr != null ? timeAttr.getStringValue() : null;
-        if (date != null && date.endsWith("UTC")) {
-            date = date.substring(0, date.length() - 3).trim();
+        if (date != null) {
+            if (date.endsWith("UTC")) {
+                date = date.substring(0, date.length() - 3).trim();
+            }
+            if (date.startsWith("UTC=")) {
+                date = date.substring(4, date.length()).trim();
+            }
         }
-        if (time != null && time.endsWith("UTC")) {
-            time = time.substring(0, time.length() - 3).trim();
+        if (time != null) {
+            if (time.endsWith("UTC")) {
+                time = time.substring(0, time.length() - 3).trim();
+            }
+            if (time.startsWith("UTC=")) {
+                time = time.substring(4, time.length()).trim();
+            }
         }
         if (date != null && time != null) {
             return date + " " + time;
@@ -57,15 +69,19 @@ public class TimeUtils {
         return null;
     }
 
-    public static ProductData.UTC parseDateTime(String dateTimeStr)  {
+    public static ProductData.UTC parseDateTime(String dateTimeStr) {
         try {
             return ProductData.UTC.parse(dateTimeStr);
         } catch (ParseException ignore) {
             try {
                 return ProductData.UTC.parse(dateTimeStr, Constants.DATE_TIME_PATTERN);
             } catch (ParseException ignore2) {
-                BeamLogManager.getSystemLogger().warning("Failed to parse time string '" + dateTimeStr + "'");
-                return null;
+                try {
+                    return ProductData.UTC.parse(dateTimeStr, ALTERNATIVE_DATE_TIME_PATTERN);
+                } catch (ParseException ignoreAgain) {
+                    BeamLogManager.getSystemLogger().warning("Failed to parse time string '" + dateTimeStr + "'");
+                    return null;
+                }
             }
         }
     }
