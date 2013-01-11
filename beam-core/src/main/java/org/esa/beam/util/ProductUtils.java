@@ -731,6 +731,7 @@ public class ProductUtils {
      *         NaN-values for latitude and longitude will be returned.
      */
     public static GeoPos getClosestGeoPos(GeoCoding gc, PixelPos origPos, Rectangle region, int step) {
+        step = Math.max(1, step);
         if (gc == null || origPos == null || region == null) {
             return new GeoPos(Float.NaN, Float.NaN);
         }
