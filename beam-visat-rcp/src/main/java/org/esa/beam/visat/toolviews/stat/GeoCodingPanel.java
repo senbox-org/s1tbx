@@ -89,6 +89,7 @@ class GeoCodingPanel extends TextPagePanel {
         final PixelPos sceneLL;
         final PixelPos sceneLR;
         final String nodeType;
+        final Rectangle region;
         if (usingUniformGeoCodings) {
 
             nodeType = "product";
@@ -100,6 +101,7 @@ class GeoCodingPanel extends TextPagePanel {
             sceneLL = new PixelPos(0 + 0.5f, product.getSceneRasterHeight() - 1 + 0.5f);
             sceneLR = new PixelPos(product.getSceneRasterWidth() - 1 + 0.5f,
                                    product.getSceneRasterHeight() - 1 + 0.5f);
+            region = new Rectangle(0, 0, product.getSceneRasterWidth(), product.getSceneRasterHeight());
         } else {
             if (raster == null) {
                 return DEFAULT_GEOCODING_TEXT;
@@ -115,8 +117,8 @@ class GeoCodingPanel extends TextPagePanel {
             sceneLL = new PixelPos(0 + 0.5f, product.getSceneRasterHeight() - 1 + 0.5f);
             sceneLR = new PixelPos(raster.getSceneRasterWidth() - 1 + 0.5f,
                                    raster.getSceneRasterHeight() - 1 + 0.5f);
+            region = new Rectangle(0, 0, raster.getSceneRasterWidth(), raster.getRasterHeight());
         }
-        Rectangle region = new Rectangle(0, 0, raster.getSceneRasterWidth(), raster.getRasterHeight());
         return writeGeoCoding(sb, geoCoding, sceneCenter, sceneUL, sceneUR, sceneLL, sceneLR, nodeType, region);
 
     }
