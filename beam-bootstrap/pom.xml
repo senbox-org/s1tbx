@@ -136,8 +136,13 @@
             <artifactId>jtar</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>com.googlecode.efficient-java-matrix-library</groupId>
+            <artifactId>ejml</artifactId>
+            <version>0.21</version>
+        </dependency>
 
-        <!-- NEW IN 4.6: GeoTools -->
+
         <dependency>
             <groupId>org.geotools</groupId>
             <artifactId>gt-main</artifactId>

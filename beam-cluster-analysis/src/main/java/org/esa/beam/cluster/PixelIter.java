@@ -20,7 +20,7 @@ import org.esa.beam.framework.gpf.Tile;
 import java.util.Iterator;
 
 /**
- * todo - add API doc
+ * Iterator for pixels within a region of interest.
  *
  * @author Ralf Quast
  * @version $Revision$ $Date$
