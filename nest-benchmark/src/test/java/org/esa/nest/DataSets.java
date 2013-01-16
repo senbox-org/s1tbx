@@ -15,9 +15,12 @@
  */
 package org.esa.nest;
 
+import org.esa.beam.framework.dataio.ProductIO;
+import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.nest.util.TestUtils;
 
+import java.io.File;
 import java.io.IOException;
 
 /**
@@ -46,11 +49,11 @@ public class DataSets {
     public final Product ASAR_APS_product;
     public final Product ASAR_WMS_product;
 
-    //ERS-1
-    public final static String ERS1_PRI = perfRoot+"ERS1\\PRI\\ERS2_PRI_VMP_CEOS_12032000_orbit 25592 frame 0747_ASI IPAF\\SCENE1\\VDF_DAT.001";
-    public final static String ERS1_SLC = perfRoot+"ERS1\\SLC\\ERS2_SLCI_VMP_CEOS_13052000_orbit 26472 frame 2727_UKPAF\\SCENE1\\VDF_DAT.001";
-    public final Product ERS1_PRI_product;
-    public final Product ERS1_SLC_product;
+    //ERS-2 CEOS
+    public final static String ERS2_PRI = perfRoot+"ERS2\\PRI\\ERS2_PRI_VMP_CEOS_12032000_orbit 25592 frame 0747_ASI IPAF\\SCENE1\\VDF_DAT.001";
+    public final static String ERS2_SLC = perfRoot+"ERS2\\SLC\\ERS2_SLCI_VMP_CEOS_13052000_orbit 26472 frame 2727_UKPAF\\SCENE1\\VDF_DAT.001";
+    public final Product ERS2_PRI_product;
+    public final Product ERS2_SLC_product;
 
     //ERS-2
     public final static String ERS2_IMP = perfRoot+"ERS2\\IMP\\Vietnam\\SAR_IMP_1PXESA19960521_031648_00000017A011_00304_05669_1166.E2";
@@ -78,28 +81,45 @@ public class DataSets {
 
     private static DataSets theInstance = null;
 
-    public DataSets() throws IOException {
-        RS2_quad_product = TestUtils.readSourceProduct(vancouverRS2Quad);
+    public DataSets() {
+        RS2_quad_product = readProduct(vancouverRS2Quad);
 
-        ASAR_IMS_product = TestUtils.readSourceProduct(ASAR_IMS);
-        ASAR_IMP_product = TestUtils.readSourceProduct(ASAR_IMP);
-        ASAR_APP_product = TestUtils.readSourceProduct(ASAR_APP);
-        ASAR_APS_product = TestUtils.readSourceProduct(ASAR_APS);
-        ASAR_WMS_product = TestUtils.readSourceProduct(ASAR_WMS);
+        ASAR_IMS_product = null;//readProduct(ASAR_IMS);
+        ASAR_IMP_product = readProduct(ASAR_IMP);
+        ASAR_APP_product = null;//readProduct(ASAR_APP);
+        ASAR_APS_product = null;//readProduct(ASAR_APS);
+        ASAR_WMS_product = null;//readProduct(ASAR_WMS);
 
-        ERS1_PRI_product = TestUtils.readSourceProduct(ERS1_PRI);
-        ERS1_SLC_product = TestUtils.readSourceProduct(ERS1_SLC);
+        ERS2_PRI_product = readProduct(ERS2_PRI);
+        ERS2_SLC_product = null;//readProduct(ERS2_SLC);
 
-        ERS2_IMP_product = TestUtils.readSourceProduct(ERS2_IMP);
-        ERS2_IMS_product = TestUtils.readSourceProduct(ERS2_IMS);
+        ERS2_IMP_product = readProduct(ERS2_IMP);
+        ERS2_IMS_product = null;//readProduct(ERS2_IMS);
 
-        ALOS_L11_product = TestUtils.readSourceProduct(ALOS_L11);
+        ALOS_L11_product = null;//readProduct(ALOS_L11);
 
-        TSX_SSC_product = TestUtils.readSourceProduct(TSX_SSC);
-        TSX_SSC_Quad_product = TestUtils.readSourceProduct(TSX_SSC_Quad);
+        TSX_SSC_product = null;//readProduct(TSX_SSC);
+        TSX_SSC_Quad_product = null;//readProduct(TSX_SSC_Quad);
 
-        S1_SLC_product = TestUtils.readSourceProduct(S1_IW_SLC);
-        S1_GRD_product = TestUtils.readSourceProduct(S1_IW_GRD);
+        S1_SLC_product = null;//readProduct(S1_IW_SLC);
+        S1_GRD_product = null;//readProduct(S1_IW_GRD);
+    }
+
+    private static Product readProduct(final String path) {
+        try {
+            final File inputFile = new File(path);
+            if(!inputFile.exists()) {
+                throw new IOException(path + " not found");
+            }
+
+            final ProductReader reader = ProductIO.getProductReaderForFile(inputFile);
+            if(reader == null)
+                throw new IOException("No reader found for "+inputFile);
+            return reader.readProductNodes(inputFile, null);
+        } catch(IOException e) {
+            System.out.println("Error reading "+path);
+        }
+        return null;
     }
 
     public static DataSets instance() throws IOException {

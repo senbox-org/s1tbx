@@ -23,7 +23,7 @@ import org.esa.nest.util.ResourceUtils;
  * Constants for benchmarking
  */
 public class BenchConstants {
-    public static int numIterations = 3;
+    public static int numIterations = 1;
     public static int maxDimensions = 50000;
 
     private static final PropertyMap testPreferences = Config.getConfigPropertyMap();

@@ -20,108 +20,62 @@ public abstract class Benchmark extends TestCase {
 
     protected boolean skipS1 = false;
 
+    public Benchmark() {
+        try {
+            TestUtils.initTestEnvironment();
+            DataSets.instance();
+
+            spi = CreateOperatorSpi();
+            GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(spi);
+        } catch(Throwable t) {
+            t.printStackTrace();
+        }
+    }
+
     @Override
     protected void setUp() throws Exception {
-        TestUtils.initTestEnvironment();
-        DataSets.instance();
 
-        spi = CreateOperatorSpi();
-        GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(spi);
     }
 
     @Override
     protected void tearDown() throws Exception {
-        GPF.getDefaultInstance().getOperatorSpiRegistry().removeOperatorSpi(spi);
+
     }
 
     protected abstract OperatorSpi CreateOperatorSpi();
 
-    //RS-2
-    public void testPerf_RS2_Quad() throws Exception {
-        process(spi, DataSets.instance().RS2_quad_product);
-    }
-
-    //ASAR
-    public void testPerf_ASAR_IMS() throws Exception {
-        process(spi, DataSets.instance().ASAR_IMS_product);
-    }
-
-    public void testPerf_ASAR_IMP() throws Exception {
-        process(spi, DataSets.instance().ASAR_IMP_product);
-    }
-
-    public void testPerf_ASAR_APP() throws Exception {
-        process(spi, DataSets.instance().ASAR_APP_product);
-    }
-
-    public void testPerf_ASAR_APS() throws Exception {
-        process(spi, DataSets.instance().ASAR_APS_product);
-    }
-
-    public void testPerf_ASAR_WMS() throws Exception {
-        process(spi, DataSets.instance().ASAR_WMS_product);
-    }
-
-    //ERS-1
-    public void testPerf_ERS1_PRI() throws Exception {
-        process(spi, DataSets.instance().ERS1_PRI_product);
-    }
-
-    public void testPerf_ERS1_SLC() throws Exception {
-        process(spi, DataSets.instance().ERS1_SLC_product);
-    }
-
-    //ERS-2
-    public void testPerf_ERS2_IMP() throws Exception {
-        process(spi, DataSets.instance().ERS2_IMP_product);
-    }
-
-    public void testPerf_ERS2_IMS() throws Exception {
-        process(spi, DataSets.instance().ERS2_IMS_product);
-    }
-
-    //ALOS
-    public void testPerf_ALOS_L11() throws Exception {
-        process(spi, DataSets.instance().ALOS_L11_product);
-    }
-
-    //TerraSAR-X
-    public void testPerf_TSX_SSC() throws Exception {
-        process(spi, DataSets.instance().TSX_SSC_product);
-    }
-
-    public void testPerf_TSX_SSC_Quad() throws Exception {
-        process(spi, DataSets.instance().TSX_SSC_Quad_product);
-    }
-
-    //S-1
-    public void testPerf_S1_GRD() throws Exception {
-        if(skipS1) return;
-        process(spi, DataSets.instance().S1_GRD_product);
-    }
-
-    private void process(final OperatorSpi spi, final Product product) throws Exception {
+    private void process(final OperatorSpi spi, final Product product) throws Throwable {
         if(!BenchConstants.runBenchmarks) return;
+        if(product == null) return;
 
-        //warm up
-        run(spi, product);
+        try {
+            if(BenchConstants.numIterations > 1) {
+                //warm up
+                run(spi, product);
+            }
 
-        final StopWatch watch = new StopWatch();
-        for(int i=0; i< BenchConstants.numIterations; ++i) {
-            MemUtils.freeAllMemory();
-            run(spi, product);
+            final StopWatch watch = new StopWatch();
+            for(int i=0; i< BenchConstants.numIterations; ++i) {
+                MemUtils.freeAllMemory();
+                run(spi, product);
+            }
+            watch.stop();
+
+            final String mission = AbstractMetadata.getAbstractedMetadata(product).getAttributeString(AbstractMetadata.MISSION);
+            final int w = product.getSceneRasterWidth();
+            final int h = product.getSceneRasterHeight();
+            final long milliseconds = watch.getTimeDiff() / BenchConstants.numIterations;
+            final int seconds = (int)((milliseconds / 1000.0) + 0.5);
+
+            System.out.println(spi.getOperatorAlias() +' '+ mission +' '+ product.getProductType() +' '+w +'x'+ h
+                    +" avg time: "+ StopWatch.getTimeString(milliseconds) +" ("+ seconds +" s)");
+        } catch(Throwable t) {
+            System.out.println("Test failed " + spi.getOperatorAlias() +' '+ product.getProductType());
+            throw t;
         }
-        watch.stop();
-
-        final String mission = AbstractMetadata.getAbstractedMetadata(product).getAttributeString(AbstractMetadata.MISSION);
-        final int w = product.getSceneRasterWidth();
-        final int h = product.getSceneRasterHeight();
-
-        System.out.println(spi.getOperatorAlias() +' '+ mission +' '+ product.getProductType() +' '+w +'x'+ h
-                +" avg time: "+ StopWatch.getTimeString(watch.getTimeDiff() / BenchConstants.numIterations));
     }
 
-    private void run(final OperatorSpi spi, final Product product) throws Exception {
+    private void run(final OperatorSpi spi, final Product product) throws Throwable {
         final Operator op = spi.createOperator();
         op.setSourceProduct(product);
         setOperatorParameters(op);
@@ -132,7 +86,7 @@ public abstract class Benchmark extends TestCase {
     public static void executeOperator(final Operator op, final int dimensions) throws Exception {
         // get targetProduct: execute initialize()
         final Product targetProduct = op.getTargetProduct();
-        TestUtils.verifyProduct(targetProduct, false, false);
+        //TestUtils.verifyProduct(targetProduct, false, false);
 
         // readPixels: execute computeTiles()
         final int w = Math.min(targetProduct.getSceneRasterWidth(), dimensions);
@@ -147,4 +101,71 @@ public abstract class Benchmark extends TestCase {
     protected void setOperatorParameters(final Operator op) {
 
     }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    //RS-2
+    public void testPerf_RS2_Quad() throws Throwable {
+        process(spi, DataSets.instance().RS2_quad_product);
+    }
+
+    //ASAR
+    public void testPerf_ASAR_IMS() throws Throwable {
+        process(spi, DataSets.instance().ASAR_IMS_product);
+    }
+
+    public void testPerf_ASAR_IMP() throws Throwable {
+        process(spi, DataSets.instance().ASAR_IMP_product);
+    }
+
+    public void testPerf_ASAR_APP() throws Throwable {
+        process(spi, DataSets.instance().ASAR_APP_product);
+    }
+
+    public void testPerf_ASAR_APS() throws Throwable {
+        process(spi, DataSets.instance().ASAR_APS_product);
+    }
+
+    public void testPerf_ASAR_WMS() throws Throwable {
+        process(spi, DataSets.instance().ASAR_WMS_product);
+    }
+
+    //ERS-2 CEOS
+    public void testPerf_ERS2_PRI() throws Throwable {
+        process(spi, DataSets.instance().ERS2_PRI_product);
+    }
+
+    public void testPerf_ERS2_SLC() throws Throwable {
+        process(spi, DataSets.instance().ERS2_SLC_product);
+    }
+
+    //ERS-2
+    public void testPerf_ERS2_IMP() throws Throwable {
+        process(spi, DataSets.instance().ERS2_IMP_product);
+    }
+
+    public void testPerf_ERS2_IMS() throws Throwable {
+        process(spi, DataSets.instance().ERS2_IMS_product);
+    }
+
+    //ALOS
+    public void testPerf_ALOS_L11() throws Throwable {
+        process(spi, DataSets.instance().ALOS_L11_product);
+    }
+
+    //TerraSAR-X
+    public void testPerf_TSX_SSC() throws Throwable {
+        process(spi, DataSets.instance().TSX_SSC_product);
+    }
+
+    public void testPerf_TSX_SSC_Quad() throws Throwable {
+        process(spi, DataSets.instance().TSX_SSC_Quad_product);
+    }
+
+    //S-1
+    public void testPerf_S1_GRD() throws Throwable {
+        if(skipS1) return;
+        process(spi, DataSets.instance().S1_GRD_product);
+    }
+
 }

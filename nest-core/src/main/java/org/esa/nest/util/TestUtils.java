@@ -33,6 +33,7 @@ import org.esa.nest.datamodel.AbstractMetadata;
 import org.esa.nest.gpf.ReaderUtils;
 import org.esa.nest.gpf.RecursiveProcessor;
 
+import javax.media.jai.JAI;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
@@ -76,6 +77,8 @@ public class TestUtils {
     public static void initTestEnvironment() throws RuntimeConfigException {
         final RuntimeConfig runtimeConfig = new DefaultRuntimeConfig();
 
+        JAI.getDefaultInstance().getTileScheduler().setParallelism(Runtime.getRuntime().availableProcessors());
+
         //disable JAI media library
         System.setProperty("com.sun.media.jai.disableMediaLib", "true");
     }
@@ -91,6 +94,8 @@ public class TestUtils {
         }
 
         final ProductReader reader = ProductIO.getProductReaderForFile(inputFile);
+        if(reader == null)
+            throw new IOException("No reader found for "+inputFile);
         return reader.readProductNodes(inputFile, null);
     }
 
