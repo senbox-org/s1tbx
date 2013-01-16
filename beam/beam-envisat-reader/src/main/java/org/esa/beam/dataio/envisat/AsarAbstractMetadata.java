@@ -79,9 +79,9 @@ public final class AsarAbstractMetadata {
         addAbstractedAttribute("SPH_DESCRIPTOR",  sph.getAttributeString("SPH_DESCRIPTOR", ""), absRoot, "Description");
         addAbstractedAttribute("MISSION", getMission(_productType, _file), absRoot, "Satellite mission");
 
-        String mode = "ScanSAR";
-        if(productType.startsWith("ASA_IM") || waveProduct || productType.startsWith("SAR"))
-            mode = "Stripmap";
+        String mode = "Stripmap";
+        if(productType.startsWith("ASA_WS"))
+            mode = "ScanSAR";
         addAbstractedAttribute("ACQUISITION_MODE", mode, absRoot, "Acquisition mode");
         addAbstractedAttribute("BEAMS", " ", absRoot, "Beams used");
         if(waveProduct) {

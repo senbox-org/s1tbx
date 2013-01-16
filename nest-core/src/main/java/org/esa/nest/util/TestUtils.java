@@ -66,11 +66,9 @@ public class TestUtils {
     private static final int maxIteration = Integer.parseInt(testPreferences.getPropertyString(contextID+".test.maxProductsPerRootFolder"));
     private static final String testReadersOnAllProducts = testPreferences.getPropertyString(contextID+".test.ReadersOnAllProducts");
     private static final String testProcessingOnAllProducts = testPreferences.getPropertyString(contextID+".test.ProcessingOnAllProducts");
-    private static final String testBenchmarks = testPreferences.getPropertyString(contextID+".test.RunBenchmarks");
 
     public static final boolean canTestReadersOnAllProducts = testReadersOnAllProducts != null && testReadersOnAllProducts.equalsIgnoreCase("true");
     public static final boolean canTestProcessingOnAllProducts = testProcessingOnAllProducts != null && testProcessingOnAllProducts.equalsIgnoreCase("true");
-    public static final boolean runBenchmarks = testBenchmarks != null && testBenchmarks.equalsIgnoreCase("true");
 
     private static final boolean DEBUG = true;
     private static final boolean FailOnSkip = true;
@@ -253,6 +251,8 @@ public class TestUtils {
         final float[] floatValues = new float[w*h];
         final Band targetBand = targetProduct.getBandAt(0);
         targetBand.readPixels(0, 0, w, h, floatValues, ProgressMonitor.NULL);
+
+        targetProduct.dispose();
     }
 
     public static Product createSubsetProduct(final Product sourceProduct) throws IOException {
@@ -415,7 +415,7 @@ public class TestUtils {
         for(File folder : folderList) {
             if(!folder.getName().contains("skipTest")) {
                 iterations = recurseReadFolder(folder, readerPlugin, reader, productTypeExemptions, exceptionExemptions, iterations);
-                if(iterations >= getMaxIterations())
+                if(maxIteration > 0 && iterations >= maxIteration)
                     return iterations;
             }
         }
@@ -433,7 +433,7 @@ public class TestUtils {
                     ReaderUtils.verifyProduct(product, true);
                     ++iterations;
 
-                    if(iterations >= getMaxIterations())
+                    if(maxIteration > 0 && iterations >= maxIteration)
                         break;
                 } catch(Exception e) {
                     boolean ok = false;

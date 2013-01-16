@@ -1,0 +1,25 @@
+<module>
+    <manifestVersion>1.0.0</manifestVersion>
+    <symbolicName>nest-benchmark</symbolicName>
+    <version>5.0</version>
+    <name>NEST Benchmark</name>
+
+    <description>NEST Benchmark Tests</description>
+
+    <vendor>Array Systems Computing Inc</vendor>
+    <contactAddress>1120 Finch Ave W. Toronto (Canada)</contactAddress>
+    <copyright>(C) 2013 by Array Systems Computing Inc</copyright>
+    <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
+	<funding>European Space Agency</funding>
+
+    <dependency>
+        <module>nest-core</module>
+    </dependency>
+	<dependency>
+        <module>nest-io</module>
+    </dependency>
+	<dependency>
+        <module>nest-op-sar-tools</module>
+    </dependency>
+	
+</module>

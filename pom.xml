@@ -164,6 +164,7 @@
 		<module>nest-ocean-tools</module>
 		<module>nest-developer-tools</module>
 		<module>nest-src</module>
+		<module>nest-benchmark</module>
   </modules>
 
     <dependencyManagement>

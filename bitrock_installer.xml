@@ -568,7 +568,7 @@ This installer will optionally remove the older version before installing a new 
             <path>${installdir}/update.ini</path>
             <text>[Update]
 url = http://corp.array.ca/nest-web/autoupdate/update.xml
-version_id = ${version}
+version_id = ${product_version}
 update_download_location = ${system_temp_directory}
 check_for_updates = 1
 </text>

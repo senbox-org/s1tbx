@@ -29,7 +29,7 @@ import java.io.File;
  */
 public class TestTiePoints  extends TestCase {
 
-    final File inputFile = new File("g:\\out\\ALOS-H1_1__A-ORBIT__ALPSRP076360690_DS.dim");
+    final File inputFile = new File(TestUtils.rootPathExpectedProducts+"\\input\\subset_1_of_ENVISAT-ASA_WSM_1PNPDE20080119_093446_000000852065_00165_30780_2977.dim");
 
     private Product product1 = null;
     private Product product2 = null;
@@ -86,18 +86,19 @@ public class TestTiePoints  extends TestCase {
             TestUtils.skipTest(this);
             return;
         }
-        TiePointGrid tpg = product1.getTiePointGridAt(0);
+        final TiePointGrid tpg = product1.getTiePointGridAt(0);
         int w = product1.getSceneRasterWidth();
         int h = product1.getSceneRasterHeight();
 
-        float[] floats = new float[w*h];
+        final float[] floats = new float[w*h];
         tpg.getPixels(0,0, w,h, floats, ProgressMonitor.NULL);
 
-        int i=0;
         for(int y=0; y < h; ++y) {
             for(int x=0; x < w; ++x) {
-                float f = tpg.getPixelFloat(x, y);
-                System.out.println(f+"    "+ floats[y*w+x]);
+                final float f = tpg.getPixelFloat(x, y);
+
+                System.out.println(x+','+y+' '+f+"    "+ floats[y*w+x]);
+                assertEquals(f, floats[y*w+x]);
             }
         }
     }

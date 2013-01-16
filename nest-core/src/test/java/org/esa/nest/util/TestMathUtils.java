@@ -60,7 +60,7 @@ public class TestMathUtils extends TestCase {
         double mu = 0.3;
         double y = MathUtils.interpolationSinc(y0, y1, y2, y3, y4, mu);
 
-        double yExpected = -0.06751353045007912;
+        double yExpected = -0.06751353045007909;
         assertTrue(Double.compare(y, yExpected) == 0);
     }
 }

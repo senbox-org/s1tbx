@@ -1,0 +1,53 @@
+<?xml version="1.0"?>
+<project
+        xmlns="http://maven.apache.org/POM/4.0.0"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.esa.nest</groupId>
+        <artifactId>nest</artifactId>
+        <version>5.0</version>
+    </parent>
+
+    <name>NEST Benchmark Test</name>
+    <groupId>org.esa.nest</groupId>
+    <artifactId>nest-benchmark</artifactId>
+    <version>5.0</version>
+
+    <packaging>jar</packaging>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.esa.nest</groupId>
+            <artifactId>nest-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.nest</groupId>
+            <artifactId>nest-io</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.nest</groupId>
+            <artifactId>nest-io-sentinel1</artifactId>
+            <version>${nest.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.nest</groupId>
+            <artifactId>nest-op-sar-tools</artifactId>
+			<version>${nest.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.nest</groupId>
+            <artifactId>nest-op-calibration</artifactId>
+            <version>${nest.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.nest</groupId>
+            <artifactId>nest-op-orthorectification</artifactId>
+            <version>${nest.version}</version>
+        </dependency>
+
+    </dependencies>
+
+</project>
