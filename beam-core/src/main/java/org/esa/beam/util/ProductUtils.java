@@ -760,12 +760,66 @@ public class ProductUtils {
             for (PixelPos candidatePosition : candidatePositions) {
                 final GeoPos gcGeoPos = gc.getGeoPos(candidatePosition, null);
                 if (gcGeoPos.isValid()) {
+                    int divider = 1;
+                    while (((manhattanDistance - divider) % step) != 0) {
+                        divider++;
+                    }
+                    double factor = ((double) manhattanDistance - divider * step) / manhattanDistance;
+                    final GeoPos validGeoPos = getValidGeoPosAlongLine(candidatePosition, origPos, factor, gc);
+                    if (validGeoPos != null) {
+                        return validGeoPos;
+                    }
                     return gcGeoPos;
                 }
             }
             manhattanDistance += step;
         }
         return new GeoPos(Float.NaN, Float.NaN);
+    }
+
+    /**
+     * Gets the first valid PixelPos along the line between two pixels. The method starts searching from pixelPos2.     *
+     *
+     * @param pixelPos1
+     * @param pixelPos2
+     * @param factor
+     * @param gc
+     * @return
+     */
+    private static GeoPos getValidGeoPosAlongLine(PixelPos pixelPos1, PixelPos pixelPos2, double factor, GeoCoding gc) {
+        int xDistToOrig = (int) pixelPos1.getX() - (int) pixelPos2.getX();
+        int yDistToOrig = (int) pixelPos1.getY() - (int) pixelPos2.getY();
+        int startPosX = (int) pixelPos2.getX() + (int) (xDistToOrig * factor);
+        int startPosY = (int) pixelPos2.getY() + (int) (yDistToOrig * factor);
+        int xDist = (int) (pixelPos1.getX() - startPosX);
+        int yDist = (int) (pixelPos1.getY() - startPosY);
+        int stepsInXDirection = 0;
+        int stepsInYDirection = 0;
+        double percentageInXDirectionMade = 0;
+        double percentageInYDirectionMade = 0;
+        while (percentageInXDirectionMade < 1 && percentageInYDirectionMade < 1) {
+            if (percentageInXDirectionMade >= percentageInYDirectionMade) {
+                if (yDist < 0) {
+                    stepsInYDirection--;
+                } else {
+                    stepsInYDirection++;
+                }
+                percentageInYDirectionMade = (double) stepsInYDirection / (double) yDist;
+            } else {
+                if (xDist < 0) {
+                    stepsInXDirection--;
+                } else {
+                    stepsInXDirection++;
+                }
+                percentageInXDirectionMade = (double) stepsInXDirection / (double) xDist;
+            }
+            PixelPos interPos = new PixelPos(startPosX + stepsInXDirection, startPosY + stepsInYDirection);
+            GeoPos interGeoPos = gc.getGeoPos(interPos, null);
+            if (interGeoPos.isValid()) {
+                return interGeoPos;
+            }
+        }
+        return null;
     }
 
     /**

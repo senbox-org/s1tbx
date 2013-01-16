@@ -616,20 +616,14 @@ public class ProductUtilsTest {
         for (int x = 0; x < 3; x++) {
             for (int y = 0; y < 3; y++) {
                 if (x != 1 && y != 1) {
-                    for (int step = 1; step <= 2; step++) {
+                    for (int step = 1; step <= 4; step++) {
                         PixelPos pixelPos = new PixelPos(x * (sceneRasterWidth / 2), y * (sceneRasterHeight / 2));
                         final GeoPos ordinaryGeoPos = geoCoding.getGeoPos(pixelPos, null);
                         assertEquals(Float.NaN, ordinaryGeoPos.getLon(), 0f);
                         assertEquals(Float.NaN, ordinaryGeoPos.getLat(), 0f);
                         final GeoPos closestGeoPos = ProductUtils.getClosestGeoPos(geoCoding, pixelPos, region, step);
-                        int xValueChange = 0;
-                        if (x == 0) xValueChange = -(step - 1);
-                        if (x == 2) xValueChange = step - 1;
-                        int yValueChange = 0;
-                        if (y == 0) yValueChange = -(step - 1);
-                        if (y == 2) yValueChange = step - 1;
-                        assertEquals((x + 1) * 3f - xValueChange, closestGeoPos.getLon(), 0f);
-                        assertEquals((y + 1) * 3f - yValueChange, closestGeoPos.getLat(), 0f);
+                        assertEquals((x + 1) * 3f, closestGeoPos.getLon(), 0f);
+                        assertEquals((y + 1) * 3f, closestGeoPos.getLat(), 0f);
                     }
                 }
             }
