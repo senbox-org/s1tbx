@@ -78,7 +78,7 @@ public class ProductLibraryToolView extends AbstractToolView {
     private File currentDirectory;
     private ProductOpener openHandler;
     private ProductLibraryConfig libConfig;
-    private static final String helpId = "ProductLibrary";
+    private static final String helpId = "productLibrary";
 
     private WorldMapUI worldMapUI = null;
     private DatabasePane dbPane;
@@ -769,7 +769,7 @@ public class ProductLibraryToolView extends AbstractToolView {
         headerBar.add(removeButton, gbc);
 
         final JButton helpButton = createToolButton("helpButton", UIUtils.loadImageIcon("icons/Help24.gif"));
-        helpButton.setVisible(false);
+        setComponentName(helpButton, "helpButton");
         HelpSys.enableHelpOnButton(helpButton, helpId);
         headerBar.add(helpButton, gbc);
 

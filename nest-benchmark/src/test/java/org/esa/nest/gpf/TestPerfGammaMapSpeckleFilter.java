@@ -17,13 +17,13 @@ package org.esa.nest.gpf;
 
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorSpi;
-import org.esa.nest.Benchmark;
+import org.esa.nest.SingleOperatorBenchmark;
 import org.esa.nest.gpf.filtering.SpeckleFilterOp;
 
 /**
  * Test operator performance
  */
-public class TestPerfGammaMapSpeckleFilter extends Benchmark {
+public class TestPerfGammaMapSpeckleFilter extends SingleOperatorBenchmark {
 
     protected OperatorSpi CreateOperatorSpi() {
         return new SpeckleFilterOp.Spi();

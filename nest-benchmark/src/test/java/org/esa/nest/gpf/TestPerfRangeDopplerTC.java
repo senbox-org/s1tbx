@@ -16,14 +16,12 @@
 package org.esa.nest.gpf;
 
 import org.esa.beam.framework.gpf.OperatorSpi;
-import org.esa.nest.Benchmark;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.esa.nest.SingleOperatorBenchmark;
 
 /**
  * Test operator performance
  */
-public class TestPerfRangeDopplerTC extends Benchmark{
+public class TestPerfRangeDopplerTC extends SingleOperatorBenchmark {
 
     protected OperatorSpi CreateOperatorSpi() {
         return new RangeDopplerGeocodingOp.Spi();

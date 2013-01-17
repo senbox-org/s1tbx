@@ -16,12 +16,12 @@
 package org.esa.nest.gpf;
 
 import org.esa.beam.framework.gpf.OperatorSpi;
-import org.esa.nest.Benchmark;
+import org.esa.nest.SingleOperatorBenchmark;
 
 /**
  * Test operator performance
  */
-public class TestPerfMultilook extends Benchmark{
+public class TestPerfMultilook extends SingleOperatorBenchmark {
 
     protected OperatorSpi CreateOperatorSpi() {
         return new MultilookOp.Spi();

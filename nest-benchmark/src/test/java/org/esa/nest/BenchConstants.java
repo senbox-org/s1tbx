@@ -24,7 +24,7 @@ import org.esa.nest.util.ResourceUtils;
  */
 public class BenchConstants {
     public static int numIterations = 1;
-    public static int maxDimensions = 50000;
+    public static int maxDimensions = 3000;
 
     private static final PropertyMap testPreferences = Config.getConfigPropertyMap();
     private final static String contextID = ResourceUtils.getContextID();

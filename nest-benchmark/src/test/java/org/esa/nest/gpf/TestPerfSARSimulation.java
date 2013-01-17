@@ -16,14 +16,14 @@
 package org.esa.nest.gpf;
 
 import org.esa.beam.framework.gpf.OperatorSpi;
-import org.esa.nest.Benchmark;
+import org.esa.nest.SingleOperatorBenchmark;
 import org.junit.Ignore;
 
 /**
  * Test operator performance
  */
 @Ignore
-public class TestPerfSARSimulation extends Benchmark{
+public class TestPerfSARSimulation extends SingleOperatorBenchmark {
 
     protected OperatorSpi CreateOperatorSpi() {
         return new SARSimulationOp.Spi();

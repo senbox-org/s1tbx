@@ -16,12 +16,12 @@
 package org.esa.nest.gpf;
 
 import org.esa.beam.framework.gpf.OperatorSpi;
-import org.esa.nest.Benchmark;
+import org.esa.nest.SingleOperatorBenchmark;
 
 /**
  * Test operator performance
  */
-public class TestPerfElevation extends Benchmark{
+public class TestPerfElevation extends SingleOperatorBenchmark {
 
     protected OperatorSpi CreateOperatorSpi() {
         return new CreateElevationOp.Spi();

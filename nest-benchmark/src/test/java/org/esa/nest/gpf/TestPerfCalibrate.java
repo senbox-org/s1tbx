@@ -16,12 +16,12 @@
 package org.esa.nest.gpf;
 
 import org.esa.beam.framework.gpf.OperatorSpi;
-import org.esa.nest.Benchmark;
+import org.esa.nest.SingleOperatorBenchmark;
 
 /**
  * Test operator performance
  */
-public class TestPerfCalibrate extends Benchmark {
+public class TestPerfCalibrate extends SingleOperatorBenchmark {
 
     public TestPerfCalibrate() {
         skipS1 = true;

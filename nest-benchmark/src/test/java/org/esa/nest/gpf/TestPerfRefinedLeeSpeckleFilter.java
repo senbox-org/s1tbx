@@ -17,7 +17,7 @@ package org.esa.nest.gpf;
 
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorSpi;
-import org.esa.nest.Benchmark;
+import org.esa.nest.SingleOperatorBenchmark;
 import org.esa.nest.gpf.filtering.SpeckleFilterOp;
 import org.junit.Ignore;
 
@@ -25,7 +25,7 @@ import org.junit.Ignore;
  * Test operator performance
  */
 @Ignore
-public class TestPerfRefinedLeeSpeckleFilter extends Benchmark {
+public class TestPerfRefinedLeeSpeckleFilter extends SingleOperatorBenchmark {
 
     protected OperatorSpi CreateOperatorSpi() {
         return new SpeckleFilterOp.Spi();
