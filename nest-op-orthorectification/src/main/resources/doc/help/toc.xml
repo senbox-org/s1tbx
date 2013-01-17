@@ -15,6 +15,7 @@
 			<tocitem text="Map Projection" target="MapProjectionOp"/>
 			<tocitem text="Slant Range to Ground Range" target="SRGROp"/>
 			<tocitem text="Mosaic" target="MosaicOp"/>
+			<tocitem text="ALOS Deskewing" target="ALOSDeskewingOp"/>
 		</tocitem>
     </tocitem>
     

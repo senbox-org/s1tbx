@@ -15,5 +15,5 @@
 	<mapID target="MapProjectionOp" url="operators/MapProjectionOp.html"/>
 	<mapID target="SRGROp" url="operators/SRGROp.html"/>
 	<mapID target="MosaicOp" url="operators/MosaicOp.html"/>
-	
+	<mapID target="ALOSDeskewingOp" url="operators/ALOSDeskewingOp.html"/>
 </map>
