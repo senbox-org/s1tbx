@@ -15,6 +15,9 @@
  */
 package org.esa.beam.cluster;
 
+import com.bc.ceres.binding.Property;
+import com.bc.ceres.binding.ValidationException;
+import com.bc.ceres.binding.Validator;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
 import org.esa.beam.framework.datamodel.Band;
@@ -42,17 +45,17 @@ import java.awt.Dimension;
 import java.awt.Rectangle;
 
 /**
- * Operator for k-means cluster analysis.
+ * Implements a Principle Component Analysis.
  *
- * @author Ralf Quast
- * @version $Revision$ $Date$
+ * @author Norman Fomferra
+ * @since BEAM 5
  */
 @OperatorMetadata(alias = "PCA",
                   version = "1.0",
                   authors = "Norman Fomferra",
                   copyright = "(c) 2013 by Brockmann Consult",
                   description = "Performs a Principle Component Analysis.")
-public class PcaOp extends Operator {
+public class PrincipleComponentAnalysisOp extends Operator {
 
     @SourceProduct(alias = "source", label = "Source product")
     private Product sourceProduct;
@@ -65,19 +68,21 @@ public class PcaOp extends Operator {
     private String[] sourceBandNames;
 
     @Parameter(label = "Maximum component count",
-               description = "The maximum number of components to compute.",
+               description = "The maximum number of principle components to compute.",
                defaultValue = "-1")
     private int componentCount;
 
     @Parameter(label = "ROI-mask name",
                description = "The name of the ROI-Mask that should be used.",
                defaultValue = "",
-               rasterDataNodeType = Mask.class)
+               rasterDataNodeType = Mask.class/*,
+               validator = RoiMaskNameValidator.class*/)
     private String roiMaskName;
 
     @Parameter(label = "ROI-mask expression",
                description = "The expression of the ROI-Mask that should be used. If not given, a mask given by 'roiMaskName' must already exist.",
-               defaultValue = "")
+               defaultValue = "",
+               validator = RoiMaskExprValidator.class)
     private String roiMaskExpr;
 
     private transient Roi roi;
@@ -88,7 +93,7 @@ public class PcaOp extends Operator {
     private transient Band errorBand;
     private transient Band flagsBand;
 
-    public PcaOp() {
+    public PrincipleComponentAnalysisOp() {
     }
 
     @Override
@@ -121,8 +126,8 @@ public class PcaOp extends Operator {
         flags.addFlag("PCA_ROI_PIXEL", 0x01, "Pixel has been used to perform the PCA.");
         flagsBand.setSampleCoding(flags);
         targetProduct.getFlagCodingGroup().add(flags);
-        targetProduct.addMask("pca_roi_pixel", "flags.PCA_ROI_PIXEL", "Pixel has been used to perform the PCA.", Color.GREEN, 0.5);
-        targetProduct.addMask("non_pca_roi_pixel", "!flags.PCA_ROI_PIXEL", "Pixel has not been used to perform the PCA.", Color.RED, 0.5);
+        targetProduct.addMask("pca_roi_pixel", "flags.PCA_ROI_PIXEL", "Pixel has been used to perform the PCA.", Color.RED, 0.5);
+        targetProduct.addMask("non_pca_roi_pixel", "!flags.PCA_ROI_PIXEL", "Pixel has not been used to perform the PCA.", Color.BLACK, 0.5);
 
         if (StringUtils.isNullOrEmpty(roiMaskName)) {
             roiMaskName = "pca_roi_pixel";
@@ -136,7 +141,7 @@ public class PcaOp extends Operator {
             throw new OperatorException("Missing mask '" + roiMaskName + "' in source product.");
         }
 
-        // todo - in BEAM 5, we shall have a progress monitor here!!! (NF)
+        // note - in BEAM 5, we shall have a progress monitor here!!! (NF)
         initPca(ProgressMonitor.NULL);
 
         targetProduct.getMetadataRoot().addElement(createPcaMetadata());
@@ -219,6 +224,7 @@ public class PcaOp extends Operator {
 
     @Override
     public void dispose() {
+        pca = null;
         targetProduct = null;
         componentBands = null;
         responseBand = null;
@@ -242,7 +248,7 @@ public class PcaOp extends Operator {
 
             final int pointSize = sourceBands.length;
             final double[] point = new double[pointSize];
-            double[] pointData = new double[32 * 1024 * pointSize];
+            double[] pointData = new double[10000 * pointSize];
             int pointCount = 0;
             for (Rectangle rectangle : tileRectangles) {
                 PixelIter iter = createPixelIter(rectangle, SubProgressMonitor.create(pm, 1));
@@ -313,7 +319,34 @@ public class PcaOp extends Operator {
     public static class Spi extends OperatorSpi {
 
         public Spi() {
-            super(PcaOp.class);
+            super(PrincipleComponentAnalysisOp.class);
         }
     }
+
+    public static class RoiMaskNameValidator implements Validator {
+        @Override
+        public void validateValue(Property roiMaskExprProp, Object value) throws ValidationException {
+            if (value != null) {
+                validateRoiMaskExpr(roiMaskExprProp);
+            }
+        }
+    }
+
+    public static class RoiMaskExprValidator implements Validator {
+        @Override
+        public void validateValue(Property roiMaskExprProp, Object value) throws ValidationException {
+            if (value != null && !value.toString().trim().isEmpty()) {
+                validateRoiMaskExpr(roiMaskExprProp);
+            }
+        }
+    }
+
+    private static void validateRoiMaskExpr(Property roiMaskExprProp) throws ValidationException {
+        final Property roiMaskNameProp = roiMaskExprProp.getContainer().getProperty("roiMaskName");
+        if (roiMaskNameProp != null && !roiMaskNameProp.getValueAsText().equals("")) {
+            throw new ValidationException("You cannot specify a ROI-mask expression,\nbecause a ROI-mask is given by its name.\n" +
+                                                  "Deselect the mask name, if you want to provide your own mask expression.");
+        }
+    }
+
 }
