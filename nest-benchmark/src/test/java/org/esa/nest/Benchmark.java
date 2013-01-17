@@ -1,6 +1,6 @@
 package org.esa.nest;
 
-import com.bc.ceres.core.NullProgressMonitor;
+import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.runtime.RuntimeConfig;
 import com.bc.ceres.core.runtime.RuntimeConfigException;
 import com.bc.ceres.core.runtime.internal.DefaultRuntimeConfig;
@@ -11,9 +11,9 @@ import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.internal.OperatorExecutor;
 import org.esa.beam.gpf.operators.standard.WriteOp;
-import org.esa.beam.util.StopWatch;
 import org.esa.nest.datamodel.AbstractMetadata;
 import org.esa.nest.util.MemUtils;
+import org.esa.nest.util.ProcessTimeMonitor;
 
 import javax.media.jai.JAI;
 import java.io.File;
@@ -68,21 +68,23 @@ public abstract class Benchmark extends TestCase {
                 run(spi, product);
             }
 
-            final StopWatch watch = new StopWatch();
+            final ProcessTimeMonitor timeMonitor = new ProcessTimeMonitor();
+            timeMonitor.start();
+
             for(int i=0; i< BenchConstants.numIterations; ++i) {
                 MemUtils.freeAllMemory();
                 run(spi, product);
             }
-            watch.stop();
+            final long duration = timeMonitor.stop();
 
             final String mission = AbstractMetadata.getAbstractedMetadata(product).getAttributeString(AbstractMetadata.MISSION);
             final int w = product.getSceneRasterWidth();
             final int h = product.getSceneRasterHeight();
-            final long milliseconds = watch.getTimeDiff() / BenchConstants.numIterations;
-            final int seconds = (int)((milliseconds / 1000.0) + 0.5);
+            final long seconds = duration / BenchConstants.numIterations;
 
             System.out.println(spi.getOperatorAlias() +' '+ mission +' '+ product.getProductType() +' '+w +'x'+ h
-                    +" avg time: "+ StopWatch.getTimeString(milliseconds) +" ("+ seconds +" s)");
+                    +" avg time: "+ ProcessTimeMonitor.formatDuration(seconds) +" ("+ seconds +" s)");
+            System.out.flush();
         } catch(Throwable t) {
             System.out.println("Test failed " + spi.getOperatorAlias() +' '+ product.getProductType());
             throw t;
@@ -97,7 +99,7 @@ public abstract class Benchmark extends TestCase {
         op.dispose();
     }
 
-    public void writeProduct(final Operator op) {
+    public void writeProduct(final Operator op) throws Throwable {
 
         // get targetProduct: execute initialize()
         final Product targetProduct = op.getTargetProduct();
@@ -108,7 +110,7 @@ public abstract class Benchmark extends TestCase {
         writeOp.setClearCacheAfterRowWrite(false);
 
         final OperatorExecutor executor = OperatorExecutor.create(writeOp);
-        executor.execute(new NullProgressMonitor());
+        executor.execute(ProgressMonitor.NULL);//new NullProgressMonitor());
     }
 
     protected void setOperatorParameters(final Operator op) {

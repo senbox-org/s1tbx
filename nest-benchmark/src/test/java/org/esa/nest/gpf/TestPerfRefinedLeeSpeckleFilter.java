@@ -24,7 +24,7 @@ import org.junit.Ignore;
 /**
  * Test operator performance
  */
-@Ignore
+
 public class TestPerfRefinedLeeSpeckleFilter extends SingleOperatorBenchmark {
 
     protected OperatorSpi CreateOperatorSpi() {
