@@ -17,6 +17,8 @@ package org.esa.nest.gpf;
 
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.nest.Benchmark;
+import org.junit.Ignore;
+import org.junit.Test;
 
 /**
  * Test operator performance

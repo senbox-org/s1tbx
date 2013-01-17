@@ -42,12 +42,12 @@ public class DataSets {
     public final static String ASAR_IMP = perfRoot+"ASAR\\IMP\\ASA_IMP_1PNDPA20040402_092740_000000152025_00351_10926_0004.N1";
     public final static String ASAR_APP = perfRoot+"ASAR\\APP\\ASA_APP_1PNIPA20030327_091854_000000162015_00036_05601_5420.N1";
     public final static String ASAR_APS = perfRoot+"ASAR\\APS\\ASA_APS_1PNIPA20030327_091854_000000162015_00036_05601_5421.N1";
-    public final static String ASAR_WMS = perfRoot+"ASAR\\WSM\\ASA_WSM_1PNPDK20080119_093145_000002252065_00165_30780_3244.N1";
+    public final static String ASAR_WSM = perfRoot+"ASAR\\WSM\\ASA_WSM_1PNPDK20080119_093145_000002252065_00165_30780_3244.N1";
     public final Product ASAR_IMS_product;
     public final Product ASAR_IMP_product;
     public final Product ASAR_APP_product;
     public final Product ASAR_APS_product;
-    public final Product ASAR_WMS_product;
+    public final Product ASAR_WSM_product;
 
     //ERS-2 CEOS
     public final static String ERS2_PRI = perfRoot+"ERS2\\PRI\\ERS2_PRI_VMP_CEOS_12032000_orbit 25592 frame 0747_ASI IPAF\\SCENE1\\VDF_DAT.001";
@@ -84,17 +84,17 @@ public class DataSets {
     public DataSets() {
         RS2_quad_product = readProduct(vancouverRS2Quad);
 
-        ASAR_IMS_product = null;//readProduct(ASAR_IMS);
+        ASAR_IMS_product = readProduct(ASAR_IMS);
         ASAR_IMP_product = readProduct(ASAR_IMP);
-        ASAR_APP_product = null;//readProduct(ASAR_APP);
+        ASAR_APP_product = readProduct(ASAR_APP);
         ASAR_APS_product = null;//readProduct(ASAR_APS);
-        ASAR_WMS_product = null;//readProduct(ASAR_WMS);
+        ASAR_WSM_product = readProduct(ASAR_WSM);
 
         ERS2_PRI_product = readProduct(ERS2_PRI);
-        ERS2_SLC_product = null;//readProduct(ERS2_SLC);
+        ERS2_SLC_product = readProduct(ERS2_SLC);
 
         ERS2_IMP_product = readProduct(ERS2_IMP);
-        ERS2_IMS_product = null;//readProduct(ERS2_IMS);
+        ERS2_IMS_product = readProduct(ERS2_IMS);
 
         ALOS_L11_product = null;//readProduct(ALOS_L11);
 

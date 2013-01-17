@@ -245,21 +245,6 @@ public class TestUtils {
                               floatValues, ProgressMonitor.NULL);
     }
 
-    public static void executeOperator(final Operator op, final int dimensions) throws Exception {
-        // get targetProduct: execute initialize()
-        final Product targetProduct = op.getTargetProduct();
-        TestUtils.verifyProduct(targetProduct, false, false);
-
-        // readPixels: execute computeTiles()
-        final int w = Math.min(targetProduct.getSceneRasterWidth(), dimensions);
-        final int h = Math.min(targetProduct.getSceneRasterHeight(), dimensions);
-        final float[] floatValues = new float[w*h];
-        final Band targetBand = targetProduct.getBandAt(0);
-        targetBand.readPixels(0, 0, w, h, floatValues, ProgressMonitor.NULL);
-
-        targetProduct.dispose();
-    }
-
     public static Product createSubsetProduct(final Product sourceProduct) throws IOException {
         final int bandWidth = sourceProduct.getSceneRasterWidth();
         final int bandHeight = sourceProduct.getSceneRasterHeight();

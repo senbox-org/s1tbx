@@ -1,16 +1,22 @@
 package org.esa.nest;
 
+import com.bc.ceres.core.NullProgressMonitor;
 import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.core.SubProgressMonitor;
 import junit.framework.TestCase;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorSpi;
+import org.esa.beam.framework.gpf.internal.OperatorExecutor;
+import org.esa.beam.gpf.operators.standard.WriteOp;
 import org.esa.beam.util.StopWatch;
 import org.esa.nest.datamodel.AbstractMetadata;
 import org.esa.nest.util.MemUtils;
 import org.esa.nest.util.TestUtils;
+
+import java.io.File;
 
 /**
  * Benchmark code
@@ -19,6 +25,8 @@ public abstract class Benchmark extends TestCase {
     private OperatorSpi spi;
 
     protected boolean skipS1 = false;
+
+    private final File outputFile = new File("e:\\out\\output.dim");
 
     public Benchmark() {
         try {
@@ -75,27 +83,26 @@ public abstract class Benchmark extends TestCase {
         }
     }
 
-    private void run(final OperatorSpi spi, final Product product) throws Throwable {
+    private void run(final OperatorSpi spi, final Product srcProduct) throws Throwable {
         final Operator op = spi.createOperator();
-        op.setSourceProduct(product);
+        op.setSourceProduct(srcProduct);
         setOperatorParameters(op);
-        executeOperator(op, BenchConstants.maxDimensions);
+        writeProduct(op);
         op.dispose();
     }
 
-    public static void executeOperator(final Operator op, final int dimensions) throws Exception {
+    public void writeProduct(final Operator op) {
+
         // get targetProduct: execute initialize()
         final Product targetProduct = op.getTargetProduct();
-        //TestUtils.verifyProduct(targetProduct, false, false);
 
-        // readPixels: execute computeTiles()
-        final int w = Math.min(targetProduct.getSceneRasterWidth(), dimensions);
-        final int h = Math.min(targetProduct.getSceneRasterHeight(), dimensions);
-        final float[] floatValues = new float[w*h];
-        final Band targetBand = targetProduct.getBandAt(0);
-        targetBand.readPixels(0, 0, w, h, floatValues, ProgressMonitor.NULL);
+        final WriteOp writeOp = new WriteOp(targetProduct, outputFile, "BEAM-DIMAP");
+        writeOp.setDeleteOutputOnFailure(true);
+        writeOp.setWriteEntireTileRows(true);
+        writeOp.setClearCacheAfterRowWrite(false);
 
-        targetProduct.dispose();
+        final OperatorExecutor executor = OperatorExecutor.create(writeOp);
+        executor.execute(new NullProgressMonitor());
     }
 
     protected void setOperatorParameters(final Operator op) {
@@ -126,8 +133,8 @@ public abstract class Benchmark extends TestCase {
         process(spi, DataSets.instance().ASAR_APS_product);
     }
 
-    public void testPerf_ASAR_WMS() throws Throwable {
-        process(spi, DataSets.instance().ASAR_WMS_product);
+    public void testPerf_ASAR_WSM() throws Throwable {
+        process(spi, DataSets.instance().ASAR_WSM_product);
     }
 
     //ERS-2 CEOS

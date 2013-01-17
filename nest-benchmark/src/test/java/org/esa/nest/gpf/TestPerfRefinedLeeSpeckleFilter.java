@@ -19,10 +19,12 @@ import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.nest.Benchmark;
 import org.esa.nest.gpf.filtering.SpeckleFilterOp;
+import org.junit.Ignore;
 
 /**
  * Test operator performance
  */
+@Ignore
 public class TestPerfRefinedLeeSpeckleFilter extends Benchmark {
 
     protected OperatorSpi CreateOperatorSpi() {
