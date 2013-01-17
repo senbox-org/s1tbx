@@ -45,6 +45,16 @@ class Roi {
         }
     }
 
+    Roi(Product sourceProduct, Band[] sourceBands, Mask roiMask) {
+        handleRoiMask(sourceProduct, roiMask);
+        handleValidMasks(sourceBands);
+        if (maskImageSet.size() > 0) {
+            combinedMaskImage = createCombinedMaskImage();
+        } else {
+            combinedMaskImage = null;
+        }
+    }
+
     boolean contains(final int x, final int y) {
         if (combinedMaskImage == null) {
             return true;
@@ -66,6 +76,12 @@ class Roi {
                 maskImageSet.add(mask.getSourceImage());
             }
         }
+    }
+
+    private void handleRoiMask(Product product, Mask  mask) {
+            if (mask != null) {
+                maskImageSet.add(mask.getSourceImage());
+            }
     }
 
     private void handleValidMasks(Band[] sourceBands) {

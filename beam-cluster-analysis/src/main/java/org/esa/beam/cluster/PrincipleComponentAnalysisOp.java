@@ -72,18 +72,23 @@ public class PrincipleComponentAnalysisOp extends Operator {
                defaultValue = "-1")
     private int componentCount;
 
-    @Parameter(label = "ROI-mask name",
-               description = "The name of the ROI-Mask that should be used.",
+    @Parameter(label = "ROI mask name",
+               description = "The name of the ROI mask that should be used.",
                defaultValue = "",
                rasterDataNodeType = Mask.class/*,
                validator = RoiMaskNameValidator.class*/)
     private String roiMaskName;
 
-    @Parameter(label = "ROI-mask expression",
-               description = "The expression of the ROI-Mask that should be used. If not given, a mask given by 'roiMaskName' must already exist.",
+    @Parameter(label = "ROI mask expression",
+               description = "The expression of the ROI mask that should be used. If not given, a mask given by 'roiMaskName' must already exist.",
                defaultValue = "",
                validator = RoiMaskExprValidator.class)
     private String roiMaskExpr;
+
+    @Parameter(label = "Remove non-ROI pixels",
+               description = "Removes all non-ROI pixels in the target product.",
+               defaultValue = "false")
+    private boolean removeNonRoiPixels;
 
     private transient Roi roi;
     private transient Band[] sourceBands;
@@ -117,7 +122,11 @@ public class PrincipleComponentAnalysisOp extends Operator {
 
         componentBands = new Band[componentCount];
         for (int i = 0; i < componentCount; i++) {
-            componentBands[i] = targetProduct.addBand("component_" + (i + 1), ProductData.TYPE_FLOAT32);
+            final Band componentBand = targetProduct.addBand("component_" + (i + 1), ProductData.TYPE_FLOAT32);
+            // Reuse spectral properties for components --> allow for analysis in spectrum view
+            // Although, this is geo-physical nonsense.
+            ProductUtils.copySpectralBandProperties(sourceBands[i], componentBand);
+            componentBands[i] = componentBand;
         }
         responseBand = targetProduct.addBand("response", ProductData.TYPE_FLOAT32);
         errorBand = targetProduct.addBand("error", ProductData.TYPE_FLOAT32);
@@ -127,7 +136,15 @@ public class PrincipleComponentAnalysisOp extends Operator {
         flagsBand.setSampleCoding(flags);
         targetProduct.getFlagCodingGroup().add(flags);
         targetProduct.addMask("pca_roi_pixel", "flags.PCA_ROI_PIXEL", "Pixel has been used to perform the PCA.", Color.RED, 0.5);
-        targetProduct.addMask("non_pca_roi_pixel", "!flags.PCA_ROI_PIXEL", "Pixel has not been used to perform the PCA.", Color.BLACK, 0.5);
+        targetProduct.addMask("pca_non_roi_pixel", "!flags.PCA_ROI_PIXEL", "Pixel has not been used to perform the PCA.", Color.BLACK, 0.5);
+
+        if (removeNonRoiPixels) {
+            for (Band componentBand : componentBands) {
+                componentBand.setValidPixelExpression("flags.PCA_ROI_PIXEL");
+            }
+            responseBand.setValidPixelExpression("flags.PCA_ROI_PIXEL");
+            errorBand.setValidPixelExpression("flags.PCA_ROI_PIXEL");
+        }
 
         if (StringUtils.isNullOrEmpty(roiMaskName)) {
             roiMaskName = "pca_roi_pixel";
@@ -244,6 +261,15 @@ public class PrincipleComponentAnalysisOp extends Operator {
         Rectangle[] tileRectangles = getAllTileRectangles();
         pm.beginTask("Extracting data points...", tileRectangles.length * 2);
         try {
+            Mask roiMask = null;
+            if (StringUtils.isNotNullAndNotEmpty(roiMaskName)) {
+                roiMask = sourceProduct.getMaskGroup().get(roiMaskName);
+            }  else if (StringUtils.isNotNullAndNotEmpty(roiMaskExpr)) {
+                roiMask = Mask.BandMathsType.create("_pca_roi_expr", "", targetProduct.getSceneRasterWidth(), targetProduct.getSceneRasterHeight(),
+                                                                    roiMaskExpr, Color.RED, 0.5);
+                // todo roiMask.
+            }
+
             roi = new Roi(sourceProduct, sourceBands, roiMaskName);
 
             final int pointSize = sourceBands.length;
