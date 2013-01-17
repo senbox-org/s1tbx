@@ -118,8 +118,8 @@ public class PixelGeoCoding2 extends AbstractGeoCoding {
         this.rasterW = latBand.getSceneRasterWidth();
         this.rasterH = latBand.getSceneRasterHeight();
 
-        lonImage = lonBand.getGeophysicalImage();
-        latImage = latBand.getGeophysicalImage();
+        lonImage = (PlanarImage) lonBand.getGeophysicalImage().getImage(0);
+        latImage = (PlanarImage) latBand.getGeophysicalImage().getImage(0);
 
         if (maskExpression != null && maskExpression.trim().length() > 0) {
             final ProductNodeGroup<Mask> maskGroup = product.getMaskGroup();
@@ -133,7 +133,7 @@ public class PixelGeoCoding2 extends AbstractGeoCoding {
                 }
             }
             if (maskImage == null) {
-                maskImage = ImageManager.getInstance().getMaskImage(maskExpression, lonBand.getProduct());
+                maskImage = (PlanarImage) ImageManager.getInstance().getMaskImage(maskExpression, lonBand.getProduct()).getImage(0);
             }
         } else {
             maskImage = ConstantDescriptor.create((float) lonImage.getWidth(),
@@ -267,6 +267,14 @@ public class PixelGeoCoding2 extends AbstractGeoCoding {
             }
         }
         return geoPos;
+    }
+
+    public int getRasterWidth() {
+        return rasterW;
+    }
+
+    public int getRasterHeight() {
+        return rasterH;
     }
 
     private float interpolate(float wx, float wy, Raster raster) {
@@ -447,12 +455,12 @@ public class PixelGeoCoding2 extends AbstractGeoCoding {
             int y0 = (int) Math.floor(pixelPos.y);
 
             if (x0 >= 0 && x0 < imageW && y0 >= 0 && y0 < imageH) {
-                final int searchRegion = 2 * maxSearchCycleCount;
+                final int searchRadius = 2 * maxSearchCycleCount;
 
-                int x1 = Math.max(x0 - searchRegion, 0);
-                int y1 = Math.max(y0 - searchRegion, 0);
-                int x2 = Math.min(x0 + searchRegion, imageW - 1);
-                int y2 = Math.min(y0 + searchRegion, imageH - 1);
+                int x1 = Math.max(x0 - searchRadius, 0);
+                int y1 = Math.max(y0 - searchRadius, 0);
+                int x2 = Math.min(x0 + searchRadius, imageW - 1);
+                int y2 = Math.min(y0 + searchRadius, imageH - 1);
 
                 final Rectangle rectangle = new Rectangle(x1, y1, x2 - x1 + 1, y2 - y1 + 1);
                 final Raster latData = latImage.getData(rectangle);
@@ -524,7 +532,7 @@ public class PixelGeoCoding2 extends AbstractGeoCoding {
                     x0 = x1;
                     y0 = y1;
                 }
-                if (minDistance * minDistance < pixelDiagonalSquared) {
+                if (minDistance < pixelDiagonalSquared) {
                     pixelPos.setLocation(x0 + 0.5f, y0 + 0.5f);
                 } else {
                     pixelPos.setInvalid();
