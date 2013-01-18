@@ -118,8 +118,16 @@ public class PixelGeoCoding2 extends AbstractGeoCoding {
         this.rasterW = latBand.getSceneRasterWidth();
         this.rasterH = latBand.getSceneRasterHeight();
 
-        lonImage = (PlanarImage) lonBand.getGeophysicalImage().getImage(0);
-        latImage = (PlanarImage) latBand.getGeophysicalImage().getImage(0);
+        try {
+            lonImage = (PlanarImage) lonBand.getGeophysicalImage().getImage(0);
+        } catch (ClassCastException e) {
+            lonImage = lonBand.getGeophysicalImage();
+        }
+        try {
+            latImage = (PlanarImage) latBand.getGeophysicalImage().getImage(0);
+        } catch (ClassCastException e) {
+            latImage = latBand.getGeophysicalImage();
+        }
 
         if (maskExpression != null && maskExpression.trim().length() > 0) {
             final ProductNodeGroup<Mask> maskGroup = product.getMaskGroup();
