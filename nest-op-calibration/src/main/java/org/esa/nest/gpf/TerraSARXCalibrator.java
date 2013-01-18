@@ -258,7 +258,11 @@ public class TerraSARXCalibrator extends BaseCalibrator implements Calibrator {
             File sourceGIMFile =
                     new File(sourceProduct.getFileLocation().getParentFile(), "AUXRASTER" + File.separator + "GIM.tif");
 
-            sourceGIMProduct = ProductIO.readProduct(sourceGIMFile);
+            if (sourceGIMFile.exists()) {
+                sourceGIMProduct = ProductIO.readProduct(sourceGIMFile);
+            } else {
+                useIncidenceAngleFromGIM = false;
+            }
 
         } catch(Exception e) {
             throw new OperatorException("TerraSARXCalibrator: " + e);
