@@ -15,7 +15,6 @@ public class ImageGeometryTest {
         int width = 100;
         int height = 100;
         Product product = new Product("product", "type", width, height);
-
         Band latBand = new Band("lat", ProductData.TYPE_FLOAT32, width, height);
         Band lonBand = new Band("lon", ProductData.TYPE_FLOAT32, width, height);
         float[] latData = new float[width * height];
@@ -36,16 +35,19 @@ public class ImageGeometryTest {
         latBand.setDataElems(latData);
         lonBand.setDataElems(lonData);
         latBand.setNoDataValue(Float.NaN);
+        latBand.setNoDataValueUsed(true);
         lonBand.setNoDataValue(Float.NaN);
+        lonBand.setNoDataValueUsed(true);
         product.addBand(latBand);
         product.addBand(lonBand);
         product.setGeoCoding(new PixelGeoCoding2(latBand, lonBand, null));
 
         final Rectangle2D rect = ImageGeometry.createValidRect(product);
+
         assertEquals(width / 4 + 0.5, rect.getX(), 0);
         assertEquals(height / 4 + 0.5, rect.getY(), 0);
-        assertEquals(width / 2 - 0.5, rect.getX() + rect.getWidth(), 0);
-        assertEquals(height / 2 - 0.5, rect.getY() + rect.getHeight(), 0);
+        assertEquals(width * 3 / 4 + 0.5, rect.getX() + rect.getWidth(), 0);
+        assertEquals(height * 3 / 4 + 0.5, rect.getY() + rect.getHeight(), 0);
         for (int x = (int) rect.getX(); x < rect.getX() + rect.getWidth(); x++) {
             for (int y = (int) rect.getY(); y < rect.getY() + rect.getHeight(); y++) {
                 assertNotSame(latBand.getNoDataValue(), latBand.getSampleFloat(x, y));
