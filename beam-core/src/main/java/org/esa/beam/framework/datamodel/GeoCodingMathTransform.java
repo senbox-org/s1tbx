@@ -16,7 +16,6 @@
 
 package org.esa.beam.framework.datamodel;
 
-import org.esa.beam.util.ProductUtils;
 import org.geotools.parameter.DefaultParameterDescriptorGroup;
 import org.geotools.referencing.operation.transform.AbstractMathTransform;
 import org.opengis.parameter.GeneralParameterDescriptor;
@@ -24,8 +23,6 @@ import org.opengis.parameter.ParameterDescriptorGroup;
 import org.opengis.referencing.operation.MathTransform2D;
 import org.opengis.referencing.operation.NoninvertibleTransformException;
 import org.opengis.referencing.operation.TransformException;
-
-import java.awt.Rectangle;
 
 /**
  * A math transform which converts from grid (pixel) coordinates to geographical coordinates.
@@ -133,13 +130,13 @@ public class GeoCodingMathTransform extends AbstractMathTransform implements Mat
                     pixelPos.y = (float) srcPts[srcOff + secondIndex];
 
                     geoCoding.getGeoPos(pixelPos, geoPos);
-                    if (!geoPos.isValid()) {
-                        if (geoCoding instanceof PixelGeoCoding2) {
-                            Rectangle region = new Rectangle(0, 0, ((PixelGeoCoding2) geoCoding).getRasterWidth(),
-                                                             ((PixelGeoCoding2) geoCoding).getRasterHeight());
-                            geoPos = ProductUtils.getClosestGeoPos(geoCoding, pixelPos, region, 20);
-                        }
-                    }
+//                    if (!geoPos.isValid()) {
+//                        if (geoCoding instanceof PixelGeoCoding2) {
+//                            Rectangle region = new Rectangle(0, 0, ((PixelGeoCoding2) geoCoding).getRasterWidth(),
+//                                                             ((PixelGeoCoding2) geoCoding).getRasterHeight());
+//                            geoPos = ProductUtils.getClosestGeoPos(geoCoding, pixelPos, region, 20);
+//                        }
+//                    }
 
                     dstPts[dstOff + firstIndex] = geoPos.lon;
                     dstPts[dstOff + secondIndex] = geoPos.lat;

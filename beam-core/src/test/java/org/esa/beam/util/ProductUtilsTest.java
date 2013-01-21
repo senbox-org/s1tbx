@@ -608,6 +608,10 @@ public class ProductUtilsTest {
         }
         latBand.setDataElems(latData);
         lonBand.setDataElems(lonData);
+        latBand.setNoDataValue(Float.NaN);
+        latBand.setNoDataValueUsed(true);
+        lonBand.setNoDataValue(Float.NaN);
+        lonBand.setNoDataValueUsed(true);
         product.addBand(latBand);
         product.addBand(lonBand);
         PixelGeoCoding2 geoCoding = new PixelGeoCoding2(latBand, lonBand, "");
