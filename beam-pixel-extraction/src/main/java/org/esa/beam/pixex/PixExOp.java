@@ -672,7 +672,6 @@ public class PixExOp extends Operator implements Output {
         oldTimeStamps[1] = product.getEndTime();
         try {
             File file = product.getFileLocation();
-            System.out.println("product = " + file.getAbsolutePath());
             if (extractTimeFromFilename && file != null) {
                 String fileName = file.getName();
                 final ProductData.UTC[] timeStamps = timeStampExtractor.extractTimeStamps(fileName);
