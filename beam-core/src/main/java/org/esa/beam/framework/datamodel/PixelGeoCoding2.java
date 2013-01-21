@@ -51,7 +51,6 @@ public class PixelGeoCoding2 extends AbstractGeoCoding {
 
     private PlanarImage lonImage;
     private PlanarImage latImage;
-    private PlanarImage maskImage;
 
     public interface PixelFinder {
 
@@ -129,6 +128,7 @@ public class PixelGeoCoding2 extends AbstractGeoCoding {
             latImage = latBand.getGeophysicalImage();
         }
 
+        PlanarImage maskImage = null;
         if (maskExpression != null && maskExpression.trim().length() > 0) {
             final ProductNodeGroup<Mask> maskGroup = product.getMaskGroup();
             for (int i = 0; i < maskGroup.getNodeCount(); i++) {
@@ -242,7 +242,7 @@ public class PixelGeoCoding2 extends AbstractGeoCoding {
             int x0 = (int) Math.floor(pixelPos.getX());
             int y0 = (int) Math.floor(pixelPos.getY());
             if (x0 >= 0 && x0 < rasterW && y0 >= 0 && y0 < rasterH) {
-                final Raster maskData = maskImage.getData(new Rectangle(x0, y0, 2, 2));
+                final Raster maskData = latBand.getValidMaskImage().getData(new Rectangle(x0, y0, 2, 2));
                 if (maskData.getSample(x0, y0, 0) != 0) {
                     if (fractionAccuracy) {
                         if (x0 > 0 && pixelPos.x - x0 < 0.5f || x0 == rasterW - 1) {
@@ -343,7 +343,6 @@ public class PixelGeoCoding2 extends AbstractGeoCoding {
         lonBand = null;
         lonImage = null;
         latImage = null;
-        maskImage = null;
     }
 
     private void getGeoPos(int pixelX, int pixelY, GeoPos geoPos) {
