@@ -21,6 +21,8 @@ import org.apache.velocity.VelocityContext;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.mockito.Matchers;
+import org.mockito.Mockito;
 
 import java.io.Reader;
 import java.io.StringReader;
@@ -32,11 +34,11 @@ import static org.junit.Assert.*;
 public class MetadataResourceEngineTest {
 
     private MetadataResourceEngine metadataResourceEngine;
-    private SimpleFileSystemMock ioAccessor;
+    private SimpleFileSystem ioAccessor;
 
     @Before
     public void setUp() throws Exception {
-        ioAccessor = new SimpleFileSystemMock();
+        ioAccessor = Mockito.mock(SimpleFileSystem.class);
         metadataResourceEngine = new MetadataResourceEngine(ioAccessor);
     }
 
@@ -64,9 +66,11 @@ public class MetadataResourceEngineTest {
 
     @Test
     public void testWriteTargetMetadata() throws Exception {
-        ioAccessor.setReader("templates/metadata.xml.vm", new StringReader("I would say: ${var1} ${var2}"));
+        Mockito.when(ioAccessor.createReader("templates/metadata.xml.vm")).thenReturn(
+                new StringReader("I would say: ${var1} ${var2}"));
         StringWriter stringWriter = new StringWriter();
-        ioAccessor.setWriter("out/MER_L2-metadata.xml", stringWriter);
+        Mockito.when(ioAccessor.createWriter("out/MER_L2-metadata.xml")).thenReturn(stringWriter);
+        Mockito.when(ioAccessor.isFile("out/MER_L2.dim")).thenReturn(true);
 
         VelocityContext velocityContext = metadataResourceEngine.getVelocityContext();
         velocityContext.put("var1", "Hello");
@@ -83,7 +87,7 @@ public class MetadataResourceEngineTest {
 
     @Test
     public void testMetadataAsProperties() throws Exception {
-        ioAccessor.setReader("static.properties", new StringReader("key = sdkfj"));
+        Mockito.when(ioAccessor.createReader("static.properties")).thenReturn(new StringReader("key = sdkfj"));
 
         VelocityContext velocityContext = metadataResourceEngine.getVelocityContext();
         metadataResourceEngine.readResource("props", "static.properties");
@@ -104,7 +108,7 @@ public class MetadataResourceEngineTest {
     @Test
     public void testMetadataAsPropertiesWithEvaluation() throws Exception {
         Reader reader = new StringReader("key = BEAM is ${state}");
-        ioAccessor.setReader("evaluation.data", reader);
+        Mockito.when(ioAccessor.createReader("evaluation.data")).thenReturn(reader);
 
         VelocityContext velocityContext = metadataResourceEngine.getVelocityContext();
         velocityContext.put("state", "ok");
@@ -136,7 +140,7 @@ public class MetadataResourceEngineTest {
     @Test
     public void testMetadataAsXML() throws Exception {
         Reader reader = new StringReader("<?xml>this is XML</xml>");
-        ioAccessor.setReader("static.xml", reader);
+        Mockito.when(ioAccessor.createReader("static.xml")).thenReturn(reader);
 
         VelocityContext velocityContext = metadataResourceEngine.getVelocityContext();
 
@@ -159,9 +163,13 @@ public class MetadataResourceEngineTest {
 
     @Test
     public void testSourceMetadata() throws Exception {
-        ioAccessor.setReader("input/MER_L1-report.xml", new StringReader("<?xml>this is XML</xml>"));
-        ioAccessor.setReader("input/MER_L1-meta.txt", new StringReader("key = BEAM is ${state}"));
-        ioAccessor.setDirectoryList("input", "MER_L1-report.xml", "MER_L1-meta.txt", "MER_L1.N1");
+        Mockito.when(ioAccessor.createReader("input/MER_L1-report.xml")).thenReturn(
+                new StringReader("<?xml>this is XML</xml>"));
+        Mockito.when(ioAccessor.createReader("input/MER_L1-meta.txt")).thenReturn(
+                new StringReader("key = BEAM is ${state}"));
+        Mockito.when(ioAccessor.list("input")).thenReturn(
+                new String[]{"MER_L1-report.xml", "MER_L1-meta.txt", "MER_L1.N1"});
+        Mockito.when(ioAccessor.isFile(Matchers.anyString())).thenReturn(true);
 
         //execution
         metadataResourceEngine.readRelatedResource("source1", "input/MER_L1.N1");
@@ -208,9 +216,11 @@ public class MetadataResourceEngineTest {
 
     @Test
     public void testSourceMetadataWith2ProductsInSameDirectory() throws Exception {
-        ioAccessor.setReader("input/MER_L1-report.xml", new StringReader("<?xml>hello</xml>"));
-        ioAccessor.setReader("input/MER_FRS_L1-meta.xml", new StringReader("world"));
-        ioAccessor.setDirectoryList("input", "MER_L1-report.xml", "MER_L1.dim", "MER_L1.data", "MER_FRS_L1-meta.xml", "MER_FRS_L1.N1");
+        Mockito.when(ioAccessor.createReader("input/MER_L1-report.xml")).thenReturn(new StringReader("<?xml>hello</xml>"));
+        Mockito.when(ioAccessor.createReader("input/MER_FRS_L1-meta.xml")).thenReturn(new StringReader("world"));
+        Mockito.when(ioAccessor.list("input")).thenReturn(new String[]{"MER_L1-report.xml", "MER_L1.dim", "MER_L1.data", "MER_FRS_L1-meta.xml", "MER_FRS_L1.N1"});
+        Mockito.when(ioAccessor.isFile(Matchers.endsWith(".data"))).thenReturn(false);
+        Mockito.when(ioAccessor.isFile(Matchers.anyString())).thenReturn(true);
 
         //execution
         metadataResourceEngine.readRelatedResource("source1", "input/MER_L1.N1");
@@ -259,10 +269,13 @@ public class MetadataResourceEngineTest {
 
     @Test
     public void testSourceMetadataWith2Sources() throws Exception {
-        ioAccessor.setReader("input1/MER_L1-report.xml", new StringReader("<?xml>this is XML</xml>"));
-        ioAccessor.setReader("input2/MER_FRS_L1-meta.xml", new StringReader("<?xml>this is XML</xml> <tag>value</tag>"));
-        ioAccessor.setDirectoryList("input1", "MER_L1-report.xml", "MER_L1.N1");
-        ioAccessor.setDirectoryList("input2", "MER_FRS_L1-meta.xml", "MER_FRS_L1.N1");
+        Mockito.when(ioAccessor.createReader("input1/MER_L1-report.xml")).thenReturn(
+                new StringReader("<?xml>this is XML</xml>"));
+        Mockito.when(ioAccessor.createReader("input2/MER_FRS_L1-meta.xml")).thenReturn(
+                new StringReader("<?xml>this is XML</xml> <tag>value</tag>"));
+        Mockito.when(ioAccessor.list("input1")).thenReturn(new String[]{"MER_L1-report.xml", "MER_L1.N1"});
+        Mockito.when(ioAccessor.list("input2")).thenReturn(new String[]{"MER_FRS_L1-meta.xml", "MER_FRS_L1.N1"});
+        Mockito.when(ioAccessor.isFile(Matchers.anyString())).thenReturn(true);
 
         //execution
         metadataResourceEngine.readRelatedResource("source1", "input1/MER_L1.N1");

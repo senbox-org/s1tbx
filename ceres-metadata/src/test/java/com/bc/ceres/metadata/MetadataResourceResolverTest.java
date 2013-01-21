@@ -17,21 +17,31 @@
 package com.bc.ceres.metadata;
 
 import org.junit.Test;
+import org.mockito.Matchers;
 
 import java.util.SortedMap;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 public class MetadataResourceResolverTest {
 
     @Test
     public void testRemovefileExtension() throws Exception {
-        MetadataResourceResolver metadataResourceResolver = new MetadataResourceResolver(new SimpleFileSystemMock());
+        SimpleFileSystem fileSystem = mock(SimpleFileSystem.class);
+        MetadataResourceResolver metadataResourceResolver = new MetadataResourceResolver(fileSystem);
 
+        when(fileSystem.isFile(Matchers.anyString())).thenReturn(true);
+        // existing files
         assertEquals("foo", metadataResourceResolver.removeFileExtension("foo.txt"));
         assertEquals("foo", metadataResourceResolver.removeFileExtension("foo"));
         assertEquals("foo/bar", metadataResourceResolver.removeFileExtension("foo/bar.baz"));
         assertEquals("foo\\bar", metadataResourceResolver.removeFileExtension("foo\\bar.baz"));
+
+        when(fileSystem.isFile(Matchers.anyString())).thenReturn(false );
+        // not existing
+        assertEquals("bar.foo", metadataResourceResolver.removeFileExtension("bar.foo")); // not existing file
+
         //directories
         assertEquals("\\root\\foo", metadataResourceResolver.removeFileExtension("\\root\\foo"));
         String directory = "C:\\Users\\bettina\\Software-Tests\\own-software\\ceres-metadata-0.13.2-SNAPSHOT\\data\\out";
@@ -71,11 +81,12 @@ public class MetadataResourceResolverTest {
 
     @Test
     public void testGetSourceNames() throws Exception {
-        SimpleFileSystemMock simpleFileSystem = new SimpleFileSystemMock();
-        simpleFileSystem.setDirectoryList("/bla/bli", "file1", "product-file2.xml", "file3", "product-file4.properties");
-        MetadataResourceResolver resolver = new MetadataResourceResolver(simpleFileSystem);
+        SimpleFileSystem fileSystem = mock(SimpleFileSystem.class);
+        MetadataResourceResolver resolver = new MetadataResourceResolver(fileSystem);
 
-        SortedMap<String, String> sourceMetadataPaths = resolver.getSourceMetadataPaths("/bla/bli/product.dim");
+        when(fileSystem.isFile(anyString())).thenReturn(true);
+        when(fileSystem.list(anyString())).thenReturn(new String[]{"file1", "product-file2.xml", "file3", "product-file4.properties"});
+        SortedMap<String,String> sourceMetadataPaths= resolver.getSourceMetadataPaths("/bla/bli/product.dim");
 
         assertEquals(2, sourceMetadataPaths.size());
         assertEquals("/bla/bli/product-file2.xml", sourceMetadataPaths.get("file2.xml"));
