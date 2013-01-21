@@ -186,29 +186,25 @@ public final class MultilookOp extends Operator {
             final boolean isdB = bandUnit == Unit.UnitType.INTENSITY_DB || bandUnit == Unit.UnitType.AMPLITUDE_DB;
             final boolean isComplex = outputIntensity && (bandUnit == Unit.UnitType.REAL || bandUnit == Unit.UnitType.IMAGINARY);
 
-            double meanValue, value;
+            double meanValue;
             int tOffset, sOffset;
             final int maxy = ty0 + th;
             final int maxx = tx0 + tw;
             if(nRgLooks == 1 && nAzLooks == 1) {
                 //no mean
-                for (int ty = ty0; ty < maxy; ty++) {
-                    tOffset = trgIndex.calculateStride(ty);
-                    sOffset = srcIndex.calculateStride(ty);
-                    for (int tx = tx0; tx < maxx; tx++) {
-                        final int tIndex = tx - tOffset;
-                        final int sIndex = tx - sOffset;
-                        if (isdB) {
-                            value = Math.pow(10, srcData1.getElemDoubleAt(sIndex) / 10.0); // dB to linear
-                            trgData.setElemDoubleAt(tIndex, 10.0*Math.log10(value)); // linear to dB
-                        } else if (isComplex) { // COMPLEX
+                if(isComplex) {
+                    for (int ty = ty0; ty < maxy; ty++) {
+                        tOffset = trgIndex.calculateStride(ty);
+                        sOffset = srcIndex.calculateStride(ty);
+                        for (int tx = tx0; tx < maxx; tx++) {
+                            final int sIndex = tx - sOffset;
                             final double i = srcData1.getElemDoubleAt(sIndex);
                             final double q = srcData2.getElemDoubleAt(sIndex);
-                            trgData.setElemDoubleAt(tIndex, i*i + q*q);
-                        } else {
-                            trgData.setElemDoubleAt(tIndex, srcData1.getElemDoubleAt(sIndex));
+                            trgData.setElemDoubleAt(tx - tOffset, i*i + q*q);
                         }
                     }
+                } else {
+                    targetTile.setRawSamples(getSourceTile(sourceBand1, targetTile.getRectangle()).getRawSamples());
                 }
             } else {
                 for (int ty = ty0; ty < maxy; ty++) {
