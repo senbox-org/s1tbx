@@ -178,7 +178,7 @@ public class VersionCheckerVPI extends AbstractVisatPlugIn {
             final File program = new File(homeFolder, "bin"+File.separator+"exec1.bat");
 
             final String arg = '\"' +autoUpdateExe.getParent()+"\" "+autoUpdateExe.getName();
-            command = program.getAbsolutePath() + ' ' + arg;
+            command = '\"' +program.getAbsolutePath() +"\" "+ arg;
         } else if(platform.getId() == Platform.ID.macosx) {
             autoUpdateExe = new File(homeFolder, "autoupdate-osx.app");
             command = autoUpdateExe.getAbsolutePath();
