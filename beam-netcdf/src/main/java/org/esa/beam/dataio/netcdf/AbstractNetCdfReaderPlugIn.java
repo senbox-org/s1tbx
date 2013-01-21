@@ -46,6 +46,18 @@ public abstract class AbstractNetCdfReaderPlugIn implements ProductReaderPlugIn 
             return getDecodeQualification(netcdfFile);
         } catch (Throwable ignored) {
             // ok -- just clean up and return UNABLE
+            if (input != null) {
+                String pathname = input.toString();
+                if (pathname.toLowerCase().trim().endsWith(".zip")) {
+                    final String trimmed = pathname.trim();
+                    pathname = trimmed.substring(0, trimmed.length()-4);
+                    final File file = new File(pathname);
+                    if (file.isFile() && file.length() == 0) {
+                        file.deleteOnExit();
+                        file.delete();
+                    }
+                }
+            }
         } finally {
             try {
                 if (netcdfFile != null) {
