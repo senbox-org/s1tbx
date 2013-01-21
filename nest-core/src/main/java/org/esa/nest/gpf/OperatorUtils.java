@@ -614,7 +614,7 @@ public final class OperatorUtils {
     public static void addSelectedBands(final Product sourceProduct, final String[] sourceBandNames,
                                   final Product targetProduct,
                                   final Map<String, String[]> targetBandNameToSourceBandName,
-                                  final boolean outputIntensity) throws OperatorException {
+                                  final boolean outputIntensity, final boolean outputFloat) throws OperatorException {
 
         final Band[] sourceBands = getSourceBands(sourceProduct, sourceBandNames);
 
@@ -686,9 +686,12 @@ public final class OperatorUtils {
             }
 
             if(targetProduct.getBand(targetBandName) == null) {
+                int dataType = srcBand.getDataType();
+                if(outputFloat)
+                    dataType = ProductData.TYPE_FLOAT32;
 
                 final Band targetBand = new Band(targetBandName,
-                                                 ProductData.TYPE_FLOAT32,
+                                                 dataType,
                                                  targetProduct.getSceneRasterWidth(),
                                                  targetProduct.getSceneRasterHeight());
 

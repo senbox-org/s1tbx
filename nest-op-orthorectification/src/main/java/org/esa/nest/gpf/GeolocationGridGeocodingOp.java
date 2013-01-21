@@ -210,7 +210,7 @@ public final class GeolocationGridGeocodingOp extends Operator {
             targetProduct.setGeoCoding(crsHandler.getCrsGeoCoding());
 
             OperatorUtils.addSelectedBands(
-                    sourceProduct, sourceBandNames, targetProduct, targetBandNameToSourceBandName, true);
+                    sourceProduct, sourceBandNames, targetProduct, targetBandNameToSourceBandName, true, true);
 
             targetGeoCoding = targetProduct.getGeoCoding();
 

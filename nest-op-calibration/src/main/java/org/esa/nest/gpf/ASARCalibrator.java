@@ -16,6 +16,7 @@
 package org.esa.nest.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
+import org.apache.commons.math.util.FastMath;
 import org.esa.beam.dataio.envisat.EnvisatAuxReader;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.gpf.Operator;
@@ -933,7 +934,7 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
                 }
 
                 // apply calibration constant and incidence angle corrections
-                sigma *= Math.sin(incidenceAnglesArray[xx] * MathUtils.DTOR) / theCalibrationFactor;
+                sigma *= FastMath.sin(incidenceAnglesArray[xx] * MathUtils.DTOR) / theCalibrationFactor;
 
                 if (applyRangeSpreadingCorr && targetTileSlantRange != null) { // apply range spreading loss compensation
                     /*
@@ -979,7 +980,7 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
         for (int y = y0; y < yMax; y++) {
 
             final double zeroDopplerTime = firstLineUTC + y*lineTimeInterval;
-            final double satelitteHeight = computeSatelliteHeight(zeroDopplerTime, orbitStateVectors);
+            final double satelliteHeight = computeSatelliteHeight(zeroDopplerTime, orbitStateVectors);
 
             AbstractMetadata.SRGRCoefficientList srgrConvParam = null;
             if (srgrFlag) {
@@ -996,7 +997,7 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
                 final double localEarthRadius = getEarthRadius(x, y);
 
                 final double theta = computeElevationAngle(
-                        targetTileSlantRange[yy][xx], satelitteHeight, avgSceneHeight + localEarthRadius); // in degree
+                        targetTileSlantRange[yy][xx], satelliteHeight, avgSceneHeight + localEarthRadius); // in degree
                 /*
                 double alpha = incidenceAngle.getPixelFloat(x, y); // in degree
                 double gamma = Math.asin(targetTileSlantRange[yy][xx]*Math.sin(alpha*MathUtils.DTOR)/satelitteHeight)*MathUtils.RTOD; // in degree
@@ -1191,7 +1192,8 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
 
         } else { // for slant range product, compute slant range from slant range time
 
-            final double time = slantRangeTime.getPixelFloat((float)x, (float)y, TiePointGrid.InterpMode.QUADRATIC) / 1000000000.0; //convert ns to s
+            final double time = slantRangeTime.getPixelFloat((float)x, (float)y, TiePointGrid.InterpMode.QUADRATIC) /
+                    Constants.oneBillion; //convert ns to s
             return time * Constants.halfLightSpeed; // in m
         }
     }
@@ -1232,7 +1234,7 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
             minAbsLat = 0.0;
         }
         delLat = minSpacing / Constants.MeanEarthRadius * org.esa.beam.util.math.MathUtils.RTOD;
-        final double delLon = minSpacing / (Constants.MeanEarthRadius*Math.cos(minAbsLat)) * org.esa.beam.util.math.MathUtils.RTOD;
+        final double delLon = minSpacing / (Constants.MeanEarthRadius*FastMath.cos(minAbsLat)) * org.esa.beam.util.math.MathUtils.RTOD;
         delLat = Math.min(delLat, delLon);
 
         final int h = (int)((latMax - latMin)/delLat) + 1;
@@ -1263,10 +1265,11 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
      * @param sceneToEarthCentre The distance from the backscatter element to the Earth centre (in meters).
      * @return The elevation angle.
      */
-    public static double computeElevationAngle(double slantRange, double satelliteHeight, double sceneToEarthCentre) {
+    public static double computeElevationAngle(final double slantRange, final double satelliteHeight,
+                                               final double sceneToEarthCentre) {
 
-        return Math.acos((slantRange*slantRange + satelliteHeight*satelliteHeight -
-               (sceneToEarthCentre)*(sceneToEarthCentre))/(2*slantRange*satelliteHeight))*MathUtils.RTOD;
+        return FastMath.acos((slantRange*slantRange + satelliteHeight*satelliteHeight -
+               sceneToEarthCentre*sceneToEarthCentre)/(2*slantRange*satelliteHeight))*MathUtils.RTOD;
     }
 
     /**
@@ -1404,7 +1407,7 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
             throw new OperatorException("Unknown band unit");
         }
 
-        sigma *= Math.sin(Math.abs(localIncidenceAngle)*org.esa.beam.util.math.MathUtils.DTOR) /
+        sigma *= FastMath.sin(Math.abs(localIncidenceAngle)*org.esa.beam.util.math.MathUtils.DTOR) /
                  newCalibrationConstant[bandPolarIdx];
 
         if (multilookFlag && antElevCorrFlag) { // calibration constant and incidence angle corrections only

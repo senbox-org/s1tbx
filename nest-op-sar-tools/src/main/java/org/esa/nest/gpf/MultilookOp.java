@@ -174,9 +174,51 @@ public final class MultilookOp extends Operator {
                 }
             }
 
-            final Unit.UnitType bandUnitType = Unit.getUnitType(sourceBand1);
+            final ProductData trgData = targetTile.getDataBuffer();
 
-            computeMultiLookImageUsingTimeDomainMethod(tx0, ty0, tw, th, sourceRaster1, sourceRaster2, targetTile, bandUnitType);
+            final ProductData srcData1 = sourceRaster1.getDataBuffer();
+            final ProductData srcData2 = sourceRaster2 != null ? sourceRaster2.getDataBuffer() : null;
+
+            final TileIndex trgIndex = new TileIndex(targetTile);
+            final TileIndex srcIndex = new TileIndex(sourceRaster1);
+
+            final Unit.UnitType bandUnit = Unit.getUnitType(sourceBand1);
+            final boolean isdB = bandUnit == Unit.UnitType.INTENSITY_DB || bandUnit == Unit.UnitType.AMPLITUDE_DB;
+            final boolean isComplex = outputIntensity && (bandUnit == Unit.UnitType.REAL || bandUnit == Unit.UnitType.IMAGINARY);
+
+            double meanValue, value;
+            int tOffset, sOffset;
+            final int maxy = ty0 + th;
+            final int maxx = tx0 + tw;
+            if(nRgLooks == 1 && nAzLooks == 1) {
+                //no mean
+                for (int ty = ty0; ty < maxy; ty++) {
+                    tOffset = trgIndex.calculateStride(ty);
+                    sOffset = srcIndex.calculateStride(ty);
+                    for (int tx = tx0; tx < maxx; tx++) {
+                        final int tIndex = tx - tOffset;
+                        final int sIndex = tx - sOffset;
+                        if (isdB) {
+                            value = Math.pow(10, srcData1.getElemDoubleAt(sIndex) / 10.0); // dB to linear
+                            trgData.setElemDoubleAt(tIndex, 10.0*Math.log10(value)); // linear to dB
+                        } else if (isComplex) { // COMPLEX
+                            final double i = srcData1.getElemDoubleAt(sIndex);
+                            final double q = srcData2.getElemDoubleAt(sIndex);
+                            trgData.setElemDoubleAt(tIndex, i*i + q*q);
+                        } else {
+                            trgData.setElemDoubleAt(tIndex, srcData1.getElemDoubleAt(sIndex));
+                        }
+                    }
+                }
+            } else {
+                for (int ty = ty0; ty < maxy; ty++) {
+                    trgIndex.calculateStride(ty);
+                    for (int tx = tx0; tx < maxx; tx++) {
+                        meanValue = getMeanValue(tx, ty, srcData1, srcData2, srcIndex, nRgLooks, nAzLooks, isdB, isComplex);
+                        trgData.setElemDoubleAt(trgIndex.getIndex(tx), meanValue);
+                    }
+                }
+            }
         } catch(Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
         } finally {
@@ -230,7 +272,7 @@ public final class MultilookOp extends Operator {
                                     targetImageHeight);
 
         OperatorUtils.addSelectedBands(
-                sourceProduct, sourceBandNames, targetProduct, targetBandNameToSourceBandName, outputIntensity);
+                sourceProduct, sourceBandNames, targetProduct, targetBandNameToSourceBandName, outputIntensity, false);
 
         ProductUtils.copyMetadata(sourceProduct, targetProduct);
         //ProductUtils.copyTiePointGrids(sourceProduct, targetProduct);
@@ -315,62 +357,20 @@ public final class MultilookOp extends Operator {
     }
 
     /**
-     * Compute multi-looked image using time domain method.
-     *
-     * @param tx0 The x coordinate of the upper left point in the current target tile.
-     * @param ty0 The y coordinate of the upper left point in the current target tile.
-     * @param tw  The width of the current target tile.
-     * @param th  The height of the current target tile.
-     * @param sourceRaster1 The source raster for the 1st band.
-     * @param sourceRaster2 The source raster for the 2nd band.
-     * @param targetTile The current target tile associated with the target band to be computed.
-     * @param bandUnit Integer indicating the unit of source data.
-     */
-    private void computeMultiLookImageUsingTimeDomainMethod(
-            int tx0, int ty0, int tw, int th, Tile sourceRaster1, Tile sourceRaster2, Tile targetTile, Unit.UnitType bandUnit) {
-
-        final ProductData trgData = targetTile.getDataBuffer();
-
-        final ProductData srcData1 = sourceRaster1.getDataBuffer();
-        ProductData srcData2 = null;
-        if(sourceRaster2 != null)
-            srcData2 = sourceRaster2.getDataBuffer();
-
-        final TileIndex trgIndex = new TileIndex(targetTile);
-        final TileIndex srcIndex = new TileIndex(sourceRaster1);
-
-        double meanValue;
-        final int maxy = ty0 + th;
-        final int maxx = tx0 + tw;
-        for (int ty = ty0; ty < maxy; ty++) {
-            trgIndex.calculateStride(ty);
-            for (int tx = tx0; tx < maxx; tx++) {
-                meanValue = getMeanValue(
-                        tx, ty, sourceRaster1, srcData1, srcData2, srcIndex, nRgLooks, nAzLooks, bandUnit, outputIntensity);
-                trgData.setElemDoubleAt(trgIndex.getIndex(tx), meanValue);
-            }
-        }
-    }
-
-    /**
      * Compute the mean value of pixels of the source image in the sliding window.
      * @param tx The x coordinate of a pixel in the current target tile.
      * @param ty The y coordinate of a pixel in the current target tile.
-     * @param sourceRaster1 The source raster for the 1st band.
      * @param srcData1 The product data for i band in case of complex product.
      * @param srcData2 The product data for q band in case of complex product.
      * @param nRgLooks number of range looks
      * @param nAzLooks number of azimuth looks
-     * @param bandUnit Integer indicating the unit of source data.
-     * @param outputIntensity intensity or i and q
      * @return The mean value.
      */
-    private static double getMeanValue(final int tx, final int ty, final Tile sourceRaster1,
+    private static double getMeanValue(final int tx, final int ty,
                                        final ProductData srcData1, final ProductData srcData2,
                                        final TileIndex srcIndex,
                                        final int nRgLooks, final int nAzLooks,
-                                       final Unit.UnitType bandUnit,
-                                       final boolean outputIntensity) {
+                                       final boolean isdB, final boolean isComplex) {
 
         final int xStart = tx * nRgLooks;
         final int yStart = ty * nAzLooks;
@@ -378,23 +378,24 @@ public final class MultilookOp extends Operator {
         final int yEnd = yStart + nAzLooks;
 
         double meanValue = 0.0;
-        if (bandUnit == Unit.UnitType.INTENSITY_DB || bandUnit == Unit.UnitType.AMPLITUDE_DB) {
+        int offset;
+        if (isdB) {
             for (int y = yStart; y < yEnd; y++) {
-                srcIndex.calculateStride(y);
+                offset = srcIndex.calculateStride(y);
                 for (int x = xStart; x < xEnd; x++) {
-                    meanValue += Math.pow(10, srcData1.getElemDoubleAt(srcIndex.getIndex(x)) / 10.0); // dB to linear
+                    meanValue += Math.pow(10, srcData1.getElemDoubleAt(x-offset) / 10.0); // dB to linear
                 }
             }
 
             meanValue /= (nRgLooks * nAzLooks);
             return 10.0*Math.log10(meanValue); // linear to dB
-        } else if (outputIntensity && (bandUnit == Unit.UnitType.REAL || bandUnit == Unit.UnitType.IMAGINARY)) { // COMPLEX
+        } else if (isComplex) { // COMPLEX
             double i, q;
             int index;
             for (int y = yStart; y < yEnd; y++) {
-                srcIndex.calculateStride(y);
+                offset = srcIndex.calculateStride(y);
                 for (int x = xStart; x < xEnd; x++) {
-                    index = srcIndex.getIndex(x);
+                    index = x-offset;
                     i = srcData1.getElemDoubleAt(index);
                     q = srcData2.getElemDoubleAt(index);
                     meanValue += i*i + q*q;
@@ -402,9 +403,9 @@ public final class MultilookOp extends Operator {
             }
         } else {
             for (int y = yStart; y < yEnd; y++) {
-                srcIndex.calculateStride(y);
+                offset = srcIndex.calculateStride(y);
                 for (int x = xStart; x < xEnd; x++) {
-                    meanValue += srcData1.getElemDoubleAt(srcIndex.getIndex(x));
+                    meanValue += srcData1.getElemDoubleAt(x-offset);
                 }
             }
         }

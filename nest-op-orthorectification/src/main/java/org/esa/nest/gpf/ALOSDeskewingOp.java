@@ -178,7 +178,7 @@ public class ALOSDeskewingOp extends Operator {
                                     sourceImageHeight);
 
         OperatorUtils.addSelectedBands(
-                sourceProduct, sourceBandNames, targetProduct, targetBandNameToSourceBandName, false);
+                sourceProduct, sourceBandNames, targetProduct, targetBandNameToSourceBandName, false, false);
 
         OperatorUtils.copyProductNodes(sourceProduct, targetProduct);
     }

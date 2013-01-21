@@ -36,8 +36,14 @@ public final class TileIndex {
         tileMinY = tile.getMinY();
     }
 
-    public void calculateStride(final int ty) {
+    /**
+     * calculates offset
+     * @param ty y pos
+     * @return offset
+     */
+    public int calculateStride(final int ty) {
         offset = tileMinX - (((ty - tileMinY) * tileStride) + tileOffset);
+        return offset;
     }
 
     public int getOffset() {

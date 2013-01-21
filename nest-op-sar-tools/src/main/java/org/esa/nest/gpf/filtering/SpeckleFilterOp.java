@@ -30,6 +30,7 @@ import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.nest.datamodel.Unit;
 import org.esa.nest.gpf.OperatorUtils;
+import org.esa.nest.gpf.TileIndex;
 
 import java.awt.*;
 import java.util.Arrays;
@@ -169,7 +170,7 @@ public class SpeckleFilterOp extends Operator {
         OperatorUtils.copyProductNodes(sourceProduct, targetProduct);
 
         OperatorUtils.addSelectedBands(
-                sourceProduct, sourceBandNames, targetProduct, targetBandNameToSourceBandName, true);
+                sourceProduct, sourceBandNames, targetProduct, targetBandNameToSourceBandName, true, true);
     }
 
     /**
@@ -444,6 +445,9 @@ public class SpeckleFilterOp extends Operator {
         final double[] neighborValues = new double[filterSizeX*filterSizeY];
         final double[] mask = new double[filterSizeX*filterSizeY];
         final ProductData trgData = targetTile.getDataBuffer();
+
+        final TileIndex trgIndex = new TileIndex(targetTile);
+        final TileIndex srcIndex = new TileIndex(sourceRaster1);
 
         getFrostMask(mask);
 
@@ -863,14 +867,18 @@ public class SpeckleFilterOp extends Operator {
         if(sourceRaster2 != null)
             srcData2 = sourceRaster2.getDataBuffer();
 
+        final TileIndex trgIndex = new TileIndex(targetTile);
+        final TileIndex srcIndex = new TileIndex(sourceRaster1);
+
         final int maxY = y0 + h;
         final int maxX = x0 + w;
         for (int y = y0; y < maxY; ++y) {
+            final int offset = trgIndex.calculateStride(y);
             for (int x = x0; x < maxX; ++x) {
                 final int n = getNeighborValuesWithoutBorderExt(
-                        x, y, sx0, sy0, sw, sh, sourceRaster1, srcData1, srcData2, bandUnit, neighborPixelValues);
+                        x, y, sx0, sy0, sw, sh, srcData1, srcData2, bandUnit, neighborPixelValues, srcIndex);
 
-                trgData.setElemDoubleAt(targetTile.getDataBufferIndex(x, y), getRefinedLeeValue(n, neighborPixelValues));
+                trgData.setElemDoubleAt(x-offset, getRefinedLeeValue(n, neighborPixelValues));
             }
             pm.worked(1);
         }
@@ -884,7 +892,6 @@ public class SpeckleFilterOp extends Operator {
      * @param sy0 Y coordinate of pixel at upper left corner of source tile.
      * @param sw Source tile width.
      * @param sh Source tile height.
-     * @param sourceRaster1 The source tile for the 1st band.
      * @param srcData1 databuffer 1
      * @param srcData2 databuffer 2
      * @param bandUnit Unit for the 1st band.
@@ -894,10 +901,11 @@ public class SpeckleFilterOp extends Operator {
      *          If an error occurs in obtaining the pixel values.
      */
     private int getNeighborValuesWithoutBorderExt(final int x, final int y, final int sx0, final int sy0,
-                                                  final int sw, final int sh, final Tile sourceRaster1,
+                                                  final int sw, final int sh,
                                                   final ProductData srcData1, final ProductData srcData2,
                                                   final Unit.UnitType bandUnit,
-                                                  double[][] neighborPixelValues) {
+                                                  final double[][] neighborPixelValues,
+                                                  final TileIndex srcIndex) {
         final int maxY = sy0 + sh;
         final int maxX = sx0 + sw;
         int k = 0;
@@ -911,12 +919,13 @@ public class SpeckleFilterOp extends Operator {
                     }
                     continue;
                 }
+                final int offset = srcIndex.calculateStride(yj);
                 for (int i = 0; i < filterSizeX; ++i) {
                     final int xi = x - halfSizeX + i;
                     if (xi < sx0 || xi >= maxX) {
                         neighborPixelValues[j][i] = NonValidPixelValue;
                     } else {
-                        final int idx = sourceRaster1.getDataBufferIndex(xi, yj);
+                        final int idx = xi-offset;
                         final double I = srcData1.getElemDoubleAt(idx);
                         final double Q = srcData2.getElemDoubleAt(idx);
                         neighborPixelValues[j][i] = I*I + Q*Q;
@@ -935,12 +944,13 @@ public class SpeckleFilterOp extends Operator {
                     }
                     continue;
                 }
+                final int offset = srcIndex.calculateStride(yj);
                 for (int i = 0; i < filterSizeX; ++i) {
                     final int xi = x - halfSizeX + i;
                     if (xi < sx0 || xi >= maxX) {
                         neighborPixelValues[j][i] = NonValidPixelValue;
                     } else {
-                        neighborPixelValues[j][i] = srcData1.getElemDoubleAt(sourceRaster1.getDataBufferIndex(xi, yj));
+                        neighborPixelValues[j][i] = srcData1.getElemDoubleAt(xi-offset);
                         k++;
                     }
                 }

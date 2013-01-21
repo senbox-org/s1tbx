@@ -16,6 +16,7 @@
 package org.esa.nest.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
+import org.apache.commons.math.util.FastMath;
 import org.esa.beam.dataio.envisat.EnvisatAuxReader;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.gpf.Operator;
@@ -325,14 +326,14 @@ public final class ERSCalibrator extends BaseCalibrator implements Calibrator {
             adcPowerLoss = computeADCPowerLossValuesForCurrentTile(sourceBand1, sourceBand2, x0, y0, w, h, bandUnit);
         }
 
-        final double k = calibrationConstant * Math.sin(referenceIncidenceAngle);
+        final double k = calibrationConstant * FastMath.sin(referenceIncidenceAngle);
 
         double sigma, dn, i, q;
         int index;
         int adcJ=0;
         for (int x = x0; x < x0 + w; x++) {
 
-            final double sinIncidenceAngleByK = Math.sin(incidenceAngles[x]) / k;
+            final double sinIncidenceAngleByK = FastMath.sin(incidenceAngles[x]) / k;
             if (applyADCSaturationCorrectionToCurrentTile) {
                 adcJ = Math.min(((x - x0) / blockWidth), adcPowerLoss[0].length - 1);
             }
@@ -1081,8 +1082,8 @@ public final class ERSCalibrator extends BaseCalibrator implements Calibrator {
         }
         final double lambda = sceneCentreLatitude * MathUtils.DTOR;
         final double alpha1 = getIncidenceAngleAtFirstRangePixel() * MathUtils.DTOR;
-        final double cos2 = Math.pow(Math.cos(lambda), 2.0);
-        final double sin2 = Math.pow(Math.sin(lambda), 2.0);
+        final double cos2 = Math.pow(FastMath.cos(lambda), 2.0);
+        final double sin2 = Math.pow(FastMath.sin(lambda), 2.0);
         final double e2 = Math.pow(b/a, 2.0);
         final double rt = a*Math.sqrt((cos2 + e2*e2*sin2)/(cos2 + e2*sin2));
         final double rt2 = rt*rt;
@@ -1095,20 +1096,20 @@ public final class ERSCalibrator extends BaseCalibrator implements Calibrator {
         if (!pafID.contains(UK_PAF) || processingTime.compareTo(time19930408) >= 0) {
 
             // Method 1 in Appendix B1
-            final double rtPlusH = Math.sqrt(rt2 + r1*r1 + 2.0*rt*r1*Math.cos(alpha1));
+            final double rtPlusH = Math.sqrt(rt2 + r1*r1 + 2.0*rt*r1*FastMath.cos(alpha1));
             final double rtPlusH2 = rtPlusH*rtPlusH;
-            final double theta1 = Math.acos((r1 + rt*Math.cos(alpha1))/rtPlusH);
+            final double theta1 = FastMath.acos((r1 + rt*FastMath.cos(alpha1))/rtPlusH);
             final double psi1 = alpha1 - theta1;
             for (int i = 0; i < sourceImageWidth; i++) {
                 if (!isComplex) {
                     psi = psi1 + i*deltaPsi;
-                    ri = Math.sqrt(rt2 + rtPlusH2 - 2.0*rt*rtPlusH*Math.cos(psi));
+                    ri = Math.sqrt(rt2 + rtPlusH2 - 2.0*rt*rtPlusH*FastMath.cos(psi));
                 } else { // see Andrea's email dataed June 9, 2010
                     ri = r1 + i*rangeSpacing;
                 }
-                alpha = Math.acos((rtPlusH2 - ri*ri - rt2)/(2.0*ri*rt));
+                alpha = FastMath.acos((rtPlusH2 - ri*ri - rt2)/(2.0*ri*rt));
                 incidenceAngles[i] = alpha;
-                lookAngles[i] = Math.acos((ri + rt*Math.cos(alpha))/rtPlusH);
+                lookAngles[i] = FastMath.acos((ri + rt*FastMath.cos(alpha))/rtPlusH);
                 rangeSpreadingLoss[i] = Math.pow(ri/referenceSlantRange, 3.0);
             }
 
@@ -1126,18 +1127,18 @@ public final class ERSCalibrator extends BaseCalibrator implements Calibrator {
             final double z = positionVector[2];
             final double rtPlusH = Math.sqrt(x*x + y*y + z*z);
             final double rtPlusH2 = rtPlusH*rtPlusH;
-            final double theta1 = Math.asin(Math.sin(alpha1)*rt/rtPlusH);
+            final double theta1 = FastMath.asin(FastMath.sin(alpha1)*rt/rtPlusH);
             final double psi1 = alpha1 - theta1;
             for (int i = 0; i < sourceImageWidth; i++) {
                 if (!isComplex) {
-                    psi = psi1 + Math.asin(i*deltaPsi);
-                    ri = Math.sqrt(rt2 + rtPlusH2 - 2.0*rt*rtPlusH*Math.cos(psi));
+                    psi = psi1 + FastMath.asin(i*deltaPsi);
+                    ri = Math.sqrt(rt2 + rtPlusH2 - 2.0*rt*rtPlusH*FastMath.cos(psi));
                 } else { // see Andrea's email dataed June 9, 2010
                     ri = r1 + i*rangeSpacing;
                 }
-                alpha = Math.acos((rtPlusH2 - ri*ri - rt2)/(2.0*ri*rt));
+                alpha = FastMath.acos((rtPlusH2 - ri*ri - rt2)/(2.0*ri*rt));
                 incidenceAngles[i] = alpha;
-                lookAngles[i] = Math.asin(Math.sin(alpha)*rt/rtPlusH);
+                lookAngles[i] = FastMath.asin(FastMath.sin(alpha)*rt/rtPlusH);
                 rangeSpreadingLoss[i] = Math.pow(ri/referenceSlantRange, 3.0);
             }
         }
@@ -2258,7 +2259,7 @@ public final class ERSCalibrator extends BaseCalibrator implements Calibrator {
             final double alpha = incidenceAngleTiePointGrid.getPixelFloat(x + 0.5f, y + 0.5f) * MathUtils.DTOR; // in radian
             final double time = slantRangeTimeTiePointGrid.getPixelFloat(x + 0.5f, y + 0.5f) / 1000000000.0; //convert ns to s
             final double r = time * Constants.halfLightSpeed; // in m
-            final double theta = alpha - Math.asin(Math.sin(alpha) * r / rSat); // in radian
+            final double theta = alpha - FastMath.asin(FastMath.sin(alpha) * r / rSat); // in radian
 
             incidenceAngles[x] = alpha;
             lookAngles[x] = theta;
@@ -2428,12 +2429,12 @@ public final class ERSCalibrator extends BaseCalibrator implements Calibrator {
         }
 
         if (multilookFlag && antennaPatternCorrectionFlag) { // calibration constant and incidence angle corrections only
-            return Math.sin(Math.abs(localIncidenceAngle)*org.esa.beam.util.math.MathUtils.DTOR) /
-                   Math.sin(referenceIncidenceAngle) / calibrationConstant;
+            return FastMath.sin(Math.abs(localIncidenceAngle)*org.esa.beam.util.math.MathUtils.DTOR) /
+                    FastMath.sin(referenceIncidenceAngle) / calibrationConstant;
         }
 
-        sigma *= Math.sin(Math.abs(localIncidenceAngle)*org.esa.beam.util.math.MathUtils.DTOR) /
-                 Math.sin(referenceIncidenceAngle);
+        sigma *= FastMath.sin(Math.abs(localIncidenceAngle)*org.esa.beam.util.math.MathUtils.DTOR) /
+                FastMath.sin(referenceIncidenceAngle);
 
         sigma /= getNewAntennaPatternGainSquare((int)rangeIndex);
 

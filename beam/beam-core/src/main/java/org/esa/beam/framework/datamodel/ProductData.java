@@ -1615,7 +1615,7 @@ public abstract class ProductData implements Cloneable {
          */
         @Override
         public long getElemUIntAt(int index) {
-            return getElemIntAt(index);
+            return _array[index] & 0xffff;
         }
 
         /**
@@ -1623,7 +1623,7 @@ public abstract class ProductData implements Cloneable {
          */
         @Override
         public float getElemFloatAt(int index) {
-            return getElemIntAt(index);
+            return _array[index] & 0xffff;
         }
 
         /**
@@ -1631,7 +1631,7 @@ public abstract class ProductData implements Cloneable {
          */
         @Override
         public double getElemDoubleAt(int index) {
-            return getElemIntAt(index);
+            return _array[index] & 0xffff;
         }
 
         /**
