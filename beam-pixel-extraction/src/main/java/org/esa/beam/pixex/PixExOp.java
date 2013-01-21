@@ -16,6 +16,10 @@
 
 package org.esa.beam.pixex;
 
+import static java.lang.Math.floor;
+import static java.lang.Math.max;
+import static java.lang.Math.min;
+
 import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.Validator;
@@ -56,9 +60,10 @@ import org.esa.beam.pixex.output.MatchupFormatStrategy;
 import org.esa.beam.pixex.output.PixExMeasurementFactory;
 import org.esa.beam.pixex.output.PixExProductRegistry;
 import org.esa.beam.pixex.output.PixExRasterNamesFactory;
-import org.esa.beam.pixex.output.PixExTargetFactory;
+import org.esa.beam.pixex.output.TargetWriterFactoryAndMap;
 import org.esa.beam.pixex.output.ProductRegistry;
 import org.esa.beam.pixex.output.ScatterPlotDecoratingStrategy;
+import org.esa.beam.statistics.ProductValidator;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.TimeStampExtractor;
@@ -94,8 +99,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.ZipOutputStream;
 
-import static java.lang.Math.*;
-
 /**
  * This operator is used to extract pixels from given locations and source products.
  * It can also create sub-scenes containing all locations found in the source products and create
@@ -106,11 +109,11 @@ import static java.lang.Math.*;
  */
 @SuppressWarnings({"MismatchedReadAndWriteOfArray", "UnusedDeclaration"})
 @OperatorMetadata(
-        alias = "PixEx",
-        version = "1.3",
-        authors = "Marco Peters, Thomas Storm, Norman Fomferra",
-        copyright = "(c) 2011 by Brockmann Consult",
-        description = "Extracts pixels from given locations and source products.")
+            alias = "PixEx",
+            version = "1.3",
+            authors = "Marco Peters, Thomas Storm, Norman Fomferra",
+            copyright = "(c) 2011 by Brockmann Consult",
+            description = "Extracts pixels from given locations and source products.")
 public class PixExOp extends Operator implements Output {
 
     public static final String RECURSIVE_INDICATOR = "**";
@@ -128,14 +131,10 @@ public class PixExOp extends Operator implements Output {
     private PixExMeasurementReader measurements;
 
     @Parameter(description = "A comma-separated list of file paths specifying the source products.\n" +
-            "Each path may contain the wildcards '**' (matches recursively any directory),\n" +
-            "'*' (matches any character sequence in path names) and\n" +
-            "'?' (matches any single character).")
+                             "Each path may contain the wildcards '**' (matches recursively any directory),\n" +
+                             "'*' (matches any character sequence in path names) and\n" +
+                             "'?' (matches any single character).")
     private String[] sourceProductPaths;
-
-    @Parameter(description = "Deprecated since version 1.0, use parameter 'sourceProductPaths' instead.")
-    @Deprecated
-    private File[] inputPaths;
 
     @Parameter(description = "Specifies if bands are to be exported", defaultValue = "true")
     private Boolean exportBands;
@@ -150,8 +149,8 @@ public class PixExOp extends Operator implements Output {
     private Coordinate[] coordinates;
 
     @Parameter(description = "The acceptable time difference compared to the time given for a coordinate.\n" +
-            "The format is a number followed by (D)ay, (H)our or (M)inute. If no time difference is provided, " +
-            "all input products are considered regardless of their time.",
+                             "The format is a number followed by (D)ay, (H)our or (M)inute. If no time difference is provided, " +
+                             "all input products are considered regardless of their time.",
                defaultValue = "")
     private String timeDifference = "";
 
@@ -159,7 +158,7 @@ public class PixExOp extends Operator implements Output {
     private File coordinatesFile;
 
     @Parameter(description = "Path to a CSV-file containing geo-coordinates associated with measurements according" +
-            "to BEAM CSV format specification")
+                             "to BEAM CSV format specification")
     private File matchupFile;
 
     @Parameter(description = "Side length of surrounding window (uneven)", defaultValue = "1",
@@ -176,15 +175,15 @@ public class PixExOp extends Operator implements Output {
     private String expression;
 
     @Parameter(description = "If true, the expression result is exported per pixel, otherwise the expression \n" +
-            "is used as filter (all pixels in given window must be valid).",
+                             "is used as filter (all pixels in given window must be valid).",
                defaultValue = "true")
     private Boolean exportExpressionResult;
 
     @Parameter(
-            description = "If the window size is larger than 1, this parameter describes by which method a single \n" +
-                    "value shall be derived from the pixels.",
-            defaultValue = NO_AGGREGATION,
-            valueSet = {MIN_AGGREGATION, MAX_AGGREGATION, MEAN_AGGREGATION, MEDIAN_AGGREGATION, NO_AGGREGATION})
+                description = "If the window size is larger than 1, this parameter describes by which method a single \n" +
+                              "value shall be derived from the pixels.",
+                defaultValue = NO_AGGREGATION,
+                valueSet = {MIN_AGGREGATION, MAX_AGGREGATION, MEAN_AGGREGATION, MEDIAN_AGGREGATION, NO_AGGREGATION})
     private String aggregatorStrategyType;
 
     @Parameter(description = "If set to true, sub-scenes of the regions, where pixels are found, are exported.",
@@ -195,23 +194,23 @@ public class PixExOp extends Operator implements Output {
     private int subSceneBorderSize;
 
     @Parameter(description = "If set to true, a Google KMZ file will be created, which contains the coordinates " +
-            "where pixels are found.",
+                             "where pixels are found.",
                defaultValue = "false")
     private boolean exportKmz;
 
     @Parameter(
-            description = "If set to true, the sensing start and sensing stop should be extracted from the filename " +
-                    "of each input product.",
-            defaultValue = "false",
-            label = "Extract time from product filename")
+                description = "If set to true, the sensing start and sensing stop should be extracted from the filename " +
+                              "of each input product.",
+                defaultValue = "false",
+                label = "Extract time from product filename")
     private boolean extractTimeFromFilename;
 
     @Parameter(
-            description = "Describes how a date/time section inside a product filename should be interpreted. " +
-                    "E.G. yyyyMMdd_hhmmss",
-            validator = TimeStampExtractor.DateInterpretationPatternValidator.class,
-            defaultValue = "yyyyMMdd",
-            label = "Date/Time pattern")
+                description = "Describes how a date/time section inside a product filename should be interpreted. " +
+                              "E.G. yyyyMMdd_hhmmss",
+                validator = TimeStampExtractor.DateInterpretationPatternValidator.class,
+                defaultValue = "yyyyMMdd",
+                label = "Date/Time pattern")
     private String dateInterpretationPattern;
 
     @Parameter(description = "Describes how the filename of a product should be interpreted.",
@@ -221,11 +220,11 @@ public class PixExOp extends Operator implements Output {
     private String filenameInterpretationPattern;
 
     @Parameter(defaultValue = "false", description = "Determines if the original input measurements shall be " +
-            "included in the output.")
+                                                     "included in the output.")
     private boolean includeOriginalInput;
 
     @Parameter(description = "Array of 2-tuples of variable names; " +
-            "for each of these tuples a scatter plot will be exported.", notNull = false,
+                             "for each of these tuples a scatter plot will be exported.", notNull = false,
                itemAlias = "variableCombination")
     private VariableCombination[] scatterPlotVariableCombinations;
 
@@ -245,7 +244,7 @@ public class PixExOp extends Operator implements Output {
     @SuppressWarnings({"unchecked", "ConstantConditions"})
     public static Coordinate.OriginalValue[] getOriginalValues(SimpleFeature feature) {
         List<AttributeDescriptor> originalAttributeDescriptors = (List<AttributeDescriptor>) feature.getFeatureType().getUserData().get(
-                "originalAttributeDescriptors");
+                    "originalAttributeDescriptors");
         final Coordinate.OriginalValue[] originalValues;
         if (originalAttributeDescriptors == null) {
             originalValues = new Coordinate.OriginalValue[0];
@@ -289,11 +288,10 @@ public class PixExOp extends Operator implements Output {
 
         initAggregatorStrategy();
 
-        Set<File> sourceProductFileSet = getSourceProductFileSet(this.sourceProductPaths, this.inputPaths, getLogger());
+        Set<File> sourceProductFileSet = getSourceProductFileSet(this.sourceProductPaths, getLogger());
         coordinateList = initCoordinateList();
         Measurement[] originalMeasurements = createOriginalMeasurements(coordinateList);
         parseTimeDelta(timeDifference);
-        validator = new ProductValidator();
         final PixExRasterNamesFactory rasterNamesFactory = new PixExRasterNamesFactory(exportBands, exportTiePoints,
                                                                                        exportMasks, aggregatorStrategy);
 
@@ -308,7 +306,7 @@ public class PixExOp extends Operator implements Output {
             measurementFactory = new AggregatingPixExMeasurementFactory(rasterNamesFactory, windowSize,
                                                                         productRegistry, aggregatorStrategy);
         }
-        PixExTargetFactory targetFactory = new PixExTargetFactory(outputFilePrefix, outputDir);
+        TargetWriterFactoryAndMap targetFactory = new TargetWriterFactoryAndMap(outputFilePrefix, outputDir);
 
         measurementWriter = new MeasurementWriter(measurementFactory, targetFactory, formatStrategy);
 
@@ -331,7 +329,7 @@ public class PixExOp extends Operator implements Output {
                 ZipOutputStream zos = null;
                 try {
                     FileOutputStream fos = new FileOutputStream(
-                            new File(outputDir, outputFilePrefix + "_coordinates.kmz"));
+                                new File(outputDir, outputFilePrefix + "_coordinates.kmz"));
                     zos = new ZipOutputStream(fos);
                     kmzExporter.export(kmlDocument, zos, ProgressMonitor.NULL);
                 } catch (IOException e) {
@@ -431,9 +429,9 @@ public class PixExOp extends Operator implements Output {
         }
     }
 
-    public static Set<File> getSourceProductFileSet(String[] sourceProductPaths1, File[] inputPaths1, Logger logger) {
+    public static Set<File> getSourceProductFileSet(String[] sourceProductPaths, Logger logger) {
         Set<File> sourceProductFileSet = new TreeSet<File>();
-        String[] paths = getSourceProductPaths(sourceProductPaths1, inputPaths1);
+        String[] paths = trimSourceProductPaths(sourceProductPaths);
         if (paths != null && paths.length != 0) {
             for (String path : paths) {
                 try {
@@ -546,12 +544,12 @@ public class PixExOp extends Operator implements Output {
         return lowerTimeBound.compareTo(coordinateCal) <= 0 && upperTimeBound.compareTo(coordinateCal) >= 0;
     }
 
-    private void parseTimeDelta(String timeDelta) {
+    private void parseTimeDelta(String timeDifference) {
         if (StringUtils.isNullOrEmpty(timeDifference)) {
             return;
         }
-        this.timeDelta = Integer.parseInt(timeDelta.substring(0, timeDelta.length() - 1));
-        final String s = timeDelta.substring(timeDelta.length() - 1).toUpperCase();
+        this.timeDelta = Integer.parseInt(timeDifference.substring(0, timeDifference.length() - 1));
+        final String s = timeDifference.substring(timeDifference.length() - 1).toUpperCase();
         if ("D".equals(s)) {
             calendarField = Calendar.DATE;
         } else if ("H".equals(s)) {
@@ -561,7 +559,6 @@ public class PixExOp extends Operator implements Output {
         } else {
             calendarField = Calendar.DATE;
         }
-
     }
 
     private List<Coordinate> initCoordinateList() {
@@ -589,8 +586,8 @@ public class PixExOp extends Operator implements Output {
             simpleFeatures = PixExOpUtils.extractFeatures(matchupFile);
         } catch (IOException e) {
             BeamLogManager.getSystemLogger().warning(
-                    String.format("Unable to read matchups from file '%s'. Reason: %s",
-                                  matchupFile.getAbsolutePath(), e.getMessage()));
+                        String.format("Unable to read matchups from file '%s'. Reason: %s",
+                                      matchupFile.getAbsolutePath(), e.getMessage()));
             return result;
         }
         for (SimpleFeature extendedFeature : simpleFeatures) {
@@ -639,48 +636,35 @@ public class PixExOp extends Operator implements Output {
     private boolean extractMeasurements(Set<File> fileSet) {
         boolean measurementsFound = false;
         for (File file : fileSet) {
-            if (file.isDirectory()) {
-                final File[] subFiles = file.listFiles();
-                if (subFiles != null) {
-                    for (File subFile : subFiles) {
-                        if (subFile.isFile()) {
-                            measurementsFound |= extractMeasurements(subFile);
-                        }
-                    }
-                }
-            } else {
-                measurementsFound |= extractMeasurements(file);
-            }
+            measurementsFound |= extractMeasurements(file);
         }
         return measurementsFound;
     }
 
     private boolean extractMeasurements(File file) {
-        Product product = null;
         try {
-            product = ProductIO.readProduct(file);
+            final Product product = ProductIO.readProduct(file);
             if (product == null) {
                 getLogger().warning("Unable to read product from file '" + file.getAbsolutePath() + "'.");
                 return false;
             }
-            return extractMeasurements(product);
+            try {
+                return extractMeasurements(product);
+            } finally {
+                product.dispose();
+            }
         } catch (Exception e) {
             final Logger logger = getLogger();
             logger.warning("Unable to extract measurements from product file '" + file.getAbsolutePath() + "'.");
             logger.log(Level.WARNING, e.getMessage(), e);
-        } finally {
-            if (product != null) {
-                product.dispose();
-            }
         }
         return false;
     }
 
     private boolean extractMeasurements(Product product) {
 
-        boolean coordinatesFound = false;
-        if (!validator.validate(product)) {
-            return coordinatesFound;
+        if (!isAbleToExtractPixels(product)) {
+            return false;
         }
 
         ProductData.UTC[] oldTimeStamps = new ProductData.UTC[2];
@@ -688,6 +672,7 @@ public class PixExOp extends Operator implements Output {
         oldTimeStamps[1] = product.getEndTime();
         try {
             File file = product.getFileLocation();
+            System.out.println("product = " + file.getAbsolutePath());
             if (extractTimeFromFilename && file != null) {
                 String fileName = file.getName();
                 final ProductData.UTC[] timeStamps = timeStampExtractor.extractTimeStamps(fileName);
@@ -714,7 +699,7 @@ public class PixExOp extends Operator implements Output {
                 }
             }
             formatStrategy.finish();
-            coordinatesFound = !matchedCoordinates.isEmpty();
+            boolean coordinatesFound = matchedCoordinates.size() > 0;
             if (coordinatesFound) {
                 if (exportSubScenes) {
                     try {
@@ -737,12 +722,12 @@ public class PixExOp extends Operator implements Output {
                     }
                 }
             }
+            return coordinatesFound;
         } finally {
             validMaskImage.dispose();
             product.setStartTime(oldTimeStamps[0]);
             product.setEndTime(oldTimeStamps[1]);
         }
-        return coordinatesFound;
     }
 
     private void exportSubScene(Product product, List<Coordinate> coordinates) throws IOException {
@@ -786,48 +771,31 @@ public class PixExOp extends Operator implements Output {
         }
     }
 
-    private class ProductValidator {
-
-        public boolean validate(Product product) {
-            final Logger logger = getLogger();
-            if (product == null) {
-                return false;
-            }
-            final GeoCoding geoCoding = product.getGeoCoding();
-            if (geoCoding == null) {
-                final String msgPattern = "Product [%s] refused. Cause: Product is not geo-coded.";
-                logger.warning(String.format(msgPattern, product.getFileLocation()));
-                return false;
-            }
-            if (!geoCoding.canGetPixelPos()) {
-                final String msgPattern = "Product [%s] refused. Cause: Pixel position can not be determined.";
-                logger.warning(String.format(msgPattern, product.getFileLocation()));
-                return false;
-            }
-            return true;
+    private boolean isAbleToExtractPixels(Product product) {
+        final Logger logger = getLogger();
+        if (product == null) {
+            return false;
         }
+        final GeoCoding geoCoding = product.getGeoCoding();
+        if (geoCoding == null) {
+            final String msgPattern = "Product [%s] refused. Cause: Product is not geo-coded.";
+            logger.warning(String.format(msgPattern, product.getFileLocation()));
+            return false;
+        }
+        if (!geoCoding.canGetPixelPos()) {
+            final String msgPattern = "Product [%s] refused. Cause: Pixel position can not be determined.";
+            logger.warning(String.format(msgPattern, product.getFileLocation()));
+            return false;
+        }
+        return true;
     }
 
-    public static String[] getSourceProductPaths(String[] sourceProductPaths, File[] deprecatedInputPaths) {
+    private static String[] trimSourceProductPaths(String[] sourceProductPaths) {
         final String[] paths;
-        if (deprecatedInputPaths != null) {
-            if (sourceProductPaths != null) {
-                paths = new String[deprecatedInputPaths.length + sourceProductPaths.length];
-            } else {
-                paths = new String[deprecatedInputPaths.length];
-            }
-            for (int i = 0; i < deprecatedInputPaths.length; i++) {
-                paths[i] = deprecatedInputPaths[i].getPath();
-            }
-            if (sourceProductPaths != null) {
-                System.arraycopy(sourceProductPaths, 0, paths, deprecatedInputPaths.length, sourceProductPaths.length);
-            }
+        if (sourceProductPaths != null) {
+            paths = sourceProductPaths.clone();
         } else {
-            if (sourceProductPaths != null) {
-                paths = sourceProductPaths.clone();
-            } else {
-                paths = null;
-            }
+            paths = null;
         }
         if (paths != null) {
             for (int i = 0; i < paths.length; i++) {

@@ -27,7 +27,7 @@ import org.esa.beam.pixex.output.DefaultFormatStrategy;
 import org.esa.beam.pixex.output.PixExMeasurementFactory;
 import org.esa.beam.pixex.output.PixExProductRegistry;
 import org.esa.beam.pixex.output.PixExRasterNamesFactory;
-import org.esa.beam.pixex.output.PixExTargetFactory;
+import org.esa.beam.pixex.output.TargetWriterFactoryAndMap;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.junit.Before;
 import org.junit.Test;
@@ -43,9 +43,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringReader;
-import java.io.StringWriter;
 import java.text.ParseException;
 import java.util.Locale;
 import java.util.Scanner;
@@ -115,22 +112,6 @@ public class MeasurementWriterTest {
         final Raster validData = renderedOp.getData(new Rectangle(pixelX, pixelY, windowSize, windowSize));
 
         writer.writeMeasurements(centerX, centerY, coordId, "coord" + coordId, p1, validData);
-    }
-
-    @Test
-    public void testProductMapFileHeader() throws Exception {
-        final String filenamePrefix = "testProductMapFileHeader";
-        final StringWriter stringWriter = new StringWriter(200);
-        final PrintWriter printWriter = new PrintWriter(stringWriter);
-
-        final PixExProductRegistry productRegistry = new PixExProductRegistry(filenamePrefix, outputDir);
-        productRegistry.writeProductMapHeader(printWriter);
-
-        final BufferedReader reader = new BufferedReader(new StringReader(stringWriter.toString()));
-        String line = reader.readLine();
-        assertEquals("# Product ID Map", line);
-        line = reader.readLine();
-        assertEquals("ProductID\tProductType\tProductLocation", line);
     }
 
     @Test
@@ -334,7 +315,7 @@ public class MeasurementWriterTest {
         final PixExProductRegistry productRegistry = new PixExProductRegistry(filenamePrefix, outputDir);
         final PixExMeasurementFactory measurementFactory = new PixExMeasurementFactory(rasterNamesFactory, windowSize,
                                                                                        productRegistry);
-        final PixExTargetFactory targetFactory = new PixExTargetFactory(filenamePrefix, outputDir);
+        final TargetWriterFactoryAndMap targetFactory = new TargetWriterFactoryAndMap(filenamePrefix, outputDir);
         final DefaultFormatStrategy formatStrategy = new DefaultFormatStrategy(rasterNamesFactory, windowSize, expression,
                                                                            exportExpressionResult);
         return new MeasurementWriter(measurementFactory, targetFactory, formatStrategy);

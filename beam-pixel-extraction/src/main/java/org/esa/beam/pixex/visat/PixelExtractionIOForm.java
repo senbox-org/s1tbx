@@ -29,6 +29,7 @@ import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.tool.ToolButtonFactory;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.SystemUtils;
+import org.esa.beam.util.logging.BeamLogManager;
 
 import javax.swing.AbstractButton;
 import javax.swing.BoxLayout;
@@ -54,8 +55,12 @@ import java.awt.Insets;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.LogManager;
 
 class PixelExtractionIOForm {
 
@@ -92,10 +97,11 @@ class PixelExtractionIOForm {
         tableLayout.setCellColspan(3, 1, 2);
         panel = new JPanel(tableLayout);
 
-        listModel = new InputListModel(container.getProperty("inputPaths"));
+        final Property propertySourceProductPaths = container.getProperty("sourceProductPaths");
+        listModel = new InputListModel(propertySourceProductPaths);
         listModel.addListDataListener(new MyListDataListener());
         inputPathsList = createInputPathsList(listModel);
-        panel.add(new JLabel("Input paths:"));
+        panel.add(new JLabel("Source paths:"));
         final JScrollPane scrollPane = new JScrollPane(inputPathsList);
         scrollPane.setPreferredSize(new Dimension(100, 50));
         panel.add(scrollPane);

@@ -18,6 +18,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.operation.TransformException;
+import sun.management.FileSystem;
 
 import javax.media.jai.operator.ConstantDescriptor;
 import java.awt.Rectangle;
@@ -67,9 +68,9 @@ public class PixExOpTest {
                         "    <node id=\"someNodeId\">\n" +
                         "      <operator>PixEx</operator>\n" +
                         "      <parameters>\n" +
-                        "        <inputPaths>\n" +
-                        "           " + parentDir +
-                        "        </inputPaths>\n" +
+                        "        <sourceProductPaths>\n" +
+                        "           " + parentDir + File.separator + "*.dim" +
+                        "        </sourceProductPaths>\n" +
                         "        <exportTiePoints>false</exportTiePoints>\n" +
                         "        <exportBands>true</exportBands>\n" +
                         "        <exportMasks>false</exportMasks>                \n" +
@@ -118,8 +119,7 @@ public class PixExOpTest {
         subDir2_2.mkdir();
 
         final String pattern = testDir.getCanonicalPath() + File.separator + PixExOp.RECURSIVE_INDICATOR;
-        Set<File> dirList = PixExOp.getSourceProductFileSet(null, new File[]{new File(pattern)},
-                                                            Logger.getAnonymousLogger());
+        Set<File> dirList = PixExOp.getSourceProductFileSet(new String[]{pattern}, Logger.getAnonymousLogger());
 
         //assertEquals(5, dirList.size());
         //assertTrue("Missing dir '" + testDir.getAbsolutePath() + "'.", dirList.contains(testDir));
@@ -131,12 +131,10 @@ public class PixExOpTest {
         assertTrue("Missing dir '" + subDir2_2.getCanonicalPath() + "'.",
                    dirList.contains(subDir2_2.getCanonicalFile()));
 
-        dirList = PixExOp.getSourceProductFileSet(null, new File[]{testDir, subDir2_1}, Logger.getAnonymousLogger());
+        dirList = PixExOp.getSourceProductFileSet(new String[]{testDir.getPath(), subDir2_1.getPath()}, Logger.getAnonymousLogger());
         assertEquals(2, dirList.size());
         assertTrue("Missing dir '" + testDir.getCanonicalPath() + "'.", dirList.contains(testDir.getCanonicalFile()));
-        assertTrue("Missing dir '" + subDir2_1.getCanonicalPath() + "'.",
-                   dirList.contains(subDir2_1.getCanonicalFile()));
-
+        assertTrue("Missing dir '" + subDir2_1.getCanonicalPath() + "'.", dirList.contains(subDir2_1.getCanonicalFile()));
     }
 
     @Test

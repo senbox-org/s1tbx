@@ -16,16 +16,17 @@
 
 package org.esa.beam.pixex.visat;
 
+import static junit.framework.Assert.assertEquals;
+import static org.junit.Assert.*;
+
 import com.bc.ceres.binding.Property;
+import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.ValidationException;
 import org.esa.beam.framework.datamodel.Product;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
 
 import java.io.File;
 import java.util.ArrayList;
-
-import static junit.framework.Assert.*;
 
 /**
  * @author Thomas Storm
@@ -33,12 +34,13 @@ import static junit.framework.Assert.*;
 public class InputFilesListModelTest {
 
     private InputListModel listModel;
-    private Property inputPaths;
+    private Property property;
 
     @Before
     public void setUp() {
-        inputPaths = Property.create("inputPaths", File[].class);
-        listModel = new InputListModel(inputPaths);
+        property = Property.create("property", String[].class);
+        property.setContainer(new PropertyContainer());
+        listModel = new InputListModel(property);
     }
 
 
@@ -57,7 +59,7 @@ public class InputFilesListModelTest {
         files.add(new File("ghi"));
         listModel.addElements(files.toArray());
         assertEquals(3, listModel.getSize());
-        assertEquals(3, ((File[]) inputPaths.getValue()).length);
+        assertEquals(3, ((String[]) property.getValue()).length);
 
         ArrayList<Product> products = new ArrayList<Product>();
         products.add(new Product("abc", "meris", 10, 120));
@@ -69,7 +71,7 @@ public class InputFilesListModelTest {
 
         listModel.removeElementsAt(new int[]{0, 5});
         assertEquals(4, listModel.getSize());
-        assertEquals(2, ((File[]) inputPaths.getValue()).length);
+        assertEquals(2, ((String[]) property.getValue()).length);
         assertEquals(2, listModel.getSourceProducts().length);
     }
 
@@ -88,6 +90,32 @@ public class InputFilesListModelTest {
         listModel.clear();
         assertEquals(0, listModel.getSize());
         assertEquals(0, listModel.getSourceProducts().length);
-        assertEquals(0, ((File[]) inputPaths.getValue()).length);
+        assertEquals(0, ((String[]) property.getValue()).length);
+    }
+
+    @Test
+    public void testSetElements() throws ValidationException {
+        final String[] elements1 = {"a", "b", "c"};
+        listModel.setElements(elements1);
+        assertEquals(3, listModel.getSize());
+        final String[] values1 = property.getValue();
+        assertArrayEquals(elements1, values1);
+
+        final String[] elements2 = {"f", "s", "g", "k"};
+        listModel.setElements(elements2);
+        assertEquals(4, listModel.getSize());
+        final String[] values2 = property.getValue();
+        assertArrayEquals(elements2, values2);
+    }
+
+    @Test
+    public void testExternalPropertyValueChange() throws ValidationException {
+        assertEquals(0, listModel.getSize());
+
+        final String[] values = {"h", "i"};
+        property.setValue(values);
+        assertEquals(2, listModel.getSize());
+        assertEquals("h", ((File)listModel.getElementAt(0)).getPath());
+        assertEquals("i", ((File)listModel.getElementAt(1)).getPath());
     }
 }

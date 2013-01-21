@@ -17,6 +17,7 @@ package org.esa.beam.measurement.writer;
 
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.measurement.Measurement;
+import org.esa.beam.pixex.output.TargetWriterFactoryAndMap;
 
 import java.awt.image.Raster;
 import java.io.IOException;
@@ -29,11 +30,11 @@ import java.io.PrintWriter;
 public class MeasurementWriter {
 
     private final MeasurementFactory measurementFactory;
-    private final TargetFactory targetFactory;
+    private final TargetWriterFactoryAndMap targetFactory;
     private final FormatStrategy formatStrategy;
 
     public MeasurementWriter(MeasurementFactory measurementFactory,
-                             TargetFactory targetFactory,
+                             TargetWriterFactoryAndMap targetFactory,
                              FormatStrategy formatStrategy) {
         this.measurementFactory = measurementFactory;
         this.targetFactory = targetFactory;
@@ -49,12 +50,11 @@ public class MeasurementWriter {
                                                              validData);
 
         final PrintWriter writer;
-        final boolean containsWriter = targetFactory.containsWriterFor(pixelX, pixelY, coordinateID, coordinateName,
-                                                                       product, validData);
+        final boolean containsWriter = targetFactory.containsWriterFor(product);
         if (containsWriter) {
-            writer = targetFactory.getWriterFor(pixelX, pixelY, coordinateID, coordinateName, product, validData);
+            writer = targetFactory.getWriterFor(product);
         } else {
-            writer = targetFactory.createWriterFor(pixelX, pixelY, coordinateID, coordinateName, product, validData);
+            writer = targetFactory.createWriterFor(product);
             formatStrategy.writeHeader(writer, product);
         }
 

@@ -24,7 +24,7 @@ import org.esa.beam.pixex.output.DefaultFormatStrategy;
 import org.esa.beam.pixex.output.PixExMeasurementFactory;
 import org.esa.beam.pixex.output.PixExProductRegistry;
 import org.esa.beam.pixex.output.PixExRasterNamesFactory;
-import org.esa.beam.pixex.output.PixExTargetFactory;
+import org.esa.beam.pixex.output.TargetWriterFactoryAndMap;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -70,7 +70,7 @@ public class PixExMeasurementReaderTest {
         final PixExProductRegistry productRegistry = new PixExProductRegistry(filenamePrefix, inputDir);
         final PixExMeasurementFactory measurementFactory = new PixExMeasurementFactory(rasterNamesFactory, windowSize,
                                                                                        productRegistry);
-        final PixExTargetFactory targetFactory = new PixExTargetFactory(filenamePrefix, inputDir);
+        final TargetWriterFactoryAndMap targetFactory = new TargetWriterFactoryAndMap(filenamePrefix, inputDir);
         final DefaultFormatStrategy formatStrategy = new DefaultFormatStrategy(rasterNamesFactory, windowSize, expression,
                                                                            exportExpressionResult);
         final MeasurementWriter writer = new MeasurementWriter(measurementFactory, targetFactory, formatStrategy);
