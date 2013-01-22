@@ -517,11 +517,11 @@ class CommandLineTool implements GraphProcessingObserver {
             return;
         }
 
-        File targetFile = new File(commandLineArgs.getTargetFilePath());
+
         // It can happen that we have no target file when the operator implements the Output interface
-        if(!targetFile.exists()) {
+        if(!commandLineContext.isFile(commandLineArgs.getTargetFilePath())) {
             String msgPattern = "Target file '%s' does not exist, but is required to process velocity templates";
-            logger.warning(String.format(msgPattern, targetFile));
+            logger.warning(String.format(msgPattern, commandLineArgs.getTargetFilePath()));
             return;
         }
 
