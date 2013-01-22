@@ -41,7 +41,6 @@ public class CommandLineArgs {
     public static final String DEFAULT_FORMAT_NAME = ProductIO.DEFAULT_FORMAT_NAME;
     public static final int DEFAULT_TILE_CACHE_SIZE_IN_M = 512;
     public static final int DEFAULT_TILE_SCHEDULER_PARALLELISM = Runtime.getRuntime().availableProcessors();
-    public static final String DEFAULT_MERGED_TEMPLATE_FILE_PATTERN = "${targetDir}/${targetBaseName}-${templateBaseName}";
     public static final String VELOCITY_TEMPLATE_EXTENSION = ".vm";
 
     private String[] args;

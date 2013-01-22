@@ -71,6 +71,7 @@ import java.util.Map.Entry;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * The common command-line tool for the GPF.
@@ -132,7 +133,7 @@ class CommandLineTool implements GraphProcessingObserver {
             commandLineContext.print(CommandLineUsage.getUsageTextForOperator(commandLineArgs.getOperatorName()));
         } else if (commandLineArgs.getGraphFilePath() != null) {
             commandLineContext.print(CommandLineUsage.getUsageTextForGraph(commandLineArgs.getGraphFilePath(),
-                    commandLineContext));
+                                                                           commandLineContext));
         } else {
             commandLineContext.print(CommandLineUsage.getUsageText());
         }
@@ -162,7 +163,8 @@ class CommandLineTool implements GraphProcessingObserver {
         final long tileCacheSize = JAI.getDefaultInstance().getTileCache().getMemoryCapacity() / (1024L * 1024L);
         commandLineContext.getLogger().info(MessageFormat.format("JAI tile cache size is {0} MB", tileCacheSize));
         final int schedulerParallelism = JAI.getDefaultInstance().getTileScheduler().getParallelism();
-        commandLineContext.getLogger().info(MessageFormat.format("JAI tile scheduler parallelism is {0}", schedulerParallelism));
+        commandLineContext.getLogger().info(
+                MessageFormat.format("JAI tile scheduler parallelism is {0}", schedulerParallelism));
     }
 
     private void initVelocityContext() throws Exception {
@@ -176,7 +178,8 @@ class CommandLineTool implements GraphProcessingObserver {
         // Check if we really want them, if so, we have to maintain them in the future (nf)
         File targetFile = new File(commandLineArgs.getTargetFilePath());
         velocityContext.put("targetFile", targetFile);
-        velocityContext.put("targetDir", targetFile.getParentFile() != null ? targetFile.getParentFile() : new File("."));
+        velocityContext.put("targetDir",
+                            targetFile.getParentFile() != null ? targetFile.getParentFile() : new File("."));
         velocityContext.put("targetBaseName", FileUtils.getFilenameWithoutExtension(targetFile));
         velocityContext.put("targetName", targetFile.getName());
         velocityContext.put("targetFormat", commandLineArgs.getTargetFormatName());
@@ -220,8 +223,8 @@ class CommandLineTool implements GraphProcessingObserver {
             try {
                 metadataResourceEngine.readRelatedResource(sourceId, sourcePath);
             } catch (IOException e) {
-                logSevereProblem(String.format("Failed to load metadata file associated with '%s = %s': %s",
-                        sourceId, sourcePath, e.getMessage()), e);
+                String msgPattern = "Failed to load metadata file associated with '%s = %s': %s";
+                logSevereProblem(String.format(msgPattern, sourceId, sourcePath, e.getMessage()), e);
             }
         }
     }
@@ -336,10 +339,10 @@ class CommandLineTool implements GraphProcessingObserver {
     }
 
     private Map<String, Object> convertParameterMap(String operatorName, Map<String, String> parameterMap) throws
-            ValidationException {
+                                                                                                           ValidationException {
         HashMap<String, Object> parameters = new HashMap<String, Object>();
         PropertyContainer container = ParameterDescriptorFactory.createMapBackedOperatorPropertyContainer(operatorName,
-                parameters);
+                                                                                                          parameters);
         // explicitly set default values for putting them into the backing map
         container.setDefaultValues();
 
@@ -348,16 +351,18 @@ class CommandLineTool implements GraphProcessingObserver {
         if (parametersObject instanceof Resource) {
             Resource paramatersResource = (Resource) parametersObject;
             if (paramatersResource.isXml()) {
-                OperatorSpi operatorSpi = GPF.getDefaultInstance().getOperatorSpiRegistry().getOperatorSpi(operatorName);
+                OperatorSpiRegistry operatorSpiRegistry = GPF.getDefaultInstance().getOperatorSpiRegistry();
+                OperatorSpi operatorSpi = operatorSpiRegistry.getOperatorSpi(operatorName);
                 Class<? extends Operator> operatorClass = operatorSpi.getOperatorClass();
-                DefaultDomConverter domConverter = new DefaultDomConverter(operatorClass, new ParameterDescriptorFactory());
+                DefaultDomConverter domConverter = new DefaultDomConverter(operatorClass,
+                                                                           new ParameterDescriptorFactory());
 
                 DomElement parametersElement = createDomElement(paramatersResource.getContent());
                 try {
                     domConverter.convertDomToValue(parametersElement, container);
                 } catch (ConversionException e) {
-                    throw new RuntimeException(String.format(
-                            "Can not convert XML parameters for operator '%s'", operatorName));
+                    String msgPattern = "Can not convert XML parameters for operator '%s'";
+                    throw new RuntimeException(String.format(msgPattern, operatorName));
                 }
             }
         }
@@ -500,20 +505,33 @@ class CommandLineTool implements GraphProcessingObserver {
             }
         });
 
+        Logger logger = commandLineContext.getLogger();
         if (templateNames == null) {
-            commandLineContext.getLogger().severe(String.format("Velocity template directory '%s' does not exist or inaccessible", velocityDir));
+            String msgPattern = "Velocity template directory '%s' does not exist or inaccessible";
+            logger.severe(String.format(msgPattern, velocityDir));
             return;
         }
         if (templateNames.length == 0) {
-            commandLineContext.getLogger().warning(String.format("Velocity template directory '%s' does not contain any templates (*.vm)", velocityDir));
+            String msgPattern = "Velocity template directory '%s' does not contain any templates (*.vm)";
+            logger.warning(String.format(msgPattern, velocityDir));
+            return;
+        }
+
+        File targetFile = new File(commandLineArgs.getTargetFilePath());
+        // It can happen that we have no target file when the operator implements the Output interface
+        if(!targetFile.exists()) {
+            String msgPattern = "Target file '%s' does not exist, but is required to process velocity templates";
+            logger.warning(String.format(msgPattern, targetFile));
             return;
         }
 
         for (String templateName : templateNames) {
             try {
-                metadataResourceEngine.writeRelatedResource(velocityDir + "/" + templateName, commandLineArgs.getTargetFilePath());
+                metadataResourceEngine.writeRelatedResource(velocityDir + "/" + templateName,
+                                                            commandLineArgs.getTargetFilePath());
             } catch (IOException e) {
-                logSevereProblem(String.format("Can't write related resource using template file '%s': %s", templateName, e.getMessage()), e);
+                String msgPattern = "Can't write related resource using template file '%s': %s";
+                logSevereProblem(String.format(msgPattern, templateName, e.getMessage()), e);
             }
         }
     }
