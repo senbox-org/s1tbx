@@ -15,7 +15,6 @@
  */
 package org.esa.beam.visat.toolviews.spectrum;
 
-import com.bc.ceres.glayer.support.ImageLayer;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.DataNode;
 import org.esa.beam.framework.datamodel.Placemark;
@@ -52,7 +51,6 @@ import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
@@ -72,7 +70,7 @@ public class SpectrumToolView extends AbstractToolView {
     private final Map<Product, SpectraDiagram> productToDiagramMap;
     private final ProductNodeListenerAdapter productNodeHandler;
     private final PinSelectionChangeListener pinSelectionChangeListener;
-    private final CursorSpectrumPPL ppl;
+    private final PixelPositionListener ppl;
 
     private DiagramCanvas diagramCanvas;
     private AbstractButton filterButton;
@@ -96,7 +94,7 @@ public class SpectrumToolView extends AbstractToolView {
         productNodeHandler = new ProductNodeHandler();
         pinSelectionChangeListener = new PinSelectionChangeListener();
         productToDiagramMap = new HashMap<Product, SpectraDiagram>(4);
-        ppl = new CursorSpectrumPPL();
+        ppl = new CursorSpectrumPixelPositionListener(this);
     }
 
     private ProductSceneView getCurrentView() {
@@ -181,15 +179,16 @@ public class SpectrumToolView extends AbstractToolView {
         }
     }
 
-    private void updateSpectra(int pixelX, int pixelY, int level) {
+    protected void updateSpectra(int pixelX, int pixelY, int level) {
         maybeShowTip();
-        diagramCanvas.setMessageText(null);
         this.pixelX = pixelX;
         this.pixelY = pixelY;
         this.level = level;
         SpectraDiagram spectraDiagram = getSpectraDiagram();
         if (spectraDiagram.getBands().length > 0) {
+            diagramCanvas.setMessageText("Collecting spectral information..."); /*I18N*/
             spectraDiagram.updateSpectra(pixelX, pixelY, level);
+            diagramCanvas.setMessageText(null);
         } else {
             diagramCanvas.setMessageText(MSG_NO_SPECTRAL_BANDS);
         }
@@ -449,7 +448,7 @@ public class SpectrumToolView extends AbstractToolView {
         }
     }
 
-    private boolean isShowingCursorSpectrum() {
+    boolean isShowingCursorSpectrum() {
         return showSpectrumForCursorButton.isSelected();
     }
 
@@ -505,6 +504,10 @@ public class SpectrumToolView extends AbstractToolView {
         setCurrentView(null);
     }
 
+    DiagramCanvas getDiagramCanvas() {
+        return diagramCanvas;
+    }
+
     /////////////////////////////////////////////////////////////////////////
     // View change handling
 
@@ -525,43 +528,6 @@ public class SpectrumToolView extends AbstractToolView {
                 handleViewDeactivated((ProductSceneView) contentPane);
             }
         }
-    }
-
-    /////////////////////////////////////////////////////////////////////////
-    // Pixel position change handling
-
-    private class CursorSpectrumPPL implements PixelPositionListener {
-
-        @Override
-        public void pixelPosChanged(ImageLayer imageLayer,
-                                    int pixelX,
-                                    int pixelY,
-                                    int currentLevel,
-                                    boolean pixelPosValid,
-                                    MouseEvent e) {
-            diagramCanvas.setMessageText(null);
-            if (pixelPosValid && isActive()) {
-                getSpectraDiagram().addCursorSpectrumGraph();
-                updateSpectra(pixelX, pixelY, currentLevel);
-            }
-            if (e.isShiftDown()) {
-                getSpectraDiagram().adjustAxes(true);
-            }
-        }
-
-        @Override
-        public void pixelPosNotAvailable() {
-
-            if (isActive()) {
-                getSpectraDiagram().removeCursorSpectrumGraph();
-                diagramCanvas.repaint();
-            }
-        }
-
-        private boolean isActive() {
-            return isVisible() && isShowingCursorSpectrum() && getSpectraDiagram() != null;
-        }
-
     }
 
     /////////////////////////////////////////////////////////////////////////
