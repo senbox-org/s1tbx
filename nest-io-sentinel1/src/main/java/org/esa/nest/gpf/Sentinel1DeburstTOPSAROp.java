@@ -221,6 +221,44 @@ public final class Sentinel1DeburstTOPSAROp extends Operator {
             subSwath.lastValidSample[k] = Sentinel1Utils.getIntArray(lastValidSampleElem, "lastValidSample");
             k++;
         }
+
+        // get deolocation grid points
+        final MetadataElement geolocationGrid = product.getElement("geolocationGrid");
+        final MetadataElement geolocationGridPointList = geolocationGrid.getElement("geolocationGridPointList");
+        final int numOfGeoLocationGridPoints = geolocationGridPointList.getAttributeInt("count");
+        final MetadataElement[] geolocationGridPointListElem = geolocationGridPointList.getElements();
+        int numOfGeoPointsPerLine = 0;
+        int line = 0;
+        for (MetadataElement listElem : geolocationGridPointListElem) {
+            if (numOfGeoPointsPerLine == 0) {
+                line = listElem.getAttributeInt("line");
+                numOfGeoPointsPerLine++;
+            } else if (line == listElem.getAttributeInt("line")) {
+                numOfGeoPointsPerLine++;
+            } else {
+                break;
+            }
+        }
+
+        final int numOfGeoLines = numOfGeoLocationGridPoints/numOfGeoPointsPerLine;
+        subSwath.numOfGeoLines = numOfGeoLines;
+        subSwath.numOfGeoPointsPerLine = numOfGeoPointsPerLine;
+        subSwath.azimuthTime = new double[numOfGeoLines][numOfGeoPointsPerLine];
+        subSwath.slantRangeTime = new double[numOfGeoLines][numOfGeoPointsPerLine];
+        subSwath.latitude = new double[numOfGeoLines][numOfGeoPointsPerLine];
+        subSwath.longitude = new double[numOfGeoLines][numOfGeoPointsPerLine];
+        subSwath.incidenceAngle = new double[numOfGeoLines][numOfGeoPointsPerLine];
+        k = 0;
+        for (MetadataElement listElem : geolocationGridPointListElem) {
+            final int i = k / numOfGeoPointsPerLine;
+            final int j = k - i*numOfGeoPointsPerLine;
+            subSwath.azimuthTime[i][j] = Sentinel1Utils.getTime(listElem, "azimuthTime").getMJD();
+            subSwath.slantRangeTime[i][j] = listElem.getAttributeDouble("slantRangeTime")/2;
+            subSwath.latitude[i][j] = listElem.getAttributeDouble("latitude");
+            subSwath.longitude[i][j] = listElem.getAttributeDouble("longitude");
+            subSwath.incidenceAngle[i][j] = listElem.getAttributeDouble("incidenceAngle");
+            k++;
+        }
     }
 
     private void getSubSwathNoiseVectors() {
@@ -321,10 +359,172 @@ public final class Sentinel1DeburstTOPSAROp extends Operator {
 
     private void createTiePointGrids() {
         // todo
+        // compute TPGs for debursted image
+        final int gridWidth = 20;
+        final int gridHeight = 5;
+
+        final int subSamplingX = targetWidth/gridWidth;
+        final int subSamplingY = targetHeight/gridHeight;
+
+        final float[] latList = new float[gridWidth*gridHeight];
+        final float[] lonList = new float[gridWidth*gridHeight];
+        final float[] slrtList = new float[gridWidth*gridHeight];
+        final float[] incList = new float[gridWidth*gridHeight];
+
+        final Index index = new Index();
+
+        int k = 0;
+        for (int i = 0; i < gridHeight; i++) {
+            final int y = i*subSamplingY;
+            final double azTime = targetFirstLineTime + y*targetLineTimeInterval;
+            for (int j = 0; j < gridWidth; j++) {
+                final int x = j*subSamplingX;
+                final double slrTime = targetSlantRangeTimeToFirstPixel + x*targetDeltaSlantRangeTime;
+                final int subSwathIndex = getSubSwathIndex(slrTime);
+                computeIndex(azTime, slrTime, subSwathIndex, index);
+                latList[k] = getLatitudeValue(index, subSwathIndex);
+                lonList[k] = getLongitudeValue(index, subSwathIndex);
+                slrtList[k] = (float)(getSlantRangeTimeValue(index, subSwathIndex)*2*Constants.oneBillion); // 2-way ns
+                incList[k] = getIncidenceAngleValue(index, subSwathIndex);
+                k++;
+            }
+        }
+
+        final TiePointGrid latGrid = new TiePointGrid(
+                OperatorUtils.TPG_LATITUDE, gridWidth, gridHeight, 0, 0, subSamplingX, subSamplingY, latList);
+
+        final TiePointGrid lonGrid = new TiePointGrid(
+                OperatorUtils.TPG_LONGITUDE, gridWidth, gridHeight, 0, 0, subSamplingX, subSamplingY, lonList);
+
+        final TiePointGrid slrtGrid = new TiePointGrid(
+                OperatorUtils.TPG_SLANT_RANGE_TIME, gridWidth, gridHeight, 0, 0, subSamplingX, subSamplingY, slrtList);
+
+        final TiePointGrid incGrid = new TiePointGrid(
+                OperatorUtils.TPG_INCIDENT_ANGLE, gridWidth, gridHeight, 0, 0, subSamplingX, subSamplingY, incList);
+
+        latGrid.setUnit(Unit.DEGREES);
+        lonGrid.setUnit(Unit.DEGREES);
+        slrtGrid.setUnit(Unit.NANOSECONDS);
+        incGrid.setUnit(Unit.DEGREES);
+
+        targetProduct.addTiePointGrid(latGrid);
+        targetProduct.addTiePointGrid(lonGrid);
+        targetProduct.addTiePointGrid(slrtGrid);
+        targetProduct.addTiePointGrid(incGrid);
     }
 
     private void updateTargetProductMetadata() {
         // todo
+    }
+
+    private int getSubSwathIndex(final double slrTime) {
+        double startTime, endTime;
+        for (int i = 0; i < numOfSubSwath; i++) {
+
+            if (i == 0) {
+                startTime = subSwath[i].slrTimeToFirstPixel;
+            } else {
+                startTime = 0.5*(subSwath[i].slrTimeToFirstPixel + subSwath[i-1].slrTimeToLastPixel);
+            }
+
+            if (i == numOfSubSwath - 1) {
+                endTime = subSwath[i].slrTimeToLastPixel;
+            } else {
+                endTime = 0.5*(subSwath[i].slrTimeToLastPixel + subSwath[i+1].slrTimeToFirstPixel);
+            }
+
+            if (slrTime >= startTime && slrTime < endTime) {
+                return i + 1; // subswath index start from 0
+            }
+        }
+
+        return 0;
+    }
+
+    private void computeIndex(final double azTime, final double slrTime, final int subSwathIndex, Index index) {
+
+        int j0 = -1, j1 = -1;
+        double muX = 0;
+        for (int j = 0; j < subSwath[subSwathIndex - 1].numOfGeoPointsPerLine - 1; j++) {
+            if (subSwath[subSwathIndex-1].slantRangeTime[0][j] <= slrTime &&
+                subSwath[subSwathIndex-1].slantRangeTime[0][j+1] > slrTime) {
+                j0 = j;
+                j1 = j + 1;
+                muX = (slrTime - subSwath[subSwathIndex-1].slantRangeTime[0][j]) /
+                      (subSwath[subSwathIndex-1].slantRangeTime[0][j+1] - subSwath[subSwathIndex-1].slantRangeTime[0][j]);
+            }
+        }
+
+        if (j0 == -1 || j1 == -1) {
+            throw new OperatorException("Invalid subswath index");
+        }
+
+        int i0 = -1, i1 = -1;
+        double muY = 0;
+        for (int i = 0; i < subSwath[subSwathIndex-1].numOfGeoLines - 1; i++) {
+            final double i0AzTime = (1 - muX)*subSwath[subSwathIndex-1].azimuthTime[i][j0] +
+                                          muX*subSwath[subSwathIndex-1].azimuthTime[i][j1];
+
+            final double i1AzTime = (1 - muX)*subSwath[subSwathIndex-1].azimuthTime[i+1][j0] +
+                                          muX*subSwath[subSwathIndex-1].azimuthTime[i+1][j1];
+
+            if (i == 0 && azTime < i0AzTime ||
+                i == subSwath[subSwathIndex-1].numOfGeoLines - 2 && azTime >= i1AzTime ||
+                i0AzTime <= azTime && i1AzTime > azTime) {
+
+                i0 = i;
+                i1 = i + 1;
+                muY = (azTime - i0AzTime) / (i1AzTime - i0AzTime);
+                break;
+            }
+        }
+
+        index.i0 = i0;
+        index.i1 = i1;
+        index.j0 = j0;
+        index.j1 = j1;
+        index.muX = muX;
+        index.muY = muY;
+    }
+
+    private float getLatitudeValue(final Index index, final int subSwathIndex) {
+        final double lat00 = subSwath[subSwathIndex - 1].latitude[index.i0][index.j0];
+        final double lat01 = subSwath[subSwathIndex - 1].latitude[index.i0][index.j1];
+        final double lat10 = subSwath[subSwathIndex - 1].latitude[index.i1][index.j0];
+        final double lat11 = subSwath[subSwathIndex - 1].latitude[index.i1][index.j1];
+
+        return (float)((1 - index.muY)*((1 - index.muX)*lat00 + index.muX*lat01) +
+                             index.muY*((1 - index.muX)*lat10 + index.muX*lat11));
+    }
+
+    private float getLongitudeValue(final Index index, final int subSwathIndex) {
+        final double lon00 = subSwath[subSwathIndex - 1].longitude[index.i0][index.j0];
+        final double lon01 = subSwath[subSwathIndex - 1].longitude[index.i0][index.j1];
+        final double lon10 = subSwath[subSwathIndex - 1].longitude[index.i1][index.j0];
+        final double lon11 = subSwath[subSwathIndex - 1].longitude[index.i1][index.j1];
+
+        return (float)((1 - index.muY)*((1 - index.muX)*lon00 + index.muX*lon01) +
+                             index.muY*((1 - index.muX)*lon10 + index.muX*lon11));
+    }
+
+    private float getSlantRangeTimeValue(final Index index, final int subSwathIndex) {
+        final double slrt00 = subSwath[subSwathIndex - 1].slantRangeTime[index.i0][index.j0];
+        final double slrt01 = subSwath[subSwathIndex - 1].slantRangeTime[index.i0][index.j1];
+        final double slrt10 = subSwath[subSwathIndex - 1].slantRangeTime[index.i1][index.j0];
+        final double slrt11 = subSwath[subSwathIndex - 1].slantRangeTime[index.i1][index.j1];
+
+        return (float)((1 - index.muY)*((1 - index.muX)*slrt00 + index.muX*slrt01) +
+                             index.muY*((1 - index.muX)*slrt10 + index.muX*slrt11));
+    }
+
+    private float getIncidenceAngleValue(final Index index, final int subSwathIndex) {
+        final double inc00 = subSwath[subSwathIndex - 1].incidenceAngle[index.i0][index.j0];
+        final double inc01 = subSwath[subSwathIndex - 1].incidenceAngle[index.i0][index.j1];
+        final double inc10 = subSwath[subSwathIndex - 1].incidenceAngle[index.i1][index.j0];
+        final double inc11 = subSwath[subSwathIndex - 1].incidenceAngle[index.i1][index.j1];
+
+        return (float)((1 - index.muY)*((1 - index.muX)*inc00 + index.muX*inc01) +
+                             index.muY*((1 - index.muX)*inc10 + index.muX*inc11));
     }
 
 
@@ -763,7 +963,29 @@ public final class Sentinel1DeburstTOPSAROp extends Operator {
         public int[][] firstValidSample;
         public int[][] lastValidSample;
         public Map<String, Sentinel1Utils.NoiseVector[]> noise = new HashMap<String, Sentinel1Utils.NoiseVector[]>();
+
+        // GeoLocationGridPoint
+        public int numOfGeoLines;
+        public int numOfGeoPointsPerLine;
+        public double[][] azimuthTime;
+        public double[][] slantRangeTime;
+        public double[][] latitude;
+        public double[][] longitude;
+        public double[][] incidenceAngle;
     }
+
+    private static class Index {
+        public int i0;
+        public int i1;
+        public int j0;
+        public int j1;
+        public double muX;
+        public double muY;
+
+        public Index(){
+        }
+    }
+
 
     /**
      * The SPI is used to register this operator in the graph processing framework
