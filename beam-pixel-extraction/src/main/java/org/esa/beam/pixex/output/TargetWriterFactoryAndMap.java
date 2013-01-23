@@ -1,7 +1,6 @@
 package org.esa.beam.pixex.output;
 
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.measurement.writer.TargetFactory;
 
 import java.awt.image.Raster;
 import java.io.File;
@@ -12,7 +11,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-public class PixExTargetFactory implements TargetFactory {
+public class TargetWriterFactoryAndMap {
 
     private static final String MEASUREMENTS_FILE_NAME_PATTERN = "%s_%s_measurements.txt";
 
@@ -20,24 +19,21 @@ public class PixExTargetFactory implements TargetFactory {
     private final String filenamePrefix;
     private final File outputDir;
 
-    public PixExTargetFactory(final String filenamePrefix, final File outputDir) {
+    public TargetWriterFactoryAndMap(final String filenamePrefix, final File outputDir) {
         writerMap = new HashMap<String, PrintWriter>();
         this.filenamePrefix = filenamePrefix;
         this.outputDir = outputDir;
     }
 
-    @Override
-    public boolean containsWriterFor(int pixelX, int pixelY, int coordinateID, String coordinateName, Product product, Raster validData) {
+    public boolean containsWriterFor(Product product) {
         return writerMap.containsKey(product.getProductType());
     }
 
-    @Override
-    public PrintWriter getWriterFor(int pixelX, int pixelY, int coordinateID, String coordinateName, Product product, Raster validData) {
+    public PrintWriter getWriterFor(Product product) {
         return writerMap.get(product.getProductType());
     }
 
-    @Override
-    public PrintWriter createWriterFor(int pixelX, int pixelY, int coordinateID, String coordinateName, Product product, Raster validData) throws IOException {
+    public PrintWriter createWriterFor(Product product) throws IOException {
         String productType = product.getProductType();
         final String fileName = String.format(MEASUREMENTS_FILE_NAME_PATTERN, filenamePrefix, productType);
         File coordinateFile = new File(outputDir, fileName);
@@ -46,7 +42,6 @@ public class PixExTargetFactory implements TargetFactory {
         return writer;
     }
 
-    @Override
     public void close() {
         final Collection<PrintWriter> writerCollection = writerMap.values();
         for (PrintWriter printWriter : writerCollection) {

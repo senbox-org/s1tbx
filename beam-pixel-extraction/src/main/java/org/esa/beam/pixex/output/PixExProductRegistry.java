@@ -59,7 +59,7 @@ public class PixExProductRegistry implements ProductRegistry {
         return printWriter;
     }
 
-    public void writeProductMapHeader(PrintWriter printWriter) {   // package local for testing
+    private void writeProductMapHeader(PrintWriter printWriter) {
         printWriter.printf("# Product ID Map%n");
         printWriter.printf("ProductID\tProductType\tProductLocation%n");
     }

@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation; either version 3 of the License, or (at your option)
@@ -9,7 +9,7 @@
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
  * more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
@@ -19,11 +19,15 @@ package org.esa.beam.pixex.visat;
 import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.ValidationException;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.util.logging.BeamLogManager;
 
 import javax.swing.AbstractListModel;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
 
 /**
  * @author Thomas Storm
@@ -32,10 +36,28 @@ class InputListModel extends AbstractListModel {
 
     private final List<Object> list = new ArrayList<Object>();
     private List<Product> sourceProducts = new ArrayList<Product>();
-    private final Property inputPaths;
+    private final Property sourceProductPaths;
+    private boolean internalPropertyChange;
 
-    InputListModel(Property inputPaths) {
-        this.inputPaths = inputPaths;
+    InputListModel(Property sourceProductPaths) {
+        this.sourceProductPaths = sourceProductPaths;
+        sourceProductPaths.addPropertyChangeListener(new PropertyChangeListener() {
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                if (!internalPropertyChange) {
+                    Object newValue = evt.getNewValue();
+                    try {
+                        if (newValue == null) {
+                            clear();
+                        } else {
+                            setElements((String[]) newValue);
+                        }
+                    } catch (ValidationException e) {
+                        BeamLogManager.getSystemLogger().log(Level.SEVERE, "Problems at setElements.", e);
+                    }
+                }
+            }
+        });
     }
 
     @Override
@@ -52,12 +74,25 @@ class InputListModel extends AbstractListModel {
         return sourceProducts.toArray(new Product[sourceProducts.size()]);
     }
 
+    void setElements(String[] elements) throws ValidationException {
+        if (!list.isEmpty()) {
+            final int endIndex = list.size() - 1;
+            list.clear();
+            fireIntervalRemoved(this, 0, endIndex);
+        }
+        final File[] files = new File[elements.length];
+        for (int i = 0; i < files.length; i++) {
+            files[i] = new File(elements[i]);
+        }
+        addElements(files);
+    }
+
     void addElements(Object... elements) throws ValidationException {
         final int startIndex = list.size();
         for (Object element : elements) {
             if (!(element instanceof File || element instanceof Product)) {
                 throw new IllegalStateException(
-                        "Only java.io.File or org.esa.beam.framework.datamodel.Product allowed.");
+                            "Only java.io.File or org.esa.beam.framework.datamodel.Product allowed.");
             }
             if (mayAdd(element)) {
                 list.add(element);
@@ -98,17 +133,18 @@ class InputListModel extends AbstractListModel {
     }
 
     private void updateProperty() throws ValidationException {
-        List<File> files = new ArrayList<File>();
-        List<Product> products = new ArrayList<Product>();
+        final List<String> files = new ArrayList<String>();
+        final List<Product> products = new ArrayList<Product>();
         for (Object element : list) {
             if (element instanceof File) {
-                files.add((File) element);
+                files.add(((File) element).getPath());
             } else if (element instanceof Product) {
                 products.add((Product) element);
-
             }
         }
-        inputPaths.setValue(files.toArray(new File[files.size()]));
+        internalPropertyChange = true;
+        sourceProductPaths.setValue(files.toArray(new String[files.size()]));
+        internalPropertyChange = false;
         sourceProducts = products;
     }
 
