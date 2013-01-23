@@ -21,11 +21,9 @@ import org.jdom.Element;
 import org.jdom.Namespace;
 import org.jdom.input.DOMBuilder;
 import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -82,16 +80,13 @@ public class ExclusionListBuilder {
         }
     }
 
-    static void generateExclusionList(File exclusionList, List<URL> poms) throws ParserConfigurationException,
-                                                                                 IOException,
-                                                                                 SAXException {
+    static void generateExclusionList(File exclusionList, List<URL> poms) throws Exception {
         for (URL pom : poms) {
             addPomToExclusionList(exclusionList, pom);
         }
     }
 
-    static void addPomToExclusionList(File exclusionList, URL pom) throws ParserConfigurationException,
-                                                                          IOException, SAXException {
+    static void addPomToExclusionList(File exclusionList, URL pom) throws Exception {
         BufferedWriter writer = new BufferedWriter(new FileWriter(exclusionList, true));
         try {
             final DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
@@ -120,29 +115,42 @@ public class ExclusionListBuilder {
 
     static void addModuleToExclusionList(File exclusionList, Writer writer, String moduleName) throws IOException {
         CsvReader reader = new CsvReader(new FileReader(exclusionList), CSV_SEPARATOR_ARRAY);
-        final String[] records = reader.readRecord();
-        List<String> recordList = new ArrayList<String>();
-        if (records != null) {
-            recordList.addAll(Arrays.asList(records));
-        }
+        try {
+            final String[] records = reader.readRecord();
+            List<String> recordList = new ArrayList<String>();
+            if (records != null) {
+                recordList.addAll(Arrays.asList(records));
+            }
 
-        if (!recordList.contains(moduleName)) {
-            writer.write(moduleName);
-            writer.write(CSV_SEPARATOR);
+            if (!recordList.contains(moduleName)) {
+                writer.write(moduleName);
+                writer.write(CSV_SEPARATOR);
+            }
+        } finally {
+            reader.close();
         }
     }
 
     static List<URL> retrievePoms(String fileName) {
         List<URL> pomList = new ArrayList<URL>();
+        final String pomListFile = SiteCreator.class.getResource(fileName).getFile();
+        BufferedReader reader = null;
         try {
-            final String pomListFile = SiteCreator.class.getResource(fileName).getFile();
-            final BufferedReader reader = new BufferedReader(new FileReader(pomListFile));
+            reader = new BufferedReader(new FileReader(pomListFile));
             String line;
             while ((line = reader.readLine()) != null) {
                 pomList.add(new URL(line));
             }
         } catch (IOException e) {
             return pomList;
+        } finally {
+            if (reader != null) {
+                try {
+                    reader.close();
+                } catch (IOException ioe) {
+                    ioe.printStackTrace();
+                }
+            }
         }
 
         return pomList;
