@@ -89,7 +89,7 @@ public class BlueMarbleLayerType extends WorldMapLayerType {
     private static MultiLevelSource createMultiLevelSource() {
         String dirPath = System.getProperty(WORLD_IMAGE_DIR_PROPERTY_NAME);
         if (dirPath == null || dirPath.isEmpty()) {
-            final File installFolder = SystemUtils.getApplicationHomeDir();
+            final File installFolder = SystemUtils.getApplicationHomeDir();                              //NESTMOD
             final File worldMapFolder = new File(installFolder,"auxdata"+File.separator+"worldmap");
             if(worldMapFolder.exists())
                 dirPath = worldMapFolder.getAbsolutePath();

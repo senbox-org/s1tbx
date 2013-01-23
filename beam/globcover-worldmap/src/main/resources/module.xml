@@ -1,0 +1,51 @@
+<module>
+    <manifestVersion>1.0.0</manifestVersion>
+
+    <symbolicName>globcover-worldmap</symbolicName>
+    <name>ESA GlobCover Worldmap</name>
+    <version>1.0.1</version>
+    <description>
+        This module provides the ESA GlobCover world map layer in WGS84.
+    </description>
+    <packaging>dir</packaging>
+
+    <vendor>Brockmann Consult GmbH</vendor>
+    <contactAddress>Max Planck Str.2, 21502 Geesthacht (Germany)</contactAddress>
+    <copyright>(C) 2010 by Brockmann Consult GmbH</copyright>
+    <url>http://envisat.esa.int/beam/</url>
+    <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
+
+    <changelog>
+        <![CDATA[
+            <!--<p>Changes in 1.0.2:<br/>-->
+            <!--Adapted to BEAM 5.0<br/>-->
+            <p>Changes in 1.0.1:<br/>
+            Adapted to new Maven-architecture<br/>
+
+        ]]>
+    </changelog>
+
+    <categories>System,World-Map</categories>
+
+    <dependency>
+        <module>ceres-glayer</module>
+    </dependency>
+    <dependency>
+        <module>beam-core</module>
+    </dependency>
+
+    <dependency>
+        <module>beam-ui</module>
+        <optional>true</optional>
+    </dependency>
+
+    <extension point="beam-ui:layerSources">
+        <layerSource>
+            <id>globcover-source</id>
+            <name>World Map (ESA GlobCover)</name>
+            <description>Adds ESA GlobCover image layer to the background.</description>
+            <layerType>org.esa.beam.worldmap.GlobCoverLayerType</layerType>
+        </layerSource>
+    </extension>
+
+</module>
