@@ -29,8 +29,7 @@ import org.esa.beam.pixex.output.PixExProductRegistry;
 import org.esa.beam.pixex.output.PixExRasterNamesFactory;
 import org.esa.beam.pixex.output.TargetWriterFactoryAndMap;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.operation.TransformException;
 
@@ -58,11 +57,19 @@ public class MeasurementWriterTest {
     public void setup() throws IOException {
         final File tmpDir = new File(System.getProperty("java.io.tmpdir"));
         outputDir = new File(tmpDir, getClass().getSimpleName());
-        if (!outputDir.mkdir()) { // already exists, so delete contents
-            for (File file : outputDir.listFiles()) {
-                file.delete();
-            }
+        outputDir.mkdir();
+    }
+
+    @After
+    public void tearDown() {
+        for (File file : outputDir.listFiles()) {
+            file.deleteOnExit();
+            //noinspection ResultOfMethodCallIgnored
+            file.delete();
         }
+        outputDir.deleteOnExit();
+        //noinspection ResultOfMethodCallIgnored
+        outputDir.delete();
     }
 
     @Test
