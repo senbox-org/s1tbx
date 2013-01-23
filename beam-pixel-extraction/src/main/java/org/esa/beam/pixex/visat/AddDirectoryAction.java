@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation; either version 3 of the License, or (at your option)
@@ -9,7 +9,7 @@
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
  * more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
@@ -19,11 +19,21 @@ package org.esa.beam.pixex.visat;
 import com.bc.ceres.binding.ValidationException;
 import com.jidesoft.swing.FolderChooser;
 import org.esa.beam.framework.ui.AppContext;
+import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.util.PropertyMap;
 import org.esa.beam.util.SystemUtils;
 
 import javax.swing.AbstractAction;
+import javax.swing.JComponent;
+import javax.swing.JDialog;
 import javax.swing.JFileChooser;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import java.awt.BorderLayout;
+import java.awt.Frame;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.io.File;
 
@@ -71,7 +81,25 @@ class AddDirectoryAction extends AbstractAction {
         File[] selectedDirs;
         if (recursive) {
             File selectedDir = folderChooser.getSelectedFolder();
-            selectedDirs = new File[]{new File(selectedDir, "**")};
+            selectedDir = new File(selectedDir, "**");
+            final JPanel contentPane = new JPanel(new BorderLayout(8, 8));
+            contentPane.add(new JLabel("Please define a file selection pattern. For example '*.nc'"), BorderLayout.NORTH);
+            contentPane.add(new JLabel("Pattern:"), BorderLayout.WEST);
+            final JTextField textField = new JTextField("*.dim");
+            contentPane.add(textField, BorderLayout.CENTER);
+            final ModalDialog dialog = new ModalDialog(null, "File Selection Pattern", contentPane, ModalDialog.ID_OK_CANCEL_HELP, PixelExtractionDialog.HELP_ID_JAVA_HELP);
+            final int button = dialog.show();
+            if (button != ModalDialog.ID_OK) {
+                return;
+            }
+            final String text = textField.getText();
+            if (text == null || text.trim().length() == 0) {
+                JOptionPane.showMessageDialog(null, "Pattern field may not be empty.", "File Selection Pattern", JOptionPane.ERROR_MESSAGE);
+                return;
+            } else {
+                selectedDir = new File(selectedDir, text.trim());
+                selectedDirs = new File[]{selectedDir};
+            }
         } else {
             selectedDirs = folderChooser.getSelectedFiles();
         }
