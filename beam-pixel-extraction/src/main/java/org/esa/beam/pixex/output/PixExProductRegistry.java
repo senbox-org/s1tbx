@@ -49,6 +49,11 @@ public class PixExProductRegistry implements ProductRegistry {
         return productList.indexOf(identifier);
     }
 
+    @Override
+    public void close() {
+        productMapWriter.close();
+    }
+
     private PrintWriter createProductMapWriter() throws FileNotFoundException {
 
         final String fileName = String.format(PRODUCT_MAP_FILE_NAME_PATTERN, filenamePrefix);

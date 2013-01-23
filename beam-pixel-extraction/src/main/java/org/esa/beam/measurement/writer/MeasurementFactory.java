@@ -11,4 +11,5 @@ public interface MeasurementFactory {
     public Measurement[] createMeasurements(int pixelX, int pixelY, int coordinateID, String coordinateName,
                                             Product product, Raster validData) throws IOException;
 
+    public void close();
 }

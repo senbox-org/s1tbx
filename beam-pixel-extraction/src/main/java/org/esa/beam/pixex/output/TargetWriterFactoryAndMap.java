@@ -46,6 +46,8 @@ public class TargetWriterFactoryAndMap {
         final Collection<PrintWriter> writerCollection = writerMap.values();
         for (PrintWriter printWriter : writerCollection) {
             printWriter.close();
+            //noinspection SuspiciousMethodCalls
+//            writerMap.remove(printWriter);
         }
     }
 }

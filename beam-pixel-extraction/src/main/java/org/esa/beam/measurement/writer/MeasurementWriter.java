@@ -32,6 +32,7 @@ public class MeasurementWriter {
     private final MeasurementFactory measurementFactory;
     private final TargetWriterFactoryAndMap targetFactory;
     private final FormatStrategy formatStrategy;
+    private boolean closed;
 
     public MeasurementWriter(MeasurementFactory measurementFactory,
                              TargetWriterFactoryAndMap targetFactory,
@@ -39,19 +40,21 @@ public class MeasurementWriter {
         this.measurementFactory = measurementFactory;
         this.targetFactory = targetFactory;
         this.formatStrategy = formatStrategy;
+        closed = false;
     }
 
     public void writeMeasurements(int pixelX, int pixelY,
                                   int coordinateID, String coordinateName,
                                   Product product, Raster validData) throws IOException {
 
-        final Measurement[] measurements;
-        measurements = measurementFactory.createMeasurements(pixelX, pixelY, coordinateID, coordinateName, product,
-                                                             validData);
 
+        if (closed) {
+            throw new IllegalStateException("Writer is closed.");
+        }
+        final Measurement[] measurements = measurementFactory.createMeasurements(
+                    pixelX, pixelY, coordinateID, coordinateName, product, validData);
         final PrintWriter writer;
-        final boolean containsWriter = targetFactory.containsWriterFor(product);
-        if (containsWriter) {
+        if (targetFactory.containsWriterFor(product)) {
             writer = targetFactory.getWriterFor(product);
         } else {
             writer = targetFactory.createWriterFor(product);
@@ -67,5 +70,7 @@ public class MeasurementWriter {
 
     public void close() {
         targetFactory.close();
+        measurementFactory.close();
+        closed = true;
     }
 }

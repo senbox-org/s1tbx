@@ -7,4 +7,6 @@ import java.io.IOException;
 public interface ProductRegistry {
 
     long getProductId(Product product) throws IOException;
+
+    void close();
 }

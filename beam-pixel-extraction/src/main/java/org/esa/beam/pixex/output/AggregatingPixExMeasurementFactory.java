@@ -63,6 +63,11 @@ public class AggregatingPixExMeasurementFactory extends AbstractMeasurementFacto
         return measurements;
     }
 
+    @Override
+    public void close() {
+        productRegistry.close();
+    }
+
     private Float[] createFloatArray(float[] values) {
         final Float[] result = new Float[values.length];
         for (int i = 0; i < values.length; i++) {

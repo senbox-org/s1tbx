@@ -94,6 +94,10 @@ public class PixExMeasurementFactoryTest {
             public long getProductId(Product product) {
                 return 1234;
             }
+
+            @Override
+            public void close() {
+            }
         };
     }
 

@@ -16,6 +16,13 @@
 
 package org.esa.beam.pixex;
 
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertFalse;
+import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.assertNull;
+import static junit.framework.Assert.assertTrue;
+import static junit.framework.Assert.fail;
+
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.CrsGeoCoding;
 import org.esa.beam.framework.datamodel.GeoPos;
@@ -46,8 +53,6 @@ import java.text.ParseException;
 import java.util.Locale;
 import java.util.Scanner;
 
-import static junit.framework.Assert.*;
-
 @SuppressWarnings({"IOResourceOpenedButNotSafelyClosed"})
 public class MeasurementWriterTest {
 
@@ -57,18 +62,16 @@ public class MeasurementWriterTest {
     public void setup() throws IOException {
         final File tmpDir = new File(System.getProperty("java.io.tmpdir"));
         outputDir = new File(tmpDir, getClass().getSimpleName());
-        outputDir.mkdir();
+        if (!outputDir.mkdir()) {
+            deleteOutputFiles();
+        }
     }
 
     @After
-    public void tearDown() {
-        for (File file : outputDir.listFiles()) {
-            file.deleteOnExit();
-            //noinspection ResultOfMethodCallIgnored
-            file.delete();
-        }
+    public void tearDown() throws IOException {
+        deleteOutputFiles();
         outputDir.deleteOnExit();
-        //noinspection ResultOfMethodCallIgnored
+//        noinspection ResultOfMethodCallIgnored
         outputDir.delete();
     }
 
@@ -98,27 +101,13 @@ public class MeasurementWriterTest {
 
         final Product p2 = createTestProduct("N2", "T2", new String[0], 360, 180);
         writeRegion(writer, p2, 1, windowSize);
+        writer.close();
 
         File t2CoordFile = new File(outputDir, "testFileCreation_T2_measurements.txt");
         assertEquals(3, outputDir.listFiles().length);
         assertTrue(productMapFile.exists());
         assertTrue(t1CoordFile.exists());
         assertTrue(t2CoordFile.exists());
-    }
-
-    private void writeRegion(MeasurementWriter writer, Product p1, int coordId, int windowSize) throws IOException {
-        final int pixelX = 20;
-        final int pixelY = 42;
-        final int pixelBorder = windowSize / 2;
-        final int centerX = pixelX + pixelBorder;
-        final int centerY = pixelY + pixelBorder;
-        final byte validValue = (byte) (coordId % 2 == 0 ? -1 : 0);
-        final RenderedOp renderedOp = ConstantDescriptor.create((float) p1.getSceneRasterWidth(),
-                                                                (float) p1.getSceneRasterHeight(),
-                                                                new Byte[]{validValue}, null);
-        final Raster validData = renderedOp.getData(new Rectangle(pixelX, pixelY, windowSize, windowSize));
-
-        writer.writeMeasurements(centerX, centerY, coordId, "coord" + coordId, p1, validData);
     }
 
     @Test
@@ -136,18 +125,27 @@ public class MeasurementWriterTest {
         writeRegion(writer, testProduct1, 2, windowSize);
         writeRegion(writer, testProduct2, 3, windowSize);
         writeRegion(writer, testProduct3, 4, windowSize);
+        writer.close();
 
         File t1CoordFile = new File(outputDir, "testWritingMeasurements_T1_measurements.txt");
         BufferedReader reader = new BufferedReader(new FileReader(t1CoordFile));
-        skipLines(reader, 7);    //skip file header and table header lines
-        assertMeasurementEquals(getMeasurement(1, 0), reader.readLine(), false);
-        assertMeasurementEquals(getMeasurement(2, 0), reader.readLine(), false);
-        assertMeasurementEquals(getMeasurement(3, 1), reader.readLine(), false);
+        try {
+            skipLines(reader, 7);    //skip file header and table header lines
+            assertMeasurementEquals(getMeasurement(1, 0), reader.readLine(), false);
+            assertMeasurementEquals(getMeasurement(2, 0), reader.readLine(), false);
+            assertMeasurementEquals(getMeasurement(3, 1), reader.readLine(), false);
+        } finally {
+            reader.close();
+        }
 
         File t2CoordFile = new File(outputDir, "testWritingMeasurements_T2_measurements.txt");
         reader = new BufferedReader(new FileReader(t2CoordFile));
-        skipLines(reader, 7);    //skip file header and table header lines
-        assertMeasurementEquals(getMeasurement(4, 2), reader.readLine(), false);
+        try {
+            skipLines(reader, 7);    //skip file header and table header lines
+            assertMeasurementEquals(getMeasurement(4, 2), reader.readLine(), false);
+        } finally {
+            reader.close();
+        }
     }
 
     @Test
@@ -163,12 +161,17 @@ public class MeasurementWriterTest {
         final Product testProduct = createTestProduct("N1", "T1", varNames, 360, 180);
         writeRegion(writer, testProduct, 1, windowSize);
         writeRegion(writer, testProduct, 2, windowSize);
+        writer.close();
 
         File t1CoordFile = new File(outputDir, "testWritingMeasurementsWithExpression_T1_measurements.txt");
         BufferedReader reader = new BufferedReader(new FileReader(t1CoordFile));
-        skipLines(reader, 8);    //skip file header and table header lines
-        assertMeasurementEquals(getMeasurement(1, 0), reader.readLine(), withExpression);
-        assertMeasurementEquals(getMeasurement(2, 0), reader.readLine(), withExpression);
+        try {
+            skipLines(reader, 8);    //skip file header and table header lines
+            assertMeasurementEquals(getMeasurement(1, 0), reader.readLine(), withExpression);
+            assertMeasurementEquals(getMeasurement(2, 0), reader.readLine(), withExpression);
+        } finally {
+            reader.close();
+        }
     }
 
     @Test
@@ -188,45 +191,39 @@ public class MeasurementWriterTest {
 
         File t1CoordFile = new File(outputDir, "testWritingProductMap_productIdMap.txt");
         final BufferedReader reader = new BufferedReader(new FileReader(t1CoordFile));
-        skipLines(reader, 2);    //skip file header and table header lines
-        String line = reader.readLine();
-        assertNotNull("Nothing written to ProductMap.", line);
-        assertFalse(line.isEmpty());
-        assertProductMapEntryEquals(0, "T1", testProduct.getFileLocation().getAbsolutePath(), line);
+        try {
+            skipLines(reader, 2);    //skip file header and table header lines
+            String line = reader.readLine();
+            assertNotNull("Nothing written to ProductMap.", line);
+            assertFalse(line.isEmpty());
+            assertProductMapEntryEquals(0, "T1", testProduct.getFileLocation().getAbsolutePath(), line);
 
-        writeRegion(writer, testProduct, 2, windowSize);
-        assertNull("No new entry expected.", reader.readLine());
+            writeRegion(writer, testProduct, 2, windowSize);
+            assertNull("No new entry expected.", reader.readLine());
 
-        final Product testProduct2 = createTestProduct("N2", "T1", varNames, 360, 180);
-        testProduct2.setFileLocation(new File("somewhere/on/disk2.txt"));
-        writeRegion(writer, testProduct2, 1, windowSize);
-        final Product testProduct3 = createTestProduct("N2", "T2", varNames, 360, 180);
-        testProduct3.setFileLocation(new File("somewhere/on/disk3.txt"));
-        writeRegion(writer, testProduct3, 1, windowSize);
+            final Product testProduct2 = createTestProduct("N2", "T1", varNames, 360, 180);
+            testProduct2.setFileLocation(new File("somewhere/on/disk2.txt"));
+            writeRegion(writer, testProduct2, 1, windowSize);
+            final Product testProduct3 = createTestProduct("N2", "T2", varNames, 360, 180);
+            testProduct3.setFileLocation(new File("somewhere/on/disk3.txt"));
+            writeRegion(writer, testProduct3, 1, windowSize);
+            writer.close();
 
-        line = reader.readLine();
-        assertNotNull("Nothing written to ProductMap.", line);
-        assertFalse(line.isEmpty());
-        assertProductMapEntryEquals(1, "T1", testProduct2.getFileLocation().getAbsolutePath(), line);
-        line = reader.readLine();
-        assertNotNull("Nothing written to ProductMap.", line);
-        assertFalse(line.isEmpty());
-        assertProductMapEntryEquals(2, "T2", testProduct3.getFileLocation().getAbsolutePath(), line);
-
-    }
-
-    private void assertProductMapEntryEquals(int productId, String productType, String location, String line) {
-        final Scanner scanner = new Scanner(line);
-        scanner.useLocale(Locale.ENGLISH);
-        scanner.useDelimiter("\t");
-        assertEquals(productId, scanner.nextInt());
-        assertEquals(productType, scanner.next());
-        assertEquals(location, scanner.next());
-        assertFalse("Too much information on single line.", scanner.hasNext());
+            line = reader.readLine();
+            assertNotNull("Nothing written to ProductMap.", line);
+            assertFalse(line.isEmpty());
+            assertProductMapEntryEquals(1, "T1", testProduct2.getFileLocation().getAbsolutePath(), line);
+            line = reader.readLine();
+            assertNotNull("Nothing written to ProductMap.", line);
+            assertFalse(line.isEmpty());
+            assertProductMapEntryEquals(2, "T2", testProduct3.getFileLocation().getAbsolutePath(), line);
+        } finally {
+            reader.close();
+        }
     }
 
     @Test
-    public void testClosing() throws Exception {
+    public void testClosing() throws IOException, FactoryException, TransformException {
         final int windowSize = 1;
         final String filenamePrefix = "testClosing";
 
@@ -239,13 +236,38 @@ public class MeasurementWriterTest {
 
         try {
             writeRegion(writer, testProduct, 2, windowSize);
-            fail("IOException expected: The writer is closed.");
-        } catch (IOException ignored) {
+            fail("IllegalStateException expected: The writer is closed.");
+        } catch (IllegalStateException e) {
         }
     }
 
+    private void writeRegion(MeasurementWriter writer, Product p1, int coordId, int windowSize) throws IOException {
+        final int pixelX = 20;
+        final int pixelY = 42;
+        final int pixelBorder = windowSize / 2;
+        final int centerX = pixelX + pixelBorder;
+        final int centerY = pixelY + pixelBorder;
+        final byte validValue = (byte) (coordId % 2 == 0 ? -1 : 0);
+        final RenderedOp renderedOp = ConstantDescriptor.create((float) p1.getSceneRasterWidth(),
+                                                                (float) p1.getSceneRasterHeight(),
+                                                                new Byte[]{validValue}, null);
+        final Raster validData = renderedOp.getData(new Rectangle(pixelX, pixelY, windowSize, windowSize));
+
+        writer.writeMeasurements(centerX, centerY, coordId, "coord" + coordId, p1, validData);
+    }
+
+    private void assertProductMapEntryEquals(int productId, String productType, String location, String line) {
+        final Scanner scanner = new Scanner(line);
+        scanner.useLocale(Locale.ENGLISH);
+        scanner.useDelimiter("\t");
+        assertEquals(productId, scanner.nextInt());
+        assertEquals(productType, scanner.next());
+        assertEquals(location, scanner.next());
+        assertFalse("Too much information on single line.", scanner.hasNext());
+    }
+
     private void assertMeasurementEquals(Measurement measurement, String line, boolean withExpression) throws
-            ParseException {
+                                                                                                       ParseException {
         final Scanner scanner = new Scanner(line);
         scanner.useLocale(Locale.ENGLISH);
         scanner.useDelimiter("\t");
@@ -274,16 +296,16 @@ public class MeasurementWriterTest {
 
     }
 
-
     private void skipLines(BufferedReader reader, int numLines) throws IOException {
         for (int i = 0; i < numLines; i++) {
             reader.readLine();
         }
     }
 
+
     public static Product createTestProduct(String name, String type, String[] bandNames, int width, int height) throws
-            FactoryException,
-            TransformException {
+                                                                                                                 FactoryException,
+                                                                                                                 TransformException {
         Rectangle bounds = new Rectangle(width, height);
         Product product = new Product(name, type, bounds.width, bounds.height);
         AffineTransform i2mTransform = new AffineTransform();
@@ -326,5 +348,13 @@ public class MeasurementWriterTest {
         final DefaultFormatStrategy formatStrategy = new DefaultFormatStrategy(rasterNamesFactory, windowSize, expression,
                                                                                exportExpressionResult);
         return new MeasurementWriter(measurementFactory, targetFactory, formatStrategy);
+    }
+
+    private void deleteOutputFiles() throws IOException {
+        for (File file : outputDir.listFiles()) {
+            file.deleteOnExit();
+//            noinspection ResultOfMethodCallIgnored
+            file.delete();
+        }
     }
 }
