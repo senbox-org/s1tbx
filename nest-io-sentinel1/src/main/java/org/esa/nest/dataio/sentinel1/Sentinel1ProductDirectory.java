@@ -589,7 +589,7 @@ public class Sentinel1ProductDirectory extends XMLProductDirectory {
             lngList[i] = (float)ggPoint.getAttributeDouble("longitude", 0);
             incidenceAngleList[i] = (float)ggPoint.getAttributeDouble("incidenceAngle", 0);
             elevAngleList[i] = (float)ggPoint.getAttributeDouble("elevationAngle", 0);
-            rangeTimeList[i] = (float)ggPoint.getAttributeDouble("slantRangeTime", 0);
+            rangeTimeList[i] = (float)(ggPoint.getAttributeDouble("slantRangeTime", 0)*Constants.oneBillion); // s to ns
 
             final double pix = ggPoint.getAttributeDouble("pixel", 0);
             if(pix == 0) {
