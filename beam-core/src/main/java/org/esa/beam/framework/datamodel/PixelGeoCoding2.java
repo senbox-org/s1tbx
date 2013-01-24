@@ -15,7 +15,9 @@
  */
 package org.esa.beam.framework.datamodel;
 
+import com.bc.jexp.ParseException;
 import org.esa.beam.framework.dataio.ProductSubsetDef;
+import org.esa.beam.framework.dataop.barithm.BandArithmetic;
 import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.Guardian;
@@ -39,6 +41,7 @@ public class PixelGeoCoding2 extends AbstractGeoCoding {
     private static final String SYSPROP_PIXEL_GEO_CODING_FRACTION_ACCURACY = "beam.pixelGeoCoding.fractionAccuracy";
 
     private final String maskExpression;
+    private final String origExpression;
     private final int rasterW;
     private final int rasterH;
     private final boolean fractionAccuracy = Boolean.getBoolean(SYSPROP_PIXEL_GEO_CODING_FRACTION_ACCURACY);
@@ -112,6 +115,7 @@ public class PixelGeoCoding2 extends AbstractGeoCoding {
             }
             expressionBuilder.append("(").append(validLonExpression).append(")");
         }
+        this.origExpression = maskExpression;
         this.maskExpression = expressionBuilder.toString();
 
         this.rasterW = latBand.getSceneRasterWidth();
@@ -388,10 +392,61 @@ public class PixelGeoCoding2 extends AbstractGeoCoding {
             lonBand = createSubset(srcLonBand, destScene, subsetDef);
             destProduct.addBand(lonBand);
         }
-        // TODO - copy rasters referenced in mask expression and de-serialize pixel position estimator
-        destScene.setGeoCoding(new PixelGeoCoding2(latBand, lonBand, maskExpression));
+        String validMaskExpression = getValidMask();
+        String maskToBePassed = validMaskExpression;
+        if (validMaskExpression.contains(origExpression)) {
+            maskToBePassed = origExpression;
+        }
+        try {
+            if (validMaskExpression != null) {
+                copyReferencedRasters(validMaskExpression, srcScene, destScene, subsetDef);
+            }
+        } catch (ParseException ignored) {
+            maskToBePassed = null;
+        }
+        destScene.setGeoCoding(new PixelGeoCoding2(latBand, lonBand, maskToBePassed));
 
         return true;
+    }
+
+    private void copyReferencedRasters(String validMaskExpression, Scene srcScene, Scene destScene,
+                                       ProductSubsetDef subsetDef) throws ParseException {
+        Product destProduct = destScene.getProduct();
+        final RasterDataNode[] dataNodes = BandArithmetic.getRefRasters(validMaskExpression,
+                                                                        srcScene.getProduct());
+        for (RasterDataNode dataNode : dataNodes) {
+            if (!destProduct.containsRasterDataNode(dataNode.getName())) {
+                if (dataNode instanceof TiePointGrid) {
+                    TiePointGrid tpg = TiePointGrid.createSubset((TiePointGrid) dataNode, subsetDef);
+                    destProduct.addTiePointGrid(tpg);
+                }
+                if (dataNode instanceof Band) {
+                    final Band srcBand = (Band) dataNode;
+                    Band band = createSubset(srcBand, destScene, subsetDef);
+                    destProduct.addBand(band);
+                    setFlagCoding(band, srcBand.getFlagCoding());
+                }
+            }
+        }
+    }
+
+    private static void setFlagCoding(Band band, FlagCoding flagCoding) {
+        if (flagCoding != null) {
+            String flagCodingName = flagCoding.getName();
+            final Product product = band.getProduct();
+            if (!product.getFlagCodingGroup().contains(flagCodingName)) {
+                addFlagCoding(product, flagCoding);
+            }
+            band.setSampleCoding(product.getFlagCodingGroup().get(flagCodingName));
+        }
+    }
+
+    private static void addFlagCoding(Product product, FlagCoding flagCoding) {
+        final FlagCoding targetFlagCoding = new FlagCoding(flagCoding.getName());
+
+        targetFlagCoding.setDescription(flagCoding.getDescription());
+        ProductUtils.copyMetadata(flagCoding, targetFlagCoding);
+        product.getFlagCodingGroup().add(targetFlagCoding);
     }
 
     private Band createSubset(Band srcBand, Scene destScene, ProductSubsetDef subsetDef) {
