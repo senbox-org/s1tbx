@@ -1,0 +1,232 @@
+<project>
+    <shortName>NEST</shortName>
+    <fullName>NEST</fullName>
+    <version>5.0.3</version>
+    <installerFilename>${product_shortname}-${product_version}-${platform_name}64-update.${platform_exec_suffix}</installerFilename>
+    <licenseFile>../../../LICENSE.txt</licenseFile>
+    <splashImage>../../main/bin/common/res/nest_splash.png</splashImage>
+    <componentList>
+        <component>
+            <name>NEST64</name>
+            <description>Next ESA SAR Toolbox</description>
+            <canBeEdited>1</canBeEdited>
+            <selected>1</selected>
+            <show>1</show>
+            <desktopShortcutList>
+                <shortcut>
+                    <comment>NEST Display and Analysis Tool</comment>
+                    <exec>${installdir}/dat.sh</exec>
+                    <icon>${installdir}/res/dat.png</icon>
+                    <name>Next ESA SAR Toolbox</name>
+                    <path>${installdir}</path>
+                    <platforms>all</platforms>
+                    <runAsAdmin>0</runAsAdmin>
+                    <runInTerminal>0</runInTerminal>
+                    <windowsExec>${installdir}/nest-dat64.exe</windowsExec>
+                    <windowsExecArgs></windowsExecArgs>
+                    <windowsIcon></windowsIcon>
+                    <windowsPath>${installdir}</windowsPath>
+                </shortcut>
+            </desktopShortcutList>
+            <folderList>
+                <folder>
+                    <description>Program Files</description>
+                    <destination>${installdir}</destination>
+                    <name>programfiles</name>
+                    <platforms>all</platforms>
+                    <distributionFileList>
+                        <distributionDirectory>
+                            <origin>../../../target/nest-5.0-bin-win64.dir/bin</origin>
+                        </distributionDirectory>
+                        <distributionDirectory>
+                            <origin>../../../target/nest-5.0-bin-win64.dir/config</origin>
+                        </distributionDirectory>
+                        <distributionDirectory>
+                            <origin>../../../target/nest-5.0-bin-win64.dir/graphs</origin>
+                        </distributionDirectory>
+                        <distributionDirectory>
+                            <origin>../../../target/nest-5.0-bin-win64.dir/lib</origin>
+                        </distributionDirectory>
+                        <distributionDirectory>
+                            <origin>../../../target/nest-5.0-bin-win64.dir/modules</origin>
+                        </distributionDirectory>
+                    </distributionFileList>
+                    <shortcutList>
+                        <shortcut>
+                            <comment>Uninstall</comment>
+                            <exec>${installdir}/${uninstallerName}</exec>
+                            <icon></icon>
+                            <name>Uninstall ${product_fullname}</name>
+                            <path>${installdir}</path>
+                            <platforms>all</platforms>
+                            <runAsAdmin>0</runAsAdmin>
+                            <runInTerminal>0</runInTerminal>
+                            <windowsExec>${installdir}/${uninstallerName}.exe</windowsExec>
+                            <windowsExecArgs></windowsExecArgs>
+                            <windowsIcon></windowsIcon>
+                            <windowsPath>${installdir}</windowsPath>
+                        </shortcut>
+                    </shortcutList>
+                </folder>
+                <folder>
+                    <description>Program Files</description>
+                    <destination>${installdir}</destination>
+                    <name>programfileswindows</name>
+                    <platforms>windows</platforms>
+                </folder>
+            </folderList>
+            <startMenuShortcutList>
+                <startMenuShortcut>
+                    <comment>Uninstall ${product_fullname}</comment>
+                    <name>Uninstall ${product_fullname}</name>
+                    <runAsAdmin>0</runAsAdmin>
+                    <runInTerminal>0</runInTerminal>
+                    <windowsExec>${installdir}/${uninstallerName}.exe</windowsExec>
+                    <windowsExecArgs></windowsExecArgs>
+                    <windowsIcon></windowsIcon>
+                    <windowsPath>${installdir}/</windowsPath>
+                </startMenuShortcut>
+                <startMenuShortcut>
+                    <comment>NEST Display and Anlaysis Tool</comment>
+                    <name>Next ESA SAR Toolbox</name>
+                    <runAsAdmin>0</runAsAdmin>
+                    <runInTerminal>0</runInTerminal>
+                    <windowsExec>${installdir}/nest-dat64.exe</windowsExec>
+                    <windowsExecArgs></windowsExecArgs>
+                    <windowsIcon></windowsIcon>
+                    <windowsPath>${installdir}</windowsPath>
+                </startMenuShortcut>
+                <startMenuLinkShortcut>
+                    <comment>NEST website</comment>
+                    <name>NEST HomePage</name>
+                    <runAsAdmin>0</runAsAdmin>
+                    <runInTerminal>0</runInTerminal>
+                    <url>http://www.array.ca/nest</url>
+                    <windowsIcon></windowsIcon>
+                </startMenuLinkShortcut>
+                <startMenuLinkShortcut>
+                    <comment>NEST Documentation</comment>
+                    <name>Online Help</name>
+                    <runAsAdmin>0</runAsAdmin>
+                    <runInTerminal>0</runInTerminal>
+                    <url> ${installdir}\modules\nest-help-5.0\doc\help\index.html</url>
+                    <windowsIcon></windowsIcon>
+                </startMenuLinkShortcut>
+                <startMenuShortcut>
+                    <comment>Command Prompt for the GPT</comment>
+                    <name>GPT Command Line Interface</name>
+                    <runAsAdmin>0</runAsAdmin>
+                    <runInTerminal>0</runInTerminal>
+                    <windowsExec>${installdir}/cli.bat</windowsExec>
+                    <windowsExecArgs></windowsExecArgs>
+                    <windowsIcon></windowsIcon>
+                    <windowsPath>${installdir}</windowsPath>
+                </startMenuShortcut>
+                <startMenuLinkShortcut>
+                    <comment>User Help Forum on the website</comment>
+                    <name>User Help Forum</name>
+                    <runAsAdmin>0</runAsAdmin>
+                    <runInTerminal>0</runInTerminal>
+                    <url>http://nest.array.ca/web/nest/forum</url>
+                    <windowsIcon></windowsIcon>
+                </startMenuLinkShortcut>
+            </startMenuShortcutList>
+        </component>
+    </componentList>
+    <preInstallationActionList>
+        <deleteEnvironmentVariable>
+            <name>NEST_HOME</name>
+            <scope>user</scope>
+        </deleteEnvironmentVariable>
+        <deleteFile>
+            <abortOnError>0</abortOnError>
+            <path>${InstallDir}/lib</path>
+        </deleteFile>
+        <deleteFile>
+            <abortOnError>0</abortOnError>
+            <path>${InstallDir}/modules</path>
+        </deleteFile>
+    </preInstallationActionList>
+    <postInstallationActionList>
+        <associateWindowsFileExtension>
+            <extensions>N1 E1 E2 SAFE</extensions>
+            <friendlyName>Envisat</friendlyName>
+            <icon>C:\build\5.0\nest\nest\nest-src\main\assembly\dat.ico</icon>
+            <mimeType></mimeType>
+            <progID>NEST</progID>
+            <scope>user</scope>
+        </associateWindowsFileExtension>
+        <addEnvironmentVariable>
+            <name>NEST_HOME</name>
+            <scope>system</scope>
+            <value>${installdir}</value>
+        </addEnvironmentVariable>
+        <changePermissions>
+            <files>*/*.sh;*/*.bin;${InstallDir}/dat.sh;${InstallDir}/gpt.sh</files>
+            <permissions>755</permissions>
+        </changePermissions>
+        <addDirectoryToPath>
+            <insertAt>end</insertAt>
+            <path>${installdir}</path>
+        </addDirectoryToPath>
+        <writeFile>
+            <path>${installdir}/update.ini</path>
+            <text>[Update]
+url = http://corp.array.ca/nest-web/autoupdate/update64.xml
+version_id = ${product_version}
+update_download_location = ${system_temp_directory}
+check_for_updates = 1
+</text>
+        </writeFile>
+    </postInstallationActionList>
+    <postUninstallationActionList>
+        <runConsoleProgram>
+            <abortOnError>0</abortOnError>
+            <program>${InstallDir}/post-uninstall.bat</program>
+            <programArguments></programArguments>
+            <show>0</show>
+            <showMessageOnError>0</showMessageOnError>
+        </runConsoleProgram>
+        <deleteEnvironmentVariable>
+            <abortOnError>0</abortOnError>
+            <name>NEST_HOME</name>
+            <scope>user</scope>
+            <show>0</show>
+            <showMessageOnError>0</showMessageOnError>
+        </deleteEnvironmentVariable>
+        <removeDirectoryFromPath>
+            <path>${InstallDir}</path>
+            <scope>user</scope>
+        </removeDirectoryFromPath>
+    </postUninstallationActionList>
+    <compressionAlgorithm>lzma</compressionAlgorithm>
+    <enableRollback>0</enableRollback>
+    <enableTimestamp>1</enableTimestamp>
+    <installationType>upgrade</installationType>
+    <outputDirectory>../../../target</outputDirectory>
+    <saveRelativePaths>1</saveRelativePaths>
+    <startMenuGroupName>Next ESA SAR Toolbox</startMenuGroupName>
+    <vendor>ESA</vendor>
+    <windows64bitMode>1</windows64bitMode>
+    <parameterList>
+        <directoryParameter>
+            <name>installdir</name>
+            <description>Installer.Parameter.installdir.description</description>
+            <explanation>Installer.Parameter.installdir.explanation</explanation>
+            <value></value>
+            <default>${platform_install_prefix}/${product_shortname}</default>
+            <allowEmptyValue>0</allowEmptyValue>
+            <cliOptionName>prefix</cliOptionName>
+            <mustBeWritable>yes</mustBeWritable>
+            <mustExist>0</mustExist>
+            <width>40</width>
+        </directoryParameter>
+    </parameterList>
+    <platformOptionsList>
+        <platformOptions>
+            <postInstallationScript>${installdir}/nest-clean.bat</postInstallationScript>
+            <platform>windows</platform>
+        </platformOptions>
+    </platformOptionsList>
+</project>
+
