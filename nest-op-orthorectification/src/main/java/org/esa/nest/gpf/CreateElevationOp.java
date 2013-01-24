@@ -97,11 +97,7 @@ public final class CreateElevationOp extends Operator {
 
             if(externalDEM != null && !externalDEM.trim().isEmpty()) {
 
-                if (resamplingMethod.equals(DEMFactory.DELAUNAY_INTERPOLATION))
-                    throw new OperatorException("Delaunay interpolation for an external DEM file is currently not supported");
-
-                fileElevationModel = new FileElevationModel(new File(externalDEM),
-                        ResamplingFactory.createResampling(resamplingMethod));
+                fileElevationModel = new FileElevationModel(new File(externalDEM), resamplingMethod);
                 noDataValue = fileElevationModel.getNoDataValue();
             } else {
 

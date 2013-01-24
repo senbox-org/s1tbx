@@ -442,12 +442,7 @@ public class RangeDopplerGeocodingOp extends Operator {
         if(isElevationModelAvailable) return;
         if(externalDEMFile != null) { // if external DEM file is specified by user
 
-            if (demResamplingMethod.equals(DEMFactory.DELAUNAY_INTERPOLATION))
-                throw new OperatorException("Delaunay interpolation for an external DEM file is currently not supported");
-
-            dem = new FileElevationModel(externalDEMFile,
-                                             ResamplingFactory.createResampling(demResamplingMethod),
-                                             (float)externalDEMNoDataValue);
+            dem = new FileElevationModel(externalDEMFile, demResamplingMethod, (float)externalDEMNoDataValue);
 
             demNoDataValue = (float) externalDEMNoDataValue;
             demName = externalDEMFile.getName();
@@ -836,14 +831,11 @@ public class RangeDopplerGeocodingOp extends Operator {
 
                 final Band[] srcBands = targetBandNameToSourceBand.get(targetBand.getName());
 
-                final TileData td = new TileData();
-                td.targetTile = targetTiles.get(targetBand);
-                td.tileDataBuffer = td.targetTile.getDataBuffer();
-                td.bandName = targetBand.getName();
-                td.noDataValue = srcBands[0].getNoDataValue();
+                final TileData td = new TileData(targetTiles.get(targetBand), srcBands[0],
+                        targetBand.getName(), getBandUnit(targetBand.getName()), absRoot);
+
                 td.applyRadiometricNormalization = targetBandApplyRadiometricNormalizationFlag.get(targetBand.getName());
                 td.applyRetroCalibration = targetBandApplyRetroCalibrationFlag.get(targetBand.getName());
-                td.bandPolar = OperatorUtils.getBandPolarization(srcBands[0].getName(), absRoot);
                 trgTileList.add(td);
             }
 
@@ -960,15 +952,14 @@ public class RangeDopplerGeocodingOp extends Operator {
                         }
 
                         for(TileData tileData : trgTiles) {
-                            final Unit.UnitType bandUnit = getBandUnit(tileData.bandName);
                             int[] subSwathIndex = {INVALID_SUB_SWATH_INDEX};
-                            double v = getPixelValue(azimuthIndex, rangeIndex, tileData, bandUnit, subSwathIndex);
+                            double v = getPixelValue(azimuthIndex, rangeIndex, tileData, subSwathIndex);
 
                             if (v != tileData.noDataValue && tileData.applyRadiometricNormalization) {
                                 if (localIncidenceAngles[1] != SARGeocoding.NonValidIncidenceAngle) {
                                     v = calibrator.applyCalibration(
                                             v, rangeIndex, azimuthIndex, slantRange, satelliteHeight, sceneToEarthCentre,
-                                            localIncidenceAngles[1], tileData.bandPolar, bandUnit, subSwathIndex); // use projected incidence angle
+                                            localIncidenceAngles[1], tileData.bandPolar, tileData.bandUnit, subSwathIndex); // use projected incidence angle
                                 } else {
                                     v = tileData.noDataValue;
                                 }
@@ -1003,12 +994,11 @@ public class RangeDopplerGeocodingOp extends Operator {
      * @param azimuthIndex The azimuth index for pixel in source image.
      * @param rangeIndex The range index for pixel in source image.
      * @param tileData The source tile information.
-     * @param bandUnit The corresponding source band unit.
      * @param subSwathIndex The subSwath index.
      * @return The pixel value.
      */
     private double getPixelValue(final double azimuthIndex, final double rangeIndex,
-                                 final TileData tileData, Unit.UnitType bandUnit, int[] subSwathIndex) {
+                                 final TileData tileData, final int[] subSwathIndex) {
 
         try {
             final int x0 = (int)(rangeIndex + 0.5);
@@ -1047,7 +1037,7 @@ public class RangeDopplerGeocodingOp extends Operator {
             }
 
             final ResamplingRaster imgResamplingRaster = new ResamplingRaster(
-                    rangeIndex, azimuthIndex, isPolsar, tileData, bandUnit, sourceTileI, sourceTileQ, calibrator);
+                    rangeIndex, azimuthIndex, isPolsar, tileData, sourceTileI, sourceTileQ, calibrator);
 
             final Resampling resampling = imgResampling;
             final Resampling.Index imgResamplingIndex = resampling.createIndex();
@@ -1083,13 +1073,24 @@ public class RangeDopplerGeocodingOp extends Operator {
     }
 
     public static class TileData {
-        Tile targetTile = null;
-        ProductData tileDataBuffer = null;
-        String bandName = null;
-        String bandPolar = "";
-        double noDataValue = 0;
+        final Tile targetTile;
+        final ProductData tileDataBuffer;
+        final String bandName;
+        final String bandPolar;
+        final Unit.UnitType bandUnit;
+        final double noDataValue;
         boolean applyRadiometricNormalization = false;
         boolean applyRetroCalibration = false;
+
+        public TileData(final Tile tile, final Band srcBand, final String name,
+                        final Unit.UnitType unit, final MetadataElement absRoot) {
+            targetTile = tile;
+            tileDataBuffer = tile.getDataBuffer();
+            bandName = name;
+            noDataValue = srcBand.getNoDataValue();
+            bandPolar = OperatorUtils.getBandPolarization(srcBand.getName(), absRoot);
+            bandUnit = unit;
+        }
     }
 
     public static class ResamplingRaster implements Resampling.Raster {
@@ -1105,14 +1106,14 @@ public class RangeDopplerGeocodingOp extends Operator {
         private int subSwathIndex;
 
         public ResamplingRaster(final double rangeIndex, final double azimuthIndex, final boolean isPolsar,
-                                final TileData tileData, Unit.UnitType bandUnit, final Tile sourceTileI,
+                                final TileData tileData, final Tile sourceTileI,
                                 final Tile sourceTileQ, final Calibrator calibrator) {
 
             this.rangeIndex = rangeIndex;
             this.azimuthIndex = azimuthIndex;
             this.isPolsar = isPolsar;
             this.tileData = tileData;
-            this.bandUnit = bandUnit;
+            this.bandUnit = tileData.bandUnit;
             this.sourceTileI = sourceTileI;
             this.sourceTileQ = sourceTileQ;
 

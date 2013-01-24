@@ -246,11 +246,10 @@ public final class SARSimulationOp extends Operator {
     private synchronized void getElevationModel() throws Exception {
 
         if(isElevationModelAvailable) return;
+        try {
         if(externalDEMFile != null) { // if external DEM file is specified by user
 
-            dem = new FileElevationModel(externalDEMFile,
-                                         ResamplingFactory.createResampling(demResamplingMethod),
-                                         (float)externalDEMNoDataValue);
+            dem = new FileElevationModel(externalDEMFile, demResamplingMethod, (float)externalDEMNoDataValue);
 
             demNoDataValue = (float) externalDEMNoDataValue;
             demName = externalDEMFile.getPath();
@@ -258,6 +257,9 @@ public final class SARSimulationOp extends Operator {
         } else {
             dem = DEMFactory.createElevationModel(demName, demResamplingMethod);
             demNoDataValue = dem.getDescriptor().getNoDataValue();
+        }
+        } catch(Throwable t) {
+            t.printStackTrace();
         }
         isElevationModelAvailable = true;
     }
@@ -443,7 +445,7 @@ public final class SARSimulationOp extends Operator {
      * @throws OperatorException if an error occurs during computation of the target rasters.
      */
     @Override
-    public void computeTileStack(Map<Band, Tile> targetTiles, Rectangle targetRectangle, ProgressMonitor pm) throws OperatorException {
+    public synchronized void computeTileStack(Map<Band, Tile> targetTiles, Rectangle targetRectangle, ProgressMonitor pm) throws OperatorException {
 
         final int x0 = targetRectangle.x;
         final int y0 = targetRectangle.y;

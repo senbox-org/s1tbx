@@ -15,7 +15,6 @@
  */
 package org.esa.nest.gpf;
 
-import org.esa.beam.framework.dataop.resamp.ResamplingFactory;
 import org.esa.beam.framework.gpf.ui.BaseOperatorUI;
 import org.esa.beam.framework.gpf.ui.UIValidation;
 import org.esa.beam.framework.ui.AppContext;
@@ -36,12 +35,10 @@ public class CreateElevationOpUI extends BaseOperatorUI {
     private final JTextField elevationBandName = new JTextField("");
     private final JTextField externalDEM = new JTextField("");
 
-    private final JComboBox demResamplingMethod = new JComboBox<String>(ResamplingFactory.resamplingNames);
+    private final JComboBox demResamplingMethod = new JComboBox<String>(DEMFactory.getDEMResamplingMethods());
 
     @Override
     public JComponent CreateOpTab(String operatorName, Map<String, Object> parameterMap, AppContext appContext) {
-
-        demResamplingMethod.addItem(DEMFactory.DELAUNAY_INTERPOLATION);
 
         initializeOperatorUI(operatorName, parameterMap);
         final JComponent panel = createPanel();
@@ -70,7 +67,7 @@ public class CreateElevationOpUI extends BaseOperatorUI {
     @Override
     public void updateParameters() {
 
-        paramMap.put("demName", ((String)demName.getSelectedItem()).replace(DEMFactory.AUTODEM, ""));
+        paramMap.put("demName", DEMFactory.getProperDEMName((String)demName.getSelectedItem()));
         paramMap.put("elevationBandName", elevationBandName.getText());
         paramMap.put("externalDEM", externalDEM.getText());
         paramMap.put("resamplingMethod", demResamplingMethod.getSelectedItem());

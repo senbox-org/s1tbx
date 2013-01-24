@@ -17,6 +17,7 @@ package org.esa.nest.util;
 
 import Jama.Matrix;
 import org.apache.commons.math.util.FastMath;
+import org.esa.nest.datamodel.PosVector;
 import org.esa.nest.eo.Constants;
 
 public final class MathUtils
@@ -184,6 +185,45 @@ public final class MathUtils
     }
 
     /**
+     * Precalculate weight for Lagrange polynomial based interpolation.
+     * @param pos Position array.
+     * @param desiredPos Desired position.
+     * @return The array of the weights.
+     */
+    public static double[] lagrangeWeight(final double pos[], final double desiredPos)  {
+
+        final int length = pos.length;
+        final double[] weight = new double[length];
+        for (int i = 0; i < length; ++i) {
+            double weightVal = 1;
+            for (int j = 0; j < length; ++j) {
+                if (j != i) {
+                    weightVal *= (desiredPos - pos[j]) / (pos[i] - pos[j]);
+                }
+            }
+            weight[i] = weightVal;
+        }
+        return weight;
+    }
+
+    /**
+     * Perform Lagrange polynomial based interpolation.
+     * @param xVal Sample value array.
+     * @param yVal Sample value array.
+     * @param zVal Sample value array.
+     * @param weight the weights.
+     */
+    public static void lagrangeInterpolatingPolynomial(final double xVal[], final double yVal[], final double zVal[],
+                                                       final double[] weight, final PosVector vector)  {
+        vector.x = 0; vector.y = 0; vector.z = 0;
+        for (int i = 0; i < xVal.length; ++i) {
+            vector.x += weight[i] * xVal[i];
+            vector.y += weight[i] * yVal[i];
+            vector.z += weight[i] * zVal[i];
+        }
+    }
+
+    /**
      * Perform Lagrange polynomial based interpolation.
      * @param pos Position array.
      * @param val Sample value array.
@@ -191,10 +231,6 @@ public final class MathUtils
      * @return The interpolated sample value.
      */
     public static double lagrangeInterpolatingPolynomial (final double pos[], final double val[], final double desiredPos)  {
-
-        //if (pos.length != val.length) {
-        //    throw new OperatorException("Incorrect array length");
-        //}
 
         double retVal = 0;
         final int length = pos.length;

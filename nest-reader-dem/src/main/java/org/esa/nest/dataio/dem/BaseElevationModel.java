@@ -50,14 +50,12 @@ public abstract class BaseElevationModel implements ElevationModel, Resampling.R
     private final List<ElevationTile> elevationTileCache = new ArrayList<ElevationTile>(20);
     private int maxCacheSize = 60;
 
-    public BaseElevationModel(final ElevationModelDescriptor descriptor, final Resampling resamplingMethod) {
+    public BaseElevationModel(final ElevationModelDescriptor descriptor, Resampling resamplingMethod) {
         this.descriptor = descriptor;
+        if(resamplingMethod == null)
+            resamplingMethod = Resampling.BILINEAR_INTERPOLATION;
         this.resampling = resamplingMethod;
-        if(this.resampling != null) {
-            this.resamplingIndex = resampling.createIndex();
-        } else {
-            this.resamplingIndex = null;
-        }
+        this.resamplingIndex = resampling.createIndex();
         this.resamplingRaster = this;
 
         NUM_X_TILES = descriptor.getNumXTiles();

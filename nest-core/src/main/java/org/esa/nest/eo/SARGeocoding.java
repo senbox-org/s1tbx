@@ -4,6 +4,7 @@ import org.apache.commons.math.util.FastMath;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.nest.datamodel.AbstractMetadata;
+import org.esa.nest.datamodel.PosVector;
 import org.esa.nest.gpf.OperatorUtils;
 import org.esa.nest.util.MathUtils;
 
@@ -60,15 +61,24 @@ public class SARGeocoding {
             zVelArray[i] = orbitStateVectors[i*d].z_vel; // m/s
         }
 
+        final PosVector pos = new PosVector();
+
         // Lagrange polynomial interpolation
         for (int i = 0; i < sourceImageHeight; i++) {
             final double time = firstLineUTC + i*lineTimeInterval; // zero Doppler time (in days) for each range line
-            sensorPosition[i][0] = MathUtils.lagrangeInterpolatingPolynomial(timeArray, xPosArray, time);
-            sensorPosition[i][1] = MathUtils.lagrangeInterpolatingPolynomial(timeArray, yPosArray, time);
-            sensorPosition[i][2] = MathUtils.lagrangeInterpolatingPolynomial(timeArray, zPosArray, time);
-            sensorVelocity[i][0] = MathUtils.lagrangeInterpolatingPolynomial(timeArray, xVelArray, time);
-            sensorVelocity[i][1] = MathUtils.lagrangeInterpolatingPolynomial(timeArray, yVelArray, time);
-            sensorVelocity[i][2] = MathUtils.lagrangeInterpolatingPolynomial(timeArray, zVelArray, time);
+
+            final double[] weight = MathUtils.lagrangeWeight(timeArray, time);
+            MathUtils.lagrangeInterpolatingPolynomial(xPosArray, yPosArray, zPosArray, weight, pos);
+
+            sensorPosition[i][0] = pos.x;
+            sensorPosition[i][1] = pos.y;
+            sensorPosition[i][2] = pos.z;
+
+            MathUtils.lagrangeInterpolatingPolynomial(xVelArray, yVelArray, zVelArray, weight, pos);
+
+            sensorVelocity[i][0] = pos.x;
+            sensorVelocity[i][1] = pos.y;
+            sensorVelocity[i][2] = pos.z;
         }
     }
 
@@ -164,9 +174,12 @@ public class SARGeocoding {
                                            final double[] yPosArray, final double[] zPosArray,
                                            final double[] earthPoint, final double[] sensorPos) {
 
-        sensorPos[0] = MathUtils.lagrangeInterpolatingPolynomial(timeArray, xPosArray, time);
-        sensorPos[1] = MathUtils.lagrangeInterpolatingPolynomial(timeArray, yPosArray, time);
-        sensorPos[2] = MathUtils.lagrangeInterpolatingPolynomial(timeArray, zPosArray, time);
+        final double[] weight = MathUtils.lagrangeWeight(timeArray, time);
+        final PosVector pos = new PosVector();
+        MathUtils.lagrangeInterpolatingPolynomial(xPosArray, yPosArray, zPosArray, weight, pos);
+        sensorPos[0] = pos.x;
+        sensorPos[1] = pos.y;
+        sensorPos[2] = pos.z;
 
         final double xDiff = sensorPos[0] - earthPoint[0];
         final double yDiff = sensorPos[1] - earthPoint[1];

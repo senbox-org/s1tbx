@@ -105,6 +105,7 @@ public class CalibrationFactory {
                     expression);
             band.setUnit(trgBand.getUnit());
             band.setDescription(description);
+            band.setNoDataValueUsed(true);
             targetProduct.addBand(band);
         }
     }
@@ -168,6 +169,7 @@ public class CalibrationFactory {
                     expression);
             band.setUnit(trgBand.getUnit());
             band.setDescription(description);
+            band.setNoDataValueUsed(true);
             targetProduct.addBand(band);
         }
     }
@@ -197,6 +199,7 @@ public class CalibrationFactory {
                     expression);
             band.setUnit(trgBand.getUnit());
             band.setDescription("Beta0 image");
+            band.setNoDataValueUsed(true);
             targetProduct.addBand(band);
         }
     }

@@ -408,8 +408,7 @@ public class SARSimTerrainCorrectionOp extends Operator {
         if (demDescriptor == null) {
 
             final File externalDemFile = new File(demName);
-            dem = new FileElevationModel(externalDemFile,
-		    ResamplingFactory.createResampling(demResamplingMethod), demNoDataValue);
+            dem = new FileElevationModel(externalDemFile, demResamplingMethod, demNoDataValue);
             demName = externalDemFile.getName();
             demNoDataValue = (float)absRoot.getAttributeDouble("external DEM no data value");
         } else {
@@ -890,14 +889,11 @@ public class SARSimTerrainCorrectionOp extends Operator {
 
             final String[] srcBandNames = targetBandNameToSourceBandName.get(targetBand.getName());
 
-            final RangeDopplerGeocodingOp.TileData td = new RangeDopplerGeocodingOp.TileData();
-            td.targetTile = targetTiles.get(targetBand);
-            td.tileDataBuffer = td.targetTile.getDataBuffer();
-            td.bandName = targetBand.getName();
-            td.noDataValue = sourceProduct.getBand(srcBandNames[0]).getNoDataValue();
+            final RangeDopplerGeocodingOp.TileData td = new RangeDopplerGeocodingOp.TileData(
+                    targetTiles.get(targetBand), sourceProduct.getBand(srcBandNames[0]),
+                    targetBand.getName(), getBandUnit(targetBand.getName()), absRoot);
             td.applyRadiometricNormalization = targetBandapplyRadiometricNormalizationFlag.get(targetBand.getName());
             td.applyRetroCalibration = targetBandApplyRetroCalibrationFlag.get(targetBand.getName());
-            td.bandPolar = OperatorUtils.getBandPolarization(srcBandNames[0], absRoot);
             trgTileList.add(td);
         }
         final RangeDopplerGeocodingOp.TileData[] trgTiles = trgTileList.toArray(new RangeDopplerGeocodingOp.TileData[trgTileList.size()]);
@@ -1027,7 +1023,7 @@ public class SARSimTerrainCorrectionOp extends Operator {
                             }
 
                             final int[] subSwathIndex = {INVALID_SUB_SWATH_INDEX};
-                            double v = getPixelValue(pixelPos.y, pixelPos.x, tileData, bandUnit, subSwathIndex);
+                            double v = getPixelValue(pixelPos.y, pixelPos.x, tileData, subSwathIndex);
 
                             if (v != tileData.noDataValue && tileData.applyRadiometricNormalization) {
 
@@ -1150,13 +1146,12 @@ public class SARSimTerrainCorrectionOp extends Operator {
      * @param azimuthIndex The azimuth index for pixel in source image.
      * @param rangeIndex The range index for pixel in source image.
      * @param tileData The source tile information.
-     * @param bandUnit The corresponding source band unit.
      * @param subSwathIndex The subswath index.
      * @return The pixel value.
      */
     private double getPixelValue(final double azimuthIndex, final double rangeIndex,
                                  final RangeDopplerGeocodingOp.TileData tileData,
-                                 final Unit.UnitType bandUnit, final int[] subSwathIndex) {
+                                 final int[] subSwathIndex) {
 
         try {
             final int x0 = (int)(rangeIndex + 0.5);
@@ -1196,7 +1191,7 @@ public class SARSimTerrainCorrectionOp extends Operator {
 
             final RangeDopplerGeocodingOp.ResamplingRaster imgResamplingRaster =
                     new RangeDopplerGeocodingOp.ResamplingRaster(
-                    rangeIndex, azimuthIndex, isPolsar, tileData, bandUnit, sourceTileI, sourceTileQ, calibrator);
+                    rangeIndex, azimuthIndex, isPolsar, tileData, sourceTileI, sourceTileQ, calibrator);
 
             final Resampling resampling = imgResampling;
             final Resampling.Index imgResamplingIndex = resampling.createIndex();

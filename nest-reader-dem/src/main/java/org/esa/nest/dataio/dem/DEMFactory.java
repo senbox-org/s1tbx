@@ -35,20 +35,35 @@ import java.util.Arrays;
  */
 public class DEMFactory {
 
-    public static final String AUTODEM = " (Auto Download)";
-    public static final String DELAUNAY_INTERPOLATION = "DELAUNAY_INTERPOLATION";
+    private static final String AUTODEM = " (Auto Download)";
+    static final String DELAUNAY_INTERPOLATION = "DELAUNAY_INTERPOLATION";
 
     private static final ElevationModelDescriptor[] descriptors = ElevationModelRegistry.getInstance().getAllDescriptors();
     private static final String[] demNameList = new String[descriptors.length];
+    private static final String[] demResamplingList = new String[ResamplingFactory.resamplingNames.length +1];
 
     static {
         for (int i = 0; i < descriptors.length; i++) {
             demNameList[i] = DEMFactory.appendAutoDEM(descriptors[i].getName());
         }
+
+        int i=0;
+        for(String resampleName : ResamplingFactory.resamplingNames) {
+            demResamplingList[i++] = resampleName;
+        }
+        demResamplingList[i] = DELAUNAY_INTERPOLATION;
     }
 
     public static String[] getDEMNameList() {
         return  demNameList;
+    }
+
+    public static String[] getDEMResamplingMethods() {
+        return demResamplingList;
+    }
+
+    public static String getProperDEMName(String name) {
+        return name.replace(DEMFactory.AUTODEM, "");
     }
 
     public static ElevationModel createElevationModel(final String demName, String demResamplingMethod) {

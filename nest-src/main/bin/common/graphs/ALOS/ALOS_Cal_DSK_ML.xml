@@ -45,7 +45,6 @@
   <node id="5-Write">
     <operator>Write</operator>
     <sources>
-      <sourceProduct refid="4-ALOS-Deskewing"/>
       <sourceProduct refid="4-Multilook"/>
     </sources>
     <parameters class="com.bc.ceres.binding.dom.XppDomElement">

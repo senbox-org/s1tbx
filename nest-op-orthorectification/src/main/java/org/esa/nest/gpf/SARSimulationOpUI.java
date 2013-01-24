@@ -41,7 +41,7 @@ public class SARSimulationOpUI extends BaseOperatorUI {
     private final JComboBox<String> demName = new JComboBox<String>(DEMFactory.getDEMNameList());
     private static final String externalDEMStr = "External DEM";
 
-    private final JComboBox demResamplingMethod = new JComboBox<String>(ResamplingFactory.resamplingNames);
+    private final JComboBox demResamplingMethod = new JComboBox<String>(DEMFactory.getDEMResamplingMethods());
 
     private final JTextField externalDEMFile = new JTextField("");
     private final JTextField externalDEMNoDataValue = new JTextField("");
@@ -67,8 +67,7 @@ public class SARSimulationOpUI extends BaseOperatorUI {
 
         demName.addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent event) {
-                final String item = ((String)demName.getSelectedItem()).replace(DEMFactory.AUTODEM, "");
-                if(item.equals(externalDEMStr)) {
+                if(((String)demName.getSelectedItem()).startsWith(externalDEMStr)) {
                     enableExternalDEM(true);
                 } else {
                     externalDEMFile.setText("");
@@ -77,8 +76,7 @@ public class SARSimulationOpUI extends BaseOperatorUI {
             }
         });
         externalDEMFile.setColumns(30);
-        final String demItem = ((String)demName.getSelectedItem()).replace(DEMFactory.AUTODEM, "");
-        enableExternalDEM(demItem.equals(externalDEMStr));
+        enableExternalDEM(((String)demName.getSelectedItem()).startsWith(externalDEMStr));
 
         externalDEMBrowseButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -134,7 +132,7 @@ public class SARSimulationOpUI extends BaseOperatorUI {
 
         OperatorUIUtils.updateBandList(bandList, paramMap, OperatorUIUtils.SOURCE_BAND_NAMES);
 
-        paramMap.put("demName", ((String)demName.getSelectedItem()).replace(DEMFactory.AUTODEM, ""));
+        paramMap.put("demName", DEMFactory.getProperDEMName((String)demName.getSelectedItem()));
         paramMap.put("demResamplingMethod", demResamplingMethod.getSelectedItem());
 
         final String extFileStr = externalDEMFile.getText();

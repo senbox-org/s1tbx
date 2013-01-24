@@ -24,6 +24,8 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.dataop.dem.ElevationModel;
 import org.esa.beam.framework.dataop.dem.ElevationModelDescriptor;
 import org.esa.beam.framework.dataop.resamp.Resampling;
+import org.esa.beam.framework.dataop.resamp.ResamplingFactory;
+import org.esa.beam.framework.gpf.OperatorException;
 
 import java.io.File;
 import java.io.IOException;
@@ -32,43 +34,56 @@ public class FileElevationModel implements ElevationModel, Resampling.Raster {
 
     private Resampling resampling;
     private Resampling.Index resamplingIndex;
-    private final Resampling.Raster resamplingRaster;
-    private final GeoCoding tileGeocoding;
+    private Resampling.Raster resamplingRaster;
+    private GeoCoding tileGeocoding;
 
-    private final FileElevationTile fileElevationTile;
+    private FileElevationTile fileElevationTile;
 
-    private final int RASTER_WIDTH;
-    private final int RASTER_HEIGHT;
+    private int RASTER_WIDTH;
+    private int RASTER_HEIGHT;
     private float noDataValue = 0;
 
-    public FileElevationModel(final File file, final Resampling resamplingMethod) throws IOException {
+    public FileElevationModel(final File file, final String resamplingMethodName) throws IOException {
 
+        this(file, resamplingMethodName, null);
+    }
+
+    public FileElevationModel(final File file, final String resamplingMethodName, final Float demNoDataValue) throws IOException {
+
+        if (resamplingMethodName.equals(DEMFactory.DELAUNAY_INTERPOLATION))
+            throw new OperatorException("Delaunay interpolation for an external DEM file is currently not supported");
+
+        init(file, ResamplingFactory.createResampling(resamplingMethodName), demNoDataValue);
+    }
+
+    public FileElevationModel(final File file, final Resampling resamplingMethod, final Float demNoDataValue) throws IOException {
+
+        init(file, resamplingMethod, demNoDataValue);
+    }
+
+    private void init(final File file, final Resampling resamplingMethod, Float demNoDataValue) throws IOException {
         final ProductReader productReader = ProductIO.getProductReaderForFile(file);
         final Product product = productReader.readProductNodes(file, null);
         RASTER_WIDTH = product.getBandAt(0).getSceneRasterWidth();
         RASTER_HEIGHT = product.getBandAt(0).getSceneRasterHeight();
         fileElevationTile = new FileElevationTile(product);
         tileGeocoding = product.getGeoCoding();
-        noDataValue = (float)product.getBandAt(0).getNoDataValue();
+        if(demNoDataValue == null)
+            noDataValue = (float)product.getBandAt(0).getNoDataValue();
+        else
+            noDataValue = demNoDataValue;
 
         resampling = resamplingMethod;
         resamplingIndex = resampling.createIndex();
         resamplingRaster = this;
     }
 
-    public ElevationModelDescriptor getDescriptor() {
-        return null;
-    }
-
-    public FileElevationModel(final File file, final Resampling resamplingMethod, final float demNoDataValue) throws IOException {
-
-        this(file, resamplingMethod);
-
-        noDataValue = demNoDataValue;
-    }
-
     public void dispose() {
         fileElevationTile.dispose();
+    }
+
+    public ElevationModelDescriptor getDescriptor() {
+        return null;
     }
 
     public float getNoDataValue() {

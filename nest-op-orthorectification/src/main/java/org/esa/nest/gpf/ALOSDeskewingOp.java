@@ -27,6 +27,7 @@ import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.nest.datamodel.AbstractMetadata;
+import org.esa.nest.datamodel.PosVector;
 import org.esa.nest.eo.Constants;
 import org.esa.nest.eo.GeoUtils;
 import org.esa.nest.util.MathUtils;
@@ -187,7 +188,7 @@ public class ALOSDeskewingOp extends Operator {
 
         final MetadataElement absTgt = AbstractMetadata.getAbstractedMetadata(targetProduct);
 
-        final double fd = getDopplerFrequency(0, 0);
+        final double fd = getDopplerFrequency(0);
 
         final stateVector v = getOrbitStateVector(firstLineTime);
 
@@ -306,14 +307,15 @@ public class ALOSDeskewingOp extends Operator {
 
                 for (int y = sy0; y < syMax; y++) {
                     srcIndex.calculateStride(y);
+                    final stateVector v = getOrbitStateVector(firstLineTime + y*lineTimeInterval);
                     for (int x = sx0; x < sxMax; x++) {
 
                         if (useMapreadyShiftOnly) {
                             totalShift = FastMath.round(fracShift*x);
                         } else if (useFAQShiftOnly) {
-                            totalShift = computeShift(x, y);
+                            totalShift = computeShift(v, x);
                         } else if (useBoth) {
-                            double faqShift = computeShift(x, y);
+                            double faqShift = computeShift(v, x);
                             double fraction = FastMath.round(fracShift*x);
                             totalShift = faqShift + fraction;
                             //totalShift = absShift + FastMath.round(fracShift*x);
@@ -341,7 +343,8 @@ public class ALOSDeskewingOp extends Operator {
         if (useMapreadyShiftOnly) {
             return FastMath.round(txMax*fracShift);
         } else {
-            return computeShift(txMax, ty0) + FastMath.round(txMax*fracShift);
+            final stateVector v = getOrbitStateVector(firstLineTime + ty0*lineTimeInterval);
+            return computeShift(v, txMax) + FastMath.round(txMax*fracShift);
         }
     }
 
@@ -366,11 +369,10 @@ public class ALOSDeskewingOp extends Operator {
         return new Rectangle(sx0, sy0, sw, sh);
     }
 
-    private double computeShift(final int x, final int y) throws Exception {
+    private double computeShift(final stateVector v, final int x) throws Exception {
 
-        final stateVector v = getOrbitStateVector(firstLineTime + y*lineTimeInterval);
-        final double slr = getSlantRange(x);
-        final double fd = getDopplerFrequency(x, y);
+        final double slr = slantRangeToFirstPixel + x*rangeSpacing;
+        final double fd = getDopplerFrequency(x);
         final double vel = Math.sqrt(v.xVel*v.xVel + v.yVel*v.yVel + v.zVel*v.zVel);
         return slr*fd*radarWaveLength/(2.0*vel*azimuthSpacing);
     }
@@ -382,8 +384,8 @@ public class ALOSDeskewingOp extends Operator {
     private void computeShift() throws Exception {
 
         final stateVector v = getOrbitStateVector(firstLineTime);
-        final double slr = getSlantRange(0);
-        final double fd = getDopplerFrequency(0, 0);
+        final double slr = slantRangeToFirstPixel + 0*rangeSpacing;
+        final double fd = getDopplerFrequency(0);
 
         // absolute shift
         final double vel = Math.sqrt(v.xVel*v.xVel + v.yVel*v.yVel + v.zVel*v.zVel);
@@ -401,23 +403,16 @@ public class ALOSDeskewingOp extends Operator {
      * @return Orbit state vector.
      */
     private stateVector getOrbitStateVector(final double time) {
-        /*
-        int i;
-        for (i = 1; i < orbitStateVectors.length; i++) {
-            if (orbitStateVectors[i].time_mjd >= time) {
-                break;
-            }
-        }
 
-        return vectorInterpolation(orbitStateVectors[i-1], orbitStateVectors[i], time);
-        */
-        final double xPos = MathUtils.lagrangeInterpolatingPolynomial(timeArray, xPosArray, time);
-        final double yPos = MathUtils.lagrangeInterpolatingPolynomial(timeArray, yPosArray, time);
-        final double zPos = MathUtils.lagrangeInterpolatingPolynomial(timeArray, zPosArray, time);
-        final double xVel = MathUtils.lagrangeInterpolatingPolynomial(timeArray, xVelArray, time);
-        final double yVel = MathUtils.lagrangeInterpolatingPolynomial(timeArray, yVelArray, time);
-        final double zVel = MathUtils.lagrangeInterpolatingPolynomial(timeArray, zVelArray, time);
-        return new stateVector(time, xPos, yPos, zPos, xVel, yVel, zVel);
+        final double[] weight = MathUtils.lagrangeWeight(timeArray, time);
+
+        final PosVector pos = new PosVector();
+        MathUtils.lagrangeInterpolatingPolynomial(xPosArray, yPosArray, zPosArray, weight, pos);
+
+        final PosVector vel = new PosVector();
+        MathUtils.lagrangeInterpolatingPolynomial(xVelArray, yVelArray, zVelArray, weight, vel);
+
+        return new stateVector(time, pos.x, pos.y, pos.z, vel.x, vel.y, vel.z);
     }
 
     /**
@@ -459,16 +454,11 @@ public class ALOSDeskewingOp extends Operator {
         return new stateVector(time, pos[0], pos[1], pos[2], vel[0], vel[1], vel[2]);
     }
 
-    private double getSlantRange(final int x) {
-        return slantRangeToFirstPixel + x*rangeSpacing;
-    }
+    private double getDopplerFrequency(final int x) {
 
-    private double getDopplerFrequency(final int x, final int y) {
-
-        final double c0 = dopplerCentroidCoefficientLists[0].coefficients[0];
-        final double c1 = dopplerCentroidCoefficientLists[0].coefficients[1];
-        final double c2 = dopplerCentroidCoefficientLists[0].coefficients[2];
-        return c0 + c1*x + c2*x*x;
+        return dopplerCentroidCoefficientLists[0].coefficients[0] +
+               dopplerCentroidCoefficientLists[0].coefficients[1]*x +
+               dopplerCentroidCoefficientLists[0].coefficients[2]*x*x;
     }
 
     private void computeLookYawAngles(final stateVector v, final double slant, final double dopp, double[] lookYaw) {
