@@ -326,6 +326,9 @@ public class PixelGeoCoding2 extends AbstractGeoCoding {
     public int hashCode() {
         int result = latBand.hashCode();
         result = 31 * result + lonBand.hashCode();
+        if (maskExpression != null) {
+            result = 31 * result + maskExpression.hashCode();
+        }
         return result;
     }
 
