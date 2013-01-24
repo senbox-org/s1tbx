@@ -44,8 +44,8 @@ public class PixelGeoCoding2 extends AbstractGeoCoding {
     private final boolean fractionAccuracy = Boolean.getBoolean(SYSPROP_PIXEL_GEO_CODING_FRACTION_ACCURACY);
     private final double pixelDiagonalSquared;
 
-    private Band latBand;
-    private Band lonBand;
+    private final Band latBand;
+    private final Band lonBand;
     private PixelPosEstimator pixelPosEstimator;
     private final PixelFinder pixelFinder;
 
@@ -339,8 +339,6 @@ public class PixelGeoCoding2 extends AbstractGeoCoding {
     @Override
     public synchronized void dispose() {
         pixelPosEstimator = null;
-        latBand = null;
-        lonBand = null;
         lonImage = null;
         latImage = null;
     }
