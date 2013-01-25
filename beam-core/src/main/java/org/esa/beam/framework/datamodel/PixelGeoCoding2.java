@@ -20,6 +20,7 @@ import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.ProductUtils;
+import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.math.DistanceCalculator;
 import org.esa.beam.util.math.MathUtils;
 import org.esa.beam.util.math.SinusoidalDistanceCalculator;
@@ -94,7 +95,7 @@ public class PixelGeoCoding2 extends AbstractGeoCoding {
         final String validLonExpression = lonBand.getValidMaskExpression();
 
         final StringBuilder expressionBuilder;
-        if (maskExpression == null) {
+        if (StringUtils.isNullOrEmpty(maskExpression)) {
             expressionBuilder = new StringBuilder();
         } else {
             expressionBuilder = new StringBuilder("(" + maskExpression + ")");
