@@ -112,7 +112,9 @@ public class PixelGeoCoding2 extends AbstractGeoCoding {
             }
             expressionBuilder.append("(").append(validLonExpression).append(")");
         }
-        this.maskExpression = expressionBuilder.toString();
+        if (expressionBuilder.length() > 0) {
+            maskExpression = expressionBuilder.toString();
+        }
 
         this.rasterW = latBand.getSceneRasterWidth();
         this.rasterH = latBand.getSceneRasterHeight();
@@ -130,6 +132,7 @@ public class PixelGeoCoding2 extends AbstractGeoCoding {
 
         PlanarImage maskImage = null;
         if (maskExpression != null && maskExpression.trim().length() > 0) {
+            this.maskExpression = maskExpression;
             final ProductNodeGroup<Mask> maskGroup = product.getMaskGroup();
             for (int i = 0; i < maskGroup.getNodeCount(); i++) {
                 final Mask mask = maskGroup.get(i);
@@ -144,6 +147,7 @@ public class PixelGeoCoding2 extends AbstractGeoCoding {
                 maskImage = (PlanarImage) ImageManager.getInstance().getMaskImage(maskExpression, lonBand.getProduct()).getImage(0);
             }
         } else {
+            this.maskExpression = null;
             maskImage = ConstantDescriptor.create((float) lonImage.getWidth(),
                                                   (float) lonImage.getHeight(),
                                                   new Byte[]{1}, null);
@@ -326,6 +330,9 @@ public class PixelGeoCoding2 extends AbstractGeoCoding {
     public int hashCode() {
         int result = latBand.hashCode();
         result = 31 * result + lonBand.hashCode();
+        if (maskExpression != null) {
+            result = 31 * result + maskExpression.hashCode();
+        }
         return result;
     }
 
