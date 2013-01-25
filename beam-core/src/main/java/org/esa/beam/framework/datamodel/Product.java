@@ -43,6 +43,7 @@ import org.esa.beam.util.Guardian;
 import org.esa.beam.util.ObjectUtils;
 import org.esa.beam.util.StopWatch;
 import org.esa.beam.util.StringUtils;
+import org.esa.beam.util.io.WildcardMatcher;
 import org.esa.beam.util.math.MathUtils;
 
 import java.awt.Color;
@@ -2201,14 +2202,21 @@ public class Product extends ProductNode {
 
         private final String[][] paths;
         private final Index[] indexes;
+        private final HashMap<String, WildcardMatcher> wildcardMap;
 
         private AutoGroupingImpl(String[][] paths) {
             this.paths = paths.clone();
             this.indexes = new Index[paths.length];
+            this.wildcardMap = new HashMap<String, WildcardMatcher>();
             for (int i = 0; i < paths.length; i++) {
                 String[] path = paths[i];
                 String entry = path.length > 0 ? path[0] : "";
                 indexes[i] = new Index(entry, i);
+                for (String pathEntry : path) {
+                    if (pathEntry.contains("*") || pathEntry.contains("?")) {
+                        wildcardMap.put(pathEntry, new WildcardMatcher(pathEntry));
+                    }
+                }
             }
             Arrays.sort(indexes, new Comparator<Index>() {
                 @Override
@@ -2235,6 +2243,9 @@ public class Product extends ProductNode {
 
         private boolean nameMatchesGroupPath(String name, String[] groupPath) {
             for (String group : groupPath) {
+                if (wildcardMap.containsKey(group)) {
+                    return wildcardMap.get(group).matches(name);
+                }
                 if (!name.contains(group)) {
                     return false;
                 }
