@@ -22,7 +22,11 @@ import com.bc.ceres.binding.dom.DefaultDomElement;
 import com.bc.ceres.binding.dom.DomElement;
 import com.bc.ceres.core.ProgressMonitor;
 import junit.framework.TestCase;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.CrsGeoCoding;
+import org.esa.beam.framework.datamodel.GeoCoding;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.annotations.ParameterDescriptorFactory;
@@ -32,7 +36,7 @@ import org.esa.beam.framework.gpf.graph.Node;
 import org.esa.beam.util.io.FileUtils;
 import org.geotools.referencing.CRS;
 
-import java.awt.*;
+import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.io.InputStreamReader;
 import java.util.Arrays;
@@ -195,6 +199,26 @@ public class BandMathsOpTest extends TestCase {
 
         Product targetProduct = GPF.createProduct("BandMaths", parameters,
                                                   sourceProduct1, sourceProduct2);
+        Band band = targetProduct.getBand("aBandName");
+
+        float[] actualValues = new float[16];
+        band.readPixels(0, 0, 4, 4, actualValues, ProgressMonitor.NULL);
+        float[] expectedValues = new float[16];
+        Arrays.fill(expectedValues, 3.5f);
+        assertTrue(Arrays.equals(expectedValues, actualValues));
+    }
+
+    public void testTwoSourceProductsWithNames() throws Exception {
+        HashMap<String, Product> productMap = new HashMap<String, Product>();
+        productMap.put("numberOne", createTestProduct(4, 4));
+        productMap.put("numberTwo", createTestProduct(4, 4));
+        Map<String, Object> parameters = new HashMap<String, Object>();
+        BandMathsOp.BandDescriptor[] bandDescriptors = new BandMathsOp.BandDescriptor[1];
+        bandDescriptors[0] = createBandDescription("aBandName", "$numberOne.band1 + $numberTwo.band2",
+                                                   ProductData.TYPESTRING_FLOAT32, "milliUnit");
+        parameters.put("targetBands", bandDescriptors);
+
+        Product targetProduct = GPF.createProduct("BandMaths", parameters, productMap);
         Band band = targetProduct.getBand("aBandName");
 
         float[] actualValues = new float[16];
