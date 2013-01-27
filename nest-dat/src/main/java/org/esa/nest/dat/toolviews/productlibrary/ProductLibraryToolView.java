@@ -88,7 +88,7 @@ public class ProductLibraryToolView extends AbstractToolView {
     }
 
     @Override
-    public void componentFocusGained() {
+    public void componentOpened() {
         dbPane.getDB();
     }
 

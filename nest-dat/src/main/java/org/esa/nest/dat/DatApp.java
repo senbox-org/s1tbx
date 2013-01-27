@@ -36,6 +36,7 @@ import org.esa.nest.dat.actions.LoadTabbedLayoutAction;
 import org.esa.nest.dat.plugins.graphbuilder.GraphBuilderDialog;
 import org.esa.nest.dat.views.polarview.PolarView;
 import org.esa.nest.datamodel.AbstractMetadata;
+import org.esa.nest.db.ProductDB;
 import org.esa.nest.util.MemUtils;
 import org.esa.nest.util.ResourceUtils;
 import org.esa.nest.util.Settings;
@@ -48,6 +49,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class DatApp extends VisatApp {
 
@@ -124,6 +127,8 @@ public class DatApp extends VisatApp {
             disableUnwantedOperators();
 
             validateAuxDataFolder();
+
+            backgroundInitTasks();
         } catch(Throwable t) {
             VisatApp.getApp().showErrorDialog("PostInit failed. "+t.toString());
         }
@@ -146,6 +151,26 @@ public class DatApp extends VisatApp {
         if(!auxDataFolder.exists()) {
             if(NestData.exists()) {
                 NestData.renameTo(auxDataFolder);
+            }
+        }
+    }
+
+    private static void backgroundInitTasks() {
+        ExecutorService executorService = Executors.newSingleThreadExecutor();
+        executorService.submit(new BackgroundInitRunnable());
+    }
+
+    private static class BackgroundInitRunnable implements Runnable {
+
+        private BackgroundInitRunnable() {
+        }
+
+        @Override
+        public void run() {
+            try {
+                ProductDB.instance();
+            } catch(Exception e) {
+                e.printStackTrace();
             }
         }
     }

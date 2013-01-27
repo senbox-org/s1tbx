@@ -30,6 +30,17 @@
 
     <extension point="beam-ui:actions">
         <action>
+            <id>createElevationAction</id>
+            <class>org.esa.nest.dat.CreateElevationAction</class>
+            <text>Create Elevation Band</text>
+            <shortDescr>Creates an elevation band from a selected DEM</shortDescr>
+            <description>Creates an elevation band from a selected Digital Elevation Model (DEM)</description>
+            <context>product</context>
+            <helpId>createElevationBand</helpId>
+            <parent>DEMTools</parent>
+        </action>
+
+        <action>
             <id>importDEM</id>
             <class>org.esa.beam.visat.actions.ActionGroup</class>
             <text>DEM</text>
@@ -63,6 +74,17 @@
             <class>org.esa.beam.visat.actions.ProductImportAction</class>
             <formatName>GeoTIFF</formatName>
             <text>SRTM GeoTIFF DEM Tile</text>
+            <parent>importDEM</parent>
+            <shortDescr>Import a SRTM DEM tile or tile subset.</shortDescr>
+            <description>Import a SRTM DEM tile or tile subset.</description>
+            <helpId>importSRTMProduct</helpId>
+        </action>
+
+        <action>
+            <id>importSRTMArcGridDEMProduct</id>
+            <class>org.esa.beam.visat.actions.ProductImportAction</class>
+            <formatName>ARC_INFO_BIN_GRID</formatName>
+            <text>SRTM ArcGrid DEM Tile</text>
             <parent>importDEM</parent>
             <shortDescr>Import a SRTM DEM tile or tile subset.</shortDescr>
             <description>Import a SRTM DEM tile or tile subset.</description>

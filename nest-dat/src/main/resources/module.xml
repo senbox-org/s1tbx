@@ -60,6 +60,7 @@
                     <id>openSession</id>
                     <id>saveSession</id>
                     <id>saveSessionAs</id>
+                    <id>createDemRelatedBands</id>
                 </excludedActions>
                 <excludedToolViews>
                     <id>org.esa.beam.visat.toolviews.spectrum.SpectrumToolView</id>
