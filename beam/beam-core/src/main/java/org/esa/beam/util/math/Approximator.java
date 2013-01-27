@@ -94,10 +94,9 @@ public final class Approximator {
                                       final FXY[] f,
                                       final double[] c) {
         final int n = f.length;
-        final int m = data.length;
         final double[][] a = new double[n][n];
         final double[] b = new double[n];
-        double x, y, z;
+        double x, y;
         int iX = 0;
         int iY = 1;
         int iZ = 2;
@@ -108,9 +107,9 @@ public final class Approximator {
         }
         for (int i = 0; i < n; i++) { // Rows i=1..n
             for (int j = i; j < n; j++) {  // Columns j=1..n
-                for (int k = 0; k < m; k++) {
-                    x = data[k][iX];
-                    y = data[k][iY];
+                for (double[] aData : data) {
+                    x = aData[iX];
+                    y = aData[iY];
                     a[i][j] += f[i].f(x, y) * f[j].f(x, y);  // sum fi(x,y) * fj(x,y)
                 }
             }
@@ -119,11 +118,8 @@ public final class Approximator {
                 a[i][j] = a[j][i];
             }
             // Column n+1
-            for (int k = 0; k < m; k++) {
-                x = data[k][iX];
-                y = data[k][iY];
-                z = data[k][iZ];
-                b[i] += z * f[i].f(x, y);  // sum z * fi(x,y)
+            for (double[] aData : data) {
+                b[i] += aData[iZ] * f[i].f(aData[iX], aData[iY]);  // sum z * fi(x,y)
             }
         }
         solve2(a, b, c);
@@ -149,9 +145,9 @@ public final class Approximator {
             iX = indices[0];
             iY = indices[1];
         }
-        for (int k = 0; k < m; k++) {
-            x = data[k][iX];
-            y = data[k][iY];
+        for (double[] aData : data) {
+            x = aData[iX];
+            y = aData[iY];
             d = computeY(f, c, x) - y;
             mse += d * d;
         }
@@ -182,10 +178,10 @@ public final class Approximator {
             iY = indices[1];
             iZ = indices[2];
         }
-        for (int k = 0; k < m; k++) {
-            x = data[k][iX];
-            y = data[k][iY];
-            z = data[k][iZ];
+        for (double[] aData : data) {
+            x = aData[iX];
+            y = aData[iY];
+            z = aData[iZ];
             d = FXYSum.computeZ(f, c, x, y) - z;
             mse += d * d;
         }
@@ -217,10 +213,10 @@ public final class Approximator {
             iY = indices[1];
             iZ = indices[2];
         }
-        for (int k = 0; k < m; k++) {
-            x = data[k][iX];
-            y = data[k][iY];
-            z = data[k][iZ];
+        for (double[] aData : data) {
+            x = aData[iX];
+            y = aData[iY];
+            z = aData[iZ];
             d = FXYSum.computeZ(f, c, x, y) - z;
             emax = Math.max(emax, Math.abs(d));
             mse += d * d;
