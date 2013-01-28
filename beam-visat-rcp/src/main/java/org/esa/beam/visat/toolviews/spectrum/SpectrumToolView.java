@@ -412,18 +412,18 @@ public class SpectrumToolView extends AbstractToolView {
     }
 
     private void selectSpectralBands() {
-        Band[] allBandNames = getAvailableSpectralBands();
+        Band[] spectralBands = getAvailableSpectralBands();
         Band[] selectedBands = getSelectedSpectralBands();
         if (selectedBands == null) {
-            selectedBands = allBandNames;
+            selectedBands = spectralBands;
         }
         final Product.AutoGrouping autoGrouping = this.getCurrentProduct().getAutoGrouping();
         BandChooser bandChooser = new BandChooser(getPaneWindow(), "Available Spectral Bands",
-                                                  getDescriptor().getHelpId(), allBandNames, selectedBands,
+                                                  getDescriptor().getHelpId(), spectralBands, selectedBands,
                                                   autoGrouping);
         if (bandChooser.show() == ModalDialog.ID_OK) {
             Band[] userSelectedBands = bandChooser.getSelectedBands();
-            boolean userSelection = (userSelectedBands.length != allBandNames.length);
+            boolean userSelection = (userSelectedBands.length != spectralBands.length);
             getSpectraDiagram().setBands(userSelectedBands, userSelection);
         }
         updateUIState();

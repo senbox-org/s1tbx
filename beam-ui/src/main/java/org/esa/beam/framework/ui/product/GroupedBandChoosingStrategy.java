@@ -135,14 +135,15 @@ public class GroupedBandChoosingStrategy implements BandChoosingStrategy {
     }
 
     public JPanel createCheckersPane() {
-        final JPanel checkersPane = GridBagUtils.createPanel();
         DefaultMutableTreeNode root = new DefaultMutableTreeNode();
-        TreeModel treeModel = new DefaultTreeModel(root);
         Map<String, Integer> groupNodeMap = initGrouping(root);
         List<TreePath> selectedPaths = new ArrayList<TreePath>();
         addBandCheckBoxes(root, selectedPaths, groupNodeMap);
         addTiePointGridCheckBoxes(root, selectedPaths, groupNodeMap);
         removeEmptyGroups(root, groupNodeMap);
+
+        TreeModel treeModel = new DefaultTreeModel(root);
+
         checkBoxTree = new CheckBoxTree(treeModel);
         checkBoxTree.getCheckBoxTreeSelectionModel().setSelectionPaths(selectedPaths.toArray(new TreePath[selectedPaths.size()]));
         checkBoxTree.setRootVisible(false);
@@ -162,7 +163,9 @@ public class GroupedBandChoosingStrategy implements BandChoosingStrategy {
         checkBoxTree.setBackground(color);
         renderer.setBackgroundSelectionColor(color);
         renderer.setBackgroundNonSelectionColor(color);
+
         GridBagConstraints gbc2 = GridBagUtils.createConstraints("insets.left=4,anchor=WEST,fill=BOTH");
+        final JPanel checkersPane = GridBagUtils.createPanel();
         GridBagUtils.addToPanel(checkersPane, checkBoxTree, gbc2, "weightx=1.0,weighty=1.0");
         return checkersPane;
     }
