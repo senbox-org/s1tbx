@@ -84,10 +84,7 @@ public abstract class ElevationFile {
     }
 
     protected boolean findLocalFile() {
-        if ((localFile.exists() && localFile.isFile()) || (localZipFile.exists() && localZipFile.isFile())) {
-            return true;
-        }
-        return false;
+        return (localFile.exists() && localFile.isFile()) || (localZipFile.exists() && localZipFile.isFile());
     }
 
     private synchronized void getFile() throws IOException {
@@ -249,7 +246,7 @@ public abstract class ElevationFile {
                 unrecoverableError = false;      // allow to continue
                 remoteFileExists = false;
                 throw new IOException("Failed to connect to FTP "+ getRemoteFTP()+
-                                      "\n"+e.getMessage());
+                        '\n' +e.getMessage());
             }
             dispose();
         }
