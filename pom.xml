@@ -156,6 +156,7 @@
 		<module>nest-world-wind-view</module>
 		<module>nest-reader-dem</module>
 		<module>nest-io</module>
+		<module>nest-io-sentinel1</module>
 	    <module>nest-op-calibration</module>
 	    <module>nest-op-coregistration</module>
 	    <module>nest-op-sar-tools</module>

@@ -108,7 +108,7 @@ public class Sentinel1ProductReader extends AbstractProductReader {
      * {@inheritDoc}
      */
     @Override
-    protected synchronized void readBandRasterDataImpl(int sourceOffsetX, int sourceOffsetY, int sourceWidth, int sourceHeight,
+    protected void readBandRasterDataImpl(int sourceOffsetX, int sourceOffsetY, int sourceWidth, int sourceHeight,
                                           int sourceStepX, int sourceStepY, Band destBand, int destOffsetX,
                                           int destOffsetY, int destWidth, int destHeight, ProductData destBuffer,
                                           ProgressMonitor pm) throws IOException {
@@ -155,7 +155,6 @@ public class Sentinel1ProductReader extends AbstractProductReader {
         try {
             final double[] srcArray = new double[destWidth * destHeight];
             sampleModel.getSamples(0, 0, destWidth, destHeight, imageID, srcArray, data.getDataBuffer());
-
             if (oneOfTwo)
                 copyLine1Of2(srcArray, (short[])destBuffer.getElems(), sourceStepX);
             else

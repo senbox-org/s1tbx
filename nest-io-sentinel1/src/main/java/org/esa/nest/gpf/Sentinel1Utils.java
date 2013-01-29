@@ -117,13 +117,13 @@ public final class Sentinel1Utils
     }
 
     public static class NoiseVector {
-        public final ProductData.UTC time;
+        public final double timeMJD;
         public final int line;
         public final int[] pixels;
         public final float[] noiseLUT;
 
         public NoiseVector(final ProductData.UTC time, final int line, final int[] pixels, final float[] noiseLUT) {
-            this.time = time;
+            this.timeMJD = time.getMJD();
             this.line = line;
             this.pixels = pixels;
             this.noiseLUT = noiseLUT;
