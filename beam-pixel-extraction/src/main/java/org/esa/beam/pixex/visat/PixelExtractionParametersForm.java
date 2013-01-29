@@ -225,7 +225,7 @@ class PixelExtractionParametersForm {
         mainPanel.add(createSubSceneExportPanel(bindingContext));
         mainPanel.add(tableLayout.createHorizontalSpacer());
 
-        mainPanel.add(new JLabel("KMZ coordinates:"));
+        mainPanel.add(new JLabel("Google Earth export:"));
         mainPanel.add(createKmzExportPanel(bindingContext));
         mainPanel.add(tableLayout.createHorizontalSpacer());
 
@@ -258,7 +258,7 @@ class PixelExtractionParametersForm {
         tableLayout.setTableFill(TableLayout.Fill.BOTH);
         tableLayout.setTableAnchor(TableLayout.Anchor.NORTHWEST);
         final JPanel panel = new JPanel(tableLayout);
-        final JCheckBox exportKmzBox = new JCheckBox("Export found coordinates in Google KMZ format");
+        final JCheckBox exportKmzBox = new JCheckBox("Export output coordinates to Google Earth (KMZ)");
         bindingContext.bind("exportKmz", exportKmzBox);
         panel.add(exportKmzBox);
         return panel;
