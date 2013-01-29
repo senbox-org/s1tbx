@@ -70,13 +70,13 @@ class SpectraDiagram extends Diagram {
     }
 
     public void addCursorSpectrumGraphs() {
-        if (!hasCursorSpacrumGraphs()) {
+        if (!hasCursorSpectrumGraphs()) {
             addSpectrumGraph(null);
         }
     }
 
     public void removeCursorSpectrumGraph() {
-        if (hasCursorSpacrumGraphs()) {
+        if (hasCursorSpectrumGraphs()) {
             placemarks.remove(null);
             reinitializeGraphs();
         }
@@ -89,6 +89,25 @@ class SpectraDiagram extends Diagram {
             styleGraph(spectrumGraph);
             addGraph(spectrumGraph);
         }
+    }
+
+    public void updateSpectra(int pixelX, int pixelY, int level) {
+        DiagramGraph[] graphs = getGraphs();
+        for (DiagramGraph graph : graphs) {
+            ((SpectrumGraph) graph).readValues(pixelX, pixelY, level);
+        }
+        adjustAxes(false);
+        invalidate();
+    }
+
+    @Override
+    public void dispose() {
+        bands = null;
+        spectra = null;
+        placemarks.clear();
+        placemarks = null;
+        removeAndDisposeAllGraphs();
+        super.dispose();
     }
 
     public static Band[][] extractSpectra(Band[] bands) {
@@ -134,25 +153,6 @@ class SpectraDiagram extends Diagram {
         return spectraList.toArray(new Band[spectraList.size()][]);
     }
 
-    public void updateSpectra(int pixelX, int pixelY, int level) {
-        DiagramGraph[] graphs = getGraphs();
-        for (DiagramGraph graph : graphs) {
-            ((SpectrumGraph) graph).readValues(pixelX, pixelY, level);
-        }
-        adjustAxes(false);
-        invalidate();
-    }
-
-    @Override
-    public void dispose() {
-        bands = null;
-        spectra = null;
-        placemarks.clear();
-        placemarks = null;
-        removeAndDisposeAllGraphs();
-        super.dispose();
-    }
-
     private void removeAndDisposeAllGraphs() {
         final DiagramGraph[] graphs = getGraphs();
         removeAllGraphs();
@@ -162,7 +162,7 @@ class SpectraDiagram extends Diagram {
         }
     }
 
-    private boolean hasCursorSpacrumGraphs() {
+    private boolean hasCursorSpectrumGraphs() {
         return placemarks.contains(null);
     }
 
