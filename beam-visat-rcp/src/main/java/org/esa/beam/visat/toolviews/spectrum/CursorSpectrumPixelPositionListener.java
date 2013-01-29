@@ -90,7 +90,7 @@ public class CursorSpectrumPixelPositionListener implements PixelPositionListene
         protected Void doInBackground() throws Exception {
             toolView.getDiagramCanvas().setMessageText(null);
             if (pixelPosValid && isActive()) {
-                toolView.getSpectraDiagram().addCursorSpectrumGraph();
+                toolView.getSpectraDiagram().addCursorSpectrumGraphs();
                 toolView.updateSpectra(pixelX, pixelY, currentLevel);
             }
             if (adjustAxes) {

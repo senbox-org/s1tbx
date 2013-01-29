@@ -461,7 +461,7 @@ public class SpectrumToolView extends AbstractToolView {
     }
 
     private void recreateSpectraDiagram() {
-        SpectraDiagram spectraDiagram = new SpectraDiagram(getCurrentProduct());
+        SpectraDiagram spectraDiagram = new SpectraDiagram();
 
         if (isShowingSpectraForSelectedPins()) {
             Placemark[] pins = getCurrentView().getSelectedPins();
@@ -477,7 +477,7 @@ public class SpectrumToolView extends AbstractToolView {
         }
 
         if (isShowingCursorSpectrum()) {
-            spectraDiagram.addCursorSpectrumGraph();
+            spectraDiagram.addCursorSpectrumGraphs();
         }
 
         if (getSpectraDiagram() != null && getSelectedSpectralBands() != null && getSpectraDiagram().isUserSelection()) {

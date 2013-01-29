@@ -28,18 +28,37 @@ import org.esa.beam.framework.ui.diagram.DiagramGraph;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 
 class SpectraDiagram extends Diagram {
-    private Product product;
+
     private Band[] bands;
+    private Band[][] spectra;
+    private Set<Placemark> placemarks;
     private boolean userSelection;
 
-    public SpectraDiagram(Product product) {
-        this.product = product;
+    public SpectraDiagram() {
         this.bands = new Band[0];
+        this.spectra = new Band[0][];
+        this.placemarks = new HashSet<Placemark>();
         setXAxis(new DiagramAxis("Wavelength", "nm"));
         setYAxis(new DiagramAxis("", "1"));
+    }
+
+    public void setBands(Band[] bands, boolean userSelection) {
+        this.bands = bands;
+        this.spectra = extractSpectra(bands);
+        this.userSelection = userSelection;
+        reinitializeGraphs();
+        getYAxis().setUnit(getUnit(this.bands));
+        adjustAxes(true);
+        invalidate();
     }
 
     public Band[] getBands() {
@@ -50,30 +69,106 @@ class SpectraDiagram extends Diagram {
         return userSelection;
     }
 
-    public SpectrumGraph getCursorSpectrumGraph() {
-        return getSpectrumGraph(null);
-    }
-
-    public SpectrumGraph getSpectrumGraph(Placemark placemark) {
-        for (DiagramGraph graph : getGraphs()) {
-            SpectrumGraph spectrumGraph = (SpectrumGraph) graph;
-            if (spectrumGraph.getPlacemark() == placemark) {
-                return spectrumGraph;
-            }
-        }
-        return null;
-    }
-
-    public void addCursorSpectrumGraph() {
-        final SpectrumGraph cursorSpectrumGraph = getCursorSpectrumGraph();
-        if (cursorSpectrumGraph == null) {
+    public void addCursorSpectrumGraphs() {
+        if (!hasCursorSpacrumGraphs()) {
             addSpectrumGraph(null);
         }
     }
 
+    public void removeCursorSpectrumGraph() {
+        if (hasCursorSpacrumGraphs()) {
+            placemarks.remove(null);
+            reinitializeGraphs();
+        }
+    }
+
     public void addSpectrumGraph(Placemark placemark) {
-        SpectrumGraph spectrumGraph = new SpectrumGraph(placemark, getBands());
+        placemarks.add(placemark);
+        for (Band[] spectrum : spectra) {
+            SpectrumGraph spectrumGraph = new SpectrumGraph(placemark, spectrum);
+            styleGraph(spectrumGraph);
+            addGraph(spectrumGraph);
+        }
+    }
+
+    public static Band[][] extractSpectra(Band[] bands) {
+        if (bands == null || bands.length == 0) {
+            return new Band[0][];
+        }
+        Map<Product.AutoGrouping, Map<Integer, List<Band>>> graphsMap = new HashMap<Product.AutoGrouping, Map<Integer, List<Band>>>();
+        final ArrayList<Band> ungroupedBands = new ArrayList<Band>();
+        for (Band band : bands) {
+            final Product.AutoGrouping autoGrouping = band.getProduct().getAutoGrouping();
+            if (autoGrouping != null) {
+                Map<Integer, List<Band>> indexedBandMap = graphsMap.get(autoGrouping);
+                if (indexedBandMap == null) {
+                    indexedBandMap = new HashMap<Integer, List<Band>>();
+                    graphsMap.put(autoGrouping, indexedBandMap);
+                }
+                final int index = autoGrouping.indexOf(band.getName());
+                if (index == -1) {
+                    ungroupedBands.add(band);
+                } else {
+                    List<Band> bandsList = indexedBandMap.get(index);
+                    if (bandsList == null) {
+                        bandsList = new ArrayList<Band>();
+                        indexedBandMap.put(index, bandsList);
+                    }
+                    bandsList.add(band);
+                }
+            } else {
+                ungroupedBands.add(band);
+            }
+        }
+        final List<Band[]> spectraList = new ArrayList<Band[]>();
+        if (ungroupedBands.size() > 0) {
+            spectraList.add(ungroupedBands.toArray(new Band[ungroupedBands.size()]));
+        }
+        for (Map<Integer, List<Band>> integerListMap : graphsMap.values()) {
+            for (List<Band> bandList : integerListMap.values()) {
+                if (bandList.size() > 0) {
+                    spectraList.add(bandList.toArray(new Band[bandList.size()]));
+                }
+            }
+        }
+        return spectraList.toArray(new Band[spectraList.size()][]);
+    }
+
+    public void updateSpectra(int pixelX, int pixelY, int level) {
+        DiagramGraph[] graphs = getGraphs();
+        for (DiagramGraph graph : graphs) {
+            ((SpectrumGraph) graph).readValues(pixelX, pixelY, level);
+        }
+        adjustAxes(false);
+        invalidate();
+    }
+
+    @Override
+    public void dispose() {
+        bands = null;
+        spectra = null;
+        placemarks.clear();
+        placemarks = null;
+        removeAndDisposeAllGraphs();
+        super.dispose();
+    }
+
+    private void removeAndDisposeAllGraphs() {
+        final DiagramGraph[] graphs = getGraphs();
+        removeAllGraphs();
+        for (DiagramGraph graph : graphs) {
+            SpectrumGraph spectrumGraph = (SpectrumGraph) graph;
+            spectrumGraph.dispose();   // todo - care! is SpectraDiagram always owner of its graphs?
+        }
+    }
+
+    private boolean hasCursorSpacrumGraphs() {
+        return placemarks.contains(null);
+    }
+
+    private void styleGraph(SpectrumGraph spectrumGraph) {
         DefaultDiagramGraphStyle style = (DefaultDiagramGraphStyle) spectrumGraph.getStyle();
+        final Placemark placemark = spectrumGraph.getPlacemark();
         if (placemark != null) {
             final FigureStyle figureStyle = DefaultFigureStyle.createFromCss(placemark.getStyleCss());
             style.setOutlineColor(figureStyle.getFillColor());
@@ -84,34 +179,13 @@ class SpectraDiagram extends Diagram {
             style.setOutlineStroke(new BasicStroke(1.5f));
             style.setFillPaint(Color.WHITE);
         }
-        addGraph(spectrumGraph);
     }
 
-    public void removeCursorSpectrumGraph() {
-        final SpectrumGraph cursorSpectrumGraph = getCursorSpectrumGraph();
-        if (cursorSpectrumGraph != null) {
-            removeGraph(cursorSpectrumGraph);
+    private void reinitializeGraphs() {
+        removeAndDisposeAllGraphs();
+        for (Placemark placemark : placemarks) {
+            addSpectrumGraph(placemark);
         }
-    }
-
-    public void setBands(Band[] bands, boolean userSelection) {
-        this.bands = bands;
-        this.userSelection = userSelection;
-        for (DiagramGraph graph : getGraphs()) {
-            ((SpectrumGraph) graph).setBands(bands);
-        }
-        getYAxis().setUnit(getUnit(this.bands));
-        adjustAxes(true);
-        invalidate();
-    }
-
-    public void updateSpectra(int pixelX, int pixelY, int level) {
-        DiagramGraph[] graphs = getGraphs();
-        for (DiagramGraph graph : graphs) {
-            ((SpectrumGraph) graph).readValues(pixelX, pixelY, level);
-        }
-        adjustAxes(false);
-        invalidate();
     }
 
     private static String getUnit(final Band[] bands) {
@@ -126,18 +200,4 @@ class SpectraDiagram extends Diagram {
         }
         return unit != null ? unit : "?";
     }
-
-    @Override
-    public void dispose() {
-        if (product != null) {
-            product = null;
-            bands = null;
-            for (DiagramGraph graph : getGraphs()) {
-                SpectrumGraph spectrumGraph = (SpectrumGraph) graph;
-                spectrumGraph.dispose();   // todo - care! is SpectraDiagram always owner of its graphs?
-            }
-        }
-        super.dispose();
-    }
-
 }
