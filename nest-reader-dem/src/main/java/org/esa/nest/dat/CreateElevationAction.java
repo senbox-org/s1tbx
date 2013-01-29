@@ -34,6 +34,7 @@ import org.esa.beam.jai.RasterDataNodeSampleOpImage;
 import org.esa.beam.jai.ResolutionLevel;
 import org.esa.beam.visat.VisatApp;
 import org.esa.nest.dataio.dem.DEMFactory;
+import org.esa.nest.datamodel.Unit;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
@@ -137,9 +138,9 @@ public class CreateElevationAction extends ExecCommand {
         ElevationModelDescriptor demDescriptor = dem.getDescriptor();
         final float noDataValue = dem.getDescriptor().getNoDataValue();
         final Band elevationBand = product.addBand(elevationBandName, ProductData.TYPE_FLOAT32);
-        elevationBand.setSynthetic(true);
+        elevationBand.setNoDataValueUsed(true);
         elevationBand.setNoDataValue(noDataValue);
-        elevationBand.setUnit("m");
+        elevationBand.setUnit(Unit.METERS);
         elevationBand.setDescription(demDescriptor.getName());
         elevationBand.setSourceImage(createElevationSourceImage(dem, geoCoding, elevationBand));
     }

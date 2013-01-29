@@ -27,11 +27,7 @@ import com.bc.ceres.jai.operator.ReinterpretDescriptor;
 import com.bc.ceres.jai.operator.ScalingType;
 import org.esa.beam.framework.dataop.barithm.BandArithmetic;
 import org.esa.beam.jai.ImageManager;
-import org.esa.beam.util.BitRaster;
-import org.esa.beam.util.Debug;
-import org.esa.beam.util.ObjectUtils;
-import org.esa.beam.util.ProductUtils;
-import org.esa.beam.util.StringUtils;
+import org.esa.beam.util.*;
 import org.esa.beam.util.jai.SingleBandedSampleModel;
 import org.esa.beam.util.math.DoubleList;
 import org.esa.beam.util.math.Histogram;
@@ -50,6 +46,7 @@ import java.awt.image.BufferedImage;
 import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
 import java.awt.image.SampleModel;
+import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 
@@ -1625,6 +1622,22 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
             range = histogram.findRange(0.01, 0.04, true, false);
         }
 
+
+        try {  //NESTMOD
+            final String unit = getUnit();
+            final String filePath = "beam-ui"+File.separator+"auxdata"+File.separator+"color-palettes"+File.separator;
+            String name = null;
+            if(unit.contains("phase")) {
+                name = System.getProperty(SystemUtils.getApplicationContextId()+".phase.color-palette", null);
+            } else if(unit.contains("meters")) {
+                name = System.getProperty(SystemUtils.getApplicationContextId()+".meters.color-palette", null);
+            }
+            if(name != null)
+                return loadColorPalette(histogram, filePath+name);
+        } catch(Exception e) {
+            //continue
+        }
+
         final double min, max;
         if (range.getMin() != range.getMax()) {
             min = range.getMin();
@@ -1638,6 +1651,15 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         final ColorPaletteDef gradationCurve = new ColorPaletteDef(min, center, max);
 
         return new ImageInfo(gradationCurve);
+    }
+
+    private static ImageInfo loadColorPalette(final Histogram histogram, final String path) throws IOException {
+        final File file = new File(SystemUtils.getApplicationDataDir(), path);
+        final ColorPaletteDef colorPaletteDef = ColorPaletteDef.loadColorPaletteDef(file);
+        final ImageInfo info = new ImageInfo(colorPaletteDef);
+        final Range autoStretchRange = histogram.findRangeFor95Percent();
+        info.setColorPaletteDef(colorPaletteDef, autoStretchRange.getMin(), autoStretchRange.getMax(), true);
+        return info;
     }
 
     /**
