@@ -143,18 +143,23 @@ public final class EarthGravitationalModel96 {
 
         final double[][] v = new double[4][4];
         final int r0 = FastMath.max(((int)r-1), 0);
-        final int c0 = FastMath.max(((int)c-1), 0);
+        int c0 = FastMath.max(((int)c-1), 0);
 
-        final int ci0 = FastMath.min(c0    , MAX_LONS);
-        final int ci1 = FastMath.min(c0 + 1, MAX_LONS);
-        final int ci2 = FastMath.min(c0 + 2, MAX_LONS);
-        final int ci3 = FastMath.min(c0 + 3, MAX_LONS);
+        int ci1 = c0 + 1;
+        int ci2 = c0 + 2;
+        int ci3 = c0 + 3;
+        if(ci3 > MAX_LONS) {
+            c0  = FastMath.min(c0  , MAX_LONS);
+            ci1 = FastMath.min(ci1, MAX_LONS);
+            ci2 = FastMath.min(ci2, MAX_LONS);
+            ci3 = FastMath.min(ci3, MAX_LONS);
+        }
 
         for (int i = 0; i < 4; i++) {
-            final int ri = FastMath.min(r0 + i, MAX_LATS);
+            final int ri = r0+i > MAX_LATS ? FastMath.min(r0 + i, MAX_LATS) : r0+i;
 
             //unrolled loop
-            v[i][0] = egm[ri][ci0];
+            v[i][0] = egm[ri][c0];
             v[i][1] = egm[ri][ci1];
             v[i][2] = egm[ri][ci2];
             v[i][3] = egm[ri][ci3];

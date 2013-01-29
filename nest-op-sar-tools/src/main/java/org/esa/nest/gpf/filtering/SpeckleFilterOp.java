@@ -217,41 +217,71 @@ public class SpeckleFilterOp extends Operator {
             }
             final Unit.UnitType bandUnit = Unit.getUnitType(sourceBand1);
 
-            if(filter.equals(MEAN_SPECKLE_FILTER)) {
+            final Rectangle srcTileRectangle = sourceRaster1.getRectangle();
+            final int sx0 = srcTileRectangle.x;
+            final int sy0 = srcTileRectangle.y;
+            final int sw = srcTileRectangle.width;
+            final int sh = srcTileRectangle.height;
 
-                computeMean(sourceRaster1, sourceRaster2, bandUnit, targetTile, x0, y0, w, h, pm);
+            final double[] neighborValues = new double[filterSizeX*filterSizeY];
+            final ProductData trgData = targetTile.getDataBuffer();
 
-            } else if(filter.equals(MEDIAN_SPECKLE_FILTER)) {
+            final ProductData srcData1 = sourceRaster1.getDataBuffer();
+            ProductData srcData2 = null;
+            if(sourceRaster2 != null)
+                srcData2 = sourceRaster2.getDataBuffer();
 
-                computeMedian(sourceRaster1, sourceRaster2, bandUnit, targetTile, x0, y0, w, h, pm);
+            final TileIndex trgIndex = new TileIndex(targetTile);
+            final TileIndex srcIndex = new TileIndex(sourceRaster1);
 
-            } else if(filter.equals(FROST_SPECKLE_FILTER)) {
+            switch (filter) {
+                case MEAN_SPECKLE_FILTER:
 
-                computeFrost(sourceRaster1, sourceRaster2, bandUnit, targetTile, x0, y0, w, h, pm);
+                    computeMean(srcData1, srcData2, trgData, bandUnit, neighborValues, srcIndex, trgIndex,
+                            x0, y0, w, h, sx0, sy0, sw, sh);
 
-            } else if(filter.equals(GAMMA_MAP_SPECKLE_FILTER)) {
+                    break;
+                case MEDIAN_SPECKLE_FILTER:
 
-                if (estimateENL) {
-                    computeEquivalentNumberOfLooks(sourceRaster1, sourceRaster2, bandUnit, x0, y0, w, h);
-                }
-                cu = 1.0 / Math.sqrt(enl);
-                cu2 = cu*cu;
+                    computeMedian(srcData1, srcData2, trgData, bandUnit, neighborValues, srcIndex, trgIndex,
+                            x0, y0, w, h, sx0, sy0, sw, sh);
 
-                computeGammaMap(sourceRaster1, sourceRaster2, bandUnit, targetTile, x0, y0, w, h, pm);
+                    break;
+                case FROST_SPECKLE_FILTER:
 
-            } else if(filter.equals(LEE_SPECKLE_FILTER)) {
+                    computeFrost(srcData1, srcData2, trgData, bandUnit, neighborValues, srcIndex, trgIndex,
+                            x0, y0, w, h, sx0, sy0, sw, sh);
 
-                if (estimateENL) {
-                    computeEquivalentNumberOfLooks(sourceRaster1, sourceRaster2, bandUnit, x0, y0, w, h);
-                }
-                cu = 1.0 / Math.sqrt(enl);
-                cu2 = cu*cu;
-                
-                computeLee(sourceRaster1, sourceRaster2, bandUnit, targetTile, x0, y0, w, h, pm);
+                    break;
+                case GAMMA_MAP_SPECKLE_FILTER:
 
-            } else if(filter.equals(LEE_REFINED_FILTER)) {
+                    if (estimateENL) {
+                        computeEquivalentNumberOfLooks(sourceRaster1, sourceRaster2, bandUnit, x0, y0, w, h);
+                    }
+                    cu = 1.0 / Math.sqrt(enl);
+                    cu2 = cu * cu;
 
-                computeRefinedLee(sourceRaster1, sourceRaster2, bandUnit, targetTile, x0, y0, w, h, pm);
+                    computeGammaMap(srcData1, srcData2, trgData, bandUnit, neighborValues, srcIndex, trgIndex,
+                            x0, y0, w, h, sx0, sy0, sw, sh);
+
+                    break;
+                case LEE_SPECKLE_FILTER:
+
+                    if (estimateENL) {
+                        computeEquivalentNumberOfLooks(sourceRaster1, sourceRaster2, bandUnit, x0, y0, w, h);
+                    }
+                    cu = 1.0 / Math.sqrt(enl);
+                    cu2 = cu * cu;
+
+                    computeLee(srcData1, srcData2, trgData, bandUnit, neighborValues, srcIndex, trgIndex,
+                            x0, y0, w, h, sx0, sy0, sw, sh);
+
+                    break;
+                case LEE_REFINED_FILTER:
+
+                    computeRefinedLee(srcData1, srcData2, trgData, bandUnit, srcIndex, trgIndex,
+                            x0, y0, w, h, sx0, sy0, sw, sh);
+                    break;
             }
 
         } catch(Throwable e) {
@@ -299,205 +329,188 @@ public class SpeckleFilterOp extends Operator {
 
     /**
      * Filter the given tile of image with Mean filter.
-     * @param sourceRaster1 The source tile for the 1st band.
-     * @param sourceRaster2 The source tile for the 2nd band.
+     * @param srcData1 The source ProductData for the 1st band.
+     * @param srcData2 The source ProductData for the 2nd band.
+     * @param trgData target ProductData
      * @param unit Unit for the 1st band.
-     * @param targetTile The current tile associated with the target band to be computed.
+     * @param neighborValues data to fill
      * @param x0 X coordinate for the upper-left point of the target_Tile_Rectangle.
      * @param y0 Y coordinate for the upper-left point of the target_Tile_Rectangle.
      * @param w Width for the target_Tile_Rectangle.
      * @param h Hight for the target_Tile_Rectangle.
-     * @param pm A progress monitor which should be used to determine computation cancelation requests.
+     * @param sx0 src rect x
+     * @param sy0 src rect y
+     * @param sw src rect w
+     * @param sh src rect h
      * @throws org.esa.beam.framework.gpf.OperatorException
      *          If an error occurs during computation of the filtered value.
      */
-    private void computeMean(final Tile sourceRaster1, final Tile sourceRaster2, final Unit.UnitType unit,
-                             final Tile targetTile, final int x0, final int y0, final int w, final int h,
-                             final ProgressMonitor pm) {
-
-        final Rectangle srcTileRectangle = sourceRaster1.getRectangle();
-        final int sx0 = srcTileRectangle.x;
-        final int sy0 = srcTileRectangle.y;
-        final int sw = srcTileRectangle.width;
-        final int sh = srcTileRectangle.height;
-
-        final double[] neighborValues = new double[filterSizeX*filterSizeY];
-        final ProductData trgData = targetTile.getDataBuffer();
+    private void computeMean(final ProductData srcData1, final ProductData srcData2, final ProductData trgData,
+                             final Unit.UnitType unit, final double[] neighborValues,
+                             final TileIndex srcIndex, final TileIndex trgIndex,
+                             final int x0, final int y0, final int w, final int h,
+                             final int sx0, final int sy0, final int sw, final int sh) {
 
         final int maxY = y0 + h;
         final int maxX = x0 + w;
         for (int y = y0; y < maxY; ++y) {
+            final int offset = trgIndex.calculateStride(y);
             for (int x = x0; x < maxX; ++x) {
 
-                getNeighborValues(x, y, sx0, sy0, sw, sh, sourceRaster1, sourceRaster2, unit, neighborValues);
+                getNeighborValues(x, y, sx0, sy0, sw, sh, srcData1, srcData2, srcIndex, unit, neighborValues);
 
-                trgData.setElemDoubleAt(targetTile.getDataBufferIndex(x, y), getMeanValue(neighborValues));
+                trgData.setElemDoubleAt(x-offset, getMeanValue(neighborValues));
             }
-            pm.worked(1);
         }
     }
 
     /**
      * Filter the given tile of image with Median filter.
-     * @param sourceRaster1 The source tile for the 1st band.
-     * @param sourceRaster2 The source tile for the 2nd band.
+     * @param srcData1 The source ProductData for the 1st band.
+     * @param srcData2 The source ProductData for the 2nd band.
+     * @param trgData target ProductData
      * @param unit Unit for the 1st band.
-     * @param targetTile   The current tile associated with the target band to be computed.
+     * @param neighborValues data to fill
      * @param x0 X coordinate for the upper-left point of the target_Tile_Rectangle.
      * @param y0 Y coordinate for the upper-left point of the target_Tile_Rectangle.
      * @param w Width for the target_Tile_Rectangle.
      * @param h Hight for the target_Tile_Rectangle.
-     * @param pm A progress monitor which should be used to determine computation cancelation requests.
+     * @param sx0 src rect x
+     * @param sy0 src rect y
+     * @param sw src rect w
+     * @param sh src rect h
      * @throws org.esa.beam.framework.gpf.OperatorException
      *          If an error occurs during computation of the filtered value.
      */
-    private void computeMedian(final Tile sourceRaster1, final Tile sourceRaster2, final Unit.UnitType unit,
-                               final Tile targetTile, final int x0, final int y0, final int w, final int h,
-                               final ProgressMonitor pm) {
-
-        final Rectangle srcTileRectangle = sourceRaster1.getRectangle();
-        final int sx0 = srcTileRectangle.x;
-        final int sy0 = srcTileRectangle.y;
-        final int sw = srcTileRectangle.width;
-        final int sh = srcTileRectangle.height;
-
-        final double[] neighborValues = new double[filterSizeX*filterSizeY];
-        final ProductData trgData = targetTile.getDataBuffer();
+    private void computeMedian(final ProductData srcData1, final ProductData srcData2, final ProductData trgData,
+                               final Unit.UnitType unit, final double[] neighborValues,
+                               final TileIndex srcIndex, final TileIndex trgIndex,
+                               final int x0, final int y0, final int w, final int h,
+                               final int sx0, final int sy0, final int sw, final int sh) {
 
         final int maxY = y0 + h;
         final int maxX = x0 + w;
         for (int y = y0; y < maxY; ++y) {
+            final int offset = trgIndex.calculateStride(y);
             for (int x = x0; x < maxX; ++x) {
 
-                getNeighborValues(x, y, sx0, sy0, sw, sh, sourceRaster1, sourceRaster2, unit, neighborValues);
+                getNeighborValues(x, y, sx0, sy0, sw, sh, srcData1, srcData2, srcIndex, unit, neighborValues);
 
-                trgData.setElemDoubleAt(targetTile.getDataBufferIndex(x, y), getMedianValue(neighborValues));
+                trgData.setElemDoubleAt(x-offset, getMedianValue(neighborValues));
             }
         }
     }
 
     /**
      * Filter the given tile of image with Frost filter.
-     * @param sourceRaster1 The source tile for the 1st band.
-     * @param sourceRaster2 The source tile for the 2nd band.
+     * @param srcData1 The source ProductData for the 1st band.
+     * @param srcData2 The source ProductData for the 2nd band.
+     * @param trgData target ProductData
      * @param unit Unit for the 1st band.
-     * @param targetTile   The current tile associated with the target band to be computed.
+     * @param neighborValues data to fill
      * @param x0 X coordinate for the upper-left point of the target_Tile_Rectangle.
      * @param y0 Y coordinate for the upper-left point of the target_Tile_Rectangle.
      * @param w Width for the target_Tile_Rectangle.
      * @param h Hight for the target_Tile_Rectangle.
-     * @param pm A progress monitor which should be used to determine computation cancelation requests.
+     * @param sx0 src rect x
+     * @param sy0 src rect y
+     * @param sw src rect w
+     * @param sh src rect h
      * @throws org.esa.beam.framework.gpf.OperatorException
      *          If an error occurs during computation of the filtered value.
      */
-    private void computeFrost(final Tile sourceRaster1, final Tile sourceRaster2, final Unit.UnitType unit,
-                              final Tile targetTile, final int x0, final int y0, final int w, final int h,
-                              final ProgressMonitor pm) {
+    private void computeFrost(final ProductData srcData1, final ProductData srcData2, final ProductData trgData,
+                              final Unit.UnitType unit, final double[] neighborValues,
+                              final TileIndex srcIndex, final TileIndex trgIndex,
+                              final int x0, final int y0, final int w, final int h,
+                              final int sx0, final int sy0, final int sw, final int sh) {
 
-        final Rectangle srcTileRectangle = sourceRaster1.getRectangle();
-        final int sx0 = srcTileRectangle.x;
-        final int sy0 = srcTileRectangle.y;
-        final int sw = srcTileRectangle.width;
-        final int sh = srcTileRectangle.height;
-
-        final double[] neighborValues = new double[filterSizeX*filterSizeY];
         final double[] mask = new double[filterSizeX*filterSizeY];
-        final ProductData trgData = targetTile.getDataBuffer();
-
         getFrostMask(mask);
 
         final int maxY = y0 + h;
         final int maxX = x0 + w;
         for (int y = y0; y < maxY; ++y) {
+            final int offset = trgIndex.calculateStride(y);
             for (int x = x0; x < maxX; ++x) {
 
-                getNeighborValues(x, y, sx0, sy0, sw, sh, sourceRaster1, sourceRaster2, unit, neighborValues);
+                getNeighborValues(x, y, sx0, sy0, sw, sh, srcData1, srcData2, srcIndex, unit, neighborValues);
 
-                trgData.setElemDoubleAt(targetTile.getDataBufferIndex(x, y), getFrostValue(neighborValues, mask));
+                trgData.setElemDoubleAt(x-offset, getFrostValue(neighborValues, mask));
             }
         }
     }
 
     /**
      * Filter the given tile of image with Gamma filter.
-     * @param sourceRaster1 The source tile for the 1st band.
-     * @param sourceRaster2 The source tile for the 2nd band.
+     * @param srcData1 The source ProductData for the 1st band.
+     * @param srcData2 The source ProductData for the 2nd band.
+     * @param trgData target ProductData
      * @param unit Unit for the 1st band.
-     * @param targetTile   The current tile associated with the target band to be computed.
+     * @param neighborValues data to fill
      * @param x0 X coordinate for the upper-left point of the target_Tile_Rectangle.
      * @param y0 Y coordinate for the upper-left point of the target_Tile_Rectangle.
      * @param w Width for the target_Tile_Rectangle.
      * @param h Hight for the target_Tile_Rectangle.
-     * @param pm A progress monitor which should be used to determine computation cancelation requests.
+     * @param sx0 src rect x
+     * @param sy0 src rect y
+     * @param sw src rect w
+     * @param sh src rect h
      * @throws org.esa.beam.framework.gpf.OperatorException
      *          If an error occurs during computation of the filtered value.
      */
-    private void computeGammaMap(final Tile sourceRaster1, final Tile sourceRaster2, final Unit.UnitType unit,
-                                 final Tile targetTile, final int x0, final int y0, final int w, final int h,
-                                 final ProgressMonitor pm) {
-
-        final Rectangle srcTileRectangle = sourceRaster1.getRectangle();
-        final int sx0 = srcTileRectangle.x;
-        final int sy0 = srcTileRectangle.y;
-        final int sw = srcTileRectangle.width;
-        final int sh = srcTileRectangle.height;
-
-        final double[] neighborValues = new double[filterSizeX*filterSizeY];
-        final double[] mask = new double[filterSizeX*filterSizeY];
-        final ProductData trgData = targetTile.getDataBuffer();
-
-        final TileIndex trgIndex = new TileIndex(targetTile);
-        final TileIndex srcIndex = new TileIndex(sourceRaster1);
-
-        getFrostMask(mask);
+    private void computeGammaMap(final ProductData srcData1, final ProductData srcData2, final ProductData trgData,
+                                 final Unit.UnitType unit, final double[] neighborValues,
+                                 final TileIndex srcIndex, final TileIndex trgIndex,
+                                 final int x0, final int y0, final int w, final int h,
+                                 final int sx0, final int sy0, final int sw, final int sh) {
 
         final int maxY = y0 + h;
         final int maxX = x0 + w;
         for (int y = y0; y < maxY; ++y) {
+            final int offset = trgIndex.calculateStride(y);
             for (int x = x0; x < maxX; ++x) {
 
-                getNeighborValues(x, y, sx0, sy0, sw, sh, sourceRaster1, sourceRaster2, unit, neighborValues);
+                getNeighborValues(x, y, sx0, sy0, sw, sh, srcData1, srcData2, srcIndex, unit, neighborValues);
 
-                trgData.setElemDoubleAt(targetTile.getDataBufferIndex(x, y), getGammaMapValue(neighborValues));
+                trgData.setElemDoubleAt(x-offset, getGammaMapValue(neighborValues));
             }
         }
     }
 
     /**
      * Filter the given tile of image with Lee filter.
-     * @param sourceRaster1 The source tile for the 1st band.
-     * @param sourceRaster2 The source tile for the 2nd band.
+     * @param srcData1 The source ProductData for the 1st band.
+     * @param srcData2 The source ProductData for the 2nd band.
+     * @param trgData target ProductData
      * @param unit Unit for the 1st band.
-     * @param targetTile The current tile associated with the target band to be computed.
+     * @param neighborValues data to fill
      * @param x0 X coordinate for the upper-left point of the target_Tile_Rectangle.
      * @param y0 Y coordinate for the upper-left point of the target_Tile_Rectangle.
      * @param w Width for the target_Tile_Rectangle.
      * @param h Hight for the target_Tile_Rectangle.
-     * @param pm A progress monitor which should be used to determine computation cancelation requests.
+     * @param sx0 src rect x
+     * @param sy0 src rect y
+     * @param sw src rect w
+     * @param sh src rect h
      * @throws org.esa.beam.framework.gpf.OperatorException
      *          If an error occurs during computation of the filtered value.
      */
-    private void computeLee(final Tile sourceRaster1, final Tile sourceRaster2, final Unit.UnitType unit,
-                            final Tile targetTile, final int x0, final int y0, final int w, final int h,
-                            final ProgressMonitor pm) {
-
-        final Rectangle srcTileRectangle = sourceRaster1.getRectangle();
-        final int sx0 = srcTileRectangle.x;
-        final int sy0 = srcTileRectangle.y;
-        final int sw = srcTileRectangle.width;
-        final int sh = srcTileRectangle.height;
-
-        final double[] neighborValues = new double[filterSizeX*filterSizeY];
-        final ProductData trgData = targetTile.getDataBuffer();
+    private void computeLee(final ProductData srcData1, final ProductData srcData2, final ProductData trgData,
+                            final Unit.UnitType unit, final double[] neighborValues,
+                            final TileIndex srcIndex, final TileIndex trgIndex,
+                            final int x0, final int y0, final int w, final int h,
+                            final int sx0, final int sy0, final int sw, final int sh) {
 
         final int maxY = y0 + h;
         final int maxX = x0 + w;
         for (int y = y0; y < maxY; ++y) {
+            final int offset = trgIndex.calculateStride(y);
             for (int x = x0; x < maxX; ++x) {
 
-                getNeighborValues(x, y, sx0, sy0, sw, sh, sourceRaster1, sourceRaster2, unit, neighborValues);
+                getNeighborValues(x, y, sx0, sy0, sw, sh, srcData1, srcData2, srcIndex, unit, neighborValues);
 
-                trgData.setElemDoubleAt(targetTile.getDataBufferIndex(x, y), getLeeValue(neighborValues));
+                trgData.setElemDoubleAt(x-offset, getLeeValue(neighborValues));
             }
         }
     }
@@ -510,71 +523,66 @@ public class SpeckleFilterOp extends Operator {
      * @param sy0 Y coordinate of pixel at upper left corner of source tile.
      * @param sw Source tile width.
      * @param sh Source tile height.
-     * @param sourceRaster1 The source tile for 1st band.
-     * @param sourceRaster2 The source tile for 2nd band.
+     * @param srcData1 The source ProductData for 1st band.
+     * @param srcData2 The source ProductData for 2nd band.
      * @param bandUnit Unit for the 1st band.
      * @param neighborValues Array holding the pixel values.
      * @throws org.esa.beam.framework.gpf.OperatorException
      *          If an error occurs in obtaining the pixel values.
      */
     private void getNeighborValues(final int x, final int y, final int sx0, final int sy0, final int sw, final int sh,
-                                   final Tile sourceRaster1, final Tile sourceRaster2, final Unit.UnitType bandUnit,
-                                   final double[] neighborValues) {
-
-        final ProductData srcData1 = sourceRaster1.getDataBuffer();
-        ProductData srcData2 = null;
-        if(sourceRaster2 != null)
-            srcData2 = sourceRaster2.getDataBuffer();
+                                   final ProductData srcData1, final ProductData srcData2, final TileIndex srcIndex,
+                                   final Unit.UnitType bandUnit, final double[] neighborValues) {
 
         if (bandUnit == Unit.UnitType.REAL || bandUnit == Unit.UnitType.IMAGINARY) {
-            for (int i = 0; i < filterSizeX; ++i) {
 
-                int xi = x - halfSizeX + i;
-                if (xi < sx0) {
-                    xi = sx0;
-                } else if (xi >= sx0 + sw) {
-                    xi = sx0 + sw - 1;
+            for (int j = 0; j < filterSizeY; ++j) {
+
+                int yj = y - halfSizeY + j;
+                if (yj < sy0) {
+                    yj = sy0;
+                } else if (yj >= sy0 + sh) {
+                    yj = sy0 + sh - 1;
                 }
 
-                final int stride = i*filterSizeY;
-                for (int j = 0; j < filterSizeY; ++j) {
+                final int stride = j*filterSizeX;
+                final int offset = srcIndex.calculateStride(yj);
+                for (int i = 0; i < filterSizeX; ++i) {
 
-                    int yj = y - halfSizeY + j;
-                    if (yj < sy0) {
-                        yj = sy0;
-                    } else if (yj >= sy0 + sh) {
-                        yj = sy0 + sh - 1;
+                    int xi = x - halfSizeX + i;
+                    if (xi < sx0) {
+                        xi = sx0;
+                    } else if (xi >= sx0 + sw) {
+                        xi = sx0 + sw - 1;
                     }
-
-                    int idx = sourceRaster1.getDataBufferIndex(xi, yj);
+                    int idx = xi-offset;
                     double I = srcData1.getElemDoubleAt(idx);
                     double Q = srcData2.getElemDoubleAt(idx);
-                    neighborValues[j + stride] = I*I + Q*Q;
+                    neighborValues[stride + j] = I*I + Q*Q;
                 }
             }
 
         } else {
 
-            for (int i = 0; i < filterSizeX; ++i) {
+            for (int j = 0; j < filterSizeY; ++j) {
 
-                int xi = x - halfSizeX + i;
-                if (xi < sx0) {
-                    xi = sx0;
-                } else if (xi >= sx0 + sw) {
-                    xi = sx0 + sw - 1;
+                int yj = y - halfSizeY + j;
+                if (yj < sy0) {
+                    yj = sy0;
+                } else if (yj >= sy0 + sh) {
+                    yj = sy0 + sh - 1;
                 }
+                final int stride = j*filterSizeX;
+                final int offset = srcIndex.calculateStride(yj);
+                for (int i = 0; i < filterSizeX; ++i) {
 
-                final int stride = i*filterSizeY;
-                for (int j = 0; j < filterSizeY; ++j) {
-
-                    int yj = y - halfSizeY + j;
-                    if (yj < sy0) {
-                        yj = sy0;
-                    } else if (yj >= sy0 + sh) {
-                        yj = sy0 + sh - 1;
+                    int xi = x - halfSizeX + i;
+                    if (xi < sx0) {
+                        xi = sx0;
+                    } else if (xi >= sx0 + sw) {
+                        xi = sx0 + sw - 1;
                     }
-
-                    neighborValues[j + stride] = srcData1.getElemDoubleAt(sourceRaster1.getDataBufferIndex(xi, yj));
+                    neighborValues[stride + i] = srcData1.getElemDoubleAt(xi-offset);
                 }
             }
         }
@@ -650,9 +658,7 @@ public class SpeckleFilterOp extends Operator {
             final int dr = Math.abs(i - halfSizeX);
 
             for (int j = 0; j < filterSizeY; j++) {
-
-                final int dc = Math.abs(j - halfSizeY);
-                mask[j + s] = Math.max(dr, dc);
+                mask[j + s] = Math.max(dr, Math.abs(j - halfSizeY));
             }
         }
     }
@@ -668,12 +674,12 @@ public class SpeckleFilterOp extends Operator {
     private double getFrostValue(final double[] neighborValues, final double[] mask) {
 
         final double mean = getMeanValue(neighborValues);
-        if (Double.compare(mean, Double.MIN_VALUE) <= 0) {
+        if (mean <= Double.MIN_VALUE) {
             return mean;
         }
 
         final double var = getVarianceValue(neighborValues, mean);
-        if (Double.compare(var, Double.MIN_VALUE) <= 0) {
+        if (var <= Double.MIN_VALUE) {
             return mean;
         }
 
@@ -699,17 +705,17 @@ public class SpeckleFilterOp extends Operator {
     private double getGammaMapValue(final double[] neighborValues) {
 
         final double mean = getMeanValue(neighborValues);
-        if (Double.compare(mean, Double.MIN_VALUE) <= 0) {
+        if (mean <= Double.MIN_VALUE) {
             return mean;
         }
 
         final double var = getVarianceValue(neighborValues, mean);
-        if (Double.compare(var, Double.MIN_VALUE) <= 0) {
+        if (var <= Double.MIN_VALUE) {
             return mean;
         }
 
         final double ci = Math.sqrt(var) / mean;
-        if (Double.compare(ci, cu) <= 0) {
+        if (ci <= cu) {
             return mean;
         }
 
@@ -839,48 +845,36 @@ public class SpeckleFilterOp extends Operator {
 
     /**
      * Filter the given tile of image with refined Lee filter.
-     * @param sourceRaster1 The source tile for the 1st band.
-     * @param sourceRaster2 The source tile for the 2nd band.
-     * @param bandUnit Unit for the 1st band.
-     * @param targetTile The current tile associated with the target band to be computed.
+     * @param srcData1 The source ProductData for the 1st band.
+     * @param srcData2 The source ProductData for the 2nd band.
+     * @param trgData target ProductData
+     * @param unit Unit for the 1st band.
      * @param x0 X coordinate for the upper-left point of the target_Tile_Rectangle.
      * @param y0 Y coordinate for the upper-left point of the target_Tile_Rectangle.
      * @param w Width for the target_Tile_Rectangle.
      * @param h Hight for the target_Tile_Rectangle.
-     * @param pm A progress monitor which should be used to determine computation cancelation requests.
+     * @param sx0 src rect x
+     * @param sy0 src rect y
+     * @param sw src rect w
+     * @param sh src rect h
      */
-    private void computeRefinedLee(final Tile sourceRaster1, final Tile sourceRaster2, final Unit.UnitType bandUnit,
-                                   final Tile targetTile, final int x0, final int y0, final int w, final int h,
-                                   final ProgressMonitor pm) {
-
-        final Rectangle srcTileRectangle = sourceRaster1.getRectangle();
-        final int sx0 = srcTileRectangle.x;
-        final int sy0 = srcTileRectangle.y;
-        final int sw = srcTileRectangle.width;
-        final int sh = srcTileRectangle.height;
+    private void computeRefinedLee(final ProductData srcData1, final ProductData srcData2, final ProductData trgData,
+                                   final Unit.UnitType unit,
+                                   final TileIndex srcIndex, final TileIndex trgIndex,
+                                   final int x0, final int y0, final int w, final int h,
+                                   final int sx0, final int sy0, final int sw, final int sh) {
 
         final double[][] neighborPixelValues = new double[filterSizeY][filterSizeX];
-        final ProductData trgData = targetTile.getDataBuffer();
-
-        final ProductData srcData1 = sourceRaster1.getDataBuffer();
-        ProductData srcData2 = null;
-        if(sourceRaster2 != null)
-            srcData2 = sourceRaster2.getDataBuffer();
-
-        final TileIndex trgIndex = new TileIndex(targetTile);
-        final TileIndex srcIndex = new TileIndex(sourceRaster1);
-
         final int maxY = y0 + h;
         final int maxX = x0 + w;
         for (int y = y0; y < maxY; ++y) {
             final int offset = trgIndex.calculateStride(y);
             for (int x = x0; x < maxX; ++x) {
                 final int n = getNeighborValuesWithoutBorderExt(
-                        x, y, sx0, sy0, sw, sh, srcData1, srcData2, bandUnit, neighborPixelValues, srcIndex);
+                        x, y, sx0, sy0, sw, sh, srcData1, srcData2, unit, neighborPixelValues, srcIndex);
 
                 trgData.setElemDoubleAt(x-offset, getRefinedLeeValue(n, neighborPixelValues));
             }
-            pm.worked(1);
         }
     }
 
