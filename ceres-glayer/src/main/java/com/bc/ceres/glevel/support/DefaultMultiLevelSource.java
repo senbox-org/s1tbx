@@ -23,6 +23,7 @@ import javax.media.jai.Interpolation;
 import javax.media.jai.OpImage;
 import javax.media.jai.TileCache;
 import javax.media.jai.operator.ScaleDescriptor;
+import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
@@ -118,11 +119,35 @@ public class DefaultMultiLevelSource extends AbstractMultiLevelSource {
      */
     @Override
     protected RenderedImage createImage(int level) {
+
         if (level == 0) {
             return sourceImage;
         }
-        final float scale = (float) (1.0 / getModel().getScale(level));
-        return ScaleDescriptor.create(sourceImage, scale, scale, 0.0f, 0.0f, interpolation, null);
+
+        double scale = getModel().getScale(level);
+        double invScale = 1.0 / scale;
+        int jaiW = getLevelImageSizeJAI(sourceImage.getWidth(), scale);
+        int jaiH = getLevelImageSizeJAI(sourceImage.getHeight(), scale);
+        int j2kW = getLevelImageSizeJ2K(sourceImage.getWidth(), scale);
+        int j2kH = getLevelImageSizeJ2K(sourceImage.getHeight(), scale);
+
+        // Force JAI ScaleDescriptor to compute J2K-sized lower resolution images
+
+        float scaleX;
+        if (jaiW == j2kW) {
+            scaleX = (float) invScale;
+        } else {
+            scaleX = (float) ((double) j2kW / (double) sourceImage.getWidth());
+        }
+
+        float scaleY;
+        if (jaiH == j2kH) {
+            scaleY = (float) invScale;
+        } else {
+            scaleY = (float) ((double) j2kH  /(double) sourceImage.getHeight());
+        }
+
+        return ScaleDescriptor.create(sourceImage, scaleX, scaleY, 0.0F, 0.0F, interpolation, null);
     }
 
     @Override
@@ -136,6 +161,36 @@ public class DefaultMultiLevelSource extends AbstractMultiLevelSource {
                                           new AffineTransform(),
                                           sourceImage.getWidth(),
                                           sourceImage.getHeight());
+    }
+
+
+    /**
+     * Computes the boundaries of an image at a given resolution scaling from the given source image boundaries (at level zero).
+     *
+     * @param sourceBounds The image boundaries of the level zero image.
+     * @param scale        The scale at a given level as returned by {@link MultiLevelModel#getScale(int)}.
+     * @return The level image boundaries in pixel coordinates.
+     * @since BEAM 5
+     */
+    public static Rectangle getLevelImageBounds(Rectangle sourceBounds, double scale) {
+        return new Rectangle(getLevelImageSizeJ2K(sourceBounds.x, scale),
+                             getLevelImageSizeJ2K(sourceBounds.y, scale),
+                             getLevelImageSizeJ2K(sourceBounds.width, scale),
+                             getLevelImageSizeJ2K(sourceBounds.height, scale));
+    }
+
+    // JPEG2000 Style:
+    // Used in order to support S-2 MSI image data.
+    // Will ensure that no data loss takes place due to truncation.
+    // Return value will always be >= 1.
+    private static int getLevelImageSizeJ2K(int sourceSize, double scale) {
+        return (int) Math.ceil(sourceSize / scale);
+    }
+
+    // JAI ScaleDescriptor Style:
+    // Return value may be zero.
+    private static int getLevelImageSizeJAI(int sourceSize, double scale) {
+        return (int) Math.ceil(sourceSize / scale - 0.5);
     }
 
     private static MultiLevelSource createNull() {
