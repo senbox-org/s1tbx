@@ -68,6 +68,15 @@ public class MapToolsLayer extends Layer implements LayerSelection {
         if(options.showLookDirection()) {
             components.add(new LookDirectionComponent(raster));
         }
+        if(options.showMapOverview()) {
+
+        }
+        if(options.showPlaceNames()) {
+
+        }
+        if(options.showScale()) {
+            components.add(new ScaleComponent(raster));
+        }
         if(options.showNestLogo()) {
             components.add(new LogoComponent(raster));
         }

@@ -24,16 +24,18 @@ public class MapToolsOptions {
     private final boolean lookDirectionShown;
     private final boolean latLonGridShown;
     private final boolean mapOverviewShown;
+    private final boolean scaleShown;
     private boolean placeNamesShown = false;
     private final boolean nestLogoShown;
 
     public MapToolsOptions(final boolean compassShown,
                            final boolean latLonGridShown, final boolean lookDirectionShown,
-                           final boolean mapOverviewShown, final boolean nestLogoShown) {
+                           final boolean mapOverviewShown, final boolean scaleShown, final boolean nestLogoShown) {
         this.compassShown = compassShown;
         this.latLonGridShown = latLonGridShown;
         this.lookDirectionShown = lookDirectionShown;
         this.mapOverviewShown = mapOverviewShown;
+        this.scaleShown = scaleShown;
         this.nestLogoShown = nestLogoShown;
     }
 
@@ -51,6 +53,10 @@ public class MapToolsOptions {
 
     public boolean showMapOverview() {
         return mapOverviewShown;
+    }
+
+    public boolean showScale() {
+        return scaleShown;
     }
 
     public boolean showPlaceNames() {

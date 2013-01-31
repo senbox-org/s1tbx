@@ -32,6 +32,7 @@ public class LogoComponent implements MapToolsComponent {
     private static final ImageIcon procNestIcon = ResourceUtils.LoadIcon("org/esa/nest/icons/proc_nest.png");
     private final BufferedImage image;
     private final Point point;
+    private static final int margin = 10;
 
     public LogoComponent(final RasterDataNode raster) {
 
@@ -39,7 +40,7 @@ public class LogoComponent implements MapToolsComponent {
         final Graphics2D g = image.createGraphics();
         g.drawImage(procNestIcon.getImage(), null, null);
 
-        point = new Point(raster.getRasterWidth()-image.getWidth(), raster.getRasterHeight()-image.getHeight());
+        point = new Point(raster.getRasterWidth()-image.getWidth()-margin, raster.getRasterHeight()-image.getHeight()-margin);
     }
 
     public void render(final Graphics2D graphics, final ScreenPixelConverter screenPixel) {
