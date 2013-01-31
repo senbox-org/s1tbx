@@ -31,7 +31,7 @@ import java.awt.image.RenderedImage;
 /**
  * An abstract base class for {@link MultiLevelSource} implementations.
  * Level images are cached unless {@link #reset()} is called.
- * Subclasses are asked tzo implement {@link #createImage(int)}.
+ * Subclasses are asked to implement {@link #createImage(int)}.
  */
 public abstract class AbstractMultiLevelSource implements MultiLevelSource {
 
