@@ -21,7 +21,7 @@ import org.esa.beam.framework.datamodel.*;
 /**
  * Handle getting the georefereing for the tile
  */
-public class TileGeoreferencing {
+public final class TileGeoreferencing {
 
     final TiePointGrid latTPG;
     final TiePointGrid lonTPG;
@@ -34,9 +34,11 @@ public class TileGeoreferencing {
     boolean isCached;
     float[] latPixels = null;
     float[] lonPixels = null;
+    final boolean isCrossingMeridian;
 
     public TileGeoreferencing(final Product product, final int x1, final int y1, final int w, final int h) {
         geocoding = product.getGeoCoding();
+        isCrossingMeridian = geocoding.isCrossingMeridianAt180();
         latTPG = OperatorUtils.getLatitude(product);
         lonTPG = OperatorUtils.getLongitude(product);
         this.x1 = x1;
@@ -74,10 +76,12 @@ public class TileGeoreferencing {
         if(isCached) {
             final int xx = x - x1;
             final int yy = y - y1;
-            final int pos = yy*width+xx;
-            if(xx >= 0 && yy >= 0 && pos < size) {
-                geo.setLocation(latPixels[pos], lonPixels[pos]);
-                return;
+            if(xx >= 0 && yy >= 0) {
+                final int pos = yy*width+xx;
+                if(pos < size) {
+                    geo.setLocation(latPixels[pos], lonPixels[pos]);
+                    return;
+                }
             }
         }
         geocoding.getGeoPos(new PixelPos(x+0.5f,y+0.5f), geo);
@@ -98,7 +102,7 @@ public class TileGeoreferencing {
     }
 
     public void getPixelPos(final GeoPos geo, final PixelPos pix) {
-        if (geocoding.isCrossingMeridianAt180() && geo.lon < 0) {
+        if (isCrossingMeridian && geo.lon < 0) {
             geo.lon += 360;
         }
         geocoding.getPixelPos(geo, pix);

@@ -341,6 +341,7 @@ public final class GeolocationGridGeocodingOp extends Operator {
 
         final double oneBillionthHalfSpeedLight = Constants.halfLightSpeed / Constants.oneBillion;
         final TileGeoreferencing tileGeoRef = new TileGeoreferencing(targetProduct, x0, y0, w, h);
+        final GeoCoding srcGeocoding = sourceBand1.getGeoCoding();
 
         try {
             final ProductData trgData = targetTile.getDataBuffer();
@@ -360,7 +361,7 @@ public final class GeolocationGridGeocodingOp extends Operator {
                         lon -= 360.0;
                     }
                     geoPos.setLocation(lat, lon);
-                    sourceBand1.getGeoCoding().getPixelPos(geoPos, pixPos);
+                    srcGeocoding.getPixelPos(geoPos, pixPos);
                     if (Float.isNaN(pixPos.x) || Float.isNaN(pixPos.y) ||
                         pixPos.x < 0.0 || pixPos.x >= srcMaxRange || pixPos.y < 0.0 || pixPos.y >= srcMaxAzimuth) {
                         trgData.setElemDoubleAt(index, srcBandNoDataValue);

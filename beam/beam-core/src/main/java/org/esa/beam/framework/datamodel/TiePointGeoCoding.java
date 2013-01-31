@@ -816,14 +816,12 @@ public final class TiePointGeoCoding extends AbstractGeoCoding {
     }
 
     private static Approximation getBestApproximation(final Approximation[] approximations, float lat, float lon) {
-        Approximation approximation = null;
         if (approximations.length == 1) {
             Approximation a = approximations[0];
             final float squareDistance = a.getSquareDistance(lat, lon);
-            if (squareDistance < a.getMinSquareDistance()) {
-                approximation = a;
-            }
-        } else {
+            return (squareDistance < a.getMinSquareDistance()) ? a : null;
+        }
+            Approximation approximation = null;
             float minSquareDistance = Float.MAX_VALUE;
             for (final Approximation a : approximations) {
                 final float squareDistance = a.getSquareDistance(lat, lon);
@@ -832,9 +830,7 @@ public final class TiePointGeoCoding extends AbstractGeoCoding {
                     approximation = a;
                 }
             }
-        }
-
-        return approximation;
+            return approximation;
     }
 
     private Approximation findRenormalizedApproximation(final float lat, final float renormalizedLon,
@@ -944,9 +940,10 @@ public final class TiePointGeoCoding extends AbstractGeoCoding {
          * @return the square distance
          */
         public final float getSquareDistance(float lat, float lon) {
-            final float dx = lon - _centerLon;
-            final float dy = lat - _centerLat;
-            return dx * dx + dy * dy;
+            //final float dx = lon - _centerLon;
+            //final float dy = lat - _centerLat;
+            //return dx * dx + dy * dy;
+            return (lon - _centerLon)*(lon - _centerLon)+(lat - _centerLat)*(lat - _centerLat);
         }
     }
 }

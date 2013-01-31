@@ -29,7 +29,7 @@ import org.esa.beam.jai.ResolutionLevel;
  * interfaces, such as {@link RasterDataSymbol}, can then use the environment in order to perform
  * raster data specific evaluations.
  */
-public class RasterDataEvalEnv implements EvalEnv {
+public final class RasterDataEvalEnv implements EvalEnv {
 
     private final int offsetX;
     private final int offsetY;

@@ -107,8 +107,7 @@ public class FXYSum {
     public static FXYSum createCopy(final FXYSum fxySum) {
         final double[] coefficients = new double[fxySum.getCoefficients().length];
         System.arraycopy(fxySum.getCoefficients(), 0, coefficients, 0, coefficients.length);
-        final FXYSum fxySumCopy = new FXYSum(fxySum.getFunctions(), fxySum.getOrder(), coefficients);
-        return fxySumCopy;
+        return new FXYSum(fxySum.getFunctions(), fxySum.getOrder(), coefficients);
     }
 
     public static final FXY[] FXY_LINEAR = new FXY[]{
@@ -376,11 +375,11 @@ public class FXYSum {
         }
     }
 
-    protected void appendCFunctionCodeEnd(final String fname, final String x, final String y, StringBuffer sb) {
+    protected static void appendCFunctionCodeEnd(final String fname, final String x, final String y, StringBuffer sb) {
         sb.append("}\n");
     }
 
-    protected void appendCFunctionCodePart(StringBuffer sb, final String part, final String x, final String y) {
+    protected static void appendCFunctionCodePart(StringBuffer sb, final String part, final String x, final String y) {
         sb.append(part.replaceAll("x", x).replaceAll("y", y));
     }
 
@@ -401,9 +400,8 @@ public class FXYSum {
 
         @Override
         public double computeZ(final double x, final double y) {
-            final double[] c = _c;//getCoefficients();
-            return c[0] +
-                   c[1] * x + c[2] * y;
+            return _c[0] +
+                   _c[1] * x + _c[2] * y;
         }
     }
 
@@ -424,11 +422,10 @@ public class FXYSum {
 
         @Override
         public double computeZ(final double x, final double y) {
-            final double[] c = _c;//getCoefficients();
-            return c[0] +
-                   (c[1] +
-                    c[3] * y) * x +
-                   c[2] * y;
+            return _c[0] +
+                   (_c[1] +
+                    _c[3] * y) * x +
+                   _c[2] * y;
         }
     }
 
@@ -449,12 +446,11 @@ public class FXYSum {
 
         @Override
         public double computeZ(final double x, final double y) {
-            final double[] c = _c;//getCoefficients();
-            return c[0] +
-                   (c[1] +
-                    c[3] * x +
-                    c[4] * y) * x +
-                   (c[2] + c[5] * y) * y;
+            return _c[0] +
+                   (_c[1] +
+                    _c[3] * x +
+                    _c[4] * y) * x +
+                   (_c[2] + _c[5] * y) * y;
         }
     }
 
@@ -476,13 +472,12 @@ public class FXYSum {
 
         @Override
         public double computeZ(final double x, final double y) {
-            final double[] c = _c;//getCoefficients();
-            return c[0] +
-                   (c[1] +
-                    (c[3] +
-                     (c[6] + c[8] * y) * y) * x +
-                    (c[4] + c[7] * y) * y) * x +
-                   (c[2] + c[5] * y) * y;
+            return _c[0] +
+                   (_c[1] +
+                    (_c[3] +
+                     (_c[6] + _c[8] * y) * y) * x +
+                    (_c[4] + _c[7] * y) * y) * x +
+                   (_c[2] + _c[5] * y) * y;
         }
     }
 
@@ -503,14 +498,13 @@ public class FXYSum {
 
         @Override
         public double computeZ(final double x, final double y) {
-            final double[] c = _c;//getCoefficients();
-            return c[0] +
-                   (c[1] +
-                    (c[3] +
-                     c[6] * x +
-                     c[7] * y) * x +
-                    (c[4] + c[8] * y) * y) * x +
-                   (c[2] + (c[5] + c[9] * y) * y) * y;
+            return _c[0] +
+                   (_c[1] +
+                    (_c[3] +
+                     _c[6] * x +
+                     _c[7] * y) * x +
+                    (_c[4] + _c[8] * y) * y) * x +
+                   (_c[2] + (_c[5] + _c[9] * y) * y) * y;
         }
     }
 
@@ -532,15 +526,14 @@ public class FXYSum {
 
         @Override
         public double computeZ(final double x, final double y) {
-            final double[] c = _c;//getCoefficients();
-            return c[0] +
-                   (c[1] +
-                    (c[3] +
-                     (c[6] +
-                      (c[10] + (c[13] + c[15] * y) * y) * y) * x +
-                     (c[7] + (c[11] + c[14] * y) * y) * y) * x +
-                    (c[4] + (c[8] + c[12] * y) * y) * y) * x +
-                   (c[2] + (c[5] + c[9] * y) * y) * y;
+            return _c[0] +
+                   (_c[1] +
+                    (_c[3] +
+                     (_c[6] +
+                      (_c[10] + (_c[13] + _c[15] * y) * y) * y) * x +
+                     (_c[7] + (_c[11] + _c[14] * y) * y) * y) * x +
+                    (_c[4] + (_c[8] + _c[12] * y) * y) * y) * x +
+                   (_c[2] + (_c[5] + _c[9] * y) * y) * y;
         }
 
 //        protected void appendCFunctionCodeBody(final String fname, final String x, final String y, StringBuffer sb) {

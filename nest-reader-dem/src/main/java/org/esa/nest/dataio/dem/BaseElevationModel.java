@@ -86,7 +86,7 @@ public abstract class BaseElevationModel implements ElevationModel, Resampling.R
         maxCacheSize = size;
     }
 
-    public final synchronized float getElevation(final GeoPos geoPos) throws Exception {
+    public final float getElevation(final GeoPos geoPos) throws Exception {
         if (geoPos.lon > 180) {
             geoPos.lon -= 360;
         }
@@ -95,9 +95,11 @@ public abstract class BaseElevationModel implements ElevationModel, Resampling.R
             return NO_DATA_VALUE;
         }
 
-        resampling.computeIndex(getIndexX(geoPos), pixelY, RASTER_WIDTH, RASTER_HEIGHT, resamplingIndex);
-
-        final float elevation = resampling.resample(resamplingRaster, resamplingIndex);
+        final float elevation;
+        synchronized(resampling) {
+            resampling.computeIndex(getIndexX(geoPos), pixelY, RASTER_WIDTH, RASTER_HEIGHT, resamplingIndex);
+            elevation = resampling.resample(resamplingRaster, resamplingIndex);
+        }
         return Float.isNaN(elevation) ? NO_DATA_VALUE : elevation;
     }
 
@@ -191,11 +193,7 @@ public abstract class BaseElevationModel implements ElevationModel, Resampling.R
                 }
 
                 final float sample = tile.getSample(x[j] - tileXIndex * NUM_PIXELS_PER_TILE, pixelY);
-                if (sample == NO_DATA_VALUE) {
-                    samples[i][j] = Float.NaN;
-                } else {
-                    samples[i][j] = sample;
-                }
+                samples[i][j] = (sample == NO_DATA_VALUE) ? Float.NaN : sample;
             }
         }
     }

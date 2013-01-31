@@ -235,9 +235,10 @@ public class CrsGeoCoding extends AbstractGeoCoding {
         final int y2 = y1 + h;
         int pos = 0;
         for (int y = y1; y < y2; ++y) {
+            final double yp = y + 0.5;
             for (int x = x1; x < x2; ++x) {
                 try {
-                    directPixPos.setLocation(x + 0.5, y + 0.5);
+                    directPixPos.setLocation(x + 0.5, yp);
                     imageToGeo.transform(directPixPos, directGeoPos);
                     latPixels[pos] = (float) directGeoPos.getOrdinate(1);
                     lonPixels[pos] = (float) directGeoPos.getOrdinate(0);

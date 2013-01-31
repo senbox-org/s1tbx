@@ -70,7 +70,7 @@ public abstract class ElevationFile {
         return localFile.getName();
     }
 
-    public ElevationTile getTile() throws IOException {
+    public final ElevationTile getTile() throws IOException {
         if(tile == null) {
             if(!remoteFileExists && !localFileExists)
                 return null;
