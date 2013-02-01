@@ -59,6 +59,8 @@ public class OperatorAction extends DefaultOperatorAction {
             setIcon(dlg, ResourceUtils.esaPlanetIcon);
         } else if(iconName.equals("rstbIcon")) {
             setIcon(dlg, ResourceUtils.rstbIcon);
+        } else if(iconName.equals("geoAusIcon")) {
+            setIcon(dlg, ResourceUtils.geoAusIcon);
         } else {
             final ImageIcon icon = ResourceUtils.LoadIcon(iconName);
             if(icon != null)

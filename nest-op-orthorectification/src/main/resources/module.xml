@@ -135,7 +135,7 @@
             <id>ALOSDeskewingOp</id>
             <helpId>ALOSDeskewingOp</helpId>
             <class>org.esa.nest.dat.actions.OperatorAction</class>
-            <icon>esaIcon</icon>
+            <icon>geoAusIcon</icon>
             <parent>geometry</parent>
             <text>ALOS Deskewing</text>
             <operatorName>ALOS-Deskewing</operatorName>

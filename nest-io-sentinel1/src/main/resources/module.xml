@@ -44,11 +44,19 @@
         </action>
 
         <action>
+            <id>Sentinel1</id>
+            <class>org.esa.beam.visat.actions.ActionGroup</class>
+            <text>SENTINEL-1</text>
+            <parent>sartools</parent>
+            <placeAfter>ASARWSS</placeAfter>
+        </action>
+
+        <action>
 	        <id>Sentinel1TOPSARDeburstOp</id>
 	        <helpId>Sentinel1TOPSARDeburstOp</helpId>
 	        <class>org.esa.nest.dat.actions.OperatorAction</class>
             <icon>esaIcon</icon>
-            <parent>ASARWSS</parent>
+            <parent>Sentinel1</parent>
 	        <text>Sentinel1 TOPSAR Deburst</text>
 	        <operatorName>DeburstTOPSAR</operatorName>
 	        <dialogTitle>Sentinel1 TOPSAR Deburst operator</dialogTitle>
