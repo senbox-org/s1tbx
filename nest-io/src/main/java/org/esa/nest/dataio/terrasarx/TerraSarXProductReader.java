@@ -19,15 +19,24 @@ import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.dataio.AbstractProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.util.Debug;
 import org.esa.nest.dataio.generic.GenericReader;
 import org.esa.nest.dataio.imageio.ImageIOFile;
+import org.esa.nest.datamodel.AbstractMetadata;
 import org.esa.nest.datamodel.Unit;
 import org.esa.nest.gpf.ReaderUtils;
 
+import javax.imageio.ImageReadParam;
+import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;
+import java.awt.*;
+import java.awt.image.DataBuffer;
+import java.awt.image.Raster;
+import java.awt.image.RenderedImage;
+import java.awt.image.SampleModel;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteOrder;
@@ -118,10 +127,22 @@ public class TerraSarXProductReader extends AbstractProductReader {
         try {
             final ImageIOFile.BandInfo bandInfo = dataDir.getBandInfo(destBand);
             if(bandInfo != null && bandInfo.img != null) {
-                bandInfo.img.readImageIORasterBand(sourceOffsetX, sourceOffsetY, sourceStepX, sourceStepY,
-                        destBuffer, destOffsetX, destOffsetY, destWidth, destHeight,
-                        bandInfo.imageID, bandInfo.bandSampleOffset);
+
+                Product product = destBand.getProduct();
+                MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
+                final boolean isAscending = absRoot.getAttributeString(AbstractMetadata.PASS).equals("ASCENDING");
+                if (isAscending) {
+                    readAscendingRasterBand(sourceOffsetX, sourceOffsetY, sourceStepX, sourceStepY,
+                                            destBuffer, destOffsetX, destOffsetY, destWidth, destHeight,
+                                            0, bandInfo.img, bandInfo.bandSampleOffset);
+                } else {
+                    readDescendingRasterBand(sourceOffsetX, sourceOffsetY, sourceStepX, sourceStepY,
+                                             destBuffer, destOffsetX, destOffsetY, destWidth, destHeight,
+                                             0, bandInfo.img, bandInfo.bandSampleOffset);
+                }
+
             } else {
+
                 boolean oneOfTwo = true;
                 if(destBand.getUnit().equals(Unit.IMAGINARY))
                     oneOfTwo = false;
@@ -135,6 +156,88 @@ public class TerraSarXProductReader extends AbstractProductReader {
             }
         } catch(Exception e) {
             System.out.println(e.getMessage());
+        }
+    }
+
+    public void readAscendingRasterBand(final int sourceOffsetX, final int sourceOffsetY,
+                                        final int sourceStepX, final int sourceStepY,
+                                        final ProductData destBuffer,
+                                        final int destOffsetX, final int destOffsetY,
+                                        final int destWidth, final int destHeight,
+                                        final int imageID, final ImageIOFile img,
+                                        final int bandSampleOffset) throws IOException {
+
+        final Raster data;
+
+        synchronized(dataDir) {
+            final ImageReader reader = img.getReader();
+            final ImageReadParam param = reader.getDefaultReadParam();
+            param.setSourceSubsampling(sourceStepX, sourceStepY,
+                                       sourceOffsetX % sourceStepX,
+                                       sourceOffsetY % sourceStepY);
+
+            final RenderedImage image = reader.readAsRenderedImage(0, param);
+            data = image.getData(new Rectangle(destOffsetX, img.getSceneHeight() - destOffsetY - destHeight,
+                                               destWidth, destHeight));
+        }
+
+        final DataBuffer dataBuffer = data.getDataBuffer();
+        final SampleModel sampleModel = data.getSampleModel();
+        final int destSize = destWidth * destHeight;
+        final int sampleOffset = imageID + bandSampleOffset;
+
+        final double[] dArray = new double[destSize];
+        sampleModel.getSamples(0, 0, destWidth, destHeight, sampleOffset, dArray, dataBuffer);
+
+        // flip the image upside down
+        int is, id;
+        for (int r = 0; r < destHeight; r++) {
+            for (int c = 0; c < destWidth; c++) {
+                is = r*destWidth + c;
+                id = (destHeight - r - 1)*destWidth + c;
+                destBuffer.setElemDoubleAt(id, dArray[is]);
+            }
+        }
+    }
+
+    public void readDescendingRasterBand(final int sourceOffsetX, final int sourceOffsetY,
+                                         final int sourceStepX, final int sourceStepY,
+                                         final ProductData destBuffer,
+                                         final int destOffsetX, final int destOffsetY,
+                                         final int destWidth, final int destHeight,
+                                         final int imageID, final ImageIOFile img,
+                                         final int bandSampleOffset) throws IOException {
+
+        final Raster data;
+
+        synchronized(dataDir) {
+            final ImageReader reader = img.getReader();
+            final ImageReadParam param = reader.getDefaultReadParam();
+            param.setSourceSubsampling(sourceStepX, sourceStepY,
+                                       sourceOffsetX % sourceStepX,
+                                       sourceOffsetY % sourceStepY);
+
+            final RenderedImage image = reader.readAsRenderedImage(0, param);
+            data = image.getData(new Rectangle(img.getSceneWidth() - destOffsetX - destWidth,
+                                               destOffsetY, destWidth, destHeight));
+        }
+
+        final DataBuffer dataBuffer = data.getDataBuffer();
+        final SampleModel sampleModel = data.getSampleModel();
+        final int destSize = destWidth * destHeight;
+        final int sampleOffset = imageID + bandSampleOffset;
+
+        final double[] dArray = new double[destSize];
+        sampleModel.getSamples(0, 0, destWidth, destHeight, sampleOffset, dArray, dataBuffer);
+
+        // flip the image left to right
+        int is, id;
+        for (int r = 0; r < destHeight; r++) {
+            for (int c = 0; c < destWidth; c++) {
+                is = r*destWidth + c;
+                id = r*destWidth + destWidth - c - 1;
+                destBuffer.setElemDoubleAt(id, dArray[is]);
+            }
         }
     }
 
