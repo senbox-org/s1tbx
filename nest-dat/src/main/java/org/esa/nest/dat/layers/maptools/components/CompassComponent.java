@@ -50,7 +50,7 @@ public class CompassComponent implements MapToolsComponent {
 
         rasterWidth = raster.getRasterWidth();
         rasterHeight = raster.getRasterHeight();
-        margin = (int)(rasterWidth * marginPct);
+        margin = (int)(Math.min(rasterWidth, rasterHeight) * marginPct);
         final GeoCoding geoCoding = raster.getGeoCoding();
 
         point1 = new PixelPos(margin, margin);

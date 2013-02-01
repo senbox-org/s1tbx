@@ -35,17 +35,19 @@ public class ScaleComponent implements MapToolsComponent {
     private final static int tick = 5;
     private final static int h = 3;
     private final double[] pts, vpts;
-    private BasicStroke stroke = new BasicStroke(1);
+    private final BasicStroke stroke = new BasicStroke(1);
+    private final boolean use100k, use10k;
 
     public ScaleComponent(final RasterDataNode raster) {
-        final int width = raster.getRasterWidth();
-        final int height = raster.getRasterHeight();
+        final int rasterWidth = raster.getRasterWidth();
+        final int rasterHeight = raster.getRasterHeight();
+        final int halfWidth = rasterWidth/2;
         final GeoCoding geoCoding = raster.getGeoCoding();
 
-        margin = (int)(width * marginPct);
+        margin = (int)(Math.min(rasterWidth, rasterHeight) * marginPct);
         final int length = 100;
-        final PixelPos startPix = new PixelPos(0 + margin, height - margin);
-        final PixelPos endPix = new PixelPos(margin+length, height-margin);
+        final PixelPos startPix = new PixelPos(0 + margin, rasterHeight-margin);
+        final PixelPos endPix = new PixelPos(margin+length, rasterHeight-margin);
         final GeoPos startGeo = geoCoding.getGeoPos(startPix, null);
         final GeoPos endGeo = geoCoding.getGeoPos(endPix, null);
 
@@ -71,10 +73,18 @@ public class ScaleComponent implements MapToolsComponent {
         LatLon = GeoUtils.vincenty_direct(startGeo.getLon(), startGeo.getLat(),
                 10000, heading.heading1);
         final PixelPos pix10K = geoCoding.getPixelPos(new GeoPos((float)LatLon.lat, (float)LatLon.lon), null);
+        LatLon = GeoUtils.vincenty_direct(startGeo.getLon(), startGeo.getLat(),
+                100000, heading.heading1);
+        final PixelPos pix100K = geoCoding.getPixelPos(new GeoPos((float)LatLon.lat, (float)LatLon.lon), null);
 
-        pts = new double[] { startPix.getX(), startPix.getY(), pix10K.getX(), pix10K.getY(),    //line
+        use100k = (pix100K.getX() < halfWidth);
+        use10k = (pix10K.getX() < halfWidth);
+
+        pts = new double[] { startPix.getX(), startPix.getY(),
                 pix1K.getX(), pix1K.getY(), pix2K.getX(), pix2K.getY(), pix3K.getX(), pix3K.getY(),
-                pix4K.getX(), pix4K.getY(), pix5K.getX(), pix5K.getY()};
+                pix4K.getX(), pix4K.getY(), pix5K.getX(), pix5K.getY(),
+                pix10K.getX(), pix10K.getY(),
+                pix100K.getX(), pix100K.getY()};
         vpts = new double[pts.length];
     }
 
@@ -90,27 +100,39 @@ public class ScaleComponent implements MapToolsComponent {
 
         //ticks
         g.drawLine(pt[0].x, y-h, pt[0].x, y-h-tick); // 0
-        g.drawLine(pt[1].x, y-h, pt[1].x, y-h-tick); // 10
-        g.drawLine(pt[2].x, y-h, pt[2].x, y-h-tick); // 1
-        g.drawLine(pt[6].x, y-h, pt[6].x, y-h-tick); // 5
+        g.drawLine(pt[1].x, y-h, pt[1].x, y-h-tick); // 1
+        g.drawLine(pt[5].x, y-h, pt[5].x, y-h-tick); // 5
+        if(use10k)
+            g.drawLine(pt[6].x, y-h, pt[6].x, y-h-tick); // 10
+        if(use100k)
+            g.drawLine(pt[7].x, y-h, pt[7].x, y-h-tick); // 100
 
         //labels
-        GraphicsUtils.outlineText(g, Color.YELLOW, "10km", pt[1].x+2, y-h-tick);
-        GraphicsUtils.outlineText(g, Color.YELLOW, "1km", pt[2].x+2, y-h-tick);
-        GraphicsUtils.outlineText(g, Color.YELLOW, "5km", pt[6].x+2, y-h-tick);
+        GraphicsUtils.outlineText(g, Color.YELLOW, "1km", pt[1].x+2, y-h-tick);
+        GraphicsUtils.outlineText(g, Color.YELLOW, "5km", pt[5].x+2, y-h-tick);
+        if(use10k)
+            GraphicsUtils.outlineText(g, Color.YELLOW, "10km", pt[6].x+2, y-h-tick);
+        if(use100k)
+            GraphicsUtils.outlineText(g, Color.YELLOW, "100km", pt[7].x+2, y-h-tick);
 
         //fill rects
         g.setColor(Color.BLACK);
-        g.fillRect(pt[0].x, y-h, pt[2].x-pt[0].x, h);
-        g.fillRect(pt[3].x, y-h, pt[4].x-pt[3].x, h);
-        g.fillRect(pt[5].x, y-h, pt[6].x-pt[5].x, h);
-
-        g.setColor(Color.WHITE);
+        g.fillRect(pt[0].x, y-h, pt[1].x-pt[0].x, h);
         g.fillRect(pt[2].x, y-h, pt[3].x-pt[2].x, h);
         g.fillRect(pt[4].x, y-h, pt[5].x-pt[4].x, h);
-        g.fillRect(pt[6].x, y-h, pt[1].x-pt[6].x, h);
+
+        g.setColor(Color.WHITE);
+        g.fillRect(pt[1].x, y-h, pt[2].x-pt[1].x, h);
+        g.fillRect(pt[3].x, y-h, pt[4].x-pt[3].x, h);
+        if(use10k)
+            g.fillRect(pt[5].x, y-h, pt[6].x-pt[5].x, h);
 
         g.setColor(Color.YELLOW);
-        g.drawRect(pt[0].x, y-h, pt[1].x-pt[0].x, h);
+        if(use100k)
+            g.drawRect(pt[0].x, y-h, pt[7].x-pt[0].x, h);
+        else if(use10k)
+            g.drawRect(pt[0].x, y-h, pt[6].x-pt[0].x, h);
+        else
+            g.drawRect(pt[0].x, y-h, pt[5].x-pt[0].x, h);
     }
 }

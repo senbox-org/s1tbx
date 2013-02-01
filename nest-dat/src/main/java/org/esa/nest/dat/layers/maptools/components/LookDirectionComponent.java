@@ -31,11 +31,12 @@ public class LookDirectionComponent implements MapToolsComponent {
     private boolean valid = true;
     private final List<Point> tails = new ArrayList<Point>();
     private final List<Point> heads = new ArrayList<Point>();
-
-    private final static int arrowLength = 60;
+    private final static BasicStroke thickStroke = new BasicStroke(4);
+    private final static BasicStroke thinStroke = new BasicStroke(2);
 
     public LookDirectionComponent(final RasterDataNode raster) {
         try {
+            final int arrowLength = (int)(raster.getSceneRasterWidth() * 0.05);
             final Product product = raster.getProduct();
             final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
             final MetadataElement lookDirectionListElem = absRoot.getElement("Look_Direction_List");
@@ -90,15 +91,21 @@ public class LookDirectionComponent implements MapToolsComponent {
         }
     }
 
-    public void render(final Graphics2D graphics, final ScreenPixelConverter screenPixel) {
+    public void render(final Graphics2D g, final ScreenPixelConverter screenPixel) {
         if(!valid) return;
 
-        graphics.setColor(Color.CYAN);
         for(int i=0; i < tails.size(); ++i) {
 
-            GraphicsUtils.drawArrow(graphics, screenPixel,
-                    (int) tails.get(i).getX(), (int) tails.get(i).getY(),
-                    (int) heads.get(i).getX(), (int) heads.get(i).getY());
+            g.setColor(Color.BLACK);
+            g.setStroke(thickStroke);
+            GraphicsUtils.drawArrow(g, screenPixel,
+                    (int)tails.get(i).getX(), (int)tails.get(i).getY(),
+                    (int)heads.get(i).getX(), (int)heads.get(i).getY());
+            g.setColor(Color.CYAN);
+            g.setStroke(thinStroke);
+            GraphicsUtils.drawArrow(g, screenPixel,
+                    (int)tails.get(i).getX(), (int)tails.get(i).getY(),
+                    (int)heads.get(i).getX(), (int)heads.get(i).getY());
         }
 
 

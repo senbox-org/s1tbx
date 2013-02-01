@@ -73,7 +73,7 @@ public class GraphicsUtils {
         return newText.toString();
     }
 
-    public static void createArrow(int x, int y, int xx, int yy, int i1, double[] ipts, double zoom)
+    public static void createArrow(int x, int y, int xx, int yy, int i1, double[] ipts)
     {
         ipts[0] = x;
         ipts[1] = y;
@@ -81,9 +81,6 @@ public class GraphicsUtils {
         ipts[3] = yy;
         final double d = xx - x;
         final double d1 = -(yy - y);
-        double mult = 1;//5/zoom;
-        if(zoom > 2)
-            mult = 1;
         double d2 = Math.sqrt(d * d + d1 * d1);
         final double d3;
         final double size = 2.0;
@@ -96,8 +93,8 @@ public class GraphicsUtils {
         if(d2 >= 1.0) {
             final double d4 = (d3 * d) / d2;
             final double d5 = -((d3 * d1) / d2);
-            final double d6 = (double)xx - size * d4 * mult;
-            final double d7 = (double)yy - size * d5 * mult;
+            final double d6 = (double)xx - size * d4;
+            final double d7 = (double)yy - size * d5;
             ipts[4] = (int)(d6 - d5);
             ipts[5] = (int)(d7 + d4);
             ipts[6] = (int)(d6 + d5);
@@ -110,7 +107,8 @@ public class GraphicsUtils {
         final double[] ipts = new double[8];
         final double[] vpts = new double[8];
 
-        createArrow(x, y, x2, y2, 5, ipts, screenPixel.getZoomFactor());
+        final int headSize = Math.max(5, (int)((x2-x)*0.1));
+        createArrow(x, y, x2, y2, headSize, ipts);
 
         screenPixel.pixelToScreen(ipts, vpts);
 
