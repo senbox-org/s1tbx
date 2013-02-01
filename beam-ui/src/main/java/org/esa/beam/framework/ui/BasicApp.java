@@ -474,6 +474,13 @@ public class BasicApp {
     }
 
     private boolean initLookAndFeel() {
+
+        try {
+            UIManager.installLookAndFeel("Napkin", "net.sourceforge.napkinlaf.NapkinLookAndFeel");
+        } catch (Throwable e) {
+            // ignored, because Napkin LAF is no important
+        }
+
         String currentLafClassName = UIManager.getLookAndFeel().getClass().getName();
 
         String defaultLafClassName = getDefaultLookAndFeelClassName();
