@@ -115,6 +115,8 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
         if(acquisitionInfo != null) {
             final String imagingMode = getAcquisitionMode(acquisitionInfo.getAttributeString("imagingMode", defStr));
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ACQUISITION_MODE, imagingMode);
+            final String lookDirection = acquisitionInfo.getAttributeString("lookDirection", defStr);
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.antenna_pointing, lookDirection);
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.BEAMS,
                     acquisitionInfo.getAttributeString("elevationBeamConfiguration", defStr));
             productDescription = productType +' '+ imagingMode;
@@ -445,7 +447,7 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
         final float[] lonList = new float[size];
         final float[] incList = new float[size];
 
-        final boolean flip = !isSLC();
+        //final boolean flip = !isSLC();
 
         int i = 0;
         int r = numRg-1;
@@ -453,6 +455,7 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
         final List<Element> grdPntList = geoGrid.getChildren("gridPoint");
         for(Element pnt : grdPntList) {
             int index = i;
+            /*
             if(flip) {
                 index = (numRg * c) + r;
                 --r;
@@ -461,7 +464,7 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
                     ++c;
                 }
             }
-
+            */
             final Element tElem = pnt.getChild("t");
             final double t = Double.parseDouble(tElem.getValue());
 
