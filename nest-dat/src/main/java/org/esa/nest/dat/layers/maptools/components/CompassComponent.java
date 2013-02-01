@@ -38,19 +38,24 @@ public class CompassComponent implements MapToolsComponent {
     private final PixelPos tail, head;
     private final PixelPos point1;
     private double angle;
+    private final int rasterWidth;
+    private final int rasterHeight;
+    private final static double marginPct = 0.05;
+    private final int margin;
 
     public CompassComponent(final RasterDataNode raster) {
         image = new BufferedImage(roseIcon.getIconWidth(), roseIcon.getIconHeight(), BufferedImage.TYPE_4BYTE_ABGR);
         final Graphics2D g = image.createGraphics();
         g.drawImage(roseIcon.getImage(), null, null);
 
-        final int width = raster.getRasterWidth();
-        final int height = raster.getRasterHeight();
+        rasterWidth = raster.getRasterWidth();
+        rasterHeight = raster.getRasterHeight();
+        margin = (int)(rasterWidth * marginPct);
         final GeoCoding geoCoding = raster.getGeoCoding();
 
-        point1 = new PixelPos(0, 0);
+        point1 = new PixelPos(margin, margin);
         final GeoPos point1Geo = geoCoding.getGeoPos(point1, null);
-        final GeoPos point2Geo = geoCoding.getGeoPos(new PixelPos(width/2, height/2), null);
+        final GeoPos point2Geo = geoCoding.getGeoPos(new PixelPos(rasterWidth/2, rasterHeight/2), null);
         final PixelPos point2 = geoCoding.getPixelPos(new GeoPos(point2Geo.getLat(), point1Geo.getLon()), null);
 
         final double op = point1.x-point2.x;
@@ -68,17 +73,16 @@ public class CompassComponent implements MapToolsComponent {
     }
 
     public void render(final Graphics2D graphics, final ScreenPixelConverter screenPixel) {
+        if(Double.isNaN(angle))
+            return;
 
         final AffineTransform transformSave = graphics.getTransform();
         try {
-            /*graphics.setColor(Color.RED);
-
-            GraphicsUtils.drawArrow(graphics, screenPixel,
-                    (int) tail.getX(), (int) tail.getY(),
-                    (int) head.getX(), (int) head.getY());   */
-
             final AffineTransform transform = screenPixel.getImageTransform(transformSave);
+
+            final double scale = (marginPct*2 * rasterWidth) / (double)image.getWidth();
             transform.translate(point1.x, point1.y);
+            transform.scale(scale, scale);
             transform.rotate(angle);
 
             graphics.drawRenderedImage(image, transform);

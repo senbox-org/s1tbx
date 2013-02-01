@@ -105,7 +105,7 @@ public class GraphicsUtils {
         }
     }
 
-    public static void drawArrow(final Graphics2D graphics, final ScreenPixelConverter screenPixel,
+    public static void drawArrow(final Graphics2D g, final ScreenPixelConverter screenPixel,
                                  final int x, final int y, final int x2, final int y2) {
         final double[] ipts = new double[8];
         final double[] vpts = new double[8];
@@ -115,9 +115,15 @@ public class GraphicsUtils {
         screenPixel.pixelToScreen(ipts, vpts);
 
         //arrowhead
-        graphics.draw(new Line2D.Double(vpts[4], vpts[5], vpts[2], vpts[3]));
-        graphics.draw(new Line2D.Double(vpts[6], vpts[7], vpts[2], vpts[3]));
+        g.draw(new Line2D.Double(vpts[4], vpts[5], vpts[2], vpts[3]));
+        g.draw(new Line2D.Double(vpts[6], vpts[7], vpts[2], vpts[3]));
+        final Polygon head = new Polygon();
+        head.addPoint((int)vpts[4], (int)vpts[5]);
+        head.addPoint((int)vpts[2], (int)vpts[3]);
+        head.addPoint((int)vpts[6], (int)vpts[7]);
+        head.addPoint((int)vpts[4], (int)vpts[5]);
+        g.fill(head);
         //body
-        graphics.draw(new Line2D.Double(vpts[0], vpts[1], vpts[2], vpts[3]));
+        g.draw(new Line2D.Double(vpts[0], vpts[1], vpts[2], vpts[3]));
     }
 }

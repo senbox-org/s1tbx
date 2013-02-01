@@ -836,9 +836,9 @@ public class GCPSelectionOp extends Operator {
 
             int k = 0;
             for (int j = 0; j < cWindowHeight; j++) {
-                mstIndex.calculateStride(yul + j);
+                final int offset = mstIndex.calculateStride(yul + j);
                 for (int i = 0; i < cWindowWidth; i++) {
-                    final int index = mstIndex.getIndex(xul + i);
+                    final int index = xul + i - offset;
                     if (complexCoregistration) {
                         final double v1 = masterData1.getElemDoubleAt(index);
                         final double v2 = masterData2.getElemDoubleAt(index);
@@ -890,8 +890,8 @@ public class GCPSelectionOp extends Operator {
                 final float y = yy - cHalfWindowHeight + j + 1;
                 final int y0 = (int)y;
                 final int y1 = y0 + 1;
-                index0.calculateStride(y0);
-                index1.calculateStride(y1);
+                final int offset0 = index0.calculateStride(y0);
+                final int offset1 = index1.calculateStride(y1);
                 final double wy = (double)(y - y0);
                 for (int i = 0; i < cWindowWidth; i++) {
                     final float x = xx - cHalfWindowWidth + i + 1;
@@ -899,10 +899,10 @@ public class GCPSelectionOp extends Operator {
                     final int x1 = x0 + 1;
                     final double wx = (double)(x - x0);
 
-                    final int x00 = index0.getIndex(x0);
-                    final int x01 = index1.getIndex(x0);
-                    final int x10 = index0.getIndex(x1);
-                    final int x11 = index1.getIndex(x1);
+                    final int x00 = x0 - offset0;
+                    final int x01 = x0 - offset1;
+                    final int x10 = x1 - offset0;
+                    final int x11 = x1 - offset1;
 
                     if (complexCoregistration) {
 

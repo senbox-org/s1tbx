@@ -684,24 +684,24 @@ public class CreateStackOp extends Operator {
 
                 for (int ty = ty0; ty < maxY; ++ty) {
                     final int sy = ty + offset[1];
-                    trgIndex.calculateStride(ty);
+                    final int trgOffset = trgIndex.calculateStride(ty);
                     if(sy < 0 || sy >= srcImageHeight) {
                         for (int tx = tx0; tx < maxX; ++tx) {
-                            trgData.setElemDoubleAt(trgIndex.getIndex(tx), noDataValue);
+                            trgData.setElemDoubleAt(tx - trgOffset, noDataValue);
                         }
                         continue;
                     }
-                    srcIndex.calculateStride(sy);
+                    final int srcOffset = srcIndex.calculateStride(sy);
                     for (int tx = tx0; tx < maxX; ++tx) {
                         final int sx = tx + offset[0];
 
                         if (sx < 0 || sx >= srcImageWidth) {
-                            trgData.setElemDoubleAt(trgIndex.getIndex(tx), noDataValue);
+                            trgData.setElemDoubleAt(tx - trgOffset, noDataValue);
                         } else {
                             if(isInt)
-                                trgData.setElemIntAt(trgIndex.getIndex(tx), srcData.getElemIntAt(srcIndex.getIndex(sx)));
+                                trgData.setElemIntAt(tx - trgOffset, srcData.getElemIntAt(sx - srcOffset));
                             else
-                                trgData.setElemDoubleAt(trgIndex.getIndex(tx), srcData.getElemDoubleAt(srcIndex.getIndex(sx)));
+                                trgData.setElemDoubleAt(tx - trgOffset, srcData.getElemDoubleAt(sx - srcOffset));
                         }
                     }
                 }

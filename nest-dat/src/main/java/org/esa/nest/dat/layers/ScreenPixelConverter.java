@@ -96,6 +96,15 @@ public class ScreenPixelConverter {
         m2v.transform(tmppts, 0, vpts, 0, inpts.length/2);
     }
 
+    public static Point[] arrayToPoints(final double[] vpts) {
+        int j=0;
+        final Point[] pt = new Point[vpts.length];
+        for(int i=0; i < vpts.length; i+=2) {
+            pt[j++] = new Point((int)vpts[i], (int)vpts[i+1]);
+        }
+        return  pt;
+    }
+
     public static PixelPos computeLevelZeroPixelPos(final ImageLayer imageLayer,
                                                     final int pixelX, final int pixelY, final int currentLevel) {
         if (currentLevel != 0) {
