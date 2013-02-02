@@ -36,16 +36,20 @@ public class ScaleComponent implements MapToolsComponent {
     private final static int h = 3;
     private final double[] pts, vpts;
     private final BasicStroke stroke = new BasicStroke(1);
-    private final boolean use100k, use10k;
+    private boolean use100k, use10k;
 
     public ScaleComponent(final RasterDataNode raster) {
         final int rasterWidth = raster.getRasterWidth();
         final int rasterHeight = raster.getRasterHeight();
         final int halfWidth = rasterWidth/2;
-        final GeoCoding geoCoding = raster.getGeoCoding();
 
         margin = (int)(Math.min(rasterWidth, rasterHeight) * marginPct);
         final int length = 100;
+        final GeoCoding geoCoding = raster.getGeoCoding();
+        if(geoCoding == null) {
+            pts = vpts = null;
+            return;
+        }
         final PixelPos startPix = new PixelPos(0 + margin, rasterHeight-margin);
         final PixelPos endPix = new PixelPos(margin+length, rasterHeight-margin);
         final GeoPos startGeo = geoCoding.getGeoPos(startPix, null);
@@ -89,6 +93,8 @@ public class ScaleComponent implements MapToolsComponent {
     }
 
     public void render(final Graphics2D g, final ScreenPixelConverter screenPixel) {
+        if(pts == null)
+            return;
 
         screenPixel.pixelToScreen(pts, vpts);
         final Point[] pt = ScreenPixelConverter.arrayToPoints(vpts);
