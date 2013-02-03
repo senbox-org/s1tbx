@@ -175,7 +175,9 @@ public final class GeolocationGridGeocodingOp extends Operator {
         }
 
         final TiePointGrid incidenceAngle = OperatorUtils.getIncidenceAngle(sourceProduct);
-        nearRangeOnLeft = SARGeocoding.isNearRangeOnLeft(incidenceAngle, sourceImageWidth);
+        if(incidenceAngle != null) {
+            nearRangeOnLeft = SARGeocoding.isNearRangeOnLeft(incidenceAngle, sourceImageWidth);
+        }
     }
 
     /**

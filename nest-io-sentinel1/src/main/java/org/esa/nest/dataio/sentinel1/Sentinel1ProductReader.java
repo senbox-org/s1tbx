@@ -139,11 +139,11 @@ public class Sentinel1ProductReader extends AbstractProductReader {
                                                    final int imageID, final ImageIOFile img,
                                                    final boolean oneOfTwo) throws IOException {
         final Raster data;
-        synchronized(dataDir) {
-            final ImageReader reader = img.getReader();
-            final ImageReadParam param = reader.getDefaultReadParam();
-            param.setSourceSubsampling(sourceStepX, sourceStepY, sourceOffsetX % sourceStepX, sourceOffsetY % sourceStepY);
 
+        final ImageReader reader = img.getReader();
+        final ImageReadParam param = reader.getDefaultReadParam();
+        param.setSourceSubsampling(sourceStepX, sourceStepY, sourceOffsetX % sourceStepX, sourceOffsetY % sourceStepY);
+        synchronized(dataDir) {
             final RenderedImage image = img.getReader().readAsRenderedImage(0, param);
             data = image.getData(new Rectangle(destOffsetX, destOffsetY, destWidth, destHeight));
         }
@@ -152,17 +152,12 @@ public class Sentinel1ProductReader extends AbstractProductReader {
         destWidth = Math.min(destWidth, sampleModel.getWidth());
         destHeight = Math.min(destHeight, sampleModel.getHeight());
 
-        try {
-            final double[] srcArray = new double[destWidth * destHeight];
-            sampleModel.getSamples(0, 0, destWidth, destHeight, imageID, srcArray, data.getDataBuffer());
-            if (oneOfTwo)
-                copyLine1Of2(srcArray, (short[])destBuffer.getElems(), sourceStepX);
-            else
-                copyLine2Of2(srcArray, (short[])destBuffer.getElems(), sourceStepX);
-
-        } catch(Exception e) {
-            //e.printStackTrace();
-        }
+        final double[] srcArray = new double[destWidth * destHeight];
+        sampleModel.getSamples(0, 0, destWidth, destHeight, imageID, srcArray, data.getDataBuffer());
+        if (oneOfTwo)
+            copyLine1Of2(srcArray, (short[])destBuffer.getElems(), sourceStepX);
+        else
+            copyLine2Of2(srcArray, (short[])destBuffer.getElems(), sourceStepX);
     }
 
     public static void copyLine1Of2(final double[] srcArray, final short[] destArray, final int sourceStepX) {

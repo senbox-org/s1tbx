@@ -458,6 +458,9 @@ public class SRGROp extends Operator {
                                        targetImageWidth,
                                        targetImageHeight);
             targetBand.setUnit(srcBand.getUnit());
+            targetBand.setDescription(srcBand.getDescription());
+            targetBand.setNoDataValue(srcBand.getNoDataValue());
+            targetBand.setNoDataValueUsed(srcBand.isNoDataValueUsed());
             targetProduct.addBand(targetBand);
         }
     }

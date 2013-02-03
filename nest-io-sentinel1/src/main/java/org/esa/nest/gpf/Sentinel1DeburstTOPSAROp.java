@@ -32,6 +32,7 @@ import org.esa.nest.eo.Constants;
 import org.esa.nest.util.MathUtils;
 
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -68,7 +69,7 @@ public final class Sentinel1DeburstTOPSAROp extends Operator {
     private double nodatavalue = 0;
 
     private SubSwathInfo[] subSwath = null;
-    private String[] polarizations = new String[2];
+    private ArrayList<String> polarizations = new ArrayList<String>(2);
 
 
     /**
@@ -143,7 +144,7 @@ public final class Sentinel1DeburstTOPSAROp extends Operator {
         int k = 0;
         for(MetadataElement elem : elems) {
             if(elem.getName().contains(subSwathName)) {
-                polarizations[k++] = elem.getAttributeString("polarization");
+                polarizations.add(elem.getAttributeString("polarization"));
             }
         }
     }
@@ -344,6 +345,8 @@ public final class Sentinel1DeburstTOPSAROp extends Operator {
         targetProduct.setDescription(sourceProduct.getDescription());
 
         createTiePointGrids();
+
+        targetProduct.setPreferredTileSize(500,50);
     }
 
     private static void copyMetaData(final MetadataElement source, final MetadataElement target) {
@@ -625,14 +628,10 @@ public final class Sentinel1DeburstTOPSAROp extends Operator {
                                        final Tile targetTileI, final Tile targetTileQ,
                                        final BurstInfo burstInfo) {
 
-        final ProductData dataI = targetTileI.getDataBuffer();
-        final ProductData dataQ = targetTileQ.getDataBuffer();
-        final TileIndex tgtIndex = new TileIndex(targetTileI);
-
         final int yMin = computeYMin(subSwath[firstSubSwathIndex - 1]);
         final int yMax = computeYMax(subSwath[firstSubSwathIndex-1]);
-        int firstY = Math.max(ty0, yMin);
-        int lastY = Math.min(ty0 + th, yMax + 1);
+        final int firstY = Math.max(ty0, yMin);
+        final int lastY = Math.min(ty0 + th, yMax + 1);
 
         if(firstY >= lastY)
             return;
@@ -641,17 +640,21 @@ public final class Sentinel1DeburstTOPSAROp extends Operator {
         final Band srcBandQ = sourceProduct.getBand(bandNameQ + firstSubSwathIndex + '_' + pol);
         final Tile sourceRasterI = getSourceTile(srcBandI, sourceRectangle[0]);
         final Tile sourceRasterQ = getSourceTile(srcBandQ, sourceRectangle[0]);
-        final ProductData srcDataI = sourceRasterI.getDataBuffer();
-        final ProductData srcDataQ = sourceRasterQ.getDataBuffer();
         final TileIndex srcTileIndex = new TileIndex(sourceRasterI);
+        final TileIndex tgtIndex = new TileIndex(targetTileI);
+
+        final short[] srcArrayI = (short[])sourceRasterI.getDataBuffer().getElems();
+        final short[] srcArrayQ = (short[])sourceRasterQ.getDataBuffer().getElems();
+        final short[] tgtArrayI = (short[])targetTileI.getDataBuffer().getElems();
+        final short[] tgtArrayQ = (short[])targetTileQ.getDataBuffer().getElems();
 
         for (int y = firstY; y < lastY; y++) {
-            final int tgtOffset = tgtIndex.calculateStride(y);
-            final boolean valid = getLineIndicesInSourceProduct(y, subSwath[firstSubSwathIndex-1], burstInfo);
-            if(!valid) {
+
+            if(!getLineIndicesInSourceProduct(y, subSwath[firstSubSwathIndex-1], burstInfo)) {
                 continue;
             }
 
+            final int tgtOffset = tgtIndex.calculateStride(y);
             final SubSwathInfo firstSubSwath = subSwath[firstSubSwathIndex-1];
             int offset;
             if (burstInfo.sy1 != -1 && burstInfo.targetTime > burstInfo.midTime) {
@@ -660,18 +663,11 @@ public final class Sentinel1DeburstTOPSAROp extends Operator {
                 offset = srcTileIndex.calculateStride(burstInfo.sy0);
             }
 
-            int sx;
-            for (int x = tx0; x < lastX; x++) {
-                sx = (int)Math.round(( (targetSlantRangeTimeToFirstPixel + x*targetDeltaSlantRangeTime)
-                        - firstSubSwath.slrTimeToFirstPixel)/targetDeltaSlantRangeTime);
-                if(sx < 0)
-                    sx = 0;
-                if(sx > firstSubSwath.numOfSamples - 1)
-                    sx = firstSubSwath.numOfSamples - 1;
+            final int sx = (int)Math.round(( (targetSlantRangeTimeToFirstPixel + tx0*targetDeltaSlantRangeTime)
+                    - firstSubSwath.slrTimeToFirstPixel)/targetDeltaSlantRangeTime);
 
-                dataI.setElemDoubleAt(x-tgtOffset, srcDataI.getElemDoubleAt(sx-offset));
-                dataQ.setElemDoubleAt(x-tgtOffset, srcDataQ.getElemDoubleAt(sx-offset));
-            }
+            System.arraycopy(srcArrayI, sx-offset, tgtArrayI, tx0-tgtOffset, lastX-tx0);
+            System.arraycopy(srcArrayQ, sx-offset, tgtArrayQ, tx0-tgtOffset, lastX-tx0);
         }
     }
 
@@ -682,12 +678,13 @@ public final class Sentinel1DeburstTOPSAROp extends Operator {
                                           final Tile targetTileI, final Tile targetTileQ,
                                           final BurstInfo burstInfo) {
         final int numOfSourceTiles = lastSubSwathIndex - firstSubSwathIndex + 1;
-        final ProductData dataI = targetTileI.getDataBuffer();
-        final ProductData dataQ = targetTileQ.getDataBuffer();
         final TileIndex tgtIndex = new TileIndex(targetTileI);
-        final ProductData[] srcDataI = new ProductData[numOfSourceTiles];
-        final ProductData[] srcDataQ = new ProductData[numOfSourceTiles];
         final TileIndex[] srcTileIndex = new TileIndex[numOfSourceTiles];
+
+        final short[][] srcArrayI = new short[numOfSourceTiles][];
+        final short[][] srcArrayQ = new short[numOfSourceTiles][];
+        final short[] tgtArrayI = (short[])targetTileI.getDataBuffer().getElems();
+        final short[] tgtArrayQ = (short[])targetTileQ.getDataBuffer().getElems();
 
         int k = 0;
         for (int i = firstSubSwathIndex; i <= lastSubSwathIndex; i++) {
@@ -695,29 +692,31 @@ public final class Sentinel1DeburstTOPSAROp extends Operator {
             final Band srcBandQ = sourceProduct.getBand(bandNameQ + i + '_' + pol);
             final Tile sourceRasterI = getSourceTile(srcBandI, sourceRectangle[k]);
             final Tile sourceRasterQ = getSourceTile(srcBandQ, sourceRectangle[k]);
-            srcDataI[k] = sourceRasterI.getDataBuffer();
-            srcDataQ[k] = sourceRasterQ.getDataBuffer();
             srcTileIndex[k] = new TileIndex(sourceRasterI);
+
+            srcArrayI[k] = (short[])sourceRasterI.getDataBuffer().getElems();
+            srcArrayQ[k] = (short[])sourceRasterQ.getDataBuffer().getElems();
             k++;
         }
 
         for (int y = ty0; y < ty0 + th; y++) {
-            tgtIndex.calculateStride(y);
+            final int tgtOffset = tgtIndex.calculateStride(y);
             for (int x = tx0; x < lastX; x++) {
                 int subswathIndex = getSubSwathIndex(x, y, firstSubSwathIndex, lastSubSwathIndex, pol, burstInfo);
                 if (subswathIndex == -1) {
                     continue;
                 }
-                final boolean valid = getLineIndicesInSourceProduct(y, subSwath[subswathIndex-1], burstInfo);
-                if(!valid) {
+                if(!getLineIndicesInSourceProduct(y, subSwath[subswathIndex-1], burstInfo)) {
                     continue;
                 }
 
                 k = subswathIndex - firstSubSwathIndex;
                 int idx = getSrcIndex(x, subswathIndex, srcTileIndex[k], burstInfo);
-                boolean validSwath = setPixel(idx, srcDataI[k], srcDataQ[k], tgtIndex.getIndex(x), dataI, dataQ);
-                if(!validSwath && burstInfo.swath1 != -1) {
-                    // try again with the other swath
+
+                short iVal = srcArrayI[k][idx];
+                short qVal = srcArrayQ[k][idx];
+                if(iVal == 0 && qVal == 0 && burstInfo.swath1 != -1) {
+                    // edge of swaths found therefore use other swath
                     if(subswathIndex == burstInfo.swath0)
                         subswathIndex = burstInfo.swath1;
                     else
@@ -726,12 +725,14 @@ public final class Sentinel1DeburstTOPSAROp extends Operator {
 
                     k = subswathIndex - firstSubSwathIndex;
                     idx = getSrcIndex(x, subswathIndex, srcTileIndex[k], burstInfo);
-                    setPixel(idx, srcDataI[k], srcDataQ[k], tgtIndex.getIndex(x), dataI, dataQ);
+                    iVal = srcArrayI[k][idx];
+                    qVal = srcArrayQ[k][idx];
                 }
+                tgtArrayI[x-tgtOffset] = iVal;
+                tgtArrayQ[x-tgtOffset] = qVal;
             }
         }
     }
-
 
     private int getSrcIndex(final int tx, final int subSwathIndex, final TileIndex srcTileIndex,
                             final BurstInfo burstInfo) {
@@ -742,21 +743,6 @@ public final class Sentinel1DeburstTOPSAROp extends Operator {
         }
         int sx = getSampleIndexInSourceProduct(tx, subSwath[subSwathIndex-1]);
         return srcTileIndex.getIndex(sx);
-    }
-
-    private static boolean setPixel(final int srcIndex,
-                          final ProductData srcDataI, final ProductData srcDataQ,
-                          final int tIdx, final ProductData dataI, final ProductData dataQ) {
-
-        double iVal = srcDataI.getElemDoubleAt(srcIndex);
-        double qVal = srcDataQ.getElemDoubleAt(srcIndex);
-        if(iVal == 0 && qVal == 0) {
-            // edge of swaths found therefore use other swath
-            return false;
-        }
-        dataI.setElemDoubleAt(tIdx, iVal);
-        dataQ.setElemDoubleAt(tIdx, qVal);
-        return true;
     }
 
     /**
@@ -857,10 +843,11 @@ public final class Sentinel1DeburstTOPSAROp extends Operator {
         burstInfo.swath1 = -1;
         int cnt = 0;
         for (int i = firstSubSwathIndex; i <= lastSubSwathIndex; i++) {
-            if (targetLineTime >= subSwath[i - 1].firstLineTime &&
-                targetLineTime <= subSwath[i - 1].lastLineTime &&
-                targetSampleSlrTime >= subSwath[i - 1].slrTimeToFirstPixel &&
-                targetSampleSlrTime <= subSwath[i - 1].slrTimeToLastPixel) {
+            int i_1 = i - 1;
+            if (targetLineTime >= subSwath[i_1].firstLineTime &&
+                targetLineTime <= subSwath[i_1].lastLineTime &&
+                targetSampleSlrTime >= subSwath[i_1].slrTimeToFirstPixel &&
+                targetSampleSlrTime <= subSwath[i_1].slrTimeToLastPixel) {
 
                 if(cnt==0) {
                     burstInfo.swath0 = i;
@@ -908,7 +895,8 @@ public final class Sentinel1DeburstTOPSAROp extends Operator {
 
         } else {
 
-            for (int i = 0; i < vectorList.length - 1; i++) {
+            int max = vectorList.length - 1;
+            for (int i = 0; i < max; i++) {
                 if (sy >= vectorList[i].line && sy < vectorList[i+1].line) {
                     l0 = vectorList[i].line;
                     l1 = vectorList[i+1].line;
@@ -938,7 +926,8 @@ public final class Sentinel1DeburstTOPSAROp extends Operator {
 
         } else {
 
-            for (int i = 0; i < pixels.length - 1; i++) {
+            int max = pixels.length - 1;
+            for (int i = 0; i < max; i++) {
                 if (sx >= pixels[i] && sx < pixels[i+1]) {
                     p0 = pixels[i];
                     p1 = pixels[i+1];

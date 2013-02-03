@@ -119,8 +119,8 @@ public final class MathUtils
     public static double interpolationBiLinear(
             final double v00, final double v01, final double v10, final double v11, final double muX, final double muY) {
 
-        return interpolationLinear(interpolationLinear(v00, v01, muX), interpolationLinear(v10, v11, muX), muY);
-        //return (1 - muY)*((1 - muX)*v00 + muX*v01) + muY*((1 - muX)*v10 + muX*v11);
+        //return interpolationLinear(interpolationLinear(v00, v01, muX), interpolationLinear(v10, v11, muX), muY);
+        return (1 - muY)*((1 - muX)*v00 + muX*v01) + muY*((1 - muX)*v10 + muX*v11);
     }
 
     /**
