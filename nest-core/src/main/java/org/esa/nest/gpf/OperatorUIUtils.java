@@ -32,6 +32,11 @@ public final class OperatorUIUtils {
 
     public final static String SOURCE_BAND_NAMES = "sourceBandNames";
 
+    @Deprecated
+    public static void initBandList(final JList bandList, final String[] availNames) {
+        initParamList(bandList, availNames);
+    }
+
     public static void initParamList(final JList paramList, final String[] availNames) {
         final List selectedValues = paramList.getSelectedValuesList();
 
@@ -65,14 +70,19 @@ public final class OperatorUIUtils {
         list.setSelectedIndices(selIndex);
     }
 
-    public static void updateParamList(final JList bandList, final Map<String, Object> paramMap, final String paramName) {
-        final List selectedValues = bandList.getSelectedValuesList();
-        final String bandNames[] = new String[selectedValues.size()];
+    @Deprecated
+    public static void updatebandList(final JList bandList, final Map<String, Object> paramMap, final String paramName) {
+        updateParamList(bandList, paramMap, paramName);
+    }
+
+    public static void updateParamList(final JList paramList, final Map<String, Object> paramMap, final String paramName) {
+        final List selectedValues = paramList.getSelectedValuesList();
+        final String names[] = new String[selectedValues.size()];
         int i=0;
         for (Object selectedValue : selectedValues) {
-            bandNames[i++] = (String)selectedValue;
+            names[i++] = (String)selectedValue;
         }
-        paramMap.put(paramName, bandNames);
+        paramMap.put(paramName, names);
     }
 
     public static double getNoDataValue(final File extFile) {
