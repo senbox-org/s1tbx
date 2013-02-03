@@ -44,7 +44,7 @@ public class ALOSDeskewingUI extends BaseOperatorUI {
     @Override
     public void initParameters() {
 
-        OperatorUIUtils.initBandList(bandList, getBandNames());
+        OperatorUIUtils.initParamList(bandList, getBandNames());
     }
 
     @Override
@@ -55,7 +55,7 @@ public class ALOSDeskewingUI extends BaseOperatorUI {
     @Override
     public void updateParameters() {
 
-        OperatorUIUtils.updateBandList(bandList, paramMap, OperatorUIUtils.SOURCE_BAND_NAMES);
+        OperatorUIUtils.updateParamList(bandList, paramMap, OperatorUIUtils.SOURCE_BAND_NAMES);
     }
 
     private JComponent createPanel() {

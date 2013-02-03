@@ -124,7 +124,7 @@ public class MosaicOpUI extends BaseOperatorUI {
     @Override
     public void initParameters() {
 
-        OperatorUIUtils.initBandList(bandList, getBandNames());
+        OperatorUIUtils.initParamList(bandList, getBandNames());
 
         resamplingMethod.setSelectedItem(paramMap.get("resamplingMethod"));
 
@@ -201,7 +201,7 @@ public class MosaicOpUI extends BaseOperatorUI {
     @Override
     public void updateParameters() {
 
-        OperatorUIUtils.updateBandList(bandList, paramMap, OperatorUIUtils.SOURCE_BAND_NAMES);
+        OperatorUIUtils.updateParamList(bandList, paramMap, OperatorUIUtils.SOURCE_BAND_NAMES);
         paramMap.put("resamplingMethod", resamplingMethod.getSelectedItem());
 
         paramMap.put("pixelSize", Double.parseDouble(pixelSize.getText()));

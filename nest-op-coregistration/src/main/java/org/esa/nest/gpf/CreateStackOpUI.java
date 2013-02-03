@@ -114,8 +114,8 @@ public class CreateStackOpUI extends BaseOperatorUI {
     @Override
     public void updateParameters() {
 
-        OperatorUIUtils.updateBandList(mstBandList, paramMap, "masterBandNames");
-        OperatorUIUtils.updateBandList(slvBandList, paramMap, "slaveBandNames");
+        OperatorUIUtils.updateParamList(mstBandList, paramMap, "masterBandNames");
+        OperatorUIUtils.updateParamList(slvBandList, paramMap, "slaveBandNames");
 
         paramMap.put("resamplingType", resamplingType.getSelectedItem());
         paramMap.put("extent", extent.getSelectedItem());
@@ -179,8 +179,8 @@ public class CreateStackOpUI extends BaseOperatorUI {
 
     private void updateMasterSlaveSelections() {
         final String bandNames[] = getBandNames();
-        OperatorUIUtils.initBandList(mstBandList, bandNames);
-        OperatorUIUtils.initBandList(slvBandList, bandNames);
+        OperatorUIUtils.initParamList(mstBandList, bandNames);
+        OperatorUIUtils.initParamList(slvBandList, bandNames);
 
         OperatorUIUtils.setSelectedListIndices(mstBandList, getSelectedIndices(bandNames,
                                                                 (String[])paramMap.get("masterBandNames"),

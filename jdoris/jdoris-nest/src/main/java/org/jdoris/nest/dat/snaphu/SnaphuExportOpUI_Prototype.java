@@ -59,8 +59,8 @@ public class SnaphuExportOpUI_Prototype extends BaseOperatorUI {
 
     @Override
     public void updateParameters() {
-        OperatorUIUtils.updateBandList(ifgBandList, paramMap, "masterBandNames");
-        OperatorUIUtils.updateBandList(cohBandList, paramMap, "slaveBandNames");
+        OperatorUIUtils.updateParamList(ifgBandList, paramMap, "masterBandNames");
+        OperatorUIUtils.updateParamList(cohBandList, paramMap, "slaveBandNames");
 
         paramMap.put("statCostMode", statCostMode.getSelectedItem());
         paramMap.put("initMethod", initMethod.getSelectedItem());
@@ -103,8 +103,8 @@ public class SnaphuExportOpUI_Prototype extends BaseOperatorUI {
 
         final String bandNames[] = getBandNames();
 
-        OperatorUIUtils.initBandList(ifgBandList, bandNames);
-        OperatorUIUtils.initBandList(cohBandList, bandNames);
+        OperatorUIUtils.initParamList(ifgBandList, bandNames);
+        OperatorUIUtils.initParamList(cohBandList, bandNames);
 
         OperatorUIUtils.setSelectedListIndices(ifgBandList, getSelectedIndices(bandNames,
                                                                 (String[])paramMap.get("ifgBandNames"),

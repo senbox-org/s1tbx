@@ -81,7 +81,7 @@ public class CreateLandMaskOpUI extends BaseOperatorUI {
     @Override
     public void initParameters() {
 
-        OperatorUIUtils.initBandList(bandList, getBandNames());
+        OperatorUIUtils.initParamList(bandList, getBandNames());
 
         final Boolean doLandMask = (Boolean)paramMap.get("landMask");
         if(doLandMask != null && doLandMask) {
@@ -116,7 +116,7 @@ public class CreateLandMaskOpUI extends BaseOperatorUI {
     @Override
     public void updateParameters() {
 
-        OperatorUIUtils.updateBandList(bandList, paramMap, OperatorUIUtils.SOURCE_BAND_NAMES);
+        OperatorUIUtils.updateParamList(bandList, paramMap, OperatorUIUtils.SOURCE_BAND_NAMES);
 
         paramMap.put("landMask", landMask.isSelected());
         if(geometryMask.isSelected()) {

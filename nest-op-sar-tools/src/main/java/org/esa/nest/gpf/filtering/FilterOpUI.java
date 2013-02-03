@@ -71,7 +71,7 @@ public class FilterOpUI extends BaseOperatorUI {
 
     public void initParameters() {
 
-        OperatorUIUtils.initBandList(bandList, getBandNames());
+        OperatorUIUtils.initParamList(bandList, getBandNames());
 
         final String filterName = (String)paramMap.get("selectedFilterName");
         if(filterName != null) {
@@ -92,7 +92,7 @@ public class FilterOpUI extends BaseOperatorUI {
 
     public void updateParameters() {
 
-        OperatorUIUtils.updateBandList(bandList, paramMap, OperatorUIUtils.SOURCE_BAND_NAMES);
+        OperatorUIUtils.updateParamList(bandList, paramMap, OperatorUIUtils.SOURCE_BAND_NAMES);
 
         final FilterOperator.Filter filter = getSelectedFilter(tree);
         if(filter != null) {

@@ -35,6 +35,7 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.List;
 
 /**
  * De-Burst a Sentinel-1 TOPSAR product
@@ -49,6 +50,9 @@ public final class Sentinel1DeburstTOPSAROp extends Operator {
     private Product sourceProduct;
     @TargetProduct
     private Product targetProduct;
+
+    @Parameter(description = "The list of polarisations", label="Polarisations")
+    private String[] selectedPolarisations;
 
     @Parameter(defaultValue = "false", label="Azimuth De-burst only")
     private boolean deburstOnly = false;
@@ -66,11 +70,8 @@ public final class Sentinel1DeburstTOPSAROp extends Operator {
     private double targetSlantRangeTimeToFirstPixel = 0;
     private double targetSlantRangeTimeToLastPixel = 0;
     private double targetDeltaSlantRangeTime = 0;
-    private double nodatavalue = 0;
 
     private SubSwathInfo[] subSwath = null;
-    private ArrayList<String> polarizations = new ArrayList<String>(2);
-
 
     /**
      * Default constructor. The graph processing framework
@@ -100,7 +101,9 @@ public final class Sentinel1DeburstTOPSAROp extends Operator {
 
             getAcquisitionMode();
 
-            getProductPolarizations();
+            if(selectedPolarisations.length == 0) {
+                selectedPolarisations = getProductPolarizations(absRoot, acquisitionMode);
+            }
 
             getSubSwathParameters();
 
@@ -137,16 +140,17 @@ public final class Sentinel1DeburstTOPSAROp extends Operator {
         }
     }
 
-    private void getProductPolarizations() {
+    public static String[] getProductPolarizations(final MetadataElement absRoot, final String acquisitionMode) {
 
         final MetadataElement[] elems = absRoot.getElements();
         final String subSwathName = acquisitionMode + '1';
-        int k = 0;
+        final List<String> polarizations = new ArrayList<String>(4);
         for(MetadataElement elem : elems) {
             if(elem.getName().contains(subSwathName)) {
                 polarizations.add(elem.getAttributeString("polarization"));
             }
         }
+        return polarizations.toArray(new String[polarizations.size()]);
     }
 
     private void getSubSwathParameters() {
@@ -184,7 +188,7 @@ public final class Sentinel1DeburstTOPSAROp extends Operator {
         return null;
     }
 
-    private static void setParameters(final MetadataElement subSwathMetadata, SubSwathInfo subSwath) {
+    private static void setParameters(final MetadataElement subSwathMetadata, final SubSwathInfo subSwath) {
 
         final MetadataElement product = subSwathMetadata.getElement("product");
         final MetadataElement imageAnnotation = product.getElement("imageAnnotation");
@@ -223,7 +227,7 @@ public final class Sentinel1DeburstTOPSAROp extends Operator {
             k++;
         }
 
-        // get deolocation grid points
+        // get geolocation grid points
         final MetadataElement geolocationGrid = product.getElement("geolocationGrid");
         final MetadataElement geolocationGridPointList = geolocationGrid.getElement("geolocationGridPointList");
         final int numOfGeoLocationGridPoints = geolocationGridPointList.getAttributeInt("count");
@@ -265,13 +269,12 @@ public final class Sentinel1DeburstTOPSAROp extends Operator {
     private void getSubSwathNoiseVectors() {
 
         for (int i = 0; i < numOfSubSwath; i++) {
-            for (String pol:polarizations) {
+            for (String pol:selectedPolarisations) {
                 final Band srcBand = getSourceBand(subSwath[i].subSwathName, pol);
                 final Sentinel1Utils.NoiseVector[] noiseVectors = Sentinel1Utils.getNoiseVector(srcBand);
                 subSwath[i].noise.put(pol, noiseVectors);
             }
         }
-
     }
 
     private Band getSourceBand(final String subSwathName, final String polarization) {
@@ -318,21 +321,20 @@ public final class Sentinel1DeburstTOPSAROp extends Operator {
 
     private void createTargetProduct() {
 
-        targetProduct = new Product(sourceProduct.getName(), "deburst", targetWidth, targetHeight);
+        targetProduct = new Product(sourceProduct.getName(), sourceProduct.getProductType(), targetWidth, targetHeight);
 
         final Band[] sourceBands = sourceProduct.getBands();
-
-        for (String pol:polarizations) {
-
-            final Band trgI = targetProduct.addBand("i_" + pol, sourceBands[0].getDataType());
+        for (String pol:selectedPolarisations) {
+            final Band srcBand = sourceBands[0];
+            final Band trgI = targetProduct.addBand("i_" + pol, srcBand.getDataType());
             trgI.setUnit(Unit.REAL);
             trgI.setNoDataValueUsed(true);
-            trgI.setNoDataValue(nodatavalue);
+            trgI.setNoDataValue(srcBand.getNoDataValue());
 
-            final Band trgQ = targetProduct.addBand("q_" + pol, sourceBands[0].getDataType());
+            final Band trgQ = targetProduct.addBand("q_" + pol, srcBand.getDataType());
             trgQ.setUnit(Unit.IMAGINARY);
             trgQ.setNoDataValueUsed(true);
-            trgQ.setNoDataValue(nodatavalue);
+            trgQ.setNoDataValue(srcBand.getNoDataValue());
 
             ReaderUtils.createVirtualIntensityBand(targetProduct, trgI, trgQ, '_' + pol);
             ReaderUtils.createVirtualPhaseBand(targetProduct, trgI, trgQ, '_' + pol);
@@ -602,7 +604,7 @@ public final class Sentinel1DeburstTOPSAROp extends Operator {
             final String bandNameI = "i_" + acquisitionMode;
             final String bandNameQ = "q_" + acquisitionMode;
 
-            for (String pol:polarizations) {
+            for (String pol:selectedPolarisations) {
                 final Tile targetTileI = targetTiles.get(targetProduct.getBand("i_" + pol));
                 final Tile targetTileQ = targetTiles.get(targetProduct.getBand("q_" + pol));
 
@@ -1032,6 +1034,7 @@ public final class Sentinel1DeburstTOPSAROp extends Operator {
     public static class Spi extends OperatorSpi {
         public Spi() {
             super(Sentinel1DeburstTOPSAROp.class);
+            super.setOperatorUI(Sentinel1DeburstTOPSAROpUI.class);
         }
     }
 }

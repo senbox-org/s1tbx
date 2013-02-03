@@ -78,7 +78,7 @@ public class OversamplingOpUI extends BaseOperatorUI {
 
     public void initParameters() {
 
-        OperatorUIUtils.initBandList(bandList, getBandNames());
+        OperatorUIUtils.initParamList(bandList, getBandNames());
 
         outputImageBy.setSelectedItem(paramMap.get("outputImageBy"));
         targetImageHeight.setText(String.valueOf(paramMap.get("targetImageHeight")));
@@ -104,7 +104,7 @@ public class OversamplingOpUI extends BaseOperatorUI {
 
     public void updateParameters() {
 
-        OperatorUIUtils.updateBandList(bandList, paramMap, OperatorUIUtils.SOURCE_BAND_NAMES);
+        OperatorUIUtils.updateParamList(bandList, paramMap, OperatorUIUtils.SOURCE_BAND_NAMES);
 
         paramMap.put("outputImageBy", outputImageBy.getSelectedItem());
         paramMap.put("targetImageHeight", Integer.parseInt(targetImageHeight.getText()));

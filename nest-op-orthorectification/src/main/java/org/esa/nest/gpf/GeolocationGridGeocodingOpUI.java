@@ -59,7 +59,7 @@ public class GeolocationGridGeocodingOpUI extends BaseOperatorUI {
     @Override
     public void initParameters() {
 
-        OperatorUIUtils.initBandList(bandList, getBandNames());
+        OperatorUIUtils.initParamList(bandList, getBandNames());
         imgResamplingMethod.setSelectedItem(paramMap.get("imgResamplingMethod"));
         final String mapProjection = (String)paramMap.get("mapProjection");
         mapProjHandler.initParameters(mapProjection, sourceProducts);
@@ -75,7 +75,7 @@ public class GeolocationGridGeocodingOpUI extends BaseOperatorUI {
     @Override
     public void updateParameters() {
 
-        OperatorUIUtils.updateBandList(bandList, paramMap, OperatorUIUtils.SOURCE_BAND_NAMES);
+        OperatorUIUtils.updateParamList(bandList, paramMap, OperatorUIUtils.SOURCE_BAND_NAMES);
         paramMap.put("imgResamplingMethod", imgResamplingMethod.getSelectedItem());
         if(mapProjHandler.getCRS() != null) {
             paramMap.put("mapProjection", mapProjHandler.getCRS().toWKT());

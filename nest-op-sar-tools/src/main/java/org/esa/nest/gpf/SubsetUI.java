@@ -67,7 +67,7 @@ public class SubsetUI extends BaseOperatorUI {
     @Override
     public void initParameters() {
 
-        OperatorUIUtils.initBandList(bandList, getBandNames());
+        OperatorUIUtils.initParamList(bandList, getBandNames());
 
         regionX.setText(String.valueOf(paramMap.get("regionX")));
         regionY.setText(String.valueOf(paramMap.get("regionY")));
@@ -100,7 +100,7 @@ public class SubsetUI extends BaseOperatorUI {
     @Override
     public void updateParameters() {
 
-        OperatorUIUtils.updateBandList(bandList, paramMap, OperatorUIUtils.SOURCE_BAND_NAMES);
+        OperatorUIUtils.updateParamList(bandList, paramMap, OperatorUIUtils.SOURCE_BAND_NAMES);
 
         final String regionXStr = regionX.getText();
         if(regionXStr != null && !regionXStr.isEmpty())

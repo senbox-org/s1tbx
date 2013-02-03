@@ -91,7 +91,7 @@ public class MapReProjectionOpUI extends BaseOperatorUI {
     @Override
     public void initParameters() {
 
-        OperatorUIUtils.initBandList(bandList, getBandNames());
+        OperatorUIUtils.initParamList(bandList, getBandNames());
 
         if(sourceProducts != null) {
             crsSelectionPanel.setReferenceProduct(sourceProducts[0]);
@@ -184,7 +184,7 @@ public class MapReProjectionOpUI extends BaseOperatorUI {
     @Override
     public void updateParameters() {
 
-        OperatorUIUtils.updateBandList(bandList, paramMap, OperatorUIUtils.SOURCE_BAND_NAMES);
+        OperatorUIUtils.updateParamList(bandList, paramMap, OperatorUIUtils.SOURCE_BAND_NAMES);
 
         paramMap.put("resamplingName", reprojectionModel.resamplingMethod);
         paramMap.put("includeTiePointGrids", reprojectionModel.reprojTiePoints);

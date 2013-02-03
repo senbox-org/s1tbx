@@ -94,7 +94,7 @@ public class UndersamplingOpUI extends BaseOperatorUI {
     @Override
     public void initParameters() {
 
-        OperatorUIUtils.initBandList(bandList, getBandNames());
+        OperatorUIUtils.initParamList(bandList, getBandNames());
 
         method.setSelectedItem(paramMap.get("method"));
         subSamplingX.setText(String.valueOf(paramMap.get("subSamplingX")));
@@ -126,7 +126,7 @@ public class UndersamplingOpUI extends BaseOperatorUI {
     @Override
     public void updateParameters() {
 
-        OperatorUIUtils.updateBandList(bandList, paramMap, OperatorUIUtils.SOURCE_BAND_NAMES);
+        OperatorUIUtils.updateParamList(bandList, paramMap, OperatorUIUtils.SOURCE_BAND_NAMES);
 
         paramMap.put("method", method.getSelectedItem());
         paramMap.put("subSamplingX", Integer.parseInt(subSamplingX.getText()));

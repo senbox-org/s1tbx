@@ -15,21 +15,27 @@
  */
 package org.esa.nest.gpf;
 
+import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.gpf.ui.BaseOperatorUI;
 import org.esa.beam.framework.gpf.ui.UIValidation;
 import org.esa.beam.framework.ui.AppContext;
+import org.esa.nest.datamodel.AbstractMetadata;
 import org.esa.nest.util.DialogUtils;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.*;
 import java.util.Map;
 
 /**
- * User interface for RemoveAntennaPatternOp
+ * User interface for S-1 Deburst
  */
-public class RemoveAntennaPatternOpUI extends BaseOperatorUI {
+public class Sentinel1DeburstTOPSAROpUI extends BaseOperatorUI {
 
-    private final JList bandList = new JList();
+    private final JList<String> polList = new JList<String>();
+
+    private final JCheckBox deburstOnlyCheckBox = new JCheckBox("Azimuth De-burst only");
+    private Boolean deburstOnly = true;
 
     @Override
     public JComponent CreateOpTab(String operatorName, Map<String, Object> parameterMap, AppContext appContext) {
@@ -38,23 +44,47 @@ public class RemoveAntennaPatternOpUI extends BaseOperatorUI {
         final JComponent panel = createPanel();
         initParameters();
 
-        return panel;
+        deburstOnlyCheckBox.addItemListener(new ItemListener() {
+                public void itemStateChanged(ItemEvent e) {
+                    deburstOnly = (e.getStateChange() == ItemEvent.SELECTED);
+                }
+        });
+
+        return new JScrollPane(panel);
     }
 
     @Override
     public void initParameters() {
-        OperatorUIUtils.initParamList(bandList, getBandNames());
+
+        if(sourceProducts != null && sourceProducts.length > 0) {
+            final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(sourceProducts[0]);
+            final String acquisitionMode = absRoot.getAttributeString(AbstractMetadata.ACQUISITION_MODE);
+            final String[] polarisations = Sentinel1DeburstTOPSAROp.getProductPolarizations(
+                    absRoot, acquisitionMode);
+            polList.setListData(polarisations);
+
+            OperatorUIUtils.initParamList(polList, polarisations);
+        }
+
+        deburstOnly = (Boolean)paramMap.get("deburstOnly");
+        if(deburstOnly != null) {
+            deburstOnlyCheckBox.setSelected(deburstOnly);
+            deburstOnlyCheckBox.getModel().setPressed(deburstOnly);
+        }
+        deburstOnlyCheckBox.setVisible(isComplexSrcProduct());
     }
 
     @Override
     public UIValidation validateParameters() {
-
         return new UIValidation(UIValidation.State.OK, "");
     }
 
     @Override
     public void updateParameters() {
-        OperatorUIUtils.updateParamList(bandList, paramMap, OperatorUIUtils.SOURCE_BAND_NAMES);
+
+        OperatorUIUtils.updateParamList(polList, paramMap, "selectedPolarisations");
+
+        paramMap.put("deburstOnly", deburstOnly);
     }
 
     private JComponent createPanel() {
@@ -62,14 +92,9 @@ public class RemoveAntennaPatternOpUI extends BaseOperatorUI {
         final JPanel contentPane = new JPanel(new GridBagLayout());
         final GridBagConstraints gbc = DialogUtils.createGridBagConstraints();
 
-        DialogUtils.addComponent(contentPane, gbc, "Source Bands:", new JScrollPane(bandList));
-
+        DialogUtils.addComponent(contentPane, gbc, "Polarisations:", polList);
         gbc.gridy++;
-        DialogUtils.addComponent(contentPane, gbc, "Note:",
-                new JLabel("This operator removes antenna pattern and range spreading loss "));
-        gbc.gridy++;
-        DialogUtils.addComponent(contentPane, gbc, "",
-                new JLabel("for ASAR and ERS products. It also applies ADC to ERS product."));
+        contentPane.add(deburstOnlyCheckBox, gbc);
 
         DialogUtils.fillPanel(contentPane, gbc);
 

@@ -15,7 +15,6 @@
  */
 package org.esa.nest.gpf;
 
-import org.esa.beam.framework.dataop.resamp.ResamplingFactory;
 import org.esa.beam.framework.gpf.ui.BaseOperatorUI;
 import org.esa.beam.framework.gpf.ui.UIValidation;
 import org.esa.beam.framework.ui.AppContext;
@@ -101,7 +100,7 @@ public class SARSimulationOpUI extends BaseOperatorUI {
     @Override
     public void initParameters() {
 
-        OperatorUIUtils.initBandList(bandList, getBandNames());
+        OperatorUIUtils.initParamList(bandList, getBandNames());
 
         final String demNameParam = (String)paramMap.get("demName");
         if(demNameParam != null)
@@ -130,7 +129,7 @@ public class SARSimulationOpUI extends BaseOperatorUI {
     @Override
     public void updateParameters() {
 
-        OperatorUIUtils.updateBandList(bandList, paramMap, OperatorUIUtils.SOURCE_BAND_NAMES);
+        OperatorUIUtils.updateParamList(bandList, paramMap, OperatorUIUtils.SOURCE_BAND_NAMES);
 
         paramMap.put("demName", DEMFactory.getProperDEMName((String)demName.getSelectedItem()));
         paramMap.put("demResamplingMethod", demResamplingMethod.getSelectedItem());

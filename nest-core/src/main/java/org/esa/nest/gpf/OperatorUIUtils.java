@@ -32,29 +32,29 @@ public final class OperatorUIUtils {
 
     public final static String SOURCE_BAND_NAMES = "sourceBandNames";
 
-    public static void initBandList(final JList bandList, final String[] bandNames) {
-        final Object selectedValues[] = bandList.getSelectedValues();
+    public static void initParamList(final JList paramList, final String[] availNames) {
+        final List selectedValues = paramList.getSelectedValuesList();
 
-        bandList.removeAll();
-        bandList.setListData(bandNames);
-        bandList.setFixedCellWidth(200);
-        bandList.setMinimumSize(new Dimension(50, 4));
+        paramList.removeAll();
+        paramList.setListData(availNames);
+        paramList.setFixedCellWidth(200);
+        paramList.setMinimumSize(new Dimension(50, 4));
         
-        final int size = bandList.getModel().getSize();
+        final int size = paramList.getModel().getSize();
         final List<Integer> indices = new ArrayList<Integer>(size);
 
         for (Object selectedValue : selectedValues) {
             final String selValue = (String) selectedValue;
 
             for (int j = 0; j < size; ++j) {
-                final String val = (String) bandList.getModel().getElementAt(j);
+                final String val = (String) paramList.getModel().getElementAt(j);
                 if (val.equals(selValue)) {
                     indices.add(j);
                     break;
                 }
             }
         }
-        setSelectedListIndices(bandList, indices);
+        setSelectedListIndices(paramList, indices);
     }
 
     public static void setSelectedListIndices(final JList list, final List<Integer> indices) {
@@ -65,13 +65,13 @@ public final class OperatorUIUtils {
         list.setSelectedIndices(selIndex);
     }
 
-    public static void updateBandList(final JList bandList, final Map<String, Object> paramMap, final String paramName) {
-        final Object selectedValues[] = bandList.getSelectedValues();
-        final String bandNames[] = new String[selectedValues.length];
-        for(int i=0; i<selectedValues.length; ++i) {
-            bandNames[i] = (String)selectedValues[i];
+    public static void updateParamList(final JList bandList, final Map<String, Object> paramMap, final String paramName) {
+        final List selectedValues = bandList.getSelectedValuesList();
+        final String bandNames[] = new String[selectedValues.size()];
+        int i=0;
+        for (Object selectedValue : selectedValues) {
+            bandNames[i++] = (String)selectedValue;
         }
-
         paramMap.put(paramName, bandNames);
     }
 

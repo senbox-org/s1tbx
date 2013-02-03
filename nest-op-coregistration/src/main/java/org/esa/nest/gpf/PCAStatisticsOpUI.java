@@ -81,7 +81,7 @@ public class PCAStatisticsOpUI extends BaseOperatorUI {
 
     public void initParameters() {
 
-        OperatorUIUtils.initBandList(bandList, getBandNames());
+        OperatorUIUtils.initParamList(bandList, getBandNames());
 
         selectEigenvaluesBy.setSelectedItem(paramMap.get("selectEigenvaluesBy"));
         eigenvalueThreshold.setText(String.valueOf(paramMap.get("eigenvalueThreshold")));
@@ -108,10 +108,10 @@ public class PCAStatisticsOpUI extends BaseOperatorUI {
     public void updateParameters() {
 
         if (sourceProducts == null) {
-            OperatorUIUtils.updateBandList(bandList, paramMap, OperatorUIUtils.SOURCE_BAND_NAMES);
+            OperatorUIUtils.updateParamList(bandList, paramMap, OperatorUIUtils.SOURCE_BAND_NAMES);
         } else {
             if (bandList.getSelectedValues().length > 0) {
-                OperatorUIUtils.updateBandList(bandList, paramMap, OperatorUIUtils.SOURCE_BAND_NAMES);
+                OperatorUIUtils.updateParamList(bandList, paramMap, OperatorUIUtils.SOURCE_BAND_NAMES);
             } else {
                 paramMap.put("sourceBandNames", sourceProducts[0].getBandNames());
             }

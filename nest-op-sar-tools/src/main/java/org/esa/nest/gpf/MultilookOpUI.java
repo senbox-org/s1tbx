@@ -61,7 +61,7 @@ public class MultilookOpUI extends BaseOperatorUI {
     @Override
     public void initParameters() {
 
-        OperatorUIUtils.initBandList(bandList, getBandNames());
+        OperatorUIUtils.initParamList(bandList, getBandNames());
 
         nRgLooks.setText(String.valueOf(paramMap.get("nRgLooks")));
 
@@ -111,7 +111,7 @@ public class MultilookOpUI extends BaseOperatorUI {
     @Override
     public void updateParameters() {
 
-        OperatorUIUtils.updateBandList(bandList, paramMap, OperatorUIUtils.SOURCE_BAND_NAMES);
+        OperatorUIUtils.updateParamList(bandList, paramMap, OperatorUIUtils.SOURCE_BAND_NAMES);
 
         final String nRgLooksStr = nRgLooks.getText();
         final String nAzLooksStr = nAzLooks.getText();
