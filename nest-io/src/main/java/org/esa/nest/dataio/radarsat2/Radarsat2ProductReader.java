@@ -216,21 +216,21 @@ public class Radarsat2ProductReader extends AbstractProductReader {
         final double[] dArray = new double[destSize];
         sampleModel.getSamples(0, 0, destWidth, destHeight, sampleOffset, dArray, dataBuffer);
 
-        int is, id;
+        int srcStride, destStride;
         if (isAntennaPointingRight) { // flip the image upside down
             for (int r = 0; r < destHeight; r++) {
+                srcStride = r*destWidth;
+                destStride = (destHeight - r - 1)*destWidth;
                 for (int c = 0; c < destWidth; c++) {
-                    is = r*destWidth + c;
-                    id = (destHeight - r - 1)*destWidth + c;
-                    destBuffer.setElemDoubleAt(id, dArray[is]);
+                    destBuffer.setElemDoubleAt(destStride + c, dArray[srcStride + c]);
                 }
             }
         } else { // flip the image upside down, then flip it left to right
             for (int r = 0; r < destHeight; r++) {
+                srcStride = r*destWidth;
+                destStride = (destHeight - r)*destWidth;
                 for (int c = 0; c < destWidth; c++) {
-                    is = r*destWidth + c;
-                    id = (destHeight - r)*destWidth - c - 1;
-                    destBuffer.setElemDoubleAt(id, dArray[is]);
+                    destBuffer.setElemDoubleAt(destStride - c - 1, dArray[srcStride + c]);
                 }
             }
         }
@@ -265,26 +265,22 @@ public class Radarsat2ProductReader extends AbstractProductReader {
 
         final DataBuffer dataBuffer = data.getDataBuffer();
         final SampleModel sampleModel = data.getSampleModel();
-        final int destSize = destWidth * destHeight;
         final int sampleOffset = imageID + bandSampleOffset;
 
-        final double[] dArray = new double[destSize];
-        sampleModel.getSamples(0, 0, destWidth, destHeight, sampleOffset, dArray, dataBuffer);
-
-        int is, id;
         if (isAntennaPointingRight) { // flip the image left to right
+            final double[] dArray = new double[destWidth * destHeight];
+            sampleModel.getSamples(0, 0, destWidth, destHeight, sampleOffset, dArray, dataBuffer);
+
+            int srcStride, destStride;
             for (int r = 0; r < destHeight; r++) {
+                srcStride = r*destWidth;
+                destStride = r*destWidth + destWidth;
                 for (int c = 0; c < destWidth; c++) {
-                    is = r*destWidth + c;
-                    id = r*destWidth + destWidth - c - 1;
-                    destBuffer.setElemDoubleAt(id, dArray[is]);
+                    destBuffer.setElemDoubleAt(destStride - c - 1, dArray[srcStride + c]);
                 }
             }
         } else { // no flipping is needed
-            int i=0;
-            for (double val : dArray) {
-                destBuffer.setElemDoubleAt(i++, val);
-            }
+            sampleModel.getSamples(0, 0, destWidth, destHeight, sampleOffset, (int[])destBuffer.getElems(), dataBuffer);
         }
     }
 
