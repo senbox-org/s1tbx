@@ -907,7 +907,7 @@ public class RangeDopplerGeocodingOp extends Operator {
                         continue;
                     }
 
-                    // temp fix for descending Radarsat2
+                    // the following check will be removed if no product of any mission is read with near range on right
                     if (!nearRangeOnLeft) {
                         rangeIndex = srcMaxRange - rangeIndex;
                     }
