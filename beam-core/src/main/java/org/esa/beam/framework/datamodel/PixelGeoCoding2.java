@@ -15,6 +15,7 @@
  */
 package org.esa.beam.framework.datamodel;
 
+import com.bc.ceres.glevel.MultiLevelImage;
 import org.esa.beam.framework.dataio.ProductSubsetDef;
 import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.jai.ImageManager;
@@ -52,6 +53,7 @@ public class PixelGeoCoding2 extends AbstractGeoCoding {
 
     private PlanarImage lonImage;
     private PlanarImage latImage;
+    private PlanarImage maskImage;
 
     public interface PixelFinder {
 
@@ -85,7 +87,7 @@ public class PixelGeoCoding2 extends AbstractGeoCoding {
         }
         if (product.getSceneRasterWidth() < 2 || product.getSceneRasterHeight() < 2) {
             throw new IllegalArgumentException(
-                    "latBand.getProduct().getSceneRasterWidth() < 2 || latBand.getProduct().getSceneRasterHeight() < 2");
+                        "latBand.getProduct().getSceneRasterWidth() < 2 || latBand.getProduct().getSceneRasterHeight() < 2");
         }
 
         this.latBand = latBand;
@@ -107,7 +109,7 @@ public class PixelGeoCoding2 extends AbstractGeoCoding {
             expressionBuilder.append("(").append(validLatExpression).append(")");
         }
         if (validLonExpression != null && !validLonExpression.equals(maskExpression) && !validLonExpression.equals(
-                validLatExpression)) {
+                    validLatExpression)) {
             if (expressionBuilder.length() > 0) {
                 expressionBuilder.append(" && ");
             }
@@ -131,7 +133,7 @@ public class PixelGeoCoding2 extends AbstractGeoCoding {
             latImage = latBand.getGeophysicalImage();
         }
 
-        PlanarImage maskImage = null;
+        maskImage = null;
         if (maskExpression != null && maskExpression.trim().length() > 0) {
             this.maskExpression = maskExpression;
             final ProductNodeGroup<Mask> maskGroup = product.getMaskGroup();
@@ -235,6 +237,7 @@ public class PixelGeoCoding2 extends AbstractGeoCoding {
      * @param pixelPos the pixel's co-ordinates given as x,y
      * @param geoPos   an instance of <code>GeoPos</code> to be used as retun value. If this parameter is
      *                 <code>null</code>, the method creates a new instance which it then returns.
+     *
      * @return the geographical position as lat/lon.
      */
     @Override
@@ -243,43 +246,56 @@ public class PixelGeoCoding2 extends AbstractGeoCoding {
             geoPos = new GeoPos();
         }
         geoPos.setInvalid();
-        if (pixelPos.isValid()) {
-            int x0 = (int) Math.floor(pixelPos.getX());
-            int y0 = (int) Math.floor(pixelPos.getY());
-            if (x0 >= 0 && x0 < rasterW && y0 >= 0 && y0 < rasterH) {
-                final Raster maskData = latBand.getValidMaskImage().getData(new Rectangle(x0, y0, 2, 2));
-                if (maskData.getSample(x0, y0, 0) != 0) {
-                    if (fractionAccuracy) {
-                        if (x0 > 0 && pixelPos.x - x0 < 0.5f || x0 == rasterW - 1) {
-                            x0 -= 1;
-                        }
-                        if (y0 > 0 && pixelPos.y - y0 < 0.5f || y0 == rasterH - 1) {
-                            y0 -= 1;
-                        }
-
-                        final boolean b00 = maskData.getSample(x0, y0, 0) == 0;
-                        final boolean b10 = maskData.getSample(x0 + 1, y0, 0) == 0;
-                        final boolean b01 = maskData.getSample(x0, y0 + 1, 0) == 0;
-                        final boolean b11 = maskData.getSample(x0 + 1, y0 + 1, 0) == 0;
-
-                        if (b00 || b10 || b01 || b11) {
-                            getGeoPos(x0, y0, geoPos);
-                        } else {
-                            final float wx = pixelPos.x - (x0 + 0.5f);
-                            final float wy = pixelPos.y - (y0 + 0.5f);
-                            final Raster latData = latImage.getData(new Rectangle(x0, y0, 2, 2));
-                            final Raster lonData = lonImage.getData(new Rectangle(x0, y0, 2, 2));
-                            final float lat = interpolate(wx, wy, latData);
-                            final float lon = interpolate(wx, wy, lonData);
-                            geoPos.setLocation(lat, lon);
-                        }
-                    } else {
-                        getGeoPos(x0, y0, geoPos);
+        if (pixelPos.isValid() && pixelPosIsInsideRasterWH(pixelPos)) {
+            final int preX0 = (int) Math.floor(pixelPos.getX());
+            final int preY0 = (int) Math.floor(pixelPos.getY());
+            final Rectangle maskRect = new Rectangle(preX0, preY0, 2, 2);
+            final MultiLevelImage validMaskImage = latBand.getValidMaskImage();
+            Raster maskData;
+            if (validMaskImage != null) {
+                maskData = validMaskImage.getData(maskRect);
+            } else {
+                maskData = maskImage.getData(maskRect);
+            }
+            if (maskData.getSample(preX0, preY0, 0) != 0) {
+                if (fractionAccuracy) {
+                    int corrX0 = preX0;
+                    int corrY0 = preY0;
+                    if (preX0 > 0 && pixelPos.x - preX0 < 0.5f || preX0 == rasterW - 1) {
+                        corrX0 -= 1;
                     }
+                    if (preY0 > 0 && pixelPos.y - preY0 < 0.5f || preY0 == rasterH - 1) {
+                        corrY0 -= 1;
+                    }
+
+                    final boolean b00 = maskData.getSample(corrX0, corrY0, 0) == 0;
+                    final boolean b10 = maskData.getSample(corrX0 + 1, corrY0, 0) == 0;
+                    final boolean b01 = maskData.getSample(corrX0, corrY0 + 1, 0) == 0;
+                    final boolean b11 = maskData.getSample(corrX0 + 1, corrY0 + 1, 0) == 0;
+
+                    if (b00 || b10 || b01 || b11) {
+                        getGeoPos(preX0, preY0, geoPos);
+                    } else {
+                        final float wx = pixelPos.x - (corrX0 + 0.5f);
+                        final float wy = pixelPos.y - (corrY0 + 0.5f);
+                        final Raster latData = latImage.getData(new Rectangle(corrX0, corrY0, 2, 2));
+                        final Raster lonData = lonImage.getData(new Rectangle(corrX0, corrY0, 2, 2));
+                        final float lat = interpolate(wx, wy, latData);
+                        final float lon = interpolate(wx, wy, lonData);
+                        geoPos.setLocation(lat, lon);
+                    }
+                } else {
+                    getGeoPos(preX0, preY0, geoPos);
                 }
             }
         }
         return geoPos;
+    }
+
+    private boolean pixelPosIsInsideRasterWH(PixelPos pixelPos) {
+        final float x = pixelPos.x;
+        final float y = pixelPos.y;
+        return x >= 0 && x < rasterW && y >= 0 && y < rasterH;
     }
 
     public int getRasterWidth() {
@@ -376,6 +392,7 @@ public class PixelGeoCoding2 extends AbstractGeoCoding {
      * @param srcScene  the source scene
      * @param destScene the destination scene
      * @param subsetDef the definition of the subset, may be <code>null</code>
+     *
      * @return true, if the geo-coding could be transferred.
      */
     @Override
