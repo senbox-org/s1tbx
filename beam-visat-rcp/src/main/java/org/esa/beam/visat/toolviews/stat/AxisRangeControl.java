@@ -147,12 +147,18 @@ class AxisRangeControl {
     public void adjustComponents(double min, double max, int numDecimalPlaces) {
         final Double oldMax = getMax();
 
+        double newMax = MathUtils.round(max, roundFactor(numDecimalPlaces));
+        double newMin = MathUtils.round(min, roundFactor(numDecimalPlaces));
+        if(newMin == newMax) {
+            newMax += Math.pow(10, -numDecimalPlaces);
+        }
+
         if (min >= oldMax) {
-            setMax(MathUtils.round(max, roundFactor(numDecimalPlaces)));
-            setMin(MathUtils.round(min, roundFactor(numDecimalPlaces)));
+            setMax(newMax);
+            setMin(newMin);
         } else {
-            setMin(MathUtils.round(min, roundFactor(numDecimalPlaces)));
-            setMax(MathUtils.round(max, roundFactor(numDecimalPlaces)));
+            setMin(newMin);
+            setMax(newMax);
         }
 
     }
