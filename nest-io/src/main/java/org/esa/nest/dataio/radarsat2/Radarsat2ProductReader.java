@@ -27,6 +27,13 @@ import org.esa.nest.gpf.ReaderUtils;
 import org.esa.nest.util.XMLSupport;
 import org.jdom.Element;
 
+import javax.imageio.ImageReadParam;
+import javax.imageio.ImageReader;
+import java.awt.*;
+import java.awt.image.DataBuffer;
+import java.awt.image.Raster;
+import java.awt.image.RenderedImage;
+import java.awt.image.SampleModel;
 import java.io.File;
 import java.io.IOException;
 
@@ -161,9 +168,124 @@ public class Radarsat2ProductReader extends AbstractProductReader {
 
         final ImageIOFile.BandInfo bandInfo = dataDir.getBandInfo(destBand);
         if(bandInfo != null && bandInfo.img != null) {
-            bandInfo.img.readImageIORasterBand(sourceOffsetX, sourceOffsetY, sourceStepX, sourceStepY,
-                                                destBuffer, destOffsetX, destOffsetY, destWidth, destHeight,
-                                                bandInfo.imageID, bandInfo.bandSampleOffset);
+
+            Product product = destBand.getProduct();
+            MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
+            final boolean isAscending = absRoot.getAttributeString(AbstractMetadata.PASS).equals("ASCENDING");
+            final boolean isAntennaPointingRight = absRoot.getAttributeString(AbstractMetadata.antenna_pointing).equals("right");
+            if (isAscending) {
+                readAscendingRasterBand(sourceOffsetX, sourceOffsetY, sourceStepX, sourceStepY,
+                                        destBuffer, destOffsetX, destOffsetY, destWidth, destHeight,
+                                        0, bandInfo.img, bandInfo.bandSampleOffset, isAntennaPointingRight);
+            } else {
+                readDescendingRasterBand(sourceOffsetX, sourceOffsetY, sourceStepX, sourceStepY,
+                                         destBuffer, destOffsetX, destOffsetY, destWidth, destHeight,
+                                         0, bandInfo.img, bandInfo.bandSampleOffset, isAntennaPointingRight);
+            }
         }
     }
+
+    public void readAscendingRasterBand(final int sourceOffsetX, final int sourceOffsetY,
+                                        final int sourceStepX, final int sourceStepY,
+                                        final ProductData destBuffer,
+                                        final int destOffsetX, final int destOffsetY,
+                                        final int destWidth, final int destHeight,
+                                        final int imageID, final ImageIOFile img,
+                                        final int bandSampleOffset,
+                                        final boolean isAntennaPointingRight) throws IOException {
+
+        final Raster data;
+
+        synchronized(dataDir) {
+            final ImageReader reader = img.getReader();
+            final ImageReadParam param = reader.getDefaultReadParam();
+            param.setSourceSubsampling(sourceStepX, sourceStepY,
+                                       sourceOffsetX % sourceStepX,
+                                       sourceOffsetY % sourceStepY);
+
+            final RenderedImage image = reader.readAsRenderedImage(0, param);
+            data = image.getData(new Rectangle(destOffsetX, img.getSceneHeight() - destOffsetY - destHeight,
+                                               destWidth, destHeight));
+        }
+
+        final DataBuffer dataBuffer = data.getDataBuffer();
+        final SampleModel sampleModel = data.getSampleModel();
+        final int destSize = destWidth * destHeight;
+        final int sampleOffset = imageID + bandSampleOffset;
+
+        final double[] dArray = new double[destSize];
+        sampleModel.getSamples(0, 0, destWidth, destHeight, sampleOffset, dArray, dataBuffer);
+
+        int is, id;
+        if (isAntennaPointingRight) { // flip the image upside down
+            for (int r = 0; r < destHeight; r++) {
+                for (int c = 0; c < destWidth; c++) {
+                    is = r*destWidth + c;
+                    id = (destHeight - r - 1)*destWidth + c;
+                    destBuffer.setElemDoubleAt(id, dArray[is]);
+                }
+            }
+        } else { // flip the image upside down, then flip it left to right
+            for (int r = 0; r < destHeight; r++) {
+                for (int c = 0; c < destWidth; c++) {
+                    is = r*destWidth + c;
+                    id = (destHeight - r)*destWidth - c - 1;
+                    destBuffer.setElemDoubleAt(id, dArray[is]);
+                }
+            }
+        }
+    }
+
+    public void readDescendingRasterBand(final int sourceOffsetX, final int sourceOffsetY,
+                                         final int sourceStepX, final int sourceStepY,
+                                         final ProductData destBuffer,
+                                         final int destOffsetX, final int destOffsetY,
+                                         final int destWidth, final int destHeight,
+                                         final int imageID, final ImageIOFile img,
+                                         final int bandSampleOffset,
+                                         final boolean isAntennaPointingRight) throws IOException {
+
+        final Raster data;
+
+        synchronized(dataDir) {
+            final ImageReader reader = img.getReader();
+            final ImageReadParam param = reader.getDefaultReadParam();
+            param.setSourceSubsampling(sourceStepX, sourceStepY,
+                                       sourceOffsetX % sourceStepX,
+                                       sourceOffsetY % sourceStepY);
+
+            final RenderedImage image = reader.readAsRenderedImage(0, param);
+			if (isAntennaPointingRight) {
+				data = image.getData(new Rectangle(img.getSceneWidth() - destOffsetX - destWidth,
+												   destOffsetY, destWidth, destHeight));
+			} else {
+				data = image.getData(new Rectangle(destOffsetX,	destOffsetY, destWidth, destHeight));
+			}
+        }
+
+        final DataBuffer dataBuffer = data.getDataBuffer();
+        final SampleModel sampleModel = data.getSampleModel();
+        final int destSize = destWidth * destHeight;
+        final int sampleOffset = imageID + bandSampleOffset;
+
+        final double[] dArray = new double[destSize];
+        sampleModel.getSamples(0, 0, destWidth, destHeight, sampleOffset, dArray, dataBuffer);
+
+        int is, id;
+        if (isAntennaPointingRight) { // flip the image left to right
+            for (int r = 0; r < destHeight; r++) {
+                for (int c = 0; c < destWidth; c++) {
+                    is = r*destWidth + c;
+                    id = r*destWidth + destWidth - c - 1;
+                    destBuffer.setElemDoubleAt(id, dArray[is]);
+                }
+            }
+        } else { // no flipping is needed
+            int i=0;
+            for (double val : dArray) {
+                destBuffer.setElemDoubleAt(i++, val);
+            }
+        }
+    }
+
 }

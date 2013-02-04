@@ -155,12 +155,23 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
         final String productId = productElem.getAttributeString("productId", defStr);
         final String beamMode = sourceAttributes.getAttributeString("beamModeMnemonic", defStr);
         String passStr = "DES";
-        if(pass.equals("ASCENDING"))
+        if(pass.equals("ASCENDING")) {
             passStr = "ASC";
-        final ProductData.UTC startTime = ReaderUtils.getTime(sarProcessingInformation,
-                "zeroDopplerTimeFirstLine", AbstractMetadata.dateFormat);
-        final ProductData.UTC stopTime = ReaderUtils.getTime(sarProcessingInformation,
-                "zeroDopplerTimeLastLine", AbstractMetadata.dateFormat);
+        }
+
+        ProductData.UTC startTime = null;
+        ProductData.UTC stopTime = null;
+        if(pass.equals("ASCENDING")) {
+            stopTime = ReaderUtils.getTime(sarProcessingInformation,
+                    "zeroDopplerTimeFirstLine", AbstractMetadata.dateFormat);
+            startTime = ReaderUtils.getTime(sarProcessingInformation,
+                    "zeroDopplerTimeLastLine", AbstractMetadata.dateFormat);
+        } else {
+            startTime = ReaderUtils.getTime(sarProcessingInformation,
+                    "zeroDopplerTimeFirstLine", AbstractMetadata.dateFormat);
+            stopTime = ReaderUtils.getTime(sarProcessingInformation,
+                    "zeroDopplerTimeLastLine", AbstractMetadata.dateFormat);
+        }
 
         final DateFormat dateFormat = ProductData.UTC.createDateFormat("dd-MMM-yyyy_HH.mm");
         final Date date = startTime.getAsDate();
@@ -421,6 +432,10 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
     @Override
     protected void addGeoCoding(final Product product) {
 
+        MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
+        final boolean isAscending = absRoot.getAttributeString(AbstractMetadata.PASS).equals("ASCENDING");
+        final boolean isAntennaPointingRight = absRoot.getAttributeString(AbstractMetadata.antenna_pointing).equals("right");
+
         final MetadataElement origProdRoot = AbstractMetadata.getOriginalProductMetadata(product);
         final MetadataElement productElem = origProdRoot.getElement("product");
         final MetadataElement imageAttributes = productElem.getElement("imageAttributes");
@@ -452,15 +467,58 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
             ++i;
         }
 
+        float[] flippedLatList = new float[geoGrid.length];
+        float[] flippedLonList = new float[geoGrid.length];
+        int is, id;
+        if (isAscending) {
+            if (isAntennaPointingRight) { // flip upside down
+                for (int r = 0; r < gridHeight; r++) {
+                    for (int c = 0; c < gridWidth; c++) {
+                        is = r*gridWidth + c;
+                        id = (gridHeight - r - 1)*gridWidth + c;
+                        flippedLatList[id] = latList[is];
+                        flippedLonList[id] = lngList[is];
+                    }
+                }
+            } else { // flip upside down then left to right
+                for (int r = 0; r < gridHeight; r++) {
+                    for (int c = 0; c < gridWidth; c++) {
+                        is = r*gridWidth + c;
+                        id = (gridHeight - r)*gridWidth - c - 1;
+                        flippedLatList[id] = latList[is];
+                        flippedLonList[id] = lngList[is];
+                    }
+                }
+            }
+
+        } else { // descending
+
+            if (isAntennaPointingRight) {  // flip left to right
+                for (int r = 0; r < gridHeight; r++) {
+                    for (int c = 0; c < gridWidth; c++) {
+                        is = r*gridWidth + c;
+                        id = r*gridWidth + gridWidth - c - 1;
+                        flippedLatList[id] = latList[is];
+                        flippedLonList[id] = lngList[is];
+                    }
+                }
+            } else { // no flipping is needed
+                for (int k = 0; k < geoGrid.length; k++) {
+                    flippedLatList[k] = latList[k];
+                    flippedLonList[k] = lngList[k];
+                }
+            }
+        }
+
         float subSamplingX = (float)product.getSceneRasterWidth() / (gridWidth - 1);
         float subSamplingY = (float)product.getSceneRasterHeight() / (gridHeight - 1);
 
         final TiePointGrid latGrid = new TiePointGrid(OperatorUtils.TPG_LATITUDE, gridWidth, gridHeight, 0.5f, 0.5f,
-                subSamplingX, subSamplingY, latList);
+                subSamplingX, subSamplingY, flippedLatList);
         latGrid.setUnit(Unit.DEGREES);
 
         final TiePointGrid lonGrid = new TiePointGrid(OperatorUtils.TPG_LONGITUDE, gridWidth, gridHeight, 0.5f, 0.5f,
-                subSamplingX, subSamplingY, lngList, TiePointGrid.DISCONT_AT_180);
+                subSamplingX, subSamplingY, flippedLonList, TiePointGrid.DISCONT_AT_180);
         lonGrid.setUnit(Unit.DEGREES);
 
         final TiePointGeoCoding tpGeoCoding = new TiePointGeoCoding(latGrid, lonGrid, Datum.WGS_84);
@@ -507,8 +565,7 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
         final double slantRangeToFirstPixel = absRoot.getAttributeDouble(AbstractMetadata.slant_range_to_first_pixel, 0); // in m
         final double rangeSpacing = absRoot.getAttributeDouble(AbstractMetadata.range_spacing, 0); // in m
         final boolean srgrFlag = absRoot.getAttributeInt(AbstractMetadata.srgr_flag) != 0;
-        final boolean isDescending = absRoot.getAttributeString(AbstractMetadata.PASS).equals("DESCENDING");
-        final boolean isAntennaPointingRight = absRoot.getAttributeString(AbstractMetadata.antenna_pointing).equals("right");
+//        final boolean isDescending = absRoot.getAttributeString(AbstractMetadata.PASS).equals("DESCENDING");
 
         // get scene center latitude
         final GeoPos sceneCenterPos =
@@ -553,9 +610,11 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
             final double alpha = Math.acos((rtPlusH2 - ri*ri - rt2)/(2.0*ri*rt));
             if (i % subSamplingX == 0) {
                 int index = k++;
+                /*
                 if(isDescending && isAntennaPointingRight || (!isDescending && !isAntennaPointingRight)) {// flip
                     index = gridWidth-1 - index;
                 }
+                */
                 incidenceAngles[index] = (float)(alpha * org.esa.beam.util.math.MathUtils.RTOD);
             }
 
@@ -614,7 +673,7 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
         final ProductData.UTC startTime = absRoot.getAttributeUTC(AbstractMetadata.first_line_time, AbstractMetadata.NO_METADATA_UTC);
         final double startSeconds = startTime.getMJD() * 24 * 3600;
         final double pixelSpacing = absRoot.getAttributeDouble(AbstractMetadata.range_spacing, 0);
-        final boolean isDescending = absRoot.getAttributeString(AbstractMetadata.PASS).equals("DESCENDING");
+//        final boolean isDescending = absRoot.getAttributeString(AbstractMetadata.PASS).equals("DESCENDING");
 
         final int gridWidth = 11;
         final int gridHeight = 11;
@@ -657,10 +716,10 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
 
         // get slant range time in nanoseconds from range distance in meters
         for(int i = 0; i < rangeDist.length; i++) {
-            int index = i;
-            if(isDescending) // flip for descending RS2
-                index = rangeDist.length-1 - i;
-            rangeTime[index] = (float)(rangeDist[i] / Constants.halfLightSpeed * 1000000000.0); // in ns
+//            int index = i;
+//            if(isDescending) // flip for descending RS2
+//                index = rangeDist.length-1 - i;
+            rangeTime[i] = (float)(rangeDist[i] / Constants.halfLightSpeed * 1000000000.0); // in ns
         }
 
         final TiePointGrid slantRangeGrid = new TiePointGrid(OperatorUtils.TPG_SLANT_RANGE_TIME,
