@@ -51,11 +51,11 @@ public class SpectraDiagramTest {
 
         assertEquals("Band_u_1",spectra[0][0].getName()); // not grouped
         assertEquals("Band_u_2",spectra[0][1].getName()); // not grouped
-        assertEquals("Band_g1_1",spectra[1][0].getName()); // group 1
-        assertEquals("Band_g1_2",spectra[1][1].getName()); // group 1
-        assertEquals("Band_g2_1",spectra[2][0].getName()); // group 2
-        assertEquals("Band_g2_2",spectra[2][1].getName()); // group 2
-        assertEquals("Band_g_1",spectra[3][0].getName()); // grouped
-        assertEquals("Band_g_2",spectra[3][1].getName()); // grouped
+        assertEquals("Band_g_1",spectra[1][0].getName()); // grouped
+        assertEquals("Band_g_2",spectra[1][1].getName()); // grouped
+        assertEquals("Band_g1_1",spectra[2][0].getName()); // group 1
+        assertEquals("Band_g1_2",spectra[2][1].getName()); // group 1
+        assertEquals("Band_g2_1",spectra[3][0].getName()); // group 2
+        assertEquals("Band_g2_2",spectra[3][1].getName()); // group 2
     }
 }

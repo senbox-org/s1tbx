@@ -18,6 +18,7 @@ package org.esa.beam.visat.toolviews.spectrum;
 
 import com.bc.ceres.swing.figure.FigureStyle;
 import com.bc.ceres.swing.figure.support.DefaultFigureStyle;
+import org.apache.commons.collections.map.ListOrderedMap;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Placemark;
 import org.esa.beam.framework.datamodel.Product;
@@ -34,6 +35,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 
 class SpectraDiagram extends Diagram {
@@ -114,14 +116,14 @@ class SpectraDiagram extends Diagram {
         if (bands == null || bands.length == 0) {
             return new Band[0][];
         }
-        Map<Product.AutoGrouping, Map<Integer, List<Band>>> graphsMap = new HashMap<Product.AutoGrouping, Map<Integer, List<Band>>>();
+        final Map<Product.AutoGrouping, Map<Integer, List<Band>>> graphsMap = new ListOrderedMap();
         final ArrayList<Band> ungroupedBands = new ArrayList<Band>();
         for (Band band : bands) {
             final Product.AutoGrouping autoGrouping = band.getProduct().getAutoGrouping();
             if (autoGrouping != null) {
                 Map<Integer, List<Band>> indexedBandMap = graphsMap.get(autoGrouping);
                 if (indexedBandMap == null) {
-                    indexedBandMap = new HashMap<Integer, List<Band>>();
+                    indexedBandMap = new TreeMap<Integer, List<Band>>();
                     graphsMap.put(autoGrouping, indexedBandMap);
                 }
                 final int index = autoGrouping.indexOf(band.getName());
