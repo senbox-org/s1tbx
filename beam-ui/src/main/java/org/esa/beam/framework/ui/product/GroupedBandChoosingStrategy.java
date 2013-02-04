@@ -163,6 +163,8 @@ public class GroupedBandChoosingStrategy implements BandChoosingStrategy {
         checkBoxTree.setBackground(color);
         renderer.setBackgroundSelectionColor(color);
         renderer.setBackgroundNonSelectionColor(color);
+        renderer.setBorderSelectionColor(color);
+        renderer.setTextSelectionColor(Color.BLACK);
 
         GridBagConstraints gbc2 = GridBagUtils.createConstraints("insets.left=4,anchor=WEST,fill=BOTH");
         final JPanel checkersPane = GridBagUtils.createPanel();
