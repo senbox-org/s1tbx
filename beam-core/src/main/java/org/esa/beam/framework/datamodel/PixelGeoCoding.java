@@ -793,7 +793,7 @@ public class PixelGeoCoding extends AbstractGeoCoding {
         final float latMax = max(lat0, max(lat1, max(lat2, lat3))) + epsL;
         float lonMin;
         float lonMax;
-        if (isCrossingMeridianInsideQuad(crossingMeridianAt180, lon0, lon1, lon2, lon3)) {
+        if (isCrossingMeridianInsideQuad(isCrossingMeridianAt180(), lon0, lon1, lon2, lon3)) {
             final float signumLon = Math.signum(lon);
             if (signumLon > 0f) {
                 // position is in a region with positive longitudes, so cut negative longitudes from quad area
