@@ -131,29 +131,28 @@ public class Sentinel1ProductReader extends AbstractProductReader {
         }
     }
 
-    public void readSLCRasterBand(final int sourceOffsetX, final int sourceOffsetY,
+    public synchronized void readSLCRasterBand(final int sourceOffsetX, final int sourceOffsetY,
                                                    final int sourceStepX, final int sourceStepY,
                                                    final ProductData destBuffer,
                                                    final int destOffsetX, final int destOffsetY,
                                                    int destWidth, int destHeight,
                                                    final int imageID, final ImageIOFile img,
                                                    final boolean oneOfTwo) throws IOException {
-        final Raster data;
-
+        final double[] srcArray;
         final ImageReader reader = img.getReader();
         final ImageReadParam param = reader.getDefaultReadParam();
         param.setSourceSubsampling(sourceStepX, sourceStepY, sourceOffsetX % sourceStepX, sourceOffsetY % sourceStepY);
-        synchronized(dataDir) {
-            final RenderedImage image = img.getReader().readAsRenderedImage(0, param);
-            data = image.getData(new Rectangle(destOffsetX, destOffsetY, destWidth, destHeight));
-        }
+
+        final RenderedImage image = img.getReader().readAsRenderedImage(0, param);
+        final Raster data = image.getData(new Rectangle(destOffsetX, destOffsetY, destWidth, destHeight));
 
         final SampleModel sampleModel = data.getSampleModel();
         destWidth = Math.min(destWidth, sampleModel.getWidth());
         destHeight = Math.min(destHeight, sampleModel.getHeight());
 
-        final double[] srcArray = new double[destWidth * destHeight];
+        srcArray = new double[destWidth * destHeight];
         sampleModel.getSamples(0, 0, destWidth, destHeight, imageID, srcArray, data.getDataBuffer());
+
         if (oneOfTwo)
             copyLine1Of2(srcArray, (short[])destBuffer.getElems(), sourceStepX);
         else

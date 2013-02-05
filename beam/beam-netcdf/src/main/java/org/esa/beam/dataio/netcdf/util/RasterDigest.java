@@ -59,7 +59,7 @@ public class RasterDigest {
         return new RasterDigest(rasterDim, rasterVariables);
     }
 
-    static Variable[] getRasterVariables(Map<DimKey, List<Variable>> variableLists,
+    public static Variable[] getRasterVariables(Map<DimKey, List<Variable>> variableLists,
                                          DimKey rasterDim) {
         final List<Variable> list = variableLists.get(rasterDim);
         return list.toArray(new Variable[list.size()]);
@@ -76,6 +76,13 @@ public class RasterDigest {
         for (DimKey rasterDim : ncRasterDims) {
             if (rasterDim.isTypicalRasterDim()) {
                 return rasterDim;
+            }
+
+            // otherwise go by the largest size
+            if(bestRasterDim == null ||
+                    (bestRasterDim.getDimensionX().getLength() * bestRasterDim.getDimensionY().getLength()) <
+                            (rasterDim.getDimensionX().getLength()*rasterDim.getDimensionY().getLength())) {
+                bestRasterDim = rasterDim;
             }
             // Otherwise, we assume the best is the one which holds the most variables
             final List<Variable> varList = variableListMap.get(rasterDim);

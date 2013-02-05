@@ -82,11 +82,13 @@ public class Sentinel1OCNReader {
             }
             context.setRasterDigest(rasterDigest);
 
-            CfBandPart bandReader = new CfBandPart();
-            try {
-                bandReader.decode(context, product);
-            } catch(IOException e) {
-                
+            if(product.getSceneRasterWidth() > 0 && product.getSceneRasterHeight() > 0) {
+                CfBandPart bandReader = new CfBandPart();
+                try {
+                    bandReader.decode(context, product);
+                } catch(Exception e) {
+
+                }
             }
 
        /*     final Map<NcRasterDim, List<Variable>> variableListMap = NetCDFUtils.getVariableListMap(netcdfFile.getRootGroup());

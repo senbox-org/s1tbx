@@ -175,6 +175,9 @@ public class Sentinel1ProductDirectory extends XMLProductDirectory {
                 final String name = software.getAttributeString("name");
                 final String version = software.getAttributeString("version");
                 AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ProcessingSystemIdentifier, org+' '+name+' '+version);
+
+                final ProductData.UTC start = Sentinel1Utils.getTime(processing, "start");
+                AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PROC_TIME, start);
             } else if(id.equals("acquisitionPeriod")) {
                 final MetadataElement acquisitionPeriod = findElement(metadataObject, "acquisitionPeriod");
                 final ProductData.UTC startTime = Sentinel1Utils.getTime(acquisitionPeriod, "startTime");
@@ -206,7 +209,11 @@ public class Sentinel1ProductDirectory extends XMLProductDirectory {
 
             } else if(id.equals("generalProductInformation")) {
                 final MetadataElement generalProductInformation = findElement(metadataObject, "generalProductInformation");
-                final String productType = generalProductInformation.getAttributeString("productType", defStr);
+                final String productType;
+                if(OCNReader != null)
+                    productType = "OCN";
+                else
+                    productType = generalProductInformation.getAttributeString("productType", defStr);
                 product.setProductType(productType);
                 AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PRODUCT_TYPE, productType);
                 if(productType.contains("SLC")) {
@@ -338,6 +345,13 @@ public class Sentinel1ProductDirectory extends XMLProductDirectory {
                         rangeProcessing.getAttributeDouble("numberOfLooks"));
                 AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_looks,
                         azimuthProcessing.getAttributeDouble("numberOfLooks"));
+
+                if(!isTOPSAR()) {
+                    AbstractMetadata.setAttribute(absRoot, AbstractMetadata.num_output_lines,
+                            imageInformation.getAttributeInt("numberOfLines"));
+                    AbstractMetadata.setAttribute(absRoot, AbstractMetadata.num_samples_per_line,
+                            imageInformation.getAttributeInt("numberOfSamples"));
+                }
 
                 addOrbitStateVectors(absRoot, generalAnnotation.getElement("orbitList"));
                 addSRGRCoefficients(absRoot, prodElem.getElement("coordinateConversion"));
@@ -673,5 +687,11 @@ public class Sentinel1ProductDirectory extends XMLProductDirectory {
         if(name.toUpperCase().endsWith(".SAFE"))
             return name.substring(0, name.length()-5);
         return name;
+    }
+
+    protected String getProductType() {
+        if(OCNReader != null)
+            return "Level-2 OCN";
+        return "Level-1";
     }
 }

@@ -478,6 +478,23 @@ public class BasicApp {
     }
 
     private boolean initLookAndFeel() {
+
+        try {
+            UIManager.installLookAndFeel("Napkin", "net.sourceforge.napkinlaf.NapkinLookAndFeel");
+        } catch (Throwable e) {
+            // ignored, because Napkin LAF is not important
+        }
+        try {
+            UIManager.installLookAndFeel("Jtattoo", "com.jtattoo.plaf.smart.SmartLookAndFeel");
+        } catch(Throwable e) {
+            //
+        }
+        try {
+            UIManager.installLookAndFeel("SeaGlass", "com.seaglasslookandfeel.SeaGlassLookAndFeel");
+        } catch(Throwable e) {
+            //
+        }
+
         String currentLafClassName = UIManager.getLookAndFeel().getClass().getName();
 
         String defaultLafClassName = getDefaultLookAndFeelClassName();

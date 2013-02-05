@@ -738,6 +738,19 @@
 				<version>1.5.r0196</version>
 	        </dependency>
 		
+			<!-- look and feel -->
+			
+			<dependency>
+				<groupId>net.sf.squirrel-sql.thirdparty-non-maven</groupId>
+				<artifactId>napkinlaf</artifactId>
+				<version>1.2</version>
+			</dependency>
+			<dependency>
+				<groupId>com.seaglasslookandfeel</groupId>
+				<artifactId>seaglasslookandfeel</artifactId>
+				<version>0.2</version>
+			</dependency>
+
         </dependencies>
     </dependencyManagement>
 
