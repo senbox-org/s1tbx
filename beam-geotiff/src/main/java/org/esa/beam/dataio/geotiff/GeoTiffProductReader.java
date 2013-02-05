@@ -94,6 +94,7 @@ public class GeoTiffProductReader extends AbstractProductReader {
     private Map<Band, Integer> bandMap;
 
     private TIFFImageReader imageReader;
+    private boolean isGlobalShifted180;
 
     public GeoTiffProductReader(ProductReaderPlugIn readerPlugIn) {
         super(readerPlugIn);
@@ -121,37 +122,94 @@ public class GeoTiffProductReader extends AbstractProductReader {
                                           int destOffsetX, int destOffsetY,
                                           int destWidth, int destHeight,
                                           ProductData destBuffer, ProgressMonitor pm) throws IOException {
+
+        if (isGlobalShifted180) {
+            // SPECIAL CASE of a global geographic lat/lon with lon from 0..360 instead of -180..180
+            readBandRasterDataImplGlobalShifted180(sourceOffsetX, sourceOffsetY, sourceWidth, sourceHeight,
+                                                   sourceStepX, sourceStepY, destBand, destOffsetX, destOffsetY,
+                                                   destWidth, destHeight, destBuffer, pm);
+        } else {
+            // the normal case!!
+            final int destSize = destWidth * destHeight;
+            pm.beginTask("Reading data...", 3);
+            try {
+                final Raster data = readRect(sourceOffsetX, sourceOffsetY, sourceStepX, sourceStepY,
+                                             destOffsetX, destOffsetY, destWidth, destHeight);
+                pm.worked(1);
+
+                double[] dArray = new double[destSize];
+                Integer bandIdx = bandMap.get(destBand);
+                if (bandIdx == null) {
+                    bandIdx = 0;
+                }
+                final DataBuffer dataBuffer = data.getDataBuffer();
+                final SampleModel sampleModel = data.getSampleModel();
+                sampleModel.getSamples(0, 0, data.getWidth(), data.getHeight(), bandIdx, dArray, dataBuffer);
+                pm.worked(1);
+
+                for (int i = 0; i < dArray.length; i++) {
+                    destBuffer.setElemDoubleAt(i, dArray[i]);
+                }
+
+                pm.worked(1);
+
+            } finally {
+                pm.done();
+            }
+        }
+    }
+
+    private void readBandRasterDataImplGlobalShifted180(int sourceOffsetX, int sourceOffsetY,
+                                                        int sourceWidth, int sourceHeight,
+                                                        int sourceStepX, int sourceStepY,
+                                                        Band destBand,
+                                                        int destOffsetX, int destOffsetY,
+                                                        int destWidth, int destHeight,
+                                                        ProductData destBuffer, ProgressMonitor pm) throws IOException {
         final int destSize = destWidth * destHeight;
         pm.beginTask("Reading data...", 3);
         try {
-            final Raster data = readRect(sourceOffsetX, sourceOffsetY, sourceStepX, sourceStepY,
-                                         destOffsetX, destOffsetY, destWidth, destHeight);
+
+            final Raster dataLeft = readRect(sourceOffsetX, sourceOffsetY, sourceStepX, sourceStepY,
+                                             destOffsetX, destOffsetY, destWidth / 2, destHeight);
+            final Raster dataRight = readRect(sourceOffsetX, sourceOffsetY, sourceStepX, sourceStepY,
+                                              destOffsetX + destWidth / 2, destOffsetY, destWidth / 2, destHeight);
             pm.worked(1);
 
-            double[] dArray = new double[destSize];
+            double[] dArrayLeft = new double[destSize / 2];
+            double[] dArrayRight = new double[destSize / 2];
             Integer bandIdx = bandMap.get(destBand);
             if (bandIdx == null) {
                 bandIdx = 0;
             }
-            final DataBuffer dataBuffer = data.getDataBuffer();
-            final SampleModel sampleModel = data.getSampleModel();
-            sampleModel.getSamples(0, 0, data.getWidth(), data.getHeight(), bandIdx, dArray, dataBuffer);
+            final DataBuffer dataBufferLeft = dataLeft.getDataBuffer();
+            final DataBuffer dataBufferRight = dataRight.getDataBuffer();
+            final SampleModel sampleModelLeft = dataLeft.getSampleModel();
+            final SampleModel sampleModelRight = dataRight.getSampleModel();
+            sampleModelLeft.getSamples(0, 0, dataLeft.getWidth(), dataLeft.getHeight(), bandIdx, dArrayLeft, dataBufferLeft);
+            sampleModelRight.getSamples(0, 0, dataRight.getWidth(), dataRight.getHeight(), bandIdx, dArrayRight, dataBufferRight);
             pm.worked(1);
 
-            for (int i = 0; i < dArray.length; i++) {
-                destBuffer.setElemDoubleAt(i, dArray[i]);
+            int dArrayIndex = 0;
+            for (int y = 0; y < destHeight; y++) {
+                for (int x = 0; x < destWidth / 2; x++) {
+                    destBuffer.setElemDoubleAt(dArrayIndex++, dArrayRight[y * destWidth / 2 + x]);
+                }
+                for (int x = 0; x < destWidth / 2; x++) {
+                    destBuffer.setElemDoubleAt(dArrayIndex++, dArrayLeft[y * destWidth / 2 + x]);
+                }
             }
+
             pm.worked(1);
 
         } finally {
             pm.done();
         }
-
     }
 
     private synchronized Raster readRect(int sourceOffsetX, int sourceOffsetY, int sourceStepX, int sourceStepY,
                                          int destOffsetX, int destOffsetY, int destWidth, int destHeight) throws
-                                                                                                          IOException {
+            IOException {
         ImageReadParam readParam = imageReader.getDefaultReadParam();
         int subsamplingXOffset = sourceOffsetX % sourceStepX;
         int subsamplingYOffset = sourceOffsetY % sourceStepY;
@@ -249,7 +307,6 @@ public class GeoTiffProductReader extends AbstractProductReader {
      *
      * @param product   the Product
      * @param inputFile the source tiff file
-     *
      * @throws IOException in case of an IO error
      */
     @SuppressWarnings({"UnusedDeclaration"})
@@ -277,7 +334,7 @@ public class GeoTiffProductReader extends AbstractProductReader {
     }
 
     private void addBandsToProduct(TiffFileInfo tiffInfo, Product product) throws
-                                                                           IOException {
+            IOException {
         final ImageReadParam readParam = imageReader.getDefaultReadParam();
         TIFFRenderedImage baseImage = (TIFFRenderedImage) imageReader.readAsRenderedImage(FIRST_IMAGE, readParam);
         SampleModel sampleModel = baseImage.getSampleModel();
@@ -303,7 +360,11 @@ public class GeoTiffProductReader extends AbstractProductReader {
         } else {
             dimension = new Dimension(imageReader.getTileWidth(FIRST_IMAGE), imageReader.getTileHeight(FIRST_IMAGE));
         }
-        product.setPreferredTileSize(dimension);
+        if (isGlobalShifted180) {
+            product.setPreferredTileSize(new Dimension(imageReader.getWidth(FIRST_IMAGE), imageReader.getHeight(FIRST_IMAGE)));
+        } else {
+            product.setPreferredTileSize(dimension);
+        }
     }
 
     private boolean isBadTiling() throws IOException {
@@ -330,10 +391,21 @@ public class GeoTiffProductReader extends AbstractProductReader {
         return new ImageInfo(new ColorPaletteDef(points, points.length));
     }
 
-    private static void applyGeoCoding(TiffFileInfo info, TIFFImageMetadata metadata, Product product) {
+    private void applyGeoCoding(TiffFileInfo info, TIFFImageMetadata metadata, Product product) {
         if (info.containsField(GeoTIFFTagSet.TAG_MODEL_TIE_POINT)) {
 
-            final double[] tiePoints = info.getField(GeoTIFFTagSet.TAG_MODEL_TIE_POINT).getAsDoubles();
+            double[] tiePoints = info.getField(GeoTIFFTagSet.TAG_MODEL_TIE_POINT).getAsDoubles();
+
+            // check if we have a global geographic lat/lon with lon from 0..360 instead of -180..180
+            // todo: very draft implementation, works for NCEP air temperature files. to be further investigated!!
+            final double deltaX = Math.ceil(360. / product.getSceneRasterWidth());
+            if (tiePoints.length == 6 && Math.abs(tiePoints[3]) < deltaX) {
+                // e.g. tiePoints[3] = -0.5, productWidth=722 --> we have a lon range of 360 which should start
+                // at or near -180 but not at zero
+                isGlobalShifted180 = true;
+                // subtract 180 from the longitudes
+                tiePoints[3] -= 180.0;
+            }
 
             if (canCreateTiePointGeoCoding(tiePoints)) {
                 applyTiePointGeoCoding(info, tiePoints, product);
