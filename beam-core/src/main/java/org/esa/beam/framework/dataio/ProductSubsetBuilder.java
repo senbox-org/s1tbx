@@ -313,11 +313,11 @@ public class ProductSubsetBuilder extends AbstractProductBuilder {
             addIndexCodingsToProduct(product);
         }
         addBandsToProduct(product);
+        ProductUtils.copyMasks(sourceProduct, product);
         if (!isMetadataIgnored()) {
             addGeoCodingToProduct(product);
         }
         ProductUtils.copyVectorData(sourceProduct, product);
-        ProductUtils.copyMasks(sourceProduct, product);
         ProductUtils.copyOverlayMasks(sourceProduct, product);
         ProductUtils.copyPreferredTileSize(sourceProduct, product);
         setSceneRasterStartAndStopTime(product);

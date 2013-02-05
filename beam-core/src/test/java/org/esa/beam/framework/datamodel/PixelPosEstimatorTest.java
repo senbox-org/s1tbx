@@ -244,7 +244,9 @@ public class PixelPosEstimatorTest {
                                                           final double lonResolution,
                                                           final double latResolution,
                                                           Rotator rotator) {
-        final OpImage lonImage = new CoordinateOpImage(nx, ny, lonResolution, latResolution, rotator) {
+        final RenderingHints configuration = new RenderingHints(JAI.KEY_TILE_CACHE,
+                                                                JAI.getDefaultInstance().getTileCache());
+        final OpImage lonImage = new CoordinateOpImage(nx, ny, lonResolution, latResolution, rotator, configuration) {
 
             @Override
             protected final double getCoordinate(Point2D p) {
@@ -252,7 +254,7 @@ public class PixelPosEstimatorTest {
             }
         };
 
-        final OpImage latImage = new CoordinateOpImage(nx, ny, lonResolution, latResolution, rotator) {
+        final OpImage latImage = new CoordinateOpImage(nx, ny, lonResolution, latResolution, rotator, configuration) {
 
             @Override
             protected final double getCoordinate(Point2D p) {
@@ -262,7 +264,7 @@ public class PixelPosEstimatorTest {
 
         final RenderedOp maskImage = ConstantDescriptor.create((float) lonImage.getWidth(),
                                                                (float) lonImage.getHeight(),
-                                                               new Byte[]{1}, null);
+                                                               new Byte[]{1}, configuration);
 
         return new PlanarImage[]{lonImage, latImage, maskImage};
     }
@@ -275,9 +277,9 @@ public class PixelPosEstimatorTest {
         private final double lonResolution;
         private final Rotator rotator;
 
-        public CoordinateOpImage(int nx, int ny, double lonResolution, double latResolution, Rotator rotator) {
-            super(new ImageLayout(0, 0, nx, ny),
-                  new RenderingHints(JAI.KEY_TILE_CACHE, JAI.getDefaultInstance().getTileCache()),
+        public CoordinateOpImage(int nx, int ny, double lonResolution, double latResolution, Rotator rotator,
+                                 RenderingHints configuration) {
+            super(new ImageLayout(0, 0, nx, ny), configuration,
                   new SingleBandedSampleModel(DataBuffer.TYPE_DOUBLE, nx, ny),
                   0, 0, nx, ny);
             this.latResolution = latResolution;
