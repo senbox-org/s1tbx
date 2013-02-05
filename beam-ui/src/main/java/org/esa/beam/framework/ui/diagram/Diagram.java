@@ -346,11 +346,14 @@ public class Diagram {
 
         g2d.setClip(graphArea.x, graphArea.y, graphArea.width, graphArea.height);
 
-        Point2D.Double a = new Point2D.Double();
-        Point2D.Double b1 = new Point2D.Double();
-        Point2D.Double b2 = new Point2D.Double();
+        Point2D.Double a;
+        Point2D.Double b1;
+        Point2D.Double b2;
         DiagramGraph[] graphs = getGraphs();
         for (DiagramGraph graph : graphs) {
+            a = new Point2D.Double();
+            b1 = new Point2D.Double();
+            b2 = new Point2D.Double();
             g2d.setStroke(graph.getStyle().getOutlineStroke());
             g2d.setColor(graph.getStyle().getOutlineColor());
             int n = graph.getNumValues();
@@ -359,9 +362,14 @@ public class Diagram {
                 double ya = graph.getYValueAt(i);
                 if (!Double.isNaN(ya)) {
                     a.setLocation(xa, ya);
-                    b1.setLocation(b2);
-                    transform.transformA2B(a, b2);
-                    if (i > 0) {
+                    if (b2.equals(new Point2D.Double())) {
+                        transform.transformA2B(a, b1);
+                        b2.setLocation(b1);
+                    } else {
+                        b1.setLocation(b2);
+                        transform.transformA2B(a, b2);
+                    }
+                    if (i > 0 && !b1.equals(b2)) {
                         g2d.draw(new Line2D.Double(b1, b2));
                     }
                 }
