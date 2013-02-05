@@ -176,14 +176,10 @@ public class ImageGeometry {
             final CoordinateReferenceSystem sourceCrs = product.getGeoCoding().getImageCRS();
             final int sourceW = product.getSceneRasterWidth();
             final int sourceH = product.getSceneRasterHeight();
+            //todo decide on when to use createValidRect
             Rectangle2D rect;
             rect = XRectangle2D.createFromExtremums(0.5, 0.5, sourceW - 0.5, sourceH - 0.5);
 //                rect = createValidRect(product);
-            final Rectangle2D rectBounds = rect.getBounds2D();
-            System.out.println("rectBounds = " + rectBounds.getX());
-            System.out.println("rectBounds = " + rectBounds.getY());
-            System.out.println("rectBounds = " + rectBounds.getWidth());
-            System.out.println("rectBounds = " + rectBounds.getHeight());
             int pointsPerSide = Math.min(sourceH, sourceW) / 10;
             pointsPerSide = Math.max(9, pointsPerSide);
             final ReferencedEnvelope sourceEnvelope = new ReferencedEnvelope(rect, sourceCrs);
