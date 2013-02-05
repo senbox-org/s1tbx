@@ -55,6 +55,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -71,6 +72,7 @@ public class SpectrumToolView extends AbstractToolView {
     private final ProductNodeListenerAdapter productNodeHandler;
     private final PinSelectionChangeListener pinSelectionChangeListener;
     private final PixelPositionListener ppl;
+    private final Map<Product.AutoGrouping, Band[]> autoGroupingToBands;
 
     private DiagramCanvas diagramCanvas;
     private AbstractButton filterButton;
@@ -95,6 +97,7 @@ public class SpectrumToolView extends AbstractToolView {
         pinSelectionChangeListener = new PinSelectionChangeListener();
         productToDiagramMap = new HashMap<Product, SpectraDiagram>(4);
         ppl = new CursorSpectrumPixelPositionListener(this);
+        autoGroupingToBands = new HashMap<Product.AutoGrouping, Band[]>();
     }
 
     private ProductSceneView getCurrentView() {
@@ -483,11 +486,37 @@ public class SpectrumToolView extends AbstractToolView {
         if (getSpectraDiagram() != null && getSelectedSpectralBands() != null && getSpectraDiagram().isUserSelection()) {
             spectraDiagram.setBands(getSelectedSpectralBands(), true);
         } else {
-            spectraDiagram.setBands(getAvailableSpectralBands(), false);
+            spectraDiagram.setBands(getInitiallySelectedBands(), false);
         }
         spectraDiagram.updateSpectra(pixelX, pixelY, level);
         setSpectraDiagram(spectraDiagram);
         updateUIState();
+    }
+
+    private Band[] getInitiallySelectedBands() {
+        final Product.AutoGrouping autoGrouping = this.getCurrentProduct().getAutoGrouping();
+        if (autoGrouping != null) {
+            if (autoGroupingToBands.containsKey(autoGrouping)) {
+                return autoGroupingToBands.get(autoGrouping);
+            } else {
+                List<Band> initiallySelectedBandList = new ArrayList<Band>();
+                final Band[] availableSpectralBands = getAvailableSpectralBands();
+                int groupIndex = 0;
+                while (initiallySelectedBandList.isEmpty() && groupIndex < autoGrouping.size()) {
+                    for (Band availableSpectralBand : availableSpectralBands) {
+                        if (autoGrouping.indexOf(availableSpectralBand.getName()) == groupIndex) {
+                            initiallySelectedBandList.add(availableSpectralBand);
+                        }
+                    }
+                    groupIndex++;
+                }
+                final Band[] initiallySelectedBands = initiallySelectedBandList.toArray(new Band[initiallySelectedBandList.size()]);
+                autoGroupingToBands.put(autoGrouping, initiallySelectedBands);
+                return initiallySelectedBands;
+            }
+        } else {
+            return getAvailableSpectralBands();
+        }
     }
 
     private boolean isShowingSpectraForSelectedPins() {
