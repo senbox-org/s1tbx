@@ -21,7 +21,6 @@ import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.ProductUtils;
-import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.math.DistanceCalculator;
 import org.esa.beam.util.math.MathUtils;
 import org.esa.beam.util.math.SinusoidalDistanceCalculator;
@@ -87,37 +86,11 @@ public class PixelGeoCoding2 extends AbstractGeoCoding {
         }
         if (product.getSceneRasterWidth() < 2 || product.getSceneRasterHeight() < 2) {
             throw new IllegalArgumentException(
-                        "latBand.getProduct().getSceneRasterWidth() < 2 || latBand.getProduct().getSceneRasterHeight() < 2");
+                    "latBand.getProduct().getSceneRasterWidth() < 2 || latBand.getProduct().getSceneRasterHeight() < 2");
         }
 
         this.latBand = latBand;
         this.lonBand = lonBand;
-
-        final String validLatExpression = latBand.getValidMaskExpression();
-        final String validLonExpression = lonBand.getValidMaskExpression();
-
-        final StringBuilder expressionBuilder;
-        if (StringUtils.isNullOrEmpty(maskExpression)) {
-            expressionBuilder = new StringBuilder();
-        } else {
-            expressionBuilder = new StringBuilder("(" + maskExpression + ")");
-        }
-        if (validLatExpression != null && !validLatExpression.equals(maskExpression)) {
-            if (expressionBuilder.length() > 0) {
-                expressionBuilder.append(" && ");
-            }
-            expressionBuilder.append("(").append(validLatExpression).append(")");
-        }
-        if (validLonExpression != null && !validLonExpression.equals(maskExpression) && !validLonExpression.equals(
-                    validLatExpression)) {
-            if (expressionBuilder.length() > 0) {
-                expressionBuilder.append(" && ");
-            }
-            expressionBuilder.append("(").append(validLonExpression).append(")");
-        }
-        if (expressionBuilder.length() > 0) {
-            maskExpression = expressionBuilder.toString();
-        }
 
         this.rasterW = latBand.getSceneRasterWidth();
         this.rasterH = latBand.getSceneRasterHeight();
@@ -133,28 +106,37 @@ public class PixelGeoCoding2 extends AbstractGeoCoding {
             latImage = latBand.getGeophysicalImage();
         }
 
-        maskImage = null;
-        if (maskExpression != null && maskExpression.trim().length() > 0) {
-            this.maskExpression = maskExpression;
-            final ProductNodeGroup<Mask> maskGroup = product.getMaskGroup();
-            for (int i = 0; i < maskGroup.getNodeCount(); i++) {
-                final Mask mask = maskGroup.get(i);
-                if (mask.getImageType() == Mask.BandMathsType.INSTANCE) {
-                    if (Mask.BandMathsType.getExpression(mask).equals(maskExpression)) {
-                        maskImage = mask.getSourceImage();
-                        break;
+        this.maskImage = null;
+        if (maskExpression != null) {
+            maskExpression = maskExpression.trim();
+            if (maskExpression.length() > 0) {
+                final ProductNodeGroup<Mask> maskGroup = product.getMaskGroup();
+                for (int i = 0; i < maskGroup.getNodeCount(); i++) {
+                    final Mask mask = maskGroup.get(i);
+                    if (mask.getImageType() == Mask.BandMathsType.INSTANCE) {
+                        if (Mask.BandMathsType.getExpression(mask).equals(maskExpression)) {
+                            maskImage = mask.getSourceImage();
+                            break;
+                        }
                     }
                 }
-            }
-            if (maskImage == null) {
-                maskImage = (PlanarImage) ImageManager.getInstance().getMaskImage(maskExpression, lonBand.getProduct()).getImage(0);
+                if (maskImage == null) {
+                    maskImage = (PlanarImage) ImageManager.getInstance().getMaskImage(maskExpression,
+                                                                                      lonBand.getProduct()).getImage(0);
+                }
+            } else {
+                maskExpression = null;
+                maskImage = ConstantDescriptor.create((float) lonImage.getWidth(),
+                                                      (float) lonImage.getHeight(),
+                                                      new Byte[]{1}, null);
             }
         } else {
-            this.maskExpression = null;
+            maskExpression = null;
             maskImage = ConstantDescriptor.create((float) lonImage.getWidth(),
                                                   (float) lonImage.getHeight(),
                                                   new Byte[]{1}, null);
         }
+        this.maskExpression = maskExpression;
 
         final PixelDimensionEstimator pixelDimensionEstimator = new SimplePixelDimensionEstimator();
         final Dimension2D pixelDimension = pixelDimensionEstimator.getPixelDimension(lonImage,
