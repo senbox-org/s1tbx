@@ -15,6 +15,7 @@
  */
 package org.esa.beam.framework.datamodel;
 
+import com.bc.ceres.glevel.MultiLevelImage;
 import org.esa.beam.framework.dataio.ProductSubsetDef;
 import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.jai.ImageManager;
@@ -230,8 +231,10 @@ public class PixelGeoCoding2 extends AbstractGeoCoding {
         if (pixelPos.isValid() && pixelPosIsInsideRasterWH(pixelPos)) {
             int x0 = (int) Math.floor(pixelPos.getX());
             int y0 = (int) Math.floor(pixelPos.getY());
-            final float lon0 = getSampleFloat(x0, y0, lonImage);
-            final float lat0 = getSampleFloat(x0, y0, latImage);
+            final PlanarImage lonMaskImage = lonBand.getValidMaskImage();
+            final PlanarImage latMaskImage = latBand.getValidMaskImage();
+            final float lon0 = getSampleFloat(x0, y0, lonImage, lonMaskImage);
+            final float lat0 = getSampleFloat(x0, y0, latImage, latMaskImage);
 
             if (lat0 >= -90.0f && lat0 <= 90.0f && lon0 >= -180.0f && lon0 <= 180.0f) {
                 if (fractionAccuracy) {
@@ -244,8 +247,8 @@ public class PixelGeoCoding2 extends AbstractGeoCoding {
 
                     final float wx = pixelPos.x - (x0 + 0.5f);
                     final float wy = pixelPos.y - (y0 + 0.5f);
-                    final float lat = interpolate(x0, y0, wx, wy, latImage, -90.0f, 90.0f, lat0);
-                    final float lon = interpolate(x0, y0, wx, wy, lonImage, -180.0f, 180.0f, lon0);
+                    final float lon = interpolate(x0, y0, wx, wy, lonImage, lonMaskImage, -180.0f, 180.0f, lon0);
+                    final float lat = interpolate(x0, y0, wx, wy, latImage, latMaskImage, -90.0f, 90.0f, lat0);
 
                     geoPos.setLocation(lat, lon);
                 } else {
@@ -256,17 +259,19 @@ public class PixelGeoCoding2 extends AbstractGeoCoding {
         return geoPos;
     }
 
-    private float interpolate(int x0, int y0, float wx, float wy, PlanarImage image, float min, float max,
+    private float interpolate(int x0, int y0, float wx, float wy, PlanarImage image, PlanarImage maskImage,
+                              float min,
+                              float max,
                               float defaultValue) {
         final int x1 = x0 + 1;
         final int y1 = y0 + 1;
-        final float d00 = getSampleFloat(x0, y0, image);
+        final float d00 = getSampleFloat(x0, y0, image, maskImage);
         if (d00 >= min && d00 <= max) {
-            final float d10 = getSampleFloat(x1, y0, image);
+            final float d10 = getSampleFloat(x1, y0, image, maskImage);
             if (d10 >= min && d10 <= max) {
-                final float d01 = getSampleFloat(x0, y1, image);
+                final float d01 = getSampleFloat(x0, y1, image, maskImage);
                 if (d01 >= min && d01 <= max) {
-                    final float d11 = getSampleFloat(x1, y1, image);
+                    final float d11 = getSampleFloat(x1, y1, image, maskImage);
                     if (d11 >= min && d11 <= max) {
                         return MathUtils.interpolate2D(wx, wy, d00, d10, d01, d11);
                     }
@@ -338,13 +343,18 @@ public class PixelGeoCoding2 extends AbstractGeoCoding {
         latImage = null;
     }
 
-    private static float getSampleFloat(int pixelX, int pixelY, PlanarImage image) {
+    private static float getSampleFloat(int pixelX, int pixelY, PlanarImage image, PlanarImage maskImage) {
         final int x = image.getMinX() + pixelX;
         final int y = image.getMinY() + pixelY;
         final int tileX = image.XToTileX(x);
         final int tileY = image.YToTileY(y);
         final Raster data = image.getTile(tileX, tileY);
-
+        if (maskImage != null) {
+            final int maskValue = maskImage.getTile(tileX, tileY).getSample(x, y, 0);
+            if (maskValue == 0) {
+                return Float.NaN;
+            }
+        }
         return data.getSampleFloat(x, y, 0);
     }
 
