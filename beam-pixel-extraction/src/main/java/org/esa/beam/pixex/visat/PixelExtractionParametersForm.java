@@ -120,9 +120,11 @@ class PixelExtractionParametersForm {
             final Coordinate.OriginalValue[] originalValues = PixExOp.getOriginalValues(feature);
             if (placemark.getGeoPos() == null) {
                 final Point point = (Point) feature.getDefaultGeometry();
-                coordinates[i] = new Coordinate(placemark.getName(), (float) point.getY(), (float) point.getX(), dateTime, originalValues);
+                coordinates[i] = new Coordinate(placemark.getName(), (float) point.getY(), (float) point.getX(),
+                                                dateTime, originalValues);
             } else {
-                coordinates[i] = new Coordinate(placemark.getName(), placemark.getGeoPos().getLat(), placemark.getGeoPos().getLon(), dateTime, originalValues);
+                coordinates[i] = new Coordinate(placemark.getName(), placemark.getGeoPos().getLat(),
+                                                placemark.getGeoPos().getLon(), dateTime, originalValues);
             }
         }
         return coordinates;
@@ -299,8 +301,7 @@ class PixelExtractionParametersForm {
         timeSpinner.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
-                allowedTimeDifference = String.valueOf(
-                        timeSpinner.getValue()) + timeUnitComboBox.getSelectedItem().toString().charAt(0);
+                allowedTimeDifference = createAllowedTimeDifferenceString();
             }
         });
         timeUnitComboBox = new JComboBox(new String[]{"Day(s)", "Hour(s)", "Minute(s)"});
@@ -308,8 +309,7 @@ class PixelExtractionParametersForm {
         timeUnitComboBox.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                allowedTimeDifference = String.valueOf(
-                        timeSpinner.getValue()) + timeUnitComboBox.getSelectedItem().toString().charAt(0);
+                allowedTimeDifference = createAllowedTimeDifferenceString();
             }
         });
 
@@ -318,11 +318,16 @@ class PixelExtractionParametersForm {
             public void actionPerformed(ActionEvent e) {
                 timeSpinner.setEnabled(box.isSelected());
                 timeUnitComboBox.setEnabled(box.isSelected());
-                allowedTimeDifference = "";
+                allowedTimeDifference = box.isSelected() ? createAllowedTimeDifferenceString() : "";
             }
         });
 
         return new Component[]{boxLabel, box, horizontalSpacer, horizontalSpacer2, timeSpinner, timeUnitComboBox};
+    }
+
+    private String createAllowedTimeDifferenceString() {
+        return String.valueOf(
+                timeSpinner.getValue()) + timeUnitComboBox.getSelectedItem().toString().charAt(0);
     }
 
     private void updateUi() {
