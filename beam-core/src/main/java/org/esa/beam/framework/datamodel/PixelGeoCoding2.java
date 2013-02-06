@@ -20,6 +20,7 @@ import org.esa.beam.framework.dataio.ProductSubsetDef;
 import org.esa.beam.framework.dataop.barithm.BandArithmetic;
 import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.jai.ImageManager;
+import org.esa.beam.util.Debug;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.math.DistanceCalculator;
@@ -41,7 +42,6 @@ public class PixelGeoCoding2 extends AbstractGeoCoding {
     private static final String SYSPROP_PIXEL_GEO_CODING_FRACTION_ACCURACY = "beam.pixelGeoCoding.fractionAccuracy";
 
     private final String maskExpression;
-    private final String origExpression;
     private final int rasterW;
     private final int rasterH;
     private final boolean fractionAccuracy = Boolean.getBoolean(SYSPROP_PIXEL_GEO_CODING_FRACTION_ACCURACY);
@@ -93,7 +93,6 @@ public class PixelGeoCoding2 extends AbstractGeoCoding {
 
         this.latBand = latBand;
         this.lonBand = lonBand;
-        this.origExpression = maskExpression;
 
         this.rasterW = latBand.getSceneRasterWidth();
         this.rasterH = latBand.getSceneRasterHeight();
@@ -412,18 +411,14 @@ public class PixelGeoCoding2 extends AbstractGeoCoding {
             destProduct.addBand(lonBand);
         }
         String validMaskExpression = getValidMask();
-        String maskToBePassed = validMaskExpression;
-        if (validMaskExpression.contains(origExpression)) {
-            maskToBePassed = origExpression;
-        }
         try {
             if (validMaskExpression != null) {
                 copyReferencedRasters(validMaskExpression, srcScene, destScene, subsetDef);
             }
         } catch (ParseException ignored) {
-            maskToBePassed = null;
+            Debug.trace("Referenced rasters could not be copied.");
         }
-        destScene.setGeoCoding(new PixelGeoCoding2(latBand, lonBand, maskToBePassed));
+        destScene.setGeoCoding(new PixelGeoCoding2(latBand, lonBand, validMaskExpression));
 
         return true;
     }
