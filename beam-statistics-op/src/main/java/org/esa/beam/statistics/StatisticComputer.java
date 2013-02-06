@@ -181,96 +181,11 @@ public class StatisticComputer {
                 final double oldMin = oldHistogram.getLowValue()[0];
                 final double oldMax = oldHistogram.getHighValue()[0];
                 if (minimum < oldMin || maximum > oldMax) {
-                    histogramStxOp = createExpandedHistogramOp(oldHistogram, minimum, maximum, intHistogram);
+                    histogramStxOp = HistogramExpanderTransmitter.createExpandedHistogramOp(oldHistogram, minimum, maximum, intHistogram, this.initialBinCount);
                     histogramMap.put(vdnName, histogramStxOp);
                 }
             }
             return histogramStxOp;
-        }
-
-        private HistogramStxOp createExpandedHistogramOp(Histogram oldHistogram, double minimum, double maximum, boolean intHistogram) {
-            final double oldMin = oldHistogram.getLowValue()[0];
-            final double oldMax = oldHistogram.getHighValue()[0];
-            HistogramStxOp histogramStxOp;
-            final int oldBinCount = oldHistogram.getNumBins()[0];
-            double binWidth = computeBinWidth(oldMin, oldMax, oldBinCount);
-            double numNewMinBins = 0;
-            if (minimum < oldMin) {
-                final double minDiff = oldMin - minimum;
-                numNewMinBins = Math.ceil(minDiff / binWidth);
-            }
-            if (numNewMinBins > 200 * initialBinCount) {
-                histogramStxOp = new HistogramStxOp(initialBinCount, minimum, maximum, intHistogram, false);
-                migrateOldHistogramData(oldHistogram, histogramStxOp.getHistogram());
-                return histogramStxOp;
-            } else {
-                double numNewMaxBins = 0;
-                if (maximum > oldMax) {
-                    final double maxDiff = maximum - oldMax;
-                    numNewMaxBins = Math.ceil(maxDiff / binWidth);
-                }
-                double newMinimum = oldMin - numNewMinBins * binWidth;
-                double newMaximum = oldMax + numNewMaxBins * binWidth;
-                double newBinCount = oldBinCount + numNewMinBins + numNewMaxBins;
-
-                final int binRatio;
-                if (newBinCount > 2 * initialBinCount) {
-                    binRatio = (int) (newBinCount / initialBinCount);
-                    final int binRemainder = (int) (newBinCount % binRatio);
-                    newMaximum += binRemainder * binWidth;
-                    newBinCount = (newBinCount + binRemainder) / binRatio;
-                } else {
-                    binRatio = 1;
-                }
-
-                histogramStxOp = new HistogramStxOp((int) newBinCount, newMinimum, newMaximum, intHistogram, false);
-                migrateOldHistogramData(oldHistogram, histogramStxOp.getHistogram(), (int) numNewMinBins, binRatio);
-                return histogramStxOp;
-            }
-        }
-
-        private void migrateOldHistogramData(Histogram oldHistogram, Histogram newHistogram) {
-            final double oldMin = oldHistogram.getLowValue(0);
-            final double oldMax = oldHistogram.getHighValue(0);
-            final int[] oldBins = oldHistogram.getBins(0);
-            final int oldNumBins = oldBins.length;
-            final double oldBinWidth = computeBinWidth(oldMin, oldMax, oldNumBins);
-
-            final double newMin = newHistogram.getLowValue(0);
-            final double newMax = newHistogram.getHighValue(0);
-            final int[] newBins = newHistogram.getBins(0);
-            final int newNumBins = newBins.length;
-            final double newBinWidth = computeBinWidth(newMin, newMax, newNumBins);
-
-            for (int i = 0; i < oldBins.length; i++) {
-                int count = oldBins[i];
-                if (count == 0) {
-                    continue;
-                }
-                final double binCenterValue = oldMin + oldBinWidth * i + oldBinWidth / 2;
-                int newBinIndex = (int) Math.floor((binCenterValue - newMin) / newBinWidth);
-                if (newBinIndex >= newNumBins) {
-                    newBinIndex = newNumBins - 1;
-                }
-                newBins[newBinIndex] += count;
-            }
-        }
-
-        private void migrateOldHistogramData(Histogram oldHistogram, Histogram newHistogram, int startOffset, int binRatio) {
-            final int[] oldBins = oldHistogram.getBins(0);
-            final int[] newBins = newHistogram.getBins(0);
-            final int newMaxIndex = newBins.length - 1;
-            for (int i = 0; i < oldBins.length; i++) {
-                int newBinsIndex = (startOffset + i) / binRatio;
-                if (newBinsIndex > newMaxIndex) {
-                    newBinsIndex = newMaxIndex;
-                }
-                newBins[newBinsIndex] += oldBins[i];
-            }
-        }
-
-        private double computeBinWidth(double min, double max, int binCount) {
-            return (max - min) / binCount;
         }
     }
 }
