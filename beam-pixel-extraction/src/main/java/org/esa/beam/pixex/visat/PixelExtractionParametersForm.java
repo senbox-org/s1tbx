@@ -322,6 +322,7 @@ class PixelExtractionParametersForm {
             }
         });
 
+        allowedTimeDifference = createAllowedTimeDifferenceString();
         return new Component[]{boxLabel, box, horizontalSpacer, horizontalSpacer2, timeSpinner, timeUnitComboBox};
     }
 
