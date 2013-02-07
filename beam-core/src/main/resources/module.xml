@@ -42,6 +42,7 @@
     <changelog>
         <![CDATA[
         <p>Changes in 4.10.4:<br/>
+        [BEAM-1471] The time extraction from file name should support DAY_OF_YEAR<br/>
         [BEAM-1447] Dimap reader\writer handling very very large files<br/>
         <p>Changes in 4.10.3:<br/>
         [BEAM-1427] Histogram for SPOT SM Band not correct<br/>
