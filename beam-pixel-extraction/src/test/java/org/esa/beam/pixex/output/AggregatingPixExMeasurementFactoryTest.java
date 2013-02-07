@@ -158,6 +158,10 @@ public class AggregatingPixExMeasurementFactoryTest {
             public long getProductId(Product product) {
                 return 1234;
             }
+
+            @Override
+            public void close() {
+            }
         };
     }
 

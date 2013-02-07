@@ -66,6 +66,7 @@ public class MeasurementWriter {
     }
 
     public void close() {
+        measurementFactory.close();
         targetFactory.close();
     }
 }

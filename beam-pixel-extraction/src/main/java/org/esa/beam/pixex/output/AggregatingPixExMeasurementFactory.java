@@ -107,4 +107,8 @@ public class AggregatingPixExMeasurementFactory extends AbstractMeasurementFacto
         }
     }
 
+    @Override
+    public void close() {
+        productRegistry.close();
+    }
 }

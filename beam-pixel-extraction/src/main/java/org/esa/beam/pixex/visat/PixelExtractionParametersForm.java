@@ -322,7 +322,7 @@ class PixelExtractionParametersForm {
             }
         });
 
-        allowedTimeDifference = createAllowedTimeDifferenceString();
+        allowedTimeDifference = box.isSelected() ? createAllowedTimeDifferenceString() : "";
         return new Component[]{boxLabel, box, horizontalSpacer, horizontalSpacer2, timeSpinner, timeUnitComboBox};
     }
 

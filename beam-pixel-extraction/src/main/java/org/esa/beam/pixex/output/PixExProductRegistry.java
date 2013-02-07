@@ -63,4 +63,11 @@ public class PixExProductRegistry implements ProductRegistry {
         printWriter.printf("# Product ID Map%n");
         printWriter.printf("ProductID\tProductType\tProductLocation%n");
     }
+
+    @Override
+    public void close() {
+        if (productMapWriter != null) {
+            productMapWriter.close();
+        }
+    }
 }

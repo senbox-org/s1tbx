@@ -46,4 +46,8 @@ public class PixExMeasurementFactory extends AbstractMeasurementFactory {
         return measurements.toArray(new Measurement[measurements.size()]);
     }
 
+    @Override
+    public void close() {
+        productRegistry.close();
+    }
 }
