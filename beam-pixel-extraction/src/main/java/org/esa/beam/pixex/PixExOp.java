@@ -16,10 +16,6 @@
 
 package org.esa.beam.pixex;
 
-import static java.lang.Math.floor;
-import static java.lang.Math.max;
-import static java.lang.Math.min;
-
 import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.Validator;
@@ -60,9 +56,9 @@ import org.esa.beam.pixex.output.MatchupFormatStrategy;
 import org.esa.beam.pixex.output.PixExMeasurementFactory;
 import org.esa.beam.pixex.output.PixExProductRegistry;
 import org.esa.beam.pixex.output.PixExRasterNamesFactory;
-import org.esa.beam.pixex.output.TargetWriterFactoryAndMap;
 import org.esa.beam.pixex.output.ProductRegistry;
 import org.esa.beam.pixex.output.ScatterPlotDecoratingStrategy;
+import org.esa.beam.pixex.output.TargetWriterFactoryAndMap;
 import org.esa.beam.statistics.ProductValidator;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.StringUtils;
@@ -99,6 +95,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.ZipOutputStream;
 
+import static java.lang.Math.*;
+
 /**
  * This operator is used to extract pixels from given locations and source products.
  * It can also create sub-scenes containing all locations found in the source products and create
@@ -109,11 +107,11 @@ import java.util.zip.ZipOutputStream;
  */
 @SuppressWarnings({"MismatchedReadAndWriteOfArray", "UnusedDeclaration"})
 @OperatorMetadata(
-            alias = "PixEx",
-            version = "1.3",
-            authors = "Marco Peters, Thomas Storm, Norman Fomferra",
-            copyright = "(c) 2011 by Brockmann Consult",
-            description = "Extracts pixels from given locations and source products.")
+        alias = "PixEx",
+        version = "1.3",
+        authors = "Marco Peters, Thomas Storm, Norman Fomferra",
+        copyright = "(c) 2011 by Brockmann Consult",
+        description = "Extracts pixels from given locations and source products.")
 public class PixExOp extends Operator implements Output {
 
     public static final String RECURSIVE_INDICATOR = "**";
@@ -180,10 +178,10 @@ public class PixExOp extends Operator implements Output {
     private Boolean exportExpressionResult;
 
     @Parameter(
-                description = "If the window size is larger than 1, this parameter describes by which method a single \n" +
-                              "value shall be derived from the pixels.",
-                defaultValue = NO_AGGREGATION,
-                valueSet = {MIN_AGGREGATION, MAX_AGGREGATION, MEAN_AGGREGATION, MEDIAN_AGGREGATION, NO_AGGREGATION})
+            description = "If the window size is larger than 1, this parameter describes by which method a single \n" +
+                          "value shall be derived from the pixels.",
+            defaultValue = NO_AGGREGATION,
+            valueSet = {MIN_AGGREGATION, MAX_AGGREGATION, MEAN_AGGREGATION, MEDIAN_AGGREGATION, NO_AGGREGATION})
     private String aggregatorStrategyType;
 
     @Parameter(description = "If set to true, sub-scenes of the regions, where pixels are found, are exported.",
@@ -199,18 +197,18 @@ public class PixExOp extends Operator implements Output {
     private boolean exportKmz;
 
     @Parameter(
-                description = "If set to true, the sensing start and sensing stop should be extracted from the filename " +
-                              "of each input product.",
-                defaultValue = "false",
-                label = "Extract time from product filename")
+            description = "If set to true, the sensing start and sensing stop should be extracted from the filename " +
+                          "of each input product.",
+            defaultValue = "false",
+            label = "Extract time from product filename")
     private boolean extractTimeFromFilename;
 
     @Parameter(
-                description = "Describes how a date/time section inside a product filename should be interpreted. " +
-                              "E.G. yyyyMMdd_hhmmss",
-                validator = TimeStampExtractor.DateInterpretationPatternValidator.class,
-                defaultValue = "yyyyMMdd",
-                label = "Date/Time pattern")
+            description = "Describes how a date/time section inside a product filename should be interpreted. " +
+                          "E.G. yyyyMMdd_hhmmss",
+            validator = TimeStampExtractor.DateInterpretationPatternValidator.class,
+            defaultValue = "yyyyMMdd",
+            label = "Date/Time pattern")
     private String dateInterpretationPattern;
 
     @Parameter(description = "Describes how the filename of a product should be interpreted.",
@@ -244,7 +242,7 @@ public class PixExOp extends Operator implements Output {
     @SuppressWarnings({"unchecked", "ConstantConditions"})
     public static Coordinate.OriginalValue[] getOriginalValues(SimpleFeature feature) {
         List<AttributeDescriptor> originalAttributeDescriptors = (List<AttributeDescriptor>) feature.getFeatureType().getUserData().get(
-                    "originalAttributeDescriptors");
+                "originalAttributeDescriptors");
         final Coordinate.OriginalValue[] originalValues;
         if (originalAttributeDescriptors == null) {
             originalValues = new Coordinate.OriginalValue[0];
@@ -329,7 +327,7 @@ public class PixExOp extends Operator implements Output {
                 ZipOutputStream zos = null;
                 try {
                     FileOutputStream fos = new FileOutputStream(
-                                new File(outputDir, outputFilePrefix + "_coordinates.kmz"));
+                            new File(outputDir, outputFilePrefix + "_coordinates.kmz"));
                     zos = new ZipOutputStream(fos);
                     kmzExporter.export(kmlDocument, zos, ProgressMonitor.NULL);
                 } catch (IOException e) {
@@ -475,7 +473,7 @@ public class PixExOp extends Operator implements Output {
         if (!product.containsPixel(centerPos)) {
             return false;
         }
-        if (coordinate.getDateTime() != null) {
+        if (considerTimeDifference(timeDifference) && coordinate.getDateTime() != null) {
             final ProductData.UTC scanLineTime = ProductUtils.getScanLineTime(product, centerPos.y);
             if (scanLineTime == null || !isPixelInTimeSpan(coordinate, timeDelta, calendarField, scanLineTime)) {
                 return false;
@@ -545,7 +543,7 @@ public class PixExOp extends Operator implements Output {
     }
 
     private void parseTimeDelta(String timeDifference) {
-        if (StringUtils.isNullOrEmpty(timeDifference)) {
+        if (!considerTimeDifference(timeDifference)) {
             return;
         }
         this.timeDelta = Integer.parseInt(timeDifference.substring(0, timeDifference.length() - 1));
@@ -559,6 +557,10 @@ public class PixExOp extends Operator implements Output {
         } else {
             calendarField = Calendar.DATE;
         }
+    }
+
+    private boolean considerTimeDifference(String timeDifference) {
+        return !StringUtils.isNullOrEmpty(timeDifference);
     }
 
     private List<Coordinate> initCoordinateList() {
@@ -586,8 +588,8 @@ public class PixExOp extends Operator implements Output {
             simpleFeatures = PixExOpUtils.extractFeatures(matchupFile);
         } catch (IOException e) {
             BeamLogManager.getSystemLogger().warning(
-                        String.format("Unable to read matchups from file '%s'. Reason: %s",
-                                      matchupFile.getAbsolutePath(), e.getMessage()));
+                    String.format("Unable to read matchups from file '%s'. Reason: %s",
+                                  matchupFile.getAbsolutePath(), e.getMessage()));
             return result;
         }
         for (SimpleFeature extendedFeature : simpleFeatures) {
@@ -686,10 +688,12 @@ public class PixExOp extends Operator implements Output {
         try {
             List<Coordinate> matchedCoordinates = new ArrayList<Coordinate>();
 
+            boolean coordinatesFound = false;
             for (Coordinate coordinate : coordinateList) {
                 try {
                     final boolean measurementExtracted = extractMeasurement(product, coordinate, coordinate.getID(),
                                                                             validMaskImage);
+                    coordinatesFound |= measurementExtracted;
                     if (measurementExtracted && (exportSubScenes || exportKmz)) {
                         matchedCoordinates.add(coordinate);
                     }
@@ -698,7 +702,6 @@ public class PixExOp extends Operator implements Output {
                 }
             }
             formatStrategy.finish();
-            boolean coordinatesFound = matchedCoordinates.size() > 0;
             if (coordinatesFound) {
                 if (exportSubScenes) {
                     try {
