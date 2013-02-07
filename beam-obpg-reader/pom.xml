@@ -43,6 +43,10 @@
                     <groupId>org.esa.beam</groupId>
                     <artifactId>beam-core</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>org.esa.beam</groupId>
+                    <artifactId>beam-netcdf</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
     </dependencies>
