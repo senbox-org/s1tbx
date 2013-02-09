@@ -703,7 +703,7 @@
 			</dependency>
 	        <dependency>
 	            <groupId>org</groupId>
-	            <version>1.2.2</version>
+	            <version>1.2.0</version>
 	            <artifactId>jblas</artifactId>
 	        </dependency>
 			

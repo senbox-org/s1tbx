@@ -14,7 +14,7 @@
         <jdoris.version>0.3</jdoris.version>
         <nest.version>5.0</nest.version>
         <beam.version>5.0-4.10.4</beam.version>
-        <jblas.version>1.2.2</jblas.version>
+        <jblas.version>1.2.0</jblas.version>
         <junit.version>4.11</junit.version>
         <outputdir>../../output</outputdir>
     </properties>
