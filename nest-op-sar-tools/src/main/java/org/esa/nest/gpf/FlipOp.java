@@ -15,11 +15,15 @@
  */
 package org.esa.nest.gpf;
 
+import com.bc.ceres.core.ProgressMonitor;
+import org.esa.beam.framework.dataio.ProductFlipper;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
+import org.esa.beam.framework.gpf.Tile;
 import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
@@ -32,11 +36,11 @@ import java.util.HashMap;
  * Creates a new product with only selected bands
  */
 
-@OperatorMetadata(alias="BandSelect",
+@OperatorMetadata(alias="flip",
         category = "Utilities",
         authors = "NEST team", copyright = "(C) 2013 by Array Systems Computing Inc.",
-        description="Creates a new product with only selected bands")
-public final class BandSelectOp extends Operator {
+        description="flips a product horizontal/vertical")
+public final class FlipOp extends Operator {
 
     @SourceProduct(alias="source")
     private Product sourceProduct;
@@ -46,6 +50,10 @@ public final class BandSelectOp extends Operator {
     @Parameter(description = "The list of source bands.", alias = "sourceBands", itemAlias = "band",
             rasterDataNodeType = Band.class, label="Source Bands")
     private String[] sourceBandNames;
+
+    @Parameter(valueSet = { "Horizontal", "Vertical", "Horizontal and Vertical" },
+            defaultValue = "Vertical" , label="Flip")
+    private String flipType = "Vertical";
 
     /**
      * Initializes this operator and sets the one and only target product.
@@ -64,6 +72,15 @@ public final class BandSelectOp extends Operator {
     public void initialize() throws OperatorException {
 
         try {
+            int flippingType = ProductFlipper.FLIP_BOTH;
+            if(flipType.equalsIgnoreCase("Horizontal"))
+                flippingType = ProductFlipper.FLIP_HORIZONTAL;
+            else if(flipType.equalsIgnoreCase("Vertical"))
+                flippingType = ProductFlipper.FLIP_VERTICAL;
+
+            sourceProduct = ProductFlipper.createFlippedProduct(sourceProduct, flippingType,
+                    sourceProduct.getName(), sourceProduct.getDescription());
+
             targetProduct = new Product(sourceProduct.getName(),
                                     sourceProduct.getProductType(),
                                     sourceProduct.getSceneRasterWidth(),
@@ -97,7 +114,7 @@ public final class BandSelectOp extends Operator {
      */
     public static class Spi extends OperatorSpi {
         public Spi() {
-            super(BandSelectOp.class);
+            super(FlipOp.class);
         }
     }
 }
