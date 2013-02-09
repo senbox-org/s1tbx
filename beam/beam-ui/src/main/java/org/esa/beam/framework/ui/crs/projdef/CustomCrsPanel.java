@@ -29,6 +29,8 @@ import com.jidesoft.swing.SearchableUtils;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.ui.AbstractDialog;
 import org.esa.beam.framework.ui.ModalDialog;
+import org.geotools.parameter.DefaultParameterDescriptor;
+import org.geotools.parameter.Parameter;
 import org.geotools.referencing.AbstractIdentifiedObject;
 import org.geotools.referencing.ReferencingFactoryFinder;
 import org.geotools.referencing.datum.DefaultGeodeticDatum;
@@ -319,10 +321,45 @@ public class CustomCrsPanel extends JPanel {
         }
     }
 
+    private static List<GeneralParameterValue> fixPropertValues(final ParameterValueGroup valueGroup) {
+        final List<GeneralParameterValue> values = valueGroup.values();
+        final List<GeneralParameterDescriptor> descList = valueGroup.getDescriptor().descriptors();
+
+        if(descList.size() > values.size()) {
+            final ArrayList<GeneralParameterValue> newValues = new ArrayList<>(values.size()+1);
+            for(GeneralParameterValue v : valueGroup.values()) {
+                newValues.add(v);
+            }
+            for(GeneralParameterDescriptor desc : descList) {
+                boolean found = false;
+                for(GeneralParameterValue value : newValues) {
+                    if(desc.equals(value.getDescriptor())) {
+                        found = true;
+                        break;
+                    }
+                }
+                if(!found) {
+                    if(desc instanceof DefaultParameterDescriptor) {
+                        final DefaultParameterDescriptor defDesc = (DefaultParameterDescriptor)desc;
+                        final ParameterValue val = new Parameter(defDesc);
+                        val.setValue(0.0);
+                        newValues.add(val);
+                    } else {
+                        newValues.add(desc.createValue());
+                    }
+                }
+            }
+            return newValues;
+        }
+
+        return values;
+    }
+
     private static PropertyContainer createValueContainer(ParameterValueGroup valueGroup) {
         final PropertyContainer vc = new PropertyContainer();
 
-        final List<GeneralParameterValue> values = valueGroup.values();
+        final List<GeneralParameterValue> values = fixPropertValues(valueGroup);
+
         for (GeneralParameterValue value : values) {
             final GeneralParameterDescriptor descriptor = value.getDescriptor();
             final Class valueType;
