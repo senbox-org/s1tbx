@@ -33,14 +33,14 @@ import java.util.HashMap;
 /**
  * Default NetCDF writer configured by an implementation of {@link AbstractNetCdfWriterPlugIn}.
  */
-class DefaultNetCdfWriter extends AbstractProductWriter {
+public class DefaultNetCdfWriter extends AbstractProductWriter {
 
     private HashMap<String, NVariable> variableMap;
     private NFileWriteable writeable;
     private boolean isYFlipped;
     private boolean convertLogScaledBands;
 
-    DefaultNetCdfWriter(AbstractNetCdfWriterPlugIn writerPlugIn) {
+    public DefaultNetCdfWriter(AbstractNetCdfWriterPlugIn writerPlugIn) {
         super(writerPlugIn);
         variableMap = new HashMap<String, NVariable>();
     }
