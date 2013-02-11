@@ -222,19 +222,31 @@ next.
     for data products. Using the <img src="images/plus.png" alt="plusbutton">-Button, data products can be added to
     the list in multiple ways:
 <ul>
-    <li><b style="color:#3333cc">Add product(s)...</b> by choosing a product already opened in VISAT. In front of the products name you can see the index of the product e.g. [1].<br><i><small>See line 1 of "Source paths:" field in the Input/Output Pane above.</small></i></li>
-    <li><b style="color:#3333cc">Add product file(s)...</b> by choosing one or more products from the file system.<br><i><small>See line 2 of "Source paths:" field in the Input/Output Pane above.</small></i></li>
-    <li><b style="color:#3333cc">Add directory(s)...</b> by specifying one or more directories and defining a search pattern e.g. "*.nc* for netcdf products.<br><i><small>See line 3 of "Source paths:" field in the Input/Output Pane above.</small></i></li>
-    <li><b style="color:#3333cc">Add directory recursively...</b> or by specifying a directory recursively (indicated by '**' in the list) and defining a search pattern e.g. "*.dim* for DIMAP products.<br><i><small>See line 4 of "Source paths:" field in the Input/Output Pane above.</small></i></li>
+    <li><b style="color:#3333cc">Add product(s)...</b> by choosing a product already opened in VISAT. In front of the
+        products name you can see the index of the product e.g. [1].<br><i>
+            <small>See line 1 of "Source paths:" field in the Input/Output Pane above.</small>
+        </i></li>
+    <li><b style="color:#3333cc">Add product file(s)...</b> by choosing one or more products from the file
+        system.<br><i>
+            <small>See line 2 of "Source paths:" field in the Input/Output Pane above.</small>
+        </i></li>
+    <li><b style="color:#3333cc">Add directory(s)...</b> by specifying one or more directories and defining a search
+        pattern e.g. "*.nc* for netcdf products.<br><i>
+            <small>See line 3 of "Source paths:" field in the Input/Output Pane above.</small>
+        </i></li>
+    <li><b style="color:#3333cc">Add directory recursively...</b> or by specifying a directory recursively (indicated by
+        '**' in the list) and defining a search pattern e.g. "*.dim* for DIMAP products.<br><i>
+            <small>See line 4 of "Source paths:" field in the Input/Output Pane above.</small>
+        </i></li>
 </ul>
 
 <p class="i1">
     <b>Time extraction:</b>
     If the products carry no time information that is readable by the BEAM reader, it is possible to extract the time
     information from the product filename. In order to do so, the date/time pattern needs to be provided (which would
-    be,
-    e.g., ddMMyyyy_HHmmss for files like sst_26012010_164712.nc), and the pattern in the filename needs to be provided,
-    telling the software if the pattern appears once or twice.
+    be, e.g., ddMMyyyy_HHmmss or for files like sst_26012010_164712.nc or yyyyDDD for SST L3 product like
+    A2010159.L3m_DAY_SST_4),
+    and the pattern in the filename needs to be provided, telling the software if the pattern appears once or twice.
 </p>
 
 <p class="i1">
