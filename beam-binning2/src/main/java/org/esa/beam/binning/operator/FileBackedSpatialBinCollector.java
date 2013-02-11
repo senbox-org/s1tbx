@@ -20,7 +20,7 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-public class FileBackedSpatialBinStore implements SpatialBinStore {
+public class FileBackedSpatialBinCollector implements SpatialBinCollector {
 
 
     private final static int NUM_BINS_PER_FILE = 10000;
@@ -33,7 +33,7 @@ public class FileBackedSpatialBinStore implements SpatialBinStore {
     private boolean consumingCompleted;
     private final TreeSet<Long> binIndexSet;
 
-    public FileBackedSpatialBinStore() throws Exception {
+    public FileBackedSpatialBinCollector() throws Exception {
         if (!TEMP_DIRECTORY.exists() && !TEMP_DIRECTORY.mkdir()) {
             throw new IOException("Could not create temporary directory.");
         }
@@ -63,7 +63,7 @@ public class FileBackedSpatialBinStore implements SpatialBinStore {
                 File file = getFile(currentFileIndex);
                 if (file.exists()) {
                     map = readIntoMap(file);
-                }else {
+                } else {
                     map = new TreeMap<Long, List<SpatialBin>>();
                 }
                 lastFileIndex = currentFileIndex;
@@ -90,8 +90,8 @@ public class FileBackedSpatialBinStore implements SpatialBinStore {
     }
 
     @Override
-    public SortedSpatialBinList getSpatialBinMap() throws IOException {
-        return new LazyBinList(binIndexSet);
+    public SpatialBinCollection getSpatialBinCollection() throws IOException {
+        return new LazyBinCollection(binIndexSet);
     }
 
 
@@ -169,17 +169,22 @@ public class FileBackedSpatialBinStore implements SpatialBinStore {
         }
     }
 
-    private static class LazyBinList implements SortedSpatialBinList {
+    private static class LazyBinCollection implements SpatialBinCollection {
 
         private TreeSet<Long> binSet;
 
-        public LazyBinList(TreeSet<Long> binSet) {
+        public LazyBinCollection(TreeSet<Long> binSet) {
             this.binSet = binSet;
         }
 
         @Override
-        public Iterator<List<SpatialBin>> values() {
-            return new BinIterator();
+        public Iterable<List<SpatialBin>> getCollectedBins() {
+            return new Iterable<List<SpatialBin>>() {
+                @Override
+                public Iterator<List<SpatialBin>> iterator() {
+                    return new BinIterator();
+                }
+            };
         }
 
         @Override
@@ -199,9 +204,9 @@ public class FileBackedSpatialBinStore implements SpatialBinStore {
 
         private class BinIterator implements Iterator<List<SpatialBin>> {
 
-//            private long currentBinIndex;
+            //            private long currentBinIndex;
             private long lastFileIndex = -1;
-            private SortedMap<Long,List<SpatialBin>> currentMap;
+            private SortedMap<Long, List<SpatialBin>> currentMap;
             private Iterator<Long> binIterator;
 
             private BinIterator() {
@@ -219,11 +224,11 @@ public class FileBackedSpatialBinStore implements SpatialBinStore {
                 try {
                     long currentFileIndex = calculateFileIndex(currentBinIndex);
                     if (currentFileIndex != lastFileIndex) {
-                        File currentFile = FileBackedSpatialBinStore.getFile(currentFileIndex);
+                        File currentFile = FileBackedSpatialBinCollector.getFile(currentFileIndex);
                         currentMap = readIntoMap(currentFile);
-                        File lastFile = FileBackedSpatialBinStore.getFile(lastFileIndex);
+                        File lastFile = FileBackedSpatialBinCollector.getFile(lastFileIndex);
                         if (!lastFile.delete()) {
-                             lastFile.deleteOnExit();
+                            lastFile.deleteOnExit();
                         }
 
                     }

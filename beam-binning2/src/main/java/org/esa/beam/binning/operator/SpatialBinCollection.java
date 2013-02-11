@@ -2,14 +2,13 @@ package org.esa.beam.binning.operator;
 
 import org.esa.beam.binning.SpatialBin;
 
-import java.util.Iterator;
 import java.util.List;
 
-public interface SortedSpatialBinList {
+public interface SpatialBinCollection {
 
-    Iterator<List<SpatialBin>> values();
+    Iterable<List<SpatialBin>> getCollectedBins();
 
-    long  size();
+    long size();
 
     boolean isEmpty();
 

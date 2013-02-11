@@ -10,19 +10,24 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 /**
-* An implementation of {@link SpatialBinStore} which simply stores the consumed {@link SpatialBin spatial bins} in a map.
-*/
-public class MemoryBackedSpatialBinStore implements SpatialBinStore {
+ * An implementation of {@link SpatialBinCollector} which simply stores the consumed {@link SpatialBin spatial bins} in a map.
+ */
+public class MemoryBackedSpatialBinCollector implements SpatialBinCollector {
 
     // Note, we use a sorted map in order to sort entries on-the-fly
     final private SortedMap<Long, List<SpatialBin>> spatialBinMap = new TreeMap<Long, List<SpatialBin>>();
 
     @Override
-    public SortedSpatialBinList getSpatialBinMap() {
-        return new SortedSpatialBinList() {
+    public SpatialBinCollection getSpatialBinCollection() {
+        return new SpatialBinCollection() {
             @Override
-            public Iterator<List<SpatialBin>> values() {
-                return spatialBinMap.values().iterator();
+            public Iterable<List<SpatialBin>> getCollectedBins() {
+                return new Iterable<List<SpatialBin>>() {
+                    @Override
+                    public Iterator<List<SpatialBin>> iterator() {
+                        return spatialBinMap.values().iterator();
+                    }
+                };
             }
 
             @Override

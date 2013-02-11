@@ -39,7 +39,7 @@ public class FileBackedSpatialBinStoreTest {
         dos.close();
         ByteArrayInputStream bais = new ByteArrayInputStream(byteStream.toByteArray());
         TreeMap<Long, List<SpatialBin>> map = new TreeMap<Long, List<SpatialBin>>();
-        FileBackedSpatialBinStore.readFromStream(new DataInputStream(bais), map);
+        FileBackedSpatialBinCollector.readFromStream(new DataInputStream(bais), map);
         assertEquals(2, map.size());
         assertTrue(map.containsKey(23L));
         assertTrue(map.containsKey(1048L));
@@ -61,11 +61,11 @@ public class FileBackedSpatialBinStoreTest {
         binList.add(createSpatialBin(42));
         map.put(42L, binList);
 
-        FileBackedSpatialBinStore.writeToStream(map, dos);
+        FileBackedSpatialBinCollector.writeToStream(map, dos);
 
         ByteArrayInputStream bais = new ByteArrayInputStream(byteStream.toByteArray());
         TreeMap<Long, List<SpatialBin>> newMap = new TreeMap<Long, List<SpatialBin>>();
-        FileBackedSpatialBinStore.readFromStream(new DataInputStream(bais), newMap);
+        FileBackedSpatialBinCollector.readFromStream(new DataInputStream(bais), newMap);
 
         assertEquals(1, newMap.size());
         List<SpatialBin> newBinList = newMap.get(42L);
