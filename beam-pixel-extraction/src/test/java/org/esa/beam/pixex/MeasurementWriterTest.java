@@ -16,13 +16,6 @@
 
 package org.esa.beam.pixex;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.assertNull;
-import static junit.framework.Assert.assertTrue;
-import static junit.framework.Assert.fail;
-
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.CrsGeoCoding;
 import org.esa.beam.framework.datamodel.GeoPos;
@@ -36,7 +29,9 @@ import org.esa.beam.pixex.output.PixExProductRegistry;
 import org.esa.beam.pixex.output.PixExRasterNamesFactory;
 import org.esa.beam.pixex.output.TargetWriterFactoryAndMap;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.operation.TransformException;
 
@@ -53,26 +48,35 @@ import java.text.ParseException;
 import java.util.Locale;
 import java.util.Scanner;
 
+import static junit.framework.Assert.*;
+
 @SuppressWarnings({"IOResourceOpenedButNotSafelyClosed"})
 public class MeasurementWriterTest {
 
     private File outputDir;
+    private MeasurementWriter writer;
 
     @Before
     public void setup() throws IOException {
         final File tmpDir = new File(System.getProperty("java.io.tmpdir"));
         outputDir = new File(tmpDir, getClass().getSimpleName());
-        if (!outputDir.mkdir()) {
-            deleteOutputFiles();
+        if (!outputDir.mkdir()) { // already exists, so delete contents
+            for (File file : outputDir.listFiles()) {
+                file.delete();
+            }
         }
     }
 
     @After
-    public void tearDown() throws IOException {
+    public void tearDown() throws Exception {
+        if (writer != null) {
+            writer.close();
+        }
         deleteOutputFiles();
         outputDir.deleteOnExit();
 //        noinspection ResultOfMethodCallIgnored
         outputDir.delete();
+
     }
 
     @Test
@@ -82,15 +86,16 @@ public class MeasurementWriterTest {
         final String expression = "";
         final boolean exportExpressionResult = true;
 
-        final MeasurementWriter writer = createMeasurementWriter(windowSize, filenamePrefix, expression,
-                                                                 exportExpressionResult);
+        writer = createMeasurementWriter(windowSize, filenamePrefix, expression, exportExpressionResult);
 
         File productMapFile = new File(outputDir, "testFileCreation_productIdMap.txt");
         File t1CoordFile = new File(outputDir, "testFileCreation_T1_measurements.txt");
+        File t2CoordFile = new File(outputDir, "testFileCreation_T2_measurements.txt");
 
         assertEquals(0, outputDir.listFiles().length);
         assertFalse(productMapFile.exists());
         assertFalse(t1CoordFile.exists());
+        assertFalse(t2CoordFile.exists());
 
         final Product p1 = createTestProduct("N1", "T1", new String[0], 360, 180);
         writeRegion(writer, p1, 1, windowSize);
@@ -101,9 +106,7 @@ public class MeasurementWriterTest {
 
         final Product p2 = createTestProduct("N2", "T2", new String[0], 360, 180);
         writeRegion(writer, p2, 1, windowSize);
-        writer.close();
 
-        File t2CoordFile = new File(outputDir, "testFileCreation_T2_measurements.txt");
         assertEquals(3, outputDir.listFiles().length);
         assertTrue(productMapFile.exists());
         assertTrue(t1CoordFile.exists());
@@ -115,7 +118,7 @@ public class MeasurementWriterTest {
         final int windowSize = 1;
         final String filenamePrefix = "testWritingMeasurements";
 
-        final MeasurementWriter writer = createMeasurementWriter(windowSize, false, filenamePrefix, null, true);
+        writer = createMeasurementWriter(windowSize, false, filenamePrefix, null, true);
 
         final String[] varNames = {"abc", "def"};
         final Product testProduct1 = createTestProduct("N1", "T1", varNames, 360, 180);
@@ -125,7 +128,6 @@ public class MeasurementWriterTest {
         writeRegion(writer, testProduct1, 2, windowSize);
         writeRegion(writer, testProduct2, 3, windowSize);
         writeRegion(writer, testProduct3, 4, windowSize);
-        writer.close();
 
         File t1CoordFile = new File(outputDir, "testWritingMeasurements_T1_measurements.txt");
         BufferedReader reader = new BufferedReader(new FileReader(t1CoordFile));
@@ -154,14 +156,13 @@ public class MeasurementWriterTest {
         final int windowSize = 1;
         final String filenamePrefix = "testWritingMeasurementsWithExpression";
 
-        final MeasurementWriter writer = createMeasurementWriter(windowSize, false, filenamePrefix, "Is Valid",
-                                                                 withExpression);
+        writer = createMeasurementWriter(windowSize, false, filenamePrefix, "Is Valid",
+                                         withExpression);
 
         final String[] varNames = {"abc", "def"};
         final Product testProduct = createTestProduct("N1", "T1", varNames, 360, 180);
         writeRegion(writer, testProduct, 1, windowSize);
         writeRegion(writer, testProduct, 2, windowSize);
-        writer.close();
 
         File t1CoordFile = new File(outputDir, "testWritingMeasurementsWithExpression_T1_measurements.txt");
         BufferedReader reader = new BufferedReader(new FileReader(t1CoordFile));
@@ -181,8 +182,8 @@ public class MeasurementWriterTest {
         final String expression = null;
         final boolean exportExpressionResult = true;
 
-        final MeasurementWriter writer = createMeasurementWriter(windowSize, filenamePrefix, expression,
-                                                                 exportExpressionResult);
+        writer = createMeasurementWriter(windowSize, filenamePrefix, expression,
+                                         exportExpressionResult);
 
         final String[] varNames = {"abc", "def"};
         final Product testProduct = createTestProduct("N1", "T1", varNames, 360, 180);
@@ -227,7 +228,7 @@ public class MeasurementWriterTest {
         final int windowSize = 1;
         final String filenamePrefix = "testClosing";
 
-        final MeasurementWriter writer = createMeasurementWriter(windowSize, filenamePrefix, null, true);
+        writer = createMeasurementWriter(windowSize, filenamePrefix, null, true);
 
         final Product testProduct = createTestProduct("N1", "T1", new String[0], 360, 180);
         writeRegion(writer, testProduct, 1, windowSize);
@@ -302,7 +303,6 @@ public class MeasurementWriterTest {
         }
     }
 
-
     public static Product createTestProduct(String name, String type, String[] bandNames, int width, int height) throws
                                                                                                                  FactoryException,
                                                                                                                  TransformException {
@@ -345,7 +345,8 @@ public class MeasurementWriterTest {
         final PixExMeasurementFactory measurementFactory = new PixExMeasurementFactory(rasterNamesFactory, windowSize,
                                                                                        productRegistry);
         final TargetWriterFactoryAndMap targetFactory = new TargetWriterFactoryAndMap(filenamePrefix, outputDir);
-        final DefaultFormatStrategy formatStrategy = new DefaultFormatStrategy(rasterNamesFactory, windowSize, expression,
+        final DefaultFormatStrategy formatStrategy = new DefaultFormatStrategy(rasterNamesFactory, windowSize,
+                                                                               expression,
                                                                                exportExpressionResult);
         return new MeasurementWriter(measurementFactory, targetFactory, formatStrategy);
     }

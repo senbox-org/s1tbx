@@ -72,6 +72,7 @@ public class ScatterPlotDecoratingStrategyTest {
                                                          public void close() {
                                                          }
                                                      }, null, "test");
+
     }
 
     @Test
@@ -94,7 +95,8 @@ public class ScatterPlotDecoratingStrategyTest {
         JFreeChart sstPlot = strategy.plotMaps.get(PRODUCT_ID_0).get(variableCombinations[0]);
         assertEquals("original_sst", sstPlot.getXYPlot().getDomainAxis().getLabel());
         assertEquals("product_sst", sstPlot.getXYPlot().getRangeAxis().getLabel());
-        assertEquals("Scatter plot of 'original_sst' and 'product_sst' for product 'newProduct'", sstPlot.getTitle().getText());
+        assertEquals("Scatter plot of 'original_sst' and 'product_sst' for product 'newProduct'",
+                     sstPlot.getTitle().getText());
 
         XYDataset sstDataset = sstPlot.getXYPlot().getDataset();
         assertNotNull(sstDataset);
@@ -113,7 +115,8 @@ public class ScatterPlotDecoratingStrategyTest {
         JFreeChart tsmPlot = strategy.plotMaps.get(PRODUCT_ID_0).get(variableCombinations[1]);
         assertEquals("original_tsm", tsmPlot.getXYPlot().getDomainAxis().getLabel());
         assertEquals("product_tsm", tsmPlot.getXYPlot().getRangeAxis().getLabel());
-        assertEquals("Scatter plot of 'original_tsm' and 'product_tsm' for product 'newProduct'", tsmPlot.getTitle().getText());
+        assertEquals("Scatter plot of 'original_tsm' and 'product_tsm' for product 'newProduct'",
+                     tsmPlot.getTitle().getText());
 
         XYDataset tsmDataset = tsmPlot.getXYPlot().getDataset();
         assertNotNull(tsmDataset);

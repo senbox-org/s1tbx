@@ -52,7 +52,7 @@ public class MeasurementWriter {
             throw new IllegalStateException("Writer is closed.");
         }
         final Measurement[] measurements = measurementFactory.createMeasurements(
-                    pixelX, pixelY, coordinateID, coordinateName, product, validData);
+                pixelX, pixelY, coordinateID, coordinateName, product, validData);
         final PrintWriter writer;
         if (targetFactory.containsWriterFor(product)) {
             writer = targetFactory.getWriterFor(product);
@@ -69,6 +69,7 @@ public class MeasurementWriter {
     }
 
     public void close() {
+        measurementFactory.close();
         targetFactory.close();
         measurementFactory.close();
         closed = true;
