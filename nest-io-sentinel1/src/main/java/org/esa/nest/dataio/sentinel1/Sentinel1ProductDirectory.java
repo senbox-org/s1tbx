@@ -501,7 +501,7 @@ public class Sentinel1ProductDirectory extends XMLProductDirectory {
                     ProductData.TYPE_FLOAT64, "m", "Ground Range Origin");
             AbstractMetadata.setAttribute(srgrListElem, AbstractMetadata.ground_range_origin, grOrigin);
 
-            final String coeffStr = elem.getElement("srgrCoefficients").getAttributeString("srgrCoefficients", "");
+            final String coeffStr = elem.getElement("grsrCoefficients").getAttributeString("grsrCoefficients", "");
             if(!coeffStr.isEmpty()) {
                 final StringTokenizer st = new StringTokenizer(coeffStr);
                 int cnt = 1;
