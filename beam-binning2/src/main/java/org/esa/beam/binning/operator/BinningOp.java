@@ -181,11 +181,20 @@ public class BinningOp extends Operator implements Output {
 
     private final Map<Product, List<Band>> addedBands;
 
-    public BinningOp() {
-        this(new SimpleSpatialBinStore());
+    public BinningOp() throws OperatorException {
+        this(getBinStore());
     }
 
-    private BinningOp(SpatialBinStore spatialBinStore) {
+    private static SpatialBinStore getBinStore() throws OperatorException {
+        try {
+//            return new GeneralSpatialBinStore();
+            return new MemoryBackedSpatialBinStore();
+        } catch (Exception e) {
+            throw new OperatorException(e.getMessage(), e);
+        }
+    }
+
+    public BinningOp(SpatialBinStore spatialBinStore) {
         this.spatialBinStore = spatialBinStore;
         addedBands = new HashMap<Product, List<Band>>();
     }
@@ -267,7 +276,7 @@ public class BinningOp extends Operator implements Output {
 
         try {
             // Step 1: Spatial binning - creates time-series of spatial bins for each bin ID ordered by ID. The tree map structure is <ID, time-series>
-            SortedMap<Long, List<SpatialBin>> spatialBinMap = doSpatialBinning();
+            SortedSpatialBinList spatialBinMap = doSpatialBinning();
             if (!spatialBinMap.isEmpty()) {
                 // Step 2: Temporal binning - creates a list of temporal bins, sorted by bin ID
                 List<TemporalBin> temporalBins = doTemporalBinning(spatialBinMap);
@@ -517,7 +526,7 @@ public class BinningOp extends Operator implements Output {
         return ProductIO.readProduct(new File(formatterConfig.getOutputFile()));
     }
 
-    private SortedMap<Long, List<SpatialBin>> doSpatialBinning() throws IOException {
+    private SortedSpatialBinList doSpatialBinning() throws IOException {
         final SpatialBinner spatialBinner = new SpatialBinner(binningContext, spatialBinStore);
         if (sourceProducts != null) {
             for (Product sourceProduct : sourceProducts) {
@@ -565,17 +574,17 @@ public class BinningOp extends Operator implements Output {
         sourceProductCount++;
     }
 
-    private List<TemporalBin> doTemporalBinning(SortedMap<Long, List<SpatialBin>> spatialBinMap) throws IOException {
+    private List<TemporalBin> doTemporalBinning(SortedSpatialBinList spatialBinMap) throws IOException {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
-        int numberOfBins = spatialBinMap.size();
+        long numberOfBins = spatialBinMap.size();
         final TemporalBinner temporalBinner = new TemporalBinner(binningContext);
         final ArrayList<TemporalBin> temporalBins = new ArrayList<TemporalBin>();
-        Long[] keys = spatialBinMap.keySet().toArray(new Long[numberOfBins]);
-        for (Long key : keys) {
-            List<SpatialBin> value = spatialBinMap.remove(key);
-            final TemporalBin temporalBin = temporalBinner.processSpatialBins(key, value);
+        Iterator<List<SpatialBin>> spatialBins = spatialBinMap.values();
+        while (spatialBins.hasNext()) {
+            List<SpatialBin> next = spatialBins.next();
+            final TemporalBin temporalBin = temporalBinner.processSpatialBins(next.get(0).getIndex(), next);
             temporalBins.add(temporalBin);
         }
         stopWatch.stop();
