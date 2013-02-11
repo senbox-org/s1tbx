@@ -4,6 +4,7 @@ import org.esa.beam.binning.BinningContext;
 import org.esa.beam.binning.SpatialBin;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -11,14 +12,34 @@ import java.util.TreeMap;
 /**
 * An implementation of {@link SpatialBinStore} which simply stores the consumed {@link SpatialBin spatial bins} in a map.
 */
-class SimpleSpatialBinStore implements SpatialBinStore {
+public class MemoryBackedSpatialBinStore implements SpatialBinStore {
 
     // Note, we use a sorted map in order to sort entries on-the-fly
     final private SortedMap<Long, List<SpatialBin>> spatialBinMap = new TreeMap<Long, List<SpatialBin>>();
 
     @Override
-    public SortedMap<Long, List<SpatialBin>> getSpatialBinMap() {
-        return spatialBinMap;
+    public SortedSpatialBinList getSpatialBinMap() {
+        return new SortedSpatialBinList() {
+            @Override
+            public Iterator<List<SpatialBin>> values() {
+                return spatialBinMap.values().iterator();
+            }
+
+            @Override
+            public long size() {
+                return spatialBinMap.size();
+            }
+
+            @Override
+            public boolean isEmpty() {
+                return spatialBinMap.isEmpty();
+            }
+
+            @Override
+            public void clear() {
+                spatialBinMap.clear();
+            }
+        };
     }
 
     @Override
