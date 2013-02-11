@@ -50,17 +50,6 @@
             <groupId>org.esa.beam</groupId>
             <artifactId>beam-csv-dataio</artifactId>
         </dependency>
-        <!-- only for testing -->
-        <dependency>
-            <groupId>org.esa.beam</groupId>
-            <artifactId>beam-netcdf</artifactId>
-            <version>1.1.2.${beam.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.esa.beam</groupId>
-            <artifactId>beam-envisat-reader</artifactId>
-            <version>1.5.2.${beam.version}</version>
-        </dependency>
     </dependencies>
 
 </project>
