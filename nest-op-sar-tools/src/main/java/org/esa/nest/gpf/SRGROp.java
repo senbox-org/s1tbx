@@ -191,16 +191,16 @@ public class SRGROp extends Operator {
     public void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
       try {
         final Rectangle targetTileRectangle = targetTile.getRectangle();
-        final int x0 = targetTileRectangle.x;
-        final int y0 = targetTileRectangle.y;
-        final int w = targetTileRectangle.width;
-        final int h = targetTileRectangle.height;
-        //System.out.println("x0 = " + x0 + ", y0 = " + y0 + ", w = " + w + ", h = " + h);
+        final int tx0 = targetTileRectangle.x;
+        final int ty0 = targetTileRectangle.y;
+        final int tw = targetTileRectangle.width;
+        final int th = targetTileRectangle.height;
+        //System.out.println("tx0 = " + tx0 + ", ty0 = " + ty0 + ", tw = " + tw + ", th = " + th);
 
         // compute ground range image pixel values
         final Band sourceBand = sourceProduct.getBand(targetBand.getName());
         final Unit.UnitType bandUnit = Unit.getUnitType(sourceBand); 
-        final Rectangle sourceTileRectangle = new Rectangle(x0, y0, sourceImageWidth, h);
+        final Rectangle sourceTileRectangle = getSourceRectangle(tx0, ty0, tw, th);
         final Tile sourceRaster = getSourceTile(sourceBand, sourceTileRectangle);
 
         final ProductData trgData = targetTile.getDataBuffer();
@@ -210,7 +210,7 @@ public class SRGROp extends Operator {
         double v0 = 0.0, v1 = 0.0, v2 = 0.0, v3 = 0.0, v4 = 0.0, v = 0.0;
         double mu = 0.0;
 
-        for (int x = x0; x < x0 + w; x++) {
+        for (int x = tx0; x < tx0 + tw; x++) {
             final double p = getSlantRangePixelPosition((double)x);
             if (interpMethod.equals(Interpolation.NEAREST_NEIGHBOR)) {
                 p0 = Math.min((int)(p + 0.5), sourceImageWidth - 1);
@@ -233,7 +233,7 @@ public class SRGROp extends Operator {
                 mu = p - p2;
             }
 
-            for (int y = y0; y < y0 + h; y++) {
+            for (int y = ty0; y < ty0 + th; y++) {
                 if (interpMethod.equals(Interpolation.NEAREST_NEIGHBOR)) {
                     v = srcData.getElemDoubleAt(sourceRaster.getDataBufferIndex(p0, y));
                 } else if (interpMethod.equals(Interpolation.LINEAR))  {
@@ -271,6 +271,13 @@ public class SRGROp extends Operator {
         } finally {
             pm.done();
         }
+    }
+
+    private Rectangle getSourceRectangle(final int tx0, final int ty0, final int tw, final int th) {
+        final int xMin = (int)(getSlantRangePixelPosition((double)Math.max(tx0-2, 0)));
+        final int xMax = (int)getSlantRangePixelPosition((double)tx0 + tw + 2);
+        final int sw = Math.min(xMax - xMin + 1, sourceImageWidth);
+        return new Rectangle(xMin, ty0, sw, th);
     }
 
     /**
