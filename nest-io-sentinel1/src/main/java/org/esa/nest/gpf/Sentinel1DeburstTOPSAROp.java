@@ -270,9 +270,11 @@ public final class Sentinel1DeburstTOPSAROp extends Operator {
 
         for (int i = 0; i < numOfSubSwath; i++) {
             for (String pol:selectedPolarisations) {
-                final Band srcBand = getSourceBand(subSwath[i].subSwathName, pol);
-                final Sentinel1Utils.NoiseVector[] noiseVectors = Sentinel1Utils.getNoiseVector(srcBand);
-                subSwath[i].noise.put(pol, noiseVectors);
+                if (pol != null) {
+                    final Band srcBand = getSourceBand(subSwath[i].subSwathName, pol);
+                    final Sentinel1Utils.NoiseVector[] noiseVectors = Sentinel1Utils.getNoiseVector(srcBand);
+                    subSwath[i].noise.put(pol, noiseVectors);
+                }
             }
         }
     }
@@ -570,7 +572,7 @@ public final class Sentinel1DeburstTOPSAROp extends Operator {
             final int th = targetRectangle.height;
             final double tileSlrtToFirstPixel = targetSlantRangeTimeToFirstPixel + tx0*targetDeltaSlantRangeTime;
             final double tileSlrtToLastPixel = targetSlantRangeTimeToFirstPixel + (tx0+tw-1)*targetDeltaSlantRangeTime;
-            // System.out.println("tx0 = " + tx0 + ", ty0 = " + ty0 + ", tw = " + tw + ", th = " + th);
+            //System.out.println("tx0 = " + tx0 + ", ty0 = " + ty0 + ", tw = " + tw + ", th = " + th);
 
             // determine subswaths covered by the tile
             int firstSubSwathIndex = 0;
@@ -605,17 +607,19 @@ public final class Sentinel1DeburstTOPSAROp extends Operator {
             final String bandNameQ = "q_" + acquisitionMode;
 
             for (String pol:selectedPolarisations) {
-                final Tile targetTileI = targetTiles.get(targetProduct.getBand("i_" + pol));
-                final Tile targetTileQ = targetTiles.get(targetProduct.getBand("q_" + pol));
+                if (pol != null) {
+                    final Tile targetTileI = targetTiles.get(targetProduct.getBand("i_" + pol));
+                    final Tile targetTileQ = targetTiles.get(targetProduct.getBand("q_" + pol));
 
-                if (tileInOneSubSwath) {
-                    computeTileInOneSwath(tx0, ty0, lastX, th, firstSubSwathIndex, pol,
-                            sourceRectangle, bandNameI, bandNameQ, targetTileI, targetTileQ, burstInfo);
+                    if (tileInOneSubSwath) {
+                        computeTileInOneSwath(tx0, ty0, lastX, th, firstSubSwathIndex, pol,
+                                sourceRectangle, bandNameI, bandNameQ, targetTileI, targetTileQ, burstInfo);
 
-                } else {
-                    computeMultipleSubSwaths(tx0, ty0, lastX, th, firstSubSwathIndex, lastSubSwathIndex, pol,
-                            sourceRectangle, bandNameI, bandNameQ, targetTileI, targetTileQ, burstInfo);
+                    } else {
+                        computeMultipleSubSwaths(tx0, ty0, lastX, th, firstSubSwathIndex, lastSubSwathIndex, pol,
+                                sourceRectangle, bandNameI, bandNameQ, targetTileI, targetTileQ, burstInfo);
 
+                    }
                 }
             }
         } catch(Throwable e) {
@@ -704,6 +708,7 @@ public final class Sentinel1DeburstTOPSAROp extends Operator {
         for (int y = ty0; y < ty0 + th; y++) {
             final int tgtOffset = tgtIndex.calculateStride(y);
             for (int x = tx0; x < lastX; x++) {
+
                 int subswathIndex = getSubSwathIndex(x, y, firstSubSwathIndex, lastSubSwathIndex, pol, burstInfo);
                 if (subswathIndex == -1) {
                     continue;
@@ -712,23 +717,29 @@ public final class Sentinel1DeburstTOPSAROp extends Operator {
                     continue;
                 }
 
+                short iVal = 0, qVal = 0;
                 k = subswathIndex - firstSubSwathIndex;
                 int idx = getSrcIndex(x, subswathIndex, srcTileIndex[k], burstInfo);
+                if(idx >= 0) {
+                    iVal = srcArrayI[k][idx];
+                    qVal = srcArrayQ[k][idx];
+                }
 
-                short iVal = srcArrayI[k][idx];
-                short qVal = srcArrayQ[k][idx];
                 if(iVal == 0 && qVal == 0 && burstInfo.swath1 != -1) {
                     // edge of swaths found therefore use other swath
                     if(subswathIndex == burstInfo.swath0)
                         subswathIndex = burstInfo.swath1;
                     else
                         subswathIndex = burstInfo.swath0;
+
                     getLineIndicesInSourceProduct(y, subSwath[subswathIndex-1], burstInfo);
 
                     k = subswathIndex - firstSubSwathIndex;
                     idx = getSrcIndex(x, subswathIndex, srcTileIndex[k], burstInfo);
-                    iVal = srcArrayI[k][idx];
-                    qVal = srcArrayQ[k][idx];
+                    if(idx >=0) {
+                        iVal = srcArrayI[k][idx];
+                        qVal = srcArrayQ[k][idx];
+                    }
                 }
                 tgtArrayI[x-tgtOffset] = iVal;
                 tgtArrayQ[x-tgtOffset] = qVal;
@@ -809,13 +820,12 @@ public final class Sentinel1DeburstTOPSAROp extends Operator {
                 } else {
                     burstTimes.sy1 = sy;
                     burstTimes.burstNum1 = i;
-                }
-                ++k;
-                if (k == 2) {
                     break;
                 }
+                ++k;
             }
         }
+
         if(burstTimes.sy0 != -1 && burstTimes.sy1 != -1) {
             // find time between bursts midTime
             // use first burst if targetLineTime is before midTime
