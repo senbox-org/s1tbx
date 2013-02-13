@@ -36,6 +36,7 @@ import org.esa.beam.framework.gpf.experimental.Output;
 import org.esa.beam.framework.gpf.internal.OperatorExecutor;
 import org.esa.beam.framework.gpf.internal.OperatorExecutor.ExecutionOrder;
 import org.esa.beam.jai.ImageManager;
+import org.esa.beam.util.Guardian;
 import org.esa.beam.util.math.MathUtils;
 
 import javax.media.jai.JAI;
@@ -139,6 +140,7 @@ public class WriteOp extends Operator implements Output {
 
     public WriteOp(Product sourceProduct, File file, String formatName) {
         this();
+        Guardian.assertNotNull("file", file);
         this.sourceProduct = sourceProduct;
         this.file = file;
         this.formatName = formatName;
