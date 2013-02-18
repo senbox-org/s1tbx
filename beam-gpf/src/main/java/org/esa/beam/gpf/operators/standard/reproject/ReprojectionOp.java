@@ -245,7 +245,8 @@ public class ReprojectionOp extends Operator {
             if (sourceProductPreferredTileSize != null) {
                 if (sourceProductPreferredTileSize.width == sourceProduct.getSceneRasterWidth()) {
                     tileSize.width = targetProduct.getSceneRasterWidth();
-                    tileSize.height = Math.min(sourceProductPreferredTileSize.height, targetProduct.getSceneRasterHeight());
+                    tileSize.height = Math.min(sourceProductPreferredTileSize.height,
+                                               targetProduct.getSceneRasterHeight());
                 }
             }
         }
@@ -295,7 +296,7 @@ public class ReprojectionOp extends Operator {
     private ElevationModel createElevationModel() throws OperatorException {
         if (elevationModelName != null) {
             final ElevationModelDescriptor demDescriptor = ElevationModelRegistry.getInstance().getDescriptor(
-                        elevationModelName);
+                    elevationModelName);
             if (!demDescriptor.isDemInstalled()) {
                 throw new OperatorException("DEM not installed: " + elevationModelName);
             }
@@ -477,11 +478,11 @@ public class ReprojectionOp extends Operator {
                                                                  i2mSource);
 
                 ImageLayout imageLayout = ImageManager.createSingleBandedImageLayout(
-                            ImageManager.getDataBufferType(targetBand.getDataType()),
-                            targetProduct.getSceneRasterWidth(),
-                            targetProduct.getSceneRasterHeight(),
-                            targetProduct.getPreferredTileSize(),
-                            ResolutionLevel.create(getModel(), targetLevel));
+                        ImageManager.getDataBufferType(targetBand.getDataType()),
+                        targetProduct.getSceneRasterWidth(),
+                        targetProduct.getSceneRasterHeight(),
+                        targetProduct.getPreferredTileSize(),
+                        ResolutionLevel.create(getModel(), targetLevel));
                 Rectangle targetBounds = new Rectangle(imageLayout.getWidth(null), imageLayout.getHeight(null));
 
                 // the following transformation maps the target level image to level zero and then to the model,
@@ -664,14 +665,14 @@ public class ReprojectionOp extends Operator {
         deltaLonBand.setUnit("deg");
         deltaLonBand.setDescription("Delta between old longitude and new longitude in degree");
         deltaLonBand.setNoDataValueUsed(true);
-        deltaLonBand.setNoDataValue(noDataValue);
+        deltaLonBand.setNoDataValue(noDataValue == null ? Double.NaN : noDataValue);
         deltaLonBand.setImageInfo(createDeltaBandImageInfo(-0.015, +0.015));
 
         final Band deltaLatBand = targetProduct.addBand("delta_lat_angular", "latitude - LAT");
         deltaLatBand.setUnit("deg");
         deltaLatBand.setDescription("Delta between old latitude and new latitude in degree");
         deltaLatBand.setNoDataValueUsed(true);
-        deltaLatBand.setNoDataValue(noDataValue);
+        deltaLatBand.setNoDataValue(noDataValue == null ? Double.NaN : noDataValue);
         deltaLatBand.setImageInfo(createDeltaBandImageInfo(-0.01, +0.01));
 
         final Band deltaLonMetBand = targetProduct.addBand("delta_lon_metric",
@@ -679,22 +680,22 @@ public class ReprojectionOp extends Operator {
         deltaLonMetBand.setUnit("m");
         deltaLonMetBand.setDescription("Delta between old longitude and new longitude in meters");
         deltaLonMetBand.setNoDataValueUsed(true);
-        deltaLonMetBand.setNoDataValue(noDataValue);
+        deltaLonMetBand.setNoDataValue(noDataValue == null ? Double.NaN : noDataValue);
         deltaLonMetBand.setImageInfo(createDeltaBandImageInfo(-1500.0, +1500.0));
 
         final Band deltaLatMetBand = targetProduct.addBand("delta_lat_metric", "6378137 * rad(latitude - LAT)");
         deltaLatMetBand.setUnit("m");
         deltaLatMetBand.setDescription("Delta between old latitude and new latitude in meters");
         deltaLatMetBand.setNoDataValueUsed(true);
-        deltaLatMetBand.setNoDataValue(noDataValue);
+        deltaLatMetBand.setNoDataValue(noDataValue == null ? Double.NaN : noDataValue);
         deltaLatMetBand.setImageInfo(createDeltaBandImageInfo(-1000.0, +1000.0));
     }
 
     private ImageInfo createDeltaBandImageInfo(double p1, double p2) {
         return new ImageInfo(new ColorPaletteDef(new ColorPaletteDef.Point[]{
-                    new ColorPaletteDef.Point(p1, new Color(255, 0, 0)),
-                    new ColorPaletteDef.Point((p1 + p2) / 2, new Color(255, 255, 255)),
-                    new ColorPaletteDef.Point(p2, new Color(0, 0, 127)),
+                new ColorPaletteDef.Point(p1, new Color(255, 0, 0)),
+                new ColorPaletteDef.Point((p1 + p2) / 2, new Color(255, 255, 255)),
+                new ColorPaletteDef.Point(p2, new Color(0, 0, 127)),
         }));
     }
 }
