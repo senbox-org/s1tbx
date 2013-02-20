@@ -59,7 +59,7 @@ final class Reproject {
     private static final int DIMENSION_X_INDEX = 0;
     private static final int DIMENSION_Y_INDEX = 1;
     /**
-     * Small tolerance threshold for floating point number comparaisons.
+     * Small tolerance threshold for floating point number comparisons.
      */
     private static final double EPS = 1.0E-6;
     
