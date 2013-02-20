@@ -209,6 +209,12 @@ public class NetcdfOpImage extends SingleBandedOpImage {
         shapeLeft[xIndex] = sourceRect.width / 2;
         shapeRight[xIndex] = sourceRect.width / 2;
 
+        if (imageOrigin.length >= 0) {
+            // todo: we need something for weird position of lat/lon in nc variables (e.g. bands data1, data2, lat, data3, lon, data4)
+            System.arraycopy(imageOrigin, 0, originLeft, startIndexToCopy, imageOrigin.length);
+            System.arraycopy(imageOrigin, 0, originRight, startIndexToCopy, imageOrigin.length);
+        }
+
         originLeft[yIndex] = sourceRect.y;
         originRight[yIndex] = sourceRect.y;
         originLeft[xIndex] = sourceRect.x;
