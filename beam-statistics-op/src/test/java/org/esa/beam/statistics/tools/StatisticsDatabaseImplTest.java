@@ -44,7 +44,7 @@ public class StatisticsDatabaseImplTest {
         assertArrayEquals(new String[]{"algal_1", "yellow_subs"}, statisticsDatabase.getParameterNames(2007));
         final DatabaseRecord[] algal_1_records = statisticsDatabase.getData(2007, "algal_1");
         assertEquals(21, algal_1_records.length);
-        assertEquals("1", algal_1_records[0].geomId);
+        assertEquals(1, algal_1_records[0].geomId);
         assertEquals("Hever Tidebecken", algal_1_records[0].geomName);
         final Set<Date> dataDates = algal_1_records[0].getDataDates();
         assertEquals(1, dataDates.size());
