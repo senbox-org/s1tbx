@@ -8,13 +8,13 @@ import org.junit.*;
 import java.io.File;
 import java.util.Calendar;
 
-public class FilenameDateExtractorImplTest {
+public class FilenameDateExtractorTest {
 
-    private FilenameDateExtractorImpl filenameDateExtractor;
+    private FilenameDateExtractor filenameDateExtractor;
 
     @Before
     public void setUp() throws Exception {
-        filenameDateExtractor = new FilenameDateExtractorImpl();
+        filenameDateExtractor = new FilenameDateExtractor();
     }
 
     @Test

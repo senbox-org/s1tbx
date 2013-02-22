@@ -14,16 +14,15 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.TreeMap;
 
-public class StatisticsDatabaseImpl implements SummaryCSVTool.StatisticsDatabase {
+public class StatisticsDatabase {
 
     //                     year        param       geomID
     private final TreeMap<Integer, Map<String, Map<Integer, DatabaseRecord>>> yearMap;
 
-    public StatisticsDatabaseImpl() {
+    public StatisticsDatabase() {
         yearMap = new TreeMap<Integer, Map<String, Map<Integer, DatabaseRecord>>>();
     }
 
-    @Override
     public int[] getYears() {
         Set<Integer> years = yearMap.keySet();
         final Integer[] integers = years.toArray(new Integer[years.size()]);
@@ -34,7 +33,6 @@ public class StatisticsDatabaseImpl implements SummaryCSVTool.StatisticsDatabase
         return ints;
     }
 
-    @Override
     public String[] getParameterNames(int year) {
         if (!yearMap.containsKey(year)) {
             return new String[0];
@@ -43,7 +41,6 @@ public class StatisticsDatabaseImpl implements SummaryCSVTool.StatisticsDatabase
         return parameterNames.toArray(new String[parameterNames.size()]);
     }
 
-    @Override
     public DatabaseRecord[] getData(int year, String parameterName) {
         if (!yearMap.containsKey(year)) {
             return new DatabaseRecord[0];
@@ -56,7 +53,6 @@ public class StatisticsDatabaseImpl implements SummaryCSVTool.StatisticsDatabase
         return databaseRecords.toArray(new DatabaseRecord[databaseRecords.size()]);
     }
 
-    @Override
     public void append(ProductData.UTC date, FeatureCollection<SimpleFeatureType, SimpleFeature> shapeCollection, Properties mappingFile) {
         final Calendar utcCalendar = date.getAsCalendar();
         final int year = utcCalendar.get(Calendar.YEAR);

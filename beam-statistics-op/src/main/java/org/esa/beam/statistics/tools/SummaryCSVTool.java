@@ -35,18 +35,10 @@ public class SummaryCSVTool {
 
     private final Logger logger;
     private final FilenameDateExtractor filenameDateExtractor;
-    private final StatisticsDatabaseImpl statisticsDatabase;
+    private final StatisticsDatabase statisticsDatabase;
     private final String TAB = "\t";
 
     private ShapeFileReader shapeFileReader;
-
-    public SummaryCSVTool(Logger logger,
-                          ShapeFileReader shapeFileReader) {
-        this.logger = logger;
-        this.shapeFileReader = shapeFileReader;
-        this.filenameDateExtractor = new FilenameDateExtractorImpl();
-        statisticsDatabase = new StatisticsDatabaseImpl();
-    }
 
     public static void main(String[] args) throws IOException {
         if (args.length < 1) {
@@ -82,10 +74,17 @@ public class SummaryCSVTool {
         summaryCSVTool.putOutSummerizedData(outputDir);
     }
 
+    public SummaryCSVTool(Logger logger,
+                          ShapeFileReader shapeFileReader) {
+        this.logger = logger;
+        this.shapeFileReader = shapeFileReader;
+        this.filenameDateExtractor = new FilenameDateExtractor();
+        statisticsDatabase = new StatisticsDatabase();
+    }
+
     private void putOutSummerizedData(File outputDir) throws IOException {
         final int[] years = statisticsDatabase.getYears();
-        for (int i = 0; i < years.length; i++) {
-            int year = years[i];
+        for (int year : years) {
             final String[] parameterNames = statisticsDatabase.getParameterNames(year);
             for (String parameterName : parameterNames) {
                 final File outputFile = new File(outputDir, "WFD_stat_" + year + "_" + parameterName + ".txt");
@@ -232,23 +231,5 @@ public class SummaryCSVTool {
     public static interface ShapeFileReader {
 
         FeatureCollection<SimpleFeatureType, SimpleFeature> read(File shapeFile) throws IOException;
-    }
-
-    public static interface FilenameDateExtractor {
-
-        boolean isValidFilename(File file);
-
-        ProductData.UTC getDate(File file);
-    }
-
-    public static interface StatisticsDatabase {
-
-        int[] getYears();
-
-        String[] getParameterNames(int year);
-
-        DatabaseRecord[] getData(int year, String parameterName);
-
-        void append(ProductData.UTC date, FeatureCollection<SimpleFeatureType, SimpleFeature> shapeCollection, Properties mappingFile);
     }
 }
