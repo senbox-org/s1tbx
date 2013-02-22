@@ -94,7 +94,7 @@ public class SummaryCSVTool {
                     fileOutputStream = new FileOutputStream(outputFile);
                     writer = new PrintWriter(fileOutputStream);
                     final DatabaseRecord[] databaseRecords = statisticsDatabase.getData(year, parameterName);
-                    printHeader(databaseRecords, writer);
+                    printHeader(databaseRecords, writer, parameterName);
                     printData(databaseRecords, writer);
                 } finally {
                     if (writer != null) {
@@ -108,7 +108,7 @@ public class SummaryCSVTool {
         }
     }
 
-    private void printHeader(DatabaseRecord[] records, PrintWriter pw) {
+    private void printHeader(DatabaseRecord[] records, PrintWriter pw, String parameterName) {
         pw.print("Bod.ID");
         pw.print(TAB);
         pw.print("Bod.Name");
@@ -132,15 +132,16 @@ public class SummaryCSVTool {
         for (Map.Entry<Date, TreeSet<String>> dateColNamesEntry : dateColNamesMap.entrySet()) {
             final Date date = dateColNamesEntry.getKey();
             calendar.setTime(date);
+            final String year = Integer.toString(calendar.get(Calendar.YEAR));
             final String month = Integer.toString(calendar.get(Calendar.MONTH) + 1);
             final String day = Integer.toString(calendar.get(Calendar.DAY_OF_MONTH));
             final String monthPart = month.length() == 1 ? "0" + month : month;
             final String dayPart = day.length() == 1 ? "0" + day : day;
-            final String datePart = "_" + monthPart + dayPart;
+            final String datePart = "" + year + monthPart + dayPart;
             final TreeSet<String> colNames = dateColNamesEntry.getValue();
             for (String colName : colNames) {
                 pw.print(TAB);
-                pw.print(colName + "_" + datePart);
+                pw.print(parameterName + "_" + colName + "_" + datePart);
             }
         }
 
