@@ -16,13 +16,13 @@ import java.util.Date;
 import java.util.Properties;
 import java.util.Set;
 
-public class StatisticsDatabaseImplTest {
+public class StatisticsDatabaseTest {
 
-    private StatisticsDatabaseImpl statisticsDatabase;
+    private StatisticsDatabase statisticsDatabase;
 
     @Before
     public void setUp() throws Exception {
-        statisticsDatabase = new StatisticsDatabaseImpl();
+        statisticsDatabase = new StatisticsDatabase();
     }
 
     @Test
@@ -33,7 +33,7 @@ public class StatisticsDatabaseImplTest {
         final FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = FeatureUtils.loadFeatureCollectionFromShapefile(shapeFile);
         final Properties mapping = new Properties();
         mapping.load(new FileReader(mappingFile));
-        final FilenameDateExtractorImpl filenameDateExtractor = new FilenameDateExtractorImpl();
+        final FilenameDateExtractor filenameDateExtractor = new FilenameDateExtractor();
         final ProductData.UTC utc = filenameDateExtractor.getDate(shapeFile);
 
         //execution

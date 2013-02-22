@@ -7,15 +7,14 @@ import org.esa.beam.util.TimeStampExtractor;
 
 import java.io.File;
 
-public class FilenameDateExtractorImpl implements SummaryCSVTool.FilenameDateExtractor {
+public class FilenameDateExtractor {
 
     private final TimeStampExtractor timeStampExtractor;
 
-    public FilenameDateExtractorImpl() {
+    public FilenameDateExtractor() {
         timeStampExtractor = new TimeStampExtractor("yyyyMMdd", "${startDate}_*.shp");
     }
 
-    @Override
     public boolean isValidFilename(File file) {
         try {
             timeStampExtractor.extractTimeStamps(file.getName());
@@ -25,7 +24,6 @@ public class FilenameDateExtractorImpl implements SummaryCSVTool.FilenameDateExt
         }
     }
 
-    @Override
     public ProductData.UTC getDate(File file) {
         try {
             if (isValidFilename(file)) {
