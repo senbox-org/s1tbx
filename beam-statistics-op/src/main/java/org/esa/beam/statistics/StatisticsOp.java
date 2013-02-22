@@ -85,7 +85,17 @@ import java.util.logging.Level;
 public class StatisticsOp extends Operator implements Output {
 
     public static final String DATETIME_PATTERN = "yyyy-MM-dd HH:mm:ss";
+    public static final String MAXIMUM = "maximum";
+    public static final String MINIMUM = "minimum";
+    public static final String MEDIAN = "median";
+    public static final String AVERAGE = "average";
+    public static final String SIGMA = "sigma";
+    public static final String MAX_ERROR = "max_error";
+    public static final String TOTAL = "total";
+    public static final String PERCENTILE_PREFIX = "p";
+    public static final String PERCENTILE_SUFFIX = "_threshold";
     public static final String DEFAULT_PERCENTILES = "90,95";
+    public static final int[] DEFAULT_PERCENTILES_INTS = new int[]{90, 95};
 
     @SourceProducts(description = "The source products to be considered for statistics computation. If not given, " +
                                   "the parameter 'sourceProductPaths' must be provided.")
@@ -168,7 +178,7 @@ public class StatisticsOp extends Operator implements Output {
         }
 
         final Map<BandConfiguration, StatisticComputer.StxOpMapping> results = statisticComputer.getResults();
-        final String[] algorithmNames = getAlgorithmNames();
+        final String[] algorithmNames = getAlgorithmNames(percentiles);
 
 
         final List<String> bandNamesList = new ArrayList<String>();
@@ -223,16 +233,16 @@ public class StatisticsOp extends Operator implements Output {
 
 
                 final HashMap<String, Number> stxMap = new HashMap<String, Number>();
-                stxMap.put("minimum", summaryStxOp.getMinimum());
-                stxMap.put("maximum", summaryStxOp.getMaximum());
-                stxMap.put("average", summaryStxOp.getMean());
-                stxMap.put("sigma", summaryStxOp.getStandardDeviation());
-                stxMap.put("total", histogram.getTotals()[0]);
-                stxMap.put("median", histogram.getPTileThreshold(0.5)[0]);
+                stxMap.put(MINIMUM, summaryStxOp.getMinimum());
+                stxMap.put(MAXIMUM, summaryStxOp.getMaximum());
+                stxMap.put(AVERAGE, summaryStxOp.getMean());
+                stxMap.put(SIGMA, summaryStxOp.getStandardDeviation());
+                stxMap.put(TOTAL, histogram.getTotals()[0]);
+                stxMap.put(MEDIAN, histogram.getPTileThreshold(0.5)[0]);
                 for (int percentile : percentiles) {
                     stxMap.put(getPercentileName(percentile), computePercentile(percentile, histogram));
                 }
-                stxMap.put("max_error", Util.getBinWidth(histogram));
+                stxMap.put(MAX_ERROR, Util.getBinWidth(histogram));
                 for (StatisticsOutputter statisticsOutputter : statisticsOutputters) {
                     statisticsOutputter.addToOutput(bandName, regionName, stxMap);
                 }
@@ -277,30 +287,30 @@ public class StatisticsOp extends Operator implements Output {
         return fileSet.toArray(new File[fileSet.size()]);
     }
 
-    private String[] getAlgorithmNames() {
+    public static String[] getAlgorithmNames(int[] percentiles) {
         final List<String> algorithms = new ArrayList<String>();
-        algorithms.add("minimum");
-        algorithms.add("maximum");
-        algorithms.add("median");
-        algorithms.add("average");
-        algorithms.add("sigma");
+        algorithms.add(MINIMUM);
+        algorithms.add(MAXIMUM);
+        algorithms.add(MEDIAN);
+        algorithms.add(AVERAGE);
+        algorithms.add(SIGMA);
         for (int percentile : percentiles) {
             algorithms.add(getPercentileName(percentile));
         }
-        algorithms.add("max_error");
-        algorithms.add("total");
+        algorithms.add(MAX_ERROR);
+        algorithms.add(TOTAL);
         return algorithms.toArray(new String[algorithms.size()]);
     }
 
-    private String getPercentileName(int percentile) {
-        return "p" + percentile + "_threshold";
+    private static String getPercentileName(int percentile) {
+        return PERCENTILE_PREFIX + percentile + PERCENTILE_SUFFIX;
     }
 
     void setupOutputter() {
         if (outputAsciiFile != null) {
             try {
                 final StringBuilder metadataFileName = new StringBuilder(
-                        FileUtils.getFilenameWithoutExtension(outputAsciiFile));
+                            FileUtils.getFilenameWithoutExtension(outputAsciiFile));
                 metadataFileName.append("_metadata.txt");
                 final File metadataFile = new File(outputAsciiFile.getParent(), metadataFileName.toString());
                 metadataOutputStream = new PrintStream(new FileOutputStream(metadataFile));
@@ -321,7 +331,7 @@ public class StatisticsOp extends Operator implements Output {
                 statisticsOutputters.add(FeatureStatisticsWriter.createFeatureStatisticsWriter(shapefile.toURI().toURL(), outputShapefile.getAbsolutePath(), bandNameCreator));
             } catch (MalformedURLException e) {
                 throw new OperatorException(
-                        "Unable to create shapefile outputter: shapefile '" + shapefile.getName() + "' is invalid.", e);
+                            "Unable to create shapefile outputter: shapefile '" + shapefile.getName() + "' is invalid.", e);
             } catch (FileNotFoundException e) {
                 throw new OperatorException("Unable to create shapefile outputter: maybe shapefile output directory does not exist?", e);
             }
@@ -361,7 +371,7 @@ public class StatisticsOp extends Operator implements Output {
         if ((sourceProducts == null || sourceProducts.length == 0) &&
             (sourceProductPaths == null || sourceProductPaths.length == 0)) {
             throw new OperatorException(
-                    "Either source products must be given or parameter 'sourceProductPaths' must be specified");
+                        "Either source products must be given or parameter 'sourceProductPaths' must be specified");
         }
         if (bandConfigurations == null) {
             throw new OperatorException("Parameter 'bandConfigurations' must be specified.");
