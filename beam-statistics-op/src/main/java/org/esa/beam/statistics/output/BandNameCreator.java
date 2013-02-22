@@ -74,14 +74,20 @@ public class BandNameCreator {
             attributeName = shorten(attributeName);
         }
         if (attributeName.length() > 10) {
-            attributeName = shorten(algorithmName) + "_" + getIndex(algorithmName);
-            indexMap.put(algorithmName, getIndex(algorithmName) + 1);
+            final int index = getIndex(algorithmName);
+            attributeName = shorten(algorithmName) + "_" + index;
+            if (attributeName.length() > 10) {
+                final String indexPart = Integer.toString(index);
+                final int idxLength = indexPart.length();
+                attributeName = attributeName.substring(0, 10 - idxLength - 1) + "_" + indexPart;
+            }
+            indexMap.put(algorithmName, index + 1);
         }
-        if (tooLong && !mappedNames.containsKey(desiredAttributeName)) {
+        if (tooLong) {
             BeamLogManager.getSystemLogger().warning(
-                    "attribute name '" + desiredAttributeName + "' exceeds 10 characters in length. Shortened to '" +
-                    attributeName +
-                    "'.");
+                        "attribute name '" + desiredAttributeName + "' exceeds 10 characters in length. Shortened to '" +
+                        attributeName +
+                        "'.");
             addMapping(desiredAttributeName, attributeName);
         }
         return attributeName;
@@ -102,10 +108,10 @@ public class BandNameCreator {
 
     private void addMapping(String desiredAttributeName, String attributeName) {
         printStream
-                .append(attributeName)
-                .append("=")
-                .append(desiredAttributeName)
-                .append("\n");
+                    .append(attributeName)
+                    .append("=")
+                    .append(desiredAttributeName)
+                    .append("\n");
         mappedNames.put(desiredAttributeName, attributeName);
     }
 

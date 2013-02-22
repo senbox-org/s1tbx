@@ -56,10 +56,10 @@ public class BandNameCreatorTest {
         BandNameCreator bandNameCreator = new BandNameCreator();
         String attributeName1 = bandNameCreator.createUniqueAttributeName("median", "radiance_12");
         String attributeName2 = bandNameCreator.createUniqueAttributeName("median", "radiance_13");
-        String attributeName3 = bandNameCreator.createUniqueAttributeName("p90", "radiance_12");
-        String attributeName4 = bandNameCreator.createUniqueAttributeName("p90", "radiance_13");
-        String attributeName5 = bandNameCreator.createUniqueAttributeName("p90", "algal2");
-        String attributeName6 = bandNameCreator.createUniqueAttributeName("p90", "algal1");
+        String attributeName3 = bandNameCreator.createUniqueAttributeName("p90_threshold", "radiance_12");
+        String attributeName4 = bandNameCreator.createUniqueAttributeName("p90_threshold", "radiance_13");
+        String attributeName5 = bandNameCreator.createUniqueAttributeName("p90_threshold", "algal2");
+        String attributeName6 = bandNameCreator.createUniqueAttributeName("p90_threshold", "algal1");
         String attributeName7 = bandNameCreator.createUniqueAttributeName("maximum", "algal1");
         String attributeName8 = bandNameCreator.createUniqueAttributeName("minimum", "algal1");
         String attributeName9 = bandNameCreator.createUniqueAttributeName("median", "saharan_dust_index");
@@ -76,17 +76,17 @@ public class BandNameCreatorTest {
 
         assertEquals("mdn_rdnc12", attributeName1);
         assertEquals("mdn_rdnc13", attributeName2);
-        assertEquals("p90_rdnc12", attributeName3);
-        assertEquals("p90_rdnc13", attributeName4);
-        assertEquals("p90_algal2", attributeName5);
-        assertEquals("p90_algal1", attributeName6);
+        assertEquals("p90_thrs_0", attributeName3);
+        assertEquals("p90_thrs_1", attributeName4);
+        assertEquals("p90_thrs_2", attributeName5);
+        assertEquals("p90_thrs_3", attributeName6);
         assertEquals("mx_lgl1", attributeName7);
         assertEquals("mn_lgl1", attributeName8);
         assertEquals("mdn_0", attributeName9);
         assertEquals("mdn_1", attributeName10);
         assertEquals("mdn_10", attributeName11);
 
-        assertEquals(17, warningCount[0]);
+        assertEquals(19, warningCount[0]);
 
         BeamLogManager.getSystemLogger().removeHandler(handler);
     }
