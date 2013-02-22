@@ -1,7 +1,9 @@
 package org.esa.beam.statistics.tools;
 
 import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.gpf.main.GPT;
 import org.esa.beam.util.FeatureUtils;
+import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.util.logging.BeamLogManager;
 import org.geotools.feature.FeatureCollection;
@@ -16,6 +18,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -61,6 +64,8 @@ public class SummaryCSVTool {
             printUsage("<outputDir> does not exist.", Error_NotADirectory);
         }
 
+        initSystem();
+
         final Logger logger = BeamLogManager.getSystemLogger();
 
         final ShapeFileReader shapeFileReader = new ShapeFileReader() {
@@ -72,6 +77,14 @@ public class SummaryCSVTool {
         SummaryCSVTool summaryCSVTool = new SummaryCSVTool(logger, shapeFileReader);
         summaryCSVTool.summarize(inputDir);
         summaryCSVTool.putOutSummerizedData(outputDir);
+    }
+
+    private static void initSystem() {
+        if (System.getProperty("ceres.context") == null) {
+            System.setProperty("ceres.context", "beam");
+        }
+        Locale.setDefault(Locale.ENGLISH); // Force usage of english locale
+        SystemUtils.init3rdPartyLibs(GPT.class.getClassLoader());
     }
 
     public SummaryCSVTool(Logger logger,
