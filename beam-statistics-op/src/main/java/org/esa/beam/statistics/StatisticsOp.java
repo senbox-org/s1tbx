@@ -97,6 +97,8 @@ public class StatisticsOp extends Operator implements Output {
     public static final String DEFAULT_PERCENTILES = "90,95";
     public static final int[] DEFAULT_PERCENTILES_INTS = new int[]{90, 95};
 
+    private static final double FILL_VALUE = -999.0;
+
     @SourceProducts(description = "The source products to be considered for statistics computation. If not given, " +
                                   "the parameter 'sourceProductPaths' must be provided.")
     Product[] sourceProducts;
@@ -230,18 +232,29 @@ public class StatisticsOp extends Operator implements Output {
 
                 final SummaryStxOp summaryStxOp = summaryMap.get(regionName);
                 final Histogram histogram = histogramMap.get(regionName).getHistogram();
-
-
                 final HashMap<String, Number> stxMap = new HashMap<String, Number>();
-                stxMap.put(MINIMUM, summaryStxOp.getMinimum());
-                stxMap.put(MAXIMUM, summaryStxOp.getMaximum());
-                stxMap.put(AVERAGE, summaryStxOp.getMean());
-                stxMap.put(SIGMA, summaryStxOp.getStandardDeviation());
-                stxMap.put(TOTAL, histogram.getTotals()[0]);
-                stxMap.put(MEDIAN, histogram.getPTileThreshold(0.5)[0]);
-                for (int percentile : percentiles) {
-                    stxMap.put(getPercentileName(percentile), computePercentile(percentile, histogram));
+                if (histogram.getTotals()[0] == 0) {
+                    stxMap.put(MINIMUM, FILL_VALUE);
+                    stxMap.put(MAXIMUM, FILL_VALUE);
+                    stxMap.put(AVERAGE, FILL_VALUE);
+                    stxMap.put(SIGMA, FILL_VALUE);
+                    stxMap.put(TOTAL, 0);
+                    stxMap.put(MEDIAN, FILL_VALUE);
+                    for (int percentile : percentiles) {
+                        stxMap.put(getPercentileName(percentile), FILL_VALUE);
+                    }
+                } else {
+                    stxMap.put(MINIMUM, summaryStxOp.getMinimum());
+                    stxMap.put(MAXIMUM, summaryStxOp.getMaximum());
+                    stxMap.put(AVERAGE, summaryStxOp.getMean());
+                    stxMap.put(SIGMA, summaryStxOp.getStandardDeviation());
+                    stxMap.put(TOTAL, histogram.getTotals()[0]);
+                    stxMap.put(MEDIAN, histogram.getPTileThreshold(0.5)[0]);
+                    for (int percentile : percentiles) {
+                        stxMap.put(getPercentileName(percentile), computePercentile(percentile, histogram));
+                    }
                 }
+
                 stxMap.put(MAX_ERROR, Util.getBinWidth(histogram));
                 for (StatisticsOutputter statisticsOutputter : statisticsOutputters) {
                     statisticsOutputter.addToOutput(bandName, regionName, stxMap);
