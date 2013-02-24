@@ -45,7 +45,7 @@ import java.util.Map;
  * <li>this new feature type is being extended by the statistical means that have been computed</li>
  * <li>for each original feature, a new feature is created</li>
  * <li>the statistical values are added to each new feature</li>
- * <li>the new features are made availabe by the {@link #getFeatures()}-method</li>
+ * <li>the new features are made available by the {@link #getFeatures()}-method</li>
  * <li>within the {@link #finaliseOutput()}-method, the resulting feature type and features are written to a new shapefile</li>
  * </ol>
  * Instances are created by using one of the factory methods this class provides.
