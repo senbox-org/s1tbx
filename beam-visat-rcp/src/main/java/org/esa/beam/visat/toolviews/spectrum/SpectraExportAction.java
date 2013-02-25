@@ -16,14 +16,17 @@
 
 package org.esa.beam.visat.toolviews.spectrum;
 
+import org.esa.beam.framework.datamodel.Placemark;
 import org.esa.beam.framework.ui.diagram.DiagramGraph;
 import org.esa.beam.framework.ui.diagram.DiagramGraphIO;
+import org.esa.beam.framework.ui.product.spectrum.SpectrumInDisplay;
 import org.esa.beam.util.io.BeamFileFilter;
 import org.esa.beam.visat.VisatApp;
 
 import javax.swing.AbstractAction;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
+import java.util.List;
 
 class SpectraExportAction extends AbstractAction {
 
@@ -41,23 +44,18 @@ class SpectraExportAction extends AbstractAction {
 
 
     private void exportSpectra() {
-        SpectraDiagram spectraDiagram = spectrumToolView.getSpectraDiagram();
-        if (spectraDiagram == null) {
-            return;
-        }
-
-        DiagramGraph[] graphs = spectraDiagram.getGraphs();
-        ArrayList<DiagramGraph> pinGraphList = new ArrayList<DiagramGraph>(graphs.length);
-        for (DiagramGraph graph : graphs) {
-            SpectrumGraph spectrumGraph = (SpectrumGraph) graph;
-            if (spectrumGraph.getPlacemark() != null) {
-                pinGraphList.add(spectrumGraph);
+        final List<SpectrumInDisplay> selectedSpectra = spectrumToolView.getSelectedSpectra();
+        Placemark[] pins = spectrumToolView.getDisplayedPins();
+        final List<SpectrumGraph> spectrumGraphList = new ArrayList<SpectrumGraph>();
+        for (Placemark pin : pins) {
+            for (SpectrumInDisplay spectrumInDisplay : selectedSpectra) {
+                spectrumGraphList.add(new SpectrumGraph(pin, spectrumInDisplay.getSelectedBands()));
             }
         }
-        DiagramGraph[] pinGraphs = pinGraphList.toArray(new DiagramGraph[0]);
+        DiagramGraph[] pinGraphs = spectrumGraphList.toArray(new DiagramGraph[0]);
         DiagramGraphIO.writeGraphs(spectrumToolView.getPaneControl(),
                                    "Export Pin Spectra",
-                                   new BeamFileFilter[] {DiagramGraphIO.SPECTRA_CSV_FILE_FILTER},
+                                   new BeamFileFilter[]{DiagramGraphIO.SPECTRA_CSV_FILE_FILTER},
                                    VisatApp.getApp().getPreferences(), pinGraphs);
     }
 

@@ -43,7 +43,7 @@ public class SpectrumEditor extends ModalDialog {
     private SpectrumListModel availableSpectraListModel;
     private SpectrumListModel selectedSpectraListModel;
     private JTextField patternField;
-    private Spectrum spectrum;
+    private SpectrumInDisplay spectrum;
     private JTextField nameField;
     private JTextField descriptionField;
     private JRadioButton patternButton;
@@ -56,7 +56,7 @@ public class SpectrumEditor extends ModalDialog {
     }
 
     public SpectrumEditor(Window parent, String title, String helpID, Band[] availableSpectralBands,
-                          Spectrum spectrum, String[] alreadyDefinedSpectrumNames) {
+                          SpectrumInDisplay spectrum, String[] alreadyDefinedSpectrumNames) {
         super(parent, title, ModalDialog.ID_OK_CANCEL, helpID);
         availableBandsMap = new HashMap<String, Band>();
         for (Band availableSpectralBand : availableSpectralBands) {
@@ -314,16 +314,16 @@ public class SpectrumEditor extends ModalDialog {
         return ToolButtonFactory.createButton(UIUtils.loadImageIcon(iconPath), false);
     }
 
-    public Spectrum getSpectrum() {
+    public SpectrumInDisplay getSpectrum() {
         final List<String> selectedElements = selectedSpectraListModel.getAllElements();
         Band[] selectedBands = new Band[selectedElements.size()];
         for (int i = 0; i < selectedBands.length; i++) {
             selectedBands[i] = availableBandsMap.get(selectedElements.get(i));
         }
         if (patternButton.isSelected()) {
-            return new Spectrum(nameField.getText(), descriptionField.getText(), patternField.getText(), selectedBands);
+            return new SpectrumInDisplay(nameField.getText(), descriptionField.getText(), patternField.getText(), selectedBands);
         } else {
-            return new Spectrum(nameField.getText(), descriptionField.getText(), selectedBands);
+            return new SpectrumInDisplay(nameField.getText(), descriptionField.getText(), selectedBands);
         }
     }
 

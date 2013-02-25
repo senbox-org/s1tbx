@@ -41,7 +41,7 @@ public class CursorSpectrumPixelPositionListener implements PixelPositionListene
     }
 
     private boolean isActive() {
-        return toolView.isVisible() && toolView.isShowingCursorSpectrum() && toolView.getSpectraDiagram() != null;
+        return toolView.isVisible() && toolView.isShowingCursorSpectrum() && toolView.hasDiagram();
     }
 
     private class SpectrumToolViewDisabler extends SwingWorker<Void, Void> {
@@ -55,8 +55,7 @@ public class CursorSpectrumPixelPositionListener implements PixelPositionListene
         @Override
         protected Void doInBackground() throws Exception {
             if (isActive()) {
-                toolView.getSpectraDiagram().removeCursorSpectrumGraph();
-                toolView.getDiagramCanvas().repaint();
+                toolView.disable();
             }
             return null;
         }
@@ -88,13 +87,11 @@ public class CursorSpectrumPixelPositionListener implements PixelPositionListene
 
         @Override
         protected Void doInBackground() throws Exception {
-            toolView.getDiagramCanvas().setMessageText(null);
             if (pixelPosValid && isActive()) {
-                toolView.getSpectraDiagram().addCursorSpectrumGraphs();
                 toolView.updateSpectra(pixelX, pixelY, currentLevel);
             }
             if (adjustAxes) {
-                toolView.getSpectraDiagram().adjustAxes(true);
+                //todo decide on how to / whether to adjust axes
             }
             return null;
         }

@@ -2,12 +2,20 @@ package org.esa.beam.framework.ui.product.spectrum;
 
 import org.esa.beam.framework.datamodel.Band;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 public class Spectrum {
 
     private String name;
     private String description;
     private String namePattern;
-    private Band[] spectralBands;
+    private List<Band> spectralBands;
+
+    public Spectrum(String name) {
+        this(name, "", "", new Band[]{});
+    }
 
     public Spectrum(String name, String description, Band[] spectralBands) {
         this(name, description, "", spectralBands);
@@ -17,7 +25,8 @@ public class Spectrum {
         this.name = name;
         this.description = description;
         this.namePattern = namePattern;
-        this.spectralBands = spectralBands;
+        this.spectralBands = new ArrayList<Band>();
+        Collections.addAll(this.spectralBands, spectralBands);
     }
 
     public String getName() {
@@ -45,10 +54,15 @@ public class Spectrum {
     }
 
     public Band[] getSpectralBands() {
-        return spectralBands;
+        return spectralBands.toArray(new Band[spectralBands.size()]);
     }
 
-    public void setSpectralBands(Band[] spectralBands) {
-        this.spectralBands = spectralBands;
+    public void addBand(Band spectralBand) {
+        spectralBands.add(spectralBand);
     }
+
+    public boolean hasBands() {
+        return !spectralBands.isEmpty();
+    }
+
 }
