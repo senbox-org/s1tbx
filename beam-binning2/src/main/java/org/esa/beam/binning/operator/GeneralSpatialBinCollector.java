@@ -9,7 +9,7 @@ import java.util.List;
 /**
  * @author Marco Peters
  */
-public class GeneralSpatialBinCollector implements SpatialBinCollector {
+class GeneralSpatialBinCollector implements SpatialBinCollector {
 
     private final SpatialBinCollector fileBinCollector;
     private SpatialBinCollector memoryBinCollector;

@@ -20,7 +20,7 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-public class FileBackedSpatialBinCollector implements SpatialBinCollector {
+class FileBackedSpatialBinCollector implements SpatialBinCollector {
 
 
     private final static int NUM_BINS_PER_FILE = 10000;

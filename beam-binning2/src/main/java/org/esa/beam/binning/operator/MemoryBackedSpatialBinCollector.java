@@ -12,7 +12,7 @@ import java.util.TreeMap;
 /**
  * An implementation of {@link SpatialBinCollector} which simply stores the consumed {@link SpatialBin spatial bins} in a map.
  */
-public class MemoryBackedSpatialBinCollector implements SpatialBinCollector {
+class MemoryBackedSpatialBinCollector implements SpatialBinCollector {
 
     // Note, we use a sorted map in order to sort entries on-the-fly
     final private SortedMap<Long, List<SpatialBin>> spatialBinMap = new TreeMap<Long, List<SpatialBin>>();

@@ -4,7 +4,7 @@ import org.esa.beam.binning.SpatialBin;
 
 import java.util.List;
 
-public interface SpatialBinCollection {
+interface SpatialBinCollection {
 
     Iterable<List<SpatialBin>> getCollectedBins();
 
