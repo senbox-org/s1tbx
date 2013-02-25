@@ -97,28 +97,30 @@ public class StatisticsOp extends Operator implements Output {
     public static final String DEFAULT_PERCENTILES = "90,95";
     public static final int[] DEFAULT_PERCENTILES_INTS = new int[]{90, 95};
 
+    private static final double FILL_VALUE = -999.0;
+
     @SourceProducts(description = "The source products to be considered for statistics computation. If not given, " +
-            "the parameter 'sourceProductPaths' must be provided.")
+                                  "the parameter 'sourceProductPaths' must be provided.")
     Product[] sourceProducts;
 
     @Parameter(description = "A comma-separated list of file paths specifying the source products.\n" +
-            "Each path may contain the wildcards '**' (matches recursively any directory),\n" +
-            "'*' (matches any character sequence in path names) and\n" +
-            "'?' (matches any single character).\n" +
-            "If, for example, all NetCDF files under /eodata/ shall be considered, use '/eodata/**/*.nc'.")
+                             "Each path may contain the wildcards '**' (matches recursively any directory),\n" +
+                             "'*' (matches any character sequence in path names) and\n" +
+                             "'?' (matches any single character).\n" +
+                             "If, for example, all NetCDF files under /eodata/ shall be considered, use '/eodata/**/*.nc'.")
     String[] sourceProductPaths;
 
     @Parameter(description = "An ESRI shapefile, providing the considered geographical region(s) given as polygons. " +
-            "If null, all pixels are considered.")
+                             "If null, all pixels are considered.")
     File shapefile;
 
     @Parameter(description = "The start date. If not given, taken from the 'oldest' source product. Products that " +
-            "have a start date before the start date given by this parameter are not considered.",
+                             "have a start date before the start date given by this parameter are not considered.",
                format = DATETIME_PATTERN, converter = UtcConverter.class)
     ProductData.UTC startDate;
 
     @Parameter(description = "The end date. If not given, taken from the 'youngest' source product. Products that " +
-            "have an end date after the end date given by this parameter are not considered.",
+                             "have an end date after the end date given by this parameter are not considered.",
                format = DATETIME_PATTERN, converter = UtcConverter.class)
     ProductData.UTC endDate;
 
@@ -127,13 +129,13 @@ public class StatisticsOp extends Operator implements Output {
     BandConfiguration[] bandConfigurations;
 
     @Parameter(description = "The target file for shapefile output. Shapefile output will only be written if this " +
-            "parameter is set. The band mapping file will have the suffix _band_mapping.txt.",
+                             "parameter is set. The band mapping file will have the suffix _band_mapping.txt.",
                notNull = false)
     File outputShapefile;
 
     @Parameter(description = "The target file for ASCII output." +
-            "The metadata file will have the suffix _metadata.txt.\n" +
-            "ASCII output will only be written if this parameter is set.", notNull = false)
+                             "The metadata file will have the suffix _metadata.txt.\n" +
+                             "ASCII output will only be written if this parameter is set.", notNull = false)
     File outputAsciiFile;
 
     @Parameter(description = "The percentile levels that shall be created. Must be in the interval [0..100]",
@@ -141,7 +143,7 @@ public class StatisticsOp extends Operator implements Output {
     int[] percentiles;
 
     @Parameter(description = "The degree of accuracy used for statistics computation. Higher numbers " +
-            "indicate higher accuracy but may lead to a considerably longer computation time.",
+                             "indicate higher accuracy but may lead to a considerably longer computation time.",
                defaultValue = "3")
     int accuracy;
 
@@ -230,18 +232,29 @@ public class StatisticsOp extends Operator implements Output {
 
                 final SummaryStxOp summaryStxOp = summaryMap.get(regionName);
                 final Histogram histogram = histogramMap.get(regionName).getHistogram();
-
-
                 final HashMap<String, Number> stxMap = new HashMap<String, Number>();
-                stxMap.put(MINIMUM, summaryStxOp.getMinimum());
-                stxMap.put(MAXIMUM, summaryStxOp.getMaximum());
-                stxMap.put(AVERAGE, summaryStxOp.getMean());
-                stxMap.put(SIGMA, summaryStxOp.getStandardDeviation());
-                stxMap.put(TOTAL, histogram.getTotals()[0]);
-                stxMap.put(MEDIAN, histogram.getPTileThreshold(0.5)[0]);
-                for (int percentile : percentiles) {
-                    stxMap.put(getPercentileName(percentile), computePercentile(percentile, histogram));
+                if (histogram.getTotals()[0] == 0) {
+                    stxMap.put(MINIMUM, FILL_VALUE);
+                    stxMap.put(MAXIMUM, FILL_VALUE);
+                    stxMap.put(AVERAGE, FILL_VALUE);
+                    stxMap.put(SIGMA, FILL_VALUE);
+                    stxMap.put(TOTAL, 0);
+                    stxMap.put(MEDIAN, FILL_VALUE);
+                    for (int percentile : percentiles) {
+                        stxMap.put(getPercentileName(percentile), FILL_VALUE);
+                    }
+                } else {
+                    stxMap.put(MINIMUM, summaryStxOp.getMinimum());
+                    stxMap.put(MAXIMUM, summaryStxOp.getMaximum());
+                    stxMap.put(AVERAGE, summaryStxOp.getMean());
+                    stxMap.put(SIGMA, summaryStxOp.getStandardDeviation());
+                    stxMap.put(TOTAL, histogram.getTotals()[0]);
+                    stxMap.put(MEDIAN, histogram.getPTileThreshold(0.5)[0]);
+                    for (int percentile : percentiles) {
+                        stxMap.put(getPercentileName(percentile), computePercentile(percentile, histogram));
+                    }
                 }
+
                 stxMap.put(MAX_ERROR, Util.getBinWidth(histogram));
                 for (StatisticsOutputter statisticsOutputter : statisticsOutputters) {
                     statisticsOutputter.addToOutput(bandName, regionName, stxMap);
@@ -310,7 +323,7 @@ public class StatisticsOp extends Operator implements Output {
         if (outputAsciiFile != null) {
             try {
                 final StringBuilder metadataFileName = new StringBuilder(
-                            FileUtils.getFilenameWithoutExtension(outputAsciiFile));
+                        FileUtils.getFilenameWithoutExtension(outputAsciiFile));
                 metadataFileName.append("_metadata.txt");
                 final File metadataFile = new File(outputAsciiFile.getParent(), metadataFileName.toString());
                 metadataOutputStream = new PrintStream(new FileOutputStream(metadataFile));
@@ -331,7 +344,7 @@ public class StatisticsOp extends Operator implements Output {
                 statisticsOutputters.add(FeatureStatisticsWriter.createFeatureStatisticsWriter(shapefile.toURI().toURL(), outputShapefile.getAbsolutePath(), bandNameCreator));
             } catch (MalformedURLException e) {
                 throw new OperatorException(
-                            "Unable to create shapefile outputter: shapefile '" + shapefile.getName() + "' is invalid.", e);
+                        "Unable to create shapefile outputter: shapefile '" + shapefile.getName() + "' is invalid.", e);
             } catch (FileNotFoundException e) {
                 throw new OperatorException("Unable to create shapefile outputter: maybe shapefile output directory does not exist?", e);
             }
@@ -369,9 +382,9 @@ public class StatisticsOp extends Operator implements Output {
             throw new OperatorException("Parameter 'accuracy' must be less than or equal to " + Util.MAX_ACCURACY);
         }
         if ((sourceProducts == null || sourceProducts.length == 0) &&
-                (sourceProductPaths == null || sourceProductPaths.length == 0)) {
+            (sourceProductPaths == null || sourceProductPaths.length == 0)) {
             throw new OperatorException(
-                        "Either source products must be given or parameter 'sourceProductPaths' must be specified");
+                    "Either source products must be given or parameter 'sourceProductPaths' must be specified");
         }
         if (bandConfigurations == null) {
             throw new OperatorException("Parameter 'bandConfigurations' must be specified.");
