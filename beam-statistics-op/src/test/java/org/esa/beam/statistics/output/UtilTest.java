@@ -39,13 +39,13 @@ public class UtilTest {
         assertEquals("id", Util.getFeatureName(createFeature("noName", "myName")));
     }
 
-    private SimpleFeature createFeature(String nameAttribute, String nameValue) {
+    public static SimpleFeature createFeature(String nameAttribute, String nameValue) {
         final SimpleFeatureBuilder featureBuilder = createSimpleFeatureBuilder(nameAttribute);
         featureBuilder.set(nameAttribute, nameValue);
         return featureBuilder.buildFeature("id");
     }
 
-    private SimpleFeatureBuilder createSimpleFeatureBuilder(String nameAttribute) {
+    private static SimpleFeatureBuilder createSimpleFeatureBuilder(String nameAttribute) {
         final SimpleFeatureTypeBuilder typeBuilder = new SimpleFeatureTypeBuilder();
         typeBuilder.add(nameAttribute, String.class);
         typeBuilder.add("geom", Geometry.class);

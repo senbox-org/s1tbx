@@ -1,11 +1,11 @@
 package org.esa.beam.statistics.tools;
 
-import static org.junit.Assert.*;
-
 import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.statistics.output.UtilTest;
 import org.esa.beam.util.FeatureUtils;
 import org.geotools.feature.FeatureCollection;
-import org.junit.*;
+import org.junit.Before;
+import org.junit.Test;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 
@@ -16,13 +16,15 @@ import java.util.Date;
 import java.util.Properties;
 import java.util.Set;
 
+import static org.junit.Assert.*;
+
 public class StatisticsDatabaseTest {
 
     private StatisticsDatabase statisticsDatabase;
 
     @Before
     public void setUp() throws Exception {
-        statisticsDatabase = new StatisticsDatabase();
+        statisticsDatabase = new StatisticsDatabase("NAME");
     }
 
     @Test
@@ -72,5 +74,12 @@ public class StatisticsDatabaseTest {
         assertEquals("28.077118833521382", algal_1_records[0].getValue(date, "p95_threshold"));
         assertEquals("8.967569722301686", algal_1_records[0].getValue(date, "sigma"));
         assertEquals("76.0", algal_1_records[0].getValue(date, "total"));
+    }
+
+    @Test
+    public void testGetGeomName() throws Exception {
+        assertEquals("theName", StatisticsDatabase.getGeomName("ColumnName", UtilTest.createFeature("ColumnName", "theName"), 12));
+        assertEquals("12", StatisticsDatabase.getGeomName(null, UtilTest.createFeature("ColumnName", "theName"), 12));
+
     }
 }
