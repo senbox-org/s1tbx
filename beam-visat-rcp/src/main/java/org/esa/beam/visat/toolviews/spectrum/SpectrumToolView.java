@@ -41,6 +41,8 @@ import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.visat.VisatApp;
+import org.esa.beam.visat.toolviews.nav.CursorSynchronizer;
+import org.esa.beam.visat.toolviews.stat.XYPlotMarker;
 import org.geotools.referencing.operation.matrix.AffineTransform2D;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
@@ -52,6 +54,7 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.chart.title.TextTitle;
+import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.ui.HorizontalAlignment;
@@ -126,6 +129,7 @@ public class SpectrumToolView extends AbstractToolView {
     private JFreeChart chart;
     private XYTitleAnnotation message;
     private ChartUpdater chartUpdater;
+    private CursorSynchronizer cursorSynchronizer;
 
     public SpectrumToolView() {
         productNodeHandler = new ProductNodeHandler();
@@ -398,6 +402,24 @@ public class SpectrumToolView extends AbstractToolView {
         chartPanel.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createBevelBorder(BevelBorder.LOWERED),
                 BorderFactory.createEmptyBorder(2, 2, 2, 2)));
+        chartPanel.addChartMouseListener(new XYPlotMarker(chartPanel, new XYPlotMarker.Listener() {
+            @Override
+            public void pointSelected(XYDataset xyDataset, int seriesIndex, Point2D dataPoint) {
+                if (hasDiagram()) {
+                    if (cursorSynchronizer == null) {
+                        cursorSynchronizer = new CursorSynchronizer(VisatApp.getApp());
+                    }
+                    if (!cursorSynchronizer.isEnabled()) {
+                        cursorSynchronizer.setEnabled(true);
+                    }
+                }
+            }
+
+            @Override
+            public void pointDeselected() {
+                cursorSynchronizer.setEnabled(false);
+            }
+        }));
 
         JPanel mainPane = new JPanel(new BorderLayout(4, 4));
         mainPane.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
