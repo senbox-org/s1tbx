@@ -16,8 +16,8 @@
 package org.esa.beam.visat.toolviews.spectrum;
 
 import com.bc.ceres.glevel.MultiLevelModel;
-import com.bc.ceres.swing.figure.FigureStyle;
-import com.bc.ceres.swing.figure.support.DefaultFigureStyle;
+import com.bc.ceres.swing.figure.Figure;
+import com.bc.ceres.swing.figure.FigureCollection;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.DataNode;
 import org.esa.beam.framework.datamodel.Placemark;
@@ -41,6 +41,7 @@ import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.visat.VisatApp;
+import org.geotools.referencing.operation.matrix.AffineTransform2D;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -95,6 +96,8 @@ public class SpectrumToolView extends AbstractToolView {
     private static final String SUPPRESS_MESSAGE_KEY = "plugin.spectrum.tip";
     private static final String MSG_NO_SPECTRAL_BANDS = "No spectral bands available";   /*I18N*/
     private static final String MSG_NO_PRODUCT_SELECTED = "No product selected";
+    private static final String MSG_NO_SPECTRA_SELECTED = "No spectra selected";
+    private static final String MSG_COLLECTING_SPECTRAL_INFORMATION = "Collecting spectral information...";
 
     private final Map<Product, List<SpectrumInDisplay>> productToAllSpectraMap;
     private final Map<Product, List<SpectrumInDisplay>> productToSelectedSpectraMap;
@@ -581,18 +584,17 @@ public class SpectrumToolView extends AbstractToolView {
         }
 
         private void updateChart(int pixelX, int pixelY, int level) {
-            //todo deal with case that there are no spectra
             List<SpectrumInDisplay> spectra = getSelectedSpectra();
             if (spectra.isEmpty()) {
                 if (!getAllSpectra().isEmpty()) {
-                    setPlotMessage("No spectra selected");
+                    setPlotMessage(MSG_NO_SPECTRA_SELECTED);
                 } else {
                     setPlotMessage(MSG_NO_SPECTRAL_BANDS);
                 }
                 chart.getXYPlot().setDataset(null);
                 return;
             }
-            setPlotMessage("Collecting spectral information...");
+            setPlotMessage(MSG_COLLECTING_SPECTRAL_INFORMATION);
             XYSeriesCollection dataset = new XYSeriesCollection();
             int seriesOffset = 0;
             Placemark[] pins = getDisplayedPins();
@@ -616,7 +618,7 @@ public class SpectrumToolView extends AbstractToolView {
                         }
                     }
                     dataset.addSeries(series);
-                    updateRenderer(seriesOffset + i, Color.BLUE, spectrum);
+                    updateRenderer(seriesOffset + i, Color.BLACK, spectrum);
                 }
             }
             chart.getXYPlot().setDataset(dataset);
@@ -626,8 +628,6 @@ public class SpectrumToolView extends AbstractToolView {
 
         private List<XYSeries> createXYSeriesFromPin(Placemark pin, int seriesOffset) {
             List<XYSeries> pinSeries = new ArrayList<XYSeries>();
-            final FigureStyle figureStyle = DefaultFigureStyle.createFromCss(pin.getStyleCss());
-            final Color pinColor = figureStyle.getFillColor();
             List<SpectrumInDisplay> spectra = getSelectedSpectra();
             for (int i = 0; i < spectra.size(); i++) {
                 SpectrumInDisplay spectrum = spectra.get(i);
@@ -661,9 +661,23 @@ public class SpectrumToolView extends AbstractToolView {
                     }
                 }
                 pinSeries.add(series);
+                Color pinColor = getPinColor(pin);
                 updateRenderer(i + seriesOffset, pinColor, spectrum);
             }
             return pinSeries;
+        }
+
+        private Color getPinColor(Placemark pin) {
+            final FigureCollection figureCollection = getCurrentView().getFigureEditor().getFigureCollection();
+            Point2D pinPoint = new Point2D.Double(pin.getPixelPos().getX(), pin.getPixelPos().getY());
+            final Figure pinFigure = figureCollection.getFigure(pinPoint, new AffineTransform2D());
+            Color pinColor;
+            if (pinFigure != null) {
+                pinColor = pinFigure.getEffectiveStyle().getFillColor();
+            } else {
+                pinColor = figureCollection.getEffectiveStyle().getFillColor();
+            }
+            return pinColor;
         }
 
         private void updateRenderer(int seriesOffset, Color seriesColor, SpectrumInDisplay spectrum) {
