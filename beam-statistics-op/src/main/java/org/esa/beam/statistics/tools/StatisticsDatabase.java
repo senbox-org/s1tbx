@@ -17,11 +17,11 @@ import java.util.TreeMap;
 public class StatisticsDatabase {
 
     //                     year        param       geomID
-    private final TreeMap<Integer, Map<String, Map<Integer, DatabaseRecord>>> yearMap;
+    private final TreeMap<Integer, Map<String, Map<String, DatabaseRecord>>> yearMap;
     private final String nameColumn;
 
     public StatisticsDatabase(String nameColumn) {
-        yearMap = new TreeMap<Integer, Map<String, Map<Integer, DatabaseRecord>>>();
+        yearMap = new TreeMap<Integer, Map<String, Map<String, DatabaseRecord>>>();
         this.nameColumn = nameColumn;
     }
 
@@ -45,42 +45,37 @@ public class StatisticsDatabase {
 
     public DatabaseRecord[] getData(int year, String parameterName) {
         if (!yearMap.containsKey(year)) {
-            return new DatabaseRecord[0];
+            throw new IllegalArgumentException("No data for year '" + year + "'.");
         }
-        final Map<String, Map<Integer, DatabaseRecord>> parameterMap = yearMap.get(year);
+        final Map<String, Map<String, DatabaseRecord>> parameterMap = yearMap.get(year);
         if (!parameterMap.containsKey(parameterName)) {
-            return new DatabaseRecord[0];
+            throw new IllegalArgumentException("No data for parameter '" + parameterName + "'.");
         }
         Collection<DatabaseRecord> databaseRecords = parameterMap.get(parameterName).values();
         return databaseRecords.toArray(new DatabaseRecord[databaseRecords.size()]);
     }
 
-    public void append(ProductData.UTC date, FeatureCollection<SimpleFeatureType, SimpleFeature> shapeCollection, Properties mappingFile) {
+    public void append(ProductData.UTC date, FeatureCollection<SimpleFeatureType, SimpleFeature> shapeCollection, Properties mapping) {
         final Calendar utcCalendar = date.getAsCalendar();
         final int year = utcCalendar.get(Calendar.YEAR);
-        final Map<String, Map<Integer, DatabaseRecord>> parameterMap;
-        if (yearMap.containsKey(year)) {
-            parameterMap = yearMap.get(year);
-        } else {
-            parameterMap = new HashMap<String, Map<Integer, DatabaseRecord>>();
-            yearMap.put(year, parameterMap);
-        }
+        final Map<String, Map<String, DatabaseRecord>> parameterMap = getParameterMap(year);
 
-        final Map<String, String> invertedMapping = MapInverter.createInvertedTreeMap(mappingFile);
+        final Map<String, String> invertedMapping = MapInverter.createInvertedTreeMap(mapping);
         final StatisticalMappingAnalyser mappingAnalyser = new StatisticalMappingAnalyser(invertedMapping.keySet());
         final String[] geophysicalParameterNames = mappingAnalyser.getGeophysicalParameterNames();
         final String[] statisticalMeasureNames = mappingAnalyser.getStatisticalMeasureNames();
         for (String geophysicalParameterName : geophysicalParameterNames) {
-            parameterMap.put(geophysicalParameterName, new TreeMap<Integer, DatabaseRecord>());
+            if (!parameterMap.containsKey(geophysicalParameterName)) {
+                parameterMap.put(geophysicalParameterName, new TreeMap<String, DatabaseRecord>());
+            }
         }
 
         final FeatureIterator<SimpleFeature> features = shapeCollection.features();
         while (features.hasNext()) {
             SimpleFeature simpleFeature = features.next();
-            final String geomIdStr = simpleFeature.getID();
-            final int geomId = Integer.parseInt(geomIdStr.substring(geomIdStr.lastIndexOf(".") + 1));
+            final String geomId = simpleFeature.getID();
             for (String geophysicalParameterName : geophysicalParameterNames) {
-                final Map<Integer, DatabaseRecord> geomDatabaseRecordMap = parameterMap.get(geophysicalParameterName);
+                final Map<String, DatabaseRecord> geomDatabaseRecordMap = parameterMap.get(geophysicalParameterName);
                 final DatabaseRecord geomRecord;
                 if (geomDatabaseRecordMap.containsKey(geomId)) {
                     geomRecord = geomDatabaseRecordMap.get(geomId);
@@ -99,15 +94,27 @@ public class StatisticsDatabase {
                 geomRecord.addStatisticalData(utcCalendar.getTime(), statData);
             }
         }
+        features.close();
     }
 
-    public static String getGeomName(String nameColumn, SimpleFeature simpleFeature, int geomId) {
+    private Map<String, Map<String, DatabaseRecord>> getParameterMap(int year) {
+        final Map<String, Map<String, DatabaseRecord>> parameterMap;
+        if (yearMap.containsKey(year)) {
+            parameterMap = yearMap.get(year);
+        } else {
+            parameterMap = new HashMap<String, Map<String, DatabaseRecord>>();
+            yearMap.put(year, parameterMap);
+        }
+        return parameterMap;
+    }
+
+    public static String getGeomName(String nameColumn, SimpleFeature simpleFeature, String geomId) {
         final String geomName;
         final Object simpleFeatureAttribute = simpleFeature.getAttribute(nameColumn);
         if (simpleFeatureAttribute != null) {
             geomName = simpleFeatureAttribute.toString();
         } else {
-            geomName = "" + geomId;
+            geomName = geomId;
         }
         return geomName;
     }

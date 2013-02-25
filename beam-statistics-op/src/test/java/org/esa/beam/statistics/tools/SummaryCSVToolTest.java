@@ -1,8 +1,7 @@
 package org.esa.beam.statistics.tools;
 
-import static org.mockito.Mockito.*;
-
-import org.junit.*;
+import org.junit.Before;
+import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.io.File;
@@ -11,19 +10,20 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static org.mockito.Mockito.*;
+
 public class SummaryCSVToolTest {
 
     private SummaryCSVTool.ShapeFileReader shapeFileReader;
     private Logger logger;
     private SummaryCSVTool summaryCSVTool;
     private File inputDir;
-    private File existingShapeFile;
 
     @Before
     public void setUp() throws Exception {
         shapeFileReader = mock(SummaryCSVTool.ShapeFileReader.class);
         logger = mock(Logger.class);
-        existingShapeFile = new File(SummaryCSVToolTest.class.getResource("20070504_out_cwbody_desh_gk3.shp").getFile());
+        final File existingShapeFile = new File(SummaryCSVToolTest.class.getResource("20070504_out_cwbody_desh_gk3.shp").getFile());
         inputDir = Mockito.spy(existingShapeFile.getParentFile());
         summaryCSVTool = new SummaryCSVTool(logger, shapeFileReader, "NAME");
     }
