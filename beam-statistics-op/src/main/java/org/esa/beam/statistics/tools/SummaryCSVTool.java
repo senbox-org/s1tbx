@@ -26,6 +26,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
@@ -80,7 +81,13 @@ public class SummaryCSVTool {
                 return FeatureUtils.loadFeatureCollectionFromShapefile(shapeFile);
             }
         };
-        SummaryCSVTool summaryCSVTool = new SummaryCSVTool(logger, shapeFileReader, "NAME");
+
+        String waterbodyColumnName = "NAME";
+        if (commandLine.hasOption("waterbodyNameColumn")) {
+            waterbodyColumnName = commandLine.getOptionValue("waterbodyNameColumn");
+        }
+
+        SummaryCSVTool summaryCSVTool = new SummaryCSVTool(logger, shapeFileReader, waterbodyColumnName);
         summaryCSVTool.summarize(inputDir);
         summaryCSVTool.putOutSummerizedData(outputDir);
     }
@@ -195,23 +202,43 @@ public class SummaryCSVTool {
     }
 
     private void printData(DatabaseRecord[] databaseRecords, PrintWriter writer) {
+        final HashMap<Date, Integer> columnsPerDay = new HashMap<Date, Integer>();
         for (DatabaseRecord record : databaseRecords) {
-            print(record, writer);
+            final Set<Date> dataDates = record.getDataDates();
+            for (Date dataDate : dataDates) {
+                final Set<String> statDataColumns = record.getStatDataColumns(dataDate);
+                if (columnsPerDay.containsKey(dataDate)) {
+                    final Integer numCols = columnsPerDay.get(dataDate);
+                    columnsPerDay.put(dataDate, Math.max(statDataColumns.size(), numCols));
+                } else {
+                    columnsPerDay.put(dataDate, statDataColumns.size());
+                }
+            }
+        }
+        for (DatabaseRecord record : databaseRecords) {
+            print(record, writer, columnsPerDay);
         }
     }
 
-    private void print(DatabaseRecord record, PrintWriter pw) {
+    private void print(DatabaseRecord record, PrintWriter pw, Map<Date, Integer> columnsPerDay) {
         pw.print(record.geomId);
         pw.print(TAB);
         pw.print(record.geomName);
-        final Set<Date> dataDates = record.getDataDates();
-        for (Date dataDate : dataDates) {
-            final Set<String> statDataColumns = record.getStatDataColumns(dataDate);
-            for (String statDataColumn : statDataColumns) {
-                pw.print(TAB);
-                pw.print(record.getValue(dataDate, statDataColumn));
+        for (Date date : columnsPerDay.keySet()) {
+            final Set<String> statDataColumns = record.getStatDataColumns(date);
+            if (statDataColumns != null) {
+                for (String statDataColumn : statDataColumns) {
+                    pw.print(TAB);
+                    pw.print(record.getValue(date, statDataColumn));
+                }
+            } else {
+                final Integer numCols = columnsPerDay.get(date);
+                for (int i = 0; i < numCols; i++) {
+                    pw.print(TAB);
+                }
             }
         }
+
         pw.println();
     }
 
@@ -247,7 +274,8 @@ public class SummaryCSVTool {
     private boolean isValidDateExtractableFileName(File shapeFile) {
         final boolean validFilename = filenameDateExtractor.isValidFilename(shapeFile);
         if (!validFilename) {
-            logger.log(Level.WARNING, "The filename '" + shapeFile.getName() + "' does not match the pattern " + FILENAME_PATTERN_SHAPEFILE + ".");
+            logger.log(Level.WARNING, "The filename '" + shapeFile.getName() + "' does not match the pattern " +
+                                      FILENAME_PATTERN_SHAPEFILE + ".");
             logger.log(Level.INFO, "Continuing with next ESRI shapefile.");
         }
         return validFilename;
