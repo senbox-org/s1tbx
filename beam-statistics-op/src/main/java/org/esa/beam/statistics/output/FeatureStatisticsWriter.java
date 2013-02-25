@@ -54,13 +54,14 @@ import java.util.Map;
  */
 public class FeatureStatisticsWriter implements StatisticsOutputter {
 
+    private static final double FILL_VALUE = -999.0;
     private final String targetShapefile;
     private final FeatureCollection<SimpleFeatureType, SimpleFeature> originalFeatures;
     private final SimpleFeatureType originalFeatureType;
     private final BandNameCreator bandNameCreator;
 
     private SimpleFeatureType updatedFeatureType;
-    final List<SimpleFeature> features;
+    private final List<SimpleFeature> features;
 
     /**
      * Factory method for creating a new instance of <code>FeatureStatisticsWriter</code>. This method opens and reads
@@ -148,7 +149,7 @@ public class FeatureStatisticsWriter implements StatisticsOutputter {
                 final String name = bandNameCreator.createUniqueAttributeName(algorithmName, bandName);
                 if (Util.getFeatureName(feature).equals(regionId)) {
                     SimpleFeature featureToUpdate;
-                    if (markedToAdd.get(regionId) != null) {
+                    if (markedToAdd.containsKey(regionId)) {
                         featureToUpdate = markedToAdd.get(regionId);
                     } else {
                         featureToUpdate = feature;
@@ -167,16 +168,21 @@ public class FeatureStatisticsWriter implements StatisticsOutputter {
 
         final FeatureIterator<SimpleFeature> featureIterator = originalFeatures.features();
         while (featureIterator.hasNext()) {
-            final SimpleFeature originalFeature = featureIterator.next();
-            if (Util.getFeatureName(originalFeature).equals(regionId)) {
-                SimpleFeature feature = originalFeature;
-                for (String algorithmName : statistics.keySet()) {
-                    final String name = bandNameCreator.createUniqueAttributeName(algorithmName, bandName);
-                    feature = createUpdatedFeature(simpleFeatureBuilder, feature, name, statistics.get(algorithmName));
-                }
-                features.add(feature);
-                return;
+            SimpleFeature feature = featureIterator.next();
+            for (String algorithmName : statistics.keySet()) {
+                final String name = bandNameCreator.createUniqueAttributeName(algorithmName, bandName);
+                final Number value = getValue(statistics, algorithmName, feature, regionId);
+                feature = createUpdatedFeature(simpleFeatureBuilder, feature, name, value);
             }
+            features.add(feature);
+        }
+    }
+
+    private Number getValue(Map<String, Number> statistics, String algorithmName, SimpleFeature originalFeature, String regionId) {
+        if (Util.getFeatureName(originalFeature).equals(regionId)) {
+            return statistics.get(algorithmName);
+        } else {
+            return FILL_VALUE;
         }
     }
 
