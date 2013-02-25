@@ -1,5 +1,12 @@
 package org.esa.beam.statistics.tools;
 
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.GnuParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.main.GPT;
 import org.esa.beam.util.FeatureUtils;
@@ -16,6 +23,7 @@ import java.io.FileReader;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
@@ -33,9 +41,6 @@ public class SummaryCSVTool {
     private final static String EXE_VERSION = "1.0";
     private final static String FILENAME_PATTERN_SHAPEFILE = "yyyyMMdd_*.shp";
 
-    private final static int Error_NumberOfParameters = 1;
-    private final static int Error_NotADirectory = 2;
-
     private final Logger logger;
     private final FilenameDateExtractor filenameDateExtractor;
     private final StatisticsDatabase statisticsDatabase;
@@ -44,24 +49,25 @@ public class SummaryCSVTool {
     private ShapeFileReader shapeFileReader;
 
     public static void main(String[] args) throws IOException {
-        if (args.length < 1) {
-            printUsage("At least one parameter expected.", Error_NumberOfParameters);
+        Options options = createOptions();
+        CommandLineParser parser = new GnuParser();
+        CommandLine commandLine = null;
+        try {
+            commandLine = parser.parse(options, args);
+        } catch (ParseException e) {
+            printHelp(options);
+            System.exit(-1);
         }
-        if (args.length > 2) {
-            printUsage("Maximum two parameter expected.", Error_NumberOfParameters);
-        }
-        final File inputDir = new File(args[0]);
-        if (!inputDir.isDirectory()) {
-            printUsage("<inputDir> does not exist.", Error_NotADirectory);
-        }
+
+        final File inputDir = new File(commandLine.getOptionValue("input"));
+
+        ensureDirectory(inputDir);
         final File outputDir;
-        if (args.length > 1) {
-            outputDir = new File(args[1]);
+        if (commandLine.hasOption("output")) {
+            outputDir = new File(commandLine.getOptionValue("output"));
+            ensureDirectory(outputDir);
         } else {
             outputDir = inputDir;
-        }
-        if (!outputDir.isDirectory()) {
-            printUsage("<outputDir> does not exist.", Error_NotADirectory);
         }
 
         initSystem();
@@ -74,9 +80,30 @@ public class SummaryCSVTool {
                 return FeatureUtils.loadFeatureCollectionFromShapefile(shapeFile);
             }
         };
-        SummaryCSVTool summaryCSVTool = new SummaryCSVTool(logger, shapeFileReader);
+        SummaryCSVTool summaryCSVTool = new SummaryCSVTool(logger, shapeFileReader, "NAME");
         summaryCSVTool.summarize(inputDir);
         summaryCSVTool.putOutSummerizedData(outputDir);
+    }
+
+    private static void ensureDirectory(File directory) throws IOException {
+        if (!directory.isDirectory()) {
+            throw new IOException("'" + directory.getAbsolutePath() + "' is not a directory");
+        }
+    }
+
+    private static Options createOptions() {
+        Options options = new Options();
+        options.addOption(createOption("i", "input", "FILE", "The directory where the shapefiles reside.", true));
+        options.addOption(createOption("o", "output", "FILE", "The output directory. If not provided, output will be written to input directory.", false));
+        options.addOption(createOption("n", "waterbodyNameColumn", "STRING", "The name of the column that contains the waterbody name.", false));
+        return options;
+    }
+
+    private static Option createOption(String shortOpt, String longOpt, String argName, String description, boolean required) {
+        Option from = new Option(shortOpt, longOpt, argName != null, description);
+        from.setRequired(required);
+        from.setArgName(argName);
+        return from;
     }
 
     private static void initSystem() {
@@ -87,12 +114,18 @@ public class SummaryCSVTool {
         SystemUtils.init3rdPartyLibs(GPT.class.getClassLoader());
     }
 
-    public SummaryCSVTool(Logger logger,
-                          ShapeFileReader shapeFileReader) {
+    public SummaryCSVTool(Logger logger, ShapeFileReader shapeFileReader, String nameColumn) {
         this.logger = logger;
         this.shapeFileReader = shapeFileReader;
         this.filenameDateExtractor = new FilenameDateExtractor();
-        statisticsDatabase = new StatisticsDatabase();
+        statisticsDatabase = new StatisticsDatabase(nameColumn);
+    }
+
+    private static void printHelp(Options options) {
+        HelpFormatter helpFormatter = new HelpFormatter();
+        helpFormatter.setWidth(120);
+        System.out.println(getHeader());
+        helpFormatter.printHelp("SummaryCSVTool", options, true);
     }
 
     private void putOutSummerizedData(File outputDir) throws IOException {
@@ -214,32 +247,22 @@ public class SummaryCSVTool {
     private boolean isValidDateExtractableFileName(File shapeFile) {
         final boolean validFilename = filenameDateExtractor.isValidFilename(shapeFile);
         if (!validFilename) {
-            logger.log(Level.WARNING, "The filename '" + shapeFile.getName() + "' does not match the pattern " + FILENAME_PATTERN_SHAPEFILE + ".");
+            logger.log(Level.WARNING, "The filename '" + shapeFile.getName() + "' does not match the pattern " +
+                                      FILENAME_PATTERN_SHAPEFILE + ".");
             logger.log(Level.INFO, "Continuing with next ESRI shapefile.");
         }
         return validFilename;
     }
 
-    private static void printUsage(String message, int errorNumber) {
-        System.out.println();
-        if (message != null) {
-            System.out.println(message);
-            System.out.println();
-        }
-        System.out.println(EXE_NAME + " version " + EXE_VERSION);
-        System.out.println("    The tool reads statistical data from ESRI shapefiles and summarizes it in ");
-        System.out.println("    *.csv-files. One csv file will be generated per year and parameter.");
-        System.out.println("    An example for a file name is WFD_stat_2009_CHL.csv. ");
-        System.out.println();
-        System.out.println("Usage: " + EXE_NAME + " <inputDir> [<outputDir>]");
-        System.out.println("  <inputDir> points to a directory which contains one or more ESRI shapefiles.");
-        System.out.println("    The shapefiles must adhere to the name pattern " + FILENAME_PATTERN_SHAPEFILE + ".");
-        System.out.println("    For each shapefile a corresponding yyyyMMdd_*_mapping.txt file must be");
-        System.out.println("    located in the same directory.");
-        System.out.println("  <outputDir> points to an already existing output directory. This ");
-        System.out.println("    parameter is optional. If not given, the output will be generated in the");
-        System.out.println("    input directory.");
-        System.exit(errorNumber);
+    private static String getHeader() {
+        final StringWriter stringWriter = new StringWriter();
+        PrintWriter printWriter = new PrintWriter(stringWriter);
+        printWriter.println(EXE_NAME + " version " + EXE_VERSION);
+        printWriter.println("    The tool reads statistical data from ESRI shapefiles and summarizes it in ");
+        printWriter.println("    *.csv-files. One csv file will be generated per year and parameter.");
+        printWriter.println("    An example for a file name is WFD_stat_2009_CHL.csv. ");
+        printWriter.close();
+        return stringWriter.toString();
     }
 
     public static interface ShapeFileReader {

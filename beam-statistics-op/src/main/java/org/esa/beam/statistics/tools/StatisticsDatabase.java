@@ -18,9 +18,11 @@ public class StatisticsDatabase {
 
     //                     year        param       geomID
     private final TreeMap<Integer, Map<String, Map<Integer, DatabaseRecord>>> yearMap;
+    private final String nameColumn;
 
-    public StatisticsDatabase() {
+    public StatisticsDatabase(String nameColumn) {
         yearMap = new TreeMap<Integer, Map<String, Map<Integer, DatabaseRecord>>>();
+        this.nameColumn = nameColumn;
     }
 
     public int[] getYears() {
@@ -76,14 +78,15 @@ public class StatisticsDatabase {
         while (features.hasNext()) {
             SimpleFeature simpleFeature = features.next();
             final String geomIdStr = simpleFeature.getID();
-            final int geomId = Integer.parseInt(geomIdStr.substring(geomIdStr.lastIndexOf(".")+1));
+            final int geomId = Integer.parseInt(geomIdStr.substring(geomIdStr.lastIndexOf(".") + 1));
             for (String geophysicalParameterName : geophysicalParameterNames) {
                 final Map<Integer, DatabaseRecord> geomDatabaseRecordMap = parameterMap.get(geophysicalParameterName);
                 final DatabaseRecord geomRecord;
                 if (geomDatabaseRecordMap.containsKey(geomId)) {
                     geomRecord = geomDatabaseRecordMap.get(geomId);
                 } else {
-                    geomRecord = new DatabaseRecord(geomId, simpleFeature.getAttribute("NAME").toString());
+                    final String geomName = getGeomName(nameColumn, simpleFeature, geomId);
+                    geomRecord = new DatabaseRecord(geomId, geomName);
                     geomDatabaseRecordMap.put(geomId, geomRecord);
                 }
                 final Map<String, String> statData = new TreeMap<String, String>();
@@ -91,10 +94,21 @@ public class StatisticsDatabase {
                     final String fullName = statisticalMeasureName + "_" + geophysicalParameterName;
                     final String shortName = invertedMapping.get(fullName);
                     final Object value = simpleFeature.getAttribute(shortName);
-                    statData.put(statisticalMeasureName,value == null ? "": value.toString());
+                    statData.put(statisticalMeasureName, value == null ? "" : value.toString());
                 }
                 geomRecord.addStatisticalData(utcCalendar.getTime(), statData);
             }
         }
+    }
+
+    public static String getGeomName(String nameColumn, SimpleFeature simpleFeature, int geomId) {
+        final String geomName;
+        final Object simpleFeatureAttribute = simpleFeature.getAttribute(nameColumn);
+        if (simpleFeatureAttribute != null) {
+            geomName = simpleFeatureAttribute.toString();
+        } else {
+            geomName = "" + geomId;
+        }
+        return geomName;
     }
 }
