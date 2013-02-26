@@ -73,7 +73,9 @@ public class StatisticsDatabase {
         final FeatureIterator<SimpleFeature> features = shapeCollection.features();
         while (features.hasNext()) {
             SimpleFeature simpleFeature = features.next();
-            final String geomId = simpleFeature.getID();
+            final String geomIdStr = simpleFeature.getID();
+            final String geomId =
+                    geomIdStr.contains(".") ? geomIdStr.substring(geomIdStr.lastIndexOf(".") + 1) : geomIdStr;
             for (String geophysicalParameterName : geophysicalParameterNames) {
                 final Map<String, DatabaseRecord> geomDatabaseRecordMap = parameterMap.get(geophysicalParameterName);
                 final DatabaseRecord geomRecord;
