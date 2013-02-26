@@ -16,38 +16,38 @@ import java.util.TreeMap;
 
 public class StatisticsDatabase {
 
-    //                     year        param       geomID
-    private final TreeMap<Integer, Map<String, Map<String, DatabaseRecord>>> yearMap;
+    private final TreeMap<ObservationYear, Map<ParameterName, Map<GeometryID, DatabaseRecord>>> yearMap;
     private final String nameColumn;
 
     public StatisticsDatabase(String nameColumn) {
-        yearMap = new TreeMap<Integer, Map<String, Map<String, DatabaseRecord>>>();
+        yearMap = new TreeMap<ObservationYear, Map<ParameterName, Map<GeometryID, DatabaseRecord>>>();
         this.nameColumn = nameColumn;
     }
 
-    public int[] getYears() {
-        Set<Integer> years = yearMap.keySet();
-        final Integer[] integers = years.toArray(new Integer[years.size()]);
-        final int[] ints = new int[integers.length];
-        for (int i = 0; i < integers.length; i++) {
-            ints[i] = integers[i];
-        }
-        return ints;
+    public ObservationYear[] getYears() {
+        Set<ObservationYear> years = yearMap.keySet();
+        return years.toArray(new ObservationYear[years.size()]);
     }
 
-    public String[] getParameterNames(int year) {
+    public ParameterName[] getParameterNames(ObservationYear year) {
         if (!yearMap.containsKey(year)) {
-            return new String[0];
+            return new ParameterName[0];
         }
-        Set<String> parameterNames = yearMap.get(year).keySet();
-        return parameterNames.toArray(new String[parameterNames.size()]);
+        Set<ParameterName> parameterNames = yearMap.get(year).keySet();
+        return parameterNames.toArray(new ParameterName[parameterNames.size()]);
     }
 
-    public DatabaseRecord[] getData(int year, String parameterName) {
+    public static void main(String[] args) {
+        final ObservationYear year = new ObservationYear(2002);
+        final String string = "No data for year '" + year + "'.";
+        System.out.println("string = " + string);
+    }
+
+    public DatabaseRecord[] getData(ObservationYear year, ParameterName parameterName) {
         if (!yearMap.containsKey(year)) {
             throw new IllegalArgumentException("No data for year '" + year + "'.");
         }
-        final Map<String, Map<String, DatabaseRecord>> parameterMap = yearMap.get(year);
+        final Map<ParameterName, Map<GeometryID, DatabaseRecord>> parameterMap = yearMap.get(year);
         if (!parameterMap.containsKey(parameterName)) {
             throw new IllegalArgumentException("No data for parameter '" + parameterName + "'.");
         }
@@ -57,16 +57,17 @@ public class StatisticsDatabase {
 
     public void append(ProductData.UTC date, FeatureCollection<SimpleFeatureType, SimpleFeature> shapeCollection, Properties mapping) {
         final Calendar utcCalendar = date.getAsCalendar();
-        final int year = utcCalendar.get(Calendar.YEAR);
-        final Map<String, Map<String, DatabaseRecord>> parameterMap = getParameterMap(year);
+        final ObservationYear year = new ObservationYear(utcCalendar.get(Calendar.YEAR));
+        final Map<ParameterName, Map<GeometryID, DatabaseRecord>> parameterMap = getParameterMap(year);
 
         final Map<String, String> invertedMapping = MapInverter.createInvertedTreeMap(mapping);
         final StatisticalMappingAnalyser mappingAnalyser = new StatisticalMappingAnalyser(invertedMapping.keySet());
         final String[] geophysicalParameterNames = mappingAnalyser.getGeophysicalParameterNames();
         final String[] statisticalMeasureNames = mappingAnalyser.getStatisticalMeasureNames();
         for (String geophysicalParameterName : geophysicalParameterNames) {
-            if (!parameterMap.containsKey(geophysicalParameterName)) {
-                parameterMap.put(geophysicalParameterName, new TreeMap<String, DatabaseRecord>());
+            final ParameterName parameterName = new ParameterName(geophysicalParameterName);
+            if (!parameterMap.containsKey(parameterName)) {
+                parameterMap.put(parameterName, new TreeMap<GeometryID, DatabaseRecord>());
             }
         }
 
@@ -74,17 +75,18 @@ public class StatisticsDatabase {
         while (features.hasNext()) {
             SimpleFeature simpleFeature = features.next();
             final String geomIdStr = simpleFeature.getID();
-            final String geomId =
-                    geomIdStr.contains(".") ? geomIdStr.substring(geomIdStr.lastIndexOf(".") + 1) : geomIdStr;
+            final String geomId = geomIdStr.contains(".") ? geomIdStr.substring(geomIdStr.lastIndexOf(".") + 1) : geomIdStr;
+            final GeometryID geometryID = new GeometryID(geomId);
             for (String geophysicalParameterName : geophysicalParameterNames) {
-                final Map<String, DatabaseRecord> geomDatabaseRecordMap = parameterMap.get(geophysicalParameterName);
+                final ParameterName parameterName = new ParameterName(geophysicalParameterName);
+                final Map<GeometryID, DatabaseRecord> geomDatabaseRecordMap = parameterMap.get(parameterName);
                 final DatabaseRecord geomRecord;
-                if (geomDatabaseRecordMap.containsKey(geomId)) {
-                    geomRecord = geomDatabaseRecordMap.get(geomId);
+                if (geomDatabaseRecordMap.containsKey(geometryID)) {
+                    geomRecord = geomDatabaseRecordMap.get(geometryID);
                 } else {
                     final String geomName = getGeomName(nameColumn, simpleFeature, geomId);
-                    geomRecord = new DatabaseRecord(geomId, geomName);
-                    geomDatabaseRecordMap.put(geomId, geomRecord);
+                    geomRecord = new DatabaseRecord(geometryID, geomName);
+                    geomDatabaseRecordMap.put(geometryID, geomRecord);
                 }
                 final Map<String, String> statData = new TreeMap<String, String>();
                 for (String statisticalMeasureName : statisticalMeasureNames) {
@@ -99,12 +101,12 @@ public class StatisticsDatabase {
         features.close();
     }
 
-    private Map<String, Map<String, DatabaseRecord>> getParameterMap(int year) {
-        final Map<String, Map<String, DatabaseRecord>> parameterMap;
+    private Map<ParameterName, Map<GeometryID, DatabaseRecord>> getParameterMap(ObservationYear year) {
+        final Map<ParameterName, Map<GeometryID, DatabaseRecord>> parameterMap;
         if (yearMap.containsKey(year)) {
             parameterMap = yearMap.get(year);
         } else {
-            parameterMap = new HashMap<String, Map<String, DatabaseRecord>>();
+            parameterMap = new HashMap<ParameterName, Map<GeometryID, DatabaseRecord>>();
             yearMap.put(year, parameterMap);
         }
         return parameterMap;
