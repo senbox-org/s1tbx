@@ -18,13 +18,12 @@ public class SummaryCSVToolTest {
     private Logger logger;
     private SummaryCSVTool summaryCSVTool;
     private File inputDir;
-    private File existingShapeFile;
 
     @Before
     public void setUp() throws Exception {
         shapeFileReader = mock(SummaryCSVTool.ShapeFileReader.class);
         logger = mock(Logger.class);
-        existingShapeFile = new File(SummaryCSVToolTest.class.getResource("20070504_out_cwbody_desh_gk3.shp").getFile());
+        final File existingShapeFile = new File(SummaryCSVToolTest.class.getResource("20070504_out_cwbody_desh_gk3.shp").getFile());
         inputDir = Mockito.spy(existingShapeFile.getParentFile());
         summaryCSVTool = new SummaryCSVTool(logger, shapeFileReader, "NAME");
     }

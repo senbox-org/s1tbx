@@ -1,8 +1,10 @@
 package org.esa.beam.statistics.tools;
 
 import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.statistics.StatisticsOp;
 import org.esa.beam.statistics.output.UtilTest;
 import org.esa.beam.util.FeatureUtils;
+import org.geotools.feature.DefaultFeatureCollection;
 import org.geotools.feature.FeatureCollection;
 import org.junit.Before;
 import org.junit.Test;
@@ -25,6 +27,7 @@ public class StatisticsDatabaseTest {
     @Before
     public void setUp() throws Exception {
         statisticsDatabase = new StatisticsDatabase("NAME");
+
     }
 
     @Test
@@ -46,7 +49,7 @@ public class StatisticsDatabaseTest {
         assertArrayEquals(new String[]{"algal_1", "yellow_subs"}, statisticsDatabase.getParameterNames(2007));
         final DatabaseRecord[] algal_1_records = statisticsDatabase.getData(2007, "algal_1");
         assertEquals(21, algal_1_records.length);
-        assertEquals(1, algal_1_records[0].geomId);
+        assertEquals("20070504_out_cwbody_desh_gk3.1", algal_1_records[0].geomId);
         assertEquals("Hever Tidebecken", algal_1_records[0].geomName);
         final Set<Date> dataDates = algal_1_records[0].getDataDates();
         assertEquals(1, dataDates.size());
@@ -78,8 +81,37 @@ public class StatisticsDatabaseTest {
 
     @Test
     public void testGetGeomName() throws Exception {
-        assertEquals("theName", StatisticsDatabase.getGeomName("ColumnName", UtilTest.createFeature("ColumnName", "theName"), 12));
-        assertEquals("12", StatisticsDatabase.getGeomName(null, UtilTest.createFeature("ColumnName", "theName"), 12));
+        assertEquals("theName", StatisticsDatabase.getGeomName("ColumnName", UtilTest.createFeature("ColumnName", "theName"), "12"));
+        assertEquals("12", StatisticsDatabase.getGeomName(null, UtilTest.createFeature("ColumnName", "theName"), "12"));
+    }
 
+    @Test
+    public void testDatabaseFilledWithDateForDifferentDates() throws Exception {
+        final ProductData.UTC utc1 = ProductData.UTC.parse("2002-03-02", "yyyy-MM-dd");
+        final ProductData.UTC utc2 = ProductData.UTC.parse("2002-03-03", "yyyy-MM-dd");
+        final SimpleFeature feature1 = UtilTest.createFeature("Param1", "Value1");
+        final SimpleFeature feature2 = UtilTest.createFeature("Param1", "Value2");
+        final Properties mapping = new Properties();
+        mapping.setProperty("Param1", StatisticsOp.MAX_ERROR + "_Param1_LongName");
+
+        //execution
+        statisticsDatabase.append(utc1, createCollection(feature1), mapping);
+        statisticsDatabase.append(utc2, createCollection(feature2), mapping);
+
+        //verification
+        final int[] years = statisticsDatabase.getYears();
+        assertArrayEquals(new int[]{2002}, years);
+        final String[] parameterNames = statisticsDatabase.getParameterNames(years[0]);
+        assertArrayEquals(new String[]{"Param1_LongName"}, parameterNames);
+        final DatabaseRecord[] databaseRecords = statisticsDatabase.getData(years[0], parameterNames[0]);
+        assertEquals(1, databaseRecords.length);
+        final Set<Date> dataDates = databaseRecords[0].getDataDates();
+        assertEquals(2, dataDates.size());
+    }
+
+    private DefaultFeatureCollection createCollection(SimpleFeature feature1) {
+        final DefaultFeatureCollection fc1 = new DefaultFeatureCollection("id", feature1.getFeatureType());
+        fc1.add(feature1);
+        return fc1;
     }
 }
