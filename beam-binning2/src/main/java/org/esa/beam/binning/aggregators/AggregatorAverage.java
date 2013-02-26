@@ -93,7 +93,7 @@ public final class AggregatorAverage extends AbstractAggregator {
         final double sumW = temporalVector.get(2);
         final double mean = sumX / sumW;
         final double sigmaSqr = sumXX / sumW - mean * mean;
-        final double sigma = sigmaSqr > 0.0 ? Math.sqrt(sigmaSqr) : 0.0;
+        final double sigma = sigmaSqr > 0.0 ? Math.sqrt(sigmaSqr) : 0.0 * sigmaSqr; // multiplication to pass through NaN
         outputVector.set(0, (float) mean);
         outputVector.set(1, (float) sigma);
     }
