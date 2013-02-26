@@ -185,15 +185,6 @@ public class BinningOp extends Operator implements Output {
         this(getBinStore());
     }
 
-    private static SpatialBinCollector getBinStore() throws OperatorException {
-        try {
-//            return new GeneralSpatialBinStore();
-            return new MemoryBackedSpatialBinCollector();
-        } catch (Exception e) {
-            throw new OperatorException(e.getMessage(), e);
-        }
-    }
-
     public BinningOp(SpatialBinCollector spatialBinCollector) {
         this.spatialBinCollector = spatialBinCollector;
         addedBands = new HashMap<Product, List<Band>>();
@@ -343,6 +334,14 @@ public class BinningOp extends Operator implements Output {
             }
         }
         region = JTS.shapeToGeometry(area, new GeometryFactory());
+    }
+
+    private static SpatialBinCollector getBinStore() throws OperatorException {
+        try {
+            return new MemoryBackedSpatialBinCollector();
+        } catch (Exception e) {
+            throw new OperatorException(e.getMessage(), e);
+        }
     }
 
     private void validateInput(ProductData.UTC startDateUtc, ProductData.UTC endDateUtc) {
@@ -580,7 +579,7 @@ public class BinningOp extends Operator implements Output {
 
         long numberOfBins = spatialBinMap.size();
         final TemporalBinner temporalBinner = new TemporalBinner(binningContext);
-        final ArrayList<TemporalBin> temporalBins = new ArrayList<TemporalBin>();
+        final List<TemporalBin> temporalBins = new TemporalBinList((int) spatialBinMap.size());
         Iterable<List<SpatialBin>> spatialBinListCollection = spatialBinMap.getCollectedBins();
         for (List<SpatialBin> spatialBinList : spatialBinListCollection) {
             SpatialBin spatialBin = spatialBinList.get(0);
