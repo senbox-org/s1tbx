@@ -18,9 +18,12 @@ package org.esa.beam.binning.operator;
 
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.glevel.MultiLevelImage;
+import com.vividsolutions.jts.geom.Geometry;
 import org.esa.beam.binning.ObservationSlice;
+import org.esa.beam.binning.PlanetaryGrid;
 import org.esa.beam.binning.SpatialBinner;
 import org.esa.beam.binning.VariableContext;
+import org.esa.beam.binning.support.PlateCarreeGrid;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.Product;
@@ -57,9 +60,7 @@ public class SpatialProductBinner {
      * @param superSampling   The super-sampling rate.
      * @param addedBands      A container for the bands that are added during processing.
      * @param progressMonitor A progress monitor.
-     *
      * @return The total number of observations processed.
-     *
      * @throws IOException If an I/O error occurs.
      */
     public static long processProduct(Product product,
@@ -70,16 +71,34 @@ public class SpatialProductBinner {
         if (product.getGeoCoding() == null) {
             throw new IllegalArgumentException("product.getGeoCoding() == null");
         }
-
         final VariableContext variableContext = spatialBinner.getBinningContext().getVariableContext();
-
         addVariablesToProduct(variableContext, product, addedBands);
 
-        final MultiLevelImage maskImage = getMaskImage(product, variableContext.getValidMaskExpression());
+        PlanetaryGrid planetaryGrid = spatialBinner.getBinningContext().getPlanetaryGrid();
+        boolean doMosaicking = planetaryGrid instanceof PlateCarreeGrid;
+        Geometry sourceProductGeometry = null;
+        final MultiLevelImage maskImage;
+        if (doMosaicking) {
+            addMaskToProduct(variableContext.getValidMaskExpression(), product, addedBands);
+            PlateCarreeGrid plateCarreeGrid = (PlateCarreeGrid) planetaryGrid;
+            sourceProductGeometry = plateCarreeGrid.computeProductGeometry(product);
+            product = plateCarreeGrid.reprojectToPlateCareGrid(product);
+            maskImage = product.getBand("binning_mask").getGeophysicalImage();
+        } else {
+            maskImage = getMaskImage(product, variableContext.getValidMaskExpression());
+        }
+
         final MultiLevelImage[] varImages = getVariableImages(product, variableContext);
 
-        final Dimension defaultSliceDimension = getDefaultSliceDimension(product);
-        final Rectangle[] sliceRectangles = computeDataSliceRectangles(maskImage, varImages, defaultSliceDimension);
+        final Rectangle[] sliceRectangles;
+        if (doMosaicking) {
+            PlateCarreeGrid plateCarreeGrid = (PlateCarreeGrid) planetaryGrid;
+            Dimension tileSize = product.getPreferredTileSize();
+            sliceRectangles = plateCarreeGrid.getDataSliceRectangles(sourceProductGeometry, tileSize);
+        } else {
+            final Dimension defaultSliceDimension = getDefaultSliceDimension(product);
+            sliceRectangles = computeDataSliceRectangles(maskImage, varImages, defaultSliceDimension);
+        }
         final float[] superSamplingSteps = getSuperSamplingSteps(superSampling);
         long numObsTotal = 0;
         progressMonitor.beginTask("Spatially binning of " + product.getName(), sliceRectangles.length);
@@ -209,6 +228,20 @@ public class SpatialProductBinner {
                 addedBands.get(product).add(band);
             }
         }
+    }
+
+    private static void addMaskToProduct(String maskExpr, Product product,
+                                         Map<Product, List<Band>> addedBands) {
+        VirtualBand band = new VirtualBand("binning_mask",
+                                           ProductData.TYPE_UINT8,
+                                           product.getSceneRasterWidth(),
+                                           product.getSceneRasterHeight(),
+                                           StringUtils.isNotNullAndNotEmpty(maskExpr) ? maskExpr : "true");
+        product.addBand(band);
+        if (!addedBands.containsKey(product)) {
+            addedBands.put(product, new ArrayList<Band>());
+        }
+        addedBands.get(product).add(band);
     }
 
     static float[] getSuperSamplingSteps(Integer superSampling) {
