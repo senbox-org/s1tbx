@@ -30,7 +30,11 @@ public class DatabaseRecord {
 
     public Set<String> getStatDataColumns(Date date) {
         final Map<String, String> statData = data.get(date);
-        return statData.keySet();
+        if (statData != null) {
+            return statData.keySet();
+        } else {
+            return null;
+        }
     }
 
     public String getValue(Date date, String statName) {
