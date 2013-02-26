@@ -136,10 +136,10 @@ public class SummaryCSVTool {
     }
 
     private void putOutSummerizedData(File outputDir) throws IOException {
-        final int[] years = statisticsDatabase.getYears();
-        for (int year : years) {
-            final String[] parameterNames = statisticsDatabase.getParameterNames(year);
-            for (String parameterName : parameterNames) {
+        final ObservationYear[] years = statisticsDatabase.getYears();
+        for (ObservationYear year : years) {
+            final ParameterName[] parameterNames = statisticsDatabase.getParameterNames(year);
+            for (ParameterName parameterName : parameterNames) {
                 final File outputFile = new File(outputDir, "WFD_stat_" + year + "_" + parameterName + ".txt");
                 FileOutputStream fileOutputStream = null;
                 PrintWriter writer = null;
@@ -161,7 +161,7 @@ public class SummaryCSVTool {
         }
     }
 
-    private void printHeader(DatabaseRecord[] records, PrintWriter pw, String parameterName) {
+    private void printHeader(DatabaseRecord[] records, PrintWriter pw, ParameterName parameterName) {
         pw.print("Bod.ID");
         pw.print(TAB);
         pw.print("Bod.Name");

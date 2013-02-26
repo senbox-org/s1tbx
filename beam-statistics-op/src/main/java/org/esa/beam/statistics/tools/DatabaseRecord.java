@@ -7,11 +7,11 @@ import java.util.TreeMap;
 
 public class DatabaseRecord {
 
-    public final String geomId;
+    public final GeometryID geomId;
     public final String geomName;
     private final Map<Date, Map<String, String>> data;
 
-    public DatabaseRecord(String geomId, String geomName) {
+    public DatabaseRecord(GeometryID geomId, String geomName) {
         this.geomId = geomId;
         this.geomName = geomName;
         this.data = new TreeMap<Date, Map<String, String>>();

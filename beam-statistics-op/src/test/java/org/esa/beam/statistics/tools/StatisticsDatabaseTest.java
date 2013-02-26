@@ -45,11 +45,14 @@ public class StatisticsDatabaseTest {
         statisticsDatabase.append(utc, featureCollection, mapping);
 
         //verification
-        assertArrayEquals(new int[]{2007}, statisticsDatabase.getYears());
-        assertArrayEquals(new String[]{"algal_1", "yellow_subs"}, statisticsDatabase.getParameterNames(2007));
-        final DatabaseRecord[] algal_1_records = statisticsDatabase.getData(2007, "algal_1");
+        final ObservationYear year = new ObservationYear(2007);
+        assertArrayEquals(new ObservationYear[]{year}, statisticsDatabase.getYears());
+        final ParameterName algal_1 = new ParameterName("algal_1");
+        final ParameterName yellow_subs = new ParameterName("yellow_subs");
+        assertArrayEquals(new ParameterName[]{algal_1, yellow_subs}, statisticsDatabase.getParameterNames(year));
+        final DatabaseRecord[] algal_1_records = statisticsDatabase.getData(year, new ParameterName("algal_1"));
         assertEquals(21, algal_1_records.length);
-        assertEquals("1", algal_1_records[0].geomId);
+        assertEquals(new GeometryID("1"), algal_1_records[0].geomId);
         assertEquals("Hever Tidebecken", algal_1_records[0].geomName);
         final Set<Date> dataDates = algal_1_records[0].getDataDates();
         assertEquals(1, dataDates.size());
@@ -99,10 +102,11 @@ public class StatisticsDatabaseTest {
         statisticsDatabase.append(utc2, createCollection(feature2), mapping);
 
         //verification
-        final int[] years = statisticsDatabase.getYears();
-        assertArrayEquals(new int[]{2002}, years);
-        final String[] parameterNames = statisticsDatabase.getParameterNames(years[0]);
-        assertArrayEquals(new String[]{"Param1_LongName"}, parameterNames);
+        final ObservationYear[] years = statisticsDatabase.getYears();
+        final ObservationYear year = new ObservationYear(2002);
+        assertArrayEquals(new ObservationYear[]{year}, years);
+        final ParameterName[] parameterNames = statisticsDatabase.getParameterNames(years[0]);
+        assertArrayEquals(new ParameterName[]{new ParameterName("Param1_LongName")}, parameterNames);
         final DatabaseRecord[] databaseRecords = statisticsDatabase.getData(years[0], parameterNames[0]);
         assertEquals(1, databaseRecords.length);
         final Set<Date> dataDates = databaseRecords[0].getDataDates();
