@@ -15,6 +15,7 @@ import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.jai.ImageManager;
 import org.esa.beam.statistics.output.Util;
 import org.esa.beam.util.FeatureUtils;
+import org.esa.beam.util.logging.BeamLogManager;
 import org.geotools.feature.DefaultFeatureCollection;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
@@ -33,6 +34,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 public class StatisticComputer {
 
@@ -42,9 +44,11 @@ public class StatisticComputer {
     private final BandConfiguration[] bandConfigurations;
     private final Map<BandConfiguration, StxOpMapping> stxOpMappings;
     private final int initialBinCount;
+    private final Logger logger;
 
-    public StatisticComputer(File shapefile, BandConfiguration[] bandConfigurations, int initialBinCount) {
+    public StatisticComputer(File shapefile, BandConfiguration[] bandConfigurations, int initialBinCount, Logger logger) {
         this.initialBinCount = initialBinCount;
+        this.logger = logger != null ? logger : BeamLogManager.getSystemLogger();
         if (shapefile != null) {
             try {
                 features = FeatureUtils.loadFeatureCollectionFromShapefile(shapefile);
@@ -77,7 +81,15 @@ public class StatisticComputer {
         }
         for (BandConfiguration bandConfiguration : bandConfigurations) {
             final Band band = getBand(bandConfiguration, product);
-            band.setValidPixelExpression(bandConfiguration.validPixelExpression);
+            final String newExpression = bandConfiguration.validPixelExpression;
+            if (newExpression != null) {
+                final String oldExpression = band.getValidPixelExpression();
+                if (oldExpression != null) {
+                    logger.info(
+                            "Replaced old valid pixel expression '" + oldExpression + "' by '" + newExpression + "'.");
+                }
+                band.setValidPixelExpression(newExpression);
+            }
             final StxOpMapping stxOpsMapping = getStxOpsMapping(bandConfiguration);
             if (features != null) {
                 for (VectorDataNode vectorDataNode : vectorDataNodes) {
