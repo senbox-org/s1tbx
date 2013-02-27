@@ -19,6 +19,7 @@ import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 class FileBackedSpatialBinCollector implements SpatialBinCollector {
 
@@ -27,65 +28,69 @@ class FileBackedSpatialBinCollector implements SpatialBinCollector {
     private static final File DEFAULT_TEMP_DIR = new File(System.getProperty("java.io.tmpdir"));
     private static final File TEMP_DIRECTORY = new File(DEFAULT_TEMP_DIR, "beam-spatial-binning");
     private static final String FILE_NAME_PATTERN = "bins-%08d.tmp";
-    private long lastFileIndex;
-    private SortedMap<Long, List<SpatialBin>> map;
-    private boolean consumingCompleted;
+    private final SortedMap<Long, List<SpatialBin>> map;
     private final TreeSet<Long> binIndexSet;
+    private final AtomicBoolean consumingCompleted;
+    private long lastFileIndex;
 
     public FileBackedSpatialBinCollector() throws Exception {
         FileUtils.deleteTree(TEMP_DIRECTORY);
         if (!TEMP_DIRECTORY.exists() && !TEMP_DIRECTORY.mkdir()) {
             throw new IOException("Could not create temporary directory.");
         }
-        lastFileIndex = -1;
-        consumingCompleted = false;
         binIndexSet = new TreeSet<Long>();
+        map = new TreeMap<Long, List<SpatialBin>>();
+        consumingCompleted = new AtomicBoolean(false);
+        lastFileIndex = -1;
     }
 
     @Override
     public void consumeSpatialBins(BinningContext ignored, List<SpatialBin> spatialBins) throws Exception {
-        if (consumingCompleted) {
+        if (consumingCompleted.get()) {
             throw new IllegalStateException("Consuming of bins has already been completed.");
         }
 
-        for (SpatialBin spatialBin : spatialBins) {
-            long spatialBinIndex = spatialBin.getIndex();
-            long currentFileIndex = calculateFileIndex(spatialBinIndex);
-            if (currentFileIndex != lastFileIndex) {
-                // write map back to file, if exists
-                if (map != null) {
-                    File file = getFile(lastFileIndex);
-                    writeToFile(map, file);
-                    map.clear();
-                }
+        synchronized (map) {
+            for (SpatialBin spatialBin : spatialBins) {
+                long spatialBinIndex = spatialBin.getIndex();
+                long currentFileIndex = calculateFileIndex(spatialBinIndex);
+                if (currentFileIndex != lastFileIndex) {
+                    // write map back to file, if it contains data
+                    if (!map.isEmpty()) {
+                        File file = getFile(lastFileIndex);
+                        writeToFile(map, file);
+                        map.clear();
+                    }
 
-                File file = getFile(currentFileIndex);
-                if (file.exists()) {
-                    map = readIntoMap(file);
-                } else {
-                    map = new TreeMap<Long, List<SpatialBin>>();
+                    File file = getFile(currentFileIndex);
+                    if (file.exists()) {
+                        readIntoMap(file, map);
+                    } else {
+                        map.clear();
+                    }
+                    lastFileIndex = currentFileIndex;
                 }
-                lastFileIndex = currentFileIndex;
+                binIndexSet.add(spatialBinIndex);
+                List<SpatialBin> spatialBinList = map.get(spatialBinIndex);
+                if (spatialBinList == null) {
+                    spatialBinList = new ArrayList<SpatialBin>();
+                    map.put(spatialBinIndex, spatialBinList);
+                }
+                spatialBinList.add(spatialBin);
             }
-            binIndexSet.add(spatialBinIndex);
-            List<SpatialBin> spatialBinList = map.get(spatialBinIndex);
-            if (spatialBinList == null) {
-                spatialBinList = new ArrayList<SpatialBin>();
-                map.put(spatialBinIndex, spatialBinList);
-            }
-            spatialBinList.add(spatialBin);
         }
     }
 
     @Override
     public void consumingCompleted() throws IOException {
-        consumingCompleted = true;
-        if (map != null) {
-            File file = getFile(lastFileIndex);
-            writeToFile(map, file);
-            map.clear();
+        consumingCompleted.set(true);
+        synchronized (map) {
+            if (!map.isEmpty()) {
+                File file = getFile(lastFileIndex);
+                writeToFile(map, file);
+                map.clear();
+            }
         }
-        map = null;
     }
 
     @Override
@@ -104,8 +109,7 @@ class FileBackedSpatialBinCollector implements SpatialBinCollector {
         }
     }
 
-    private static SortedMap<Long, List<SpatialBin>> readIntoMap(File file) throws IOException {
-        TreeMap<Long, List<SpatialBin>> map = new TreeMap<Long, List<SpatialBin>>();
+    private static void readIntoMap(File file, SortedMap<Long, List<SpatialBin>> map) throws IOException {
         FileInputStream fis = new FileInputStream(file);
         DataInputStream dis = new DataInputStream(new BufferedInputStream(fis, 1024 * 1024));
         try {
@@ -113,7 +117,6 @@ class FileBackedSpatialBinCollector implements SpatialBinCollector {
         } finally {
             dis.close();
         }
-        return map;
     }
 
     static void writeToStream(SortedMap<Long, List<SpatialBin>> map, DataOutputStream dos) throws IOException {
@@ -127,7 +130,7 @@ class FileBackedSpatialBinCollector implements SpatialBinCollector {
         }
     }
 
-    static void readFromStream(DataInputStream dis, TreeMap<Long, List<SpatialBin>> map) throws IOException {
+    static void readFromStream(DataInputStream dis, SortedMap<Long, List<SpatialBin>> map) throws IOException {
         while (dis.available() != 0) {
             long binIndex = dis.readLong();
             int numBins = dis.readInt();
@@ -185,12 +188,12 @@ class FileBackedSpatialBinCollector implements SpatialBinCollector {
 
         private class BinIterator implements Iterator<List<SpatialBin>> {
 
-            //            private long currentBinIndex;
+            private final SortedMap<Long, List<SpatialBin>> currentMap;
+            private final Iterator<Long> binIterator;
             private long lastFileIndex = -1;
-            private SortedMap<Long, List<SpatialBin>> currentMap;
-            private Iterator<Long> binIterator;
 
             private BinIterator() {
+                currentMap = new TreeMap<Long, List<SpatialBin>>();
                 binIterator = binSet.iterator();
             }
 
@@ -206,7 +209,8 @@ class FileBackedSpatialBinCollector implements SpatialBinCollector {
                     long currentFileIndex = calculateFileIndex(currentBinIndex);
                     if (currentFileIndex != lastFileIndex) {
                         File currentFile = FileBackedSpatialBinCollector.getFile(currentFileIndex);
-                        currentMap = readIntoMap(currentFile);
+                        currentMap.clear();
+                        readIntoMap(currentFile, currentMap);
                         File lastFile = FileBackedSpatialBinCollector.getFile(lastFileIndex);
                         if (!lastFile.delete()) {
                             lastFile.deleteOnExit();
