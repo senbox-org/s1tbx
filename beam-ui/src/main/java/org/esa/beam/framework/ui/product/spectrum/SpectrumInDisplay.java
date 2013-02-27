@@ -7,29 +7,22 @@ import java.awt.Stroke;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SpectrumInDisplay {
+public class SpectrumInDisplay implements Spectrum {
 
-    private final Spectrum spectrum;
+    private List<Band> bands;
     private List<Boolean> areBandsSelected;
-    //    private List<Band> selectedBands;
+    private String name;
     private Stroke lineStyle;
     private Shape Symbol;
 
     public SpectrumInDisplay(String spectrumName) {
-        this.spectrum = new Spectrum(spectrumName);
-        areBandsSelected = new ArrayList<Boolean>();
+        final Band[] bands = new Band[]{};
+        new SpectrumInDisplay(spectrumName, bands);
     }
 
-    public SpectrumInDisplay(String spectrumName, String description, Band[] spectralBands) {
-        this.spectrum = new Spectrum(spectrumName, description, spectralBands);
-        areBandsSelected = new ArrayList<Boolean>();
-        for (Band spectralBand : spectralBands) {
-            areBandsSelected.add(true);
-        }
-    }
-
-    public SpectrumInDisplay(String name, String description, String namePattern, Band[] spectralBands) {
-        this.spectrum = new Spectrum(name, description, namePattern, spectralBands);
+    public SpectrumInDisplay(String spectrumName, Band[] spectralBands) {
+        this.name = spectrumName;
+        bands = new ArrayList<Band>(bands);
         areBandsSelected = new ArrayList<Boolean>();
         for (Band spectralBand : spectralBands) {
             areBandsSelected.add(true);
@@ -37,35 +30,31 @@ public class SpectrumInDisplay {
     }
 
     public void addBand(Band band) {
-        spectrum.addBand(band);
+        bands.add(band);
         areBandsSelected.add(true);
     }
 
     public boolean hasBands() {
-        return spectrum.hasBands();
+        return !bands.isEmpty();
     }
 
     public String getName() {
-        return spectrum.getName();
+        return name;
+    }
+
+    @Override
+    public void setName(String name) {
+        this.name = name;
     }
 
     public Band[] getSpectralBands() {
-        return spectrum.getSpectralBands();
+        return bands.toArray(new Band[bands.size()]);
     }
-
-//    public String getDescription() {
-//        return spectrum.getDescription();
-//    }
-
-//    public String getNamePattern() {
-//        return spectrum.getNamePattern();
-//    }
 
     public Band[] getSelectedBands() {
         List<Band> selectedBands = new ArrayList<Band>();
-        Band[] spectralBands = spectrum.getSpectralBands();
-        for (int i = 0; i < spectralBands.length; i++) {
-            Band band = spectralBands[i];
+        for (int i = 0; i < bands.size(); i++) {
+            Band band = bands.get(i);
             if (areBandsSelected.get(i)) {
                 selectedBands.add(band);
             }

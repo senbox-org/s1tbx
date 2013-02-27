@@ -482,7 +482,7 @@ public class SpectrumToolView extends AbstractToolView {
         final List<SpectrumInDisplay> allSpectra = productToAllSpectraMap.get(getCurrentProduct());
         List<SpectrumInDisplay> selectedSpectra = getSelectedSpectra();
         final SpectrumChooser spectrumChooser = new SpectrumChooser(getPaneWindow(), allSpectra, selectedSpectra,
-                                                              getDescriptor().getHelpId());
+                                                                    getDescriptor().getHelpId());
         if (spectrumChooser.show() == ModalDialog.ID_OK) {
             final List<SpectrumInDisplay> selectedSpectraInDisplay = spectrumChooser.getSelectedSpectra();
             productToSelectedSpectraMap.put(getCurrentProduct(), selectedSpectraInDisplay);
@@ -544,7 +544,7 @@ public class SpectrumToolView extends AbstractToolView {
             productToAllSpectraMap.put(getCurrentProduct(), initiallySelectedSpectra);
         } else {
             final ArrayList<SpectrumInDisplay> spectra = new ArrayList<SpectrumInDisplay>();
-            spectra.add(new SpectrumInDisplay("Available spectral bands", "", getAvailableSpectralBands()));
+            spectra.add(new SpectrumInDisplay("Available spectral bands", getAvailableSpectralBands()));
             productToAllSpectraMap.put(getCurrentProduct(), spectra);
         }
     }

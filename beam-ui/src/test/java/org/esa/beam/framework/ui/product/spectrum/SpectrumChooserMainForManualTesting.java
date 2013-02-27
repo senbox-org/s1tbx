@@ -20,13 +20,12 @@ public class SpectrumChooserMainForManualTesting {
         Lm.verifyLicense("Brockmann Consult", "BEAM", "lCzfhklpZ9ryjomwWxfdupxIcuIoCxg2");
 
         String name = "Radiances";
-        String description = "Radiance bands";
         int numBands = 5;
         Band[] bands = new Band[numBands];
         for (int i = 0; i < bands.length; i++) {
             bands[i] = createBand(i);
         }
-        SpectrumInDisplay spectrum = new SpectrumInDisplay(name, description, bands);
+        SpectrumInDisplay spectrum = new SpectrumInDisplay(name, bands);
         final List<SpectrumInDisplay> spectra = new ArrayList<SpectrumInDisplay>();
         spectra.add(spectrum);
         final JFrame frame = new JFrame();
