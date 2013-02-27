@@ -15,9 +15,6 @@ import java.util.TreeMap;
 
 import static org.junit.Assert.*;
 
-/**
- * @author Marco Peters
- */
 public class FileBackedSpatialBinCollectorTest {
 
     private static final int NUM_FEATURES = 2;

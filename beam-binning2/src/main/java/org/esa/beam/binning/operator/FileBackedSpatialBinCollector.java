@@ -21,6 +21,13 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+/**
+ * An implementation of {@link SpatialBinCollector} which stores the consumed
+ * {@link SpatialBin spatial bins} into multiple files.
+ *
+ * @see MapBackedSpatialBinCollector
+ * @see GeneralSpatialBinCollector
+ */
 class FileBackedSpatialBinCollector implements SpatialBinCollector {
 
     private final static int NUM_BINS_PER_FILE = 10000;
@@ -53,7 +60,7 @@ class FileBackedSpatialBinCollector implements SpatialBinCollector {
         synchronized (map) {
             for (SpatialBin spatialBin : spatialBins) {
                 long spatialBinIndex = spatialBin.getIndex();
-                long currentFileIndex = calculateFileIndex(spatialBinIndex);
+                int currentFileIndex = calculateFileIndex(spatialBinIndex);
                 if (currentFileIndex != lastFileIndex) {
                     // write map back to file, if it contains data
                     if (!map.isEmpty()) {
@@ -95,7 +102,7 @@ class FileBackedSpatialBinCollector implements SpatialBinCollector {
 
     @Override
     public SpatialBinCollection getSpatialBinCollection() throws IOException {
-        return new LazyBinCollection(binIndexSet);
+        return new FileBackedBinCollection(binIndexSet);
     }
 
 
@@ -149,16 +156,16 @@ class FileBackedSpatialBinCollector implements SpatialBinCollector {
         return new File(TEMP_DIRECTORY, String.format(FILE_NAME_PATTERN, fileIndex));
     }
 
-    private static long calculateFileIndex(long binIndex) {
-        return binIndex / NUM_BINS_PER_FILE;
+    private static int calculateFileIndex(long binIndex) {
+        return (int) (binIndex / NUM_BINS_PER_FILE);
     }
 
-    private static class LazyBinCollection implements SpatialBinCollection {
+    private static class FileBackedBinCollection implements SpatialBinCollection {
 
-        private TreeSet<Long> binSet;
+        private TreeSet<Long> binIndexSet;
 
-        public LazyBinCollection(TreeSet<Long> binSet) {
-            this.binSet = binSet;
+        public FileBackedBinCollection(TreeSet<Long> binIndexSet) {
+            this.binIndexSet = binIndexSet;
         }
 
         @Override
@@ -166,19 +173,19 @@ class FileBackedSpatialBinCollector implements SpatialBinCollector {
             return new Iterable<List<SpatialBin>>() {
                 @Override
                 public Iterator<List<SpatialBin>> iterator() {
-                    return new BinIterator();
+                    return new FileBackedBinIterator(binIndexSet.iterator());
                 }
             };
         }
 
         @Override
         public long size() {
-            return binSet.size();
+            return binIndexSet.size();
         }
 
         @Override
         public boolean isEmpty() {
-            return binSet.isEmpty();
+            return binIndexSet.isEmpty();
         }
 
         @Override
@@ -186,15 +193,16 @@ class FileBackedSpatialBinCollector implements SpatialBinCollector {
             // nothing to do
         }
 
-        private class BinIterator implements Iterator<List<SpatialBin>> {
+        private class FileBackedBinIterator implements Iterator<List<SpatialBin>> {
 
-            private final SortedMap<Long, List<SpatialBin>> currentMap;
             private final Iterator<Long> binIterator;
-            private long lastFileIndex = -1;
+            private final SortedMap<Long, List<SpatialBin>> currentMap;
+            private int lastFileIndex = -1;
+            private long currentBinIndex;
 
-            private BinIterator() {
+            private FileBackedBinIterator(Iterator<Long> iterator) {
+                binIterator = iterator;
                 currentMap = new TreeMap<Long, List<SpatialBin>>();
-                binIterator = binSet.iterator();
             }
 
             @Override
@@ -204,18 +212,17 @@ class FileBackedSpatialBinCollector implements SpatialBinCollector {
 
             @Override
             public List<SpatialBin> next() {
-                long currentBinIndex = binIterator.next();
+                currentBinIndex = getNextExistingBinIndex();
                 try {
-                    long currentFileIndex = calculateFileIndex(currentBinIndex);
+                    int currentFileIndex = calculateFileIndex(currentBinIndex);
                     if (currentFileIndex != lastFileIndex) {
-                        File currentFile = FileBackedSpatialBinCollector.getFile(currentFileIndex);
+                        File currentFile = getFile(currentFileIndex);
                         currentMap.clear();
                         readIntoMap(currentFile, currentMap);
-                        File lastFile = FileBackedSpatialBinCollector.getFile(lastFileIndex);
+                        File lastFile = getFile(lastFileIndex);
                         if (!lastFile.delete()) {
                             lastFile.deleteOnExit();
                         }
-
                     }
                     lastFileIndex = currentFileIndex;
                 } catch (IOException e) {
@@ -223,6 +230,10 @@ class FileBackedSpatialBinCollector implements SpatialBinCollector {
                 }
 
                 return currentMap.get(currentBinIndex);
+            }
+
+            private Long getNextExistingBinIndex() {
+                return binIterator.next();
             }
 
             @Override
