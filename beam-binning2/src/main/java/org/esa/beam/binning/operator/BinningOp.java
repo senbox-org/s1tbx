@@ -182,7 +182,7 @@ public class BinningOp extends Operator implements Output {
     private final Map<Product, List<Band>> addedBands;
 
     public BinningOp() throws OperatorException {
-        this(getBinStore());
+        this(getBinCollector());
     }
 
     public BinningOp(SpatialBinCollector spatialBinCollector) {
@@ -336,9 +336,9 @@ public class BinningOp extends Operator implements Output {
         region = JTS.shapeToGeometry(area, new GeometryFactory());
     }
 
-    private static SpatialBinCollector getBinStore() throws OperatorException {
+    private static SpatialBinCollector getBinCollector() throws OperatorException {
         try {
-            return new MemoryBackedSpatialBinCollector();
+            return new MapBackedSpatialBinCollector();
         } catch (Exception e) {
             throw new OperatorException(e.getMessage(), e);
         }
