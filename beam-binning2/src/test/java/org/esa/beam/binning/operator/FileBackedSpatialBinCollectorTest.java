@@ -1,7 +1,9 @@
 package org.esa.beam.binning.operator;
 
+import org.esa.beam.binning.BinningContext;
 import org.esa.beam.binning.SpatialBin;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -70,6 +72,32 @@ public class FileBackedSpatialBinCollectorTest {
         assertEquals(1, newMap.size());
         List<SpatialBin> newBinList = newMap.get(42L);
         assertEquals(4, newBinList.size());
+
+    }
+
+    @Test
+    public void testCollecting() throws Exception {
+        FileBackedSpatialBinCollector binCollector = new FileBackedSpatialBinCollector();
+        BinningContext ctx = Mockito.mock(BinningContext.class);
+        for (int i = 0; i < 26; i++) {
+            ArrayList<SpatialBin> spatialBins = new ArrayList<SpatialBin>();
+            int binIndexOffset = i * 1000;
+            for (int j = 0; j < 1000; j++) {
+                spatialBins.add(new SpatialBin(binIndexOffset + j, 3));
+            }
+            binCollector.consumeSpatialBins(ctx, spatialBins);
+        }
+        binCollector.consumingCompleted();
+
+        SpatialBinCollection spatialBinCollection = binCollector.getSpatialBinCollection();
+
+        assertFalse(spatialBinCollection.isEmpty());
+        assertEquals(26000, spatialBinCollection.size());
+        Iterable<List<SpatialBin>> collectedBins = spatialBinCollection.getCollectedBins();
+        int counter = 0;
+        for (List<SpatialBin> collectedBin : collectedBins) {
+            assertEquals(counter++, collectedBin.get(0).getIndex());
+        }
 
     }
 
