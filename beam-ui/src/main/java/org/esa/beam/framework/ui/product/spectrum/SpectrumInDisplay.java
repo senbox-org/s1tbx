@@ -53,13 +53,13 @@ public class SpectrumInDisplay {
         return spectrum.getSpectralBands();
     }
 
-    public String getDescription() {
-        return spectrum.getDescription();
-    }
+//    public String getDescription() {
+//        return spectrum.getDescription();
+//    }
 
-    public String getNamePattern() {
-        return spectrum.getNamePattern();
-    }
+//    public String getNamePattern() {
+//        return spectrum.getNamePattern();
+//    }
 
     public Band[] getSelectedBands() {
         List<Band> selectedBands = new ArrayList<Band>();

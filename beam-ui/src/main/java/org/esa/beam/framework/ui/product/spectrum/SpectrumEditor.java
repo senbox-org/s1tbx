@@ -100,8 +100,8 @@ public class SpectrumEditor extends ModalDialog {
     private boolean isInSpectrum(Band availableSpectralBand) {
         if (spectrum == null) {
             return false;
-        } else if (StringUtils.isNotNullAndNotEmpty(spectrum.getNamePattern())) {
-            return availableSpectralBand.getName().contains(spectrum.getNamePattern());
+//        } else if (StringUtils.isNotNullAndNotEmpty(spectrum.getNamePattern())) {
+//            return availableSpectralBand.getName().contains(spectrum.getNamePattern());
         } else {
             return ArrayUtils.isMemberOf(availableSpectralBand, spectrum.getSpectralBands());
         }
@@ -136,13 +136,13 @@ public class SpectrumEditor extends ModalDialog {
         }
         descriptionField = new JTextField();
         descriptionField.setPreferredSize(textFieldDimension);
-        if (spectrum != null) {
-            descriptionField.setText(spectrum.getDescription());
-        }
+//        if (spectrum != null) {
+//            descriptionField.setText(spectrum.getDescription());
+//        }
         patternField = new JTextField();
         patternField.setPreferredSize(textFieldDimension);
         if (spectrum != null) {
-            patternField.setText(spectrum.getNamePattern());
+//            patternField.setText(spectrum.getNamePattern());
         }
         patternField.getDocument().addDocumentListener(new DocumentListener() {
             @Override
@@ -165,11 +165,11 @@ public class SpectrumEditor extends ModalDialog {
         ButtonGroup radioGroup = new ButtonGroup();
         radioGroup.add(patternButton);
         radioGroup.add(manualButton);
-        if (spectrum == null || StringUtils.isNotNullAndNotEmpty(spectrum.getNamePattern())) {
-            patternButton.setSelected(true);
-        } else {
-            manualButton.setSelected(true);
-        }
+//        if (spectrum == null || StringUtils.isNotNullAndNotEmpty(spectrum.getNamePattern())) {
+//            patternButton.setSelected(true);
+//        } else {
+//            manualButton.setSelected(true);
+//        }
         final JPanel bandAssignmentPanel = createBandAssignmentPanel();
         patternButton.addActionListener(new ActionListener() {
             @Override
