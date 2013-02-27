@@ -10,7 +10,7 @@ import java.util.List;
 
 import static org.junit.Assert.*;
 
-public class GeneralSpatialBinStoreTest {
+public class GeneralSpatialBinCollectorTest {
 
     @Test
     public void testConsumeSpatialBins() throws Exception {

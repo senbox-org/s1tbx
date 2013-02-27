@@ -16,7 +16,7 @@ import static org.junit.Assert.*;
 /**
  * @author Marco Peters
  */
-public class FileBackedSpatialBinStoreTest {
+public class FileBackedSpatialBinCollectorTest {
 
     private static final int NUM_FEATURES = 2;
 

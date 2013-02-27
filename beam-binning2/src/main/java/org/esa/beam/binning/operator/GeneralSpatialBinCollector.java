@@ -7,18 +7,22 @@ import java.io.IOException;
 import java.util.List;
 
 /**
- * @author Marco Peters
+ * An implementation of {@link SpatialBinCollector} which combines a {@link MapBackedSpatialBinCollector} and a {@link FileBackedSpatialBinCollector} to one spatial bin collector.
+ * This means that all data is kept in memory. There are other implementations which consume less memory.
+ *
+ * @see MapBackedSpatialBinCollector
+ * @see FileBackedSpatialBinCollector
  */
 public class GeneralSpatialBinCollector implements SpatialBinCollector {
 
     private final SpatialBinCollector fileBinCollector;
-    private SpatialBinCollector memoryBinCollector;
+    private SpatialBinCollector mapBinCollector;
     private boolean consumingCompleted;
 
 
     public GeneralSpatialBinCollector() throws Exception {
         fileBinCollector = new FileBackedSpatialBinCollector();
-        memoryBinCollector = new MemoryBackedSpatialBinCollector();
+        mapBinCollector = new MapBackedSpatialBinCollector();
         consumingCompleted = false;
     }
 
@@ -27,8 +31,8 @@ public class GeneralSpatialBinCollector implements SpatialBinCollector {
         if (consumingCompleted) {
             throw new IllegalStateException("Consuming of bins has already been completed.");
         }
-        memoryBinCollector.consumeSpatialBins(ignored, spatialBins);
-        if (memoryBinCollector.getSpatialBinCollection().size() > 12000) {
+        mapBinCollector.consumeSpatialBins(ignored, spatialBins);
+        if (mapBinCollector.getSpatialBinCollection().size() > 12000) {
             moveBinsToFile(ignored);
         }
 
@@ -43,14 +47,14 @@ public class GeneralSpatialBinCollector implements SpatialBinCollector {
     public void consumingCompleted() throws IOException {
         consumingCompleted = true;
         moveBinsToFile(null);
-        memoryBinCollector.consumingCompleted();
-        memoryBinCollector = null;
+        mapBinCollector.consumingCompleted();
+        mapBinCollector = null;
         fileBinCollector.consumingCompleted();
 
     }
 
     private void moveBinsToFile(BinningContext ignored) throws IOException {
-        SpatialBinCollection spatialBinMap = memoryBinCollector.getSpatialBinCollection();
+        SpatialBinCollection spatialBinMap = mapBinCollector.getSpatialBinCollection();
 
         Iterable<List<SpatialBin>> values = spatialBinMap.getCollectedBins();
         for (List<SpatialBin> value : values) {
