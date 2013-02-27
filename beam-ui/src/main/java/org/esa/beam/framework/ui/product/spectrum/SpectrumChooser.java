@@ -35,7 +35,6 @@ import javax.swing.table.TableModel;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -95,10 +94,7 @@ public class SpectrumChooser extends ModalDialog {
 
     @SuppressWarnings("unchecked")
     private void initSpectraTable() {
-        spectrumTableModel = new SpectrumTableModel();
-        for (SpectrumInDisplay spectrum : allSpectra) {
-            spectrumTableModel.addRow(spectrum);
-        }
+        spectrumTableModel = new SpectrumTableModel(allSpectra);
         spectraTable = new HierarchicalTable(spectrumTableModel);
         spectraTable.setComponentFactory(new SpectrumTableComponentFactory());
         AutoFilterTableHeader header = new AutoFilterTableHeader(spectraTable);
@@ -182,30 +178,22 @@ public class SpectrumChooser extends ModalDialog {
 
     static class SpectrumTableModel extends DefaultTableModel implements HierarchicalTableModel {
 
-        final static String[] spectraColumns = new String[]{"", "Spectrum name", "Line style", "Symbol"};
+        private final static String[] spectraColumns = new String[]{"", "Spectrum name", "Line style", "Symbol"};
         private final Class[] COLUMN_CLASSES = {
                 Boolean.class,
                 String.class,
                 ImageIcon.class,
                 ImageIcon.class,
         };
-        String[] bandColumns = new String[]{"", "Band name", "Band description", "Spectral wavelength (nm)", "Spectral bandwidth (nm)"};
-        private List<Boolean> spectraSelected;
-        private Map<SpectrumInDisplay, BandTableModel> spectrumToModel;
+        private final String[] bandColumns = new String[]{"", "Band name", "Band description", "Spectral wavelength (nm)", "Spectral bandwidth (nm)"};
+        private final Map<SpectrumInDisplay, BandTableModel> spectrumToModel;
 
-        public SpectrumTableModel() {
+        public SpectrumTableModel(List<SpectrumInDisplay> allSpectra) {
             super(spectraColumns, 0);
-            spectraSelected = new ArrayList<Boolean>();
             spectrumToModel = new HashMap<SpectrumInDisplay, BandTableModel>();
-        }
-
-        public void addRow(SpectrumInDisplay spectrum) {
-            final ImageIcon strokeIcon = SpectrumConstants.strokeIcons[spectraSelected.size() % SpectrumConstants.strokeIcons.length];
-            final ImageIcon shapeIcon = SpectrumConstants.shapeIcons[spectraSelected.size() % SpectrumConstants.shapeIcons.length];
-            spectraSelected.add(Boolean.TRUE);
-            spectrum.setLineStyle(SpectrumConstants.strokes[ArrayUtils.getElementIndex(strokeIcon, SpectrumConstants.strokeIcons)]);
-            spectrum.setSymbol(SpectrumConstants.shapes[ArrayUtils.getElementIndex(shapeIcon, SpectrumConstants.shapeIcons)]);
-            super.addRow(new Object[]{Boolean.TRUE, spectrum.getName(), strokeIcon, shapeIcon});
+            for (SpectrumInDisplay spectrum : allSpectra) {
+                addRow(spectrum);
+            }
         }
 
         @Override
@@ -239,6 +227,14 @@ public class SpectrumChooser extends ModalDialog {
             return bandTableModel;
         }
 
+        private void addRow(SpectrumInDisplay spectrum) {
+            final ImageIcon strokeIcon = SpectrumConstants.strokeIcons[getRowCount() % SpectrumConstants.strokeIcons.length];
+            final ImageIcon shapeIcon = SpectrumConstants.shapeIcons[getRowCount() % SpectrumConstants.shapeIcons.length];
+            spectrum.setLineStyle(SpectrumConstants.strokes[ArrayUtils.getElementIndex(strokeIcon, SpectrumConstants.strokeIcons)]);
+            spectrum.setSymbol(SpectrumConstants.shapes[ArrayUtils.getElementIndex(shapeIcon, SpectrumConstants.shapeIcons)]);
+            super.addRow(new Object[]{Boolean.TRUE, spectrum.getName(), strokeIcon, shapeIcon});
+        }
+
         @Override
         public boolean hasChild(int row) {
             return true;
@@ -267,7 +263,6 @@ public class SpectrumChooser extends ModalDialog {
         @Override
         public void setValueAt(Object aValue, int row, int column) {
             if (column == spectrumSelectedIndex) {
-                spectraSelected.set(row, (Boolean) aValue);
                 if (spectraTable.getChildComponentAt(row) != null) {
                     final JideTable table = (JideTable) spectraTable.getChildComponentAt(row).getAccessibleContext().getAccessibleChild(0).getAccessibleContext().getAccessibleChild(0).getAccessibleContext().getAccessibleChild(0);
                     if (table != null) {
@@ -283,14 +278,6 @@ public class SpectrumChooser extends ModalDialog {
                 fireTableCellUpdated(row, column);
             }
             super.setValueAt(aValue, row, column);
-        }
-
-        @Override
-        public Object getValueAt(int row, int column) {
-            if (column == spectrumSelectedIndex) {
-                return spectraSelected.get(row);
-            }
-            return super.getValueAt(row, column);
         }
     }
 
@@ -404,7 +391,7 @@ public class SpectrumChooser extends ModalDialog {
                 setForeground(table.getForeground());
             }
             boolean selected = (Boolean) value;
-            this.setSelected(selected);
+            setSelected(selected);
             return this;
         }
     }

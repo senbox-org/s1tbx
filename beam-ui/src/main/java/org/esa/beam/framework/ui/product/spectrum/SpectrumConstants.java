@@ -33,7 +33,7 @@ public class SpectrumConstants {
             new Rectangle2D.Double(-2.0, -5.0, 4.0, 10.0),
             new Rectangle2D.Double(-5.0, -2.0, 10.0, 4.0)
     };
-    public static ImageIcon[] shapeIcons = convertShapesToIcons();
+    public static final ImageIcon[] shapeIcons = convertShapesToIcons();
     public static final Stroke[] strokes = new Stroke[]{
             new BasicStroke(),
             new BasicStroke(1.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, new float[]{10.0f}, 0.0f),
