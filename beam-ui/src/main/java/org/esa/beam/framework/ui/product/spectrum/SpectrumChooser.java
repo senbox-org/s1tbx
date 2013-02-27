@@ -47,40 +47,30 @@ import java.util.Map;
 
 public class SpectrumChooser extends ModalDialog {
 
-    // @todo 3 nf/se - see ProductSubsetDialog for a similar declarations  (code smell!)
-    private static final Font _SMALL_PLAIN_FONT = new Font("SansSerif", Font.PLAIN, 10);
-    private static final Font _SMALL_ITALIC_FONT = _SMALL_PLAIN_FONT.deriveFont(Font.ITALIC);
-
     private static final int spectrumSelectedIndex = 0;
     private static final int spectrumNameIndex = 1;
     private static final int spectrumStrokeIndex = 2;
     private static final int spectrumShapeIndex = 3;
-    private static final int spectrumDescriptionIndex = 4;
-    private static final int spectrumPatternIndex = 5;
-    private static final int spectrumColorIndex = 6;
 
     private static final int bandSelectedIndex = 0;
     private static final int bandNameIndex = 1;
     private static final int bandDescriptionIndex = 2;
     private static final int bandWavelengthIndex = 3;
     private static final int bandBandwidthIndex = 4;
-    private final Band[] allSpectralBands;
     private static List<SpectrumInDisplay> allSpectra;
 
-    private SpectrumTableModel spectrumTableModel;
+    private static SpectrumTableModel spectrumTableModel;
     private static HierarchicalTable spectraTable;
 
 
     public SpectrumChooser(Window parent, List<SpectrumInDisplay> allSpectra, List<SpectrumInDisplay> selectedSpectra,
-                           Band[] availableSpectralBands,
                            String helpID) {
         super(parent, "Available Spectra", ModalDialog.ID_OK_CANCEL, helpID);
         if (allSpectra != null) {
-            this.allSpectra = allSpectra;
+            SpectrumChooser.allSpectra = allSpectra;
         } else {
-            this.allSpectra = new ArrayList<SpectrumInDisplay>();
+            SpectrumChooser.allSpectra = new ArrayList<SpectrumInDisplay>();
         }
-        this.allSpectralBands = availableSpectralBands;
         initUI();
         setSelectedSpectra(selectedSpectra);
     }
@@ -103,6 +93,7 @@ public class SpectrumChooser extends ModalDialog {
         setContent(content);
     }
 
+    @SuppressWarnings("unchecked")
     private void initSpectraTable() {
         spectrumTableModel = new SpectrumTableModel();
         for (SpectrumInDisplay spectrum : allSpectra) {
@@ -123,14 +114,14 @@ public class SpectrumChooser extends ModalDialog {
         selectionColumn.setMaxWidth(38);
 
         final TableColumn strokeColumn = spectraTable.getColumnModel().getColumn(spectrumStrokeIndex);
-        JComboBox<ImageIcon> strokeComboBox = new JComboBox<ImageIcon>(SpectrumConstants.strokeIcons);
+        JComboBox strokeComboBox = new JComboBox(SpectrumConstants.strokeIcons);
         ImageIconComboBoxRenderer strokeComboBoxRenderer = new ImageIconComboBoxRenderer();
         strokeComboBoxRenderer.setPreferredSize(new Dimension(200, 30));
         strokeComboBox.setRenderer(strokeComboBoxRenderer);
         strokeColumn.setCellEditor(new DefaultCellEditor(strokeComboBox));
 
         final TableColumn shapeColumn = spectraTable.getColumnModel().getColumn(spectrumShapeIndex);
-        JComboBox<ImageIcon> shapeComboBox = new JComboBox<ImageIcon>(SpectrumConstants.shapeIcons);
+        JComboBox shapeComboBox = new JComboBox(SpectrumConstants.shapeIcons);
         ImageIconComboBoxRenderer shapeComboBoxRenderer = new ImageIconComboBoxRenderer();
         shapeComboBoxRenderer.setPreferredSize(new Dimension(200, 30));
         shapeComboBox.setRenderer(shapeComboBoxRenderer);
@@ -162,14 +153,6 @@ public class SpectrumChooser extends ModalDialog {
             bands[i] = createBand(i);
         }
         SpectrumInDisplay spectrum = new SpectrumInDisplay(name, description, bands);
-        final Band[] allBands = new Band[numBands * 2];
-        for (int i = 0; i < allBands.length; i++) {
-            if (i < numBands) {
-                allBands[i] = bands[i];
-            } else {
-                allBands[i] = createBand(i);
-            }
-        }
         final List<SpectrumInDisplay> spectra = new ArrayList<SpectrumInDisplay>();
         spectra.add(spectrum);
         final JFrame frame = new JFrame();
@@ -178,7 +161,7 @@ public class SpectrumChooser extends ModalDialog {
         button.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                SpectrumChooser chooser = new SpectrumChooser(frame, spectra, spectra, allBands, "");
+                SpectrumChooser chooser = new SpectrumChooser(frame, spectra, spectra, "");
                 chooser.show();
             }
         });
@@ -199,14 +182,14 @@ public class SpectrumChooser extends ModalDialog {
 
     static class SpectrumTableModel extends DefaultTableModel implements HierarchicalTableModel {
 
-        static String[] spectraColumns = new String[]{"", "Spectrum name", "Line style", "Symbol"};
-        private static final Class[] COLUMN_CLASSES = {
+        final static String[] spectraColumns = new String[]{"", "Spectrum name", "Line style", "Symbol"};
+        private final Class[] COLUMN_CLASSES = {
                 Boolean.class,
                 String.class,
                 ImageIcon.class,
                 ImageIcon.class,
         };
-        static String[] bandColumns = new String[]{"", "Band name", "Band description", "Spectral wavelength (nm)", "Spectral bandwidth (nm)"};
+        String[] bandColumns = new String[]{"", "Band name", "Band description", "Spectral wavelength (nm)", "Spectral bandwidth (nm)"};
         private List<Boolean> spectraSelected;
         private Map<SpectrumInDisplay, BandTableModel> spectrumToModel;
 

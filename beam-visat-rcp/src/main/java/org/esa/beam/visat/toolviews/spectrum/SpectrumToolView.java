@@ -481,9 +481,8 @@ public class SpectrumToolView extends AbstractToolView {
     private void selectSpectralBands() {
         final List<SpectrumInDisplay> allSpectra = productToAllSpectraMap.get(getCurrentProduct());
         List<SpectrumInDisplay> selectedSpectra = getSelectedSpectra();
-        Band[] allBands = getAvailableSpectralBands();
-        SpectrumChooser spectrumChooser = new SpectrumChooser(getPaneWindow(), allSpectra, selectedSpectra,
-                                                              allBands, getDescriptor().getHelpId());
+        final SpectrumChooser spectrumChooser = new SpectrumChooser(getPaneWindow(), allSpectra, selectedSpectra,
+                                                              getDescriptor().getHelpId());
         if (spectrumChooser.show() == ModalDialog.ID_OK) {
             final List<SpectrumInDisplay> selectedSpectraInDisplay = spectrumChooser.getSelectedSpectra();
             productToSelectedSpectraMap.put(getCurrentProduct(), selectedSpectraInDisplay);
