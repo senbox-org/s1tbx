@@ -4,22 +4,17 @@ import com.jidesoft.grid.AutoFilterTableHeader;
 import com.jidesoft.grid.HierarchicalTable;
 import com.jidesoft.grid.HierarchicalTableComponentFactory;
 import com.jidesoft.grid.HierarchicalTableModel;
-import com.jidesoft.grid.JideTable;
 import com.jidesoft.grid.SortableTable;
 import com.jidesoft.grid.TreeLikeHierarchicalPanel;
-import com.jidesoft.utils.Lm;
 import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.ui.DecimalTableCellRenderer;
 import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.util.ArrayUtils;
 
 import javax.swing.DefaultCellEditor;
 import javax.swing.ImageIcon;
-import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
@@ -36,8 +31,6 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Window;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -56,20 +49,23 @@ public class SpectrumChooser extends ModalDialog {
     private static final int bandDescriptionIndex = 2;
     private static final int bandWavelengthIndex = 3;
     private static final int bandBandwidthIndex = 4;
-    private static List<SpectrumInDisplay> allSpectra;
-
     private static SpectrumTableModel spectrumTableModel;
+
     private static HierarchicalTable spectraTable;
 
+    private List<SpectrumInDisplay> allSpectra;
+
+    private final Map<Integer, SortableTable> rowToBandsTable;
 
     public SpectrumChooser(Window parent, List<SpectrumInDisplay> allSpectra, List<SpectrumInDisplay> selectedSpectra,
                            String helpID) {
         super(parent, "Available Spectra", ModalDialog.ID_OK_CANCEL, helpID);
         if (allSpectra != null) {
-            SpectrumChooser.allSpectra = allSpectra;
+            this.allSpectra = allSpectra;
         } else {
-            SpectrumChooser.allSpectra = new ArrayList<SpectrumInDisplay>();
+            this.allSpectra = new ArrayList<SpectrumInDisplay>();
         }
+        rowToBandsTable = new HashMap<Integer, SortableTable>();
         initUI();
         setSelectedSpectra(selectedSpectra);
     }
@@ -94,7 +90,7 @@ public class SpectrumChooser extends ModalDialog {
 
     @SuppressWarnings("unchecked")
     private void initSpectraTable() {
-        spectrumTableModel = new SpectrumTableModel(allSpectra);
+        spectrumTableModel = new SpectrumTableModel();
         spectraTable = new HierarchicalTable(spectrumTableModel);
         spectraTable.setComponentFactory(new SpectrumTableComponentFactory());
         AutoFilterTableHeader header = new AutoFilterTableHeader(spectraTable);
@@ -122,7 +118,6 @@ public class SpectrumChooser extends ModalDialog {
         shapeComboBoxRenderer.setPreferredSize(new Dimension(200, 30));
         shapeComboBox.setRenderer(shapeComboBoxRenderer);
         shapeColumn.setCellEditor(new DefaultCellEditor(shapeComboBox));
-
     }
 
     public List<SpectrumInDisplay> getSelectedSpectra() {
@@ -135,50 +130,8 @@ public class SpectrumChooser extends ModalDialog {
         return selectedSpectra;
     }
 
-    /*
-     * Used for testing UI
-     */
-    public static void main(String[] args) {
-        Lm.verifyLicense("Brockmann Consult", "BEAM", "lCzfhklpZ9ryjomwWxfdupxIcuIoCxg2");
+    class SpectrumTableModel extends DefaultTableModel implements HierarchicalTableModel {
 
-        String name = "Radiances";
-        String description = "Radiance bands";
-        int numBands = 5;
-        Band[] bands = new Band[numBands];
-        for (int i = 0; i < bands.length; i++) {
-            bands[i] = createBand(i);
-        }
-        SpectrumInDisplay spectrum = new SpectrumInDisplay(name, description, bands);
-        final List<SpectrumInDisplay> spectra = new ArrayList<SpectrumInDisplay>();
-        spectra.add(spectrum);
-        final JFrame frame = new JFrame();
-        frame.setSize(new Dimension(100, 100));
-        JButton button = new JButton("Choose Spectrum");
-        button.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                SpectrumChooser chooser = new SpectrumChooser(frame, spectra, spectra, "");
-                chooser.show();
-            }
-        });
-        frame.add(button);
-        frame.setVisible(true);
-    }
-
-    /*
-     * Used for testing UI
-     */
-    static private Band createBand(int index) {
-        final Band band = new Band("Radiance_" + (index + 1), ProductData.TYPE_INT16, 100, 100);
-        band.setDescription("Radiance for band " + (index + 1));
-        band.setSpectralWavelength((float) Math.random());
-        band.setSpectralBandwidth((float) Math.random());
-        return band;
-    }
-
-    static class SpectrumTableModel extends DefaultTableModel implements HierarchicalTableModel {
-
-        private final static String[] spectraColumns = new String[]{"", "Spectrum name", "Line style", "Symbol"};
         private final Class[] COLUMN_CLASSES = {
                 Boolean.class,
                 String.class,
@@ -186,11 +139,9 @@ public class SpectrumChooser extends ModalDialog {
                 ImageIcon.class,
         };
         private final String[] bandColumns = new String[]{"", "Band name", "Band description", "Spectral wavelength (nm)", "Spectral bandwidth (nm)"};
-        private final Map<SpectrumInDisplay, BandTableModel> spectrumToModel;
 
-        public SpectrumTableModel(List<SpectrumInDisplay> allSpectra) {
-            super(spectraColumns, 0);
-            spectrumToModel = new HashMap<SpectrumInDisplay, BandTableModel>();
+        public SpectrumTableModel() {
+            super(new String[]{"", "Spectrum name", "Line style", "Symbol"}, 0);
             for (SpectrumInDisplay spectrum : allSpectra) {
                 addRow(spectrum);
             }
@@ -199,8 +150,8 @@ public class SpectrumChooser extends ModalDialog {
         @Override
         public Object getChildValueAt(final int row) {
             SpectrumInDisplay spectrum = allSpectra.get(row);
-            if (spectrumToModel.containsKey(spectrum)) {
-                return spectrumToModel.get(spectrum);
+            if(rowToBandsTable.containsKey(row)) {
+                return rowToBandsTable.get(row).getModel();
             }
             final Band[] spectralBands = spectrum.getSpectralBands();
             Object[][] spectrumData = new Object[spectralBands.length][bandColumns.length];
@@ -213,7 +164,6 @@ public class SpectrumChooser extends ModalDialog {
                 spectrumData[i][bandBandwidthIndex] = spectralBand.getSpectralBandwidth();
             }
             final BandTableModel bandTableModel = new BandTableModel(spectrumData, bandColumns);
-            spectrumToModel.put(spectrum, bandTableModel);
             bandTableModel.addTableModelListener(new TableModelListener() {
                 @Override
                 public void tableChanged(TableModelEvent e) {
@@ -263,11 +213,9 @@ public class SpectrumChooser extends ModalDialog {
         @Override
         public void setValueAt(Object aValue, int row, int column) {
             if (column == spectrumSelectedIndex) {
-                if (spectraTable.getChildComponentAt(row) != null) {
-                    final JideTable table = (JideTable) spectraTable.getChildComponentAt(row).getAccessibleContext().getAccessibleChild(0).getAccessibleContext().getAccessibleChild(0).getAccessibleContext().getAccessibleChild(0);
-                    if (table != null) {
-                        table.setEnabled((Boolean) aValue);
-                    }
+                if(rowToBandsTable.containsKey(row)) {
+                    final SortableTable bandsTable = rowToBandsTable.get(row);
+                    bandsTable.setEnabled((Boolean) aValue);
                 }
                 fireTableCellUpdated(row, column);
             } else if (column == spectrumStrokeIndex) {
@@ -328,6 +276,8 @@ public class SpectrumChooser extends ModalDialog {
 
             final TableColumn bandwidthColumn = bandsTable.getColumnModel().getColumn(bandBandwidthIndex);
             bandwidthColumn.setCellRenderer(new DecimalTableCellRenderer(new DecimalFormat("###0.0##")));
+
+            rowToBandsTable.put(row, bandsTable);
 
             final JScrollPane jScrollPane = new SpectrumScrollPane(bandsTable);
             return new TreeLikeHierarchicalPanel(jScrollPane);
