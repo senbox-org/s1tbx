@@ -16,15 +16,15 @@ public class SpectrumInDisplay implements Spectrum {
     private Shape Symbol;
 
     public SpectrumInDisplay(String spectrumName) {
-        final Band[] bands = new Band[]{};
-        new SpectrumInDisplay(spectrumName, bands);
+        this(spectrumName, new Band[]{});
     }
 
     public SpectrumInDisplay(String spectrumName, Band[] spectralBands) {
         this.name = spectrumName;
-        bands = new ArrayList<Band>(bands);
+        bands = new ArrayList<Band>(spectralBands.length);
         areBandsSelected = new ArrayList<Boolean>();
         for (Band spectralBand : spectralBands) {
+            bands.add(spectralBand);
             areBandsSelected.add(true);
         }
     }
