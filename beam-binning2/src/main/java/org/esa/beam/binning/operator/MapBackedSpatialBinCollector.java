@@ -38,9 +38,10 @@ class MapBackedSpatialBinCollector implements SpatialBinCollector {
         if (consumingCompleted.get()) {
             throw new IllegalStateException("Consuming of bins has already been completed.");
         }
-        for (SpatialBin spatialBin : spatialBins) {
-            final long spatialBinIndex = spatialBin.getIndex();
-            synchronized (spatialBinMap) {
+
+        synchronized (spatialBinMap) {
+            for (SpatialBin spatialBin : spatialBins) {
+                final long spatialBinIndex = spatialBin.getIndex();
                 List<SpatialBin> spatialBinList = spatialBinMap.get(spatialBinIndex);
                 if (spatialBinList == null) {
                     spatialBinList = new ArrayList<SpatialBin>();
