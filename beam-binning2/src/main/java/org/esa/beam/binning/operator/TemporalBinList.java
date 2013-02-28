@@ -1,7 +1,6 @@
 package org.esa.beam.binning.operator;
 
 import org.esa.beam.binning.TemporalBin;
-import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.util.logging.BeamLogManager;
 
 import java.io.BufferedInputStream;
@@ -43,10 +42,10 @@ class TemporalBinList extends AbstractList<TemporalBin> {
     }
 
     TemporalBinList(int numberOfBins, int maxNumberOfCacheFiles, int preferredBinsPerFile) throws IOException {
-        FileUtils.deleteTree(TEMP_DIRECTORY);
         if (!TEMP_DIRECTORY.exists() && !TEMP_DIRECTORY.mkdir()) {
             throw new IOException("Could not create temporary directory.");
         }
+        clearDirectory(TEMP_DIRECTORY);
         this.numberOfBins = numberOfBins;
         binsPerFile = computeBinsPerFile(numberOfBins, maxNumberOfCacheFiles, preferredBinsPerFile);
         currentBinList = new ArrayList<TemporalBin>();
@@ -109,6 +108,24 @@ class TemporalBinList extends AbstractList<TemporalBin> {
         numCacheFiles = Math.min(numCacheFiles, maxNumberOfCacheFiles);
         int binsPerFile = (int) Math.ceil(numberOfBins / (float) numCacheFiles);
         return binsPerFile < preferredBinsPerFile ? preferredBinsPerFile : binsPerFile;
+    }
+
+    private void clearDirectory(File tempDirectory) {
+        File[] files = tempDirectory.listFiles();
+        if (files == null) {
+            return;
+        }
+        for (File file : files) {
+            if (!file.delete()) {
+                try {
+                    String msgPattern = "Could not delete temporary binning file '%s'.";
+                    BeamLogManager.getSystemLogger().warning(String.format(msgPattern, file.getCanonicalPath()));
+                } catch (IOException e) {
+                    // should not happen - no special handling
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 
     private int calculateFileIndex(int index) {

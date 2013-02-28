@@ -15,7 +15,7 @@ import java.util.List;
  */
 public class GeneralSpatialBinCollector implements SpatialBinCollector {
 
-    private final SpatialBinCollector fileBinCollector;
+    private final FileBackedSpatialBinCollector fileBinCollector;
     private SpatialBinCollector mapBinCollector;
     private boolean consumingCompleted;
 
@@ -27,13 +27,15 @@ public class GeneralSpatialBinCollector implements SpatialBinCollector {
     }
 
     @Override
-    public void consumeSpatialBins(BinningContext ignored, List<SpatialBin> spatialBins) throws Exception {
+    public void consumeSpatialBins(BinningContext ctx, List<SpatialBin> spatialBins) throws Exception {
         if (consumingCompleted) {
             throw new IllegalStateException("Consuming of bins has already been completed.");
         }
-        mapBinCollector.consumeSpatialBins(ignored, spatialBins);
+        fileBinCollector.setMaximumNumberOfBins(ctx.getPlanetaryGrid().getNumBins());
+
+        mapBinCollector.consumeSpatialBins(ctx, spatialBins);
         if (mapBinCollector.getSpatialBinCollection().size() > 12000) {
-            moveBinsToFile(ignored);
+            moveBinsToFile(ctx);
         }
 
     }

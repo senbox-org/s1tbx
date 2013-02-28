@@ -2,7 +2,7 @@ package org.esa.beam.binning.operator;
 
 import org.esa.beam.binning.BinningContext;
 import org.esa.beam.binning.SpatialBin;
-import org.esa.beam.util.io.FileUtils;
+import org.esa.beam.util.logging.BeamLogManager;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -30,25 +30,32 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 class FileBackedSpatialBinCollector implements SpatialBinCollector {
 
-    private final static int NUM_BINS_PER_FILE = 10000;
-
+    private static final int NUM_BINS_PER_FILE = 100000;
+    private static final int MAX_NUMBER_OF_CACHE_FILES = 100;
     private static final File DEFAULT_TEMP_DIR = new File(System.getProperty("java.io.tmpdir"));
     private static final File TEMP_DIRECTORY = new File(DEFAULT_TEMP_DIR, "beam-spatial-binning");
-    private static final String FILE_NAME_PATTERN = "bins-%08d.tmp";
+    private static final String FILE_NAME_PATTERN = "bins-%03d.tmp";
+
     private final SortedMap<Long, List<SpatialBin>> map;
     private final TreeSet<Long> binIndexSet;
     private final AtomicBoolean consumingCompleted;
     private long lastFileIndex;
+    private long maximumNumberOfBins;
 
     public FileBackedSpatialBinCollector() throws Exception {
-        FileUtils.deleteTree(TEMP_DIRECTORY);
         if (!TEMP_DIRECTORY.exists() && !TEMP_DIRECTORY.mkdir()) {
             throw new IOException("Could not create temporary directory.");
         }
+        clearDirectory(TEMP_DIRECTORY);
         binIndexSet = new TreeSet<Long>();
         map = new TreeMap<Long, List<SpatialBin>>();
         consumingCompleted = new AtomicBoolean(false);
         lastFileIndex = -1;
+        maximumNumberOfBins = -1;
+    }
+
+    public void setMaximumNumberOfBins(long numBins) {
+        maximumNumberOfBins = numBins;
     }
 
     @Override
@@ -56,11 +63,13 @@ class FileBackedSpatialBinCollector implements SpatialBinCollector {
         if (consumingCompleted.get()) {
             throw new IllegalStateException("Consuming of bins has already been completed.");
         }
-
+        if (maximumNumberOfBins == -1) {
+            throw new IllegalStateException("Maximum number of bins has to be set before consuming bins.");
+        }
         synchronized (map) {
             for (SpatialBin spatialBin : spatialBins) {
                 long spatialBinIndex = spatialBin.getIndex();
-                int currentFileIndex = calculateFileIndex(spatialBinIndex);
+                int currentFileIndex = calculateFileIndex(spatialBinIndex, maximumNumberOfBins);
                 if (currentFileIndex != lastFileIndex) {
                     // write map back to file, if it contains data
                     if (!map.isEmpty()) {
@@ -152,12 +161,38 @@ class FileBackedSpatialBinCollector implements SpatialBinCollector {
         }
     }
 
-    public static File getFile(long fileIndex) throws IOException {
+    private void clearDirectory(File tempDirectory) {
+        File[] files = tempDirectory.listFiles();
+        if (files == null) {
+            return;
+        }
+        for (File file : files) {
+            if (!file.delete()) {
+                try {
+                    String msgPattern = "Could not delete temporary binning file '%s'.";
+                    BeamLogManager.getSystemLogger().warning(String.format(msgPattern, file.getCanonicalPath()));
+                } catch (IOException e) {
+                    // should not happen - no special handling
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    private static File getFile(long fileIndex) throws IOException {
         return new File(TEMP_DIRECTORY, String.format(FILE_NAME_PATTERN, fileIndex));
     }
 
-    private static int calculateFileIndex(long binIndex) {
-        return (int) (binIndex / NUM_BINS_PER_FILE);
+    private static int calculateFileIndex(long binIndex, long maximumNumberOfBins) {
+        int numBinsPerFile = getNumBinsPerFile(maximumNumberOfBins);
+        return (int) (binIndex / numBinsPerFile);
+    }
+
+    private static int getNumBinsPerFile(long maxBinCount) {
+        int numCacheFiles = (int) Math.ceil(maxBinCount / NUM_BINS_PER_FILE);
+        numCacheFiles = Math.min(numCacheFiles, MAX_NUMBER_OF_CACHE_FILES);
+        int binsPerFile = (int) Math.ceil(maxBinCount / (float) numCacheFiles);
+        return binsPerFile < NUM_BINS_PER_FILE ? NUM_BINS_PER_FILE : binsPerFile;
     }
 
     private static class FileBackedBinCollection implements SpatialBinCollection {
@@ -173,7 +208,7 @@ class FileBackedSpatialBinCollector implements SpatialBinCollector {
             return new Iterable<List<SpatialBin>>() {
                 @Override
                 public Iterator<List<SpatialBin>> iterator() {
-                    return new FileBackedBinIterator(binIndexSet.iterator());
+                    return new FileBackedBinIterator(binIndexSet.iterator(), size());
                 }
             };
         }
@@ -196,12 +231,14 @@ class FileBackedSpatialBinCollector implements SpatialBinCollector {
         private class FileBackedBinIterator implements Iterator<List<SpatialBin>> {
 
             private final Iterator<Long> binIterator;
+            private final long maxBinCount;
             private final SortedMap<Long, List<SpatialBin>> currentMap;
             private int lastFileIndex = -1;
             private long currentBinIndex;
 
-            private FileBackedBinIterator(Iterator<Long> iterator) {
+            private FileBackedBinIterator(Iterator<Long> iterator, long maxBinCount) {
                 binIterator = iterator;
+                this.maxBinCount = maxBinCount;
                 currentMap = new TreeMap<Long, List<SpatialBin>>();
             }
 
@@ -214,7 +251,7 @@ class FileBackedSpatialBinCollector implements SpatialBinCollector {
             public List<SpatialBin> next() {
                 currentBinIndex = getNextExistingBinIndex();
                 try {
-                    int currentFileIndex = calculateFileIndex(currentBinIndex);
+                    int currentFileIndex = calculateFileIndex(currentBinIndex, maxBinCount);
                     if (currentFileIndex != lastFileIndex) {
                         File currentFile = getFile(currentFileIndex);
                         currentMap.clear();
