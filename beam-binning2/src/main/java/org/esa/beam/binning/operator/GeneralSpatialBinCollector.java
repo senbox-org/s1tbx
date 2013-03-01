@@ -7,7 +7,8 @@ import java.io.IOException;
 import java.util.List;
 
 /**
- * An implementation of {@link SpatialBinCollector} which combines a {@link MapBackedSpatialBinCollector} and a {@link FileBackedSpatialBinCollector} to one spatial bin collector.
+ * An implementation of {@link SpatialBinCollector} which combines a {@link MapBackedSpatialBinCollector}
+ * and a {@link FileBackedSpatialBinCollector} to one spatial bin collector.
  * This means that all data is kept in memory. There are other implementations which consume less memory.
  *
  * @see MapBackedSpatialBinCollector
