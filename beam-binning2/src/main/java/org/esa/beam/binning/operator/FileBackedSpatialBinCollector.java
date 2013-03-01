@@ -39,7 +39,7 @@ class FileBackedSpatialBinCollector implements SpatialBinCollector {
     private final SortedMap<Long, List<SpatialBin>> map;
     private final TreeSet<Long> binIndexSet;
     private final AtomicBoolean consumingCompleted;
-    private long lastFileIndex;
+    private long currentFileIndex;
     private long maximumNumberOfBins;
 
     public FileBackedSpatialBinCollector() throws Exception {
@@ -50,7 +50,7 @@ class FileBackedSpatialBinCollector implements SpatialBinCollector {
         binIndexSet = new TreeSet<Long>();
         map = new TreeMap<Long, List<SpatialBin>>();
         consumingCompleted = new AtomicBoolean(false);
-        lastFileIndex = -1;
+        currentFileIndex = -1;
         maximumNumberOfBins = -1;
     }
 
@@ -69,22 +69,12 @@ class FileBackedSpatialBinCollector implements SpatialBinCollector {
         synchronized (map) {
             for (SpatialBin spatialBin : spatialBins) {
                 long spatialBinIndex = spatialBin.getIndex();
-                int currentFileIndex = calculateFileIndex(spatialBinIndex, maximumNumberOfBins);
-                if (currentFileIndex != lastFileIndex) {
+                int nextFileIndex = calculateNextFileIndex(spatialBinIndex, maximumNumberOfBins);
+                if (nextFileIndex != currentFileIndex) {
                     // write map back to file, if it contains data
-                    if (!map.isEmpty()) {
-                        File file = getFile(lastFileIndex);
-                        writeToFile(map, file);
-                        map.clear();
-                    }
-
-                    File file = getFile(currentFileIndex);
-                    if (file.exists()) {
-                        readIntoMap(file, map);
-                    } else {
-                        map.clear();
-                    }
-                    lastFileIndex = currentFileIndex;
+                    writeMapToFile(currentFileIndex);
+                    readFromFile(nextFileIndex);
+                    currentFileIndex = nextFileIndex;
                 }
                 binIndexSet.add(spatialBinIndex);
                 List<SpatialBin> spatialBinList = map.get(spatialBinIndex);
@@ -101,11 +91,7 @@ class FileBackedSpatialBinCollector implements SpatialBinCollector {
     public void consumingCompleted() throws IOException {
         consumingCompleted.set(true);
         synchronized (map) {
-            if (!map.isEmpty()) {
-                File file = getFile(lastFileIndex);
-                writeToFile(map, file);
-                map.clear();
-            }
+            writeMapToFile(currentFileIndex);
         }
     }
 
@@ -141,6 +127,14 @@ class FileBackedSpatialBinCollector implements SpatialBinCollector {
         }
     }
 
+    private void writeMapToFile(long fileIndex) throws IOException {
+        if (!map.isEmpty()) {
+            File file = getFile(fileIndex);
+            writeToFile(map, file);
+            map.clear();
+        }
+    }
+
     private void writeToFile(SortedMap<Long, List<SpatialBin>> map, File file) throws IOException {
         FileOutputStream fos = new FileOutputStream(file);
         DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(fos, 1024 * 1024));
@@ -148,6 +142,15 @@ class FileBackedSpatialBinCollector implements SpatialBinCollector {
             writeToStream(map, dos);
         } finally {
             dos.close();
+        }
+    }
+
+    private void readFromFile(long nextFileIndex) throws IOException {
+        File file = getFile(nextFileIndex);
+        if (file.exists()) {
+            readIntoMap(file, map);
+        } else {
+            map.clear();
         }
     }
 
@@ -183,7 +186,7 @@ class FileBackedSpatialBinCollector implements SpatialBinCollector {
         return new File(TEMP_DIRECTORY, String.format(FILE_NAME_PATTERN, fileIndex));
     }
 
-    private static int calculateFileIndex(long binIndex, long maximumNumberOfBins) {
+    private static int calculateNextFileIndex(long binIndex, long maximumNumberOfBins) {
         int numBinsPerFile = getNumBinsPerFile(maximumNumberOfBins);
         return (int) (binIndex / numBinsPerFile);
     }
@@ -228,7 +231,7 @@ class FileBackedSpatialBinCollector implements SpatialBinCollector {
             private final Iterator<Long> binIterator;
             private final long maxBinCount;
             private final SortedMap<Long, List<SpatialBin>> currentMap;
-            private int lastFileIndex = -1;
+            private int currentFileIndex = -1;
             private long currentBinIndex;
 
             private FileBackedBinIterator(Iterator<Long> iterator, long maxBinCount) {
@@ -244,28 +247,24 @@ class FileBackedSpatialBinCollector implements SpatialBinCollector {
 
             @Override
             public List<SpatialBin> next() {
-                currentBinIndex = getNextExistingBinIndex();
+                currentBinIndex = binIterator.next();
                 try {
-                    int currentFileIndex = calculateFileIndex(currentBinIndex, maxBinCount);
-                    if (currentFileIndex != lastFileIndex) {
-                        File currentFile = getFile(currentFileIndex);
+                    int nextFileIndex = calculateNextFileIndex(currentBinIndex, maxBinCount);
+                    if (nextFileIndex != currentFileIndex) {
+                        File nextFile = getFile(nextFileIndex);
                         currentMap.clear();
-                        readIntoMap(currentFile, currentMap);
-                        File lastFile = getFile(lastFileIndex);
-                        if (!lastFile.delete()) {
-                            lastFile.deleteOnExit();
+                        readIntoMap(nextFile, currentMap);
+                        File currentFile = getFile(currentFileIndex);
+                        if (!currentFile.delete()) {
+                            currentFile.deleteOnExit();
                         }
                     }
-                    lastFileIndex = currentFileIndex;
+                    currentFileIndex = nextFileIndex;
                 } catch (IOException e) {
                     throw new IllegalStateException(e.getMessage(), e);
                 }
 
                 return currentMap.get(currentBinIndex);
-            }
-
-            private Long getNextExistingBinIndex() {
-                return binIterator.next();
             }
 
             @Override
