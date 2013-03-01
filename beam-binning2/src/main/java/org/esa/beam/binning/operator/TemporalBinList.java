@@ -17,7 +17,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * @author Marco Peters
+ * A list implementation for storing the results of the temporal binning.
+ * The implementation creates at most 100 temporary files to hold the results of the binning.
  */
 class TemporalBinList extends AbstractList<TemporalBin> {
 
@@ -27,15 +28,14 @@ class TemporalBinList extends AbstractList<TemporalBin> {
     private static final File DEFAULT_TEMP_DIR = new File(System.getProperty("java.io.tmpdir"));
     private static final File TEMP_DIRECTORY = new File(DEFAULT_TEMP_DIR, "beam-temporal-binning");
     private static final String FILE_NAME_PATTERN = "temporal-bins-%03d.tmp";
+    private static final Logger logger = BeamLogManager.getSystemLogger();
 
 
     private final long numberOfBins;
     private final int binsPerFile;
-
+    private final ArrayList<TemporalBin> currentBinList;
     private int size;
     private int lastFileIndex;
-    private ArrayList<TemporalBin> currentBinList;
-    private Logger logger = BeamLogManager.getSystemLogger();
 
     public TemporalBinList(int numberOfBins) throws IOException {
         this(numberOfBins, DEFAULT_MAX_CACHE_FILES, DEFAULT_BINS_PER_FILE);
@@ -58,18 +58,20 @@ class TemporalBinList extends AbstractList<TemporalBin> {
         if (size >= numberOfBins) {
             throw new IllegalStateException("Number of add operation exceeds maximum number of bins");
         }
-        try {
-            int currentFileIndex = calculateFileIndex(size);
-            if (currentFileIndex != lastFileIndex) {
-                writeBinList(lastFileIndex, currentBinList);
-                currentBinList.clear();
-                readBinList(currentFileIndex, currentBinList);
-                lastFileIndex = currentFileIndex;
+        synchronized (currentBinList) {
+            try {
+                int currentFileIndex = calculateFileIndex(size);
+                if (currentFileIndex != lastFileIndex) {
+                    writeBinList(lastFileIndex, currentBinList);
+                    currentBinList.clear();
+                    readBinList(currentFileIndex, currentBinList);
+                    lastFileIndex = currentFileIndex;
+                }
+                currentBinList.add(temporalBin);
+            } catch (IOException e) {
+                logger.log(Level.SEVERE, "Error adding temporal bins.", e);
+                return false;
             }
-            currentBinList.add(temporalBin);
-        } catch (IOException e) {
-            logger.log(Level.SEVERE, "Error adding temporal bins.", e);
-            return false;
         }
         size++;
         return true;
@@ -78,22 +80,24 @@ class TemporalBinList extends AbstractList<TemporalBin> {
     @Override
     public TemporalBin get(int index) {
         if (index >= numberOfBins) {
-            throw new IllegalStateException("Number of add operation exceeds maximum number of bins");
+            throw new IllegalStateException("Number of add operations exceed maximum number of bins");
         }
-        try {
-            int currentFileIndex = calculateFileIndex(index);
-            if (currentFileIndex != lastFileIndex) {
-                writeBinList(lastFileIndex, currentBinList);
-                currentBinList.clear();
-                readBinList(currentFileIndex, currentBinList);
-                lastFileIndex = currentFileIndex;
+        synchronized (currentBinList) {
+            try {
+                int currentFileIndex = calculateFileIndex(index);
+                if (currentFileIndex != lastFileIndex) {
+                    writeBinList(lastFileIndex, currentBinList);
+                    currentBinList.clear();
+                    readBinList(currentFileIndex, currentBinList);
+                    lastFileIndex = currentFileIndex;
+                }
+
+                int fileBinOffset = binsPerFile * currentFileIndex;
+                return currentBinList.get(index - fileBinOffset);
+
+            } catch (IOException e) {
+                logger.log(Level.SEVERE, String.format("Error getting temporal bin at index %d.", index), e);
             }
-
-            int fileBinOffset = binsPerFile * currentFileIndex;
-            return currentBinList.get(index - fileBinOffset);
-
-        } catch (IOException e) {
-            logger.log(Level.SEVERE, String.format("Error getting temporal bin at index %d.", index), e);
         }
         return null;
     }
