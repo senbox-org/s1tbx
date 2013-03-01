@@ -16,7 +16,7 @@ import java.util.List;
 public class GeneralSpatialBinCollector implements SpatialBinCollector {
 
     private final FileBackedSpatialBinCollector fileBinCollector;
-    private SpatialBinCollector mapBinCollector;
+    private MapBackedSpatialBinCollector mapBinCollector;
     private boolean consumingCompleted;
 
 
@@ -56,9 +56,9 @@ public class GeneralSpatialBinCollector implements SpatialBinCollector {
     }
 
     private void moveBinsToFile(BinningContext ignored) throws IOException {
-        SpatialBinCollection spatialBinMap = mapBinCollector.getSpatialBinCollection();
+        SpatialBinCollection spatialBinCollection = mapBinCollector.getSpatialBinCollection();
 
-        Iterable<List<SpatialBin>> values = spatialBinMap.getCollectedBins();
+        Iterable<List<SpatialBin>> values = spatialBinCollection.getBinCollection();
         for (List<SpatialBin> value : values) {
             try {
                 fileBinCollector.consumeSpatialBins(ignored, value);
@@ -67,6 +67,6 @@ public class GeneralSpatialBinCollector implements SpatialBinCollector {
             }
 
         }
-        spatialBinMap.clear();
+        mapBinCollector.clearMap();
     }
 }

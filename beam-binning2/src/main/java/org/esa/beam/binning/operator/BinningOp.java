@@ -580,7 +580,7 @@ public class BinningOp extends Operator implements Output {
         long numberOfBins = spatialBinMap.size();
         final TemporalBinner temporalBinner = new TemporalBinner(binningContext);
         final List<TemporalBin> temporalBins = new TemporalBinList((int) spatialBinMap.size());
-        Iterable<List<SpatialBin>> spatialBinListCollection = spatialBinMap.getCollectedBins();
+        Iterable<List<SpatialBin>> spatialBinListCollection = spatialBinMap.getBinCollection();
         for (List<SpatialBin> spatialBinList : spatialBinListCollection) {
             SpatialBin spatialBin = spatialBinList.get(0);
             long spatialBinIndex = spatialBin.getIndex();

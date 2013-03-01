@@ -57,6 +57,10 @@ class MapBackedSpatialBinCollector implements SpatialBinCollector {
         consumingCompleted.set(true);
     }
 
+    void clearMap() {
+        spatialBinMap.clear();
+    }
+
     private class SortedMapWrappingSpatialBinCollection implements SpatialBinCollection {
 
         private SortedMap<Long, List<SpatialBin>> map;
@@ -66,7 +70,7 @@ class MapBackedSpatialBinCollector implements SpatialBinCollector {
         }
 
         @Override
-        public Iterable<List<SpatialBin>> getCollectedBins() {
+        public Iterable<List<SpatialBin>> getBinCollection() {
             return new Iterable<List<SpatialBin>>() {
                 @Override
                 public Iterator<List<SpatialBin>> iterator() {
@@ -85,9 +89,5 @@ class MapBackedSpatialBinCollector implements SpatialBinCollector {
             return map.isEmpty();
         }
 
-        @Override
-        public void clear() {
-            map.clear();
-        }
     }
 }

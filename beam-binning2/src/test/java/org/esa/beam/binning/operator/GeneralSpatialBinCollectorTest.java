@@ -26,7 +26,7 @@ public class GeneralSpatialBinCollectorTest {
         store.consumeSpatialBins(ctx, spatialBins);
         store.consumingCompleted();
         SpatialBinCollection binMap = store.getSpatialBinCollection();
-        Iterable<List<SpatialBin>> actualBinLists = binMap.getCollectedBins();
+        Iterable<List<SpatialBin>> actualBinLists = binMap.getBinCollection();
         List<SpatialBin> binList = actualBinLists.iterator().next();
         assertEquals(23, binList.get(0).getIndex());
 

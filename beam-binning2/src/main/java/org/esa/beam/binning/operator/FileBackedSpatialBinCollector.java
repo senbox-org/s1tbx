@@ -115,26 +115,6 @@ class FileBackedSpatialBinCollector implements SpatialBinCollector {
     }
 
 
-    private void writeToFile(SortedMap<Long, List<SpatialBin>> map, File file) throws IOException {
-        FileOutputStream fos = new FileOutputStream(file);
-        DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(fos, 1024 * 1024));
-        try {
-            writeToStream(map, dos);
-        } finally {
-            dos.close();
-        }
-    }
-
-    private static void readIntoMap(File file, SortedMap<Long, List<SpatialBin>> map) throws IOException {
-        FileInputStream fis = new FileInputStream(file);
-        DataInputStream dis = new DataInputStream(new BufferedInputStream(fis, 1024 * 1024));
-        try {
-            readFromStream(dis, map);
-        } finally {
-            dis.close();
-        }
-    }
-
     static void writeToStream(SortedMap<Long, List<SpatialBin>> map, DataOutputStream dos) throws IOException {
         for (Map.Entry<Long, List<SpatialBin>> entry : map.entrySet()) {
             dos.writeLong(entry.getKey());
@@ -158,6 +138,26 @@ class FileBackedSpatialBinCollector implements SpatialBinCollector {
                 spatialBins.add(SpatialBin.read(binIndex, dis));
             }
             map.put(binIndex, spatialBins);
+        }
+    }
+
+    private void writeToFile(SortedMap<Long, List<SpatialBin>> map, File file) throws IOException {
+        FileOutputStream fos = new FileOutputStream(file);
+        DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(fos, 1024 * 1024));
+        try {
+            writeToStream(map, dos);
+        } finally {
+            dos.close();
+        }
+    }
+
+    private static void readIntoMap(File file, SortedMap<Long, List<SpatialBin>> map) throws IOException {
+        FileInputStream fis = new FileInputStream(file);
+        DataInputStream dis = new DataInputStream(new BufferedInputStream(fis, 1024 * 1024));
+        try {
+            readFromStream(dis, map);
+        } finally {
+            dis.close();
         }
     }
 
@@ -204,7 +204,7 @@ class FileBackedSpatialBinCollector implements SpatialBinCollector {
         }
 
         @Override
-        public Iterable<List<SpatialBin>> getCollectedBins() {
+        public Iterable<List<SpatialBin>> getBinCollection() {
             return new Iterable<List<SpatialBin>>() {
                 @Override
                 public Iterator<List<SpatialBin>> iterator() {
@@ -221,11 +221,6 @@ class FileBackedSpatialBinCollector implements SpatialBinCollector {
         @Override
         public boolean isEmpty() {
             return binIndexSet.isEmpty();
-        }
-
-        @Override
-        public void clear() {
-            // nothing to do
         }
 
         private class FileBackedBinIterator implements Iterator<List<SpatialBin>> {

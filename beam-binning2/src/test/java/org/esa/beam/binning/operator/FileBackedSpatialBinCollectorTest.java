@@ -91,7 +91,7 @@ public class FileBackedSpatialBinCollectorTest {
 
         assertFalse(spatialBinCollection.isEmpty());
         assertEquals(26000, spatialBinCollection.size());
-        Iterable<List<SpatialBin>> collectedBins = spatialBinCollection.getCollectedBins();
+        Iterable<List<SpatialBin>> collectedBins = spatialBinCollection.getBinCollection();
         int counter = 0;
         for (List<SpatialBin> collectedBin : collectedBins) {
             assertEquals(counter++, collectedBin.get(0).getIndex());
