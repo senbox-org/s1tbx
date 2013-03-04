@@ -19,7 +19,7 @@ package org.esa.beam.visat.toolviews.spectrum;
 import org.esa.beam.framework.datamodel.Placemark;
 import org.esa.beam.framework.ui.diagram.DiagramGraph;
 import org.esa.beam.framework.ui.diagram.DiagramGraphIO;
-import org.esa.beam.framework.ui.product.spectrum.SpectrumInDisplay;
+import org.esa.beam.framework.ui.product.spectrum.DisplayableSpectrum;
 import org.esa.beam.util.io.BeamFileFilter;
 import org.esa.beam.visat.VisatApp;
 
@@ -44,11 +44,11 @@ class SpectraExportAction extends AbstractAction {
 
 
     private void exportSpectra() {
-        final List<SpectrumInDisplay> selectedSpectra = spectrumToolView.getSelectedSpectra();
+        final List<DisplayableSpectrum> selectedSpectra = spectrumToolView.getSelectedSpectra();
         Placemark[] pins = spectrumToolView.getDisplayedPins();
         final List<SpectrumGraph> spectrumGraphList = new ArrayList<SpectrumGraph>();
         for (Placemark pin : pins) {
-            for (SpectrumInDisplay spectrumInDisplay : selectedSpectra) {
+            for (DisplayableSpectrum spectrumInDisplay : selectedSpectra) {
                 spectrumGraphList.add(new SpectrumGraph(pin, spectrumInDisplay.getSelectedBands()));
             }
         }

@@ -56,27 +56,27 @@ public class SpectrumChooser extends ModalDialog {
     private static final int bandDescriptionIndex = 2;
     private static final int bandWavelengthIndex = 3;
     private static final int bandBandwidthIndex = 4;
-    private static List<SpectrumInDisplay> allSpectra;
+    private static List<DisplayableSpectrum> allSpectra;
 
     private static SpectrumTableModel spectrumTableModel;
     private static HierarchicalTable spectraTable;
 
 
-    public SpectrumChooser(Window parent, List<SpectrumInDisplay> allSpectra, List<SpectrumInDisplay> selectedSpectra,
+    public SpectrumChooser(Window parent, List<DisplayableSpectrum> allSpectra, List<DisplayableSpectrum> selectedSpectra,
                            String helpID) {
         super(parent, "Available Spectra", ModalDialog.ID_OK_CANCEL, helpID);
         if (allSpectra != null) {
             SpectrumChooser.allSpectra = allSpectra;
         } else {
-            SpectrumChooser.allSpectra = new ArrayList<SpectrumInDisplay>();
+            SpectrumChooser.allSpectra = new ArrayList<DisplayableSpectrum>();
         }
         initUI();
         setSelectedSpectra(selectedSpectra);
     }
 
-    private void setSelectedSpectra(List<SpectrumInDisplay> selectedSpectra) {
+    private void setSelectedSpectra(List<DisplayableSpectrum> selectedSpectra) {
         for (int i = 0; i < allSpectra.size(); i++) {
-            SpectrumInDisplay spectrumInDisplay = allSpectra.get(i);
+            DisplayableSpectrum spectrumInDisplay = allSpectra.get(i);
             spectrumTableModel.setValueAt(selectedSpectra.contains(spectrumInDisplay), i, spectrumSelectedIndex);
         }
     }
@@ -125,8 +125,8 @@ public class SpectrumChooser extends ModalDialog {
 
     }
 
-    public List<SpectrumInDisplay> getSelectedSpectra() {
-        List<SpectrumInDisplay> selectedSpectra = new ArrayList<SpectrumInDisplay>();
+    public List<DisplayableSpectrum> getSelectedSpectra() {
+        List<DisplayableSpectrum> selectedSpectra = new ArrayList<DisplayableSpectrum>();
         for (int i = 0; i < spectrumTableModel.getRowCount(); i++) {
             if ((Boolean) spectrumTableModel.getValueAt(i, spectrumSelectedIndex)) {
                 selectedSpectra.add(allSpectra.get(i));
@@ -147,12 +147,12 @@ public class SpectrumChooser extends ModalDialog {
         for (int i = 0; i < bands.length; i++) {
             bands[i] = createBand(i);
         }
-        SpectrumInDisplay spectrum = new SpectrumInDisplay(name, bands);
-        final List<SpectrumInDisplay> spectra = new ArrayList<SpectrumInDisplay>();
+        DisplayableSpectrum spectrum = new DisplayableSpectrum(name, bands);
+        final List<DisplayableSpectrum> spectra = new ArrayList<DisplayableSpectrum>();
         spectra.add(spectrum);
         final JFrame frame = new JFrame();
         frame.setSize(new Dimension(100, 100));
-        JButton button = new JButton("Choose SpectrumImpl");
+        JButton button = new JButton("Choose Spectrum");
         button.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -177,7 +177,7 @@ public class SpectrumChooser extends ModalDialog {
 
     static class SpectrumTableModel extends DefaultTableModel implements HierarchicalTableModel {
 
-        private final static String[] spectraColumns = new String[]{"", "SpectrumImpl name", "Line style", "Symbol"};
+        private final static String[] spectraColumns = new String[]{"", "Spectrum name", "Line style", "Symbol"};
         private final Class[] COLUMN_CLASSES = {
                 Boolean.class,
                 String.class,
@@ -185,19 +185,19 @@ public class SpectrumChooser extends ModalDialog {
                 ImageIcon.class,
         };
         private final String[] bandColumns = new String[]{"", "Band name", "Band description", "Spectral wavelength (nm)", "Spectral bandwidth (nm)"};
-        private final Map<SpectrumInDisplay, BandTableModel> spectrumToModel;
+        private final Map<DisplayableSpectrum, BandTableModel> spectrumToModel;
 
-        public SpectrumTableModel(List<SpectrumInDisplay> allSpectra) {
+        public SpectrumTableModel(List<DisplayableSpectrum> allSpectra) {
             super(spectraColumns, 0);
-            spectrumToModel = new HashMap<SpectrumInDisplay, BandTableModel>();
-            for (SpectrumInDisplay spectrum : allSpectra) {
+            spectrumToModel = new HashMap<DisplayableSpectrum, BandTableModel>();
+            for (DisplayableSpectrum spectrum : allSpectra) {
                 addRow(spectrum);
             }
         }
 
         @Override
         public Object getChildValueAt(final int row) {
-            SpectrumInDisplay spectrum = allSpectra.get(row);
+            DisplayableSpectrum spectrum = allSpectra.get(row);
             if (spectrumToModel.containsKey(spectrum)) {
                 return spectrumToModel.get(spectrum);
             }
@@ -218,7 +218,7 @@ public class SpectrumChooser extends ModalDialog {
                 public void tableChanged(TableModelEvent e) {
                     e.getSource();
                     if (e.getColumn() == bandSelectedIndex) {
-                        final SpectrumInDisplay spectrum = allSpectra.get(row);
+                        final DisplayableSpectrum spectrum = allSpectra.get(row);
                         spectrum.setBandSelected(e.getFirstRow(), (Boolean) bandTableModel.getValueAt(e.getFirstRow(), e.getColumn()));
                     }
                 }
@@ -226,7 +226,7 @@ public class SpectrumChooser extends ModalDialog {
             return bandTableModel;
         }
 
-        private void addRow(SpectrumInDisplay spectrum) {
+        private void addRow(DisplayableSpectrum spectrum) {
             final ImageIcon strokeIcon = SpectrumConstants.strokeIcons[getRowCount() % SpectrumConstants.strokeIcons.length];
             final ImageIcon shapeIcon = SpectrumConstants.shapeIcons[getRowCount() % SpectrumConstants.shapeIcons.length];
             spectrum.setLineStyle(SpectrumConstants.strokes[ArrayUtils.getElementIndex(strokeIcon, SpectrumConstants.strokeIcons)]);

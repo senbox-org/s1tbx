@@ -4,15 +4,10 @@ import org.esa.beam.framework.datamodel.Band;
 
 public interface Spectrum {
 
+    String getName();
 
-    public String getName();
+    Band[] getSpectralBands();
 
-    public void setName(String name);
-
-    public Band[] getSpectralBands();
-
-    public void addBand(Band spectralBand);
-
-    public boolean hasBands();
+    boolean hasBands();
 
 }

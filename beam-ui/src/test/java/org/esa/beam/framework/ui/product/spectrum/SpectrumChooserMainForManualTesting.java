@@ -25,8 +25,8 @@ public class SpectrumChooserMainForManualTesting {
         for (int i = 0; i < bands.length; i++) {
             bands[i] = createBand(i);
         }
-        SpectrumInDisplay spectrum = new SpectrumInDisplay(name, bands);
-        final List<SpectrumInDisplay> spectra = new ArrayList<SpectrumInDisplay>();
+        DisplayableSpectrum spectrum = new DisplayableSpectrum(name, bands);
+        final List<DisplayableSpectrum> spectra = new ArrayList<DisplayableSpectrum>();
         spectra.add(spectrum);
         final JFrame frame = new JFrame();
         frame.setSize(new Dimension(100, 100));

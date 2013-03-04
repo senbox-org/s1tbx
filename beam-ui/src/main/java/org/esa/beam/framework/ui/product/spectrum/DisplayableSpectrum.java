@@ -7,7 +7,7 @@ import java.awt.Stroke;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SpectrumInDisplay implements Spectrum {
+public class DisplayableSpectrum implements Spectrum {
 
     private List<Band> bands;
     private List<Boolean> areBandsSelected;
@@ -15,11 +15,11 @@ public class SpectrumInDisplay implements Spectrum {
     private Stroke lineStyle;
     private Shape Symbol;
 
-    public SpectrumInDisplay(String spectrumName) {
+    public DisplayableSpectrum(String spectrumName) {
         this(spectrumName, new Band[]{});
     }
 
-    public SpectrumInDisplay(String spectrumName, Band[] spectralBands) {
+    public DisplayableSpectrum(String spectrumName, Band[] spectralBands) {
         this.name = spectrumName;
         bands = new ArrayList<Band>(spectralBands.length);
         areBandsSelected = new ArrayList<Boolean>();
@@ -42,7 +42,6 @@ public class SpectrumInDisplay implements Spectrum {
         return name;
     }
 
-    @Override
     public void setName(String name) {
         this.name = name;
     }

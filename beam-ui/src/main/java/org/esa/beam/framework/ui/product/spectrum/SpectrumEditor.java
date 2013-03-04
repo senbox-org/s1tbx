@@ -43,9 +43,8 @@ public class SpectrumEditor extends ModalDialog {
     private SpectrumListModel availableSpectraListModel;
     private SpectrumListModel selectedSpectraListModel;
     private JTextField patternField;
-    private SpectrumImpl spectrum;
+    private Spectrum spectrum;
     private JTextField nameField;
-    private JTextField descriptionField;
     private JRadioButton patternButton;
     private Map<String, Band> availableBandsMap;
     private String[] alreadyDefinedSpectrumNames;
@@ -56,7 +55,7 @@ public class SpectrumEditor extends ModalDialog {
     }
 
     public SpectrumEditor(Window parent, String title, String helpID, Band[] availableSpectralBands,
-                          SpectrumImpl spectrum, String[] alreadyDefinedSpectrumNames) {
+                          Spectrum spectrum, String[] alreadyDefinedSpectrumNames) {
         super(parent, title, ModalDialog.ID_OK_CANCEL, helpID);
         availableBandsMap = new HashMap<String, Band>();
         for (Band availableSpectralBand : availableSpectralBands) {
@@ -100,11 +99,8 @@ public class SpectrumEditor extends ModalDialog {
     private boolean isInSpectrum(Band availableSpectralBand) {
         if (spectrum == null) {
             return false;
-        } else if (StringUtils.isNotNullAndNotEmpty(spectrum.getNamePattern())) {
-            return availableSpectralBand.getName().contains(spectrum.getNamePattern());
-        } else {
-            return ArrayUtils.isMemberOf(availableSpectralBand, spectrum.getSpectralBands());
         }
+        return ArrayUtils.isMemberOf(availableSpectralBand, spectrum.getSpectralBands());
     }
 
     private String createBandDisplayName(Band band) {
@@ -134,16 +130,9 @@ public class SpectrumEditor extends ModalDialog {
         } else {
             nameField.setText(createDefaultSpectrumName());
         }
-        descriptionField = new JTextField();
-        descriptionField.setPreferredSize(textFieldDimension);
-        if (spectrum != null) {
-            descriptionField.setText(spectrum.getDescription());
-        }
         patternField = new JTextField();
         patternField.setPreferredSize(textFieldDimension);
-        if (spectrum != null) {
-            patternField.setText(spectrum.getNamePattern());
-        }
+        patternField.setText("");
         patternField.getDocument().addDocumentListener(new DocumentListener() {
             @Override
             public void insertUpdate(DocumentEvent e) {
@@ -165,11 +154,7 @@ public class SpectrumEditor extends ModalDialog {
         ButtonGroup radioGroup = new ButtonGroup();
         radioGroup.add(patternButton);
         radioGroup.add(manualButton);
-        if (spectrum == null || StringUtils.isNotNullAndNotEmpty(spectrum.getNamePattern())) {
-            patternButton.setSelected(true);
-        } else {
-            manualButton.setSelected(true);
-        }
+        manualButton.setSelected(true);
         final JPanel bandAssignmentPanel = createBandAssignmentPanel();
         patternButton.addActionListener(new ActionListener() {
             @Override
@@ -187,12 +172,10 @@ public class SpectrumEditor extends ModalDialog {
         GridBagUtils.addToPanel(content, new JLabel("Name:"), gbc, "gridx=0, gridy=0, anchor=NORTHWEST, fill=NONE, " +
                 "weightx=0.0,gridwidth=1, weighty=0.0, insets=2");
         GridBagUtils.addToPanel(content, nameField, gbc, "gridx=1, fill=HORIZONTAL, weightx=1.0");
-        GridBagUtils.addToPanel(content, new JLabel("Description:"), gbc, "gridx=0, gridy=1, fill=NONE, weightx=0.0");
-        GridBagUtils.addToPanel(content, descriptionField, gbc, "gridx=1, fill=HORIZONTAL, weightx=1.0");
-        GridBagUtils.addToPanel(content, patternButton, gbc, "gridx=0, gridy=2, weightx=1.0, gridwidth=2");
-        GridBagUtils.addToPanel(content, patternField, gbc, "gridy=3");
-        GridBagUtils.addToPanel(content, manualButton, gbc, "gridy=4");
-        GridBagUtils.addToPanel(content, bandAssignmentPanel, gbc, "gridy=5, fill=BOTH, weighty=1.0");
+        GridBagUtils.addToPanel(content, patternButton, gbc, "gridx=0, gridy=1, weightx=1.0, gridwidth=2");
+        GridBagUtils.addToPanel(content, patternField, gbc, "gridy=2");
+        GridBagUtils.addToPanel(content, manualButton, gbc, "gridy=3");
+        GridBagUtils.addToPanel(content, bandAssignmentPanel, gbc, "gridy=4, fill=BOTH, weighty=1.0");
         content.setMinimumSize(content.getPreferredSize());
         setContent(content);
         content.validate();
@@ -200,7 +183,7 @@ public class SpectrumEditor extends ModalDialog {
 
     private String createDefaultSpectrumName() {
         int spectrumNumber = 1;
-        StringBuilder builder = new StringBuilder("SpectrumImpl ");
+        StringBuilder builder = new StringBuilder("Spectrum ");
         builder.append(spectrumNumber++);
         while (ArrayUtils.isMemberOf(builder.toString(), alreadyDefinedSpectrumNames)) {
             builder.delete(9, builder.length());
@@ -314,17 +297,13 @@ public class SpectrumEditor extends ModalDialog {
         return ToolButtonFactory.createButton(UIUtils.loadImageIcon(iconPath), false);
     }
 
-    public SpectrumImpl getSpectrum() {
+    public Spectrum getSpectrum() {
         final List<String> selectedElements = selectedSpectraListModel.getAllElements();
         Band[] selectedBands = new Band[selectedElements.size()];
         for (int i = 0; i < selectedBands.length; i++) {
             selectedBands[i] = availableBandsMap.get(selectedElements.get(i));
         }
-        if (patternButton.isSelected()) {
-            return new SpectrumImpl(nameField.getText(), descriptionField.getText(), patternField.getText(), selectedBands);
-        } else {
-            return new SpectrumImpl(nameField.getText(), descriptionField.getText(), selectedBands);
-        }
+        return new DisplayableSpectrum(nameField.getName(), selectedBands);
     }
 
     @Override
