@@ -16,8 +16,7 @@
 package org.esa.beam.visat.toolviews.spectrum;
 
 import com.bc.ceres.glevel.MultiLevelModel;
-import com.bc.ceres.swing.figure.Figure;
-import com.bc.ceres.swing.figure.FigureCollection;
+import com.bc.ceres.swing.figure.support.DefaultFigureStyle;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.DataNode;
 import org.esa.beam.framework.datamodel.Placemark;
@@ -43,7 +42,6 @@ import org.esa.beam.util.ProductUtils;
 import org.esa.beam.visat.VisatApp;
 import org.esa.beam.visat.toolviews.nav.CursorSynchronizer;
 import org.esa.beam.visat.toolviews.stat.XYPlotMarker;
-import org.geotools.referencing.operation.matrix.AffineTransform2D;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -682,16 +680,12 @@ public class SpectrumToolView extends AbstractToolView {
         }
 
         private Color getPinColor(Placemark pin) {
-            final FigureCollection figureCollection = getCurrentView().getFigureEditor().getFigureCollection();
-            Point2D pinPoint = new Point2D.Double(pin.getPixelPos().getX(), pin.getPixelPos().getY());
-            final Figure pinFigure = figureCollection.getFigure(pinPoint, new AffineTransform2D());
-            Color pinColor;
-            if (pinFigure != null) {
-                pinColor = pinFigure.getEffectiveStyle().getFillColor();
+            final String styleCss = pin.getStyleCss();
+            if (styleCss.contains(DefaultFigureStyle.FILL_COLOR.getName())) {
+                return DefaultFigureStyle.createFromCss(styleCss).getFillColor();
             } else {
-                pinColor = figureCollection.getEffectiveStyle().getFillColor();
+                return Color.BLUE;
             }
-            return pinColor;
         }
 
         private void updateRenderer(int seriesOffset, Color seriesColor, DisplayableSpectrum spectrum) {
