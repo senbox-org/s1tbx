@@ -170,10 +170,16 @@ public final class AggregatorOnMaxSetWithMask extends AbstractAggregator {
 
         @Override
         public String[] getVarNames() {
-            String[] varNames = new String[setNames.length + 2];
+            int varNameLength = 2;
+            if (setNames != null) {
+                varNameLength += setNames.length;
+            }
+            String[] varNames = new String[varNameLength];
             varNames[0] = onMaxName;
             varNames[1] = maskName;
-            System.arraycopy(setNames, 0, varNames, 2, setNames.length);
+            if (setNames != null) {
+                System.arraycopy(setNames, 0, varNames, 2, setNames.length);
+            }
             return varNames;
         }
     }
