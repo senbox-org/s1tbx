@@ -49,17 +49,17 @@ public class TemporalBinTest {
         tbin = bman.createTemporalBin(0);
 
         sbin = bman.createSpatialBin(0);
-        bman.aggregateSpatialBin(new ObservationImpl(0.0, 0.0, 0.2f, 4.0f, 4.0f), sbin);
+        bman.aggregateSpatialBin(new ObservationImpl(0.0, 0.0, 0.0, 0.2f, 4.0f, 4.0f), sbin);
         bman.completeSpatialBin(sbin);
         bman.aggregateTemporalBin(sbin, tbin);
 
         sbin = bman.createSpatialBin(0);
-        bman.aggregateSpatialBin(new ObservationImpl(0.0, 0.0, 0.6f, 2.0f, 2.0f), sbin);
+        bman.aggregateSpatialBin(new ObservationImpl(0.0, 0.0, 0.0, 0.6f, 2.0f, 2.0f), sbin);
         bman.completeSpatialBin(sbin);
         bman.aggregateTemporalBin(sbin, tbin);
 
         sbin = bman.createSpatialBin(0);
-        bman.aggregateSpatialBin(new ObservationImpl(0.0, 0.0, 0.4f, 6.0f, 6.0f), sbin);
+        bman.aggregateSpatialBin(new ObservationImpl(0.0, 0.0, 0.0, 0.4f, 6.0f, 6.0f), sbin);
         bman.completeSpatialBin(sbin);
         bman.aggregateTemporalBin(sbin, tbin);
 

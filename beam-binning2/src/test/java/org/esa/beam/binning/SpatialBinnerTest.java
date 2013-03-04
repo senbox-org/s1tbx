@@ -31,16 +31,16 @@ public class SpatialBinnerTest {
         MySpatialBinConsumer mySpatialBinProcessor = new MySpatialBinConsumer(binManager);
         SpatialBinner spatialBinner = new SpatialBinner(binningContext, mySpatialBinProcessor);
 
-        spatialBinner.processObservationSlice(new ObservationImpl(0, 1.1, 1.1f),
-                                              new ObservationImpl(0, 1.1, 1.2f),
-                                              new ObservationImpl(0, 2.1, 1.3f),
-                                              new ObservationImpl(0, 2.1, 1.4f));
+        spatialBinner.processObservationSlice(new ObservationImpl(0, 1.1, 0, 1.1f),
+                                              new ObservationImpl(0, 1.1, 0, 1.2f),
+                                              new ObservationImpl(0, 2.1, 0, 1.3f),
+                                              new ObservationImpl(0, 2.1, 0, 1.4f));
 
-        spatialBinner.processObservationSlice(new ObservationImpl(0, 1.1, 2.1f),
-                                              new ObservationImpl(0, 2.1, 2.2f),
-                                              new ObservationImpl(0, 2.1, 2.3f),
-                                              new ObservationImpl(0, 2.1, 2.4f),
-                                              new ObservationImpl(0, 3.1, 2.5f));
+        spatialBinner.processObservationSlice(new ObservationImpl(0, 1.1, 0, 2.1f),
+                                              new ObservationImpl(0, 2.1, 0, 2.2f),
+                                              new ObservationImpl(0, 2.1, 0, 2.3f),
+                                              new ObservationImpl(0, 2.1, 0, 2.4f),
+                                              new ObservationImpl(0, 3.1, 0, 2.5f));
 
         spatialBinner.complete();
 
@@ -110,7 +110,7 @@ public class SpatialBinnerTest {
                 double[] srcPts = new double[]{lat, lon};
                 double[] dstPts = new double[2];
                 at.transform(srcPts, 0, dstPts, 0, 1);
-                pixelSlices[j][i] = new ObservationImpl(dstPts[0], dstPts[1]);
+                pixelSlices[j][i] = new ObservationImpl(dstPts[0], dstPts[1], 0.0, 0.0f);
             }
         }
 

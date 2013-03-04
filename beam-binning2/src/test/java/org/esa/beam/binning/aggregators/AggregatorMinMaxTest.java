@@ -24,6 +24,7 @@ import org.junit.Test;
 
 import static java.lang.Float.NaN;
 import static org.esa.beam.binning.aggregators.AggregatorTestUtils.createCtx;
+import static org.esa.beam.binning.aggregators.AggregatorTestUtils.obsNT;
 import static org.esa.beam.binning.aggregators.AggregatorTestUtils.vec;
 import static org.junit.Assert.assertEquals;
 
@@ -67,10 +68,10 @@ public class AggregatorMinMaxTest {
         assertEquals(Float.POSITIVE_INFINITY, svec.get(0), 0.0f);
         assertEquals(Float.NEGATIVE_INFINITY, svec.get(1), 0.0f);
 
-        agg.aggregateSpatial(ctx, vec(7.3f), svec);
-        agg.aggregateSpatial(ctx, vec(5.5f), svec);
-        agg.aggregateSpatial(ctx, vec(-0.1f), svec);
-        agg.aggregateSpatial(ctx, vec(2.0f), svec);
+        agg.aggregateSpatial(ctx, obsNT(7.3f), svec);
+        agg.aggregateSpatial(ctx, obsNT(5.5f), svec);
+        agg.aggregateSpatial(ctx, obsNT(-0.1f), svec);
+        agg.aggregateSpatial(ctx, obsNT(2.0f), svec);
         assertEquals(-0.1f, svec.get(0), 1e-5f);
         assertEquals(7.3f, svec.get(1), 1e-5f);
 

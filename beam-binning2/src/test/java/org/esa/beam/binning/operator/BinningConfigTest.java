@@ -112,7 +112,7 @@ public class BinningConfigTest {
         assertEquals(-999.0F, binManager.getAggregator(3).getOutputFillValue(), 1E-05F);
 
         assertEquals(AggregatorOnMaxSet.class, binManager.getAggregator(4).getClass());
-        assertArrayEquals(new String[]{"ndvi_max", "reflec_3", "reflec_7", "reflec_8"}, binManager.getAggregator(4).getOutputFeatureNames());
+        assertArrayEquals(new String[]{"ndvi_max", "ndvi_mjd", "reflec_3", "reflec_7", "reflec_8"}, binManager.getAggregator(4).getOutputFeatureNames());
         assertTrue(Float.isNaN(binManager.getAggregator(4).getOutputFillValue()));
 
         assertEquals(AggregatorMinMax.class, binManager.getAggregator(5).getClass());

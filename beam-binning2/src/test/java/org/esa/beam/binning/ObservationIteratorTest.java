@@ -1,6 +1,7 @@
 package org.esa.beam.binning;
 
 import org.esa.beam.framework.datamodel.CrsGeoCoding;
+import org.esa.beam.framework.datamodel.Product;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.junit.Test;
 
@@ -25,7 +26,9 @@ public class ObservationIteratorTest {
         int height = 36;
         Raster sourceTile = Raster.createBandedRaster(DataBuffer.TYPE_INT, width, height, 1, new Point(0, 0));
         CrsGeoCoding gc = new CrsGeoCoding(DefaultGeographicCRS.WGS84, width, height, -180, 90, 10.0, 10.0);
-        ObservationIterator iterator = ObservationIterator.create(new Raster[]{sourceTile}, gc,
+        Product product = new Product("name", "desc", width, height);
+        product.setGeoCoding(gc);
+        ObservationIterator iterator = ObservationIterator.create(new Raster[]{sourceTile}, product,
                                                                   null, new float[]{0.5f});
 
         assertTrue(iterator.hasNext());
@@ -41,7 +44,9 @@ public class ObservationIteratorTest {
         int height = 10;
         Raster[] sourceRasters = createSourceRasters(width, height);
         CrsGeoCoding gc = new CrsGeoCoding(DefaultGeographicCRS.WGS84, width, height, -180, 90, 10.0, 10.0);
-        ObservationIterator iterator = ObservationIterator.create(sourceRasters, gc,
+        Product product = new Product("name", "desc", width, height);
+        product.setGeoCoding(gc);
+        ObservationIterator iterator = ObservationIterator.create(sourceRasters, product,
                                                                   null, new float[]{0.5f});
 
         assertTrue(iterator.hasNext());
@@ -81,7 +86,9 @@ public class ObservationIteratorTest {
         }
         maskTile.setPixels(0, 0, width, height, maskData);
         CrsGeoCoding gc = new CrsGeoCoding(DefaultGeographicCRS.WGS84, width, height, -180, 90, 10.0, 10.0);
-        ObservationIterator iterator = ObservationIterator.create(sourceRasters, gc,
+        Product product = new Product("name", "desc", width, height);
+        product.setGeoCoding(gc);
+        ObservationIterator iterator = ObservationIterator.create(sourceRasters, product,
                                                                   maskTile, new float[]{0.5f});
 
         assertTrue(iterator.hasNext());
@@ -110,8 +117,9 @@ public class ObservationIteratorTest {
         int height = 3;
         Raster[] sourceRasters = createSourceRasters(width, height);
         CrsGeoCoding gc = new CrsGeoCoding(DefaultGeographicCRS.WGS84, width, height, -180, 90, 10.0, 10.0);
-
-        ObservationIterator iterator = ObservationIterator.create(sourceRasters, gc,
+        Product product = new Product("name", "desc", width, height);
+        product.setGeoCoding(gc);
+        ObservationIterator iterator = ObservationIterator.create(sourceRasters, product,
                                                                   null, new float[]{0.25f, 0.75f});
 
         Observation observation = iterate(iterator, 16);
@@ -138,7 +146,7 @@ public class ObservationIteratorTest {
         WritableRaster sourceTile = Raster.createBandedRaster(DataBuffer.TYPE_INT, width, height, 1, new Point(0, 0));
         int[] sourceData = new int[width * height];
         for (int i = 0; i < sourceData.length; i++) {
-            sourceData[i] = i+1;
+            sourceData[i] = i + 1;
         }
         sourceTile.setPixels(0, 0, width, height, sourceData);
         return new Raster[]{sourceTile};

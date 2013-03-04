@@ -17,6 +17,8 @@
 package org.esa.beam.binning.aggregators;
 
 import org.esa.beam.binning.BinContext;
+import org.esa.beam.binning.Observation;
+import org.esa.beam.binning.support.ObservationImpl;
 import org.esa.beam.binning.support.VectorImpl;
 
 import java.util.HashMap;
@@ -25,6 +27,14 @@ public class AggregatorTestUtils {
 
     public static VectorImpl vec(float... values) {
         return new VectorImpl(values);
+    }
+
+    public static Observation obs(double mjd, float... values) {
+        return new ObservationImpl(0.0, 0.0, mjd, values);
+    }
+
+    public static Observation obsNT(float... values) {
+        return new ObservationImpl(0.0, 0.0, 0.0, values);
     }
 
     public static BinContext createCtx() {

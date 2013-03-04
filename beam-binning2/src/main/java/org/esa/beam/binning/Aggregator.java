@@ -28,7 +28,7 @@ package org.esa.beam.binning;
  * A. Spatial binning: For each bin found in a single observation (swath).
  * <ol>
  * <li>{@link #initSpatial(BinContext, WritableVector)}</li>
- * <li>For each contributing measurement: {@link #aggregateSpatial(BinContext, Vector, WritableVector)}</li>
+ * <li>For each contributing measurement: {@link #aggregateSpatial(BinContext, Observation, WritableVector)}</li>
  * <li>{@link #completeSpatial(BinContext, int, WritableVector)}</li>
  * </ol>
  * <p/>
@@ -93,7 +93,7 @@ public interface Aggregator {
      * @param observationVector The observation.
      * @param spatialVector     The spatial aggregation vector to update.
      */
-    void aggregateSpatial(BinContext ctx, Vector observationVector, WritableVector spatialVector);
+    void aggregateSpatial(BinContext ctx, Observation observationVector, WritableVector spatialVector);
 
     /**
      * Informs this aggregation instance that no more measurements will be added to the spatial vector.

@@ -1,7 +1,5 @@
 package org.esa.beam.binning.support;
 
-import com.bc.ceres.core.Assert;
-import com.bc.ceres.glevel.MultiLevelImage;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
@@ -14,7 +12,6 @@ import org.esa.beam.gpf.operators.standard.reproject.ReprojectionOp;
 import org.esa.beam.util.ProductUtils;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 
-import javax.media.jai.PlanarImage;
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.geom.GeneralPath;
@@ -160,7 +157,11 @@ public class PlateCarreeGrid implements PlanetaryGrid {
         repro.setParameter("height", height);
 
         repro.setSourceProduct(sourceProduct);
-        return repro.getTargetProduct();
+        Product targetProduct = repro.getTargetProduct();
+        // reprojected products lack time information
+        targetProduct.setStartTime(sourceProduct.getStartTime());
+        targetProduct.setEndTime(sourceProduct.getEndTime());
+        return targetProduct;
     }
 
 

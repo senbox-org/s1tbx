@@ -27,6 +27,7 @@ import static java.lang.Math.log;
 import static java.lang.Math.sqrt;
 import static org.esa.beam.binning.aggregators.AggregatorTestUtils.createCtx;
 import static org.esa.beam.binning.aggregators.AggregatorTestUtils.vec;
+import static org.esa.beam.binning.aggregators.AggregatorTestUtils.obsNT;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -76,9 +77,9 @@ public class AggregatorAverageMLTest {
         assertEquals(0.0f, svec.get(0), 0.0f);
         assertEquals(0.0f, svec.get(1), 0.0f);
 
-        agg.aggregateSpatial(ctx, vec(1.5f), svec);
-        agg.aggregateSpatial(ctx, vec(2.5f), svec);
-        agg.aggregateSpatial(ctx, vec(0.5f), svec);
+        agg.aggregateSpatial(ctx, obsNT(1.5f), svec);
+        agg.aggregateSpatial(ctx, obsNT(2.5f), svec);
+        agg.aggregateSpatial(ctx, obsNT(0.5f), svec);
         assertEquals(log(1.5f) + log(2.5f) + log(0.5f), svec.get(0), 1e-5);
         assertEquals(log(1.5f) * log(1.5f) + log(2.5f) * log(2.5f) + log(0.5f) * log(0.5f), svec.get(1), 1e-5f);
 

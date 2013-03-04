@@ -4,6 +4,9 @@ import org.esa.beam.binning.support.ObservationImpl;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.PixelPos;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.util.ProductUtils;
 
 import java.awt.geom.Point2D;
 import java.awt.image.Raster;
@@ -23,8 +26,9 @@ abstract class ObservationIterator implements Iterator<Observation> {
     private boolean nextValid;
     private SamplePointer pointer;
     private final GeoCoding gc;
+    private final Product product;
 
-    public static ObservationIterator create(Raster[] sourceTiles, GeoCoding gc, Raster maskTile,
+    public static ObservationIterator create(Raster[] sourceTiles, Product product, Raster maskTile,
                                              float[] superSamplingSteps) {
 
         SamplePointer pointer;
@@ -35,15 +39,20 @@ abstract class ObservationIterator implements Iterator<Observation> {
             pointer = SamplePointer.create(sourceTiles, sourceTiles[0].getBounds(), superSamplingPoints);
         }
         if (maskTile == null) {
-            return new NoMaskObservationIterator(gc, pointer);
+            return new NoMaskObservationIterator(product, pointer);
         } else {
-            return new FullObservationIterator(gc, pointer, maskTile);
+            return new FullObservationIterator(product, pointer, maskTile);
         }
     }
 
-    protected ObservationIterator(GeoCoding gc, SamplePointer pointer) {
+    protected ObservationIterator(Product product, SamplePointer pointer) {
         this.pointer = pointer;
-        this.gc = gc;
+        if (product.getStartTime() != null || product.getEndTime() != null) {
+            this.product = product;
+        } else {
+            this.product = null;
+        }
+        this.gc = product.getGeoCoding();
     }
 
     public final SamplePointer getPointer() {
@@ -85,11 +94,19 @@ abstract class ObservationIterator implements Iterator<Observation> {
     protected Observation createObservation(int x, int y) {
         SamplePointer pointer = getPointer();
         final float[] samples = pointer.createSamples();
+
         Point2D.Float superSamplingPoint = pointer.getSuperSamplingPoint();
         final PixelPos pixelPos = new PixelPos();
         pixelPos.setLocation(x + superSamplingPoint.x, y + superSamplingPoint.y);
         final GeoPos geoPos = getGeoPos(pixelPos);
-        return new ObservationImpl(geoPos.lat, geoPos.lon, samples);
+
+        double mjd = 0.0;
+        if (product != null) {
+            ProductData.UTC scanLineTime = ProductUtils.getScanLineTime(product, y + 0.5);
+            mjd = scanLineTime.getMJD();
+        }
+
+        return new ObservationImpl(geoPos.lat, geoPos.lon, mjd, samples);
     }
 
     protected GeoPos getGeoPos(PixelPos pixelPos) {
@@ -103,8 +120,8 @@ abstract class ObservationIterator implements Iterator<Observation> {
         private final Raster maskTile;
 
 
-        FullObservationIterator(GeoCoding gc, SamplePointer pointer, Raster maskTile) {
-            super(gc, pointer);
+        FullObservationIterator(Product product, SamplePointer pointer, Raster maskTile) {
+            super(product, pointer);
             this.maskTile = maskTile;
         }
 
@@ -130,8 +147,8 @@ abstract class ObservationIterator implements Iterator<Observation> {
     static class NoMaskObservationIterator extends ObservationIterator {
 
 
-        NoMaskObservationIterator(GeoCoding gc, SamplePointer pointer) {
-            super(gc, pointer);
+        NoMaskObservationIterator(Product product, SamplePointer pointer) {
+            super(product, pointer);
         }
 
         @Override

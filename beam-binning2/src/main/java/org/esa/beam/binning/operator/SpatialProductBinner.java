@@ -25,7 +25,6 @@ import org.esa.beam.binning.SpatialBinner;
 import org.esa.beam.binning.VariableContext;
 import org.esa.beam.binning.support.PlateCarreeGrid;
 import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.RasterDataNode;
@@ -106,7 +105,7 @@ public class SpatialProductBinner {
             StopWatch stopWatch = new StopWatch();
             stopWatch.start();
             numObsTotal += processSlice(spatialBinner, progressMonitor, superSamplingSteps, maskImage, varImages,
-                                        product.getGeoCoding(), sliceRectangles[idx]);
+                                        product, sliceRectangles[idx]);
             stopWatch.stopAndTrace(String.format("Processed slice %d of %d", idx, sliceRectangles.length));
         }
         spatialBinner.complete();
@@ -182,14 +181,14 @@ public class SpatialProductBinner {
 
     private static long processSlice(SpatialBinner spatialBinner, ProgressMonitor progressMonitor,
                                      float[] superSamplingSteps, MultiLevelImage maskImage, MultiLevelImage[] varImages,
-                                     GeoCoding geoCoding, Rectangle sliceRect) {
+                                     Product product, Rectangle sliceRect) {
         final Raster maskTile = maskImage != null ? maskImage.getData(sliceRect) : null;
         final Raster[] varTiles = new Raster[varImages.length];
         for (int i = 0; i < varImages.length; i++) {
             varTiles[i] = varImages[i].getData(sliceRect);
         }
 
-        final ObservationSlice observationSlice = new ObservationSlice(varTiles, maskTile, geoCoding,
+        final ObservationSlice observationSlice = new ObservationSlice(varTiles, maskTile, product,
                                                                        superSamplingSteps);
         long numObservations = spatialBinner.processObservationSlice(observationSlice);
         progressMonitor.worked(1);

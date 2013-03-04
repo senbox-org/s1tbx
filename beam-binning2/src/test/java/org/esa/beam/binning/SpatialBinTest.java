@@ -40,9 +40,9 @@ public class SpatialBinTest {
 
         SpatialBin bin = bman.createSpatialBin(0);
 
-        bman.aggregateSpatialBin(new ObservationImpl(0.0, 0.0, new float[]{0.2f, 4.0f, 4.0f}), bin);
-        bman.aggregateSpatialBin(new ObservationImpl(0.0, 0.0, new float[]{0.6f, 2.0f, 2.0f}), bin);
-        bman.aggregateSpatialBin(new ObservationImpl(0.0, 0.0, new float[]{0.4f, 6.0f, 6.0f}), bin);
+        bman.aggregateSpatialBin(new ObservationImpl(0.0, 0.0, 0.0, new float[]{0.2f, 4.0f, 4.0f}), bin);
+        bman.aggregateSpatialBin(new ObservationImpl(0.0, 0.0, 0.0, new float[]{0.6f, 2.0f, 2.0f}), bin);
+        bman.aggregateSpatialBin(new ObservationImpl(0.0, 0.0, 0.0, new float[]{0.4f, 6.0f, 6.0f}), bin);
 
         assertEquals(3, bin.getNumObs());
 

@@ -53,7 +53,7 @@ public class AggregatorDescriptorRegistryTest {
     public void testGetAllRegisteredAggregatorDescriptors() throws Exception {
         final AggregatorDescriptorRegistry registry = AggregatorDescriptorRegistry.getInstance();
         final AggregatorDescriptor[] aggregatorDescriptors = registry.getAggregatorDescriptors();
-        assertEquals(5, aggregatorDescriptors.length);
+        assertEquals(6, aggregatorDescriptors.length);
     }
 
     private AggregatorDescriptor assertRegistered(String name) {

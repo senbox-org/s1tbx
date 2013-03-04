@@ -56,13 +56,14 @@ public final class AggregatorOnMaxSet extends AbstractAggregator {
     }
 
     @Override
-    public void aggregateSpatial(BinContext ctx, Vector observationVector, WritableVector spatialVector) {
+    public void aggregateSpatial(BinContext ctx, Observation observationVector, WritableVector spatialVector) {
         final float value = observationVector.get(varIndexes[0]);
         final float currentMax = spatialVector.get(0);
         if (value > currentMax) {
             spatialVector.set(0, value);
+            spatialVector.set(1, (float) observationVector.getMJD());
             for (int i = 1; i < numFeatures; i++) {
-                spatialVector.set(i, observationVector.get(varIndexes[i]));
+                spatialVector.set(i + 1, observationVector.get(varIndexes[i]));
             }
         }
     }
@@ -77,7 +78,7 @@ public final class AggregatorOnMaxSet extends AbstractAggregator {
         final float currentMax = temporalVector.get(0);
         if (value > currentMax) {
             temporalVector.set(0, value);
-            for (int i = 1; i < numFeatures; i++) {
+            for (int i = 1; i < numFeatures + 1; i++) {
                 temporalVector.set(i, spatialVector.get(i));
             }
         }
@@ -89,7 +90,7 @@ public final class AggregatorOnMaxSet extends AbstractAggregator {
 
     @Override
     public void computeOutput(Vector temporalVector, WritableVector outputVector) {
-        for (int i = 0; i < numFeatures; i++) {
+        for (int i = 0; i < numFeatures + 1; i++) {
             outputVector.set(i, temporalVector.get(i));
         }
     }
@@ -111,8 +112,10 @@ public final class AggregatorOnMaxSet extends AbstractAggregator {
         if (varNames.length == 0) {
             throw new IllegalArgumentException("varNames.length == 0");
         }
-        String[] featureNames = varNames.clone();
+        String[] featureNames = new String[varNames.length + 1];
         featureNames[0] = varNames[0] + "_max";
+        featureNames[1] = varNames[0] + "_mjd";
+        System.arraycopy(varNames, 1, featureNames, 2, varNames.length - 1);
         return featureNames;
     }
 

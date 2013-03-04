@@ -54,7 +54,7 @@ public class AggregatorMinMax extends AbstractAggregator {
     }
 
     @Override
-    public void aggregateSpatial(BinContext ctx, Vector observationVector, WritableVector spatialVector) {
+    public void aggregateSpatial(BinContext ctx, Observation observationVector, WritableVector spatialVector) {
         final float value = observationVector.get(varIndex);
         spatialVector.set(0, Math.min(spatialVector.get(0), value));
         spatialVector.set(1, Math.max(spatialVector.get(1), value));
