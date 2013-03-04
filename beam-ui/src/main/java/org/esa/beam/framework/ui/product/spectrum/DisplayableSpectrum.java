@@ -14,6 +14,7 @@ public class DisplayableSpectrum implements Spectrum {
     private String name;
     private Stroke lineStyle;
     private Shape Symbol;
+    private boolean isSelected;
 
     public DisplayableSpectrum(String spectrumName) {
         this(spectrumName, new Band[]{});
@@ -27,6 +28,7 @@ public class DisplayableSpectrum implements Spectrum {
             bands.add(spectralBand);
             areBandsSelected.add(true);
         }
+        setSelected(true);
     }
 
     public void addBand(Band band) {
@@ -83,5 +85,13 @@ public class DisplayableSpectrum implements Spectrum {
 
     public void setSymbol(Shape symbol) {
         Symbol = symbol;
+    }
+
+    public void setSelected(boolean selected) {
+        isSelected = selected;
+    }
+
+    public boolean isSelected() {
+        return isSelected;
     }
 }
