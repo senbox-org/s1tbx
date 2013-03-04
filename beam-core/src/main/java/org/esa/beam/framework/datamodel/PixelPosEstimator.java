@@ -51,7 +51,7 @@ public class PixelPosEstimator {
                                               pixelDimension);
     }
 
-    public PixelPosEstimator(PixelPosEstimator pixelPosEstimator) {
+    private PixelPosEstimator(PixelPosEstimator pixelPosEstimator) {
         approximations = pixelPosEstimator.getApproximations();
     }
 
@@ -131,10 +131,7 @@ public class PixelPosEstimator {
         final Approximation[] approximations = new Approximation[rectangles.length];
         for (int i = 0; i < rectangles.length; i++) {
             final Stepping stepping = steppingFactory.createStepping(rectangles[i], MAX_POINT_COUNT_PER_TILE);
-            final Raster lonData = lonImage.getData(rectangles[i]);
-            final Raster latData = latImage.getData(rectangles[i]);
-            final Raster maskData = maskImage.getData(rectangles[i]);
-            final double[][] data = extractWarpPoints(lonData, latData, maskData, stepping);
+            final double[][] data = extractWarpPoints(lonImage, latImage, maskImage, stepping);
             final Approximation approximation = createApproximation(data, accuracy, stepping);
             if (approximation == null) {
                 return null;
@@ -198,7 +195,28 @@ public class PixelPosEstimator {
         return maxDistance;
     }
 
-    static double[][] extractWarpPoints(Raster lonData, Raster latData, Raster maskData, Stepping stepping) {
+    private static int getSample(int pixelX, int pixelY, PlanarImage image) {
+        final int x = image.getMinX() + pixelX;
+        final int y = image.getMinY() + pixelY;
+        final int tileX = image.XToTileX(x);
+        final int tileY = image.YToTileY(y);
+        final Raster data = image.getTile(tileX, tileY);
+
+        return data.getSample(x, y, 0);
+    }
+
+    private static double getSampleDouble(int pixelX, int pixelY, PlanarImage image) {
+        final int x = image.getMinX() + pixelX;
+        final int y = image.getMinY() + pixelY;
+        final int tileX = image.XToTileX(x);
+        final int tileY = image.YToTileY(y);
+        final Raster data = image.getTile(tileX, tileY);
+
+        return data.getSampleDouble(x, y, 0);
+    }
+
+    static double[][] extractWarpPoints(PlanarImage lonImage, PlanarImage latImage, PlanarImage maskImage,
+                                        Stepping stepping) {
         final int minX = stepping.getMinX();
         final int maxX = stepping.getMaxX();
         final int minY = stepping.getMinY();
@@ -222,10 +240,10 @@ public class PixelPosEstimator {
                 if (x > maxX) {
                     x = maxX;
                 }
-                final int mask = maskData.getSample(x, y, 0);
+                final int mask = getSample(x, y, maskImage);
                 if (mask != 0) {
-                    final double lat = latData.getSampleDouble(x, y, 0);
-                    final double lon = lonData.getSampleDouble(x, y, 0);
+                    final double lat = getSampleDouble(x, y, latImage);
+                    final double lon = getSampleDouble(x, y, lonImage);
                     if (lon >= -180.0 && lon <= 180.0 && lat >= -90.0 && lat <= 90.0) {
                         final double[] point = new double[4];
                         point[LAT] = lat;

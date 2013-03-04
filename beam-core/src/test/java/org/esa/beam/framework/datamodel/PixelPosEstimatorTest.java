@@ -134,20 +134,19 @@ public class PixelPosEstimatorTest {
     public void testCreateApproximation() {
         final int nx = 512;
         final int ny = 512;
-        final RenderedImage[] images = generateSwathCoordinates(nx, ny, 0.009, 0.009, new Rotator(0.0, 0.0, 265.0));
+        final PlanarImage[] images = generateSwathCoordinates(nx, ny, 0.009, 0.009, new Rotator(0.0, 0.0, 265.0));
 
-        final RenderedImage lonImage = images[0];
-        final RenderedImage latImage = images[1];
-        final RenderedImage maskImage = images[2];
+        final PlanarImage lonImage = images[0];
+        final PlanarImage latImage = images[1];
+        final PlanarImage maskImage = images[2];
         final Raster lonData = lonImage.getData();
         final Raster latData = latImage.getData();
-        final Raster maskData = maskImage.getData();
 
         final Rectangle rectangle = new Rectangle(0, 0, 512, 512);
         final PixelPosEstimator.Stepping stepping = new PixelPosEstimator.PixelSteppingFactory().createStepping(
                 rectangle, 1000);
 
-        final double[][] data = PixelPosEstimator.extractWarpPoints(lonData, latData, maskData, stepping);
+        final double[][] data = PixelPosEstimator.extractWarpPoints(lonImage, latImage, maskImage, stepping);
         final PixelPosEstimator.Approximation a = PixelPosEstimator.createApproximation(data, 0.5, stepping);
         final RationalFunctionModel fx = a.getFX();
         final RationalFunctionModel fy = a.getFY();
@@ -200,14 +199,13 @@ public class PixelPosEstimatorTest {
     public void testExtractWarpPoints() {
         final int nx = 512;
         final int ny = 512;
-        final RenderedImage[] images = generateSwathCoordinates(nx, ny, 0.009, 0.009, new Rotator(0.0, 0.0, 265.0));
+        final PlanarImage[] images = generateSwathCoordinates(nx, ny, 0.009, 0.009, new Rotator(0.0, 0.0, 265.0));
 
-        final RenderedImage lonImage = images[0];
-        final RenderedImage latImage = images[1];
-        final RenderedImage maskImage = images[2];
+        final PlanarImage lonImage = images[0];
+        final PlanarImage latImage = images[1];
+        final PlanarImage maskImage = images[2];
         final Raster lonData = lonImage.getData();
         final Raster latData = latImage.getData();
-        final Raster maskData = maskImage.getData();
 
         assertEquals(0.0, lonData.getSampleDouble(nx / 2, ny / 2, 0), 0.0);
         assertEquals(0.0, latData.getSampleDouble(nx / 2, ny / 2, 0), 0.0);
@@ -216,7 +214,7 @@ public class PixelPosEstimatorTest {
         final PixelPosEstimator.Stepping stepping = new PixelPosEstimator.PixelSteppingFactory().createStepping(
                 rectangle, 1000);
 
-        final double[][] data = PixelPosEstimator.extractWarpPoints(lonData, latData, maskData, stepping);
+        final double[][] data = PixelPosEstimator.extractWarpPoints(lonImage, latImage, maskImage, stepping);
         assertEquals(stepping.getPointCount(), data.length);
 
         final double[] upperLeft = data[0];
