@@ -808,11 +808,11 @@ public class PlacemarkManagerToolView extends AbstractToolView {
 
     private void updateFigureStyle(Placemark placemark) {
         final Point2D.Double pinPoint = new Point2D.Double(placemark.getPixelPos().getX(), placemark.getPixelPos().getY());
-        final Figure pinFigure = getSceneView().getFigureEditor().getFigureCollection().getFigure(pinPoint, new AffineTransform());
         final FigureStyle pinStyle = DefaultFigureStyle.createFromCss(placemark.getStyleCss());
-        final FigureStyle figureStyle = pinFigure.getNormalStyle();
-        figureStyle.setValue(DefaultFigureStyle.FILL_COLOR.getName(), pinStyle.getFillColor());
-        pinFigure.setNormalStyle(figureStyle);
+        final Figure pinFigure = getSceneView().getFigureEditor().getFigureCollection().getFigure(pinPoint, new AffineTransform());
+        if (pinFigure != null) {
+            pinFigure.getNormalStyle().setValue(DefaultFigureStyle.FILL_COLOR.getName(), pinStyle.getFillColor());
+        }
     }
 
     private class PlacemarkListener implements ProductNodeListener {
