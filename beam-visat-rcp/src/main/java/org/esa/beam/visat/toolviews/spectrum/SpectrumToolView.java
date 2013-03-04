@@ -104,6 +104,7 @@ public class SpectrumToolView extends AbstractToolView {
 
     private final Map<Product, List<DisplayableSpectrum>> productToAllSpectraMap;
     private final Map<Product, Band[]> productToAllBandsMap;
+    private final Map<Placemark, Map<Band, Double>> pinToEnergies;
     private final ProductNodeListenerAdapter productNodeHandler;
     private final PinSelectionChangeListener pinSelectionChangeListener;
     private final PixelPositionListener pixelPositionListener;
@@ -135,6 +136,7 @@ public class SpectrumToolView extends AbstractToolView {
         pinSelectionChangeListener = new PinSelectionChangeListener();
         productToAllSpectraMap = new HashMap<Product, List<DisplayableSpectrum>>();
         productToAllBandsMap = new HashMap<Product, Band[]>();
+        pinToEnergies = new HashMap<Placemark, Map<Band, Double>>();
         pixelPositionListener = new CursorSpectrumPixelPositionListener(this);
         chart = ChartFactory.createXYLineChart(CHART_TITLE, "Wavelength (nm)", "mW/(m^2*sr*nm)", null, PlotOrientation.VERTICAL, true, true, false);
         chartPanel = new ChartPanel(chart);
@@ -144,7 +146,6 @@ public class SpectrumToolView extends AbstractToolView {
         renderer.setBaseShapesVisible(true);
         renderer.setBaseShapesFilled(false);
         setPlotMessage(MSG_NO_PRODUCT_SELECTED);
-        plot.addAnnotation(message);
     }
 
     private ProductSceneView getCurrentView() {
@@ -467,7 +468,6 @@ public class SpectrumToolView extends AbstractToolView {
     private void selectSpectralBands() {
         final List<DisplayableSpectrum> allSpectra = productToAllSpectraMap.get(getCurrentProduct());
         final SpectrumChooser spectrumChooser = new SpectrumChooser(getPaneWindow(), allSpectra,
-//                                                                    selectedSpectra,
                                                                     getDescriptor().getHelpId());
         if (spectrumChooser.show() == ModalDialog.ID_OK) {
             final List<DisplayableSpectrum> spectra = spectrumChooser.getSpectra();
@@ -597,12 +597,6 @@ public class SpectrumToolView extends AbstractToolView {
     }
 
     private class ChartUpdater {
-
-        Map<Placemark, Map<Band, Double>> pinToEnergies;
-
-        ChartUpdater() {
-            pinToEnergies = new HashMap<Placemark, Map<Band, Double>>();
-        }
 
         private void updateChart(int pixelX, int pixelY, int level) {
             List<DisplayableSpectrum> spectra = getSelectedSpectra();
@@ -758,6 +752,9 @@ public class SpectrumToolView extends AbstractToolView {
                     recreateChart();
                 }
             } else if (event.getSourceNode() instanceof Placemark) {
+                if (event.getPropertyName().equals("geoPos") || event.getPropertyName().equals("pixelPos")) {
+                    pinToEnergies.remove((event.getSourceNode()));
+                }
                 if (isShowingPinSpectra()) {
                     recreateChart();
                 }
