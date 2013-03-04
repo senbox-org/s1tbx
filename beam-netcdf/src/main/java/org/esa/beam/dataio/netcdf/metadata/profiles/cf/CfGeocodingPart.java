@@ -242,73 +242,49 @@ public class CfGeocodingPart extends ProfilePartIO {
         double pixelSizeX;
         double pixelSizeY;
 
-        final Attribute lonValidMinAttr = lon.findAttribute(Constants.VALID_MIN_ATT_NAME);
-        final Attribute lonValidMaxAttr = lon.findAttribute(Constants.VALID_MAX_ATT_NAME);
-
-        final Attribute latValidMinAttr = lat.findAttribute(Constants.VALID_MIN_ATT_NAME);
-        final Attribute latValidMaxAttr = lat.findAttribute(Constants.VALID_MAX_ATT_NAME);
-
         boolean yFlipped;
-        if (lonValidMinAttr != null && lonValidMaxAttr != null && latValidMinAttr != null && latValidMaxAttr != null) {
-            // COARDS convention uses 'valid_min' and 'valid_max' attributes
+        Array lonData = lon.read();
+        // SPECIAL CASE: check if we have a global geographic lat/lon with lon from 0..360 instead of -180..180
+        if (isGlobalShifted180(lonData)) {
+            // if this is true, subtract 180 from all longitudes and
+            // add a global attribute which will be analyzed when setting up the image(s)
+            final List<Variable> variables = ctx.getNetcdfFile().getVariables();
+            for (Iterator<Variable> iterator = variables.iterator(); iterator.hasNext(); ) {
+                Variable next = iterator.next();
+                next.getAttributes().add(new Attribute("LONGITUDE_SHIFTED_180", 1));
+            }
+            for (int i = 0; i < lonData.getSize(); i++) {
+                final Index ii = lonData.getIndex().set(i);
+                final double theLon = lonData.getDouble(ii) - 180.0;
+                lonData.setDouble(ii, theLon);
+            }
+        }
+        final Array latData = lat.read();
 
-            double minLon = lonValidMinAttr.getNumericValue().doubleValue();
-            double minLat = latValidMinAttr.getNumericValue().doubleValue();
-            double maxLon = lonValidMaxAttr.getNumericValue().doubleValue();
-            double maxLat = latValidMaxAttr.getNumericValue().doubleValue();
+        final int lonSize = lon.getShape(0);
+        final Index i0 = lonData.getIndex().set(0);
+        final Index i1 = lonData.getIndex().set(lonSize - 1);
 
-            pixelX = 0.5;
-            pixelY = (sceneRasterHeight - 1.0) + 0.5;
-            easting = minLon;
-            northing = minLat;
-            pixelSizeX = (maxLon - minLon) / (sceneRasterWidth - 1);
-            pixelSizeY = (maxLat - minLat) / (sceneRasterHeight - 1);
+
+        pixelSizeX = (lonData.getDouble(i1) - lonData.getDouble(i0)) / (sceneRasterWidth - 1);
+        easting = lonData.getDouble(i0);
+
+        final int latSize = lat.getShape(0);
+        final Index j0 = latData.getIndex().set(0);
+        final Index j1 = latData.getIndex().set(latSize - 1);
+        pixelSizeY = (latData.getDouble(j1) - latData.getDouble(j0)) / (sceneRasterHeight - 1);
+
+        pixelX = 0.5f;
+        pixelY = 0.5f;
+
+        // this should be the 'normal' case
+        if (pixelSizeY < 0) {
+            pixelSizeY = -pixelSizeY;
             yFlipped = false;
+            northing = latData.getDouble(latData.getIndex().set(0));
         } else {
-            // CF convention
-            Array lonData = lon.read();
-            // SPECIAL CASE: check if we have a global geographic lat/lon with lon from 0..360 instead of -180..180
-            if (isGlobalShifted180(lonData)) {
-                // if this is true, subtract 180 from all longitudes and
-                // add a global attribute which will be analyzed when setting up the image(s)
-                final List<Variable> variables = ctx.getNetcdfFile().getVariables();
-                for (Iterator<Variable> iterator = variables.iterator(); iterator.hasNext(); ) {
-                    Variable next = iterator.next();
-                    next.getAttributes().add(new Attribute("LONGITUDE_SHIFTED_180", 1));
-                }
-                for (int i = 0; i < lonData.getSize(); i++) {
-                    final Index ii = lonData.getIndex().set(i);
-                    final double theLon = lonData.getDouble(ii) - 180.0;
-                    lonData.setDouble(ii, theLon);
-                }
-            }
-            final Array latData = lat.read();
-
-            final int lonSize = lon.getShape(0);
-            final Index i0 = lonData.getIndex().set(0);
-            final Index i1 = lonData.getIndex().set(lonSize - 1);
-
-
-            pixelSizeX = (lonData.getDouble(i1) - lonData.getDouble(i0)) / (sceneRasterWidth - 1);
-            easting = lonData.getDouble(i0);
-
-            final int latSize = lat.getShape(0);
-            final Index j0 = latData.getIndex().set(0);
-            final Index j1 = latData.getIndex().set(latSize - 1);
-            pixelSizeY = (latData.getDouble(j1) - latData.getDouble(j0)) / (sceneRasterHeight - 1);
-
-            pixelX = 0.5f;
-            pixelY = 0.5f;
-
-            // this should be the 'normal' case
-            if (pixelSizeY < 0) {
-                pixelSizeY = -pixelSizeY;
-                yFlipped = false;
-                northing = latData.getDouble(latData.getIndex().set(0));
-            } else {
-                yFlipped = true;
-                northing = latData.getDouble(latData.getIndex().set(latSize - 1));
-            }
+            yFlipped = true;
+            northing = latData.getDouble(latData.getIndex().set(latSize - 1));
         }
 
         if (pixelSizeX <= 0 || pixelSizeY <= 0) {
