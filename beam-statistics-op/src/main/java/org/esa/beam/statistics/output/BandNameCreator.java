@@ -88,8 +88,8 @@ public class BandNameCreator {
                         "attribute name '" + desiredAttributeName + "' exceeds 10 characters in length. Shortened to '" +
                         attributeName +
                         "'.");
-            addMapping(desiredAttributeName, attributeName);
         }
+        addMapping(desiredAttributeName, attributeName);
         return attributeName;
     }
 
