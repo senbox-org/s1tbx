@@ -16,7 +16,6 @@
 package org.esa.beam.visat.toolviews.spectrum;
 
 import com.bc.ceres.glevel.MultiLevelModel;
-import com.bc.ceres.swing.figure.support.DefaultFigureStyle;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.DataNode;
 import org.esa.beam.framework.datamodel.Placemark;
@@ -41,6 +40,7 @@ import org.esa.beam.util.Debug;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.visat.VisatApp;
 import org.esa.beam.visat.toolviews.nav.CursorSynchronizer;
+import org.esa.beam.visat.toolviews.placemark.PlacemarkUtils;
 import org.esa.beam.visat.toolviews.stat.XYPlotMarker;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
@@ -178,7 +178,7 @@ public class SpectrumToolView extends AbstractToolView {
             }
             if (currentProduct != null) {
                 currentProduct.addProductNodeListener(productNodeHandler);
-                chart.getXYPlot().removeAnnotation(message);
+                chart.getXYPlot().clearAnnotations();
                 initSpectra();
                 recreateChart();
             }
@@ -571,9 +571,7 @@ public class SpectrumToolView extends AbstractToolView {
     }
 
     private void setPlotMessage(String messageText) {
-        if (message != null) {
-            chart.getXYPlot().removeAnnotation(message);
-        }
+        chart.getXYPlot().clearAnnotations();
         TextTitle tt = new TextTitle(messageText);
         tt.setTextAlignment(HorizontalAlignment.RIGHT);
         tt.setFont(chart.getLegend().getItemFont());
@@ -635,7 +633,7 @@ public class SpectrumToolView extends AbstractToolView {
                 }
             }
             chart.getXYPlot().setDataset(dataset);
-            chart.getXYPlot().removeAnnotation(message);
+            chart.getXYPlot().clearAnnotations();
             chartPanel.repaint();
         }
 
@@ -673,19 +671,10 @@ public class SpectrumToolView extends AbstractToolView {
                     }
                 }
                 pinSeries.add(series);
-                Color pinColor = getPinColor(pin);
+                Color pinColor = PlacemarkUtils.getPlacemarkColor(pin, getCurrentView());
                 updateRenderer(i + seriesOffset, pinColor, spectrum);
             }
             return pinSeries;
-        }
-
-        private Color getPinColor(Placemark pin) {
-            final String styleCss = pin.getStyleCss();
-            if (styleCss.contains(DefaultFigureStyle.FILL_COLOR.getName())) {
-                return DefaultFigureStyle.createFromCss(styleCss).getFillColor();
-            } else {
-                return Color.BLUE;
-            }
         }
 
         private void updateRenderer(int seriesOffset, Color seriesColor, DisplayableSpectrum spectrum) {
