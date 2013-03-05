@@ -2,18 +2,15 @@
     <version>1.0</version>
     <node id="someNodeId">
         <operator>StatisticsOp</operator>
-        <!--<sources>-->
-            <!--<sourceProducts>${sourceProducts}</sourceProducts>-->
-        <!--</sources>-->
+        <sources>
+            <sourceProducts>${sourceProducts}</sourceProducts>
+        </sources>
         <parameters>
             <sourceProductPaths>C:\dev\Ressourcen\EOData\MERIS\FR\NorthSea\*.dim</sourceProductPaths>
             <shapefile>C:\temp\cwbody_desh_gk3.shp</shapefile>
-            <!--<startDate>uTC</startDate>-->
-            <!--<endDate>uTC</endDate>-->
             <bandConfigurations>
                 <bandConfiguration>
                     <sourceBandName>chl_conc</sourceBandName>
-                    <!--<expression>string</expression>-->
                     <validPixelExpression>chl_conc > 0.1</validPixelExpression>
                 </bandConfiguration>
             </bandConfigurations>
