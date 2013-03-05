@@ -59,6 +59,7 @@ public class BandNameCreator {
      *
      * @param algorithmName  The name of the algorithm.
      * @param sourceBandName The name of the source band.
+     *
      * @return A unique name for the combination of both.
      */
     public String createUniqueAttributeName(String algorithmName, String sourceBandName) {
@@ -84,11 +85,11 @@ public class BandNameCreator {
         }
         if (tooLong) {
             BeamLogManager.getSystemLogger().warning(
-                        "attribute name '" + desiredAttributeName + "' exceeds 10 characters in length. Shortened to '" +
-                        attributeName +
-                        "'.");
-            addMapping(desiredAttributeName, attributeName);
+                    "attribute name '" + desiredAttributeName + "' exceeds 10 characters in length. Shortened to '" +
+                    attributeName +
+                    "'.");
         }
+        addMapping(desiredAttributeName, attributeName);
         return attributeName;
     }
 
