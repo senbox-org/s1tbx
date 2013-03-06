@@ -30,32 +30,32 @@ public class CursorSpectrumPixelPositionListener implements PixelPositionListene
                                 int currentLevel,
                                 boolean pixelPosValid,
                                 MouseEvent e) {
-        SpectrumToolViewUpdater worker = new SpectrumToolViewUpdater(pixelPosValid, pixelX, pixelY, currentLevel, e.isShiftDown(), support);
+        CursorSpectraUpdater worker = new CursorSpectraUpdater(pixelPosValid, pixelX, pixelY, currentLevel, e.isShiftDown(), support);
         workerChain.setOrExecuteNextWorker(worker, false);
     }
 
     @Override
     public void pixelPosNotAvailable() {
-        SpectrumToolViewDisabler worker = new SpectrumToolViewDisabler(support);
+        CursorSpectraRemover worker = new CursorSpectraRemover(support);
         workerChain.setOrExecuteNextWorker(worker, false);
     }
 
-    private boolean isActive() {
-        return toolView.isVisible() && toolView.isShowingCursorSpectrum() && toolView.hasDiagram();
+    private boolean shouldUpdateCursorPosition() {
+        return toolView.isVisible() && toolView.isShowingCursorSpectrum();
     }
 
-    private class SpectrumToolViewDisabler extends SwingWorker<Void, Void> {
+    private class CursorSpectraRemover extends SwingWorker<Void, Void> {
 
         private final WorkerChainSupport support;
 
-        SpectrumToolViewDisabler(WorkerChainSupport support) {
+        CursorSpectraRemover(WorkerChainSupport support) {
             this.support = support;
         }
 
         @Override
         protected Void doInBackground() throws Exception {
-            if (isActive()) {
-                toolView.disable();
+            if (shouldUpdateCursorPosition()) {
+                toolView.removeCursorSpectra();
             }
             return null;
         }
@@ -66,7 +66,7 @@ public class CursorSpectrumPixelPositionListener implements PixelPositionListene
         }
     }
 
-    private class SpectrumToolViewUpdater extends SwingWorker<Void, Void> {
+    private class CursorSpectraUpdater extends SwingWorker<Void, Void> {
 
         private final boolean pixelPosValid;
         private final int pixelX;
@@ -75,8 +75,8 @@ public class CursorSpectrumPixelPositionListener implements PixelPositionListene
         private final boolean adjustAxes;
         private final WorkerChainSupport support;
 
-        SpectrumToolViewUpdater(boolean pixelPosValid, int pixelX, int pixelY, int currentLevel, boolean adjustAxes,
-                                WorkerChainSupport support) {
+        CursorSpectraUpdater(boolean pixelPosValid, int pixelX, int pixelY, int currentLevel, boolean adjustAxes,
+                             WorkerChainSupport support) {
             this.pixelPosValid = pixelPosValid;
             this.pixelX = pixelX;
             this.pixelY = pixelY;
@@ -87,8 +87,14 @@ public class CursorSpectrumPixelPositionListener implements PixelPositionListene
 
         @Override
         protected Void doInBackground() throws Exception {
-            if (pixelPosValid && isActive()) {
-                toolView.updateSpectra(pixelX, pixelY, currentLevel);
+            if (pixelPosValid) {
+                if (shouldUpdateCursorPosition()) {
+                    toolView.updateSpectra(pixelX, pixelY, currentLevel);
+                }
+            } else {
+                if (toolView.hasValidCursorPosition()) {
+                    toolView.removeCursorSpectra();
+                }
             }
             if (adjustAxes) {
                 //todo decide on how to / whether to adjust axes
