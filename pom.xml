@@ -239,8 +239,8 @@
                     <configuration>
                         <downloadSources>true</downloadSources>
                         <downloadJavadocs>true</downloadJavadocs>
-                        <jdkName>1.6</jdkName>
-                        <jdkLevel>1.6</jdkLevel>
+                        <jdkName>1.7</jdkName>
+                        <jdkLevel>1.7</jdkLevel>
                         <exclude>target</exclude>
                     </configuration>
                 </plugin>
