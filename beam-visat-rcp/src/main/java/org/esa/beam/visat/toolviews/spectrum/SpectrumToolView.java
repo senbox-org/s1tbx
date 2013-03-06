@@ -95,10 +95,10 @@ public class SpectrumToolView extends AbstractToolView {
     public static final String CHART_TITLE = "Spectrum View";
 
     private static final String SUPPRESS_MESSAGE_KEY = "plugin.spectrum.tip";
-    private static final String MSG_NO_SPECTRAL_BANDS = "No spectral bands available";   /*I18N*/
-    private static final String MSG_NO_PRODUCT_SELECTED = "No product selected";
-    private static final String MSG_NO_SPECTRA_SELECTED = "No spectra selected";
-    private static final String MSG_COLLECTING_SPECTRAL_INFORMATION = "Collecting spectral information...";
+    private static final String MESSAGE_NO_SPECTRAL_BANDS = "No spectral bands available";   /*I18N*/
+    private static final String MESSAGE_NO_PRODUCT_SELECTED = "No product selected";
+    private static final String MESSAGE_NO_SPECTRA_SELECTED = "No spectra selected";
+    private static final String MESSAGE_COLLECTING_SPECTRAL_INFORMATION = "Collecting spectral information...";
 
     private final Map<Product, List<DisplayableSpectrum>> productToAllSpectraMap;
     private final Map<Product, Band[]> productToAllBandsMap;
@@ -125,7 +125,6 @@ public class SpectrumToolView extends AbstractToolView {
     private int level;
     private ChartPanel chartPanel;
     private JFreeChart chart;
-    private XYTitleAnnotation message;
     private ChartUpdater chartUpdater;
     private CursorSynchronizer cursorSynchronizer;
 
@@ -143,7 +142,7 @@ public class SpectrumToolView extends AbstractToolView {
         final XYLineAndShapeRenderer renderer = (XYLineAndShapeRenderer) plot.getRenderer();
         renderer.setBaseShapesVisible(true);
         renderer.setBaseShapesFilled(false);
-        setPlotMessage(MSG_NO_PRODUCT_SELECTED);
+        setPlotMessage(MESSAGE_NO_PRODUCT_SELECTED);
     }
 
     private ProductSceneView getCurrentView() {
@@ -578,7 +577,7 @@ public class SpectrumToolView extends AbstractToolView {
         tt.setBackgroundPaint(new Color(200, 200, 255, 50));
         tt.setFrame(new BlockBorder(Color.white));
         tt.setPosition(RectangleEdge.BOTTOM);
-        message = new XYTitleAnnotation(0.5, 0.5, tt, RectangleAnchor.CENTER);
+        XYTitleAnnotation message = new XYTitleAnnotation(0.5, 0.5, tt, RectangleAnchor.CENTER);
         chart.getXYPlot().addAnnotation(message);
     }
 
@@ -598,14 +597,14 @@ public class SpectrumToolView extends AbstractToolView {
             List<DisplayableSpectrum> spectra = getSelectedSpectra();
             if (spectra.isEmpty()) {
                 if (!getAllSpectra().isEmpty()) {
-                    setPlotMessage(MSG_NO_SPECTRA_SELECTED);
+                    setPlotMessage(MESSAGE_NO_SPECTRA_SELECTED);
                 } else {
-                    setPlotMessage(MSG_NO_SPECTRAL_BANDS);
+                    setPlotMessage(MESSAGE_NO_SPECTRAL_BANDS);
                 }
                 chart.getXYPlot().setDataset(null);
                 return;
             }
-            setPlotMessage(MSG_COLLECTING_SPECTRAL_INFORMATION);
+            setPlotMessage(MESSAGE_COLLECTING_SPECTRAL_INFORMATION);
             XYSeriesCollection dataset = new XYSeriesCollection();
             int seriesOffset = 0;
             Placemark[] pins = getDisplayedPins();
