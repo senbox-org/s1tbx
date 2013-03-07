@@ -22,6 +22,7 @@ import org.esa.beam.binning.Aggregator;
 import org.esa.beam.binning.AggregatorConfig;
 import org.esa.beam.binning.AggregatorDescriptor;
 import org.esa.beam.binning.BinContext;
+import org.esa.beam.binning.Observation;
 import org.esa.beam.binning.VariableContext;
 import org.esa.beam.binning.Vector;
 import org.esa.beam.binning.WeightFn;
@@ -66,7 +67,7 @@ public class AggregatorAverageML extends AbstractAggregator {
     }
 
     @Override
-    public void aggregateSpatial(BinContext ctx, Vector observationVector, WritableVector spatialVector) {
+    public void aggregateSpatial(BinContext ctx, Observation observationVector, WritableVector spatialVector) {
         final double x = observationVector.get(varIndex);
         final double logX = log(x > EPS ? x : EPS);
         spatialVector.set(0, spatialVector.get(0) + (float) (logX));
@@ -81,7 +82,8 @@ public class AggregatorAverageML extends AbstractAggregator {
     }
 
     @Override
-    public void aggregateTemporal(BinContext ctx, Vector spatialVector, int numSpatialObs, WritableVector temporalVector) {
+    public void aggregateTemporal(BinContext ctx, Vector spatialVector, int numSpatialObs,
+                                  WritableVector temporalVector) {
         temporalVector.set(0, temporalVector.get(0) + spatialVector.get(0));  // sumX
         temporalVector.set(1, temporalVector.get(1) + spatialVector.get(1));  // sumXX
         temporalVector.set(2, temporalVector.get(2) + weightFn.eval(numSpatialObs)); // sumW
@@ -112,15 +114,16 @@ public class AggregatorAverageML extends AbstractAggregator {
     @Override
     public String toString() {
         return "AggregatorAverageML{" +
-                "varIndex=" + varIndex +
-                ", weightFn=" + weightFn +
-                ", spatialFeatureNames=" + Arrays.toString(getSpatialFeatureNames()) +
-                ", temporalFeatureNames=" + Arrays.toString(getTemporalFeatureNames()) +
-                ", outputFeatureNames=" + Arrays.toString(getOutputFeatureNames()) +
-                '}';
+               "varIndex=" + varIndex +
+               ", weightFn=" + weightFn +
+               ", spatialFeatureNames=" + Arrays.toString(getSpatialFeatureNames()) +
+               ", temporalFeatureNames=" + Arrays.toString(getTemporalFeatureNames()) +
+               ", outputFeatureNames=" + Arrays.toString(getOutputFeatureNames()) +
+               '}';
     }
 
     public static class Config extends AggregatorConfig {
+
         @Parameter
         String varName;
         @Parameter

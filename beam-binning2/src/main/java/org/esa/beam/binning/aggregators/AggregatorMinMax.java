@@ -22,6 +22,7 @@ import org.esa.beam.binning.Aggregator;
 import org.esa.beam.binning.AggregatorConfig;
 import org.esa.beam.binning.AggregatorDescriptor;
 import org.esa.beam.binning.BinContext;
+import org.esa.beam.binning.Observation;
 import org.esa.beam.binning.VariableContext;
 import org.esa.beam.binning.Vector;
 import org.esa.beam.binning.WritableVector;
@@ -33,6 +34,7 @@ import java.util.Arrays;
  * An aggregator that computes the minimum and maximum values.
  */
 public class AggregatorMinMax extends AbstractAggregator {
+
     private final int varIndex;
 
     public AggregatorMinMax(VariableContext varCtx, String varName, Number fillValue) {
@@ -61,7 +63,7 @@ public class AggregatorMinMax extends AbstractAggregator {
     }
 
     @Override
-    public void aggregateSpatial(BinContext ctx, Vector observationVector, WritableVector spatialVector) {
+    public void aggregateSpatial(BinContext ctx, Observation observationVector, WritableVector spatialVector) {
         final float value = observationVector.get(varIndex);
         spatialVector.set(0, Math.min(spatialVector.get(0), value));
         spatialVector.set(1, Math.max(spatialVector.get(1), value));
@@ -72,7 +74,8 @@ public class AggregatorMinMax extends AbstractAggregator {
     }
 
     @Override
-    public void aggregateTemporal(BinContext ctx, Vector spatialVector, int numSpatialObs, WritableVector temporalVector) {
+    public void aggregateTemporal(BinContext ctx, Vector spatialVector, int numSpatialObs,
+                                  WritableVector temporalVector) {
         temporalVector.set(0, Math.min(temporalVector.get(0), spatialVector.get(0)));
         temporalVector.set(1, Math.max(temporalVector.get(1), spatialVector.get(1)));
     }
@@ -90,14 +93,15 @@ public class AggregatorMinMax extends AbstractAggregator {
     @Override
     public String toString() {
         return "AggregatorMinMax{" +
-                "varIndex=" + varIndex +
-                ", spatialFeatureNames=" + Arrays.toString(getSpatialFeatureNames()) +
-                ", temporalFeatureNames=" + Arrays.toString(getTemporalFeatureNames()) +
-                ", outputFeatureNames=" + Arrays.toString(getOutputFeatureNames()) +
-                '}';
+               "varIndex=" + varIndex +
+               ", spatialFeatureNames=" + Arrays.toString(getSpatialFeatureNames()) +
+               ", temporalFeatureNames=" + Arrays.toString(getTemporalFeatureNames()) +
+               ", outputFeatureNames=" + Arrays.toString(getOutputFeatureNames()) +
+               '}';
     }
 
     public static class Config extends AggregatorConfig {
+
         @Parameter
         String varName;
         @Parameter

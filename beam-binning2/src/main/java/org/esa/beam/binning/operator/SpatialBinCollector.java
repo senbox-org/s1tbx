@@ -4,13 +4,11 @@ import org.esa.beam.binning.SpatialBin;
 import org.esa.beam.binning.SpatialBinConsumer;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.SortedMap;
 
 /**
  * Implementations are responsible for storing consumed {@link SpatialBin SpatialBins}.
  */
-interface SpatialBinStore extends SpatialBinConsumer {
+interface SpatialBinCollector extends SpatialBinConsumer {
 
     /**
      * Retrieves the already consumed {@link SpatialBin SpatialBins}. The bins are sorted by their bin index.
@@ -19,7 +17,7 @@ interface SpatialBinStore extends SpatialBinConsumer {
      *
      * @throws IOException If an IO-Exception occurs.
      */
-    SortedMap<Long, List<SpatialBin>> getSpatialBinMap() throws IOException;
+    SpatialBinCollection getSpatialBinCollection() throws IOException;
 
     /**
      * Notifies this store that the consuming is completed and no more {@link SpatialBin SpatialBins} will be provided.

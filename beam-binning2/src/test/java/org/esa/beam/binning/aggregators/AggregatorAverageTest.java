@@ -23,12 +23,10 @@ import org.esa.beam.binning.support.VectorImpl;
 import org.junit.Before;
 import org.junit.Test;
 
-import static java.lang.Float.NaN;
-import static java.lang.Math.sqrt;
-import static org.esa.beam.binning.aggregators.AggregatorTestUtils.createCtx;
-import static org.esa.beam.binning.aggregators.AggregatorTestUtils.vec;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static java.lang.Float.*;
+import static java.lang.Math.*;
+import static org.esa.beam.binning.aggregators.AggregatorTestUtils.*;
+import static org.junit.Assert.*;
 
 public class AggregatorAverageTest {
 
@@ -83,9 +81,9 @@ public class AggregatorAverageTest {
         assertEquals(0.0f, svec.get(0), 0.0f);
         assertEquals(0.0f, svec.get(1), 0.0f);
 
-        agg.aggregateSpatial(ctx, vec(1.5f), svec);
-        agg.aggregateSpatial(ctx, vec(2.5f), svec);
-        agg.aggregateSpatial(ctx, vec(0.5f), svec);
+        agg.aggregateSpatial(ctx, obsNT(1.5f), svec);
+        agg.aggregateSpatial(ctx, obsNT(2.5f), svec);
+        agg.aggregateSpatial(ctx, obsNT(0.5f), svec);
         float sumX = 1.5f + 2.5f + 0.5f;
         float sumXX = 1.5f * 1.5f + 2.5f * 2.5f + 0.5f * 0.5f;
         assertEquals(sumX, svec.get(0), 1e-5f);
@@ -128,9 +126,9 @@ public class AggregatorAverageTest {
         assertEquals(0.0f, svec.get(0), 0.0f);
         assertEquals(0.0f, svec.get(1), 0.0f);
 
-        agg.aggregateSpatial(ctx, vec(1.5f), svec);
-        agg.aggregateSpatial(ctx, vec(2.5f), svec);
-        agg.aggregateSpatial(ctx, vec(0.5f), svec);
+        agg.aggregateSpatial(ctx, obsNT(1.5f), svec);
+        agg.aggregateSpatial(ctx, obsNT(2.5f), svec);
+        agg.aggregateSpatial(ctx, obsNT(0.5f), svec);
         float sumX = 1.5f + 2.5f + 0.5f;
         float sumXX = 1.5f * 1.5f + 2.5f * 2.5f + 0.5f * 0.5f;
         assertEquals(sumX, svec.get(0), 1e-5f);
@@ -169,17 +167,17 @@ public class AggregatorAverageTest {
         VectorImpl out = vec(NaN, NaN);
 
         agg.initSpatial(ctx, svec);
-        agg.aggregateSpatial(ctx, vec(1.5f), svec);
-        agg.aggregateSpatial(ctx, vec(2.5f), svec);
-        agg.aggregateSpatial(ctx, vec(0.5f), svec);
+        agg.aggregateSpatial(ctx, obsNT(1.5f), svec);
+        agg.aggregateSpatial(ctx, obsNT(2.5f), svec);
+        agg.aggregateSpatial(ctx, obsNT(0.5f), svec);
 
-        agg.aggregateSpatial(ctx, vec(1.5f), svec);
-        agg.aggregateSpatial(ctx, vec(2.5f), svec);
-        agg.aggregateSpatial(ctx, vec(0.5f), svec);
+        agg.aggregateSpatial(ctx, obsNT(1.5f), svec);
+        agg.aggregateSpatial(ctx, obsNT(2.5f), svec);
+        agg.aggregateSpatial(ctx, obsNT(0.5f), svec);
 
-        agg.aggregateSpatial(ctx, vec(1.5f), svec);
-        agg.aggregateSpatial(ctx, vec(2.5f), svec);
-        agg.aggregateSpatial(ctx, vec(0.5f), svec);
+        agg.aggregateSpatial(ctx, obsNT(1.5f), svec);
+        agg.aggregateSpatial(ctx, obsNT(2.5f), svec);
+        agg.aggregateSpatial(ctx, obsNT(0.5f), svec);
 
         float sumX = (1.5f + 2.5f + 0.5f) * 3;
         float sumXX = (1.5f * 1.5f + 2.5f * 2.5f + 0.5f * 0.5f) * 3;

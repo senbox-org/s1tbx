@@ -7,10 +7,10 @@ import org.esa.beam.binning.aggregators.AggregatorOnMaxSet;
 import org.esa.beam.binning.aggregators.AggregatorPercentile;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 public class AggregatorDescriptorRegistryTest {
+
     private MyVariableContext ctx = new MyVariableContext("x", "y", "z");
 
     @Test
@@ -57,7 +57,7 @@ public class AggregatorDescriptorRegistryTest {
     public void testGetAllRegisteredAggregatorDescriptors() throws Exception {
         final AggregatorDescriptorRegistry registry = AggregatorDescriptorRegistry.getInstance();
         final AggregatorDescriptor[] aggregatorDescriptors = registry.getAggregatorDescriptors();
-        assertEquals(5, aggregatorDescriptors.length);
+        assertEquals(6, aggregatorDescriptors.length);
     }
 
     private AggregatorDescriptor assertRegistered(String name) {

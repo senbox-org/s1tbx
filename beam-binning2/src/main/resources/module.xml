@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-binning2</symbolicName>
-    <version>0.8.1</version>
+    <version>0.8.2</version>
     <name>Level-3 Binning Processor (GPF)</name>
 
     <description>
@@ -30,9 +30,6 @@
 
     <changelog>
         <![CDATA[
-        <!--Changes from version 0.8.1 to 0.8.2:<br\>-->
-        <!--<ol>-->
-        <!--<li>Adapted to BEAM 5.0<br>-->
         Changes from version 0.8 to 0.8.1:<br\>
         <ol>
         <li>Adapted to new Maven-architecture

@@ -28,7 +28,7 @@ import java.util.HashMap;
 import java.util.Set;
 import java.util.SortedMap;
 
-import static java.lang.Math.sqrt;
+import static java.lang.Math.*;
 import static org.junit.Assert.*;
 
 /**
@@ -116,12 +116,13 @@ public class BinningOpTest {
 
         final BinningOp binningOp = new BinningOp();
 
+        JtsGeometryConverter geometryConverter = new JtsGeometryConverter();
         binningOp.setSourceProducts(createSourceProduct(obs1));
         binningOp.setStartDate("2002-01-01");
         binningOp.setEndDate("2002-01-10");
         binningOp.setBinningConfig(binningConfig);
         binningOp.setFormatterConfig(formatterConfig);
-        binningOp.setRegion(new JtsGeometryConverter().parse("POLYGON ((-180 -90, -180 90, 180 90, 180 -90, -180 -90))"));
+        binningOp.setRegion(geometryConverter.parse("POLYGON ((-180 -90, -180 90, 180 90, 180 -90, -180 -90))"));
 
         final Product targetProduct = binningOp.getTargetProduct();
         assertNotNull(targetProduct);
@@ -138,12 +139,13 @@ public class BinningOpTest {
 
         final BinningOp binningOp = new BinningOp();
 
+        JtsGeometryConverter geometryConverter = new JtsGeometryConverter();
         binningOp.setSourceProducts(createSourceProduct(obs1));
         binningOp.setStartDate("2002-01-01");
         binningOp.setEndDate("2002-01-10");
         binningOp.setBinningConfig(binningConfig);
         binningOp.setFormatterConfig(formatterConfig);
-        binningOp.setRegion(new JtsGeometryConverter().parse("POLYGON ((-180 -90, -180 90, 180 90, 180 -90, -180 -90))"));
+        binningOp.setRegion(geometryConverter.parse("POLYGON ((-180 -90, -180 90, 180 90, 180 -90, -180 -90))"));
 
         final Product targetProduct = binningOp.getTargetProduct();
         assertNotNull(targetProduct);
@@ -176,11 +178,12 @@ public class BinningOpTest {
                                     createSourceProduct(obs4),
                                     createSourceProduct(obs5));
 
+        JtsGeometryConverter geometryConverter = new JtsGeometryConverter();
         binningOp.setStartDate("2002-01-01");
         binningOp.setEndDate("2002-01-10");
         binningOp.setBinningConfig(binningConfig);
         binningOp.setFormatterConfig(formatterConfig);
-        binningOp.setRegion(new JtsGeometryConverter().parse("POLYGON ((-180 -90, -180 90, 180 90, 180 -90, -180 -90))"));
+        binningOp.setRegion(geometryConverter.parse("POLYGON ((-180 -90, -180 90, 180 90, 180 -90, -180 -90))"));
 
         final Product targetProduct = binningOp.getTargetProduct();
         assertNotNull(targetProduct);
@@ -190,41 +193,6 @@ public class BinningOpTest {
             targetProduct.dispose();
         }
     }
-
-    /*
-    @Test
-    public void testGlobalBinning_WithMemoryMappedFile() throws Exception {
-        BinningConfig binningConfig = createBinningConfig();
-        FormatterConfig formatterConfig = createFormatterConfig();
-
-        float obs1 = 0.2F;
-        float obs2 = 0.4F;
-        float obs3 = 0.6F;
-        float obs4 = 0.8F;
-        float obs5 = 1.0F;
-
-        final BinningOp binningOp = new BinningOp(new MemoryMappedFileSpatialBinStore());
-
-        binningOp.setSourceProducts(createSourceProduct(obs1),
-                                    createSourceProduct(obs2),
-                                    createSourceProduct(obs3),
-                                    createSourceProduct(obs4),
-                                    createSourceProduct(obs5));
-
-        binningOp.setStartDate("2002-01-01");
-        binningOp.setEndDate("2002-01-10");
-        binningOp.setBinningConfig(binningConfig);
-        binningOp.setFormatterConfig(formatterConfig);
-
-        final Product targetProduct = binningOp.getTargetProduct();
-        assertNotNull(targetProduct);
-        try {
-            assertGlobalBinningProductIsOk(targetProduct, null, obs1, obs2, obs3, obs4, obs5);
-        } catch (Exception e) {
-            targetProduct.dispose();
-        }
-    }
-    */
 
     /**
      * The following configuration generates a 1-degree resolution local product (4 x 4 pixels) from 5 observations.
@@ -380,35 +348,31 @@ public class BinningOpTest {
         final File sourceFile4 = getTestFile("obs4.dim");
         final File sourceFile5 = getTestFile("obs5.dim");
 
+        ProductIO.writeProduct(createSourceProduct(obs1), sourceFile1, "BEAM-DIMAP", false);
+        ProductIO.writeProduct(createSourceProduct(obs2), sourceFile2, "BEAM-DIMAP", false);
+        ProductIO.writeProduct(createSourceProduct(obs3), sourceFile3, "BEAM-DIMAP", false);
+        ProductIO.writeProduct(createSourceProduct(obs4), sourceFile4, "BEAM-DIMAP", false);
+        ProductIO.writeProduct(createSourceProduct(obs5), sourceFile5, "BEAM-DIMAP", false);
+
+        GPT.run(new String[]{
+                "Binning",
+                "-p", parameterFile.getPath(),
+                "-t", targetFile.getPath(),
+                sourceFile1.getPath(),
+                sourceFile2.getPath(),
+                sourceFile3.getPath(),
+                sourceFile4.getPath(),
+                sourceFile5.getPath(),
+        });
+
+        assertTrue(targetFile.exists());
+
+        final Product targetProduct = ProductIO.readProduct(targetFile);
+        assertNotNull(targetProduct);
         try {
-            ProductIO.writeProduct(createSourceProduct(obs1), sourceFile1, "BEAM-DIMAP", false);
-            ProductIO.writeProduct(createSourceProduct(obs2), sourceFile2, "BEAM-DIMAP", false);
-            ProductIO.writeProduct(createSourceProduct(obs3), sourceFile3, "BEAM-DIMAP", false);
-            ProductIO.writeProduct(createSourceProduct(obs4), sourceFile4, "BEAM-DIMAP", false);
-            ProductIO.writeProduct(createSourceProduct(obs5), sourceFile5, "BEAM-DIMAP", false);
-
-            GPT.run(new String[]{
-                    "Binning",
-                    "-p", parameterFile.getPath(),
-                    "-t", targetFile.getPath(),
-                    sourceFile1.getPath(),
-                    sourceFile2.getPath(),
-                    sourceFile3.getPath(),
-                    sourceFile4.getPath(),
-                    sourceFile5.getPath(),
-            });
-
-            assertTrue(targetFile.exists());
-
-            final Product targetProduct = ProductIO.readProduct(targetFile);
-            assertNotNull(targetProduct);
-            try {
-                assertGlobalBinningProductIsOk(targetProduct, targetFile, obs1, obs2, obs3, obs4, obs5);
-            } catch (IOException e) {
-                targetProduct.dispose();
-            }
-        } finally {
-            FileUtils.deleteTree(TESTDATA_DIR);
+            assertGlobalBinningProductIsOk(targetProduct, targetFile, obs1, obs2, obs3, obs4, obs5);
+        } catch (IOException e) {
+            targetProduct.dispose();
         }
     }
 
@@ -487,30 +451,26 @@ public class BinningOpTest {
         final File sourceFile4 = getTestFile("obs4.dim");
         final File sourceFile5 = getTestFile("obs5.dim");
 
+        ProductIO.writeProduct(createSourceProduct(obs1), sourceFile1, "BEAM-DIMAP", false);
+        ProductIO.writeProduct(createSourceProduct(obs2), sourceFile2, "BEAM-DIMAP", false);
+        ProductIO.writeProduct(createSourceProduct(obs3), sourceFile3, "BEAM-DIMAP", false);
+        ProductIO.writeProduct(createSourceProduct(obs4), sourceFile4, "BEAM-DIMAP", false);
+        ProductIO.writeProduct(createSourceProduct(obs5), sourceFile5, "BEAM-DIMAP", false);
+
+        GPT.run(new String[]{
+                "Binning",
+                "-p", parameterFile.getPath(),
+                "-t", targetFile.getPath(),
+        });
+
+        assertTrue(targetFile.exists());
+
+        final Product targetProduct = ProductIO.readProduct(targetFile);
+        assertNotNull(targetProduct);
         try {
-            ProductIO.writeProduct(createSourceProduct(obs1), sourceFile1, "BEAM-DIMAP", false);
-            ProductIO.writeProduct(createSourceProduct(obs2), sourceFile2, "BEAM-DIMAP", false);
-            ProductIO.writeProduct(createSourceProduct(obs3), sourceFile3, "BEAM-DIMAP", false);
-            ProductIO.writeProduct(createSourceProduct(obs4), sourceFile4, "BEAM-DIMAP", false);
-            ProductIO.writeProduct(createSourceProduct(obs5), sourceFile5, "BEAM-DIMAP", false);
-
-            GPT.run(new String[]{
-                    "Binning",
-                    "-p", parameterFile.getPath(),
-                    "-t", targetFile.getPath(),
-            });
-
-            assertTrue(targetFile.exists());
-
-            final Product targetProduct = ProductIO.readProduct(targetFile);
-            assertNotNull(targetProduct);
-            try {
-                assertGlobalBinningProductIsOk(targetProduct, targetFile, obs1, obs2, obs3, obs4, obs5);
-            } catch (IOException e) {
-                targetProduct.dispose();
-            }
-        } finally {
-            FileUtils.deleteTree(TESTDATA_DIR);
+            assertGlobalBinningProductIsOk(targetProduct, targetFile, obs1, obs2, obs3, obs4, obs5);
+        } catch (IOException e) {
+            targetProduct.dispose();
         }
     }
 
@@ -569,7 +529,9 @@ public class BinningOpTest {
         final Product product3 = new Product("name3", "type", 10, 10);
         Product[] inputProducts = {product1, product2, product3};
         Product[] expectedProducts = {product1, product2, product3};
-        Product[] filteredProducts = BinningOp.filterSourceProducts(inputProducts, ProductData.UTC.parse("01-JUL-2000 00:00:00"), ProductData.UTC.parse("01-AUG-2000 00:00:00"));
+        Product[] filteredProducts = BinningOp.filterSourceProducts(inputProducts,
+                                                                    ProductData.UTC.parse("01-JUL-2000 00:00:00"),
+                                                                    ProductData.UTC.parse("01-AUG-2000 00:00:00"));
         assertArrayEquals(expectedProducts, filteredProducts);
 
         product1.setStartTime(ProductData.UTC.parse("02-JUL-2000 00:00:00"));
@@ -577,7 +539,8 @@ public class BinningOpTest {
 
         inputProducts = new Product[]{product1, product2, product3};
         expectedProducts = new Product[]{product2, product3};
-        filteredProducts = BinningOp.filterSourceProducts(inputProducts, ProductData.UTC.parse("01-JUL-2000 00:00:00"), ProductData.UTC.parse("01-AUG-2000 00:00:00"));
+        filteredProducts = BinningOp.filterSourceProducts(inputProducts, ProductData.UTC.parse("01-JUL-2000 00:00:00"),
+                                                          ProductData.UTC.parse("01-AUG-2000 00:00:00"));
         assertArrayEquals(expectedProducts, filteredProducts);
     }
 
@@ -606,15 +569,19 @@ public class BinningOpTest {
         assertEquals(expected, shape.getBounds2D());
     }
 
-    private void assertGlobalBinningProductIsOk(Product targetProduct, File location, float obs1, float obs2, float obs3, float obs4, float obs5) throws IOException {
+    private void assertGlobalBinningProductIsOk(Product targetProduct, File location, float obs1, float obs2,
+                                                float obs3, float obs4, float obs5) throws IOException {
         assertTargetProductIsOk(targetProduct, location, obs1, obs2, obs3, obs4, obs5, 360, 180, 179, 87);
     }
 
-    private void assertLocalBinningProductIsOk(Product targetProduct, File location, float obs1, float obs2, float obs3, float obs4, float obs5) throws IOException {
+    private void assertLocalBinningProductIsOk(Product targetProduct, File location, float obs1, float obs2, float obs3,
+                                               float obs4, float obs5) throws IOException {
         assertTargetProductIsOk(targetProduct, location, obs1, obs2, obs3, obs4, obs5, 4, 4, 0, 0);
     }
 
-    private void assertTargetProductIsOk(Product targetProduct, File location, float obs1, float obs2, float obs3, float obs4, float obs5, int sceneRasterWidth, int sceneRasterHeight, int x0, int y0) throws IOException {
+    private void assertTargetProductIsOk(Product targetProduct, File location, float obs1, float obs2, float obs3,
+                                         float obs4, float obs5, int sceneRasterWidth, int sceneRasterHeight, int x0,
+                                         int y0) throws IOException {
         final int w = 4;
         final int h = 4;
 

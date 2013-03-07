@@ -1,6 +1,6 @@
 package org.esa.beam.binning;
 
-import org.esa.beam.framework.datamodel.GeoCoding;
+import org.esa.beam.framework.datamodel.Product;
 
 import java.awt.image.Raster;
 import java.util.Iterator;
@@ -14,19 +14,19 @@ public class ObservationSlice implements Iterable<Observation> {
 
     private Raster[] sourceTiles;
     private Raster maskTile;
-    private GeoCoding gc;
+    private Product product;
     private float[] superSamplingSteps;
 
-    public ObservationSlice(Raster[] sourceTiles, Raster maskTile, GeoCoding gc, float[] superSamplingSteps) {
+    public ObservationSlice(Raster[] sourceTiles, Raster maskTile, Product product, float[] superSamplingSteps) {
         this.sourceTiles = sourceTiles;
         this.maskTile = maskTile;
-        this.gc = gc;
+        this.product = product;
         this.superSamplingSteps = superSamplingSteps;
     }
 
     @Override
     public Iterator<Observation> iterator() {
-        return ObservationIterator.create(sourceTiles, gc, maskTile, superSamplingSteps);
+        return ObservationIterator.create(sourceTiles, product, maskTile, superSamplingSteps);
     }
 
 }

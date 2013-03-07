@@ -14,13 +14,12 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
-import static java.lang.Math.log;
-import static java.lang.Math.sqrt;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static java.lang.Math.*;
+import static org.junit.Assert.*;
 
 
 public class SpatialBinnerTest {
+
     static final int SUM_X = 0;
     static final int SUM_XX = 1;
     static final int WEIGHT = 2;
@@ -30,21 +29,22 @@ public class SpatialBinnerTest {
 
         MyPlanetaryGrid planetaryGrid = new MyPlanetaryGrid();
         MyVariableContext variableContext = new MyVariableContext("x");
-        MyBinManager binManager = new MyBinManager(variableContext, new AggregatorAverageML(variableContext, "x", null, null));
+        MyBinManager binManager = new MyBinManager(variableContext,
+                                                   new AggregatorAverageML(variableContext, "x", null, null));
         BinningContext binningContext = new BinningContextImpl(planetaryGrid, binManager);
         MySpatialBinConsumer mySpatialBinProcessor = new MySpatialBinConsumer(binManager);
         SpatialBinner spatialBinner = new SpatialBinner(binningContext, mySpatialBinProcessor);
 
-        spatialBinner.processObservationSlice(new ObservationImpl(0, 1.1, 1.1f),
-                                              new ObservationImpl(0, 1.1, 1.2f),
-                                              new ObservationImpl(0, 2.1, 1.3f),
-                                              new ObservationImpl(0, 2.1, 1.4f));
+        spatialBinner.processObservationSlice(new ObservationImpl(0, 1.1, 0, 1.1f),
+                                              new ObservationImpl(0, 1.1, 0, 1.2f),
+                                              new ObservationImpl(0, 2.1, 0, 1.3f),
+                                              new ObservationImpl(0, 2.1, 0, 1.4f));
 
-        spatialBinner.processObservationSlice(new ObservationImpl(0, 1.1, 2.1f),
-                                              new ObservationImpl(0, 2.1, 2.2f),
-                                              new ObservationImpl(0, 2.1, 2.3f),
-                                              new ObservationImpl(0, 2.1, 2.4f),
-                                              new ObservationImpl(0, 3.1, 2.5f));
+        spatialBinner.processObservationSlice(new ObservationImpl(0, 1.1, 0, 2.1f),
+                                              new ObservationImpl(0, 2.1, 0, 2.2f),
+                                              new ObservationImpl(0, 2.1, 0, 2.3f),
+                                              new ObservationImpl(0, 2.1, 0, 2.4f),
+                                              new ObservationImpl(0, 3.1, 0, 2.5f));
 
         spatialBinner.complete();
 
@@ -114,12 +114,13 @@ public class SpatialBinnerTest {
                 double[] srcPts = new double[]{lat, lon};
                 double[] dstPts = new double[2];
                 at.transform(srcPts, 0, dstPts, 0, 1);
-                pixelSlices[j][i] = new ObservationImpl(dstPts[0], dstPts[1]);
+                pixelSlices[j][i] = new ObservationImpl(dstPts[0], dstPts[1], 0.0, 0.0f);
             }
         }
 
         MyVariableContext variableContext = new MyVariableContext("x");
-        MyBinManager binManager = new MyBinManager(variableContext, new AggregatorAverageML(variableContext, "x", null, null));
+        MyBinManager binManager = new MyBinManager(variableContext,
+                                                   new AggregatorAverageML(variableContext, "x", null, null));
         TestSpatialBinConsumer spatialBinProcessor = new TestSpatialBinConsumer();
         BinningContext binningContext = new BinningContextImpl(planetaryGrid, binManager);
 
@@ -149,11 +150,13 @@ public class SpatialBinnerTest {
                 2963729, 2963730, 2963731, 2963732,
         };
         for (int i = 0; i < 16; i++) {
-            assertEquals(String.format("Problem with bin[%d]", i), expectedIndexes[i], producedSpatialBins.get(i).getIndex());
+            assertEquals(String.format("Problem with bin[%d]", i), expectedIndexes[i],
+                         producedSpatialBins.get(i).getIndex());
         }
     }
 
     private static class TestSpatialBinConsumer implements SpatialBinConsumer {
+
         int numObservationsTotal;
         boolean verbous = false;
         int sliceIndex;
@@ -176,6 +179,7 @@ public class SpatialBinnerTest {
     }
 
     private static class BinComparator implements Comparator<SpatialBin> {
+
         @Override
         public int compare(SpatialBin b1, SpatialBin b2) {
             return (int) (b1.getIndex() - b2.getIndex());

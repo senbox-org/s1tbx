@@ -6,7 +6,7 @@ import org.esa.beam.binning.aggregators.AggregatorMinMax;
 import org.esa.beam.binning.aggregators.AggregatorOnMaxSet;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 public class BinManagerTest {
 
@@ -23,11 +23,11 @@ public class BinManagerTest {
 
         SpatialBin sbin = binManager.createSpatialBin(42);
         assertEquals(42, sbin.getIndex());
-        assertEquals(2 + 2 + 2 + 3, sbin.getFeatureValues().length);
+        assertEquals(2 + 2 + 2 + 4, sbin.getFeatureValues().length);
 
         TemporalBin tbin = binManager.createTemporalBin(42);
         assertEquals(42, tbin.getIndex());
-        assertEquals(3 + 3 + 2 + 3, tbin.getFeatureValues().length);
+        assertEquals(3 + 3 + 2 + 4, tbin.getFeatureValues().length);
     }
 
     @Test

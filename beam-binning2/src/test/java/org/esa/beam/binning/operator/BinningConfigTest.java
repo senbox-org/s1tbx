@@ -100,19 +100,23 @@ public class BinningConfigTest {
         assertEquals(-1.0F, binManager.getAggregator(0).getOutputFillValue(), 1E-05F);
 
         assertEquals(AggregatorAverageML.class, binManager.getAggregator(1).getClass());
-        assertArrayEquals(new String[]{"algal1_mean", "algal1_sigma", "algal1_median", "algal1_mode"}, binManager.getAggregator(1).getOutputFeatureNames());
+        assertArrayEquals(new String[]{"algal1_mean", "algal1_sigma", "algal1_median", "algal1_mode"},
+                          binManager.getAggregator(1).getOutputFeatureNames());
         assertTrue(Float.isNaN(binManager.getAggregator(1).getOutputFillValue()));
 
         assertEquals(AggregatorAverageML.class, binManager.getAggregator(2).getClass());
-        assertArrayEquals(new String[]{"algal2_mean", "algal2_sigma", "algal2_median", "algal2_mode"}, binManager.getAggregator(2).getOutputFeatureNames());
+        assertArrayEquals(new String[]{"algal2_mean", "algal2_sigma", "algal2_median", "algal2_mode"},
+                          binManager.getAggregator(2).getOutputFeatureNames());
         assertTrue(Float.isNaN(binManager.getAggregator(2).getOutputFillValue()));
 
         assertEquals(AggregatorAverageML.class, binManager.getAggregator(3).getClass());
-        assertArrayEquals(new String[]{"chl_mean", "chl_sigma", "chl_median", "chl_mode"}, binManager.getAggregator(3).getOutputFeatureNames());
+        assertArrayEquals(new String[]{"chl_mean", "chl_sigma", "chl_median", "chl_mode"},
+                          binManager.getAggregator(3).getOutputFeatureNames());
         assertEquals(-999.0F, binManager.getAggregator(3).getOutputFillValue(), 1E-05F);
 
         assertEquals(AggregatorOnMaxSet.class, binManager.getAggregator(4).getClass());
-        assertArrayEquals(new String[]{"ndvi_max", "reflec_3", "reflec_7", "reflec_8"}, binManager.getAggregator(4).getOutputFeatureNames());
+        assertArrayEquals(new String[]{"ndvi_max", "ndvi_mjd", "reflec_3", "reflec_7", "reflec_8"},
+                          binManager.getAggregator(4).getOutputFeatureNames());
         assertTrue(Float.isNaN(binManager.getAggregator(4).getOutputFillValue()));
 
         assertEquals(AggregatorMinMax.class, binManager.getAggregator(5).getClass());

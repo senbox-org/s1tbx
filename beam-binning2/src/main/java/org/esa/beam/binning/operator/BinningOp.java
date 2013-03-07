@@ -110,7 +110,7 @@ todo - address the following BinningOp requirements (nf, 2012-03-09)
  */
 @SuppressWarnings("UnusedDeclaration")
 @OperatorMetadata(alias = "Binning",
-                  version = "0.8.1",
+                  version = "0.8.2",
                   authors = "Norman Fomferra, Marco Zühlke, Thomas Storm",
                   copyright = "(c) 2012 by Brockmann Consult GmbH",
                   description = "Performs spatial and temporal aggregation of pixel values into 'bin' cells")
@@ -120,38 +120,38 @@ public class BinningOp extends Operator implements Output {
     public static final String DATETIME_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSS";
 
     @SourceProducts(description = "The source products to be binned. Must be all of the same structure. " +
-            "If not given, the parameter 'sourceProductPaths' must be provided.")
+                                  "If not given, the parameter 'sourceProductPaths' must be provided.")
     Product[] sourceProducts;
 
     @TargetProduct
     Product targetProduct;
 
     @Parameter(description = "A comma-separated list of file paths specifying the source products.\n" +
-            "Each path may contain the wildcards '**' (matches recursively any directory),\n" +
-            "'*' (matches any character sequence in path names) and\n" +
-            "'?' (matches any single character).")
+                             "Each path may contain the wildcards '**' (matches recursively any directory),\n" +
+                             "'*' (matches any character sequence in path names) and\n" +
+                             "'?' (matches any single character).")
     String[] sourceProductPaths;
 
     @Parameter(converter = JtsGeometryConverter.class,
                description = "The considered geographical region as a geometry in well-known text format (WKT).\n" +
-                       "If not given, the geographical region will be computed according to the extents of the " +
-                       "input products.")
+                             "If not given, the geographical region will be computed according to the extents of the " +
+                             "input products.")
     Geometry region;
 
     @Parameter(description =
                        "The start date. If not given, taken from the 'oldest' source product. Products that have " +
-                               "a start date before the start date given by this parameter are not considered.",
+                       "a start date before the start date given by this parameter are not considered.",
                format = DATE_PATTERN)
     String startDate;
 
     @Parameter(description =
                        "The end date. If not given, taken from the 'youngest' source product. Products that have " +
-                               "an end date after the end date given by this parameter are not considered.",
+                       "an end date after the end date given by this parameter are not considered.",
                format = DATE_PATTERN)
     String endDate;
 
     @Parameter(description = "If true, a SeaDAS-style, binned data NetCDF file is written in addition to the\n" +
-            "target product. The output file name will be <target>-bins.nc", defaultValue = "true")
+                             "target product. The output file name will be <target>-bins.nc", defaultValue = "true")
     boolean outputBinnedData;
 
     @Parameter(notNull = true,
@@ -173,7 +173,7 @@ public class BinningOp extends Operator implements Output {
     File metadataTemplateDir;
 
     private transient BinningContext binningContext;
-    private transient final SpatialBinStore spatialBinStore;
+    private transient final SpatialBinCollector spatialBinCollector;
     private transient int sourceProductCount;
     private transient ProductData.UTC minDateUtc;
     private transient ProductData.UTC maxDateUtc;
@@ -181,12 +181,12 @@ public class BinningOp extends Operator implements Output {
 
     private final Map<Product, List<Band>> addedBands;
 
-    public BinningOp() {
-        this(new SimpleSpatialBinStore());
+    public BinningOp() throws OperatorException {
+        this(getBinCollector());
     }
 
-    private BinningOp(SpatialBinStore spatialBinStore) {
-        this.spatialBinStore = spatialBinStore;
+    public BinningOp(SpatialBinCollector spatialBinCollector) {
+        this.spatialBinCollector = spatialBinCollector;
         addedBands = new HashMap<Product, List<Band>>();
     }
 
@@ -267,7 +267,7 @@ public class BinningOp extends Operator implements Output {
 
         try {
             // Step 1: Spatial binning - creates time-series of spatial bins for each bin ID ordered by ID. The tree map structure is <ID, time-series>
-            SortedMap<Long, List<SpatialBin>> spatialBinMap = doSpatialBinning();
+            SpatialBinCollection spatialBinMap = doSpatialBinning();
             if (!spatialBinMap.isEmpty()) {
                 // Step 2: Temporal binning - creates a list of temporal bins, sorted by bin ID
                 List<TemporalBin> temporalBins = doTemporalBinning(spatialBinMap);
@@ -334,6 +334,14 @@ public class BinningOp extends Operator implements Output {
             }
         }
         region = JTS.shapeToGeometry(area, new GeometryFactory());
+    }
+
+    private static SpatialBinCollector getBinCollector() throws OperatorException {
+        try {
+            return new MapBackedSpatialBinCollector();
+        } catch (Exception e) {
+            throw new OperatorException(e.getMessage(), e);
+        }
     }
 
     private void validateInput(ProductData.UTC startDateUtc, ProductData.UTC endDateUtc) {
@@ -517,8 +525,8 @@ public class BinningOp extends Operator implements Output {
         return ProductIO.readProduct(new File(formatterConfig.getOutputFile()));
     }
 
-    private SortedMap<Long, List<SpatialBin>> doSpatialBinning() throws IOException {
-        final SpatialBinner spatialBinner = new SpatialBinner(binningContext, spatialBinStore);
+    private SpatialBinCollection doSpatialBinning() throws IOException {
+        final SpatialBinner spatialBinner = new SpatialBinner(binningContext, spatialBinCollector);
         if (sourceProducts != null) {
             for (Product sourceProduct : sourceProducts) {
                 processSource(sourceProduct, spatialBinner);
@@ -546,8 +554,8 @@ public class BinningOp extends Operator implements Output {
                 }
             }
         }
-        spatialBinStore.consumingCompleted();
-        return spatialBinStore.getSpatialBinMap();
+        spatialBinCollector.consumingCompleted();
+        return spatialBinCollector.getSpatialBinCollection();
     }
 
 
@@ -565,17 +573,18 @@ public class BinningOp extends Operator implements Output {
         sourceProductCount++;
     }
 
-    private List<TemporalBin> doTemporalBinning(SortedMap<Long, List<SpatialBin>> spatialBinMap) throws IOException {
+    private List<TemporalBin> doTemporalBinning(SpatialBinCollection spatialBinMap) throws IOException {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
-        int numberOfBins = spatialBinMap.size();
+        long numberOfBins = spatialBinMap.size();
         final TemporalBinner temporalBinner = new TemporalBinner(binningContext);
-        final ArrayList<TemporalBin> temporalBins = new ArrayList<TemporalBin>();
-        Long[] keys = spatialBinMap.keySet().toArray(new Long[numberOfBins]);
-        for (Long key : keys) {
-            List<SpatialBin> value = spatialBinMap.remove(key);
-            final TemporalBin temporalBin = temporalBinner.processSpatialBins(key, value);
+        final List<TemporalBin> temporalBins = new TemporalBinList((int) spatialBinMap.size());
+        Iterable<List<SpatialBin>> spatialBinListCollection = spatialBinMap.getBinCollection();
+        for (List<SpatialBin> spatialBinList : spatialBinListCollection) {
+            SpatialBin spatialBin = spatialBinList.get(0);
+            long spatialBinIndex = spatialBin.getIndex();
+            final TemporalBin temporalBin = temporalBinner.processSpatialBins(spatialBinIndex, spatialBinList);
             temporalBins.add(temporalBin);
         }
         stopWatch.stop();

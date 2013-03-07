@@ -71,6 +71,7 @@ public class Reprojector {
      *
      * @param planetaryGrid The binning grid.
      * @param roiGeometry   The region of interest in geo-graphical coordinates.
+     *
      * @return The sub-region in pixel coordinates.
      */
     public static Rectangle computeRasterSubRegion(PlanetaryGrid planetaryGrid, Geometry roiGeometry) {
@@ -116,6 +117,7 @@ public class Reprojector {
 
     /**
      * @param planetaryGrid The planetary grid used for the binning.
+     *
      * @return The pixel size in degree of a raster resulting from the given {@code planetaryGrid}.
      */
     public static double getRasterPixelSize(PlanetaryGrid planetaryGrid) {

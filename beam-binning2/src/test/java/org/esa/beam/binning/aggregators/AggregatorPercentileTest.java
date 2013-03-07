@@ -22,11 +22,9 @@ import org.esa.beam.binning.support.VectorImpl;
 import org.junit.Before;
 import org.junit.Test;
 
-import static java.lang.Float.NaN;
-import static org.esa.beam.binning.aggregators.AggregatorTestUtils.createCtx;
-import static org.esa.beam.binning.aggregators.AggregatorTestUtils.vec;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static java.lang.Float.*;
+import static org.esa.beam.binning.aggregators.AggregatorTestUtils.*;
+import static org.junit.Assert.*;
 
 public class AggregatorPercentileTest {
 
@@ -76,9 +74,9 @@ public class AggregatorPercentileTest {
         agg.initSpatial(ctx, svec);
         assertEquals(0.0f, svec.get(0), 0.0f);
 
-        agg.aggregateSpatial(ctx, vec(1.5f), svec);
-        agg.aggregateSpatial(ctx, vec(2.5f), svec);
-        agg.aggregateSpatial(ctx, vec(0.5f), svec);
+        agg.aggregateSpatial(ctx, obsNT(1.5f), svec);
+        agg.aggregateSpatial(ctx, obsNT(2.5f), svec);
+        agg.aggregateSpatial(ctx, obsNT(0.5f), svec);
         float sumX = 1.5f + 2.5f + 0.5f;
         assertEquals(sumX, svec.get(0), 1e-5f);
 

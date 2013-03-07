@@ -24,23 +24,22 @@ import org.esa.beam.binning.Observation;
  * @author Norman Fomferra
  */
 public final class ObservationImpl implements Observation {
+
     private final double latitude;
     private final double longitude;
+    private final double mjd;
     private final float[] measurements;
 
-    public ObservationImpl(double latitude, double longitude) {
-        this(latitude, longitude, 0.0f);
-    }
-
-    public ObservationImpl(double latitude, double longitude, float... measurements) {
+    public ObservationImpl(double latitude, double longitude, double mjd, float... measurements) {
         this.latitude = latitude;
         this.longitude = longitude;
+        this.mjd = mjd;
         this.measurements = measurements;
     }
 
     @Override
     public double getMJD() {
-        throw new IllegalStateException("not implemented");
+        return mjd;
     }
 
     @Override

@@ -38,6 +38,7 @@ import org.esa.beam.binning.Aggregator;
 import org.esa.beam.binning.AggregatorConfig;
 import org.esa.beam.binning.AggregatorDescriptor;
 import org.esa.beam.binning.BinContext;
+import org.esa.beam.binning.Observation;
 import org.esa.beam.binning.VariableContext;
 import org.esa.beam.binning.Vector;
 import org.esa.beam.binning.WritableVector;
@@ -54,6 +55,7 @@ import java.util.Arrays;
  * @author Norman
  */
 public class AggregatorPercentile extends AbstractAggregator {
+
     private final int varIndex;
     private final int percentage;
 
@@ -87,7 +89,7 @@ public class AggregatorPercentile extends AbstractAggregator {
     }
 
     @Override
-    public void aggregateSpatial(BinContext ctx, Vector observationVector, WritableVector spatialVector) {
+    public void aggregateSpatial(BinContext ctx, Observation observationVector, WritableVector spatialVector) {
         final float value = observationVector.get(varIndex);
         spatialVector.set(0, spatialVector.get(0) + value);
     }
@@ -104,7 +106,8 @@ public class AggregatorPercentile extends AbstractAggregator {
     }
 
     @Override
-    public void aggregateTemporal(BinContext ctx, Vector spatialVector, int numSpatialObs, WritableVector temporalVector) {
+    public void aggregateTemporal(BinContext ctx, Vector spatialVector, int numSpatialObs,
+                                  WritableVector temporalVector) {
         GrowableVector measurementsVec = ctx.get("ml");
         measurementsVec.add(spatialVector.get(0));
     }
@@ -126,12 +129,12 @@ public class AggregatorPercentile extends AbstractAggregator {
     @Override
     public String toString() {
         return "AggregatorPercentile{" +
-                "varIndex=" + varIndex +
-                ", percentage=" + percentage +
-                ", spatialFeatureNames=" + Arrays.toString(getSpatialFeatureNames()) +
-                ", temporalFeatureNames=" + Arrays.toString(getTemporalFeatureNames()) +
-                ", outputFeatureNames=" + Arrays.toString(getOutputFeatureNames()) +
-                '}';
+               "varIndex=" + varIndex +
+               ", percentage=" + percentage +
+               ", spatialFeatureNames=" + Arrays.toString(getSpatialFeatureNames()) +
+               ", temporalFeatureNames=" + Arrays.toString(getTemporalFeatureNames()) +
+               ", outputFeatureNames=" + Arrays.toString(getOutputFeatureNames()) +
+               '}';
     }
 
     /**
@@ -142,6 +145,7 @@ public class AggregatorPercentile extends AbstractAggregator {
      *
      * @param p            The percentage in percent ranging from 0 to 100.
      * @param measurements Sorted array of measurements.
+     *
      * @return The  p-th percentile.
      */
     public static float computePercentile(int p, float[] measurements) {
@@ -161,6 +165,7 @@ public class AggregatorPercentile extends AbstractAggregator {
     }
 
     public static class Config extends AggregatorConfig {
+
         @Parameter
         String varName;
         @Parameter

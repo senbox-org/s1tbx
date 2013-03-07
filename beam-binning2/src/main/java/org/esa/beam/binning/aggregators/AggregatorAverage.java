@@ -22,6 +22,7 @@ import org.esa.beam.binning.Aggregator;
 import org.esa.beam.binning.AggregatorConfig;
 import org.esa.beam.binning.AggregatorDescriptor;
 import org.esa.beam.binning.BinContext;
+import org.esa.beam.binning.Observation;
 import org.esa.beam.binning.VariableContext;
 import org.esa.beam.binning.Vector;
 import org.esa.beam.binning.WeightFn;
@@ -34,6 +35,7 @@ import java.util.Arrays;
  * An aggregator that computes an average.
  */
 public final class AggregatorAverage extends AbstractAggregator {
+
     private final int varIndex;
     private final WeightFn weightFn;
 
@@ -70,7 +72,7 @@ public final class AggregatorAverage extends AbstractAggregator {
     }
 
     @Override
-    public void aggregateSpatial(BinContext ctx, Vector observationVector, WritableVector spatialVector) {
+    public void aggregateSpatial(BinContext ctx, Observation observationVector, WritableVector spatialVector) {
         final float value = observationVector.get(varIndex);
         spatialVector.set(0, spatialVector.get(0) + value);
         spatialVector.set(1, spatialVector.get(1) + value * value);
@@ -83,7 +85,8 @@ public final class AggregatorAverage extends AbstractAggregator {
     }
 
     @Override
-    public void aggregateTemporal(BinContext ctx, Vector spatialVector, int numSpatialObs, WritableVector temporalVector) {
+    public void aggregateTemporal(BinContext ctx, Vector spatialVector, int numSpatialObs,
+                                  WritableVector temporalVector) {
         final float w = weightFn.eval(numSpatialObs);
         temporalVector.set(0, temporalVector.get(0) + spatialVector.get(0) * w);
         temporalVector.set(1, temporalVector.get(1) + spatialVector.get(1) * w);
@@ -101,7 +104,8 @@ public final class AggregatorAverage extends AbstractAggregator {
         final double sumW = temporalVector.get(2);
         final double mean = sumX / sumW;
         final double sigmaSqr = sumXX / sumW - mean * mean;
-        final double sigma = sigmaSqr > 0.0 ? Math.sqrt(sigmaSqr) : 0.0;
+        final double sigma = sigmaSqr > 0.0 ? Math.sqrt(
+                sigmaSqr) : 0.0 * sigmaSqr; // multiplication to pass through NaN
         outputVector.set(0, (float) mean);
         outputVector.set(1, (float) sigma);
     }
@@ -109,15 +113,16 @@ public final class AggregatorAverage extends AbstractAggregator {
     @Override
     public String toString() {
         return "AggregatorAverage{" +
-                ", varIndex=" + varIndex +
-                ", weightFn=" + weightFn +
-                ", spatialFeatureNames=" + Arrays.toString(getSpatialFeatureNames()) +
-                ", temporalFeatureNames=" + Arrays.toString(getTemporalFeatureNames()) +
-                ", outputFeatureNames=" + Arrays.toString(getOutputFeatureNames()) +
-                '}';
+               ", varIndex=" + varIndex +
+               ", weightFn=" + weightFn +
+               ", spatialFeatureNames=" + Arrays.toString(getSpatialFeatureNames()) +
+               ", temporalFeatureNames=" + Arrays.toString(getTemporalFeatureNames()) +
+               ", outputFeatureNames=" + Arrays.toString(getOutputFeatureNames()) +
+               '}';
     }
 
     public static class Config extends AggregatorConfig {
+
         @Parameter(notEmpty = true, notNull = true)
         String varName;
         @Parameter

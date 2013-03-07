@@ -78,6 +78,7 @@ public class SpatialBinner {
      * Will cause the {@link SpatialBinConsumer} to be invoked.
      *
      * @param observations The observations.
+     *
      * @return The number of processed observations
      */
     public long processObservationSlice(Iterable<Observation> observations) {
@@ -113,6 +114,7 @@ public class SpatialBinner {
      * Convenience method for {@link #processObservationSlice(Iterable)}.
      *
      * @param observations The observations.
+     *
      * @return The number of processed observations
      */
     public long processObservationSlice(Observation... observations) {
