@@ -108,7 +108,6 @@ public class SpectrumChooser extends ModalDialog {
         shapeComboBoxRenderer.setPreferredSize(new Dimension(200, 30));
         shapeComboBox.setRenderer(shapeComboBoxRenderer);
         shapeColumn.setCellEditor(new DefaultCellEditor(shapeComboBox));
-
     }
 
     public List<DisplayableSpectrum> getSpectra() {
@@ -163,10 +162,14 @@ public class SpectrumChooser extends ModalDialog {
         }
 
         private void addRow(DisplayableSpectrum spectrum) {
-            final ImageIcon strokeIcon = SpectrumConstants.strokeIcons[getRowCount() % SpectrumConstants.strokeIcons.length];
-            final ImageIcon shapeIcon = SpectrumConstants.shapeIcons[getRowCount() % SpectrumConstants.shapeIcons.length];
-            spectrum.setLineStyle(SpectrumConstants.strokes[ArrayUtils.getElementIndex(strokeIcon, SpectrumConstants.strokeIcons)]);
-            spectrum.setSymbol(SpectrumConstants.shapes[ArrayUtils.getElementIndex(shapeIcon, SpectrumConstants.shapeIcons)]);
+            if (spectrum.getLineStyle() == null) {
+                spectrum.setLineStyle(SpectrumConstants.strokes[getRowCount() % SpectrumConstants.strokes.length]);
+            }
+            final ImageIcon strokeIcon = SpectrumConstants.strokeIcons[ArrayUtils.getElementIndex(spectrum.getLineStyle(), SpectrumConstants.strokes)];
+            if (spectrum.getSymbol() == null) {
+                spectrum.setSymbol(SpectrumConstants.shapes[getRowCount() % SpectrumConstants.shapes.length]);
+            }
+            final ImageIcon shapeIcon = SpectrumConstants.shapeIcons[ArrayUtils.getElementIndex(spectrum.getSymbol(), SpectrumConstants.shapes)];
             super.addRow(new Object[]{spectrum.isSelected(), spectrum.getName(), strokeIcon, shapeIcon});
         }
 
