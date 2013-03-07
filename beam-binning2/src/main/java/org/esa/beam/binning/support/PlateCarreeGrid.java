@@ -132,7 +132,7 @@ public class PlateCarreeGrid implements PlanetaryGrid {
         return (numRows - 1) - (int) ((90.0 + lat) * (numRows / 180.0));
     }
 
-    public Product reprojectToPlateCareGrid(Product sourceProduct) {
+    public Product reprojectToPlateCareeGrid(Product sourceProduct) {
         final ReprojectionOp repro = new ReprojectionOp();
 
         repro.setParameter("resampling", "Nearest");
@@ -179,7 +179,8 @@ public class PlateCarreeGrid implements PlanetaryGrid {
                 Geometry tileGeometry = getTileGeometry(x, y);
                 Geometry intersection = productGeometry.intersection(tileGeometry);
                 if (!intersection.isEmpty() && intersection.getDimension() == 2) {
-                    Rectangle tileRect = new Rectangle(x * tileSize.width, y * tileSize.height, tileSize.width, tileSize.height);
+                    Rectangle tileRect = new Rectangle(x * tileSize.width, y * tileSize.height, tileSize.width,
+                                                       tileSize.height);
                     rectangles.add(productBoundingBox.intersection(tileRect));
                 }
             }

@@ -59,7 +59,9 @@ public class SpatialProductBinner {
      * @param superSampling   The super-sampling rate.
      * @param addedBands      A container for the bands that are added during processing.
      * @param progressMonitor A progress monitor.
+     *
      * @return The total number of observations processed.
+     *
      * @throws IOException If an I/O error occurs.
      */
     public static long processProduct(Product product,
@@ -81,7 +83,7 @@ public class SpatialProductBinner {
             addMaskToProduct(variableContext.getValidMaskExpression(), product, addedBands);
             PlateCarreeGrid plateCarreeGrid = (PlateCarreeGrid) planetaryGrid;
             sourceProductGeometry = plateCarreeGrid.computeProductGeometry(product);
-            product = plateCarreeGrid.reprojectToPlateCareGrid(product);
+            product = plateCarreeGrid.reprojectToPlateCareeGrid(product);
             maskImage = product.getBand("binning_mask").getGeophysicalImage();
         } else {
             maskImage = getMaskImage(product, variableContext.getValidMaskExpression());
