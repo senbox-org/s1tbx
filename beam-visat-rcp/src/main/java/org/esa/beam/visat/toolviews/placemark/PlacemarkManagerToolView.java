@@ -19,6 +19,7 @@ package org.esa.beam.visat.toolviews.placemark;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.swing.figure.Figure;
+import com.bc.ceres.swing.figure.FigureEditor;
 import com.bc.ceres.swing.figure.FigureStyle;
 import com.bc.ceres.swing.figure.support.DefaultFigureStyle;
 import com.bc.ceres.swing.selection.SelectionChangeEvent;
@@ -51,6 +52,7 @@ import org.esa.beam.framework.ui.command.ExecCommand;
 import org.esa.beam.framework.ui.product.BandChooser;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.framework.ui.product.ProductTreeListenerAdapter;
+import org.esa.beam.framework.ui.product.SimpleFeaturePointFigure;
 import org.esa.beam.framework.ui.product.VectorDataLayer;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.PropertyMap;
@@ -60,6 +62,7 @@ import org.esa.beam.util.io.BeamFileChooser;
 import org.esa.beam.util.io.BeamFileFilter;
 import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.visat.VisatApp;
+import org.opengis.feature.simple.SimpleFeature;
 
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
@@ -85,6 +88,7 @@ import javax.swing.event.TableColumnModelListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableColumnModel;
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
@@ -807,12 +811,39 @@ public class PlacemarkManagerToolView extends AbstractToolView {
     }
 
     private void updateFigureStyle(Placemark placemark) {
-        final Point2D.Double pinPoint = new Point2D.Double(placemark.getPixelPos().getX(), placemark.getPixelPos().getY());
-        final Figure pinFigure = getSceneView().getFigureEditor().getFigureCollection().getFigure(pinPoint, new AffineTransform());
         final FigureStyle pinStyle = DefaultFigureStyle.createFromCss(placemark.getStyleCss());
-        final FigureStyle figureStyle = pinFigure.getNormalStyle();
-        figureStyle.setValue(DefaultFigureStyle.FILL_COLOR.getName(), pinStyle.getFillColor());
-        pinFigure.setNormalStyle(figureStyle);
+        final Color newColor = pinStyle.getFillColor();
+        final FigureEditor figureEditor = getSceneView().getFigureEditor();
+        Figure figureSelectionFigure =
+                getFigure(placemark, figureEditor.getFigureSelection().getFigures());
+        updateFigureStyle(newColor, figureSelectionFigure);
+        Figure figureCollectionFigure =
+                getFigure(placemark, figureEditor.getFigureCollection().getFigures());
+        updateFigureStyle(newColor, figureCollectionFigure);
+    }
+
+    private Figure getFigure(Placemark placemark, Figure[] figures) {
+        Figure pinFigure = null;
+        for (Figure figure : figures) {
+            if (figure instanceof SimpleFeaturePointFigure) {
+                final SimpleFeature simpleFeature = ((SimpleFeaturePointFigure) figure).getSimpleFeature();
+                if (simpleFeature.getID().equals(placemark.getName())) {
+                    pinFigure = figure;
+                }
+            }
+        }
+        return pinFigure;
+    }
+
+    private void updateFigureStyle(Color newColor, Figure figure) {
+        if (figure != null) {
+            final FigureStyle normalStyle = figure.getNormalStyle();
+            normalStyle.setValue(DefaultFigureStyle.FILL_COLOR.getName(), newColor);
+            figure.setNormalStyle(normalStyle);
+            final FigureStyle selectedStyle = figure.getSelectedStyle();
+            selectedStyle.setValue(DefaultFigureStyle.FILL_COLOR.getName(), newColor);
+            figure.setSelectedStyle(selectedStyle);
+        }
     }
 
     private class PlacemarkListener implements ProductNodeListener {

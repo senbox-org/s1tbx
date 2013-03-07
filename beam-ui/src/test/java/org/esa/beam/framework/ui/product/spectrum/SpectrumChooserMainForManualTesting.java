@@ -34,7 +34,7 @@ public class SpectrumChooserMainForManualTesting {
         button.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                SpectrumChooser chooser = new SpectrumChooser(frame, spectra, spectra, "");
+                SpectrumChooser chooser = new SpectrumChooser(frame, spectra, "");
                 chooser.show();
             }
         });

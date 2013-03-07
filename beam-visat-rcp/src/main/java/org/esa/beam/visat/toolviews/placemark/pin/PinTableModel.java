@@ -27,6 +27,7 @@ import org.esa.beam.framework.datamodel.PlacemarkDescriptor;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.TiePointGrid;
 import org.esa.beam.visat.toolviews.placemark.AbstractPlacemarkTableModel;
+import org.esa.beam.visat.toolviews.placemark.PlacemarkUtils;
 
 import java.awt.Color;
 
@@ -90,20 +91,11 @@ public class PinTableModel extends AbstractPlacemarkTableModel {
             case latIndex:
                 return lat;
             case colorIndex:
-                return getPinColor(placemark);
+                return PlacemarkUtils.getPlacemarkColor(placemark);
             case labelIndex:
                 return placemark.getLabel();
             default:
                 return "";
-        }
-    }
-
-    private Color getPinColor(Placemark placemark) {
-        final String styleCss = placemark.getStyleCss();
-        if (styleCss.contains(DefaultFigureStyle.FILL_COLOR.getName())) {
-            return DefaultFigureStyle.createFromCss(styleCss).getFillColor();
-        } else {
-            return Color.BLUE;
         }
     }
 

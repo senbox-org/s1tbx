@@ -58,7 +58,6 @@ public class ProductManager {
      * Gets the product at the given index.
      *
      * @param index the index
-     *
      * @return The product at the given index.
      */
     public Product getProduct(int index) {
@@ -69,7 +68,6 @@ public class ProductManager {
      * Returns the display names of all products currently managed.
      *
      * @return an array containing the display names, never <code>null</code>, but the array can have zero length
-     *
      * @see ProductNode#getDisplayName()
      */
     public String[] getProductDisplayNames() {
@@ -96,7 +94,6 @@ public class ProductManager {
 
     /**
      * @param displayName The product's display name.
-     *
      * @return The product with the given display name.
      */
     public Product getProductByDisplayName(final String displayName) {
@@ -108,7 +105,6 @@ public class ProductManager {
 
     /**
      * @param refNo The reference number.
-     *
      * @return The product with the given reference number.
      */
     public Product getProductByRefNo(final int refNo) {
@@ -123,7 +119,6 @@ public class ProductManager {
 
     /**
      * @param name The product name.
-     *
      * @return The product with the given name.
      */
     public Product getProduct(String name) {
@@ -138,7 +133,6 @@ public class ProductManager {
      * Tests whether a product with the given name is contained in this list.
      *
      * @param name the product name
-     *
      * @return true, if so
      */
     public boolean containsProduct(String name) {
@@ -149,7 +143,6 @@ public class ProductManager {
      * Tests whether the given product is contained in this list.
      *
      * @param product The product.
-     *
      * @return {@code true} if so.
      */
     public boolean contains(final Product product) {
@@ -194,7 +187,6 @@ public class ProductManager {
      * Removes the given product from this product manager if it exists.
      *
      * @param product the product to be removed, ignored if <code>null</code>
-     *
      * @return true, if the product was removed
      */
     public boolean removeProduct(Product product) {
@@ -261,7 +253,6 @@ public class ProductManager {
      * informed each time a product was added or removed.
      *
      * @param listener the listener to be added.
-     *
      * @return true if the listener was added, otherwise false.
      */
     public synchronized boolean addListener(Listener listener) {
@@ -284,7 +275,6 @@ public class ProductManager {
      * Removes a <code>ProductManagerListener</code> from this product manager.
      *
      * @param listener The listener.
-     *
      * @return true, if the listener was removed, otherwise false.
      */
     public synchronized boolean removeListener(Listener listener) {
@@ -332,14 +322,14 @@ public class ProductManager {
         /**
          * Notified when a product was added.
          *
-         * @param event the product node which the listener to be notified
+         * @param event the event
          */
         void productAdded(Event event);
 
         /**
-         * Notified when a node was removed.
+         * Notified when a product was removed.
          *
-         * @param event the product node which the listener to be notified
+         * @param event the event
          */
         void productRemoved(Event event);
     }
@@ -350,9 +340,8 @@ public class ProductManager {
     public static class Event extends EventObject {
 
         /**
-         * Constructs a productEvent object.
-         *
-         * @param product the source class where the object originates
+         * @param product The product on which the event initially occurred.
+         * @throws IllegalArgumentException if source is null.
          */
         public Event(Product product) {
             super(product);
