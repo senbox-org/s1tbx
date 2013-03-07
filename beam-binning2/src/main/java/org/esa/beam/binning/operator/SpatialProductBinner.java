@@ -83,7 +83,7 @@ public class SpatialProductBinner {
             addMaskToProduct(variableContext.getValidMaskExpression(), product, addedBands);
             PlateCarreeGrid plateCarreeGrid = (PlateCarreeGrid) planetaryGrid;
             sourceProductGeometry = plateCarreeGrid.computeProductGeometry(product);
-            product = plateCarreeGrid.reprojectToPlateCareGrid(product);
+            product = plateCarreeGrid.reprojectToPlateCareeGrid(product);
             maskImage = product.getBand("binning_mask").getGeophysicalImage();
         } else {
             maskImage = getMaskImage(product, variableContext.getValidMaskExpression());

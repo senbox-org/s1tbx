@@ -132,7 +132,7 @@ public class PlateCarreeGrid implements PlanetaryGrid {
         return (numRows - 1) - (int) ((90.0 + lat) * (numRows / 180.0));
     }
 
-    public Product reprojectToPlateCareGrid(Product sourceProduct) {
+    public Product reprojectToPlateCareeGrid(Product sourceProduct) {
         final ReprojectionOp repro = new ReprojectionOp();
 
         repro.setParameter("resampling", "Nearest");
