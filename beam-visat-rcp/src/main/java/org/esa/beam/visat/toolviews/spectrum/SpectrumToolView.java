@@ -45,12 +45,17 @@ import org.esa.beam.visat.toolviews.stat.XYPlotMarker;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.LegendItem;
+import org.jfree.chart.LegendItemCollection;
+import org.jfree.chart.LegendItemSource;
 import org.jfree.chart.annotations.XYTitleAnnotation;
 import org.jfree.chart.block.BlockBorder;
+import org.jfree.chart.block.LineBorder;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
+import org.jfree.chart.title.LegendTitle;
 import org.jfree.chart.title.TextTitle;
 import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
@@ -58,6 +63,7 @@ import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.ui.HorizontalAlignment;
 import org.jfree.ui.RectangleAnchor;
 import org.jfree.ui.RectangleEdge;
+import org.jfree.ui.RectangleInsets;
 
 import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
@@ -67,16 +73,19 @@ import javax.swing.JPanel;
 import javax.swing.border.BevelBorder;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
+import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
+import java.awt.Paint;
 import java.awt.Shape;
 import java.awt.Stroke;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -526,9 +535,11 @@ public class SpectrumToolView extends AbstractToolView {
     List<DisplayableSpectrum> getSelectedSpectra() {
         List<DisplayableSpectrum> selectedSpectra = new ArrayList<DisplayableSpectrum>();
         List<DisplayableSpectrum> allSpectra = productToAllSpectraMap.get(getCurrentProduct());
-        for (DisplayableSpectrum displayableSpectrum : allSpectra) {
-            if (displayableSpectrum.isSelected()) {
-                selectedSpectra.add(displayableSpectrum);
+        if (allSpectra != null) {
+            for (DisplayableSpectrum displayableSpectrum : allSpectra) {
+                if (displayableSpectrum.isSelected()) {
+                    selectedSpectra.add(displayableSpectrum);
+                }
             }
         }
         return selectedSpectra;
@@ -569,11 +580,21 @@ public class SpectrumToolView extends AbstractToolView {
         private ChartHandler(JFreeChart chart) {
             chartUpdater = new ChartUpdater();
             this.chart = chart;
+            setLegend(chart);
             final XYPlot plot = chart.getXYPlot();
             final XYLineAndShapeRenderer renderer = (XYLineAndShapeRenderer) plot.getRenderer();
             renderer.setBaseShapesVisible(true);
             renderer.setBaseShapesFilled(false);
             setPlotMessage(MESSAGE_NO_PRODUCT_SELECTED);
+        }
+
+        private void setLegend(JFreeChart chart) {
+            chart.removeLegend();
+            final LegendTitle legend = new LegendTitle(new SpectrumLegendItemSource());
+            legend.setPosition(RectangleEdge.BOTTOM);
+            LineBorder border = new LineBorder(Color.BLACK, new BasicStroke(), new RectangleInsets(2, 2, 2, 2));
+            legend.setFrame(border);
+            chart.addLegend(legend);
         }
 
         private void setPosition(int pixelX, int pixelY) {
@@ -774,9 +795,52 @@ public class SpectrumToolView extends AbstractToolView {
         }
     }
 
+    private class SpectrumLegendItemSource implements LegendItemSource {
 
-    /////////////////////////////////////////////////////////////////////////
-    // View change handling
+        @Override
+        public LegendItemCollection getLegendItems() {
+            LegendItemCollection itemCollection = new LegendItemCollection();
+            final Placemark[] displayedPins = getDisplayedPins();
+            final List<DisplayableSpectrum> spectra = getSelectedSpectra();
+            for (Placemark pin : displayedPins) {
+                Paint pinPaint = PlacemarkUtils.getPlacemarkColor(pin, getCurrentView());
+                for (DisplayableSpectrum spectrum : spectra) {
+                    String legendLabel = pin.getName() + "_" + spectrum.getName();
+                    LegendItem item = createLegendItem(spectrum, pinPaint, legendLabel);
+                    itemCollection.add(item);
+                }
+            }
+            if (isShowingCursorSpectrum() && hasValidCursorPosition()) {
+                for (DisplayableSpectrum spectrum : spectra) {
+                    Paint defaultPaint = Color.BLACK;
+                    LegendItem item = createLegendItem(spectrum, defaultPaint, spectrum.getName());
+                    itemCollection.add(item);
+                }
+            }
+            return itemCollection;
+        }
+
+        private LegendItem createLegendItem(DisplayableSpectrum spectrum, Paint paint, String legendLabel) {
+            Stroke outlineStroke = new BasicStroke();
+            Line2D lineShape = new Line2D.Double(0, 5, 40, 5);
+            Stroke lineStyle = spectrum.getLineStyle();
+            if (lineStyle == null) {
+                lineStyle = SpectrumConstants.strokes[0];
+            }
+            Shape symbol = spectrum.getSymbol();
+            if (symbol == null) {
+                symbol = SpectrumConstants.shapes[0];
+            }
+            return new LegendItem(legendLabel, legendLabel, legendLabel, legendLabel,
+                                  true, symbol, false,
+                                  paint, true, paint, outlineStroke,
+                                  true, lineShape, lineStyle, paint);
+        }
+
+    }
+
+/////////////////////////////////////////////////////////////////////////
+// View change handling
 
     private class SpectrumIFL extends InternalFrameAdapter {
 
@@ -797,8 +861,8 @@ public class SpectrumToolView extends AbstractToolView {
         }
     }
 
-    /////////////////////////////////////////////////////////////////////////
-    // Product change handling
+/////////////////////////////////////////////////////////////////////////
+// Product change handling
 
     private class ProductNodeHandler extends ProductNodeListenerAdapter {
 
