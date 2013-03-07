@@ -50,11 +50,11 @@ public class BinningConfigTest {
         assertEquals(2160, grid.getNumRows());
         assertEquals(SEAGrid.class, grid.getClass());
 
-        localConfig.setPlanetaryGrid("org.esa.beam.binning.operator.BinningConfigTest$GaussianGrid");
+        localConfig.setPlanetaryGrid("org.esa.beam.binning.operator.BinningConfigTest$TestDummyGrid");
         localConfig.setNumRows(2000);
         grid = localConfig.createPlanetaryGrid();
         assertEquals(2000, grid.getNumRows());
-        assertEquals(GaussianGrid.class, grid.getClass());
+        assertEquals(TestDummyGrid.class, grid.getClass());
 
         grid = config.createPlanetaryGrid();
         assertEquals(4320, grid.getNumRows());
@@ -151,11 +151,11 @@ public class BinningConfigTest {
         }
     }
 
-    public static class GaussianGrid implements PlanetaryGrid {
+    private static class TestDummyGrid implements PlanetaryGrid {
 
         int numRows;
 
-        public GaussianGrid(int numRows) {
+        public TestDummyGrid(int numRows) {
             this.numRows = numRows;
         }
 
