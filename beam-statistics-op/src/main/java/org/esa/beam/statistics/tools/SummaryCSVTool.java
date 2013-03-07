@@ -26,7 +26,6 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
@@ -89,7 +88,7 @@ public class SummaryCSVTool {
 
         SummaryCSVTool summaryCSVTool = new SummaryCSVTool(logger, shapeFileReader, waterbodyColumnName);
         summaryCSVTool.summarize(inputDir);
-        summaryCSVTool.putOutSummerizedData(outputDir);
+        summaryCSVTool.outputSummarizedData(outputDir);
     }
 
     private static void ensureDirectory(File directory) throws IOException {
@@ -135,7 +134,7 @@ public class SummaryCSVTool {
         helpFormatter.printHelp("SummaryCSVTool", options, true);
     }
 
-    private void putOutSummerizedData(File outputDir) throws IOException {
+    private void outputSummarizedData(File outputDir) throws IOException {
         final ObservationYear[] years = statisticsDatabase.getYears();
         for (ObservationYear year : years) {
             final ParameterName[] parameterNames = statisticsDatabase.getParameterNames(year);
@@ -202,7 +201,7 @@ public class SummaryCSVTool {
     }
 
     private void printData(DatabaseRecord[] databaseRecords, PrintWriter writer) {
-        final HashMap<Date, Integer> columnsPerDay = new HashMap<Date, Integer>();
+        final Map<Date, Integer> columnsPerDay = new TreeMap<Date, Integer>();
         for (DatabaseRecord record : databaseRecords) {
             final Set<Date> dataDates = record.getDataDates();
             for (Date dataDate : dataDates) {
@@ -275,7 +274,7 @@ public class SummaryCSVTool {
         final boolean validFilename = filenameDateExtractor.isValidFilename(shapeFile);
         if (!validFilename) {
             logger.log(Level.WARNING, "The filename '" + shapeFile.getName() + "' does not match the pattern " +
-                                      FILENAME_PATTERN_SHAPEFILE + ".");
+                    FILENAME_PATTERN_SHAPEFILE + ".");
             logger.log(Level.INFO, "Continuing with next ESRI shapefile.");
         }
         return validFilename;
