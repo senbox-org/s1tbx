@@ -77,7 +77,10 @@ public class BinningConfig {
     @Parameter
     private int numRows;
 
-    @Parameter(defaultValue = "BINNING", valueSet = {"BINNING, MOSAICKING"})
+    /**
+     * The compositing type used for the binning process.
+     */
+    @Parameter(defaultValue = "BINNING", valueSet = {"BINNING", "MOSAICKING"})
     private CompositingType compositingType;
 
     /**
