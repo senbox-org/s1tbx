@@ -7,9 +7,11 @@ import org.esa.beam.apache.math3.SplineInterpolator;
 import java.util.ArrayList;
 
 public class GapFiller {
+    private final static String LINEAR = InterpolatedPercentileOp.P_CALCULATION_METHOD_LINEAR_INTERPOLATION;
+    private final static String SPLINE = InterpolatedPercentileOp.P_CALCULATION_METHOD_SPLINE_INTERPOLATION;
 
-    public static void fillGaps(float[] interpolationFloats, BandConfiguration bandConfiguration) {
-        fillStartAndEndWithFallback(interpolationFloats, bandConfiguration);
+    public static void fillGaps(float[] interpolationFloats, final String interpolationMethod, final float startValueFallback, final float endValueFallback) {
+        fillStartAndEndWithFallback(interpolationFloats, startValueFallback, endValueFallback);
 
         ArrayList<Double> xList = new ArrayList<Double>();
         ArrayList<Double> yList = new ArrayList<Double>();
@@ -32,10 +34,9 @@ public class GapFiller {
 
         final PolynomialSplineFunction interpolate;
 
-        final String interpolationMethod = bandConfiguration.interpolationMethod;
-        if ("linear".equalsIgnoreCase(interpolationMethod) || nx.length < 3) {
+        if (LINEAR.equalsIgnoreCase(interpolationMethod) || nx.length < 3) {
             interpolate = LinearInterpolator.interpolate(nx, ny);
-        } else if ("spline".equalsIgnoreCase(interpolationMethod)) {
+        } else if (SPLINE.equalsIgnoreCase(interpolationMethod)) {
             interpolate = SplineInterpolator.interpolate(nx, ny);
         } else {
             interpolate = null;
@@ -46,13 +47,13 @@ public class GapFiller {
         }
     }
 
-    public static void fillStartAndEndWithFallback(float[] interpolationFloats, BandConfiguration bandConfiguration) {
+    public static void fillStartAndEndWithFallback(float[] interpolationFloats, final float startValueFallback, final float endValueFallback) {
         if (Float.isNaN(interpolationFloats[0])) {
-            interpolationFloats[0] = bandConfiguration.startValueFallback.floatValue();
+            interpolationFloats[0] = startValueFallback;
         }
         final int lastIdx = interpolationFloats.length - 1;
         if (Float.isNaN(interpolationFloats[lastIdx])) {
-            interpolationFloats[lastIdx] = bandConfiguration.endValueFallback.floatValue();
+            interpolationFloats[lastIdx] = endValueFallback;
         }
     }
 

@@ -14,7 +14,6 @@ import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.awt.Rectangle;
 import java.awt.geom.Area;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.logging.Logger;
 
@@ -22,7 +21,7 @@ import java.util.logging.Logger;
 @PrepareForTest(Utils.class)
 public class ProductValidatorTest {
 
-    private BandConfiguration _bandConfiguration;
+    private String sourceBandName;
     private ProductData.UTC _timeRangeStart;
     private ProductData.UTC _timeRangeEnd;
     private Logger S_logger;
@@ -33,10 +32,7 @@ public class ProductValidatorTest {
 
     @Before
     public void setUp() throws Exception {
-        _bandConfiguration = new BandConfiguration();
-        _bandConfiguration.sourceBandName = "sbn";
-        ArrayList<BandConfiguration> bandConfigurations = new ArrayList<BandConfiguration>();
-        bandConfigurations.add(_bandConfiguration);
+        sourceBandName = "sbn";
 
         _timeRangeStart = ProductData.UTC.parse("2012-05-21 00:00:00", InterpolatedPercentileOp.DATETIME_PATTERN);
         _timeRangeEnd = ProductData.UTC.parse("2012-07-08 00:00:00", InterpolatedPercentileOp.DATETIME_PATTERN);
@@ -50,7 +46,7 @@ public class ProductValidatorTest {
         final Logger logger = Logger.getAnonymousLogger();
         S_logger = spy(logger);
 
-        _productValidator = new ProductValidator(bandConfigurations, _timeRangeStart, _timeRangeEnd, targetArea, S_logger);
+        _productValidator = new ProductValidator(sourceBandName, null, _timeRangeStart, _timeRangeEnd, targetArea, S_logger);
 
         M_geoCoding = mock(GeoCoding.class);
         when(M_geoCoding.canGetPixelPos()).thenReturn(true);
@@ -63,7 +59,7 @@ public class ProductValidatorTest {
         when(M_product.getGeoCoding()).thenReturn(M_geoCoding);
         when(M_product.getStartTime()).thenReturn(productStartTime);
         when(M_product.getEndTime()).thenReturn(productEndTime);
-        when(M_product.containsBand(_bandConfiguration.sourceBandName)).thenReturn(true);
+        when(M_product.containsBand(sourceBandName)).thenReturn(true);
     }
 
     @Test
@@ -116,7 +112,7 @@ public class ProductValidatorTest {
 
     @Test
     public void testThatVerificationFailsIfTheProductCanNotHandleTheBandConfiguration() {
-        when(M_product.containsBand(_bandConfiguration.sourceBandName)).thenReturn(false);
+        when(M_product.containsBand(sourceBandName)).thenReturn(false);
 
         boolean result = _productValidator.isValid(M_product);
 

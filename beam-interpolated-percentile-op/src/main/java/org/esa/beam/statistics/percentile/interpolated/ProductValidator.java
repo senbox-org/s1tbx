@@ -5,19 +5,20 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 
 import java.awt.geom.Area;
-import java.util.List;
 import java.util.logging.Logger;
 
 public class ProductValidator {
 
     final ProductData.UTC startDate;
     final ProductData.UTC endDate;
-    final List<BandConfiguration> bandConfigurations;
     private final Logger logger;
     private final Area targetArea;
+    private final String sourceBandName;
+    private final String bandMathExpression;
 
-    public ProductValidator(List<BandConfiguration> bandConfigurations, ProductData.UTC startDate, ProductData.UTC endDate, Area targetArea, Logger logger) {
-        this.bandConfigurations = bandConfigurations;
+    public ProductValidator(String sourceBandName, String bandMathExpression, ProductData.UTC startDate, ProductData.UTC endDate, Area targetArea, Logger logger) {
+        this.sourceBandName = sourceBandName;
+        this.bandMathExpression = bandMathExpression;
         this.startDate = startDate;
         this.endDate = endDate;
         this.logger = logger;
@@ -27,7 +28,7 @@ public class ProductValidator {
     public boolean isValid(Product product) {
         return containsGeoCodingWithReverseOperationSupport(product)
                && containsStartAndEndDate(product)
-               && canHandleBandConfigurations(product)
+               && canHandleExpressionOrSourceBand(product)
                && isInDateRange(product)
                && intersectsTargetArea(product);
     }
@@ -53,15 +54,20 @@ public class ProductValidator {
         return valid;
     }
 
-    private boolean canHandleBandConfigurations(Product product) {
-        for (BandConfiguration bandConfiguration : bandConfigurations) {
-            final String bandName = bandConfiguration.sourceBandName;
-            if (!product.containsBand(bandName)) {
-                logSkipped("The product '" + product.getName() + "' does not contain the band '" + bandName + "'.");
+    private boolean canHandleExpressionOrSourceBand(Product product) {
+        if (sourceBandName != null) {
+            if (!product.containsBand(sourceBandName)) {
+                logSkipped("The product '" + product.getName() + "' does not contain the band '" + sourceBandName + "'.");
                 return false;
             }
+            return true;
+        } else {
+            if (!product.isCompatibleBandArithmeticExpression(bandMathExpression)) {
+                logSkipped("'"+bandMathExpression+"' is not a compatible band arithmetic expression for product: '" + product.getName() + ".");
+                return false;
+            }
+            return true;
         }
-        return true;
     }
 
     private boolean isInDateRange(Product product) {

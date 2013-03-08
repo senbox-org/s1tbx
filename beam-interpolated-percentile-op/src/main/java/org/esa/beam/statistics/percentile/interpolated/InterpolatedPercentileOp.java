@@ -18,16 +18,20 @@ package org.esa.beam.statistics.percentile.interpolated;
 
 import com.bc.ceres.binding.ConversionException;
 import com.bc.ceres.binding.Converter;
+import com.bc.ceres.binding.converters.FileConverter;
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.dataio.dimap.DimapProductConstants;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.dataio.ProductWriter;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.CrsGeoCoding;
+import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.MetadataAttribute;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.ProductNodeGroup;
+import org.esa.beam.framework.datamodel.VectorDataNode;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
@@ -36,20 +40,29 @@ import org.esa.beam.framework.gpf.Tile;
 import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProducts;
+import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.DateTimeUtils;
+import org.esa.beam.util.FeatureUtils;
 import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.jai.JAIUtils;
 import org.esa.beam.util.math.MathUtils;
+import org.geotools.feature.DefaultFeatureCollection;
+import org.geotools.feature.FeatureCollection;
+import org.geotools.feature.FeatureIterator;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
+import org.opengis.feature.simple.SimpleFeature;
+import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import java.awt.Dimension;
 import java.awt.Rectangle;
+import java.awt.Shape;
 import java.awt.geom.Area;
 import java.awt.geom.Rectangle2D;
+import java.awt.image.RenderedImage;
 import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
@@ -63,6 +76,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.Vector;
 import java.util.logging.Level;
 
 /**
@@ -89,7 +103,8 @@ import java.util.logging.Level;
                   description = "Computes percentiles over the time for an arbitrary number of source products.")
 public class InterpolatedPercentileOp extends Operator {
 
-    // todo start ... these two constant fields are copied from time series tool
+    // todo start ... these constant fields are copied from time series tool
+    // see org.esa.beam.timeseries.core.timeseries.datamodel.AbstractTimeSeries
     public static final String BAND_DATE_FORMAT = "yyyyMMdd.HHmmss.SSS";
     public static final String TIME_SERIES_PRODUCT_TYPE = "org.esa.beam.glob.timeseries";
     public static final String TIME_SERIES_METADATA_ROOT_NAME = "TIME_SERIES";
@@ -99,9 +114,17 @@ public class InterpolatedPercentileOp extends Operator {
     public static final String VARIABLE_SELECTION = "SELECTION";
     // todo end
 
+    public final static String P_CALCULATION_METHOD_LINEAR_INTERPOLATION = "gapFillingLinearInterpolation";
+    public final static String P_CALCULATION_METHOD_SPLINE_INTERPOLATION = "gapFillingSplineInterpolation";
+    public final static String P_CALCULATION_METHOD_QUADRATIC_INTERPOLATION = "gapFillingQuadraticInterpolation";
+    public final static String P_CALCULATION_METHOD_WEIGHTED_ALGORITHM = "weightedAlgorithm";
+
     public static final String DATETIME_PATTERN = "yyyy-MM-dd HH:mm:ss";
     private static final String SUFFIX_PERCENTILE_OP_DATA_PRODUCT = "_PercentileOpDataProduct";
     private static final String UNABLE_TO_WRITE_TIMESERIES_DATA_PRODUCT = "Unable to write timeseries data product.";
+    private static final String UNABLE_TO_READ_TIMESERIES_DATA_PRODUCT = "Unable to read timeseries data product.";
+    private final static String BAND_MATH_EXPRESSION_BAND_NAME = "bandMathExpressionBandName";
+
 
     @SourceProducts(description = "Don't use this parameter. Use sourceProductPaths instead")
     Product[] sourceProducts;
@@ -114,30 +137,27 @@ public class InterpolatedPercentileOp extends Operator {
                              "If, for example, all NetCDF files under /eodata/ shall be considered, use '/eodata/**/*.nc'.")
     String[] sourceProductPaths;
 
-    @Parameter(description = "The start date. If not given, taken from the 'oldest' source product. Products that " +
+    @Parameter(description = "The start date. If not given, taken from the 'oldest' source product. Products that\n" +
                              "have a start date before the start date given by this parameter are not considered.",
                format = DATETIME_PATTERN, converter = UtcConverter.class)
     ProductData.UTC startDate;
 
-    @Parameter(description = "The end date. If not given, taken from the 'youngest' source product. Products that " +
+    @Parameter(description = "The end date. If not given, taken from the 'youngest' source product. Products that\n" +
                              "have an end date after the end date given by this parameter are not considered.",
                format = DATETIME_PATTERN, converter = UtcConverter.class)
     ProductData.UTC endDate;
 
-    @Parameter(description = "The band configuration. This configuration determines the input of the operator.",
-               alias = "bandConfiguration", notNull = true)
-    BandConfiguration bandConfiguration;
 
-    @Parameter(description = "A text specifying the target Coordinate Reference System, either in WKT or as an " +
-                             "authority code. For appropriate EPSG authority codes see (www.epsg-registry.org). " +
-                             "AUTO authority can be used with code 42001 (UTM), and 42002 (Transverse Mercator) " +
+    @Parameter(description = "A text specifying the target Coordinate Reference System, either in WKT or as an\n" +
+                             "authority code. For appropriate EPSG authority codes see (www.epsg-registry.org).\n" +
+                             "AUTO authority can be used with code 42001 (UTM), and 42002 (Transverse Mercator)\n" +
                              "where the scene center is used as reference. Examples: EPSG:4326, AUTO:42001",
                defaultValue = "EPSG:4326")
     String crs;
 
     @Parameter(alias = "resampling",
                label = "Resampling Method",
-               description = "The method used for resampling of floating-point raster data, if source products must" +
+               description = "The method used for resampling of floating-point raster data, if source products must\n" +
                              "be reprojected to the target CRS.",
                valueSet = {"Nearest", "Bilinear", "Bicubic"},
                defaultValue = "Nearest")
@@ -157,15 +177,93 @@ public class InterpolatedPercentileOp extends Operator {
     @Parameter(description = "Size of a pixel in Y-direction in map units.", defaultValue = "0.05")
     double pixelSizeY;
 
-    private TreeMap<Long, List<Product>> dailyGroupedProducts;
-    private long interpolationStartMJD;
-    private long interpolationEndMJD;
-    private int interpolationLength;
+
+//***********************  formerly BandConfiguration
+
+
+    @Parameter(description = "The name of the band in the source products. If empty, parameter 'bandMathExpression' must " +
+                             "be provided.")
+    String sourceBandName;
+
+    @Parameter(description = "The band maths expression serving as input band. If empty, parameter 'sourceBandName' " +
+                             "must be provided.")
+    String bandMathExpression;
+
+    // todo
+    @Parameter(description = "If given, this is the percentile band name. If empty, the result percentile band name\n" +
+                             "will be named like the 'bandMathExpression' or the 'sourceBandName'.")
+    String percentileBandName;
+
+    @Parameter(description = "The band maths expression serving as criterion for whether to consider pixels for " +
+                             "computation.")
+    String validPixelExpression;
+
+    // @todo if weighted calculation only P90 is available ?
+    @Parameter(description = "The percentiles.", defaultValue = "90")
+    int[] percentiles = new int[]{90};
+
+    // @todo spell checking
+    @Parameter(description = "The percentile calculation method.",
+               defaultValue = P_CALCULATION_METHOD_LINEAR_INTERPOLATION,
+               valueSet = {P_CALCULATION_METHOD_LINEAR_INTERPOLATION, P_CALCULATION_METHOD_SPLINE_INTERPOLATION, P_CALCULATION_METHOD_WEIGHTED_ALGORITHM}
+//               valueSet = {P_CALCULATION_METHOD_LINEAR_INTERPOLATION, P_CALCULATION_METHOD_SPLINE_INTERPOLATION, P_CALCULATION_METHOD_QUADRATIC_INTERPOLATION, P_CALCULATION_METHOD_WEIGHTED_ALGORITHM}
+    )
+    String percentileCalculationMethod = P_CALCULATION_METHOD_LINEAR_INTERPOLATION;
+
+    // @todo only if any interpolation method is used
+    @Parameter(description =
+                           "The fallback start value for time series interpolation if there is no interpolation start\n" +
+                           "value for example in cases of cloudy areas in the oldest input product.",
+               defaultValue = "0.0")
+    Double startValueFallback = 0.0;
+
+    // @todo only if any interpolation method is used
+    @Parameter(description =
+                           "The fallback end value for time series interpolation if there is no interpolation end\n" +
+                           "value for example in cases of cloudy areas in the newest input product.",
+               defaultValue = "0.0")
+    Double endValueFallback = 0.0;
+
+    @Parameter(description = "The region shapefile if a region time series file should be computed.", converter = FileConverter.class)
+    File regionShapeFile;
+    @Parameter(description = "The region time series file in NetCDF CF format.", converter = FileConverter.class)
+    File regionTimeSeriesFile;
+    @Parameter(description = "The region time series aggregation method. How the pixels matching a region should be aggregated spatially.",
+               defaultValue = "mean",
+               valueSet = {"mean", "median"})
+    String regionTimeSeriesAggregation;
+
+    @Parameter(description = "The key period start date, if 'keyPeriodShapefile' is not given.",
+               format = DATETIME_PATTERN, converter = UtcConverter.class)
+    ProductData.UTC keyPeriodStartDate;
+
+    @Parameter(description = "The key period stop date, if 'keyPeriodShapefile' is not given.",
+               format = DATETIME_PATTERN, converter = UtcConverter.class)
+    ProductData.UTC keyPeriodendDate;
+
+    // @todo new Parameters for weighted calculation
+    @Parameter(description = "The key period shapefile.", converter = FileConverter.class)
+    File keyPeriodShapefile;
+    @Parameter(description = "The key period shapefile start column name.")
+    String keyPeriodStartColumnName;
+    @Parameter(description = "The key period shapefile stop column name.")
+    String keyPeriodEndColumnName;
+
+
+//***********************  formerly BandConfiguration
+
+
+    private TreeMap<Long, List<Product>> dailyGroupedSourceProducts;
+    private long timeSeriesStartMJD;
+    private long timeSeriesEndMJD;
+    private int timeSeriesLength;
     private int targetWidth;
     private int targetHeight;
     private Product timeSeriesDataProduct;
     private int year;
-    private HashMap<String, Integer> dpBandNameIndexMapping;
+    private HashMap<String, Integer> timeSeriesBandNameToDayIndexMap;
+    private PercentileComputer percentileComputer;
+    private ShapeKeyPeriod[] shapeKeyPeriods;
 
     @Override
     public void initialize() throws OperatorException {
@@ -175,21 +273,21 @@ public class InterpolatedPercentileOp extends Operator {
         final Area targetArea = Utils.createProductArea(targetProduct);
         setTargetProduct(targetProduct);
 
-        final ProductValidator productValidator = new ProductValidator(Arrays.asList(bandConfiguration), startDate, endDate, targetArea, getLogger());
+        final ProductValidator productValidator = new ProductValidator(sourceBandName, bandMathExpression, startDate, endDate, targetArea, getLogger());
         final ProductLoader productLoader = new ProductLoader(sourceProductPaths, productValidator, getLogger());
         final Product[] products = productLoader.loadProducts();
         gc();
 
-        dailyGroupedProducts = groupProductsDaily(products);
+        dailyGroupedSourceProducts = Utils.groupProductsDaily(products);
 
-        if (dailyGroupedProducts.size() < 2) {
+        if (dailyGroupedSourceProducts.size() < 2) {
             throw new OperatorException("For interpolated daily percentile calculation" +
                                         "at least two days must contain valid input products.");
         }
 
-        initInterpolationStartAndEnd();
+        initTimeSeriesStartAndEnd();
         initYearAndDoyOffset();
-        dpBandNameIndexMapping = new HashMap<String, Integer>();
+        timeSeriesBandNameToDayIndexMap = new HashMap<String, Integer>();
         initTimeSeriesDataProduct();
 
         targetWidth = targetProduct.getSceneRasterWidth();
@@ -198,46 +296,142 @@ public class InterpolatedPercentileOp extends Operator {
         addInputMetadataToTargetProduct();
         getLogger().log(Level.INFO, "Successfully initialized target product.");
 
-        for (long mjd : dailyGroupedProducts.keySet()) {
-            final List<Product> dailyProducts = dailyGroupedProducts.get(mjd);
-            final List<Product> colocatedProducts = createColocatedProducts(dailyProducts);
-            final float[] doyData = computeDailyMean(colocatedProducts);
-            final String sourceBandName = bandConfiguration.sourceBandName;
-            final String meanBandName = createNameForMeanBand(sourceBandName, mjd);
-            final Band band = timeSeriesDataProduct.getBand(meanBandName);
-            band.setData(new ProductData.Float(doyData));
-            band.setModified(true);
-            try {
-                timeSeriesDataProduct.getProductWriter().writeBandRasterData(band, 0, 0, targetWidth, targetHeight, band.getData(), ProgressMonitor.NULL);
-            } catch (IOException e) {
-                throw new OperatorException(UNABLE_TO_WRITE_TIMESERIES_DATA_PRODUCT, e);
-            }
-            band.getData().dispose();
-            band.setData(null);
-            gc();
-        }
+        computeMeanDataForEachDayAndWriteDataToTimeSeriesProduct();
+
+        final File timeSeriesDataProductLocation = new File(timeSeriesDataProduct.getName() + DimapProductConstants.DIMAP_HEADER_FILE_EXTENSION);
         try {
-            final File timeSeriesDataProductLocation = new File(timeSeriesDataProduct.getName() + DimapProductConstants.DIMAP_HEADER_FILE_EXTENSION);
             timeSeriesDataProduct.getProductWriter().close();
             timeSeriesDataProduct.dispose();
             timeSeriesDataProduct = null;
-            timeSeriesDataProduct = ProductIO.readProduct(timeSeriesDataProductLocation);
         } catch (IOException e) {
             throw new OperatorException(UNABLE_TO_WRITE_TIMESERIES_DATA_PRODUCT, e);
         }
-        dailyGroupedProducts.clear();
+        try {
+            timeSeriesDataProduct = ProductIO.readProduct(timeSeriesDataProductLocation);
+        } catch (IOException e) {
+            throw new OperatorException(UNABLE_TO_READ_TIMESERIES_DATA_PRODUCT, e);
+        }
+
+        dailyGroupedSourceProducts.clear();
 
         getLogger().log(Level.INFO, "Input products colocated with target product.");
 
+        initPercentileComputer();
+    }
+
+    private void initPercentileComputer() {
+        if (P_CALCULATION_METHOD_WEIGHTED_ALGORITHM.equals(percentileCalculationMethod)) {
+
+            final long tsStart = timeSeriesStartMJD;
+
+            percentileComputer = new PercentileComputer() {
+                @Override
+                public float[] computeThresholds(int[] targetPercentiles, float[] availableValues, int targetX, int targetY) {
+                    int keyPeriodStartIDX = (int) (Utils.utcToModifiedJulianDay(keyPeriodStartDate.getAsDate()) - tsStart);
+                    int keyPeriodEndIDX = (int) (Utils.utcToModifiedJulianDay(keyPeriodendDate.getAsDate()) - tsStart);
+                    for (ShapeKeyPeriod shapeKeyPeriod : shapeKeyPeriods) {
+                        if (shapeKeyPeriod.getShape().contains(targetX, targetY)) {
+                            final long keyPeriodStartMJD = shapeKeyPeriod.getKeyPeriodStartMJD();
+                            final long keyPeriodEndMJD = shapeKeyPeriod.getKeyPeriodEndMJD();
+                            keyPeriodStartIDX = (int) (keyPeriodStartMJD - tsStart);
+                            keyPeriodEndIDX = (int) (keyPeriodEndMJD - tsStart);
+                            break;
+                        }
+                    }
+                    int numObservationsKP = 0;
+                    for (int i = keyPeriodStartIDX; i <= keyPeriodEndIDX; i++) {
+                        numObservationsKP += getCountIncrement(availableValues[i]);
+                    }
+
+                    int numObservationsGS = 0;
+                    for (float availableValue : availableValues) {
+                        numObservationsGS += getCountIncrement(availableValue);
+                    }
+
+                    final int keyPeriodLength = keyPeriodEndIDX - keyPeriodStartIDX;
+                    final double keyPeriodProportion = keyPeriodLength * 1d / timeSeriesLength;
+                    final double keyPeriodProportionMeris = numObservationsKP * 1d / numObservationsGS;
+                    final double weightIndexForKeyPeriod = keyPeriodProportionMeris / keyPeriodProportion;
+                    final double weightIndexForNonKeyPeriod = 1 - weightIndexForKeyPeriod;
+
+                    final float[] thresholds = new float[targetPercentiles.length];
+
+                    return thresholds;
+                }
+
+                private int getCountIncrement(float value) {
+                    return !Float.isNaN(value) ? 1 : 0;
+                }
+            };
+        } else {
+            percentileComputer = new PercentileComputer() {
+
+                @Override
+                public float[] computeThresholds(int[] targetPercentiles, float[] availableValues, int targetX, int targetY) {
+                    GapFiller.fillGaps(availableValues, percentileCalculationMethod, startValueFallback.floatValue(), endValueFallback.floatValue());
+                    Arrays.sort(availableValues);
+
+                    final float[] thresholds = new float[targetPercentiles.length];
+                    for (int i = 0; i < targetPercentiles.length; i++) {
+                        int percentile = targetPercentiles[i];
+                        int percentileIndex = (int) Math.floor(percentile / 100f * availableValues.length);
+                        thresholds[i] = availableValues[percentileIndex];
+                    }
+                    return thresholds;
+                }
+            };
+        }
+    }
+
+    private void computeMeanDataForEachDayAndWriteDataToTimeSeriesProduct() {
+        for (long mjd : dailyGroupedSourceProducts.keySet()) {
+
+            final List<Product> dailyGroupedProducts = dailyGroupedSourceProducts.get(mjd);
+            final List<Product> collocatedProducts = createCollocatedProducts(dailyGroupedProducts);
+
+            final Band band = timeSeriesDataProduct.getBand(createNameForMeanBand(mjd));
+            band.setSourceImage(createDailyMeanSourceImage(collocatedProducts));
+            final int height = timeSeriesDataProduct.getSceneRasterHeight();
+            final int width = timeSeriesDataProduct.getSceneRasterWidth();
+            try {
+                band.readRasterDataFully();
+                timeSeriesDataProduct.getProductWriter().writeBandRasterData(band, 0, 0, width, height, band.getData(), ProgressMonitor.NULL);
+            } catch (IOException e) {
+                throw new OperatorException(UNABLE_TO_WRITE_TIMESERIES_DATA_PRODUCT, e);
+            } finally {
+                dispose(collocatedProducts);
+                dispose(dailyGroupedProducts);
+                band.getData().dispose();
+                band.setData(null);
+                gc();
+            }
+        }
+    }
+
+    private RenderedImage createDailyMeanSourceImage(List<Product> collocatedProducts) {
+        final Vector<RenderedImage> sources = new Vector<RenderedImage>();
+        for (Product collocatedProduct : collocatedProducts) {
+            final Band band;
+            if (sourceBandName != null) {
+                band = collocatedProduct.getBand(sourceBandName);
+            } else {
+                band = collocatedProduct.getBand(BAND_MATH_EXPRESSION_BAND_NAME);
+            }
+            sources.add(band.getGeophysicalImage());
+        }
+        return new MeanOpImage(sources);
     }
 
     @Override
-    public void computeTileStack(Map<Band, Tile> targetTiles, Rectangle targetRectangle, ProgressMonitor pm) throws OperatorException {
-        final float[] interpolationFloats = new float[interpolationLength];
+    public void computeTileStack(Map<Band, Tile> targetTilesMap, Rectangle targetRectangle, ProgressMonitor pm) throws OperatorException {
+        //noinspection UnnecessaryLocalVariable
         final Rectangle r = targetRectangle;
 
-        final float[][] sourceTiles = new float[interpolationLength][0];
-        for (String bandName : dpBandNameIndexMapping.keySet()) {
+        final Band[] targetBands = targetTilesMap.keySet().toArray(new Band[targetTilesMap.size()]);
+        final Tile[] targetTiles = targetTilesMap.values().toArray(new Tile[targetTilesMap.size()]);
+
+        final float[][] sourceTiles = new float[timeSeriesLength][0];
+        for (String bandName : timeSeriesBandNameToDayIndexMap.keySet()) {
             final float[] sourceTile;
             try {
                 sourceTile = new float[r.width * r.height];
@@ -245,22 +439,28 @@ public class InterpolatedPercentileOp extends Operator {
             } catch (IOException e) {
                 throw new OperatorException("Unable to load source tiles.", e);
             }
-            final int index = dpBandNameIndexMapping.get(bandName);
+            final int index = timeSeriesBandNameToDayIndexMap.get(bandName);
             sourceTiles[index] = sourceTile;
         }
 
+        final float[] interpolationFloats = new float[timeSeriesLength];
         for (int targetY = r.y, sourceY = 0; targetY < (r.y + r.height); targetY++, sourceY++) {
             for (int targetX = r.x, sourceX = 0; targetX < (r.x + r.width); targetX++, sourceX++) {
                 clear(interpolationFloats);
                 int idx = sourceY * r.width + sourceX;
                 fillWithAvailableValues(idx, interpolationFloats, sourceTiles);
-                GapFiller.fillGaps(interpolationFloats, bandConfiguration);
-                Arrays.sort(interpolationFloats);
-                for (Band band : targetTiles.keySet()) {
-                    int percentile = extractPercentileFromBandName(band.getName());
-                    Tile targetTile = targetTiles.get(band);
-                    final float p = PercentileComputer.compute(percentile, interpolationFloats);
-                    targetTile.setSample(targetX, targetY, p);
+
+                final int[] targetPercentiles = new int[targetBands.length];
+                for (int i = 0; i < targetBands.length; i++) {
+                    Band band = targetBands[i];
+                    targetPercentiles[i] = extractPercentileFromBandName(band.getName());
+                }
+
+                final float[] percentileThresholds = percentileComputer.computeThresholds(targetPercentiles, interpolationFloats, targetX, targetY);
+
+                for (int i = 0; i < targetTiles.length; i++) {
+                    Tile targetTile = targetTiles[i];
+                    targetTile.setSample(targetX, targetY, percentileThresholds[i]);
                 }
             }
         }
@@ -274,36 +474,25 @@ public class InterpolatedPercentileOp extends Operator {
         products.clear();
     }
 
-    private TreeMap<Long, List<Product>> groupProductsDaily(Product[] products) {
-        final TreeMap<Long, List<Product>> groupedProducts = new TreeMap<Long, List<Product>>();
-        for (Product product : products) {
-            final long centerDay = getCenterDateAsModifiedJulianDay(product);
-            List<Product> productList = groupedProducts.get(centerDay);
-            if (productList == null) {
-                productList = new ArrayList<Product>();
-                groupedProducts.put(centerDay, productList);
-            }
-            productList.add(product);
-        }
-        return groupedProducts;
-    }
-
     private void initTimeSeriesDataProduct() {
         timeSeriesDataProduct = createOutputProduct();
-        final String sourceBandName = bandConfiguration.sourceBandName;
+        // todo take care with bandMathExpression and meanBandName
         timeSeriesDataProduct.setName(year + "_" + sourceBandName + SUFFIX_PERCENTILE_OP_DATA_PRODUCT);
         addExpectedMetadataForTimeSeriesTool(sourceBandName);
         timeSeriesDataProduct.setAutoGrouping(sourceBandName);
-        for (long mjd : dailyGroupedProducts.keySet()) {
-            final String bandName = createNameForMeanBand(sourceBandName, mjd);
-            final int dayIdx = (int) (mjd - interpolationStartMJD);
-            dpBandNameIndexMapping.put(bandName, dayIdx);
-            final Band band = timeSeriesDataProduct.addBand(bandName, ProductData.TYPE_FLOAT32);
-            final List<Product> products = dailyGroupedProducts.get(mjd);
+        for (long mjd : dailyGroupedSourceProducts.keySet()) {
+            final String dayMeanBandName = createNameForMeanBand(mjd);
+            final int dayIdx = (int) (mjd - timeSeriesStartMJD);
+            timeSeriesBandNameToDayIndexMap.put(dayMeanBandName, dayIdx);
+            final Band band = timeSeriesDataProduct.addBand(dayMeanBandName, ProductData.TYPE_FLOAT32);
+            final List<Product> products = dailyGroupedSourceProducts.get(mjd);
             final Product product = products.get(0);
             final Band sourceBand = product.getBand(sourceBandName);
             band.setUnit(sourceBand.getUnit());
             band.setDescription(sourceBand.getDescription());
+        }
+        if (regionShapeFile != null) {
+            readShapefileAndPutDataToProduct(regionShapeFile, "regionShapeFile", timeSeriesDataProduct);
         }
         final ProductWriter productWriter = ProductIO.getProductWriter(DimapProductConstants.DIMAP_FORMAT_NAME);
         try {
@@ -312,6 +501,59 @@ public class InterpolatedPercentileOp extends Operator {
             throw new OperatorException(UNABLE_TO_WRITE_TIMESERIES_DATA_PRODUCT, e);
         }
     }
+
+    private void readShapefileAndPutDataToProduct(final File shapeFile, final String parameterName, final Product product) {
+        final FeatureUtils.FeatureCrsProvider crsProvider = new FeatureUtils.FeatureCrsProvider() {
+            @Override
+            public CoordinateReferenceSystem getFeatureCrs(Product targetProduct) {
+                if (ImageManager.getModelCrs(product.getGeoCoding()) == ImageManager.DEFAULT_IMAGE_CRS) {
+                    return ImageManager.DEFAULT_IMAGE_CRS;
+                }
+                return DefaultGeographicCRS.WGS84;
+            }
+        };
+        final FeatureCollection<SimpleFeatureType, SimpleFeature> features;
+        try {
+            features = FeatureUtils.loadFeatureCollectionFromShapefile(shapeFile);
+        } catch (IOException e) {
+            throw new OperatorException("Error at reading '" + parameterName + "'", e);
+        }
+        final FeatureCollection<SimpleFeatureType, SimpleFeature> productFeatures
+                    = FeatureUtils.clipFeatureCollectionToProductBounds(features, product, crsProvider, ProgressMonitor.NULL);
+        final VectorDataNode[] vectorDataNodes = createVectorDataNodes(productFeatures);
+        final ProductNodeGroup<VectorDataNode> vectorDataGroup = product.getVectorDataGroup();
+        for (VectorDataNode vectorDataNode : vectorDataNodes) {
+            vectorDataGroup.add(vectorDataNode);
+        }
+    }
+
+
+    private VectorDataNode[] createVectorDataNodes(FeatureCollection<SimpleFeatureType, SimpleFeature> productFeatures) {
+        final FeatureIterator<SimpleFeature> featureIterator = productFeatures.features();
+        final List<VectorDataNode> result = new ArrayList<VectorDataNode>();
+        while (featureIterator.hasNext()) {
+            final SimpleFeature simpleFeature = featureIterator.next();
+            final DefaultFeatureCollection fc = new DefaultFeatureCollection(simpleFeature.getID(),
+                                                                             simpleFeature.getFeatureType());
+            fc.add(simpleFeature);
+            String name = getFeatureName(simpleFeature);
+            result.add(new VectorDataNode(name, fc));
+        }
+
+        return result.toArray(new VectorDataNode[result.size()]);
+    }
+
+    public static String getFeatureName(SimpleFeature simpleFeature) {
+        if (simpleFeature.getAttribute("name") != null) {
+            return simpleFeature.getAttribute("name").toString();
+        } else if (simpleFeature.getAttribute("NAME") != null) {
+            return simpleFeature.getAttribute("NAME").toString();
+        } else if (simpleFeature.getAttribute("NAMN") != null) {    //swedish   NAMN
+            return simpleFeature.getAttribute("NAMN").toString();   //swedish   NAMN
+        }
+        return simpleFeature.getID();
+    }
+
 
     private void addExpectedMetadataForTimeSeriesTool(String sourceBandName) {
         timeSeriesDataProduct.setProductType(TIME_SERIES_PRODUCT_TYPE);
@@ -328,16 +570,16 @@ public class InterpolatedPercentileOp extends Operator {
         timeSeriesDataProduct.getMetadataRoot().addElement(tsMetadataRoot);
     }
 
-    private String createNameForMeanBand(String sourceBandName, long mjd) {
+    private String createNameForMeanBand(long mjd) {
         final double jd = DateTimeUtils.mjdToJD(mjd);
         final Date utc = DateTimeUtils.jdToUTC(jd);
         final SimpleDateFormat dateFormat = new SimpleDateFormat(BAND_DATE_FORMAT, Locale.ENGLISH);
         final String timeString = dateFormat.format(utc);
-        return sourceBandName + "_" + timeString;
+        return getTargetBandNamePrefix() + "_" + timeString;
     }
 
     private void initYearAndDoyOffset() {
-        final double startJD = DateTimeUtils.mjdToJD(interpolationStartMJD);
+        final double startJD = DateTimeUtils.mjdToJD(timeSeriesStartMJD);
         final Date startUTC = DateTimeUtils.jdToUTC(startJD);
         final Calendar calendar = Calendar.getInstance();
         calendar.setTime(startUTC);
@@ -351,8 +593,8 @@ public class InterpolatedPercentileOp extends Operator {
 
         timeSeriesDataProduct.dispose();
 
-        dailyGroupedProducts.clear();
-        dailyGroupedProducts = null;
+        dailyGroupedSourceProducts.clear();
+        dailyGroupedSourceProducts = null;
     }
 
     private void clear(float[] interpolationFloats) {
@@ -371,11 +613,14 @@ public class InterpolatedPercentileOp extends Operator {
 
     private float[] computeDailyMean(List<Product> colocatedProducts) {
 
-        final String sourceBandName = bandConfiguration.sourceBandName;
-
         final Band[] bands = new Band[colocatedProducts.size()];
         for (int i = 0; i < bands.length; i++) {
-            bands[i] = colocatedProducts.get(i).getBand(sourceBandName);
+            final Product colocatedProduct = colocatedProducts.get(i);
+            if (sourceBandName != null) {
+                bands[i] = colocatedProduct.getBand(sourceBandName);
+            } else {
+                bands[i] = colocatedProduct.getBand(BAND_MATH_EXPRESSION_BAND_NAME);
+            }
         }
 
         float[] meanData = new float[targetHeight * targetWidth];
@@ -385,22 +630,21 @@ public class InterpolatedPercentileOp extends Operator {
             }
         }
 
-        dispose(colocatedProducts);
-
         return meanData;
     }
 
-    private float computeMean(int x, int y, Band[] bands) {
-        float mean = Float.NaN;
+    private static float computeMean(int x, int y, Band[] bands) {
+        float sum = Float.NaN;
         int count = 0;
 
         for (Band band : bands) {
+//            band.getGeophysicalImage().getData()
             final float currentValue = band.getPixelFloat(x, y);
             if (!Float.isNaN(currentValue)) {
                 if (count == 0) {
-                    mean = currentValue;
+                    sum = currentValue;
                 } else {
-                    mean += currentValue;
+                    sum += currentValue;
                 }
                 count++;
             }
@@ -408,60 +652,71 @@ public class InterpolatedPercentileOp extends Operator {
         if (count == 0) {
             return Float.NaN;
         } else {
-            return mean / count;
+            return sum / count;
         }
     }
 
-    private void initInterpolationStartAndEnd() {
-        final long oldestMJD = dailyGroupedProducts.firstKey();
-        final long youngestMJD = dailyGroupedProducts.lastKey();
+    private void initTimeSeriesStartAndEnd() {
+        final long oldestMJD = dailyGroupedSourceProducts.firstKey();
+        final long youngestMJD = dailyGroupedSourceProducts.lastKey();
         if (startDate != null) {
-            interpolationStartMJD = utcToModifiedJulianDay(startDate.getAsDate());
+            timeSeriesStartMJD = Utils.utcToModifiedJulianDay(startDate.getAsDate());
         } else {
-            interpolationStartMJD = oldestMJD;
+            timeSeriesStartMJD = oldestMJD;
         }
         if (endDate != null) {
-            interpolationEndMJD = utcToModifiedJulianDay(endDate.getAsDate());
+            timeSeriesEndMJD = Utils.utcToModifiedJulianDay(endDate.getAsDate());
         } else {
-            interpolationEndMJD = youngestMJD;
+            timeSeriesEndMJD = youngestMJD;
         }
-        interpolationLength = (int) (interpolationEndMJD - interpolationStartMJD + 1);
+        timeSeriesLength = (int) (timeSeriesEndMJD - timeSeriesStartMJD + 1);
     }
 
-    private List<Product> createColocatedProducts(List<Product> dailyProducts) {
-        final ArrayList<Product> colocatedProducts = new ArrayList<Product>();
-        final HashMap<String, Object> projParameters = createProjectionParameters();
-        for (Product dailyProduct : dailyProducts) {
-            HashMap<String, Product> projProducts = new HashMap<String, Product>();
-            projProducts.put("source", dailyProduct);
-            projProducts.put("collocateWith", getTargetProduct());
-            final Product colocatedProduct = GPF.createProduct("Reproject", projParameters, projProducts);
+    private List<Product> createCollocatedProducts(List<Product> dailyGroupedProducts) {
+        final ArrayList<Product> collocatedProducts = new ArrayList<Product>();
+        final HashMap<String, Object> projectionParameters = createProjectionParameters();
+        for (Product product : dailyGroupedProducts) {
+            HashMap<String, Product> productToBeReprojectedMap = new HashMap<String, Product>();
+            productToBeReprojectedMap.put("source", product);
+            productToBeReprojectedMap.put("collocateWith", timeSeriesDataProduct);
+            final Product collocatedProduct = GPF.createProduct("Reproject", projectionParameters, productToBeReprojectedMap);
             try {
-                Band band = colocatedProduct.getBand(bandConfiguration.sourceBandName);
-                String validPixelExpression = bandConfiguration.validPixelExpression;
+                Band band;
+                if (sourceBandName != null) {
+                    band = collocatedProduct.getBand(sourceBandName);
+                } else {
+                    band = collocatedProduct.addBand(BAND_MATH_EXPRESSION_BAND_NAME, bandMathExpression);
+                }
                 if (StringUtils.isNotNullAndNotEmpty(validPixelExpression)) {
                     band.setValidPixelExpression(validPixelExpression);
                 }
+                // todo -- really read raster data fully ?
                 band.readRasterDataFully();
+//                AddDescriptor.create();
+
             } catch (IOException e) {
                 throw new OperatorException(e);
             }
-            colocatedProducts.add(colocatedProduct);
+            collocatedProducts.add(collocatedProduct);
         }
-        dispose(dailyProducts);
-        return colocatedProducts;
+        return collocatedProducts;
+    }
+
+    private String getTargetBandNamePrefix() {
+        if (percentileBandName != null) {
+            return percentileBandName;
+        }
+        if (sourceBandName != null) {
+            return sourceBandName;
+        }
+        return bandMathExpression.replaceAll(" ", "_");
     }
 
     private HashMap<String, Object> createProjectionParameters() {
         HashMap<String, Object> projParameters = new HashMap<String, Object>();
         // @todo clean up
         projParameters.put("resamplingName", resamplingName);
-        projParameters.put("includeTiePointGrids", false);  // ensure tie-points are reprojected
-//        projParameters.put("includeTiePointGrids", true);  // ensure tie-points are reprojected
-//        if (orthorectify) {
-//            projParameters.put("orthorectify", orthorectify);
-//            projParameters.put("elevationModelName", elevationModelName);
-//        }
+        projParameters.put("includeTiePointGrids", false);
         return projParameters;
     }
 
@@ -471,29 +726,30 @@ public class InterpolatedPercentileOp extends Operator {
     }
 
 
+    // todo add to metadata
     private void addBandConfigurationToMetadata() {
-        final MetadataElement bandConfigurationElem = new MetadataElement("BandConfiguration");
-
-        final ProductData sourceBandData = ProductData.createInstance(bandConfiguration.sourceBandName);
-        bandConfigurationElem.addAttribute(new MetadataAttribute("sourceBandName", sourceBandData, true));
-
-        final ProductData interpolationData = ProductData.createInstance(bandConfiguration.interpolationMethod);
-        bandConfigurationElem.addAttribute(new MetadataAttribute("interpolation", interpolationData, true));
-
-        String expr = bandConfiguration.validPixelExpression;
-        final ProductData validPixelExpressionData = ProductData.createInstance(expr == null ? "" : expr);
-        bandConfigurationElem.addAttribute(new MetadataAttribute("validPixelExpression", validPixelExpressionData, true));
-
-        final ProductData percentilesData = ProductData.createInstance(bandConfiguration.percentiles);
-        bandConfigurationElem.addAttribute(new MetadataAttribute("percentiles", percentilesData, true));
-
-        final ProductData endValueData = ProductData.createInstance(new double[]{bandConfiguration.endValueFallback});
-        bandConfigurationElem.addAttribute(new MetadataAttribute("endValueFallback", endValueData, true));
-
-        final ProductData startValueData = ProductData.createInstance(new double[]{bandConfiguration.startValueFallback});
-        bandConfigurationElem.addAttribute(new MetadataAttribute("startValueFallback", startValueData, true));
-
-        getTargetProduct().getMetadataRoot().addElement(bandConfigurationElem);
+//        final MetadataElement bandConfigurationElem = new MetadataElement("BandConfiguration");
+//
+//        final ProductData sourceBandData = ProductData.createInstance(bandConfiguration.sourceBandName);
+//        bandConfigurationElem.addAttribute(new MetadataAttribute("sourceBandName", sourceBandData, true));
+//
+//        final ProductData interpolationData = ProductData.createInstance(bandConfiguration.interpolationMethod);
+//        bandConfigurationElem.addAttribute(new MetadataAttribute("interpolation", interpolationData, true));
+//
+//        String expr = bandConfiguration.validPixelExpression;
+//        final ProductData validPixelExpressionData = ProductData.createInstance(expr == null ? "" : expr);
+//        bandConfigurationElem.addAttribute(new MetadataAttribute("validPixelExpression", validPixelExpressionData, true));
+//
+//        final ProductData percentilesData = ProductData.createInstance(bandConfiguration.percentiles);
+//        bandConfigurationElem.addAttribute(new MetadataAttribute("percentiles", percentilesData, true));
+//
+//        final ProductData endValueData = ProductData.createInstance(new double[]{bandConfiguration.endValueFallback});
+//        bandConfigurationElem.addAttribute(new MetadataAttribute("endValueFallback", endValueData, true));
+//
+//        final ProductData startValueData = ProductData.createInstance(new double[]{bandConfiguration.startValueFallback});
+//        bandConfigurationElem.addAttribute(new MetadataAttribute("startValueFallback", startValueData, true));
+//
+//        getTargetProduct().getMetadataRoot().addElement(bandConfigurationElem);
     }
 
     private void addInputProductPathsToMetadata() {
@@ -510,7 +766,7 @@ public class InterpolatedPercentileOp extends Operator {
 
     private String[] getAbsInputProductPaths() {
         final ArrayList<String> absolutPaths = new ArrayList<String>();
-        for (List<Product> products : dailyGroupedProducts.values()) {
+        for (List<Product> products : dailyGroupedSourceProducts.values()) {
             for (Product product : products) {
                 absolutPaths.add(product.getFileLocation().getAbsolutePath());
             }
@@ -521,9 +777,49 @@ public class InterpolatedPercentileOp extends Operator {
     private Product createTargetProduct() {
         final Product product = createOutputProduct();
         addTargetBandsAndCreateBandMapping(product);
+        if (keyPeriodShapefile != null) {
+            readShapefileAndPutDataToProduct(keyPeriodShapefile, "keyPeriodShapefile", product);
+            final ProductNodeGroup<VectorDataNode> vectorDataGroup = product.getVectorDataGroup();
+            shapeKeyPeriods = new ShapeKeyPeriod[vectorDataGroup.getNodeCount()];
+            for (int i = 0; i < vectorDataGroup.getNodeCount(); i++) {
+                final VectorDataNode geometry = vectorDataGroup.get(i);
+                final String vdnName = geometry.getName();
+                Mask currentMask = product.getMaskGroup().get(vdnName);
+                final Shape shape = currentMask.getValidShape();
+                final Date startDate = (Date) geometry.getFeatureCollection().features().next().getAttribute(keyPeriodStartColumnName);
+                final Date endDate = (Date) geometry.getFeatureCollection().features().next().getAttribute(keyPeriodEndColumnName);
+                final long kpStartMJD = Utils.utcToModifiedJulianDay(startDate);
+                final long kpEndMJD = Utils.utcToModifiedJulianDay(endDate);
+                shapeKeyPeriods[i] = new ShapeKeyPeriod(shape, kpStartMJD, kpEndMJD);
+            }
+        }
         return product;
     }
 
+    private static class ShapeKeyPeriod {
+
+        private final Shape shape;
+        private final long keyPeriodStartMJD;
+        private final long keyPeriodEndMJD;
+
+        private ShapeKeyPeriod(Shape shape, long keyPeriodStartMJD, long keyPeriodEndMJD) {
+            this.shape = shape;
+            this.keyPeriodStartMJD = keyPeriodStartMJD;
+            this.keyPeriodEndMJD = keyPeriodEndMJD;
+        }
+
+        public Shape getShape() {
+            return shape;
+        }
+
+        public long getKeyPeriodStartMJD() {
+            return keyPeriodStartMJD;
+        }
+
+        public long getKeyPeriodEndMJD() {
+            return keyPeriodEndMJD;
+        }
+    }
 
     private Product createOutputProduct() {
         try {
@@ -557,33 +853,16 @@ public class InterpolatedPercentileOp extends Operator {
     }
 
     private void addTargetBandsAndCreateBandMapping(Product product) {
-        final String prefix = bandConfiguration.sourceBandName;
-        for (Integer percentile : bandConfiguration.percentiles) {
-            final String name = getPercentileBandName(prefix, percentile);
+        final String prefix = getTargetBandNamePrefix();
+        for (Integer percentile : percentiles) {
+            final String name = getTargetPercentileBandName(prefix, percentile);
             final Band band = product.addBand(name, ProductData.TYPE_FLOAT32);
             band.setSpectralWavelength(percentile);
             band.setSpectralBandwidth(2);
         }
     }
 
-    private static long getCenterDateAsModifiedJulianDay(Product product) {
-        final ProductData.UTC startTime = product.getStartTime();
-        final ProductData.UTC endTime = product.getEndTime();
-        final long endMillies = endTime.getAsDate().getTime();
-        final long startMillies = startTime.getAsDate().getTime();
-        final long centerMillies = (endMillies - startMillies) / 2 + startMillies;
-        final Date centerUTCDate = new Date(centerMillies);
-        return utcToModifiedJulianDay(centerUTCDate);
-    }
-
-    private static long utcToModifiedJulianDay(Date centerUTCDate) {
-        final double julianDate = DateTimeUtils.utcToJD(centerUTCDate);
-        final double modifiedJulianDate = DateTimeUtils.jdToMJD(julianDate);
-        final double modifiedJulianDay = Math.floor(modifiedJulianDate);
-        return (long) modifiedJulianDay;
-    }
-
-    private String getPercentileBandName(String prefix, int percentile) {
+    private String getTargetPercentileBandName(String prefix, int percentile) {
         return prefix + "_p" + percentile + "_threshold";
     }
 
@@ -603,11 +882,41 @@ public class InterpolatedPercentileOp extends Operator {
         if (sourceProductPaths == null || sourceProductPaths.length == 0) {
             throw new OperatorException("The parameter 'sourceProductPaths' must be specified");
         }
-        if (bandConfiguration == null) {
-            throw new OperatorException("Parameter 'bandConfiguration' must be specified.");
+        if (sourceBandName == null && bandMathExpression == null || sourceBandName != null && bandMathExpression != null) {
+            throw new OperatorException("Ether parameter 'sourcBandName' or 'bandMathExpression' must be specified.");
         }
-        if (bandConfiguration.sourceBandName == null) {
-            throw new OperatorException("Configuration must contain a source band.");
+
+        if (keyPeriodShapefile != null) {
+            checkReadability(keyPeriodShapefile, "keyPeriodShapefile");
+            if (keyPeriodStartColumnName == null || keyPeriodStartColumnName.trim().length() == 0) {
+                throw new OperatorException("Parameter 'keyPeriodStartColumn' is missing.");
+            }
+            if (keyPeriodEndColumnName == null || keyPeriodEndColumnName.trim().length() == 0) {
+                throw new OperatorException("Parameter 'keyPeriodStopColumn' is missing.");
+            }
+        }
+        if (regionShapeFile != null) {
+            checkReadability(regionShapeFile, "regionShapeFile");
+            if (regionTimeSeriesFile == null) {
+                throw new OperatorException("The parameter 'regionTimeSeriesFile' must be given");
+            }
+            if (regionTimeSeriesFile.isFile()) {
+                throw new OperatorException("The file '" + regionTimeSeriesFile.getAbsolutePath() + "' already exists.");
+            }
+            final File parent = regionTimeSeriesFile.getParentFile();
+            if (!parent.isDirectory()) {
+                throw new OperatorException("The region time series NetCDF file can not be written, because '" + parent.getAbsolutePath() + "' is not a directory or does not exist.");
+            }
+        }
+    }
+
+    private void checkReadability(File file, String parameterName) {
+        final String absolutePath = file.getAbsolutePath();
+        if (!file.isFile()) {
+            throw new OperatorException("'" + absolutePath + "', given by parameter '" + parameterName + "', does not exist or is not a file.");
+        }
+        if (!file.canRead()) {
+            throw new OperatorException("No read access to '" + absolutePath + "'");
         }
     }
 
@@ -653,4 +962,9 @@ public class InterpolatedPercentileOp extends Operator {
         }
     }
 
+    private static interface PercentileComputer {
+
+        float[] computeThresholds(int[] targetPercentiles, float[] availableValues, int targetX, int targetY);
+
+    }
 }
