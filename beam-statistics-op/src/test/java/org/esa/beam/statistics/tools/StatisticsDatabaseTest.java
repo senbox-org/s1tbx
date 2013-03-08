@@ -1,13 +1,14 @@
 package org.esa.beam.statistics.tools;
 
+import static org.junit.Assert.*;
+
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.statistics.StatisticsOp;
 import org.esa.beam.statistics.output.UtilTest;
 import org.esa.beam.util.FeatureUtils;
 import org.geotools.feature.DefaultFeatureCollection;
 import org.geotools.feature.FeatureCollection;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 
@@ -15,10 +16,9 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.Properties;
 import java.util.Set;
-
-import static org.junit.Assert.*;
 
 public class StatisticsDatabaseTest {
 
@@ -59,18 +59,18 @@ public class StatisticsDatabaseTest {
         final Date date = dataDates.iterator().next();
         assertEquals(9, algal_1_records[0].getStatDataColumns(date).size());
         assertArrayEquals(
-                new String[]{
-                        "average",
-                        "max_error",
-                        "maximum",
-                        "median",
-                        "minimum",
-                        "p90_threshold",
-                        "p95_threshold",
-                        "sigma",
-                        "total",
-                },
-                algal_1_records[0].getStatDataColumns(date).toArray());
+                    new String[]{
+                                "average",
+                                "max_error",
+                                "maximum",
+                                "median",
+                                "minimum",
+                                "p90_threshold",
+                                "p95_threshold",
+                                "sigma",
+                                "total",
+                    },
+                    algal_1_records[0].getStatDataColumns(date).toArray());
         assertEquals("14.929766660899315", algal_1_records[0].getValue(date, "average"));
         assertEquals("0.030201509529724717", algal_1_records[0].getValue(date, "max_error"));
         assertEquals("30.221426010131836", algal_1_records[0].getValue(date, "maximum"));
@@ -111,6 +111,10 @@ public class StatisticsDatabaseTest {
         assertEquals(1, databaseRecords.length);
         final Set<Date> dataDates = databaseRecords[0].getDataDates();
         assertEquals(2, dataDates.size());
+        final Iterator<Date> iterator = dataDates.iterator();
+        assertEquals("Sat Mar 02 01:00:00 CET 2002", iterator.next().toString());
+        assertEquals("Sun Mar 03 01:00:00 CET 2002", iterator.next().toString());
+        assertEquals(false, iterator.hasNext());
     }
 
     private DefaultFeatureCollection createCollection(SimpleFeature feature1) {
