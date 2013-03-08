@@ -52,7 +52,7 @@ public class BinningConfigTest {
         assertEquals(2160, grid.getNumRows());
         assertEquals(SEAGrid.class, grid.getClass());
 
-        localConfig.setPlanetaryGrid("org.esa.beam.binning.operator.support.PlateCarreeGrid");
+        localConfig.setPlanetaryGrid("org.esa.beam.binning.support.PlateCarreeGrid");
         localConfig.setNumRows(2000);
         grid = localConfig.createPlanetaryGrid();
         assertEquals(2000, grid.getNumRows());
