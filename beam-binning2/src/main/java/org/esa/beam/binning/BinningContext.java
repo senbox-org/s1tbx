@@ -6,6 +6,7 @@ package org.esa.beam.binning;
  * @author Norman Fomferra
  */
 public interface BinningContext {
+
     /**
      * @return The variable context. Defines numbering of variables involved in the binning.
      */
@@ -22,7 +23,13 @@ public interface BinningContext {
     BinManager getBinManager();
 
     /**
+     * @return The compositing type which is used to during the binning.
+     */
+    CompositingType getCompositingType();
+
+    /**
      * @return The super-sampling of source pixels. May be {@code null}, if not used.
      */
     Integer getSuperSampling();
+
 }

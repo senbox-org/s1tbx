@@ -18,6 +18,7 @@ package org.esa.beam.binning.support;
 
 import org.esa.beam.binning.BinManager;
 import org.esa.beam.binning.BinningContext;
+import org.esa.beam.binning.CompositingType;
 import org.esa.beam.binning.PlanetaryGrid;
 import org.esa.beam.binning.VariableContext;
 
@@ -31,14 +32,13 @@ public class BinningContextImpl implements BinningContext {
     private final PlanetaryGrid planetaryGrid;
     private final BinManager binManager;
     private final int superSampling;
+    private CompositingType compositingType;
 
-    public BinningContextImpl(PlanetaryGrid planetaryGrid, BinManager binManager) {
-        this(planetaryGrid, binManager, 1);
-    }
-
-    public BinningContextImpl(PlanetaryGrid planetaryGrid, BinManager binManager, int superSampling) {
+    public BinningContextImpl(PlanetaryGrid planetaryGrid, BinManager binManager, CompositingType compositingType,
+                              int superSampling) {
         this.planetaryGrid = planetaryGrid;
         this.binManager = binManager;
+        this.compositingType = compositingType;
         this.superSampling = superSampling;
     }
 
@@ -58,7 +58,13 @@ public class BinningContextImpl implements BinningContext {
     }
 
     @Override
+    public CompositingType getCompositingType() {
+        return compositingType;
+    }
+
+    @Override
     public Integer getSuperSampling() {
         return superSampling;
     }
+
 }

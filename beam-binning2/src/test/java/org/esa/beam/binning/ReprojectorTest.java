@@ -11,13 +11,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 /**
  * @author MarcoZ
  * @author Norman
  */
 public class ReprojectorTest {
+
     static final int NAN = -1;
     private BinManager binManager = new BinManager();
     private PlanetaryGrid planetaryGrid;
@@ -44,12 +45,12 @@ public class ReprojectorTest {
 
         raster = new NobsRaster(new Rectangle(width, height));
         assertEquals("" +
-                             "------------\n" +
-                             "------------\n" +
-                             "------------\n" +
-                             "------------\n" +
-                             "------------\n" +
-                             "------------\n",
+                     "------------\n" +
+                     "------------\n" +
+                     "------------\n" +
+                     "------------\n" +
+                     "------------\n" +
+                     "------------\n",
                      raster.toString());
 
         reprojector = new Reprojector(createBinningContext(planetaryGrid), raster);
@@ -60,9 +61,9 @@ public class ReprojectorTest {
     public void testSubPixelRegion() throws Exception {
         TemporalBinRenderer raster = new NobsRaster(new Rectangle(2, 2, 6, 3));
         assertEquals("" +
-                             "------\n" +
-                             "------\n" +
-                             "------\n",
+                     "------\n" +
+                     "------\n" +
+                     "------\n",
                      raster.toString());
 
         Reprojector reprojector = new Reprojector(createBinningContext(planetaryGrid), raster);
@@ -76,9 +77,9 @@ public class ReprojectorTest {
         reprojector.processPart(bins.iterator());
         reprojector.end();
         assertEquals("" +
-                             "******\n" +
-                             "******\n" +
-                             "******\n",
+                     "******\n" +
+                     "******\n" +
+                     "******\n",
                      raster.toString());
 
 
@@ -95,12 +96,12 @@ public class ReprojectorTest {
         reprojector.processPart(bins.iterator());
         reprojector.end();
         assertEquals("" +
-                             "************\n" +
-                             "************\n" +
-                             "************\n" +
-                             "************\n" +
-                             "************\n" +
-                             "************\n",
+                     "************\n" +
+                     "************\n" +
+                     "************\n" +
+                     "************\n" +
+                     "************\n" +
+                     "************\n",
                      raster.toString());
     }
 
@@ -122,12 +123,12 @@ public class ReprojectorTest {
         reprojector.end();
 
         assertEquals("" +
-                             "************\n" +
-                             "************\n" +
-                             "************\n" +
-                             "************\n" +
-                             "************\n" +
-                             "************\n",
+                     "************\n" +
+                     "************\n" +
+                     "************\n" +
+                     "************\n" +
+                     "************\n" +
+                     "************\n",
                      raster.toString());
     }
 
@@ -140,12 +141,12 @@ public class ReprojectorTest {
         reprojector.end();
 
         assertEquals("" +
-                             "++++++++++++\n" +
-                             "++++++++++++\n" +
-                             "++++++++++++\n" +
-                             "++++++++++++\n" +
-                             "++++++++++++\n" +
-                             "++++++++++++\n",
+                     "++++++++++++\n" +
+                     "++++++++++++\n" +
+                     "++++++++++++\n" +
+                     "++++++++++++\n" +
+                     "++++++++++++\n" +
+                     "++++++++++++\n",
                      raster.toString());
     }
 
@@ -160,12 +161,12 @@ public class ReprojectorTest {
         reprojector.end();
 
         assertEquals("" +
-                             "++++++++++++\n" +
-                             "++++++++++++\n" +
-                             "++++++++++++\n" +
-                             "++++++++++++\n" +
-                             "++++++++++++\n" +
-                             "++++++++++++\n",
+                     "++++++++++++\n" +
+                     "++++++++++++\n" +
+                     "++++++++++++\n" +
+                     "++++++++++++\n" +
+                     "++++++++++++\n" +
+                     "++++++++++++\n",
                      raster.toString());
     }
 
@@ -183,12 +184,12 @@ public class ReprojectorTest {
         reprojector.processPart(bins.iterator());
         reprojector.end();
         assertEquals("" +
-                             "************\n" +
-                             "************\n" +
-                             "++++++++++++\n" +
-                             "************\n" +
-                             "++++++++++++\n" +
-                             "************\n",
+                     "************\n" +
+                     "************\n" +
+                     "++++++++++++\n" +
+                     "************\n" +
+                     "++++++++++++\n" +
+                     "************\n",
                      raster.toString());
     }
 
@@ -212,12 +213,12 @@ public class ReprojectorTest {
         reprojector.end();
 
         assertEquals("" +
-                             "************\n" +
-                             "************\n" +
-                             "++++++++++++\n" +
-                             "************\n" +
-                             "++++++++++++\n" +
-                             "************\n",
+                     "************\n" +
+                     "************\n" +
+                     "++++++++++++\n" +
+                     "************\n" +
+                     "++++++++++++\n" +
+                     "************\n",
                      raster.toString());
     }
 
@@ -233,12 +234,12 @@ public class ReprojectorTest {
         reprojector.processPart(bins.iterator());
         reprojector.end();
         assertEquals("" +
-                             "****++++****\n" +
-                             "+**+**+**+**\n" +
-                             "+*+*+*+*+*+*\n" +
-                             "+*+*+*+*+*+*\n" +
-                             "+**+**+**+**\n" +
-                             "++++****++++\n",
+                     "****++++****\n" +
+                     "+**+**+**+**\n" +
+                     "+*+*+*+*+*+*\n" +
+                     "+*+*+*+*+*+*\n" +
+                     "+**+**+**+**\n" +
+                     "++++****++++\n",
                      raster.toString());
     }
 
@@ -253,12 +254,12 @@ public class ReprojectorTest {
         reprojector.processPart(bins.iterator());
         reprojector.end();
         assertEquals("" +
-                             "++++++++++++\n" +
-                             "++++++++++++\n" +
-                             "++++********\n" +
-                             "************\n" +
-                             "************\n" +
-                             "************\n",
+                     "++++++++++++\n" +
+                     "++++++++++++\n" +
+                     "++++********\n" +
+                     "************\n" +
+                     "************\n" +
+                     "************\n",
                      raster.toString());
     }
 
@@ -273,12 +274,12 @@ public class ReprojectorTest {
         reprojector.processPart(bins.iterator());
         reprojector.end();
         assertEquals("" +
-                             "************\n" +
-                             "************\n" +
-                             "************\n" +
-                             "**++++++++++\n" +
-                             "++++++++++++\n" +
-                             "++++++++++++\n",
+                     "************\n" +
+                     "************\n" +
+                     "************\n" +
+                     "**++++++++++\n" +
+                     "++++++++++++\n" +
+                     "++++++++++++\n",
                      raster.toString());
     }
 
@@ -417,10 +418,11 @@ public class ReprojectorTest {
     }
 
     private BinningContext createBinningContext(PlanetaryGrid planetaryGrid) {
-        return new BinningContextImpl(planetaryGrid, binManager);
+        return new BinningContextImpl(planetaryGrid, binManager, CompositingType.BINNING, 1);
     }
 
     private static class NobsRaster implements TemporalBinRenderer {
+
         private final int w;
         private final int h;
         private final int[] nobsData;

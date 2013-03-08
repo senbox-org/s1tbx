@@ -40,6 +40,7 @@ import org.esa.beam.binning.AggregatorDescriptor;
 import org.esa.beam.binning.AggregatorDescriptorRegistry;
 import org.esa.beam.binning.BinManager;
 import org.esa.beam.binning.BinningContext;
+import org.esa.beam.binning.CompositingType;
 import org.esa.beam.binning.PlanetaryGrid;
 import org.esa.beam.binning.VariableContext;
 import org.esa.beam.binning.support.BinningContextImpl;
@@ -68,38 +69,44 @@ public class BinningConfig {
      * Otherwise a public no-arg constructor is expected.
      */
     @Parameter(defaultValue = "org.esa.beam.binning.support.SEAGrid")
-    String planetaryGrid;
+    private String planetaryGrid;
 
     /**
      * Number of rows in the planetary grid.
      */
     @Parameter
-    int numRows;
+    private int numRows;
+
+    /**
+     * The compositing type used for the binning process.
+     */
+    @Parameter(defaultValue = "BINNING", valueSet = {"BINNING", "MOSAICKING"})
+    private CompositingType compositingType;
 
     /**
      * The number of pixels used for super-sampling an input pixel into sub-pixel.
      */
     @Parameter
-    Integer superSampling;
+    private Integer superSampling;
 
     /**
      * The band maths expression used to filter input pixels.
      */
     @Parameter
-    String maskExpr;
+    private String maskExpr;
 
     /**
      * List of variables. A variable will generate a {@link org.esa.beam.framework.datamodel.VirtualBand VirtualBand}
      * in the input data product to be binned, so that it can be used for binning.
      */
     @Parameter(alias = "variables", itemAlias = "variable")
-    VariableConfig[] variableConfigs;
+    private VariableConfig[] variableConfigs;
 
     /**
      * List of aggregators. Aggregators generate the bands in the binned output products.
      */
     @Parameter(alias = "aggregators", domConverter = AggregatorConfigDomConverter.class)
-    AggregatorConfig[] aggregatorConfigs;
+    private AggregatorConfig[] aggregatorConfigs;
 
     public String getPlanetaryGrid() {
         return planetaryGrid;
@@ -127,6 +134,14 @@ public class BinningConfig {
 
     public Integer getSuperSampling() {
         return superSampling;
+    }
+
+    public CompositingType getCompositingType() {
+        return compositingType;
+    }
+
+    public void setCompositingType(CompositingType type) {
+        this.compositingType = type;
     }
 
     public void setSuperSampling(Integer superSampling) {
@@ -165,13 +180,14 @@ public class BinningConfig {
         VariableContext variableContext = createVariableContext();
         return new BinningContextImpl(createPlanetaryGrid(),
                                       createBinManager(variableContext),
-                                      getSuperSampling() != null ? getSuperSampling() : 1);
+                                      compositingType, getSuperSampling() != null ? getSuperSampling() : 1);
     }
 
     /**
      * Creates the planetary grid used for the binning.
      *
      * @return A newly created planetary grid instance used for the binning.
+     *
      * @throws IllegalArgumentException if either the {@code numRows} parameter is less or equal zero or
      *                                  the {@code planetaryGrid} parameter denotes a class that couldn't be instantiated.
      */
@@ -205,7 +221,8 @@ public class BinningConfig {
         Aggregator[] aggregators = new Aggregator[aggregatorConfigs.length];
         for (int i = 0; i < aggregators.length; i++) {
             AggregatorConfig aggregatorConfig = aggregatorConfigs[i];
-            AggregatorDescriptor descriptor = AggregatorDescriptorRegistry.getInstance().getAggregatorDescriptor(aggregatorConfig.getAggregatorName());
+            AggregatorDescriptor descriptor = AggregatorDescriptorRegistry.getInstance().getAggregatorDescriptor(
+                    aggregatorConfig.getAggregatorName());
             if (descriptor != null) {
                 aggregators[i] = descriptor.createAggregator(variableContext, aggregatorConfig);
             } else {

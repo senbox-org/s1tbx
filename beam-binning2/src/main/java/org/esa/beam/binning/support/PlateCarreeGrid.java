@@ -102,7 +102,7 @@ public class PlateCarreeGrid implements PlanetaryGrid {
     public double[] getCenterLatLon(long binIndex) {
         final int row = getRowIndex(binIndex);
         return new double[]{
-                latBin[row],
+                getCenterLat(row),
                 getCenterLon((int) (binIndex % numCols))
         };
     }

@@ -3,6 +3,7 @@ package org.esa.beam.binning.operator;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import org.esa.beam.binning.BinManager;
+import org.esa.beam.binning.CompositingType;
 import org.esa.beam.binning.TemporalBin;
 import org.esa.beam.binning.aggregators.AggregatorMinMax;
 import org.esa.beam.binning.support.BinningContextImpl;
@@ -152,7 +153,7 @@ public class BinWriterTest {
         VariableContextImpl variableContext = new VariableContextImpl();
         variableContext.defineVariable("test", "blah");
         BinManager binManager = new BinManager(variableContext, new AggregatorMinMax(variableContext, "test", -1));
-        BinningContextImpl binningContext = new BinningContextImpl(seaGrid, binManager, 1);
+        BinningContextImpl binningContext = new BinningContextImpl(seaGrid, binManager, CompositingType.BINNING, 1);
         Geometry region = JTS.shapeToGeometry(new Rectangle2D.Double(-180, -90, 360, 180), new GeometryFactory());
         return new BinWriter(binningContext, Logger.getLogger("BinWriterTest"), region, null, null);
     }

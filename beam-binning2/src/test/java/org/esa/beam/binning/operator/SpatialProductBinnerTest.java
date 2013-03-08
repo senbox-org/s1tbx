@@ -19,6 +19,7 @@ package org.esa.beam.binning.operator;
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.binning.BinManager;
 import org.esa.beam.binning.BinningContext;
+import org.esa.beam.binning.CompositingType;
 import org.esa.beam.binning.PlanetaryGrid;
 import org.esa.beam.binning.SpatialBin;
 import org.esa.beam.binning.SpatialBinConsumer;
@@ -97,7 +98,7 @@ public class SpatialProductBinnerTest {
         assertNotNull(bandList);
         VariableContext variableContext = ctx.getVariableContext();
         assertEquals(variableContext.getVariableCount(), bandList.size());
-        for(int i = 0; i < bandList.size(); i++) {
+        for (int i = 0; i < bandList.size(); i++) {
             assertEquals(variableContext.getVariableName(i), bandList.get(i).getName());
         }
 
@@ -185,7 +186,7 @@ public class SpatialProductBinnerTest {
                                                new AggregatorAverage(variableContext, "a", null, null),
                                                new AggregatorAverage(variableContext, "b", null, null));
 
-        return new BinningContextImpl(planetaryGrid, binManager);
+        return new BinningContextImpl(planetaryGrid, binManager, CompositingType.BINNING, 1);
     }
 
     private static class MySpatialBinConsumer implements SpatialBinConsumer {

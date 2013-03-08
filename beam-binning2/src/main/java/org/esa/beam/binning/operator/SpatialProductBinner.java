@@ -19,6 +19,7 @@ package org.esa.beam.binning.operator;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.glevel.MultiLevelImage;
 import com.vividsolutions.jts.geom.Geometry;
+import org.esa.beam.binning.CompositingType;
 import org.esa.beam.binning.ObservationSlice;
 import org.esa.beam.binning.PlanetaryGrid;
 import org.esa.beam.binning.SpatialBinner;
@@ -76,10 +77,10 @@ public class SpatialProductBinner {
         addVariablesToProduct(variableContext, product, addedBands);
 
         PlanetaryGrid planetaryGrid = spatialBinner.getBinningContext().getPlanetaryGrid();
-        boolean doMosaicking = planetaryGrid instanceof PlateCarreeGrid;
+        CompositingType compositingType = spatialBinner.getBinningContext().getCompositingType();
         Geometry sourceProductGeometry = null;
         final MultiLevelImage maskImage;
-        if (doMosaicking) {
+        if (CompositingType.MOSAICKING.equals(compositingType)) {
             addMaskToProduct(variableContext.getValidMaskExpression(), product, addedBands);
             PlateCarreeGrid plateCarreeGrid = (PlateCarreeGrid) planetaryGrid;
             sourceProductGeometry = plateCarreeGrid.computeProductGeometry(product);
@@ -92,7 +93,7 @@ public class SpatialProductBinner {
         final MultiLevelImage[] varImages = getVariableImages(product, variableContext);
 
         final Rectangle[] sliceRectangles;
-        if (doMosaicking) {
+        if (CompositingType.MOSAICKING.equals(compositingType)) {
             PlateCarreeGrid plateCarreeGrid = (PlateCarreeGrid) planetaryGrid;
             Dimension tileSize = product.getPreferredTileSize();
             sliceRectangles = plateCarreeGrid.getDataSliceRectangles(sourceProductGeometry, tileSize);

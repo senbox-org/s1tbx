@@ -31,7 +31,7 @@ public class SpatialBinnerTest {
         MyVariableContext variableContext = new MyVariableContext("x");
         MyBinManager binManager = new MyBinManager(variableContext,
                                                    new AggregatorAverageML(variableContext, "x", null, null));
-        BinningContext binningContext = new BinningContextImpl(planetaryGrid, binManager);
+        BinningContext binningContext = new BinningContextImpl(planetaryGrid, binManager, CompositingType.BINNING, 1);
         MySpatialBinConsumer mySpatialBinProcessor = new MySpatialBinConsumer(binManager);
         SpatialBinner spatialBinner = new SpatialBinner(binningContext, mySpatialBinProcessor);
 
@@ -122,7 +122,7 @@ public class SpatialBinnerTest {
         MyBinManager binManager = new MyBinManager(variableContext,
                                                    new AggregatorAverageML(variableContext, "x", null, null));
         TestSpatialBinConsumer spatialBinProcessor = new TestSpatialBinConsumer();
-        BinningContext binningContext = new BinningContextImpl(planetaryGrid, binManager);
+        BinningContext binningContext = new BinningContextImpl(planetaryGrid, binManager, CompositingType.BINNING, 1);
 
         SpatialBinner spatialBinner = new SpatialBinner(binningContext, spatialBinProcessor);
 

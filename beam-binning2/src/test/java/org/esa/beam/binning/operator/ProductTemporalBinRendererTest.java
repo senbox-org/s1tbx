@@ -2,6 +2,7 @@ package org.esa.beam.binning.operator;
 
 import com.bc.ceres.binding.ConversionException;
 import org.esa.beam.binning.BinManager;
+import org.esa.beam.binning.CompositingType;
 import org.esa.beam.binning.Reprojector;
 import org.esa.beam.binning.TemporalBin;
 import org.esa.beam.binning.support.BinningContextImpl;
@@ -19,7 +20,7 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.util.Arrays;
 
-import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.*;
 
 /**
  * @author Marco Peters
@@ -30,7 +31,8 @@ public class ProductTemporalBinRendererTest {
     public void testRenderBin() throws Exception {
         File tempFile = File.createTempFile("BEAM", ".nc");
         tempFile.deleteOnExit();
-        BinningContextImpl binningContext = new BinningContextImpl(new SEAGrid(10), new BinManager());
+        BinningContextImpl binningContext = new BinningContextImpl(new SEAGrid(10), new BinManager(),
+                                                                   CompositingType.BINNING, 1);
         ProductTemporalBinRenderer binRenderer = createBinRenderer(tempFile, binningContext);
         Rectangle region = binRenderer.getRasterRegion();
 
@@ -65,9 +67,9 @@ public class ProductTemporalBinRendererTest {
 
 
     private ProductTemporalBinRenderer createBinRenderer(File tempFile, BinningContextImpl binningContext) throws
-            IOException,
-            ConversionException,
-            ParseException {
+                                                                                                           IOException,
+                                                                                                           ConversionException,
+                                                                                                           ParseException {
         String worldWKT = "POLYGON ((-180 -90, -180 90, 180 90, 180 -90, -180 -90))";
         Rectangle region = Reprojector.computeRasterSubRegion(binningContext.getPlanetaryGrid(),
                                                               new JtsGeometryConverter().parse(worldWKT));
