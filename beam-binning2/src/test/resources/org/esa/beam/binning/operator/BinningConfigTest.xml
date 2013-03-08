@@ -10,6 +10,8 @@
         </variable>
     </variables>
 
+    <compositingType>MOSAICKING</compositingType>
+
     <aggregators>
         <aggregator>
             <type>AVG</type>

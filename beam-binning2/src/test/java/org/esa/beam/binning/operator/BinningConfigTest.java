@@ -18,12 +18,14 @@ package org.esa.beam.binning.operator;
 
 import com.bc.ceres.binding.BindingException;
 import org.esa.beam.binning.BinManager;
+import org.esa.beam.binning.CompositingType;
 import org.esa.beam.binning.PlanetaryGrid;
 import org.esa.beam.binning.VariableContext;
 import org.esa.beam.binning.aggregators.AggregatorAverage;
 import org.esa.beam.binning.aggregators.AggregatorAverageML;
 import org.esa.beam.binning.aggregators.AggregatorMinMax;
 import org.esa.beam.binning.aggregators.AggregatorOnMaxSet;
+import org.esa.beam.binning.support.PlateCarreeGrid;
 import org.esa.beam.binning.support.SEAGrid;
 import org.esa.beam.util.io.FileUtils;
 import org.junit.Before;
@@ -50,15 +52,20 @@ public class BinningConfigTest {
         assertEquals(2160, grid.getNumRows());
         assertEquals(SEAGrid.class, grid.getClass());
 
-        localConfig.setPlanetaryGrid("org.esa.beam.binning.operator.BinningConfigTest$TestDummyGrid");
+        localConfig.setPlanetaryGrid("org.esa.beam.binning.operator.support.PlateCarreeGrid");
         localConfig.setNumRows(2000);
         grid = localConfig.createPlanetaryGrid();
         assertEquals(2000, grid.getNumRows());
-        assertEquals(TestDummyGrid.class, grid.getClass());
+        assertEquals(PlateCarreeGrid.class, grid.getClass());
 
         grid = config.createPlanetaryGrid();
         assertEquals(4320, grid.getNumRows());
         assertEquals(SEAGrid.class, grid.getClass());
+    }
+
+    @Test
+    public void testCompositingType() throws Exception {
+        assertEquals(CompositingType.MOSAICKING, config.getCompositingType());
     }
 
     @Test
@@ -131,6 +138,7 @@ public class BinningConfigTest {
         final BinningConfig configCopy = BinningConfig.fromXml(xml);
 
         assertEquals(config.getNumRows(), configCopy.getNumRows());
+        assertEquals(config.getCompositingType(), configCopy.getCompositingType());
         assertEquals(config.getSuperSampling(), configCopy.getSuperSampling());
         assertEquals(config.getMaskExpr(), configCopy.getMaskExpr());
         assertArrayEquals(config.getVariableConfigs(), configCopy.getVariableConfigs());
@@ -151,52 +159,4 @@ public class BinningConfigTest {
         }
     }
 
-    private static class TestDummyGrid implements PlanetaryGrid {
-
-        int numRows;
-
-        public TestDummyGrid(int numRows) {
-            this.numRows = numRows;
-        }
-
-        @Override
-        public long getBinIndex(double lat, double lon) {
-            return 0;
-        }
-
-        @Override
-        public int getRowIndex(long bin) {
-            return 0;
-        }
-
-        @Override
-        public long getNumBins() {
-            return 0;
-        }
-
-        @Override
-        public int getNumRows() {
-            return numRows;
-        }
-
-        @Override
-        public int getNumCols(int row) {
-            return 0;
-        }
-
-        @Override
-        public long getFirstBinIndex(int row) {
-            return 0;
-        }
-
-        @Override
-        public double getCenterLat(int row) {
-            return 0;
-        }
-
-        @Override
-        public double[] getCenterLatLon(long bin) {
-            return new double[0];
-        }
-    }
 }
