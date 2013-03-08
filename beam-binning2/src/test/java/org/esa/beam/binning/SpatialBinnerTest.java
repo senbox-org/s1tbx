@@ -8,15 +8,18 @@ import org.esa.beam.binning.support.SEAGrid;
 import org.junit.Test;
 
 import java.awt.geom.AffineTransform;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
 
-import static java.lang.Math.log;
-import static java.lang.Math.sqrt;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static java.lang.Math.*;
+import static org.junit.Assert.*;
 
 
 public class SpatialBinnerTest {
+
     static final int SUM_X = 0;
     static final int SUM_XX = 1;
     static final int WEIGHT = 2;
@@ -26,8 +29,9 @@ public class SpatialBinnerTest {
 
         MyPlanetaryGrid planetaryGrid = new MyPlanetaryGrid();
         MyVariableContext variableContext = new MyVariableContext("x");
-        MyBinManager binManager = new MyBinManager(variableContext, new AggregatorAverageML(variableContext, "x", null, null));
-        BinningContext binningContext = new BinningContextImpl(planetaryGrid, binManager);
+        MyBinManager binManager = new MyBinManager(variableContext,
+                                                   new AggregatorAverageML(variableContext, "x", null, null));
+        BinningContext binningContext = new BinningContextImpl(planetaryGrid, binManager, CompositingType.BINNING, 1);
         MySpatialBinConsumer mySpatialBinProcessor = new MySpatialBinConsumer(binManager);
         SpatialBinner spatialBinner = new SpatialBinner(binningContext, mySpatialBinProcessor);
 
@@ -115,9 +119,10 @@ public class SpatialBinnerTest {
         }
 
         MyVariableContext variableContext = new MyVariableContext("x");
-        MyBinManager binManager = new MyBinManager(variableContext, new AggregatorAverageML(variableContext, "x", null, null));
+        MyBinManager binManager = new MyBinManager(variableContext,
+                                                   new AggregatorAverageML(variableContext, "x", null, null));
         TestSpatialBinConsumer spatialBinProcessor = new TestSpatialBinConsumer();
-        BinningContext binningContext = new BinningContextImpl(planetaryGrid, binManager);
+        BinningContext binningContext = new BinningContextImpl(planetaryGrid, binManager, CompositingType.BINNING, 1);
 
         SpatialBinner spatialBinner = new SpatialBinner(binningContext, spatialBinProcessor);
 
@@ -145,11 +150,13 @@ public class SpatialBinnerTest {
                 2963729, 2963730, 2963731, 2963732,
         };
         for (int i = 0; i < 16; i++) {
-            assertEquals(String.format("Problem with bin[%d]", i), expectedIndexes[i], producedSpatialBins.get(i).getIndex());
+            assertEquals(String.format("Problem with bin[%d]", i), expectedIndexes[i],
+                         producedSpatialBins.get(i).getIndex());
         }
     }
 
     private static class TestSpatialBinConsumer implements SpatialBinConsumer {
+
         int numObservationsTotal;
         boolean verbous = false;
         int sliceIndex;
@@ -172,6 +179,7 @@ public class SpatialBinnerTest {
     }
 
     private static class BinComparator implements Comparator<SpatialBin> {
+
         @Override
         public int compare(SpatialBin b1, SpatialBin b2) {
             return (int) (b1.getIndex() - b2.getIndex());

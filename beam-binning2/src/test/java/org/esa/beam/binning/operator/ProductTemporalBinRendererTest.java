@@ -2,6 +2,7 @@ package org.esa.beam.binning.operator;
 
 import com.bc.ceres.binding.ConversionException;
 import org.esa.beam.binning.BinManager;
+import org.esa.beam.binning.CompositingType;
 import org.esa.beam.binning.Reprojector;
 import org.esa.beam.binning.TemporalBin;
 import org.esa.beam.binning.support.BinningContextImpl;
@@ -30,7 +31,8 @@ public class ProductTemporalBinRendererTest {
     public void testRenderBin() throws Exception {
         File tempFile = File.createTempFile("BEAM", ".nc");
         tempFile.deleteOnExit();
-        BinningContextImpl binningContext = new BinningContextImpl(new SEAGrid(10), new BinManager());
+        BinningContextImpl binningContext = new BinningContextImpl(new SEAGrid(10), new BinManager(),
+                                                                   CompositingType.BINNING, 1);
         ProductTemporalBinRenderer binRenderer = createBinRenderer(tempFile, binningContext);
         Rectangle region = binRenderer.getRasterRegion();
 
