@@ -603,9 +603,7 @@ public class InterpolatedPercentileOp extends Operator {
         final String prefix = getTargetBandNamePrefix();
         for (Integer percentile : percentiles) {
             final String name = getTargetPercentileBandName(prefix, percentile);
-            final Band band = product.addBand(name, ProductData.TYPE_FLOAT32);
-            band.setSpectralWavelength(percentile);
-            band.setSpectralBandwidth(2);
+            product.addBand(name, ProductData.TYPE_FLOAT32);
         }
     }
 
