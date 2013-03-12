@@ -23,21 +23,19 @@ import java.text.MessageFormat;
 /**
  * Implements a linear function for interpolation of real univariate functions.
  */
-public class LinearInterpolator {
+public class LinearInterpolator implements Interpolator {
 
     /**
      * Computes a linear interpolating function for the data set.
      *
      * @param x the arguments for the interpolation points
      * @param y the values for the interpolation points
-     *
      * @return a function which interpolates the data set
-     *
      * @throws IllegalArgumentException if {@code x} and {@code y} have different sizes.
      * @throws IllegalArgumentException if {@code x} is not sorted in strict increasing order.
      * @throws IllegalArgumentException if the size of {@code x} is smaller than 2.
      */
-    public static PolynomialSplineFunction interpolate(double[] x, double[] y) {
+    public PolynomialSplineFunction interpolate(double[] x, double[] y) {
         if (x.length != y.length) {
             throw new IllegalArgumentException("x.length and y.length must be the same.");
         }
@@ -50,8 +48,8 @@ public class LinearInterpolator {
         for (int i = 0; i < n; i++) {
             if (x[i] >= x[i + 1]) {
                 throw new IllegalArgumentException(MessageFormat.format(
-                            "Points {0} and {1} are not strictly increasing ({2} >= {3}).",
-                            i, i + 1, x[i], x[i + 1]));
+                        "Points {0} and {1} are not strictly increasing ({2} >= {3}).",
+                        i, i + 1, x[i], x[i + 1]));
             }
         }
 
