@@ -378,6 +378,8 @@ public class InterpolatedPercentileOp extends Operator {
         timeSeriesDataProduct.setName(year + "_" + targetName + SUFFIX_PERCENTILE_OP_DATA_PRODUCT);
         addExpectedMetadataForTimeSeriesTool(targetName);
         timeSeriesDataProduct.setAutoGrouping(targetName);
+        timeSeriesDataProduct.setStartTime(new ProductData.UTC(timeSeriesStartMJD));
+        timeSeriesDataProduct.setEndTime(new ProductData.UTC(timeSeriesEndMJD));
         for (long mjd : dailyGroupedSourceProducts.keySet()) {
             final String dayMeanBandName = createNameForMeanBand(mjd);
             final int dayIdx = (int) (mjd - timeSeriesStartMJD);
@@ -457,7 +459,7 @@ public class InterpolatedPercentileOp extends Operator {
 
     private void initTimeSeriesStartAndEnd() {
         final long oldestMJD = dailyGroupedSourceProducts.firstKey();
-        final long youngestMJD = dailyGroupedSourceProducts.lastKey();
+        final long newestMJD = dailyGroupedSourceProducts.lastKey();
         if (startDate != null) {
             timeSeriesStartMJD = Utils.utcToModifiedJulianDay(startDate.getAsDate());
         } else {
@@ -466,7 +468,7 @@ public class InterpolatedPercentileOp extends Operator {
         if (endDate != null) {
             timeSeriesEndMJD = Utils.utcToModifiedJulianDay(endDate.getAsDate());
         } else {
-            timeSeriesEndMJD = youngestMJD;
+            timeSeriesEndMJD = newestMJD;
         }
         timeSeriesLength = (int) (timeSeriesEndMJD - timeSeriesStartMJD + 1);
     }
