@@ -265,7 +265,6 @@ class ScatterPlotPanel extends ChartPagePanel {
 
         if (isRasterChanged()) {
             getPlot().getRangeAxis().setLabel(getAxisLabel(raster, "X", false));
-            System.out.println("     updateComponents");
             computeChartDataIfPossible();
         }
     }
