@@ -128,6 +128,16 @@
                 <artifactId>nujan</artifactId>
                 <version>1.4.1</version>
             </dependency>
+            <dependency>
+                <groupId>org.htmlparser</groupId>
+                <artifactId>htmlparser</artifactId>
+                <version>1.6</version>
+            </dependency>
+            <dependency>
+                <groupId>edu.ucar</groupId>
+                <artifactId>opendap</artifactId>
+                <version>2.2.2</version>
+            </dependency>
 
             <!-- GeoTools Libraries ############################################# -->
             <!-- Sadly there is no global exclusion so every geotools artifact -->
