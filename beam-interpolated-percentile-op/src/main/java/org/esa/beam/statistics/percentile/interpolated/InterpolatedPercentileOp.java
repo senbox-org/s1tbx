@@ -134,6 +134,9 @@ public class InterpolatedPercentileOp extends Operator {
                format = DATETIME_PATTERN, converter = UtcConverter.class)
     ProductData.UTC endDate;
 
+    @Parameter(description = "The output directory for the intermediate time series product. If not given, the time\n" +
+                             "series product will be written to the working directory.")
+    File outputDir;
 
     @Parameter(description = "A text specifying the target Coordinate Reference System, either in WKT or as an\n" +
                              "authority code. For appropriate EPSG authority codes see (www.epsg-registry.org).\n" +
@@ -394,8 +397,14 @@ public class InterpolatedPercentileOp extends Operator {
             }
         }
         final ProductWriter productWriter = ProductIO.getProductWriter(DimapProductConstants.DIMAP_FORMAT_NAME);
+        final File outputFile;
+        if (outputDir != null) {
+            outputFile = new File(outputDir, timeSeriesDataProduct.getName());
+        } else {
+            outputFile = new File(timeSeriesDataProduct.getName());
+        }
         try {
-            productWriter.writeProductNodes(timeSeriesDataProduct, new File(timeSeriesDataProduct.getName()));
+            productWriter.writeProductNodes(timeSeriesDataProduct, outputFile);
         } catch (IOException e) {
             throw new OperatorException(UNABLE_TO_WRITE_TIMESERIES_DATA_PRODUCT, e);
         }
@@ -631,6 +640,9 @@ public class InterpolatedPercentileOp extends Operator {
         }
         if (sourceBandName == null && bandMathExpression == null || sourceBandName != null && bandMathExpression != null) {
             throw new OperatorException("Ether parameter 'sourcBandName' or 'bandMathExpression' must be specified.");
+        }
+        if (outputDir != null && !outputDir.isDirectory()) {
+            throw new OperatorException("The output dir '" + outputDir.getAbsolutePath() + "' does not exist.");
         }
     }
 
