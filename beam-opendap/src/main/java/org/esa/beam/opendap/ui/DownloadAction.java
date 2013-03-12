@@ -16,17 +16,12 @@
 
 package org.esa.beam.opendap.ui;
 
-import org.esa.beam.opendap.utils.DAPDownloader;
+import org.esa.beam.opendap.utils.*;
 
-import javax.swing.SwingWorker;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.File;
-import java.io.IOException;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import javax.swing.*;
+import java.awt.event.*;
+import java.io.*;
+import java.util.*;
 
 /**
  * @author Tonio Fincke
@@ -115,7 +110,7 @@ class DownloadAction implements ActionListener, DAPDownloader.FileCountProvider 
         protected Void doInBackground() {
             try {
                 downloader.saveProducts(targetDirectory);
-            } catch (IOException e) {
+            } catch (Exception e) {
                 downloadHandler.handleException(e);
             }
             return null;
