@@ -3,18 +3,20 @@ package org.esa.beam.statistics.percentile.interpolated;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.util.DateTimeUtils;
+import org.esa.beam.util.Guardian;
 import org.esa.beam.util.ProductUtils;
 
 import java.awt.geom.Area;
 import java.awt.geom.GeneralPath;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.TreeMap;
 
-public class Utils {
+class Utils {
 
-    public static Area createProductArea(Product product) {
+    static Area createProductArea(Product product) {
         GeneralPath[] boundary = ProductUtils.createGeoBoundaryPaths(product);
         Area area = new Area();
         for (GeneralPath generalPath : boundary) {
@@ -23,7 +25,7 @@ public class Utils {
         return area;
     }
 
-    public static TreeMap<Long, List<Product>> groupProductsDaily(Product[] products) {
+    static TreeMap<Long, List<Product>> groupProductsDaily(Product[] products) {
         final TreeMap<Long, List<Product>> groupedProducts = new TreeMap<Long, List<Product>>();
         for (Product product : products) {
             final long productMJD = getCenterDateAsModifiedJulianDay(product);
@@ -54,4 +56,24 @@ public class Utils {
         final Date centerUTCDate = new Date(centerMillies);
         return utcToModifiedJulianDay(centerUTCDate);
     }
+
+    static void safelyDeleteTree(File tree) {
+        Guardian.assertNotNull("tree", tree);
+
+        File[] files = tree.listFiles();
+        if (files != null) {
+            for (File file : files) {
+                if (file.isDirectory()) {
+                    safelyDeleteTree(file);
+                } else {
+                    file.delete();
+                    file.deleteOnExit();
+                }
+            }
+        }
+
+        tree.delete();
+        tree.deleteOnExit();
+    }
+
 }

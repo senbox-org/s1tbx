@@ -8,8 +8,8 @@ import static org.junit.Assert.assertEquals;
 
 public class GapFillerTest_fillGaps {
 
-    private final static String LINEAR = InterpolatedPercentileOp.P_CALCULATION_METHOD_LINEAR_INTERPOLATION;
-    private final static String SPLINE = InterpolatedPercentileOp.P_CALCULATION_METHOD_SPLINE_INTERPOLATION;
+    private final static String LINEAR = TemporalPercentileOp.P_CALCULATION_METHOD_LINEAR_INTERPOLATION;
+    private final static String SPLINE = TemporalPercentileOp.P_CALCULATION_METHOD_SPLINE_INTERPOLATION;
 
     private final float xx = Float.NaN;
     private float startValueFallback;

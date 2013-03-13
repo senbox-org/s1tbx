@@ -34,8 +34,8 @@ public class ProductValidatorTest {
     public void setUp() throws Exception {
         sourceBandName = "sbn";
 
-        _timeRangeStart = ProductData.UTC.parse("2012-05-21 00:00:00", InterpolatedPercentileOp.DATETIME_PATTERN);
-        _timeRangeEnd = ProductData.UTC.parse("2012-07-08 00:00:00", InterpolatedPercentileOp.DATETIME_PATTERN);
+        _timeRangeStart = ProductData.UTC.parse("2012-05-21 00:00:00", TemporalPercentileOp.DATETIME_PATTERN);
+        _timeRangeEnd = ProductData.UTC.parse("2012-07-08 00:00:00", TemporalPercentileOp.DATETIME_PATTERN);
 
         Area targetArea = new Area(new Rectangle(9, 51, 20, 15));
         Area intersectingArea = new Area(new Rectangle(3, 45, 20, 15));
@@ -51,8 +51,8 @@ public class ProductValidatorTest {
         M_geoCoding = mock(GeoCoding.class);
         when(M_geoCoding.canGetPixelPos()).thenReturn(true);
 
-        final ProductData.UTC productStartTime = ProductData.UTC.parse("2012-05-22 00:00:00", InterpolatedPercentileOp.DATETIME_PATTERN);
-        final ProductData.UTC productEndTime = ProductData.UTC.parse("2012-07-07 00:00:00", InterpolatedPercentileOp.DATETIME_PATTERN);
+        final ProductData.UTC productStartTime = ProductData.UTC.parse("2012-05-22 00:00:00", TemporalPercentileOp.DATETIME_PATTERN);
+        final ProductData.UTC productEndTime = ProductData.UTC.parse("2012-07-07 00:00:00", TemporalPercentileOp.DATETIME_PATTERN);
 
         M_product = mock(Product.class);
         when(M_product.getName()).thenReturn("ProductMock");

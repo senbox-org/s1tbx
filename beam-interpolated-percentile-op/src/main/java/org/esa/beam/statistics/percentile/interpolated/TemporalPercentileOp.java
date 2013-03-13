@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2013 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -38,6 +38,7 @@ import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProducts;
 import org.esa.beam.util.DateTimeUtils;
 import org.esa.beam.util.StringUtils;
+import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.util.jai.JAIUtils;
 import org.esa.beam.util.math.MathUtils;
 import org.geotools.geometry.jts.ReferencedEnvelope;
@@ -68,28 +69,33 @@ import java.util.Vector;
 import java.util.logging.Level;
 
 /**
- * An operator that is used to compute statistics for any number of source products, restricted to regions given by an
- * ESRI shapefile.
+ * An operator that is used to compute percentiles over a given time period. Products with different observation times
+ * serve as computation base. All the input products are sorted chronologically and grouped per day. For each day
+ * inside the given time period, a collocated mean band from the grouped products is computed. By this manner, a intermediate
+ * time series product is created successively.
  * <p/>
- * It writes two different sorts of output:<br/>
+ * This time series product is used to create time series' per pixel. Days with missing values will cause gaps in a time
+ * series. To improve the percentile calculation results, such gaps can be filled.
+ * Three gap filling strategies are available.
  * <ul>
- * <li>an ASCII file in tab-separated CSV format, in which the statistics are mapped to the source regions</li>
- * <li>a shapefile that corresponds to the input shapefile, enriched with the statistics for the regions defined by the shapefile</li>
+ * <li>linearInterpolationGapFilling</li>
+ * <li>splineInterpolationGapFilling</li>
+ * <li>quadraticInterpolationGapFilling</li>
  * </ul>
  * <p/>
- * Unlike most other operators, that can compute single {@link org.esa.beam.framework.gpf.Tile tiles},
- * the statistics operator processes all of its source products in its {@link #initialize()} method.
- *
+ * Based on these time series', for each percentile a band is written to the target product.
+ * In these bands, each pixel holds the threshold of the respective percentile.
+ * <p/>
  * @author Sabine Embacher
  * @author Tonio Fincke
  * @author Thomas Storm
  */
-@OperatorMetadata(alias = "InterpolatedPercentile",
+@OperatorMetadata(alias = "TemporalPercentile",
                   version = "1.0",
                   authors = "Sabine Embacher, Marco Peters, Tonio Fincke",
-                  copyright = "(c) 2012 by Brockmann Consult GmbH",
-                  description = "Computes percentiles over the time for an arbitrary number of source products.")
-public class InterpolatedPercentileOp extends Operator {
+                  copyright = "(c) 2013 by Brockmann Consult GmbH",
+                  description = "Computes percentiles over a given time period.")
+public class TemporalPercentileOp extends Operator {
 
     // todo start ... these constant fields are copied from time series tool
     // see org.esa.beam.timeseries.core.timeseries.datamodel.AbstractTimeSeries
@@ -124,19 +130,24 @@ public class InterpolatedPercentileOp extends Operator {
                              "If, for example, all NetCDF files under /eodata/ shall be considered, use '/eodata/**/*.nc'.")
     String[] sourceProductPaths;
 
-    @Parameter(description = "The start date. If not given, taken from the 'oldest' source product. Products that\n" +
+    @Parameter(description = "The start date. If not given, it is taken from the 'oldest' source product. Products that\n" +
                              "have a start date before the start date given by this parameter are not considered.",
                format = DATETIME_PATTERN, converter = UtcConverter.class)
     ProductData.UTC startDate;
 
-    @Parameter(description = "The end date. If not given, taken from the 'youngest' source product. Products that\n" +
+    @Parameter(description = "The end date. If not given, it is taken from the 'newest' source product. Products that\n" +
                              "have an end date after the end date given by this parameter are not considered.",
                format = DATETIME_PATTERN, converter = UtcConverter.class)
     ProductData.UTC endDate;
 
+    @Parameter(description = "Determines whether the time series product which is created during computation\n" +
+                             "should be written to disk.",
+               defaultValue = "true")
+    boolean keepIntermediateTimeSeriesProduct;
+
     @Parameter(description = "The output directory for the intermediate time series product. If not given, the time\n" +
                              "series product will be written to the working directory.")
-    File outputDir;
+    File timeSeriesOutputDir;
 
     @Parameter(description = "A text specifying the target Coordinate Reference System, either in WKT or as an\n" +
                              "authority code. For appropriate EPSG authority codes see (www.epsg-registry.org).\n" +
@@ -243,7 +254,17 @@ public class InterpolatedPercentileOp extends Operator {
 
         computeMeanDataForEachDayAndWriteDataToTimeSeriesProduct();
 
-        final File timeSeriesDataProductLocation = new File(timeSeriesDataProduct.getName() + DimapProductConstants.DIMAP_HEADER_FILE_EXTENSION);
+        reloadIntermediateTimeSeriesProduct();
+
+        dailyGroupedSourceProducts.clear();
+
+        getLogger().log(Level.INFO, "Input products colocated with target product.");
+
+        initPercentileComputer();
+    }
+
+    private void reloadIntermediateTimeSeriesProduct() {
+        final File timeSeriesDataProductLocation = getTimeSeriesDataProductLocation();
         try {
             timeSeriesDataProduct.getProductWriter().close();
             timeSeriesDataProduct.dispose();
@@ -256,12 +277,6 @@ public class InterpolatedPercentileOp extends Operator {
         } catch (IOException e) {
             throw new OperatorException(UNABLE_TO_READ_TIMESERIES_DATA_PRODUCT, e);
         }
-
-        dailyGroupedSourceProducts.clear();
-
-        getLogger().log(Level.INFO, "Input products colocated with target product.");
-
-        initPercentileComputer();
     }
 
     private void initPercentileComputer() {
@@ -397,17 +412,23 @@ public class InterpolatedPercentileOp extends Operator {
             }
         }
         final ProductWriter productWriter = ProductIO.getProductWriter(DimapProductConstants.DIMAP_FORMAT_NAME);
-        final File outputFile;
-        if (outputDir != null) {
-            outputFile = new File(outputDir, timeSeriesDataProduct.getName());
-        } else {
-            outputFile = new File(timeSeriesDataProduct.getName());
-        }
+        final File timeSeriesDataProductLocation = getTimeSeriesDataProductLocation();
         try {
-            productWriter.writeProductNodes(timeSeriesDataProduct, outputFile);
+            productWriter.writeProductNodes(timeSeriesDataProduct, timeSeriesDataProductLocation);
         } catch (IOException e) {
             throw new OperatorException(UNABLE_TO_WRITE_TIMESERIES_DATA_PRODUCT, e);
         }
+    }
+
+    private File getTimeSeriesDataProductLocation() {
+        final String filename = timeSeriesDataProduct.getName() + DimapProductConstants.DIMAP_HEADER_FILE_EXTENSION;
+        final File location;
+        if (timeSeriesOutputDir != null) {
+            location = new File(timeSeriesOutputDir, filename);
+        } else {
+            location = new File(filename);
+        }
+        return location;
     }
 
     private void addExpectedMetadataForTimeSeriesTool(String sourceBandName) {
@@ -446,7 +467,16 @@ public class InterpolatedPercentileOp extends Operator {
     public void dispose() {
         super.dispose();
 
+        final File timeSeriesDataProductLocation = getTimeSeriesDataProductLocation();
         timeSeriesDataProduct.dispose();
+        if (keepIntermediateTimeSeriesProduct) {
+            final String filenameWithoutExtension = FileUtils.getFilenameWithoutExtension(timeSeriesDataProductLocation);
+            final File parentFile = timeSeriesDataProductLocation.getParentFile();
+            final File dataDir = new File(parentFile, filenameWithoutExtension + ".data");
+            Utils.safelyDeleteTree(dataDir);
+            timeSeriesDataProductLocation.delete();
+            timeSeriesDataProductLocation.deleteOnExit();
+        }
 
         dailyGroupedSourceProducts.clear();
         dailyGroupedSourceProducts = null;
@@ -641,8 +671,8 @@ public class InterpolatedPercentileOp extends Operator {
         if (sourceBandName == null && bandMathExpression == null || sourceBandName != null && bandMathExpression != null) {
             throw new OperatorException("Ether parameter 'sourcBandName' or 'bandMathExpression' must be specified.");
         }
-        if (outputDir != null && !outputDir.isDirectory()) {
-            throw new OperatorException("The output dir '" + outputDir.getAbsolutePath() + "' does not exist.");
+        if (timeSeriesOutputDir != null && !timeSeriesOutputDir.isDirectory()) {
+            throw new OperatorException("The output dir '" + timeSeriesOutputDir.getAbsolutePath() + "' does not exist.");
         }
     }
 
@@ -683,7 +713,7 @@ public class InterpolatedPercentileOp extends Operator {
     public static class Spi extends OperatorSpi {
 
         public Spi() {
-            super(InterpolatedPercentileOp.class);
+            super(TemporalPercentileOp.class);
         }
     }
 
