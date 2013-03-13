@@ -71,7 +71,7 @@ import java.util.logging.Level;
 /**
  * An operator that is used to compute percentiles over a given time period. Products with different observation times
  * serve as computation base. All the input products are sorted chronologically and grouped per day. For each day
- * inside the given time period, a collocated mean band from the grouped products is computed. By this manner, a intermediate
+ * inside the given time period, a collocated mean band from the grouped products is computed. By this means, a intermediate
  * time series product is created successively.
  * <p/>
  * This time series product is used to create time series' per pixel. Days with missing values will cause gaps in a time
@@ -86,6 +86,7 @@ import java.util.logging.Level;
  * Based on these time series', for each percentile a band is written to the target product.
  * In these bands, each pixel holds the threshold of the respective percentile.
  * <p/>
+ *
  * @author Sabine Embacher
  * @author Tonio Fincke
  * @author Thomas Storm
@@ -178,42 +179,40 @@ public class TemporalPercentileOp extends Operator {
     @Parameter(description = "Size of a pixel in Y-direction in map units.", defaultValue = "0.05")
     double pixelSizeY;
 
-    @Parameter(description = "The name of the band in the source products. If empty, parameter 'bandMathExpression' must " +
-                             "be provided.")
+    @Parameter(description = "The name of the band in the source products. Either this or 'bandMathsExpression' must be provided.")
     String sourceBandName;
 
-    @Parameter(description = "The band maths expression serving as input band. If empty, parameter 'sourceBandName' " +
-                             "must be provided.")
-    String bandMathExpression;
+    @Parameter(description = "The band maths expression serving as input band. Either this or 'sourceBandName' must be provided.")
+    String bandMathsExpression;
 
-    @Parameter(description = "If given, this is the percentile band name. If empty, the result percentile band name\n" +
-                             "will be named like the 'bandMathExpression' or the 'sourceBandName'.")
+    @Parameter(description = "If given, this is the percentile band name. If empty, the resulting percentile band name\n" +
+                             "will be named like the 'sourceBandName' or the 'bandMathsExpression'.")
     String percentileBandName;
 
-    @Parameter(description = "The band maths expression serving as criterion for whether to consider pixels for " +
+    @Parameter(description = "The valid pixel expression serving as criterion for whether to consider pixels for " +
                              "computation.")
     String validPixelExpression;
 
     @Parameter(description = "The percentiles.", defaultValue = "90")
-    int[] percentiles = new int[]{90};
+    int[] percentiles;
 
     @Parameter(description = "The percentile calculation method.",
                defaultValue = P_CALCULATION_METHOD_LINEAR_INTERPOLATION,
                valueSet = {P_CALCULATION_METHOD_LINEAR_INTERPOLATION, P_CALCULATION_METHOD_SPLINE_INTERPOLATION, P_CALCULATION_METHOD_QUADRATIC_INTERPOLATION}
     )
-    String percentileCalculationMethod = P_CALCULATION_METHOD_LINEAR_INTERPOLATION;
+    String percentileCalculationMethod;
 
-    @Parameter(description =
-                           "The fallback start value for time series interpolation if there is no interpolation start\n" +
-                           "value for example in cases of cloudy areas in the oldest input product.",
+    @Parameter(description = "The fallback value for the start of a pixel time series. It will be considered if\n" +
+                             "there is no valid value at the pixel of the oldest collocated mean band. This would be\n" +
+                             "the case, if, e.g., there is a cloudy day at the time period start.",
                defaultValue = "0.0")
-    Double startValueFallback = 0.0;
+    Double startValueFallback;
 
-    @Parameter(description =
-                           "The fallback end value for time series interpolation if there is no interpolation end\n" +
-                           "value for example in cases of cloudy areas in the newest input product.",
+    @Parameter(description = "The fallback value for the end of a pixel time series. It will be considered if" +
+                             "there is no valid value at the pixel of the newest collocated mean band. This would be\n" +
+                             "the case, if, e.g., there is a cloudy day at the time period end.",
                defaultValue = "0.0")
-    Double endValueFallback = 0.0;
+    Double endValueFallback;
 
 
     private TreeMap<Long, List<Product>> dailyGroupedSourceProducts;
@@ -221,7 +220,6 @@ public class TemporalPercentileOp extends Operator {
     private long timeSeriesEndMJD;
     private int timeSeriesLength;
     private Product timeSeriesDataProduct;
-    private int year;
     private HashMap<String, Integer> timeSeriesBandNameToDayIndexMap;
     private PercentileComputer percentileComputer;
 
@@ -233,7 +231,7 @@ public class TemporalPercentileOp extends Operator {
         final Area targetArea = Utils.createProductArea(targetProduct);
         setTargetProduct(targetProduct);
 
-        final ProductValidator productValidator = new ProductValidator(sourceBandName, bandMathExpression, startDate, endDate, targetArea, getLogger());
+        final ProductValidator productValidator = new ProductValidator(sourceBandName, bandMathsExpression, startDate, endDate, targetArea, getLogger());
         final ProductLoader productLoader = new ProductLoader(sourceProductPaths, productValidator, getLogger());
         final Product[] products = productLoader.loadProducts();
         gc();
@@ -246,10 +244,10 @@ public class TemporalPercentileOp extends Operator {
         }
 
         initTimeSeriesStartAndEnd();
-        initYearAndDoyOffset();
         initTimeSeriesDataProduct();
 
-        addInputMetadataToTargetProduct();
+        addInputMetadataToProduct(targetProduct);
+        addInputMetadataToProduct(timeSeriesDataProduct);
         getLogger().log(Level.INFO, "Successfully initialized target product.");
 
         computeMeanDataForEachDayAndWriteDataToTimeSeriesProduct();
@@ -393,6 +391,7 @@ public class TemporalPercentileOp extends Operator {
         timeSeriesBandNameToDayIndexMap = new HashMap<String, Integer>();
         timeSeriesDataProduct = createOutputProduct();
         final String targetName = getTargetBandNamePrefix();
+        final int year = getYearOfTimePeriod();
         timeSeriesDataProduct.setName(year + "_" + targetName + SUFFIX_PERCENTILE_OP_DATA_PRODUCT);
         addExpectedMetadataForTimeSeriesTool(targetName);
         timeSeriesDataProduct.setAutoGrouping(targetName);
@@ -431,14 +430,24 @@ public class TemporalPercentileOp extends Operator {
         return location;
     }
 
-    private void addExpectedMetadataForTimeSeriesTool(String sourceBandName) {
+    /**
+     * This method adds metadata to the intermediate time series product.
+     * This metadata is needed to meet the requirements of the time series tool.
+     * <p>
+     * The time series tool can be used to examine products that contain time series.
+     * These time series have the form of bands where the timestamp of the band is
+     * encoded as suffix of the band's name.
+     *
+     * @param bandName
+     */
+    private void addExpectedMetadataForTimeSeriesTool(final String bandName) {
         timeSeriesDataProduct.setProductType(TIME_SERIES_PRODUCT_TYPE);
         final MetadataElement tsMetadataRoot = new MetadataElement(TIME_SERIES_METADATA_ROOT_NAME);
         tsMetadataRoot.addElement(new MetadataElement(PRODUCT_LOCATIONS));
         final MetadataElement eoVariablesElement = new MetadataElement(TIME_SERIES_METADATA_VARIABLES_NAME);
         MetadataElement elem = new MetadataElement(TIME_SERIES_METADATA_VARIABLES_NAME + "." + 0);
         elem.addAttribute(new MetadataAttribute(TIME_SERIES_METADATA_VARIABLE_ATTRIBUTE_NAME,
-                                                ProductData.createInstance(sourceBandName), true));
+                                                ProductData.createInstance(bandName), true));
         final ProductData isSelected = ProductData.createInstance(Boolean.toString(true));
         elem.addAttribute(new MetadataAttribute(VARIABLE_SELECTION, isSelected, true));
         eoVariablesElement.addElement(elem);
@@ -454,13 +463,12 @@ public class TemporalPercentileOp extends Operator {
         return getTargetBandNamePrefix() + "_" + timeString;
     }
 
-    private void initYearAndDoyOffset() {
+    private int getYearOfTimePeriod() {
         final double startJD = DateTimeUtils.mjdToJD(timeSeriesStartMJD);
         final Date startUTC = DateTimeUtils.jdToUTC(startJD);
         final Calendar calendar = Calendar.getInstance();
         calendar.setTime(startUTC);
-        year = calendar.get(Calendar.YEAR);
-        calendar.set(year, 0, 0, 0, 0, 0);
+        return calendar.get(Calendar.YEAR);
     }
 
     @Override
@@ -524,7 +532,7 @@ public class TemporalPercentileOp extends Operator {
             if (sourceBandName != null) {
                 band = collocatedProduct.getBand(sourceBandName);
             } else {
-                band = collocatedProduct.addBand(BAND_MATH_EXPRESSION_BAND_NAME, bandMathExpression);
+                band = collocatedProduct.addBand(BAND_MATH_EXPRESSION_BAND_NAME, bandMathsExpression);
             }
             if (StringUtils.isNotNullAndNotEmpty(validPixelExpression)) {
                 band.setValidPixelExpression(validPixelExpression);
@@ -541,7 +549,7 @@ public class TemporalPercentileOp extends Operator {
         if (sourceBandName != null) {
             return sourceBandName;
         }
-        return bandMathExpression.replaceAll(" ", "_");
+        return bandMathsExpression.replaceAll(" ", "_");
     }
 
     private HashMap<String, Object> createProjectionParameters() {
@@ -551,16 +559,28 @@ public class TemporalPercentileOp extends Operator {
         return projParameters;
     }
 
-    private void addInputMetadataToTargetProduct() {
-        addInputProductPathsToMetadata();
-        addBandConfigurationToMetadata();
+    private void addInputMetadataToProduct(final Product product) {
+        addInputProductPathsToMetadata(product);
+        addBandConfigurationToMetadata(product);
     }
 
-    private void addBandConfigurationToMetadata() {
+    private void addBandConfigurationToMetadata(Product product) {
         final MetadataElement bandConfigurationElem = new MetadataElement("BandConfiguration");
 
-        final ProductData sourceBandData = ProductData.createInstance(sourceBandName);
-        bandConfigurationElem.addAttribute(new MetadataAttribute("sourceBandName", sourceBandData, true));
+        if (sourceBandName != null) {
+            final ProductData sourceBandData = ProductData.createInstance(sourceBandName);
+            bandConfigurationElem.addAttribute(new MetadataAttribute("sourceBandName", sourceBandData, true));
+        }
+
+        if (bandMathsExpression != null) {
+            final ProductData bandMathsData = ProductData.createInstance(bandMathsExpression);
+            bandConfigurationElem.addAttribute(new MetadataAttribute("bandMathsExpression", bandMathsData, true));
+        }
+
+        if (percentileBandName != null) {
+            final ProductData percentileNameData = ProductData.createInstance(percentileBandName);
+            bandConfigurationElem.addAttribute(new MetadataAttribute("percentileBandName", percentileNameData, true));
+        }
 
         final ProductData interpolationData = ProductData.createInstance(percentileCalculationMethod);
         bandConfigurationElem.addAttribute(new MetadataAttribute("percentileCalculationMethod", interpolationData, true));
@@ -578,29 +598,29 @@ public class TemporalPercentileOp extends Operator {
         final ProductData startValueData = ProductData.createInstance(new double[]{startValueFallback});
         bandConfigurationElem.addAttribute(new MetadataAttribute("startValueFallback", startValueData, true));
 
-        getTargetProduct().getMetadataRoot().addElement(bandConfigurationElem);
+        product.getMetadataRoot().addElement(bandConfigurationElem);
     }
 
-    private void addInputProductPathsToMetadata() {
-        final MetadataElement productsElem = new MetadataElement("Input products");
-        final String[] absInputProductPaths = getAbsInputProductPaths();
-        for (int i = 0; i < absInputProductPaths.length; i++) {
-            String inputProductAbsPath = absInputProductPaths[i];
+    private void addInputProductPathsToMetadata(Product product) {
+        final MetadataElement productsElement = new MetadataElement("Input products");
+        final String[] absoluteInputProductPaths = getAbsoluteInputProductPaths();
+        for (int i = 0; i < absoluteInputProductPaths.length; i++) {
+            String inputProductAbsPath = absoluteInputProductPaths[i];
             final ProductData pathData = ProductData.createInstance(inputProductAbsPath);
             final MetadataAttribute pathAttribute = new MetadataAttribute("product_" + i, pathData, true);
-            productsElem.addAttribute(pathAttribute);
+            productsElement.addAttribute(pathAttribute);
         }
-        getTargetProduct().getMetadataRoot().addElement(productsElem);
+        product.getMetadataRoot().addElement(productsElement);
     }
 
-    private String[] getAbsInputProductPaths() {
-        final ArrayList<String> absolutPaths = new ArrayList<String>();
+    private String[] getAbsoluteInputProductPaths() {
+        final ArrayList<String> absolutePaths = new ArrayList<String>();
         for (List<Product> products : dailyGroupedSourceProducts.values()) {
             for (Product product : products) {
-                absolutPaths.add(product.getFileLocation().getAbsolutePath());
+                absolutePaths.add(product.getFileLocation().getAbsolutePath());
             }
         }
-        return absolutPaths.toArray(new String[absolutPaths.size()]);
+        return absolutePaths.toArray(new String[absolutePaths.size()]);
     }
 
     private Product createTargetProduct() {
@@ -668,7 +688,7 @@ public class TemporalPercentileOp extends Operator {
         if (sourceProductPaths == null || sourceProductPaths.length == 0) {
             throw new OperatorException("The parameter 'sourceProductPaths' must be specified");
         }
-        if (sourceBandName == null && bandMathExpression == null || sourceBandName != null && bandMathExpression != null) {
+        if (sourceBandName == null && bandMathsExpression == null || sourceBandName != null && bandMathsExpression != null) {
             throw new OperatorException("Ether parameter 'sourcBandName' or 'bandMathExpression' must be specified.");
         }
         if (timeSeriesOutputDir != null && !timeSeriesOutputDir.isDirectory()) {
