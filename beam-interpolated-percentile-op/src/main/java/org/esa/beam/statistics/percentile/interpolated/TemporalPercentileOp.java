@@ -124,54 +124,58 @@ public class TemporalPercentileOp extends Operator {
     Product[] sourceProducts;
 
     @Parameter(description = "A comma-separated list of file paths specifying the source products.\n" +
-                             "Source products to be considered for percentile computation. \n" +
-                             "Each path may contain the wildcards '**' (matches recursively any directory),\n" +
-                             "'*' (matches any character sequence in path names) and\n" +
-                             "'?' (matches any single character).\n" +
-                             "If, for example, all NetCDF files under /eodata/ shall be considered, use '/eodata/**/*.nc'.")
+            "Source products to be considered for percentile computation. \n" +
+            "Each path may contain the wildcards '**' (matches recursively any directory),\n" +
+            "'*' (matches any character sequence in path names) and\n" +
+            "'?' (matches any single character).\n" +
+            "If, for example, all NetCDF files under /eodata/ shall be considered, use '/eodata/**/*.nc'.")
     String[] sourceProductPaths;
 
     @Parameter(description = "The start date. If not given, it is taken from the 'oldest' source product. Products that\n" +
-                             "have a start date before the start date given by this parameter are not considered.",
+            "have a start date earlier than the start date given by this parameter are not considered.",
                format = DATETIME_PATTERN, converter = UtcConverter.class)
     ProductData.UTC startDate;
 
     @Parameter(description = "The end date. If not given, it is taken from the 'newest' source product. Products that\n" +
-                             "have an end date after the end date given by this parameter are not considered.",
+            "have an end date later than the end date given by this parameter are not considered.",
                format = DATETIME_PATTERN, converter = UtcConverter.class)
     ProductData.UTC endDate;
 
     @Parameter(description = "Determines whether the time series product which is created during computation\n" +
-                             "should be written to disk.",
+            "should be written to disk.",
                defaultValue = "true")
     boolean keepIntermediateTimeSeriesProduct;
 
     @Parameter(description = "The output directory for the intermediate time series product. If not given, the time\n" +
-                             "series product will be written to the working directory.")
+            "series product will be written to the working directory.")
     File timeSeriesOutputDir;
 
     @Parameter(description = "A text specifying the target Coordinate Reference System, either in WKT or as an\n" +
-                             "authority code. For appropriate EPSG authority codes see (www.epsg-registry.org).\n" +
-                             "AUTO authority can be used with code 42001 (UTM), and 42002 (Transverse Mercator)\n" +
-                             "where the scene center is used as reference. Examples: EPSG:4326, AUTO:42001",
+            "authority code. For appropriate EPSG authority codes see (www.epsg-registry.org).\n" +
+            "AUTO authority can be used with code 42001 (UTM), and 42002 (Transverse Mercator)\n" +
+            "where the scene center is used as reference. Examples: EPSG:4326, AUTO:42001",
                defaultValue = "EPSG:4326")
     String crs;
 
     @Parameter(alias = "resampling",
                label = "Resampling Method",
                description = "The method used for resampling of floating-point raster data, if source products must\n" +
-                             "be reprojected to the target CRS.",
+                       "be reprojected to the target CRS.",
                valueSet = {"Nearest", "Bilinear", "Bicubic"},
                defaultValue = "Nearest")
     private String resamplingMethodName;
 
-    @Parameter(description = "The western longitude.", interval = "[-180,180]", defaultValue = "-15.0")
+    @Parameter(description = "The most-western longitude. All values west of this longitude will not be considered.",
+               interval = "[-180,180]", defaultValue = "-15.0")
     double westBound;
-    @Parameter(description = "The northern latitude.", interval = "[-90,90]", defaultValue = "75.0")
+    @Parameter(description = "The most-northern latitude. All values north of this latitude will not be considered.",
+               interval = "[-90,90]", defaultValue = "75.0")
     double northBound;
-    @Parameter(description = "The eastern longitude.", interval = "[-180,180]", defaultValue = "30.0")
+    @Parameter(description = "The most-eastern longitude. All values east of this longitude will not be considered.",
+               interval = "[-180,180]", defaultValue = "30.0")
     double eastBound;
-    @Parameter(description = "The southern latitude.", interval = "[-90,90]", defaultValue = "35.0")
+    @Parameter(description = "The most-southern latitude. All values south of this latitude will not be considered.",
+               interval = "[-90,90]", defaultValue = "35.0")
     double southBound;
 
     @Parameter(description = "Size of a pixel in X-direction in map units.", defaultValue = "0.05")
@@ -186,11 +190,11 @@ public class TemporalPercentileOp extends Operator {
     String bandMathsExpression;
 
     @Parameter(description = "If given, this is the percentile band name. If empty, the resulting percentile band name\n" +
-                             "will be named like the 'sourceBandName' or the 'bandMathsExpression'.")
+            "will be named like the 'sourceBandName' or the 'bandMathsExpression'.")
     String percentileBandName;
 
     @Parameter(description = "The valid pixel expression serving as criterion for whether to consider pixels for " +
-                             "computation.")
+            "computation.")
     String validPixelExpression;
 
     @Parameter(description = "The percentiles.", defaultValue = "90")
@@ -203,14 +207,14 @@ public class TemporalPercentileOp extends Operator {
     String percentileCalculationMethod;
 
     @Parameter(description = "The fallback value for the start of a pixel time series. It will be considered if\n" +
-                             "there is no valid value at the pixel of the oldest collocated mean band. This would be\n" +
-                             "the case, if, e.g., there is a cloudy day at the time period start.",
+            "there is no valid value at the pixel of the oldest collocated mean band. This would be\n" +
+            "the case, if, e.g., there is a cloudy day at the time period start.",
                defaultValue = "0.0")
     Double startValueFallback;
 
     @Parameter(description = "The fallback value for the end of a pixel time series. It will be considered if" +
-                             "there is no valid value at the pixel of the newest collocated mean band. This would be\n" +
-                             "the case, if, e.g., there is a cloudy day at the time period end.",
+            "there is no valid value at the pixel of the newest collocated mean band. This would be\n" +
+            "the case, if, e.g., there is a cloudy day at the time period end.",
                defaultValue = "0.0")
     Double endValueFallback;
 
@@ -240,7 +244,7 @@ public class TemporalPercentileOp extends Operator {
 
         if (dailyGroupedSourceProducts.size() < 2) {
             throw new OperatorException("For interpolated daily percentile calculation" +
-                                        "at least two days must contain valid input products.");
+                                                "at least two days must contain valid input products.");
         }
 
         initTimeSeriesStartAndEnd();
@@ -433,7 +437,7 @@ public class TemporalPercentileOp extends Operator {
     /**
      * This method adds metadata to the intermediate time series product.
      * This metadata is needed to meet the requirements of the time series tool.
-     * <p>
+     * <p/>
      * The time series tool can be used to examine products that contain time series.
      * These time series have the form of bands where the timestamp of the band is
      * encoded as suffix of the band's name.
