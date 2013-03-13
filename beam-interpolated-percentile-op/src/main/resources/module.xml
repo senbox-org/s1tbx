@@ -1,14 +1,14 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
 
-    <symbolicName>beam-interpolated-percentile-op</symbolicName>
+    <symbolicName>beam-temporal-percentile-op</symbolicName>
     <version>1.0</version>
-    <name>BEAM interpolated percentile operator</name>
+    <name>BEAM temporal percentile operator</name>
     <funding>EU</funding>
 
     <description>
         <![CDATA[
-            The beam-interpolated-percentile-op module contains an operator for computing a interpolated
+            The beam-temporal-percentile-op module contains an operator for computing a interpolated
             percentile over a set of input products and named rasters.
         ]]>
     </description>

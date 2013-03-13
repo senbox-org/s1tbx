@@ -1,7 +1,7 @@
 <graph id="someGraphId">
     <version>1.0</version>
     <node id="someNodeId">
-        <operator>InterpolatedPercentile</operator>
+        <operator>TemporalPercentile</operator>
         <parameters>
             <sourceProductPaths>./2007/*.N1</sourceProductPaths>
             <startDate>2007-03-01 00:00:01</startDate>

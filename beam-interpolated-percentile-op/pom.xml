@@ -12,10 +12,10 @@
     </parent>
 
     <groupId>org.esa.beam</groupId>
-    <artifactId>beam-interpolated-percentile-op</artifactId>
+    <artifactId>beam-temporal-percentile-op</artifactId>
     <version>1.0-SNAPSHOT</version>
-    <name>BEAM Interpolated Percentile Operator</name>
-    <description>A interpolating percentile operator for BEAM</description>
+    <name>BEAM temporal Percentile Operator</name>
+    <description>A temporal percentile operator for BEAM</description>
     <packaging>jar</packaging>
 
     <organization>
@@ -133,7 +133,7 @@
             </roles>
         </developer>
         <developer>
-            <id>tonio</id>
+            <id>marcop</id>
             <name>Marco Peters</name>
             <email>marco.peters@brockmann-consult.de</email>
             <organization>Brockmann Consult</organization>
@@ -145,6 +145,15 @@
             <id>thomas</id>
             <name>Thomas Storm</name>
             <email>thomas.storm@brockmann-consult.de</email>
+            <organization>Brockmann Consult</organization>
+            <roles>
+                <role>Java Developer</role>
+            </roles>
+        </developer>
+        <developer>
+            <id>tonio</id>
+            <name>Tonio Fincke</name>
+            <email>tonio.fincke@brockmann-consult.de</email>
             <organization>Brockmann Consult</organization>
             <roles>
                 <role>Java Developer</role>

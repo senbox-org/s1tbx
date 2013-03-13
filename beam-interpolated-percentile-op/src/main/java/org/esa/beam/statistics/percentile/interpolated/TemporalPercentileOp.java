@@ -190,8 +190,8 @@ public class TemporalPercentileOp extends Operator {
     @Parameter(description = "A band maths expression serving as input band. Either this or 'sourceBandName' must be provided.")
     String bandMathsExpression;
 
-    @Parameter(description = "If given, this is the percentile band name. . If empty, the resulting percentile band’s name will " +
-            "be either the 'sourceBandName' or created from the 'bandMathsExpression'.")
+    @Parameter(description = "If given, this is the percentile band name prefix. If empty, the resulting percentile band’s name " +
+            "prefix will be either the 'sourceBandName' or created from the 'bandMathsExpression'.")
     String percentileBandName;
 
     @Parameter(description = "The valid pixel expression serving as criterion for whether to consider pixels for " +
