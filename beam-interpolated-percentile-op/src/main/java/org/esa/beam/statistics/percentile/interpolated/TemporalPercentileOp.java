@@ -477,7 +477,7 @@ public class TemporalPercentileOp extends Operator {
 
         final File timeSeriesDataProductLocation = getTimeSeriesDataProductLocation();
         timeSeriesDataProduct.dispose();
-        if (keepIntermediateTimeSeriesProduct) {
+        if (!keepIntermediateTimeSeriesProduct) {
             final String filenameWithoutExtension = FileUtils.getFilenameWithoutExtension(timeSeriesDataProductLocation);
             final File parentFile = timeSeriesDataProductLocation.getParentFile();
             final File dataDir = new File(parentFile, filenameWithoutExtension + ".data");
