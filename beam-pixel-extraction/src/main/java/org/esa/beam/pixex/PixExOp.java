@@ -355,7 +355,8 @@ public class PixExOp extends Operator implements Output {
 
     @SuppressWarnings("unchecked")
     private Measurement[] createOriginalMeasurements(List<Coordinate> coordinateList) {
-        if (!includeOriginalInput && (scatterPlotVariableCombinations == null || scatterPlotVariableCombinations.length == 0)) {
+        if (!includeOriginalInput &&
+            (scatterPlotVariableCombinations == null || scatterPlotVariableCombinations.length == 0)) {
             return null;
         }
         Measurement[] result = new Measurement[coordinateList.size()];
@@ -658,7 +659,8 @@ public class PixExOp extends Operator implements Output {
         } catch (Exception e) {
             final Logger logger = getLogger();
             logger.warning("Unable to extract measurements from product file '" + file.getAbsolutePath() + "'.");
-            logger.log(Level.WARNING, e.getMessage(), e);
+            logger.log(Level.WARNING, e.getMessage());
+            logger.log(Level.FINER, e.getMessage(), e);
         }
         return false;
     }
