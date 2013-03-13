@@ -122,18 +122,25 @@ public class Radarsat2ProductReader extends AbstractProductReader {
      * @throws IOException if can't read lut
      */
     private static void addCalibrationLUT(final Product product, final File folder) throws IOException {
+
+        MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
+        final boolean isAscending = absRoot.getAttributeString(AbstractMetadata.PASS).equals("ASCENDING");
+        final boolean isAntennaPointingRight = absRoot.getAttributeString(AbstractMetadata.antenna_pointing).equals("right");
+        final boolean flipLUT = isAscending && !isAntennaPointingRight || !isAscending && isAntennaPointingRight;
+
         final File sigmaLUT = new File(folder, lutsigma+".xml");
         final File gammaLUT = new File(folder, lutgamma+".xml");
         final File betaLUT = new File(folder, lutbeta+".xml");
 
         final MetadataElement origProdRoot = AbstractMetadata.getOriginalProductMetadata(product);
 
-        readCalibrationLUT(sigmaLUT, lutsigma, origProdRoot);
-        readCalibrationLUT(gammaLUT, lutgamma, origProdRoot);
-        readCalibrationLUT(betaLUT, lutbeta, origProdRoot);
+        readCalibrationLUT(sigmaLUT, lutsigma, origProdRoot, flipLUT);
+        readCalibrationLUT(gammaLUT, lutgamma, origProdRoot, flipLUT);
+        readCalibrationLUT(betaLUT, lutbeta, origProdRoot, flipLUT);
     }
 
-    private static void readCalibrationLUT(final File file, final String lutName, final MetadataElement root) throws IOException {
+    private static void readCalibrationLUT(final File file, final String lutName, final MetadataElement root,
+                                           final boolean flipLUT) throws IOException {
         if(!file.exists())
             return;
         final org.jdom.Document xmlDoc = XMLSupport.LoadXML(file.getAbsolutePath());
@@ -143,7 +150,15 @@ public class Radarsat2ProductReader extends AbstractProductReader {
         final double offset = Double.parseDouble(offsetElem.getValue());
 
         final Element gainsElem = rootElement.getChild("gains");
-        final double[] gainsArray = StringUtils.toDoubleArray(gainsElem.getValue().trim(), " ");
+        double[] gainsArray = StringUtils.toDoubleArray(gainsElem.getValue().trim(), " ");
+        if (flipLUT) {
+            double tmp;
+            for (int i = 0; i < gainsArray.length/2; i++) {
+                tmp = gainsArray[i];
+                gainsArray[i] = gainsArray[gainsArray.length - i - 1];
+                gainsArray[gainsArray.length - i - 1] = tmp;
+            }
+        }
 
         final MetadataElement lut = new MetadataElement(lutName);
         root.addElement(lut);
