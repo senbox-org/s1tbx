@@ -123,5 +123,4 @@ public class SplineInterpolator implements Interpolator {
 
         return new PolynomialSplineFunction(x, polynomials);
     }
-
 }
