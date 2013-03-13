@@ -1,4 +1,4 @@
-package org.esa.beam.apache.math3;
+package org.esa.beam.interpolators;
 
 import org.esa.beam.statistics.percentile.interpolated.InterpolatedPercentileOp;
 

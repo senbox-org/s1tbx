@@ -1,11 +1,11 @@
-package org.esa.beam.apache.math3;
+package org.esa.beam.interpolators;
 
 import java.text.MessageFormat;
 
 public class QuadraticInterpolator implements Interpolator {
 
 
-    public PolynomialSplineFunction interpolate(double[] x, double[] y) {
+    public InterpolatingFunction interpolate(double[] x, double[] y) {
         if (x.length != y.length) {
             throw new IllegalArgumentException("x.length and y.length must be the same.");
         }
@@ -29,7 +29,7 @@ public class QuadraticInterpolator implements Interpolator {
         double[] knots = new double[x.length - 1];
         System.arraycopy(x, 0, knots, 0, x.length - 2);
         knots[knots.length - 1] = x[x.length - 1];
-        return new PolynomialSplineFunction(knots, polynomials);
+        return new InterpolatingFunction(knots, polynomials);
     }
 
     private static double[] getCoefficientsForThreePoints(double x0, double x1, double x2, double y0, double y1, double y2) {

@@ -1,4 +1,4 @@
-package org.esa.beam.apache.math3;
+package org.esa.beam.interpolators;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -21,7 +21,7 @@ public class SplineInterpolatorTest {
         double[] y = new double[]{1d, 1d, 1d, 1d, 1d};
 
         //execution
-        final PolynomialSplineFunction function = splineInterpolator.interpolate(x, y);
+        final InterpolatingFunction function = splineInterpolator.interpolate(x, y);
 
         //assertion
         assertKnownValuesAreAssignedCorrectly(x, y, function);
@@ -39,7 +39,7 @@ public class SplineInterpolatorTest {
         double[] y = new double[]{1d, 3d, 5d, 3d, 1d};
 
         //execution
-        final PolynomialSplineFunction function = splineInterpolator.interpolate(x, y);
+        final InterpolatingFunction function = splineInterpolator.interpolate(x, y);
 
         //assertion
         assertKnownValuesAreAssignedCorrectly(x, y, function);
@@ -57,7 +57,7 @@ public class SplineInterpolatorTest {
         double[] y = new double[]{Math.pow(0d, 2), Math.pow(2d, 2), Math.pow(4d, 2), Math.pow(6d, 2), Math.pow(8d, 2)};
 
         //execution
-        final PolynomialSplineFunction function = splineInterpolator.interpolate(x, y);
+        final InterpolatingFunction function = splineInterpolator.interpolate(x, y);
 
         //assertion
         assertKnownValuesAreAssignedCorrectly(x, y, function);
@@ -76,7 +76,7 @@ public class SplineInterpolatorTest {
                 Math.sin(Math.PI / 8 * 5), Math.sin(Math.PI / 4 * 3), Math.sin(Math.PI / 8 * 7), Math.sin(Math.PI)};
 
         //execution
-        final PolynomialSplineFunction function = splineInterpolator.interpolate(x, y);
+        final InterpolatingFunction function = splineInterpolator.interpolate(x, y);
 
         //assertion
         assertKnownValuesAreAssignedCorrectly(x, y, function);
@@ -96,7 +96,7 @@ public class SplineInterpolatorTest {
         double[] x = new double[]{0d, 4d, 7d, 8d, 10d, 14d, 16d};
         double[] y = new double[]{2d, 1d, 8d, 5d, 4d, 1d, 7d};
 
-        final PolynomialSplineFunction function = splineInterpolator.interpolate(x, y);
+        final InterpolatingFunction function = splineInterpolator.interpolate(x, y);
 
         //assertion
         assertKnownValuesAreAssignedCorrectly(x, y, function);
@@ -109,7 +109,7 @@ public class SplineInterpolatorTest {
         assertEquals(3.39, function.value(15d), 1e-2);
     }
 
-    private void assertKnownValuesAreAssignedCorrectly(double[] x, double[] y, PolynomialSplineFunction function) {
+    private void assertKnownValuesAreAssignedCorrectly(double[] x, double[] y, InterpolatingFunction function) {
         for (int i = 0; i < x.length - 1; i++) {
             assertEquals(y[i], function.value(x[i]), 1e-10);
         }

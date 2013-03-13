@@ -1,8 +1,8 @@
 package org.esa.beam.statistics.percentile.interpolated;
 
-import org.esa.beam.apache.math3.Interpolator;
-import org.esa.beam.apache.math3.InterpolatorFactory;
-import org.esa.beam.apache.math3.PolynomialSplineFunction;
+import org.esa.beam.interpolators.InterpolatingFunction;
+import org.esa.beam.interpolators.Interpolator;
+import org.esa.beam.interpolators.InterpolatorFactory;
 
 import java.util.ArrayList;
 
@@ -30,7 +30,7 @@ public class GapFiller {
             ny[i] = yList.get(i);
         }
 
-        PolynomialSplineFunction interpolate = null;
+        InterpolatingFunction interpolate = null;
         Interpolator interpolator = InterpolatorFactory.createInterpolator(interpolationMethod);
         if (interpolator != null) {
             interpolate = interpolator.interpolate(nx, ny);

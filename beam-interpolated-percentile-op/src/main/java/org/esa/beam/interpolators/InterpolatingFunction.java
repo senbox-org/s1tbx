@@ -16,7 +16,7 @@
  *
  * NOTE: THIS FILE HAS BEEN MODIFIED BY BC TO SUIT PARTICULAR NEEDS.
  */
-package org.esa.beam.apache.math3;
+package org.esa.beam.interpolators;
 
 import java.text.MessageFormat;
 import java.util.Arrays;
@@ -53,7 +53,7 @@ import java.util.Arrays;
  * than or equal to <code>x</code>.  The value returned is <br>
  * <code>polynomials[j](x - knot[j])</code></li></ol></p>
  */
-public class PolynomialSplineFunction {
+public class InterpolatingFunction {
 
     /**
      * Spline segment interval delimiters (knots). * Size is n + 1 for n segments.
@@ -90,7 +90,7 @@ public class PolynomialSplineFunction {
      * @throws IllegalArgumentException if {@code polynomials.length != knots.length - 1} or
      * @throws IllegalArgumentException if the {@code knots} array is not strictly increasing.
      */
-    public PolynomialSplineFunction(double[] knots, PolynomialFunction[] polynomials) {
+    public InterpolatingFunction(double[] knots, PolynomialFunction[] polynomials) {
         if (knots.length < 2) {
             throw new IllegalArgumentException(MessageFormat.format(
                         "Spline partition must have at least {0} points, got {1}.", 2, knots.length));
@@ -114,33 +114,33 @@ public class PolynomialSplineFunction {
 
     /**
      * Compute the value for the function.
-     * See {@link PolynomialSplineFunction} for details on the algorithm for
+     * See {@link InterpolatingFunction} for details on the algorithm for
      * computing the value of the function.
      *
-     * @param v Point for which the function value should be computed.
+     * @param forX Point for which the function value should be computed.
      *
      * @return the value.
      *
-     * @throws IllegalArgumentException if {@code v} is outside of the domain of the
+     * @throws IllegalArgumentException if {@code forX} is outside of the domain of the
      *                             spline function (smaller than the smallest knot
      *                             point or larger than the largest knot point).
      */
-    public double value(double v) {
-        if (v < knots[0] || v > knots[n]) {
+    public double value(double forX) {
+        if (forX < knots[0] || forX > knots[n]) {
             throw new IllegalArgumentException(MessageFormat.format(
-                    "Value {0} is out of the domain of the spline function ({1}, {2}).", v, knots[0], knots[n]));
+                    "Value {0} is out of the domain of the spline function ({1}, {2}).", forX, knots[0], knots[n]));
         }
-        int i = Arrays.binarySearch(knots, v);
+        int i = Arrays.binarySearch(knots, forX);
         if (i < 0) {
             i = -i - 2;
         }
-        // This will handle the case where v is the last knot value
-        // There are only n-1 polynomials, so if v is the last knot
+        // This will handle the case where forX is the last knot value
+        // There are only n-1 polynomials, so if forX is the last knot
         // then we will use the last polynomial to calculate the value.
         if (i >= polynomials.length) {
             i--;
         }
-        return polynomials[i].value(v - knots[i]);
+        return polynomials[i].value(forX - knots[i]);
     }
 
     /**

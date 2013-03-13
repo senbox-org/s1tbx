@@ -16,7 +16,7 @@
  *
  * NOTE: THIS FILE HAS BEEN MODIFIED BY BC TO SUIT PARTICULAR NEEDS.
  */
-package org.esa.beam.apache.math3;
+package org.esa.beam.interpolators;
 
 import java.text.MessageFormat;
 
@@ -35,7 +35,7 @@ public class LinearInterpolator implements Interpolator {
      * @throws IllegalArgumentException if {@code x} is not sorted in strict increasing order.
      * @throws IllegalArgumentException if the size of {@code x} is smaller than 2.
      */
-    public PolynomialSplineFunction interpolate(double[] x, double[] y) {
+    public InterpolatingFunction interpolate(double[] x, double[] y) {
         if (x.length != y.length) {
             throw new IllegalArgumentException("x.length and y.length must be the same.");
         }
@@ -67,6 +67,6 @@ public class LinearInterpolator implements Interpolator {
             polynomials[i] = new PolynomialFunction(coefficients);
         }
 
-        return new PolynomialSplineFunction(x, polynomials);
+        return new InterpolatingFunction(x, polynomials);
     }
 }

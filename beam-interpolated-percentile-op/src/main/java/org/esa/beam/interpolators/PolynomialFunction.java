@@ -16,7 +16,7 @@
  *
  * NOTE: THIS FILE HAS BEEN MODIFIED BY BC TO SUIT PARTICULAR NEEDS.
  */
-package org.esa.beam.apache.math3;
+package org.esa.beam.interpolators;
 
 import java.io.Serializable;
 import java.util.Arrays;

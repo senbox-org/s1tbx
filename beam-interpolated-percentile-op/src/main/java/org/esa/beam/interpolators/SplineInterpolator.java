@@ -1,4 +1,4 @@
-package org.esa.beam.apache.math3;
+package org.esa.beam.interpolators;
 
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
@@ -24,14 +24,14 @@ import java.text.MessageFormat;
 /**
  * Computes a natural (also known as "free", "unclamped") cubic spline interpolation for the data set.
  * <p>
- * The {@link #interpolate(double[], double[])} method returns a {@link PolynomialSplineFunction}
+ * The {@link #interpolate(double[], double[])} method returns a {@link InterpolatingFunction}
  * consisting of n cubic polynomials, defined over the subintervals determined by the x values,
  * x[0] < x[i] ... < x[n].  The x values are referred to as "knot points."</p>
  * <p>
  * The value of the PolynomialSplineFunction at a point x that is greater than or equal to the smallest
  * knot point and strictly less than the largest knot point is computed by finding the subinterval to which
  * x belongs and computing the value of the corresponding polynomial at <code>x - x[i] </code> where
- * <code>i</code> is the index of the subinterval.  See {@link PolynomialSplineFunction} for more details.
+ * <code>i</code> is the index of the subinterval.  See {@link InterpolatingFunction} for more details.
  * </p>
  * <p>
  * The interpolating polynomials satisfy: <ol>
@@ -57,7 +57,7 @@ public class SplineInterpolator implements Interpolator {
      * @throws IllegalArgumentException if the size of {@code x} is smaller than 3.
      * @throws IllegalArgumentException if {@code x} is not sorted in strict increasing order.
      */
-    public PolynomialSplineFunction interpolate(double[] x, double[] y) {
+    public InterpolatingFunction interpolate(double[] x, double[] y) {
         if (x.length != y.length) {
             throw new IllegalArgumentException(MessageFormat.format(
                     "Dimension mismatch {0} != {1}.", x.length, y.length));
@@ -121,6 +121,6 @@ public class SplineInterpolator implements Interpolator {
             polynomials[i] = new PolynomialFunction(coefficients);
         }
 
-        return new PolynomialSplineFunction(x, polynomials);
+        return new InterpolatingFunction(x, polynomials);
     }
 }
