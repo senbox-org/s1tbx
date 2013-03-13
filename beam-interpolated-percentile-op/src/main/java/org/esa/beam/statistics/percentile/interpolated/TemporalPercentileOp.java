@@ -693,10 +693,16 @@ public class TemporalPercentileOp extends Operator {
             throw new OperatorException("The parameter 'sourceProductPaths' must be specified");
         }
         if (sourceBandName == null && bandMathsExpression == null || sourceBandName != null && bandMathsExpression != null) {
-            throw new OperatorException("Ether parameter 'sourcBandName' or 'bandMathExpression' must be specified.");
+            throw new OperatorException("Either parameter 'sourceBandName' or 'bandMathExpression' must be specified.");
         }
         if (timeSeriesOutputDir != null && !timeSeriesOutputDir.isDirectory()) {
             throw new OperatorException("The output dir '" + timeSeriesOutputDir.getAbsolutePath() + "' does not exist.");
+        }
+        if (westBound == eastBound) {
+            throw new OperatorException("Most western longitude must be different from most eastern longitude.");
+        }
+        if (northBound <= southBound) {
+            throw new OperatorException("Most northern latitude must be larger than most southern latitude.");
         }
     }
 
