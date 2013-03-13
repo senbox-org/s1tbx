@@ -14,7 +14,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.TreeMap;
 
-public class StatisticsDatabase {
+class StatisticsDatabase {
 
     private final TreeMap<ObservationYear, Map<ParameterName, Map<GeometryID, DatabaseRecord>>> yearMap;
     private final String nameColumn;

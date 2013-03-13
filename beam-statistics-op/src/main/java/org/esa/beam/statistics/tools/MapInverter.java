@@ -4,7 +4,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
-public class MapInverter {
+class MapInverter {
 
     public static Map<String, String> createInvertedTreeMap(Map map) {
         final TreeMap<String, String> swappedMap = new TreeMap<String, String>();

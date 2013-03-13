@@ -1,6 +1,6 @@
 package org.esa.beam.statistics.tools;
 
-public class ObservationYear implements Comparable<ObservationYear> {
+class ObservationYear implements Comparable<ObservationYear> {
 
     public final Integer year;
 

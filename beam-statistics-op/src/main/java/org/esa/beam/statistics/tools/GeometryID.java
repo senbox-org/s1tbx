@@ -1,6 +1,6 @@
 package org.esa.beam.statistics.tools;
 
-public class GeometryID implements Comparable<GeometryID> {
+class GeometryID implements Comparable<GeometryID> {
 
     public final String name;
 

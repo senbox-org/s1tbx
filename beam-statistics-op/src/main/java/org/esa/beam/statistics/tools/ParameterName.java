@@ -1,6 +1,6 @@
 package org.esa.beam.statistics.tools;
 
-public class ParameterName implements Comparable<ParameterName> {
+class ParameterName implements Comparable<ParameterName> {
 
     public final String name;
 

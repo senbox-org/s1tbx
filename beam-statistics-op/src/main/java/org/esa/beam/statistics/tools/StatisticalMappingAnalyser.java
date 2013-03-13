@@ -7,7 +7,7 @@ import java.util.Comparator;
 import java.util.Set;
 import java.util.TreeSet;
 
-public class StatisticalMappingAnalyser {
+class StatisticalMappingAnalyser {
 
     private final TreeSet<String> statisticalMeasure;
     private final TreeSet<String> geophysicalParameter;

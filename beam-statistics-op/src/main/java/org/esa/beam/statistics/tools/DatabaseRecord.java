@@ -5,8 +5,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
-public class DatabaseRecord {
-
+class DatabaseRecord {
     public final GeometryID geomId;
     public final String geomName;
     private final Map<Date, Map<String, String>> data;
