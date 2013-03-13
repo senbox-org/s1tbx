@@ -57,7 +57,7 @@ public class SplineInterpolator implements Interpolator {
      * @throws IllegalArgumentException if the size of {@code x} is smaller than 3.
      * @throws IllegalArgumentException if {@code x} is not sorted in strict increasing order.
      */
-    public PolynomialSplineFunction interpolate(double x[], double y[]) {
+    public PolynomialSplineFunction interpolate(double[] x, double[] y) {
         if (x.length != y.length) {
             throw new IllegalArgumentException(MessageFormat.format(
                     "Dimension mismatch {0} != {1}.", x.length, y.length));
@@ -80,13 +80,13 @@ public class SplineInterpolator implements Interpolator {
         }
 
         // Differences between knot points
-        double h[] = new double[n];
+        double[] h = new double[n];
         for (int i = 0; i < n; i++) {
             h[i] = x[i + 1] - x[i];
         }
 
-        double mu[] = new double[n];
-        double z[] = new double[n + 1];
+        double[] mu = new double[n];
+        double[] z = new double[n + 1];
         mu[0] = 0d;
         z[0] = 0d;
         double g = 0;
@@ -98,9 +98,9 @@ public class SplineInterpolator implements Interpolator {
         }
 
         // cubic spline coefficients --  b is linear, c quadratic, d is cubic (original y's are constants)
-        double b[] = new double[n];
-        double c[] = new double[n + 1];
-        double d[] = new double[n];
+        double[] b = new double[n];
+        double[] c = new double[n + 1];
+        double[] d = new double[n];
 
         z[n] = 0d;
         c[n] = 0d;
@@ -111,8 +111,8 @@ public class SplineInterpolator implements Interpolator {
             d[j] = (c[j + 1] - c[j]) / (3d * h[j]);
         }
 
-        PolynomialFunction polynomials[] = new PolynomialFunction[n];
-        double coefficients[] = new double[4];
+        PolynomialFunction[] polynomials = new PolynomialFunction[n];
+        double[] coefficients = new double[4];
         for (int i = 0; i < n; i++) {
             coefficients[0] = y[i];
             coefficients[1] = b[i];

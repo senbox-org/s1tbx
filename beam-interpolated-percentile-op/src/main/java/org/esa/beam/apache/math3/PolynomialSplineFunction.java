@@ -58,7 +58,7 @@ public class PolynomialSplineFunction {
     /**
      * Spline segment interval delimiters (knots). * Size is n + 1 for n segments.
      */
-    private final double knots[];
+    private final double[] knots;
 
     /**
      * The polynomial functions that make up the spline.  The first element
@@ -67,7 +67,7 @@ public class PolynomialSplineFunction {
      * evaluating these functions at {@code (x - knot[i])} where i is the
      * knot segment to which x belongs.
      */
-    private final PolynomialFunction polynomials[];
+    private final PolynomialFunction[] polynomials;
 
     /**
      * Number of spline segments. It is equal to the number of polynomials and
@@ -90,7 +90,7 @@ public class PolynomialSplineFunction {
      * @throws IllegalArgumentException if {@code polynomials.length != knots.length - 1} or
      * @throws IllegalArgumentException if the {@code knots} array is not strictly increasing.
      */
-    public PolynomialSplineFunction(double knots[], PolynomialFunction polynomials[]) {
+    public PolynomialSplineFunction(double[] knots, PolynomialFunction[] polynomials) {
         if (knots.length < 2) {
             throw new IllegalArgumentException(MessageFormat.format(
                         "Spline partition must have at least {0} points, got {1}.", 2, knots.length));

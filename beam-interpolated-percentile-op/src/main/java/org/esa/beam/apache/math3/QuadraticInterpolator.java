@@ -20,7 +20,7 @@ public class QuadraticInterpolator implements Interpolator {
             }
         }
         int numberOfResultingFunctions = x.length - 2;
-        PolynomialFunction polynomials[] = new PolynomialFunction[numberOfResultingFunctions];
+        PolynomialFunction[] polynomials = new PolynomialFunction[numberOfResultingFunctions];
         for (int row = 1; row <= numberOfResultingFunctions; row++) {
             final double[] coefficients =
                     getCoefficientsForThreePoints(x[row - 1], x[row], x[row + 1], y[row - 1], y[row], y[row + 1]);

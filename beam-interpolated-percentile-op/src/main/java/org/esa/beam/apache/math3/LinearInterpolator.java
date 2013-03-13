@@ -54,13 +54,13 @@ public class LinearInterpolator implements Interpolator {
         }
 
         // Slope of the lines between the datapoints.
-        final double m[] = new double[n];
+        final double[] m = new double[n];
         for (int i = 0; i < n; i++) {
             m[i] = (y[i + 1] - y[i]) / (x[i + 1] - x[i]);
         }
 
-        PolynomialFunction polynomials[] = new PolynomialFunction[n];
-        final double coefficients[] = new double[2];
+        PolynomialFunction[] polynomials = new PolynomialFunction[n];
+        final double[] coefficients = new double[2];
         for (int i = 0; i < n; i++) {
             coefficients[0] = y[i];
             coefficients[1] = m[i];
