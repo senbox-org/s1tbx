@@ -26,7 +26,8 @@ public class ProductValidator {
     }
 
     public boolean isValid(Product product) {
-        return containsGeoCodingWithReverseOperationSupport(product)
+        return product != null
+               && containsGeoCodingWithReverseOperationSupport(product)
                && containsStartAndEndDate(product)
                && canHandleExpressionOrSourceBand(product)
                && isInDateRange(product)
@@ -63,7 +64,7 @@ public class ProductValidator {
             return true;
         } else {
             if (!product.isCompatibleBandArithmeticExpression(bandMathExpression)) {
-                logSkipped("'"+bandMathExpression+"' is not a compatible band arithmetic expression for product: '" + product.getName() + ".");
+                logSkipped("'" + bandMathExpression + "' is not a compatible band arithmetic expression for product: '" + product.getName() + ".");
                 return false;
             }
             return true;

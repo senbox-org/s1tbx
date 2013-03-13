@@ -54,6 +54,7 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.RenderedImage;
 import java.io.File;
 import java.io.IOException;
+import java.io.StringWriter;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -248,10 +249,9 @@ public class TemporalPercentileOp extends Operator {
         }
 
         initTimeSeriesStartAndEnd();
+        addInputMetadataToProduct(targetProduct);
         initTimeSeriesDataProduct();
 
-        addInputMetadataToProduct(targetProduct);
-        addInputMetadataToProduct(timeSeriesDataProduct);
         getLogger().log(Level.INFO, "Successfully initialized target product.");
 
         computeMeanDataForEachDayAndWriteDataToTimeSeriesProduct();
@@ -304,6 +304,8 @@ public class TemporalPercentileOp extends Operator {
         for (long mjd : dailyGroupedSourceProducts.keySet()) {
 
             final List<Product> dailyGroupedProducts = dailyGroupedSourceProducts.get(mjd);
+            getLogger().info("Compute collocated mean band for products: "+getProductNames(dailyGroupedProducts)+"");
+
             final List<Product> collocatedProducts = createCollocatedProducts(dailyGroupedProducts);
 
             final Band band = timeSeriesDataProduct.getBand(createNameForMeanBand(mjd));
@@ -323,6 +325,18 @@ public class TemporalPercentileOp extends Operator {
                 gc();
             }
         }
+    }
+
+    private String getProductNames(List<Product> dailyGroupedProducts) {
+        final StringWriter stringWriter = new StringWriter();
+
+        for (Product dailyGroupedProduct : dailyGroupedProducts) {
+            if (stringWriter.getBuffer().length() >0) {
+                stringWriter.append(", ");
+            }
+            stringWriter.append(dailyGroupedProduct.getFileLocation().getName());
+        }
+        return stringWriter.toString();
     }
 
     private RenderedImage createDailyMeanSourceImage(List<Product> collocatedProducts) {
@@ -394,6 +408,7 @@ public class TemporalPercentileOp extends Operator {
     private void initTimeSeriesDataProduct() {
         timeSeriesBandNameToDayIndexMap = new HashMap<String, Integer>();
         timeSeriesDataProduct = createOutputProduct();
+        addInputMetadataToProduct(timeSeriesDataProduct);
         final String targetName = getTargetBandNamePrefix();
         final int year = getYearOfTimePeriod();
         timeSeriesDataProduct.setName(year + "_" + targetName + SUFFIX_PERCENTILE_OP_DATA_PRODUCT);
