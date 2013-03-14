@@ -14,7 +14,7 @@
     <groupId>org.esa.beam</groupId>
     <artifactId>beam-temporal-percentile-op</artifactId>
     <version>1.0-SNAPSHOT</version>
-    <name>BEAM temporal Percentile Operator</name>
+    <name>BEAM Temporal Percentile Operator</name>
     <description>A temporal percentile operator for BEAM</description>
     <packaging>jar</packaging>
 
