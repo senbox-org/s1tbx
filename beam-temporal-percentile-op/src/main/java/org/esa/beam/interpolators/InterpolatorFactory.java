@@ -9,11 +9,8 @@ public class InterpolatorFactory {
             return new LinearInterpolator();
         } else if (TemporalPercentileOp.P_CALCULATION_METHOD_SPLINE_INTERPOLATION.equalsIgnoreCase(interpolationMethod)) {
             return new SplineInterpolator();
-        } else if (TemporalPercentileOp.P_CALCULATION_METHOD_QUADRATIC_INTERPOLATION.equalsIgnoreCase(interpolationMethod)) {
-            return new QuadraticInterpolator();
         } else {
-            return null;
+            return new QuadraticInterpolator();
         }
     }
-
 }

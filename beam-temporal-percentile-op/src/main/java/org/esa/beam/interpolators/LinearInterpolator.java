@@ -25,6 +25,13 @@ import java.text.MessageFormat;
  */
 public class LinearInterpolator implements Interpolator {
 
+    private final int minNumPoints = 2;
+
+    @Override
+    public int getMinNumPoints() {
+        return minNumPoints;
+    }
+
     /**
      * Computes a linear interpolating function for the data set.
      *
@@ -37,10 +44,12 @@ public class LinearInterpolator implements Interpolator {
      */
     public InterpolatingFunction interpolate(double[] x, double[] y) {
         if (x.length != y.length) {
-            throw new IllegalArgumentException("x.length and y.length must be the same.");
+            throw new IllegalArgumentException(MessageFormat.format(
+                                "Dimension mismatch {0} != {1}.", x.length, y.length));
         }
-        if (x.length < 2) {
-            throw new IllegalArgumentException("x.length must be at least 2.");
+        if (x.length < minNumPoints) {
+            throw new IllegalArgumentException(MessageFormat.format(
+                                "{0} points are required, got only {1}.", minNumPoints, x.length));
         }
         // Number of intervals.  The number of data points is n + 1.
         int n = x.length - 1;

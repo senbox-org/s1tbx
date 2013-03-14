@@ -1,5 +1,8 @@
 package org.esa.beam.statistics.percentile.interpolated;
 
+import org.esa.beam.interpolators.Interpolator;
+import org.esa.beam.interpolators.LinearInterpolator;
+import org.esa.beam.interpolators.SplineInterpolator;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -8,8 +11,8 @@ import static org.junit.Assert.assertEquals;
 
 public class GapFillerTest_fillGaps {
 
-    private final static String LINEAR = TemporalPercentileOp.P_CALCULATION_METHOD_LINEAR_INTERPOLATION;
-    private final static String SPLINE = TemporalPercentileOp.P_CALCULATION_METHOD_SPLINE_INTERPOLATION;
+    private final static Interpolator LINEAR = new LinearInterpolator();
+    private final static Interpolator SPLINE = new SplineInterpolator();
 
     private final float xx = Float.NaN;
     private float startValueFallback;
@@ -23,8 +26,8 @@ public class GapFillerTest_fillGaps {
 
     @Test
     public void testThatGapsAreFilledWithoutStartAndStopReplacement() {
-        float[] input = {1, xx, xx, xx, 5};
-        float[] expected = {1, 2, 3, 4, 5};
+        float[] input = new float[]{1, xx, xx, xx, 5};
+        float[] expected = new float[]{1, 2, 3, 4, 5};
 
         GapFiller.fillGaps(input, LINEAR, startValueFallback, endValueFallback);
 
@@ -56,12 +59,10 @@ public class GapFillerTest_fillGaps {
 
     @Test
     public void testThatGapsAreFilledWithLinearInterpolation() {
-        final String interpolationMethod = LINEAR;
-
         float[] input = {xx, xx, xx, xx, 5, xx, xx, xx, xx};
         float[] expected = {1, 2, 3, 4, 5, 4.5f, 4, 3.5f, 3};
 
-        GapFiller.fillGaps(input, interpolationMethod, startValueFallback, endValueFallback);
+        GapFiller.fillGaps(input, LINEAR, startValueFallback, endValueFallback);
 
         assertEquals(9, input.length);
         assertArrayEquals(expected, input, 1e-7f);
@@ -69,12 +70,10 @@ public class GapFillerTest_fillGaps {
 
     @Test
     public void testThatGapsAreFilledWithSplineInterpolation() {
-        final String interpolationMethod = SPLINE;
-
         float[] input = {xx, xx, xx, xx, 5, xx, xx, xx, xx};
         float[] expected = {1, 2.3515625f, 3.5625f, 4.4921875f, 5, 4.9921875f, 4.5625f, 3.8515625f, 3};
 
-        GapFiller.fillGaps(input, interpolationMethod, startValueFallback, endValueFallback);
+        GapFiller.fillGaps(input, SPLINE, startValueFallback, endValueFallback);
 
         assertEquals(9, input.length);
         assertArrayEquals(expected, input, 1e-7f);

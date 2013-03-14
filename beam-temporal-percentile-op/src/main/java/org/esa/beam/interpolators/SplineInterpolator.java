@@ -47,6 +47,13 @@ import java.text.MessageFormat;
  */
 public class SplineInterpolator implements Interpolator {
 
+    private final int minNumPoints = 3;
+
+    @Override
+    public int getMinNumPoints() {
+        return minNumPoints;
+    }
+
     /**
      * Computes an interpolating function for the data set.
      *
@@ -63,9 +70,9 @@ public class SplineInterpolator implements Interpolator {
                     "Dimension mismatch {0} != {1}.", x.length, y.length));
         }
 
-        if (x.length < 3) {
+        if (x.length < minNumPoints) {
             throw new IllegalArgumentException(MessageFormat.format(
-                    "{0} points are required, got only {1}.", 3, x.length));
+                    "{0} points are required, got only {1}.", minNumPoints, x.length));
         }
 
         // Number of intervals.  The number of data points is n + 1.
