@@ -188,7 +188,9 @@ public class BeamMaskPart extends ProfilePartIO {
                 }
                 String variableName = ReaderUtils.getVariableName(band);
                 final NVariable variable = ncFile.findVariable(variableName);
-                variable.addAttribute(MASK_OVERLAYS, overlayNames.toString().trim());
+                if (variable != null) {
+                    variable.addAttribute(MASK_OVERLAYS, overlayNames.toString().trim());
+                }
             }
         }
     }
