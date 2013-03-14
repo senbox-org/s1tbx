@@ -11,7 +11,7 @@ public class GaussianGridConfigTest {
 
     @Test
     public void testN128() throws Exception {
-        GaussianGridConfig gridConfig = GaussianGridConfig.load(GaussianGrid.Number.N128);
+        GaussianGridConfig gridConfig = GaussianGridConfig.load(128);
         assertEquals(512, gridConfig.getRegularColumnCount());
         assertEquals(25, gridConfig.getReducedColumnCount(1));
         assertEquals(450, gridConfig.getReducedColumnCount(80));
@@ -27,7 +27,7 @@ public class GaussianGridConfigTest {
 
     @Test
     public void testN400() throws Exception {
-        GaussianGridConfig gridConfig = GaussianGridConfig.load(GaussianGrid.Number.N400);
+        GaussianGridConfig gridConfig = GaussianGridConfig.load(400);
         assertEquals(1600, gridConfig.getRegularColumnCount());
         assertEquals(25, gridConfig.getReducedColumnCount(1));
         assertEquals(540, gridConfig.getReducedColumnCount(80));
@@ -62,7 +62,11 @@ public class GaussianGridConfigTest {
         assertEquals(-160.0, lons[0], 1.0e-6);
         assertEquals(0.0, lons[4], 1.0e-6);
         assertEquals(160.0, lons[8], 1.0e-6);
-
-
     }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testException() throws Exception {
+        GaussianGridConfig.load(100);
+    }
+
 }

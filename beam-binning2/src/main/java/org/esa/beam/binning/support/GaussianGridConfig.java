@@ -1,16 +1,19 @@
 package org.esa.beam.binning.support;
 
+import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.io.CsvReader;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.Arrays;
 
 /**
  * @author Marco Peters
  */
 public class GaussianGridConfig {
 
+    private static final int[] ALLOWED_ROW_COUNTS = new int[]{32, 48, 80, 128, 160, 200, 256, 320, 400, 512, 640};
 
     private int[] reducedColumnCount;
     private int[] reducedFirstBinIndexes;
@@ -18,13 +21,18 @@ public class GaussianGridConfig {
     private int regularColumnCount;
     private double[] latitudePoints;
 
-    public static GaussianGridConfig load(GaussianGrid.Number gridNumber) throws IOException {
-        int numRecords = gridNumber.getRowCount() * 2;
-        int regularColumnCount = gridNumber.getRowCount() * 4;
+    public static GaussianGridConfig load(int rowCount) throws IOException {
+        if (Arrays.binarySearch(ALLOWED_ROW_COUNTS, rowCount) < 0) {
+            String msg = String.format("Invalid rowCount. Must be one of {%s}, but is %d",
+                                       StringUtils.arrayToCsv(ALLOWED_ROW_COUNTS), rowCount);
+            throw new IllegalArgumentException(msg);
+        }
+        int numRecords = rowCount * 2;
+        int regularColumnCount = rowCount * 4;
         int[] reducedColumnCount = new int[numRecords];
         double[] latitudePoints = new double[numRecords];
         int[] reducedFirstBinIndexes = new int[numRecords];
-        InputStream is = GaussianGridConfig.class.getResourceAsStream(gridNumber.name() + ".txt");
+        InputStream is = GaussianGridConfig.class.getResourceAsStream(String.format("N%d.txt", rowCount));
         CsvReader csvReader = new CsvReader(new InputStreamReader(is), new char[]{'\t'}, true, "#");
         reducedFirstBinIndexes[0] = 0;
         try {

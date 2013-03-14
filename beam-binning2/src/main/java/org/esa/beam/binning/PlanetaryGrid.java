@@ -19,6 +19,9 @@ package org.esa.beam.binning;
 /**
  * The planetary grid used for the binning. It subdivides the planet into approximately equal-area bin cells
  * organised in rows with a number of columns varying with the latitude.
+ * <p/>
+ * Implementing classes must provide 2 constructors. One no-args constructor which creates the grid with standard
+ * settings and the second receives on single integer value specifying the number of grid rows.
  *
  * @author Norman Fomferra
  */
@@ -29,6 +32,7 @@ public interface PlanetaryGrid {
      *
      * @param lat The latitude in degrees. Must be in the range -90 to +90.
      * @param lon The longitude in degrees. Must be in the range -180 to +180.
+     *
      * @return The unique bin index.
      */
     long getBinIndex(double lat, double lon);
@@ -44,6 +48,7 @@ public interface PlanetaryGrid {
      * </pre>
      *
      * @param bin The bin index. Must be in the range 0 to {@link #getNumBins()} - 1.
+     *
      * @return The row index.
      */
     int getRowIndex(long bin);
@@ -66,6 +71,7 @@ public interface PlanetaryGrid {
      * Gets the number of columns in the given row.
      *
      * @param row The row index. Must be in the range 0 to {@link #getNumRows()} - 1.
+     *
      * @return The number of columns.
      */
     int getNumCols(int row);
@@ -74,6 +80,7 @@ public interface PlanetaryGrid {
      * Gets the first bin index in the given row.
      *
      * @param row The row index. Must be in the range 0 to {@link #getNumRows()} - 1.
+     *
      * @return The bin index.
      */
     long getFirstBinIndex(int row);
@@ -82,6 +89,7 @@ public interface PlanetaryGrid {
      * Gets the center latitude of the given row.
      *
      * @param row The row index. Must be in the range 0 to {@link #getNumRows()} - 1.
+     *
      * @return The center latitude.
      */
     double getCenterLat(int row);
@@ -90,6 +98,7 @@ public interface PlanetaryGrid {
      * Gets geographical latitude and longitude (in this order) for the center of the given bin.
      *
      * @param bin The bin index. Must be in the range 0 to {@link #getNumBins()} - 1.
+     *
      * @return latitude and longitude (in this order)
      */
     double[] getCenterLatLon(long bin);
