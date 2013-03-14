@@ -45,7 +45,9 @@ public class ProductLoader {
                 if (productValidator.isValid(product)) {
                     products.add(product);
                 } else {
-                    product.dispose();
+                    if (product != null) {
+                        product.dispose();
+                    }
                 }
             }
         }
