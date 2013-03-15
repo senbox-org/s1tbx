@@ -361,7 +361,9 @@ public class BinnedProductReader extends AbstractProductReader {
             netcdfFile = null;
         }
         bandMap.clear();
-        indexMap.clear();
+        if (indexMap != null) {
+            indexMap.clear();
+        }
         product = null;
         planetaryGrid = null;
     }
