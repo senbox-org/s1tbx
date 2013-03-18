@@ -78,7 +78,10 @@ public class N4Variable implements NVariable {
     private void addAttributeImpl(String name, Object value, int type) throws IOException {
         name = name.replace('.', '_');
         try {
-            variable.addAttribute(name, type, value);
+            if (!variable.attributeExists(name)) {
+                //attributes can only bet set once
+                variable.addAttribute(name, type, value);
+            }
         } catch (NhException e) {
             throw new IOException(e);
         }
