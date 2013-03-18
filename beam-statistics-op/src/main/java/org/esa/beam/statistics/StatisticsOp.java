@@ -337,9 +337,9 @@ public class StatisticsOp extends Operator implements Output {
         if (outputShapefile != null) {
             try {
                 final String baseName = FileUtils.getFilenameWithoutExtension(outputShapefile);
-                final File file = new File(outputShapefile.getParent(), baseName + "_band_mapping.txt");
-                final FileOutputStream outputStream = new FileOutputStream(file);
-                bandMappingOutputStream = new PrintStream(outputStream);
+                final File bandMappingFile = new File(outputShapefile.getParent(), baseName + "_band_mapping.txt");
+                final FileOutputStream bandMappingFOS = new FileOutputStream(bandMappingFile);
+                bandMappingOutputStream = new PrintStream(bandMappingFOS);
                 BandNameCreator bandNameCreator = new BandNameCreator(bandMappingOutputStream);
                 statisticsOutputters.add(FeatureStatisticsWriter.createFeatureStatisticsWriter(shapefile.toURI().toURL(), outputShapefile.getAbsolutePath(), bandNameCreator));
             } catch (MalformedURLException e) {
