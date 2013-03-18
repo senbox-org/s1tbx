@@ -42,6 +42,7 @@ New BEAM Features
 Improvements
 
 [BEAM-1126] - Pixel-geocoding consumes too much memory
+[BEAM-1477] - Update OBPG readers to 1.4
 
 Bugs
 
