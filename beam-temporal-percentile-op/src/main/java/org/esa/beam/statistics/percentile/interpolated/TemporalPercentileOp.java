@@ -128,43 +128,43 @@ public class TemporalPercentileOp extends Operator {
     Product[] sourceProducts;
 
     @Parameter(description = "A comma-separated list of file paths specifying the source products.\n" +
-            "Source products to be considered for percentile computation. \n" +
-            "Each path may contain the wildcards '**' (matches recursively any directory),\n" +
-            "'*' (matches any character sequence in path names) and\n" +
-            "'?' (matches any single character).\n" +
-            "If, for example, all NetCDF files under /eodata/ shall be considered, use '/eodata/**/*.nc'.")
+                             "Source products to be considered for percentile computation. \n" +
+                             "Each path may contain the wildcards '**' (matches recursively any directory),\n" +
+                             "'*' (matches any character sequence in path names) and\n" +
+                             "'?' (matches any single character).\n" +
+                             "If, for example, all NetCDF files under /eodata/ shall be considered, use '/eodata/**/*.nc'.")
     String[] sourceProductPaths;
 
     @Parameter(description = "The start date. If not given, it is taken from the 'oldest' source product. Products that\n" +
-            "have a start date earlier than the start date given by this parameter are not considered.",
+                             "have a start date earlier than the start date given by this parameter are not considered.",
                format = DATETIME_PATTERN, converter = UtcConverter.class)
     ProductData.UTC startDate;
 
     @Parameter(description = "The end date. If not given, it is taken from the 'newest' source product. Products that\n" +
-            "have an end date later than the end date given by this parameter are not considered.",
+                             "have an end date later than the end date given by this parameter are not considered.",
                format = DATETIME_PATTERN, converter = UtcConverter.class)
     ProductData.UTC endDate;
 
     @Parameter(description = "Determines whether the time series product which is created during computation\n" +
-            "should be written to disk.",
+                             "should be written to disk.",
                defaultValue = "true")
     boolean keepIntermediateTimeSeriesProduct;
 
     @Parameter(description = "The output directory for the intermediate time series product. If not given, the time\n" +
-            "series product will be written to the working directory.")
+                             "series product will be written to the working directory.")
     File timeSeriesOutputDir;
 
     @Parameter(description = "A text specifying the target Coordinate Reference System, either in WKT or as an\n" +
-            "authority code. For appropriate EPSG authority codes see (www.epsg-registry.org).\n" +
-            "AUTO authority can be used with code 42001 (UTM), and 42002 (Transverse Mercator)\n" +
-            "where the scene center is used as reference. Examples: EPSG:4326, AUTO:42001",
+                             "authority code. For appropriate EPSG authority codes see (www.epsg-registry.org).\n" +
+                             "AUTO authority can be used with code 42001 (UTM), and 42002 (Transverse Mercator)\n" +
+                             "where the scene center is used as reference. Examples: EPSG:4326, AUTO:42001",
                defaultValue = "EPSG:4326")
     String crs;
 
     @Parameter(alias = "resampling",
                label = "Resampling Method",
                description = "The method used for resampling of floating-point raster data, if source products must\n" +
-                       "be reprojected to the target CRS.",
+                             "be reprojected to the target CRS.",
                valueSet = {"Nearest", "Bilinear", "Bicubic"},
                defaultValue = "Nearest")
     private String resamplingMethodName;
@@ -194,7 +194,7 @@ public class TemporalPercentileOp extends Operator {
     String bandMathsExpression;
 
     @Parameter(description = "If given, this is the percentile band name prefix. If empty, the resulting percentile band’s name\n" +
-            "prefix will be either the 'sourceBandName' or created from the 'bandMathsExpression'.")
+                             "prefix will be either the 'sourceBandName' or created from the 'bandMathsExpression'.")
     String percentileBandNamePrefix;
 
     @Parameter(description = "The valid pixel expression serving as criterion for whether to consider pixels for computation.")
@@ -210,14 +210,14 @@ public class TemporalPercentileOp extends Operator {
     String percentileCalculationMethod;
 
     @Parameter(description = "The fallback value for the start of a pixel time series. It will be considered if\n" +
-            "there is no valid value at the pixel of the oldest collocated mean band. This would be\n" +
-            "the case, if, e.g., there is a cloudy day at the time period start.",
+                             "there is no valid value at the pixel of the oldest collocated mean band. This would be\n" +
+                             "the case, if, e.g., there is a cloudy day at the time period start.",
                defaultValue = "0.0")
     Double startValueFallback;
 
     @Parameter(description = "The fallback value for the end of a pixel time series. It will be considered if" +
-            "there is no valid value at the pixel of the newest collocated mean band. This would be\n" +
-            "the case, if, e.g., there is a cloudy day at the time period end.",
+                             "there is no valid value at the pixel of the newest collocated mean band. This would be\n" +
+                             "the case, if, e.g., there is a cloudy day at the time period end.",
                defaultValue = "0.0")
     Double endValueFallback;
 
@@ -237,6 +237,9 @@ public class TemporalPercentileOp extends Operator {
         interpolator = InterpolatorFactory.createInterpolator(percentileCalculationMethod);
 
         final Product targetProduct = createTargetProduct();
+
+        checkMemNeeds(targetProduct);
+
         final Area targetArea = Utils.createProductArea(targetProduct);
         setTargetProduct(targetProduct);
 
@@ -249,12 +252,12 @@ public class TemporalPercentileOp extends Operator {
 
         if (dailyGroupedSourceProducts.size() < 2) {
             throw new OperatorException("For temporal percentile calculation " +
-                                                "at least two days must contain valid input products.");
+                                        "at least two days must contain valid input products.");
         }
         if (dailyGroupedSourceProducts.size() == 2 && splineOrQuadraticInterpolationIsSelected()) {
             throw new OperatorException("For temporal percentile calculation " +
-                                                "with percentileCalculationMethod='" + percentileCalculationMethod + "' " +
-                                                "at least three days must contain valid input products.");
+                                        "with percentileCalculationMethod='" + percentileCalculationMethod + "' " +
+                                        "at least three days must contain valid input products.");
         }
 
         initTimeSeriesStartAndEnd();
@@ -274,9 +277,32 @@ public class TemporalPercentileOp extends Operator {
         initPercentileComputer();
     }
 
+    private void checkMemNeeds(Product targetProduct) {
+        final long _1kb = 1024;
+        final long _1Mb = _1kb * _1kb;
+        final long _1Gb = _1Mb * _1kb;
+        final long baseMemoryRequirement = _1Gb;
+        final Runtime runtime = Runtime.getRuntime();
+        final long _Xmx = runtime.maxMemory();
+        final long meanBandRawStorageSize = targetProduct.getBandAt(0).getRawStorageSize();
+        if (meanBandRawStorageSize + baseMemoryRequirement > _Xmx) {
+            final long width = targetProduct.getSceneRasterWidth();
+            final long height = targetProduct.getSceneRasterHeight();
+            if (width * height >= Integer.MAX_VALUE) {
+                throw new OperatorException("The CRS settings result in a too large product (" + width + " * " + height + " pixels). " +
+                                            "Please choose a smaller scene.");
+            } else {
+                final int needed = (int) Math.ceil((meanBandRawStorageSize + baseMemoryRequirement) / _1Gb);
+                throw new OperatorException("The CRS settings result in a too large product (" + width + " * " + height + " pixels). " +
+                                            "The memory needed to compute such a product is " + needed + " GB. " +
+                                            "Please choose a smaller scene or increase the Java VM heap space parameter '-Xmx' accordingly.");
+            }
+        }
+    }
+
     private boolean splineOrQuadraticInterpolationIsSelected() {
         return P_CALCULATION_METHOD_SPLINE_INTERPOLATION.equals(percentileCalculationMethod)
-                || P_CALCULATION_METHOD_QUADRATIC_INTERPOLATION.equals(percentileCalculationMethod);
+               || P_CALCULATION_METHOD_QUADRATIC_INTERPOLATION.equals(percentileCalculationMethod);
     }
 
     private void reloadIntermediateTimeSeriesProduct() {
