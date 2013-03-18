@@ -68,8 +68,9 @@ public class BinningConfig {
      * must have a public one-argument constructor which takes the {@code numRows} as input.
      * Otherwise a public no-arg constructor is expected.
      */
-    @Parameter(defaultValue = "org.esa.beam.binning.support.SEAGrid")
-    private String planetaryGrid;
+    // do not expose planetary grid as parameter (GUI and CLI)
+//    @Parameter(defaultValue = "org.esa.beam.binning.support.SEAGrid")
+    private String planetaryGrid = "org.esa.beam.binning.support.SEAGrid";
 
     /**
      * Number of rows in the planetary grid.
@@ -80,8 +81,10 @@ public class BinningConfig {
     /**
      * The compositing type used for the binning process.
      */
-    @Parameter(defaultValue = "BINNING", valueSet = {"BINNING", "MOSAICKING"})
-    private CompositingType compositingType;
+    // do not expose compositing type as parameter (GUI and CLI)
+//    @Parameter(defaultValue = "BINNING", valueSet = {"BINNING", "MOSAICKING"})
+
+    private CompositingType compositingType = CompositingType.BINNING;
 
     /**
      * The number of pixels used for super-sampling an input pixel into sub-pixel.
