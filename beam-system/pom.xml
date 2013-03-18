@@ -510,4 +510,15 @@
         </dependencies>
     </dependencyManagement>
 
+    <!-- Dependency on SLF4J binding to Java logging. -->
+    <!-- Its only purpose is to prevent SLF4 from outputting annoying 'missing binding' messages to System.err -->
+    <!-- So, since it is not used in any module, it's included on the highest level. -->
+    <dependencies>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-jdk14</artifactId>
+            <version>1.6.1</version>
+        </dependency>
+    </dependencies>
+
 </project>
