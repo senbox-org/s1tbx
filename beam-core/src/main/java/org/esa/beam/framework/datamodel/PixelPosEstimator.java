@@ -297,7 +297,7 @@ class PixelPosEstimator implements GeoCoding {
     static RationalFunctionModel findBestModel(double[][] data, int[] indexes, double accuracy) {
         RationalFunctionModel bestModel = null;
         for (int degreeP = 0; degreeP <= 4; degreeP++) {
-            for (int degreeQ = 0; degreeQ <= 4; degreeQ++) {
+            for (int degreeQ = 0; degreeQ <= degreeP; degreeQ++) {
                 final int termCountP = RationalFunctionModel.getTermCountP(degreeP);
                 final int termCountQ = RationalFunctionModel.getTermCountQ(degreeQ);
                 if (data.length >= termCountP + termCountQ) {
