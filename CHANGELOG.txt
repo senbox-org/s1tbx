@@ -2,6 +2,7 @@
 
 This file contains all significant changes for each BEAM release.
 
+    o 18.03.2013: Version 4.10.4
     o 21.06.2012: Version 4.10.3
     o 09.05.2012: Version 4.10
     o 12.05.2011: Version 4.9
@@ -33,11 +34,43 @@ _____________________________________________________________________________
  Changes from 4.10.3 to 4.10.4
 _____________________________________________________________________________
 
-1) New BEAM Features
+New BEAM Features
 
-o SummaryCSVTool can be used to convert the output (ESRI shapefiles) from the
-                 GPT statistics operator into tab separated files.
-                 This tool is developed under contract of the Aquamar project.
+[BEAM-1479] - Create shapefile -> CSV converter tool
+[BEAM-1420] - Support (A)ATSR Autumn 2012 reprocessed data products
+
+Improvements
+
+[BEAM-1126] - Pixel-geocoding consumes too much memory
+
+Bugs
+
+[BEAM-1225] - gpt command-line. No data product writer for the 'HDF5' format available.
+[BEAM-1319] - The beam.config file must be edit with administrator rights
+[BEAM-1412] - Profile plot uses wrong pixels for shape in projected products
+[BEAM-1419] - Time extraction not always applied
+[BEAM-1421] - A file in NetCDF-BEAM format, which was created using the BandMaths gpf operator, can not be opened in VISAT
+[BEAM-1425] - NPE in Landsat GeoTIFF reader
+[BEAM-1426] - Landsat GeoTIFF reader hides other format readers
+[BEAM-1427] - Histogram for SPOT SM Band not correct
+[BEAM-1431] - Product cannot be opened
+[BEAM-1434] - Wrong coordinate extraction with PixEx tool
+[BEAM-1435] - Name of scene view does not change if band is renamed
+[BEAM-1437] - PixEx operator shall handle corrupt products more gracefully
+[BEAM-1439] - Wrong assignment of frequencies to indexes
+[BEAM-1443] - Spectrum View line thickness too thin
+[BEAM-1445] - Pinned spectra barely visible in spectrum view
+[BEAM-1446] - Label of samples is wrong for index-coded bands
+[BEAM-1447] - Dimap reader\writer handling very very large files
+[BEAM-1454] - When I try to put statistics into the vector data, the original vector data becomes corrupted and in such a way that the original content of this file is reduced to one record.
+[BEAM-1466] - Inconsistent state possible in Pixel Extraction user interface
+[BEAM-1468] - Time difference not considered for pixel extraction if defaults are used
+[BEAM-1469] - No PixEx result if products do not have time information
+[BEAM-1470] - It is not correctly detected if measurements have been extracted
+[BEAM-1471] - The time extraction from file name should support DAY_OF_YEAR
+[BEAM-1363] - Write NetCDf 4 files using compression
+[BEAM-1414] - Incorrect valid-pixel mask for ATSR SST bands
+
 
 _____________________________________________________________________________
 
