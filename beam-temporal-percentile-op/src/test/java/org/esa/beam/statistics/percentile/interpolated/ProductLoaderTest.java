@@ -67,6 +67,8 @@ public class ProductLoaderTest {
         assertSame(product2, products[1]);
         verifyNoMoreInteractions(product1);
         verifyNoMoreInteractions(product2);
+        verify(M_logger).info("Trying to open product file '" + FILE_1.getAbsolutePath() + "'.");
+        verify(M_logger).info("Trying to open product file '" + FILE_2.getAbsolutePath() + "'.");
         verifyNoMoreInteractions(M_logger);
     }
 
@@ -83,6 +85,8 @@ public class ProductLoaderTest {
         verify(product2, times(1)).dispose();
         verifyNoMoreInteractions(product1);
         verifyNoMoreInteractions(product2);
+        verify(M_logger).info("Trying to open product file '" + FILE_1.getAbsolutePath() + "'.");
+        verify(M_logger).info("Trying to open product file '" + FILE_2.getAbsolutePath() + "'.");
         verifyNoMoreInteractions(M_logger);
     }
 
@@ -98,6 +102,8 @@ public class ProductLoaderTest {
         verify(product1, times(1)).dispose();
         verifyNoMoreInteractions(product1);
         verifyNoMoreInteractions(product2);
+        verify(M_logger).info("Trying to open product file '" + FILE_1.getAbsolutePath() + "'.");
+        verify(M_logger).info("Trying to open product file '" + FILE_2.getAbsolutePath() + "'.");
         verifyNoMoreInteractions(M_logger);
     }
 
@@ -114,6 +120,7 @@ public class ProductLoaderTest {
         verifyNoMoreInteractions(product1);
         verifyNoMoreInteractions(product2);
         verify(M_logger).severe("'" + PATH_1 + "' is not a valid products wildcard path.");
+        verify(M_logger).info("Trying to open product file '" + FILE_2.getAbsolutePath() + "'.");
         verify(M_logger, times(1)).log(Level.SEVERE, "message", exception);
         verifyNoMoreInteractions(M_logger);
     }
@@ -130,8 +137,10 @@ public class ProductLoaderTest {
         assertSame(product2, products[0]);
         verifyNoMoreInteractions(product1);
         verifyNoMoreInteractions(product2);
+        verify(M_logger).info("Trying to open product file '" + FILE_1.getAbsolutePath() + "'.");
         verify(M_logger).severe("Unable to read product '" + FILE_1.getAbsolutePath() + "'.");
         verify(M_logger, times(1)).log(Level.SEVERE, "message", exception);
+        verify(M_logger).info("Trying to open product file '" + FILE_2.getAbsolutePath() + "'.");
         verifyNoMoreInteractions(M_logger);
     }
 }

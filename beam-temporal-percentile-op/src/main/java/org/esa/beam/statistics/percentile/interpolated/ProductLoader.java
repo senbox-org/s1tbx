@@ -36,6 +36,7 @@ public class ProductLoader {
             for (File productFile : files) {
                 final Product product;
                 try {
+                    logger.info("Trying to open product file '" + productFile.getAbsolutePath() + "'.");
                     product = loadProduct(productFile);
                 } catch (IOException e) {
                     logger.severe("Unable to read product '" + productFile.getAbsolutePath() + "'.");
