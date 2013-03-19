@@ -46,7 +46,7 @@ public class ProductValidatorTest {
         final Logger logger = Logger.getAnonymousLogger();
         S_logger = spy(logger);
 
-        _productValidator = new ProductValidator(sourceBandName, null, _timeRangeStart, _timeRangeEnd, targetArea, S_logger);
+        _productValidator = new ProductValidator(sourceBandName, null, null, _timeRangeStart, _timeRangeEnd, targetArea, S_logger);
 
         M_geoCoding = mock(GeoCoding.class);
         when(M_geoCoding.canGetPixelPos()).thenReturn(true);

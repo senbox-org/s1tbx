@@ -243,7 +243,8 @@ public class TemporalPercentileOp extends Operator {
         final Area targetArea = Utils.createProductArea(targetProduct);
         setTargetProduct(targetProduct);
 
-        final ProductValidator productValidator = new ProductValidator(sourceBandName, bandMathsExpression, startDate, endDate, targetArea, getLogger());
+
+        final ProductValidator productValidator = new ProductValidator(sourceBandName, bandMathsExpression, validPixelExpression, startDate, endDate, targetArea, getLogger());
         final ProductLoader productLoader = new ProductLoader(sourceProductPaths, productValidator, getLogger());
         final Product[] products = productLoader.loadProducts();
         gc();
