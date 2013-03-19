@@ -311,7 +311,14 @@ public class Approximator {
         final Matrix u;
         final Matrix v;
 
-        svd = new Matrix(a, m, n).svd();
+
+        final Matrix matrix = new Matrix(a, m, n);
+        final int r = matrix.rank();
+        if (r < n) {
+            throw new ArithmeticException("Expected matrix with rank " + n + ", but actual rank is " + r);
+        }
+
+        svd = matrix.svd();
         u = svd.getU();
         v = svd.getV();
 
