@@ -313,9 +313,9 @@ public class Approximator {
 
 
         final Matrix matrix = new Matrix(a, m, n);
-        final int r = matrix.rank();
-        if (r < n) {
-            throw new ArithmeticException("Expected matrix with rank " + n + ", but actual rank is " + r);
+        final double det = matrix.det();
+        if (det == 0.0 || Double.isNaN(det) || Double.isInfinite(det)) {
+            throw new ArithmeticException("Expected an invertible matrix, but matrix is degenerate: det = " + det);
         }
 
         svd = matrix.svd();
