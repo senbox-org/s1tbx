@@ -496,13 +496,10 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
                 numPointsRequired = 2 * potentialPolynomial.getNumTerms();
             }
             if (data.length >= numPointsRequired) {
-                // @todo 1 tb/nf - replace try/catch by appropriate tie-point testing routine which
-                // @todo 1 tb/nf - is used before potentialPolynomial.approximate() is executed
                 try {
                     potentialPolynomial.approximate(data, indices);
                     double rmse = potentialPolynomial.getRootMeanSquareError();
                     double maxError = potentialPolynomial.getMaxError();
-                    // Debug.trace("Checked polynomial " + (i + 1) + ": RMSE = " + rmse + ", max error = " + maxError);
                     if (rmse < rmseMin) {
                         index = i;
                         rmseMin = rmse;
@@ -511,10 +508,8 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
                         index = i;
                         break;
                     }
-                } catch (RuntimeException e) {
-                    Debug.trace("RuntimeException catched during polynomial approximation!");
-                    Debug.trace("Yes, we know that it is not ok to catch RuntimeExceptions,");
-                    Debug.trace("but the problem is probably caused by a singular matrix:");
+                } catch (ArithmeticException e) {
+                    Debug.trace("Polynomial cannot be constructed due to a numerically singular or degenerate matrix:");
                     Debug.trace(e);
                 }
             }

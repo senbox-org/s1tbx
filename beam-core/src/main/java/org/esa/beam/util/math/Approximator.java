@@ -236,6 +236,7 @@ public class Approximator {
      * @param f the function vector
      * @param c the coeffcient vector
      * @param x the x value
+     *
      * @return the y value
      */
     public static double computeY(final FX[] f, double[] c, double x) {
@@ -254,6 +255,7 @@ public class Approximator {
      * @param c the coeffcient vector
      * @param x the x value
      * @param y the y value
+     *
      * @return the z value
      */
     public static double computeZ(final FXY[] f, double[] c, double x, double y) {
@@ -297,7 +299,14 @@ public class Approximator {
         final Matrix u;
         final Matrix v;
 
-        svd = new Matrix(a, m, n).svd();
+
+        final Matrix matrix = new Matrix(a, m, n);
+        final int r = matrix.rank();
+        if (r < n) {
+            throw new ArithmeticException("Expected matrix with rank " + n + ", but actual rank is " + r);
+        }
+
+        svd = matrix.svd();
         u = svd.getU();
         v = svd.getV();
 
