@@ -42,7 +42,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * The product writer for the BEAM-DIMAP format.
@@ -61,6 +63,7 @@ public class DimapProductWriter extends AbstractProductWriter {
     private Map<Band, ImageOutputStream> _bandOutputStreams;
     private File _dataOutputDir;
     private boolean _incremental = true;
+    private Set<VetoableShouldWriteListener> vetoableShouldWriteListeners;
 
     /**
      * Construct a new instance of a product writer for the given BEAM-DIMAP product writer plug-in.
@@ -120,6 +123,7 @@ public class DimapProductWriter extends AbstractProductWriter {
      * product file without an previous call to the saveProductNodes to this product writer.
      *
      * @param outputFile the dimap header file location.
+     *
      * @throws java.io.IOException if an I/O error occurs
      */
     public void initDirs(final File outputFile) throws IOException {
@@ -140,7 +144,7 @@ public class DimapProductWriter extends AbstractProductWriter {
     private File createDataOutputDir() {
         return new File(_outputDir,
                         FileUtils.getFilenameWithoutExtension(
-                                _outputFile) + DimapProductConstants.DIMAP_DATA_DIRECTORY_EXTENSION);
+                                    _outputFile) + DimapProductConstants.DIMAP_DATA_DIRECTORY_EXTENSION);
     }
 
     private void ensureNamingConvention() {
@@ -166,7 +170,7 @@ public class DimapProductWriter extends AbstractProductWriter {
         checkSourceRegionInsideBandRegion(sourceWidth, sourceBandWidth, sourceHeight, sourceBandHeight, sourceOffsetX,
                                           sourceOffsetY);
         final ImageOutputStream outputStream = getOrCreateImageOutputStream(sourceBand);
-        long outputPos = (long)sourceOffsetY * sourceBandWidth + (long)sourceOffsetX;
+        long outputPos = (long) sourceOffsetY * sourceBandWidth + (long) sourceOffsetX;
         pm.beginTask("Writing band '" + sourceBand.getName() + "'...", sourceHeight);
         try {
             for (int sourcePos = 0; sourcePos < sourceHeight * sourceWidth; sourcePos += sourceWidth) {
@@ -357,8 +361,8 @@ public class DimapProductWriter extends AbstractProductWriter {
 
     private static long getImageFileSize(RasterDataNode band) {
         return (long) ProductData.getElemSize(band.getDataType()) *
-                (long) band.getRasterWidth() *
-                (long) band.getRasterHeight();
+               (long) band.getRasterWidth() *
+               (long) band.getRasterHeight();
     }
 
     private File getEnviHeaderFile(Band band) {
@@ -402,6 +406,14 @@ public class DimapProductWriter extends AbstractProductWriter {
 
     @Override
     public boolean shouldWrite(ProductNode node) {
+        if(vetoableShouldWriteListeners != null) {
+            for (VetoableShouldWriteListener vetoableShouldWriteListener : vetoableShouldWriteListeners) {
+                final boolean shouldWrite = vetoableShouldWriteListener.shouldWrite(node);
+                if (!shouldWrite) {
+                    return false;
+                }
+            }
+        }
         if (node instanceof VirtualBand) {
             return false;
         }
@@ -505,6 +517,26 @@ public class DimapProductWriter extends AbstractProductWriter {
                                                                 vectorDataNode.getName() + VectorDataNodeIO.FILENAME_EXTENSION));
         } catch (IOException e) {
             BeamLogManager.getSystemLogger().throwing("DimapProductWriter", "writeVectorData", e);
+        }
+    }
+
+    public static interface VetoableShouldWriteListener {
+
+        boolean shouldWrite(ProductNode node);
+    }
+
+    public void addVetoableShouldWriteListener(VetoableShouldWriteListener listener) {
+        if (vetoableShouldWriteListeners == null){
+            vetoableShouldWriteListeners = new HashSet<VetoableShouldWriteListener>();
+        }
+        if (listener != null) {
+            vetoableShouldWriteListeners.add(listener);
+        }
+    }
+
+    public void removeVetoableShouldWriteListener(VetoableShouldWriteListener listener) {
+        if (vetoableShouldWriteListeners != null){
+            vetoableShouldWriteListeners.remove(listener);
         }
     }
 }

@@ -30,6 +30,7 @@ import org.esa.beam.framework.datamodel.ProductNode;
 import org.esa.beam.framework.datamodel.ProductNodeEvent;
 import org.esa.beam.framework.datamodel.ProductNodeListenerAdapter;
 import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.timeseries.core.insitu.InsituSource;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.ProductUtils;
@@ -228,9 +229,9 @@ final class TimeSeriesImpl extends AbstractTimeSeries {
 
     private Band getSourceBand(String destBandName) {
         final int lastUnderscore = destBandName.lastIndexOf(SEPARATOR);
-        String normalizedBandName = destBandName.substring(0, lastUnderscore);
-        String timePart = destBandName.substring(lastUnderscore + 1);
-        Product srcProduct = productTimeMap.get(timePart);
+        final String normalizedBandName = destBandName.substring(0, lastUnderscore);
+        final String timePart = destBandName.substring(lastUnderscore + 1);
+        final Product srcProduct = productTimeMap.get(timePart);
         if (srcProduct == null) {
             return null;
         }
@@ -288,9 +289,24 @@ final class TimeSeriesImpl extends AbstractTimeSeries {
 
     private void storeProductsInMap() {
         for (Product product : getAllProducts()) {
-            productTimeMap.put(formatTimeString(product), product);
+            HashMap<String, Product> productToBeReprojectedMap = new HashMap<String, Product>();
+            productToBeReprojectedMap.put("source", product);
+            productToBeReprojectedMap.put("collocateWith", tsProduct);
+            final Product collocatedProduct = GPF.createProduct("Reproject", createProjectionParameters(), productToBeReprojectedMap);
+            collocatedProduct.setStartTime(product.getStartTime());
+            collocatedProduct.setEndTime(product.getEndTime());
+
+            productTimeMap.put(formatTimeString(product), collocatedProduct);
         }
     }
+
+    private HashMap<String, Object> createProjectionParameters() {
+        HashMap<String, Object> projParameters = new HashMap<String, Object>();
+        projParameters.put("resamplingName", "Nearest");
+        projParameters.put("includeTiePointGrids", false);
+        return projParameters;
+    }
+
 
     @Override
     public boolean isEoVariableSelected(String variableName) {

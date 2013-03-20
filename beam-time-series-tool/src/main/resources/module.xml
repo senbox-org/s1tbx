@@ -56,10 +56,10 @@
             <accelerator>ctrl alt T</accelerator>
             <smallIcon>/org/esa/beam/timeseries/ui/icons/timeseries-player16.png</smallIcon>
             <largeIcon>/org/esa/beam/timeseries/ui/icons/timeseries-player24.png</largeIcon>
-            <initState>FLOATING</initState>
+            <initState>HIDDEN</initState>
             <initSide>EAST</initSide>
             <initIndex>3</initIndex>
-            <toolBarId>TimeSeriesTool</toolBarId>
+            <toolBarId>Time Series Tool Bar</toolBarId>
             <helpId>timeSeriesPlayer</helpId>
         </toolView>
 
@@ -73,10 +73,10 @@
             <accelerator>ctrl alt C</accelerator>
             <smallIcon>/org/esa/beam/timeseries/ui/icons/timeseries-manager16.png</smallIcon>
             <largeIcon>/org/esa/beam/timeseries/ui/icons/timeseries-manager24.png</largeIcon>
-            <initState>FLOATING</initState>
+            <initState>HIDDEN</initState>
             <initSide>EAST</initSide>
             <initIndex>0</initIndex>
-            <toolBarId>TimeSeriesTool</toolBarId>
+            <toolBarId>Time Series Tool Bar</toolBarId>
             <helpId>timeSeriesManager</helpId>
         </toolView>
 
@@ -90,10 +90,10 @@
             <accelerator>ctrl alt T</accelerator>
             <smallIcon>/org/esa/beam/timeseries/ui/icons/timeseries-plot16.png</smallIcon>
             <largeIcon>/org/esa/beam/timeseries/ui/icons/timeseries-plot24.png</largeIcon>
-            <initState>FLOATING</initState>
+            <initState>HIDDEN</initState>
             <initSide>EAST</initSide>
             <initIndex>1</initIndex>
-            <toolBarId>TimeSeriesTool</toolBarId>
+            <toolBarId>Time Series Tool Bar</toolBarId>
             <helpId>timeSeriesGraph</helpId>
         </toolView>
 
@@ -107,10 +107,10 @@
             <accelerator>ctrl alt M</accelerator>
             <smallIcon>/org/esa/beam/timeseries/ui/icons/timeseries-matrix16.png</smallIcon>
             <largeIcon>/org/esa/beam/timeseries/ui/icons/timeseries-matrix24.png</largeIcon>
-            <initState>FLOATING</initState>
+            <initState>HIDDEN</initState>
             <initSide>EAST</initSide>
             <initIndex>2</initIndex>
-            <toolBarId>TimeSeriesTool</toolBarId>
+            <toolBarId>Time Series Tool Bar</toolBarId>
             <helpId>timeSeriesMatrix</helpId>
         </toolView>
 
@@ -148,6 +148,10 @@
             <parent>beam-help</parent>
             <path>doc/help/time-series-tool.hs</path>
         </helpSet>
+    </extension>
+
+    <extension point="ceres-core:serviceProviders">
+        <serviceProvider>org.esa.beam.visat.VisatPlugIn</serviceProvider>
     </extension>
 
     <activator>org.esa.beam.timeseries.core.TimeSeriesToolActivator</activator>
