@@ -38,7 +38,7 @@
         <beam.version>5.0-4.10.4</beam.version>
         <ceres.version>5.0-0.14</ceres.version>
         <geotools.version>9.0-M0</geotools.version>
-        <jide.version>3.3.7</jide.version>
+        <jide.version>3.5.2</jide.version>
         <hdf.version>2.7</hdf.version>
         <netcdf.version>4.2.20</netcdf.version>
 	<outputdir>../../output</outputdir>
@@ -65,7 +65,7 @@
     </licenses>
 
     <repositories>
-        <!--repository>
+        <repository>
             <id>bc-mvn</id>
             <name>Public Maven Repository at Brockmann Consult</name>
             <url>http://www.brockmann-consult.de/mvn/os</url>
@@ -76,7 +76,7 @@
             <snapshots>
                 <enabled>true</enabled>
             </snapshots>
-        </repository-->
+        </repository>
 		<repository>
             <id>array-mvn-repo</id>
             <name>Public Maven Repository at Array Systems Computing Inc</name>
@@ -654,12 +654,12 @@
             <dependency>
                 <groupId>jfree</groupId>
                 <artifactId>jfreechart</artifactId>
-                <version>1.0.13</version>
+                <version>1.0.14</version>
             </dependency>
             <dependency>
                 <groupId>jfree</groupId>
                 <artifactId>jcommon</artifactId>
-                <version>1.0.16</version>
+                <version>1.0.17</version>
             </dependency>
 
             <!-- Python scripting support ######################################## -->
