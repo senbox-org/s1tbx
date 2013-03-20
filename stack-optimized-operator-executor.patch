@@ -1,31 +1,168 @@
-Index: beam-gpf/src/main/java/org/esa/beam/gpf/operators/standard/WriteOp.java
-===================================================================
---- beam-gpf/src/main/java/org/esa/beam/gpf/operators/standard/WriteOp.java	(revision 53df621b85ed5ed4fa66c6e59d2532e2cf0029fb)
-+++ beam-gpf/src/main/java/org/esa/beam/gpf/operators/standard/WriteOp.java	(revision )
-@@ -201,7 +201,7 @@
-         getLogger().info("Start writing product " + getTargetProduct().getName() + " to " + getFile());
-         OperatorExecutor operatorExecutor = OperatorExecutor.create(this);
-         try {
--            operatorExecutor.execute(ExecutionOrder.ROW_BAND_COLUMN, pm);
-+            operatorExecutor.execute(ExecutionOrder.SCHEDULE_ROW_COLUMN_BAND, pm);
- 
-             getLogger().info("End writing product " + getTargetProduct().getName() + " to " + getFile());
- 
 Index: beam-gpf/src/test/java/org/esa/beam/framework/gpf/internal/OperatorExecutorTest.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>/*\n * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)\n *\n * This program is free software; you can redistribute it and/or modify it\n * under the terms of the GNU General Public License as published by the Free\n * Software Foundation; either version 3 of the License, or (at your option)\n * any later version.\n * This program is distributed in the hope that it will be useful, but WITHOUT\n * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or\n * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for\n * more details.\n *\n * You should have received a copy of the GNU General Public License along\n * with this program; if not, see http://www.gnu.org/licenses/\n */\npackage org.esa.beam.framework.gpf.internal;\n\nimport com.bc.ceres.core.ProgressMonitor;\n\nimport org.esa.beam.framework.datamodel.Band;\nimport org.esa.beam.framework.datamodel.Product;\nimport org.esa.beam.framework.datamodel.ProductData;\nimport org.esa.beam.framework.gpf.Operator;\nimport org.esa.beam.framework.gpf.OperatorException;\nimport org.esa.beam.framework.gpf.annotations.SourceProduct;\nimport org.esa.beam.framework.gpf.internal.OperatorExecutor.ExecutionOrder;\n\nimport java.awt.Point;\nimport java.awt.image.Raster;\nimport java.util.ArrayList;\nimport java.util.Arrays;\nimport java.util.Collections;\nimport java.util.List;\n\nimport javax.media.jai.JAI;\nimport javax.media.jai.OpImage;\nimport javax.media.jai.PlanarImage;\nimport javax.media.jai.TileComputationListener;\nimport javax.media.jai.TileRequest;\nimport javax.media.jai.TileScheduler;\n\nimport junit.framework.TestCase;\n\npublic class OperatorExecutorTest extends TestCase {\n    \n    private class RecordingTileScheduler implements TileScheduler {\n        \n        TileScheduler delegate;\n        List<String> recordedCalls = Collections.synchronizedList(new ArrayList<String>());\n        List<Point> requestedTileIndices = Collections.synchronizedList(new ArrayList<Point>());\n        \n        RecordingTileScheduler(TileScheduler delegate) {\n            this.delegate = delegate;\n        }\n\n        @Override\n        public void cancelTiles(TileRequest request, Point[] tileIndices) {\n            recordedCalls.add(\"cancelTiles\");\n            delegate.cancelTiles(request, tileIndices);\n        }\n\n        @Override\n        public int getParallelism() {\n            recordedCalls.add(\"getParallelism\");\n            return delegate.getParallelism();\n        }\n\n        @Override\n        public int getPrefetchParallelism() {\n            recordedCalls.add(\"getPrefetchParallelism\");\n            return delegate.getPrefetchParallelism();\n        }\n\n        @Override\n        public int getPrefetchPriority() {\n            recordedCalls.add(\"getPrefetchPriority\");\n            return delegate.getPrefetchPriority();\n        }\n\n        @Override\n        public int getPriority() {\n            recordedCalls.add(\"getPriority\");\n            return delegate.getPriority();\n        }\n\n        @Override\n        public void prefetchTiles(PlanarImage target, Point[] tileIndices) {\n            recordedCalls.add(\"prefetchTiles\");\n            delegate.prefetchTiles(target, tileIndices);\n        }\n\n        @Override\n        public Raster scheduleTile(OpImage target, int tileX, int tileY) {\n            recordedCalls.add(\"scheduleTile\");\n            return delegate.scheduleTile(target, tileX, tileY);\n        }\n\n        @Override\n        public Raster[] scheduleTiles(OpImage target, Point[] tileIndices) {\n            recordedCalls.add(\"scheduleTiles\");\n            return delegate.scheduleTiles(target, tileIndices);\n        }\n\n        @Override\n        public TileRequest scheduleTiles(PlanarImage target, Point[] tileIndices,\n                                         TileComputationListener[] tileListeners) {\n            recordedCalls.add(\"scheduleTiles\");\n            requestedTileIndices.addAll(Arrays.asList(tileIndices));\n            return delegate.scheduleTiles(target, tileIndices, tileListeners);\n        }\n\n        @Override\n        public void setParallelism(int parallelism) {\n            recordedCalls.add(\"setParallelism\");\n            delegate.setParallelism(parallelism);\n        }\n\n        @Override\n        public void setPrefetchParallelism(int parallelism) {\n            recordedCalls.add(\"setPrefetchParallelism\");\n            delegate.setPrefetchParallelism(parallelism);\n        }\n\n        @Override\n        public void setPrefetchPriority(int priority) {\n            recordedCalls.add(\"setPrefetchPriority\");\n            delegate.setPrefetchPriority(priority);\n        }\n\n        @Override\n        public void setPriority(int priority) {\n            recordedCalls.add(\"setPriority\");\n            delegate.setPriority(priority);\n        }\n    }\n\n    private class TestOP extends Operator {\n        \n        @SourceProduct\n        Product source;\n        \n        public TestOP(Product source) {\n            this.source = source;\n        }\n\n        @Override\n        public void initialize() throws OperatorException {\n            Product targetProduct = new Product(\"target\", \"target\", 100, 100);\n            for (Band srcBand : source.getBands()) {\n                Band band = targetProduct.addBand(srcBand.getName(), srcBand.getDataType());\n                band.setSourceImage(srcBand.getSourceImage());\n            }\n            \n            setTargetProduct(targetProduct);\n        }\n        \n    }\n    \n    private TileScheduler defaultTileScheduler;\n    private RecordingTileScheduler recordingTileScheduler;\n    \n    @Override\n    protected void setUp() throws Exception {\n        defaultTileScheduler = JAI.getDefaultInstance().getTileScheduler();\n        recordingTileScheduler = new RecordingTileScheduler(defaultTileScheduler);\n        JAI.getDefaultInstance().setTileScheduler(recordingTileScheduler);\n    }\n    \n    @Override\n    protected void tearDown() throws Exception {\n        JAI.getDefaultInstance().setTileScheduler(defaultTileScheduler);\n    }\n\n    public void testOneTile() {\n        Product sourceProduct = createSourceProduct();\n        Operator op = new TestOP(sourceProduct);\n        OperatorExecutor operatorExecutor = OperatorExecutor.create(op);\n        operatorExecutor.execute(ProgressMonitor.NULL);\n        \n        assertEquals(3, recordingTileScheduler.recordedCalls.size());\n        assertEquals(\"getParallelism\", recordingTileScheduler.recordedCalls.get(0));\n        assertEquals(\"scheduleTiles\", recordingTileScheduler.recordedCalls.get(1));\n        assertEquals(\"scheduleTile\", recordingTileScheduler.recordedCalls.get(2));\n        \n        assertEquals(1, recordingTileScheduler.requestedTileIndices.size());\n        assertEquals(new Point(0, 0), recordingTileScheduler.requestedTileIndices.get(0));\n    }\n    \n\n    public void testManyTilesOneBand() {\n        Product sourceProduct = createSourceProduct();\n        sourceProduct.setPreferredTileSize(50, 50);\n        Operator op = new TestOP(sourceProduct);\n        OperatorExecutor operatorExecutor = OperatorExecutor.create(op);\n        operatorExecutor.execute(ProgressMonitor.NULL);\n        \n        assertEquals(9, recordingTileScheduler.recordedCalls.size());\n        \n        assertEquals(4, recordingTileScheduler.requestedTileIndices.size());\n        assertEquals(new Point(0, 0), recordingTileScheduler.requestedTileIndices.get(0));\n        assertEquals(new Point(1, 0), recordingTileScheduler.requestedTileIndices.get(1));\n        assertEquals(new Point(0, 1), recordingTileScheduler.requestedTileIndices.get(2));\n        assertEquals(new Point(1, 1), recordingTileScheduler.requestedTileIndices.get(3));\n    }\n\n    public void testManyTilesTwoBands() {\n        Product sourceProduct = createSourceProduct();\n        Band bandB = sourceProduct.addBand(\"b\", ProductData.TYPE_INT8);\n        bandB.setRasterData(createDataFor(bandB));\n        bandB.setSynthetic(true);\n        sourceProduct.setPreferredTileSize(50, 50);\n        Operator op = new TestOP(sourceProduct);\n        OperatorExecutor operatorExecutor = OperatorExecutor.create(op);\n        operatorExecutor.execute(ProgressMonitor.NULL);\n        \n        assertEquals(17, recordingTileScheduler.recordedCalls.size());\n        \n        assertEquals(8, recordingTileScheduler.requestedTileIndices.size());\n        assertEquals(new Point(0, 0), recordingTileScheduler.requestedTileIndices.get(0));\n        assertEquals(new Point(1, 0), recordingTileScheduler.requestedTileIndices.get(1));\n        assertEquals(new Point(0, 0), recordingTileScheduler.requestedTileIndices.get(2));\n        assertEquals(new Point(1, 0), recordingTileScheduler.requestedTileIndices.get(3));\n        assertEquals(new Point(0, 1), recordingTileScheduler.requestedTileIndices.get(4));\n        assertEquals(new Point(1, 1), recordingTileScheduler.requestedTileIndices.get(5));\n        assertEquals(new Point(0, 1), recordingTileScheduler.requestedTileIndices.get(6));\n        assertEquals(new Point(1, 1), recordingTileScheduler.requestedTileIndices.get(7));\n    }\n    \n    public void testManyTilesTwoBands_ColumnBandOrder() {\n        Product sourceProduct = createSourceProduct();\n        Band bandB = sourceProduct.addBand(\"b\", ProductData.TYPE_INT8);\n        bandB.setRasterData(createDataFor(bandB));\n        bandB.setSynthetic(true);\n        sourceProduct.setPreferredTileSize(50, 50);\n        Operator op = new TestOP(sourceProduct);\n        OperatorExecutor operatorExecutor = OperatorExecutor.create(op);\n        operatorExecutor.execute(ExecutionOrder.ROW_COLUMN_BAND, ProgressMonitor.NULL);\n        \n        assertEquals(17, recordingTileScheduler.recordedCalls.size());\n        \n        assertEquals(8, recordingTileScheduler.requestedTileIndices.size());\n        assertEquals(new Point(0, 0), recordingTileScheduler.requestedTileIndices.get(0));\n        assertEquals(new Point(0, 0), recordingTileScheduler.requestedTileIndices.get(1));\n        assertEquals(new Point(1, 0), recordingTileScheduler.requestedTileIndices.get(2));\n        assertEquals(new Point(1, 0), recordingTileScheduler.requestedTileIndices.get(3));\n        assertEquals(new Point(0, 1), recordingTileScheduler.requestedTileIndices.get(4));\n        assertEquals(new Point(0, 1), recordingTileScheduler.requestedTileIndices.get(5));\n        assertEquals(new Point(1, 1), recordingTileScheduler.requestedTileIndices.get(6));\n        assertEquals(new Point(1, 1), recordingTileScheduler.requestedTileIndices.get(7));\n    }\n    \n    private Product createSourceProduct() {\n        Product product = new Product(\"source\", \"source\", 100, 100);\n        Band bandA = product.addBand(\"a\", ProductData.TYPE_INT8);\n        bandA.setRasterData(createDataFor(bandA));\n        bandA.setSynthetic(true);\n        return product;\n    }\n    \n    \n    private static ProductData createDataFor(Band dataBand) {\n        final int width = dataBand.getSceneRasterWidth();\n        final int height = dataBand.getSceneRasterHeight();\n        final ProductData data = ProductData.createInstance(dataBand.getDataType(), width * height);\n        for (int y = 0; y < height; y++) {\n            final int line = y * width;\n            for (int x = 0; x < width; x++) {\n                data.setElemIntAt(line + x, x * y);\n            }\n        }\n        return data;\n    }\n}\n
 ===================================================================
---- beam-gpf/src/test/java/org/esa/beam/framework/gpf/internal/OperatorExecutorTest.java	(revision 53df621b85ed5ed4fa66c6e59d2532e2cf0029fb)
+--- beam-gpf/src/test/java/org/esa/beam/framework/gpf/internal/OperatorExecutorTest.java	(revision 9453396309bb058a13bf0232d3432e3a7c3e4ae6)
 +++ beam-gpf/src/test/java/org/esa/beam/framework/gpf/internal/OperatorExecutorTest.java	(revision )
-@@ -234,19 +234,16 @@
+@@ -16,7 +16,7 @@
+ package org.esa.beam.framework.gpf.internal;
+ 
+ import com.bc.ceres.core.ProgressMonitor;
+-
++import junit.framework.TestCase;
+ import org.esa.beam.framework.datamodel.Band;
+ import org.esa.beam.framework.datamodel.Product;
+ import org.esa.beam.framework.datamodel.ProductData;
+@@ -25,6 +25,12 @@
+ import org.esa.beam.framework.gpf.annotations.SourceProduct;
+ import org.esa.beam.framework.gpf.internal.OperatorExecutor.ExecutionOrder;
+ 
++import javax.media.jai.JAI;
++import javax.media.jai.OpImage;
++import javax.media.jai.PlanarImage;
++import javax.media.jai.TileComputationListener;
++import javax.media.jai.TileRequest;
++import javax.media.jai.TileScheduler;
+ import java.awt.Point;
+ import java.awt.image.Raster;
+ import java.util.ArrayList;
+@@ -32,23 +38,14 @@
+ import java.util.Collections;
+ import java.util.List;
+ 
+-import javax.media.jai.JAI;
+-import javax.media.jai.OpImage;
+-import javax.media.jai.PlanarImage;
+-import javax.media.jai.TileComputationListener;
+-import javax.media.jai.TileRequest;
+-import javax.media.jai.TileScheduler;
+-
+-import junit.framework.TestCase;
+-
+ public class OperatorExecutorTest extends TestCase {
+-    
++
+     private class RecordingTileScheduler implements TileScheduler {
+-        
++
+         TileScheduler delegate;
+         List<String> recordedCalls = Collections.synchronizedList(new ArrayList<String>());
+         List<Point> requestedTileIndices = Collections.synchronizedList(new ArrayList<Point>());
+-        
++
+         RecordingTileScheduler(TileScheduler delegate) {
+             this.delegate = delegate;
+         }
+@@ -135,10 +132,10 @@
+     }
+ 
+     private class TestOP extends Operator {
+-        
++
+         @SourceProduct
+         Product source;
+-        
++
+         public TestOP(Product source) {
+             this.source = source;
+         }
+@@ -150,22 +147,22 @@
+                 Band band = targetProduct.addBand(srcBand.getName(), srcBand.getDataType());
+                 band.setSourceImage(srcBand.getSourceImage());
+             }
+-            
++
+             setTargetProduct(targetProduct);
+         }
+-        
++
+     }
+-    
++
+     private TileScheduler defaultTileScheduler;
+     private RecordingTileScheduler recordingTileScheduler;
+-    
++
+     @Override
+     protected void setUp() throws Exception {
+         defaultTileScheduler = JAI.getDefaultInstance().getTileScheduler();
+         recordingTileScheduler = new RecordingTileScheduler(defaultTileScheduler);
+         JAI.getDefaultInstance().setTileScheduler(recordingTileScheduler);
+     }
+-    
++
+     @Override
+     protected void tearDown() throws Exception {
+         JAI.getDefaultInstance().setTileScheduler(defaultTileScheduler);
+@@ -176,16 +173,16 @@
+         Operator op = new TestOP(sourceProduct);
+         OperatorExecutor operatorExecutor = OperatorExecutor.create(op);
+         operatorExecutor.execute(ProgressMonitor.NULL);
+-        
++
+         assertEquals(3, recordingTileScheduler.recordedCalls.size());
+         assertEquals("getParallelism", recordingTileScheduler.recordedCalls.get(0));
+         assertEquals("scheduleTiles", recordingTileScheduler.recordedCalls.get(1));
+         assertEquals("scheduleTile", recordingTileScheduler.recordedCalls.get(2));
+-        
++
+         assertEquals(1, recordingTileScheduler.requestedTileIndices.size());
+         assertEquals(new Point(0, 0), recordingTileScheduler.requestedTileIndices.get(0));
+     }
+-    
++
+ 
+     public void testManyTilesOneBand() {
+         Product sourceProduct = createSourceProduct();
+@@ -193,9 +190,9 @@
+         Operator op = new TestOP(sourceProduct);
+         OperatorExecutor operatorExecutor = OperatorExecutor.create(op);
+         operatorExecutor.execute(ProgressMonitor.NULL);
+-        
++
+         assertEquals(9, recordingTileScheduler.recordedCalls.size());
+-        
++
+         assertEquals(4, recordingTileScheduler.requestedTileIndices.size());
+         assertEquals(new Point(0, 0), recordingTileScheduler.requestedTileIndices.get(0));
+         assertEquals(new Point(1, 0), recordingTileScheduler.requestedTileIndices.get(1));
+@@ -212,9 +209,9 @@
+         Operator op = new TestOP(sourceProduct);
+         OperatorExecutor operatorExecutor = OperatorExecutor.create(op);
+         operatorExecutor.execute(ProgressMonitor.NULL);
+-        
++
+         assertEquals(17, recordingTileScheduler.recordedCalls.size());
+-        
++
+         assertEquals(8, recordingTileScheduler.requestedTileIndices.size());
+         assertEquals(new Point(0, 0), recordingTileScheduler.requestedTileIndices.get(0));
+         assertEquals(new Point(1, 0), recordingTileScheduler.requestedTileIndices.get(1));
+@@ -225,7 +222,7 @@
+         assertEquals(new Point(0, 1), recordingTileScheduler.requestedTileIndices.get(6));
+         assertEquals(new Point(1, 1), recordingTileScheduler.requestedTileIndices.get(7));
+     }
+-    
++
+     public void testManyTilesTwoBands_ColumnBandOrder() {
+         Product sourceProduct = createSourceProduct();
+         Band bandB = sourceProduct.addBand("b", ProductData.TYPE_INT8);
+@@ -234,21 +231,18 @@
          sourceProduct.setPreferredTileSize(50, 50);
          Operator op = new TestOP(sourceProduct);
          OperatorExecutor operatorExecutor = OperatorExecutor.create(op);
 -        operatorExecutor.execute(ExecutionOrder.ROW_COLUMN_BAND, ProgressMonitor.NULL);
 +        System.setProperty("beam.gpf.executionOrder", "SCHEDULE_ROW_COLUMN_BAND");
 +        operatorExecutor.execute(ExecutionOrder.PULL_ROW_BAND_COLUMN, ProgressMonitor.NULL);
-         
+-        
++
 -        assertEquals(17, recordingTileScheduler.recordedCalls.size());
 +        assertEquals(13, recordingTileScheduler.recordedCalls.size());
-         
+-        
++
 -        assertEquals(8, recordingTileScheduler.requestedTileIndices.size());
 +        assertEquals(4, recordingTileScheduler.requestedTileIndices.size());
          assertEquals(new Point(0, 0), recordingTileScheduler.requestedTileIndices.get(0));
@@ -40,13 +177,65 @@ Index: beam-gpf/src/test/java/org/esa/beam/framework/gpf/internal/OperatorExecut
 +        assertEquals(new Point(0, 1), recordingTileScheduler.requestedTileIndices.get(2));
 +        assertEquals(new Point(1, 1), recordingTileScheduler.requestedTileIndices.get(3));
      }
-     
+-    
++
      private Product createSourceProduct() {
+         Product product = new Product("source", "source", 100, 100);
+         Band bandA = product.addBand("a", ProductData.TYPE_INT8);
+@@ -256,8 +250,8 @@
+         bandA.setSynthetic(true);
+         return product;
+     }
+-    
+-    
++
++
+     private static ProductData createDataFor(Band dataBand) {
+         final int width = dataBand.getSceneRasterWidth();
+         final int height = dataBand.getSceneRasterHeight();
 Index: beam-gpf/src/main/java/org/esa/beam/framework/gpf/internal/OperatorExecutor.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>/*\n * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)\n *\n * This program is free software; you can redistribute it and/or modify it\n * under the terms of the GNU General Public License as published by the Free\n * Software Foundation; either version 3 of the License, or (at your option)\n * any later version.\n * This program is distributed in the hope that it will be useful, but WITHOUT\n * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or\n * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for\n * more details.\n *\n * You should have received a copy of the GNU General Public License along\n * with this program; if not, see http://www.gnu.org/licenses/\n */\npackage org.esa.beam.framework.gpf.internal;\n\nimport com.bc.ceres.core.ProgressMonitor;\n\nimport org.esa.beam.framework.datamodel.Band;\nimport org.esa.beam.framework.datamodel.Product;\nimport org.esa.beam.framework.gpf.Operator;\nimport org.esa.beam.framework.gpf.OperatorException;\nimport org.esa.beam.util.logging.BeamLogManager;\nimport org.esa.beam.util.math.MathUtils;\n\nimport java.awt.Dimension;\nimport java.awt.Point;\nimport java.awt.Rectangle;\nimport java.awt.image.Raster;\nimport java.lang.reflect.Field;\nimport java.util.ArrayList;\nimport java.util.concurrent.Semaphore;\n\nimport javax.media.jai.JAI;\nimport javax.media.jai.PlanarImage;\nimport javax.media.jai.TileComputationListener;\nimport javax.media.jai.TileRequest;\nimport javax.media.jai.TileScheduler;\nimport javax.media.jai.util.ImagingListener;\n\n/**\n * This executor triggers the computation of all tiles that the bands of the\n * target product of the given operator have. The computation of these tiles is\n * parallelized to use all available CPUs (cores) using the JAI\n * {@link TileScheduler}.\n * \n * @author Marco Zuehlke\n * @since BEAM 4.7\n */\npublic class OperatorExecutor {\n\n    public static OperatorExecutor create(Operator op) {\n        OperatorContext operatorContext = getOperatorContext(op);\n        Product targetProduct = op.getTargetProduct();\n        Dimension tileSize = targetProduct.getPreferredTileSize();\n\n        int rasterHeight = targetProduct.getSceneRasterHeight();\n        int rasterWidth = targetProduct.getSceneRasterWidth();\n        Rectangle boundary = new Rectangle(rasterWidth, rasterHeight);\n        int tileCountX = MathUtils.ceilInt(boundary.width / (double) tileSize.width);\n        int tileCountY = MathUtils.ceilInt(boundary.height / (double) tileSize.height);\n        Band[] targetBands = targetProduct.getBands();\n        PlanarImage[] images = createImages(targetBands, operatorContext);\n        return new OperatorExecutor(images, tileCountX, tileCountY);\n    }\n\n    public enum ExecutionOrder {\n        ROW_COLUMN_BAND, \n        ROW_BAND_COLUMN,\n        /**\n         * Minimize disk seeks if following conditions are met:<br/>\n         * 1. Bands can be computed independently of each other<br/>\n         * 2. I/O-bound processing (time to compute band pixels will less than\n         * time for I/O).<br/>\n         */\n        BAND_ROW_COLUMN,\n    }\n\n    private final int tileCountX;\n    private final int tileCountY;\n    private final PlanarImage[] images;\n    private final TileScheduler tileScheduler;\n    private final int parallelism;\n    private volatile OperatorException error = null;\n\n    public OperatorExecutor(PlanarImage[] images, int tileCountX, int tileCountY) {\n        this(images, tileCountX, tileCountY, JAI.getDefaultInstance().getTileScheduler().getParallelism());\n    }\n    \n    public OperatorExecutor(PlanarImage[] images, int tileCountX, int tileCountY, int parallelism) {\n        this.images = images;\n        this.tileCountX = tileCountX;\n        this.tileCountY = tileCountY;\n        this.parallelism = parallelism;\n        this.tileScheduler = JAI.getDefaultInstance().getTileScheduler();\n    }\n\n    public void execute(ProgressMonitor pm) {\n        execute(ExecutionOrder.ROW_BAND_COLUMN, pm);\n    }\n\n    public void execute(ExecutionOrder executionOrder, ProgressMonitor pm) {\n        final Semaphore semaphore = new Semaphore(parallelism, true);\n        final TileComputationListener tcl = new OperatorTileComputationListener(semaphore);\n        final TileComputationListener[] listeners = new TileComputationListener[] { tcl };\n        \n        ImagingListener imagingListener = JAI.getDefaultInstance().getImagingListener();\n        JAI.getDefaultInstance().setImagingListener(new GPFImagingListener());\n        pm.beginTask(\"Executing operator...\", tileCountX * tileCountY * images.length);\n        \n        try {\n            if (executionOrder == ExecutionOrder.ROW_BAND_COLUMN) {\n                // for debugging purpose\n                // executeRowBandColumn(pm); \n                scheduleRowBandColumn(semaphore, listeners, pm);\n            } else if (executionOrder == ExecutionOrder.ROW_COLUMN_BAND) {\n                scheduleRowColumnBand(semaphore, listeners, pm);\n            } else if (executionOrder == ExecutionOrder.BAND_ROW_COLUMN) {\n                scheduleBandRowColumn(semaphore, listeners, pm);\n            } else {\n                throw new IllegalArgumentException(\"executionOrder\");\n            }\n            acquirePermits(semaphore, parallelism);\n            if (error != null) {\n                throw error;\n            }\n        } finally {\n            semaphore.release(parallelism);\n            pm.done();\n            JAI.getDefaultInstance().setImagingListener(imagingListener);\n        }\n    }\n\n    private void scheduleBandRowColumn(Semaphore semaphore, TileComputationListener[] listeners, ProgressMonitor pm) {\n        for (final PlanarImage image : images) {\n            for (int tileY = 0; tileY < tileCountY; tileY++) {\n                BeamLogManager.getSystemLogger().info(\"Scheduling tile row \" + tileY + \" for \" + image);\n                for (int tileX = 0; tileX < tileCountX; tileX++) {\n                    scheduleTile(image, tileX, tileY, semaphore, listeners, pm);\n                }\n            }\n        }\n    }\n\n    private void scheduleRowBandColumn(Semaphore semaphore, TileComputationListener[] listeners, ProgressMonitor pm) {\n        for (int tileY = 0; tileY < tileCountY; tileY++) {\n            for (final PlanarImage image : images) {\n                BeamLogManager.getSystemLogger().info(\"Scheduling tile row \" + tileY + \" for \" + image);\n                for (int tileX = 0; tileX < tileCountX; tileX++) {\n                    scheduleTile(image, tileX, tileY, semaphore, listeners, pm);\n                }\n            }\n        }\n    }\n\n    private void scheduleRowColumnBand(Semaphore semaphore, TileComputationListener[] listeners, ProgressMonitor pm) {\n        for (int tileY = 0; tileY < tileCountY; tileY++) {\n            for (int tileX = 0; tileX < tileCountX; tileX++) {\n                BeamLogManager.getSystemLogger().info(\"Scheduling tile column \" + tileX + \", row \" + tileY);\n                for (final PlanarImage image : images) {\n                    scheduleTile(image, tileX, tileY, semaphore, listeners, pm);\n                }\n            }\n        }\n    }\n\n    private void scheduleTile(final PlanarImage image, int tileX, int tileY, Semaphore semaphore,\n                              TileComputationListener[] listeners, ProgressMonitor pm) {\n        checkForCancelation(pm);\n        acquirePermits(semaphore, 1);\n        if (error != null) {\n            semaphore.release(parallelism);\n            throw error;\n        }\n        Point[] points = new Point[] { new Point(tileX, tileY) };\n        /////////////////////////////////////////////////////////////////////\n        //\n        // Note: GPF pull-processing is triggered here!!!\n        //\n        tileScheduler.scheduleTiles(image, points, listeners);\n        //\n        /////////////////////////////////////////////////////////////////////\n        pm.worked(1);\n    }\n\n    private static void acquirePermits(Semaphore semaphore, int permits) {\n        try {\n            semaphore.acquire(permits);\n        } catch (InterruptedException e) {\n            throw new OperatorException(e);\n        }\n    }\n\n    private static OperatorContext getOperatorContext(Operator operator) {\n        try {\n            Field field = Operator.class.getDeclaredField(\"context\");\n            field.setAccessible(true);\n            OperatorContext operatorContext = (OperatorContext) field.get(operator);\n            field.setAccessible(false);\n            return operatorContext;\n        } catch (IllegalAccessException e) {\n            throw new IllegalStateException(e);\n        } catch (NoSuchFieldException e) {\n            throw new IllegalStateException(e);\n        }\n    }\n\n    private static PlanarImage[] createImages(Band[] targetBands, OperatorContext operatorContext) {\n        final ArrayList<PlanarImage> images = new ArrayList<PlanarImage>(targetBands.length);\n        for (final Band band : targetBands) {\n            OperatorImage operatorImage = operatorContext.getTargetImage(band);\n            if (operatorImage != null) {\n                images.add(operatorImage);\n            }\n        }\n        return images.toArray(new PlanarImage[images.size()]);\n    }\n\n    private static void checkForCancelation(ProgressMonitor pm) {\n        if (pm.isCanceled()) {\n            throw new OperatorException(\"Operation canceled.\");\n        }\n    }\n\n    // unused (mz) left for debuggin purpose\n    // does not schedule tile but instead calls getTile blocking\n    private void executeRowBandColumn(ProgressMonitor pm) {\n        for (int tileY = 0; tileY < tileCountY; tileY++) {\n            for (final PlanarImage image : images) {\n                for (int tileX = 0; tileX < tileCountX; tileX++) {\n                    checkForCancelation(pm);\n                    /////////////////////////////////////////////////////////////////////\n                    //\n                    // Note: GPF pull-processing is triggered here!!!\n                    //\n                    image.getTile(tileX, tileY);\n                    //\n                    /////////////////////////////////////////////////////////////////////\n                    pm.worked(1);\n                }\n            }\n        }\n    }\n\n    private class OperatorTileComputationListener implements TileComputationListener {\n\n        private final Semaphore semaphore;\n\n        OperatorTileComputationListener(Semaphore semaphore) {\n            this.semaphore = semaphore;\n        }\n\n        @Override\n        public void tileComputed(Object eventSource, TileRequest[] requests, PlanarImage image, int tileX, int tileY,\n                                 Raster raster) {\n            semaphore.release();\n        }\n\n        @Override\n        public void tileCancelled(Object eventSource, TileRequest[] requests, PlanarImage image, int tileX, int tileY) {\n            if (error == null) {\n                error = new OperatorException(\"Operation cancelled.\");\n            }\n            semaphore.release(parallelism);\n        }\n\n        @Override\n        public void tileComputationFailure(Object eventSource, TileRequest[] requests, PlanarImage image, int tileX,\n                                           int tileY, Throwable situation) {\n            if (error == null) {\n                error = new OperatorException(\"Operation failed.\", situation);\n            }\n            semaphore.release(parallelism);\n        }\n    }\n    \n    private class GPFImagingListener implements ImagingListener {\n\n        @Override\n        public boolean errorOccurred(String message, Throwable thrown, Object where, boolean isRetryable)\n                                                                                                         throws RuntimeException {\n            if (error == null && !thrown.getClass().getSimpleName().equals(\"MediaLibLoadException\")) {\n                error = new OperatorException(thrown);\n            }\n            return false;\n        }\n    }\n    \n}\n
 ===================================================================
---- beam-gpf/src/main/java/org/esa/beam/framework/gpf/internal/OperatorExecutor.java	(revision 53df621b85ed5ed4fa66c6e59d2532e2cf0029fb)
+--- beam-gpf/src/main/java/org/esa/beam/framework/gpf/internal/OperatorExecutor.java	(revision 9453396309bb058a13bf0232d3432e3a7c3e4ae6)
 +++ beam-gpf/src/main/java/org/esa/beam/framework/gpf/internal/OperatorExecutor.java	(revision )
-@@ -44,7 +44,7 @@
+@@ -16,7 +16,6 @@
+ package org.esa.beam.framework.gpf.internal;
+ 
+ import com.bc.ceres.core.ProgressMonitor;
+-
+ import org.esa.beam.framework.datamodel.Band;
+ import org.esa.beam.framework.datamodel.Product;
+ import org.esa.beam.framework.gpf.Operator;
+@@ -24,6 +23,12 @@
+ import org.esa.beam.util.logging.BeamLogManager;
+ import org.esa.beam.util.math.MathUtils;
+ 
++import javax.media.jai.JAI;
++import javax.media.jai.PlanarImage;
++import javax.media.jai.TileComputationListener;
++import javax.media.jai.TileRequest;
++import javax.media.jai.TileScheduler;
++import javax.media.jai.util.ImagingListener;
+ import java.awt.Dimension;
+ import java.awt.Point;
+ import java.awt.Rectangle;
+@@ -32,19 +37,12 @@
+ import java.util.ArrayList;
+ import java.util.concurrent.Semaphore;
+ 
+-import javax.media.jai.JAI;
+-import javax.media.jai.PlanarImage;
+-import javax.media.jai.TileComputationListener;
+-import javax.media.jai.TileRequest;
+-import javax.media.jai.TileScheduler;
+-import javax.media.jai.util.ImagingListener;
+-
+ /**
+  * This executor triggers the computation of all tiles that the bands of the
   * target product of the given operator have. The computation of these tiles is
   * parallelized to use all available CPUs (cores) using the JAI
   * {@link TileScheduler}.
@@ -55,7 +244,7 @@ Index: beam-gpf/src/main/java/org/esa/beam/framework/gpf/internal/OperatorExecut
   * @author Marco Zuehlke
   * @since BEAM 4.7
   */
-@@ -66,15 +66,19 @@
+@@ -66,15 +64,19 @@
      }
  
      public enum ExecutionOrder {
@@ -78,7 +267,7 @@ Index: beam-gpf/src/main/java/org/esa/beam/framework/gpf/internal/OperatorExecut
      }
  
      private final int tileCountX;
-@@ -87,7 +91,7 @@
+@@ -87,7 +89,7 @@
      public OperatorExecutor(PlanarImage[] images, int tileCountX, int tileCountY) {
          this(images, tileCountX, tileCountY, JAI.getDefaultInstance().getTileScheduler().getParallelism());
      }
@@ -87,7 +276,7 @@ Index: beam-gpf/src/main/java/org/esa/beam/framework/gpf/internal/OperatorExecut
      public OperatorExecutor(PlanarImage[] images, int tileCountX, int tileCountY, int parallelism) {
          this.images = images;
          this.tileCountX = tileCountX;
-@@ -97,27 +101,29 @@
+@@ -97,27 +99,29 @@
      }
  
      public void execute(ProgressMonitor pm) {
@@ -126,7 +315,7 @@ Index: beam-gpf/src/main/java/org/esa/beam/framework/gpf/internal/OperatorExecut
              } else {
                  throw new IllegalArgumentException("executionOrder");
              }
-@@ -132,6 +138,18 @@
+@@ -132,6 +136,19 @@
          }
      }
  
@@ -137,7 +326,8 @@ Index: beam-gpf/src/main/java/org/esa/beam/framework/gpf/internal/OperatorExecut
 +            effectiveExecutionOrder = ExecutionOrder.valueOf(executionOrderProperty);
 +        }
 +        if (effectiveExecutionOrder != executionOrder) {
-+            BeamLogManager.getSystemLogger().info("Changing execution order from " + executionOrder + " to " + effectiveExecutionOrder);
++            BeamLogManager.getSystemLogger().info(
++                    "Changing execution order from " + executionOrder + " to " + effectiveExecutionOrder);
 +        }
 +        return effectiveExecutionOrder;
 +    }
@@ -145,7 +335,7 @@ Index: beam-gpf/src/main/java/org/esa/beam/framework/gpf/internal/OperatorExecut
      private void scheduleBandRowColumn(Semaphore semaphore, TileComputationListener[] listeners, ProgressMonitor pm) {
          for (final PlanarImage image : images) {
              for (int tileY = 0; tileY < tileCountY; tileY++) {
-@@ -155,12 +173,28 @@
+@@ -155,15 +172,17 @@
      }
  
      private void scheduleRowColumnBand(Semaphore semaphore, TileComputationListener[] listeners, ProgressMonitor pm) {
@@ -159,25 +349,18 @@ Index: beam-gpf/src/main/java/org/esa/beam/framework/gpf/internal/OperatorExecut
 -                for (final PlanarImage image : images) {
 -                    scheduleTile(image, tileX, tileY, semaphore, listeners, pm);
 +                BeamLogManager.getSystemLogger().info("Scheduling tile x=" + tileX + " y=" + tileY);
-+                checkForCancelation(pm);
-+                acquirePermits(semaphore, 1);
-+                if (error != null) {
-+                    semaphore.release(parallelism);
-+                    throw error;
-                 }
-+                Point[] points = new Point[]{new Point(tileX, tileY)};
-+                /////////////////////////////////////////////////////////////////////
-+                //
-+                // Note: GPF pull-processing is triggered here!!!
-+                //
-+                tileScheduler.scheduleTiles(images[0], points, listeners);
-+                //
-+                /////////////////////////////////////////////////////////////////////
-+                pm.worked(1);
-             }
-         }
-     }
-@@ -173,7 +207,7 @@
++                scheduleTile(images[0], tileX, tileY, semaphore, listeners, pm);
+-                }
+-            }
+-        }
++            }
++        }
++    }
+-    }
+ 
+     private void scheduleTile(final PlanarImage image, int tileX, int tileY, Semaphore semaphore,
+                               TileComputationListener[] listeners, ProgressMonitor pm) {
+@@ -173,7 +192,7 @@
              semaphore.release(parallelism);
              throw error;
          }
@@ -186,10 +369,13 @@ Index: beam-gpf/src/main/java/org/esa/beam/framework/gpf/internal/OperatorExecut
          /////////////////////////////////////////////////////////////////////
          //
          // Note: GPF pull-processing is triggered here!!!
-@@ -243,6 +277,45 @@
-         }
-     }
- 
+@@ -240,6 +259,45 @@
+                     pm.worked(1);
+                 }
+             }
++        }
++    }
++
 +    private class OperatorTileComputationListenerStack implements TileComputationListener {
 +
 +        private final Semaphore semaphore;
@@ -226,13 +412,10 @@ Index: beam-gpf/src/main/java/org/esa/beam/framework/gpf/internal/OperatorExecut
 +                error = new OperatorException("Operation failed.", situation);
 +            }
 +            semaphore.release(parallelism);
-+        }
-+    }
-+
-     private class OperatorTileComputationListener implements TileComputationListener {
+         }
+     }
  
-         private final Semaphore semaphore;
-@@ -274,17 +347,17 @@
+@@ -274,17 +332,17 @@
              semaphore.release(parallelism);
          }
      }
@@ -253,3 +436,21 @@ Index: beam-gpf/src/main/java/org/esa/beam/framework/gpf/internal/OperatorExecut
 -    
 +
  }
+Index: beam-gpf/src/main/java/org/esa/beam/gpf/operators/standard/WriteOp.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>/*\n * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)\n *\n * This program is free software; you can redistribute it and/or modify it\n * under the terms of the GNU General Public License as published by the Free\n * Software Foundation; either version 3 of the License, or (at your option)\n * any later version.\n * This program is distributed in the hope that it will be useful, but WITHOUT\n * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or\n * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for\n * more details.\n *\n * You should have received a copy of the GNU General Public License along\n * with this program; if not, see http://www.gnu.org/licenses/\n */\n\npackage org.esa.beam.gpf.operators.standard;\n\nimport com.bc.ceres.core.ProgressMonitor;\nimport com.bc.ceres.glevel.MultiLevelImage;\nimport org.esa.beam.dataio.dimap.DimapProductWriter;\nimport org.esa.beam.framework.dataio.ProductIO;\nimport org.esa.beam.framework.dataio.ProductWriter;\nimport org.esa.beam.framework.datamodel.Band;\nimport org.esa.beam.framework.datamodel.Product;\nimport org.esa.beam.framework.datamodel.ProductData;\nimport org.esa.beam.framework.gpf.Operator;\nimport org.esa.beam.framework.gpf.OperatorException;\nimport org.esa.beam.framework.gpf.OperatorSpi;\nimport org.esa.beam.framework.gpf.Tile;\nimport org.esa.beam.framework.gpf.annotations.OperatorMetadata;\nimport org.esa.beam.framework.gpf.annotations.Parameter;\nimport org.esa.beam.framework.gpf.annotations.SourceProduct;\nimport org.esa.beam.framework.gpf.annotations.TargetProduct;\nimport org.esa.beam.framework.gpf.experimental.Output;\nimport org.esa.beam.framework.gpf.internal.OperatorExecutor;\nimport org.esa.beam.framework.gpf.internal.OperatorExecutor.ExecutionOrder;\nimport org.esa.beam.jai.ImageManager;\nimport org.esa.beam.util.math.MathUtils;\n\nimport javax.media.jai.JAI;\nimport javax.media.jai.TileCache;\nimport java.awt.Dimension;\nimport java.awt.Point;\nimport java.awt.Rectangle;\nimport java.io.File;\nimport java.io.IOException;\nimport java.text.MessageFormat;\nimport java.util.ArrayList;\nimport java.util.HashMap;\nimport java.util.List;\nimport java.util.Map;\n\n/**\n * This standard operator is used to store a data product to a specified file location.\n * <p/>\n * It is used by the framework, e.g. the {@code gpt} command line tool, to write target products.\n * <p/>\n * It may also be used by clients to write out break-point product files. This is done by placing\n * a {@code WriteOp} node after any node in a processing graph:\n * <p/>\n * <pre>\n * &lt;node id=\"anyNodeId\"&gt;\n *     &lt;operator&gt;Write&lt;/operator&gt;\n *     &lt;sources&gt;\n *         &lt;source&gt;${anySourceNodeId}&lt;/source&gt;\n *     &lt;/sources&gt;\n *     &lt;parameters&gt;\n *         &lt;file&gt;/home/norman/eo-data/output/test.nc&lt;/file&gt;\n *         &lt;formatName&gt;NetCDF&lt;/formatName&gt;\n *         &lt;deleteOutputOnFailure&gt;true&lt;/deleteOutputOnFailure&gt;\n *         &lt;writeEntireTileRows&gt;true&lt;/writeEntireTileRows&gt;\n *         &lt;clearCacheAfterRowWrite&gt;true&lt;/clearCacheAfterRowWrite&gt;\n *     &lt;/parameters&gt;\n * &lt;/node&gt;\n * </pre>\n * <p/>\n * Clients may also use this operator in a programmatic way:\n * <pre>\n *   WriteOp writeOp = new WriteOp(sourceProduct, file, formatName);\n *   writeOp.setDeleteOutputOnFailure(true);\n *   writeOp.setWriteEntireTileRows(true);\n *   writeOp.writeProduct(progressMonitor);\n * </pre>\n *\n * @author Norman Fomferra\n * @author Marco Zuehlke\n * @since BEAM 4.2\n */\n@OperatorMetadata(alias = \"Write\",\n                  version = \"1.3\",\n                  authors = \"Marco Zuehlke, Norman Fomferra\",\n                  copyright = \"(c) 2010 by Brockmann Consult\",\n                  description = \"Writes a data product to a file.\")\npublic class WriteOp extends Operator implements Output {\n\n    @TargetProduct\n    private Product targetProduct;\n\n    @SourceProduct(alias = \"source\", description = \"The source product to be written.\")\n    private Product sourceProduct;\n\n    @Parameter(description = \"The output file to which the data product is written.\")\n    private File file;\n\n    @Parameter(defaultValue = ProductIO.DEFAULT_FORMAT_NAME,\n               description = \"The name of the output file format.\")\n    private String formatName;\n\n    @Parameter(defaultValue = \"true\",\n               description = \"If true, all output files are deleted after a failed write operation.\")\n    private boolean deleteOutputOnFailure = true;\n\n    @Parameter(defaultValue = \"true\",\n               description = \"If true, the write operation waits until an entire tile row is computed.\")\n    private boolean writeEntireTileRows;\n\n    /**\n     * @since BEAM 4.9\n     */\n    @Parameter(defaultValue = \"false\",\n               description = \"If true, the internal tile cache is cleared after a tile row has been written. Ignored if writeEntireTileRows=false.\")\n    private boolean clearCacheAfterRowWrite;\n\n    private final Map<MultiLevelImage, List<Point>> todoLists = new HashMap<MultiLevelImage, List<Point>>();\n    private final Map<Row, Tile[]> writeCache = new HashMap<Row, Tile[]>();\n\n    private ProductWriter productWriter;\n    private List<Band> writableBands;\n    private boolean productFileWritten;\n    private Dimension tileSize;\n    private int tileCountX;\n\n    private boolean outputFileExists = false;\n\n    public WriteOp() {\n        setRequiresAllBands(true);\n    }\n\n    public WriteOp(Product sourceProduct, File file, String formatName) {\n        this();\n        this.sourceProduct = sourceProduct;\n        this.file = file;\n        this.formatName = formatName;\n    }\n\n    /**\n     * @deprecated since BEAM 4.9\n     */\n    @Deprecated\n    public WriteOp(Product sourceProduct, File file, String formatName, boolean deleteOutputOnFailure) {\n        this(sourceProduct, file, formatName);\n        this.deleteOutputOnFailure = deleteOutputOnFailure;\n    }\n\n    public File getFile() {\n        return file;\n    }\n\n    public void setFile(File file) {\n        this.file = file;\n    }\n\n    public String getFormatName() {\n        return formatName;\n    }\n\n    public void setFormatName(String formatName) {\n        this.formatName = formatName;\n    }\n\n    public boolean isDeleteOutputOnFailure() {\n        return deleteOutputOnFailure;\n    }\n\n    public void setDeleteOutputOnFailure(boolean deleteOutputOnFailure) {\n        this.deleteOutputOnFailure = deleteOutputOnFailure;\n    }\n\n    public boolean isWriteEntireTileRows() {\n        return writeEntireTileRows;\n    }\n\n    public void setWriteEntireTileRows(boolean writeEntireTileRows) {\n        this.writeEntireTileRows = writeEntireTileRows;\n    }\n\n    public boolean isClearCacheAfterRowWrite() {\n        return clearCacheAfterRowWrite;\n    }\n\n    public void setClearCacheAfterRowWrite(boolean clearCacheAfterRowWrite) {\n        this.clearCacheAfterRowWrite = clearCacheAfterRowWrite;\n    }\n\n    /**\n     * Writes the source product.\n     *\n     * @param pm A progress monitor.\n     */\n    public void writeProduct(ProgressMonitor pm) {\n        long startNanos = System.nanoTime();\n        getLogger().info(\"Start writing product \" + getTargetProduct().getName() + \" to \" + getFile());\n        OperatorExecutor operatorExecutor = OperatorExecutor.create(this);\n        try {\n            operatorExecutor.execute(ExecutionOrder.ROW_BAND_COLUMN, pm);\n\n            getLogger().info(\"End writing product \" + getTargetProduct().getName() + \" to \" + getFile());\n\n            double seconds = (System.nanoTime() - startNanos) / 1.0E9;\n            int w = getTargetProduct().getSceneRasterWidth();\n            int h = getTargetProduct().getSceneRasterHeight();\n\n            getLogger().info(MessageFormat.format(\"Time: {0} sec. total, {1} sec. per line, {2} sec. per pixel\",\n                                                  seconds,\n                                                  seconds / h,\n                                                  seconds / h / w));\n\n            stopTileComputationObservation();\n        } catch (OperatorException e) {\n            if (deleteOutputOnFailure && !outputFileExists) {\n                try {\n                    productWriter.deleteOutput();\n                } catch (Exception e2) {\n                    getLogger().warning(\"Failed to delete output after failure: \" + e2.getMessage());\n                }\n            }\n            throw e;\n        } finally {\n            dispose();\n        }\n    }\n\n    @Override\n    public void initialize() throws OperatorException {\n        targetProduct = sourceProduct;\n        outputFileExists = targetProduct.getFileLocation() != null && targetProduct.getFileLocation().exists();\n        productWriter = ProductIO.getProductWriter(formatName);\n        if (productWriter == null) {\n            throw new OperatorException(\"No data product writer for the '\" + formatName + \"' format available\");\n        }\n        productWriter.setIncrementalMode(false);\n        targetProduct.setProductWriter(productWriter);\n        final Band[] bands = targetProduct.getBands();\n        writableBands = new ArrayList<Band>(bands.length);\n        for (final Band band : bands) {\n            band.getSourceImage(); // trigger source image creation\n            if (productWriter.shouldWrite(band)) {\n                writableBands.add(band);\n            }\n        }\n\n        tileSize = ImageManager.getPreferredTileSize(targetProduct);\n        targetProduct.setPreferredTileSize(tileSize);\n        tileCountX = MathUtils.ceilInt(targetProduct.getSceneRasterWidth() / (double) tileSize.width);\n    }\n\n    @Override\n    public void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {\n        if (!writableBands.contains(targetBand)) {\n            return;\n        }\n        try {\n            synchronized (this) {\n                if (!productFileWritten) {\n                    productWriter.writeProductNodes(targetProduct, file);\n                    productFileWritten = true;\n                }\n            }\n            final Rectangle rect = targetTile.getRectangle();\n            if (writeEntireTileRows) {\n                int tileX = MathUtils.floorInt(targetTile.getMinX() / (double) tileSize.width);\n                int tileY = MathUtils.floorInt(targetTile.getMinY() / (double) tileSize.height);\n                Row row = new Row(targetBand, tileY);\n                Tile[] tileRow = updateTileRow(row, tileX, targetTile);\n                if (tileRow != null) {\n                    writeTileRow(targetBand, tileRow);\n                }\n            } else {\n                final ProductData rawSamples = targetTile.getRawSamples();\n                synchronized (productWriter) {\n                    productWriter.writeBandRasterData(targetBand, rect.x, rect.y, rect.width, rect.height, rawSamples,\n                                                      pm);\n                }\n            }\n            markTileDone(targetBand, targetTile);\n        } catch (Exception e) {\n            if (deleteOutputOnFailure && !outputFileExists) {\n                try {\n                    productWriter.deleteOutput();\n                    productFileWritten = false;\n                } catch (IOException ignored) {\n                }\n            }\n            if (e instanceof OperatorException) {\n                throw (OperatorException) e;\n            } else {\n                throw new OperatorException(e);\n            }\n        }\n    }\n\n    private Tile[] updateTileRow(Row key, int tileX, Tile currentTile) {\n        synchronized (writeCache) {\n            Tile[] tileRow;\n            if (writeCache.containsKey(key)) {\n                tileRow = writeCache.get(key);\n            } else {\n                tileRow = new Tile[tileCountX];\n                writeCache.put(key, tileRow);\n            }\n            tileRow[tileX] = currentTile;\n            for (Tile tile : tileRow) {\n                if (tile == null) {\n                    return null;\n                }\n            }\n            writeCache.remove(key);\n            return tileRow;\n        }\n    }\n\n    private void writeTileRow(Band band, Tile[] cacheLine) throws IOException {\n        Tile firstTile = cacheLine[0];\n        int sceneWidth = targetProduct.getSceneRasterWidth();\n        Rectangle lineBounds = new Rectangle(0, firstTile.getMinY(), sceneWidth, firstTile.getHeight());\n        ProductData[] rawSampleOFLine = new ProductData[cacheLine.length];\n        int[] tileWidth = new int[cacheLine.length];\n        for (int tileX = 0; tileX < cacheLine.length; tileX++) {\n            Tile tile = cacheLine[tileX];\n            rawSampleOFLine[tileX] = tile.getRawSamples();\n            tileWidth[tileX] = tile.getRectangle().width;\n        }\n        ProductData sampleLine = ProductData.createInstance(rawSampleOFLine[0].getType(), sceneWidth);\n        synchronized (productWriter) {\n            for (int y = lineBounds.y; y < lineBounds.y + lineBounds.height; y++) {\n                int targetPos = 0;\n                for (int tileX = 0; tileX < cacheLine.length; tileX++) {\n                    Object rawSamples = rawSampleOFLine[tileX].getElems();\n                    int width = tileWidth[tileX];\n                    int srcPos = (y - lineBounds.y) * width;\n                    System.arraycopy(rawSamples, srcPos, sampleLine.getElems(), targetPos, width);\n                    targetPos += width;\n                }\n                productWriter.writeBandRasterData(band, 0, y, sceneWidth, 1, sampleLine, ProgressMonitor.NULL);\n            }\n            if (clearCacheAfterRowWrite) {\n                TileCache tileCache = JAI.getDefaultInstance().getTileCache();\n                if (tileCache != null) {\n                    tileCache.flush();\n                }\n            }\n        }\n    }\n\n    private void markTileDone(Band targetBand, Tile targetTile) throws IOException {\n        boolean done;\n        synchronized (todoLists) {\n            MultiLevelImage sourceImage = targetBand.getSourceImage();\n\n            final List<Point> currentTodoList = getTodoList(sourceImage);\n            currentTodoList.remove(new Point(sourceImage.XToTileX(targetTile.getMinX()),\n                                             sourceImage.YToTileY(targetTile.getMinY())));\n\n            done = isDone();\n        }\n        if (done) {\n            // If we get here all tiles are written\n            if (productWriter instanceof DimapProductWriter) {\n                // if we can update the header (only DIMAP) rewrite it!\n                synchronized (productWriter) {\n                    productWriter.writeProductNodes(targetProduct, file);\n                }\n            }\n        }\n    }\n\n    private boolean isDone() {\n        for (List<Point> todoList : todoLists.values()) {\n            if (!todoList.isEmpty()) {\n                return false;\n            }\n        }\n        return true;\n    }\n\n\n    private List<Point> getTodoList(MultiLevelImage sourceImage) {\n        List<Point> todoList = todoLists.get(sourceImage);\n        if (todoList == null) {\n            final int numXTiles = sourceImage.getNumXTiles();\n            final int numYTiles = sourceImage.getNumYTiles();\n            todoList = new ArrayList<Point>(numXTiles * numYTiles);\n            for (int y = 0; y < numYTiles; y++) {\n                for (int x = 0; x < numXTiles; x++) {\n                    todoList.add(new Point(x, y));\n                }\n            }\n            todoLists.put(sourceImage, todoList);\n        }\n        return todoList;\n    }\n\n    /**\n     * @deprecated since BEAM 4.9\n     */\n    @Deprecated\n    public static void writeProduct(Product sourceProduct, File file, String formatName, ProgressMonitor pm) {\n        WriteOp writeOp = new WriteOp(sourceProduct, file, formatName);\n        writeOp.setWriteEntireTileRows(true);\n        writeOp.writeProduct(pm);\n    }\n\n    /**\n     * @deprecated since BEAM 4.9\n     */\n    @Deprecated\n    public static void writeProduct(Product sourceProduct,\n                                    File file,\n                                    String formatName,\n                                    boolean deleteOutputOnFailure,\n                                    ProgressMonitor pm) {\n        WriteOp writeOp = new WriteOp(sourceProduct, file, formatName);\n        writeOp.setDeleteOutputOnFailure(deleteOutputOnFailure);\n        writeOp.setWriteEntireTileRows(true);\n        writeOp.writeProduct(pm);\n    }\n\n    /**\n     * @deprecated since BEAM 4.9\n     */\n    @Deprecated\n    public static void writeProduct(Product sourceProduct,\n                                    File file,\n                                    String formatName,\n                                    boolean deleteOutputOnFailure,\n                                    boolean writeEntireTileRows,\n                                    ExecutionOrder executionOrder,\n                                    ProgressMonitor pm) {\n        WriteOp writeOp = new WriteOp(sourceProduct, file, formatName);\n        writeOp.setDeleteOutputOnFailure(deleteOutputOnFailure);\n        writeOp.setWriteEntireTileRows(writeEntireTileRows);\n        writeOp.writeProduct(pm);\n    }\n\n    @Override\n    public void dispose() {\n        try {\n            productWriter.close();\n        } catch (IOException ignore) {\n        }\n        writableBands.clear();\n        todoLists.clear();\n        writeCache.clear();\n        super.dispose();\n    }\n\n    public static class Spi extends OperatorSpi {\n\n        public Spi() {\n            super(WriteOp.class);\n        }\n    }\n\n    private static class Row {\n\n        private final Band band;\n        private final int tileY;\n\n        private Row(Band band, int tileY) {\n            this.band = band;\n            this.tileY = tileY;\n        }\n\n        @Override\n        public int hashCode() {\n            final int prime = 31;\n            int result = 1;\n            result = prime * result + band.hashCode();\n            result = prime * result + tileY;\n            return result;\n        }\n\n        @Override\n        public boolean equals(Object obj) {\n            if (this == obj) {\n                return true;\n            }\n            Row other = (Row) obj;\n            if (!band.equals(other.band)) {\n                return false;\n            }\n            return tileY == other.tileY;\n        }\n\n\n    }\n\n}\n
+===================================================================
+--- beam-gpf/src/main/java/org/esa/beam/gpf/operators/standard/WriteOp.java	(revision 9453396309bb058a13bf0232d3432e3a7c3e4ae6)
++++ beam-gpf/src/main/java/org/esa/beam/gpf/operators/standard/WriteOp.java	(revision )
+@@ -203,7 +203,7 @@
+         getLogger().info("Start writing product " + getTargetProduct().getName() + " to " + getFile());
+         OperatorExecutor operatorExecutor = OperatorExecutor.create(this);
+         try {
+-            operatorExecutor.execute(ExecutionOrder.ROW_BAND_COLUMN, pm);
++            operatorExecutor.execute(ExecutionOrder.SCHEDULE_ROW_COLUMN_BAND, pm);
+ 
+             getLogger().info("End writing product " + getTargetProduct().getName() + " to " + getFile());
+ 
