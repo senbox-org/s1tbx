@@ -31,7 +31,7 @@ import static com.bc.ceres.binio.TypeBuilder.*;
 /**
  * Contains the Header
  */
-class Header {
+public class Header {
 
     public static final String FILE_NAME = "hdr.adf";
 
@@ -55,8 +55,8 @@ class Header {
             );
 
     final int cellType;
-    final double pixelSizeX;
-    final double pixelSizeY;
+    public final double pixelSizeX;
+    public final double pixelSizeY;
     final double xRef;
     final double yRef;
     final int tilesPerRow;

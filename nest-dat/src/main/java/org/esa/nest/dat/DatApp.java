@@ -128,6 +128,8 @@ public class DatApp extends VisatApp {
 
             validateAuxDataFolder();
 
+            UIManager.put("List.lockToPositionOnScroll", Boolean.FALSE);
+
             backgroundInitTasks();
         } catch(Throwable t) {
             VisatApp.getApp().showErrorDialog("PostInit failed. "+t.toString());

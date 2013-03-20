@@ -135,11 +135,16 @@ public class ArcBinGridReader extends AbstractProductReader {
         if (rasterStatistics != null) {
             metadataRoot.addElement(MetaDataHandler.createRasterStatisticsElement(rasterStatistics));
         }
+        initMetadata(product, headerFile);
 
         return product;
     }
 
-    private GeoCoding createGeoCoding(int width, int height, AffineTransform i2m) {
+    protected void initMetadata(final Product product, final File inputFile) throws IOException {
+
+    }
+
+    private static GeoCoding createGeoCoding(int width, int height, AffineTransform i2m) {
         // TODO parse projection from prj.adf file. For now we assume WGS84 (applicable for GlobToolBox products) (mz, 2010-02-24)
         Rectangle imageBounds = new Rectangle(width, height);
         try {
@@ -151,7 +156,7 @@ public class ArcBinGridReader extends AbstractProductReader {
         return null;
     }
 
-    private AffineTransform createAffineTransform(GeorefBounds georefBounds, Header header, int height) {
+    protected AffineTransform createAffineTransform(GeorefBounds georefBounds, Header header, int height) {
         AffineTransform i2m = new AffineTransform();
         i2m.translate(georefBounds.lowerLeftX, georefBounds.lowerLeftY);
         i2m.scale(header.pixelSizeX, -header.pixelSizeY);
@@ -176,7 +181,7 @@ public class ArcBinGridReader extends AbstractProductReader {
         }
     }
 
-    private int getDataType(Header header, RasterStatistics rasterStatistics) throws ProductIOException {
+    private static int getDataType(Header header, RasterStatistics rasterStatistics) throws ProductIOException {
         int cellType = header.cellType;
         if (cellType == ArcBinGridConstants.CELL_TYPE_INT) {
             if (rasterStatistics != null && rasterStatistics.min >= 0 && rasterStatistics.max <= 254) {
@@ -193,7 +198,7 @@ public class ArcBinGridReader extends AbstractProductReader {
         }
     }
 
-    private double getNodataValue(int dataType) throws ProductIOException {
+    private static double getNodataValue(int dataType) throws ProductIOException {
         if (dataType == ProductData.TYPE_FLOAT32) {
             return ArcBinGridConstants.NODATA_VALUE_FLOAT;
         } else if (dataType == ProductData.TYPE_UINT8) {

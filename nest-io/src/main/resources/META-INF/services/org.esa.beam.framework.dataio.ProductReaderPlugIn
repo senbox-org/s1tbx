@@ -5,6 +5,7 @@ org.esa.nest.dataio.ceos.alos.AlosPalsarProductReaderPlugIn
 org.esa.nest.dataio.ceos.basic.BasicCeosProductReaderPlugIn
 org.esa.nest.dataio.imageio.ImageIOReaderPlugIn
 org.esa.nest.dataio.envi.NestEnviProductReaderPlugIn
+org.esa.nest.dataio.arcgrid.NestArcGridReaderPlugIn
 org.esa.nest.dataio.geotiff.NestGeoTiffProductReaderPlugIn
 org.esa.nest.dataio.polsarpro.PolsarProProductReaderPlugIn
 org.esa.nest.dataio.terrasarx.TerraSarXProductReaderPlugIn

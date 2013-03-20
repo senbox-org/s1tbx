@@ -55,6 +55,11 @@
             <groupId>org.esa.beam</groupId>
             <artifactId>beam-envi-reader</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.esa.beam</groupId>
+            <artifactId>beam-arcbingrid-reader</artifactId>
+            <version>5.0-3.0</version>
+        </dependency>
 		<dependency>
             <groupId>org.esa.nest</groupId>
             <artifactId>nest-reader-dem</artifactId>

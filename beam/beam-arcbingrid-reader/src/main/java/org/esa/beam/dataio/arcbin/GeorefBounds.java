@@ -30,7 +30,7 @@ import static com.bc.ceres.binio.TypeBuilder.*;
 /**
  * Contains the Georef Bounds
  */
-class GeorefBounds {
+public class GeorefBounds {
 
     public static final String FILE_NAME = "dblbnd.adf";
 
@@ -42,10 +42,10 @@ class GeorefBounds {
                      MEMBER("D_URY", DOUBLE)
             );
 
-    final double lowerLeftX;
-    final double lowerLeftY;
-    final double upperRightX;
-    final double upperRightY;
+    public final double lowerLeftX;
+    public final double lowerLeftY;
+    public final double upperRightX;
+    public final double upperRightY;
 
     private GeorefBounds(double lowerLeftX, double lowerLeftY, double upperRightX, double upperRightY) {
         this.lowerLeftX = lowerLeftX;
