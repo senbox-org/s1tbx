@@ -192,10 +192,6 @@
         </dependency>
 		
 		<dependency>
-			<groupId>net.sf.squirrel-sql.thirdparty-non-maven</groupId>
-			<artifactId>napkinlaf</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>com.seaglasslookandfeel</groupId>
 			<artifactId>seaglasslookandfeel</artifactId>
 		</dependency>

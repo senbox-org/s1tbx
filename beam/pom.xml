@@ -38,7 +38,7 @@
         <beam.version>5.0-4.10.4</beam.version>
         <ceres.version>5.0-0.14</ceres.version>
         <geotools.version>9.0-M0</geotools.version>
-        <jide.version>3.5.2</jide.version>
+        <jide.version>3.5.3</jide.version>
         <hdf.version>2.7</hdf.version>
         <netcdf.version>4.2.20</netcdf.version>
 	<outputdir>../../output</outputdir>
@@ -88,7 +88,7 @@
                 <enabled>true</enabled>
             </snapshots>
         </repository>
-        <!--repository>
+        <repository>
             <id>maven2-repository.dev.java.net</id>
             <name>Java.net repository</name>
             <url>http://download.java.net/maven/2</url>
@@ -102,11 +102,11 @@
 			<id>opengeo</id>
 			<name>GeoTools Maven Repository</name>
 			<url>http://repo.opengeo.org/</url>
-        </repository-->
+        </repository>
     </repositories>
 
     <pluginRepositories>
-        <!--pluginRepository>
+        <pluginRepository>
             <id>bc-mvn-repo</id>
             <name>Public Maven Repository at Brockmann Consult</name>
             <url>http://www.brockmann-consult.de/mvn/os</url>
@@ -118,7 +118,7 @@
                 <enabled>true</enabled>
                 <checksumPolicy>warn</checksumPolicy>
             </snapshots>
-        </pluginRepository-->
+        </pluginRepository>
 		<pluginRepository>
             <id>array-mvn-repo</id>
             <name>Public Maven Repository at Array Systems Computing Inc</name>
@@ -309,7 +309,7 @@
             <dependency>
                 <groupId>edu.ucar</groupId>
                 <artifactId>nujan</artifactId>
-                <version>1.4.1</version>
+                <version>1.4.1.1</version>
             </dependency>
 
 			<dependency>
@@ -588,7 +588,7 @@
             <dependency>
                 <groupId>Jama</groupId>
                 <artifactId>Jama</artifactId>
-                <version>1.0.2</version>
+                <version>1.0.3</version>
             </dependency>
 
 
@@ -641,7 +641,7 @@
             <dependency>
                 <groupId>com.thoughtworks.xstream</groupId>
                 <artifactId>xstream</artifactId>
-                <version>1.4.3</version>
+                <version>1.4.4</version>
             </dependency>
             <dependency>
                 <groupId>xpp3</groupId>

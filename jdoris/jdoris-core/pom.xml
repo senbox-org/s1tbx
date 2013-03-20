@@ -68,12 +68,12 @@
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
-            <version>1.0.9</version>
+            <version>1.0.10</version>
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>14.0-rc1</version>
+            <version>14.0.1</version>
         </dependency>
     </dependencies>
 </project>

@@ -14,8 +14,8 @@
 		
 		<beam.version>5.0-4.10.4</beam.version>
         <ceres.version>5.0-0.14</ceres.version>
-        <geotools.version>9.0-M0</geotools.version>
-		<jide.version>3.5.2</jide.version>
+        <geotools.version>9.0-MO</geotools.version>
+		<jide.version>3.5.3</jide.version>
 		<hdf.version>2.7</hdf.version>
         <netcdf.version>4.2.20</netcdf.version>
 		<nest.version>5.0</nest.version>
@@ -54,7 +54,7 @@
     </scm>
 
 	<repositories>
-        <repository>
+        <!--repository>
             <id>bc-mvn-repo</id>
             <name>Public Maven Repository at Brockmann-Consult</name>
             <url>http://www.brockmann-consult.de/mvn/os</url>
@@ -64,7 +64,7 @@
             <snapshots>
                 <enabled>true</enabled>
             </snapshots>
-        </repository>
+        </repository-->
 		<repository>
             <id>array-mvn-repo</id>
             <name>Public Maven Repository at Array Systems Computing Inc</name>
@@ -283,7 +283,7 @@
 			<dependency>
                 <groupId>edu.ucar</groupId>
                 <artifactId>nujan</artifactId>
-                <version>1.4.1</version>
+                <version>1.4.1.1</version>
             </dependency>
 			
 			<!-- JDoris Modules ############################################# -->
@@ -540,7 +540,7 @@
 			<dependency>
 				<groupId>com.vividsolutions</groupId>
                 <artifactId>jts</artifactId>
-                <version>1.10</version>
+                <version>1.13</version>
 			</dependency>
 			
             <!-- JAI Libraries ############################################# -->
@@ -592,7 +592,7 @@
             <dependency>
                 <groupId>Jama</groupId>
                 <artifactId>Jama</artifactId>
-                <version>1.0.2</version>
+                <version>1.0.3</version>
             </dependency>
 
             <!-- JUnit Libraries ############################################# -->
@@ -643,7 +643,7 @@
             <dependency>
                 <groupId>com.thoughtworks.xstream</groupId>
                 <artifactId>xstream</artifactId>
-                <version>1.4.3</version>
+                <version>1.4.4</version>
             </dependency>
             <dependency>
                 <groupId>xpp3</groupId>
@@ -740,11 +740,6 @@
 		
 			<!-- look and feel -->
 			
-			<dependency>
-				<groupId>net.sf.squirrel-sql.thirdparty-non-maven</groupId>
-				<artifactId>napkinlaf</artifactId>
-				<version>1.2</version>
-			</dependency>
 			<dependency>
 				<groupId>com.seaglasslookandfeel</groupId>
 				<artifactId>seaglasslookandfeel</artifactId>
