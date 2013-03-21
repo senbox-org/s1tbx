@@ -5,7 +5,14 @@ import org.esa.beam.util.io.FileUtils;
 import org.xeustechnologies.jtar.TarEntry;
 import org.xeustechnologies.jtar.TarInputStream;
 
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.zip.GZIPInputStream;
 
 public class VirtualDirTgz extends VirtualDir {
@@ -72,36 +79,9 @@ public class VirtualDirTgz extends VirtualDir {
         close();
     }
 
+    @Override
     public File getTempDir() throws IOException {
-        File tempDir = null;
-        String tempDirName = System.getProperty("java.io.tmpdir");
-        if (tempDirName != null) {
-            tempDir = new File(tempDirName);
-        }
-        if (tempDir == null) {
-            tempDir = new File(new File(System.getProperty("user.home", ".")), ".beam/temp");
-            if (!tempDir.exists()) {
-                if (!tempDir.mkdirs()) {
-                    throw new IOException("unable to create directory: " + tempDir.getAbsolutePath());
-                }
-            }
-        }
-        return tempDir;
-    }
-
-    // @todo 3 tb/** this code is almost completely duplicated from com.bc.ceres.core.VirtualDir
-    // it maybe makes sense to move it to a file utility class
-    File createTargetDirInTemp(String name) throws IOException {
-        File tempDir = getTempDir();
-
-        File targetDir = new File(tempDir, name);
-        if (!targetDir.exists()) {
-            if (!targetDir.mkdirs()) {
-                throw new IOException("unable to create directory: " + targetDir.getAbsolutePath());
-            }
-        }
-
-        return targetDir;
+        return extractDir;
     }
 
     static String getFilenameFromPath(String path) {
@@ -123,11 +103,12 @@ public class VirtualDirTgz extends VirtualDir {
 
     private void ensureUnpacked() throws IOException {
         if (extractDir == null) {
-            extractDir = createTargetDirInTemp(archiveFile.getName());
+            extractDir = VirtualDir.createUniqueTempDir();
 
             final TarInputStream tis;
             if (isTgz(archiveFile.getName())) {
-                tis = new TarInputStream(new BufferedInputStream(new GZIPInputStream(new FileInputStream(archiveFile))));
+                tis = new TarInputStream(
+                        new BufferedInputStream(new GZIPInputStream(new FileInputStream(archiveFile))));
             } else {
                 tis = new TarInputStream(new BufferedInputStream(new FileInputStream(archiveFile)));
             }

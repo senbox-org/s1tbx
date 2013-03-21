@@ -271,9 +271,14 @@ public class BinningOp extends Operator implements Output {
             SpatialBinCollection spatialBinMap = doSpatialBinning();
             if (!spatialBinMap.isEmpty()) {
                 // Step 2: Temporal binning - creates a list of temporal bins, sorted by bin ID
-                List<TemporalBin> temporalBins = doTemporalBinning(spatialBinMap);
+                TemporalBinList temporalBins = doTemporalBinning(spatialBinMap);
                 // Step 3: Formatting
-                writeOutput(temporalBins, startDateUtc, endDateUtc);
+                try {
+                    writeOutput(temporalBins, startDateUtc, endDateUtc);
+                } finally {
+                    temporalBins.close();
+
+                }
                 // TODO - Check efficiency of interface 'org.esa.beam.framework.gpf.experimental.Output'  (nf, 2012-03-02)
                 // actually, the following line of code would be sufficient, but then, the
                 // 'Output' interface implemented by this operator has no effect, because it already has a
@@ -564,13 +569,13 @@ public class BinningOp extends Operator implements Output {
         sourceProductCount++;
     }
 
-    private List<TemporalBin> doTemporalBinning(SpatialBinCollection spatialBinMap) throws IOException {
+    private TemporalBinList doTemporalBinning(SpatialBinCollection spatialBinMap) throws IOException {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
         long numberOfBins = spatialBinMap.size();
         final TemporalBinner temporalBinner = new TemporalBinner(binningContext);
-        final List<TemporalBin> temporalBins = new TemporalBinList((int) spatialBinMap.size());
+        final TemporalBinList temporalBins = new TemporalBinList((int) spatialBinMap.size());
         Iterable<List<SpatialBin>> spatialBinListCollection = spatialBinMap.getBinCollection();
         for (List<SpatialBin> spatialBinList : spatialBinListCollection) {
             SpatialBin spatialBin = spatialBinList.get(0);
