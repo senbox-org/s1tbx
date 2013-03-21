@@ -1,28 +1,35 @@
 package com.bc.install4j;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static org.junit.Assert.*;
 
 /**
  * @author Norman Fomferra
  */
 public class VersionCheckTest {
 
+    @Ignore
     @Test
     public void testVersionComparison() throws Exception {
-        //String intendedVersion = context.getCompilerVariable("sys.version");
-        //String existingVersion = context.getVariable("preinstalledVersion").toString();
-        int diff = compareVersion("4.11", "4.10.3");
+        assertEquals(1, (int) compareVersion("4.11", "4.10.3"));
 
     }
 
     private Integer compareVersion(String intendedVersion, String existingVersion) {
+        //String intendedVersion = context.getCompilerVariable("sys.version");
+        //String existingVersion = context.getVariable("preinstalledVersion").toString();
         if (existingVersion == null) {
-            return null;
+            return 0;
         }
-        existingVersion = existingVersion.substring("VERSION ".length());
+
+        if (existingVersion.contains("VERSION")) {
+            existingVersion = existingVersion.substring("VERSION ".length());
+        }
 
         //Util.showMessage("old=" + existingVersion + ", new=" + intendedVersion);
 
@@ -33,6 +40,8 @@ public class VersionCheckTest {
             Pattern p = Pattern.compile("([0-9]*)(.*)");
             Matcher m1 = p.matcher(intendedVersionParts[i]);
             Matcher m2 = p.matcher(existingVersionParts[i]);
+            m1.matches();
+            m2.matches();
             String v1Num = m1.group(0);
             String v1Qual = m1.group(1);
             String v2Num = m2.group(0);
