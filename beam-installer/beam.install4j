@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<install4j version="5.1.5" transformSequenceNumber="4">
+<install4j version="5.1.3" transformSequenceNumber="4">
   <directoryPresets config="./src/main/resources/images" />
   <application name="BEAM" distributionSourceDir="" applicationId="2648-9058-9483-8098" mediaDir="../target/installers" mediaFilePattern="${compiler:sys.shortName}_${compiler:sys.platform}_${compiler:sys.version}" compression="6" lzmaCompression="false" pack200Compression="false" excludeSignedFromPacking="true" commonExternalFiles="false" createMd5Sums="true" shrinkRuntime="true" shortName="beam" publisher="Brockmann Consult GmbH" publisherWeb="http://www.brockmann-consult.de" version="4.11" allPathsRelative="true" backupOnSave="true" autoSave="true" convertDotsToUnderscores="false" macSignature="????" installerName="" javaMinVersion="1.6" javaMaxVersion="" allowBetaVM="true" jdkMode="runtimeJre" jdkName="">
     <languages skipLanguageSelection="false" languageSelectionInPrincipalLanguage="false">
@@ -69,7 +69,7 @@
       </iconImageFiles>
     </launcher>
   </launchers>
-  <installerGui installerType="1" addOnAppId="" suggestPreviousLocations="false" autoUpdateDescriptorUrl="" useAutoUpdateBaseUrl="false" autoUpdateBaseUrl="">
+  <installerGui installerType="1" addOnAppId="" suggestPreviousLocations="true" autoUpdateDescriptorUrl="" useAutoUpdateBaseUrl="false" autoUpdateBaseUrl="">
     <customCode>
       <directory location="./target/classes" />
     </customCode>
@@ -153,11 +153,7 @@
           <screen name="" id="1" customizedId="" beanClass="com.install4j.runtime.beans.screens.WelcomeScreen" enabled="true" commentSet="false" comment="" actionElevationType="inherit" rollbackBarrier="false" backButton="2" finishScreen="false" wizardIndexChangeType="unchanged" wizardIndexKey="">
             <serializedBean>
               <java class="java.beans.XMLDecoder">
-                <object class="com.install4j.runtime.beans.screens.WelcomeScreen">
-                  <void property="updateCheck">
-                    <boolean>false</boolean>
-                  </void>
-                </object>
+                <object class="com.install4j.runtime.beans.screens.WelcomeScreen" />
               </java>
             </serializedBean>
             <condition />
@@ -167,7 +163,7 @@
             <actions />
             <formComponents />
           </screen>
-          <screen name="" id="2" customizedId="" beanClass="com.install4j.runtime.beans.screens.InstallationDirectoryScreen" enabled="true" commentSet="false" comment="" actionElevationType="inherit" rollbackBarrier="false" backButton="2" finishScreen="false" wizardIndexChangeType="unchanged" wizardIndexKey="">
+          <screen name="" id="2" customizedId="" beanClass="com.install4j.runtime.beans.screens.InstallationDirectoryScreen" enabled="true" commentSet="false" comment="" actionElevationType="inherit" rollbackBarrier="false" backButton="1" finishScreen="false" wizardIndexChangeType="unchanged" wizardIndexKey="">
             <serializedBean>
               <java class="java.beans.XMLDecoder">
                 <object class="com.install4j.runtime.beans.screens.InstallationDirectoryScreen">
@@ -188,25 +184,7 @@
             <validation />
             <preActivation />
             <postActivation />
-            <actions>
-              <action name="" id="5018" customizedId="" beanClass="com.install4j.runtime.beans.actions.text.ReadTextFromFileAction" enabled="true" commentSet="false" comment="" actionElevationType="inherit" rollbackBarrier="false" multiExec="false" failureStrategy="3" errorMessage="&quot;No no no no NO&quot;">
-                <serializedBean>
-                  <java class="java.beans.XMLDecoder">
-                    <object class="com.install4j.runtime.beans.actions.text.ReadTextFromFileAction">
-                      <void property="file">
-                        <object class="java.io.File">
-                          <string>${installer:sys.installationDir}/VERSION.txt</string>
-                        </object>
-                      </void>
-                      <void property="variableName">
-                        <string>preinstalledVersion</string>
-                      </void>
-                    </object>
-                  </java>
-                </serializedBean>
-                <condition />
-              </action>
-            </actions>
+            <actions />
             <formComponents />
           </screen>
           <screen name="" id="4" customizedId="" beanClass="com.install4j.runtime.beans.screens.StandardProgramGroupScreen" enabled="true" commentSet="false" comment="" actionElevationType="inherit" rollbackBarrier="false" backButton="1" finishScreen="false" wizardIndexChangeType="unchanged" wizardIndexKey="">
@@ -222,52 +200,22 @@
                 </object>
               </java>
             </serializedBean>
-            <condition>!context.getBooleanVariable("sys.confirmedUpdateInstallation")</condition>
+            <condition />
             <validation />
-            <preActivation>import java.util.regex.*;
+            <preActivation>File installationDir = context.getInstallationDirectory();
 
-try {
-    String intendedVersion = context.getCompilerVariable("sys.version");
-    String existingVersion = context.getVariable("preinstalledVersion").toString();
-        
-    if (existingVersion == null) {
-        return;
-    }
-    existingVersion = existingVersion.substring("VERSION ".length());
-    
-    Util.showMessage("old="+existingVersion+", new="+intendedVersion);
+boolean isBeamInstallation = new File(installationDir, "VERSION.txt").exists();
+isBeamInstallation &amp;= new File(installationDir, "CHANGELOG.txt").exists();
+isBeamInstallation &amp;= new File(installationDir, "readme.html").exists();
+isBeamInstallation &amp;= new File(installationDir, "modules").exists();
 
-    String[] intendedVersionParts = intendedVersion.split("\\."); 
-    String[] existingVersionParts = existingVersion.split("\\.");
-    int vDiff = 0;
-    for (int i = 0; i &lt; Math.min(intendedVersionParts.length, existingVersionParts.length); i++) {
-        Pattern p = Pattern.compile("([0-9]*)(.*)");
-        Matcher m1 = p.matcher(intendedVersionParts[i]);
-        Matcher m2 = p.matcher(existingVersionParts[i]);
-        String v1Num = m1.group(0);
-        String v1Qual = m1.group(1);
-        String v2Num = m2.group(0);
-        String v2Qual = m2.group(1);
-        Util.showMessage(v1Num + " " + v1Qual + " " + v2Num + " " + v2Qual);
-        vDiff  = Integer.parseInt(v1Num) - Integer.parseInt(v2Num);
-        if (vDiff == 0) {
-            vDiff = v1Qual.isEmpty() ? +1 : v2Qual.isEmpty() ? -1 : v1Qual.compareTo(v2Qual);
-        }
-        if (vDiff &gt; 0) {
-             break;
-        }
-    } 
-    
-    if (vDiff == 0) {
-        vDiff = intendedVersionParts.length - existingVersionParts.length;
-    }
-    
-    if (vDiff &gt; 0) {
-        Util.showErrorMessage("Are you crazy?");
-        screen.previous();
-    }
-} catch (Throwable t) {
-    Util.showMessage("Argh: " + t.getMessage());
+if (isBeamInstallation &amp;&amp; !context.getBooleanVariable("sys.confirmedUpdateInstallation")) {
+    int selectedOption = Util.showOptionDialog("There already is a BEAM installation in " + installationDir.toString() + ".",
+                                               new String[]{"Overwrite", "Don't overwrite"},
+                                               JOptionPane.WARNING_MESSAGE | JOptionPane.YES_OPTION);
+    if (selectedOption == 1) {
+        context.goBackInHistory(1);        
+    }    
 }</preActivation>
             <postActivation />
             <actions />
