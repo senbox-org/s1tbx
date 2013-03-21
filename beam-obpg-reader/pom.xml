@@ -47,6 +47,14 @@
                     <groupId>org.esa.beam</groupId>
                     <artifactId>beam-netcdf</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>org.esa.beam</groupId>
+                    <artifactId>beam-ui</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.esa.beam</groupId>
+                    <artifactId>beam-visat-rcp</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
     </dependencies>
