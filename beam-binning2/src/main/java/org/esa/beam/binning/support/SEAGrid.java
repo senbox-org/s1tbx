@@ -18,8 +18,7 @@ package org.esa.beam.binning.support;
 
 import org.esa.beam.binning.PlanetaryGrid;
 
-import static java.lang.Math.cos;
-import static java.lang.Math.toRadians;
+import static java.lang.Math.*;
 
 /**
  * Implementation of a PlanetaryGrid that uses a Sinusoidal Equal Area (SEA) grid layout.
@@ -33,6 +32,7 @@ import static java.lang.Math.toRadians;
  * @see <a href="http://oceancolor.gsfc.nasa.gov/DOCS/Ocean_Level-3_Binned_Data_Products.pdf">Ocean Level-3 Binned Data Products</a>
  */
 public final class SEAGrid implements PlanetaryGrid {
+
     /**
      * Default number of rows. This results in a vertical bin cell size of approx. 9.28 km.
      */
@@ -130,6 +130,7 @@ public final class SEAGrid implements PlanetaryGrid {
      * </pre>
      *
      * @param binIndex The bin ID.
+     *
      * @return The row index.
      */
     @Override
