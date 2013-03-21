@@ -52,6 +52,7 @@
         <module>../beam-spot-vgt-reader</module>
         <module>../beam-statistics-op</module>
         <module>../beam-temporal-percentile-op</module>
+        <module>../beam-time-series-tool</module>
         <module>../beam-unmix</module>
         <module>../blue-marble-worldmap</module>
         <module>../globcover-worldmap</module>

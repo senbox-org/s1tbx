@@ -311,7 +311,14 @@ public class Approximator {
         final Matrix u;
         final Matrix v;
 
-        svd = new Matrix(a, m, n).svd();
+
+        final Matrix matrix = new Matrix(a, m, n);
+        final double det = matrix.det();
+        if (det == 0.0 || Double.isNaN(det) || Double.isInfinite(det)) {
+            throw new ArithmeticException("Expected an invertible matrix, but matrix is degenerate: det = " + det);
+        }
+
+        svd = matrix.svd();
         u = svd.getU();
         v = svd.getV();
 

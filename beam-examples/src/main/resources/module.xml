@@ -61,7 +61,7 @@
             <title>Selection Observing View</title>
             <tabTitle>Selection Observer</tabTitle>
             <description>Demonstrates how to implement a selection observing tool view.</description>
-            <initState>FLOATING</initState>
+            <initState>HIDDEN</initState>
             <initSide>NORTH</initSide>
             <initIndex>0</initIndex>
         </toolView>
@@ -71,7 +71,7 @@
             <title>Selection Emitting View</title>
             <tabTitle>Selection Emitter</tabTitle>
             <description>Demonstrates how to implement a selection emitting tool view.</description>
-            <initState>FLOATING</initState>
+            <initState>HIDDEN</initState>
             <initSide>NORTH</initSide>
             <initIndex>1</initIndex>
         </toolView>
