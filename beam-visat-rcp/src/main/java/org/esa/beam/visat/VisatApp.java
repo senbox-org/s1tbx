@@ -366,10 +366,10 @@ public class VisatApp extends BasicApp implements AppContext {
             desktopPane = new TabbedDesktopPane();
 
             applicationPage = new VisatApplicationPage(getMainFrame(),
-                    getCommandManager(),
-                    new DefaultSelectionManager(this),
-                    getMainFrame().getDockingManager(),
-                    desktopPane);
+                                                       getCommandManager(),
+                                                       new DefaultSelectionManager(this),
+                                                       getMainFrame().getDockingManager(),
+                                                       desktopPane);
 
             pm.setTaskName("Loading commands");
             loadCommands();
@@ -430,11 +430,6 @@ public class VisatApp extends BasicApp implements AppContext {
     @Override
     public Window getApplicationWindow() {
         return getMainFrame();
-    }
-
-    @Override
-    public void handleError(Throwable t) {
-        handleError(t.getMessage(), t);
     }
 
     @Override
@@ -607,6 +602,7 @@ public class VisatApp extends BasicApp implements AppContext {
 
     /**
      * @return The file of the current session.
+     *
      * @since BEAM 4.6
      */
     public File getSessionFile() {
@@ -617,6 +613,7 @@ public class VisatApp extends BasicApp implements AppContext {
      * Sets the file of the current session.
      *
      * @param sessionFile The file of the current session.
+     *
      * @since BEAM 4.6
      */
     public void setSessionFile(File sessionFile) {
@@ -731,6 +728,7 @@ public class VisatApp extends BasicApp implements AppContext {
      * object cannot be used anymore.
      *
      * @param product the product to be disposed
+     *
      * @see org.esa.beam.framework.datamodel.Product#dispose
      */
     public void disposeProduct(final Product product) {
@@ -890,6 +888,7 @@ public class VisatApp extends BasicApp implements AppContext {
      * @param raster   the raster for which to perform the lookup
      * @param numBands the number of bands in the view, pass -1 for all view types, 1 for single band type and 3 for RGB
      *                 views
+     *
      * @return the internal frames, never <code>null</code>.
      */
     public JInternalFrame[] findInternalFrames(final RasterDataNode raster, final int numBands) {
@@ -900,7 +899,7 @@ public class VisatApp extends BasicApp implements AppContext {
             if (contentPane instanceof ProductSceneView) {
                 final ProductSceneView view = (ProductSceneView) contentPane;
                 if ((numBands == -1 || view.getNumRasters() == numBands) &&
-                        view.getRaster() == raster) {
+                    view.getRaster() == raster) {
                     frameList.add(frame);
                 }
             }
@@ -914,6 +913,7 @@ public class VisatApp extends BasicApp implements AppContext {
      * <p>The content pane of the returned frame is always an instance of <code>ProductSceneView</code>.
      *
      * @param raster the raster for which to perform the lookup
+     *
      * @return the internal frame or <code>null</code> if no frame was found
      */
     public JInternalFrame findInternalFrame(final RasterDataNode raster) {
@@ -939,6 +939,7 @@ public class VisatApp extends BasicApp implements AppContext {
      * <p>The content pane of the returned frame is always an instance of <code>ProductSceneView</code>.
      *
      * @param raster the raster for which to perform the lookup
+     *
      * @return the internal frames, never <code>null</code>.
      */
     public JInternalFrame[] findInternalFrames(final RasterDataNode raster) {
@@ -965,6 +966,7 @@ public class VisatApp extends BasicApp implements AppContext {
      * <p>The content pane of the returned frame is always an instance of <code>ProductMetadataView</code>.
      *
      * @param metadataElement the metadata element for which to perform the lookup
+     *
      * @return the internal frame or <code>null</code> if no frame was found
      */
     public JInternalFrame findInternalFrame(final MetadataElement metadataElement) {
@@ -990,6 +992,7 @@ public class VisatApp extends BasicApp implements AppContext {
      * <p>The content pane of the returned frame is always an instance of <code>ProductMetadataView</code>.
      *
      * @param productNode the product node for which to perform the lookup
+     *
      * @return the internal frame or <code>null</code> if no frame was found
      */
     public JInternalFrame findInternalFrame(final ProductNode productNode) {
@@ -1014,6 +1017,7 @@ public class VisatApp extends BasicApp implements AppContext {
      * Finds the product associated with the given file.
      *
      * @param file the file
+     *
      * @return the product associated with the given file. or <code>null</code> if no such exists.
      */
     public Product getOpenProduct(final File file) {
@@ -1072,6 +1076,7 @@ public class VisatApp extends BasicApp implements AppContext {
      * Returns true if the given raster data node is used in any product scene view.
      *
      * @param raster
+     *
      * @return true if raster is used
      */
     public boolean hasRasterProductSceneView(final RasterDataNode raster) {
@@ -1149,7 +1154,7 @@ public class VisatApp extends BasicApp implements AppContext {
                 }
             }
             if (!modifiedOrNew.contains(product)
-                    && product.isModified()) {
+                && product.isModified()) {
                 modifiedOrNew.add(product);
             }
         }
@@ -1162,14 +1167,14 @@ public class VisatApp extends BasicApp implements AppContext {
                 message.append("The following product has been modified:"); /*I18N*/
                 message.append("\n    ").append(modifiedProducts[0].getDisplayName());
                 message.append(String.format("\n\nDo you want to save this product before exiting %s?",
-                        getAppName())); /*I18N*/
+                                             getAppName())); /*I18N*/
             } else {
                 message.append("The following products have been modified:"); /*I18N*/
                 for (Product modifiedProduct : modifiedProducts) {
                     message.append("\n    ").append(modifiedProduct.getDisplayName());
                 }
                 message.append(String.format("\n\nDo you want to save these products before exiting %s?",
-                        getAppName())); /*I18N*/
+                                             getAppName())); /*I18N*/
             }
             final int result = showQuestionDialog("Products Modified", message.toString(), true, null);
             if (result == JOptionPane.YES_OPTION) {
@@ -1280,7 +1285,7 @@ public class VisatApp extends BasicApp implements AppContext {
                 boolean success = false;
                 try {
                     boolean incremental = getPreferences().getPropertyBool(PROPERTY_KEY_SAVE_INCREMENTAL,
-                            DEFAULT_VALUE_SAVE_INCREMENTAL);
+                                                                           DEFAULT_VALUE_SAVE_INCREMENTAL);
                     success = saveProductImpl(product, incremental);
                 } finally {
                     if (success) {
@@ -1430,17 +1435,17 @@ public class VisatApp extends BasicApp implements AppContext {
             StringBuilder message = null;
             if (product.getFileLocation() == null) {
                 message = new StringBuilder("The product\n" +
-                        "  " + product.getDisplayName() + "\n" +
-                        "you want to close has not been saved yet.\n");
+                                            "  " + product.getDisplayName() + "\n" +
+                                            "you want to close has not been saved yet.\n");
             } else if (product.isModified()) {
                 message = new StringBuilder("The product\n" +
-                        "  " + product.getDisplayName() + "\n" +
-                        "has been modified.\n");
+                                            "  " + product.getDisplayName() + "\n" +
+                                            "has been modified.\n");
             }
             if (message != null) {
                 message.append("After closing this product all modifications will be lost.\n" +
-                        "\n" +
-                        "Do you really want to close this product now?");
+                               "\n" +
+                               "Do you really want to close this product now?");
                 final int pressedButton = showQuestionDialog("Product Modified", message.toString(), null);
                 if (pressedButton != JOptionPane.YES_OPTION) {
                     return false;
@@ -1485,9 +1490,9 @@ public class VisatApp extends BasicApp implements AppContext {
         final File file = product.getFileLocation();
         if (file.isFile() && !file.canWrite()) {
             showWarningDialog("The product\n" +
-                    "'" + file.getPath() + "'\n" +
-                    "exists and cannot be overwritten, because it is read only.\n" +
-                    "Please choose another file or remove the write protection."); /*I18N*/
+                              "'" + file.getPath() + "'\n" +
+                              "exists and cannot be overwritten, because it is read only.\n" +
+                              "Please choose another file or remove the write protection."); /*I18N*/
             return false;
         }
 
@@ -1531,8 +1536,8 @@ public class VisatApp extends BasicApp implements AppContext {
         }
 
         final boolean saveOk = writeProductImpl(product, file,
-                DimapProductConstants.DIMAP_FORMAT_NAME,
-                incremental);
+                                                DimapProductConstants.DIMAP_FORMAT_NAME,
+                                                incremental);
         if (saveOk) {
             product.setModified(false);
             historyPush(file);
@@ -1555,14 +1560,14 @@ public class VisatApp extends BasicApp implements AppContext {
         boolean status = false;
         setStatusBarMessage("Writing product '" + product.getDisplayName() + "' to " + file + "...");
         ProgressMonitor pm = new DialogProgressMonitor(getMainFrame(), "Writing " + formatName + " format",
-                Dialog.ModalityType.APPLICATION_MODAL) {
+                                                       Dialog.ModalityType.APPLICATION_MODAL) {
             @Override
             public void setCanceled(boolean canceled) {
                 if (canceled) {
                     int result = JOptionPane.showConfirmDialog(getMainFrame(),
-                            "Cancel saving may lead to an unreadable product.\n\n"
-                                    + "Do you really want to cancel the save process?",
-                            "Cancel Process", JOptionPane.YES_NO_OPTION);
+                                                               "Cancel saving may lead to an unreadable product.\n\n"
+                                                               + "Do you really want to cancel the save process?",
+                                                               "Cancel Process", JOptionPane.YES_NO_OPTION);
                     if (result != JOptionPane.YES_OPTION) {
                         super.setCanceled(false);
                     }
@@ -1572,10 +1577,10 @@ public class VisatApp extends BasicApp implements AppContext {
         };
         try {
             ProductIO.writeProduct(product,
-                    file,
-                    formatName,
-                    incremental,
-                    pm);
+                                   file,
+                                   formatName,
+                                   incremental,
+                                   pm);
             updateState();
             status = !pm.isCanceled();
         } catch (Exception e) {
@@ -1585,11 +1590,6 @@ public class VisatApp extends BasicApp implements AppContext {
             clearStatusBarMessage();
         }
         return status;
-    }
-
-    @Deprecated
-    public long getDataAutoLoadLimit() {
-        return Long.MAX_VALUE;
     }
 
     public ExecutorService getExecutorService() {
@@ -1616,12 +1616,12 @@ public class VisatApp extends BasicApp implements AppContext {
         final ProductReader reader = product.getProductReader();
         if (reader != null && !(reader instanceof DimapProductReader)) {
             final int answer = showQuestionDialog("Save Product As",
-                    "In order to save the product\n" +
-                            "   " + product.getDisplayName() + "\n" +
-                            "it has to be converted to the BEAM-DIMAP format.\n" +
-                            "Depending on the product size the conversion also may take a while.\n\n" +
-                            "Do you really want to convert the product now?\n",
-                    "productConversionRequired"); /*I18N*/
+                                                  "In order to save the product\n" +
+                                                  "   " + product.getDisplayName() + "\n" +
+                                                  "it has to be converted to the BEAM-DIMAP format.\n" +
+                                                  "Depending on the product size the conversion also may take a while.\n\n" +
+                                                  "Do you really want to convert the product now?\n",
+                                                  "productConversionRequired"); /*I18N*/
             if (answer != 0) { // Zero means YES
                 return;
             }
@@ -1635,10 +1635,10 @@ public class VisatApp extends BasicApp implements AppContext {
             fileName = product.getName();
         }
         final File newFile = showFileSaveDialog("Save Product As",
-                false,
-                DimapProductHelpers.createDimapFileFilter(),
-                DimapProductConstants.DIMAP_HEADER_FILE_EXTENSION,
-                fileName); /*I18N*/
+                                                false,
+                                                DimapProductHelpers.createDimapFileFilter(),
+                                                DimapProductConstants.DIMAP_HEADER_FILE_EXTENSION,
+                                                fileName); /*I18N*/
         if (newFile == null) {
             return;
         }
@@ -1760,10 +1760,10 @@ public class VisatApp extends BasicApp implements AppContext {
                     final Parameter parameter = e.getParameter();
                     final Object defaultValue = parameter.getProperties().getDefaultValue();
                     showErrorDialog("Error in Preferences",
-                            String.format("A problem has been detected in the preferences settings of %s:\n\n"
-                                    + "Value for parameter '%s' is invalid.\n"
-                                    + "Its default value '%s' will be used instead.",
-                                    getAppName(), parameter.getName(), defaultValue));
+                                    String.format("A problem has been detected in the preferences settings of %s:\n\n"
+                                                  + "Value for parameter '%s' is invalid.\n"
+                                                  + "Its default value '%s' will be used instead.",
+                                                  getAppName(), parameter.getName(), defaultValue));
                     try {
                         parameter.setDefaultValue();
                     } catch (IllegalArgumentException e1) {
@@ -1938,7 +1938,8 @@ public class VisatApp extends BasicApp implements AppContext {
                 "drawPolygonTool",
                 "createVectorDataNode",
                 // Magic Wand removed for 4.10 release
-                "true".equalsIgnoreCase(System.getProperty("beam.magicWandTool.enabled", "false")) ? "magicWandTool" : null,
+                "true".equalsIgnoreCase(
+                        System.getProperty("beam.magicWandTool.enabled", "false")) ? "magicWandTool" : null,
         });
         return toolBar;
     }
@@ -2017,7 +2018,8 @@ public class VisatApp extends BasicApp implements AppContext {
                     toolBarButton.addMouseListener(getMouseOverActionHandler());
                     toolBar.add(toolBarButton);
                 } else {
-                    getLogger().warning(String.format("Toolbar '%s': No command found for ID = '%s'", toolBar.getName(), commandID));
+                    getLogger().warning(String.format("Toolbar '%s': No command found for ID = '%s'", toolBar.getName(),
+                                                      commandID));
                 }
             }
             toolBar.add(Box.createHorizontalStrut(1));
@@ -2110,7 +2112,9 @@ public class VisatApp extends BasicApp implements AppContext {
      * is selected.
      *
      * @param commandID the command ID
+     *
      * @return a tool button which is automatically added to VISAT's tool button group.
+     *
      * @see #getCommandManager
      */
     public AbstractButton createToolButton(final String commandID) {
@@ -2132,13 +2136,13 @@ public class VisatApp extends BasicApp implements AppContext {
         menuBar.add(createJMenu("edit", "Edit", 'E'));
         menuBar.add(createJMenu("view", "View", 'V'));
         menuBar.add(createJMenu("data", "Analysis", 'A',
-                InformationToolView.ID + SHOW_TOOLVIEW_CMD_POSTFIX,
-                GeoCodingToolView.ID + SHOW_TOOLVIEW_CMD_POSTFIX,
-                StatisticsToolView.ID + SHOW_TOOLVIEW_CMD_POSTFIX,
-                HistogramPlotToolView.ID + SHOW_TOOLVIEW_CMD_POSTFIX,
-                ScatterPlotToolView.ID + SHOW_TOOLVIEW_CMD_POSTFIX,
-                DensityPlotToolView.ID + SHOW_TOOLVIEW_CMD_POSTFIX,
-                ProfilePlotToolView.ID + SHOW_TOOLVIEW_CMD_POSTFIX
+                                InformationToolView.ID + SHOW_TOOLVIEW_CMD_POSTFIX,
+                                GeoCodingToolView.ID + SHOW_TOOLVIEW_CMD_POSTFIX,
+                                StatisticsToolView.ID + SHOW_TOOLVIEW_CMD_POSTFIX,
+                                HistogramPlotToolView.ID + SHOW_TOOLVIEW_CMD_POSTFIX,
+                                ScatterPlotToolView.ID + SHOW_TOOLVIEW_CMD_POSTFIX,
+                                DensityPlotToolView.ID + SHOW_TOOLVIEW_CMD_POSTFIX,
+                                ProfilePlotToolView.ID + SHOW_TOOLVIEW_CMD_POSTFIX
         ));
         menuBar.add(createJMenu("tools", "Tools", 'T'));
         menuBar.add(createJMenu("window", "Window", 'W'));
@@ -2208,7 +2212,9 @@ public class VisatApp extends BasicApp implements AppContext {
      * @param icon    a frame icon, can be null
      * @param content the frame's content pane
      * @param helpId  the id for help system
+     *
      * @return the newly created frame
+     *
      * @deprecated Since BEAM 4.10, use {@link #createInternalFrame(String, javax.swing.Icon, javax.swing.JComponent, String, boolean)} instead
      */
     @Deprecated
@@ -2220,11 +2226,12 @@ public class VisatApp extends BasicApp implements AppContext {
     /**
      * Creates an internal frame and adds it to VISAT's desktop.
      *
-     * @param title   a frame title
-     * @param icon    a frame icon, can be null
-     * @param content the frame's content pane
-     * @param helpId  the id for help system
+     * @param title         a frame title
+     * @param icon          a frame icon, can be null
+     * @param content       the frame's content pane
+     * @param helpId        the id for help system
      * @param maximizeFrame flag indicating whether the frame is to be maximized
+     *
      * @return the newly created frame
      */
     public synchronized JInternalFrame createInternalFrame(final String title, final Icon icon,
@@ -2575,9 +2582,9 @@ public class VisatApp extends BasicApp implements AppContext {
 
         private JFileChooser showOpenFileDialog() {
             String lastDir = getPreferences().getPropertyString(PROPERTY_KEY_APP_LAST_OPEN_DIR,
-                    SystemUtils.getUserHomeDir().getPath());
+                                                                SystemUtils.getUserHomeDir().getPath());
             String lastFormat = getPreferences().getPropertyString(PROPERTY_KEY_APP_LAST_OPEN_FORMAT,
-                    ALL_FILES_IDENTIFIER);
+                                                                   ALL_FILES_IDENTIFIER);
             BeamFileChooser fileChooser = new BeamFileChooser();
             fileChooser.setCurrentDirectory(new File(lastDir));
             fileChooser.setAcceptAllFileFilterUsed(true);
@@ -2590,7 +2597,7 @@ public class VisatApp extends BasicApp implements AppContext {
             for (BeamFileFilter productFileFilter : sortedFileFilters) {
                 fileChooser.addChoosableFileFilter(productFileFilter);
                 if (!ALL_FILES_IDENTIFIER.equals(lastFormat) &&
-                        productFileFilter.getFormatName().equals(lastFormat)) {
+                    productFileFilter.getFormatName().equals(lastFormat)) {
                     actualFileFilter = productFileFilter;
                 }
             }

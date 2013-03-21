@@ -171,13 +171,6 @@ public class BasicApp {
     // todo - move somewhere else
     public static final String MESSAGE_STATUS_BAR_ITEM_KEY = "Message";
     public static final String POSITION_STATUS_BAR_ITEM_KEY = "Position";
-    public static final String TIME_STATUS_BAR_ITEM_KEY = "Time";
-    /**
-     * @deprecated since BEAM 4.2, no replacement
-     */
-    @Deprecated
-    public static final String OVRINS_STATUS_BAR_ITEM_KEY = "OvrIns";
-    public static final String MEMORY_STATUS_BAR_ITEM_KEY = "Memory";
     private File beamUserDir;
     private File appUserDir;
     private boolean frameBoundsRestored;
@@ -217,6 +210,7 @@ public class BasicApp {
      *                         application does not use resource bundles
      * @param appLoggerName    the logger name for the application logging, can be <code>null</code> if the application
      *                         does not use logging
+     *
      * @see java.util.ResourceBundle
      */
     protected BasicApp(String appName,
@@ -300,6 +294,7 @@ public class BasicApp {
      * (if any) is closed.</li> </ol>
      *
      * @param pm a progress monitor, e.g. for splash-screen
+     *
      * @throws Exception if an error occurs
      */
     public void startUp(ProgressMonitor pm) throws Exception {
@@ -613,6 +608,7 @@ public class BasicApp {
      * <p/>The default implementation does nothing.
      *
      * @param pm a progress monitor, can be used to signal progress
+     *
      * @throws Exception if an error occurs
      */
     protected void initClient(ProgressMonitor pm) throws Exception {
@@ -626,6 +622,7 @@ public class BasicApp {
      * <p/>The default implementation does nothing.
      *
      * @param pm a progress monitor, can be used to signal progress
+     *
      * @throws Exception if an error occurs
      */
     protected void initClientUI(ProgressMonitor pm) throws Exception {
@@ -666,11 +663,6 @@ public class BasicApp {
         }
     }
 
-
-    @Deprecated
-    public void setToolBarVisible(boolean visbile, String toolBarId) {
-        setToolBarVisible(toolBarId, visbile);
-    }
 
     public boolean isStatusBarVisible() {
         return (statusBar != null) && statusBar.isVisible();
@@ -848,8 +840,8 @@ public class BasicApp {
                 if (command instanceof ExecCommand && command.getLargeIcon() != null) {
                     String rootParent = findRootParent(command);
                     if ((rootParent == null
-                            && toolBarGroup == null)
-                            || (rootParent != null
+                         && toolBarGroup == null)
+                        || (rootParent != null
                             && rootParent.equalsIgnoreCase(toolBarGroup))) {
                         AbstractButton button = command.createToolBarButton();
                         if (button != null) {
@@ -1240,6 +1232,7 @@ public class BasicApp {
      * @param title      a dialog-box title
      * @param dirsOnly   whether or not to select only directories
      * @param fileFilter the file filter to be used, can be <code>null</code>
+     *
      * @return the file selected by the user or <code>null</code> if the user canceled file selection
      */
     public final File showFileOpenDialog(String title, boolean dirsOnly, FileFilter fileFilter) {
@@ -1253,6 +1246,7 @@ public class BasicApp {
      * @param dirsOnly           whether or not to select only directories
      * @param fileFilter         the file filter to be used, can be <code>null</code>
      * @param lastDirPropertyKey the key under which the last directory the user visited is stored
+     *
      * @return the file selected by the user or <code>null</code> if the user canceled file selection
      */
     public final File showFileOpenDialog(String title,
@@ -1301,6 +1295,7 @@ public class BasicApp {
      * @param fileFilter       the file filter to be used, can be <code>null</code>
      * @param defaultExtension the extension used as default
      * @param fileName         the initial filename
+     *
      * @return the file selected by the user or <code>null</code> if the user canceled file selection
      */
     public final File showFileSaveDialog(String title,
@@ -1325,6 +1320,7 @@ public class BasicApp {
      * @param defaultExtension   the extension used as default
      * @param fileName           the initial filename
      * @param lastDirPropertyKey the key under which the last directory the user visited is stored
+     *
      * @return the file selected by the user or <code>null</code> if the user canceled file selection
      */
     public final File showFileSaveDialog(String title,
@@ -1428,6 +1424,7 @@ public class BasicApp {
      * deregistered using the <code>{@link #unregisterJob}</code> method.
      *
      * @param job any job-like object
+     *
      * @deprecated No longer used
      */
     public final synchronized void registerJob(Object job) {
@@ -1439,6 +1436,7 @@ public class BasicApp {
      * <code>{@link #registerJob}</code> method have been deregistered.
      *
      * @param job any job-like object
+     *
      * @deprecated No longer used
      */
     public final synchronized void unregisterJob(Object job) {
@@ -1455,12 +1453,12 @@ public class BasicApp {
             message = "An unknown error occurred."; /*I18N*/
         } else if (e.getMessage() == null) {
             message = "An exception occurred:\n"
-                    + "   Type: " + e.getClass().getName() + "\n"
-                    + "   No message text available."; /*I18N*/
+                      + "   Type: " + e.getClass().getName() + "\n"
+                      + "   No message text available."; /*I18N*/
         } else {
             message = "An exception occurred:\n"
-                    + "   Type: " + e.getClass().getName() + "\n"
-                    + "   Message: " + e.getMessage(); /*I18N*/
+                      + "   Type: " + e.getClass().getName() + "\n"
+                      + "   Message: " + e.getMessage(); /*I18N*/
         }
 
         getMainFrame().setCursor(Cursor.getDefaultCursor());
@@ -1504,10 +1502,11 @@ public class BasicApp {
     public final void showOutOfMemoryErrorDialog(String message) {
         showErrorDialog("Out of Memory",
                         String.format("%s is out of memory.\n%s\n\n" +
-                                              "You can try to release memory by closing products or image views which\n" +
-                                              "you currently not really need.\n" +
-                                              "If this does not help, you can increase the amount of virtual memory\n" +
-                                              "as described on the BEAM website at http://envisat.esa.int/services/beam/.", getAppName(), message));
+                                      "You can try to release memory by closing products or image views which\n" +
+                                      "you currently not really need.\n" +
+                                      "If this does not help, you can increase the amount of virtual memory\n" +
+                                      "as described on the BEAM website at http://envisat.esa.int/services/beam/.",
+                                      getAppName(), message));
     }
 
     public final void showMessageDialog(String title, String message, int messageType, String preferencesKey) {
@@ -1539,16 +1538,16 @@ public class BasicApp {
                                                             message,
                                                             getAppName() + " - " + title,
                                                             allowCancel
-                                                                    ? JOptionPane.YES_NO_CANCEL_OPTION
-                                                                    : JOptionPane.YES_NO_OPTION,
+                                                            ? JOptionPane.YES_NO_CANCEL_OPTION
+                                                            : JOptionPane.YES_NO_OPTION,
                                                             JOptionPane.QUESTION_MESSAGE);
         } else {
             return JOptionPane.showConfirmDialog(getMainFrame(),
                                                  message,
                                                  getAppName() + " - " + title,
                                                  allowCancel
-                                                         ? JOptionPane.YES_NO_CANCEL_OPTION
-                                                         : JOptionPane.YES_NO_OPTION,
+                                                 ? JOptionPane.YES_NO_CANCEL_OPTION
+                                                 : JOptionPane.YES_NO_OPTION,
                                                  JOptionPane.QUESTION_MESSAGE);
         }
     }
@@ -1612,7 +1611,9 @@ public class BasicApp {
      * file does not exists, the question dialog does not comes up.
      *
      * @param file the file to check for existance
+     *
      * @return <code>true</code> if the user confirmes the dialog with 'yes' or the given file does not exist.
+     *
      * @throws IllegalArgumentException if <code>file</code> is <code>null</code>
      */
     public final boolean promptForOverwrite(File file) {
@@ -1622,9 +1623,9 @@ public class BasicApp {
         }
         int answer = showQuestionDialog("File Exists",
                                         "The file\n"
-                                                + "'" + file.getPath() + "'\n"
-                                                + "already exists.\n\n"
-                                                + "Do you really want to overwrite it?\n", null);
+                                        + "'" + file.getPath() + "'\n"
+                                        + "already exists.\n\n"
+                                        + "Do you really want to overwrite it?\n", null);
         return answer == JOptionPane.YES_OPTION;
     }
 

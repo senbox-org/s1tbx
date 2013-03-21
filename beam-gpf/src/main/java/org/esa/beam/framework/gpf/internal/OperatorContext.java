@@ -15,7 +15,14 @@
  */
 package org.esa.beam.framework.gpf.internal;
 
-import com.bc.ceres.binding.*;
+import com.bc.ceres.binding.ConversionException;
+import com.bc.ceres.binding.Property;
+import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.PropertyDescriptor;
+import com.bc.ceres.binding.PropertyDescriptorFactory;
+import com.bc.ceres.binding.PropertySet;
+import com.bc.ceres.binding.ValidationException;
+import com.bc.ceres.binding.ValueSet;
 import com.bc.ceres.binding.dom.DefaultDomConverter;
 import com.bc.ceres.binding.dom.DomElement;
 import com.bc.ceres.binding.dom.XppDomElement;
@@ -24,9 +31,23 @@ import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.glevel.MultiLevelImage;
 import com.bc.ceres.jai.tilecache.DefaultSwapSpace;
 import com.bc.ceres.jai.tilecache.SwappingTileCache;
-import org.esa.beam.framework.datamodel.*;
-import org.esa.beam.framework.gpf.*;
-import org.esa.beam.framework.gpf.annotations.*;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.MetadataAttribute;
+import org.esa.beam.framework.datamodel.MetadataElement;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.gpf.GPF;
+import org.esa.beam.framework.gpf.Operator;
+import org.esa.beam.framework.gpf.OperatorException;
+import org.esa.beam.framework.gpf.OperatorSpi;
+import org.esa.beam.framework.gpf.Tile;
+import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
+import org.esa.beam.framework.gpf.annotations.ParameterDescriptorFactory;
+import org.esa.beam.framework.gpf.annotations.SourceProduct;
+import org.esa.beam.framework.gpf.annotations.SourceProducts;
+import org.esa.beam.framework.gpf.annotations.TargetProduct;
+import org.esa.beam.framework.gpf.annotations.TargetProperty;
 import org.esa.beam.framework.gpf.graph.GraphOp;
 import org.esa.beam.framework.gpf.internal.OperatorConfiguration.Reference;
 import org.esa.beam.framework.gpf.monitor.TileComputationEvent;
@@ -38,15 +59,22 @@ import javax.media.jai.BorderExtender;
 import javax.media.jai.JAI;
 import javax.media.jai.OpImage;
 import javax.media.jai.TileCache;
-import java.awt.*;
+import java.awt.Dimension;
+import java.awt.Rectangle;
+import java.awt.RenderingHints;
 import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
@@ -117,7 +145,8 @@ public class OperatorContext {
 
     private static synchronized TileCache getTileCache() {
         if (tileCache == null) {
-            boolean useFileTileCache = Boolean.parseBoolean(System.getProperty(GPF.USE_FILE_TILE_CACHE_PROPERTY, "false"));
+            boolean useFileTileCache = Boolean.parseBoolean(
+                    System.getProperty(GPF.USE_FILE_TILE_CACHE_PROPERTY, "false"));
             if (useFileTileCache) {
                 tileCache = new SwappingTileCache(JAI.getDefaultInstance().getTileCache().getMemoryCapacity(),
                                                   new DefaultSwapSpace(SwappingTileCache.DEFAULT_SWAP_DIR,
@@ -125,9 +154,10 @@ public class OperatorContext {
             } else {
                 tileCache = JAI.getDefaultInstance().getTileCache();
             }
-            BeamLogManager.getSystemLogger().info(String.format("All GPF operators will share an instance of %s with a capacity of %dM",
-                                                                tileCache.getClass().getName(),
-                                                                tileCache.getMemoryCapacity() / (1024 * 1024)));
+            BeamLogManager.getSystemLogger().info(
+                    String.format("All GPF operators will share an instance of %s with a capacity of %dM",
+                                  tileCache.getClass().getName(),
+                                  tileCache.getMemoryCapacity() / (1024 * 1024)));
         }
         return tileCache;
     }
@@ -324,25 +354,8 @@ public class OperatorContext {
         this.computeTileStackMethodUsable = computeTileStackMethodUsable;
     }
 
-    /**
-     * @deprecated since BEAM 4.9, use {@link #getSourceTile(RasterDataNode, Rectangle)} instead
-     */
-    @Deprecated
-    public Tile getSourceTile(RasterDataNode rasterDataNode, Rectangle region, ProgressMonitor pm) {
-        return getSourceTile(rasterDataNode, region);
-    }
-
     public Tile getSourceTile(RasterDataNode rasterDataNode, Rectangle region) {
-        return getSourceTile(rasterDataNode, region, (BorderExtender) null);
-    }
-
-    /**
-     * @deprecated since BEAM 4.9, use {@link #getSourceTile(RasterDataNode, Rectangle, BorderExtender)} instead
-     */
-    @Deprecated
-    public Tile getSourceTile(RasterDataNode rasterDataNode, Rectangle region, BorderExtender borderExtender,
-                              ProgressMonitor pm) {
-        return getSourceTile(rasterDataNode, region, borderExtender);
+        return getSourceTile(rasterDataNode, region, null);
     }
 
     public Tile getSourceTile(RasterDataNode rasterDataNode, Rectangle region, BorderExtender borderExtender) {
@@ -411,7 +424,7 @@ public class OperatorContext {
     private static boolean implementsMethod(Class<?> aClass, String methodName, Class[] methodParameterTypes) {
         while (true) {
             if (Operator.class.equals(aClass)
-                    || !Operator.class.isAssignableFrom(aClass)) {
+                || !Operator.class.isAssignableFrom(aClass)) {
                 return false;
             }
             try {
@@ -503,10 +516,16 @@ public class OperatorContext {
 
         OperatorMetadata operatorMetadata = context.operator.getClass().getAnnotation(OperatorMetadata.class);
         if (operatorMetadata != null) {
-            targetNodeME.addAttribute(new MetadataAttribute("purpose", ProductData.createInstance(operatorMetadata.description()), false));
-            targetNodeME.addAttribute(new MetadataAttribute("authors", ProductData.createInstance(operatorMetadata.authors()), false));
-            targetNodeME.addAttribute(new MetadataAttribute("version", ProductData.createInstance(operatorMetadata.version()), false));
-            targetNodeME.addAttribute(new MetadataAttribute("copyright", ProductData.createInstance(operatorMetadata.copyright()), false));
+            targetNodeME.addAttribute(
+                    new MetadataAttribute("purpose", ProductData.createInstance(operatorMetadata.description()),
+                                          false));
+            targetNodeME.addAttribute(
+                    new MetadataAttribute("authors", ProductData.createInstance(operatorMetadata.authors()), false));
+            targetNodeME.addAttribute(
+                    new MetadataAttribute("version", ProductData.createInstance(operatorMetadata.version()), false));
+            targetNodeME.addAttribute(
+                    new MetadataAttribute("copyright", ProductData.createInstance(operatorMetadata.copyright()),
+                                          false));
         }
 
 
@@ -668,8 +687,8 @@ public class OperatorContext {
         Dimension tileSize = null;
         for (final Product sourceProduct : sourceProductList) {
             if (sourceProduct.getPreferredTileSize() != null &&
-                    sourceProduct.getSceneRasterWidth() == targetProduct.getSceneRasterWidth() &&
-                    sourceProduct.getSceneRasterHeight() == targetProduct.getSceneRasterHeight()) {
+                sourceProduct.getSceneRasterWidth() == targetProduct.getSceneRasterWidth() &&
+                sourceProduct.getSceneRasterHeight() == targetProduct.getSceneRasterHeight()) {
                 tileSize = sourceProduct.getPreferredTileSize();
                 break;
             }
@@ -781,7 +800,7 @@ public class OperatorContext {
     }
 
     private void processSourceProductField(Field declaredField, SourceProduct sourceProductAnnotation) throws
-            OperatorException {
+                                                                                                       OperatorException {
         if (declaredField.getType().equals(Product.class)) {
             String productMapName = declaredField.getName();
             Product sourceProduct = getSourceProduct(productMapName);
@@ -814,7 +833,7 @@ public class OperatorContext {
     }
 
     private void processSourceProductsField(Field declaredField, SourceProducts sourceProductsAnnotation) throws
-            OperatorException {
+                                                                                                          OperatorException {
         if (declaredField.getType().equals(Product[].class)) {
             Product[] sourceProducts = getSourceProductsFieldValue(declaredField);
             if (sourceProducts != null) {
@@ -1009,7 +1028,8 @@ public class OperatorContext {
                         Object object = descriptor.getAttribute(RasterDataNodeValues.ATTRIBUTE_NAME);
                         Class<? extends RasterDataNode> rasterDataNodeType = (Class<? extends RasterDataNode>) object;
                         final boolean includeEmptyValue = !descriptor.isNotNull() && !descriptor.isNotEmpty() && !descriptor.getType().isArray();
-                        String[] names = RasterDataNodeValues.getNames(sourceProduct, rasterDataNodeType, includeEmptyValue);
+                        String[] names = RasterDataNodeValues.getNames(sourceProduct, rasterDataNodeType,
+                                                                       includeEmptyValue);
                         ValueSet valueSet = new ValueSet(names);
                         descriptor.setValueSet(valueSet);
                     }
@@ -1060,7 +1080,8 @@ public class OperatorContext {
             long endNanos = System.nanoTime();
             int tileX = operatorImage.XToTileX(destRect.x);
             int tileY = operatorImage.YToTileY(destRect.y);
-            tileComputationObserver.tileComputed(new TileComputationEvent(operatorImage, tileX, tileY, startNanos, endNanos));
+            tileComputationObserver.tileComputed(
+                    new TileComputationEvent(operatorImage, tileX, tileY, startNanos, endNanos));
         }
     }
 

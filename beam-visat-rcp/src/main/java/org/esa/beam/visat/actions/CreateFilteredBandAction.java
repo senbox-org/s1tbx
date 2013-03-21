@@ -250,9 +250,7 @@ public class CreateFilteredBandAction extends ExecCommand {
             filterBand = new ConvolutionFilterBand(bandName, raster, kernelFilter.kernel);
         } else {
             final GeneralFilter generalFilter = (GeneralFilter) filter;
-            filterBand = new GeneralFilterBand(bandName, raster,
-                                               generalFilter.width,
-                                               generalFilter.height, generalFilter.operator);
+            filterBand = new GeneralFilterBand(bandName, raster, generalFilter.width, generalFilter.operator);
         }
         final String descr = MessageFormat.format("Filter ''{0}'' applied to ''{1}''",
                                                   filter.toString(),
@@ -450,12 +448,14 @@ public class CreateFilteredBandAction extends ExecCommand {
     }
 
     class CreateFilteredBandDialog extends ModalDialog {
+
         private final JTextField nameField;
         private final Product product;
         private final JTree tree;
 
         public CreateFilteredBandDialog(JTextField nameField, Product product, JTree tree) {
-            super(VisatApp.getApp().getMainFrame(), CreateFilteredBandAction.TITLE, ModalDialog.ID_OK_CANCEL_HELP, CreateFilteredBandAction.this.getHelpId());
+            super(VisatApp.getApp().getMainFrame(), CreateFilteredBandAction.TITLE, ModalDialog.ID_OK_CANCEL_HELP,
+                  CreateFilteredBandAction.this.getHelpId());
             this.nameField = nameField;
             this.product = product;
             this.tree = tree;
@@ -469,10 +469,10 @@ public class CreateFilteredBandAction extends ExecCommand {
                 message = "Please enter a name for the new filtered band."; /*I18N*/
             } else if (!ProductNode.isValidNodeName(bandName)) {
                 message = MessageFormat.format("The band name ''{0}'' appears not to be valid.\n" +
-                        "Please choose a different band name.", bandName); /*I18N*/
+                                               "Please choose a different band name.", bandName); /*I18N*/
             } else if (product.containsBand(bandName)) {
                 message = MessageFormat.format("The selected product already contains a band named ''{0}''.\n" +
-                        "Please choose a different band name.", bandName); /*I18N*/
+                                               "Please choose a different band name.", bandName); /*I18N*/
             } else if (getSelectedFilter(tree) == null) {
                 message = "Please select a filter.";    /*I18N*/
             }

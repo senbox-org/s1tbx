@@ -153,7 +153,7 @@ public class AnimatedGifExport extends ProgressMonitorSwingWorker<Void, Void> {
         try {
             meta.setFromTree(metaFormat, root);
         } catch (IIOInvalidTreeException e) {
-            VisatApp.getApp().handleError(e);
+            VisatApp.getApp().handleError(e.getMessage(), e);
         }
     }
 

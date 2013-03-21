@@ -24,7 +24,6 @@ import com.bc.jexp.Term;
 import com.bc.jexp.WritableNamespace;
 import com.bc.jexp.impl.ParserImpl;
 import org.esa.beam.framework.dataio.ProductFlipper;
-import org.esa.beam.framework.dataio.ProductProjectionBuilder;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductSubsetBuilder;
 import org.esa.beam.framework.dataio.ProductSubsetDef;
@@ -57,8 +56,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
 
 /**
  * <code>Product</code> instances are an in-memory representation of a remote sensing data product. The product is more
@@ -1619,22 +1616,6 @@ public class Product extends ProductNode {
 
 
     /**
-     * Creates a map-projected version of this product.
-     *
-     * @param mapInfo the map information
-     * @param name    the name for the new product
-     * @param desc    the description for the new product
-     *
-     * @return the product subset, or <code>null</code> if the product/subset combination is not valid
-     *
-     * @throws IOException if an I/O error occurs
-     */
-    public Product createProjectedProduct(final MapInfo mapInfo, final String name, final String desc) throws
-                                                                                                       IOException {
-        return ProductProjectionBuilder.createProductProjection(this, false, mapInfo, name, desc);
-    }
-
-    /**
      * Creates flipped raster-data version of this product.
      *
      * @param flipType the flip type, see <code>{@link org.esa.beam.framework.dataio.ProductFlipper}</code>
@@ -1686,8 +1667,8 @@ public class Product extends ProductNode {
         for (int i = 0; i < getFlagCodingGroup().getNodeCount(); i++) {
             size += getFlagCodingGroup().get(i).getRawStorageSize(subsetDef);
         }
-        for (int i = 0; i < getNumBitmaskDefs(); i++) {
-            size += getBitmaskDefAt(i).getRawStorageSize(subsetDef);
+        for (int i = 0; i < getMaskGroup().getNodeCount(); i++) {
+            size += getMaskGroup().get(i).getRawStorageSize(subsetDef);
         }
         size += getMetadataRoot().getRawStorageSize(subsetDef);
         return size;
@@ -2362,72 +2343,6 @@ public class Product extends ProductNode {
     }
 
     /**
-     * Moves the given bitmask definition to the given index.
-     *
-     * @param bitmaskDef the bitmask definition which is to move
-     * @param index      the destination index for the given bitmask definition
-     *
-     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
-     */
-    @Deprecated
-    public void moveBitmaskDef(final BitmaskDef bitmaskDef, final int index) {
-        Mask mask = getMaskGroup().get(bitmaskDef.getName());
-        if (bitmaskDefGroup.remove(bitmaskDef)) {
-            fireNodeRemoved(bitmaskDef, bitmaskDefGroup);
-            getMaskGroup().remove(mask);
-        }
-        bitmaskDefGroup.add(index, bitmaskDef);
-        fireNodeAdded(bitmaskDef, bitmaskDefGroup);
-        getMaskGroup().add(index, mask);
-    }
-
-    /**
-     * Removes the given bitmask definition from this product.
-     *
-     * @param bitmaskDef the bitmask definition to be removed, ignored if <code>null</code>
-     *
-     * @return <code>true</code> on success
-     *
-     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
-     */
-    @Deprecated
-    public boolean removeBitmaskDef(final BitmaskDef bitmaskDef) {
-        final boolean result = bitmaskDefGroup.remove(bitmaskDef);
-
-        Mask mask = getMaskGroup().get(bitmaskDef.getName());
-        getMaskGroup().remove(mask);
-
-        return result;
-    }
-
-    /**
-     * Gets the number of bitmask definitions contained in this product.
-     *
-     * @return the number of bitmask definitions
-     *
-     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
-     */
-    @Deprecated
-    public int getNumBitmaskDefs() {
-        return bitmaskDefGroup.getNodeCount();
-    }
-
-    /**
-     * Returns the bitmask definition at the given index.
-     *
-     * @param index the bitmask definition index
-     *
-     * @return the bitmask definition at the given index
-     *
-     * @throws IndexOutOfBoundsException if the index is out of bounds
-     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
-     */
-    @Deprecated
-    public BitmaskDef getBitmaskDefAt(final int index) {
-        return bitmaskDefGroup.get(index);
-    }
-
-    /**
      * Returns a string array containing the names of the bitmask definitions contained in this product.
      *
      * @return a string array containing the names of the bitmask definitions contained in this product. If this product
@@ -2454,61 +2369,6 @@ public class Product extends ProductNode {
     public BitmaskDef getBitmaskDef(final String name) {
         Guardian.assertNotNullOrEmpty("name", name);
         return bitmaskDefGroup.get(name);
-    }
-
-    /**
-     * Returns an array of bitmask definitions contained in this product
-     *
-     * @return an array of bitmask definition contained in this product. If this product has no bitmask definitions a
-     *         zero-length-array is returned.
-     *
-     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
-     */
-    @Deprecated
-    public BitmaskDef[] getBitmaskDefs() {
-        final BitmaskDef[] bitmaskDefs = new BitmaskDef[getNumBitmaskDefs()];
-        for (int i = 0; i < bitmaskDefs.length; i++) {
-            bitmaskDefs[i] = getBitmaskDefAt(i);
-        }
-        return bitmaskDefs;
-    }
-
-    /**
-     * Tests if the given bitmask definition is contained in this container.
-     *
-     * @param def the bitmask definition, must not be <code>null</code>
-     *
-     * @return <code>true</code> if the bitmask definition is contained in this cotainer, <code>false</code> otherwise
-     *
-     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
-     */
-    @Deprecated
-    public boolean containsBitmaskDef(final BitmaskDef def) {
-        if (def != null) {
-            final BitmaskDef containedDef = getBitmaskDef(def.getName());
-            return def == containedDef;
-        }
-        return false;
-    }
-
-    /**
-     * Checks whether or not the given bitmask definition is compatible with this product.
-     *
-     * @param bitmaskDef The bitmask definition.
-     *
-     * @return <code>false</code> if the bitmask has a valid expression and(!) the flag name is not contained in this
-     *         data product, <code>true</code> otherwise.
-     *
-     * @deprecated since BEAM 4.7
-     */
-    @Deprecated
-    public boolean isCompatibleBitmaskDef(final BitmaskDef bitmaskDef) {
-        try {
-            parseExpression(bitmaskDef.getExpr());
-        } catch (ParseException e) {
-            return false;
-        }
-        return true;
     }
 
     /**
@@ -2630,20 +2490,6 @@ public class Product extends ProductNode {
     }
 
     /**
-     * @see #readBitmask(int, int, int, int, com.bc.jexp.Term, boolean[], com.bc.ceres.core.ProgressMonitor)
-     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
-     */
-    @Deprecated
-    public void readBitmask(final int offsetX,
-                            final int offsetY,
-                            final int width,
-                            final int height,
-                            final Term bitmaskTerm,
-                            final boolean[] bitmask) throws IOException {
-        readBitmask(offsetX, offsetY, width, height, bitmaskTerm, bitmask, ProgressMonitor.NULL);
-    }
-
-    /**
      * Creates a bit-mask by evaluating the given bit-mask term.
      * <p> The method first creates an evaluation context for the given bit-mask term and the specified region and then
      * evaluates the term for each pixel in the subset (line-by-line, X varies fastest). The result of each evaluation -
@@ -2687,22 +2533,6 @@ public class Product extends ProductNode {
                 bitmask[pixelIndex] = bitmaskTerm.evalB(env);
             }
         });
-    }
-
-    /**
-     * @see #readBitmask(int, int, int, int, com.bc.jexp.Term, byte[], byte, byte, com.bc.ceres.core.ProgressMonitor)
-     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
-     */
-    @Deprecated
-    public synchronized void readBitmask(final int offsetX,
-                                         final int offsetY,
-                                         final int width,
-                                         final int height,
-                                         final Term bitmaskTerm,
-                                         final byte[] bitmask,
-                                         final byte trueValue,
-                                         final byte falseValue) throws IOException {
-        readBitmask(offsetX, offsetY, width, height, bitmaskTerm, bitmask, trueValue, falseValue, ProgressMonitor.NULL);
     }
 
 
@@ -2759,61 +2589,6 @@ public class Product extends ProductNode {
                 }
             }
         }, "Reading bitmask...");  /*I18N*/
-    }
-
-    /**
-     * Checks whether or not the given term is compatible with this product.
-     *
-     * @param term The term to examine.
-     *
-     * @return <code>false</code> if the term has an expression referencing nodes which are not contained in
-     *         this product, <code>true</code> otherwise.
-     *
-     * @deprecated since BEAM 4.9. No usage, considered useless.
-     */
-    @Deprecated
-    public boolean isCompatibleTerm(final Term term) {
-        final RasterDataSymbol[] refRasterDataSymbols = BandArithmetic.getRefRasterDataSymbols(term);
-        final Set<String> flags = new TreeSet<String>();
-        final Set<String> rasters = new TreeSet<String>();
-        for (final RasterDataSymbol refRasterDataSymbol : refRasterDataSymbols) {
-            rasters.add(refRasterDataSymbol.getRaster().getName());
-            final String name = refRasterDataSymbol.getName();
-            if (isFlagSymbol(name)) {
-                final int index = name.indexOf('.');
-                flags.add(name.substring(index + 1));
-            }
-        }
-        final String[] flagNames = getAllFlagNames();
-        for (String flag : flags) {
-            if (!StringUtils.containsIgnoreCase(flagNames, flag)) {
-                return false;
-            }
-        }
-        final String[] rasterNames = StringUtils.addArrays(getBandNames(), getTiePointGridNames());
-        for (String raster : rasters) {
-            if (!StringUtils.containsIgnoreCase(rasterNames, raster)) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    /**
-     * Returns the index for the tie-point grid with the given name.
-     *
-     * @param name the tie-point grid name
-     *
-     * @return the tie-point grid index or <code>-1</code> if a tie-point grid with the given name is not contained in
-     *         this product.
-     *
-     * @throws IllegalArgumentException if the given name is <code>null</code> or empty.
-     * @deprecated since BEAM 4.9. No usage, considered useless.
-     */
-    @Deprecated
-    public int getTiePointGridIndex(final String name) {
-        Guardian.assertNotNullOrEmpty("name", name);
-        return tiePointGridGroup.indexOf(name);
     }
 
     private class VectorDataNodeProductNodeGroup extends ProductNodeGroup<VectorDataNode> {

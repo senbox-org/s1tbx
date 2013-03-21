@@ -32,6 +32,7 @@ import java.awt.Window;
  * is only for testing.
  */
 public class DefaultAppContext implements AppContext {
+
     private Window applicationWindow;
     private String applicationName;
     private ProductManager productManager;
@@ -43,7 +44,7 @@ public class DefaultAppContext implements AppContext {
         this(applicationName,
              new JFrame(applicationName),
              new ProductManager(),
-             new PropertyMap());        
+             new PropertyMap());
     }
 
 
@@ -105,11 +106,6 @@ public class DefaultAppContext implements AppContext {
 
     public void setSelectedProduct(Product selectedProduct) {
         this.selectedProduct = selectedProduct;
-    }
-
-    @Override
-    public void handleError(Throwable t) {
-        handleError("An error occurred:\n" + t.getMessage(), t);
     }
 
     @Override

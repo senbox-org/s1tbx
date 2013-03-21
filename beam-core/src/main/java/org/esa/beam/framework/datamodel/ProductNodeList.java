@@ -50,7 +50,8 @@ public final class ProductNodeList<T extends ProductNode> {
 
     /**
      * @param index the index, must be in the range zero to <code>size()</code>
-     * @return  the element at the spcified index.
+     *
+     * @return the element at the spcified index.
      */
     public final T getAt(int index) {
         return nodes.get(index);
@@ -74,6 +75,7 @@ public final class ProductNodeList<T extends ProductNode> {
      * If this list is empty a zero-length array is returned.
      *
      * @return a string array containing all node display names, never <code>null</code>
+     *
      * @see ProductNode#getDisplayName()
      */
     public String[] getDisplayNames() {
@@ -117,7 +119,7 @@ public final class ProductNodeList<T extends ProductNode> {
                 return node;
             }
         }
-        return  null;
+        return null;
     }
 
     /**
@@ -155,21 +157,6 @@ public final class ProductNodeList<T extends ProductNode> {
      */
     public final boolean add(T node) {
         return node != null && nodes.add(node);
-    }
-
-    /**
-     * Inserts a new node to this list at the given index. Note that <code>null</code> nodes are not added to this
-     * list.
-     *
-     * @param node  the node to be added, ignored if <code>null</code>
-     * @param index the insert index
-     *
-     * @throws ArrayIndexOutOfBoundsException if the index was invalid.
-     * @deprecated since BEAM 4.7, use {@link #add(int, ProductNode)} instead
-     */
-    @Deprecated
-    public final void insert(T node, int index) {
-        add(index, node);
     }
 
     /**
@@ -254,6 +241,7 @@ public final class ProductNodeList<T extends ProductNode> {
      * Creates a subset of this list using the given filter.
      *
      * @param filter the product node filter to be used, if <code>null</code> a clone of this list is created
+     *
      * @return the subset
      */
     public ProductNodeList<T> createSubset(ProductNodeFilter<T> filter) {

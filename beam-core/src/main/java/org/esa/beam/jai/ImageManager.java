@@ -101,7 +101,8 @@ public class ImageManager {
      * The default BEAM image coordinate reference system.
      */
     public static final ImageCRS DEFAULT_IMAGE_CRS = new DefaultImageCRS("BEAM",
-                                                                         new DefaultImageDatum("BEAM", PixelInCell.CELL_CORNER),
+                                                                         new DefaultImageDatum("BEAM",
+                                                                                               PixelInCell.CELL_CORNER),
                                                                          DefaultCartesianCS.DISPLAY);
 
     private static final boolean CACHE_INTERMEDIATE_TILES = Boolean.getBoolean(
@@ -395,7 +396,8 @@ public class ImageManager {
         boolean mustReinterpret = sourceImage.getSampleModel().getDataType() == DataBuffer.TYPE_BYTE &&
                                   raster.getDataType() == ProductData.TYPE_INT8;
         if (mustReinterpret) {
-            sourceImage = ReinterpretDescriptor.create(sourceImage, 1.0, 0.0, ReinterpretDescriptor.LINEAR, ReinterpretDescriptor.INTERPRET_BYTE_SIGNED, null);
+            sourceImage = ReinterpretDescriptor.create(sourceImage, 1.0, 0.0, ReinterpretDescriptor.LINEAR,
+                                                       ReinterpretDescriptor.INTERPRET_BYTE_SIGNED, null);
         }
 
         PlanarImage image = createRescaleOp(sourceImage,
@@ -575,12 +577,14 @@ public class ImageManager {
             final RenderedOp noDataColorImage = ConstantDescriptor.create((float) image.getWidth(),
                                                                           (float) image.getHeight(),
                                                                           noDataRGB,
-                                                                          createDefaultRenderingHints(sourceImage, null));
+                                                                          createDefaultRenderingHints(sourceImage,
+                                                                                                      null));
             byte noDataAlpha = (byte) noDataColor.getAlpha();
             final RenderedOp noDataAlphaImage = ConstantDescriptor.create((float) image.getWidth(),
                                                                           (float) image.getHeight(),
                                                                           new Byte[]{noDataAlpha},
-                                                                          createDefaultRenderingHints(sourceImage, null));
+                                                                          createDefaultRenderingHints(sourceImage,
+                                                                                                      null));
 
             image = CompositeDescriptor.create(image, noDataColorImage,
                                                maskImage, noDataAlphaImage, false,
@@ -690,20 +694,6 @@ public class ImageManager {
     private static PlanarImage getLevelImage(MultiLevelImage levelZeroImage, int level) {
         RenderedImage image = levelZeroImage.getImage(level);
         return PlanarImage.wrapRenderedImage(image);
-    }
-
-    @Deprecated
-    public MultiLevelImage createValidMaskMultiLevelImage(final RasterDataNode rasterDataNode) {
-        final MultiLevelModel model = ImageManager.getMultiLevelModel(rasterDataNode);
-        final MultiLevelSource mls = new AbstractMultiLevelSource(model) {
-
-            @Override
-            public RenderedImage createImage(int level) {
-                return VirtualBandOpImage.createMask(rasterDataNode,
-                                                     ResolutionLevel.create(getModel(), level));
-            }
-        };
-        return new DefaultMultiLevelImage(mls);
     }
 
     public RenderedImage getMaskImage(final Product product, final String expression, int level) {

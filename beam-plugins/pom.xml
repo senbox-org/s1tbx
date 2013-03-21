@@ -41,7 +41,6 @@
         <module>../beam-meris-smac</module>
         <module>../beam-merisl3-reader</module>
         <module>../beam-modis-reader</module>
-        <module>../beam-mosaic</module>
         <module>../beam-netcdf</module>
         <module>../beam-obpg-reader</module>
         <module>../beam-opendap</module>

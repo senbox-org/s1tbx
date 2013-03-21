@@ -73,12 +73,6 @@ public class GETASSE30ElevationModelDescriptor extends AbstractElevationModelDes
     }
 
     @Override
-    @Deprecated
-    public ElevationModel createDem() {
-        return createDem(Resampling.BILINEAR_INTERPOLATION);
-    }
-
-    @Override
     public ElevationModel createDem(Resampling resampling) {
         try {
             return new GETASSE30ElevationModel(this, resampling);

@@ -370,20 +370,4 @@ public class GraphProcessor {
         }
     }
 
-    //////////////////////////////////////////////////////////
-    // Deprecated API
-
-    /**
-     * Executes the given {@link GraphContext}.
-     *
-     * @param graphContext the {@link GraphContext} to execute
-     * @param pm           a progress monitor. Can be used to signal progress.
-     *
-     * @deprecated since BEAM 4.9, use {@link #executeGraph(GraphContext, com.bc.ceres.core.ProgressMonitor)}  instead
-     */
-    @Deprecated
-    public void executeGraphContext(GraphContext graphContext, ProgressMonitor pm) {
-        executeGraph(graphContext, pm);
-    }
-
 }
