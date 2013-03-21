@@ -3,6 +3,7 @@ package org.esa.beam.binning.operator;
 import org.esa.beam.binning.BinningContext;
 import org.esa.beam.binning.SpatialBin;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -55,6 +56,11 @@ class MapBackedSpatialBinCollector implements SpatialBinCollector {
     @Override
     public void consumingCompleted() {
         consumingCompleted.set(true);
+    }
+
+    @Override
+    public void close() throws IOException {
+        clearMap();
     }
 
     void clearMap() {

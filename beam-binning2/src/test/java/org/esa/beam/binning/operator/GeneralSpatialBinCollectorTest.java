@@ -17,19 +17,21 @@ public class GeneralSpatialBinCollectorTest {
     public void testConsumeSpatialBins() throws Exception {
 
         GeneralSpatialBinCollector store = new GeneralSpatialBinCollector();
+        try {
+            BinningContext ctx = Mockito.mock(BinningContext.class);
+            Mockito.when(ctx.getPlanetaryGrid()).thenReturn(new SEAGrid(10));
 
-        BinningContext ctx = Mockito.mock(BinningContext.class);
-        Mockito.when(ctx.getPlanetaryGrid()).thenReturn(new SEAGrid(10));
-
-        ArrayList<SpatialBin> spatialBins = new ArrayList<SpatialBin>();
-        spatialBins.add(createSpatialBin(23));
-        store.consumeSpatialBins(ctx, spatialBins);
-        store.consumingCompleted();
-        SpatialBinCollection binMap = store.getSpatialBinCollection();
-        Iterable<List<SpatialBin>> actualBinLists = binMap.getBinCollection();
-        List<SpatialBin> binList = actualBinLists.iterator().next();
-        assertEquals(23, binList.get(0).getIndex());
-
+            ArrayList<SpatialBin> spatialBins = new ArrayList<SpatialBin>();
+            spatialBins.add(createSpatialBin(23));
+            store.consumeSpatialBins(ctx, spatialBins);
+            store.consumingCompleted();
+            SpatialBinCollection binMap = store.getSpatialBinCollection();
+            Iterable<List<SpatialBin>> actualBinLists = binMap.getBinCollection();
+            List<SpatialBin> binList = actualBinLists.iterator().next();
+            assertEquals(23, binList.get(0).getIndex());
+        } finally {
+            store.close();
+        }
     }
 
     private SpatialBin createSpatialBin(long binIndex) {

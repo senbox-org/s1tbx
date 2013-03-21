@@ -1,8 +1,9 @@
 package org.esa.beam.binning.operator;
 
+import com.bc.ceres.core.VirtualDir;
 import org.esa.beam.binning.BinningContext;
 import org.esa.beam.binning.SpatialBin;
-import org.esa.beam.util.logging.BeamLogManager;
+import org.esa.beam.util.io.FileUtils;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -32,21 +33,17 @@ class FileBackedSpatialBinCollector implements SpatialBinCollector {
 
     private static final int NUM_BINS_PER_FILE = 100000;
     private static final int MAX_NUMBER_OF_CACHE_FILES = 100;
-    private static final File DEFAULT_TEMP_DIR = new File(System.getProperty("java.io.tmpdir"));
-    private static final File TEMP_DIRECTORY = new File(DEFAULT_TEMP_DIR, "beam-spatial-binning");
     private static final String FILE_NAME_PATTERN = "bins-%03d.tmp";
 
     private final SortedMap<Long, List<SpatialBin>> map;
     private final TreeSet<Long> binIndexSet;
     private final AtomicBoolean consumingCompleted;
+    private final File tempDir;
     private long currentFileIndex;
     private long maximumNumberOfBins;
 
     public FileBackedSpatialBinCollector() throws Exception {
-        if (!TEMP_DIRECTORY.exists() && !TEMP_DIRECTORY.mkdir()) {
-            throw new IOException("Could not create temporary directory.");
-        }
-        clearDirectory(TEMP_DIRECTORY);
+        tempDir = VirtualDir.createUniqueTempDir();
         binIndexSet = new TreeSet<Long>();
         map = new TreeMap<Long, List<SpatialBin>>();
         consumingCompleted = new AtomicBoolean(false);
@@ -100,6 +97,9 @@ class FileBackedSpatialBinCollector implements SpatialBinCollector {
         return new FileBackedBinCollection(binIndexSet);
     }
 
+    public void close() {
+        FileUtils.deleteTree(tempDir);
+    }
 
     static void writeToStream(SortedMap<Long, List<SpatialBin>> map, DataOutputStream dos) throws IOException {
         for (Map.Entry<Long, List<SpatialBin>> entry : map.entrySet()) {
@@ -164,26 +164,8 @@ class FileBackedSpatialBinCollector implements SpatialBinCollector {
         }
     }
 
-    private void clearDirectory(File tempDirectory) {
-        File[] files = tempDirectory.listFiles();
-        if (files == null) {
-            return;
-        }
-        for (File file : files) {
-            if (!file.delete()) {
-                try {
-                    String msgPattern = "Could not delete temporary binning file '%s'.";
-                    BeamLogManager.getSystemLogger().warning(String.format(msgPattern, file.getCanonicalPath()));
-                } catch (IOException e) {
-                    // should not happen - no special handling
-                    e.printStackTrace();
-                }
-            }
-        }
-    }
-
-    private static File getFile(long fileIndex) throws IOException {
-        return new File(TEMP_DIRECTORY, String.format(FILE_NAME_PATTERN, fileIndex));
+    private File getFile(long fileIndex) throws IOException {
+        return new File(tempDir, String.format(FILE_NAME_PATTERN, fileIndex));
     }
 
     private static int calculateNextFileIndex(long binIndex, long maximumNumberOfBins) {
@@ -198,7 +180,7 @@ class FileBackedSpatialBinCollector implements SpatialBinCollector {
         return binsPerFile < NUM_BINS_PER_FILE ? NUM_BINS_PER_FILE : binsPerFile;
     }
 
-    private static class FileBackedBinCollection implements SpatialBinCollection {
+    private class FileBackedBinCollection implements SpatialBinCollection {
 
         private TreeSet<Long> binIndexSet;
 

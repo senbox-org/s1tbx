@@ -1,6 +1,8 @@
 package org.esa.beam.binning.operator;
 
+import com.bc.ceres.core.VirtualDir;
 import org.esa.beam.binning.TemporalBin;
+import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.util.logging.BeamLogManager;
 
 import java.io.BufferedInputStream;
@@ -25,8 +27,6 @@ class TemporalBinList extends AbstractList<TemporalBin> {
     public static final int DEFAULT_MAX_CACHE_FILES = 100;
     public static final int DEFAULT_BINS_PER_FILE = 10000;
 
-    private static final File DEFAULT_TEMP_DIR = new File(System.getProperty("java.io.tmpdir"));
-    private static final File TEMP_DIRECTORY = new File(DEFAULT_TEMP_DIR, "beam-temporal-binning");
     private static final String FILE_NAME_PATTERN = "temporal-bins-%03d.tmp";
     private static final Logger logger = BeamLogManager.getSystemLogger();
 
@@ -34,6 +34,7 @@ class TemporalBinList extends AbstractList<TemporalBin> {
     private final long numberOfBins;
     private final int binsPerFile;
     private final ArrayList<TemporalBin> currentBinList;
+    private final File tempDir;
     private int size;
     private int lastFileIndex;
 
@@ -42,10 +43,7 @@ class TemporalBinList extends AbstractList<TemporalBin> {
     }
 
     TemporalBinList(int numberOfBins, int maxNumberOfCacheFiles, int preferredBinsPerFile) throws IOException {
-        if (!TEMP_DIRECTORY.exists() && !TEMP_DIRECTORY.mkdir()) {
-            throw new IOException("Could not create temporary directory.");
-        }
-        clearDirectory(TEMP_DIRECTORY);
+        tempDir = VirtualDir.createUniqueTempDir();
         this.numberOfBins = numberOfBins;
         binsPerFile = computeBinsPerFile(numberOfBins, maxNumberOfCacheFiles, preferredBinsPerFile);
         currentBinList = new ArrayList<TemporalBin>();
@@ -107,6 +105,10 @@ class TemporalBinList extends AbstractList<TemporalBin> {
         return size;
     }
 
+    public void close() {
+        FileUtils.deleteTree(tempDir);
+    }
+
     static int computeBinsPerFile(int numberOfBins, int maxNumberOfCacheFiles, int preferredBinsPerFile) {
         int numCacheFiles = (int) Math.ceil(numberOfBins / (float) preferredBinsPerFile);
         numCacheFiles = Math.min(numCacheFiles, maxNumberOfCacheFiles);
@@ -114,30 +116,13 @@ class TemporalBinList extends AbstractList<TemporalBin> {
         return binsPerFile < preferredBinsPerFile ? preferredBinsPerFile : binsPerFile;
     }
 
-    private void clearDirectory(File tempDirectory) {
-        File[] files = tempDirectory.listFiles();
-        if (files == null) {
-            return;
-        }
-        for (File file : files) {
-            if (!file.delete()) {
-                try {
-                    String msgPattern = "Could not delete temporary binning file '%s'.";
-                    BeamLogManager.getSystemLogger().warning(String.format(msgPattern, file.getCanonicalPath()));
-                } catch (IOException e) {
-                    // should not happen - no special handling
-                    e.printStackTrace();
-                }
-            }
-        }
-    }
 
     private int calculateFileIndex(int index) {
         return index / binsPerFile;
     }
 
     private File getFile(int fileIndex) throws IOException {
-        return new File(TEMP_DIRECTORY, String.format(FILE_NAME_PATTERN, fileIndex));
+        return new File(tempDir, String.format(FILE_NAME_PATTERN, fileIndex));
     }
 
     private void writeBinList(int currentFileIndex, ArrayList<TemporalBin> binList) throws IOException {

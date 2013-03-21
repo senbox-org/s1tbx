@@ -23,10 +23,17 @@ import org.esa.beam.dataio.dimap.DimapProductWriter;
 import org.esa.beam.dataio.dimap.DimapProductWriterPlugIn;
 import org.esa.beam.framework.dataio.ProductIOPlugInManager;
 import org.esa.beam.framework.dataio.ProductWriterPlugIn;
+import org.esa.beam.framework.datamodel.MetadataAttribute;
+import org.esa.beam.framework.datamodel.MetadataElement;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.ProductNode;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.timeseries.core.timeseries.datamodel.AbstractTimeSeries;
+import org.esa.beam.util.io.FileUtils;
 
+import java.io.File;
+import java.net.URI;
 import java.util.Iterator;
 
 /**
@@ -38,10 +45,10 @@ import java.util.Iterator;
  */
 public class TimeSeriesToolActivator implements Activator {
 
-    private final DimapProductWriter.VetoableShouldWriteListener vetoableShouldWriteListener;
+    private final DimapProductWriter.Listener dimapWriterListener;
 
     public TimeSeriesToolActivator() {
-        vetoableShouldWriteListener = createVetoableShouldWriteListener();
+        dimapWriterListener = createDimapWriterListener();
     }
 
     @Override
@@ -51,7 +58,7 @@ public class TimeSeriesToolActivator implements Activator {
         while (allWriterPlugIns.hasNext()) {
             ProductWriterPlugIn writerPlugIn = allWriterPlugIns.next();
             if (writerPlugIn instanceof DimapProductWriterPlugIn) {
-                ((DimapProductWriterPlugIn) writerPlugIn).addVetoableShouldWriteListener(vetoableShouldWriteListener);
+                ((DimapProductWriterPlugIn) writerPlugIn).addDimapWriterListener(dimapWriterListener);
             }
         }
     }
@@ -63,22 +70,62 @@ public class TimeSeriesToolActivator implements Activator {
         while (allWriterPlugIns.hasNext()) {
             ProductWriterPlugIn writerPlugIn = allWriterPlugIns.next();
             if (writerPlugIn instanceof DimapProductWriterPlugIn) {
-                ((DimapProductWriterPlugIn) writerPlugIn).removeVetoableShouldWriteListener(vetoableShouldWriteListener);
+                ((DimapProductWriterPlugIn) writerPlugIn).removeDimapWriterListener(dimapWriterListener);
             }
         }
     }
 
-    private DimapProductWriter.VetoableShouldWriteListener createVetoableShouldWriteListener() {
-        return new DimapProductWriter.VetoableShouldWriteListener() {
+    private DimapProductWriter.Listener createDimapWriterListener() {
+        return new DimapProductWriter.Listener() {
             @Override
-            public boolean shouldWrite(ProductNode node) {
-                if (!node.getProduct().getProductType().equals(AbstractTimeSeries.TIME_SERIES_PRODUCT_TYPE)) {
+            public boolean vetoableShouldWrite(ProductNode node) {
+                if (!isTimeSerisProduct(node.getProduct())) {
                     return true;
                 } else if (node instanceof RasterDataNode) {
                     return false;
                 }
                 return true;
             }
+
+            @Override
+            public void intendToWriteDimapHeaderTo(File outputDir, Product product) {
+                if (isTimeSerisProduct(product)) {
+                    convertAbsolutPathsToRelative(product, outputDir);
+                }
+            }
+
+            private boolean isTimeSerisProduct(Product product) {
+                return product.getProductType().equals(AbstractTimeSeries.TIME_SERIES_PRODUCT_TYPE);
+            }
         };
+    }
+
+    public static void convertAbsolutPathsToRelative(Product product, File outputDir) {
+        final MetadataElement tsRootElem = product.getMetadataRoot().getElement(AbstractTimeSeries.TIME_SERIES_ROOT_NAME);
+
+        final MetadataElement productLocations = tsRootElem.getElement(AbstractTimeSeries.PRODUCT_LOCATIONS);
+        final MetadataElement sourceProductPaths = tsRootElem.getElement(AbstractTimeSeries.SOURCE_PRODUCT_PATHS);
+
+        replaceWithRelativePaths(productLocations.getElements(), outputDir);
+        replaceWithRelativePaths(sourceProductPaths.getElements(), outputDir);
+    }
+
+    private static void replaceWithRelativePaths(MetadataElement[] elements, File outputDir) {
+        for (MetadataElement element : elements) {
+            final String pathName = element.getAttributeString(AbstractTimeSeries.PL_PATH);
+            final URI relativeUri = FileUtils.getRelativeUri(outputDir.toURI(), new File(pathName));
+
+            final MetadataAttribute pathAttr = element.getAttribute(AbstractTimeSeries.PL_PATH);
+            final MetadataAttribute typeAttr = element.getAttribute(AbstractTimeSeries.PL_TYPE);
+
+            element.removeAttribute(pathAttr);
+            element.removeAttribute(typeAttr);
+
+            pathAttr.dispose();
+            final MetadataAttribute newPathAttr = new MetadataAttribute(AbstractTimeSeries.PL_PATH, ProductData.createInstance(relativeUri.toString()), true);
+
+            element.addAttribute(newPathAttr);
+            element.addAttribute(typeAttr);
+        }
     }
 }

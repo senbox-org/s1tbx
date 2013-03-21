@@ -406,7 +406,7 @@ public class DimapProductWriterPlugIn implements ProductWriterPlugIn {
 
     public final static String DIMAP_FORMAT_NAME = DimapProductConstants.DIMAP_FORMAT_NAME;
     private final BeamFileFilter dimapFileFilter = (BeamFileFilter) DimapProductHelpers.createDimapFileFilter();
-    private Set<DimapProductWriter.VetoableShouldWriteListener> vetoableShouldWriteListeners;
+    private Set<DimapProductWriter.Listener> dimapWriterListeners;
 
     /**
      * Constructs a new BEAM-DIMAP product writer plug-in instance.
@@ -468,9 +468,9 @@ public class DimapProductWriterPlugIn implements ProductWriterPlugIn {
      */
     public ProductWriter createWriterInstance() {
         final DimapProductWriter dimapProductWriter = new DimapProductWriter(this);
-        if (vetoableShouldWriteListeners != null) {
-            for (DimapProductWriter.VetoableShouldWriteListener listener : vetoableShouldWriteListeners) {
-                dimapProductWriter.addVetoableShouldWriteListener(listener);
+        if (dimapWriterListeners != null) {
+            for (DimapProductWriter.Listener listener : dimapWriterListeners) {
+                dimapProductWriter.addListener(listener);
             }
         }
         return dimapProductWriter;
@@ -480,18 +480,18 @@ public class DimapProductWriterPlugIn implements ProductWriterPlugIn {
         return dimapFileFilter;
     }
 
-    public void addVetoableShouldWriteListener(DimapProductWriter.VetoableShouldWriteListener listener) {
-        if (vetoableShouldWriteListeners == null) {
-            vetoableShouldWriteListeners = new HashSet<DimapProductWriter.VetoableShouldWriteListener>();
+    public void addDimapWriterListener(DimapProductWriter.Listener listener) {
+        if (dimapWriterListeners == null) {
+            dimapWriterListeners = new HashSet<DimapProductWriter.Listener>();
         }
         if (listener != null) {
-            vetoableShouldWriteListeners.add(listener);
+            dimapWriterListeners.add(listener);
         }
     }
 
-    public void removeVetoableShouldWriteListener(DimapProductWriter.VetoableShouldWriteListener listener) {
-        if (vetoableShouldWriteListeners == null) {
-            vetoableShouldWriteListeners.remove(listener);
+    public void removeDimapWriterListener(DimapProductWriter.Listener listener) {
+        if (dimapWriterListeners == null) {
+            dimapWriterListeners.remove(listener);
         }
     }
 }

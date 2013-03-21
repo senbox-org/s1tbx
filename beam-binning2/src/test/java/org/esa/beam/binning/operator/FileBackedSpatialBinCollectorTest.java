@@ -75,26 +75,30 @@ public class FileBackedSpatialBinCollectorTest {
     @Test
     public void testCollecting() throws Exception {
         FileBackedSpatialBinCollector binCollector = new FileBackedSpatialBinCollector();
-        binCollector.setMaximumNumberOfBins(26000);
-        BinningContext ctx = Mockito.mock(BinningContext.class);
-        for (int i = 0; i < 26; i++) {
-            ArrayList<SpatialBin> spatialBins = new ArrayList<SpatialBin>();
-            int binIndexOffset = i * 1000;
-            for (int j = 0; j < 1000; j++) {
-                spatialBins.add(new SpatialBin(binIndexOffset + j, 3));
+        try {
+            binCollector.setMaximumNumberOfBins(26000);
+            BinningContext ctx = Mockito.mock(BinningContext.class);
+            for (int i = 0; i < 26; i++) {
+                ArrayList<SpatialBin> spatialBins = new ArrayList<SpatialBin>();
+                int binIndexOffset = i * 1000;
+                for (int j = 0; j < 1000; j++) {
+                    spatialBins.add(new SpatialBin(binIndexOffset + j, 3));
+                }
+                binCollector.consumeSpatialBins(ctx, spatialBins);
             }
-            binCollector.consumeSpatialBins(ctx, spatialBins);
-        }
-        binCollector.consumingCompleted();
+            binCollector.consumingCompleted();
 
-        SpatialBinCollection spatialBinCollection = binCollector.getSpatialBinCollection();
+            SpatialBinCollection spatialBinCollection = binCollector.getSpatialBinCollection();
 
-        assertFalse(spatialBinCollection.isEmpty());
-        assertEquals(26000, spatialBinCollection.size());
-        Iterable<List<SpatialBin>> collectedBins = spatialBinCollection.getBinCollection();
-        int counter = 0;
-        for (List<SpatialBin> collectedBin : collectedBins) {
-            assertEquals(counter++, collectedBin.get(0).getIndex());
+            assertFalse(spatialBinCollection.isEmpty());
+            assertEquals(26000, spatialBinCollection.size());
+            Iterable<List<SpatialBin>> collectedBins = spatialBinCollection.getBinCollection();
+            int counter = 0;
+            for (List<SpatialBin> collectedBin : collectedBins) {
+                assertEquals(counter++, collectedBin.get(0).getIndex());
+            }
+        } finally {
+            binCollector.close();
         }
 
     }

@@ -49,7 +49,6 @@
             <shortDescr>Simple example operator with custom UI.</shortDescr>
             <longDescr>Simple example operator with custom user interface.</longDescr>
             <mnemonic>E</mnemonic>
-
         </action>
 
     </extension>
