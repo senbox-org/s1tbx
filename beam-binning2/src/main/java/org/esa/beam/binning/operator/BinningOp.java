@@ -338,7 +338,7 @@ public class BinningOp extends Operator implements Output {
 
     private static SpatialBinCollector getBinCollector() throws OperatorException {
         try {
-            return new MapBackedSpatialBinCollector();
+            return new GeneralSpatialBinCollector();
         } catch (Exception e) {
             throw new OperatorException(e.getMessage(), e);
         }
