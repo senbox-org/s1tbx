@@ -116,7 +116,7 @@ public class CfFlagCodingPart extends ProfilePartIO {
         if (maskValues != null && flagNames != null && maskValues.length == flagNames.length) {
             final FlagCoding coding = new FlagCoding(codingName);
             for (int i = 0; i < maskValues.length; i++) {
-                final String sampleName = flagNames[i];
+                final String sampleName = replaceNonWordCharacters(flagNames[i]);
                 final int sampleValue = maskValues[i];
                 coding.addSample(sampleName, sampleValue, "");
             }
@@ -125,5 +125,9 @@ public class CfFlagCodingPart extends ProfilePartIO {
             }
         }
         return null;
+    }
+
+    static String replaceNonWordCharacters(String flagName) {
+        return flagName.replaceAll("\\W+", "_");
     }
 }
