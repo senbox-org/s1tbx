@@ -22,12 +22,11 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.security.CodeSource;
 
 /**
- * Installls resources from a given source to a given target.
+ * Installs resources from a given source to a given target.
  *
  * @author Marco Peters
  * @version $Revision$ $Date$
@@ -36,13 +35,6 @@ public class ResourceInstaller {
 
     private ResourceScanner scanner;
     private File targetDir;
-
-    /**
-     * @deprecated in 4.1, use {@link #ResourceInstaller(java.net.URL, String, java.io.File)} instead
-     */
-    public ResourceInstaller(URL sourceUrl, String relSourcePath, URL targetUrl) {
-        this(sourceUrl, relSourcePath, toFile(targetUrl));
-    }
 
     /**
      * Creates an instance with a given source to a given target.
@@ -61,7 +53,7 @@ public class ResourceInstaller {
      * and are not overwritten.
      *
      * @param patternString the pattern
-     * @param pm
+     * @param pm            progress monitor for indicating progress
      */
     public void install(String patternString, ProgressMonitor pm) throws IOException {
         try {
@@ -124,14 +116,6 @@ public class ResourceInstaller {
             sourceLocation = aClass.getResource("/");
         }
         return sourceLocation;
-    }
-
-    private static File toFile(URL targetUrl) {
-        try {
-            return new File(targetUrl.toURI());
-        } catch (URISyntaxException e) {
-            throw new IllegalArgumentException("targetUrl", e);
-        }
     }
 
 }

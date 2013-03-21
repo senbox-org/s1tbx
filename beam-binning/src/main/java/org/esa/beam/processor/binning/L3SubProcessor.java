@@ -42,13 +42,6 @@ abstract public class L3SubProcessor {
         _warningMessages = null;
     }
 
-    /**
-     * @deprecated in 4.0, implement {@link #process(com.bc.ceres.core.ProgressMonitor)}
-     */
-    public void process() throws ProcessorException {
-        process(ProgressMonitor.NULL);
-    }
-
     abstract public void process(ProgressMonitor pm) throws ProcessorException;
 
     /**

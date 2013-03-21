@@ -24,7 +24,6 @@ import com.bc.jexp.Term;
 import com.bc.jexp.WritableNamespace;
 import com.bc.jexp.impl.ParserImpl;
 import org.esa.beam.framework.dataio.ProductFlipper;
-import org.esa.beam.framework.dataio.ProductProjectionBuilder;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductSubsetBuilder;
 import org.esa.beam.framework.dataio.ProductSubsetDef;
@@ -58,8 +57,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
 
 /**
  * <code>Product</code> instances are an in-memory representation of a remote sensing data product. The product is more
@@ -208,6 +205,7 @@ public class Product extends ProductNode {
      * @param sceneRasterWidth  the scene width in pixels for this data product
      * @param sceneRasterHeight the scene height in pixels for this data product
      * @param reader            the reader used to create this product and read data from it.
+     *
      * @see ProductReader
      */
     public Product(final String name, final String type, final int sceneRasterWidth, final int sceneRasterHeight,
@@ -483,6 +481,7 @@ public class Product extends ProductNode {
      * and which will be used to (re-)load band rasters.
      *
      * @param reader the product reader.
+     *
      * @throws IllegalArgumentException if the given reader is null.
      */
     public void setProductReader(final ProductReader reader) {
@@ -527,6 +526,7 @@ public class Product extends ProductNode {
      *
      * @param output an object representing a valid output for this writer, might be a <code>ImageOutputStream</code>
      *               or a <code>File</code> or other <code>Object</code> to use for future decoding.
+     *
      * @throws IllegalArgumentException if <code>output</code> is <code>null</code> or it's type is none of the
      *                                  supported output types.
      * @throws IOException              if an I/O error occurs
@@ -669,6 +669,7 @@ public class Product extends ProductNode {
      * Geo-codes this data product.
      *
      * @param geoCoding the geo-coding, if <code>null</code> geo-coding is removed
+     *
      * @throws IllegalArgumentException <br>- if the given <code>GeoCoding</code> is a <code>TiePointGeoCoding</code>
      *                                  and <code>latGrid</code> or <code>lonGrid</code> are not instances of tie point
      *                                  grids in this product. <br>- if the given <code>GeoCoding</code> is a
@@ -729,6 +730,7 @@ public class Product extends ProductNode {
      *
      * @param destProduct the destination product
      * @param subsetDef   the definition of the subset, may be <code>null</code>
+     *
      * @return true, if the geo-coding could be transferred.
      */
     public boolean transferGeoCodingTo(final Product destProduct, final ProductSubsetDef subsetDef) {
@@ -842,6 +844,7 @@ public class Product extends ProductNode {
 
     /**
      * @return The group which contains all other product node groups.
+     *
      * @since BEAM 5.0
      */
     public ProductNodeGroup<ProductNodeGroup> getGroups() {
@@ -850,7 +853,9 @@ public class Product extends ProductNode {
 
     /**
      * @param name The group name.
+     *
      * @return The group with the given name, or {@code null} if no such group exists.
+     *
      * @since BEAM 5.0
      */
     public ProductNodeGroup getGroup(String name) {
@@ -864,6 +869,7 @@ public class Product extends ProductNode {
      * Gets the tie-point grid group of this product.
      *
      * @return The group of all tie-point grids.
+     *
      * @since BEAM 4.7
      */
     public ProductNodeGroup<TiePointGrid> getTiePointGridGroup() {
@@ -878,7 +884,7 @@ public class Product extends ProductNode {
     public void addTiePointGrid(final TiePointGrid tiePointGrid) {
         if (containsRasterDataNode(tiePointGrid.getName())) {
             throw new IllegalArgumentException("The Product '" + getName() + "' already contains " +
-                                                       "a tie-point grid with the name '" + tiePointGrid.getName() + "'.");
+                                               "a tie-point grid with the name '" + tiePointGrid.getName() + "'.");
         }
         tiePointGridGroup.add(tiePointGrid);
     }
@@ -887,6 +893,7 @@ public class Product extends ProductNode {
      * Removes the tie-point grid from this product.
      *
      * @param tiePointGrid the tie-point grid to be removed, ignored if <code>null</code>
+     *
      * @return <code>true</code> if node could be removed
      */
     public boolean removeTiePointGrid(final TiePointGrid tiePointGrid) {
@@ -906,7 +913,9 @@ public class Product extends ProductNode {
      * Returns the tie-point grid at the given index.
      *
      * @param index the tie-point grid index
+     *
      * @return the tie-point grid at the given index
+     *
      * @throws IndexOutOfBoundsException if the index is out of bounds
      */
     public TiePointGrid getTiePointGridAt(final int index) {
@@ -941,6 +950,7 @@ public class Product extends ProductNode {
      * Returns the tie-point grid with the given name.
      *
      * @param name the tie-point grid name
+     *
      * @return the tie-point grid with the given name or <code>null</code> if a tie-point grid with the given name is
      *         not contained in this product.
      */
@@ -954,6 +964,7 @@ public class Product extends ProductNode {
      * Tests if a tie-point grid with the given name is contained in this product.
      *
      * @param name the name, must not be <code>null</code>
+     *
      * @return <code>true</code> if a tie-point grid with the given name is contained in this product,
      *         <code>false</code> otherwise
      */
@@ -969,6 +980,7 @@ public class Product extends ProductNode {
      * Gets the band group of this product.
      *
      * @return The group of all bands.
+     *
      * @since BEAM 4.7
      */
     public ProductNodeGroup<Band> getBandGroup() {
@@ -983,12 +995,12 @@ public class Product extends ProductNode {
     public void addBand(final Band band) {
         Guardian.assertNotNull("band", band);
         if (band.getSceneRasterWidth() != getSceneRasterWidth()
-                || band.getSceneRasterHeight() != getSceneRasterHeight()) {
+            || band.getSceneRasterHeight() != getSceneRasterHeight()) {
             throw new IllegalArgumentException("illegal raster dimensions");
         }
         if (containsRasterDataNode(band.getName())) {
             throw new IllegalArgumentException("The Product '" + getName() + "' already contains " +
-                                                       "a band with the name '" + band.getName() + "'.");
+                                               "a band with the name '" + band.getName() + "'.");
         }
         bandGroup.add(band);
     }
@@ -999,6 +1011,7 @@ public class Product extends ProductNode {
      * @param bandName the new band's name
      * @param dataType the raster data type, must be one of the multiple <code>ProductData.TYPE_<i>X</i></code>
      *                 constants
+     *
      * @return the new band which has just been added
      */
     public Band addBand(final String bandName, final int dataType) {
@@ -1013,7 +1026,9 @@ public class Product extends ProductNode {
      *
      * @param bandName   the new band's name
      * @param expression the band maths expression
+     *
      * @return the new band which has just been added
+     *
      * @since BEAM 4.9
      */
     public Band addBand(final String bandName, final String expression) {
@@ -1028,7 +1043,9 @@ public class Product extends ProductNode {
      * @param expression the band maths expression
      * @param dataType   the raster data type, must be one of the multiple <code>ProductData.TYPE_<i>X</i></code>
      *                   constants
+     *
      * @return the new band which has just been added
+     *
      * @since BEAM 4.9
      */
     public Band addBand(final String bandName, final String expression, final int dataType) {
@@ -1043,6 +1060,7 @@ public class Product extends ProductNode {
      * Removes the given band from this product.
      *
      * @param band the band to be removed, ignored if <code>null</code>
+     *
      * @return {@code true} if removed succesfully, otherwise {@code false}
      */
     public boolean removeBand(final Band band) {
@@ -1060,7 +1078,9 @@ public class Product extends ProductNode {
      * Returns the band at the given index.
      *
      * @param index the band index
+     *
      * @return the band at the given index
+     *
      * @throws IndexOutOfBoundsException if the index is out of bounds
      */
     public Band getBandAt(final int index) {
@@ -1092,8 +1112,10 @@ public class Product extends ProductNode {
      * Returns the band with the given name.
      *
      * @param name the band name
+     *
      * @return the band with the given name or <code>null</code> if a band with the given name is not contained in this
      *         product.
+     *
      * @throws IllegalArgumentException if the given name is <code>null</code> or empty.
      */
     public Band getBand(final String name) {
@@ -1105,7 +1127,9 @@ public class Product extends ProductNode {
      * Returns the index for the band with the given name.
      *
      * @param name the band name
+     *
      * @return the band index or <code>-1</code> if a band with the given name is not contained in this product.
+     *
      * @throws IllegalArgumentException if the given name is <code>null</code> or empty.
      */
     public int getBandIndex(final String name) {
@@ -1117,8 +1141,10 @@ public class Product extends ProductNode {
      * Tests if a band with the given name is contained in this product.
      *
      * @param name the name, must not be <code>null</code>
+     *
      * @return <code>true</code> if a band with the given name is contained in this product, <code>false</code>
      *         otherwise
+     *
      * @throws IllegalArgumentException if the given name is <code>null</code> or empty.
      */
     public boolean containsBand(final String name) {
@@ -1134,6 +1160,7 @@ public class Product extends ProductNode {
      * tie-point grids.
      *
      * @param name the name, must not be <code>null</code>
+     *
      * @return <code>true</code> if a raster data node with the given name is contained in this product,
      *         <code>false</code> otherwise
      */
@@ -1146,6 +1173,7 @@ public class Product extends ProductNode {
      * tie-point grids. If neither bands nor tie-point grids exist with the given name, <code>null</code> is returned.
      *
      * @param name the name, must not be <code>null</code>
+     *
      * @return the raster data node with the given name or <code>null</code> if a raster data node with the given name
      *         is not contained in this product.
      */
@@ -1194,19 +1222,23 @@ public class Product extends ProductNode {
      *
      * @param x the x coordinate of the pixel position
      * @param y the y coordinate of the pixel position
+     *
      * @return true, if so
+     *
      * @see #containsPixel(PixelPos)
      */
     public boolean containsPixel(final float x, final float y) {
         return x >= 0.0f && x <= getSceneRasterWidth() &&
-                y >= 0.0f && y <= getSceneRasterHeight();
+               y >= 0.0f && y <= getSceneRasterHeight();
     }
 
     /**
      * Tests if the given pixel position is within the product pixel bounds.
      *
      * @param pixelPos the pixel position, must not be null
+     *
      * @return true, if so
+     *
      * @see #containsPixel(float, float)
      */
     public boolean containsPixel(final PixelPos pixelPos) {
@@ -1262,6 +1294,7 @@ public class Product extends ProductNode {
     /**
      * @return The maximum number of resolution levels common to all band images.
      *         If less than or equal to zero, the  number of resolution levels is considered to be unknown.
+     *
      * @since BEAM 5.0
      */
     public int getNumResolutionsMax() {
@@ -1271,6 +1304,7 @@ public class Product extends ProductNode {
     /**
      * @param numResolutionsMax The maximum number of resolution levels common to all band images.
      *                          If less than or equal to zero, the  number of resolution levels is considered to be unknown.
+     *
      * @since BEAM 5.0
      */
     public void setNumResolutionsMax(int numResolutionsMax) {
@@ -1282,6 +1316,7 @@ public class Product extends ProductNode {
      *
      * @param product the product to compare with
      * @param eps     the maximum lat/lon error in degree
+     *
      * @return <code>false</code> if the scene dimensions or geocoding are different, <code>true</code> otherwise.
      */
     public boolean isCompatibleProduct(final Product product, final float eps) {
@@ -1350,7 +1385,9 @@ public class Product extends ProductNode {
      * Parses a mathematical expression given as a text string.
      *
      * @param expression a expression given as a text string, e.g. "radiance_4 / (1.0 + radiance_11)".
+     *
      * @return a term parsed from the given expression string
+     *
      * @throws ParseException if the expression could not successfully be parsed
      */
     public Term parseExpression(final String expression) throws ParseException {
@@ -1393,6 +1430,7 @@ public class Product extends ProductNode {
      * time a node in this product changes.
      *
      * @param listener the listener to be added
+     *
      * @return boolean if listener was added or not
      */
     public boolean addProductNodeListener(final ProductNodeListener listener) {
@@ -1498,6 +1536,7 @@ public class Product extends ProductNode {
      * Sets the reference number.
      *
      * @param refNo the reference number to set must be in the range 1 .. Integer.MAX_VALUE
+     *
      * @throws IllegalArgumentException if the refNo is out of range
      * @throws IllegalStateException
      */
@@ -1550,7 +1589,9 @@ public class Product extends ProductNode {
      * Tests if the given band arithmetic expression can be computed using this product.
      *
      * @param expression the mathematical expression
+     *
      * @return true, if the band arithmetic is compatible with this product
+     *
      * @see #isCompatibleBandArithmeticExpression(String, com.bc.jexp.Parser)
      */
     public boolean isCompatibleBandArithmeticExpression(final String expression) {
@@ -1562,7 +1603,9 @@ public class Product extends ProductNode {
      *
      * @param expression the band arithmetic expression
      * @param parser     the expression parser to be used
+     *
      * @return true, if the band arithmetic is compatible with this product
+     *
      * @see #createBandArithmeticParser()
      */
     public boolean isCompatibleBandArithmeticExpression(final String expression, Parser parser) {
@@ -1630,28 +1673,16 @@ public class Product extends ProductNode {
      * @param subsetDef the product subset definition
      * @param name      the name for the new product
      * @param desc      the description for the new product
+     *
      * @return the product subset, or <code>null</code> if the product/subset combination is not valid
+     *
      * @throws IOException if an I/O error occurs
      */
     public Product createSubset(final ProductSubsetDef subsetDef, final String name, final String desc) throws
-            IOException {
+                                                                                                        IOException {
         return ProductSubsetBuilder.createProductSubset(this, subsetDef, name, desc);
     }
 
-
-    /**
-     * Creates a map-projected version of this product.
-     *
-     * @param mapInfo the map information
-     * @param name    the name for the new product
-     * @param desc    the description for the new product
-     * @return the product subset, or <code>null</code> if the product/subset combination is not valid
-     * @throws IOException if an I/O error occurs
-     */
-    public Product createProjectedProduct(final MapInfo mapInfo, final String name, final String desc) throws
-            IOException {
-        return ProductProjectionBuilder.createProductProjection(this, false, mapInfo, name, desc);
-    }
 
     /**
      * Creates flipped raster-data version of this product.
@@ -1659,7 +1690,9 @@ public class Product extends ProductNode {
      * @param flipType the flip type, see <code>{@link org.esa.beam.framework.dataio.ProductFlipper}</code>
      * @param name     the name for the new product
      * @param desc     the description for the new product
+     *
      * @return the product subset, or <code>null</code> if the product/subset combination is not valid
+     *
      * @throws IOException if an I/O error occurs
      */
     public Product createFlippedProduct(final int flipType, final String name, final String desc) throws IOException {
@@ -1688,6 +1721,7 @@ public class Product extends ProductNode {
      * Gets an estimated, raw storage size in bytes of this product node.
      *
      * @param subsetDef if not <code>null</code> the subset may limit the size returned
+     *
      * @return the size in bytes.
      */
     @Override
@@ -1702,8 +1736,8 @@ public class Product extends ProductNode {
         for (int i = 0; i < getFlagCodingGroup().getNodeCount(); i++) {
             size += getFlagCodingGroup().get(i).getRawStorageSize(subsetDef);
         }
-        for (int i = 0; i < getNumBitmaskDefs(); i++) {
-            size += getBitmaskDefAt(i).getRawStorageSize(subsetDef);
+        for (int i = 0; i < getMaskGroup().getNodeCount(); i++) {
+            size += getMaskGroup().get(i).getRawStorageSize(subsetDef);
         }
         size += getMetadataRoot().getRawStorageSize(subsetDef);
         return size;
@@ -1744,6 +1778,7 @@ public class Product extends ProductNode {
      *
      * @param pixelX the pixel X co-ordinate
      * @param pixelY the pixel Y co-ordinate
+     *
      * @return the info string at the given position
      */
     public String createPixelInfoString(final int pixelX, final int pixelY) {
@@ -1790,7 +1825,7 @@ public class Product extends ProductNode {
         }
 
         if (pixelX >= 0 && pixelX < getSceneRasterWidth()
-                && pixelY >= 0 && pixelY < getSceneRasterHeight()) {
+            && pixelY >= 0 && pixelY < getSceneRasterHeight()) {
 
             sb.append("\n");
 
@@ -2008,6 +2043,7 @@ public class Product extends ProductNode {
      * created for a {@link RasterDataNode} of this product.
      *
      * @return the preferred tile size, may be <code>null</null> if not specified
+     *
      * @see RasterDataNode#getSourceImage()
      * @see RasterDataNode# setSourceImage (java.awt.image.RenderedImage)
      */
@@ -2021,6 +2057,7 @@ public class Product extends ProductNode {
      *
      * @param tileWidth  the preferred tile width
      * @param tileHeight the preferred tile height
+     *
      * @see #setPreferredTileSize(java.awt.Dimension)
      */
     public void setPreferredTileSize(int tileWidth, int tileHeight) {
@@ -2032,6 +2069,7 @@ public class Product extends ProductNode {
      * created for a {@link RasterDataNode} of this product.
      *
      * @param preferredTileSize the preferred tile size, may be <code>null</null> if not specified
+     *
      * @see RasterDataNode#getSourceImage()
      * @see RasterDataNode# setSourceImage (java.awt.image.RenderedImage)
      */
@@ -2050,6 +2088,7 @@ public class Product extends ProductNode {
      *
      * @return the array of all flag names. If this product does not support flags, an empty array is returned, but
      *         never <code>null</code>.
+     *
      * @see #parseExpression(String)
      */
     public String[] getAllFlagNames() {
@@ -2075,6 +2114,7 @@ public class Product extends ProductNode {
      * Gets the auto-grouping applicable to product nodes contained in this product.
      *
      * @return The auto-grouping or {@code null}.
+     *
      * @since BEAM 4.8
      */
     public AutoGrouping getAutoGrouping() {
@@ -2085,6 +2125,7 @@ public class Product extends ProductNode {
      * Sets the auto-grouping applicable to product nodes contained in this product.
      *
      * @param autoGrouping The auto-grouping or {@code null}.
+     *
      * @since BEAM 4.8
      */
     public void setAutoGrouping(AutoGrouping autoGrouping) {
@@ -2110,6 +2151,7 @@ public class Product extends ProductNode {
      * </pre>
      *
      * @param pattern The auto-grouping pattern.
+     *
      * @since BEAM 4.8
      */
     public void setAutoGrouping(String pattern) {
@@ -2123,7 +2165,9 @@ public class Product extends ProductNode {
      *
      * @param maskName  the new mask's name
      * @param imageType the image data type used to compute the mask samples
+     *
      * @return the new mask which has just been added
+     *
      * @since BEAM 4.10
      */
     public Mask addMask(String maskName, Mask.ImageType imageType) {
@@ -2141,7 +2185,9 @@ public class Product extends ProductNode {
      * @param description  the mask's description
      * @param color        the display color
      * @param transparency the display transparency
+     *
      * @return the new mask which has just been added
+     *
      * @since BEAM 4.10
      */
     public Mask addMask(String maskName, String expression, String description, Color color, double transparency) {
@@ -2161,7 +2207,9 @@ public class Product extends ProductNode {
      * @param description    the mask's description
      * @param color          the display color
      * @param transparency   the display transparency
+     *
      * @return the new mask which has just been added
+     *
      * @since BEAM 4.10
      */
     public Mask addMask(String maskName, VectorDataNode vectorDataNode, String description, Color color,
@@ -2190,6 +2238,7 @@ public class Product extends ProductNode {
          * Gets the index of the first group path that matches the given name.
          *
          * @param name A product node name.
+         *
          * @return The index of the group path or {@code -1} if no group path matches the given name.
          */
         int indexOf(String name);
@@ -2359,6 +2408,7 @@ public class Product extends ProductNode {
      * Adds the given bitmask definition to this product.
      *
      * @param bitmaskDef the bitmask definition to added, ignored if <code>null</code>
+     *
      * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
      */
     @Deprecated
@@ -2372,70 +2422,11 @@ public class Product extends ProductNode {
     }
 
     /**
-     * Moves the given bitmask definition to the given index.
-     *
-     * @param bitmaskDef the bitmask definition which is to move
-     * @param index      the destination index for the given bitmask definition
-     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
-     */
-    @Deprecated
-    public void moveBitmaskDef(final BitmaskDef bitmaskDef, final int index) {
-        Mask mask = getMaskGroup().get(bitmaskDef.getName());
-        if (bitmaskDefGroup.remove(bitmaskDef)) {
-            fireNodeRemoved(bitmaskDef, bitmaskDefGroup);
-            getMaskGroup().remove(mask);
-        }
-        bitmaskDefGroup.add(index, bitmaskDef);
-        fireNodeAdded(bitmaskDef, bitmaskDefGroup);
-        getMaskGroup().add(index, mask);
-    }
-
-    /**
-     * Removes the given bitmask definition from this product.
-     *
-     * @param bitmaskDef the bitmask definition to be removed, ignored if <code>null</code>
-     * @return <code>true</code> on success
-     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
-     */
-    @Deprecated
-    public boolean removeBitmaskDef(final BitmaskDef bitmaskDef) {
-        final boolean result = bitmaskDefGroup.remove(bitmaskDef);
-
-        Mask mask = getMaskGroup().get(bitmaskDef.getName());
-        getMaskGroup().remove(mask);
-
-        return result;
-    }
-
-    /**
-     * Gets the number of bitmask definitions contained in this product.
-     *
-     * @return the number of bitmask definitions
-     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
-     */
-    @Deprecated
-    public int getNumBitmaskDefs() {
-        return bitmaskDefGroup.getNodeCount();
-    }
-
-    /**
-     * Returns the bitmask definition at the given index.
-     *
-     * @param index the bitmask definition index
-     * @return the bitmask definition at the given index
-     * @throws IndexOutOfBoundsException if the index is out of bounds
-     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
-     */
-    @Deprecated
-    public BitmaskDef getBitmaskDefAt(final int index) {
-        return bitmaskDefGroup.get(index);
-    }
-
-    /**
      * Returns a string array containing the names of the bitmask definitions contained in this product.
      *
      * @return a string array containing the names of the bitmask definitions contained in this product. If this product
      *         has no bitmask definitions a zero-length-array is returned.
+     *
      * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
      */
     @Deprecated
@@ -2447,8 +2438,10 @@ public class Product extends ProductNode {
      * Returns the bitmask definition with the given name.
      *
      * @param name the bitmask definition name
+     *
      * @return the bitmask definition with the given name or <code>null</code> if a bitmask definition with the given
      *         name is not contained in this product.
+     *
      * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
      */
     @Deprecated
@@ -2458,60 +2451,12 @@ public class Product extends ProductNode {
     }
 
     /**
-     * Returns an array of bitmask definitions contained in this product
-     *
-     * @return an array of bitmask definition contained in this product. If this product has no bitmask definitions a
-     *         zero-length-array is returned.
-     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
-     */
-    @Deprecated
-    public BitmaskDef[] getBitmaskDefs() {
-        final BitmaskDef[] bitmaskDefs = new BitmaskDef[getNumBitmaskDefs()];
-        for (int i = 0; i < bitmaskDefs.length; i++) {
-            bitmaskDefs[i] = getBitmaskDefAt(i);
-        }
-        return bitmaskDefs;
-    }
-
-    /**
-     * Tests if the given bitmask definition is contained in this container.
-     *
-     * @param def the bitmask definition, must not be <code>null</code>
-     * @return <code>true</code> if the bitmask definition is contained in this cotainer, <code>false</code> otherwise
-     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
-     */
-    @Deprecated
-    public boolean containsBitmaskDef(final BitmaskDef def) {
-        if (def != null) {
-            final BitmaskDef containedDef = getBitmaskDef(def.getName());
-            return def == containedDef;
-        }
-        return false;
-    }
-
-    /**
-     * Checks whether or not the given bitmask definition is compatible with this product.
-     *
-     * @param bitmaskDef The bitmask definition.
-     * @return <code>false</code> if the bitmask has a valid expression and(!) the flag name is not contained in this
-     *         data product, <code>true</code> otherwise.
-     * @deprecated since BEAM 4.7
-     */
-    @Deprecated
-    public boolean isCompatibleBitmaskDef(final BitmaskDef bitmaskDef) {
-        try {
-            parseExpression(bitmaskDef.getExpr());
-        } catch (ParseException e) {
-            return false;
-        }
-        return true;
-    }
-
-    /**
      * Gets a valid-mask for the given ID.
      *
      * @param id the ID
+     *
      * @return a cached valid mask for the given ID or null
+     *
      * @see #createValidMask(String, com.bc.ceres.core.ProgressMonitor)
      * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
      */
@@ -2528,6 +2473,7 @@ public class Product extends ProductNode {
      *
      * @param id        the ID
      * @param validMask the pixel mask
+     *
      * @see #createValidMask(String, com.bc.ceres.core.ProgressMonitor)
      * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
      */
@@ -2554,7 +2500,9 @@ public class Product extends ProductNode {
      *
      * @param expression the boolean expression, e.g. "l2_flags.LAND && reflec_10 >= 0.0"
      * @param pm         a progress monitor
+     *
      * @return a bit-packed mask for all pixels of the scene, never null
+     *
      * @throws IOException if an I/O error occurs
      * @see #parseExpression(String)
      * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
@@ -2579,7 +2527,9 @@ public class Product extends ProductNode {
      *
      * @param term the boolean term, e.g. "l2_flags.LAND && reflec_10 >= 0.0"
      * @param pm   a progress monitor
+     *
      * @return a bit-packed mask for all pixels of the scene, never null
+     *
      * @throws IOException if an I/O error occurs
      * @see #createValidMask(String, com.bc.ceres.core.ProgressMonitor)
      * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
@@ -2619,20 +2569,6 @@ public class Product extends ProductNode {
     }
 
     /**
-     * @see #readBitmask(int, int, int, int, com.bc.jexp.Term, boolean[], com.bc.ceres.core.ProgressMonitor)
-     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
-     */
-    @Deprecated
-    public void readBitmask(final int offsetX,
-                            final int offsetY,
-                            final int width,
-                            final int height,
-                            final Term bitmaskTerm,
-                            final boolean[] bitmask) throws IOException {
-        readBitmask(offsetX, offsetY, width, height, bitmaskTerm, bitmask, ProgressMonitor.NULL);
-    }
-
-    /**
      * Creates a bit-mask by evaluating the given bit-mask term.
      * <p> The method first creates an evaluation context for the given bit-mask term and the specified region and then
      * evaluates the term for each pixel in the subset (line-by-line, X varies fastest). The result of each evaluation -
@@ -2655,6 +2591,7 @@ public class Product extends ProductNode {
      * @param bitmask     a buffer used to hold the results of the bit-mask evaluations for each pixel in the given
      *                    spatial subset
      * @param pm          a monitor to inform the user about progress
+     *
      * @throws IOException if an I/O error occurs, when referenced flag datasets are reloaded
      * @see #parseExpression(String)
      * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
@@ -2675,22 +2612,6 @@ public class Product extends ProductNode {
                 bitmask[pixelIndex] = bitmaskTerm.evalB(env);
             }
         });
-    }
-
-    /**
-     * @see #readBitmask(int, int, int, int, com.bc.jexp.Term, byte[], byte, byte, com.bc.ceres.core.ProgressMonitor)
-     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
-     */
-    @Deprecated
-    public synchronized void readBitmask(final int offsetX,
-                                         final int offsetY,
-                                         final int width,
-                                         final int height,
-                                         final Term bitmaskTerm,
-                                         final byte[] bitmask,
-                                         final byte trueValue,
-                                         final byte falseValue) throws IOException {
-        readBitmask(offsetX, offsetY, width, height, bitmaskTerm, bitmask, trueValue, falseValue, ProgressMonitor.NULL);
     }
 
 
@@ -2719,6 +2640,7 @@ public class Product extends ProductNode {
      *                    spatial subset
      * @param trueValue   the byte value to be set if the bitmask-term evauates to <code>true</code>
      * @param falseValue  the byte value to be set if the bitmask-term evauates to <code>false</code>
+     *
      * @throws IOException if an I/O error occurs, when referenced flag datasets are reloaded
      * @see #parseExpression(String)
      * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
@@ -2746,57 +2668,6 @@ public class Product extends ProductNode {
                 }
             }
         }, "Reading bitmask...");  /*I18N*/
-    }
-
-    /**
-     * Checks whether or not the given term is compatible with this product.
-     *
-     * @param term The term to examine.
-     * @return <code>false</code> if the term has an expression referencing nodes which are not contained in
-     *         this product, <code>true</code> otherwise.
-     * @deprecated since BEAM 4.9. No usage, considered useless.
-     */
-    @Deprecated
-    public boolean isCompatibleTerm(final Term term) {
-        final RasterDataSymbol[] refRasterDataSymbols = BandArithmetic.getRefRasterDataSymbols(term);
-        final Set<String> flags = new TreeSet<String>();
-        final Set<String> rasters = new TreeSet<String>();
-        for (final RasterDataSymbol refRasterDataSymbol : refRasterDataSymbols) {
-            rasters.add(refRasterDataSymbol.getRaster().getName());
-            final String name = refRasterDataSymbol.getName();
-            if (isFlagSymbol(name)) {
-                final int index = name.indexOf('.');
-                flags.add(name.substring(index + 1));
-            }
-        }
-        final String[] flagNames = getAllFlagNames();
-        for (String flag : flags) {
-            if (!StringUtils.containsIgnoreCase(flagNames, flag)) {
-                return false;
-            }
-        }
-        final String[] rasterNames = StringUtils.addArrays(getBandNames(), getTiePointGridNames());
-        for (String raster : rasters) {
-            if (!StringUtils.containsIgnoreCase(rasterNames, raster)) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    /**
-     * Returns the index for the tie-point grid with the given name.
-     *
-     * @param name the tie-point grid name
-     * @return the tie-point grid index or <code>-1</code> if a tie-point grid with the given name is not contained in
-     *         this product.
-     * @throws IllegalArgumentException if the given name is <code>null</code> or empty.
-     * @deprecated since BEAM 4.9. No usage, considered useless.
-     */
-    @Deprecated
-    public int getTiePointGridIndex(final String name) {
-        Guardian.assertNotNullOrEmpty("name", name);
-        return tiePointGridGroup.indexOf(name);
     }
 
     private class VectorDataNodeProductNodeGroup extends ProductNodeGroup<VectorDataNode> {

@@ -71,7 +71,7 @@ public class StatisticsUtils {
     public static class TransectProfile {
 
         /**
-         * @deprecated since BEAM 4.10.4; no replacement.
+         * @deprecated since BEAM 4.11; no replacement.
          */
         @Deprecated
         public static TransectProfileData getTransectProfileData(final RasterDataNode raster) throws IOException {
@@ -102,7 +102,7 @@ public class StatisticsUtils {
         }
 
         /**
-         * @deprecated since BEAM 4.10.4; no replacement.
+         * @deprecated since BEAM 4.11; no replacement.
          */
         @Deprecated
         public static String createTransectProfileText(final RasterDataNode raster) throws IOException {
