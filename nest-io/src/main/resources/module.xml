@@ -115,6 +115,7 @@
             <class>org.esa.beam.visat.actions.ProductImportAction</class>
             <readerPlugin>org.esa.nest.dataio.arcgrid.NestArcGridReaderPlugIn</readerPlugin>
             <formatName>ARC_INFO_BIN_GRID</formatName>
+            <text>Arc/Info Binary Grid</text>
             <useAllFileFilter>true</useAllFileFilter>
             <shortDescr>Import an Arc Binary Grid data product.</shortDescr>
             <placeAfter>importImageIO</placeAfter>

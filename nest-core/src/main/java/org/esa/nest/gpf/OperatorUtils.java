@@ -26,6 +26,7 @@ import org.esa.nest.datamodel.AbstractMetadata;
 import org.esa.nest.datamodel.Unit;
 import org.esa.nest.eo.Constants;
 import org.esa.nest.util.ExceptionLog;
+import org.esa.nest.util.Settings;
 
 import java.awt.*;
 import java.text.DateFormat;
@@ -422,7 +423,10 @@ public final class OperatorUtils {
         else
             message += e.toString();
 
-        ExceptionLog.log(message);
+        if(Settings.instance().isTrue("sendErrorOnException")) {
+            ExceptionLog.log(message);
+        }
+
         System.out.println(message);
         throw new OperatorException(message);
     }

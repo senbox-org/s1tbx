@@ -506,15 +506,19 @@ public class BasicApp {
                 // ignore
             }
             try {
-                LookAndFeelFactory.installJideExtension(LookAndFeelFactory.XERTO_STYLE);
-                // Uncomment this, if we want icons to be displayed on title pane of a DockableFrame
-                UIManager.getDefaults().put("DockableFrameTitlePane.showIcon", Boolean.TRUE);
+                loadJideExtension();
             } catch (Throwable ignored) {
                 // ignore
             }
             return true;
         }
         return false;
+    }
+
+    protected void loadJideExtension() {
+        LookAndFeelFactory.installJideExtension(LookAndFeelFactory.XERTO_STYLE);
+        // Uncomment this, if we want icons to be displayed on title pane of a DockableFrame
+        // UIManager.getDefaults().put("DockableFrameTitlePane.showIcon", Boolean.TRUE);
     }
 
     private String getDefaultLookAndFeelClassName() {

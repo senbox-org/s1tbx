@@ -23,6 +23,8 @@ import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.gpf.ui.BaseOperatorUI;
 import org.esa.beam.framework.gpf.ui.UIValidation;
 import org.esa.beam.framework.ui.AppContext;
+import org.esa.beam.framework.ui.WorldMapPane;
+import org.esa.nest.dat.toolviews.productlibrary.DatabaseQueryListener;
 import org.esa.nest.dat.toolviews.productlibrary.WorldMapUI;
 import org.esa.nest.util.DialogUtils;
 
@@ -49,9 +51,11 @@ public class SubsetUI extends BaseOperatorUI {
     private final JRadioButton pixelCoordRadio = new JRadioButton("Pixel Coordinates");
     private final JRadioButton geoCoordRadio = new JRadioButton("Geographic Coordinates");
     private final JPanel pixelPanel = new JPanel(new GridBagLayout());
-    private final JPanel geoPanel = new JPanel();
+    private final JPanel geoPanel = new JPanel(new BorderLayout());
 
     private final WorldMapUI worldMapUI = new WorldMapUI();
+    private final JTextField geoText = new JTextField("");
+    private Geometry geoRegion = null;
     private boolean pixelCoords = true;
 
     @Override
@@ -60,6 +64,8 @@ public class SubsetUI extends BaseOperatorUI {
         initializeOperatorUI(operatorName, parameterMap);
         final JComponent panel = createPanel();
         initParameters();
+
+        worldMapUI.addListener(new MapListener());
 
         return new JScrollPane(panel);
     }
@@ -89,7 +95,6 @@ public class SubsetUI extends BaseOperatorUI {
         height.setText(String.valueOf(heightVal));
         subSamplingX.setText(String.valueOf(paramMap.get("subSamplingX")));
         subSamplingY.setText(String.valueOf(paramMap.get("subSamplingY")));
-
     }
 
     @Override
@@ -121,21 +126,8 @@ public class SubsetUI extends BaseOperatorUI {
         if(subSamplingYStr != null && !subSamplingYStr.isEmpty())
             paramMap.put("subSamplingY", Integer.parseInt(subSamplingYStr));
 
-        if(!pixelCoords) {
-            final GeoPos[] selectionBox = worldMapUI.getSelectionBox();
-            if(selectionBox != null) {
-                final Coordinate[] coords = new Coordinate[selectionBox.length+1];
-                for(int i=0; i<selectionBox.length; ++i) {
-                    coords[i] = new Coordinate(selectionBox[i].getLon(), selectionBox[i].getLat());
-                }
-                coords[selectionBox.length] = new Coordinate(selectionBox[0].getLon(), selectionBox[0].getLat());
-
-                final GeometryFactory geometryFactory = new GeometryFactory();
-                final LinearRing linearRing = geometryFactory.createLinearRing(coords);
-
-                final Geometry geoRegion = geometryFactory.createPolygon(linearRing, null);
-                paramMap.put("geoRegion", geoRegion);
-            }
+        if(!pixelCoords && geoRegion != null) {
+            paramMap.put("geoRegion", geoRegion);
         }
     }
 
@@ -182,7 +174,11 @@ public class SubsetUI extends BaseOperatorUI {
         DialogUtils.addComponent(pixelPanel, pixgbc, "Sub-sampling Y:", subSamplingY);
         DialogUtils.fillPanel(pixelPanel, pixgbc);
 
-        geoPanel.add(worldMapUI.getWorlMapPane(), BorderLayout.CENTER);
+        final WorldMapPane worldPane = worldMapUI.getWorlMapPane();
+        worldPane.setPreferredSize(new Dimension(500, 130));
+        geoText.setColumns(45);
+        geoPanel.add(worldPane, BorderLayout.CENTER);
+        geoPanel.add(geoText, BorderLayout.SOUTH);
 
         gbc.gridx = 0;
         gbc.gridwidth = 2;
@@ -208,6 +204,38 @@ public class SubsetUI extends BaseOperatorUI {
                 geoPanel.setVisible(true);
                 pixelCoords = false;
             }
+        }
+    }
+
+    private void getGeoRegion() {
+        geoRegion = null;
+        geoText.setText("");
+        if(!pixelCoords) {
+            final GeoPos[] selectionBox = worldMapUI.getSelectionBox();
+            if(selectionBox != null) {
+                final Coordinate[] coords = new Coordinate[selectionBox.length+1];
+                for(int i=0; i<selectionBox.length; ++i) {
+                    coords[i] = new Coordinate(selectionBox[i].getLon(), selectionBox[i].getLat());
+                }
+                coords[selectionBox.length] = new Coordinate(selectionBox[0].getLon(), selectionBox[0].getLat());
+
+                final GeometryFactory geometryFactory = new GeometryFactory();
+                final LinearRing linearRing = geometryFactory.createLinearRing(coords);
+
+                geoRegion = geometryFactory.createPolygon(linearRing, null);
+                geoText.setText(geoRegion.toText());
+            }
+        }
+    }
+
+    private class MapListener implements DatabaseQueryListener {
+
+        public void notifyNewProductEntryListAvailable() {
+
+        }
+
+        public void notifyNewMapSelectionAvailable() {
+            getGeoRegion();
         }
     }
 

@@ -177,6 +177,12 @@ public final class Settings {
         return settingMap.get(key);
     }
 
+    public boolean isTrue(String key)
+    {
+        final String val = settingMap.get(key);
+        return val != null && val.equals("true");
+    }
+
     public static File getAuxDataFolder() throws IOException {
         String auxDataPath = Settings.instance().get("AuxDataPath");
         if(auxDataPath == null)
