@@ -480,19 +480,14 @@ public class BasicApp {
     private boolean initLookAndFeel() {
 
         try {
-            UIManager.installLookAndFeel("Napkin", "net.sourceforge.napkinlaf.NapkinLookAndFeel");
-        } catch (Throwable e) {
-            // ignored, because Napkin LAF is not important
-        }
-        try {
             UIManager.installLookAndFeel("Jtattoo", "com.jtattoo.plaf.smart.SmartLookAndFeel");
         } catch(Throwable e) {
-            //
+            e.printStackTrace();
         }
         try {
             UIManager.installLookAndFeel("SeaGlass", "com.seaglasslookandfeel.SeaGlassLookAndFeel");
         } catch(Throwable e) {
-            //
+            e.printStackTrace();
         }
 
         String currentLafClassName = UIManager.getLookAndFeel().getClass().getName();
@@ -513,7 +508,7 @@ public class BasicApp {
             try {
                 LookAndFeelFactory.installJideExtension(LookAndFeelFactory.XERTO_STYLE);
                 // Uncomment this, if we want icons to be displayed on title pane of a DockableFrame
-                // UIManager.getDefaults().put("DockableFrameTitlePane.showIcon", Boolean.TRUE);
+                UIManager.getDefaults().put("DockableFrameTitlePane.showIcon", Boolean.TRUE);
             } catch (Throwable ignored) {
                 // ignore
             }
