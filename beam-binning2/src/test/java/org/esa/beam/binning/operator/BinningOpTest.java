@@ -6,6 +6,7 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 import org.esa.beam.binning.aggregators.AggregatorAverage;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.CrsGeoCoding;
+import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.TiePointGeoCoding;
@@ -19,6 +20,7 @@ import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Rectangle2D;
@@ -524,9 +526,14 @@ public class BinningOpTest {
 
     @Test
     public void testFilterAccordingToTime() throws Exception {
+        GeoCoding gcMock = Mockito.mock(GeoCoding.class);
+        Mockito.when(gcMock.canGetGeoPos()).thenReturn(true);
         final Product product1 = new Product("name1", "type", 10, 10);
+        product1.setGeoCoding(gcMock);
         final Product product2 = new Product("name2", "type", 10, 10);
+        product2.setGeoCoding(gcMock);
         final Product product3 = new Product("name3", "type", 10, 10);
+        product3.setGeoCoding(gcMock);
         Product[] inputProducts = {product1, product2, product3};
         Product[] expectedProducts = {product1, product2, product3};
         Product[] filteredProducts = BinningOp.filterSourceProducts(inputProducts,
