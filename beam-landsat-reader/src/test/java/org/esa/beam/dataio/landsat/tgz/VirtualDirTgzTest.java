@@ -156,51 +156,6 @@ public class VirtualDirTgzTest {
     }
 
     @Test
-    public void testCreateTargetDirInTemp_fromSystemPropertyTmpDir() throws IOException {
-        final String tempDirName = System.getProperty("java.io.tmpdir");
-        assertNotNull(tempDirName);
-
-        File dirInTemp = null;
-        try {
-            final File testTgz = TestUtil.getTestFile("tgz/test-archive.tgz");
-            virtualDir = new VirtualDirTgz(testTgz);
-
-            dirInTemp = virtualDir.createTargetDirInTemp("wurst");
-            assertNotNull(dirInTemp);
-            assertTrue(dirInTemp.isDirectory());
-            assertEquals(new File(tempDirName, "wurst").getAbsolutePath(), dirInTemp.getAbsolutePath());
-        } finally {
-            if (dirInTemp != null) {
-                FileUtils.deleteTree(dirInTemp);
-            }
-        }
-    }
-
-    @Test
-    public void testCreateTargetDirInTemp_fromSystemPropertyUserHome() throws IOException {
-        final String oldTempDir = System.getProperty("java.io.tmpdir");
-        System.clearProperty("java.io.tmpdir");
-        final String userHome = System.getProperty("user.home");
-        assertNotNull(userHome);
-
-        File dirInTemp = null;
-        try {
-            final File testTgz = TestUtil.getTestFile("tgz/test-archive.tgz");
-            virtualDir = new VirtualDirTgz(testTgz);
-
-            dirInTemp = virtualDir.createTargetDirInTemp("Schneck");
-            assertNotNull(dirInTemp);
-            assertTrue(dirInTemp.isDirectory());
-            assertEquals(new File(userHome, ".beam/temp/Schneck").getAbsolutePath(), dirInTemp.getAbsolutePath());
-        } finally {
-            System.setProperty("java.io.tmpdir", oldTempDir);
-            if (dirInTemp != null) {
-                FileUtils.deleteTree(dirInTemp);
-            }
-        }
-    }
-
-    @Test
     public void testFinalize() throws Throwable {
         final File testTgz = TestUtil.getTestFile("tgz/test-archive.tgz");
 
@@ -210,11 +165,10 @@ public class VirtualDirTgzTest {
         final File tempDir = virtualDir.getTempDir();
         assertNotNull(tempDir);
         
-        final File createDir = new File(tempDir, "test-archive.tgz");
-        assertTrue(createDir.isDirectory());
+        assertTrue(tempDir.isDirectory());
 
         virtualDir.finalize();
-        assertFalse(createDir.isDirectory());
+        assertFalse(tempDir.isDirectory());
     }
 
     @Test

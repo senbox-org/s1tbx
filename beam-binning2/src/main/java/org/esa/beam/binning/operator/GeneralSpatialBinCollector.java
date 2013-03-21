@@ -38,7 +38,6 @@ public class GeneralSpatialBinCollector implements SpatialBinCollector {
         if (mapBinCollector.getSpatialBinCollection().size() > 12000) {
             moveBinsToFile(ctx);
         }
-
     }
 
     @Override
@@ -51,9 +50,19 @@ public class GeneralSpatialBinCollector implements SpatialBinCollector {
         consumingCompleted = true;
         moveBinsToFile(null);
         mapBinCollector.consumingCompleted();
+        mapBinCollector.close();
         mapBinCollector = null;
         fileBinCollector.consumingCompleted();
+    }
 
+    @Override
+    public void close() throws IOException {
+        if (fileBinCollector != null) {
+            fileBinCollector.close();
+        }
+        if (mapBinCollector != null) {
+            mapBinCollector.close();
+        }
     }
 
     private void moveBinsToFile(BinningContext ignored) throws IOException {

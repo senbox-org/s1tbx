@@ -25,4 +25,11 @@ interface SpatialBinCollector extends SpatialBinConsumer {
      * @throws IOException If an IO-Exception occurs.
      */
     void consumingCompleted() throws IOException;
+
+    /**
+     * Closes all used resources.
+     *
+     * @throws IOException
+     */
+    void close() throws IOException;
 }
