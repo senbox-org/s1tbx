@@ -34,6 +34,7 @@ import org.esa.beam.framework.datamodel.MetadataAttribute;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.ProductFilter;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
@@ -387,27 +388,17 @@ public class BinningOp extends Operator implements Output {
             return sourceProducts;
         }
 
-        final List<Product> acceptedByFilter = new ArrayList<Product>();
+        final List<Product> acceptedProductList = new ArrayList<Product>();
         for (Product sourceProduct : sourceProducts) {
-            final ProductData.UTC productStartTime = sourceProduct.getStartTime();
-            final ProductData.UTC productEndTime = sourceProduct.getEndTime();
-            final boolean hasStartTime = productStartTime != null;
-            final boolean hasEndTime = productEndTime != null;
-            if (hasStartTime && productStartTime.getAsDate().after(startTime.getAsDate())
-                && hasEndTime && productEndTime.getAsDate().before(endTime.getAsDate())) {
-                acceptedByFilter.add(sourceProduct);
-            } else if (!hasStartTime && !hasEndTime) {
-                acceptedByFilter.add(sourceProduct);
-            } else if (hasStartTime && productStartTime.getAsDate().after(startTime.getAsDate()) && !hasEndTime) {
-                acceptedByFilter.add(sourceProduct);
-            } else if (!hasStartTime && productEndTime.getAsDate().before(endTime.getAsDate())) {
-                acceptedByFilter.add(sourceProduct);
+            final ProductFilter filter = new SourceProductFilter(startTime, endTime);
+            if (filter.accept(sourceProduct)) {
+                acceptedProductList.add(sourceProduct);
             } else {
-                Debug.trace("Filtered out product '" + sourceProduct.getName() + "'");
+                Debug.trace("Filtered out product '" + sourceProduct.getName() + "'.");
                 sourceProduct.dispose();
             }
         }
-        return acceptedByFilter.toArray(new Product[acceptedByFilter.size()]);
+        return acceptedProductList.toArray(new Product[acceptedProductList.size()]);
     }
 
     private void cleanSourceProducts() {
