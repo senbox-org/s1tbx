@@ -16,7 +16,19 @@
 
 package com.bc.ceres.core;
 
-import java.io.*;
+import com.bc.ceres.core.runtime.RuntimeConfig;
+import com.bc.ceres.core.runtime.RuntimeContext;
+import com.bc.ceres.core.runtime.internal.DefaultRuntimeConfig;
+
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.Enumeration;
 import java.util.TreeSet;
 import java.util.zip.GZIPInputStream;
@@ -43,7 +55,9 @@ public abstract class VirtualDir {
      * Opens a reader for the given relative path.
      *
      * @param path The relative file path.
+     *
      * @return A reader for the specified relative path.
+     *
      * @throws IOException If the file does not exist or if it can't be opened for reading.
      */
     public Reader getReader(String path) throws IOException {
@@ -55,7 +69,9 @@ public abstract class VirtualDir {
      * Files having '.gz' extensions are automatically decompressed.
      *
      * @param path The relative file path.
+     *
      * @return An input stream for the specified relative path.
+     *
      * @throws IOException If the file does not exist or if it can't be opened for reading.
      */
     public abstract InputStream getInputStream(String path) throws IOException;
@@ -64,7 +80,9 @@ public abstract class VirtualDir {
      * Gets the file for the given relative path.
      *
      * @param path The relative file or directory path.
+     *
      * @return Gets the file or directory for the specified file path.
+     *
      * @throws IOException If the file or directory does not exist or if it can't be extracted from a ZIP-file.
      */
     public abstract File getFile(String path) throws IOException;
@@ -78,9 +96,11 @@ public abstract class VirtualDir {
      * guaranteed to appear in alphabetical order.
      *
      * @param path The relative directory path.
+     *
      * @return An array of strings naming the files and directories in the
      *         directory denoted by the given relative directory path.
      *         The array will be empty if the directory is empty.
+     *
      * @throws IOException If the directory given by the relative path does not exists.
      */
     public abstract String[] list(String path) throws IOException;
@@ -94,6 +114,7 @@ public abstract class VirtualDir {
      * Creates an instance of a virtual directory object from a given directory or ZIP-file.
      *
      * @param file A directory or a ZIP-file.
+     *
      * @return The virtual directory instance, or {@code null} if {@code file} is not a directory or a ZIP-file or
      *         the ZIP-file could not be opened for read access..
      */
@@ -200,7 +221,7 @@ public abstract class VirtualDir {
             ZipEntry zipEntry = getEntry(path);
 
             if (tempZipFileDir == null) {
-                tempZipFileDir = new File(getTempDir(), getFilenameWithoutExtensionFromPath(getBasePath()));
+                tempZipFileDir = VirtualDir.createUniqueTempDir();
             }
 
             File tempFile = new File(tempZipFileDir, zipEntry.getName());
@@ -273,6 +294,11 @@ public abstract class VirtualDir {
             return true;
         }
 
+        @Override
+        public File getTempDir() throws IOException {
+            return tempZipFileDir;
+        }
+
         private void cleanup() {
             try {
                 zipFile.close();
@@ -301,23 +327,6 @@ public abstract class VirtualDir {
             return zipEntry;
         }
 
-        // package local to be usable in test tb 2012-02-17
-        public File getTempDir() throws IOException {
-            File tempDir = null;
-            String tempDirName = System.getProperty("java.io.tmpdir");
-            if (tempDirName != null) {
-                tempDir = new File(tempDirName);
-            }
-            if (tempDir == null || !tempDir.exists()) {
-                tempDir = new File(new File(System.getProperty("user.home", ".")), ".beam/temp");
-                tempDir.mkdirs();
-            }
-            if (!tempDir.exists()) {
-                throw new IOException("Temporary directory not available: " + tempDir);
-            }
-            return tempDir;
-        }
-
         private void unzip(ZipEntry zipEntry, File tempFile) throws IOException {
             InputStream is = zipFile.getInputStream(zipEntry);
             if (is != null) {
@@ -344,6 +353,7 @@ public abstract class VirtualDir {
      * Gets the filename without its extension from the given filename.
      *
      * @param path the path of the file whose filename is to be extracted.
+     *
      * @return the filename without its extension.
      */
     private static String getFilenameWithoutExtensionFromPath(String path) {
@@ -387,4 +397,51 @@ public abstract class VirtualDir {
         }
         treeRoot.delete();
     }
+
+    private static final int TEMP_DIR_ATTEMPTS = 10000;
+
+    public static File createUniqueTempDir() throws IOException {
+        File baseDir = getBaseTempDir();
+        String baseName = System.currentTimeMillis() + "-";
+
+        for (int counter = 0; counter < TEMP_DIR_ATTEMPTS; counter++) {
+            File tempDir = new File(baseDir, baseName + counter);
+            if (tempDir.mkdir()) {
+                return tempDir;
+            }
+        }
+        throw new IllegalStateException("Failed to create directory within "
+                                        + TEMP_DIR_ATTEMPTS + " attempts (tried "
+                                        + baseName + "0 to " + baseName + (TEMP_DIR_ATTEMPTS - 1) + ')');
+    }
+
+    private static File getBaseTempDir() throws IOException {
+        String contextId = getContextId();
+        File tempDir;
+        String tempDirName = System.getProperty("java.io.tmpdir");
+        if (tempDirName != null) {
+            tempDir = new File(tempDirName);
+            if (tempDir.exists()) {
+                tempDir = new File(tempDir, contextId);
+                tempDir.mkdir();
+            }
+        } else {
+            tempDir = new File(System.getProperty("user.home", "."), "." + contextId + "/temp");
+            tempDir.mkdirs();
+        }
+        if (!tempDir.exists()) {
+            throw new IOException("Temporary directory not available: " + tempDir);
+        }
+        return tempDir;
+    }
+
+    private static String getContextId() {
+        String contextId = DefaultRuntimeConfig.DEFAULT_CERES_CONTEXT;
+        RuntimeConfig runtimeConfig = RuntimeContext.getConfig();
+        if (runtimeConfig != null) {
+            contextId = runtimeConfig.getContextId();
+        }
+        return contextId;
+    }
+
 }
