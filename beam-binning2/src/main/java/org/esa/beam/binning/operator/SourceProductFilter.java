@@ -38,14 +38,14 @@ class SourceProductFilter implements ProductFilter {
         final GeoCoding geoCoding = sourceProduct.getGeoCoding();
         if (geoCoding == null || !geoCoding.canGetGeoPos()) {
             return false;
-        } else if (hasStartTime && productStartTime.getAsDate().after(startTime.getAsDate())
-                   && hasEndTime && productEndTime.getAsDate().before(endTime.getAsDate())) {
+        } else if (startTime != null && hasStartTime && productStartTime.getAsDate().after(startTime.getAsDate())
+                   && endTime != null && hasEndTime && productEndTime.getAsDate().before(endTime.getAsDate())) {
             return true;
         } else if (!hasStartTime && !hasEndTime) {
             return true;
-        } else if (hasStartTime && productStartTime.getAsDate().after(startTime.getAsDate()) && !hasEndTime) {
+        } else if (startTime != null && hasStartTime && productStartTime.getAsDate().after(startTime.getAsDate()) && !hasEndTime) {
             return true;
-        } else if (!hasStartTime && productEndTime.getAsDate().before(endTime.getAsDate())) {
+        } else if (!hasStartTime && endTime != null && productEndTime.getAsDate().before(endTime.getAsDate())) {
             return true;
         } else {
             return false;
