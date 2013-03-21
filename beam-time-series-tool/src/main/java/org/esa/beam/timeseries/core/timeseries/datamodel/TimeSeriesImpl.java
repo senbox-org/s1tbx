@@ -37,6 +37,7 @@ import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.logging.BeamLogManager;
 
+import java.io.File;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -119,10 +120,15 @@ final class TimeSeriesImpl extends AbstractTimeSeries {
         MetadataElement productListElem = tsElem.getElement(PRODUCT_LOCATIONS);
         MetadataElement[] productElems = productListElem.getElements();
         List<ProductLocation> productLocations = new ArrayList<ProductLocation>(productElems.length);
+        final File fileLocation = tsProduct.getProduct().getFileLocation();
         for (MetadataElement productElem : productElems) {
             String path = productElem.getAttributeString(PL_PATH);
+            File productFile = new File(path);
+            if (!productFile.isAbsolute()) {
+                productFile = new File(fileLocation.getParentFile(), path);
+            }
             String type = productElem.getAttributeString(PL_TYPE);
-            productLocations.add(new ProductLocation(ProductLocationType.valueOf(type), path));
+            productLocations.add(new ProductLocation(ProductLocationType.valueOf(type), productFile.getAbsolutePath()));
         }
         return productLocations;
     }

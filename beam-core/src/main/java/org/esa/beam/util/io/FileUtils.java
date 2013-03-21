@@ -16,6 +16,9 @@
 package org.esa.beam.util.io;
 
 import com.bc.ceres.core.Assert;
+import org.esa.beam.util.Guardian;
+import org.esa.beam.util.StringUtils;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -26,8 +29,6 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import org.esa.beam.util.Guardian;
-import org.esa.beam.util.StringUtils;
 
 /**
  * This class provides additional functionality in handling with files. All methods in this class dealing with
@@ -479,5 +480,16 @@ public class FileUtils {
         }
 
         return tree.delete();
+    }
+
+    public static URI getRelativeUri(URI rootURI, File file) {
+        if (file == null) {
+            return null;
+        }
+        URI uri = file.toURI();
+        if (rootURI == null) {
+            return uri;
+        }
+        return rootURI.relativize(uri);
     }
 }
