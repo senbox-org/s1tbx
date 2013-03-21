@@ -146,15 +146,6 @@ public class WriteOp extends Operator implements Output {
         this.formatName = formatName;
     }
 
-    /**
-     * @deprecated since BEAM 4.9
-     */
-    @Deprecated
-    public WriteOp(Product sourceProduct, File file, String formatName, boolean deleteOutputOnFailure) {
-        this(sourceProduct, file, formatName);
-        this.deleteOutputOnFailure = deleteOutputOnFailure;
-    }
-
     public File getFile() {
         return file;
     }
@@ -401,48 +392,6 @@ public class WriteOp extends Operator implements Output {
             todoLists.put(sourceImage, todoList);
         }
         return todoList;
-    }
-
-    /**
-     * @deprecated since BEAM 4.9
-     */
-    @Deprecated
-    public static void writeProduct(Product sourceProduct, File file, String formatName, ProgressMonitor pm) {
-        WriteOp writeOp = new WriteOp(sourceProduct, file, formatName);
-        writeOp.setWriteEntireTileRows(true);
-        writeOp.writeProduct(pm);
-    }
-
-    /**
-     * @deprecated since BEAM 4.9
-     */
-    @Deprecated
-    public static void writeProduct(Product sourceProduct,
-                                    File file,
-                                    String formatName,
-                                    boolean deleteOutputOnFailure,
-                                    ProgressMonitor pm) {
-        WriteOp writeOp = new WriteOp(sourceProduct, file, formatName);
-        writeOp.setDeleteOutputOnFailure(deleteOutputOnFailure);
-        writeOp.setWriteEntireTileRows(true);
-        writeOp.writeProduct(pm);
-    }
-
-    /**
-     * @deprecated since BEAM 4.9
-     */
-    @Deprecated
-    public static void writeProduct(Product sourceProduct,
-                                    File file,
-                                    String formatName,
-                                    boolean deleteOutputOnFailure,
-                                    boolean writeEntireTileRows,
-                                    ExecutionOrder executionOrder,
-                                    ProgressMonitor pm) {
-        WriteOp writeOp = new WriteOp(sourceProduct, file, formatName);
-        writeOp.setDeleteOutputOnFailure(deleteOutputOnFailure);
-        writeOp.setWriteEntireTileRows(writeEntireTileRows);
-        writeOp.writeProduct(pm);
     }
 
     @Override
