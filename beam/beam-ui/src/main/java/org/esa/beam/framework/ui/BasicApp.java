@@ -326,7 +326,7 @@ public class BasicApp {
             initCommandManager();
             initMainFrame();
             initShutdownHook();
-            initLookAndFeel();
+            //initLookAndFeel();
             configureLayoutPersitence();
             configureDockingManager();
             pm.worked(1);
