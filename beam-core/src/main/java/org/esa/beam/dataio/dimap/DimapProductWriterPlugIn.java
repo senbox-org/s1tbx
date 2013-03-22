@@ -406,7 +406,7 @@ public class DimapProductWriterPlugIn implements ProductWriterPlugIn {
 
     public final static String DIMAP_FORMAT_NAME = DimapProductConstants.DIMAP_FORMAT_NAME;
     private final BeamFileFilter dimapFileFilter = (BeamFileFilter) DimapProductHelpers.createDimapFileFilter();
-    private Set<DimapProductWriter.Listener> dimapWriterListeners;
+    private Set<DimapProductWriter.WriterExtender> dimapWriterWriterExtenders;
 
     /**
      * Constructs a new BEAM-DIMAP product writer plug-in instance.
@@ -468,9 +468,9 @@ public class DimapProductWriterPlugIn implements ProductWriterPlugIn {
      */
     public ProductWriter createWriterInstance() {
         final DimapProductWriter dimapProductWriter = new DimapProductWriter(this);
-        if (dimapWriterListeners != null) {
-            for (DimapProductWriter.Listener listener : dimapWriterListeners) {
-                dimapProductWriter.addListener(listener);
+        if (dimapWriterWriterExtenders != null) {
+            for (DimapProductWriter.WriterExtender writerExtender : dimapWriterWriterExtenders) {
+                dimapProductWriter.addExtender(writerExtender);
             }
         }
         return dimapProductWriter;
@@ -480,18 +480,18 @@ public class DimapProductWriterPlugIn implements ProductWriterPlugIn {
         return dimapFileFilter;
     }
 
-    public void addDimapWriterListener(DimapProductWriter.Listener listener) {
-        if (dimapWriterListeners == null) {
-            dimapWriterListeners = new HashSet<DimapProductWriter.Listener>();
+    public void addWriterExtender(DimapProductWriter.WriterExtender writerExtender) {
+        if (dimapWriterWriterExtenders == null) {
+            dimapWriterWriterExtenders = new HashSet<DimapProductWriter.WriterExtender>();
         }
-        if (listener != null) {
-            dimapWriterListeners.add(listener);
+        if (writerExtender != null) {
+            dimapWriterWriterExtenders.add(writerExtender);
         }
     }
 
-    public void removeDimapWriterListener(DimapProductWriter.Listener listener) {
-        if (dimapWriterListeners == null) {
-            dimapWriterListeners.remove(listener);
+    public void removeWriterExtender(DimapProductWriter.WriterExtender writerExtender) {
+        if (dimapWriterWriterExtenders == null) {
+            dimapWriterWriterExtenders.remove(writerExtender);
         }
     }
 }

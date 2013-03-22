@@ -52,11 +52,11 @@ import java.util.Iterator;
  */
 public class TimeSeriesToolActivator implements Activator {
 
-    private final DimapProductWriter.Listener dimapWriterListener;
-    private DimapProductReader.ReaderExtender readerExtender;
+    private final DimapProductWriter.WriterExtender writerExtender;
+    private final DimapProductReader.ReaderExtender readerExtender;
 
     public TimeSeriesToolActivator() {
-        dimapWriterListener = createDimapWriterListener();
+        writerExtender = createWriterExtender();
         readerExtender = createReaderExtender();
     }
 
@@ -67,7 +67,7 @@ public class TimeSeriesToolActivator implements Activator {
         final Iterator<ProductWriterPlugIn> allWriterPlugIns = ioPlugInManager.getWriterPlugIns(DimapProductConstants.DIMAP_FORMAT_NAME);
         while (allWriterPlugIns.hasNext()) {
             DimapProductWriterPlugIn writerPlugIn = (DimapProductWriterPlugIn) allWriterPlugIns.next();
-            writerPlugIn.addDimapWriterListener(dimapWriterListener);
+            writerPlugIn.addWriterExtender(writerExtender);
         }
 
         final Iterator<ProductReaderPlugIn> readerPlugIns = ioPlugInManager.getReaderPlugIns(DimapProductConstants.DIMAP_FORMAT_NAME);
@@ -84,7 +84,7 @@ public class TimeSeriesToolActivator implements Activator {
         final Iterator<ProductWriterPlugIn> allWriterPlugIns = ioPlugInManager.getWriterPlugIns(DimapProductConstants.DIMAP_FORMAT_NAME);
         while (allWriterPlugIns.hasNext()) {
             DimapProductWriterPlugIn writerPlugIn = (DimapProductWriterPlugIn) allWriterPlugIns.next();
-            writerPlugIn.removeDimapWriterListener(dimapWriterListener);
+            writerPlugIn.removeWriterExtender(writerExtender);
         }
 
         final Iterator<ProductReaderPlugIn> readerPlugIns = ioPlugInManager.getReaderPlugIns(DimapProductConstants.DIMAP_FORMAT_NAME);
@@ -94,8 +94,8 @@ public class TimeSeriesToolActivator implements Activator {
         }
     }
 
-    private DimapProductWriter.Listener createDimapWriterListener() {
-        return new DimapProductWriter.Listener() {
+    private DimapProductWriter.WriterExtender createWriterExtender() {
+        return new DimapProductWriter.WriterExtender() {
             @Override
             public boolean vetoableShouldWrite(ProductNode node) {
                 if (!isTimeSerisProduct(node.getProduct())) {

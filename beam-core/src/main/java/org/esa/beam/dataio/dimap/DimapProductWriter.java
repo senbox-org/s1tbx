@@ -63,7 +63,7 @@ public class DimapProductWriter extends AbstractProductWriter {
     private Map<Band, ImageOutputStream> _bandOutputStreams;
     private File _dataOutputDir;
     private boolean _incremental = true;
-    private Set<Listener> dimapWriterListeners;
+    private Set<WriterExtender> dimapWriterWriterExtenders;
 
     /**
      * Construct a new instance of a product writer for the given BEAM-DIMAP product writer plug-in.
@@ -109,9 +109,9 @@ public class DimapProductWriter extends AbstractProductWriter {
         initDirs(outputFile);
 
         ensureNamingConvention();
-        if (dimapWriterListeners != null) {
-            for (Listener dimapWriterListener : dimapWriterListeners) {
-                dimapWriterListener.intendToWriteDimapHeaderTo(outputFile.getParentFile(), getSourceProduct());
+        if (dimapWriterWriterExtenders != null) {
+            for (WriterExtender dimapWriterWriterExtender : dimapWriterWriterExtenders) {
+                dimapWriterWriterExtender.intendToWriteDimapHeaderTo(outputFile.getParentFile(), getSourceProduct());
             }
         }
         writeDimapDocument();
@@ -252,8 +252,8 @@ public class DimapProductWriter extends AbstractProductWriter {
         }
         _bandOutputStreams.clear();
         _bandOutputStreams = null;
-        if (dimapWriterListeners != null){
-            dimapWriterListeners.clear();
+        if (dimapWriterWriterExtenders != null){
+            dimapWriterWriterExtenders.clear();
         }
     }
 
@@ -415,9 +415,9 @@ public class DimapProductWriter extends AbstractProductWriter {
 
     @Override
     public boolean shouldWrite(ProductNode node) {
-        if(dimapWriterListeners != null) {
-            for (Listener dimapWriterListener : dimapWriterListeners) {
-                final boolean shouldWrite = dimapWriterListener.vetoableShouldWrite(node);
+        if(dimapWriterWriterExtenders != null) {
+            for (WriterExtender dimapWriterWriterExtender : dimapWriterWriterExtenders) {
+                final boolean shouldWrite = dimapWriterWriterExtender.vetoableShouldWrite(node);
                 if (!shouldWrite) {
                     return false;
                 }
@@ -529,7 +529,7 @@ public class DimapProductWriter extends AbstractProductWriter {
         }
     }
 
-    public static interface Listener {
+    public static abstract class WriterExtender {
 
         /**
          * Returns wether the given product node is to be written.
@@ -537,22 +537,22 @@ public class DimapProductWriter extends AbstractProductWriter {
          * @param node the product node
          * @return <code>false</code> if the node should not be written
          */
-        boolean vetoableShouldWrite(ProductNode node);
+        public abstract boolean vetoableShouldWrite(ProductNode node);
 
         /**
          * Notification to do preparations relative to output directory.
          *
          * @param outputDir the directory where the DIMAP header file should be written
          */
-        void intendToWriteDimapHeaderTo(File outputDir, Product product);
+        public abstract void intendToWriteDimapHeaderTo(File outputDir, Product product);
     }
 
-    public void addListener(Listener listener) {
-        if (dimapWriterListeners == null){
-            dimapWriterListeners = new HashSet<Listener>();
+    public void addExtender(WriterExtender writerExtender) {
+        if (dimapWriterWriterExtenders == null){
+            dimapWriterWriterExtenders = new HashSet<WriterExtender>();
         }
-        if (listener != null) {
-            dimapWriterListeners.add(listener);
+        if (writerExtender != null) {
+            dimapWriterWriterExtenders.add(writerExtender);
         }
     }
 }
