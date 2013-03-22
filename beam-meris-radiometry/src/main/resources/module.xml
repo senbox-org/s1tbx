@@ -17,7 +17,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-meris-radiometry</symbolicName>
-    <version>1.1.1</version>
+    <version>1.1.2</version>
     <name>MERIS L1b Radiometry Processor</name>
 
     <description>
@@ -26,6 +26,8 @@
 
     <changelog>
         <![CDATA[
+        <p>From 1.1.1 to 1.1.2:<br/>
+        [BEAM-1481] Explain the radiometric correction files<br/>
         <p>From 1.1 to 1.1.1:<br/>
         Adapted to new Maven-architecture<br/>
         <p>From 1.0 to 1.1:<br/>
