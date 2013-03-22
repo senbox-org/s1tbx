@@ -1,3 +1,19 @@
+/*
+ * Copyright (C) 2013 Brockmann Consult GmbH (info@brockmann-consult.de)
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 3 of the License, or (at your option)
+ * any later version.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, see http://www.gnu.org/licenses/
+ */
+
 package org.esa.beam.util.io;
 
 import java.io.File;
@@ -25,7 +41,7 @@ public class WildcardMatcher {
     private final Pattern pattern;
     private final boolean windowsFs;
 
-    public WildcardMatcher(String wildcard) {
+    WildcardMatcher(String wildcard) {
         this(wildcard, isWindowsOs());
     }
 
@@ -45,23 +61,16 @@ public class WildcardMatcher {
     }
 
     public static void glob(String filePattern, Set<File> fileSet) throws IOException {
-        final File file = new File(filePattern);
-        if (file.exists()) {
-            fileSet.add(file.getCanonicalFile());
+        final File patternFile = new File(filePattern);
+        if (patternFile.exists()) {
+            fileSet.add(patternFile.getCanonicalFile());
             return;
         }
-        WildcardMatcher matcher = new WildcardMatcher(filePattern);
-        File dir;
-        int validPos;
-        if (file.isAbsolute()) {
-            String basePath = matcher.getBasePath(filePattern);
-            dir = new File(basePath).getCanonicalFile();
-            validPos = 0;
-        } else {
-            dir = new File(".").getCanonicalFile();
-            validPos = dir.getPath().length() + 1; //  +1 to skip the trailing slash
-        }
-        collectFiles(matcher, validPos, dir, fileSet);
+        String canonicalPathPattern = patternFile.getCanonicalPath();
+        WildcardMatcher matcher = new WildcardMatcher(canonicalPathPattern);
+        String basePath = matcher.getBasePath(canonicalPathPattern);
+        File dir = new File(basePath).getCanonicalFile();
+        collectFiles(matcher, 0, dir, fileSet);
     }
 
     private static void collectFiles(WildcardMatcher matcher, int validPos, File dir, Set<File> fileSet) throws IOException {
@@ -134,7 +143,7 @@ public class WildcardMatcher {
         return s;
     }
 
-    public boolean matches(String text) {
+    boolean matches(String text) {
         return pattern.matcher(resolvePath(text, windowsFs)).matches();
     }
 
