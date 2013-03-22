@@ -2,7 +2,7 @@
 
 This file contains all significant changes for each BEAM release.
 
-    o 18.03.2013: Version 4.10.4
+    o 29.03.2013: Version 4.11
     o 21.06.2012: Version 4.10.3
     o 09.05.2012: Version 4.10
     o 12.05.2011: Version 4.9
@@ -31,8 +31,19 @@ This file contains all significant changes for each BEAM release.
 
 _____________________________________________________________________________
 
- Changes from 4.10.3 to 4.10.4
+ Changes from 4.10.3 to 4.11
 _____________________________________________________________________________
+
+TODO - More prosa here before release
+o New Time Series Tool
+ - Temp. Percentile Operator
+o New Binning
+o New OPeNDAP client
+o NetCDF4 writer
+o The support of the former mosaic processor has been abandon.
+
+
+Complete list of BEAM 4.11 bug fixes and improvements
 
 New BEAM Features
 
@@ -41,8 +52,9 @@ New BEAM Features
 
 Improvements
 
-[BEAM-1126] - Pixel-geocoding consumes too much memory
+[BEAM-1481] - Explain the radiometric correction files
 [BEAM-1477] - Update OBPG readers to 1.4
+[BEAM-1126] - Pixel-geocoding consumes too much memory
 
 Bugs
 
