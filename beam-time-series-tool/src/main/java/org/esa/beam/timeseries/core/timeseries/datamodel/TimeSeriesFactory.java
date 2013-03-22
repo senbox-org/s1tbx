@@ -17,6 +17,7 @@
 package org.esa.beam.timeseries.core.timeseries.datamodel;
 
 import com.bc.ceres.core.Assert;
+import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.timeseries.core.TimeSeriesMapper;
 import org.esa.beam.util.ProductUtils;
@@ -45,8 +46,8 @@ public class TimeSeriesFactory {
      *
      * @return a time series wrapping the given product
      */
-    public static AbstractTimeSeries create(Product product) {
-        final TimeSeriesImpl timeSeries = new TimeSeriesImpl(product);
+    public static AbstractTimeSeries create(Product product, ProgressMonitor pm) {
+        final TimeSeriesImpl timeSeries = new TimeSeriesImpl(product, pm);
         TimeSeriesMapper.getInstance().put(product, timeSeries);
         return timeSeries;
     }
@@ -94,13 +95,13 @@ public class TimeSeriesFactory {
 
     private static Product getFirstReprojectedSourceProduct(List<ProductLocation> productLocations) {
         final ProductLocation firstLocation = productLocations.get(0);
-        return firstLocation.getProducts().values().iterator().next();
+        return firstLocation.getProducts(ProgressMonitor.NULL).values().iterator().next();
     }
 
     private static boolean noSourceProductsAvailable(List<ProductLocation> productLocations) {
         final Map<String, Product> productList = new HashMap<String, Product>();
         for (ProductLocation productLocation : productLocations) {
-            productList.putAll(productLocation.getProducts());
+            productList.putAll(productLocation.getProducts(ProgressMonitor.NULL));
         }
         return productList.isEmpty();
     }

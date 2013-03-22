@@ -17,6 +17,7 @@
 package org.esa.beam.timeseries.core.timeseries.datamodel;
 
 import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.core.SubProgressMonitor;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.ImageInfo;
@@ -80,11 +81,12 @@ final class TimeSeriesImpl extends AbstractTimeSeries {
      * Used to create a TimeSeries from within a ProductReader
      *
      * @param tsProduct the product read
+     * @param pm        a progress monitor
      */
-    TimeSeriesImpl(Product tsProduct) {
+    TimeSeriesImpl(Product tsProduct, ProgressMonitor pm) {
         init(tsProduct);
         productLocationList = getProductLocations();
-        storeProductsInMap();
+        storeProductsInMap(pm);
         setSourceImages();
         fixBandTimeCodings();
         updateAutoGrouping();
@@ -103,7 +105,7 @@ final class TimeSeriesImpl extends AbstractTimeSeries {
         for (ProductLocation location : productLocations) {
             addProductLocation(location);
         }
-        storeProductsInMap();
+        storeProductsInMap(ProgressMonitor.NULL);
         for (String variable : variableNames) {
             setEoVariableSelected(variable, true);
         }
@@ -123,12 +125,14 @@ final class TimeSeriesImpl extends AbstractTimeSeries {
         MetadataElement[] productElems = productListElem.getElements();
         List<ProductLocation> productLocations = new ArrayList<ProductLocation>(productElems.length);
         final File fileLocation = tsProduct.getProduct().getFileLocation();
-        final File parentDir = fileLocation.getParentFile();
         for (MetadataElement productElem : productElems) {
             String path = productElem.getAttributeString(PL_PATH);
             File productFile = new File(path);
-            if (!productFile.isAbsolute()) {
-                productFile = new File(parentDir, path);
+            if (fileLocation != null) {
+                if (!productFile.isAbsolute()) {
+                    final File parentDir = fileLocation.getParentFile();
+                    productFile = new File(parentDir, path);
+                }
             }
             String type = productElem.getAttributeString(PL_TYPE);
             productLocations.add(new ProductLocation(ProductLocationType.valueOf(type), productFile.getAbsolutePath()));
@@ -160,7 +164,7 @@ final class TimeSeriesImpl extends AbstractTimeSeries {
             productLocationList.add(productLocation);
             List<String> variables = getEoVariables();
 
-            final Map<String, Product> products = productLocation.getProducts();
+            final Map<String, Product> products = productLocation.getProducts(ProgressMonitor.NULL);
             for (Map.Entry<String, Product> productEntry : products.entrySet()) {
                 final Product product = productEntry.getValue();
 
@@ -208,7 +212,7 @@ final class TimeSeriesImpl extends AbstractTimeSeries {
 
         final Band[] bands = tsProduct.getBands();
         final MetadataElement sourceProductPaths = timeSeriesRootElement.getElement(SOURCE_PRODUCT_PATHS);
-        for (Map.Entry<String, Product> productEntry : productLocation.getProducts().entrySet()) {
+        for (Map.Entry<String, Product> productEntry : productLocation.getProducts(ProgressMonitor.NULL).entrySet()) {
             final Product product = productEntry.getValue();
             removeAttributeWithValue(PL_PATH, productEntry.getKey(), sourceProductPaths);
             String timeString = formatTimeString(product);
@@ -296,18 +300,37 @@ final class TimeSeriesImpl extends AbstractTimeSeries {
         axisMapping.addAxisMappingListener(new AxisMappingListener());
     }
 
-    private void storeProductsInMap() {
-        for (Product product : getAllProducts()) {
-            if (!product.isCompatibleProduct(tsProduct, LAT_LON_EPSILON)) {
-                HashMap<String, Product> productToBeReprojectedMap = new HashMap<String, Product>();
-                productToBeReprojectedMap.put("source", product);
-                productToBeReprojectedMap.put("collocateWith", tsProduct);
-                final Product collocatedProduct = GPF.createProduct("Reproject", createProjectionParameters(), productToBeReprojectedMap);
-                collocatedProduct.setStartTime(product.getStartTime());
-                collocatedProduct.setEndTime(product.getEndTime());
-                product = collocatedProduct;
+    private void storeProductsInMap(ProgressMonitor pm) {
+        pm.beginTask("Loading time series...", 2);
+        try {
+            final List<Product> allProducts = getAllProducts(new SubProgressMonitor(pm, 1));
+            reprojectProducts(allProducts, new SubProgressMonitor(pm, 1));
+        } finally {
+            pm.done();
+        }
+    }
+
+    private void reprojectProducts(List<Product> allProducts, ProgressMonitor pm) {
+        pm.beginTask("Reprojecting source products...", allProducts.size());
+        try {
+            for (Product product : allProducts) {
+                if (pm.isCanceled()) {
+                    return;
+                }
+                if (!product.isCompatibleProduct(tsProduct, LAT_LON_EPSILON)) {
+                    HashMap<String, Product> productToBeReprojectedMap = new HashMap<String, Product>();
+                    productToBeReprojectedMap.put("source", product);
+                    productToBeReprojectedMap.put("collocateWith", tsProduct);
+                    final Product collocatedProduct = GPF.createProduct("Reproject", createProjectionParameters(), productToBeReprojectedMap);
+                    collocatedProduct.setStartTime(product.getStartTime());
+                    collocatedProduct.setEndTime(product.getEndTime());
+                    product = collocatedProduct;
+                }
+                productTimeMap.put(formatTimeString(product), product);
+                pm.worked(1);
             }
-            productTimeMap.put(formatTimeString(product), product);
+        } finally {
+            pm.done();
         }
     }
 
@@ -341,7 +364,7 @@ final class TimeSeriesImpl extends AbstractTimeSeries {
         }
         // set in product
         if (selected) {
-            for (Product product : getAllProducts()) {
+            for (Product product : getAllProducts(ProgressMonitor.NULL)) {
                 addSpecifiedBandOfGivenProduct(variableName, product);
             }
         } else {
@@ -388,7 +411,7 @@ final class TimeSeriesImpl extends AbstractTimeSeries {
     @Override
     public List<Band> getBandsForProductLocation(ProductLocation location) {
         final List<Band> bands = new ArrayList<Band>();
-        Map<String, Product> products = location.getProducts();
+        Map<String, Product> products = location.getProducts(ProgressMonitor.NULL);
         for (Product product : products.values()) {
             String timeString = formatTimeString(product);
             // TODO relies on one timecoding per product... thats not good (mz, ts, 2010-07-12)
@@ -447,7 +470,7 @@ final class TimeSeriesImpl extends AbstractTimeSeries {
             fireChangeEvent(new TimeSeriesChangeEvent(TimeSeriesChangeEvent.END_TIME_PROPERTY_NAME, endTime, this));
         }
         List<String> variables = getEoVariables();
-        for (Product product : getAllProducts()) {
+        for (Product product : getAllProducts(ProgressMonitor.NULL)) {
             for (String variable : variables) {
                 if (isEoVariableSelected(variable)) {
                     addSpecifiedBandOfGivenProduct(variable, product);
@@ -537,12 +560,21 @@ final class TimeSeriesImpl extends AbstractTimeSeries {
         return variableListElement.getElements();
     }
 
-    private List<Product> getAllProducts() {
+    private List<Product> getAllProducts(ProgressMonitor pm) {
         List<Product> result = new ArrayList<Product>();
-        for (ProductLocation productLocation : productLocationList) {
-            for (Product product : productLocation.getProducts().values()) {
-                result.add(product);
+        pm.beginTask("Scanning product locations ...", productLocationList.size());
+        try {
+            for (ProductLocation productLocation : productLocationList) {
+                if (pm.isCanceled()) {
+                    break;
+                }
+                for (Product product : productLocation.getProducts(ProgressMonitor.NULL).values()) {
+                    result.add(product);
+                }
+                pm.worked(1);
             }
+        } finally {
+            pm.done();
         }
         return result;
     }

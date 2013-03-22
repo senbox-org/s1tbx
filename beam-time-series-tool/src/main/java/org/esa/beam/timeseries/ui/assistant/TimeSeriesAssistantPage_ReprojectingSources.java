@@ -16,7 +16,6 @@ import org.esa.beam.framework.ui.assistant.AssistantPage;
 import org.esa.beam.timeseries.core.timeseries.datamodel.ProductLocation;
 import org.esa.beam.timeseries.ui.ProductLocationsPaneModel;
 import org.esa.beam.gpf.operators.reproject.CollocationCrsForm;
-import org.esa.beam.timeseries.ui.ProductLocationsPaneModel;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.visat.VisatApp;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -150,7 +149,7 @@ class TimeSeriesAssistantPage_ReprojectingSources extends AbstractTimeSeriesAssi
             collocateProductSelector = new SourceProductSelector(getAppContext(), "Product:");
             List<Product> products = new ArrayList<Product>();
             for (ProductLocation productLocation : assistantModel.getProductLocationsModel().getProductLocations()) {
-                for (Product product : productLocation.getProducts().values()) {
+                for (Product product : productLocation.getProducts(ProgressMonitor.NULL).values()) {
                     products.add(product);
                 }
             }
@@ -251,7 +250,7 @@ class TimeSeriesAssistantPage_ReprojectingSources extends AbstractTimeSeriesAssi
             final List<ProductLocation> productLocations = productLocationsModel.getProductLocations();
             pm.beginTask("Reprojecting...", productLocations.size());
             for (ProductLocation productLocation : productLocations) {
-                final Map<String, Product> products = productLocation.getProducts();
+                final Map<String, Product> products = productLocation.getProducts(ProgressMonitor.NULL);
                 final Product crsReferenceProduct = getCrsReferenceProduct();
                 for (Map.Entry<String, Product> productEntry : products.entrySet()) {
                     final Product product = productEntry.getValue();

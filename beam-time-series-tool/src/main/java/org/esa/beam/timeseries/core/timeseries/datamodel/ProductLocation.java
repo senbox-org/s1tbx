@@ -55,10 +55,11 @@ public class ProductLocation {
     /**
      * Returns the live map of products of the product location.
      * @return the live map of this product location's products.
+     * @param pm a progress monitor
      */
-    public Map<String, Product> getProducts() {
+    public Map<String, Product> getProducts(final ProgressMonitor pm) {
         if (products == null) {
-            loadProducts(ProgressMonitor.NULL);
+            loadProducts(pm);
         }
         return products;
     }

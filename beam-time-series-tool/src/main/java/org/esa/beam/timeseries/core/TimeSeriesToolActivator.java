@@ -19,8 +19,10 @@ package org.esa.beam.timeseries.core;
 import static org.esa.beam.timeseries.core.timeseries.datamodel.AbstractTimeSeries.TIME_SERIES_PRODUCT_TYPE;
 
 import com.bc.ceres.core.CoreException;
+import com.bc.ceres.core.SubProgressMonitor;
 import com.bc.ceres.core.runtime.Activator;
 import com.bc.ceres.core.runtime.ModuleContext;
+import com.bc.ceres.swing.progress.DialogProgressMonitor;
 import org.esa.beam.dataio.dimap.DimapProductConstants;
 import org.esa.beam.dataio.dimap.DimapProductReader;
 import org.esa.beam.dataio.dimap.DimapProductReaderPlugIn;
@@ -38,7 +40,12 @@ import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.timeseries.core.timeseries.datamodel.AbstractTimeSeries;
 import org.esa.beam.timeseries.core.timeseries.datamodel.TimeSeriesFactory;
 import org.esa.beam.util.io.FileUtils;
+import org.esa.beam.visat.VisatApp;
 
+import javax.swing.JDialog;
+import javax.swing.JOptionPane;
+import java.awt.Dialog;
+import java.awt.Window;
 import java.io.File;
 import java.net.URI;
 import java.util.Iterator;
@@ -153,7 +160,22 @@ public class TimeSeriesToolActivator implements Activator {
             @Override
             public void completeProductNodesReading(Product product) {
                 if (product.getProductType().equals(TIME_SERIES_PRODUCT_TYPE)) {
-                    TimeSeriesFactory.create(product);
+
+                    final Window appWindow = VisatApp.getApp().getApplicationWindow();
+                    final DialogProgressMonitor monitor = new DialogProgressMonitor(
+                                appWindow,
+                                "Creating Time Series...",
+                                Dialog.ModalityType.APPLICATION_MODAL
+                    );
+                    monitor.beginTask("Loading time series ...", 1);
+                    try {
+                        TimeSeriesFactory.create(product, new SubProgressMonitor(monitor, 1));
+                    } finally {
+                        if (monitor.isCanceled()) {
+                            VisatApp.getApp().showWarningDialog("Loading of time series product has been canceled. Time series might be incomplete and possibly not usable.");
+                        }
+                        monitor.done();
+                    }
                 }
             }
         };

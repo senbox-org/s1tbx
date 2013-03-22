@@ -78,7 +78,7 @@ class TimeSeriesAssistantPage_SourceProducts extends AbstractTimeSeriesAssistant
         Product refProduct = null;
         final List<ProductLocation> productLocations = getAssistantModel().getProductLocationsModel().getProductLocations();
         for (ProductLocation productLocation : productLocations) {
-            for (Product product : productLocation.getProducts().values()) {
+            for (Product product : productLocation.getProducts(ProgressMonitor.NULL).values()) {
                 if (refProduct != null) {
                     if (product != null && !refProduct.isCompatibleProduct(product, 0.1E-4f)) {
                         return false;
@@ -131,7 +131,7 @@ class TimeSeriesAssistantPage_SourceProducts extends AbstractTimeSeriesAssistant
                 for (int i = 0; i < locationsModel.getSize(); i++) {
                     final ProductLocation location = locationsModel.getElementAt(i);
                     location.loadProducts(new SubProgressMonitor(pm, 1));
-                    final Collection<Product> products = location.getProducts().values();
+                    final Collection<Product> products = location.getProducts(ProgressMonitor.NULL).values();
                     if (!products.isEmpty()) {
                         final Product product = products.iterator().next();
                         final String[] bandNames = product.getBandNames();

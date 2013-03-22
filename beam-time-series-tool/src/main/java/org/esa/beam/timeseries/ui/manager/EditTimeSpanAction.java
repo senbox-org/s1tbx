@@ -1,5 +1,6 @@
 package org.esa.beam.timeseries.ui.manager;
 
+import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.swing.TableLayout;
 import com.jidesoft.combobox.DateComboBox;
 import org.esa.beam.framework.datamodel.Product;
@@ -126,7 +127,7 @@ class EditTimeSpanAction extends AbstractAction {
         private List<Product> getCompatibleProducts() {
             List<Product> result = new ArrayList<Product>();
             for (ProductLocation productLocation : timeSeries.getProductLocations()) {
-                for (Product product : productLocation.getProducts().values()) {
+                for (Product product : productLocation.getProducts(ProgressMonitor.NULL).values()) {
                     for (String variable : timeSeries.getEoVariables()) {
                         if (timeSeries.isProductCompatible(product, variable)) {
                             if (timeSeries.isEoVariableSelected(variable)) {
