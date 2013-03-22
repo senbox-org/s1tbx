@@ -16,12 +16,18 @@
 
 package org.esa.beam.timeseries.core;
 
+import static org.esa.beam.timeseries.core.timeseries.datamodel.AbstractTimeSeries.TIME_SERIES_PRODUCT_TYPE;
+
 import com.bc.ceres.core.CoreException;
 import com.bc.ceres.core.runtime.Activator;
 import com.bc.ceres.core.runtime.ModuleContext;
+import org.esa.beam.dataio.dimap.DimapProductConstants;
+import org.esa.beam.dataio.dimap.DimapProductReader;
+import org.esa.beam.dataio.dimap.DimapProductReaderPlugIn;
 import org.esa.beam.dataio.dimap.DimapProductWriter;
 import org.esa.beam.dataio.dimap.DimapProductWriterPlugIn;
 import org.esa.beam.framework.dataio.ProductIOPlugInManager;
+import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 import org.esa.beam.framework.dataio.ProductWriterPlugIn;
 import org.esa.beam.framework.datamodel.MetadataAttribute;
 import org.esa.beam.framework.datamodel.MetadataElement;
@@ -30,6 +36,7 @@ import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.ProductNode;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.timeseries.core.timeseries.datamodel.AbstractTimeSeries;
+import org.esa.beam.timeseries.core.timeseries.datamodel.TimeSeriesFactory;
 import org.esa.beam.util.io.FileUtils;
 
 import java.io.File;
@@ -46,32 +53,44 @@ import java.util.Iterator;
 public class TimeSeriesToolActivator implements Activator {
 
     private final DimapProductWriter.Listener dimapWriterListener;
+    private DimapProductReader.ReaderExtender readerExtender;
 
     public TimeSeriesToolActivator() {
         dimapWriterListener = createDimapWriterListener();
+        readerExtender = createReaderExtender();
     }
 
     @Override
     public void start(ModuleContext moduleContext) throws CoreException {
         final ProductIOPlugInManager ioPlugInManager = ProductIOPlugInManager.getInstance();
-        final Iterator<ProductWriterPlugIn> allWriterPlugIns = ioPlugInManager.getAllWriterPlugIns();
+
+        final Iterator<ProductWriterPlugIn> allWriterPlugIns = ioPlugInManager.getWriterPlugIns(DimapProductConstants.DIMAP_FORMAT_NAME);
         while (allWriterPlugIns.hasNext()) {
-            ProductWriterPlugIn writerPlugIn = allWriterPlugIns.next();
-            if (writerPlugIn instanceof DimapProductWriterPlugIn) {
-                ((DimapProductWriterPlugIn) writerPlugIn).addDimapWriterListener(dimapWriterListener);
-            }
+            DimapProductWriterPlugIn writerPlugIn = (DimapProductWriterPlugIn) allWriterPlugIns.next();
+            writerPlugIn.addDimapWriterListener(dimapWriterListener);
+        }
+
+        final Iterator<ProductReaderPlugIn> readerPlugIns = ioPlugInManager.getReaderPlugIns(DimapProductConstants.DIMAP_FORMAT_NAME);
+        while (readerPlugIns.hasNext()) {
+            DimapProductReaderPlugIn readerPlugin = (DimapProductReaderPlugIn) readerPlugIns.next();
+            readerPlugin.addReaderExtender(readerExtender);
         }
     }
 
     @Override
     public void stop(ModuleContext moduleContext) throws CoreException {
         final ProductIOPlugInManager ioPlugInManager = ProductIOPlugInManager.getInstance();
-        final Iterator<ProductWriterPlugIn> allWriterPlugIns = ioPlugInManager.getAllWriterPlugIns();
+
+        final Iterator<ProductWriterPlugIn> allWriterPlugIns = ioPlugInManager.getWriterPlugIns(DimapProductConstants.DIMAP_FORMAT_NAME);
         while (allWriterPlugIns.hasNext()) {
-            ProductWriterPlugIn writerPlugIn = allWriterPlugIns.next();
-            if (writerPlugIn instanceof DimapProductWriterPlugIn) {
-                ((DimapProductWriterPlugIn) writerPlugIn).removeDimapWriterListener(dimapWriterListener);
-            }
+            DimapProductWriterPlugIn writerPlugIn = (DimapProductWriterPlugIn) allWriterPlugIns.next();
+            writerPlugIn.removeDimapWriterListener(dimapWriterListener);
+        }
+
+        final Iterator<ProductReaderPlugIn> readerPlugIns = ioPlugInManager.getReaderPlugIns(DimapProductConstants.DIMAP_FORMAT_NAME);
+        while (readerPlugIns.hasNext()) {
+            DimapProductReaderPlugIn writerPlugIn = (DimapProductReaderPlugIn) readerPlugIns.next();
+            writerPlugIn.removeReaderExtender(readerExtender);
         }
     }
 
@@ -127,5 +146,16 @@ public class TimeSeriesToolActivator implements Activator {
             element.addAttribute(newPathAttr);
             element.addAttribute(typeAttr);
         }
+    }
+
+    private DimapProductReader.ReaderExtender createReaderExtender() {
+        return new DimapProductReader.ReaderExtender() {
+            @Override
+            public void completeProductNodesReading(Product product) {
+                if (product.getProductType().equals(TIME_SERIES_PRODUCT_TYPE)) {
+                    TimeSeriesFactory.create(product);
+                }
+            }
+        };
     }
 }

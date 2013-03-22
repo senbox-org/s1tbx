@@ -4,11 +4,12 @@ import static org.esa.beam.timeseries.core.timeseries.datamodel.AbstractTimeSeri
 
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductManager;
-import org.esa.beam.timeseries.core.timeseries.datamodel.TimeSeriesFactory;
+import org.esa.beam.timeseries.core.timeseries.datamodel.AbstractTimeSeries;
 import org.esa.beam.visat.VisatApp;
 import org.esa.beam.visat.VisatPlugIn;
 
 public class TimeSeriesVPI implements VisatPlugIn {
+
     private final ProductManager.Listener productManagerListener = createProductManagerListener();
 
     @Override
@@ -29,17 +30,22 @@ public class TimeSeriesVPI implements VisatPlugIn {
         return new ProductManager.Listener() {
             @Override
             public void productAdded(ProductManager.Event event) {
-                final Product product = event.getProduct();
-                if (product.getProductType().equals(TIME_SERIES_PRODUCT_TYPE)) {
-                    TimeSeriesFactory.create(product);
-                }
             }
 
             @Override
             public void productRemoved(ProductManager.Event event) {
                 final Product product = event.getProduct();
                 if (product.getProductType().equals(TIME_SERIES_PRODUCT_TYPE)) {
-                    TimeSeriesMapper.getInstance().remove(product);
+                    final TimeSeriesMapper timeSeriesMapper = TimeSeriesMapper.getInstance();
+                    final AbstractTimeSeries timeSeries = timeSeriesMapper.getTimeSeries(product);
+                    final Product[] sourceProducts = timeSeries.getSourceProducts();
+                    final ProductManager productManager = VisatApp.getApp().getProductManager();
+                    for (Product sourceProduct : sourceProducts) {
+                        if (!productManager.contains(sourceProduct)) {
+                            sourceProduct.dispose();
+                        }
+                    }
+                    timeSeriesMapper.remove(product);
                 }
             }
         };

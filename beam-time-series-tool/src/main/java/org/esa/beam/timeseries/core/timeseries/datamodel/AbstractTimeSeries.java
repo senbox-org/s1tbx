@@ -139,4 +139,8 @@ public abstract class AbstractTimeSeries {
     public abstract Set<String> getSelectedInsituVariables();
 
     public abstract AxisMapping getAxisMapping();
+
+    public abstract Product[] getSourceProducts();
+
+    public abstract void dispose();
 }

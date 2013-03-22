@@ -41,6 +41,7 @@ import java.io.File;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -61,6 +62,7 @@ import java.util.logging.Logger;
  */
 final class TimeSeriesImpl extends AbstractTimeSeries {
 
+    private final static float LAT_LON_EPSILON = 0.1e-6f;
     private final Map<RasterDataNode, TimeCoding> rasterTimeMap = new WeakHashMap<RasterDataNode, TimeCoding>();
     private final List<TimeSeriesListener> listeners = new ArrayList<TimeSeriesListener>();
     private final AxisMapping axisMapping = new AxisMapping();
@@ -121,11 +123,12 @@ final class TimeSeriesImpl extends AbstractTimeSeries {
         MetadataElement[] productElems = productListElem.getElements();
         List<ProductLocation> productLocations = new ArrayList<ProductLocation>(productElems.length);
         final File fileLocation = tsProduct.getProduct().getFileLocation();
+        final File parentDir = fileLocation.getParentFile();
         for (MetadataElement productElem : productElems) {
             String path = productElem.getAttributeString(PL_PATH);
             File productFile = new File(path);
             if (!productFile.isAbsolute()) {
-                productFile = new File(fileLocation.getParentFile(), path);
+                productFile = new File(parentDir, path);
             }
             String type = productElem.getAttributeString(PL_TYPE);
             productLocations.add(new ProductLocation(ProductLocationType.valueOf(type), productFile.getAbsolutePath()));
@@ -295,14 +298,16 @@ final class TimeSeriesImpl extends AbstractTimeSeries {
 
     private void storeProductsInMap() {
         for (Product product : getAllProducts()) {
-            HashMap<String, Product> productToBeReprojectedMap = new HashMap<String, Product>();
-            productToBeReprojectedMap.put("source", product);
-            productToBeReprojectedMap.put("collocateWith", tsProduct);
-            final Product collocatedProduct = GPF.createProduct("Reproject", createProjectionParameters(), productToBeReprojectedMap);
-            collocatedProduct.setStartTime(product.getStartTime());
-            collocatedProduct.setEndTime(product.getEndTime());
-
-            productTimeMap.put(formatTimeString(product), collocatedProduct);
+            if (!product.isCompatibleProduct(tsProduct, LAT_LON_EPSILON)) {
+                HashMap<String, Product> productToBeReprojectedMap = new HashMap<String, Product>();
+                productToBeReprojectedMap.put("source", product);
+                productToBeReprojectedMap.put("collocateWith", tsProduct);
+                final Product collocatedProduct = GPF.createProduct("Reproject", createProjectionParameters(), productToBeReprojectedMap);
+                collocatedProduct.setStartTime(product.getStartTime());
+                collocatedProduct.setEndTime(product.getEndTime());
+                product = collocatedProduct;
+            }
+            productTimeMap.put(formatTimeString(product), product);
         }
     }
 
@@ -421,7 +426,7 @@ final class TimeSeriesImpl extends AbstractTimeSeries {
     @Override
     public boolean isProductCompatible(Product product, String rasterName) {
         return product.containsRasterDataNode(rasterName) &&
-               tsProduct.isCompatibleProduct(product, 0.1e-6f);
+               tsProduct.isCompatibleProduct(product, LAT_LON_EPSILON);
     }
 
     @Override
@@ -771,5 +776,24 @@ final class TimeSeriesImpl extends AbstractTimeSeries {
         public void hasChanged() {
             fireChangeEvent(new TimeSeriesChangeEvent(TimeSeriesChangeEvent.PROPERTY_AXIS_MAPPING_CHANGED, null, TimeSeriesImpl.this));
         }
+    }
+
+    @Override
+    public Product[] getSourceProducts() {
+        final Collection<Product> values = productTimeMap.values();
+        return values.toArray(new Product[values.size()]);
+    }
+
+    @Override
+    public void dispose() {
+        productTimeMap.clear();
+        productTimeMap = null;
+        listeners.clear();
+        pinRelationMap.clear();
+        tsProduct = null;
+        productLocationList = null;
+        insituSource = null;
+        insituVariablesSelections.clear();
+        insituVariablesSelections = null;
     }
 }

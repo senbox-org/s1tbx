@@ -63,7 +63,7 @@ public class TimeSeriesMapper {
             for (ProductLocation productLocation : locationList) {
                 productLocation.closeProducts();
             }
-            product.dispose();
+            timeSeries.dispose();
         }
     }
 

@@ -79,33 +79,7 @@ abstract class AbstractTimeSeriesAssistantPage extends AbstractAssistantPage {
         ProductManager productManager = VisatApp.getApp().getProductManager();
         Product tsProduct = timeSeries.getTsProduct();
         productManager.addProduct(tsProduct);
-        productManager.addListener(new CloseListener(tsProduct));
         pm.worked(6);
-    }
-
-    private static class CloseListener implements ProductManager.Listener {
-        //todo ... se refactoring
-        // this class is not necessary because the TimeSeriesManager.remove() do the same
-        // job automatically. Only one instance of a CloseListener without tsProduct
-        // field is necessary, which directly delegates to the TimeSeriesMapper.
-        // Or the TimeSeriesMapper implements the interface ProductManager.Listener.
-        private Product tsProduct;
-
-        private CloseListener(Product tsProduct) {
-            this.tsProduct = tsProduct;
-        }
-
-        @Override
-        public void productAdded(ProductManager.Event event) {
-        }
-
-        @Override
-        public void productRemoved(ProductManager.Event event) {
-            if (event.getProduct() == tsProduct) {
-                org.esa.beam.timeseries.core.TimeSeriesMapper.getInstance().remove(tsProduct);
-                tsProduct = null;
-            }
-        }
     }
 
     private class MyChangeListener implements ChangeListener {
