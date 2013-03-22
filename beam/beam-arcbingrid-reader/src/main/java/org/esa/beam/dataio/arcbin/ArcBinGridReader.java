@@ -39,6 +39,8 @@ import org.esa.beam.util.math.MathUtils;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.operation.TransformException;
+import uk.me.jstott.jcoord.LatLng;
+import uk.me.jstott.jcoord.UTMRef;
 
 import java.awt.Dimension;
 import java.awt.Rectangle;
@@ -83,7 +85,7 @@ public class ArcBinGridReader extends AbstractProductReader {
         final Dimension imageTileSize = new Dimension(tileExtend, tileExtend);
         product.setPreferredTileSize(imageTileSize);
 
-        final AffineTransform i2m = createAffineTransform(georefBounds, header, height);
+        final AffineTransform i2m = createAffineTransform(georefBounds, header, width, height);
         product.setGeoCoding(createGeoCoding(width, height, i2m));
 
         int productDataType = getDataType(header, rasterStatistics);
@@ -156,10 +158,25 @@ public class ArcBinGridReader extends AbstractProductReader {
         return null;
     }
 
-    protected AffineTransform createAffineTransform(GeorefBounds georefBounds, Header header, int height) {
+    private static AffineTransform createAffineTransform(GeorefBounds georefBounds, Header header, int width, int height) {
         AffineTransform i2m = new AffineTransform();
-        i2m.translate(georefBounds.lowerLeftX, georefBounds.lowerLeftY);
-        i2m.scale(header.pixelSizeX, -header.pixelSizeY);
+
+        if(georefBounds.lowerLeftX > 180 || georefBounds.lowerLeftX < -180 ||
+                georefBounds.lowerLeftY > 180 || georefBounds.lowerLeftY < -180) {
+            UTMRef utmLL = new UTMRef(georefBounds.lowerLeftX, georefBounds.lowerLeftY, 'N', 18);
+            LatLng ll = utmLL.toLatLng();
+            UTMRef utmUR = new UTMRef(georefBounds.upperRightX, georefBounds.upperRightY, 'N', 18);
+            LatLng ur = utmUR.toLatLng();
+
+            double pixSizeX = Math.abs(ll.getLng() - ur.getLng())/(double)width;
+            double pixSizeY = Math.abs(ll.getLat() - ur.getLat())/(double)height;
+
+            i2m.translate(ll.getLng(), ll.getLat());
+            i2m.scale(pixSizeX, -pixSizeY);
+        } else {
+            i2m.translate(georefBounds.lowerLeftX, georefBounds.lowerLeftY);
+            i2m.scale(header.pixelSizeX, -header.pixelSizeY);
+        }
         i2m.translate(0, -height);
         return i2m;
     }

@@ -195,14 +195,6 @@
 			<groupId>com.seaglasslookandfeel</groupId>
 			<artifactId>seaglasslookandfeel</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>ch.randelshofer</groupId>
-			<artifactId>quaqua</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>jtattoo</groupId>
-			<artifactId>jtattoo</artifactId>
-		</dependency>
 		
         <dependency>
           <groupId>org.geotools</groupId>

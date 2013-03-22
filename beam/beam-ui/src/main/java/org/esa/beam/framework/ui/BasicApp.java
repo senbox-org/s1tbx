@@ -326,7 +326,7 @@ public class BasicApp {
             initCommandManager();
             initMainFrame();
             initShutdownHook();
-            //initLookAndFeel();
+            initLookAndFeel();
             configureLayoutPersitence();
             configureDockingManager();
             pm.worked(1);
@@ -479,11 +479,6 @@ public class BasicApp {
 
     private boolean initLookAndFeel() {
 
-        try {
-            UIManager.installLookAndFeel("Jtattoo", "com.jtattoo.plaf.smart.SmartLookAndFeel");
-        } catch(Throwable e) {
-            e.printStackTrace();
-        }
         try {
             UIManager.installLookAndFeel("SeaGlass", "com.seaglasslookandfeel.SeaGlassLookAndFeel");
         } catch(Throwable e) {
@@ -1129,7 +1124,10 @@ public class BasicApp {
             return;
         }
 
-        boolean mustUpdateComponentTreeUI = initLookAndFeel();
+        boolean mustUpdateComponentTreeUI = false;
+        if(!startingUp) {
+            mustUpdateComponentTreeUI = initLookAndFeel();
+        }
 
         final UIDefaults uiDefaults = UIManager.getLookAndFeel().getDefaults();
         // Don't remove this out-commented code, its useful to find out default UI key/value pairs

@@ -745,16 +745,6 @@
 				<artifactId>seaglasslookandfeel</artifactId>
 				<version>0.2</version>
 			</dependency>
-			<dependency>
-				<groupId>jtattoo</groupId>
-				<artifactId>jtattoo</artifactId>
-				<version>1.6.7</version>
-			</dependency>
-			<dependency>
-				<groupId>ch.randelshofer</groupId>
-				<artifactId>quaqua</artifactId>
-				<version>7.3.4</version>
-			</dependency>
         </dependencies>
     </dependencyManagement>
 

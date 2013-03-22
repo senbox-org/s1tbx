@@ -91,7 +91,7 @@ public final class AsarProductFile extends ProductFile {
     private boolean chronologicalOrder;
 
     enum IODD {
-        VERSION_UNKNOWN, ASAR_3K, ASAR_4A, ASAR_4B
+        VERSION_UNKNOWN, ASAR_3K, ASAR_4A, ASAR_4B, ASAR_4C
     }
 
     /**
@@ -111,6 +111,10 @@ public final class AsarProductFile extends ProductFile {
      * Product type suffix for IODD-4B backward compatibility
      */
     private static final String IODD4B_SUFFIX = "_IODD_4B";
+    /**
+     * Product type suffix for IODD-4B backward compatibility
+     */
+    private static final String IODD4C_SUFFIX = "_IODD_4C";
 
     /**
      * The product type plus the IODD suffix
@@ -421,7 +425,9 @@ public final class AsarProductFile extends ProductFile {
         try {
 
             final String refDoc = mph.getParamString("REF_DOC").toUpperCase().trim();
-            if (refDoc.endsWith("4B") || refDoc.endsWith("4/B")) {
+            if (refDoc.endsWith("4C") || refDoc.endsWith("4/C")) {
+                _ioddVersion = IODD.ASAR_4C;
+            } else if (refDoc.endsWith("4B") || refDoc.endsWith("4/B")) {
                 _ioddVersion = IODD.ASAR_4B;
             } else if (refDoc.endsWith("4A") || refDoc.endsWith("4/A")) {
                 _ioddVersion = IODD.ASAR_4A;
@@ -507,6 +513,15 @@ public final class AsarProductFile extends ProductFile {
                 suffix = IODD3K_SUFFIX;
         } else if (ioddVersion == IODD.ASAR_4B) {
             if (productDDExists(productType + IODD4B_SUFFIX))
+                suffix = IODD4B_SUFFIX;
+            else if (productDDExists(productType + IODD4A_SUFFIX))
+                suffix = IODD4A_SUFFIX;
+            else if (productDDExists(productType + IODD3K_SUFFIX))
+                suffix = IODD3K_SUFFIX;
+        } else if (ioddVersion == IODD.ASAR_4C) {
+            if (productDDExists(productType + IODD4C_SUFFIX))
+                suffix = IODD4C_SUFFIX;
+            else if (productDDExists(productType + IODD4B_SUFFIX))
                 suffix = IODD4B_SUFFIX;
             else if (productDDExists(productType + IODD4A_SUFFIX))
                 suffix = IODD4A_SUFFIX;
@@ -810,9 +825,8 @@ public final class AsarProductFile extends ProductFile {
             }
             final MetadataElement bandElemement = bandElem;
 
-            final RecordInfo recInfo = new RecordInfo("Line");
-            recInfo.add("t", ProductData.TYPE_UTC, 1, "", "");
-            final Record lineRecord = Record.create(recInfo);
+            FieldInfo fInfo = new FieldInfo("t", ProductData.TYPE_UTC, 1, "", "");
+            Field field = fInfo.createField();
 
             try {
                 final BandLineReader bandLineReader = getBandLineReader(band);
@@ -824,15 +838,17 @@ public final class AsarProductFile extends ProductFile {
 
                 final int height = band.getRasterHeight();
                 final double[] timeData = new double[height];
+                long pos = datasetOffset;
                 for (int y = 0; y < height; ++y) {
 
-                    istream.seek(datasetOffset + (y * recordSize));
-                    lineRecord.readFrom(istream);
-                    final ProductData data = lineRecord.getFieldAt(0).getData();
+                    istream.seek(pos);
+                    field.readFrom(istream);
+                    ProductData data = field.getData();
                     if(data.getElemIntAt(0) == 0)
                         timeData[y] = 0;
                     else
                         timeData[y] = ((ProductData.UTC) data).getMJD();
+                    pos += recordSize;
                 }
 
                 final MetadataAttribute attribute = new MetadataAttribute("t", ProductData.TYPE_FLOAT64, height);

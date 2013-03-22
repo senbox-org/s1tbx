@@ -189,9 +189,11 @@ public class Sentinel1ProductDirectory extends XMLProductDirectory {
 
             } else if(id.equals("platform")) {
                 final MetadataElement platform = findElement(metadataObject, "platform");
-                final String missionName = platform.getAttributeString("familyName", "Sentinel-1");
+                String missionName = platform.getAttributeString("familyName", "Sentinel-1");
                 final String number = platform.getAttributeString("number", defStr);
-                AbstractMetadata.setAttribute(absRoot, AbstractMetadata.MISSION, missionName+number);
+                if(!missionName.equals("ENVISAT"))
+                    missionName += number;
+                AbstractMetadata.setAttribute(absRoot, AbstractMetadata.MISSION, missionName);
 
                 final MetadataElement instrument = platform.getElement("instrument");
                 AbstractMetadata.setAttribute(absRoot, AbstractMetadata.SWATH, instrument.getAttributeString("swath", defStr));

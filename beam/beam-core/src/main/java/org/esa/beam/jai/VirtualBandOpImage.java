@@ -282,7 +282,7 @@ public class VirtualBandOpImage extends SingleBandedOpImage {
                     for (int j = 0, l = x; j < colCount; j++, l++) {
                         env.setElemIndex(i + j);
                         final double v = term.evalD(env);
-                        if (!Double.isNaN(v) && !Double.isInfinite(v)) {
+                        if (!Double.isNaN(v) ) { //&& !Double.isInfinite(v)) {
                             productData.setElemDoubleAt(k + l, v);
                         } else {
                             productData.setElemDoubleAt(k + l, fv);

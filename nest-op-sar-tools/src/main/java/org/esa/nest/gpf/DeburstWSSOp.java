@@ -721,7 +721,7 @@ public final class DeburstWSSOp extends Operator {
                 ++total;
             }
             if(invalidCount / (float)total > 0.4)  {
-                System.out.println("skipping " + y);
+                //System.out.println("skipping " + y);
                 continue;
             }   
 
