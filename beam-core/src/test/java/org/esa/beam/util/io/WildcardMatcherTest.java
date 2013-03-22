@@ -1,3 +1,19 @@
+/*
+ * Copyright (C) 2013 Brockmann Consult GmbH (info@brockmann-consult.de)
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 3 of the License, or (at your option)
+ * any later version.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, see http://www.gnu.org/licenses/
+ */
+
 package org.esa.beam.util.io;
 
 import org.junit.Test;
@@ -352,5 +368,18 @@ public class WildcardMatcherTest {
     private String getTestdataDir() throws URISyntaxException {
         URL resource = WildcardMatcherTest.class.getResource("WildcardMatcherTest");
         return new File(resource.toURI()).getPath();
+    }
+
+    @Test
+    public void testSplitBasePath() throws Exception {
+        assertArrayEquals(new String[]{"test.N1", ""}, WildcardMatcher.splitBasePath("test.N1", false));
+        assertArrayEquals(new String[]{"", "te?t.N1"}, WildcardMatcher.splitBasePath("te?t.N1", false));
+        assertArrayEquals(new String[]{"/home/norman/meris/data.nc", ""}, WildcardMatcher.splitBasePath("/home/norman/meris/data.nc", false));
+        assertArrayEquals(new String[]{"C:/Users/Norman/MERIS/data.nc", ""}, WildcardMatcher.splitBasePath("C:\\Users\\Norman\\MERIS\\data.nc", true));
+        assertArrayEquals(new String[]{"foo/", "*"}, WildcardMatcher.splitBasePath("foo/*", false));
+        assertArrayEquals(new String[]{"foo/", "*/test.txt"}, WildcardMatcher.splitBasePath("foo/*/test.txt", false));
+        assertArrayEquals(new String[]{"/foo/", "*/test.txt"}, WildcardMatcher.splitBasePath("/foo/*/test.txt", false));
+        assertArrayEquals(new String[]{"", "**/CVS/*"}, WildcardMatcher.splitBasePath("**/CVS/*", false));
+
     }
 }
