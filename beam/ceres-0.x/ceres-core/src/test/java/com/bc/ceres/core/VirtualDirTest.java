@@ -33,7 +33,7 @@ public class VirtualDirTest extends TestCase {
         final File file1 = virtualDir.getFile("File1");
         assertTrue(file1.exists());
         assertFalse("Path of File1 should not contain the parent path of the zip file.",
-                file1.getAbsolutePath().contains(zipFile.getParent()));
+                    file1.getAbsolutePath().contains(zipFile.getParent()));
 
         testFileNode(zipFile, virtualDir);
 
@@ -78,12 +78,11 @@ public class VirtualDirTest extends TestCase {
         final File tempDir = virtualDir.getTempDir();
         assertNotNull(tempDir);
 
-        final File createdDir = new File(tempDir, "VirtualDirTest");
-        assertTrue(createdDir.isDirectory());
+        assertTrue(tempDir.isDirectory());
 
         virtualDir.finalize();
 
-        assertFalse(createdDir.isDirectory());
+        assertFalse(tempDir.isDirectory());
     }
 
     private static File getTestDataDir() {

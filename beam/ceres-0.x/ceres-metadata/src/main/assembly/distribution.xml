@@ -1,0 +1,45 @@
+<assembly xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.0 http://maven.apache.org/xsd/assembly-1.1.0.xsd"
+        >
+
+    <id>distribution</id>
+    <formats>
+        <format>zip</format>
+    </formats>
+    <files>
+        <file>
+            <source>${project.basedir}/../ceres-metadata/src/main/bin/metadata-engine.sh</source>
+            <outputDirectory>/</outputDirectory>
+        </file>
+        <file>
+            <source>${project.basedir}/../ceres-metadata/src/main/bin/metadata-engine.bat</source>
+            <outputDirectory>/</outputDirectory>
+        </file>
+        <file>
+            <source>${project.basedir}/../ceres-metadata/src/main/bin/examples.txt</source>
+            <outputDirectory>/</outputDirectory>
+        </file>
+        <file>
+            <source>${project.basedir}/../ceres-metadata/src/main/bin/readme.txt</source>
+            <outputDirectory>/</outputDirectory>
+        </file>
+    </files>
+    <fileSets>
+        <fileSet>
+            <directory>${project.build.directory}</directory>
+            <outputDirectory>/lib</outputDirectory>
+            <includes>
+                <!--the software itsself-->
+                <include>*.jar</include>
+            </includes>
+        </fileSet>
+    </fileSets>
+    <dependencySets>
+        <dependencySet>
+            <useProjectArtifact>false</useProjectArtifact>
+            <outputDirectory>lib</outputDirectory>
+            <unpack>false</unpack>
+        </dependencySet>
+    </dependencySets>
+</assembly>

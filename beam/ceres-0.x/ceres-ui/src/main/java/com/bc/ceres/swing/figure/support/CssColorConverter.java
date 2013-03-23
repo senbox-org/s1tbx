@@ -37,7 +37,8 @@ public class CssColorConverter implements Converter<Color> {
      * Converts a value from its plain text representation to a Java object instance
      * of the type returned by {@link #getValueType()}.
      *
-     * @param text The textual representation of the value.
+     * @param text The textual representation of the value. It must be either in hexadecimal format (e.g. "#FFFFFF" or
+     *             "FFFFFF") or given by a string of comma-separated numbers, such as "255,255,255".
      * @return The converted value.
      * @throws com.bc.ceres.binding.ConversionException
      *          If the conversion fails.
@@ -46,7 +47,12 @@ public class CssColorConverter implements Converter<Color> {
     public Color parse(String text) throws ConversionException {
         // todo - parse CSS stuff like "pink", "black", etc.
         try {
-            return Color.decode("0x"+(text.startsWith("#") ? text.substring(1) : text));
+            final String[] rgbValues = text.split(",");
+            final boolean isCommaSeparatedColorValue = rgbValues.length == 3;
+            if (isCommaSeparatedColorValue) {
+                return new Color(Integer.parseInt(rgbValues[0]), Integer.parseInt(rgbValues[1]), Integer.parseInt(rgbValues[2]));
+            }
+            return Color.decode("0x" + (text.startsWith("#") ? text.substring(1) : text));
         } catch (NumberFormatException e) {
             throw new ConversionException(e);
         }

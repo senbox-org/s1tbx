@@ -22,7 +22,18 @@ import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.runtime.RuntimeConfig;
 
 import javax.imageio.ImageIO;
-import java.awt.*;
+import java.awt.AlphaComposite;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Point;
+import java.awt.Rectangle;
+import java.awt.RenderingHints;
+import java.awt.SplashScreen;
+import java.awt.Toolkit;
+import java.awt.Window;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -39,8 +50,10 @@ public class SplashScreenProgressMonitor extends NullProgressMonitor {
     private static final String CONFIG_KEY_TASK_LABEL_FONT = "splash.taskLabel.font";
     private static final String CONFIG_KEY_TASK_LABEL_COLOR = "splash.taskLabel.color";
     private static final String CONFIG_KEY_TASK_LABEL_POS = "splash.taskLabel.pos";
+    private static final String CONFIG_KEY_SPLASH_VERSION_TEXT = "splash.version.text";
     private static final String CONFIG_KEY_VERSION_ENABLED = "splash.version.enabled";
     private static final String CONFIG_KEY_VERSION_FONT = "splash.version.font";
+    private static final String CONFIG_KEY_VERSION_COLOR = "splash.version.color";
     private static final String CONFIG_KEY_VERSION_POS = "splash.version.pos";
 
     private Splash splashScreen;
@@ -58,6 +71,7 @@ public class SplashScreenProgressMonitor extends NullProgressMonitor {
     private Point taskLabelPos;
     private boolean versionLabelEnabled;
     private Font versionLabelFont;
+    private Color versionLabelColor;
     private Point versionLabelPos;
     private Color progressBarColor;
     private Rectangle progressBarArea;
@@ -69,7 +83,6 @@ public class SplashScreenProgressMonitor extends NullProgressMonitor {
      * Creates a {@link SplashScreenProgressMonitor} only if a splash screen exists.
      *
      * @param config The runtime configuration
-     *
      * @return an instance of {@link SplashScreenProgressMonitor} or {@link NullProgressMonitor}
      */
     public static ProgressMonitor createProgressMonitor(RuntimeConfig config) {
@@ -100,11 +113,7 @@ public class SplashScreenProgressMonitor extends NullProgressMonitor {
         Dimension size = this.splashScreen.getSize();
         splashArea = new Rectangle(size);
 
-        progressBarColor = getConfiguredSplashProgressBarColor(config);
-        if (progressBarColor == null) {
-            progressBarColor = Color.GREEN;
-        }
-
+        progressBarColor = getConfiguredColor(config, CONFIG_KEY_SPLASH_PROGRESS_BAR_COLOR, Color.GREEN);
         progressBarArea = getConfiguredSplashProgressBarArea(config);
         if (progressBarArea != null) {
             progressBarHeight = progressBarArea.height;
@@ -116,15 +125,11 @@ public class SplashScreenProgressMonitor extends NullProgressMonitor {
                                             progressBarHeight);
         }
 
-	    taskLabelColor = getConfiguredTaskLabelColor(config);
-        if (taskLabelColor == null) {
-            taskLabelColor = Color.WHITE;
-        }
-        
-	    taskLabelEnabled = getConfiguredOptionEnabled(config, CONFIG_KEY_TASK_LABEL_ENABLED);
+        taskLabelColor = getConfiguredColor(config, CONFIG_KEY_TASK_LABEL_COLOR, Color.WHITE);
+        taskLabelEnabled = getConfiguredOptionEnabled(config, CONFIG_KEY_TASK_LABEL_ENABLED);
         if (taskLabelEnabled) {
-		    taskLabelFont = getConfiguredFont(config, CONFIG_KEY_TASK_LABEL_FONT);
-	        taskLabelPos = getConfiguredPos(config, CONFIG_KEY_TASK_LABEL_POS);
+            taskLabelFont = getConfiguredFont(config, CONFIG_KEY_TASK_LABEL_FONT);
+            taskLabelPos = getConfiguredPos(config, CONFIG_KEY_TASK_LABEL_POS);
             if (taskLabelPos == null) {
                 taskLabelPos = new Point(progressBarArea.x, progressBarArea.y + progressBarArea.height + 10);
             }
@@ -132,12 +137,18 @@ public class SplashScreenProgressMonitor extends NullProgressMonitor {
 
         versionLabelEnabled = getConfiguredOptionEnabled(config, CONFIG_KEY_VERSION_ENABLED);
         if (versionLabelEnabled) {
+            versionText = config.getContextProperty(CONFIG_KEY_SPLASH_VERSION_TEXT);
+            if (versionText == null) {
+                versionText = config.getContextProperty("version");
+            }
+			versionText = "Version "+versionText;
+
             versionLabelFont = getConfiguredFont(config, CONFIG_KEY_VERSION_FONT);
+            versionLabelColor = getConfiguredColor(config, CONFIG_KEY_VERSION_COLOR, taskLabelColor);
             versionLabelPos = getConfiguredPos(config, CONFIG_KEY_VERSION_POS);
             if (versionLabelPos == null) {
                 versionLabelPos = new Point(progressBarArea.x, progressBarArea.y + progressBarArea.height + 30);
             }
-            versionText = "Version "+config.getContextProperty("version");
         }
 
         graphics = this.splashScreen.createGraphics();
@@ -268,7 +279,7 @@ public class SplashScreenProgressMonitor extends NullProgressMonitor {
     }
 
     private void paintVersionLabel() {
-        graphics.setColor(taskLabelColor);
+        graphics.setColor(versionLabelColor);
         graphics.setFont(versionLabelFont);
         graphics.drawString(versionText, versionLabelPos.x, versionLabelPos.y);
     }
@@ -285,18 +296,12 @@ public class SplashScreenProgressMonitor extends NullProgressMonitor {
         return Boolean.parseBoolean(config.getContextProperty(key, "false"));
     }
 
-
-    private static Color getConfiguredSplashProgressBarColor(RuntimeConfig config) {
-        return getConfiguredColor(config, CONFIG_KEY_SPLASH_PROGRESS_BAR_COLOR);
-    }
-
-    private static Color getConfiguredTaskLabelColor(RuntimeConfig config) {
-        return getConfiguredColor(config, CONFIG_KEY_TASK_LABEL_COLOR);
-    }
-
-    private static Color getConfiguredColor(RuntimeConfig config, String key) {
+    private static Color getConfiguredColor(RuntimeConfig config, String key, Color defaultValue) {
         String colorStr = config.getContextProperty(key);
         if (colorStr != null && !colorStr.isEmpty()) {
+            if (colorStr.startsWith("#")) {
+                return Color.decode(colorStr);
+            }
             StringTokenizer st = new StringTokenizer(colorStr, ",");
             int n = st.countTokens();
             if (n == 3 || n == 4) {
@@ -310,11 +315,11 @@ public class SplashScreenProgressMonitor extends NullProgressMonitor {
                     }
                     return new Color(r, g, b, a);
                 } catch (Exception e) {
-                    // null is returned
+                    // defaultValue is returned
                 }
             }
         }
-        return null;
+        return defaultValue;
     }
 
     private static Rectangle getConfiguredSplashProgressBarArea(RuntimeConfig config) {
@@ -354,7 +359,7 @@ public class SplashScreenProgressMonitor extends NullProgressMonitor {
         }
         return null;
     }
-    
+
     private static Font getConfiguredFont(RuntimeConfig config, String key) {
         String fontDesc = config.getContextProperty(key);
         if (fontDesc == null || fontDesc.isEmpty()) {

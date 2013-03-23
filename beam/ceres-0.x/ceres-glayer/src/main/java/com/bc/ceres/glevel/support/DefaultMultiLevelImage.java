@@ -21,7 +21,7 @@ import com.bc.ceres.glevel.MultiLevelModel;
 import com.bc.ceres.glevel.MultiLevelSource;
 
 import javax.media.jai.ImageLayout;
-import java.awt.*;
+import java.awt.Shape;
 import java.awt.image.RenderedImage;
 
 /**
@@ -31,7 +31,6 @@ import java.awt.image.RenderedImage;
  * {@code MultiLevelSource}.
  *
  * @author Norman Fomferra
- * @version $revision$ $date$
  */
 public class DefaultMultiLevelImage extends MultiLevelImage {
 

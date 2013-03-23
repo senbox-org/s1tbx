@@ -502,17 +502,14 @@ public class ModuleImpl implements Module {
     }
 
     private boolean hasResolveExceptions(List<ResolveException> resolveExceptions) {
-        if (resolveExceptions == null) {
-            return false;
-        }
-        return !resolveExceptions.isEmpty();
+        return resolveExceptions != null && !resolveExceptions.isEmpty();
     }
 
     private ResolveException[] getResolveExceptions(List<ResolveException> resolveExceptionList) {
         if (resolveExceptionList == null) {
             return new ResolveException[0];
         }
-        return resolveExceptionList.toArray(new ResolveException[0]);
+        return resolveExceptionList.toArray(new ResolveException[resolveExceptionList.size()]);
     }
 
     private List<ResolveException> addResolveException(ResolveException resolveException,

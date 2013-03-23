@@ -19,10 +19,10 @@ package com.bc.ceres.binding.converters;
 import com.bc.ceres.binding.ConversionException;
 import com.bc.ceres.binding.Converter;
 
-public abstract class NumberConverter<T extends Number > implements Converter<T> {
+public abstract class NumberConverter<T extends Number> implements Converter<T> {
 
     @Override
-    public abstract Class<? extends T> getValueType() ;
+    public abstract Class<? extends T> getValueType();
 
     @Override
     public T parse(String value) throws ConversionException {
@@ -32,7 +32,7 @@ public abstract class NumberConverter<T extends Number > implements Converter<T>
         try {
             return parseNumber(trimNumberString(value));
         } catch (NumberFormatException e) {
-            throw new ConversionException("'" + value + "' cannot be converted to a number.");
+            throw new ConversionException("'" + value + "' cannot be converted to a " + getValueType().getSimpleName().toLowerCase() + ".");
         }
     }
 

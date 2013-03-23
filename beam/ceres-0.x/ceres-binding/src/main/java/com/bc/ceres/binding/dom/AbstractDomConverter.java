@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2013 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -62,8 +62,10 @@ public abstract class AbstractDomConverter implements DomConverter {
             if (!descriptor.isTransient()) {
                 final DomConverter domConverter = getDomConverter(descriptor);
                 if (domConverter != null) {
-                    final DomElement childElement = parentElement.createChild(getNameOrAlias(property));
-                    domConverter.convertValueToDom(property.getValue(), childElement);
+                    if (property.getValue() != null) {
+                        final DomElement childElement = parentElement.createChild(getNameOrAlias(property));
+                        domConverter.convertValueToDom(property.getValue(), childElement);
+                    }
                 } else if (isArrayTypeWithNamedItems(descriptor)) {
                     final DomElement childElement;
                     if (descriptor.getItemsInlined()) {
@@ -115,6 +117,8 @@ public abstract class AbstractDomConverter implements DomConverter {
     @Override
     public Object convertDomToValue(DomElement parentElement, Object value) throws ConversionException,
             ValidationException {
+
+        final PropertySet propertySet;
         if (value == null) {
             Class<?> itemType = getValueType();
             final String itemClassName = parentElement.getAttribute("class");
@@ -126,9 +130,12 @@ public abstract class AbstractDomConverter implements DomConverter {
                 }
             }
             value = createValueInstance(itemType);
+            propertySet = getPropertySet(value);
+            propertySet.setDefaultValues();
+        }else {
+            propertySet = getPropertySet(value);
         }
 
-        final PropertySet propertySet = getPropertySet(value);
         final Map<String, List<Object>> inlinedArrays = new HashMap<String, List<Object>>();
 
         for (final DomElement child : parentElement.getChildren()) {
@@ -276,8 +283,10 @@ public abstract class AbstractDomConverter implements DomConverter {
                     final PropertyDescriptor descriptor = property.getDescriptor();
                     final DomConverter domConverter = getDomConverter(descriptor);
                     if (domConverter != null) {
-                        final DomElement childElement = element.createChild(getNameOrAlias(property));
-                        domConverter.convertValueToDom(property.getValue(), childElement);
+                        if (property.getValue() != null) {
+                            final DomElement childElement = element.createChild(getNameOrAlias(property));
+                            domConverter.convertValueToDom(property.getValue(), childElement);
+                        }
                     } else if (isArrayTypeWithNamedItems(descriptor)) {
                         final DomElement childElement;
                         if (descriptor.getItemsInlined()) {

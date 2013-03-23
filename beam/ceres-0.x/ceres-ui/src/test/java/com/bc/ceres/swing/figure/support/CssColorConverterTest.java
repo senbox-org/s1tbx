@@ -16,30 +16,52 @@
 
 package com.bc.ceres.swing.figure.support;
 
-import junit.framework.TestCase;
+import com.bc.ceres.binding.ConversionException;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.awt.Color;
 
-import com.bc.ceres.binding.ConversionException;
+import static org.junit.Assert.assertEquals;
 
-public class CssColorConverterTest extends TestCase {
-    public void testIt() throws ConversionException {
-        CssColorConverter colorConverter = new CssColorConverter();
+public class CssColorConverterTest {
 
+    private CssColorConverter colorConverter;
+
+    @Before
+    public void setUp() throws Exception {
+        colorConverter = new CssColorConverter();
+    }
+
+    @Test
+    public void testGetValueType() throws Exception {
         assertEquals(Color.class, colorConverter.getValueType());
+    }
 
+    @Test
+    public void testParseHexString() throws Exception {
         assertEquals(Color.decode("0x12f45a"), colorConverter.parse("#12F45a"));
         assertEquals(Color.GREEN, colorConverter.parse("00ff00"));
 
         assertEquals("#12f45a", colorConverter.format(Color.decode("0x12f45a")));
         assertEquals("#00ff00", colorConverter.format(Color.GREEN));
-
-        try {
-            colorConverter.parse("x");
-            fail("ConversionException?");
-        } catch (ConversionException e) {
-            // ok
-        }
-
     }
+
+    @Test
+    public void testParseCommaSeparatedNumbersString() throws ConversionException {
+        assertEquals(Color.WHITE, colorConverter.parse("255,255,255"));
+        assertEquals(Color.BLACK, colorConverter.parse("0,0,0"));
+        assertEquals(Color.decode("0x356463"), colorConverter.parse("53,100,99"));
+    }
+
+    @Test(expected = ConversionException.class)
+    public void testParseFaultyExpression_1() throws ConversionException {
+        colorConverter.parse("x");
+    }
+
+    @Test(expected = ConversionException.class)
+    public void testParseFaultyExpression_2() throws ConversionException {
+        colorConverter.parse("white");
+    }
+
 }

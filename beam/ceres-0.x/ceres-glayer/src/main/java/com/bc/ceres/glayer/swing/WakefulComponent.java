@@ -42,7 +42,7 @@ import java.awt.image.BufferedImage;
  * done smoothly and can be controlled by various time settings.
  * <p/>
  * <pre>
- * <p/>
+ *
  *   INACTIVE   |  ACTIVATING    |      ACTIVE        |   DEACTIVATING   | INACTIVE
  *              |mouseEntered           |mouseExited
  *  ------------|----------------|------|-------------|------------------|----------
@@ -52,7 +52,7 @@ import java.awt.image.BufferedImage;
  *                     ___/                                 \_____
  *                ___/                                            \_____
  *  ____________/                                                       \__________
- * <p/>
+ *
  * </pre>
  * <p/>
  * Clients can observe state changes by listening to changes of the
@@ -92,7 +92,7 @@ public class WakefulComponent extends JComponent {
         this(null);
     }
 
-    public WakefulComponent(JComponent other) {
+    public WakefulComponent(JComponent component) {
         setOpaque(false);
         childResizeHandler = new ChildResizeHandler();
         visualState = VisualState.INACTIVE;
@@ -101,11 +101,11 @@ public class WakefulComponent extends JComponent {
         timer.setRepeats(true);
         hitHandler = new HitHandler();
         currentAlpha = minAlpha;
-        if (other != null) {
-            add(other);
-            final Dimension preferredSize = other.getPreferredSize();
+        if (component != null) {
+            add(component);
+            final Dimension preferredSize = component.getPreferredSize();
             setPreferredSize(preferredSize);
-            installHitHandler(other);
+            installHitHandler(component);
         } else {
             installHitHandler(this);
         }
@@ -184,6 +184,14 @@ public class WakefulComponent extends JComponent {
     }
 
     @Override
+    public void setEnabled(boolean enabled) {
+        super.setEnabled(enabled);
+        for (Component component : getComponents()) {
+            component.setEnabled(enabled);
+        }
+    }
+
+    @Override
     protected void addImpl(Component comp, Object constraints, int index) {
         super.addImpl(comp, constraints, index);
         comp.addComponentListener(childResizeHandler);
@@ -219,7 +227,9 @@ public class WakefulComponent extends JComponent {
 
     @Override
     public void paint(Graphics g) {
-
+        if (!isEnabled()) {
+            return;
+        }
         imageGraphics.clearRect(0, 0, image.getWidth(), image.getHeight());
 
         final Object oldAntialias = imageGraphics.getRenderingHint(RenderingHints.KEY_ANTIALIASING);
