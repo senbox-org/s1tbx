@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2013 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -174,7 +174,6 @@ public class BinningOp extends Operator implements Output {
     File metadataTemplateDir;
 
     private transient BinningContext binningContext;
-    private transient final SpatialBinCollector spatialBinCollector;
     private transient int sourceProductCount;
     private transient ProductData.UTC minDateUtc;
     private transient ProductData.UTC maxDateUtc;
@@ -183,11 +182,6 @@ public class BinningOp extends Operator implements Output {
     private final Map<Product, List<Band>> addedBands;
 
     public BinningOp() throws OperatorException {
-        this(getBinCollector());
-    }
-
-    public BinningOp(SpatialBinCollector spatialBinCollector) {
-        this.spatialBinCollector = spatialBinCollector;
         addedBands = new HashMap<Product, List<Band>>();
     }
 
@@ -340,14 +334,6 @@ public class BinningOp extends Operator implements Output {
             }
         }
         region = JTS.shapeToGeometry(area, new GeometryFactory());
-    }
-
-    private static SpatialBinCollector getBinCollector() throws OperatorException {
-        try {
-            return new GeneralSpatialBinCollector();
-        } catch (Exception e) {
-            throw new OperatorException(e.getMessage(), e);
-        }
     }
 
     private void validateInput(ProductData.UTC startDateUtc, ProductData.UTC endDateUtc) {
@@ -522,6 +508,7 @@ public class BinningOp extends Operator implements Output {
     }
 
     private SpatialBinCollection doSpatialBinning() throws IOException {
+        SpatialBinCollector spatialBinCollector =  new GeneralSpatialBinCollector(binningContext.getPlanetaryGrid().getNumBins());
         final SpatialBinner spatialBinner = new SpatialBinner(binningContext, spatialBinCollector);
         if (sourceProducts != null) {
             for (Product sourceProduct : sourceProducts) {
