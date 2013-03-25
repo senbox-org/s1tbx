@@ -25,11 +25,11 @@ import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
 import java.awt.image.WritableRaster;
 
-final class InsertNoDataValueOpImage extends PointOpImage {
+public class InsertNoDataValueOpImage extends PointOpImage {
     private final double noDataValue;
     private final RasterFormatTag maskRasterFormatTag;
 
-    InsertNoDataValueOpImage(RenderedImage sourceImage, RenderedImage maskImage, double noDataValue) {
+    public InsertNoDataValueOpImage(RenderedImage sourceImage, RenderedImage maskImage, double noDataValue) {
         super(sourceImage, maskImage, null, null, true);
         this.noDataValue = noDataValue;
         int compatibleTagId = RasterAccessor.findCompatibleTag(null, maskImage.getSampleModel());

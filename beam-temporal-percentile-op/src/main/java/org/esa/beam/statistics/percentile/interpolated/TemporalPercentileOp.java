@@ -36,6 +36,7 @@ import org.esa.beam.framework.gpf.Tile;
 import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProducts;
+import org.esa.beam.gpf.operators.standard.reproject.InsertNoDataValueOpImage;
 import org.esa.beam.interpolators.Interpolator;
 import org.esa.beam.interpolators.InterpolatorFactory;
 import org.esa.beam.util.DateTimeUtils;
@@ -391,7 +392,10 @@ public class TemporalPercentileOp extends Operator {
             } else {
                 band = collocatedProduct.getBand(BAND_MATH_EXPRESSION_BAND_NAME);
             }
-            sources.add(band.getGeophysicalImage());
+            final InsertNoDataValueOpImage nanImage = new InsertNoDataValueOpImage(
+                        band.getGeophysicalImage(), band.getValidMaskImage(), Double.NaN);
+
+            sources.add(nanImage);
         }
         return new MeanOpImage(sources);
     }
