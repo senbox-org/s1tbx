@@ -36,7 +36,6 @@ import org.esa.beam.framework.gpf.Tile;
 import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProducts;
-import org.esa.beam.gpf.operators.standard.reproject.InsertNoDataValueOpImage;
 import org.esa.beam.interpolators.Interpolator;
 import org.esa.beam.interpolators.InterpolatorFactory;
 import org.esa.beam.util.DateTimeUtils;
@@ -78,13 +77,14 @@ import java.util.logging.Level;
  * inside the given time period, a collocated mean band from the grouped products is computed. By this means, a intermediate
  * time series product is created successively.
  * <p/>
- * This time series product is used to create time series' per pixel. Days with missing values will cause gaps in a time
- * series. To improve the percentile calculation results, such gaps can be filled.
+ * This time series product is used to create time series' per pixel. Days with missing values or with values that have been
+ * masked out using the valid pixel expression will cause gaps in a time series. To improve the percentile calculation
+ * results, such gaps can be filled.
  * Three gap filling strategies are available.
  * <ul>
- * <li>linearInterpolationGapFilling</li>
- * <li>splineInterpolationGapFilling</li>
- * <li>quadraticInterpolationGapFilling</li>
+ * <li>gap filling by linear interpolation</li>
+ * <li>gap filling by spline interpolation</li>
+ * <li>gap filling by quadratic interpolation</li>
  * </ul>
  * <p/>
  * Based on these time series', for each percentile a band is written to the target product.
@@ -493,6 +493,8 @@ public class TemporalPercentileOp extends Operator {
                 band.setUnit(sourceBand.getUnit());
                 band.setDescription(sourceBand.getDescription());
             }
+            band.setNoDataValue(Double.NaN);
+            band.setNoDataValueUsed(true);
         }
         final ProductWriter productWriter = ProductIO.getProductWriter(DimapProductConstants.DIMAP_FORMAT_NAME);
         final File timeSeriesDataProductLocation = getTimeSeriesDataProductLocation();
@@ -753,7 +755,9 @@ public class TemporalPercentileOp extends Operator {
         final String bandNamePrefix = getTargetBandNamePrefix();
         for (Integer percentile : percentiles) {
             final String name = getTargetPercentileBandName(bandNamePrefix, percentile);
-            product.addBand(name, ProductData.TYPE_FLOAT32);
+            final Band band = product.addBand(name, ProductData.TYPE_FLOAT32);
+            band.setNoDataValue(Double.NaN);
+            band.setNoDataValueUsed(true);
         }
         product.addBand(COUNT_BAND_NAME, ProductData.TYPE_UINT16);
     }
