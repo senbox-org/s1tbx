@@ -173,6 +173,12 @@ public abstract class AbstractExportImageAction extends ExecCommand {
             return;
         }
 
+		//NESTMOD
+        exportImage(visatApp, imageFormat, view, entireImageSelected, file);
+    }
+
+    protected void exportImage(final VisatApp visatApp, final String imageFormat, final ProductSceneView view,
+                               final boolean entireImageSelected, final File file) {
         final SaveImageSwingWorker worker = new SaveImageSwingWorker(visatApp, "Save Image", imageFormat, view,
                                                                      entireImageSelected, file);
         worker.executeWithBlocking();
@@ -207,7 +213,7 @@ public abstract class AbstractExportImageAction extends ExecCommand {
         return false;
     }
 
-    private static BeamFileFilter createFileFilter(String[] description) {
+    protected static BeamFileFilter createFileFilter(String[] description) {
         final String formatName = description[0];
         final String formatExt = description[1];
         final String formatDescr = description[2];
