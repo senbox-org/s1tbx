@@ -19,10 +19,10 @@ package org.esa.beam.timeseries.core;
 import static org.esa.beam.timeseries.core.timeseries.datamodel.AbstractTimeSeries.TIME_SERIES_PRODUCT_TYPE;
 
 import com.bc.ceres.core.CoreException;
-import com.bc.ceres.core.SubProgressMonitor;
+import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.runtime.Activator;
 import com.bc.ceres.core.runtime.ModuleContext;
-import com.bc.ceres.swing.progress.DialogProgressMonitor;
+import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
 import org.esa.beam.dataio.dimap.DimapProductConstants;
 import org.esa.beam.dataio.dimap.DimapProductReader;
 import org.esa.beam.dataio.dimap.DimapProductReaderPlugIn;
@@ -42,13 +42,12 @@ import org.esa.beam.timeseries.core.timeseries.datamodel.TimeSeriesFactory;
 import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.visat.VisatApp;
 
-import javax.swing.JDialog;
-import javax.swing.JOptionPane;
-import java.awt.Dialog;
 import java.awt.Window;
 import java.io.File;
 import java.net.URI;
 import java.util.Iterator;
+import java.util.concurrent.ExecutionException;
+import java.util.logging.Level;
 
 /**
  * Activator class for extend the default writer behavior and listening to visat´s ProductManager.
@@ -88,16 +87,16 @@ public class TimeSeriesToolActivator implements Activator {
     public void stop(ModuleContext moduleContext) throws CoreException {
         final ProductIOPlugInManager ioPlugInManager = ProductIOPlugInManager.getInstance();
 
-        final Iterator<ProductWriterPlugIn> allWriterPlugIns = ioPlugInManager.getWriterPlugIns(DimapProductConstants.DIMAP_FORMAT_NAME);
-        while (allWriterPlugIns.hasNext()) {
-            DimapProductWriterPlugIn writerPlugIn = (DimapProductWriterPlugIn) allWriterPlugIns.next();
+        final Iterator<ProductWriterPlugIn> writerPlugIns = ioPlugInManager.getWriterPlugIns(DimapProductConstants.DIMAP_FORMAT_NAME);
+        while (writerPlugIns.hasNext()) {
+            DimapProductWriterPlugIn writerPlugIn = (DimapProductWriterPlugIn) writerPlugIns.next();
             writerPlugIn.removeWriterExtender(writerExtender);
         }
 
         final Iterator<ProductReaderPlugIn> readerPlugIns = ioPlugInManager.getReaderPlugIns(DimapProductConstants.DIMAP_FORMAT_NAME);
         while (readerPlugIns.hasNext()) {
-            DimapProductReaderPlugIn writerPlugIn = (DimapProductReaderPlugIn) readerPlugIns.next();
-            writerPlugIn.removeReaderExtender(readerExtender);
+            DimapProductReaderPlugIn readerPlugIn = (DimapProductReaderPlugIn) readerPlugIns.next();
+            readerPlugIn.removeReaderExtender(readerExtender);
         }
     }
 
@@ -158,24 +157,35 @@ public class TimeSeriesToolActivator implements Activator {
     private DimapProductReader.ReaderExtender createReaderExtender() {
         return new DimapProductReader.ReaderExtender() {
             @Override
-            public void completeProductNodesReading(Product product) {
+            public void completeProductNodesReading(final Product product) {
                 if (product.getProductType().equals(TIME_SERIES_PRODUCT_TYPE)) {
 
-                    final Window appWindow = VisatApp.getApp().getApplicationWindow();
-                    final DialogProgressMonitor monitor = new DialogProgressMonitor(
-                                appWindow,
-                                "Creating Time Series...",
-                                Dialog.ModalityType.APPLICATION_MODAL
-                    );
-                    monitor.beginTask("Loading time series ...", 1);
-                    try {
-                        TimeSeriesFactory.create(product, new SubProgressMonitor(monitor, 1));
-                    } finally {
-                        if (monitor.isCanceled()) {
-                            VisatApp.getApp().showWarningDialog("Loading of time series product has been canceled. Time series might be incomplete and possibly not usable.");
+                    final VisatApp visatApp = VisatApp.getApp();
+                    final Window appWindow = visatApp.getApplicationWindow();
+                    final ProgressMonitorSwingWorker<AbstractTimeSeries, Void> pm = new ProgressMonitorSwingWorker<AbstractTimeSeries, Void>(appWindow, "Creating Time Series...") {
+                        @Override
+                        protected void done() {
+                            try {
+                                get();
+                            } catch (InterruptedException e) {
+                                handleError(e);
+                            } catch (ExecutionException e) {
+                                handleError(e.getCause());
+                            }
+                            super.done();
                         }
-                        monitor.done();
-                    }
+
+                        private void handleError(Throwable theCause) {
+                            visatApp.getLogger().log(Level.SEVERE, theCause.getMessage());
+                            visatApp.showErrorDialog("Could not load time series", theCause.getMessage());
+                        }
+
+                        @Override
+                        protected AbstractTimeSeries doInBackground(ProgressMonitor pm) throws Exception {
+                            return TimeSeriesFactory.create(product, pm);
+                        }
+                    };
+                    pm.executeWithBlocking();
                 }
             }
         };
