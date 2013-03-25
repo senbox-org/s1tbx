@@ -16,10 +16,11 @@ public class GeneralSpatialBinCollectorTest {
     @Test
     public void testConsumeSpatialBins() throws Exception {
 
-        GeneralSpatialBinCollector store = new GeneralSpatialBinCollector();
+        final SEAGrid seaGrid = new SEAGrid(10);
+        GeneralSpatialBinCollector store = new GeneralSpatialBinCollector(seaGrid.getNumBins());
         try {
             BinningContext ctx = Mockito.mock(BinningContext.class);
-            Mockito.when(ctx.getPlanetaryGrid()).thenReturn(new SEAGrid(10));
+            Mockito.when(ctx.getPlanetaryGrid()).thenReturn(seaGrid);
 
             ArrayList<SpatialBin> spatialBins = new ArrayList<SpatialBin>();
             spatialBins.add(createSpatialBin(23));

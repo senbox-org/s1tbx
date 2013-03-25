@@ -74,9 +74,8 @@ public class FileBackedSpatialBinCollectorTest {
 
     @Test
     public void testCollecting() throws Exception {
-        FileBackedSpatialBinCollector binCollector = new FileBackedSpatialBinCollector();
+        FileBackedSpatialBinCollector binCollector = new FileBackedSpatialBinCollector(26000);
         try {
-            binCollector.setMaximumNumberOfBins(26000);
             BinningContext ctx = Mockito.mock(BinningContext.class);
             for (int i = 0; i < 26; i++) {
                 ArrayList<SpatialBin> spatialBins = new ArrayList<SpatialBin>();
