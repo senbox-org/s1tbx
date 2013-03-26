@@ -263,6 +263,9 @@ public class ReprojectionOp extends Operator {
         ProductUtils.copyRoiMasks(sourceProduct, targetProduct);
         targetProduct.setAutoGrouping(sourceProduct.getAutoGrouping());
 
+        //NESTMOD
+        updateMetadata();
+
         if (addDeltaBands) {
             addDeltaBands();
         }
@@ -274,6 +277,36 @@ public class ReprojectionOp extends Operator {
             elevationModel.dispose();
         }
         super.dispose();
+    }
+
+    private void updateMetadata() {
+        final MetadataElement root = targetProduct.getMetadataRoot();
+        if(root == null)
+            return;
+
+        final MetadataElement absRoot = root.getElement("Abstracted_Metadata");
+        if(absRoot == null)
+            return;
+
+        final MetadataAttribute height = absRoot.getAttribute("num_output_lines");
+        if(height != null)
+            height.getData().setElemUInt(targetProduct.getSceneRasterHeight());
+
+        final MetadataAttribute width = absRoot.getAttribute("num_samples_per_line");
+        if(width != null)
+            width.getData().setElemUInt(targetProduct.getSceneRasterWidth());
+
+
+        String map = targetProduct.getGeoCoding().getMapCRS().getName().toString();
+        String datum = targetProduct.getGeoCoding().getDatum().getName();
+
+        final MetadataAttribute mapProjection = absRoot.getAttribute("map_projection");
+        if(mapProjection != null)
+            mapProjection.getData().setElems(map);
+
+        final MetadataAttribute geo_ref_system = absRoot.getAttribute("geo_ref_system");
+        if(geo_ref_system != null)
+            geo_ref_system.getData().setElems(datum);
     }
 
     private ElevationModel createElevationModel() throws OperatorException {
