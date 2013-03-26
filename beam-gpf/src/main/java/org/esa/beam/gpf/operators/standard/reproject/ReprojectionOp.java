@@ -47,7 +47,6 @@ import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.jai.ImageManager;
 import org.esa.beam.jai.ResolutionLevel;
-import org.esa.beam.jai.VirtualBandOpImage;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.io.FileUtils;
@@ -348,10 +347,6 @@ public class ReprojectionOp extends Operator {
         final GeoCoding sourceGeoCoding = getSourceGeoCoding(sourceRaster);
         final String exp = sourceRaster.getValidMaskExpression();
         if (exp != null) {
-            // TODO decide between VirtualBand and a special implementation (mz, 2009.11.11)
-//            final String externalName = BandArithmetic.createExternalName(sourceRaster.getName());
-//            exp = String.format("(%s) ? %s : %s", exp, externalName, Double.toString(targetNoDataValue));
-//            sourceImage = createVirtualSourceImage(exp, geoDataType, targetNoDataValue);
             sourceImage = createNoDataReplacedImage(sourceImage, sourceRaster.getValidMaskImage(), targetNoDataValue);
         }
 
@@ -411,14 +406,13 @@ public class ReprojectionOp extends Operator {
         return targetNoDataValue;
     }
 
-    private MultiLevelImage createNaNReplacedImage(final MultiLevelImage srcImage, final double value) {
+    private MultiLevelImage createNaNReplacedImage(final MultiLevelImage projectedImage, final double value) {
 
-        return new DefaultMultiLevelImage(new AbstractMultiLevelSource(srcModel) {
+        return new DefaultMultiLevelImage(new AbstractMultiLevelSource(targetModel) {
 
             @Override
-            public RenderedImage createImage(int level) {
-                final int sourceLevel = getSourceLevel(srcModel, level);
-                return new ReplaceNaNOpImage(srcImage.getImage(sourceLevel), value);
+            public RenderedImage createImage(int targetLevel) {
+                return new ReplaceNaNOpImage(projectedImage.getImage(targetLevel), value);
             }
         });
     }
@@ -429,22 +423,8 @@ public class ReprojectionOp extends Operator {
         return new DefaultMultiLevelImage(new AbstractMultiLevelSource(srcModel) {
 
             @Override
-            public RenderedImage createImage(int level) {
-                return new InsertNoDataValueOpImage(srcImage.getImage(level), maskImage.getImage(level), noData);
-            }
-        });
-    }
-
-    private MultiLevelImage createVirtualSourceImage(final String expression, final int geoDataType,
-                                                     final Number noDataValue) {
-
-        return new DefaultMultiLevelImage(new AbstractMultiLevelSource(srcModel) {
-
-            @Override
-            public RenderedImage createImage(int level) {
-                return VirtualBandOpImage.create(expression, geoDataType,
-                                                 noDataValue, sourceProduct,
-                                                 ResolutionLevel.create(getModel(), level));
+            public RenderedImage createImage(int sourceLevel) {
+                return new InsertNoDataValueOpImage(srcImage.getImage(sourceLevel), maskImage.getImage(sourceLevel), noData);
             }
         });
     }
