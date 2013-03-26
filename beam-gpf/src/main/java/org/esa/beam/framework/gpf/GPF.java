@@ -16,14 +16,17 @@
 
 package org.esa.beam.framework.gpf;
 
+import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.SourceProducts;
 import org.esa.beam.framework.gpf.internal.OperatorSpiRegistryImpl;
+import org.esa.beam.gpf.operators.standard.WriteOp;
 import org.esa.beam.util.Guardian;
 
 import java.awt.Dimension;
 import java.awt.RenderingHints;
+import java.io.File;
 import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.HashMap;
@@ -106,7 +109,9 @@ public class GPF {
      *
      * @param operatorName the name of the operator to use.
      * @param parameters   the named parameters needed by the operator.
+     *
      * @return the product created by the operator.
+     *
      * @throws OperatorException if the product could not be created.
      */
     public static Product createProduct(String operatorName,
@@ -122,7 +127,9 @@ public class GPF {
      * @param operatorName   the name of the operator to use.
      * @param parameters     the named parameters needed by the operator.
      * @param renderingHints the rendering hints may be {@code null}.
+     *
      * @return the product created by the operator.
+     *
      * @throws OperatorException if the product could not be created.
      */
     public static Product createProduct(String operatorName,
@@ -139,7 +146,9 @@ public class GPF {
      * @param operatorName  the name of the operator to use.
      * @param parameters    the named parameters needed by the operator.
      * @param sourceProduct a source product.
+     *
      * @return the product created by the operator.
+     *
      * @throws OperatorException if the product could not be created.
      */
     public static Product createProduct(final String operatorName,
@@ -157,7 +166,9 @@ public class GPF {
      * @param parameters     the named parameters needed by the operator.
      * @param sourceProduct  the source product.
      * @param renderingHints the rendering hints may be {@code null}.
+     *
      * @return the product created by the operator.
+     *
      * @throws OperatorException if the product could not be created.
      */
     public static Product createProduct(final String operatorName,
@@ -175,7 +186,9 @@ public class GPF {
      * @param operatorName   the name of the operator to use.
      * @param parameters     the named parameters needed by the operator.
      * @param sourceProducts the source products.
+     *
      * @return the product created by the operator.
+     *
      * @throws OperatorException if the product could not be created.
      */
     public static Product createProduct(final String operatorName,
@@ -193,7 +206,9 @@ public class GPF {
      * @param parameters     the named parameters needed by the operator.
      * @param sourceProducts the source products.
      * @param renderingHints the rendering hints may be {@code null}.
+     *
      * @return the product created by the operator.
+     *
      * @throws OperatorException if the product could not be created.
      */
     public static Product createProduct(String operatorName,
@@ -239,7 +254,9 @@ public class GPF {
      * @param operatorName   the name of the operator to use.
      * @param parameters     the named parameters needed by the operator.
      * @param sourceProducts the map of named source products.
+     *
      * @return the product created by the operator.
+     *
      * @throws OperatorException if the product could not be created.
      */
     public static Product createProduct(String operatorName,
@@ -257,7 +274,9 @@ public class GPF {
      * @param parameters     the named parameters needed by the operator.
      * @param sourceProducts the map of named source products.
      * @param renderingHints the rendering hints, may be {@code null}.
+     *
      * @return the product created by the operator.
+     *
      * @throws OperatorException if the product could not be created.
      */
     public static Product createProduct(String operatorName,
@@ -279,7 +298,9 @@ public class GPF {
      * @param parameters     the named parameters needed by the operator.
      * @param sourceProducts the map of named source products.
      * @param renderingHints the rendering hints, may be {@code null}.
+     *
      * @return the product created by the operator.
+     *
      * @throws OperatorException if the product could not be created.
      */
     public Product createProductNS(String operatorName,
@@ -297,11 +318,14 @@ public class GPF {
      * @param parameters     the named parameters needed by the operator.
      * @param sourceProducts the map of named source products.
      * @param renderingHints the rendering hints, may be {@code null}.
+     *
      * @return the product created by the operator.
+     *
      * @throws OperatorException if the product could not be created.
      * @since BEAM 4.9
      */
-    public Operator createOperator(String operatorName, Map<String, Object> parameters, Map<String, Product> sourceProducts, RenderingHints renderingHints) {
+    public Operator createOperator(String operatorName, Map<String, Object> parameters, Map<String, Product> sourceProducts,
+                                   RenderingHints renderingHints) {
         OperatorSpi operatorSpi = spiRegistry.getOperatorSpi(operatorName);
         if (operatorSpi == null) {
             throw new OperatorException("No SPI found for operator '" + operatorName + "'");
@@ -344,6 +368,25 @@ public class GPF {
      */
     public static void setDefaultInstance(GPF defaultInstance) {
         GPF.defaultInstance = defaultInstance;
+    }
+
+    /**
+     * Writes a product with the specified format to the given file.
+     *
+     * @param product     the product
+     * @param file        the product file
+     * @param formatName  the name of a supported product format, e.g. "HDF5". If <code>null</code>, the default format
+     *                    "BEAM-DIMAP" will be used
+     * @param incremental switch the product writer in incremental mode or not.
+     * @param pm          a monitor to inform the user about progress
+     */
+    public static void writeProduct(Product product, File file, String formatName, boolean incremental, ProgressMonitor pm) {
+        WriteOp writeOp = new WriteOp(product, file, formatName);
+        writeOp.setDeleteOutputOnFailure(true);
+        writeOp.setWriteEntireTileRows(true);
+        writeOp.setClearCacheAfterRowWrite(true);
+        writeOp.setIncremental(incremental);
+        writeOp.writeProduct(pm);
     }
 
     static class RenderingKey<T> extends RenderingHints.Key {

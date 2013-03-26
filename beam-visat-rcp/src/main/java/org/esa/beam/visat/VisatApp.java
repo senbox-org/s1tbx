@@ -61,6 +61,7 @@ import org.esa.beam.framework.datamodel.ProductNodeListener;
 import org.esa.beam.framework.datamodel.ProductNodeListenerAdapter;
 import org.esa.beam.framework.datamodel.ProductVisitorAdapter;
 import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.framework.param.ParamException;
 import org.esa.beam.framework.param.ParamExceptionHandler;
@@ -161,7 +162,10 @@ public class VisatApp extends BasicApp implements AppContext {
 
     /**
      * VISAT's plug-in directory
+     *
+     * @deprecated since BEAM 4.11, plugin directory is not used anymore
      */
+    @Deprecated
     public static final String APP_DEFAULT_PLUGIN_DIR = SystemUtils.EXTENSION_DIR_NAME;
     /**
      * Preferences key for save product headers (MPH, SPH) or not
@@ -1576,11 +1580,11 @@ public class VisatApp extends BasicApp implements AppContext {
             }
         };
         try {
-            ProductIO.writeProduct(product,
-                                   file,
-                                   formatName,
-                                   incremental,
-                                   pm);
+            GPF.writeProduct(product,
+                             file,
+                             formatName,
+                             incremental,
+                             pm);
             updateState();
             status = !pm.isCanceled();
         } catch (Exception e) {
