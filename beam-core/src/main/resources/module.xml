@@ -17,7 +17,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-core</symbolicName>
-    <version>4.10.4</version>
+    <version>4.11</version>
     <name>BEAM Core Library</name>
 
 
@@ -41,7 +41,7 @@
 
     <changelog>
         <![CDATA[
-        <p>Changes in 4.10.4:<br/>
+        <p>Changes in 4.11:<br/>
         [BEAM-1420] Support (A)ATSR Autumn 2012 reprocessed data products<br/>
         [BEAM-1126] Pixel-geocoding comsumes to much memory<br/>
         [BEAM-1471] The time extraction from file name should support DAY_OF_YEAR<br/>

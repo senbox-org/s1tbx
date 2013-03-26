@@ -17,7 +17,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-examples</symbolicName>
-    <version>4.10.4</version>
+    <version>4.11</version>
     <name>BEAM Examples</name>
 
     <dependency>

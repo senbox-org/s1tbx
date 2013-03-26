@@ -30,7 +30,7 @@ public class VersionCheckerTest extends TestCase {
         if (vc.getLocalVersionFile().exists()) {
             final String localVersion = vc.getLocalVersion();
             assertNotNull(localVersion);
-            assertTrue(localVersion.startsWith("VERSION 4.10"));
+            assertTrue(localVersion.startsWith("VERSION 4.11"));
             // Failed? --> Adapt current version number here.
         }
     }
