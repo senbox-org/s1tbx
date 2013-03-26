@@ -27,7 +27,8 @@
 
     <changelog>
         <![CDATA[
-        <p>Changes in 4.10.4<br/>
+        <p>Changes in 4.11<br/>
+          [BEAM-1482] Saving a product is slow if it is computed by an operator<br/>
           [BEAM-1454] When I try to put statistics into the vector data, the original vector data becomes corrupted and in such a way that the original content of this file is reduced to one record.<br/>
           [BEAM-1445] Pinned spectra barely visible in spectrum view<br/>
           [BEAM-1443] Spectrum View line thickness too thin<br/>

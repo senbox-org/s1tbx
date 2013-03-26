@@ -133,6 +133,7 @@ public class WriteOp extends Operator implements Output {
     private int tileCountX;
 
     private boolean outputFileExists = false;
+    private boolean incremental = false;
 
     public WriteOp() {
         setRequiresAllBands(true);
@@ -156,6 +157,10 @@ public class WriteOp extends Operator implements Output {
 
     public String getFormatName() {
         return formatName;
+    }
+
+    public void setIncremental(boolean incremental) {
+        this.incremental = incremental;
     }
 
     public void setFormatName(String formatName) {
@@ -196,7 +201,7 @@ public class WriteOp extends Operator implements Output {
         getLogger().info("Start writing product " + getTargetProduct().getName() + " to " + getFile());
         OperatorExecutor operatorExecutor = OperatorExecutor.create(this);
         try {
-            operatorExecutor.execute(ExecutionOrder.ROW_BAND_COLUMN, pm);
+            operatorExecutor.execute(ExecutionOrder.SCHEDULE_ROW_COLUMN_BAND, pm);
 
             getLogger().info("End writing product " + getTargetProduct().getName() + " to " + getFile());
 
@@ -232,7 +237,7 @@ public class WriteOp extends Operator implements Output {
         if (productWriter == null) {
             throw new OperatorException("No data product writer for the '" + formatName + "' format available");
         }
-        productWriter.setIncrementalMode(false);
+        productWriter.setIncrementalMode(incremental);
         targetProduct.setProductWriter(productWriter);
         final Band[] bands = targetProduct.getBands();
         writableBands = new ArrayList<Band>(bands.length);
