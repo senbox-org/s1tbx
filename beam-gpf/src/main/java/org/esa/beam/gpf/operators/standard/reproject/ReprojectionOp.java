@@ -295,7 +295,7 @@ public class ReprojectionOp extends Operator {
     private ElevationModel createElevationModel() throws OperatorException {
         if (elevationModelName != null) {
             final ElevationModelDescriptor demDescriptor = ElevationModelRegistry.getInstance().getDescriptor(
-                    elevationModelName);
+                        elevationModelName);
             if (!demDescriptor.isDemInstalled()) {
                 throw new OperatorException("DEM not installed: " + elevationModelName);
             }
@@ -458,11 +458,11 @@ public class ReprojectionOp extends Operator {
                                                                  i2mSource);
 
                 ImageLayout imageLayout = ImageManager.createSingleBandedImageLayout(
-                        ImageManager.getDataBufferType(targetBand.getDataType()),
-                        targetProduct.getSceneRasterWidth(),
-                        targetProduct.getSceneRasterHeight(),
-                        targetProduct.getPreferredTileSize(),
-                        ResolutionLevel.create(getModel(), targetLevel));
+                            ImageManager.getDataBufferType(targetBand.getDataType()),
+                            targetProduct.getSceneRasterWidth(),
+                            targetProduct.getSceneRasterHeight(),
+                            targetProduct.getPreferredTileSize(),
+                            ResolutionLevel.create(getModel(), targetLevel));
                 Rectangle targetBounds = new Rectangle(imageLayout.getWidth(null), imageLayout.getHeight(null));
 
                 // the following transformation maps the target level image to level zero and then to the model,
@@ -494,12 +494,8 @@ public class ReprojectionOp extends Operator {
     }
 
     private int getSourceLevel(MultiLevelModel srcModel, int targetLevel) {
-        int sourceLevel = targetLevel;
-        int sourceLevelCount = srcModel.getLevelCount();
-        if (sourceLevelCount - 1 < targetLevel) {
-            sourceLevel = sourceLevelCount - 1;
-        }
-        return sourceLevel;
+        int maxSourceLevel = srcModel.getLevelCount() - 1;
+        return maxSourceLevel < targetLevel ? maxSourceLevel : targetLevel;
     }
 
     private void copyIndexCoding() {
@@ -673,9 +669,9 @@ public class ReprojectionOp extends Operator {
 
     private ImageInfo createDeltaBandImageInfo(double p1, double p2) {
         return new ImageInfo(new ColorPaletteDef(new ColorPaletteDef.Point[]{
-                new ColorPaletteDef.Point(p1, new Color(255, 0, 0)),
-                new ColorPaletteDef.Point((p1 + p2) / 2, new Color(255, 255, 255)),
-                new ColorPaletteDef.Point(p2, new Color(0, 0, 127)),
+                    new ColorPaletteDef.Point(p1, new Color(255, 0, 0)),
+                    new ColorPaletteDef.Point((p1 + p2) / 2, new Color(255, 255, 255)),
+                    new ColorPaletteDef.Point(p2, new Color(0, 0, 127)),
         }));
     }
 }
