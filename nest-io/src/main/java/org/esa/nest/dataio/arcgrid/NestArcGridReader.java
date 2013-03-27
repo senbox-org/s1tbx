@@ -23,6 +23,7 @@ import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.nest.datamodel.AbstractMetadata;
 import org.esa.nest.eo.GeoUtils;
 import org.geotools.geometry.GeneralDirectPosition;
@@ -55,6 +56,18 @@ public class NestArcGridReader extends ArcBinGridReader {
         
         if(!AbstractMetadata.loadExternalMetadata(product, absRoot, inputFile))
             AbstractMetadata.loadExternalMetadata(product, absRoot, new File(inputFile.getParentFile(), "PolSARPro_NEST_metadata.xml"));
+
+        if(product.getName().startsWith("sm_")) {
+            try {
+                final String date = product.getName().substring(3, product.getName().length());
+                final ProductData.UTC time = ProductData.UTC.parse(date, "yyyyMMdd");
+                AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_line_time, time);
+                product.setStartTime(time);
+
+            } catch(Exception e) {
+                //
+            }
+        }
 
         // set name from metadata if found
         product.setName(absRoot.getAttributeString(AbstractMetadata.PRODUCT, product.getName()));

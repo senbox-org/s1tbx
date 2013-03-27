@@ -347,14 +347,13 @@ public class Diagram {
         g2d.setClip(graphArea.x, graphArea.y, graphArea.width, graphArea.height);
 
         final Line2D.Double line = new Line2D.Double();
-        final Rectangle2D.Double box = new Rectangle2D.Double();
 
         DiagramGraph[] graphs = getGraphs();
         for (DiagramGraph graph : graphs) {
             final boolean isShowingPoints = graph.getStyle().isShowingPoints();
             Point2D.Double a = new Point2D.Double();
-            Point2D.Double b1 = new Point2D.Double();
-            Point2D.Double b2 = new Point2D.Double();
+            Point2D.Double b1 = new Point2D.Double(-1, -1);
+            Point2D.Double b2 = new Point2D.Double(-1, -1);
             g2d.setStroke(graph.getStyle().getOutlineStroke());
             g2d.setColor(graph.getStyle().getOutlineColor());
             int n = graph.getNumValues();
@@ -365,10 +364,12 @@ public class Diagram {
                     a.setLocation(xa, ya);
                     b1.setLocation(b2);
                     transform.transformA2B(a, b2);
-                    if (i > 0) {
+                    if (b1.getX() > -1) {
                         line.setLine(b1, b2);
-                        g2d.draw(line);
-                    }
+                    } else {
+                        line.setLine(b2, b2);
+					}
+                    g2d.draw(line);
                 }
             }
         }
