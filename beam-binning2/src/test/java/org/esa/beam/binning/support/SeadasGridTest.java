@@ -43,12 +43,12 @@ public class SeadasGridTest {
         //
         //  Calvalus           SeaDAS (minus one)
         //  row     bin        row      bin
-        //   0    0 ..  2       5    43 .. 45
-        //   1    3 .. 10       4    35 .. 42
-        //   2   11 .. 22       3    23 .. 34
-        //   3   23 .. 34       2    11 .. 22
-        //   4   35 .. 42       1     3 .. 10
-        //   5   43 .. 45       0     0 ..  2
+        //   0    0 ..  2       5    44 .. 46
+        //   1    3 .. 10       4    36 .. 43
+        //   2   11 .. 22       3    24 .. 35
+        //   3   23 .. 34       2    12 .. 23
+        //   4   35 .. 42       1     4 .. 11
+        //   5   43 .. 45       0     1 ..  3
 
         SeadasGrid seadasGrid = new SeadasGrid(baseGrid);
 
