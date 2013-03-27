@@ -1,17 +1,14 @@
 package org.esa.beam.util.io;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import static org.junit.Assert.*;
+
+import org.junit.*;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 
-import static org.junit.Assert.*;
-
-public class FileUtilsRelativeUriTest {
+public class FileUtilsTest_RelativeUri {
 
     private File root;
     private URI rootURI;
@@ -45,7 +42,6 @@ public class FileUtilsRelativeUriTest {
         assertEquals("oneDirDeeper/lsmf", uri.toString());
     }
 
-    @Ignore
     @Test
     public void testRelativeOneDirHigher() throws IOException {
         final File deeperRootDir = new File(root, "oneDirDeeper");
@@ -54,6 +50,7 @@ public class FileUtilsRelativeUriTest {
 
         final URI uri = FileUtils.getRelativeUri(twoDeeperRootDir.toURI(), relativeFileTwoDirsHigher);
 
-        assertEquals("file:/D:/Projekte/aaaaaaa_GIT/beam-4.x/lsmf", uri.toString());
+        final String expected = "file:/" + relativeFileTwoDirsHigher.getCanonicalPath().replace("\\", "/");
+        assertEquals(expected, uri.toString());
     }
 }
