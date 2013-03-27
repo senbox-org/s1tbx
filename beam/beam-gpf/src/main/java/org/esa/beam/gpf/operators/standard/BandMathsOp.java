@@ -255,6 +255,8 @@ public class BandMathsOp extends Operator {
 
         ProductUtils.copyMetadata(sourceProducts[0], targetProduct);
         ProductUtils.copyGeoCoding(sourceProducts[0], targetProduct);
+        targetProduct.setStartTime(sourceProducts[0].getStartTime());
+        targetProduct.setEndTime(sourceProducts[0].getEndTime());
     }
 
     @Override
