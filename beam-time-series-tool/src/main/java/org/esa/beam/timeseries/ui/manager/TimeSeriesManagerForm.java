@@ -459,19 +459,16 @@ class TimeSeriesManagerForm {
         @Override
         public int getSize() {
             return timeSeries.getProductLocations().size();
-
         }
 
         @Override
         public ProductLocation getElementAt(int index) {
             return timeSeries.getProductLocations().get(index);
-
         }
 
         @Override
         public List<ProductLocation> getProductLocations() {
             return timeSeries.getProductLocations();
-
         }
 
         @Override

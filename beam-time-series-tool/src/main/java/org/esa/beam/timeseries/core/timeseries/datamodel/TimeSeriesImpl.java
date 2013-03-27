@@ -86,7 +86,7 @@ final class TimeSeriesImpl extends AbstractTimeSeries {
      */
     TimeSeriesImpl(Product tsProduct, ProgressMonitor pm) {
         init(tsProduct);
-        productLocationList = getProductLocations();
+        initProductLocations();
         storeProductsInMap(pm);
         setSourceImages();
         fixBandTimeCodings();
@@ -121,10 +121,14 @@ final class TimeSeriesImpl extends AbstractTimeSeries {
 
     @Override
     public List<ProductLocation> getProductLocations() {
+        return productLocationList;
+    }
+
+    private void initProductLocations() {
         MetadataElement tsElem = tsProduct.getMetadataRoot().getElement(TIME_SERIES_ROOT_NAME);
         MetadataElement productListElem = tsElem.getElement(PRODUCT_LOCATIONS);
         MetadataElement[] productElems = productListElem.getElements();
-        List<ProductLocation> productLocations = new ArrayList<ProductLocation>(productElems.length);
+        productLocationList = new ArrayList<ProductLocation>(productElems.length);
         final File fileLocation = tsProduct.getProduct().getFileLocation();
         for (MetadataElement productElem : productElems) {
             String path = productElem.getAttributeString(PL_PATH);
@@ -136,9 +140,8 @@ final class TimeSeriesImpl extends AbstractTimeSeries {
                 productFile = new File(path);
             }
             String type = productElem.getAttributeString(PL_TYPE);
-            productLocations.add(new ProductLocation(ProductLocationType.valueOf(type), productFile.getAbsolutePath()));
+            productLocationList.add(new ProductLocation(ProductLocationType.valueOf(type), productFile.getAbsolutePath()));
         }
-        return productLocations;
     }
 
     @Override
@@ -824,7 +827,10 @@ final class TimeSeriesImpl extends AbstractTimeSeries {
         listeners.clear();
         pinRelationMap.clear();
         tsProduct = null;
-        productLocationList = null;
+        if (productLocationList != null) {
+            productLocationList.clear();
+            productLocationList = null;
+        }
         insituSource = null;
         insituVariablesSelections.clear();
         insituVariablesSelections = null;
