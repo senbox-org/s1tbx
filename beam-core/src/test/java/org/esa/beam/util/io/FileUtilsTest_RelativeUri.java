@@ -50,7 +50,8 @@ public class FileUtilsTest_RelativeUri {
 
         final URI uri = FileUtils.getRelativeUri(twoDeeperRootDir.toURI(), relativeFileTwoDirsHigher);
 
-        final String expected = "file:/" + relativeFileTwoDirsHigher.getCanonicalPath().replace("\\", "/");
+        final String path = relativeFileTwoDirsHigher.getCanonicalPath().replace("\\", "/");
+        final String expected = "file:" + (path.startsWith("/") ? path : "/" + path);
         assertEquals(expected, uri.toString());
     }
 }
