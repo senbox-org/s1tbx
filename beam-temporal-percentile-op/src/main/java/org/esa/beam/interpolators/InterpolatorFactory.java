@@ -5,12 +5,24 @@ import org.esa.beam.statistics.percentile.interpolated.TemporalPercentileOp;
 public class InterpolatorFactory {
 
     public static Interpolator createInterpolator(String interpolationMethod) {
-        if (TemporalPercentileOp.P_CALCULATION_METHOD_LINEAR_INTERPOLATION.equalsIgnoreCase(interpolationMethod)) {
+        if (TemporalPercentileOp.GAP_FILLING_METHOD_LINEAR_INTERPOLATION.equalsIgnoreCase(interpolationMethod)) {
             return new LinearInterpolator();
-        } else if (TemporalPercentileOp.P_CALCULATION_METHOD_SPLINE_INTERPOLATION.equalsIgnoreCase(interpolationMethod)) {
+        } else if (TemporalPercentileOp.GAP_FILLING_METHOD_SPLINE_INTERPOLATION.equalsIgnoreCase(interpolationMethod)) {
             return new SplineInterpolator();
-        } else {
+        } else if (TemporalPercentileOp.GAP_FILLING_METHOD_QUADRATIC_INTERPOLATION.equals(interpolationMethod)){
             return new QuadraticInterpolator();
+        } else {
+            return new Interpolator() {
+                @Override
+                public InterpolatingFunction interpolate(double[] x, double[] y) {
+                    return null;
+                }
+
+                @Override
+                public int getMinNumPoints() {
+                    return 1;
+                }
+            };
         }
     }
 }

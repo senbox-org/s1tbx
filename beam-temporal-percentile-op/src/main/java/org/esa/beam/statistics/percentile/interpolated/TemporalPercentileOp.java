@@ -113,9 +113,10 @@ public class TemporalPercentileOp extends Operator {
     public static final String VARIABLE_SELECTION = "SELECTION";
     // todo end
 
-    public final static String P_CALCULATION_METHOD_LINEAR_INTERPOLATION = "gapFillingLinearInterpolation";
-    public final static String P_CALCULATION_METHOD_SPLINE_INTERPOLATION = "gapFillingSplineInterpolation";
-    public final static String P_CALCULATION_METHOD_QUADRATIC_INTERPOLATION = "gapFillingQuadraticInterpolation";
+    public final static String GAP_FILLING_METHOD_NO_GAP_FILLING = "noGapFilling";
+    public final static String GAP_FILLING_METHOD_LINEAR_INTERPOLATION = "gapFillingLinearInterpolation";
+    public final static String GAP_FILLING_METHOD_SPLINE_INTERPOLATION = "gapFillingSplineInterpolation";
+    public final static String GAP_FILLING_METHOD_QUADRATIC_INTERPOLATION = "gapFillingQuadraticInterpolation";
 
     public static final String DATETIME_PATTERN = "yyyy-MM-dd HH:mm:ss";
     private static final String SUFFIX_PERCENTILE_OP_DATA_PRODUCT = "_PercentileOpDataProduct";
@@ -204,11 +205,14 @@ public class TemporalPercentileOp extends Operator {
     @Parameter(description = "The percentiles.", defaultValue = "90")
     int[] percentiles;
 
-    @Parameter(description = "The percentile calculation method.",
-               defaultValue = P_CALCULATION_METHOD_LINEAR_INTERPOLATION,
-               valueSet = {P_CALCULATION_METHOD_LINEAR_INTERPOLATION, P_CALCULATION_METHOD_SPLINE_INTERPOLATION, P_CALCULATION_METHOD_QUADRATIC_INTERPOLATION}
+    @Parameter(description = "The gap filling method for percentile calculation.",
+               defaultValue = GAP_FILLING_METHOD_LINEAR_INTERPOLATION,
+               valueSet = {
+                           GAP_FILLING_METHOD_NO_GAP_FILLING, GAP_FILLING_METHOD_LINEAR_INTERPOLATION,
+                           GAP_FILLING_METHOD_SPLINE_INTERPOLATION, GAP_FILLING_METHOD_QUADRATIC_INTERPOLATION
+               }
     )
-    String percentileCalculationMethod;
+    String gapFillingMethod;
 
     @Parameter(description = "The fallback value for the start of a pixel time series. It will be considered if\n" +
                              "there is no valid value at the pixel of the oldest collocated mean band. This would be\n" +
@@ -235,7 +239,7 @@ public class TemporalPercentileOp extends Operator {
     @Override
     public void initialize() throws OperatorException {
         validateInput();
-        interpolator = InterpolatorFactory.createInterpolator(percentileCalculationMethod);
+        interpolator = InterpolatorFactory.createInterpolator(gapFillingMethod);
 
         final Product targetProduct = createTargetProduct();
 
@@ -258,7 +262,7 @@ public class TemporalPercentileOp extends Operator {
         }
         if (dailyGroupedSourceProducts.size() == 2 && splineOrQuadraticInterpolationIsSelected()) {
             throw new OperatorException("For temporal percentile calculation " +
-                                        "with percentileCalculationMethod='" + percentileCalculationMethod + "' " +
+                                        "with percentileCalculationMethod='" + gapFillingMethod + "' " +
                                         "at least three days must contain valid input products.");
         }
 
@@ -303,8 +307,8 @@ public class TemporalPercentileOp extends Operator {
     }
 
     private boolean splineOrQuadraticInterpolationIsSelected() {
-        return P_CALCULATION_METHOD_SPLINE_INTERPOLATION.equals(percentileCalculationMethod)
-               || P_CALCULATION_METHOD_QUADRATIC_INTERPOLATION.equals(percentileCalculationMethod);
+        return GAP_FILLING_METHOD_SPLINE_INTERPOLATION.equals(gapFillingMethod)
+               || GAP_FILLING_METHOD_QUADRATIC_INTERPOLATION.equals(gapFillingMethod);
     }
 
     private void reloadIntermediateTimeSeriesProduct() {
@@ -324,24 +328,23 @@ public class TemporalPercentileOp extends Operator {
     }
 
     private void initPercentileComputer() {
-        percentileComputer = new PercentileComputer() {
-
-            @Override
-            public float[] computeThresholds(int[] targetPercentiles, float[] availableValues) {
-                final float[] thresholds = new float[targetPercentiles.length];
-                Arrays.fill(thresholds, Float.NaN);
-
-                GapFiller.fillGaps(availableValues, interpolator, startValueFallback.floatValue(), endValueFallback.floatValue());
-                Arrays.sort(availableValues);
-
-                for (int i = 0; i < targetPercentiles.length; i++) {
-                    int percentile = targetPercentiles[i];
-                    int percentileIndex = (int) Math.floor(percentile / 100f * availableValues.length);
-                    thresholds[i] = availableValues[percentileIndex];
+        if (GAP_FILLING_METHOD_NO_GAP_FILLING.equalsIgnoreCase(gapFillingMethod)) {
+            percentileComputer = new PercentileComputer() {
+                @Override
+                public float[] computeThresholds(int[] targetPercentiles, float[] availableValues, int numAvailableValues) {
+                    final float[] onlyValues = getValuesNotNaN(availableValues, numAvailableValues);
+                    return computePercentileThresholds(targetPercentiles, onlyValues);
                 }
-                return thresholds;
-            }
-        };
+            };
+        } else {
+            percentileComputer = new PercentileComputer() {
+                @Override
+                public float[] computeThresholds(int[] targetPercentiles, float[] availableValues, int numAvailableValues) {
+                    GapFiller.fillGaps(availableValues, interpolator, startValueFallback.floatValue(), endValueFallback.floatValue());
+                    return computePercentileThresholds(targetPercentiles, availableValues);
+                }
+            };
+        }
     }
 
     private void computeMeanDataForEachDayAndWriteDataToTimeSeriesProduct() {
@@ -451,7 +454,7 @@ public class TemporalPercentileOp extends Operator {
                     for (int i = 0; i < targetPercentileBands.length; i++) {
                         targetPercentiles[i] = extractPercentileFromBandName(targetPercentileBands[i].getName());
                     }
-                    percentileThresholds = percentileComputer.computeThresholds(targetPercentiles, interpolationFloats);
+                    percentileThresholds = percentileComputer.computeThresholds(targetPercentiles, interpolationFloats, valueCount);
                 }
                 for (int i = 0; i < targetPercentileTiles.length; i++) {
                     Tile percentileTile = targetPercentileTiles[i];
@@ -673,8 +676,8 @@ public class TemporalPercentileOp extends Operator {
             bandConfigurationElem.addAttribute(new MetadataAttribute("percentileBandNamePrefix", percentileNameData, true));
         }
 
-        final ProductData interpolationData = ProductData.createInstance(percentileCalculationMethod);
-        bandConfigurationElem.addAttribute(new MetadataAttribute("percentileCalculationMethod", interpolationData, true));
+        final ProductData interpolationData = ProductData.createInstance(gapFillingMethod);
+        bandConfigurationElem.addAttribute(new MetadataAttribute("gapFillingMethod", interpolationData, true));
 
         String expr = validPixelExpression;
         final ProductData validPixelExpressionData = ProductData.createInstance(expr == null ? "" : expr);
@@ -837,8 +840,31 @@ public class TemporalPercentileOp extends Operator {
         }
     }
 
-    private static interface PercentileComputer {
+    private static abstract class PercentileComputer {
 
-        float[] computeThresholds(int[] targetPercentiles, float[] availableValues/*, int targetX, int targetY*/);
+        abstract float[] computeThresholds(int[] targetPercentiles, float[] availableValues, int numAvailableValues);
+
+        protected float[] computePercentileThresholds(int[] targetPercentiles, float[] availableValues) {
+            Arrays.sort(availableValues);
+            final float[] thresholds = new float[targetPercentiles.length];
+            for (int i = 0; i < targetPercentiles.length; i++) {
+                int percentile = targetPercentiles[i];
+                int percentileIndex = (int) Math.floor(percentile / 100f * availableValues.length);
+                thresholds[i] = availableValues[percentileIndex];
+            }
+            return thresholds;
+        }
+
+        protected float[] getValuesNotNaN(float[] availableValues, int numAvailableValues) {
+            final float[] onlyValues = new float[numAvailableValues];
+            int i = 0;
+            for (float availableValue : availableValues) {
+                if (!Float.isNaN(availableValue)) {
+                    onlyValues[i] = availableValue;
+                    i++;
+                }
+            }
+            return onlyValues;
+        }
     }
 }
