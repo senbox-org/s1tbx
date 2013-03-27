@@ -3,7 +3,7 @@
 set BEAM4_HOME=${installer:sys.installationDir}
 
 "%BEAM4_HOME%\jre\bin\java.exe" ^
-    -Xmx1024M ^
+    -Xmx${installer:maxHeapSize} ^
     -Dceres.context=beam ^
     "-Dbeam.mainClass=org.esa.beam.framework.gpf.main.GPT" ^
     "-Dbeam.home=%BEAM4_HOME%" ^

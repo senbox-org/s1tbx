@@ -270,7 +270,7 @@
                       <void property="script">
                         <object class="com.install4j.api.beans.ScriptProperty">
                           <void property="value">
-                            <string>Math.min(1024, SystemInfo.getPhysicalMemory() / 1024 / 1024) + "M"</string>
+                            <string>(int)Math.max(1024, (SystemInfo.getPhysicalMemory()*0.5f) / 1024 / 1024) + "M"</string>
                           </void>
                         </object>
                       </void>
@@ -2049,7 +2049,7 @@ if (wizardContext != null) {
     </unixInstaller>
   </mediaSets>
   <buildIds buildAll="false">
-    <mediaSet refId="4707" />
+    <mediaSet refId="20" />
   </buildIds>
   <buildOptions verbose="false" faster="false" debug="false" />
 </install4j>

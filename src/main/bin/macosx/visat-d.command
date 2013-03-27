@@ -12,7 +12,7 @@ if [ -z "$BEAM4_HOME" ]; then
 fi
 
 java \
-    -Xmx1024M \
+    -Xmx${installer:maxHeapSize} \
     -Dceres.context=beam \
     -Dbeam.debug=true \
     "-Dbeam.home=$BEAM4_HOME" \
