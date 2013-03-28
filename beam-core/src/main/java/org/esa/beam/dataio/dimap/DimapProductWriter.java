@@ -63,7 +63,7 @@ public class DimapProductWriter extends AbstractProductWriter {
     private Map<Band, ImageOutputStream> _bandOutputStreams;
     private File _dataOutputDir;
     private boolean _incremental = true;
-    private Set<WriterExtender> dimapWriterWriterExtenders;
+    private Set<WriterExtender> writerExtenders;
 
     /**
      * Construct a new instance of a product writer for the given BEAM-DIMAP product writer plug-in.
@@ -109,8 +109,8 @@ public class DimapProductWriter extends AbstractProductWriter {
         initDirs(outputFile);
 
         ensureNamingConvention();
-        if (dimapWriterWriterExtenders != null) {
-            for (WriterExtender dimapWriterWriterExtender : dimapWriterWriterExtenders) {
+        if (writerExtenders != null) {
+            for (WriterExtender dimapWriterWriterExtender : writerExtenders) {
                 dimapWriterWriterExtender.intendToWriteDimapHeaderTo(outputFile.getParentFile(), getSourceProduct());
             }
         }
@@ -252,8 +252,9 @@ public class DimapProductWriter extends AbstractProductWriter {
         }
         _bandOutputStreams.clear();
         _bandOutputStreams = null;
-        if (dimapWriterWriterExtenders != null){
-            dimapWriterWriterExtenders.clear();
+        if (writerExtenders != null){
+            writerExtenders.clear();
+            writerExtenders = null;
         }
     }
 
@@ -415,8 +416,8 @@ public class DimapProductWriter extends AbstractProductWriter {
 
     @Override
     public boolean shouldWrite(ProductNode node) {
-        if(dimapWriterWriterExtenders != null) {
-            for (WriterExtender dimapWriterWriterExtender : dimapWriterWriterExtenders) {
+        if(writerExtenders != null) {
+            for (WriterExtender dimapWriterWriterExtender : writerExtenders) {
                 final boolean shouldWrite = dimapWriterWriterExtender.vetoableShouldWrite(node);
                 if (!shouldWrite) {
                     return false;
@@ -548,11 +549,11 @@ public class DimapProductWriter extends AbstractProductWriter {
     }
 
     public void addExtender(WriterExtender writerExtender) {
-        if (dimapWriterWriterExtenders == null){
-            dimapWriterWriterExtenders = new HashSet<WriterExtender>();
+        if (writerExtenders == null){
+            writerExtenders = new HashSet<WriterExtender>();
         }
         if (writerExtender != null) {
-            dimapWriterWriterExtenders.add(writerExtender);
+            writerExtenders.add(writerExtender);
         }
     }
 }
