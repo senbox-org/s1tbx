@@ -46,6 +46,10 @@ public class GlobCoverLayerType extends WorldMapLayerType {
     private static final String WORLD_MAP_LAYER_NAME = "World Map (ESA GlobCover)";
     private static final String WORLD_MAP_LABEL = "ESA GlobCover";
 
+    private static final String DOWNLOAD_MESSAGE = "Downloading ESA GlobCover tiles...";
+    private static final String LOCAL_PATH = "AuxData/esaGlobCoverDataPath";
+    private static final String ARCHIVE_URL_PATH = "http://nest.s3.amazonaws.com/data/esaGlobCover.zip";
+
     private volatile MultiLevelSource multiLevelSource;
 
     @Override
@@ -88,6 +92,11 @@ public class GlobCoverLayerType extends WorldMapLayerType {
     private static MultiLevelSource createMultiLevelSource() {
         String dirPath = System.getProperty(WORLD_IMAGE_DIR_PROPERTY_NAME);
         if (dirPath == null || dirPath.isEmpty()) {
+            //NESTMOD
+          /*  final String dataPath = Settings.instance().get(LOCAL_PATH);
+            if (dataPath != null) {
+                dirPath = AutoDownload.getDownloadedDirPath(DOWNLOAD_MESSAGE, new File(dataPath), ARCHIVE_URL_PATH);
+            }  */
             final File installFolder = SystemUtils.getApplicationHomeDir();                              //NESTMOD
             final File worldMapFolder = new File(installFolder,"auxdata"+File.separator+"globcover");
             if(worldMapFolder.exists())
