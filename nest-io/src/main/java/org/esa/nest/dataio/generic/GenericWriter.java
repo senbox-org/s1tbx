@@ -33,9 +33,10 @@ public class GenericWriter extends AbstractProductWriter {
 
     private ImageOutputStream _outputStream = null;
 
-    private String tempBandName = null;
-    private int tempBandCounter = 0;
-    
+    private String bandName = null;
+    private int bandCounter = 0;
+    private int numOfWriteBands = 0; // number of bands that are written (no virtual bands)
+
     /**
      * Construct a new instance of a product writer for the given product writer plug-in.
      *
@@ -65,12 +66,19 @@ public class GenericWriter extends AbstractProductWriter {
         }
 
         _outputStream = new FileImageOutputStream(file);
-        // default to nativeOrder
+        // Default to nativeOrder
         _outputStream.setByteOrder(ByteOrder.nativeOrder());
 
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(getSourceProduct());
         AbstractMetadata.saveExternalMetadata(getSourceProduct(), absRoot, file);
 
+        // Get number of Real (not Virtual) bands
+        final int numOfBands = getSourceProduct().getNumBands();
+        for (int i = 0; i < numOfBands; i++) {
+            if (!(getSourceProduct().getBandAt(i) instanceof VirtualBand)) {
+                numOfWriteBands++;
+            }
+        }
     }
 
     /**
@@ -94,25 +102,23 @@ public class GenericWriter extends AbstractProductWriter {
 
         checkSourceRegionInsideBandRegion(sourceWidth, sourceBandWidth, sourceHeight, sourceBandHeight, sourceOffsetX, sourceOffsetY);
 
-        if (tempBandName == null) {
-            tempBandName = sourceBand.getName();
-        } else if (!tempBandName.equals(sourceBand.getName())) {
-            tempBandName = sourceBand.getName();
-            tempBandCounter++;
+        // Define order number of Band that is being saved
+        if (bandName == null) {
+            bandName = sourceBand.getName();
+        } else if (!bandName.equals(sourceBand.getName())) {
+            bandName = sourceBand.getName();
+            bandCounter++;
         }
 
-        // Write all source bands in BSQ : Band Sequential Format
-        final int numOfBands = getSourceProduct().getNumBands();
-        // long outputPos = sourceOffsetY * sourceBandWidth + sourceOffsetX;
-        long outputPos = sourceOffsetY * (numOfBands * sourceBandWidth) + sourceOffsetX + (tempBandCounter * sourceBandWidth);
+        // Write all source NOT VIRTUAL bands in BSQ : Band Sequential Format
+        long outputPos = sourceOffsetY * (numOfWriteBands * sourceBandWidth) + sourceOffsetX + (bandCounter * sourceBandWidth);
         pm.beginTask("Writing band '" + sourceBand.getName() + "'...", sourceHeight);
         try {
             final long max = sourceHeight * sourceWidth;
             final int size = sourceBuffer.getElemSize();
             for (int sourcePos = 0; sourcePos < max; sourcePos += sourceWidth) {
                 sourceBuffer.writeTo(sourcePos, sourceWidth, size, _outputStream, outputPos);
-                // outputPos += (numOfBands);
-                outputPos += (numOfBands * sourceBandWidth);
+                outputPos += (numOfWriteBands * sourceBandWidth);
             }
             pm.worked(1);
         } finally {
