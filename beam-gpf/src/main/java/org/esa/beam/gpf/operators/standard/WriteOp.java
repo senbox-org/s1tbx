@@ -128,7 +128,6 @@ public class WriteOp extends Operator implements Output {
 
     private ProductWriter productWriter;
     private List<Band> writableBands;
-    private boolean productFileWritten;
     private Dimension tileSize;
     private int tileCountX;
 
@@ -251,6 +250,11 @@ public class WriteOp extends Operator implements Output {
         tileSize = ImageManager.getPreferredTileSize(targetProduct);
         targetProduct.setPreferredTileSize(tileSize);
         tileCountX = MathUtils.ceilInt(targetProduct.getSceneRasterWidth() / (double) tileSize.width);
+        try {
+            productWriter.writeProductNodes(targetProduct, file);
+        } catch (IOException e) {
+            throw new OperatorException("Not able to write product file: '" + file.getAbsolutePath() + "'", e);
+        }
     }
 
     @Override
@@ -259,12 +263,6 @@ public class WriteOp extends Operator implements Output {
             return;
         }
         try {
-            synchronized (this) {
-                if (!productFileWritten) {
-                    productWriter.writeProductNodes(targetProduct, file);
-                    productFileWritten = true;
-                }
-            }
             final Rectangle rect = targetTile.getRectangle();
             if (writeEntireTileRows) {
                 int tileX = MathUtils.floorInt(targetTile.getMinX() / (double) tileSize.width);
@@ -286,7 +284,6 @@ public class WriteOp extends Operator implements Output {
             if (deleteOutputOnFailure && !outputFileExists) {
                 try {
                     productWriter.deleteOutput();
-                    productFileWritten = false;
                 } catch (IOException ignored) {
                 }
             }
