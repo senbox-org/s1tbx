@@ -9,75 +9,88 @@
     <tr class="header">
         <td class="header">&nbsp;KMeansClusterAnalysis Operator</td>
         <td class="header" align="right">
-           <a href="../general/BeamOverview.html">             <img src="images/BeamHeader.jpg" border="0"/></a>
+            <a href="../general/BeamOverview.html"> <img src="images/BeamHeader.jpg" border="0"/></a>
         </td>
     </tr>
 </table>
 <h1>KMeansClusterAnalysis Operator Description</h1>
+
 <h2>Overview</h2>
 <table>
-  <tr><td><b>Name:</b></td><td><code>KMeansClusterAnalysis</code></td></tr>
-  <tr><td><b>Full name:</b></td><td><code>org.esa.beam.cluster.KMeansClusterOp</code></td></tr>
-  <tr><td><b>Purpose:</b></td><td>Performs a K-Means cluster analysis.</td></tr>
-  <tr><td><b>Version:</b></td><td>1.0</td></tr>
+    <tr>
+        <td><b>Name:</b></td>
+        <td><code>KMeansClusterAnalysis</code></td>
+    </tr>
+    <tr>
+        <td><b>Full name:</b></td>
+        <td><code>org.esa.beam.cluster.KMeansClusterOp</code></td>
+    </tr>
+    <tr>
+        <td><b>Purpose:</b></td>
+        <td>Performs a K-Means cluster analysis.</td>
+    </tr>
+    <tr>
+        <td><b>Version:</b></td>
+        <td>1.0</td>
+    </tr>
 </table>
 <h2>Description</h2>
 Operator for k-means cluster analysis.
 <h2>Sources</h2>
 <table>
-<tr>
-  <th>Name</th>
-  <th>Description</th>
-</tr>
-<tr>
-  <td><code>sourceProduct</code></td>
-  <td></td>
-</tr>
+    <tr>
+        <th>Name</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td><code>sourceProduct</code></td>
+        <td></td>
+    </tr>
 </table>
 <h2>Parameters</h2>
 <table>
-<tr>
-  <th>Name</th>
-  <th>Data Type</th>
-  <th>Default</th>
-  <th>Description</th>
-  <th>Constraints</th>
-</tr>
-<tr>
-  <td><code>clusterCount</code></td>
-  <td><code>int</code></td>
-  <td><code>14</code></td>
-  <td></td>
-  <td>interval: (0,100]</td>
-</tr>
-<tr>
-  <td><code>iterationCount</code></td>
-  <td><code>int</code></td>
-  <td><code>30</code></td>
-  <td></td>
-  <td>interval: (0,10000]</td>
-</tr>
-<tr>
-  <td><code>randomSeed</code></td>
-  <td><code>int</code></td>
-  <td><code>31415</code></td>
-  <td>Seed for the random generator, used for initialising the algorithm.</td>
-  <td></td>
-</tr>
-<tr>
-  <td><code>sourceBandNames</code></td>
-  <td><code>String[]</code></td>
-  <td><code></code></td>
-  <td>The names of the bands being used for the cluster analysis.</td>
-  <td></td>
-</tr>
-<tr>
-  <td><code>roiMaskName</code></td>
-  <td><code>String</code></td>
-  <td><code></code></td>
-  <td>The name of the ROI-Mask that should be used.</td>
-  <td></td>
-</tr>
+    <tr>
+        <th>Name</th>
+        <th>Data Type</th>
+        <th>Default</th>
+        <th>Description</th>
+        <th>Constraints</th>
+    </tr>
+    <tr>
+        <td><code>clusterCount</code></td>
+        <td><code>int</code></td>
+        <td><code>14</code></td>
+        <td></td>
+        <td>interval: (0,100]</td>
+    </tr>
+    <tr>
+        <td><code>iterationCount</code></td>
+        <td><code>int</code></td>
+        <td><code>30</code></td>
+        <td></td>
+        <td>interval: (0,10000]</td>
+    </tr>
+    <tr>
+        <td><code>randomSeed</code></td>
+        <td><code>int</code></td>
+        <td><code>31415</code></td>
+        <td>Seed for the random generator, used for initialising the algorithm.</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><code>sourceBandNames</code></td>
+        <td><code>String[]</code></td>
+        <td><code></code></td>
+        <td>The names of the bands being used for the cluster analysis.</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><code>roiMaskName</code></td>
+        <td><code>String</code></td>
+        <td><code></code></td>
+        <td>The name of the ROI-Mask that should be used.</td>
+        <td></td>
+    </tr>
 </table>
 <hr/>
 </body>

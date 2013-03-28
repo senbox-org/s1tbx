@@ -9,180 +9,225 @@
     <tr class="header">
         <td class="header">&nbsp;PixEx Operator</td>
         <td class="header" align="right">
-           <a href="../general/BeamOverview.html">             <img src="images/BeamHeader.jpg" border="0"/></a>
+            <a href="../general/BeamOverview.html"> <img src="images/BeamHeader.jpg" border="0"/></a>
         </td>
     </tr>
 </table>
 <h1>PixEx Operator Description</h1>
+
 <h2>Overview</h2>
 <table>
-  <tr><td><b>Name:</b></td><td><code>PixEx</code></td></tr>
-  <tr><td><b>Full name:</b></td><td><code>org.esa.beam.pixex.PixExOp</code></td></tr>
-  <tr><td><b>Purpose:</b></td><td>Extracts pixels from given locations and source products.</td></tr>
-  <tr><td><b>Version:</b></td><td>1.0.1</td></tr>
+    <tr>
+        <td><b>Name:</b></td>
+        <td><code>PixEx</code></td>
+    </tr>
+    <tr>
+        <td><b>Full name:</b></td>
+        <td><code>org.esa.beam.pixex.PixExOp</code></td>
+    </tr>
+    <tr>
+        <td><b>Purpose:</b></td>
+        <td>Extracts pixels from given locations and source products.</td>
+    </tr>
+    <tr>
+        <td><b>Version:</b></td>
+        <td>1.3</td>
+    </tr>
 </table>
 <h2>Description</h2>
 This operator is used to extract pixels from given locations and source products.
- It can also create sub-scenes containing all locations found in the source products and create
- KMZ files which contain the locations found in a source product
+It can also create sub-scenes containing all locations found in the source products and create
+KMZ files which contain the locations found in a source product.
 <h2>Sources</h2>
 <table>
-<tr>
-  <th>Name</th>
-  <th>Description</th>
-</tr>
-<tr>
-  <td><code>sourceProducts</code></td>
-  <td></td>
-</tr>
+    <tr>
+        <th>Name</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td><code>sourceProducts</code></td>
+        <td></td>
+    </tr>
 </table>
 <h2>Parameters</h2>
 <table>
-<tr>
-  <th>Name</th>
-  <th>Data Type</th>
-  <th>Default</th>
-  <th>Description</th>
-  <th>Constraints</th>
-</tr>
-<tr>
-  <td><code>sourceProductPaths</code></td>
-  <td><code>String[]</code></td>
-  <td><code></code></td>
-  <td>A comma-separated list of file paths specifying the source products.
-Each path may contain the wildcards '**' (matches recursively any directory),
-'*' (matches any character sequence in path names) and
-'?' (matches any single character).</td>
-  <td></td>
-</tr>
-<tr>
-  <td><code>inputPaths</code></td>
-  <td><code>File[]</code></td>
-  <td><code></code></td>
-  <td>Deprecated since version 1.0, use parameter 'sourcePaths' instead.</td>
-  <td></td>
-</tr>
-<tr>
-  <td><code>exportBands</code></td>
-  <td><code>Boolean</code></td>
-  <td><code>true</code></td>
-  <td>Specifies if bands are to be exported</td>
-  <td></td>
-</tr>
-<tr>
-  <td><code>exportTiePoints</code></td>
-  <td><code>Boolean</code></td>
-  <td><code>true</code></td>
-  <td>Specifies if tie-points are to be exported</td>
-  <td></td>
-</tr>
-<tr>
-  <td><code>exportMasks</code></td>
-  <td><code>Boolean</code></td>
-  <td><code>true</code></td>
-  <td>Specifies if masks are to be exported</td>
-  <td></td>
-</tr>
-<tr>
-  <td><code>coordinates</code></td>
-  <td><code>Coordinate[]</code></td>
-  <td><code></code></td>
-  <td>The geo-coordinates</td>
-  <td></td>
-</tr>
-<tr>
-  <td><code>timeDifference</code></td>
-  <td><code>String</code></td>
-  <td><code></code></td>
-  <td>The acceptable time difference compared to the time given for a coordinate.
-The format is a number followed by (D)ay, (H)our or (M)inute. If no time difference is provided, all input products are considered regardless of their time.</td>
-  <td></td>
-</tr>
-<tr>
-  <td><code>coordinatesFile</code></td>
-  <td><code>File</code></td>
-  <td><code></code></td>
-  <td>Path to a file containing geo-coordinates. BEAM's placemark files can be used.</td>
-  <td></td>
-</tr>
-<tr>
-  <td><code>windowSize</code></td>
-  <td><code>Integer</code></td>
-  <td><code>1</code></td>
-  <td>Side length of surrounding window (uneven)</td>
-  <td></td>
-</tr>
-<tr>
-  <td><code>outputDir</code></td>
-  <td><code>File</code></td>
-  <td><code></code></td>
-  <td>The output directory.</td>
-  <td>not null</td>
-</tr>
-<tr>
-  <td><code>outputFilePrefix</code></td>
-  <td><code>String</code></td>
-  <td><code>pixEx</code></td>
-  <td>The prefix is used to name the output files.</td>
-  <td></td>
-</tr>
-<tr>
-  <td><code>expression</code></td>
-  <td><code>String</code></td>
-  <td><code></code></td>
-  <td>Band maths expression (optional). Defines valid pixels.</td>
-  <td></td>
-</tr>
-<tr>
-  <td><code>exportExpressionResult</code></td>
-  <td><code>Boolean</code></td>
-  <td><code>true</code></td>
-  <td>If true, the expression result is exported per pixel, otherwise the expression 
-is used as filter (all pixels in given window must be valid).</td>
-  <td></td>
-</tr>
-<tr>
-  <td><code>exportSubScenes</code></td>
-  <td><code>boolean</code></td>
-  <td><code>false</code></td>
-  <td>If set to true, sub-scenes of the regions, where pixels are found, are exported.</td>
-  <td></td>
-</tr>
-<tr>
-  <td><code>subSceneBorderSize</code></td>
-  <td><code>int</code></td>
-  <td><code>0</code></td>
-  <td>An additional border around the region where pixels are found.</td>
-  <td></td>
-</tr>
-<tr>
-  <td><code>exportKmz</code></td>
-  <td><code>boolean</code></td>
-  <td><code>false</code></td>
-  <td>If set to true, a Google KMZ file will be created, which contains the coordinates where pixels are found.</td>
-  <td></td>
-</tr>
-<tr>
-  <td><code>extractTimeFromFilename</code></td>
-  <td><code>boolean</code></td>
-  <td><code>false</code></td>
-  <td>If set to true, the sensing start and sensing stop should be extracted from the filename of each input product.</td>
-  <td></td>
-</tr>
-<tr>
-  <td><code>dateInterpretationPattern</code></td>
-  <td><code>String</code></td>
-  <td><code>yyyyMMdd</code></td>
-  <td>Describes how a date/time section inside a product filename should be interpreted. E.G. yyyyMMdd_hhmmss</td>
-  <td></td>
-</tr>
-<tr>
-  <td><code>filenameInterpretationPattern</code></td>
-  <td><code>String</code></td>
-  <td><code>*${date}*${date}*</code></td>
-  <td>Describes how the filename of a product should be interpreted.</td>
-  <td></td>
-</tr>
+    <tr>
+        <th>Name</th>
+        <th>Data Type</th>
+        <th>Default</th>
+        <th>Description</th>
+        <th>Constraints</th>
+    </tr>
+    <tr>
+        <td><code>sourceProductPaths</code></td>
+        <td><code>String[]</code></td>
+        <td><code></code></td>
+        <td>A comma-separated list of file paths specifying the source products.
+            Each path may contain the wildcards '**' (matches recursively any directory),
+            '*' (matches any character sequence in path names) and
+            '?' (matches any single character).
+        </td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><code>exportBands</code></td>
+        <td><code>Boolean</code></td>
+        <td><code>true</code></td>
+        <td>Specifies if bands are to be exported</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><code>exportTiePoints</code></td>
+        <td><code>Boolean</code></td>
+        <td><code>true</code></td>
+        <td>Specifies if tie-points are to be exported</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><code>exportMasks</code></td>
+        <td><code>Boolean</code></td>
+        <td><code>true</code></td>
+        <td>Specifies if masks are to be exported</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><code>coordinates</code></td>
+        <td><code>Coordinate[]</code></td>
+        <td><code></code></td>
+        <td>The geo-coordinates</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><code>timeDifference</code></td>
+        <td><code>String</code></td>
+        <td><code></code></td>
+        <td>The acceptable time difference compared to the time given for a coordinate.
+            The format is a number followed by (D)ay, (H)our or (M)inute. If no time difference is provided, all input
+            products are considered regardless of their time.
+        </td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><code>coordinatesFile</code></td>
+        <td><code>File</code></td>
+        <td><code></code></td>
+        <td>Path to a file containing geo-coordinates. BEAM's placemark files can be used.</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><code>matchupFile</code></td>
+        <td><code>File</code></td>
+        <td><code></code></td>
+        <td>Path to a CSV-file containing geo-coordinates associated with measurements accordingto BEAM CSV format
+            specification
+        </td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><code>windowSize</code></td>
+        <td><code>Integer</code></td>
+        <td><code>1</code></td>
+        <td>Side length of surrounding window (uneven)</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><code>outputDir</code></td>
+        <td><code>File</code></td>
+        <td><code></code></td>
+        <td>The output directory.</td>
+        <td>not null</td>
+    </tr>
+    <tr>
+        <td><code>outputFilePrefix</code></td>
+        <td><code>String</code></td>
+        <td><code>pixEx</code></td>
+        <td>The prefix is used to name the output files.</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><code>expression</code></td>
+        <td><code>String</code></td>
+        <td><code></code></td>
+        <td>Band maths expression (optional). Defines valid pixels.</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><code>exportExpressionResult</code></td>
+        <td><code>Boolean</code></td>
+        <td><code>true</code></td>
+        <td>If true, the expression result is exported per pixel, otherwise the expression
+            is used as filter (all pixels in given window must be valid).
+        </td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><code>aggregatorStrategyType</code></td>
+        <td><code>String</code></td>
+        <td><code>no aggregation</code></td>
+        <td>If the window size is larger than 1, this parameter describes by which method a single
+            value shall be derived from the pixels.
+        </td>
+        <td>value set: [min, max, mean, median, no aggregation]</td>
+    </tr>
+    <tr>
+        <td><code>exportSubScenes</code></td>
+        <td><code>boolean</code></td>
+        <td><code>false</code></td>
+        <td>If set to true, sub-scenes of the regions, where pixels are found, are exported.</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><code>subSceneBorderSize</code></td>
+        <td><code>int</code></td>
+        <td><code>0</code></td>
+        <td>An additional border around the region where pixels are found.</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><code>exportKmz</code></td>
+        <td><code>boolean</code></td>
+        <td><code>false</code></td>
+        <td>If set to true, a Google KMZ file will be created, which contains the coordinates where pixels are found.
+        </td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><code>extractTimeFromFilename</code></td>
+        <td><code>boolean</code></td>
+        <td><code>false</code></td>
+        <td>If set to true, the sensing start and sensing stop should be extracted from the filename of each input
+            product.
+        </td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><code>dateInterpretationPattern</code></td>
+        <td><code>String</code></td>
+        <td><code>yyyyMMdd</code></td>
+        <td>Describes how a date/time section inside a product filename should be interpreted. E.G. yyyyMMdd_hhmmss</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><code>filenameInterpretationPattern</code></td>
+        <td><code>String</code></td>
+        <td><code>*${startDate}*${endDate}*</code></td>
+        <td>Describes how the filename of a product should be interpreted.</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><code>includeOriginalInput</code></td>
+        <td><code>boolean</code></td>
+        <td><code>false</code></td>
+        <td>Determines if the original input measurements shall be included in the output.</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><code>scatterPlotVariableCombinations</code></td>
+        <td><code>VariableCombination[]</code></td>
+        <td><code></code></td>
+        <td>Array of 2-tuples of variable names; for each of these tuples a scatter plot will be exported.</td>
+        <td></td>
+    </tr>
 </table>
 <hr/>
 </body>

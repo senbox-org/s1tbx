@@ -100,7 +100,7 @@ import static java.lang.Math.*;
 /**
  * This operator is used to extract pixels from given locations and source products.
  * It can also create sub-scenes containing all locations found in the source products and create
- * KMZ files which contain the locations found in a source product
+ * KMZ files which contain the locations found in a source product.
  *
  * @author Marco Peters, Thomas Storm, Sabine Embacher
  * @since BEAM 4.9
@@ -122,7 +122,7 @@ public class PixExOp extends Operator implements Output {
     public static final String MAX_AGGREGATION = "max";
     public static final String MEDIAN_AGGREGATION = "median";
 
-    @SourceProducts()
+    @SourceProducts(description = "The source products from which pixels shall be extracted.")
     private Product[] sourceProducts;
 
     @TargetProperty()

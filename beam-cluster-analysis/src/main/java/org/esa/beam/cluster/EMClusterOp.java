@@ -52,14 +52,14 @@ public class EMClusterOp extends Operator {
 
     private static final int NO_DATA_VALUE = 0xFF;
 
-    @SourceProduct(alias = "source", label = "Source product")
+    @SourceProduct(alias = "source", label = "Source product", description = "The source product")
     private Product sourceProduct;
     @TargetProduct
     private Product targetProduct;
 
-    @Parameter(label = "Number of clusters", defaultValue = "14", interval = "(0,100]")
+    @Parameter(label = "Number of clusters", description = "Number of clusters", defaultValue = "14", interval = "(0,100]")
     private int clusterCount;
-    @Parameter(label = "Number of iterations", defaultValue = "30", interval = "(0,10000]")
+    @Parameter(label = "Number of iterations", description = "Number of iterations", defaultValue = "30", interval = "(0,10000]")
     private int iterationCount;
     @Parameter(label = "Random seed", defaultValue = "31415",
                description = "Seed for the random generator, used for initialising the algorithm.")

@@ -68,6 +68,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * Creates a mosaic out of a set of source products.
+ *
  * @author Marco Peters
  * @since BEAM 4.7
  */

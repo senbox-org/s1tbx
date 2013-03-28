@@ -9,59 +9,72 @@
     <tr class="header">
         <td class="header">&nbsp;Meris.N1Patcher Operator</td>
         <td class="header" align="right">
-           <a href="../general/BeamOverview.html">             <img src="images/BeamHeader.jpg" border="0"/></a>
+            <a href="../general/BeamOverview.html"> <img src="images/BeamHeader.jpg" border="0"/></a>
         </td>
     </tr>
 </table>
 <h1>Meris.N1Patcher Operator Description</h1>
+
 <h2>Overview</h2>
 <table>
-  <tr><td><b>Name:</b></td><td><code>Meris.N1Patcher</code></td></tr>
-  <tr><td><b>Full name:</b></td><td><code>org.esa.beam.gpf.operators.meris.N1PatcherOp</code></td></tr>
-  <tr><td><b>Purpose:</b></td><td>Copies an existing N1 file and replaces the data for the radiance bands</td></tr>
-  <tr><td><b>Version:</b></td><td>1.1</td></tr>
+    <tr>
+        <td><b>Name:</b></td>
+        <td><code>Meris.N1Patcher</code></td>
+    </tr>
+    <tr>
+        <td><b>Full name:</b></td>
+        <td><code>org.esa.beam.gpf.operators.meris.N1PatcherOp</code></td>
+    </tr>
+    <tr>
+        <td><b>Purpose:</b></td>
+        <td>Copies an existing N1 file and replaces the data for the radiance bands</td>
+    </tr>
+    <tr>
+        <td><b>Version:</b></td>
+        <td>1.1</td>
+    </tr>
 </table>
 <h2>Description</h2>
 The <code>N1PatcherOp</code> copies an existing N1 file
- and replaces the data for the radiance band with the data
- from the given product
- <p/>
- Configuration Elements:
- <ul>
- <li><b>originalFilePath</b> the path of the N1 file that should be patched
- <li><b>patchFilePath</b> the path for the patched file
- </ul>
+and replaces the data for the radiance band with the data
+from the given product
+<p/>
+Configuration Elements:
+<ul>
+    <li><b>originalFilePath</b> the path of the N1 file that should be patched
+    <li><b>patchFilePath</b> the path for the patched file
+</ul>
 <h2>Sources</h2>
 <table>
-<tr>
-  <th>Name</th>
-  <th>Description</th>
-</tr>
-<tr>
-  <td><code>n1Product</code></td>
-  <td>The N1 file which is used as a template.</td>
-</tr>
-<tr>
-  <td><code>sourceProduct</code></td>
-  <td>The source product provides the data to be written into the patched file.</td>
-</tr>
+    <tr>
+        <th>Name</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td><code>n1Product</code></td>
+        <td>The N1 file which is used as a template.</td>
+    </tr>
+    <tr>
+        <td><code>sourceProduct</code></td>
+        <td>The source product provides the data to be written into the patched file.</td>
+    </tr>
 </table>
 <h2>Parameters</h2>
 <table>
-<tr>
-  <th>Name</th>
-  <th>Data Type</th>
-  <th>Default</th>
-  <th>Description</th>
-  <th>Constraints</th>
-</tr>
-<tr>
-  <td><code>patchedFile</code></td>
-  <td><code>File</code></td>
-  <td><code></code></td>
-  <td>The file to which the patched L1b product is written.</td>
-  <td>not null; non empty</td>
-</tr>
+    <tr>
+        <th>Name</th>
+        <th>Data Type</th>
+        <th>Default</th>
+        <th>Description</th>
+        <th>Constraints</th>
+    </tr>
+    <tr>
+        <td><code>patchedFile</code></td>
+        <td><code>File</code></td>
+        <td><code></code></td>
+        <td>The file to which the patched L1b product is written.</td>
+        <td>not null; non empty</td>
+    </tr>
 </table>
 <hr/>
 </body>
