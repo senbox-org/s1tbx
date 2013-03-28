@@ -792,11 +792,14 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
 
 
     /**
-     * Gets the raster data for this dataset. If the data has'nt been loaded so far the method returns
+     * Gets the raster data for this dataset. If the data hasn't been loaded so far the method returns
      * <code>null</code>.
      *
      * @return the raster data for this band, or <code>null</code> if data has not been loaded
+     * @deprecated Since BEAM 4.11. Use {@link #getSourceImage()} or the various {@link #readPixels readPixels()}
+     *  method variants to retrieve or read raster data.
      */
+    @Deprecated
     public ProductData getRasterData() {
         return getData();
     }
@@ -811,7 +814,10 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @param rasterData the raster data for this dataset
      *
      * @see #getRasterData()
+     * @deprecated Since BEAM 4.11. Use {@link #setSourceImage setSourceImage()} or the various {@link #writePixels readPixels()}
+     *  method variants to set or write raster data.
      */
+    @Deprecated
     public void setRasterData(ProductData rasterData) {
         setData(rasterData);
     }
