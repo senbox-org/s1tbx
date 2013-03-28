@@ -15,6 +15,18 @@
  */
 package org.esa.beam.framework.processor;
 
+import com.bc.jexp.ParseException;
+import com.bc.jexp.Term;
+import org.esa.beam.dataio.dimap.DimapProductConstants;
+import org.esa.beam.framework.dataio.ProductIO;
+import org.esa.beam.framework.dataio.ProductWriter;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.param.Parameter;
+import org.esa.beam.util.Guardian;
+import org.esa.beam.util.io.FileUtils;
+import org.esa.beam.util.logging.BeamLogManager;
+import org.esa.beam.util.logging.CacheHandler;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.logging.FileHandler;
@@ -22,23 +34,13 @@ import java.util.logging.Formatter;
 import java.util.logging.Handler;
 import java.util.logging.Logger;
 
-import org.esa.beam.dataio.dimap.DimapProductConstants;
-import org.esa.beam.framework.dataio.ProductIO;
-import org.esa.beam.framework.dataio.ProductWriter;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.param.Parameter;
-import org.esa.beam.util.io.FileUtils;
-import org.esa.beam.util.logging.BeamLogManager;
-import org.esa.beam.util.logging.CacheHandler;
-import org.esa.beam.util.Guardian;
-
-import com.bc.jexp.ParseException;
-import com.bc.jexp.Term;
-
 /**
  * This class contains an assortment of convenience methods that may be useful when developing scientific processors
  * within the BEAM framework.
+ *
+ * @deprecated since BEAM 4.11. Use the {@link org.esa.beam.framework.gpf Graph Processing Framework} instead.
  */
+@Deprecated
 public class ProcessorUtils {
 
     private static Logger _logger = BeamLogManager.getSystemLogger();
@@ -49,7 +51,7 @@ public class ProcessorUtils {
      * supplied can interpret the expression.
      *
      * @param expression the expression string
-     * @param product       the product to interprete the expression
+     * @param product    the product to interprete the expression
      *
      * @return a validated term
      *
@@ -248,7 +250,7 @@ public class ProcessorUtils {
      * @return <code>null</code> if no filePath is given or filePath is empty
      */
     public static ProductRef createProductRef(String filePath, String fileFormat) {
-        if (filePath == null || filePath.trim().length()== 0) {
+        if (filePath == null || filePath.trim().length() == 0) {
             return null;
         }
 

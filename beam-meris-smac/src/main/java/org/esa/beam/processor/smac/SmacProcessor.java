@@ -48,7 +48,10 @@ import java.util.logging.Logger;
 
 /**
  * This is the main class for the SMAC scientific module.
+ *
+ * @deprecated since BEAM 4.11. No replacement.
  */
+@Deprecated
 public class SmacProcessor extends Processor {
 
     public static final String PROCESSOR_NAME = "BEAM SMAC Processor";

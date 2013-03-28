@@ -23,7 +23,10 @@ package org.esa.beam.framework.processor;
  * @see ProcessorStatusEvent
  * @see Processor#addProcessorStatusListener
  * @see Processor#removeProcessorStatusListener
+ *
+ * @deprecated since BEAM 4.11. Use the {@link org.esa.beam.framework.gpf Graph Processing Framework} instead.
  */
+@Deprecated
 public interface ProcessorStatusListener {
 
     /**

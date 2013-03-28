@@ -40,7 +40,10 @@ import java.util.logging.Logger;
  * Description of CloudProcessorUI
  *
  * @author Marco Peters
+ *
+ * @deprecated since BEAM 4.11. No replacement.
  */
+@Deprecated
 public class CloudProcessorUI extends AbstractProcessorUI {
 
     private JTabbedPane _tabbedPane;

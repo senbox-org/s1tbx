@@ -15,21 +15,23 @@
  */
 package org.esa.beam.framework.processor.ui;
 
-import java.awt.Font;
-import java.awt.GridLayout;
-
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-
 import org.esa.beam.framework.processor.Processor;
 import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.framework.ui.UIUtils;
+
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import java.awt.Font;
+import java.awt.GridLayout;
 
 /**
  * Provides basic implementations for some {@link ProcessorUI} methods.
  * Also adds the {@link #showAboutBox(org.esa.beam.framework.processor.Processor, String) showAboutBox()} method to the
  * {@link ProcessorUI} interface.
+ *
+ * @deprecated since BEAM 4.11. Use the {@link org.esa.beam.framework.gpf Graph Processing Framework} instead.
  */
+@Deprecated
 public abstract class AbstractProcessorUI implements ProcessorUI {
     private ProcessorApp _app;
 

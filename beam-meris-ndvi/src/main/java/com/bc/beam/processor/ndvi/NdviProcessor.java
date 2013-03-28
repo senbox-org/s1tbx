@@ -49,7 +49,10 @@ import java.util.logging.Logger;
  * The <code>NdviProcessor</code> implements all specific functionality to calculate a ndvi product from a given MERIS
  * product. This simple processor does not take any flags into account, it just calculates the ndvi over the whole
  * product.
+ *
+ * @deprecated since BEAM 4.11. No replacement.
  */
+@Deprecated
 public class NdviProcessor extends Processor {
 
     // Constants

@@ -15,8 +15,6 @@
  */
 package org.esa.beam.processor.cloud;
 
-import java.io.File;
-
 import org.esa.beam.framework.param.ParamProperties;
 import org.esa.beam.framework.param.ParamValidateException;
 import org.esa.beam.framework.param.Parameter;
@@ -25,11 +23,16 @@ import org.esa.beam.framework.processor.ProductRef;
 import org.esa.beam.framework.processor.RequestElementFactory;
 import org.esa.beam.framework.processor.RequestElementFactoryException;
 
+import java.io.File;
+
 /**
  * Description of CloudRequestElementFactory
  *
  * @author Marco Peters
+ *
+ * @deprecated since BEAM 4.11. No replacement.
  */
+@Deprecated
 public class CloudRequestElementFactory implements RequestElementFactory {
 
     private DefaultRequestElementFactory _defFactory = DefaultRequestElementFactory.getInstance();

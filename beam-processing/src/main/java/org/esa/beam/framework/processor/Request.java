@@ -24,7 +24,6 @@ import org.esa.beam.util.ObjectUtils;
 
 import java.io.File;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
@@ -37,7 +36,10 @@ import java.util.Vector;
  * A request can contain the following entities: <ul> <li>any number of input products</li> <li>any number of output
  * products</li> <li>any number logging file locations</li> <li>any number parameters</li> <li>a type string</li> <li>an
  * associated request file</li> </ul>
+ *
+ * @deprecated since BEAM 4.11. Use the {@link org.esa.beam.framework.gpf Graph Processing Framework} instead.
  */
+@Deprecated
 public class Request implements Serializable {
 
     public static final String METADATA_ELEM_NAME_PROCESSING_REQUEST = "processing_request";

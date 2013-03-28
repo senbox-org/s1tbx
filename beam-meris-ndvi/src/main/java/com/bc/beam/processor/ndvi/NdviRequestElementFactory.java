@@ -37,7 +37,10 @@ import java.util.Map;
  * @author Marco Peters
  * @author Norman Fomferra
  * @version $Revision$ $Date$
+ *
+ * @deprecated since BEAM 4.11. No replacement.
  */
+@Deprecated
 public class NdviRequestElementFactory implements RequestElementFactory {
 
 

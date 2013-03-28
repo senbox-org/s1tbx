@@ -25,7 +25,10 @@ import java.util.Vector;
  * The <code>ProductRef</code> class serves as a leightweight information conatiner for products. It contains three
  * fields: <ul> <li>an URL describing the product location, </li> <li>a file format string and</li> <li>a product type
  * identifier</li> </ul>
+ *
+ * @deprecated since BEAM 4.11. Use the {@link org.esa.beam.framework.gpf Graph Processing Framework} instead.
  */
+@Deprecated
 public class ProductRef implements Serializable {
 
     private File _file;
@@ -65,6 +68,7 @@ public class ProductRef implements Serializable {
         Guardian.assertNotNull("file", file);
         _file = file;
     }
+
     /**
      * Retrieves the file path of the product or <code>null</code> if no URL is set
      */
@@ -113,6 +117,7 @@ public class ProductRef implements Serializable {
      * Adds a component to the <code>ProductRef</code>. Creates the <code>Vector</code> if necessary.
      *
      * @param component the component to be added
+     *
      * @throws IllegalArgumentException
      */
     public void addComponent(ProductRef component) {
@@ -151,6 +156,7 @@ public class ProductRef implements Serializable {
      * Returns the component at given index or null if no components are set.
      *
      * @param index the component index
+     *
      * @throws ArrayIndexOutOfBoundsException if invalid index is supplied
      */
     public ProductRef getComponentAt(int index) {
