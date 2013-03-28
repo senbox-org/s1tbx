@@ -21,7 +21,6 @@
 <toc version="2.0" categoryclosedimage="folder" categoryopenimage="folder" topicimage="doc">
 
     <tocitem text="VISAT">
-        <tocitem text="Introduction" target="visat"/>
         <tocitem text="Tools">
             <tocitem text="Import and Export Tools">
                 <tocitem text="Export Pixels" target="pixelExtraction"/>
