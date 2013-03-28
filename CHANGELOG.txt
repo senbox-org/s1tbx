@@ -2,7 +2,7 @@
 
 This file contains all significant changes for each BEAM release.
 
-    o 29.03.2013: Version 4.11
+    o 28.03.2013: Version 4.11
     o 21.06.2012: Version 4.10.3
     o 09.05.2012: Version 4.10
     o 12.05.2011: Version 4.9
@@ -34,14 +34,15 @@ _____________________________________________________________________________
  Changes from 4.10.3 to 4.11
 _____________________________________________________________________________
 
-TODO - More prosa here before release
-o New Time Series Tool
- - Temp. Percentile Operator
-o New Binning
-o New OPeNDAP client
-o NetCDF4 writer
-o The support of the former mosaic processor has been abandon.
-
+BEAM 4.11 is a release featuring lots of new tools. The Time Series Tools has been included into BEAM, which allows users
+to create, inspect, and analyse time series of EO data. The new Temporal Percentile Operator has been introduced; it
+allows users to create multiple kinds of gap-filled percentile computations. The old binning has been replaced by a new
+one which adds a number of useful functions and aggregation methods. It is now possible to download data witihn BEAM using
+the novel OPeNDAP client which provides an easy interface to arbitrary OPeNDAP servers. BEAM 4.11 now allows to write
+NetCDF-4 data.
+Some outdated parts of the software have been dropped in order to keep it lean, such as the former mosaic processor,
+which has been fully replaced by a faster, more modern variant. Additionally, many changes in the API have been made
+that allow users to even better develop software on basis of BEAM.
 
 Complete list of BEAM 4.11 bug fixes and improvements
 
