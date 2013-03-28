@@ -38,7 +38,9 @@ import java.beans.PropertyChangeListener;
  * @see ParamProperties
  * @see ParamEditor
  * @see ParamValidator
+ * @deprecated since BEAM 4.11, use the {@link com.bc.ceres.binding Ceres Binding API} instead
  */
+@Deprecated
 public class Parameter {
 
     /**
