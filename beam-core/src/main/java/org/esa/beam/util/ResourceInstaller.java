@@ -77,7 +77,11 @@ public class ResourceInstaller {
                 FileOutputStream fos = null;
                 try {
                     is = resource.openStream();
-                    targetFile.getParentFile().mkdirs();
+                    File parentFile = targetFile.getParentFile();
+                    if (parentFile == null) {
+                        throw new IOException("Could not retrieve the parent directory of '" + targetFile.getAbsolutePath() + "'.");
+                    }
+                    parentFile.mkdirs();
                     targetFile.createNewFile();
                     fos = new FileOutputStream(targetFile);
                     byte[] bytes = new byte[1024 * 1024];
