@@ -1,7 +1,7 @@
 <project>
     <shortName>NEST</shortName>
     <fullName>NEST</fullName>
-    <version>5.0.3</version>
+    <version>5.0.5</version>
     <installerFilename>${product_shortname}-${product_version}-${platform_name}64-update.${platform_exec_suffix}</installerFilename>
     <licenseFile>../../../LICENSE.txt</licenseFile>
     <splashImage>../../main/bin/common/res/nest_splash.png</splashImage>
@@ -49,6 +49,9 @@
                         </distributionDirectory>
                         <distributionDirectory>
                             <origin>../../../target/nest-5.0-bin-win64.dir/modules</origin>
+                        </distributionDirectory>
+                        <distributionDirectory>
+                            <origin>../../../target/nest-5.0-bin-win64.dir/res</origin>
                         </distributionDirectory>
                     </distributionFileList>
                     <shortcutList>
