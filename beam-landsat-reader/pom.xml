@@ -41,7 +41,7 @@
         <dependency>
             <groupId>org.esa.beam</groupId>
             <artifactId>beam-geotiff</artifactId>
-            <version>1.2.2-SNAPSHOT</version>
+            <version>1.2.2</version>
             <scope>provided</scope>
         </dependency>
         <dependency>

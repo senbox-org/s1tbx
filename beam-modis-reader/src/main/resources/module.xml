@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-modis-reader</symbolicName>
-    <version>1.3</version>
+    <version>1.3.1</version>
     <name>MODIS (MOD,MXD,MYD) Product Reader</name>
 
 
@@ -58,11 +58,14 @@
             <name>MOD021KM High Quality</name>
             <red>log(1 + 0.04 * EV_1KM_RefSB.8 + 0.35 * EV_1KM_RefSB.9 + 0.03 * EV_1KM_RefSB.10 + 0.17 * EV_1KM_RefSB.11
                 + 0.43 * EV_1KM_RefSB.12 + 1.00 * EV_1KM_RefSB.13lo + 0.13 * EV_1KM_RefSB.14lo + 0.05 *
-                EV_1KM_RefSB.15)</red>
+                EV_1KM_RefSB.15)
+            </red>
             <green>log(1 + 0.02 * EV_1KM_RefSB.9 + 0.21 * EV_1KM_RefSB.10 + 0.86 * EV_1KM_RefSB.11 + 1.00 *
-                EV_1KM_RefSB.12 + 0.38 * EV_1KM_RefSB.13lo + 0.04 * EV_1KM_RefSB.14lo + 0.02 * EV_1KM_RefSB.15)</green>
+                EV_1KM_RefSB.12 + 0.38 * EV_1KM_RefSB.13lo + 0.04 * EV_1KM_RefSB.14lo + 0.02 * EV_1KM_RefSB.15)
+            </green>
             <blue>log(1 + 0.21 * EV_1KM_RefSB.8 + 1.75 * EV_1KM_RefSB.9 + 0.47 * EV_1KM_RefSB.10 + 0.04 *
-                EV_1KM_RefSB.11 + 0.01 * EV_1KM_RefSB.12)</blue>
+                EV_1KM_RefSB.11 + 0.01 * EV_1KM_RefSB.12)
+            </blue>
         </rgbProfile>
         <rgbProfile>
             <name>MOD021KM Night</name>

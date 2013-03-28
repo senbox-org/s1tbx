@@ -5,7 +5,7 @@
 <toc version="2.0" categoryclosedimage="folder" categoryopenimage="folder" topicimage="doc">
 
     <tocitem text="VISAT">
-        <tocitem text="BEAM OPeNDAP client" target="opendap-client"/>
+        <tocitem text="OPeNDAP Client" target="opendap-client"/>
     </tocitem>
 
 </toc>

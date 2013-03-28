@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-merisl3-reader</symbolicName>
-    <version>1.2.1</version>
+    <version>1.2.2</version>
     <name>MERIS Level-3 Product Reader</name>
 
     <description>A reader for MERIS Binned Level-3 (netCDF) data products.</description>

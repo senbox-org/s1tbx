@@ -12,7 +12,7 @@
 
     <artifactId>beam-time-series-tool</artifactId>
     <name>BEAM Time Series Tool</name>
-    <version>3.0-SNAPSHOT</version>
+    <version>3.0</version>
 
     <dependencies>
         <dependency>
