@@ -21,8 +21,11 @@ import com.bc.ceres.binding.dom.DefaultDomConverter;
 import com.bc.ceres.binding.dom.DefaultDomElement;
 import com.bc.ceres.binding.dom.DomElement;
 import com.bc.ceres.core.ProgressMonitor;
-import junit.framework.TestCase;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.CrsGeoCoding;
+import org.esa.beam.framework.datamodel.GeoCoding;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.annotations.ParameterDescriptorFactory;
@@ -31,33 +34,39 @@ import org.esa.beam.framework.gpf.graph.GraphIO;
 import org.esa.beam.framework.gpf.graph.Node;
 import org.esa.beam.util.io.FileUtils;
 import org.geotools.referencing.CRS;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
-import java.awt.*;
+import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-public class BandMathsOpTest extends TestCase {
+public class BandMathsOpTest {
 
     private OperatorSpi bandMathsSpi;
     private ReadOp.Spi readSpi;
 
-    @Override
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         readSpi = new ReadOp.Spi();
         bandMathsSpi = new BandMathsOp.Spi();
         GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(readSpi);
         GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(bandMathsSpi);
     }
 
-    @Override
-    protected void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
         GPF.getDefaultInstance().getOperatorSpiRegistry().removeOperatorSpi(bandMathsSpi);
         GPF.getDefaultInstance().getOperatorSpiRegistry().removeOperatorSpi(readSpi);
     }
 
+    @Test
     public void testSimplestCase() throws Exception {
         Map<String, Object> parameters = new HashMap<String, Object>();
         BandMathsOp.BandDescriptor[] bandDescriptors = new BandMathsOp.BandDescriptor[1];
@@ -66,55 +75,61 @@ public class BandMathsOpTest extends TestCase {
         Product sourceProduct = createTestProduct(4, 4);
         Product targetProduct = GPF.createProduct("BandMaths", parameters, sourceProduct);
 
-        assertNotNull(targetProduct);
+        Assert.assertNotNull(targetProduct);
         Band band = targetProduct.getBand("aBandName");
-        assertNotNull(band);
-        assertEquals("aDescription", band.getDescription());
-        assertEquals("bigUnits", band.getUnit());
-        assertEquals(ProductData.TYPE_FLOAT32, band.getDataType());
+        Assert.assertNotNull(band);
+        Assert.assertEquals("aDescription", band.getDescription());
+        Assert.assertEquals("bigUnits", band.getUnit());
+        Assert.assertEquals(ProductData.TYPE_FLOAT32, band.getDataType());
 
         float[] floatValues = new float[16];
         band.readPixels(0, 0, 4, 4, floatValues, ProgressMonitor.NULL);
         float[] expectedValues = new float[16];
         Arrays.fill(expectedValues, 1.0f);
-        assertTrue(Arrays.equals(expectedValues, floatValues));
+        Assert.assertTrue(Arrays.equals(expectedValues, floatValues));
     }
 
+    @Test
     public void testGeoCodingIsCopied() throws Exception {
         Map<String, Object> parameters = new HashMap<String, Object>();
         BandMathsOp.BandDescriptor[] bandDescriptors = new BandMathsOp.BandDescriptor[1];
         bandDescriptors[0] = createBandDescription("aBandName", "1.0", ProductData.TYPESTRING_UINT8, "simpleUnits");
         parameters.put("targetBands", bandDescriptors);
         Product sourceProduct = createTestProduct(4, 4);
-        final GeoCoding geoCoding = new CrsGeoCoding(CRS.decode("EPSG:32632"), new Rectangle(4, 4),
-                                                     new AffineTransform());
+        CoordinateReferenceSystem decode = CRS.decode("EPSG:32632");
+        Rectangle imageBounds = new Rectangle(4, 4);
+        AffineTransform imageToMap = new AffineTransform();
+        final GeoCoding geoCoding = new CrsGeoCoding(decode, imageBounds, imageToMap);
+
         sourceProduct.setGeoCoding(geoCoding);
         Product targetProduct = GPF.createProduct("BandMaths", parameters, sourceProduct);
 
-        assertNotNull(targetProduct);
-        assertNotNull(targetProduct.getGeoCoding());
+        Assert.assertNotNull(targetProduct);
+        Assert.assertNotNull(targetProduct.getGeoCoding());
     }
 
+    @Test
     public void testSimplestCaseWithFactoryMethod() throws Exception {
         Product sourceProduct = createTestProduct(4, 4);
 
         BandMathsOp bandMathsOp = BandMathsOp.createBooleanExpressionBand("band1 > 0", sourceProduct);
-        assertNotNull(bandMathsOp);
+        Assert.assertNotNull(bandMathsOp);
 
         Product targetProduct = bandMathsOp.getTargetProduct();
-        assertNotNull(targetProduct);
+        Assert.assertNotNull(targetProduct);
 
         Band band = targetProduct.getBandAt(0);
-        assertNotNull(band);
-        assertEquals(ProductData.TYPE_INT8, band.getDataType());
+        Assert.assertNotNull(band);
+        Assert.assertEquals(ProductData.TYPE_INT8, band.getDataType());
 
         int[] intValues = new int[16];
         band.readPixels(0, 0, 4, 4, intValues, ProgressMonitor.NULL);
         int[] expectedValues = new int[16];
         Arrays.fill(expectedValues, 1);
-        assertTrue(Arrays.equals(expectedValues, intValues));
+        Assert.assertTrue(Arrays.equals(expectedValues, intValues));
     }
 
+    @Test
     public void testScaledInputBand() throws Exception {
         Map<String, Object> parameters = new HashMap<String, Object>();
         BandMathsOp.BandDescriptor[] bandDescriptors = new BandMathsOp.BandDescriptor[1];
@@ -123,20 +138,21 @@ public class BandMathsOpTest extends TestCase {
         Product sourceProduct = createTestProduct(4, 4);
         Product targetProduct = GPF.createProduct("BandMaths", parameters, sourceProduct);
 
-        assertNotNull(targetProduct);
+        Assert.assertNotNull(targetProduct);
         Band band = targetProduct.getBand("aBandName");
-        assertNotNull(band);
-        assertEquals("aDescription", band.getDescription());
-        assertEquals("milliUnits", band.getUnit());
-        assertEquals(ProductData.TYPE_FLOAT32, band.getDataType());
+        Assert.assertNotNull(band);
+        Assert.assertEquals("aDescription", band.getDescription());
+        Assert.assertEquals("milliUnits", band.getUnit());
+        Assert.assertEquals(ProductData.TYPE_FLOAT32, band.getDataType());
 
         float[] floatValues = new float[16];
         band.readPixels(0, 0, 4, 4, floatValues, ProgressMonitor.NULL);
         float[] expectedValues = new float[16];
         Arrays.fill(expectedValues, 3.0f);
-        assertTrue(Arrays.equals(expectedValues, floatValues));
+        Assert.assertTrue(Arrays.equals(expectedValues, floatValues));
     }
 
+    @Test
     public void testTwoSourceBandsOneTargetBand() throws Exception {
         Product sourceProduct = createTestProduct(4, 4);
         Map<String, Object> parameters = new HashMap<String, Object>();
@@ -151,9 +167,10 @@ public class BandMathsOpTest extends TestCase {
         band.readPixels(0, 0, 4, 4, actualValues, ProgressMonitor.NULL);
         float[] expectedValues = new float[16];
         Arrays.fill(expectedValues, 3.5f);
-        assertTrue(Arrays.equals(expectedValues, actualValues));
+        Assert.assertTrue(Arrays.equals(expectedValues, actualValues));
     }
 
+    @Test
     public void testTwoSourceBandsTwoTargetBands() throws Exception {
         Product sourceProduct = createTestProduct(4, 4);
         Map<String, Object> parameters = new HashMap<String, Object>();
@@ -165,25 +182,26 @@ public class BandMathsOpTest extends TestCase {
         Product targetProduct = GPF.createProduct("BandMaths", parameters, sourceProduct);
         Band b1 = targetProduct.getBand("b1");
 
-        assertEquals("milliUnit", b1.getUnit());
+        Assert.assertEquals("milliUnit", b1.getUnit());
         b1.readRasterDataFully(ProgressMonitor.NULL);
-        assertTrue(b1.getRasterData().getElems() instanceof byte[]);
+        Assert.assertTrue(b1.getRasterData().getElems() instanceof byte[]);
         byte[] actualBooleanValues = (byte[]) b1.getRasterData().getElems();
         byte[] expectedBooleanValues = new byte[16];
         Arrays.fill(expectedBooleanValues, (byte) 0);
-        assertTrue(Arrays.equals(expectedBooleanValues, actualBooleanValues));
+        Assert.assertTrue(Arrays.equals(expectedBooleanValues, actualBooleanValues));
 
         Band b2 = targetProduct.getBand("b2");
 
-        assertEquals("maxiUnit", b2.getUnit());
+        Assert.assertEquals("maxiUnit", b2.getUnit());
         b2.readRasterDataFully(ProgressMonitor.NULL);
-        assertTrue(b2.getRasterData().getElems() instanceof int[]);
+        Assert.assertTrue(b2.getRasterData().getElems() instanceof int[]);
         int[] actualIntValues = (int[]) b2.getRasterData().getElems();
         int[] expectedIntValues = new int[16];
         Arrays.fill(expectedIntValues, 6);
-        assertTrue(Arrays.equals(expectedIntValues, actualIntValues));
+        Assert.assertTrue(Arrays.equals(expectedIntValues, actualIntValues));
     }
 
+    @Test
     public void testTwoSourceProductsOneTargetBand() throws Exception {
         Product sourceProduct1 = createTestProduct(4, 4);
         Product sourceProduct2 = createTestProduct(4, 4);
@@ -201,9 +219,10 @@ public class BandMathsOpTest extends TestCase {
         band.readPixels(0, 0, 4, 4, actualValues, ProgressMonitor.NULL);
         float[] expectedValues = new float[16];
         Arrays.fill(expectedValues, 3.5f);
-        assertTrue(Arrays.equals(expectedValues, actualValues));
+        Assert.assertTrue(Arrays.equals(expectedValues, actualValues));
     }
 
+    @Test
     public void testGraph() throws Exception {
         HashMap<String, Object> parameterMap = new HashMap<String, Object>();
         Class<BandMathsOp> opType = BandMathsOp.class;
@@ -214,38 +233,38 @@ public class BandMathsOpTest extends TestCase {
         ParameterDescriptorFactory parameterDescriptorFactory = new ParameterDescriptorFactory();
 
         PropertySet parameterSet = PropertyContainer.createMapBacked(parameterMap, opType, parameterDescriptorFactory);
-        assertNotNull(parameterSet.getProperty("targetBands"));
-        assertNull(parameterSet.getProperty("targetBands").getValue());
-        assertNotNull(parameterSet.getProperty("variables"));
-        assertNull(parameterSet.getProperty("variables").getValue());
+        Assert.assertNotNull(parameterSet.getProperty("targetBands"));
+        Assert.assertNull(parameterSet.getProperty("targetBands").getValue());
+        Assert.assertNotNull(parameterSet.getProperty("variables"));
+        Assert.assertNull(parameterSet.getProperty("variables").getValue());
 
         DefaultDomConverter domConverter = new DefaultDomConverter(opType, parameterDescriptorFactory);
         domConverter.convertDomToValue(configurationDomElement, parameterSet);
-        assertNotNull(parameterSet.getProperty("targetBands"));
-        assertNotNull(parameterSet.getProperty("targetBands").getValue());
-        assertNotNull(parameterSet.getProperty("variables"));
-        assertNotNull(parameterSet.getProperty("variables").getValue());
+        Assert.assertNotNull(parameterSet.getProperty("targetBands"));
+        Assert.assertNotNull(parameterSet.getProperty("targetBands").getValue());
+        Assert.assertNotNull(parameterSet.getProperty("variables"));
+        Assert.assertNotNull(parameterSet.getProperty("variables").getValue());
 
         Object targetBandsObj = parameterSet.getProperty("targetBands").getValue();
-        assertTrue(targetBandsObj instanceof BandMathsOp.BandDescriptor[]);
+        Assert.assertTrue(targetBandsObj instanceof BandMathsOp.BandDescriptor[]);
         BandMathsOp.BandDescriptor[] targetBands = (BandMathsOp.BandDescriptor[]) targetBandsObj;
-        assertEquals(2, targetBands.length);
-        assertEquals("reflec_13", targetBands[0].name);
-        assertEquals("reflec_14", targetBands[1].name);
+        Assert.assertEquals(2, targetBands.length);
+        Assert.assertEquals("reflec_13", targetBands[0].name);
+        Assert.assertEquals("reflec_14", targetBands[1].name);
 
         Object variablesObj = parameterSet.getProperty("variables").getValue();
-        assertTrue(variablesObj instanceof BandMathsOp.Variable[]);
+        Assert.assertTrue(variablesObj instanceof BandMathsOp.Variable[]);
         BandMathsOp.Variable[] variables = (BandMathsOp.Variable[]) variablesObj;
-        assertEquals(3, variables.length);
-        assertEquals("SOLAR_FLUX_13", variables[0].name);
-        assertEquals("SOLAR_FLUX_14", variables[1].name);
-        assertEquals("PI", variables[2].name);
+        Assert.assertEquals(3, variables.length);
+        Assert.assertEquals("SOLAR_FLUX_13", variables[0].name);
+        Assert.assertEquals("SOLAR_FLUX_14", variables[1].name);
+        Assert.assertEquals("PI", variables[2].name);
 
         InputStreamReader inputStreamReader = new InputStreamReader(getClass().getResourceAsStream("BandMathsOpParameters.xml"));
         String expectedXML = FileUtils.readText(inputStreamReader).trim();
         DefaultDomElement bibo = new DefaultDomElement("bibo");
         domConverter.convertValueToDom(parameterSet, bibo);
-        assertEquals(expectedXML, bibo.toXml().trim());
+        Assert.assertEquals(expectedXML, bibo.toXml().trim());
     }
 
     private static BandMathsOp.BandDescriptor createBandDescription(String bandName, String expression, String type, String unit) {
