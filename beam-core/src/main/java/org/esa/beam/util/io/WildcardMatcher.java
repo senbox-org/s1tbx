@@ -17,8 +17,8 @@ import java.util.regex.Pattern;
  * However, no tilde expansion is done.
  *
  * @author Norman Fomferra
- * @since BEAM 4.10
  * @see <a href="http://ant.apache.org/manual/dirtasks.html#patterns">Patterns</a> in the Ant documentation
+ * @since BEAM 4.10
  */
 public class WildcardMatcher {
 
@@ -45,61 +45,66 @@ public class WildcardMatcher {
     }
 
     public static void glob(String filePattern, Set<File> fileSet) throws IOException {
-        final File file = new File(filePattern);
-        if (file.exists()) {
-            fileSet.add(file.getCanonicalFile());
+        final File patternFile = new File(filePattern);
+        if (patternFile.exists()) {
+            fileSet.add(patternFile.getCanonicalFile());
             return;
         }
-        WildcardMatcher matcher = new WildcardMatcher(filePattern);
-        File dir;
-        int validPos;
-        if (file.isAbsolute()) {
-            String basePath = matcher.getBasePath(filePattern);
-            dir = new File(basePath).getCanonicalFile();
-            validPos = 0;
-        }   else {
-            dir = new File(".").getCanonicalFile();
-            validPos = dir.getPath().length() + 1; //  +1 to skip the trailing slash
+        boolean windowsOs = isWindowsOs();
+        String[] patternSplit = splitBasePath(filePattern, windowsOs);
+        String basePath = patternSplit[0];
+        String patternPath = patternSplit[1];
+        if (patternPath.isEmpty()) {
+            // no pattern given, but no file exist
+            return;
         }
-        collectFiles(matcher, validPos, dir, fileSet);
+        File canonicalBaseFile = new File(basePath).getCanonicalFile();
+
+        String newpattern = canonicalBaseFile.getPath() + "/" + patternPath;
+        WildcardMatcher matcher = new WildcardMatcher(newpattern);
+        collectFiles(matcher, canonicalBaseFile, fileSet);
+
     }
 
-    private static void collectFiles(WildcardMatcher matcher, int validPos, File dir, Set<File> fileSet) throws IOException {
+    private static void collectFiles(WildcardMatcher matcher,  File dir, Set<File> fileSet) throws IOException {
         File[] files = dir.listFiles();
         if (files == null) {
             throw new IOException(String.format("Failed to access directory '%s'", dir));
         }
         for (File file : files) {
-            String text;
-            if (validPos > 0) {
-                text = file.getPath().substring(validPos);
-            } else {
-                text = file.getPath();
-            }
-            if (matcher.matches(text)) {
+            if (matcher.matches(file.getCanonicalPath())) {
                 fileSet.add(file);
             }
             if (file.isDirectory()) {
-                collectFiles(matcher, validPos, file, fileSet);
+                collectFiles(matcher, file, fileSet);
             }
         }
     }
 
-    String getBasePath(String filePattern) {
-        if (isWindowsFs()) {
+    static String[] splitBasePath(String filePattern, boolean iswindows) {
+        if (iswindows) {
             filePattern = filePattern.replace("\\", "/");
         }
         String basePath = filePattern.startsWith("/") ? "/" : "";
         String[] parts = filePattern.split("/");
+        int firstPatternIndex = 0;
         for (int i = 0; i < parts.length && !containsWildcardChar(parts[i]); i++) {
             if (!parts[i].isEmpty()) {
                 basePath += parts[i];
                 if (i < parts.length - 1) {
                     basePath += "/";
                 }
+                firstPatternIndex = i + 1;
             }
         }
-        return new File(basePath).getPath();
+        String patterPath = "";
+        for (int i = firstPatternIndex; i < parts.length ; i++) {
+            patterPath += parts[i];
+            if (i < parts.length - 1) {
+                patterPath += "/";
+            }
+        }
+        return new String[] {basePath, patterPath};
     }
 
     private static boolean containsWildcardChar(String part) {

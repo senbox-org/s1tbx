@@ -5,8 +5,8 @@ import org.esa.beam.binning.PlanetaryGrid;
 /**
  * Thin wrapper around a {@code PlanetaryGrid} used to convert from BEAM row and bin indexes to the ones
  * used in SeaDAS. BEAM row and bin indexes are 0-based and increase from North to South (top down), while the
- * SeaDAS ones are 1-based and from South to North (bottom up). In both grids, columns indexes increase from East
- * to West (left to right).
+ * SeaDAS ones are 1-based and increase from South to North (bottom up). In both grids, columns indexes increase from West
+ * to East (left to right).
  *
  * @author Norman Fomferra
  */

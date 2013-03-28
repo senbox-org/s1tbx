@@ -56,6 +56,7 @@ public class ProductIO {
      * Gets a product reader for the given format name.
      *
      * @param formatName the product format name
+     *
      * @return a suitable product reader or <code>null</code> if none was found
      */
     public static ProductReader getProductReader(String formatName) {
@@ -72,18 +73,7 @@ public class ProductIO {
      * Gets an array of writer product file extensions for the given format name.
      *
      * @param formatName the format name
-     * @return an array of extensions or null if the format does not exist
-     * @deprecated since BEAM 4.9 due to typo in name, use {@link #getProductWriterExtensions(String)} instead.
-     */
-    @Deprecated
-    public static String[] getProducWritertExtensions(String formatName) {
-        return getProductWriterExtensions(formatName);
-    }
-
-    /**
-     * Gets an array of writer product file extensions for the given format name.
      *
-     * @param formatName the format name
      * @return an array of extensions or null if the format does not exist
      */
     public static String[] getProductWriterExtensions(String formatName) {
@@ -100,6 +90,7 @@ public class ProductIO {
      * Gets a product writer for the given format name.
      *
      * @param formatName the product format name
+     *
      * @return a suitable product writer or <code>null</code> if none was found
      */
     public static ProductWriter getProductWriter(String formatName) {
@@ -129,8 +120,10 @@ public class ProductIO {
      * @param file        the data product file
      * @param formatNames a list of product format names defining the preference, if more than one reader
      *                    found in the registry is capable of decoding the file.
+     *
      * @return a data model as an in-memory representation of the given product file or <code>null</code>,
      *         if no appropriate reader was found for the given product file
+     *
      * @throws IOException if an I/O error occurs
      * @see #readProduct(String)
      * @see #readProduct(File)
@@ -179,8 +172,10 @@ public class ProductIO {
      * for all bands in the product returned by this method.</p>
      *
      * @param filePath the data product file path
+     *
      * @return a data model as an in-memory representation of the given product file or <code>null</code> if no
      *         appropriate reader was found for the given product file
+     *
      * @throws IOException if an I/O error occurs
      * @see #readProduct(File)
      */
@@ -197,8 +192,10 @@ public class ProductIO {
      * for all bands in the product returned by this method.</p>
      *
      * @param file the data product file
+     *
      * @return a data model as an in-memory representation of the given product file or <code>null</code> if no
      *         appropriate reader was found for the given product file
+     *
      * @throws IOException if an I/O error occurs
      * @see #readProduct(String)
      */
@@ -222,7 +219,9 @@ public class ProductIO {
      * Returns a product reader instance for the given file if any registered product reader can decode the given file.
      *
      * @param file the file to decode.
+     *
      * @return a product reader for the given file or <code>null</code> if the file cannot be decoded.
+     *
      * @deprecated Since BEAM 4.10. Use {@link #getProductReaderForInput(Object)} instead.
      */
     @Deprecated
@@ -239,8 +238,10 @@ public class ProductIO {
      * {@code File} value. Some readers may also directly support an {@link javax.imageio.stream.ImageInputStream} object.
      *
      * @param input the input object.
+     *
      * @return a product reader for the given {@code input} or {@code null} if no registered reader can handle
      *         the it.
+     *
      * @see ProductReaderPlugIn#getDecodeQualification(Object)
      * @see ProductReader#readProductNodes(Object, ProductSubsetDef)
      */
@@ -276,6 +277,7 @@ public class ProductIO {
      * @param filePath   the file path
      * @param formatName the name of a supported product format, e.g. "HDF5". If <code>null</code>, the default format
      *                   "BEAM-DIMAP" will be used
+     *
      * @throws IOException if an IOException occurs
      */
     public static void writeProduct(Product product,
@@ -297,6 +299,7 @@ public class ProductIO {
      * @param formatName the name of a supported product format, e.g. "HDF5". If <code>null</code>, the default format
      *                   "BEAM-DIMAP" will be used
      * @param pm         a monitor to inform the user about progress
+     *
      * @throws IOException if an IOException occurs
      */
     public static void writeProduct(Product product,
@@ -319,6 +322,7 @@ public class ProductIO {
      * @param formatName  the name of a supported product format, e.g. "HDF5". If <code>null</code>, the default format
      *                    "BEAM-DIMAP" will be used
      * @param incremental switch the product writer in incremental mode or not.
+     *
      * @throws IOException if an IOException occurs
      */
     public static void writeProduct(Product product,
@@ -342,6 +346,7 @@ public class ProductIO {
      *                    "BEAM-DIMAP" will be used
      * @param incremental switch the product writer in incremental mode or not.
      * @param pm          a monitor to inform the user about progress
+     *
      * @throws IOException if an IOException occurs
      */
     public static void writeProduct(Product product,

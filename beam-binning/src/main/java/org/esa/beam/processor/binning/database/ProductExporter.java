@@ -34,8 +34,8 @@ import org.esa.beam.framework.processor.ProcessorException;
 import org.esa.beam.framework.processor.ProcessorUtils;
 import org.esa.beam.framework.processor.ProductRef;
 import org.esa.beam.processor.binning.L3Constants;
-import org.esa.beam.processor.binning.L3ProjectionRaster;
 import org.esa.beam.processor.binning.L3Context;
+import org.esa.beam.processor.binning.L3ProjectionRaster;
 import org.esa.beam.processor.binning.algorithm.Algorithm;
 import org.esa.beam.util.io.FileUtils;
 
@@ -43,11 +43,12 @@ import java.awt.Point;
 import java.awt.geom.Rectangle2D;
 import java.io.IOException;
 import java.util.logging.Logger;
-import java.util.List;
-import java.util.ArrayList;
 
+@Deprecated
 /**
  * Export a TemporalBinDatabse into a product.
+ *
+ * @Deprecated since beam-binning 2.1.2 as part of the BEAM 4.11-release. Use module 'beam-binning2' instead.
  */
 public class ProductExporter {
 

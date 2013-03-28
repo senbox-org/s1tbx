@@ -19,8 +19,10 @@ import org.esa.beam.util.Guardian;
 
 /**
  * Implements the SMAC algorithm as specified by the original source code of H.Rahman and G.Dedieu.
+ *
+ * @deprecated since BEAM 4.11. No replacement.
  */
-
+@Deprecated
 final class SmacAlgorithm {
 
     private static final double _cdr = Math.PI / 180.0;

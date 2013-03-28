@@ -321,9 +321,13 @@ public class BinnedProductReader extends AbstractProductReader {
     }
 
     private int[] getXValuesForBin(int binIndexInGrid, int row) {
-        final int numberOfBinsInRow = planetaryGrid.getNumCols(row);
-        final int firstBinIndex = (int) planetaryGrid.getFirstBinIndex(row);
-        final double binIndexInRow = binIndexInGrid - firstBinIndex;
+        int numberOfBinsInRow = planetaryGrid.getNumCols(row);
+        int firstBinIndex = (int) planetaryGrid.getFirstBinIndex(row);
+        if (firstBinIndex >= binIndexInGrid) {
+            numberOfBinsInRow = planetaryGrid.getNumCols(row - 1);
+            firstBinIndex = (int) planetaryGrid.getFirstBinIndex(row -1) + 1;
+        }
+        double binIndexInRow = binIndexInGrid - firstBinIndex;
         final double longitudeExtent = 360.0 / numberOfBinsInRow;
         final double smallestLongitude = binIndexInRow * longitudeExtent;
         final double largestLongitude = smallestLongitude + longitudeExtent;

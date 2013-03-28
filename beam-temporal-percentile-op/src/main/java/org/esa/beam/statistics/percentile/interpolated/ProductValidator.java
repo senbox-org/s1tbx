@@ -15,10 +15,12 @@ public class ProductValidator {
     private final Area targetArea;
     private final String sourceBandName;
     private final String bandMathExpression;
+    private final String validPixelExpression;
 
-    public ProductValidator(String sourceBandName, String bandMathExpression, ProductData.UTC startDate, ProductData.UTC endDate, Area targetArea, Logger logger) {
+    public ProductValidator(String sourceBandName, String bandMathExpression, String validPixelExpression, ProductData.UTC startDate, ProductData.UTC endDate, Area targetArea, Logger logger) {
         this.sourceBandName = sourceBandName;
         this.bandMathExpression = bandMathExpression;
+        this.validPixelExpression = validPixelExpression;
         this.startDate = startDate;
         this.endDate = endDate;
         this.logger = logger;
@@ -61,14 +63,20 @@ public class ProductValidator {
                 logSkipped("The product '" + product.getName() + "' does not contain the band '" + sourceBandName + "'.");
                 return false;
             }
-            return true;
         } else {
             if (!product.isCompatibleBandArithmeticExpression(bandMathExpression)) {
                 logSkipped("'" + bandMathExpression + "' is not a compatible band arithmetic expression for product: '" + product.getName() + ".");
                 return false;
             }
-            return true;
         }
+        if (validPixelExpression != null && validPixelExpression.trim().length()>0) {
+            final String expression = validPixelExpression.trim();
+            if(!product.isCompatibleBandArithmeticExpression(expression)) {
+                logSkipped("'" + validPixelExpression + "' is not a compatible valid pixel expression for product: '" + product.getName() + ".");
+                return false;
+            }
+        }
+        return true;
     }
 
     private boolean isInDateRange(Product product) {

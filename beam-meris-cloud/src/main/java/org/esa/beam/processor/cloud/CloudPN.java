@@ -42,7 +42,10 @@ import java.util.logging.Logger;
 
 /**
  * A processing node to compute a cloud_probability mask using a neural network.
+ *
+ * @deprecated since BEAM 4.11. No replacement.
  */
+@Deprecated
 public class CloudPN extends ProcessingNode {
 
     public static final String CLOUD_AUXDATA_DIR_PROPERTY = "cloud.auxdata.dir";

@@ -2,13 +2,12 @@ package org.esa.beam.statistics.percentile.interpolated;
 
 import org.esa.beam.interpolators.InterpolatingFunction;
 import org.esa.beam.interpolators.Interpolator;
-import org.esa.beam.interpolators.InterpolatorFactory;
 
 import java.util.ArrayList;
 
 public class GapFiller {
 
-    public static void fillGaps(float[] interpolationFloats, final String interpolationMethod, final float startValueFallback, final float endValueFallback) {
+    public static void fillGaps(float[] interpolationFloats, final Interpolator interpolator, final float startValueFallback, final float endValueFallback) {
         fillStartAndEndWithFallback(interpolationFloats, startValueFallback, endValueFallback);
 
         ArrayList<Double> xList = new ArrayList<Double>();
@@ -30,11 +29,7 @@ public class GapFiller {
             ny[i] = yList.get(i);
         }
 
-        InterpolatingFunction interpolate = null;
-        Interpolator interpolator = InterpolatorFactory.createInterpolator(interpolationMethod);
-        if (interpolator != null) {
-            interpolate = interpolator.interpolate(nx, ny);
-        }
+        final InterpolatingFunction interpolate = interpolator.interpolate(nx, ny);
         for (int i = 0; i < interpolationFloats.length; i++) {
             interpolationFloats[i] = (float) interpolate.value(i);
         }

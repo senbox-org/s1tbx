@@ -16,19 +16,22 @@
  */
 package org.esa.beam.processor.binning.database;
 
-import java.awt.Point;
-import java.awt.Rectangle;
-
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.util.Guardian;
 
+import java.awt.Point;
+import java.awt.Rectangle;
+
+@Deprecated
 /**
+ *
  * Implementation of the BinLocator interface used for resampling.
  * Note: the resampling grid follows a Plate Carre (latlon) mapping
  * with the bounds falling at exact degrees east and north.
  *
  * @author T.H.G.Lankester, Infoterra Ltd.
  * @version 0.1, 26/04/05
+ * @Deprecated since beam-binning 2.1.2 as part of the BEAM 4.11-release. Use module 'beam-binning2' instead.
  */
 public class LatLonBinLocator implements BinLocator {
 

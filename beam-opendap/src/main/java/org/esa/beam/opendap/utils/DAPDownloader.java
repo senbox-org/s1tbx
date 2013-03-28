@@ -3,6 +3,7 @@ package org.esa.beam.opendap.utils;
 import com.bc.io.FileDownloader;
 import org.esa.beam.opendap.ui.OpendapAccessPanel;
 import org.esa.beam.util.StringUtils;
+import org.esa.beam.util.logging.BeamLogManager;
 import ucar.ma2.Array;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Attribute;
@@ -75,7 +76,14 @@ public class DAPDownloader {
     void writeNetcdfFile(File targetDir, String fileName, String constraintExpression, DODSNetcdfFile sourceNetcdfFile, boolean isLargeFile) throws IOException {
         final File file = new File(targetDir, fileName);
         if (StringUtils.isNullOrEmpty(constraintExpression)) {
-            FileWriter.writeToFile(sourceNetcdfFile, file.getAbsolutePath(), true, isLargeFile);
+            try {
+                FileWriter.writeToFile(sourceNetcdfFile, file.getAbsolutePath(), true, isLargeFile);
+            } catch (NullPointerException e) {
+                // this can happen when products have a string as fill value, which is not considered correct NetCDF but can be handled.
+                final String msg = String.format("Unable to store file '%s' in fill mode. Using non-fill mode as fallback.", sourceNetcdfFile.getLocation());
+                BeamLogManager.getSystemLogger().warning(msg);
+                FileWriter.writeToFile(sourceNetcdfFile, file.getAbsolutePath(), false, isLargeFile);
+            }
             if (!pm.isCanceled()) {
                 fileCountProvider.notifyFileDownloaded(file);
                 final int work = (int) (file.length() / 1024);
@@ -134,7 +142,7 @@ public class DAPDownloader {
                 targetNetCDF.write(NetcdfFile.escapeName(filteredVariable), origin, values);
             } catch (InvalidRangeException e) {
                 throw new IOException(MessageFormat.format("Unable to download variable ''{0}'' into file ''{1}''.",
-                                             filteredVariable, fileName), e);
+                                                           filteredVariable, fileName), e);
             }
         }
         targetNetCDF.close();

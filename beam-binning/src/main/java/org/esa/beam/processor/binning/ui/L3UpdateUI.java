@@ -38,9 +38,11 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-
+@Deprecated
 /**
  * Provides the user interface functionality for the Level 3 update processor.
+ *
+ * @Deprecated since beam-binning 2.1.2 as part of the BEAM 4.11-release. Use module 'beam-binning2' instead.
  */
 public class L3UpdateUI extends L3UI {
 

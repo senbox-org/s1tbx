@@ -42,7 +42,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * The product writer for the BEAM-DIMAP format.
@@ -56,11 +58,12 @@ import java.util.Map;
  */
 public class DimapProductWriter extends AbstractProductWriter {
 
-    private File _outputDir;
-    private File _outputFile;
-    private Map<Band, ImageOutputStream> _bandOutputStreams;
-    private File _dataOutputDir;
-    private boolean _incremental = true;
+    private File outputDir;
+    private File outputFile;
+    private Map<Band, ImageOutputStream> bandOutputStreams;
+    private File dataOutputDir;
+    private boolean incremental = true;
+    private Set<WriterExtender> writerExtenders;
 
     /**
      * Construct a new instance of a product writer for the given BEAM-DIMAP product writer plug-in.
@@ -75,14 +78,14 @@ public class DimapProductWriter extends AbstractProductWriter {
      * Returns the output directory of the product beeing written.
      */
     public File getOutputDir() {
-        return _outputDir;
+        return outputDir;
     }
 
     /**
      * Returns all band output streams opened so far.
      */
     public Map<Band, ImageOutputStream> getBandOutputStreams() {
-        return _bandOutputStreams;
+        return bandOutputStreams;
     }
 
     /**
@@ -106,6 +109,15 @@ public class DimapProductWriter extends AbstractProductWriter {
         initDirs(outputFile);
 
         ensureNamingConvention();
+        if (writerExtenders != null) {
+            for (WriterExtender dimapWriterExtender : writerExtenders) {
+                File parentFile = outputFile.getParentFile();
+                if (parentFile == null) {
+                    throw new IllegalStateException("Could not retrieve the parent directory of '" + outputFile.getAbsolutePath() + "'.");
+                }
+                dimapWriterExtender.intendToWriteDimapHeaderTo(parentFile, getSourceProduct());
+            }
+        }
         writeDimapDocument();
         writeVectorData();
         writeTiePointGrids();
@@ -120,32 +132,33 @@ public class DimapProductWriter extends AbstractProductWriter {
      * product file without an previous call to the saveProductNodes to this product writer.
      *
      * @param outputFile the dimap header file location.
+     *
      * @throws java.io.IOException if an I/O error occurs
      */
     public void initDirs(final File outputFile) throws IOException {
-        _outputFile = FileUtils.ensureExtension(outputFile, DimapProductConstants.DIMAP_HEADER_FILE_EXTENSION);
-        Debug.assertNotNull(_outputFile); // super.writeProductNodes should have checked this already
-        _outputDir = _outputFile.getParentFile();
-        if (_outputDir == null) {
-            _outputDir = new File(".");
+        this.outputFile = FileUtils.ensureExtension(outputFile, DimapProductConstants.DIMAP_HEADER_FILE_EXTENSION);
+        Debug.assertNotNull(this.outputFile); // super.writeProductNodes should have checked this already
+        outputDir = this.outputFile.getParentFile();
+        if (outputDir == null) {
+            outputDir = new File(".");
         }
-        _dataOutputDir = createDataOutputDir();
-        _dataOutputDir.mkdirs();
+        dataOutputDir = createDataOutputDir();
+        dataOutputDir.mkdirs();
 
-        if (!_dataOutputDir.exists()) {
-            throw new IOException("failed to create data output directory: " + _dataOutputDir.getPath()); /*I18N*/
+        if (!dataOutputDir.exists()) {
+            throw new IOException("failed to create data output directory: " + dataOutputDir.getPath()); /*I18N*/
         }
     }
 
     private File createDataOutputDir() {
-        return new File(_outputDir,
+        return new File(outputDir,
                         FileUtils.getFilenameWithoutExtension(
-                                _outputFile) + DimapProductConstants.DIMAP_DATA_DIRECTORY_EXTENSION);
+                                outputFile) + DimapProductConstants.DIMAP_DATA_DIRECTORY_EXTENSION);
     }
 
     private void ensureNamingConvention() {
-        if (_outputFile != null) {
-            getSourceProduct().setName(FileUtils.getFilenameWithoutExtension(_outputFile));
+        if (outputFile != null) {
+            getSourceProduct().setName(FileUtils.getFilenameWithoutExtension(outputFile));
         }
     }
 
@@ -166,7 +179,7 @@ public class DimapProductWriter extends AbstractProductWriter {
         checkSourceRegionInsideBandRegion(sourceWidth, sourceBandWidth, sourceHeight, sourceBandHeight, sourceOffsetX,
                                           sourceOffsetY);
         final ImageOutputStream outputStream = getOrCreateImageOutputStream(sourceBand);
-        long outputPos = (long)sourceOffsetY * sourceBandWidth + (long)sourceOffsetX;
+        long outputPos = (long) sourceOffsetY * sourceBandWidth + (long) sourceOffsetX;
         pm.beginTask("Writing band '" + sourceBand.getName() + "'...", sourceHeight);
         try {
             for (int sourcePos = 0; sourcePos < sourceHeight * sourceWidth; sourcePos += sourceWidth) {
@@ -189,12 +202,12 @@ public class DimapProductWriter extends AbstractProductWriter {
     public void deleteOutput() throws IOException {
         flush();
         close();
-        if (_outputFile != null && _outputFile.exists() && _outputFile.isFile()) {
-            _outputFile.delete();
+        if (outputFile != null && outputFile.exists() && outputFile.isFile()) {
+            outputFile.delete();
         }
 
-        if (_dataOutputDir != null && _dataOutputDir.exists() && _dataOutputDir.isDirectory()) {
-            FileUtils.deleteTree(_dataOutputDir);
+        if (dataOutputDir != null && dataOutputDir.exists() && dataOutputDir.isDirectory()) {
+            FileUtils.deleteTree(dataOutputDir);
         }
     }
 
@@ -220,10 +233,10 @@ public class DimapProductWriter extends AbstractProductWriter {
      */
     @Override
     public synchronized void flush() throws IOException {
-        if (_bandOutputStreams == null) {
+        if (bandOutputStreams == null) {
             return;
         }
-        for (ImageOutputStream imageOutputStream : _bandOutputStreams.values()) {
+        for (ImageOutputStream imageOutputStream : bandOutputStreams.values()) {
             imageOutputStream.flush();
         }
     }
@@ -235,25 +248,30 @@ public class DimapProductWriter extends AbstractProductWriter {
      */
     @Override
     public synchronized void close() throws IOException {
-        if (_bandOutputStreams == null) {
+        if (bandOutputStreams == null) {
             return;
         }
-        for (ImageOutputStream imageOutputStream : _bandOutputStreams.values()) {
+        for (ImageOutputStream imageOutputStream : bandOutputStreams.values()) {
             (imageOutputStream).close();
         }
-        _bandOutputStreams.clear();
-        _bandOutputStreams = null;
+        bandOutputStreams.clear();
+        bandOutputStreams = null;
+        if (writerExtenders != null) {
+            writerExtenders.clear();
+            writerExtenders = null;
+        }
     }
 
     private void writeDimapDocument() throws IOException {
+
         final DimapHeaderWriter writer = new DimapHeaderWriter(getSourceProduct(), getOutputFile(),
-                                                               _dataOutputDir.getName());
+                                                               dataOutputDir.getName());
         writer.writeHeader();
         writer.close();
     }
 
     private File getOutputFile() {
-        return _outputFile;
+        return outputFile;
     }
 
     private void writeTiePointGrids() throws IOException {
@@ -271,7 +289,7 @@ public class DimapProductWriter extends AbstractProductWriter {
     }
 
     private void ensureExistingTiePointGridDir() {
-        final File tiePointGridDir = new File(_dataOutputDir, DimapProductConstants.TIE_POINT_GRID_DIR_NAME);
+        final File tiePointGridDir = new File(dataOutputDir, DimapProductConstants.TIE_POINT_GRID_DIR_NAME);
         tiePointGridDir.mkdirs();
     }
 
@@ -284,17 +302,17 @@ public class DimapProductWriter extends AbstractProductWriter {
         ImageOutputStream outputStream = getImageOutputStream(band);
         if (outputStream == null) {
             outputStream = createImageOutputStream(band);
-            if (_bandOutputStreams == null) {
-                _bandOutputStreams = new HashMap<Band, ImageOutputStream>();
+            if (bandOutputStreams == null) {
+                bandOutputStreams = new HashMap<Band, ImageOutputStream>();
             }
-            _bandOutputStreams.put(band, outputStream);
+            bandOutputStreams.put(band, outputStream);
         }
         return outputStream;
     }
 
     private synchronized ImageOutputStream getImageOutputStream(Band band) {
-        if (_bandOutputStreams != null) {
-            return _bandOutputStreams.get(band);
+        if (bandOutputStreams != null) {
+            return bandOutputStreams.get(band);
         }
         return null;
     }
@@ -357,12 +375,12 @@ public class DimapProductWriter extends AbstractProductWriter {
 
     private static long getImageFileSize(RasterDataNode band) {
         return (long) ProductData.getElemSize(band.getDataType()) *
-                (long) band.getRasterWidth() *
-                (long) band.getRasterHeight();
+               (long) band.getRasterWidth() *
+               (long) band.getRasterHeight();
     }
 
     private File getEnviHeaderFile(Band band) {
-        return new File(_dataOutputDir, createEnviHeaderFilename(band));
+        return new File(dataOutputDir, createEnviHeaderFilename(band));
     }
 
     private static String createEnviHeaderFilename(Band band) {
@@ -370,12 +388,12 @@ public class DimapProductWriter extends AbstractProductWriter {
     }
 
     private File getEnviHeaderFile(TiePointGrid tiePointGrid) {
-        return new File(new File(_dataOutputDir, DimapProductConstants.TIE_POINT_GRID_DIR_NAME),
+        return new File(new File(dataOutputDir, DimapProductConstants.TIE_POINT_GRID_DIR_NAME),
                         tiePointGrid.getName() + EnviHeader.FILE_EXTENSION);
     }
 
     private File getImageFile(Band band) {
-        return new File(_dataOutputDir, createImageFilename(band));
+        return new File(dataOutputDir, createImageFilename(band));
     }
 
     private static String createImageFilename(Band band) {
@@ -383,7 +401,7 @@ public class DimapProductWriter extends AbstractProductWriter {
     }
 
     private File getImageFile(TiePointGrid tiePointGrid) {
-        return new File(new File(_dataOutputDir, DimapProductConstants.TIE_POINT_GRID_DIR_NAME),
+        return new File(new File(dataOutputDir, DimapProductConstants.TIE_POINT_GRID_DIR_NAME),
                         tiePointGrid.getName() + DimapProductConstants.IMAGE_FILE_EXTENSION);
     }
 
@@ -402,6 +420,14 @@ public class DimapProductWriter extends AbstractProductWriter {
 
     @Override
     public boolean shouldWrite(ProductNode node) {
+        if (writerExtenders != null) {
+            for (WriterExtender dimapWriterWriterExtender : writerExtenders) {
+                final boolean shouldWrite = dimapWriterWriterExtender.vetoableShouldWrite(node);
+                if (!shouldWrite) {
+                    return false;
+                }
+            }
+        }
         if (node instanceof VirtualBand) {
             return false;
         }
@@ -429,7 +455,7 @@ public class DimapProductWriter extends AbstractProductWriter {
      */
     @Override
     public void setIncrementalMode(boolean enabled) {
-        _incremental = enabled;
+        incremental = enabled;
     }
 
     /**
@@ -439,7 +465,7 @@ public class DimapProductWriter extends AbstractProductWriter {
      */
     @Override
     public boolean isIncrementalMode() {
-        return _incremental;
+        return incremental;
     }
 
     private void deleteRemovedNodes() throws IOException {
@@ -462,8 +488,8 @@ public class DimapProductWriter extends AbstractProductWriter {
             final String headerFilename = createEnviHeaderFilename(band);
             final String imageFilename = createImageFilename(band);
             File[] files = null;
-            if (_dataOutputDir != null && _dataOutputDir.exists()) {
-                files = _dataOutputDir.listFiles();
+            if (dataOutputDir != null && dataOutputDir.exists()) {
+                files = dataOutputDir.listFiles();
             }
             if (files == null) {
                 return;
@@ -481,7 +507,7 @@ public class DimapProductWriter extends AbstractProductWriter {
         Product product = getSourceProduct();
         ProductNodeGroup<VectorDataNode> vectorDataGroup = product.getVectorDataGroup();
 
-        File vectorDataDir = new File(_dataOutputDir, "vector_data");
+        File vectorDataDir = new File(dataOutputDir, "vector_data");
         if (vectorDataDir.exists()) {
             File[] files = vectorDataDir.listFiles();
             for (File file : files) {
@@ -505,6 +531,34 @@ public class DimapProductWriter extends AbstractProductWriter {
                                                                 vectorDataNode.getName() + VectorDataNodeIO.FILENAME_EXTENSION));
         } catch (IOException e) {
             BeamLogManager.getSystemLogger().throwing("DimapProductWriter", "writeVectorData", e);
+        }
+    }
+
+    public static abstract class WriterExtender {
+
+        /**
+         * Returns wether the given product node is to be written.
+         *
+         * @param node the product node
+         *
+         * @return <code>false</code> if the node should not be written
+         */
+        public abstract boolean vetoableShouldWrite(ProductNode node);
+
+        /**
+         * Notification to do preparations relative to output directory.
+         *
+         * @param outputDir the directory where the DIMAP header file should be written
+         */
+        public abstract void intendToWriteDimapHeaderTo(File outputDir, Product product);
+    }
+
+    public void addExtender(WriterExtender writerExtender) {
+        if (writerExtenders == null) {
+            writerExtenders = new HashSet<WriterExtender>();
+        }
+        if (writerExtender != null) {
+            writerExtenders.add(writerExtender);
         }
     }
 }

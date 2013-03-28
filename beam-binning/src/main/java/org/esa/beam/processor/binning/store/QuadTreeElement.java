@@ -19,6 +19,10 @@ import java.awt.Point;
 import java.io.IOException;
 import java.util.Vector;
 
+@Deprecated
+/**
+ * @Deprecated since beam-binning 2.1.2 as part of the BEAM 4.11-release. Use module 'beam-binning2' instead.
+ */
 interface QuadTreeElement {
 
     /**

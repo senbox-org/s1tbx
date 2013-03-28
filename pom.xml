@@ -198,6 +198,8 @@
                         <useFile>false</useFile>
                         <includes>
                             <include>**/*Test.java</include>
+                            <include>**/*Test*.java</include>
+                            <include>**/*TestCase.java</include>
                         </includes>
                         <systemProperties>
                             <property>

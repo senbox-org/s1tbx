@@ -34,6 +34,7 @@ import org.esa.beam.framework.datamodel.MetadataAttribute;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.ProductFilter;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
@@ -173,7 +174,6 @@ public class BinningOp extends Operator implements Output {
     File metadataTemplateDir;
 
     private transient BinningContext binningContext;
-    private transient final SpatialBinCollector spatialBinCollector;
     private transient int sourceProductCount;
     private transient ProductData.UTC minDateUtc;
     private transient ProductData.UTC maxDateUtc;
@@ -182,11 +182,6 @@ public class BinningOp extends Operator implements Output {
     private final Map<Product, List<Band>> addedBands;
 
     public BinningOp() throws OperatorException {
-        this(getBinCollector());
-    }
-
-    public BinningOp(SpatialBinCollector spatialBinCollector) {
-        this.spatialBinCollector = spatialBinCollector;
         addedBands = new HashMap<Product, List<Band>>();
     }
 
@@ -270,9 +265,14 @@ public class BinningOp extends Operator implements Output {
             SpatialBinCollection spatialBinMap = doSpatialBinning();
             if (!spatialBinMap.isEmpty()) {
                 // Step 2: Temporal binning - creates a list of temporal bins, sorted by bin ID
-                List<TemporalBin> temporalBins = doTemporalBinning(spatialBinMap);
+                TemporalBinList temporalBins = doTemporalBinning(spatialBinMap);
                 // Step 3: Formatting
-                writeOutput(temporalBins, startDateUtc, endDateUtc);
+                try {
+                    writeOutput(temporalBins, startDateUtc, endDateUtc);
+                } finally {
+                    temporalBins.close();
+
+                }
                 // TODO - Check efficiency of interface 'org.esa.beam.framework.gpf.experimental.Output'  (nf, 2012-03-02)
                 // actually, the following line of code would be sufficient, but then, the
                 // 'Output' interface implemented by this operator has no effect, because it already has a
@@ -336,14 +336,6 @@ public class BinningOp extends Operator implements Output {
         region = JTS.shapeToGeometry(area, new GeometryFactory());
     }
 
-    private static SpatialBinCollector getBinCollector() throws OperatorException {
-        try {
-            return new MapBackedSpatialBinCollector();
-        } catch (Exception e) {
-            throw new OperatorException(e.getMessage(), e);
-        }
-    }
-
     private void validateInput(ProductData.UTC startDateUtc, ProductData.UTC endDateUtc) {
         if (startDateUtc != null && endDateUtc != null && endDateUtc.getAsDate().before(startDateUtc.getAsDate())) {
             throw new OperatorException("End date '" + this.endDate + "' before start date '" + this.startDate + "'");
@@ -382,27 +374,17 @@ public class BinningOp extends Operator implements Output {
             return sourceProducts;
         }
 
-        final List<Product> acceptedByFilter = new ArrayList<Product>();
+        final List<Product> acceptedProductList = new ArrayList<Product>();
         for (Product sourceProduct : sourceProducts) {
-            final ProductData.UTC productStartTime = sourceProduct.getStartTime();
-            final ProductData.UTC productEndTime = sourceProduct.getEndTime();
-            final boolean hasStartTime = productStartTime != null;
-            final boolean hasEndTime = productEndTime != null;
-            if (hasStartTime && productStartTime.getAsDate().after(startTime.getAsDate())
-                && hasEndTime && productEndTime.getAsDate().before(endTime.getAsDate())) {
-                acceptedByFilter.add(sourceProduct);
-            } else if (!hasStartTime && !hasEndTime) {
-                acceptedByFilter.add(sourceProduct);
-            } else if (hasStartTime && productStartTime.getAsDate().after(startTime.getAsDate()) && !hasEndTime) {
-                acceptedByFilter.add(sourceProduct);
-            } else if (!hasStartTime && productEndTime.getAsDate().before(endTime.getAsDate())) {
-                acceptedByFilter.add(sourceProduct);
+            final ProductFilter filter = new SourceProductFilter(startTime, endTime);
+            if (filter.accept(sourceProduct)) {
+                acceptedProductList.add(sourceProduct);
             } else {
-                Debug.trace("Filtered out product '" + sourceProduct.getName() + "'");
+                Debug.trace("Filtered out product '" + sourceProduct.getName() + "'.");
                 sourceProduct.dispose();
             }
         }
-        return acceptedByFilter.toArray(new Product[acceptedByFilter.size()]);
+        return acceptedProductList.toArray(new Product[acceptedProductList.size()]);
     }
 
     private void cleanSourceProducts() {
@@ -526,6 +508,7 @@ public class BinningOp extends Operator implements Output {
     }
 
     private SpatialBinCollection doSpatialBinning() throws IOException {
+        SpatialBinCollector spatialBinCollector =  new GeneralSpatialBinCollector(binningContext.getPlanetaryGrid().getNumBins());
         final SpatialBinner spatialBinner = new SpatialBinner(binningContext, spatialBinCollector);
         if (sourceProducts != null) {
             for (Product sourceProduct : sourceProducts) {
@@ -573,13 +556,13 @@ public class BinningOp extends Operator implements Output {
         sourceProductCount++;
     }
 
-    private List<TemporalBin> doTemporalBinning(SpatialBinCollection spatialBinMap) throws IOException {
+    private TemporalBinList doTemporalBinning(SpatialBinCollection spatialBinMap) throws IOException {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
         long numberOfBins = spatialBinMap.size();
         final TemporalBinner temporalBinner = new TemporalBinner(binningContext);
-        final List<TemporalBin> temporalBins = new TemporalBinList((int) spatialBinMap.size());
+        final TemporalBinList temporalBins = new TemporalBinList((int) spatialBinMap.size());
         Iterable<List<SpatialBin>> spatialBinListCollection = spatialBinMap.getBinCollection();
         for (List<SpatialBin> spatialBinList : spatialBinListCollection) {
             SpatialBin spatialBin = spatialBinList.get(0);

@@ -41,7 +41,6 @@
         <module>../beam-meris-smac</module>
         <module>../beam-merisl3-reader</module>
         <module>../beam-modis-reader</module>
-        <module>../beam-mosaic</module>
         <module>../beam-netcdf</module>
         <module>../beam-obpg-reader</module>
         <module>../beam-opendap</module>
@@ -52,6 +51,7 @@
         <module>../beam-spot-vgt-reader</module>
         <module>../beam-statistics-op</module>
         <module>../beam-temporal-percentile-op</module>
+        <module>../beam-time-series-tool</module>
         <module>../beam-unmix</module>
         <module>../blue-marble-worldmap</module>
         <module>../globcover-worldmap</module>

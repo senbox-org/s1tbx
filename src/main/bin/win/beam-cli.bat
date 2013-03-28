@@ -7,10 +7,9 @@ echo.
 @echo The following command-line tools are available:
 @echo   gpt.bat            - General Graph Processing Tool
 @echo   pconvert.bat       - General product conversion and quicklook generation
-@echo   mapproj.bat        - General map projections (deprecated, use gpt.bat)
-@echo   mosaic.bat         - General level 3 mosaicing processor (deprecated, use gpt.bat)
 @echo   binning.bat        - General level 3 binning processor
 @echo   flhmci.bat         - General FLH / MCI processor
+echo "  meris-cloud.bat    - Envisat/MERIS cloud probability processor"
 @echo   meris-smac.bat     - Envisat/MERIS atmospheric correction (SMAC)
 @echo   aatsr-sst.bat      - Envisat/AATSR sea surface temperaure processor
 @echo   visat-d.bat        - VISAT application launcher for debugging

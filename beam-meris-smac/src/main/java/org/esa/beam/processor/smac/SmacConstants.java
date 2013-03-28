@@ -23,7 +23,10 @@ import org.esa.beam.util.SystemUtils;
 
 /**
  * Provides an interface defining all constants used with the SMAC processor.
+ *
+ * @deprecated since BEAM 4.11. No replacement.
  */
+@Deprecated
 public class SmacConstants implements ProcessorConstants {
 
     // the required request type

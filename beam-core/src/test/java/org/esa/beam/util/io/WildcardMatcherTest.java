@@ -353,4 +353,17 @@ public class WildcardMatcherTest {
         URL resource = WildcardMatcherTest.class.getResource("WildcardMatcherTest");
         return new File(resource.toURI()).getPath();
     }
+
+    @Test
+    public void testSplitBasePath() throws Exception {
+        assertArrayEquals(new String[]{"test.N1", ""}, WildcardMatcher.splitBasePath("test.N1", false));
+        assertArrayEquals(new String[]{"", "te?t.N1"}, WildcardMatcher.splitBasePath("te?t.N1", false));
+        assertArrayEquals(new String[]{"/home/norman/meris/data.nc", ""}, WildcardMatcher.splitBasePath("/home/norman/meris/data.nc", false));
+        assertArrayEquals(new String[]{"C:/Users/Norman/MERIS/data.nc", ""}, WildcardMatcher.splitBasePath("C:\\Users\\Norman\\MERIS\\data.nc", true));
+        assertArrayEquals(new String[]{"foo/", "*"}, WildcardMatcher.splitBasePath("foo/*", false));
+        assertArrayEquals(new String[]{"foo/", "*/test.txt"}, WildcardMatcher.splitBasePath("foo/*/test.txt", false));
+        assertArrayEquals(new String[]{"/foo/", "*/test.txt"}, WildcardMatcher.splitBasePath("/foo/*/test.txt", false));
+        assertArrayEquals(new String[]{"", "**/CVS/*"}, WildcardMatcher.splitBasePath("**/CVS/*", false));
+
+    }
 }

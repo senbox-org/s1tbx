@@ -42,7 +42,10 @@ import java.util.logging.Level;
 
 /**
  * The <code>CloudProcessor</code> implements all specific functionality to calculate a cloud probability.
+ *
+ * @deprecated since BEAM 4.11. No replacement.
  */
+@Deprecated
 public class CloudProcessor extends Processor {
 
     public static final String PROCESSOR_NAME = "Cloud Probability Processor";

@@ -48,6 +48,13 @@
     are at 2nd reprocessing quality. A method has been developed reverting the second reprocessing gains and applying
     the 3rd reprocessing gains, so that TOA radiances are comparable with the 3rd data.</p>
 
+<p>The gains of the 2nd and 3rd reprocessing are taken from MERIS auxiliary files RAC (RAdiometric Calibration) files.
+    The RAC files can be found at the following ESA websites:
+    <a href="http://earth.eo.esa.int/services/auxiliary_data/meris/_previous/">MERIS Auxiliary Data Files of 2nd
+        reprocessing</a>
+    <a href="http://earth.eo.esa.int/services/auxiliary_data/meris/">MERIS Auxiliary Data Files of 3nd reprocessing</a>
+</p>
+
 <p>The radiometric calibration as described below is a non-linear process including several steps. The radiometric
     gains are the second last step before the L1b are written. However, the last step is the stray light correction
     which is a non-linear process and not revertible from L1b product. The recalibration is therefore only an

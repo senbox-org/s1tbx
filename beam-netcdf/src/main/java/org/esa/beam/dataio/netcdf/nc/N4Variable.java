@@ -26,6 +26,8 @@ import ucar.ma2.DataType;
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * A wrapper around the netCDF 4 {@link edu.ucar.ral.nujan.netcdf.NhVariable}.
@@ -76,7 +78,10 @@ public class N4Variable implements NVariable {
     private void addAttributeImpl(String name, Object value, int type) throws IOException {
         name = name.replace('.', '_');
         try {
-            variable.addAttribute(name, type, value);
+            if (!variable.attributeExists(name)) {
+                //attributes can only bet set once
+                variable.addAttribute(name, type, value);
+            }
         } catch (NhException e) {
             throw new IOException(e);
         }
@@ -100,16 +105,28 @@ public class N4Variable implements NVariable {
         writer.write(x, y, width, height, data);
     }
 
-    ChunkWriter createWriter(boolean isYFlipped) {
+    private ChunkWriter createWriter(boolean isYFlipped) {
         NhDimension[] nhDimensions = variable.getDimensions();
         int sceneWidth = nhDimensions[1].getLength();
         int sceneHeight = nhDimensions[0].getLength();
         int chunkWidth = tileSize.width;
         int chunkHeight = tileSize.height;
-        return new ChunkWriter(sceneWidth, sceneHeight, chunkWidth, chunkHeight, isYFlipped) {
+        return new NetCDF4ChunkWriter(sceneWidth, sceneHeight, chunkWidth, chunkHeight, isYFlipped);
+    }
 
-            @Override
-            public void writeChunk(Rectangle rect, ProductData data) throws IOException {
+    private class NetCDF4ChunkWriter extends ChunkWriter {
+
+        private final Set<Rectangle> writtenChunkRects;
+
+        public NetCDF4ChunkWriter(int sceneWidth, int sceneHeight, int chunkWidth, int chunkHeight, boolean YFlipped) {
+            super(sceneWidth, sceneHeight, chunkWidth, chunkHeight, YFlipped);
+            writtenChunkRects = new HashSet<Rectangle>((sceneWidth / chunkWidth) * (sceneHeight / chunkHeight));
+        }
+
+        @Override
+        public void writeChunk(Rectangle rect, ProductData data) throws IOException {
+            if (!writtenChunkRects.contains(rect)) {
+                // netcdf4 chunks can only be written once
                 final int[] origin = new int[]{rect.y, rect.x};
                 final int[] shape = new int[]{rect.height, rect.width};
                 DataType dataType = N4DataType.convert(variable.getType());
@@ -119,9 +136,8 @@ public class N4Variable implements NVariable {
                 } catch (NhException e) {
                     throw new IOException(e);
                 }
+                writtenChunkRects.add(rect);
             }
-        };
+        }
     }
-
-
 }

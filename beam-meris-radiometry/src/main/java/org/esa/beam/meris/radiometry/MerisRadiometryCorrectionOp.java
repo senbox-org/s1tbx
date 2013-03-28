@@ -24,7 +24,11 @@ import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
-import org.esa.beam.framework.gpf.pointop.*;
+import org.esa.beam.framework.gpf.pointop.ProductConfigurer;
+import org.esa.beam.framework.gpf.pointop.Sample;
+import org.esa.beam.framework.gpf.pointop.SampleConfigurer;
+import org.esa.beam.framework.gpf.pointop.SampleOperator;
+import org.esa.beam.framework.gpf.pointop.WritableSample;
 import org.esa.beam.meris.radiometry.calibration.CalibrationAlgorithm;
 import org.esa.beam.meris.radiometry.calibration.Resolution;
 import org.esa.beam.meris.radiometry.equalization.EqualizationAlgorithm;
@@ -34,7 +38,11 @@ import org.esa.beam.meris.radiometry.smilecorr.SmileCorrectionAuxdata;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.math.RsMathUtils;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 
 import static org.esa.beam.dataio.envisat.EnvisatConstants.*;
 
@@ -63,7 +71,7 @@ import static org.esa.beam.dataio.envisat.EnvisatConstants.*;
                   description = "Performs radiometric corrections on MERIS L1b data products.",
                   authors = "Marc Bouvet (ESTEC); Marco Peters, Ralf Quast, Thomas Storm, Marco Zuehlke (Brockmann Consult)",
                   copyright = "(c) 2011 by Brockmann Consult",
-                  version = "1.1")
+                  version = "1.1.2")
 public class MerisRadiometryCorrectionOp extends SampleOperator {
 
     private static final String UNIT_DL = "dl";
@@ -79,11 +87,13 @@ public class MerisRadiometryCorrectionOp extends SampleOperator {
     private boolean doCalibration;
 
     @Parameter(label = "Source radiometric correction file (optional)",
-               description = "The radiometric correction auxiliary file for the source product.")
+               description = "The radiometric correction auxiliary file for the source product. " +
+                             "The default '" + DEFAULT_SOURCE_RAC_RESOURCE + "'")
     private File sourceRacFile;
 
     @Parameter(label = "Target radiometric correction file (optional)",
-               description = "The radiometric correction auxiliary file for the target product.")
+               description = "The radiometric correction auxiliary file for the target product. " +
+                             "The default '" + DEFAULT_TARGET_RAC_RESOURCE + "'")
     private File targetRacFile;
 
     @Parameter(defaultValue = "true",
@@ -330,7 +340,8 @@ public class MerisRadiometryCorrectionOp extends SampleOperator {
 
     private void validateSourceProduct() throws OperatorException {
         if (!MERIS_L1_TYPE_PATTERN.matcher(sourceProduct.getProductType()).matches()) {
-            String msg = String.format("Source product must be of type MERIS Level 1b. Product type is: '%s'", sourceProduct.getProductType());
+            String msg = String.format("Source product must be of type MERIS Level 1b. Product type is: '%s'",
+                                       sourceProduct.getProductType());
             getLogger().warning(msg);
         }
         if (doCalibration || doEqualization) {

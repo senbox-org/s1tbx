@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-meris-cloud</symbolicName>
-    <version>1.6.1</version>
+    <version>1.6.2</version>
     <name>MERIS Cloud Probability Processor</name>
 
     <description>
@@ -9,6 +9,8 @@
     </description>
     <changelog>
         <![CDATA[
+        Changes in 1.6.2<br>
+        Deprecated API.<br/>
         Changes in 1.6.1<br>
         Adapted to new Maven-architecture<br/>
         Changes in 1.6<br>

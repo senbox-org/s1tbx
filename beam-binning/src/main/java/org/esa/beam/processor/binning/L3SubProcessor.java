@@ -26,6 +26,10 @@ import org.esa.beam.util.StringUtils;
 import java.io.File;
 import java.util.logging.Logger;
 
+@Deprecated
+/**
+ * @Deprecated since beam-binning 2.1.2 as part of the BEAM 4.11-release. Use module 'beam-binning2' instead.
+ */
 abstract public class L3SubProcessor {
 
     private L3Processor _parent;
@@ -40,13 +44,6 @@ abstract public class L3SubProcessor {
         _parent = parent;
         logger = Logger.getLogger(L3Constants.LOGGER_NAME);
         _warningMessages = null;
-    }
-
-    /**
-     * @deprecated in 4.0, implement {@link #process(com.bc.ceres.core.ProgressMonitor)}
-     */
-    public void process() throws ProcessorException {
-        process(ProgressMonitor.NULL);
     }
 
     abstract public void process(ProgressMonitor pm) throws ProcessorException;

@@ -166,21 +166,6 @@ public class ColorPaletteDef implements Cloneable {
     }
 
     /**
-     * Creates the center color between the colors of the given two points.
-     *
-     * @param p1 1st point
-     * @param p2 2nd point
-     *
-     * @return the center color
-     *
-     * @deprecated since BEAM 4.2, use {@link #getCenterColor(java.awt.Color, java.awt.Color)}
-     */
-    @Deprecated
-    public static Color createCenterColor(Point p1, Point p2) {
-        return getCenterColor(p1.getColor(), p2.getColor());
-    }
-
-    /**
      * Creates the center color between the given two colors.
      *
      * @param c1 1st color

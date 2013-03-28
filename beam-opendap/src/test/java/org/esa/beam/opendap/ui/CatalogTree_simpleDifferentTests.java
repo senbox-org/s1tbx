@@ -2,6 +2,7 @@ package org.esa.beam.opendap.ui;
 
 import org.esa.beam.framework.gpf.ui.DefaultAppContext;
 import org.esa.beam.opendap.datamodel.OpendapLeaf;
+import org.junit.Assume;
 import org.junit.Test;
 import thredds.catalog.InvAccessImpl;
 import thredds.catalog.InvCatalog;
@@ -20,6 +21,7 @@ import javax.swing.tree.TreeCellRenderer;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
+import java.awt.GraphicsEnvironment;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -32,6 +34,7 @@ public class CatalogTree_simpleDifferentTests {
 
     @Test
     public void testThatGetComponentGetsAWellDefinedJTreeComponent() {
+        Assume.assumeTrue(!GraphicsEnvironment.isHeadless());
         final CatalogTree catalogTree = new CatalogTree(null, new DefaultAppContext(""));
         final Component component = catalogTree.getComponent();
 
@@ -143,6 +146,7 @@ public class CatalogTree_simpleDifferentTests {
 
     @Test
     public void testGetLeaves() throws Exception {
+        Assume.assumeTrue(!GraphicsEnvironment.isHeadless());
         final CatalogTree catalogTree = new CatalogTree(null, new DefaultAppContext(""));
         List<InvDataset> datasets = new ArrayList<InvDataset>();
         InvCatalog catalog = new InvCatalogImpl("catalogName", "1.0", new URI("http://x.y"));

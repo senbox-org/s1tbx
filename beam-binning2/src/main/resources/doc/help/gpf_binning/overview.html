@@ -16,7 +16,7 @@
 
 <html>
 <head>
-    <title>Level 3 Binning Operator (GPF)</title>
+    <title>Level 3 Binning Operator</title>
     <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
     <link rel="stylesheet" href="../style.css">
 </head>
@@ -25,17 +25,20 @@
 <table class="header">
     <tr class="header">
         <td class="header">&nbsp;
-            Level 3 Binning Operator (GPF)</td>
-        <td class="header" align="right"><a href="../general/BeamOverview.html"><img src="../images/BeamHeader.jpg" border=0></a>
+            Level 3 Binning Operator
+        </td>
+        <td class="header" align="right"><a href="../general/BeamOverview.html"><img src="../images/BeamHeader.jpg"
+                                                                                     border=0></a>
         </td>
     </tr>
 </table>
 
 <h3>Overview</h3>
 
-<p>The BEAM Level 3 Binning Operator is based on the NASA SeaWiFS binning algorithm as described in: <a href="http://oceancolor.gsfc.nasa.gov/SeaWiFS/TECH_REPORTS/PreLPDF/PreLVol32.pdf"><i>&quot;Level 3
-            SeaWiFS Data Products: Spatial and Temporal Binning Algorithms&quot; J.W.Campbell,
-            J.M. Blasidell, and M.Darzi , NASA Technical Memorandum 104566, Vol.32</i></a>.
+<p>The BEAM Level 3 Binning Operator is based on the NASA SeaWiFS binning algorithm as described in: <a
+        href="http://oceancolor.gsfc.nasa.gov/SeaWiFS/TECH_REPORTS/PreLPDF/PreLVol32.pdf"><i>&quot;Level 3
+    SeaWiFS Data Products: Spatial and Temporal Binning Algorithms&quot; J.W.Campbell,
+    J.M. Blasidell, and M.Darzi , NASA Technical Memorandum 104566, Vol.32</i></a>.
 </p>
 
 <p>
@@ -43,7 +46,9 @@
 </p>
 
 <ul>
-    <li>Select an arbitrary number of aggregation methods, such as arithmetic mean/sigma, min/max, percentile threshold.</li>
+    <li>Select an arbitrary number of aggregation methods, such as arithmetic mean/sigma, min/max, percentile
+        threshold.
+    </li>
     <li>Programmatically add aggregation methods.</li>
     <li>Predefine a target subset region as minimum/maximum latitude/longitude.</li>
     <li>Define the spatial resolution of the target product.</li>
@@ -61,6 +66,12 @@
 <p>
     See <a href="user_interface.html">here</a> for a description of the user interface as well as the
     parameters that can be used to perform a binning.
+</p>
+
+<p>
+    Note: there is also an older implementation of a Level-3 binning processor. It is more old-fashioned, slower and
+    kept for compatibility reasons. It is usable from the command line. This newly developed version, though, is faster
+    and much more flexible.
 </p>
 
 <hr>

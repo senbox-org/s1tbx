@@ -3,6 +3,9 @@
         "http://java.sun.com/products/javahelp/toc_2_0.dtd">
 
 <toc version="2.0" categoryclosedimage="folder" categoryopenimage="folder" topicimage="doc">
-    <tocitem text="BEAM OPeNDAP client" target="opendap-client">
+
+    <tocitem text="VISAT">
+        <tocitem text="BEAM OPeNDAP client" target="opendap-client"/>
     </tocitem>
+
 </toc>

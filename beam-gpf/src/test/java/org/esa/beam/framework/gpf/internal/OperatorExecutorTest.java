@@ -16,7 +16,7 @@
 package org.esa.beam.framework.gpf.internal;
 
 import com.bc.ceres.core.ProgressMonitor;
-
+import junit.framework.TestCase;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
@@ -25,6 +25,12 @@ import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.internal.OperatorExecutor.ExecutionOrder;
 
+import javax.media.jai.JAI;
+import javax.media.jai.OpImage;
+import javax.media.jai.PlanarImage;
+import javax.media.jai.TileComputationListener;
+import javax.media.jai.TileRequest;
+import javax.media.jai.TileScheduler;
 import java.awt.Point;
 import java.awt.image.Raster;
 import java.util.ArrayList;
@@ -32,23 +38,14 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import javax.media.jai.JAI;
-import javax.media.jai.OpImage;
-import javax.media.jai.PlanarImage;
-import javax.media.jai.TileComputationListener;
-import javax.media.jai.TileRequest;
-import javax.media.jai.TileScheduler;
-
-import junit.framework.TestCase;
-
 public class OperatorExecutorTest extends TestCase {
-    
+
     private class RecordingTileScheduler implements TileScheduler {
-        
+
         TileScheduler delegate;
         List<String> recordedCalls = Collections.synchronizedList(new ArrayList<String>());
         List<Point> requestedTileIndices = Collections.synchronizedList(new ArrayList<Point>());
-        
+
         RecordingTileScheduler(TileScheduler delegate) {
             this.delegate = delegate;
         }
@@ -135,10 +132,10 @@ public class OperatorExecutorTest extends TestCase {
     }
 
     private class TestOP extends Operator {
-        
+
         @SourceProduct
         Product source;
-        
+
         public TestOP(Product source) {
             this.source = source;
         }
@@ -150,22 +147,22 @@ public class OperatorExecutorTest extends TestCase {
                 Band band = targetProduct.addBand(srcBand.getName(), srcBand.getDataType());
                 band.setSourceImage(srcBand.getSourceImage());
             }
-            
+
             setTargetProduct(targetProduct);
         }
-        
+
     }
-    
+
     private TileScheduler defaultTileScheduler;
     private RecordingTileScheduler recordingTileScheduler;
-    
+
     @Override
     protected void setUp() throws Exception {
         defaultTileScheduler = JAI.getDefaultInstance().getTileScheduler();
         recordingTileScheduler = new RecordingTileScheduler(defaultTileScheduler);
         JAI.getDefaultInstance().setTileScheduler(recordingTileScheduler);
     }
-    
+
     @Override
     protected void tearDown() throws Exception {
         JAI.getDefaultInstance().setTileScheduler(defaultTileScheduler);
@@ -176,16 +173,16 @@ public class OperatorExecutorTest extends TestCase {
         Operator op = new TestOP(sourceProduct);
         OperatorExecutor operatorExecutor = OperatorExecutor.create(op);
         operatorExecutor.execute(ProgressMonitor.NULL);
-        
+
         assertEquals(3, recordingTileScheduler.recordedCalls.size());
         assertEquals("getParallelism", recordingTileScheduler.recordedCalls.get(0));
         assertEquals("scheduleTiles", recordingTileScheduler.recordedCalls.get(1));
         assertEquals("scheduleTile", recordingTileScheduler.recordedCalls.get(2));
-        
+
         assertEquals(1, recordingTileScheduler.requestedTileIndices.size());
         assertEquals(new Point(0, 0), recordingTileScheduler.requestedTileIndices.get(0));
     }
-    
+
 
     public void testManyTilesOneBand() {
         Product sourceProduct = createSourceProduct();
@@ -193,9 +190,9 @@ public class OperatorExecutorTest extends TestCase {
         Operator op = new TestOP(sourceProduct);
         OperatorExecutor operatorExecutor = OperatorExecutor.create(op);
         operatorExecutor.execute(ProgressMonitor.NULL);
-        
+
         assertEquals(9, recordingTileScheduler.recordedCalls.size());
-        
+
         assertEquals(4, recordingTileScheduler.requestedTileIndices.size());
         assertEquals(new Point(0, 0), recordingTileScheduler.requestedTileIndices.get(0));
         assertEquals(new Point(1, 0), recordingTileScheduler.requestedTileIndices.get(1));
@@ -212,9 +209,9 @@ public class OperatorExecutorTest extends TestCase {
         Operator op = new TestOP(sourceProduct);
         OperatorExecutor operatorExecutor = OperatorExecutor.create(op);
         operatorExecutor.execute(ProgressMonitor.NULL);
-        
+
         assertEquals(17, recordingTileScheduler.recordedCalls.size());
-        
+
         assertEquals(8, recordingTileScheduler.requestedTileIndices.size());
         assertEquals(new Point(0, 0), recordingTileScheduler.requestedTileIndices.get(0));
         assertEquals(new Point(1, 0), recordingTileScheduler.requestedTileIndices.get(1));
@@ -225,7 +222,7 @@ public class OperatorExecutorTest extends TestCase {
         assertEquals(new Point(0, 1), recordingTileScheduler.requestedTileIndices.get(6));
         assertEquals(new Point(1, 1), recordingTileScheduler.requestedTileIndices.get(7));
     }
-    
+
     public void testManyTilesTwoBands_ColumnBandOrder() {
         Product sourceProduct = createSourceProduct();
         Band bandB = sourceProduct.addBand("b", ProductData.TYPE_INT8);
@@ -234,21 +231,18 @@ public class OperatorExecutorTest extends TestCase {
         sourceProduct.setPreferredTileSize(50, 50);
         Operator op = new TestOP(sourceProduct);
         OperatorExecutor operatorExecutor = OperatorExecutor.create(op);
-        operatorExecutor.execute(ExecutionOrder.ROW_COLUMN_BAND, ProgressMonitor.NULL);
-        
-        assertEquals(17, recordingTileScheduler.recordedCalls.size());
-        
-        assertEquals(8, recordingTileScheduler.requestedTileIndices.size());
+        System.setProperty("beam.gpf.executionOrder", "SCHEDULE_ROW_COLUMN_BAND");
+        operatorExecutor.execute(ExecutionOrder.PULL_ROW_BAND_COLUMN, ProgressMonitor.NULL);
+
+        assertEquals(13, recordingTileScheduler.recordedCalls.size());
+
+        assertEquals(4, recordingTileScheduler.requestedTileIndices.size());
         assertEquals(new Point(0, 0), recordingTileScheduler.requestedTileIndices.get(0));
-        assertEquals(new Point(0, 0), recordingTileScheduler.requestedTileIndices.get(1));
-        assertEquals(new Point(1, 0), recordingTileScheduler.requestedTileIndices.get(2));
-        assertEquals(new Point(1, 0), recordingTileScheduler.requestedTileIndices.get(3));
-        assertEquals(new Point(0, 1), recordingTileScheduler.requestedTileIndices.get(4));
-        assertEquals(new Point(0, 1), recordingTileScheduler.requestedTileIndices.get(5));
-        assertEquals(new Point(1, 1), recordingTileScheduler.requestedTileIndices.get(6));
-        assertEquals(new Point(1, 1), recordingTileScheduler.requestedTileIndices.get(7));
+        assertEquals(new Point(1, 0), recordingTileScheduler.requestedTileIndices.get(1));
+        assertEquals(new Point(0, 1), recordingTileScheduler.requestedTileIndices.get(2));
+        assertEquals(new Point(1, 1), recordingTileScheduler.requestedTileIndices.get(3));
     }
-    
+
     private Product createSourceProduct() {
         Product product = new Product("source", "source", 100, 100);
         Band bandA = product.addBand("a", ProductData.TYPE_INT8);
@@ -256,8 +250,8 @@ public class OperatorExecutorTest extends TestCase {
         bandA.setSynthetic(true);
         return product;
     }
-    
-    
+
+
     private static ProductData createDataFor(Band dataBand) {
         final int width = dataBand.getSceneRasterWidth();
         final int height = dataBand.getSceneRasterHeight();

@@ -77,7 +77,10 @@ import java.util.logging.Logger;
 /**
  * This class serves as the main processor UI frame shared by all processors. It provides Request load and save
  * operations and the basic button set. This class mediates the communication between processor and processor UI.
+ *
+ * @deprecated since BEAM 4.11. Use the {@link org.esa.beam.framework.gpf Graph Processing Framework} instead.
  */
+@Deprecated
 public class ProcessorApp extends BasicApp {
 
     public static final String REQUEST_DIR_PREFERENCES_KEY = "processor.request.dir";

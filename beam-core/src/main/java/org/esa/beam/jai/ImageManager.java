@@ -25,7 +25,23 @@ import com.bc.ceres.glevel.MultiLevelSource;
 import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
 import com.bc.ceres.glevel.support.DefaultMultiLevelImage;
 import com.bc.ceres.glevel.support.DefaultMultiLevelModel;
-import org.esa.beam.framework.datamodel.*;
+import com.bc.ceres.jai.operator.ReinterpretDescriptor;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.ColorPaletteDef;
+import org.esa.beam.framework.datamodel.GeoCoding;
+import org.esa.beam.framework.datamodel.ImageInfo;
+import org.esa.beam.framework.datamodel.IndexCoding;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.ProductNode;
+import org.esa.beam.framework.datamodel.ProductNodeEvent;
+import org.esa.beam.framework.datamodel.ProductNodeListener;
+import org.esa.beam.framework.datamodel.ProductNodeListenerAdapter;
+import org.esa.beam.framework.datamodel.RGBChannelDef;
+import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.datamodel.Scene;
+import org.esa.beam.framework.datamodel.SceneFactory;
+import org.esa.beam.framework.datamodel.Stx;
 import org.esa.beam.util.ImageUtils;
 import org.esa.beam.util.IntMap;
 import org.esa.beam.util.jai.JAIUtils;
@@ -38,12 +54,34 @@ import org.opengis.referencing.crs.ImageCRS;
 import org.opengis.referencing.datum.PixelInCell;
 import org.opengis.referencing.operation.MathTransform;
 
-import javax.media.jai.*;
-import javax.media.jai.operator.*;
-import java.awt.*;
+import javax.media.jai.Histogram;
+import javax.media.jai.ImageLayout;
+import javax.media.jai.JAI;
+import javax.media.jai.LookupTableJAI;
+import javax.media.jai.PlanarImage;
+import javax.media.jai.RenderedOp;
+import javax.media.jai.operator.BandMergeDescriptor;
+import javax.media.jai.operator.ClampDescriptor;
+import javax.media.jai.operator.CompositeDescriptor;
+import javax.media.jai.operator.ConstantDescriptor;
+import javax.media.jai.operator.FormatDescriptor;
+import javax.media.jai.operator.InvertDescriptor;
+import javax.media.jai.operator.LookupDescriptor;
+import javax.media.jai.operator.MatchCDFDescriptor;
+import javax.media.jai.operator.MaxDescriptor;
+import javax.media.jai.operator.MultiplyConstDescriptor;
+import javax.media.jai.operator.RescaleDescriptor;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.RenderingHints;
+import java.awt.Transparency;
 import java.awt.color.ColorSpace;
 import java.awt.geom.AffineTransform;
-import java.awt.image.*;
+import java.awt.image.ColorModel;
+import java.awt.image.ComponentColorModel;
+import java.awt.image.DataBuffer;
+import java.awt.image.RenderedImage;
+import java.awt.image.SampleModel;
 import java.awt.image.renderable.ParameterBlock;
 import java.lang.ref.WeakReference;
 import java.util.Arrays;
@@ -63,7 +101,8 @@ public class ImageManager {
      * The default BEAM image coordinate reference system.
      */
     public static final ImageCRS DEFAULT_IMAGE_CRS = new DefaultImageCRS("BEAM",
-                                                                         new DefaultImageDatum("BEAM", PixelInCell.CELL_CORNER),
+                                                                         new DefaultImageDatum("BEAM",
+                                                                                               PixelInCell.CELL_CORNER),
                                                                          DefaultCartesianCS.DISPLAY);
 
     private static final boolean CACHE_INTERMEDIATE_TILES = Boolean.getBoolean(
@@ -110,6 +149,7 @@ public class ImageManager {
      * that is used to render images for display.
      *
      * @param geoCoding A geo-coding, may be {@code null}.
+     *
      * @return The coordinate reference system used for the model space. If {@code geoCoding} is {@code null},
      *         it will be a default image coordinate reference system (an instance of {@code org.opengis.referencing.crs.ImageCRS}).
      */
@@ -270,8 +310,8 @@ public class ImageManager {
                                                 int level) {
         Assert.notNull(rasterDataNodes, "rasterDataNodes");
         Assert.state(rasterDataNodes.length == 1
-                             || rasterDataNodes.length == 3
-                             || rasterDataNodes.length == 4,
+                     || rasterDataNodes.length == 3
+                     || rasterDataNodes.length == 4,
                      "invalid number of bands");
 
         prepareImageInfos(rasterDataNodes, ProgressMonitor.NULL);
@@ -352,6 +392,14 @@ public class ImageManager {
                                                       double gamma) {
         double newMin = raster.scaleInverse(minSample);
         double newMax = raster.scaleInverse(maxSample);
+
+        boolean mustReinterpret = sourceImage.getSampleModel().getDataType() == DataBuffer.TYPE_BYTE &&
+                                  raster.getDataType() == ProductData.TYPE_INT8;
+        if (mustReinterpret) {
+            sourceImage = ReinterpretDescriptor.create(sourceImage, 1.0, 0.0, ReinterpretDescriptor.LINEAR,
+                                                       ReinterpretDescriptor.INTERPRET_BYTE_SIGNED, null);
+        }
+
         PlanarImage image = createRescaleOp(sourceImage,
                                             255.0 / (newMax - newMin),
                                             255.0 * newMin / (newMin - newMax));
@@ -529,12 +577,14 @@ public class ImageManager {
             final RenderedOp noDataColorImage = ConstantDescriptor.create((float) image.getWidth(),
                                                                           (float) image.getHeight(),
                                                                           noDataRGB,
-                                                                          createDefaultRenderingHints(sourceImage, null));
+                                                                          createDefaultRenderingHints(sourceImage,
+                                                                                                      null));
             byte noDataAlpha = (byte) noDataColor.getAlpha();
             final RenderedOp noDataAlphaImage = ConstantDescriptor.create((float) image.getWidth(),
                                                                           (float) image.getHeight(),
                                                                           new Byte[]{noDataAlpha},
-                                                                          createDefaultRenderingHints(sourceImage, null));
+                                                                          createDefaultRenderingHints(sourceImage,
+                                                                                                      null));
 
             image = CompositeDescriptor.create(image, noDataColorImage,
                                                maskImage, noDataAlphaImage, false,
@@ -626,7 +676,7 @@ public class ImageManager {
             for (int i = 1; i < binCount; i++) {
                 double deviation = i - mu;
                 normCDF[b][i] = normCDF[b][i - 1] +
-                        (float) Math.exp(-deviation * deviation / twoSigmaSquared);
+                                (float) Math.exp(-deviation * deviation / twoSigmaSquared);
             }
         }
 
@@ -644,20 +694,6 @@ public class ImageManager {
     private static PlanarImage getLevelImage(MultiLevelImage levelZeroImage, int level) {
         RenderedImage image = levelZeroImage.getImage(level);
         return PlanarImage.wrapRenderedImage(image);
-    }
-
-    @Deprecated
-    public MultiLevelImage createValidMaskMultiLevelImage(final RasterDataNode rasterDataNode) {
-        final MultiLevelModel model = ImageManager.getMultiLevelModel(rasterDataNode);
-        final MultiLevelSource mls = new AbstractMultiLevelSource(model) {
-
-            @Override
-            public RenderedImage createImage(int level) {
-                return VirtualBandOpImage.createMask(rasterDataNode,
-                                                     ResolutionLevel.create(getModel(), level));
-            }
-        };
-        return new DefaultMultiLevelImage(mls);
     }
 
     public RenderedImage getMaskImage(final Product product, final String expression, int level) {

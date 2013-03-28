@@ -24,7 +24,15 @@ import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerTypeRegistry;
 import junit.framework.TestCase;
 import org.esa.beam.framework.dataio.ProductIO;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.BitmaskDef;
+import org.esa.beam.framework.datamodel.GcpDescriptor;
+import org.esa.beam.framework.datamodel.PinDescriptor;
+import org.esa.beam.framework.datamodel.PixelPos;
+import org.esa.beam.framework.datamodel.Placemark;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.ProductManager;
+import org.esa.beam.framework.datamodel.VirtualBand;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.application.ApplicationPage;
 import org.esa.beam.framework.ui.product.ProductNodeView;
@@ -35,7 +43,9 @@ import org.esa.beam.glayer.MaskCollectionLayer;
 import org.esa.beam.glayer.MaskLayerType;
 import org.esa.beam.util.PropertyMap;
 
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Rectangle;
+import java.awt.Window;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -84,7 +94,8 @@ public class SessionTest extends TestCase {
             }
         };
         AppContext appContext = new MyAppContext(originalProducts);
-        final RestoredSession restoredSession = originalSession.restore(appContext, sessionRoot, ProgressMonitor.NULL, solver);
+        final RestoredSession restoredSession = originalSession.restore(appContext, sessionRoot, ProgressMonitor.NULL,
+                                                                        solver);
         checkProblems(restoredSession.getProblems());
         final Product[] restoredProducts = restoredSession.getProducts();
         assertNotNull(restoredProducts);
@@ -248,8 +259,12 @@ public class SessionTest extends TestCase {
         final VirtualBand bandD = new VirtualBand("D", ProductData.TYPE_INT32, 16, 16, "0.23");
         productY.addBand(bandC);
         productY.addBand(bandD);
-        productY.getPinGroup().add(Placemark.createPointPlacemark(PinDescriptor.getInstance(), "Pin", "", "", new PixelPos(0, 0), null, null));
-        productY.getGcpGroup().add(Placemark.createPointPlacemark(GcpDescriptor.getInstance(), "GCP", "", "", new PixelPos(0, 0), null, null));
+        productY.getPinGroup().add(
+                Placemark.createPointPlacemark(PinDescriptor.getInstance(), "Pin", "", "", new PixelPos(0, 0), null,
+                                               null));
+        productY.getGcpGroup().add(
+                Placemark.createPointPlacemark(GcpDescriptor.getInstance(), "GCP", "", "", new PixelPos(0, 0), null,
+                                               null));
         productY.addBitmaskDef(new BitmaskDef("M1", "descr", "D > 0.23", Color.RED, 0.3f));
         productY.addBitmaskDef(new BitmaskDef("M2", "descr", "C < 0.23", Color.BLUE, 0.3f));
         writeProduct(productX);
@@ -324,6 +339,7 @@ public class SessionTest extends TestCase {
     }
 
     private static class MyAppContext implements AppContext {
+
         private ProductManager productManager;
         private PropertyMap propertyMap;
 
@@ -354,10 +370,6 @@ public class SessionTest extends TestCase {
         @Override
         public Product getSelectedProduct() {
             return null;
-        }
-
-        @Override
-        public void handleError(Throwable e) {
         }
 
         @Override

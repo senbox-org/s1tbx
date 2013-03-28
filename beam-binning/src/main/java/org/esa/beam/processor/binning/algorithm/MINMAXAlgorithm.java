@@ -18,6 +18,10 @@ package org.esa.beam.processor.binning.algorithm;
 import org.esa.beam.processor.binning.L3Constants;
 import org.esa.beam.processor.binning.database.Bin;
 
+@Deprecated
+/**
+ * @Deprecated since beam-binning 2.1.2 as part of the BEAM 4.11-release. Use module 'beam-binning2' instead.
+ */
 final class MINMAXAlgorithm implements Algorithm {
 
     // variable indices

@@ -41,8 +41,10 @@ import java.util.Vector;
  * SENSOR_NAME - is defined by the public fields xxx_NAME where xxx denotes the satellite sensor BAND_NAME - must match
  * the band names defined in <code>BeamConstants</code> ATMOSPHERE_TYPE - dependent on the coefficient set - this
  * string will be seen in the SMAC UI COEFFICIENT_FILE - name of the coefficient file
+ *
+ * @deprecated since BEAM 4.11. No replacement.
  */
-
+@Deprecated
 class SensorCoefficientManager {
 
     public static final String AER_DES_NAME = "DES";

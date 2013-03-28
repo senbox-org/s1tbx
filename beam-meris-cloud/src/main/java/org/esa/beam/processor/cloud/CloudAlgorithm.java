@@ -15,6 +15,11 @@
  */
 package org.esa.beam.processor.cloud;
 
+import com.bc.jnn.Jnn;
+import com.bc.jnn.JnnException;
+import com.bc.jnn.JnnNet;
+import org.esa.beam.util.logging.BeamLogManager;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -22,12 +27,10 @@ import java.io.InputStream;
 import java.util.Properties;
 import java.util.logging.Logger;
 
-import org.esa.beam.util.logging.BeamLogManager;
-
-import com.bc.jnn.Jnn;
-import com.bc.jnn.JnnException;
-import com.bc.jnn.JnnNet;
-
+/*
+ * @deprecated since BEAM 4.11. No replacement.
+ */
+@Deprecated
 public class CloudAlgorithm {
 	private static final String PARAM_1_KEY = "param_1";
     private static final String PARAM_2_KEY = "param_2";

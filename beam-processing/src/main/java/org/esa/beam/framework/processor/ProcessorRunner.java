@@ -37,7 +37,10 @@ import java.io.File;
  * {@link #runProcessor} which implements the unified processing scenario performed for all scientific processors in the
  * BEAM processing framework.<p> Refer to the command line parser class {@link CmdLineParser} for a documentation of the
  * available comamnd line arguments.
+ *
+ * @deprecated since BEAM 4.11. Use the {@link org.esa.beam.framework.gpf Graph Processing Framework} instead.
  */
+@Deprecated
 public class ProcessorRunner {
 
     private CmdLineParser _parser;

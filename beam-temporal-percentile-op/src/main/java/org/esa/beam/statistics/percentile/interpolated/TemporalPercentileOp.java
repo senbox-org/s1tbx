@@ -36,6 +36,8 @@ import org.esa.beam.framework.gpf.Tile;
 import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProducts;
+import org.esa.beam.interpolators.Interpolator;
+import org.esa.beam.interpolators.InterpolatorFactory;
 import org.esa.beam.util.DateTimeUtils;
 import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.io.FileUtils;
@@ -75,13 +77,14 @@ import java.util.logging.Level;
  * inside the given time period, a collocated mean band from the grouped products is computed. By this means, a intermediate
  * time series product is created successively.
  * <p/>
- * This time series product is used to create time series' per pixel. Days with missing values will cause gaps in a time
- * series. To improve the percentile calculation results, such gaps can be filled.
+ * This time series product is used to create time series' per pixel. Days with missing values or with values that have been
+ * masked out using the valid pixel expression will cause gaps in a time series. To improve the percentile calculation
+ * results, such gaps can be filled.
  * Three gap filling strategies are available.
  * <ul>
- * <li>linearInterpolationGapFilling</li>
- * <li>splineInterpolationGapFilling</li>
- * <li>quadraticInterpolationGapFilling</li>
+ * <li>gap filling by linear interpolation</li>
+ * <li>gap filling by spline interpolation</li>
+ * <li>gap filling by quadratic interpolation</li>
  * </ul>
  * <p/>
  * Based on these time series', for each percentile a band is written to the target product.
@@ -110,58 +113,60 @@ public class TemporalPercentileOp extends Operator {
     public static final String VARIABLE_SELECTION = "SELECTION";
     // todo end
 
-    public final static String P_CALCULATION_METHOD_LINEAR_INTERPOLATION = "gapFillingLinearInterpolation";
-    public final static String P_CALCULATION_METHOD_SPLINE_INTERPOLATION = "gapFillingSplineInterpolation";
-    public final static String P_CALCULATION_METHOD_QUADRATIC_INTERPOLATION = "gapFillingQuadraticInterpolation";
+    public final static String GAP_FILLING_METHOD_NO_GAP_FILLING = "noGapFilling";
+    public final static String GAP_FILLING_METHOD_LINEAR_INTERPOLATION = "gapFillingLinearInterpolation";
+    public final static String GAP_FILLING_METHOD_SPLINE_INTERPOLATION = "gapFillingSplineInterpolation";
+    public final static String GAP_FILLING_METHOD_QUADRATIC_INTERPOLATION = "gapFillingQuadraticInterpolation";
 
     public static final String DATETIME_PATTERN = "yyyy-MM-dd HH:mm:ss";
     private static final String SUFFIX_PERCENTILE_OP_DATA_PRODUCT = "_PercentileOpDataProduct";
     private static final String UNABLE_TO_WRITE_TIMESERIES_DATA_PRODUCT = "Unable to write timeseries data product.";
     private static final String UNABLE_TO_READ_TIMESERIES_DATA_PRODUCT = "Unable to read timeseries data product.";
     private final static String BAND_MATH_EXPRESSION_BAND_NAME = "bandMathExpressionBandName";
+    private final static String COUNT_BAND_NAME = "values_count";
 
 
     @SourceProducts(description = "Don't use this parameter. Use sourceProductPaths instead")
     Product[] sourceProducts;
 
     @Parameter(description = "A comma-separated list of file paths specifying the source products.\n" +
-            "Source products to be considered for percentile computation. \n" +
-            "Each path may contain the wildcards '**' (matches recursively any directory),\n" +
-            "'*' (matches any character sequence in path names) and\n" +
-            "'?' (matches any single character).\n" +
-            "If, for example, all NetCDF files under /eodata/ shall be considered, use '/eodata/**/*.nc'.")
+                             "Source products to be considered for percentile computation. \n" +
+                             "Each path may contain the wildcards '**' (matches recursively any directory),\n" +
+                             "'*' (matches any character sequence in path names) and\n" +
+                             "'?' (matches any single character).\n" +
+                             "If, for example, all NetCDF files under /eodata/ shall be considered, use '/eodata/**/*.nc'.")
     String[] sourceProductPaths;
 
     @Parameter(description = "The start date. If not given, it is taken from the 'oldest' source product. Products that\n" +
-            "have a start date earlier than the start date given by this parameter are not considered.",
+                             "have a start date earlier than the start date given by this parameter are not considered.",
                format = DATETIME_PATTERN, converter = UtcConverter.class)
     ProductData.UTC startDate;
 
     @Parameter(description = "The end date. If not given, it is taken from the 'newest' source product. Products that\n" +
-            "have an end date later than the end date given by this parameter are not considered.",
+                             "have an end date later than the end date given by this parameter are not considered.",
                format = DATETIME_PATTERN, converter = UtcConverter.class)
     ProductData.UTC endDate;
 
     @Parameter(description = "Determines whether the time series product which is created during computation\n" +
-            "should be written to disk.",
+                             "should be written to disk.",
                defaultValue = "true")
     boolean keepIntermediateTimeSeriesProduct;
 
     @Parameter(description = "The output directory for the intermediate time series product. If not given, the time\n" +
-            "series product will be written to the working directory.")
+                             "series product will be written to the working directory.")
     File timeSeriesOutputDir;
 
     @Parameter(description = "A text specifying the target Coordinate Reference System, either in WKT or as an\n" +
-            "authority code. For appropriate EPSG authority codes see (www.epsg-registry.org).\n" +
-            "AUTO authority can be used with code 42001 (UTM), and 42002 (Transverse Mercator)\n" +
-            "where the scene center is used as reference. Examples: EPSG:4326, AUTO:42001",
+                             "authority code. For appropriate EPSG authority codes see (www.epsg-registry.org).\n" +
+                             "AUTO authority can be used with code 42001 (UTM), and 42002 (Transverse Mercator)\n" +
+                             "where the scene center is used as reference. Examples: EPSG:4326, AUTO:42001",
                defaultValue = "EPSG:4326")
     String crs;
 
     @Parameter(alias = "resampling",
                label = "Resampling Method",
                description = "The method used for resampling of floating-point raster data, if source products must\n" +
-                       "be reprojected to the target CRS.",
+                             "be reprojected to the target CRS.",
                valueSet = {"Nearest", "Bilinear", "Bicubic"},
                defaultValue = "Nearest")
     private String resamplingMethodName;
@@ -191,31 +196,33 @@ public class TemporalPercentileOp extends Operator {
     String bandMathsExpression;
 
     @Parameter(description = "If given, this is the percentile band name prefix. If empty, the resulting percentile band’s name\n" +
-            "prefix will be either the 'sourceBandName' or created from the 'bandMathsExpression'.")
+                             "prefix will be either the 'sourceBandName' or created from the 'bandMathsExpression'.")
     String percentileBandNamePrefix;
 
-    @Parameter(description = "The valid pixel expression serving as criterion for whether to consider pixels for " +
-            "computation.")
+    @Parameter(description = "The valid pixel expression serving as criterion for whether to consider pixels for computation.")
     String validPixelExpression;
 
     @Parameter(description = "The percentiles.", defaultValue = "90")
     int[] percentiles;
 
-    @Parameter(description = "The percentile calculation method.",
-               defaultValue = P_CALCULATION_METHOD_LINEAR_INTERPOLATION,
-               valueSet = {P_CALCULATION_METHOD_LINEAR_INTERPOLATION, P_CALCULATION_METHOD_SPLINE_INTERPOLATION, P_CALCULATION_METHOD_QUADRATIC_INTERPOLATION}
+    @Parameter(description = "The gap filling method for percentile calculation.",
+               defaultValue = GAP_FILLING_METHOD_LINEAR_INTERPOLATION,
+               valueSet = {
+                           GAP_FILLING_METHOD_NO_GAP_FILLING, GAP_FILLING_METHOD_LINEAR_INTERPOLATION,
+                           GAP_FILLING_METHOD_SPLINE_INTERPOLATION, GAP_FILLING_METHOD_QUADRATIC_INTERPOLATION
+               }
     )
-    String percentileCalculationMethod;
+    String gapFillingMethod;
 
     @Parameter(description = "The fallback value for the start of a pixel time series. It will be considered if\n" +
-            "there is no valid value at the pixel of the oldest collocated mean band. This would be\n" +
-            "the case, if, e.g., there is a cloudy day at the time period start.",
+                             "there is no valid value at the pixel of the oldest collocated mean band. This would be\n" +
+                             "the case, if, e.g., there is a cloudy day at the time period start.",
                defaultValue = "0.0")
     Double startValueFallback;
 
     @Parameter(description = "The fallback value for the end of a pixel time series. It will be considered if" +
-            "there is no valid value at the pixel of the newest collocated mean band. This would be\n" +
-            "the case, if, e.g., there is a cloudy day at the time period end.",
+                             "there is no valid value at the pixel of the newest collocated mean band. This would be\n" +
+                             "the case, if, e.g., there is a cloudy day at the time period end.",
                defaultValue = "0.0")
     Double endValueFallback;
 
@@ -227,16 +234,22 @@ public class TemporalPercentileOp extends Operator {
     private Product timeSeriesDataProduct;
     private HashMap<String, Integer> timeSeriesBandNameToDayIndexMap;
     private PercentileComputer percentileComputer;
+    private Interpolator interpolator;
 
     @Override
     public void initialize() throws OperatorException {
         validateInput();
+        interpolator = InterpolatorFactory.createInterpolator(gapFillingMethod);
 
         final Product targetProduct = createTargetProduct();
+
+        checkMemNeeds(targetProduct);
+
         final Area targetArea = Utils.createProductArea(targetProduct);
         setTargetProduct(targetProduct);
 
-        final ProductValidator productValidator = new ProductValidator(sourceBandName, bandMathsExpression, startDate, endDate, targetArea, getLogger());
+
+        final ProductValidator productValidator = new ProductValidator(sourceBandName, bandMathsExpression, validPixelExpression, startDate, endDate, targetArea, getLogger());
         final ProductLoader productLoader = new ProductLoader(sourceProductPaths, productValidator, getLogger());
         final Product[] products = productLoader.loadProducts();
         gc();
@@ -244,13 +257,13 @@ public class TemporalPercentileOp extends Operator {
         dailyGroupedSourceProducts = Utils.groupProductsDaily(products);
 
         if (dailyGroupedSourceProducts.size() < 2) {
-            throw new OperatorException("For interpolated daily percentile calculation" +
-                                                "at least two days must contain valid input products.");
+            throw new OperatorException("For temporal percentile calculation " +
+                                        "at least two days must contain valid input products.");
         }
-        if (dailyGroupedSourceProducts.size() == 2 && !percentileCalculationMethod.equals(P_CALCULATION_METHOD_LINEAR_INTERPOLATION)) {
-            throw new OperatorException("For interpolated daily percentile calculation " +
-                                                "with percentileCalculationMethod='" + percentileCalculationMethod + "' " +
-                                                "at least three days must contain valid input products.");
+        if (dailyGroupedSourceProducts.size() == 2 && splineOrQuadraticInterpolationIsSelected()) {
+            throw new OperatorException("For temporal percentile calculation " +
+                                        "with percentileCalculationMethod='" + gapFillingMethod + "' " +
+                                        "at least three days must contain valid input products.");
         }
 
         initTimeSeriesStartAndEnd();
@@ -270,6 +283,34 @@ public class TemporalPercentileOp extends Operator {
         initPercentileComputer();
     }
 
+    private void checkMemNeeds(Product targetProduct) {
+        final long _1kb = 1024;
+        final long _1Mb = _1kb * _1kb;
+        final long _1Gb = _1Mb * _1kb;
+        final long baseMemoryRequirement = _1Gb;
+        final Runtime runtime = Runtime.getRuntime();
+        final long _Xmx = runtime.maxMemory();
+        final long meanBandRawStorageSize = targetProduct.getBandAt(0).getRawStorageSize();
+        if (meanBandRawStorageSize + baseMemoryRequirement > _Xmx) {
+            final long width = targetProduct.getSceneRasterWidth();
+            final long height = targetProduct.getSceneRasterHeight();
+            if (width * height >= Integer.MAX_VALUE) {
+                throw new OperatorException("The CRS settings result in a too large product (" + width + " * " + height + " pixels). " +
+                                            "Please choose a smaller scene.");
+            } else {
+                final int needed = (int) Math.ceil((meanBandRawStorageSize + baseMemoryRequirement) / _1Gb);
+                throw new OperatorException("The CRS settings result in a too large product (" + width + " * " + height + " pixels). " +
+                                            "The memory needed to compute such a product is " + needed + " GB. " +
+                                            "Please choose a smaller scene or increase the Java VM heap space parameter '-Xmx' accordingly.");
+            }
+        }
+    }
+
+    private boolean splineOrQuadraticInterpolationIsSelected() {
+        return GAP_FILLING_METHOD_SPLINE_INTERPOLATION.equals(gapFillingMethod)
+               || GAP_FILLING_METHOD_QUADRATIC_INTERPOLATION.equals(gapFillingMethod);
+    }
+
     private void reloadIntermediateTimeSeriesProduct() {
         final File timeSeriesDataProductLocation = getTimeSeriesDataProductLocation();
         try {
@@ -287,22 +328,23 @@ public class TemporalPercentileOp extends Operator {
     }
 
     private void initPercentileComputer() {
-        percentileComputer = new PercentileComputer() {
-
-            @Override
-            public float[] computeThresholds(int[] targetPercentiles, float[] availableValues) {
-                GapFiller.fillGaps(availableValues, percentileCalculationMethod, startValueFallback.floatValue(), endValueFallback.floatValue());
-                Arrays.sort(availableValues);
-
-                final float[] thresholds = new float[targetPercentiles.length];
-                for (int i = 0; i < targetPercentiles.length; i++) {
-                    int percentile = targetPercentiles[i];
-                    int percentileIndex = (int) Math.floor(percentile / 100f * availableValues.length);
-                    thresholds[i] = availableValues[percentileIndex];
+        if (GAP_FILLING_METHOD_NO_GAP_FILLING.equalsIgnoreCase(gapFillingMethod)) {
+            percentileComputer = new PercentileComputer() {
+                @Override
+                public float[] computeThresholds(int[] targetPercentiles, float[] availableValues, int numAvailableValues) {
+                    final float[] onlyValues = getValuesNotNaN(availableValues, numAvailableValues);
+                    return computePercentileThresholds(targetPercentiles, onlyValues);
                 }
-                return thresholds;
-            }
-        };
+            };
+        } else {
+            percentileComputer = new PercentileComputer() {
+                @Override
+                public float[] computeThresholds(int[] targetPercentiles, float[] availableValues, int numAvailableValues) {
+                    GapFiller.fillGaps(availableValues, interpolator, startValueFallback.floatValue(), endValueFallback.floatValue());
+                    return computePercentileThresholds(targetPercentiles, availableValues);
+                }
+            };
+        }
     }
 
     private void computeMeanDataForEachDayAndWriteDataToTimeSeriesProduct() {
@@ -353,7 +395,10 @@ public class TemporalPercentileOp extends Operator {
             } else {
                 band = collocatedProduct.getBand(BAND_MATH_EXPRESSION_BAND_NAME);
             }
-            sources.add(band.getGeophysicalImage());
+            final InsertNoDataValueOpImage nanImage = new InsertNoDataValueOpImage(
+                        band.getGeophysicalImage(), band.getValidMaskImage(), Double.NaN);
+
+            sources.add(nanImage);
         }
         return new MeanOpImage(sources);
     }
@@ -363,8 +408,21 @@ public class TemporalPercentileOp extends Operator {
         //noinspection UnnecessaryLocalVariable
         final Rectangle r = targetRectangle;
 
-        final Band[] targetBands = targetTilesMap.keySet().toArray(new Band[targetTilesMap.size()]);
-        final Tile[] targetTiles = targetTilesMap.values().toArray(new Tile[targetTilesMap.size()]);
+        final Band[] targetPercentileBands = new Band[targetTilesMap.size() - 1];
+        final Tile[] targetPercentileTiles = new Tile[targetTilesMap.size() - 1];
+        Tile targetCountTile = null;
+        int percentilesIDX = 0;
+        for (Map.Entry<Band, Tile> bandTileEntry : targetTilesMap.entrySet()) {
+            final Band band = bandTileEntry.getKey();
+            final Tile tile = bandTileEntry.getValue();
+            if (COUNT_BAND_NAME.equals(band.getName())) {
+                targetCountTile = tile;
+            } else {
+                targetPercentileBands[percentilesIDX] = band;
+                targetPercentileTiles[percentilesIDX] = tile;
+                percentilesIDX++;
+            }
+        }
 
         final float[][] sourceTiles = new float[timeSeriesLength][0];
         for (String bandName : timeSeriesBandNameToDayIndexMap.keySet()) {
@@ -380,24 +438,29 @@ public class TemporalPercentileOp extends Operator {
         }
 
         final float[] interpolationFloats = new float[timeSeriesLength];
+        final int minNumValues = interpolator.getMinNumPoints();
         for (int targetY = r.y, sourceY = 0; targetY < (r.y + r.height); targetY++, sourceY++) {
             for (int targetX = r.x, sourceX = 0; targetX < (r.x + r.width); targetX++, sourceX++) {
                 clear(interpolationFloats);
                 int idx = sourceY * r.width + sourceX;
-                fillWithAvailableValues(idx, interpolationFloats, sourceTiles);
+                final int valueCount = fillWithAvailableValues(idx, interpolationFloats, sourceTiles);
 
-                final int[] targetPercentiles = new int[targetBands.length];
-                for (int i = 0; i < targetBands.length; i++) {
-                    Band band = targetBands[i];
-                    targetPercentiles[i] = extractPercentileFromBandName(band.getName());
+                final float[] percentileThresholds;
+                final int[] targetPercentiles = new int[targetPercentileBands.length];
+                if (valueCount < minNumValues) {
+                    percentileThresholds = new float[targetPercentiles.length];
+                    Arrays.fill(percentileThresholds, Float.NaN);
+                } else {
+                    for (int i = 0; i < targetPercentileBands.length; i++) {
+                        targetPercentiles[i] = extractPercentileFromBandName(targetPercentileBands[i].getName());
+                    }
+                    percentileThresholds = percentileComputer.computeThresholds(targetPercentiles, interpolationFloats, valueCount);
                 }
-
-                final float[] percentileThresholds = percentileComputer.computeThresholds(targetPercentiles, interpolationFloats);
-
-                for (int i = 0; i < targetTiles.length; i++) {
-                    Tile targetTile = targetTiles[i];
-                    targetTile.setSample(targetX, targetY, percentileThresholds[i]);
+                for (int i = 0; i < targetPercentileTiles.length; i++) {
+                    Tile percentileTile = targetPercentileTiles[i];
+                    percentileTile.setSample(targetX, targetY, percentileThresholds[i]);
                 }
+                targetCountTile.setSample(targetX, targetY, valueCount);
             }
         }
         gc();
@@ -433,6 +496,8 @@ public class TemporalPercentileOp extends Operator {
                 band.setUnit(sourceBand.getUnit());
                 band.setDescription(sourceBand.getDescription());
             }
+            band.setNoDataValue(Double.NaN);
+            band.setNoDataValueUsed(true);
         }
         final ProductWriter productWriter = ProductIO.getProductWriter(DimapProductConstants.DIMAP_FORMAT_NAME);
         final File timeSeriesDataProductLocation = getTimeSeriesDataProductLocation();
@@ -518,14 +583,19 @@ public class TemporalPercentileOp extends Operator {
         Arrays.fill(interpolationFloats, Float.NaN);
     }
 
-    private void fillWithAvailableValues(int idx, float[] interpolationFloats, float[][] sourceTiles) {
+    private int fillWithAvailableValues(int idx, float[] interpolationFloats, float[][] sourceTiles) {
+        int count = 0;
         for (int i = 0; i < interpolationFloats.length; i++) {
             float[] floats = sourceTiles[i];
             if (floats.length == 0) {
                 continue;
             }
             interpolationFloats[i] = floats[idx];
+            if (!Float.isNaN(interpolationFloats[i])) {
+                count++;
+            }
         }
+        return count;
     }
 
     private void initTimeSeriesStartAndEnd() {
@@ -606,8 +676,8 @@ public class TemporalPercentileOp extends Operator {
             bandConfigurationElem.addAttribute(new MetadataAttribute("percentileBandNamePrefix", percentileNameData, true));
         }
 
-        final ProductData interpolationData = ProductData.createInstance(percentileCalculationMethod);
-        bandConfigurationElem.addAttribute(new MetadataAttribute("percentileCalculationMethod", interpolationData, true));
+        final ProductData interpolationData = ProductData.createInstance(gapFillingMethod);
+        bandConfigurationElem.addAttribute(new MetadataAttribute("gapFillingMethod", interpolationData, true));
 
         String expr = validPixelExpression;
         final ProductData validPixelExpressionData = ProductData.createInstance(expr == null ? "" : expr);
@@ -649,7 +719,7 @@ public class TemporalPercentileOp extends Operator {
 
     private Product createTargetProduct() {
         final Product product = createOutputProduct();
-        addTargetBandsAndCreateBandMapping(product);
+        addTargetBands(product);
         return product;
     }
 
@@ -684,12 +754,15 @@ public class TemporalPercentileOp extends Operator {
         }
     }
 
-    private void addTargetBandsAndCreateBandMapping(Product product) {
-        final String prefix = getTargetBandNamePrefix();
+    private void addTargetBands(Product product) {
+        final String bandNamePrefix = getTargetBandNamePrefix();
         for (Integer percentile : percentiles) {
-            final String name = getTargetPercentileBandName(prefix, percentile);
-            product.addBand(name, ProductData.TYPE_FLOAT32);
+            final String name = getTargetPercentileBandName(bandNamePrefix, percentile);
+            final Band band = product.addBand(name, ProductData.TYPE_FLOAT32);
+            band.setNoDataValue(Double.NaN);
+            band.setNoDataValueUsed(true);
         }
+        product.addBand(COUNT_BAND_NAME, ProductData.TYPE_UINT16);
     }
 
     private String getTargetPercentileBandName(String prefix, int percentile) {
@@ -767,8 +840,31 @@ public class TemporalPercentileOp extends Operator {
         }
     }
 
-    private static interface PercentileComputer {
+    private static abstract class PercentileComputer {
 
-        float[] computeThresholds(int[] targetPercentiles, float[] availableValues/*, int targetX, int targetY*/);
+        abstract float[] computeThresholds(int[] targetPercentiles, float[] availableValues, int numAvailableValues);
+
+        protected float[] computePercentileThresholds(int[] targetPercentiles, float[] availableValues) {
+            Arrays.sort(availableValues);
+            final float[] thresholds = new float[targetPercentiles.length];
+            for (int i = 0; i < targetPercentiles.length; i++) {
+                int percentile = targetPercentiles[i];
+                int percentileIndex = (int) Math.floor(percentile / 100f * availableValues.length);
+                thresholds[i] = availableValues[percentileIndex];
+            }
+            return thresholds;
+        }
+
+        protected float[] getValuesNotNaN(float[] availableValues, int numAvailableValues) {
+            final float[] onlyValues = new float[numAvailableValues];
+            int i = 0;
+            for (float availableValue : availableValues) {
+                if (!Float.isNaN(availableValue)) {
+                    onlyValues[i] = availableValue;
+                    i++;
+                }
+            }
+            return onlyValues;
+        }
     }
 }

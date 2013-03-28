@@ -47,9 +47,10 @@
             <!--<percentiles>85,87,89,91,93,95</percentiles>-->
             <!--<percentiles>5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,95</percentiles>-->
 
-            <percentileCalculationMethod>gapFillingLinearInterpolation</percentileCalculationMethod>
-            <!--<percentileCalculationMethod>gapFillingSplineInterpolation</percentileCalculationMethod>-->
-            <!--<percentileCalculationMethod>gapFillingQuadraticInterpolation</percentileCalculationMethod>-->
+            <!--<gapFillingMethod>noGapFilling</gapFillingMethod>-->
+            <gapFillingMethod>gapFillingLinearInterpolation</gapFillingMethod>
+            <!--<gapFillingMethod>gapFillingSplineInterpolation</gapFillingMethod>-->
+            <!--<gapFillingMethod>gapFillingQuadraticInterpolation</gapFillingMethod>-->
 
             <!--<startValueFallback>0.0</startValueFallback>-->
             <!--<endValueFallback>0.0</endValueFallback>-->

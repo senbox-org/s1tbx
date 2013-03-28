@@ -17,7 +17,10 @@ package org.esa.beam.framework.processor;
 
 /**
  * A validator used to validate processing requests.
+ *
+ * @deprecated since BEAM 4.11. Use the {@link org.esa.beam.framework.gpf Graph Processing Framework} instead.
  */
+@Deprecated
 public interface RequestValidator {
     /**
      * Validates the given processing request.

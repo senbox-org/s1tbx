@@ -40,7 +40,10 @@ import java.io.File;
  * <p/>
  * Also, this class implements some helper functions for creating standard parameters of type <ul> <li>file parameter
  * <li>bitmask parameter <li>float value parameter and <li>string array parameter </ul>
+ *
+ * @deprecated since BEAM 4.11. Use the {@link org.esa.beam.framework.gpf Graph Processing Framework} instead.
  */
+@Deprecated
 public class DefaultRequestElementFactory implements RequestElementFactory, ProcessorConstants {
 
     /**
