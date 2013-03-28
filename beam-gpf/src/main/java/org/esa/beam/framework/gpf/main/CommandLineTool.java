@@ -177,9 +177,9 @@ class CommandLineTool implements GraphProcessingObserver {
         // Derived properties (shortcuts).
         // Check if we really want them, if so, we have to maintain them in the future (nf)
         File targetFile = new File(commandLineArgs.getTargetFilePath());
+        File parentFile = targetFile.getParentFile();
         velocityContext.put("targetFile", targetFile);
-        velocityContext.put("targetDir",
-                            targetFile.getParentFile() != null ? targetFile.getParentFile() : new File("."));
+        velocityContext.put("targetDir", parentFile != null ? parentFile : new File("."));
         velocityContext.put("targetBaseName", FileUtils.getFilenameWithoutExtension(targetFile));
         velocityContext.put("targetName", targetFile.getName());
         velocityContext.put("targetFormat", commandLineArgs.getTargetFormatName());
@@ -519,7 +519,7 @@ class CommandLineTool implements GraphProcessingObserver {
 
 
         // It can happen that we have no target file when the operator implements the Output interface
-        if(!commandLineContext.isFile(commandLineArgs.getTargetFilePath())) {
+        if (!commandLineContext.isFile(commandLineArgs.getTargetFilePath())) {
             String msgPattern = "Target file '%s' does not exist, but is required to process velocity templates";
             logger.warning(String.format(msgPattern, commandLineArgs.getTargetFilePath()));
             return;
