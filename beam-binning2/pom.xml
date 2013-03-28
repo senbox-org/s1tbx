@@ -15,10 +15,9 @@
     <artifactId>beam-binning2</artifactId>
     <version>0.8.1-SNAPSHOT</version>
 
-    <name>BEAM Level-3 Binning (GPF)</name>
+    <name>BEAM Level-3 Binning</name>
     <description>
-        A new implementation of the SeaDAS binning scheme using the BEAM GPF.
-        This module will supersede 'beam-binning' in the future.
+        A new implementation of the SeaDAS binning scheme. This module has replaced the module 'beam-binning'.
     </description>
 
     <dependencies>

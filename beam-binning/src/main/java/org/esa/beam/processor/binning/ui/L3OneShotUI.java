@@ -46,8 +46,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+@Deprecated
 /**
  * This class implements the graphical user interface for the level 3 processor.
+ *
+ * @Deprecated since beam-binning 2.1.2 as part of the BEAM 4.11-release. Use module 'beam-binning2' instead.
  */
 public class L3OneShotUI extends L3UI {
 

@@ -15,10 +15,6 @@
  */
 package org.esa.beam.processor.binning;
 
-import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
-
 import org.esa.beam.framework.param.ParamProperties;
 import org.esa.beam.framework.param.ParamValidateException;
 import org.esa.beam.framework.param.Parameter;
@@ -36,7 +32,14 @@ import org.esa.beam.util.Guardian;
 import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.io.FileUtils;
 
+import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 
+@Deprecated
+/**
+ * @Deprecated since beam-binning 2.1.2 as part of the BEAM 4.11-release. Use module 'beam-binning2' instead.
+ */
 public class L3RequestElementFactory implements RequestElementFactory {
 
     protected final Map _paramInfoMap = new HashMap();

@@ -16,14 +16,17 @@
 
 package org.esa.beam.processor.binning.store;
 
+import org.esa.beam.processor.binning.database.Bin;
+import org.esa.beam.util.Guardian;
+
 import java.awt.Point;
 import java.io.File;
 import java.io.IOException;
 
-import org.esa.beam.processor.binning.database.Bin;
-import org.esa.beam.util.Guardian;
-
-
+@Deprecated
+/**
+ * @Deprecated since beam-binning 2.1.2 as part of the BEAM 4.11-release. Use module 'beam-binning2' instead.
+ */
 public class QuadTreeBinStore implements BinStore {
     // the maximum tile size (width and height) in bins
     private static final int TILE_SIZE = 64;

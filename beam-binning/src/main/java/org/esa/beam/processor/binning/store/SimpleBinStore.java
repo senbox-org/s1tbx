@@ -16,18 +16,20 @@
 
 package org.esa.beam.processor.binning.store;
 
-import java.io.File;
-import java.io.IOException;
+import org.esa.beam.processor.binning.database.Bin;
+import org.esa.beam.processor.binning.database.BinLocator;
 
 import javax.imageio.stream.FileImageInputStream;
 import javax.imageio.stream.FileImageOutputStream;
 import javax.imageio.stream.ImageInputStream;
 import javax.imageio.stream.ImageOutputStream;
+import java.io.File;
+import java.io.IOException;
 
-import org.esa.beam.processor.binning.database.Bin;
-import org.esa.beam.processor.binning.database.BinLocator;
-
-
+@Deprecated
+/**
+ * @Deprecated since beam-binning 2.1.2 as part of the BEAM 4.11-release. Use module 'beam-binning2' instead.
+ */
 public class SimpleBinStore extends AbstractLinearBinStore {
     // the number of floats to be written at once during initialization
     private static final int numInitFloats = 32768;

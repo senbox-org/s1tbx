@@ -15,11 +15,13 @@
  */
 package org.esa.beam.processor.binning;
 
+@Deprecated
 /**
  * Init L3 processor
  *
  * @author Marco Peters
  * @version $Revision$ $Date$
+ * @Deprecated since beam-binning 2.1.2 as part of the BEAM 4.11-release. Use module 'beam-binning2' instead.
  */
 public class InitL3Processor extends L3Processor {
 

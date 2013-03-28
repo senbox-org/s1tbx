@@ -39,6 +39,7 @@ import java.util.Arrays;
 import java.util.logging.Logger;
 
 
+@Deprecated
 /**
  * The class implements a fast flux conserving resampling based on the
  * Sutherland-Hodgman clipping algorithm.
@@ -90,6 +91,8 @@ import java.util.logging.Logger;
  *
  * @author Tom McGlynn, NASA/GSFC, 3rd October 2002
  * @author Thomas Lankester, Infoterra Ltd., 19th May 2003
+/**
+ * @Deprecated since beam-binning 2.1.2 as part of the BEAM 4.11-release. Use module 'beam-binning2' instead.
  */
 public class ClippingResampler extends SpatialBinDatabase {
 

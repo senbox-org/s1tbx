@@ -26,6 +26,10 @@ import org.esa.beam.util.StringUtils;
 import java.io.File;
 import java.util.logging.Logger;
 
+@Deprecated
+/**
+ * @Deprecated since beam-binning 2.1.2 as part of the BEAM 4.11-release. Use module 'beam-binning2' instead.
+ */
 abstract public class L3SubProcessor {
 
     private L3Processor _parent;
