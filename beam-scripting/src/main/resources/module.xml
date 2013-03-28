@@ -17,7 +17,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-scripting</symbolicName>
-    <version>4.10.1</version>
+    <version>4.11</version>
     <name>BEAM Scripting Interface</name>
 
     <description>Provides a simple console for scripting BEAM using JavaScript (default)

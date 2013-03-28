@@ -13,7 +13,7 @@
 
     <groupId>org.esa.beam</groupId>
     <artifactId>beam-binning2</artifactId>
-    <version>0.8.1-SNAPSHOT</version>
+    <version>0.8.1</version>
 
     <name>BEAM Level-3 Binning</name>
     <description>
@@ -45,7 +45,7 @@
         <dependency>
             <groupId>org.esa.beam</groupId>
             <artifactId>beam-netcdf</artifactId>
-            <version>1.1.2-SNAPSHOT</version>
+            <version>1.1.2</version>
             <scope>provided</scope>
         </dependency>
 

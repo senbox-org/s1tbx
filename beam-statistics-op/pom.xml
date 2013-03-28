@@ -13,7 +13,7 @@
 
     <groupId>org.esa.beam</groupId>
     <artifactId>beam-statistics-op</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0</version>
     <name>BEAM Statistics Operator</name>
     <description>A statistics operator for BEAM</description>
     <packaging>jar</packaging>
