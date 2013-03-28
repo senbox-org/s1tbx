@@ -5,6 +5,6 @@
 
 <map version="2.0">
 
-    <mapID target="opendap-client" url="html/Overview.html"/>
+    <mapID target="opendap-client" url="opendapclient/Overview.html"/>
 
 </map>
