@@ -1,0 +1,60 @@
+<graph id="someGraphId">
+    <version>1.0</version>
+    <node id="someNodeId">
+        <operator>TemporalPercentile</operator>
+        <parameters>
+            <sourceProductPaths>./2007/*.N1</sourceProductPaths>
+            <startDate>2007-03-01 00:00:01</startDate>
+            <endDate>2007-10-31 23:59:59</endDate>
+            <!--<keepIntermediateTimeSeriesProduct>true</keepIntermediateTimeSeriesProduct>-->
+            <!--<timeSeriesOutputDir>output-dir-path-for-the-intermediate-time-series-product</timeSeriesOutputDir>-->
+
+            <!-- the target CRS -->
+            <!-- default: EPSG:4326 (WGS84) -->
+            <crs>EPSG:4326</crs>
+
+            <!-- Resampling method for the collocation operation -->
+            <resampling>Nearest</resampling>
+            <!--<resampling>Bilinear</resampling> -->
+            <!--<resampling>Bicubic</resampling>-->
+
+            <!-- Baltique Sea bounds and resolution -->
+            <!--<westBound>9</westBound>-->
+            <!--<northBound>66</northBound>-->
+            <!--<eastBound>30</eastBound>-->
+            <!--<southBound>53</southBound>-->
+            <!--<pixelSizeX>0.01</pixelSizeX>-->
+            <!--<pixelSizeY>0.01</pixelSizeY>-->
+
+            <!--<pixelSizeX>0.05</pixelSizeX>-->
+            <!--<pixelSizeY>0.05</pixelSizeY>-->
+
+            <!-- Belgium Costal Zone bounds and resolution -->
+            <westBound>2</westBound>
+            <northBound>53</northBound>
+            <eastBound>3.5</eastBound>
+            <southBound>51</southBound>
+            <pixelSizeX>0.01</pixelSizeX>
+            <pixelSizeY>0.01</pixelSizeY>
+
+            <sourceBandName>algal_2</sourceBandName>
+            <bandMathsExpression>band_1 + band_2</bandMathsExpression>
+            <percentileBandName>PercentileBandName</percentileBandName>
+            <validPixelExpression>l2_flags.WATER and not l2_flags.PCD_17</validPixelExpression>
+
+            <percentiles>85,90,95</percentiles>
+            <!--<percentiles>10,20,30,40,50,60,70,80,90</percentiles>-->
+            <!--<percentiles>85,87,89,91,93,95</percentiles>-->
+            <!--<percentiles>5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,95</percentiles>-->
+
+            <!--<gapFillingMethod>noGapFilling</gapFillingMethod>-->
+            <gapFillingMethod>gapFillingLinearInterpolation</gapFillingMethod>
+            <!--<gapFillingMethod>gapFillingSplineInterpolation</gapFillingMethod>-->
+            <!--<gapFillingMethod>gapFillingQuadraticInterpolation</gapFillingMethod>-->
+
+            <!--<startValueFallback>0.0</startValueFallback>-->
+            <!--<endValueFallback>0.0</endValueFallback>-->
+
+        </parameters>
+    </node>
+</graph>
