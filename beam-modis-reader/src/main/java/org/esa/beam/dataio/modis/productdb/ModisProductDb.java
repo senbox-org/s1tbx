@@ -342,7 +342,7 @@ public class ModisProductDb {
         final CsvReader reader;
         try {
             reader = new CsvReader(new InputStreamReader(dbResource.openStream()),
-                                   ModisConstants.FIELD_SEPARATORS, true, "#");
+                    ModisConstants.FIELD_SEPARATORS, true, "#");
         } catch (MalformedURLException e) {
             throw new IOException(e.getMessage());
         }

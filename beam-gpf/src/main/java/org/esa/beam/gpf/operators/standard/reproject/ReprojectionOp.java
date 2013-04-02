@@ -47,7 +47,6 @@ import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.jai.ImageManager;
 import org.esa.beam.jai.ResolutionLevel;
-import org.esa.beam.jai.VirtualBandOpImage;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.io.FileUtils;
@@ -296,7 +295,7 @@ public class ReprojectionOp extends Operator {
     private ElevationModel createElevationModel() throws OperatorException {
         if (elevationModelName != null) {
             final ElevationModelDescriptor demDescriptor = ElevationModelRegistry.getInstance().getDescriptor(
-                    elevationModelName);
+                        elevationModelName);
             if (!demDescriptor.isDemInstalled()) {
                 throw new OperatorException("DEM not installed: " + elevationModelName);
             }
@@ -348,10 +347,6 @@ public class ReprojectionOp extends Operator {
         final GeoCoding sourceGeoCoding = getSourceGeoCoding(sourceRaster);
         final String exp = sourceRaster.getValidMaskExpression();
         if (exp != null) {
-            // TODO decide between VirtualBand and a special implementation (mz, 2009.11.11)
-//            final String externalName = BandArithmetic.createExternalName(sourceRaster.getName());
-//            exp = String.format("(%s) ? %s : %s", exp, externalName, Double.toString(targetNoDataValue));
-//            sourceImage = createVirtualSourceImage(exp, geoDataType, targetNoDataValue);
             sourceImage = createNoDataReplacedImage(sourceImage, sourceRaster.getValidMaskImage(), targetNoDataValue);
         }
 
@@ -411,14 +406,13 @@ public class ReprojectionOp extends Operator {
         return targetNoDataValue;
     }
 
-    private MultiLevelImage createNaNReplacedImage(final MultiLevelImage srcImage, final double value) {
+    private MultiLevelImage createNaNReplacedImage(final MultiLevelImage projectedImage, final double value) {
 
-        return new DefaultMultiLevelImage(new AbstractMultiLevelSource(srcModel) {
+        return new DefaultMultiLevelImage(new AbstractMultiLevelSource(targetModel) {
 
             @Override
-            public RenderedImage createImage(int level) {
-                final int sourceLevel = getSourceLevel(srcModel, level);
-                return new ReplaceNaNOpImage(srcImage.getImage(sourceLevel), value);
+            public RenderedImage createImage(int targetLevel) {
+                return new ReplaceNaNOpImage(projectedImage.getImage(targetLevel), value);
             }
         });
     }
@@ -429,22 +423,8 @@ public class ReprojectionOp extends Operator {
         return new DefaultMultiLevelImage(new AbstractMultiLevelSource(srcModel) {
 
             @Override
-            public RenderedImage createImage(int level) {
-                return new InsertNoDataValueOpImage(srcImage.getImage(level), maskImage.getImage(level), noData);
-            }
-        });
-    }
-
-    private MultiLevelImage createVirtualSourceImage(final String expression, final int geoDataType,
-                                                     final Number noDataValue) {
-
-        return new DefaultMultiLevelImage(new AbstractMultiLevelSource(srcModel) {
-
-            @Override
-            public RenderedImage createImage(int level) {
-                return VirtualBandOpImage.create(expression, geoDataType,
-                                                 noDataValue, sourceProduct,
-                                                 ResolutionLevel.create(getModel(), level));
+            public RenderedImage createImage(int sourceLevel) {
+                return new InsertNoDataValueOpImage(srcImage.getImage(sourceLevel), maskImage.getImage(sourceLevel), noData);
             }
         });
     }
@@ -452,12 +432,10 @@ public class ReprojectionOp extends Operator {
     private MultiLevelImage createProjectedImage(final GeoCoding sourceGeoCoding, final MultiLevelImage sourceImage,
                                                  final Band targetBand, final Interpolation resampling) {
 
-
         final CoordinateReferenceSystem sourceModelCrs = ImageManager.getModelCrs(sourceGeoCoding);
         final CoordinateReferenceSystem targetModelCrs = ImageManager.getModelCrs(targetProduct.getGeoCoding());
         final AffineTransform i2mSourceProduct = ImageManager.getImageToModelTransform(sourceGeoCoding);
         final AffineTransform i2mTargetProduct = ImageManager.getImageToModelTransform(targetProduct.getGeoCoding());
-
 
         return new DefaultMultiLevelImage(new AbstractMultiLevelSource(targetModel) {
 
@@ -480,11 +458,11 @@ public class ReprojectionOp extends Operator {
                                                                  i2mSource);
 
                 ImageLayout imageLayout = ImageManager.createSingleBandedImageLayout(
-                        ImageManager.getDataBufferType(targetBand.getDataType()),
-                        targetProduct.getSceneRasterWidth(),
-                        targetProduct.getSceneRasterHeight(),
-                        targetProduct.getPreferredTileSize(),
-                        ResolutionLevel.create(getModel(), targetLevel));
+                            ImageManager.getDataBufferType(targetBand.getDataType()),
+                            targetProduct.getSceneRasterWidth(),
+                            targetProduct.getSceneRasterHeight(),
+                            targetProduct.getPreferredTileSize(),
+                            ResolutionLevel.create(getModel(), targetLevel));
                 Rectangle targetBounds = new Rectangle(imageLayout.getWidth(null), imageLayout.getHeight(null));
 
                 // the following transformation maps the target level image to level zero and then to the model,
@@ -516,12 +494,8 @@ public class ReprojectionOp extends Operator {
     }
 
     private int getSourceLevel(MultiLevelModel srcModel, int targetLevel) {
-        int sourceLevel = targetLevel;
-        int sourceLevelCount = srcModel.getLevelCount();
-        if (sourceLevelCount - 1 < targetLevel) {
-            sourceLevel = sourceLevelCount - 1;
-        }
-        return sourceLevel;
+        int maxSourceLevel = srcModel.getLevelCount() - 1;
+        return maxSourceLevel < targetLevel ? maxSourceLevel : targetLevel;
     }
 
     private void copyIndexCoding() {
@@ -695,9 +669,9 @@ public class ReprojectionOp extends Operator {
 
     private ImageInfo createDeltaBandImageInfo(double p1, double p2) {
         return new ImageInfo(new ColorPaletteDef(new ColorPaletteDef.Point[]{
-                new ColorPaletteDef.Point(p1, new Color(255, 0, 0)),
-                new ColorPaletteDef.Point((p1 + p2) / 2, new Color(255, 255, 255)),
-                new ColorPaletteDef.Point(p2, new Color(0, 0, 127)),
+                    new ColorPaletteDef.Point(p1, new Color(255, 0, 0)),
+                    new ColorPaletteDef.Point((p1 + p2) / 2, new Color(255, 255, 255)),
+                    new ColorPaletteDef.Point(p2, new Color(0, 0, 127)),
         }));
     }
 }

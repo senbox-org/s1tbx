@@ -14,7 +14,8 @@
     <packaging>pom</packaging>
 
     <name>BEAM Plugin Parent</name>
-    <description>This POM serves as parent for all internal plugin modules, providing their dependency management.
+    <description>
+        This POM serves as parent for all internal plugin modules, providing their dependency management.
     </description>
 
     <properties>
@@ -128,7 +129,17 @@
             <dependency>
                 <groupId>edu.ucar</groupId>
                 <artifactId>nujan</artifactId>
-                <version>1.4.1</version>
+                <version>1.4.1.1</version>
+            </dependency>
+            <dependency>
+                <groupId>org.htmlparser</groupId>
+                <artifactId>htmlparser</artifactId>
+                <version>1.6</version>
+            </dependency>
+            <dependency>
+                <groupId>edu.ucar</groupId>
+                <artifactId>opendap</artifactId>
+                <version>2.2.2</version>
             </dependency>
 
             <!-- GeoTools Libraries ############################################# -->

@@ -46,7 +46,7 @@ public abstract class AbstractPlacemarkTableModel extends DefaultTableModel {
     private final ArrayList<Placemark> placemarkList;
 
     protected AbstractPlacemarkTableModel(PlacemarkDescriptor placemarkDescriptor, Product product, Band[] selectedBands,
-                                          TiePointGrid[] selectedGrids) {
+                                       TiePointGrid[] selectedGrids) {
         this.placemarkDescriptor = placemarkDescriptor;
         this.product = product;
         initSelectedBands(selectedBands);
@@ -349,7 +349,7 @@ public abstract class AbstractPlacemarkTableModel extends DefaultTableModel {
         public void nodeChanged(ProductNodeEvent event) {
             fireTableDataChanged(event);
         }
-
+        
         @Override
         public void nodeDataChanged(ProductNodeEvent event) {
             if (event.getSourceNode() instanceof Band) {

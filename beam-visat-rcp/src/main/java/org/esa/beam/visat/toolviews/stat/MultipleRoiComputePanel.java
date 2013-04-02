@@ -47,10 +47,12 @@ import javax.swing.text.Position;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
+import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.util.Enumeration;
 
 
 /**
@@ -270,7 +272,7 @@ class MultipleRoiComputePanel extends JPanel {
         for (int i = 0; i < allNames.length; i++) {
             String name = allNames[i];
             if (StringUtils.contains(currentSelectedMaskNames, name)) {
-                maskNameList.getCheckBoxListSelectionModel().addSelectionInterval(i, i);
+                maskNameList.getCheckBoxListSelectionModel().addSelectionInterval(i,i);
             }
         }
 

@@ -2,6 +2,7 @@ package org.esa.beam.framework.ui;
 
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.swing.binding.BindingContext;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 

@@ -52,7 +52,10 @@ import java.util.logging.Logger;
 /**
  * Base class for all scientific processors using the processor framework. Override this class to create new
  * processors.
+ *
+ * @deprecated since BEAM 4.11. Use the {@link org.esa.beam.framework.gpf Graph Processing Framework} instead.
  */
+@Deprecated
 public abstract class Processor {
 
     private static final String _defaultUITitle = "BEAM Processor";

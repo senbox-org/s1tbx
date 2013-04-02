@@ -16,11 +16,7 @@
 
 package org.esa.beam.visat.toolviews.layermanager.layersrc.wms;
 
-import com.bc.ceres.binding.ConversionException;
-import com.bc.ceres.binding.Property;
-import com.bc.ceres.binding.PropertyContainer;
-import com.bc.ceres.binding.PropertySet;
-import com.bc.ceres.binding.ValidationException;
+import com.bc.ceres.binding.*;
 import com.bc.ceres.binding.dom.DomConverter;
 import com.bc.ceres.binding.dom.DomElement;
 import com.bc.ceres.glayer.Layer;
@@ -42,7 +38,7 @@ import org.geotools.ows.ServiceException;
 
 import javax.imageio.ImageIO;
 import javax.media.jai.PlanarImage;
-import java.awt.Dimension;
+import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;

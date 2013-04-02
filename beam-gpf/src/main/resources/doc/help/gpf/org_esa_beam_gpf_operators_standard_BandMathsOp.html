@@ -9,38 +9,54 @@
     <tr class="header">
         <td class="header">&nbsp;BandMaths Operator</td>
         <td class="header" align="right">
-           <a href="../general/BeamOverview.html">             <img src="images/BeamHeader.jpg" border="0"/></a>
+            <a href="../general/BeamOverview.html"> <img src="images/BeamHeader.jpg" border="0"/></a>
         </td>
     </tr>
 </table>
 <h1>BandMaths Operator Description</h1>
+
 <h2>Overview</h2>
 <table>
-  <tr><td><b>Name:</b></td><td><code>BandMaths</code></td></tr>
-  <tr><td><b>Full name:</b></td><td><code>org.esa.beam.gpf.operators.standard.BandMathsOp</code></td></tr>
-  <tr><td><b>Purpose:</b></td><td>Create a product with one or more bands using mathematical expressions.</td></tr>
-  <tr><td><b>Version:</b></td><td>1.0</td></tr>
+    <tr>
+        <td><b>Name:</b></td>
+        <td><code>BandMaths</code></td>
+    </tr>
+    <tr>
+        <td><b>Full name:</b></td>
+        <td><code>org.esa.beam.gpf.operators.standard.BandMathsOp</code></td>
+    </tr>
+    <tr>
+        <td><b>Purpose:</b></td>
+        <td>Create a product with one or more bands using mathematical expressions.</td>
+    </tr>
+    <tr>
+        <td><b>Version:</b></td>
+        <td>1.0</td>
+    </tr>
 </table>
 <h2>Description</h2>
+
 <p>
- This band maths operator can be used to create a product with multiple bands based on mathematical expression.<br/>
- All products specified as source must have the same width and height, otherwise the operator will fail.
- The geo-coding information and metadata for the target product is taken from the first source product.
- </p>
- <p>
- To reference a band of one of the source products within an expression use the following syntax:<br/>
- <br/>
- <code>sourceProducts<b>#</b>.bandName</code><br/>
- <br/>
- Where <b>#</b> means the index of the source product. The index is zero based.<br/>
- The bands of the first source product (<code>sourceProducts<b>0</b></code>) can be referenced without this
- product identifier.
- </p>
- <p>
- When using this operator from the command-line Graph XML file must be provided in order to
- specify all parameters. Here is some sample XML of how to use a <code>BandMaths</code> node within
- a graph:
- </p>
+    This band maths operator can be used to create a product with multiple bands based on mathematical expression.<br/>
+    All products specified as source must have the same width and height, otherwise the operator will fail.
+    The geo-coding information and metadata for the target product is taken from the first source product.
+</p>
+
+<p>
+    To reference a band of one of the source products within an expression use the following syntax:<br/>
+    <br/>
+    <code>sourceProducts<b>#</b>.bandName</code><br/>
+    <br/>
+    Where <b>#</b> means the index of the source product. The index is zero based.<br/>
+    The bands of the first source product (<code>sourceProducts<b>0</b></code>) can be referenced without this
+    product identifier.
+</p>
+
+<p>
+    When using this operator from the command-line Graph XML file must be provided in order to
+    specify all parameters. Here is some sample XML of how to use a <code>BandMaths</code> node within
+    a graph:
+</p>
  <pre>
       &lt;node id="bandMathsNode"&gt;
         &lt;operator&gt;BandMaths&lt;/operator&gt;
@@ -90,38 +106,38 @@
  </pre>
 <h2>Sources</h2>
 <table>
-<tr>
-  <th>Name</th>
-  <th>Description</th>
-</tr>
-<tr>
-  <td><code>sourceProducts</code></td>
-  <td>Any number of source products.</td>
-</tr>
+    <tr>
+        <th>Name</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td><code>sourceProducts</code></td>
+        <td>Any number of source products.</td>
+    </tr>
 </table>
 <h2>Parameters</h2>
 <table>
-<tr>
-  <th>Name</th>
-  <th>Data Type</th>
-  <th>Default</th>
-  <th>Description</th>
-  <th>Constraints</th>
-</tr>
-<tr>
-  <td><code>targetBands</code></td>
-  <td><code>BandDescriptor[]</code></td>
-  <td><code></code></td>
-  <td>List of descriptors defining the target bands.</td>
-  <td></td>
-</tr>
-<tr>
-  <td><code>variables</code></td>
-  <td><code>Variable[]</code></td>
-  <td><code></code></td>
-  <td>List of variables which can be used within the expressions.</td>
-  <td></td>
-</tr>
+    <tr>
+        <th>Name</th>
+        <th>Data Type</th>
+        <th>Default</th>
+        <th>Description</th>
+        <th>Constraints</th>
+    </tr>
+    <tr>
+        <td><code>targetBands</code></td>
+        <td><code>BandDescriptor[]</code></td>
+        <td><code></code></td>
+        <td>List of descriptors defining the target bands.</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><code>variables</code></td>
+        <td><code>Variable[]</code></td>
+        <td><code></code></td>
+        <td>List of variables which can be used within the expressions.</td>
+        <td></td>
+    </tr>
 </table>
 <hr/>
 </body>

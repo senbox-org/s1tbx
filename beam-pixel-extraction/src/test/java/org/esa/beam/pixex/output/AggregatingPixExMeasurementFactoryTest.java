@@ -16,7 +16,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 public class AggregatingPixExMeasurementFactoryTest {
 
@@ -143,7 +143,7 @@ public class AggregatingPixExMeasurementFactoryTest {
     private Measurement createExpectedMeasurement(int pixelX, int pixelY, int coordinateID,
                                                   String coordsName, float firstExpectedValue,
                                                   float secondExpectedValue) throws
-            IOException {
+                                                                             IOException {
         final Number[] values = {firstExpectedValue, secondExpectedValue};
 
         final long productId = productRegistry.getProductId(product);

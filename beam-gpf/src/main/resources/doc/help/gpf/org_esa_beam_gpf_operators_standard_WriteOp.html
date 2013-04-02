@@ -9,26 +9,39 @@
     <tr class="header">
         <td class="header">&nbsp;Write Operator</td>
         <td class="header" align="right">
-           <a href="../general/BeamOverview.html">             <img src="images/BeamHeader.jpg" border="0"/></a>
+            <a href="../general/BeamOverview.html"> <img src="images/BeamHeader.jpg" border="0"/></a>
         </td>
     </tr>
 </table>
 <h1>Write Operator Description</h1>
+
 <h2>Overview</h2>
 <table>
-  <tr><td><b>Name:</b></td><td><code>Write</code></td></tr>
-  <tr><td><b>Full name:</b></td><td><code>org.esa.beam.gpf.operators.standard.WriteOp</code></td></tr>
-  <tr><td><b>Purpose:</b></td><td>Writes a data product to a file.</td></tr>
-  <tr><td><b>Version:</b></td><td>1.3</td></tr>
+    <tr>
+        <td><b>Name:</b></td>
+        <td><code>Write</code></td>
+    </tr>
+    <tr>
+        <td><b>Full name:</b></td>
+        <td><code>org.esa.beam.gpf.operators.standard.WriteOp</code></td>
+    </tr>
+    <tr>
+        <td><b>Purpose:</b></td>
+        <td>Writes a data product to a file.</td>
+    </tr>
+    <tr>
+        <td><b>Version:</b></td>
+        <td>1.3</td>
+    </tr>
 </table>
 <h2>Description</h2>
 This standard operator is used to store a data product to a specified file location.
- <p/>
- It is used by the framework, e.g. the {@code gpt} command line tool, to write target products.
- <p/>
- It may also be used by clients to write out break-point product files. This is done by placing
- a {@code WriteOp} node after any node in a processing graph:
- <p/>
+<p/>
+It is used by the framework, e.g. the {@code gpt} command line tool, to write target products.
+<p/>
+It may also be used by clients to write out break-point product files. This is done by placing
+a {@code WriteOp} node after any node in a processing graph:
+<p/>
  <pre>
  &lt;node id="anyNodeId"&gt;
      &lt;operator&gt;Write&lt;/operator&gt;
@@ -44,8 +57,8 @@ This standard operator is used to store a data product to a specified file locat
      &lt;/parameters&gt;
  &lt;/node&gt;
  </pre>
- <p/>
- Clients may also use this operator in a programmatic way:
+<p/>
+Clients may also use this operator in a programmatic way:
  <pre>
    WriteOp writeOp = new WriteOp(sourceProduct, file, formatName);
    writeOp.setDeleteOutputOnFailure(true);
@@ -54,59 +67,61 @@ This standard operator is used to store a data product to a specified file locat
  </pre>
 <h2>Sources</h2>
 <table>
-<tr>
-  <th>Name</th>
-  <th>Description</th>
-</tr>
-<tr>
-  <td><code>sourceProduct</code></td>
-  <td>The source product to be written.</td>
-</tr>
+    <tr>
+        <th>Name</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td><code>sourceProduct</code></td>
+        <td>The source product to be written.</td>
+    </tr>
 </table>
 <h2>Parameters</h2>
 <table>
-<tr>
-  <th>Name</th>
-  <th>Data Type</th>
-  <th>Default</th>
-  <th>Description</th>
-  <th>Constraints</th>
-</tr>
-<tr>
-  <td><code>file</code></td>
-  <td><code>File</code></td>
-  <td><code></code></td>
-  <td>The output file to which the data product is written.</td>
-  <td></td>
-</tr>
-<tr>
-  <td><code>formatName</code></td>
-  <td><code>String</code></td>
-  <td><code>BEAM-DIMAP</code></td>
-  <td>The name of the output file format.</td>
-  <td></td>
-</tr>
-<tr>
-  <td><code>deleteOutputOnFailure</code></td>
-  <td><code>boolean</code></td>
-  <td><code>true</code></td>
-  <td>If true, all output files are deleted after a failed write operation.</td>
-  <td></td>
-</tr>
-<tr>
-  <td><code>writeEntireTileRows</code></td>
-  <td><code>boolean</code></td>
-  <td><code>true</code></td>
-  <td>If true, the write operation waits until an entire tile row is computed.</td>
-  <td></td>
-</tr>
-<tr>
-  <td><code>clearCacheAfterRowWrite</code></td>
-  <td><code>boolean</code></td>
-  <td><code>false</code></td>
-  <td>If true, the internal tile cache is cleared after a tile row has been written. Ignored if writeEntireTileRows=false.</td>
-  <td></td>
-</tr>
+    <tr>
+        <th>Name</th>
+        <th>Data Type</th>
+        <th>Default</th>
+        <th>Description</th>
+        <th>Constraints</th>
+    </tr>
+    <tr>
+        <td><code>file</code></td>
+        <td><code>File</code></td>
+        <td><code></code></td>
+        <td>The output file to which the data product is written.</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><code>formatName</code></td>
+        <td><code>String</code></td>
+        <td><code>BEAM-DIMAP</code></td>
+        <td>The name of the output file format.</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><code>deleteOutputOnFailure</code></td>
+        <td><code>boolean</code></td>
+        <td><code>true</code></td>
+        <td>If true, all output files are deleted after a failed write operation.</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><code>writeEntireTileRows</code></td>
+        <td><code>boolean</code></td>
+        <td><code>true</code></td>
+        <td>If true, the write operation waits until an entire tile row is computed.</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><code>clearCacheAfterRowWrite</code></td>
+        <td><code>boolean</code></td>
+        <td><code>false</code></td>
+        <td>If true, the internal tile cache is cleared after a tile row has been written. Ignored if
+            writeEntireTileRows=false.
+        </td>
+        <td></td>
+    </tr>
 </table>
 <hr/>
 </body>

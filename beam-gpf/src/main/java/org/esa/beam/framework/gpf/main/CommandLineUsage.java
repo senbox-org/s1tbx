@@ -25,16 +25,8 @@ import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.OperatorSpiRegistry;
-import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
-import org.esa.beam.framework.gpf.annotations.Parameter;
-import org.esa.beam.framework.gpf.annotations.SourceProduct;
-import org.esa.beam.framework.gpf.annotations.SourceProducts;
-import org.esa.beam.framework.gpf.annotations.TargetProperty;
-import org.esa.beam.framework.gpf.graph.Graph;
-import org.esa.beam.framework.gpf.graph.GraphException;
-import org.esa.beam.framework.gpf.graph.Header;
-import org.esa.beam.framework.gpf.graph.HeaderParameter;
-import org.esa.beam.framework.gpf.graph.HeaderSource;
+import org.esa.beam.framework.gpf.annotations.*;
+import org.esa.beam.framework.gpf.graph.*;
 import org.esa.beam.framework.gpf.internal.OperatorClassDescriptor;
 
 import java.io.BufferedReader;
@@ -43,15 +35,8 @@ import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
-import java.util.StringTokenizer;
 
 class CommandLineUsage {
     private static final String COMMAND_LINE_USAGE_RESOURCE = "CommandLineUsage.txt";

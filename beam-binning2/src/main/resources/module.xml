@@ -5,9 +5,8 @@
     <name>Level-3 Binning Processor (GPF)</name>
 
     <description>
-        The Level-3 Binning Processor performs a spatial and temporal aggregation of a number of input (Level-2)
-        products using the NASA SeaDAS binning scheme. This is the BEAM GPF version of the "old" BEAM Level-3
-        Binning Processor.
+        The Level-3 Binning Operator performs a spatial and temporal aggregation of a number of input (Level-2)
+        products using the NASA SeaDAS binning scheme. This module has replaced the module 'beam-binning'.
     </description>
 
     <vendor>Brockmann Consult GmbH</vendor>
@@ -74,7 +73,7 @@
     <extension point="beam-ui:actions">
         <action>
             <id>BinningNew</id>
-            <text>Level-3 Binning (GPF)</text>
+            <text>Level-3 Binning</text>
             <class>org.esa.beam.binning.operator.ui.BinningOperatorAction</class>
             <helpId>gpf_binning_overview</helpId>
             <placeAfter>Binning</placeAfter>

@@ -31,6 +31,7 @@ import java.util.regex.Pattern;
  *
  * @author Thomas Storm
  * @author Tonio Fincke
+ *
  */
 public class PatternProvider {
 
@@ -51,16 +52,16 @@ public class PatternProvider {
     public static List<String[]> recommendPatterns(String fileName) {
         fileName = replaceColon(fileName);
         List<String[]> patternCombinations = new ArrayList<String[]>();
-        for (String dateString : DATE_PATTERNS) {
+        for(String dateString : DATE_PATTERNS) {
             dateString = replaceColon(dateString);
             final Pattern datePattern = convertDateStringToPattern(dateString);
             Matcher matcher = datePattern.matcher(fileName);
-            if (matcher.matches()) {
+            if(matcher.matches()) {
                 TimeStampExtractor timeStampExtractor = new TimeStampExtractor(dateString, FILENAME_PATTERNS[0]);
-                try {
+                try{
                     timeStampExtractor.extractTimeStamps(fileName);
                     patternCombinations.add(new String[]{insertColon(dateString), FILENAME_PATTERNS[0]});
-                    try {
+                    try{
                         timeStampExtractor = new TimeStampExtractor(insertColon(dateString), FILENAME_PATTERNS[1]);
                         timeStampExtractor.extractTimeStamps(fileName);
                         patternCombinations.add(new String[]{dateString, FILENAME_PATTERNS[1]});

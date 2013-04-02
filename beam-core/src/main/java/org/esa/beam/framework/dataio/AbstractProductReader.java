@@ -43,6 +43,7 @@ import java.util.logging.Logger;
  * @see #readBandRasterData
  */
 public abstract class AbstractProductReader implements ProductReader {
+
     /**
      * @since BEAM 4.9
      */
@@ -136,6 +137,7 @@ public abstract class AbstractProductReader implements ProductReader {
      * accepted with respect to the optional spectral band subset. All accepted nodes will be part of the product read.
      *
      * @param name the node name
+     *
      * @return <code>true</code> if so
      */
     public boolean isNodeAccepted(String name) {
@@ -155,6 +157,7 @@ public abstract class AbstractProductReader implements ProductReader {
      *                  <code>ImageInputStream</code> or other <code>Object</code> to use for future decoding.
      * @param subsetDef a spectral or spatial subset (or both) of the product. If <code>null</code>, the entire product
      *                  is read in
+     *
      * @throws IllegalArgumentException   if input type is not supported (see {@link ProductReaderPlugIn#getInputTypes()}).
      * @throws IOException                if an I/O error occurs
      * @throws IllegalFileFormatException if the file format is unknown.
@@ -183,6 +186,7 @@ public abstract class AbstractProductReader implements ProductReader {
      * <p>This method is called as a last step in the <code>readProductNodes(input, subsetInfo)</code> method.
      *
      * @return a new product instance
+     *
      * @throws IOException if an I/O error occurs
      */
     protected abstract Product readProductNodesImpl() throws IOException;
@@ -205,6 +209,7 @@ public abstract class AbstractProductReader implements ProductReader {
      * @param destHeight  the height of region to be read given in the band's raster co-ordinates
      * @param destBuffer  the destination buffer which receives the sample values to be read
      * @param pm          a monitor to inform the user about progress
+     *
      * @throws IOException              if an I/O error occurs
      * @throws IllegalArgumentException if the number of elements destination buffer not equals <code>destWidth *
      *                                  destHeight</code> or the destination region is out of the band's raster
@@ -284,6 +289,7 @@ public abstract class AbstractProductReader implements ProductReader {
      * @param destHeight    the height of region to be read given in the band's raster co-ordinates
      * @param destBuffer    the destination buffer which receives the sample values to be read
      * @param pm            a monitor to inform the user about progress
+     *
      * @throws IOException if an I/O error occurs
      * @see #readBandRasterData
      * @see #getSubsetDef
@@ -346,6 +352,9 @@ public abstract class AbstractProductReader implements ProductReader {
         }
 
         final File parent = inputFile.getParentFile();
+        if (parent == null) {
+            return null;
+        }
         final TreeNode<File> result = new TreeNode<File>(parent.getName());
         result.setContent(parent);
 
@@ -359,7 +368,9 @@ public abstract class AbstractProductReader implements ProductReader {
      * Checks if the given object is an instance of one of the valid input types for this product reader.
      *
      * @param input the input object passed to {@link #readProductNodes(Object, ProductSubsetDef)}
+     *
      * @return <code>true</code> if so
+     *
      * @see org.esa.beam.framework.dataio.ProductReaderPlugIn#getInputTypes()
      */
     protected boolean isInstanceOfValidInputType(Object input) {
@@ -383,6 +394,7 @@ public abstract class AbstractProductReader implements ProductReader {
      * {@link TiePointGrid#DISCONT_NONE} otherwise.
      *
      * @param name the grid name
+     *
      * @return the discontinuity mode, always one of {@link TiePointGrid#DISCONT_NONE}, {@link TiePointGrid#DISCONT_AT_180} and {@link TiePointGrid#DISCONT_AT_360}.
      */
     protected int getGridDiscontinutity(String name) {
@@ -405,6 +417,7 @@ public abstract class AbstractProductReader implements ProductReader {
      * @param subSamplingX the grid subsampling's X in pixel units
      * @param subSamplingY the grid subsampling's Y in pixel units
      * @param tiePoints    the tie-points
+     *
      * @return the tie-point grid instance, never null
      */
     protected TiePointGrid createTiePointGrid(String gridName,
@@ -418,8 +431,8 @@ public abstract class AbstractProductReader implements ProductReader {
         final int gridDiscontinutity = getGridDiscontinutity(gridName);
         if (gridDiscontinutity != 0) {
             Debug.trace("creating tie-point grid '" + gridName +
-                                "' with discontinuity at " + gridDiscontinutity +
-                                " degree");
+                        "' with discontinuity at " + gridDiscontinutity +
+                        " degree");
         }
         return new TiePointGrid(gridName,
                                 gridWidth,
@@ -496,7 +509,7 @@ public abstract class AbstractProductReader implements ProductReader {
 
     private static boolean isNameOfLongitudeGrid(String name) {
         return name.equalsIgnoreCase("lon") ||
-                name.equalsIgnoreCase("long") ||
-                name.equalsIgnoreCase("longitude");
+               name.equalsIgnoreCase("long") ||
+               name.equalsIgnoreCase("longitude");
     }
 }

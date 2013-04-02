@@ -16,7 +16,7 @@
 
 package org.esa.beam.binning;
 
-import java.awt.Rectangle;
+import java.awt.*;
 import java.io.IOException;
 
 /**

@@ -52,7 +52,7 @@ public class BinningFormModelImplTest {
 
         final TableRow tableRow = new TableRow("name", "name", null, 0.1, 90, 0.2f);
         binningFormModel.setProperty(BinningFormModel.PROPERTY_KEY_VARIABLE_CONFIGS,
-                                     new TableRow[]{tableRow});
+                                 new TableRow[]{tableRow});
 
         assertArrayEquals(new TableRow[]{tableRow}, binningFormModel.getTableRows());
     }
@@ -62,10 +62,10 @@ public class BinningFormModelImplTest {
         final BinningFormModel binningFormModel = new BinningFormModelImpl();
         final MyPropertyChangeListener listener = new MyPropertyChangeListener();
         binningFormModel.addPropertyChangeListener(listener);
-
+        
         binningFormModel.setProperty("key1", "value1");
         binningFormModel.setProperty("key2", "value2");
-
+        
         assertEquals("value1", listener.targetMap.get("key1"));
         assertEquals("value2", listener.targetMap.get("key2"));
     }

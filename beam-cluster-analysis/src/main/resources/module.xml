@@ -11,8 +11,6 @@
 
     <changelog>
         <![CDATA[
-        <!--<p>Changes in Version 1.1.3-->
-        <!--Adapted to BEAM 5.0<br>-->
         Changes in 1.1.2:<br/>
         Added PCA<br/>
         Adapted to new Maven-architecture<br>

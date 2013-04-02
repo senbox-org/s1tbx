@@ -132,7 +132,7 @@ public class RegionSelectableWorldMapPane {
             setDefaultValues(bindingContext);
         } else if (!geoBoundsAreValid(northBound, eastBound, southBound, westBound)) {
             throw new IllegalArgumentException(MessageFormat.format("Given geo-bounds ({0}, {1}, {2}, {3}) are invalid.",
-                                                                    northBound, eastBound, southBound, westBound));
+                    northBound, eastBound, southBound, westBound));
         }
     }
 
@@ -277,10 +277,10 @@ public class RegionSelectableWorldMapPane {
 
         private void updateRectanglesForDragCursor() {
             Rectangle2D.Double rectangleForDragCursor = new Rectangle2D.Double(movableRectangle.getX() + OFFSET,
-                                                                               movableRectangle.getY() + OFFSET,
-                                                                               movableRectangle.getWidth() - 2 * OFFSET,
-                                                                               movableRectangle.getHeight() -
-                                                                                       2 * OFFSET);
+                    movableRectangle.getY() + OFFSET,
+                    movableRectangle.getWidth() - 2 * OFFSET,
+                    movableRectangle.getHeight() -
+                            2 * OFFSET);
             rectangleMap.get(MOVE).setRect(rectangleForDragCursor);
 
             final double x = rectangleForDragCursor.getX();
@@ -347,7 +347,7 @@ public class RegionSelectableWorldMapPane {
             }
             Rectangle2D modelBounds = figureEditor.getFigureCollection().getFigure(0).getBounds();
             modelBounds.setFrame(modelBounds.getX() - 2, modelBounds.getY() - 2,
-                                 modelBounds.getWidth() + 4, modelBounds.getHeight() + 4);
+                    modelBounds.getWidth() + 4, modelBounds.getHeight() + 4);
 
             getLayerCanvas().getViewport().zoom(modelBounds);
             handleZoom();
@@ -445,8 +445,8 @@ public class RegionSelectableWorldMapPane {
             Point2D.Double upperLeft = modelToView(upperLeftGeoPos, modelToViewTransform);
 
             Rectangle2D.Double rectangularShape = new Rectangle2D.Double(upperLeft.x, upperLeft.y,
-                                                                         lowerRight.x - upperLeft.x,
-                                                                         lowerRight.y - upperLeft.y);
+                    lowerRight.x - upperLeft.x,
+                    lowerRight.y - upperLeft.y);
             selectionRectangle = createRectangle(rectangularShape);
             movableRectangle = createRectangle(rectangularShape);
             defaultRectangle = createRectangle(rectangularShape);
@@ -456,7 +456,7 @@ public class RegionSelectableWorldMapPane {
 
         private Rectangle2D.Double createRectangle(Rectangle2D.Double rectangularShape) {
             return new Rectangle2D.Double(rectangularShape.getX(), rectangularShape.getY(),
-                                          rectangularShape.getWidth(), rectangularShape.getHeight());
+                    rectangularShape.getWidth(), rectangularShape.getHeight());
         }
 
         private Point2D.Double modelToView(GeoPos geoPos, AffineTransform modelToView) {
@@ -560,7 +560,7 @@ public class RegionSelectableWorldMapPane {
                             && selectionRectangle.getWidth() == widthOfUpdatedRectangle
                             && selectionRectangle.getHeight() == heightOfUpdatedRectangle)) {
                 setMovableRectangleInImageCoordinates(xOfUpdatedRectangle, yOfUpdatedRectangle,
-                                                      widthOfUpdatedRectangle, heightOfUpdatedRectangle);
+                        widthOfUpdatedRectangle, heightOfUpdatedRectangle);
                 Shape newFigureShape = getViewToModelTransform(event).createTransformedShape(movableRectangle);
                 final Rectangle2D modelRectangle = newFigureShape.getBounds2D();
                 adaptToModelRectangle(modelRectangle);
@@ -711,9 +711,9 @@ public class RegionSelectableWorldMapPane {
 
         private Rectangle2D.Double createIntersectionRectangle() {
             return new Rectangle2D.Double(selectionRectangle.getX() - OFFSET,
-                                          selectionRectangle.getY() - OFFSET,
-                                          selectionRectangle.getWidth() + 2 * OFFSET,
-                                          selectionRectangle.getHeight() + 2 * OFFSET);
+                    selectionRectangle.getY() - OFFSET,
+                    selectionRectangle.getWidth() + 2 * OFFSET,
+                    selectionRectangle.getHeight() + 2 * OFFSET);
         }
 
     }

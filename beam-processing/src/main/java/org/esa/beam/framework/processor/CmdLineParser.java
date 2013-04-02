@@ -28,7 +28,10 @@ import java.util.logging.Logger;
  * i.e. no or sparse console logging <li> "-v" or "--verbose": a lot of console logging <li> "-d" or "--debug": run in
  * debug mode, i.e. logging a lot of debugging and state information <li> and as single command line argument without
  * option: the path to a request file </ul>
+ *
+ * @deprecated since BEAM 4.11. Use the {@link org.esa.beam.framework.gpf Graph Processing Framework} instead.
  */
+@Deprecated
 public class CmdLineParser {
 
     private static final String _config = "-c";

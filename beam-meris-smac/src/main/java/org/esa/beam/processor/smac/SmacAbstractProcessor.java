@@ -33,8 +33,10 @@ import java.io.IOException;
 import java.util.Vector;
 import java.util.logging.Logger;
 
-//@todo 1 se/** - add (more) class documentation
-
+/*
+ * @deprecated since BEAM 4.11. No replacement.
+ */
+@Deprecated
 public abstract class SmacAbstractProcessor {
 
     private Product _inputProduct;

@@ -124,9 +124,9 @@ public class WorldMapPane extends JPanel {
                                                                 upperLeft.getY() - lowerRight.getY());
 
                 boolean isWorldMapFullyVisible = getLayerCanvas().getBounds().intersects(northBorder) ||
-                        getLayerCanvas().getBounds().intersects(southBorder) ||
-                        getLayerCanvas().getBounds().intersects(westBorder) ||
-                        getLayerCanvas().getBounds().intersects(eastBorder);
+                                                 getLayerCanvas().getBounds().intersects(southBorder) ||
+                                                 getLayerCanvas().getBounds().intersects(westBorder) ||
+                                                 getLayerCanvas().getBounds().intersects(eastBorder);
                 if (isWorldMapFullyVisible) {
                     zoomAll();
                 }
@@ -262,7 +262,7 @@ public class WorldMapPane extends JPanel {
             repaint();
         }
         if (WorldMapPaneDataModel.PROPERTY_SELECTED_PRODUCT.equals(evt.getPropertyName()) ||
-                WorldMapPaneDataModel.PROPERTY_AUTO_ZOOM_ENABLED.equals(evt.getPropertyName())) {
+            WorldMapPaneDataModel.PROPERTY_AUTO_ZOOM_ENABLED.equals(evt.getPropertyName())) {
             final Product selectedProduct = dataModel.getSelectedProduct();
             if (selectedProduct != null && dataModel.isAutoZoomEnabled()) {
                 zoomToProduct(selectedProduct);
@@ -290,7 +290,7 @@ public class WorldMapPane extends JPanel {
     private Rectangle2D cropToMaxModelBounds(Rectangle2D modelBounds) {
         final Rectangle2D maxModelBounds = worldMapLayer.getModelBounds();
         if (modelBounds.getWidth() >= maxModelBounds.getWidth() - 1 ||
-                modelBounds.getHeight() >= maxModelBounds.getHeight() - 1) {
+            modelBounds.getHeight() >= maxModelBounds.getHeight() - 1) {
             modelBounds = maxModelBounds;
         }
         return modelBounds;
@@ -371,7 +371,7 @@ public class WorldMapPane extends JPanel {
             layerCanvas.getViewport().setZoomFactor(Math.max(newZoomFactor, minZoomFactor));
 
             if (layerCanvas.getViewport().getZoomFactor() > oldFactor
-                    || viewportIsInWorldMapBounds(0, 0, layerCanvas)) {
+                || viewportIsInWorldMapBounds(0, 0, layerCanvas)) {
                 fireScrolled();
                 return;
             }
@@ -478,6 +478,7 @@ public class WorldMapPane extends JPanel {
      * Set the worldmap's scale.
      *
      * @param scale the scale.
+     *
      * @deprecated since 4.10.1, use layer canvas for zooming instead
      */
     @Deprecated

@@ -72,12 +72,15 @@ public class StatisticComputer {
         stxOpMappings = new HashMap<BandConfiguration, StxOpMapping>();
     }
 
-    public void computeStatistic(Product product) {
-        final FeatureCollection<SimpleFeatureType, SimpleFeature> productFeatures;
+    public void computeStatistic(final Product product) {
         VectorDataNode[] vectorDataNodes = null;
         if (features != null) {
-            productFeatures = FeatureUtils.clipFeatureCollectionToProductBounds(features, product, crsProvider, pm);
+            final FeatureCollection<SimpleFeatureType, SimpleFeature> productFeatures
+                        = FeatureUtils.clipFeatureCollectionToProductBounds(features, product, crsProvider, pm);
             vectorDataNodes = createVectorDataNodes(productFeatures);
+            for (VectorDataNode vectorDataNode : vectorDataNodes) {
+                product.getVectorDataGroup().add(vectorDataNode);
+            }
         }
         for (BandConfiguration bandConfiguration : bandConfigurations) {
             final Band band = getBand(bandConfiguration, product);
@@ -93,7 +96,6 @@ public class StatisticComputer {
             final StxOpMapping stxOpsMapping = getStxOpsMapping(bandConfiguration);
             if (features != null) {
                 for (VectorDataNode vectorDataNode : vectorDataNodes) {
-                    product.getVectorDataGroup().add(vectorDataNode);
                     final String vdnName = vectorDataNode.getName();
                     Mask currentMask = product.getMaskGroup().get(vdnName);
                     final Shape roiShape = currentMask.getValidShape();

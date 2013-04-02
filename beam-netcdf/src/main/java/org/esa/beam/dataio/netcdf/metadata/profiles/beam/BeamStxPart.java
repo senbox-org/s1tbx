@@ -86,13 +86,15 @@ public class BeamStxPart extends ProfilePartIO {
                 String variableName = ReaderUtils.getVariableName(band);
                 final Stx stx = band.getStx();
                 final NVariable variable = ctx.getNetcdfFileWriteable().findVariable(variableName);
-                final double[] statistics = new double[4];
-                statistics[INDEX_SCALED_MIN] = stx.getMinimum();
-                statistics[INDEX_SCALED_MAX] = stx.getMaximum();
-                statistics[INDEX_MEAN] = stx.getMean();
-                statistics[INDEX_STANDARD_DEVIATION] = stx.getStandardDeviation();
-                variable.addAttribute(STATISTICS, Array.factory(statistics));
-                variable.addAttribute(SAMPLE_FREQUENCIES, Array.factory(stx.getHistogramBins()));
+                if (variable != null) {
+                    final double[] statistics = new double[4];
+                    statistics[INDEX_SCALED_MIN] = stx.getMinimum();
+                    statistics[INDEX_SCALED_MAX] = stx.getMaximum();
+                    statistics[INDEX_MEAN] = stx.getMean();
+                    statistics[INDEX_STANDARD_DEVIATION] = stx.getStandardDeviation();
+                    variable.addAttribute(STATISTICS, Array.factory(statistics));
+                    variable.addAttribute(SAMPLE_FREQUENCIES, Array.factory(stx.getHistogramBins()));
+                }
             }
         }
     }

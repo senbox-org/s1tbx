@@ -41,10 +41,7 @@ public interface GeoCoding {
      * Checks whether or not the longitudes of this geo-coding cross the +/- 180 degree meridian.
      *
      * @return <code>true</code>, if so
-     *
-     * @deprecated since 4.10.4; no replacement because this property must not be relevant for any geo-coding
      */
-    @Deprecated
     boolean isCrossingMeridianAt180();
 
     /**

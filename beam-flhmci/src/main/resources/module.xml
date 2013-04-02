@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-flhmci</symbolicName>
-    <version>1.6.203</version>
+    <version>1.6.204</version>
     <name>MERIS FLH/MCI Processor</name>
 
     <description>
@@ -25,8 +25,8 @@
 
     <changelog>
         <![CDATA[
-        <!--Changes in 1.6.204:<br/>-->
-        <!--Adapted to BEAM 5.0<br>-->
+        Changes in 1.6.204:<br/>
+        Aligned version numbers of module.xml and pom.xml<br>
         Changes in 1.6.203:<br/>
         Adapted to new Maven-architecture<br>
         Changes in 1.6.202:<br/>

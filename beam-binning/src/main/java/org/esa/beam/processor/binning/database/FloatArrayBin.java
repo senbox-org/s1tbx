@@ -15,8 +15,11 @@
  */
 package org.esa.beam.processor.binning.database;
 
+@Deprecated
 /**
  * A implementation of the Bin interface which uses an float array.
+ *
+ * @Deprecated since beam-binning 2.1.2 as part of the BEAM 4.11-release. Use module 'beam-binning2' instead.
  */
 public class FloatArrayBin implements Bin {
 

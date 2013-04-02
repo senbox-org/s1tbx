@@ -23,36 +23,36 @@ public class ModisUtilsTest extends TestCase {
 
     private static final String TestCoreString =
             "GROUP                  = INVENTORYMETADATA\n" +
-                    "  GROUPTYPE            = MASTERGROUP\n" +
-                    '\n' +
-                    "  GROUP                  = ECSDATAGRANULE\n" +
-                    '\n' +
-                    "    OBJECT                 = LOCALGRANULEID\n" +
-                    "      NUM_VAL              = 1\n" +
-                    "      VALUE                = \"MYD021KM.A2005297.2205.005.2005299100720.hdf\"\n" +
-                    "    END_OBJECT             = LOCALGRANULEID\n" +
-                    '\n' +
-                    "    OBJECT                 = PRODUCTIONDATETIME\n" +
-                    "      NUM_VAL              = 1\n" +
-                    "      VALUE                = \"2005-10-26T10:07:21.000Z\"\n" +
-                    "    END_OBJECT             = PRODUCTIONDATETIME\n" +
-                    '\n' +
-                    "    OBJECT                 = DAYNIGHTFLAG\n" +
-                    "      NUM_VAL              = 1\n" +
-                    "      VALUE                = \"Night\"\n" +
-                    "    END_OBJECT             = DAYNIGHTFLAG\n" +
-                    "END_GROUP              = ADDITIONALATTRIBUTES\n" +
-                    "GROUP                  = ORBITCALCULATEDSPATIALDOMAIN\n" +
-                    "   OBJECT                 = ORBITNUMBER\n" +
-                    "       CLASS                = \"1\"\n" +
-                    "       NUM_VAL              = 1\n" +
-                    "       VALUE                = 18490\n" +
-                    "   END_OBJECT           = ORBITNUMBER\n" +
-                    "END_GROUP              = ORBITCALCULATEDSPATIALDOMAIN\n" +
-                    '\n' +
-                    "END_GROUP              = INVENTORYMETADATA\n" +
-                    '\n' +
-                    "END";
+            "  GROUPTYPE            = MASTERGROUP\n" +
+            '\n' +
+            "  GROUP                  = ECSDATAGRANULE\n" +
+            '\n' +
+            "    OBJECT                 = LOCALGRANULEID\n" +
+            "      NUM_VAL              = 1\n" +
+            "      VALUE                = \"MYD021KM.A2005297.2205.005.2005299100720.hdf\"\n" +
+            "    END_OBJECT             = LOCALGRANULEID\n" +
+            '\n' +
+            "    OBJECT                 = PRODUCTIONDATETIME\n" +
+            "      NUM_VAL              = 1\n" +
+            "      VALUE                = \"2005-10-26T10:07:21.000Z\"\n" +
+            "    END_OBJECT             = PRODUCTIONDATETIME\n" +
+            '\n' +
+            "    OBJECT                 = DAYNIGHTFLAG\n" +
+            "      NUM_VAL              = 1\n" +
+            "      VALUE                = \"Night\"\n" +
+            "    END_OBJECT             = DAYNIGHTFLAG\n" +
+            "END_GROUP              = ADDITIONALATTRIBUTES\n" +
+            "GROUP                  = ORBITCALCULATEDSPATIALDOMAIN\n" +
+            "   OBJECT                 = ORBITNUMBER\n" +
+            "       CLASS                = \"1\"\n" +
+            "       NUM_VAL              = 1\n" +
+            "       VALUE                = 18490\n" +
+            "   END_OBJECT           = ORBITNUMBER\n" +
+            "END_GROUP              = ORBITCALCULATEDSPATIALDOMAIN\n" +
+            '\n' +
+            "END_GROUP              = INVENTORYMETADATA\n" +
+            '\n' +
+            "END";
 
     public void testExtractValueForKey() {
         assertEquals("Night", ModisUtils.extractValueForKey(TestCoreString, "DAYNIGHTFLAG"));

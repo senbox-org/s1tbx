@@ -15,8 +15,6 @@
  */
 package org.esa.beam.processor.cloud.internal.util;
 
-// TODO make this public API
-
 /**
  * <p><i><b>IMPORTANT NOTE:</b>
  * This class not an API.

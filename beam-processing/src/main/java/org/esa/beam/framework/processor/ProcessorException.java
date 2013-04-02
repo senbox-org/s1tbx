@@ -17,7 +17,10 @@ package org.esa.beam.framework.processor;
 
 /**
  * General exception class for all failures within the processor framework.
+ *
+ * @deprecated since BEAM 4.11. Use the {@link org.esa.beam.framework.gpf Graph Processing Framework} instead.
  */
+@Deprecated
 public class ProcessorException extends Exception {
 
     /**
@@ -33,7 +36,7 @@ public class ProcessorException extends Exception {
      * Constructs the object with given error message and cause.
      *
      * @param message the exception message
-     * @param cause the exception cause
+     * @param cause   the exception cause
      */
     public ProcessorException(String message, Throwable cause) {
         super(message, cause);

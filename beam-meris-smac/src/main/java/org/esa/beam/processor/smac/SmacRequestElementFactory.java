@@ -37,7 +37,10 @@ import java.util.Map;
  * This class implements the <code>RequestElementFactory</code> interface and can optionally be injected into the
  * <code>RequestLoader</code>. It enables the request loader to perform checks on parameter value ranges. Also, it
  * provides type information for the parameters.
+ *
+ * @deprecated since BEAM 4.11. No replacement.
  */
+@Deprecated
 public class SmacRequestElementFactory implements RequestElementFactory {
 
     private final Map<String,ParamProperties> _paramInfoMap = new HashMap<String, ParamProperties>();

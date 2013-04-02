@@ -21,12 +21,12 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.esa.beam</groupId>
     <name>BEAM ESA GlobCover Worldmap</name>
-    <version>1.0.1.${beam.version}</version>
+    <version>1.0.1</version>
 
     <parent>
         <groupId>org.esa.beam</groupId>
         <artifactId>beam-plugin-parent</artifactId>
-        <version>1.1-SNAPSHOT</version>
+        <version>1.0</version>
         <relativePath>../beam-plugin-parent/pom.xml</relativePath>
     </parent>
 

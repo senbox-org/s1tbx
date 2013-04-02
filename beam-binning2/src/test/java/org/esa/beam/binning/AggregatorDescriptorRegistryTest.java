@@ -1,10 +1,6 @@
 package org.esa.beam.binning;
 
-import org.esa.beam.binning.aggregators.AggregatorAverage;
-import org.esa.beam.binning.aggregators.AggregatorAverageML;
-import org.esa.beam.binning.aggregators.AggregatorMinMax;
-import org.esa.beam.binning.aggregators.AggregatorOnMaxSet;
-import org.esa.beam.binning.aggregators.AggregatorPercentile;
+import org.esa.beam.binning.aggregators.*;
 import org.junit.Test;
 
 import static org.junit.Assert.*;

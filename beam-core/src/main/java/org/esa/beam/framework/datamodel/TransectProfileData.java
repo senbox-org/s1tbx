@@ -134,7 +134,7 @@ public class TransectProfileData {
                 for (int x = 0; x < box.width; x++) {
                     final int index = y * box.width + x;
                     if (config.raster.isPixelValid(box.x + x, box.y + y)
-                            && (maskBuffer == null || maskBuffer[index] != 0)) {
+                        && (maskBuffer == null || maskBuffer[index] != 0)) {
                         final float v = sampleBuffer[index];
                         sum += v;
                         sumSqr += v * v;
@@ -152,9 +152,9 @@ public class TransectProfileData {
 
             if (n > 0) {
                 final double mean = sum / n;
-                final double variance = n > 1 ? (sumSqr - (sum * sum) / n) / (n - 1) : 0.0;
+                final double variance =  n > 1 ? (sumSqr - (sum * sum) / n) / (n - 1) : 0.0;
                 sampleValues[i] = (float) mean;
-                sampleSigmas[i] = (float) (variance > 0.0 ? Math.sqrt(variance) : 0.0);
+                sampleSigmas[i] = (float)(variance > 0.0 ? Math.sqrt(variance) : 0.0);
             }
 
             if (geoCoding != null) {

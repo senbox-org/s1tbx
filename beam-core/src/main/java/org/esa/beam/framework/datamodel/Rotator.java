@@ -14,7 +14,7 @@
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-package org.esa.beam.util.math;
+package org.esa.beam.framework.datamodel;
 
 import java.awt.geom.Point2D;
 
@@ -31,7 +31,7 @@ import static java.lang.Math.toRadians;
  * @author Ralf Quast
  * @version $Revision$ $Date$
  */
-public class Rotator {
+class Rotator {
 
     private final double a11;
     private final double a12;
@@ -220,15 +220,7 @@ public class Rotator {
         }
     }
 
-    /**
-     * Transforms a given set of data containing geographical longitudes and latitudes
-     * into the rotated coordinate system.
-     *
-     * @param data     the data array.
-     * @param lonIndex the index in the data corresponding to longitude.
-     * @param latIndex the index in the data corresponding to latitude.
-     */
-    public void transform(double[][] data, final int lonIndex, final int latIndex) {
+    void transform(double[][] data, final int lonIndex, final int latIndex) {
         for (final double[] p : data) {
             final double u = toRadians(p[lonIndex]);
             final double v = toRadians(p[latIndex]);

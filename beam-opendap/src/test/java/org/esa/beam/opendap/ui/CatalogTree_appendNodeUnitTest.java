@@ -20,7 +20,7 @@ import javax.swing.tree.DefaultTreeModel;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 @RunWith(HeadlessTestRunner.class)
 public class CatalogTree_appendNodeUnitTest {

@@ -18,7 +18,6 @@ package org.esa.beam.framework.datamodel;
 
 import org.esa.beam.framework.dataio.ProductSubsetDef;
 import org.esa.beam.framework.dataop.maptransf.Datum;
-import org.esa.beam.util.math.Rotator;
 
 import java.awt.geom.Point2D;
 import java.util.Arrays;
@@ -326,7 +325,7 @@ public class GcpGeoCoding extends AbstractGeoCoding {
     }
 
     static GeoPos calculateCentralGeoPos(double[] lons, double[] lats) {
-        // calculate (x, y, z) in order to avoid issues with anti-meridian
+        // calculate (x, y, z) in order to avoid issues with anti-meridian and poles
         final int size = lats.length;
         final double[] x = new double[size];
         final double[] y = new double[size];
@@ -378,12 +377,12 @@ public class GcpGeoCoding extends AbstractGeoCoding {
         }
     }
 
-    public static class RationalFunctionMap2D {
+    static class RationalFunctionMap2D {
 
         private final RationalFunctionModel um;
         private final RationalFunctionModel vm;
 
-        public RationalFunctionMap2D(int degreeP, int degreeQ, double[] x, double[] y, double[] u, double[] v) {
+        RationalFunctionMap2D(int degreeP, int degreeQ, double[] x, double[] y, double[] u, double[] v) {
             um = new RationalFunctionModel(degreeP, degreeQ, x, y, u);
             vm = new RationalFunctionModel(degreeP, degreeQ, x, y, v);
         }
@@ -403,6 +402,7 @@ public class GcpGeoCoding extends AbstractGeoCoding {
         public double getRmseV() {
             return vm.getRmse();
         }
+
     }
 
     /**

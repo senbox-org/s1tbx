@@ -22,9 +22,8 @@ import org.esa.beam.dataio.netcdf.metadata.ProfilePartIO;
 import org.esa.beam.dataio.netcdf.util.Constants;
 import org.esa.beam.dataio.netcdf.util.ReaderUtils;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.TiePointGrid;
-import ucar.ma2.Array;
-import ucar.ma2.DataType;
 
 import java.io.IOException;
 
@@ -48,14 +47,10 @@ public class CfTiePointGridPart extends ProfilePartIO {
         for (TiePointGrid tiePointGrid : p.getTiePointGrids()) {
             final int h = tiePointGrid.getSceneRasterHeight();
             final int w = tiePointGrid.getSceneRasterWidth();
-            final int[] shape = new int[]{h, w};
             final Object data = tiePointGrid.getSourceImage().getData().getDataElements(0, 0, w, h, null);
-            Array values = Array.factory(DataType.FLOAT, shape, data);
-            if (doFlip) {
-                values = values.flip(0);   // flip vertically
-            }
+            ProductData productData = ProductData.createInstance(ProductData.TYPE_FLOAT32, data);
             String variableName = ReaderUtils.getVariableName(tiePointGrid);
-            ctx.getNetcdfFileWriteable().findVariable(variableName).writeFully(values);
+            ctx.getNetcdfFileWriteable().findVariable(variableName).write(0, 0, w, h, doFlip, productData);
         }
     }
 

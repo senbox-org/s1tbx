@@ -63,7 +63,7 @@ public final class ProductTemporalBinRenderer implements TemporalBinRenderer {
                                       double pixelSize,
                                       ProductData.UTC startTime,
                                       ProductData.UTC endTime,
-                                      MetadataElement... metadataElements) throws IOException {
+                                      MetadataElement ... metadataElements) throws IOException {
 
         productWriter = ProductIO.getProductWriter(outputFormat);
         if (productWriter == null) {

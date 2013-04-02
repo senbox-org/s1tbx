@@ -114,7 +114,7 @@ public class InterpolatingFunction {
 
     /**
      * Compute the value for the function.
-     * See {@link org.esa.beam.interpolators.InterpolatingFunction} for details on the algorithm for
+     * See {@link InterpolatingFunction} for details on the algorithm for
      * computing the value of the function.
      *
      * @param forX Point for which the function value should be computed.

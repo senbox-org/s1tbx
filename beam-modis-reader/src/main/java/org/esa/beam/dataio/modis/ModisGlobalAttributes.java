@@ -20,7 +20,7 @@ import org.esa.beam.dataio.modis.hdf.HdfDataField;
 import org.esa.beam.framework.dataio.ProductIOException;
 import org.esa.beam.framework.datamodel.GeoCoding;
 
-import java.awt.Dimension;
+import java.awt.*;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
@@ -46,5 +46,5 @@ public interface ModisGlobalAttributes {
 
     String getEosType() throws IOException;
 
-    GeoCoding createGeocoding();
+    GeoCoding  createGeocoding();
 }

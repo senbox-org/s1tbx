@@ -127,8 +127,8 @@ public class SpectralUnmixingDialog extends SingleTargetProductDialog {
         }
         if (!matchingWavelength(endmembers, sourceWavelengths, sourceBandwidths, minBandwidth)) {
             showErrorDialog("One or more source wavelengths do not fit\n" +
-                                    "to one or more endmember spectra.\n\n" +
-                                    "Consider increasing the maximum wavelength deviation.");
+                            "to one or more endmember spectra.\n\n" +
+                            "Consider increasing the maximum wavelength deviation.");
             return false;
         }
 
@@ -155,7 +155,7 @@ public class SpectralUnmixingDialog extends SingleTargetProductDialog {
     }
 
     public static void main(String[] args) throws IllegalAccessException, UnsupportedLookAndFeelException,
-            InstantiationException, ClassNotFoundException {
+                                                  InstantiationException, ClassNotFoundException {
         UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         float[] wl = new float[]{
                 412.6395569f,

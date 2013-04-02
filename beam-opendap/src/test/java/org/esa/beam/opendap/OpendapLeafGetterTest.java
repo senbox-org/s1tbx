@@ -7,8 +7,7 @@ import org.junit.Before;
 import org.junit.Test;
 import thredds.catalog.InvDataset;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
+import static org.junit.Assert.*;
 
 public class OpendapLeafGetterTest {
 
@@ -18,7 +17,7 @@ public class OpendapLeafGetterTest {
     @Before
     public void setUp() throws Exception {
         opendapLeaf = new OpendapLeaf("blah", new InvDataset(null, "") {
-        });
+                });
         opendapLeaf.setDapUri("http://domain/dap_node");
         opendapLeaf.setFileUri("http://domain/file_node");
     }

@@ -6,9 +6,11 @@ import org.esa.beam.binning.support.VectorImpl;
 import org.junit.Before;
 import org.junit.Test;
 
-import static java.lang.Float.*;
-import static org.esa.beam.binning.aggregators.AggregatorTestUtils.*;
-import static org.junit.Assert.*;
+import static java.lang.Float.NaN;
+import static org.esa.beam.binning.aggregators.AggregatorTestUtils.createCtx;
+import static org.esa.beam.binning.aggregators.AggregatorTestUtils.obs;
+import static org.esa.beam.binning.aggregators.AggregatorTestUtils.vec;
+import static org.junit.Assert.assertEquals;
 
 public class AggregatorOnMaxSetTest {
 

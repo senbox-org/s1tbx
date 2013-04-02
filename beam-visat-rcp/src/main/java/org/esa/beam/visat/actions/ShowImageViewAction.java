@@ -109,12 +109,12 @@ public class ShowImageViewAction extends ExecCommand {
 
         final String title = createInternalFrameTitle(selectedProductNode);
         final Icon icon = UIUtils.loadImageIcon("icons/RsBandAsSwath16.gif");
-        final JInternalFrame internalFrame = visatApp.createInternalFrame(title, icon, view, getHelpId(), true);
+        final JInternalFrame internalFrame = visatApp.createInternalFrame(title, icon, view, getHelpId(),true);
         final ProductNodeListenerAdapter pnl = new ProductNodeListenerAdapter() {
             @Override
             public void nodeChanged(final ProductNodeEvent event1) {
                 if (event1.getSourceNode() == selectedProductNode &&
-                        event1.getPropertyName().equalsIgnoreCase(ProductNode.PROPERTY_NAME_NAME)) {
+                    event1.getPropertyName().equalsIgnoreCase(ProductNode.PROPERTY_NAME_NAME)) {
                     internalFrame.setTitle(createInternalFrameTitle(selectedProductNode));
                 }
             }

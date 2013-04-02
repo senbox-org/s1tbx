@@ -16,7 +16,7 @@
 package org.esa.beam.util;
 
 /**
- * Static function to manipulate bits inside an int or long.
+ * Static function to manipulate bits inside an int or long. 
  *
  * @author marcoz
  * @since 4.1

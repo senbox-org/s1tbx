@@ -16,7 +16,7 @@ import org.esa.beam.util.logging.BeamLogManager;
 import ucar.nc2.Attribute;
 import ucar.nc2.Variable;
 
-import java.awt.Dimension;
+import java.awt.*;
 import java.io.File;
 import java.text.ParseException;
 import java.util.Date;

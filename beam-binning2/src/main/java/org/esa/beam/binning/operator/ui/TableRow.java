@@ -19,10 +19,10 @@ package org.esa.beam.binning.operator.ui;
 import org.esa.beam.binning.AggregatorDescriptor;
 
 /**
- * Simple configuration class containing a number of public final fields.
- *
- * @author Thomas Storm
- */
+* Simple configuration class containing a number of public final fields.
+*
+* @author Thomas Storm
+*/
 class TableRow {
 
     final String name;
@@ -44,12 +44,12 @@ class TableRow {
     @Override
     public String toString() {
         return "TableRow{" +
-                "aggregator=" + aggregator +
-                ", name='" + name + '\'' +
-                ", expression='" + expression + '\'' +
-                ", weight=" + weight +
-                ", percentile=" + percentile +
-                ", fillValue=" + fillValue +
-                '}';
+               "aggregator=" + aggregator +
+               ", name='" + name + '\'' +
+               ", expression='" + expression + '\'' +
+               ", weight=" + weight +
+               ", percentile=" + percentile +
+               ", fillValue=" + fillValue +
+               '}';
     }
 }

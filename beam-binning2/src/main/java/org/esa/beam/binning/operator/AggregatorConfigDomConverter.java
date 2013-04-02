@@ -18,7 +18,7 @@ public class AggregatorConfigDomConverter implements DomConverter {
     private DefaultDomConverter childConverter;
 
     public AggregatorConfigDomConverter() {
-        this.childConverter = new DefaultDomConverter(AggregatorConfig.class);
+        this.childConverter  = new DefaultDomConverter(AggregatorConfig.class);
     }
 
     @Override

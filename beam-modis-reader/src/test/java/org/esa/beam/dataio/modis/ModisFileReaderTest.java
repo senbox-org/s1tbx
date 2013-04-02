@@ -12,7 +12,7 @@ import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.util.math.Range;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
-import java.awt.Dimension;
+import java.awt.*;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
@@ -115,7 +115,7 @@ public class ModisFileReaderTest extends TestCase {
     }
 
     public void testInvert() {
-        final float[] scales = new float[]{24.7f, 0.f, -100.f};
+        final float[] scales = new float[] {24.7f, 0.f, -100.f};
 
         ModisFileReader.invert(scales);
 

@@ -84,7 +84,7 @@ public class DimKey {
         if (xIndex == 0 || yIndex == 0) {
             // return 2 if lat/lon bands are first two variables
             return 2;
-        } else if (xIndex == dimensions.size() - 1 || yIndex == dimensions.size() - 1) {
+        } else if (xIndex == dimensions.size()-1 || yIndex == dimensions.size()-1) {
             // return 0 if lat/lon bands are last two variables or if no lat/lon bands are found
             return 0;
         } else {

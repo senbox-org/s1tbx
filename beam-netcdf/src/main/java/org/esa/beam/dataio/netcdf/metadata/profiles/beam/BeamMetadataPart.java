@@ -151,7 +151,7 @@ public class BeamMetadataPart extends ProfilePartIO {
 
     private boolean isGlobalAttributesElement(String subElementName) {
         return MetadataUtils.GLOBAL_ATTRIBUTES.equals(subElementName) ||
-                MetadataUtils.VARIABLE_ATTRIBUTES.equals(subElementName);
+               MetadataUtils.VARIABLE_ATTRIBUTES.equals(subElementName);
     }
 
     private void writeMetadataAttribute(MetadataAttribute metadataAttr, NVariable ncVariable, String prefix) throws IOException {

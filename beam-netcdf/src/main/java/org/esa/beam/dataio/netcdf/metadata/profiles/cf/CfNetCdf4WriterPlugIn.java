@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation; either version 3 of the License, or (at your option)
@@ -9,28 +9,34 @@
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
  * more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-package org.esa.beam.visat.toolviews.stat;
+package org.esa.beam.dataio.netcdf.metadata.profiles.cf;
 
-import org.esa.beam.framework.datamodel.ProductNodeGroup;
-import org.esa.beam.framework.datamodel.RasterDataNode;
-import org.esa.beam.framework.datamodel.VectorDataNode;
+import org.esa.beam.dataio.netcdf.nc.NFileWriteable;
+import org.esa.beam.dataio.netcdf.nc.NWritableFactory;
 
-import javax.media.jai.Histogram;
+import java.io.IOException;
+import java.util.Locale;
 
-/**
-* @author Thomas Storm
-*/
-interface StatisticalExportContext {
+public class CfNetCdf4WriterPlugIn extends CfNetCdfWriterPlugIn {
 
-    RasterDataNode getRasterDataNode();
+    @Override
+    public String[] getFormatNames() {
+        return new String[]{"NetCDF4-CF"};
+    }
 
-    Histogram[] getHistograms();
+    @Override
+    public String getDescription(Locale locale) {
+        return "NetCDF4 following CF-Convention";
+    }
 
-    ProductNodeGroup<VectorDataNode> getVectorDataNodeGroup();
+    @Override
+    public NFileWriteable createWritable(String outputPath) throws IOException {
+        return NWritableFactory.create(outputPath, "netcdf4");
+    }
 
 }

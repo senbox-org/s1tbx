@@ -190,7 +190,7 @@ public class BinManager {
         final VectorImpl temporalVector = new VectorImpl(temporalBin.featureValues);
         for (int i = 0; i < aggregators.length; i++) {
             final Aggregator aggregator = aggregators[i];
-            temporalVector.setOffsetAndSize(spatialFeatureOffsets[i], aggregator.getSpatialFeatureNames().length);
+            temporalVector.setOffsetAndSize(temporalFeatureOffsets[i], aggregator.getTemporalFeatureNames().length);
             aggregator.completeTemporal(temporalBin, temporalBin.numObs, temporalVector);
         }
     }
@@ -230,7 +230,7 @@ public class BinManager {
         private final Map<String, Integer> addedNames = new HashMap<String, Integer>();
 
         String unifyName(String name) {
-            if (!addedNames.containsKey(name)) {
+            if(!addedNames.containsKey(name)) {
                 addedNames.put(name, 0);
                 return name;
             } else {

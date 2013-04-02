@@ -15,23 +15,6 @@
  */
 package org.esa.beam.framework.processor;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
-import java.util.Vector;
-import java.util.logging.Level;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.net.MalformedURLException;
-
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
-
 import org.esa.beam.framework.param.ParamValidateException;
 import org.esa.beam.framework.param.Parameter;
 import org.esa.beam.util.Guardian;
@@ -40,6 +23,22 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
+import java.io.File;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+import java.util.Vector;
+import java.util.logging.Level;
+
 /**
  * This class is responsible for loading request files. It first parses the xml code, creates a <code>Request</code>
  * object and (optionally) verifies that all parameters in the request file are within predefined ranges.
@@ -47,7 +46,10 @@ import org.xml.sax.helpers.DefaultHandler;
  * To enable the request loader to verify parameter ranges, each user has to supply a custom
  * <code>RequestElemetFactory</code> to the request loader. Initially all parameters in the request are assumed having
  * <code>String</code> data type and can contain anything.
+ *
+ * @deprecated since BEAM 4.11. Use the {@link org.esa.beam.framework.gpf Graph Processing Framework} instead.
  */
+@Deprecated
 public class RequestLoader {
 
     private File _file;

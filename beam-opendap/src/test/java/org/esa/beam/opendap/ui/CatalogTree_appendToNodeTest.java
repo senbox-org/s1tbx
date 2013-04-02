@@ -2,24 +2,19 @@ package org.esa.beam.opendap.ui;
 
 import org.esa.beam.framework.gpf.ui.DefaultAppContext;
 import org.esa.beam.opendap.HeadlessTestRunner;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.runner.RunWith;
-import thredds.catalog.InvAccessImpl;
-import thredds.catalog.InvCatalogImpl;
-import thredds.catalog.InvCatalogRef;
-import thredds.catalog.InvDataset;
-import thredds.catalog.InvDatasetImpl;
-import thredds.catalog.InvService;
+import thredds.catalog.*;
 import ucar.nc2.constants.FeatureType;
 
-import javax.swing.JTree;
+import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 @RunWith(HeadlessTestRunner.class)
 public class CatalogTree_appendToNodeTest {
@@ -106,7 +101,7 @@ public class CatalogTree_appendToNodeTest {
     public void testAppendingVariousDatasets() {
         //preparation
         datasets.add(createDataset(catalog, "dapName", "OPENDAP"));
-        datasets.add(createDataset(catalog, "fileName", "FILE"));
+        datasets.add(createDataset(catalog,"fileName", "FILE"));
         datasets.add(createCatalogRefDataset());
 
         //execution

@@ -29,8 +29,6 @@
 
 
     <changelog><![CDATA[
-       <!--<p>Changes from version 1.5.2 to 1.5.3:<br/>-->
-       <!--Adapted to BEAM 5.0<br>-->
        <p>Changes from version 1.5.1 to 1.5.2:<br/>
        [BEAM-1414] Incorrect valid-pixel mask for ATSR SST bands<br/>
        <p>Changes from version 1.5 to 1.5.1:<br/>

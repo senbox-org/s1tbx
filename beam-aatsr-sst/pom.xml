@@ -24,14 +24,15 @@
     <parent>
         <groupId>org.esa.beam</groupId>
         <artifactId>beam-plugin-parent</artifactId>
-        <version>1.1-SNAPSHOT</version>
+        <version>1.0</version>
         <relativePath>../beam-plugin-parent/pom.xml</relativePath>
     </parent>
 
     <name>BEAM AATSR SST Processor</name>
     <groupId>org.esa.beam</groupId>
     <artifactId>beam-aatsr-sst</artifactId>
-    <version>1.5.1.${beam.version}</version>
+    <version>1.5.1</version>
+
     <packaging>jar</packaging>
 
     <dependencies>

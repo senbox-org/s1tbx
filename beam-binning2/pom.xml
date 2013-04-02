@@ -15,10 +15,9 @@
     <artifactId>beam-binning2</artifactId>
     <version>0.8.2.${beam.version}</version>
 
-    <name>BEAM Level-3 Binning (GPF)</name>
+    <name>BEAM Level-3 Binning</name>
     <description>
-        A new implementation of the SeaDAS binning scheme using the BEAM GPF.
-        This module will supersede 'beam-binning' in the future.
+        A new implementation of the SeaDAS binning scheme. This module has replaced the module 'beam-binning'.
     </description>
 
     <dependencies>
@@ -65,12 +64,14 @@
             <groupId>org.esa.beam</groupId>
             <artifactId>beam-envisat-reader</artifactId>
             <version>1.5.2.${beam.version}</version>
+            <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>org.esa.beam</groupId>
             <artifactId>blue-marble-worldmap</artifactId>
             <version>1.0.2.${beam.version}</version>
+            <scope>test</scope>
         </dependency>
 
     </dependencies>

@@ -65,7 +65,7 @@ public class GraphContext {
      * @param graph the {@link org.esa.beam.framework.gpf.graph.Graph} to create the context for
      * @throws GraphException if the graph context could not be created
      */
-    GraphContext(Graph graph, Operator graphOp) throws GraphException {
+    public GraphContext(Graph graph, Operator graphOp) throws GraphException {
         if (graph.getNodeCount() == 0) {
             throw new GraphException("Empty graph.");
         }

@@ -23,7 +23,7 @@ public class MatchupFormatStrategyTest {
 
         final Number[] originalValues = {13.4, Double.NaN, 2.0345, 12};
         final Measurement originalMeasurement = new Measurement(14, null, -1, -1, -1, null, new GeoPos(10.1F, 10.01F),
-                                                                originalValues, new String[]{"sst", "tsm", "pigs", "cows"}, true);
+                                                                originalValues, new String[] {"sst", "tsm", "pigs", "cows"}, true);
 
         final FormatStrategy pixExFormat = new MatchupFormatStrategy(
                 new Measurement[]{originalMeasurement},
@@ -76,6 +76,6 @@ public class MatchupFormatStrategyTest {
     private static Measurement createMeasurement(int coordinateId, String[] attributeNames, String msmntIndex) {
         final Object[] originalValues = {"value1" + msmntIndex, "value2" + msmntIndex};
         return new Measurement(coordinateId, null, -1, -1, -1, null, new GeoPos(10.1F, 10.01F),
-                               originalValues, attributeNames, true);
+                                                                originalValues, attributeNames, true);
     }
 }

@@ -23,17 +23,9 @@ import org.esa.beam.dataio.modis.hdf.HdfDataField;
 import org.esa.beam.dataio.modis.netcdf.NetCDFAttributes;
 import org.esa.beam.dataio.modis.netcdf.NetCDFUtils;
 import org.esa.beam.dataio.modis.netcdf.NetCDFVariables;
-import org.esa.beam.dataio.modis.productdb.ModisBandDescription;
-import org.esa.beam.dataio.modis.productdb.ModisProductDb;
-import org.esa.beam.dataio.modis.productdb.ModisProductDescription;
-import org.esa.beam.dataio.modis.productdb.ModisSpectralInfo;
-import org.esa.beam.dataio.modis.productdb.ModisTiePointDescription;
+import org.esa.beam.dataio.modis.productdb.*;
 import org.esa.beam.dataio.netcdf.util.DataTypeUtils;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.GeoCoding;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.datamodel.TiePointGrid;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.io.FileUtils;
@@ -397,7 +389,7 @@ class ModisFileReader {
 
         if (tiePtInfoX != null && tiePtInfoY != null && tiePtInfoX.length > 1 && tiePtInfoY.length > 1) {
             gridRet = new TiePointGrid(name, width, height, tiePtInfoX[1], tiePtInfoY[1] + 0.5f,
-                                       tiePtInfoX[0], tiePtInfoY[0], floatBuffer);
+                    tiePtInfoX[0], tiePtInfoY[0], floatBuffer);
 
             String unitAttribName = desc.getUnitAttribName();
             if (unitAttribName != null) {

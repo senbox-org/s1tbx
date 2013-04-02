@@ -9,105 +9,130 @@
     <tr class="header">
         <td class="header">&nbsp;Subset Operator</td>
         <td class="header" align="right">
-           <a href="../general/BeamOverview.html">             <img src="images/BeamHeader.jpg" border="0"/></a>
+            <a href="../general/BeamOverview.html"> <img src="images/BeamHeader.jpg" border="0"/></a>
         </td>
     </tr>
 </table>
 <h1>Subset Operator Description</h1>
+
 <h2>Overview</h2>
 <table>
-  <tr><td><b>Name:</b></td><td><code>Subset</code></td></tr>
-  <tr><td><b>Full name:</b></td><td><code>org.esa.beam.gpf.operators.standard.SubsetOp</code></td></tr>
-  <tr><td><b>Purpose:</b></td><td>Create a spatial and/or spectral subset of a data product.</td></tr>
-  <tr><td><b>Version:</b></td><td>1.0</td></tr>
+    <tr>
+        <td><b>Name:</b></td>
+        <td><code>Subset</code></td>
+    </tr>
+    <tr>
+        <td><b>Full name:</b></td>
+        <td><code>org.esa.beam.gpf.operators.standard.SubsetOp</code></td>
+    </tr>
+    <tr>
+        <td><b>Purpose:</b></td>
+        <td>Create a spatial and/or spectral subset of a data product.</td>
+    </tr>
+    <tr>
+        <td><b>Version:</b></td>
+        <td>1.0</td>
+    </tr>
 </table>
 <h2>Description</h2>
 This operator is used to create either spatial and/or spectral subsets of a data product.
- Spatial subset may be given by pixel positions (parameter <code>region</code>)
- or a geographical polygon (parameter <code>geoRegion</code>). Subsets of band and tie-point grid
- are given by name lists (parameters <code>bandNames</code> and  <code>tiePointGridNames</code>).
+Spatial subset may be given by pixel positions (parameter <code>region</code>)
+or a geographical polygon (parameter <code>geoRegion</code>). Subsets of band and tie-point grid
+are given by name lists (parameters <code>bandNames</code> and <code>tiePointGridNames</code>).
 <h2>Sources</h2>
 <table>
-<tr>
-  <th>Name</th>
-  <th>Description</th>
-</tr>
-<tr>
-  <td><code>sourceProduct</code></td>
-  <td>The source product to create the subset from.</td>
-</tr>
+    <tr>
+        <th>Name</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td><code>sourceProduct</code></td>
+        <td>The source product to create the subset from.</td>
+    </tr>
 </table>
 <h2>Parameters</h2>
 <table>
-<tr>
-  <th>Name</th>
-  <th>Data Type</th>
-  <th>Default</th>
-  <th>Description</th>
-  <th>Constraints</th>
-</tr>
-<tr>
-  <td><code>region</code></td>
-  <td><code>Rectangle</code></td>
-  <td><code></code></td>
-  <td>The subset region in pixel coordinates.
-If not given, the entire scene is used. Either 'region' or 'geoRegion must be given.</td>
-  <td></td>
-</tr>
-<tr>
-  <td><code>geoRegion</code></td>
-  <td><code>Geometry</code></td>
-  <td><code></code></td>
-  <td>The subset region in geographical coordinates using WKT-format,
-e.g. POLYGON((<lon1> <lat1>, <lon2> <lat2>, ..., <lon1> <lat1>))
-(make sure to quote the option due to spaces in <geometry>).
-If not given, the entire scene is used. Either 'region' or 'geoRegion must be given.</td>
-  <td></td>
-</tr>
-<tr>
-  <td><code>subSamplingX</code></td>
-  <td><code>int</code></td>
-  <td><code>1</code></td>
-  <td>The pixel sub-sampling step in X (horizontal image direction)</td>
-  <td></td>
-</tr>
-<tr>
-  <td><code>subSamplingY</code></td>
-  <td><code>int</code></td>
-  <td><code>1</code></td>
-  <td>The pixel sub-sampling step in Y (vertical image direction)</td>
-  <td></td>
-</tr>
-<tr>
-  <td><code>fullSwath</code></td>
-  <td><code>boolean</code></td>
-  <td><code>false</code></td>
-  <td>Forces the operator to extend the subset region to the full swath.</td>
-  <td></td>
-</tr>
-<tr>
-  <td><code>tiePointGridNames</code></td>
-  <td><code>String[]</code></td>
-  <td><code></code></td>
-  <td>The comma-separated list of names of tie-point grids to be copied. 
-If not given, all bands are copied.</td>
-  <td></td>
-</tr>
-<tr>
-  <td><code>bandNames</code></td>
-  <td><code>String[]</code></td>
-  <td><code></code></td>
-  <td>The comma-separated list of names of bands to be copied.
-If not given, all bands are copied.</td>
-  <td></td>
-</tr>
-<tr>
-  <td><code>copyMetadata</code></td>
-  <td><code>boolean</code></td>
-  <td><code>false</code></td>
-  <td>Whether to copy the metadata of the source product.</td>
-  <td></td>
-</tr>
+    <tr>
+        <th>Name</th>
+        <th>Data Type</th>
+        <th>Default</th>
+        <th>Description</th>
+        <th>Constraints</th>
+    </tr>
+    <tr>
+        <td><code>region</code></td>
+        <td><code>Rectangle</code></td>
+        <td><code></code></td>
+        <td>The subset region in pixel coordinates.
+            If not given, the entire scene is used. Either 'region' or 'geoRegion must be given.
+        </td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><code>geoRegion</code></td>
+        <td><code>Geometry</code></td>
+        <td><code></code></td>
+        <td>The subset region in geographical coordinates using WKT-format,
+            e.g. POLYGON((
+            <lon1>
+                <lat1>,
+                    <lon2>
+                        <lat2>, ...,
+                            <lon1>
+                                <lat1>))
+                                    (make sure to quote the option due to spaces in
+                                    <geometry>).
+                                        If not given, the entire scene is used. Either 'region' or 'geoRegion must be
+                                        given.
+        </td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><code>subSamplingX</code></td>
+        <td><code>int</code></td>
+        <td><code>1</code></td>
+        <td>The pixel sub-sampling step in X (horizontal image direction)</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><code>subSamplingY</code></td>
+        <td><code>int</code></td>
+        <td><code>1</code></td>
+        <td>The pixel sub-sampling step in Y (vertical image direction)</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><code>fullSwath</code></td>
+        <td><code>boolean</code></td>
+        <td><code>false</code></td>
+        <td>Forces the operator to extend the subset region to the full swath.</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><code>tiePointGridNames</code></td>
+        <td><code>String[]</code></td>
+        <td><code></code></td>
+        <td>The comma-separated list of names of tie-point grids to be copied.
+            If not given, all bands are copied.
+        </td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><code>bandNames</code></td>
+        <td><code>String[]</code></td>
+        <td><code></code></td>
+        <td>The comma-separated list of names of bands to be copied.
+            If not given, all bands are copied.
+        </td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><code>copyMetadata</code></td>
+        <td><code>boolean</code></td>
+        <td><code>false</code></td>
+        <td>Whether to copy the metadata of the source product.</td>
+        <td></td>
+    </tr>
 </table>
 <hr/>
 </body>

@@ -28,7 +28,10 @@ import java.io.File;
  * @version $Revision$ $Date$
  * @see RequestLoader
  * @see Request
+ *
+ * @deprecated since BEAM 4.11. Use the {@link org.esa.beam.framework.gpf Graph Processing Framework} instead.
  */
+@Deprecated
 public interface RequestElementFactory {
     /**
      * Creates a new reference to an input product for the current processing request.

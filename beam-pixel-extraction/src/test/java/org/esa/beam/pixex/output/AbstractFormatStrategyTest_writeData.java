@@ -10,7 +10,7 @@ import java.awt.Rectangle;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 
 public class AbstractFormatStrategyTest_writeData {
@@ -40,7 +40,7 @@ public class AbstractFormatStrategyTest_writeData {
 
     @Test
     public void testWriteValue_Double_NAN() {
-        abstractFormatStrategy.writeValue(printWriter, Double.NaN);
+        abstractFormatStrategy.writeValue(printWriter,Double.NaN);
 
         assertEquals("", stringWriter.toString());
     }
@@ -61,7 +61,7 @@ public class AbstractFormatStrategyTest_writeData {
 
     @Test
     public void testWriteValue_AnyObject_egRectangle() {
-        abstractFormatStrategy.writeValue(printWriter, new Rectangle(3, 4, 5, 6));
+        abstractFormatStrategy.writeValue(printWriter, new Rectangle(3,4,5,6));
 
         assertEquals("java.awt.Rectangle[x=3,y=4,width=5,height=6]", stringWriter.toString());
     }

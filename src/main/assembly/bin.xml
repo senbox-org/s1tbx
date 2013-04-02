@@ -103,8 +103,8 @@
             <binaries>
                 <outputDirectory>modules</outputDirectory>
                 <unpack>false</unpack>
-                <!--<outputFileNameMapping>${module.artifactId}-${module.version}.${module.extension}</outputFileNameMapping>-->
-                <outputFileNameMapping>${module.artifactId}.${module.extension}</outputFileNameMapping>
+                <outputFileNameMapping>${module.artifactId}-${module.version}.${module.extension}
+                </outputFileNameMapping>
                 <includeDependencies>false</includeDependencies>
                 <dependencySets>
                     <dependencySet>
@@ -116,22 +116,18 @@
                     </dependencySet>
                     <dependencySet>
                         <outputDirectory>lib</outputDirectory>
-                        <!--<outputFileNameMapping>${artifact.artifactId}-${artifact.version}.${artifact.extension}-->
-                        <outputFileNameMapping>${artifact.artifactId}.${artifact.extension}
+                        <outputFileNameMapping>${artifact.artifactId}-${artifact.version}.${artifact.extension}
                         </outputFileNameMapping>
                         <excludes>
                             <exclude>com.bc.ceres:ceres-*</exclude>
                             <exclude>org.esa.beam:beam-*</exclude>
-                            <exclude>org.esa.beam:blue-marble-worldmap</exclude>
-                            <exclude>org.esa.beam:globcover-worldmap</exclude>
                             <exclude>ncsa.hdf:*</exclude>
                             <exclude>gov.nasa.gsfc.seadas:seadas-reader*</exclude>
                         </excludes>
                     </dependencySet>
                     <dependencySet>
                         <outputDirectory>modules</outputDirectory>
-                        <!--<outputFileNameMapping>${artifact.artifactId}-${artifact.version}.${artifact.extension}-->
-                        <outputFileNameMapping>${artifact.artifactId}.${artifact.extension}
+                        <outputFileNameMapping>${artifact.artifactId}-${artifact.version}.${artifact.extension}
                         </outputFileNameMapping>
                         <includes>
                             <include>com.bc.ceres:*</include>

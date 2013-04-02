@@ -62,7 +62,10 @@ import java.io.PrintWriter;
  * @author Marco Peters
  * @author Ralf Quast
  * @author Norman Fomferra
+ *
+ * @deprecated since BEAM 4.11. Use the {@link org.esa.beam.framework.gpf Graph Processing Framework} instead.
  */
+@Deprecated
 public class PropertyFileParameterPage extends ParameterPage {
 
     /**

@@ -13,7 +13,7 @@ import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.io.FileUtils;
 import ucar.nc2.Variable;
 
-import java.awt.Dimension;
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
@@ -37,10 +37,10 @@ public class DaacAttributes implements ModisGlobalAttributes {
             readEcsCoreString();
         }
         final String productName = ModisUtils.extractValueForKey(ecsCoreString,
-                                                                 ModisConstants.LOCAL_GRANULEID_KEY);
+                ModisConstants.LOCAL_GRANULEID_KEY);
         if (StringUtils.isNullOrEmpty(productName)) {
             throw new ProductIOException("Unknown MODIS format: ECSCore metadata field '" +
-                                                 ModisConstants.LOCAL_GRANULEID_KEY + "' missing");
+                    ModisConstants.LOCAL_GRANULEID_KEY + "' missing");
         }
         return FileUtils.getFilenameWithoutExtension(new File(productName));
     }

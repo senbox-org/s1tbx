@@ -45,7 +45,7 @@ public class VectorDataNodeTest {
                                                              new PixelPos(10, 10), null, null);
 
         VectorDataNode vectorDataNode = new VectorDataNode("Features", Placemark.createPointFeatureType("feature"));
-        FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = vectorDataNode.getFeatureCollection();
+        FeatureCollection<SimpleFeatureType,SimpleFeature> featureCollection = vectorDataNode.getFeatureCollection();
         vectorDataGroup.add(vectorDataNode);        //Also: Sets the owner of the vectorDataNode
         vectorDataNode.getPlacemarkGroup();         //Also: Creates the PlacemarkGroup (owner has to be set!)
 

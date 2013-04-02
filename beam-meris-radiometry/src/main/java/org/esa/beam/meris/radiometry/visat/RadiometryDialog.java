@@ -86,7 +86,7 @@ class RadiometryDialog extends SingleTargetProductDialog {
             }
             if (!isEnvisatSource) {
                 final String msg = "If " + EnvisatConstants.ENVISAT_FORMAT_NAME + " is selected as output format, " +
-                        "the source product must be in the same format.";
+                                   "the source product must be in the same format.";
                 JOptionPane.showMessageDialog(this.getContent(), msg, "Invalid Settings", JOptionPane.ERROR_MESSAGE);
                 return false;
             }

@@ -181,9 +181,9 @@ public class LandsatGeotiffReaderPlugin implements ProductReaderPlugIn {
     static boolean isMatchingArchiveFileName(String fileName) {
         return StringUtils.isNotNullAndNotEmpty(fileName) &&
                 (fileName.startsWith("L5_")
-                        || fileName.startsWith("LT5")
-                        || fileName.startsWith("L7_")
-                        || fileName.startsWith("LE7"));
+                || fileName.startsWith("LT5")
+                || fileName.startsWith("L7_")
+                || fileName.startsWith("LE7"));
     }
 
     private static class LandsatGeoTiffFileFilter extends BeamFileFilter {

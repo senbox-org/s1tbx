@@ -55,7 +55,10 @@ import java.util.logging.Logger;
  * parameters in a SMAC processing request.
  * <p/>
  * <p>Also, it prepares the parameters which are needed to return a modified processing request.
+ *
+ * @deprecated since BEAM 4.11. No replacement.
  */
+@Deprecated
 public class SmacRequestParameterPool {
 
     private SmacRequestEditor _editor;

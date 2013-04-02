@@ -9,103 +9,123 @@
     <tr class="header">
         <td class="header">&nbsp;Meris.CorrectRadiometry Operator</td>
         <td class="header" align="right">
-           <a href="../general/BeamOverview.html">             <img src="images/BeamHeader.jpg" border="0"/></a>
+            <a href="../general/BeamOverview.html"> <img src="images/BeamHeader.jpg" border="0"/></a>
         </td>
     </tr>
 </table>
 <h1>Meris.CorrectRadiometry Operator Description</h1>
+
 <h2>Overview</h2>
 <table>
-  <tr><td><b>Name:</b></td><td><code>Meris.CorrectRadiometry</code></td></tr>
-  <tr><td><b>Full name:</b></td><td><code>org.esa.beam.meris.radiometry.MerisRadiometryCorrectionOp</code></td></tr>
-  <tr><td><b>Purpose:</b></td><td>Performs radiometric corrections on MERIS L1b data products.</td></tr>
-  <tr><td><b>Version:</b></td><td>1.1</td></tr>
+    <tr>
+        <td><b>Name:</b></td>
+        <td><code>Meris.CorrectRadiometry</code></td>
+    </tr>
+    <tr>
+        <td><b>Full name:</b></td>
+        <td><code>org.esa.beam.meris.radiometry.MerisRadiometryCorrectionOp</code></td>
+    </tr>
+    <tr>
+        <td><b>Purpose:</b></td>
+        <td>Performs radiometric corrections on MERIS L1b data products.</td>
+    </tr>
+    <tr>
+        <td><b>Version:</b></td>
+        <td>1.1.2</td>
+    </tr>
 </table>
 <h2>Description</h2>
 This operator is used to perform radiometric corrections on MERIS L1b data products.
- The corrections include the following optional steps:
- <ul>
- <li><b>Radiometric re-calibration</b><br/>
- Multiplies the inverse gains of the 2nd reprocessing and multiplies the gains of 3rd reprocessing
- to the radiance values.</li>
- <li><b>Smile-effect correction</b><br/>
- Corrects the radiance values for the small variations of the spectral wavelength
- of each pixel along the image (smile-effect).
- </li>
- <li><b>Meris equalisation</b><br/>
- Removes systematic detector-to-detector radiometric differences in MERIS L1b data products. </li>
- <li><b>Radiance-to-reflectance conversion</b><br/>
- Converts the TOA radiance values into TOA reflectance values. </li>
- </ul>
+The corrections include the following optional steps:
+<ul>
+    <li><b>Radiometric re-calibration</b><br/>
+        Multiplies the inverse gains of the 2nd reprocessing and multiplies the gains of 3rd reprocessing
+        to the radiance values.
+    </li>
+    <li><b>Smile-effect correction</b><br/>
+        Corrects the radiance values for the small variations of the spectral wavelength
+        of each pixel along the image (smile-effect).
+    </li>
+    <li><b>Meris equalisation</b><br/>
+        Removes systematic detector-to-detector radiometric differences in MERIS L1b data products.
+    </li>
+    <li><b>Radiance-to-reflectance conversion</b><br/>
+        Converts the TOA radiance values into TOA reflectance values.
+    </li>
+</ul>
 <h2>Sources</h2>
 <table>
-<tr>
-  <th>Name</th>
-  <th>Description</th>
-</tr>
-<tr>
-  <td><code>sourceProduct</code></td>
-  <td>The source product.</td>
-</tr>
+    <tr>
+        <th>Name</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td><code>sourceProduct</code></td>
+        <td>The source product.</td>
+    </tr>
 </table>
 <h2>Parameters</h2>
 <table>
-<tr>
-  <th>Name</th>
-  <th>Data Type</th>
-  <th>Default</th>
-  <th>Description</th>
-  <th>Constraints</th>
-</tr>
-<tr>
-  <td><code>doCalibration</code></td>
-  <td><code>boolean</code></td>
-  <td><code>true</code></td>
-  <td>Whether to perform the calibration.</td>
-  <td></td>
-</tr>
-<tr>
-  <td><code>sourceRacFile</code></td>
-  <td><code>File</code></td>
-  <td><code></code></td>
-  <td>The radiometric correction auxiliary file for the source product.</td>
-  <td></td>
-</tr>
-<tr>
-  <td><code>targetRacFile</code></td>
-  <td><code>File</code></td>
-  <td><code></code></td>
-  <td>The radiometric correction auxiliary file for the target product.</td>
-  <td></td>
-</tr>
-<tr>
-  <td><code>doSmile</code></td>
-  <td><code>boolean</code></td>
-  <td><code>true</code></td>
-  <td>Whether to perform Smile-effect correction.</td>
-  <td></td>
-</tr>
-<tr>
-  <td><code>doEqualization</code></td>
-  <td><code>boolean</code></td>
-  <td><code>true</code></td>
-  <td>Perform removal of detector-to-detector systematic radiometric differences in MERIS L1b data products.</td>
-  <td></td>
-</tr>
-<tr>
-  <td><code>reproVersion</code></td>
-  <td><code>ReprocessingVersion</code></td>
-  <td><code>AUTO_DETECT</code></td>
-  <td>The version of the reprocessing the product comes from. Is only used if equalisation is enabled.</td>
-  <td>value set: [AUTO_DETECT, REPROCESSING_2, REPROCESSING_3]</td>
-</tr>
-<tr>
-  <td><code>doRadToRefl</code></td>
-  <td><code>boolean</code></td>
-  <td><code>false</code></td>
-  <td>Whether to perform radiance-to-reflectance conversion.</td>
-  <td></td>
-</tr>
+    <tr>
+        <th>Name</th>
+        <th>Data Type</th>
+        <th>Default</th>
+        <th>Description</th>
+        <th>Constraints</th>
+    </tr>
+    <tr>
+        <td><code>doCalibration</code></td>
+        <td><code>boolean</code></td>
+        <td><code>true</code></td>
+        <td>Whether to perform the calibration.</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><code>sourceRacFile</code></td>
+        <td><code>File</code></td>
+        <td><code></code></td>
+        <td>The radiometric correction auxiliary file for the source product. The default
+            'MER_RAC_AXVIEC20050708_135553_20021224_121445_20041213_220000'
+        </td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><code>targetRacFile</code></td>
+        <td><code>File</code></td>
+        <td><code></code></td>
+        <td>The radiometric correction auxiliary file for the target product. The default
+            'MER_RAC_AXVACR20091016_154511_20021224_121445_20041213_220000'
+        </td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><code>doSmile</code></td>
+        <td><code>boolean</code></td>
+        <td><code>true</code></td>
+        <td>Whether to perform Smile-effect correction.</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><code>doEqualization</code></td>
+        <td><code>boolean</code></td>
+        <td><code>true</code></td>
+        <td>Perform removal of detector-to-detector systematic radiometric differences in MERIS L1b data products.</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><code>reproVersion</code></td>
+        <td><code>ReprocessingVersion</code></td>
+        <td><code>AUTO_DETECT</code></td>
+        <td>The version of the reprocessing the product comes from. Is only used if equalisation is enabled.</td>
+        <td>value set: [AUTO_DETECT, REPROCESSING_2, REPROCESSING_3]</td>
+    </tr>
+    <tr>
+        <td><code>doRadToRefl</code></td>
+        <td><code>boolean</code></td>
+        <td><code>false</code></td>
+        <td>Whether to perform radiance-to-reflectance conversion.</td>
+        <td></td>
+    </tr>
 </table>
 <hr/>
 </body>

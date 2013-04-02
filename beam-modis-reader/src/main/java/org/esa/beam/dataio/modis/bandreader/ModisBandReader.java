@@ -50,8 +50,8 @@ abstract public class ModisBandReader {
      * Creates a band reader with given scientific dataset identifier
      *
      * @param variable the variable
-     * @param layer    the layer
-     * @param is3d     true if the dataset is a 3d dataset
+     * @param layer the layer
+     * @param is3d  true if the dataset is a 3d dataset
      */
     public ModisBandReader(Variable variable, final int layer, final boolean is3d) {
         this.variable = variable;

@@ -16,11 +16,12 @@
 
 package org.esa.beam.framework.datamodel;
 
-import org.esa.beam.util.math.DoubleList;
+import static java.lang.Double.NEGATIVE_INFINITY;
+import static java.lang.Double.NaN;
+import static java.lang.Double.POSITIVE_INFINITY;
 
 import javax.media.jai.UnpackedImageData;
-
-import static java.lang.Double.*;
+import org.esa.beam.util.math.DoubleList;
 
 /**
  * Utility class for calculating minimum, maximum, mean and standard deviation. Uses

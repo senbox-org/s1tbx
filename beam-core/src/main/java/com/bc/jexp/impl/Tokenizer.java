@@ -84,29 +84,29 @@ public final class Tokenizer {
      * The keywords regognized by this tokenizer.
      */
     private final static String[] keywords = new String[]{
-            "and", "or", "not", "true", "false"
+                "and", "or", "not", "true", "false"
     };
 
     /**
      * The special tokens regognized by this tokenizer.
      */
     private final static String[] specialTokens = new String[]{
-            "==", "<=", ">=", "!=", "&&", "||", "<<", ">>"
+                "==", "<=", ">=", "!=", "&&", "||", "<<", ">>"
     };
 
     /**
      * The ordinary characters regognized by this tokenizer.
      */
     private final static char[] ordinaryChars = new char[]{
-            '(', ')', '{', '}', '[', ']',
-            ',', ':',
-            '<', '>',
-            '=',
-            '!', '?',
-            '"',
-            '|', '&', '%', '$',
-            '+', '-', '*', '/',
-            '^', '~'
+                '(', ')', '{', '}', '[', ']',
+                ',', ':',
+                '<', '>',
+                '=',
+                '!', '?',
+                '"',
+                '|', '&', '%', '$',
+                '+', '-', '*', '/',
+                '^', '~'
     };
 
 
@@ -540,7 +540,7 @@ public final class Tokenizer {
 
     private boolean isExpPartStart() {
         return (isChar('e') || isChar('E'))
-                && (isDigit(pos + 1) || isSignAndDigit(pos + 1));
+               && (isDigit(pos + 1) || isSignAndDigit(pos + 1));
     }
 
     private boolean isDot() {
@@ -593,9 +593,9 @@ public final class Tokenizer {
 
     private boolean isHexDigit(final int i) {
         return !isEos(i)
-                && (Character.isDigit(peek(i))
-                || (peek(i) >= 'a' && peek(i) <= 'f')
-                || (peek(i) >= 'A' && peek(i) <= 'F'));
+               && (Character.isDigit(peek(i))
+                   || (peek(i) >= 'a' && peek(i) <= 'f')
+                   || (peek(i) >= 'A' && peek(i) <= 'F'));
     }
 
     private static boolean isOctDigit(final char ch) {

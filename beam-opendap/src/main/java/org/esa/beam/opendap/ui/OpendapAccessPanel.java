@@ -421,7 +421,7 @@ public class OpendapAccessPanel extends JPanel {
 
         JPanel centerRightPane = new JPanel(new BorderLayout());
         final SimpleScrollPane simpleScrollPane = new SimpleScrollPane(filterPanel, JideScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
-                                                                       JideScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+                                                           JideScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         simpleScrollPane.setBorder(BorderFactory.createEmptyBorder());
         centerRightPane.add(simpleScrollPane, BorderLayout.CENTER);
         centerRightPane.add(downloadButtonPanel, BorderLayout.SOUTH);

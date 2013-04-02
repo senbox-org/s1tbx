@@ -5,7 +5,7 @@
     <name>ATSR Product Reader</name>
 
     <description>Enables BEAM to read ERS-1 and -2 ATSR data products.</description>
-
+    
     <vendor>Brockmann Consult GmbH</vendor>
     <contactAddress>Max Planck Str.2, 21502 Geesthacht (Germany)</contactAddress>
     <copyright>(C) 2007 by Brockmann Consult GmbH</copyright>
@@ -22,8 +22,6 @@
 
     <changelog>
         <![CDATA[
-        <!--<p>Changes in Version 1.0.4<br/>-->
-        <!--Adapted to BEAM 5.0<br>-->
         Changes in Version 1.0.3<br/>
         Adapted to new Maven-architecture<br>
         Changes in Version 1.0.2<br/>

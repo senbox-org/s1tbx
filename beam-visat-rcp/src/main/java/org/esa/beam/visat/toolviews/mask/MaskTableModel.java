@@ -16,16 +16,10 @@
 
 package org.esa.beam.visat.toolviews.mask;
 
-import org.esa.beam.framework.datamodel.Mask;
-import org.esa.beam.framework.datamodel.Placemark;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductNodeEvent;
-import org.esa.beam.framework.datamodel.ProductNodeGroup;
-import org.esa.beam.framework.datamodel.ProductNodeListenerAdapter;
-import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.datamodel.*;
 
 import javax.swing.table.AbstractTableModel;
-import java.awt.Color;
+import java.awt.*;
 
 class MaskTableModel extends AbstractTableModel {
 

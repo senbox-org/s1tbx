@@ -195,7 +195,6 @@ class ScatterPlotPanel extends ChartPagePanel {
 
     @Override
     protected void handleLayerContentChanged() {
-        System.out.println("     handleLayerContentChanged");
         computeChartDataIfPossible();
     }
 
@@ -254,7 +253,6 @@ class ScatterPlotPanel extends ChartPagePanel {
 
         if (isRasterChanged()) {
             getPlot().getRangeAxis().setLabel(getAxisLabel(raster, "X", false));
-            System.out.println("     updateComponents");
             computeChartDataIfPossible();
         }
     }
@@ -635,7 +633,7 @@ class ScatterPlotPanel extends ChartPagePanel {
                 && scatterPlotModel.dataField != null
                 && scatterPlotModel.pointDataSource.getFeatureCollection() != null
                 && scatterPlotModel.pointDataSource.getFeatureCollection().features() != null
-                && scatterPlotModel.pointDataSource.getFeatureCollection().features().hasNext() == true
+                && scatterPlotModel.pointDataSource.getFeatureCollection().features().hasNext()
                 && scatterPlotModel.pointDataSource.getFeatureCollection().features().next() != null
                 && scatterPlotModel.pointDataSource.getFeatureCollection().features().next().getAttribute(
                 scatterPlotModel.dataField.getLocalName()) != null
@@ -643,7 +641,6 @@ class ScatterPlotPanel extends ChartPagePanel {
             compute(scatterPlotModel.useRoiMask ? scatterPlotModel.roiMask : null);
         } else {
             scatterpointsDataset.removeAllSeries();
-            System.out.println("     scatterpointsDataset.removeAllSeries();");
             acceptableDeviationDataset.removeAllSeries();
             regressionDataset.removeAllSeries();
             getPlot().removeAnnotation(r2Annotation);
@@ -778,18 +775,16 @@ class ScatterPlotPanel extends ChartPagePanel {
                     computedDatas = data;
 
                     final XYIntervalSeries scatterValues = new XYIntervalSeries(getCorrelativeDataName());
-                    for (int i = 0; i < computedDatas.length; i++) {
-                        ComputedData computedData = computedDatas[i];
+                    for (ComputedData computedData : computedDatas) {
                         final float rasterMean = computedData.rasterMean;
                         final float rasterSigma = computedData.rasterSigma;
                         final float correlativeData = computedData.correlativeData;
                         scatterValues.add(correlativeData, correlativeData, correlativeData,
-                                          rasterMean, rasterMean - rasterSigma, rasterMean + rasterSigma);
+                                rasterMean, rasterMean - rasterSigma, rasterMean + rasterSigma);
                     }
 
                     computingData = true;
                     scatterpointsDataset.addSeries(scatterValues);
-                    System.out.println("     scatterpointsDataset.addSeries(scatterValues);");
 
                     xAxis.setAutoRange(true);
                     yAxis.setAutoRange(true);

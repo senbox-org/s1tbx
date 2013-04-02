@@ -112,7 +112,7 @@ public class ImportTrackAction extends ExecCommand {
     @Override
     public void updateState(final CommandEvent event) {
         setEnabled(VisatApp.getApp().getSelectedProduct() != null
-                           && VisatApp.getApp().getSelectedProduct().getGeoCoding() != null);
+                && VisatApp.getApp().getSelectedProduct().getGeoCoding() != null);
     }
 
     private static FeatureCollection<SimpleFeatureType, SimpleFeature> readTrack(File file, GeoCoding geoCoding) throws IOException {
@@ -133,7 +133,7 @@ public class ImportTrackAction extends ExecCommand {
         while ((record = csvReader.readDoubleRecord()) != null) {
             if (record.length < 3) {
                 throw new IOException("Illegal track file format.\n" +
-                                              "Expecting tab-separated lines containing 3 values: lat, lon, data.");
+                        "Expecting tab-separated lines containing 3 values: lat, lon, data.");
             }
 
             float lat = (float) record[0];

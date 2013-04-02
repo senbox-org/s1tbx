@@ -18,7 +18,7 @@ public class VariableExtractorTest {
     @Test
     public void testThatNoVariableCanBeExtractedFromEmptyDDS() {
         OpendapLeaf leaf = new OpendapLeaf("empty", new InvDataset(null, "") {
-        });
+                });
 
         final DAPVariable[] dapVariables = new VariableExtractor().extractVariables(leaf);
 
@@ -87,8 +87,8 @@ public class VariableExtractorTest {
     private DDS createDDSWithByteVariable() throws DAP2Exception, ParseException {
         DDS dds = new DDS();
         String ddsString = "Dataset {\n" +
-                "    Byte metadata;\n" +
-                "} coastcolour%2ftasmania24948_0001%2enc;";
+                           "    Byte metadata;\n" +
+                           "} coastcolour%2ftasmania24948_0001%2enc;";
         dds.parse(new ByteArrayInputStream(ddsString.getBytes()));
         return dds;
     }
@@ -96,8 +96,8 @@ public class VariableExtractorTest {
     private DDS createDDSWithFloatVariable() throws DAP2Exception, ParseException {
         DDS dds = new DDS();
         String ddsString = "Dataset {\n" +
-                "    Float32 metadata;\n" +
-                "} coastcolour%2ftasmania24948_0001%2enc;";
+                           "    Float32 metadata;\n" +
+                           "} coastcolour%2ftasmania24948_0001%2enc;";
         dds.parse(new ByteArrayInputStream(ddsString.getBytes()));
         return dds;
     }
@@ -106,14 +106,14 @@ public class VariableExtractorTest {
         DDS dds = new DDS();
         String ddsString =
                 "Dataset {\n" +
-                        "    Grid {\n" +
-                        "        Array:\n" +
-                        "            Float32 Chlorophyll[Y = 849][X = 1121];\n" +
-                        "        Maps:\n" +
-                        "            Int32 Y[Y = 849];\n" +
-                        "            Int32 X[X = 1121];\n" +
-                        "    } Chlorophyll;\n" +
-                        "} MER_RR__2PNKOF20120113_101320_000001493110_00324_51631_6150.N1.nc;";
+                "    Grid {\n" +
+                "        Array:\n" +
+                "            Float32 Chlorophyll[Y = 849][X = 1121];\n" +
+                "        Maps:\n" +
+                "            Int32 Y[Y = 849];\n" +
+                "            Int32 X[X = 1121];\n" +
+                "    } Chlorophyll;\n" +
+                "} MER_RR__2PNKOF20120113_101320_000001493110_00324_51631_6150.N1.nc;";
         dds.parse(new ByteArrayInputStream(ddsString.getBytes()));
         return dds;
     }
@@ -121,37 +121,37 @@ public class VariableExtractorTest {
     private DDS createDDSWithMultipleVariables() throws DAP2Exception, ParseException {
         DDS dds = new DDS();
         String ddsString = "Dataset {\n" +
-                "    Grid {\n" +
-                "      Array:\n" +
-                "        Float32 Chlorophyll[Y = 849][X = 1121];\n" +
-                "      Maps:\n" +
-                "        Int32 Y[Y = 849];\n" +
-                "        Int32 X[X = 1121];\n" +
-                "    } Chlorophyll;\n" +
-                "    Grid {\n" +
-                "      Array:\n" +
-                "        Float32 Total_suspended_matter[Y = 849][X = 1121];\n" +
-                "      Maps:\n" +
-                "        Int32 Y[Y = 849];\n" +
-                "        Int32 X[X = 1121];\n" +
-                "    } Total_suspended_matter;\n" +
-                "    Grid {\n" +
-                "      Array:\n" +
-                "        Float32 Yellow_substance[Y = 849][X = 1121];\n" +
-                "      Maps:\n" +
-                "        Int32 Y[Y = 849];\n" +
-                "        Int32 X[X = 1121];\n" +
-                "    } Yellow_substance;\n" +
-                "    Grid {\n" +
-                "      Array:\n" +
-                "        Int32 l2_flags[Y = 849][X = 1121];\n" +
-                "      Maps:\n" +
-                "        Int32 Y[Y = 849];\n" +
-                "        Int32 X[X = 1121];\n" +
-                "    } l2_flags;\n" +
-                "    Int32 X[X = 1121];\n" +
-                "    Int32 Y[Y = 849];\n" +
-                "} MER_RR__2PNKOF20120113_101320_000001493110_00324_51631_6150.N1.nc;";
+                           "    Grid {\n" +
+                           "      Array:\n" +
+                           "        Float32 Chlorophyll[Y = 849][X = 1121];\n" +
+                           "      Maps:\n" +
+                           "        Int32 Y[Y = 849];\n" +
+                           "        Int32 X[X = 1121];\n" +
+                           "    } Chlorophyll;\n" +
+                           "    Grid {\n" +
+                           "      Array:\n" +
+                           "        Float32 Total_suspended_matter[Y = 849][X = 1121];\n" +
+                           "      Maps:\n" +
+                           "        Int32 Y[Y = 849];\n" +
+                           "        Int32 X[X = 1121];\n" +
+                           "    } Total_suspended_matter;\n" +
+                           "    Grid {\n" +
+                           "      Array:\n" +
+                           "        Float32 Yellow_substance[Y = 849][X = 1121];\n" +
+                           "      Maps:\n" +
+                           "        Int32 Y[Y = 849];\n" +
+                           "        Int32 X[X = 1121];\n" +
+                           "    } Yellow_substance;\n" +
+                           "    Grid {\n" +
+                           "      Array:\n" +
+                           "        Int32 l2_flags[Y = 849][X = 1121];\n" +
+                           "      Maps:\n" +
+                           "        Int32 Y[Y = 849];\n" +
+                           "        Int32 X[X = 1121];\n" +
+                           "    } l2_flags;\n" +
+                           "    Int32 X[X = 1121];\n" +
+                           "    Int32 Y[Y = 849];\n" +
+                           "} MER_RR__2PNKOF20120113_101320_000001493110_00324_51631_6150.N1.nc;";
         dds.parse(new ByteArrayInputStream(ddsString.getBytes()));
         return dds;
     }

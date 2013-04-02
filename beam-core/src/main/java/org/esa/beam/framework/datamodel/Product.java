@@ -2615,6 +2615,7 @@ public class Product extends ProductNode {
     }
 
 
+
     /**
      * Creates a bit-mask by evaluating the given bit-mask term.
      * <p/>

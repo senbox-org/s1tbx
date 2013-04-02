@@ -15,11 +15,7 @@
  */
 package org.esa.beam.visat.actions;
 
-import com.bc.ceres.binding.Property;
-import com.bc.ceres.binding.PropertyContainer;
-import com.bc.ceres.binding.PropertySet;
-import com.bc.ceres.binding.ValidationException;
-import com.bc.ceres.binding.Validator;
+import com.bc.ceres.binding.*;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerFilter;
 import com.bc.ceres.glayer.support.LayerUtils;
@@ -39,8 +35,8 @@ import org.esa.beam.visat.VisatApp;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
-import javax.swing.JPanel;
-import java.awt.Dimension;
+import javax.swing.*;
+import java.awt.*;
 import java.text.MessageFormat;
 
 /**

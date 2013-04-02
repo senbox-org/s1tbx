@@ -65,6 +65,5 @@ public interface Constants {
     String Y_FLIPPED_PROPERTY_NAME = "yFlipped";
     String CONVERT_LOGSCALED_BANDS_PROPERTY = "convertLogScaledBands";
     String PRODUCT_FILENAME_PROPERTY = "productName";
-    String PRODUCT_SUBSET_PROPERTY = "subset";
 
 }

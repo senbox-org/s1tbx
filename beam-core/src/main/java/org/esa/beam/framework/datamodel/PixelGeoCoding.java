@@ -160,7 +160,7 @@ public class PixelGeoCoding extends AbstractGeoCoding {
         }
         if (latBand.getProduct().getSceneRasterWidth() < 2 || latBand.getProduct().getSceneRasterHeight() < 2) {
             throw new IllegalArgumentException(
-                        "latBand.getProduct().getSceneRasterWidth() < 2 || latBand.getProduct().getSceneRasterHeight() < 2");
+                    "latBand.getProduct().getSceneRasterWidth() < 2 || latBand.getProduct().getSceneRasterHeight() < 2");
         }
         this.latBand = latBand;
         this.lonBand = lonBand;
@@ -559,7 +559,7 @@ public class PixelGeoCoding extends AbstractGeoCoding {
                             minDelta = delta;
                             bestPixel.setLocation(x, y);
                         } else if (delta == minDelta && Math.abs(x - x0) + Math.abs(y - y0) > Math.abs(
-                                    bestPixel.x - x0) + Math.abs(bestPixel.y - y0)) {
+                                bestPixel.x - x0) + Math.abs(bestPixel.y - y0)) {
                             bestPixel.setLocation(x, y);
                         }
                     }
@@ -713,7 +713,7 @@ public class PixelGeoCoding extends AbstractGeoCoding {
             return false;
         }
         if (validMaskExpression != null ? !validMaskExpression.equals(
-                    that.validMaskExpression) : that.validMaskExpression != null) {
+                that.validMaskExpression) : that.validMaskExpression != null) {
             return false;
         }
 
@@ -836,7 +836,7 @@ public class PixelGeoCoding extends AbstractGeoCoding {
                 System.out.print("  ");
             }
             System.out.println(
-                        depth + ": (" + x + "," + y + ") (" + w + "," + h + ") " + definitelyOutside + "  " + pixelFound);
+                    depth + ": (" + x + "," + y + ") (" + w + "," + h + ") " + definitelyOutside + "  " + pixelFound);
         }
         return pixelFound;
     }

@@ -21,6 +21,10 @@ import org.esa.beam.framework.datamodel.TiePointGeoCoding;
 import org.esa.beam.framework.datamodel.TiePointGrid;
 import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.util.ProductUtils;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -28,8 +32,6 @@ import java.awt.geom.GeneralPath;
 import java.awt.geom.Rectangle2D;
 import java.io.IOException;
 import java.util.Arrays;
-
-import static org.junit.Assert.*;
 
 public class ProductFlipperTest {
 

@@ -55,7 +55,10 @@ import java.util.Vector;
  * You can create an instance of this class in two diferential ways: With od without main-frame-window. If you create an
  * instance without main-frame-window, the Dialog-Gui was centered to the screen. If you create an instance with
  * main-frame-window, the Dialog-Gui was centered to main-frame-window.
+ *
+ * @deprecated since BEAM 4.11. No replacement.
  */
+@Deprecated
 public class SmacRequestEditor extends AbstractProcessorUI {
 
     private static final String IO_PARAM_TAB_NAME = "I/O Parameters";                       /*I18N*/

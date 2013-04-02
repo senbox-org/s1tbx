@@ -6,12 +6,7 @@ import org.esa.beam.binning.aggregators.AggregatorMinMax;
 import org.esa.beam.binning.support.ObservationImpl;
 import org.junit.Test;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 
 import static org.junit.Assert.*;
 

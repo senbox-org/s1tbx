@@ -23,7 +23,11 @@ package org.esa.beam.framework.processor;
  *
  * @author Norman Fomferra
  * @version $Date$
+ *
+ *
+ * @deprecated since BEAM 4.11. Use the {@link org.esa.beam.framework.gpf Graph Processing Framework} instead.
  */
+@Deprecated
 public class RequestElementFactoryException extends ProcessorException {
 
     /**

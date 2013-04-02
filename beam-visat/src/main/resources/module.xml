@@ -17,7 +17,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-visat</symbolicName>
-    <version>5.0</version>
+    <version>4.11</version>
     <name>BEAM VISAT Application</name>
 
     <description>

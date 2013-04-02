@@ -15,6 +15,13 @@
  */
 package org.esa.beam.framework.processor;
 
+import org.esa.beam.framework.param.Parameter;
+import org.esa.beam.util.Guardian;
+import org.jdom.Document;
+import org.jdom.Element;
+import org.jdom.output.Format;
+import org.jdom.output.XMLOutputter;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
@@ -23,17 +30,13 @@ import java.io.Writer;
 import java.util.Map;
 import java.util.Set;
 
-import org.esa.beam.framework.param.Parameter;
-import org.esa.beam.util.Guardian;
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.output.Format;
-import org.jdom.output.XMLOutputter;
-
 /**
  * The request writer is a helper class that can write any number of <code>Requests</code> to an xml file so that the
  * request form a valid "Request file" that can be reread by the <code>RequestLoader</code>.
+ *
+ * @deprecated since BEAM 4.11. Use the {@link org.esa.beam.framework.gpf Graph Processing Framework} instead.
  */
+@Deprecated
 public class RequestWriter {
 
     /**

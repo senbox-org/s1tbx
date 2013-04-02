@@ -28,6 +28,8 @@ import java.util.Map;
 
 public class DAPDownloader {
 
+    private static final int MAX_FILENAME_DISPLAY_LENGTH = 15;
+
     final Map<String, Boolean> dapUris;
     final List<String> fileURIs;
     private final FileCountProvider fileCountProvider;
@@ -171,8 +173,9 @@ public class DAPDownloader {
         String totalWorkString = OpendapUtils.format(totalWork / 1024.0);
         pm.setPostMessage(workDone + " MB/" + totalWorkString + " MB (" + OpendapUtils.format(percentage) + "%)");
         String preMessageString = preMessageBuilder.toString();
-        pm.setTooltip("Downloading " + preMessageBuilder.toString());
-        pm.setPreMessage("Downloading " + preMessageString.replace(fileName, fileName.substring(0, 15) + "..."));
+        pm.setTooltip("Downloading " + preMessageString);
+        final String shortenedFilename = fileName.substring(0, Math.min(fileName.length(), MAX_FILENAME_DISPLAY_LENGTH));
+        pm.setPreMessage("Downloading " + preMessageString.replace(fileName, shortenedFilename + "..."));
     }
 
     static double getDownloadSpeed(long durationInMillis, int kilobyteCount) {

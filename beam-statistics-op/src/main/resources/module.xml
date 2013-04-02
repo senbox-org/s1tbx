@@ -21,13 +21,6 @@
 
     <categories>Application,Processor,Geometry,VISAT,Level-3,Envisat,MERIS,AATSR,AVHRR,CHRIS</categories>
 
-    <!--<changelog>-->
-    <!--<![CDATA[-->
-    <!--Changes in 1.0.1:<br>-->
-    <!--Adapted to BEAM 5.0<br/>-->
-    <!--]]>-->
-    <!--</changelog>-->
-
     <dependency>
         <module>beam-gpf</module>
     </dependency>

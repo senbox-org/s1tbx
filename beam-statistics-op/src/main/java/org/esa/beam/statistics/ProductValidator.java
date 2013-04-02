@@ -102,7 +102,7 @@ public class ProductValidator {
 
     private String formatDateRange() {
         return (startDate != null ? " from " + startDate.format() : " ")
-                + (endDate != null ? " to " + endDate.format() : "");
+               + (endDate != null ? " to " + endDate.format() : "");
     }
 
     private void logSkipped(String message) {

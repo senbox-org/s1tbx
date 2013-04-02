@@ -92,7 +92,7 @@ class CatalogTree {
             }
 
             private void setToolTip(DefaultMutableTreeNode value, JTree tree) {
-                final int fileSize = ((OpendapLeaf) value.getUserObject()).getFileSize();
+                final int fileSize = ((OpendapLeaf)value.getUserObject()).getFileSize();
                 tree.setToolTipText(OpendapUtils.format(fileSize / 1024.0) + " MB");
             }
         });
@@ -369,11 +369,11 @@ class CatalogTree {
     }
 
     OpendapLeaf getSelectedLeaf() {
-        if (jTree.isSelectionEmpty()) {
+        if(jTree.isSelectionEmpty()) {
             return null;
         }
         DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) jTree.getAnchorSelectionPath().getLastPathComponent();
-        return (OpendapLeaf) selectedNode.getUserObject();
+        return (OpendapLeaf)selectedNode.getUserObject();
     }
 
     static interface LeafSelectionListener {

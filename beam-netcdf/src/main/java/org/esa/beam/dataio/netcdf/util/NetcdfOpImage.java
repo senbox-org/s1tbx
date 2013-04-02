@@ -22,6 +22,7 @@ import ucar.ma2.Array;
 import ucar.ma2.DataType;
 import ucar.ma2.InvalidRangeException;
 import ucar.ma2.Section;
+import ucar.nc2.Attribute;
 import ucar.nc2.Variable;
 
 import javax.media.jai.PlanarImage;
@@ -30,6 +31,7 @@ import java.awt.Rectangle;
 import java.awt.image.RenderedImage;
 import java.awt.image.WritableRaster;
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -112,35 +114,124 @@ public class NetcdfOpImage extends SingleBandedOpImage {
             sourceRect = destRect;
         }
 
+        if (isGlobalShifted180()) {
+            // special case!!
+            computeRect180degShifted(tile, sourceRect, destRect);
+        } else {
+            // the normal case!!
+            final int rank = variable.getRank();
+            final int[] origin = new int[rank];
+            final int[] shape = new int[rank];
+            final int[] stride = new int[rank];
+            for (int i = 0; i < rank; i++) {
+                shape[i] = 1;
+                origin[i] = 0;
+                stride[i] = 1;
+            }
+
+            shape[yIndex] = sourceRect.height;
+            shape[xIndex] = sourceRect.width;
+
+            if (imageOrigin.length >= 0) {
+                // todo: we need something for weird position of lat/lon in nc variables (e.g. bands data1, data2, lat, data3, lon, data4)
+                System.arraycopy(imageOrigin, 0, origin, startIndexToCopy, imageOrigin.length);
+            }
+            origin[yIndex] = flipY ? sourceHeight - sourceRect.y - sourceRect.height : sourceRect.y;
+            origin[xIndex] = sourceRect.x;
+
+            double scale = getScale();
+            stride[yIndex] = (int) scale;
+            stride[xIndex] = (int) scale;
+
+            Array array;
+            synchronized (readLock) {
+                try {
+                    final Section section = new Section(origin, shape, stride);
+                    array = variable.read(section);
+                } catch (IOException e) {
+                    throw new IllegalStateException(e);
+                } catch (InvalidRangeException e) {
+                    throw new IllegalArgumentException(e);
+                }
+            }
+            if (xIndex < yIndex) {
+                array = array.transpose(xIndex, yIndex);
+            }
+            // todo: consider weird position of lat/lon in nc variables (e.g. bands data1, data2, lat, data3, lon, data4), see above
+
+            final Array convertedArray = arrayConverter.convert(array);
+            if (flipY) {
+                tile.setDataElements(destRect.x, destRect.y,
+                                     destRect.width, destRect.height,
+                                     convertedArray.flip(yIndex).copyTo1DJavaArray());
+            } else {
+                Object data;
+                if (xIndex < yIndex) {
+                    data = convertedArray.copyTo1DJavaArray();
+                } else {
+                    data = convertedArray.getStorage();
+                }
+
+                tile.setDataElements(destRect.x, destRect.y,
+                                     destRect.width, destRect.height,
+                                     data);
+            }
+        }
+    }
+
+    private boolean isGlobalShifted180() {
+        for (Attribute attribute : variable.getAttributes()) {
+            // for the special case of a global image shifted by 180deg longitude, this attribute was added in CfGeocodingPart
+            if (attribute.getName().equals("LONGITUDE_SHIFTED_180")) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void computeRect180degShifted(WritableRaster tile, Rectangle sourceRect, Rectangle destRect) {
         final int rank = variable.getRank();
-        final int[] origin = new int[rank];
-        final int[] shape = new int[rank];
+        final int[] originLeft = new int[rank];
+        final int[] originRight = new int[rank];
+        final int[] shapeLeft = new int[rank];
+        final int[] shapeRight = new int[rank];
         final int[] stride = new int[rank];
         for (int i = 0; i < rank; i++) {
-            shape[i] = 1;
-            origin[i] = 0;
+            shapeLeft[i] = 1;
+            shapeRight[i] = 1;
+            originLeft[i] = 0;
+            originRight[i] = 0;
             stride[i] = 1;
         }
 
-        shape[yIndex] = sourceRect.height;
-        shape[xIndex] = sourceRect.width;
+        shapeLeft[yIndex] = sourceRect.height;
+        shapeRight[yIndex] = sourceRect.height;
+        shapeLeft[xIndex] = sourceRect.width / 2;
+        shapeRight[xIndex] = sourceRect.width / 2;
 
         if (imageOrigin.length >= 0) {
             // todo: we need something for weird position of lat/lon in nc variables (e.g. bands data1, data2, lat, data3, lon, data4)
-            System.arraycopy(imageOrigin, 0, origin, startIndexToCopy, imageOrigin.length);
+            System.arraycopy(imageOrigin, 0, originLeft, startIndexToCopy, imageOrigin.length);
+            System.arraycopy(imageOrigin, 0, originRight, startIndexToCopy, imageOrigin.length);
         }
-        origin[yIndex] = flipY ? sourceHeight - sourceRect.y - sourceRect.height : sourceRect.y;
-        origin[xIndex] = sourceRect.x;
+
+        originLeft[yIndex] = sourceRect.y;
+        originRight[yIndex] = sourceRect.y;
+        originLeft[xIndex] = sourceRect.x;
+        originRight[xIndex] = sourceRect.x + sourceRect.width / 2;
 
         double scale = getScale();
         stride[yIndex] = (int) scale;
         stride[xIndex] = (int) scale;
 
-        Array array;
+        Array arrayLeft;
+        Array arrayRight;
         synchronized (readLock) {
             try {
-                final Section section = new Section(origin, shape, stride);
-                array = variable.read(section);
+                final Section sectionLeft = new Section(originLeft, shapeLeft, stride);
+                final Section sectionRight = new Section(originRight, shapeRight, stride);
+                arrayLeft = variable.read(sectionLeft);
+                arrayRight = variable.read(sectionRight);
             } catch (IOException e) {
                 throw new IllegalStateException(e);
             } catch (InvalidRangeException e) {
@@ -148,27 +239,28 @@ public class NetcdfOpImage extends SingleBandedOpImage {
             }
         }
         if (xIndex < yIndex) {
-            array = array.transpose(xIndex, yIndex);
-//          array = array.permute(new int[]{yIndex, xIndex, 2, 3});
+            arrayLeft = arrayLeft.transpose(xIndex, yIndex);
+            arrayRight = arrayRight.transpose(xIndex, yIndex);
         }
-        // todo: consider weird position of lat/lon in nc variables (e.g. bands data1, data2, lat, data3, lon, data4), see above
 
-        final Array convertedArray = arrayConverter.convert(array);
-        if (flipY) {
-            tile.setDataElements(destRect.x, destRect.y,
-                                 destRect.width, destRect.height,
-                                 convertedArray.flip(yIndex).copyTo1DJavaArray());
+        final Array convertedArrayLeft = arrayConverter.convert(arrayLeft);
+        final Array convertedArrayRight = arrayConverter.convert(arrayRight);
+        Object dataLeft;
+        Object dataRight;
+        if (xIndex < yIndex) {
+            dataLeft = convertedArrayLeft.copyTo1DJavaArray();
+            dataRight = convertedArrayRight.copyTo1DJavaArray();
         } else {
-            Object data;
-            if (xIndex < yIndex) {
-                data = convertedArray.copyTo1DJavaArray();
-            } else {
-                data = convertedArray.getStorage();
-            }
-            tile.setDataElements(destRect.x, destRect.y,
-                                 destRect.width, destRect.height,
-                                 data);
+            dataLeft = convertedArrayLeft.getStorage();
+            dataRight = convertedArrayRight.getStorage();
         }
+
+        tile.setDataElements(destRect.x, destRect.y,
+                             destRect.width / 2, destRect.height,
+                             dataRight);
+        tile.setDataElements(destRect.x + destRect.width / 2, destRect.y,
+                             destRect.width / 2, destRect.height,
+                             dataLeft);
     }
 
     private interface ArrayConverter {

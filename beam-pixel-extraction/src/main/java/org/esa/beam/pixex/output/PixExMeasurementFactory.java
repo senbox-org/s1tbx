@@ -50,5 +50,4 @@ public class PixExMeasurementFactory extends AbstractMeasurementFactory {
     public void close() {
         productRegistry.close();
     }
-
 }

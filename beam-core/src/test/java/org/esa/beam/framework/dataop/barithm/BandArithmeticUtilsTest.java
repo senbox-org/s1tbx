@@ -73,22 +73,22 @@ public class BandArithmeticUtilsTest {
         vme = BandArithmetic.getValidMaskExpression("c + ($2.w - $1.w) * $3.q + ($2.l - $1.l) * $3.c",
                                                     new Product[]{p1, p3, p2}, 0, null);
         assertEquals("(f.CLOUD && !f.INVALID) " +
-                             "&& ($2.f.WATER && !$2.f.INVALID) " +
-                             "&& (f.WATER && !f.INVALID) " +
-                             "&& ($2.f.LAND && !$2.f.INVALID) " +
-                             "&& (f.LAND && !f.INVALID) " +
-                             "&& ($3.f.CLOUD && !$3.f.INVALID)", vme);
+                "&& ($2.f.WATER && !$2.f.INVALID) " +
+                "&& (f.WATER && !f.INVALID) " +
+                "&& ($2.f.LAND && !$2.f.INVALID) " +
+                "&& (f.LAND && !f.INVALID) " +
+                "&& ($3.f.CLOUD && !$3.f.INVALID)", vme);
 
         vme = BandArithmetic.getValidMaskExpression("c + ($2.w - $1.w) * $3.q + ($2.l - $1.l) * $3.c",
                                                     new Product[]{p1, p3, p2}, 0, "c >= 0.0");
         assertEquals("(c >= 0.0) " +
-                             "&& (f.CLOUD && !f.INVALID) " +
-                             "&& ($2.f.WATER && !$2.f.INVALID) " +
-                             "&& (f.WATER && !f.INVALID) " +
-                             "&& ($2.f.LAND && !$2.f.INVALID) " +
-                             "&& (f.LAND && !f.INVALID) " +
-                             "&& ($3.f.CLOUD && !$3.f.INVALID)", vme);
-
+                "&& (f.CLOUD && !f.INVALID) " +
+                "&& ($2.f.WATER && !$2.f.INVALID) " +
+                "&& (f.WATER && !f.INVALID) " +
+                "&& ($2.f.LAND && !$2.f.INVALID) " +
+                "&& (f.LAND && !f.INVALID) " +
+                "&& ($3.f.CLOUD && !$3.f.INVALID)", vme);
+        
         vme = BandArithmetic.getValidMaskExpression("$2.w", new Product[]{p1, p2}, 0, null);
         assertEquals("($2.f.WATER && !$2.f.INVALID)", vme);
     }

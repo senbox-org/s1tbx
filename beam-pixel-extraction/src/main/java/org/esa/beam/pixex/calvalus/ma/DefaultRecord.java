@@ -47,9 +47,9 @@ public class DefaultRecord implements Record {
     @Override
     public String toString() {
         return "DefaultRecord{" +
-                "location=" + location +
-                ", time=" + time +
-                ", values=" + Arrays.asList(values) +
-                '}';
+               "location=" + location +
+               ", time=" + time +
+               ", values=" + Arrays.asList(values) +
+               '}';
     }
 }

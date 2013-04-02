@@ -22,8 +22,7 @@ import thredds.catalog.InvDataset;
 
 import javax.swing.JCheckBox;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * @author Tonio Fincke
@@ -35,32 +34,32 @@ public class DatasetNameFilterTest {
     public void testAccept() throws Exception {
         DatasetNameFilter datasetNameFilter = new DatasetNameFilter(new JCheckBox());
         assertTrue(datasetNameFilter.accept(new OpendapLeaf("leafName", new InvDataset(null, "") {
-        })));
+                })));
         assertTrue(datasetNameFilter.accept(new OpendapLeaf("leafName", new InvDataset(null, "") {
-        })));
+                })));
         datasetNameFilter.expressionTextField.setText("x");
         assertFalse(datasetNameFilter.accept(new OpendapLeaf("leafName", new InvDataset(null, "") {
-        })));
+                })));
         datasetNameFilter.expressionTextField.setText("leafName");
         assertTrue(datasetNameFilter.accept(new OpendapLeaf("leafName", new InvDataset(null, "") {
-        })));
+                })));
         datasetNameFilter.expressionTextField.setText("*afNa*");
         assertTrue(datasetNameFilter.accept(new OpendapLeaf("leafName", new InvDataset(null, "") {
-        })));
+                })));
         datasetNameFilter.expressionTextField.setText("*afNa+");
         assertTrue(datasetNameFilter.accept(new OpendapLeaf("leafNaaaa", new InvDataset(null, "") {
-        })));
+                })));
         assertFalse(datasetNameFilter.accept(new OpendapLeaf("leafN", new InvDataset(null, "") {
-        })));
+                })));
         datasetNameFilter.expressionTextField.setText("*afNa?");
         assertTrue(datasetNameFilter.accept(new OpendapLeaf("leafN", new InvDataset(null, "") {
-        })));
+                })));
         assertTrue(datasetNameFilter.accept(new OpendapLeaf("leafNa", new InvDataset(null, "") {
-        })));
+                })));
         assertFalse(datasetNameFilter.accept(new OpendapLeaf("leafNam", new InvDataset(null, "") {
-        })));
+                })));
         datasetNameFilter.expressionTextField.setText("*afna*");
         assertTrue(datasetNameFilter.accept(new OpendapLeaf("leafNam", new InvDataset(null, "") {
-        })));
+                })));
     }
 }

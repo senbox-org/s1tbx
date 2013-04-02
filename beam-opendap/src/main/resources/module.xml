@@ -22,13 +22,6 @@
 
     <categories>ui</categories>
 
-    <!--<changelog>-->
-    <!--<![CDATA[-->
-    <!--Changes in 1.0.1:<br/>-->
-    <!--Adapted to BEAM 5.0<br/>-->
-    <!--]]>-->
-    <!--</changelog>-->
-
     <dependency>
         <module>beam-visat-rcp</module>
     </dependency>

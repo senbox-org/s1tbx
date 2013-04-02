@@ -16,11 +16,7 @@
 
 package org.esa.beam.visat.toolviews.placemark;
 
-import com.bc.ceres.swing.selection.AbstractSelectionChangeListener;
-import com.bc.ceres.swing.selection.Selection;
-import com.bc.ceres.swing.selection.SelectionChangeEvent;
-import com.bc.ceres.swing.selection.SelectionContext;
-import com.bc.ceres.swing.selection.SelectionManager;
+import com.bc.ceres.swing.selection.*;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKTReader;
@@ -33,14 +29,10 @@ import org.esa.beam.visat.VisatApp;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.type.AttributeDescriptor;
 
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
+import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.AbstractTableModel;
-import java.awt.BorderLayout;
+import java.awt.*;
 
 /**
  * A tool windows that lets users edit the attribute values of selected vector data features.

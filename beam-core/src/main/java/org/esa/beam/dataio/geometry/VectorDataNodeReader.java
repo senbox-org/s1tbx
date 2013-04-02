@@ -106,8 +106,10 @@ public class VectorDataNodeReader {
      * @param modelCrs                    The model CRS of the target product.
      * @param delimiterChar               The separation character of the CSV data.
      * @param pm                          A progress monitor.
+     *
      * @return A {@link VectorDataNode} containing features according to the input data, or <code>null</code> if no
      *         placemark descriptor can be found.
+     *
      * @throws IOException if the vector data could not be read.
      */
     public static VectorDataNode read(String sourceName, Reader reader, Product product, FeatureUtils.FeatureCrsProvider crsProvider,
@@ -127,8 +129,10 @@ public class VectorDataNodeReader {
      * @param modelCrs                    The model CRS of the target product.
      * @param delimiterChar               The separation character of the CSV data.
      * @param pm                          A progress monitor.
+     *
      * @return A {@link VectorDataNode} containing features according to the input data, or <code>null</code> if no
      *         placemark descriptor can be found.
+     *
      * @throws IOException if the vector data could not be read.
      */
     public static VectorDataNode read(String sourceName, Reader reader, Product product, FeatureUtils.FeatureCrsProvider crsProvider,
@@ -205,7 +209,7 @@ public class VectorDataNodeReader {
                     String name = line.substring(0, index).trim();
                     String value = line.substring(index + 1).trim();
                     if (StringUtils.isNotNullAndNotEmpty(name) &&
-                            StringUtils.isNotNullAndNotEmpty(value)) {
+                        StringUtils.isNotNullAndNotEmpty(value)) {
                         properties.put(name, value);
                     }
                 }
@@ -413,6 +417,7 @@ public class VectorDataNodeReader {
      * (in case of a closed line string), with the single points being vertices of this new geometry.
      *
      * @param featureCollection The feature collection to be converted.
+     *
      * @return the new feature collection
      */
     static FeatureCollection<SimpleFeatureType, SimpleFeature> convertPointsToVertices(FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection) {
@@ -446,7 +451,7 @@ public class VectorDataNodeReader {
                 }
             } catch (SchemaException e) {
                 BeamLogManager.getSystemLogger().warning("Cannot create line/polygon geometry: " + e.getMessage() +
-                                                                 " --> Will interpret points as they are.");
+                                                         " --> Will interpret points as they are.");
                 return featureCollection;
             }
 

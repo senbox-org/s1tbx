@@ -14,8 +14,6 @@
 
     <changelog>
         <![CDATA[
-                <!--Changes in 1.2.4:<br>-->
-                <!--Adapted to BEAM 5.0<br/>-->
                 Changes in 1.2.3:<br>
                 [BEAM-1427] Histogram for SPOT SM Band not correct<br/>
                 Changes in 1.2.2:<br>

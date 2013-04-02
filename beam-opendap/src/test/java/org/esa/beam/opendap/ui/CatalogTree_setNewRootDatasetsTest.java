@@ -18,8 +18,7 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.*;
 
 @RunWith(HeadlessTestRunner.class)
 public class CatalogTree_setNewRootDatasetsTest {

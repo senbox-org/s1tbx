@@ -135,11 +135,11 @@ class CorrelativeFieldSelector {
     }
 
     public void tryToSelectPointDataSource(VectorDataNode pointDataSource) {
-        pointDataSourceList.setSelectedItem(pointDataSource);
+                pointDataSourceList.setSelectedItem(pointDataSource);
     }
 
     public void tryToSelectDataField(AttributeDescriptor dataField) {
-        dataFieldList.setSelectedItem(dataField);
+                dataFieldList.setSelectedItem(dataField);
     }
 
     private class NullAttributeDescriptor implements AttributeDescriptor {

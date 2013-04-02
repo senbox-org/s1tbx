@@ -24,7 +24,10 @@ import javax.swing.filechooser.FileFilter;
 import java.io.IOException;
 import java.util.logging.Logger;
 
-
+@Deprecated
+/**
+ * @Deprecated since beam-binning 2.1.2 as part of the BEAM 4.11-release. Use module 'beam-binning2' instead.
+ */
 abstract public class AbstractBinDatabase implements BinDatabase {
 
     // some key values for the properties file

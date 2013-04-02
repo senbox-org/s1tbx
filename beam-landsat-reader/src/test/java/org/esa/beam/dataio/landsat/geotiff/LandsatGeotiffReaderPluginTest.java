@@ -112,10 +112,10 @@ public class LandsatGeotiffReaderPluginTest {
 
     @Test
     public void testIsMatchingArchiveFileName() {
-        assertTrue(LandsatGeotiffReaderPlugin.isMatchingArchiveFileName("L5_30m19950627.tgz"));
-        assertTrue(LandsatGeotiffReaderPlugin.isMatchingArchiveFileName("L5_60m19950627.tgz"));
-        assertTrue(LandsatGeotiffReaderPlugin.isMatchingArchiveFileName("LE71810402006015ASN00.tar"));
-        assertTrue(LandsatGeotiffReaderPlugin.isMatchingArchiveFileName("L7_1810402006015ASN00.tar"));
+         assertTrue(LandsatGeotiffReaderPlugin.isMatchingArchiveFileName("L5_30m19950627.tgz"));
+         assertTrue(LandsatGeotiffReaderPlugin.isMatchingArchiveFileName("L5_60m19950627.tgz"));
+         assertTrue(LandsatGeotiffReaderPlugin.isMatchingArchiveFileName("LE71810402006015ASN00.tar"));
+         assertTrue(LandsatGeotiffReaderPlugin.isMatchingArchiveFileName("L7_1810402006015ASN00.tar"));
 
         assertFalse(LandsatGeotiffReaderPlugin.isMatchingArchiveFileName("ATS_TOA_1PPTOM20070110_192521_000000822054_00328_25432_0001.N1"));
         assertFalse(LandsatGeotiffReaderPlugin.isMatchingArchiveFileName("SchnickSchnack.zip"));

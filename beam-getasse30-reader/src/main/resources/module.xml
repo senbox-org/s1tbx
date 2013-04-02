@@ -15,8 +15,6 @@
 
     <changelog>
         <![CDATA[
-        <!--Changes in 1.0.2:<br\>-->
-        <!--Adapted to BEAM 5.0<br>-->
         Changes in 1.0.1:<br\>
         Adapted to new Maven-architecture<br>
         ]]>
@@ -29,7 +27,7 @@
         <module>beam-visat-rcp</module>
         <optional>true</optional>
     </dependency>
-
+    
 
     <categories>Reader,DEM,GETASSE30</categories>
 

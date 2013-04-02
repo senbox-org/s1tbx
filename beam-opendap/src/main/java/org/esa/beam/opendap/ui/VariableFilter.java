@@ -200,8 +200,8 @@ public class VariableFilter implements FilterComponent, CatalogTree.CatalogTreeL
 
     private void updateUI(boolean enableApplyButton, boolean enableSelectAllButton, boolean enableSelectNoneButton) {
         boolean notAllSelected = checkBoxList.getModel().getSize() == 0 ||
-                checkBoxList.getCheckBoxListSelectedIndices().length <
-                        checkBoxList.getModel().getSize();
+                                 checkBoxList.getCheckBoxListSelectedIndices().length <
+                                 checkBoxList.getModel().getSize();
         boolean someSelected = checkBoxList.getCheckBoxListSelectedIndices().length > 0;
         boolean filtersAvailable = checkBoxList.getModel().getSize() > 0;
 

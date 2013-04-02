@@ -145,7 +145,14 @@ public class AssistantPane implements AssistantPageContext {
 
     @Override
     public void showErrorDialog(String message) {
-        JOptionPane.showMessageDialog(dialog, message, getCurrentPage().getPageTitle(), JOptionPane.ERROR_MESSAGE);
+        final String dialogTitle;
+        final AssistantPage currentPage= getCurrentPage();
+        if (currentPage != null) {
+            dialogTitle = currentPage.getPageTitle();
+        } else {
+            dialogTitle = "Unexpected Error";
+        }
+        JOptionPane.showMessageDialog(dialog, message, dialogTitle, JOptionPane.ERROR_MESSAGE);
     }
 
     /**

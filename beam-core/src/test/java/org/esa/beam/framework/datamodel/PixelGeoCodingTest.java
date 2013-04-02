@@ -122,7 +122,6 @@ public class PixelGeoCodingTest extends TestCase {
         assertEquals(geoCoding1, geoCoding2);
         assertFalse(geoCoding1.equals(geoCoding3));
     }
-
     public void testGetPixelPos() throws IOException {
         Product product = createProduct();
         TiePointGeoCoding tiePointGeoCoding = (TiePointGeoCoding) product.getGeoCoding();
@@ -135,10 +134,10 @@ public class PixelGeoCodingTest extends TestCase {
         PixelPos pixelPos = pixelGeoCoding.getPixelPos(gp, null);
         assertEquals(new PixelPos(0.5f, 0.5f), pixelPos);
         System.out.println("----");
-        gp = new GeoPos((latGrid.getTiePoints()[0] + latGrid.getTiePoints()[1]) / 2,
-                        (lonGrid.getTiePoints()[0] + lonGrid.getTiePoints()[1]) / 2);
-        pixelPos = pixelGeoCoding.getPixelPos(gp, null);
-        assertEquals(new PixelPos(2.5f, 0.5f), pixelPos);
+        gp = new GeoPos((latGrid.getTiePoints()[0] + latGrid.getTiePoints()[1]) / 2 ,
+                               (lonGrid.getTiePoints()[0] + lonGrid.getTiePoints()[1]) / 2 );
+         pixelPos = pixelGeoCoding.getPixelPos(gp, null);
+         assertEquals(new PixelPos(2.5f, 0.5f), pixelPos);
     }
 
     public void testGetGeoPos() throws IOException {

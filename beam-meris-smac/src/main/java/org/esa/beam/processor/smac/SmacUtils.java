@@ -21,6 +21,10 @@ import org.esa.beam.util.Guardian;
 
 import java.util.regex.Pattern;
 
+/*
+ * @deprecated since BEAM 4.11. No replacement.
+ */
+@Deprecated
 public class SmacUtils {
 
     private static Pattern AATSR_L1_TOA_TYPE_PATTERN = Pattern.compile("ATS_TOA_1P");

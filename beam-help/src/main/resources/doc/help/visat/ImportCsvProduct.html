@@ -25,9 +25,8 @@
 <table class="header">
     <tr class="header">
         <td class="header">&nbsp; Import CSV Product</td>
-
-        <td class="header" align="right"><a href="../general/BeamOverview.html"><img src="../images/BeamHeader.jpg"
-                                                                                     border=0></a></td>
+        
+    <td class="header" align="right"><a href="../general/BeamOverview.html"><img src="../images/BeamHeader.jpg" border=0></a></td>
     </tr>
 </table>
 
@@ -45,17 +44,15 @@
 
 <p>
     There are a number of reserved properties which may be set within the file:
-<ul>
-    <li><b>separator</b>: When this property is set, e.g. using <code>#separator=;</code>, the specified separator
-        is being used for parsing the file.
-    </li>
+    <ul>
+        <li><b>separator</b>: When this property is set, e.g. using <code>#separator=;</code>, the specified separator
+            is being used for parsing the file.</li>
     <li><b>sceneRasterWidth</b>: Per default, the product will have quadratic dimensions, e.g. if the CSV file contains
         144 data entries, the product will have width and height 12. If the CSV file contains no square number of data
         entries, the next higher square number is being used and the added pixels are filled with NaN values. If,
         however, the property is set, the product's width will be set to the property's value and the height will be
-        computed accordingly.
-    </li>
-</ul>
+        computed accordingly.</li>
+    </ul>
 </p>
 
 <hr>

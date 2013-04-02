@@ -33,6 +33,7 @@ public class Util {
      * Returns the 'best' name of the given feature.
      *
      * @param simpleFeature The feature to inquire the name of.
+     *
      * @return The name if such an attribute exists in the feature, or the feature's id as last resort.
      */
     public static String getFeatureName(SimpleFeature simpleFeature) {
@@ -46,7 +47,6 @@ public class Util {
 
     /**
      * Returns the width of the bin cells in the given histogram.
-     *
      * @param histogram The histogram to inquire the bin cell width of.
      * @return The width of the bin cells in the histogram.
      */
@@ -56,7 +56,6 @@ public class Util {
 
     /**
      * Returns the initial number of bin cells for the histogram, according to the given accuracy.
-     *
      * @param accuracy a value in the range 0 ... {@link #MAX_ACCURACY}
      * @return the initial number of bin cells.
      */

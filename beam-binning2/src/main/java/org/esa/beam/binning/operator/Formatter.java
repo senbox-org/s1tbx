@@ -18,15 +18,11 @@
 package org.esa.beam.binning.operator;
 
 import com.vividsolutions.jts.geom.Geometry;
-import org.esa.beam.binning.BinningContext;
-import org.esa.beam.binning.PlanetaryGrid;
-import org.esa.beam.binning.Reprojector;
-import org.esa.beam.binning.TemporalBinRenderer;
-import org.esa.beam.binning.TemporalBinSource;
+import org.esa.beam.binning.*;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.ProductData;
 
-import java.awt.Rectangle;
+import java.awt.*;
 import java.io.File;
 
 /**
@@ -42,7 +38,7 @@ public class Formatter {
                               Geometry roiGeometry,
                               ProductData.UTC startTime,
                               ProductData.UTC stopTime,
-                              MetadataElement... metadataElements) throws Exception {
+                              MetadataElement ... metadataElements) throws Exception {
 
         if (binningContext.getBinManager().getAggregatorCount() == 0) {
             throw new IllegalArgumentException("Illegal binning context: aggregatorCount == 0");

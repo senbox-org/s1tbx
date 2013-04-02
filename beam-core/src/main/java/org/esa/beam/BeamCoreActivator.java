@@ -29,6 +29,7 @@ import com.bc.ceres.core.runtime.ModuleState;
 import org.esa.beam.framework.datamodel.RGBImageProfile;
 import org.esa.beam.framework.datamodel.RGBImageProfileManager;
 import org.esa.beam.util.SystemUtils;
+import org.esa.beam.util.logging.BeamLogManager;
 import org.geotools.factory.FactoryIteratorProvider;
 import org.geotools.factory.GeoTools;
 import org.geotools.referencing.operation.MathTransformProvider;
@@ -38,6 +39,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ServiceConfigurationError;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * <p><i><b>IMPORTANT NOTE:</b>
@@ -66,11 +68,13 @@ public class BeamCoreActivator implements Activator {
             try {
                 registry.addService(iterator.next());
             } catch (ServiceConfigurationError e) {
+                final Logger logger;
                 if (moduleContext != null) {
-                    moduleContext.getLogger().log(Level.WARNING, e.getMessage(), e.getCause());
+                    logger = moduleContext.getLogger();
                 } else {
-                    System.err.print(e.getMessage());    
+                    logger = BeamLogManager.getSystemLogger();
                 }
+                logger.log(Level.WARNING, e.getMessage(), e.getCause());
             }
         }
     }

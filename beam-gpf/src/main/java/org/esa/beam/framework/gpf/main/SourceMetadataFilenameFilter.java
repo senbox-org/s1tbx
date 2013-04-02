@@ -6,8 +6,8 @@ import java.io.File;
 import java.io.FilenameFilter;
 
 /**
- * @author Norman Fomferra
- */
+* @author Norman Fomferra
+*/
 class SourceMetadataFilenameFilter implements FilenameFilter {
     private final String fileName;
     private final String wantedPrefix;

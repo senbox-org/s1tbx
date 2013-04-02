@@ -9,95 +9,108 @@
     <tr class="header">
         <td class="header">&nbsp;Collocate Operator</td>
         <td class="header" align="right">
-           <a href="../general/BeamOverview.html">             <img src="images/BeamHeader.jpg" border="0"/></a>
+            <a href="../general/BeamOverview.html"> <img src="images/BeamHeader.jpg" border="0"/></a>
         </td>
     </tr>
 </table>
 <h1>Collocate Operator Description</h1>
+
 <h2>Overview</h2>
 <table>
-  <tr><td><b>Name:</b></td><td><code>Collocate</code></td></tr>
-  <tr><td><b>Full name:</b></td><td><code>org.esa.beam.collocation.CollocateOp</code></td></tr>
-  <tr><td><b>Purpose:</b></td><td>Collocates two products based on their geo-codings.</td></tr>
-  <tr><td><b>Version:</b></td><td>1.1</td></tr>
+    <tr>
+        <td><b>Name:</b></td>
+        <td><code>Collocate</code></td>
+    </tr>
+    <tr>
+        <td><b>Full name:</b></td>
+        <td><code>org.esa.beam.collocation.CollocateOp</code></td>
+    </tr>
+    <tr>
+        <td><b>Purpose:</b></td>
+        <td>Collocates two products based on their geo-codings.</td>
+    </tr>
+    <tr>
+        <td><b>Version:</b></td>
+        <td>1.1</td>
+    </tr>
 </table>
 <h2>Description</h2>
 This operator is used to spatially collocate two data products. It requires two source products,
- a <code>master</code> product which provides the Coordinate reference system and grid into which
- the raster data sets of the <code>slave</code> product are resampled to.
+a <code>master</code> product which provides the Coordinate reference system and grid into which
+the raster data sets of the <code>slave</code> product are resampled to.
 <h2>Sources</h2>
 <table>
-<tr>
-  <th>Name</th>
-  <th>Description</th>
-</tr>
-<tr>
-  <td><code>masterProduct</code></td>
-  <td>The source product which serves as master.</td>
-</tr>
-<tr>
-  <td><code>slaveProduct</code></td>
-  <td>The source product which serves as slave.</td>
-</tr>
+    <tr>
+        <th>Name</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td><code>masterProduct</code></td>
+        <td>The source product which serves as master.</td>
+    </tr>
+    <tr>
+        <td><code>slaveProduct</code></td>
+        <td>The source product which serves as slave.</td>
+    </tr>
 </table>
 <h2>Parameters</h2>
 <table>
-<tr>
-  <th>Name</th>
-  <th>Data Type</th>
-  <th>Default</th>
-  <th>Description</th>
-  <th>Constraints</th>
-</tr>
-<tr>
-  <td><code>targetProductName</code></td>
-  <td><code>String</code></td>
-  <td><code>_collocated</code></td>
-  <td>The name of the target product</td>
-  <td></td>
-</tr>
-<tr>
-  <td><code>targetProductType</code></td>
-  <td><code>String</code></td>
-  <td><code>COLLOCATED</code></td>
-  <td>The product type string for the target product (informal)</td>
-  <td></td>
-</tr>
-<tr>
-  <td><code>renameMasterComponents</code></td>
-  <td><code>boolean</code></td>
-  <td><code>true</code></td>
-  <td>Whether or nor components of the master product shall be renamed in the target product.</td>
-  <td></td>
-</tr>
-<tr>
-  <td><code>renameSlaveComponents</code></td>
-  <td><code>boolean</code></td>
-  <td><code>true</code></td>
-  <td>Whether or nor components of the slave product shall be renamed in the target product.</td>
-  <td></td>
-</tr>
-<tr>
-  <td><code>masterComponentPattern</code></td>
-  <td><code>String</code></td>
-  <td><code>${ORIGINAL_NAME}_M</code></td>
-  <td>The text pattern to be used when renaming master components.</td>
-  <td></td>
-</tr>
-<tr>
-  <td><code>slaveComponentPattern</code></td>
-  <td><code>String</code></td>
-  <td><code>${ORIGINAL_NAME}_S</code></td>
-  <td>The text pattern to be used when renaming slave components.</td>
-  <td></td>
-</tr>
-<tr>
-  <td><code>resamplingType</code></td>
-  <td><code>ResamplingType</code></td>
-  <td><code>NEAREST_NEIGHBOUR</code></td>
-  <td>The method to be used when resampling the slave grid onto the master grid.</td>
-  <td>value set: [NEAREST_NEIGHBOUR, BILINEAR_INTERPOLATION, CUBIC_CONVOLUTION]</td>
-</tr>
+    <tr>
+        <th>Name</th>
+        <th>Data Type</th>
+        <th>Default</th>
+        <th>Description</th>
+        <th>Constraints</th>
+    </tr>
+    <tr>
+        <td><code>targetProductName</code></td>
+        <td><code>String</code></td>
+        <td><code>_collocated</code></td>
+        <td>The name of the target product</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><code>targetProductType</code></td>
+        <td><code>String</code></td>
+        <td><code>COLLOCATED</code></td>
+        <td>The product type string for the target product (informal)</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><code>renameMasterComponents</code></td>
+        <td><code>boolean</code></td>
+        <td><code>true</code></td>
+        <td>Whether or nor components of the master product shall be renamed in the target product.</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><code>renameSlaveComponents</code></td>
+        <td><code>boolean</code></td>
+        <td><code>true</code></td>
+        <td>Whether or nor components of the slave product shall be renamed in the target product.</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><code>masterComponentPattern</code></td>
+        <td><code>String</code></td>
+        <td><code>${ORIGINAL_NAME}_M</code></td>
+        <td>The text pattern to be used when renaming master components.</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><code>slaveComponentPattern</code></td>
+        <td><code>String</code></td>
+        <td><code>${ORIGINAL_NAME}_S</code></td>
+        <td>The text pattern to be used when renaming slave components.</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><code>resamplingType</code></td>
+        <td><code>ResamplingType</code></td>
+        <td><code>NEAREST_NEIGHBOUR</code></td>
+        <td>The method to be used when resampling the slave grid onto the master grid.</td>
+        <td>value set: [NEAREST_NEIGHBOUR, BILINEAR_INTERPOLATION, CUBIC_CONVOLUTION]</td>
+    </tr>
 </table>
 <hr/>
 </body>

@@ -32,6 +32,8 @@ import org.esa.beam.framework.datamodel.StxFactory;
 import org.esa.beam.framework.dataop.barithm.BandArithmetic;
 import org.esa.beam.framework.ui.GridBagUtils;
 import org.esa.beam.framework.ui.application.ToolView;
+import org.esa.beam.util.StringUtils;
+import org.esa.beam.util.math.MathUtils;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;

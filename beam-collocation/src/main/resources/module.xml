@@ -10,8 +10,6 @@
 
     <changelog>
         <![CDATA[
-        <!--Changes in Version 1.4.2<br/>-->
-        <!--Adapted to BEAM 5.0<br>-->
         Changes in 1.4.1:<br/>
         Adapted to new Maven-architecture<br>
         [BEAM-1405] Rounding errors in collocation of int32 bands<br/>

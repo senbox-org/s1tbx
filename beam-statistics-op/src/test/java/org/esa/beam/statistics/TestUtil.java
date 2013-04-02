@@ -1,11 +1,10 @@
 package org.esa.beam.statistics;
 
+import java.io.File;
+import java.io.IOException;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.util.Guardian;
-
-import java.io.File;
-import java.io.IOException;
 
 public class TestUtil {
 

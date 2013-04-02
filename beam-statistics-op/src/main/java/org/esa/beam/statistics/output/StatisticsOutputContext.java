@@ -1,9 +1,8 @@
 package org.esa.beam.statistics.output;
 
+import java.util.ArrayList;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
-
-import java.util.ArrayList;
 
 /**
  * The context used to initialise instances of {@link StatisticsOutputter}.
@@ -42,7 +41,6 @@ public class StatisticsOutputContext {
 
 
     // todo doku ... add context object to factory ... initialize Context object
-
     /**
      * Factory method for creating a fully specified instance.
      *
@@ -52,6 +50,7 @@ public class StatisticsOutputContext {
      * @param startDate      The start date of the statistics.
      * @param endDate        The end data of the statistics.
      * @param regionIds      The ids of the regions where statistics are computed.
+     *
      * @return An instance of {@link StatisticsOutputContext}.
      */
     public static StatisticsOutputContext create(Product[] sourceProducts, String[] bandNames, String[] algorithmNames, ProductData.UTC startDate, ProductData.UTC endDate, String[] regionIds) {
@@ -60,7 +59,6 @@ public class StatisticsOutputContext {
     }
 
     // todo doku ... add context object to factory ... initialize Context object
-
     /**
      * Factory method for creating a fully specified instance.
      *
@@ -70,6 +68,7 @@ public class StatisticsOutputContext {
      * @param startDate          The start date of the statistics.
      * @param endDate            The end data of the statistics.
      * @param regionIds          The ids of the regions where statistics are computed.
+     *
      * @return An instance of {@link StatisticsOutputContext}.
      */
     public static StatisticsOutputContext create(String[] sourceProductNames, String[] bandNames, String[] algorithmNames, ProductData.UTC startDate, ProductData.UTC endDate, String[] regionIds) {
@@ -82,6 +81,7 @@ public class StatisticsOutputContext {
      * @param sourceProducts The statistics' source products.
      * @param algorithmNames The names of the algorithms considered in the statistics.
      * @param regionIds      The ids of the regions where statistics are computed.
+     *
      * @return An instance of {@link StatisticsOutputContext}.
      */
     public static StatisticsOutputContext create(Product[] sourceProducts, String[] algorithmNames, String[] regionIds) {
@@ -95,6 +95,7 @@ public class StatisticsOutputContext {
      *
      * @param bandNames      The names of the bands considered in the statistics.
      * @param algorithmNames The names of the algorithms considered in the statistics.
+     *
      * @return An instance of {@link StatisticsOutputContext}.
      */
     public static StatisticsOutputContext create(String[] bandNames, String[] algorithmNames) {

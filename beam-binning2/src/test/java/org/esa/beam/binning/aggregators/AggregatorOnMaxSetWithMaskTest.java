@@ -22,8 +22,10 @@ import org.esa.beam.binning.MyVariableContext;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.esa.beam.binning.aggregators.AggregatorTestUtils.*;
-import static org.junit.Assert.*;
+import java.util.Arrays;
+
+import static org.esa.beam.binning.aggregators.AggregatorTestUtils.createCtx;
+import static org.junit.Assert.assertEquals;
 
 public class AggregatorOnMaxSetWithMaskTest {
 
@@ -36,8 +38,7 @@ public class AggregatorOnMaxSetWithMaskTest {
 
     @Test
     public void testMetadata() {
-        AggregatorOnMaxSetWithMask agg = new AggregatorOnMaxSetWithMask(new MyVariableContext("a", "b", "c"), "c", "a",
-                                                                        "b");
+        AggregatorOnMaxSetWithMask agg = new AggregatorOnMaxSetWithMask(new MyVariableContext("a", "b", "c"), "c", "a", "b");
 
         assertEquals("ON_MAX_SET_WITH_MASK", agg.getName());
 

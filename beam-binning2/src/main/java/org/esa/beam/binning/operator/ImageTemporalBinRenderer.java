@@ -23,7 +23,7 @@ import org.esa.beam.binning.WritableVector;
 import org.esa.beam.util.io.FileUtils;
 
 import javax.imageio.ImageIO;
-import java.awt.Rectangle;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 import java.io.File;

@@ -159,10 +159,10 @@ public class BoundsInputPanel {
             public void problemReported(BindingProblem problem, BindingProblem ignored) {
                 final String propertyName = problem.getBinding().getPropertyName();
                 final boolean invalidBoundSet = propertyName.equals(PROPERTY_NORTH_BOUND) ||
-                        propertyName.equals(PROPERTY_EAST_BOUND) ||
-                        propertyName.equals(PROPERTY_SOUTH_BOUND) ||
-                        propertyName.equals(PROPERTY_WEST_BOUND);
-                if (invalidBoundSet) {
+                                                  propertyName.equals(PROPERTY_EAST_BOUND) ||
+                                                  propertyName.equals(PROPERTY_SOUTH_BOUND) ||
+                                                  propertyName.equals(PROPERTY_WEST_BOUND);
+                if(invalidBoundSet) {
                     resetTextField(problem);
                 }
             }

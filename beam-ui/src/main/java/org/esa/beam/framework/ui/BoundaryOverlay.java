@@ -123,8 +123,8 @@ public abstract class BoundaryOverlay implements LayerCanvas.Overlay {
         g2d.setColor(Color.black);
 
         g2d.drawString(text,
-                       textCenter.x - fontMetrics.stringWidth(text) / 2.0f,
-                       textCenter.y + fontMetrics.getAscent() / 2.0f);
+                textCenter.x - fontMetrics.stringWidth(text) / 2.0f,
+                textCenter.y + fontMetrics.getAscent() / 2.0f);
         g2d.setColor(color);
     }
 

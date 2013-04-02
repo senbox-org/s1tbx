@@ -159,7 +159,6 @@ public final class AggregatorOnMaxSetWithMask extends AbstractAggregator {
     }
 
     public static class Config extends AggregatorConfig {
-
         @Parameter
         String onMaxName;
         @Parameter

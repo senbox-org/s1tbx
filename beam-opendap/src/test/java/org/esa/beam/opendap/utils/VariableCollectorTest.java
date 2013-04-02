@@ -4,8 +4,7 @@ import opendap.dap.DAP2Exception;
 import opendap.dap.DDS;
 import opendap.dap.parser.ParseException;
 import org.esa.beam.opendap.datamodel.DAPVariable;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
 
 import java.io.ByteArrayInputStream;
 import java.util.Set;
@@ -54,7 +53,7 @@ public class VariableCollectorTest {
     @Test
     public void testMultipleCollectionOfTheSameDDS() throws DAP2Exception, ParseException {
         //preparation
-        final String[] variableNames = new String[]{"Chlorophyll", "Total_suspended_matter", "Yellow_substance", "l2_flags", "X", "Y"};
+        final String[] variableNames = new String[]{"Chlorophyll","Total_suspended_matter","Yellow_substance","l2_flags","X","Y"};
         final DDS dds = createDDSWithTwoVariables();
         final DDS dds2 = createDDSWithMultipleVariables();
 
@@ -93,12 +92,12 @@ public class VariableCollectorTest {
 
     private String getGridString(String variableName) {
         return "    Grid {\n" +
-                "      Array:\n" +
-                "        Float32 " + variableName + "[Y = 849][X = 1121];\n" +
-                "      Maps:\n" +
-                "        Int32 Y[Y = 849];\n" +
-                "        Int32 X[X = 1121];\n" +
-                "    } " + variableName + ";\n";
+               "      Array:\n" +
+               "        Float32 " + variableName + "[Y = 849][X = 1121];\n" +
+               "      Maps:\n" +
+               "        Int32 Y[Y = 849];\n" +
+               "        Int32 X[X = 1121];\n" +
+               "    } " + variableName + ";\n";
     }
 
     private void assertExpectedVariableNamesInList(String[] namesSet, Set<DAPVariable> variables) {
@@ -106,8 +105,8 @@ public class VariableCollectorTest {
         assertEquals(variables.size(), namesSet.length);
         for (DAPVariable variable : variables) {
             boolean contained = false;
-            for (String name : namesSet) {
-                if (variable.getName().equals(name)) {
+            for(String name : namesSet) {
+                if(variable.getName().equals(name)) {
                     contained = true;
                 }
             }
@@ -117,7 +116,7 @@ public class VariableCollectorTest {
 
     private boolean containsDAPVariableAsExpected(String name, String type, String dataType, Set<DAPVariable> variables) {
         for (DAPVariable variable : variables) {
-            if (name.equals(variable.getName()) && type.equals(variable.getType()) && dataType.equals(variable.getDataType())) {
+            if(name.equals(variable.getName()) && type.equals(variable.getType()) && dataType.equals(variable.getDataType())) {
                 return true;
             }
         }
@@ -128,34 +127,12 @@ public class VariableCollectorTest {
         DDS dds = new DDS();
         String ddsString =
                 "Dataset {\n" +
-                        "    Grid {\n" +
-                        "        Array:\n" +
-                        "            Float32 Chlorophyll[Y = 849][X = 1121];\n" +
-                        "        Maps:\n" +
-                        "            Int32 Y[Y = 849];\n" +
-                        "            Int32 X[X = 1121];\n" +
-                        "    } Chlorophyll;\n" +
-                        "    Grid {\n" +
-                        "      Array:\n" +
-                        "        Float32 Total_suspended_matter[Y = 849][X = 1121];\n" +
-                        "      Maps:\n" +
-                        "        Int32 Y[Y = 849];\n" +
-                        "        Int32 X[X = 1121];\n" +
-                        "    } Total_suspended_matter;\n" +
-                        "} MER_RR__2PNKOF20120113_101320_000001493110_00324_51631_6150.N1.nc;";
-        dds.parse(new ByteArrayInputStream(ddsString.getBytes()));
-        return dds;
-    }
-
-    private DDS createDDSWithMultipleVariables() throws DAP2Exception, ParseException {
-        DDS dds = new DDS();
-        String ddsString = "Dataset {\n" +
                 "    Grid {\n" +
-                "      Array:\n" +
-                "        Float32 Chlorophyll[Y = 849][X = 1121];\n" +
-                "      Maps:\n" +
-                "        Int32 Y[Y = 849];\n" +
-                "        Int32 X[X = 1121];\n" +
+                "        Array:\n" +
+                "            Float32 Chlorophyll[Y = 849][X = 1121];\n" +
+                "        Maps:\n" +
+                "            Int32 Y[Y = 849];\n" +
+                "            Int32 X[X = 1121];\n" +
                 "    } Chlorophyll;\n" +
                 "    Grid {\n" +
                 "      Array:\n" +
@@ -164,23 +141,45 @@ public class VariableCollectorTest {
                 "        Int32 Y[Y = 849];\n" +
                 "        Int32 X[X = 1121];\n" +
                 "    } Total_suspended_matter;\n" +
-                "    Grid {\n" +
-                "      Array:\n" +
-                "        Float32 Yellow_substance[Y = 849][X = 1121];\n" +
-                "      Maps:\n" +
-                "        Int32 Y[Y = 849];\n" +
-                "        Int32 X[X = 1121];\n" +
-                "    } Yellow_substance;\n" +
-                "    Grid {\n" +
-                "      Array:\n" +
-                "        Int32 l2_flags[Y = 849][X = 1121];\n" +
-                "      Maps:\n" +
-                "        Int32 Y[Y = 849];\n" +
-                "        Int32 X[X = 1121];\n" +
-                "    } l2_flags;\n" +
-                "    Int32 X[X = 1121];\n" +
-                "    Int32 Y[Y = 849];\n" +
                 "} MER_RR__2PNKOF20120113_101320_000001493110_00324_51631_6150.N1.nc;";
+        dds.parse(new ByteArrayInputStream(ddsString.getBytes()));
+        return dds;
+    }
+
+    private DDS createDDSWithMultipleVariables() throws DAP2Exception, ParseException {
+        DDS dds = new DDS();
+        String ddsString = "Dataset {\n" +
+                           "    Grid {\n" +
+                           "      Array:\n" +
+                           "        Float32 Chlorophyll[Y = 849][X = 1121];\n" +
+                           "      Maps:\n" +
+                           "        Int32 Y[Y = 849];\n" +
+                           "        Int32 X[X = 1121];\n" +
+                           "    } Chlorophyll;\n" +
+                           "    Grid {\n" +
+                           "      Array:\n" +
+                           "        Float32 Total_suspended_matter[Y = 849][X = 1121];\n" +
+                           "      Maps:\n" +
+                           "        Int32 Y[Y = 849];\n" +
+                           "        Int32 X[X = 1121];\n" +
+                           "    } Total_suspended_matter;\n" +
+                           "    Grid {\n" +
+                           "      Array:\n" +
+                           "        Float32 Yellow_substance[Y = 849][X = 1121];\n" +
+                           "      Maps:\n" +
+                           "        Int32 Y[Y = 849];\n" +
+                           "        Int32 X[X = 1121];\n" +
+                           "    } Yellow_substance;\n" +
+                           "    Grid {\n" +
+                           "      Array:\n" +
+                           "        Int32 l2_flags[Y = 849][X = 1121];\n" +
+                           "      Maps:\n" +
+                           "        Int32 Y[Y = 849];\n" +
+                           "        Int32 X[X = 1121];\n" +
+                           "    } l2_flags;\n" +
+                           "    Int32 X[X = 1121];\n" +
+                           "    Int32 Y[Y = 849];\n" +
+                           "} MER_RR__2PNKOF20120113_101320_000001493110_00324_51631_6150.N1.nc;";
         dds.parse(new ByteArrayInputStream(ddsString.getBytes()));
         return dds;
     }

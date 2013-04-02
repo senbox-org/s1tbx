@@ -273,7 +273,7 @@ public class CollocateOp extends Operator {
 
     @Override
     public void computeTileStack(Map<Band, Tile> targetTileMap, Rectangle targetRectangle, ProgressMonitor pm) throws
-            OperatorException {
+                                                                                                               OperatorException {
         pm.beginTask("Collocating bands...", targetProduct.getNumBands() + 1);
         try {
             final PixelPos[] sourcePixelPositions = ProductUtils.computeSourcePixelCoordinates(

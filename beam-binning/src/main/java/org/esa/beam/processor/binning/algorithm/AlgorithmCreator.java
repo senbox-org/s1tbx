@@ -16,9 +16,11 @@
 
 package org.esa.beam.processor.binning.algorithm;
 
+@Deprecated
 /**
  * This interface describes classes that are able to create
  * algorithm based on a string based description.
+ * @Deprecated since beam-binning 2.1.2 as part of the BEAM 4.11-release. Use module 'beam-binning2' instead.
  */
 public interface AlgorithmCreator {
     /**

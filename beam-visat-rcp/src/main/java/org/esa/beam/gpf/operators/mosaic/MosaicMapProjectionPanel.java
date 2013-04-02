@@ -184,7 +184,7 @@ class MosaicMapProjectionPanel extends JPanel {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
                 if ("orthorectify".equals(evt.getPropertyName()) ||
-                        "updateMode".equals(evt.getPropertyName())) {
+                    "updateMode".equals(evt.getPropertyName())) {
                     final PropertySet propertySet = bindingCtx.getPropertySet();
                     boolean updateMode = Boolean.TRUE.equals(propertySet.getValue("updateMode"));
                     boolean orthorectify = Boolean.TRUE.equals(propertySet.getValue("orthoretify"));

@@ -47,6 +47,7 @@ import javax.swing.SwingUtilities;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.image.Raster;
+import java.text.DecimalFormat;
 import java.util.Calendar;
 import java.util.Vector;
 
@@ -469,11 +470,11 @@ class PixelInfoViewModelUpdater {
 
     private boolean isSampleValueAvailable(int pixelX, int pixelY, boolean pixelValid) {
         return currentProduct != null
-                && pixelValid
-                && pixelX >= 0
-                && pixelY >= 0
-                && pixelX < currentProduct.getSceneRasterWidth()
-                && pixelY < currentProduct.getSceneRasterHeight();
+               && pixelValid
+               && pixelX >= 0
+               && pixelY >= 0
+               && pixelX < currentProduct.getSceneRasterWidth()
+               && pixelY < currentProduct.getSceneRasterHeight();
     }
 
     void clearProductNodeRefs() {

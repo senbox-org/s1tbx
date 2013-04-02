@@ -412,6 +412,7 @@ public class DimapProductWriterPlugIn implements ProductWriterPlugIn {
      * Constructs a new BEAM-DIMAP product writer plug-in instance.
      */
     public DimapProductWriterPlugIn() {
+
     }
 
     /**

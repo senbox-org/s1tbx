@@ -15,20 +15,22 @@
  */
 package org.esa.beam.processor.smac;
 
+import org.esa.beam.util.Guardian;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.StreamTokenizer;
 
-import org.esa.beam.util.Guardian;
-
 /**
  * Implements the <code>SmacSensorCoefficients</code> interface for file access.
  * <p/>
  * The files must conform the format specified by the original source code by H.Rahman and G.Dedieu.
+ *
+ * @deprecated since BEAM 4.11. No replacement.
  */
-
+@Deprecated
 class SensorCoefficientFile implements SmacSensorCoefficients {
 
     private double _ah2o;

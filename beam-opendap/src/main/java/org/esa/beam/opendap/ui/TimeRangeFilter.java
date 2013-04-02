@@ -94,7 +94,7 @@ public class TimeRangeFilter implements FilterComponent {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (StringUtils.isNotNullAndNotEmpty(datePatternComboBox.getEditor().getItem().toString())
-                        && StringUtils.isNotNullAndNotEmpty(fileNamePatternComboBox.getEditor().getItem().toString())) {
+                    && StringUtils.isNotNullAndNotEmpty(fileNamePatternComboBox.getEditor().getItem().toString())) {
                     timeStampExtractor = new TimeStampExtractor(datePatternComboBox.getSelectedItem().toString(),
                                                                 fileNamePatternComboBox.getSelectedItem().toString());
                 } else {

@@ -467,22 +467,22 @@ public class ModisTiePointGeoCoding extends AbstractGeoCoding {
 
         final int yOffsetIncrement = startY - region.y;
         final TiePointGrid correctedLatTiePointGrid = new TiePointGrid(latGridName,
-                                                                       region.width,
-                                                                       extendedHeight,
-                                                                       rightOffsetX,
-                                                                       falseOffsetY + yOffsetIncrement,
-                                                                       rightSubsamplingX,
-                                                                       rightSubsamplingY,
-                                                                       recalculatedLatFloats
+                region.width,
+                extendedHeight,
+                rightOffsetX,
+                falseOffsetY + yOffsetIncrement,
+                rightSubsamplingX,
+                rightSubsamplingY,
+                recalculatedLatFloats
         );
         final TiePointGrid correctedLonTiePointGrid = new TiePointGrid(lonGridName,
-                                                                       region.width,
-                                                                       extendedHeight,
-                                                                       rightOffsetX,
-                                                                       falseOffsetY + yOffsetIncrement,
-                                                                       rightSubsamplingX,
-                                                                       rightSubsamplingY,
-                                                                       recalculatedLonFloats
+                region.width,
+                extendedHeight,
+                rightOffsetX,
+                falseOffsetY + yOffsetIncrement,
+                rightSubsamplingX,
+                rightSubsamplingY,
+                recalculatedLonFloats
         );
         destScene.getProduct().addTiePointGrid(correctedLatTiePointGrid);
         destScene.getProduct().addTiePointGrid(correctedLonTiePointGrid);

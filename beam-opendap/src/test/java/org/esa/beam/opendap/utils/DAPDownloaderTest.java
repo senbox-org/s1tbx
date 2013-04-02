@@ -196,7 +196,7 @@ public class DAPDownloaderTest {
 
     @Test
     public void testGetDownloadSpeed() {
-        assertEquals(1024.0 / 60.0, DAPDownloader.getDownloadSpeed(60 * 1000, 1024), 1E-4);
+        assertEquals(1024.0/60.0, DAPDownloader.getDownloadSpeed(60 * 1000, 1024), 1E-4);
     }
 
     @Ignore

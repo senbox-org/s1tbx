@@ -104,8 +104,8 @@ public class AttachPixelGeoCodingAction extends ExecCommand {
         if (freeMegas < requiredMegas) {
             // TODO - make this a common dialog, e.g. for RGB image creation etc
             final String message = MessageFormat.format("This operation requires to load at least {0} M\n" +
-                                                                "of additional data into memory.\n\n" +
-                                                                "Do you really want to continue?",
+                    "of additional data into memory.\n\n" +
+                    "Do you really want to continue?",
                                                         requiredMegas);   /*I18N*/
             final int answer = visatApp.showQuestionDialog(ATTACH_TITLE,
                                                            message, null);

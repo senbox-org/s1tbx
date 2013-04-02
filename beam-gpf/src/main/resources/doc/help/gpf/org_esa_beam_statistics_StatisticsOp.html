@@ -1,0 +1,156 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+    <title>StatisticsOp Operator</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<table class="header">
+    <tr class="header">
+        <td class="header">&nbsp;StatisticsOp Operator</td>
+        <td class="header" align="right">
+            <a href="../general/BeamOverview.html"> <img src="images/BeamHeader.jpg" border="0"/></a>
+        </td>
+    </tr>
+</table>
+<h1>StatisticsOp Operator Description</h1>
+
+<h2>Overview</h2>
+<table>
+    <tr>
+        <td><b>Name:</b></td>
+        <td><code>StatisticsOp</code></td>
+    </tr>
+    <tr>
+        <td><b>Full name:</b></td>
+        <td><code>org.esa.beam.statistics.StatisticsOp</code></td>
+    </tr>
+    <tr>
+        <td><b>Purpose:</b></td>
+        <td>Computes statistics for an arbitrary number of source products.</td>
+    </tr>
+    <tr>
+        <td><b>Version:</b></td>
+        <td>1.0</td>
+    </tr>
+</table>
+<h2>Description</h2>
+An operator that is used to compute statistics for any number of source products, restricted to regions given by an
+ESRI shapefile.
+<p/>
+It writes two different sorts of output:<br/>
+<ul>
+    <li>an ASCII file in tab-separated CSV format, in which the statistics are mapped to the source regions</li>
+    <li>a shapefile that corresponds to the input shapefile, enriched with the statistics for the regions defined by the
+        shapefile
+    </li>
+</ul>
+<p/>
+Unlike most other operators, that can compute single {@link org.esa.beam.framework.gpf.Tile tiles},
+the statistics operator processes all of its source products in its {@link #initialize()} method.
+<h2>Sources</h2>
+<table>
+    <tr>
+        <th>Name</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td><code>sourceProducts</code></td>
+        <td>The source products to be considered for statistics computation. If not given, the parameter
+            'sourceProductPaths' must be provided.
+        </td>
+    </tr>
+</table>
+<h2>Parameters</h2>
+<table>
+    <tr>
+        <th>Name</th>
+        <th>Data Type</th>
+        <th>Default</th>
+        <th>Description</th>
+        <th>Constraints</th>
+    </tr>
+    <tr>
+        <td><code>sourceProductPaths</code></td>
+        <td><code>String[]</code></td>
+        <td><code></code></td>
+        <td>A comma-separated list of file paths specifying the source products.
+            Each path may contain the wildcards '**' (matches recursively any directory),
+            '*' (matches any character sequence in path names) and
+            '?' (matches any single character).
+            If, for example, all NetCDF files under /eodata/ shall be considered, use '/eodata/**/*.nc'.
+        </td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><code>shapefile</code></td>
+        <td><code>File</code></td>
+        <td><code></code></td>
+        <td>An ESRI shapefile, providing the considered geographical region(s) given as polygons. If null, all pixels
+            are considered.
+        </td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><code>startDate</code></td>
+        <td><code>UTC</code></td>
+        <td><code></code></td>
+        <td>The start date. If not given, taken from the 'oldest' source product. Products that have a start date before
+            the start date given by this parameter are not considered.
+        </td>
+        <td>format: yyyy-MM-dd HH:mm:ss</td>
+    </tr>
+    <tr>
+        <td><code>endDate</code></td>
+        <td><code>UTC</code></td>
+        <td><code></code></td>
+        <td>The end date. If not given, taken from the 'youngest' source product. Products that have an end date after
+            the end date given by this parameter are not considered.
+        </td>
+        <td>format: yyyy-MM-dd HH:mm:ss</td>
+    </tr>
+    <tr>
+        <td><code>bandConfigurations</code></td>
+        <td><code>BandConfiguration[]</code></td>
+        <td><code></code></td>
+        <td>The band configurations. These configurations determine the input of the operator.</td>
+        <td>not null</td>
+    </tr>
+    <tr>
+        <td><code>outputShapefile</code></td>
+        <td><code>File</code></td>
+        <td><code></code></td>
+        <td>The target file for shapefile output. Shapefile output will only be written if this parameter is set. The
+            band mapping file will have the suffix _band_mapping.txt.
+        </td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><code>outputAsciiFile</code></td>
+        <td><code>File</code></td>
+        <td><code></code></td>
+        <td>The target file for ASCII output.The metadata file will have the suffix _metadata.txt.
+            ASCII output will only be written if this parameter is set.
+        </td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><code>percentiles</code></td>
+        <td><code>int[]</code></td>
+        <td><code>90,95</code></td>
+        <td>The percentile levels that shall be created. Must be in the interval [0..100]</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><code>accuracy</code></td>
+        <td><code>int</code></td>
+        <td><code>3</code></td>
+        <td>The degree of accuracy used for statistics computation. Higher numbers indicate higher accuracy but may lead
+            to a considerably longer computation time.
+        </td>
+        <td></td>
+    </tr>
+</table>
+<hr/>
+</body>
+</html>

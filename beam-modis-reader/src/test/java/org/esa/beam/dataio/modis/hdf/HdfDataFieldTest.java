@@ -59,7 +59,7 @@ public class HdfDataFieldTest extends TestCase {
     }
 
     public void testSetGetDimensionNames() {
-        final String[] dimensionNames = new String[]{"dim_1", "dim_2"};
+        final String[] dimensionNames = new String[] {"dim_1", "dim_2"};
 
         dataField.setDimensionNames(dimensionNames);
         final String[] result = dataField.getDimensionNames();

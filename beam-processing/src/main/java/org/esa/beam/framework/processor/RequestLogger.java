@@ -15,14 +15,17 @@
  */
 package org.esa.beam.framework.processor;
 
-import java.util.logging.Logger;
-
 import org.esa.beam.framework.param.Parameter;
 import org.esa.beam.util.Guardian;
 
+import java.util.logging.Logger;
+
 /**
  * The request logger logs the content of a request to any one of the logging sinks attached to this object.
+ *
+ * @deprecated since BEAM 4.11. Use the {@link org.esa.beam.framework.gpf Graph Processing Framework} instead.
  */
+@Deprecated
 public class RequestLogger {
 
     private Logger _logger;

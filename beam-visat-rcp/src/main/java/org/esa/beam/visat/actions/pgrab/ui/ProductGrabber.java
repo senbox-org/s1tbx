@@ -226,7 +226,7 @@ public class ProductGrabber {
 
         final SwingWorker repositoryCollector = new RepositoryCollector(baseDir, doRecursive,
                                                                         new ProductGrabberProgressBarProgressMonitor(progressBar,
-                                                                                                                     statusLabel));
+                                                                                                         statusLabel));
         repositoryCollector.execute();
     }
 
@@ -584,8 +584,8 @@ public class ProductGrabber {
             if (repositories.length == 0) {
                 JOptionPane.showMessageDialog(mainPanel,
                                               "No readable products found in the specified directory: \n"
-                                                      + "'" + baseDir.getPath() + "'.\n"
-                                                      + "It is not added to the repository list."); /* I18N */
+                                              + "'" + baseDir.getPath() + "'.\n"
+                                              + "It is not added to the repository list."); /* I18N */
                 return;
             }
 

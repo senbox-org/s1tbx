@@ -100,7 +100,6 @@ public class FeatureUtils {
         }
     }
 
-    //todo se ... norman zeigen
     public static FeatureCollection<SimpleFeatureType, SimpleFeature> clipFeatureCollectionToProductBounds(FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection, Product product, FeatureCrsProvider crsProvider, ProgressMonitor pm) {
         final CoordinateReferenceSystem targetCrs = ImageManager.getModelCrs(product.getGeoCoding());
         final Geometry clipGeometry = createGeoBoundaryPolygon(product);
@@ -118,7 +117,6 @@ public class FeatureUtils {
                                            SubProgressMonitor.create(pm, 80));
     }
 
-    //todo se ... norman zeigen
     public static FeatureCollection<SimpleFeatureType, SimpleFeature> loadFeatureCollectionFromShapefile(File shapefile) throws IOException {
         final URL shapefileUrl = shapefile.toURI().toURL();
         FeatureSource<SimpleFeatureType, SimpleFeature> featureSource = getFeatureSource(shapefileUrl);
@@ -288,7 +286,7 @@ public class FeatureUtils {
         GeometryFactory gf = new GeometryFactory();
         GeoPos[] geoPositions = ProductUtils.createGeoBoundary(product, 100);
         Coordinate[] coordinates;
-        if (geoPositions.length >= 0 && geoPositions.length <= 3) {
+        if(geoPositions.length >= 0 && geoPositions.length <= 3) {
             coordinates = new Coordinate[0];
         } else {
             coordinates = new Coordinate[geoPositions.length + 1];

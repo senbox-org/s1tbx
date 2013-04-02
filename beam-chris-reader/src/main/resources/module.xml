@@ -14,8 +14,6 @@
 
     <changelog>
         <![CDATA[
-        <!--<p>Changes in Version 1.7.2-->
-        <!--Adapted to BEAM 5.0<br>-->
         <p>Changes in Version 1.7.1
         <ul>
         <li>Adapted to new Maven-architecture

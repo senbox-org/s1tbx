@@ -16,11 +16,7 @@
 
 package org.esa.beam.framework.gpf.main;
 
-import org.esa.beam.framework.gpf.GPF;
-import org.esa.beam.framework.gpf.Operator;
-import org.esa.beam.framework.gpf.OperatorException;
-import org.esa.beam.framework.gpf.OperatorSpi;
-import org.esa.beam.framework.gpf.OperatorSpiRegistry;
+import org.esa.beam.framework.gpf.*;
 import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;

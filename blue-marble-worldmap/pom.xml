@@ -20,12 +20,12 @@
     <groupId>org.esa.beam</groupId>
     <artifactId>blue-marble-worldmap</artifactId>
     <name>BEAM NASA Blue Marble Worldmap</name>
-    <version>1.0.2.${beam.version}</version>
+    <version>1.0.2</version>
 
     <parent>
         <groupId>org.esa.beam</groupId>
         <artifactId>beam-plugin-parent</artifactId>
-        <version>1.1-SNAPSHOT</version>
+        <version>1.0</version>
         <relativePath>../beam-plugin-parent/pom.xml</relativePath>
     </parent>
 

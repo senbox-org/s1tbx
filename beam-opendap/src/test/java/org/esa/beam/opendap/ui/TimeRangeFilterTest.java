@@ -27,8 +27,7 @@ import ucar.nc2.units.DateRange;
 import javax.swing.JCheckBox;
 import java.util.GregorianCalendar;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * @author Thomas Storm
@@ -112,7 +111,7 @@ public class TimeRangeFilterTest {
 
     private static InvDataset createNullDataset() {
         return new InvDataset(null, "") {
-        };
+                };
     }
 
 

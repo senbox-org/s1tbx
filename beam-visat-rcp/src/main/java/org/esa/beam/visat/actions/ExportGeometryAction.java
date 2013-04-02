@@ -137,13 +137,13 @@ public class ExportGeometryAction extends ExecCommand {
     }
 
     private static void exportVectorDataNode(VectorDataNode vectorNode, File file, ProgressMonitor pm) throws
-            IOException {
+                                                                                                       IOException {
 
 
         Map<Class<?>, List<SimpleFeature>> featureListMap = createGeometryToFeaturesListMap(vectorNode);
         if (featureListMap.size() > 1) {
             final String msg = "The selected geometry contains different types of shapes.\n" +
-                    "Each type of shape will be exported as a separate shapefile.";
+                               "Each type of shape will be exported as a separate shapefile.";
             VisatApp.getApp().showInfoDialog(DLG_TITLE, msg, ExportGeometryAction.class.getName() + ".exportInfo");
         }
 
@@ -160,7 +160,7 @@ public class ExportGeometryAction extends ExecCommand {
     }
 
     public static void writeEsriShapefile(Class<?> geomType, List<SimpleFeature> features, File file) throws
-            IOException {
+                                                                                                      IOException {
         String geomName = geomType.getSimpleName();
         String basename = file.getName();
         if (basename.endsWith(FILE_EXTENSION_SHAPEFILE)) {

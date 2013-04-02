@@ -267,8 +267,7 @@ public class MeasurementWriterTest {
         assertFalse("Too much information on single line.", scanner.hasNext());
     }
 
-    private void assertMeasurementEquals(Measurement measurement, String line, boolean withExpression) throws
-                                                                                                       ParseException {
+    private void assertMeasurementEquals(Measurement measurement, String line, boolean withExpression) throws ParseException {
         final Scanner scanner = new Scanner(line);
         scanner.useLocale(Locale.ENGLISH);
         scanner.useDelimiter("\t");

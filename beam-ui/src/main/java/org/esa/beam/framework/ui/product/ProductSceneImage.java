@@ -18,33 +18,16 @@ package org.esa.beam.framework.ui.product;
 
 import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.core.ProgressMonitor;
-import com.bc.ceres.glayer.CollectionLayer;
-import com.bc.ceres.glayer.Layer;
-import com.bc.ceres.glayer.LayerFilter;
-import com.bc.ceres.glayer.LayerType;
-import com.bc.ceres.glayer.LayerTypeRegistry;
+import com.bc.ceres.glayer.*;
 import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.glayer.support.LayerUtils;
-import org.esa.beam.framework.datamodel.GeoCoding;
-import org.esa.beam.framework.datamodel.ImageInfo;
-import org.esa.beam.framework.datamodel.Mask;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductNodeGroup;
-import org.esa.beam.framework.datamodel.RasterDataNode;
-import org.esa.beam.framework.datamodel.VectorDataNode;
-import org.esa.beam.glayer.GraticuleLayer;
-import org.esa.beam.glayer.GraticuleLayerType;
-import org.esa.beam.glayer.MaskCollectionLayerType;
-import org.esa.beam.glayer.MaskLayerType;
-import org.esa.beam.glayer.NoDataLayerType;
-import org.esa.beam.glayer.ProductLayerContext;
-import org.esa.beam.glayer.RasterImageLayerType;
-import org.esa.beam.glayer.RgbImageLayerType;
+import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.glayer.*;
 import org.esa.beam.glevel.BandImageMultiLevelSource;
 import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.PropertyMap;
 
-import java.awt.Color;
+import java.awt.*;
 import java.awt.geom.AffineTransform;
 
 public class ProductSceneImage implements ProductLayerContext {
@@ -283,11 +266,11 @@ public class ProductSceneImage implements ProductLayerContext {
         final Color borderColor = configuration.getPropertyColor("image.border.color",
                                                                  ImageLayer.DEFAULT_BORDER_COLOR);
         final boolean pixelBorderShown = configuration.getPropertyBool("pixel.border.shown",
-                                                                       ImageLayer.DEFAULT_PIXEL_BORDER_SHOWN);
+                                                                  ImageLayer.DEFAULT_PIXEL_BORDER_SHOWN);
         final double pixelBorderWidth = configuration.getPropertyDouble("pixel.border.size",
-                                                                        ImageLayer.DEFAULT_PIXEL_BORDER_WIDTH);
+                                                                   ImageLayer.DEFAULT_PIXEL_BORDER_WIDTH);
         final Color pixelBorderColor = configuration.getPropertyColor("pixel.border.color",
-                                                                      ImageLayer.DEFAULT_PIXEL_BORDER_COLOR);
+                                                                 ImageLayer.DEFAULT_PIXEL_BORDER_COLOR);
 
         final PropertySet layerConfiguration = layer.getConfiguration();
         layerConfiguration.setValue(ImageLayer.PROPERTY_NAME_BORDER_SHOWN, borderShown);

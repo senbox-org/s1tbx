@@ -179,7 +179,7 @@ public class AggregatorPercentile extends AbstractAggregator {
 
         @Override
         public String[] getVarNames() {
-            return new String[]{varName};
+            return new String[] {varName};
         }
     }
 

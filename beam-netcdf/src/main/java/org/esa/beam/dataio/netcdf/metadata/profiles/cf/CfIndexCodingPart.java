@@ -39,7 +39,15 @@ public class CfIndexCodingPart extends ProfilePartIO {
 
     @Override
     public void decode(ProfileReadContext ctx, Product p) throws IOException {
-        // already handled in CfBandPart
+        final Band[] bands = p.getBands();
+        for (Band band : bands) {
+            Variable variable = ctx.getNetcdfFile().findVariable(NetcdfFile.escapeName(band.getName()));
+            final IndexCoding indexCoding = readIndexCoding(variable, band.getName());
+            if (indexCoding != null) {
+                p.getIndexCodingGroup().add(indexCoding);
+                band.setSampleCoding(indexCoding);
+            }
+        }
     }
 
     @Override

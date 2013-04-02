@@ -52,7 +52,7 @@ import java.util.Comparator;
 public class TabbedDesktopPane extends JPanel {
 
     private static final long serialVersionUID = -9125146428340482204L;
-
+    
     private JDesktopPane desktopPane;
     private JideTabbedPane tabbedPane;
     private InternalFrameHandler frameListener;
@@ -62,7 +62,7 @@ public class TabbedDesktopPane extends JPanel {
 
     public TabbedDesktopPane() {
         this(new JideTabbedPane(JTabbedPane.TOP,
-                                JTabbedPane.SCROLL_TAB_LAYOUT),
+                             JTabbedPane.SCROLL_TAB_LAYOUT),
              new JDesktopPane());
     }
 
@@ -230,7 +230,7 @@ public class TabbedDesktopPane extends JPanel {
                     InternalFrameProxy placeHolder = (InternalFrameProxy) component;
                     JInternalFrame selectedFrame = placeHolder.getInternalFrame();
 
-                    if (selectedFrame != null) {
+                    if(selectedFrame != null) {
                         closeFrame(selectedFrame);
                     }
                 }
@@ -427,7 +427,7 @@ public class TabbedDesktopPane extends JPanel {
     private static class InternalFrameProxy extends JComponent {
 
         private static final long serialVersionUID = 1961531463465924691L;
-
+        
         private final JInternalFrame internalFrame;
 
         public InternalFrameProxy(JInternalFrame internalFrame) {

@@ -22,14 +22,14 @@
     <parent>
         <groupId>org.esa.beam</groupId>
         <artifactId>beam-plugin-parent</artifactId>
-        <version>1.1-SNAPSHOT</version>
+        <version>1.0</version>
         <relativePath>../beam-plugin-parent/pom.xml</relativePath>
     </parent>
 
     <groupId>org.esa.beam</groupId>
     <artifactId>beam-hdf5-writer</artifactId>
     <name>BEAM HDF5 Product Writer</name>
-    <version>1.0.1.${beam.version}</version>
+    <version>1.0.1</version>
     <url>http://envisat.esa.int/beam/</url>
 
     <dependencies>

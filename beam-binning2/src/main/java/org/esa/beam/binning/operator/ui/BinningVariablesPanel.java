@@ -82,7 +82,7 @@ class BinningVariablesPanel extends JPanel {
                 final String name;
                 final int expressionCount = bandsTable.getExpressionCount();
                 name = "<expression_" + expressionCount + ">";
-                bandsTable.addRow(name, null, AggregatorAverage.Descriptor.NAME, Double.NaN, Float.NaN, -1);
+                bandsTable.addRow(name, null, AggregatorAverage.Descriptor.NAME, 1.0, Float.NaN, 0);
             }
         });
         removeButton.addActionListener(new ActionListener() {
@@ -187,7 +187,8 @@ class BinningVariablesPanel extends JPanel {
     }
 
     private static void updateResolutionLabel(JTextField targetHeightTextField, JLabel resolutionLabel) {
-        resolutionLabel.setText("Spatial resolution: ~ " + getResolutionString(Integer.parseInt(targetHeightTextField.getText())));
+        resolutionLabel.setText(
+                "Spatial resolution: ~ " + getResolutionString(Integer.parseInt(targetHeightTextField.getText())));
     }
 
     static String getResolutionString(int numRows) {

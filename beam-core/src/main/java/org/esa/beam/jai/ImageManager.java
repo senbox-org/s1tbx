@@ -627,14 +627,12 @@ public class ImageManager {
             final RenderedOp noDataColorImage = ConstantDescriptor.create((float) image.getWidth(),
                                                                           (float) image.getHeight(),
                                                                           noDataRGB,
-                                                                          createDefaultRenderingHints(sourceImage,
-                                                                                                      null));
+                                                                          createDefaultRenderingHints(sourceImage, null));
             byte noDataAlpha = (byte) noDataColor.getAlpha();
             final RenderedOp noDataAlphaImage = ConstantDescriptor.create((float) image.getWidth(),
                                                                           (float) image.getHeight(),
                                                                           new Byte[]{noDataAlpha},
-                                                                          createDefaultRenderingHints(sourceImage,
-                                                                                                      null));
+                                                                          createDefaultRenderingHints(sourceImage, null));
 
             image = CompositeDescriptor.create(image, noDataColorImage,
                                                maskImage, noDataAlphaImage, false,
@@ -726,7 +724,7 @@ public class ImageManager {
             for (int i = 1; i < binCount; i++) {
                 double deviation = i - mu;
                 normCDF[b][i] = normCDF[b][i - 1] +
-                                (float) Math.exp(-deviation * deviation / twoSigmaSquared);
+                        (float) Math.exp(-deviation * deviation / twoSigmaSquared);
             }
         }
 
