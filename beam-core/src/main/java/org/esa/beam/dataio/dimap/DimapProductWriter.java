@@ -42,7 +42,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * The product writer for the BEAM-DIMAP format.
@@ -61,6 +63,7 @@ public class DimapProductWriter extends AbstractProductWriter {
     private Map<Band, ImageOutputStream> _bandOutputStreams;
     private File _dataOutputDir;
     private boolean _incremental = true;
+    private Set<WriterExtender> writerExtenders;
 
     /**
      * Construct a new instance of a product writer for the given BEAM-DIMAP product writer plug-in.
@@ -106,6 +109,15 @@ public class DimapProductWriter extends AbstractProductWriter {
         initDirs(outputFile);
 
         ensureNamingConvention();
+        if (writerExtenders != null) {
+            for (WriterExtender dimapWriterExtender : writerExtenders) {
+                File parentFile = outputFile.getParentFile();
+                if (parentFile == null) {
+                    throw new IllegalStateException("Could not retrieve the parent directory of '" + outputFile.getAbsolutePath() + "'.");
+                }
+                dimapWriterExtender.intendToWriteDimapHeaderTo(parentFile, getSourceProduct());
+            }
+        }
         writeDimapDocument();
         writeVectorData();
         writeTiePointGrids();
@@ -402,6 +414,14 @@ public class DimapProductWriter extends AbstractProductWriter {
 
     @Override
     public boolean shouldWrite(ProductNode node) {
+        if (writerExtenders != null) {
+            for (WriterExtender dimapWriterWriterExtender : writerExtenders) {
+                final boolean shouldWrite = dimapWriterWriterExtender.vetoableShouldWrite(node);
+                if (!shouldWrite) {
+                    return false;
+                }
+            }
+        }
         if (node instanceof VirtualBand) {
             return false;
         }
@@ -505,6 +525,34 @@ public class DimapProductWriter extends AbstractProductWriter {
                                                                 vectorDataNode.getName() + VectorDataNodeIO.FILENAME_EXTENSION));
         } catch (IOException e) {
             BeamLogManager.getSystemLogger().throwing("DimapProductWriter", "writeVectorData", e);
+        }
+    }
+
+    public static abstract class WriterExtender {
+
+        /**
+         * Returns wether the given product node is to be written.
+         *
+         * @param node the product node
+         *
+         * @return <code>false</code> if the node should not be written
+         */
+        public abstract boolean vetoableShouldWrite(ProductNode node);
+
+        /**
+         * Notification to do preparations relative to output directory.
+         *
+         * @param outputDir the directory where the DIMAP header file should be written
+         */
+        public abstract void intendToWriteDimapHeaderTo(File outputDir, Product product);
+    }
+
+    public void addExtender(WriterExtender writerExtender) {
+        if (writerExtenders == null) {
+            writerExtenders = new HashSet<WriterExtender>();
+        }
+        if (writerExtender != null) {
+            writerExtenders.add(writerExtender);
         }
     }
 }
