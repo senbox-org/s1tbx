@@ -33,7 +33,71 @@
     </tr>
 </table>
 
-<h3>BEAM Version 4.10.3</h3>
+<h3>BEAM Version 4.11</h3>
+
+<p>BEAM 4.11 is a release featuring lots of new tools.<br>
+    The Time Series Tools has been included into BEAM, which allows users to create, inspect, and analyse time series of EO data.
+    The new Temporal Percentile Operator has been introduced; it allows users to create multiple kinds of gap-filled percentile computations.
+    The old binning has been replaced by a new one which adds a number of useful functions and aggregation methods. It is now possible to download
+    data witihn BEAM using
+    the novel OPeNDAP client which provides an easy interface to arbitrary OPeNDAP servers.<br>
+    BEAM 4.11 now allows to write NetCDF-4 data.
+    Some outdated parts of the software have been dropped in order to keep it lean, such as the former mosaic processor,
+    which has been fully replaced by a faster, more modern variant. Additionally, many changes in the API have been made
+    that allow users to even better develop software on basis of BEAM.</p>
+
+<h4>List of bug fixes and improvements</h4>
+
+<h5>New Features</h5>
+
+<ul>
+    <li>[BEAM-1479] - Create shapefile -> CSV converter tool</li>
+    <li>[BEAM-1420] - Support (A)ATSR Autumn 2012 reprocessed data products</li>
+</ul>
+
+<h5>Improvements</h5>
+
+<ul>
+    <li>[BEAM-1481] - Explain the radiometric correction files</li>
+    <li>[BEAM-1477] - Update OBPG readers to 1.4</li>
+    <li>[BEAM-1126] - Pixel-geocoding consumes too much memory</li>
+</ul>
+
+<h5>Bugs</h5>
+
+<ul>
+    <li>[BEAM-1411] - Various product readers fail if input product has no parent</li>
+    <li>[BEAM-1225] - gpt command-line. No data product writer for the 'HDF5' format available</li>
+    <li>[BEAM-1319] - The beam.config file must be edit with administrator rights</li>
+    <li>[BEAM-1412] - Profile plot uses wrong pixels for shape in projected products</li>
+    <li>[BEAM-1419] - Time extraction not always applied</li>
+    <li>[BEAM-1421] - A file in NetCDF-BEAM format, which was created using the BandMaths gpf operator, can not be opened in VISAT</li>
+    <li>[BEAM-1425] - NPE in Landsat GeoTIFF reader</li>
+    <li>[BEAM-1426] - Landsat GeoTIFF reader hides other format readers</li>
+    <li>[BEAM-1427] - Histogram for SPOT SM Band not correct</li>
+    <li>[BEAM-1431] - Product cannot be opened</li>
+    <li>[BEAM-1434] - Wrong coordinate extraction with PixEx tool</li>
+    <li>[BEAM-1435] - Name of scene view does not change if band is renamed</li>
+    <li>[BEAM-1437] - PixEx operator shall handle corrupt products more gracefully</li>
+    <li>[BEAM-1439] - Wrong assignment of frequencies to indexes</li>
+    <li>[BEAM-1443] - Spectrum View line thickness too thin</li>
+    <li>[BEAM-1445] - Pinned spectra barely visible in spectrum view</li>
+    <li>[BEAM-1446] - Label of samples is wrong for index-coded bands</li>
+    <li>[BEAM-1447] - Dimap reader\writer handling very very large files</li>
+    <li>[BEAM-1454] - When I try to put statistics into the vector data, the original vector data becomes corrupted and in such a way that the
+        original content of this file is reduced to one record.
+    </li>
+    <li>[BEAM-1466] - Inconsistent state possible in Pixel Extraction user interface</li>
+    <li>[BEAM-1468] - Time difference not considered for pixel extraction if defaults are used</li>
+    <li>[BEAM-1469] - No PixEx result if products do not have time information</li>
+    <li>[BEAM-1470] - It is not correctly detected if measurements have been extracted</li>
+    <li>[BEAM-1471] - The time extraction from file name should support DAY_OF_YEAR</li>
+    <li>[BEAM-1363] - Write NetCDf 4 files using compression</li>
+    <li>[BEAM-1414] - Incorrect valid-pixel mask for ATSR SST bands</li>
+</ul>
+
+<hr>
+<h5>BEAM Version 4.10.x</h5>
 
 <p>Besides many bug fixes, these are the most important features and enhancements introduced in BEAM 4.10.x:</p>
 
@@ -62,6 +126,7 @@
     </li>
 </ul>
 
+<hr>
 <h5>BEAM Version 4.9</h5>
 
 <p>The most important features and enhancements introduced in BEAM 4.9 are summarized here:</p>
