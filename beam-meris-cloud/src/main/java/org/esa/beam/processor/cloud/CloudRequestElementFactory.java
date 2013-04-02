@@ -29,7 +29,6 @@ import java.io.File;
  * Description of CloudRequestElementFactory
  *
  * @author Marco Peters
- *
  * @deprecated since BEAM 4.11. No replacement.
  */
 @Deprecated
@@ -47,7 +46,6 @@ public class CloudRequestElementFactory implements RequestElementFactory {
      * @param url        the input product's URL, must not be <code>null</code>
      * @param fileFormat the file format, can be <code>null</code> if not known
      * @param typeId     the product type identifier, can be <code>null</code> if not known
-     *
      * @throws IllegalArgumentException if <code>url</code> is <code>null</code>
      * @throws org.esa.beam.framework.processor.RequestElementFactoryException
      *                                  if the element could not be created
@@ -62,7 +60,6 @@ public class CloudRequestElementFactory implements RequestElementFactory {
      * @param url        the output product's URL, must not be <code>null</code>
      * @param fileFormat the file format, can be <code>null</code> if not known
      * @param typeId     the product type identifier, can be <code>null</code> if not known
-     *
      * @throws IllegalArgumentException if <code>url</code> is <code>null</code>
      * @throws org.esa.beam.framework.processor.RequestElementFactoryException
      *                                  if the element could not be created
@@ -76,7 +73,6 @@ public class CloudRequestElementFactory implements RequestElementFactory {
      *
      * @param name  the parameter name, must not be <code>null</code> or empty
      * @param value the parameter value, can be <code>null</code> if yet not known
-     *
      * @throws IllegalArgumentException if <code>name</code> is <code>null</code> or empty
      * @throws org.esa.beam.framework.processor.RequestElementFactoryException
      *                                  if the parameter could not be created or is invalid
@@ -107,7 +103,6 @@ public class CloudRequestElementFactory implements RequestElementFactory {
      * Creates a default logging pattern parameter set to the prefix passed in.
      *
      * @param prefix the default setting for the logging pattern
-     *
      * @return a logging pattern Parameter conforming the system settings
      */
     public Parameter createDefaultLogPatternParameter(final String prefix) {
@@ -129,7 +124,7 @@ public class CloudRequestElementFactory implements RequestElementFactory {
     public Parameter createOutputFormatParameter() {
         return _defFactory.createOutputFormatParameter();
     }
-    
+
     // Initialization on demand holder idiom
     private static class Holder {
         private static final CloudRequestElementFactory instance = new CloudRequestElementFactory();

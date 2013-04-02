@@ -26,8 +26,6 @@
 
     <changelog>
         <![CDATA[
-        <p>From 1.1.2 to 1.1.3:<br/>
-        Adapted to BEAM 5.0<br/>
         <p>From 1.1.1 to 1.1.2:<br/>
         [BEAM-1481] Explain the radiometric correction files<br/>
         <p>From 1.1 to 1.1.1:<br/>

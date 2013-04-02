@@ -29,7 +29,8 @@ import thredds.catalog.InvDataset;
 
 import javax.swing.JCheckBox;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Thomas Storm
@@ -48,7 +49,7 @@ public class VariableFilterTest {
         variableFilter = new VariableFilter(new JCheckBox(), new CatalogTree(null, new DefaultAppContext("")));
         variableFilter.getUI();
         leaf = new OpendapLeaf("leafName", new InvDataset(null, "") {
-                });
+        });
         DArrayDimension[] dArrayDimensions = {new DArrayDimension(10, "dimName")};
         dapVariable = new DAPVariable("vName", "vType", "vDataType", dArrayDimensions);
         leaf.addDAPVariable(dapVariable);
@@ -64,7 +65,7 @@ public class VariableFilterTest {
     @Test
     public void testAccept_AcceptIfFilterSet() throws Exception {
         OpendapLeaf leaf2 = new OpendapLeaf("leafName2", new InvDataset(null, "") {
-                });
+        });
         DAPVariable dapVariable2 = createDAPVariable("vName2");
         leaf2.addDAPVariable(dapVariable2);
 
@@ -80,7 +81,7 @@ public class VariableFilterTest {
     @Test
     public void testAccept_AcceptAllIfNoVariableIsSelected() throws Exception {
         OpendapLeaf leaf2 = new OpendapLeaf("leafName2", new InvDataset(null, "") {
-                });
+        });
         DAPVariable dapVariable2 = createDAPVariable("vName2");
         leaf2.addDAPVariable(dapVariable2);
 
@@ -96,7 +97,7 @@ public class VariableFilterTest {
     @Test
     public void testAccept_AcceptNothingIfNoMatchingVariableIsSelected() throws Exception {
         OpendapLeaf leaf2 = new OpendapLeaf("leafName2", new InvDataset(null, "") {
-                });
+        });
         DAPVariable dapVariable2 = createDAPVariable("vName2");
         leaf2.addDAPVariable(dapVariable2);
 

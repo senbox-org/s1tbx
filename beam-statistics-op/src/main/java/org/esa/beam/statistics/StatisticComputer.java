@@ -76,7 +76,7 @@ public class StatisticComputer {
         VectorDataNode[] vectorDataNodes = null;
         if (features != null) {
             final FeatureCollection<SimpleFeatureType, SimpleFeature> productFeatures
-                        = FeatureUtils.clipFeatureCollectionToProductBounds(features, product, crsProvider, pm);
+                    = FeatureUtils.clipFeatureCollectionToProductBounds(features, product, crsProvider, pm);
             vectorDataNodes = createVectorDataNodes(productFeatures);
             for (VectorDataNode vectorDataNode : vectorDataNodes) {
                 product.getVectorDataGroup().add(vectorDataNode);

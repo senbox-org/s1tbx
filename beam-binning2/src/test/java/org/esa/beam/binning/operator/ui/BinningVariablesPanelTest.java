@@ -18,7 +18,7 @@ package org.esa.beam.binning.operator.ui;
 
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Thomas Storm

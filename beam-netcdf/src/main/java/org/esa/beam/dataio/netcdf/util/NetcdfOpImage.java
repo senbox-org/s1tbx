@@ -31,7 +31,6 @@ import java.awt.Rectangle;
 import java.awt.image.RenderedImage;
 import java.awt.image.WritableRaster;
 import java.io.IOException;
-import java.util.Iterator;
 import java.util.List;
 
 /**

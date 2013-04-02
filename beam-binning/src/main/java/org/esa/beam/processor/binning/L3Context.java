@@ -16,6 +16,14 @@
 
 package org.esa.beam.processor.binning;
 
+import org.esa.beam.framework.processor.ProcessorException;
+import org.esa.beam.processor.binning.algorithm.Algorithm;
+import org.esa.beam.processor.binning.algorithm.AlgorithmCreator;
+import org.esa.beam.processor.binning.database.BinDatabaseConstants;
+import org.esa.beam.processor.binning.database.BinLocator;
+import org.esa.beam.processor.binning.database.LatLonBinLocator;
+import org.esa.beam.processor.binning.database.SeaWiFSBinLocator;
+
 import java.awt.Rectangle;
 import java.awt.geom.Rectangle2D;
 import java.io.File;
@@ -26,14 +34,6 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
-
-import org.esa.beam.framework.processor.ProcessorException;
-import org.esa.beam.processor.binning.algorithm.Algorithm;
-import org.esa.beam.processor.binning.algorithm.AlgorithmCreator;
-import org.esa.beam.processor.binning.database.BinDatabaseConstants;
-import org.esa.beam.processor.binning.database.BinLocator;
-import org.esa.beam.processor.binning.database.LatLonBinLocator;
-import org.esa.beam.processor.binning.database.SeaWiFSBinLocator;
 
 @Deprecated
 /**
@@ -272,7 +272,7 @@ public class L3Context {
         if (locator == null) {
             if (_resamplingType.equals(L3Constants.RESAMPLING_TYPE_VALUE_FLUX_CONSERVING)) {
                 Rectangle border = new Rectangle((int) _lonMin, (int) _latMin, (int) (_lonMax - _lonMin),
-                        (int) (_latMax - _latMin));
+                                                 (int) (_latMax - _latMin));
                 locator = new LatLonBinLocator(border, Math.round(_gridCellSize));
             } else {
                 locator = new SeaWiFSBinLocator(_gridCellSize);

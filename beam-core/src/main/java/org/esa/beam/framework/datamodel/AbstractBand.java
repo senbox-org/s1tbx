@@ -335,7 +335,6 @@ public abstract class AbstractBand extends RasterDataNode {
      * @throws NullPointerException if this band has no raster data
      * @throws java.lang.ArrayIndexOutOfBoundsException
      *                              if the co-ordinates are not in bounds
-     *
      * @deprecated since BEAM 4.11, use {@link #getSampleFloat(int, int)} instead.
      */
     @Deprecated
@@ -355,7 +354,6 @@ public abstract class AbstractBand extends RasterDataNode {
      * @param y          The Y co-ordinate of the pixel location
      * @param pixelValue the new pixel value
      * @throws NullPointerException if this band has no raster data
-     *
      * @deprecated since BEAM 4.11. No replacement.
      */
     @Deprecated
@@ -425,7 +423,6 @@ public abstract class AbstractBand extends RasterDataNode {
      * @param pixels array of integer pixels to be filled with data
      * @param pm     a monitor to inform the user about progress
      * @throws IllegalArgumentException if the length of the given array is less than <code>w*h</code>.
-     *
      * @deprecated since BEAM 4.11. Use {@link #getSourceImage()} instead.
      */
     @Override
@@ -468,7 +465,6 @@ public abstract class AbstractBand extends RasterDataNode {
      * @param pixels array of float pixels to be filled with data.
      * @param pm     a monitor to inform the user about progress
      * @throws IllegalArgumentException if the length of the given array is less than <code>w*h</code>.
-     *
      * @deprecated since BEAM 4.11. Use {@link #getSourceImage()} instead.
      */
     @Override
@@ -517,7 +513,6 @@ public abstract class AbstractBand extends RasterDataNode {
      * @param pixels array of double pixels to be filled with data
      * @param pm     a monitor to inform the user about progress
      * @throws IllegalArgumentException if the length of the given array is less than <code>w*h</code>.
-     *
      * @deprecated since BEAM 4.11. Use {@link #getSourceImage()} instead.
      */
     @Override
@@ -558,7 +553,6 @@ public abstract class AbstractBand extends RasterDataNode {
      * @param pm     a monitor to inform the user about progress
      * @throws NullPointerException     if this band has no raster data
      * @throws IllegalArgumentException if the length of the given array is less than <code>w*h</code>.
-     *
      * @deprecated since BEAM 4.11. Use {@link #getSourceImage()} instead.
      */
     @Override
@@ -608,8 +602,6 @@ public abstract class AbstractBand extends RasterDataNode {
      * @param pm     a monitor to inform the user about progress
      * @throws NullPointerException     if this band has no raster data
      * @throws IllegalArgumentException if the length of the given array is less than <code>w*h</code>.
-     *
-     *
      * @deprecated since BEAM 4.11. Use {@link #getSourceImage()} instead.
      */
     @Deprecated
@@ -713,7 +705,7 @@ public abstract class AbstractBand extends RasterDataNode {
      * @param pixels integer array to be written
      * @throws NullPointerException if this band has no raster data
      * @deprecated since BEAM 4.11. Use {@link #setSourceImage setSourceImage()} or the various {@link #writePixels readPixels()}
-     *  method variants to set or write raster data.
+     *             method variants to set or write raster data.
      */
     @Deprecated
     @Override
@@ -755,7 +747,7 @@ public abstract class AbstractBand extends RasterDataNode {
      * @param pixels float array to be written
      * @throws NullPointerException if this band has no raster data
      * @deprecated since BEAM 4.11. Use {@link #setSourceImage setSourceImage()} or the various {@link #writePixels readPixels()}
-     *  method variants to set or write raster data.
+     *             method variants to set or write raster data.
      */
     @Deprecated
     @Override
@@ -796,9 +788,8 @@ public abstract class AbstractBand extends RasterDataNode {
      * @param h      height of the pixel array to be written.
      * @param pixels double array to be written
      * @throws NullPointerException if this band has no raster data
-     *
      * @deprecated since BEAM 4.11. Use {@link #setSourceImage setSourceImage()} or the various {@link #writePixels readPixels()}
-     *  method variants to set or write raster data.
+     *             method variants to set or write raster data.
      */
     @Deprecated
     @Override
@@ -832,6 +823,7 @@ public abstract class AbstractBand extends RasterDataNode {
 
     /**
      * Ensures that raster data exists
+     *
      * @deprecated since BEAM 4.11. No replacement.
      */
     @Deprecated
@@ -873,7 +865,6 @@ public abstract class AbstractBand extends RasterDataNode {
      * <p/>
      *
      * @see #loadRasterData()
-     *
      * @deprecated since BEAM 4.11. No replacement.
      */
     @Override

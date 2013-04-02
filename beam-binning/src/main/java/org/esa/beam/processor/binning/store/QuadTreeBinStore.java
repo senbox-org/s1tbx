@@ -63,7 +63,7 @@ public class QuadTreeBinStore implements BinStore {
      * @param dbName
      * @throws IOException
      */
-    public QuadTreeBinStore(File dbDir, String dbName) throws  IOException {
+    public QuadTreeBinStore(File dbDir, String dbName) throws IOException {
         File quadTreeDbDir = new File(dbDir, dbName);
         qtFile = new QuadTreeFile();
         checkLocation(quadTreeDbDir);

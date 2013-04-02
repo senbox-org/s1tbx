@@ -23,10 +23,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.opengis.feature.simple.SimpleFeature;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
- *
  * @author Tonio Fincke
  * @author Thomas Storm
  */

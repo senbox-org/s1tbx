@@ -138,11 +138,11 @@ public final class AggregatorOnMaxSetWithMask extends AbstractAggregator {
     @Override
     public String toString() {
         return "AggregatorOnMaxSetWithMask{" +
-               "setIndexes=" + Arrays.toString(setIndexes) +
-               ", spatialFeatureNames=" + Arrays.toString(getSpatialFeatureNames()) +
-               ", temporalFeatureNames=" + Arrays.toString(getTemporalFeatureNames()) +
-               ", outputFeatureNames=" + Arrays.toString(getOutputFeatureNames()) +
-               '}';
+                "setIndexes=" + Arrays.toString(setIndexes) +
+                ", spatialFeatureNames=" + Arrays.toString(getSpatialFeatureNames()) +
+                ", temporalFeatureNames=" + Arrays.toString(getTemporalFeatureNames()) +
+                ", outputFeatureNames=" + Arrays.toString(getOutputFeatureNames()) +
+                '}';
     }
 
     private static String[] createFeatures(String onMaxName, String[] setNames) {

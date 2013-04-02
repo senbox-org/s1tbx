@@ -23,8 +23,8 @@ import org.esa.beam.framework.datamodel.VectorDataNode;
 import javax.media.jai.Histogram;
 
 /**
-* @author Thomas Storm
-*/
+ * @author Thomas Storm
+ */
 interface StatisticalExportContext {
 
     RasterDataNode getRasterDataNode();

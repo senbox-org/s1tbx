@@ -1,8 +1,10 @@
 package org.esa.beam.binning.reader;
 
-import static org.junit.Assert.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
-import org.junit.*;
+import static org.junit.Assert.assertEquals;
 
 public class BinnedFileFilterTest {
 

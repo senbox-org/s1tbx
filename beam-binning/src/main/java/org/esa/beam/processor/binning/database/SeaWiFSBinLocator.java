@@ -61,7 +61,7 @@ public final class SeaWiFSBinLocator implements BinLocator {
             --row;
         }
 
-        latlon.lat = (float) ((row + 0.5) * 180.0 *_invNumRows - 90.0);
+        latlon.lat = (float) ((row + 0.5) * 180.0 * _invNumRows - 90.0);
         latlon.lon = 360.f * (index - _baseBin[row] + 0.5f) / _numBin[row];
         latlon.lon = latlon.lon - 180.f;
 

@@ -77,7 +77,6 @@ public class DimapProductReaderPlugIn implements ProductReaderPlugIn {
      * <p> In a GUI, the description returned could be used as tool-tip text.
      *
      * @param name the local for the given decription string, if <code>null</code> the default locale is used
-     *
      * @return a textual description of this product reader/writer
      */
     public String getDescription(Locale name) {
@@ -92,7 +91,6 @@ public class DimapProductReaderPlugIn implements ProductReaderPlugIn {
      * - an abstract file path.
      *
      * @param object the input object
-     *
      * @return <code>true</code> if the given input is an object referencing a physical BEAM-DIMAP data source.
      */
     public DecodeQualification getDecodeQualification(Object object) {
@@ -103,9 +101,9 @@ public class DimapProductReaderPlugIn implements ProductReaderPlugIn {
             file = (File) object;
         }
         if (file != null
-            && file.getPath().toLowerCase().endsWith(DimapProductConstants.DIMAP_HEADER_FILE_EXTENSION)
-            && file.exists()
-            && file.isFile()) {
+                && file.getPath().toLowerCase().endsWith(DimapProductConstants.DIMAP_HEADER_FILE_EXTENSION)
+                && file.exists()
+                && file.isFile()) {
             FileReader fr = null;
             try {
                 // todo - URGENT: check this code!!! 80 charters are not enough, instead read until "<Dimap_Document" is found or EOF is reached or illegal text characters are detected

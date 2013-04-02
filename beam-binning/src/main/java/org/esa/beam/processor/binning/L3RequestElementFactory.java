@@ -63,7 +63,7 @@ public class L3RequestElementFactory implements RequestElementFactory {
      *                                  if the element could not be created
      */
     public ProductRef createInputProductRef(File file, String fileFormat, String typeId) throws RequestElementFactoryException {
-        return  _defaultFactory.createInputProductRef(file, fileFormat, typeId);
+        return _defaultFactory.createInputProductRef(file, fileFormat, typeId);
     }
 
     /**
@@ -85,7 +85,6 @@ public class L3RequestElementFactory implements RequestElementFactory {
      *
      * @param name  the parameter name, must not be <code>null</code> or empty
      * @param value the parameter value, can be <code>null</code> if yet not known
-     *
      * @throws java.lang.IllegalArgumentException
      *          if <code>name</code> is <code>null</code> or empty
      * @throws org.esa.beam.framework.processor.RequestElementFactoryException
@@ -117,7 +116,6 @@ public class L3RequestElementFactory implements RequestElementFactory {
      * Creates a default logging pattern parameter set to the prefix passed in.
      *
      * @param prefix the default setting for the logging pattern
-     *
      * @return a logging pattern Parameter conforming the system settings
      */
     public Parameter createDefaultLogPatternParameter(String prefix) {
@@ -179,7 +177,7 @@ public class L3RequestElementFactory implements RequestElementFactory {
                 param.setValue(dbLocation);
             } catch (ParamValidateException e) {
                 throw new ProcessorException("Illegal processing parameter assignment:\n" +
-                                             param.getName()+ " = " + dbLocation, e);
+                                                     param.getName() + " = " + dbLocation, e);
             }
         }
         return param;
@@ -243,18 +241,17 @@ public class L3RequestElementFactory implements RequestElementFactory {
      * Gets a default <code>ParamProperties</code> for the parameter with given name.
      *
      * @param name the parameter name
-     *
      * @throws java.lang.IllegalArgumentException
      *          when the parameter name is not specified as valid name
      */
     private ParamProperties getParamProperties(String name) throws IllegalArgumentException {
         ParamProperties paramProps = (ParamProperties) _paramInfoMap.get(name);
         if (paramProps == null) {
-            if(name.equals(L3Constants.BAND_NUM_PARAMETER_NAME)) {
+            if (name.equals(L3Constants.BAND_NUM_PARAMETER_NAME)) {
                 paramProps = new ParamProperties(Integer.class, 0);
-            }else if(name.startsWith("band_")) {
+            } else if (name.startsWith("band_")) {
                 paramProps = new ParamProperties(String.class, "");
-            }else{
+            } else {
                 throw new IllegalArgumentException("invalid parameter name");
             }
         }
@@ -269,7 +266,7 @@ public class L3RequestElementFactory implements RequestElementFactory {
         ParamProperties paramProps = _defaultFactory.createStringParamProperties();
         paramProps.setDefaultValue(L3Constants.RESAMPLING_TYPE_VALUE_BINNING);
         paramProps.setValueSet(new String[]{L3Constants.RESAMPLING_TYPE_VALUE_BINNING,
-                                            L3Constants.RESAMPLING_TYPE_VALUE_FLUX_CONSERVING});
+                L3Constants.RESAMPLING_TYPE_VALUE_FLUX_CONSERVING});
         paramProps.setValueSetBound(true);
         paramProps.setLabel(L3Constants.RESAMPLING_TYPE_PARAM_LABEL);
         paramProps.setDescription(L3Constants.RESAMPLING_TYPE_PARAM_DESC);
@@ -294,8 +291,8 @@ public class L3RequestElementFactory implements RequestElementFactory {
         ParamProperties paramProps = _defaultFactory.createStringParamProperties();
         paramProps.setDefaultValue(L3Constants.PROCESS_TYPE_INIT);
         paramProps.setValueSet(new String[]{L3Constants.PROCESS_TYPE_INIT,
-                                            L3Constants.PROCESS_TYPE_UPDATE,
-                                            L3Constants.PROCESS_TYPE_FINALIZE});
+                L3Constants.PROCESS_TYPE_UPDATE,
+                L3Constants.PROCESS_TYPE_FINALIZE});
         paramProps.setValueSetBound(true);
         return paramProps;
     }
@@ -460,7 +457,7 @@ public class L3RequestElementFactory implements RequestElementFactory {
     public Parameter createOutputFormatParameter() {
         return _defaultFactory.createOutputFormatParameter();
     }
-    
+
     // Initialization on demand holder idiom
     private static class Holder {
         private static final L3RequestElementFactory instance = new L3RequestElementFactory();

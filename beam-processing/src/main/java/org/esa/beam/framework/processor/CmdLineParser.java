@@ -125,7 +125,7 @@ public class CmdLineParser {
             // check for config file argument
             // ------------------------------
             if (ObjectUtils.equalObjects(_args[i], _config)
-                || ObjectUtils.equalObjects(_args[i], _configLong)) {
+                    || ObjectUtils.equalObjects(_args[i], _configLong)) {
                 if (i + 1 >= _args.length) {
                     _logger.severe("Incomplete command line argument for '" + _configLong + "'!");
                     throw new IllegalProcessorParamException("Illegal command line format.");
@@ -139,7 +139,7 @@ public class CmdLineParser {
             // check for interactive flag
             // --------------------------
             if (ObjectUtils.equalObjects(_args[i], _interactive)
-                || ObjectUtils.equalObjects(_args[i], _interactiveLong)) {
+                    || ObjectUtils.equalObjects(_args[i], _interactiveLong)) {
                 _params.setInteractive(true);
                 continue;
             }
@@ -147,7 +147,7 @@ public class CmdLineParser {
             // check for progress flag
             // --------------------------
             if (ObjectUtils.equalObjects(_args[i], _progress)
-                || ObjectUtils.equalObjects(_args[i], _progressLong)) {
+                    || ObjectUtils.equalObjects(_args[i], _progressLong)) {
                 _params.setProgress(true);
                 continue;
             }
@@ -155,7 +155,7 @@ public class CmdLineParser {
             // check for quiet flag
             // --------------------
             if (ObjectUtils.equalObjects(_args[i], _quiet)
-                || ObjectUtils.equalObjects(_args[i], _quietLong)) {
+                    || ObjectUtils.equalObjects(_args[i], _quietLong)) {
                 _params.setQuiet(true);
                 continue;
             }
@@ -163,7 +163,7 @@ public class CmdLineParser {
             // check for verbose flag
             // ----------------------
             if (ObjectUtils.equalObjects(_args[i], _verbose)
-                || ObjectUtils.equalObjects(_args[i], _verboseLong)) {
+                    || ObjectUtils.equalObjects(_args[i], _verboseLong)) {
                 _params.setVerbose(true);
                 continue;
             }
@@ -171,7 +171,7 @@ public class CmdLineParser {
             // check for debug flag
             // --------------------
             if (ObjectUtils.equalObjects(_args[i], _debug)
-                || ObjectUtils.equalObjects(_args[i], _debugLong)) {
+                    || ObjectUtils.equalObjects(_args[i], _debugLong)) {
                 _params.setDebugOn(true);
                 continue;
             }

@@ -276,7 +276,7 @@ public class GcpGeoCoding extends AbstractGeoCoding {
             geoPos4 = getGeoPos(new PixelPos(i + 1.5f, sceneHeight), geoPos4);
 
             if (isSegmentCrossingMeridianAt180(geoPos1.lon, geoPos2.lon)
-                || isSegmentCrossingMeridianAt180(geoPos3.lon, geoPos4.lon)) {
+                    || isSegmentCrossingMeridianAt180(geoPos3.lon, geoPos4.lon)) {
                 return true;
             }
         }
@@ -287,7 +287,7 @@ public class GcpGeoCoding extends AbstractGeoCoding {
             geoPos4 = getGeoPos(new PixelPos(sceneWidth, i + 1.5f), geoPos4);
 
             if (isSegmentCrossingMeridianAt180(geoPos1.lon, geoPos2.lon)
-                || isSegmentCrossingMeridianAt180(geoPos3.lon, geoPos4.lon)) {
+                    || isSegmentCrossingMeridianAt180(geoPos3.lon, geoPos4.lon)) {
                 return true;
             }
         }

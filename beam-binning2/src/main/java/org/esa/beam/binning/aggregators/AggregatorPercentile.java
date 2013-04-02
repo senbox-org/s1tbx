@@ -129,12 +129,12 @@ public class AggregatorPercentile extends AbstractAggregator {
     @Override
     public String toString() {
         return "AggregatorPercentile{" +
-               "varIndex=" + varIndex +
-               ", percentage=" + percentage +
-               ", spatialFeatureNames=" + Arrays.toString(getSpatialFeatureNames()) +
-               ", temporalFeatureNames=" + Arrays.toString(getTemporalFeatureNames()) +
-               ", outputFeatureNames=" + Arrays.toString(getOutputFeatureNames()) +
-               '}';
+                "varIndex=" + varIndex +
+                ", percentage=" + percentage +
+                ", spatialFeatureNames=" + Arrays.toString(getSpatialFeatureNames()) +
+                ", temporalFeatureNames=" + Arrays.toString(getTemporalFeatureNames()) +
+                ", outputFeatureNames=" + Arrays.toString(getOutputFeatureNames()) +
+                '}';
     }
 
     /**
@@ -145,7 +145,6 @@ public class AggregatorPercentile extends AbstractAggregator {
      *
      * @param p            The percentage in percent ranging from 0 to 100.
      * @param measurements Sorted array of measurements.
-     *
      * @return The  p-th percentile.
      */
     public static float computePercentile(int p, float[] measurements) {
@@ -179,7 +178,7 @@ public class AggregatorPercentile extends AbstractAggregator {
 
         @Override
         public String[] getVarNames() {
-            return new String[] {varName};
+            return new String[]{varName};
         }
     }
 

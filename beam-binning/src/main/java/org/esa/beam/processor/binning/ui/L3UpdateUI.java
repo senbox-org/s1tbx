@@ -15,6 +15,7 @@
  */
 package org.esa.beam.processor.binning.ui;
 
+import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.framework.param.ParamChangeEvent;
 import org.esa.beam.framework.param.ParamChangeListener;
 import org.esa.beam.framework.param.ParamGroup;
@@ -25,7 +26,6 @@ import org.esa.beam.framework.processor.ProcessorException;
 import org.esa.beam.framework.processor.ProductRef;
 import org.esa.beam.framework.processor.Request;
 import org.esa.beam.framework.ui.io.FileArrayEditor;
-import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.processor.binning.L3Constants;
 import org.esa.beam.processor.binning.L3Processor;
 import org.esa.beam.processor.binning.database.BinDatabaseConstants;
@@ -85,7 +85,7 @@ public class L3UpdateUI extends L3UI {
         try {
             request.setType(L3Constants.REQUEST_TYPE);
             request.addParameter(reqElemFactory.createParameter(L3Constants.PROCESS_TYPE_PARAM_NAME,
-                                                                 L3Constants.PROCESS_TYPE_UPDATE));
+                                                                L3Constants.PROCESS_TYPE_UPDATE));
             request.addParameter(paramGroup.getParameter(L3Constants.DATABASE_PARAM_NAME));
             request.addParameter(paramGroup.getParameter(L3Constants.LOG_PREFIX_PARAM_NAME));
             request.addParameter(paramGroup.getParameter(L3Constants.LOG_TO_OUTPUT_PARAM_NAME));
@@ -160,7 +160,7 @@ public class L3UpdateUI extends L3UI {
         paramGroup = new ParamGroup();
 
         paramGroup.addParameter(reqElemFactory.createParameter(L3Constants.PROCESS_TYPE_PARAM_NAME,
-                                                                 L3Constants.PROCESS_TYPE_UPDATE));
+                                                               L3Constants.PROCESS_TYPE_UPDATE));
         paramGroup.addParameter(reqElemFactory.generateDefaultDbLocation());
         paramGroup.addParameter(
                 reqElemFactory.createDefaultLogPatternParameter(L3Constants.DEFAULT_LOG_PREFIX_UPDATE));

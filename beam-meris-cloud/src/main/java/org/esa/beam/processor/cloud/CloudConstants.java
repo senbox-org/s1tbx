@@ -22,7 +22,6 @@ import org.esa.beam.framework.processor.ProcessorConstants;
  * Description of CloudConstants
  *
  * @author Marco Peters
- *
  * @deprecated since BEAM 4.11. No replacement.
  */
 @Deprecated

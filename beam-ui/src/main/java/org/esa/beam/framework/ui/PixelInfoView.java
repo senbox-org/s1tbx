@@ -390,7 +390,6 @@ public class PixelInfoView extends JPanel {
          * @param hasFocus   true if cell has focus
          * @param row        the row of the cell to render
          * @param column     the column of the cell to render
-         *
          * @return the default table cell renderer
          */
         @Override

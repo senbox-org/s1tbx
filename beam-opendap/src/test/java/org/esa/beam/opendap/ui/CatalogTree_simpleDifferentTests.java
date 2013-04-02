@@ -87,10 +87,10 @@ public class CatalogTree_simpleDifferentTests {
         final TreeCellRenderer dapCellRenderer = jTree.getCellRenderer();
 
         final OpendapLeaf opendapLeaf = new OpendapLeaf("This is A dap Node", new InvDataset(null, "") {
-                });
+        });
         opendapLeaf.setDapAccess(true);
         final OpendapLeaf fileLeaf = new OpendapLeaf("This is A File Node", new InvDataset(null, "") {
-                });
+        });
         fileLeaf.setFileAccess(true);
         final Object dapNode = new DefaultMutableTreeNode(opendapLeaf);
         final Object fileNode = new DefaultMutableTreeNode(fileLeaf);

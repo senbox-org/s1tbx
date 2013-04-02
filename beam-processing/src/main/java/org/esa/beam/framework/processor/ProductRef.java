@@ -117,7 +117,6 @@ public class ProductRef implements Serializable {
      * Adds a component to the <code>ProductRef</code>. Creates the <code>Vector</code> if necessary.
      *
      * @param component the component to be added
-     *
      * @throws IllegalArgumentException
      */
     public void addComponent(ProductRef component) {
@@ -156,7 +155,6 @@ public class ProductRef implements Serializable {
      * Returns the component at given index or null if no components are set.
      *
      * @param index the component index
-     *
      * @throws ArrayIndexOutOfBoundsException if invalid index is supplied
      */
     public ProductRef getComponentAt(int index) {

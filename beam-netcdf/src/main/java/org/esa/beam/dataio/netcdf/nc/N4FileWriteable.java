@@ -103,7 +103,7 @@ public class N4FileWriteable implements NFileWriteable {
 
     @Override
     public NVariable addVariable(String name, DataType dataType, boolean unsigned, Dimension tileSize, String dimensions) throws
-                                                                                                        IOException {
+            IOException {
         NhGroup rootGroup = nhFileWriter.getRootGroup();
         int nhType = N4DataType.convert(dataType, unsigned);
         String[] dims = dimensions.split(" ");

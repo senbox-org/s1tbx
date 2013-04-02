@@ -6,9 +6,15 @@ import org.esa.beam.binning.aggregators.AggregatorMinMax;
 import org.esa.beam.binning.support.ObservationImpl;
 import org.junit.Test;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 public class SpatialBinTest {
 

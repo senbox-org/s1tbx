@@ -23,8 +23,6 @@ package org.esa.beam.framework.processor;
  *
  * @author Norman Fomferra
  * @version $Date$
- *
- *
  * @deprecated since BEAM 4.11. Use the {@link org.esa.beam.framework.gpf Graph Processing Framework} instead.
  */
 @Deprecated
@@ -43,7 +41,7 @@ public class RequestElementFactoryException extends ProcessorException {
      * Constructs the object with given error message and cause.
      *
      * @param message the exception message
-     * @param cause the exception cause
+     * @param cause   the exception cause
      */
     public RequestElementFactoryException(String message, Throwable cause) {
         super(message, cause);

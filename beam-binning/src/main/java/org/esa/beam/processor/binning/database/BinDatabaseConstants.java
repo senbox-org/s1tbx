@@ -52,13 +52,13 @@ public class BinDatabaseConstants {
     public static final String LON_MAX_KEY = "lon_max";
 
     // resampled pixel (Rixel) type added T Lankester 26/04/05
-    public static final String DATABASE_SIMPLE_VALUE    = "simple";
-    public static final String DATABASE_RIXEL_VALUE     = "rixel";
+    public static final String DATABASE_SIMPLE_VALUE = "simple";
+    public static final String DATABASE_RIXEL_VALUE = "rixel";
     public static final String DATABASE_QUAD_TREE_VALUE = "quad";
 
     // pi times the earth radius - corrected TLankester 10/05/05
     public static final float PI_EARTH_RADIUS = (float) (Math.PI * 6378.137);
-   // public static final float PI_EARTH_RADIUS = (float) (Math.PI * 6378.145);
+    // public static final float PI_EARTH_RADIUS = (float) (Math.PI * 6378.145);
     // SeaWiFS original cell size
     public static final float SEA_WIFS_CELL_SIZE = 9.28f;
 }

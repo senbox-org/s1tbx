@@ -16,14 +16,15 @@
 
 package com.bc.jexp;
 
-import static org.junit.Assert.*;
-
 import com.bc.jexp.impl.AbstractSymbol;
 import com.bc.jexp.impl.DefaultNamespace;
 import com.bc.jexp.impl.NamespaceImpl;
 import com.bc.jexp.impl.ParserImpl;
 import com.bc.jexp.impl.SymbolFactory;
-import org.junit.*;
+import org.junit.Before;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 public class ParserImplTest {
 

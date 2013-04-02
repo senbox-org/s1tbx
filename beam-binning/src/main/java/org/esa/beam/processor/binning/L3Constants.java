@@ -34,7 +34,7 @@ public class L3Constants implements ProcessorConstants {
     public static final String RESAMPLING_TYPE_PARAM_LABEL = "Resampling";
     public static final String RESAMPLING_TYPE_PARAM_DESC = "The method of the products composition";
     // value for binning composite type
-    public static final String RESAMPLING_TYPE_VALUE_BINNING  = "binning";
+    public static final String RESAMPLING_TYPE_VALUE_BINNING = "binning";
     // value for clipping resampling composite type
     public static final String RESAMPLING_TYPE_VALUE_FLUX_CONSERVING = "flux-conserving";
 
@@ -54,8 +54,8 @@ public class L3Constants implements ProcessorConstants {
     public static final String PROCESS_TYPE_FINALIZE = "finalize";
     // the value set of the patrameter process_type
     public static final String[] PROCESS_TYPE_VALUE_SET = new String[]{PROCESS_TYPE_INIT,
-                                                                       PROCESS_TYPE_UPDATE,
-                                                                       PROCESS_TYPE_FINALIZE};
+            PROCESS_TYPE_UPDATE,
+            PROCESS_TYPE_FINALIZE};
     // default value for the parameter process_type
     public static final String PROCESS_TYPE_DEFAULT_VALUE = PROCESS_TYPE_INIT;
 
@@ -108,7 +108,6 @@ public class L3Constants implements ProcessorConstants {
     public static final Integer CELLS_PER_DEGREE_MAX_VALUE = 1000000;
 
 
-
     // name of the parameter band_names
     public static final String BAND_NAME_PARAMETER_NAME = "band_name";
     // label string of the parameter band name
@@ -131,8 +130,8 @@ public class L3Constants implements ProcessorConstants {
     public static final String ALGORITHM_DESCRIPTION = "Sample value aggregation algorithm name";
     // the value set of the parameter binning_algorithm
     public static final String[] ALGORITHM_VALUE_SET = {ALGORITHM_VALUE_ARITHMETIC_MEAN,
-                                                        ALGORITHM_VALUE_MAXIMUM_LIKELIHOOD,
-                                                        ALGORITHM_VALUE_MINIMUM_MAXIMUM};
+            ALGORITHM_VALUE_MAXIMUM_LIKELIHOOD,
+            ALGORITHM_VALUE_MINIMUM_MAXIMUM};
     // default value for the parameter binning_algrithm
     public static final String ALGORITHM_DEFAULT_VALUE = ALGORITHM_VALUE_ARITHMETIC_MEAN;
 
@@ -224,9 +223,9 @@ public class L3Constants implements ProcessorConstants {
     public static final String LOG_MSG_TEMP_DB_NOT_FOUND_1 = "The temporal database in the directory'";
     public static final String LOG_MSG_TEMP_DB_NOT_FOUND_2 = "' could not be found!";
     public static final String LOG_MSG_EMPTY_DB = "No input products have been processed, the bin database is empty.\n" +
-                                                  "Possible reasons for this are:\n" +
-                                                  "  1) All input products are located outside in the geographical area\n" +
-                                                  "  2) All input products are incompatible with the bin database\n";
+            "Possible reasons for this are:\n" +
+            "  1) All input products are located outside in the geographical area\n" +
+            "  2) All input products are incompatible with the bin database\n";
     public static final String LOG_MSG_DELETE_TEMP_DB = "Deleting temporal database ";
     public static final String LOG_MSG_DELETE_FINAL_DB = "Deleting final database ";
     public static final String LOG_MSG_CREATE_FINAL_DB = "Creating final database ";

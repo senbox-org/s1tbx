@@ -73,11 +73,11 @@ public class SimpleBinStore extends AbstractLinearBinStore {
     public SimpleBinStore(File dbDir, String dbName, BinLocator locator) throws IOException {
         this.locator = locator;
         dbFile = new File(dbDir, dbName);
-        if(!dbFile.exists()) {
+        if (!dbFile.exists()) {
             throw new IOException("The specified datbase is missing: " + dbFile.getPath());
         }
         if (!dbFile.isFile()) {
-            throw new IOException("The database location passed in is not a file" +  dbFile.getPath());
+            throw new IOException("The database location passed in is not a file" + dbFile.getPath());
         }
 
         ImageInputStream inStream = new FileImageInputStream(dbFile);

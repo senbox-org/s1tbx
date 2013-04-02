@@ -72,7 +72,7 @@ public class PixExMeasurementReaderTest {
                                                                                        productRegistry);
         final TargetWriterFactoryAndMap targetFactory = new TargetWriterFactoryAndMap(filenamePrefix, inputDir);
         final DefaultFormatStrategy formatStrategy = new DefaultFormatStrategy(rasterNamesFactory, windowSize, expression,
-                                                                           exportExpressionResult);
+                                                                               exportExpressionResult);
         final MeasurementWriter writer = new MeasurementWriter(measurementFactory, targetFactory, formatStrategy);
 
         final String[] radianceNames = {"rad_1", "rad_2", "rad_3"};
@@ -122,7 +122,7 @@ public class PixExMeasurementReaderTest {
         final Date expectedDate = ProductData.UTC.parse("2005-07-09T10:12:03", "yyyy-MM-dd'T'hh:mm:ss").getAsDate();
         assertEquals(expectedDate, measurement.getTime().getAsDate());
         final Object[] values = measurement.getValues();
-        assertEquals(65.272634, ((Number)values[0]).doubleValue(), 1.0e-6);
+        assertEquals(65.272634, ((Number) values[0]).doubleValue(), 1.0e-6);
         assertEquals(Double.NaN, ((Number) values[1]).doubleValue(), 1.0e-6);
         assertEquals(42.278252, ((Number) values[2]).doubleValue(), 1.0e-6);
         assertEquals(0, ((Number) values[3]).intValue());
@@ -138,9 +138,9 @@ public class PixExMeasurementReaderTest {
     private void testForExistingMeasurement(ArrayList<Measurement> measurementList, int coordId, String coordName) {
         for (Measurement measurement : measurementList) {
             if (measurement.getCoordinateID() == coordId &&
-                measurement.getCoordinateName().equals(coordName) &&
-                Double.compare(measurement.getPixelX(), 20.5) == 0 &&
-                Double.compare(measurement.getPixelY(), 42.5) == 0) {
+                    measurement.getCoordinateName().equals(coordName) &&
+                    Double.compare(measurement.getPixelX(), 20.5) == 0 &&
+                    Double.compare(measurement.getPixelY(), 42.5) == 0) {
                 return;
             }
         }

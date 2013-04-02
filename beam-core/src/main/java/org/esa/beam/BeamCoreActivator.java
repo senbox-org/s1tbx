@@ -187,7 +187,7 @@ public class BeamCoreActivator implements Activator {
 
         @Override
         public <T> Iterator<T> iterator(Class<T> category) {
-            if (category.equals(serviceRegistry.getServiceType()) ) {
+            if (category.equals(serviceRegistry.getServiceType())) {
                 return (Iterator<T>) serviceRegistry.getServices().iterator();
             } else {
                 return null;

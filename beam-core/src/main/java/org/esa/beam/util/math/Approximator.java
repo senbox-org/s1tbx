@@ -248,7 +248,6 @@ public class Approximator {
      * @param f the function vector
      * @param c the coeffcient vector
      * @param x the x value
-     *
      * @return the y value
      */
     public static double computeY(final FX[] f, double[] c, double x) {
@@ -267,7 +266,6 @@ public class Approximator {
      * @param c the coeffcient vector
      * @param x the x value
      * @param y the y value
-     *
      * @return the z value
      */
     public static double computeZ(final FXY[] f, double[] c, double x, double y) {

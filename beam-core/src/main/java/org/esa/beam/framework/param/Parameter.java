@@ -168,9 +168,7 @@ public class Parameter {
      *
      * @param newValue the new value to be set
      * @param handler  an exception handler
-     *
      * @return <code>true</code> if this parameter's value has been changed
-     *
      * @throws IllegalArgumentException if the value could not be set and <code>handler</code> is null or the handler
      *                                  did not handle the error
      */
@@ -190,7 +188,7 @@ public class Parameter {
     public void setDefaultValue() {
         Object defaultValue = getProperties().getDefaultValue();
         if (!isLegalValue(defaultValue)
-            && defaultValue instanceof String) {
+                && defaultValue instanceof String) {
             setValueAsText((String) defaultValue, null); // Force IllegalArgumentException on error
         } else {
             setValue(defaultValue, null); // Force IllegalArgumentException on error
@@ -216,7 +214,6 @@ public class Parameter {
      * <code>null</code>, the <code>instanceof</code> operator would simply return <code>false</code>.
      *
      * @param valueType the value type
-     *
      * @return <code>true</code>, if this parameter's value type is a, is derived from or implements the given value
      *         type
      */
@@ -271,12 +268,11 @@ public class Parameter {
      * the validated object.
      *
      * @param textValue the text value to be parsed, validated and set
-     *
      * @throws ParamParseException    if the given text value could not be converted to the required parameter type
      * @throws ParamValidateException if the parsed value is not valid
      */
     public void setValueAsText(String textValue) throws ParamParseException,
-                                                        ParamValidateException {
+            ParamValidateException {
         Object value = parseValue(textValue);
         setValue(value);
     }
@@ -292,9 +288,7 @@ public class Parameter {
      *
      * @param textValue the text value to be parsed, validated and set
      * @param handler   an exception handler
-     *
      * @return <code>true</code> if this parameter's value has been changed
-     *
      * @throws IllegalArgumentException if the value could not be set and <code>handler</code> is null or the handler
      *                                  did not handle the error
      */
@@ -310,6 +304,7 @@ public class Parameter {
 
     /**
      * Returns the value of this parameter as string or an empty string.
+     *
      * @return the value of this parameter as string or an empty string.
      */
     public String getValueAsText() {

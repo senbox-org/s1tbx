@@ -44,7 +44,7 @@ public class BinStoreFactory {
 
     public BinStore createSpatialStore(File dbDir, String fileName, int width, int height, int numVarsPerBin) throws IOException {
         BinStore store = null;
-        long size = ((long)width) * ((long)height) * ((long)numVarsPerBin);
+        long size = ((long) width) * ((long) height) * ((long) numVarsPerBin);
         System.out.println("width = " + width);
         System.out.println("height = " + height);
         System.out.println("numVarsPerBin = " + numVarsPerBin);
@@ -65,8 +65,8 @@ public class BinStoreFactory {
 //        if (context.getGridCellSize() > BinDatabaseConstants.SEA_WIFS_CELL_SIZE * 2) {
 //            store = new SimpleBinStore(context.getDatabaseDir(), dbName, locator, numVarsPerBin);
 //        } else {
-            store = new QuadTreeBinStore(context.getDatabaseDir(), dbName, locator.getWidth(), locator.getHeight(),
-                    numVarsPerBin);
+        store = new QuadTreeBinStore(context.getDatabaseDir(), dbName, locator.getWidth(), locator.getHeight(),
+                                     numVarsPerBin);
 //        }
 //        store = new ArrayBinStore(locator, numVarsPerBin);
         return store;
@@ -85,7 +85,7 @@ public class BinStoreFactory {
         }
         return store;
     }
-    
+
     // Initialization on demand holder idiom
     private static class Holder {
         private static final BinStoreFactory instance = new BinStoreFactory();

@@ -24,9 +24,10 @@ import java.io.IOException;
  * @Deprecated since beam-binning 2.1.2 as part of the BEAM 4.11-release. Use module 'beam-binning2' instead.
  */
 public interface BinDatabase {
-//    public void open() throws IOException;
+    //    public void open() throws IOException;
     public void flush() throws IOException;
-//    public void close() throws IOException;
+
+    //    public void close() throws IOException;
     public void delete() throws IOException;
 
     /**
@@ -37,11 +38,14 @@ public interface BinDatabase {
     public Bin createBin();
 
     public void read(Point point, Bin bin) throws IOException;
+
     public void write(Point point, Bin bin) throws IOException;
 
     public int getRowOffset();
+
     public int getColOffset();
 
     public int getWidth();
+
     public int getHeight();
 }

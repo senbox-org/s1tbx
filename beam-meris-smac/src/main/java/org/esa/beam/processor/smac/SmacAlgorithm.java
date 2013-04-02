@@ -268,7 +268,6 @@ final class SmacAlgorithm {
      * @param r_toa         array of top of atmosphere reflectances to be corrected
      * @param r_surfRecycle if not <code>null</code> and of correct size this array will be reused for the return
      *                      values
-     *
      * @return array of corrected surface reflectances
      */
     public final float[] run(float[] sza, float[] saa, float[] vza, float[] vaa,
@@ -453,13 +452,13 @@ final class SmacAlgorithm {
             /*--------Residu Aerosol --------*/
             temp = taup * m * cksi;
             Res_aer = (_resa1 + _resa2 * temp + _resa3 * temp * temp)
-                      + _resa4 * temp * temp * temp;
+                    + _resa4 * temp * temp * temp;
 
             /*---------Residu 6s-----------*/
             tautot = taup + taurz;
             temp = tautot * m * cksi;
             Res_6s = (_rest1 + _rest2 * temp + _rest3 * temp * temp)
-                     + _rest4 * temp * temp * temp;
+                    + _rest4 * temp * temp * temp;
 
             /*------ 11) total atmospheric reflectance */
             atm_ref = ray_ref - Res_ray + aer_ref - Res_aer + Res_6s;

@@ -28,7 +28,7 @@
 
     <changelog>
         <![CDATA[
-        Changes in 1.2.1:<br/>
+        Changes in 1.2.2:<br/>
         [BEAM-1446] Label of samples is wrong for index-coded bands<br>
         Changes in 1.2.1:<br/>
         Adapted to new Maven-architecture<br>

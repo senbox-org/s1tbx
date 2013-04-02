@@ -34,7 +34,7 @@ abstract class ObservationIterator implements Iterator<Observation> {
         SamplePointer pointer;
         if (superSamplingSteps.length == 1) {
             pointer = SamplePointer.create(sourceTiles, sourceTiles[0].getBounds());
-        }else{
+        } else {
             Point2D.Float[] superSamplingPoints = SamplePointer.createSamplingPoints(superSamplingSteps);
             pointer = SamplePointer.create(sourceTiles, sourceTiles[0].getBounds(), superSamplingPoints);
         }

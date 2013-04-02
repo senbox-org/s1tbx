@@ -18,7 +18,8 @@ package org.esa.beam.dataio.netcdf.metadata.profiles.beam;
 import junit.framework.TestCase;
 import ucar.nc2.Attribute;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class BeamImageInfoPartTest extends TestCase {
 

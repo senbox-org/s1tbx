@@ -42,7 +42,6 @@ public class BeamLogManager {
      * classes should always use loggers with the name <code>"beam.<i>app-name</i>"</code>.
      *
      * @return the name of the system logger, must not be <code>null</code>
-     *
      * @see #setSystemLoggerName
      * @see #getSystemLogger
      */
@@ -56,7 +55,6 @@ public class BeamLogManager {
      * <code>"beam."</code>.
      *
      * @param systemLoggerName the name of the system logger, must not be <code>null</code>
-     *
      * @see #getSystemLoggerName
      * @see #getSystemLogger
      */
@@ -81,7 +79,6 @@ public class BeamLogManager {
      * system logger</li> </ul>
      *
      * @return the system logger
-     *
      * @see #getSystemLoggerName
      * @see #setSystemLoggerName
      */
@@ -95,9 +92,7 @@ public class BeamLogManager {
      * filename prefix. This pattern is used to create <code>java.util.logging.FileHandler</code> instances.
      *
      * @param logFilenamePrefix the log filename prefix
-     *
      * @return a log file pattern for the given filname prefix
-     *
      * @see #getLogFilePattern(File, String)
      */
     public static String getLogFilePattern(String logFilenamePrefix) {
@@ -110,9 +105,7 @@ public class BeamLogManager {
      * create <code>java.util.logging.FileHandler</code> instances.
      *
      * @param logFilenamePrefix the log filename prefix
-     *
      * @return a log file pattern for the given filname prefix
-     *
      * @see BeamLogManager#getLogFilePattern(String)
      */
     public static String getLogFilePattern(File outDir, String logFilenamePrefix) {
@@ -183,7 +176,6 @@ public class BeamLogManager {
      * @param appName       the application name
      * @param appVersion    the application version string
      * @param copyrightInfo the application copyright information
-     *
      * @return a formatter
      */
     public static BeamFormatter createFormatter(String appName, String appVersion, String copyrightInfo) {

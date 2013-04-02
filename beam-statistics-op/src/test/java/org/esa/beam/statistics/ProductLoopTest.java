@@ -1,17 +1,19 @@
 package org.esa.beam.statistics;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.gpf.OperatorException;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.InOrder;
+import org.mockito.internal.matchers.EndsWith;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.logging.Logger;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.gpf.OperatorException;
-import org.junit.*;
-import org.mockito.InOrder;
-import org.mockito.internal.matchers.EndsWith;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 public class ProductLoopTest {
 

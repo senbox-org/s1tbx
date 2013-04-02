@@ -35,9 +35,9 @@ interface QuadTreeElement {
     /**
      * Reads the data at the given location.
      * <p/>
-     * @param rowcol a Point designating the read location.
      *
-     * @param data the array to be filled with the data
+     * @param rowcol a Point designating the read location.
+     * @param data   the array to be filled with the data
      */
     public void read(Point rowcol, float[] data) throws IOException;
 

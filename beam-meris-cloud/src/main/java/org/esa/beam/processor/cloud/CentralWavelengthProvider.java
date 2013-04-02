@@ -73,7 +73,6 @@ public class CentralWavelengthProvider {
      * product type this is either RR or FR.
      *
      * @param productType A textual representation of the producttype.
-     *
      * @return float array with central wavelengths.
      */
     public float[] getCentralWavelength(final String productType) {

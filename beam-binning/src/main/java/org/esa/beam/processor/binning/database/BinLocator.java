@@ -47,7 +47,7 @@ public interface BinLocator {
 
     /**
      * Transforms a two dimensional grid coordinate to a one dimensional
-     *  method name corrected T Lankester 26/04/05
+     * method name corrected T Lankester 26/04/05
      */
     int rowColToIndex(Point rowcol);
 

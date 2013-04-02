@@ -146,7 +146,7 @@ public class AssistantPane implements AssistantPageContext {
     @Override
     public void showErrorDialog(String message) {
         final String dialogTitle;
-        final AssistantPage currentPage= getCurrentPage();
+        final AssistantPage currentPage = getCurrentPage();
         if (currentPage != null) {
             dialogTitle = currentPage.getPageTitle();
         } else {

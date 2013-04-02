@@ -70,7 +70,6 @@ class SensorCoefficientManager {
      * Constructs the object with a given location for the sensor coefficient files. Scans this URL for valid files.
      *
      * @param location the URL where the sensor coefficient files reside
-     *
      * @throws java.io.IOException when unable to access <code>URL</code>
      */
     public SensorCoefficientManager(URL location) throws IOException {
@@ -84,7 +83,6 @@ class SensorCoefficientManager {
      * Sets the URL where the sensor coefficient files reside. Scans this URL for valid files.
      *
      * @param location the URL where the coefficients reside
-     *
      * @throws java.io.IOException when unable to access <code>URL</code>
      */
     public void setURL(URL location) throws IOException {
@@ -278,7 +276,7 @@ class SensorCoefficientManager {
                 current = (BandDb) _bands.elementAt(n);
 
                 if (ObjectUtils.equalObjects(name, current.getBandName())
-                    && ObjectUtils.equalObjects(aerosolType, current.getAerosolType())) {
+                        && ObjectUtils.equalObjects(aerosolType, current.getAerosolType())) {
                     ret = current;
                     break;
                 }

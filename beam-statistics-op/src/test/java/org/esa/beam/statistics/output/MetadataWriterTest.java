@@ -1,13 +1,16 @@
 package org.esa.beam.statistics.output;
 
-import static org.junit.Assert.*;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.text.ParseException;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
-import org.junit.*;
+
+import static org.junit.Assert.assertEquals;
 
 public class MetadataWriterTest {
 
@@ -34,17 +37,17 @@ public class MetadataWriterTest {
         metadataWriter.initialiseOutput(StatisticsOutputContext.create(sourceProducts, null, null, startDate, endDate, regionIds));
 
         assertEquals("# BEAM Statistics export\n" +
-                     "#\n" +
-                     "# Products:\n" +
-                     "#              MER_RR__2PBCMsomething\n" +
-                     "#\n" +
-                     "# Start Date: 01-JAN-2010 00:00:00.000000\n" +
-                     "#\n" +
-                     "# End Date: 01-JAN-2011 00:00:00.000000\n" +
-                     "#\n" +
-                     "# Regions:\n" +
-                     "#              bullerbue\n" +
-                     "#              bielefeld\n"
+                             "#\n" +
+                             "# Products:\n" +
+                             "#              MER_RR__2PBCMsomething\n" +
+                             "#\n" +
+                             "# Start Date: 01-JAN-2010 00:00:00.000000\n" +
+                             "#\n" +
+                             "# End Date: 01-JAN-2011 00:00:00.000000\n" +
+                             "#\n" +
+                             "# Regions:\n" +
+                             "#              bullerbue\n" +
+                             "#              bielefeld\n"
                 , outputStream.toString());
 
     }

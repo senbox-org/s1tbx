@@ -92,7 +92,7 @@ public class BeamMaskPart extends ProfilePartIO {
 
             final Attribute colorAttribute = variable.findAttribute(COLOR);
             if (colorAttribute != null && colorAttribute.getLength() >= 3
-                && colorAttribute.getLength() <= 4) {
+                    && colorAttribute.getLength() <= 4) {
                 mask.setImageColor(createColor(colorAttribute));
             }
 

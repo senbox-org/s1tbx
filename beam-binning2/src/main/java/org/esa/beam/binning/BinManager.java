@@ -230,7 +230,7 @@ public class BinManager {
         private final Map<String, Integer> addedNames = new HashMap<String, Integer>();
 
         String unifyName(String name) {
-            if(!addedNames.containsKey(name)) {
+            if (!addedNames.containsKey(name)) {
                 addedNames.put(name, 0);
                 return name;
             } else {

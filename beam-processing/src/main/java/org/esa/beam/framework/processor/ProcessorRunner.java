@@ -15,9 +15,9 @@
  */
 package org.esa.beam.framework.processor;
 
+import com.bc.ceres.core.PrintWriterProgressMonitor;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
-import com.bc.ceres.core.PrintWriterProgressMonitor;
 import com.jidesoft.utils.Lm;
 import org.esa.beam.framework.processor.ui.ProcessorApp;
 import org.esa.beam.util.Debug;
@@ -27,10 +27,10 @@ import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.logging.BeamFormatter;
 import org.esa.beam.util.logging.BeamLogManager;
 
+import java.io.File;
 import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.io.File;
 
 /**
  * Runs any processor passed in according to the command line parameters set. This class has a single static method
@@ -84,7 +84,6 @@ public class ProcessorRunner {
      *
      * @param args      the commandline arguments retrieved by the <code>main</code> method
      * @param processor the processor
-     *
      * @return <code>true</code> for success
      */
     public static boolean runProcessor(String[] args, Processor processor) {
@@ -92,9 +91,9 @@ public class ProcessorRunner {
     }
 
     private static boolean runProcessor(final String[] args,
-                                       final Processor processor,
-                                       final String helpsetPath,
-                                       final String helpID) {
+                                        final Processor processor,
+                                        final String helpsetPath,
+                                        final String helpID) {
         Locale.setDefault(Locale.ENGLISH); // Force usage of english locale
         BeamLogManager.setSystemLoggerName("beam.processor");
 
@@ -148,8 +147,8 @@ public class ProcessorRunner {
      */
     private void run(String[] args, Processor processor)
             throws IllegalProcessorStateException,
-                   ProcessorException,
-                   RequestElementFactoryException {
+            ProcessorException,
+            RequestElementFactoryException {
         Guardian.assertNotNull("processor", processor);
         // set the processor
         _processor = processor;
@@ -231,7 +230,7 @@ public class ProcessorRunner {
      * Assembles the request list from the command line arguments.
      */
     private void setRequestListFromCmdLine() throws IllegalProcessorStateException,
-                                                    ProcessorException {
+            ProcessorException {
         File requestFile;
 
         // retrieve the command line arguments from the command line parser

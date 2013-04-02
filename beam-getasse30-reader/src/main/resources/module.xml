@@ -27,7 +27,7 @@
         <module>beam-visat-rcp</module>
         <optional>true</optional>
     </dependency>
-    
+
 
     <categories>Reader,DEM,GETASSE30</categories>
 

@@ -8,7 +8,7 @@
     <parent>
         <groupId>org.esa.beam</groupId>
         <artifactId>beam-plugin-parent</artifactId>
-        <version>1.0</version>
+        <version>1.1-SNAPSHOT</version>
         <relativePath>../beam-plugin-parent/pom.xml</relativePath>
     </parent>
 
@@ -16,7 +16,7 @@
     <description>An OPeNDAP client extension for BEAM</description>
     <groupId>org.esa.beam</groupId>
     <artifactId>beam-opendap</artifactId>
-    <version>1.0</version>
+    <version>1.0.0.${beam.version}</version>
     <packaging>jar</packaging>
 
     <organization>
@@ -52,8 +52,7 @@
         <dependency>
             <groupId>org.esa.beam</groupId>
             <artifactId>beam-netcdf</artifactId>
-            <version>1.1.2</version>
-            <scope>provided</scope>
+            <version>1.1.2.${beam.version}</version>
         </dependency>
         <dependency>
             <groupId>org.htmlparser</groupId>

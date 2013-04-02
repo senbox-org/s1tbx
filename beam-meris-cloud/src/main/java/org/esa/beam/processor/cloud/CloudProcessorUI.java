@@ -19,8 +19,16 @@ import org.esa.beam.dataio.envisat.EnvisatConstants;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.param.*;
-import org.esa.beam.framework.processor.*;
+import org.esa.beam.framework.param.ParamChangeEvent;
+import org.esa.beam.framework.param.ParamChangeListener;
+import org.esa.beam.framework.param.ParamGroup;
+import org.esa.beam.framework.param.ParamValidateException;
+import org.esa.beam.framework.param.Parameter;
+import org.esa.beam.framework.processor.ProcessorConstants;
+import org.esa.beam.framework.processor.ProcessorException;
+import org.esa.beam.framework.processor.ProcessorUtils;
+import org.esa.beam.framework.processor.ProductRef;
+import org.esa.beam.framework.processor.Request;
 import org.esa.beam.framework.processor.ui.AbstractProcessorUI;
 import org.esa.beam.framework.processor.ui.ProcessorApp;
 import org.esa.beam.framework.ui.GridBagUtils;
@@ -40,7 +48,6 @@ import java.util.logging.Logger;
  * Description of CloudProcessorUI
  *
  * @author Marco Peters
- *
  * @deprecated since BEAM 4.11. No replacement.
  */
 @Deprecated
@@ -364,7 +371,7 @@ public class CloudProcessorUI extends AbstractProcessorUI {
             }
         } catch (IOException e) {
             msg = e.getMessage();
-        }finally {
+        } finally {
             if (product != null) {
                 product.dispose();
             }

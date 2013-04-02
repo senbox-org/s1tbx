@@ -344,7 +344,7 @@ public class NdviProcessor extends Processor {
         // and initialize the disk representation
         writer.writeProductNodes(_outputProduct, new File(outputRef.getFilePath()));
         copyBandData(getBandNamesToCopy(), _inputProduct, _outputProduct, pm);
-        
+
         _logger.info("Output product successfully created");
     }
 
@@ -385,6 +385,7 @@ public class NdviProcessor extends Processor {
     /**
      * Performs the actual processing of the output product. Reads both input bands line
      * by line, calculates the processor and writes the result to the output band
+     *
      * @param pm
      */
     private void processNdvi(ProgressMonitor pm) throws IOException {

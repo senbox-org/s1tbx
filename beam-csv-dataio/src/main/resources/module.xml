@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-csv-dataio</symbolicName>
-    <version>4.11</version>
+    <version>5.0</version>
     <name>CSV Product Reader</name>
 
     <description>Enables BEAM to read data products from CSV files.</description>

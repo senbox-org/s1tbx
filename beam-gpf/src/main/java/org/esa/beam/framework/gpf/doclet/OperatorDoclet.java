@@ -72,25 +72,25 @@ public class OperatorDoclet extends Doclet {
         com.sun.tools.javadoc.Main.main(new String[]{
                 "-doclet", OperatorDoclet.class.getName(),
                 "-sourcepath", "" +
-                               "./beam-gpf/src/main/java;" +
-                               "./beam-cluster-analysis/src/main/java;" +
-                               "./beam-collocation/src/main/java;" +
-                               "./beam-pixel-extraction/src/main/java;" +
-                               "./beam-meris-radiometry/src/main/java;" +
-                               "./beam-temporal-percentile/src/main/java;" +
-                               "./beam-statistics-op/src/main/java;" +
-                               "./beam-unmix/src/main/java",
+                "./beam-gpf/src/main/java;" +
+                "./beam-cluster-analysis/src/main/java;" +
+                "./beam-collocation/src/main/java;" +
+                "./beam-pixel-extraction/src/main/java;" +
+                "./beam-meris-radiometry/src/main/java;" +
+                "./beam-temporal-percentile/src/main/java;" +
+                "./beam-statistics-op/src/main/java;" +
+                "./beam-unmix/src/main/java",
 
                 "-classpath", "" +
-                              "./modules/beam-core-4.11-SNAPSHOT;" +
-                              "./modules/beam-gpf-4.11-SNAPSHOT;" +
-                              "./modules/beam-unmix-1.2.1;" +
-                              "./modules/beam-cluster-analysis-1.1.2;" +
-                              "./modules/beam-meris-radiometry-1.1.2-SNAPSHOT;" +
-                              "./modules/beam-collocation-1.4.1;" +
-                              "./modules/beam-pixel-extraction-1.3-SNAPSHOT;" +
-                              "./modules/beam-temporal-percentile-op-1.0-SNAPSHOT;" +
-                              "./modules/beam-statistics-op-1.0-SNAPSHOT",
+                "./modules/beam-core-4.11-SNAPSHOT;" +
+                "./modules/beam-gpf-4.11-SNAPSHOT;" +
+                "./modules/beam-unmix-1.2.1;" +
+                "./modules/beam-cluster-analysis-1.1.2;" +
+                "./modules/beam-meris-radiometry-1.1.2-SNAPSHOT;" +
+                "./modules/beam-collocation-1.4.1;" +
+                "./modules/beam-pixel-extraction-1.3-SNAPSHOT;" +
+                "./modules/beam-temporal-percentile-op-1.0-SNAPSHOT;" +
+                "./modules/beam-statistics-op-1.0-SNAPSHOT",
 
                 "org.esa.beam.gpf.operators.standard",
                 "org.esa.beam.gpf.operators.standard.reproject",

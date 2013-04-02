@@ -128,7 +128,7 @@ public class DimapProductReader extends AbstractProductReader {
     @Override
     protected Product readProductNodesImpl() throws IOException {
         final Product product = processProduct(null);
-        if(readerExtenders != null) {
+        if (readerExtenders != null) {
             for (ReaderExtender readerExtender : readerExtenders) {
                 readerExtender.completeProductNodesReading(product);
             }
@@ -299,7 +299,6 @@ public class DimapProductReader extends AbstractProductReader {
      * @param destWidth     the width of region to be read given in the band's raster co-ordinates
      * @param destHeight    the height of region to be read given in the band's raster co-ordinates
      * @param pm            a monitor to inform the user about progress
-     *
      * @throws java.io.IOException if  an I/O error occurs
      * @see #getSubsetDef
      */
@@ -474,7 +473,7 @@ public class DimapProductReader extends AbstractProductReader {
             return;
         }
         if (readerExtenders == null) {
-            readerExtenders = new ArrayList<ReaderExtender>();
+            readerExtenders = new HashSet<ReaderExtender>();
         }
         readerExtenders.add(extender);
     }

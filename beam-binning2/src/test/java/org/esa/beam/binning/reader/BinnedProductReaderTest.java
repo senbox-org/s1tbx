@@ -22,7 +22,8 @@ import ucar.nc2.NetcdfFile;
 
 import java.net.URL;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 /**
  * @author Thomas Storm

@@ -75,7 +75,7 @@ public class PlateCarreeGrid implements PlanetaryGrid {
 
     @Override
     public long getNumBins() {
-        return ((long)numRows) * (long)numCols;
+        return ((long) numRows) * (long) numCols;
     }
 
     @Override
@@ -90,7 +90,7 @@ public class PlateCarreeGrid implements PlanetaryGrid {
 
     @Override
     public long getFirstBinIndex(int row) {
-        return ((long)row) * ((long)numCols);
+        return ((long) row) * ((long) numCols);
     }
 
     @Override

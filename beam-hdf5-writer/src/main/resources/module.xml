@@ -30,7 +30,7 @@
         <module>beam-visat-rcp</module>
         <optional>true</optional>
     </dependency>
-    
+
 
     <categories>Writer,HDF</categories>
 

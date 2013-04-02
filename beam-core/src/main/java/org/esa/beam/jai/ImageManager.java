@@ -135,7 +135,6 @@ public class ImageManager {
      * Otherwise a new model will be created using {@link #createMultiLevelModel}.
      *
      * @param rasterDataNode The raster data node, for which an image pyramid model is requested.
-     *
      * @return The image pyramid model.
      */
     public static MultiLevelModel getMultiLevelModel(RasterDataNode rasterDataNode) {
@@ -161,7 +160,6 @@ public class ImageManager {
      * that is used to render images for display.
      *
      * @param geoCoding A geo-coding, may be {@code null}.
-     *
      * @return The coordinate reference system used for the model space. If {@code geoCoding} is {@code null},
      *         it will be a default image coordinate reference system (an instance of {@code org.opengis.referencing.crs.ImageCRS}).
      */
@@ -346,8 +344,8 @@ public class ImageManager {
                                                 int level) {
         Assert.notNull(rasterDataNodes, "rasterDataNodes");
         Assert.state(rasterDataNodes.length == 1
-                     || rasterDataNodes.length == 3
-                     || rasterDataNodes.length == 4,
+                             || rasterDataNodes.length == 3
+                             || rasterDataNodes.length == 4,
                      "invalid number of bands");
 
         prepareImageInfos(rasterDataNodes, ProgressMonitor.NULL);
@@ -364,7 +362,6 @@ public class ImageManager {
      * number of resolution levels for the pyramid.
      *
      * @param productNode The product node requesting the model.
-     *
      * @return A new image pyramid model.
      */
     public static MultiLevelModel createMultiLevelModel(ProductNode productNode) {
@@ -444,7 +441,7 @@ public class ImageManager {
         double newMax = raster.scaleInverse(maxSample);
 
         boolean mustReinterpret = sourceImage.getSampleModel().getDataType() == DataBuffer.TYPE_BYTE &&
-                                  raster.getDataType() == ProductData.TYPE_INT8;
+                raster.getDataType() == ProductData.TYPE_INT8;
         if (mustReinterpret) {
             sourceImage = ReinterpretDescriptor.create(sourceImage, 1.0, 0.0, ReinterpretDescriptor.LINEAR,
                                                        ReinterpretDescriptor.INTERPRET_BYTE_SIGNED, null);

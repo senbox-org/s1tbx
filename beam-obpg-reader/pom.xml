@@ -22,14 +22,14 @@
     <parent>
         <groupId>org.esa.beam</groupId>
         <artifactId>beam-plugin-parent</artifactId>
-        <version>1.0</version>
+        <version>1.1-SNAPSHOT</version>
         <relativePath>../beam-plugin-parent/pom.xml</relativePath>
     </parent>
 
     <groupId>org.esa.beam</groupId>
     <artifactId>beam-obpg-reader</artifactId>
     <name>BEAM NASA Ocean Color Product Reader</name>
-    <version>1.4</version>
+    <version>1.4.${beam.version}</version>
     <url>http://envisat.esa.int/beam/</url>
     <description>A reader for NASA Ocean Color (OBPG) Data Products</description>
 
@@ -46,6 +46,10 @@
                 <exclusion>
                     <groupId>org.esa.beam</groupId>
                     <artifactId>beam-netcdf</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.esa.beam</groupId>
+                    <artifactId>beam-merisl3-reader</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>org.esa.beam</groupId>

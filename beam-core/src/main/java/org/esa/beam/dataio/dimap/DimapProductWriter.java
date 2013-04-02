@@ -132,7 +132,6 @@ public class DimapProductWriter extends AbstractProductWriter {
      * product file without an previous call to the saveProductNodes to this product writer.
      *
      * @param outputFile the dimap header file location.
-     *
      * @throws java.io.IOException if an I/O error occurs
      */
     public void initDirs(final File outputFile) throws IOException {
@@ -374,8 +373,8 @@ public class DimapProductWriter extends AbstractProductWriter {
 
     private static long getImageFileSize(RasterDataNode band) {
         return (long) ProductData.getElemSize(band.getDataType()) *
-               (long) band.getRasterWidth() *
-               (long) band.getRasterHeight();
+                (long) band.getRasterWidth() *
+                (long) band.getRasterHeight();
     }
 
     private File getEnviHeaderFile(Band band) {
@@ -539,7 +538,6 @@ public class DimapProductWriter extends AbstractProductWriter {
          * Returns wether the given product node is to be written.
          *
          * @param node the product node
-         *
          * @return <code>false</code> if the node should not be written
          */
         public abstract boolean vetoableShouldWrite(ProductNode node);

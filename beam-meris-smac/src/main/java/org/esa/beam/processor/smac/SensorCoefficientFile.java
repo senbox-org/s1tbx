@@ -93,15 +93,14 @@ class SensorCoefficientFile implements SmacSensorCoefficients {
      * Sets the sensor coefficients file name for this class and reads the file.
      *
      * @param fileName the name of the sensor coefficients file
-     *
      * @throws java.lang.IllegalArgumentException
      *
      * @throws java.io.FileNotFoundException
      * @throws java.io.IOException
      */
     public void readFile(String fileName) throws IllegalArgumentException,
-                                                 FileNotFoundException,
-                                                 IOException {
+            FileNotFoundException,
+            IOException {
         Guardian.assertNotNull("fileName", fileName);
         File coeffFile = new File(fileName);
 
@@ -455,7 +454,7 @@ class SensorCoefficientFile implements SmacSensorCoefficients {
      * Scans the file for coefficients
      */
     private void scan(File coeffFile) throws FileNotFoundException,
-                                             IOException {
+            IOException {
         FileReader reader = new FileReader(coeffFile);
         StreamTokenizer tokenizer = new StreamTokenizer(reader);
 

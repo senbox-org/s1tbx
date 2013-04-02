@@ -192,14 +192,14 @@ public final class MDArray {
         }
         if (arrayCopy == null) {
             arrayCopy = getArrayCopy(flatArray.getClass().getComponentType(),
-                    deepArrayLayout.getElementType());
+                                     deepArrayLayout.getElementType());
         }
         copyFlatIntoDeepRecursive(flatArray,
-                new int[1],
-                deepArray,
-                deepArrayLayout.getDimSizes(),
-                0,
-                arrayCopy);
+                                  new int[1],
+                                  deepArray,
+                                  deepArrayLayout.getDimSizes(),
+                                  0,
+                                  arrayCopy);
     }
 
     private static void copyFlatIntoDeepRecursive(Object flatArray,
@@ -212,20 +212,20 @@ public final class MDArray {
         final int size = dimSizes[dimIndex];
         if (dimIndex == rank - 1) {
             arrayCopy.copyArray(flatArray,
-                    offset[0],
-                    deepArray,
-                    0,
-                    size);
+                                offset[0],
+                                deepArray,
+                                0,
+                                size);
             offset[0] += size;
         } else if (dimIndex < rank - 1) {
             final Object[] array = (Object[]) deepArray;
             for (int i = 0; i < size; i++) {
                 copyFlatIntoDeepRecursive(flatArray,
-                        offset,
-                        array[i],
-                        dimSizes,
-                        dimIndex + 1,
-                        arrayCopy);
+                                          offset,
+                                          array[i],
+                                          dimSizes,
+                                          dimIndex + 1,
+                                          arrayCopy);
             }
         } else {
             throw new IllegalArgumentException("dim >= rank");
@@ -244,12 +244,12 @@ public final class MDArray {
             deepArrayLayout = createLayout(deepArray);
         }
         visitLeafArrays(deepArray,
-                deepArrayLayout,
-                0,
-                new int[1],
-                new int[deepArrayLayout.getRank()],
-                deepArray,
-                visitor);
+                        deepArrayLayout,
+                        0,
+                        new int[1],
+                        new int[deepArrayLayout.getRank()],
+                        deepArray,
+                        visitor);
     }
 
     private static void visitLeafArrays(Object deepArray,
@@ -264,22 +264,22 @@ public final class MDArray {
         final int subArrayLength = dimSizes[dimIndex];
         if (dimIndex == rank - 1) {
             visitor.visit(deepArray,
-                    deepArrayLayout,
-                    subArray,
-                    subArrayPos,
-                    subArrayLength,
-                    flatOffset[0]);
+                          deepArrayLayout,
+                          subArray,
+                          subArrayPos,
+                          subArrayLength,
+                          flatOffset[0]);
             flatOffset[0] += subArrayLength;
         } else if (dimIndex < rank - 1) {
             for (int i = 0; i < subArrayLength; i++) {
                 subArrayPos[dimIndex] = i;
                 visitLeafArrays(deepArray,
-                        deepArrayLayout,
-                        dimIndex + 1,
-                        flatOffset,
-                        subArrayPos,
-                        Array.get(subArray, i),
-                        visitor);
+                                deepArrayLayout,
+                                dimIndex + 1,
+                                flatOffset,
+                                subArrayPos,
+                                Array.get(subArray, i),
+                                visitor);
             }
         } else {
             throw new IllegalArgumentException("dimIndex >= rank");

@@ -15,6 +15,7 @@
  */
 package org.esa.beam.processor.binning.ui;
 
+import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.framework.param.ParamChangeEvent;
 import org.esa.beam.framework.param.ParamChangeListener;
 import org.esa.beam.framework.param.ParamGroup;
@@ -25,7 +26,6 @@ import org.esa.beam.framework.processor.ProcessorException;
 import org.esa.beam.framework.processor.ProcessorUtils;
 import org.esa.beam.framework.processor.Request;
 import org.esa.beam.framework.processor.RequestElementFactoryException;
-import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.processor.binning.L3Constants;
 import org.esa.beam.processor.binning.L3Processor;
 import org.esa.beam.util.Debug;
@@ -92,7 +92,7 @@ public class L3FinalUI extends L3UI {
         try {
             finalRequest.setType(L3Constants.REQUEST_TYPE);
             finalRequest.addParameter(reqElemFactory.createParameter(L3Constants.PROCESS_TYPE_PARAM_NAME,
-                                                                       L3Constants.PROCESS_TYPE_FINALIZE));
+                                                                     L3Constants.PROCESS_TYPE_FINALIZE));
             finalRequest.addParameter(reqElemFactory.generateDefaultDbLocation());
             finalRequest.addParameter(
                     reqElemFactory.createParamWithDefaultValueSet(L3Constants.DELETE_DB_PARAMETER_NAME));
@@ -133,7 +133,7 @@ public class L3FinalUI extends L3UI {
 
         try {
             paramGroup.addParameter(reqElemFactory.createParameter(L3Constants.PROCESS_TYPE_PARAM_NAME,
-                                                                     L3Constants.PROCESS_TYPE_FINALIZE));
+                                                                   L3Constants.PROCESS_TYPE_FINALIZE));
             paramGroup.addParameter(reqElemFactory.generateDefaultDbLocation());
             paramGroup.addParameter(reqElemFactory.createDefaultOutputProductParameter());
             paramGroup.addParameter(reqElemFactory.createOutputFormatParameter());
@@ -232,7 +232,7 @@ public class L3FinalUI extends L3UI {
      */
     private void addParameterToRequest(final Request request) throws ProcessorException {
         request.addParameter(reqElemFactory.createParameter(L3Constants.PROCESS_TYPE_PARAM_NAME,
-                                                             L3Constants.PROCESS_TYPE_FINALIZE));
+                                                            L3Constants.PROCESS_TYPE_FINALIZE));
         request.addParameter(paramGroup.getParameter(L3Constants.DATABASE_PARAM_NAME));
         final String fileName = paramGroup.getParameter(L3Constants.OUTPUT_PRODUCT_PARAM_NAME).getValueAsText();
 

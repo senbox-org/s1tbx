@@ -64,8 +64,8 @@ final class MLEAlgorithm implements Algorithm {
         final String[] strings = StringUtils.csvToArray(algorithmParams);
         if (strings.length != 1) {
             throw new ProcessorException("Illegal parameter length. Unable to extrakt the "
-                                         + L3Constants.WEIGHT_COEFFICIENT_PARAMETER_NAME +
-                                         " from the given algorithmParams string '" + algorithmParams + "'");
+                                                 + L3Constants.WEIGHT_COEFFICIENT_PARAMETER_NAME +
+                                                 " from the given algorithmParams string '" + algorithmParams + "'");
         }
         _weightCoeff = Float.parseFloat(algorithmParams);
         _weightCoeffMinusOne = _weightCoeff - 1.f;

@@ -52,9 +52,7 @@ public class ProcessorUtils {
      *
      * @param expression the expression string
      * @param product    the product to interprete the expression
-     *
      * @return a validated term
-     *
      * @throws ProcessorException on any failure
      */
     public static Term createTerm(String expression, Product product) throws ProcessorException {
@@ -246,7 +244,6 @@ public class ProcessorUtils {
      *
      * @param filePath
      * @param fileFormat
-     *
      * @return <code>null</code> if no filePath is given or filePath is empty
      */
     public static ProductRef createProductRef(String filePath, String fileFormat) {

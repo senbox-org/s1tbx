@@ -70,6 +70,7 @@ public class SmacRequestParameterPool {
 
     /**
      * This constructor creates an instance of SmacRequestParameterPool.
+     *
      * @param editor The editor to create the parameter pool for.
      */
     public SmacRequestParameterPool(SmacRequestEditor editor) {
@@ -82,7 +83,6 @@ public class SmacRequestParameterPool {
      * Gets the named Parameter or null if it doesn't exitst in this DataModule.
      *
      * @param name the name of the Parameter to get
-     *
      * @return the named Parameter or null if it doesn't exist.
      */
     public Parameter getParameter(String name) {
@@ -117,6 +117,7 @@ public class SmacRequestParameterPool {
 
     /**
      * Creates a new request with all parameters set to their default values
+     *
      * @return returns the default request.
      */
     public Request getDefaultRequest() {
@@ -148,6 +149,7 @@ public class SmacRequestParameterPool {
 
     /**
      * Sets the current state of this class to the state of the given request.
+     *
      * @param request The request to set.
      */
     public void setRequest(Request request) {
@@ -167,8 +169,8 @@ public class SmacRequestParameterPool {
      * Scans the input product stored in the request for all the bands it contains. When the request contains no input
      * product - nothing happens.
      * <p/>
-     * @param request the <code>Request</code> currently set
      *
+     * @param request the <code>Request</code> currently set
      * @throws org.esa.beam.framework.processor.ProcessorException
      *          when a failure occurs
      */
@@ -467,7 +469,6 @@ public class SmacRequestParameterPool {
      * Scans the input product at the given URL for a list of available bands
      *
      * @param inFile the <code>URL</code> describing the file location
-     *
      * @throws org.esa.beam.framework.processor.ProcessorException
      *          when product does not exist or rises an error when opened
      */
@@ -535,8 +536,8 @@ public class SmacRequestParameterPool {
                 }
             } catch (IOException e) {
                 Debug.trace(e);
-            }finally {
-                if(inProduct != null) {
+            } finally {
+                if (inProduct != null) {
                     inProduct.dispose();
                 }
             }

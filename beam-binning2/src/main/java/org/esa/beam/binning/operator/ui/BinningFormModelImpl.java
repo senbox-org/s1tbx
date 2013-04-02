@@ -90,7 +90,7 @@ class BinningFormModelImpl implements BinningFormModel {
         if (getPropertyValue(PROPERTY_KEY_GLOBAL) != null && (Boolean) getPropertyValue(PROPERTY_KEY_GLOBAL)) {
             return GLOBAL_WKT;
         } else if (getPropertyValue(PROPERTY_KEY_COMPUTE_REGION) != null &&
-                   (Boolean) getPropertyValue(PROPERTY_KEY_COMPUTE_REGION)) {
+                (Boolean) getPropertyValue(PROPERTY_KEY_COMPUTE_REGION)) {
             return null;
         } else if (getPropertyValue(PROPERTY_KEY_REGION) != null && (Boolean) getPropertyValue(PROPERTY_KEY_REGION)) {
             final double westValue = (Double) getPropertyValue(BinningFilterPanel.PROPERTY_WEST_BOUND);
@@ -106,7 +106,7 @@ class BinningFormModelImpl implements BinningFormModel {
             final GeometryFactory geometryFactory = new GeometryFactory();
             final Polygon polygon = geometryFactory.createPolygon(geometryFactory.createLinearRing(coordinates), null);
             return polygon.toText();
-        } else if(getPropertyValue(PROPERTY_KEY_MANUAL_WKT) != null &&
+        } else if (getPropertyValue(PROPERTY_KEY_MANUAL_WKT) != null &&
                 (Boolean) getPropertyValue(PROPERTY_KEY_MANUAL_WKT)) {
             return getPropertyValue(BinningFilterPanel.PROPERTY_WKT);
         }
@@ -150,7 +150,7 @@ class BinningFormModelImpl implements BinningFormModel {
 
     private String getDate(String propertyKey) {
         if (getPropertyValue(PROPERTY_KEY_TEMPORAL_FILTER) != null &&
-            (Boolean) getPropertyValue(PROPERTY_KEY_TEMPORAL_FILTER)) {
+                (Boolean) getPropertyValue(PROPERTY_KEY_TEMPORAL_FILTER)) {
             final Calendar propertyValue = getPropertyValue(propertyKey);
             if (propertyValue == null) {
                 return null;

@@ -30,7 +30,8 @@ import ucar.unidata.geoloc.LatLonRect;
 
 import javax.swing.JCheckBox;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Thomas Storm
@@ -41,13 +42,12 @@ public class RegionFilterTest {
 
     /**
      * Creates the following filter bounding box:
-     *
-     *   50.0N/-10.0E ---------- 50.0N/20.0E
-     *      |                       |
-     *      |                       |
-     *      |                       |
-     *  -70.0N/-10.0E ----------- -70.0N/20.0E
-     *
+     * <p/>
+     * 50.0N/-10.0E ---------- 50.0N/20.0E
+     * |                       |
+     * |                       |
+     * |                       |
+     * -70.0N/-10.0E ----------- -70.0N/20.0E
      */
     @Before
     public void setUp() throws ValidationException {
@@ -91,16 +91,16 @@ public class RegionFilterTest {
 
     private OpendapLeaf createLeaf(final double upperLeftLat, final double upperLeftLon, final double bottomRightLat, final double bottomRightLon) {
         return new OpendapLeaf("", new InvDataset(null, "") {
-                @Override
-                public ThreddsMetadata.GeospatialCoverage getGeospatialCoverage() {
-                    ThreddsMetadata.GeospatialCoverage geospatialCoverage = new ThreddsMetadata.GeospatialCoverage();
-                    geospatialCoverage.setBoundingBox(new LatLonRect(
-                            new LatLonPointImpl(upperLeftLat, upperLeftLon),
-                            new LatLonPointImpl(bottomRightLat, bottomRightLon)));
+            @Override
+            public ThreddsMetadata.GeospatialCoverage getGeospatialCoverage() {
+                ThreddsMetadata.GeospatialCoverage geospatialCoverage = new ThreddsMetadata.GeospatialCoverage();
+                geospatialCoverage.setBoundingBox(new LatLonRect(
+                        new LatLonPointImpl(upperLeftLat, upperLeftLon),
+                        new LatLonPointImpl(bottomRightLat, bottomRightLon)));
 
-                    return geospatialCoverage;
-                }
-            });
+                return geospatialCoverage;
+            }
+        });
     }
 
 }

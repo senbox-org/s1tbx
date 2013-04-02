@@ -32,26 +32,26 @@ import java.util.logging.Logger;
  */
 @Deprecated
 public class CloudAlgorithm {
-	private static final String PARAM_1_KEY = "param_1";
+    private static final String PARAM_1_KEY = "param_1";
     private static final String PARAM_2_KEY = "param_2";
     private static final String VALID_KEY = "validExpression";
-    
+
     private JnnNet neuralNet;
-    private String validExpression;    
-	private double param1;
+    private String validExpression;
+    private double param1;
     private double param2;
     private double[] minInputValuesNN = new double[15];
     private double[] maxInputValuesNN = new double[15];
-    
+
     public CloudAlgorithm(File auxDataDir, String configName) throws IOException {
-    	final File propertiesFile = new File(auxDataDir, configName);
-    	final InputStream propertiesStream = new FileInputStream(propertiesFile);
+        final File propertiesFile = new File(auxDataDir, configName);
+        final InputStream propertiesStream = new FileInputStream(propertiesFile);
         Properties properties = new Properties();
         properties.load(propertiesStream);
         validExpression = properties.getProperty(VALID_KEY, "");
         param1 = Double.parseDouble(properties.getProperty(PARAM_1_KEY));
         param2 = Double.parseDouble(properties.getProperty(PARAM_2_KEY));
-        for (int i = 0; i < 15; i++) {	
+        for (int i = 0; i < 15; i++) {
             minInputValuesNN[i] = Double.parseDouble(properties.getProperty("min_" + (i + 1)));
             maxInputValuesNN[i] = Double.parseDouble(properties.getProperty("max_" + (i + 1)));
         }
@@ -63,11 +63,11 @@ public class CloudAlgorithm {
             throw new IOException("Failed to load neural net " + neuralNetName + ":\n" + e.getMessage());
         }
     }
-    
+
     public String getValidExpression() {
-    	return validExpression;
+        return validExpression;
     }
-    
+
     private void loadNeuralNet(File neuralNetFile) throws IOException, JnnException {
         Jnn.setOptimizing(true);
         neuralNet = Jnn.readNna(neuralNetFile);
@@ -77,16 +77,16 @@ public class CloudAlgorithm {
         logger.info(neuralNetFile + " loaded");
     }
 
-	/**
-	 * Computes the cloudProbability for one pixel
-	 * using the given array as input for the neural net.
-	 * 
-	 * @param cloudIn
-	 * @return cloudProbability
-	 */
-	public double computeCloudProbability(double[] cloudIn) {
-		// check for input values which are out-of-bounds
-		for (int j = 0; j < 15; j++) {
+    /**
+     * Computes the cloudProbability for one pixel
+     * using the given array as input for the neural net.
+     *
+     * @param cloudIn
+     * @return cloudProbability
+     */
+    public double computeCloudProbability(double[] cloudIn) {
+        // check for input values which are out-of-bounds
+        for (int j = 0; j < 15; j++) {
             final double q = cloudIn[j];
             if (q < minInputValuesNN[j]) {
                 cloudIn[j] = minInputValuesNN[j];
@@ -94,12 +94,12 @@ public class CloudAlgorithm {
                 cloudIn[j] = maxInputValuesNN[j];
             }
         }
-		
-		double nnResult = computeCloud(cloudIn);
-		return nn2Probability(nnResult);
-	}
-	
-	/**
+
+        double nnResult = computeCloud(cloudIn);
+        return nn2Probability(nnResult);
+    }
+
+    /**
      * Computes the cloud parameter that can later be converted into a probability.
      *
      * @param cloudIn
@@ -111,7 +111,7 @@ public class CloudAlgorithm {
         neuralNet.process(cloudIn, output);
         return output[0];
     }
-    
+
     protected double nn2Probability(double nnResult) {
         double a = (param2 * (nnResult + param1)) * (-1);
         if (a < (-80)) {

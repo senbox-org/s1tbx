@@ -17,6 +17,7 @@ package org.esa.beam.processor.binning.ui;
 
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.framework.param.ParamChangeEvent;
 import org.esa.beam.framework.param.ParamChangeListener;
 import org.esa.beam.framework.param.ParamGroup;
@@ -33,7 +34,6 @@ import org.esa.beam.framework.processor.RequestElementFactoryException;
 import org.esa.beam.framework.processor.RequestValidator;
 import org.esa.beam.framework.processor.ui.ProcessorApp;
 import org.esa.beam.framework.ui.io.FileArrayEditor;
-import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.processor.binning.L3Constants;
 import org.esa.beam.processor.binning.L3Processor;
 import org.esa.beam.util.Debug;
@@ -263,7 +263,7 @@ public class L3OneShotUI extends L3UI {
 
         if (processType.equalsIgnoreCase(L3Constants.PROCESS_TYPE_INIT)) {
             request.addParameter(reqElemFactory.createParameter(L3Constants.PROCESS_TYPE_PARAM_NAME,
-                                                                 L3Constants.PROCESS_TYPE_INIT));
+                                                                L3Constants.PROCESS_TYPE_INIT));
             request.addParameter(reqElemFactory.createParamWithDefaultValueSet(L3Constants.GRID_CELL_SIZE_PARAM_NAME));
             request.addParameter(reqElemFactory.createParamWithDefaultValueSet(L3Constants.LAT_MIN_PARAMETER_NAME));
             request.addParameter(reqElemFactory.createParamWithDefaultValueSet(L3Constants.LAT_MAX_PARAMETER_NAME));
@@ -273,10 +273,10 @@ public class L3OneShotUI extends L3UI {
                     reqElemFactory.createParamWithDefaultValueSet(L3Constants.RESAMPLING_TYPE_PARAM_NAME));
         } else if (processType.equalsIgnoreCase(L3Constants.PROCESS_TYPE_UPDATE)) {
             request.addParameter(reqElemFactory.createParameter(L3Constants.PROCESS_TYPE_PARAM_NAME,
-                                                                 L3Constants.PROCESS_TYPE_UPDATE));
+                                                                L3Constants.PROCESS_TYPE_UPDATE));
         } else if (processType.equalsIgnoreCase(L3Constants.PROCESS_TYPE_FINALIZE)) {
             request.addParameter(reqElemFactory.createParameter(L3Constants.PROCESS_TYPE_PARAM_NAME,
-                                                                 L3Constants.PROCESS_TYPE_FINALIZE));
+                                                                L3Constants.PROCESS_TYPE_FINALIZE));
             request.addParameter(reqElemFactory.createParamWithDefaultValueSet(L3Constants.TAILORING_PARAM_NAME));
         }
 
@@ -344,7 +344,7 @@ public class L3OneShotUI extends L3UI {
 
         finalReq.setType(L3Constants.REQUEST_TYPE);
         finalReq.addParameter(reqElemFactory.createParameter(L3Constants.PROCESS_TYPE_PARAM_NAME,
-                                                              L3Constants.PROCESS_TYPE_FINALIZE));
+                                                             L3Constants.PROCESS_TYPE_FINALIZE));
         finalReq.addParameter(paramGroup.getParameter(L3Constants.DATABASE_PARAM_NAME));
         finalReq.addParameter(reqElemFactory.createParameter(L3Constants.DELETE_DB_PARAMETER_NAME, "true"));
         finalReq.addParameter(paramGroup.getParameter(L3Constants.LOG_PREFIX_PARAM_NAME));
@@ -493,7 +493,7 @@ public class L3OneShotUI extends L3UI {
         }
         if (firstListProductFile == null) {
             getApp().showInfoDialog("No input product selected.\n" +
-                                    "Please choose at least one input product.", null);
+                                            "Please choose at least one input product.", null);
             return null;
         } else {
             exampleProduct = ProductIO.readProduct(firstListProductFile);

@@ -28,8 +28,7 @@ public interface RequestValidator {
      * from Swing's event dispatching thread. So it is safe to pop-up dialog boxes here.
      *
      * @param processor the processor which wants to process the given request
-     * @param request the processing request
-     *
+     * @param request   the processing request
      * @return true if the processing request is OK
      */
     boolean validateRequest(Processor processor, Request request);

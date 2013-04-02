@@ -356,7 +356,7 @@ public class PixExOp extends Operator implements Output {
     @SuppressWarnings("unchecked")
     private Measurement[] createOriginalMeasurements(List<Coordinate> coordinateList) {
         if (!includeOriginalInput &&
-            (scatterPlotVariableCombinations == null || scatterPlotVariableCombinations.length == 0)) {
+                (scatterPlotVariableCombinations == null || scatterPlotVariableCombinations.length == 0)) {
             return null;
         }
         Measurement[] result = new Measurement[coordinateList.size()];

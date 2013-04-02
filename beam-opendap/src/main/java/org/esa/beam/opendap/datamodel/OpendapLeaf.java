@@ -23,12 +23,11 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
-* This is a container for opendap-leaf related information.
-*
-* @author Sabine Embacher
-* @author Tonio Fincke
-*
-*/
+ * This is a container for opendap-leaf related information.
+ *
+ * @author Sabine Embacher
+ * @author Tonio Fincke
+ */
 public class OpendapLeaf extends OpendapNode {
 
     private boolean dapAccess;
@@ -95,11 +94,11 @@ public class OpendapLeaf extends OpendapNode {
         this.fileSize = fileSize;
     }
 
-    public DAPVariable[] getDAPVariables(){
+    public DAPVariable[] getDAPVariables() {
         return variables.toArray(new DAPVariable[variables.size()]);
     }
 
-    public void addDAPVariable(DAPVariable variable){
+    public void addDAPVariable(DAPVariable variable) {
         variables.add(variable);
     }
 

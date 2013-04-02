@@ -292,7 +292,7 @@ public class CfGeocodingPart extends ProfilePartIO {
             yFlipped = true;
             northing = latData.getDouble(latData.getIndex().set(latSize - 1));
         }
-        
+
         if (pixelSizeX <= 0 || pixelSizeY <= 0) {
             return null;
         }

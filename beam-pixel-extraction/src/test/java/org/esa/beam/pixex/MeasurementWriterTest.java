@@ -303,8 +303,8 @@ public class MeasurementWriterTest {
     }
 
     public static Product createTestProduct(String name, String type, String[] bandNames, int width, int height) throws
-                                                                                                                 FactoryException,
-                                                                                                                 TransformException {
+            FactoryException,
+            TransformException {
         Rectangle bounds = new Rectangle(width, height);
         Product product = new Product(name, type, bounds.width, bounds.height);
         AffineTransform i2mTransform = new AffineTransform();

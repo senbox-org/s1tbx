@@ -24,8 +24,10 @@
 <table class="header">
     <tr class="header">
         <td class="header">&nbsp;
-            Level 3 Binning Operator</td>
-        <td class="header" align="right"><a href="../general/BeamOverview.html"><img src="../images/BeamHeader.jpg" border=0></a>
+            Level 3 Binning Operator
+        </td>
+        <td class="header" align="right"><a href="../general/BeamOverview.html"><img src="../images/BeamHeader.jpg"
+                                                                                     border=0></a>
         </td>
     </tr>
 </table>
@@ -35,7 +37,8 @@
 <h4>I/O Parameters</h4>
 
 <p>
-    Using the I/O Parameters tab, the input products can be set, as well as the target product's name and target directory.
+    Using the I/O Parameters tab, the input products can be set, as well as the target product's name and target
+    directory.
     See the screenshot below.
 </p>
 
@@ -129,50 +132,51 @@ The third tab allows the user to supply the general binning configuration. See t
     bands written by this output method: 1) the mean, 2) the standard deviation.<br>
     In the first column, bands can be chosen. Either bands that are contained in the products the user entered in the
     <i>IO Parameters</i> tab can be chosen, or band math expressions can be set by choosing the band
-    <i>&lt;expression_x&gt;</i>. In the latter case, a band maths expression can be entered in the second column, so that e.g.
+    <i>&lt;expression_x&gt;</i>. In the latter case, a band maths expression can be entered in the second column, so
+    that e.g.
     simple algorithms such as NDVI can be computed on-the-fly.<br>
     The <i>weight</i> and <i>percentile</i> columns are used only for specific aggregation methods.<br>
     See the following table on valid input for the standard aggregators:
 </p>
 
-    <table>
-        <tr>
-            <td>Aggregator</td>
-            <td>Description</td>
-            <td>Weight</td>
-            <td>Percentile</td>
-        </tr>
-        <tr>
-            <td>PERCENTILE</td>
-            <td>An aggregator that computes the p-th percentile.</td>
-            <td>not considered</td>
-            <td>integer value between 0 and 100</td>
-        </tr>
-        <tr>
-            <td>AVG_ML</td>
-            <td>An aggregator that computes a maximum-likelihood average.</td>
-            <td>any float value, not NaN</td>
-            <td>not considered</td>
-        </tr>
-        <tr>
-            <td>AVG</td>
-            <td>An aggregator that computes a maximum-likelihood average.</td>
-            <td>any float value > 0.0, not NaN</td>
-            <td>not considered</td>
-        </tr>
-        <tr>
-            <td>MIN_MAX</td>
-            <td>An aggregator that computes the minimum and maximum values.</td>
-            <td>not considered</td>
-            <td>not considered</td>
-        </tr>
-        <tr>
-            <td>ON_MAX_SET</td>
-            <td>An aggregator that sets an output if an input is maximal.</td>
-            <td>not considered</td>
-            <td>not considered</td>
-        </tr>
-    </table>
+<table>
+    <tr>
+        <td>Aggregator</td>
+        <td>Description</td>
+        <td>Weight</td>
+        <td>Percentile</td>
+    </tr>
+    <tr>
+        <td>PERCENTILE</td>
+        <td>An aggregator that computes the p-th percentile.</td>
+        <td>not considered</td>
+        <td>integer value between 0 and 100</td>
+    </tr>
+    <tr>
+        <td>AVG_ML</td>
+        <td>An aggregator that computes a maximum-likelihood average.</td>
+        <td>any float value, not NaN</td>
+        <td>not considered</td>
+    </tr>
+    <tr>
+        <td>AVG</td>
+        <td>An aggregator that computes a maximum-likelihood average.</td>
+        <td>any float value > 0.0, not NaN</td>
+        <td>not considered</td>
+    </tr>
+    <tr>
+        <td>MIN_MAX</td>
+        <td>An aggregator that computes the minimum and maximum values.</td>
+        <td>not considered</td>
+        <td>not considered</td>
+    </tr>
+    <tr>
+        <td>ON_MAX_SET</td>
+        <td>An aggregator that sets an output if an input is maximal.</td>
+        <td>not considered</td>
+        <td>not considered</td>
+    </tr>
+</table>
 
 <p>
     The fill value can be set for all aggregation methods -- this is the value being set to the pixel if the aggregation

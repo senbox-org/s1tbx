@@ -25,9 +25,7 @@ import org.junit.Test;
 import static java.lang.Float.NaN;
 import static java.lang.Math.log;
 import static java.lang.Math.sqrt;
-import static org.esa.beam.binning.aggregators.AggregatorTestUtils.createCtx;
-import static org.esa.beam.binning.aggregators.AggregatorTestUtils.vec;
-import static org.esa.beam.binning.aggregators.AggregatorTestUtils.obsNT;
+import static org.esa.beam.binning.aggregators.AggregatorTestUtils.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 

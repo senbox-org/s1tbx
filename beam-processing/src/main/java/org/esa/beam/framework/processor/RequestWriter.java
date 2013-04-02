@@ -124,7 +124,7 @@ public class RequestWriter {
      * @param requestFile the <code>File</code> to be written
      */
     private Writer createWriter(File requestFile) throws FileNotFoundException,
-                                                       IOException {
+            IOException {
         return new FileWriter(requestFile);
     }
 

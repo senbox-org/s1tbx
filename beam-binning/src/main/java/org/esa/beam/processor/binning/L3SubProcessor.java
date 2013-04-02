@@ -134,7 +134,6 @@ abstract public class L3SubProcessor {
      *
      * @param paramName
      * @param defaultValue
-     *
      * @return the parameter or the default value.
      */
     protected String getStringParamterSafe(String paramName, String defaultValue) {

@@ -19,8 +19,6 @@ import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
 
-import java.awt.geom.AffineTransform;
-
 
 /**
  * The <code>GeoCoding</code> interface provides geo-spatial latitude and longitude information for a given X/Y position
@@ -64,7 +62,6 @@ public interface GeoCoding {
      * @param geoPos   the geographical position as lat/lon in the coodinate system determined by {@link #getDatum()}
      * @param pixelPos an instance of <code>Point</code> to be used as retun value. If this parameter is
      *                 <code>null</code>, the method creates a new instance which it then returns.
-     *
      * @return the pixel co-ordinates as x/y
      */
     PixelPos getPixelPos(final GeoPos geoPos, PixelPos pixelPos);
@@ -75,7 +72,6 @@ public interface GeoCoding {
      * @param pixelPos the pixel's co-ordinates given as x,y
      * @param geoPos   an instance of <code>GeoPos</code> to be used as retun value. If this parameter is
      *                 <code>null</code>, the method creates a new instance which it then returns.
-     *
      * @return the geographical position as lat/lon in the coodinate system determined by {@link #getDatum()}
      */
     GeoPos getGeoPos(final PixelPos pixelPos, GeoPos geoPos);

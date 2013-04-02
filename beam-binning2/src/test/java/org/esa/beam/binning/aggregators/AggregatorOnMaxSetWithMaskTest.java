@@ -22,8 +22,6 @@ import org.esa.beam.binning.MyVariableContext;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Arrays;
-
 import static org.esa.beam.binning.aggregators.AggregatorTestUtils.createCtx;
 import static org.junit.Assert.assertEquals;
 

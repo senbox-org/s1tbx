@@ -47,6 +47,7 @@ public abstract class AbstractProcessorUI implements ProcessorUI {
 
     /**
      * Gets the processor application context.
+     *
      * @return the processor application context.
      */
     public ProcessorApp getApp() {
@@ -55,8 +56,9 @@ public abstract class AbstractProcessorUI implements ProcessorUI {
 
     /**
      * Shows a simple "About" dialog box.
+     *
      * @param processor the processor
-     * @param helpID the help ID, can be null
+     * @param helpID    the help ID, can be null
      */
     public void showAboutBox(final Processor processor, final String helpID) {
         final JPanel content = new JPanel(new GridLayout(4, 1));
@@ -90,7 +92,6 @@ public abstract class AbstractProcessorUI implements ProcessorUI {
         }
         return name;
     }
-
 
 
 }

@@ -52,7 +52,7 @@ import java.io.IOException;
  * @author Ralf Quast
  * @author Norman Fomferra
  * @deprecated since BEAM 4.11. Use the {@link org.esa.beam.framework.gpf Graph Processing Framework} instead.
-*/
+ */
 @Deprecated
 public class IOParameterPage extends ParameterPage {
 
@@ -120,7 +120,6 @@ public class IOParameterPage extends ParameterPage {
      * </ul>
      *
      * @param validator the input product validator, can be null if not required
-     *
      * @see #IOParameterPage(org.esa.beam.framework.param.ParamGroup)
      */
     public IOParameterPage(final InputProductValidator validator) {
@@ -139,7 +138,6 @@ public class IOParameterPage extends ParameterPage {
      * </ul>
      *
      * @param paramGroup the paramGroup to create the UI from
-     *
      * @see ProcessorConstants
      * @see #IOParameterPage()
      */
@@ -206,7 +204,6 @@ public class IOParameterPage extends ParameterPage {
      * Sets the parameter values by these given with the {@link Request request}.
      *
      * @param request the request to obtain the parameters
-     *
      * @throws ProcessorException if an error occurred
      */
     @Override
@@ -221,7 +218,6 @@ public class IOParameterPage extends ParameterPage {
      * Fills the given {@link Request request} with parameters.
      *
      * @param request the request to fill
-     *
      * @throws ProcessorException if an error occurred
      */
     @Override

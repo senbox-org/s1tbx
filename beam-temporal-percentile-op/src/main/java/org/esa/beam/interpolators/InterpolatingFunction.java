@@ -84,7 +84,6 @@ public class InterpolatingFunction {
      *
      * @param knots       Spline segment interval delimiters.
      * @param polynomials Polynomial functions that make up the spline.
-     *
      * @throws NullPointerException     if either of the input arrays is {@code null}.
      * @throws IllegalArgumentException if knots has length less than 2.
      * @throws IllegalArgumentException if {@code polynomials.length != knots.length - 1} or
@@ -93,16 +92,16 @@ public class InterpolatingFunction {
     public InterpolatingFunction(double[] knots, PolynomialFunction[] polynomials) {
         if (knots.length < 2) {
             throw new IllegalArgumentException(MessageFormat.format(
-                        "Spline partition must have at least {0} points, got {1}.", 2, knots.length));
+                    "Spline partition must have at least {0} points, got {1}.", 2, knots.length));
         }
         if (knots.length - 1 != polynomials.length) {
             throw new IllegalArgumentException(MessageFormat.format(
-                        "Number of polynomial interpolants must match the number of segments ({0} != {1} - 1).",
-                        polynomials.length, knots.length));
+                    "Number of polynomial interpolants must match the number of segments ({0} != {1} - 1).",
+                    polynomials.length, knots.length));
         }
         if (!isStrictlyIncreasing(knots)) {
             throw new IllegalArgumentException(
-                        "Knot values must be strictly increasing.");
+                    "Knot values must be strictly increasing.");
         }
 
         this.n = knots.length - 1;
@@ -118,12 +117,10 @@ public class InterpolatingFunction {
      * computing the value of the function.
      *
      * @param forX Point for which the function value should be computed.
-     *
      * @return the value.
-     *
      * @throws IllegalArgumentException if {@code forX} is outside of the domain of the
-     *                             spline function (smaller than the smallest knot
-     *                             point or larger than the largest knot point).
+     *                                  spline function (smaller than the smallest knot
+     *                                  point or larger than the largest knot point).
      */
     public double value(double forX) {
         if (forX < knots[0] || forX > knots[n]) {
@@ -148,7 +145,6 @@ public class InterpolatingFunction {
      * fashion.
      *
      * @param x the array to examine.
-     *
      * @return <code>true</code> if the elements in <code>x</code> are ordered
      *         in a stricly increasing manner. <code>false</code>, otherwise.
      */

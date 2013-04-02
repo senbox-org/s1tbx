@@ -16,7 +16,12 @@
 
 package org.esa.beam.visat.toolviews.stat;
 
-import com.bc.ceres.binding.*;
+import com.bc.ceres.binding.Property;
+import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.PropertyDescriptor;
+import com.bc.ceres.binding.ValidationException;
+import com.bc.ceres.binding.Validator;
+import com.bc.ceres.binding.ValueRange;
 import com.bc.ceres.swing.binding.BindingContext;
 import com.vividsolutions.jts.geom.Point;
 import org.esa.beam.framework.datamodel.GeoCoding;
@@ -68,7 +73,14 @@ import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
 
-import javax.swing.*;
+import javax.swing.JCheckBox;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JSeparator;
+import javax.swing.JSpinner;
+import javax.swing.JTextField;
+import javax.swing.SwingWorker;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 import java.awt.BasicStroke;
@@ -780,7 +792,7 @@ class ScatterPlotPanel extends ChartPagePanel {
                         final float rasterSigma = computedData.rasterSigma;
                         final float correlativeData = computedData.correlativeData;
                         scatterValues.add(correlativeData, correlativeData, correlativeData,
-                                rasterMean, rasterMean - rasterSigma, rasterMean + rasterSigma);
+                                          rasterMean, rasterMean - rasterSigma, rasterMean + rasterSigma);
                     }
 
                     computingData = true;

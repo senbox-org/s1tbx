@@ -49,7 +49,6 @@
             <groupId>org.esa.beam</groupId>
             <artifactId>beam-envisat-reader</artifactId>
             <version>1.5.2.${beam.version}</version>
-            <scope>provided</scope>
         </dependency>
     </dependencies>
 

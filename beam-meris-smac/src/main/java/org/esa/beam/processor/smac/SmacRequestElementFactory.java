@@ -43,7 +43,7 @@ import java.util.Map;
 @Deprecated
 public class SmacRequestElementFactory implements RequestElementFactory {
 
-    private final Map<String,ParamProperties> _paramInfoMap = new HashMap<String, ParamProperties>();
+    private final Map<String, ParamProperties> _paramInfoMap = new HashMap<String, ParamProperties>();
 
     private final DefaultRequestElementFactory _defaultFactory = DefaultRequestElementFactory.getInstance();
 
@@ -88,9 +88,8 @@ public class SmacRequestElementFactory implements RequestElementFactory {
      * @param name  the parameter name
      * @param value the parameter value as string
      * @throws org.esa.beam.framework.processor.RequestElementFactoryException
-     *          when the parameter is not in the specified range or cannot be constructed due to other problems.
-     * @throws IllegalArgumentException
-     *          when the parameter name is not specified as valid name
+     *                                  when the parameter is not in the specified range or cannot be constructed due to other problems.
+     * @throws IllegalArgumentException when the parameter name is not specified as valid name
      */
     public Parameter createParameter(String name, String value) throws RequestElementFactoryException {
         Guardian.assertNotNullOrEmpty("value", value);
@@ -141,8 +140,7 @@ public class SmacRequestElementFactory implements RequestElementFactory {
      * Creates a <code>Parameter</code> with the internally specified default value for the given name.
      *
      * @param name the parameter name
-     * @throws IllegalArgumentException
-     *          when the parameter name is not specified as valid names
+     * @throws IllegalArgumentException when the parameter name is not specified as valid names
      */
     public Parameter createParamWithDefaultValueSet(final String name) throws IllegalArgumentException {
         final ParamProperties paramProps = getParamProperties(name);
@@ -161,8 +159,7 @@ public class SmacRequestElementFactory implements RequestElementFactory {
      * gets a default <code>ParamProperties</code> for the parameter with given name.
      *
      * @param parameterName the parameter name
-     * @throws IllegalArgumentException
-     *          when the parameter name is not specified as valid name
+     * @throws IllegalArgumentException when the parameter name is not specified as valid name
      */
     public ParamProperties getParamProperties(String parameterName) throws IllegalArgumentException {
         ParamProperties paramProps = _paramInfoMap.get(parameterName);
@@ -352,16 +349,16 @@ public class SmacRequestElementFactory implements RequestElementFactory {
 
         @Override
         public void validate(Parameter parameter, Object value) throws ParamValidateException {
-            if(String.class.isInstance(value)) {
+            if (String.class.isInstance(value)) {
                 String productType = (String) value;
-                if(!SmacUtils.isSupportedProductType(productType)) {
+                if (!SmacUtils.isSupportedProductType(productType)) {
                     throw new ParamValidateException(parameter,
                                                      SmacConstants.LOG_MSG_UNSUPPORTED_INPUT_1 + productType + SmacConstants.LOG_MSG_UNSUPPORTED_INPUT_2);
                 }
             }
         }
     }
-    
+
     // Initialization on demand holder idiom
     private static class Holder {
         private static final SmacRequestElementFactory instance = new SmacRequestElementFactory();

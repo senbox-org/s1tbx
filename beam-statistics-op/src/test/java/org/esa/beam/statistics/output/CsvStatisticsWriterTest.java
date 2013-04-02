@@ -24,7 +24,7 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.HashMap;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Thomas Storm

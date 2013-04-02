@@ -534,7 +534,7 @@ public class MosaicOp extends Operator {
 
     private static void initParameter(MetadataElement parentElement, Field field,
                                       Map<String, Object> parameters) throws
-                                                                      OperatorException {
+            OperatorException {
         Parameter annotation = field.getAnnotation(Parameter.class);
         String name = annotation.alias();
         if (name.isEmpty()) {
