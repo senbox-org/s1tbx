@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-binning2</symbolicName>
-    <version>0.8.2</version>
+    <version>0.9</version>
     <name>Level-3 Binning Processor (GPF)</name>
 
     <description>
@@ -29,10 +29,15 @@
 
     <changelog>
         <![CDATA[
+        Changes from version 0.8.1 to 0.9:<br\>
+        <ol>
+        <li>[BEAM-1483] Percentil Aggregator shares state</li>
+        </ol>
         Changes from version 0.8 to 0.8.1:<br\>
         <ol>
-        <li>Adapted to new Maven-architecture
-        <li>Binning operator now usable via graphical user interface in VISAT
+        <li>Adapted to new Maven-architecture</li>
+        <li>Binning operator now usable via graphical user interface in VISAT</li>
+        </ol>
         Changes from version 0.7 to 0.8:<br\>
         <ol>
         <li>Added 'comment' attribute for all BinIndex variables.</li>

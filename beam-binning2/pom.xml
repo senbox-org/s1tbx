@@ -13,7 +13,7 @@
 
     <groupId>org.esa.beam</groupId>
     <artifactId>beam-binning2</artifactId>
-    <version>0.8.2.${beam.version}</version>
+    <version>0.9.${beam.version}</version>
 
     <name>BEAM Level-3 Binning</name>
     <description>
