@@ -622,7 +622,7 @@ public class BinningOpTest {
                 _o_, _o_, _o_, _o_,
         };
         final int[] actualNobs = new int[w * h];
-        targetProduct.getBand("num_obs").readPixels(x0, y0, w, h, actualNobs);
+        targetProduct.getBand("num_obs").getSourceImage().getData().getPixels(x0, y0, w, h, actualNobs);
         assertArrayEquals(expectedNobs, actualNobs);
 
         // Test pixel values of band "num_passes"
@@ -635,7 +635,7 @@ public class BinningOpTest {
                 _o_, _o_, _o_, _o_,
         };
         final int[] actualNpas = new int[w * h];
-        targetProduct.getBand("num_passes").readPixels(x0, y0, w, h, actualNpas);
+        targetProduct.getBand("num_passes").getSourceImage().getData().getPixels(x0, y0, w, h, actualNpas);
         assertArrayEquals(expectedNpas, actualNpas);
 
         // Test pixel values of band "chl_mean"
@@ -648,7 +648,7 @@ public class BinningOpTest {
                 _x_, _x_, _x_, _x_,
         };
         final float[] actualMeas = new float[w * h];
-        targetProduct.getBand("chl_mean").readPixels(x0, y0, w, h, actualMeas);
+        targetProduct.getBand("chl_mean").getSourceImage().getData().getPixels(x0, y0, w, h, actualMeas);
         assertArrayEquals(expectedMeas, actualMeas, 1e-4F);
 
         // Test pixel values of band "chl_sigma"
@@ -662,7 +662,7 @@ public class BinningOpTest {
                 _x_, _x_, _x_, _x_,
         };
         final float[] actualSigs = new float[w * h];
-        targetProduct.getBand("chl_sigma").readPixels(x0, y0, w, h, actualSigs);
+        targetProduct.getBand("chl_sigma").getSourceImage().getData().getPixels(x0, y0, w, h, actualSigs);
         assertArrayEquals(expectedSigs, actualSigs, 1e-4F);
     }
 
