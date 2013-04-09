@@ -4,6 +4,7 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import org.esa.beam.binning.aggregators.AggregatorAverage;
+import org.esa.beam.binning.aggregators.AggregatorPercentile;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.CrsGeoCoding;
 import org.esa.beam.framework.datamodel.GeoCoding;
@@ -607,10 +608,12 @@ public class BinningOpTest {
         assertNotNull(targetProduct.getBand("num_passes"));
         assertNotNull(targetProduct.getBand("chl_mean"));
         assertNotNull(targetProduct.getBand("chl_sigma"));
+        assertNotNull(targetProduct.getBand("chl_p70"));
         assertEquals(_o_, targetProduct.getBand("num_obs").getNoDataValue(), 1e-10);
         assertEquals(_o_, targetProduct.getBand("num_passes").getNoDataValue(), 1e-10);
         assertEquals(_x_, targetProduct.getBand("chl_mean").getNoDataValue(), 1e-10);
         assertEquals(_x_, targetProduct.getBand("chl_sigma").getNoDataValue(), 1e-10);
+        assertEquals(_x_, targetProduct.getBand("chl_p70").getNoDataValue(), 1e-10);
 
         // Test pixel values of band "num_obs"
         //
@@ -664,13 +667,29 @@ public class BinningOpTest {
         final float[] actualSigs = new float[w * h];
         targetProduct.getBand("chl_sigma").getSourceImage().getData().getPixels(x0, y0, w, h, actualSigs);
         assertArrayEquals(expectedSigs, actualSigs, 1e-4F);
+
+        // Test pixel values of band "chl_p70"
+        //
+        final float p70 = AggregatorPercentile.computePercentile(70, new float[]{obs1, obs2, obs3, obs4, obs5});
+        final float[] expectedP70 = new float[]{
+                _x_, _x_, _x_, _x_,
+                _x_, p70, p70, _x_,
+                _x_, p70, p70, _x_,
+                _x_, _x_, _x_, _x_,
+        };
+        final float[] actualP70 = new float[w * h];
+        targetProduct.getBand("chl_p70").getSourceImage().getData().getPixels(x0, y0, w, h, actualP70);
+        assertArrayEquals(expectedP70, actualP70, 1e-4F);
     }
 
     static BinningConfig createBinningConfig() {
-        AggregatorAverage.Config c = new AggregatorAverage.Config();
-        c.setVarName("chl");
+        AggregatorAverage.Config chlAvg = new AggregatorAverage.Config();
+        chlAvg.setVarName("chl");
+        AggregatorPercentile.Config chlP70 = new AggregatorPercentile.Config();
+        chlP70.setVarName("chl");
+        chlP70.setPercentage(70);
         final BinningConfig binningConfig = new BinningConfig();
-        binningConfig.setAggregatorConfigs(c);
+        binningConfig.setAggregatorConfigs(chlAvg, chlP70);
         binningConfig.setNumRows(180);
         binningConfig.setMaskExpr("true");
         return binningConfig;
