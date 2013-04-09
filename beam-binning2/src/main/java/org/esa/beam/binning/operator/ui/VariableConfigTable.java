@@ -91,15 +91,7 @@ class VariableConfigTable {
             aggregatorNames[i] = aggregatorDescriptors.get(i).getName();
         }
 
-        tableModel = new DefaultTableModel() {
-            @Override
-            public boolean isCellEditable(int row, int column) {
-                final Object bandName = tableModel.getValueAt(row, 0);
-                return column != 1 ||
-                        table.getSelectedRow() == row && bandName != null &&
-                                bandName.toString().matches("<expression_?\\d*>");
-            }
-        };
+        tableModel = new DefaultTableModel();
         tableModel.setColumnIdentifiers(new String[]{
                 "Band",
                 "Expression",
@@ -145,6 +137,7 @@ class VariableConfigTable {
         table.getColumnModel().getColumn(5).setResizable(false);
 
         bandNamesComboBox = new JComboBox(bandNames.toArray());
+        bandNamesComboBox.setEditable(true);
 
         table.getColumnModel().getColumn(0).setCellEditor(new DefaultCellEditor(bandNamesComboBox));
         table.getColumnModel().getColumn(1).setCellEditor(new CellExpressionEditor());
