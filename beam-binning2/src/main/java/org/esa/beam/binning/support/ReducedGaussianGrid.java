@@ -19,17 +19,8 @@ import java.io.IOException;
  */
 public class ReducedGaussianGrid implements PlanetaryGrid {
 
-    private static final int DEFAULT_NUM_ROWS = 1280;
-
     private final GaussianGridConfig config;
     private final int numRows;
-
-    /**
-     * Creates a new reduced gaussian grid.
-     */
-    public ReducedGaussianGrid() {
-        this(DEFAULT_NUM_ROWS);
-    }
 
     /**
      * Creates a new reduced gaussian grid.
@@ -54,14 +45,20 @@ public class ReducedGaussianGrid implements PlanetaryGrid {
 
     @Override
     public int getRowIndex(long binIndex) {
-        for (int i = 0; i < getNumRows(); i++) {
-            long firstBinIndex = getFirstBinIndex(i);
-            int cols = config.getReducedColumnCount(i);
-            if (binIndex < firstBinIndex + cols) {
-                return i;
+        int minRow = 0;
+        int maxRow = getNumRows() - 1;
+        while (true) {
+            int midRow = (minRow + maxRow) / 2;
+            long lowBinIndex = getFirstBinIndex(midRow);
+            long highBinIndex = lowBinIndex + (getNumCols(midRow) - 1);
+            if (binIndex < lowBinIndex) {
+                maxRow = midRow - 1;
+            } else if (binIndex >= lowBinIndex && binIndex <= highBinIndex) {
+                return midRow;
+            } else if (binIndex > highBinIndex) {
+                minRow = midRow + 1;
             }
         }
-        return -1;
     }
 
     @Override
