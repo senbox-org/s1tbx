@@ -6,7 +6,9 @@ import org.esa.beam.util.io.CsvReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * @author Marco Peters
@@ -18,6 +20,7 @@ public class GaussianGridConfig {
     private int[] reducedColumnCount;
     private int[] reducedFirstBinIndexes;
     private double[] regularLongitudePoints;
+    private List<double[]> reducedLongitudePoints;
     private int regularColumnCount;
     private double[] latitudePoints;
 
@@ -32,24 +35,16 @@ public class GaussianGridConfig {
         int[] reducedColumnCount = new int[numRecords];
         double[] latitudePoints = new double[numRecords];
         int[] reducedFirstBinIndexes = new int[numRecords];
-        InputStream is = GaussianGridConfig.class.getResourceAsStream(String.format("N%d.txt", rowCount));
-        CsvReader csvReader = new CsvReader(new InputStreamReader(is), new char[]{'\t'}, true, "#");
-        reducedFirstBinIndexes[0] = 0;
-        try {
-            for (int i = 0; i < numRecords; i++) {
-                String[] record = csvReader.readRecord();
-                reducedColumnCount[i] = Integer.parseInt(record[0]);
-                latitudePoints[i] = Double.parseDouble(record[2]);
-                if (i > 0) {
-                    reducedFirstBinIndexes[i] = reducedFirstBinIndexes[i - 1] + reducedColumnCount[i - 1];
-                }
-            }
-        } finally {
-            csvReader.close();
-        }
+        readGridConfig(rowCount, numRecords, reducedColumnCount, latitudePoints, reducedFirstBinIndexes);
+
         GaussianGridConfig config = new GaussianGridConfig();
         config.regularColumnCount = regularColumnCount;
         config.regularLongitudePoints = computeLongitudePoints(regularColumnCount);
+        config.reducedLongitudePoints = new ArrayList<double[]>(numRecords);
+        for (int i = 0; i < numRecords; i++) {
+            double[] longitudePointsInRow = computeLongitudePoints(reducedColumnCount[i]);
+            config.reducedLongitudePoints.add(i, longitudePointsInRow);
+        }
         config.reducedColumnCount = reducedColumnCount;
         config.reducedFirstBinIndexes = reducedFirstBinIndexes;
         config.latitudePoints = latitudePoints;
@@ -74,7 +69,7 @@ public class GaussianGridConfig {
     }
 
     public double[] getReducedLongitudePoints(int rowIndex) {
-        return computeLongitudePoints(getReducedColumnCount(rowIndex));
+        return reducedLongitudePoints.get(rowIndex);
     }
 
     public int getReducedFirstBinIndex(int rowIndex) {
@@ -95,6 +90,25 @@ public class GaussianGridConfig {
             longitudePoints[i] = 360.0 * ((i + 0.5) / columnCount) - 180.0;
         }
         return longitudePoints;
+    }
+
+    private static void readGridConfig(int rowCount, int numRecords, int[] reducedColumnCount, double[] latitudePoints,
+                                       int[] reducedFirstBinIndexes) throws IOException {
+        InputStream is = GaussianGridConfig.class.getResourceAsStream(String.format("N%d.txt", rowCount));
+        CsvReader csvReader = new CsvReader(new InputStreamReader(is), new char[]{'\t'}, true, "#");
+        reducedFirstBinIndexes[0] = 0;
+        try {
+            for (int i = 0; i < numRecords; i++) {
+                String[] record = csvReader.readRecord();
+                reducedColumnCount[i] = Integer.parseInt(record[0]);
+                latitudePoints[i] = Double.parseDouble(record[2]);
+                if (i > 0) {
+                    reducedFirstBinIndexes[i] = reducedFirstBinIndexes[i - 1] + reducedColumnCount[i - 1];
+                }
+            }
+        } finally {
+            csvReader.close();
+        }
     }
 
 }
