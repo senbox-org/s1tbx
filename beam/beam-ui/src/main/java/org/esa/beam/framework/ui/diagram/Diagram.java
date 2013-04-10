@@ -160,6 +160,7 @@ public class Diagram {
             if (this.yAxis != null) {
                 this.yAxis.setDiagram(null);
             }
+            yAxis.setMinToMax(true);	//NESTMOD
             this.yAxis = yAxis;
             this.yAxis.setDiagram(this);
             invalidate();

@@ -138,7 +138,7 @@ public class ShowImageViewRGBAction extends ExecCommand {
         private boolean dataLoaded;
     }
 
-    private ProductSceneImage createProductSceneImageRGB(String name, final Product product, String[] rgbaExpressions,
+    private static ProductSceneImage createProductSceneImageRGB(String name, final Product product, String[] rgbaExpressions,
                                                          ProgressMonitor pm) throws Exception {
         final VisatApp visatApp = VisatApp.getApp();
         UIUtils.setRootFrameWaitCursor(visatApp.getMainFrame());

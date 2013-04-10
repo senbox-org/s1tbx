@@ -153,8 +153,12 @@ final class SummaryStxOp extends StxOp {
             int maskPixelOffset = maskLineOffset;
             for (int x = 0; x < width; x++) {
                 if (mask == null || mask[maskPixelOffset] != 0) {
+
+                    value = values.getDouble(dataPixelOffset);			//NESTMOD
+                    if(Double.isInfinite(value) || Double.isNaN(value))
+                        continue;
+
                     tileSampleCount++;
-                    value = values.getDouble(dataPixelOffset);
                     if (value < tileMinimum) {
                         tileMinimum = value;
                     }

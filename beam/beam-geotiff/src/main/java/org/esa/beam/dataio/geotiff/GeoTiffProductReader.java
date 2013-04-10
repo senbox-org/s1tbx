@@ -553,10 +553,14 @@ public class GeoTiffProductReader extends AbstractProductReader {
             gcpGroup.add(gcp);
         }
 
+        try {	//NESTMOD
         final Placemark[] gcps = gcpGroup.toArray(new Placemark[gcpGroup.getNodeCount()]);
         final SortedMap<Integer, GeoKeyEntry> geoKeyEntries = info.getGeoKeyEntries();
         final Datum datum = getDatum(geoKeyEntries);
         product.setGeoCoding(new GcpGeoCoding(method, gcps, width, height, datum));
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private static Datum getDatum(Map<Integer, GeoKeyEntry> geoKeyEntries) {
