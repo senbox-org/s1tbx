@@ -269,6 +269,14 @@ public class GraphNode {
         }
     }
 
+    void disconnectAllSources() {
+        final NodeSource[] sources = node.getSources();
+        for(NodeSource source : sources) {
+            node.removeSource(source);
+        }
+    }
+
+
     boolean isNodeSource(final GraphNode source) {
             
         for (NodeSource ns : node.getSources()) {

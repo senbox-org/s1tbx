@@ -20,6 +20,7 @@ package org.esa.nest.dat.layers.maptools;
  */
 public class MapToolsOptions {
 
+    private final boolean northArrowShown;
     private final boolean compassShown;
     private final boolean lookDirectionShown;
     private final boolean latLonGridShown;
@@ -28,15 +29,20 @@ public class MapToolsOptions {
     private boolean placeNamesShown = false;
     private final boolean nestLogoShown;
 
-    public MapToolsOptions(final boolean compassShown,
+    public MapToolsOptions(final boolean northArrowShown, final boolean compassShown,
                            final boolean latLonGridShown, final boolean lookDirectionShown,
                            final boolean mapOverviewShown, final boolean scaleShown, final boolean nestLogoShown) {
+        this.northArrowShown = northArrowShown;
         this.compassShown = compassShown;
         this.latLonGridShown = latLonGridShown;
         this.lookDirectionShown = lookDirectionShown;
         this.mapOverviewShown = mapOverviewShown;
         this.scaleShown = scaleShown;
         this.nestLogoShown = nestLogoShown;
+    }
+
+    public boolean showNorthArrow() {
+        return northArrowShown;
     }
 
     public boolean showCompass() {

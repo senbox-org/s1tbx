@@ -24,7 +24,6 @@ import org.esa.beam.framework.gpf.ui.UIValidation;
 import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.ModelessDialog;
-import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.gpf.operators.standard.ReadOp;
 import org.esa.beam.visat.VisatApp;
 import org.esa.beam.visat.dialogs.PromptDialog;
@@ -75,7 +74,6 @@ public class GraphBuilderDialog extends ModelessDialog implements Observer {
 
     //TabbedPanel
     private JTabbedPane tabbedPanel = null;
-    private static final ImageIcon OpIcon = UIUtils.loadImageIcon("icons/cog_add.png");
 
     public GraphBuilderDialog(final AppContext theAppContext, final String title, final String helpID) {
         super(theAppContext.getApplicationWindow(), title, 0, helpID);
@@ -85,10 +83,6 @@ public class GraphBuilderDialog extends ModelessDialog implements Observer {
         graphEx.addObserver(this);
 
         initUI();
-        
-        if(this.allowGraphBuilding) {
-            graphPanel.showRightClickHelp(true);
-        }
     }
 
     public GraphBuilderDialog(final AppContext theAppContext, final String title, final String helpID, final boolean allowGraphBuilding) {
@@ -339,6 +333,12 @@ public class GraphBuilderDialog extends ModelessDialog implements Observer {
             initGraphEnabled = true;
         } catch(GraphException e) {
             showErrorDialog(e.getMessage());
+        }
+    }
+
+    public void EnableInitialInstructions(final boolean flag) {
+        if(this.allowGraphBuilding) {
+            graphPanel.showRightClickHelp(flag);
         }
     }
 

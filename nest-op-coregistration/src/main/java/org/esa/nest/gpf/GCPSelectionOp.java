@@ -76,7 +76,7 @@ public class GCPSelectionOp extends Operator {
     @TargetProduct
     private Product targetProduct;
 
-     @Parameter(description = "The number of GCPs to use in a grid", interval = "(10, 100000]", defaultValue = "200",
+     @Parameter(description = "The number of GCPs to use in a grid", interval = "(10, *)", defaultValue = "200",
                 label="Number of GCPs")
     private int numGCPtoGenerate = 200;
 

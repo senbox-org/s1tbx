@@ -1332,7 +1332,7 @@
             <id>bandArithmetic</id>
             <parent>tools</parent>
             <class>org.esa.beam.visat.actions.BandMathsAction</class>
-            <text>Create Band by Band Maths...</text>
+            <text>Band Maths...</text>
             <shortDescr>Create a new band using an arbitrary mathematical expression</shortDescr>
             <context>image,band,tiePointGrid</context>
             <smallIcon>icons/BAritmethic16.gif</smallIcon>
@@ -1446,7 +1446,7 @@
             <class>org.esa.beam.visat.actions.FlippingAction</class>
             <parent>tools</parent>
             <placeAfter>PixelGeoreferencing</placeAfter>
-            <text>Data Flip...</text>
+            <text>Data Flip</text>
             <shortDescr>Apply Data Flip</shortDescr>
             <helpId>flipDialog</helpId>
         </action>

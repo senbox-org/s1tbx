@@ -59,6 +59,9 @@ public class MapToolsLayer extends Layer implements LayerSelection {
     @Override
     public void regenerate() {
         components.clear();
+        if(options.showNorthArrow() && !options.showCompass()) {
+            components.add(new NorthArrowComponent(raster));
+        }
         if(options.showCompass()) {
             components.add(new CompassComponent(raster));
         }

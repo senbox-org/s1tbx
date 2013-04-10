@@ -41,7 +41,6 @@ public final class Settings {
     private Element rootXML = null;
     private org.jdom.Document doc = null;
 
-    public static final String SETTINGS = "Settings";
     public static final String VALUE = "value";
     public static final String LABEL = "label";
 

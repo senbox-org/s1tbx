@@ -24,6 +24,7 @@ import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.framework.ui.command.ExecCommand;
 import org.esa.beam.framework.ui.product.ProductSceneImage;
 import org.esa.beam.framework.ui.product.ProductSceneView;
+import org.esa.beam.util.StringUtils;
 import org.esa.beam.visat.VisatApp;
 import org.esa.beam.visat.actions.ShowImageViewRGBAction;
 import org.esa.nest.dat.dialogs.HSVImageProfilePane;
@@ -171,18 +172,33 @@ public class ShowImageViewHSVAction extends ExecCommand {
         int i=0;
         for(String exp : hsvExpressions) {
             if(exp.isEmpty()) continue;
+
+            final String checkForNoDataValue = "";//getCheckForNoDataExpression(product, exp);
+
             final Band virtBand = createVirtualBand(product, exp, "tmpVirtBand"+i);
 
             final Stx stx = virtBand.getStx(false, ProgressMonitor.NULL);
             if(stx != null) {
-                final double min = stx.getMin();
-                final double range = stx.getMax() - min;
-                hsvExpressions[i] = "min(max(((("+exp+")- "+min+")/"+range+"), 0), 1)";
+                final double min = stx.getMinimum();
+                final double range = stx.getMaximum() - min;
+                hsvExpressions[i] = checkForNoDataValue + "min(max(((("+exp+")- "+min+")/"+range+"), 0), 1)";
             }
             product.removeBand(virtBand);
             ++i;
         }
         product.setModified(modified);
+    }
+
+    private static String getCheckForNoDataExpression(final Product product, final String exp) {
+        final String[] bandNames = product.getBandNames();
+        StringBuilder checkForNoData = new StringBuilder("("+exp+" == NaN");
+        if(StringUtils.contains(bandNames, exp)) {
+            double nodatavalue = product.getBand(exp).getNoDataValue();
+            checkForNoData.append(" or "+exp+" == "+nodatavalue);
+        }
+        checkForNoData.append(") ? NaN : ");
+
+        return checkForNoData.toString();
     }
 
     public static Band createVirtualBand(final Product product, final String expression, final String name) {

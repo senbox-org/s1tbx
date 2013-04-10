@@ -34,6 +34,7 @@ public class OpenGraphBuilderDialogAction extends AbstractVisatAction {
         final File graphFile =  new File(graphPath, "ReadWriteGraph.xml");
 
         dialog.LoadGraph(graphFile);
+        dialog.EnableInitialInstructions(true);
     }
 
 }

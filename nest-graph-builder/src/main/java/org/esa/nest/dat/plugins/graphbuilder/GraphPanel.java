@@ -26,10 +26,8 @@ import javax.swing.event.PopupMenuListener;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.Rectangle2D;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.*;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Draws and Edits the graph graphically
@@ -42,9 +40,10 @@ class GraphPanel extends JPanel implements ActionListener, PopupMenuListener, Mo
     private JMenu addMenu;
     private Point lastMousePos = null;
     private final AddMenuListener addListener = new AddMenuListener(this);
+    private final ConnectMenuListener connectListener = new ConnectMenuListener(this);
     private final RemoveSourceMenuListener removeSourceListener = new RemoveSourceMenuListener(this);
 
-    private static final Font font = new Font("Ariel", 10, 10);
+    private static final Font font = new Font("Ariel", Font.BOLD, 10);
     private static final Color opColor = new Color(200, 200, 255, 128);
     private static final Color selColor = new Color(200, 255, 200, 150);
     private static final Color helpColor = new Color(250, 255, 250, 150);
@@ -162,6 +161,19 @@ class GraphPanel extends JPanel implements ActionListener, PopupMenuListener, Mo
         }
     }
 
+    void AutoConnectGraph() {
+        if(!graphEx.IsGraphComplete()) {
+            List<GraphNode> nodes = graphEx.GetGraphNodes();
+            Collections.sort(nodes, new GraphNodePosComparator());
+
+            for(int i=0; i < nodes.size()-1; ++i) {
+                nodes.get(i).disconnectAllSources();
+                nodes.get(i).connectOperatorSource(nodes.get(i+1).getID());
+            }
+            repaint();
+        }
+    }
+
     /**
      * Handles menu item pressed events
      * @param event the action event
@@ -201,6 +213,13 @@ class GraphPanel extends JPanel implements ActionListener, PopupMenuListener, Mo
                 }
             }
 
+            if(!graphEx.IsGraphComplete()) {
+                final JMenuItem connectItem = new JMenuItem("Connect Graph", null);
+                connectItem.setHorizontalTextPosition(JMenuItem.RIGHT);
+                connectItem.addActionListener(connectListener);
+                popup.add(connectItem);
+            }
+
             popup.setLabel("Justification");
             popup.setBorder(new BevelBorder(BevelBorder.RAISED));
             popup.addPopupMenuListener(this);
@@ -228,6 +247,10 @@ class GraphPanel extends JPanel implements ActionListener, PopupMenuListener, Mo
 
         ((Graphics2D) g).setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                 RenderingHints.VALUE_ANTIALIAS_ON);
+        ((Graphics2D) g).setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
+                RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+        ((Graphics2D) g).setRenderingHint(RenderingHints.KEY_RENDERING,
+                RenderingHints.VALUE_RENDER_QUALITY);
 
         DrawGraph(g, graphEx.GetGraphNodes());
     }
@@ -443,6 +466,17 @@ class GraphPanel extends JPanel implements ActionListener, PopupMenuListener, Mo
         }
     }
 
+    static class ConnectMenuListener implements ActionListener {
+
+        final GraphPanel graphPanel;
+        ConnectMenuListener(GraphPanel panel) {
+            graphPanel = panel;
+        }
+        public void actionPerformed(java.awt.event.ActionEvent event) {
+            graphPanel.AutoConnectGraph();
+        }
+    }
+
     static class RemoveSourceMenuListener implements ActionListener {
 
         final GraphPanel graphPanel;
@@ -451,6 +485,21 @@ class GraphPanel extends JPanel implements ActionListener, PopupMenuListener, Mo
         }
         public void actionPerformed(java.awt.event.ActionEvent event) {
             graphPanel.RemoveSourceAction(event.getActionCommand());
+        }
+    }
+
+    static class GraphNodePosComparator implements Comparator<GraphNode> {
+
+        public int compare(GraphNode o1, GraphNode o2) {
+            double x1=o1.getPos().getX();
+            double x2=o2.getPos().getX();
+
+            if (x1 > x2)
+                return -1;
+            else if ( x1 < x2)
+                return +1;
+            else
+                return 0;
         }
     }
 }

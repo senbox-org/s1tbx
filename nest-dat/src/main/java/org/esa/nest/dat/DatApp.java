@@ -63,6 +63,8 @@ public class DatApp extends VisatApp {
         DEFAULT_VALUE_SAVE_PRODUCT_ANNOTATIONS = true;
 
         // enable anti-aliased text:
+
+        System.setProperty("sun.java2d.opengl","true");
         System.setProperty("awt.useSystemAAFontSettings","on");
         System.setProperty("swing.aatext", "true");
     }

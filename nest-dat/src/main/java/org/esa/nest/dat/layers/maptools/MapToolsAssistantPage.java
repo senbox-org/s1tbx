@@ -23,10 +23,11 @@ import java.awt.*;
 
 class MapToolsAssistantPage extends AbstractLayerSourceAssistantPage {
 
-    private final JCheckBox compass = new JCheckBox("Show Compass", true);
+    private final JCheckBox northArrow = new JCheckBox("Show North Arrow", true);
+    private final JCheckBox compass = new JCheckBox("Show Compass", false);
     private final JCheckBox latLonGrid = new JCheckBox("Show Lat/lon Grid", false);
-    private final JCheckBox lookDirection = new JCheckBox("Show Look Direction", true);
-    private final JCheckBox mapOverview = new JCheckBox("Show Map Overview", true);
+    private final JCheckBox lookDirection = new JCheckBox("Show Look Direction", false);
+    private final JCheckBox mapOverview = new JCheckBox("Show Map Overview", false);
     private final JCheckBox scale = new JCheckBox("Show Scale", true);
     private final JCheckBox nestLogo = new JCheckBox("Show NEST logo", true);
 
@@ -56,7 +57,8 @@ class MapToolsAssistantPage extends AbstractLayerSourceAssistantPage {
 
     @Override
     public boolean performFinish() {
-        final MapToolsOptions options = new MapToolsOptions(compass.isSelected(),
+        final MapToolsOptions options = new MapToolsOptions(northArrow.isSelected(),
+                                                            compass.isSelected(),
                                                             latLonGrid.isSelected(),
                                                             lookDirection.isSelected(),
                                                             false,
@@ -71,8 +73,10 @@ class MapToolsAssistantPage extends AbstractLayerSourceAssistantPage {
         final JPanel panel = new JPanel(new GridBagLayout());
         final GridBagConstraints gbc = DialogUtils.createGridBagConstraints();
 
-        panel.add(compass, gbc);
+        panel.add(northArrow, gbc);
         gbc.gridy++;
+        //panel.add(compass, gbc);
+        //gbc.gridy++;
         //panel.add(latLonGrid, gbc);
         //gbc.gridy++;
         panel.add(lookDirection, gbc);
