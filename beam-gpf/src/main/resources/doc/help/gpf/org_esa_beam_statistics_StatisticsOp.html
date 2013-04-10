@@ -41,9 +41,7 @@ ESRI shapefile.
 It writes two different sorts of output:<br/>
 <ul>
     <li>an ASCII file in tab-separated CSV format, in which the statistics are mapped to the source regions</li>
-    <li>a shapefile that corresponds to the input shapefile, enriched with the statistics for the regions defined by the
-        shapefile
-    </li>
+    <li>a shapefile that corresponds to the input shapefile, enriched with the statistics for the regions defined by the shapefile</li>
 </ul>
 <p/>
 Unlike most other operators, that can compute single {@link org.esa.beam.framework.gpf.Tile tiles},
@@ -56,9 +54,7 @@ the statistics operator processes all of its source products in its {@link #init
     </tr>
     <tr>
         <td><code>sourceProducts</code></td>
-        <td>The source products to be considered for statistics computation. If not given, the parameter
-            'sourceProductPaths' must be provided.
-        </td>
+        <td>The source products to be considered for statistics computation. If not given, the parameter 'sourceProductPaths' must be provided.</td>
     </tr>
 </table>
 <h2>Parameters</h2>
@@ -86,17 +82,15 @@ the statistics operator processes all of its source products in its {@link #init
         <td><code>shapefile</code></td>
         <td><code>File</code></td>
         <td><code></code></td>
-        <td>An ESRI shapefile, providing the considered geographical region(s) given as polygons. If null, all pixels
-            are considered.
-        </td>
+        <td>An ESRI shapefile, providing the considered geographical region(s) given as polygons. If null, all pixels are considered.</td>
         <td></td>
     </tr>
     <tr>
         <td><code>startDate</code></td>
         <td><code>UTC</code></td>
         <td><code></code></td>
-        <td>The start date. If not given, taken from the 'oldest' source product. Products that have a start date before
-            the start date given by this parameter are not considered.
+        <td>The start date. If not given, taken from the 'oldest' source product. Products that have a start date before the start date given by this
+            parameter are not considered.
         </td>
         <td>format: yyyy-MM-dd HH:mm:ss</td>
     </tr>
@@ -104,8 +98,8 @@ the statistics operator processes all of its source products in its {@link #init
         <td><code>endDate</code></td>
         <td><code>UTC</code></td>
         <td><code></code></td>
-        <td>The end date. If not given, taken from the 'youngest' source product. Products that have an end date after
-            the end date given by this parameter are not considered.
+        <td>The end date. If not given, taken from the 'youngest' source product. Products that have an end date after the end date given by this
+            parameter are not considered.
         </td>
         <td>format: yyyy-MM-dd HH:mm:ss</td>
     </tr>
@@ -120,8 +114,8 @@ the statistics operator processes all of its source products in its {@link #init
         <td><code>outputShapefile</code></td>
         <td><code>File</code></td>
         <td><code></code></td>
-        <td>The target file for shapefile output. Shapefile output will only be written if this parameter is set. The
-            band mapping file will have the suffix _band_mapping.txt.
+        <td>The target file for shapefile output. Shapefile output will only be written if this parameter is set. The band mapping file will have the
+            suffix _band_mapping.txt.
         </td>
         <td></td>
     </tr>
@@ -145,8 +139,8 @@ the statistics operator processes all of its source products in its {@link #init
         <td><code>accuracy</code></td>
         <td><code>int</code></td>
         <td><code>3</code></td>
-        <td>The degree of accuracy used for statistics computation. Higher numbers indicate higher accuracy but may lead
-            to a considerably longer computation time.
+        <td>The degree of accuracy used for statistics computation. Higher numbers indicate higher accuracy but may lead to a considerably longer
+            computation time.
         </td>
         <td></td>
     </tr>
