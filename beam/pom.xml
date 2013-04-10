@@ -187,7 +187,6 @@
 
         <module>lib-hdf</module>
         <module>blue-marble-worldmap</module>
-		<module>globcover-worldmap</module>
 
 		<module>beam-nest-common</module>
 		<module>beam-arcbingrid-reader</module>

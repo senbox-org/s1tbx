@@ -23,8 +23,8 @@ public class AutoDownload {
      */
     public static String getDownloadedDirPath(final String message, final File installDir, final String ARCHIVE_URL_PATH) {
 
-        if (!installDir.canRead()) {
-            if(!installDir.mkdirs())
+        if (!installDir.canRead() || installDir.listFiles().length == 0) {
+            if(!installDir.canRead() && !installDir.mkdirs())
                 return null;
             try {
                 downloadDGGTiles(message, installDir, ARCHIVE_URL_PATH);

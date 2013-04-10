@@ -8,7 +8,8 @@
 		<envisatAuxDataPath value="${NEST_HOME}/auxdata/envisat"/>
 		<egm96AuxDataPath value="${NEST_HOME}/auxdata/egm96"/>
 		<smosDGGDataPath value="${AuxDataPath}/smos/dgg"/>
-		<smosLSMaskDataPath value="${AuxDataPath}\smos\lsmask"/>
+		<smosLSMaskDataPath value="${AuxDataPath}/smos/lsmask"/>
+		<esaGlobCoverDataPath value="${AuxDataPath}/worldmap/globcover"/>
 	</AuxData>
 	<DEM label="Digital Elevation Models">
 		<aceDEMDataPath value="${demPath}/ACE_DEM/ACE"/>

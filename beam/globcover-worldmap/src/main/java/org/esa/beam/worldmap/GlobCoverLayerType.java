@@ -26,6 +26,8 @@ import com.bc.ceres.glevel.MultiLevelSource;
 import org.esa.beam.glayer.WorldMapLayerType;
 import org.esa.beam.glevel.TiledFileMultiLevelSource;
 import org.esa.beam.util.SystemUtils;
+import org.esa.nest.util.AutoDownload;
+import org.esa.nest.util.Settings;
 import org.geotools.referencing.AbstractIdentifiedObject;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 
@@ -93,14 +95,16 @@ public class GlobCoverLayerType extends WorldMapLayerType {
         String dirPath = System.getProperty(WORLD_IMAGE_DIR_PROPERTY_NAME);
         if (dirPath == null || dirPath.isEmpty()) {
             //NESTMOD
-          /*  final String dataPath = Settings.instance().get(LOCAL_PATH);
+            final String dataPath = Settings.instance().get(LOCAL_PATH);
             if (dataPath != null) {
                 dirPath = AutoDownload.getDownloadedDirPath(DOWNLOAD_MESSAGE, new File(dataPath), ARCHIVE_URL_PATH);
-            }  */
-            final File installFolder = SystemUtils.getApplicationHomeDir();                              //NESTMOD
-            final File worldMapFolder = new File(installFolder,"auxdata"+File.separator+"globcover");
-            if(worldMapFolder.exists())
-                dirPath = worldMapFolder.getAbsolutePath();
+            }
+            if (dirPath == null || dirPath.isEmpty()) {
+                final File installFolder = SystemUtils.getApplicationHomeDir();                              //NESTMOD
+                final File worldMapFolder = new File(installFolder,"auxdata"+File.separator+"globcover");
+                if(worldMapFolder.exists())
+                    dirPath = worldMapFolder.getAbsolutePath();
+            }
         }
         if (dirPath == null || dirPath.isEmpty()) {
             dirPath = getDirPathFromModule();
