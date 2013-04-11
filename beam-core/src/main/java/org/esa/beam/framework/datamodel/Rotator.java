@@ -40,7 +40,7 @@ class Rotator {
 
     /**
      * Constructs a new rotation. In the rotated system, the point defined
-     * by the (lat, lon) parameters is located at the origin, i.e. has the
+     * by the (lon, lat) parameters is located at the origin, i.e. has the
      * geographical coordinates (0, 0).
      * <p/>
      * The new rotation is composed of a clockwise rotation about the z-axis
@@ -58,7 +58,7 @@ class Rotator {
 
     /**
      * Constructs a new rotation. In the rotated system, the point defined
-     * by the (lat, lon) parameters is located at the origin, i.e. has the
+     * by the (lon, lat) parameters is located at the origin, i.e. has the
      * geographical coordinates (0, 0).
      * <p/>
      * The new rotation is composed of a clockwise rotation about the z-axis
@@ -99,7 +99,7 @@ class Rotator {
 
     /**
      * Constructs a new rotation. In the rotated system, the point defined
-     * by the (lat, lon) parameters is located at the origin, i.e. has the
+     * by the (lon, lat) parameters is located at the origin, i.e. has the
      * geographical coordinates (0, 0).
      * <p/>
      * The new rotation is composed of a clockwise rotation about the z-axis
@@ -116,7 +116,7 @@ class Rotator {
 
     /**
      * Constructs a new rotation. In the rotated system, the point defined
-     * by the (lat, lon) parameters is located at the origin, i.e. has the
+     * by the (lon, lat) parameters is located at the origin, i.e. has the
      * geographical coordinates (0, 0).
      * <p/>
      * The new rotation is composed of a clockwise rotation about the z-axis
