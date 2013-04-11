@@ -18,6 +18,7 @@ package org.esa.beam.framework.datamodel;
 
 import junit.framework.TestCase;
 
+import java.awt.Point;
 import java.awt.geom.Point2D;
 import java.util.Arrays;
 
@@ -28,6 +29,24 @@ import java.util.Arrays;
  * @version $Revision$ $Date$
  */
 public class RotatorTest extends TestCase {
+
+    public void testRotatedPoleTransform() throws Exception {
+        final double rotatedPoleLon = 10.0;
+        final double rotatedPoleLat = 32.5;
+        final Rotator rotator = new Rotator(rotatedPoleLon, 90.0 - rotatedPoleLat);
+
+        final Point2D p1 = new Point.Double(-10.0, 35.0);
+        rotator.transform(p1);
+
+        assertEquals(-17.339, p1.getX(), 0.05);
+        assertEquals(-19.939, p1.getY(), 0.05);
+
+        final Point2D p2 = new Point.Double(-11.0, 44.0);
+        rotator.transform(p2);
+
+        assertEquals(-15.232, p2.getX(), 0.05);
+        assertEquals(-11.137, p2.getY(), 0.05);
+    }
 
     public void testRotateX() {
         final Point2D p1 = new Point2D.Double(0.0, 0.0);
@@ -190,7 +209,8 @@ public class RotatorTest extends TestCase {
 
     // test that rotating really improves the GCP approximation
     public void doNotTestRotationOfRealSceneOfItalianLakes() {
-        double[] x = new double[]{43.5,
+        double[] x = new double[]{
+                43.5,
                 37.5,
                 523.5,
                 530.5,
@@ -198,8 +218,10 @@ public class RotatorTest extends TestCase {
                 1074.5,
                 832.5,
                 229.5,
-                524.5};
-        double[] y = new double[]{22.5,
+                524.5
+        };
+        double[] y = new double[]{
+                22.5,
                 284.5,
                 289.5,
                 18.5,
@@ -207,8 +229,10 @@ public class RotatorTest extends TestCase {
                 284.5,
                 157.5,
                 157.5,
-                155.5};
-        double[] lats = new double[]{49.27275,
+                155.5
+        };
+        double[] lats = new double[]{
+                49.27275,
                 46.573524,
                 45.553078,
                 48.319298,
@@ -216,8 +240,10 @@ public class RotatorTest extends TestCase {
                 44.09146,
                 46.09978,
                 47.545685,
-                46.92791};
-        double[] lons = new double[]{6.051173,
+                46.92791
+        };
+        double[] lons = new double[]{
+                6.051173,
                 5.255776,
                 11.624002,
                 12.795015,
@@ -225,7 +251,8 @@ public class RotatorTest extends TestCase {
                 18.575577,
                 16.156733,
                 8.208557,
-                12.158185};
+                12.158185
+        };
 
         final GeoPos geoPos = GcpGeoCoding.calculateCentralGeoPos(lons, lats);
 
