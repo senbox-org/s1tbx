@@ -29,7 +29,7 @@
 
     <groupId>org.esa.beam</groupId>
     <artifactId>beam-pixel-extraction</artifactId>
-    <version>1.3.0.${beam.version}</version>
+    <version>1.3.1.${beam.version}</version>
     <name>BEAM Pixel Extraction Tool</name>
 
     <description>
