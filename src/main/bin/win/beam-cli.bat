@@ -11,7 +11,7 @@ echo.
 @echo   flhmci.bat         - General FLH / MCI processor
 @echo   meris-cloud.bat    - Envisat/MERIS cloud probability processor
 @echo   meris-smac.bat     - Envisat/MERIS atmospheric correction (SMAC)
-@echo   aatsr-sst.bat      - Envisat/AATSR sea surface temperaure processor
+@echo   aatsr-sst.bat      - Envisat/AATSR sea surface temperature processor
 @echo   visat-d.bat        - VISAT application launcher for debugging
 @echo Typing the name of the tool will output its usage information.
 echo.
