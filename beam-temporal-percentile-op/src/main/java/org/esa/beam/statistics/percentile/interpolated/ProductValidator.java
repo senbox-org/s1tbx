@@ -30,7 +30,7 @@ public class ProductValidator {
     public boolean isValid(Product product) {
         return product != null
                && containsGeoCodingWithReverseOperationSupport(product)
-               && containsStartAndEndDate(product)
+               && fulfillsTimeConditions(product)
                && canHandleExpressionOrSourceBand(product)
                && isInDateRange(product)
                && intersectsTargetArea(product);
@@ -49,10 +49,36 @@ public class ProductValidator {
         return true;
     }
 
+    private boolean fulfillsTimeConditions(Product product) {
+        return containsStartAndEndDate(product)
+               && startTimeMustBeBeforeEnd(product)
+               && timeRangeIsLessThan367Days(product);
+    }
+
     private boolean containsStartAndEndDate(Product product) {
         boolean valid = product.getStartTime() != null && product.getEndTime() != null;
         if (!valid) {
             logSkipped("The product '" + product.getName() + "' must contain start and end time.");
+        }
+        return valid;
+    }
+
+    private boolean startTimeMustBeBeforeEnd(Product product) {
+        final double startMJD = product.getStartTime().getMJD();
+        final double stopMJD = product.getEndTime().getMJD();
+        final boolean valid = startMJD < stopMJD;
+        if (!valid) {
+            logSkipped("The product '" + product.getName() + "' has an end time which is before start time.");
+        }
+        return valid;
+    }
+
+    private boolean timeRangeIsLessThan367Days(Product product) {
+        final double startMJD = product.getStartTime().getMJD();
+        final double stopMJD = product.getEndTime().getMJD();
+        final boolean valid = stopMJD - startMJD < 367;
+        if (!valid) {
+            logSkipped("The product '" + product.getName() + "' covers more than one year.");
         }
         return valid;
     }
@@ -69,9 +95,9 @@ public class ProductValidator {
                 return false;
             }
         }
-        if (validPixelExpression != null && validPixelExpression.trim().length()>0) {
+        if (validPixelExpression != null && validPixelExpression.trim().length() > 0) {
             final String expression = validPixelExpression.trim();
-            if(!product.isCompatibleBandArithmeticExpression(expression)) {
+            if (!product.isCompatibleBandArithmeticExpression(expression)) {
                 logSkipped("'" + validPixelExpression + "' is not a compatible valid pixel expression for product: '" + product.getName() + ".");
                 return false;
             }
