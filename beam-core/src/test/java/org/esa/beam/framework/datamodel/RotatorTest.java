@@ -31,6 +31,7 @@ import java.util.Arrays;
 public class RotatorTest extends TestCase {
 
     public void testRotatedPoleTransform() throws Exception {
+        // Values are taken from http://www.arolla.ethz.ch/IDL/RotateGridInfo.pdf
         final double rotatedPoleLon = 10.0;
         final double rotatedPoleLat = 32.5;
         final Rotator rotator = new Rotator(rotatedPoleLon, 90.0 - rotatedPoleLat);
