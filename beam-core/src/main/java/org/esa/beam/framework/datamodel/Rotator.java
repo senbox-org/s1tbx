@@ -22,6 +22,9 @@ import static java.lang.Math.*;
 
 /**
  * Class for rotating geographical positions.
+ * The rotator makes the given coordinate the origin <code>(0.0, 0.0)</code> of the coordinate system.
+ * If the coordinate which shall become the north pole of the new coordinate system is known the latitude value given into the
+ * constructor must be changed. Instead of providing directly the latitude value, it must be <code>90 - latitude</code>.
  *
  * @author Ralf Quast
  * @version $Revision$ $Date$
