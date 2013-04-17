@@ -14,9 +14,9 @@ public class BinManagerTest {
     public void testBinCreation() {
         VariableContext variableContext = new MyVariableContext("a", "b", "c");
         BinManager binManager = new BinManager(variableContext,
-                                               new AggregatorAverage(variableContext, "c", null, null),
-                                               new AggregatorAverageML(variableContext, "b", null, null),
-                                               new AggregatorMinMax(variableContext, "a", null),
+                                               new AggregatorAverage(variableContext, "c", null),
+                                               new AggregatorAverageML(variableContext, "b", null),
+                                               new AggregatorMinMax(variableContext, "a"),
                                                new AggregatorOnMaxSet(variableContext, "c", "a", "b"));
 
         assertEquals(4, binManager.getAggregatorCount());

@@ -23,11 +23,10 @@ import org.esa.beam.binning.support.VectorImpl;
 import org.junit.Before;
 import org.junit.Test;
 
-import static java.lang.Float.NaN;
-import static java.lang.Math.sqrt;
+import static java.lang.Float.*;
+import static java.lang.Math.*;
 import static org.esa.beam.binning.aggregators.AggregatorTestUtils.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class AggregatorAverageTest {
 
@@ -40,10 +39,9 @@ public class AggregatorAverageTest {
 
     @Test
     public void testMetadata() {
-        AggregatorAverage agg = new AggregatorAverage(new MyVariableContext("c"), "c", 0.0, null);
+        AggregatorAverage agg = new AggregatorAverage(new MyVariableContext("c"), "c", 0.0);
 
         assertEquals("AVG", agg.getName());
-        assertTrue(Float.isNaN(agg.getOutputFillValue()));
 
         String[] spatialFeatureNames = agg.getSpatialFeatureNames();
         assertEquals(2, spatialFeatureNames.length);
@@ -64,15 +62,14 @@ public class AggregatorAverageTest {
 
     @Test
     public void testMetadata_ForDedicatedFillValue() {
-        AggregatorAverage agg = new AggregatorAverage(new MyVariableContext("c"), "c", 0.0, 43.21f);
+        AggregatorAverage agg = new AggregatorAverage(new MyVariableContext("c"), "c", 0.0);
 
         assertEquals("AVG", agg.getName());
-        assertEquals(43.21f, agg.getOutputFillValue(), 1e-5f);
     }
 
     @Test
     public void testAggregatorAverageNoWeight() {
-        AggregatorAverage agg = new AggregatorAverage(new MyVariableContext("c"), "c", 0.0, null);
+        AggregatorAverage agg = new AggregatorAverage(new MyVariableContext("c"), "c", 0.0);
 
         VectorImpl svec = vec(NaN, NaN);
         VectorImpl tvec = vec(NaN, NaN, NaN);
@@ -117,7 +114,7 @@ public class AggregatorAverageTest {
 
     @Test
     public void testAggregatorAverageWeighted() {
-        Aggregator agg = new AggregatorAverage(new MyVariableContext("c"), "c", 1.0, null);
+        Aggregator agg = new AggregatorAverage(new MyVariableContext("c"), "c", 1.0);
 
         VectorImpl svec = vec(NaN, NaN);
         VectorImpl tvec = vec(NaN, NaN, NaN);
@@ -162,7 +159,7 @@ public class AggregatorAverageTest {
 
     @Test
     public void testSuperSampling() {
-        Aggregator agg = new AggregatorAverage(new MyVariableContext("c"), "c", null, null);
+        Aggregator agg = new AggregatorAverage(new MyVariableContext("c"), "c", null);
         VectorImpl svec = vec(NaN, NaN);
 
         agg.initSpatial(ctx, svec);

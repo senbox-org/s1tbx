@@ -50,7 +50,7 @@ public class BinningFormModelImplTest {
         final BinningFormModel binningFormModel = new BinningFormModelImpl();
         assertArrayEquals(new TableRow[0], binningFormModel.getTableRows());
 
-        final TableRow tableRow = new TableRow("name", "name", null, 0.1, 90, 0.2f);
+        final TableRow tableRow = new TableRow("name", "name", null, 0.1, 90);
         binningFormModel.setProperty(BinningFormModel.PROPERTY_KEY_VARIABLE_CONFIGS,
                                      new TableRow[]{tableRow});
 

@@ -44,27 +44,23 @@ public class AggregatorPercentile extends AbstractAggregator {
     private final int percentage;
     private final String mlName;
 
-    public AggregatorPercentile(VariableContext varCtx, String varName, Integer percentage, Number fillValue) {
-        this(varCtx, varName, percentage != null ? percentage : 90, fillValue);
+    public AggregatorPercentile(VariableContext varCtx, String varName, Integer percentage) {
+        this(getVarIndex(varCtx, varName), varName, getEffectivePercentage(percentage));
     }
 
-    private AggregatorPercentile(VariableContext varCtx, String varName, int percentage, Number fillValue) {
+    private AggregatorPercentile(int varIndex, String varName, int percentage) {
         super(Descriptor.NAME,
               createFeatureNames(varName, "sum"),
               createFeatureNames(varName, "p" + percentage),
-              createFeatureNames(varName, "p" + percentage),
-              fillValue);
+              createFeatureNames(varName, "p" + percentage));
 
-        if (varCtx == null) {
-            throw new NullPointerException("varCtx");
-        }
         if (varName == null) {
             throw new NullPointerException("varName");
         }
         if (percentage < 0 || percentage > 100) {
             throw new IllegalArgumentException("percentage < 0 || percentage > 100");
         }
-        this.varIndex = varCtx.getVariableIndex(varName);
+        this.varIndex = varIndex;
         this.percentage = percentage;
         this.mlName = "ml." + varName;
     }
@@ -177,6 +173,18 @@ public class AggregatorPercentile extends AbstractAggregator {
     }
 
 
+    private static int getVarIndex(VariableContext varCtx, String varName) {
+        if (varCtx == null) {
+            throw new NullPointerException("varCtx");
+        }
+
+        return varCtx.getVariableIndex(varName);
+    }
+
+    private static int getEffectivePercentage(Integer percentage) {
+        return (percentage != null ? percentage : 90);
+    }
+
     public static class Descriptor implements AggregatorDescriptor {
 
         public static final String NAME = "PERCENTILE";
@@ -196,8 +204,7 @@ public class AggregatorPercentile extends AbstractAggregator {
             PropertySet propertySet = aggregatorConfig.asPropertySet();
             return new AggregatorPercentile(varCtx,
                                             (String) propertySet.getValue("varName"),
-                                            (Integer) propertySet.getValue("percentage"),
-                                            (Float) propertySet.getValue("fillValue"));
+                                            (Integer) propertySet.getValue("percentage"));
         }
     }
 }

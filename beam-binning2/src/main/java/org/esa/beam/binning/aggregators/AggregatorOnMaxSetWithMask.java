@@ -41,7 +41,7 @@ public final class AggregatorOnMaxSetWithMask extends AbstractAggregator {
     private int numFeatures;
 
     public AggregatorOnMaxSetWithMask(VariableContext varCtx, String onMaxName, String maskName, String... setNames) {
-        super(Descriptor.NAME, createFeatures(onMaxName, setNames), null);
+        super(Descriptor.NAME, createFeatures(onMaxName, setNames));
         if (varCtx == null) {
             throw new NullPointerException("varCtx");
         }
@@ -130,7 +130,7 @@ public final class AggregatorOnMaxSetWithMask extends AbstractAggregator {
             }
         } else {
             for (int i = 0; i < numFeatures; i++) {
-                outputVector.set(i, getOutputFillValue());
+                outputVector.set(i, Float.NaN);
             }
         }
     }
@@ -138,11 +138,11 @@ public final class AggregatorOnMaxSetWithMask extends AbstractAggregator {
     @Override
     public String toString() {
         return "AggregatorOnMaxSetWithMask{" +
-                "setIndexes=" + Arrays.toString(setIndexes) +
-                ", spatialFeatureNames=" + Arrays.toString(getSpatialFeatureNames()) +
-                ", temporalFeatureNames=" + Arrays.toString(getTemporalFeatureNames()) +
-                ", outputFeatureNames=" + Arrays.toString(getOutputFeatureNames()) +
-                '}';
+               "setIndexes=" + Arrays.toString(setIndexes) +
+               ", spatialFeatureNames=" + Arrays.toString(getSpatialFeatureNames()) +
+               ", temporalFeatureNames=" + Arrays.toString(getTemporalFeatureNames()) +
+               ", outputFeatureNames=" + Arrays.toString(getOutputFeatureNames()) +
+               '}';
     }
 
     private static String[] createFeatures(String onMaxName, String[] setNames) {
@@ -159,6 +159,7 @@ public final class AggregatorOnMaxSetWithMask extends AbstractAggregator {
     }
 
     public static class Config extends AggregatorConfig {
+
         @Parameter
         String onMaxName;
         @Parameter

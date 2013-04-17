@@ -39,7 +39,7 @@ public final class AggregatorOnMaxSet extends AbstractAggregator {
     private int numFeatures;
 
     public AggregatorOnMaxSet(VariableContext varCtx, String... varNames) {
-        super(Descriptor.NAME, createFeatureNames(varNames), null);
+        super(Descriptor.NAME, createFeatureNames(varNames));
         if (varCtx == null) {
             throw new NullPointerException("varCtx");
         }

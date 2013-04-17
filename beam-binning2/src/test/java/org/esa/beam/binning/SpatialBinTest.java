@@ -13,8 +13,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 public class SpatialBinTest {
 
@@ -40,9 +39,9 @@ public class SpatialBinTest {
     public void testBinAggregationAndIO() throws IOException {
         MyVariableContext variableContext = new MyVariableContext("A", "B", "C");
         BinManager bman = new BinManager(variableContext,
-                                         new AggregatorMinMax(variableContext, "A", null),
-                                         new AggregatorAverage(variableContext, "B", null, null),
-                                         new AggregatorAverageML(variableContext, "C", null, null));
+                                         new AggregatorMinMax(variableContext, "A"),
+                                         new AggregatorAverage(variableContext, "B", null),
+                                         new AggregatorAverageML(variableContext, "C", null));
 
         SpatialBin bin = bman.createSpatialBin(0);
 

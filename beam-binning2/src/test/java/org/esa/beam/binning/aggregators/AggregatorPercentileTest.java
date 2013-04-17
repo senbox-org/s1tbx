@@ -22,10 +22,9 @@ import org.esa.beam.binning.support.VectorImpl;
 import org.junit.Before;
 import org.junit.Test;
 
-import static java.lang.Float.NaN;
+import static java.lang.Float.*;
 import static org.esa.beam.binning.aggregators.AggregatorTestUtils.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class AggregatorPercentileTest {
 
@@ -38,17 +37,16 @@ public class AggregatorPercentileTest {
 
     @Test
     public void testMetadata_P90() {
-        AggregatorPercentile agg = new AggregatorPercentile(new MyVariableContext("c"), "c", null, null);
+        AggregatorPercentile agg = new AggregatorPercentile(new MyVariableContext("c"), "c", null);
 
         assertEquals("c_sum", agg.getSpatialFeatureNames()[0]);
         assertEquals("c_p90", agg.getTemporalFeatureNames()[0]);
         assertEquals("c_p90", agg.getOutputFeatureNames()[0]);
-        assertTrue(Float.isNaN(agg.getOutputFillValue()));
     }
 
     @Test
     public void testMetadata_P70() {
-        AggregatorPercentile agg = new AggregatorPercentile(new MyVariableContext("c"), "c", 70, 0.42F);
+        AggregatorPercentile agg = new AggregatorPercentile(new MyVariableContext("c"), "c", 70);
 
         assertEquals("PERCENTILE", agg.getName());
 
@@ -61,12 +59,11 @@ public class AggregatorPercentileTest {
         assertEquals(1, agg.getOutputFeatureNames().length);
         assertEquals("c_p70", agg.getOutputFeatureNames()[0]);
 
-        assertEquals(0.42F, agg.getOutputFillValue(), 1e-5F);
     }
 
     @Test
     public void testAggregatorPercentile() {
-        AggregatorPercentile agg = new AggregatorPercentile(new MyVariableContext("c"), "c", 70, 0.42F);
+        AggregatorPercentile agg = new AggregatorPercentile(new MyVariableContext("c"), "c", 70);
 
         VectorImpl svec = vec(NaN);
         VectorImpl tvec = vec(NaN);

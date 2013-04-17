@@ -29,27 +29,24 @@ class TableRow {
     final String expression;
     final AggregatorDescriptor aggregator;
     final Double weight;
-    final Float fillValue;
     public Integer percentile;
 
-    TableRow(String name, String expression, AggregatorDescriptor aggregator, Double weight, Integer percentile, Float fillValue) {
+    TableRow(String name, String expression, AggregatorDescriptor aggregator, Double weight, Integer percentile) {
         this.name = name;
         this.expression = expression;
         this.aggregator = aggregator;
         this.weight = weight;
         this.percentile = percentile;
-        this.fillValue = fillValue;
     }
 
     @Override
     public String toString() {
         return "TableRow{" +
-                "aggregator=" + aggregator +
-                ", name='" + name + '\'' +
-                ", expression='" + expression + '\'' +
-                ", weight=" + weight +
-                ", percentile=" + percentile +
-                ", fillValue=" + fillValue +
-                '}';
+               "aggregator=" + aggregator +
+               ", name='" + name + '\'' +
+               ", expression='" + expression + '\'' +
+               ", weight=" + weight +
+               ", percentile=" + percentile +
+               '}';
     }
 }

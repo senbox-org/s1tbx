@@ -22,9 +22,9 @@ import org.esa.beam.binning.support.VectorImpl;
 import org.junit.Before;
 import org.junit.Test;
 
-import static java.lang.Float.NaN;
+import static java.lang.Float.*;
 import static org.esa.beam.binning.aggregators.AggregatorTestUtils.*;
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 public class AggregatorMinMaxTest {
 
@@ -37,7 +37,7 @@ public class AggregatorMinMaxTest {
 
     @Test
     public void testMetadata() {
-        AggregatorMinMax agg = new AggregatorMinMax(new MyVariableContext("a"), "a", null);
+        AggregatorMinMax agg = new AggregatorMinMax(new MyVariableContext("a"), "a");
 
         assertEquals("MIN_MAX", agg.getName());
 
@@ -56,7 +56,7 @@ public class AggregatorMinMaxTest {
 
     @Test
     public void tesAggregatorMinMax() {
-        AggregatorMinMax agg = new AggregatorMinMax(new MyVariableContext("a"), "a", null);
+        AggregatorMinMax agg = new AggregatorMinMax(new MyVariableContext("a"), "a");
 
         VectorImpl svec = vec(NaN, NaN);
         VectorImpl tvec = vec(NaN, NaN);

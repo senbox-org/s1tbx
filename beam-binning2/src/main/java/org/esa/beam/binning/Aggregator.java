@@ -72,11 +72,6 @@ public interface Aggregator {
     String[] getOutputFeatureNames();
 
     /**
-     * @return The fill value (no-data value, missing value) used in the output.
-     */
-    float getOutputFillValue();
-
-    /**
      * Initialises the spatial aggregation vector.
      *
      * @param ctx    The bin context which is shared between calls to {@link #initSpatial},

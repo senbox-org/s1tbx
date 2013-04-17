@@ -31,22 +31,19 @@ public abstract class AbstractAggregator implements Aggregator {
     private final String[] spatialFeatureNames;
     private final String[] temporalFeatureNames;
     private final String[] outputFeatureNames;
-    private final float fillValue;
 
-    protected AbstractAggregator(String name, String[] featureNames, Number fillValue) {
-        this(name, featureNames, featureNames, featureNames, fillValue);
+    protected AbstractAggregator(String name, String[] featureNames) {
+        this(name, featureNames, featureNames, featureNames);
     }
 
     protected AbstractAggregator(String name,
                                  String[] spatialFeatureNames,
                                  String[] temporalFeatureNames,
-                                 String[] outputFeatureNames,
-                                 Number fillValue) {
+                                 String[] outputFeatureNames) {
         this.name = name;
         this.spatialFeatureNames = spatialFeatureNames;
         this.temporalFeatureNames = temporalFeatureNames;
         this.outputFeatureNames = outputFeatureNames;
-        this.fillValue = fillValue != null ? fillValue.floatValue() : Float.NaN;
     }
 
     @Override
@@ -72,11 +69,6 @@ public abstract class AbstractAggregator implements Aggregator {
             result.add(name.replace("<", "").replace(">", ""));
         }
         return result.toArray(new String[result.size()]);
-    }
-
-    @Override
-    public float getOutputFillValue() {
-        return fillValue;
     }
 
     public static String[] createFeatureNames(String varName, String... names) {

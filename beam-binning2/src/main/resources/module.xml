@@ -31,6 +31,7 @@
         <![CDATA[
         Changes from version 0.8.1 to 0.9:<br\>
         <ol>
+        <li>[BEAM-1499] In L3-Binning No-data should always be represented by NaN</li>
         <li>[BEAM-1483] Percentil Aggregator shares state</li>
         </ol>
         Changes from version 0.8 to 0.8.1:<br\>

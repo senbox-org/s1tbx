@@ -93,11 +93,11 @@ public class BinWriter {
 
         final Variable hsizeVar = netcdfFile.addVariable("bi_hsize", DataType.DOUBLE, new Dimension[]{binIndexDim});
         hsizeVar.addAttribute(new Attribute("comment", "east-west extent (degrees longitude) of bins for each row;\n" +
-                "ranges from 360/SEAGrid_bins for the two equatorial rows to 120 for the two polar rows."));
+                                                       "ranges from 360/SEAGrid_bins for the two equatorial rows to 120 for the two polar rows."));
 
         final Variable startNumVar = netcdfFile.addVariable("bi_start_num", DataType.INT, new Dimension[]{binIndexDim});
         startNumVar.addAttribute(new Attribute("comment", "1-based bin number of first bin in the grid for each row (see bi_begin);\n" +
-                "always the same set of values for the set of rows."));
+                                                          "always the same set of values for the set of rows."));
         startNumVar.addAttribute(new Attribute("missing_value", 0));
         startNumVar.addAttribute(new Attribute("_FillValue", 0));
 
@@ -116,7 +116,7 @@ public class BinWriter {
 
         final Variable maxVar = netcdfFile.addVariable("bi_max", DataType.INT, new Dimension[]{binIndexDim});
         maxVar.addAttribute(new Attribute("comment", "the maximum number of bin for each row; " +
-                "ranges from 3 for the two polar rows to SEAGrid_bins for the two equatorial bins."));
+                                                     "ranges from 3 for the two polar rows to SEAGrid_bins for the two equatorial bins."));
 
         final Variable binNumVar = netcdfFile.addVariable("bl_bin_num", DataType.INT, new Dimension[]{binListDim});
         final Variable numObsVar = netcdfFile.addVariable("bl_nobs", DataType.INT, new Dimension[]{binListDim});
@@ -128,7 +128,7 @@ public class BinWriter {
             final String[] featureNames = aggregator.getTemporalFeatureNames();
             for (String featureName : featureNames) {
                 final Variable featureVar = netcdfFile.addVariable("bl_" + featureName, DataType.FLOAT, new Dimension[]{binListDim});
-                featureVar.addAttribute(new Attribute("_FillValue", aggregator.getOutputFillValue()));
+                featureVar.addAttribute(new Attribute("_FillValue", Float.NaN));
                 featureVars.add(featureVar);
             }
         }
@@ -351,7 +351,8 @@ public class BinWriter {
         }
     }
 
-    private void writeBinListVars(NetcdfFileWriteable netcdfFile, List<BinListVar> vars, int[] origin, int bufferIndex) throws IOException, InvalidRangeException {
+    private void writeBinListVars(NetcdfFileWriteable netcdfFile, List<BinListVar> vars, int[] origin, int bufferIndex) throws IOException,
+                                                                                                                               InvalidRangeException {
         final int[] origin0 = {0};
         final int[] shape = {bufferIndex};
         for (BinListVar var : vars) {
@@ -362,15 +363,18 @@ public class BinWriter {
     }
 
     private interface BinIndexElementSetter {
+
         void setArray(Array array, int rowIndex, SeadasGrid grid);
     }
 
     private interface BinListElementSetter {
+
         void setArray(Array array, int binIndex, TemporalBin bin);
     }
 
 
     private static class BinListVar {
+
         private final Variable variable;
         private final BinListElementSetter setter;
         private final Array buffer;

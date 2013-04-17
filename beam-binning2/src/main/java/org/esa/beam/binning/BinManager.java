@@ -38,7 +38,6 @@ public class BinManager {
     private final int[] temporalFeatureOffsets;
     private final int[] outputFeatureOffsets;
     private final String[] outputFeatureNames;
-    private final double[] outputFeatureFillValues;
 
     public BinManager() {
         this(new VariableContextImpl());
@@ -66,13 +65,11 @@ public class BinManager {
         this.temporalFeatureCount = temporalFeatureCount;
         this.outputFeatureCount = outputFeatureCount;
         this.outputFeatureNames = new String[outputFeatureCount];
-        this.outputFeatureFillValues = new double[outputFeatureCount];
         final NameUnifier nameUnifier = new NameUnifier();
         int k = 0;
         for (Aggregator aggregator : aggregators) {
             for (int i = 0; i < aggregator.getOutputFeatureNames().length; i++) {
                 outputFeatureNames[k] = nameUnifier.unifyName(aggregator.getOutputFeatureNames()[i]);
-                outputFeatureFillValues[k] = aggregator.getOutputFillValue();
                 k++;
             }
         }
@@ -92,10 +89,6 @@ public class BinManager {
 
     public final String[] getOutputFeatureNames() {
         return outputFeatureNames;
-    }
-
-    public final double getOutputFeatureFillValue(int i) {
-        return outputFeatureFillValues[i];
     }
 
     public final int getAggregatorCount() {

@@ -152,7 +152,7 @@ public class BinWriterTest {
         SEAGrid seaGrid = new SEAGrid(numRows);
         VariableContextImpl variableContext = new VariableContextImpl();
         variableContext.defineVariable("test", "blah");
-        BinManager binManager = new BinManager(variableContext, new AggregatorMinMax(variableContext, "test", -1));
+        BinManager binManager = new BinManager(variableContext, new AggregatorMinMax(variableContext, "test"));
         BinningContextImpl binningContext = new BinningContextImpl(seaGrid, binManager, CompositingType.BINNING, 1);
         Geometry region = JTS.shapeToGeometry(new Rectangle2D.Double(-180, -90, 360, 180), new GeometryFactory());
         return new BinWriter(binningContext, Logger.getLogger("BinWriterTest"), region, null, null);

@@ -42,6 +42,7 @@ import java.io.IOException;
  * @author Norman Fomferra
  */
 public final class ProductTemporalBinRenderer implements TemporalBinRenderer {
+
     private final Product product;
     private final int rasterWidth;
     private final ProductData numObsLine;
@@ -99,7 +100,7 @@ public final class ProductTemporalBinRenderer implements TemporalBinRenderer {
         for (int i = 0; i < outputFeatureNames.length; i++) {
             String name = outputFeatureNames[i];
             outputBands[i] = product.addBand(name, ProductData.TYPE_FLOAT32);
-            outputBands[i].setNoDataValue(binningContext.getBinManager().getOutputFeatureFillValue(i));
+            outputBands[i].setNoDataValue(Float.NaN);
             outputBands[i].setNoDataValueUsed(true);
             outputLines[i] = outputBands[i].createCompatibleRasterData(outputRegion.width, 1);
         }

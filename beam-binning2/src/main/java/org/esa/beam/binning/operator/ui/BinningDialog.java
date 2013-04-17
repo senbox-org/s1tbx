@@ -91,22 +91,18 @@ public class BinningDialog extends SingleTargetProductDialog {
             variableConfigs.add(new VariableConfig(tableRow.name, tableRow.expression));
             aggregatorConfigs.add(createAggregatorConfig(tableRow.aggregator.getName(),
                                                          tableRow.name,
-                                                         tableRow.fillValue,
                                                          tableRow.weight,
                                                          tableRow.percentile));
         }
         return createBinningConfig(variableConfigs, aggregatorConfigs);
     }
 
-    private AggregatorConfig createAggregatorConfig(String aggregatorName, String varName, Float fillValue, Double weightCoeff, int percentile) {
+    private AggregatorConfig createAggregatorConfig(String aggregatorName, String varName, Double weightCoeff, int percentile) {
         AggregatorDescriptor aggregatorDescriptor = AggregatorDescriptorRegistry.getInstance().getAggregatorDescriptor(aggregatorName);
         final AggregatorConfig aggregatorConfig = aggregatorDescriptor.createAggregatorConfig();
         PropertyContainer pc = PropertyContainer.createObjectBacked(aggregatorConfig);
         if (pc.isPropertyDefined("varName")) {
             pc.setValue("varName", varName);
-        }
-        if (pc.isPropertyDefined("fillValue")) {
-            pc.setValue("fillValue", fillValue);
         }
         if (pc.isPropertyDefined("weightCoeff")) {
             pc.setValue("weightCoeff", weightCoeff);

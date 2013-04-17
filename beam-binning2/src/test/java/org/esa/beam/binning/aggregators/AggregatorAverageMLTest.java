@@ -22,12 +22,10 @@ import org.esa.beam.binning.support.VectorImpl;
 import org.junit.Before;
 import org.junit.Test;
 
-import static java.lang.Float.NaN;
-import static java.lang.Math.log;
-import static java.lang.Math.sqrt;
+import static java.lang.Float.*;
+import static java.lang.Math.*;
 import static org.esa.beam.binning.aggregators.AggregatorTestUtils.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class AggregatorAverageMLTest {
 
@@ -40,11 +38,9 @@ public class AggregatorAverageMLTest {
 
     @Test
     public void testMetadata() {
-        AggregatorAverageML agg = new AggregatorAverageML(new MyVariableContext("b"), "b", null, null);
+        AggregatorAverageML agg = new AggregatorAverageML(new MyVariableContext("b"), "b", null);
 
         assertEquals("AVG_ML", agg.getName());
-
-        assertTrue(Float.isNaN(agg.getOutputFillValue()));
 
         assertEquals(2, agg.getSpatialFeatureNames().length);
         assertEquals("b_sum", agg.getSpatialFeatureNames()[0]);
@@ -65,7 +61,7 @@ public class AggregatorAverageMLTest {
 
     @Test
     public void testAggregatorAverageML() {
-        AggregatorAverageML agg = new AggregatorAverageML(new MyVariableContext("b"), "b", null, null);
+        AggregatorAverageML agg = new AggregatorAverageML(new MyVariableContext("b"), "b", null);
 
         VectorImpl svec = vec(NaN, NaN);
         VectorImpl tvec = vec(NaN, NaN, NaN);
@@ -83,8 +79,7 @@ public class AggregatorAverageMLTest {
 
         agg.completeSpatial(ctx, 3, svec);
         assertEquals((log(1.5f) + log(2.5f) + log(0.5f)) / sqrt(3f), svec.get(0), 1e-5f);
-        assertEquals((log(1.5f) * log(1.5f) + log(2.5f) * log(2.5f) + log(0.5f) * log(0.5f)) / sqrt(3f), svec.get(1),
-                     1e-5f);
+        assertEquals((log(1.5f) * log(1.5f) + log(2.5f) * log(2.5f) + log(0.5f) * log(0.5f)) / sqrt(3f), svec.get(1), 1e-5f);
 
         agg.initTemporal(ctx, tvec);
         assertEquals(0.0f, tvec.get(0), 0.0f);
