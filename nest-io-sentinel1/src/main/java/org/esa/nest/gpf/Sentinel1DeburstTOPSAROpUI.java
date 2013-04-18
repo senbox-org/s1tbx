@@ -69,7 +69,6 @@ public class Sentinel1DeburstTOPSAROpUI extends BaseOperatorUI {
         deburstOnly = (Boolean)paramMap.get("deburstOnly");
         if(deburstOnly != null) {
             deburstOnlyCheckBox.setSelected(deburstOnly);
-            deburstOnlyCheckBox.getModel().setPressed(deburstOnly);
         }
         deburstOnlyCheckBox.setVisible(isComplexSrcProduct());
     }

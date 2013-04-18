@@ -93,7 +93,6 @@ public class SpeckleFilterOpUI extends BaseOperatorUI {
         filterSizeY.setText(String.valueOf(paramMap.get("filterSizeY")));
         dampingFactor.setText(String.valueOf(paramMap.get("dampingFactor")));
         edgeThreshold.setText(String.valueOf(paramMap.get("edgeThreshold")));
-        estimateENLCheckBox.getModel().setPressed(true);
         estimateENLCheckBox.setSelected(true);
         estimateENL = true;
         enl.setEnabled(false);
@@ -187,7 +186,6 @@ public class SpeckleFilterOpUI extends BaseOperatorUI {
                 item.equals(SpeckleFilterOp.LEE_SPECKLE_FILTER)) {
             DialogUtils.enableComponents(estimateENLCheckBoxLabel, estimateENLCheckBox, true);
             DialogUtils.enableComponents(enlLabel, enl, true);
-            estimateENLCheckBox.getModel().setPressed(true);
             estimateENLCheckBox.setSelected(true);
             enl.setEnabled(false);
         } else {

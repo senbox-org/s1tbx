@@ -63,6 +63,8 @@ import java.io.File;
 
 @OperatorMetadata(alias="Apply-Orbit-File",
         category = "Utilities",
+        authors = "Jun Lu, Luis Veci",
+        copyright = "Copyright (C) 2013 by Array Systems Computing Inc.",
         description="Apply orbit file")
 public final class ApplyOrbitFileOp extends Operator {
 

@@ -46,6 +46,8 @@ import java.util.Map;
 
 @OperatorMetadata(alias="CreateElevation",
         category = "Geometry\\DEM Tools",
+        authors = "Jun Lu, Luis Veci",
+        copyright = "Copyright (C) 2013 by Array Systems Computing Inc.",
         description="Creates a DEM band")
 public final class CreateElevationOp extends Operator {
 

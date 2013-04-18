@@ -37,7 +37,8 @@ import org.esa.beam.util.math.Range;
 
 @OperatorMetadata(alias="Convert-Datatype",
         category = "Utilities\\Data Conversion",
-        authors = "NEST team", copyright = "(C) 2013 by Array Systems Computing Inc.",
+        authors = "Jun Lu, Luis Veci",
+        copyright = "Copyright (C) 2013 by Array Systems Computing Inc.",
         description="Convert product data type")
 public class ConvertDataTypeOp extends Operator {
 
@@ -157,8 +158,8 @@ public class ConvertDataTypeOp extends Operator {
             final Tile srcTile = getSourceTile(sourceBand, targetTile.getRectangle());
 
             final Stx stx = sourceBand.getStx();
-            double origMin = stx.getMin();
-            double origMax = stx.getMax();
+            double origMin = stx.getMinimum();
+            double origMax = stx.getMaximum();
             ScalingType scaling = verifyScaling(targetScaling, dataType);
 
             final double newMin = getMin(dataType);

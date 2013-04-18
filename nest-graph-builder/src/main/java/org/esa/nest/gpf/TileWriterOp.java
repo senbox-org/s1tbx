@@ -50,8 +50,10 @@ import java.util.Map;
  * Split a product into several tiles
  */
 @OperatorMetadata(alias = "TileWriter",
-                  description = "Writes a data product to a tiles.",
-                  category = "Utilities")
+        authors = "Jun Lu, Luis Veci",
+        copyright = "Copyright (C) 2013 by Array Systems Computing Inc.",
+        description = "Writes a data product to a tiles.",
+        category = "Utilities")
 public class TileWriterOp extends Operator implements Output {
 
     @TargetProduct

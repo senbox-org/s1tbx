@@ -71,7 +71,11 @@ import java.util.List;
  *     12th Conference on Interactions of the Sea and Atmosphere, 2003.
  */
 
-@OperatorMetadata(alias = "Wind-Field-Estimation", category = "Ocean-Tools", description = "Estimate wind speed and direction")
+@OperatorMetadata(alias = "Wind-Field-Estimation",
+        category = "Ocean-Tools",
+        authors = "Jun Lu, Luis Veci",
+        copyright = "Copyright (C) 2013 by Array Systems Computing Inc.",
+        description = "Estimate wind speed and direction")
 public class WindFieldEstimationOp extends Operator {
 
     @SourceProduct(alias="source")

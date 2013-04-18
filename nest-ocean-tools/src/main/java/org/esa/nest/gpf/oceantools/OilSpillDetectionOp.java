@@ -53,6 +53,8 @@ import java.util.List;
 
 @OperatorMetadata(alias = "Oil-Spill-Detection",
         category = "Ocean-Tools",
+        authors = "Jun Lu, Luis Veci",
+        copyright = "Copyright (C) 2013 by Array Systems Computing Inc.",
         description = "Detect oil spill.")
 public class OilSpillDetectionOp extends Operator {
 

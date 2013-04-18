@@ -47,6 +47,8 @@ import java.util.List;
  */
 @OperatorMetadata(alias = "Mosaic",
         category = "Geometry",
+        authors = "Jun Lu, Luis Veci",
+        copyright = "Copyright (C) 2013 by Array Systems Computing Inc.",
         description = "Mosaics two or more products based on their geo-codings.")
 public class MosaicOp extends Operator {
 
@@ -468,8 +470,8 @@ public class MosaicOp extends Operator {
                             try {
                                 final Stx stats = srcBand.getStx(true, ProgressMonitor.NULL);
                                 mean = stats.getMean();
-                                min = stats.getMin();
-                                max = stats.getMax();
+                                min = stats.getMinimum();
+                                max = stats.getMaximum();
                                 std = stats.getStandardDeviation();
                             } catch (Throwable e) {
                                 //OperatorUtils.catchOperatorException(getId(), e);
@@ -663,8 +665,8 @@ public class MosaicOp extends Operator {
                         try {
                             final Stx stats = srcBand.getStx(true, pm);
                             mean = stats.getMean();
-                            min = stats.getMin();
-                            max = stats.getMax();
+                            min = stats.getMinimum();
+                            max = stats.getMaximum();
                             std = stats.getStandardDeviation();
                         } catch (Throwable e) {
                             //OperatorUtils.catchOperatorException(getId(), e);

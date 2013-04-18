@@ -40,6 +40,8 @@ import java.util.List;
  */
 @OperatorMetadata(alias = "Oil-Spill-Clustering",
         category = "Ocean-Tools",
+        authors = "Jun Lu, Luis Veci",
+        copyright = "Copyright (C) 2013 by Array Systems Computing Inc.",
         description = "Remove small clusters from detected area.")
 public class OilSpillClusteringOp extends Operator {
 

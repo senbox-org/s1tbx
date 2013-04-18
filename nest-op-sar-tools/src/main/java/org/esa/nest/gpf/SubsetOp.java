@@ -40,6 +40,8 @@ import java.util.Map;
 
 @OperatorMetadata(alias = "Subset",
         category = "Utilities",
+        authors = "Jun Lu, Luis Veci",
+        copyright = "Copyright (C) 2013 by Array Systems Computing Inc.",
         description = "Create a spatial subset of the source product.")
 public class SubsetOp extends Operator {
 

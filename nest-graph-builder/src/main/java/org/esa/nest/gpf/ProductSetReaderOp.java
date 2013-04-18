@@ -26,7 +26,10 @@ import org.esa.beam.framework.gpf.annotations.TargetProduct;
 /**
  * ProductSet Operator to be replaced by ReadOp
  */
-@OperatorMetadata(alias="ProductSet-Reader", description="Adds a list of sources")
+@OperatorMetadata(alias="ProductSet-Reader",
+        authors = "Jun Lu, Luis Veci",
+        copyright = "Copyright (C) 2013 by Array Systems Computing Inc.",
+        description="Adds a list of sources")
 public class ProductSetReaderOp extends Operator {
 
     @TargetProduct

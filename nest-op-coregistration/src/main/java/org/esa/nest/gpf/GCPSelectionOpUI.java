@@ -111,7 +111,6 @@ public class GCPSelectionOpUI extends BaseOperatorUI {
 
         if(isComplex) {
             applyFineRegistration = (Boolean)paramMap.get("applyFineRegistration");
-            applyFineRegistrationCheckBox.getModel().setPressed(applyFineRegistration);
             applyFineRegistrationCheckBox.setSelected(applyFineRegistration);
             
             fineRegistrationWindowWidth.setSelectedItem(paramMap.get("fineRegistrationWindowWidth"));

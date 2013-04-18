@@ -48,8 +48,10 @@ import java.util.Map;
  *
  */
 @OperatorMetadata(alias = "CreateStack",
-                  category = "SAR Tools\\Coregistration",
-                  description = "Collocates two or more products based on their geo-codings.")
+        category = "SAR Tools\\Coregistration",
+        authors = "Jun Lu, Luis Veci",
+        copyright = "Copyright (C) 2013 by Array Systems Computing Inc.",
+        description = "Collocates two or more products based on their geo-codings.")
 public class CreateStackOp extends Operator {
 
     @SourceProducts

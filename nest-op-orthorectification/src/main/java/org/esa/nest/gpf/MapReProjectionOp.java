@@ -36,7 +36,11 @@ import java.awt.*;
 
  */
 
-@OperatorMetadata(alias="Reprojection", category = "Geometry", description="Applies a map projection")
+@OperatorMetadata(alias="Reprojection",
+        category = "Geometry",
+        authors = "Jun Lu, Luis Veci",
+        copyright = "Copyright (C) 2013 by Array Systems Computing Inc.",
+        description="Applies a map projection")
 public final class MapReProjectionOp extends ReprojectionOp {
 
     @Parameter(description = "The list of source bands.", alias = "sourceBands", itemAlias = "band",

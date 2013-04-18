@@ -98,13 +98,11 @@ public class CreateLandMaskOpUI extends BaseOperatorUI {
         if(selectedGeometry != null) {
             geometryMask.setSelected(true);
             geometries.setSelectedItem(selectedGeometry);
-            invertGeometryCheckBox.getModel().setPressed((Boolean)paramMap.get("invertGeometry"));
         }
 
         useSRTM = (Boolean)paramMap.get("useSRTM");
         useSRTMCheckBox.setSelected(useSRTM);
-        useSRTMCheckBox.getModel().setPressed(useSRTM);
-        byPassCheckBox.getModel().setPressed((Boolean)paramMap.get("byPass"));
+        byPassCheckBox.setSelected((Boolean)paramMap.get("byPass"));
     }
 
     @Override

@@ -51,7 +51,8 @@ import java.util.HashMap;
 
 @OperatorMetadata(alias="Multilook",
         category = "SAR Tools",
-        authors = "NEST team", copyright = "(C) 2013 by Array Systems Computing Inc.",
+        authors = "Jun Lu, Luis Veci",
+        copyright = "Copyright (C) 2013 by Array Systems Computing Inc.",
         description="Averages the power across a number of lines in both the azimuth and range directions")
 public final class MultilookOp extends Operator {
 

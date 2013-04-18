@@ -40,7 +40,8 @@ import java.util.HashMap;
 
 @OperatorMetadata(alias="LinearTodB",
         category = "Utilities\\Data Conversion",
-        authors = "NEST team", copyright = "(C) 2013 by Array Systems Computing Inc.",
+        authors = "Jun Lu, Luis Veci",
+        copyright = "Copyright (C) 2013 by Array Systems Computing Inc.",
         description="Converts bands to dB")
 public final class LinearTodBOp extends Operator {
 

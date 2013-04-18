@@ -41,9 +41,10 @@ import java.util.List;
  * De-Burst a Sentinel-1 TOPSAR product
  */
 @OperatorMetadata(alias = "DeburstTOPSAR",
-                  category = "SAR Tools",
-                  authors = "NEST team", copyright = "(C) 2013 by Array Systems Computing Inc.",
-                  description="Debursts a Sentinel-1 TOPSAR product")
+        category = "SAR Tools",
+        authors = "Jun Lu, Luis Veci",
+        copyright = "Copyright (C) 2013 by Array Systems Computing Inc.",
+        description="Debursts a Sentinel-1 TOPSAR product")
 public final class Sentinel1DeburstTOPSAROp extends Operator {
 
     @SourceProduct(alias="source")

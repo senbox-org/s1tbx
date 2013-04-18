@@ -68,7 +68,6 @@ public class MultilookOpUI extends BaseOperatorUI {
         outputIntensity = (Boolean)paramMap.get("outputIntensity");
         if(outputIntensity != null) {
             outputIntensityCheckBox.setSelected(outputIntensity);
-            outputIntensityCheckBox.getModel().setPressed(outputIntensity);
         }
         outputIntensityCheckBox.setVisible(isComplexSrcProduct());
 

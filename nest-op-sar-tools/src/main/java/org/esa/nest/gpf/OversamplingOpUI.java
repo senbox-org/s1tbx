@@ -91,7 +91,6 @@ public class OversamplingOpUI extends BaseOperatorUI {
         usePRFTileSize = (Boolean)paramMap.get("usePRFTileSize");
         if(usePRFTileSize != null) {
             usePRFTileSizeCheckBox.setSelected(usePRFTileSize);
-            usePRFTileSizeCheckBox.getModel().setPressed(usePRFTileSize);
         }
 
         updateOutputImageBy(true);

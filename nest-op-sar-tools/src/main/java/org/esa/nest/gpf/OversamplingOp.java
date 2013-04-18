@@ -41,7 +41,8 @@ import java.util.Map;
 
 @OperatorMetadata(alias="Oversample",
         category = "Utilities\\Resampling",
-        authors = "NEST team", copyright = "(C) 2013 by Array Systems Computing Inc.",
+        authors = "Jun Lu, Luis Veci",
+        copyright = "Copyright (C) 2013 by Array Systems Computing Inc.",
         description="Oversample the datset")
 public class OversamplingOp extends Operator {
 

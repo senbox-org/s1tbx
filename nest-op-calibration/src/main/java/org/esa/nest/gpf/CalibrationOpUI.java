@@ -190,16 +190,16 @@ public class CalibrationOpUI extends BaseOperatorUI {
         }
 
         saveInComplex = (Boolean)paramMap.get("outputImageInComplex");
-        saveInComplexCheckBox.getModel().setPressed(saveInComplex);
+        saveInComplexCheckBox.setSelected(saveInComplex);
 
         saveInDb = (Boolean)paramMap.get("outputImageScaleInDb");
-        saveInDbCheckBox.getModel().setPressed(saveInDb);
+        saveInDbCheckBox.setSelected(saveInDb);
 
         createGamma0VirtualBand = (Boolean)paramMap.get("createGammaBand");
-        createGamma0VirtualBandCheckBox.getModel().setPressed(createGamma0VirtualBand);
+        createGamma0VirtualBandCheckBox.setSelected(createGamma0VirtualBand);
 
         createBeta0VirtualBand = (Boolean)paramMap.get("createBetaBand");
-        createBeta0VirtualBandCheckBox.getModel().setPressed(createBeta0VirtualBand);
+        createBeta0VirtualBandCheckBox.setSelected(createBeta0VirtualBand);
     }
 
     @Override

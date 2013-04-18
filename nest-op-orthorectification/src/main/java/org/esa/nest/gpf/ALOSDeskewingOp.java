@@ -42,7 +42,11 @@ import java.util.Set;
  * Reference: ALOS-PALSAR-FAQ-001, ESRIN Contract No.20700/07/I-OL, IDEAS QC PALSAR Team
  */
 
-@OperatorMetadata(alias="ALOS-Deskewing", category = "Geometry", description="Deskewing ALOS product")
+@OperatorMetadata(alias="ALOS-Deskewing",
+                  category = "Geometry",
+                  authors = "Jun Lu, Luis Veci",
+                  copyright = "Copyright (C) 2013 by Array Systems Computing Inc.",
+                  description="Deskewing ALOS product")
 public class ALOSDeskewingOp extends Operator {
 
     public static final String PRODUCT_SUFFIX = "_DS";

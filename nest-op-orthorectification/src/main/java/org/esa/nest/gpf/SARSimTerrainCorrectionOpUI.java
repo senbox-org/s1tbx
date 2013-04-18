@@ -66,10 +66,10 @@ public class SARSimTerrainCorrectionOpUI extends RangeDopplerGeocodingOpUI {
         warpPolynomialOrder.setText(String.valueOf(order));
 
         openShiftsFile = (Boolean)paramMap.get("openShiftsFile");
-        openShiftsFileCheckBox.getModel().setPressed(openShiftsFile);
+        openShiftsFileCheckBox.setSelected(openShiftsFile);
 
         openResidualsFile = (Boolean)paramMap.get("openResidualsFile");
-        openResidualsFileCheckBox.getModel().setPressed(openResidualsFile);
+        openResidualsFileCheckBox.setSelected(openResidualsFile);
     }
 
     @Override

@@ -117,7 +117,7 @@ public class SARSimulationOpUI extends BaseOperatorUI {
         }
 
         saveLayoverShadowMask = (Boolean)paramMap.get("saveLayoverShadowMask");
-        saveLayoverShadowMaskCheckBox.getModel().setPressed(saveLayoverShadowMask);
+        saveLayoverShadowMaskCheckBox.setSelected(saveLayoverShadowMask);
     }
 
     @Override

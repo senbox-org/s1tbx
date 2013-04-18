@@ -39,8 +39,10 @@ import java.util.Map;
  * that can compute bands independently of each other.
  */
 @OperatorMetadata(alias="Image-Filter",
-                  category = "Utilities",
-                  description = "Common Image Processing Filters")
+        category = "Utilities",
+        authors = "Jun Lu, Luis Veci",
+        copyright = "Copyright (C) 2013 by Array Systems Computing Inc.",
+        description = "Common Image Processing Filters")
 public class FilterOperator extends Operator {
 
     @SourceProduct

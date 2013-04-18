@@ -201,9 +201,9 @@ public class RangeDopplerGeocodingOpUI extends BaseOperatorUI {
 
                                 enableRadiometricNormalization(true);
 
-                                saveSigmaNoughtCheckBox.getModel().setPressed(saveSigmaNought);
-                                saveGammaNoughtCheckBox.getModel().setPressed(saveGammaNought);
-                                saveBetaNoughtCheckBox.getModel().setPressed(saveBetaNought);
+                                saveSigmaNoughtCheckBox.setSelected(saveSigmaNought);
+                                saveGammaNoughtCheckBox.setSelected(saveGammaNought);
+                                saveBetaNoughtCheckBox.setSelected(saveBetaNought);
                                 saveSelectedSourceBandCheckBox.setSelected(false);
 
                             } else {
@@ -318,7 +318,7 @@ public class RangeDopplerGeocodingOpUI extends BaseOperatorUI {
                 sourcePixelSpacingsLabelPart2.setText(text);
             }
 
-            if(pixelSpacingInMeter.getText().isEmpty() || productChanged) {
+            if(pixelSpacingInMeter.getText().isEmpty()) {
                 Double pixM, pixD;
                 try {
                     pixM = Math.max(azimuthPixelSpacing, rangePixelSpacing);
@@ -344,37 +344,31 @@ public class RangeDopplerGeocodingOpUI extends BaseOperatorUI {
 
         nodataValueAtSea = (Boolean)paramMap.get("nodataValueAtSea");
         if(nodataValueAtSea != null) {
-            nodataValueAtSeaCheckBox.getModel().setPressed(nodataValueAtSea);
             nodataValueAtSeaCheckBox.setSelected(nodataValueAtSea);
         }
 
         saveDEM = (Boolean)paramMap.get("saveDEM");
         if(saveDEM != null) {
-            saveDEMCheckBox.getModel().setPressed(saveDEM);
             saveDEMCheckBox.setSelected(saveDEM);
         }
 
         saveLocalIncidenceAngle = (Boolean)paramMap.get("saveLocalIncidenceAngle");
         if(saveLocalIncidenceAngle != null) {
-            saveLocalIncidenceAngleCheckBox.getModel().setPressed(saveLocalIncidenceAngle);
             saveLocalIncidenceAngleCheckBox.setSelected(saveLocalIncidenceAngle);
         }
 
         saveProjectedLocalIncidenceAngle = (Boolean)paramMap.get("saveProjectedLocalIncidenceAngle");
         if(saveProjectedLocalIncidenceAngle != null) {
-            saveProjectedLocalIncidenceAngleCheckBox.getModel().setPressed(saveProjectedLocalIncidenceAngle);
             saveProjectedLocalIncidenceAngleCheckBox.setSelected(saveProjectedLocalIncidenceAngle);
         }
 
         saveSelectedSourceBand = (Boolean)paramMap.get("saveSelectedSourceBand");
         if(saveSelectedSourceBand != null) {
-            saveSelectedSourceBandCheckBox.getModel().setPressed(saveSelectedSourceBand);
             saveSelectedSourceBandCheckBox.setSelected(saveSelectedSourceBand);
         }
 
         applyRadiometricNormalization = (Boolean)paramMap.get("applyRadiometricNormalization");
         if(applyRadiometricNormalization != null) {
-            applyRadiometricNormalizationCheckBox.getModel().setPressed(applyRadiometricNormalization);
             applyRadiometricNormalizationCheckBox.setSelected(applyRadiometricNormalization);
 
             incidenceAngleForGamma0.setEnabled(applyRadiometricNormalization);
@@ -386,19 +380,16 @@ public class RangeDopplerGeocodingOpUI extends BaseOperatorUI {
 
         saveBetaNought = (Boolean)paramMap.get("saveBetaNought");
         if(saveBetaNought != null) {
-            saveBetaNoughtCheckBox.getModel().setPressed(saveBetaNought);
             saveBetaNoughtCheckBox.setSelected(saveBetaNought);
         }
 
         saveGammaNought = (Boolean)paramMap.get("saveGammaNought");
         if(saveGammaNought != null) {
-            saveGammaNoughtCheckBox.getModel().setPressed(saveGammaNought);
             saveGammaNoughtCheckBox.setSelected(saveGammaNought);
         }
 
         saveSigmaNought = (Boolean)paramMap.get("saveSigmaNought");
         if(saveSigmaNought != null) {
-            saveSigmaNoughtCheckBox.getModel().setPressed(saveSigmaNought);
             saveSigmaNoughtCheckBox.setSelected(saveSigmaNought);
         }
 

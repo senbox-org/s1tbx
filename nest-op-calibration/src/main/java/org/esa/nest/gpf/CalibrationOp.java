@@ -40,6 +40,8 @@ import java.util.HashMap;
  */
 @OperatorMetadata(alias = "Calibration",
         category = "SAR Tools\\Radiometric Correction",
+        authors = "Jun Lu, Luis Veci",
+        copyright = "Copyright (C) 2013 by Array Systems Computing Inc.",
         description = "Calibration of products")
 public class CalibrationOp extends Operator {
 
