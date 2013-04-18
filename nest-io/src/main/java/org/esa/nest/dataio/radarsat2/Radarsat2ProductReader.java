@@ -21,6 +21,7 @@ import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.StringUtils;
+import org.esa.beam.util.SystemUtils;
 import org.esa.nest.dataio.imageio.ImageIOFile;
 import org.esa.nest.datamodel.AbstractMetadata;
 import org.esa.nest.gpf.ReaderUtils;
@@ -48,6 +49,9 @@ public class Radarsat2ProductReader extends AbstractProductReader {
     private static final String lutsigma = "lutSigma";
     private static final String lutgamma = "lutGamma";
     private static final String lutbeta = "lutBeta";
+
+    private static final boolean flipToSARGeometry = System.getProperty(SystemUtils.getApplicationContextId()+
+            ".flip.to.sar.geometry", "false").equals("true");
 
     /**
      * Constructs a new abstract product reader.
@@ -123,10 +127,10 @@ public class Radarsat2ProductReader extends AbstractProductReader {
      */
     private static void addCalibrationLUT(final Product product, final File folder) throws IOException {
 
-        MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
+        final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
         final boolean isAscending = absRoot.getAttributeString(AbstractMetadata.PASS).equals("ASCENDING");
         final boolean isAntennaPointingRight = absRoot.getAttributeString(AbstractMetadata.antenna_pointing).equals("right");
-        final boolean flipLUT = isAscending && !isAntennaPointingRight || !isAscending && isAntennaPointingRight;
+        final boolean flipLUT = flipToSARGeometry && ((isAscending && !isAntennaPointingRight) || (!isAscending && isAntennaPointingRight));
 
         final File sigmaLUT = new File(folder, lutsigma+".xml");
         final File gammaLUT = new File(folder, lutgamma+".xml");
@@ -184,11 +188,11 @@ public class Radarsat2ProductReader extends AbstractProductReader {
         final ImageIOFile.BandInfo bandInfo = dataDir.getBandInfo(destBand);
         if(bandInfo != null && bandInfo.img != null) {
 
-            Product product = destBand.getProduct();
-            MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
+            final Product product = destBand.getProduct();
+            final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
             final boolean isAscending = absRoot.getAttributeString(AbstractMetadata.PASS).equals("ASCENDING");
             final boolean isAntennaPointingRight = absRoot.getAttributeString(AbstractMetadata.antenna_pointing).equals("right");
-            if (isAscending) {
+            if (flipToSARGeometry && isAscending) {
                 readAscendingRasterBand(sourceOffsetX, sourceOffsetY, sourceStepX, sourceStepY,
                                         destBuffer, destOffsetX, destOffsetY, destWidth, destHeight,
                                         0, bandInfo.img, bandInfo.bandSampleOffset, isAntennaPointingRight);
@@ -270,7 +274,7 @@ public class Radarsat2ProductReader extends AbstractProductReader {
                                        sourceOffsetY % sourceStepY);
 
             final RenderedImage image = reader.readAsRenderedImage(0, param);
-			if (isAntennaPointingRight) {
+			if (flipToSARGeometry && isAntennaPointingRight) {
 				data = image.getData(new Rectangle(img.getSceneWidth() - destOffsetX - destWidth,
 												   destOffsetY, destWidth, destHeight));
 			} else {
@@ -282,7 +286,7 @@ public class Radarsat2ProductReader extends AbstractProductReader {
         final SampleModel sampleModel = data.getSampleModel();
         final int sampleOffset = imageID + bandSampleOffset;
 
-        if (isAntennaPointingRight) { // flip the image left to right
+        if (flipToSARGeometry && isAntennaPointingRight) { // flip the image left to right
             final double[] dArray = new double[destWidth * destHeight];
             sampleModel.getSamples(0, 0, destWidth, destHeight, sampleOffset, dArray, dataBuffer);
 

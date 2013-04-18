@@ -17,6 +17,7 @@ package org.esa.nest.dataio.radarsat2;
 
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.dataop.maptransf.Datum;
+import org.esa.beam.util.SystemUtils;
 import org.esa.nest.dataio.XMLProductDirectory;
 import org.esa.nest.dataio.imageio.ImageIOFile;
 import org.esa.nest.datamodel.AbstractMetadata;
@@ -39,6 +40,9 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
     private String productName = "Radarsat2";
     private String productType = "Radarsat2";
     private final String productDescription = "";
+
+    private static final boolean flipToSARGeometry = System.getProperty(SystemUtils.getApplicationContextId()+
+            ".flip.to.sar.geometry", "false").equals("true");
 
     private final transient Map<String, String> polarizationMap = new HashMap<String, String>(4);
 
@@ -161,7 +165,7 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
 
         ProductData.UTC startTime = null;
         ProductData.UTC stopTime = null;
-        if(pass.equals("ASCENDING")) {
+        if(flipToSARGeometry && pass.equals("ASCENDING")) {
             stopTime = ReaderUtils.getTime(sarProcessingInformation,
                     "zeroDopplerTimeFirstLine", AbstractMetadata.dateFormat);
             startTime = ReaderUtils.getTime(sarProcessingInformation,
@@ -467,58 +471,61 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
             ++i;
         }
 
-        float[] flippedLatList = new float[geoGrid.length];
-        float[] flippedLonList = new float[geoGrid.length];
-        int is, id;
-        if (isAscending) {
-            if (isAntennaPointingRight) { // flip upside down
-                for (int r = 0; r < gridHeight; r++) {
-                    for (int c = 0; c < gridWidth; c++) {
-                        is = r*gridWidth + c;
-                        id = (gridHeight - r - 1)*gridWidth + c;
-                        flippedLatList[id] = latList[is];
-                        flippedLonList[id] = lngList[is];
+        if(flipToSARGeometry) {
+            float[] flippedLatList = new float[geoGrid.length];
+            float[] flippedLonList = new float[geoGrid.length];
+            int is, id;
+            if (isAscending) {
+                if (isAntennaPointingRight) { // flip upside down
+                    for (int r = 0; r < gridHeight; r++) {
+                        is = r*gridWidth;
+                        id = (gridHeight - r - 1)*gridWidth;
+                        for (int c = 0; c < gridWidth; c++) {
+                            flippedLatList[id+c] = latList[is+c];
+                            flippedLonList[id+c] = lngList[is+c];
+                        }
+                    }
+                } else { // flip upside down then left to right
+                    for (int r = 0; r < gridHeight; r++) {
+                        is = r*gridWidth;
+                        id = (gridHeight - r)*gridWidth;
+                        for (int c = 0; c < gridWidth; c++) {
+                            flippedLatList[id-c-1] = latList[is+c];
+                            flippedLonList[id-c-1] = lngList[is+c];
+                        }
                     }
                 }
-            } else { // flip upside down then left to right
-                for (int r = 0; r < gridHeight; r++) {
-                    for (int c = 0; c < gridWidth; c++) {
-                        is = r*gridWidth + c;
-                        id = (gridHeight - r)*gridWidth - c - 1;
-                        flippedLatList[id] = latList[is];
-                        flippedLonList[id] = lngList[is];
+
+            } else { // descending
+
+                if (isAntennaPointingRight) {  // flip left to right
+                    for (int r = 0; r < gridHeight; r++) {
+                        is = r*gridWidth;
+                        id = r*gridWidth + gridWidth;
+                        for (int c = 0; c < gridWidth; c++) {
+                            flippedLatList[id-c-1] = latList[is+c];
+                            flippedLonList[id-c-1] = lngList[is+c];
+                        }
                     }
+                } else { // no flipping is needed
+                    flippedLatList = latList;
+                    flippedLonList = lngList;
                 }
             }
 
-        } else { // descending
-
-            if (isAntennaPointingRight) {  // flip left to right
-                for (int r = 0; r < gridHeight; r++) {
-                    for (int c = 0; c < gridWidth; c++) {
-                        is = r*gridWidth + c;
-                        id = r*gridWidth + gridWidth - c - 1;
-                        flippedLatList[id] = latList[is];
-                        flippedLonList[id] = lngList[is];
-                    }
-                }
-            } else { // no flipping is needed
-                for (int k = 0; k < geoGrid.length; k++) {
-                    flippedLatList[k] = latList[k];
-                    flippedLonList[k] = lngList[k];
-                }
-            }
+            latList = flippedLatList;
+            lngList = flippedLonList;
         }
 
         float subSamplingX = (float)product.getSceneRasterWidth() / (gridWidth - 1);
         float subSamplingY = (float)product.getSceneRasterHeight() / (gridHeight - 1);
 
         final TiePointGrid latGrid = new TiePointGrid(OperatorUtils.TPG_LATITUDE, gridWidth, gridHeight, 0.5f, 0.5f,
-                subSamplingX, subSamplingY, flippedLatList);
+                subSamplingX, subSamplingY, latList);
         latGrid.setUnit(Unit.DEGREES);
 
         final TiePointGrid lonGrid = new TiePointGrid(OperatorUtils.TPG_LONGITUDE, gridWidth, gridHeight, 0.5f, 0.5f,
-                subSamplingX, subSamplingY, flippedLonList, TiePointGrid.DISCONT_AT_180);
+                subSamplingX, subSamplingY, lngList, TiePointGrid.DISCONT_AT_180);
         lonGrid.setUnit(Unit.DEGREES);
 
         final TiePointGeoCoding tpGeoCoding = new TiePointGeoCoding(latGrid, lonGrid, Datum.WGS_84);
@@ -565,7 +572,8 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
         final double slantRangeToFirstPixel = absRoot.getAttributeDouble(AbstractMetadata.slant_range_to_first_pixel, 0); // in m
         final double rangeSpacing = absRoot.getAttributeDouble(AbstractMetadata.range_spacing, 0); // in m
         final boolean srgrFlag = absRoot.getAttributeInt(AbstractMetadata.srgr_flag) != 0;
-//        final boolean isDescending = absRoot.getAttributeString(AbstractMetadata.PASS).equals("DESCENDING");
+        final boolean isDescending = absRoot.getAttributeString(AbstractMetadata.PASS).equals("DESCENDING");
+        final boolean isAntennaPointingRight = absRoot.getAttributeString(AbstractMetadata.antenna_pointing).equals("right");
 
         // get scene center latitude
         final GeoPos sceneCenterPos =
@@ -610,11 +618,11 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
             final double alpha = Math.acos((rtPlusH2 - ri*ri - rt2)/(2.0*ri*rt));
             if (i % subSamplingX == 0) {
                 int index = k++;
-                /*
-                if(isDescending && isAntennaPointingRight || (!isDescending && !isAntennaPointingRight)) {// flip
+
+                if(!flipToSARGeometry && (isDescending && isAntennaPointingRight || (!isDescending && !isAntennaPointingRight))) {// flip
                     index = gridWidth-1 - index;
                 }
-                */
+
                 incidenceAngles[index] = (float)(alpha * org.esa.beam.util.math.MathUtils.RTOD);
             }
 
@@ -673,7 +681,7 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
         final ProductData.UTC startTime = absRoot.getAttributeUTC(AbstractMetadata.first_line_time, AbstractMetadata.NO_METADATA_UTC);
         final double startSeconds = startTime.getMJD() * 24 * 3600;
         final double pixelSpacing = absRoot.getAttributeDouble(AbstractMetadata.range_spacing, 0);
-//        final boolean isDescending = absRoot.getAttributeString(AbstractMetadata.PASS).equals("DESCENDING");
+        final boolean isDescending = absRoot.getAttributeString(AbstractMetadata.PASS).equals("DESCENDING");
 
         final int gridWidth = 11;
         final int gridHeight = 11;
@@ -716,10 +724,10 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
 
         // get slant range time in nanoseconds from range distance in meters
         for(int i = 0; i < rangeDist.length; i++) {
-//            int index = i;
-//            if(isDescending) // flip for descending RS2
-//                index = rangeDist.length-1 - i;
-            rangeTime[i] = (float)(rangeDist[i] / Constants.halfLightSpeed * 1000000000.0); // in ns
+            int index = i;
+            if(!flipToSARGeometry && isDescending) // flip for descending RS2
+                index = rangeDist.length-1 - i;
+            rangeTime[index] = (float)(rangeDist[i] / Constants.halfLightSpeed * Constants.oneBillion); // in ns
         }
 
         final TiePointGrid slantRangeGrid = new TiePointGrid(OperatorUtils.TPG_SLANT_RANGE_TIME,
