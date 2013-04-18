@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2013 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -16,23 +16,6 @@
 
 package org.esa.beam.binning.operator;
 
-/*
-* Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
-*
-* This program is free software; you can redistribute it and/or modify it
-* under the terms of the GNU General Public License as published by the Free
-* Software Foundation; either version 3 of the License, or (at your option)
-* any later version.
-* This program is distributed in the hope that it will be useful, but WITHOUT
-* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
-* more details.
-*
-* You should have received a copy of the GNU General Public License along
-* with this program; if not, see http://www.gnu.org/licenses/
-*/
-
-
 import com.bc.ceres.binding.BindingException;
 import org.esa.beam.binning.Aggregator;
 import org.esa.beam.binning.AggregatorConfig;
@@ -42,6 +25,7 @@ import org.esa.beam.binning.BinManager;
 import org.esa.beam.binning.BinningContext;
 import org.esa.beam.binning.CompositingType;
 import org.esa.beam.binning.PlanetaryGrid;
+import org.esa.beam.binning.PostProcessorConfig;
 import org.esa.beam.binning.VariableContext;
 import org.esa.beam.binning.support.BinningContextImpl;
 import org.esa.beam.binning.support.SEAGrid;
@@ -111,6 +95,9 @@ public class BinningConfig {
     @Parameter(alias = "aggregators", domConverter = AggregatorConfigDomConverter.class)
     private AggregatorConfig[] aggregatorConfigs;
 
+    @Parameter(alias = "postProcessor", domConverter = PostProcessorConfigDomConverter.class)
+    private PostProcessorConfig postProcessorConfig;
+
     public String getPlanetaryGrid() {
         return planetaryGrid;
     }
@@ -165,6 +152,14 @@ public class BinningConfig {
 
     public void setAggregatorConfigs(AggregatorConfig... aggregatorConfigs) {
         this.aggregatorConfigs = aggregatorConfigs;
+    }
+
+    public PostProcessorConfig getPostProcessorConfig() {
+        return postProcessorConfig;
+    }
+
+    public void setPostProcessorConfig(PostProcessorConfig postProcessorConfig) {
+        this.postProcessorConfig = postProcessorConfig;
     }
 
     public static BinningConfig fromXml(String xml) throws BindingException {
@@ -236,7 +231,7 @@ public class BinningConfig {
     }
 
     protected BinManager createBinManager(VariableContext variableContext, Aggregator[] aggregators) {
-        return new BinManager(variableContext, aggregators);
+        return new BinManager(variableContext, postProcessorConfig, aggregators);
     }
 
     public VariableContext createVariableContext() {

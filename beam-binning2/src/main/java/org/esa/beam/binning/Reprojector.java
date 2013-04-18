@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2013 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -185,7 +185,7 @@ public class Reprojector {
         final int y1 = rasterRegion.y;
         final PlanetaryGrid planetaryGrid = binningContext.getPlanetaryGrid();
         final BinManager binManager = binningContext.getBinManager();
-        final WritableVector outputVector = binManager.createOutputVector();
+        final WritableVector resultVector = binManager.createResultVector();
         final double lat = 90.0 - (y + 0.5) * 180.0 / gridHeight;
         long lastBinIndex = -1;
         TemporalBin temporalBin = null;
@@ -200,7 +200,7 @@ public class Reprojector {
                     final long binIndex = binRow.get(i).getIndex();
                     if (binIndex == wantedBinIndex) {
                         temporalBin = binRow.get(i);
-                        binManager.computeOutput(temporalBin, outputVector);
+                        binManager.computeResult(temporalBin, resultVector);
                         lastBinIndex = wantedBinIndex;
                         rowIndex = i;
                         break;
@@ -210,7 +210,7 @@ public class Reprojector {
                 }
             }
             if (temporalBin != null) {
-                temporalBinRenderer.renderBin(x - x1, y - y1, temporalBin, outputVector);
+                temporalBinRenderer.renderBin(x - x1, y - y1, temporalBin, resultVector);
             } else {
                 temporalBinRenderer.renderMissingBin(x - x1, y - y1);
             }

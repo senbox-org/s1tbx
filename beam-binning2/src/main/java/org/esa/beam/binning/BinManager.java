@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2013 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -30,20 +30,27 @@ import java.util.Map;
 public class BinManager {
 
     private final VariableContext variableContext;
+    private final PostProcessor postProcessor;
     private final Aggregator[] aggregators;
     private final int spatialFeatureCount;
     private final int temporalFeatureCount;
     private final int outputFeatureCount;
+    private final int postFeatureCount;
     private final int[] spatialFeatureOffsets;
     private final int[] temporalFeatureOffsets;
     private final int[] outputFeatureOffsets;
     private final String[] outputFeatureNames;
+    private final String[] postFeatureNames;
 
     public BinManager() {
         this(new VariableContextImpl());
     }
 
     public BinManager(VariableContext variableContext, Aggregator... aggregators) {
+        this(variableContext, null, aggregators);
+    }
+
+    public BinManager(VariableContext variableContext, PostProcessorConfig postProcessorConfig, Aggregator... aggregators) {
         this.variableContext = variableContext;
         this.aggregators = aggregators;
         this.spatialFeatureOffsets = new int[aggregators.length];
@@ -73,6 +80,29 @@ public class BinManager {
                 k++;
             }
         }
+        if (postProcessorConfig != null) {
+            this.postProcessor = createPostProcessor(postProcessorConfig, outputFeatureNames);
+            this.postFeatureCount = outputFeatureCount;
+            this.postFeatureNames = postProcessor.getOutputFeatureNames();
+        } else {
+            this.postProcessor = null;
+            this.postFeatureCount = 0;
+            this.postFeatureNames = new String[0];
+        }
+    }
+
+    private static PostProcessor createPostProcessor(PostProcessorConfig config, String[] outputFeatureNames) {
+        VariableContextImpl variableContextAgg = new VariableContextImpl();
+        for (String outputFeatureName : outputFeatureNames) {
+            variableContextAgg.defineVariable(outputFeatureName);
+        }
+        PostProcessorDescriptorRegistry registry = PostProcessorDescriptorRegistry.getInstance();
+        PostProcessorDescriptor descriptor = registry.getPostProcessorDescriptor(config.getPostProcessorName());
+        if (descriptor != null) {
+            return descriptor.createPostProcessor(variableContextAgg, config);
+        } else {
+            throw new IllegalArgumentException("Unknown post processor type: " + config.getPostProcessorName());
+        }
     }
 
     public VariableContext getVariableContext() {
@@ -87,8 +117,20 @@ public class BinManager {
         return temporalFeatureCount;
     }
 
-    public final String[] getOutputFeatureNames() {
+    final String[] getOutputFeatureNames() {
         return outputFeatureNames;
+    }
+
+    final String[] getPostProcessFeatureNames() {
+        return postFeatureNames;
+    }
+
+    public final String[] getResultFeatureNames() {
+        if (hasPostProcessor()) {
+            return getPostProcessFeatureNames();
+        } else {
+            return getOutputFeatureNames();
+        }
     }
 
     public final int getAggregatorCount() {
@@ -215,6 +257,36 @@ public class BinManager {
             final Aggregator aggregator = aggregators[i];
             vector.setOffsetAndSize(temporalFeatureOffsets[i], aggregator.getTemporalFeatureNames().length);
             aggregator.initTemporal(bin, vector);
+        }
+    }
+
+    public boolean hasPostProcessor() {
+        return postProcessor != null;
+    }
+
+    public WritableVector createResultVector() {
+        if (hasPostProcessor()) {
+            return createPostVector();
+        } else {
+            return createOutputVector();
+        }
+    }
+
+    public WritableVector createPostVector() {
+        return new VectorImpl(new float[postFeatureCount]);
+    }
+
+    public void postProcess(Vector outputVector, WritableVector postVector) {
+        postProcessor.compute(outputVector, postVector);
+    }
+
+    public void computeResult(TemporalBin temporalBin, WritableVector resultVector) {
+        if (hasPostProcessor()) {
+            WritableVector outputVector = createOutputVector();
+            computeOutput(temporalBin, outputVector);
+            postProcess(outputVector, resultVector);
+        } else {
+            computeOutput(temporalBin, resultVector);
         }
     }
 

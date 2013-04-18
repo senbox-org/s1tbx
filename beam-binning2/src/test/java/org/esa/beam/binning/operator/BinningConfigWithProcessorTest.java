@@ -18,84 +18,24 @@ package org.esa.beam.binning.operator;
 
 import com.bc.ceres.binding.BindingException;
 import org.esa.beam.binning.BinManager;
-import org.esa.beam.binning.CompositingType;
-import org.esa.beam.binning.PlanetaryGrid;
-import org.esa.beam.binning.VariableContext;
 import org.esa.beam.binning.aggregators.AggregatorAverage;
 import org.esa.beam.binning.aggregators.AggregatorAverageML;
 import org.esa.beam.binning.aggregators.AggregatorMinMax;
 import org.esa.beam.binning.aggregators.AggregatorOnMaxSet;
-import org.esa.beam.binning.support.PlateCarreeGrid;
-import org.esa.beam.binning.support.SEAGrid;
-import org.esa.beam.util.io.FileUtils;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 
 import static org.junit.Assert.*;
 
-public class BinningConfigTest {
+public class BinningConfigWithProcessorTest {
 
     private BinningConfig config;
 
     @Before
     public void initBinningConfig() throws IOException, BindingException {
-        config = loadConfig(getClass().getResourceAsStream("BinningConfigTest.xml"));
-    }
-
-    @Test
-    public void testPlanetaryGrid() {
-        BinningConfig localConfig = new BinningConfig();
-        PlanetaryGrid grid = localConfig.createPlanetaryGrid();
-        assertEquals(2160, grid.getNumRows());
-        assertEquals(SEAGrid.class, grid.getClass());
-
-        localConfig.setPlanetaryGrid("org.esa.beam.binning.support.PlateCarreeGrid");
-        localConfig.setNumRows(2000);
-        grid = localConfig.createPlanetaryGrid();
-        assertEquals(2000, grid.getNumRows());
-        assertEquals(PlateCarreeGrid.class, grid.getClass());
-
-        grid = config.createPlanetaryGrid();
-        assertEquals(4320, grid.getNumRows());
-        assertEquals(SEAGrid.class, grid.getClass());
-    }
-
-    @Test
-    public void testCompositingType() throws Exception {
-        assertEquals(CompositingType.MOSAICKING, config.getCompositingType());
-    }
-
-    @Test
-    public void testResultingVariableContext() {
-        VariableContext variableContext = config.createVariableContext();
-
-        assertEquals(8, variableContext.getVariableCount());
-
-        assertEquals(0, variableContext.getVariableIndex("ndvi"));
-        assertEquals(1, variableContext.getVariableIndex("tsm"));
-        assertEquals(2, variableContext.getVariableIndex("algal1"));
-        assertEquals(3, variableContext.getVariableIndex("algal2"));
-        assertEquals(4, variableContext.getVariableIndex("chl"));
-        assertEquals(5, variableContext.getVariableIndex("reflec_3"));
-        assertEquals(6, variableContext.getVariableIndex("reflec_7"));
-        assertEquals(7, variableContext.getVariableIndex("reflec_8"));
-        assertEquals(-1, variableContext.getVariableIndex("reflec_6"));
-        assertEquals(-1, variableContext.getVariableIndex("reflec_10"));
-
-        assertEquals("!l2_flags.INVALID && l2_flags.WATER", variableContext.getValidMaskExpression());
-
-        assertEquals("ndvi", variableContext.getVariableName(0));
-        assertEquals("(reflec_10 - reflec_6) / (reflec_10 + reflec_6)", variableContext.getVariableExpression(0));
-
-        assertEquals("algal2", variableContext.getVariableName(3));
-        assertEquals(null, variableContext.getVariableExpression(3));
-
-        assertEquals("reflec_7", variableContext.getVariableName(6));
-        assertEquals(null, variableContext.getVariableExpression(6));
+        config = BinningConfigTest.loadConfig(getClass().getResourceAsStream("BinningConfigWithProcessorTest.xml"));
     }
 
     @Test
@@ -125,14 +65,8 @@ public class BinningConfigTest {
         assertEquals(AggregatorMinMax.class, binManager.getAggregator(5).getClass());
         assertArrayEquals(new String[]{"chl_min", "chl_max"}, binManager.getAggregator(5).getOutputFeatureNames());
 
-        assertArrayEquals(new String[]{"tsm_mean", "tsm_sigma",
-                "algal1_mean", "algal1_sigma", "algal1_median", "algal1_mode",
-                "algal2_mean", "algal2_sigma", "algal2_median", "algal2_mode",
-                "chl_mean", "chl_sigma", "chl_median", "chl_mode",
-                "ndvi_max", "ndvi_mjd", "reflec_3", "reflec_7", "reflec_8",
-                "chl_min", "chl_max"
-        }, binManager.getResultFeatureNames());
-        assertFalse(binManager.hasPostProcessor());
+        assertArrayEquals(new String[]{"tsm_mean", "tsm_sigma", "chl_min"}, binManager.getResultFeatureNames());
+        assertTrue(binManager.hasPostProcessor());
     }
 
     @Test
@@ -147,20 +81,7 @@ public class BinningConfigTest {
         assertEquals(config.getMaskExpr(), configCopy.getMaskExpr());
         assertArrayEquals(config.getVariableConfigs(), configCopy.getVariableConfigs());
         assertArrayEquals(config.getAggregatorConfigs(), configCopy.getAggregatorConfigs());
-    }
-
-    @Test
-    public void testNumRows() {
-        assertEquals(4320, config.getNumRows());
-    }
-
-    static BinningConfig loadConfig(InputStream is) throws IOException, BindingException {
-        final InputStreamReader reader = new InputStreamReader(is);
-        try {
-            return BinningConfig.fromXml(FileUtils.readText(reader));
-        } finally {
-            reader.close();
-        }
+        assertEquals(config.getPostProcessorConfig(), configCopy.getPostProcessorConfig());
     }
 
 }

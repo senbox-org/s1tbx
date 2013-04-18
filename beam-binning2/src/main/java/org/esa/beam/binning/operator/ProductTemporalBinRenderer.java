@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2013 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -94,7 +94,7 @@ public final class ProductTemporalBinRenderer implements TemporalBinRenderer {
         numPassesBand.setNoDataValueUsed(true);
         numPassesLine = numPassesBand.createCompatibleRasterData(outputRegion.width, 1);
 
-        String[] outputFeatureNames = binningContext.getBinManager().getOutputFeatureNames();
+        String[] outputFeatureNames = binningContext.getBinManager().getResultFeatureNames();
         outputBands = new Band[outputFeatureNames.length];
         outputLines = new ProductData[outputFeatureNames.length];
         for (int i = 0; i < outputFeatureNames.length; i++) {
