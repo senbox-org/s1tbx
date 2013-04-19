@@ -20,16 +20,17 @@ import org.esa.beam.framework.datamodel.MetadataAttribute;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.OperatorException;
-import org.esa.nest.dataio.sentinel1.Sentinel1Constants;
 import org.esa.nest.datamodel.AbstractMetadata;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
+import java.text.DateFormat;
 
 public final class Sentinel1Utils
 {
-
+	public final static DateFormat sentinelDateFormat = ProductData.UTC.createDateFormat("yyyy-MM-dd_HH:mm:ss");
+	
     private Sentinel1Utils()
     {
     }
@@ -39,7 +40,7 @@ public final class Sentinel1Utils
         String start = elem.getAttributeString(tag, AbstractMetadata.NO_METADATA_STRING);
         start = start.replace("T", "_");
 
-        return AbstractMetadata.parseUTC(start, Sentinel1Constants.sentinelDateFormat);
+        return AbstractMetadata.parseUTC(start, sentinelDateFormat);
     }
 
     public static int[] getIntArray(final MetadataElement elem, final String tag) {

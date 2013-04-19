@@ -1,0 +1,53 @@
+<module>
+    <manifestVersion>1.0.0</manifestVersion>
+    <symbolicName>nest-op-sentinel1</symbolicName>
+    <version>5.0</version>
+    <name>NEST Sentinel-1 Tools</name>
+
+    <description>Tools for Sentinel-1 products</description>
+
+    <vendor>Array Systems Computing Inc</vendor>
+    <contactAddress>1120 Finch Ave W. Toronto (Canada)</contactAddress>
+    <copyright>(C) 2013 by Array Systems Computing Inc</copyright>
+    <url>http://www.array.ca/nest</url>
+    <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
+	<funding>European Space Agency</funding>
+
+    <dependency>
+        <module>nest-graph-builder</module>
+    </dependency>
+    <dependency>
+        <module>beam-core</module>
+    </dependency>
+    <dependency>
+        <module>nest-core</module>
+    </dependency>
+		
+    <categories>Processor</categories>
+
+    <extension point="beam-ui:actions">
+
+        <action>
+            <id>Sentinel1</id>
+            <class>org.esa.beam.visat.actions.ActionGroup</class>
+            <text>SENTINEL-1</text>
+            <parent>sartools</parent>
+            <placeAfter>ASARWSS</placeAfter>
+        </action>
+
+        <action>
+	        <id>Sentinel1TOPSARDeburstOp</id>
+	        <helpId>Sentinel1TOPSARDeburstOp</helpId>
+	        <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <icon>esaIcon</icon>
+            <parent>Sentinel1</parent>
+	        <text>Sentinel1 TOPSAR Deburst</text>
+	        <operatorName>DeburstTOPSAR</operatorName>
+	        <dialogTitle>Sentinel1 TOPSAR Deburst operator</dialogTitle>
+            <shortDescr>Deburst a Sentinel1 TOPSAR product</shortDescr>
+            <targetProductNameSuffix>_Deburst</targetProductNameSuffix>
+        </action>
+
+    </extension>
+
+</module>
