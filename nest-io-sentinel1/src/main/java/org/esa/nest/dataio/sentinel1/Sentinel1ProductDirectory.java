@@ -18,6 +18,7 @@ package org.esa.nest.dataio.sentinel1;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.util.io.FileUtils;
+import org.esa.beam.util.math.MathUtils;
 import org.esa.nest.dataio.XMLProductDirectory;
 import org.esa.nest.dataio.imageio.ImageIOFile;
 import org.esa.nest.datamodel.AbstractMetadata;
@@ -597,6 +598,8 @@ public class Sentinel1ProductDirectory extends XMLProductDirectory {
         final float[] incidenceAngleList = new float[geoGrid.length];
         final float[] elevAngleList = new float[geoGrid.length];
         final float[] rangeTimeList = new float[geoGrid.length];
+        final int[] x = new int[geoGrid.length];
+        final int[] y = new int[geoGrid.length];
 
         int gridWidth = 0, gridHeight = 0;
         int i=0;
@@ -607,8 +610,9 @@ public class Sentinel1ProductDirectory extends XMLProductDirectory {
             elevAngleList[i] = (float)ggPoint.getAttributeDouble("elevationAngle", 0);
             rangeTimeList[i] = (float)(ggPoint.getAttributeDouble("slantRangeTime", 0)*Constants.oneBillion); // s to ns
 
-            final double pix = ggPoint.getAttributeDouble("pixel", 0);
-            if(pix == 0) {
+            x[i] = (int)ggPoint.getAttributeDouble("pixel", 0);
+            y[i] = (int)ggPoint.getAttributeDouble("line", 0);
+            if(x[i] == 0) {
                 if(gridWidth == 0)
                     gridWidth = i;
                 ++gridHeight;
@@ -616,13 +620,37 @@ public class Sentinel1ProductDirectory extends XMLProductDirectory {
             ++i;
         }
 
-        final float subSamplingX = (float)product.getSceneRasterWidth() / (gridWidth - 1);
-        final float subSamplingY = (float)product.getSceneRasterHeight() / (gridHeight - 1);
+        final int newGridWidth = gridWidth;
+        final int newGridHeight = gridHeight;
+        final float[] newLatList = new float[newGridWidth*newGridHeight];
+        final float[] newLonList = new float[newGridWidth*newGridHeight];
+        final float[] newIncList = new float[newGridWidth*newGridHeight];
+        final float[] newElevList = new float[newGridWidth*newGridHeight];
+        final float[] newslrtList = new float[newGridWidth*newGridHeight];
+        final int sceneRasterWidth = product.getSceneRasterWidth();
+        final int sceneRasterHeight = product.getSceneRasterHeight();
+        final float subSamplingX = (float)sceneRasterWidth / (newGridWidth - 1);
+        final float subSamplingY = (float)sceneRasterHeight / (newGridHeight - 1);
+
+        getListInEvenlySpacedGrid(sceneRasterWidth, sceneRasterHeight, gridWidth, gridHeight, x, y, latList,
+                newGridWidth, newGridHeight, subSamplingX, subSamplingY, newLatList);
+
+        getListInEvenlySpacedGrid(sceneRasterWidth, sceneRasterHeight, gridWidth, gridHeight, x, y, lngList,
+                newGridWidth, newGridHeight, subSamplingX, subSamplingY, newLonList);
+
+        getListInEvenlySpacedGrid(sceneRasterWidth, sceneRasterHeight, gridWidth, gridHeight, x, y, incidenceAngleList,
+                newGridWidth, newGridHeight, subSamplingX, subSamplingY, newIncList);
+
+        getListInEvenlySpacedGrid(sceneRasterWidth, sceneRasterHeight, gridWidth, gridHeight, x, y, elevAngleList,
+                newGridWidth, newGridHeight, subSamplingX, subSamplingY, newElevList);
+
+        getListInEvenlySpacedGrid(sceneRasterWidth, sceneRasterHeight, gridWidth, gridHeight, x, y, rangeTimeList,
+                newGridWidth, newGridHeight, subSamplingX, subSamplingY, newslrtList);
 
         TiePointGrid latGrid = product.getTiePointGrid(pre+OperatorUtils.TPG_LATITUDE);
         if(latGrid == null) {
             latGrid = new TiePointGrid(pre+OperatorUtils.TPG_LATITUDE,
-                gridWidth, gridHeight, 0.5f, 0.5f, subSamplingX, subSamplingY, latList);
+                newGridWidth, newGridHeight, 0.5f, 0.5f, subSamplingX, subSamplingY, newLatList);
             latGrid.setUnit(Unit.DEGREES);
             product.addTiePointGrid(latGrid);
         }
@@ -630,28 +658,28 @@ public class Sentinel1ProductDirectory extends XMLProductDirectory {
         TiePointGrid lonGrid = product.getTiePointGrid(pre+OperatorUtils.TPG_LONGITUDE);
         if(lonGrid == null) {
             lonGrid = new TiePointGrid(pre+OperatorUtils.TPG_LONGITUDE,
-                gridWidth, gridHeight, 0.5f, 0.5f, subSamplingX, subSamplingY, lngList, TiePointGrid.DISCONT_AT_180);
+                newGridWidth, newGridHeight, 0.5f, 0.5f, subSamplingX, subSamplingY, newLonList, TiePointGrid.DISCONT_AT_180);
             lonGrid.setUnit(Unit.DEGREES);
             product.addTiePointGrid(lonGrid);
         }
 
         if(product.getTiePointGrid(pre+OperatorUtils.TPG_INCIDENT_ANGLE) == null) {
             final TiePointGrid incidentAngleGrid = new TiePointGrid(pre+OperatorUtils.TPG_INCIDENT_ANGLE,
-                gridWidth, gridHeight, 0, 0, subSamplingX, subSamplingY, incidenceAngleList);
+                newGridWidth, newGridHeight, 0.5f, 0.5f, subSamplingX, subSamplingY, newIncList);
             incidentAngleGrid.setUnit(Unit.DEGREES);
             product.addTiePointGrid(incidentAngleGrid);
         }
 
         if(product.getTiePointGrid(pre+OperatorUtils.TPG_ELEVATION_ANGLE) == null) {
             final TiePointGrid elevAngleGrid = new TiePointGrid(pre+OperatorUtils.TPG_ELEVATION_ANGLE,
-                gridWidth, gridHeight, 0, 0, subSamplingX, subSamplingY, elevAngleList);
+                newGridWidth, newGridHeight, 0.5f, 0.5f, subSamplingX, subSamplingY, newElevList);
             elevAngleGrid.setUnit(Unit.DEGREES);
             product.addTiePointGrid(elevAngleGrid);
         }
 
         if(product.getTiePointGrid(pre+OperatorUtils.TPG_SLANT_RANGE_TIME) == null) {
             final TiePointGrid slantRangeGrid = new TiePointGrid(pre+OperatorUtils.TPG_SLANT_RANGE_TIME,
-                gridWidth, gridHeight, 0, 0, subSamplingX, subSamplingY, rangeTimeList);
+                newGridWidth, newGridHeight, 0.5f, 0.5f, subSamplingX, subSamplingY, newslrtList);
             slantRangeGrid.setUnit(Unit.NANOSECONDS);
             product.addTiePointGrid(slantRangeGrid);
         }
@@ -695,5 +723,73 @@ public class Sentinel1ProductDirectory extends XMLProductDirectory {
         if(OCNReader != null)
             return "Level-2 OCN";
         return "Level-1";
+    }
+
+    private static void getListInEvenlySpacedGrid(
+            final int sceneRasterWidth, final int sceneRasterHeight, final int sourceGridWidth,
+            final int sourceGridHeight, final int [] x, final int [] y, final float[] sourcePointList,
+            final int targetGridWidth, final int targetGridHeight, final float subSamplingX, final float subSamplingY,
+            final float[] targetPointList) {
+
+        if (sourcePointList.length != sourceGridWidth*sourceGridHeight) {
+            throw new IllegalArgumentException(
+                    "Original tie point array size does not match 'sourceGridWidth' x 'sourceGridHeight'");
+        }
+
+        if (targetPointList.length != targetGridWidth*targetGridHeight) {
+            throw new IllegalArgumentException(
+                    "Target tie point array size does not match 'targetGridWidth' x 'targetGridHeight'");
+        }
+
+        int k = 0;
+        for (int r = 0; r < targetGridHeight; r++) {
+
+            if (r == targetGridHeight - 1) {
+                System.out.println();
+            }
+            float newY = r*subSamplingY;
+            if (newY > sceneRasterHeight - 1) {
+                newY = sceneRasterHeight - 1;
+            }
+            float oldY0 = 0, oldY1 = 0;
+            int j0 = 0, j1 = 0;
+            for (int rr = 1; rr < sourceGridHeight; rr++) {
+                j0 = rr - 1;
+                j1 = rr;
+                oldY0 = y[j0*sourceGridWidth];
+                oldY1 = y[j1*sourceGridWidth];
+                if (oldY1 > newY) {
+                    break;
+                }
+            }
+
+            final float wj = (newY - oldY0)/(oldY1 - oldY0);
+
+            for (int c = 0; c < targetGridWidth; c++) {
+
+                float newX = c*subSamplingX;
+                if (newX > sceneRasterWidth - 1) {
+                    newX = sceneRasterWidth - 1;
+                }
+                float oldX0 = 0, oldX1 = 0;
+                int i0 = 0, i1 = 0;
+                for (int cc = 1; cc < sourceGridWidth; cc++) {
+                    i0 = cc - 1;
+                    i1 = cc;
+                    oldX0 = x[i0];
+                    oldX1 = x[i1];
+                    if (oldX1 > newX) {
+                        break;
+                    }
+                }
+                final float wi = (newX - oldX0)/(oldX1 - oldX0);
+
+                targetPointList[k++] = MathUtils.interpolate2D(wi, wj,
+                        sourcePointList[i0 + j0 * sourceGridWidth],
+                        sourcePointList[i1 + j0 * sourceGridWidth],
+                        sourcePointList[i0 + j1 * sourceGridWidth],
+                        sourcePointList[i1 + j1 * sourceGridWidth]);
+            }
+        }
     }
 }
