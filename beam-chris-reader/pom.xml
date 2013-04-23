@@ -28,10 +28,9 @@
         <relativePath>../beam-plugin-parent/pom.xml</relativePath>
     </parent>
 
-    <groupId>org.esa.beam</groupId>
     <artifactId>beam-chris-reader</artifactId>
     <name>BEAM CHRIS/Proba Product Reader</name>
-    <version>1.7.1.${beam.version}</version>
+    <version>1.7.2.${beam.version}</version>
     <url>http://envisat.esa.int/beam/</url>
 
     <dependencies>

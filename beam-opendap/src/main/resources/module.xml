@@ -2,7 +2,7 @@
     <manifestVersion>1.0.0</manifestVersion>
 
     <symbolicName>opendap-download-tool</symbolicName>
-    <version>1.0</version>
+    <version>1.1.0</version>
     <name>OPeNDAP Download Tool</name>
     <funding>EU</funding>
 
@@ -19,6 +19,13 @@
     <copyright>(C) 2012 by Brockmann Consult GmbH</copyright>
     <url>http://envisat.esa.int/beam</url>
     <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
+
+    <changelog>
+        <![CDATA[
+        Changes in 1.1.0:<br/>
+          [BEAM-1504] - Update NetCDF library to version 4.3.16<br/>
+        ]]>
+    </changelog>
 
     <categories>ui</categories>
 

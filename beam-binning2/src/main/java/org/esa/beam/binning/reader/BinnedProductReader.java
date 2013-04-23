@@ -100,7 +100,8 @@ public class BinnedProductReader extends AbstractProductReader {
             initPlanetaryGrid();
 
             //create indexMap
-            final Variable bl_bin_num = netcdfFile.findVariable(NetcdfFile.escapeName("bl_bin_num"));
+
+            final Variable bl_bin_num = netcdfFile.findVariable("bl_bin_num");
             if (bl_bin_num != null) {
                 synchronized (netcdfFile) {
                     final Object storage = bl_bin_num.read().getStorage();
@@ -112,7 +113,7 @@ public class BinnedProductReader extends AbstractProductReader {
                 }
             }
 
-            final Variable bi_begin = netcdfFile.findVariable(NetcdfFile.escapeName("bi_begin"));
+            final Variable bi_begin = netcdfFile.findVariable("bi_begin");
             if (bi_begin != null) {
                 synchronized (netcdfFile) {
                     final Object storage = bi_begin.read().getStorage();
@@ -124,7 +125,7 @@ public class BinnedProductReader extends AbstractProductReader {
             }
 
 
-            final Variable bi_extent = netcdfFile.findVariable(NetcdfFile.escapeName("bi_extent"));
+            final Variable bi_extent = netcdfFile.findVariable("bi_extent");
             if (bi_extent != null) {
                 synchronized (netcdfFile) {
                     final Object storage = bi_extent.read().getStorage();

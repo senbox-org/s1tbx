@@ -13,6 +13,7 @@ import ucar.nc2.NetcdfFile;
 import ucar.nc2.NetcdfFileWriteable;
 import ucar.nc2.Variable;
 import ucar.nc2.dods.DODSNetcdfFile;
+import ucar.nc2.util.EscapeStrings;
 
 import java.io.File;
 import java.io.IOException;
@@ -120,7 +121,8 @@ public class DAPDownloader {
                                       filteredDimension.isVariableLength());
         }
         for (String filteredVariable : filteredVariables) {
-            final Variable variable = sourceNetcdfFile.findVariable(NetcdfFile.escapeName(filteredVariable));
+            String varName = EscapeStrings.backslashEscape(filteredVariable, NetcdfFile.reservedSectionSpec);
+            final Variable variable = sourceNetcdfFile.findVariable(varName);
             final Variable targetVariable = targetNetCDF.addVariable(variable.getName(), variable.getDataType(),
                                                                      variable.getDimensions());
             for (Attribute attribute : variable.getAttributes()) {
@@ -133,13 +135,14 @@ public class DAPDownloader {
         targetNetCDF.create();
 
         for (String filteredVariable : filteredVariables) {
-            final Variable sourceVariable = sourceNetcdfFile.findVariable(NetcdfFile.escapeName(filteredVariable));
+            String varName = EscapeStrings.backslashEscape(filteredVariable, NetcdfFile.reservedSectionSpec);
+            final Variable sourceVariable = sourceNetcdfFile.findVariable(varName);
             String ceForVariable = getConstraintExpression(filteredVariable, constraintExpression);
             final Array values = sourceNetcdfFile.readWithCE(sourceVariable, ceForVariable);
             final int[] origin = getOrigin(filteredVariable, constraintExpression,
                                            sourceVariable.getDimensions().size());
             try {
-                targetNetCDF.write(NetcdfFile.escapeName(filteredVariable), origin, values);
+                targetNetCDF.write(varName, origin, values);
             } catch (InvalidRangeException e) {
                 throw new IOException(MessageFormat.format("Unable to download variable ''{0}'' into file ''{1}''.",
                                                            filteredVariable, fileName), e);
@@ -246,7 +249,7 @@ public class DAPDownloader {
         final List<Dimension> filteredDimensions = new ArrayList<Dimension>();
 
         for (String variableName : variables) {
-            final Variable variable = netcdfFile.findVariable(NetcdfFile.escapeName(variableName));
+            final Variable variable = netcdfFile.findVariable(variableName);
             for (Dimension dimension : variable.getDimensions()) {
                 if (!filteredDimensions.contains(dimension)) {
                     filteredDimensions.add(dimension);

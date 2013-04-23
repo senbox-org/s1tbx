@@ -56,8 +56,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-import static org.esa.beam.dataio.spot.SpotVgtProductReaderPlugIn.getBandName;
-import static org.esa.beam.dataio.spot.SpotVgtProductReaderPlugIn.getFileInput;
+import static org.esa.beam.dataio.spot.SpotVgtProductReaderPlugIn.*;
 
 /**
  * Reader for SPOT VGT products.
@@ -242,7 +241,7 @@ public class SpotVgtProductReader extends AbstractProductReader {
 
     private Variable findPixelDataVariable(NetcdfFile netcdfFile) {
         for (String name : PIXEL_DATA_VAR_NAMES) {
-            Variable pixelDataVar = netcdfFile.findTopVariable(name);
+            Variable pixelDataVar = netcdfFile.getRootGroup().findVariable(name);
             if (pixelDataVar != null) {
                 return pixelDataVar;
             }

@@ -87,7 +87,7 @@ public class N4FileWriteable implements NFileWriteable {
         boolean unsigned = false; // TODO
         int nhType = N4DataType.convert(dataType, unsigned);
         try {
-            NhVariable variable = rootGroup.addVariable(name, nhType, new NhDimension[0], new int[0], null, 0);
+            NhVariable variable = rootGroup.addVariable(name, nhType, new NhDimension[0], null, null, 0);
             NVariable nVariable = new N4Variable(variable, null);
             variables.put(name, nVariable);
             return nVariable;

@@ -17,7 +17,6 @@
 package org.esa.beam.dataio.chris;
 
 import org.esa.beam.util.io.CsvReader;
-
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
 import ucar.ma2.InvalidRangeException;
@@ -290,7 +289,7 @@ class ChrisFile {
     }
 
     private static float[][] readModeInfo(NetcdfFile ncFile) throws IOException {
-        Variable modeInfoVar = ncFile.findTopVariable(ChrisConstants.VS_NAME_MODE_INFO);
+        Variable modeInfoVar = ncFile.getRootGroup().findVariable(ChrisConstants.VS_NAME_MODE_INFO);
         if (modeInfoVar instanceof Structure) {
             Structure modeInfoStruct = (Structure) modeInfoVar;
             int numRecords = modeInfoStruct.getDimension(0).getLength();
@@ -315,7 +314,7 @@ class ChrisFile {
     }
 
     private static Map<Integer, Float> readGainInfo(NetcdfFile ncFile) throws IOException {
-        Variable gainInfoVar = ncFile.findTopVariable(ChrisConstants.VS_NAME_GAIN_INFO);
+        Variable gainInfoVar = ncFile.getRootGroup().findVariable(ChrisConstants.VS_NAME_GAIN_INFO);
         if (gainInfoVar instanceof Structure) {
             Structure gainInfoStruct = (Structure) gainInfoVar;
             int recordCount = gainInfoStruct.getDimension(0).getLength();
@@ -345,7 +344,7 @@ class ChrisFile {
 
     private static Variable getVariable(NetcdfFile ncFile, String sdsName, boolean require) throws IOException {
         try {
-            Variable variable = ncFile.findTopVariable(sdsName);
+            Variable variable = ncFile.getRootGroup().findVariable(sdsName);
             if (variable == null) {
                 if (require) {
                     throw new IOException(MessageFormat.format("Missing dataset ''{0}''", sdsName));
