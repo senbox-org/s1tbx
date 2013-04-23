@@ -17,6 +17,7 @@ package org.esa.nest.dataio.sentinel1;
 
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.dataop.maptransf.Datum;
+import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.util.math.MathUtils;
 import org.esa.nest.dataio.XMLProductDirectory;
@@ -563,7 +564,78 @@ public class Sentinel1ProductDirectory extends XMLProductDirectory {
 
     @Override
     protected void addGeoCoding(final Product product) {
-        // replaced by call to addTiePointGrids(band)
+
+        TiePointGrid latGrid = product.getTiePointGrid(OperatorUtils.TPG_LATITUDE);
+        TiePointGrid lonGrid = product.getTiePointGrid(OperatorUtils.TPG_LONGITUDE);
+        if (latGrid != null && lonGrid != null) {
+            setLatLongMetadata(product, latGrid, lonGrid);
+            return;
+        }
+
+        MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
+        String acquisitionMode = absRoot.getAttributeString(AbstractMetadata.ACQUISITION_MODE);
+        int numOfSubSwath;
+        switch (acquisitionMode) {
+            case "IW":
+                numOfSubSwath = 3;
+                break;
+            case "EW":
+                numOfSubSwath = 5;
+                break;
+            default:
+                throw new OperatorException("Acquisition mode is not IW or EW");
+        }
+
+        String[] bandNames = product.getBandNames();
+        Band firstSWBand = null, lastSWBand = null;
+        boolean firstSWBandFound = false, lastSWBandFound = false;
+        for (String bandName:bandNames) {
+            if (!firstSWBandFound && bandName.contains(acquisitionMode + 1)) {
+                firstSWBand = product.getBand(bandName);
+                firstSWBandFound = true;
+            }
+
+            if (!lastSWBandFound && bandName.contains(acquisitionMode + numOfSubSwath)) {
+                lastSWBand = product.getBand(bandName);
+                lastSWBandFound = true;
+            }
+        }
+
+        GeoCoding firstSWBandGeoCoding = firstSWBand.getGeoCoding();
+        final int firstSWBandHeight = firstSWBand.getRasterHeight();
+
+        GeoCoding lastSWBandGeoCoding = lastSWBand.getGeoCoding();
+        final int lastSWBandWidth = lastSWBand.getRasterWidth();
+        final int lastSWBandHeight = lastSWBand.getRasterHeight();
+
+        PixelPos ulPix = new PixelPos(0, 0);
+        PixelPos llPix = new PixelPos(0, firstSWBandHeight - 1);
+        GeoPos ulGeo = new GeoPos();
+        GeoPos llGeo = new GeoPos();
+        firstSWBandGeoCoding.getGeoPos(ulPix, ulGeo);
+        firstSWBandGeoCoding.getGeoPos(llPix, llGeo);
+
+        PixelPos urPix = new PixelPos(lastSWBandWidth - 1, 0);
+        PixelPos lrPix = new PixelPos(lastSWBandWidth - 1, lastSWBandHeight - 1);
+        GeoPos urGeo = new GeoPos();
+        GeoPos lrGeo = new GeoPos();
+        lastSWBandGeoCoding.getGeoPos(urPix, urGeo);
+        lastSWBandGeoCoding.getGeoPos(lrPix, lrGeo);
+
+        float[] latCorners = {ulGeo.getLat(), urGeo.getLat(), llGeo.getLat(), lrGeo.getLat()};
+        float[] lonCorners = {ulGeo.getLon(), urGeo.getLon(), llGeo.getLon(), lrGeo.getLon()};
+
+        ReaderUtils.addGeoCoding(product, latCorners, lonCorners);
+
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_near_lat, ulGeo.getLat());
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_near_long, ulGeo.getLon());
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_far_lat, urGeo.getLat());
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_far_long, urGeo.getLon());
+
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_near_lat, llGeo.getLat());
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_near_long, llGeo.getLon());
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_far_lat, lrGeo.getLat());
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_far_long, lrGeo.getLon());
     }
 
     @Override
@@ -686,7 +758,7 @@ public class Sentinel1ProductDirectory extends XMLProductDirectory {
         final TiePointGeoCoding tpGeoCoding = new TiePointGeoCoding(latGrid, lonGrid, Datum.WGS_84);
         band.setGeoCoding(tpGeoCoding);
 
-        setLatLongMetadata(product, latGrid, lonGrid);
+        //setLatLongMetadata(product, latGrid, lonGrid);
     }
 
     private static void setLatLongMetadata(Product product, TiePointGrid latGrid, TiePointGrid lonGrid) {
@@ -798,5 +870,28 @@ public class Sentinel1ProductDirectory extends XMLProductDirectory {
         start = start.replace("T", "_");
 
         return AbstractMetadata.parseUTC(start, Sentinel1Constants.sentinelDateFormat);
+    }
+
+    @Override
+    public Product createProduct() throws IOException {
+
+        final Product product = new Product(getProductName(),
+                                            getProductType(),
+                                            sceneWidth, sceneHeight);
+
+        addMetaData(product);
+        addTiePointGrids(product); // empty
+
+        addBands(product, sceneWidth, sceneHeight);
+        addGeoCoding(product);
+
+        product.setName(getProductName());
+        product.setProductType(getProductType());
+        product.setDescription(getProductDescription());
+
+        AbstractMetadata.setAttribute(AbstractMetadata.getAbstractedMetadata(product),
+                AbstractMetadata.TOT_SIZE, ReaderUtils.getTotalSize(product));
+
+        return product;
     }
 }
