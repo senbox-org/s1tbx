@@ -1,26 +1,20 @@
-New in NEST 5
+#################################################
+### New in NEST 5
+#################################################
 
-Autoupdate installation
-Support for left facing missions
-Rigourous TerraSAR-X calibration
-TC of TerraSAR-X detected products
-copy, move, delete from product library
-graphical subset selection
-mapping tools layers
-Mosaic several bands at once to create RGB mosaics
-import vector operator
-flip operator
+* Autoupdate installation
+* Support for left facing missions
+* Rigourous TerraSAR-X calibration
+* TC of TerraSAR-X detected products
+* copy, move, delete from product library
+* graphical subset selection
+* mapping tools layers
+* Mosaic several bands at once to create RGB mosaics
+* import vector operator
+* flip operator
 
-New in NEST 4C
+Visit our website for updates to tutorial and forums
+We want to hear from you.
 
-Find optimal InSAR master
+http://www.array.ca/nest
 
-Imrpoved Coregistration
-Improved SAR Simulation Terrain Correction
-Improved PolSAR Pro Import/Export
-Export ENVI with georeferencing
-Export ArcInfo Binary Grid
-ASTER GDEM v2
-
-Batch process using the output format specified in the graph
-More robust ALOS PALSAR reader

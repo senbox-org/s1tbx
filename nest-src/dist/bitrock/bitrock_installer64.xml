@@ -3,6 +3,7 @@
     <fullName>NEST</fullName>
     <version>5.0.5</version>
     <installerFilename>${product_shortname}-${product_version}-${platform_name}64-installer.${platform_exec_suffix}</installerFilename>
+    <readmeFile>../../../what's new.txt</readmeFile>
     <licenseFile>../../../LICENSE.txt</licenseFile>
     <splashImage>../../main/bin/common/res/nest_splash.png</splashImage>
     <componentList>
@@ -460,7 +461,7 @@ check_for_updates = 1
     <startMenuGroupName>Next ESA SAR Toolbox</startMenuGroupName>
     <vendor>ESA</vendor>
     <windows64bitMode>1</windows64bitMode>
-	<customLanguageFileList>
+    <customLanguageFileList>
         <language>
             <code>en</code>
             <file>custom-en.lng</file>

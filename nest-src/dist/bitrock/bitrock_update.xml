@@ -3,6 +3,7 @@
     <fullName>NEST</fullName>
     <version>5.0.5</version>
     <installerFilename>${product_shortname}-${product_version}-${platform_name}-update.${platform_exec_suffix}</installerFilename>
+    <readmeFile>../../../what's new.txt</readmeFile>
     <licenseFile>../../../LICENSE.txt</licenseFile>
     <splashImage>../../main/bin/common/res/nest_splash.png</splashImage>
     <componentList>
