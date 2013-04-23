@@ -1,0 +1,4 @@
+Installer.Welcome.Title=Next ESA SAR Toolbox
+Installer.Welcome.Text=Welcome to the NEST Setup Wizard. 
+
+Installer.Installation.Finished.Text=Setup has finished installing %1$s on your computer.\n\nYou may also install optional plug-in modules from the module manager in the help menu.

@@ -598,12 +598,18 @@ check_for_updates = 1
         </deleteEnvironmentVariable>
     </postUninstallationActionList>
     <compressionAlgorithm>lzma</compressionAlgorithm>
-    <enableRollback>1</enableRollback>
+    <enableRollback>0</enableRollback>
     <enableTimestamp>1</enableTimestamp>
     <outputDirectory>../../../target</outputDirectory>
     <saveRelativePaths>1</saveRelativePaths>
     <startMenuGroupName>Next ESA SAR Toolbox</startMenuGroupName>
     <vendor>ESA</vendor>
+	<customLanguageFileList>
+        <language>
+            <code>en</code>
+            <file>custom-en.lng</file>
+        </language>
+    </customLanguageFileList>
     <parameterList>
         <directoryParameter>
             <name>installdir</name>
