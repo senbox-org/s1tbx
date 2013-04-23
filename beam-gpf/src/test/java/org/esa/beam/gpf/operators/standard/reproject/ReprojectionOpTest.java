@@ -16,14 +16,7 @@
 
 package org.esa.beam.gpf.operators.standard.reproject;
 
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.GeoPos;
-import org.esa.beam.framework.datamodel.PinDescriptor;
-import org.esa.beam.framework.datamodel.PixelPos;
-import org.esa.beam.framework.datamodel.Placemark;
-import org.esa.beam.framework.datamodel.PlacemarkDescriptor;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.TiePointGrid;
+import org.esa.beam.framework.datamodel.*;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -89,6 +82,17 @@ public class ReprojectionOpTest extends AbstractReprojectionOpTest {
 
         assertNotNull(targetPoduct);
         assertPixelValue(targetPoduct.getBand(FLOAT_BAND_NAME), 23.5f, 13.5f, (double) 299, EPS);
+    }
+
+    @Test
+    public void testStartAndEndTime() throws Exception {
+        parameterMap.put("crs", UTM33N_CODE);
+        final Product targetPoduct = createReprojectedProduct();
+        assertNotNull(targetPoduct.getStartTime());
+        assertNotNull(targetPoduct.getEndTime());
+        String meanTime = "02-JAN-2008 10:30:30.000000";
+        assertEquals(meanTime, targetPoduct.getStartTime().format());
+        assertEquals(meanTime, targetPoduct.getEndTime().format());
     }
 
     @Test

@@ -19,24 +19,8 @@ import com.bc.ceres.glevel.MultiLevelImage;
 import com.bc.ceres.glevel.MultiLevelModel;
 import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
 import com.bc.ceres.glevel.support.DefaultMultiLevelImage;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.ColorPaletteDef;
-import org.esa.beam.framework.datamodel.CrsGeoCoding;
-import org.esa.beam.framework.datamodel.FlagCoding;
-import org.esa.beam.framework.datamodel.GeoCoding;
-import org.esa.beam.framework.datamodel.GeoPos;
-import org.esa.beam.framework.datamodel.ImageGeometry;
-import org.esa.beam.framework.datamodel.ImageInfo;
-import org.esa.beam.framework.datamodel.IndexCoding;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.datamodel.ProductNodeGroup;
-import org.esa.beam.framework.datamodel.RasterDataNode;
-import org.esa.beam.framework.dataop.dem.ElevationModel;
-import org.esa.beam.framework.dataop.dem.ElevationModelDescriptor;
-import org.esa.beam.framework.dataop.dem.ElevationModelRegistry;
-import org.esa.beam.framework.dataop.dem.Orthorectifier;
-import org.esa.beam.framework.dataop.dem.Orthorectifier2;
+import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.dataop.dem.*;
 import org.esa.beam.framework.dataop.resamp.Resampling;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
@@ -60,9 +44,7 @@ import org.opengis.referencing.operation.TransformException;
 import javax.media.jai.ImageLayout;
 import javax.media.jai.Interpolation;
 import javax.media.jai.JAI;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Rectangle;
+import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.RenderedImage;
 import java.io.File;
@@ -266,6 +248,10 @@ public class ReprojectionOp extends Operator {
         } catch (Exception e) {
             throw new OperatorException(e);
         }
+
+        ProductData.UTC meanTime = getSourceMeanTime();
+        targetProduct.setStartTime(meanTime);
+        targetProduct.setEndTime(meanTime);
 
         srcModel = ImageManager.getMultiLevelModel(sourceProduct.getBandAt(0));
         targetModel = ImageManager.createMultiLevelModel(targetProduct);
@@ -496,6 +482,22 @@ public class ReprojectionOp extends Operator {
     private int getSourceLevel(MultiLevelModel srcModel, int targetLevel) {
         int maxSourceLevel = srcModel.getLevelCount() - 1;
         return maxSourceLevel < targetLevel ? maxSourceLevel : targetLevel;
+    }
+
+    private ProductData.UTC getSourceMeanTime() {
+        ProductData.UTC startTime = sourceProduct.getStartTime();
+        ProductData.UTC endTime = sourceProduct.getEndTime();
+        ProductData.UTC meanTime;
+        if (startTime != null && endTime != null) {
+            meanTime = new ProductData.UTC(0.5 * (startTime.getMJD() + endTime.getMJD()));
+        } else if (startTime != null) {
+            meanTime = startTime;
+        } else  if (endTime != null) {
+            meanTime = endTime;
+        } else {
+            meanTime = null;
+        }
+        return meanTime;
     }
 
     private void copyIndexCoding() {

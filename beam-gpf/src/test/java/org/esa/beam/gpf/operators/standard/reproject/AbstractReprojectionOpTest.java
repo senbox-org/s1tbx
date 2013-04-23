@@ -16,14 +16,7 @@
 
 package org.esa.beam.gpf.operators.standard.reproject;
 
-import static junit.framework.Assert.*;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.GeoPos;
-import org.esa.beam.framework.datamodel.PixelPos;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.datamodel.TiePointGeoCoding;
-import org.esa.beam.framework.datamodel.TiePointGrid;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.OperatorSpiRegistry;
@@ -37,9 +30,10 @@ import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 
+import static junit.framework.Assert.assertEquals;
+
 /**
  * @author Marco Peters
- * @version $ Revision $ Date $
  * @since BEAM 4.7
  */
 public abstract class AbstractReprojectionOpTest {
@@ -95,13 +89,15 @@ public abstract class AbstractReprojectionOpTest {
         wktFile = new File(AbstractReprojectionOpTest.class.getResource("test.wkt").toURI());
     }
 
-    private void createSourceProduct() {
+    private void createSourceProduct() throws Exception {
         sourceProduct = new Product("source", "t", 50, 50);
         final TiePointGrid latGrid = new TiePointGrid("latGrid", 2, 2, 0.5f, 0.5f, 49, 49, LATS);
         final TiePointGrid lonGrid = new TiePointGrid("lonGrid", 2, 2, 0.5f, 0.5f, 49, 49, LONS);
         sourceProduct.addTiePointGrid(latGrid);
         sourceProduct.addTiePointGrid(lonGrid);
         sourceProduct.setGeoCoding(new TiePointGeoCoding(latGrid, lonGrid));
+        sourceProduct.setStartTime(ProductData.UTC.parse("02-Jan-2008 10:15:10"));
+        sourceProduct.setEndTime(ProductData.UTC.parse("02-Jan-2008 10:45:50"));
         Band floatDataBand = sourceProduct.addBand(FLOAT_BAND_NAME, ProductData.TYPE_FLOAT32);
         floatDataBand.setRasterData(createDataFor(floatDataBand));
         floatDataBand.setSynthetic(true);
@@ -117,7 +113,7 @@ public abstract class AbstractReprojectionOpTest {
     }
 
     @Before
-    public void setupTestMethod() {
+    public void setupTestMethod() throws Exception {
         parameterMap = new HashMap<String, Object>(5);
         createSourceProduct();
     }
