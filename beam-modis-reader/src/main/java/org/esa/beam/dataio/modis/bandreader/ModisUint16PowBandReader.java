@@ -15,22 +15,25 @@
  */
 package org.esa.beam.dataio.modis.bandreader;
 
-import org.esa.beam.dataio.modis.hdf.lib.HDF;
 import org.esa.beam.framework.datamodel.ProductData;
+import ucar.ma2.Array;
+import ucar.ma2.InvalidRangeException;
+import ucar.ma2.Section;
+import ucar.nc2.Variable;
 
 import java.io.IOException;
 
 public class ModisUint16PowBandReader extends ModisBandReader {
 
-    private short[] _line;
+    private short[] line;
     private int min;
     private int max;
     private short fill;
     private float[] targetData;
     private int targetIdx;
 
-    public ModisUint16PowBandReader(final int sdsId, final int layer, final boolean is3d) {
-        super(sdsId, layer, is3d);
+    public ModisUint16PowBandReader(Variable variable, final int layer, final boolean is3d) {
+        super(variable, layer, is3d);
     }
 
     /**
@@ -47,13 +50,13 @@ public class ModisUint16PowBandReader extends ModisBandReader {
     protected void prepareForReading(final int sourceOffsetX, final int sourceOffsetY, final int sourceWidth,
                                      final int sourceHeight, final int sourceStepX, final int sourceStepY,
                                      final ProductData destBuffer) {
-        fill = (short) Math.floor(_fillValue + 0.5);
-        if (_validRange == null) {
+        fill = (short) Math.floor(fillValue + 0.5);
+        if (validRange == null) {
             min = 0;
             max = Short.MAX_VALUE * 2 + 1;
         } else {
-            min = (int) Math.floor(_validRange.getMin() + 0.5);
-            max = (int) Math.floor(_validRange.getMax() + 0.5);
+            min = (int) Math.floor(validRange.getMin() + 0.5);
+            max = (int) Math.floor(validRange.getMax() + 0.5);
         }
         targetData = (float[]) destBuffer.getElems();
         targetIdx = 0;
@@ -62,25 +65,33 @@ public class ModisUint16PowBandReader extends ModisBandReader {
 
     @Override
     protected void readLine() throws IOException {
-        HDF.getWrap().SDreaddata(_sdsId, _start, _stride, _count, _line);
+        try {
+            final Section section = new Section(start, count, stride);
+            final Array array = variable.read(section);
+            for (int i = 0; i < line.length; i++) {
+                line[i] = array.getShort(i);
+            }
+        } catch (InvalidRangeException e) {
+            throw new IOException(e.getMessage());
+        }
     }
 
     @Override
     protected void validate(final int x) {
-        final int value = _line[x] & 0xffff;
+        final int value = line[x] & 0xffff;
         if (value < min || value > max) {
-            _line[x] = fill;
+            line[x] = fill;
         }
     }
 
     @Override
     protected void assign(final int x) {
-        targetData[targetIdx++] = (float) Math.pow(10.f, (_scale * _line[x] + _offset));
+        targetData[targetIdx++] = (float) Math.pow(10.f, (scale * line[x] + offset));
     }
 
     private void ensureLineWidth(final int sourceWidth) {
-        if ((_line == null) || (_line.length != sourceWidth)) {
-            _line = new short[sourceWidth];
+        if ((line == null) || (line.length != sourceWidth)) {
+            line = new short[sourceWidth];
         }
     }
 }

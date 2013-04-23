@@ -19,6 +19,10 @@ import java.awt.Point;
 import java.io.IOException;
 import java.util.Vector;
 
+@Deprecated
+/**
+ * @Deprecated since beam-binning 2.1.2 as part of the BEAM 4.11-release. Use module 'beam-binning2' instead.
+ */
 interface QuadTreeElement {
 
     /**
@@ -31,9 +35,9 @@ interface QuadTreeElement {
     /**
      * Reads the data at the given location.
      * <p/>
-     * @param rowcol a Point designating the read location.
      *
-     * @param data the array to be filled with the data
+     * @param rowcol a Point designating the read location.
+     * @param data   the array to be filled with the data
      */
     public void read(Point rowcol, float[] data) throws IOException;
 

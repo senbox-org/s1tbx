@@ -15,8 +15,11 @@
  */
 package org.esa.beam.processor.binning.database;
 
+@Deprecated
 /**
  * A implementation of the Bin interface which uses an float array.
+ *
+ * @Deprecated since beam-binning 2.1.2 as part of the BEAM 4.11-release. Use module 'beam-binning2' instead.
  */
 public class FloatArrayBin implements Bin {
 
@@ -67,7 +70,7 @@ public class FloatArrayBin implements Bin {
         return data[offsets[bandIndex] + index];
     }
 
-   /**
+    /**
      * Writes data to a given field.
      *
      * @param index the field to be written to
@@ -126,9 +129,9 @@ public class FloatArrayBin implements Bin {
     @Override
     public float[] save(float[] recycledSaveData) {
         float[] savedData;
-        if(recycledSaveData == null || recycledSaveData.length != data.length) {
+        if (recycledSaveData == null || recycledSaveData.length != data.length) {
             savedData = new float[data.length];
-        }else{
+        } else {
             savedData = recycledSaveData;
         }
         System.arraycopy(data, 0, savedData, 0, data.length);

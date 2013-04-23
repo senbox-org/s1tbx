@@ -415,6 +415,12 @@ public class ProductTree extends JTree implements PopupMenuFactory {
                     Band band = (Band) productNode;
 
                     if (band.getSpectralWavelength() > 0.0) {
+                        if (band.getSpectralWavelength() == Math.round(band.getSpectralWavelength())) {
+                            text = String.format("%s (%d nm)", productNode.getName(), (int) band.getSpectralWavelength());
+                        } else {
+                            text = String.format("%s (%f nm)", productNode.getName(), band.getSpectralWavelength());
+                        }
+
                         toolTipBuffer.append(", wavelength = ");
                         toolTipBuffer.append(band.getSpectralWavelength());
                         toolTipBuffer.append(" nm, bandwidth = ");

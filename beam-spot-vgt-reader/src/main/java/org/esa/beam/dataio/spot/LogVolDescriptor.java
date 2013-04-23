@@ -39,7 +39,7 @@ final class LogVolDescriptor {
     private final PropertySet propertySet;
     private final String productId;
 
-    private static final double PIXEL_CENTER = 0.0;
+    private static final double PIXEL_CENTER = 0.5;
     private static final DateFormat DATE_FORMAT = ProductData.UTC.createDateFormat("yyyyMMddHHmmss");
 
     public LogVolDescriptor(Reader reader) throws IOException {

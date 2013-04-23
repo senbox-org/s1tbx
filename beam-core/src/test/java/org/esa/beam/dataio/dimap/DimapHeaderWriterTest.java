@@ -15,17 +15,33 @@
  */
 package org.esa.beam.dataio.dimap;
 
-import com.bc.ceres.core.ProgressMonitor;
 import junit.framework.TestCase;
-import org.esa.beam.framework.datamodel.*;
-import org.esa.beam.framework.dataop.maptransf.*;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.BitmaskDef;
+import org.esa.beam.framework.datamodel.ConvolutionFilterBand;
+import org.esa.beam.framework.datamodel.CrsGeoCoding;
+import org.esa.beam.framework.datamodel.FXYGeoCoding;
+import org.esa.beam.framework.datamodel.GeneralFilterBand;
+import org.esa.beam.framework.datamodel.Kernel;
+import org.esa.beam.framework.datamodel.MapGeoCoding;
+import org.esa.beam.framework.datamodel.PixelGeoCoding;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.VirtualBand;
+import org.esa.beam.framework.dataop.maptransf.Datum;
+import org.esa.beam.framework.dataop.maptransf.Ellipsoid;
+import org.esa.beam.framework.dataop.maptransf.LambertConformalConicDescriptor;
+import org.esa.beam.framework.dataop.maptransf.MapInfo;
+import org.esa.beam.framework.dataop.maptransf.MapProjection;
+import org.esa.beam.framework.dataop.maptransf.MapTransform;
 import org.esa.beam.framework.dataop.resamp.Resampling;
 import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.math.FXYSum;
 import org.geotools.referencing.CRS;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.io.IOException;
 import java.io.StringWriter;
@@ -246,13 +262,13 @@ public class DimapHeaderWriterTest extends TestCase {
         assertEquals(expectedForPixelGeoCoding, stringWriter.toString());
     }
 
-    public void testWritePixelGeoCodingWithoutEstimator() throws IOException {
-        final String expectedForPixelGeoCoding = setPixelGeoCodingWithoutEstimatorAndGetExpected();
-
-        dimapHeaderWriter.writeHeader();
-
-        assertEquals(expectedForPixelGeoCoding, stringWriter.toString());
-    }
+//    public void testWritePixelGeoCodingWithoutEstimator() throws IOException {
+//        final String expectedForPixelGeoCoding = setPixelGeoCodingWithoutEstimatorAndGetExpected();
+//
+//        dimapHeaderWriter.writeHeader();
+//
+//        assertEquals(expectedForPixelGeoCoding, stringWriter.toString());
+//    }
 
     // ###############################################
     // ##  W r i t e   C r s G e o C o d i n g      ##
@@ -263,96 +279,6 @@ public class DimapHeaderWriterTest extends TestCase {
         dimapHeaderWriter.writeHeader();
 
         assertEquals(expectedForCrsGeoCoding, stringWriter.toString());
-    }
-
-    private void addPinsToProduct() {
-        final PinDescriptor pinDescriptor = PinDescriptor.getInstance();
-        final Placemark placemark1 = Placemark.createPointPlacemark(pinDescriptor, "pin1", "pin1", "", null, new GeoPos(), product.getGeoCoding());
-        placemark1.setStyleCss("symbol:plus;stroke-width:2");
-        ProductNodeGroup<Placemark> pinGroup = product.getPinGroup();
-        pinGroup.add(placemark1);
-
-        final Placemark placemark2 = Placemark.createPointPlacemark(pinDescriptor, "pin2", "pin2", "", null, new GeoPos(4, 8), product.getGeoCoding());
-        placemark2.setDescription("desc2");
-        pinGroup.add(placemark2);
-
-        final Placemark placemark3 = Placemark.createPointPlacemark(pinDescriptor, "pin3", "pin3", "", null, new GeoPos(-23.1234f, -80.543f),
-                                                                    product.getGeoCoding());
-        pinGroup.add(placemark3);
-    }
-
-    private String getExpectedForWritePins() {
-        return
-                header +
-                        rasterDimensions +
-                        "    <Pin_Group>" + LS +
-                        "        <Placemark name=\"pin1\">" + LS +
-                        "            <LABEL>pin1</LABEL>" + LS +
-                        "            <DESCRIPTION />" + LS +
-                        "            <LATITUDE>0.0</LATITUDE>" + LS +
-                        "            <LONGITUDE>0.0</LONGITUDE>" + LS +
-                        "            <STYLE_CSS>symbol:plus;stroke-width:2</STYLE_CSS>" + LS +
-                        "        </Placemark>" + LS +
-                        "        <Placemark name=\"pin2\">" + LS +
-                        "            <LABEL>pin2</LABEL>" + LS +
-                        "            <DESCRIPTION>desc2</DESCRIPTION>" + LS +
-                        "            <LATITUDE>4.0</LATITUDE>" + LS +
-                        "            <LONGITUDE>8.0</LONGITUDE>" + LS +
-                        "        </Placemark>" + LS +
-                        "        <Placemark name=\"pin3\">" + LS +
-                        "            <LABEL>pin3</LABEL>" + LS +
-                        "            <DESCRIPTION />" + LS +
-                        "            <LATITUDE>-23.1234</LATITUDE>" + LS +
-                        "            <LONGITUDE>-80.543</LONGITUDE>" + LS +
-                        "        </Placemark>" + LS +
-                        "    </Pin_Group>" + LS +
-                        footer;
-    }
-
-    private void addGcpsToProduct() {
-        final GcpDescriptor gcpDescriptor = GcpDescriptor.getInstance();
-        final Placemark placemark1 = Placemark.createPointPlacemark(gcpDescriptor, "gcp1", "gcp1", "", null, new GeoPos(),
-                                                                    product.getGeoCoding());
-        ProductNodeGroup<Placemark> pinGroup = product.getGcpGroup();
-        pinGroup.add(placemark1);
-
-        final Placemark placemark2 = Placemark.createPointPlacemark(gcpDescriptor, "gcp2", "gcp2", "", null, new GeoPos(4, 8),
-                                                                    product.getGeoCoding());
-        placemark2.setDescription("desc2");
-        pinGroup.add(placemark2);
-        placemark2.setStyleCss("symbol:star");
-
-        final Placemark placemark3 = Placemark.createPointPlacemark(gcpDescriptor, "gcp3", "gcp3", "", null, new GeoPos(-23.1234f, -80.543f),
-                                                                    product.getGeoCoding());
-        pinGroup.add(placemark3);
-    }
-
-    private String getExpectedForWriteGcps() {
-        return
-                header +
-                        rasterDimensions +
-                        "    <Gcp_Group>" + LS +
-                        "        <Placemark name=\"gcp1\">" + LS +
-                        "            <LABEL>gcp1</LABEL>" + LS +
-                        "            <DESCRIPTION />" + LS +
-                        "            <LATITUDE>0.0</LATITUDE>" + LS +
-                        "            <LONGITUDE>0.0</LONGITUDE>" + LS +
-                        "        </Placemark>" + LS +
-                        "        <Placemark name=\"gcp2\">" + LS +
-                        "            <LABEL>gcp2</LABEL>" + LS +
-                        "            <DESCRIPTION>desc2</DESCRIPTION>" + LS +
-                        "            <LATITUDE>4.0</LATITUDE>" + LS +
-                        "            <LONGITUDE>8.0</LONGITUDE>" + LS +
-                        "            <STYLE_CSS>symbol:star</STYLE_CSS>" + LS +
-                        "        </Placemark>" + LS +
-                        "        <Placemark name=\"gcp3\">" + LS +
-                        "            <LABEL>gcp3</LABEL>" + LS +
-                        "            <DESCRIPTION />" + LS +
-                        "            <LATITUDE>-23.1234</LATITUDE>" + LS +
-                        "            <LONGITUDE>-80.543</LONGITUDE>" + LS +
-                        "        </Placemark>" + LS +
-                        "    </Gcp_Group>" + LS +
-                        footer;
     }
 
     private void addBitmaskDefsToProduct() {
@@ -898,71 +824,71 @@ public class DimapHeaderWriterTest extends TestCase {
                 footer;
     }
 
-    private String setPixelGeoCodingWithoutEstimatorAndGetExpected() throws IOException {
-        final Band b1 = product.addBand("b1", ProductData.TYPE_INT8);
-        final Band b2 = product.addBand("b2", ProductData.TYPE_INT8);
-        final byte[] bandData = new byte[product.getSceneRasterWidth() * product.getSceneRasterHeight()];
-        b1.setDataElems(bandData);
-        b2.setDataElems(bandData);
-
-        final PixelGeoCoding pixelGeoCoding = new PixelGeoCoding(b1, b2, null, 4, ProgressMonitor.NULL);
-        product.setGeoCoding(pixelGeoCoding);
-        return header +
-                "    <Geoposition>" + LS +
-                "        <LATITUDE_BAND>" + pixelGeoCoding.getLatBand().getName() + "</LATITUDE_BAND>" + LS +
-                "        <LONGITUDE_BAND>" + pixelGeoCoding.getLonBand().getName() + "</LONGITUDE_BAND>" + LS +
-                "        <SEARCH_RADIUS>" + pixelGeoCoding.getSearchRadius() + "</SEARCH_RADIUS>" + LS +
-                "    </Geoposition>" + LS +
-                "    <Raster_Dimensions>" + LS +
-                "        <NCOLS>200</NCOLS>" + LS +
-                "        <NROWS>300</NROWS>" + LS +
-                "        <NBANDS>2</NBANDS>" + LS +
-                "    </Raster_Dimensions>" + LS +
-                "    <Data_Access>" + LS +
-                "        <DATA_FILE_FORMAT>ENVI</DATA_FILE_FORMAT>" + LS +
-                "        <DATA_FILE_FORMAT_DESC>ENVI File Format</DATA_FILE_FORMAT_DESC>" + LS +
-                "        <DATA_FILE_ORGANISATION>BAND_SEPARATE</DATA_FILE_ORGANISATION>" + LS +
-                "        <Data_File>" + LS +
-                "            <DATA_FILE_PATH href=\"test.data/b1.hdr\" />" + LS +
-                "            <BAND_INDEX>0</BAND_INDEX>" + LS +
-                "        </Data_File>" + LS +
-                "        <Data_File>" + LS +
-                "            <DATA_FILE_PATH href=\"test.data/b2.hdr\" />" + LS +
-                "            <BAND_INDEX>1</BAND_INDEX>" + LS +
-                "        </Data_File>" + LS +
-                "    </Data_Access>" + LS +
-                "    <Image_Interpretation>" + LS +
-                "        <Spectral_Band_Info>" + LS +
-                "            <BAND_INDEX>0</BAND_INDEX>" + LS +
-                "            <BAND_DESCRIPTION />" + LS +
-                "            <BAND_NAME>b1</BAND_NAME>" + LS +
-                "            <DATA_TYPE>int8</DATA_TYPE>" + LS +
-                "            <SOLAR_FLUX>0.0</SOLAR_FLUX>" + LS +
-                "            <BAND_WAVELEN>0.0</BAND_WAVELEN>" + LS +
-                "            <BANDWIDTH>0.0</BANDWIDTH>" + LS +
-                "            <SCALING_FACTOR>1.0</SCALING_FACTOR>" + LS +
-                "            <SCALING_OFFSET>0.0</SCALING_OFFSET>" + LS +
-                "            <LOG10_SCALED>false</LOG10_SCALED>" + LS +
-                "            <NO_DATA_VALUE_USED>false</NO_DATA_VALUE_USED>" + LS +
-                "            <NO_DATA_VALUE>0.0</NO_DATA_VALUE>" + LS +
-                "        </Spectral_Band_Info>" + LS +
-                "        <Spectral_Band_Info>" + LS +
-                "            <BAND_INDEX>1</BAND_INDEX>" + LS +
-                "            <BAND_DESCRIPTION />" + LS +
-                "            <BAND_NAME>b2</BAND_NAME>" + LS +
-                "            <DATA_TYPE>int8</DATA_TYPE>" + LS +
-                "            <SOLAR_FLUX>0.0</SOLAR_FLUX>" + LS +
-                "            <BAND_WAVELEN>0.0</BAND_WAVELEN>" + LS +
-                "            <BANDWIDTH>0.0</BANDWIDTH>" + LS +
-                "            <SCALING_FACTOR>1.0</SCALING_FACTOR>" + LS +
-                "            <SCALING_OFFSET>0.0</SCALING_OFFSET>" + LS +
-                "            <LOG10_SCALED>false</LOG10_SCALED>" + LS +
-                "            <NO_DATA_VALUE_USED>false</NO_DATA_VALUE_USED>" + LS +
-                "            <NO_DATA_VALUE>0.0</NO_DATA_VALUE>" + LS +
-                "        </Spectral_Band_Info>" + LS +
-                "    </Image_Interpretation>" + LS +
-                footer;
-    }
+//    private String setPixelGeoCodingWithoutEstimatorAndGetExpected() throws IOException {
+//        final Band b1 = product.addBand("b1", ProductData.TYPE_INT8);
+//        final Band b2 = product.addBand("b2", ProductData.TYPE_INT8);
+//        final byte[] bandData = new byte[product.getSceneRasterWidth() * product.getSceneRasterHeight()];
+//        b1.setDataElems(bandData);
+//        b2.setDataElems(bandData);
+//
+//        final PixelGeoCoding pixelGeoCoding = new PixelGeoCoding(b1, b2, null, 4, ProgressMonitor.NULL);
+//        product.setGeoCoding(pixelGeoCoding);
+//        return header +
+//                "    <Geoposition>" + LS +
+//                "        <LATITUDE_BAND>" + pixelGeoCoding.getLatBand().getName() + "</LATITUDE_BAND>" + LS +
+//                "        <LONGITUDE_BAND>" + pixelGeoCoding.getLonBand().getName() + "</LONGITUDE_BAND>" + LS +
+//                "        <SEARCH_RADIUS>" + pixelGeoCoding.getSearchRadius() + "</SEARCH_RADIUS>" + LS +
+//               "    </Geoposition>" + LS +
+//               "    <Raster_Dimensions>" + LS +
+//               "        <NCOLS>200</NCOLS>" + LS +
+//               "        <NROWS>300</NROWS>" + LS +
+//               "        <NBANDS>2</NBANDS>" + LS +
+//               "    </Raster_Dimensions>" + LS +
+//               "    <Data_Access>" + LS +
+//               "        <DATA_FILE_FORMAT>ENVI</DATA_FILE_FORMAT>" + LS +
+//               "        <DATA_FILE_FORMAT_DESC>ENVI File Format</DATA_FILE_FORMAT_DESC>" + LS +
+//               "        <DATA_FILE_ORGANISATION>BAND_SEPARATE</DATA_FILE_ORGANISATION>" + LS +
+//               "        <Data_File>" + LS +
+//               "            <DATA_FILE_PATH href=\"test.data/b1.hdr\" />" + LS +
+//               "            <BAND_INDEX>0</BAND_INDEX>" + LS +
+//               "        </Data_File>" + LS +
+//               "        <Data_File>" + LS +
+//               "            <DATA_FILE_PATH href=\"test.data/b2.hdr\" />" + LS +
+//               "            <BAND_INDEX>1</BAND_INDEX>" + LS +
+//               "        </Data_File>" + LS +
+//               "    </Data_Access>" + LS +
+//               "    <Image_Interpretation>" + LS +
+//               "        <Spectral_Band_Info>" + LS +
+//               "            <BAND_INDEX>0</BAND_INDEX>" + LS +
+//               "            <BAND_DESCRIPTION />" + LS +
+//               "            <BAND_NAME>b1</BAND_NAME>" + LS +
+//               "            <DATA_TYPE>int8</DATA_TYPE>" + LS +
+//               "            <SOLAR_FLUX>0.0</SOLAR_FLUX>" + LS +
+//               "            <BAND_WAVELEN>0.0</BAND_WAVELEN>" + LS +
+//               "            <BANDWIDTH>0.0</BANDWIDTH>" + LS +
+//               "            <SCALING_FACTOR>1.0</SCALING_FACTOR>" + LS +
+//               "            <SCALING_OFFSET>0.0</SCALING_OFFSET>" + LS +
+//               "            <LOG10_SCALED>false</LOG10_SCALED>" + LS +
+//               "            <NO_DATA_VALUE_USED>false</NO_DATA_VALUE_USED>" + LS +
+//               "            <NO_DATA_VALUE>0.0</NO_DATA_VALUE>" + LS +
+//               "        </Spectral_Band_Info>" + LS +
+//               "        <Spectral_Band_Info>" + LS +
+//               "            <BAND_INDEX>1</BAND_INDEX>" + LS +
+//               "            <BAND_DESCRIPTION />" + LS +
+//               "            <BAND_NAME>b2</BAND_NAME>" + LS +
+//               "            <DATA_TYPE>int8</DATA_TYPE>" + LS +
+//               "            <SOLAR_FLUX>0.0</SOLAR_FLUX>" + LS +
+//               "            <BAND_WAVELEN>0.0</BAND_WAVELEN>" + LS +
+//               "            <BANDWIDTH>0.0</BANDWIDTH>" + LS +
+//               "            <SCALING_FACTOR>1.0</SCALING_FACTOR>" + LS +
+//               "            <SCALING_OFFSET>0.0</SCALING_OFFSET>" + LS +
+//               "            <LOG10_SCALED>false</LOG10_SCALED>" + LS +
+//               "            <NO_DATA_VALUE_USED>false</NO_DATA_VALUE_USED>" + LS +
+//               "            <NO_DATA_VALUE>0.0</NO_DATA_VALUE>" + LS +
+//               "        </Spectral_Band_Info>" + LS +
+//               "    </Image_Interpretation>" + LS +
+//               footer;
+//    }
 
     private String setCrsGeoCodingAndGetExpected() throws Exception {
 

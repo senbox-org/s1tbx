@@ -9,23 +9,36 @@
     <tr class="header">
         <td class="header">&nbsp;Read Operator</td>
         <td class="header" align="right">
-           <a href="../general/BeamOverview.html">             <img src="images/BeamHeader.jpg" border="0"/></a>
+            <a href="../general/BeamOverview.html"> <img src="images/BeamHeader.jpg" border="0"/></a>
         </td>
     </tr>
 </table>
 <h1>Read Operator Description</h1>
+
 <h2>Overview</h2>
 <table>
-  <tr><td><b>Name:</b></td><td><code>Read</code></td></tr>
-  <tr><td><b>Full name:</b></td><td><code>org.esa.beam.gpf.operators.standard.ReadOp</code></td></tr>
-  <tr><td><b>Purpose:</b></td><td>Reads a product from disk.</td></tr>
-  <tr><td><b>Version:</b></td><td>1.1</td></tr>
+    <tr>
+        <td><b>Name:</b></td>
+        <td><code>Read</code></td>
+    </tr>
+    <tr>
+        <td><b>Full name:</b></td>
+        <td><code>org.esa.beam.gpf.operators.standard.ReadOp</code></td>
+    </tr>
+    <tr>
+        <td><b>Purpose:</b></td>
+        <td>Reads a product from disk.</td>
+    </tr>
+    <tr>
+        <td><b>Version:</b></td>
+        <td>1.1</td>
+    </tr>
 </table>
 <h2>Description</h2>
 Reads the specified file as product. This operator may serve as a source node in processing graphs,
- especially if multiple data products need to be read in.
- <p/>
- Here is a sample of how the <code>Read</code> operator can be integrated as a node within a processing graph:
+especially if multiple data products need to be read in.
+<p/>
+Here is a sample of how the <code>Read</code> operator can be integrated as a node within a processing graph:
  <pre>
     &lt;node id="readNode"&gt;
         &lt;operator&gt;Read&lt;/operator&gt;
@@ -35,23 +48,25 @@ Reads the specified file as product. This operator may serve as a source node in
     &lt;/node&gt;
  </pre>
 <h2>Sources</h2>
+
 <p><i>This operator does not have any sources.</i></p>
+
 <h2>Parameters</h2>
 <table>
-<tr>
-  <th>Name</th>
-  <th>Data Type</th>
-  <th>Default</th>
-  <th>Description</th>
-  <th>Constraints</th>
-</tr>
-<tr>
-  <td><code>file</code></td>
-  <td><code>File</code></td>
-  <td><code></code></td>
-  <td>The file from which the data product is read.</td>
-  <td>not null; non empty</td>
-</tr>
+    <tr>
+        <th>Name</th>
+        <th>Data Type</th>
+        <th>Default</th>
+        <th>Description</th>
+        <th>Constraints</th>
+    </tr>
+    <tr>
+        <td><code>file</code></td>
+        <td><code>File</code></td>
+        <td><code></code></td>
+        <td>The file from which the data product is read.</td>
+        <td>not null; non empty</td>
+    </tr>
 </table>
 <hr/>
 </body>

@@ -25,8 +25,10 @@
 <table class="header">
     <tr class="header">
         <td class="header">&nbsp;
-            Pin Management</td>
-        <td class="header" align="right"><a href="../general/BeamOverview.html"><img src="../images/BeamHeader.jpg" border="0"></a></td>
+            Pin Management
+        </td>
+        <td class="header" align="right"><a href="../general/BeamOverview.html"><img src="../images/BeamHeader.jpg"
+                                                                                     border="0"></a></td>
     </tr>
 </table>
 
@@ -55,7 +57,8 @@
     It is also possible to create and remove pins by using the <a href="#pinManager">Pin Manager</a>.
 
 <p>
-    When creating a <a href="ProductSubsetDialog.html">spatial subset</a> of a product which contains pins, the pins located outside of the spatial area
+    When creating a <a href="ProductSubsetDialog.html">spatial subset</a> of a product which contains pins, the pins
+    located outside of the spatial area
     will not be copied to the resulting product.
 
 <p>
@@ -64,7 +67,8 @@
     creates a new pin at the current cursor position.<br>
     <a name="selectTool"><b>The Select Tool &nbsp;&nbsp;</b></a><img src="images/icons/SelectTool24.gif"><br/>
     Selecting existing pins can be done with the Select Tool. If you click on an existing pin with the Select Tool
-    it becomes the selected pin. If you double-click on an existing pin the <a href="#editPinDialog">Edit Pin</a> dialog appears
+    it becomes the selected pin. If you double-click on an existing pin the <a href="#editPinDialog">Edit Pin</a> dialog
+    appears
     and lets you edit the properties of the selected Pin.
 
 
@@ -84,22 +88,45 @@
 <p>In the following the tool buttons of the pin manager are explained.</p>
 
 <table cellpadding=2 cellspacing=0 border=0>
-    <tr><td><img src="images/icons/New24.gif"></td><td>Creates a new pin and adds it to the product.</td></tr>
-    <tr><td><img src="images/icons/Copy24.gif"></td><td>Creates a new pin by cloning the selected pin.</td></tr>
-    <tr><td><img src="images/icons/Edit24.gif"></td><td>Opens the edit dialog for the selected pin.</td></tr>
-    <tr><td><img src="images/icons/Remove24.gif"></td><td>Removes the selected pin from the current product.</td></tr>
-    <tr><td><img src="images/icons/Import24.gif"></td><td>Imports multiple pins from a flat text or XML file.</td>
+    <tr>
+        <td><img src="images/icons/New24.gif"></td>
+        <td>Creates a new pin and adds it to the product.</td>
     </tr>
-    <tr><td><img src="images/icons/Export24.gif"></td><td>Exports the selected pins to an XML file.</td></tr>
-    <tr><td><img src="images/icons/Filter24.gif"></td><td>Enables the expansion of the table with pixel values.</td>
+    <tr>
+        <td><img src="images/icons/Copy24.gif"></td>
+        <td>Creates a new pin by cloning the selected pin.</td>
     </tr>
-    <tr><td><img src="images/icons/ExportTable.gif"></td><td>Exports selected part of the displayed table to a flat text
-        file.
-        The exported text is tabulator-separated and may therefore be import directly into a spreadsheet application
-        (e.g. MS Excel).</td></tr>
+    <tr>
+        <td><img src="images/icons/Edit24.gif"></td>
+        <td>Opens the edit dialog for the selected pin.</td>
+    </tr>
+    <tr>
+        <td><img src="images/icons/Remove24.gif"></td>
+        <td>Removes the selected pin from the current product.</td>
+    </tr>
+    <tr>
+        <td><img src="images/icons/Import24.gif"></td>
+        <td>Imports multiple pins from a flat text or XML file.</td>
+    </tr>
+    <tr>
+        <td><img src="images/icons/Export24.gif"></td>
+        <td>Exports the selected pins to an XML file.</td>
+    </tr>
+    <tr>
+        <td><img src="images/icons/Filter24.gif"></td>
+        <td>Enables the expansion of the table with pixel values.</td>
+    </tr>
+    <tr>
+        <td><img src="images/icons/ExportTable.gif"></td>
+        <td>Exports selected part of the displayed table to a flat text
+            file.
+            The exported text is tabulator-separated and may therefore be import directly into a spreadsheet application
+            (e.g. MS Excel).
+        </td>
+    </tr>
     <tr>
         <td><img src="images/icons/ZoomTo24.gif"></td>
-        <td>Centers the image view on the selected pin. </td>
+        <td>Centers the image view on the selected pin.</td>
     </tr>
 
 </table>
@@ -115,10 +142,30 @@
 <p>The editable pin properties are
 <ul>
     <li>the geographical co-ordinate, which can also been given as pixel position</li>
-    <li>the outline and fill colour for the graphical symbol,</li>
     <li>the name for the pin</li>
-    <li>and a textual description.</li>
+    <li>a textual description</li>
 </ul>
+
+<p>The graphical properties of the pin can be set by entering cascading style sheets into the 'Style css'-field.
+    Allowed properties are:
+<ul>
+    <li>symbol: one of {pin,cross,plus,star,square,circle}</li>
+    <li>fill: any color in one of the following formats {#rrggbb; rrggbb; rrr,ggg,bbb}</li>
+    <li>fill-opacity: any value between 0.0 and 1.0</li>
+    <li>stroke: same as fill</li>
+    <li>stroke-opacity: same as fill-opacity</li>
+    <li>stroke-width: any value greater than 0.0</li>
+</ul>
+</p>
+
+<p>
+    Example:
+    <code>symbol:pin;fill:#00AAFF;fill-opacity:0.0;stroke:#FF00FF;stroke-opacity:0.2;stroke-width:0.5</code>
+</p>
+
+<p>
+    However, it is easier by far to edit the pin's styles using the <a href="LayerManagerWindow.html">Layer Editors</a>.
+</p>
 
 <hr>
 </body>

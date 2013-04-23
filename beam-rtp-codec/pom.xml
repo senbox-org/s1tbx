@@ -20,15 +20,16 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <artifactId>beam</artifactId>
         <groupId>org.esa.beam</groupId>
-        <version>4.10</version>
+        <artifactId>beam-plugin-parent</artifactId>
+        <version>1.1-SNAPSHOT</version>
+        <relativePath>../beam-plugin-parent/pom.xml</relativePath>
     </parent>
 
     <groupId>org.esa.beam</groupId>
     <artifactId>beam-rtp-codec</artifactId>
     <name>BEAM Raw, tiled pyramid codec (experimental)</name>
-    <version>0.1</version>
+    <version>0.1.1.${beam.version}</version>
     <url>http://envisat.esa.int/beam/</url>
 
     <dependencies>
@@ -37,4 +38,5 @@
             <artifactId>beam-core</artifactId>
         </dependency>
     </dependencies>
+
 </project>

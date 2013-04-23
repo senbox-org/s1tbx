@@ -22,15 +22,16 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <artifactId>beam</artifactId>
         <groupId>org.esa.beam</groupId>
-        <version>4.10</version>
+        <artifactId>beam-plugin-parent</artifactId>
+        <version>1.1-SNAPSHOT</version>
+        <relativePath>../beam-plugin-parent/pom.xml</relativePath>
     </parent>
 
     <artifactId>beam-collocation</artifactId>
     <name>BEAM Geographic Collocation Tool</name>
     <groupId>org.esa.beam</groupId>
-    <version>1.4</version>
+    <version>1.4.1.${beam.version}</version>
 
     <dependencies>
         <dependency>
@@ -44,6 +45,7 @@
         <dependency>
             <groupId>org.esa.beam</groupId>
             <artifactId>beam-envisat-reader</artifactId>
+            <version>1.5.2.${beam.version}</version>
         </dependency>
         <dependency>
             <groupId>org.esa.beam</groupId>
@@ -60,6 +62,7 @@
             <plugin>
                 <groupId>com.bc.maven.plugins</groupId>
                 <artifactId>maven-javahelp-plugin</artifactId>
+                <version>1.0</version>
             </plugin>
         </plugins>
     </build>

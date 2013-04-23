@@ -28,7 +28,18 @@ import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
 import com.bc.jexp.ParseException;
 import com.bc.jexp.Term;
 import org.esa.beam.framework.dataio.ProductSubsetDef;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.GeoCoding;
+import org.esa.beam.framework.datamodel.GeoPos;
+import org.esa.beam.framework.datamodel.Mask;
+import org.esa.beam.framework.datamodel.MetadataElement;
+import org.esa.beam.framework.datamodel.PixelPos;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductNode;
+import org.esa.beam.framework.datamodel.ProductNodeGroup;
+import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.datamodel.TiePointGrid;
+import org.esa.beam.framework.datamodel.VirtualBand;
 import org.esa.beam.framework.dataop.barithm.BandArithmetic;
 import org.esa.beam.framework.dataop.barithm.RasterDataSymbol;
 import org.esa.beam.framework.param.ParamChangeEvent;
@@ -41,11 +52,32 @@ import org.esa.beam.framework.ui.SliderBoxImageDisplay;
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.glevel.BandImageMultiLevelSource;
 import org.esa.beam.jai.ImageManager;
-import org.esa.beam.util.*;
+import org.esa.beam.util.BeamConstants;
+import org.esa.beam.util.Debug;
+import org.esa.beam.util.Guardian;
+import org.esa.beam.util.ProductUtils;
+import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.math.MathUtils;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.Graphics2D;
+import java.awt.GridBagConstraints;
+import java.awt.Rectangle;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.geom.AffineTransform;
@@ -53,8 +85,11 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.text.MessageFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -131,8 +166,8 @@ public class ProductSubsetDialog extends ModalDialog {
         super(window,
               "Specify Product Subset", /*I18N*/
               ModalDialog.ID_OK
-              | ModalDialog.ID_CANCEL
-              | ModalDialog.ID_HELP,
+                      | ModalDialog.ID_CANCEL
+                      | ModalDialog.ID_HELP,
               "subsetDialog");
         Guardian.assertNotNull("product", product);
         this.product = product;
@@ -188,13 +223,13 @@ public class ProductSubsetDialog extends ModalDialog {
             }
 
             final String pattern = "The following dataset(s) are referenced but not included\n" +
-                                   "in your current subset definition:\n" +
-                                   "{0}\n" +
-                                   "If you do not include these dataset(s) into your selection,\n" +
-                                   "you might get unexpected results while working with the\n" +
-                                   "resulting product.\n\n" +
-                                   "Do you wish to include the referenced dataset(s) into your\n" +
-                                   "subset definition?\n"; /*I18N*/
+                    "in your current subset definition:\n" +
+                    "{0}\n" +
+                    "If you do not include these dataset(s) into your selection,\n" +
+                    "you might get unexpected results while working with the\n" +
+                    "resulting product.\n\n" +
+                    "Do you wish to include the referenced dataset(s) into your\n" +
+                    "subset definition?\n"; /*I18N*/
             final MessageFormat format = new MessageFormat(pattern);
             int status = JOptionPane.showConfirmDialog(getJDialog(),
                                                        format.format(new Object[]{nameListText.toString()}),
@@ -293,10 +328,10 @@ public class ProductSubsetDialog extends ModalDialog {
         if (numFlagDs > 0 && !flagDsInSubset) {
             int status = JOptionPane.showConfirmDialog(getJDialog(),
                                                        "No flag dataset selected.\n\n"
-                                                       + "If you do not include a flag dataset in the subset,\n"
-                                                       + "you will not be able to create bitmask overlays.\n\n"
-                                                       + "Do you wish to include the available flag dataset(s)\n"
-                                                       + "in the current subset?\n",
+                                                               + "If you do not include a flag dataset in the subset,\n"
+                                                               + "you will not be able to create bitmask overlays.\n\n"
+                                                               + "Do you wish to include the available flag dataset(s)\n"
+                                                               + "in the current subset?\n",
                                                        "No Flag Dataset Selected",
                                                        JOptionPane.YES_NO_CANCEL_OPTION);
             if (status == JOptionPane.YES_OPTION) {
@@ -920,10 +955,18 @@ public class ProductSubsetDialog extends ModalDialog {
                                                     ((Number) paramY1.getValue()).intValue());
             final PixelPos pixelPos2 = new PixelPos(((Number) paramX2.getValue()).intValue(),
                                                     ((Number) paramY2.getValue()).intValue());
-
+            Rectangle region = new Rectangle((int) pixelPos1.getX(), (int) pixelPos1.getY(),
+                                             (int) (pixelPos2.getX() - pixelPos1.getX()),
+                                             (int) (pixelPos2.getY() - pixelPos1.getY()));
             final GeoCoding geoCoding = product.getGeoCoding();
-            final GeoPos geoPos1 = geoCoding.getGeoPos(pixelPos1, null);
-            final GeoPos geoPos2 = geoCoding.getGeoPos(pixelPos2, null);
+            GeoPos geoPos1 = geoCoding.getGeoPos(pixelPos1, null);
+            if (!geoPos1.isValid()) {
+                geoPos1 = ProductUtils.getClosestGeoPos(geoCoding, pixelPos1, region, 4);
+            }
+            GeoPos geoPos2 = geoCoding.getGeoPos(pixelPos2, null);
+            if (!geoPos2.isValid()) {
+                geoPos2 = ProductUtils.getClosestGeoPos(geoCoding, pixelPos2, region, 4);
+            }
             paramNorthLat1.setValue(geoPos1.getLat(), null);
             paramWestLon1.setValue(geoPos1.getLon(), null);
             paramSouthLat2.setValue(geoPos2.getLat(), null);
@@ -1059,7 +1102,7 @@ public class ProductSubsetDialog extends ModalDialog {
                 productNodeCheck.addActionListener(productNodeCheckListener);
 
                 if (includeAlways != null
-                    && StringUtils.containsIgnoreCase(includeAlways, name)) {
+                        && StringUtils.containsIgnoreCase(includeAlways, name)) {
                     productNodeCheck.setSelected(true);
                     productNodeCheck.setEnabled(false);
                 } else if (givenProductSubsetDef != null) {

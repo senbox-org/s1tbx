@@ -17,8 +17,8 @@
 package org.esa.beam.dataio.netcdf.metadata.profiles.hdfeos;
 
 import org.esa.beam.dataio.netcdf.ProfileReadContext;
-import org.esa.beam.dataio.netcdf.metadata.ProfilePartIO;
 import org.esa.beam.dataio.netcdf.ProfileWriteContext;
+import org.esa.beam.dataio.netcdf.metadata.ProfilePartIO;
 import org.esa.beam.framework.datamodel.CrsGeoCoding;
 import org.esa.beam.framework.datamodel.Product;
 import org.geotools.referencing.ReferencingFactoryFinder;
@@ -48,27 +48,31 @@ public class HdfEosGeocodingPart extends ProfilePartIO {
     @Override
     public void decode(ProfileReadContext ctx, Product p) throws IOException {
         Element eosElement = (Element) ctx.getProperty(HdfEosUtils.STRUCT_METADATA);
-        Element gridStructure = eosElement.getChild("GridStructure");
-        Element gridElem = (Element) gridStructure.getChildren().get(0);
-        Element projectionElem = gridElem.getChild("Projection");
-        Element ulPointElem = gridElem.getChild("UpperLeftPointMtrs");
-        Element lrPointElem = gridElem.getChild("LowerRightMtrs");
-        if (projectionElem == null || ulPointElem == null || lrPointElem == null) {
-            return;
+
+        List<HdfEosGridInfo> gridInfos = HdfEosGridInfo.createGridInfos(eosElement);
+        List<HdfEosGridInfo> compatibleGridInfos = HdfEosGridInfo.getCompatibleGridInfos(gridInfos);
+        if (!compatibleGridInfos.isEmpty()) {
+            HdfEosGridInfo hdfEosGeocodingInfo = compatibleGridInfos.get(0);
+            attachGeoCoding(p,
+                            hdfEosGeocodingInfo.upperLeftLon,
+                            hdfEosGeocodingInfo.upperLeftLat,
+                            hdfEosGeocodingInfo.lowerRightLon,
+                            hdfEosGeocodingInfo.lowerRightLat,
+                            hdfEosGeocodingInfo.projection);
         }
+    }
 
-        List<Element> ulList = ulPointElem.getChildren();
-        String ulLon = ulList.get(0).getValue();
-        String ulLat = ulList.get(1).getValue();
-        double upperLeftLon = Double.parseDouble(ulLon);
-        double upperLeftLat = Double.parseDouble(ulLat);
+    @Override
+    public void preEncode(ProfileWriteContext ctx, Product p) throws IOException {
+        throw new IllegalStateException();
+    }
 
-        List<Element> lrList = lrPointElem.getChildren();
-        String lrLon = lrList.get(0).getValue();
-        String lrLat = lrList.get(1).getValue();
-        double lowerRightLon = Double.parseDouble(lrLon);
-        double lowerRightLat = Double.parseDouble(lrLat);
-
+    public static void attachGeoCoding(Product p,
+                                       double upperLeftLon,
+                                       double upperLeftLat,
+                                       double lowerRightLon,
+                                       double lowerRightLat,
+                                       String projection) {
         double pixelSizeX = (lowerRightLon - upperLeftLon) / p.getSceneRasterWidth();
         double pixelSizeY = (upperLeftLat - lowerRightLat) / p.getSceneRasterHeight();
 
@@ -78,10 +82,9 @@ public class HdfEosGeocodingPart extends ProfilePartIO {
         transform.translate(-PIXEL_CENTER, -PIXEL_CENTER);
         Rectangle imageBounds = new Rectangle(p.getSceneRasterWidth(), p.getSceneRasterHeight());
 
-        String projection = projectionElem.getValue();
         if (projection.equals("GCTP_GEO")) {
-            if (isValidLonValue(upperLeftLon) && isValidLatitude(upperLeftLat) &&
-                    isValidLonValue(lowerRightLon) && isValidLatitude(lowerRightLat)) {
+            if ((upperLeftLon >= -180 && upperLeftLon <= 180) && (upperLeftLat >= -90 && upperLeftLat <= 90) &&
+                    (lowerRightLon >= -180 && lowerRightLon <= 180) && (lowerRightLat >= -90 && lowerRightLat <= 90)) {
                 try {
                     p.setGeoCoding(new CrsGeoCoding(DefaultGeographicCRS.WGS84, imageBounds, transform));
                 } catch (FactoryException ignore) {
@@ -119,16 +122,4 @@ public class HdfEosGeocodingPart extends ProfilePartIO {
         }
     }
 
-    private boolean isValidLonValue(double longitude) {
-        return (longitude >= -180 && longitude <= 180);
-    }
-
-    private boolean isValidLatitude(double latitude) {
-        return (latitude >= -90 && latitude <= 90);
-    }
-
-    @Override
-    public void preEncode(ProfileWriteContext ctx, Product p) throws IOException {
-        throw new IllegalStateException();
-    }
 }

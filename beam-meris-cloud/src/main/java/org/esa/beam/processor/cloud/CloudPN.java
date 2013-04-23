@@ -42,7 +42,10 @@ import java.util.logging.Logger;
 
 /**
  * A processing node to compute a cloud_probability mask using a neural network.
+ *
+ * @deprecated since BEAM 4.11. No replacement.
  */
+@Deprecated
 public class CloudPN extends ProcessingNode {
 
     public static final String CLOUD_AUXDATA_DIR_PROPERTY = "cloud.auxdata.dir";
@@ -224,7 +227,6 @@ public class CloudPN extends ProcessingNode {
      *
      * @param index
      * @param maxIndex
-     *
      * @return the color
      */
     private static Color createBitmaskColor(int index, int maxIndex) {
@@ -376,7 +378,6 @@ public class CloudPN extends ProcessingNode {
      *
      * @param vaa viewing azimuth angle [degree]
      * @param saa sun azimuth angle [degree]
-     *
      * @return the azimuth difference [degree]
      */
     private static double computeAda(final double vaa, final double saa) {
@@ -404,7 +405,7 @@ public class CloudPN extends ProcessingNode {
         vzaGrid = l1bProduct.getTiePointGrid(EnvisatConstants.MERIS_VIEW_ZENITH_DS_NAME);
         vaaGrid = l1bProduct.getTiePointGrid(EnvisatConstants.MERIS_VIEW_AZIMUTH_DS_NAME);
         pressGrid = l1bProduct.getTiePointGrid("atm_press");
-        
+
         altitude = l1bProduct.getBand(EnvisatConstants.MERIS_AMORGOS_L1B_ALTIUDE_BAND_NAME);
         if (altitude == null) {
             altitude = l1bProduct.getTiePointGrid(EnvisatConstants.MERIS_DEM_ALTITUDE_DS_NAME);

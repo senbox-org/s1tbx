@@ -22,15 +22,16 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <artifactId>beam</artifactId>
         <groupId>org.esa.beam</groupId>
-        <version>4.10</version>
+        <artifactId>beam-plugin-parent</artifactId>
+        <version>1.1-SNAPSHOT</version>
+        <relativePath>../beam-plugin-parent/pom.xml</relativePath>
     </parent>
 
     <name>BEAM Cluster Analysis</name>
     <groupId>org.esa.beam</groupId>
     <artifactId>beam-cluster-analysis</artifactId>
-    <version>1.1.1</version>
+    <version>1.1.2.${beam.version}</version>
 
     <dependencies>
         <dependency>
@@ -49,6 +50,13 @@
             <groupId>org.esa.beam</groupId>
             <artifactId>beam-gpf</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>com.googlecode.efficient-java-matrix-library</groupId>
+            <artifactId>ejml</artifactId>
+            <version>0.21</version>
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -56,6 +64,7 @@
             <plugin>
                 <groupId>com.bc.maven.plugins</groupId>
                 <artifactId>maven-javahelp-plugin</artifactId>
+                <version>1.0</version>
             </plugin>
         </plugins>
     </build>

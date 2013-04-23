@@ -26,8 +26,10 @@ import org.esa.beam.processor.binning.database.TemporalBinDatabase;
 import java.io.File;
 import java.io.IOException;
 
-//@todo 1 se/nf - class documentation
-
+@Deprecated
+/**
+ * @Deprecated since beam-binning 2.1.2 as part of the BEAM 4.11-release. Use module 'beam-binning2' instead.
+ */
 public class L3InitialProcessor extends L3SubProcessor {
 
     /**
@@ -73,7 +75,6 @@ public class L3InitialProcessor extends L3SubProcessor {
      * Reads the database_dir, grid_cell_size and (optionaly) the composite_type from the request.
      *
      * @param context
-     *
      * @throws ProcessorException
      */
     protected void loadMainParamter(L3Context context) throws ProcessorException {
@@ -106,7 +107,6 @@ public class L3InitialProcessor extends L3SubProcessor {
      * Reads the parameter describing the band(s) that should be used for the binning.
      *
      * @param context
-     *
      * @throws ProcessorException
      */
     protected void loadBandParameter(L3Context context) throws ProcessorException {
@@ -187,7 +187,7 @@ public class L3InitialProcessor extends L3SubProcessor {
 
         if ((latMin >= latMax) || (lonMin >= lonMax)) {
             throw new ProcessorException("Illegal geometric boundary: latMin = " + latMin + " latMax = " + latMax +
-                                         " lonMin = " + lonMin + " lonMax = " + lonMax);
+                                                 " lonMin = " + lonMin + " lonMax = " + lonMax);
         } else {
             context.setBorder(latMin, latMax, lonMin, lonMax);
         }

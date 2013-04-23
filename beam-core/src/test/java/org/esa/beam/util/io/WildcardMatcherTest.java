@@ -1,16 +1,30 @@
+/*
+ * Copyright (C) 2013 Brockmann Consult GmbH (info@brockmann-consult.de)
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 3 of the License, or (at your option)
+ * any later version.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, see http://www.gnu.org/licenses/
+ */
+
 package org.esa.beam.util.io;
 
 import org.junit.Test;
 
 import java.io.File;
+import java.io.FilenameFilter;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Arrays;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * @author Norman Fomferra
@@ -209,6 +223,70 @@ public class WildcardMatcherTest {
     }
 
     @Test
+
+    public void testGlobInCwd() throws Exception {
+
+        File cwd = new File(".").getCanonicalFile();
+        File[] alreadyExistingTxtFiles = cwd.listFiles(new FilenameFilter() {
+            @Override
+            public boolean accept(File dir, String name) {
+                return name.endsWith(".txt");
+            }
+        });
+        final File[] testFiles = {
+                /*0*/new File(cwd, "WildcardMatcherTest-1.txt"),
+                /*1*/new File(cwd, "WildcardMatcherTest-2.txt"),
+                /*2*/new File(cwd, "WildcardMatcherTest-3.dat"),
+                /*3*/new File(cwd, "WildcardMatcherTest-4.txt"),
+                /*4*/new File(cwd, "WildcardMatcherTest-5.dat"),
+        };
+        int expectedTxtFileCount = alreadyExistingTxtFiles.length + 3;
+
+        try {
+            for (File file : testFiles) {
+                if (!file.createNewFile()) {
+                    System.out.println("Warning: test file could not be created: " + file);
+                    System.out.println("Warning: testGlobInCwd() not performed");
+                    return;
+                }
+            }
+
+            File[] files = WildcardMatcher.glob("*.txt");
+            assertNotNull(files);
+            assertEquals(expectedTxtFileCount, files.length);
+            assertTrue(containsFile(files, testFiles[0]));
+            assertTrue(containsFile(files, testFiles[1]));
+            assertTrue(containsFile(files, testFiles[3]));
+            assertTrue(getIndexOf(testFiles[0], files) < getIndexOf(testFiles[1], files));
+            assertTrue(getIndexOf(testFiles[1], files) < getIndexOf(testFiles[3], files));
+
+            files = WildcardMatcher.glob("./*.txt");
+            assertNotNull(files);
+            assertEquals(expectedTxtFileCount, files.length);
+            assertTrue(containsFile(files, testFiles[0]));
+            assertTrue(containsFile(files, testFiles[1]));
+            assertTrue(containsFile(files, testFiles[3]));
+            assertTrue(getIndexOf(testFiles[0], files) < getIndexOf(testFiles[1], files));
+            assertTrue(getIndexOf(testFiles[1], files) < getIndexOf(testFiles[3], files));
+
+        } finally {
+            for (File file : testFiles) {
+                if (file.exists() && !file.delete()) {
+                    System.out.println("Warning: test file could not be deleted: " + file);
+                }
+            }
+        }
+    }
+
+    private boolean containsFile(File[] searchIn, File toFind) {
+        return getIndexOf(toFind, searchIn) >= 0;
+    }
+
+    private int getIndexOf(File item, File[] searchIn) {
+        return Arrays.binarySearch(searchIn, item);
+    }
+
+    @Test
     public void testGlobWithDoubleStar() throws Exception {
         String dir = getTestdataDir();
         File[] files = WildcardMatcher.glob(dir + "/**/*.txt");
@@ -290,5 +368,18 @@ public class WildcardMatcherTest {
     private String getTestdataDir() throws URISyntaxException {
         URL resource = WildcardMatcherTest.class.getResource("WildcardMatcherTest");
         return new File(resource.toURI()).getPath();
+    }
+
+    @Test
+    public void testSplitBasePath() throws Exception {
+        assertArrayEquals(new String[]{"test.N1", ""}, WildcardMatcher.splitBasePath("test.N1", false));
+        assertArrayEquals(new String[]{"", "te?t.N1"}, WildcardMatcher.splitBasePath("te?t.N1", false));
+        assertArrayEquals(new String[]{"/home/norman/meris/data.nc", ""}, WildcardMatcher.splitBasePath("/home/norman/meris/data.nc", false));
+        assertArrayEquals(new String[]{"C:/Users/Norman/MERIS/data.nc", ""}, WildcardMatcher.splitBasePath("C:\\Users\\Norman\\MERIS\\data.nc", true));
+        assertArrayEquals(new String[]{"foo/", "*"}, WildcardMatcher.splitBasePath("foo/*", false));
+        assertArrayEquals(new String[]{"foo/", "*/test.txt"}, WildcardMatcher.splitBasePath("foo/*/test.txt", false));
+        assertArrayEquals(new String[]{"/foo/", "*/test.txt"}, WildcardMatcher.splitBasePath("/foo/*/test.txt", false));
+        assertArrayEquals(new String[]{"", "**/CVS/*"}, WildcardMatcher.splitBasePath("**/CVS/*", false));
+
     }
 }

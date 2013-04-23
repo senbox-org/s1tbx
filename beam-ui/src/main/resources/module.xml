@@ -17,7 +17,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-ui</symbolicName>
-    <version>4.10</version>
+    <version>5.0</version>
     <name>BEAM User Interface Library</name>
     <activator>org.esa.beam.BeamUiActivator</activator>
 
@@ -25,6 +25,11 @@
     <description>This module provides user interface components used e.g. by VISAT.</description>
     <changelog>
         <![CDATA[
+        <p>Changes in 5.0<br/>
+        [BEAM-1457] Display a spectral band's wavelengths next to its name<br/>
+        <p>Changes in 4.10.1<br/>
+        [BEAM-1404] Image views shall draw pixel grid at high zoom levels<br/>
+        [BEAM-1401] Null pointer exception when closing image views<br/>
         <p>Changes in 4.10<br/>
         [BEAM-1384] Synchronise image views via geographical center coordinates<br/>
         [BEAM-1379] Log-scaled data and log-scaled display shall be independent<br/>

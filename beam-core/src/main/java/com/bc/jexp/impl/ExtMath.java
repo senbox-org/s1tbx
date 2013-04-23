@@ -31,8 +31,10 @@ public class ExtMath {
      * </ld>
      *
      * @param x number greater than 0.0.
+     *
      * @return the natural logarithm of a.
-     * @deprecated Use Java Math class
+     *
+     * @deprecated since BEAM 4.10,  Use Java Math class
      */
     @Deprecated
     public static double log10(final double x) {
@@ -45,6 +47,7 @@ public class ExtMath {
      * @param x1  the first value
      * @param x2  the second value
      * @param eps the maximum deviation
+     *
      * @return true, if x1 and x2 are equal
      */
     public static boolean feq(final double x1, final double x2, final double eps) {
@@ -57,6 +60,7 @@ public class ExtMath {
      * @param x1  the first value
      * @param x2  the second value
      * @param eps the maximum deviation
+     *
      * @return true, if x1 and x2 are not equal
      */
     public static boolean fneq(final double x1, final double x2, final double eps) {
@@ -72,6 +76,7 @@ public class ExtMath {
      * </ld>
      *
      * @param a the number
+     *
      * @return the signum of a
      */
     public static int sign(int a) {
@@ -87,6 +92,7 @@ public class ExtMath {
      * </ld>
      *
      * @param a the number
+     *
      * @return the signum of a
      */
     public static long sign(long a) {
@@ -103,6 +109,7 @@ public class ExtMath {
      * </ld>
      *
      * @param a the number
+     *
      * @return the signum of a
      */
     public static float sign(float a) {
@@ -122,6 +129,7 @@ public class ExtMath {
      * </ld>
      *
      * @param a the number
+     *
      * @return the signum of a
      */
     public static double sign(double a) {

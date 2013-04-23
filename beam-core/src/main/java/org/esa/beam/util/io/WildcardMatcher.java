@@ -1,3 +1,19 @@
+/*
+ * Copyright (C) 2013 Brockmann Consult GmbH (info@brockmann-consult.de)
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 3 of the License, or (at your option)
+ * any later version.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, see http://www.gnu.org/licenses/
+ */
+
 package org.esa.beam.util.io;
 
 import java.io.File;
@@ -17,8 +33,8 @@ import java.util.regex.Pattern;
  * However, no tilde expansion is done.
  *
  * @author Norman Fomferra
- * @since BEAM 4.10
  * @see <a href="http://ant.apache.org/manual/dirtasks.html#patterns">Patterns</a> in the Ant documentation
+ * @since BEAM 4.10
  */
 public class WildcardMatcher {
 
@@ -26,7 +42,7 @@ public class WildcardMatcher {
     private final boolean windowsFs;
 
     public WildcardMatcher(String wildcard) {
-        this(wildcard, System.getProperty("os.name").contains("Win"));
+        this(wildcard, isWindowsOs());
     }
 
     WildcardMatcher(String wildcard, boolean windowsFs) {
@@ -45,54 +61,70 @@ public class WildcardMatcher {
     }
 
     public static void glob(String filePattern, Set<File> fileSet) throws IOException {
-        final File file = new File(filePattern);
-        if (file.exists()) {
-            fileSet.add(file.getCanonicalFile());
+        final File patternFile = new File(filePattern);
+        if (patternFile.exists()) {
+            fileSet.add(patternFile.getCanonicalFile());
             return;
         }
-        WildcardMatcher matcher = new WildcardMatcher(filePattern);
-        String basePath = matcher.getBasePath(filePattern);
-        File dir = new File(basePath).getCanonicalFile();
-        int validPos = dir.getPath().indexOf(basePath);
-        collectFiles(matcher, validPos, dir, fileSet);
+        boolean windowsOs = isWindowsOs();
+        String[] patternSplit = splitBasePath(filePattern, windowsOs);
+        String basePath = patternSplit[0];
+        String patternPath = patternSplit[1];
+        if (patternPath.isEmpty()) {
+            // no pattern given, but no file exist
+            return;
+        }
+        File canonicalBaseFile = new File(basePath).getCanonicalFile();
+
+        String newpattern = canonicalBaseFile.getPath() + "/" + patternPath;
+        WildcardMatcher matcher = new WildcardMatcher(newpattern);
+        collectFiles(matcher, canonicalBaseFile, fileSet);
+
     }
 
-    private static void collectFiles(WildcardMatcher matcher, int validPos, File dir, Set<File> fileSet) throws IOException {
+    private static void collectFiles(WildcardMatcher matcher,  File dir, Set<File> fileSet) throws IOException {
         File[] files = dir.listFiles();
         if (files == null) {
             throw new IOException(String.format("Failed to access directory '%s'", dir));
         }
         for (File file : files) {
-            String text;
-            if (validPos > 0) {
-                text = file.getPath().substring(validPos);
-            } else {
-                text = file.getPath();
-            }
-            if (matcher.matches(text)) {
+            if (matcher.matches(file.getCanonicalPath())) {
                 fileSet.add(file);
             }
             if (file.isDirectory()) {
-                collectFiles(matcher, validPos, file, fileSet);
+                collectFiles(matcher, file, fileSet);
             }
         }
     }
 
-    String getBasePath(String filePattern) {
-        if (isWindowsFs()) {
+    static String[] splitBasePath(String filePattern, boolean iswindows) {
+        if (iswindows) {
             filePattern = filePattern.replace("\\", "/");
         }
         String basePath = filePattern.startsWith("/") ? "/" : "";
         String[] parts = filePattern.split("/");
-        for (int i = 0; i < parts.length && !parts[i].equals("**") && !parts[i].contains("*") && !parts[i].contains("?"); i++) {
+        int firstPatternIndex = 0;
+        for (int i = 0; i < parts.length && !containsWildcardChar(parts[i]); i++) {
             if (!parts[i].isEmpty()) {
                 basePath += parts[i];
                 if (i < parts.length - 1) {
                     basePath += "/";
                 }
+                firstPatternIndex = i + 1;
             }
         }
-        return new File(basePath).getPath();
+        String patterPath = "";
+        for (int i = firstPatternIndex; i < parts.length ; i++) {
+            patterPath += parts[i];
+            if (i < parts.length - 1) {
+                patterPath += "/";
+            }
+        }
+        return new String[] {basePath, patterPath};
+    }
+
+    private static boolean containsWildcardChar(String part) {
+        return part.equals("**") || part.contains("*") || part.contains("?");
     }
 
     String getRegex() {
@@ -101,11 +133,7 @@ public class WildcardMatcher {
 
     static String wildcardToRegexp(String wildcard, boolean windowsFs) {
 
-        String s = wildcard;
-
-        if (windowsFs) {
-            s = normaliseWindowsPath(s);
-        }
+        String s = resolvePath(wildcard, windowsFs);
 
         s = s.replace("/**/", "_%SLASHSTARSTARSLASH%_");
         s = s.replace("/**", "_%SLASHSTARSTAR%_");
@@ -127,15 +155,24 @@ public class WildcardMatcher {
         return s;
     }
 
-    private static String normaliseWindowsPath(String s) {
-        return s.toLowerCase().replace("\\", "/");
+    public boolean matches(String text) {
+        return pattern.matcher(resolvePath(text, windowsFs)).matches();
     }
 
-    public boolean matches(String text) {
+    private static boolean isWindowsOs() {
+        return System.getProperty("os.name").contains("Win");
+    }
+
+    private static String resolvePath(String text, boolean windowsFs) {
         if (windowsFs) {
-            text = normaliseWindowsPath(text);
+            text = text.toLowerCase().replace("\\", "/");
         }
-        return pattern.matcher(text).matches();
+        // The functionality of this method should be extended so
+        // that also '.' and '..' are removed (or better said resolved).
+        while (text.startsWith("./")) {
+            text = text.substring(2);
+        }
+        return text;
     }
 
 }

@@ -16,6 +16,7 @@
 
 package org.esa.beam.pixex.visat;
 
+import com.vividsolutions.jts.geom.Point;
 import org.esa.beam.framework.datamodel.PinDescriptor;
 import org.esa.beam.framework.datamodel.Placemark;
 import org.esa.beam.visat.toolviews.placemark.AbstractPlacemarkTableModel;
@@ -50,7 +51,7 @@ class CoordinateTableModel extends AbstractPlacemarkTableModel {
 
     @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
-        return true;
+        return placemarkHasGeoPos(rowIndex);
     }
 
     @Override
@@ -85,13 +86,23 @@ class CoordinateTableModel extends AbstractPlacemarkTableModel {
             case 0:
                 return getPlacemarkAt(rowIndex).getName();
             case 1:
-                return getPlacemarkAt(rowIndex).getGeoPos().getLat();
+                if (placemarkHasGeoPos(rowIndex)) {
+                    return getPlacemarkAt(rowIndex).getGeoPos().getLat();
+                }
+                return ((Point) getPlacemarkAt(rowIndex).getFeature().getDefaultGeometry()).getY();
             case 2:
-                return getPlacemarkAt(rowIndex).getGeoPos().getLon();
+                if (placemarkHasGeoPos(rowIndex)) {
+                    return getPlacemarkAt(rowIndex).getGeoPos().getLon();
+                }
+                return ((Point) getPlacemarkAt(rowIndex).getFeature().getDefaultGeometry()).getX();
             case 3:
                 return getPlacemarkAt(rowIndex).getFeature().getAttribute(Placemark.PROPERTY_NAME_DATETIME);
             default:
                 throw new IllegalArgumentException(String.format("Invalid columnIndex = %d", columnIndex));
         }
+    }
+
+    private boolean placemarkHasGeoPos(int rowIndex) {
+        return getPlacemarkAt(rowIndex).getGeoPos() != null;
     }
 }

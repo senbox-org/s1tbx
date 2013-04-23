@@ -1,0 +1,185 @@
+body {
+    background-color: #FFFFFF;
+    color: #000000;
+    font-family: Verdana, Arial, Helvetica, sans-serif;
+    font-size: 12pt;
+    padding: 6pt;
+    margin: 6pt;
+}
+
+p {
+    font-family: Verdana, Arial, Helvetica, sans-serif;
+    margin: 6pt;
+}
+
+.i1 {
+    margin-left: 30px;
+}
+
+.i2 {
+    margin-left: 50px;
+}
+
+.note {
+    font-family: Verdana, Arial, Helvetica, sans-serif;
+    color: red;
+}
+
+.inote {
+    font-family: Verdana, Arial, Helvetica, sans-serif;
+    background-color: #DDDDDD;
+}
+
+.image {
+    border-width: 0;
+    font-size: 10pt;
+    text-align: center;
+}
+
+.code {
+    color: blue;
+    font-family: courier new, courier, Monospaced, cursive;
+    text-align: left;
+    font-weight: normal;
+    text-decoration: none;
+    font-style: normal;
+}
+
+h1 {
+    font-family: Verdana, Arial, Helvetica, sans-serif;
+    font-size: 25pt;
+    font-weight: bold;
+    margin-top: 18pt;
+    margin-right: 6pt;
+    margin-bottom: 12pt;
+    margin-left: 6pt;
+}
+
+h2 {
+    font-family: Verdana, Arial, Helvetica, sans-serif;
+    font-size: 21pt;
+    font-weight: bold;
+    margin-top: 18pt;
+    margin-right: 6pt;
+    margin-bottom: 12pt;
+    margin-left: 6pt;
+}
+
+h3 {
+    font-family: Verdana, Arial, Helvetica, sans-serif;
+    font-size: 18pt;
+    font-weight: bold;
+    margin-top: 18pt;
+    margin-right: 6pt;
+    margin-bottom: 12pt;
+    margin-left: 6pt;
+}
+
+h4 {
+    font-family: Verdana, Arial, Helvetica, sans-serif;
+    font-size: 15pt;
+    font-weight: bold;
+    margin-top: 18pt;
+    margin-right: 6pt;
+    margin-bottom: 6pt;
+    margin-left: 6pt;
+}
+
+h5 {
+    font-family: Verdana, Arial, Helvetica, sans-serif;
+    font-size: 12pt;
+    font-weight: bold;
+    margin-top: 18pt;
+    margin-right: 6pt;
+    margin-bottom: 6pt;
+    margin-left: 6pt;
+}
+
+h6 {
+    font-family: Verdana, Arial, Helvetica, sans-serif;
+    font-size: 11pt;
+    font-weight: bold;
+    margin-top: 18pt;
+    margin-right: 6pt;
+    margin-bottom: 6pt;
+    margin-left: 6pt;
+}
+
+li {
+    margin-top: 4pt;
+    margin-bottom: 4pt;
+}
+
+table {
+    border-width: 0;
+    border-collapse: collapse;
+    padding: 1px;
+    margin: 0;
+}
+
+.invisibletable {
+    border-width: 0;
+    border-style: solid;
+    border-color: #FFFFFF;
+    border-collapse: collapse;
+    padding: 1px;
+    margin: 0;
+    font-family: Verdana, Arial, Helvetica, sans-serif;
+    font-size: 12px;
+    font-style: normal;
+}
+
+th {
+    font-size: 11pt;
+    text-align: left;
+    border-width: 1px;
+    border-color: #BBBBBB;
+    border-style: solid;
+    border-collapse: collapse;
+    padding-left: 6px;
+    padding-right: 6px;
+    padding-top: 3px;
+    padding-bottom: 3px;
+}
+
+td {
+    font-size: 11pt;
+    border-width: 1px;
+    border-color: #BBBBBB;
+    border-style: solid;
+    border-collapse: collapse;
+    border-spacing: 0;
+    padding: 0;
+    padding-left: 6px;
+    padding-right: 6px;
+    vertical-align: top;
+}
+
+table.header {
+    width: 100%;
+    height: 25px;
+    font-size: 18pt;
+    color: #000000;
+    vertical-align: bottom;
+    border-width: 0;
+    padding: 3px;
+    margin: 0;
+}
+
+.header {
+    font-size: 24pt;
+    height: 25px;
+    color: #000000;
+    vertical-align: bottom;
+    border-width: 0;
+    padding: 3px;
+    white-space: nowrap;
+}
+
+hr {
+    height: 4px;
+    color: #000063;
+    border-color: #000063;
+    border-style: solid;
+    border-width: 1px;
+}

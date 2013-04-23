@@ -39,6 +39,7 @@ import java.util.Arrays;
 import java.util.logging.Logger;
 
 
+@Deprecated
 /**
  * The class implements a fast flux conserving resampling based on the
  * Sutherland-Hodgman clipping algorithm.
@@ -90,6 +91,8 @@ import java.util.logging.Logger;
  *
  * @author Tom McGlynn, NASA/GSFC, 3rd October 2002
  * @author Thomas Lankester, Infoterra Ltd., 19th May 2003
+/**
+ * @Deprecated since beam-binning 2.1.2 as part of the BEAM 4.11-release. Use module 'beam-binning2' instead.
  */
 public class ClippingResampler extends SpatialBinDatabase {
 
@@ -338,9 +341,9 @@ public class ClippingResampler extends SpatialBinDatabase {
                     pixCorner[1] = cornerLatlon[topCorners][rightCornerX];
                     pixCorner[2] = cornerLatlon[bottomCorners][rightCornerX];
                     if (dbBbox.contains(pixCorner[0].lon, pixCorner[0].lat)
-                        || dbBbox.contains(pixCorner[1].lon, pixCorner[1].lat)
-                        || dbBbox.contains(pixCorner[2].lon, pixCorner[2].lat)
-                        || dbBbox.contains(pixCorner[3].lon, pixCorner[3].lat)) {
+                            || dbBbox.contains(pixCorner[1].lon, pixCorner[1].lat)
+                            || dbBbox.contains(pixCorner[2].lon, pixCorner[2].lat)
+                            || dbBbox.contains(pixCorner[3].lon, pixCorner[3].lat)) {
                         boolean validData = false;
                         for (int bandIndex = 0; bandIndex < bandDefs.length; bandIndex++) {
                             pixelValues[bandIndex] = values[bandIndex][n];
@@ -508,7 +511,6 @@ public class ClippingResampler extends SpatialBinDatabase {
      * @param x The x coordinates of the vertices
      * @param y The y coordinates of teh vertices
      * @param n The number of vertices in the polygon.
-     *
      * @return The area of the polygon.
      */
     private static double convexArea(int n, double[] x, double[] y) {
@@ -534,7 +536,6 @@ public class ClippingResampler extends SpatialBinDatabase {
      * @param y1 y-coordinate of second vertex
      * @param x2 x-coordinate of third vertex
      * @param y2 y-coordinate of third vertex
-     *
      * @return area of the triangle
      */
     private static double triangleArea(double x0, double y0,
@@ -547,7 +548,7 @@ public class ClippingResampler extends SpatialBinDatabase {
         double e = x0 - x2;
         double f = y0 - y2;
         double area = ((a * a + b * b) * (e * e + f * f))
-                      - ((a * e + b * f) * (a * e + b * f));
+                - ((a * e + b * f) * (a * e + b * f));
 
         if (area <= 0) {
             return 0; // Roundoff presumably!
@@ -573,7 +574,6 @@ public class ClippingResampler extends SpatialBinDatabase {
      * @param val value at which clipping is to occur
      * @param dir direction for which data is to be clipped.
      *            true-> clip below val, false->clip above val.
-     *
      * @return the number of new vertices.
      */
     private static int lineClip(int n,
@@ -643,7 +643,6 @@ public class ClippingResampler extends SpatialBinDatabase {
      * @param divider   critical value
      * @param direction 'true' if values greater than divider are 'in'
      *                  'false' if smaller values are 'in'.
-     *
      * @return is the value on the right side of the divider?
      */
     private static boolean inPlane(double test,
@@ -695,7 +694,6 @@ public class ClippingResampler extends SpatialBinDatabase {
      * @param maxX MAximum X-value
      * @param maxY Maximum Y-value
      * @param minY Minimum Y-value
-     *
      * @return Number of vertices in clipped polygon.
      */
     private int rectClip(int n, double[] x, double[] y, double[] nx, double[] ny,

@@ -17,7 +17,7 @@ package org.esa.beam.dataio.modis;
 
 public class ModisConstants {
 
-    public static final String DEFAULT_FILE_EXTENSION = "hdf";
+    public static final String DEFAULT_FILE_EXTENSION = ".hdf";
     public static final String READER_DESCRIPTION = "MODIS HDF4 Data Products";
     public static final String FORMAT_NAME = "MODIS";
 
@@ -50,7 +50,6 @@ public class ModisConstants {
     public static final String SHORT_NAME_KEY = "SHORTNAME";
 
     public static final String BAND_NAMES_KEY = "band_names";
-    public static final String UNITS_KEY = "units";
     public static final String VALID_RANGE_KEY = "valid_range";
     public static final String FILL_VALUE_KEY = "_FillValue";
 
@@ -178,18 +177,11 @@ public class ModisConstants {
             36  // 36
     };
 
-    public static final String EV_1KM_REF_SB_NAME = "EV_1KM_RefSB";
-    public static final String EV_500_REF_SB_NAME = "EV_500_RefSB";
-    public static final String EV_500_AGGR_REF_SB_NAME = "EV_500_Aggr1km_RefSB";
-    public static final String EV_250_REF_SB_NAME = "EV_250_RefSB";
-    public static final String EV_250_AGGR1KM_REF_SB_NAME = "EV_250_Aggr1km_RefSB";
-    public static final String EV_250_AGGR500_REF_SB_NAME = "EV_250_Aggr500_RefSB";
-    public static final String EV_1KM_EMISSIVE_BAND_NAME = "EV_1KM_Emissive";
-
     public static final char[] FIELD_SEPARATORS = {'|'};
 
     public static final String EXPONENTIAL_SCALE_NAME = "exp";
     public static final String LINEAR_SCALE_NAME = "lin";
+    public static final String LINEAR_INVERTED_SCALE_NAME = "lin_inv";
     public static final String SLOPE_INTERCEPT_SCALE_NAME = "sli";
     public static final String POW_10_SCALE_NAME = "p10";
 
@@ -200,4 +192,5 @@ public class ModisConstants {
     public static final String EOS_TYPE_GRID = "EOS_TYPE_GRID";
     public static final String EOS_TYPE_SWATH = "EOS_TYPE_SWATH";
     public static final String EOS_TYPE_POINT = "EOS_TYPE_POINT";
+
 }

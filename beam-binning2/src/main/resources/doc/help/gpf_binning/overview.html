@@ -1,0 +1,79 @@
+<!--
+  ~ Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+  ~
+  ~ This program is free software; you can redistribute it and/or modify it
+  ~ under the terms of the GNU General Public License as published by the Free
+  ~ Software Foundation; either version 3 of the License, or (at your option)
+  ~ any later version.
+  ~ This program is distributed in the hope that it will be useful, but WITHOUT
+  ~ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+  ~ FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+  ~ more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along
+  ~ with this program; if not, see http://www.gnu.org/licenses/
+  -->
+
+<html>
+<head>
+    <title>Level 3 Binning Operator</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+    <link rel="stylesheet" href="../style.css">
+</head>
+
+<body>
+<table class="header">
+    <tr class="header">
+        <td class="header">&nbsp;
+            Level 3 Binning Operator
+        </td>
+        <td class="header" align="right"><a href="../general/BeamOverview.html"><img src="../images/BeamHeader.jpg"
+                                                                                     border=0></a>
+        </td>
+    </tr>
+</table>
+
+<h3>Overview</h3>
+
+<p>The BEAM Level 3 Binning Operator is based on the NASA SeaWiFS binning algorithm as described in: <a
+        href="http://oceancolor.gsfc.nasa.gov/SeaWiFS/TECH_REPORTS/PreLPDF/PreLVol32.pdf"><i>&quot;Level 3
+    SeaWiFS Data Products: Spatial and Temporal Binning Algorithms&quot; J.W.Campbell,
+    J.M. Blasidell, and M.Darzi , NASA Technical Memorandum 104566, Vol.32</i></a>.
+</p>
+
+<p>
+    In addition to the original algorithm, this implementation gives the user the ability to:
+</p>
+
+<ul>
+    <li>Select an arbitrary number of aggregation methods, such as arithmetic mean/sigma, min/max, percentile
+        threshold.
+    </li>
+    <li>Programmatically add aggregation methods.</li>
+    <li>Predefine a target subset region as minimum/maximum latitude/longitude.</li>
+    <li>Define the spatial resolution of the target product.</li>
+    <li>Choose a supersampling in order to avoid Moir&eacute; effects.</li>
+</ul>
+
+<p>
+    The term binning refers to the process of distributing the contributions of Level 2
+    pixels in satellite coordinates to a fixed Level 3 grid using a geographic reference system.
+    A sinusoidal projection is used to realize Level 3 grid comprising a fixed number of equal area bins
+    with global coverage.
+    This is for example true for the SeaWiFS Level 3 products.
+</p>
+
+<p>
+    See <a href="user_interface.html">here</a> for a description of the user interface as well as the
+    parameters that can be used to perform a binning.
+</p>
+
+<p>
+    Note: there is also an older implementation of a Level-3 binning processor. It is more old-fashioned, slower and
+    kept for compatibility reasons. It is usable from the command line. This newly developed version, though, is faster
+    and much more flexible.
+</p>
+
+<hr>
+</body>
+</html>

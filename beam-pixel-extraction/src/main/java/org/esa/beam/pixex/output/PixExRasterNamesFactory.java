@@ -1,6 +1,7 @@
 package org.esa.beam.pixex.output;
 
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.pixex.aggregators.AggregatorStrategy;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -14,12 +15,15 @@ public class PixExRasterNamesFactory implements RasterNamesFactory {
     private final boolean exportTiePoints;
     private final boolean exportMasks;
     private final Map<String, String[]> rasterNamesMap;
+    private final AggregatorStrategy aggregatorStrategy;
 
-    public PixExRasterNamesFactory(boolean exportBands, boolean exportTiePoints, boolean exportMasks) {
+    public PixExRasterNamesFactory(boolean exportBands, boolean exportTiePoints, boolean exportMasks,
+                                   AggregatorStrategy aggregatorStrategy) {
         this.exportBands = exportBands;
         this.exportTiePoints = exportTiePoints;
         this.exportMasks = exportMasks;
-        rasterNamesMap = new HashMap<String, String[]>(37);
+        this.rasterNamesMap = new HashMap<String, String[]>(37);
+        this.aggregatorStrategy = aggregatorStrategy;
     }
 
     @Override
@@ -28,14 +32,19 @@ public class PixExRasterNamesFactory implements RasterNamesFactory {
         if (rasterNamesMap.containsKey(productType)) {
             return rasterNamesMap.get(productType);
         } else {
-            final String[] rasterNames = extractRasterNames(product);
+            final String[] rasterNames = extractRasterNames(product, aggregatorStrategy);
             rasterNamesMap.put(productType, rasterNames);
             return rasterNames;
         }
     }
 
-    private String[] extractRasterNames(Product product) {
+    @Override
+    public String[] getUniqueRasterNames(Product product) {
+        return extractRasterNames(product, null);
+    }
 
+
+    private String[] extractRasterNames(Product product, AggregatorStrategy strategy) {
         final List<String> allNamesList = new ArrayList<String>();
         if (exportBands) {
             Collections.addAll(allNamesList, product.getBandNames());
@@ -46,7 +55,17 @@ public class PixExRasterNamesFactory implements RasterNamesFactory {
         if (exportMasks) {
             Collections.addAll(allNamesList, product.getMaskGroup().getNodeNames());
         }
-        return allNamesList.toArray(new String[allNamesList.size()]);
+        if (strategy == null) {
+            return allNamesList.toArray(new String[allNamesList.size()]);
+        }
+        String[] allNamesWithSuffixes = new String[allNamesList.size() * strategy.getValueCount()];
+        int index = 0;
+        for (String name : allNamesList) {
+            for (String suffix : aggregatorStrategy.getSuffixes()) {
+                allNamesWithSuffixes[index++] = name + "_" + suffix;
+            }
+        }
+        return allNamesWithSuffixes;
     }
 
 }

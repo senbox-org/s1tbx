@@ -64,12 +64,19 @@ public class TargetProductSelector {
     private JCheckBox openInAppCheckBox;
     private TargetProductSelectorModel model;
 
+    private final boolean alwaysWriteOutput;
+
     public TargetProductSelector() {
-        this(new TargetProductSelectorModel());
+        this(new TargetProductSelectorModel(), false);
     }
 
     public TargetProductSelector(TargetProductSelectorModel model) {
+        this(model, false);
+    }
+
+    public TargetProductSelector(TargetProductSelectorModel model, boolean alwaysWriteOutput) {
         this.model = model;
+        this.alwaysWriteOutput = alwaysWriteOutput;
 
         initComponents();
         bindComponents();
@@ -79,36 +86,43 @@ public class TargetProductSelector {
     private void initComponents() {
         productNameLabel = new JLabel("Name: ");
         productNameTextField = new JTextField(25);
-        saveToFileCheckBox = new JCheckBox("Save as:");
         productDirLabel = new JLabel("Directory:");
         productDirTextField = new JTextField(25);
         productDirChooserButton = new JButton(new ProductDirChooserAction());
-        formatNameComboBox = new JComboBox(model.getFormatNames());
-        openInAppCheckBox = new JCheckBox("Open in application");
 
         final Dimension size = new Dimension(26, 16);
         productDirChooserButton.setPreferredSize(size);
         productDirChooserButton.setMinimumSize(size);
-        saveToFileCheckBox.addActionListener(new UIStateUpdater());
-        formatNameComboBox.addItemListener(new ItemListener() {
-            @Override
-            public void itemStateChanged(ItemEvent e) {
-                final String formatName = (String) formatNameComboBox.getSelectedItem();
-                if (!canReadOutputFormat(formatName)) {
-                    model.setOpenInAppSelected(false);
+
+        if (!alwaysWriteOutput) {
+            saveToFileCheckBox = new JCheckBox("Save as:");
+            formatNameComboBox = new JComboBox(model.getFormatNames());
+            openInAppCheckBox = new JCheckBox("Open in application");
+
+            saveToFileCheckBox.addActionListener(new UIStateUpdater());
+            formatNameComboBox.addItemListener(new ItemListener() {
+                @Override
+                public void itemStateChanged(ItemEvent e) {
+                    final String formatName = (String) formatNameComboBox.getSelectedItem();
+                    if (!canReadOutputFormat(formatName)) {
+                        model.setOpenInAppSelected(false);
+                    }
                 }
-            }
-        });
+            });
+        }
     }
 
     private void bindComponents() {
         final BindingContext bc = new BindingContext(model.getValueContainer());
 
         bc.bind("productName", productNameTextField);
-        bc.bind("saveToFileSelected", saveToFileCheckBox);
-        bc.bind("openInAppSelected", openInAppCheckBox);
-        bc.bind("formatName", formatNameComboBox);
         bc.bind("productDir", productDirTextField);
+
+        if (!alwaysWriteOutput) {
+            bc.bind("saveToFileSelected", saveToFileCheckBox);
+            bc.bind("openInAppSelected", openInAppCheckBox);
+            bc.bind("formatName", formatNameComboBox);
+        }
 
         model.getValueContainer().addPropertyChangeListener("productDir", new PropertyChangeListener() {
             @Override
@@ -165,9 +179,12 @@ public class TargetProductSelector {
         subPanel1.add(getProductNameLabel(), BorderLayout.NORTH);
         subPanel1.add(getProductNameTextField(), BorderLayout.CENTER);
 
-        final JPanel subPanel2 = new JPanel(new FlowLayout(FlowLayout.LEADING, 0, 0));
-        subPanel2.add(getSaveToFileCheckBox());
-        subPanel2.add(getFormatNameComboBox());
+        JPanel subPanel2 = null;
+        if (!alwaysWriteOutput) {
+            subPanel2 = new JPanel(new FlowLayout(FlowLayout.LEADING, 0, 0));
+            subPanel2.add(getSaveToFileCheckBox());
+            subPanel2.add(getFormatNameComboBox());
+        }
 
         final JPanel subPanel3 = new JPanel(new BorderLayout(3, 3));
         subPanel3.add(getProductDirLabel(), BorderLayout.NORTH);
@@ -187,23 +204,33 @@ public class TargetProductSelector {
         final JPanel panel = new JPanel(tableLayout);
         panel.setBorder(BorderFactory.createTitledBorder("Target Product"));
         panel.add(subPanel1);
-        panel.add(subPanel2);
+
+        if (!alwaysWriteOutput) {
+            panel.add(subPanel2);
+        }
         panel.add(subPanel3);
-        panel.add(getOpenInAppCheckBox());
+
+        if (!alwaysWriteOutput) {
+            panel.add(getOpenInAppCheckBox());
+        }
 
         return panel;
     }
 
     private void updateUIState() {
         if (model.isSaveToFileSelected()) {
-            openInAppCheckBox.setEnabled(canReadOutputFormat(model.getFormatName()));
-            formatNameComboBox.setEnabled(true);
+            if (!alwaysWriteOutput) {
+                openInAppCheckBox.setEnabled(canReadOutputFormat(model.getFormatName()));
+                formatNameComboBox.setEnabled(true);
+            }
             productDirLabel.setEnabled(true);
             productDirTextField.setEnabled(true);
             productDirChooserButton.setEnabled(true);
         } else {
-            openInAppCheckBox.setEnabled(false);
-            formatNameComboBox.setEnabled(false);
+            if (!alwaysWriteOutput) {
+                openInAppCheckBox.setEnabled(false);
+                formatNameComboBox.setEnabled(false);
+            }
             productDirTextField.setEnabled(false);
             productDirTextField.setEnabled(false);
             productDirChooserButton.setEnabled(false);
@@ -212,13 +239,15 @@ public class TargetProductSelector {
 
     public void setEnabled(boolean enabled) {
         productNameLabel.setEnabled(enabled);
+        if (alwaysWriteOutput) {
+            saveToFileCheckBox.setEnabled(enabled);
+            formatNameComboBox.setEnabled(enabled);
+            openInAppCheckBox.setEnabled(enabled);
+        }
         productNameTextField.setEnabled(enabled);
-        saveToFileCheckBox.setEnabled(enabled);
         productDirLabel.setEnabled(enabled);
         productDirTextField.setEnabled(enabled);
         productDirChooserButton.setEnabled(enabled);
-        formatNameComboBox.setEnabled(enabled);
-        openInAppCheckBox.setEnabled(enabled);
     }
 
     private static boolean canReadOutputFormat(String formatName) {

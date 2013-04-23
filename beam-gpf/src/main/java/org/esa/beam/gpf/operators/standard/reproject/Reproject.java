@@ -30,6 +30,8 @@ import org.geotools.resources.i18n.ErrorKeys;
 import org.geotools.resources.i18n.Errors;
 import org.geotools.resources.image.ImageUtilities;
 import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.referencing.operation.CoordinateOperation;
 import org.opengis.referencing.operation.CoordinateOperationFactory;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.MathTransform2D;
@@ -52,22 +54,22 @@ import java.awt.image.RenderedImage;
 import java.awt.image.renderable.ParameterBlock;
 
 
-
 final class Reproject {
-    
+
 
     private static final int DIMENSION_X_INDEX = 0;
     private static final int DIMENSION_Y_INDEX = 1;
     /**
-     * Small tolerance threshold for floating point number comparaisons.
+     * Small tolerance threshold for floating point number comparisons.
      */
     private static final double EPS = 1.0E-6;
-    
+
     private OpImage[] leveledWarpImages;
-    
+
     Reproject(int numLevels) {
         leveledWarpImages = new OpImage[numLevels];
     }
+
     private synchronized Warp getCachingWarp(Warp warp, int width, int height, Dimension tileSize, int level) {
         if (leveledWarpImages[level] == null) {
             leveledWarpImages[level] = new WarpSourceCoordinatesOpImage(warp, width, height, tileSize, null);
@@ -79,32 +81,28 @@ final class Reproject {
     /**
      * Creates a {@link RenderedImage} with a different coordinate reference reference system.
      *
-     * @param sourceImage
-     *          The source grid coverage.
-     * @param sourceGeometry the geometry of the source
-     *          Coordinate reference system for the new grid coverage, or {@code null}.
-     * @param targetGeometry
-     *          The target grid geometry, or {@code null} for default.
-     * @param backgroundValue no-data-value 
-     * @param interpolation
-     *          The interpolation to use, or {@code null} if none.
-     * @param hints
-     *          The rendering hints.
-     * @param targetLevel  the image level the reproject will operate on
-     * @param tileSize  the size of the tiles of the target image
-     * @return
-     *          The new grid coverage, or {@code sourceCoverage} if no resampling was needed.
-     * @throws FactoryException
-     *          if a transformation step can't be created.
-     * @throws TransformException
-     *          if a transformation failed.
+     * @param sourceImage     The source grid coverage.
+     * @param sourceGeometry  the geometry of the source
+     *                        Coordinate reference system for the new grid coverage, or {@code null}.
+     * @param targetGeometry  The target grid geometry, or {@code null} for default.
+     * @param backgroundValue no-data-value
+     * @param interpolation   The interpolation to use, or {@code null} if none.
+     * @param hints           The rendering hints.
+     * @param targetLevel     the image level the reproject will operate on
+     * @param tileSize        the size of the tiles of the target image
+     *
+     * @return The new grid coverage, or {@code sourceCoverage} if no resampling was needed.
+     *
+     * @throws FactoryException   if a transformation step can't be created.
+     * @throws TransformException if a transformation failed.
      */
-    public RenderedImage reproject(RenderedImage sourceImage, 
-                                          ImageGeometry sourceGeometry,
-                                          ImageGeometry targetGeometry,
-                                          double backgroundValue,
-                                          final Interpolation interpolation, 
-                                          final Hints hints, int targetLevel, Dimension tileSize) throws FactoryException, TransformException {
+    public RenderedImage reproject(RenderedImage sourceImage,
+                                   ImageGeometry sourceGeometry,
+                                   ImageGeometry targetGeometry,
+                                   double backgroundValue,
+                                   final Interpolation interpolation,
+                                   final Hints hints, int targetLevel, Dimension tileSize) throws FactoryException,
+                                                                                                  TransformException {
 
         ////////////////////////////////////////////////////////////////////////////////////////
         ////                                                                                ////
@@ -115,8 +113,7 @@ final class Reproject {
         ////                                                                                ////
         ////////////////////////////////////////////////////////////////////////////////////////
 
-        final CoordinateOperationFactory factory =
-                ReferencingFactoryFinder.getCoordinateOperationFactory(hints);
+        final CoordinateOperationFactory factory = ReferencingFactoryFinder.getCoordinateOperationFactory(hints);
         final MathTransformFactory mtFactory;
         if (factory instanceof AbstractCoordinateOperationFactory) {
             mtFactory = ((AbstractCoordinateOperationFactory) factory).getMathTransformFactory();
@@ -141,18 +138,22 @@ final class Reproject {
         final MathTransform allSteps;
         MathTransform step1 = new AffineTransform2D(targetGeometry.getImage2MapTransform());
         MathTransform step3 = new AffineTransform2D(sourceGeometry.getImage2MapTransform()).inverse();
-        if (CRS.equalsIgnoreMetadata(sourceGeometry.getMapCrs(), targetGeometry.getMapCrs())) {
+
+        CoordinateReferenceSystem sourceMapCrs = sourceGeometry.getMapCrs();
+        CoordinateReferenceSystem targetMapCrs = targetGeometry.getMapCrs();
+        if (CRS.equalsIgnoreMetadata(sourceMapCrs, targetMapCrs)) {
             allSteps = mtFactory.createConcatenatedTransform(step1, step3);
         } else {
-            MathTransform step2 = factory.createOperation(targetGeometry.getMapCrs(), sourceGeometry.getMapCrs()).getMathTransform();
+            CoordinateOperation step2Operation = factory.createOperation(targetMapCrs, sourceMapCrs);
+            MathTransform step2 = step2Operation.getMathTransform();
             /*
              * Computes the final transform.
              */
             if (step1.equals(step3.inverse())) {
                 allSteps = step2;
             } else {
-                allSteps = mtFactory.createConcatenatedTransform(
-                           mtFactory.createConcatenatedTransform(step1, step2), step3);
+                MathTransform step1To2 = mtFactory.createConcatenatedTransform(step1, step2);
+                allSteps = mtFactory.createConcatenatedTransform(step1To2, step3);
             }
         }
         MathTransform2D allSteps2D = toMathTransform2D(allSteps, mtFactory);
@@ -202,7 +203,7 @@ final class Reproject {
         final String operation;
         final ParameterBlock paramBlk = new ParameterBlock().addSource(sourceImage);
         if (allSteps.isIdentity() || (allSteps instanceof AffineTransform &&
-                XAffineTransform.isIdentity((AffineTransform) allSteps, EPS))) {
+                                      XAffineTransform.isIdentity((AffineTransform) allSteps, EPS))) {
 
             final Rectangle sourceBB = sourceGeometry.getImageRect();
             final Rectangle targetBB = targetGeometry.getImageRect();
@@ -236,13 +237,13 @@ final class Reproject {
         } else {
             operation = "Warp";
             Warp warp;
-                if (allSteps2D instanceof AffineTransform) {
-                    warp = new WarpAffine((AffineTransform) allSteps2D);
-                } else {
-                    warp = WarpTransform2D.getWarp(null, allSteps2D);
-                }
-                Rectangle imageRect = targetGeometry.getImageRect();
-                warp = getCachingWarp(warp, imageRect.width, imageRect.height, tileSize, targetLevel);
+            if (allSteps2D instanceof AffineTransform) {
+                warp = new WarpAffine((AffineTransform) allSteps2D);
+            } else {
+                warp = WarpTransform2D.getWarp(null, allSteps2D);
+            }
+            Rectangle imageRect = targetGeometry.getImageRect();
+            warp = getCachingWarp(warp, imageRect.width, imageRect.height, tileSize, targetLevel);
             paramBlk.add(warp).add(interpolation).add(background);
         }
         return JAI.getDefaultInstance().createNS(operation, paramBlk, targetHints);
@@ -251,14 +252,15 @@ final class Reproject {
     /**
      * Returns the math transform for the two specified dimensions of the specified transform.
      *
-     * @param  transform The transform.
-     * @param  mtFactory The factory to use for extracting the sub-transform.
+     * @param transform The transform.
+     * @param mtFactory The factory to use for extracting the sub-transform.
+     *
      * @return The {@link MathTransform2D} part of {@code transform}.
+     *
      * @throws FactoryException If {@code transform} is not separable.
      */
     private static MathTransform2D toMathTransform2D(final MathTransform transform,
-                                                     final MathTransformFactory mtFactory) throws FactoryException
-    {
+                                                     final MathTransformFactory mtFactory) throws FactoryException {
         final DimensionFilter filter = new DimensionFilter(mtFactory);
         filter.addSourceDimension(DIMENSION_X_INDEX);
         filter.addSourceDimension(DIMENSION_Y_INDEX);

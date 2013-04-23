@@ -16,22 +16,25 @@
 
 package org.esa.beam.dataio.modis.bandreader;
 
-import org.esa.beam.dataio.modis.hdf.lib.HDF;
 import org.esa.beam.framework.datamodel.ProductData;
+import ucar.ma2.Array;
+import ucar.ma2.InvalidRangeException;
+import ucar.ma2.Section;
+import ucar.nc2.Variable;
 
 import java.io.IOException;
 
 public class ModisInt16BandReader extends ModisBandReader {
 
-    private short[] _line;
+    private short[] line;
     private short min;
     private short max;
     private short fill;
     private short[] targetData;
     private int targetIdx;
 
-    public ModisInt16BandReader(final int sdsId, final int layer, final boolean is3d) {
-        super(sdsId, layer, is3d);
+    public ModisInt16BandReader(Variable variable, final int layer, final boolean is3d) {
+        super(variable, layer, is3d);
     }
 
     /**
@@ -48,13 +51,13 @@ public class ModisInt16BandReader extends ModisBandReader {
     protected void prepareForReading(final int sourceOffsetX, final int sourceOffsetY, final int sourceWidth,
                                      final int sourceHeight, final int sourceStepX, final int sourceStepY,
                                      final ProductData destBuffer) {
-        fill = (short) Math.round(_fillValue);
-        if (_validRange == null) {
+        fill = (short) Math.round(fillValue);
+        if (validRange == null) {
             min = Short.MIN_VALUE;
             max = Short.MAX_VALUE;
         } else {
-            min = (short) Math.round(_validRange.getMin());
-            max = (short) Math.round(_validRange.getMax());
+            min = (short) Math.round(validRange.getMin());
+            max = (short) Math.round(validRange.getMax());
         }
         targetData = (short[]) destBuffer.getElems();
         targetIdx = 0;
@@ -63,25 +66,33 @@ public class ModisInt16BandReader extends ModisBandReader {
 
     @Override
     protected void readLine() throws IOException {
-        HDF.getWrap().SDreaddata(_sdsId, _start, _stride, _count, _line);
+        try {
+            final Section section = new Section(start, count, stride);
+            final Array array = variable.read(section);
+            for (int i = 0; i < line.length; i++) {
+                line[i] = array.getShort(i);
+            }
+        } catch (InvalidRangeException e) {
+            throw new IOException(e.getMessage());
+        }
     }
 
     @Override
     protected void validate(final int x) {
-        final short value = _line[x];
+        final short value = line[x];
         if (value < min || value > max) {
-            _line[x] = fill;
+            line[x] = fill;
         }
     }
 
     @Override
     protected void assign(final int x) {
-        targetData[targetIdx++] = _line[x];
+        targetData[targetIdx++] = line[x];
     }
 
     private void ensureLineWidth(final int sourceWidth) {
-        if ((_line == null) || (_line.length != sourceWidth)) {
-            _line = new short[sourceWidth];
+        if ((line == null) || (line.length != sourceWidth)) {
+            line = new short[sourceWidth];
         }
     }
 }

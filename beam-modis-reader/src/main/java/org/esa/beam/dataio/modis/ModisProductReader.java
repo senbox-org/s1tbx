@@ -16,13 +16,12 @@
 package org.esa.beam.dataio.modis;
 
 import com.bc.ceres.core.ProgressMonitor;
-import ncsa.hdf.hdflib.HDFConstants;
+import org.esa.beam.dataio.modis.attribute.DaacAttributes;
+import org.esa.beam.dataio.modis.attribute.ImappAttributes;
 import org.esa.beam.dataio.modis.bandreader.ModisBandReader;
-import org.esa.beam.dataio.modis.hdf.HdfAttributeContainer;
-import org.esa.beam.dataio.modis.hdf.HdfAttributes;
-import org.esa.beam.dataio.modis.hdf.HdfUtils;
-import org.esa.beam.dataio.modis.hdf.IHDF;
-import org.esa.beam.dataio.modis.hdf.lib.HDF;
+import org.esa.beam.dataio.modis.netcdf.NetCDFAttributes;
+import org.esa.beam.dataio.modis.netcdf.NetCDFUtils;
+import org.esa.beam.dataio.modis.netcdf.NetCDFVariables;
 import org.esa.beam.dataio.modis.productdb.ModisProductDb;
 import org.esa.beam.framework.dataio.AbstractProductReader;
 import org.esa.beam.framework.dataio.ProductIOException;
@@ -30,26 +29,22 @@ import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.util.logging.BeamLogManager;
+import ucar.nc2.Attribute;
+import ucar.nc2.NetcdfFile;
+import ucar.nc2.Variable;
 
-import java.awt.*;
+import java.awt.Dimension;
 import java.io.File;
 import java.io.IOException;
-import java.util.Collection;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.logging.Logger;
 
 public class ModisProductReader extends AbstractProductReader {
 
-    private HdfAttributes _globalHdfAttrs;
-    private final HashMap _bandReader;
-    private final Logger _logger;
-    private int _fileId;
-    private int _sdStart;
-    private ModisFileReader _fileReader;
-    private ModisGlobalAttributes _globalAttributes;
+    private ModisFileReader fileReader;
+    private ModisGlobalAttributes globalAttributes;
+    private NetcdfFile netcdfFile;
+    private NetCDFAttributes netCDFAttributes;
+    private NetCDFVariables netCDFVariables;
 
     /**
      * Constructs a new MODIS product reader.
@@ -58,13 +53,6 @@ public class ModisProductReader extends AbstractProductReader {
      */
     public ModisProductReader(ModisProductReaderPlugIn plugin) {
         super(plugin);
-
-        _fileId = HDFConstants.FAIL;
-        _sdStart = HDFConstants.FAIL;
-
-        _bandReader = new HashMap();
-
-        _logger = BeamLogManager.getSystemLogger();
     }
 
     /**
@@ -74,27 +62,14 @@ public class ModisProductReader extends AbstractProductReader {
      */
     @Override
     public void close() throws IOException {
-        if (_fileId != HDFConstants.FAIL) {
+        if (fileReader != null) {
+            fileReader.close();
+            fileReader = null;
+        }
 
-            // close all band readers
-            // ----------------------
-            Collection readers = _bandReader.values();
-            Iterator it = readers.iterator();
-            ModisBandReader reader;
-            while (it.hasNext()) {
-                reader = (ModisBandReader) it.next();
-                reader.close();
-            }
-            _bandReader.clear();
-
-            _fileReader.close();
-
-            // and finish file access
-            // ----------------------
-            HDF.getWrap().SDend(_sdStart);
-            _sdStart = HDFConstants.FAIL;
-            HDF.getWrap().Hclose(_fileId);
-            _fileId = HDFConstants.FAIL;
+        if (netcdfFile != null) {
+            netcdfFile.close();
+            netcdfFile = null;
         }
 
         super.close();
@@ -104,6 +79,12 @@ public class ModisProductReader extends AbstractProductReader {
     ////// END OF PUBLIC
     ///////////////////////////////////////////////////////////////////////////
 
+    // package access for testing only tb 2012-06-19
+    static boolean isGlobalAttributeName(String variableName) {
+        return "StructMetadata.0".equalsIgnoreCase(variableName)
+                || "CoreMetadata.0".equalsIgnoreCase(variableName)
+                || "ArchiveMetadata.0".equalsIgnoreCase(variableName);
+    }
 
     /**
      * The template method which is called by the method after an optional spatial subset has
@@ -138,16 +119,16 @@ public class ModisProductReader extends AbstractProductReader {
                                                        int destOffsetY, int destWidth, int destHeight, ProductData destBuffer,
                                                        ProgressMonitor pm) throws IOException {
 
-        ModisBandReader reader = _fileReader.getBandReader(destBand);
+        final ModisBandReader reader = fileReader.getBandReader(destBand);
 
         if (reader == null) {
             throw new IOException("No band reader for band '" + destBand.getName() + "' available!");
         }
 
         reader.readBandData(sourceOffsetX, sourceOffsetY,
-                sourceWidth, sourceHeight,
-                sourceStepX, sourceStepY,
-                destBuffer, pm);
+                            sourceWidth, sourceHeight,
+                            sourceStepX, sourceStepY,
+                            destBuffer, pm);
     }
 
     /**
@@ -160,61 +141,63 @@ public class ModisProductReader extends AbstractProductReader {
      */
     @Override
     protected Product readProductNodesImpl() throws IOException {
-        final IHDF ihdf = HDF.getWrap();
-        try {
-            final File inFile = getInputFile();
-            final String path = inFile.getPath();
-            _fileId = ihdf.Hopen(path, HDFConstants.DFACC_RDONLY);
-            _sdStart = ihdf.SDstart(path, HDFConstants.DFACC_RDONLY);
+        final File inFile = getInputFile();
+        final String inputFilePath = inFile.getPath();
 
-            readGlobalMetaData(inFile);
-            checkProductType();
-            //checkDayNightMode();
-            _fileReader = createFileReader();
+        netcdfFile = NetcdfFile.open(inputFilePath, null);
 
-            final Dimension productDim = _globalAttributes.getProductDimensions();
-            final Product product;
-            product = new Product(_globalAttributes.getProductName(), _globalAttributes.getProductType(),
-                    productDim.width, productDim.height, this);
-            product.setFileLocation(inFile);
-            _fileReader.addRastersAndGeocoding(_sdStart, _globalAttributes, product);
+        readGlobalMetaData(inFile);
+        checkProductType();
 
-            // add all metadata if required
-            // ----------------------------
-            if (!isMetadataIgnored()) {
-                // add the metadata
-                addMetadata(product);
-            }
+        fileReader = createFileReader();
 
-            // ModisProductDb db = ModisProductDb.getInstance();
-// Remarked by sabine because the product flipper uses a TiePointGeoCcoding
-// and makes not an instance of ModisTiePointGeoCoding
-//                if (!(_dayMode ^ db.mustFlip(prod.getProductType()))) {
+        final Dimension productDim = globalAttributes.getProductDimensions(netcdfFile.getDimensions());
+        Product product = new Product(globalAttributes.getProductName(),
+                                      globalAttributes.getProductType(),
+                                      productDim.width,
+                                      productDim.height,
+                                      this);
+        product.setFileLocation(inFile);
+
+        final NetCDFVariables netCDFVariables = new NetCDFVariables();
+        netCDFVariables.add(netcdfFile.getVariables());
+        fileReader.addRastersAndGeoCoding(product, globalAttributes, netCDFVariables);
+
+        // add all metadata if required
+        // ----------------------------
+        if (!isMetadataIgnored()) {
+            addMetadata(product);
+        }
+
+        final Date sensingStart = globalAttributes.getSensingStart();
+        if (sensingStart != null) {
+            product.setStartTime(ProductData.UTC.create(sensingStart, 0));
+        }
+        final Date sensingStop = globalAttributes.getSensingStop();
+        if (sensingStop != null) {
+            product.setEndTime(ProductData.UTC.create(sensingStop, 0));
+        }
+
+        //if (!(_dayMode ^ db.mustFlip(prod.getProductType()))) {
 //                    prod = ProductFlipper.createFlippedProduct(prod, ProductFlipper.FLIP_BOTH, prod.getName(),
 //                            prod.getDescription());
 //                    prod.setFileLocation(inFile);
 //                }
-            final Date sensingStart = _globalAttributes.getSensingStart();
-            if (sensingStart != null) {
-                product.setStartTime(ProductData.UTC.create(sensingStart, 0));
-            }
-            final Date sensingStop = _globalAttributes.getSensingStop();
-            if (sensingStop != null) {
-                product.setEndTime(ProductData.UTC.create(sensingStop, 0));
-            }
-            return product;
-        } finally {
-            ihdf.Hclose(_fileId);
-        }
+//        final ModisProductDb productDb = ModisProductDb.getInstance();
+//        if (productDb.mustFlip(globalAttributes.getProductType())) {
+//            // @todo 1 tb/tb this creates weired geo-codings!!!!!
+//            product = ProductFlipper.createFlippedProduct(product,
+//                                                          ProductFlipper.FLIP_BOTH,
+//                                                          product.getName(),
+//                                                          product.getDescription());
+//            product.setFileLocation(inFile);
+//            System.out.println("FLIP_IT!!!!!!!!!!!!!!!!!!");
+//        }
+        return product;
     }
 
     private ModisFileReader createFileReader() {
         return new ModisFileReader();
-//        if (isImappFormat()) {
-//            return new ModisImappFileReader();
-//        } else {
-//            return new ModisDaacFileReader();
-//        }
     }
 
     private File getInputFile() {
@@ -229,46 +212,51 @@ public class ModisProductReader extends AbstractProductReader {
         return inFile;
     }
 
-    /**
-     * Reads the global metadata and extracts some basic constants (width, height etc ...)
-     *
-     * @throws IOException
-     */
     private void readGlobalMetaData(File inFile) throws IOException {
-        _globalHdfAttrs = HdfUtils.readAttributes(_sdStart);
+        netCDFAttributes = new NetCDFAttributes();
+        netCDFAttributes.add(netcdfFile.getGlobalAttributes());
+
+        netCDFVariables = new NetCDFVariables();
+        netCDFVariables.add(netcdfFile.getVariables());
 
         // check wheter daac or imapp
         if (isImappFormat()) {
-            _globalAttributes = new ModisImappAttributes(inFile, _sdStart, _globalHdfAttrs);
+            globalAttributes = new ImappAttributes(inFile, netCDFVariables, netCDFAttributes);
         } else {
-            _globalAttributes = new ModisDaacAttributes(_globalHdfAttrs);
+            globalAttributes = new DaacAttributes(netCDFVariables);
         }
     }
 
     private boolean isImappFormat() {
-        return _globalHdfAttrs.getStringAttributeValue(ModisConstants.STRUCT_META_KEY) == null;
+        return netCDFVariables.get(ModisConstants.STRUCT_META_KEY) == null;
     }
 
     /**
      * Adds the metadata to the product passed in
      *
-     * @param prod
+     * @param prod the product
      */
-    private void addMetadata(Product prod) {
-        HdfAttributeContainer container;
-        MetadataElement mdElem = null;
-        MetadataElement globalElem = null;
-
-        mdElem = prod.getMetadataRoot();
+    private void addMetadata(Product prod) throws IOException {
+        final MetadataElement mdElem = prod.getMetadataRoot();
         if (mdElem == null) {
             return;
         }
 
-        globalElem = new MetadataElement(ModisConstants.GLOBAL_META_NAME);
+        final MetadataElement globalElem = new MetadataElement(ModisConstants.GLOBAL_META_NAME);
 
-        for (int n = 0; n < _globalHdfAttrs.getNumAttributes(); n++) {
-            container = _globalHdfAttrs.getAttributeAt(n);
-            globalElem.addAttribute(container.toMetadataAttribute());
+        final Attribute[] attributes = netCDFAttributes.getAll();
+        for (final Attribute attribute : attributes) {
+            globalElem.addAttribute(NetCDFUtils.toMetadataAttribute(attribute));
+        }
+
+        // we need to scan the variables because the NetCDF lib puts three important
+        // global attributes into the list of variables tb 2012-06-19
+        final Variable[] variables = netCDFVariables.getAll();
+        for (int i = 0; i < variables.length; i++) {
+            final Variable variable = variables[i];
+            if (isGlobalAttributeName(variable.getName())) {
+                globalElem.addAttribute(NetCDFUtils.toMetadataAttribute(variable));
+            }
         }
 
         mdElem.addElement(globalElem);
@@ -277,27 +265,11 @@ public class ModisProductReader extends AbstractProductReader {
     /**
      * Checks the product type against the list of known types. Throws ProductIOException if it doesn't fit.
      */
-    private void checkProductType() throws ProductIOException {
-        final String productType = _globalAttributes.getProductType();
+    private void checkProductType() throws IOException {
+        final String productType = globalAttributes.getProductType();
         final ModisProductDb db = ModisProductDb.getInstance();
         if (!db.isSupportedProduct(productType)) {
             throw new ProductIOException("Unsupported product of type '" + productType + '\'');
-        }
-    }
-
-    /**
-     * Checks whether the product is in daymode or in night mode
-     */
-    private void checkDayNightMode() {
-        int[] numDayScans = _globalHdfAttrs.getIntAttributeValue(ModisConstants.NUM_OF_DAY_SCANS_KEY);
-        int[] numNightScans = _globalHdfAttrs.getIntAttributeValue(ModisConstants.NUM_OF_NIGHT_SCANS_KEY);
-
-        if ((numNightScans == null) || (numDayScans == null) ||
-                (numNightScans.length <= 0) || (numDayScans.length <= 0)) {
-            _logger.warning("Unable to retrieve day mode or night mode scan number. Assuming day mode");
-            //_dayMode = true;
-        } else {
-            //_dayMode = numDayScans[0] > numNightScans[0];
         }
     }
 }

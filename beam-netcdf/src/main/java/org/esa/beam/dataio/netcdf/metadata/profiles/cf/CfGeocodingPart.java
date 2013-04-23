@@ -18,6 +18,7 @@ package org.esa.beam.dataio.netcdf.metadata.profiles.cf;
 import org.esa.beam.dataio.netcdf.ProfileReadContext;
 import org.esa.beam.dataio.netcdf.ProfileWriteContext;
 import org.esa.beam.dataio.netcdf.metadata.ProfilePartIO;
+import org.esa.beam.dataio.netcdf.metadata.profiles.hdfeos.HdfEosGeocodingPart;
 import org.esa.beam.dataio.netcdf.nc.NFileWriteable;
 import org.esa.beam.dataio.netcdf.nc.NVariable;
 import org.esa.beam.dataio.netcdf.util.Constants;
@@ -44,6 +45,7 @@ import ucar.nc2.Variable;
 
 import java.awt.Dimension;
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.List;
 
 public class CfGeocodingPart extends ProfilePartIO {
@@ -54,12 +56,43 @@ public class CfGeocodingPart extends ProfilePartIO {
     public void decode(ProfileReadContext ctx, Product p) throws IOException {
         GeoCoding geoCoding = readConventionBasedMapGeoCoding(ctx, p);
         if (geoCoding == null) {
-            geoCoding = readPixelGeoCoding(ctx, p);
+            geoCoding = readPixelGeoCoding(p);
+        }
+        // If there is still no geocoding, check special case of netcdf file which was converted
+        // from hdf file and has 'StructMetadata.n' element.
+        // In this case, the HDF 'elements' were put into a single Netcdf String attribute
+        // todo: in fact this has been checked only for MODIS09 HDF-EOS product. Try to further generalize
+        if (geoCoding == null && hasHdfMetadataOrigin(ctx.getNetcdfFile().getGlobalAttributes())) {
+            hdfDecode(ctx, p);
         }
         if (geoCoding != null) {
             p.setGeoCoding(geoCoding);
         }
     }
+
+    private void hdfDecode(ProfileReadContext ctx, Product p) throws IOException {
+        final CfHdfEosGeoInfoExtractor cfHdfEosGeoInfoExtractor = new CfHdfEosGeoInfoExtractor(ctx.getNetcdfFile().getGlobalAttributes());
+        cfHdfEosGeoInfoExtractor.extractInfo();
+
+        String projection = cfHdfEosGeoInfoExtractor.getProjection();
+        double upperLeftLon = cfHdfEosGeoInfoExtractor.getUlLon();
+        double upperLeftLat = cfHdfEosGeoInfoExtractor.getUlLat();
+
+        double lowerRightLon = cfHdfEosGeoInfoExtractor.getLrLon();
+        double lowerRightLat = cfHdfEosGeoInfoExtractor.getLrLat();
+
+        HdfEosGeocodingPart.attachGeoCoding(p, upperLeftLon, upperLeftLat, lowerRightLon, lowerRightLat, projection);
+    }
+
+    private boolean hasHdfMetadataOrigin(List<Attribute> netcdfAttributes) {
+        for (Attribute att : netcdfAttributes) {
+            if (att.getName().startsWith("StructMetadata")) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 
     @Override
     public void preEncode(ProfileWriteContext ctx, Product product) throws IOException {
@@ -69,15 +102,15 @@ public class CfGeocodingPart extends ProfilePartIO {
         }
         geographicCRS = isGeographicCRS(geoCoding);
         final NFileWriteable ncFile = ctx.getNetcdfFileWriteable();
-        if (geographicCRS) {
-            final GeoPos ul = geoCoding.getGeoPos(new PixelPos(0.5f, 0.5f), null);
-            final int w = product.getSceneRasterWidth();
-            final int h = product.getSceneRasterHeight();
-            final GeoPos br = geoCoding.getGeoPos(new PixelPos(w - 0.5f, h - 0.5f), null);
-            addGeographicCoordinateVariables(ncFile, ul, br);
-        } else {
-            final boolean latLonPresent = isLatLonPresent(ncFile);
-            if (!latLonPresent) {
+        final boolean latLonPresent = isLatLonPresent(ncFile);
+        if (!latLonPresent) {
+            if (geographicCRS) {
+                final GeoPos ul = geoCoding.getGeoPos(new PixelPos(0.5f, 0.5f), null);
+                final int w = product.getSceneRasterWidth();
+                final int h = product.getSceneRasterHeight();
+                final GeoPos br = geoCoding.getGeoPos(new PixelPos(w - 0.5f, h - 0.5f), null);
+                addGeographicCoordinateVariables(ncFile, ul, br);
+            } else {
                 addLatLonBands(ncFile, ImageManager.getPreferredTileSize(product));
             }
         }
@@ -140,7 +173,7 @@ public class CfGeocodingPart extends ProfilePartIO {
 
     static boolean isGeographicCRS(final GeoCoding geoCoding) {
         return (geoCoding instanceof CrsGeoCoding || geoCoding instanceof MapGeoCoding) &&
-               CRS.equalsIgnoreMetadata(geoCoding.getMapCRS(), DefaultGeographicCRS.WGS84);
+                CRS.equalsIgnoreMetadata(geoCoding.getMapCRS(), DefaultGeographicCRS.WGS84);
     }
 
     private void addGeographicCoordinateVariables(NFileWriteable ncFile, GeoPos ul, GeoPos br) throws IOException {
@@ -217,56 +250,47 @@ public class CfGeocodingPart extends ProfilePartIO {
         double pixelSizeX;
         double pixelSizeY;
 
-        final Attribute lonValidMinAttr = lon.findAttribute(Constants.VALID_MIN_ATT_NAME);
-        final Attribute lonValidMaxAttr = lon.findAttribute(Constants.VALID_MAX_ATT_NAME);
-
-        final Attribute latValidMinAttr = lat.findAttribute(Constants.VALID_MIN_ATT_NAME);
-        final Attribute latValidMaxAttr = lat.findAttribute(Constants.VALID_MAX_ATT_NAME);
-
         boolean yFlipped;
-        if (lonValidMinAttr != null && lonValidMaxAttr != null && latValidMinAttr != null && latValidMaxAttr != null) {
-            // COARDS convention uses 'valid_min' and 'valid_max' attributes
-
-            double minLon = lonValidMinAttr.getNumericValue().doubleValue();
-            double minLat = latValidMinAttr.getNumericValue().doubleValue();
-            double maxLon = lonValidMaxAttr.getNumericValue().doubleValue();
-            double maxLat = latValidMaxAttr.getNumericValue().doubleValue();
-
-            pixelX = 0.5;
-            pixelY = (sceneRasterHeight - 1.0) + 0.5;
-            easting = minLon;
-            northing = minLat;
-            pixelSizeX = (maxLon - minLon) / (sceneRasterWidth - 1);
-            pixelSizeY = (maxLat - minLat) / (sceneRasterHeight - 1);
-            yFlipped = false;
-        } else {
-            // CF convention
-            final Array lonData = lon.read();
-            final Array latData = lat.read();
-
-            final int lonSize = lon.getShape(0);
-            final Index i0 = lonData.getIndex().set(0);
-            final Index i1 = lonData.getIndex().set(lonSize - 1);
-            pixelSizeX = (lonData.getDouble(i1) - lonData.getDouble(i0)) / (sceneRasterWidth - 1);
-            easting = lonData.getDouble(i0);
-
-            final int latSize = lat.getShape(0);
-            final Index j0 = latData.getIndex().set(0);
-            final Index j1 = latData.getIndex().set(latSize - 1);
-            pixelSizeY = (latData.getDouble(j1) - latData.getDouble(j0)) / (sceneRasterHeight - 1);
-
-            pixelX = 0.5f;
-            pixelY = 0.5f;
-
-            // this should be the 'normal' case
-            if (pixelSizeY < 0) {
-                pixelSizeY = -pixelSizeY;
-                yFlipped = false;
-                northing = latData.getDouble(latData.getIndex().set(0));
-            } else {
-                yFlipped = true;
-                northing = latData.getDouble(latData.getIndex().set(latSize - 1));
+        Array lonData = lon.read();
+        // SPECIAL CASE: check if we have a global geographic lat/lon with lon from 0..360 instead of -180..180
+        if (isGlobalShifted180(lonData)) {
+            // if this is true, subtract 180 from all longitudes and
+            // add a global attribute which will be analyzed when setting up the image(s)
+            final List<Variable> variables = ctx.getNetcdfFile().getVariables();
+            for (Iterator<Variable> iterator = variables.iterator(); iterator.hasNext(); ) {
+                Variable next = iterator.next();
+                next.getAttributes().add(new Attribute("LONGITUDE_SHIFTED_180", 1));
             }
+            for (int i = 0; i < lonData.getSize(); i++) {
+                final Index ii = lonData.getIndex().set(i);
+                final double theLon = lonData.getDouble(ii) - 180.0;
+                lonData.setDouble(ii, theLon);
+            }
+        }
+        final Array latData = lat.read();
+
+
+        final int lonSize = lon.getShape(0);
+        final Index i0 = lonData.getIndex().set(0);
+        final Index i1 = lonData.getIndex().set(lonSize - 1);
+        pixelSizeX = (lonData.getDouble(i1) - lonData.getDouble(i0)) / (sceneRasterWidth - 1);
+        easting = lonData.getDouble(i0);
+
+        final int latSize = lat.getShape(0);
+        final Index j0 = latData.getIndex().set(0);
+        final Index j1 = latData.getIndex().set(latSize - 1);
+        pixelSizeY = (latData.getDouble(j1) - latData.getDouble(j0)) / (sceneRasterHeight - 1);
+
+        pixelX = 0.5f;
+        pixelY = 0.5f;
+
+        if (pixelSizeY < 0) {
+            pixelSizeY = -pixelSizeY;
+            yFlipped = false;
+            northing = latData.getDouble(latData.getIndex().set(0));
+        } else {
+            yFlipped = true;
+            northing = latData.getDouble(latData.getIndex().set(latSize - 1));
         }
 
         if (pixelSizeX <= 0 || pixelSizeY <= 0) {
@@ -280,7 +304,17 @@ public class CfGeocodingPart extends ProfilePartIO {
                                 pixelX, pixelY);
     }
 
-    private static GeoCoding readPixelGeoCoding(ProfileReadContext ctx, Product product) throws IOException {
+    private static boolean isGlobalShifted180(Array lonData) {
+        // todo: very draft implementation, works for NOAA CMAP precipitation files. to be further investigated!!
+        final Index i0 = lonData.getIndex().set(0);
+        final Index i1 = lonData.getIndex().set(1);
+        final Index iN = lonData.getIndex().set((int) lonData.getSize() - 1);
+        double lonDelta = (lonData.getDouble(i1) - lonData.getDouble(i0));
+
+        return (lonData.getDouble(0) < lonDelta && lonData.getDouble(iN) > 360.0 - lonDelta);
+    }
+
+    private static GeoCoding readPixelGeoCoding(Product product) throws IOException {
         Band lonBand = product.getBand(Constants.LON_VAR_NAME);
         if (lonBand == null) {
             lonBand = product.getBand(Constants.LONGITUDE_VAR_NAME);
@@ -294,4 +328,5 @@ public class CfGeocodingPart extends ProfilePartIO {
         }
         return null;
     }
+
 }

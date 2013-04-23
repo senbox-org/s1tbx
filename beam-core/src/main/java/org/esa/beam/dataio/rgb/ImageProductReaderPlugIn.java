@@ -39,7 +39,7 @@ public class ImageProductReaderPlugIn implements ProductReaderPlugIn {
 
     @Override
     public String[] getDefaultFileExtensions() {
-        return new String[]{".png", ".gif", ".jpg", ".bmp"};
+        return new String[]{".png", ".gif", ".jpg", ".bmp", ".pnm", ".pbm", ".pgm", ".ppm"};
     }
 
     @Override
@@ -50,9 +50,11 @@ public class ImageProductReaderPlugIn implements ProductReaderPlugIn {
     @Override
     public DecodeQualification getDecodeQualification(Object object) {
         File file = getFile(object);
-        String fileExt = FileUtils.getExtension(file);
-        if (fileExt != null && StringUtils.contains(getDefaultFileExtensions(), fileExt.toLowerCase())) {
-            return DecodeQualification.SUITABLE;
+        if (file != null) {
+            String fileExt = FileUtils.getExtension(file);
+            if (fileExt != null && StringUtils.contains(getDefaultFileExtensions(), fileExt.toLowerCase())) {
+                return DecodeQualification.SUITABLE;
+            }
         }
         return DecodeQualification.UNABLE;
     }

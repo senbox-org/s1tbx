@@ -1,0 +1,178 @@
+<!--
+  ~ Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
+  ~
+  ~ This program is free software; you can redistribute it and/or modify it
+  ~ under the terms of the GNU General Public License as published by the Free
+  ~ Software Foundation; either version 3 of the License, or (at your option)
+  ~ any later version.
+  ~ This program is distributed in the hope that it will be useful, but WITHOUT
+  ~ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+  ~ FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+  ~ more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along
+  ~ with this program; if not, see http://www.gnu.org/licenses/
+  -->
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+        "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <title>Time Series Graph</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<table class="header">
+    <tr class="header">
+        <td class="header">Time Series Graph</td>
+        <td class="header" align="right"><img src="../images/BeamHeader.jpg" border=0 ></td>
+    </tr>
+</table>
+<hr/>
+
+<p>The main analysis tool for the time dimension the Time Series Tool comprises is the Time Series Graph, shown in
+    Screenshot 1. It is opened by clicking on <img src="../images/ts-graph-button.png" alt="ts-graph-button">.
+</p>
+
+<div class="image">
+    <img src="../images/ts-graph.png" alt="ts-graph">
+
+    <div align="center"><font size="2">Screenshot 1 - The Time Series Graph</font></div>
+</div>
+
+<p>
+    This tool may be used to compare values of different measures, such as <code>toa_veg</code> or <code>boa_veg</code>
+    (given by the variables), for the specified time teries. It shows an arbitrary number of variables for the whole
+    time series at once. The x-axis determines the point in time while the several y-axes represent the unit of the
+    respective variable. In the example provided in Screenshot 1, the variables <code>toa_veg</code> and
+    <code>boa_veg</code> are compared; each features its own y-axis. The values shown in the graph are the values at
+    a given pixel position for all points in time which are part of the time series -- in the example, the values
+    of the pixel position of the cursor are shown. This feature can also be turned off using the
+    <img src="../images/CursorSpectrum24.gif" alt="ts-graph-cursor">-switch.
+
+</p>
+<p>
+    Another feature of the graph is to show the values of selected pins or of all pins. This feature can be controlled
+    by the <img src="../images/PinSpectra24.gif" alt="ts-graph-cursor"> and the
+    <img src="../images/SelectedPinSpectra24.gif" alt="ts-graph-cursor">-switches. For each pin in the product which is
+    displayed in the graph, a dashed line for each variable is drawn. In order to facilitate discrimination between
+    pin positions, each dashed line for each position is assigned a specific symbol. The colors reflect the variables:
+    different variables result in different colors.<br>
+    This behaviour is reflected in the graph's legend.
+</p>
+
+<p>
+    Additionally, the Time Series Graph is the tool which allows dealing with in-situ data. When in-situ data has been
+    loaded into the time series, pins are created for the respective position, and both in-situ values and the pixel
+    values from the satellite data are displayed in the graph. Furthermore, the rules of pin handling apply, apart from
+    that in-situ positions are reflected by unfilled shapes, while pin positions are assigned filled shapes.
+
+</p>
+
+<p>
+    In order to exclude bad data, the Time Series Graph allows the user to specify valid expressions. Data which does
+    not satisfy these expressions is excluded from display. It is possible to specify valid expressions for both
+    satellite and in-situ data. Valid expressions may be assigned to each variable using the bottom panel of the graph
+    window.
+</p>
+
+<p>
+    For automated analysis or further investigation, the graph it allows exporting pin values to a text file by clicking
+    <img src="../images/export.gif" alt="ts-graph-export"> (CSV-format, tab-separated). See Listing 1 for exemplary
+    output.
+</p>
+
+<table border="0" style="left: 5px; top: 5px; background-color:#f0f0f0">
+    <tr>
+        <td colspan="11">#Time Series pin time series export table</td>
+    </tr>
+    <tr>
+        <td colspan="11">#</td>
+    </tr>
+    <tr>
+        <td colspan="11">#Product:	TimeSeries_toa_veg</td>
+    </tr>
+    <tr>
+        <td colspan="11">#Created on:	Fri Feb 03 11:56:55 CET 2012</td>
+    </tr>
+    <tr><td colspan="11"><p>&nbsp;</p></td></tr>
+    <tr>
+        <td>Name</td>
+        <td>X</td>
+        <td>Y</td>
+        <td>Lon</td>
+        <td>Lat</td>
+        <td>Variable</td>
+        <td>Unit</td>
+        <td>08-02-2005</td>
+        <td>12-02-2005</td>
+        <td>15-02-2005</td>
+        <td>20-02-2005</td>
+    </tr>
+    <tr>
+        <td>Pin 1</td>
+        <td>461</td>
+        <td>467</td>
+        <td>7.8333</td>
+        <td>54.6667</td>
+        <td>toa_veg</td>
+        <td></td>
+        <td>NaN</td>
+        <td>0.46</td>
+        <td>0.3285</td>
+        <td>0.1894</td>
+    </tr>
+    <tr>
+        <td>Pin 1</td>
+        <td>461</td>
+        <td>467</td>
+        <td>7.8333</td>
+        <td>54.6667</td>
+        <td>boa_veg</td>
+        <td></td>
+        <td>2.1855</td>
+        <td>1.953</td>
+        <td>2.0634</td>
+        <td>1.8534</td>
+    </tr>
+    <tr>
+        <td>Pin 2</td>
+        <td>52</td>
+        <td>345</td>
+        <td>21.12</td>
+        <td>64.43</td>
+        <td>toa_veg</td>
+        <td></td>
+        <td>0.8342</td>
+        <td>0.236</td>
+        <td>0.825</td>
+        <td>0.3294</td>
+    </tr>
+    <tr>
+        <td>Pin 2</td>
+        <td>52</td>
+        <td>345</td>
+        <td>21.12</td>
+        <td>64.43</td>
+        <td>boa_veg</td>
+        <td></td>
+        <td>2.423</td>
+        <td>1.5234</td>
+        <td>1.243</td>
+        <td>2.056</td>
+    </tr>
+    <tr>
+        <td colspan="11" align="center" style="font-size: 10px;"><p>&nbsp;</p></td>
+    </tr>
+    <tr>
+        <td colspan="11" align="center">Listing 1 - Exemplary time series pin pixel export</td>
+    </tr>
+</table>
+
+<p>&nbsp;</p>
+<hr/>
+
+<p><i>Copyright &copy; 2012 by Brockmann Consult (beam-issues@brockmann-consult.de). All rights reserved.</i></p>
+
+</body>
+</html>

@@ -29,9 +29,8 @@ public class ModisUtils {
     /**
      * Decodes the "band_names" attribute string into a new band name
      *
-     * @param names
-     * @param layerIdx
-     *
+     * @param names    a csv list of band names
+     * @param layerIdx the index requested
      * @return the decoded band name
      */
     public static String decodeBandName(String names, int layerIdx) {
@@ -51,7 +50,6 @@ public class ModisUtils {
      *
      * @param bandExt the decoded band name
      * @param recycle the array instance to be returned, can be null
-     *
      * @return the band name extension
      */
     public static float[] decodeSpectralInformation(String bandExt, float[] recycle) {
@@ -75,9 +73,8 @@ public class ModisUtils {
      * Extracts a value for the given key from a daac formatted metadata String.
      * Returns null if key does not exist.
      *
-     * @param metaDataString
-     * @param key
-     *
+     * @param metaDataString the metadata string
+     * @param key            the search key
      * @return the value or null if key does not existz
      */
     public static String extractValueForKey(String metaDataString, String key) {
@@ -109,7 +106,6 @@ public class ModisUtils {
      *
      * @param date
      * @param time
-     *
      * @return a date
      */
     public static Date createDateFromStrings(final String date, final String time) throws ParseException {
@@ -122,32 +118,6 @@ public class ModisUtils {
             dateTimeString = date + ' ' + time.substring(0, expectedTimeString.length());
         }
         return DateTimeUtils.stringToUTC(dateTimeString);
-    }
-
-    /**
-     * Resets all array elements to zero
-     *
-     * @param dimInfo
-     * @param dimSize
-     */
-    public static void clearDimensionArrays(int[] dimInfo, int[] dimSize) {
-        for (int i = 0; i < dimInfo.length; i++) {
-            dimInfo[i] = 0;
-        }
-
-        for (int i = 0; i < dimSize.length; i++) {
-            dimSize[i] = 0;
-        }
-    }
-
-    public static String createBandName(String baseName, String extensions, int index) {
-        String extension = ".";
-        final String[] namesArray = StringUtils.toStringArray(extensions, ",");
-
-        extension += namesArray[index];
-        extension = extension.trim();
-
-        return baseName.concat(extension);
     }
 
     public static IncrementOffset getIncrementOffset(String attribute) {
@@ -174,5 +144,14 @@ public class ModisUtils {
         }
 
         return range;
+    }
+
+    // package access for testing only tb 2012-05-22
+    public static String extractBandName(String variableName) {
+        final int slashIndex = variableName.lastIndexOf('/');
+        if (slashIndex > 0) {
+            return variableName.substring(slashIndex + 1, variableName.length());
+        }
+        return variableName;
     }
 }

@@ -15,80 +15,81 @@
  */
 package org.esa.beam.dataio.modis.bandreader;
 
-import org.esa.beam.dataio.modis.hdf.HdfUtils;
-import org.esa.beam.dataio.modis.hdf.lib.HDF;
+import org.esa.beam.dataio.modis.ModisUtils;
+import org.esa.beam.dataio.modis.netcdf.NetCDFVariables;
 import org.esa.beam.dataio.modis.productdb.ModisBandDescription;
+import org.esa.beam.dataio.netcdf.util.DataTypeUtils;
 import org.esa.beam.framework.datamodel.ProductData;
+import ucar.nc2.Dimension;
+import ucar.nc2.Variable;
 
 import java.io.IOException;
 
 public class ModisBandReaderFactory {
 
-    /**
-     * Retrieves a band reader for the given dataset id and the layer index.
-     *
-     * @param sdsId the scientific datases identifier
-     * @param desc  the modis band description
-     * @return one or more applicable band reader
-     * @throws IOException
-     */
-    public static ModisBandReader[] getReaders(final int sdsId, final ModisBandDescription desc) throws IOException {
-        ModisBandReader[] readers = null;
-
-        final String[] dsName = new String[]{""};
-        final int[] nInfo = new int[3];
-        final int[] nDimSizes = new int[3];
-
-        if (HDF.getWrap().SDgetinfo(sdsId, dsName, nDimSizes, nInfo)) {
-            final int prodIODataType = HdfUtils.decodeHdfDataType(nInfo[1]);
-
-            final boolean is3d;
-            if (nInfo[0] > 2) {
-                readers = new ModisBandReader[nDimSizes[0]];
-                is3d = true;
-            } else {
-                readers = new ModisBandReader[1];
-                is3d = false;
-            }
-
-            final String bandName = dsName[0];
-            int scaleMethod = ModisBandReader.decodeScalingMethod(desc.getScalingMethod());
-
-            for (int i = 0; i < readers.length; i++) {
-                if (prodIODataType == ProductData.TYPE_INT8) {
-                    readers[i] = new ModisInt8BandReader(sdsId, i, is3d);
-                } else if (prodIODataType == ProductData.TYPE_UINT8) {
-                    if ((scaleMethod == ModisBandReader.SCALE_LINEAR)
-                            // @todo IMAPP
-                            || (scaleMethod == ModisBandReader.SCALE_UNKNOWN)) {
-                        // @todo IMAPP
-                        readers[i] = new ModisUint8BandReader(sdsId, i, is3d);
-                    } else if (scaleMethod == ModisBandReader.SCALE_EXPONENTIAL) {
-                        readers[i] = new ModisUint8ExpBandReader(sdsId, i, is3d);
-                    }
-                } else if (prodIODataType == ProductData.TYPE_UINT16) {
-                    if ((scaleMethod == ModisBandReader.SCALE_UNKNOWN) ||
-                            (scaleMethod == ModisBandReader.SCALE_LINEAR) ||
-                            (scaleMethod == ModisBandReader.SCALE_SLOPE_INTERCEPT)) {
-                        readers[i] = new ModisUint16BandReader(sdsId, i, is3d);
-                    } else if (scaleMethod == ModisBandReader.SCALE_POW_10) {
-                        readers[i] = new ModisUint16PowBandReader(sdsId, i, is3d);
-                    }
-                } else if (prodIODataType == ProductData.TYPE_INT16) {
-                    if ((scaleMethod == ModisBandReader.SCALE_UNKNOWN) ||
-                            (scaleMethod == ModisBandReader.SCALE_LINEAR)) {
-                        readers[i] = new ModisInt16BandReader(sdsId, i, is3d);
-                    }
-                } else if (prodIODataType == ProductData.TYPE_UINT32) {
-                    if ((scaleMethod == ModisBandReader.SCALE_UNKNOWN) ||
-                            (scaleMethod == ModisBandReader.SCALE_LINEAR) ||
-                            (scaleMethod == ModisBandReader.SCALE_SLOPE_INTERCEPT)) {
-                        readers[i] = new ModisUint32BandReader(sdsId, i, is3d);
-                    }
-                }
-                readers[i].setName(bandName);
-            }
+    public static ModisBandReader[] getReaders(NetCDFVariables netCDFVariables, final ModisBandDescription desc) throws IOException {
+        final Variable variable = netCDFVariables.get(desc.getName());
+        if (variable == null) {
+            return new ModisBandReader[0];
         }
-        return readers;
+
+        int scaleMethod = ModisBandReader.decodeScalingMethod(desc.getScalingMethod());
+        final int productDataType = DataTypeUtils.getEquivalentProductDataType(variable.getDataType(), variable.isUnsigned(), true);
+        boolean is3d = is3d(variable);
+        final ModisBandReader[] modisBandReaders = createBandReaderArray(variable, is3d);
+
+        for (int i = 0; i < modisBandReaders.length; i++) {
+            if (productDataType == ProductData.TYPE_INT8) {
+                modisBandReaders[i] = new ModisInt8BandReader(variable, i, is3d);
+            } else if (productDataType == ProductData.TYPE_UINT8) {
+                if ((scaleMethod == ModisBandReader.SCALE_LINEAR)
+                        // @todo IMAPP
+                        || (scaleMethod == ModisBandReader.SCALE_UNKNOWN)) {
+                    // @todo IMAPP
+                    modisBandReaders[i] = new ModisUint8BandReader(variable, i, is3d);
+                } else if (scaleMethod == ModisBandReader.SCALE_EXPONENTIAL) {
+                    modisBandReaders[i] = new ModisUint8ExpBandReader(variable, i, is3d);
+                }
+            } else if (productDataType == ProductData.TYPE_UINT16) {
+                if ((scaleMethod == ModisBandReader.SCALE_UNKNOWN) ||
+                        (scaleMethod == ModisBandReader.SCALE_LINEAR) ||
+                        (scaleMethod == ModisBandReader.SCALE_SLOPE_INTERCEPT)) {
+                    modisBandReaders[i] = new ModisUint16BandReader(variable, i, is3d);
+                } else if (scaleMethod == ModisBandReader.SCALE_POW_10) {
+                    modisBandReaders[i] = new ModisUint16PowBandReader(variable, i, is3d);
+                }
+            } else if (productDataType == ProductData.TYPE_INT16) {
+                if ((scaleMethod == ModisBandReader.SCALE_UNKNOWN) ||
+                        (scaleMethod == ModisBandReader.SCALE_LINEAR)) {
+                    modisBandReaders[i] = new ModisInt16BandReader(variable, i, is3d);
+                }
+            } else if (productDataType == ProductData.TYPE_UINT32) {
+                if ((scaleMethod == ModisBandReader.SCALE_UNKNOWN) ||
+                        (scaleMethod == ModisBandReader.SCALE_LINEAR) ||
+                        (scaleMethod == ModisBandReader.SCALE_SLOPE_INTERCEPT)) {
+                    modisBandReaders[i] = new ModisUint32BandReader(variable, i, is3d);
+                }
+            }
+            final String bandName = ModisUtils.extractBandName(variable.getName());
+            modisBandReaders[i].setName(bandName);
+        }
+
+        return modisBandReaders;
+    }
+
+    private static ModisBandReader[] createBandReaderArray(Variable variable, boolean is3d) {
+        final ModisBandReader[] modisBandReaders;
+        if (is3d) {
+            final Dimension numLayers = variable.getDimension(0);
+            modisBandReaders = new ModisBandReader[numLayers.getLength()];
+        } else {
+            modisBandReaders = new ModisBandReader[1];
+        }
+        return modisBandReaders;
+    }
+
+    private static boolean is3d(Variable variable) {
+        final int rank = variable.getRank();
+        return rank > 2;
     }
 }

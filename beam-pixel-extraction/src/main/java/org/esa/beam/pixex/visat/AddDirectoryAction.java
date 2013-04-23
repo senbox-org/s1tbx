@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation; either version 3 of the License, or (at your option)
@@ -9,7 +9,7 @@
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
  * more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
@@ -19,11 +19,13 @@ package org.esa.beam.pixex.visat;
 import com.bc.ceres.binding.ValidationException;
 import com.jidesoft.swing.FolderChooser;
 import org.esa.beam.framework.ui.AppContext;
+import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.util.PropertyMap;
 import org.esa.beam.util.SystemUtils;
 
 import javax.swing.AbstractAction;
 import javax.swing.JFileChooser;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.io.File;
 
@@ -43,7 +45,7 @@ class AddDirectoryAction extends AbstractAction {
     }
 
     private AddDirectoryAction(boolean recursive) {
-        this("Add directory(s)" + (recursive ? " recursively" : "") + "...");
+        this("Add directory" + (recursive ? " recursively" : "(s)") + "...");
         this.recursive = recursive;
     }
 
@@ -63,17 +65,33 @@ class AddDirectoryAction extends AbstractAction {
         }
         folderChooser.setMultiSelectionEnabled(!recursive);
 
-        final int result = folderChooser.showOpenDialog(appContext.getApplicationWindow());
+        final Window parent = appContext.getApplicationWindow();
+
+        final int result = folderChooser.showOpenDialog(parent);
         if (result != JFileChooser.APPROVE_OPTION) {
             return;
         }
 
+        final String defaultPattern = recursive ? "*.dim" : "*";
+        final FileSelectionPatternDialog dialog = new FileSelectionPatternDialog(defaultPattern, parent, PixelExtractionDialog.HELP_ID_JAVA_HELP);
+        if (dialog.show() != ModalDialog.ID_OK) {
+            return;
+        }
+        final String pattern = dialog.getPattern();
+
         File[] selectedDirs;
         if (recursive) {
             File selectedDir = folderChooser.getSelectedFolder();
-            selectedDirs = new File[]{new File(selectedDir, "**")};
+            selectedDir = new File(selectedDir, "**");
+            selectedDir = new File(selectedDir, pattern);
+            selectedDirs = new File[]{selectedDir};
         } else {
-            selectedDirs = folderChooser.getSelectedFiles();
+            final File[] selectedPaths = folderChooser.getSelectedFiles();
+            selectedDirs = new File[selectedPaths.length];
+            for (int i = 0; i < selectedPaths.length; i++) {
+                File selectedFile = selectedPaths[i];
+                selectedDirs[i] = new File(selectedFile, pattern);
+            }
         }
         try {
             listModel.addElements(selectedDirs);

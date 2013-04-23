@@ -59,18 +59,10 @@ public interface ElevationModelDescriptor {
     /**
      * Creates the elevation model instance.
      *
-     * @return a DEM instance, can be null e.g. if related DEM files are not installed
-     * @since BEAM 4.6 (resampling parameter)
-     * @deprecated since BEAM 4.6, use {@link #createDem(org.esa.beam.framework.dataop.resamp.Resampling)} instead
-     */
-    @Deprecated
-    ElevationModel createDem();
-
-    /**
-     * Creates the elevation model instance.
-     *
      * @param resampling The resampling method to be used.
+     *
      * @return a DEM instance, can be null e.g. if related DEM files are not installed
+     *
      * @since BEAM 4.6
      */
     ElevationModel createDem(Resampling resampling);
@@ -107,6 +99,7 @@ public interface ElevationModelDescriptor {
      * Asynchronously installs the files required to use the DEM if not already done or in progress.
      *
      * @param uiComponent an optional UI component which serves as parent for progress monitoring
+     *
      * @return true, if the DEM is already installed, is being installed or will be installed. False, if an error occurred
      *         or the user canceled the installation
      */

@@ -60,7 +60,7 @@ public class LandsatGeotiffReaderPlugin implements ProductReaderPlugIn {
             if (isMatchingArchiveFileName(getFileInput(input).getName())) {
                 return DecodeQualification.INTENDED;
             }
-            return DecodeQualification.SUITABLE;
+            return DecodeQualification.UNABLE;
         }
 
         String[] list;
@@ -138,7 +138,11 @@ public class LandsatGeotiffReaderPlugin implements ProductReaderPlugIn {
         File inputFile = getFileInput(input);
 
         if (inputFile.isFile() && !isCompressedFile(inputFile)) {
-            inputFile = inputFile.getParentFile();
+            final File absoluteFile = inputFile.getAbsoluteFile();
+            inputFile = absoluteFile.getParentFile();
+            if (inputFile == null) {
+                throw new IOException("Unable to retrieve parent to file: " + absoluteFile.getAbsolutePath());
+            }
         }
 
         VirtualDir virtualDir = VirtualDir.create(inputFile);
@@ -177,9 +181,9 @@ public class LandsatGeotiffReaderPlugin implements ProductReaderPlugIn {
     static boolean isMatchingArchiveFileName(String fileName) {
         return StringUtils.isNotNullAndNotEmpty(fileName) &&
                 (fileName.startsWith("L5_")
-                || fileName.startsWith("LT5")
-                || fileName.startsWith("L7_")
-                || fileName.startsWith("LE7"));
+                        || fileName.startsWith("LT5")
+                        || fileName.startsWith("L7_")
+                        || fileName.startsWith("LE7"));
     }
 
     private static class LandsatGeoTiffFileFilter extends BeamFileFilter {

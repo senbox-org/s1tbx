@@ -18,6 +18,7 @@ package org.esa.beam.visat.actions;
 
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.PixelGeoCoding;
+import org.esa.beam.framework.datamodel.PixelGeoCoding2;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.command.CommandEvent;
@@ -40,7 +41,8 @@ public class DetachPixelGeoCodingAction extends ExecCommand {
         boolean enabled = false;
         final Product product = VisatApp.getApp().getSelectedProduct();
         if (product != null) {
-            enabled = product.getGeoCoding() instanceof PixelGeoCoding;
+            enabled = product.getGeoCoding() instanceof PixelGeoCoding ||
+                    product.getGeoCoding() instanceof PixelGeoCoding2;
         }
         setEnabled(enabled);
     }
@@ -52,10 +54,16 @@ public class DetachPixelGeoCodingAction extends ExecCommand {
             protected Throwable doInBackground() throws Exception {
                 try {
                     final Product product = VisatApp.getApp().getSelectedProduct();
-                    final PixelGeoCoding pixelGeoCoding = (PixelGeoCoding) product.getGeoCoding();
-                    final GeoCoding delegate = pixelGeoCoding.getPixelPosEstimator();
-                    product.setGeoCoding(delegate);
-                    pixelGeoCoding.dispose();
+                    GeoCoding geoCoding = product.getGeoCoding();
+                    if (geoCoding instanceof PixelGeoCoding) {
+                        final PixelGeoCoding pixelGeoCoding = (PixelGeoCoding) product.getGeoCoding();
+                        final GeoCoding delegate = pixelGeoCoding.getPixelPosEstimator();
+                        product.setGeoCoding(delegate);
+                        pixelGeoCoding.dispose();
+                    } else {
+                        product.setGeoCoding(null);
+                        geoCoding.dispose();
+                    }
                 } catch (Throwable e) {
                     return e;
                 }

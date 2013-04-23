@@ -1,0 +1,25 @@
+<parameters>
+    <outputType>RGB</outputType>
+    <outputFormat>PNG</outputFormat>
+    <outputFile>level-3-rgb.png</outputFile>
+    <outputBands>
+        <band>
+            <name>radiance_8</name>
+            <index>0</index>
+            <minValue>0.0</minValue>
+            <maxValue>100.0</maxValue>
+        </band>
+        <band>
+            <name>radiance_7</name>
+            <index>1</index>
+            <minValue>0.0</minValue>
+            <maxValue>100.0</maxValue>
+        </band>
+        <band>
+            <name>radiance_3</name>
+            <index>2</index>
+            <minValue>0.0</minValue>
+            <maxValue>100.0</maxValue>
+        </band>
+    </outputBands>
+</parameters>

@@ -16,26 +16,32 @@
 
 package org.esa.beam.framework.gpf.main;
 
+import com.bc.ceres.metadata.SimpleFileSystem;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.graph.Graph;
 import org.esa.beam.framework.gpf.graph.GraphException;
+import org.esa.beam.framework.gpf.graph.GraphProcessingObserver;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.logging.Logger;
 
-interface CommandLineContext {
+interface CommandLineContext extends SimpleFileSystem {
     Product readProduct(String productFilepath) throws IOException;
 
     void writeProduct(Product targetProduct, String filePath, String formatName, boolean clearCacheAfterRowWrite) throws IOException;
 
     Graph readGraph(String filePath, Map<String, String> templateVariables) throws GraphException, IOException;
 
-    Map<String, String> readParametersFile(String filePath, Map<String, String> templateVariables) throws IOException;
-
-    void executeGraph(Graph graph) throws GraphException;
+    void executeGraph(Graph graph, GraphProcessingObserver observer) throws GraphException;
 
     Product createOpProduct(String opName, Map<String, Object> parameters, Map<String, Product> sourceProducts) throws OperatorException;
 
     void print(String m);
+
+    Logger getLogger();
+
+    boolean fileExists(String fileName);
+
 }

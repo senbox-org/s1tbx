@@ -15,11 +15,13 @@
  */
 package org.esa.beam.dataio.modis.productdb;
 
+import org.esa.beam.dataio.modis.ModisConstants;
+
 public class ModisBandDescription {
 
     private String _name;
-    private boolean _isSpectral;
-    private String _scaleMethod;
+    private boolean isSpectral;
+    private String scaleMethod;
     private String _scaleName;
     private String _offsetName;
     private String _unitName;
@@ -43,13 +45,8 @@ public class ModisBandDescription {
                                 final String scaleName, final String offsetName,
                                 final String unitName, final String bandName, final String descName) {
         _name = name;
-        if (isSpectral != null) {
-            _isSpectral = isSpectral.equalsIgnoreCase("true");
-        } else {
-            // assume not
-            _isSpectral = false;
-        }
-        _scaleMethod = scalingMethod;
+        this.isSpectral = isSpectral != null && isSpectral.equalsIgnoreCase("true");
+        scaleMethod = scalingMethod;
         _scaleName = scaleName;
         _offsetName = offsetName;
         _unitName = unitName;
@@ -66,17 +63,13 @@ public class ModisBandDescription {
         return _name;
     }
 
-    public void setName(String name) {
-        _name = name;
-    }
-
     /**
      * Retrieves the scaling method to be used for this band.
      *
      * @return the scaling method
      */
     public String getScalingMethod() {
-        return _scaleMethod;
+        return scaleMethod;
     }
 
     /**
@@ -121,7 +114,7 @@ public class ModisBandDescription {
      * @return <code>true</code> if this band is a spectral band, otherwise <code>false</code>.
      */
     public boolean isSpectral() {
-        return _isSpectral;
+        return isSpectral;
     }
 
     /**
@@ -143,5 +136,25 @@ public class ModisBandDescription {
 
     public boolean hasSpectralInfo() {
         return _specInfo != null;
+    }
+
+    public boolean isExponentialScaled() {
+        return ModisConstants.EXPONENTIAL_SCALE_NAME.equalsIgnoreCase(scaleMethod);
+    }
+
+    public boolean isLinearScaled() {
+        return ModisConstants.LINEAR_SCALE_NAME.equalsIgnoreCase(scaleMethod);
+    }
+
+    public boolean isLinearInvertedScaled() {
+        return ModisConstants.LINEAR_INVERTED_SCALE_NAME.equalsIgnoreCase(scaleMethod);
+    }
+
+    public boolean isSlopeInterceptScaled() {
+        return ModisConstants.SLOPE_INTERCEPT_SCALE_NAME.equalsIgnoreCase(scaleMethod);
+    }
+
+    public boolean isPow10Scaled() {
+        return ModisConstants.POW_10_SCALE_NAME.equalsIgnoreCase(scaleMethod);
     }
 }

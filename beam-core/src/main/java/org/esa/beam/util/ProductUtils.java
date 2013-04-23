@@ -34,7 +34,6 @@ import org.esa.beam.framework.datamodel.IndexCoding;
 import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.MetadataAttribute;
 import org.esa.beam.framework.datamodel.MetadataElement;
-import org.esa.beam.framework.datamodel.PixelGeoCoding;
 import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
@@ -42,7 +41,6 @@ import org.esa.beam.framework.datamodel.ProductNodeGroup;
 import org.esa.beam.framework.datamodel.ProductVisitorAdapter;
 import org.esa.beam.framework.datamodel.RGBChannelDef;
 import org.esa.beam.framework.datamodel.RasterDataNode;
-import org.esa.beam.framework.datamodel.TiePointGeoCoding;
 import org.esa.beam.framework.datamodel.TiePointGrid;
 import org.esa.beam.framework.datamodel.VectorDataNode;
 import org.esa.beam.framework.datamodel.VirtualBand;
@@ -87,6 +85,7 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -699,12 +698,128 @@ public class ProductUtils {
         if (gc == null) {
             throw new IllegalArgumentException(UtilConstants.MSG_NO_GEO_CODING);
         }
-        PixelPos[] points = createPixelBoundary(product, region, step, usePixelCenter);
+        if (region == null) {
+            region = new Rectangle(0,
+                                   0,
+                                   product.getSceneRasterWidth(),
+                                   product.getSceneRasterHeight());
+        }
+        PixelPos[] points = createRectBoundary(region, step, usePixelCenter);
         GeoPos[] geoPoints = new GeoPos[points.length];
         for (int i = 0; i < geoPoints.length; i++) {
-            geoPoints[i] = gc.getGeoPos(points[i], null);
+            final PixelPos pixelPos = points[i];
+            final GeoPos gcGeoPos = gc.getGeoPos(pixelPos, null);
+            if (gcGeoPos.isValid()) {
+                geoPoints[i] = gcGeoPos;
+            } else {
+                geoPoints[i] = getClosestGeoPos(gc, pixelPos, region, step / 4);
+            }
         }
         return geoPoints;
+    }
+
+    /**
+     * Searches for a valid GeoPos by considering the vicinity of a {@link PixelPos}. It does not check
+     * the original pixel position, but uses it for determining which pixel positions to examine.
+     *
+     * @param gc      the GeoCoding, must not be null
+     * @param origPos the original pixel position, must not be null
+     * @param region  the rectangle which determines the valid pixel positions, must not be null
+     * @param step    determines the step size between pixels which is used in the search process. Small step
+     *                sizes will increase the accuracy, but need more computational time
+     * @return a {@link GeoPos}. This will be valid if the search was successful. If not, a {@link GeoPos} with
+     *         NaN-values for latitude and longitude will be returned.
+     */
+    public static GeoPos getClosestGeoPos(GeoCoding gc, PixelPos origPos, Rectangle region, int step) {
+        step = Math.max(1, step);
+        if (gc == null || origPos == null || region == null) {
+            return new GeoPos(Float.NaN, Float.NaN);
+        }
+        int manhattanDistance = step;
+        final int breakCriterion = (int) Math.max(region.getWidth(), region.getHeight());
+        while (manhattanDistance < breakCriterion) {
+            List<PixelPos> candidatePositions = new ArrayList<PixelPos>();
+            for (int i = 0; i < manhattanDistance; i += step) {
+                final PixelPos newPos1 = new PixelPos(origPos.x + manhattanDistance - i, origPos.y + i);
+                if (region.contains(newPos1.getX(), newPos1.getY())) {
+                    candidatePositions.add(newPos1);
+                }
+                final PixelPos newPos2 = new PixelPos(origPos.x - manhattanDistance + i, origPos.y - i);
+                if (region.contains(newPos2.getX(), newPos2.getY())) {
+                    candidatePositions.add(newPos2);
+                }
+                final PixelPos newPos3 = new PixelPos(origPos.x + i, origPos.y - manhattanDistance + i);
+                if (region.contains(newPos3.getX(), newPos3.getY())) {
+                    candidatePositions.add(newPos3);
+                }
+                final PixelPos newPos4 = new PixelPos(origPos.x - i, origPos.y + manhattanDistance - i);
+                if (region.contains(newPos4.getX(), newPos4.getY())) {
+                    candidatePositions.add(newPos4);
+                }
+            }
+            for (PixelPos candidatePosition : candidatePositions) {
+                final GeoPos gcGeoPos = gc.getGeoPos(candidatePosition, null);
+                if (gcGeoPos.isValid()) {
+                    int divider = 1;
+                    while (((manhattanDistance - divider) % step) != 0) {
+                        divider++;
+                    }
+                    double factor = ((double) manhattanDistance - divider * step) / manhattanDistance;
+                    final GeoPos validGeoPos = getValidGeoPosAlongLine(candidatePosition, origPos, factor, gc);
+                    if (validGeoPos != null) {
+                        return validGeoPos;
+                    }
+                    return gcGeoPos;
+                }
+            }
+            manhattanDistance += step;
+        }
+        return new GeoPos(Float.NaN, Float.NaN);
+    }
+
+    /**
+     * Gets the first valid PixelPos along the line between two pixels. The method starts searching from pixelPos2.     *
+     *
+     * @param pixelPos1
+     * @param pixelPos2
+     * @param factor
+     * @param gc
+     * @return
+     */
+    private static GeoPos getValidGeoPosAlongLine(PixelPos pixelPos1, PixelPos pixelPos2, double factor, GeoCoding gc) {
+        int xDistToOrig = (int) pixelPos1.getX() - (int) pixelPos2.getX();
+        int yDistToOrig = (int) pixelPos1.getY() - (int) pixelPos2.getY();
+        int startPosX = (int) pixelPos2.getX() + (int) (xDistToOrig * factor);
+        int startPosY = (int) pixelPos2.getY() + (int) (yDistToOrig * factor);
+        int xDist = (int) (pixelPos1.getX() - startPosX);
+        int yDist = (int) (pixelPos1.getY() - startPosY);
+        int stepsInXDirection = 0;
+        int stepsInYDirection = 0;
+        double percentageInXDirectionMade = 0;
+        double percentageInYDirectionMade = 0;
+        while (percentageInXDirectionMade < 1 && percentageInYDirectionMade < 1) {
+            if (percentageInXDirectionMade >= percentageInYDirectionMade) {
+                if (yDist < 0) {
+                    stepsInYDirection--;
+                } else {
+                    stepsInYDirection++;
+                }
+                percentageInYDirectionMade = (double) stepsInYDirection / (double) yDist;
+            } else {
+                if (xDist < 0) {
+                    stepsInXDirection--;
+                } else {
+                    stepsInXDirection++;
+                }
+                percentageInXDirectionMade = (double) stepsInXDirection / (double) xDist;
+            }
+            PixelPos interPos = new PixelPos(startPosX + stepsInXDirection, startPosY + stepsInYDirection);
+            GeoPos interGeoPos = gc.getGeoPos(interPos, null);
+            if (interGeoPos.isValid()) {
+                return interGeoPos;
+            }
+        }
+        return null;
     }
 
     /**
@@ -1305,11 +1420,6 @@ public class ProductUtils {
 
     /**
      * Copies the geocoding from the source product to target product.
-     * <p/>
-     * <p>If the geo-coding in the source product is a {@link TiePointGeoCoding} or a {@link PixelGeoCoding},
-     * the method expects existing latitude and longitude tie-point grids respectively existing latitude and longitude
-     * bands in the target product. The method will NOT automatically copy them as well.
-     * This behaviour may change in the future.</p>
      *
      * @param sourceProduct the source product
      * @param targetProduct the target product
@@ -1400,6 +1510,7 @@ public class ProductUtils {
                     targetProduct.getVectorDataGroup().add(new VectorDataNode(name, featureCollection.getSchema()));
                 }
                 VectorDataNode targetVDN = targetProduct.getVectorDataGroup().get(name);
+                targetVDN.getPlacemarkGroup();
                 targetVDN.getFeatureCollection().addAll(featureCollection);
                 targetVDN.setDefaultStyleCss(sourceVDN.getDefaultStyleCss());
                 targetVDN.setDescription(sourceVDN.getDescription());

@@ -23,28 +23,40 @@ import com.bc.ceres.glayer.LayerType;
 import com.bc.ceres.glayer.LayerTypeRegistry;
 import com.bc.ceres.glayer.support.ImageLayer;
 import com.jidesoft.tree.AbstractTreeModel;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.GeoCoding;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductManager;
+import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.datamodel.TiePointGrid;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.layer.AbstractLayerSourceAssistantPage;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.glayer.RasterImageLayerType;
 import org.esa.beam.jai.ImageManager;
+import org.esa.beam.util.ObjectUtils;
 import org.geotools.referencing.CRS;
+import org.opengis.referencing.ReferenceIdentifier;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
-import javax.swing.*;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTree;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Component;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 class ProductLayerAssistantPage extends AbstractLayerSourceAssistantPage {
 
@@ -103,6 +115,7 @@ class ProductLayerAssistantPage extends AbstractLayerSourceAssistantPage {
         configuration.setValue(ImageLayer.PROPERTY_NAME_BORDER_SHOWN, false);
         configuration.setValue(ImageLayer.PROPERTY_NAME_BORDER_COLOR, ImageLayer.DEFAULT_BORDER_COLOR);
         configuration.setValue(ImageLayer.PROPERTY_NAME_BORDER_WIDTH, ImageLayer.DEFAULT_BORDER_WIDTH);
+        configuration.setValue(ImageLayer.PROPERTY_NAME_PIXEL_BORDER_SHOWN, false);
         final ImageLayer imageLayer = (ImageLayer) type.createLayer(getContext().getLayerContext(),
                                                                     configuration);
         imageLayer.setName(rasterDataNode.getDisplayName());
@@ -150,8 +163,8 @@ class ProductLayerAssistantPage extends AbstractLayerSourceAssistantPage {
                 continue;
             }
             compatibleNodes = new ArrayList<RasterDataNode>();
-            collectCompatibleRasterDataNodes(product.getBands(), modelCRS, compatibleNodes);
-            collectCompatibleRasterDataNodes(product.getTiePointGrids(), modelCRS, compatibleNodes);
+            collectCompatibleRasterDataNodes(modelCRS, product.getBands(), compatibleNodes);
+            collectCompatibleRasterDataNodes(modelCRS, product.getTiePointGrids(), compatibleNodes);
             if (!compatibleNodes.isEmpty()) {
                 compatibleNodeLists.add(new CompatibleNodeList(product.getDisplayName(), compatibleNodes));
             }
@@ -159,13 +172,54 @@ class ProductLayerAssistantPage extends AbstractLayerSourceAssistantPage {
         return new ProductTreeModel(compatibleNodeLists);
     }
 
-    private void collectCompatibleRasterDataNodes(RasterDataNode[] bands, CoordinateReferenceSystem crs,
+    private void collectCompatibleRasterDataNodes(CoordinateReferenceSystem thisCrs, RasterDataNode[] bands,
                                                   Collection<RasterDataNode> rasterDataNodes) {
         for (RasterDataNode node : bands) {
-            if (CRS.equalsIgnoreMetadata(crs, ImageManager.getModelCrs(node.getGeoCoding()))) {
+            CoordinateReferenceSystem otherCrs = ImageManager.getModelCrs(node.getGeoCoding());
+            // For GeoTools, two CRS where unequal if the authorities of their CS only differ in version
+            // This happened with the S-2 L1C CRS, namely an EPSG:32615. Here one authority's version was null,
+            // the other "7.9". Extremely annoying to debug and find out :-(   (nf, Feb 2013)
+            if (CRS.equalsIgnoreMetadata(thisCrs, otherCrs)
+                    || haveCommonReferenceIdentifiers(thisCrs, otherCrs)) {
                 rasterDataNodes.add(node);
             }
         }
+    }
+
+    private static boolean haveCommonReferenceIdentifiers(CoordinateReferenceSystem crs1, CoordinateReferenceSystem crs2) {
+        Set<ReferenceIdentifier> identifiers1 = crs1.getIdentifiers();
+        Set<ReferenceIdentifier> identifiers2 = crs2.getIdentifiers();
+        // If a CRS does not have identifiers or if they have different number of identifiers
+        // they cannot be equal.
+        if (identifiers1 == null || identifiers1.isEmpty()
+                || identifiers2 == null || identifiers2.isEmpty()
+                || identifiers1.size() != identifiers2.size()) {
+            return false;
+        }
+        // The two CRSs can only be equal if they have the same number of identifiers
+        // and all of them are common to both.
+        int eqCount = 0;
+        for (ReferenceIdentifier refId1 : identifiers1) {
+            for (ReferenceIdentifier refId2 : identifiers2) {
+                if (compareRefIds(refId1, refId2)) {
+                    eqCount++;
+                    break;
+                }
+            }
+        }
+        return eqCount == identifiers1.size();
+    }
+
+    private static boolean compareRefIds(ReferenceIdentifier refId1, ReferenceIdentifier refId2) {
+        return ObjectUtils.equalObjects(refId1.getCodeSpace(), refId2.getCodeSpace())
+                && ObjectUtils.equalObjects(refId1.getCode(), refId2.getCode())
+                && compareVersions(refId1.getVersion(), refId2.getVersion());
+    }
+
+    // Other than GeoTools, we compare versions only if given.
+    // We interpret the case version==null, as not provided, hence all versions match  (nf, Feb 2013)
+    private static boolean compareVersions(String version1, String version2) {
+        return version1 == null || version2 == null || version1.equalsIgnoreCase(version2);
     }
 
     private static class ProductNodeTreeCellRenderer extends DefaultTreeCellRenderer {

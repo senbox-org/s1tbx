@@ -24,7 +24,10 @@ import javax.swing.filechooser.FileFilter;
 import java.io.IOException;
 import java.util.logging.Logger;
 
-
+@Deprecated
+/**
+ * @Deprecated since beam-binning 2.1.2 as part of the BEAM 4.11-release. Use module 'beam-binning2' instead.
+ */
 abstract public class AbstractBinDatabase implements BinDatabase {
 
     // some key values for the properties file
@@ -48,11 +51,15 @@ abstract public class AbstractBinDatabase implements BinDatabase {
     protected Logger logger;
 
     public void flush() throws IOException {
-        store.flush();
+        if (store != null) {
+            store.flush();
+        }
     }
 
     public void delete() throws IOException {
-        store.delete();
+        if (store != null) {
+            store.delete();
+        }
     }
 
     /**
@@ -100,7 +107,11 @@ abstract public class AbstractBinDatabase implements BinDatabase {
     }
 
     public String getStorageType() {
-        return store.getClass().getName();
+        if (store != null) {
+            return store.getClass().getName();
+        } else {
+            throw new IllegalStateException("Bin store is null. No storage type available");
+        }
     }
 
     /**
@@ -128,8 +139,8 @@ abstract public class AbstractBinDatabase implements BinDatabase {
      */
     protected int sumVarsPerBin() {
         int result = 0;
-        for (int bandIndex = 0; bandIndex < numVarsPerBin.length; bandIndex++) {
-            result += numVarsPerBin[bandIndex];
+        for (int aNumVarsPerBin : numVarsPerBin) {
+            result += aNumVarsPerBin;
         }
         return result;
     }

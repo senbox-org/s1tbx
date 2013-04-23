@@ -27,19 +27,23 @@ import com.bc.ceres.binding.accessors.DefaultPropertyAccessor;
 import com.bc.ceres.binding.converters.ArrayConverter;
 import com.bc.ceres.binding.converters.DoubleConverter;
 import com.bc.ceres.binding.converters.EnumConverter;
-import junit.framework.TestCase;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
-public class ParameterDescriptorFactoryTest extends TestCase {
+import static org.junit.Assert.*;
 
-    private PropertyContainer propertyContainer;
+public class ParameterDescriptorFactoryTest {
 
-    @Override
-    public void setUp() {
+    private static PropertyContainer propertyContainer;
+
+    @BeforeClass
+    public static void setUp() {
         ParameterDescriptorFactory pdf = new ParameterDescriptorFactory();
         TestPojo testPojo = new TestPojo();
         propertyContainer = PropertyContainer.createObjectBacked(testPojo, pdf);
     }
 
+    @Test
     public void testPercentageField() throws Exception {
         final String PERCENTAGE = "percentage";
         PropertyDescriptor propertyDescriptor = propertyContainer.getDescriptor(PERCENTAGE);
@@ -62,6 +66,7 @@ public class ParameterDescriptorFactoryTest extends TestCase {
         assertEquals(null, propertyDescriptor.getValueSet());
     }
 
+    @Test
     public void testThresholdField() throws Exception {
         final String FIELD_NAME = "threshold";
         PropertyDescriptor propertyDescriptor = propertyContainer.getDescriptor(FIELD_NAME);
@@ -96,6 +101,7 @@ public class ParameterDescriptorFactoryTest extends TestCase {
         }
     }
 
+    @Test
     public void testThresholdArrayField() throws Exception {
         final String fieldName = "thresholdArray";
         PropertyDescriptor propertyDescriptor = propertyContainer.getDescriptor(fieldName);
@@ -132,6 +138,7 @@ public class ParameterDescriptorFactoryTest extends TestCase {
         }
     }
 
+    @Test
     public void testThresholdFail() {
         PropertyDescriptor propertyDescriptor = propertyContainer.getDescriptor("threshold");
         PropertyAccessor propertyAccessor = new DefaultPropertyAccessor();
@@ -145,6 +152,7 @@ public class ParameterDescriptorFactoryTest extends TestCase {
         }
     }
 
+    @Test
     public void testEnums() {
         PropertyDescriptor propertyDescriptor = propertyContainer.getDescriptor("aPValue");
         assertEquals("aPValue", propertyDescriptor.getName());

@@ -38,7 +38,7 @@ public class CfNetCdfReaderPlugIn extends AbstractNetCdfReaderPlugIn {
 
     @Override
     public String[] getFormatNames() {
-        return new String[]{"NetCDF-CF"};
+        return new String[]{"NetCDF-CF", "NetCDF4-CF"};
     }
 
     @Override

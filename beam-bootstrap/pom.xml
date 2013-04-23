@@ -21,9 +21,10 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <artifactId>beam</artifactId>
+        <artifactId>beam-system</artifactId>
         <groupId>org.esa.beam</groupId>
-        <version>4.10</version>
+        <version>5.0-SNAPSHOT</version>
+        <relativePath>../beam-system/pom.xml</relativePath>
     </parent>
 
     <packaging>jar</packaging>
@@ -61,6 +62,10 @@
         <dependency>
             <groupId>com.bc.ceres</groupId>
             <artifactId>ceres-jai</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.bc.ceres</groupId>
+            <artifactId>ceres-metadata</artifactId>
         </dependency>
         <dependency>
             <groupId>com.jidesoft</groupId>
@@ -131,8 +136,13 @@
             <artifactId>jtar</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>com.googlecode.efficient-java-matrix-library</groupId>
+            <artifactId>ejml</artifactId>
+            <version>0.21</version>
+        </dependency>
 
-        <!-- NEW IN 4.6: GeoTools -->
+
         <dependency>
             <groupId>org.geotools</groupId>
             <artifactId>gt-main</artifactId>
@@ -162,31 +172,27 @@
             <groupId>edu.ucar</groupId>
             <artifactId>nujan</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.htmlparser</groupId>
+            <artifactId>htmlparser</artifactId>
+            <version>1.6</version>
+        </dependency>
+        <dependency>
+            <groupId>edu.ucar</groupId>
+            <artifactId>opendap</artifactId>
+            <version>2.2.2</version>
+        </dependency>
 
         <dependency>
             <groupId>org.jython</groupId>
             <artifactId>jython</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>net.sf.squirrel-sql.thirdparty-non-maven</groupId>
+            <artifactId>napkinlaf</artifactId>
+            <version>1.2</version>
+        </dependency>
+
     </dependencies>
-    <profiles>
-        <profile>
-            <id>default-tools</id>
-            <activation>
-                <property>
-                    <name>java.vendor</name>
-                    <value>Sun Microsystems Inc.</value>
-                </property>
-            </activation>
-            <dependencies>
-                <dependency>
-                    <groupId>com.sun</groupId>
-                    <artifactId>tools</artifactId>
-                    <version>1.6.0</version>
-                    <scope>system</scope>
-                    <systemPath>${java.home}/../lib/tools.jar</systemPath>
-                </dependency>
-            </dependencies>
-        </profile>
-    </profiles>
 </project>

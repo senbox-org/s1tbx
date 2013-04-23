@@ -17,7 +17,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-processing</symbolicName>
-    <version>4.10</version>
+    <version>5.0</version>
     <name>BEAM Processing Library</name>
 
     <description>A basic library used by all processors.</description>
@@ -31,6 +31,8 @@
 
     <changelog>
         <![CDATA[
+        <p>Changes in 4.11<br>
+        Deprecated API.<br/>
         <p>Changes in 4.10<br>
         [BEAM-1342] Processing fails if PixelGeoCoding has no validMask<br/>
         <p>Changes in 4.7<br>

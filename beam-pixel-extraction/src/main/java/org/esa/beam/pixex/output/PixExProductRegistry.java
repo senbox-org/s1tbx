@@ -49,6 +49,13 @@ public class PixExProductRegistry implements ProductRegistry {
         return productList.indexOf(identifier);
     }
 
+    @Override
+    public void close() {
+        if (productMapWriter != null) {
+            productMapWriter.close();
+        }
+    }
+
     private PrintWriter createProductMapWriter() throws FileNotFoundException {
 
         final String fileName = String.format(PRODUCT_MAP_FILE_NAME_PATTERN, filenamePrefix);
@@ -59,8 +66,9 @@ public class PixExProductRegistry implements ProductRegistry {
         return printWriter;
     }
 
-    public void writeProductMapHeader(PrintWriter printWriter) {   // package local for testing
+    private void writeProductMapHeader(PrintWriter printWriter) {
         printWriter.printf("# Product ID Map%n");
         printWriter.printf("ProductID\tProductType\tProductLocation%n");
     }
+
 }

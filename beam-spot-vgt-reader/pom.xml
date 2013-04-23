@@ -20,9 +20,10 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <artifactId>beam</artifactId>
         <groupId>org.esa.beam</groupId>
-        <version>4.10</version>
+        <artifactId>beam-plugin-parent</artifactId>
+        <version>1.1-SNAPSHOT</version>
+        <relativePath>../beam-plugin-parent/pom.xml</relativePath>
     </parent>
 
     <packaging>jar</packaging>
@@ -30,7 +31,7 @@
     <groupId>org.esa.beam</groupId>
     <artifactId>beam-spot-vgt-reader</artifactId>
     <name>BEAM SPOT VGT Product Reader</name>
-    <version>1.2</version>
+    <version>1.2.3.${beam.version}</version>
     <url>http://envisat.esa.int/beam/</url>
 
     <dependencies>

@@ -35,11 +35,11 @@ import org.esa.beam.processor.binning.database.TemporalBinDatabase;
 import java.awt.Point;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
-//@todo 1 se/nf - class documentation
-
+@Deprecated
+/**
+ * @Deprecated since beam-binning 2.1.2 as part of the BEAM 4.11-release. Use module 'beam-binning2' instead.
+ */
 public class L3FinalProcessor extends L3SubProcessor {
 
     protected File databaseDir;
@@ -159,7 +159,7 @@ public class L3FinalProcessor extends L3SubProcessor {
     }
 
     protected void loadContext() throws IOException,
-                                        ProcessorException {
+            ProcessorException {
         context = new L3Context();
         context.setAlgorithmCreator(new AlgorithmFactory());
         context.load(databaseDir);
@@ -169,7 +169,7 @@ public class L3FinalProcessor extends L3SubProcessor {
      * Trigger base class to load the temporal bin database provided with the request file
      */
     protected void loadTemporalDatabase() throws IOException,
-                                                 ProcessorException {
+            ProcessorException {
         getLogger().info(L3Constants.LOG_MSG_LOAD_TEMP_DB);
 
         temporalDB = new TemporalBinDatabase(context, BinDatabaseConstants.TEMP_DB_NAME);
@@ -210,7 +210,7 @@ public class L3FinalProcessor extends L3SubProcessor {
      * Creates the final database if the algorithm needs this step to be performed.
      */
     protected void createFinalDatabase() throws IOException,
-                                                ProcessorException {
+            ProcessorException {
         getLogger().info(L3Constants.LOG_MSG_CREATE_FINAL_DB);
 
         finalDB = new TemporalBinDatabase(context, BinDatabaseConstants.FINAL_DB_NAME);
@@ -273,20 +273,20 @@ public class L3FinalProcessor extends L3SubProcessor {
     /**
      * Exports the given bin database into the specified product.
      *
-     * @param binDatabase the bin database to be exported
-     * @param projection  the projection, that should be used.
-     * @param productRef  the productRef, that describes the product to which to export to
+     * @param binDatabase     the bin database to be exported
+     * @param projection      the projection, that should be used.
+     * @param productRef      the productRef, that describes the product to which to export to
      * @param bandDefinitions
-     *@param metadata    an array with the metadata.
-     * @param pm          a monitor to inform the user about progress
- * @throws IOException
+     * @param metadata        an array with the metadata.
+     * @param pm              a monitor to inform the user about progress
+     * @throws IOException
      * @throws ProcessorException
      */
     protected void exportBinDatabase(TemporalBinDatabase binDatabase, L3ProjectionRaster projection,
                                      ProductRef productRef, L3Context.BandDefinition[] bandDefinitions, MetadataElement[] metadata,
                                      ProgressMonitor pm)
             throws IOException,
-                   ProcessorException {
+            ProcessorException {
         ProductExporter exporter = new ProductExporter(binDatabase, getLogger());
 
         final float stepsPerDegree;

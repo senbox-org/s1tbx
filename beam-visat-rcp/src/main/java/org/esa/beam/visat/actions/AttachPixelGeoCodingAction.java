@@ -19,6 +19,7 @@ package org.esa.beam.visat.actions;
 import com.bc.ceres.swing.progress.DialogProgressMonitor;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.PixelGeoCoding;
+import org.esa.beam.framework.datamodel.PixelGeoCoding2;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.ExpressionPane;
 import org.esa.beam.framework.ui.GridBagUtils;
@@ -66,7 +67,8 @@ public class AttachPixelGeoCodingAction extends ExecCommand {
         boolean enabled = false;
         final Product product = VisatApp.getApp().getSelectedProduct();
         if (product != null) {
-            final boolean hasPixelGeoCoding = product.getGeoCoding() instanceof PixelGeoCoding;
+            final boolean hasPixelGeoCoding = product.getGeoCoding() instanceof PixelGeoCoding ||
+                    product.getGeoCoding() instanceof PixelGeoCoding2;
             final boolean hasSomeBands = product.getNumBands() >= 2;
             enabled = !hasPixelGeoCoding && hasSomeBands;
         }
@@ -102,8 +104,8 @@ public class AttachPixelGeoCodingAction extends ExecCommand {
         if (freeMegas < requiredMegas) {
             // TODO - make this a common dialog, e.g. for RGB image creation etc
             final String message = MessageFormat.format("This operation requires to load at least {0} M\n" +
-                    "of additional data into memory.\n\n" +
-                    "Do you really want to continue?",
+                                                                "of additional data into memory.\n\n" +
+                                                                "Do you really want to continue?",
                                                         requiredMegas);   /*I18N*/
             final int answer = visatApp.showQuestionDialog(ATTACH_TITLE,
                                                            message, null);
@@ -168,7 +170,7 @@ public class AttachPixelGeoCodingAction extends ExecCommand {
         private JSpinner _radiusSpinner;
         private final Integer _defaultRadius = new Integer(6);
         private final Integer _minRadius = new Integer(0);
-        private final Integer _maxRadius = new Integer(10);
+        private final Integer _maxRadius = new Integer(99);
         private final Integer _bigRadiusStep = new Integer(0);
         private final Integer _smallRadiusStep = new Integer(1);
 

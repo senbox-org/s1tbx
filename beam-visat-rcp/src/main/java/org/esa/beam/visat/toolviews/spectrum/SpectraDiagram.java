@@ -18,6 +18,7 @@ package org.esa.beam.visat.toolviews.spectrum;
 
 import com.bc.ceres.swing.figure.FigureStyle;
 import com.bc.ceres.swing.figure.support.DefaultFigureStyle;
+import org.apache.commons.collections.map.ListOrderedMap;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Placemark;
 import org.esa.beam.framework.datamodel.Product;
@@ -26,19 +27,40 @@ import org.esa.beam.framework.ui.diagram.Diagram;
 import org.esa.beam.framework.ui.diagram.DiagramAxis;
 import org.esa.beam.framework.ui.diagram.DiagramGraph;
 
-import java.awt.*;
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
 
 
 class SpectraDiagram extends Diagram {
-    private Product product;
+
     private Band[] bands;
+    private Band[][] spectra;
+    private Set<Placemark> placemarks;
     private boolean userSelection;
 
-    public SpectraDiagram(Product product) {
-        this.product = product;
+    public SpectraDiagram() {
         this.bands = new Band[0];
+        this.spectra = new Band[0][];
+        this.placemarks = new HashSet<Placemark>();
         setXAxis(new DiagramAxis("Wavelength", "nm"));
         setYAxis(new DiagramAxis("", "1"));
+    }
+
+    public void setBands(Band[] bands, boolean userSelection) {
+        this.bands = bands;
+        this.spectra = extractSpectra(bands);
+        this.userSelection = userSelection;
+        reinitializeGraphs();
+        getYAxis().setUnit(getUnit(this.bands));
+        adjustAxes(true);
+        invalidate();
     }
 
     public Band[] getBands() {
@@ -49,59 +71,26 @@ class SpectraDiagram extends Diagram {
         return userSelection;
     }
 
-    public SpectrumGraph getCursorSpectrumGraph() {
-        return getSpectrumGraph(null);
-    }
-
-    public SpectrumGraph getSpectrumGraph(Placemark placemark) {
-        for (DiagramGraph graph : getGraphs()) {
-            SpectrumGraph spectrumGraph = (SpectrumGraph) graph;
-            if (spectrumGraph.getPlacemark() == placemark) {
-                return spectrumGraph;
-            }
-        }
-        return null;
-    }
-
-    public void addCursorSpectrumGraph() {
-        final SpectrumGraph cursorSpectrumGraph = getCursorSpectrumGraph();
-        if (cursorSpectrumGraph == null) {
+    public void addCursorSpectrumGraphs() {
+        if (!hasCursorSpectrumGraphs()) {
             addSpectrumGraph(null);
         }
     }
 
-    public void addSpectrumGraph(Placemark placemark) {
-        SpectrumGraph spectrumGraph = new SpectrumGraph(placemark, getBands());
-        DefaultDiagramGraphStyle style = (DefaultDiagramGraphStyle) spectrumGraph.getStyle();
-        if (placemark != null) {
-            final FigureStyle figureStyle = DefaultFigureStyle.createFromCss(placemark.getStyleCss());
-            style.setOutlineColor(figureStyle.getStrokeColor());
-            style.setOutlineStroke(figureStyle.getStroke());
-            style.setFillPaint(figureStyle.getFillPaint());
-        } else {
-            style.setOutlineColor(Color.BLACK);
-            style.setOutlineStroke(new BasicStroke(1.5f));
-            style.setFillPaint(Color.WHITE);
-        }
-        addGraph(spectrumGraph);
-    }
-
     public void removeCursorSpectrumGraph() {
-        final SpectrumGraph cursorSpectrumGraph = getCursorSpectrumGraph();
-        if (cursorSpectrumGraph != null) {
-            removeGraph(cursorSpectrumGraph);
+        if (hasCursorSpectrumGraphs()) {
+            placemarks.remove(null);
+            reinitializeGraphs();
         }
     }
 
-    public void setBands(Band[] bands, boolean userSelection) {
-        this.bands = bands;
-        this.userSelection = userSelection;
-        for (DiagramGraph graph : getGraphs()) {
-            ((SpectrumGraph) graph).setBands(bands);
+    public void addSpectrumGraph(Placemark placemark) {
+        placemarks.add(placemark);
+        for (Band[] spectrum : spectra) {
+            SpectrumGraph spectrumGraph = new SpectrumGraph(placemark, spectrum);
+            styleGraph(spectrumGraph);
+            addGraph(spectrumGraph);
         }
-        getYAxis().setUnit(getUnit(this.bands));
-        adjustAxes(true);
-        invalidate();
     }
 
     public void updateSpectra(int pixelX, int pixelY, int level) {
@@ -111,6 +100,94 @@ class SpectraDiagram extends Diagram {
         }
         adjustAxes(false);
         invalidate();
+    }
+
+    @Override
+    public void dispose() {
+        bands = null;
+        spectra = null;
+        placemarks.clear();
+        placemarks = null;
+        removeAndDisposeAllGraphs();
+        super.dispose();
+    }
+
+    public static Band[][] extractSpectra(Band[] bands) {
+        if (bands == null || bands.length == 0) {
+            return new Band[0][];
+        }
+        final Map<Product.AutoGrouping, Map<Integer, List<Band>>> graphsMap = new ListOrderedMap();
+        final ArrayList<Band> ungroupedBands = new ArrayList<Band>();
+        for (Band band : bands) {
+            final Product.AutoGrouping autoGrouping = band.getProduct().getAutoGrouping();
+            if (autoGrouping != null) {
+                Map<Integer, List<Band>> indexedBandMap = graphsMap.get(autoGrouping);
+                if (indexedBandMap == null) {
+                    indexedBandMap = new TreeMap<Integer, List<Band>>();
+                    graphsMap.put(autoGrouping, indexedBandMap);
+                }
+                final int index = autoGrouping.indexOf(band.getName());
+                if (index == -1) {
+                    ungroupedBands.add(band);
+                } else {
+                    List<Band> bandsList = indexedBandMap.get(index);
+                    if (bandsList == null) {
+                        bandsList = new ArrayList<Band>();
+                        indexedBandMap.put(index, bandsList);
+                    }
+                    bandsList.add(band);
+                }
+            } else {
+                ungroupedBands.add(band);
+            }
+        }
+        final List<Band[]> spectraList = new ArrayList<Band[]>();
+        if (ungroupedBands.size() > 0) {
+            spectraList.add(ungroupedBands.toArray(new Band[ungroupedBands.size()]));
+        }
+        for (Map<Integer, List<Band>> integerListMap : graphsMap.values()) {
+            for (List<Band> bandList : integerListMap.values()) {
+                if (bandList.size() > 0) {
+                    spectraList.add(bandList.toArray(new Band[bandList.size()]));
+                }
+            }
+        }
+        return spectraList.toArray(new Band[spectraList.size()][]);
+    }
+
+    private void removeAndDisposeAllGraphs() {
+        final DiagramGraph[] graphs = getGraphs();
+        removeAllGraphs();
+        for (DiagramGraph graph : graphs) {
+            SpectrumGraph spectrumGraph = (SpectrumGraph) graph;
+            spectrumGraph.dispose();   // todo - care! is SpectraDiagram always owner of its graphs?
+        }
+    }
+
+    private boolean hasCursorSpectrumGraphs() {
+        return placemarks.contains(null);
+    }
+
+    private void styleGraph(SpectrumGraph spectrumGraph) {
+        DefaultDiagramGraphStyle style = (DefaultDiagramGraphStyle) spectrumGraph.getStyle();
+        final Placemark placemark = spectrumGraph.getPlacemark();
+        if (placemark != null) {
+            final FigureStyle figureStyle = DefaultFigureStyle.createFromCss(placemark.getStyleCss());
+            style.setOutlineColor(figureStyle.getFillColor());
+            style.setOutlineStroke(new BasicStroke(1.5f));
+            style.setFillPaint(figureStyle.getFillPaint());
+        } else {
+            style.setOutlineColor(Color.BLACK);
+            style.setOutlineStroke(new BasicStroke(1.5f));
+            style.setFillPaint(Color.WHITE);
+        }
+    }
+
+    private void reinitializeGraphs() {
+        removeAndDisposeAllGraphs();
+        for (Placemark placemark : placemarks) {
+            addSpectrumGraph(placemark);
+        }
     }
 
     private static String getUnit(final Band[] bands) {
@@ -125,18 +202,4 @@ class SpectraDiagram extends Diagram {
         }
         return unit != null ? unit : "?";
     }
-
-    @Override
-    public void dispose() {
-        if (product != null) {
-            product = null;
-            bands = null;
-            for (DiagramGraph graph : getGraphs()) {
-                SpectrumGraph spectrumGraph = (SpectrumGraph) graph;
-                spectrumGraph.dispose();   // todo - care! is SpectraDiagram always owner of its graphs?
-            }
-        }
-        super.dispose();
-    }
-
 }

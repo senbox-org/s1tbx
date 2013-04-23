@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-meris-smac</symbolicName>
-    <version>1.5.203</version>
+    <version>1.5.205</version>
     <name>MERIS SMAC Atmospheric Correction</name>
 
     <description>
@@ -9,6 +9,10 @@
     </description>
     <changelog>
         <![CDATA[
+        Changes in 1.5.205<br>
+        Deprecated API.<br/>
+        Changes in 1.5.204<br>
+        Adapted to new Maven-architecture<br/>
         Changes in 1.5.203<br>
         [BEAM-1053] SMAC incorrect units<br>
         [BEAM-1036] Ensure temporarily loaded products are disposed in processors<br>

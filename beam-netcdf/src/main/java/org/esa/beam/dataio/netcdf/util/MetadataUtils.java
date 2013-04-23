@@ -40,13 +40,18 @@ public class MetadataUtils {
 
     public static final String GLOBAL_ATTRIBUTES = "Global_Attributes";
     public static final String VARIABLE_ATTRIBUTES = "Variable_Attributes";
+    private static final int DEFAULT_MAX_NUM_VALUES_READ = 100;
 
     private MetadataUtils() {
     }
 
     public static void readNetcdfMetadata(NetcdfFile netcdfFile, MetadataElement root) {
+        readNetcdfMetadata(netcdfFile, root, DEFAULT_MAX_NUM_VALUES_READ);
+    }
+
+    public static void readNetcdfMetadata(NetcdfFile netcdfFile, MetadataElement root, int maxNumValuesRead) {
         root.addElement(readAttributeList(netcdfFile.getGlobalAttributes(), GLOBAL_ATTRIBUTES));
-        root.addElement(readVariableDescriptions(netcdfFile.getVariables(), VARIABLE_ATTRIBUTES));
+        root.addElement(readVariableDescriptions(netcdfFile.getVariables(), VARIABLE_ATTRIBUTES, maxNumValuesRead));
     }
 
     public static MetadataElement readAttributeList(final List<Attribute> attributeList,
@@ -55,7 +60,7 @@ public class MetadataUtils {
         MetadataElement metadataElement = new MetadataElement(elementName);
         for (Attribute attribute : attributeList) {
             final int productDataType = DataTypeUtils.getEquivalentProductDataType(attribute.getDataType(), false,
-                    false);
+                                                                                   false);
             if (productDataType != -1) {
                 ProductData productData = null;
                 if (attribute.isString()) {
@@ -78,8 +83,8 @@ public class MetadataUtils {
                 }
                 if (productData != null) {
                     MetadataAttribute metadataAttribute = new MetadataAttribute(attribute.getName(),
-                            productData,
-                            true);
+                                                                                productData,
+                                                                                true);
                     metadataElement.addAttribute(metadataAttribute);
                 }
             }
@@ -89,14 +94,19 @@ public class MetadataUtils {
 
     public static MetadataElement readVariableDescriptions(final List<Variable> variableList,
                                                            String elementName) {
+        return readVariableDescriptions(variableList, elementName, DEFAULT_MAX_NUM_VALUES_READ);
+    }
+
+    public static MetadataElement readVariableDescriptions(final List<Variable> variableList,
+                                                           String elementName, int maxNumValuesRead) {
         MetadataElement metadataElement = new MetadataElement(elementName);
         for (Variable variable : variableList) {
-            metadataElement.addElement(createMetadataElement(variable));
+            metadataElement.addElement(createMetadataElement(variable, maxNumValuesRead));
         }
         return metadataElement;
     }
 
-    private static MetadataElement createMetadataElement(Variable variable) {
+    private static MetadataElement createMetadataElement(Variable variable, int maxNumValuesRead) {
         final MetadataElement element = readAttributeList(variable.getAttributes(), variable.getName());
         if (variable.getRank() == 1) {
             final MetadataElement valuesElem = new MetadataElement("Values");
@@ -108,16 +118,16 @@ public class MetadataUtils {
                     final String name = structVariable.getShortName();
                     final MetadataElement structElem = new MetadataElement(name);
                     valuesElem.addElement(structElem);
-                    addAttribute(structVariable, structElem);
+                    addAttribute(structVariable, structElem, maxNumValuesRead);
                 }
             } else {
-                addAttribute(variable, valuesElem);
+                addAttribute(variable, valuesElem, maxNumValuesRead);
             }
         }
         return element;
     }
 
-    private static void addAttribute(Variable variable, MetadataElement valuesElem) {
+    private static void addAttribute(Variable variable, MetadataElement valuesElem, int maxNumValuesRead) {
         final DataType ncDataType = variable.getDataType();
         final boolean unsigned = variable.isUnsigned();
         final boolean rasterDataOnly = false;
@@ -128,9 +138,9 @@ public class MetadataUtils {
         final Array values;
         try {
             long variableSize = variable.getSize();
-            if (variable.getRank() == 1 && variableSize >= 100) {
-                values = variable.read(new int[]{0}, new int[]{100});
-                valuesElem.setDescription("Showing 100 of " + variableSize + " values.");
+            if (variable.getRank() == 1 && variableSize >= maxNumValuesRead) {
+                values = variable.read(new int[]{0}, new int[]{maxNumValuesRead});
+                valuesElem.setDescription("Showing " + maxNumValuesRead + " of " + variableSize + " values.");
             } else {
                 values = variable.read();
             }

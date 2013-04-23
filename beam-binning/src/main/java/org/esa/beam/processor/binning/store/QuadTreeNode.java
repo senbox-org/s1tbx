@@ -20,7 +20,10 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Vector;
 
-
+@Deprecated
+/**
+ * @Deprecated since beam-binning 2.1.2 as part of the BEAM 4.11-release. Use module 'beam-binning2' instead.
+ */
 final class QuadTreeNode implements QuadTreeElement {
 
     private final QuadTreeFile _qtFile;
@@ -121,15 +124,15 @@ final class QuadTreeNode implements QuadTreeElement {
     /**
      * Reads the data at the given location.
      *
-     * @param rowcol  a Point designating the read location.
-     * @param data array to be filled
+     * @param rowcol a Point designating the read location.
+     * @param data   array to be filled
      */
     public final void read(Point rowcol, float[] data) throws IOException {
         QuadTreeElement whereFrom = getElement(rowcol);
 
         if (whereFrom == null) {
             Arrays.fill(data, 0f);
-        }else{
+        } else {
             whereFrom.read(rowcol, data);
         }
     }
@@ -138,7 +141,7 @@ final class QuadTreeNode implements QuadTreeElement {
      * Writes a bin to the given location.
      *
      * @param rowcol a Point designating the write location.
-     * @param data    the data to be written
+     * @param data   the data to be written
      */
     public final void write(Point rowcol, float[] data) throws IOException {
         QuadTreeElement whereTo = getElement(rowcol);
@@ -344,6 +347,6 @@ final class QuadTreeNode implements QuadTreeElement {
      * @param layerId the layer identifier
      */
     private String createLayerIndex(int layerId) {
-        return Integer.toString(layerId) +  _layer;
+        return Integer.toString(layerId) + _layer;
     }
 }

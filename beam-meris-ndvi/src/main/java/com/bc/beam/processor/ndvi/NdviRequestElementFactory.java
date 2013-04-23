@@ -37,7 +37,9 @@ import java.util.Map;
  * @author Marco Peters
  * @author Norman Fomferra
  * @version $Revision$ $Date$
+ * @deprecated since BEAM 4.11. No replacement.
  */
+@Deprecated
 public class NdviRequestElementFactory implements RequestElementFactory {
 
 
@@ -55,13 +57,13 @@ public class NdviRequestElementFactory implements RequestElementFactory {
 
     @Override
     public ProductRef createInputProductRef(final File url, final String fileFormat, final String typeId) throws
-                                                                                                         RequestElementFactoryException {
+            RequestElementFactoryException {
         return _defaultFactory.createInputProductRef(url, fileFormat, typeId);
     }
 
     @Override
     public ProductRef createOutputProductRef(final File url, final String fileFormat, final String typeId) throws
-                                                                                                          RequestElementFactoryException {
+            RequestElementFactoryException {
         return _defaultFactory.createOutputProductRef(url, fileFormat, typeId);
     }
 
@@ -171,7 +173,7 @@ public class NdviRequestElementFactory implements RequestElementFactory {
         paramProperties.setLabel("Lower factor");
         return paramProperties;
     }
-    
+
     // Initialization on demand holder idiom
     private static class Holder {
         private static final NdviRequestElementFactory instance = new NdviRequestElementFactory();

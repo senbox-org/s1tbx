@@ -19,14 +19,24 @@ import org.esa.beam.util.ObjectUtils;
 
 import javax.swing.JPanel;
 import javax.swing.event.MouseInputAdapter;
-import java.awt.*;
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.FontMetrics;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Insets;
+import java.awt.Point;
+import java.awt.Rectangle;
+import java.awt.RenderingHints;
+import java.awt.Stroke;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Ellipse2D;
+import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
-import java.awt.geom.Line2D;
 import java.text.DecimalFormat;
 
 /**
@@ -145,8 +155,8 @@ public class DiagramCanvas extends JPanel {
         g2d.setStroke(new BasicStroke(1.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0, new float[]{6, 6}, 12));
         g2d.setColor(diagram.getForegroundColor());
         final Rectangle graphArea = diagram.getGraphArea();
-        g2d.draw(new Line2D.Double( b.getX(), graphArea.y + graphArea.height, b.getX(), b.getY()));
-        g2d.draw(new Line2D.Double( graphArea.x, b.getY(), b.getX(), b.getY()));
+        g2d.draw(new Line2D.Double(b.getX(), graphArea.y + graphArea.height, b.getX(), b.getY()));
+        g2d.draw(new Line2D.Double(graphArea.x, b.getY(), b.getX(), b.getY()));
 
         DecimalFormat decimalFormat = new DecimalFormat("0.#####E0");
         String text = selectedGraph.getYName() + ": x = " + decimalFormat.format(x) + ", y = " + decimalFormat.format(y);
@@ -161,6 +171,8 @@ public class DiagramCanvas extends JPanel {
 
         final FontMetrics fontMetrics = g2D.getFontMetrics();
         final Rectangle2D textBounds = fontMetrics.getStringBounds(text, g2D);
+        x0 -= textBounds.getWidth() / 2;
+        textBounds.setRect(textBounds.getX() - 1, textBounds.getY(), textBounds.getWidth(), textBounds.getHeight());
         Rectangle2D.Double r = new Rectangle2D.Double(x0 + textBounds.getX() - 2.0,
                                                       y0 + textBounds.getY() - 2.0,
                                                       textBounds.getWidth() + 4.0,

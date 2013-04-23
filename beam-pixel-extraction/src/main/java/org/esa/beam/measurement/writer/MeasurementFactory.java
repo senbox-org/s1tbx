@@ -8,5 +8,8 @@ import java.io.IOException;
 
 public interface MeasurementFactory {
 
-    Measurement[] createMeasurements(int pixelX, int pixelY, int coordinateID, String coordinateName, Product product, Raster validData) throws IOException;
+    Measurement[] createMeasurements(int pixelX, int pixelY, int coordinateID, String coordinateName,
+                                     Product product, Raster validData) throws IOException;
+
+    void close();
 }

@@ -16,6 +16,7 @@
 package org.esa.beam.dataio.modis.productdb;
 
 import junit.framework.TestCase;
+import org.esa.beam.dataio.modis.ModisConstants;
 
 public class ModisBandDescriptionTest extends TestCase {
 
@@ -120,5 +121,45 @@ public class ModisBandDescriptionTest extends TestCase {
         assertEquals(null, desc.getUnitAttribName());
         assertEquals(null, desc.getBandAttribName());
         assertEquals(expDescName, desc.getDescriptionAttribName());
+    }
+
+    public void testIsExponentialScale() {
+        final ModisBandDescription exponential = new ModisBandDescription("", "", ModisConstants.EXPONENTIAL_SCALE_NAME, "", "", "", "", "");
+        assertTrue(exponential.isExponentialScaled());
+
+        final ModisBandDescription notExponential = new ModisBandDescription("", "", "notExp", "", "", "", "", "");
+        assertFalse(notExponential.isExponentialScaled());
+    }
+
+    public void testIsLinearScale() {
+        final ModisBandDescription linear = new ModisBandDescription("", "", ModisConstants.LINEAR_SCALE_NAME, "", "", "", "", "");
+        assertTrue(linear.isLinearScaled());
+
+        final ModisBandDescription notLinear = new ModisBandDescription("", "", "notLinear", "", "", "", "", "");
+        assertFalse(notLinear.isLinearScaled());
+    }
+
+    public void testIsLinearInvertedScale() {
+        final ModisBandDescription linear = new ModisBandDescription("", "", ModisConstants.LINEAR_INVERTED_SCALE_NAME, "", "", "", "", "");
+        assertTrue(linear.isLinearInvertedScaled());
+
+        final ModisBandDescription notLinear = new ModisBandDescription("", "", "notLinear", "", "", "", "", "");
+        assertFalse(notLinear.isLinearInvertedScaled());
+    }
+
+    public void testIsSlopeInterceptScale() {
+        final ModisBandDescription slopeIntercept = new ModisBandDescription("", "", ModisConstants.SLOPE_INTERCEPT_SCALE_NAME, "", "", "", "", "");
+        assertTrue(slopeIntercept.isSlopeInterceptScaled());
+
+        final ModisBandDescription notSLopeIntercept = new ModisBandDescription("", "", "notSlopeIntercept", "", "", "", "", "");
+        assertFalse(notSLopeIntercept.isSlopeInterceptScaled());
+    }
+
+    public void testIsPow10Scale() {
+        final ModisBandDescription pow10 = new ModisBandDescription("", "", ModisConstants.POW_10_SCALE_NAME, "", "", "", "", "");
+        assertTrue(pow10.isPow10Scaled());
+
+        final ModisBandDescription notPow10 = new ModisBandDescription("", "", "notPowTen", "", "", "", "", "");
+        assertFalse(notPow10.isPow10Scaled());
     }
 }

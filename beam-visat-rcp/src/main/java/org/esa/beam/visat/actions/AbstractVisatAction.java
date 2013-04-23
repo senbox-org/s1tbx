@@ -28,6 +28,7 @@ import java.awt.Window;
 
 
 public abstract class AbstractVisatAction extends AppCommand {
+
     private VisatContext context;
 
     public AbstractVisatAction() {
@@ -43,6 +44,7 @@ public abstract class AbstractVisatAction extends AppCommand {
     }
 
     private static class VisatContext implements AppContext {
+
         private String toolTitle;
         private final VisatApp app = VisatApp.getApp();
 
@@ -73,11 +75,6 @@ public abstract class AbstractVisatAction extends AppCommand {
         @Override
         public String getApplicationName() {
             return app.getAppName();
-        }
-
-        @Override
-        public void handleError(Throwable t) {
-            handleError(t.getMessage(), t);
         }
 
         @Override

@@ -25,9 +25,12 @@ import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorSpiRegistry;
 import org.esa.beam.framework.gpf.annotations.ParameterDescriptorFactory;
 import org.esa.beam.framework.gpf.ui.DefaultAppContext;
+import org.esa.beam.framework.gpf.ui.OperatorMenu;
+import org.esa.beam.framework.gpf.ui.OperatorParameterSupport;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.ModelessDialog;
 import org.esa.beam.pixex.PixExOp;
+import org.esa.beam.util.io.WildcardMatcher;
 import org.esa.beam.util.logging.BeamLogManager;
 
 import javax.swing.AbstractButton;
@@ -45,10 +48,13 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.ExecutionException;
+import java.util.logging.Logger;
 
 class PixelExtractionDialog extends ModelessDialog {
+
+    public final static String HELP_ID_JAVA_HELP = "pixelExtraction";
 
     private final Map<String, Object> parameterMap;
     private final AppContext appContext;
@@ -56,7 +62,7 @@ class PixelExtractionDialog extends ModelessDialog {
     private final PixelExtractionParametersForm parametersForm;
 
     PixelExtractionDialog(AppContext appContext, String title) {
-        super(appContext.getApplicationWindow(), title, ID_OK | ID_CLOSE | ID_HELP, "pixelExtraction");
+        super(appContext.getApplicationWindow(), title, ID_OK | ID_CLOSE | ID_HELP, HELP_ID_JAVA_HELP);
 
         this.appContext = appContext;
 
@@ -67,6 +73,17 @@ class PixelExtractionDialog extends ModelessDialog {
         parameterMap = new HashMap<String, Object>();
         final PropertyContainer propertyContainer = createParameterMap(parameterMap);
 
+        final Class<PixExOp> operatorClass = PixExOp.class;
+        final OperatorParameterSupport parameterSupport = new OperatorParameterSupport(operatorClass,
+                                                                                       propertyContainer,
+                                                                                       parameterMap,
+                                                                                       null);
+        final OperatorMenu operatorMenu = new OperatorMenu(this.getJDialog(),
+                                                           operatorClass,
+                                                           parameterSupport,
+                                                           HELP_ID_JAVA_HELP);
+        getJDialog().setJMenuBar(operatorMenu.createDefaultMenu());
+
         ioForm = new PixelExtractionIOForm(appContext, propertyContainer);
         ioForm.setInputChangeListener(new ChangeListener() {
             @Override
@@ -76,8 +93,8 @@ class PixelExtractionDialog extends ModelessDialog {
                     parametersForm.setActiveProduct(sourceProducts[0]);
                     return;
                 } else {
-                    if (parameterMap.containsKey("inputPaths")) {
-                        final File[] inputPaths = (File[]) parameterMap.get("inputPaths");
+                    if (parameterMap.containsKey("sourceProductPaths")) {
+                        final String[] inputPaths = (String[]) parameterMap.get("sourceProductPaths");
                         if (inputPaths.length > 0) {
                             Product firstProduct = openFirstProduct(inputPaths);
                             if (firstProduct != null) {
@@ -105,31 +122,30 @@ class PixelExtractionDialog extends ModelessDialog {
         setContent(tabbedPanel);
     }
 
-    private Product openFirstProduct(File[] inputPaths) {
-        Product firstProduct = null;
-        final Set<File> fileSet = PixExOp.getSourceProductFileSet(null, inputPaths, BeamLogManager.getSystemLogger());
-        for (File file : fileSet) {
-            try {
-                if (file.isDirectory()) {
-                    final File[] files = file.listFiles();
-                    if (files != null) {
-                        for (File subFile : files) {
-                            firstProduct = ProductIO.readProduct(subFile);
-                            if (firstProduct != null) {
-                                break;
-                            }
+    private Product openFirstProduct(String[] inputPaths) {
+        if (inputPaths != null) {
+
+            final Logger logger = BeamLogManager.getSystemLogger();
+
+            for (String inputPath : inputPaths) {
+                if (inputPath == null || inputPath.trim().length() == 0) {
+                    continue;
+                }
+                try {
+                    final TreeSet<File> fileSet = new TreeSet<File>();
+                    WildcardMatcher.glob(inputPath, fileSet);
+                    for (File file : fileSet) {
+                        final Product product = ProductIO.readProduct(file);
+                        if (product != null) {
+                            return product;
                         }
                     }
-                } else {
-                    firstProduct = ProductIO.readProduct(file);
+                } catch (IOException e) {
+                    logger.severe("I/O problem occurred while scanning source product files: " + e.getMessage());
                 }
-                if (firstProduct != null) {
-                    break;
-                }
-            } catch (IOException ignore) {
             }
         }
-        return firstProduct;
+        return null;
     }
 
     @Override
@@ -138,6 +154,7 @@ class PixelExtractionDialog extends ModelessDialog {
         parameterMap.put("expression", parametersForm.getExpression());
         parameterMap.put("timeDifference", parametersForm.getAllowedTimeDifference());
         parameterMap.put("exportExpressionResult", parametersForm.isExportExpressionResultSelected());
+        parameterMap.put("aggregatorStrategyType", parametersForm.getPixelValueAggregationMethod());
         ProgressMonitorSwingWorker worker = new MyProgressMonitorSwingWorker(getParent(), "Creating output file(s)...");
         worker.executeWithBlocking();
     }
@@ -190,12 +207,11 @@ class PixelExtractionDialog extends ModelessDialog {
                 String message;
                 if (outputDir != null) {
                     message = String.format(
-                            "The pixel extraction tool has run successfully and written the result file(s) to %s.",
-                            outputDir.toString());
+                                "The pixel extraction tool has run successfully and written the result file(s) to %s.",
+                                outputDir.toString());
                 } else {
                     message = "The pixel extraction tool has run successfully and written the result file to to std.out.";
                 }
-
                 JOptionPane.showMessageDialog(getJDialog(), message);
             } catch (InterruptedException ignore) {
             } catch (ExecutionException e) {

@@ -34,7 +34,9 @@ import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.internal.RasterDataNodeValues;
 import org.esa.beam.framework.ui.AppContext;
 
-import javax.swing.*;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
 import javax.swing.border.EmptyBorder;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -238,7 +240,8 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
             Object object = propertyDescriptor.getAttribute(RasterDataNodeValues.ATTRIBUTE_NAME);
             if (object != null) {
                 Class<? extends RasterDataNode> rasterDataNodeType = (Class<? extends RasterDataNode>) object;
-                boolean includeEmptyValue = !propertyDescriptor.isNotNull() && !propertyDescriptor.isNotEmpty() && !propertyDescriptor.getType().isArray();
+                boolean includeEmptyValue = !propertyDescriptor.isNotNull() && !propertyDescriptor.isNotEmpty() &&
+                        !propertyDescriptor.getType().isArray();
                 values = RasterDataNodeValues.getNames(product, rasterDataNodeType, includeEmptyValue);
             }
         }

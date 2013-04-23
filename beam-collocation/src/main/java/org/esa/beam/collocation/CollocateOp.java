@@ -273,7 +273,7 @@ public class CollocateOp extends Operator {
 
     @Override
     public void computeTileStack(Map<Band, Tile> targetTileMap, Rectangle targetRectangle, ProgressMonitor pm) throws
-                                                                                                               OperatorException {
+            OperatorException {
         pm.beginTask("Collocating bands...", targetProduct.getNumBands() + 1);
         try {
             final PixelPos[] sourcePixelPositions = ProductUtils.computeSourcePixelCoordinates(
@@ -353,7 +353,7 @@ public class CollocateOp extends Operator {
                 resampling = resamplingType.getResampling();
             }
             final Resampling.Index resamplingIndex = resampling.createIndex();
-            final float noDataValue = (float) targetBand.getGeophysicalNoDataValue();
+            final double noDataValue = targetBand.getGeophysicalNoDataValue();
 
             if (sourceRectangle != null) {
                 final Tile sourceTile = getSourceTile(sourceBand, sourceRectangle);
@@ -366,15 +366,20 @@ public class CollocateOp extends Operator {
                         if (sourcePixelPos != null) {
                             resampling.computeIndex(sourcePixelPos.x, sourcePixelPos.y,
                                                     sourceRasterWidth, sourceRasterHeight, resamplingIndex);
-                            try {
-                                float sample = resampling.resample(resamplingRaster, resamplingIndex);
-                                if (Float.isNaN(sample)) {
-                                    sample = noDataValue;
+                            double sample;
+                            if (resampling == Resampling.NEAREST_NEIGHBOUR) {
+                                sample = sourceTile.getSampleDouble(resamplingIndex.i0, resamplingIndex.j0);
+                            } else {
+                                try {
+                                    sample = resampling.resample(resamplingRaster, resamplingIndex);
+                                } catch (Exception e) {
+                                    throw new OperatorException(e.getMessage());
                                 }
-                                targetTile.setSample(x, y, sample);
-                            } catch (Exception e) {
-                                throw new OperatorException(e.getMessage());
                             }
+                            if (Double.isNaN(sample)) {
+                                sample = noDataValue;
+                            }
+                            targetTile.setSample(x, y, sample);
                         } else {
                             targetTile.setSample(x, y, noDataValue);
                         }
@@ -402,9 +407,9 @@ public class CollocateOp extends Operator {
         for (Mask mask : masks) {
             Mask.ImageType imageType = mask.getImageType();
             final Mask newmask = new Mask(mask.getName(),
-                                       targetProduct.getSceneRasterWidth(),
-                                       targetProduct.getSceneRasterHeight(),
-                                       imageType);
+                                          targetProduct.getSceneRasterWidth(),
+                                          targetProduct.getSceneRasterHeight(),
+                                          imageType);
             newmask.setDescription(mask.getDescription());
             for (Property property : mask.getImageConfig().getProperties()) {
                 newmask.getImageConfig().setValue(property.getDescriptor().getName(), property.getValue());
@@ -412,9 +417,12 @@ public class CollocateOp extends Operator {
             if (rename) {
                 newmask.setName(pattern.replace(SOURCE_NAME_REFERENCE, mask.getName()));
                 for (final Band targetBand : targetProduct.getBands()) {
-                    newmask.updateExpression(
-                            BandArithmetic.createExternalName(sourceRasterMap.get(targetBand).getName()),
-                            BandArithmetic.createExternalName(targetBand.getName()));
+                    RasterDataNode srcRDN = sourceRasterMap.get(targetBand);
+                    if (srcRDN != null) {
+                        newmask.updateExpression(
+                                BandArithmetic.createExternalName(srcRDN.getName()),
+                                BandArithmetic.createExternalName(targetBand.getName()));
+                    }
                 }
             }
             targetProduct.getMaskGroup().add(newmask);

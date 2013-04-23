@@ -30,12 +30,28 @@ import org.esa.beam.framework.ui.tool.ToolButtonFactory;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.SystemUtils;
 
-import javax.swing.*;
+import javax.swing.AbstractButton;
+import javax.swing.BoxLayout;
+import javax.swing.DefaultListCellRenderer;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JFileChooser;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.JScrollPane;
+import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Insets;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -67,6 +83,7 @@ class PixelExtractionIOForm {
         tableLayout.setTableAnchor(TableLayout.Anchor.NORTHWEST);
         tableLayout.setTableFill(TableLayout.Fill.HORIZONTAL);
         tableLayout.setTablePadding(4, 4);
+        tableLayout.setColumnPadding(0, new Insets(3, 4, 4, 4));
         tableLayout.setTableWeightX(0.0);
         tableLayout.setTableWeightY(0.0);
         tableLayout.setColumnWeightX(1, 1.0);
@@ -75,10 +92,11 @@ class PixelExtractionIOForm {
         tableLayout.setCellColspan(3, 1, 2);
         panel = new JPanel(tableLayout);
 
-        listModel = new InputListModel(container.getProperty("inputPaths"));
+        final Property propertySourceProductPaths = container.getProperty("sourceProductPaths");
+        listModel = new InputListModel(propertySourceProductPaths);
         listModel.addListDataListener(new MyListDataListener());
         inputPathsList = createInputPathsList(listModel);
-        panel.add(new JLabel("Input paths:"));
+        panel.add(new JLabel("Source paths:"));
         final JScrollPane scrollPane = new JScrollPane(inputPathsList);
         scrollPane.setPreferredSize(new Dimension(100, 50));
         panel.add(scrollPane);
@@ -172,7 +190,7 @@ class PixelExtractionIOForm {
                 try {
                     outputFileProperty.setValue(selectedFile);
                     appContext.getPreferences().setPropertyString(LAST_OPEN_OUTPUT_DIR,
-                            selectedFile.getAbsolutePath());
+                                                                  selectedFile.getAbsolutePath());
 
                 } catch (ValidationException ve) {
                     // not expected to ever come here
@@ -208,7 +226,7 @@ class PixelExtractionIOForm {
 
     private AbstractButton createAddInputButton() {
         final AbstractButton addButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/Plus24.gif"),
-                false);
+                                                                        false);
         addButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -226,7 +244,7 @@ class PixelExtractionIOForm {
 
     private AbstractButton createRemoveInputButton() {
         final AbstractButton removeButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/Minus24.gif"),
-                false);
+                                                                           false);
         removeButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {

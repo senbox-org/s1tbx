@@ -21,15 +21,16 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <artifactId>beam</artifactId>
         <groupId>org.esa.beam</groupId>
-        <version>4.10</version>
+        <artifactId>beam-plugin-parent</artifactId>
+        <version>1.1-SNAPSHOT</version>
+        <relativePath>../beam-plugin-parent/pom.xml</relativePath>
     </parent>
 
+    <groupId>org.esa.beam</groupId>
     <artifactId>beam-meris-radiometry</artifactId>
     <name>BEAM MERIS Radiometry Processor</name>
-    <version>1.1</version>
-
+    <version>1.1.2.${beam.version}</version>
 
     <description>
         The BEAM MERIS Radiometry Processor module performs multiple radiometric corrections on MERIS L1b data products.
@@ -47,6 +48,8 @@
         <dependency>
             <groupId>org.esa.beam</groupId>
             <artifactId>beam-envisat-reader</artifactId>
+            <version>1.5.2.${beam.version}</version>
         </dependency>
     </dependencies>
+
 </project>

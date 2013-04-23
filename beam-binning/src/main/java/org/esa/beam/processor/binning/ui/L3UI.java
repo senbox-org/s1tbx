@@ -81,6 +81,10 @@ import java.util.List;
 import java.util.Vector;
 import java.util.logging.Logger;
 
+@Deprecated
+/**
+ * @Deprecated since beam-binning 2.1.2 as part of the BEAM 4.11-release. Use module 'beam-binning2' instead.
+ */
 public abstract class L3UI extends AbstractProcessorUI {
 
     public static class Row {
@@ -868,7 +872,7 @@ public abstract class L3UI extends AbstractProcessorUI {
                                 if (rowsMap.containsKey(bandName)) {
                                     final Row row = rowsMap.get(bandName);
                                     table.add(bandName, row.getBitmaskExpression(), row.getAlgorithmName(),
-                                            row.getWeightCoefficient());
+                                              row.getWeightCoefficient());
                                 } else {
                                     table.add(bandName, selectedBand.getValidMaskExpression(), L3Constants.ALGORITHM_VALUE_ARITHMETIC_MEAN, 1.0);
                                 }
@@ -877,10 +881,10 @@ public abstract class L3UI extends AbstractProcessorUI {
                     }
                 } catch (IOException e1) {
                     getApp().showErrorDialog("Unable to load an example product to\n" +
-                                             "select the bands which are to process.\n\n" +
-                                             "An IOException occurred while opening the example Product.\n" +
-                                             "Exception message:\n" +
-                                             e1.getMessage());
+                                                     "select the bands which are to process.\n\n" +
+                                                     "An IOException occurred while opening the example Product.\n" +
+                                                     "Exception message:\n" +
+                                                     e1.getMessage());
                 }
             }
         });
@@ -924,17 +928,17 @@ public abstract class L3UI extends AbstractProcessorUI {
                 if (algorithmParam == null) {
                     algoName = L3Constants.ALGORITHM_DEFAULT_VALUE;
                     logger.info("Parameter '" + algorithmParamName + "' not found. Using the default value '" +
-                            algoName + "' instead.");
+                                        algoName + "' instead.");
                 } else {
                     algoName = algorithmParam.getValueAsText();
                 }
 
                 final double coeffValue;
                 if (weightCoeffParam == null) {
-                    coeffValue = algoName.equalsIgnoreCase(L3Constants.ALGORITHM_VALUE_MAXIMUM_LIKELIHOOD) ?  0.5 : 1.0;
+                    coeffValue = algoName.equalsIgnoreCase(L3Constants.ALGORITHM_VALUE_MAXIMUM_LIKELIHOOD) ? 0.5 : 1.0;
                     logger.info(
-                            "Parameter '" + coefficientParamName + "' not found. Using the default value '"+
-                                coeffValue    +"' instead.");
+                            "Parameter '" + coefficientParamName + "' not found. Using the default value '" +
+                                    coeffValue + "' instead.");
                 } else {
                     coeffValue = ((Float) weightCoeffParam.getValue()).doubleValue();
                 }
@@ -963,8 +967,8 @@ public abstract class L3UI extends AbstractProcessorUI {
             }
         } catch (IOException e) {
             getApp().showErrorDialog("Unable to open the product to validate the request.\n" +
-                                     "An I/O exception occurred while trying to\n" +
-                                     "open the product for request validation.");
+                                             "An I/O exception occurred while trying to\n" +
+                                             "open the product for request validation.");
             return false;
         }
 
@@ -977,7 +981,7 @@ public abstract class L3UI extends AbstractProcessorUI {
                 final String bandName = param.getValueAsText();
                 if (bandName == null || bandName.trim().length() == 0) {
                     getApp().showInfoDialog("The band name of the processing parameter #" + processingParamNumber
-                            + " is empty.", null);
+                                                    + " is empty.", null);
                     return false;
                 }
                 final String postfix = name.substring(name.lastIndexOf("."));

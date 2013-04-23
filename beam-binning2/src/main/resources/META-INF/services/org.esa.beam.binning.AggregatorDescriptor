@@ -1,0 +1,6 @@
+org.esa.beam.binning.aggregators.AggregatorAverage$Descriptor
+org.esa.beam.binning.aggregators.AggregatorAverageML$Descriptor
+org.esa.beam.binning.aggregators.AggregatorMinMax$Descriptor
+org.esa.beam.binning.aggregators.AggregatorOnMaxSet$Descriptor
+org.esa.beam.binning.aggregators.AggregatorPercentile$Descriptor
+org.esa.beam.binning.aggregators.AggregatorOnMaxSetWithMask$Descriptor

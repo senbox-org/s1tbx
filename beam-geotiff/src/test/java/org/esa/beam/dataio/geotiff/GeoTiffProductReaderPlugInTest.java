@@ -44,13 +44,6 @@ import java.util.Locale;
 
 import static org.junit.Assert.*;
 
-/**
- * todo - add API doc
- *
- * @author Marco Peters
- * @version $Revision$ $Date$
- * @since BEAM 4.2
- */
 public class GeoTiffProductReaderPlugInTest {
 
     private GeoTiffProductReaderPlugIn plugIn;

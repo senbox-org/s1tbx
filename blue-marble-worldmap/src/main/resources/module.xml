@@ -3,7 +3,7 @@
 
     <symbolicName>blue-marble-worldmap</symbolicName>
     <name>NASA Blue Marble Worldmap</name>
-    <version>1.0.1</version>
+    <version>1.0.2</version>
     <description>
         This module provides a NASA Blue Marble world map layer in WGS84.
     </description>
@@ -17,6 +17,8 @@
 
     <changelog>
         <![CDATA[
+        <p>Changes in 1.0.2:<br/>
+        Adapted to new Maven-architecture<br/>
         <p>Changes in 1.0.1:<br/>
           [BEAM-1019] Blue Marble Layer can not be restored from saved session<br/>
         </p>

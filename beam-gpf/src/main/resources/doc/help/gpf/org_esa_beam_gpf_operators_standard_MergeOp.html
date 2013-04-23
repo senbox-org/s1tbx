@@ -9,63 +9,83 @@
     <tr class="header">
         <td class="header">&nbsp;Merge Operator</td>
         <td class="header" align="right">
-           <a href="../general/BeamOverview.html">             <img src="images/BeamHeader.jpg" border="0"/></a>
+            <a href="../general/BeamOverview.html"> <img src="images/BeamHeader.jpg" border="0"/></a>
         </td>
     </tr>
 </table>
 <h1>Merge Operator Description</h1>
+
 <h2>Overview</h2>
 <table>
-  <tr><td><b>Name:</b></td><td><code>Merge</code></td></tr>
-  <tr><td><b>Full name:</b></td><td><code>org.esa.beam.gpf.operators.standard.MergeOp</code></td></tr>
-  <tr><td><b>Purpose:</b></td><td>Allows copying raster data from any number of source products to a specified 'master' product.</td></tr>
-  <tr><td><b>Version:</b></td><td>1.0</td></tr>
+    <tr>
+        <td><b>Name:</b></td>
+        <td><code>Merge</code></td>
+    </tr>
+    <tr>
+        <td><b>Full name:</b></td>
+        <td><code>org.esa.beam.gpf.operators.standard.MergeOp</code></td>
+    </tr>
+    <tr>
+        <td><b>Purpose:</b></td>
+        <td>Allows copying raster data from any number of source products to a specified 'master' product.</td>
+    </tr>
+    <tr>
+        <td><b>Version:</b></td>
+        <td>1.0</td>
+    </tr>
 </table>
 <h2>Description</h2>
 The merge operator allows copying raster data from other products to a specified product. The first product provided
- is considered the 'master product', into which the raster data coming from the other products is copied. Existing
- nodes are kept.
- <p/>
- It is mandatory that the products share the same scene, that is, their width and height need to match with those of
- the master product as well as their geographic position.
+is considered the 'master product', into which the raster data coming from the other products is copied. Existing
+nodes are kept.
+<p/>
+It is mandatory that the products share the same scene, that is, their width and height need to match with those of
+the master product as well as their geographic position.
 <h2>Sources</h2>
 <table>
-<tr>
-  <th>Name</th>
-  <th>Description</th>
-</tr>
-<tr>
-  <td><code>masterProduct</code></td>
-  <td>The master product, which receives nodes from subsequently provided products.</td>
-</tr>
-<tr>
-  <td><code>sourceProducts</code></td>
-  <td>The products to be merged into the master product.</td>
-</tr>
+    <tr>
+        <th>Name</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td><code>masterProduct</code></td>
+        <td>The master product, which receives nodes from subsequently provided products.</td>
+    </tr>
+    <tr>
+        <td><code>sourceProducts</code></td>
+        <td>The products to be merged into the master product.</td>
+    </tr>
 </table>
 <h2>Parameters</h2>
 <table>
-<tr>
-  <th>Name</th>
-  <th>Data Type</th>
-  <th>Default</th>
-  <th>Description</th>
-  <th>Constraints</th>
-</tr>
-<tr>
-  <td><code>includes</code></td>
-  <td><code>NodeDescriptor[]</code></td>
-  <td><code></code></td>
-  <td>Defines nodes to be included in the master product. If no includes are provided, all nodes are copied.</td>
-  <td></td>
-</tr>
-<tr>
-  <td><code>excludes</code></td>
-  <td><code>NodeDescriptor[]</code></td>
-  <td><code></code></td>
-  <td>Defines nodes to be excluded from the target product (not supported in version 1.0).</td>
-  <td></td>
-</tr>
+    <tr>
+        <th>Name</th>
+        <th>Data Type</th>
+        <th>Default</th>
+        <th>Description</th>
+        <th>Constraints</th>
+    </tr>
+    <tr>
+        <td><code>includes</code></td>
+        <td><code>NodeDescriptor[]</code></td>
+        <td><code></code></td>
+        <td>Defines nodes to be included in the master product. If no includes are provided, all nodes are copied.</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><code>excludes</code></td>
+        <td><code>NodeDescriptor[]</code></td>
+        <td><code></code></td>
+        <td>Defines nodes to be excluded from the target product (not supported in version 1.0).</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><code>geographicError</code></td>
+        <td><code>float</code></td>
+        <td><code>1.0E-5f</code></td>
+        <td>Defines the maximum lat/lon error in degree between the products.</td>
+        <td></td>
+    </tr>
 </table>
 <hr/>
 </body>

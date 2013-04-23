@@ -28,7 +28,10 @@ import java.util.logging.Logger;
  * i.e. no or sparse console logging <li> "-v" or "--verbose": a lot of console logging <li> "-d" or "--debug": run in
  * debug mode, i.e. logging a lot of debugging and state information <li> and as single command line argument without
  * option: the path to a request file </ul>
+ *
+ * @deprecated since BEAM 4.11. Use the {@link org.esa.beam.framework.gpf Graph Processing Framework} instead.
  */
+@Deprecated
 public class CmdLineParser {
 
     private static final String _config = "-c";
@@ -122,7 +125,7 @@ public class CmdLineParser {
             // check for config file argument
             // ------------------------------
             if (ObjectUtils.equalObjects(_args[i], _config)
-                || ObjectUtils.equalObjects(_args[i], _configLong)) {
+                    || ObjectUtils.equalObjects(_args[i], _configLong)) {
                 if (i + 1 >= _args.length) {
                     _logger.severe("Incomplete command line argument for '" + _configLong + "'!");
                     throw new IllegalProcessorParamException("Illegal command line format.");
@@ -136,7 +139,7 @@ public class CmdLineParser {
             // check for interactive flag
             // --------------------------
             if (ObjectUtils.equalObjects(_args[i], _interactive)
-                || ObjectUtils.equalObjects(_args[i], _interactiveLong)) {
+                    || ObjectUtils.equalObjects(_args[i], _interactiveLong)) {
                 _params.setInteractive(true);
                 continue;
             }
@@ -144,7 +147,7 @@ public class CmdLineParser {
             // check for progress flag
             // --------------------------
             if (ObjectUtils.equalObjects(_args[i], _progress)
-                || ObjectUtils.equalObjects(_args[i], _progressLong)) {
+                    || ObjectUtils.equalObjects(_args[i], _progressLong)) {
                 _params.setProgress(true);
                 continue;
             }
@@ -152,7 +155,7 @@ public class CmdLineParser {
             // check for quiet flag
             // --------------------
             if (ObjectUtils.equalObjects(_args[i], _quiet)
-                || ObjectUtils.equalObjects(_args[i], _quietLong)) {
+                    || ObjectUtils.equalObjects(_args[i], _quietLong)) {
                 _params.setQuiet(true);
                 continue;
             }
@@ -160,7 +163,7 @@ public class CmdLineParser {
             // check for verbose flag
             // ----------------------
             if (ObjectUtils.equalObjects(_args[i], _verbose)
-                || ObjectUtils.equalObjects(_args[i], _verboseLong)) {
+                    || ObjectUtils.equalObjects(_args[i], _verboseLong)) {
                 _params.setVerbose(true);
                 continue;
             }
@@ -168,7 +171,7 @@ public class CmdLineParser {
             // check for debug flag
             // --------------------
             if (ObjectUtils.equalObjects(_args[i], _debug)
-                || ObjectUtils.equalObjects(_args[i], _debugLong)) {
+                    || ObjectUtils.equalObjects(_args[i], _debugLong)) {
                 _params.setDebugOn(true);
                 continue;
             }

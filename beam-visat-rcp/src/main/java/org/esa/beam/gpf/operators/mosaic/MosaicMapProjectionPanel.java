@@ -25,7 +25,7 @@ import org.esa.beam.framework.dataop.dem.ElevationModelDescriptor;
 import org.esa.beam.framework.dataop.dem.ElevationModelRegistry;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.BoundsInputPanel;
-import org.esa.beam.framework.ui.WorldMapPane;
+import org.esa.beam.framework.ui.RegionSelectableWorldMapPane;
 import org.esa.beam.framework.ui.WorldMapPaneDataModel;
 import org.esa.beam.framework.ui.crs.CrsForm;
 import org.esa.beam.framework.ui.crs.CrsSelectionPanel;
@@ -148,7 +148,7 @@ class MosaicMapProjectionPanel extends JPanel {
         final WorldMapPaneDataModel worldMapModel = mosaicModel.getWorldMapModel();
         setMapBoundary(worldMapModel);
 
-        final WorldMapPane worldMapPanel = new WorldMapPane(worldMapModel);
+        final JPanel worldMapPanel = new RegionSelectableWorldMapPane(worldMapModel, bindingCtx).createUI();
         bindingCtx.addPropertyChangeListener(new MapBoundsChangeListener());
         worldMapPanel.setMinimumSize(new Dimension(250, 125));
         worldMapPanel.setBorder(BorderFactory.createEtchedBorder());
@@ -184,7 +184,7 @@ class MosaicMapProjectionPanel extends JPanel {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
                 if ("orthorectify".equals(evt.getPropertyName()) ||
-                    "updateMode".equals(evt.getPropertyName())) {
+                        "updateMode".equals(evt.getPropertyName())) {
                     final PropertySet propertySet = bindingCtx.getPropertySet();
                     boolean updateMode = Boolean.TRUE.equals(propertySet.getValue("updateMode"));
                     boolean orthorectify = Boolean.TRUE.equals(propertySet.getValue("orthoretify"));

@@ -1,0 +1,47 @@
+<parameters>
+
+    <numRows>4320</numRows>
+    <maskExpr>!l2_flags.INVALID &amp;&amp; l2_flags.WATER</maskExpr>
+
+    <variables>
+        <variable>
+            <name>ndvi</name>
+            <expr>(reflec_10 - reflec_6) / (reflec_10 + reflec_6)</expr>
+        </variable>
+    </variables>
+
+    <compositingType>MOSAICKING</compositingType>
+
+    <aggregators>
+        <aggregator>
+            <type>AVG</type>
+            <varName>tsm</varName>
+        </aggregator>
+        <aggregator>
+            <type>AVG_ML</type>
+            <varName>algal1</varName>
+        </aggregator>
+        <aggregator>
+            <type>AVG_ML</type>
+            <varName>algal2</varName>
+        </aggregator>
+        <aggregator>
+            <type>AVG_ML</type>
+            <varName>chl</varName>
+        </aggregator>
+        <aggregator>
+            <type>ON_MAX_SET</type>
+            <varNames>ndvi,reflec_3,reflec_7,reflec_8</varNames>
+        </aggregator>
+        <aggregator>
+            <type>MIN_MAX</type>
+            <varName>chl</varName>
+        </aggregator>
+    </aggregators>
+
+    <postProcessor>
+        <type>Selection</type>
+        <varNames>tsm_mean,tsm_sigma,chl_min</varNames>
+    </postProcessor>
+
+</parameters>

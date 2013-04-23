@@ -3,7 +3,7 @@
 
     <symbolicName>globcover-worldmap</symbolicName>
     <name>ESA GlobCover Worldmap</name>
-    <version>1.0</version>
+    <version>1.0.1</version>
     <description>
         This module provides the ESA GlobCover world map layer in WGS84.
     </description>
@@ -17,6 +17,9 @@
 
     <changelog>
         <![CDATA[
+            <p>Changes in 1.0.1:<br/>
+            Adapted to new Maven-architecture<br/>
+
         ]]>
     </changelog>
 

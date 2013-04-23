@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-pconvert</symbolicName>
-    <version>1.4</version>
+    <version>1.4.1</version>
     <name>Product Conversion Tool</name>
 
 
@@ -15,6 +15,8 @@
 
     <changelog>
         <![CDATA[
+        <p>Changes in 1.4.1:<br/>
+        Adapted to new Maven-architecture<br/>
         <p>Changes in 1.4:<br/>
           [BEAM-1227] PConvert doesn't generate images if profile contains calculated RGB bands<br/>
           [BEAM-1202] PConvert does use the user LOCAL instead of ENGLISH<br/>

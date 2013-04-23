@@ -17,6 +17,7 @@ package org.esa.beam.processor.binning.ui;
 
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.framework.param.ParamChangeEvent;
 import org.esa.beam.framework.param.ParamChangeListener;
 import org.esa.beam.framework.param.ParamGroup;
@@ -29,7 +30,6 @@ import org.esa.beam.framework.processor.Request;
 import org.esa.beam.framework.processor.RequestElementFactoryException;
 import org.esa.beam.framework.processor.RequestValidator;
 import org.esa.beam.framework.processor.ui.ProcessorApp;
-import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.processor.binning.L3Constants;
 import org.esa.beam.processor.binning.L3Processor;
 import org.esa.beam.processor.binning.database.BinDatabaseConstants;
@@ -44,9 +44,11 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-
+@Deprecated
 /**
  * Provides the user interface functionality for the Level 3 initial processor.
+ *
+ * @Deprecated since beam-binning 2.1.2 as part of the BEAM 4.11-release. Use module 'beam-binning2' instead.
  */
 public class L3InitUI extends L3UI {
 
@@ -109,7 +111,7 @@ public class L3InitUI extends L3UI {
             initRequest.setType(L3Constants.REQUEST_TYPE);
             initRequest.addParameter(
                     reqElemFactory.createParameter(L3Constants.PROCESS_TYPE_PARAM_NAME,
-                                                    L3Constants.PROCESS_TYPE_INIT));
+                                                   L3Constants.PROCESS_TYPE_INIT));
             initRequest.addParameter(reqElemFactory.generateDefaultDbLocation());
             initRequest.addParameter(
                     reqElemFactory.createParamWithDefaultValueSet(L3Constants.LAT_MIN_PARAMETER_NAME));
@@ -189,7 +191,7 @@ public class L3InitUI extends L3UI {
                 exampleProduct.dispose();
                 exampleProduct = null;
             }
-        } else if (exampleProduct == null && !forBandFilter) {
+        } else if (!forBandFilter) {
             final int answer = getApp().showQuestionDialog(
                     "Do you want to open an example product to validate the processing request?", null);
             if (answer == JOptionPane.NO_OPTION) {
@@ -203,7 +205,9 @@ public class L3InitUI extends L3UI {
         if (BeamFileChooser.APPROVE_OPTION == answer) {
             final File selectedFile = beamFileChooser.getSelectedFile();
             final File inputDir = selectedFile.getParentFile();
-            setUserInputDir(inputDir);
+            if (inputDir != null) {
+                setUserInputDir(inputDir);
+            }
             exampleProduct = ProductIO.readProduct(selectedFile);
             return exampleProduct;
         }

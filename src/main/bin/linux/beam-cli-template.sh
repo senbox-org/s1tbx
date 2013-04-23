@@ -14,7 +14,7 @@ fi
 . "$BEAM4_HOME/bin/detect_java.sh"
 
 "$app_java_home/bin/java" \
-    -Xmx1024M \
+    -Xmx${installer:maxHeapSize} \
     -Dceres.context=beam \
     "-Dbeam.mainClass=${beam.mainClass}" \
     "-Dbeam.processorClass=${beam.processorClass}" \

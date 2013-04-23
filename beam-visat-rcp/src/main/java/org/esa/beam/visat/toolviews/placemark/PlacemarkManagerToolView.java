@@ -18,11 +18,30 @@ package org.esa.beam.visat.toolviews.placemark;
 
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.support.ImageLayer;
+import com.bc.ceres.swing.figure.Figure;
+import com.bc.ceres.swing.figure.FigureEditor;
+import com.bc.ceres.swing.figure.FigureStyle;
+import com.bc.ceres.swing.figure.support.DefaultFigureStyle;
 import com.bc.ceres.swing.selection.SelectionChangeEvent;
 import com.bc.ceres.swing.selection.SelectionChangeListener;
+import com.jidesoft.combobox.ColorExComboBox;
+import com.jidesoft.grid.ColorCellEditor;
+import com.jidesoft.grid.ColorCellRenderer;
 import com.jidesoft.grid.SortableTable;
 import org.esa.beam.dataio.placemark.PlacemarkIO;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.GeoCoding;
+import org.esa.beam.framework.datamodel.GeoPos;
+import org.esa.beam.framework.datamodel.PinDescriptor;
+import org.esa.beam.framework.datamodel.PixelPos;
+import org.esa.beam.framework.datamodel.Placemark;
+import org.esa.beam.framework.datamodel.PlacemarkDescriptor;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductNode;
+import org.esa.beam.framework.datamodel.ProductNodeEvent;
+import org.esa.beam.framework.datamodel.ProductNodeGroup;
+import org.esa.beam.framework.datamodel.ProductNodeListener;
+import org.esa.beam.framework.datamodel.TiePointGrid;
 import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.framework.ui.DecimalTableCellRenderer;
 import org.esa.beam.framework.ui.FloatCellEditor;
@@ -33,28 +52,65 @@ import org.esa.beam.framework.ui.command.ExecCommand;
 import org.esa.beam.framework.ui.product.BandChooser;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.framework.ui.product.ProductTreeListenerAdapter;
+import org.esa.beam.framework.ui.product.SimpleFeaturePointFigure;
 import org.esa.beam.framework.ui.product.VectorDataLayer;
-import org.esa.beam.util.*;
+import org.esa.beam.util.Guardian;
+import org.esa.beam.util.PropertyMap;
+import org.esa.beam.util.StringUtils;
+import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.io.BeamFileChooser;
 import org.esa.beam.util.io.BeamFileFilter;
 import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.visat.VisatApp;
+import org.opengis.feature.simple.SimpleFeature;
 
-import javax.swing.*;
-import javax.swing.event.*;
+import javax.swing.BorderFactory;
+import javax.swing.JComponent;
+import javax.swing.JFileChooser;
+import javax.swing.JInternalFrame;
+import javax.swing.JLabel;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.ListSelectionModel;
+import javax.swing.SwingUtilities;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.InternalFrameAdapter;
+import javax.swing.event.InternalFrameEvent;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.event.MouseInputAdapter;
+import javax.swing.event.TableColumnModelEvent;
+import javax.swing.event.TableColumnModelListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableColumnModel;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
-import java.io.*;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.text.DecimalFormat;
 import java.text.MessageFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -111,8 +167,10 @@ public class PlacemarkManagerToolView extends AbstractToolView {
         placemarkTable.addMouseListener(toolTipSetter);
         placemarkTable.addMouseListener(new PopupListener());
         placemarkTable.setModel(placemarkTableModel);
-        placemarkTable.setDefaultCellRenderer(new RightAlignmentTableCellRenderer());
-        placemarkTable.setDefaultRenderer(Float.class, new DecimalTableCellRenderer(new DecimalFormat("0.000")));
+//        placemarkTable.setDefaultCellRenderer(new RightAlignmentTableCellRenderer());
+//        placemarkTable.setDefaultRenderer(Float.class, new DecimalTableCellRenderer(new DecimalFormat("0.000")));
+//        placemarkTable.setDefaultRenderer(Color.class, new ColorCR());
+//        placemarkTable.setDefaultEditor(Color.class, new ColorCE());
         placemarkTable.getSelectionModel().addListSelectionListener(new PlacemarkTableSelectionHandler());
         updateTableModel();
 
@@ -244,9 +302,15 @@ public class PlacemarkManagerToolView extends AbstractToolView {
 
     protected void addCellRenderer(TableColumnModel columnModel) {
         columnModel.getColumn(0).setCellRenderer(new DecimalTableCellRenderer(new DecimalFormat("0.000")));
+        columnModel.getColumn(0).setCellRenderer(new RightAlignmentTableCellRenderer());
         columnModel.getColumn(1).setCellRenderer(new DecimalTableCellRenderer(new DecimalFormat("0.000")));
+        columnModel.getColumn(1).setCellRenderer(new RightAlignmentTableCellRenderer());
         columnModel.getColumn(2).setCellRenderer(new DecimalTableCellRenderer(new DecimalFormat("0.000000")));
+        columnModel.getColumn(2).setCellRenderer(new RightAlignmentTableCellRenderer());
         columnModel.getColumn(3).setCellRenderer(new DecimalTableCellRenderer(new DecimalFormat("0.000000")));
+        columnModel.getColumn(3).setCellRenderer(new RightAlignmentTableCellRenderer());
+        columnModel.getColumn(4).setCellRenderer(new ColorCR());
+        columnModel.getColumn(5).setCellRenderer(new RightAlignmentTableCellRenderer());
     }
 
     protected void addCellEditor(TableColumnModel columnModel) {
@@ -255,6 +319,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
         columnModel.getColumn(1).setCellEditor(pixelCellEditor);
         columnModel.getColumn(2).setCellEditor(new FloatCellEditor(-180, 180));
         columnModel.getColumn(3).setCellEditor(new FloatCellEditor(-90, 90));
+        columnModel.getColumn(4).setCellEditor(new ColorCE());
     }
 
     private ProductSceneView getSceneView() {
@@ -745,6 +810,42 @@ public class PlacemarkManagerToolView extends AbstractToolView {
                                       JOptionPane.WARNING_MESSAGE);
     }
 
+    private void updateFigureStyle(Placemark placemark) {
+        final FigureStyle pinStyle = DefaultFigureStyle.createFromCss(placemark.getStyleCss());
+        final Color newColor = pinStyle.getFillColor();
+        final FigureEditor figureEditor = getSceneView().getFigureEditor();
+        Figure figureSelectionFigure =
+                getFigure(placemark, figureEditor.getFigureSelection().getFigures());
+        updateFigureStyle(newColor, figureSelectionFigure);
+        Figure figureCollectionFigure =
+                getFigure(placemark, figureEditor.getFigureCollection().getFigures());
+        updateFigureStyle(newColor, figureCollectionFigure);
+    }
+
+    private Figure getFigure(Placemark placemark, Figure[] figures) {
+        Figure pinFigure = null;
+        for (Figure figure : figures) {
+            if (figure instanceof SimpleFeaturePointFigure) {
+                final SimpleFeature simpleFeature = ((SimpleFeaturePointFigure) figure).getSimpleFeature();
+                if (simpleFeature.getID().equals(placemark.getName())) {
+                    pinFigure = figure;
+                }
+            }
+        }
+        return pinFigure;
+    }
+
+    private void updateFigureStyle(Color newColor, Figure figure) {
+        if (figure != null) {
+            final FigureStyle normalStyle = figure.getNormalStyle();
+            normalStyle.setValue(DefaultFigureStyle.FILL_COLOR.getName(), newColor);
+            figure.setNormalStyle(normalStyle);
+            final FigureStyle selectedStyle = figure.getSelectedStyle();
+            selectedStyle.setValue(DefaultFigureStyle.FILL_COLOR.getName(), newColor);
+            figure.setSelectedStyle(selectedStyle);
+        }
+    }
+
     private class PlacemarkListener implements ProductNodeListener {
 
         @Override
@@ -752,6 +853,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
             ProductNode sourceNode = event.getSourceNode();
             if (sourceNode.getOwner() == placemarkDescriptor.getPlacemarkGroup(
                     product) && sourceNode instanceof Placemark) {
+                updateFigureStyle((Placemark) sourceNode);
                 updateUIState();
             }
         }
@@ -832,6 +934,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
             }
             TableColumnModel columnModel = (TableColumnModel) e.getSource();
             columnModel.getColumn(index).setPreferredWidth(minWidth);
+            columnModel.getColumn(index).setCellRenderer(new RightAlignmentTableCellRenderer());
         }
 
         @Override
@@ -1010,6 +1113,34 @@ public class PlacemarkManagerToolView extends AbstractToolView {
             return label;
 
 
+        }
+    }
+
+    //copied from MaskTable
+    private static class ColorCE extends ColorCellEditor {
+        @Override
+        protected ColorExComboBox createColorComboBox() {
+            ColorExComboBox comboBox = super.createColorComboBox();
+            comboBox.setColorValueVisible(true);
+            comboBox.setColorIconVisible(true);
+            comboBox.setInvalidValueAllowed(false);
+            comboBox.setAllowDefaultColor(true);
+            comboBox.setAllowMoreColors(true);
+            return comboBox;
+        }
+    }
+
+    //copied from MaskTable
+    private static class ColorCR extends ColorCellRenderer {
+
+        @Override
+        public Component getTableCellRendererComponent(JTable table, Object value,
+                                                       boolean isSelected, boolean hasFocus, int row, int column) {
+            setColorIconVisible(true);
+            setColorValueVisible(true);
+            setCrossBackGroundStyle(true);
+            return super.getTableCellRendererComponent(table, value,
+                                                       isSelected, hasFocus, row, column);
         }
     }
 }

@@ -1,12 +1,18 @@
 package org.esa.beam.visat.toolviews.stat;
 
-import com.jidesoft.swing.TitledSeparator;
-import org.junit.Test;
-
-import javax.swing.*;
-import java.awt.*;
-
 import static org.junit.Assert.*;
+
+import com.jidesoft.swing.TitledSeparator;
+import org.junit.*;
+
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.WindowConstants;
+import java.awt.Component;
+import java.awt.GridLayout;
 
 /**
  * @author Norman Fomferra
@@ -28,17 +34,27 @@ public class AxisRangeControlTest {
         final AxisRangeControl axisRangeControl = new AxisRangeControl("");
         axisRangeControl.getPanel();
         assertEquals(true, axisRangeControl.getBindingContext().getBinding("autoMinMax").getPropertyValue());
-        assertEquals((Double)0.0, axisRangeControl.getMin());
-        assertEquals((Double)100.0, axisRangeControl.getMax());
+        assertEquals((Double) 0.0, axisRangeControl.getMin());
+        assertEquals((Double) 100.0, axisRangeControl.getMax());
     }
 
     @Test
     public void testMinMaxSetterAndGetter() {
         final AxisRangeControl axisRangeControl = new AxisRangeControl("");
-        axisRangeControl.setMin(3.4);
-        axisRangeControl.setMax(13.8);
-        assertEquals((Double)3.4, axisRangeControl.getMin());
-        assertEquals((Double)13.8, axisRangeControl.getMax());
+        axisRangeControl.adjustComponents(3.4, 13.8, 2);
+        assertEquals((Double) 3.4, axisRangeControl.getMin());
+        assertEquals((Double) 13.8, axisRangeControl.getMax());
+    }
+
+    @Test
+    public void testVerySmallValues() {
+        final AxisRangeControl axisRangeControl = new AxisRangeControl("");
+
+        int numDecimalPlaces = 2;
+        axisRangeControl.adjustComponents(-5e-9, 5e-9, numDecimalPlaces);
+
+        assertEquals(0.0, axisRangeControl.getMin(), 1e-7);
+        assertEquals(Math.pow(10, -numDecimalPlaces), axisRangeControl.getMax(), 1e-7);
     }
 
     @Test

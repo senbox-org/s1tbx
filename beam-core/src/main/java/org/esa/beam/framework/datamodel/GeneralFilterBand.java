@@ -52,28 +52,11 @@ public class GeneralFilterBand extends FilterBand {
     public static final Operator MEAN = new Mean();              // JAI: ConvolveDescriptor
     public static final Operator STDDEV = new StandardDeviation();     // TODO - Write JAI Operator
     public static final Operator RMS = new RootMeanSquare();           // TODO - Write JAI Operator
-    
+
     private static final Operator[] operators = {MIN, MAX, MEDIAN, MEAN, STDDEV, RMS};
 
     private final int subWindowSize;
     private final Operator operator;
-
-    /**
-     * Creates a GeneralFilterBand.
-     *
-     * @param name            the name of the band.
-     * @param source          the source which shall be filtered.
-     * @param subWindowWidth  the window width used by the filter
-     * @param subWindowHeight the window height used by the filter
-     * @param operator        the operator which performs the filter operation
-     * @deprecated since BEAM 4.5; non square windows are not supported, use {@link GeneralFilterBand#GeneralFilterBand(String, RasterDataNode, int, Operator)}.
-     *             It is currently implemented by delegating to the other constructor using {@code subWindowWidth}  as {@code subWindowSize}.
-     */
-    @Deprecated
-    public GeneralFilterBand(String name, RasterDataNode source, int subWindowWidth, int subWindowHeight,
-                             Operator operator) {
-        this(name, source, subWindowWidth, operator);
-    }
 
     /**
      * Creates a GeneralFilterBand.
@@ -106,6 +89,7 @@ public class GeneralFilterBand extends FilterBand {
      * Creates an instance {@link Operator} by the given class name
      *
      * @param operatorClassName the class name
+     *
      * @return instance of {@link Operator}
      */
     public static Operator createOperator(String operatorClassName) {
@@ -118,24 +102,6 @@ public class GeneralFilterBand extends FilterBand {
     }
 
     public int getSubWindowSize() {
-        return subWindowSize;
-    }
-
-    /**
-     * @return return the width of the sub window.
-     * @deprecated since BEAM 4.5, use {@link #getSubWindowSize()}
-     */
-    @Deprecated
-    public int getSubWindowWidth() {
-        return subWindowSize;
-    }
-
-    /**
-     * @return return the height of the sub window.
-     * @deprecated since BEAM 4.5, use {@link #getSubWindowSize()}
-     */
-    @Deprecated
-    public int getSubWindowHeight() {
         return subWindowSize;
     }
 
@@ -153,6 +119,7 @@ public class GeneralFilterBand extends FilterBand {
          *
          * @param values an array of pixel values extracted from a raster sub-window
          * @param n      the number of values in the array
+         *
          * @return the result of the operation
          */
         double evaluate(double[] values, int n);

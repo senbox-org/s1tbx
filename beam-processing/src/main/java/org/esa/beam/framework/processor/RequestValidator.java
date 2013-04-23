@@ -17,7 +17,10 @@ package org.esa.beam.framework.processor;
 
 /**
  * A validator used to validate processing requests.
+ *
+ * @deprecated since BEAM 4.11. Use the {@link org.esa.beam.framework.gpf Graph Processing Framework} instead.
  */
+@Deprecated
 public interface RequestValidator {
     /**
      * Validates the given processing request.
@@ -25,8 +28,7 @@ public interface RequestValidator {
      * from Swing's event dispatching thread. So it is safe to pop-up dialog boxes here.
      *
      * @param processor the processor which wants to process the given request
-     * @param request the processing request
-     *
+     * @param request   the processing request
      * @return true if the processing request is OK
      */
     boolean validateRequest(Processor processor, Request request);

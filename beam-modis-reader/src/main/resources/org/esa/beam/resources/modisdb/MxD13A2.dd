@@ -7,40 +7,40 @@ META | StructMeta | StructMetadata.0
 #   1 - SDS - keyword
 #   2 - the name of the set of bands as they appear in the HDF file
 #   3 - whether the band is a spectral band or not (true or false)
-#   4 - the scaling method (lin, exp or '*' - no scaling)
+#   4 - the scaling method (lin, lin_inv, sli, exp, p10 or '*' - no scaling)
 #   5 - the name of the attribute containing the scaling factors - or '*' - no scaling
 #   6 - the name of the attribute containing the scaling offsets - or '*' - no scaling
 #   7 - the name of the attribute containing the physical unit
 #   8 - the name of the attribute containing the spectral band indices - or '@' and a band name when the band indices are referenced somewhere else in the product
 #   9 - the attribute name containing a description for the band
-#  10 - the spectral wavelength in nm (nanomater) units
-#  11 - the spectral bandwidth in nm (nanomater) units
+#  10 - the spectral wavelength in nm (nanometer) units
+#  11 - the spectral bandwidth in nm (nanometer) units
 #  12 - the (zero-based) spectral band index
-# 1  | 2                                              | 3     | 4   | 5            | 6          | 7     | 8         | 9         | 10     | 11   | 12
-#----+------------------------------------------------+-------+-----+--------------+------------+-------+-----------+-----------+-------------------
-SDS  | 1 km 16 days NDVI                              | false | lin | scale_factor | add_offset | units | long_name | long_name |
-SDS  | 1 km 16 days EVI                               | false | lin | scale_factor | add_offset | units | long_name | long_name |
-SDS  | 1 km 16 days VI Quality                        | false | *   | *            | *          | units | long_name | long_name |
+# 1  | 2                                              | 3     | 4       | 5            | 6          | 7     | 8         | 9         | 10     | 11   | 12
+#----+------------------------------------------------+-------+---------+--------------+------------+-------+-----------+-----------+-------------------
+SDS  | 1 km 16 days NDVI                              | false | lin_inv | scale_factor | add_offset | units | long_name | long_name
+SDS  | 1 km 16 days EVI                               | false | lin_inv | scale_factor | add_offset | units | long_name | long_name
+SDS  | 1 km 16 days VI Quality                        | false | *       | *            | *          | units | long_name | long_name
 # the folowing two lines are bands in V003 and V004 MOD13A2 products not V005
-#----+------------------------------------------------+-------+-----+--------------+------------+-------+-----------+-----------+-------------------
-SDS  | 1 km 16 days NDVI Quality                      | false | *   | *            | *          | units | long_name | long_name |
-SDS  | 1 km 16 days EVI Quality                       | false | *   | *            | *          | units | long_name | long_name |
-#----+------------------------------------------------+-------+-----+--------------+------------+-------+-----------+-----------+-------------------
-SDS  | 1 km 16 days red reflectance                   | true  | lin | scale_factor | add_offset | units | long_name | long_name |  645.0 | 50.0 | 1
-SDS  | 1 km 16 days NIR reflectance                   | true  | lin | scale_factor | add_offset | units | long_name | long_name |  864.5 | 35.0 | 2
-SDS  | 1 km 16 days blue reflectance                  | true  | lin | scale_factor | add_offset | units | long_name | long_name |  469.0 | 20.0 | 0
-SDS  | 1 km 16 days MIR reflectance                   | true  | lin | scale_factor | add_offset | units | long_name | long_name | 2130.0 | 50.0 | 3
-SDS  | 1 km 16 days view zenith angle                 | false | lin | scale_factor | add_offset | units | long_name | long_name |
-SDS  | 1 km 16 days sun zenith angle                  | false | lin | scale_factor | add_offset | units | long_name | long_name |
-SDS  | 1 km 16 days relative azimuth angle            | false | lin | scale_factor | add_offset | units | long_name | long_name |
+#----+------------------------------------------------+-------+---------+--------------+------------+-------+-----------+-----------+-------------------
+SDS  | 1 km 16 days NDVI Quality                      | false | *       | *            | *          | units | long_name | long_name
+SDS  | 1 km 16 days EVI Quality                       | false | *       | *            | *          | units | long_name | long_name
+#----+------------------------------------------------+-------+---------+--------------+------------+-------+-----------+-----------+-------------------
+SDS  | 1 km 16 days red reflectance                   | true  | lin_inv | scale_factor | add_offset | units | long_name | long_name |  645.0 | 50.0 | 1
+SDS  | 1 km 16 days NIR reflectance                   | true  | lin_inv | scale_factor | add_offset | units | long_name | long_name |  864.5 | 35.0 | 2
+SDS  | 1 km 16 days blue reflectance                  | true  | lin_inv | scale_factor | add_offset | units | long_name | long_name |  469.0 | 20.0 | 0
+SDS  | 1 km 16 days MIR reflectance                   | true  | lin_inv | scale_factor | add_offset | units | long_name | long_name | 2130.0 | 50.0 | 3
+SDS  | 1 km 16 days view zenith angle                 | false | lin_inv | scale_factor | add_offset | units | long_name | long_name
+SDS  | 1 km 16 days sun zenith angle                  | false | lin_inv | scale_factor | add_offset | units | long_name | long_name
+SDS  | 1 km 16 days relative azimuth angle            | false | lin_inv | scale_factor | add_offset | units | long_name | long_name
 # the folowing three lines are bands in V003 and V004 MOD13A2 products not V005
-#----+------------------------------------------------+-------+-----+--------------+------------+-------+-----------+-----------+-------------------
-SDS  | 1 km 16 days average view zenith angle         | false | lin | scale_factor | add_offset | units | long_name | long_name |
-SDS  | 1 km 16 days average sun zenith angle          | false | lin | scale_factor | add_offset | units | long_name | long_name |
-SDS  | 1 km 16 days average relative azimuth angle    | false | lin | scale_factor | add_offset | units | long_name | long_name |
-#----+------------------------------------------------+-------+-----+--------------+------------+-------+-----------+-----------+-------------------
-SDS  | 1 km 16 days composite day of the year         | false | *   | *            | *          | units | long_name | long_name |
-SDS  | 1 km 16 days pixel reliability                 | false | *   | *            | *          | units | long_name | long_name |
+#----+------------------------------------------------+-------+---------+--------------+------------+-------+-----------+-----------+-------------------
+SDS  | 1 km 16 days average view zenith angle         | false | lin_inv | scale_factor | add_offset | units | long_name | long_name
+SDS  | 1 km 16 days average sun zenith angle          | false | lin_inv | scale_factor | add_offset | units | long_name | long_name
+SDS  | 1 km 16 days average relative azimuth angle    | false | lin_inv | scale_factor | add_offset | units | long_name | long_name
+#----+------------------------------------------------+-------+---------+--------------+------------+-------+-----------+-----------+-------------------
+SDS  | 1 km 16 days composite day of the year         | false | *       | *            | *          | units | long_name | long_name
+SDS  | 1 km 16 days pixel reliability                 | false | *       | *            | *          | units | long_name | long_name
 
 
 # 1 km 16 days NDVI                                DataType=DFNT_INT16    V003 V004 V005

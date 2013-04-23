@@ -1,0 +1,54 @@
+<module>
+    <manifestVersion>1.0.0</manifestVersion>
+
+    <symbolicName>opendap-download-tool</symbolicName>
+    <version>1.0</version>
+    <name>OPeNDAP Download Tool</name>
+    <funding>EU</funding>
+
+    <description>
+        <![CDATA[
+        This module provides the ability to filter and download subsets of scientific datasets from OPeNDAP servers.
+        The datasets may be filtered by a time range, by their geographical area, by the names of required raster
+        values, and by a filename pattern.
+        ]]>
+    </description>
+
+    <vendor>Brockmann Consult GmbH</vendor>
+    <contactAddress>Max Planck Str.2, 21502 Geesthacht (Germany)</contactAddress>
+    <copyright>(C) 2012 by Brockmann Consult GmbH</copyright>
+    <url>http://envisat.esa.int/beam</url>
+    <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
+
+    <categories>ui</categories>
+
+    <dependency>
+        <module>beam-visat-rcp</module>
+    </dependency>
+    <dependency>
+        <module>beam-pixel-extraction</module>
+    </dependency>
+
+    <extension point="beam-ui:actions">
+        <action>
+            <id>showOpendapClientAction</id>
+            <parent>file</parent>
+            <class>org.esa.beam.opendap.ShowOpendapClientAction</class>
+            <text>OPeNDAP Access</text>
+            <smallIcon>icons/RsProduct16.gif</smallIcon>
+            <largeIcon>icons/RsProduct24.gif</largeIcon>
+            <shortDescr>Download products from OPeNDAP servers</shortDescr>
+            <helpId>opendap-client</helpId>
+            <placeAfter>reopen</placeAfter>
+            <placeBefore>productGrabber</placeBefore>
+        </action>
+    </extension>
+
+    <extension point="beam-ui:helpSets">
+        <helpSet>
+            <parent>beam-help</parent>
+            <path>doc/help/opendap-client.hs</path>
+        </helpSet>
+    </extension>
+
+</module>

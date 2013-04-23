@@ -77,6 +77,9 @@ class SpectrumGraph extends AbstractDiagramGraph {
 
     @Override
     public double getYValueAt(int index) {
+        if (energies[index] == bands[index].getGeophysicalNoDataValue()) {
+            return Double.NaN;
+        }
         return energies[index];
     }
 
@@ -145,7 +148,13 @@ class SpectrumGraph extends AbstractDiagramGraph {
             }
             energies[i] = getSample(band, pixelX, pixelY, level);
         }
-        Range.computeRangeDouble(energies, IndexValidator.TRUE, energyRange, ProgressMonitor.NULL);
+        IndexValidator validator = new IndexValidator() {
+            @Override
+            public boolean validateIndex(int index) {
+                return energies[index] != bands[index].getGeophysicalNoDataValue();
+            }
+        };
+        Range.computeRangeDouble(energies, validator, energyRange, ProgressMonitor.NULL);
         // no invalidate() call here, SpectrumDiagram does this
     }
 

@@ -20,6 +20,10 @@ import org.esa.beam.processor.binning.L3Constants;
 import org.esa.beam.processor.binning.database.Bin;
 import org.esa.beam.util.StringUtils;
 
+@Deprecated
+/**
+ * @Deprecated since beam-binning 2.1.2 as part of the BEAM 4.11-release. Use module 'beam-binning2' instead.
+ */
 final class MLEAlgorithm implements Algorithm {
 
     // indices of accumulating variables
@@ -60,8 +64,8 @@ final class MLEAlgorithm implements Algorithm {
         final String[] strings = StringUtils.csvToArray(algorithmParams);
         if (strings.length != 1) {
             throw new ProcessorException("Illegal parameter length. Unable to extrakt the "
-                                         + L3Constants.WEIGHT_COEFFICIENT_PARAMETER_NAME +
-                                         " from the given algorithmParams string '" + algorithmParams + "'");
+                                                 + L3Constants.WEIGHT_COEFFICIENT_PARAMETER_NAME +
+                                                 " from the given algorithmParams string '" + algorithmParams + "'");
         }
         _weightCoeff = Float.parseFloat(algorithmParams);
         _weightCoeffMinusOne = _weightCoeff - 1.f;

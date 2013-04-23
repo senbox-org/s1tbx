@@ -25,8 +25,16 @@ import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.OperatorSpiRegistry;
-import org.esa.beam.framework.gpf.annotations.*;
-import org.esa.beam.framework.gpf.graph.*;
+import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
+import org.esa.beam.framework.gpf.annotations.Parameter;
+import org.esa.beam.framework.gpf.annotations.SourceProduct;
+import org.esa.beam.framework.gpf.annotations.SourceProducts;
+import org.esa.beam.framework.gpf.annotations.TargetProperty;
+import org.esa.beam.framework.gpf.graph.Graph;
+import org.esa.beam.framework.gpf.graph.GraphException;
+import org.esa.beam.framework.gpf.graph.Header;
+import org.esa.beam.framework.gpf.graph.HeaderParameter;
+import org.esa.beam.framework.gpf.graph.HeaderSource;
 import org.esa.beam.framework.gpf.internal.OperatorClassDescriptor;
 
 import java.io.BufferedReader;
@@ -35,8 +43,15 @@ import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.text.MessageFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
+import java.util.StringTokenizer;
 
 class CommandLineUsage {
     private static final String COMMAND_LINE_USAGE_RESOURCE = "CommandLineUsage.txt";
@@ -65,10 +80,10 @@ class CommandLineUsage {
         appendDocElementList(opListText, docElementList);
         return MessageFormat.format(usagePattern,
                                     CommandLineTool.TOOL_NAME,
-                                    CommandLineTool.DEFAULT_TARGET_FILEPATH,
-                                    CommandLineTool.DEFAULT_FORMAT_NAME,
-                                    CommandLineTool.DEFAULT_TILE_CACHE_SIZE_IN_M,
-                                    CommandLineTool.DEFAULT_TILE_SCHEDULER_PARALLELISM,
+                                    CommandLineArgs.DEFAULT_TARGET_FILEPATH,
+                                    CommandLineArgs.DEFAULT_FORMAT_NAME,
+                                    CommandLineArgs.DEFAULT_TILE_CACHE_SIZE_IN_M,
+                                    CommandLineArgs.DEFAULT_TILE_SCHEDULER_PARALLELISM,
                                     opListText.toString());
     }
 

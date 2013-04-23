@@ -17,11 +17,14 @@
 package org.esa.beam.framework.datamodel;
 
 import java.awt.geom.Point2D;
-import static java.lang.Math.*;
 
+import static java.lang.Math.*;
 
 /**
  * Class for rotating geographical positions.
+ * The rotator makes the given coordinate the origin <code>(0.0, 0.0)</code> of the coordinate system.
+ * If the coordinate which shall become the north pole of the new coordinate system is known the latitude value given into the
+ * constructor must be changed. Instead of providing directly the latitude value, it must be <code>90 - latitude</code>.
  *
  * @author Ralf Quast
  * @version $Revision$ $Date$
@@ -40,7 +43,7 @@ class Rotator {
 
     /**
      * Constructs a new rotation. In the rotated system, the point defined
-     * by the (lat, lon) parameters is located at the origin, i.e. has the
+     * by the (lon, lat) parameters is located at the origin, i.e. has the
      * geographical coordinates (0, 0).
      * <p/>
      * The new rotation is composed of a clockwise rotation about the z-axis
@@ -58,7 +61,7 @@ class Rotator {
 
     /**
      * Constructs a new rotation. In the rotated system, the point defined
-     * by the (lat, lon) parameters is located at the origin, i.e. has the
+     * by the (lon, lat) parameters is located at the origin, i.e. has the
      * geographical coordinates (0, 0).
      * <p/>
      * The new rotation is composed of a clockwise rotation about the z-axis
@@ -99,7 +102,7 @@ class Rotator {
 
     /**
      * Constructs a new rotation. In the rotated system, the point defined
-     * by the (lat, lon) parameters is located at the origin, i.e. has the
+     * by the (lon, lat) parameters is located at the origin, i.e. has the
      * geographical coordinates (0, 0).
      * <p/>
      * The new rotation is composed of a clockwise rotation about the z-axis
@@ -116,7 +119,7 @@ class Rotator {
 
     /**
      * Constructs a new rotation. In the rotated system, the point defined
-     * by the (lat, lon) parameters is located at the origin, i.e. has the
+     * by the (lon, lat) parameters is located at the origin, i.e. has the
      * geographical coordinates (0, 0).
      * <p/>
      * The new rotation is composed of a clockwise rotation about the z-axis
@@ -131,6 +134,48 @@ class Rotator {
      */
     public Rotator(Point2D point, double alpha) {
         this(point.getX(), point.getY(), alpha);
+    }
+
+    public static Point2D calculateCenter(double[][] data, int lonIndex, int latIndex) {
+        // calculate (x, y, z) in order to avoid issues with anti-meridian and poles
+        final int size = data.length;
+        final double[] x = new double[size];
+        final double[] y = new double[size];
+        final double[] z = new double[size];
+
+        calculateXYZ(data, x, y, z, lonIndex, latIndex);
+
+        double xc = 0.0;
+        double yc = 0.0;
+        double zc = 0.0;
+        for (int i = 0; i < size; i++) {
+            xc += x[i];
+            yc += y[i];
+            zc += z[i];
+        }
+        final double length = Math.sqrt(xc * xc + yc * yc + zc * zc);
+        xc /= length;
+        yc /= length;
+        zc /= length;
+
+        final double lat = toDegrees(asin(zc));
+        final double lon = toDegrees(atan2(yc, xc));
+
+        return new Point2D.Double(lon, lat);
+    }
+
+    static void calculateXYZ(double[][] data, double[] x, double[] y, double[] z, int lonIndex, int latIndex) {
+        for (int i = 0; i < data.length; i++) {
+            final double lon = data[i][lonIndex];
+            final double lat = data[i][latIndex];
+            final double u = toRadians(lon);
+            final double v = toRadians(lat);
+            final double w = cos(v);
+
+            x[i] = cos(u) * w;
+            y[i] = sin(u) * w;
+            z[i] = sin(v);
+        }
     }
 
     /**
@@ -173,6 +218,25 @@ class Rotator {
         }
     }
 
+    void transform(double[][] data, final int lonIndex, final int latIndex) {
+        for (final double[] p : data) {
+            final double u = toRadians(p[lonIndex]);
+            final double v = toRadians(p[latIndex]);
+
+            final double w = cos(v);
+            final double x = cos(u) * w;
+            final double y = sin(u) * w;
+            final double z = sin(v);
+
+            final double x2 = a11 * x + a12 * y + a13 * z;
+            final double y2 = a21 * x + a22 * y + a23 * z;
+            final double z2 = a31 * x + a32 * y + a33 * z;
+
+            p[lonIndex] = toDegrees(atan2(y2, x2));
+            p[latIndex] = toDegrees(asin(z2));
+        }
+    }
+
     /**
      * Transforms a given geographical point back into the unrotated
      * coordinate system.
@@ -212,5 +276,4 @@ class Rotator {
             lons[i] = toDegrees(atan2(y2, x2));
         }
     }
-
 }

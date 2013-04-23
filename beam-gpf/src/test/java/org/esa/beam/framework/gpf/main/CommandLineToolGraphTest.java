@@ -26,14 +26,19 @@ import org.esa.beam.framework.gpf.TestOps;
 import org.esa.beam.framework.gpf.graph.Graph;
 import org.esa.beam.framework.gpf.graph.GraphException;
 import org.esa.beam.framework.gpf.graph.GraphIO;
+import org.esa.beam.framework.gpf.graph.GraphProcessingObserver;
 import org.esa.beam.framework.gpf.graph.Node;
 
 import javax.media.jai.JAI;
 import javax.media.jai.TileScheduler;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.Reader;
 import java.io.StringReader;
-import java.util.HashMap;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.util.Map;
+import java.util.logging.Logger;
 
 public class CommandLineToolGraphTest extends TestCase {
 
@@ -94,7 +99,7 @@ public class CommandLineToolGraphTest extends TestCase {
                   "g=graph.xml;e=chain1;",
                   "${sourceProduct}", null,
                   "${sourceProduct2}", null,
-                  "WriteProduct$node2",
+                  "WriteOp@node2",
                   "target.dim",
                   "BEAM-DIMAP",
                   "${threshold}",
@@ -108,7 +113,7 @@ public class CommandLineToolGraphTest extends TestCase {
                   "g=graph.xml;e=chain1;",
                   "${sourceProduct}", null,
                   "${sourceProduct2}", null,
-                  "WriteProduct$node2", "target.dim", "BEAM-DIMAP", "2.5",
+                  "WriteOp@node2", "target.dim", "BEAM-DIMAP", "2.5",
                   "a+b/c"
         );
     }
@@ -117,9 +122,9 @@ public class CommandLineToolGraphTest extends TestCase {
         testGraph(new String[]{"graph.xml", "-Pexpression=a+b/c", "-Pthreshold=2.5", "ernie.dim", "idefix.dim"},
                   5,
                   "g=graph.xml;e=chain1;",
-                  "ReadProduct$0", "ernie.dim",
-                  "ReadProduct$1", "idefix.dim",
-                  "WriteProduct$node2", "target.dim", "BEAM-DIMAP", "2.5",
+                  "ReadOp@sourceProduct", "ernie.dim",
+                  "ReadOp@sourceProduct.2", "idefix.dim",
+                  "WriteOp@node2", "target.dim", "BEAM-DIMAP", "2.5",
                   "a+b/c"
         );
     }
@@ -134,11 +139,11 @@ public class CommandLineToolGraphTest extends TestCase {
         },
                   5,
                   "g=graph.xml;e=chain1;",
-                  "ReadProduct$0",
+                  "ReadOp@sourceProduct",
                   "ernie.dim",
-                  "ReadProduct$1",
+                  "ReadOp@sourceProduct2",
                   "idefix.dim",
-                  "WriteProduct$node2",
+                  "WriteOp@node2",
                   "target.dim",
                   "BEAM-DIMAP",
                   "2.5",
@@ -156,11 +161,11 @@ public class CommandLineToolGraphTest extends TestCase {
         },
                   5,
                   "g=graph.xml;e=chain1;",
-                  "ReadProduct$0",
+                  "ReadOp@sourceProduct",
                   "ernie.dim",
-                  "ReadProduct$1",
+                  "ReadOp@sourceProduct2",
                   "idefix.dim",
-                  "WriteProduct$node2",
+                  "WriteOp@node2",
                   "target.dim",
                   "BEAM-DIMAP",
                   "-0.5125",
@@ -179,11 +184,11 @@ public class CommandLineToolGraphTest extends TestCase {
         },
                   5,
                   "g=graph.xml;e=chain1;",
-                  "ReadProduct$0",
+                  "ReadOp@sourceProduct",
                   "ernie.dim",
-                  "ReadProduct$1",
+                  "ReadOp@sourceProduct2",
                   "idefix.dim",
-                  "WriteProduct$node2",
+                  "WriteOp@node2",
                   "target.dim",
                   "BEAM-DIMAP",
                   "-0.5125",
@@ -328,7 +333,7 @@ public class CommandLineToolGraphTest extends TestCase {
         }
 
         @Override
-        public void executeGraph(Graph graph) throws GraphException {
+        public void executeGraph(Graph graph, GraphProcessingObserver observer) throws GraphException {
             logString += "e=" + graph.getId() + ";";
             executedGraph = graph;
         }
@@ -342,16 +347,39 @@ public class CommandLineToolGraphTest extends TestCase {
         }
 
         @Override
-        public Map<String, String> readParametersFile(String filePath, Map<String, String> templateVariables) throws IOException {
-            HashMap<String, String> hashMap = new HashMap<String, String>();
-            hashMap.put("expression", "sqrt(x*x + y*y)");
-            hashMap.put("threshold", "-0.5125");
-            return hashMap;
+        public Reader createReader(String fileName) throws FileNotFoundException {
+            return new StringReader("expression=sqrt(x*x + y*y)\n" +
+                                            "threshold=-0.5125");
+        }
+
+        @Override
+        public Writer createWriter(String fileName) throws IOException {
+            return new StringWriter();
+        }
+
+        @Override
+        public String[] list(String path) throws IOException {
+            return new String[0];
         }
 
         @Override
         public void print(String m) {
             this.m += m;
+        }
+
+        @Override
+        public Logger getLogger() {
+            return Logger.getLogger("test");
+        }
+
+        @Override
+        public boolean fileExists(String fileName) {
+            return false;
+        }
+
+        @Override
+        public boolean isFile(String path) {
+            return true;
         }
     }
 }

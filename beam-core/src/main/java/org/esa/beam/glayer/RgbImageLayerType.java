@@ -24,16 +24,9 @@ import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.annotations.LayerTypeMetadata;
 import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.glevel.MultiLevelSource;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.datamodel.RGBImageProfile;
-import org.esa.beam.framework.datamodel.RasterDataNode;
-import org.esa.beam.framework.datamodel.VirtualBand;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.dataop.barithm.BandArithmetic;
 import org.esa.beam.glevel.BandImageMultiLevelSource;
-
-import java.awt.geom.AffineTransform;
 
 @LayerTypeMetadata(name = "RgbImageLayerType",
                    aliasNames = {"org.esa.beam.glayer.RgbImageLayerType"})
@@ -57,8 +50,7 @@ public class RgbImageLayerType extends ImageLayer.Type {
             rgbExpressions[2] = (String) configuration.getValue(PROPERTY_NAME_EXPRESSION_B);
             final RasterDataNode[] rasters = getRgbBands(product, rgbExpressions);
 
-            final AffineTransform i2mTransform = rasters[0].getSourceImage().getModel().getImageToModelTransform(0);
-            multiLevelSource = BandImageMultiLevelSource.create(rasters, i2mTransform,
+            multiLevelSource = BandImageMultiLevelSource.create(rasters, rasters[0].getSourceImage().getModel(),
                                                                 ProgressMonitor.NULL);
         }
 
@@ -126,6 +118,9 @@ public class RgbImageLayerType extends ImageLayer.Type {
         configuration.setValue(ImageLayer.PROPERTY_NAME_BORDER_SHOWN, true);
         configuration.setValue(ImageLayer.PROPERTY_NAME_BORDER_COLOR, ImageLayer.DEFAULT_BORDER_COLOR);
         configuration.setValue(ImageLayer.PROPERTY_NAME_BORDER_WIDTH, ImageLayer.DEFAULT_BORDER_WIDTH);
+        configuration.setValue(ImageLayer.PROPERTY_NAME_PIXEL_BORDER_SHOWN, true);
+        configuration.setValue(ImageLayer.PROPERTY_NAME_PIXEL_BORDER_COLOR, ImageLayer.DEFAULT_PIXEL_BORDER_COLOR);
+        configuration.setValue(ImageLayer.PROPERTY_NAME_PIXEL_BORDER_WIDTH, ImageLayer.DEFAULT_PIXEL_BORDER_WIDTH);
 
         return createLayer(null, configuration);
     }

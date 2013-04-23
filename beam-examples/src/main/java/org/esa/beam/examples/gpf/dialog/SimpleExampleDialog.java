@@ -12,6 +12,7 @@ import org.esa.beam.framework.ui.AppContext;
  * Date: 13.07.11
  */
 public class SimpleExampleDialog extends SingleTargetProductDialog {
+
     private String alias;
     private OperatorParameterSupport parameterSupport;
     private SimpleForm form;

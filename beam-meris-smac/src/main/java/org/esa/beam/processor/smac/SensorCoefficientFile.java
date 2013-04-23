@@ -15,20 +15,22 @@
  */
 package org.esa.beam.processor.smac;
 
+import org.esa.beam.util.Guardian;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.StreamTokenizer;
 
-import org.esa.beam.util.Guardian;
-
 /**
  * Implements the <code>SmacSensorCoefficients</code> interface for file access.
  * <p/>
  * The files must conform the format specified by the original source code by H.Rahman and G.Dedieu.
+ *
+ * @deprecated since BEAM 4.11. No replacement.
  */
-
+@Deprecated
 class SensorCoefficientFile implements SmacSensorCoefficients {
 
     private double _ah2o;
@@ -91,15 +93,14 @@ class SensorCoefficientFile implements SmacSensorCoefficients {
      * Sets the sensor coefficients file name for this class and reads the file.
      *
      * @param fileName the name of the sensor coefficients file
-     *
      * @throws java.lang.IllegalArgumentException
      *
      * @throws java.io.FileNotFoundException
      * @throws java.io.IOException
      */
     public void readFile(String fileName) throws IllegalArgumentException,
-                                                 FileNotFoundException,
-                                                 IOException {
+            FileNotFoundException,
+            IOException {
         Guardian.assertNotNull("fileName", fileName);
         File coeffFile = new File(fileName);
 
@@ -453,7 +454,7 @@ class SensorCoefficientFile implements SmacSensorCoefficients {
      * Scans the file for coefficients
      */
     private void scan(File coeffFile) throws FileNotFoundException,
-                                             IOException {
+            IOException {
         FileReader reader = new FileReader(coeffFile);
         StreamTokenizer tokenizer = new StreamTokenizer(reader);
 

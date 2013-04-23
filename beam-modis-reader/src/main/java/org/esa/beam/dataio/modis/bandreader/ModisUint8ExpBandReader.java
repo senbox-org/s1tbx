@@ -15,14 +15,17 @@
  */
 package org.esa.beam.dataio.modis.bandreader;
 
-import org.esa.beam.dataio.modis.hdf.lib.HDF;
 import org.esa.beam.framework.datamodel.ProductData;
+import ucar.ma2.Array;
+import ucar.ma2.InvalidRangeException;
+import ucar.ma2.Section;
+import ucar.nc2.Variable;
 
 import java.io.IOException;
 
 public class ModisUint8ExpBandReader extends ModisBandReader {
 
-    private byte[] _line;
+    private byte[] line;
     private short min;
     private short max;
     private byte fill;
@@ -30,8 +33,8 @@ public class ModisUint8ExpBandReader extends ModisBandReader {
     private float[] targetData;
     private int targetDataIdx;
 
-    public ModisUint8ExpBandReader(final int sdsId, final int layer, final boolean is3d) {
-        super(sdsId, layer, is3d);
+    public ModisUint8ExpBandReader(Variable variable, final int layer, final boolean is3d) {
+        super(variable, layer, is3d);
     }
 
     /**
@@ -48,41 +51,49 @@ public class ModisUint8ExpBandReader extends ModisBandReader {
     protected void prepareForReading(final int sourceOffsetX, final int sourceOffsetY, final int sourceWidth,
                                      final int sourceHeight, final int sourceStepX, final int sourceStepY,
                                      final ProductData destBuffer) {
-        fill = (byte) Math.floor(_fillValue + 0.5);
-        if (_validRange == null) {
+        fill = (byte) Math.floor(fillValue + 0.5);
+        if (validRange == null) {
             min = 0;
             max = Byte.MAX_VALUE * 2 + 1;
         } else {
-            min = (short) Math.floor(_validRange.getMin() + 0.5);
-            max = (short) Math.floor(_validRange.getMax() + 0.5);
+            min = (short) Math.floor(validRange.getMin() + 0.5);
+            max = (short) Math.floor(validRange.getMax() + 0.5);
         }
         targetData = (float[]) destBuffer.getElems();
         targetDataIdx = 0;
-        invScale = 1.0 / _scale;
+        invScale = 1.0 / scale;
         ensureLineWidth(sourceWidth);
     }
 
     @Override
     protected void readLine() throws IOException {
-        HDF.getWrap().SDreaddata(_sdsId, _start, _stride, _count, _line);
+        try {
+            final Section section = new Section(start, count, stride);
+            final Array array = variable.read(section);
+            for (int i = 0; i < line.length; i++) {
+                line[i] = array.getByte(i);
+            }
+        } catch (InvalidRangeException e) {
+            throw new IOException(e.getMessage());
+        }
     }
 
     @Override
     protected void validate(final int x) {
-        final int value = _line[x] & 0xff;
+        final int value = line[x] & 0xff;
         if (value < min || value > max) {
-            _line[x] = fill;
+            line[x] = fill;
         }
     }
 
     @Override
     protected void assign(final int x) {
-        targetData[targetDataIdx++] = _offset * (float) Math.exp(_line[x] * invScale);
+        targetData[targetDataIdx++] = offset * (float) Math.exp(line[x] * invScale);
     }
 
     private void ensureLineWidth(final int sourceWidth) {
-        if ((_line == null) || (_line.length != sourceWidth)) {
-            _line = new byte[sourceWidth];
+        if ((line == null) || (line.length != sourceWidth)) {
+            line = new byte[sourceWidth];
         }
     }
 }

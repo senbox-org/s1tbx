@@ -6,13 +6,22 @@ import com.bc.ceres.core.SubProgressMonitor;
 import com.bc.ceres.jai.NoDataRaster;
 import org.esa.beam.jai.ImageManager;
 
-import javax.media.jai.*;
+import javax.media.jai.Histogram;
+import javax.media.jai.ImageLayout;
+import javax.media.jai.JAI;
+import javax.media.jai.PixelAccessor;
+import javax.media.jai.PlanarImage;
+import javax.media.jai.UnpackedImageData;
 import javax.media.jai.operator.MinDescriptor;
-import java.awt.*;
+import java.awt.Rectangle;
+import java.awt.RenderingHints;
+import java.awt.Shape;
 import java.awt.geom.Area;
 import java.awt.image.DataBuffer;
 import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CancellationException;
 
 /**
@@ -22,6 +31,7 @@ import java.util.concurrent.CancellationException;
  * @author Norman Fomferra
  */
 public class StxFactory {
+
     public static final int DEFAULT_BIN_COUNT = 512;
 
     private Number minimum;
@@ -120,13 +130,14 @@ public class StxFactory {
     }
 
     /**
-     * Computes statistics for the given raster data node.
+     * Computes statistics for the given set of raster data nodes.
      *
-     * @param raster The raster data node.
-     * @param pm     A progress monitor.
+     * @param roiMasks An array of roi masks, must be <code>null</code> or have the same length as <code>rasters</code>.
+     * @param rasters  The raster data nodes.
+     * @param pm       A progress monitor.
      * @return The statistics.
      */
-    public Stx create(RasterDataNode raster, ProgressMonitor pm) {
+    public Stx create(Mask[] roiMasks, RasterDataNode[] rasters, ProgressMonitor pm) {
         double minimum = this.minimum != null ? this.minimum.doubleValue() : Double.NaN;
         double maximum = this.maximum != null ? this.maximum.doubleValue() : Double.NaN;
         double mean = this.mean != null ? this.mean.doubleValue() : Double.NaN;
@@ -137,19 +148,38 @@ public class StxFactory {
 
         Histogram histogram = this.histogram;
 
-        if (raster != null) {
+        Assert.argument(roiMasks == null || roiMasks.length == rasters.length, "roiMasks == null || roiMasks.length == rasters.length");
 
-            Shape roiShape = this.roiShape;
-            RenderedImage roiImage = this.roiImage;
-            if (roiMask != null) {
-                if (roiMask.getValidShape() != null) {
-                    roiShape = roiMask.getValidShape();
+        final List<RasterDataNode> filteredRasterList = new ArrayList<RasterDataNode>();
+        for (RasterDataNode rasterDataNode : rasters) {
+            if (rasterDataNode != null) {
+                filteredRasterList.add(rasterDataNode);
+            }
+        }
+        if (!filteredRasterList.isEmpty()) {
+            RasterDataNode[] filteredRasters = filteredRasterList.toArray(new RasterDataNode[filteredRasterList.size()]);
+
+            Shape[] roiShapes = new Shape[rasters.length];
+            RenderedImage[] roiImages = new RenderedImage[rasters.length];
+
+            roiImages[0] = this.roiImage;
+            if (roiMasks != null) {
+                roiShapes[0] = this.roiShape;
+                for (int i = 0; i < roiMasks.length; i++) {
+                    if (roiMasks[i] == null) {
+                        roiShapes[i] = null;
+                        roiImages[i] = null;
+                    } else {
+                        if (roiMasks[i].getValidShape() != null) {
+                            roiShapes[i] = roiMasks[i].getValidShape();
+                        }
+                        roiImages[i] = roiMasks[i].getSourceImage();
+                    }
                 }
-                roiImage = roiMask.getSourceImage();
             }
 
             if (this.intHistogram == null) {
-                intHistogram = raster.getGeophysicalImage().getSampleModel().getDataType() < DataBuffer.TYPE_FLOAT;
+                intHistogram = filteredRasters[0].getGeophysicalImage().getSampleModel().getDataType() < DataBuffer.TYPE_FLOAT;
             }
 
             boolean mustComputeSummaryStx = this.minimum == null || this.maximum == null;
@@ -160,7 +190,10 @@ public class StxFactory {
 
                 if (mustComputeSummaryStx) {
                     final SummaryStxOp meanOp = new SummaryStxOp();
-                    accumulate(raster, level, roiImage, roiShape, meanOp, SubProgressMonitor.create(pm, 50));
+                    for (int i = 0; i < filteredRasters.length; i++) {
+                        final RasterDataNode rasterDataNode = filteredRasters[i];
+                        accumulate(rasterDataNode, level, roiImages[i], roiShapes[i], meanOp, SubProgressMonitor.create(pm, 50));
+                    }
                     if (this.minimum == null) {
                         minimum = meanOp.getMinimum();
                     }
@@ -178,7 +211,10 @@ public class StxFactory {
                 if (mustComputeHistogramStx) {
                     int binCount = histogramBinCount != null ? histogramBinCount : DEFAULT_BIN_COUNT;
                     final HistogramStxOp histogramOp = new HistogramStxOp(binCount, minimum, maximum, intHistogram, logHistogram);
-                    accumulate(raster, level, roiImage, roiShape, histogramOp, SubProgressMonitor.create(pm, 50));
+                    for (int i = 0; i < filteredRasters.length; i++) {
+                        final RasterDataNode rasterDataNode = filteredRasters[i];
+                        accumulate(rasterDataNode, level, roiImages[i], roiShapes[i], histogramOp, SubProgressMonitor.create(pm, 50));
+                    }
                     histogram = histogramOp.getHistogram();
                 }
             } finally {
@@ -213,12 +249,26 @@ public class StxFactory {
         return new Stx(minimum, maximum, mean, stdDev, logHistogram, intHistogram, histogram, level);
     }
 
-    static void accumulate(RasterDataNode rasterDataNode,
-                           int level,
-                           RenderedImage roiImage,
-                           Shape roiShape,
-                           StxOp op,
-                           ProgressMonitor pm) {
+    /**
+     * Computes statistics for the given raster data node.
+     *
+     * @param raster The raster data node.
+     * @param pm     A progress monitor.
+     * @return The statistics.
+     */
+    public Stx create(RasterDataNode raster, ProgressMonitor pm) {
+        if (roiMask != null) {
+            return create(new Mask[]{roiMask}, new RasterDataNode[]{raster}, pm);
+        }
+        return create(null, new RasterDataNode[]{raster}, pm);
+    }
+
+    public static void accumulate(RasterDataNode rasterDataNode,
+                                  int level,
+                                  RenderedImage roiImage,
+                                  Shape roiShape,
+                                  StxOp op,
+                                  ProgressMonitor pm) {
 
         Assert.notNull(rasterDataNode, "raster");
         Assert.argument(level >= 0, "level");
@@ -306,7 +356,7 @@ public class StxFactory {
             throw new IllegalStateException("maskImage.getWidth() != dataImage.getWidth()");
         }
         if (maskImage.getHeight() != dataImage.getHeight()) {
-            throw new IllegalStateException("maskImage.getWidth() != dataImage.getWidth()");
+            throw new IllegalStateException("maskImage.getHeight() != dataImage.getHeight()");
         }
     }
 
@@ -347,15 +397,18 @@ public class StxFactory {
 
     static Histogram createHistogram(int binCount, double minimum, double maximum, boolean logHistogram, boolean intHistogram) {
         Scaling histogramScaling = Stx.getHistogramScaling(logHistogram);
-        double adjustedMaximum = maximum;
         if (intHistogram) {
-            adjustedMaximum = maximum + 1.0;
-        } else if (minimum == maximum) {
-            adjustedMaximum = minimum + 1e-10;
+            maximum += 1.0;
+        } else if (maximum == minimum) {
+            if (maximum < Double.MAX_VALUE) {
+                maximum = Math.nextUp(maximum);
+            } else {
+                minimum = Math.nextAfter(minimum, Double.NEGATIVE_INFINITY);
+            }
         }
         return new Histogram(binCount,
                              histogramScaling.scale(minimum),
-                             histogramScaling.scale(adjustedMaximum),
+                             histogramScaling.scale(maximum),
                              1);
     }
 
