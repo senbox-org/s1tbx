@@ -48,8 +48,8 @@ public class XMLProductDirectory {
     private org.jdom.Document xmlDoc = null;
 
     private boolean isSLC = false;
-    private int sceneWidth = 0;
-    private int sceneHeight = 0;
+    protected int sceneWidth = 0;
+    protected int sceneHeight = 0;
 
     protected transient final Map<String, ImageIOFile> bandImageFileMap = new HashMap<String, ImageIOFile>(1);
     protected transient final Map<Band, ImageIOFile.BandInfo> bandMap = new HashMap<Band, ImageIOFile.BandInfo>(3);
@@ -155,7 +155,7 @@ public class XMLProductDirectory {
 
     }
 
-    private void addMetaData(final Product product) throws IOException {
+    protected void addMetaData(final Product product) throws IOException {
         final MetadataElement root = product.getMetadataRoot();
         final Element rootElement = xmlDoc.getRootElement();
         AbstractMetadataIO.AddXMLMetadata(rootElement, AbstractMetadata.addOriginalProductMetadata(product));
