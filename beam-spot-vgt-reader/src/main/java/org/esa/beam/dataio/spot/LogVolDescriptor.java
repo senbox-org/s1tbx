@@ -52,7 +52,7 @@ final class LogVolDescriptor {
     }
 
     public String getValueString(String key) {
-        return (String) propertySet.getValue(key);
+        return propertySet.getValue(key);
     }
 
     Integer getValueInteger(String key) {

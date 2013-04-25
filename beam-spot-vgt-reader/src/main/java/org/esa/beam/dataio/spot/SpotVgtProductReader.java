@@ -127,11 +127,6 @@ public class SpotVgtProductReader extends AbstractProductReader {
                 File hdfFile = virtualDir.getFile(physVolDescriptor.getLogVolDirName() + "/" + logVolFileName);
                 NetcdfFile netcdfFile = NetcdfFile.open(hdfFile.getPath());
 
-                HashMap<String, Variable> variables = new HashMap<String, Variable>();
-                for (Variable variable : netcdfFile.getVariables()) {
-                    variables.put(variable.getName(), variable);
-                }
-
                 Variable variable = findPixelDataVariable(netcdfFile);
                 if (isPotentialPixelDataVariable(variable)) {
                     DataType netCdfDataType = variable.getDataType();

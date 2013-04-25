@@ -65,7 +65,7 @@ final class PhysVolDescriptor {
     }
 
     public String getValue(String key) {
-        return (String) propertySet.getValue(key);
+        return propertySet.getValue(key);
     }
 
     public int getPhysVolNumber() {
