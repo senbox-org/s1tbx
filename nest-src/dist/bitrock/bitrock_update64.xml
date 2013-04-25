@@ -211,7 +211,13 @@ check_for_updates = 1
     <saveRelativePaths>1</saveRelativePaths>
     <startMenuGroupName>Next ESA SAR Toolbox</startMenuGroupName>
     <vendor>ESA</vendor>
-    <windows64bitMode>1</windows64bitMode>
+	<windows64bitMode>1</windows64bitMode>
+	<customLanguageFileList>
+        <language>
+            <code>en</code>
+            <file>custom-en.lng</file>
+        </language>
+    </customLanguageFileList>    
     <parameterList>
         <directoryParameter>
             <name>installdir</name>
