@@ -16,7 +16,7 @@ public class NetCDFVariables {
 
     public void add(List<Variable> variables) {
         for (final Variable variable : variables) {
-            final String name = ModisUtils.extractBandName(variable.getName());
+            final String name = ModisUtils.extractBandName(variable.getFullName());
             variablesMap.put(name, variable);
         }
     }

@@ -34,9 +34,8 @@ public class ModisDaacUtils {
 
         final StringBuilder buffer = new StringBuilder();
         final Variable[] variables = netCDFVariables.getAll();
-        for (int i = 0; i < variables.length; i++) {
-            final Variable variable = variables[i];
-            final String name = variable.getName();
+        for (final Variable variable : variables) {
+            final String name = variable.getFullName();
             if (name.startsWith(coreString) && name.length() == coreKey.length()) {
                 buffer.append(variable.readScalarString());
             }

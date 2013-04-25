@@ -23,8 +23,9 @@ public class ModisConstants {
 
     public static final String NUM_OF_DAY_SCANS_KEY = "Number of Day mode scans";
     public static final String NUM_OF_NIGHT_SCANS_KEY = "Number of Night mode scans";
-    public static final String CORE_META_KEY = "CoreMetadata.0";
-    public static final String STRUCT_META_KEY = "StructMetadata.0";
+    public static final String CORE_META_KEY = "CoreMetadata\\.0";
+    public static final String STRUCT_META_KEY = "StructMetadata\\.0";
+    public static final String ARCHIVE_META_KEY = "ArchiveMetadata\\.0";
 
     public static final String GLOBAL_META_NAME = "GLOBAL_METADATA";
 
