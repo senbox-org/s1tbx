@@ -364,7 +364,7 @@ public class ProductLibraryToolView extends AbstractToolView {
 
         sortMenu.add(createSortItem("Product Name", SortingDecorator.SORT_BY.NAME));
         sortMenu.add(createSortItem("Product Type", SortingDecorator.SORT_BY.TYPE));
-        sortMenu.add(createSortItem("Acquistion Date", SortingDecorator.SORT_BY.DATE));
+        sortMenu.add(createSortItem("Acquisition Date", SortingDecorator.SORT_BY.DATE));
         sortMenu.add(createSortItem("Mission", SortingDecorator.SORT_BY.MISSON));
         sortMenu.add(createSortItem("File Size", SortingDecorator.SORT_BY.FILESIZE));
 

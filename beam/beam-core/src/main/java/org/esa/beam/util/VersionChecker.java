@@ -30,6 +30,7 @@ public class VersionChecker {
     private File localVersionFile;
     private static final String VERSION_PREFIX = "VERSION ";
     private String localVersionStr = null;
+    private String remoteVersionStr = null;
 
     // todo - use application.properties with version ID set by Maven (resource Filter!)
     public VersionChecker() {
@@ -88,7 +89,9 @@ public class VersionChecker {
 
     public String getRemoteVersion() throws IOException {
         try {
-            return getVersion(new URL(getRemoteVersionUrlString()));
+            if(remoteVersionStr == null)
+                remoteVersionStr = getVersion(new URL(getRemoteVersionUrlString()));
+            return remoteVersionStr;
         } catch (MalformedURLException e) {
             throw new IllegalStateException(e.getMessage());
         }
