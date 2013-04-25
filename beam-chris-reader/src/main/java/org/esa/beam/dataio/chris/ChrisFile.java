@@ -199,7 +199,7 @@ class ChrisFile {
         } catch (InvalidRangeException e) {
             final IOException ioe = new IOException(
                     MessageFormat.format("Failed to read data from band #{0} of ''{1}''", bandIndex + 1,
-                                         rciImageSds.getName()));
+                                         rciImageSds.getFullName()));
             ioe.initCause(e);
             throw ioe;
         }
@@ -233,7 +233,7 @@ class ChrisFile {
             }
         } catch (InvalidRangeException e) {
             final IOException ioe = new IOException(
-                    "Failed to read data from band #" + (bandIndex + 1) + " of '" + maskSds.getName() + "'");
+                    "Failed to read data from band #" + (bandIndex + 1) + " of '" + maskSds.getFullName() + "'");
             ioe.initCause(e);
             throw ioe;
         }
@@ -334,12 +334,12 @@ class ChrisFile {
     }
 
     private static Map<String, String> readGlobalAttributes(NetcdfFile ncFile) {
-            List<Attribute> globalNcAttributes = ncFile.getGlobalAttributes();
-            Map<String, String> globalAttributes = new TreeMap<String, String>();
-            for (Attribute attribute : globalNcAttributes) {
-                globalAttributes.put(attribute.getName().trim(), attribute.getStringValue().trim());
-            }
-            return globalAttributes;
+        List<Attribute> globalNcAttributes = ncFile.getGlobalAttributes();
+        Map<String, String> globalAttributes = new TreeMap<String, String>();
+        for (Attribute attribute : globalNcAttributes) {
+            globalAttributes.put(attribute.getShortName().trim(), attribute.getStringValue().trim());
+        }
+        return globalAttributes;
     }
 
     private static Variable getVariable(NetcdfFile ncFile, String sdsName, boolean require) throws IOException {
