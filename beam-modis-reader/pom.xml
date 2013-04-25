@@ -26,7 +26,6 @@
         <relativePath>../beam-plugin-parent/pom.xml</relativePath>
     </parent>
 
-    <groupId>org.esa.beam</groupId>
     <artifactId>beam-modis-reader</artifactId>
     <name>BEAM MODIS (MOD,MXD,MYD) Product Reader</name>
     <version>1.3.1.${beam.version}</version>
@@ -40,7 +39,7 @@
         <dependency>
             <groupId>org.esa.beam</groupId>
             <artifactId>beam-netcdf</artifactId>
-            <version>1.1.2.${beam.version}</version>
+            <version>1.1.3.${beam.version}</version>
         </dependency>
         <dependency>
             <groupId>edu.ucar</groupId>

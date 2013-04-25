@@ -26,7 +26,6 @@
         <relativePath>../beam-plugin-parent/pom.xml</relativePath>
     </parent>
 
-    <groupId>org.esa.beam</groupId>
     <artifactId>beam-obpg-reader</artifactId>
     <name>BEAM NASA Ocean Color Product Reader</name>
     <version>1.4.${beam.version}</version>
@@ -46,6 +45,10 @@
                 <exclusion>
                     <groupId>org.esa.beam</groupId>
                     <artifactId>beam-netcdf</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>edu.ucar</groupId>
+                    <artifactId>netcdf</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>org.esa.beam</groupId>
