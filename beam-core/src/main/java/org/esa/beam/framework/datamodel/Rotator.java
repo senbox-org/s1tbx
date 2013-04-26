@@ -29,7 +29,7 @@ import static java.lang.Math.*;
  * @author Ralf Quast
  * @version $Revision$ $Date$
  */
-class Rotator {
+public class Rotator {
 
     private final double a11;
     private final double a12;
