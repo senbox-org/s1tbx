@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2013 Brockmann Consult GmbH (info@brockmann-consult.de) 
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -82,8 +82,8 @@ public class BinManager {
         }
         if (postProcessorConfig != null) {
             this.postProcessor = createPostProcessor(postProcessorConfig, outputFeatureNames);
-            this.postFeatureCount = outputFeatureCount;
             this.postFeatureNames = postProcessor.getOutputFeatureNames();
+            this.postFeatureCount = this.postFeatureNames.length;
         } else {
             this.postProcessor = null;
             this.postFeatureCount = 0;
