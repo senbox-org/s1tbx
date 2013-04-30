@@ -483,8 +483,8 @@ public class TemporalPercentileOp extends Operator {
         timeSeriesDataProduct.setName(year + "_" + targetName + SUFFIX_PERCENTILE_OP_DATA_PRODUCT);
         addExpectedMetadataForTimeSeriesTool(targetName);
         timeSeriesDataProduct.setAutoGrouping(targetName);
-        timeSeriesDataProduct.setStartTime(new ProductData.UTC(timeSeriesStartMJD));
-        timeSeriesDataProduct.setEndTime(new ProductData.UTC(timeSeriesEndMJD));
+        timeSeriesDataProduct.setStartTime(ProductData.UTC.create(DateTimeUtils.jdToUTC(DateTimeUtils.mjdToJD(timeSeriesStartMJD)),0));
+        timeSeriesDataProduct.setEndTime(ProductData.UTC.create(DateTimeUtils.jdToUTC(DateTimeUtils.mjdToJD(timeSeriesEndMJD)),0));
         for (long mjd : dailyGroupedSourceProducts.keySet()) {
             final String dayMeanBandName = createNameForMeanBand(mjd);
             final int dayIdx = (int) (mjd - timeSeriesStartMJD);
