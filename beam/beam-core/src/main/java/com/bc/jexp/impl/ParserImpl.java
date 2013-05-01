@@ -27,7 +27,7 @@ import com.bc.jexp.Term;
  * A default implementation for the {@link <code>com.bc.jexp.Parser</code>} interface.
  *
  * @author Norman Fomferra (norman.fomferra@brockmann-consult.de)
-
+ * @version $Revision$ $Date$
  */
 public final class ParserImpl implements Parser {
 
@@ -481,32 +481,50 @@ public final class ParserImpl implements Parser {
         Term t1 = parseMul(required);
         while (t1 != null) {
             int tt = tokenizer.next();
-            if (tt == '+') {
+            if (tt == Tokenizer.TT_DOUBLE) {
+                final double i = convertDoubleToken();
+                Term t2 = new Term.ConstD(i * -1);
+                t1 = substract(t1, t2);
+            } else if (tt == Tokenizer.TT_INT) {
+                final int i = convertIntToken();
+                Term t2 = new Term.ConstI(i * -1);
+                t1 = substract(t1, t2);
+            } else if (tt == '+') {
                 Term t2 = parseMul(true);
-                if (t1.isD() && t2.isN() || t1.isN() && t2.isD()) {
-                    t1 = new Term.Add(Term.TYPE_D, t1, t2);
-                } else if (t1.isI() && t2.isI()) {
-                    t1 = new Term.Add(Term.TYPE_I, t1, t2);
-                } else if (!isTypeChecking()) {
-                    t1 = new Term.Add(t1.isD() || t2.isD() ? Term.TYPE_D : Term.TYPE_I, t1, t2);
-                } else {
-                    reportTypeErrorN2("'+'");
-                }
+                t1 = add(t1, t2);
             } else if (tt == '-') {
                 Term t2 = parseMul(true);
-                if (t1.isD() && t2.isN() || t1.isN() && t2.isD()) {
-                    t1 = new Term.Sub(Term.TYPE_D, t1, t2);
-                } else if (t1.isI() && t2.isI()) {
-                    t1 = new Term.Sub(Term.TYPE_I, t1, t2);
-                } else if (!isTypeChecking()) {
-                    t1 = new Term.Sub(t1.isD() || t2.isD() ? Term.TYPE_D : Term.TYPE_I, t1, t2);
-                } else {
-                    reportTypeErrorN2("'-'");
-                }
+                t1 = substract(t1, t2);
             } else {
                 tokenizer.pushBack();
                 break;
             }
+        }
+        return t1;
+    }
+
+    private Term substract(Term t1, Term t2) throws ParseException {
+        if (t1.isD() && t2.isN() || t1.isN() && t2.isD()) {
+            t1 = new Term.Sub(Term.TYPE_D, t1, t2);
+        } else if (t1.isI() && t2.isI()) {
+            t1 = new Term.Sub(Term.TYPE_I, t1, t2);
+        } else if (!isTypeChecking()) {
+            t1 = new Term.Sub(t1.isD() || t2.isD() ? Term.TYPE_D : Term.TYPE_I, t1, t2);
+        } else {
+            reportTypeErrorN2("'-'");
+        }
+        return t1;
+    }
+
+    private Term add(Term t1, Term t2) throws ParseException {
+        if (t1.isD() && t2.isN() || t1.isN() && t2.isD()) {
+            t1 = new Term.Add(Term.TYPE_D, t1, t2);
+        } else if (t1.isI() && t2.isI()) {
+            t1 = new Term.Add(Term.TYPE_I, t1, t2);
+        } else if (!isTypeChecking()) {
+            t1 = new Term.Add(t1.isD() || t2.isD() ? Term.TYPE_D : Term.TYPE_I, t1, t2);
+        } else {
+            reportTypeErrorN2("'+'");
         }
         return t1;
     }
@@ -861,7 +879,7 @@ public final class ParserImpl implements Parser {
     }
 
     private int convertIntToken() throws ParseException {
-        final String token = tokenizer.getToken();
+        String token = tokenizer.getToken();
         try {
             long l = Long.parseLong(token);
             if (l >= Integer.MIN_VALUE && l <= Integer.MAX_VALUE) {
@@ -931,7 +949,7 @@ public final class ParserImpl implements Parser {
     }
 
     private static String getFunctionCallString(final String name, final Term[] args) {
-        final StringBuilder sb = new StringBuilder();
+        final StringBuffer sb = new StringBuffer();
         sb.append(name);
         sb.append('(');
         for (int i = 0; i < args.length; i++) {

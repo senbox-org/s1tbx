@@ -16,7 +16,11 @@
 
 package com.bc.jexp;
 
-import com.bc.jexp.impl.*;
+import com.bc.jexp.impl.AbstractSymbol;
+import com.bc.jexp.impl.DefaultNamespace;
+import com.bc.jexp.impl.NamespaceImpl;
+import com.bc.jexp.impl.ParserImpl;
+import com.bc.jexp.impl.SymbolFactory;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -52,6 +56,138 @@ public class ParserImplTest {
         assertEquals(85321.0, term.evalD(env), 0.0);
         assertEquals("85321", term.evalS(env));
         assertEquals("85321", term.toString());
+    }
+
+    @Test
+    public void testIntegerMaxValueConst() throws ParseException {
+        final int maxValue = Integer.MAX_VALUE;
+        final String maxValueString = Integer.toString(maxValue);
+        Term term = parser.parse(maxValueString);
+        assertEquals(true, term.evalB(env));
+        assertEquals(maxValue, term.evalI(env));
+        assertEquals(maxValue, term.evalD(env), 0.0);
+        assertEquals(maxValueString, term.evalS(env));
+        assertEquals(maxValueString, term.toString());
+    }
+
+    @Test
+    public void testIntegerMinValueConst() throws ParseException {
+        final int minValue = Integer.MIN_VALUE;
+        final String minValueString = Integer.toString(minValue);
+        Term term = parser.parse(minValueString);
+        assertEquals(true, term.evalB(env));
+        assertEquals(minValue, term.evalI(env));
+        assertEquals(minValue, term.evalD(env), 0.0);
+        assertEquals(minValueString, term.evalS(env));
+        assertEquals(minValueString, term.toString());
+    }
+
+    @Test
+    public void testPositiveNumber() throws ParseException {
+        Term term = parser.parse("+4");
+        assertEquals(true, term instanceof Term.ConstI);
+        assertEquals(4, term.evalI(env));
+        assertEquals("4", term.evalS(env));
+        assertEquals("4", term.toString());
+
+        term = parser.parse("4");
+        assertEquals(true, term instanceof Term.ConstI);
+        assertEquals(4, term.evalI(env));
+        assertEquals("4", term.evalS(env));
+        assertEquals("4", term.toString());
+
+        term = parser.parse("+0.4");
+        assertEquals(true, term instanceof Term.ConstD);
+        assertEquals(0.4, term.evalD(env), 1e-15);
+        assertEquals("0.4", term.evalS(env));
+        assertEquals("0.4", term.toString());
+
+        term = parser.parse("0.4");
+        assertEquals(true, term instanceof Term.ConstD);
+        assertEquals(0.4, term.evalD(env), 1e-15);
+        assertEquals("0.4", term.evalS(env));
+        assertEquals("0.4", term.toString());
+
+        term = parser.parse("+.4");
+        assertEquals(true, term instanceof Term.ConstD);
+        assertEquals(0.4, term.evalD(env), 1e-15);
+        assertEquals("0.4", term.evalS(env));
+        assertEquals("0.4", term.toString());
+
+        term = parser.parse(".4");
+        assertEquals(true, term instanceof Term.ConstD);
+        assertEquals(0.4, term.evalD(env), 1e-15);
+        assertEquals("0.4", term.evalS(env));
+        assertEquals("0.4", term.toString());
+    }
+
+    @Test
+    public void testNegativeNumber() throws ParseException {
+        Term term = parser.parse("-4");
+        assertEquals(true, term instanceof Term.ConstI);
+        assertEquals(-4, term.evalI(env));
+        assertEquals("-4", term.evalS(env));
+        assertEquals("-4", term.toString());
+
+        term = parser.parse("-0.4");
+        assertEquals(true, term instanceof Term.ConstD);
+        assertEquals(-0.4, term.evalD(env), 1e-15);
+        assertEquals("-0.4", term.evalS(env));
+        assertEquals("-0.4", term.toString());
+
+        term = parser.parse("-.4");
+        assertEquals(true, term instanceof Term.ConstD);
+        assertEquals(-0.4, term.evalD(env), 1e-15);
+        assertEquals("-0.4", term.evalS(env));
+        assertEquals("-0.4", term.toString());
+    }
+
+    @Test
+    public void testAddition() throws ParseException {
+        final Term term = parser.parse("24 + 4");
+        assertEquals(28, term.evalI(env));
+    }
+
+    @Test
+    public void testSubstraction() throws ParseException {
+        final Term term = parser.parse("24 - 4");
+        assertEquals(20, term.evalI(env));
+    }
+
+    @Test
+    public void testAdditionNumber() throws ParseException {
+        final Term term = parser.parse("24 +4");
+        assertEquals(28, term.evalI(env));
+    }
+
+    @Test
+    public void testSubstractionNumber() throws ParseException {
+        final Term term = parser.parse("24 -4");
+        assertEquals(20, term.evalI(env));
+    }
+
+    @Test
+    public void testSubstractionNegative() throws ParseException {
+        final Term term = parser.parse("24 - -4");
+        assertEquals(28, term.evalI(env));
+    }
+
+    @Test
+    public void testSubstractionPositive() throws ParseException {
+        final Term term = parser.parse("24 - +4");
+        assertEquals(20, term.evalI(env));
+    }
+
+    @Test
+    public void testSubstractionWithoutSpaces() throws ParseException {
+        final Term term = parser.parse("24-4");
+        assertEquals(20, term.evalI(env));
+    }
+
+    @Test
+    public void testAdditionWithoutSpaces() throws ParseException {
+        final Term term = parser.parse("24+4");
+        assertEquals(28, term.evalI(env));
     }
 
     @Test
