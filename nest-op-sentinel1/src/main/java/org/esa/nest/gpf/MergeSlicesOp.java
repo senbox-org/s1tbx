@@ -38,7 +38,7 @@ import java.util.Map;
  * Merges Sentinel-1 slice products
  */
 @OperatorMetadata(alias = "MergeSlices",
-        category = "SAR Tools",
+        category = "SAR Tools\\SENTINEL-1",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2013 by Array Systems Computing Inc.",
         description="Merges Sentinel-1 slice products")

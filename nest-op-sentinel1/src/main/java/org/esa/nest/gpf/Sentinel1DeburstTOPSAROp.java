@@ -41,7 +41,7 @@ import java.util.List;
  * De-Burst a Sentinel-1 TOPSAR product
  */
 @OperatorMetadata(alias = "DeburstTOPSAR",
-        category = "SAR Tools",
+        category = "SAR Tools\\SENTINEL-1",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2013 by Array Systems Computing Inc.",
         description="Debursts a Sentinel-1 TOPSAR product")
