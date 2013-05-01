@@ -102,7 +102,7 @@ public final class Sentinel1DeburstTOPSAROp extends Operator {
 
             getAcquisitionMode();
 
-            if(selectedPolarisations.length == 0) {
+            if(selectedPolarisations == null || selectedPolarisations.length == 0) {
                 selectedPolarisations = getProductPolarizations(absRoot, acquisitionMode);
             }
 
