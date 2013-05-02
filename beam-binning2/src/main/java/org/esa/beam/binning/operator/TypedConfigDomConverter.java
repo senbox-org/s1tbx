@@ -17,7 +17,7 @@ import org.esa.beam.binning.TypedDescriptorsRegistry;
  * @see TypedConfig
  * @see TypedDescriptor
  */
-public class TypedConfigDomConverter<TC extends TypedConfig, TD extends TypedDescriptor> implements DomConverter {
+public class TypedConfigDomConverter<TD extends TypedDescriptor, TC extends TypedConfig> implements DomConverter {
 
     private final Class<TD> descriptorClass;
     private final Class<TC> configClass;

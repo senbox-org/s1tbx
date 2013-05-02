@@ -9,7 +9,7 @@ import org.esa.beam.binning.AggregatorDescriptor;
 /**
  * @author Norman Fomferra
  */
-public class AggregatorConfigDomConverter extends TypedConfigDomConverter {
+public class AggregatorConfigDomConverter extends TypedConfigDomConverter<AggregatorDescriptor, AggregatorConfig> {
 
     public AggregatorConfigDomConverter() {
         super(AggregatorDescriptor.class, AggregatorConfig.class);
