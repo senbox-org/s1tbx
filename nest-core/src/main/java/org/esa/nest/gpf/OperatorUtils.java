@@ -693,6 +693,10 @@ public final class OperatorUtils {
                 int dataType = srcBand.getDataType();
                 if(outputFloat)
                     dataType = ProductData.TYPE_FLOAT32;
+                if(outputIntensity && (dataType == ProductData.TYPE_INT8 || dataType == ProductData.TYPE_INT16))
+                    dataType = ProductData.TYPE_INT32;
+                if(outputIntensity && (dataType == ProductData.TYPE_UINT8 || dataType == ProductData.TYPE_UINT16))
+                    dataType = ProductData.TYPE_UINT32;
 
                 final Band targetBand = new Band(targetBandName,
                                                  dataType,
