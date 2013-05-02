@@ -1,3 +1,4 @@
+package org.esa.beam.binning.cellprocessor;
 /*
  * Copyright (C) 2013 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
@@ -14,12 +15,10 @@
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-package org.esa.beam.binning.postprocessor;
-
 import com.bc.ceres.binding.PropertySet;
-import org.esa.beam.binning.PostProcessor;
-import org.esa.beam.binning.PostProcessorConfig;
-import org.esa.beam.binning.PostProcessorDescriptor;
+import org.esa.beam.binning.CellProcessor;
+import org.esa.beam.binning.CellProcessorConfig;
+import org.esa.beam.binning.CellProcessorDescriptor;
 import org.esa.beam.binning.VariableContext;
 import org.esa.beam.binning.Vector;
 import org.esa.beam.binning.WritableVector;
@@ -28,11 +27,11 @@ import org.esa.beam.framework.gpf.annotations.Parameter;
 /**
  * A cell processor that select a number of features from the available ones.
  */
-public class PPSelection extends PostProcessor{
+public class Selection extends CellProcessor {
 
     private final int[] varIndexes;
 
-    public PPSelection(VariableContext varCtx, String...outputFeatureNames) {
+    public Selection(VariableContext varCtx, String... outputFeatureNames) {
         super(outputFeatureNames);
         varIndexes = new int[outputFeatureNames.length];
         for (int i = 0; i < outputFeatureNames.length; i++) {
@@ -46,13 +45,13 @@ public class PPSelection extends PostProcessor{
     }
 
     @Override
-    public void compute(Vector outputVector, WritableVector postVector) {
+    public void compute(Vector inputVector, WritableVector outputVector) {
         for (int i = 0; i < varIndexes.length; i++) {
-            postVector.set(i, outputVector.get(varIndexes[i]));
+            outputVector.set(i, inputVector.get(varIndexes[i]));
         }
     }
 
-    public static class Config extends PostProcessorConfig {
+    public static class Config extends CellProcessorConfig {
         @Parameter(notEmpty = true, notNull = true)
         private String[] varNames;
 
@@ -63,7 +62,7 @@ public class PPSelection extends PostProcessor{
 
     }
 
-    public static class Descriptor implements PostProcessorDescriptor {
+    public static class Descriptor implements CellProcessorDescriptor {
 
         public static final String NAME = "Selection";
 
@@ -73,13 +72,13 @@ public class PPSelection extends PostProcessor{
         }
 
         @Override
-        public PostProcessor createPostProcessor(VariableContext varCtx, PostProcessorConfig postProcessorConfig) {
-            PropertySet propertySet = postProcessorConfig.asPropertySet();
-            return new PPSelection(varCtx, (String[]) propertySet.getValue("varNames"));
+        public CellProcessor createCellProcessor(VariableContext varCtx, CellProcessorConfig cellProcessorConfig) {
+            PropertySet propertySet = cellProcessorConfig.asPropertySet();
+            return new Selection(varCtx, (String[]) propertySet.getValue("varNames"));
         }
 
         @Override
-        public PostProcessorConfig createConfig() {
+        public CellProcessorConfig createConfig() {
             return new Config();
         }
     }

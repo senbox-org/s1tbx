@@ -30,7 +30,7 @@ import java.util.Map;
 public class BinManager {
 
     private final VariableContext variableContext;
-    private final PostProcessor postProcessor;
+    private final CellProcessor cellProcessor;
     private final Aggregator[] aggregators;
     private final int spatialFeatureCount;
     private final int temporalFeatureCount;
@@ -50,7 +50,7 @@ public class BinManager {
         this(variableContext, null, aggregators);
     }
 
-    public BinManager(VariableContext variableContext, PostProcessorConfig postProcessorConfig, Aggregator... aggregators) {
+    public BinManager(VariableContext variableContext, CellProcessorConfig cellProcessorConfig, Aggregator... aggregators) {
         this.variableContext = variableContext;
         this.aggregators = aggregators;
         this.spatialFeatureOffsets = new int[aggregators.length];
@@ -80,28 +80,28 @@ public class BinManager {
                 k++;
             }
         }
-        if (postProcessorConfig != null) {
-            this.postProcessor = createPostProcessor(postProcessorConfig, outputFeatureNames);
-            this.postFeatureNames = postProcessor.getOutputFeatureNames();
+        if (cellProcessorConfig != null) {
+            this.cellProcessor = createPostProcessor(cellProcessorConfig, outputFeatureNames);
+            this.postFeatureNames = cellProcessor.getOutputFeatureNames();
             this.postFeatureCount = this.postFeatureNames.length;
         } else {
-            this.postProcessor = null;
+            this.cellProcessor = null;
             this.postFeatureCount = 0;
             this.postFeatureNames = new String[0];
         }
     }
 
-    private static PostProcessor createPostProcessor(PostProcessorConfig config, String[] outputFeatureNames) {
+    private static CellProcessor createPostProcessor(CellProcessorConfig config, String[] outputFeatureNames) {
         VariableContextImpl variableContextAgg = new VariableContextImpl();
         for (String outputFeatureName : outputFeatureNames) {
             variableContextAgg.defineVariable(outputFeatureName);
         }
         TypedDescriptorsRegistry registry = TypedDescriptorsRegistry.getInstance();
-        PostProcessorDescriptor descriptor = registry.getDescriptor(PostProcessorDescriptor.class, config.getName());
+        CellProcessorDescriptor descriptor = registry.getDescriptor(CellProcessorDescriptor.class, config.getName());
         if (descriptor != null) {
-            return descriptor.createPostProcessor(variableContextAgg, config);
+            return descriptor.createCellProcessor(variableContextAgg, config);
         } else {
-            throw new IllegalArgumentException("Unknown post processor type: " + config.getName());
+            throw new IllegalArgumentException("Unknown cell processor type: " + config.getName());
         }
     }
 
@@ -261,7 +261,7 @@ public class BinManager {
     }
 
     public boolean hasPostProcessor() {
-        return postProcessor != null;
+        return cellProcessor != null;
     }
 
     public WritableVector createResultVector() {
@@ -277,7 +277,7 @@ public class BinManager {
     }
 
     public void postProcess(Vector outputVector, WritableVector postVector) {
-        postProcessor.compute(outputVector, postVector);
+        cellProcessor.compute(outputVector, postVector);
     }
 
     public void computeResult(TemporalBin temporalBin, WritableVector resultVector) {

@@ -17,9 +17,9 @@
 package org.esa.beam.binning;
 
 /**
- * A post processor to be executed on whole {@link Vector}s.
+ * A cell processor to be executed on whole {@link Vector}s.
  */
-public abstract class PostProcessor {
+public abstract class CellProcessor {
 
     private String[] outputFeatureNames;
 
@@ -27,9 +27,9 @@ public abstract class PostProcessor {
         return outputFeatureNames;
     }
 
-    protected PostProcessor(String[] outputFeatureNames) {
+    protected CellProcessor(String[] outputFeatureNames) {
         this.outputFeatureNames = outputFeatureNames;
     }
 
-    abstract public void compute(Vector outputVector, WritableVector postVector);
+    abstract public void compute(Vector inputVector, WritableVector outputVector);
 }

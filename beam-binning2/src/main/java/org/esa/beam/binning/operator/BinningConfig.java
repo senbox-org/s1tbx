@@ -22,9 +22,9 @@ import org.esa.beam.binning.AggregatorConfig;
 import org.esa.beam.binning.AggregatorDescriptor;
 import org.esa.beam.binning.BinManager;
 import org.esa.beam.binning.BinningContext;
+import org.esa.beam.binning.CellProcessorConfig;
 import org.esa.beam.binning.CompositingType;
 import org.esa.beam.binning.PlanetaryGrid;
-import org.esa.beam.binning.PostProcessorConfig;
 import org.esa.beam.binning.TypedDescriptorsRegistry;
 import org.esa.beam.binning.VariableContext;
 import org.esa.beam.binning.support.BinningContextImpl;
@@ -95,8 +95,8 @@ public class BinningConfig {
     @Parameter(alias = "aggregators", domConverter = AggregatorConfigDomConverter.class)
     private AggregatorConfig[] aggregatorConfigs;
 
-    @Parameter(alias = "postProcessor", domConverter = PostProcessorConfigDomConverter.class)
-    private PostProcessorConfig postProcessorConfig;
+    @Parameter(alias = "postProcessor", domConverter = CellProcessorConfigDomConverter.class)
+    private CellProcessorConfig cellProcessorConfig;
 
     public String getPlanetaryGrid() {
         return planetaryGrid;
@@ -154,12 +154,12 @@ public class BinningConfig {
         this.aggregatorConfigs = aggregatorConfigs;
     }
 
-    public PostProcessorConfig getPostProcessorConfig() {
-        return postProcessorConfig;
+    public CellProcessorConfig getPostProcessorConfig() {
+        return cellProcessorConfig;
     }
 
-    public void setPostProcessorConfig(PostProcessorConfig postProcessorConfig) {
-        this.postProcessorConfig = postProcessorConfig;
+    public void setPostProcessorConfig(CellProcessorConfig cellProcessorConfig) {
+        this.cellProcessorConfig = cellProcessorConfig;
     }
 
     public static BinningConfig fromXml(String xml) throws BindingException {
@@ -231,7 +231,7 @@ public class BinningConfig {
     }
 
     protected BinManager createBinManager(VariableContext variableContext, Aggregator[] aggregators) {
-        return new BinManager(variableContext, postProcessorConfig, aggregators);
+        return new BinManager(variableContext, cellProcessorConfig, aggregators);
     }
 
     public VariableContext createVariableContext() {

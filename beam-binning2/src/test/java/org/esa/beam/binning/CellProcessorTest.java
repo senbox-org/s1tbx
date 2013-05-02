@@ -17,7 +17,7 @@
 package org.esa.beam.binning;
 
 import org.esa.beam.binning.aggregators.AggregatorMinMax;
-import org.esa.beam.binning.postprocessor.PPSelection;
+import org.esa.beam.binning.cellprocessor.Selection;
 import org.esa.beam.binning.support.ObservationImpl;
 import org.junit.Test;
 
@@ -25,7 +25,7 @@ import java.io.IOException;
 
 import static org.junit.Assert.*;
 
-public class PostProcessorTest {
+public class CellProcessorTest {
 
     @Test
     public void testBinningWithoutPostProcessor() throws IOException {
@@ -49,7 +49,7 @@ public class PostProcessorTest {
     public void testBinningWithPostProcessor() throws IOException {
         MyVariableContext variableContext = new MyVariableContext("A");
         AggregatorMinMax aggregator = new AggregatorMinMax(variableContext, "A");
-        PPSelection.Config ppSelection = new PPSelection.Config("A_max");
+        Selection.Config ppSelection = new Selection.Config("A_max");
         BinManager bman = new BinManager(variableContext, ppSelection, aggregator);
 
         TemporalBin tbin = doBinning(bman);
@@ -97,17 +97,17 @@ public class PostProcessorTest {
         return tbin;
     }
 
-    private static class Times100PortProcessor extends PostProcessor {
+    private static class Times100PortProcessor extends CellProcessor {
 
         private Times100PortProcessor(String... outputFeatureNames) {
             super(outputFeatureNames);
         }
 
         @Override
-        public void compute(Vector outputVector, WritableVector postVector) {
-            int size = outputVector.size();
+        public void compute(Vector inputVector, WritableVector outputVector) {
+            int size = inputVector.size();
             for (int i = 0; i < size; i++) {
-                postVector.set(i, outputVector.get(i) * 100);
+                outputVector.set(i, inputVector.get(i) * 100);
             }
         }
     }

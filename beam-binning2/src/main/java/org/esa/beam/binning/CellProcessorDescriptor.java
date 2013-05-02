@@ -17,12 +17,12 @@
 package org.esa.beam.binning;
 
 /**
- * A descriptor for  binning post processor.
+ * A descriptor for a binning cell processor.
  *
  * @author MarcoZ
  * @author Norman
  */
-public interface PostProcessorDescriptor extends TypedDescriptor<PostProcessorConfig> {
+public interface CellProcessorDescriptor extends TypedDescriptor<CellProcessorConfig> {
 
-    PostProcessor createPostProcessor(VariableContext varCtx, PostProcessorConfig postProcessorConfig);
+    CellProcessor createCellProcessor(VariableContext varCtx, CellProcessorConfig cellProcessorConfig);
 }
