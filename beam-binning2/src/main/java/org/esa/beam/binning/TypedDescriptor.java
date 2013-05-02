@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -14,18 +14,17 @@
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-package org.esa.beam.binning.operator;
-
-import org.esa.beam.binning.PostProcessorConfig;
-import org.esa.beam.binning.PostProcessorDescriptor;
+package org.esa.beam.binning;
 
 /**
- * @author Norman Fomferra
+ * A descriptor for typed "things".
+ *
+ * @author MarcoZ
+ * @author Norman
  */
-public class PostProcessorConfigDomConverter  extends TypedConfigDomConverter {
+public interface TypedDescriptor<TC> {
 
-    public PostProcessorConfigDomConverter() {
-        super(PostProcessorDescriptor.class, PostProcessorConfig.class);
-    }
+    String getName();
 
+    TC createConfig();
 }

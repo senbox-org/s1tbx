@@ -18,7 +18,7 @@ package org.esa.beam.binning.operator.ui;
 
 import com.bc.ceres.binding.ValidationException;
 import org.esa.beam.binning.AggregatorDescriptor;
-import org.esa.beam.binning.AggregatorDescriptorRegistry;
+import org.esa.beam.binning.TypedDescriptorsRegistry;
 import org.esa.beam.binning.aggregators.AggregatorAverage;
 import org.esa.beam.binning.aggregators.AggregatorOnMaxSet;
 import org.esa.beam.framework.datamodel.Product;
@@ -152,7 +152,8 @@ class VariableConfigTable {
     }
 
     private List<AggregatorDescriptor> getAggregatorDescriptors(String... filterNames) {
-        final AggregatorDescriptor[] allDescriptors = AggregatorDescriptorRegistry.getInstance().getAggregatorDescriptors();
+        TypedDescriptorsRegistry registry = TypedDescriptorsRegistry.getInstance();
+        List<AggregatorDescriptor> allDescriptors = registry.getDescriptors(AggregatorDescriptor.class);
         final List<AggregatorDescriptor> filteredDescriptors = new ArrayList<AggregatorDescriptor>();
         for (final AggregatorDescriptor descriptor : allDescriptors) {
             for (String name : filterNames) {
@@ -315,9 +316,10 @@ class VariableConfigTable {
         public void tableChanged(TableModelEvent event) {
             TableRow[] tableRows = new TableRow[bandsTable.getRows().length];
             Row[] rows = bandsTable.getRows();
+            TypedDescriptorsRegistry registry = TypedDescriptorsRegistry.getInstance();
             for (int i = 0; i < rows.length; i++) {
                 Row row = rows[i];
-                AggregatorDescriptor aggregatorDescriptor = AggregatorDescriptorRegistry.getInstance().getAggregatorDescriptor(row.algorithmName);
+                AggregatorDescriptor aggregatorDescriptor = registry.getDescriptor(AggregatorDescriptor.class, row.algorithmName);
                 int percentile = 0;
                 if (hasAggregatorChanged(event) || aggregatorDescriptor.getName().equals("PERCENTILE")) {
                     percentile = 90;

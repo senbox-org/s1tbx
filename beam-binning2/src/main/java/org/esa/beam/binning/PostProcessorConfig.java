@@ -16,76 +16,18 @@
 
 package org.esa.beam.binning;
 
-import com.bc.ceres.binding.Property;
-import com.bc.ceres.binding.PropertyContainer;
-import com.bc.ceres.binding.PropertySet;
-import org.esa.beam.framework.gpf.annotations.Parameter;
-import org.esa.beam.framework.gpf.annotations.ParameterDescriptorFactory;
-import org.esa.beam.util.ObjectUtils;
-
 /**
  * Configuration of a binning post processor.
  *
  * @author Norman Fomferra
  * @see PostProcessor
  */
-public abstract class PostProcessorConfig {
-    @Parameter(alias = "type")
-    protected String type;
-
-    private transient PropertySet propertySet;
+public abstract class PostProcessorConfig extends TypedConfig {
 
     public PostProcessorConfig() {
     }
 
-    public PostProcessorConfig(String aggregatorName) {
-        this.type = aggregatorName;
-    }
-
-    public PropertySet asPropertySet() {
-        if (propertySet == null) {
-            propertySet = PropertyContainer.createObjectBacked(this, new ParameterDescriptorFactory());
-        }
-        return propertySet;
-    }
-
-    public String getPostProcessorName() {
-        return type;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof PostProcessorConfig)) return false;
-
-        PostProcessorConfig that = (PostProcessorConfig) o;
-
-        PropertySet ps1 = asPropertySet();
-        PropertySet ps2 = that.asPropertySet();
-        Property[] properties1 = ps1.getProperties();
-        Property[] properties2 = ps2.getProperties();
-        if (properties1.length != properties2.length) {
-            return false;
-        }
-        for (Property p1 : properties1) {
-            Object v1 = p1.getValue();
-            Object v2 = ps2.getValue(p1.getName());
-            if (!ObjectUtils.equalObjects(v1, v2)) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    @Override
-    public int hashCode() {
-        int code = 0;
-        for (Property property : propertySet.getProperties()) {
-            String name = property.getName();
-            Object value = property.getValue();
-            code = 31 * code + name.hashCode();
-            code = 31 * code + (value != null ? value.hashCode() : 0);
-        }
-        return code;
+    public PostProcessorConfig(String typeName) {
+        super(typeName);
     }
 }

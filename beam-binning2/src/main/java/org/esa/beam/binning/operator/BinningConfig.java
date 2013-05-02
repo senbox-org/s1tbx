@@ -20,12 +20,12 @@ import com.bc.ceres.binding.BindingException;
 import org.esa.beam.binning.Aggregator;
 import org.esa.beam.binning.AggregatorConfig;
 import org.esa.beam.binning.AggregatorDescriptor;
-import org.esa.beam.binning.AggregatorDescriptorRegistry;
 import org.esa.beam.binning.BinManager;
 import org.esa.beam.binning.BinningContext;
 import org.esa.beam.binning.CompositingType;
 import org.esa.beam.binning.PlanetaryGrid;
 import org.esa.beam.binning.PostProcessorConfig;
+import org.esa.beam.binning.TypedDescriptorsRegistry;
 import org.esa.beam.binning.VariableContext;
 import org.esa.beam.binning.support.BinningContextImpl;
 import org.esa.beam.binning.support.SEAGrid;
@@ -217,14 +217,14 @@ public class BinningConfig {
 
     public Aggregator[] createAggregators(VariableContext variableContext) {
         Aggregator[] aggregators = new Aggregator[aggregatorConfigs.length];
+        TypedDescriptorsRegistry registry = TypedDescriptorsRegistry.getInstance();
         for (int i = 0; i < aggregators.length; i++) {
             AggregatorConfig aggregatorConfig = aggregatorConfigs[i];
-            AggregatorDescriptor descriptor = AggregatorDescriptorRegistry.getInstance().getAggregatorDescriptor(
-                    aggregatorConfig.getAggregatorName());
+            AggregatorDescriptor descriptor = registry.getDescriptor(AggregatorDescriptor.class, aggregatorConfig.getName());
             if (descriptor != null) {
                 aggregators[i] = descriptor.createAggregator(variableContext, aggregatorConfig);
             } else {
-                throw new IllegalArgumentException("Unknown aggregator type: " + aggregatorConfig.getAggregatorName());
+                throw new IllegalArgumentException("Unknown aggregator type: " + aggregatorConfig.getName());
             }
         }
         return aggregators;

@@ -96,12 +96,12 @@ public class BinManager {
         for (String outputFeatureName : outputFeatureNames) {
             variableContextAgg.defineVariable(outputFeatureName);
         }
-        PostProcessorDescriptorRegistry registry = PostProcessorDescriptorRegistry.getInstance();
-        PostProcessorDescriptor descriptor = registry.getPostProcessorDescriptor(config.getPostProcessorName());
+        TypedDescriptorsRegistry registry = TypedDescriptorsRegistry.getInstance();
+        PostProcessorDescriptor descriptor = registry.getDescriptor(PostProcessorDescriptor.class, config.getName());
         if (descriptor != null) {
             return descriptor.createPostProcessor(variableContextAgg, config);
         } else {
-            throw new IllegalArgumentException("Unknown post processor type: " + config.getPostProcessorName());
+            throw new IllegalArgumentException("Unknown post processor type: " + config.getName());
         }
     }
 

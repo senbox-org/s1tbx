@@ -22,11 +22,7 @@ package org.esa.beam.binning;
  * @author MarcoZ
  * @author Norman
  */
-public interface PostProcessorDescriptor {
-
-    String getName();
-
-    PostProcessorConfig createPostProcessorConfig();
+public interface PostProcessorDescriptor extends TypedDescriptor<PostProcessorConfig> {
 
     PostProcessor createPostProcessor(VariableContext varCtx, PostProcessorConfig postProcessorConfig);
 }
