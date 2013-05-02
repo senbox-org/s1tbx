@@ -51,7 +51,6 @@ import org.esa.beam.util.converters.JtsGeometryConverter;
 import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.util.io.WildcardMatcher;
 import org.geotools.geometry.jts.JTS;
-import ucar.ma2.InvalidRangeException;
 
 import java.awt.geom.Area;
 import java.awt.geom.GeneralPath;
@@ -638,22 +637,19 @@ public class BinningOp extends Operator implements Output {
                                     ProductData.UTC stopTime) throws IOException {
         initBinWriter(startTime, stopTime);
         getLogger().info(String.format("Writing binned data to '%s'...", binWriter.getTargetFilePath()));
-        try {
-            binWriter.write(metadataProperties, temporalBins);
-        } catch (InvalidRangeException e) {
-            throw new IllegalArgumentException(e);
-        }
+        binWriter.write(metadataProperties, temporalBins);
         getLogger().info(String.format("Writing binned data to '%s' done.", binWriter.getTargetFilePath()));
 
     }
 
     private void initBinWriter(ProductData.UTC startTime, ProductData.UTC stopTime) {
         if (binWriter == null) {
-            binWriter = new SeaDASLevel3BinWriter(binningContext, region,
+            binWriter = new SeaDASLevel3BinWriter(region,
                                                   startTime != null ? startTime : minDateUtc,
                                                   stopTime != null ? stopTime : maxDateUtc);
         }
 
+        binWriter.setBinningContext(binningContext);
         binWriter.setTargetFileTemplatePath(formatterConfig.getOutputFile());
         binWriter.setLogger(getLogger());
 

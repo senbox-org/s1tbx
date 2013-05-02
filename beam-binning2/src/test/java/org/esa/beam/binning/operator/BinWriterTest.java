@@ -156,7 +156,8 @@ public class BinWriterTest {
         BinManager binManager = new BinManager(variableContext, new AggregatorMinMax(variableContext, "test"));
         BinningContextImpl binningContext = new BinningContextImpl(seaGrid, binManager, CompositingType.BINNING, 1);
         Geometry region = JTS.shapeToGeometry(new Rectangle2D.Double(-180, -90, 360, 180), new GeometryFactory());
-        SeaDASLevel3BinWriter binWriter = new SeaDASLevel3BinWriter(binningContext, region, null, null);
+        SeaDASLevel3BinWriter binWriter = new SeaDASLevel3BinWriter(region, null, null);
+        binWriter.setBinningContext(binningContext);
         binWriter.setTargetFileTemplatePath(tempFile.getAbsolutePath());
         binWriter.setLogger(Logger.getLogger("BinWriterTest"));
         return binWriter;

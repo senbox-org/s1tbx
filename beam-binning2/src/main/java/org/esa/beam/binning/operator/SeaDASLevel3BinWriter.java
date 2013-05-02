@@ -35,25 +35,29 @@ import java.util.logging.Logger;
  */
 class SeaDASLevel3BinWriter implements BinWriter {
 
-    final static int BUFFER_SIZE = 4096;
-    private final BinningContext binningContext;
+    private final static int BUFFER_SIZE = 4096;
     private final Geometry region;
     private final ProductData.UTC startTime;
     private final ProductData.UTC stopTime;
-    private final SeadasGrid seadasGrid;
-    private final PlanetaryGrid planetaryGrid;
+    private BinningContext binningContext;
+    private SeadasGrid seadasGrid;
+    private PlanetaryGrid planetaryGrid;
     private File targetFilePath;
     private Logger logger;
 
-    public SeaDASLevel3BinWriter(BinningContext binningContext, Geometry region, ProductData.UTC startTime,
+    public SeaDASLevel3BinWriter(Geometry region, ProductData.UTC startTime,
                                  ProductData.UTC stopTime) {
-        this.binningContext = binningContext;
         this.region = region;
         this.startTime = startTime;
         this.stopTime = stopTime;
+        this.logger = BeamLogManager.getSystemLogger();
+    }
+
+    @Override
+    public void setBinningContext(BinningContext binningContext) {
+        this.binningContext = binningContext;
         planetaryGrid = binningContext.getPlanetaryGrid();
         this.seadasGrid = new SeadasGrid(planetaryGrid);
-        this.logger = BeamLogManager.getSystemLogger();
     }
 
     @Override
@@ -72,8 +76,7 @@ class SeaDASLevel3BinWriter implements BinWriter {
     }
 
     @Override
-    public void write(Map<String, String> metadataProperties,
-                      List<TemporalBin> temporalBins) throws IOException, InvalidRangeException {
+    public void write(Map<String, String> metadataProperties, List<TemporalBin> temporalBins) throws IOException {
 
         final NetcdfFileWriteable netcdfFile = NetcdfFileWriteable.createNew(targetFilePath.getAbsolutePath());
 
@@ -154,8 +157,12 @@ class SeaDASLevel3BinWriter implements BinWriter {
         }
 
         netcdfFile.create();
-        writeBinIndexVariables(netcdfFile, rowNumVar, vsizeVar, hsizeVar, startNumVar, maxVar);
-        writeBinListVariables(netcdfFile, binNumVar, numObsVar, numScenesVar, featureVars, beginOffsetVar, beginVar, extendVar, temporalBins);
+        try {
+            writeBinIndexVariables(netcdfFile, rowNumVar, vsizeVar, hsizeVar, startNumVar, maxVar);
+            writeBinListVariables(netcdfFile, binNumVar, numObsVar, numScenesVar, featureVars, beginOffsetVar, beginVar, extendVar, temporalBins);
+        } catch (InvalidRangeException e) {
+            throw new IOException(e);
+        }
         netcdfFile.close();
     }
 
