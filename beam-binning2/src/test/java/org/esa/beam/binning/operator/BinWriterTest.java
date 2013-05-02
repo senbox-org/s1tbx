@@ -29,15 +29,18 @@ import static org.junit.Assert.*;
  */
 public class BinWriterTest {
 
-    private File tempFile;
+    private int numRows;
+    private BinWriter binWriter;
 
     @Before
     public void setUp() throws Exception {
-        tempFile = File.createTempFile("BinWriterTest-temp", ".nc");
+        numRows = 216;
+        binWriter = createBinWriter(File.createTempFile("BinWriterTest-temp", ".nc"), numRows);
     }
 
     @After
     public void tearDown() throws Exception {
+        File tempFile = new File(binWriter.getTargetFilePath());
         if (!tempFile.delete()) {
             tempFile.deleteOnExit();
         }
@@ -45,8 +48,6 @@ public class BinWriterTest {
 
     @Test
     public void testWriting() throws Exception {
-        int numRows = 216;
-        BinWriter binWriter = createBinWriter(numRows);
         HashMap<String, String> metadataProperties = new HashMap<String, String>();
         metadataProperties.put("test", "Spongebob");
         ArrayList<TemporalBin> temporalBins = new ArrayList<TemporalBin>();
@@ -61,9 +62,9 @@ public class BinWriterTest {
             temporalBin.setNumPasses(i + 1);
         }
 
-        binWriter.write(tempFile, metadataProperties, temporalBins);
+        binWriter.write(metadataProperties, temporalBins);
 
-        NetcdfFile netcdfFile = NetcdfFile.open(tempFile.getPath());
+        NetcdfFile netcdfFile = NetcdfFile.open(binWriter.getTargetFilePath());
         assertNotNull(netcdfFile.findGlobalAttribute("title"));
         assertNotNull(netcdfFile.findGlobalAttribute("super_sampling"));
         assertEquals(numRows * 2, netcdfFile.findGlobalAttribute("SEAGrid_bins").getNumericValue());
@@ -148,14 +149,17 @@ public class BinWriterTest {
 
     }
 
-    private BinWriter createBinWriter(int numRows) {
+    private BinWriter createBinWriter(File tempFile, int numRows) {
         SEAGrid seaGrid = new SEAGrid(numRows);
         VariableContextImpl variableContext = new VariableContextImpl();
         variableContext.defineVariable("test", "blah");
         BinManager binManager = new BinManager(variableContext, new AggregatorMinMax(variableContext, "test"));
         BinningContextImpl binningContext = new BinningContextImpl(seaGrid, binManager, CompositingType.BINNING, 1);
         Geometry region = JTS.shapeToGeometry(new Rectangle2D.Double(-180, -90, 360, 180), new GeometryFactory());
-        return new BinWriter(binningContext, Logger.getLogger("BinWriterTest"), region, null, null);
+        SeaDASLevel3BinWriter binWriter = new SeaDASLevel3BinWriter(binningContext, region, null, null);
+        binWriter.setTargetFileTemplatePath(tempFile.getAbsolutePath());
+        binWriter.setLogger(Logger.getLogger("BinWriterTest"));
+        return binWriter;
     }
 
 }
