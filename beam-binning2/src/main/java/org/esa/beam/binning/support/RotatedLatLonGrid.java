@@ -2,7 +2,6 @@ package org.esa.beam.binning.support;
 
 import org.esa.beam.binning.PlanetaryGrid;
 import org.esa.beam.framework.datamodel.Rotator;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 /**
  * A {@link PlanetaryGrid} implementation representing a rotated Lat/Lon grid.
