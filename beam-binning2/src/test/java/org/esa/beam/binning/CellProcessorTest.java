@@ -17,7 +17,7 @@
 package org.esa.beam.binning;
 
 import org.esa.beam.binning.aggregators.AggregatorMinMax;
-import org.esa.beam.binning.cellprocessor.Selection;
+import org.esa.beam.binning.cellprocessor.FeatureSelection;
 import org.esa.beam.binning.support.ObservationImpl;
 import org.junit.Test;
 
@@ -49,7 +49,7 @@ public class CellProcessorTest {
     public void testBinningWithPostProcessor() throws IOException {
         MyVariableContext variableContext = new MyVariableContext("A");
         AggregatorMinMax aggregator = new AggregatorMinMax(variableContext, "A");
-        Selection.Config ppSelection = new Selection.Config("A_max");
+        FeatureSelection.Config ppSelection = new FeatureSelection.Config("A_max");
         BinManager bman = new BinManager(variableContext, ppSelection, aggregator);
 
         TemporalBin tbin = doBinning(bman);
