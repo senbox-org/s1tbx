@@ -166,6 +166,8 @@ public class RangeDopplerGeocodingOp extends Operator {
 
     private MetadataElement absRoot = null;
     private ElevationModel dem = null;
+    private Band elevationBand = null;
+    private float demNoDataValue = 0.0f; // no data value for DEM
     private GeoCoding targetGeoCoding = null;
 
     private boolean srgrFlag = false;
@@ -186,7 +188,6 @@ public class RangeDopplerGeocodingOp extends Operator {
     private double lastLineUTC = 0.0; // in days
     private double lineTimeInterval = 0.0; // in days
     private double nearEdgeSlantRange = 0.0; // in m
-    private float demNoDataValue = 0.0f; // no data value for DEM
 
     private CoordinateReferenceSystem targetCRS;
     private double delLat = 0.0;
@@ -456,6 +457,12 @@ public class RangeDopplerGeocodingOp extends Operator {
             dem = DEMFactory.createElevationModel(demName, demResamplingMethod);
             demNoDataValue = dem.getDescriptor().getNoDataValue();
         }
+
+        if(elevationBand != null) {
+            elevationBand.setNoDataValue(demNoDataValue);
+            elevationBand.setNoDataValueUsed(true);
+        }
+
         isElevationModelAvailable = true;
     }
 
@@ -628,11 +635,7 @@ public class RangeDopplerGeocodingOp extends Operator {
         }
 
         if(saveDEM) {
-            final Band elevBand = addTargetBand("elevation", Unit.METERS, null);
-            if(externalDEMFile != null)
-                demNoDataValue = (float)externalDEMNoDataValue;
-            elevBand.setNoDataValue(demNoDataValue);
-            elevBand.setNoDataValueUsed(true);
+            elevationBand = addTargetBand("elevation", Unit.METERS, null);
         }
 
         if(saveLocalIncidenceAngle) {

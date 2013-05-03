@@ -172,6 +172,7 @@ public class SARSimTerrainCorrectionOp extends Operator {
     private boolean fileOutput = false;
 
     private String demName = null;
+    private Band elevationBand = null;
 
     private int sourceImageWidth = 0;
     private int sourceImageHeight = 0;
@@ -265,13 +266,15 @@ public class SARSimTerrainCorrectionOp extends Operator {
                 saveDEM = false;
                 saveLocalIncidenceAngle = false;
                 saveProjectedLocalIncidenceAngle = false;
-            } else {
-                getElevationModel();
             }
 
             imgResampling = ResamplingFactory.createResampling(imgResamplingMethod);
 
             createTargetProduct();
+
+            if(!useAvgSceneHeight) {
+                getElevationModel();
+            }
 
             processedSlaveBand = absRoot.getAttributeString("processed_slave");
 
@@ -418,6 +421,12 @@ public class SARSimTerrainCorrectionOp extends Operator {
             dem = DEMFactory.createElevationModel(demName, demResamplingMethod);
             demNoDataValue = dem.getDescriptor().getNoDataValue();
         }
+
+        if(elevationBand != null) {
+            elevationBand.setNoDataValue(demNoDataValue);
+            elevationBand.setNoDataValueUsed(true);
+        }
+
         isElevationModelAvailable = true;
     }
 
@@ -548,7 +557,8 @@ public class SARSimTerrainCorrectionOp extends Operator {
                     targetBandName = "Sigma0";
                 }
 
-                if (addTargetBand(targetBandName, Unit.INTENSITY, srcBand) != null) {
+                if (RangeDopplerGeocodingOp.addTargetBand(targetProduct, targetImageWidth, targetImageHeight,
+                        targetBandName, Unit.INTENSITY, srcBand, ProductData.TYPE_FLOAT32) != null) {
                     targetBandNameToSourceBandName.put(targetBandName, srcBandNames);
                     targetBandapplyRadiometricNormalizationFlag.put(targetBandName, true);
                     if (usePreCalibrationOp) {
@@ -575,15 +585,18 @@ public class SARSimTerrainCorrectionOp extends Operator {
         }
 
         if(saveDEM) {
-            addTargetBand("elevation", Unit.METERS, null);
+            elevationBand = RangeDopplerGeocodingOp.addTargetBand(targetProduct, targetImageWidth, targetImageHeight,
+                    "elevation", Unit.METERS, null, ProductData.TYPE_FLOAT32);
         }
 
         if(saveLocalIncidenceAngle) {
-            addTargetBand("incidenceAngle", Unit.DEGREES, null);
+            RangeDopplerGeocodingOp.addTargetBand(targetProduct, targetImageWidth, targetImageHeight,
+                    "incidenceAngle", Unit.DEGREES, null, ProductData.TYPE_FLOAT32);
         }
 
         if(saveProjectedLocalIncidenceAngle) {
-            addTargetBand("projectedIncidenceAngle", Unit.DEGREES, null);
+            RangeDopplerGeocodingOp.addTargetBand(targetProduct, targetImageWidth, targetImageHeight,
+                    "projectedIncidenceAngle", Unit.DEGREES, null, ProductData.TYPE_FLOAT32);
         }
 
         if (saveLayoverShadowMask) {
@@ -596,7 +609,8 @@ public class SARSimTerrainCorrectionOp extends Operator {
         }
 
         if (saveIncidenceAngleFromEllipsoid) {
-            addTargetBand("incidenceAngleFromEllipsoid", Unit.DEGREES, null);
+            RangeDopplerGeocodingOp.addTargetBand(targetProduct, targetImageWidth, targetImageHeight,
+                    "incidenceAngleFromEllipsoid", Unit.DEGREES, null, ProductData.TYPE_FLOAT32);
         }
 
         if (saveSigmaNought && !incidenceAngleForSigma0.contains(Constants.USE_PROJECTED_INCIDENCE_ANGLE_FROM_DEM)) {
@@ -610,12 +624,6 @@ public class SARSimTerrainCorrectionOp extends Operator {
         if (saveBetaNought) {
             CalibrationFactory.createBetaNoughtVirtualBand(targetProduct);
         }
-    }
-
-    private Band addTargetBand(final String bandName, final String bandUnit, final Band sourceBand) {
-
-        return RangeDopplerGeocodingOp.addTargetBand(targetProduct, targetImageWidth, targetImageHeight,
-                                    bandName, bandUnit, sourceBand, ProductData.TYPE_FLOAT32);
     }
 
     /**
