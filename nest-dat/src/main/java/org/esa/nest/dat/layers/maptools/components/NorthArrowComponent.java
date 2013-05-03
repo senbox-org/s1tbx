@@ -34,7 +34,6 @@ public class NorthArrowComponent implements MapToolsComponent {
     private final PixelPos tail, head, dispTail, dispHead;
     private double angle;
     private final static double marginPct = 0.05;
-    private final static int length = 100;
     private ArrowOverlay arrow;
 
     public NorthArrowComponent(final RasterDataNode raster) {
@@ -63,7 +62,8 @@ public class NorthArrowComponent implements MapToolsComponent {
             angle += Math.PI;
         }
 
-        // determine distance of 100 pixels
+        // determine distance of 5% of diagonal
+        final int length = (int)(0.05 * FastMath.hypot(rasterWidth, rasterHeight));
         final GeoPos x100Geo = geoCoding.getGeoPos(new PixelPos(margin+length, margin), null);
         final GeoUtils.DistanceHeading dist = GeoUtils.vincenty_inverse(point1Geo.getLon(), point1Geo.getLat(), x100Geo.getLon(), x100Geo.getLat());
 
