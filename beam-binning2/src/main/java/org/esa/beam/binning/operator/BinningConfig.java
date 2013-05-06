@@ -96,7 +96,7 @@ public class BinningConfig {
     private AggregatorConfig[] aggregatorConfigs;
 
     @Parameter(alias = "postProcessor", domConverter = CellProcessorConfigDomConverter.class)
-    private CellProcessorConfig cellProcessorConfig;
+    private CellProcessorConfig postProcessorConfig;
 
     public String getPlanetaryGrid() {
         return planetaryGrid;
@@ -155,11 +155,11 @@ public class BinningConfig {
     }
 
     public CellProcessorConfig getPostProcessorConfig() {
-        return cellProcessorConfig;
+        return postProcessorConfig;
     }
 
     public void setPostProcessorConfig(CellProcessorConfig cellProcessorConfig) {
-        this.cellProcessorConfig = cellProcessorConfig;
+        this.postProcessorConfig = cellProcessorConfig;
     }
 
     public static BinningConfig fromXml(String xml) throws BindingException {
@@ -231,7 +231,7 @@ public class BinningConfig {
     }
 
     protected BinManager createBinManager(VariableContext variableContext, Aggregator[] aggregators) {
-        return new BinManager(variableContext, cellProcessorConfig, aggregators);
+        return new BinManager(variableContext, postProcessorConfig, aggregators);
     }
 
     public VariableContext createVariableContext() {
