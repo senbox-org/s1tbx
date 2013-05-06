@@ -69,7 +69,7 @@ public abstract class Bin implements BinContext {
         return featureValues;
     }
 
-    public Vector toVector() {
+    public WritableVector toVector() {
         return new VectorImpl(getFeatureValues());
     }
 

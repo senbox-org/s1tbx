@@ -16,8 +16,6 @@
 
 package org.esa.beam.binning;
 
-import org.esa.beam.binning.support.VectorImpl;
-
 import java.io.IOException;
 
 /**
@@ -39,15 +37,13 @@ public class TemporalBinner {
     }
 
     public TemporalBin computeOutput(long binIndex, TemporalBin temporalBin) {
-        final int outputFeatureCount = binManager.getOutputFeatureCount();
-        final TemporalBin temporalOutputBin = new TemporalBin(binIndex, outputFeatureCount);
-        final WritableVector outputVector = new VectorImpl(temporalOutputBin.getFeatureValues());
-        binManager.computeOutput(temporalBin, outputVector);
+        TemporalBin outputBin = binManager.createOutputBin(binIndex);
+        binManager.computeOutput(temporalBin, outputBin.toVector());
 
         // will be removed soon TODO
-        temporalOutputBin.setNumObs(temporalBin.getNumObs());
-        temporalOutputBin.setNumPasses(temporalBin.getNumPasses());
+        outputBin.setNumObs(temporalBin.getNumObs());
+        outputBin.setNumPasses(temporalBin.getNumPasses());
 
-        return temporalOutputBin;
+        return outputBin;
     }
 }

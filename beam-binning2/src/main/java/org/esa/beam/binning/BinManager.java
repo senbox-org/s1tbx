@@ -240,6 +240,10 @@ public class BinManager {
         }
     }
 
+    public TemporalBin createOutputBin(long binIndex) {
+        return new TemporalBin(binIndex, outputFeatureCount);
+    }
+
     public void computeOutput(TemporalBin temporalBin, WritableVector outputVector) {
         final VectorImpl temporalVector = new VectorImpl(temporalBin.featureValues);
         final VectorImpl outputVectorImpl = (VectorImpl) outputVector;
@@ -272,6 +276,10 @@ public class BinManager {
 
     public boolean hasPostProcessor() {
         return cellProcessor != null;
+    }
+
+    public TemporalBin createProcessBin(long binIndex) {
+        return new TemporalBin(binIndex, postFeatureCount);
     }
 
     public void postProcess(Vector outputVector, WritableVector postVector) {

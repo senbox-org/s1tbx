@@ -17,14 +17,9 @@ public class CellProcessorChain {
     public TemporalBin process(TemporalBin temporalBin) {
         if (binManager.hasPostProcessor()) {
             WritableVector temporalVector = new VectorImpl(temporalBin.getFeatureValues());
-
-            int postProcessFeatureCount = binManager.getPostProcessFeatureCount();
-            TemporalBin processedBin = new TemporalBin(temporalBin.getIndex(), postProcessFeatureCount);
-            WritableVector processedVector = new VectorImpl(processedBin.getFeatureValues());
-
-            binManager.postProcess(temporalVector, processedVector);
-
-            return processedBin;
+            TemporalBin processBin = binManager.createProcessBin(temporalBin.getIndex());
+            binManager.postProcess(temporalVector, processBin.toVector());
+            return processBin;
         } else {
             return temporalBin;
         }
