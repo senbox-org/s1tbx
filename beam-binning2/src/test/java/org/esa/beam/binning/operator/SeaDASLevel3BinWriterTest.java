@@ -9,69 +9,64 @@ import org.esa.beam.binning.aggregators.AggregatorMinMax;
 import org.esa.beam.binning.support.BinningContextImpl;
 import org.esa.beam.binning.support.SEAGrid;
 import org.esa.beam.binning.support.VariableContextImpl;
+import org.esa.beam.framework.datamodel.ProductData;
 import org.geotools.geometry.jts.JTS;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import ucar.ma2.Array;
+import ucar.nc2.Attribute;
 import ucar.nc2.NetcdfFile;
 
 import java.awt.geom.Rectangle2D;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.logging.Logger;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * @author Marco Peters
  */
-public class BinWriterTest {
+public class SeaDASLevel3BinWriterTest {
 
     private int numRows;
     private BinWriter binWriter;
+    private File tempFile;
 
     @Before
     public void setUp() throws Exception {
         numRows = 216;
-        binWriter = createBinWriter(File.createTempFile("BinWriterTest-temp", ".nc"), numRows);
+        tempFile = File.createTempFile("SeaDASLevel3BinWriterTest-temp", ".nc");
+        binWriter = createBinWriter(tempFile, numRows);
     }
 
     @After
     public void tearDown() throws Exception {
-        File tempFile = new File(binWriter.getTargetFilePath());
-        if (!tempFile.delete()) {
-            tempFile.deleteOnExit();
+        if (tempFile != null) {
+            if (!tempFile.delete()) {
+                tempFile.deleteOnExit();
+            }
         }
     }
 
     @Test
     public void testWriting() throws Exception {
-        HashMap<String, String> metadataProperties = new HashMap<String, String>();
-        metadataProperties.put("test", "Spongebob");
-        ArrayList<TemporalBin> temporalBins = new ArrayList<TemporalBin>();
-        temporalBins.add(new TemporalBin(12345, 2));
-        temporalBins.add(new TemporalBin(12346, 2));
-        float[][] data = new float[][]{{0.004f, 0.14f}, {0.398f, 0.89f}};
-        for (int i = 0; i < temporalBins.size(); i++) {
-            TemporalBin temporalBin = temporalBins.get(i);
-            temporalBin.getFeatureValues()[0] = data[i][0];
-            temporalBin.getFeatureValues()[1] = data[i][1];
-            temporalBin.setNumObs(i + 1);
-            temporalBin.setNumPasses(i + 1);
-        }
+        final HashMap<String, String> metadataProperties = createMetadataProperties();
+        final ArrayList<TemporalBin> temporalBins = createTemporalBins();
 
         binWriter.write(metadataProperties, temporalBins);
 
-        NetcdfFile netcdfFile = NetcdfFile.open(binWriter.getTargetFilePath());
+        final NetcdfFile netcdfFile = NetcdfFile.open(binWriter.getTargetFilePath());
         assertNotNull(netcdfFile.findGlobalAttribute("title"));
         assertNotNull(netcdfFile.findGlobalAttribute("super_sampling"));
         assertEquals(numRows * 2, netcdfFile.findGlobalAttribute("SEAGrid_bins").getNumericValue());
 
         assertEquals(numRows, netcdfFile.findDimension("bin_index").getLength());
         assertEquals(temporalBins.size(), netcdfFile.findDimension("bin_list").getLength());
-
 
         assertEquals(numRows, netcdfFile.findVariable("bi_row_num").getDimension(0).getLength());
         Array bi_row_num = netcdfFile.findVariable("bi_row_num").read();
@@ -146,21 +141,94 @@ public class BinWriterTest {
         Array bl_test_max = netcdfFile.findVariable("bl_test_max").read();
         assertEquals(0.14f, bl_test_max.getFloat(0), 1.0e-6);
         assertEquals(0.89f, bl_test_max.getFloat(1), 1.0e-6);
+    }
 
+    @Test
+    public void testWriting_startAndStopTimeMetadata() throws Exception {
+        final HashMap<String, String> metadataProperties = createMetadataProperties();
+        final ArrayList<TemporalBin> temporalBins = createTemporalBins();
+
+        final Date startTime = new Date(500000000000L);
+        final Date stopTime = new Date(510000000000L);
+        final BinWriter binWriterWithUtc = createBinWriter(tempFile, numRows,
+                ProductData.UTC.create(startTime, 0),
+                ProductData.UTC.create(stopTime, 0));
+        binWriterWithUtc.write(metadataProperties, temporalBins);
+
+        final NetcdfFile netcdfFile = NetcdfFile.open(binWriterWithUtc.getTargetFilePath());
+        final Attribute startTimeAttribute = netcdfFile.findGlobalAttribute("start_time");
+        assertNotNull(startTimeAttribute);
+        assertEquals("1985-11-05T00:53:20.000", startTimeAttribute.getStringValue());
+
+        final Attribute stopTimeAttribute = netcdfFile.findGlobalAttribute("stop_time");
+        assertNotNull(stopTimeAttribute);
+        assertEquals("1986-02-28T18:40:00.000", stopTimeAttribute.getStringValue());
+
+        final Attribute startCoverageAttribute = netcdfFile.findGlobalAttribute("time_coverage_start");
+        assertNotNull(startCoverageAttribute);
+        assertEquals("1985-11-05T00:53:20.000", startCoverageAttribute.getStringValue());
+
+        final Attribute endCoverageAttribute = netcdfFile.findGlobalAttribute("time_coverage_end");
+        assertNotNull(endCoverageAttribute);
+        assertEquals("1986-02-28T18:40:00.000", endCoverageAttribute.getStringValue());
+    }
+
+    @Test
+    public void testToDateString() {
+        final Date dateTime = new Date(520000000000L);
+        final ProductData.UTC utc = ProductData.UTC.create(dateTime, 0);
+
+        final String utcString = SeaDASLevel3BinWriter.toDateString(utc);
+        assertEquals("1986-06-24T12:26:40.000", utcString);
+    }
+
+    @Test
+    public void testToDateString_nullInput() {
+        final String utcString = SeaDASLevel3BinWriter.toDateString(null);
+        assertEquals("", utcString);
+    }
+
+    private ArrayList<TemporalBin> createTemporalBins() {
+        ArrayList<TemporalBin> temporalBins = new ArrayList<TemporalBin>();
+        temporalBins.add(new TemporalBin(12345, 2));
+        temporalBins.add(new TemporalBin(12346, 2));
+        float[][] data = new float[][]{{0.004f, 0.14f}, {0.398f, 0.89f}};
+        for (int i = 0; i < temporalBins.size(); i++) {
+            TemporalBin temporalBin = temporalBins.get(i);
+            temporalBin.getFeatureValues()[0] = data[i][0];
+            temporalBin.getFeatureValues()[1] = data[i][1];
+            temporalBin.setNumObs(i + 1);
+            temporalBin.setNumPasses(i + 1);
+        }
+        return temporalBins;
+    }
+
+    private HashMap<String, String> createMetadataProperties() {
+        HashMap<String, String> metadataProperties = new HashMap<String, String>();
+        metadataProperties.put("test", "Spongebob");
+        return metadataProperties;
     }
 
     private BinWriter createBinWriter(File tempFile, int numRows) {
-        SEAGrid seaGrid = new SEAGrid(numRows);
-        VariableContextImpl variableContext = new VariableContextImpl();
-        variableContext.defineVariable("test", "blah");
-        BinManager binManager = new BinManager(variableContext, new AggregatorMinMax(variableContext, "test"));
-        BinningContextImpl binningContext = new BinningContextImpl(seaGrid, binManager, CompositingType.BINNING, 1);
-        Geometry region = JTS.shapeToGeometry(new Rectangle2D.Double(-180, -90, 360, 180), new GeometryFactory());
-        SeaDASLevel3BinWriter binWriter = new SeaDASLevel3BinWriter(region, null, null);
-        binWriter.setBinningContext(binningContext);
-        binWriter.setTargetFileTemplatePath(tempFile.getAbsolutePath());
-        binWriter.setLogger(Logger.getLogger("BinWriterTest"));
-        return binWriter;
+        final ProductData.UTC startTime = null;
+        final ProductData.UTC stopTime = null;
+
+        return createBinWriter(tempFile, numRows, startTime, stopTime);
     }
 
+    private BinWriter createBinWriter(File tempFile, int numRows, ProductData.UTC startTime, ProductData.UTC stopTime) {
+        final SEAGrid seaGrid = new SEAGrid(numRows);
+        final VariableContextImpl variableContext = new VariableContextImpl();
+        variableContext.defineVariable("test", "blah");
+
+        final BinManager binManager = new BinManager(variableContext, new AggregatorMinMax(variableContext, "test"));
+        final BinningContextImpl binningContext = new BinningContextImpl(seaGrid, binManager, CompositingType.BINNING, 1);
+        final Geometry region = JTS.shapeToGeometry(new Rectangle2D.Double(-180, -90, 360, 180), new GeometryFactory());
+
+        final SeaDASLevel3BinWriter binWriter = new SeaDASLevel3BinWriter(region, startTime, stopTime);
+        binWriter.setBinningContext(binningContext);
+        binWriter.setTargetFileTemplatePath(tempFile.getAbsolutePath());
+        binWriter.setLogger(Logger.getLogger("SeaDASLevel3BinWriterTest"));
+        return binWriter;
+    }
 }
