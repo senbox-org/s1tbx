@@ -18,6 +18,11 @@ public class CellProcessorChain {
             WritableVector temporalVector = temporalBin.toVector();
             TemporalBin processBin = binManager.createProcessBin(temporalBin.getIndex());
             binManager.postProcess(temporalVector, processBin.toVector());
+
+            // will be removed soon TODO
+            processBin.setNumObs(temporalBin.getNumObs());
+            processBin.setNumPasses(temporalBin.getNumPasses());
+
             return processBin;
         } else {
             return temporalBin;
