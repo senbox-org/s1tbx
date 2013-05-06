@@ -163,6 +163,11 @@ public class BinManager {
         return vector;
     }
 
+    // method is used in Calvalus - undocumented API :-) don't remove
+    public WritableVector createOutputVector() {
+        return new VectorImpl(new float[outputFeatureCount]);
+    }
+
     public SpatialBin createSpatialBin(long binIndex) {
         final SpatialBin spatialBin = new SpatialBin(binIndex, spatialFeatureCount);
         initSpatialBin(spatialBin);
