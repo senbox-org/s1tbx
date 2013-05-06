@@ -111,56 +111,56 @@ todo - address the following BinningOp requirements (nf, 2012-03-09)
  */
 @SuppressWarnings("UnusedDeclaration")
 @OperatorMetadata(alias = "Binning",
-                  version = "0.8.2",
-                  authors = "Norman Fomferra, Marco Zühlke, Thomas Storm",
-                  copyright = "(c) 2012 by Brockmann Consult GmbH",
-                  description = "Performs spatial and temporal aggregation of pixel values into 'bin' cells")
+        version = "0.8.2",
+        authors = "Norman Fomferra, Marco Zühlke, Thomas Storm",
+        copyright = "(c) 2012 by Brockmann Consult GmbH",
+        description = "Performs spatial and temporal aggregation of pixel values into 'bin' cells")
 public class BinningOp extends Operator implements Output {
 
     public static final String DATE_PATTERN = "yyyy-MM-dd";
     public static final String DATETIME_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSS";
 
     @SourceProducts(description = "The source products to be binned. Must be all of the same structure. " +
-                                  "If not given, the parameter 'sourceProductPaths' must be provided.")
+            "If not given, the parameter 'sourceProductPaths' must be provided.")
     Product[] sourceProducts;
 
     @TargetProduct
     Product targetProduct;
 
     @Parameter(description = "A comma-separated list of file paths specifying the source products.\n" +
-                             "Each path may contain the wildcards '**' (matches recursively any directory),\n" +
-                             "'*' (matches any character sequence in path names) and\n" +
-                             "'?' (matches any single character).")
+            "Each path may contain the wildcards '**' (matches recursively any directory),\n" +
+            "'*' (matches any character sequence in path names) and\n" +
+            "'?' (matches any single character).")
     String[] sourceProductPaths;
 
     @Parameter(converter = JtsGeometryConverter.class,
-               description = "The considered geographical region as a geometry in well-known text format (WKT).\n" +
-                             "If not given, the geographical region will be computed according to the extents of the " +
-                             "input products.")
+            description = "The considered geographical region as a geometry in well-known text format (WKT).\n" +
+                    "If not given, the geographical region will be computed according to the extents of the " +
+                    "input products.")
     Geometry region;
 
     @Parameter(description =
-                       "The start date. If not given, taken from the 'oldest' source product. Products that have " +
-                       "a start date before the start date given by this parameter are not considered.",
-               format = DATE_PATTERN)
+            "The start date. If not given, taken from the 'oldest' source product. Products that have " +
+                    "a start date before the start date given by this parameter are not considered.",
+            format = DATE_PATTERN)
     String startDate;
 
     @Parameter(description =
-                       "The end date. If not given, taken from the 'youngest' source product. Products that have " +
-                       "an end date after the end date given by this parameter are not considered.",
-               format = DATE_PATTERN)
+            "The end date. If not given, taken from the 'youngest' source product. Products that have " +
+                    "an end date after the end date given by this parameter are not considered.",
+            format = DATE_PATTERN)
     String endDate;
 
     @Parameter(description = "If true, a SeaDAS-style, binned data NetCDF file is written in addition to the\n" +
-                             "target product. The output file name will be <target>-bins.nc", defaultValue = "true")
+            "target product. The output file name will be <target>-bins.nc", defaultValue = "true")
     boolean outputBinnedData;
 
     @Parameter(notNull = true,
-               description = "The configuration used for the binning process. Specifies the binning grid, any variables and their aggregators.")
+            description = "The configuration used for the binning process. Specifies the binning grid, any variables and their aggregators.")
     BinningConfig binningConfig;
 
     @Parameter(notNull = true,
-               description = "The configuration used for the output formatting process.")
+            description = "The configuration used for the output formatting process.")
     FormatterConfig formatterConfig;
 
     @Parameter(
@@ -169,7 +169,7 @@ public class BinningOp extends Operator implements Output {
     File metadataPropertiesFile;
 
     @Parameter(description = "The name of the directory containing metadata templates (google \"Apache Velocity VTL format\").",
-               defaultValue = ".")
+            defaultValue = ".")
     File metadataTemplateDir;
 
     private transient BinningContext binningContext;
@@ -487,8 +487,8 @@ public class BinningOp extends Operator implements Output {
 
     private static Product copyProduct(Product writtenProduct) {
         Product targetProduct = new Product(writtenProduct.getName(), writtenProduct.getProductType(),
-                                            writtenProduct.getSceneRasterWidth(),
-                                            writtenProduct.getSceneRasterHeight());
+                writtenProduct.getSceneRasterWidth(),
+                writtenProduct.getSceneRasterHeight());
         targetProduct.setStartTime(writtenProduct.getStartTime());
         targetProduct.setEndTime(writtenProduct.getEndTime());
         ProductUtils.copyMetadata(writtenProduct, targetProduct);
@@ -548,11 +548,11 @@ public class BinningOp extends Operator implements Output {
         updateDateRangeUtc(sourceProduct);
         getLogger().info(String.format("Spatial binning of product '%s'...", sourceProduct.getName()));
         final long numObs = SpatialProductBinner.processProduct(sourceProduct, spatialBinner,
-                                                                binningContext.getSuperSampling(), addedBands,
-                                                                ProgressMonitor.NULL);
+                binningContext.getSuperSampling(), addedBands,
+                ProgressMonitor.NULL);
         stopWatch.stop();
         getLogger().info(String.format("Spatial binning of product '%s' done, %d observations seen, took %s",
-                                       sourceProduct.getName(), numObs, stopWatch));
+                sourceProduct.getName(), numObs, stopWatch));
         sourceProductCount++;
     }
 
@@ -569,10 +569,10 @@ public class BinningOp extends Operator implements Output {
             SpatialBin spatialBin = spatialBinList.get(0);
             long spatialBinIndex = spatialBin.getIndex();
             TemporalBin temporalBin = temporalBinner.processSpatialBins(spatialBinIndex, spatialBinList);
-            if (true) {
-                temporalBin = temporalBinner.computeOutput(spatialBinIndex, temporalBin);
-                temporalBin = cellChain.process(temporalBin);
-            }
+
+            temporalBin = temporalBinner.computeOutput(spatialBinIndex, temporalBin);
+            temporalBin = cellChain.process(temporalBin);
+
             temporalBins.add(temporalBin);
         }
         stopWatch.stop();
@@ -582,7 +582,7 @@ public class BinningOp extends Operator implements Output {
     }
 
     private void writeOutput(List<TemporalBin> temporalBins, ProductData.UTC startTime, ProductData.UTC stopTime) throws
-                                                                                                                  Exception {
+            Exception {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
@@ -600,12 +600,12 @@ public class BinningOp extends Operator implements Output {
             getLogger().info(String.format("Writing mapped product '%s'...", formatterConfig.getOutputFile()));
             final MetadataElement globalAttributes = createGlobalAttributesElement();
             Formatter.format(binningContext,
-                             getTemporalBinSource(temporalBins),
-                             formatterConfig,
-                             region,
-                             startTime,
-                             stopTime,
-                             globalAttributes);
+                    getTemporalBinSource(temporalBins),
+                    formatterConfig,
+                    region,
+                    startTime,
+                    stopTime,
+                    globalAttributes);
             stopWatch.stop();
 
             String msgPattern = "Writing mapped product '%s' done, took %s";
@@ -651,8 +651,8 @@ public class BinningOp extends Operator implements Output {
     private void initBinWriter(ProductData.UTC startTime, ProductData.UTC stopTime) {
         if (binWriter == null) {
             binWriter = new SeaDASLevel3BinWriter(region,
-                                                  startTime != null ? startTime : minDateUtc,
-                                                  stopTime != null ? stopTime : maxDateUtc);
+                    startTime != null ? startTime : minDateUtc,
+                    stopTime != null ? stopTime : maxDateUtc);
         }
 
         binWriter.setBinningContext(binningContext);
