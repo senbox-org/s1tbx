@@ -4,7 +4,6 @@ import org.esa.beam.binning.BinManager;
 import org.esa.beam.binning.BinningContext;
 import org.esa.beam.binning.TemporalBin;
 import org.esa.beam.binning.WritableVector;
-import org.esa.beam.binning.support.VectorImpl;
 
 public class CellProcessorChain {
 
@@ -16,7 +15,7 @@ public class CellProcessorChain {
 
     public TemporalBin process(TemporalBin temporalBin) {
         if (binManager.hasPostProcessor()) {
-            WritableVector temporalVector = new VectorImpl(temporalBin.getFeatureValues());
+            WritableVector temporalVector = temporalBin.toVector();
             TemporalBin processBin = binManager.createProcessBin(temporalBin.getIndex());
             binManager.postProcess(temporalVector, processBin.toVector());
             return processBin;

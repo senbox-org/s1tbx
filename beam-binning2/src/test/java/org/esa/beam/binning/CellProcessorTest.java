@@ -19,7 +19,6 @@ package org.esa.beam.binning;
 import org.esa.beam.binning.aggregators.AggregatorMinMax;
 import org.esa.beam.binning.cellprocessor.FeatureSelection;
 import org.esa.beam.binning.support.ObservationImpl;
-import org.esa.beam.binning.support.VectorImpl;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -55,11 +54,11 @@ public class CellProcessorTest {
         TemporalBin tbin = doBinning(bman);
         assertEquals(2, tbin.getFeatureValues().length);
 
-        final VectorImpl temporalVector = new VectorImpl(tbin.getFeatureValues());
+        final Vector temporalVector = tbin.toVector();
         int postProcessFeatureCount = bman.getPostProcessFeatureCount();
         TemporalBin processedBin = new TemporalBin(tbin.getIndex(), postProcessFeatureCount);
 
-        WritableVector processedVector = new VectorImpl(processedBin.getFeatureValues());
+        WritableVector processedVector = processedBin.toVector();
 
         bman.postProcess(temporalVector, processedVector);
 
