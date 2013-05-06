@@ -19,7 +19,7 @@ package org.esa.beam.binning.operator;
 import org.esa.beam.binning.BinningContext;
 import org.esa.beam.binning.TemporalBin;
 import org.esa.beam.binning.TemporalBinRenderer;
-import org.esa.beam.binning.WritableVector;
+import org.esa.beam.binning.Vector;
 import org.esa.beam.util.io.FileUtils;
 
 import javax.imageio.ImageIO;
@@ -126,7 +126,7 @@ public final class ImageTemporalBinRenderer implements TemporalBinRenderer {
     }
 
     @Override
-    public void renderBin(int x, int y, TemporalBin temporalBin, WritableVector outputVector) {
+    public void renderBin(int x, int y, TemporalBin temporalBin, Vector outputVector) {
         for (int i = 0; i < bandCount; i++) {
             bandData[i][rasterWidth * y + x] = outputVector.get(bandIndices[i]);
         }
