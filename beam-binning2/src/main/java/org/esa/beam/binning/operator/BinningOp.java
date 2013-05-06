@@ -28,6 +28,7 @@ import org.esa.beam.binning.SpatialBinner;
 import org.esa.beam.binning.TemporalBin;
 import org.esa.beam.binning.TemporalBinSource;
 import org.esa.beam.binning.TemporalBinner;
+import org.esa.beam.binning.cellprocessor.CellProcessorChain;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.MetadataAttribute;
@@ -561,12 +562,17 @@ public class BinningOp extends Operator implements Output {
 
         long numberOfBins = spatialBinMap.size();
         final TemporalBinner temporalBinner = new TemporalBinner(binningContext);
+        final CellProcessorChain cellChain = new CellProcessorChain(binningContext);
         final TemporalBinList temporalBins = new TemporalBinList((int) spatialBinMap.size());
         Iterable<List<SpatialBin>> spatialBinListCollection = spatialBinMap.getBinCollection();
         for (List<SpatialBin> spatialBinList : spatialBinListCollection) {
             SpatialBin spatialBin = spatialBinList.get(0);
             long spatialBinIndex = spatialBin.getIndex();
-            final TemporalBin temporalBin = temporalBinner.processSpatialBins(spatialBinIndex, spatialBinList);
+            TemporalBin temporalBin = temporalBinner.processSpatialBins(spatialBinIndex, spatialBinList);
+            if (true) {
+                temporalBin = temporalBinner.computeOutput(spatialBinIndex, temporalBin);
+                temporalBin = cellChain.process(temporalBin);
+            }
             temporalBins.add(temporalBin);
         }
         stopWatch.stop();

@@ -21,7 +21,7 @@ import org.esa.beam.binning.BinningContext;
 import org.esa.beam.binning.ProductCustomizer;
 import org.esa.beam.binning.TemporalBin;
 import org.esa.beam.binning.TemporalBinRenderer;
-import org.esa.beam.binning.WritableVector;
+import org.esa.beam.binning.Vector;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.dataio.ProductWriter;
 import org.esa.beam.framework.datamodel.Band;
@@ -152,7 +152,7 @@ public final class ProductTemporalBinRenderer implements TemporalBinRenderer {
     }
 
     @Override
-    public void renderBin(int x, int y, TemporalBin temporalBin, WritableVector outputVector) throws IOException {
+    public void renderBin(int x, int y, TemporalBin temporalBin, Vector outputVector) throws IOException {
         if (y != yLast) {
             completeLine();
             yLast = y;
@@ -192,7 +192,7 @@ public final class ProductTemporalBinRenderer implements TemporalBinRenderer {
         }
     }
 
-    private void setData(int x, TemporalBin temporalBin, WritableVector outputVector) {
+    private void setData(int x, TemporalBin temporalBin, Vector outputVector) {
         if (numObsLine != null) {
             numObsLine.setElemIntAt(x, temporalBin.getNumObs());
         }

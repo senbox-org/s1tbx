@@ -71,7 +71,6 @@ public class Reprojector {
      *
      * @param planetaryGrid The binning grid.
      * @param roiGeometry   The region of interest in geo-graphical coordinates.
-     *
      * @return The sub-region in pixel coordinates.
      */
     public static Rectangle computeRasterSubRegion(PlanetaryGrid planetaryGrid, Geometry roiGeometry) {
@@ -117,7 +116,6 @@ public class Reprojector {
 
     /**
      * @param planetaryGrid The planetary grid used for the binning.
-     *
      * @return The pixel size in degree of a raster resulting from the given {@code planetaryGrid}.
      */
     public static double getRasterPixelSize(PlanetaryGrid planetaryGrid) {
@@ -184,8 +182,7 @@ public class Reprojector {
         final int x2 = rasterRegion.x + rasterRegion.width - 1;
         final int y1 = rasterRegion.y;
         final PlanetaryGrid planetaryGrid = binningContext.getPlanetaryGrid();
-        final BinManager binManager = binningContext.getBinManager();
-        final WritableVector resultVector = binManager.createResultVector();
+        Vector resultVector = null;
         final double lat = 90.0 - (y + 0.5) * 180.0 / gridHeight;
         long lastBinIndex = -1;
         TemporalBin temporalBin = null;
@@ -200,7 +197,7 @@ public class Reprojector {
                     final long binIndex = binRow.get(i).getIndex();
                     if (binIndex == wantedBinIndex) {
                         temporalBin = binRow.get(i);
-                        binManager.computeResult(temporalBin, resultVector);
+                        resultVector = temporalBin.toVector();
                         lastBinIndex = wantedBinIndex;
                         rowIndex = i;
                         break;

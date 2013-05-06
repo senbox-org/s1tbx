@@ -66,7 +66,7 @@ public interface TemporalBinRenderer {
      * @param outputVector the current output vector
      * @throws IOException If an I/O error occurred.
      */
-    void renderBin(int x, int y, TemporalBin temporalBin, WritableVector outputVector) throws IOException;
+    void renderBin(int x, int y, TemporalBin temporalBin, Vector outputVector) throws IOException;
 
     /**
      * Renders a missing temporal bin.

@@ -117,6 +117,14 @@ public class BinManager {
         return temporalFeatureCount;
     }
 
+    public final int getOutputFeatureCount() {
+        return outputFeatureCount;
+    }
+
+    public int getPostProcessFeatureCount() {
+        return postFeatureCount;
+    }
+
     final String[] getOutputFeatureNames() {
         return outputFeatureNames;
     }
@@ -153,10 +161,6 @@ public class BinManager {
         final Aggregator aggregator = aggregators[aggIndex];
         vector.setOffsetAndSize(temporalFeatureOffsets[aggIndex], aggregator.getTemporalFeatureNames().length);
         return vector;
-    }
-
-    public WritableVector createOutputVector() {
-        return new VectorImpl(new float[outputFeatureCount]);
     }
 
     public SpatialBin createSpatialBin(long binIndex) {
@@ -204,6 +208,7 @@ public class BinManager {
         outputBin.numPasses++;
     }
 
+    // method is used in Calvalus - undocumented API :-) don't remove
     public void aggregateTemporalBin(TemporalBin inputBin, TemporalBin outputBin) {
         aggregateBin(inputBin, outputBin);
         outputBin.numPasses += inputBin.numPasses;
@@ -264,30 +269,8 @@ public class BinManager {
         return cellProcessor != null;
     }
 
-    public WritableVector createResultVector() {
-        if (hasPostProcessor()) {
-            return createPostVector();
-        } else {
-            return createOutputVector();
-        }
-    }
-
-    public WritableVector createPostVector() {
-        return new VectorImpl(new float[postFeatureCount]);
-    }
-
     public void postProcess(Vector outputVector, WritableVector postVector) {
         cellProcessor.compute(outputVector, postVector);
-    }
-
-    public void computeResult(TemporalBin temporalBin, WritableVector resultVector) {
-        if (hasPostProcessor()) {
-            WritableVector outputVector = createOutputVector();
-            computeOutput(temporalBin, outputVector);
-            postProcess(outputVector, resultVector);
-        } else {
-            computeOutput(temporalBin, resultVector);
-        }
     }
 
     static class NameUnifier {

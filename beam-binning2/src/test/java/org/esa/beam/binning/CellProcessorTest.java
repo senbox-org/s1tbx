@@ -19,6 +19,7 @@ package org.esa.beam.binning;
 import org.esa.beam.binning.aggregators.AggregatorMinMax;
 import org.esa.beam.binning.cellprocessor.FeatureSelection;
 import org.esa.beam.binning.support.ObservationImpl;
+import org.esa.beam.binning.support.VectorImpl;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -35,9 +36,8 @@ public class CellProcessorTest {
 
         TemporalBin tbin = doBinning(bman);
         assertEquals(2, tbin.getFeatureValues().length);
-        WritableVector resultVector = bman.createResultVector();
-        assertEquals(2, resultVector.size());
-        bman.computeResult(tbin, resultVector);
+
+        Vector resultVector = tbin.toVector();
         assertEquals(2, resultVector.size());
         assertEquals(0.2f, resultVector.get(0), 1e-4);
         assertEquals(0.6f, resultVector.get(1), 1e-4);
@@ -54,9 +54,16 @@ public class CellProcessorTest {
 
         TemporalBin tbin = doBinning(bman);
         assertEquals(2, tbin.getFeatureValues().length);
-        WritableVector resultVector = bman.createResultVector();
-        assertEquals(1, resultVector.size());
-        bman.computeResult(tbin, resultVector);
+
+        final VectorImpl temporalVector = new VectorImpl(tbin.getFeatureValues());
+        int postProcessFeatureCount = bman.getPostProcessFeatureCount();
+        TemporalBin processedBin = new TemporalBin(tbin.getIndex(), postProcessFeatureCount);
+
+        WritableVector processedVector = new VectorImpl(processedBin.getFeatureValues());
+
+        bman.postProcess(temporalVector, processedVector);
+
+        Vector resultVector = processedBin.toVector();
         assertEquals(1, resultVector.size());
         assertEquals(0.6f, resultVector.get(0), 1e-4);
 
@@ -95,20 +102,5 @@ public class CellProcessorTest {
         assertEquals(0.6f, tVec.get(1), 1e-5f);
 
         return tbin;
-    }
-
-    private static class Times100PortProcessor extends CellProcessor {
-
-        private Times100PortProcessor(String... outputFeatureNames) {
-            super(outputFeatureNames);
-        }
-
-        @Override
-        public void compute(Vector inputVector, WritableVector outputVector) {
-            int size = inputVector.size();
-            for (int i = 0; i < size; i++) {
-                outputVector.set(i, inputVector.get(i) * 100);
-            }
-        }
     }
 }
