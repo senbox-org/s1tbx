@@ -180,7 +180,7 @@
 
         <action>
             <parent>view</parent>
-            <id>showImageView</id>
+            <id>showImageViewNestAction</id>
             <class>org.esa.nest.dat.actions.ShowImageViewNestAction</class>
             <placeAfter>showStatusBar</placeAfter>
             <text>Open Image View</text>

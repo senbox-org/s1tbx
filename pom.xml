@@ -47,10 +47,8 @@
     </licenses>
 
     <scm>
-	 <connection>scm:cvs:pserver:lveci@fileserver:/big/cvsroot:nest</connection>
-       <developerConnection>scm:cvs:pserver:lveci@fileserver:/big/cvsroot:nest</developerConnection>
-       <tag>HEAD</tag>
-       <url>www.array.ca/nest</url>
+	 <connection>scm:git:git://github.com/lveci/nest.git</connection>
+     <url>www.array.ca/nest</url>
     </scm>
 
 	<repositories>
@@ -900,7 +898,11 @@
 						</execution>
 				   </executions>
 			   </plugin>
-			   
+			   <plugin>
+				  <groupId>org.apache.maven.plugins</groupId>
+				  <artifactId>maven-project-info-reports-plugin</artifactId>
+				  <version>2.6</version>
+				</plugin>
             </plugins>
         </pluginManagement>
 
@@ -951,6 +953,33 @@
                     </filesets>
                 </configuration>
             </plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-site-plugin</artifactId>
+				<version>3.0-beta-3</version>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-project-info-reports-plugin</artifactId>
+				<version>2.6</version>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				  <artifactId>maven-pdf-plugin</artifactId>
+				  <executions>
+					<execution>
+					  <id>pdf</id>
+					  <phase>site</phase>
+					  <goals>
+						<goal>pdf</goal>
+					  </goals>
+					  <configuration>
+						<outputDirectory>${project.reporting.outputDirectory}</outputDirectory>
+						<includeReports>false</includeReports>
+					  </configuration>
+					</execution>
+				  </executions>
+			</plugin>
         </plugins>
 		
     </build>

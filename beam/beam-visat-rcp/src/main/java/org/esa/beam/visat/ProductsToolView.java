@@ -257,7 +257,9 @@ public class ProductsToolView extends AbstractToolView {
                     final ExecCommand command = visatApp.getCommandManager().getExecCommand("showPolarWaveView");
                     command.execute(clickCount);
                 } else {
-                    final ExecCommand command = visatApp.getCommandManager().getExecCommand("showImageView");
+                    ExecCommand command = visatApp.getCommandManager().getExecCommand("showImageView");
+                    if(command == null)
+                        command = visatApp.getCommandManager().getExecCommand("showImageViewNestAction");
                     command.execute(clickCount);
                 }
             }
