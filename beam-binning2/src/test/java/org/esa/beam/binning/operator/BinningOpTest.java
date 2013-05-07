@@ -52,6 +52,11 @@ public class BinningOpTest {
     @Before
     public void setUp() throws Exception {
         TESTDATA_DIR.mkdirs();
+
+        // @todo 1 tb/tb should read like the lines commented below .... see todo in tearDown()
+//        if (!TESTDATA_DIR.mkdirs()) {
+//            fail("Can't create test I/O directory: " + TESTDATA_DIR);
+//        }
         if (!TESTDATA_DIR.isDirectory()) {
             fail("Can't create test I/O directory: " + TESTDATA_DIR);
         }
@@ -60,7 +65,10 @@ public class BinningOpTest {
     @After
     public void tearDown() throws Exception {
         if (!FileUtils.deleteTree(TESTDATA_DIR)) {
-            System.out.println("Warning: failed to completely delete test I/O directory:" + TESTDATA_DIR);
+            // @todo 1 tb/tb check why this fails. I suppose it has to do with the copy operation in the binning op
+            // BinningOp line 595 - need to enable the fail after this has been clarified.
+            //fail("Warning: failed to completely delete test I/O directory:" + TESTDATA_DIR);
+            System.err.println("Warning: failed to completely delete test I/O directory:" + TESTDATA_DIR);
         }
     }
 
@@ -69,8 +77,8 @@ public class BinningOpTest {
         BinningOp binningOp = new BinningOp();
 
         binningOp.setSourceProducts(createSourceProduct(0.1F),
-                                    createSourceProduct(0.2F),
-                                    createSourceProduct(0.3F));
+                createSourceProduct(0.2F),
+                createSourceProduct(0.3F));
 
         binningOp.setStartDate("2002-01-01");
         binningOp.setEndDate("2002-01-10");
@@ -163,7 +171,6 @@ public class BinningOpTest {
      */
     @Test
     public void testGlobalBinning() throws Exception {
-
         BinningConfig binningConfig = createBinningConfig();
         FormatterConfig formatterConfig = createFormatterConfig();
 
@@ -176,10 +183,10 @@ public class BinningOpTest {
         final BinningOp binningOp = new BinningOp();
 
         binningOp.setSourceProducts(createSourceProduct(obs1),
-                                    createSourceProduct(obs2),
-                                    createSourceProduct(obs3),
-                                    createSourceProduct(obs4),
-                                    createSourceProduct(obs5));
+                createSourceProduct(obs2),
+                createSourceProduct(obs3),
+                createSourceProduct(obs4),
+                createSourceProduct(obs5));
 
         JtsGeometryConverter geometryConverter = new JtsGeometryConverter();
         binningOp.setStartDate("2002-01-01");
@@ -192,7 +199,7 @@ public class BinningOpTest {
         assertNotNull(targetProduct);
         try {
             assertGlobalBinningProductIsOk(targetProduct, null, obs1, obs2, obs3, obs4, obs5);
-        } catch (Exception e) {
+        } finally {
             targetProduct.dispose();
         }
     }
@@ -220,10 +227,10 @@ public class BinningOpTest {
         final BinningOp binningOp = new BinningOp();
 
         binningOp.setSourceProducts(createSourceProduct(obs1),
-                                    createSourceProduct(obs2),
-                                    createSourceProduct(obs3),
-                                    createSourceProduct(obs4),
-                                    createSourceProduct(obs5));
+                createSourceProduct(obs2),
+                createSourceProduct(obs3),
+                createSourceProduct(obs4),
+                createSourceProduct(obs5));
 
         GeometryFactory gf = new GeometryFactory();
         binningOp.setRegion(gf.createPolygon(gf.createLinearRing(new Coordinate[]{
@@ -274,11 +281,11 @@ public class BinningOpTest {
         parameters.put("region", "POLYGON ((-180 -90, -180 90, 180 90, 180 -90, -180 -90))");
 
         final Product targetProduct = GPF.createProduct("Binning", parameters,
-                                                        createSourceProduct(obs1),
-                                                        createSourceProduct(obs2),
-                                                        createSourceProduct(obs3),
-                                                        createSourceProduct(obs4),
-                                                        createSourceProduct(obs5));
+                createSourceProduct(obs1),
+                createSourceProduct(obs2),
+                createSourceProduct(obs3),
+                createSourceProduct(obs4),
+                createSourceProduct(obs5));
 
         assertNotNull(targetProduct);
         try {
@@ -314,12 +321,12 @@ public class BinningOpTest {
         parameters.put("formatterConfig", formatterConfig);
 
         final Product targetProduct = GPF.createProduct("Binning",
-                                                        parameters,
-                                                        createSourceProduct(obs1),
-                                                        createSourceProduct(obs2),
-                                                        createSourceProduct(obs3),
-                                                        createSourceProduct(obs4),
-                                                        createSourceProduct(obs5));
+                parameters,
+                createSourceProduct(obs1),
+                createSourceProduct(obs2),
+                createSourceProduct(obs3),
+                createSourceProduct(obs4),
+                createSourceProduct(obs5));
         assertNotNull(targetProduct);
         try {
             assertLocalBinningProductIsOk(targetProduct, null, obs1, obs2, obs3, obs4, obs5);
@@ -538,8 +545,8 @@ public class BinningOpTest {
         Product[] inputProducts = {product1, product2, product3};
         Product[] expectedProducts = {product1, product2, product3};
         Product[] filteredProducts = BinningOp.filterSourceProducts(inputProducts,
-                                                                    ProductData.UTC.parse("01-JUL-2000 00:00:00"),
-                                                                    ProductData.UTC.parse("01-AUG-2000 00:00:00"));
+                ProductData.UTC.parse("01-JUL-2000 00:00:00"),
+                ProductData.UTC.parse("01-AUG-2000 00:00:00"));
         assertArrayEquals(expectedProducts, filteredProducts);
 
         product1.setStartTime(ProductData.UTC.parse("02-JUL-2000 00:00:00"));
@@ -548,7 +555,7 @@ public class BinningOpTest {
         inputProducts = new Product[]{product1, product2, product3};
         expectedProducts = new Product[]{product2, product3};
         filteredProducts = BinningOp.filterSourceProducts(inputProducts, ProductData.UTC.parse("01-JUL-2000 00:00:00"),
-                                                          ProductData.UTC.parse("01-AUG-2000 00:00:00"));
+                ProductData.UTC.parse("01-AUG-2000 00:00:00"));
         assertArrayEquals(expectedProducts, filteredProducts);
     }
 
@@ -576,6 +583,47 @@ public class BinningOpTest {
 
         assertEquals(expected, shape.getBounds2D());
     }
+
+    @Test
+    public void testParseDateUtc() {
+        final ProductData.UTC utc = BinningOp.parseDateUtc("Gerda", "2012-05-22");
+        assertEquals("22-MAY-2012 00:00:00.000000", utc.format());
+    }
+
+    @Test
+    public void testParseDateUtc_errorCase() {
+        try {
+            BinningOp.parseDateUtc("Fritz", "yesterday evening");
+            fail("OperatorException expected");
+        } catch (OperatorException expected) {
+            assertEquals("Invalid parameter 'Fritz': Unparseable date: \"yesterday evening\"", expected.getMessage());
+        }
+    }
+
+//    @Test
+//    public void testBinningSetsCorrectStartAndStopTimesFromProductTimes() throws Exception {
+//        final BinningConfig binningConfig = createBinningConfig();
+//        final FormatterConfig formatterConfig = createFormatterConfig();
+//
+//        float obs1 = 0.2F;
+//
+//        final BinningOp binningOp = new BinningOp();
+//
+//        final JtsGeometryConverter geometryConverter = new JtsGeometryConverter();
+//
+//        final Product sourceProduct = createSourceProduct(obs1);
+//        sourceProduct.setStartTime(ProductData.UTC.parse("02-JAN-2002 11:30:25"));
+//        sourceProduct.setEndTime(ProductData.UTC.parse("02-JAN-2002 12:28:19"));
+//
+//        binningOp.setSourceProducts(sourceProduct);
+//        binningOp.setBinningConfig(binningConfig);
+//        binningOp.setFormatterConfig(formatterConfig);
+//        binningOp.setRegion(geometryConverter.parse("POLYGON ((-180 -90, -180 90, 180 90, 180 -90, -180 -90))"));
+//
+//        final Product targetProduct = binningOp.getTargetProduct();
+//        assertNotNull(targetProduct);
+//
+//    }
 
     private void assertGlobalBinningProductIsOk(Product targetProduct, File location, float obs1, float obs2,
                                                 float obs3, float obs4, float obs5) throws IOException {

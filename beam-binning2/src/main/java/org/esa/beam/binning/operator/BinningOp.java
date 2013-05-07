@@ -690,7 +690,8 @@ public class BinningOp extends Operator implements Output {
         }
     }
 
-    private ProductData.UTC parseDateUtc(String name, String date) {
+    // package access for tessting only tb 2013-05-07
+    static ProductData.UTC parseDateUtc(String name, String date) {
         try {
             return ProductData.UTC.parse(date, DATE_PATTERN);
         } catch (ParseException e) {

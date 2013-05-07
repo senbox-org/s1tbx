@@ -21,7 +21,11 @@ import ucar.nc2.Variable;
 import java.io.File;
 import java.io.IOException;
 import java.text.DateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 /**
@@ -159,8 +163,9 @@ class SeaDASLevel3BinWriter implements BinWriter {
             writeBinListVariables(netcdfFile, binNumVar, numObsVar, numScenesVar, featureVars, beginOffsetVar, beginVar, extendVar, temporalBins);
         } catch (InvalidRangeException e) {
             throw new IOException(e);
+        } finally {
+            netcdfFile.close();
         }
-        netcdfFile.close();
     }
 
     // package access for testing only tb 2013-05-06
