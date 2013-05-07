@@ -109,7 +109,7 @@ public class SpatialProductBinner {
             stopWatch.start();
             numObsTotal += processSlice(spatialBinner, progressMonitor, superSamplingSteps, maskImage, varImages,
                                         product, sliceRectangles[idx]);
-            stopWatch.stopAndTrace(String.format("Processed slice %d of %d", idx, sliceRectangles.length));
+            stopWatch.stopAndTrace(String.format("Processed slice %d of %d", idx + 1, sliceRectangles.length));
         }
         spatialBinner.complete();
         return numObsTotal;
