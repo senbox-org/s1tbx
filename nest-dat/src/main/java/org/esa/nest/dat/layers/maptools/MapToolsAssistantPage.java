@@ -16,20 +16,12 @@
 package org.esa.nest.dat.layers.maptools;
 
 import org.esa.beam.framework.ui.layer.AbstractLayerSourceAssistantPage;
-import org.esa.nest.util.DialogUtils;
 
-import javax.swing.*;
 import java.awt.*;
 
 class MapToolsAssistantPage extends AbstractLayerSourceAssistantPage {
 
-    private final JCheckBox northArrow = new JCheckBox("Show North Arrow", true);
-    private final JCheckBox compass = new JCheckBox("Show Compass", false);
-    private final JCheckBox latLonGrid = new JCheckBox("Show Lat/lon Grid", false);
-    private final JCheckBox lookDirection = new JCheckBox("Show Look Direction", false);
-    private final JCheckBox mapOverview = new JCheckBox("Show Map Overview", false);
-    private final JCheckBox scale = new JCheckBox("Show Scale", true);
-    private final JCheckBox nestLogo = new JCheckBox("Show NEST logo", true);
+    private final MapToolsOptions options = new MapToolsOptions();
 
     MapToolsAssistantPage() {
         super("Map Tools Options");
@@ -57,34 +49,12 @@ class MapToolsAssistantPage extends AbstractLayerSourceAssistantPage {
 
     @Override
     public boolean performFinish() {
-        final MapToolsOptions options = new MapToolsOptions(northArrow.isSelected(),
-                                                            compass.isSelected(),
-                                                            latLonGrid.isSelected(),
-                                                            lookDirection.isSelected(),
-                                                            false,
-                                                            scale.isSelected(),
-                                                            nestLogo.isSelected());
         MapToolsLayerSource.createLayer(getContext(), options);
         return true;
     }
 
     @Override
     public Component createPageComponent() {
-        final JPanel panel = new JPanel(new GridBagLayout());
-        final GridBagConstraints gbc = DialogUtils.createGridBagConstraints();
-
-        panel.add(northArrow, gbc);
-        gbc.gridy++;
-        //panel.add(compass, gbc);
-        //gbc.gridy++;
-        //panel.add(latLonGrid, gbc);
-        //gbc.gridy++;
-        panel.add(lookDirection, gbc);
-        gbc.gridy++;
-        panel.add(scale, gbc);
-        gbc.gridy++;
-        panel.add(nestLogo, gbc);
-
-        return panel;
+        return options.createPanel();
     }
 }

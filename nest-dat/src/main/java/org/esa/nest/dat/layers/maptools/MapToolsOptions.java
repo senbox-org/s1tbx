@@ -15,61 +15,99 @@
  */
 package org.esa.nest.dat.layers.maptools;
 
+import org.esa.nest.util.DialogUtils;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
 /**
  * map tools options
  */
 public class MapToolsOptions {
 
-    private final boolean northArrowShown;
-    private final boolean compassShown;
-    private final boolean lookDirectionShown;
-    private final boolean latLonGridShown;
-    private final boolean mapOverviewShown;
-    private final boolean scaleShown;
-    private boolean placeNamesShown = false;
-    private final boolean nestLogoShown;
+    private final JCheckBox northArrow = new JCheckBox("Show North Arrow", true);
+    private final JCheckBox latLonGrid = new JCheckBox("Show Lat/lon Grid", false);
+    private final JCheckBox lookDirection = new JCheckBox("Show Look Direction", false);
+    private final JCheckBox mapOverview = new JCheckBox("Show Map Overview", false);
+    private final JCheckBox info = new JCheckBox("Show Product Info", false);
+    private final JCheckBox scale = new JCheckBox("Show Scale", true);
+    private final JCheckBox nestLogo = new JCheckBox("Show NEST logo", true);
+    private MapToolsLayer layer = null;
 
-    public MapToolsOptions(final boolean northArrowShown, final boolean compassShown,
-                           final boolean latLonGridShown, final boolean lookDirectionShown,
-                           final boolean mapOverviewShown, final boolean scaleShown, final boolean nestLogoShown) {
-        this.northArrowShown = northArrowShown;
-        this.compassShown = compassShown;
-        this.latLonGridShown = latLonGridShown;
-        this.lookDirectionShown = lookDirectionShown;
-        this.mapOverviewShown = mapOverviewShown;
-        this.scaleShown = scaleShown;
-        this.nestLogoShown = nestLogoShown;
+    public MapToolsOptions() {
+        ActionListener updateStateListenser = new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                updateState();
+            }
+        };
+        northArrow.addActionListener(updateStateListenser);
+        latLonGrid.addActionListener(updateStateListenser);
+        lookDirection.addActionListener(updateStateListenser);
+        mapOverview.addActionListener(updateStateListenser);
+        info.addActionListener(updateStateListenser);
+        scale.addActionListener(updateStateListenser);
+        nestLogo.addActionListener(updateStateListenser);
+    }
+
+    public void setLayer(MapToolsLayer layer) {
+        this.layer = layer;
     }
 
     public boolean showNorthArrow() {
-        return northArrowShown;
-    }
-
-    public boolean showCompass() {
-        return compassShown;
+        return northArrow.isSelected();
     }
 
     public boolean showLookDirection() {
-        return lookDirectionShown;
+        return lookDirection.isSelected();
     }
 
     public boolean showLatLonGrid() {
-        return latLonGridShown;
+        return latLonGrid.isSelected();
     }
 
     public boolean showMapOverview() {
-        return mapOverviewShown;
+        return mapOverview.isSelected();
+    }
+
+    public boolean showInfo() {
+        return info.isSelected();
     }
 
     public boolean showScale() {
-        return scaleShown;
-    }
-
-    public boolean showPlaceNames() {
-        return placeNamesShown;
+        return scale.isSelected();
     }
 
     public boolean showNestLogo() {
-        return nestLogoShown;
+        return nestLogo.isSelected();
     }
+
+    public JPanel createPanel() {
+        final JPanel panel = new JPanel(new GridBagLayout());
+        final GridBagConstraints gbc = DialogUtils.createGridBagConstraints();
+
+        panel.add(northArrow, gbc);
+        gbc.gridy++;
+        //panel.add(latLonGrid, gbc);
+        //gbc.gridy++;
+        panel.add(lookDirection, gbc);
+        gbc.gridy++;
+        //panel.add(info, gbc);
+        //gbc.gridy++;
+        panel.add(scale, gbc);
+        gbc.gridy++;
+        panel.add(nestLogo, gbc);
+
+        return panel;
+    }
+
+    private void updateState() {
+        if(layer != null) {
+            layer.regenerate();
+        }
+    }
+
+
 }

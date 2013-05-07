@@ -61,6 +61,7 @@
                     <id>saveSession</id>
                     <id>saveSessionAs</id>
                     <id>createDemRelatedBands</id>
+                    <id>showImageView</id>
                 </excludedActions>
                 <excludedToolViews>
                     <id>org.esa.beam.visat.toolviews.spectrum.SpectrumToolView</id>
@@ -77,6 +78,13 @@
             <description>Shows cartographic tools</description>
             <class>org.esa.nest.dat.layers.maptools.MapToolsLayerSource</class>
         </layerSource>
+    </extension>
+
+    <extension point="beam-ui:layerEditors">
+        <layerEditor>
+            <editor>org.esa.nest.dat.layers.maptools.MapToolsLayerEditor</editor>
+            <layerType>org.esa.nest.dat.layers.maptools.MapToolsLayerType</layerType>
+        </layerEditor>
     </extension>
 
     <extension point="beam-ui:toolViews">
@@ -168,6 +176,22 @@
             <toggle>true</toggle>
             <shortDescr>Toggle visibility of the tool bar.</shortDescr>
             <helpId>showViewsToolBar</helpId>
+        </action>
+
+        <action>
+            <parent>view</parent>
+            <id>showImageView</id>
+            <class>org.esa.nest.dat.actions.ShowImageViewNestAction</class>
+            <placeAfter>showStatusBar</placeAfter>
+            <text>Open Image View</text>
+            <mnemonic>I</mnemonic>
+            <accellerator>control alt I</accellerator>
+            <shortDescr>Open image view.</shortDescr>
+            <description>Open an image view for the selected band or tie-point grid.</description>
+            <context>band,tiePointGrid</context>
+            <smallIcon>icons/ImageView16.gif</smallIcon>
+            <largeIcon>icons/ImageView24.gif</largeIcon>
+            <helpId>imageView</helpId>
         </action>
 
       <action>
@@ -677,6 +701,33 @@
             <description>Export the product as Google Earth KMZ file.</description>
             <helpId>exportKmzFile</helpId>
             <placeAfter>exportKmzFile</placeAfter>
+        </action>
+
+        <action>
+            <id>Reports</id>
+            <class>org.esa.beam.visat.actions.ActionGroup</class>
+            <text>Reports</text>
+            <parent>data</parent>
+            <context>image</context>
+            <placeBefore>Information</placeBefore>
+        </action>
+
+        <action>
+            <id>SummaryReport</id>
+            <class>org.esa.nest.dat.actions.reports.ShowSummaryReport</class>
+            <text>Summary Report</text>
+            <shortDescr>A summary of the product</shortDescr>
+            <parent>Reports</parent>
+            <helpId>Reports</helpId>
+        </action>
+
+        <action>
+            <id>MetadataReport</id>
+            <class>org.esa.nest.dat.actions.reports.ShowMetadataReport</class>
+            <text>Metadata Report</text>
+            <shortDescr>A listing of the product metadata</shortDescr>
+            <parent>Reports</parent>
+            <helpId>Reports</helpId>
         </action>
 
     </extension>

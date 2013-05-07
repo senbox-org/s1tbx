@@ -31,22 +31,18 @@ import java.awt.*;
  */
 public class NorthArrowComponent implements MapToolsComponent {
 
-    private final PixelPos tail, head, dispTail, dispHead;
     private double angle;
-    private final static double marginPct = 0.05;
     private ArrowOverlay arrow;
 
     public NorthArrowComponent(final RasterDataNode raster) {
         final int rasterWidth = raster.getRasterWidth();
         final int rasterHeight = raster.getRasterHeight();
-        final int margin = (int)(Math.min(rasterWidth, rasterHeight) * marginPct);
+        final int margin = (int)(0.02 * FastMath.hypot(rasterWidth, rasterHeight));
         final PixelPos point1 = new PixelPos(margin, margin);
 
         final GeoCoding geoCoding = raster.getGeoCoding();
         if(geoCoding == null) {
-            tail = head = point1;
             angle = Double.NaN;
-            dispTail = dispHead = point1;
             return;
         }
 
@@ -62,24 +58,16 @@ public class NorthArrowComponent implements MapToolsComponent {
             angle += Math.PI;
         }
 
-        // determine distance of 5% of diagonal
-        final int length = (int)(0.05 * FastMath.hypot(rasterWidth, rasterHeight));
-        final GeoPos x100Geo = geoCoding.getGeoPos(new PixelPos(margin+length, margin), null);
-        final GeoUtils.DistanceHeading dist = GeoUtils.vincenty_inverse(point1Geo.getLon(), point1Geo.getLat(), x100Geo.getLon(), x100Geo.getLat());
+        // determine distance
+        final GeoPos x5Geo = geoCoding.getGeoPos(new PixelPos((int)(margin*1.5),margin), null);
+        final GeoUtils.DistanceHeading dist = GeoUtils.vincenty_inverse(point1Geo.getLon(), point1Geo.getLat(),
+                                                                        x5Geo.getLon(), x5Geo.getLat());
 
-        GeoUtils.LatLonHeading coord = GeoUtils.vincenty_direct(point1Geo.getLon(), point1Geo.getLat(), dist.distance, angle);
+        GeoUtils.LatLonHeading coord = GeoUtils.vincenty_direct(point1Geo.getLon(), point1Geo.getLat(), dist.distance,angle);
         final PixelPos point3 = geoCoding.getPixelPos(new GeoPos((float)coord.lat, (float)coord.lon), null);
 
-        dispTail = point1;
-        dispHead = point3;
-
-        if(point1Geo.getLat() < centrePointGeo.getLat()) {
-            tail = point1;
-            head = point2;
-        } else {
-            tail = point2;
-            head = point1;
-        }
+        final PixelPos dispTail = point1;
+        final PixelPos dispHead = point3;
 
         arrow = new ArrowOverlay((int)dispTail.getX(), (int)dispTail.getY(), (int)dispHead.getX(), (int)dispHead.getY());
         arrow.setText("N");

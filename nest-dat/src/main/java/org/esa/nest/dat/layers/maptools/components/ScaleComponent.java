@@ -36,7 +36,7 @@ public class ScaleComponent implements MapToolsComponent {
     private final static int h = 3;
     private final double[] pts, vpts;
     private final BasicStroke stroke = new BasicStroke(1);
-    private boolean use500k, use100k, use50k, use10k, use5k;
+    private boolean use500k, use100k, use50k, use10k, use5k, use1k;
 
     public ScaleComponent(final RasterDataNode raster) {
         final int rasterWidth = raster.getRasterWidth();
@@ -83,6 +83,7 @@ public class ScaleComponent implements MapToolsComponent {
         use50k = (pix50K.getX() < thirdWidth);
         use10k = (pix10K.getX() < thirdWidth);
         use5k = (pix5K.getX() < rasterWidth/2);
+        use1k = (pix1K.getX() < rasterWidth);
 
         pts = new double[] { startPix.getX(), startPix.getY(),
                 pix1K.getX(), pix1K.getY(), pix2K.getX(), pix2K.getY(), pix3K.getX(), pix3K.getY(),
@@ -93,7 +94,7 @@ public class ScaleComponent implements MapToolsComponent {
     }
 
     public void render(final Graphics2D g, final ScreenPixelConverter screenPixel) {
-        if(pts == null)
+        if(pts == null || !use1k)
             return;
 
         screenPixel.pixelToScreen(pts, vpts);

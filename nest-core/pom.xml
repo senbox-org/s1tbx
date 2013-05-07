@@ -50,6 +50,11 @@
             <groupId>net.sf.sevenzipjbinding</groupId>
             <artifactId>native-libs</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.lowagie</groupId>
+            <artifactId>itext</artifactId>
+            <version>2.1.7</version>
+        </dependency>
     </dependencies>
 
 </project>

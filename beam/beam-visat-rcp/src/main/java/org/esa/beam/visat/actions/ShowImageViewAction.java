@@ -137,11 +137,11 @@ public class ShowImageViewAction extends ExecCommand {
         return internalFrame;
     }
 
-    private String createInternalFrameTitle(final RasterDataNode raster) {
+    private static String createInternalFrameTitle(final RasterDataNode raster) {
         return UIUtils.getUniqueFrameTitle(VisatApp.getApp().getAllInternalFrames(), raster.getDisplayName());
     }
 
-    private ProductSceneImage createProductSceneImage(final RasterDataNode raster, ProgressMonitor pm) {
+    protected ProductSceneImage createProductSceneImage(final RasterDataNode raster, ProgressMonitor pm) {
         Debug.assertNotNull(raster);
         Debug.assertNotNull(pm);
 

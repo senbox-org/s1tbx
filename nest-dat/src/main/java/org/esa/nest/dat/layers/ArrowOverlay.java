@@ -39,7 +39,8 @@ public class ArrowOverlay {
         double d2 = Math.sqrt(d * d + d1 * d1);
         final double d3;
         final double size = 2.0;
-        final int headSize = Math.max(5, (int)((xx-x)*0.1));
+        //final int headSize = Math.max(5, (int)((xx-x)*0.1));
+        final int headSize = Math.max(3, (int)size);
         if(d2 > (3.0 * headSize))
             d3 = headSize;
         else

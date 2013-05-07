@@ -17,14 +17,14 @@ package org.esa.nest.dat.layers.maptools;
 
 import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.glayer.Layer;
+import com.bc.ceres.glayer.LayerFilter;
 import com.bc.ceres.glayer.LayerType;
+import com.bc.ceres.glayer.support.LayerUtils;
 import com.bc.ceres.grender.Rendering;
 import com.bc.ceres.grender.Viewport;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.RasterDataNode;
-import org.esa.beam.framework.ui.product.ProductSceneView;
-import org.esa.beam.visat.VisatApp;
 import org.esa.nest.dat.layers.LayerSelection;
 import org.esa.nest.dat.layers.ScreenPixelConverter;
 import org.esa.nest.dat.layers.maptools.components.*;
@@ -48,6 +48,7 @@ public class MapToolsLayer extends Layer implements LayerSelection {
         setName("Mapping Tools");
         raster = (RasterDataNode) configuration.getValue("raster");
         options = (MapToolsOptions) configuration.getValue("options");
+        options.setLayer(this);
         product = raster.getProduct();
         regenerate();
     }
@@ -59,11 +60,8 @@ public class MapToolsLayer extends Layer implements LayerSelection {
     @Override
     public void regenerate() {
         components.clear();
-        if(options.showNorthArrow() && !options.showCompass()) {
+        if(options.showNorthArrow()) {
             components.add(new NorthArrowComponent(raster));
-        }
-        if(options.showCompass()) {
-            components.add(new CompassComponent(raster));
         }
         if(options.showLatLonGrid()) {
             components.add(new LatLonGridComponent(raster));
@@ -74,8 +72,8 @@ public class MapToolsLayer extends Layer implements LayerSelection {
         if(options.showMapOverview()) {
 
         }
-        if(options.showPlaceNames()) {
-
+        if(options.showInfo()) {
+            components.add(new InfoComponent(raster));
         }
         if(options.showScale()) {
             components.add(new ScaleComponent(raster));
@@ -106,23 +104,23 @@ public class MapToolsLayer extends Layer implements LayerSelection {
     }
 
     public void selectRectangle(final Rectangle rect) {
-        final GeoCoding geoCoding = product.getGeoCoding();
-        if(geoCoding == null) return;
-        
-        final ProductSceneView view = VisatApp.getApp().getSelectedProductSceneView();
-     //   GeoTagSelectionManager.instance().selectRectangle(rect,
-     //                                                   view.getViewport(), view.getRaster(),
-     //                                                   geoCoding, geoTags);
+
     }
 
     public void selectPoint(final int x, final int y) {
-        final GeoCoding geoCoding = product.getGeoCoding();
-        if(geoCoding == null) return;
 
-        final ProductSceneView view = VisatApp.getApp().getSelectedProductSceneView();
-     //   GeoTagSelectionManager.instance().selectPoint(x, y,
-    //                                                  view.getViewport(), view.getRaster(),
-    //                                                  geoCoding, geoTags);
     }
 
+    public static Layer findMapToolsLayer(final Layer rootLayer) {
+        return LayerUtils.getChildLayer(rootLayer, LayerUtils.SearchMode.DEEP, new LayerFilter() {
+            @Override
+            public boolean accept(Layer layer) {
+                return layer.getLayerType() instanceof MapToolsLayerType;
+            }
+        });
+    }
+
+    public MapToolsOptions getMapToolsOptions() {
+        return options;
+    }
 }
