@@ -94,15 +94,10 @@ public final class ProductTemporalBinRenderer implements TemporalBinRenderer {
         localNumPassesBand.setNoDataValue(-1);
         localNumPassesBand.setNoDataValueUsed(true);
 
-        String[] outputFeatureNames = binningContext.getBinManager().getResultFeatureNames();
-        outputBands = new Band[outputFeatureNames.length];
-        outputLines = new ProductData[outputFeatureNames.length];
-        for (int i = 0; i < outputFeatureNames.length; i++) {
-            String name = outputFeatureNames[i];
-            outputBands[i] = product.addBand(name, ProductData.TYPE_FLOAT32);
-            outputBands[i].setNoDataValue(Float.NaN);
-            outputBands[i].setNoDataValueUsed(true);
-            outputLines[i] = outputBands[i].createCompatibleRasterData(outputRegion.width, 1);
+        for (String name : binningContext.getBinManager().getResultFeatureNames()) {
+            Band band = product.addBand(name, ProductData.TYPE_FLOAT32);
+            band.setNoDataValue(Float.NaN);
+            band.setNoDataValueUsed(true);
         }
 
         if (productCustomizer != null) {
@@ -121,7 +116,16 @@ public final class ProductTemporalBinRenderer implements TemporalBinRenderer {
             numPassesLine = null;
         }
 
-        this.rasterWidth = product.getSceneRasterWidth();
+        String[] outputFeatureNames = binningContext.getBinManager().getResultFeatureNames();
+        outputBands = new Band[outputFeatureNames.length];
+        outputLines = new ProductData[outputFeatureNames.length];
+        for (int i = 0; i < outputFeatureNames.length; i++) {
+            String name = outputFeatureNames[i];
+            outputBands[i] = product.getBand(name);
+            outputLines[i] = outputBands[i].createCompatibleRasterData(outputRegion.width, 1);
+        }
+
+        this.rasterWidth = outputRegion.width;
         this.fillValues = new float[outputBands.length];
         for (int i = 0; i < outputBands.length; i++) {
             fillValues[i] = (float) outputBands[i].getNoDataValue();
