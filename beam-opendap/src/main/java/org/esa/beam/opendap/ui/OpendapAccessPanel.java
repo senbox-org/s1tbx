@@ -63,7 +63,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class OpendapAccessPanel extends JPanel {
+public class OpendapAccessPanel extends JPanel implements CatalogTree.UIContext {
 
     private static final String PROPERTY_KEY_SERVER_URLS = "opendap.server.urls";
     private final static int DDS_AREA_INDEX = 0;
@@ -190,7 +190,7 @@ public class OpendapAccessPanel extends JPanel {
                     updateStatusBar("Total size of currently selected files: " + OpendapUtils.format(dataSizeInMB) + " MB");
                 }
             }
-        }, appContext);
+        }, appContext, this);
         useDatasetNameFilter = new JCheckBox("Use dataset name filter");
         useTimeRangeFilter = new JCheckBox("Use time range filter");
         useRegionFilter = new JCheckBox("Use region filter");
@@ -635,7 +635,7 @@ public class OpendapAccessPanel extends JPanel {
 
             for (TreePath selectionPath : selectionPaths) {
                 final DefaultMutableTreeNode treeNode = (DefaultMutableTreeNode) selectionPath.getLastPathComponent();
-                if (CatalogTree.isDapNode(treeNode) || CatalogTree.isFileNode(treeNode)) {
+                if (CatalogTreeUtils.isDapNode(treeNode) || CatalogTreeUtils.isFileNode(treeNode)) {
                     final OpendapLeaf leaf = (OpendapLeaf) treeNode.getUserObject();
                     if (leaf.isDapAccess()) {
                         dapURIs.put(leaf.getDapUri(), leaf.getFileSize() >= 2 * 1024 * 1024);

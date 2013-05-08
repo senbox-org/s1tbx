@@ -18,8 +18,7 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.*;
 
 @RunWith(HeadlessTestRunner.class)
 public class CatalogTree_setNewRootDatasetsTest {
@@ -34,7 +33,7 @@ public class CatalogTree_setNewRootDatasetsTest {
         catalog = new InvCatalogImpl("catalogName", "1.0", new URI("http://x.y"));
         InvDatasetImpl dapDataset = createDataset(catalog, "first", "OPENDAP");
         datasets.add(dapDataset);
-        catalogTree = new CatalogTree(null, new DefaultAppContext(""));
+        catalogTree = new CatalogTree(null, new DefaultAppContext(""), null);
     }
 
     @Test
@@ -46,7 +45,7 @@ public class CatalogTree_setNewRootDatasetsTest {
         assertEquals(true, ((JTree) catalogTree.getComponent()).getModel().getRoot() instanceof DefaultMutableTreeNode);
         final DefaultMutableTreeNode root = (DefaultMutableTreeNode) ((JTree) catalogTree.getComponent()).getModel().getRoot();
         assertEquals(1, root.getChildCount());
-        assertEquals(true, CatalogTree.isDapNode(root.getChildAt(0)));
+        assertEquals(true, CatalogTreeUtils.isDapNode(root.getChildAt(0)));
         assertEquals("first", ((DefaultMutableTreeNode) root.getChildAt(0)).getUserObject().toString());
     }
 
@@ -62,10 +61,10 @@ public class CatalogTree_setNewRootDatasetsTest {
         //verification
         final DefaultMutableTreeNode root = (DefaultMutableTreeNode) ((JTree) catalogTree.getComponent()).getModel().getRoot();
         assertEquals(2, root.getChildCount());
-        assertEquals(true, CatalogTree.isDapNode(root.getChildAt(0)));
-        assertEquals(false, CatalogTree.isFileNode(root.getChildAt(0)));
-        assertEquals(false, CatalogTree.isDapNode(root.getChildAt(1)));
-        assertEquals(true, CatalogTree.isFileNode(root.getChildAt(1)));
+        assertEquals(true, CatalogTreeUtils.isDapNode(root.getChildAt(0)));
+        assertEquals(false, CatalogTreeUtils.isFileNode(root.getChildAt(0)));
+        assertEquals(false, CatalogTreeUtils.isDapNode(root.getChildAt(1)));
+        assertEquals(true, CatalogTreeUtils.isFileNode(root.getChildAt(1)));
     }
 
     @Test
