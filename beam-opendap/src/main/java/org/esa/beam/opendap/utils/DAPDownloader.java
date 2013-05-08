@@ -1,9 +1,8 @@
 package org.esa.beam.opendap.utils;
 
 import com.bc.io.FileDownloader;
-import org.esa.beam.opendap.ui.OpendapAccessPanel;
+import org.esa.beam.opendap.ui.DownloadProgressBarPM;
 import org.esa.beam.util.StringUtils;
-import org.esa.beam.util.logging.BeamLogManager;
 import ucar.ma2.Array;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Attribute;
@@ -34,10 +33,10 @@ public class DAPDownloader {
     final Map<String, Boolean> dapUris;
     final List<String> fileURIs;
     private final FileCountProvider fileCountProvider;
-    private final OpendapAccessPanel.DownloadProgressBarProgressMonitor pm;
+    private final DownloadProgressBarPM pm;
 
     public DAPDownloader(Map<String, Boolean> dapUris, List<String> fileURIs, FileCountProvider fileCountProvider,
-                         OpendapAccessPanel.DownloadProgressBarProgressMonitor pm) {
+                         DownloadProgressBarPM pm) {
         this.dapUris = dapUris;
         this.fileURIs = fileURIs;
         this.fileCountProvider = fileCountProvider;
@@ -74,21 +73,45 @@ public class DAPDownloader {
         writeNetcdfFile(targetDir, fileName, constraintExpression, netcdfFile, isLargeFile);
     }
 
-    void writeNetcdfFile(File targetDir, String fileName, String constraintExpression, DODSNetcdfFile sourceNetcdfFile, boolean isLargeFile) throws IOException {
+    void writeNetcdfFile(File targetDir, String fileName, String constraintExpression, final DODSNetcdfFile sourceNetcdfFile, final boolean isLargeFile) throws IOException {
         final File file = new File(targetDir, fileName);
         if (StringUtils.isNullOrEmpty(constraintExpression)) {
             try {
-                FileWriter.writeToFile(sourceNetcdfFile, file.getAbsolutePath(), true, isLargeFile);
-            } catch (NullPointerException e) {
-                // this can happen when products have a string as fill value, which is not considered correct NetCDF but can be handled.
-                final String msg = String.format("Unable to store file '%s' in fill mode. Using non-fill mode as fallback.", sourceNetcdfFile.getLocation());
-                BeamLogManager.getSystemLogger().warning(msg);
-                FileWriter.writeToFile(sourceNetcdfFile, file.getAbsolutePath(), false, isLargeFile);
+                Thread thread = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            FileWriter.writeToFile(sourceNetcdfFile, file.getAbsolutePath(), false, isLargeFile);
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                });
+                thread.start();
+                int downloadedBefore = 0;
+                while (thread.isAlive()) {
+                    try {
+                        Thread.sleep(1000L);
+                    } catch (InterruptedException ignore) {
+                        // ignore
+                    }
+                    int downloaded = (int) (file.length() / 1024);
+                    int delta = downloaded - downloadedBefore;
+                    if (delta > 0) {
+                        updateProgressBar(fileName, delta);
+                        downloadedBefore = downloaded;
+                    }
+                }
+            } catch (RuntimeException e) {
+                if (e.getCause() instanceof IOException) {
+                    throw (IOException) e.getCause();
+                } else {
+                    throw e;
+                }
             }
+
             if (!pm.isCanceled()) {
                 fileCountProvider.notifyFileDownloaded(file);
-                final int work = (int) (file.length() / 1024);
-                updateProgressBar(fileName, work);
             }
             return;
         }
@@ -171,7 +194,7 @@ public class DAPDownloader {
             preMessageBuilder.append(" @ ").append(speedString).append(" ").append(sizeIdentifier).append("B/s");
         }
         int totalWork = pm.getTotalWork();
-        final double percentage = ((double) currentWork / totalWork) * 100.0;
+        double percentage = ((double) currentWork / totalWork) * 100.0;
         String workDone = OpendapUtils.format(currentWork / 1024.0);
         String totalWorkString = OpendapUtils.format(totalWork / 1024.0);
         pm.setPostMessage(workDone + " MB/" + totalWorkString + " MB (" + OpendapUtils.format(percentage) + "%)");

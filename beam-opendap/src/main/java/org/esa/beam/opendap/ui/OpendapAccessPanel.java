@@ -1,6 +1,5 @@
 package org.esa.beam.opendap.ui;
 
-import com.bc.ceres.core.ProgressBarProgressMonitor;
 import com.jidesoft.combobox.AbstractComboBox;
 import com.jidesoft.combobox.FolderChooserComboBox;
 import com.jidesoft.combobox.PopupPanel;
@@ -60,7 +59,6 @@ import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -298,7 +296,7 @@ public class OpendapAccessPanel extends JPanel implements CatalogTree.UIContext 
         }
     }
 
-    private boolean contains(JComboBox urlField, String url) {
+    private static boolean contains(JComboBox urlField, String url) {
         for (int i = 0; i < urlField.getItemCount(); i++) {
             if (urlField.getItemAt(i).toString().equals(url)) {
                 return true;
@@ -355,7 +353,7 @@ public class OpendapAccessPanel extends JPanel implements CatalogTree.UIContext 
         final JPanel downloadButtonPanel = new JPanel(new BorderLayout(8, 5));
         downloadButtonPanel.setBorder(new EmptyBorder(8, 8, 8, 8));
         cancelButton = new JButton("Cancel");
-        final DownloadProgressBarProgressMonitor pm = new DownloadProgressBarProgressMonitor(progressBar, preMessageLabel, postMessageLabel, cancelButton);
+        final DownloadProgressBarPM pm = new DownloadProgressBarPM(progressBar, preMessageLabel, postMessageLabel, cancelButton);
         progressBar.setVisible(false);
         folderChooserComboBox = new FolderChooserComboBox() {
             @Override
@@ -415,7 +413,7 @@ public class OpendapAccessPanel extends JPanel implements CatalogTree.UIContext 
         this.add(statusBar, BorderLayout.SOUTH);
     }
 
-    private DownloadAction createDownloadAction(DownloadProgressBarProgressMonitor pm) {
+    private DownloadAction createDownloadAction(DownloadProgressBarPM pm) {
         return new DownloadAction(pm, new ParameterProviderImpl(), new DownloadAction.DownloadHandler() {
 
             @Override
@@ -486,101 +484,6 @@ public class OpendapAccessPanel extends JPanel implements CatalogTree.UIContext 
             for (OpendapLeaf leaf : leaves) {
                 filterLeaf(leaf);
             }
-        }
-    }
-
-    public static class DownloadProgressBarProgressMonitor extends ProgressBarProgressMonitor implements
-                                                                                              LabelledProgressBarPM {
-
-        private final JProgressBar progressBar;
-        private final JLabel preMessageLabel;
-        private JLabel postMessageLabel;
-        private int totalWork;
-        private int currentWork;
-        private long startTime;
-        private JButton cancelButton;
-
-        public DownloadProgressBarProgressMonitor(JProgressBar progressBar, JLabel preMessageLabel, JLabel postMessageLabel, JButton cancelButton) {
-            super(progressBar, preMessageLabel);
-            this.progressBar = progressBar;
-            this.preMessageLabel = preMessageLabel;
-            this.postMessageLabel = postMessageLabel;
-            this.cancelButton = cancelButton;
-        }
-
-        @Override
-        public void setPreMessage(String preMessageText) {
-            setTaskName(preMessageText);
-        }
-
-        @Override
-        public void setPostMessage(String postMessageText) {
-            postMessageLabel.setText(postMessageText);
-        }
-
-        @Override
-        public void setTooltip(String tooltip) {
-            preMessageLabel.setToolTipText(tooltip);
-            postMessageLabel.setToolTipText(tooltip);
-            progressBar.setToolTipText(tooltip);
-        }
-
-        @Override
-        public void beginTask(String name, int totalWork) {
-            super.beginTask(name, totalWork);
-            this.totalWork = totalWork;
-            this.currentWork = 0;
-            progressBar.setValue(0);
-        }
-
-        @Override
-        public void worked(int work) {
-            super.worked(work);
-            currentWork += work;
-        }
-
-        @Override
-        protected void setDescription(String description) {
-        }
-
-        @Override
-        protected void setVisibility(boolean visible) {
-            // once the progress bar has been made visible, it shall always be visible
-            progressBar.setVisible(true);
-        }
-
-        @Override
-        protected void setRunning() {
-        }
-
-        @Override
-        protected void finish() {
-            cancelButton.setEnabled(false);
-        }
-
-        @Override
-        public int getTotalWork() {
-            return totalWork;
-        }
-
-        @Override
-        public int getCurrentWork() {
-            return currentWork;
-        }
-
-        public void updateTask(int additionalWork) {
-            totalWork += additionalWork;
-            progressBar.setMaximum(totalWork);
-            progressBar.updateUI();
-        }
-
-        public void resetStartTime() {
-            GregorianCalendar gc = new GregorianCalendar();
-            startTime = gc.getTimeInMillis();
-        }
-
-        public long getStartTime() {
-            return startTime;
         }
     }
 
@@ -676,6 +579,7 @@ public class OpendapAccessPanel extends JPanel implements CatalogTree.UIContext 
 
                 @Override
                 protected void done() {
+                    updateStatusBar("Ready.");
                     setCursor(Cursor.getDefaultCursor());
                 }
 

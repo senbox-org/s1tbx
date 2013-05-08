@@ -35,14 +35,14 @@ class DownloadAction implements ActionListener, DAPDownloader.FileCountProvider 
 
     private final Set<DownloadWorker> activeDownloaders = new HashSet<DownloadWorker>();
 
-    private final OpendapAccessPanel.DownloadProgressBarProgressMonitor pm;
+    private final DownloadProgressBarPM pm;
     private final ParameterProvider parameterProvider;
     private final DownloadHandler downloadHandler;
 
     private int downloadedFilesCount;
     private int filesToDownloadCount;
 
-    public DownloadAction(OpendapAccessPanel.DownloadProgressBarProgressMonitor pm, ParameterProvider parameterProvider,
+    public DownloadAction(DownloadProgressBarPM pm, ParameterProvider parameterProvider,
                           DownloadHandler downloadHandler) {
         this.pm = pm;
         this.parameterProvider = parameterProvider;

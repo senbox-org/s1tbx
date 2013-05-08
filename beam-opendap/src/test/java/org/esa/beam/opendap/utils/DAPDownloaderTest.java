@@ -1,6 +1,6 @@
 package org.esa.beam.opendap.utils;
 
-import org.esa.beam.opendap.ui.OpendapAccessPanel;
+import org.esa.beam.opendap.ui.DownloadProgressBarPM;
 import org.esa.beam.util.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -234,7 +234,7 @@ public class DAPDownloaderTest {
         return new File(TESTDATA_DIR, fileName);
     }
 
-    private static class NullLabelledProgressBarPM extends OpendapAccessPanel.DownloadProgressBarProgressMonitor {
+    private static class NullLabelledProgressBarPM extends DownloadProgressBarPM {
 
         public NullLabelledProgressBarPM() {
             super(null, null, null, null);
