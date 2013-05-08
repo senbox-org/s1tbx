@@ -266,7 +266,8 @@ public class TerraSarXProductReader extends AbstractProductReader {
         final int asri = rs;
         final int asfv = rs;
         final int aslv = rs;
-        final long xpos = rtnb + x + ((filler + asri +filler+ asfv +filler+ aslv +filler+filler)*4);
+        //final long xpos = rtnb + x + ((filler + asri +filler+ asfv +filler+ aslv +filler+filler)*4);
+        final long xpos = rtnb + x + ((filler + asri +filler+ asfv +filler+ aslv +filler)*4);
         iiStream.setByteOrder(ByteOrder.BIG_ENDIAN);
 
         pm.beginTask("Reading band...", sourceMaxY - sourceOffsetY);
