@@ -1,7 +1,7 @@
 package org.esa.beam.binning.operator;
 
 import com.vividsolutions.jts.geom.Geometry;
-import org.esa.beam.binning.Aggregator;
+import org.esa.beam.binning.BinManager;
 import org.esa.beam.binning.BinningContext;
 import org.esa.beam.binning.PlanetaryGrid;
 import org.esa.beam.binning.TemporalBin;
@@ -79,7 +79,6 @@ class SeaDASLevel3BinWriter implements BinWriter {
 
     @Override
     public void write(Map<String, String> metadataProperties, List<TemporalBin> temporalBins) throws IOException {
-
         final NetcdfFileWriteable netcdfFile = NetcdfFileWriteable.createNew(targetFilePath.getAbsolutePath());
 
         netcdfFile.addGlobalAttribute("title", "Level-3 Binned Data");
@@ -88,23 +87,9 @@ class SeaDASLevel3BinWriter implements BinWriter {
             netcdfFile.addGlobalAttribute("region", region.toText());
         }
 
-        writeTimeGlobalMetadata(netcdfFile);
-
-        for (String name : metadataProperties.keySet()) {
-            final String value = metadataProperties.get(name);
-            try {
-                netcdfFile.addGlobalAttribute(name, value);
-            } catch (Exception e) {
-                logger.warning(String.format("Failed to write metadata property to '%s': %s = %s",
-                        targetFilePath.getAbsolutePath(), name, value));
-            }
-        }
-
-        netcdfFile.addGlobalAttribute("SEAGrid_bins", 2 * planetaryGrid.getNumRows());
-        netcdfFile.addGlobalAttribute("SEAGrid_radius", SEAGrid.RE);
-        netcdfFile.addGlobalAttribute("SEAGrid_max_north", +90.0);
-        netcdfFile.addGlobalAttribute("SEAGrid_max_south", -90.0);
-        netcdfFile.addGlobalAttribute("SEAGrid_seam_lon", -180.0);
+        writeGlobalTimeCoverageMetadata(netcdfFile);
+        writeGlobalCommonMetadata(metadataProperties, netcdfFile);
+        writeGlobalSEAGridMetadata(netcdfFile);
 
         final Dimension binIndexDim = netcdfFile.addDimension("bin_index", planetaryGrid.getNumRows());
         final Dimension binListDim = netcdfFile.addDimension("bin_list", temporalBins.size());
@@ -145,16 +130,15 @@ class SeaDASLevel3BinWriter implements BinWriter {
         final Variable binNumVar = netcdfFile.addVariable("bl_bin_num", DataType.INT, new Dimension[]{binListDim});
         final Variable numObsVar = netcdfFile.addVariable("bl_nobs", DataType.INT, new Dimension[]{binListDim});
         final Variable numScenesVar = netcdfFile.addVariable("bl_nscenes", DataType.INT, new Dimension[]{binListDim});
-        final int aggregatorCount = binningContext.getBinManager().getAggregatorCount();
-        final ArrayList<Variable> featureVars = new ArrayList<Variable>(3 * aggregatorCount);
-        for (int i = 0; i < aggregatorCount; i++) {
-            final Aggregator aggregator = binningContext.getBinManager().getAggregator(i);
-            final String[] featureNames = aggregator.getTemporalFeatureNames();
-            for (String featureName : featureNames) {
-                final Variable featureVar = netcdfFile.addVariable("bl_" + featureName, DataType.FLOAT, new Dimension[]{binListDim});
-                featureVar.addAttribute(new Attribute("_FillValue", Float.NaN));
-                featureVars.add(featureVar);
-            }
+
+
+        final BinManager binManager = binningContext.getBinManager();
+        final String[] resultFeatureNames = binManager.getResultFeatureNames();
+        final ArrayList<Variable> featureVars = new ArrayList<Variable>(resultFeatureNames.length);
+        for (String featureName : resultFeatureNames) {
+            final Variable featureVar = netcdfFile.addVariable("bl_" + featureName, DataType.FLOAT, new Dimension[]{binListDim});
+            featureVar.addAttribute(new Attribute("_FillValue", Float.NaN));
+            featureVars.add(featureVar);
         }
 
         netcdfFile.create();
@@ -168,12 +152,31 @@ class SeaDASLevel3BinWriter implements BinWriter {
         }
     }
 
+    private void writeGlobalSEAGridMetadata(NetcdfFileWriteable netcdfFile) {
+        netcdfFile.addGlobalAttribute("SEAGrid_bins", 2 * planetaryGrid.getNumRows());
+        netcdfFile.addGlobalAttribute("SEAGrid_radius", SEAGrid.RE);
+        netcdfFile.addGlobalAttribute("SEAGrid_max_north", +90.0);
+        netcdfFile.addGlobalAttribute("SEAGrid_max_south", -90.0);
+        netcdfFile.addGlobalAttribute("SEAGrid_seam_lon", -180.0);
+    }
+
+    private void writeGlobalCommonMetadata(Map<String, String> metadataProperties, NetcdfFileWriteable netcdfFile) {
+        for (String name : metadataProperties.keySet()) {
+            final String value = metadataProperties.get(name);
+            try {
+                netcdfFile.addGlobalAttribute(name, value);
+            } catch (Exception e) {
+                logger.warning(String.format("Failed to write metadata property to '%s': %s = %s", targetFilePath.getAbsolutePath(), name, value));
+            }
+        }
+    }
+
     // package access for testing only tb 2013-05-06
     static String toDateString(ProductData.UTC utc) {
         return utc != null ? dateFormat.format(utc.getAsDate()) : "";
     }
 
-    private void writeTimeGlobalMetadata(NetcdfFileWriteable netcdfFile) {
+    private void writeGlobalTimeCoverageMetadata(NetcdfFileWriteable netcdfFile) {
         final String startTimeString = toDateString(startTime);
         final String stopTimeString = toDateString(stopTime);
         netcdfFile.addGlobalAttribute("start_time", startTimeString);

@@ -600,30 +600,30 @@ public class BinningOpTest {
         }
     }
 
-//    @Test
-//    public void testBinningSetsCorrectStartAndStopTimesFromProductTimes() throws Exception {
-//        final BinningConfig binningConfig = createBinningConfig();
-//        final FormatterConfig formatterConfig = createFormatterConfig();
-//
-//        float obs1 = 0.2F;
-//
-//        final BinningOp binningOp = new BinningOp();
-//
-//        final JtsGeometryConverter geometryConverter = new JtsGeometryConverter();
-//
-//        final Product sourceProduct = createSourceProduct(obs1);
-//        sourceProduct.setStartTime(ProductData.UTC.parse("02-JAN-2002 11:30:25"));
-//        sourceProduct.setEndTime(ProductData.UTC.parse("02-JAN-2002 12:28:19"));
-//
-//        binningOp.setSourceProducts(sourceProduct);
-//        binningOp.setBinningConfig(binningConfig);
-//        binningOp.setFormatterConfig(formatterConfig);
-//        binningOp.setRegion(geometryConverter.parse("POLYGON ((-180 -90, -180 90, 180 90, 180 -90, -180 -90))"));
-//
-//        final Product targetProduct = binningOp.getTargetProduct();
-//        assertNotNull(targetProduct);
-//
-//    }
+    @Test
+    public void testBinningSetsCorrectStartAndStopTimesFromProductTimes() throws Exception {
+        final BinningConfig binningConfig = createBinningConfig();
+        final FormatterConfig formatterConfig = createFormatterConfig();
+
+        float obs1 = 0.2F;
+
+        final BinningOp binningOp = new BinningOp();
+
+        final JtsGeometryConverter geometryConverter = new JtsGeometryConverter();
+
+        final Product sourceProduct = createSourceProduct(obs1);
+        sourceProduct.setStartTime(ProductData.UTC.parse("02-JAN-2002 11:30:25"));
+        sourceProduct.setEndTime(ProductData.UTC.parse("02-JAN-2002 12:28:19"));
+
+        binningOp.setSourceProducts(sourceProduct);
+        binningOp.setBinningConfig(binningConfig);
+        binningOp.setFormatterConfig(formatterConfig);
+        binningOp.setRegion(geometryConverter.parse("POLYGON ((-180 -90, -180 90, 180 90, 180 -90, -180 -90))"));
+
+        final Product targetProduct = binningOp.getTargetProduct();
+        assertNotNull(targetProduct);
+
+    }
 
     private void assertGlobalBinningProductIsOk(Product targetProduct, File location, float obs1, float obs2,
                                                 float obs3, float obs4, float obs5) throws IOException {

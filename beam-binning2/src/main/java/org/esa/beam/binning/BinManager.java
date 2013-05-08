@@ -117,7 +117,7 @@ public class BinManager {
         return temporalFeatureCount;
     }
 
-    public final int getOutputFeatureCount() {
+    final int getOutputFeatureCount() {
         return outputFeatureCount;
     }
 
@@ -125,12 +125,20 @@ public class BinManager {
         return postFeatureCount;
     }
 
-    final String[] getOutputFeatureNames() {
+    public final String[] getOutputFeatureNames() {
         return outputFeatureNames;
     }
 
     final String[] getPostProcessFeatureNames() {
         return postFeatureNames;
+    }
+
+    public int getResultFeatureCount() {
+        if (hasPostProcessor()) {
+            return postFeatureCount;
+        } else {
+            return outputFeatureCount;
+        }
     }
 
     public final String[] getResultFeatureNames() {
