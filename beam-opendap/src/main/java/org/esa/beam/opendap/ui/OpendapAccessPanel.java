@@ -167,51 +167,7 @@ public class OpendapAccessPanel extends JPanel implements CatalogTree.UIContext 
             }
         });
 
-        catalogTree = new CatalogTree(new CatalogTree.LeafSelectionListener() {
-
-            @Override
-            public void dapLeafSelected(final OpendapLeaf leaf) {
-                setText(leaf);
-            }
-
-            @Override
-            public void fileLeafSelected(OpendapLeaf leaf) {
-                setText(leaf);
-            }
-
-            private void setText(final OpendapLeaf leaf) {
-                new SwingWorker<Void, Void>() {
-
-                    @Override
-                    protected Void doInBackground() throws Exception {
-                        updateStatusBar("Retrieving metadata...");
-                        setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-                        setMetadataText(metaInfoArea.getSelectedIndex(), leaf);
-                        return null;
-                    }
-
-                    @Override
-                    protected void done() {
-                        setCursor(Cursor.getDefaultCursor());
-                    }
-
-                }.execute();
-            }
-
-            @Override
-            public void leafSelectionChanged(boolean isSelected, OpendapLeaf dapObject) {
-                int dataSize = dapObject.getFileSize();
-                currentDataSize += isSelected ? dataSize : -dataSize;
-                if (currentDataSize <= 0) {
-                    updateStatusBar("Ready.");
-                    downloadButton.setEnabled(false);
-                } else {
-                    downloadButton.setEnabled(true);
-                    double dataSizeInMB = currentDataSize / 1024.0;
-                    updateStatusBar("Total size of currently selected files: " + OpendapUtils.format(dataSizeInMB) + " MB");
-                }
-            }
-        }, appContext, this);
+        catalogTree = new CatalogTree(new DefaultLeafSelectionListener(), appContext, this);
         useDatasetNameFilter = new JCheckBox("Use dataset name filter");
         useTimeRangeFilter = new JCheckBox("Use time range filter");
         useRegionFilter = new JCheckBox("Use region filter");
@@ -534,7 +490,7 @@ public class OpendapAccessPanel extends JPanel implements CatalogTree.UIContext 
     }
 
     public static class DownloadProgressBarProgressMonitor extends ProgressBarProgressMonitor implements
-            LabelledProgressBarPM {
+                                                                                              LabelledProgressBarPM {
 
         private final JProgressBar progressBar;
         private final JLabel preMessageLabel;
@@ -695,4 +651,49 @@ public class OpendapAccessPanel extends JPanel implements CatalogTree.UIContext 
         }
     }
 
+    private class DefaultLeafSelectionListener implements CatalogTree.LeafSelectionListener {
+
+        @Override
+        public void dapLeafSelected(final OpendapLeaf leaf) {
+            setText(leaf);
+        }
+
+        @Override
+        public void fileLeafSelected(OpendapLeaf leaf) {
+            setText(leaf);
+        }
+
+        private void setText(final OpendapLeaf leaf) {
+            new SwingWorker<Void, Void>() {
+
+                @Override
+                protected Void doInBackground() throws Exception {
+                    updateStatusBar("Retrieving metadata...");
+                    setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+                    setMetadataText(metaInfoArea.getSelectedIndex(), leaf);
+                    return null;
+                }
+
+                @Override
+                protected void done() {
+                    setCursor(Cursor.getDefaultCursor());
+                }
+
+            }.execute();
+        }
+
+        @Override
+        public void leafSelectionChanged(boolean isSelected, OpendapLeaf dapObject) {
+            int dataSize = dapObject.getFileSize();
+            currentDataSize += isSelected ? dataSize : -dataSize;
+            if (currentDataSize <= 0) {
+                updateStatusBar("Ready.");
+                downloadButton.setEnabled(false);
+            } else {
+                downloadButton.setEnabled(true);
+                double dataSizeInMB = currentDataSize / 1024.0;
+                updateStatusBar("Total size of currently selected files: " + OpendapUtils.format(dataSizeInMB) + " MB");
+            }
+        }
+    }
 }
