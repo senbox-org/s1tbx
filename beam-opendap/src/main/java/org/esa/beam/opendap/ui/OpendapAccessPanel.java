@@ -491,6 +491,8 @@ public class OpendapAccessPanel extends JPanel implements CatalogTree.UIContext 
 
         Map<String, Boolean> dapURIs = new HashMap<String, Boolean>();
         List<String> fileURIs = new ArrayList<String>();
+        private boolean mayAlwaysOverwrite = false;
+        private boolean mayNeverOverwrite = false;
 
         @Override
         public Map<String, Boolean> getDapURIs() {
@@ -531,6 +533,8 @@ public class OpendapAccessPanel extends JPanel implements CatalogTree.UIContext 
         public void reset() {
             dapURIs.clear();
             fileURIs.clear();
+            mayAlwaysOverwrite = false;
+            mayNeverOverwrite = false;
         }
 
         @Override
@@ -551,6 +555,46 @@ public class OpendapAccessPanel extends JPanel implements CatalogTree.UIContext 
                 targetDirectory = new File(textField.getText());
             }
             return targetDirectory;
+        }
+
+        @Override
+        public boolean inquireOverwritePermission(String filename) {
+            if (mayAlwaysOverwrite) {
+                return true;
+            }
+            if (mayNeverOverwrite) {
+                return false;
+            }
+            boolean mayOverwrite = false;
+            String[] options = {
+                    "Overwrite",
+                    "Always overwrite",
+                    "Skip this file",
+                    "Never overwrite"
+            };
+            int result = JOptionPane.showOptionDialog(OpendapAccessPanel.this,
+                                                      "Target file '" + filename + "' already exists.",
+                                                      "Target file already exists",
+                                                      JOptionPane.DEFAULT_OPTION,
+                                                      JOptionPane.QUESTION_MESSAGE,
+                                                      null, options, "Yes");
+            switch (result) {
+                case 0:
+                    mayOverwrite = true;
+                    break;
+                case 1:
+                    mayOverwrite = true;
+                    mayAlwaysOverwrite = true;
+                    break;
+                case 2:
+                    mayOverwrite = false;
+                    break;
+                case 3:
+                    mayOverwrite = false;
+                    mayNeverOverwrite = true;
+                    break;
+            }
+            return mayOverwrite;
         }
     }
 

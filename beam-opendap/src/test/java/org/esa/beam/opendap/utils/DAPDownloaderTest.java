@@ -44,7 +44,7 @@ public class DAPDownloaderTest {
     @Test
     public void testDownloadFile() throws Exception {
         final Set<File> downloadedFiles = new HashSet<File>();
-        NullFileCountProvider fileCountProvider = new NullFileCountProvider() {
+        NullDownloadContext fileCountProvider = new NullDownloadContext() {
             @Override
             public void notifyFileDownloaded(File downloadedFile) {
                 downloadedFiles.add(downloadedFile);
@@ -202,7 +202,7 @@ public class DAPDownloaderTest {
     @Ignore
     @Test
     public void testActualWriting() throws Exception {
-        final DAPDownloader dapDownloader = new DAPDownloader(null, null, new NullFileCountProvider(), new NullLabelledProgressBarPM());
+        final DAPDownloader dapDownloader = new DAPDownloader(null, null, new NullDownloadContext(), new NullLabelledProgressBarPM());
         final DODSNetcdfFile sourceNetcdfFile = new DODSNetcdfFile(
                 "http://test.opendap.org:80/opendap/data/nc/coads_climatology.nc");
         dapDownloader.writeNetcdfFile(TESTDATA_DIR, "deleteme.nc", "", sourceNetcdfFile, false);
@@ -217,7 +217,7 @@ public class DAPDownloaderTest {
     @Ignore
     @Test
     public void testActualWriting_WithConstraint() throws Exception {
-        final DAPDownloader dapDownloader = new DAPDownloader(null, null, new NullFileCountProvider(), new NullLabelledProgressBarPM());
+        final DAPDownloader dapDownloader = new DAPDownloader(null, null, new NullDownloadContext(), new NullLabelledProgressBarPM());
         final DODSNetcdfFile sourceNetcdfFile = new DODSNetcdfFile(
                 "http://test.opendap.org:80/opendap/data/nc/coads_climatology.nc");
         dapDownloader.writeNetcdfFile(TESTDATA_DIR, "deleteme.nc", "COADSX[0:1:4]", sourceNetcdfFile, false);
@@ -296,7 +296,7 @@ public class DAPDownloaderTest {
         }
     }
 
-    private static class NullFileCountProvider implements DAPDownloader.FileCountProvider {
+    private static class NullDownloadContext implements DAPDownloader.DownloadContext {
 
         @Override
         public int getAllFilesCount() {
@@ -310,6 +310,11 @@ public class DAPDownloaderTest {
 
         @Override
         public void notifyFileDownloaded(File downloadedFile) {
+        }
+
+        @Override
+        public boolean mayOverwrite(String filename) {
+            return true;
         }
     }
 }

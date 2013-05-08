@@ -31,7 +31,7 @@ import java.util.Set;
  * @author Tonio Fincke
  * @author Thomas Storm
  */
-class DownloadAction implements ActionListener, DAPDownloader.FileCountProvider {
+class DownloadAction implements ActionListener, DAPDownloader.DownloadContext {
 
     private final Set<DownloadWorker> activeDownloaders = new HashSet<DownloadWorker>();
 
@@ -57,8 +57,9 @@ class DownloadAction implements ActionListener, DAPDownloader.FileCountProvider 
         if (dapURIs.size() == 0 && fileURIs.size() == 0) {
             return;
         }
-        final DAPDownloader downloader = new DAPDownloader(dapURIs, fileURIs, this, pm);
-        final File targetDirectory = parameterProvider.getTargetDirectory();
+        File targetDirectory = parameterProvider.getTargetDirectory();
+
+        DAPDownloader downloader = new DAPDownloader(dapURIs, fileURIs, this, pm);
         if (activeDownloaders.isEmpty()) {
             pm.beginTask("", (int) (parameterProvider.getDatasizeInKb()));
             pm.worked(0);
@@ -87,6 +88,11 @@ class DownloadAction implements ActionListener, DAPDownloader.FileCountProvider 
     public void notifyFileDownloaded(File downloadedFile) {
         downloadedFilesCount++;
         downloadHandler.handleDownloadFinished(downloadedFile);
+    }
+
+    @Override
+    public boolean mayOverwrite(String filename) {
+        return parameterProvider.inquireOverwritePermission(filename);
     }
 
     public void cancel() {
@@ -135,16 +141,17 @@ class DownloadAction implements ActionListener, DAPDownloader.FileCountProvider 
 
     interface ParameterProvider {
 
+        void reset();
+
         Map<String, Boolean> getDapURIs();
 
         List<String> getFileURIs();
-
-        void reset();
 
         double getDatasizeInKb();
 
         File getTargetDirectory();
 
+        boolean inquireOverwritePermission(String filename);
     }
 
     interface DownloadHandler {
