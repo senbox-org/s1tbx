@@ -352,7 +352,7 @@ public class SubsetOp extends Operator {
         }
 
         public Rectangle getPixelRegion() {
-            return new Rectangle(x1, y1, x2 - x1 + 1, y2 - y1 + 1);
+            return new Rectangle(x1, y1, x2 - x1, y2 - y1);
         }
     }
 }
