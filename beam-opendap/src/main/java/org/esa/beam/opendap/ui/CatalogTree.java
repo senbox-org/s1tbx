@@ -71,6 +71,7 @@ class CatalogTree {
 
                     @Override
                     protected Void doInBackground() throws Exception {
+                        uiContext.updateStatusBar("Loading subtree...");
                         uiContext.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
                         Object lastPathComponent = event.getPath().getLastPathComponent();
                         DefaultMutableTreeNode parent = (DefaultMutableTreeNode) lastPathComponent;
@@ -83,6 +84,7 @@ class CatalogTree {
 
                     @Override
                     protected void done() {
+                        uiContext.updateStatusBar("Ready.");
                         uiContext.setCursor(Cursor.getDefaultCursor());
                     }
 
@@ -299,6 +301,7 @@ class CatalogTree {
 
         void setCursor(Cursor cursor);
 
+        void updateStatusBar(String text);
     }
 
 }

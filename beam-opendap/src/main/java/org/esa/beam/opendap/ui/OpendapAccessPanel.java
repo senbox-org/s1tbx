@@ -42,12 +42,14 @@ import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.JTree;
+import javax.swing.SwingWorker;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 import java.awt.BorderLayout;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -168,13 +170,32 @@ public class OpendapAccessPanel extends JPanel implements CatalogTree.UIContext 
         catalogTree = new CatalogTree(new CatalogTree.LeafSelectionListener() {
 
             @Override
-            public void dapLeafSelected(OpendapLeaf leaf) {
-                setMetadataText(metaInfoArea.getSelectedIndex(), leaf);
+            public void dapLeafSelected(final OpendapLeaf leaf) {
+                setText(leaf);
             }
 
             @Override
             public void fileLeafSelected(OpendapLeaf leaf) {
-                setMetadataText(metaInfoArea.getSelectedIndex(), leaf);
+                setText(leaf);
+            }
+
+            private void setText(final OpendapLeaf leaf) {
+                new SwingWorker<Void, Void>() {
+
+                    @Override
+                    protected Void doInBackground() throws Exception {
+                        updateStatusBar("Retrieving metadata...");
+                        setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+                        setMetadataText(metaInfoArea.getSelectedIndex(), leaf);
+                        return null;
+                    }
+
+                    @Override
+                    protected void done() {
+                        setCursor(Cursor.getDefaultCursor());
+                    }
+
+                }.execute();
             }
 
             @Override
@@ -293,7 +314,8 @@ public class OpendapAccessPanel extends JPanel implements CatalogTree.UIContext 
         textArea.setCaretPosition(0);
     }
 
-    private void updateStatusBar(String message) {
+    @Override
+    public void updateStatusBar(String message) {
         LabelStatusBarItem messageItem = (LabelStatusBarItem) statusBar.getItemByName("label");
         messageItem.setText(message);
     }
