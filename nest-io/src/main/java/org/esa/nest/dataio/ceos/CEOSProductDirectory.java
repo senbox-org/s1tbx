@@ -179,6 +179,8 @@ public abstract class CEOSProductDirectory {
         final Band band = new Band(name, dataType, sceneWidth, sceneHeight);
         band.setDescription(name);
         band.setUnit(unit);
+        band.setNoDataValue(0);
+        band.setNoDataValueUsed(true);
         product.addBand(band);
 
         return band;

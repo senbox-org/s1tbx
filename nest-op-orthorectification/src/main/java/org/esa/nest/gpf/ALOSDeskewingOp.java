@@ -304,7 +304,8 @@ public class ALOSDeskewingOp extends Operator {
             for(Band targetBand : keySet) {
 
                 final Tile targetTile = targetTiles.get(targetBand);
-                final Tile sourceTile = getSourceTile(sourceProduct.getBand(targetBand.getName()), sourceRectangle);
+                final String srcBandName = targetBandNameToSourceBandName.get(targetBand.getName())[0];
+                final Tile sourceTile = getSourceTile(sourceProduct.getBand(srcBandName), sourceRectangle);
                 final ProductData trgDataBuffer = targetTile.getDataBuffer();
                 final ProductData srcDataBuffer = sourceTile.getDataBuffer();
                 final TileIndex srcIndex = new TileIndex(sourceTile);
