@@ -17,7 +17,6 @@
 package org.esa.beam.binning;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Abstract base class that provides the aggregator's static metadata.
@@ -64,11 +63,7 @@ public abstract class AbstractAggregator implements Aggregator {
 
     @Override
     public String[] getOutputFeatureNames() {
-        final List<String> result = new ArrayList<String>(outputFeatureNames.length);
-        for (String name : outputFeatureNames) {
-            result.add(name.replace("<", "").replace(">", ""));
-        }
-        return result.toArray(new String[result.size()]);
+        return outputFeatureNames;
     }
 
     /**
@@ -76,6 +71,7 @@ public abstract class AbstractAggregator implements Aggregator {
      *
      * @param varName   The variable name.
      * @param postfixes Array of postfixes to append. A postfix may be {@code null}, in this case no corresponding feature name is generated.
+     *
      * @return Array of feature names. Its length may be less than the length of the postfixes array.
      */
     public static String[] createFeatureNames(String varName, String... postfixes) {
