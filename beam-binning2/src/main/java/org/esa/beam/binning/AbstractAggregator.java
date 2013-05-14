@@ -71,11 +71,20 @@ public abstract class AbstractAggregator implements Aggregator {
         return result.toArray(new String[result.size()]);
     }
 
-    public static String[] createFeatureNames(String varName, String... names) {
-        String[] featureNames = new String[names.length];
-        for (int i = 0; i < names.length; i++) {
-            featureNames[i] = varName + "_" + names[i];
+    /**
+     * Helper function that generates feature names by concatenating the given postfixes to the variable name.
+     *
+     * @param varName   The variable name.
+     * @param postfixes Array of postfixes to append. A postfix may be {@code null}, in this case no corresponding feature name is generated.
+     * @return Array of feature names. Its length may be less than the length of the postfixes array.
+     */
+    public static String[] createFeatureNames(String varName, String... postfixes) {
+        ArrayList<String> featureNames = new ArrayList<String>(postfixes.length);
+        for (final String postfix : postfixes) {
+            if (postfix != null) {
+                featureNames.add(varName + "_" + postfix);
+            }
         }
-        return featureNames;
+        return featureNames.toArray(new String[featureNames.size()]);
     }
 }

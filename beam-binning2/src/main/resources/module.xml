@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-binning2</symbolicName>
-    <version>0.9</version>
+    <version>1.0</version>
     <name>Level-3 Binning Processor (GPF)</name>
 
     <description>
@@ -11,7 +11,7 @@
 
     <vendor>Brockmann Consult GmbH</vendor>
     <contactAddress>Max Planck Str.2, 21502 Geesthacht (Germany)</contactAddress>
-    <copyright>(C) 2012 by Brockmann Consult GmbH</copyright>
+    <copyright>(C) 2013 by Brockmann Consult GmbH</copyright>
     <url>http://envisat.esa.int/beam</url>
     <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
     <funding>ESA, EU (Project Aquamar)</funding>
@@ -29,11 +29,15 @@
 
     <changelog>
         <![CDATA[
+        Changes from version 0.9 to 1.0:<br\>
+        <ol>
+        <li>[BEAM-1495] NaN should be considered in L3-Binning</li>
+        </ol>
         Changes from version 0.8.1 to 0.9:<br\>
         <ol>
         <li>[BEAM-1502] Binning should (optionally) support a postprocessor</li>
         <li>[BEAM-1499] In L3-Binning No-data should always be represented by NaN</li>
-        <li>[BEAM-1483] Percentil Aggregator shares state</li>
+        <li>[BEAM-1483] Percentile Aggregator shares state</li>
         </ol>
         Changes from version 0.8 to 0.8.1:<br\>
         <ol>

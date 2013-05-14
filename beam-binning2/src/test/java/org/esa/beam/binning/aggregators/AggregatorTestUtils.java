@@ -39,7 +39,7 @@ public class AggregatorTestUtils {
 
     public static BinContext createCtx() {
         return new BinContext() {
-            private HashMap map = new HashMap();
+            private HashMap<String, Object> map = new HashMap<String, Object>();
 
             @Override
             public long getIndex() {
