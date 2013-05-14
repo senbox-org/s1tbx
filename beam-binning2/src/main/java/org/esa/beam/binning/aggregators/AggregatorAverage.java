@@ -243,10 +243,11 @@ public final class AggregatorAverage extends AbstractAggregator {
         @Override
         public Aggregator createAggregator(VariableContext varCtx, AggregatorConfig aggregatorConfig) {
             PropertySet propertySet = aggregatorConfig.asPropertySet();
-            final Boolean outputCounts = (Boolean) propertySet.getValue("outputCounts");
+            Double weightCoeff = propertySet.getValue("weightCoeff");
+            Boolean outputCounts = propertySet.getValue("outputCounts");
             return new AggregatorAverage(varCtx,
                                          (String) propertySet.getValue("varName"),
-                                         (Double) propertySet.getValue("weightCoeff"),
+                                         weightCoeff != null ? weightCoeff : 0.0,
                                          outputCounts != null ? outputCounts : false);
         }
 
