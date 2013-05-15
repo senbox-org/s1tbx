@@ -14,11 +14,7 @@ package org.esa.beam.binning.operator;/*
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-import org.esa.beam.framework.datamodel.GeoCoding;
-import org.esa.beam.framework.datamodel.GeoPos;
-import org.esa.beam.framework.datamodel.PixelPos;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductFilter;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.junit.Test;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -35,11 +31,9 @@ public class SourceProductFilterTest {
         final Product product = new Product("P", "T", 10, 10);
 
         product.setGeoCoding(new MockGeoCoding(true, false));
-
         assertTrue(filter.accept(product));
 
         product.setGeoCoding(new MockGeoCoding(true, true));
-
         assertTrue(filter.accept(product));
     }
 
@@ -51,17 +45,64 @@ public class SourceProductFilterTest {
         assertFalse(filter.accept(product));
 
         product.setGeoCoding(new MockGeoCoding(false, false));
-
         assertFalse(filter.accept(product));
 
         product.setGeoCoding(new MockGeoCoding(false, true));
-
         assertFalse(filter.accept(product));
 
         product.setGeoCoding(new MockGeoCoding(true, false));
-
         assertTrue(filter.accept(product));
     }
+
+    @Test
+    public void testAcceptProductWithStartAndEndTime() throws Exception {
+        final ProductFilter filter = new SourceProductFilter(ProductData.UTC.parse("02-MAY-2013 00:00:00"),
+                                                             ProductData.UTC.parse("02-MAY-2013 23:59:59"));
+        final Product product = new Product("P", "T", 10, 10);
+        product.setGeoCoding(new MockGeoCoding(true, true));
+
+        // product's start and end times are both before range
+        product.setStartTime(ProductData.UTC.parse("01-MAY-2013 15:10:00"));
+        product.setEndTime(ProductData.UTC.parse("01-MAY-2013 15:40:00"));
+        assertFalse(filter.accept(product));
+
+        // product's start and end times are both within range
+        product.setStartTime(ProductData.UTC.parse("02-MAY-2013 15:10:00"));
+        product.setEndTime(ProductData.UTC.parse("02-MAY-2013 15:40:00"));
+        assertTrue(filter.accept(product));
+
+        // product's start and end times are both after range
+        product.setStartTime(ProductData.UTC.parse("03-MAY-2013 15:10:00"));
+        product.setEndTime(ProductData.UTC.parse("03-MAY-2013 15:40:00"));
+        assertFalse(filter.accept(product));
+
+        // todo - investigate into this strange behaviour (nf)
+
+        // product's start time is inside range
+        product.setStartTime(ProductData.UTC.parse("02-MAY-2013 23:30:00"));
+        product.setEndTime(ProductData.UTC.parse("03-MAY-2013 00:30:00"));
+        assertFalse(filter.accept(product));
+        // However, Norman would expect: assertTrue(filter.accept(product));
+
+        // product's end time is inside range
+        product.setStartTime(ProductData.UTC.parse("01-MAY-2013 23:30:00"));
+        product.setEndTime(ProductData.UTC.parse("02-MAY-2013 00:30:00"));
+        assertFalse(filter.accept(product));
+        // However, Norman would expect: assertTrue(filter.accept(product));
+
+        // product's start time equals range start time
+        product.setStartTime(ProductData.UTC.parse("02-MAY-2013 00:00:00"));
+        product.setEndTime(ProductData.UTC.parse("02-MAY-2013 01:00:00"));
+        assertFalse(filter.accept(product));
+        // However, Norman would expect: assertTrue(filter.accept(product));
+
+        // product's end time equals range end time
+        product.setStartTime(ProductData.UTC.parse("02-MAY-2013 23:00:00"));
+        product.setEndTime(ProductData.UTC.parse("02-MAY-2013 23:59:59"));
+        assertFalse(filter.accept(product));
+        // However, Norman would expect: assertTrue(filter.accept(product));
+    }
+
 
     private static class MockGeoCoding implements GeoCoding {
 
