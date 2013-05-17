@@ -31,10 +31,9 @@ public class LogoComponent implements MapToolsComponent {
 
     private static final ImageIcon procNestIcon = ResourceUtils.LoadIcon("org/esa/nest/icons/proc_nest.png");
     private final BufferedImage image;
-    private final int rasterWidth;
-    private final int rasterHeight;
     private final static double marginPct = 0.05;
-    private final int margin;
+    private final double scale;
+    private final Point point;
 
     public LogoComponent(final RasterDataNode raster) {
 
@@ -42,9 +41,13 @@ public class LogoComponent implements MapToolsComponent {
         final Graphics2D g = image.createGraphics();
         g.drawImage(procNestIcon.getImage(), null, null);
 
-        rasterWidth = raster.getRasterWidth();
-        rasterHeight = raster.getRasterHeight();
-        margin = (int)(Math.min(rasterWidth, rasterHeight) * marginPct);
+        final int rasterWidth = raster.getRasterWidth();
+        final int rasterHeight = raster.getRasterHeight();
+        final int margin = (int)(Math.min(rasterWidth, rasterHeight) * marginPct);
+
+        scale = (marginPct*2 * rasterWidth) / (double)image.getWidth();
+        point = new Point((int)(rasterWidth-(image.getWidth()*scale)-margin),
+                (int)(rasterHeight-(image.getHeight()*scale)-margin));
     }
 
     public void render(final Graphics2D graphics, final ScreenPixelConverter screenPixel) {
@@ -52,9 +55,6 @@ public class LogoComponent implements MapToolsComponent {
         try {
             final AffineTransform transform = screenPixel.getImageTransform(transformSave);
 
-            final double scale = (marginPct*2 * rasterWidth) / (double)image.getWidth();
-            final Point point = new Point((int)(rasterWidth-(image.getWidth()*scale)-margin),
-                                          (int)(rasterHeight-(image.getHeight()*scale)-margin));
             transform.translate(point.x, point.y);
             transform.scale(scale, scale);
 

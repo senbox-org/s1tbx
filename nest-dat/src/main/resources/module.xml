@@ -703,7 +703,7 @@
             <placeAfter>exportKmzFile</placeAfter>
         </action>
 
-        <action>
+        <!--action>
             <id>Reports</id>
             <class>org.esa.beam.visat.actions.ActionGroup</class>
             <text>Reports</text>
@@ -728,7 +728,7 @@
             <shortDescr>A listing of the product metadata</shortDescr>
             <parent>Reports</parent>
             <helpId>Reports</helpId>
-        </action>
+        </action-->
 
     </extension>
 

@@ -16,9 +16,6 @@
 
 package org.esa.beam.framework.dataop.resamp;
 
-
-import com.sun.corba.se.spi.presentation.rmi.IDLNameTranslator;
-
 final class BilinearInterpolationResampling implements Resampling {
 
     public String getName() {
@@ -78,14 +75,10 @@ final class BilinearInterpolationResampling implements Resampling {
     public final float resample(final Raster raster,
                                 final Index index) throws Exception {
 
-        final int[] x = new int[2];
-        final int[] y = new int[2];
+        final int[] x = new int[] {(int)index.i[0], (int)index.i[1] };
+        final int[] y = new int[] {(int)index.j[0], (int)index.j[1]};
         final float[][] samples = new float[2][2];
 
-        x[0] = (int)index.i[0];
-        y[0] = (int)index.j[0];
-        x[1] = (int)index.i[1];
-        y[1] = (int)index.j[1];
         raster.getSamples(x, y, samples);
 
         final double ki = index.ki[0];

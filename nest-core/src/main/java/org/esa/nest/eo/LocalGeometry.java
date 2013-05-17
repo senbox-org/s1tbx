@@ -45,4 +45,23 @@ public class LocalGeometry {
         this.centrePoint   = earthPoint;
         this.sensorPos     = sensorPos;
     }
+
+    public LocalGeometry(final double lat, final double lon, final double delLat, final double delLon,
+                         final double[] earthPoint, final double[] sensorPos) {
+
+        this.leftPointLat  = lat;
+        this.leftPointLon  = lon - delLon;
+
+        this.rightPointLat = lat;
+        this.rightPointLon = lon + delLon;
+
+        this.upPointLat    = lat - delLat;
+        this.upPointLon    = lon;
+
+        this.downPointLat  = lat + delLat;
+        this.downPointLon  = lon;
+        this.centrePoint   = earthPoint;
+        this.sensorPos     = sensorPos;
+    }
+
 }
