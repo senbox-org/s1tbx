@@ -16,104 +16,77 @@
 
 package org.esa.beam.dataio.envisat;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-import org.esa.beam.util.Debug;
 
-public class ProductFileTest extends TestCase {
+import org.esa.beam.framework.datamodel.ProductData;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
-    public ProductFileTest(String testName) {
-        super(testName);
+import java.io.File;
+import java.io.IOException;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
+public class ProductFileTest {
+
+    ProductFile productFile;
+
+    @Before
+    public void setUp() throws Exception {
+        File file = new File(getClass().getResource(
+                "ATS_TOA_1PRMAP20050504_080932_000000482037_00020_16607_0001.N1").toURI());
+        String productType = ProductFile.getProductType(file);
+        assertEquals("ATS_TOA_1P", productType);
+
+        productFile = ProductFile.open(file);
+        assertNotNull(productFile);
     }
 
-    public static Test suite() {
-        return new TestSuite(ProductFileTest.class);
+    @After
+    public void tearDown() throws Exception {
+        productFile.close();
     }
 
-    @Override
-    protected void setUp() {
+    @Test
+    public void testRecordTime() throws IOException {
+
+        final String[] validDatasetNames = productFile.getValidDatasetNames(EnvisatConstants.DS_TYPE_MEASUREMENT);
+        assertEquals(18, validDatasetNames.length);
+
+
+        ProductData.UTC utc1 = productFile.getRecordTime(validDatasetNames[0], "dsr_time", 0);
+        assertEquals("04-MAY-2005 08:09:32.862224", utc1.format());
+
+        ProductData.UTC utc2 = productFile.getRecordTime(validDatasetNames[0], "dsr_time", 1);
+        assertEquals("04-MAY-2005 08:09:33.012223", utc2.format());
+
+        ProductData.UTC utc3 = productFile.getRecordTime(validDatasetNames[0], "dsr_time", 2);
+        assertEquals("04-MAY-2005 08:09:33.162223", utc3.format());
+
+        assertEquals(1.7361E-6, utc2.getMJD()-utc1.getMJD(), 1e-10);
+        assertEquals(1.7361E-6, utc3.getMJD()-utc2.getMJD(), 1e-10);
     }
 
-    @Override
-    protected void tearDown() {
+    @Test
+    public void testAllRecordTimes() throws IOException {
+
+        final String[] validDatasetNames = productFile.getValidDatasetNames(EnvisatConstants.DS_TYPE_MEASUREMENT);
+        assertEquals(18, validDatasetNames.length);
+
+        int numRecs = productFile.getSceneRasterHeight();
+        assertEquals(320, numRecs);
+
+        ProductData.UTC[] recordTimes = productFile.getAllRecordTimes();
+        assertEquals(numRecs, recordTimes.length);
+
+        assertEquals("04-MAY-2005 08:09:32.862224", recordTimes[0].format());
+        assertEquals("04-MAY-2005 08:09:33.012223", recordTimes[1].format());
+        assertEquals("04-MAY-2005 08:09:33.162223", recordTimes[2].format());
+
+        assertEquals("04-MAY-2005 08:10:20.412223", recordTimes[numRecs-3].format());
+        assertEquals("04-MAY-2005 08:10:20.562223", recordTimes[numRecs-2].format());
+        assertEquals("04-MAY-2005 08:10:20.712223", recordTimes[numRecs-1].format());
     }
 
-    public void testProductFile() {
-        Debug.traceMethodNotImplemented(this.getClass(), "testProductFile");
-    }
-    /*
-    public void testClose() {
-        Debug.traceMethodNotImplemented(this.getClass(), "testClose");
-    }
-    public void testGetDSD() {
-        Debug.traceMethodNotImplemented(this.getClass(), "testGetDSD");
-    }
-    public void testGetDSDAt() {
-        Debug.traceMethodNotImplemented(this.getClass(), "testGetDSDAt");
-    }
-    public void testGetDSDIndex() {
-        Debug.traceMethodNotImplemented(this.getClass(), "testGetDSDIndex");
-    }
-    public void testGetDSDs() {
-        Debug.traceMethodNotImplemented(this.getClass(), "testGetDSDs");
-    }
-    public void testGetDataInputStream() {
-        Debug.traceMethodNotImplemented(this.getClass(), "testGetDataInputStream");
-    }
-    public void testGetDatasetNames() {
-        Debug.traceMethodNotImplemented(this.getClass(), "testGetDatasetNames");
-    }
-    public void testGetLineLength() {
-        Debug.traceMethodNotImplemented(this.getClass(), "testGetLineLength");
-    }
-    public void testGetLogSink() {
-        Debug.traceMethodNotImplemented(this.getClass(), "testGetLogSink");
-    }
-    public void testGetMPH() {
-        Debug.traceMethodNotImplemented(this.getClass(), "testGetMPH");
-    }
-    public void testGetNumDSDs() {
-        Debug.traceMethodNotImplemented(this.getClass(), "testGetNumDSDs");
-    }
-    public void testGetProductId() {
-        Debug.traceMethodNotImplemented(this.getClass(), "testGetProductId");
-    }
-    public void testGetProductType() {
-        Debug.traceMethodNotImplemented(this.getClass(), "testGetProductType");
-    }
-    public void testGetRecordReader() {
-        Debug.traceMethodNotImplemented(this.getClass(), "testGetRecordReader");
-    }
-    public void testGetSPH() {
-        Debug.traceMethodNotImplemented(this.getClass(), "testGetSPH");
-    }
-    public void testIsEnvisatFile() {
-        Debug.traceMethodNotImplemented(this.getClass(), "testIsEnvisatFile");
-    }
-    public void testLogDebug() {
-        Debug.traceMethodNotImplemented(this.getClass(), "testLogDebug");
-    }
-    public void testLogError() {
-        Debug.traceMethodNotImplemented(this.getClass(), "testSetLogSink");
-    }
-    public void testLogInfo() {
-        Debug.traceMethodNotImplemented(this.getClass(), "testLogInfo");
-    }
-    public void testLogWarning() {
-        Debug.traceMethodNotImplemented(this.getClass(), "testLogWarning");
-    }
-    public void testOpen() {
-        Debug.traceMethodNotImplemented(this.getClass(), "testOpen");
-    }
-    public void testPostProcessMPH() {
-        Debug.traceMethodNotImplemented(this.getClass(), "testPostProcessMPH");
-    }
-    public void testPostProcessSPH() {
-        Debug.traceMethodNotImplemented(this.getClass(), "testPostProcessSPH");
-    }
-    public void testSetLogSink() {
-        Debug.traceMethodNotImplemented(this.getClass(), "testSetLogSink");
-    }
- */
 }

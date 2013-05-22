@@ -17,11 +17,7 @@ package org.esa.beam.dataio.envisat;
 
 import org.esa.beam.framework.dataio.IllegalFileFormatException;
 import org.esa.beam.framework.dataio.ProductIOException;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.FlagCoding;
-import org.esa.beam.framework.datamodel.Mask;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.StringUtils;
@@ -29,7 +25,7 @@ import org.esa.beam.util.logging.BeamLogManager;
 
 import javax.imageio.stream.FileImageInputStream;
 import javax.imageio.stream.ImageInputStream;
-import java.awt.Color;
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -697,6 +693,27 @@ public abstract class ProductFile {
         final ProductData data = timeField.getData();
         return (data instanceof ProductData.UTC) ? (ProductData.UTC) data : null;
     }
+
+    public ProductData.UTC[] getAllRecordTimes() throws IOException {
+        String[] datasetNames = getValidDatasetNames(EnvisatConstants.DS_TYPE_MEASUREMENT);
+        // todo - assert that datasetNames.length >= 1
+        RecordReader recordReader = getRecordReader(datasetNames[0]);
+        int fieldIndex = recordReader.getRecordInfo().getFieldInfoIndex("dsr_time");
+        // todo - assert that fieldIndex != -1 since all Envisat MDSRs must have a dsr_time field
+        long fieldOffset = recordReader.getRecordInfo().getFieldOffset(fieldIndex);
+        FieldInfo dsrTime = recordReader.getRecordInfo().getFieldInfoAt(fieldIndex);
+
+        int numRecords = recordReader.getNumRecords();
+        ProductData.UTC[] recordTimes = new ProductData.UTC[numRecords];
+        for (int i = 0; i < recordTimes.length; i++) {
+            Field field = dsrTime.createField();
+            recordReader.readFieldSegment(i, fieldOffset, 1, 0, 2, field);
+            recordTimes[i] = (ProductData.UTC) field.getData();
+        }
+
+        return recordTimes;
+    }
+
 
     /**
      * Gets the names of all bands contained in this data product file.
