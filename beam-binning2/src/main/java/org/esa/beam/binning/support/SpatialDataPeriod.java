@@ -1,11 +1,12 @@
 package org.esa.beam.binning.support;
 
-import org.esa.beam.binning.SpatialDataPeriod;
+import org.esa.beam.binning.DataPeriod;
 
 /**
+ * The definition of a "spatial data-day", or more generally, a spatial data-period used for the binning.
  * @author Norman Fomferra
  */
-public class SpatialDataPeriodImpl implements SpatialDataPeriod {
+public class SpatialDataPeriod implements DataPeriod {
     private static final double SLOPE = -24.0 / 360.0;
     private static final double EPS = 1.0 / (60.0 * 60.0 * 1000); // 1 ms
 
@@ -20,7 +21,7 @@ public class SpatialDataPeriodImpl implements SpatialDataPeriod {
      *                    This number is usually found plotting longitude-time pairs of given sensor observations and then finding
      *                    the area where there are a minimum number of observations at the date line.
      */
-    public SpatialDataPeriodImpl(double startTime, int duration, double minDataHour) {
+    public SpatialDataPeriod(double startTime, int duration, double minDataHour) {
         this.startTime = startTime;
         this.duration = duration;
         this.minDataHour = minDataHour;

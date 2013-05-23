@@ -192,7 +192,8 @@ public class SpatialProductBinner {
         }
 
         final ObservationSlice observationSlice = new ObservationSlice(varTiles, maskTile, product,
-                                                                       superSamplingSteps);
+                                                                       superSamplingSteps,
+                                                                       spatialBinner.getBinningContext().getDataPeriod());
         long numObservations = spatialBinner.processObservationSlice(observationSlice);
         progressMonitor.worked(1);
         return numObservations;

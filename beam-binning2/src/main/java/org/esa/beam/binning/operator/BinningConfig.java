@@ -24,16 +24,21 @@ import org.esa.beam.binning.BinManager;
 import org.esa.beam.binning.BinningContext;
 import org.esa.beam.binning.CellProcessorConfig;
 import org.esa.beam.binning.CompositingType;
+import org.esa.beam.binning.DataPeriod;
 import org.esa.beam.binning.PlanetaryGrid;
+import org.esa.beam.binning.TemporalDataPeriod;
 import org.esa.beam.binning.TypedDescriptorsRegistry;
 import org.esa.beam.binning.VariableContext;
 import org.esa.beam.binning.support.BinningContextImpl;
 import org.esa.beam.binning.support.SEAGrid;
+import org.esa.beam.binning.support.SpatialDataPeriod;
 import org.esa.beam.binning.support.VariableContextImpl;
+import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.ParameterBlockConverter;
 
 import java.lang.reflect.Constructor;
+import java.text.ParseException;
 
 /**
  * Configuration for the binning.
@@ -98,6 +103,18 @@ public class BinningConfig {
     @Parameter(alias = "postProcessor", domConverter = CellProcessorConfigDomConverter.class)
     private CellProcessorConfig postProcessorConfig;
 
+
+    @Parameter(description = "UTC start date of the binning period.", format = "YYYY-MM-DD")
+    private String startDate;
+
+    @Parameter(description = "Duration of the binning period in days. Only used if parameter 'startDate' is set.")
+    private Integer periodDuration;
+
+    @Parameter(description = "The time in hours of a day (0 to 24) at which a given sensor has a minimum number of " +
+            "observations at the date line (the 180 degree meridian). Only used if parameter 'startDate' is set.")
+    private Double minDataHour;
+
+
     public String getPlanetaryGrid() {
         return planetaryGrid;
     }
@@ -112,6 +129,30 @@ public class BinningConfig {
 
     public void setNumRows(int numRows) {
         this.numRows = numRows;
+    }
+
+    public String getStartDate() {
+        return startDate;
+    }
+
+    public void setStartDate(String startDate) {
+        this.startDate = startDate;
+    }
+
+    public Integer getPeriodDuration() {
+        return periodDuration;
+    }
+
+    public void setPeriodDuration(Integer periodDuration) {
+        this.periodDuration = periodDuration;
+    }
+
+    public Double getMinDataHour() {
+        return minDataHour;
+    }
+
+    public void setMinDataHour(Double minDataHour) {
+        this.minDataHour = minDataHour;
     }
 
     public String getMaskExpr() {
@@ -178,14 +219,15 @@ public class BinningConfig {
         VariableContext variableContext = createVariableContext();
         return new BinningContextImpl(createPlanetaryGrid(),
                                       createBinManager(variableContext),
-                                      compositingType, getSuperSampling() != null ? getSuperSampling() : 1);
+                                      compositingType,
+                                      getSuperSampling() != null ? getSuperSampling() : 1,
+                                      createDataPeriod());
     }
 
     /**
      * Creates the planetary grid used for the binning.
      *
      * @return A newly created planetary grid instance used for the binning.
-     *
      * @throws IllegalArgumentException if either the {@code numRows} parameter is less or equal zero or
      *                                  the {@code planetaryGrid} parameter denotes a class that couldn't be instantiated.
      */
@@ -261,6 +303,28 @@ public class BinningConfig {
         }
 
         return variableContext;
+    }
+
+    private DataPeriod createDataPeriod() {
+        if (startDate != null) {
+            final ProductData.UTC startUtc;
+            try {
+                startUtc = ProductData.UTC.parse(startDate, "yyyy-MM-dd");
+            } catch (ParseException e) {
+                throw new IllegalArgumentException("Illegal 'startDate', format 'yyyy-MM-dd' expected.");
+            }
+            int duration = periodDuration != null ? periodDuration : 1;
+            if (minDataHour != null) {
+                return new SpatialDataPeriod(startUtc.getMJD(), duration, minDataHour);
+            } else {
+                return new TemporalDataPeriod(startUtc.getMJD(), duration);
+            }
+        } else if (minDataHour != null) {
+            throw new IllegalArgumentException("Parameter 'minDataHour' can only be used with 'startDate'.");
+        } else if (periodDuration != null) {
+            throw new IllegalArgumentException("Parameter 'periodDuration' can only be used with 'startDate'.");
+        }
+        return null;
     }
 
 }

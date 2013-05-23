@@ -13,7 +13,7 @@ public class SpatialDataPeriodImplTest {
         final double T0 = 53637.21235;  // any day is fine
         final double H = 1 / 24.;
 
-        final SpatialDataPeriodImpl p = new SpatialDataPeriodImpl(T0, 1, 10.0);
+        final SpatialDataPeriod p = new SpatialDataPeriod(T0, 1, 10.0);
 
         assertEquals(-1, p.getObservationMembership(-180, T0 - 12 * H));
         assertEquals(-1, p.getObservationMembership(-180, T0 - 6 * H));

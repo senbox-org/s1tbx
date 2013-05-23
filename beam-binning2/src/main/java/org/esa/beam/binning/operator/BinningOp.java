@@ -44,7 +44,6 @@ import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProducts;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.framework.gpf.experimental.Output;
-import org.esa.beam.util.Debug;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.StopWatch;
 import org.esa.beam.util.StringUtils;
@@ -174,11 +173,12 @@ public class BinningOp extends Operator implements Output {
 
     @Parameter(description = "Applies a sensor-dependent, spatial data-day definition to the given time range. " +
             "The decision, whether a source pixel contributes to a bin or not, is a functions of the pixel's observation longitude and time." +
-            "If true, the parameters 'startDate', 'endDate' and 'dataDayStart' must also be given.", defaultValue = "false")
+            "If true, the parameters 'startDate', 'endDate' must also be given.", defaultValue = "false")
     boolean useSpatialDataDay;
 
-    @Parameter(description = "The start time in hours of a spatial data-day. This is a sensor-dependent constant.", defaultValue = "0.0")
-    boolean dataDayStart;
+    @Parameter(description = "The time in hours of a day (0 to 24) at which a given sensor has a minimum number of " +
+            "observations at the date line (the 180 degree meridian). Only used if parameters 'startDate' and 'useSpatialDataDay' are set.")
+    private Double minDataHour;
 
     private transient BinningContext binningContext;
     private transient int sourceProductCount;
@@ -274,6 +274,13 @@ public class BinningOp extends Operator implements Output {
             }
         }
 
+        if (startDate != null) {
+            binningConfig.setStartDate(startDate);
+            if (startDateUtc != null && endDateUtc != null) {
+                binningConfig.setPeriodDuration((int) Math.round(endDateUtc.getMJD() - startDateUtc.getMJD()));
+            }
+        }
+
         binningContext = binningConfig.createBinningContext();
         metadataProperties = new TreeMap<String, String>();
         sourceProductCount = 0;
@@ -349,7 +356,7 @@ public class BinningOp extends Operator implements Output {
             throw new OperatorException(String.format("Parameter 'endDate=%s' is before 'startDate=%s'", this.endDate, this.startDate));
         }
         if (useSpatialDataDay) {
-            if (startDateUtc != null || endDateUtc != null) {
+            if (startDateUtc == null || endDateUtc == null) {
                 throw new OperatorException("If parameter 'useSpatialDataDay=true' then parameters 'startDate' and 'endDate' must be given");
             }
         }
@@ -378,7 +385,7 @@ public class BinningOp extends Operator implements Output {
         }
     }
 
-    static Product[] filterSourceProducts(Product[] sourceProducts, ProductData.UTC startTime,
+    Product[] filterSourceProducts(Product[] sourceProducts, ProductData.UTC startTime,
                                           ProductData.UTC endTime) {
         if (sourceProducts == null) {
             return null;
@@ -387,14 +394,19 @@ public class BinningOp extends Operator implements Output {
             return sourceProducts;
         }
 
+        final ProductFilter filter;
+        if (useSpatialDataDay) {
+            filter = new SourceProductFilter(startTime, endTime);
+        } else {
+            filter = new SourceProductFilter(startTime, endTime);
+        }
 
         final List<Product> acceptedProductList = new ArrayList<Product>();
         for (Product sourceProduct : sourceProducts) {
-            final ProductFilter filter = new SourceProductFilter(startTime, endTime);
             if (filter.accept(sourceProduct)) {
                 acceptedProductList.add(sourceProduct);
             } else {
-                Debug.trace("Filtered out product '" + sourceProduct.getName() + "'.");
+                getLogger().warning("Filtered out product '" + sourceProduct.getFileLocation() + "'");
                 sourceProduct.dispose();
             }
         }

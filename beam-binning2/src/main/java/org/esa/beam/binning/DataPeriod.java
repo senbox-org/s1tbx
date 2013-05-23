@@ -1,12 +1,12 @@
 package org.esa.beam.binning;
 
 /**
- * Represents the definition of a "spatial data-day", or
- * more generally, a spatial data-period used for binning.
+ * Represents the period in which pixel data can contribute to a bin.
  *
  * @author Norman Fomferra
  */
-public interface SpatialDataPeriod {
+public interface DataPeriod {
+
     /**
      * @return the start time of the binning period in days (Modified Julian Day units, MJD).
      */
