@@ -172,6 +172,14 @@ public class BinningOp extends Operator implements Output {
             defaultValue = ".")
     File metadataTemplateDir;
 
+    @Parameter(description = "Applies a sensor-dependent, spatial data-day definition to the given time range. " +
+            "The decision, whether a source pixel contributes to a bin or not, is a functions of the pixel's observation longitude and time." +
+            "If true, the parameters 'startDate', 'endDate' and 'dataDayStart' must also be given.", defaultValue = "false")
+    boolean useSpatialDataDay;
+
+    @Parameter(description = "The start time in hours of a spatial data-day. This is a sensor-dependent constant.", defaultValue = "0.0")
+    boolean dataDayStart;
+
     private transient BinningContext binningContext;
     private transient int sourceProductCount;
     private transient ProductData.UTC minDateUtc;
@@ -338,7 +346,12 @@ public class BinningOp extends Operator implements Output {
 
     private void validateInput(ProductData.UTC startDateUtc, ProductData.UTC endDateUtc) {
         if (startDateUtc != null && endDateUtc != null && endDateUtc.getAsDate().before(startDateUtc.getAsDate())) {
-            throw new OperatorException("End date '" + this.endDate + "' before start date '" + this.startDate + "'");
+            throw new OperatorException(String.format("Parameter 'endDate=%s' is before 'startDate=%s'", this.endDate, this.startDate));
+        }
+        if (useSpatialDataDay) {
+            if (startDateUtc != null || endDateUtc != null) {
+                throw new OperatorException("If parameter 'useSpatialDataDay=true' then parameters 'startDate' and 'endDate' must be given");
+            }
         }
         if (sourceProducts == null && (sourceProductPaths == null || sourceProductPaths.length == 0)) {
             String msg = "Either source products must be given or parameter 'sourceProductPaths' must be specified";
@@ -370,9 +383,10 @@ public class BinningOp extends Operator implements Output {
         if (sourceProducts == null) {
             return null;
         }
-        if (startTime == null || endTime == null) {
+        if (startTime == null && endTime == null) {
             return sourceProducts;
         }
+
 
         final List<Product> acceptedProductList = new ArrayList<Product>();
         for (Product sourceProduct : sourceProducts) {
