@@ -18,8 +18,7 @@ public interface SpatialDataPeriod {
     int getDuration();
 
     /**
-     * Compute the membership of a given longitude-time pair with respect to the definition a spatial "data-day", or
-     * more generally, a spatial data-period.
+     * Compute the membership of a given longitude-time pair to this spatial data-period.
      * The result may be one of
      * <ul>
      * <li><code>0</code> - the longitude-time pair belongs to the current period (given by time and time+duration)</li>
@@ -31,5 +30,5 @@ public interface SpatialDataPeriod {
      * @param time The time in days using Modified Julian Day units
      * @return The membership.
      */
-    int getMembership(double lon, double time);
+    int getObservationMembership(double lon, double time);
 }

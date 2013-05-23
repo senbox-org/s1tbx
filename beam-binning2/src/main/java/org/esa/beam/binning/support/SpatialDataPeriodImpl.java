@@ -37,7 +37,7 @@ public class SpatialDataPeriodImpl implements SpatialDataPeriod {
     }
 
     @Override
-    public int getMembership(double lon, double time) {
+    public int getObservationMembership(double lon, double time) {
 
         final double h = 24.0 * (time - startTime);
         final double h0 = minDataHour + (lon + 180.0) * SLOPE;

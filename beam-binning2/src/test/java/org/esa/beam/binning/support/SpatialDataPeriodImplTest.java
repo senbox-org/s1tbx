@@ -15,80 +15,80 @@ public class SpatialDataPeriodImplTest {
 
         final SpatialDataPeriodImpl p = new SpatialDataPeriodImpl(T0, 1, 10.0);
 
-        assertEquals(-1, p.getMembership(-180, T0 - 12 * H));
-        assertEquals(-1, p.getMembership(-180, T0 - 6 * H));
-        assertEquals(-1, p.getMembership(-180, T0 + 0 * H));
-        assertEquals(-1, p.getMembership(-180, T0 + 6 * H));
-        assertEquals(0, p.getMembership(-180, T0 + 12 * H));
-        assertEquals(0, p.getMembership(-180, T0 + 18 * H));
-        assertEquals(0, p.getMembership(-180, T0 + 24 * H));
-        assertEquals(0, p.getMembership(-180, T0 + (24 + 6) * H));
-        assertEquals(1, p.getMembership(-180, T0 + (24 + 12) * H));
+        assertEquals(-1, p.getObservationMembership(-180, T0 - 12 * H));
+        assertEquals(-1, p.getObservationMembership(-180, T0 - 6 * H));
+        assertEquals(-1, p.getObservationMembership(-180, T0 + 0 * H));
+        assertEquals(-1, p.getObservationMembership(-180, T0 + 6 * H));
+        assertEquals(0, p.getObservationMembership(-180, T0 + 12 * H));
+        assertEquals(0, p.getObservationMembership(-180, T0 + 18 * H));
+        assertEquals(0, p.getObservationMembership(-180, T0 + 24 * H));
+        assertEquals(0, p.getObservationMembership(-180, T0 + (24 + 6) * H));
+        assertEquals(1, p.getObservationMembership(-180, T0 + (24 + 12) * H));
 
-        assertEquals(-1, p.getMembership(-135, T0 - 12 * H));
-        assertEquals(-1, p.getMembership(-135, T0 - 6 * H));
-        assertEquals(-1, p.getMembership(-135, T0 + 0 * H));
-        assertEquals(-1, p.getMembership(-135, T0 + 6 * H));
-        assertEquals(0, p.getMembership(-135, T0 + 12 * H));
-        assertEquals(0, p.getMembership(-135, T0 + 18 * H));
-        assertEquals(0, p.getMembership(-135, T0 + 24 * H));
-        assertEquals(0, p.getMembership(-135, T0 + (24 + 6) * H));
-        assertEquals(1, p.getMembership(-135, T0 + (24 + 12) * H));
-
-
-        assertEquals(-1, p.getMembership(-90, T0 - 12 * H));
-        assertEquals(-1, p.getMembership(-90, T0 - 6 * H));
-        assertEquals(-1, p.getMembership(-90, T0 + 0 * H));
-        assertEquals(0, p.getMembership(-90, T0 + 6 * H));
-        assertEquals(0, p.getMembership(-90, T0 + 12 * H));
-        assertEquals(0, p.getMembership(-90, T0 + 18 * H));
-        assertEquals(0, p.getMembership(-90, T0 + 24 * H));
-        assertEquals(1, p.getMembership(-90, T0 + (24 + 6) * H));
-        assertEquals(1, p.getMembership(-90, T0 + (24 + 12) * H));
+        assertEquals(-1, p.getObservationMembership(-135, T0 - 12 * H));
+        assertEquals(-1, p.getObservationMembership(-135, T0 - 6 * H));
+        assertEquals(-1, p.getObservationMembership(-135, T0 + 0 * H));
+        assertEquals(-1, p.getObservationMembership(-135, T0 + 6 * H));
+        assertEquals(0, p.getObservationMembership(-135, T0 + 12 * H));
+        assertEquals(0, p.getObservationMembership(-135, T0 + 18 * H));
+        assertEquals(0, p.getObservationMembership(-135, T0 + 24 * H));
+        assertEquals(0, p.getObservationMembership(-135, T0 + (24 + 6) * H));
+        assertEquals(1, p.getObservationMembership(-135, T0 + (24 + 12) * H));
 
 
-        assertEquals(-1, p.getMembership(0, T0 - 12 * H));
-        assertEquals(-1, p.getMembership(0, T0 - 6 * H));
-        assertEquals(0, p.getMembership(0, T0 + 0 * H));
-        assertEquals(0, p.getMembership(0, T0 + 6 * H));
-        assertEquals(0, p.getMembership(0, T0 + 12 * H));
-        assertEquals(0, p.getMembership(0, T0 + 18 * H));
-        assertEquals(1, p.getMembership(0, T0 + 24 * H));
-        assertEquals(1, p.getMembership(0, T0 + (24 + 6) * H));
-        assertEquals(1, p.getMembership(0, T0 + (24 + 12) * H));
+        assertEquals(-1, p.getObservationMembership(-90, T0 - 12 * H));
+        assertEquals(-1, p.getObservationMembership(-90, T0 - 6 * H));
+        assertEquals(-1, p.getObservationMembership(-90, T0 + 0 * H));
+        assertEquals(0, p.getObservationMembership(-90, T0 + 6 * H));
+        assertEquals(0, p.getObservationMembership(-90, T0 + 12 * H));
+        assertEquals(0, p.getObservationMembership(-90, T0 + 18 * H));
+        assertEquals(0, p.getObservationMembership(-90, T0 + 24 * H));
+        assertEquals(1, p.getObservationMembership(-90, T0 + (24 + 6) * H));
+        assertEquals(1, p.getObservationMembership(-90, T0 + (24 + 12) * H));
 
 
-        assertEquals(-1, p.getMembership(90, T0 - 12 * H));
-        assertEquals(0, p.getMembership(90, T0 - 6 * H));
-        assertEquals(0, p.getMembership(90, T0 + 0 * H));
-        assertEquals(0, p.getMembership(90, T0 + 6 * H));
-        assertEquals(0, p.getMembership(90, T0 + 12 * H));
-        assertEquals(1, p.getMembership(90, T0 + 18 * H));
-        assertEquals(1, p.getMembership(90, T0 + 24 * H));
-        assertEquals(1, p.getMembership(90, T0 + (24 + 6) * H));
-        assertEquals(1, p.getMembership(90, T0 + (24 + 12) * H));
+        assertEquals(-1, p.getObservationMembership(0, T0 - 12 * H));
+        assertEquals(-1, p.getObservationMembership(0, T0 - 6 * H));
+        assertEquals(0, p.getObservationMembership(0, T0 + 0 * H));
+        assertEquals(0, p.getObservationMembership(0, T0 + 6 * H));
+        assertEquals(0, p.getObservationMembership(0, T0 + 12 * H));
+        assertEquals(0, p.getObservationMembership(0, T0 + 18 * H));
+        assertEquals(1, p.getObservationMembership(0, T0 + 24 * H));
+        assertEquals(1, p.getObservationMembership(0, T0 + (24 + 6) * H));
+        assertEquals(1, p.getObservationMembership(0, T0 + (24 + 12) * H));
 
 
-        assertEquals(-1, p.getMembership(135, T0 - 12 * H));
-        assertEquals(0, p.getMembership(135, T0 - 6 * H));
-        assertEquals(0, p.getMembership(135, T0 + 0 * H));
-        assertEquals(0, p.getMembership(135, T0 + 6 * H));
-        assertEquals(0, p.getMembership(135, T0 + 12 * H));
-        assertEquals(1, p.getMembership(135, T0 + 18 * H));
-        assertEquals(1, p.getMembership(135, T0 + 24 * H));
-        assertEquals(1, p.getMembership(135, T0 + (24 + 6) * H));
-        assertEquals(1, p.getMembership(135, T0 + (24 + 12) * H));
+        assertEquals(-1, p.getObservationMembership(90, T0 - 12 * H));
+        assertEquals(0, p.getObservationMembership(90, T0 - 6 * H));
+        assertEquals(0, p.getObservationMembership(90, T0 + 0 * H));
+        assertEquals(0, p.getObservationMembership(90, T0 + 6 * H));
+        assertEquals(0, p.getObservationMembership(90, T0 + 12 * H));
+        assertEquals(1, p.getObservationMembership(90, T0 + 18 * H));
+        assertEquals(1, p.getObservationMembership(90, T0 + 24 * H));
+        assertEquals(1, p.getObservationMembership(90, T0 + (24 + 6) * H));
+        assertEquals(1, p.getObservationMembership(90, T0 + (24 + 12) * H));
 
 
-        assertEquals(0, p.getMembership(179, T0 - 12 * H));
-        assertEquals(0, p.getMembership(179, T0 - 6 * H));
-        assertEquals(0, p.getMembership(179, T0 + 0 * H));
-        assertEquals(0, p.getMembership(179, T0 + 6 * H));
-        assertEquals(1, p.getMembership(179, T0 + 12 * H));
-        assertEquals(1, p.getMembership(179, T0 + 18 * H));
-        assertEquals(1, p.getMembership(179, T0 + 24 * H));
-        assertEquals(1, p.getMembership(179, T0 + (24 + 6) * H));
-        assertEquals(1, p.getMembership(179, T0 + (24 + 12) * H));
+        assertEquals(-1, p.getObservationMembership(135, T0 - 12 * H));
+        assertEquals(0, p.getObservationMembership(135, T0 - 6 * H));
+        assertEquals(0, p.getObservationMembership(135, T0 + 0 * H));
+        assertEquals(0, p.getObservationMembership(135, T0 + 6 * H));
+        assertEquals(0, p.getObservationMembership(135, T0 + 12 * H));
+        assertEquals(1, p.getObservationMembership(135, T0 + 18 * H));
+        assertEquals(1, p.getObservationMembership(135, T0 + 24 * H));
+        assertEquals(1, p.getObservationMembership(135, T0 + (24 + 6) * H));
+        assertEquals(1, p.getObservationMembership(135, T0 + (24 + 12) * H));
+
+
+        assertEquals(0, p.getObservationMembership(179, T0 - 12 * H));
+        assertEquals(0, p.getObservationMembership(179, T0 - 6 * H));
+        assertEquals(0, p.getObservationMembership(179, T0 + 0 * H));
+        assertEquals(0, p.getObservationMembership(179, T0 + 6 * H));
+        assertEquals(1, p.getObservationMembership(179, T0 + 12 * H));
+        assertEquals(1, p.getObservationMembership(179, T0 + 18 * H));
+        assertEquals(1, p.getObservationMembership(179, T0 + 24 * H));
+        assertEquals(1, p.getObservationMembership(179, T0 + (24 + 6) * H));
+        assertEquals(1, p.getObservationMembership(179, T0 + (24 + 12) * H));
 
     }
 }
