@@ -85,8 +85,58 @@ public class ProductFileTest {
         assertEquals("04-MAY-2005 08:09:33.162223", recordTimes[2].format());
 
         assertEquals("04-MAY-2005 08:10:20.412223", recordTimes[numRecs-3].format());
-        assertEquals("04-MAY-2005 08:10:20.562223", recordTimes[numRecs-2].format());
+        assertEquals("04-MAY-2005 08:10:20.562223", recordTimes[numRecs - 2].format());
         assertEquals("04-MAY-2005 08:10:20.712223", recordTimes[numRecs-1].format());
+
+        double minDiffTime = Double.POSITIVE_INFINITY;
+        double maxDiffTime = Double.NEGATIVE_INFINITY;
+        double meanDiffTime = 0;
+        ProductData.UTC lastTime = null;
+        for (ProductData.UTC time : recordTimes) {
+            if (lastTime != null) {
+                double dt = time.getMJD() - lastTime.getMJD();
+                meanDiffTime += dt;
+                minDiffTime = Math.min(minDiffTime, dt);
+                maxDiffTime = Math.max(maxDiffTime, dt);
+            }
+            lastTime = time;
+        }
+        meanDiffTime /= (numRecs - 1);
+
+        assertEquals(1.73611107E-6, meanDiffTime, 1e-12);
+        assertEquals(1.73609942E-6, minDiffTime, 1e-12);
+        assertEquals(1.73612261E-6, maxDiffTime, 1e-12);
+
     }
 
+    /**
+     * Not actually a software unit-test but an Envisat AATSR dataset test.
+     */
+    @Test
+    public void testScanLineTimeDiffs() throws IOException {
+
+        final String[] validDatasetNames = productFile.getValidDatasetNames(EnvisatConstants.DS_TYPE_MEASUREMENT);
+        assertEquals(18, validDatasetNames.length);
+
+        ProductData.UTC[] recordTimes = productFile.getAllRecordTimes();
+
+        double minDiffTime = Double.POSITIVE_INFINITY;
+        double maxDiffTime = Double.NEGATIVE_INFINITY;
+        double meanDiffTime = 0;
+        ProductData.UTC lastTime = null;
+        for (ProductData.UTC time : recordTimes) {
+            if (lastTime != null) {
+                double dt = time.getMJD() - lastTime.getMJD();
+                meanDiffTime += dt;
+                minDiffTime = Math.min(minDiffTime, dt);
+                maxDiffTime = Math.max(maxDiffTime, dt);
+            }
+            lastTime = time;
+        }
+        meanDiffTime /= (recordTimes.length - 1);
+
+        assertEquals(1.73611107E-6, meanDiffTime, 1e-12);
+        assertEquals(1.73609942E-6, minDiffTime, 1e-12);
+        assertEquals(1.73612261E-6, maxDiffTime, 1e-12);
+    }
 }
