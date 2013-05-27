@@ -155,8 +155,7 @@ final class SummaryStxOp extends StxOp {
                 if (mask == null || mask[maskPixelOffset] != 0) {
 
                     value = values.getDouble(dataPixelOffset);			//NESTMOD
-                    if(Double.isInfinite(value) || Double.isNaN(value))
-                        continue;
+                    if(!Double.isInfinite(value) && !Double.isNaN(value)) {
 
                     tileSampleCount++;
                     if (value < tileMinimum) {
@@ -173,6 +172,7 @@ final class SummaryStxOp extends StxOp {
                     final double value2 = value * value;
                     tmpSqrSum += value2;
                     tmpPower4Sum += value2*value2;
+                    }
                 }
                 dataPixelOffset += dataPixelStride;
                 maskPixelOffset += maskPixelStride;
