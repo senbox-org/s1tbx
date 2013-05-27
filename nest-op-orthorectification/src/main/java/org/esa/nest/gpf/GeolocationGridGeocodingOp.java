@@ -166,7 +166,7 @@ public final class GeolocationGridGeocodingOp extends Operator {
 
         firstLineUTC = absRoot.getAttributeUTC(AbstractMetadata.first_line_time).getMJD(); // in days
 
-        lineTimeInterval = absRoot.getAttributeDouble(AbstractMetadata.line_time_interval) / 86400.0; // s to day
+        lineTimeInterval = absRoot.getAttributeDouble(AbstractMetadata.line_time_interval) / Constants.secondsInDay; // s to day
 
         if (srgrFlag) {
             srgrConvParams = AbstractMetadata.getSRGRCoefficients(absRoot);
@@ -381,7 +381,7 @@ public final class GeolocationGridGeocodingOp extends Operator {
                         azimuthIndex = (zeroDopplerTime - firstLineUTC) / lineTimeInterval;
                         rangeIndex = computeRangeIndex(zeroDopplerTime, slantRange);
                     } else {
-                        final double zeroDopplerTimeWithoutBias = zeroDopplerTime + slantRange / Constants.halfLightSpeed / 86400.0;
+                        final double zeroDopplerTimeWithoutBias = zeroDopplerTime + slantRange / Constants.halfLightSpeed / Constants.secondsInDay;
                         azimuthIndex = (zeroDopplerTimeWithoutBias - firstLineUTC) / lineTimeInterval;
                         rangeIndex = computeRangeIndex(zeroDopplerTimeWithoutBias, slantRange);
                     }
@@ -551,30 +551,33 @@ public final class GeolocationGridGeocodingOp extends Operator {
             return sourceTileI.getHeight();
         }
 
-        public void getSamples(int[] x, int[] y, float[][] samples) {
-
+        public boolean getSamples(final int[] x, final int[] y, final double[][] samples) {
+            boolean allValid = true;
             for (int i = 0; i < y.length; i++) {
                 for (int j = 0; j < x.length; j++) {
 
-                    double v = (float)dataBufferI.getElemDoubleAt(sourceTileI.getDataBufferIndex(x[j], y[i]));
+                    double v = dataBufferI.getElemDoubleAt(sourceTileI.getDataBufferIndex(x[j], y[i]));
                     if (noDataValue != 0 && (v == noDataValue)) {
-                        samples[i][j] = (float)noDataValue;
+                        samples[i][j] = noDataValue;
+                        allValid = false;
                         continue;
-                    } else {
-                        samples[i][j] = (float)v;
                     }
+
+                    samples[i][j] = (float)v;
 
                     if (dataBufferQ != null) {
                         final double vq = dataBufferQ.getElemDoubleAt(sourceTileQ.getDataBufferIndex(x[j], y[i]));
                         if (noDataValue != 0 && vq == noDataValue) {
-                            samples[i][j] = (float)noDataValue;
+                            samples[i][j] = noDataValue;
+                            allValid = false;
                             continue;
                         }
 
-                        samples[i][j] = (float)(v*v + vq*vq);
+                        samples[i][j] = v*v + vq*vq;
                     }
                 }
             }
+            return allValid;
         }
     }
 

@@ -21,7 +21,9 @@ import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.dataop.dem.ElevationModel;
 import org.esa.beam.framework.dataop.dem.ElevationModelDescriptor;
+import org.esa.beam.framework.dataop.resamp.BilinearInterpolationResampling;
 import org.esa.beam.framework.dataop.resamp.Resampling;
+import org.esa.beam.framework.dataop.resamp.ResamplingFactory;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -44,7 +46,6 @@ public abstract class BaseElevationModel implements ElevationModel, Resampling.R
     protected final ElevationModelDescriptor descriptor;
     private final ElevationFile[][] elevationFiles;
     private final Resampling resampling;
-    private final Resampling.Index resamplingIndex;
     private final Resampling.Raster resamplingRaster;
 
     private final List<ElevationTile> elevationTileCache = new ArrayList<ElevationTile>(20);
@@ -55,7 +56,6 @@ public abstract class BaseElevationModel implements ElevationModel, Resampling.R
         if(resamplingMethod == null)
             resamplingMethod = Resampling.BILINEAR_INTERPOLATION;
         this.resampling = resamplingMethod;
-        this.resamplingIndex = resampling.createIndex();
         this.resamplingRaster = this;
 
         NUM_X_TILES = descriptor.getNumXTiles();
@@ -86,7 +86,7 @@ public abstract class BaseElevationModel implements ElevationModel, Resampling.R
         maxCacheSize = size;
     }
 
-    public final float getElevation(final GeoPos geoPos) throws Exception {
+    public final double getElevation(final GeoPos geoPos) throws Exception {
         if (geoPos.lon > 180) {
             geoPos.lon -= 360;
         }
@@ -95,12 +95,13 @@ public abstract class BaseElevationModel implements ElevationModel, Resampling.R
             return NO_DATA_VALUE;
         }
 
-        final float elevation;
-        synchronized(resampling) {
-            resampling.computeIndex(getIndexX(geoPos), pixelY, RASTER_WIDTH, RASTER_HEIGHT, resamplingIndex);
-            elevation = resampling.resample(resamplingRaster, resamplingIndex);
-        }
-        return Float.isNaN(elevation) ? NO_DATA_VALUE : elevation;
+        final double elevation;
+        //synchronized(resampling) {
+            Resampling.Index newIndex = resampling.createIndex();
+            resampling.computeIndex(getIndexX(geoPos), pixelY, RASTER_WIDTH, RASTER_HEIGHT, newIndex);
+            elevation = resampling.resample(resamplingRaster, newIndex);
+        //}
+        return Double.isNaN(elevation) ? NO_DATA_VALUE : elevation;
     }
 
     public abstract double getIndexX(final GeoPos geoPos);
@@ -177,8 +178,8 @@ public abstract class BaseElevationModel implements ElevationModel, Resampling.R
         return (ProductReaderPlugIn) readerPlugIns.next();
     }
 
-    public final void getSamples(final int[] x, final int[] y, final float[][] samples) throws Exception {
-
+    public final boolean getSamples(final int[] x, final int[] y, final double[][] samples) throws Exception {
+        boolean allValid = true;
         for (int i = 0; i < y.length; i++) {
             final int tileYIndex = (int)(y[i] * NUM_PIXELS_PER_TILEinv);
             final int pixelY = y[i] - tileYIndex * NUM_PIXELS_PER_TILE;
@@ -188,13 +189,18 @@ public abstract class BaseElevationModel implements ElevationModel, Resampling.R
 
                 final ElevationTile tile = elevationFiles[tileXIndex][tileYIndex].getTile();
                 if (tile == null) {
-                    samples[i][j] = Float.NaN;
+                    samples[i][j] = Double.NaN;
+                    allValid = false;
                     continue;
                 }
 
-                final float sample = tile.getSample(x[j] - tileXIndex * NUM_PIXELS_PER_TILE, pixelY);
-                samples[i][j] = (sample == NO_DATA_VALUE) ? Float.NaN : sample;
+                samples[i][j] = tile.getSample(x[j] - tileXIndex * NUM_PIXELS_PER_TILE, pixelY);
+                if(samples[i][j] == NO_DATA_VALUE) {
+                    samples[i][j] = Double.NaN;
+                    allValid = false;
+                }
             }
         }
+        return allValid;
     }
 }

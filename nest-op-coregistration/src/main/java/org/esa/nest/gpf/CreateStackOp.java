@@ -766,8 +766,8 @@ public class CreateStackOp extends Operator {
                         resampling.computeIndex(sourcePixelPos.x, sourcePixelPos.y,
                                 sourceRasterWidth, sourceRasterHeight, resamplingIndex);
                         try {
-                            float sample = resampling.resample(resamplingRaster, resamplingIndex);
-                            if (Float.isNaN(sample)) {
+                            double sample = resampling.resample(resamplingRaster, resamplingIndex);
+                            if (Double.isNaN(sample)) {
                                 sample = noDataValue;
                             }
                             trgBuffer.setElemDoubleAt(trgIndex, sample);
@@ -904,24 +904,22 @@ public class CreateStackOp extends Operator {
             return tile.getHeight();
         }
 
-        public final float getSample(final double x, final double y) throws Exception {
-            final double sample = dataBuffer.getElemDoubleAt(tile.getDataBufferIndex((int)x, (int)y));
-
-            if (usesNoData) {
-                if(scalingApplied && geophysicalNoDataValue == sample)
-                    return Float.NaN;
-                else if(noDataValue == sample)
-                    return Float.NaN;
-            }
-            return (float) sample;
-        }
-
-        public void getSamples(final int[] x, final int[] y, final float[][] samples) throws Exception {
+        public boolean getSamples(final int[] x, final int[] y, final double[][] samples) throws Exception {
+            boolean allValid = true;
             for (int i = 0; i < y.length; i++) {
                 for (int j = 0; j < x.length; j++) {
-                    samples[i][j] = getSample(x[j], y[i]);
+
+                    samples[i][j] = dataBuffer.getElemDoubleAt(tile.getDataBufferIndex(x[j], y[i]));
+
+                    if (usesNoData) {
+                        if(scalingApplied && geophysicalNoDataValue == samples[i][j] || noDataValue == samples[i][j]) {
+                            samples[i][j] = Double.NaN;
+                            allValid = false;
+                        }
+                    }
                 }
             }
+            return allValid;
         }
     }
 

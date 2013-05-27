@@ -47,9 +47,13 @@ public class SARSimulationOpUI extends BaseOperatorUI {
     private final JButton externalDEMBrowseButton = new JButton("...");
     private final JLabel externalDEMFileLabel = new JLabel("External DEM:");
     private final JLabel externalDEMNoDataValueLabel = new JLabel("DEM No Data Value:");
+    private final JCheckBox reGridMethodCheckBox = new JCheckBox("Re-grid method (slower)");
+    private final JCheckBox orbitMethodCheckBox = new JCheckBox("Orbit method");
     private final JCheckBox saveLayoverShadowMaskCheckBox = new JCheckBox("Save Layover-Shadow Mask as band");
 
     private boolean saveLayoverShadowMask = false;
+    private boolean reGridMethod = false;
+    private boolean orbitMethod = false;
     private Double extNoDataValue = 0.0;
 
     private final DialogUtils.TextAreaKeyListener textAreaKeyListener = new DialogUtils.TextAreaKeyListener();
@@ -88,6 +92,16 @@ public class SARSimulationOpUI extends BaseOperatorUI {
 
         externalDEMNoDataValue.addKeyListener(textAreaKeyListener);
 
+        reGridMethodCheckBox.addItemListener(new ItemListener() {
+            public void itemStateChanged(ItemEvent e) {
+                reGridMethod = (e.getStateChange() == ItemEvent.SELECTED);
+            }
+        });
+        orbitMethodCheckBox.addItemListener(new ItemListener() {
+            public void itemStateChanged(ItemEvent e) {
+                orbitMethod = (e.getStateChange() == ItemEvent.SELECTED);
+            }
+        });
         saveLayoverShadowMaskCheckBox.addItemListener(new ItemListener() {
                 public void itemStateChanged(ItemEvent e) {
                     saveLayoverShadowMask = (e.getStateChange() == ItemEvent.SELECTED);
@@ -116,6 +130,12 @@ public class SARSimulationOpUI extends BaseOperatorUI {
             }
         }
 
+        reGridMethod = (Boolean)paramMap.get("reGridMethod");
+        reGridMethodCheckBox.setSelected(reGridMethod);
+
+        orbitMethod = (Boolean)paramMap.get("orbitMethod");
+        orbitMethodCheckBox.setSelected(orbitMethod);
+
         saveLayoverShadowMask = (Boolean)paramMap.get("saveLayoverShadowMask");
         saveLayoverShadowMaskCheckBox.setSelected(saveLayoverShadowMask);
     }
@@ -140,6 +160,8 @@ public class SARSimulationOpUI extends BaseOperatorUI {
             paramMap.put("externalDEMNoDataValue", Double.parseDouble(externalDEMNoDataValue.getText()));
         }
 
+        paramMap.put("reGridMethod", reGridMethod);
+        paramMap.put("orbitMethod", orbitMethod);
         paramMap.put("saveLayoverShadowMask", saveLayoverShadowMask);
     }
 
@@ -166,6 +188,10 @@ public class SARSimulationOpUI extends BaseOperatorUI {
         DialogUtils.addComponent(contentPane, gbc, "DEM Resampling Method:", demResamplingMethod);
 
         gbc.gridx = 0;
+        gbc.gridy++;
+        contentPane.add(reGridMethodCheckBox, gbc);
+        gbc.gridy++;
+        contentPane.add(orbitMethodCheckBox, gbc);
         gbc.gridy++;
         contentPane.add(saveLayoverShadowMaskCheckBox, gbc);
         DialogUtils.fillPanel(contentPane, gbc);

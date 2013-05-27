@@ -2,10 +2,12 @@ package org.esa.nest.eo;
 
 import org.apache.commons.math.util.FastMath;
 import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.dataop.dem.ElevationModel;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.nest.datamodel.AbstractMetadata;
 import org.esa.nest.datamodel.PosVector;
 import org.esa.nest.gpf.OperatorUtils;
+import org.esa.nest.gpf.TileGeoreferencing;
 import org.esa.nest.util.MathUtils;
 
 /**
@@ -82,6 +84,54 @@ public class SARGeocoding {
         }
     }
 
+    public static double getEarthPointZeroDopplerTimeNewton(final double firstLineUTC,
+                                                      final double lineTimeInterval, final double wavelength,
+                                                      final double[] earthPoint, final double[][] sensorPosition,
+                                                      final double[][] sensorVelocity) throws OperatorException {
+        final int lowerBound = 0;
+        final int upperBound = sensorPosition.length - 1;
+        final double lowerBoundFreq = getDopplerFrequency(earthPoint, sensorPosition[lowerBound],
+                sensorVelocity[lowerBound], wavelength);
+        final double upperBoundFreq = getDopplerFrequency(earthPoint, sensorPosition[upperBound],
+                sensorVelocity[upperBound], wavelength);
+        if (Double.compare(lowerBoundFreq, 0.0) == 0) {
+            return firstLineUTC + lowerBound*lineTimeInterval;
+        } else if (Double.compare(upperBoundFreq, 0.0) == 0) {
+            return firstLineUTC + upperBound*lineTimeInterval;
+        } else if (lowerBoundFreq*upperBoundFreq > 0.0) {
+            return NonValidZeroDopplerTime;
+        }
+        int yOld = 0, yOld1;
+        int yNew = sensorPosition.length/2, yNew1 = 0;
+        final int yMax = sensorPosition.length - 1;
+        double fOld = 0, fOld1 = 0, fNew = 0, fNew1 = 0, d = 0, y0;
+        while (Math.abs(yNew - yOld) > 2) {
+            yOld = yNew;
+            yOld1 = yOld + 1;
+            if (yOld1 > yMax) {
+                yOld1 = yOld - 1;
+            }
+            fOld = getDopplerFrequency(earthPoint, sensorPosition[yOld], sensorVelocity[yOld], wavelength);
+            fOld1 = getDopplerFrequency(earthPoint, sensorPosition[yOld1], sensorVelocity[yOld1], wavelength);
+            d = (fOld1 - fOld) / (yOld1 - yOld);
+            yNew = (int)(yOld - fOld/d);
+            if (yNew < 0) {
+                yNew = 0;
+            } else if (yNew > yMax) {
+                yNew = yMax;
+            }
+        }
+        fNew = getDopplerFrequency(earthPoint, sensorPosition[yNew], sensorVelocity[yNew], wavelength);
+        yNew1 = yNew + 1;
+        fNew1 = getDopplerFrequency(earthPoint, sensorPosition[yNew1], sensorVelocity[yNew1], wavelength);
+        if (fNew*fNew1 > 0.0) {
+            yNew1 = yNew - 1;
+            fNew1 = getDopplerFrequency(earthPoint, sensorPosition[yNew1], sensorVelocity[yNew1], wavelength);
+        }
+        y0 = yNew - fNew*(yNew1 - yNew)/(fNew1 - fNew);
+        return firstLineUTC + y0*lineTimeInterval;
+    }
+
     /**
      * Compute zero Doppler time for given erath point.
      * @param firstLineUTC The zero Doppler time for the first range line.
@@ -144,7 +194,7 @@ public class SARGeocoding {
      * @param earthPoint The earth point in xyz coordinate.
      * @param sensorPosition Array of sensor positions for all range lines.
      * @param sensorVelocity Array of sensor velocities for all range lines.
-     * @param wavelength The ragar wavelength.
+     * @param wavelength The radar wavelength.
      * @return The Doppler frequency in Hz.
      */
     private static double getDopplerFrequency(
@@ -157,6 +207,18 @@ public class SARGeocoding {
         final double distance = Math.sqrt(xDiff * xDiff + yDiff * yDiff + zDiff * zDiff);
 
         return 2.0 * (sensorVelocity[y][0]*xDiff + sensorVelocity[y][1]*yDiff + sensorVelocity[y][2]*zDiff) / (distance*wavelength);
+    }
+
+    private static double getDopplerFrequency(
+            final double[] earthPoint, final double[] sensorPosition,
+            final double[] sensorVelocity, final double wavelength) {
+
+        final double xDiff = earthPoint[0] - sensorPosition[0];
+        final double yDiff = earthPoint[1] - sensorPosition[1];
+        final double zDiff = earthPoint[2] - sensorPosition[2];
+        final double distance = Math.sqrt(xDiff * xDiff + yDiff * yDiff + zDiff * zDiff);
+
+        return 2.0 * (sensorVelocity[0]*xDiff + sensorVelocity[1]*yDiff + sensorVelocity[2]*zDiff) / (distance*wavelength);
     }
 
     /**
@@ -307,7 +369,7 @@ public class SARGeocoding {
     public static void computeLocalIncidenceAngle(
             final LocalGeometry lg, final float demNoDataValue, final boolean saveLocalIncidenceAngle,
             final boolean saveProjectedLocalIncidenceAngle, final boolean saveSigmaNought, final int x0,
-            final int y0, final int x, final int y, final float[][] localDEM, final double[] localIncidenceAngles) {
+            final int y0, final int x, final int y, final double[][] localDEM, final double[] localIncidenceAngles) {
 
         // Note: For algorithm and notation of the following implementation, please see Andrea's email dated
         //       May 29, 2009 and Marcus' email dated June 3, 2009, or see Eq (14.10) and Eq (14.11) on page
@@ -326,7 +388,7 @@ public class SARGeocoding {
 
         final int yy = y - y0;
         final int xx = x - x0;
-        final double rightPointHeight = (localDEM[yy][xx + 2] +
+		final double rightPointHeight = (localDEM[yy][xx + 2] +
                 localDEM[yy + 1][xx + 2] +
                 localDEM[yy + 2][xx + 2]) / 3.0;
 
@@ -359,6 +421,7 @@ public class SARGeocoding {
         final double[] n = {a[1]*b[2] - a[2]*b[1],
                 a[2]*b[0] - a[0]*b[2],
                 a[0]*b[1] - a[1]*b[0]}; // ground plane normal
+
         MathUtils.normalizeVector(n);
         if (MathUtils.innerProduct(n, c) < 0) {
             n[0] = -n[0];
@@ -371,9 +434,8 @@ public class SARGeocoding {
                 lg.sensorPos[2] - lg.centrePoint[2]};
         MathUtils.normalizeVector(s);
 
-        final double nsInnerProduct = MathUtils.innerProduct(n, s);
-
         if (saveLocalIncidenceAngle) { // local incidence angle
+            final double nsInnerProduct = MathUtils.innerProduct(n, s);
             localIncidenceAngles[0] = FastMath.acos(nsInnerProduct) * org.esa.beam.util.math.MathUtils.RTOD;
         }
 
@@ -384,6 +446,147 @@ public class SARGeocoding {
             final double[] n1 = {n[0] - m[0]*mnInnerProduct, n[1] - m[1]*mnInnerProduct, n[2] - m[2]*mnInnerProduct};
             MathUtils.normalizeVector(n1);
             localIncidenceAngles[1] = FastMath.acos(MathUtils.innerProduct(n1, s)) * org.esa.beam.util.math.MathUtils.RTOD;
+        }
+    }
+
+    public static void computeLocalIncidenceAngle(
+            final LocalGeometry lg, final float demNoDataValue, final boolean saveLocalIncidenceAngle,
+            final boolean saveProjectedLocalIncidenceAngle, final boolean saveSigmaNought, final int x0,
+            final int y0, final int x, final int y, final double[][] localDEM, final double[] localIncidenceAngles,
+            final TileGeoreferencing tileGeoRef, ElevationModel dem) throws Exception {
+
+        // Note: For algorithm and notation of the following implementation, please see Andrea's email dated
+        //       May 29, 2009 and Marcus' email dated June 3, 2009, or see Eq (14.10) and Eq (14.11) on page
+        //       321 and 323 in "SAR Geocoding - Data and Systems".
+        //       The Cartesian coordinate (x, y, z) is represented here by a length-3 array with element[0]
+        //       representing x, element[1] representing y and element[2] representing z.
+        try {
+
+        final int yy = y - y0;
+        final int xx = x - x0;
+        final int maxX = localDEM[0].length-1;
+        final int maxY = localDEM.length-1;
+        final int numN = 3;
+        final GeoPos geo = new GeoPos();
+        double alt;
+
+        double rightPointHeight = 0, leftPointHeight = 0, upPointHeight = 0, downPointHeight = 0;
+
+        int cnt=0;
+        for(int n=0;n<numN;++n) {
+            if(xx+n > maxX) {
+                tileGeoRef.getGeoPos(xx+n, yy, geo);
+                alt = dem.getElevation(geo);
+            } else {
+                alt = localDEM[yy][xx+n];
+            }
+            if(alt != demNoDataValue) {
+                rightPointHeight += alt;
+                ++cnt;
+            }
+        }
+        if(cnt == 0) return;
+        rightPointHeight /= (double)cnt;
+
+        cnt=0;
+        for(int n=0;n<numN;++n) {
+            if(xx-n < 0) {
+                tileGeoRef.getGeoPos(xx-n, yy, geo);
+                alt = dem.getElevation(geo);
+            } else {
+                alt = localDEM[yy][xx-n];
+            }
+            if(alt != demNoDataValue) {
+                leftPointHeight += alt;
+                ++cnt;
+            }
+        }
+        if(cnt == 0) return;
+        leftPointHeight /= (double)cnt;
+
+        cnt=0;
+        for(int n=0;n<numN;++n) {
+            if(yy-n < 0) {
+                tileGeoRef.getGeoPos(xx, yy-n, geo);
+                alt = dem.getElevation(geo);
+            } else {
+                alt = localDEM[yy-n][xx];
+            }
+            if(alt != demNoDataValue) {
+                upPointHeight += alt;
+                ++cnt;
+            }
+        }
+        if(cnt == 0) return;
+        upPointHeight /= (double)cnt;
+
+        cnt=0;
+        for(int n=0;n<numN;++n) {
+            if(yy+n > maxY) {
+                tileGeoRef.getGeoPos(xx, yy+n, geo);
+                alt = dem.getElevation(geo);
+            } else {
+                alt = localDEM[yy+n][xx];
+            }
+            if(alt != demNoDataValue) {
+                downPointHeight += alt;
+                ++cnt;
+            }
+        }
+        if(cnt == 0) return;
+        downPointHeight /= (double)cnt;
+
+        final double[] rightPoint = new double[3];
+        final double[] leftPoint = new double[3];
+        final double[] upPoint = new double[3];
+        final double[] downPoint = new double[3];
+        final double[] centrePoint = new double[3];
+
+        GeoUtils.geo2xyzWGS84(lg.rightPointLat, lg.rightPointLon, rightPointHeight, rightPoint);
+        GeoUtils.geo2xyzWGS84(lg.leftPointLat, lg.leftPointLon, leftPointHeight, leftPoint);
+        GeoUtils.geo2xyzWGS84(lg.upPointLat, lg.upPointLon, upPointHeight, upPoint);
+        GeoUtils.geo2xyzWGS84(lg.downPointLat, lg.downPointLon, downPointHeight, downPoint);
+
+        tileGeoRef.getGeoPos(xx, yy, geo);
+        final double centerHeight = localDEM[yy][xx];
+        GeoUtils.geo2xyzWGS84(geo.getLat(), geo.lon, centerHeight, centrePoint);
+
+        final double[] a = {rightPoint[0] - leftPoint[0], rightPoint[1] - leftPoint[1], rightPoint[2] - leftPoint[2]};
+        final double[] b = {downPoint[0] - upPoint[0], downPoint[1] - upPoint[1], downPoint[2] - upPoint[2]};
+        //final double[] c = {lg.centrePoint[0], lg.centrePoint[1], lg.centrePoint[2]};
+        final double[] c = {centrePoint[0], centrePoint[1], centrePoint[2]};
+
+        final double[] n = {a[1]*b[2] - a[2]*b[1],
+                a[2]*b[0] - a[0]*b[2],
+                a[0]*b[1] - a[1]*b[0]}; // ground plane normal
+
+        MathUtils.normalizeVector(n);
+        if (MathUtils.innerProduct(n, c) < 0) {
+            n[0] = -n[0];
+            n[1] = -n[1];
+            n[2] = -n[2];
+        }
+
+        final double[] s = {lg.sensorPos[0] - centrePoint[0],
+                lg.sensorPos[1] - centrePoint[1],
+                lg.sensorPos[2] - centrePoint[2]};
+        MathUtils.normalizeVector(s);
+
+        if (saveLocalIncidenceAngle) { // local incidence angle
+            final double nsInnerProduct = MathUtils.innerProduct(n, s);
+            localIncidenceAngles[0] = FastMath.acos(nsInnerProduct) * org.esa.beam.util.math.MathUtils.RTOD;
+        }
+
+        if (saveProjectedLocalIncidenceAngle || saveSigmaNought) { // projected local incidence angle
+            final double[] m = {s[1]*c[2] - s[2]*c[1], s[2]*c[0] - s[0]*c[2], s[0]*c[1] - s[1]*c[0]}; // range plane normal
+            MathUtils.normalizeVector(m);
+            final double mnInnerProduct = MathUtils.innerProduct(m, n);
+            final double[] n1 = {n[0] - m[0]*mnInnerProduct, n[1] - m[1]*mnInnerProduct, n[2] - m[2]*mnInnerProduct};
+            MathUtils.normalizeVector(n1);
+            localIncidenceAngles[1] = FastMath.acos(MathUtils.innerProduct(n1, s)) * org.esa.beam.util.math.MathUtils.RTOD;
+        }
+        } catch (Exception e) {
+            throw e;
         }
     }
 

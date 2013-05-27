@@ -94,7 +94,7 @@ public class FileElevationModel implements ElevationModel, Resampling.Raster {
         return resampling;
     }
 
-    public synchronized float getElevation(final GeoPos geoPos) throws Exception {
+    public synchronized double getElevation(final GeoPos geoPos) throws Exception {
         try {
             final PixelPos pix = tileGeocoding.getPixelPos(geoPos, null);
             if(!pix.isValid() || pix.x < 0 || pix.y < 0 || pix.x >= RASTER_WIDTH || pix.y >= RASTER_HEIGHT)
@@ -102,8 +102,8 @@ public class FileElevationModel implements ElevationModel, Resampling.Raster {
 
             resampling.computeIndex(pix.x, pix.y, RASTER_WIDTH, RASTER_HEIGHT, resamplingIndex);
 
-            final float elevation = resampling.resample(resamplingRaster, resamplingIndex);
-            if (Float.isNaN(elevation)) {
+            final double elevation = resampling.resample(resamplingRaster, resamplingIndex);
+            if (Double.isNaN(elevation)) {
                 return noDataValue;
             }
             return elevation;
@@ -137,11 +137,17 @@ public class FileElevationModel implements ElevationModel, Resampling.Raster {
         return RASTER_HEIGHT;
     }
 
-    public void getSamples(int[] x, int[] y, float[][] samples) throws IOException {
+    public boolean getSamples(final int[] x, final int[] y, final double[][] samples) throws IOException {
+        boolean allValid = true;
         for (int i = 0; i < y.length; i++) {
             for (int j = 0; j < x.length; j++) {
-                samples[i][j] = getSample(x[j], y[i]);
+                samples[i][j] = fileElevationTile.getSample(x[j], y[i]);
+                if (samples[i][j] == noDataValue) {
+                    samples[i][j] = Double.NaN;
+                    allValid = false;
+                }
             }
         }
+        return allValid;
     }
 }

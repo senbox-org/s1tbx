@@ -7,17 +7,7 @@
       <file/>
     </parameters>
   </node>
-  <node id="2-Write">
-    <operator>Write</operator>
-    <sources>
-      <sourceProduct refid="5-SARSim-Terrain-Correction"/>
-    </sources>
-    <parameters>
-      <formatName>BEAM-DIMAP</formatName>
-      <file>SarSimTC.dim</file>
-    </parameters>
-  </node>
-  <node id="3-SAR-Simulation">
+  <node id="2-SAR-Simulation">
     <operator>SAR-Simulation</operator>
     <sources>
       <sourceProduct refid="1-Read"/>
@@ -30,13 +20,15 @@
       <demResamplingMethod>BILINEAR_INTERPOLATION</demResamplingMethod>
       <externalDEMFile/>
       <externalDEMNoDataValue>0.0</externalDEMNoDataValue>
+	  <reGridMethod>false</reGridMethod>
+	  <orbitMethod>false</orbitMethod>
       <saveLayoverShadowMask>false</saveLayoverShadowMask>
     </parameters>
   </node>
-  <node id="4-GCP-Selection">
+  <node id="3-GCP-Selection">
     <operator>GCP-Selection</operator>
     <sources>
-      <sourceProduct refid="3-SAR-Simulation"/>
+      <sourceProduct refid="2-SAR-Simulation"/>
     </sources>
     <parameters>
       <numGCPtoGenerate>200</numGCPtoGenerate>
@@ -56,10 +48,10 @@
 	  <onlyGCPsOnLand>false</onlyGCPsOnLand>
     </parameters>
   </node>
-  <node id="5-SARSim-Terrain-Correction">
+  <node id="4-SARSim-Terrain-Correction">
     <operator>SARSim-Terrain-Correction</operator>
     <sources>
-      <sourceProduct refid="4-GCP-Selection"/>
+      <sourceProduct refid="3-GCP-Selection"/>
     </sources>
     <parameters>
       <rmsThreshold>1.0</rmsThreshold>
@@ -84,22 +76,32 @@
       <openResidualsFile>false</openResidualsFile>
     </parameters>
   </node>
+  <node id="5-Write">
+    <operator>Write</operator>
+    <sources>
+      <sourceProduct refid="4-SARSim-Terrain-Correction"/>
+    </sources>
+    <parameters>
+      <formatName>BEAM-DIMAP</formatName>
+      <file>SarSimTC.dim</file>
+    </parameters>
+  </node>
   <applicationData id="Presentation">
     <Description/>
     <node id="1-Read">
       <displayPosition y="134.0" x="37.0"/>
     </node>
-    <node id="2-Write">
-      <displayPosition y="134.0" x="637.0"/>
-    </node>
-    <node id="3-SAR-Simulation">
+    <node id="2-SAR-Simulation">
       <displayPosition y="134.0" x="144.0"/>
     </node>
-    <node id="4-GCP-Selection">
+    <node id="3-GCP-Selection">
       <displayPosition y="134.0" x="286.0"/>
     </node>
-    <node id="5-SARSim-Terrain-Correction">
+    <node id="4-SARSim-Terrain-Correction">
       <displayPosition y="134.0" x="432.0"/>
+    </node>
+	<node id="5-Write">
+      <displayPosition y="134.0" x="637.0"/>
     </node>
   </applicationData>
 </graph>

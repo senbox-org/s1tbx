@@ -174,7 +174,7 @@ public class CreateLandMaskOp extends Operator {
             final TileGeoreferencing tileGeoRef = new TileGeoreferencing(targetProduct, minX, minY, maxX-minX, maxY-minY);
 
             final float demNoDataValue = dem.getDescriptor().getNoDataValue();
-            final float[][] localDEM = new float[maxY-minY+2][maxX-minX+2];
+            final double[][] localDEM = new double[maxY-minY+2][maxX-minX+2];
             DEMFactory.getLocalDEM(dem, demNoDataValue, tileGeoRef, minX, minY, maxX-minX, maxY-minY, localDEM);
 
             for (int y = minY; y < maxY; ++y) {
@@ -183,7 +183,7 @@ public class CreateLandMaskOp extends Operator {
                 for (int x = minX; x < maxX; ++x) {
 
                     final int index = tileIndex.getIndex(x);
-                    final float elev = localDEM[yy][x-minX];
+                    final double elev = localDEM[yy][x-minX];
 
                     if(landMask) {
                         if(useSRTM)

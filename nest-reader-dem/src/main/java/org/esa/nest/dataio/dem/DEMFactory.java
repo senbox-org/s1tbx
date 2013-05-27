@@ -122,8 +122,8 @@ public class DEMFactory {
         }
     }
 
-    public static void fillDEM(final float[][] localDEM, final float alt) {
-        for (float[] row : localDEM) {
+    public static void fillDEM(final double[][] localDEM, final float alt) {
+        for (double[] row : localDEM) {
             Arrays.fill(row, alt);
         }
     }
@@ -152,7 +152,7 @@ public class DEMFactory {
                                        final TileGeoreferencing tileGeoRef,
                                        final int x0, final int y0,
                                        final int tileWidth, final int tileHeight,
-                                       final float[][] localDEM) throws Exception {
+                                       final double[][] localDEM) throws Exception {
         if(dem.getResampling() == null) {
             return getLocalDEMUsingDelaunayInterpolation(dem, demNoDataValue, tileGeoRef, x0, y0, tileWidth, tileHeight, localDEM);
         }
@@ -164,7 +164,7 @@ public class DEMFactory {
         final int maxX = x0 + tileWidth + 1;
         final GeoPos geoPos = new GeoPos();
 
-        float alt;
+        double alt;
         boolean valid = false;
         for (int y = y0 - 1; y < maxY; y++) {
             final int yy = y - y0 + 1;
@@ -192,7 +192,7 @@ public class DEMFactory {
 
     public synchronized static boolean getLocalDEMUsingDelaunayInterpolation(
             final ElevationModel dem, final float demNoDataValue, final TileGeoreferencing tileGeoRef, final int x0,
-            final int y0, final int tileWidth, final int tileHeight, final float[][] localDEM) throws Exception {
+            final int y0, final int tileWidth, final int tileHeight, final double[][] localDEM) throws Exception {
 
         // Note: the localDEM covers current tile with 1 extra row above, 1 extra row below, 1 extra column to
         //       the left and 1 extra column to the right of the tile.

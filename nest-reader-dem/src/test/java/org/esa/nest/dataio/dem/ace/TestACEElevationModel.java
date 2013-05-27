@@ -45,7 +45,7 @@ public class TestACEElevationModel extends TestCase {
         }
 
         final ElevationModel dem = demDescriptor.createDem(Resampling.BILINEAR_INTERPOLATION);
-        final float[] demValues = new float[expectedValues.length];
+        final double[] demValues = new double[expectedValues.length];
         int count = 0;
 
         final GeoPos geoPos = new GeoPos(-18, 20);

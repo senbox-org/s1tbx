@@ -95,12 +95,12 @@ public final class GeoUtils
         final double lon = longitude * org.esa.beam.util.math.MathUtils.DTOR;
 
         final double sinLat = FastMath.sin(lat);
-        final double N = (WGS84.a / Math.sqrt(1 - WGS84.e2*sinLat*sinLat));
+        final double N = (WGS84.a / Math.sqrt(1.0 - WGS84.e2*sinLat*sinLat));
         final double NcosLat = (N + altitude) * FastMath.cos(lat);
 
         xyz[0] = NcosLat * FastMath.cos(lon); // in m
         xyz[1] = NcosLat * FastMath.sin(lon); // in m
-        xyz[2] = (WGS84.e2inv * N  + altitude) * sinLat;    // in m
+        xyz[2] = (N + altitude - WGS84.e2 * N) * sinLat;//(WGS84.e2inv * N  + altitude) * sinLat;    // in m
     }
 
     /**

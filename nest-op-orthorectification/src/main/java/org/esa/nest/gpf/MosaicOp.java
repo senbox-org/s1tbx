@@ -504,11 +504,11 @@ public class MosaicOp extends Operator {
             final Rectangle targetRectangle = targetTile.getRectangle();
             final ProductData trgBuffer = targetTile.getDataBuffer();
 
-            float sample;
+            double sample;
             final int maxY = targetRectangle.y + targetRectangle.height;
             final int maxX = targetRectangle.x + targetRectangle.width;
             final TileIndex trgIndex = new TileIndex(targetTile);
-            final float[] sampleList = new float[validSourceData.size()];
+            final double[] sampleList = new double[validSourceData.size()];
             final int[] sampleDistanceList = new int[validSourceData.size()];
 
             for (int y = targetRectangle.y, index = 0; y < maxY; ++y) {
@@ -528,7 +528,7 @@ public class MosaicOp extends Operator {
 
                         sample = resampling.resample(srcDat.resamplingRaster, srcDat.resamplingIndex);
 
-                        if (!Float.isNaN(sample) && sample != srcDat.nodataValue && !MathUtils.equalValues(sample, 0.0F, 1e-4F)) {
+                        if (!Double.isNaN(sample) && sample != srcDat.nodataValue && !MathUtils.equalValues(sample, 0.0F, 1e-4F)) {
 
                             if (normalizeByMean) {
                                 sample -= srcDat.srcMean;
@@ -693,7 +693,7 @@ public class MosaicOp extends Operator {
             throws OperatorException {
 
         try {
-            float sample;
+            double sample;
             int yy, xx;
             for (int y = minY, index = 0; y <= maxY; ++y) {
                 yy = y - minY;
@@ -742,7 +742,7 @@ public class MosaicOp extends Operator {
             final int targetTileHeight = mosaicedTile.length;
             double[] adjacentPixels = new double[4];
 
-            float sample;
+            double sample;
             int yy, xx;
             for (int y = minY, index = 0; y <= maxY; ++y) {
                 yy = y - minY;
@@ -862,8 +862,8 @@ public class MosaicOp extends Operator {
         }
     }
 
-    private static boolean isValidSample(final float sample, final double noDataValue) {
-        return (!Float.isNaN(sample) && sample != noDataValue && !MathUtils.equalValues(sample, 0.0F, 1e-4F));
+    private static boolean isValidSample(final double sample, final double noDataValue) {
+        return (!Double.isNaN(sample) && sample != noDataValue && !MathUtils.equalValues(sample, 0.0F, 1e-4F));
     }
 
     private double computeGradient(final int xx, final int yy, final double[][] mosaicedTile,
@@ -963,27 +963,27 @@ public class MosaicOp extends Operator {
             return tile.getHeight();
         }
 
-        public final float getSample(final double x, final double y) throws Exception {
-            if(x < minX || y < minY || x > maxX || y > maxY)
-                return Float.NaN;
-
-            final double sample = dataBuffer.getElemDoubleAt(tile.getDataBufferIndex((int)x, (int)y));
-
-            if (usesNoData) {
-                if (scalingApplied && geophysicalNoDataValue == sample)
-                    return Float.NaN;
-                else if (noDataValue == sample)
-                    return Float.NaN;
-            }
-            return (float) sample;
-        }
-
-        public void getSamples(final int[] x, final int[] y, final float[][] samples) throws Exception {
+        public boolean getSamples(final int[] x, final int[] y, final double[][] samples) throws Exception {
+            boolean allValid = true;
             for (int i = 0; i < y.length; i++) {
                 for (int j = 0; j < x.length; j++) {
-                    samples[i][j] = getSample(x[j], y[i]);
+
+                    if(x[j] < minX || y[i] < minY || x[j] > maxX || y[i] > maxY) {
+                        samples[i][j] =  Float.NaN;
+                        allValid = false;
+                    }
+
+                    samples[i][j] = dataBuffer.getElemDoubleAt(tile.getDataBufferIndex(x[j], y[i]));
+
+                    if (usesNoData) {
+                        if (scalingApplied && geophysicalNoDataValue == samples[i][j] || noDataValue == samples[i][j]) {
+                            samples[i][j] = Float.NaN;
+                            allValid = false;
+                        }
+                    }
                 }
             }
+            return allValid;
         }
     }
 

@@ -364,7 +364,7 @@ public class SARSimTerrainCorrectionOp extends Operator {
 
         firstLineUTC = absRoot.getAttributeUTC(AbstractMetadata.first_line_time).getMJD(); // in days
         lastLineUTC = absRoot.getAttributeUTC(AbstractMetadata.last_line_time).getMJD(); // in days
-        lineTimeInterval = absRoot.getAttributeDouble(AbstractMetadata.line_time_interval) / 86400.0; // s to day
+        lineTimeInterval = absRoot.getAttributeDouble(AbstractMetadata.line_time_interval) / Constants.secondsInDay; // s to day
 
         orbitStateVectors = AbstractMetadata.getOrbitStateVectors(absRoot);
 
@@ -911,7 +911,7 @@ public class SARSimTerrainCorrectionOp extends Operator {
         final TileGeoreferencing tileGeoRef = new TileGeoreferencing(targetProduct, x0, y0, w, h);
 
         try {
-            final float[][] localDEM = new float[h+2][w+2];
+            final double[][] localDEM = new double[h+2][w+2];
             if(useAvgSceneHeight) {
                 DEMFactory.fillDEM(localDEM, (float) avgSceneHeight);
             } else {
@@ -927,7 +927,7 @@ public class SARSimTerrainCorrectionOp extends Operator {
 
                     final int index = trgTiles[0].targetTile.getDataBufferIndex(x, y);
 
-                    final double alt = (double)localDEM[yy][x-x0+1];
+                    final double alt = localDEM[yy][x-x0+1];
 
                     if(saveDEM) {
                         demBuffer.setElemDoubleAt(index, alt);
@@ -1210,7 +1210,7 @@ public class SARSimTerrainCorrectionOp extends Operator {
             resampling.computeIndex(rangeIndex + 0.5, azimuthIndex + 0.5,
                                        sourceImageWidth, sourceImageHeight, imgResamplingIndex);
 
-            float v = resampling.resample(imgResamplingRaster, imgResamplingIndex);
+            double v = resampling.resample(imgResamplingRaster, imgResamplingIndex);
 
             subSwathIndex[0] = imgResamplingRaster.getSubSwathIndex();
 

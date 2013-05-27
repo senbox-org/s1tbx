@@ -745,7 +745,7 @@ public class GCPSelectionOp extends Operator {
     private boolean checkMasterGCPValidity(final Placemark mPin) throws Exception {
         final PixelPos pixelPos = mPin.getPixelPos();
         if(onlyGCPsOnLand) {
-            float alt = dem.getElevation(mPin.getGeoPos());
+            double alt = dem.getElevation(mPin.getGeoPos());
             if(alt == dem.getDescriptor().getNoDataValue())
                 return false;
         }
