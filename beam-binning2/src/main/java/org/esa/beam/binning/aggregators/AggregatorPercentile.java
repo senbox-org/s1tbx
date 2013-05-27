@@ -81,17 +81,17 @@ public class AggregatorPercentile extends AbstractAggregator {
         } else {
             // We count invalids rather than valid because it is more efficient.
             // (Key/value map operations are relatively slow, and it is more likely that we will receive valid measurements.)
-            ((int[])ctx.get(icName))[0]++;
+            ((int[]) ctx.get(icName))[0]++;
         }
     }
 
     @Override
     public void completeSpatial(BinContext ctx, int numSpatialObs, WritableVector spatialVector) {
-        Integer invalidCount = ((int[])ctx.get(icName))[0];
-        int effectiveCount =  numSpatialObs - invalidCount;
+        Integer invalidCount = ((int[]) ctx.get(icName))[0];
+        int effectiveCount = numSpatialObs - invalidCount;
         if (effectiveCount > 0) {
             spatialVector.set(0, spatialVector.get(0) / effectiveCount);
-        }else {
+        } else {
             spatialVector.set(0, Float.NaN);
         }
     }
@@ -125,7 +125,7 @@ public class AggregatorPercentile extends AbstractAggregator {
         float value = temporalVector.get(0);
         if (!Float.isNaN(value)) {
             outputVector.set(0, value);
-        }else {
+        } else {
             // todo - use fillValue here (nf)
             outputVector.set(0, Float.NaN);
         }
@@ -134,12 +134,12 @@ public class AggregatorPercentile extends AbstractAggregator {
     @Override
     public String toString() {
         return "AggregatorPercentile{" +
-                "varIndex=" + varIndex +
-                ", percentage=" + percentage +
-                ", spatialFeatureNames=" + Arrays.toString(getSpatialFeatureNames()) +
-                ", temporalFeatureNames=" + Arrays.toString(getTemporalFeatureNames()) +
-                ", outputFeatureNames=" + Arrays.toString(getOutputFeatureNames()) +
-                '}';
+               "varIndex=" + varIndex +
+               ", percentage=" + percentage +
+               ", spatialFeatureNames=" + Arrays.toString(getSpatialFeatureNames()) +
+               ", temporalFeatureNames=" + Arrays.toString(getTemporalFeatureNames()) +
+               ", outputFeatureNames=" + Arrays.toString(getOutputFeatureNames()) +
+               '}';
     }
 
     /**
@@ -150,6 +150,7 @@ public class AggregatorPercentile extends AbstractAggregator {
      *
      * @param p            The percentage in percent ranging from 0 to 100.
      * @param measurements Sorted array of measurements.
+     *
      * @return The  p-th percentile.
      */
     public static float computePercentile(int p, float[] measurements) {
@@ -168,32 +169,32 @@ public class AggregatorPercentile extends AbstractAggregator {
         return yp;
     }
 
-public static class Config extends AggregatorConfig {
+    public static class Config extends AggregatorConfig {
 
-    @Parameter
-    String varName;
-    @Parameter
-    Integer percentage;
-    @Parameter
-    Float fillValue;
+        @Parameter
+        String varName;
+        @Parameter
+        Integer percentage;
+        @Parameter
+        Float fillValue;
 
-    public Config() {
-        super(Descriptor.NAME);
+        public Config() {
+            super(Descriptor.NAME);
+        }
+
+        public void setVarName(String varName) {
+            this.varName = varName;
+        }
+
+        public void setPercentage(Integer percentage) {
+            this.percentage = percentage;
+        }
+
+        @Override
+        public String[] getVarNames() {
+            return new String[]{varName};
+        }
     }
-
-    public void setVarName(String varName) {
-        this.varName = varName;
-    }
-
-    public void setPercentage(Integer percentage) {
-        this.percentage = percentage;
-    }
-
-    @Override
-    public String[] getVarNames() {
-        return new String[]{varName};
-    }
-}
 
 
     private static int getVarIndex(VariableContext varCtx, String varName) {
@@ -208,26 +209,26 @@ public static class Config extends AggregatorConfig {
         return (percentage != null ? percentage : 90);
     }
 
-public static class Descriptor implements AggregatorDescriptor {
+    public static class Descriptor implements AggregatorDescriptor {
 
-    public static final String NAME = "PERCENTILE";
+        public static final String NAME = "PERCENTILE";
 
-    @Override
-    public String getName() {
-        return NAME;
+        @Override
+        public String getName() {
+            return NAME;
+        }
+
+        @Override
+        public AggregatorConfig createConfig() {
+            return new Config();
+        }
+
+        @Override
+        public Aggregator createAggregator(VariableContext varCtx, AggregatorConfig aggregatorConfig) {
+            PropertySet propertySet = aggregatorConfig.asPropertySet();
+            return new AggregatorPercentile(varCtx,
+                                            (String) propertySet.getValue("varName"),
+                                            (Integer) propertySet.getValue("percentage"));
+        }
     }
-
-    @Override
-    public AggregatorConfig createConfig() {
-        return new Config();
-    }
-
-    @Override
-    public Aggregator createAggregator(VariableContext varCtx, AggregatorConfig aggregatorConfig) {
-        PropertySet propertySet = aggregatorConfig.asPropertySet();
-        return new AggregatorPercentile(varCtx,
-                                        (String) propertySet.getValue("varName"),
-                                        (Integer) propertySet.getValue("percentage"));
-    }
-}
 }
