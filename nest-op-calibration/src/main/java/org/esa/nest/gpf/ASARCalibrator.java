@@ -636,7 +636,7 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
      * Get line time interval from the abstracted metadata (in days).
      */
     private void getLineTimeInterval() {
-        lineTimeInterval = absRoot.getAttributeDouble(AbstractMetadata.line_time_interval) / 86400.0; // s to day
+        lineTimeInterval = absRoot.getAttributeDouble(AbstractMetadata.line_time_interval) / Constants.secondsInDay; // s to day
     }
 
     /**

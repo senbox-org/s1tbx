@@ -26,6 +26,7 @@ import org.esa.nest.datamodel.AbstractMetadata;
 import org.esa.nest.datamodel.BaseCalibrator;
 import org.esa.nest.datamodel.Calibrator;
 import org.esa.nest.datamodel.Unit;
+import org.esa.nest.eo.Constants;
 
 import java.awt.*;
 import java.io.File;
@@ -158,7 +159,7 @@ public class TerraSARXCalibrator extends BaseCalibrator implements Calibrator {
 
     private void getMetadata() {
         firstLineUTC = absRoot.getAttributeUTC(AbstractMetadata.first_line_time).getMJD(); // in days
-        lineTimeInterval = absRoot.getAttributeDouble(AbstractMetadata.line_time_interval) / 86400.0; // s to day
+        lineTimeInterval = absRoot.getAttributeDouble(AbstractMetadata.line_time_interval) / Constants.secondsInDay; // s to day
         if (lineTimeInterval == 0.0) {
             throw new OperatorException("Invalid input for Line Time Interval: " + lineTimeInterval);
         }
