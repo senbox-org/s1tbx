@@ -17,9 +17,10 @@ package org.esa.nest.eo;
 
 public final class Constants
 {
+    public static final double secondsInDay = 86400.0;
     public static final double lightSpeed = 299792458.0; //  m / s
     public static final double halfLightSpeed = lightSpeed / 2.0;
-    public static final double lightSpeedInMetersPerDay = Constants.lightSpeed * 86400.0;
+    public static final double lightSpeedInMetersPerDay = Constants.lightSpeed * secondsInDay;
 
     public static final double semiMajorAxis = GeoUtils.WGS84.a; // in m, WGS84 semi-major axis of Earth
     public static final double semiMinorAxis = GeoUtils.WGS84.b; // in m, WGS84 semi-minor axis of Earth
@@ -30,7 +31,8 @@ public final class Constants
     public static final double oneBillion = 1000000000.0;
     public static final double oneBillionth = 1.0 / oneBillion;
 
-    public static final double TWO_PI = 2.0*Math.PI;
+    public static final double PI = 3.14159265358979323846264338327950288;
+    public static final double TWO_PI = 2.0*PI;
 
     public static final double EPS = 1e-15;
 

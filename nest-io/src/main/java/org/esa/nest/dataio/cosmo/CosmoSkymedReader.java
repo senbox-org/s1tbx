@@ -376,7 +376,7 @@ public class CosmoSkymedReader extends AbstractProductReader {
         for (int i = 0; i < numPoints; i++) {
             final double stateVectorTime = globalElem.getAttribute("State Vectors Times").getData().getElemDoubleAt(i);
             final ProductData.UTC orbitTime =
-                    new ProductData.UTC(referenceUTC.getMJD() + stateVectorTime/86400.0);
+                    new ProductData.UTC(referenceUTC.getMJD() + stateVectorTime/Constants.secondsInDay);
              
             final double satellitePositionX =
                     globalElem.getAttribute("ECEF Satellite Position").getData().getElemDoubleAt(3*i);
