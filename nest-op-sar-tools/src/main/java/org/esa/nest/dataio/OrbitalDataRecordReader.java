@@ -17,6 +17,7 @@ package org.esa.nest.dataio;
 
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.OperatorException;
+import org.esa.nest.eo.Constants;
 import org.esa.nest.eo.GeoUtils;
 import org.esa.nest.util.MathUtils;
 import org.esa.nest.util.ResourceUtils;
@@ -250,7 +251,7 @@ public final class OrbitalDataRecordReader {
     private OrbitPositionRecord computeOrbitPosition(OrbitDataRecord dataRecord) {
 
         // record time in UTC seconds past 1.0 January 1985.
-        final double time = (double)dataRecord.time / 86400.0; // to days
+        final double time = (double)dataRecord.time / Constants.secondsInDay; // to days
 
         // record time in days past since Jan.1, 2000
         final double utcTime = time + days1985To2000; // days1985To2000 is negative

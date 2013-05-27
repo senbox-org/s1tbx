@@ -427,7 +427,7 @@ public final class Sentinel1DeburstTOPSAROp extends Operator {
         AbstractMetadata.setAttribute(absTgt, AbstractMetadata.num_samples_per_line, targetWidth);
         absTgt.setAttributeUTC(AbstractMetadata.first_line_time, new ProductData.UTC(targetFirstLineTime));
         absTgt.setAttributeUTC(AbstractMetadata.last_line_time, new ProductData.UTC(targetLastLineTime));
-        absTgt.setAttributeDouble(AbstractMetadata.line_time_interval, targetLineTimeInterval * 86400.0); // days to s
+        absTgt.setAttributeDouble(AbstractMetadata.line_time_interval, targetLineTimeInterval * Constants.secondsInDay); // days to s
 
         TiePointGrid latGrid = targetProduct.getTiePointGrid(OperatorUtils.TPG_LATITUDE);
         TiePointGrid lonGrid = targetProduct.getTiePointGrid(OperatorUtils.TPG_LONGITUDE);
