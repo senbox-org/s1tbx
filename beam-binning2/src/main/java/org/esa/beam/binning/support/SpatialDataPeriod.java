@@ -4,9 +4,11 @@ import org.esa.beam.binning.DataPeriod;
 
 /**
  * The definition of a "spatial data-day", or more generally, a spatial data-period used for the binning.
+ *
  * @author Norman Fomferra
  */
 public class SpatialDataPeriod implements DataPeriod {
+
     private static final double SLOPE = -24.0 / 360.0;
     private static final double EPS = 1.0 / (60.0 * 60.0 * 1000); // 1 ms
 
@@ -38,20 +40,20 @@ public class SpatialDataPeriod implements DataPeriod {
     }
 
     @Override
-    public int getObservationMembership(double lon, double time) {
+    public Membership getObservationMembership(double lon, double time) {
 
         final double h = 24.0 * (time - startTime);
         final double h0 = minDataHour + (lon + 180.0) * SLOPE;
 
         if (h - EPS < h0) {
             // pixel is attached to data-period (p-1)
-            return -1;
+            return Membership.PREVIOUS_PERIOD;
         } else if (h + EPS > h0 + 24.0 * duration) {
             // pixel is attached to data-period (p+1)
-            return +1;
+            return Membership.NEXT_PERIOD;
         } else {
             // pixel is attached to data-period (p)
-            return 0;
+            return Membership.CURRENT_PERIOD;
         }
     }
 }

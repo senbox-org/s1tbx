@@ -3,8 +3,10 @@ package org.esa.beam.binning.operator;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
+import org.esa.beam.binning.DataPeriod;
 import org.esa.beam.binning.aggregators.AggregatorAverage;
 import org.esa.beam.binning.aggregators.AggregatorPercentile;
+import org.esa.beam.binning.support.SpatialDataPeriod;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.CrsGeoCoding;
 import org.esa.beam.framework.datamodel.Product;
@@ -29,13 +31,8 @@ import java.util.HashMap;
 import java.util.Set;
 import java.util.SortedMap;
 
-import static java.lang.Math.sqrt;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static java.lang.Math.*;
+import static org.junit.Assert.*;
 
 /**
  * Test that creates a local and a global L3 product from 5 source files.
@@ -536,33 +533,57 @@ public class BinningOpTest {
     }
 
     @Test
-    public void testFilterAccordingToTime() throws Exception {
-        // todo - rewrite tests, since BinningOp.filterSourceProducts() is not static anymore
-        /*
-        GeoCoding gcMock = Mockito.mock(GeoCoding.class);
-        Mockito.when(gcMock.canGetGeoPos()).thenReturn(true);
-        final Product product1 = new Product("name1", "type", 10, 10);
-        product1.setGeoCoding(gcMock);
-        final Product product2 = new Product("name2", "type", 10, 10);
-        product2.setGeoCoding(gcMock);
-        final Product product3 = new Product("name3", "type", 10, 10);
-        product3.setGeoCoding(gcMock);
-        Product[] inputProducts = {product1, product2, product3};
-        Product[] expectedProducts = {product1, product2, product3};
-        Product[] filteredProducts = BinningOp.filterSourceProducts(inputProducts,
-                ProductData.UTC.parse("01-JUL-2000 00:00:00"),
-                ProductData.UTC.parse("01-AUG-2000 00:00:00"));
-        assertArrayEquals(expectedProducts, filteredProducts);
+    public void testFilterProducts_Null() throws Exception {
+        assertNull(new BinningOp().filterSourceProducts(null, new SpatialDataPeriod(10.0, 1, 10.0), new ProductData.UTC(), new ProductData.UTC()));
+    }
 
-        product1.setStartTime(ProductData.UTC.parse("02-JUL-2000 00:00:00"));
-        product1.setEndTime(ProductData.UTC.parse("02-AUG-2000 00:00:00"));
+    @Test
+    public void testFilterProducts_DontFilter() throws Exception {
+        BinningOp binningOp = new BinningOp();
+        binningOp.useSpatialDataDay = false;
+        binningOp.startDate = null;
+        binningOp.endDate = null;
 
-        inputProducts = new Product[]{product1, product2, product3};
-        expectedProducts = new Product[]{product2, product3};
-        filteredProducts = BinningOp.filterSourceProducts(inputProducts, ProductData.UTC.parse("01-JUL-2000 00:00:00"),
-                ProductData.UTC.parse("01-AUG-2000 00:00:00"));
-        assertArrayEquals(expectedProducts, filteredProducts);
-        */
+        Product[] products = {
+                new Product("name_1", "type_1", 10, 10),
+                new Product("name_2", "type_2", 10, 10),
+                new Product("name_3", "type_3", 10, 10)
+        };
+
+        binningOp.filterSourceProducts(products, null, null, null);
+    }
+
+    @Test
+    public void testFilterProducts_SpatialDataDay() throws Exception {
+        DataPeriod dataPeriod = TestUtils.createSpatialDataPeriod();
+
+        Product product1 = TestUtils.createProduct(dataPeriod, DataPeriod.Membership.PREVIOUS_PERIOD, DataPeriod.Membership.PREVIOUS_PERIOD);
+        Product product2 = TestUtils.createProduct(dataPeriod, DataPeriod.Membership.PREVIOUS_PERIOD, DataPeriod.Membership.CURRENT_PERIOD);
+        Product product3 = TestUtils.createProduct(dataPeriod, DataPeriod.Membership.PREVIOUS_PERIOD, DataPeriod.Membership.NEXT_PERIOD);
+
+        Product product4 = TestUtils.createProduct(dataPeriod, DataPeriod.Membership.CURRENT_PERIOD, DataPeriod.Membership.CURRENT_PERIOD);
+        Product product5 = TestUtils.createProduct(dataPeriod, DataPeriod.Membership.CURRENT_PERIOD, DataPeriod.Membership.NEXT_PERIOD);
+
+        Product product6 = TestUtils.createProduct(dataPeriod, DataPeriod.Membership.NEXT_PERIOD, DataPeriod.Membership.NEXT_PERIOD);
+
+        Product[] inputProducts = new Product[]{
+                product1, product2, product3, product4, product5, product6
+        };
+
+        BinningOp binningOp = new BinningOp();
+        binningOp.useSpatialDataDay = true;
+        Product[] products = binningOp.filterSourceProducts(inputProducts, dataPeriod, null, null);
+
+        assertEquals(4, products.length);
+        assertSame(product2, products[0]);
+        assertSame(product3, products[1]);
+        assertSame(product4, products[2]);
+        assertSame(product5, products[3]);
+    }
+
+    @Test
+    public void testFilterProducts() throws Exception {
+        // for other test cases, refer to org.esa.beam.binning.operator.SourceProductFilterTest
     }
 
     @Test

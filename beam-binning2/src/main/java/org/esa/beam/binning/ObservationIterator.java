@@ -111,7 +111,8 @@ abstract class ObservationIterator implements Iterator<Observation> {
         if (product != null) {
             ProductData.UTC scanLineTime = ProductUtils.getScanLineTime(product, y + 0.5);
             mjd = scanLineTime.getMJD();
-            if (dataPeriod != null && dataPeriod.getObservationMembership(geoPos.lon, mjd) != 0) {
+            if (dataPeriod != null &&
+                dataPeriod.getObservationMembership(geoPos.lon, mjd) != DataPeriod.Membership.CURRENT_PERIOD) {
                 return null;
             }
         }

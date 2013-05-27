@@ -23,6 +23,7 @@ import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.runtime.RuntimeConstants;
 import org.esa.beam.binning.BinningContext;
+import org.esa.beam.binning.DataPeriod;
 import org.esa.beam.binning.SpatialBin;
 import org.esa.beam.binning.SpatialBinner;
 import org.esa.beam.binning.TemporalBin;
@@ -110,56 +111,56 @@ todo - address the following BinningOp requirements (nf, 2012-03-09)
  */
 @SuppressWarnings("UnusedDeclaration")
 @OperatorMetadata(alias = "Binning",
-        version = "0.8.2",
-        authors = "Norman Fomferra, Marco Zühlke, Thomas Storm",
-        copyright = "(c) 2012 by Brockmann Consult GmbH",
-        description = "Performs spatial and temporal aggregation of pixel values into 'bin' cells")
+                  version = "0.8.2",
+                  authors = "Norman Fomferra, Marco Zühlke, Thomas Storm",
+                  copyright = "(c) 2012 by Brockmann Consult GmbH",
+                  description = "Performs spatial and temporal aggregation of pixel values into 'bin' cells")
 public class BinningOp extends Operator implements Output {
 
     public static final String DATE_PATTERN = "yyyy-MM-dd";
     public static final String DATETIME_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSS";
 
     @SourceProducts(description = "The source products to be binned. Must be all of the same structure. " +
-            "If not given, the parameter 'sourceProductPaths' must be provided.")
+                                  "If not given, the parameter 'sourceProductPaths' must be provided.")
     Product[] sourceProducts;
 
     @TargetProduct
     Product targetProduct;
 
     @Parameter(description = "A comma-separated list of file paths specifying the source products.\n" +
-            "Each path may contain the wildcards '**' (matches recursively any directory),\n" +
-            "'*' (matches any character sequence in path names) and\n" +
-            "'?' (matches any single character).")
+                             "Each path may contain the wildcards '**' (matches recursively any directory),\n" +
+                             "'*' (matches any character sequence in path names) and\n" +
+                             "'?' (matches any single character).")
     String[] sourceProductPaths;
 
     @Parameter(converter = JtsGeometryConverter.class,
-            description = "The considered geographical region as a geometry in well-known text format (WKT).\n" +
-                    "If not given, the geographical region will be computed according to the extents of the " +
-                    "input products.")
+               description = "The considered geographical region as a geometry in well-known text format (WKT).\n" +
+                             "If not given, the geographical region will be computed according to the extents of the " +
+                             "input products.")
     Geometry region;
 
     @Parameter(description =
-            "The start date. If not given, taken from the 'oldest' source product. Products that have " +
-                    "a start date before the start date given by this parameter are not considered.",
-            format = DATE_PATTERN)
+                       "The start date. If not given, taken from the 'oldest' source product. Products that have " +
+                       "a start date before the start date given by this parameter are not considered.",
+               format = DATE_PATTERN)
     String startDate;
 
     @Parameter(description =
-            "The end date. If not given, taken from the 'youngest' source product. Products that have " +
-                    "an end date after the end date given by this parameter are not considered.",
-            format = DATE_PATTERN)
+                       "The end date. If not given, taken from the 'youngest' source product. Products that have " +
+                       "an end date after the end date given by this parameter are not considered.",
+               format = DATE_PATTERN)
     String endDate;
 
     @Parameter(description = "If true, a SeaDAS-style, binned data NetCDF file is written in addition to the\n" +
-            "target product. The output file name will be <target>-bins.nc", defaultValue = "true")
+                             "target product. The output file name will be <target>-bins.nc", defaultValue = "true")
     boolean outputBinnedData;
 
     @Parameter(notNull = true,
-            description = "The configuration used for the binning process. Specifies the binning grid, any variables and their aggregators.")
+               description = "The configuration used for the binning process. Specifies the binning grid, any variables and their aggregators.")
     BinningConfig binningConfig;
 
     @Parameter(notNull = true,
-            description = "The configuration used for the output formatting process.")
+               description = "The configuration used for the output formatting process.")
     FormatterConfig formatterConfig;
 
     @Parameter(
@@ -168,16 +169,16 @@ public class BinningOp extends Operator implements Output {
     File metadataPropertiesFile;
 
     @Parameter(description = "The name of the directory containing metadata templates (google \"Apache Velocity VTL format\").",
-            defaultValue = ".")
+               defaultValue = ".")
     File metadataTemplateDir;
 
     @Parameter(description = "Applies a sensor-dependent, spatial data-day definition to the given time range. " +
-            "The decision, whether a source pixel contributes to a bin or not, is a functions of the pixel's observation longitude and time." +
-            "If true, the parameters 'startDate', 'endDate' must also be given.", defaultValue = "false")
+                             "The decision, whether a source pixel contributes to a bin or not, is a functions of the pixel's observation longitude and time." +
+                             "If true, the parameters 'startDate', 'endDate' must also be given.", defaultValue = "false")
     boolean useSpatialDataDay;
 
     @Parameter(description = "The time in hours of a day (0 to 24) at which a given sensor has a minimum number of " +
-            "observations at the date line (the 180 degree meridian). Only used if parameters 'startDate' and 'useSpatialDataDay' are set.")
+                             "observations at the date line (the 180 degree meridian). Only used if parameters 'startDate' and 'useSpatialDataDay' are set.")
     private Double minDataHour;
 
     private transient BinningContext binningContext;
@@ -264,7 +265,6 @@ public class BinningOp extends Operator implements Output {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
-        sourceProducts = filterSourceProducts(sourceProducts, startDateUtc, endDateUtc);
 
         if (region == null) {
             try {
@@ -282,6 +282,9 @@ public class BinningOp extends Operator implements Output {
         }
 
         binningContext = binningConfig.createBinningContext();
+
+        sourceProducts = filterSourceProducts(sourceProducts, binningContext.getDataPeriod(), startDateUtc, endDateUtc);
+
         metadataProperties = new TreeMap<String, String>();
         sourceProductCount = 0;
 
@@ -385,18 +388,18 @@ public class BinningOp extends Operator implements Output {
         }
     }
 
-    Product[] filterSourceProducts(Product[] sourceProducts, ProductData.UTC startTime,
-                                          ProductData.UTC endTime) {
+    Product[] filterSourceProducts(Product[] sourceProducts, DataPeriod dataPeriod,
+                                   ProductData.UTC startTime, ProductData.UTC endTime) {
         if (sourceProducts == null) {
             return null;
         }
-        if (startTime == null && endTime == null) {
+        if (startTime == null && endTime == null && !useSpatialDataDay) {
             return sourceProducts;
         }
 
         final ProductFilter filter;
         if (useSpatialDataDay) {
-            filter = new SourceProductFilter(startTime, endTime);
+            filter = new SpatialDataDaySourceProductFilter(dataPeriod);
         } else {
             filter = new SourceProductFilter(startTime, endTime);
         }
@@ -513,8 +516,8 @@ public class BinningOp extends Operator implements Output {
 
     private static Product copyProduct(Product writtenProduct) {
         Product targetProduct = new Product(writtenProduct.getName(), writtenProduct.getProductType(),
-                writtenProduct.getSceneRasterWidth(),
-                writtenProduct.getSceneRasterHeight());
+                                            writtenProduct.getSceneRasterWidth(),
+                                            writtenProduct.getSceneRasterHeight());
         targetProduct.setStartTime(writtenProduct.getStartTime());
         targetProduct.setEndTime(writtenProduct.getEndTime());
         ProductUtils.copyMetadata(writtenProduct, targetProduct);
@@ -534,7 +537,7 @@ public class BinningOp extends Operator implements Output {
     }
 
     private SpatialBinCollection doSpatialBinning() throws IOException {
-        SpatialBinCollector spatialBinCollector =  new GeneralSpatialBinCollector(binningContext.getPlanetaryGrid().getNumBins());
+        SpatialBinCollector spatialBinCollector = new GeneralSpatialBinCollector(binningContext.getPlanetaryGrid().getNumBins());
         final SpatialBinner spatialBinner = new SpatialBinner(binningContext, spatialBinCollector);
         if (sourceProducts != null) {
             for (Product sourceProduct : sourceProducts) {
@@ -574,11 +577,11 @@ public class BinningOp extends Operator implements Output {
         updateDateRangeUtc(sourceProduct);
         getLogger().info(String.format("Spatial binning of product '%s'...", sourceProduct.getName()));
         final long numObs = SpatialProductBinner.processProduct(sourceProduct, spatialBinner,
-                binningContext.getSuperSampling(), addedBands,
-                ProgressMonitor.NULL);
+                                                                binningContext.getSuperSampling(), addedBands,
+                                                                ProgressMonitor.NULL);
         stopWatch.stop();
         getLogger().info(String.format("Spatial binning of product '%s' done, %d observations seen, took %s",
-                sourceProduct.getName(), numObs, stopWatch));
+                                       sourceProduct.getName(), numObs, stopWatch));
         sourceProductCount++;
     }
 
@@ -608,7 +611,7 @@ public class BinningOp extends Operator implements Output {
     }
 
     private void writeOutput(List<TemporalBin> temporalBins, ProductData.UTC startTime, ProductData.UTC stopTime) throws
-            Exception {
+                                                                                                                  Exception {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
@@ -626,12 +629,12 @@ public class BinningOp extends Operator implements Output {
             getLogger().info(String.format("Writing mapped product '%s'...", formatterConfig.getOutputFile()));
             final MetadataElement globalAttributes = createGlobalAttributesElement();
             Formatter.format(binningContext,
-                    getTemporalBinSource(temporalBins),
-                    formatterConfig,
-                    region,
-                    startTime,
-                    stopTime,
-                    globalAttributes);
+                             getTemporalBinSource(temporalBins),
+                             formatterConfig,
+                             region,
+                             startTime,
+                             stopTime,
+                             globalAttributes);
             stopWatch.stop();
 
             String msgPattern = "Writing mapped product '%s' done, took %s";
@@ -677,8 +680,8 @@ public class BinningOp extends Operator implements Output {
     private void initBinWriter(ProductData.UTC startTime, ProductData.UTC stopTime) {
         if (binWriter == null) {
             binWriter = new SeaDASLevel3BinWriter(region,
-                    startTime != null ? startTime : minDateUtc,
-                    stopTime != null ? stopTime : maxDateUtc);
+                                                  startTime != null ? startTime : minDateUtc,
+                                                  stopTime != null ? stopTime : maxDateUtc);
         }
 
         binWriter.setBinningContext(binningContext);

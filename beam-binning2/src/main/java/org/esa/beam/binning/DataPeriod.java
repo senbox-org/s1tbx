@@ -7,6 +7,12 @@ package org.esa.beam.binning;
  */
 public interface DataPeriod {
 
+    enum Membership {
+        CURRENT_PERIOD,
+        PREVIOUS_PERIOD,
+        NEXT_PERIOD
+    }
+
     /**
      * @return the start time of the binning period in days (Modified Julian Day units, MJD).
      */
@@ -28,7 +34,8 @@ public interface DataPeriod {
      *
      * @param lon  The longitude in range -180 to 180 degrees.
      * @param time The time in days using Modified Julian Day units
+     *
      * @return The membership.
      */
-    int getObservationMembership(double lon, double time);
+    Membership getObservationMembership(double lon, double time);
 }
