@@ -83,7 +83,7 @@ public interface Resampling {
      *
      * @throws Exception if a non-runtime error occurs, e.g I/O error
      */
-    float resample(Raster raster, Index index) throws Exception;
+    double resample(Raster raster, Index index) throws Exception;
 
     /**
      * A raster is a rectangular grid which provides sample values at a given raster position x,y.
@@ -109,14 +109,14 @@ public interface Resampling {
          *
          * @param x the pixel's X-coordinate
          * @param y the pixel's Y-coordinate
-         *
-         * @return the sample value or {@link Float#NaN} if data is missing at the given raster position
+         * the sample value or {@link Double#NaN} if data is missing at the given raster position
+         * @return false if one value is Double#NaN
          *
          * @throws Exception if a non-runtime error occurs, e.g I/O error
          */
 //        float getSample(double x, double y) throws Exception;
 
-        void getSamples(final int[] x, final int[] y, final float[][] samples) throws Exception;
+        boolean getSamples(final int[] x, final int[] y, final double[][] samples) throws Exception;
     }
 
     /**

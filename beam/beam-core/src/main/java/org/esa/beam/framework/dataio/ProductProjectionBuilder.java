@@ -323,9 +323,9 @@ public class ProductProjectionBuilder extends AbstractProductBuilder {
                                                                   sourceResamplingIndex);
                                     try {
                                         // resample in geophysical units
-                                        final float sourceSample = sourceResampling.resample(sourceRaster,
+                                        final double sourceSample = sourceResampling.resample(sourceRaster,
                                                                                              sourceResamplingIndex);
-                                        if (!Float.isNaN(sourceSample)) {
+                                        if (!Double.isNaN(sourceSample)) {
                                             // convert to RAW data units
                                             destSample = destBand.scaleInverse(sourceSample);
                                         }
@@ -650,20 +650,19 @@ public class ProductProjectionBuilder extends AbstractProductBuilder {
             return _height;
         }
 
-        public float getSample(double x, double y) throws Exception {
-            if (!_lineCache.getSourceBand().isPixelValid((int)x, (int)y)) {
-                return Float.NaN;
-            }
-            float[] lineSamples = (float[]) _lineCache.getObject((int)y);
-            return lineSamples[(int)x];
-        }
-
-        public void getSamples(int[] x, int[] y, float[][] samples) throws Exception {
+        public boolean getSamples(final int[] x, final int[] y, final double[][] samples) throws Exception {
+            boolean allValid = true;
             for (int i = 0; i < y.length; i++) {
                 for (int j = 0; j < x.length; j++) {
-                    samples[i][j] = getSample(x[j], y[i]);
+
+                    if (!_lineCache.getSourceBand().isPixelValid(x[j], y[i])) {
+                        samples[i][j] = Double.NaN;
+                    }
+                    float[] lineSamples = (float[]) _lineCache.getObject(y[i]);
+                    samples[i][j] = lineSamples[x[j]];
                 }
             }
+            return allValid;
         }
     }
 

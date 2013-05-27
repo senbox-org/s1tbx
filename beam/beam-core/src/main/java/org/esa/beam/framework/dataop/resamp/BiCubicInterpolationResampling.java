@@ -110,25 +110,19 @@ final class BiCubicInterpolationResampling implements Resampling {
         */
     }
 
-    public final float resample(final Raster raster,
+    public final double resample(final Raster raster,
                                 final Index index) throws Exception {
 
-        int[] x = new int[4];
-        int[] y = new int[4];
-        float[][] samples = new float[4][4];
+        final int[] x = new int[4];
+        final int[] y = new int[4];
+        final double[][] samples = new double[4][4];
 
         for (int i = 0; i < 4; i++) {
             x[i] = (int)Index.crop(index.i[0] - 1 + i, index.width-1);
             y[i] = (int)Index.crop(index.j[0] - 1 + i, index.height-1);
         }
-        raster.getSamples(x, y, samples);
-
-        for (int i = 0; i < 4; i++) {
-            for (int j = 0; j < 4; j++) {
-                if(Double.isNaN(samples[j][i])) {
-                    return samples[1][1];
-                }
-            }
+        if(!raster.getSamples(x, y, samples)) {
+            return samples[1][1];
         }
 
         // the four grid points of a rectangular grid cell are numbered as the following:
@@ -164,7 +158,7 @@ final class BiCubicInterpolationResampling implements Resampling {
         return bcuint(z, z1, z2, z12, index.ki[0], index.kj[0]);
     }
 
-	private static float bcuint(final double z[], final double z1[], final double z2[],
+	private static double bcuint(final double z[], final double z1[], final double z2[],
                          final double z12[], final double t, final double u) {
 
         // alpha = [a00 a10 a20 a30 a01 a11 a21 a31 a02 a12 a22 a32 a03 a13 a23 a33]
@@ -188,7 +182,7 @@ final class BiCubicInterpolationResampling implements Resampling {
                   a[2][0]*t2 + a[2][1]*t2*u + a[2][2]*t2*u2 + a[2][3]*t2*u3 +
                   a[3][0]*t3 + a[3][1]*t3*u + a[3][2]*t3*u2 + a[3][3]*t3*u3;
         */
-		return (float)ansy;
+		return ansy;
 	}
 
 	private static void bcucof(final double z[], final double z1[], final double z2[], final double z12[],

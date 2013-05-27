@@ -82,7 +82,7 @@ public class BicubicInterpolationResamplingTest extends TestCase {
 //        assertEquals(kj3Exp, index.kj[2], 1e-5f);
 //        assertEquals(kj4Exp, index.kj[3], 1e-5f);
 
-        float sample = resampling.resample(raster, index);
+        double sample = resampling.resample(raster, index);
         assertEquals(sampleExp, sample, 1e-5f);
     }
 }

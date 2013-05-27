@@ -46,12 +46,12 @@ final class NearestNeighbourResampling implements Resampling {
 
     }
 
-    public final float resample(final Raster raster,
+    public final double resample(final Raster raster,
                                 final Index index) throws Exception {
 
-        int[] x = {(int)index.i0};
-        int[] y = {(int)index.j0};
-        float[][] samples = new float[1][1];
+        final int[] x = {(int)index.i0};
+        final int[] y = {(int)index.j0};
+        final double[][] samples = new double[1][1];
         raster.getSamples(x, y, samples);
 
         return samples[0][0];

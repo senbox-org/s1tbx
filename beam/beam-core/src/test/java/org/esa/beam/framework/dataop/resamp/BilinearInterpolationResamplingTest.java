@@ -73,7 +73,7 @@ public class BilinearInterpolationResamplingTest extends TestCase {
         assertEquals(j2Exp, index.j[1]);
         assertEquals(kiExp, index.ki[0], 1e-5f);
         assertEquals(kjExp, index.kj[0], 1e-5f);
-        float sample = resampling.resample(raster, index);
+        double sample = resampling.resample(raster, index);
         assertEquals(sampleExp, sample, 1e-5f);
     }
 }

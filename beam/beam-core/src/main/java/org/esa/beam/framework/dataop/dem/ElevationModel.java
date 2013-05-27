@@ -40,7 +40,7 @@ public interface ElevationModel {
      * @return  an elevation in meters, or the special value returned by {@link ElevationModelDescriptor#getNoDataValue()} if an elevation is not available
      * @exception Exception if a non-runtime error occurs, e.g I/O error
      */
-    float getElevation(GeoPos geoPos) throws Exception;
+    double getElevation(GeoPos geoPos) throws Exception;
 
     /**
      * Gets the pixel index in the DEM reference system at the geographical coordinate in meters.
@@ -88,5 +88,5 @@ public interface ElevationModel {
      */
     void dispose();
 
-    void getSamples(int[] x, int[] y, float[][] samples) throws Exception;
+    boolean getSamples(int[] x, int[] y, double[][] samples) throws Exception;
 }

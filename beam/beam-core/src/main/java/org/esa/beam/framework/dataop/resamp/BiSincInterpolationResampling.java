@@ -72,25 +72,19 @@ final class BiSincInterpolationResampling implements Resampling {
         index.kj[0] = dj;
     }
 
-    public final float resample(final Raster raster,
+    public final double resample(final Raster raster,
                                 final Index index) throws Exception {
 
         final int[] x = new int[5];
         final int[] y = new int[5];
-        final float[][] samples = new float[5][5];
+        final double[][] samples = new double[5][5];
 
         for (int i = 0; i < 5; i++) {
             x[i] = (int)index.i[i];
             y[i] = (int)index.j[i];
         }
-        raster.getSamples(x, y, samples);
-
-        for (int i = 0; i < 5; i++) {
-            for (int j = 0; j < 5; j++) {
-                if(Double.isNaN(samples[j][i])) {
-                    return samples[2][2];
-                }
-            }
+        if(!raster.getSamples(x, y, samples)) {
+            return samples[2][2];
         }
 
         final double muX = index.ki[0];
@@ -109,7 +103,7 @@ final class BiSincInterpolationResampling implements Resampling {
         final double tmpV3 = (f0*samples[3][0] + f1*samples[3][1] + f2*samples[3][2] + f3*samples[3][3] + f4*samples[3][4]) / sum;
         final double tmpV4 = (f0*samples[4][0] + f1*samples[4][1] + f2*samples[4][2] + f3*samples[4][3] + f4*samples[4][4]) / sum;
 
-        return (float)interpolationSinc(tmpV0, tmpV1, tmpV2, tmpV3, tmpV4, muY);
+        return interpolationSinc(tmpV0, tmpV1, tmpV2, tmpV3, tmpV4, muY);
     }
 
     private static double interpolationSinc(

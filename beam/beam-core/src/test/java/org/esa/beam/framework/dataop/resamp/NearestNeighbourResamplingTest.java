@@ -50,7 +50,7 @@ public class NearestNeighbourResamplingTest extends TestCase {
         resampling.computeIndex(x, y, raster.getWidth(), raster.getHeight(), index);
         assertEquals(iExp, index.i0);
         assertEquals(jExp, index.j0);
-        float sample = resampling.resample(raster, index);
+        double sample = resampling.resample(raster, index);
         assertEquals(sampleExp, sample, 1e-5f);
     }
 

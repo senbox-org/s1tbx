@@ -118,7 +118,7 @@ public class L3ToL1Op extends MerisBasisOp {
                         resampling.computeIndex(l3PixelPos.x, l3PixelPos.y,
                                 l3Product.getSceneRasterWidth(), l3Product.getSceneRasterHeight(),
                                 resamplingIndex);
-                        float sample = resampling.resample(resamplingRaster, resamplingIndex);
+                        double sample = resampling.resample(resamplingRaster, resamplingIndex);
                         targetTile.setSample(x, y, sample);
                     }
                 }
@@ -175,12 +175,13 @@ public class L3ToL1Op extends MerisBasisOp {
             return (float) sample;
         }
 
-        public void getSamples(int[] x, int[] y, float[][] samples) {
+        public boolean getSamples(int[] x, int[] y, double[][] samples) {
             for (int i = 0; i < y.length; i++) {
                 for (int j = 0; j < x.length; j++) {
                     samples[i][j] = getSample(x[j], y[i]);
                 }
             }
+            return true;
         }
     }
 
