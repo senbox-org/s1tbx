@@ -159,7 +159,7 @@ public class ALOSDeskewingOp extends Operator {
 
         lastLineTime = absRoot.getAttributeUTC(AbstractMetadata.last_line_time).getMJD();
 
-        lineTimeInterval = absRoot.getAttributeDouble(AbstractMetadata.line_time_interval) / 86400.0; // s to day
+        lineTimeInterval = absRoot.getAttributeDouble(AbstractMetadata.line_time_interval) / Constants.secondsInDay; // s to day
 
         dopplerCentroidCoefficientLists = AbstractMetadata.getDopplerCentroidCoefficients(absRoot);
 
