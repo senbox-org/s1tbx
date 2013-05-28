@@ -276,9 +276,10 @@ public class BinningOp extends Operator implements Output {
 
         if (startDate != null && useSpatialDataDay) {
             binningConfig.setStartDate(startDate);
-            if (startDateUtc != null && endDateUtc != null) {
-                binningConfig.setPeriodDuration((int) Math.round(endDateUtc.getMJD() - startDateUtc.getMJD()));
-            }
+            // todo - clarify this!
+//            if (startDateUtc != null && endDateUtc != null) {
+//                binningConfig.setPeriodDuration((int) Math.round(endDateUtc.getMJD() - startDateUtc.getMJD()));
+//            }
         }
 
         binningContext = binningConfig.createBinningContext();
