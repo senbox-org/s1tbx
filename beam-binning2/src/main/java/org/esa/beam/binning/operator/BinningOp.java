@@ -274,7 +274,7 @@ public class BinningOp extends Operator implements Output {
             }
         }
 
-        if (startDate != null) {
+        if (startDate != null && useSpatialDataDay) {
             binningConfig.setStartDate(startDate);
             if (startDateUtc != null && endDateUtc != null) {
                 binningConfig.setPeriodDuration((int) Math.round(endDateUtc.getMJD() - startDateUtc.getMJD()));
