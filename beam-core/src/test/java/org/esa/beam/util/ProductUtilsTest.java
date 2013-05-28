@@ -530,6 +530,31 @@ public class ProductUtilsTest {
     }
 
     @Test
+    public void testGetScanLineTime_1_pixel() throws Exception {
+        Product product = new Product("name", "type", 1, 1);
+        ProductData.UTC startTime = ProductData.UTC.parse("01-01-2010", "dd-MM-yyyy");
+        ProductData.UTC endTime = ProductData.UTC.parse("02-01-2010", "dd-MM-yyyy");
+        product.setStartTime(startTime);
+        product.setEndTime(endTime);
+        double startTimeMJD = startTime.getMJD();
+        assertEquals(startTimeMJD, ProductUtils.getScanLineTime(product, 0).getMJD(), 1E-6);
+        assertNotSame(startTime, ProductUtils.getScanLineTime(product, 0));
+    }
+
+    @Test
+    public void testGetScanLineTime() throws Exception {
+        Product product = new Product("name", "type", 10, 10);
+        ProductData.UTC startTime = ProductData.UTC.parse("01-01-2010", "dd-MM-yyyy");
+        ProductData.UTC endTime = ProductData.UTC.parse("02-01-2010", "dd-MM-yyyy");
+        product.setStartTime(startTime);
+        product.setEndTime(endTime);
+        double startTimeMJD = startTime.getMJD();
+        double endTimeMJD = endTime.getMJD();
+        assertEquals(startTimeMJD, ProductUtils.getScanLineTime(product, 0).getMJD(), 1E-6);
+        assertEquals(endTimeMJD, ProductUtils.getScanLineTime(product, 9).getMJD(), 1E-6);
+    }
+
+    @Test
     public void testCopyMetadata() {
         try {
             ProductUtils.copyMetadata((Product) null, null);
@@ -598,7 +623,7 @@ public class ProductUtilsTest {
                 float latValue = Float.NaN;
                 float lonValue = Float.NaN;
                 if (i >= sceneRasterWidth / 4 && i <= 3 * (sceneRasterWidth / 4) &&
-                        j >= sceneRasterHeight / 4 && j <= 3 * (sceneRasterHeight / 4)) {
+                    j >= sceneRasterHeight / 4 && j <= 3 * (sceneRasterHeight / 4)) {
                     latValue = i;
                     lonValue = j;
                 }
