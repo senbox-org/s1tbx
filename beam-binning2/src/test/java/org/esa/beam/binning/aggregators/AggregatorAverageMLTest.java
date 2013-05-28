@@ -38,7 +38,7 @@ public class AggregatorAverageMLTest {
 
     @Test
     public void testMetadata() {
-        AggregatorAverageML agg = new AggregatorAverageML(new MyVariableContext("b"), "b", null);
+        AggregatorAverageML agg = new AggregatorAverageML(new MyVariableContext("b"), "b", null, true);
 
         assertEquals("AVG_ML", agg.getName());
 
@@ -51,11 +51,13 @@ public class AggregatorAverageMLTest {
         assertEquals("b_sum_sq", agg.getTemporalFeatureNames()[1]);
         assertEquals("b_weights", agg.getTemporalFeatureNames()[2]);
 
-        assertEquals(4, agg.getOutputFeatureNames().length);
+        assertEquals(6, agg.getOutputFeatureNames().length);
         assertEquals("b_mean", agg.getOutputFeatureNames()[0]);
         assertEquals("b_sigma", agg.getOutputFeatureNames()[1]);
         assertEquals("b_median", agg.getOutputFeatureNames()[2]);
         assertEquals("b_mode", agg.getOutputFeatureNames()[3]);
+        assertEquals("b_sum", agg.getOutputFeatureNames()[4]);
+        assertEquals("b_sum_sq", agg.getOutputFeatureNames()[5]);
 
     }
 
@@ -79,7 +81,8 @@ public class AggregatorAverageMLTest {
 
         agg.completeSpatial(ctx, 3, svec);
         assertEquals((log(1.5f) + log(2.5f) + log(0.5f)) / sqrt(3f), svec.get(0), 1e-5f);
-        assertEquals((log(1.5f) * log(1.5f) + log(2.5f) * log(2.5f) + log(0.5f) * log(0.5f)) / sqrt(3f), svec.get(1), 1e-5f);
+        assertEquals(
+                (log(1.5f) * log(1.5f) + log(2.5f) * log(2.5f) + log(0.5f) * log(0.5f)) / sqrt(3f), svec.get(1), 1e-5f);
 
         agg.initTemporal(ctx, tvec);
         assertEquals(0.0f, tvec.get(0), 0.0f);
@@ -105,5 +108,60 @@ public class AggregatorAverageMLTest {
         assertEquals(sigma, out.get(1), 1e-5f);
         assertEquals(median, out.get(2), 1e-5f);
         assertEquals(mode, out.get(3), 1e-5f);
+    }
+
+    @Test
+    public void testAggregatorAverageML_WithSums() {
+        AggregatorAverageML agg = new AggregatorAverageML(new MyVariableContext("b"), "b", null, true);
+
+        VectorImpl svec = vec(NaN, NaN);
+        VectorImpl tvec = vec(NaN, NaN, NaN);
+        VectorImpl out = vec(NaN, NaN, NaN, NaN, NaN, NaN);
+
+        agg.initSpatial(ctx, svec);
+        assertEquals(0.0f, svec.get(0), 0.0f);
+        assertEquals(0.0f, svec.get(1), 0.0f);
+
+        agg.aggregateSpatial(ctx, obsNT(1.5f), svec);
+        agg.aggregateSpatial(ctx, obsNT(2.5f), svec);
+        agg.aggregateSpatial(ctx, obsNT(0.5f), svec);
+        double sumX = log(1.5f) + log(2.5f) + log(0.5f);
+        double sumXX = log(1.5f) * log(1.5f) + log(2.5f) * log(2.5f) + log(0.5f) * log(0.5f);
+        assertEquals(sumX, svec.get(0), 1e-5);
+        assertEquals(sumXX, svec.get(1), 1e-5f);
+
+        agg.completeSpatial(ctx, 3, svec);
+        assertEquals((log(1.5f) + log(2.5f) + log(0.5f)) / sqrt(3f), svec.get(0), 1e-5f);
+        assertEquals(
+                (log(1.5f) * log(1.5f) + log(2.5f) * log(2.5f) + log(0.5f) * log(0.5f)) / sqrt(3f), svec.get(1), 1e-5f);
+
+        agg.initTemporal(ctx, tvec);
+        assertEquals(0.0f, tvec.get(0), 0.0f);
+        assertEquals(0.0f, tvec.get(1), 0.0f);
+        assertEquals(0.0f, tvec.get(2), 0.0f);
+
+        agg.aggregateTemporal(ctx, vec(0.3f, 0.09f), 3, tvec);
+        agg.aggregateTemporal(ctx, vec(0.1f, 0.01f), 2, tvec);
+        agg.aggregateTemporal(ctx, vec(0.2f, 0.04f), 1, tvec);
+        agg.aggregateTemporal(ctx, vec(0.1f, 0.01f), 7, tvec);
+        sumX = 0.3f + 0.1f + 0.2f + 0.1f;
+        sumXX = 0.09f + 0.01f + 0.04f + 0.01f;
+        assertEquals(sumX, tvec.get(0), 1e-5);
+        assertEquals(sumXX, tvec.get(1), 1e-5);
+        assertEquals(sqrt(3f) + sqrt(2f) + sqrt(1f) + sqrt(7f), tvec.get(2), 1e-5);
+
+        agg.completeTemporal(ctx, 4, tvec);
+
+        float mean = 1.114932F;
+        float sigma = 0.119713F;
+        float median = 1.108560F;
+        float mode = 1.095926F;
+        agg.computeOutput(tvec, out);
+        assertEquals(mean, out.get(0), 1e-5f);
+        assertEquals(sigma, out.get(1), 1e-5f);
+        assertEquals(median, out.get(2), 1e-5f);
+        assertEquals(mode, out.get(3), 1e-5f);
+        assertEquals(sumX, out.get(4), 1e-5f);
+        assertEquals(sumXX, out.get(5), 1e-5f);
     }
 }
