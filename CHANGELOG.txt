@@ -2,6 +2,7 @@
 
 This file contains all significant changes for each BEAM release.
 
+    o xx.xx.xxxx: Version 5.0
     o 28.03.2013: Version 4.11
     o 21.06.2012: Version 4.10.3
     o 09.05.2012: Version 4.10
@@ -28,6 +29,26 @@ This file contains all significant changes for each BEAM release.
     o 27.06.2003: Version 2.0
     o 07.03.2003: Version 1.1
     o 06.12.2002: Version 1.0
+
+_____________________________________________________________________________
+
+ Changes from 4.11 to 5.0
+_____________________________________________________________________________
+
+BEAM 5.0 is a new major version.
+
+Complete list of BEAM 5.0 bug fixes and improvements
+
+New BEAM Features
+
+Improvements
+
+[BEAM-1513] BEAM shall enable users to use Modified Julian Date (MJD) in band arithmetics
+
+Bugs
+
+[BEAM-1514] ProductUtils.getScanLineTime fails for products with height 1
+
 
 _____________________________________________________________________________
 
