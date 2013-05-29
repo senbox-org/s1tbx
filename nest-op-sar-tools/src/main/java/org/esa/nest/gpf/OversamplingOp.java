@@ -545,14 +545,18 @@ public class OversamplingOp extends Operator {
         final int targetTileWidth = targetTileRectangle.width;
         final int targetTileHeight = targetTileRectangle.height;
 
-        final Rectangle sourceTileRectangle = getSourceTileRectangle(targetTileRectangle);
+        final OverlapInfo overlapInfo = new OverlapInfo();
+        final Rectangle sourceTileRectangle = getSourceTileRectangle(targetTileRectangle, overlapInfo);
         final int sx0 = sourceTileRectangle.x;
         final int sy0 = sourceTileRectangle.y;
         final int sourceTileWidth = sourceTileRectangle.width;
         final int sourceTileHeight = sourceTileRectangle.height;
 
-        final double[][]tmpI = new double[targetTileHeight][sourceTileWidth];
-        final double[][]tmpQ = new double[targetTileHeight][sourceTileWidth];
+        final int overSampledSourceTileWidth  = (int)(widthRatio * sourceTileWidth + 0.5);
+        final int overSampledSourceTileHeight = (int)(heightRatio * sourceTileHeight + 0.5);
+
+        final double[][]tmpI = new double[overSampledSourceTileHeight][sourceTileWidth];
+        final double[][]tmpQ = new double[overSampledSourceTileHeight][sourceTileWidth];
 
         final Band srcBand = sourceProduct.getBand(targetBandName);
         final Tile srcRaster = getSourceTile(srcBand, sourceTileRectangle);
@@ -574,41 +578,80 @@ public class OversamplingOp extends Operator {
         final int d = (int)(sourceTileHeight/2 + 0.5);
 
         final double[] colArray = new double[2*sourceTileHeight];
-        final double[] zeroPaddedColSpec = new double[2*targetTileHeight];
+        final double[] zeroPaddedColSpec = new double[2*overSampledSourceTileHeight];
 
         // perform 1-D FFT, zero padding and IFFT on each column
         final DoubleFFT_1D src_col_fft = new DoubleFFT_1D(sourceTileHeight);
-        final DoubleFFT_1D tgt_col_fft = new DoubleFFT_1D(targetTileHeight);
+        final DoubleFFT_1D tgt_col_fft = new DoubleFFT_1D(overSampledSourceTileHeight);
         for (int x = 0; x < sourceTileWidth; x++) {
             getColData(x, sourceTileHeight, colArray, tmpI, tmpQ);
             src_col_fft.complexForward(colArray);
-            paddingZeros(colArray, sourceTileHeight, targetTileHeight, d, zeroPaddedColSpec);
+            paddingZeros(colArray, sourceTileHeight, overSampledSourceTileHeight, d, zeroPaddedColSpec);
             tgt_col_fft.complexInverse(zeroPaddedColSpec, true);
-            saveOverSampledCol(zeroPaddedColSpec, x, targetTileHeight, tmpI, tmpQ);
+            saveOverSampledCol(zeroPaddedColSpec, x, overSampledSourceTileHeight, tmpI, tmpQ);
         }
 
-        final double[] tgtRow = new double[targetTileWidth*2];
+        final double[] tgtRow = new double[overSampledSourceTileWidth*2];
 
         // perform 1-D IFFT on each row
-        final DoubleFFT_1D tgt_row_fft = new DoubleFFT_1D(targetTileWidth);
+        final DoubleFFT_1D tgt_row_fft = new DoubleFFT_1D(overSampledSourceTileWidth);
+        int ySt = 0;
+        if (overlapInfo.topOverlapped) {
+            ySt = (int)(heightRatio*overlapInfo.numOfLinesOnTop);
+        }
+        int xSt = 0;
+        if (overlapInfo.leftOverlapped) {
+            xSt = (int)(widthRatio*overlapInfo.numOfLinesOnLeft);
+        }
+
         for (int y = 0; y < targetTileHeight; y++) {
-            getRowData(y, sourceTileWidth, targetTileWidth, tgtRow, tmpI, tmpQ);
+            getRowData(y+ySt, sourceTileWidth, overSampledSourceTileWidth, tgtRow, tmpI, tmpQ);
             tgt_row_fft.complexInverse(tgtRow, true);
-            saveOverSampledComplexImage(tgtRow, ty0 + y, tx0, targetTileWidth,
+            saveOverSampledComplexImage(tgtRow, ty0 + y, tx0, targetTileWidth, xSt,
                                         widthRatioByHeightRatio, tgtData, targetTile);
         }
     }
 
-    private Rectangle getSourceTileRectangle(Rectangle targetTileRectangle) {
+    private Rectangle getSourceTileRectangle(Rectangle targetTileRectangle, OverlapInfo overlapInfo) {
 
         final int sx0 = (int)(targetTileRectangle.x / widthRatio + 0.5f);
         final int sy0 = (int)(targetTileRectangle.y / heightRatio + 0.5f);
         final int sw  = (int)(targetTileRectangle.width / widthRatio + 0.5f);
         final int sh  = (int)(targetTileRectangle.height / heightRatio + 0.5f);
-        //System.out.println("x0 = " + targetTileRectangle.x + ", y0 = " + targetTileRectangle.y +
-        //        ", w = " + targetTileRectangle.width + ", h = " + targetTileRectangle.height);
 
-        return new Rectangle(sx0, sy0, sw, sh);
+        final int swHalf = sw/2;
+        final int shHalf = sh/2;
+        int sx0Ext = sx0, sy0Ext = sy0, swExt = sw, shExt = sh;
+        if (sx0 - swHalf >= 0) {
+            sx0Ext -= swHalf;
+            swExt += swHalf;
+            overlapInfo.leftOverlapped = true; // left
+            overlapInfo.numOfLinesOnLeft = swHalf;
+        }
+
+        if (sx0 + sw + swHalf <= sourceImageWidth) {
+            swExt += swHalf;
+            overlapInfo.rightOverlapped = true; // right
+            overlapInfo.numOfLinesOnRight = swHalf;
+        }
+
+        if (sy0 - shHalf >= 0) {
+            sy0Ext -= shHalf;
+            shExt += shHalf;
+            overlapInfo.topOverlapped = true; // top
+            overlapInfo.numOfLinesOnTop = shHalf;
+        }
+
+        if (sy0 + sh + shHalf <= sourceImageHeight) {
+            shExt += shHalf;
+            overlapInfo.bottomOverlapped = true; // bottom
+            overlapInfo.numOfLinesOnBottom = shHalf;
+        }
+
+        // System.out.println("x0 = " + targetTileRectangle.x + ", y0 = " + targetTileRectangle.y +
+        //         ", w = " + targetTileRectangle.width + ", h = " + targetTileRectangle.height);
+
+        return new Rectangle(sx0Ext, sy0Ext, swExt, shExt);
     }
 
     //==================================================================================================================
@@ -625,14 +668,18 @@ public class OversamplingOp extends Operator {
         final int targetTileWidth = targetTileRectangle.width;
         final int targetTileHeight = targetTileRectangle.height;
 
-        final Rectangle sourceTileRectangle = getSourceTileRectangle(targetTileRectangle);
+        final OverlapInfo overlapInfo = new OverlapInfo();
+        final Rectangle sourceTileRectangle = getSourceTileRectangle(targetTileRectangle, overlapInfo);
         final int sx0 = sourceTileRectangle.x;
         final int sy0 = sourceTileRectangle.y;
         final int sourceTileWidth = sourceTileRectangle.width;
         final int sourceTileHeight = sourceTileRectangle.height;
 
-        final double[][]tmpI = new double[targetTileHeight][sourceTileWidth];
-        final double[][]tmpQ = new double[targetTileHeight][sourceTileWidth];
+        final int overSampledSourceTileWidth  = (int)(widthRatio * sourceTileWidth + 0.5);
+        final int overSampledSourceTileHeight = (int)(heightRatio * sourceTileHeight + 0.5);
+
+        final double[][]tmpI = new double[overSampledSourceTileHeight][sourceTileWidth];
+        final double[][]tmpQ = new double[overSampledSourceTileHeight][sourceTileWidth];
 
         final Band iBand = sourceProduct.getBand(iBandName);
         final Band qBand = sourceProduct.getBand(qBandName);
@@ -657,14 +704,14 @@ public class OversamplingOp extends Operator {
         }
 
         final double[] colArray = new double[2*sourceTileHeight];
-        final double[] zeroPaddedColSpec = new double[2*targetTileHeight];
+        final double[] zeroPaddedColSpec = new double[2*overSampledSourceTileHeight];
 
         final int halfHeight = sourceTileHeight/2;
         final double heightByPRF = sourceTileHeight / prf;
 
         // perform 1-D FFT, zero padding and IFFT on each column
         final DoubleFFT_1D src_col_fft = new DoubleFFT_1D(sourceTileHeight);
-        final DoubleFFT_1D tgt_col_fft = new DoubleFFT_1D(targetTileHeight);
+        final DoubleFFT_1D tgt_col_fft = new DoubleFFT_1D(overSampledSourceTileHeight);
         for (int x = 0; x < sourceTileWidth; x++) {
             getColData(x, sourceTileHeight, colArray, tmpI, tmpQ);
             src_col_fft.complexForward(colArray);
@@ -672,19 +719,28 @@ public class OversamplingOp extends Operator {
             final int idxFdc = (int)(dopplerCentroidFreq[sx0 + x] * heightByPRF + 0.5);
             final int d = (idxFdc + halfHeight) % sourceTileHeight;
 
-            paddingZeros(colArray, sourceTileHeight, targetTileHeight, d, zeroPaddedColSpec);
+            paddingZeros(colArray, sourceTileHeight, overSampledSourceTileHeight, d, zeroPaddedColSpec);
             tgt_col_fft.complexInverse(zeroPaddedColSpec, true);
-            saveOverSampledCol(zeroPaddedColSpec, x, targetTileHeight, tmpI, tmpQ);
+            saveOverSampledCol(zeroPaddedColSpec, x, overSampledSourceTileHeight, tmpI, tmpQ);
         }
 
-        final double[] tgtRow = new double[targetTileWidth*2];
+        final double[] tgtRow = new double[overSampledSourceTileWidth*2];
 
-        // perform 1-D IFFT on each row
-        final DoubleFFT_1D tgt_row_fft = new DoubleFFT_1D(targetTileWidth);
+        // zero padding and perform 1-D IFFT on each row
+        final DoubleFFT_1D tgt_row_fft = new DoubleFFT_1D(overSampledSourceTileWidth);
+        int ySt = 0;
+        if (overlapInfo.topOverlapped) {
+            ySt = (int)(heightRatio*overlapInfo.numOfLinesOnTop);
+        }
+        int xSt = 0;
+        if (overlapInfo.leftOverlapped) {
+            xSt = (int)(widthRatio*overlapInfo.numOfLinesOnLeft);
+        }
+
         for (int y = 0; y < targetTileHeight; y++) {
-            getRowData(y, sourceTileWidth, targetTileWidth, tgtRow, tmpI, tmpQ);
+            getRowData(y+ySt, sourceTileWidth, overSampledSourceTileWidth, tgtRow, tmpI, tmpQ);
             tgt_row_fft.complexInverse(tgtRow, true);
-            saveOverSampledComplexImage(tgtRow, ty0 + y, tx0, targetTileWidth, widthRatioByHeightRatio,
+            saveOverSampledComplexImage(tgtRow, ty0 + y, tx0, targetTileWidth, xSt, widthRatioByHeightRatio,
                                         iTgtData, qTgtData, iTargetTile);
         }
     }
@@ -768,10 +824,10 @@ public class OversamplingOp extends Operator {
     }
 
     private static void saveOverSampledComplexImage(final double[] overSampledRow, final int ty, final int tx0,
-                                                    final int tw, final double widthRatioByHeightRatio,
+                                                    final int tw, final int xSt, final double widthRatioByHeightRatio,
                                                     final ProductData tgtData, final Tile targetTile) {
 
-        int k = 0;
+        int k = xSt*2;
         for (int tx = tx0; tx < tx0 + tw; ++tx) {
             final double i = overSampledRow[k++];
             final double q = overSampledRow[k++];
@@ -780,15 +836,30 @@ public class OversamplingOp extends Operator {
         }
     }
 
-    private static void saveOverSampledComplexImage(final double[] overSampledRow, final int ty, final int tx0, final int tw,
-                                             final double widthRatioByHeightRatio,
+    private static void saveOverSampledComplexImage(final double[] overSampledRow, final int ty, final int tx0,
+                                             final int tw, final int xSt, final double widthRatioByHeightRatio,
                                              final ProductData iData, final ProductData qData, final Tile iTargetTile) {
 
-        int k = 0;
+        int k = xSt*2;
         for (int tx = tx0; tx < tx0 + tw; ++tx) {
             final int index = iTargetTile.getDataBufferIndex(tx, ty);
             iData.setElemDoubleAt(index, widthRatioByHeightRatio*overSampledRow[k++]);
             qData.setElemDoubleAt(index, widthRatioByHeightRatio*overSampledRow[k++]);
+        }
+    }
+
+    private static class OverlapInfo {
+        public boolean topOverlapped;
+        public boolean bottomOverlapped;
+        public boolean leftOverlapped;
+        public boolean rightOverlapped;
+
+        public int numOfLinesOnTop;
+        public int numOfLinesOnBottom;
+        public int numOfLinesOnLeft;
+        public int numOfLinesOnRight;
+
+        public OverlapInfo(){
         }
     }
 
