@@ -815,9 +815,6 @@ public class Sentinel1ProductDirectory extends XMLProductDirectory {
         int k = 0;
         for (int r = 0; r < targetGridHeight; r++) {
 
-            if (r == targetGridHeight - 1) {
-                System.out.println();
-            }
             double newY = r*subSamplingY;
             if (newY > sceneRasterHeight - 1) {
                 newY = sceneRasterHeight - 1;
