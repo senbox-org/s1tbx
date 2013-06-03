@@ -463,7 +463,7 @@ public final class MultilookOp extends Operator {
         final int sourceImageHeight = srcProduct.getSceneRasterHeight();
         final int x = sourceImageWidth / 2;
         final int y = sourceImageHeight / 2;
-        return incidenceAngle.getPixelFloat((float)x, (float)y);
+        return incidenceAngle.getPixelDouble((float)x, (float)y);
     }
 
     static class DerivedParams {

@@ -70,8 +70,8 @@ public class GcpExportMain {
                     pixelPos.x = imageX + 0.5f;
                     pixelPos.y = imageY + 0.5f;
                     geoCoding.getGeoPos(pixelPos, geoPos);
-                    final float mapX = geoPos.lon; //longitude
-                    final float mapY = geoPos.lat; //latitude
+                    final double mapX = geoPos.lon; //longitude
+                    final double mapY = geoPos.lat; //latitude
                     writer.write(createLineString(mapX, mapY,
                             pixelPos.x + 1, // + 1 because ENVI uses a one-based pixel co-ordinate system
                             pixelPos.y + 1));
@@ -88,7 +88,7 @@ public class GcpExportMain {
         return str.concat(_GCP_LINE_SEPARATOR);
     }
 
-    private static String createLineString(final float mapX, final float mapY, final float imageX, final float imageY) {
+    private static String createLineString(final double mapX, final double mapY, final double imageX, final double imageY) {
         return "" + mapX + "\t" + mapY + "\t" + imageX + "\t" + imageY + _GCP_LINE_SEPARATOR;
     }
 }

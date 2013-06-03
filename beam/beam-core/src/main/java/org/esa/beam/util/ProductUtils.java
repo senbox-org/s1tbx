@@ -1591,15 +1591,15 @@ public class ProductUtils {
      * @see #denormalizeGeoPolygon(GeoPos[])
      */
     public static int normalizeGeoPolygon(GeoPos[] polygon) {
-        final float[] originalLon = new float[polygon.length];
+        final double[] originalLon = new double[polygon.length];
         for (int i = 0; i < originalLon.length; i++) {
             originalLon[i] = polygon[i].lon;
         }
 
-        float lonDiff;
-        float increment = 0.f;
-        float minLon = Float.MAX_VALUE;
-        float maxLon = -Float.MAX_VALUE;
+        double lonDiff;
+        double increment = 0.f;
+        double minLon = Float.MAX_VALUE;
+        double maxLon = -Float.MAX_VALUE;
         for (int i = 1; i < polygon.length; i++) {
             final GeoPos geoPos = polygon[i];
             lonDiff = originalLon[i] - originalLon[i - 1];
@@ -1647,7 +1647,7 @@ public class ProductUtils {
     public static int normalizeGeoPolygon_old(GeoPos[] polygon) {
         boolean negNormalized = false;
         boolean posNormalized = false;
-        float lonDiff;
+        double lonDiff;
         final int numValues = polygon.length;
         for (int i = 0; i < numValues - 1; i++) {
             GeoPos p1 = polygon[i];
@@ -1829,13 +1829,13 @@ public class ProductUtils {
                 final double maxDist = 1.5;
                 final double distance = lastPixelPos.distance(pixelPos);
                 if (distance > maxDist) {
-                    final float startX = lastPixelPos.x;
-                    final float startY = lastPixelPos.y;
-                    final float endX = pixelPos.x;
-                    final float endY = pixelPos.y;
+                    final double startX = lastPixelPos.x;
+                    final double startY = lastPixelPos.y;
+                    final double endX = pixelPos.x;
+                    final double endY = pixelPos.y;
                     final int numParts = (int) (distance / maxDist) + 1;
-                    final float addX = (endX - startX) / numParts;
-                    final float addY = (endY - startY) / numParts;
+                    final double addX = (endX - startX) / numParts;
+                    final double addY = (endY - startY) / numParts;
                     pixelPos.setLocation(startX + addX, startY + addY);
                     for (int i = 1; i < numParts; i++, pixelPos.x += addX, pixelPos.y += addY) {
                         geoCoding.getGeoPos(pixelPos, geoPos);
@@ -2158,11 +2158,11 @@ public class ProductUtils {
      *         empty.
      * @throws IllegalArgumentException if the given pixelPositions are <code>null</code>.
      */
-    public static float[] computeMinMaxY(PixelPos[] pixelPositions) {
+    public static double[] computeMinMaxY(PixelPos[] pixelPositions) {
         Guardian.assertNotNull("pixelPositions", pixelPositions);
 
-        float min = Integer.MAX_VALUE; // min initial
-        float max = Integer.MIN_VALUE; // max initial
+        double min = Integer.MAX_VALUE; // min initial
+        double max = Integer.MIN_VALUE; // max initial
         for (PixelPos pixelPos : pixelPositions) {
             if (pixelPos != null) {
                 if (pixelPos.y < min) {
@@ -2176,7 +2176,7 @@ public class ProductUtils {
         if (min > max) {
             return null;
         }
-        return new float[]{min, max};
+        return new double[]{min, max};
     }
 
     /**
@@ -2343,16 +2343,16 @@ public class ProductUtils {
         final ArrayList<GeneralPath> pathList = new ArrayList<GeneralPath>(16);
 
         if (geoPoints.length > 1) {
-            float lon = geoPoints[0].getLon();
-            float minLon = lon;
-            float maxLon = lon;
+            double lon = geoPoints[0].getLon();
+            double minLon = lon;
+            double maxLon = lon;
 
             final GeneralPath path = new GeneralPath(GeneralPath.WIND_NON_ZERO, geoPoints.length + 8);
             path.moveTo(lon, geoPoints[0].getLat());
             for (GeoPos pos : geoPoints) {
                 lon = pos.getLon();
-                final float lat = pos.getLat();
-                if (Float.isNaN(lon) || Float.isNaN(lat)) {
+                final double lat = pos.getLat();
+                if (Double.isNaN(lon) || Double.isNaN(lat)) {
                     continue;
                 }
                 if (lon < minLon) {

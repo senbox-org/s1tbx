@@ -305,16 +305,16 @@ public class RangeFinderInteractor extends ViewportInteractor {
         final int yH;
         final int xN;
         final int yN;
-        final float lonH;
-        final float latH;
-        final float lonN;
-        final float latN;
-        final float lamH;
-        final float phiH;
-        final float lamN;
-        final float phiN;
-        final float distance;
-        final float distanceError;
+        final double lonH;
+        final double latH;
+        final double lonN;
+        final double latN;
+        final double lamH;
+        final double phiH;
+        final double lamN;
+        final double phiN;
+        final double distance;
+        final double distanceError;
 
         public DistanceData(GeoCoding geoCoding, final Point pH, final Point pN) {
             this.xH = pH.x;

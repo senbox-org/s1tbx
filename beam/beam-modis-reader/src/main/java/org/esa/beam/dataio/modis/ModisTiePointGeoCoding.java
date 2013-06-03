@@ -252,10 +252,10 @@ public class ModisTiePointGeoCoding extends AbstractGeoCoding {
         _cross180 = false;
         _gcList = new ArrayList<GeoCoding>();
         _centerLineList = new ArrayList<PolyLine>();
-        final float osX = _lonGrid.getOffsetX();
-        final float osY = _lonGrid.getOffsetY() + 0.5f;
-        final float ssX = _lonGrid.getSubSamplingX();
-        final float ssY = _lonGrid.getSubSamplingY();
+        final double osX = _lonGrid.getOffsetX();
+        final double osY = _lonGrid.getOffsetY() + 0.5f;
+        final double ssX = _lonGrid.getSubSamplingX();
+        final double ssY = _lonGrid.getSubSamplingY();
 
         final float[] latFloats = (float[]) _latGrid.getDataElems();
         final float[] lonFloats = (float[]) _lonGrid.getDataElems();
@@ -337,9 +337,9 @@ public class ModisTiePointGeoCoding extends AbstractGeoCoding {
         for (pixelPos.x = 0; pixelPos.x < sceneWidth + 0.5; pixelPos.x += stepX) {
             geoCoding.getGeoPos(pixelPos, geoPos);
             if (pixelPos.x == 0) {
-                polyLine.moveTo(geoPos.lon, geoPos.lat);
+                polyLine.moveTo((float)geoPos.lon, (float)geoPos.lat);
             } else {
-                polyLine.lineTo(geoPos.lon, geoPos.lat);
+                polyLine.lineTo((float)geoPos.lon, (float)geoPos.lat);
             }
         }
 
@@ -362,7 +362,7 @@ public class ModisTiePointGeoCoding extends AbstractGeoCoding {
         int index = _lastCenterLineIndex;
         index = getNextCenterLineIndex(index, 1);
         final PolyLine centerLine1 = _centerLineList.get(index);
-        double v = centerLine1.getDistance(geoPos.lon, geoPos.lat);
+        double v = centerLine1.getDistance((float)geoPos.lon, (float)geoPos.lat);
         int vIndex = index;
 
         int direction = -1;
@@ -373,7 +373,7 @@ public class ModisTiePointGeoCoding extends AbstractGeoCoding {
             index += direction;
             index = getNextCenterLineIndex(index, direction);
             final PolyLine centerLine2 = _centerLineList.get(index);
-            final double v2 = centerLine2.getDistance(geoPos.lon, geoPos.lat);
+            final double v2 = centerLine2.getDistance((float)geoPos.lon, (float)geoPos.lat);
             if (v2 < v) {
                 if (index == _smallestValidIndex || index == _biggestValidIndex) {
                     return index;
@@ -477,15 +477,15 @@ public class ModisTiePointGeoCoding extends AbstractGeoCoding {
 
     private class ModisTiePointGrid extends TiePointGrid {
 
-        public ModisTiePointGrid(String name, int gridWidth, int gridHeight, float offsetX, float offsetY, float subSamplingX, float subSamplingY, float[] tiePoints) {
+        public ModisTiePointGrid(String name, int gridWidth, int gridHeight, double offsetX, double offsetY, double subSamplingX, double subSamplingY, float[] tiePoints) {
             super(name, gridWidth, gridHeight, offsetX, offsetY, subSamplingX, subSamplingY, tiePoints);
         }
 
-        public ModisTiePointGrid(String name, int gridWidth, int gridHeight, float offsetX, float offsetY, float subSamplingX, float subSamplingY, float[] tiePoints, int discontinuity) {
+        public ModisTiePointGrid(String name, int gridWidth, int gridHeight, double offsetX, double offsetY, double subSamplingX, double subSamplingY, float[] tiePoints, int discontinuity) {
             super(name, gridWidth, gridHeight, offsetX, offsetY, subSamplingX, subSamplingY, tiePoints, discontinuity);
         }
 
-        public ModisTiePointGrid(String name, int gridWidth, int gridHeight, float offsetX, float offsetY, float subSamplingX, float subSamplingY, float[] tiePoints, boolean containsAngles) {
+        public ModisTiePointGrid(String name, int gridWidth, int gridHeight, double offsetX, double offsetY, double subSamplingX, double subSamplingY, float[] tiePoints, boolean containsAngles) {
             super(name, gridWidth, gridHeight, offsetX, offsetY, subSamplingX, subSamplingY, tiePoints, containsAngles);
         }
 

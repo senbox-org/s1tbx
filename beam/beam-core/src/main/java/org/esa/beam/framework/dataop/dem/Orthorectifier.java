@@ -283,9 +283,9 @@ public class Orthorectifier implements GeoCoding {
                                       final PixelPos correctedPixelPos) {
         final PixelPos pp = new PixelPos();
         final GeoPos gp = new GeoPos();
-        float dx;
-        float dy;
-        float r;
+        double dx;
+        double dy;
+        double r;
         correctedPixelPos.setLocation(pixelPos);
         for (int i = 0; i < maxIterationCount; i++) {
             performDirectLocationModel(correctedPixelPos, factor, gp);

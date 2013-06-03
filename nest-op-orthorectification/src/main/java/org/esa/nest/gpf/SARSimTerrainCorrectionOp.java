@@ -899,10 +899,13 @@ public class SARSimTerrainCorrectionOp extends Operator {
             }
 
             final String[] srcBandNames = targetBandNameToSourceBandName.get(targetBand.getName());
+            final Band[] srcBands = new Band[] { sourceProduct.getBand(srcBandNames[0]),
+                    srcBandNames.length > 1 ? sourceProduct.getBand(srcBandNames[1]) : null};
 
             final RangeDopplerGeocodingOp.TileData td = new RangeDopplerGeocodingOp.TileData(
-                    targetTiles.get(targetBand), sourceProduct.getBand(srcBandNames[0]),
-                    targetBand.getName(), getBandUnit(targetBand.getName()), absRoot);
+                    targetTiles.get(targetBand), srcBands, isPolsar,
+                    targetBand.getName(), getBandUnit(targetBand.getName()), absRoot, calibrator, imgResampling);
+
             td.applyRadiometricNormalization = targetBandapplyRadiometricNormalizationFlag.get(targetBand.getName());
             td.applyRetroCalibration = targetBandApplyRetroCalibrationFlag.get(targetBand.getName());
             trgTileList.add(td);
@@ -1013,7 +1016,7 @@ public class SARSimTerrainCorrectionOp extends Operator {
 
                         if (saveIncidenceAngleFromEllipsoid) {
                             incidenceAngleFromEllipsoidBuffer.setElemDoubleAt(
-                                    index, (double)incidenceAngle.getPixelFloat((float)rangeIndex, (float)azimuthIndex));
+                                    index, incidenceAngle.getPixelDouble(rangeIndex, azimuthIndex));
                         }
 
                         for(RangeDopplerGeocodingOp.TileData tileData : trgTiles) {
@@ -1167,27 +1170,26 @@ public class SARSimTerrainCorrectionOp extends Operator {
         try {
             final int x0 = (int)(rangeIndex + 0.5);
             final int y0 = (int)(azimuthIndex + 0.5);
-            final String[] srcBandNames = targetBandNameToSourceBandName.get(tileData.bandName);
             Rectangle srcRect = null;
             Tile sourceTileI, sourceTileQ = null;
 
-            if (imgResampling.equals(Resampling.NEAREST_NEIGHBOUR)) {
+            if (imgResampling == Resampling.NEAREST_NEIGHBOUR) {
 
                 srcRect = new Rectangle(x0, y0, 1, 1);
 
-            } else if (imgResampling.equals(Resampling.BILINEAR_INTERPOLATION)) {
+            } else if (imgResampling == Resampling.BILINEAR_INTERPOLATION) {
 
                 srcRect = new Rectangle(Math.max(0, x0 - 1), Math.max(0, y0 - 1), 3, 3);
 
-            } else if (imgResampling.equals(Resampling.CUBIC_CONVOLUTION)) {
+            } else if (imgResampling == Resampling.CUBIC_CONVOLUTION) {
 
                 srcRect = new Rectangle(Math.max(0, x0 - 2), Math.max(0, y0 - 2), 5, 5);
 
-            } else if (imgResampling.equals(Resampling.BISINC_INTERPOLATION)) {
+            } else if (imgResampling == Resampling.BISINC_INTERPOLATION) {
 
                 srcRect = new Rectangle(Math.max(0, x0 - 3), Math.max(0, y0 - 3), 6, 6);
 
-            } else if (imgResampling.equals(Resampling.BICUBIC_INTERPOLATION)) {
+            } else if (imgResampling == Resampling.BICUBIC_INTERPOLATION) {
 
                 srcRect = new Rectangle(Math.max(0, x0 - 2), Math.max(0, y0 - 2), 5, 5);
 
@@ -1195,24 +1197,20 @@ public class SARSimTerrainCorrectionOp extends Operator {
                 throw new OperatorException("Unhandled interpolation method");
             }
 
+            final String[] srcBandNames = targetBandNameToSourceBandName.get(tileData.bandName);
             sourceTileI = getSourceTile(sourceProduct.getBand(srcBandNames[0]), srcRect);
             if (srcBandNames.length > 1) {
                 sourceTileQ = getSourceTile(sourceProduct.getBand(srcBandNames[1]), srcRect);
             }
 
-            final RangeDopplerGeocodingOp.ResamplingRaster imgResamplingRaster =
-                    new RangeDopplerGeocodingOp.ResamplingRaster(
-                    rangeIndex, azimuthIndex, isPolsar, tileData, sourceTileI, sourceTileQ, calibrator);
+            tileData.imgResamplingRaster.set(rangeIndex, azimuthIndex, sourceTileI, sourceTileQ);
 
-            final Resampling resampling = imgResampling;
-            final Resampling.Index imgResamplingIndex = resampling.createIndex();
+            imgResampling.computeIndex(rangeIndex + 0.5, azimuthIndex + 0.5,
+                                       sourceImageWidth, sourceImageHeight, tileData.imgResamplingIndex);
 
-            resampling.computeIndex(rangeIndex + 0.5, azimuthIndex + 0.5,
-                                       sourceImageWidth, sourceImageHeight, imgResamplingIndex);
+            double v = imgResampling.resample(tileData.imgResamplingRaster, tileData.imgResamplingIndex);
 
-            double v = resampling.resample(imgResamplingRaster, imgResamplingIndex);
-
-            subSwathIndex[0] = imgResamplingRaster.getSubSwathIndex();
+            subSwathIndex[0] = tileData.imgResamplingRaster.getSubSwathIndex();
 
             return v;
 

@@ -15,7 +15,6 @@
  */
 package org.esa.nest.gpf;
 
-import com.bc.ceres.core.ProgressMonitor;
 import junit.framework.TestCase;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.gpf.GPF;
@@ -49,8 +48,6 @@ public class TestGeocoding extends TestCase {
     protected void tearDown() throws Exception {
         GPF.getDefaultInstance().getOperatorSpiRegistry().removeOperatorSpi(spi);
     }
-
-
 
     /**
      * Processes a product and compares it to processed product known to be correct

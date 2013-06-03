@@ -198,7 +198,7 @@ public class CombinedFXYGeoCoding extends AbstractGeoCoding {
             }
         }
         if (geoPos == null) {
-            geoPos = new GeoPos(0, 0);
+            geoPos = new GeoPos(0.0, 0.0);
         }
         return geoPos;
     }

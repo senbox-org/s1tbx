@@ -31,12 +31,12 @@ public class GeoPos {
     /**
      * The geographical latitude in decimal degree, valid range is -90 to +90.
      */
-    public float lat;
+    public double lat;
 
     /**
      * The geographical longitude in decimal degree, valid range is -180 to +180.
      */
-    public float lon;
+    public double lon;
 
     /**
      * Constructs a new geo-position with latitude and longitude set to zero.
@@ -59,6 +59,11 @@ public class GeoPos {
      * @param lat the geographical latitude in decimal degree, valid range is -90 to +90
      * @param lon the geographical longitude in decimal degree, valid range is -180 to +180
      */
+    public GeoPos(double lat, double lon) {
+        this.lat = lat;
+        this.lon = lon;
+    }
+
     public GeoPos(float lat, float lon) {
         this.lat = lat;
         this.lon = lon;
@@ -69,7 +74,7 @@ public class GeoPos {
      *
      * @return the geographical latitude in decimal degree
      */
-    public float getLat() {
+    public double getLat() {
         return lat;
     }
 
@@ -78,7 +83,7 @@ public class GeoPos {
      *
      * @return the geographical longitude in decimal degree
      */
-    public float getLon() {
+    public double getLon() {
         return lon;
     }
 
@@ -88,6 +93,11 @@ public class GeoPos {
      * @param lat the geographical latitude in decimal degree, valid range is -90 to +90
      * @param lon the geographical longitude in decimal degree, valid range is -180 to +180
      */
+    public void setLocation(double lat, double lon) {
+        this.lat = lat;
+        this.lon = lon;
+    }
+
     public void setLocation(float lat, float lon) {
         this.lat = lat;
         this.lon = lon;
@@ -120,8 +130,8 @@ public class GeoPos {
      * Sets the lat/lon fields so that {@link #isValid()} will return false.
      */
     public final void setInvalid() {
-        lat = Float.NaN;
-        lon = Float.NaN;
+        lat = Double.NaN;
+        lon = Double.NaN;
     }
 
 
@@ -151,7 +161,7 @@ public class GeoPos {
      */
     @Override
     public int hashCode() {
-        return Float.floatToIntBits(lat) + Float.floatToIntBits(lon);
+        return (int)(Double.doubleToLongBits(lat) + Double.doubleToLongBits(lon));
     }
 
     /**
@@ -180,7 +190,7 @@ public class GeoPos {
      *
      * @return the normalized longitude in the range
      */
-    public static float normalizeLon(float lon) {
+    public static double normalizeLon(double lon) {
         if (lon < -360f || lon > 360f) {
             lon %= 360f;
         }
@@ -217,7 +227,7 @@ public class GeoPos {
      *
      * @return a string of the form DDD°[MM'[SS"]] [N|S].
      */
-    public static String getLatString(float lat) {
+    public static String getLatString(double lat) {
         if (isLatValid(lat)) {
             return getDegreeString(lat, false);
         } else {
@@ -232,7 +242,7 @@ public class GeoPos {
      *
      * @return a string of the form DDD°[MM'[SS"]] [W|E].
      */
-    public static String getLonString(float lon) {
+    public static String getLonString(double lon) {
         if (isLonValid(lon)) {
             return getDegreeString(lon, true);
         } else {
@@ -245,15 +255,15 @@ public class GeoPos {
      * Creates a string representation of the given decimal degree value. The string returned has the format
      * DDD°[MM'[SS"]] [N|S|W|E].
      */
-    private static String getDegreeString(float value, boolean longitudial) {
+    private static String getDegreeString(double value, boolean longitudial) {
 
         int sign = (value == 0.0F) ? 0 : (value < 0.0F) ? -1 : 1;
-        float rest = Math.abs(value);
+        double rest = Math.abs(value);
         int degree = MathUtils.floorInt(rest);
         rest -= degree;
         int minutes = MathUtils.floorInt(_MIN_PER_DEG * rest);
         rest -= minutes / _MIN_PER_DEG;
-        int seconds = Math.round(_SEC_PER_DEG * rest);
+        int seconds = (int)Math.round(_SEC_PER_DEG * rest);
         rest -= seconds / _SEC_PER_DEG;
         if (seconds == 60) {
             seconds = 0;
@@ -301,12 +311,12 @@ public class GeoPos {
     }
 
 
-    private static boolean isLatValid(float lat) {
+    private static boolean isLatValid(double lat) {
         return lat >= -90f && lat <= 90f;
     }
 
-    private static boolean isLonValid(float lon) {
-        return !Float.isNaN(lon) && !Float.isInfinite(lon);
+    private static boolean isLonValid(double lon) {
+        return !Double.isNaN(lon) && !Double.isInfinite(lon);
     }
 
 }

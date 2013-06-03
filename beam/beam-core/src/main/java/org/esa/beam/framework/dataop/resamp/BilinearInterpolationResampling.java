@@ -16,6 +16,8 @@
 
 package org.esa.beam.framework.dataop.resamp;
 
+import org.esa.beam.util.math.Array;
+
 public final class BilinearInterpolationResampling implements Resampling {
 
     public String getName() {
@@ -79,16 +81,16 @@ public final class BilinearInterpolationResampling implements Resampling {
         final double[][] samples = new double[2][2];
 
         if (!raster.getSamples(x, y, samples)) {
-            return samples[1][1];
+            return samples[0][0];
         }
 
         final double ki = index.ki[0];
         final double kj = index.kj[0];
 
         return samples[0][0] * (1f - ki) * (1f - kj) +
-                       samples[0][1] * ki * (1f - kj) +
-                       samples[1][0] * (1f - ki) * kj +
-                       samples[1][1] * ki * kj;
+               samples[0][1] * ki * (1f - kj) +
+               samples[1][0] * (1f - ki) * kj +
+               samples[1][1] * ki * kj;
     }
 
     @Override

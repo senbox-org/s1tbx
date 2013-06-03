@@ -124,7 +124,7 @@ public abstract class CartographicMapTransform implements MapTransform {
             mapPoint = new Point2D.Double();
         }
 
-        float lon0 = geoPoint.getLon() - _centralMeridian;
+        double lon0 = geoPoint.getLon() - _centralMeridian;
         if (lon0 < -180.0) {
             lon0 = (float) (360.0 + lon0);
         }
@@ -132,8 +132,8 @@ public abstract class CartographicMapTransform implements MapTransform {
             lon0 = (float) (lon0 - 360.0);
         }
 
-        mapPoint = forward_impl(geoPoint.getLat(),
-                                lon0,
+        mapPoint = forward_impl((float)geoPoint.getLat(),
+                                (float)lon0,
                                 mapPoint);
         mapPoint.setLocation(_a * mapPoint.getX() + _x0,
                              _a * mapPoint.getY() + _y0);

@@ -295,7 +295,7 @@ public class Band extends AbstractBand {
                                final int width, final int height,
                                final ProductData rasterData,
                                ProgressMonitor pm) throws IOException {
-        Guardian.assertNotNull("rasterData", rasterData);
+        //Guardian.assertNotNull("rasterData", rasterData);
         if (isProductReaderDirectlyUsable()) {
             // Don't go the long way round the source image.
             getProductReader().readBandRasterData(this, offsetX, offsetY,
@@ -304,14 +304,14 @@ public class Band extends AbstractBand {
                                                   pm);
         } else {
             try {
-                pm.beginTask("Reading raster data...", 100);
+                //pm.beginTask("Reading raster data...", 100);
                 final RenderedImage sourceImage = getSourceImage();
                 final int x = sourceImage.getMinX() + offsetX;
                 final int y = sourceImage.getMinY() + offsetY;
                 final Raster data = sourceImage.getData(new Rectangle(x, y, width, height));
-                pm.worked(90);
+                //pm.worked(90);
                 data.getDataElements(x, y, width, height, rasterData.getElems());
-                pm.worked(10);
+                //pm.worked(10);
             } finally {
                 pm.done();
             }

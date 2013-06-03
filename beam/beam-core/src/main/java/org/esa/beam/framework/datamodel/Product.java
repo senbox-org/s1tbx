@@ -1203,7 +1203,7 @@ public class Product extends ProductNode {
      *
      * @see #containsPixel(PixelPos)
      */
-    public boolean containsPixel(final float x, final float y) {
+    public boolean containsPixel(final double x, final double y) {
         return x >= 0.0f && x <= getSceneRasterWidth() &&
                y >= 0.0f && y <= getSceneRasterHeight();
     }
@@ -1215,7 +1215,7 @@ public class Product extends ProductNode {
      *
      * @return true, if so
      *
-     * @see #containsPixel(float, float)
+     * @see #containsPixel(double, float)
      */
     public boolean containsPixel(final PixelPos pixelPos) {
         return containsPixel(pixelPos.x, pixelPos.y);

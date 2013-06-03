@@ -136,7 +136,7 @@ public final class EarthGravitationalModel96 {
         }
     }
 
-    public float getEGM(final double lat, final double lon) {
+    public double getEGM(final double lat, final double lon) {
 
         final double r = (90 - lat) / 0.25;
         final double c = (lon < 0? lon + 360 : lon)/ 0.25;
@@ -165,6 +165,6 @@ public final class EarthGravitationalModel96 {
             v[i][3] = egm[ri][ci3];
         }
 
-        return (float)MathUtils.interpolationBiCubic(v, c - (c0+1), r - (r0+1));
+        return MathUtils.interpolationBiCubic(v, c - (c0+1), r - (r0+1));
     }
 }

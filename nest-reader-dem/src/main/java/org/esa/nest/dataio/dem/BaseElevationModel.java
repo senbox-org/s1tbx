@@ -87,20 +87,17 @@ public abstract class BaseElevationModel implements ElevationModel, Resampling.R
     }
 
     public final double getElevation(final GeoPos geoPos) throws Exception {
-        if (geoPos.lon > 180) {
+        if (geoPos.lon > 180)
             geoPos.lon -= 360;
-        }
-        final double pixelY = getIndexY(geoPos);
-        if (pixelY < 0) {
-            return NO_DATA_VALUE;
-        }
 
-        final double elevation;
-        //synchronized(resampling) {
-            Resampling.Index newIndex = resampling.createIndex();
-            resampling.computeIndex(getIndexX(geoPos), pixelY, RASTER_WIDTH, RASTER_HEIGHT, newIndex);
-            elevation = resampling.resample(resamplingRaster, newIndex);
-        //}
+        final double pixelY = getIndexY(geoPos);
+        if (pixelY < 0)
+            return NO_DATA_VALUE;
+
+        Resampling.Index newIndex = resampling.createIndex();
+        resampling.computeIndex(getIndexX(geoPos), pixelY, RASTER_WIDTH, RASTER_HEIGHT, newIndex);
+        final double elevation = resampling.resample(resamplingRaster, newIndex);
+
         return Double.isNaN(elevation) ? NO_DATA_VALUE : elevation;
     }
 
@@ -180,6 +177,7 @@ public abstract class BaseElevationModel implements ElevationModel, Resampling.R
 
     public final boolean getSamples(final int[] x, final int[] y, final double[][] samples) throws Exception {
         boolean allValid = true;
+        double v;
         for (int i = 0; i < y.length; i++) {
             final int tileYIndex = (int)(y[i] * NUM_PIXELS_PER_TILEinv);
             final int pixelY = y[i] - tileYIndex * NUM_PIXELS_PER_TILE;
@@ -194,11 +192,13 @@ public abstract class BaseElevationModel implements ElevationModel, Resampling.R
                     continue;
                 }
 
-                samples[i][j] = tile.getSample(x[j] - tileXIndex * NUM_PIXELS_PER_TILE, pixelY);
-                if(samples[i][j] == NO_DATA_VALUE) {
+                v = tile.getSample(x[j] - tileXIndex * NUM_PIXELS_PER_TILE, pixelY);
+                if(v == NO_DATA_VALUE) {
                     samples[i][j] = Double.NaN;
                     allValid = false;
+                    continue;
                 }
+                samples[i][j] = v;
             }
         }
         return allValid;

@@ -301,7 +301,7 @@ class AlosPalsarProductDirectory extends CEOSProductDirectory {
         // slant range time (2-way)
         if(leaderFile.getProductLevel() == AlosPalsarConstants.LEVEL1_1) {
 
-            final double samplingRate = sceneRec.getAttributeDouble("Range sampling rate") * 1000000.0;  // MHz to Hz
+            final double samplingRate = sceneRec.getAttributeDouble("Range sampling rate") * Constants.oneMillion;  // MHz to Hz
 
             final double tmp = subSamplingX * Constants.halfLightSpeed / samplingRate;
             int k = 0;
@@ -334,7 +334,7 @@ class AlosPalsarProductDirectory extends CEOSProductDirectory {
 
         // get slant range time in nanoseconds from range distance in meters
         for(int k = 0; k < rangeDist.length; k++) {
-             rangeTime[k] = (float)(rangeDist[k] / Constants.halfLightSpeed * 1000000000.0); // in ns
+             rangeTime[k] = (float)(rangeDist[k] / Constants.halfLightSpeed * Constants.oneBillion); // in ns
         }
 
         final TiePointGrid slantRangeGrid = new TiePointGrid(OperatorUtils.TPG_SLANT_RANGE_TIME,
@@ -423,8 +423,8 @@ class AlosPalsarProductDirectory extends CEOSProductDirectory {
                     }
                 }
 
-                final float[] latCorners = new float[]{latUL, latUR, latLL, latLR};
-                final float[] lonCorners = new float[]{lonUL, lonUR, lonLL, lonLR};
+                final double[] latCorners = new double[]{latUL, latUR, latLL, latLR};
+                final double[] lonCorners = new double[]{lonUL, lonUR, lonLL, lonLR};
 
                 absRoot.setAttributeDouble(AbstractMetadata.first_near_lat, latUL);
                 absRoot.setAttributeDouble(AbstractMetadata.first_near_long, lonUL);
@@ -800,8 +800,8 @@ class AlosPalsarProductDirectory extends CEOSProductDirectory {
         final int sourceImageWidth = product.getSceneRasterWidth();
         final int sourceImageHeight = product.getSceneRasterHeight();
 
-        final float subSamplingX = sourceImageWidth / (float)(gridWidth - 1);
-        final float subSamplingY = sourceImageHeight / (float)(gridHeight - 1);
+        final double subSamplingX = sourceImageWidth / (double)(gridWidth - 1);
+        final double subSamplingY = sourceImageHeight / (double)(gridHeight - 1);
 
         final TiePointGrid slantRangeTime = product.getTiePointGrid(OperatorUtils.TPG_SLANT_RANGE_TIME);
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
@@ -885,10 +885,10 @@ class AlosPalsarProductDirectory extends CEOSProductDirectory {
                     x = (int)(c * subSamplingX);
                 }
 
-                final double slrgTime = slantRangeTime.getPixelFloat((float)x, (float)y) / 1000000000.0; // ns to s;
+                final double slrgTime = slantRangeTime.getPixelDouble(x, y) / Constants.oneBillion; // ns to s;
                 final GeoPos geoPos = computeLatLon(refLat, refLon, slrgTime, data);
-                targetLatTiePoints[k] = geoPos.lat;
-                targetLonTiePoints[k] = geoPos.lon;
+                targetLatTiePoints[k] = (float)geoPos.lat;
+                targetLonTiePoints[k] = (float)geoPos.lon;
                 ++k;
             }
         }

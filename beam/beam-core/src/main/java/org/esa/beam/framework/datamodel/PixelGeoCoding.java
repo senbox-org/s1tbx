@@ -32,14 +32,7 @@ import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.math.IndexValidator;
 import org.esa.beam.util.math.MathUtils;
 
-import javax.media.jai.ImageLayout;
-import javax.media.jai.Interpolation;
-import javax.media.jai.JAI;
-import javax.media.jai.PointOpImage;
-import javax.media.jai.RasterAccessor;
-import javax.media.jai.RasterFactory;
-import javax.media.jai.RasterFormatTag;
-import javax.media.jai.RenderedOp;
+import javax.media.jai.*;
 import javax.media.jai.operator.CropDescriptor;
 import javax.media.jai.operator.ScaleDescriptor;
 import java.awt.Rectangle;
@@ -110,9 +103,9 @@ public class PixelGeoCoding extends AbstractGeoCoding {
     private static final int MAX_SEARCH_CYCLES = 10;
 
     // TODO - (nf) make EPS for quad-tree search dependent on current scene
-    private static final float EPS = 0.04F; // used by quad-tree search
+    private static final double EPS = 0.04F; // used by quad-tree search
     private static final boolean TRACE = false;
-    private static final float D2R = (float) (Math.PI / 180.0);
+    private static final double D2R = Math.PI / 180.0;
 
     private Boolean crossingMeridianAt180;
     private final Band latBand;
@@ -183,26 +176,26 @@ public class PixelGeoCoding extends AbstractGeoCoding {
 
             final int tpGridWidth = rasterWidth / subSampling;
             final int tpGridHeight = rasterHeight / subSampling;
-            final float tpOffsetX = rasterWidth % subSampling / 2 + 0.5f;
-            final float tpOffsetY = rasterHeight % subSampling / 2 + 0.5f;
-            final float unscaledImageOffsetX = -tpOffsetX + subSampling / 2.0f;
-            final float unscaledImageOffsetY = -tpOffsetY + subSampling / 2.0f;
+            final double tpOffsetX = rasterWidth % subSampling / 2 + 0.5f;
+            final double tpOffsetY = rasterHeight % subSampling / 2 + 0.5f;
+            final double unscaledImageOffsetX = -tpOffsetX + subSampling / 2.0f;
+            final double unscaledImageOffsetY = -tpOffsetY + subSampling / 2.0f;
             final MultiLevelImage latImage = latBand.getGeophysicalImage();
             final MultiLevelImage lonImage = lonBand.getGeophysicalImage();
 
-            float scale = 1.0f / subSampling;
+            double scale = 1.0f / subSampling;
 
             Interpolation nearestInterpolation = Interpolation.getInstance(Interpolation.INTERP_NEAREST);
             final RenderedOp tempLatOffsetImg = ScaleDescriptor.create(latImage, 1.0f, 1.0f,
-                                                                       unscaledImageOffsetX, unscaledImageOffsetY,
+                                                                       (float)unscaledImageOffsetX, (float)unscaledImageOffsetY,
                                                                        nearestInterpolation, null);
-            final RenderedOp tempLatImg = ScaleDescriptor.create(tempLatOffsetImg, scale, scale, 0f, 0f,
+            final RenderedOp tempLatImg = ScaleDescriptor.create(tempLatOffsetImg, (float)scale, (float)scale, 0f, 0f,
                                                                  nearestInterpolation, null);
 
             final RenderedOp tempLonOffsetImg = ScaleDescriptor.create(lonImage, 1.0f, 1.0f,
-                                                                       unscaledImageOffsetX, unscaledImageOffsetY,
+                    (float)unscaledImageOffsetX, (float)unscaledImageOffsetY,
                                                                        nearestInterpolation, null);
-            final RenderedOp tempLonImg = ScaleDescriptor.create(tempLonOffsetImg, scale, scale, 0f, 0f,
+            final RenderedOp tempLonImg = ScaleDescriptor.create(tempLonOffsetImg, (float)scale, (float)scale, 0f, 0f,
                                                                  nearestInterpolation, null);
 
             final int minX = tempLatImg.getMinX();
@@ -232,10 +225,10 @@ public class PixelGeoCoding extends AbstractGeoCoding {
             GeoPos p0 = pixelPosEstimator.getGeoPos(new PixelPos(0.5f, 0.5f), null);
             GeoPos p1 = pixelPosEstimator.getGeoPos(new PixelPos(1.5f, 0.5f), null);
 
-            float r = (float) Math.cos(Math.toRadians(p1.lat));
-            float dlat = Math.abs(p0.lat - p1.lat);
-            float dlon = r * lonDiff(p0.lon, p1.lon);
-            float delta = dlat * dlat + dlon * dlon;
+            double r = Math.cos(Math.toRadians(p1.lat));
+            double dlat = Math.abs(p0.lat - p1.lat);
+            double dlon = r * lonDiff(p0.lon, p1.lon);
+            double delta = dlat * dlat + dlon * dlon;
             deltaThreshold = Math.sqrt(delta) * 2;
 
         }
@@ -284,8 +277,8 @@ public class PixelGeoCoding extends AbstractGeoCoding {
                     final BitRaster validMask = latBand.getProduct().createValidMask(validMaskExpr,
                                                                                      SubProgressMonitor.create(pm, 1));
                     fillInvalidGaps(new RasterDataNode.ValidMaskValidator(rasterHeight, 0, validMask),
-                                    (float[]) latGrid.getDataElems(),
-                                    (float[]) lonGrid.getDataElems(), SubProgressMonitor.create(pm, 1));
+                                    (double[]) latGrid.getDataElems(),
+                                    (double[]) lonGrid.getDataElems(), SubProgressMonitor.create(pm, 1));
                 }
             } finally {
                 pm.done();
@@ -307,8 +300,8 @@ public class PixelGeoCoding extends AbstractGeoCoding {
      * @param pm        a monitor to inform the user about progress
      */
     protected void fillInvalidGaps(final IndexValidator validator,
-                                   final float[] latElems,
-                                   final float[] lonElems, ProgressMonitor pm) {
+                                   final double[] latElems,
+                                   final double[] lonElems, ProgressMonitor pm) {
         if (pixelPosEstimator != null) {
             try {
                 pm.beginTask("Filling invalid pixel gaps", rasterHeight);
@@ -344,13 +337,13 @@ public class PixelGeoCoding extends AbstractGeoCoding {
         if (geoCoding == null) {
             return 0;
         }
-        final long sizeofFloat = 4;
+        final long sizeofDouble = 8;
         final long pixelCount = product.getSceneRasterWidth() * product.getSceneRasterHeight();
-        // lat + lon band converted to 32-bit float tie-point data
-        long size = 2 * sizeofFloat * pixelCount;
+        // lat + lon band converted to 64-bit double tie-point data
+        long size = 2 * sizeofDouble * pixelCount;
         if (geoCoding.isCrossingMeridianAt180()) {
-            // additional 32-bit float sine and cosine grids for to lon grid
-            size += 2 * sizeofFloat * pixelCount;
+            // additional 64-bit double sine and cosine grids for to lon grid
+            size += 2 * sizeofDouble * pixelCount;
         }
         if (usesValidMask) {
             // additional 1-bit data mask
@@ -403,9 +396,9 @@ public class PixelGeoCoding extends AbstractGeoCoding {
             crossingMeridianAt180 = false;
             final PixelPos[] pixelPoses = ProductUtils.createPixelBoundary(lonBand, null, 1);
             try {
-                float[] firstLonValue = new float[1];
+                double[] firstLonValue = new double[1];
                 lonBand.readPixels(0, 0, 1, 1, firstLonValue);
-                float[] secondLonValue = new float[1];
+                double[] secondLonValue = new double[1];
                 for (int i = 1; i < pixelPoses.length; i++) {
                     final PixelPos pixelPos = pixelPoses[i];
                     lonBand.readPixels((int) pixelPos.x, (int) pixelPos.y, 1, 1, secondLonValue);
@@ -485,13 +478,13 @@ public class PixelGeoCoding extends AbstractGeoCoding {
         final int x0 = (int) Math.floor(pixelPos.x);
         final int y0 = (int) Math.floor(pixelPos.y);
         if (x0 >= 0 && x0 < rasterWidth && y0 >= 0 && y0 < rasterHeight) {
-            final float lat0 = geoPos.lat;
-            final float lon0 = geoPos.lon;
+            final double lat0 = geoPos.lat;
+            final double lon0 = geoPos.lon;
 
             pixelPos.setLocation(x0, y0);
             int y1;
             int x1;
-            float minDelta;
+            double minDelta;
             int cycles = 0;
             do {
                 x1 = (int) Math.floor(pixelPos.x);
@@ -514,7 +507,7 @@ public class PixelGeoCoding extends AbstractGeoCoding {
         return diffX > (searchRadius - 2) || diffY > (searchRadius - 2);
     }
 
-    private float findBestPixel(int x0, int y0, float lat0, float lon0, PixelPos bestPixel) {
+    private double findBestPixel(int x0, int y0, double lat0, double lon0, PixelPos bestPixel) {
         int x1 = x0 - searchRadius;
         int y1 = y0 - searchRadius;
         int x2 = x0 + searchRadius;
@@ -523,26 +516,26 @@ public class PixelGeoCoding extends AbstractGeoCoding {
         y1 = Math.max(y1, 0);
         x2 = Math.min(x2, rasterWidth - 1);
         y2 = Math.min(y2, rasterHeight - 1);
-        float r = (float) Math.cos(lat0 * D2R);
+        double r = Math.cos(lat0 * D2R);
 
         if (useTiling) {
             Rectangle rect = new Rectangle(x1, y1, x2 - x1 + 1, y2 - y1 + 1);
             Raster latLonData = latLonImage.getData(rect);
             ComponentSampleModel sampleModel = (ComponentSampleModel) latLonData.getSampleModel();
-            DataBufferFloat dataBuffer = (DataBufferFloat) latLonData.getDataBuffer();
-            float[][] bankData = dataBuffer.getBankData();
+            DataBufferDouble dataBuffer = (DataBufferDouble) latLonData.getDataBuffer();
+            double[][] bankData = dataBuffer.getBankData();
             int sampleModelTranslateX = latLonData.getSampleModelTranslateX();
             int sampleModelTranslateY = latLonData.getSampleModelTranslateY();
             int scanlineStride = sampleModel.getScanlineStride();
             int pixelStride = sampleModel.getPixelStride();
 
             int bankDataIndex = (y0 - sampleModelTranslateY) * scanlineStride + (x0 - sampleModelTranslateX) * pixelStride;
-            float lat = bankData[0][bankDataIndex];
-            float lon = bankData[1][bankDataIndex];
+            double lat = bankData[0][bankDataIndex];
+            double lon = bankData[1][bankDataIndex];
 
-            float dlat = Math.abs(lat - lat0);
-            float dlon = r * lonDiff(lon, lon0);
-            float minDelta = dlat * dlat + dlon * dlon;
+            double dlat = Math.abs(lat - lat0);
+            double dlon = r * lonDiff(lon, lon0);
+            double minDelta = dlat * dlat + dlon * dlon;
 
             for (int y = y1; y <= y2; y++) {
                 for (int x = x1; x <= x2; x++) {
@@ -553,7 +546,7 @@ public class PixelGeoCoding extends AbstractGeoCoding {
 
                         dlat = Math.abs(lat - lat0);
                         dlon = r * lonDiff(lon, lon0);
-                        float delta = dlat * dlat + dlon * dlon;
+                        double delta = dlat * dlat + dlon * dlon;
                         if (delta < minDelta) {
                             minDelta = delta;
                             bestPixel.setLocation(x, y);
@@ -566,16 +559,16 @@ public class PixelGeoCoding extends AbstractGeoCoding {
             }
             return minDelta;
         } else {
-            final float[] latArray = (float[]) latGrid.getRasterData().getElems();
-            final float[] lonArray = (float[]) lonGrid.getRasterData().getElems();
+            final double[] latArray = (double[]) latGrid.getRasterData().getElems();
+            final double[] lonArray = (double[]) lonGrid.getRasterData().getElems();
 
             int i = rasterWidth * y0 + x0;
-            float lat = latArray[i];
-            float lon = lonArray[i];
+            double lat = latArray[i];
+            double lon = lonArray[i];
 
-            float dlat = Math.abs(lat - lat0);
-            float dlon = r * lonDiff(lon, lon0);
-            float minDelta = dlat * dlat + dlon * dlon;
+            double dlat = Math.abs(lat - lat0);
+            double dlon = r * lonDiff(lon, lon0);
+            double minDelta = dlat * dlat + dlon * dlon;
 
             for (int y = y1; y <= y2; y++) {
                 for (int x = x1; x <= x2; x++) {
@@ -585,7 +578,7 @@ public class PixelGeoCoding extends AbstractGeoCoding {
                         lon = lonArray[i];
                         dlat = Math.abs(lat - lat0);
                         dlon = r * lonDiff(lon, lon0);
-                        float delta = dlat * dlat + dlon * dlon;
+                        double delta = dlat * dlat + dlon * dlon;
                         if (delta < minDelta) {
                             minDelta = delta;
                             bestPixel.setLocation(x, y);
@@ -659,11 +652,11 @@ public class PixelGeoCoding extends AbstractGeoCoding {
                     if (y0 > 0 && pixelPos.y - y0 < 0.5f || y0 == rasterHeight - 1) {
                         y0 -= 1;
                     }
-                    final float wx = pixelPos.x - (x0 + 0.5f);
-                    final float wy = pixelPos.y - (y0 + 0.5f);
+                    final double wx = pixelPos.x - (x0 + 0.5f);
+                    final double wy = pixelPos.y - (y0 + 0.5f);
                     final Raster latLonData = latLonImage.getData(new Rectangle(x0, y0, 2, 2));
-                    final float lat = interpolate(wx, wy, latLonData, 0);
-                    final float lon = interpolate(wx, wy, latLonData, 1);
+                    final double lat = interpolate(wx, wy, latLonData, 0);
+                    final double lon = interpolate(wx, wy, latLonData, 1);
                     geoPos.setLocation(lat, lon);
                 } else {
                     getGeoPosInternal(x0, y0, geoPos);
@@ -677,15 +670,15 @@ public class PixelGeoCoding extends AbstractGeoCoding {
         return geoPos;
     }
 
-    private float interpolate(float wx, float wy, Raster raster, int band) {
+    private double interpolate(double wx, double wy, Raster raster, int band) {
         final int x0 = raster.getMinX();
         final int x1 = x0 + 1;
         final int y0 = raster.getMinY();
         final int y1 = y0 + 1;
-        final float d00 = raster.getSampleFloat(x0, y0, band);
-        final float d10 = raster.getSampleFloat(x1, y0, band);
-        final float d01 = raster.getSampleFloat(x0, y1, band);
-        final float d11 = raster.getSampleFloat(x1, y1, band);
+        final double d00 = raster.getSampleDouble(x0, y0, band);
+        final double d10 = raster.getSampleDouble(x1, y0, band);
+        final double d01 = raster.getSampleDouble(x0, y1, band);
+        final double d11 = raster.getSampleDouble(x1, y1, band);
 
         return MathUtils.interpolate2D(wx, wy, d00, d10, d01, d11);
     }
@@ -757,8 +750,8 @@ public class PixelGeoCoding extends AbstractGeoCoding {
     }
 
     private boolean quadTreeSearch(final int depth,
-                                   final float lat,
-                                   final float lon,
+                                   final double lat,
+                                   final double lon,
                                    final int x, final int y,
                                    final int w, final int h,
                                    final Result result) {
@@ -774,25 +767,25 @@ public class PixelGeoCoding extends AbstractGeoCoding {
 
         GeoPos geoPos = new GeoPos();
         getGeoPosInternal(x1, y1, geoPos);
-        final float lat0 = geoPos.lat;
-        float lon0 = geoPos.lon;
+        final double lat0 = geoPos.lat;
+        double lon0 = geoPos.lon;
         getGeoPosInternal(x1, y2, geoPos);
-        final float lat1 = geoPos.lat;
-        float lon1 = geoPos.lon;
+        final double lat1 = geoPos.lat;
+        double lon1 = geoPos.lon;
         getGeoPosInternal(x2, y1, geoPos);
-        final float lat2 = geoPos.lat;
-        float lon2 = geoPos.lon;
+        final double lat2 = geoPos.lat;
+        double lon2 = geoPos.lon;
         getGeoPosInternal(x2, y2, geoPos);
-        final float lat3 = geoPos.lat;
-        float lon3 = geoPos.lon;
+        final double lat3 = geoPos.lat;
+        double lon3 = geoPos.lon;
 
-        final float epsL = EPS;
-        final float latMin = min(lat0, min(lat1, min(lat2, lat3))) - epsL;
-        final float latMax = max(lat0, max(lat1, max(lat2, lat3))) + epsL;
-        float lonMin;
-        float lonMax;
+        final double epsL = EPS;
+        final double latMin = min(lat0, min(lat1, min(lat2, lat3))) - epsL;
+        final double latMax = max(lat0, max(lat1, max(lat2, lat3))) + epsL;
+        double lonMin;
+        double lonMax;
         if (isCrossingMeridianInsideQuad(crossingMeridianAt180, lon0, lon1, lon2, lon3)) {
-            final float signumLon = Math.signum(lon);
+            final double signumLon = Math.signum(lon);
             if (signumLon > 0f) {
                 // position is in a region with positive longitudes, so cut negative longitudes from quad area
                 lonMax = 180.0f;
@@ -811,7 +804,7 @@ public class PixelGeoCoding extends AbstractGeoCoding {
         final boolean definitelyOutside = lat < latMin || lat > latMax || lon < lonMin || lon > lonMax;
         if (!definitelyOutside) {
             if (w == 2 && h == 2) {
-                final float f = (float) Math.cos(lat * D2R);
+                final double f = Math.cos(lat * D2R);
                 if (result.update(x1, y1, sqr(lat - lat0, f * (lon - lon0)))) {
                     pixelFound = true;
                 }
@@ -839,8 +832,8 @@ public class PixelGeoCoding extends AbstractGeoCoding {
         return pixelFound;
     }
 
-    static float getNegativeLonMax(float lon0, float lon1, float lon2, float lon3) {
-        float lonMax;
+    static double getNegativeLonMax(double lon0, double lon1, double lon2, double lon3) {
+        double lonMax;
         lonMax = -180.0f;
         if (lon0 < 0.0f) {
             lonMax = lon0;
@@ -857,8 +850,8 @@ public class PixelGeoCoding extends AbstractGeoCoding {
         return lonMax;
     }
 
-    static float getPositiveLonMin(float lon0, float lon1, float lon2, float lon3) {
-        float lonMin;
+    static double getPositiveLonMin(double lon0, double lon1, double lon2, double lon3) {
+        double lonMin;
         lonMin = 180.0f;
         if (lon0 >= 0.0f) {
             lonMin = lon0;
@@ -875,13 +868,13 @@ public class PixelGeoCoding extends AbstractGeoCoding {
         return lonMin;
     }
 
-    static boolean isCrossingMeridianInsideQuad(boolean crossingMeridianInsideProduct, float lon0, float lon1,
-                                                float lon2, float lon3) {
+    static boolean isCrossingMeridianInsideQuad(boolean crossingMeridianInsideProduct, double lon0, double lon1,
+                                                double lon2, double lon3) {
         if (!crossingMeridianInsideProduct) {
             return false;
         }
-        float lonMin = min(lon0, min(lon1, min(lon2, lon3)));
-        float lonMax = max(lon0, max(lon1, max(lon2, lon3)));
+        double lonMin = min(lon0, min(lon1, min(lon2, lon3)));
+        double lonMax = max(lon0, max(lon1, max(lon2, lon3)));
 
         return Math.abs(lonMax - lonMin) > 180.0;
     }
@@ -891,19 +884,19 @@ public class PixelGeoCoding extends AbstractGeoCoding {
             final int x = latLonImage.getMinX() + pixelX;
             final int y = latLonImage.getMinY() + pixelY;
             Raster data = latLonImage.getData(new Rectangle(x, y, 1, 1));
-            float lat = data.getSampleFloat(x, y, 0);
-            float lon = data.getSampleFloat(x, y, 1);
+            double lat = data.getSampleDouble(x, y, 0);
+            double lon = data.getSampleDouble(x, y, 1);
             geoPos.setLocation(lat, lon);
         } else {
             int i = rasterWidth * pixelY + pixelX;
-            final float lat = latGrid.getRasterData().getElemFloatAt(i);
-            final float lon = lonGrid.getRasterData().getElemFloatAt(i);
+            final double lat = latGrid.getRasterData().getElemDoubleAt(i);
+            final double lon = lonGrid.getRasterData().getElemDoubleAt(i);
             geoPos.setLocation(lat, lon);
         }
     }
 
     private boolean quadTreeRecursion(final int depth,
-                                      final float lat, final float lon,
+                                      final double lat, final double lon,
                                       final int i, final int j,
                                       final int w, final int h,
                                       final Result result) {
@@ -931,15 +924,15 @@ public class PixelGeoCoding extends AbstractGeoCoding {
     }
 
 
-    private static float min(final float a, final float b) {
+    private static double min(final double a, final double b) {
         return (a <= b) ? a : b;
     }
 
-    private static float max(final float a, final float b) {
+    private static double max(final double a, final double b) {
         return (a >= b) ? a : b;
     }
 
-    private static float sqr(final float dx, final float dy) {
+    private static double sqr(final double dx, final double dy) {
         return dx * dx + dy * dy;
     }
 
@@ -950,8 +943,8 @@ public class PixelGeoCoding extends AbstractGeoCoding {
      * @return the difference between 0 and 180 degrees
      */
 
-    private static float lonDiff(float a1, float a2) {
-        float d = a1 - a2;
+    private static double lonDiff(double a1, double a2) {
+        double d = a1 - a2;
         if (d < 0.0f) {
             d = -d;
         }
@@ -963,8 +956,8 @@ public class PixelGeoCoding extends AbstractGeoCoding {
 
     // todo - (nf) do not delete this method, it could be used later, if we want to determine x,y fractions
 
-    private static boolean getPixelPos(final float lat, final float lon,
-                                       final float[] lata, final float[] lona,
+    private static boolean getPixelPos(final double lat, final double lon,
+                                       final double[] lata, final double[] lona,
                                        final int[] xa, final int[] ya,
                                        final PixelPos pixelPos) {
         final Matrix mA = new Matrix(3, 3);
@@ -1011,8 +1004,8 @@ public class PixelGeoCoding extends AbstractGeoCoding {
         }
 
 
-        final float fx = (float) (mX.get(0, 0) + mX.get(1, 0) * lat + mX.get(2, 0) * lon);
-        final float fy = (float) (mY.get(0, 0) + mY.get(1, 0) * lat + mY.get(2, 0) * lon);
+        final double fx = (mX.get(0, 0) + mX.get(1, 0) * lat + mX.get(2, 0) * lon);
+        final double fy = (mY.get(0, 0) + mY.get(1, 0) * lat + mY.get(2, 0) * lon);
 
         pixelPos.setLocation(fx, fy);
         return true;
@@ -1171,8 +1164,8 @@ public class PixelGeoCoding extends AbstractGeoCoding {
         private PixelGrid(final Product p,
                           final String name,
                           final int gridWidth, final int gridHeight,
-                          final float offsetX, final float offsetY,
-                          final float subSamplingX, final float subSamplingY,
+                          final double offsetX, final double offsetY,
+                          final double subSamplingX, final double subSamplingY,
                           final float[] tiePoints) {
             super(name, gridWidth, gridHeight, offsetX, offsetY, subSamplingX, subSamplingY, tiePoints, false);
             // make this grid a component of the product without actually adding it to the product
@@ -1194,13 +1187,13 @@ public class PixelGeoCoding extends AbstractGeoCoding {
 
         private int x;
         private int y;
-        private float delta;
+        private double delta;
 
         private Result() {
             delta = INVALID;
         }
 
-        public final boolean update(final int x, final int y, final float delta) {
+        public final boolean update(final int x, final int y, final double delta) {
             final boolean b = delta < this.delta;
             if (b) {
                 this.x = x;
@@ -1341,14 +1334,14 @@ public class PixelGeoCoding extends AbstractGeoCoding {
             int dLineStride = destAcc.getScanlineStride();
             int dPixelStride = destAcc.getPixelStride();
             int[] dBandOffsets = destAcc.getBandOffsets();
-            float[][] dData = destAcc.getFloatDataArrays();
+            double[][] dData = destAcc.getDoubleDataArrays();
 
             double[] lat = latData[0];
             double[] lon = lonData[0];
             @SuppressWarnings({"MismatchedReadAndWriteOfArray"})
-            float[] dLat = dData[0];
+            double[] dLat = dData[0];
             @SuppressWarnings({"MismatchedReadAndWriteOfArray"})
-            float[] dLon = dData[1];
+            double[] dLon = dData[1];
 
             int sLatLineOffset = sLatBandOffsets[0];
             int sLonLineOffset = sLonBandOffsets[0];
@@ -1381,8 +1374,8 @@ public class PixelGeoCoding extends AbstractGeoCoding {
                         dLat[dLatPixelOffset] = geoPos.lat;
                         dLon[dLonPixelOffset] = geoPos.lon;
                     } else {
-                        dLat[dLatPixelOffset] = (float) lat[sLatPixelOffset];
-                        dLon[dLonPixelOffset] = (float) lon[sLonPixelOffset];
+                        dLat[dLatPixelOffset] = lat[sLatPixelOffset];
+                        dLon[dLonPixelOffset] = lon[sLonPixelOffset];
                     }
 
                     sLatPixelOffset += latPixelStride;
@@ -1460,8 +1453,8 @@ public class PixelGeoCoding extends AbstractGeoCoding {
                         int y0 = y + destRect.y;
                         pixelPos.setLocation(x0, y0);
                         estimator.getGeoPos(pixelPos, geoPos);
-                        dLat[dLatPixelOffset] = geoPos.lat;
-                        dLon[dLonPixelOffset] = geoPos.lon;
+                        dLat[dLatPixelOffset] = (float)geoPos.lat;
+                        dLon[dLonPixelOffset] = (float)geoPos.lon;
                     } else {
                         dLat[dLatPixelOffset] = lat[sLatPixelOffset];
                         dLon[dLonPixelOffset] = lon[sLonPixelOffset];

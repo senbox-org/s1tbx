@@ -320,8 +320,8 @@ public class SRGROp extends Operator {
     private void getNearRangeIncidenceAngle() {
 
         final TiePointGrid incidenceAngle = OperatorUtils.getIncidenceAngle(sourceProduct);
-        final double alphaFirst = incidenceAngle.getPixelFloat(0.5f, 0.5f);
-        final double alphaLast = incidenceAngle.getPixelFloat(sourceImageWidth - 0.5f, 0.5f);
+        final double alphaFirst = incidenceAngle.getPixelDouble(0.5f, 0.5f);
+        final double alphaLast = incidenceAngle.getPixelDouble(sourceImageWidth - 0.5f, 0.5f);
         if (alphaFirst <= alphaLast) {
             imageFlipped = false;
             nearRangeIncidenceAngle = alphaFirst;

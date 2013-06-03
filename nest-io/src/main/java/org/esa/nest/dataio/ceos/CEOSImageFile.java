@@ -104,7 +104,7 @@ public abstract class CEOSImageFile {
         }
     }
 
-    public float[] getLatCorners() {
+    public double[] getLatCorners() {
         try {
             final BinaryRecord imgRec0 = getImageRecord(0);
             final BinaryRecord imgRecN = getImageRecord(_imageRecords.length-1);
@@ -113,13 +113,13 @@ public abstract class CEOSImageFile {
             final float latUR = imgRec0.getAttributeInt("Last pixel latitude") / (float)Constants.oneMillion;
             final float latLL = imgRecN.getAttributeInt("First pixel latitude") / (float)Constants.oneMillion;
             final float latLR = imgRecN.getAttributeInt("Last pixel latitude") / (float)Constants.oneMillion;
-            return new float[]{latUL, latUR, latLL, latLR};
+            return new double[]{latUL, latUR, latLL, latLR};
         } catch(Throwable e) {
             return null;
         }
     }
 
-    public float[] getLonCorners() {
+    public double[] getLonCorners() {
         try {
             final BinaryRecord imgRec0 = getImageRecord(0);
             final BinaryRecord imgRecN = getImageRecord(_imageRecords.length-1);
@@ -128,7 +128,7 @@ public abstract class CEOSImageFile {
             final float lonUR = imgRec0.getAttributeInt("Last pixel longitude") / (float)Constants.oneMillion;
             final float lonLL = imgRecN.getAttributeInt("First pixel longitude") / (float)Constants.oneMillion;
             final float lonLR = imgRecN.getAttributeInt("Last pixel longitude") / (float)Constants.oneMillion;
-            return new float[]{lonUL, lonUR, lonLL, lonLR};
+            return new double[]{lonUL, lonUR, lonLL, lonLR};
         } catch(Throwable e) {
             return null;
         }

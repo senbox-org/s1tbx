@@ -317,7 +317,7 @@ public class Placemark extends ProductNode {
 
     private void updateDefaultGeometryAttribute(PixelPos pixelPos) {
         final Product product = getProduct();
-        final Point2D.Float geometryPoint = new Point2D.Float(pixelPos.x, pixelPos.y);
+        final Point2D.Double geometryPoint = new Point2D.Double(pixelPos.x, pixelPos.y);
         if (product != null) {
             final AffineTransform i2m = ImageManager.getImageToModelTransform(product.getGeoCoding());
             i2m.transform(pixelPos, geometryPoint);

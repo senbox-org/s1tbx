@@ -760,7 +760,7 @@ class ScatterPlotPanel extends ChartPagePanel {
                         geoPos.setInvalid();
                     }
                     computedDataList.add(
-                            new ComputedData(imagePosX, imagePosY, geoPos.getLat(), geoPos.getLon(), (float) rasterMean,
+                            new ComputedData(imagePosX, imagePosY, (float)geoPos.getLat(), (float)geoPos.getLon(), (float) rasterMean,
                                              (float) rasterSigma, correlativeData, featureProperties));
                 }
 

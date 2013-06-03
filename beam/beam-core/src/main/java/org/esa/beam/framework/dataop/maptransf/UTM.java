@@ -134,7 +134,7 @@ public class UTM {
      * @return a suitable UTM projection
      */
     public static MapProjection getSuitableProjection(final GeoPos geoPos) {
-        int zoneIndex = getZoneIndex(geoPos.getLon());
+        int zoneIndex = getZoneIndex((float)geoPos.getLon());
         final boolean south = geoPos.getLat() < 0.0;
         final String projName = getProjectionName(zoneIndex, south);
         MapProjection projection = MapProjectionRegistry.getProjection(projName);

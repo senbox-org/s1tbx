@@ -49,11 +49,18 @@ public class SARSimulationOpUI extends BaseOperatorUI {
     private final JLabel externalDEMNoDataValueLabel = new JLabel("DEM No Data Value:");
     private final JCheckBox reGridMethodCheckBox = new JCheckBox("Re-grid method (slower)");
     private final JCheckBox orbitMethodCheckBox = new JCheckBox("Orbit method");
-    private final JCheckBox saveLayoverShadowMaskCheckBox = new JCheckBox("Save Layover-Shadow Mask as band");
+    private final JCheckBox saveDEMCheckBox = new JCheckBox("Save DEM band");
+    private final JCheckBox saveZeroHeightSimulationCheckBox = new JCheckBox("Save Zero Height Simulation");
+    private final JCheckBox saveLocalIncidenceAngleCheckBox = new JCheckBox("Save Simulated Local Incidence Angle");
+    private final JCheckBox saveLayoverShadowMaskCheckBox = new JCheckBox("Save Layover-Shadow Mask");
 
-    private boolean saveLayoverShadowMask = false;
+    private boolean isSARSimTC = false;
     private boolean reGridMethod = false;
     private boolean orbitMethod = false;
+    private boolean saveDEM = false;
+    private boolean saveZeroHeightSimulation = false;
+    private boolean saveLocalIncidenceAngle = false;
+    private boolean saveLayoverShadowMask = false;
     private Double extNoDataValue = 0.0;
 
     private final DialogUtils.TextAreaKeyListener textAreaKeyListener = new DialogUtils.TextAreaKeyListener();
@@ -102,6 +109,21 @@ public class SARSimulationOpUI extends BaseOperatorUI {
                 orbitMethod = (e.getStateChange() == ItemEvent.SELECTED);
             }
         });
+        saveDEMCheckBox.addItemListener(new ItemListener() {
+            public void itemStateChanged(ItemEvent e) {
+                saveDEM = (e.getStateChange() == ItemEvent.SELECTED);
+            }
+        });
+        saveZeroHeightSimulationCheckBox.addItemListener(new ItemListener() {
+            public void itemStateChanged(ItemEvent e) {
+                saveZeroHeightSimulation = (e.getStateChange() == ItemEvent.SELECTED);
+            }
+        });
+        saveLocalIncidenceAngleCheckBox.addItemListener(new ItemListener() {
+            public void itemStateChanged(ItemEvent e) {
+                saveLocalIncidenceAngle = (e.getStateChange() == ItemEvent.SELECTED);
+            }
+        });
         saveLayoverShadowMaskCheckBox.addItemListener(new ItemListener() {
                 public void itemStateChanged(ItemEvent e) {
                     saveLayoverShadowMask = (e.getStateChange() == ItemEvent.SELECTED);
@@ -130,14 +152,28 @@ public class SARSimulationOpUI extends BaseOperatorUI {
             }
         }
 
-        reGridMethod = (Boolean)paramMap.get("reGridMethod");
-        reGridMethodCheckBox.setSelected(reGridMethod);
+        isSARSimTC = (Boolean)paramMap.get("isSARSimTC");
 
-        orbitMethod = (Boolean)paramMap.get("orbitMethod");
-        orbitMethodCheckBox.setSelected(orbitMethod);
+        if(!isSARSimTC) {
+            reGridMethod = (Boolean)paramMap.get("reGridMethod");
+            reGridMethodCheckBox.setSelected(reGridMethod);
 
+            orbitMethod = (Boolean)paramMap.get("orbitMethod");
+            orbitMethodCheckBox.setSelected(orbitMethod);
+
+            saveDEM = (Boolean)paramMap.get("saveDEM");
+            saveDEMCheckBox.setSelected(saveDEM);
+
+            saveZeroHeightSimulation = (Boolean)paramMap.get("saveZeroHeightSimulation");
+            saveZeroHeightSimulationCheckBox.setSelected(saveZeroHeightSimulation);
+
+            saveLocalIncidenceAngle = (Boolean)paramMap.get("saveLocalIncidenceAngle");
+            saveLocalIncidenceAngleCheckBox.setSelected(saveLocalIncidenceAngle);
+        }
         saveLayoverShadowMask = (Boolean)paramMap.get("saveLayoverShadowMask");
         saveLayoverShadowMaskCheckBox.setSelected(saveLayoverShadowMask);
+
+        enableExtraOptions(!isSARSimTC);
     }
 
     @Override
@@ -160,8 +196,13 @@ public class SARSimulationOpUI extends BaseOperatorUI {
             paramMap.put("externalDEMNoDataValue", Double.parseDouble(externalDEMNoDataValue.getText()));
         }
 
-        paramMap.put("reGridMethod", reGridMethod);
-        paramMap.put("orbitMethod", orbitMethod);
+        if(!isSARSimTC) {
+            paramMap.put("reGridMethod", reGridMethod);
+            paramMap.put("orbitMethod", orbitMethod);
+            paramMap.put("saveDEM", saveDEM);
+            paramMap.put("saveZeroHeightSimulation", saveZeroHeightSimulation);
+            paramMap.put("saveLocalIncidenceAngle", saveLocalIncidenceAngle);
+        }
         paramMap.put("saveLayoverShadowMask", saveLayoverShadowMask);
     }
 
@@ -188,15 +229,31 @@ public class SARSimulationOpUI extends BaseOperatorUI {
         DialogUtils.addComponent(contentPane, gbc, "DEM Resampling Method:", demResamplingMethod);
 
         gbc.gridx = 0;
-        gbc.gridy++;
-        contentPane.add(reGridMethodCheckBox, gbc);
-        gbc.gridy++;
-        contentPane.add(orbitMethodCheckBox, gbc);
+        if(!isSARSimTC) {
+            gbc.gridy++;
+            contentPane.add(reGridMethodCheckBox, gbc);
+            gbc.gridy++;
+            contentPane.add(orbitMethodCheckBox, gbc);
+            gbc.gridy++;
+            contentPane.add(saveDEMCheckBox, gbc);
+            gbc.gridy++;
+            contentPane.add(saveZeroHeightSimulationCheckBox, gbc);
+            gbc.gridy++;
+            contentPane.add(saveLocalIncidenceAngleCheckBox, gbc);
+        }
         gbc.gridy++;
         contentPane.add(saveLayoverShadowMaskCheckBox, gbc);
         DialogUtils.fillPanel(contentPane, gbc);
 
         return contentPane;
+    }
+
+    private void enableExtraOptions(boolean flag) {
+        reGridMethodCheckBox.setVisible(flag);
+        orbitMethodCheckBox.setVisible(flag);
+        saveDEMCheckBox.setVisible(flag);
+        saveZeroHeightSimulationCheckBox.setVisible(flag);
+        saveLocalIncidenceAngleCheckBox.setVisible(flag);
     }
 
     private void enableExternalDEM(boolean flag) {

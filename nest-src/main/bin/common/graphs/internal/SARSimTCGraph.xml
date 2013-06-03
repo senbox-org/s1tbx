@@ -17,11 +17,15 @@
         <band>Amplitude</band>
       </sourceBands>
       <demName>SRTM 3Sec</demName>
-      <demResamplingMethod>BILINEAR_INTERPOLATION</demResamplingMethod>
+      <demResamplingMethod>BICUBIC_INTERPOLATION</demResamplingMethod>
       <externalDEMFile/>
       <externalDEMNoDataValue>0.0</externalDEMNoDataValue>
+	  <isSARSimTC>true</isSARSimTC>
 	  <reGridMethod>false</reGridMethod>
 	  <orbitMethod>false</orbitMethod>
+	  <saveDEM>false</saveDEM>
+	  <saveZeroHeightSimulation>false</saveZeroHeightSimulation>
+	  <saveLocalIncidenceAngle>false</saveLocalIncidenceAngle>
       <saveLayoverShadowMask>false</saveLayoverShadowMask>
     </parameters>
   </node>
@@ -31,21 +35,21 @@
       <sourceProduct refid="2-SAR-Simulation"/>
     </sources>
     <parameters>
-      <numGCPtoGenerate>200</numGCPtoGenerate>
-      <coarseRegistrationWindowWidth>128</coarseRegistrationWindowWidth>
-      <coarseRegistrationWindowHeight>128</coarseRegistrationWindowHeight>
+      <numGCPtoGenerate>2000</numGCPtoGenerate>
+      <coarseRegistrationWindowWidth>64</coarseRegistrationWindowWidth>
+      <coarseRegistrationWindowHeight>64</coarseRegistrationWindowHeight>
       <rowInterpFactor>2</rowInterpFactor>
       <columnInterpFactor>2</columnInterpFactor>
       <maxIteration>2</maxIteration>
       <gcpTolerance>0.5</gcpTolerance>
       <applyFineRegistration>false</applyFineRegistration>
-      <fineRegistrationWindowWidth>128</fineRegistrationWindowWidth>
-      <fineRegistrationWindowHeight>128</fineRegistrationWindowHeight>
+      <fineRegistrationWindowWidth>32</fineRegistrationWindowWidth>
+      <fineRegistrationWindowHeight>32</fineRegistrationWindowHeight>
       <coherenceWindowSize>3</coherenceWindowSize>
       <coherenceThreshold>0.6</coherenceThreshold>
       <useSlidingWindow>false</useSlidingWindow>
       <computeOffset>false</computeOffset>
-	  <onlyGCPsOnLand>false</onlyGCPsOnLand>
+	  <onlyGCPsOnLand>true</onlyGCPsOnLand>
     </parameters>
   </node>
   <node id="4-SARSim-Terrain-Correction">

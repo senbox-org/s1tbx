@@ -17,8 +17,6 @@
 package org.esa.beam.framework.dataop.resamp;
 
 
-import javax.vecmath.Color4b;
-
 final class CubicConvolutionResampling implements Resampling {
 
     public String getName() {
@@ -111,7 +109,27 @@ final class CubicConvolutionResampling implements Resampling {
             y[i] = (int)index.j[i];
         }
         if(!raster.getSamples(x, y, samples)) {
-            return samples[1][1];
+            if (Double.isNaN(samples[1][1])) {
+                return samples[1][1];
+            }
+            double mean = 0.0;
+            int k = 0;
+            for (int i = 0; i < 4; i++) {
+                for (int j = 0; j < 4; j++) {
+                    if (!Double.isNaN(samples[i][j])) {
+                        mean += samples[i][j];
+                        k++;
+                    }
+                }
+            }
+            mean /= k;
+            for (int i = 0; i < 4; i++) {
+                for (int j = 0; j < 4; j++) {
+                    if (Double.isNaN(samples[i][j])) {
+                        samples[i][j] = mean;
+                    }
+                }
+            }
         }
 
         final double muX = index.ki[0];

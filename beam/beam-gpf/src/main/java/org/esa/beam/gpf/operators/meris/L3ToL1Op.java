@@ -135,7 +135,7 @@ public class L3ToL1Op extends MerisBasisOp {
     private Rectangle findL3Rectangle(Rectangle l1Rectangle, Band srcBand) {
         PixelPos bottomLeft = new PixelPos(l1Rectangle.x, l1Rectangle.y);
         PixelPos l3PixelPos = l3GeoCoding.getPixelPos(l1GeoCoding.getGeoPos(bottomLeft, null), null);
-        Rectangle l3Rectangle = new Rectangle(Math.round(l3PixelPos.x), Math.round(l3PixelPos.y), 1, 1);
+        Rectangle l3Rectangle = new Rectangle((int)Math.round(l3PixelPos.x), (int)Math.round(l3PixelPos.y), 1, 1);
 
         PixelPos bottomRight = new PixelPos(l1Rectangle.x + l1Rectangle.width, l1Rectangle.y);
         l3PixelPos = l3GeoCoding.getPixelPos(l1GeoCoding.getGeoPos(bottomRight, null), l3PixelPos);

@@ -132,7 +132,7 @@ public abstract class CEOSProductDirectory {
                 final double angle2 = facility.getAttributeDouble("Incidence angle at centre range pixel");
                 final double angle3 = facility.getAttributeDouble("Incidence angle at last valid range pixel");
 
-                final float[] angles = new float[]{(float)angle1, (float)angle2, (float)angle3};
+                final double[] angles = new double[]{(float)angle1, (float)angle2, (float)angle3};
                 final float[] fineAngles = new float[gridWidth*gridHeight];
 
                 ReaderUtils.createFineTiePointGrid(3, 1, gridWidth, gridHeight, angles, fineAngles);
@@ -146,11 +146,11 @@ public abstract class CEOSProductDirectory {
             // add slant range time tie point grid
             if(scene != null) {
 
-                final double time1 = scene.getAttributeDouble("Zero-doppler range time of first range pixel")*1000000; // ms to ns
-                final double time2 = scene.getAttributeDouble("Zero-doppler range time of centre range pixel")*1000000; // ms to ns
-                final double time3 = scene.getAttributeDouble("Zero-doppler range time of last range pixel")*1000000; // ms to ns
+                final double time1 = scene.getAttributeDouble("Zero-doppler range time of first range pixel")*Constants.oneMillion; // ms to ns
+                final double time2 = scene.getAttributeDouble("Zero-doppler range time of centre range pixel")*Constants.oneMillion; // ms to ns
+                final double time3 = scene.getAttributeDouble("Zero-doppler range time of last range pixel")*Constants.oneMillion; // ms to ns
 
-                final float[] times = new float[]{(float)time1, (float)time2, (float)time3};
+                final double[] times = new double[]{(float)time1, (float)time2, (float)time3};
                 final float[] fineTimes = new float[gridWidth*gridHeight];
 
                 ReaderUtils.createFineTiePointGrid(3, 1, gridWidth, gridHeight, times, fineTimes);

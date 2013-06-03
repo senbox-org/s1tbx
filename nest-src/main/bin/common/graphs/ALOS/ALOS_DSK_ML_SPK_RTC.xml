@@ -51,9 +51,15 @@
     <parameters class="com.bc.ceres.binding.dom.XppDomElement">
       <sourceBands/>
       <demName>SRTM 3Sec</demName>
-      <demResamplingMethod>BILINEAR_INTERPOLATION</demResamplingMethod>
+      <demResamplingMethod>BICUBIC_INTERPOLATION</demResamplingMethod>
       <externalDEMFile/>
       <externalDEMNoDataValue>0.0</externalDEMNoDataValue>
+      <isSARSimTC>true</isSARSimTC>
+	  <reGridMethod>false</reGridMethod>
+	  <orbitMethod>false</orbitMethod>
+	  <saveDEM>false</saveDEM>
+	  <saveZeroHeightSimulation>false</saveZeroHeightSimulation>
+	  <saveLocalIncidenceAngle>false</saveLocalIncidenceAngle>
       <saveLayoverShadowMask>false</saveLayoverShadowMask>
     </parameters>
   </node>
@@ -63,7 +69,7 @@
       <sourceProduct refid="5-SAR-Simulation"/>
     </sources>
     <parameters class="com.bc.ceres.binding.dom.XppDomElement">
-      <numGCPtoGenerate>800</numGCPtoGenerate>
+      <numGCPtoGenerate>2000</numGCPtoGenerate>
       <coarseRegistrationWindowWidth>512</coarseRegistrationWindowWidth>
       <coarseRegistrationWindowHeight>512</coarseRegistrationWindowHeight>
       <rowInterpFactor>2</rowInterpFactor>
@@ -77,6 +83,7 @@
       <coherenceThreshold>0.6</coherenceThreshold>
       <useSlidingWindow>false</useSlidingWindow>
       <computeOffset>true</computeOffset>
+	  <onlyGCPsOnLand>true</onlyGCPsOnLand>
     </parameters>
   </node>
   <node id="7-SARSim-Terrain-Correction">

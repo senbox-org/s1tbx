@@ -53,8 +53,8 @@ public class PinTableModel extends AbstractPlacemarkTableModel {
         Assert.notNull(getProduct());
         final Placemark placemark = getPlacemarkDescriptor().getPlacemarkGroup(getProduct()).get(rowIndex);
 
-        float x = Float.NaN;
-        float y = Float.NaN;
+        double x = Float.NaN;
+        double y = Float.NaN;
 
         final PixelPos pixelPos = placemark.getPixelPos();
         if (pixelPos != null) {
@@ -62,8 +62,8 @@ public class PinTableModel extends AbstractPlacemarkTableModel {
             y = pixelPos.y;
         }
 
-        float lon = Float.NaN;
-        float lat = Float.NaN;
+        double lon = Float.NaN;
+        double lat = Float.NaN;
 
         final GeoPos geoPos = placemark.getGeoPos();
         if (geoPos != null) {

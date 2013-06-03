@@ -202,9 +202,9 @@ public final class Sentinel1DeburstTOPSAROp extends Operator {
         subSwath.lastLineTime = Sentinel1Utils.getTime(imageInformation, "productLastLineUtcTime").getMJD();
         subSwath.numOfSamples = imageInformation.getAttributeInt("numberOfSamples");
         subSwath.numOfLines = imageInformation.getAttributeInt("numberOfLines");
-        subSwath.azimuthTimeInterval = imageInformation.getAttributeDouble("azimuthTimeInterval")/86400; // s to day
+        subSwath.azimuthTimeInterval = imageInformation.getAttributeDouble("azimuthTimeInterval")/Constants.secondsInDay; // s to day
         subSwath.rangePixelSpacing = imageInformation.getAttributeDouble("rangePixelSpacing");
-        subSwath.slrTimeToFirstPixel = imageInformation.getAttributeDouble("slantRangeTime")/2; // 2-way to 1-way
+        subSwath.slrTimeToFirstPixel = imageInformation.getAttributeDouble("slantRangeTime")/2.0; // 2-way to 1-way
         subSwath.slrTimeToLastPixel = subSwath.slrTimeToFirstPixel +
                 (subSwath.numOfSamples - 1)*subSwath.rangePixelSpacing/Constants.lightSpeed;
 
@@ -259,7 +259,7 @@ public final class Sentinel1DeburstTOPSAROp extends Operator {
             final int i = k / numOfGeoPointsPerLine;
             final int j = k - i*numOfGeoPointsPerLine;
             subSwath.azimuthTime[i][j] = Sentinel1Utils.getTime(listElem, "azimuthTime").getMJD();
-            subSwath.slantRangeTime[i][j] = listElem.getAttributeDouble("slantRangeTime")/2;
+            subSwath.slantRangeTime[i][j] = listElem.getAttributeDouble("slantRangeTime")/2.0;
             subSwath.latitude[i][j] = listElem.getAttributeDouble("latitude");
             subSwath.longitude[i][j] = listElem.getAttributeDouble("longitude");
             subSwath.incidenceAngle[i][j] = listElem.getAttributeDouble("incidenceAngle");
@@ -432,15 +432,15 @@ public final class Sentinel1DeburstTOPSAROp extends Operator {
         TiePointGrid latGrid = targetProduct.getTiePointGrid(OperatorUtils.TPG_LATITUDE);
         TiePointGrid lonGrid = targetProduct.getTiePointGrid(OperatorUtils.TPG_LONGITUDE);
 
-        AbstractMetadata.setAttribute(absTgt, AbstractMetadata.first_near_lat, latGrid.getPixelFloat(0, 0));
-        AbstractMetadata.setAttribute(absTgt, AbstractMetadata.first_near_long, lonGrid.getPixelFloat(0, 0));
-        AbstractMetadata.setAttribute(absTgt, AbstractMetadata.first_far_lat, latGrid.getPixelFloat(targetWidth, 0));
-        AbstractMetadata.setAttribute(absTgt, AbstractMetadata.first_far_long, lonGrid.getPixelFloat(targetWidth, 0));
+        AbstractMetadata.setAttribute(absTgt, AbstractMetadata.first_near_lat, latGrid.getPixelDouble(0, 0));
+        AbstractMetadata.setAttribute(absTgt, AbstractMetadata.first_near_long, lonGrid.getPixelDouble(0, 0));
+        AbstractMetadata.setAttribute(absTgt, AbstractMetadata.first_far_lat, latGrid.getPixelDouble(targetWidth, 0));
+        AbstractMetadata.setAttribute(absTgt, AbstractMetadata.first_far_long, lonGrid.getPixelDouble(targetWidth, 0));
 
-        AbstractMetadata.setAttribute(absTgt, AbstractMetadata.last_near_lat, latGrid.getPixelFloat(0, targetHeight));
-        AbstractMetadata.setAttribute(absTgt, AbstractMetadata.last_near_long, lonGrid.getPixelFloat(0, targetHeight));
-        AbstractMetadata.setAttribute(absTgt, AbstractMetadata.last_far_lat, latGrid.getPixelFloat(targetWidth, targetHeight));
-        AbstractMetadata.setAttribute(absTgt, AbstractMetadata.last_far_long, lonGrid.getPixelFloat(targetWidth, targetHeight));
+        AbstractMetadata.setAttribute(absTgt, AbstractMetadata.last_near_lat, latGrid.getPixelDouble(0, targetHeight));
+        AbstractMetadata.setAttribute(absTgt, AbstractMetadata.last_near_long, lonGrid.getPixelDouble(0, targetHeight));
+        AbstractMetadata.setAttribute(absTgt, AbstractMetadata.last_far_lat, latGrid.getPixelDouble(targetWidth, targetHeight));
+        AbstractMetadata.setAttribute(absTgt, AbstractMetadata.last_far_long, lonGrid.getPixelDouble(targetWidth, targetHeight));
     }
 
     private int getSubSwathIndex(final double slrTime) {

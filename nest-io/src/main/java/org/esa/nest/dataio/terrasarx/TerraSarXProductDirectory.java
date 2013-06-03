@@ -45,10 +45,10 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
     private String productType = "TerraSar-X";
     private String productDescription = "";
 
-    private final float[] latCorners = new float[4];
-    private final float[] lonCorners = new float[4];
-    private final float[] slantRangeCorners = new float[4];
-    private final float[] incidenceCorners = new float[4];
+    private final double[] latCorners = new double[4];
+    private final double[] lonCorners = new double[4];
+    private final double[] slantRangeCorners = new double[4];
+    private final double[] incidenceCorners = new double[4];
 
     private final List<File> cosarFileList = new ArrayList<File>(1);
     private final Map<String, ImageInputStream> cosarBandMap = new HashMap<String, ImageInputStream>(1);
@@ -222,7 +222,7 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
         }
 
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.slant_range_to_first_pixel,
-                (Math.min(slantRangeCorners[0], slantRangeCorners[2]) / 1000000000.0) * Constants.halfLightSpeed);
+                (Math.min(slantRangeCorners[0], slantRangeCorners[2]) / Constants.oneBillion) * Constants.halfLightSpeed);
         // Note: Here we use the minimum of the slant range times of two corners because the original way cause
         //       problem for stripmap product when the two slant range times are different.
 
@@ -310,10 +310,10 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
                 final int refCol = child.getAttributeInt("refColumn", 0);
 
                 coordList.add( new CornerCoord(refRow, refCol,
-                                                (float)child.getAttributeDouble("lat", 0),
-                                                (float)child.getAttributeDouble("lon", 0),
-                                                (float)child.getAttributeDouble("rangeTime", 0) * 1000000000f,
-                                                (float)child.getAttributeDouble("incidenceAngle", 0)) );
+                                               child.getAttributeDouble("lat", 0),
+                                               child.getAttributeDouble("lon", 0),
+                                               child.getAttributeDouble("rangeTime", 0) * Constants.oneBillion,
+                                               child.getAttributeDouble("incidenceAngle", 0)) );
 
                 if(refRow > maxRow) maxRow = refRow;
                 if(refCol > maxCol) maxCol = refCol;
@@ -326,15 +326,15 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
         if(minRow == maxRow && minCol == maxCol && geocodedImageInfo != null) {
             final MetadataElement geoParameter = geocodedImageInfo.getElement("geoParameter");
             final MetadataElement sceneCoordsGeographic = geoParameter.getElement("sceneCoordsGeographic");
-            final float latUL = (float)sceneCoordsGeographic.getAttributeDouble("upperLeftLatitude", 0);
-            final float latUR = (float)sceneCoordsGeographic.getAttributeDouble("upperRightLatitude", 0);
-            final float latLL = (float)sceneCoordsGeographic.getAttributeDouble("lowerLeftLatitude", 0);
-            final float latLR = (float)sceneCoordsGeographic.getAttributeDouble("lowerRightLatitude", 0);
+            final double latUL = sceneCoordsGeographic.getAttributeDouble("upperLeftLatitude", 0);
+            final double latUR = sceneCoordsGeographic.getAttributeDouble("upperRightLatitude", 0);
+            final double latLL = sceneCoordsGeographic.getAttributeDouble("lowerLeftLatitude", 0);
+            final double latLR = sceneCoordsGeographic.getAttributeDouble("lowerRightLatitude", 0);
 
-            final float lonUL = (float)sceneCoordsGeographic.getAttributeDouble("upperLeftLongitude", 0);
-            final float lonUR = (float)sceneCoordsGeographic.getAttributeDouble("upperRightLongitude", 0);
-            final float lonLL = (float)sceneCoordsGeographic.getAttributeDouble("lowerLeftLongitude", 0);
-            final float lonLR = (float)sceneCoordsGeographic.getAttributeDouble("lowerRightLongitude", 0);
+            final double lonUL = sceneCoordsGeographic.getAttributeDouble("upperLeftLongitude", 0);
+            final double lonUR = sceneCoordsGeographic.getAttributeDouble("upperRightLongitude", 0);
+            final double lonLL = sceneCoordsGeographic.getAttributeDouble("lowerLeftLongitude", 0);
+            final double lonLR = sceneCoordsGeographic.getAttributeDouble("lowerRightLongitude", 0);
 
             int k = 0;
             final double e = 1e-3;
@@ -418,8 +418,8 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
         final File georefFile = new File(getBaseDir(), "ANNOTATION"+File.separator+"GEOREF.xml");
         if(georefFile.exists()) {
             try {
-                readGeoRef(product, georefFile);
-                return;
+                //readGeoRef(product, georefFile);
+                //return;
             } catch(Exception e) {
                 //
             }
@@ -428,7 +428,7 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
         ReaderUtils.addGeoCoding(product, latCorners, lonCorners);
     }
 
-    private void readGeoRef(final Product product, final File georefFile) throws IOException {
+    private static void readGeoRef(final Product product, final File georefFile) throws IOException {
         final org.jdom.Document xmlDoc = XMLSupport.LoadXML(georefFile.getAbsolutePath());
         final Element root = xmlDoc.getRootElement();
         final Element geoGrid = root.getChild("geolocationGrid");
@@ -446,6 +446,7 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
         final float[] latList = new float[size];
         final float[] lonList = new float[size];
         final float[] incList = new float[size];
+        final float[] tauList = new float[size];
 
         //final boolean flip = !isSLC();
 
@@ -465,13 +466,13 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
                 }
             }
             */
-            final Element tElem = pnt.getChild("t");
-            final double t = Double.parseDouble(tElem.getValue());
+            final Element tElem = pnt.getChild("tau");
+            tauList[index] = (float)(Double.parseDouble(tElem.getValue()));
 
             final Element latElem = pnt.getChild("lat");
-            latList[index] = Float.parseFloat(latElem.getValue());
+            latList[index] = (float)Double.parseDouble(latElem.getValue());
             final Element lonElem = pnt.getChild("lon");
-            lonList[index] = Float.parseFloat(lonElem.getValue());
+            lonList[index] = (float)Double.parseDouble(lonElem.getValue());
 
             int row = -1, col = -1;
             final Element rowElem = pnt.getChild("row");
@@ -484,21 +485,21 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
             }
 
             final Element incElem = pnt.getChild("inc");
-            incList[index] = Float.parseFloat(incElem.getValue());
+            incList[index] = (float)Double.parseDouble(incElem.getValue());
 
             ++i;
         }
 
         final int gridWidth = numRg;
         final int gridHeight = numAz;
-        float subSamplingX = (float)product.getSceneRasterWidth() / (gridWidth - 1);
-        float subSamplingY = (float)product.getSceneRasterHeight() / (gridHeight - 1);
+        final double subSamplingX = product.getSceneRasterWidth() / (double)(gridWidth - 1);
+        final double subSamplingY = product.getSceneRasterHeight() / (double)(gridHeight - 1);
 
-        final TiePointGrid latGrid = new TiePointGrid(OperatorUtils.TPG_LATITUDE, gridWidth, gridHeight, 0.5f, 0.5f,
+        final TiePointGrid latGrid = new TiePointGrid(OperatorUtils.TPG_LATITUDE, gridWidth, gridHeight, 0, 0,
                 subSamplingX, subSamplingY, latList);
         latGrid.setUnit(Unit.DEGREES);
 
-        final TiePointGrid lonGrid = new TiePointGrid(OperatorUtils.TPG_LONGITUDE, gridWidth, gridHeight, 0.5f, 0.5f,
+        final TiePointGrid lonGrid = new TiePointGrid(OperatorUtils.TPG_LONGITUDE, gridWidth, gridHeight, 0, 0,
                 subSamplingX, subSamplingY, lonList, TiePointGrid.DISCONT_AT_180);
         lonGrid.setUnit(Unit.DEGREES);
 
@@ -512,6 +513,11 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
                 subSamplingX, subSamplingY, incList);
         incidentAngleGrid.setUnit(Unit.DEGREES);
         product.addTiePointGrid(incidentAngleGrid);
+
+        final TiePointGrid tauGrid = new TiePointGrid("Tau", gridWidth, gridHeight, 0, 0,
+                subSamplingX, subSamplingY, tauList);
+        tauGrid.setUnit(Unit.NANOSECONDS);
+        product.addTiePointGrid(tauGrid);
     }
 
     @Override
@@ -519,8 +525,8 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
 
         final int gridWidth = 4;
         final int gridHeight = 4;
-        final float subSamplingX = (float)product.getSceneRasterWidth() / (float)(gridWidth - 1);
-        final float subSamplingY = (float)product.getSceneRasterHeight() / (float)(gridHeight - 1);
+        final double subSamplingX = (double)product.getSceneRasterWidth() / (double)(gridWidth - 1);
+        final double subSamplingY = (double)product.getSceneRasterHeight() / (double)(gridHeight - 1);
         if(subSamplingX == 0 || subSamplingY == 0)
             return;
 
@@ -708,7 +714,7 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
         // final double groundRangeRef = (groundRange[0] + groundRange[m]) / 2;
         final double groundRangeRef = 0.0; // set ground range ref to 0 because when g2sCoef are used in computing
                                            // slant range from ground range, the ground range origin is assumed to be 0
-        double[] deltaGroundRange = new double[m+1];
+        final double[] deltaGroundRange = new double[m+1];
         final double deltaMax = groundRange[m] - groundRangeRef;
         for (int i = 0; i <= m; i++) {
             deltaGroundRange[i] = (groundRange[i] - groundRangeRef) / deltaMax;
@@ -717,7 +723,7 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
         final Matrix G = org.esa.nest.util.MathUtils.createVandermondeMatrix(deltaGroundRange, m);
         final Matrix tau = new Matrix(sltRgTime, m+1);
         final Matrix s = G.solve(tau);
-        double[] g2sCoef = s.getColumnPackedCopy();
+        final double[] g2sCoef = s.getColumnPackedCopy();
 
         double tmp = 1;
         for (int i = 0; i <= m; i++) {
@@ -817,10 +823,10 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
 
     private static class CornerCoord {
         final int refRow, refCol;
-        final float lat, lon;
-        final float rangeTime, incidenceAngle;
+        final double lat, lon;
+        final double rangeTime, incidenceAngle;
 
-        CornerCoord(int row, int col, float lt, float ln, float range, float angle) {
+        CornerCoord(int row, int col, double lt, double ln, double range, double angle) {
             refRow = row; refCol = col;
             lat = lt; lon = ln;
             rangeTime = range; incidenceAngle = angle;

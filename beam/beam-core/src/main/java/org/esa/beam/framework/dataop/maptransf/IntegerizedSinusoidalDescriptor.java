@@ -155,8 +155,8 @@ public class IntegerizedSinusoidalDescriptor implements MapTransformDescriptor {
             final int col = (int)Math.floor(x + 0.5 * ncols);
             final int row = (int)Math.floor(y);
             _grid.rc2ll(row, col, _llTemp);
-            geoPoint.lon = (float) _llTemp.lon;
-            geoPoint.lat = (float) _llTemp.lat;
+            geoPoint.lon = _llTemp.lon;
+            geoPoint.lat = _llTemp.lat;
             return geoPoint;
         }
 

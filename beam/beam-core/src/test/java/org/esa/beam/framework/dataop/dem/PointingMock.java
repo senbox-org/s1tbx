@@ -51,7 +51,7 @@ class PointingMock implements Pointing {
 
     @Override
     public float getElevation(PixelPos pixelPos) {
-        return 6000 * pixelPos.y / OrthorectifierTest.SCENE_HEIGHT;
+        return (float)(6000 * pixelPos.y / OrthorectifierTest.SCENE_HEIGHT);
     }
 
     public boolean canGetGeoPos() {

@@ -213,7 +213,7 @@ public class OversamplingOp extends Operator {
     private void computeDopplerCentroidFreqForERSProd() {
 
         // get range sampling rate (in Hz)
-        final double samplingRate = abs.getAttributeDouble(AbstractMetadata.range_sampling_rate)*1000000; // MHz to Hz
+        final double samplingRate = abs.getAttributeDouble(AbstractMetadata.range_sampling_rate)*Constants.oneMillion; // MHz to Hz
 
         // Get coefficients of Doppler frequency polynomial from
         // fields 105, 106 and 107 in PRI Data Set Summary Record

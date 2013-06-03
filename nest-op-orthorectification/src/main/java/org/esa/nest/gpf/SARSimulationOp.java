@@ -29,6 +29,7 @@ import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
+import org.esa.beam.util.math.MathUtils;
 import org.esa.nest.dataio.dem.DEMFactory;
 import org.esa.nest.dataio.dem.FileElevationModel;
 import org.esa.nest.datamodel.AbstractMetadata;
@@ -37,13 +38,13 @@ import org.esa.nest.eo.Constants;
 import org.esa.nest.eo.GeoUtils;
 import org.esa.nest.eo.LocalGeometry;
 import org.esa.nest.eo.SARGeocoding;
+import org.jdoris.core.*;
+import org.jdoris.core.Point;
 
 import java.awt.*;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
 
 /**
  * This operator generates simulated SAR image using DEM, the Geocoding and orbit state vectors from a given
@@ -108,9 +109,9 @@ public final class SARSimulationOp extends Operator {
                            ResamplingFactory.CUBIC_CONVOLUTION_NAME,
                            ResamplingFactory.BICUBIC_INTERPOLATION_NAME,
                            ResamplingFactory.BISINC_INTERPOLATION_NAME},
-               defaultValue = ResamplingFactory.BILINEAR_INTERPOLATION_NAME,
+               defaultValue = ResamplingFactory.BICUBIC_INTERPOLATION_NAME,
                label="DEM Resampling Method")
-    private String demResamplingMethod = ResamplingFactory.BILINEAR_INTERPOLATION_NAME;
+    private String demResamplingMethod = ResamplingFactory.BICUBIC_INTERPOLATION_NAME;
 
     @Parameter(label="External DEM")
     private File externalDEMFile = null;
@@ -118,9 +119,30 @@ public final class SARSimulationOp extends Operator {
     @Parameter(label="DEM No Data Value", defaultValue = "0")
     private double externalDEMNoDataValue = 0;
 
-    @Parameter(defaultValue="false", label="Save Layover-Shadow Mask as band")
+    @Parameter(defaultValue="false", label="Simulate for SARSimTC")
+    boolean isSARSimTC = false;                                    // disable extra options int the UI for SARSimTC
+
+    @Parameter(defaultValue="false", label="Re-grid method (slower)")
+    boolean reGridMethod = false;
+
+    @Parameter(defaultValue="false", label="Orbit method")
+    boolean orbitMethod = false;
+
+    @Parameter(defaultValue="false", label="Save DEM band")
+    private boolean saveDEM = false;
+
+    @Parameter(defaultValue="false", label="Save zero height simulation")
+    private boolean saveZeroHeightSimulation = false;
+
+    @Parameter(defaultValue="false", label="Save Simulated Local Incidence Angle")
+    private boolean saveLocalIncidenceAngle = false;
+
+    @Parameter(defaultValue="false", label="Save Layover-Shadow Mask")
     private boolean saveLayoverShadowMask = false;
 
+    public final static String demBandName = "elevation";
+    public final static String zeroHeightSimulationBandName = "ZeroHeightSimulation";
+    public final static String simulatedLocalIncidenceAngleBandName = "Simulated_LocalIncidenceAngle";
     public final static String layoverShadowMaskBandName = "layover_shadow_mask";
 
     private ElevationModel dem = null;
@@ -130,10 +152,8 @@ public final class SARSimulationOp extends Operator {
     private int sourceImageHeight = 0;
     private boolean srgrFlag = false;
     private boolean isElevationModelAvailable = false;
-    private boolean overlapComputed = false;
 
     private double rangeSpacing = 0.0;
-    private double azimuthSpacing = 0.0;
     private double firstLineUTC = 0.0; // in days
     private double lastLineUTC = 0.0; // in days
     private double lineTimeInterval = 0.0; // in days
@@ -147,7 +167,7 @@ public final class SARSimulationOp extends Operator {
     private double[] yPosArray = null;
     private double[] zPosArray = null;
 
-    private int tileSize = 100;
+    private int tileSize = 400;
 
     private AbstractMetadata.OrbitStateVector[] orbitStateVectors = null;
     private AbstractMetadata.SRGRCoefficientList[] srgrConvParams = null;
@@ -156,6 +176,12 @@ public final class SARSimulationOp extends Operator {
 
     private boolean nearRangeOnLeft = true;
     private boolean isPolsar = false;
+
+    private double delLat = 0.0;
+    private double delLon = 0.0;
+
+    private SLCImage meta;
+    private Orbit orbit;
 
     /**
      * Initializes this operator and sets the one and only target product.
@@ -191,6 +217,14 @@ public final class SARSimulationOp extends Operator {
             }
 
             DEMFactory.validateDEM(demName, sourceProduct);
+
+            computeDEMTraversalSampleInterval();
+
+            if(orbitMethod) {
+                final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
+                meta = new SLCImage(absRoot);
+                orbit = new Orbit(absRoot, 3);
+            }
         } catch(Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
         }
@@ -214,10 +248,9 @@ public final class SARSimulationOp extends Operator {
         srgrFlag = AbstractMetadata.getAttributeBoolean(absRoot, AbstractMetadata.srgr_flag);
         wavelength = OperatorUtils.getRadarFrequency(absRoot);
         rangeSpacing = AbstractMetadata.getAttributeDouble(absRoot, AbstractMetadata.range_spacing);
-        azimuthSpacing = AbstractMetadata.getAttributeDouble(absRoot, AbstractMetadata.azimuth_spacing);
         firstLineUTC = absRoot.getAttributeUTC(AbstractMetadata.first_line_time).getMJD(); // in days
         lastLineUTC = absRoot.getAttributeUTC(AbstractMetadata.last_line_time).getMJD(); // in days
-        lineTimeInterval = absRoot.getAttributeDouble(AbstractMetadata.line_time_interval) / 86400.0; // s to day
+        lineTimeInterval = absRoot.getAttributeDouble(AbstractMetadata.line_time_interval) / Constants.secondsInDay; // s to day
         orbitStateVectors = AbstractMetadata.getOrbitStateVectors(absRoot);
 
         if (srgrFlag) {
@@ -376,6 +409,34 @@ public final class SARSimulationOp extends Operator {
             targetBand.setSourceImage(srcBand.getSourceImage());
         }
 
+        if (saveDEM) {
+            targetBand = new Band(demBandName,
+                    ProductData.TYPE_FLOAT32,
+                    sourceImageWidth,
+                    sourceImageHeight);
+
+            targetBand.setUnit(Unit.METERS);
+            targetProduct.addBand(targetBand);
+        }
+        if (saveZeroHeightSimulation) {
+            targetBand = new Band(zeroHeightSimulationBandName,
+                    ProductData.TYPE_FLOAT32,
+                    sourceImageWidth,
+                    sourceImageHeight);
+
+            targetBand.setUnit(Unit.INTENSITY);
+            targetProduct.addBand(targetBand);
+        }
+        if (saveLocalIncidenceAngle) {
+            targetBand = new Band(simulatedLocalIncidenceAngleBandName,
+                    ProductData.TYPE_FLOAT32,
+                    sourceImageWidth,
+                    sourceImageHeight);
+
+            targetBand.setUnit(Unit.DEGREES);
+            targetProduct.addBand(targetBand);
+        }
+
         // add layover/shadow mask band
         if (saveLayoverShadowMask) {
             targetBand = new Band(layoverShadowMaskBandName,
@@ -392,7 +453,7 @@ public final class SARSimulationOp extends Operator {
 
         final PixelPos pixPos = new PixelPos();
         final GeoPos geoPos = new GeoPos();
-        double altMax = 0;
+        double altMax = -32768;
         int xMax = 0, yMax = 0;
         boolean foundMax = false;
         for (int y = y0; y < y0 + h; y+=20) {
@@ -436,9 +497,9 @@ public final class SARSimulationOp extends Operator {
 
         double tileOverlapPercentage = (float)(azimuthIndex - yMax)/ (float)tileSize;
         if (tileOverlapPercentage >= 0.0) {
-            tileOverlapPercentage += 0.05;
+            tileOverlapPercentage += 1.5;
         } else {
-            tileOverlapPercentage -= 0.05;
+            tileOverlapPercentage -= 1.5;
         }
         return tileOverlapPercentage;
     }
@@ -453,7 +514,7 @@ public final class SARSimulationOp extends Operator {
      * @throws OperatorException if an error occurs during computation of the target rasters.
      */
     @Override
-    public synchronized void computeTileStack(Map<Band, Tile> targetTiles, Rectangle targetRectangle, ProgressMonitor pm) throws OperatorException {
+    public void computeTileStack(Map<Band, Tile> targetTiles, Rectangle targetRectangle, ProgressMonitor pm) throws OperatorException {
 
         final int x0 = targetRectangle.x;
         final int y0 = targetRectangle.y;
@@ -474,9 +535,21 @@ public final class SARSimulationOp extends Operator {
 
         final Tile targetTile = targetTiles.get(targetProduct.getBand(SIMULATED_BAND_NAME));
         final ProductData masterBuffer = targetTile.getDataBuffer();
+        ProductData demBandBuffer = null;
+        ProductData zeroHeightBandBuffer = null;
+        ProductData localIncidenceAngleBandBuffer = null;
         ProductData layoverShadowMaskBuffer = null;
+        if (saveDEM) {
+            demBandBuffer = targetTiles.get(targetProduct.getBand(demBandName)).getDataBuffer();
+        }
+        if (saveZeroHeightSimulation) {
+            zeroHeightBandBuffer = targetTiles.get(targetProduct.getBand(zeroHeightSimulationBandName)).getDataBuffer();
+        }
+        if (saveLocalIncidenceAngle) {
+            localIncidenceAngleBandBuffer = targetTiles.get(targetProduct.getBand(simulatedLocalIncidenceAngleBandName)).getDataBuffer();
+        }
         if (saveLayoverShadowMask) {
-            layoverShadowMaskBuffer = targetTiles.get(targetProduct.getBand("layover_shadow_mask")).getDataBuffer();
+            layoverShadowMaskBuffer = targetTiles.get(targetProduct.getBand(layoverShadowMaskBandName)).getDataBuffer();
         }
 
         int ymin, ymax;
@@ -489,236 +562,331 @@ public final class SARSimulationOp extends Operator {
         }
         final int xmax = x0 + w;
 
-        final Map<Integer, Double> zeroDopplerTimeMap = new HashMap<Integer, Double>(ymax);
+        final PositionData posData = new PositionData();
+        final GeoPos geoPos = new GeoPos();
 
-        final float[][] localDEM = new float[ymax-ymin+2][w+2];
+        double[] slrs = null;
+        double[] elev = null;
+        int[] index = null;
+        final boolean[] savePixel = new boolean[w];
+        if (saveLayoverShadowMask) {
+            slrs = new double[w];
+            elev = new double[w];
+            index = new int[w];
+        }
+
         try {
-            final TileGeoreferencing tileGeoRef = new TileGeoreferencing(targetProduct, x0, ymin, w, ymax-ymin);
+         if(reGridMethod) {
+             final double[] latLonMinMax = new double[4];
+             computeImageGeoBoundary(x0, xmax, ymin, ymax, latLonMinMax);
 
-            final boolean valid = DEMFactory.getLocalDEM(dem, demNoDataValue, tileGeoRef, x0, ymin, w, ymax-ymin, localDEM);
-            if(!valid)
-                return;
+             final double latMin = latLonMinMax[0];
+             final double latMax = latLonMinMax[1];
+             final double lonMin = latLonMinMax[2];
+             final double lonMax = latLonMinMax[3];
+             final int nLat = (int)((latMax - latMin)/delLat) + 1;
+             final int nLon = (int)((lonMax - lonMin)/delLon) + 1;
 
-            final GeoPos geoPos = new GeoPos();
-            final double[] earthPoint = new double[3];
-            final double[] sensorPos = new double[3];
-            for (int y = ymin; y < ymax; y++) {
-                double[] slrs = null;
-                double[] elev = null;
-                int[] index = null;
-                final boolean[] savePixel = new boolean[w];
-                if (saveLayoverShadowMask) {
-                    slrs = new double[w];
-                    elev = new double[w];
-                    index = new int[w];
-                }
+             final double[][] tileDEM = new double[nLat+1][nLon+1];
+             final double[][] neighbourDEM = new double[3][3];
+             double alt;
 
-                for (int x = x0; x < xmax; x++) {
-                    final int xx = x - x0;
-                    final double alt = localDEM[y-ymin+1][xx+1];
-
-                    if (alt == demNoDataValue) {
-                        savePixel[xx] = false;
-                        continue;
-                    }
-
-                    tileGeoRef.getGeoPos(x, y, geoPos);
-                    if(!geoPos.isValid()) {
-                        savePixel[xx] = false;
-                        continue;  
-                    }
-                    final double lat = geoPos.lat;
-                    double lon = geoPos.lon;
+             for (int i = 0; i < nLat; i++) {
+                final double lat = latMin + i*delLat;
+                for (int j = 0; j < nLon; j++) {
+                    double lon = lonMin + j*delLon;
                     if (lon >= 180.0) {
                         lon -= 360.0;
                     }
-
-                    GeoUtils.geo2xyzWGS84(lat, lon, alt, earthPoint);
-
-                    Double zeroDopplerTime = zeroDopplerTimeMap.get(y);
-                    if(zeroDopplerTime == null) {
-                        zeroDopplerTime = SARGeocoding.getEarthPointZeroDopplerTime(
-                            firstLineUTC, lineTimeInterval, wavelength, earthPoint,
-                            sensorPosition, sensorVelocity);
-                        zeroDopplerTimeMap.put(y, zeroDopplerTime);
+                    if(saveZeroHeightSimulation) {
+                        alt = 1;
+                    } else {
+                        geoPos.setLocation(lat, lon);
+                        alt = dem.getElevation(geoPos);
+                        if(alt == demNoDataValue)
+                            continue;
                     }
+                    tileDEM[i][j] = alt;
 
-                    if (zeroDopplerTime == SARGeocoding.NonValidZeroDopplerTime) {
+                    if(!getPosition(lat, lon, alt, x0, y0, w, h, posData))
                         continue;
-                    }
-                 /*   Double zeroDopplerTime = RangeDopplerGeocodingOp.getEarthPointZeroDopplerTime(
-                            firstLineUTC, lineTimeInterval, wavelength, earthPoint,
-                            sensorPosition, sensorVelocity);     */
 
-                    double slantRange = SARGeocoding.computeSlantRange(
-                            zeroDopplerTime, timeArray, xPosArray, yPosArray, zPosArray, earthPoint, sensorPos);
-
-                    final double zeroDopplerTimeWithoutBias =
-                            zeroDopplerTime + slantRange / Constants.lightSpeedInMetersPerDay;
-
-                    double azimuthIndex = (zeroDopplerTimeWithoutBias - firstLineUTC) / lineTimeInterval;
-
-                    slantRange = SARGeocoding.computeSlantRange(zeroDopplerTimeWithoutBias,
-                            timeArray, xPosArray, yPosArray, zPosArray, earthPoint, sensorPos);
-
-                    double rangeIndex = SARGeocoding.computeRangeIndex(
-                            srgrFlag, sourceImageWidth, firstLineUTC, lastLineUTC, rangeSpacing,
-                            zeroDopplerTimeWithoutBias, slantRange, nearEdgeSlantRange, srgrConvParams);
-
-                    if (rangeIndex <= 0.0) {
-                        continue;
-                    }
-
-                    if (!nearRangeOnLeft) {
-                        rangeIndex = sourceImageWidth - 1 - rangeIndex;
-                    }
-
-                    // fudge
-                    //azimuthIndex -= 2;
-                    //rangeIndex -= 2;
-
-                    if (!(rangeIndex >= x0 && rangeIndex < x0+w && azimuthIndex > y0-1 && azimuthIndex < y0+h)) {
-                        savePixel[xx] = false;
-                        continue;
-                    }
-
-                    if (saveLayoverShadowMask) {
-                        slrs[xx] = slantRange;
-                        elev[xx] = computeElevationAngle(slantRange, earthPoint, sensorPos);
-                    }
-
-                    final LocalGeometry localGeometry = new LocalGeometry(x, y, tileGeoRef, earthPoint, sensorPos);
+                    final LocalGeometry localGeometry = new LocalGeometry(lat, lon, delLat, delLon, posData.earthPoint, posData.sensorPos);
 
                     final double[] localIncidenceAngles = {SARGeocoding.NonValidIncidenceAngle,
                             SARGeocoding.NonValidIncidenceAngle};
 
+                    int r = 0;
+                    for(int ii=Math.max(0,i-1); ii<=i+1; ++ii) {
+                        ii = Math.min(nLat, ii);
+                        int c = 0;
+                        float neighbourLat = (float)(latMin + ii*delLat);
+                        for(int jj=Math.max(0,j-1); jj<=j+1; ++jj) {
+                            jj = Math.min(nLon, jj);
+                            neighbourDEM[r][c] = tileDEM[ii][jj];
+                            if(neighbourDEM[r][c] == 0) {
+                                if(saveZeroHeightSimulation) {
+                                    neighbourDEM[r][c] = 1;
+                                } else {
+                                    geoPos.setLocation(neighbourLat, (float)(lonMin + jj*delLon));
+                                    neighbourDEM[r][c] = dem.getElevation(geoPos);
+                                }
+                                tileDEM[ii][jj] = neighbourDEM[r][c];
+                            }
+                            ++c;
+                        }
+                        ++r;
+                    }
+
                     SARGeocoding.computeLocalIncidenceAngle(
-                            localGeometry, demNoDataValue, true, true, false, x0, ymin, x, y, localDEM,
+                            localGeometry, demNoDataValue, false, true, false, 0, 0, 0, 0, neighbourDEM,
                             localIncidenceAngles); // in degrees
 
-                    if (localIncidenceAngles[0] == SARGeocoding.NonValidIncidenceAngle) {
-                        savePixel[xx] = false;
+                    if (localIncidenceAngles[1] == SARGeocoding.NonValidIncidenceAngle) {
                         continue;
                     }
 
                     final double v = computeBackscatteredPower(localIncidenceAngles[1]);
 
-                    saveSimulatedData(azimuthIndex, rangeIndex, v, x0, y0, w, h, targetTile, masterBuffer);
+                    saveSimulatedData(posData.azimuthIndex, posData.rangeIndex, v, x0, y0, w, h, targetTile, masterBuffer);
+
+                    int idx = 0;
+                    if(saveDEM || saveLocalIncidenceAngle)
+                        idx = targetTile.getDataBufferIndex((int)posData.rangeIndex, (int)posData.azimuthIndex);
+
+                    if(saveDEM && idx >= 0) {
+                        demBandBuffer.setElemDoubleAt(idx, alt);
+                    }
+                    if(saveZeroHeightSimulation) {
+                        saveSimulatedData(posData.azimuthIndex, posData.rangeIndex, 1, x0, y0, w, h, targetTile, zeroHeightBandBuffer);
+                    }
+                    if(saveLocalIncidenceAngle && idx >= 0) {
+                        localIncidenceAngleBandBuffer.setElemDoubleAt(idx, localIncidenceAngles[1]);
+                    }
 
                     if (saveLayoverShadowMask) {
-                        rangeIndex = Math.round(rangeIndex);
-                        azimuthIndex = Math.round(azimuthIndex);
-                        if (rangeIndex >= x0 && rangeIndex < x0+w && azimuthIndex >= y0 && azimuthIndex < y0+h) {
-                            index[xx] = targetTile.getDataBufferIndex((int)rangeIndex, (int)azimuthIndex);
-                            savePixel[xx] = true;
+                        int rIndex = (int)posData.rangeIndex;
+                        int aIndex = (int)posData.azimuthIndex;
+                        index[rIndex] = targetTile.getDataBufferIndex(rIndex, aIndex);
+                        if(index[rIndex] < 0) {
+                            savePixel[rIndex] = false;
                         } else {
+                            slrs[rIndex] = posData.slantRange;
+                            elev[rIndex] = computeElevationAngle(posData.slantRange, posData.earthPoint, posData.sensorPos);
+                            savePixel[rIndex] = true;
+                        }
+                    }
+                }
+
+                 if (saveLayoverShadowMask) {
+                     computeLayoverShadow(savePixel, slrs, index, elev, layoverShadowMaskBuffer);
+                }
+            }
+         } else {
+             final double[][] localDEM = new double[ymax-ymin+2][w+2];
+             final TileGeoreferencing tileGeoRef = new TileGeoreferencing(targetProduct, x0, ymin, w, ymax-ymin);
+
+             if(saveZeroHeightSimulation) {
+                 for (double[] aLocalDEM : localDEM) {
+                     Arrays.fill(aLocalDEM, 1);
+                 }
+             } else {
+
+                final boolean valid = DEMFactory.getLocalDEM(dem, demNoDataValue, tileGeoRef, x0, ymin, w, ymax-ymin, localDEM);
+                if(!valid)
+                    return;
+             }
+
+             for (int y = ymin; y < ymax; y++) {
+                final int yy = y - ymin;
+
+                for (int x = x0; x < xmax; x++) {
+                    final int xx = x - x0;
+                    double alt = localDEM[yy][xx];
+
+                    if (alt == demNoDataValue)
+                        continue;
+
+                    tileGeoRef.getGeoPos(x, y, geoPos);
+                    if(!geoPos.isValid())
+                        continue;
+
+                    double lat = geoPos.lat;
+                    double lon = geoPos.lon;
+                    if (lon >= 180.0) {
+                        lon -= 360.0;
+                    }
+
+                    if(orbitMethod) {
+                        double[] latlon = orbit.lp2ell(new Point(x+0.5, y+0.5), meta);
+                        lat = latlon[0] * MathUtils.RTOD;
+                        lon = latlon[1] * MathUtils.RTOD;
+                        alt = dem.getElevation(new GeoPos(lat, lon));
+                    }
+
+                    if(!getPosition(lat, lon, alt, x0, y0, w, h, posData))
+                        continue;
+
+                    final LocalGeometry localGeometry = new LocalGeometry(x, y, tileGeoRef, posData.earthPoint, posData.sensorPos);
+
+                    final double[] localIncidenceAngles = {SARGeocoding.NonValidIncidenceAngle,
+                            SARGeocoding.NonValidIncidenceAngle};
+
+                    SARGeocoding.computeLocalIncidenceAngle(
+                            localGeometry, demNoDataValue, false, true, false, x0, ymin, x, y, localDEM,
+                            localIncidenceAngles); // in degrees
+
+                    if (localIncidenceAngles[1] == SARGeocoding.NonValidIncidenceAngle)
+                        continue;
+
+                    final double v = computeBackscatteredPower(localIncidenceAngles[1]);
+
+                    saveSimulatedData(posData.azimuthIndex, posData.rangeIndex, v, x0, y0, w, h, targetTile, masterBuffer);
+
+                    int idx = 0;
+                    if(saveDEM || saveLocalIncidenceAngle)
+                        idx = targetTile.getDataBufferIndex((int)posData.rangeIndex, (int)posData.azimuthIndex);
+
+                    if(saveDEM && idx >= 0) {
+                        demBandBuffer.setElemDoubleAt(idx, alt);
+                    }
+                    if(saveZeroHeightSimulation) {
+                        saveSimulatedData(posData.azimuthIndex, posData.rangeIndex, 1, x0, y0, w, h, targetTile, zeroHeightBandBuffer);
+                    }
+                    if(saveLocalIncidenceAngle && idx >= 0) {
+                        localIncidenceAngleBandBuffer.setElemDoubleAt(idx, localIncidenceAngles[1]);
+                    }
+
+                    if (saveLayoverShadowMask) {
+                        int rIndex = (int)posData.rangeIndex;
+                        int aIndex = (int)posData.azimuthIndex;
+                        index[xx] = targetTile.getDataBufferIndex(rIndex, aIndex);
+                        if(index[xx] < 0) {
                             savePixel[xx] = false;
+                        } else {
+                            slrs[xx] = posData.slantRange;
+                            elev[xx] = computeElevationAngle(posData.slantRange, posData.earthPoint, posData.sensorPos);
+                            savePixel[xx] = true;
                         }
                     }
                 }
 
-                if (!saveLayoverShadowMask) {
-                    continue;
-                }
-
-                if (nearRangeOnLeft) {
-
-                    // traverse from near range to far range to detect layover area
-                    double maxSlantRange = 0.0;
-                    for (int x = x0; x < x0 + w; x++) {
-                        final int i = x - x0;
-                        if (savePixel[i]) {
-                            if (slrs[i] > maxSlantRange) {
-                                maxSlantRange = slrs[i];
-                            } else {
-                                layoverShadowMaskBuffer.setElemIntAt(index[i], 1);
-                            }
-                        }
-                    }
-
-                    // traverse from far range to near range to detect the remaining layover area
-                    double minSlantRange = maxSlantRange;
-                    for (int x = x0 + w - 1; x >= x0; x--) {
-                        int i = x - x0;
-                        if (savePixel[i]) {
-                            if (slrs[i] < minSlantRange) {
-                                minSlantRange = slrs[i];
-                            } else {
-                                layoverShadowMaskBuffer.setElemIntAt(index[i], 1);
-                            }
-                        }
-                    }
-
-                    // traverse from near range to far range to detect shadowing area
-                    double maxElevAngle = 0.0;
-                    for (int x = x0; x < x0 + w; x++) {
-                        int i = x - x0;
-                        if (savePixel[i]) {
-                            if (elev[i] > maxElevAngle) {
-                                maxElevAngle = elev[i];
-                            } else {
-                                layoverShadowMaskBuffer.setElemIntAt(index[i],
-                                                                    2 + layoverShadowMaskBuffer.getElemIntAt(index[i]));
-                            }
-                        }
-                    }
-
-                } else {
-
-                    // traverse from near range to far range to detect layover area
-                    double maxSlantRange = 0.0;
-                    for (int x = x0 + w - 1; x >= x0; x--) {
-                        final int i = x - x0;
-                        if (savePixel[i]) {
-                            if (slrs[i] > maxSlantRange) {
-                                maxSlantRange = slrs[i];
-                            } else {
-                                layoverShadowMaskBuffer.setElemIntAt(index[i], 1);
-                            }
-                        }
-                    }
-
-                    // traverse from far range to near range to detect the remaining layover area
-                    double minSlantRange = maxSlantRange;
-                    for (int x = x0; x < x0 + w; x++) {
-                        int i = x - x0;
-                        if (savePixel[i]) {
-                            if (slrs[i] < minSlantRange) {
-                                minSlantRange = slrs[i];
-                            } else {
-                                layoverShadowMaskBuffer.setElemIntAt(index[i], 1);
-                            }
-                        }
-                    }
-
-                    // traverse from near range to far range to detect shadowing area
-                    double maxElevAngle = 0.0;
-                    for (int x = x0 + w - 1; x >= x0; x--) {
-                        int i = x - x0;
-                        if (savePixel[i]) {
-                            if (elev[i] > maxElevAngle) {
-                                maxElevAngle = elev[i];
-                            } else {
-                                layoverShadowMaskBuffer.setElemIntAt(index[i],
-                                                                    2 + layoverShadowMaskBuffer.getElemIntAt(index[i]));
-                            }
-                        }
-                    }
+                if (saveLayoverShadowMask) {
+                    computeLayoverShadow(savePixel, slrs, index, elev, layoverShadowMaskBuffer);
                 }
 
             }
-
+         }
         } catch(Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
         }
     }
 
-    private static void saveSimulatedData(final double azimuthIndex, final double rangeIndex, final double v,
+    private static class PositionData {
+        final double[] earthPoint = new double[3];
+        final double[] sensorPos = new double[3];
+        double azimuthIndex;
+        double rangeIndex;
+        double slantRange;
+    }
+
+    private boolean getPositionFromOrbit(final double lat, final double lon, final double alt,
+                                         final int x0, final int y0, final int w, final int h,
+                                         final PositionData data) {
+
+        double[] phi_lam_height = {lat* org.esa.beam.util.math.MathUtils.DTOR, lon* org.esa.beam.util.math.MathUtils.DTOR, alt};
+        Point pointOnDem = Ellipsoid.ell2xyz(phi_lam_height);
+        //Point slaveTime = orbit.xyz2t(pointOnDem, meta);
+
+        Point linePixel = orbit.xyz2lp(pointOnDem, meta);
+
+        //data.earthPoint[0] = pointOnDem.x;
+        //data.earthPoint[1] = pointOnDem.y;
+        //data.earthPoint[2] = pointOnDem.z;
+
+        data.azimuthIndex = linePixel.y;
+        data.rangeIndex = linePixel.x;
+
+        if(!(data.azimuthIndex > y0-1 && data.azimuthIndex < y0+h)) {
+            return false;
+        }
+        if (data.rangeIndex <= 0.0) {
+            return false;
+        }
+
+        if (!nearRangeOnLeft) {
+            data.rangeIndex = sourceImageWidth - 1 - data.rangeIndex;
+        }
+
+        if (!(data.rangeIndex >= x0 && data.rangeIndex < x0 + w)) {
+            return false;
+        }
+        return true;
+    }
+
+    private boolean getPosition(final double lat, final double lon, final double alt,
+                                final int x0, final int y0, final int w, final int h,
+                                final PositionData data) {
+        //if(orbitMethod)
+        //    return getPositionFromOrbit(lat, lon, alt, x0, y0, w, h, data);
+
+        GeoUtils.geo2xyzWGS84(lat, lon, alt, data.earthPoint);
+
+        final double zeroDopplerTime = SARGeocoding.getEarthPointZeroDopplerTimeNewton(
+                firstLineUTC, lineTimeInterval, wavelength, data.earthPoint,
+                sensorPosition, sensorVelocity);
+
+        //final double zeroDopplerTime = SARGeocoding.getEarthPointZeroDopplerTime(
+        //        firstLineUTC, lineTimeInterval, wavelength, data.earthPoint,
+        //        sensorPosition, sensorVelocity);
+
+        if (zeroDopplerTime == SARGeocoding.NonValidZeroDopplerTime) {
+            return false;
+        }
+
+        data.slantRange = SARGeocoding.computeSlantRange(
+                zeroDopplerTime, timeArray, xPosArray, yPosArray, zPosArray, data.earthPoint, data.sensorPos);
+
+        final double zeroDopplerTimeWithoutBias =
+                zeroDopplerTime + data.slantRange / Constants.lightSpeedInMetersPerDay;
+
+        data.azimuthIndex = (zeroDopplerTimeWithoutBias - firstLineUTC) / lineTimeInterval;
+
+        if(!(data.azimuthIndex > y0-1 && data.azimuthIndex <= y0+h)) {
+            return false;
+        }
+
+        data.slantRange = SARGeocoding.computeSlantRange(zeroDopplerTimeWithoutBias,
+                timeArray, xPosArray, yPosArray, zPosArray, data.earthPoint, data.sensorPos);
+
+        if(!srgrFlag) {
+            data.rangeIndex = (data.slantRange - nearEdgeSlantRange) / rangeSpacing;
+        } else {
+            data.rangeIndex = SARGeocoding.computeRangeIndex(
+                    srgrFlag, sourceImageWidth, firstLineUTC, lastLineUTC, rangeSpacing,
+                    zeroDopplerTimeWithoutBias, data.slantRange, nearEdgeSlantRange, srgrConvParams);
+        }
+
+        if (data.rangeIndex <= 0.0) {
+            return false;
+        }
+
+        if (!nearRangeOnLeft) {
+            data.rangeIndex = sourceImageWidth - 1 - data.rangeIndex;
+        }
+
+        if (!(data.rangeIndex >= x0 && data.rangeIndex < x0 + w)) {
+            return false;
+        }
+        return true;
+    }
+
+    private static void saveSimulatedData(final double azimuthIndex, final double rangeIndex, double v,
                                           final int x0, final int y0, final int w, final int h, final Tile targetTile,
                                           final ProductData masterBuffer) {
-        final int ia0 = (int)azimuthIndex;
+        final int ia0 = (int)(azimuthIndex);
         final int ia1 = ia0 + 1;
-        final int ir0 = (int)rangeIndex;
+        final int ir0 = (int)(rangeIndex);
         final int ir1 = ir0 + 1;
 
         final double wr = rangeIndex - ir0;
@@ -730,21 +898,112 @@ public final class SARSimulationOp extends Operator {
             if(ia0 >= y0) {
                 final int idx00 = targetTile.getDataBufferIndex(ir0, ia0);
                 masterBuffer.setElemDoubleAt(idx00, wrc*wac*v + masterBuffer.getElemDoubleAt(idx00));
+              //  masterBuffer.setElemDoubleAt(idx00, 0.25*v + masterBuffer.getElemDoubleAt(idx00));
             }
             if(ia1 < y0+h) {
                 final int idx10 = targetTile.getDataBufferIndex(ir0, ia1);
                 masterBuffer.setElemDoubleAt(idx10, wrc*wa*v + masterBuffer.getElemDoubleAt(idx10));
+            //    masterBuffer.setElemDoubleAt(idx10, 0.25*v + masterBuffer.getElemDoubleAt(idx10));
             }
         }
         if (ir1 < x0+w) {
             if(ia0 >= y0) {
                 final int idx01 = targetTile.getDataBufferIndex(ir1, ia0);
                 masterBuffer.setElemDoubleAt(idx01, wr*wac*v + masterBuffer.getElemDoubleAt(idx01));
+            //    masterBuffer.setElemDoubleAt(idx01, 0.25*v + masterBuffer.getElemDoubleAt(idx01));
             }
             if(ia1 < y0+h) {
                 final int idx11 = targetTile.getDataBufferIndex(ir1, ia1);
                 masterBuffer.setElemDoubleAt(idx11, wr*wa*v + masterBuffer.getElemDoubleAt(idx11));
+            //    masterBuffer.setElemDoubleAt(idx11, 0.25*v + masterBuffer.getElemDoubleAt(idx11));
             }
+        }
+    }
+
+    private void computeLayoverShadow(final boolean[] savePixel, final double[] slrs, final int[] index, final double[] elev,
+                                      final ProductData layoverShadowMaskBuffer) {
+        final int length = savePixel.length;
+        try {
+        if (nearRangeOnLeft) {
+
+            // traverse from near range to far range to detect layover area
+            double maxSlantRange = 0.0;
+            for (int i=0; i < length; ++i) {
+                if (savePixel[i]) {
+                    if (slrs[i] > maxSlantRange) {
+                        maxSlantRange = slrs[i];
+                    } else {
+                        layoverShadowMaskBuffer.setElemIntAt(index[i], 1);
+                    }
+                }
+            }
+
+            // traverse from far range to near range to detect the remaining layover area
+            double minSlantRange = maxSlantRange;
+            for (int i=length-1; i >= 0; --i) {
+                if (savePixel[i]) {
+                    if (slrs[i] < minSlantRange) {
+                        minSlantRange = slrs[i];
+                    } else {
+                        layoverShadowMaskBuffer.setElemIntAt(index[i], 1);
+                    }
+                }
+            }
+
+            // traverse from near range to far range to detect shadowing area
+            double maxElevAngle = 0.0;
+            for (int i=0; i < length; ++i) {
+                if (savePixel[i]) {
+                    if (elev[i] > maxElevAngle) {
+                        maxElevAngle = elev[i];
+                    } else {
+                        layoverShadowMaskBuffer.setElemIntAt(index[i],
+                                2 + layoverShadowMaskBuffer.getElemIntAt(index[i]));
+                    }
+                }
+            }
+
+        } else {
+
+            // traverse from near range to far range to detect layover area
+            double maxSlantRange = 0.0;
+            for (int i=length-1; i >= 0; --i) {
+                if (savePixel[i]) {
+                    if (slrs[i] > maxSlantRange) {
+                        maxSlantRange = slrs[i];
+                    } else {
+                        layoverShadowMaskBuffer.setElemIntAt(index[i], 1);
+                    }
+                }
+            }
+
+            // traverse from far range to near range to detect the remaining layover area
+            double minSlantRange = maxSlantRange;
+            for (int i=0; i < length; ++i) {
+                if (savePixel[i]) {
+                    if (slrs[i] < minSlantRange) {
+                        minSlantRange = slrs[i];
+                    } else {
+                        layoverShadowMaskBuffer.setElemIntAt(index[i], 1);
+                    }
+                }
+            }
+
+            // traverse from near range to far range to detect shadowing area
+            double maxElevAngle = 0.0;
+            for (int i=length-1; i >= 0; --i) {
+                if (savePixel[i]) {
+                    if (elev[i] > maxElevAngle) {
+                        maxElevAngle = elev[i];
+                    } else {
+                        layoverShadowMaskBuffer.setElemIntAt(index[i],
+                                2 + layoverShadowMaskBuffer.getElemIntAt(index[i]));
+                    }
+                }
+            }
+        }
+        } catch(Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -776,6 +1035,81 @@ public final class SARSimulationOp extends Operator {
                 org.esa.beam.util.math.MathUtils.RTOD;
     }
     
+    /**
+     * Compute source image geodetic boundary (minimum/maximum latitude/longitude) from the its corner
+     * latitude/longitude.
+     * @throws Exception The exceptions.
+     */
+    private void computeImageGeoBoundary(final int xmin, final int xmax, final int ymin, final int ymax,
+                                         double[] latLonMinMax) throws Exception {
+
+        final GeoCoding geoCoding = sourceProduct.getGeoCoding();
+        if(geoCoding == null) {
+            throw new OperatorException("Product does not contain a geocoding");
+        }
+        final GeoPos geoPosFirstNear = geoCoding.getGeoPos(new PixelPos(xmin, ymin), null);
+        final GeoPos geoPosFirstFar  = geoCoding.getGeoPos(new PixelPos(xmax, ymin), null);
+        final GeoPos geoPosLastNear  = geoCoding.getGeoPos(new PixelPos(xmin, ymax), null);
+        final GeoPos geoPosLastFar   = geoCoding.getGeoPos(new PixelPos(xmax, ymax), null);
+
+        final double[] lats  = {geoPosFirstNear.getLat(), geoPosFirstFar.getLat(), geoPosLastNear.getLat(), geoPosLastFar.getLat()};
+        final double[] lons  = {geoPosFirstNear.getLon(), geoPosFirstFar.getLon(), geoPosLastNear.getLon(), geoPosLastFar.getLon()};
+        double latMin = 90.0;
+        double latMax = -90.0;
+        for (double lat : lats) {
+            if (lat < latMin) {
+                latMin = lat;
+            }
+            if (lat > latMax) {
+                latMax = lat;
+            }
+        }
+
+        double lonMin = 180.0;
+        double lonMax = -180.0;
+        for (double lon : lons) {
+            if (lon < lonMin) {
+                lonMin = lon;
+            }
+            if (lon > lonMax) {
+                lonMax = lon;
+            }
+        }
+
+        latLonMinMax[0] = latMin;
+        latLonMinMax[1] = latMax;
+        latLonMinMax[2] = lonMin;
+        latLonMinMax[3] = lonMax;
+    }
+
+    /**
+     * Compute DEM traversal step sizes (in degree) in latitude and longitude.
+     * @throws Exception The exceptions.
+     */
+    private void computeDEMTraversalSampleInterval() throws Exception {
+
+        double[] latLonMinMax = new double[4];
+        computeImageGeoBoundary(0, sourceProduct.getSceneRasterWidth()-1, 0, sourceProduct.getSceneRasterHeight()-1,
+                                latLonMinMax);
+
+        final double groundRangeSpacing = SARGeocoding.getRangePixelSpacing(sourceProduct);
+        final double azimuthPixelSpacing = SARGeocoding.getAzimuthPixelSpacing(sourceProduct);
+        final double spacing = Math.min(groundRangeSpacing, azimuthPixelSpacing);
+        //final double spacing = (groundRangeSpacing + azimuthPixelSpacing)/2.0;
+        final double latMin = latLonMinMax[0];
+        final double latMax = latLonMinMax[1];
+        double minAbsLat;
+        if (latMin*latMax > 0) {
+            minAbsLat = Math.min(Math.abs(latMin), Math.abs(latMax)) * org.esa.beam.util.math.MathUtils.DTOR;
+        } else {
+            minAbsLat = 0.0;
+        }
+        delLat = spacing / Constants.MeanEarthRadius * org.esa.beam.util.math.MathUtils.RTOD;
+        delLon = spacing / (Constants.MeanEarthRadius*Math.cos(minAbsLat)) * org.esa.beam.util.math.MathUtils.RTOD;
+        delLat = Math.min(delLat, delLon); // (delLat + delLon)/2.0;
+        delLon = delLat;
+    }
+
 
     /**
      * The SPI is used to register this operator in the graph processing framework

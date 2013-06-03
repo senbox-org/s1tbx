@@ -622,8 +622,8 @@ public class Sentinel1ProductDirectory extends XMLProductDirectory {
         lastSWBandGeoCoding.getGeoPos(urPix, urGeo);
         lastSWBandGeoCoding.getGeoPos(lrPix, lrGeo);
 
-        float[] latCorners = {ulGeo.getLat(), urGeo.getLat(), llGeo.getLat(), lrGeo.getLat()};
-        float[] lonCorners = {ulGeo.getLon(), urGeo.getLon(), llGeo.getLon(), lrGeo.getLon()};
+        double[] latCorners = {ulGeo.getLat(), urGeo.getLat(), llGeo.getLat(), lrGeo.getLat()};
+        double[] lonCorners = {ulGeo.getLon(), urGeo.getLon(), llGeo.getLon(), lrGeo.getLon()};
 
         ReaderUtils.addGeoCoding(product, latCorners, lonCorners);
 
@@ -664,22 +664,22 @@ public class Sentinel1ProductDirectory extends XMLProductDirectory {
 
         final MetadataElement[] geoGrid = geolocationGridPointList.getElements();
 
-        final float[] latList = new float[geoGrid.length];
-        final float[] lngList = new float[geoGrid.length];
-        final float[] incidenceAngleList = new float[geoGrid.length];
-        final float[] elevAngleList = new float[geoGrid.length];
-        final float[] rangeTimeList = new float[geoGrid.length];
+        final double[] latList = new double[geoGrid.length];
+        final double[] lngList = new double[geoGrid.length];
+        final double[] incidenceAngleList = new double[geoGrid.length];
+        final double[] elevAngleList = new double[geoGrid.length];
+        final double[] rangeTimeList = new double[geoGrid.length];
         final int[] x = new int[geoGrid.length];
         final int[] y = new int[geoGrid.length];
 
         int gridWidth = 0, gridHeight = 0;
         int i=0;
         for(MetadataElement ggPoint : geoGrid) {
-            latList[i] = (float)ggPoint.getAttributeDouble("latitude", 0);
-            lngList[i] = (float)ggPoint.getAttributeDouble("longitude", 0);
-            incidenceAngleList[i] = (float)ggPoint.getAttributeDouble("incidenceAngle", 0);
-            elevAngleList[i] = (float)ggPoint.getAttributeDouble("elevationAngle", 0);
-            rangeTimeList[i] = (float)(ggPoint.getAttributeDouble("slantRangeTime", 0)*Constants.oneBillion); // s to ns
+            latList[i] = ggPoint.getAttributeDouble("latitude", 0);
+            lngList[i] = ggPoint.getAttributeDouble("longitude", 0);
+            incidenceAngleList[i] = ggPoint.getAttributeDouble("incidenceAngle", 0);
+            elevAngleList[i] = ggPoint.getAttributeDouble("elevationAngle", 0);
+            rangeTimeList[i] = (ggPoint.getAttributeDouble("slantRangeTime", 0)*Constants.oneBillion); // s to ns
 
             x[i] = (int)ggPoint.getAttributeDouble("pixel", 0);
             y[i] = (int)ggPoint.getAttributeDouble("line", 0);
@@ -700,8 +700,8 @@ public class Sentinel1ProductDirectory extends XMLProductDirectory {
         final float[] newslrtList = new float[newGridWidth*newGridHeight];
         final int sceneRasterWidth = product.getSceneRasterWidth();
         final int sceneRasterHeight = product.getSceneRasterHeight();
-        final float subSamplingX = (float)sceneRasterWidth / (newGridWidth - 1);
-        final float subSamplingY = (float)sceneRasterHeight / (newGridHeight - 1);
+        final double subSamplingX = sceneRasterWidth / (double)(newGridWidth - 1);
+        final double subSamplingY = sceneRasterHeight / (double)(newGridHeight - 1);
 
         getListInEvenlySpacedGrid(sceneRasterWidth, sceneRasterHeight, gridWidth, gridHeight, x, y, latList,
                 newGridWidth, newGridHeight, subSamplingX, subSamplingY, newLatList);
@@ -767,15 +767,15 @@ public class Sentinel1ProductDirectory extends XMLProductDirectory {
         final int w = product.getSceneRasterWidth();
         final int h = product.getSceneRasterHeight();
 
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_near_lat, latGrid.getPixelFloat(0, 0));
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_near_long, lonGrid.getPixelFloat(0, 0));
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_far_lat, latGrid.getPixelFloat(w, 0));
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_far_long, lonGrid.getPixelFloat(w, 0));
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_near_lat, latGrid.getPixelDouble(0, 0));
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_near_long, lonGrid.getPixelDouble(0, 0));
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_far_lat, latGrid.getPixelDouble(w, 0));
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_far_long, lonGrid.getPixelDouble(w, 0));
 
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_near_lat, latGrid.getPixelFloat(0, h));
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_near_long, lonGrid.getPixelFloat(0, h));
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_far_lat, latGrid.getPixelFloat(w, h));
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_far_long, lonGrid.getPixelFloat(w, h));
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_near_lat, latGrid.getPixelDouble(0, h));
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_near_long, lonGrid.getPixelDouble(0, h));
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_far_lat, latGrid.getPixelDouble(w, h));
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_far_long, lonGrid.getPixelDouble(w, h));
     }
 
     private boolean isTOPSAR() {
@@ -798,8 +798,8 @@ public class Sentinel1ProductDirectory extends XMLProductDirectory {
 
     private static void getListInEvenlySpacedGrid(
             final int sceneRasterWidth, final int sceneRasterHeight, final int sourceGridWidth,
-            final int sourceGridHeight, final int [] x, final int [] y, final float[] sourcePointList,
-            final int targetGridWidth, final int targetGridHeight, final float subSamplingX, final float subSamplingY,
+            final int sourceGridHeight, final int [] x, final int [] y, final double[] sourcePointList,
+            final int targetGridWidth, final int targetGridHeight, final double subSamplingX, final double subSamplingY,
             final float[] targetPointList) {
 
         if (sourcePointList.length != sourceGridWidth*sourceGridHeight) {
@@ -818,11 +818,11 @@ public class Sentinel1ProductDirectory extends XMLProductDirectory {
             if (r == targetGridHeight - 1) {
                 System.out.println();
             }
-            float newY = r*subSamplingY;
+            double newY = r*subSamplingY;
             if (newY > sceneRasterHeight - 1) {
                 newY = sceneRasterHeight - 1;
             }
-            float oldY0 = 0, oldY1 = 0;
+            double oldY0 = 0, oldY1 = 0;
             int j0 = 0, j1 = 0;
             for (int rr = 1; rr < sourceGridHeight; rr++) {
                 j0 = rr - 1;
@@ -834,15 +834,15 @@ public class Sentinel1ProductDirectory extends XMLProductDirectory {
                 }
             }
 
-            final float wj = (newY - oldY0)/(oldY1 - oldY0);
+            final double wj = (newY - oldY0)/(oldY1 - oldY0);
 
             for (int c = 0; c < targetGridWidth; c++) {
 
-                float newX = c*subSamplingX;
+                double newX = c*subSamplingX;
                 if (newX > sceneRasterWidth - 1) {
                     newX = sceneRasterWidth - 1;
                 }
-                float oldX0 = 0, oldX1 = 0;
+                double oldX0 = 0, oldX1 = 0;
                 int i0 = 0, i1 = 0;
                 for (int cc = 1; cc < sourceGridWidth; cc++) {
                     i0 = cc - 1;
@@ -853,9 +853,9 @@ public class Sentinel1ProductDirectory extends XMLProductDirectory {
                         break;
                     }
                 }
-                final float wi = (newX - oldX0)/(oldX1 - oldX0);
+                final double wi = (newX - oldX0)/(oldX1 - oldX0);
 
-                targetPointList[k++] = MathUtils.interpolate2D(wi, wj,
+                targetPointList[k++] = (float)MathUtils.interpolate2D(wi, wj,
                         sourcePointList[i0 + j0 * sourceGridWidth],
                         sourcePointList[i1 + j0 * sourceGridWidth],
                         sourcePointList[i0 + j1 * sourceGridWidth],

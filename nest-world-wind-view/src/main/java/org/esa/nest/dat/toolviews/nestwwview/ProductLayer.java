@@ -28,6 +28,7 @@ import org.esa.beam.framework.dataop.maptransf.MapInfo;
 import org.esa.beam.framework.dataop.maptransf.MapProjectionRegistry;
 import org.esa.beam.util.ProductUtils;
 import org.esa.nest.datamodel.AbstractMetadata;
+import org.esa.nest.eo.Constants;
 import org.esa.nest.eo.GeoUtils;
 
 import javax.swing.*;
@@ -46,7 +47,6 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class ProductLayer extends RenderableLayer {
     private Product selectedProduct = null;
-    private final static double million = 1000000.0;
     private final boolean enableSurfaceImages;
 
     private final ConcurrentHashMap<String, Polyline[]> outlineTable = new ConcurrentHashMap<String, Polyline[]>();
@@ -215,8 +215,8 @@ public class ProductLayer extends RenderableLayer {
         final Polyline[] lineList = new Polyline[geoElemList.length];
         int cnt = 0;
         for (MetadataElement geoElem : geoElemList) {
-            final double lat = geoElem.getAttributeDouble("center_lat", 0.0) / million;
-            final double lon = geoElem.getAttributeDouble("center_long", 0.0) / million;
+            final double lat = geoElem.getAttributeDouble("center_lat", 0.0) / Constants.oneMillion;
+            final double lon = geoElem.getAttributeDouble("center_long", 0.0) / Constants.oneMillion;
             final double heading = geoElem.getAttributeDouble("heading", 0.0);
 
             final GeoUtils.LatLonHeading r1 = GeoUtils.vincenty_direct(lon, lat, 5000, heading);

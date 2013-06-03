@@ -337,7 +337,7 @@ class ERSProductDirectory extends CEOSProductDirectory {
         // convert srgr coefficients that are used to compute slant range time to new coefficients that are used to compute slant range
         if (!psID.contains("PGS")) { // VMP
 
-            final double Fr = sceneRec.getAttributeDouble("Range sampling rate")*1000000; // MHz to Hz
+            final double Fr = sceneRec.getAttributeDouble("Range sampling rate")*Constants.oneMillion; // MHz to Hz
             final double R0 = absRoot.getAttributeDouble(AbstractMetadata.slant_range_to_first_pixel);
 
             final MetadataElement srgrCoefficientsElem = absRoot.getElement(AbstractMetadata.srgr_coefficients);

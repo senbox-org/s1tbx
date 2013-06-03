@@ -306,7 +306,7 @@ public class ProductProjectionBuilder extends AbstractProductBuilder {
                             break;
                         }
                         destSegmentation.getLinePixelCoords(destLineIndex, sourceLineCoords);
-                        final float[] minMaxY = ProductUtils.computeMinMaxY(sourceLineCoords);
+                        final double[] minMaxY = ProductUtils.computeMinMaxY(sourceLineCoords);
                         if (minMaxY != null) { // any lines found?
                             final int minY = MathUtils.floorAndCrop(minMaxY[0] - 2, 0, sourceHeight - 1);
                             final int maxY = MathUtils.floorAndCrop(minMaxY[1] + 2, 0, sourceHeight - 1);

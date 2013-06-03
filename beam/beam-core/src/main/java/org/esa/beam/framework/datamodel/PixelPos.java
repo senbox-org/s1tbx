@@ -21,7 +21,7 @@ import java.awt.geom.Point2D;
 /**
  * A <code>PixelPos</code> represents a position or point in a pixel coordinate system.
  */
-public class PixelPos extends Point2D.Float {
+public class PixelPos extends Point2D.Double {
 
     /**
      * Constructs and initializes a <code>PixelPos</code> with coordinate (0,&nbsp;0).
@@ -35,7 +35,7 @@ public class PixelPos extends Point2D.Float {
      * @param x the x component of the coordinate
      * @param y the y component of the coordinate
      */
-    public PixelPos(float x, float y) {
+    public PixelPos(double x, double y) {
         super(x, y);
     }
 
@@ -45,14 +45,14 @@ public class PixelPos extends Point2D.Float {
      * @return true, if so
      */
     public boolean isValid() {
-        return !(java.lang.Float.isNaN(x) || java.lang.Float.isNaN(y));
+        return !(java.lang.Double.isNaN(x) || java.lang.Double.isNaN(y));
     }
 
     /**
      * Sets this pixel position so that is becomes invalid.
      */
     public void setInvalid() {
-        x = java.lang.Float.NaN;
-        y = java.lang.Float.NaN;
+        x = java.lang.Double.NaN;
+        y = java.lang.Double.NaN;
     }
 }

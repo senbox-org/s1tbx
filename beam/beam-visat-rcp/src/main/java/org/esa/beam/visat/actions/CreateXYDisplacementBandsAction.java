@@ -89,8 +89,8 @@ public class CreateXYDisplacementBandsAction extends ExecCommand {
         bandY.setUnit("pixels");
         bandY.setDescription("Geo-coding Y displacement");
 
-        final float[] dataX = new float[width * height];
-        final float[] dataY = new float[width * height];
+        final double[] dataX = new double[width * height];
+        final double[] dataY = new double[width * height];
 
         bandX.setRasterData(ProductData.createInstance(dataX));
         bandY.setRasterData(ProductData.createInstance(dataY));

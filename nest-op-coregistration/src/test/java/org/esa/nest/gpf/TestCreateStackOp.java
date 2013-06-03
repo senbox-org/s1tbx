@@ -88,8 +88,8 @@ public class TestCreateStackOp extends TestCase {
         }
         band.setData(ProductData.createInstance(floatValues));
 
-        final float[] latCorners = new float[]{latTop, latTop, latBottom, latBottom};
-        final float[] lonCorners = new float[]{lonLeft, lonRight, lonLeft, lonRight};
+        final double[] latCorners = new double[]{latTop, latTop, latBottom, latBottom};
+        final double[] lonCorners = new double[]{lonLeft, lonRight, lonLeft, lonRight};
 
         ReaderUtils.addGeoCoding(product, latCorners, lonCorners);
 

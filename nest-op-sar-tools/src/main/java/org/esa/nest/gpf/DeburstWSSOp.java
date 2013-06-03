@@ -29,6 +29,7 @@ import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
 import org.esa.nest.datamodel.AbstractMetadata;
 import org.esa.nest.datamodel.Unit;
+import org.esa.nest.eo.Constants;
 
 import java.awt.*;
 import java.text.ParseException;
@@ -322,15 +323,14 @@ public final class DeburstWSSOp extends Operator {
 
         final int subSamplingY = (int)((time.get(1) - time.get(0))/lineTimeInterval + 0.5);
 
-        final float million = 1000000.0f;
         final int length = lats.size();
         final float[] latList = new float[length];
         final float[] lonList = new float[length];
         final float[] slantList = new float[length];
         final float[] incList = new float[length];
         for(int i=0; i < length; ++i) {
-            latList[i] = lats.get(i) / million;
-            lonList[i] = lons.get(i) / million;
+            latList[i] = lats.get(i) / (float)Constants.oneMillion;
+            lonList[i] = lons.get(i) / (float)Constants.oneMillion;
             slantList[i] = slant.get(i);
             incList[i] = incidence.get(i);
         }

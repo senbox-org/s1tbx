@@ -576,10 +576,10 @@ public class WarpOp extends Operator {
             //System.out.println("WARP: master gcp[" + i + "] = " + "(" + mGCPPos.x + "," + mGCPPos.y + ")");
 
             final int j = 2 * i;
-            warpData.masterGCPCoords[j] = mGCPPos.x;
-            warpData.masterGCPCoords[j + 1] = mGCPPos.y;
-            warpData.slaveGCPCoords[j] = sGCPPos.x;
-            warpData.slaveGCPCoords[j + 1] = sGCPPos.y;
+            warpData.masterGCPCoords[j] = (float)mGCPPos.x;
+            warpData.masterGCPCoords[j + 1] = (float)mGCPPos.y;
+            warpData.slaveGCPCoords[j] = (float)sGCPPos.x;
+            warpData.slaveGCPCoords[j + 1] = (float)sGCPPos.y;
         }
     }
 

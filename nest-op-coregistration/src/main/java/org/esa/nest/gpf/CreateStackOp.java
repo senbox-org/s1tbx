@@ -477,9 +477,9 @@ public class CreateStackOp extends Operator {
         final float mstWidth = masterProduct.getSceneRasterWidth();
         final float mstHeight = masterProduct.getSceneRasterHeight();
 
-        float maxX=0, maxY=0;
-        float minX = mstWidth;
-        float minY = mstHeight;
+        double maxX=0, maxY=0;
+        double minX = mstWidth;
+        double minY = mstHeight;
         for(Coordinate c : tgtGeometry.getCoordinates()) {
             //System.out.println("geo "+c.x +", "+ c.y);
             geoPos.setLocation((float)c.y, (float)c.x);

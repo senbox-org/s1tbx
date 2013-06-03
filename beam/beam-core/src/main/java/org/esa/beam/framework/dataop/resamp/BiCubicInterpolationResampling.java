@@ -122,7 +122,10 @@ final class BiCubicInterpolationResampling implements Resampling {
             y[i] = (int)Index.crop(index.j[0] - 1 + i, index.height-1);
         }
         if(!raster.getSamples(x, y, samples)) {
-            return samples[1][1];
+            if (Double.isNaN(samples[1][1])) {
+                return samples[1][1];
+            }
+            replaceNaNWithMean(samples);
         }
 
         // the four grid points of a rectangular grid cell are numbered as the following:
@@ -216,6 +219,28 @@ final class BiCubicInterpolationResampling implements Resampling {
 			}
 		}
 	}
+
+    public static void replaceNaNWithMean(final double[][] samples) {
+        double mean = 0.0;
+        int k = 0;
+        int jmax = samples[0].length;
+        for (double[] sample : samples) {
+            for (int j = 0; j < jmax; j++) {
+                if (!Double.isNaN(sample[j])) {
+                    mean += sample[j];
+                    ++k;
+                }
+            }
+        }
+        mean /= k;
+        for (double[] sample : samples) {
+            for (int j = 0; j < jmax; j++) {
+                if (Double.isNaN(sample[j])) {
+                    sample[j] = mean;
+                }
+            }
+        }
+    }
 
     @Override
     public String toString() {

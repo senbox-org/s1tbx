@@ -100,7 +100,8 @@ public final class GeoUtils
 
         xyz[0] = NcosLat * FastMath.cos(lon); // in m
         xyz[1] = NcosLat * FastMath.sin(lon); // in m
-        xyz[2] = (N + altitude - WGS84.e2 * N) * sinLat;//(WGS84.e2inv * N  + altitude) * sinLat;    // in m
+        xyz[2] = (N + altitude - WGS84.e2 * N) * sinLat;
+        //xyz[2] = (WGS84.e2inv * N  + altitude) * sinLat;    // in m
     }
 
     /**
@@ -149,7 +150,7 @@ public final class GeoUtils
         final double s = Math.sqrt(x*x + y*y);
         final double theta = FastMath.atan(z*a/(s*b));
 
-        geoPos.lon = (float)(FastMath.atan(y/x) * org.esa.beam.util.math.MathUtils.RTOD);
+        geoPos.lon = FastMath.atan(y/x) * org.esa.beam.util.math.MathUtils.RTOD;
         
         if (geoPos.lon < 0.0 && y >= 0.0) {
             geoPos.lon += 180.0;
@@ -157,9 +158,9 @@ public final class GeoUtils
             geoPos.lon -= 180.0;
         }
 
-        geoPos.lat = (float)(FastMath.atan((z + ep2*b*FastMath.pow(FastMath.sin(theta), 3)) /
+        geoPos.lat = FastMath.atan((z + ep2*b*FastMath.pow(FastMath.sin(theta), 3)) /
                                        (s - e2*a*FastMath.pow(FastMath.cos(theta), 3))) *
-                                       org.esa.beam.util.math.MathUtils.RTOD);
+                                       org.esa.beam.util.math.MathUtils.RTOD;
     }
 
     /**
@@ -175,7 +176,7 @@ public final class GeoUtils
         final double s = Math.sqrt(x*x + y*y);
         final double theta = FastMath.atan(z*WGS84.a/(s*WGS84.b));
 
-        geoPos.lon = (float)(FastMath.atan(y/x) * org.esa.beam.util.math.MathUtils.RTOD);
+        geoPos.lon = FastMath.atan(y/x) * org.esa.beam.util.math.MathUtils.RTOD;
 
         if (geoPos.lon < 0.0 && y >= 0.0) {
             geoPos.lon += 180.0;
@@ -183,9 +184,9 @@ public final class GeoUtils
             geoPos.lon -= 180.0;
         }
 
-        geoPos.lat = (float)(FastMath.atan((z + WGS84.ep2*WGS84.b*FastMath.pow(FastMath.sin(theta), 3)) /
+        geoPos.lat = FastMath.atan((z + WGS84.ep2*WGS84.b*FastMath.pow(FastMath.sin(theta), 3)) /
                 (s - WGS84.e2*WGS84.a*FastMath.pow(FastMath.cos(theta), 3))) *
-                org.esa.beam.util.math.MathUtils.RTOD);
+                org.esa.beam.util.math.MathUtils.RTOD;
     }
 
     /**

@@ -269,21 +269,21 @@ public class TiePointGeoCodingTest extends TestCase {
         float delta = 0.1f;
 
         // Test latitude out of bounds
-        assertTrue(Float.isNaN(ts.gc.normalizeLat(-90 - delta)));
-        assertTrue(Float.isNaN(ts.gc.normalizeLat(+90 + delta)));
+        assertTrue(Double.isNaN(ts.gc.normalizeLat(-90 - delta)));
+        assertTrue(Double.isNaN(ts.gc.normalizeLat(+90 + delta)));
         // Test latitude within bounds
-        assertFalse(Float.isNaN(ts.gc.normalizeLat(-90)));
-        assertFalse(Float.isNaN(ts.gc.normalizeLat(+90)));
+        assertFalse(Double.isNaN(ts.gc.normalizeLat(-90)));
+        assertFalse(Double.isNaN(ts.gc.normalizeLat(+90)));
 
         // Test longitude out of bounds
-        assertTrue(Float.isNaN(ts.gc.normalizeLon(-180 - delta)));
-        assertTrue(Float.isNaN(ts.gc.normalizeLon(+180 + delta)));
+        assertTrue(Double.isNaN(ts.gc.normalizeLon(-180 - delta)));
+        assertTrue(Double.isNaN(ts.gc.normalizeLon(+180 + delta)));
 
         // Test around lonMin. Care here! lonMin can be > +180
-        float lonMin = Math.max(-180, ts.gc.getNormalizedLonMin());
-        assertTrue(Float.isNaN(ts.gc.normalizeLon(lonMin - delta)));
-        assertFalse(Float.isNaN(ts.gc.normalizeLon(lonMin)));
-        assertFalse(Float.isNaN(ts.gc.normalizeLon(lonMin + delta)));
+        double lonMin = Math.max(-180, ts.gc.getNormalizedLonMin());
+        assertTrue(Double.isNaN(ts.gc.normalizeLon(lonMin - delta)));
+        assertFalse(Double.isNaN(ts.gc.normalizeLon(lonMin)));
+        assertFalse(Double.isNaN(ts.gc.normalizeLon(lonMin + delta)));
     }
 
 
@@ -352,8 +352,8 @@ public class TiePointGeoCodingTest extends TestCase {
             float[] lats = new float[numCoords];
             float[] lons = new float[numCoords];
             for (int i = 0; i < numCoords; i++) {
-                lats[i] = targetCoords[i].lat;
-                lons[i] = targetCoords[i].lon;
+                lats[i] = (float)targetCoords[i].lat;
+                lons[i] = (float)targetCoords[i].lon;
             }
 
             TiePointGrid latGrid = new TiePointGrid("lat", gridW, gridH, 0.0f, 0.0f, stepX, stepY, lats);
@@ -380,7 +380,7 @@ public class TiePointGeoCodingTest extends TestCase {
 
         private GeoPos[] transformGeoPositions(GeoPos[] sourceGpArray) {
             int numCoords = sourceGpArray.length;
-            float[] sourceCoords = new float[2 * numCoords];
+            double[] sourceCoords = new double[2 * numCoords];
             for (int i = 0; i < numCoords; i++) {
                 GeoPos geoPos = sourceGpArray[i];
                 sourceCoords[2 * i] = geoPos.lon;

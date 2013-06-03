@@ -2256,8 +2256,8 @@ public final class ERSCalibrator extends BaseCalibrator implements Calibrator {
         final int y = sourceImageHeight/2;
         for (int x = 0; x < sourceImageWidth; x++) {
 
-            final double alpha = incidenceAngleTiePointGrid.getPixelFloat(x + 0.5f, y + 0.5f) * MathUtils.DTOR; // in radian
-            final double time = slantRangeTimeTiePointGrid.getPixelFloat(x + 0.5f, y + 0.5f) / 1000000000.0; //convert ns to s
+            final double alpha = incidenceAngleTiePointGrid.getPixelDouble(x + 0.5f, y + 0.5f) * MathUtils.DTOR; // in radian
+            final double time = slantRangeTimeTiePointGrid.getPixelDouble(x + 0.5f, y + 0.5f) / Constants.oneBillion; //convert ns to s
             final double r = time * Constants.halfLightSpeed; // in m
             final double theta = alpha - FastMath.asin(FastMath.sin(alpha) * r / rSat); // in radian
 
