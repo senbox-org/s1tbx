@@ -103,16 +103,14 @@ abstract class ObservationIterator implements Iterator<Observation> {
         SamplePointer pointer = getPointer();
 
         Point2D.Float superSamplingPoint = pointer.getSuperSamplingPoint();
-        final PixelPos pixelPos = new PixelPos();
-        pixelPos.setLocation(x + superSamplingPoint.x, y + superSamplingPoint.y);
+        final PixelPos pixelPos = new PixelPos(x + superSamplingPoint.x, y + superSamplingPoint.y);
         final GeoPos geoPos = getGeoPos(pixelPos);
 
         double mjd = 0.0;
-        if (product != null) {
+        if (product != null && dataPeriod != null) {
             ProductData.UTC scanLineTime = ProductUtils.getScanLineTime(product, y + 0.5);
             mjd = scanLineTime.getMJD();
-            if (dataPeriod != null &&
-                dataPeriod.getObservationMembership(geoPos.lon, mjd) != DataPeriod.Membership.CURRENT_PERIOD) {
+            if (dataPeriod.getObservationMembership(geoPos.lon, mjd) != DataPeriod.Membership.CURRENT_PERIOD) {
                 return null;
             }
         }
