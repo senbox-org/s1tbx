@@ -19,6 +19,7 @@ import Jama.Matrix;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.util.ProductUtils;
+import org.esa.beam.util.math.MathUtils;
 import org.esa.nest.dataio.FileImageInputStreamExtImpl;
 import org.esa.nest.dataio.XMLProductDirectory;
 import org.esa.nest.dataio.imageio.ImageIOFile;
@@ -222,7 +223,7 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
         }
 
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.slant_range_to_first_pixel,
-                (Math.min(slantRangeCorners[0], slantRangeCorners[2]) / Constants.oneBillion) * Constants.halfLightSpeed);
+                (Math.min(slantRangeCorners[0], slantRangeCorners[2]) / 1000000000.0) * Constants.halfLightSpeed);
         // Note: Here we use the minimum of the slant range times of two corners because the original way cause
         //       problem for stripmap product when the two slant range times are different.
 
@@ -418,8 +419,8 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
         final File georefFile = new File(getBaseDir(), "ANNOTATION"+File.separator+"GEOREF.xml");
         if(georefFile.exists()) {
             try {
-                //readGeoRef(product, georefFile);
-                //return;
+                readGeoRef(product, georefFile);
+                return;
             } catch(Exception e) {
                 //
             }
@@ -443,10 +444,12 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
         final Element tReferenceTimeUTC = gridReferenceTime.getChild("tReferenceTimeUTC");
 
         final int size = numAz*numRg;
-        final float[] latList = new float[size];
-        final float[] lonList = new float[size];
-        final float[] incList = new float[size];
-        final float[] tauList = new float[size];
+        final double[] latList = new double[size];
+        final double[] lonList = new double[size];
+        final double[] incList = new double[size];
+        final double[] timeList = new double[size];
+        final int[] row = new int[size];
+        final int[] col = new int[size];
 
         //final boolean flip = !isSLC();
 
@@ -467,57 +470,136 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
             }
             */
             final Element tElem = pnt.getChild("tau");
-            tauList[index] = (float)(Double.parseDouble(tElem.getValue()));
+            timeList[index] = Double.parseDouble(tElem.getValue());
 
             final Element latElem = pnt.getChild("lat");
-            latList[index] = (float)Double.parseDouble(latElem.getValue());
+            latList[index] = Double.parseDouble(latElem.getValue());
             final Element lonElem = pnt.getChild("lon");
-            lonList[index] = (float)Double.parseDouble(lonElem.getValue());
+            lonList[index] = Double.parseDouble(lonElem.getValue());
 
-            int row = -1, col = -1;
             final Element rowElem = pnt.getChild("row");
             if(rowElem != null) {
-                row = Integer.parseInt(rowElem.getValue());
+                row[index] = Integer.parseInt(rowElem.getValue()) - 1;
             }
             final Element colElem = pnt.getChild("col");
             if(colElem != null) {
-                col = Integer.parseInt(colElem.getValue());
+                col[index] = Integer.parseInt(colElem.getValue()) - 1;
             }
 
             final Element incElem = pnt.getChild("inc");
-            incList[index] = (float)Double.parseDouble(incElem.getValue());
+            incList[index] = Double.parseDouble(incElem.getValue());
 
             ++i;
         }
 
         final int gridWidth = numRg;
         final int gridHeight = numAz;
-        final double subSamplingX = product.getSceneRasterWidth() / (double)(gridWidth - 1);
-        final double subSamplingY = product.getSceneRasterHeight() / (double)(gridHeight - 1);
+        final int newGridWidth = gridWidth;
+        final int newGridHeight = gridHeight;
+        final float[] newLatList = new float[newGridWidth*newGridHeight];
+        final float[] newLonList = new float[newGridWidth*newGridHeight];
+        final float[] newIncList = new float[newGridWidth*newGridHeight];
+        final int sceneRasterWidth = product.getSceneRasterWidth();
+        final int sceneRasterHeight = product.getSceneRasterHeight();
+        final double subSamplingX = sceneRasterWidth / (double)(newGridWidth - 1);
+        final double subSamplingY = sceneRasterHeight / (double)(newGridHeight - 1);
 
-        final TiePointGrid latGrid = new TiePointGrid(OperatorUtils.TPG_LATITUDE, gridWidth, gridHeight, 0, 0,
-                subSamplingX, subSamplingY, latList);
+        getListInEvenlySpacedGrid(sceneRasterWidth, sceneRasterHeight, gridWidth, gridHeight, col, row, latList,
+                newGridWidth, newGridHeight, subSamplingX, subSamplingY, newLatList);
+
+        getListInEvenlySpacedGrid(sceneRasterWidth, sceneRasterHeight, gridWidth, gridHeight, col, row, lonList,
+                newGridWidth, newGridHeight, subSamplingX, subSamplingY, newLonList);
+
+        getListInEvenlySpacedGrid(sceneRasterWidth, sceneRasterHeight, gridWidth, gridHeight, col, row, incList,
+                newGridWidth, newGridHeight, subSamplingX, subSamplingY, newIncList);
+
+        final TiePointGrid latGrid = new TiePointGrid(OperatorUtils.TPG_LATITUDE,
+                newGridWidth, newGridHeight, 0.5f, 0.5f, subSamplingX, subSamplingY, newLatList);
         latGrid.setUnit(Unit.DEGREES);
-
-        final TiePointGrid lonGrid = new TiePointGrid(OperatorUtils.TPG_LONGITUDE, gridWidth, gridHeight, 0, 0,
-                subSamplingX, subSamplingY, lonList, TiePointGrid.DISCONT_AT_180);
-        lonGrid.setUnit(Unit.DEGREES);
-
-        final TiePointGeoCoding tpGeoCoding = new TiePointGeoCoding(latGrid, lonGrid, Datum.WGS_84);
-
         product.addTiePointGrid(latGrid);
-        product.addTiePointGrid(lonGrid);
-        product.setGeoCoding(tpGeoCoding);
 
-        final TiePointGrid incidentAngleGrid = new TiePointGrid(OperatorUtils.TPG_INCIDENT_ANGLE, gridWidth, gridHeight, 0, 0,
-                subSamplingX, subSamplingY, incList);
+        final TiePointGrid lonGrid = new TiePointGrid(OperatorUtils.TPG_LONGITUDE,
+                newGridWidth, newGridHeight, 0.5f, 0.5f, subSamplingX, subSamplingY, newLonList, TiePointGrid.DISCONT_AT_180);
+        lonGrid.setUnit(Unit.DEGREES);
+        product.addTiePointGrid(lonGrid);
+
+        final TiePointGrid incidentAngleGrid = new TiePointGrid(OperatorUtils.TPG_INCIDENT_ANGLE,
+                newGridWidth, newGridHeight, 0.5f, 0.5f, subSamplingX, subSamplingY, newIncList);
         incidentAngleGrid.setUnit(Unit.DEGREES);
         product.addTiePointGrid(incidentAngleGrid);
 
-        final TiePointGrid tauGrid = new TiePointGrid("Tau", gridWidth, gridHeight, 0, 0,
-                subSamplingX, subSamplingY, tauList);
-        tauGrid.setUnit(Unit.NANOSECONDS);
-        product.addTiePointGrid(tauGrid);
+        final TiePointGeoCoding tpGeoCoding = new TiePointGeoCoding(latGrid, lonGrid, Datum.WGS_84);
+        product.setGeoCoding(tpGeoCoding);
+
+       // final TiePointGrid timeGrid = new TiePointGrid("Time", gridWidth, gridHeight, 0, 0,
+      //          subSamplingX, subSamplingY, timeList);
+      //  timeGrid.setUnit(Unit.NANOSECONDS);
+      //  product.addTiePointGrid(timeGrid);
+    }
+
+    private static void getListInEvenlySpacedGrid(
+            final int sceneRasterWidth, final int sceneRasterHeight, final int sourceGridWidth,
+            final int sourceGridHeight, final int [] x, final int [] y, final double[] sourcePointList,
+            final int targetGridWidth, final int targetGridHeight, final double subSamplingX, final double subSamplingY,
+            final float[] targetPointList) {
+
+        if (sourcePointList.length != sourceGridWidth*sourceGridHeight) {
+            throw new IllegalArgumentException(
+                    "Original tie point array size does not match 'sourceGridWidth' x 'sourceGridHeight'");
+        }
+
+        if (targetPointList.length != targetGridWidth*targetGridHeight) {
+            throw new IllegalArgumentException(
+                    "Target tie point array size does not match 'targetGridWidth' x 'targetGridHeight'");
+        }
+
+        int k = 0;
+        for (int r = 0; r < targetGridHeight; r++) {
+
+            double newY = r*subSamplingY;
+            if (newY > sceneRasterHeight - 1) {
+                newY = sceneRasterHeight - 1;
+            }
+            double oldY0 = 0, oldY1 = 0;
+            int j0 = 0, j1 = 0;
+            for (int rr = 1; rr < sourceGridHeight; rr++) {
+                j0 = rr - 1;
+                j1 = rr;
+                oldY0 = y[j0*sourceGridWidth];
+                oldY1 = y[j1*sourceGridWidth];
+                if (oldY1 > newY) {
+                    break;
+                }
+            }
+
+            final double wj = (newY - oldY0)/(oldY1 - oldY0);
+
+            for (int c = 0; c < targetGridWidth; c++) {
+
+                double newX = c*subSamplingX;
+                if (newX > sceneRasterWidth - 1) {
+                    newX = sceneRasterWidth - 1;
+                }
+                double oldX0 = 0, oldX1 = 0;
+                int i0 = 0, i1 = 0;
+                for (int cc = 1; cc < sourceGridWidth; cc++) {
+                    i0 = cc - 1;
+                    i1 = cc;
+                    oldX0 = x[i0];
+                    oldX1 = x[i1];
+                    if (oldX1 > newX) {
+                        break;
+                    }
+                }
+                final double wi = (newX - oldX0)/(oldX1 - oldX0);
+
+                targetPointList[k++] = (float) MathUtils.interpolate2D(wi, wj,
+                        sourcePointList[i0 + j0 * sourceGridWidth],
+                        sourcePointList[i1 + j0 * sourceGridWidth],
+                        sourcePointList[i0 + j1 * sourceGridWidth],
+                        sourcePointList[i1 + j1 * sourceGridWidth]);
+            }
+        }
     }
 
     @Override
