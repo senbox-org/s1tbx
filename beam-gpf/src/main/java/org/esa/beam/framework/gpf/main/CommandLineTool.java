@@ -361,8 +361,8 @@ class CommandLineTool implements GraphProcessingObserver {
                 try {
                     domConverter.convertDomToValue(parametersElement, container);
                 } catch (ConversionException e) {
-                    String msgPattern = "Can not convert XML parameters for operator '%s'";
-                    throw new RuntimeException(String.format(msgPattern, operatorName));
+                    String msgPattern = "Can not convert XML parameters for operator '%s'. Reason: %s";
+                    throw new RuntimeException(String.format(msgPattern, operatorName, e.getMessage()), e);
                 }
             }
         }
