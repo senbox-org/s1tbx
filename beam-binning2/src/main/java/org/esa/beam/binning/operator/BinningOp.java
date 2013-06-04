@@ -63,7 +63,6 @@ import java.io.IOException;
 import java.io.Writer;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -276,22 +275,19 @@ public class BinningOp extends Operator implements Output {
 
         if (startDate != null && useSpatialDataDay) {
             binningConfig.setStartDate(startDate);
-            // todo - clarify this!
-//            if (startDateUtc != null && endDateUtc != null) {
-//                binningConfig.setPeriodDuration((int) Math.round(endDateUtc.getMJD() - startDateUtc.getMJD()));
-//            }
         }
 
         binningContext = binningConfig.createBinningContext();
 
-        sourceProducts = filterSourceProducts(sourceProducts, binningContext.getDataPeriod(), startDateUtc, endDateUtc);
+        ProductFilter productFilter = createSourceProductFilter(binningContext.getDataPeriod(),
+                                                                startDateUtc, endDateUtc);
 
         metadataProperties = new TreeMap<String, String>();
         sourceProductCount = 0;
 
         try {
             // Step 1: Spatial binning - creates time-series of spatial bins for each bin ID ordered by ID. The tree map structure is <ID, time-series>
-            SpatialBinCollection spatialBinMap = doSpatialBinning();
+            SpatialBinCollection spatialBinMap = doSpatialBinning(productFilter);
             if (!spatialBinMap.isEmpty()) {
                 // Step 2: Temporal binning - creates a list of temporal bins, sorted by bin ID
                 TemporalBinList temporalBins = doTemporalBinning(spatialBinMap);
@@ -389,32 +385,24 @@ public class BinningOp extends Operator implements Output {
         }
     }
 
-    Product[] filterSourceProducts(Product[] sourceProducts, DataPeriod dataPeriod,
-                                   ProductData.UTC startTime, ProductData.UTC endTime) {
-        if (sourceProducts == null) {
-            return null;
-        }
+    ProductFilter createSourceProductFilter(DataPeriod dataPeriod, ProductData.UTC startTime, ProductData.UTC endTime) {
         if (startTime == null && endTime == null && !useSpatialDataDay) {
-            return sourceProducts;
+            return new AllProductFilter();
         }
 
-        final ProductFilter filter;
         if (useSpatialDataDay) {
-            filter = new SpatialDataDaySourceProductFilter(dataPeriod);
+            return new SpatialDataDaySourceProductFilter(dataPeriod);
         } else {
-            filter = new SourceProductFilter(startTime, endTime);
+            return new SourceProductFilter(startTime, endTime);
         }
+    }
 
-        final List<Product> acceptedProductList = new ArrayList<Product>();
-        for (Product sourceProduct : sourceProducts) {
-            if (filter.accept(sourceProduct)) {
-                acceptedProductList.add(sourceProduct);
-            } else {
-                getLogger().warning("Filtered out product '" + sourceProduct.getFileLocation() + "'");
-                sourceProduct.dispose();
-            }
+    static class AllProductFilter implements ProductFilter {
+
+        @Override
+        public boolean accept(Product product) {
+            return true;
         }
-        return acceptedProductList.toArray(new Product[acceptedProductList.size()]);
     }
 
     private void cleanSourceProducts() {
@@ -537,12 +525,16 @@ public class BinningOp extends Operator implements Output {
         return ProductIO.readProduct(new File(formatterConfig.getOutputFile()));
     }
 
-    private SpatialBinCollection doSpatialBinning() throws IOException {
+    private SpatialBinCollection doSpatialBinning(ProductFilter productFilter) throws IOException {
         SpatialBinCollector spatialBinCollector = new GeneralSpatialBinCollector(binningContext.getPlanetaryGrid().getNumBins());
         final SpatialBinner spatialBinner = new SpatialBinner(binningContext, spatialBinCollector);
         if (sourceProducts != null) {
             for (Product sourceProduct : sourceProducts) {
-                processSource(sourceProduct, spatialBinner);
+                if (productFilter.accept(sourceProduct)) {
+                    processSource(sourceProduct, spatialBinner);
+                } else {
+                    getLogger().warning("Filtered out product '" + sourceProduct.getFileLocation() + "'");
+                }
             }
         }
         if (sourceProductPaths != null) {
@@ -557,7 +549,11 @@ public class BinningOp extends Operator implements Output {
                 Product sourceProduct = ProductIO.readProduct(file);
                 if (sourceProduct != null) {
                     try {
-                        processSource(sourceProduct, spatialBinner);
+                        if (productFilter.accept(sourceProduct)) {
+                            processSource(sourceProduct, spatialBinner);
+                        } else {
+                            getLogger().warning("Filtered out product '" + sourceProduct.getFileLocation() + "'");
+                        }
                     } finally {
                         sourceProduct.dispose();
                     }
@@ -577,6 +573,8 @@ public class BinningOp extends Operator implements Output {
         stopWatch.start();
         updateDateRangeUtc(sourceProduct);
         getLogger().info(String.format("Spatial binning of product '%s'...", sourceProduct.getName()));
+        getLogger().fine(String.format("Product start time '%s'...", sourceProduct.getStartTime()));
+        getLogger().fine(String.format("Product end time   '%s'...", sourceProduct.getEndTime()));
         final long numObs = SpatialProductBinner.processProduct(sourceProduct, spatialBinner,
                                                                 binningContext.getSuperSampling(), addedBands,
                                                                 ProgressMonitor.NULL);
