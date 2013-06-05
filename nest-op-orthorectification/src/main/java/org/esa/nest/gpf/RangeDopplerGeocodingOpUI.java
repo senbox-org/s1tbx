@@ -97,8 +97,8 @@ public class RangeDopplerGeocodingOpUI extends BaseOperatorUI {
     private Double extNoDataValue = 0.0;
     private Double azimuthPixelSpacing = 0.0;
     private Double rangePixelSpacing = 0.0;
-    private double pixMSaved = 0.0;
-    private double pixDSaved = 0.0;
+    private Double pixMSaved = 0.0;
+    private Double pixDSaved = 0.0;
 
     private String savedProductName = null;
 
@@ -284,27 +284,21 @@ public class RangeDopplerGeocodingOpUI extends BaseOperatorUI {
         mapProjHandler.initParameters(mapProjection, sourceProducts);
         crsButton.setText(mapProjHandler.getCRSName());
 
-        final Double pixelSpacingInMeterVal = (Double)paramMap.get("pixelSpacingInMeter");
-        if(pixelSpacingInMeterVal != null && pixelSpacingInMeterVal != 0.0) {
-            pixelSpacingInMeter.setText(String.valueOf(pixelSpacingInMeterVal));
-            pixMSaved = pixelSpacingInMeterVal;
+        pixMSaved = (Double)paramMap.get("pixelSpacingInMeter");
+        if(pixMSaved != null && pixMSaved != 0.0) {
+            pixelSpacingInMeter.setText(String.valueOf(pixMSaved));
         }
 
-        final Double pixelSpacingInDegreeVal = (Double)paramMap.get("pixelSpacingInDegree");
-        if(pixelSpacingInDegreeVal != null && pixelSpacingInDegreeVal != 0.0) {
-            pixelSpacingInDegree.setText(String.valueOf(pixelSpacingInDegreeVal));
-            pixDSaved = pixelSpacingInDegreeVal;
+        pixDSaved = (Double)paramMap.get("pixelSpacingInDegree");
+        if(pixDSaved != null && pixDSaved != 0.0) {
+            pixelSpacingInDegree.setText(String.valueOf(pixDSaved));
         }
 
-        Boolean productChanged = false;
         if (sourceProducts != null) {
             final String productName = sourceProducts[0].getName();
             if(!productName.equals(savedProductName)) {
-                productChanged = true;
                 savedProductName = productName;
-            }
 
-            if (azimuthPixelSpacing == 0.0 || rangePixelSpacing == 0.0 || productChanged) {
                 try {
                     azimuthPixelSpacing = SARGeocoding.getAzimuthPixelSpacing(sourceProducts[0]);
                     rangePixelSpacing = SARGeocoding.getRangePixelSpacing(sourceProducts[0]);
@@ -318,7 +312,7 @@ public class RangeDopplerGeocodingOpUI extends BaseOperatorUI {
                 sourcePixelSpacingsLabelPart2.setText(text);
             }
 
-            if(pixelSpacingInMeter.getText().isEmpty()) {
+            if(pixDSaved == null || pixDSaved == 0.0) {
                 Double pixM, pixD;
                 try {
                     pixM = Math.max(azimuthPixelSpacing, rangePixelSpacing);

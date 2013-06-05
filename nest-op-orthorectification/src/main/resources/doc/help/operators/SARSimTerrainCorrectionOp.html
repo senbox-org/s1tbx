@@ -4,7 +4,8 @@
 
 
 
-<link rel="stylesheet" href="../style.css"></head><body>
+<link rel="stylesheet" href="../style.css"></head>
+<body>
 <table class="header">
 <tbody>
 <tr class="header">
@@ -32,7 +33,7 @@ steps and parameters used in co-registration, please refer to the&nbsp;<a href="
 the DEM grid, compute its corresponding pixel position in the simulated SAR image using
 SAR model. Then its corresponding pixel position in the original SAR image can be found
 with the help of the WARP function. Finally the pixel value for the
-orthorectified image can be obtained from the original SAR image using&nbsp;interpolation.</li></ol><h4>Product Supported</h4><ul><li>ASAR (IMS, IMP, IMM, APP, APM, WSM) and ERS products (SLC, IMP) are fully supported.</li><li>Third party mission: not fully supported. Please refer to Supported_Products&amp;MainTools_4A.xls file available from <span style="text-decoration: underline;">http://liferay.array.ca:8080/web/nest/documentation</span>.</li></ul><h4>DEM Supported</h4><p>Currently, only the DEMs with geographic coordinates (P<sub>lat</sub>, P<sub>lon</sub>, P<sub>h</sub>) referred to global geodetic ellipsoid reference WGS84 (and height in meters) are properly supported.</p><p>Various different types of Digital Elevation
+orthorectified image can be obtained from the original SAR image using&nbsp;interpolation.</li></ol><h4>Products Supported</h4><ul><li>ASAR (IMS, IMP, IMM, APP, APM, WSM),&nbsp;ERS products (SLC, IMP),&nbsp;RADARSAT-2, TerraSAR-X are fully supported.</li><li>Some third party missions are not fully supported. Please refer to the <a href="http://corp.array.ca/nest-web/docs/Supported_Mission-Product_vs_Operators_table.xls">Supported_Mission-Product_vs_Operators_table.xls</a></li></ul><h4>DEM Supported</h4><p>Currently, only the DEMs with geographic coordinates (P<sub>lat</sub>, P<sub>lon</sub>, P<sub>h</sub>) referred to global geodetic ellipsoid reference WGS84 (and height in meters) are properly supported.</p><p>Various different types of Digital Elevation
 models can be used (ACE, GETASSE30,&nbsp;ASTER, SRTM 3Sec&nbsp;GeoTiff).</p><p>By
 default directory C:\AuxData and two sub-directories DEMs
 and&nbsp;Orbits are used to store the DEMs. However, the AuxData
@@ -69,7 +70,7 @@ the earth centre.&nbsp;</p><p>Note that among&nbsp;<span style="font-style: ital
 by default the projected local incidence angle from DEM [2] (local
 incidence angle projected into range plane) option is selected, but the
 option of incidence angle from ellipsoid correction (incidence angle
-from tie points of the source product) is also available.<br></p><h4>Product Supported</h4><ul><li>ASAR (IMS, IMP, IMM, APP, APM, WSM) and ERS products (SLC, IMP) are fully supported.</li><li>Third party mission: not fully supported. Please refer to Supported_Products&amp;MainTools_4A.xls file available from <span style="text-decoration: underline;">http://liferay.array.ca:8080/web/nest/documentation</span>.</li></ul><h4>ENVISAT ASAR</h4>
+from tie points of the source product) is also available.<br></p><h4>Products Supported</h4><ul><li>ASAR (IMS, IMP, IMM, APP, APM, WSM),&nbsp;ERS products (SLC, IMP),&nbsp;RADARSAT-2, TerraSAR-X are fully supported.</li><li>Some third party missions are not fully supported. Please refer to the <a href="http://corp.array.ca/nest-web/docs/Supported_Mission-Product_vs_Operators_table.xls">Supported_Mission-Product_vs_Operators_table.xls</a></li></ul><h4>ENVISAT ASAR</h4>
 <p>
 The correction factors [3] applied to the original image depend on if
 the product is complex or detected and&nbsp;the selection of Auxiliary
