@@ -149,11 +149,12 @@ public class DEMFactory {
      * @throws Exception from DEM
      */
     public static boolean getLocalDEM(final ElevationModel dem, final float demNoDataValue,
+                                      final String demResamplingMethod,
                                        final TileGeoreferencing tileGeoRef,
                                        final int x0, final int y0,
                                        final int tileWidth, final int tileHeight,
                                        final double[][] localDEM) throws Exception {
-        if(dem.getResampling() == null) {
+        if(demResamplingMethod.equals(DELAUNAY_INTERPOLATION)) {
             return getLocalDEMUsingDelaunayInterpolation(dem, demNoDataValue, tileGeoRef, x0, y0, tileWidth, tileHeight, localDEM);
         }
 

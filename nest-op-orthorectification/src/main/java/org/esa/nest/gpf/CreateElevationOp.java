@@ -177,7 +177,7 @@ public final class CreateElevationOp extends Operator {
 
                 final float demNoDataValue = dem.getDescriptor().getNoDataValue();
                 final double[][] localDEM = new double[h+2][w+2];
-                DEMFactory.getLocalDEM(dem, demNoDataValue, tileGeoRef, x0, y0, w, h, localDEM);
+                DEMFactory.getLocalDEM(dem, demNoDataValue, resamplingMethod, tileGeoRef, x0, y0, w, h, localDEM);
 
                 final TileIndex trgIndex = new TileIndex(targetTile);
 

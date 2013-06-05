@@ -86,9 +86,7 @@ public class CreateElevationAction extends ExecCommand {
         computeBands(product,
                      demDescriptor,
                      dialogData.outputElevationBand ? dialogData.elevationBandName : null,
-                     resampling,
-                     dialogData.outputDemCorrectedBands ? dialogData.latitudeBandName : null,
-                     dialogData.outputDemCorrectedBands ? dialogData.longitudeBandName : null);
+                     resampling);
     }
 
     @Override
@@ -100,37 +98,12 @@ public class CreateElevationAction extends ExecCommand {
     private static void computeBands(final Product product,
                               final ElevationModelDescriptor demDescriptor,
                               final String elevationBandName,
-                              final Resampling resampling,
-                              final String latitudeBandName,
-                              final String longitudeBandName) {
+                              final Resampling resampling) {
 
         final ElevationModel dem = demDescriptor.createDem(resampling);
         if (elevationBandName != null) {
             addElevationBand(product, dem, elevationBandName);
         }
-        if (latitudeBandName != null && longitudeBandName != null) {
-            addGeoPosBands(product, dem, latitudeBandName, longitudeBandName);
-        }
-    }
-
-    private static void addGeoPosBands(Product product, ElevationModel dem, String latitudeBandName, String longitudeBandName) {
-        final int width = product.getSceneRasterWidth();
-        final int height = product.getSceneRasterHeight();
-        final Orthorectifier orthorectifier = new Orthorectifier2(width, height, product.getBandAt(0).getPointing(), dem, 25);
-
-        final Band latitudeBand = product.addBand(latitudeBandName, ProductData.TYPE_FLOAT32);
-        latitudeBand.setSynthetic(true);
-        latitudeBand.setNoDataValue(Double.NaN);
-        latitudeBand.setUnit("deg");
-        latitudeBand.setDescription("DEM-corrected latitude");
-        latitudeBand.setSourceImage(createLatitudeSourceImage(orthorectifier, latitudeBand));
-
-        final Band longitudeBand = product.addBand(longitudeBandName, ProductData.TYPE_FLOAT32);
-        longitudeBand.setSynthetic(true);
-        longitudeBand.setNoDataValue(Double.NaN);
-        longitudeBand.setUnit("deg");
-        longitudeBand.setDescription("DEM-corrected longitude");
-        longitudeBand.setSourceImage(createLongitudeSourceImage(orthorectifier, longitudeBand));
     }
 
     private static void addElevationBand(Product product, ElevationModel dem, String elevationBandName) {
@@ -154,24 +127,6 @@ public class CreateElevationAction extends ExecCommand {
         });
     }
 
-    private static DefaultMultiLevelImage createLongitudeSourceImage(final Orthorectifier orthorectifier, final Band band) {
-        return new DefaultMultiLevelImage(new AbstractMultiLevelSource(ImageManager.getMultiLevelModel(band)) {
-            @Override
-            protected RenderedImage createImage(final int level) {
-                return new LongitudeSourceImage(orthorectifier, band, ResolutionLevel.create(getModel(), level));
-            }
-        });
-    }
-
-    private static DefaultMultiLevelImage createLatitudeSourceImage(final Orthorectifier orthorectifier, final Band band) {
-        return new DefaultMultiLevelImage(new AbstractMultiLevelSource(ImageManager.getMultiLevelModel(band)) {
-            @Override
-            protected RenderedImage createImage(final int level) {
-                return new LatitudeSourceImage(orthorectifier, band, ResolutionLevel.create(getModel(), level));
-            }
-        });
-    }
-
     private static boolean isOrtorectifiable(Product product) {
         return product.getNumBands() > 0 && product.getBandAt(0).canBeOrthorectified();
     }
@@ -190,7 +145,7 @@ public class CreateElevationAction extends ExecCommand {
         final DialogData dialogData = new DialogData("SRTM 3sec (Auto Download)", ResamplingFactory.BILINEAR_INTERPOLATION_NAME, ortorectifiable);
         PropertySet propertySet = PropertyContainer.createObjectBacked(dialogData);
         configureDemNameProperty(propertySet, "demName", demNames, "SRTM 3sec (Auto Download)");
-        configureDemNameProperty(propertySet, "resamplingMethod", DEMFactory.getDEMResamplingMethods(),
+        configureDemNameProperty(propertySet, "resamplingMethod", ResamplingFactory.resamplingNames,
                                  ResamplingFactory.BILINEAR_INTERPOLATION_NAME);
         configureBandNameProperty(propertySet, "elevationBandName", product);
         configureBandNameProperty(propertySet, "latitudeBandName", product);
@@ -421,38 +376,7 @@ public class CreateElevationAction extends ExecCommand {
         }
     }
 
-    private static class LongitudeSourceImage extends RasterDataNodeSampleOpImage {
-        private final Orthorectifier orthorectifier;
-
-        public LongitudeSourceImage(Orthorectifier orthorectifier, Band band, ResolutionLevel level) {
-            super(band, level);
-            this.orthorectifier = orthorectifier;
-        }
-
-        @Override
-        protected double computeSample(int sourceX, int sourceY) {
-            GeoPos geoPos = orthorectifier.getGeoPos(new PixelPos(sourceX, sourceY), null);
-            return geoPos.lon;
-        }
-    }
-
-    private static class LatitudeSourceImage extends RasterDataNodeSampleOpImage {
-        private final Orthorectifier orthorectifier;
-
-        public LatitudeSourceImage(Orthorectifier orthorectifier, Band band, ResolutionLevel level) {
-            super(band, level);
-            this.orthorectifier = orthorectifier;
-        }
-
-        @Override
-        protected double computeSample(int sourceX, int sourceY) {
-            GeoPos geoPos = orthorectifier.getGeoPos(new PixelPos(sourceX, sourceY), null);
-            return geoPos.lat;
-        }
-    }
-
-
-    class DialogData {
+    private static class DialogData {
         String demName;
         String resamplingMethod;
         boolean outputElevationBand;

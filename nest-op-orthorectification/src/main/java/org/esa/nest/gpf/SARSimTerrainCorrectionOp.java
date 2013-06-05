@@ -162,6 +162,7 @@ public class SARSimTerrainCorrectionOp extends Operator {
     private ProductNodeGroup<Placemark> masterGCPGroup = null;
     private MetadataElement absRoot = null;
     private ElevationModel dem = null;
+    private String demResamplingMethod;
 
     private boolean srgrFlag = false;
     private boolean saveLayoverShadowMask = false;
@@ -408,7 +409,7 @@ public class SARSimTerrainCorrectionOp extends Operator {
         if(isElevationModelAvailable) return;
 
         demName = absRoot.getAttributeString(AbstractMetadata.DEM);
-        final String demResamplingMethod = absRoot.getAttributeString("DEM resampling method");
+        demResamplingMethod = absRoot.getAttributeString("DEM resampling method");
         final ElevationModelRegistry elevationModelRegistry = ElevationModelRegistry.getInstance();
         final ElevationModelDescriptor demDescriptor = elevationModelRegistry.getDescriptor(demName);
         if (demDescriptor == null) {
@@ -918,7 +919,7 @@ public class SARSimTerrainCorrectionOp extends Operator {
             if(useAvgSceneHeight) {
                 DEMFactory.fillDEM(localDEM, (float) avgSceneHeight);
             } else {
-                final boolean valid = DEMFactory.getLocalDEM(dem, demNoDataValue, tileGeoRef, x0, y0, w, h, localDEM);
+                final boolean valid = DEMFactory.getLocalDEM(dem, demNoDataValue, demResamplingMethod, tileGeoRef, x0, y0, w, h, localDEM);
                 if(!valid)
                     return;
             }
