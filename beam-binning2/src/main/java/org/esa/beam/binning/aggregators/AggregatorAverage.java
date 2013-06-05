@@ -220,10 +220,6 @@ public final class AggregatorAverage extends AbstractAggregator {
             this(null, null, null, null, null);
         }
 
-        public Config(String varName, Double weightCoeff, Float fillValue) {
-            this(varName, weightCoeff, fillValue, null, null);
-        }
-
         public Config(String varName, Double weightCoeff, Float fillValue, Boolean outputCounts, Boolean writeSums) {
             super(Descriptor.NAME);
             this.varName = varName;
