@@ -172,7 +172,7 @@ public class GcpGeoCoding extends AbstractGeoCoding {
         if (geoPos == null) {
             geoPos = new GeoPos();
         }
-        geoPos.setLocation(point.getY(), point.getX());
+        geoPos.setLocation((float) point.getY(), (float) point.getX());
 
         return geoPos;
     }
@@ -349,7 +349,7 @@ public class GcpGeoCoding extends AbstractGeoCoding {
         final double lat = toDegrees(asin(zc));
         final double lon = toDegrees(atan2(yc, xc));
 
-        return new GeoPos(lat, lon);
+        return new GeoPos((float) lat, (float) lon);
     }
 
     private void initCoordinates(Placemark[] gcps) {

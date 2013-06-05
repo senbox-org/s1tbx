@@ -58,11 +58,11 @@ public class TestTiePoints  extends TestCase {
         int w = product1.getSceneRasterWidth();
         int h = product1.getSceneRasterHeight();
 
-        double[] floats1 = new double[w*h];
+        float[] floats1 = new float[w*h];
         int i=0;
         for(int x=0; x < w; ++x) {
             for(int y=0; y < h; ++y) {
-                floats1[i++] = tpg.getPixelDouble(x,y);
+                floats1[i++] = tpg.getPixelFloat(x,y);
             }
         }
 
@@ -95,7 +95,7 @@ public class TestTiePoints  extends TestCase {
 
         for(int y=0; y < h; ++y) {
             for(int x=0; x < w; ++x) {
-                final double f = tpg.getPixelDouble(x, y);
+                final float f = tpg.getPixelFloat(x, y);
 
                 System.out.println(x+','+y+' '+f+"    "+ floats[y*w+x]);
                 assertEquals(f, floats[y*w+x]);

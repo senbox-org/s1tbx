@@ -66,8 +66,8 @@ public final class TiePointGridPointing implements Pointing {
             if (sd == null) {
                 sd = new AngularDirection();
             }
-            sd.azimuth = _saGrid.getPixelDouble(pixelPos.x, pixelPos.y);
-            sd.zenith = _szGrid.getPixelDouble(pixelPos.x, pixelPos.y);
+            sd.azimuth = _saGrid.getPixelFloat(pixelPos.x, pixelPos.y);
+            sd.zenith = _szGrid.getPixelFloat(pixelPos.x, pixelPos.y);
         }
         return sd;
     }
@@ -77,14 +77,14 @@ public final class TiePointGridPointing implements Pointing {
             if (vd == null) {
                 vd = new AngularDirection();
             }
-            vd.azimuth = _vaGrid.getPixelDouble(pixelPos.x, pixelPos.y);
-            vd.zenith = _vzGrid.getPixelDouble(pixelPos.x, pixelPos.y);
+            vd.azimuth = _vaGrid.getPixelFloat(pixelPos.x, pixelPos.y);
+            vd.zenith = _vzGrid.getPixelFloat(pixelPos.x, pixelPos.y);
         }
         return vd;
     }
 
     public float getElevation(PixelPos pixelPos) {
-        return (float)(canGetElevation() ? _elGrid.getPixelDouble(pixelPos.x, pixelPos.y) : 0.0f);
+        return canGetElevation() ? _elGrid.getPixelFloat(pixelPos.x, pixelPos.y) : 0.0f;
     }
 
     public final boolean canGetElevation() {

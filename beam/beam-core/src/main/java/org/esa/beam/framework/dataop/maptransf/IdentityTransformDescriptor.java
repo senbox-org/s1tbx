@@ -126,9 +126,9 @@ public class IdentityTransformDescriptor implements MapTransformDescriptor {
          */
         public GeoPos inverse(Point2D mapPoint, GeoPos geoPoint) {
             if (geoPoint != null) {
-                geoPoint.setLocation(mapPoint.getY(), mapPoint.getX());
+                geoPoint.setLocation((float) mapPoint.getY(), (float) mapPoint.getX());
             } else {
-                geoPoint = new GeoPos(mapPoint.getY(), mapPoint.getX());
+                geoPoint = new GeoPos((float) mapPoint.getY(), (float) mapPoint.getX());
             }
             return geoPoint;
         }

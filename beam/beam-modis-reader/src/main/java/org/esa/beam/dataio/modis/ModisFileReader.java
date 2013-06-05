@@ -519,10 +519,9 @@ class ModisFileReader {
         final float[] fRet;
 
         if (dataType == ProductData.TYPE_FLOAT32) {
-            float[] fData = (float[]) buffer;
-            fRet = new float[fData.length];
+            fRet = (float[]) buffer;
             for (int n = 0; n < fRet.length; n++) {
-                fRet[n] = scale * fData[n] + offset;
+                fRet[n] = scale * fRet[n] + offset;
             }
         } else if (dataType == ProductData.TYPE_INT8) {
             byte[] sData = (byte[]) buffer;

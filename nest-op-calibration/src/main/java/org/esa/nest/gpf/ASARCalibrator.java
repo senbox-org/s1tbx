@@ -877,8 +877,8 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
         final int maxY = y0 + h;
         final int maxX = x0 + w;
 
-        final double[] incidenceAnglesArray = new double[w];
-        final double[] slantRangeTimeArray = new double[w];
+        final float[] incidenceAnglesArray = new float[w];
+        final float[] slantRangeTimeArray = new float[w];
 
         double[][] targetTileOldAntPat = null; // old antenna pattern gains for row pixels in a tile, in linear scale
         double[][] targetTileNewAntPat = null; // new antenna pattern gains for row pixels in a tile, in linear scale
@@ -1082,7 +1082,7 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
             i = (int)((latMax - latitude.getPixelFloat((float)x, (float)y, TiePointGrid.InterpMode.QUADRATIC))/delLat + 0.5);
         }
         */
-        int i = (int)((latMax - latitude.getPixelDouble(x, y))/delLat + 0.5);
+        int i = (int)((latMax - latitude.getPixelFloat((float)x, (float)y))/delLat + 0.5);
 
         if (i < 0) {
             i = 0;
@@ -1192,7 +1192,7 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
 
         } else { // for slant range product, compute slant range from slant range time
 
-            final double time = slantRangeTime.getPixelDouble((float)x, (float)y, TiePointGrid.InterpMode.QUADRATIC) /
+            final double time = slantRangeTime.getPixelFloat((float)x, (float)y, TiePointGrid.InterpMode.QUADRATIC) /
                     Constants.oneBillion; //convert ns to s
             return time * Constants.halfLightSpeed; // in m
         }

@@ -104,8 +104,8 @@ public class CfGeocodingPart extends ProfilePartIO {
         NVariable latVariable = ncFile.findVariable("lat");
         NVariable lonVariable = ncFile.findVariable("lon");
         if (geographicCRS) {
-            final double[] lat = new double[h];
-            final double[] lon = new double[w];
+            final float[] lat = new float[h];
+            final float[] lon = new float[w];
             pixelPos.x = 0 + 0.5f;
             for (int y = 0; y < h; y++) {
                 pixelPos.y = y + 0.5f;
@@ -121,8 +121,8 @@ public class CfGeocodingPart extends ProfilePartIO {
             latVariable.writeFully(Array.factory(lat));
             lonVariable.writeFully(Array.factory(lon));
         } else {
-            final double[] lat = new double[w];
-            final double[] lon = new double[w];
+            final float[] lat = new float[w];
+            final float[] lon = new float[w];
             final boolean isYFlipped = (Boolean) ctx.getProperty(Constants.Y_FLIPPED_PROPERTY_NAME);
             for (int y = 0; y < h; y++) {
                 pixelPos.y = y + 0.5f;

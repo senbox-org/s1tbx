@@ -28,8 +28,8 @@ import org.esa.nest.gpf.OperatorUtils;
  */
 class QuadInterpolator {
 
-    private final double subSamplinX;
-    private final double subSamplinY;
+    private final float subSamplinX;
+    private final float subSamplinY;
     private final double[][] warpPolynomialCoef;
     private static final int warpPolynomialOrder = 2;
 

@@ -174,7 +174,7 @@ public class ExportKmzFileAction extends ExecCommand {
                                                    product.getSceneRasterHeight() - 0.5f);
         final GeoPos upperLeftGP = geoCoding.getGeoPos(upperLeftPP, null);
         final GeoPos lowerRightGP = geoCoding.getGeoPos(lowerRightPP, null);
-        double eastLon = lowerRightGP.getLon();
+        float eastLon = lowerRightGP.getLon();
         if (geoCoding.isCrossingMeridianAt180()) {
             eastLon += 360;
         }

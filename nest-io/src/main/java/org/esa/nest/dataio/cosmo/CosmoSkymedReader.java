@@ -604,17 +604,17 @@ public class CosmoSkymedReader extends AbstractProductReader {
 
         final int gridWidth = 11;
         final int gridHeight = 11;
-        final double subSamplingX = product.getSceneRasterWidth() / (double)(gridWidth - 1);
-        final double subSamplingY = product.getSceneRasterHeight() / (double)(gridHeight - 1);
+        final float subSamplingX = (float)product.getSceneRasterWidth() / (float)(gridWidth - 1);
+        final float subSamplingY = (float)product.getSceneRasterHeight() / (float)(gridHeight - 1);
 
-        final double nearRangeAngle = bandElem.getAttributeDouble("Near Incidence Angle", 0);
-        final double farRangeAngle = bandElem.getAttributeDouble("Far Incidence Angle", 0);
+        final float nearRangeAngle = (float)bandElem.getAttributeDouble("Near Incidence Angle", 0);
+        final float farRangeAngle = (float)bandElem.getAttributeDouble("Far Incidence Angle", 0);
 
-        final double firstRangeTime = bandElem.getAttributeDouble("Zero Doppler Range First Time", 0) * Constants.oneBillion;
-        final double lastRangeTime = bandElem.getAttributeDouble("Zero Doppler Range Last Time", 0) * Constants.oneBillion;
+        final float firstRangeTime = (float)bandElem.getAttributeDouble("Zero Doppler Range First Time", 0) * 1000000000.0f;
+        final float lastRangeTime = (float)bandElem.getAttributeDouble("Zero Doppler Range Last Time", 0) * 1000000000.0f;
 
-        final double[] incidenceCorners = new double[] { nearRangeAngle, farRangeAngle, nearRangeAngle, farRangeAngle };
-        final double[] slantRange = new double[] { firstRangeTime, lastRangeTime, firstRangeTime, lastRangeTime };
+        final float[] incidenceCorners = new float[] { nearRangeAngle, farRangeAngle, nearRangeAngle, farRangeAngle };
+        final float[] slantRange = new float[] { firstRangeTime, lastRangeTime, firstRangeTime, lastRangeTime };
 
         final float[] fineAngles = new float[gridWidth*gridHeight];
         final float[] fineTimes = new float[gridWidth*gridHeight];
@@ -680,8 +680,8 @@ public class CosmoSkymedReader extends AbstractProductReader {
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_spacing,
                     bandElem.getAttributeDouble("Line Spacing", AbstractMetadata.NO_METADATA));
 
-            final double[] latCorners = new double[]{latUL, latUR, latLL, latLR};
-            final double[] lonCorners = new double[]{lonUL, lonUR, lonLL, lonLR};
+            final float[] latCorners = new float[]{latUL, latUR, latLL, latLR};
+            final float[] lonCorners = new float[]{lonUL, lonUR, lonLL, lonLR};
 
             ReaderUtils.addGeoCoding(product, latCorners, lonCorners);
         } catch(Exception e) {

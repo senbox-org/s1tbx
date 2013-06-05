@@ -32,8 +32,8 @@ public final class TileGeoreferencing {
     final int size;
 
     boolean isCached;
-    double[] latPixels = null;
-    double[] lonPixels = null;
+    float[] latPixels = null;
+    float[] lonPixels = null;
     final boolean isCrossingMeridian;
 
     public TileGeoreferencing(final Product product, final int x1, final int y1, final int w, final int h) {
@@ -51,20 +51,18 @@ public final class TileGeoreferencing {
 
         try {
             if(isCrsGeoCoding) {
-                latPixels = new double[size];
-                lonPixels = new double[size];
+                latPixels = new float[size];
+                lonPixels = new float[size];
                 ((CrsGeoCoding)geocoding).getPixels(x1, y1, w, h, latPixels, lonPixels);
             } else {
                 if(latTPG != null) {
-                    latPixels = new double[size];
+                    latPixels = new float[size];
                     latTPG.getPixels(x1, y1, w, h, latPixels, ProgressMonitor.NULL);
-                    //latTPG.getPixels(x1, y1, w, h, latPixels, ProgressMonitor.NULL, TiePointGrid.InterpMode.QUADRATIC);
                 }
 
                 if(lonTPG != null) {
-                    lonPixels = new double[size];
+                    lonPixels = new float[size];
                     lonTPG.getPixels(x1, y1, w, h, lonPixels, ProgressMonitor.NULL);
-                    //lonTPG.getPixels(x1, y1, w, h, lonPixels, ProgressMonitor.NULL, TiePointGrid.InterpMode.QUADRATIC);
                 }
             }
         } catch(Exception e) {
@@ -86,7 +84,7 @@ public final class TileGeoreferencing {
                 }
             }
         }
-        geocoding.getGeoPos(new PixelPos(x+0.5,y+0.5), geo);
+        geocoding.getGeoPos(new PixelPos(x+0.5f,y+0.5f), geo);
     }
 
     public void getGeoPos(final PixelPos pix, final GeoPos geo) {

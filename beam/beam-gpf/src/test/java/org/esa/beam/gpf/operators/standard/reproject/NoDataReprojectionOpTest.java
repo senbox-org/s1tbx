@@ -152,9 +152,9 @@ public class NoDataReprojectionOpTest extends AbstractReprojectionOpTest {
         assertEquals(noDataValue, targetBand.getNoDataValue(), EPS);
         assertTrue(targetBand.isNoDataValueUsed());
         assertNull(targetBand.getValidPixelExpression());
-        assertPixelValue(targetBand, (float)sourcePixelPos.x, (float)sourcePixelPos.y, expectedValue, EPS);
+        assertPixelValue(targetBand, sourcePixelPos.x, sourcePixelPos.y, expectedValue, EPS);
         boolean expectedValidState = !Double.isNaN(noDataValue) && noDataValue != expectedValue;
-        assertPixelValidState(targetBand, (float)sourcePixelPos.x, (float)sourcePixelPos.y, expectedValidState);
+        assertPixelValidState(targetBand, sourcePixelPos.x, sourcePixelPos.y, expectedValidState);
         // upper left pixel has no source pixel -> should be no-data
         assertPixelValue(targetBand, 0.5f, 0.5f, noDataValue, EPS);
         assertPixelValidState(targetBand, 0.5f, 0.5f, false);

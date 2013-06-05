@@ -219,10 +219,10 @@ public final class AbstractMetadataIO {
         if(gridHeight < 5)
             gridHeight *= 5;
 
-        final double subSamplingX = product.getSceneRasterWidth() / (double)(gridWidth - 1);
-        final double subSamplingY = product.getSceneRasterHeight() / (double)(gridHeight - 1);
+        final float subSamplingX = (float)product.getSceneRasterWidth() / (float)(gridWidth - 1);
+        final float subSamplingY = (float)product.getSceneRasterHeight() / (float)(gridHeight - 1);
 
-        final double[] inPoints = new double[valueList.size()];
+        final float[] inPoints = new float[valueList.size()];
         final float[] outPoints = new float[gridWidth*gridHeight];
         int i = 0;
         for(Float val : valueList) {

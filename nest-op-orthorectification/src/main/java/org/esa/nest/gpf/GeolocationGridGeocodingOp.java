@@ -359,20 +359,20 @@ public final class GeolocationGridGeocodingOp extends Operator {
                     final int index = targetTile.getDataBufferIndex(x, y);
 
                     tileGeoRef.getGeoPos(x, y, geoPos);
-                    final double lat = geoPos.lat;
-                    double lon = geoPos.lon;
+                    final float lat = geoPos.lat;
+                    float lon = geoPos.lon;
                     if (lon >= 180.0) {
                         lon -= 360.0;
                     }
                     geoPos.setLocation(lat, lon);
                     srcGeocoding.getPixelPos(geoPos, pixPos);
-                    if (Double.isNaN(pixPos.x) || Double.isNaN(pixPos.y) ||
+                    if (Float.isNaN(pixPos.x) || Float.isNaN(pixPos.y) ||
                         pixPos.x < 0.0 || pixPos.x >= srcMaxRange || pixPos.y < 0.0 || pixPos.y >= srcMaxAzimuth) {
                         trgData.setElemDoubleAt(index, srcBandNoDataValue);
                         continue;
                     }
 
-                    final double slantRange = slantRangeTime.getPixelDouble(pixPos.x, pixPos.y) * oneBillionthHalfSpeedLight;
+                    final double slantRange = slantRangeTime.getPixelFloat(pixPos.x, pixPos.y) * oneBillionthHalfSpeedLight;
 
                     final double zeroDopplerTime = computeZeroDopplerTime(pixPos);
                     double azimuthIndex = 0.0;

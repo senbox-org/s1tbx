@@ -131,7 +131,7 @@ public class AffineTransformDescriptor implements MapTransformDescriptor {
 
         private AffineTransform _forward;
         private AffineTransform _inverse;
-        private final Point2D.Double _temp = new Point2D.Double();
+        private final Point2D.Float _temp = new Point2D.Float();
 
         private AMT(double[] parameterValues) {
             _forward = new AffineTransform(parameterValues);

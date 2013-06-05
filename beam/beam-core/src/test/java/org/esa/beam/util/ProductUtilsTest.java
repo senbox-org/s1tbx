@@ -388,7 +388,7 @@ public class ProductUtilsTest {
 
         // call with pixel positions array width one element
         pixelPositions[0] = new PixelPos(2.23f, 3.87f);
-        double[] minMaxEqual = ProductUtils.computeMinMaxY(pixelPositions);
+        float[] minMaxEqual = ProductUtils.computeMinMaxY(pixelPositions);
 
         assertEquals(2, minMaxEqual.length);
         assertEquals(minMaxEqual[0], minMaxEqual[1], 1.0e-5f);
@@ -399,7 +399,7 @@ public class ProductUtilsTest {
         pixelPositions[3] = null;
         pixelPositions[4] = new PixelPos(6, 6.36f);
 
-        double[] minMax = ProductUtils.computeMinMaxY(pixelPositions);
+        float[] minMax = ProductUtils.computeMinMaxY(pixelPositions);
 
         assertEquals(2, minMax.length);
         assertEquals(3.34f, minMax[0], 1.0e-5f);

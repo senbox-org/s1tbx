@@ -442,7 +442,7 @@ public class PixelGeoCodingTest extends TestCase {
         float lon1 = 150.0f;
         float lon2 = -169.0f;
         float lon3 = 165.0f;
-        double result = PixelGeoCoding.getPositiveLonMin(lon0, lon1, lon2, lon3);
+        float result = PixelGeoCoding.getPositiveLonMin(lon0, lon1, lon2, lon3);
         assertEquals(150.0f, result);
 
         lon0 = -175.0f;
@@ -528,7 +528,7 @@ public class PixelGeoCodingTest extends TestCase {
         float lon1 = 150.0f;
         float lon2 = -169.0f;
         float lon3 = 165.0f;
-        double result = PixelGeoCoding.getNegativeLonMax(lon0, lon1, lon2, lon3);
+        float result = PixelGeoCoding.getNegativeLonMax(lon0, lon1, lon2, lon3);
         assertEquals(-169.0f, result);
 
         lon0 = -175.0f;

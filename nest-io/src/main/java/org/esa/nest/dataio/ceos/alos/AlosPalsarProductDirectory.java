@@ -423,8 +423,8 @@ class AlosPalsarProductDirectory extends CEOSProductDirectory {
                     }
                 }
 
-                final double[] latCorners = new double[]{latUL, latUR, latLL, latLR};
-                final double[] lonCorners = new double[]{lonUL, lonUR, lonLL, lonLR};
+                final float[] latCorners = new float[]{latUL, latUR, latLL, latLR};
+                final float[] lonCorners = new float[]{lonUL, lonUR, lonLL, lonLR};
 
                 absRoot.setAttributeDouble(AbstractMetadata.first_near_lat, latUL);
                 absRoot.setAttributeDouble(AbstractMetadata.first_near_long, lonUL);
@@ -800,8 +800,8 @@ class AlosPalsarProductDirectory extends CEOSProductDirectory {
         final int sourceImageWidth = product.getSceneRasterWidth();
         final int sourceImageHeight = product.getSceneRasterHeight();
 
-        final double subSamplingX = sourceImageWidth / (double)(gridWidth - 1);
-        final double subSamplingY = sourceImageHeight / (double)(gridHeight - 1);
+        final float subSamplingX = sourceImageWidth / (float)(gridWidth - 1);
+        final float subSamplingY = sourceImageHeight / (float)(gridHeight - 1);
 
         final TiePointGrid slantRangeTime = product.getTiePointGrid(OperatorUtils.TPG_SLANT_RANGE_TIME);
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
@@ -885,10 +885,10 @@ class AlosPalsarProductDirectory extends CEOSProductDirectory {
                     x = (int)(c * subSamplingX);
                 }
 
-                final double slrgTime = slantRangeTime.getPixelDouble(x, y) / Constants.oneBillion; // ns to s;
+                final double slrgTime = slantRangeTime.getPixelFloat((float)x, (float)y) / Constants.oneBillion; // ns to s;
                 final GeoPos geoPos = computeLatLon(refLat, refLon, slrgTime, data);
-                targetLatTiePoints[k] = (float)geoPos.lat;
-                targetLonTiePoints[k] = (float)geoPos.lon;
+                targetLatTiePoints[k] = geoPos.lat;
+                targetLonTiePoints[k] = geoPos.lon;
                 ++k;
             }
         }

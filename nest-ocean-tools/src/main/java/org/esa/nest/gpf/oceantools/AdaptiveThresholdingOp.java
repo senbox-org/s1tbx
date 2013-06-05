@@ -154,7 +154,7 @@ public class AdaptiveThresholdingOp extends Operator {
         if(incidenceAngle == null) {
             throw new OperatorException("incidence_angle tie point grid not found in product");
         }
-        return incidenceAngle.getPixelDouble(x, y)*org.esa.beam.util.math.MathUtils.DTOR;
+        return incidenceAngle.getPixelFloat((float)x, (float)y)*org.esa.beam.util.math.MathUtils.DTOR;
     }
 
     /**

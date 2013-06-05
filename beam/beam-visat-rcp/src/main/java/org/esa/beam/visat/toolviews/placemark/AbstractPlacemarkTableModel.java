@@ -278,7 +278,7 @@ public abstract class AbstractPlacemarkTableModel extends DefaultTableModel {
 
     protected void setGeoPosLat(Object lat, Placemark placemark) {
         if (lat instanceof Float) {
-            double lon;
+            float lon;
             if (placemark.getGeoPos() == null) {
                 lon = Float.NaN;
             } else {
@@ -290,7 +290,7 @@ public abstract class AbstractPlacemarkTableModel extends DefaultTableModel {
 
     protected void setGeoPosLon(Object lon, Placemark placemark) {
         if (lon instanceof Float) {
-            double lat;
+            float lat;
             if (placemark.getGeoPos() == null) {
                 lat = Float.NaN;
             } else {
@@ -302,7 +302,7 @@ public abstract class AbstractPlacemarkTableModel extends DefaultTableModel {
 
     protected void setPixelPosY(Object value, Placemark placemark) {
         if (value instanceof Float) {
-            double pixelX;
+            float pixelX;
             if (placemark.getPixelPos() == null) {
                 pixelX = -1;
             } else {
@@ -314,7 +314,7 @@ public abstract class AbstractPlacemarkTableModel extends DefaultTableModel {
 
     protected void setPixelPosX(Object value, Placemark placemark) {
         if (value instanceof Float) {
-            double pixelY;
+            float pixelY;
             if (placemark.getPixelPos() == null) {
                 pixelY = -1;
             } else {

@@ -381,7 +381,7 @@ public class DimapDocumentTest extends TestCase {
         int gridHeight = Math.round((sceneH - 1) / stepY + 1);
         float[] floats = new float[gridWidth * gridHeight];
         for (int i = 0; i < floats.length; i++) {
-            floats[i] = (float)(20.0 + 10.0 * Math.random());
+            floats[i] = (float) (20.0 + 10.0 * Math.random());
         }
         TiePointGrid tpg = null;
         if (!cyclic) {

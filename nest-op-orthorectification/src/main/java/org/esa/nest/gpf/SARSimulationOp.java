@@ -601,7 +601,7 @@ public final class SARSimulationOp extends Operator {
                     if(saveZeroHeightSimulation) {
                         alt = 1;
                     } else {
-                        geoPos.setLocation(lat, lon);
+                        geoPos.setLocation((float)lat, (float)lon);
                         alt = dem.getElevation(geoPos);
                         if(alt == demNoDataValue)
                             continue;
@@ -721,7 +721,7 @@ public final class SARSimulationOp extends Operator {
                         double[] latlon = orbit.lp2ell(new Point(x+0.5, y+0.5), meta);
                         lat = latlon[0] * MathUtils.RTOD;
                         lon = latlon[1] * MathUtils.RTOD;
-                        alt = dem.getElevation(new GeoPos(lat, lon));
+                        alt = dem.getElevation(new GeoPos((float)lat, (float)lon));
                     }
 
                     if(!getPosition(lat, lon, alt, x0, y0, w, h, posData))

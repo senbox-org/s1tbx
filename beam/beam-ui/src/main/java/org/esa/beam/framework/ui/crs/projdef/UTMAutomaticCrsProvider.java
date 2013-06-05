@@ -40,7 +40,7 @@ class UTMAutomaticCrsProvider extends AbstractUTMCrsProvider {
     @Override
     public CoordinateReferenceSystem getCRS(final GeoPos referencePos, ParameterValueGroup parameters,
                                             GeodeticDatum datum) throws FactoryException {
-        int zoneIndex = getZoneIndex((float)referencePos.getLon());
+        int zoneIndex = getZoneIndex(referencePos.getLon());
         final boolean south = referencePos.getLat() < 0.0;
         ParameterValueGroup tmParameters = createTransverseMercatorParameters(zoneIndex, south, datum);
         final String projName = getProjectionName(zoneIndex, south);

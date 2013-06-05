@@ -99,7 +99,7 @@ public final class ReaderUtils {
         return null;
     }
 
-    public static void addGeoCoding(final Product product, final double[] latCorners, final double[] lonCorners) {
+    public static void addGeoCoding(final Product product, final float[] latCorners, final float[] lonCorners) {
 
         if(latCorners == null || lonCorners == null) return;
 
@@ -109,19 +109,19 @@ public final class ReaderUtils {
         final float[] fineLatTiePoints = new float[gridWidth*gridHeight];
         ReaderUtils.createFineTiePointGrid(2, 2, gridWidth, gridHeight, latCorners, fineLatTiePoints);
 
-        double subSamplingX = product.getSceneRasterWidth() / (double)(gridWidth - 1);
-        double subSamplingY = product.getSceneRasterHeight() / (double)(gridHeight - 1);
+        float subSamplingX = (float)product.getSceneRasterWidth() / (gridWidth - 1);
+        float subSamplingY = (float)product.getSceneRasterHeight() / (gridHeight - 1);
         if(subSamplingX == 0 || subSamplingY == 0)
             return;
 
-        final TiePointGrid latGrid = new TiePointGrid(OperatorUtils.TPG_LATITUDE, gridWidth, gridHeight, 0.5, 0.5,
+        final TiePointGrid latGrid = new TiePointGrid(OperatorUtils.TPG_LATITUDE, gridWidth, gridHeight, 0.5f, 0.5f,
                 subSamplingX, subSamplingY, fineLatTiePoints);
         latGrid.setUnit(Unit.DEGREES);
 
         final float[] fineLonTiePoints = new float[gridWidth*gridHeight];
         ReaderUtils.createFineTiePointGrid(2, 2, gridWidth, gridHeight, lonCorners, fineLonTiePoints);
 
-        final TiePointGrid lonGrid = new TiePointGrid(OperatorUtils.TPG_LONGITUDE, gridWidth, gridHeight, 0.5, 0.5,
+        final TiePointGrid lonGrid = new TiePointGrid(OperatorUtils.TPG_LONGITUDE, gridWidth, gridHeight, 0.5f, 0.5f,
                 subSamplingX, subSamplingY, fineLonTiePoints, TiePointGrid.DISCONT_AT_180);
         lonGrid.setUnit(Unit.DEGREES);
 
@@ -136,7 +136,7 @@ public final class ReaderUtils {
                                               final int coarseGridHeight,
                                               final int fineGridWidth,
                                               final int fineGridHeight,
-                                              final double[] coarseTiePoints,
+                                              final float[] coarseTiePoints,
                                               final float[] fineTiePoints) {
 
         if (coarseTiePoints == null || coarseTiePoints.length != coarseGridWidth*coarseGridHeight) {
@@ -152,21 +152,21 @@ public final class ReaderUtils {
         int k = 0;
         for (int r = 0; r < fineGridHeight; r++) {
 
-            final double lambdaR = (double)(r) / (double)(fineGridHeight - 1);
-            final double betaR = lambdaR*(coarseGridHeight - 1);
-            final int j0 = (int)betaR;
+            final float lambdaR = (float)(r) / (float)(fineGridHeight - 1);
+            final float betaR = lambdaR*(coarseGridHeight - 1);
+            final int j0 = (int)(betaR);
             final int j1 = Math.min(j0 + 1, coarseGridHeight - 1);
-            final double wj = betaR - j0;
+            final float wj = betaR - j0;
 
             for (int c = 0; c < fineGridWidth; c++) {
 
-                final double lambdaC = (double)(c) / (double)(fineGridWidth - 1);
-                final double betaC = lambdaC*(coarseGridWidth - 1);
-                final int i0 = (int)betaC;
+                final float lambdaC = (float)(c) / (float)(fineGridWidth - 1);
+                final float betaC = lambdaC*(coarseGridWidth - 1);
+                final int i0 = (int)(betaC);
                 final int i1 = Math.min(i0 + 1, coarseGridWidth - 1);
-                final double wi = betaC - i0;
+                final float wi = betaC - i0;
 
-                fineTiePoints[k++] = (float)MathUtils.interpolate2D(wi, wj,
+                fineTiePoints[k++] = MathUtils.interpolate2D(wi, wj,
                                                            coarseTiePoints[i0 + j0 * coarseGridWidth],
                                                            coarseTiePoints[i1 + j0 * coarseGridWidth],
                                                            coarseTiePoints[i0 + j1 * coarseGridWidth],

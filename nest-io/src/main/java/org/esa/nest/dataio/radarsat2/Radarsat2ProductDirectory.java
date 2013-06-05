@@ -517,8 +517,8 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
             lngList = flippedLonList;
         }
 
-        double subSamplingX = product.getSceneRasterWidth() / (double)(gridWidth - 1);
-        double subSamplingY = product.getSceneRasterHeight() / (double)(gridHeight - 1);
+        float subSamplingX = (float)product.getSceneRasterWidth() / (gridWidth - 1);
+        float subSamplingY = (float)product.getSceneRasterHeight() / (gridHeight - 1);
 
         final TiePointGrid latGrid = new TiePointGrid(OperatorUtils.TPG_LATITUDE, gridWidth, gridHeight, 0.5f, 0.5f,
                 subSamplingX, subSamplingY, latList);
@@ -543,15 +543,15 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
         final int w = product.getSceneRasterWidth();
         final int h = product.getSceneRasterHeight();
 
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_near_lat, latGrid.getPixelDouble(0, 0));
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_near_long, lonGrid.getPixelDouble(0, 0));
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_far_lat, latGrid.getPixelDouble(w, 0));
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_far_long, lonGrid.getPixelDouble(w, 0));
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_near_lat, latGrid.getPixelFloat(0, 0));
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_near_long, lonGrid.getPixelFloat(0, 0));
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_far_lat, latGrid.getPixelFloat(w, 0));
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_far_long, lonGrid.getPixelFloat(w, 0));
 
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_near_lat, latGrid.getPixelDouble(0, h));
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_near_long, lonGrid.getPixelDouble(0, h));
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_far_lat, latGrid.getPixelDouble(w, h));
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_far_long, lonGrid.getPixelDouble(w, h));
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_near_lat, latGrid.getPixelFloat(0, h));
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_near_long, lonGrid.getPixelFloat(0, h));
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_far_lat, latGrid.getPixelFloat(w, h));
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_far_long, lonGrid.getPixelFloat(w, h));
     }
 
     @Override
@@ -640,7 +640,7 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
 
         final TiePointGrid incidentAngleGrid = new TiePointGrid(
                 OperatorUtils.TPG_INCIDENT_ANGLE, gridWidth, gridHeight, 0, 0,
-                subSamplingX, subSamplingY, incidenceAngleList);
+                (float)subSamplingX, (float)subSamplingY, incidenceAngleList);
 
         incidentAngleGrid.setUnit(Unit.DEGREES);
 
@@ -687,9 +687,9 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
         final int gridHeight = 11;
         final int sceneWidth = product.getSceneRasterWidth();
         final int sceneHeight = product.getSceneRasterHeight();
-        final double subSamplingX = sceneWidth / (double)(gridWidth - 1);
-        final double subSamplingY = sceneHeight / (double)(gridHeight - 1);
-        final double[] rangeDist = new double[gridWidth*gridHeight];
+        final int subSamplingX = sceneWidth / (gridWidth - 1);
+        final int subSamplingY = sceneHeight / (gridHeight - 1);
+        final float[] rangeDist = new float[gridWidth*gridHeight];
         final float[] rangeTime = new float[gridWidth*gridHeight];
 
         final coefList[] segments = segmentsArray.toArray(new coefList[segmentsArray.size()]);
@@ -712,13 +712,13 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
             final double s4 = coef.coefficients.get(4);
 
             for(int i = 0; i < gridWidth; i++) {
-                int x = (int)(i*subSamplingX);
+                int x = i*subSamplingX;
                 final double GR = x * pixelSpacing;
                 final double g = GR-GR0;
                 final double g2 = g*g;
 
                 //SlantRange = s0 + s1(GR - GR0) + s2(GR-GR0)^2 + s3(GRGR0)^3 + s4(GR-GR0)^4;
-                rangeDist[k++] = (s0 + s1*g + s2*g2 + s3*g2*g + s4*g2*g2);
+                rangeDist[k++] = (float)(s0 + s1*g + s2*g2 + s3*g2*g + s4*g2*g2);
             }
         }
 

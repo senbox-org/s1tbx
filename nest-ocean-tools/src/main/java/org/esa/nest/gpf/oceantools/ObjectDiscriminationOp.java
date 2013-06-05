@@ -354,10 +354,10 @@ public class ObjectDiscriminationOp extends Operator {
             }
         }
 
-        final double xMid = (xMin + xMax)/2.0;
-        final double yMid = (yMin + yMax)/2.0;
-        final double lat = latitude.getPixelDouble(xMid, yMid);
-        final double lon = longitude.getPixelDouble(xMid, yMid);
+        final float xMid = (xMin + xMax)/2.0f;
+        final float yMid = (yMin + yMax)/2.0f;
+        final double lat = latitude.getPixelFloat(xMid, yMid);
+        final double lon = longitude.getPixelFloat(xMid, yMid);
 
         final double width = (xMax - xMin + 1)*rangeSpacing;
         final double length = (yMax - yMin + 1)*azimuthSpacing;

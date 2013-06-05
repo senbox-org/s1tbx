@@ -46,10 +46,10 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
     private String productType = "TerraSar-X";
     private String productDescription = "";
 
-    private final double[] latCorners = new double[4];
-    private final double[] lonCorners = new double[4];
-    private final double[] slantRangeCorners = new double[4];
-    private final double[] incidenceCorners = new double[4];
+    private final float[] latCorners = new float[4];
+    private final float[] lonCorners = new float[4];
+    private final float[] slantRangeCorners = new float[4];
+    private final float[] incidenceCorners = new float[4];
 
     private final List<File> cosarFileList = new ArrayList<File>(1);
     private final Map<String, ImageInputStream> cosarBandMap = new HashMap<String, ImageInputStream>(1);
@@ -311,10 +311,10 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
                 final int refCol = child.getAttributeInt("refColumn", 0);
 
                 coordList.add( new CornerCoord(refRow, refCol,
-                                               child.getAttributeDouble("lat", 0),
-                                               child.getAttributeDouble("lon", 0),
-                                               child.getAttributeDouble("rangeTime", 0) * Constants.oneBillion,
-                                               child.getAttributeDouble("incidenceAngle", 0)) );
+                                                (float)child.getAttributeDouble("lat", 0),
+                                                (float)child.getAttributeDouble("lon", 0),
+                                                (float)child.getAttributeDouble("rangeTime", 0) * 1000000000f,
+                                                (float)child.getAttributeDouble("incidenceAngle", 0)) );
 
                 if(refRow > maxRow) maxRow = refRow;
                 if(refCol > maxCol) maxCol = refCol;
@@ -327,15 +327,15 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
         if(minRow == maxRow && minCol == maxCol && geocodedImageInfo != null) {
             final MetadataElement geoParameter = geocodedImageInfo.getElement("geoParameter");
             final MetadataElement sceneCoordsGeographic = geoParameter.getElement("sceneCoordsGeographic");
-            final double latUL = sceneCoordsGeographic.getAttributeDouble("upperLeftLatitude", 0);
-            final double latUR = sceneCoordsGeographic.getAttributeDouble("upperRightLatitude", 0);
-            final double latLL = sceneCoordsGeographic.getAttributeDouble("lowerLeftLatitude", 0);
-            final double latLR = sceneCoordsGeographic.getAttributeDouble("lowerRightLatitude", 0);
+            final float latUL = (float)sceneCoordsGeographic.getAttributeDouble("upperLeftLatitude", 0);
+            final float latUR = (float)sceneCoordsGeographic.getAttributeDouble("upperRightLatitude", 0);
+            final float latLL = (float)sceneCoordsGeographic.getAttributeDouble("lowerLeftLatitude", 0);
+            final float latLR = (float)sceneCoordsGeographic.getAttributeDouble("lowerRightLatitude", 0);
 
-            final double lonUL = sceneCoordsGeographic.getAttributeDouble("upperLeftLongitude", 0);
-            final double lonUR = sceneCoordsGeographic.getAttributeDouble("upperRightLongitude", 0);
-            final double lonLL = sceneCoordsGeographic.getAttributeDouble("lowerLeftLongitude", 0);
-            final double lonLR = sceneCoordsGeographic.getAttributeDouble("lowerRightLongitude", 0);
+            final float lonUL = (float)sceneCoordsGeographic.getAttributeDouble("upperLeftLongitude", 0);
+            final float lonUR = (float)sceneCoordsGeographic.getAttributeDouble("upperRightLongitude", 0);
+            final float lonLL = (float)sceneCoordsGeographic.getAttributeDouble("lowerLeftLongitude", 0);
+            final float lonLR = (float)sceneCoordsGeographic.getAttributeDouble("lowerRightLongitude", 0);
 
             int k = 0;
             final double e = 1e-3;
@@ -514,17 +514,17 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
                 newGridWidth, newGridHeight, subSamplingX, subSamplingY, newIncList);
 
         final TiePointGrid latGrid = new TiePointGrid(OperatorUtils.TPG_LATITUDE,
-                newGridWidth, newGridHeight, 0.5f, 0.5f, subSamplingX, subSamplingY, newLatList);
+                newGridWidth, newGridHeight, 0.5f, 0.5f, (float)subSamplingX, (float)subSamplingY, newLatList);
         latGrid.setUnit(Unit.DEGREES);
         product.addTiePointGrid(latGrid);
 
         final TiePointGrid lonGrid = new TiePointGrid(OperatorUtils.TPG_LONGITUDE,
-                newGridWidth, newGridHeight, 0.5f, 0.5f, subSamplingX, subSamplingY, newLonList, TiePointGrid.DISCONT_AT_180);
+                newGridWidth, newGridHeight, 0.5f, 0.5f, (float)subSamplingX, (float)subSamplingY, newLonList, TiePointGrid.DISCONT_AT_180);
         lonGrid.setUnit(Unit.DEGREES);
         product.addTiePointGrid(lonGrid);
 
         final TiePointGrid incidentAngleGrid = new TiePointGrid(OperatorUtils.TPG_INCIDENT_ANGLE,
-                newGridWidth, newGridHeight, 0.5f, 0.5f, subSamplingX, subSamplingY, newIncList);
+                newGridWidth, newGridHeight, 0.5f, 0.5f, (float)subSamplingX, (float)subSamplingY, newIncList);
         incidentAngleGrid.setUnit(Unit.DEGREES);
         product.addTiePointGrid(incidentAngleGrid);
 
@@ -607,8 +607,8 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
 
         final int gridWidth = 4;
         final int gridHeight = 4;
-        final double subSamplingX = (double)product.getSceneRasterWidth() / (double)(gridWidth - 1);
-        final double subSamplingY = (double)product.getSceneRasterHeight() / (double)(gridHeight - 1);
+        final float subSamplingX = (float)product.getSceneRasterWidth() / (float)(gridWidth - 1);
+        final float subSamplingY = (float)product.getSceneRasterHeight() / (float)(gridHeight - 1);
         if(subSamplingX == 0 || subSamplingY == 0)
             return;
 
@@ -905,10 +905,10 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
 
     private static class CornerCoord {
         final int refRow, refCol;
-        final double lat, lon;
-        final double rangeTime, incidenceAngle;
+        final float lat, lon;
+        final float rangeTime, incidenceAngle;
 
-        CornerCoord(int row, int col, double lt, double ln, double range, double angle) {
+        CornerCoord(int row, int col, float lt, float ln, float range, float angle) {
             refRow = row; refCol = col;
             lat = lt; lon = ln;
             rangeTime = range; incidenceAngle = angle;

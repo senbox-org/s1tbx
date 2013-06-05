@@ -317,9 +317,9 @@ public class WindFieldEstimationOp extends Operator {
                     continue;
                 }
 
-                final double lat = latitudeTPG.getPixelDouble(x, y);
-                final double lon = longitudeTPG.getPixelDouble(x, y);
-                final double theta = incidenceAngle.getPixelDouble(x, y);
+                final double lat = latitudeTPG.getPixelFloat(x, y);
+                final double lon = longitudeTPG.getPixelFloat(x, y);
+                final double theta = incidenceAngle.getPixelFloat(x, y);
 
                 sourceTile = getSourceTile(sourceBand, sourceTileRectangle);
                 final int numLandPixels = getNumLandPixels(sourceTile, noDataValue);

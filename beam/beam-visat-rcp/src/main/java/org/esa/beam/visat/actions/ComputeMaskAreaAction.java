@@ -243,8 +243,8 @@ public class ComputeMaskAreaAction extends ExecCommand {
                                         for (int i = 0; i < geoPoints.length; i++) {
                                             geoCoding.getGeoPos(pixelPoints[i], geoPoints[i]);
                                         }
-                                        double deltaLon = Math.abs(geoPoints[2].getLon() - geoPoints[1].getLon());
-                                        double deltaLat = Math.abs(geoPoints[4].getLat() - geoPoints[3].getLat());
+                                        float deltaLon = Math.abs(geoPoints[2].getLon() - geoPoints[1].getLon());
+                                        float deltaLat = Math.abs(geoPoints[4].getLat() - geoPoints[3].getLat());
                                         double r2 = areaStatistics.getEarthRadius() * Math.cos(
                                                 geoPoints[0].getLat() * MathUtils.DTOR);
                                         double a = r2 * deltaLon * MathUtils.DTOR;

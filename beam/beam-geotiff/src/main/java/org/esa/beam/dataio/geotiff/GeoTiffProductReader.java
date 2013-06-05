@@ -449,9 +449,9 @@ public class GeoTiffProductReader extends AbstractProductReader {
 
         String[] names = Utils.findSuitableLatLonNames(product);
         final TiePointGrid latGrid = new TiePointGrid(
-                names[0], width, height, xMin, yMin, xDiff, yDiff, lats);
+                names[0], width, height, (float) xMin, (float) yMin, (float) xDiff, (float) yDiff, lats);
         final TiePointGrid lonGrid = new TiePointGrid(
-                names[1], width, height, xMin, yMin, xDiff, yDiff, lons);
+                names[1], width, height, (float) xMin, (float) yMin, (float) xDiff, (float) yDiff, lons);
 
         product.addTiePointGrid(latGrid);
         product.addTiePointGrid(lonGrid);

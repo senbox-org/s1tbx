@@ -61,7 +61,7 @@ public class DBQuery {
     private String selectedPolarization = ANY;
     private String selectedCalibration = ANY;
     private String selectedOrbitCorrection = ANY;
-    private Rectangle.Double selectionRectangle = null;
+    private Rectangle.Float selectionRectangle = null;
     private File baseDir = null;
     private File excludeDir = null;
     private Calendar startDate = null;
@@ -370,15 +370,15 @@ public class DBQuery {
         return intersectList.toArray(new ProductEntry[intersectList.size()]);
     }
 
-    public static Rectangle.Double getBoundingRect(final GeoPos[] geoPositions) {
-        double minX = Float.MAX_VALUE;
-        double maxX = -Float.MAX_VALUE;
-        double minY = Float.MAX_VALUE;
-        double maxY = -Float.MAX_VALUE;
+    public static Rectangle.Float getBoundingRect(final GeoPos[] geoPositions) {
+        float minX = Float.MAX_VALUE;
+        float maxX = -Float.MAX_VALUE;
+        float minY = Float.MAX_VALUE;
+        float maxY = -Float.MAX_VALUE;
 
         for (final GeoPos pos : geoPositions) {
-            final double x = pos.getLat();
-            final double y = pos.getLon();
+            final float x = pos.getLat();
+            final float y = pos.getLon();
 
             if (x < minX) {
                 minX = x;
@@ -394,10 +394,10 @@ public class DBQuery {
             }
         }
         if (minX >= maxX || minY >= maxY) {
-            return new Rectangle.Double(minX, minY, 0, 0);
+            return new Rectangle.Float(minX, minY, 0, 0);
         }
 
-        return new Rectangle.Double(minX, minY, maxX - minX, maxY - minY);
+        return new Rectangle.Float(minX, minY, maxX - minX, maxY - minY);
     }
 
     public Element toXML() {
@@ -460,7 +460,7 @@ public class DBQuery {
             final Attribute w = rectElem.getAttribute("w");
             final Attribute h = rectElem.getAttribute("h");
             if(x != null && y != null && w != null && h != null) {
-                selectionRectangle = new Rectangle.Double(
+                selectionRectangle = new Rectangle.Float(
                         Float.parseFloat(x.getValue()),
                         Float.parseFloat(y.getValue()),
                         Float.parseFloat(w.getValue()),

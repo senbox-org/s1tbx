@@ -540,7 +540,7 @@ public class GCPSelectionOp extends Operator {
             if (!srgrFlag) {
                 final TiePointGrid incidenceAngle = OperatorUtils.getIncidenceAngle(sourceProduct);
                 final double incidenceAngleAtCentreRangePixel =
-                        incidenceAngle.getPixelDouble((float)sourceImageWidth/2f, (float)sourceImageHeight/2f);
+                        incidenceAngle.getPixelFloat((float)sourceImageWidth/2f, (float)sourceImageHeight/2f);
                 groundRangeSpacing /= Math.sin(incidenceAngleAtCentreRangePixel*MathUtils.DTOR);
             }
             final int nRgLooks = Math.max(1, sourceImageWidth/2048);
@@ -865,8 +865,8 @@ public class GCPSelectionOp extends Operator {
                                         throws OperatorException {
         
         final double[] sI = new double[cWindowWidth*cWindowHeight];
-        final double xx = gcpPixelPos.x;
-        final double yy = gcpPixelPos.y;
+        final float xx = gcpPixelPos.x;
+        final float yy = gcpPixelPos.y;
         final int xul = (int)xx - cHalfWindowWidth;
         final int yul = (int)yy - cHalfWindowHeight;
         final Rectangle slaveImagetteRectangle = new Rectangle(xul, yul, cWindowWidth + 3, cWindowHeight + 3);
@@ -889,14 +889,14 @@ public class GCPSelectionOp extends Operator {
             final TileIndex index1 = new TileIndex(slaveImagetteRaster1);
 
             for (int j = 0; j < cWindowHeight; j++) {
-                final double y = yy - cHalfWindowHeight + j + 1;
+                final float y = yy - cHalfWindowHeight + j + 1;
                 final int y0 = (int)y;
                 final int y1 = y0 + 1;
                 final int offset0 = index0.calculateStride(y0);
                 final int offset1 = index1.calculateStride(y1);
                 final double wy = (double)(y - y0);
                 for (int i = 0; i < cWindowWidth; i++) {
-                    final double x = xx - cHalfWindowWidth + i + 1;
+                    final float x = xx - cHalfWindowWidth + i + 1;
                     final int x0 = (int)x;
                     final int x1 = x0 + 1;
                     final double wx = (double)(x - x0);

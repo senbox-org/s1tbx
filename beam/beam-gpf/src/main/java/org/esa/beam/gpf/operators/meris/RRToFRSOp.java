@@ -87,8 +87,8 @@ public class RRToFRSOp extends Operator {
         GeoPos geoPos = frsGeoCoding.getGeoPos(frsPixelPos, null);
         PixelPos rrPixelPos = rrGeoCoding.getPixelPos(geoPos, null);
 
-        final int xrr = (int)Math.round(rrPixelPos.x);
-        final int yrr = (int)Math.round(rrPixelPos.y);
+        final int xrr = Math.round(rrPixelPos.x);
+        final int yrr = Math.round(rrPixelPos.y);
         if (rrProduct.containsPixel(xrr, yrr)) {
             return rrPixelPos;
         } else {
@@ -105,8 +105,8 @@ public class RRToFRSOp extends Operator {
         pm.beginTask("compute", frsRectangle.height);
 
         PixelPos rrPixelPos = getRrPixelPos(frsRectangle.x, frsRectangle.y);
-        final int xStart = (int)Math.round(rrPixelPos.x);
-        final int yStart = (int)Math.round(rrPixelPos.y);
+        final int xStart = Math.round(rrPixelPos.x);
+        final int yStart = Math.round(rrPixelPos.y);
         Rectangle rrRectangle = new Rectangle(xStart, yStart, frsRectangle.width / 4, frsRectangle.height / 4);
         rrRectangle.grow(4, 4);
         Rectangle sceneRectangle = new Rectangle(rrSrcBand.getSceneRasterWidth(), rrSrcBand.getSceneRasterHeight());

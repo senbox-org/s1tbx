@@ -150,13 +150,13 @@ public class FXYGeoCoding extends AbstractGeoCoding {
     @Override
     public GeoPos getGeoPos(final PixelPos pixelPos, GeoPos geoPos) {
         if (geoPos == null) {
-            geoPos = new GeoPos(0.0, 0.0);
+            geoPos = new GeoPos(0.0f, 0.0f);
         }
         final double x = _pixelOffsetX + _pixelSizeX * pixelPos.x;
         final double y = _pixelOffsetY + _pixelSizeY * pixelPos.y;
         final double lat = _latFunction.computeZ(x, y);
         final double lon = _lonFunction.computeZ(x, y);
-        geoPos.setLocation(lat, lon);
+        geoPos.setLocation((float) lat, (float) lon);
         return geoPos;
 
     }

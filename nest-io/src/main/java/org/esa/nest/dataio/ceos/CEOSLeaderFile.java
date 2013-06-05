@@ -182,7 +182,7 @@ public class CEOSLeaderFile {
         return _detailedProcessingRecord;
     }
 
-    public static double[] getLatCorners(final BinaryRecord mapProjRec) {
+    public static float[] getLatCorners(final BinaryRecord mapProjRec) {
         if(mapProjRec == null) return null;
 
         final Double latUL = mapProjRec.getAttributeDouble("1st line 1st pixel geodetic latitude");
@@ -191,10 +191,10 @@ public class CEOSLeaderFile {
         final Double latLR = mapProjRec.getAttributeDouble("Last line last valid pixel geodetic latitude");
         if(latUL == null || latUR == null || latLL == null || latLR == null)
             return null;
-        return new double[]{latUL, latUR, latLL, latLR};
+        return new float[]{latUL.floatValue(), latUR.floatValue(), latLL.floatValue(), latLR.floatValue()};
     }
 
-    public static double[] getLonCorners(final BinaryRecord mapProjRec) {
+    public static float[] getLonCorners(final BinaryRecord mapProjRec) {
         if(mapProjRec == null) return null;
 
         final Double lonUL = mapProjRec.getAttributeDouble("1st line 1st pixel geodetic longitude");
@@ -203,7 +203,7 @@ public class CEOSLeaderFile {
         final Double lonLR = mapProjRec.getAttributeDouble("Last line last valid pixel geodetic longitude");
         if(lonUL == null || lonUR == null || lonLL == null || lonLR == null)
             return null;
-        return new double[]{lonUL, lonUR, lonLL, lonLR};
+        return new float[]{lonUL.floatValue(), lonUR.floatValue(), lonLL.floatValue(), lonLR.floatValue()};
     }
 
     public void addMetadata(MetadataElement sphElem) {

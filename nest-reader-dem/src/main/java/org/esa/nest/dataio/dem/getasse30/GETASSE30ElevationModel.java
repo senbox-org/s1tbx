@@ -44,8 +44,8 @@ public class GETASSE30ElevationModel extends BaseElevationModel {
 
     @Override
     public GeoPos getGeoPos(final PixelPos pixelPos) {
-        final double pixelLat = (RASTER_HEIGHT - pixelPos.y) / (DEGREE_RES * NUM_PIXELS_PER_TILE) - 90.0f;
-        final double pixelLon = pixelPos.x / (DEGREE_RES * NUM_PIXELS_PER_TILE) - 180.0f;
+        final float pixelLat = (RASTER_HEIGHT - pixelPos.y) / (DEGREE_RES * NUM_PIXELS_PER_TILE) - 90.0f;
+        final float pixelLon = pixelPos.x / (DEGREE_RES * NUM_PIXELS_PER_TILE) - 180.0f;
         return new GeoPos(pixelLat, pixelLon);
     }
 

@@ -31,7 +31,7 @@ public final class SRTM3GeoTiffElevationModel extends BaseElevationModel {
     public SRTM3GeoTiffElevationModel(final SRTM3GeoTiffElevationModelDescriptor descriptor, final Resampling resamplingMethod) {
         super(descriptor, resamplingMethod);
 
-        setMaxCacheSize(20);
+        setMaxCacheSize(12);
     }
 
     @Override
