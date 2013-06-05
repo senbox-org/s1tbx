@@ -8,9 +8,19 @@ package org.esa.beam.binning;
 public interface DataPeriod {
 
     enum Membership {
-        CURRENT_PERIOD,
-        PREVIOUS_PERIOD,
-        NEXT_PERIOD
+        PREVIOUS_PERIODS(-1),
+        CURRENT_PERIOD(0),
+        SUBSEQUENT_PERIODS(+1);
+
+        private final int value;
+
+        Membership(int value) {
+            this.value = value;
+        }
+
+        public int getValue() {
+            return value;
+        }
     }
 
     /**

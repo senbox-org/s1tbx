@@ -7,7 +7,8 @@ import org.junit.Test;
 
 import java.util.Calendar;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 
 /**
@@ -16,7 +17,7 @@ import static org.junit.Assert.*;
  * @author Norman Fomferra
  * @author Thomas Storm
  */
-public class TemporalDataDayTest {
+public class TemporalDataPeriodTest {
 
     public static class instr {
 

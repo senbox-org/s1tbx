@@ -46,11 +46,11 @@ public class SpatialDataPeriod implements DataPeriod {
         final double h0 = minDataHour + (lon + 180.0) * SLOPE;
 
         if (h - EPS < h0) {
-            // pixel is attached to data-period (p-1)
-            return Membership.PREVIOUS_PERIOD;
+            // pixel is attached to data-periods (p-n)
+            return Membership.PREVIOUS_PERIODS;
         } else if (h + EPS > h0 + 24.0 * duration) {
-            // pixel is attached to data-period (p+1)
-            return Membership.NEXT_PERIOD;
+            // pixel is attached to data-periods (p+n)
+            return Membership.SUBSEQUENT_PERIODS;
         } else {
             // pixel is attached to data-period (p)
             return Membership.CURRENT_PERIOD;

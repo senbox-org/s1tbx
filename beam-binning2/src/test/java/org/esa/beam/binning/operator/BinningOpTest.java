@@ -7,12 +7,7 @@ import org.esa.beam.binning.DataPeriod;
 import org.esa.beam.binning.aggregators.AggregatorAverage;
 import org.esa.beam.binning.aggregators.AggregatorPercentile;
 import org.esa.beam.framework.dataio.ProductIO;
-import org.esa.beam.framework.datamodel.CrsGeoCoding;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.datamodel.ProductFilter;
-import org.esa.beam.framework.datamodel.TiePointGeoCoding;
-import org.esa.beam.framework.datamodel.TiePointGrid;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.main.GPT;
@@ -31,7 +26,7 @@ import java.util.HashMap;
 import java.util.Set;
 import java.util.SortedMap;
 
-import static java.lang.Math.*;
+import static java.lang.Math.sqrt;
 import static org.junit.Assert.*;
 
 /**
@@ -546,14 +541,14 @@ public class BinningOpTest {
     public void testCreateSpatialDataDayFilter() throws Exception {
         DataPeriod dataPeriod = TestUtils.createSpatialDataPeriod();
 
-        Product product1 = TestUtils.createProduct(dataPeriod, DataPeriod.Membership.PREVIOUS_PERIOD, DataPeriod.Membership.PREVIOUS_PERIOD);
-        Product product2 = TestUtils.createProduct(dataPeriod, DataPeriod.Membership.PREVIOUS_PERIOD, DataPeriod.Membership.CURRENT_PERIOD);
-        Product product3 = TestUtils.createProduct(dataPeriod, DataPeriod.Membership.PREVIOUS_PERIOD, DataPeriod.Membership.NEXT_PERIOD);
+        Product product1 = TestUtils.createProduct(dataPeriod, DataPeriod.Membership.PREVIOUS_PERIODS, DataPeriod.Membership.PREVIOUS_PERIODS);
+        Product product2 = TestUtils.createProduct(dataPeriod, DataPeriod.Membership.PREVIOUS_PERIODS, DataPeriod.Membership.CURRENT_PERIOD);
+        Product product3 = TestUtils.createProduct(dataPeriod, DataPeriod.Membership.PREVIOUS_PERIODS, DataPeriod.Membership.SUBSEQUENT_PERIODS);
 
         Product product4 = TestUtils.createProduct(dataPeriod, DataPeriod.Membership.CURRENT_PERIOD, DataPeriod.Membership.CURRENT_PERIOD);
-        Product product5 = TestUtils.createProduct(dataPeriod, DataPeriod.Membership.CURRENT_PERIOD, DataPeriod.Membership.NEXT_PERIOD);
+        Product product5 = TestUtils.createProduct(dataPeriod, DataPeriod.Membership.CURRENT_PERIOD, DataPeriod.Membership.SUBSEQUENT_PERIODS);
 
-        Product product6 = TestUtils.createProduct(dataPeriod, DataPeriod.Membership.NEXT_PERIOD, DataPeriod.Membership.NEXT_PERIOD);
+        Product product6 = TestUtils.createProduct(dataPeriod, DataPeriod.Membership.SUBSEQUENT_PERIODS, DataPeriod.Membership.SUBSEQUENT_PERIODS);
 
         BinningOp binningOp = new BinningOp();
         binningOp.useSpatialDataDay = true;

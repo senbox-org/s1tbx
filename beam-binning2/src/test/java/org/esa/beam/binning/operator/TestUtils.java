@@ -19,12 +19,7 @@ package org.esa.beam.binning.operator;
 import org.esa.beam.binning.DataPeriod;
 import org.esa.beam.binning.support.SpatialDataPeriod;
 import org.esa.beam.framework.dataio.ProductSubsetDef;
-import org.esa.beam.framework.datamodel.AbstractGeoCoding;
-import org.esa.beam.framework.datamodel.GeoPos;
-import org.esa.beam.framework.datamodel.PixelPos;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.datamodel.Scene;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.junit.Assert;
 
@@ -54,11 +49,11 @@ public class TestUtils {
         product.setGeoCoding(new MockGeoCoding());
 
         switch (firstPeriod) {
-            case PREVIOUS_PERIOD: {
+            case PREVIOUS_PERIODS: {
                 // for first pixel in previous period: create a product that starts at latest at T0 + 10 * H
                 double productStartTime = T0 - 12 * H;
                 product.setStartTime(new ProductData.UTC(productStartTime));
-                Assert.assertEquals(DataPeriod.Membership.PREVIOUS_PERIOD, dataPeriod.getObservationMembership(EASTERN_LON, productStartTime));
+                Assert.assertEquals(DataPeriod.Membership.PREVIOUS_PERIODS, dataPeriod.getObservationMembership(EASTERN_LON, productStartTime));
                 break;
             }
             case CURRENT_PERIOD: {
@@ -68,21 +63,21 @@ public class TestUtils {
                 Assert.assertEquals(DataPeriod.Membership.CURRENT_PERIOD, dataPeriod.getObservationMembership(EASTERN_LON, productStartTime));
                 break;
             }
-            case NEXT_PERIOD: {
+            case SUBSEQUENT_PERIODS: {
                 // for first pixel in current period: create a product that crosses -180° after T0 + (10 + 24) * H
                 double productStartTime = T0 + (10 + 25) * H;
                 product.setStartTime(new ProductData.UTC(productStartTime));
-                Assert.assertEquals(DataPeriod.Membership.NEXT_PERIOD, dataPeriod.getObservationMembership(EASTERN_LON, productStartTime));
+                Assert.assertEquals(DataPeriod.Membership.SUBSEQUENT_PERIODS, dataPeriod.getObservationMembership(EASTERN_LON, productStartTime));
                 break;
             }
         }
 
         switch (lastPeriod) {
-            case PREVIOUS_PERIOD: {
+            case PREVIOUS_PERIODS: {
                 // for last pixel in previous period: create a product that ends at latest at T0 + 10 * H
                 double productEndTime = T0 - 12 * H;
                 product.setEndTime(new ProductData.UTC(productEndTime));
-                Assert.assertEquals(DataPeriod.Membership.PREVIOUS_PERIOD, dataPeriod.getObservationMembership(WESTERN_LON, productEndTime));
+                Assert.assertEquals(DataPeriod.Membership.PREVIOUS_PERIODS, dataPeriod.getObservationMembership(WESTERN_LON, productEndTime));
                 break;
             }
             case CURRENT_PERIOD: {
@@ -92,11 +87,11 @@ public class TestUtils {
                 Assert.assertEquals(DataPeriod.Membership.CURRENT_PERIOD, dataPeriod.getObservationMembership(WESTERN_LON, productEndTime));
                 break;
             }
-            case NEXT_PERIOD: {
+            case SUBSEQUENT_PERIODS: {
                 // for last pixel in current period: create a product that ends after T0 + (10 + 24) * H
                 double productEndTime = T0 + (10 + 25) * H;
                 product.setEndTime(new ProductData.UTC(productEndTime));
-                Assert.assertEquals(DataPeriod.Membership.NEXT_PERIOD, dataPeriod.getObservationMembership(WESTERN_LON, productEndTime));
+                Assert.assertEquals(DataPeriod.Membership.SUBSEQUENT_PERIODS, dataPeriod.getObservationMembership(WESTERN_LON, productEndTime));
                 break;
             }
         }

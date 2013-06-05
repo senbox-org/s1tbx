@@ -21,7 +21,8 @@ import org.esa.beam.framework.datamodel.Product;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Thomas Storm
@@ -39,14 +40,14 @@ public class SpatialDataDaySourceProductFilterTest {
     public void testAccept() throws Exception {
         SpatialDataDaySourceProductFilter filter = new SpatialDataDaySourceProductFilter(dataPeriod);
 
-        assertFalse(filter.accept(createProduct(DataPeriod.Membership.PREVIOUS_PERIOD, DataPeriod.Membership.PREVIOUS_PERIOD)));
-        assertTrue(filter.accept(createProduct(DataPeriod.Membership.PREVIOUS_PERIOD, DataPeriod.Membership.CURRENT_PERIOD)));
-        assertTrue(filter.accept(createProduct(DataPeriod.Membership.PREVIOUS_PERIOD, DataPeriod.Membership.NEXT_PERIOD)));
+        assertFalse(filter.accept(createProduct(DataPeriod.Membership.PREVIOUS_PERIODS, DataPeriod.Membership.PREVIOUS_PERIODS)));
+        assertTrue(filter.accept(createProduct(DataPeriod.Membership.PREVIOUS_PERIODS, DataPeriod.Membership.CURRENT_PERIOD)));
+        assertTrue(filter.accept(createProduct(DataPeriod.Membership.PREVIOUS_PERIODS, DataPeriod.Membership.SUBSEQUENT_PERIODS)));
 
         assertTrue(filter.accept(createProduct(DataPeriod.Membership.CURRENT_PERIOD, DataPeriod.Membership.CURRENT_PERIOD)));
-        assertTrue(filter.accept(createProduct(DataPeriod.Membership.CURRENT_PERIOD, DataPeriod.Membership.NEXT_PERIOD)));
+        assertTrue(filter.accept(createProduct(DataPeriod.Membership.CURRENT_PERIOD, DataPeriod.Membership.SUBSEQUENT_PERIODS)));
 
-        assertFalse(filter.accept(createProduct(DataPeriod.Membership.NEXT_PERIOD, DataPeriod.Membership.NEXT_PERIOD)));
+        assertFalse(filter.accept(createProduct(DataPeriod.Membership.SUBSEQUENT_PERIODS, DataPeriod.Membership.SUBSEQUENT_PERIODS)));
     }
 
     private Product createProduct(DataPeriod.Membership firstPeriod, DataPeriod.Membership lastPeriod) {
