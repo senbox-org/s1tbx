@@ -19,6 +19,7 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LinearRing;
+import com.vividsolutions.jts.io.WKTReader;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.gpf.ui.BaseOperatorUI;
 import org.esa.beam.framework.gpf.ui.UIValidation;
@@ -65,6 +66,13 @@ public class SubsetUI extends BaseOperatorUI {
         worldMapUI.addListener(new MapListener());
 
         initParameters();
+
+        geoText.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                updateGeoRegion();
+            }
+        });
 
         return new JScrollPane(panel);
     }
@@ -234,6 +242,21 @@ public class SubsetUI extends BaseOperatorUI {
                 geoRegion = geometryFactory.createPolygon(linearRing, null);
                 geoText.setText(geoRegion.toText());
             }
+        }
+    }
+
+    private void updateGeoRegion() {
+        try {
+            geoRegion = new WKTReader().read(geoText.getText());
+
+            final Coordinate coord[] = geoRegion.getCoordinates();
+            worldMapUI.setSelectionStart((float)coord[0].y, (float)coord[0].x);
+            worldMapUI.setSelectionEnd((float)coord[2].y, (float)coord[2].x);
+            worldMapUI.getWorlMapPane().revalidate();
+            worldMapUI.getWorlMapPane().getLayerCanvas().updateUI();
+        } catch(Exception e) {
+            e.printStackTrace();
+            // do nothing
         }
     }
 
