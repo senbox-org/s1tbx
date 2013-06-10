@@ -109,7 +109,7 @@ class DatAboutBox extends ModalDialog {
                 "<br>(c) Copyright 2007-2013 by Array Systems Computing Inc. and contributors. All rights reserved." +
                 "<br>Visit http://www.array.ca/nest" +
                 "<br>" +
-                "<b>JDORIS</b>" +
+                "<b>JLINDA</b>" +
                 "<br>(c) Copyright 2009-2013 by PPO.labs and contributors. All rights reserved." +
                 "<br>" +
                 "<b>BEAM </b>" +
@@ -149,7 +149,7 @@ class DatAboutBox extends ModalDialog {
                 "&nbsp;&nbsp;<b></b> <br>" +
                 "</td></tr>" +
                 "</table>" +
-                "<br><hr>The JDORIS team at PPO.Labs/TU Delft is:" +
+                "<br><hr>The JLINDA team at PPO.Labs/TU Delft is:" +
                 "<table border=0>" +
                 "<tr><td>" +
                 "&nbsp;&nbsp;<b>Ramon Hanssen</b> (project manager)<br>" +

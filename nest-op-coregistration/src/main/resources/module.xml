@@ -25,7 +25,7 @@
         <module>nest-core</module>
     </dependency>
     <dependency>
-        <module>jdoris-core</module>
+        <module>jlinda-core</module>
     </dependency>
 
     <extension point="beam-ui:layerSources">

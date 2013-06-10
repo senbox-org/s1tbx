@@ -23,7 +23,7 @@
         <module>beam-geotiff</module>
     </dependency>
     <dependency>
-        <module>jdoris-core</module>
+        <module>jlinda-core</module>
     </dependency>
 
     <categories>Reader,DEM</categories>
