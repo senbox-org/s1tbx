@@ -103,7 +103,7 @@
 							<exclude>org.esa.nest:nest-io</exclude>
 							<exclude>org.esa.nest:nest-io-sentinel1</exclude>
 							<exclude>org.esa.nest:nest-dat</exclude>
-							<exclude>org.jdoris:jdoris-core</exclude>
+							<exclude>org.jlinda:jlinda-core</exclude>
                             <exclude>org.esa.beam:beam-*</exclude>
                         </excludes>
                     </dependencySet>
