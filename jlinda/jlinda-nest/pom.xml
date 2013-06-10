@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <artifactId>jlinda</artifactId>
+        <groupId>org.jlinda</groupId>
+        <version>0.5</version>
+    </parent>
+
+    <name>jLinda NEST Support</name>
+    <groupId>org.jlinda</groupId>
+    <artifactId>jlinda-nest</artifactId>
+    <version>0.5</version>
+    <!-- <version>${jlinda.version}</version> -->
+
+    <description>NEST utilities and operators</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.jlinda</groupId>
+            <artifactId>jlinda-core</artifactId>
+            <version>0.5</version>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.beam</groupId>
+            <artifactId>beam-core</artifactId>
+            <version>${beam.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.beam</groupId>
+            <artifactId>beam-gpf</artifactId>
+            <version>${beam.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.nest</groupId>
+            <artifactId>nest-core</artifactId>
+            <version>${nest.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.nest</groupId>
+            <artifactId>nest-reader-dem</artifactId>
+            <version>${nest.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.beam</groupId>
+            <artifactId>beam-visat-rcp</artifactId>
+            <version>${beam.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.nest</groupId>
+            <artifactId>nest-graph-builder</artifactId>
+            <version>${nest.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org</groupId>
+            <artifactId>jblas</artifactId>
+            <version>${jblas.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+
+    <build>
+        <plugins>
+            <!--<plugin>-->
+            <!--<groupId>com.bc.maven.plugins</groupId>-->
+            <!--<artifactId>maven-javahelp-plugin</artifactId>-->
+            <!--</plugin>-->
+            <plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>2.4.2</version>
+                <!-- FOR JLINDA GRAPHS -->
+                <executions>
+                    <execution>
+                    <id>copy-internal-graphs</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <overwrite>true</overwrite>
+                            <!-- <outputDirectory>${outputdir}/graphs/internal</outputDirectory> -->
+                            <outputDirectory>../../nest-src/main/bin/common/graphs/internal</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${basedir}/graphs</directory>
+                                    <filtering>false</filtering>
+                                    <includes>
+                                        <include>**/*.xml</include>
+                                    </includes>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                    <execution>
+                    <id>copy-insar-user-graphs</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <overwrite>true</overwrite>
+                            <outputDirectory>../../nest-src/main/bin/common/graphs/InSAR Graphs</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${basedir}/graphs</directory>
+                                    <filtering>false</filtering>
+                                    <includes>
+                                        <include>**/Snaphu*.xml</include>
+                                    </includes>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+
+</project>

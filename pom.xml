@@ -19,7 +19,7 @@
 		<hdf.version>2.7</hdf.version>
         <netcdf.version>4.2.20</netcdf.version>
 		<nest.version>5.0</nest.version>
-		<jdoris.version>0.3</jdoris.version>
+		<jlinda.version>0.5</jlinda.version>
 		<outputdir>../output</outputdir>
     </properties>
 	
@@ -145,7 +145,7 @@
 	
     <modules>
 		<module>beam</module>
-		<module>jdoris</module>
+		<module>jlinda</module>
 		<module>nest-bootstrap</module>
 		<module>nest-help</module>
 		<module>nest-core</module>
@@ -154,8 +154,6 @@
 		<module>nest-world-wind-view</module>
 		<module>nest-reader-dem</module>
 		<module>nest-io</module>
-		<module>nest-io-sentinel1</module>
-		<module>nest-op-sentinel1</module>
 	    <module>nest-op-calibration</module>
 	    <module>nest-op-coregistration</module>
 	    <module>nest-op-sar-tools</module>
@@ -291,12 +289,12 @@
                 <version>1.4.1.1</version>
             </dependency>
 			
-			<!-- JDoris Modules ############################################# -->
+			<!-- jlinda Modules ############################################# -->
 			
 			<dependency>
-                <groupId>org.jdoris</groupId>
-                <artifactId>jdoris-core</artifactId>
-                <version>${jdoris.version}</version>
+                <groupId>org.jlinda</groupId>
+                <artifactId>jlinda-core</artifactId>
+                <version>${jlinda.version}</version>
             </dependency>
 			
             <!-- NEST Modules ############################################# -->
@@ -867,7 +865,7 @@
                         <jdkName>1.7</jdkName>
                         <jdkLevel>1.7</jdkLevel>
                         <exclude>target</exclude>
-						<useShortDependencyNames>true</useShortDependencyNames>
+						<!--<useShortDependencyNames>true</useShortDependencyNames>-->
                     </configuration>
                 </plugin>
 				<plugin>

@@ -201,7 +201,7 @@ public class DEMFactory {
         final int maxY = y0 + tileHeight + 1;
         final int maxX = x0 + tileWidth + 1;
         final PixelPos pixelPos = new PixelPos();
-        final org.jdoris.core.Window tileWindow = new org.jdoris.core.Window(y0-1, y0 + tileHeight, x0-1, x0 + tileWidth);
+        final org.jlinda.core.Window tileWindow = new org.jlinda.core.Window(y0-1, y0 + tileHeight, x0-1, x0 + tileWidth);
 
         final GeoPos tgtUL = new GeoPos();
         final GeoPos tgtUR = new GeoPos();
@@ -223,7 +223,7 @@ public class DEMFactory {
 
         GeoPos[] geoCorners = {upperLeftCorner, lowerRightCorner};
         final GeoPos geoExtent = new GeoPos((float)(0.25*(latMax - latMin)), (float)(0.25*(lonMax - lonMin)));
-        geoCorners = org.jdoris.core.utils.GeoUtils.extendCorners(geoExtent, geoCorners);
+        geoCorners = org.jlinda.core.utils.GeoUtils.extendCorners(geoExtent, geoCorners);
 
         if (geoCorners[0].lon > 180) {
             geoCorners[0].lon -= 360;
@@ -321,7 +321,7 @@ public class DEMFactory {
             }
         }
 
-        final double[][] elevation = org.jdoris.core.utils.TriangleUtils.gridDataLinear(y_in, x_in, z_in, tileWindow, 1, 1, 1, demNoDataValue, 0);
+        final double[][] elevation = org.jlinda.core.utils.TriangleUtils.gridDataLinear(y_in, x_in, z_in, tileWindow, 1, 1, 1, demNoDataValue, 0);
 
         float alt;
         boolean valid = false;

@@ -38,8 +38,8 @@ import org.esa.nest.eo.Constants;
 import org.esa.nest.eo.GeoUtils;
 import org.esa.nest.eo.LocalGeometry;
 import org.esa.nest.eo.SARGeocoding;
-import org.jdoris.core.*;
-import org.jdoris.core.Point;
+import org.jlinda.core.*;
+import org.jlinda.core.Point;
 
 import java.awt.*;
 import java.io.File;

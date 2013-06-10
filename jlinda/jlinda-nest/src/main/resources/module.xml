@@ -1,0 +1,232 @@
+<module>
+
+    <manifestVersion>1.0.0</manifestVersion>
+    <symbolicName>jlinda-nest</symbolicName>
+    <version>0.0</version>
+    <name>NEST InSAR Operators</name>
+    <description>NEST InSAR operators</description>
+
+    <vendor>PPO.labs</vendor>
+    <copyright>(C) 2012 by PPO.labs</copyright>
+    <url>https://github.com/ppolabs/jlinda</url>
+    <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
+    <funding>European Space Agency</funding>
+
+    <dependency>
+        <module>beam-visat</module>
+        <optional>true</optional>
+    </dependency>
+	<dependency>
+        <module>beam-core</module>
+    </dependency>
+    <dependency>
+        <module>beam-gpf</module>
+    </dependency>
+    <dependency>
+        <module>nest-core</module>
+    </dependency>
+	<dependency>
+        <module>nest-reader-dem</module>
+    </dependency>
+    <dependency>
+        <module>nest-graph-builder</module>
+    </dependency>
+	<dependency>
+        <module>jlinda-core</module>
+    </dependency>
+
+    <extension point="beam-ui:actions">
+
+        <action>
+            <id>products</id>
+            <class>org.esa.beam.visat.actions.ActionGroup</class>
+            <text>Products</text>
+            <placeBefore>insar_tools</placeBefore>
+            <parent>insar</parent>
+        </action>
+
+        <action>
+            <id>insar_tools</id>
+            <class>org.esa.beam.visat.actions.ActionGroup</class>
+            <text>Tools</text>
+             <placeAfter>Products</placeAfter>
+            <separatorAfter>true</separatorAfter>
+            <parent>insar</parent>
+        </action>
+
+        <action>
+            <id>spectral_filtering</id>
+            <class>org.esa.beam.visat.actions.ActionGroup</class>
+            <text>Spectral Filtering</text>
+            <parent>insar_tools</parent>
+        </action>
+
+        <action>
+            <id>unwrapping</id>
+            <class>org.esa.beam.visat.actions.ActionGroup</class>
+            <text>Unwrapping</text>
+            <placeAfter>insar_tools</placeAfter>
+            <parent>insar</parent>
+        </action>
+
+        <!--/// PRODUCTS ///-->
+
+        <action>
+            <id>InterferogramOp</id>
+            <class>org.jlinda.nest.dat.InterferogramAction</class>
+            <text>Interferogram Formation</text>
+            <shortDescr>Interferograms from stack with optional subtraction of 'flat earth' phase</shortDescr>
+            <placeBefore>SubtRefDemOp</placeBefore>
+            <parent>products</parent>
+        </action>
+
+        <action>
+            <id>SubtRefDemOp</id>
+            <helpId>SubtRefDemOp</helpId>
+            <class>org.jlinda.nest.dat.SubtRefDemAction</class>
+            <text>Topo Phase Removal</text>
+            <shortDescr>Compute and subtract topographic phase</shortDescr>
+            <placeBefore>CoherenceOp</placeBefore>
+            <parent>products</parent>
+        </action>
+
+        <action>
+            <id>CoherenceOp</id>
+            <class>org.jlinda.nest.dat.CoherenceAction</class>
+            <text>Coherence Estimation</text>
+            <shortDescr>Estimate coherence of stack of images</shortDescr>
+            <parent>products</parent>
+        </action>
+
+        <action>
+            <id>DInSAROp</id>
+            <class>org.jlinda.nest.dat.DInSARAction</class>
+            <text>Differential InSAR</text>
+            <shortDescr>Three-Pass differential InSAR</shortDescr>
+            <placeAfter>CoherenceOp</placeAfter>
+            <parent>products</parent>
+        </action>
+        <action>
+            <id>Slant2HeightOp</id>
+            <class>org.jlinda.nest.dat.Slant2HeightAction</class>
+            <text>Phase to height conversion</text>
+            <shortDescr>Phase to height conversion</shortDescr>
+            <placeAfter>DInSAROp</placeAfter>
+            <parent>products</parent>
+        </action>
+
+        <!--/// FILTERING ///-->
+
+        <action>
+            <id>RangeFilterOp</id>
+            <class>org.jlinda.nest.dat.RangeFilterAction</class>
+            <text>Range Filtering...</text>
+            <shortDescr>Filter stack of SAR images in RANGE direction</shortDescr>
+            <placeBefore>org.jlinda.nest.dat.AzimuthFilterAction</placeBefore>
+            <parent>spectral_filtering</parent>
+        </action>
+
+        <action>
+            <id>AzimuthFilterOp</id>
+            <class>org.jlinda.nest.dat.AzimuthFilterAction</class>
+            <text>Azimuth Filtering</text>
+            <shortDescr>Filter stack of SAR images in AZIMUTH direction</shortDescr>
+            <parent>spectral_filtering</parent>
+        </action>
+
+        <action>
+            <id>PhaseFilterOp</id>
+            <class>org.jlinda.nest.dat.PhaseFilterAction</class>
+            <text>Phase Filtering</text>
+            <shortDescr>Phase filter stack of interferograms</shortDescr>
+            <placeAfter>spectral_filtering</placeAfter>
+            <parent>insar_tools</parent>
+        </action>
+
+        <action>
+            <id>InSARMaster</id>
+            <helpId>InSARMaster</helpId>
+            <class>org.jlinda.nest.dat.InSARMasterAction</class>
+            <parent>insar</parent>
+            <text>InSAR Stack Overview</text>
+            <separatorAfter>true</separatorAfter>
+        </action>
+
+        <!--/// UNWRAPPING ///-->
+        <!--<action>-->
+            <!--<id>SnaphuExportOp</id>-->
+            <!--<class>org.jlinda.nest.dat.snaphu.SnaphuExportAction</class>-->
+            <!--<text>Snaphu data export</text>-->
+            <!--<shortDescr>Export data and construct conf file for SNAPHU unwrapping</shortDescr>-->
+            <!--<parent>unwrapping</parent>-->
+        <!--</action>-->
+        <action>
+            <id>SnaphuExport</id>
+            <class>org.esa.nest.dat.actions.GraphAction</class>
+            <helpId>Unwrap</helpId>
+            <text>Snaphu data export</text>
+            <dialogTitle>Export data for SNAPHU unwrapping</dialogTitle>
+            <graphFile>SnaphuExportGraph.xml</graphFile>
+            <targetProductNameSuffix>_snaphu</targetProductNameSuffix>
+            <shortDescr>Export data and construct conf file for SNAPHU unwrapping</shortDescr>
+            <parent>unwrapping</parent>
+        </action>
+
+        <action>
+            <id>SnaphuImportOp</id>
+            <helpId>Unwrap</helpId>
+            <class>org.jlinda.nest.dat.snaphu.SnaphuImportAction</class>
+            <text>Snaphu data import</text>
+            <shortDescr>Import result of Snaphu to InSAR product</shortDescr>
+            <parent>unwrapping</parent>
+        </action>
+
+        <action>
+            <id>exportSnaphuProduct</id>
+            <text>Export Snaphu Product</text>
+            <class>org.esa.beam.visat.actions.ProductExportAction</class>
+            <formatName>Snaphu</formatName>
+            <useAllFileFilter>true</useAllFileFilter>
+            <shortDescr>Export Snaphu Product</shortDescr>
+            <helpId>exportSnaphuProduct</helpId>
+        </action>
+
+    </extension>
+
+    <extension point="beam-ui:helpSets">
+        <helpSet>
+            <parent>beam-help</parent>
+            <id>dorisproductsHelp</id>
+            <path>doc/help/doris-products.hs</path>
+        </helpSet>
+    </extension>
+
+    <!-- LEFTOVERS -->
+
+    <!--<action>-->
+        <!--<id>snaphu</id>-->
+        <!--<class>org.esa.nest.dat.actions.ComingSoonAction</class>-->
+        <!--<text>Unwrapping (coming soon)</text>-->
+        <!--<placeAfter>filtering</placeAfter>-->
+        <!--<separatorAfter>true</separatorAfter>-->
+        <!--<parent>insar</parent>-->
+    <!--</action>-->
+
+    <!--<action>-->
+        <!--<id>sarTools</id>-->
+        <!--<class>org.esa.nest.dat.actions.ComingSoonAction</class>-->
+        <!--<text>SAR Tools</text>-->
+        <!--<placeAfter>snaphu</placeAfter>-->
+        <!--<parent>insar</parent>-->
+    <!--</action>-->
+
+    <!--<action>-->
+        <!--<id>geoTools</id>-->
+        <!--<class>org.esa.nest.dat.actions.ComingSoonAction</class>-->
+        <!--<text>GEO Tools</text>-->
+        <!--<placeAfter>sarTools</placeAfter>-->
+        <!--<separatorAfter>true</separatorAfter>-->
+        <!--<parent>insar</parent>-->
+    <!--</action>-->
+
+</module>

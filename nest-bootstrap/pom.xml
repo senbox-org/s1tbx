@@ -65,8 +65,8 @@
             <artifactId>nest-reader-dem</artifactId>
         </dependency>
 		<dependency>
-            <groupId>org.jdoris</groupId>
-            <artifactId>jdoris-core</artifactId>
+            <groupId>org.jlinda</groupId>
+            <artifactId>jlinda-core</artifactId>
         </dependency>
 		
         <dependency>

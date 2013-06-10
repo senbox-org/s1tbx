@@ -1,0 +1,25 @@
+<module>
+
+    <manifestVersion>1.0.0</manifestVersion>
+    <symbolicName>jlinda-core</symbolicName>
+    <version>0.0</version>
+    <name>jLinda Core Libs</name>
+    <description>jLinda Core Libs</description>
+
+    <vendor>PPO.labs</vendor>
+    <copyright>(C) 2011 by PPO.labs</copyright>
+    <url>https://github.com/ppolabs/jlinda</url>
+    <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
+    <funding>European Space Agency</funding>
+
+    <dependency>
+      <module>beam-core</module>
+    </dependency>
+    <dependency>
+      <module>beam-gpf</module>
+    </dependency>
+    <dependency>
+      <module>nest-core</module>
+    </dependency>
+
+</module>

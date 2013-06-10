@@ -24,7 +24,7 @@ import org.esa.beam.framework.gpf.ui.UIValidation;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.nest.datamodel.Unit;
 import org.esa.nest.util.DialogUtils;
-import org.jdoris.core.stacks.MasterSelection;
+import org.jlinda.core.stacks.MasterSelection;
 
 import javax.swing.*;
 import java.awt.*;

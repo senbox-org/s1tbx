@@ -1,0 +1,62 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head><title>Help - Stack Overview</title>
+
+    <link rel="stylesheet" href="../style.css">
+</head>
+
+<body>
+<table class="header">
+    <tbody>
+    <tr class="header">
+        <td class="header">&nbsp; InSAR Stack Overview</td>
+        <td class="header" align="right"><a href="../general/Overview.html"><img src="../images/HeaderLogo.jpg"
+                                                                                 border="0"></a></td>
+    </tr>
+    </tbody>
+</table>
+<h3>InSAR Stack Overview and Master Selection</h3>
+
+<p>
+    This NEST function gives a general information about the interferometric stack. The information about the
+    acquisition date, sensor, mode, as well as information about perpendicular and temporal baselines are being listed.
+    Also an estimate for the modeled (expected) coherence is being computed, and used in selection of the optimal master
+    image for the InSAR stack.
+</p>
+
+<p>
+    The master image is selected such that the dispersion of the perpendicular baseline is as low as possible. The
+    master image is selected maximizing the (expected) stack coherence of the interferometric stack. The "optimal"
+    master implies improved visual interpretation of the interferograms and aids quality assessment.
+</p>
+
+<p><strong>Note:</strong>The modeled coherence, and other information provided by this operator, is purely based on the
+    metadata information of input products. The complex data (nor any other information from the source product bands)
+    in modeling of the coherence and other parameters is not used at all. Thus this function can also be applied on the
+    detected products, however, the interpretation of the modeled coherence and acceptance of recommendations for the
+    choice of the master image has to be performed with great care.
+</p>
+
+<h4>Implementation details for selection of master image:</h4>&nbsp;
+
+<p>
+    The stack coherence for a stack with master image <i>m</i> is defined as:
+    <br><img style="" alt="" src="../images/coherence_model_eq11.jpg"><br>
+    <!--&nbsp;&nbsp;&nbsp;-->
+</p>
+
+<p>
+    where <i>B</i> symbol represents the perpendicular baseline between images <i>m</i> and <i>k</i> at the center of
+    the image, the symbol <i>T</i> the temporal baseline, and <i>fDC</i> the Doppler baseline (the mean Doppler centroid
+    frequency difference). The divisor <i>c</i>, in the second equation, can be regarded as a critical baseline for
+    which the total de-correlation is expected for targets with the a distributed scattering mechanism.
+</p>
+
+<p> The values given in the first equation, are typical for ERS and Envisat.
+</p>
+
+<br>
+<br>
+<hr>
+</body>
+</html>
