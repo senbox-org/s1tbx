@@ -71,31 +71,41 @@ public class GeneralFilterBandPersistableTest extends TestCase {
         assertEquals(DimapProductConstants.TAG_SPECTRAL_BAND_INFO, xmlElement.getName());
         assertEquals(14, xmlElement.getChildren().size());
         assertTrue(xmlElement.getChild(DimapProductConstants.TAG_BAND_INDEX) != null);
-        assertEquals(gfb.getProduct().getBandIndex(gfb.getName()), Integer.parseInt(xmlElement.getChildTextTrim(DimapProductConstants.TAG_BAND_INDEX)));
+        assertEquals(gfb.getProduct().getBandIndex(gfb.getName()),
+                     Integer.parseInt(xmlElement.getChildTextTrim(DimapProductConstants.TAG_BAND_INDEX)));
         assertTrue(xmlElement.getChild(DimapProductConstants.TAG_BAND_NAME) != null);
         assertEquals(gfb.getName(), xmlElement.getChildTextTrim(DimapProductConstants.TAG_BAND_NAME));
         assertTrue(xmlElement.getChild(DimapProductConstants.TAG_BAND_DESCRIPTION) != null);
         assertEquals(gfb.getDescription(), xmlElement.getChildTextTrim(DimapProductConstants.TAG_BAND_DESCRIPTION));
         assertTrue(xmlElement.getChild(DimapProductConstants.TAG_DATA_TYPE) != null);
-        assertEquals(ProductData.getTypeString(gfb.getDataType()), xmlElement.getChildTextTrim(DimapProductConstants.TAG_DATA_TYPE));
+        assertEquals(ProductData.getTypeString(gfb.getDataType()),
+                     xmlElement.getChildTextTrim(DimapProductConstants.TAG_DATA_TYPE));
         assertTrue(xmlElement.getChild(DimapProductConstants.TAG_PHYSICAL_UNIT) != null);
         assertEquals(gfb.getUnit(), xmlElement.getChildTextTrim(DimapProductConstants.TAG_PHYSICAL_UNIT));
         assertTrue(xmlElement.getChild(DimapProductConstants.TAG_SOLAR_FLUX) != null);
-        assertEquals(gfb.getSolarFlux(), Float.parseFloat(xmlElement.getChildTextTrim(DimapProductConstants.TAG_SOLAR_FLUX)), EPS);
+        assertEquals(gfb.getSolarFlux(),
+                     Float.parseFloat(xmlElement.getChildTextTrim(DimapProductConstants.TAG_SOLAR_FLUX)), EPS);
         assertTrue(xmlElement.getChild(DimapProductConstants.TAG_BAND_WAVELEN) != null);
-        assertEquals(gfb.getSpectralWavelength(), Float.parseFloat(xmlElement.getChildTextTrim(DimapProductConstants.TAG_BAND_WAVELEN)), EPS);
+        assertEquals(gfb.getSpectralWavelength(),
+                     Float.parseFloat(xmlElement.getChildTextTrim(DimapProductConstants.TAG_BAND_WAVELEN)), EPS);
         assertTrue(xmlElement.getChild(DimapProductConstants.TAG_BANDWIDTH) != null);
-        assertEquals(gfb.getSpectralBandwidth(), Float.parseFloat(xmlElement.getChildTextTrim(DimapProductConstants.TAG_BANDWIDTH)), EPS);
+        assertEquals(gfb.getSpectralBandwidth(),
+                     Float.parseFloat(xmlElement.getChildTextTrim(DimapProductConstants.TAG_BANDWIDTH)), EPS);
         assertTrue(xmlElement.getChild(DimapProductConstants.TAG_SCALING_FACTOR) != null);
-        assertEquals(gfb.getScalingFactor(), Double.parseDouble(xmlElement.getChildTextTrim(DimapProductConstants.TAG_SCALING_FACTOR)), EPS);
+        assertEquals(gfb.getScalingFactor(),
+                     Double.parseDouble(xmlElement.getChildTextTrim(DimapProductConstants.TAG_SCALING_FACTOR)), EPS);
         assertTrue(xmlElement.getChild(DimapProductConstants.TAG_SCALING_OFFSET) != null);
-        assertEquals(gfb.getScalingOffset(), Double.parseDouble(xmlElement.getChildTextTrim(DimapProductConstants.TAG_SCALING_OFFSET)), EPS);
+        assertEquals(gfb.getScalingOffset(),
+                     Double.parseDouble(xmlElement.getChildTextTrim(DimapProductConstants.TAG_SCALING_OFFSET)), EPS);
         assertTrue(xmlElement.getChild(DimapProductConstants.TAG_SCALING_LOG_10) != null);
-        assertEquals(gfb.isLog10Scaled(), Boolean.parseBoolean(xmlElement.getChildTextTrim(DimapProductConstants.TAG_SCALING_LOG_10)));
+        assertEquals(gfb.isLog10Scaled(),
+                     Boolean.parseBoolean(xmlElement.getChildTextTrim(DimapProductConstants.TAG_SCALING_LOG_10)));
         assertTrue(xmlElement.getChild(DimapProductConstants.TAG_NO_DATA_VALUE_USED) != null);
-        assertEquals(gfb.isNoDataValueUsed(), Boolean.parseBoolean(xmlElement.getChildTextTrim(DimapProductConstants.TAG_NO_DATA_VALUE_USED)));
+        assertEquals(gfb.isNoDataValueUsed(),
+                     Boolean.parseBoolean(xmlElement.getChildTextTrim(DimapProductConstants.TAG_NO_DATA_VALUE_USED)));
         assertTrue(xmlElement.getChild(DimapProductConstants.TAG_NO_DATA_VALUE) != null);
-        assertEquals(gfb.getNoDataValue(), Double.parseDouble(xmlElement.getChildTextTrim(DimapProductConstants.TAG_NO_DATA_VALUE)), EPS);
+        assertEquals(gfb.getNoDataValue(),
+                     Double.parseDouble(xmlElement.getChildTextTrim(DimapProductConstants.TAG_NO_DATA_VALUE)), EPS);
 
         final Element filterInfo = xmlElement.getChild(DimapProductConstants.TAG_FILTER_BAND_INFO);
         assertNotNull(filterInfo);
@@ -107,9 +117,11 @@ public class GeneralFilterBandPersistableTest extends TestCase {
         assertTrue(filterInfo.getChild(DimapProductConstants.TAG_FILTER_SOURCE) != null);
         assertEquals(gfb.getSource().getName(), filterInfo.getChildTextTrim(DimapProductConstants.TAG_FILTER_SOURCE));
         assertTrue(filterInfo.getChild(DimapProductConstants.TAG_FILTER_SUB_WINDOW_SIZE) != null);
-        assertEquals(gfb.getSubWindowSize(), Integer.parseInt(filterInfo.getChildTextTrim(DimapProductConstants.TAG_FILTER_SUB_WINDOW_SIZE)));
+        assertEquals(gfb.getSubWindowSize(),
+                     Integer.parseInt(filterInfo.getChildTextTrim(DimapProductConstants.TAG_FILTER_SUB_WINDOW_SIZE)));
         assertTrue(filterInfo.getChild(DimapProductConstants.TAG_FILTER_OPERATOR_CLASS_NAME) != null);
-        assertEquals(gfb.getOperator().getClass().getName(), filterInfo.getChildTextTrim(DimapProductConstants.TAG_FILTER_OPERATOR_CLASS_NAME));
+        assertEquals(gfb.getOperator().getClass().getName(),
+                     filterInfo.getChildTextTrim(DimapProductConstants.TAG_FILTER_OPERATOR_CLASS_NAME));
     }
 
     public void testReadAndWrite() {
@@ -148,8 +160,6 @@ public class GeneralFilterBandPersistableTest extends TestCase {
         assertFalse(gfb.isLog10Scaled());
         assertEquals(gfb.getSource().getName(), _source.getName());
         assertEquals(5, gfb.getSubWindowSize());
-        assertEquals(5, gfb.getSubWindowWidth());
-        assertEquals(5, gfb.getSubWindowHeight());
         assertTrue(gfb.getOperator() instanceof GeneralFilterBand.Mean);
     }
 
@@ -183,16 +193,19 @@ public class GeneralFilterBandPersistableTest extends TestCase {
         contentList.add(createElement(DimapProductConstants.TAG_SCALING_OFFSET, "0.0"));
         contentList.add(createElement(DimapProductConstants.TAG_SCALING_LOG_10, "false"));
         contentList.add(createElement(DimapProductConstants.TAG_NO_DATA_VALUE_USED, "true"));
-        contentList.add(createElement(DimapProductConstants.TAG_NO_DATA_VALUE, String.valueOf(_source.getGeophysicalNoDataValue())));
+        contentList.add(createElement(DimapProductConstants.TAG_NO_DATA_VALUE,
+                                      String.valueOf(_source.getGeophysicalNoDataValue())));
         final List<Element> filterBandInfoList = new ArrayList<Element>(5);
         filterBandInfoList.add(createElement(DimapProductConstants.TAG_FILTER_SOURCE, "anyBand"));
         filterBandInfoList.add(createElement(DimapProductConstants.TAG_FILTER_OPERATOR_CLASS_NAME,
                                              "org.esa.beam.framework.datamodel.GeneralFilterBand$Mean"));
         final Element filterBandInfo = new Element(DimapProductConstants.TAG_FILTER_BAND_INFO);
-        filterBandInfo.setAttribute(GeneralFilterBandPersistable.ATTRIBUTE_BAND_TYPE, GeneralFilterBandPersistable.GENERAL_FILTER_BAND_TYPE);
-        if (GeneralFilterBandPersistable.VERSION_1_1. equals(version)) {
+        filterBandInfo.setAttribute(GeneralFilterBandPersistable.ATTRIBUTE_BAND_TYPE,
+                                    GeneralFilterBandPersistable.GENERAL_FILTER_BAND_TYPE);
+        if (GeneralFilterBandPersistable.VERSION_1_1.equals(version)) {
             filterBandInfoList.add(createElement(DimapProductConstants.TAG_FILTER_SUB_WINDOW_SIZE, "5"));
-            filterBandInfo.setAttribute(GeneralFilterBandPersistable.ATTRIBUTE_VERSION, GeneralFilterBandPersistable.VERSION_1_1);
+            filterBandInfo.setAttribute(GeneralFilterBandPersistable.ATTRIBUTE_VERSION,
+                                        GeneralFilterBandPersistable.VERSION_1_1);
         } else {
             // Version 1.0
             filterBandInfoList.add(createElement(DimapProductConstants.TAG_FILTER_SUB_WINDOW_WIDTH, "5"));

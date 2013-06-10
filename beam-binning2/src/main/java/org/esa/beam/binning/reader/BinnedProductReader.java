@@ -1,3 +1,19 @@
+/*
+ * Copyright (C) 2013 Brockmann Consult GmbH (info@brockmann-consult.de)
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 3 of the License, or (at your option)
+ * any later version.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, see http://www.gnu.org/licenses/
+ */
+
 package org.esa.beam.binning.reader;
 
 import com.bc.ceres.core.ProgressMonitor;
@@ -84,7 +100,8 @@ public class BinnedProductReader extends AbstractProductReader {
             initPlanetaryGrid();
 
             //create indexMap
-            final Variable bl_bin_num = netcdfFile.findVariable(NetcdfFile.escapeName("bl_bin_num"));
+
+            final Variable bl_bin_num = netcdfFile.findVariable("bl_bin_num");
             if (bl_bin_num != null) {
                 synchronized (netcdfFile) {
                     final Object storage = bl_bin_num.read().getStorage();
@@ -96,7 +113,7 @@ public class BinnedProductReader extends AbstractProductReader {
                 }
             }
 
-            final Variable bi_begin = netcdfFile.findVariable(NetcdfFile.escapeName("bi_begin"));
+            final Variable bi_begin = netcdfFile.findVariable("bi_begin");
             if (bi_begin != null) {
                 synchronized (netcdfFile) {
                     final Object storage = bi_begin.read().getStorage();
@@ -108,7 +125,7 @@ public class BinnedProductReader extends AbstractProductReader {
             }
 
 
-            final Variable bi_extent = netcdfFile.findVariable(NetcdfFile.escapeName("bi_extent"));
+            final Variable bi_extent = netcdfFile.findVariable("bi_extent");
             if (bi_extent != null) {
                 synchronized (netcdfFile) {
                     final Object storage = bi_extent.read().getStorage();
@@ -321,9 +338,13 @@ public class BinnedProductReader extends AbstractProductReader {
     }
 
     private int[] getXValuesForBin(int binIndexInGrid, int row) {
-        final int numberOfBinsInRow = planetaryGrid.getNumCols(row);
-        final int firstBinIndex = (int) planetaryGrid.getFirstBinIndex(row);
-        final double binIndexInRow = binIndexInGrid - firstBinIndex;
+        int numberOfBinsInRow = planetaryGrid.getNumCols(row);
+        int firstBinIndex = (int) planetaryGrid.getFirstBinIndex(row);
+        if (firstBinIndex >= binIndexInGrid) {
+            numberOfBinsInRow = planetaryGrid.getNumCols(row - 1);
+            firstBinIndex = (int) planetaryGrid.getFirstBinIndex(row -1) + 1;
+        }
+        double binIndexInRow = binIndexInGrid - firstBinIndex;
         final double longitudeExtent = 360.0 / numberOfBinsInRow;
         final double smallestLongitude = binIndexInRow * longitudeExtent;
         final double largestLongitude = smallestLongitude + longitudeExtent;

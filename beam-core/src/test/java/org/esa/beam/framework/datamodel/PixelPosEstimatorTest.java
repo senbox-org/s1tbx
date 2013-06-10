@@ -15,7 +15,6 @@ package org.esa.beam.framework.datamodel;/*
  */
 
 import org.esa.beam.util.jai.SingleBandedSampleModel;
-import org.esa.beam.util.math.Rotator;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -32,7 +31,6 @@ import java.awt.geom.Dimension2D;
 import java.awt.geom.Point2D;
 import java.awt.image.DataBuffer;
 import java.awt.image.Raster;
-import java.awt.image.RenderedImage;
 import java.awt.image.WritableRaster;
 
 import static org.junit.Assert.assertEquals;

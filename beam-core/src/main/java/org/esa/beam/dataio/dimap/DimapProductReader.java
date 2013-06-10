@@ -57,8 +57,10 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.MessageFormat;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 
 /**
@@ -82,6 +84,7 @@ public class DimapProductReader extends AbstractProductReader {
     private int sourceRasterWidth;
     private int sourceRasterHeight;
     private Map<Band, File> bandDataFiles;
+    private Set<ReaderExtender> readerExtenders;
 
     /**
      * Construct a new instance of a product reader for the given BEAM-DIMAP product reader plug-in.
@@ -124,7 +127,13 @@ public class DimapProductReader extends AbstractProductReader {
      */
     @Override
     protected Product readProductNodesImpl() throws IOException {
-        return processProduct(null);
+        final Product product = processProduct(null);
+        if (readerExtenders != null) {
+            for (ReaderExtender readerExtender : readerExtenders) {
+                readerExtender.completeProductNodesReading(product);
+            }
+        }
+        return product;
     }
 
     // todo - Put this into interface ReconfigurableProductReader and make DimapProductReader implement it
@@ -364,6 +373,10 @@ public class DimapProductReader extends AbstractProductReader {
         }
         bandInputStreams.clear();
         bandInputStreams = null;
+        if (readerExtenders != null) {
+            readerExtenders.clear();
+            readerExtenders = null;
+        }
         super.close();
     }
 
@@ -455,7 +468,18 @@ public class DimapProductReader extends AbstractProductReader {
         });
     }
 
+    public void addExtender(ReaderExtender extender) {
+        if (extender == null) {
+            return;
+        }
+        if (readerExtenders == null) {
+            readerExtenders = new HashSet<ReaderExtender>();
+        }
+        readerExtenders.add(extender);
+    }
+
     private static class OptimalPlacemarkDescriptorProvider implements VectorDataNodeReader.PlacemarkDescriptorProvider {
+
         @Override
         public PlacemarkDescriptor getPlacemarkDescriptor(SimpleFeatureType simpleFeatureType) {
             PlacemarkDescriptorRegistry placemarkDescriptorRegistry = PlacemarkDescriptorRegistry.getInstance();
@@ -473,5 +497,10 @@ public class DimapProductReader extends AbstractProductReader {
                 return placemarkDescriptorRegistry.getPlacemarkDescriptor(GeometryDescriptor.class);
             }
         }
+    }
+
+    public static abstract class ReaderExtender {
+
+        public abstract void completeProductNodesReading(Product product);
     }
 }

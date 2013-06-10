@@ -63,19 +63,19 @@ public class PlateCarreeGrid implements PlanetaryGrid {
 
     @Override
     public long getBinIndex(double lat, double lon) {
-        final int row = getRowIndex(lat);
-        final int col = getColIndex(lon);
+        final long row = getRowIndex(lat);
+        final long col = getColIndex(lon);
         return row * numCols + col;
     }
 
     @Override
     public int getRowIndex(long binIndex) {
-        return (int) binIndex / numCols;
+        return (int) (binIndex / numCols);
     }
 
     @Override
     public long getNumBins() {
-        return numRows * numCols;
+        return ((long) numRows) * (long) numCols;
     }
 
     @Override
@@ -90,7 +90,7 @@ public class PlateCarreeGrid implements PlanetaryGrid {
 
     @Override
     public long getFirstBinIndex(int row) {
-        return row * numCols;
+        return ((long) row) * ((long) numCols);
     }
 
     @Override

@@ -15,17 +15,12 @@
  */
 package org.esa.beam.framework.ui;
 
-import javax.swing.AbstractButton;
-import javax.swing.JButton;
 import javax.swing.JDialog;
 import java.awt.Window;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.List;
 
 /**
  * A helper class used to implement standard modal dialogs.
- *
+ * <p/>
  * <p>The dialog can be used directly or the class is used as base class in order to override the methods {@link #onOK()},
  * {@link #onCancel()} etc. which are called if a user presses the corresponding button.
  * <p/>
@@ -69,14 +64,6 @@ public class ModalDialog extends AbstractDialog {
     public void close() {
         setButtonID(ID_CANCEL);
         onCancel();
-    }
-
-    /**
-     * @deprecated  Since BEAM 4.2 {@link #close()} is used instead.
-     */
-    @Deprecated
-    protected final void cancelDialog() {
-        close();
     }
 
 }

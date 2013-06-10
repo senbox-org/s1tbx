@@ -27,7 +27,6 @@ import org.esa.beam.framework.gpf.graph.GraphException;
 import org.esa.beam.framework.gpf.graph.GraphIO;
 import org.esa.beam.framework.gpf.graph.GraphProcessingObserver;
 import org.esa.beam.framework.gpf.graph.GraphProcessor;
-import org.esa.beam.gpf.operators.standard.WriteOp;
 import org.esa.beam.util.logging.BeamLogManager;
 
 import java.io.File;
@@ -61,11 +60,7 @@ class DefaultCommandLineContext implements CommandLineContext {
 
     @Override
     public void writeProduct(Product targetProduct, String filePath, String formatName, boolean clearCacheAfterRowWrite) throws IOException {
-        WriteOp writeOp = new WriteOp(targetProduct, new File(filePath), formatName);
-        writeOp.setDeleteOutputOnFailure(true);
-        writeOp.setWriteEntireTileRows(true);
-        writeOp.setClearCacheAfterRowWrite(clearCacheAfterRowWrite);
-        writeOp.writeProduct(ProgressMonitor.NULL);
+        GPF.writeProduct(targetProduct, new File(filePath), formatName, clearCacheAfterRowWrite, ProgressMonitor.NULL);
     }
 
     @Override

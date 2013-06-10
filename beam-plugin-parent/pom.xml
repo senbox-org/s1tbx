@@ -2,19 +2,21 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
     <parent>
         <artifactId>beam-parent</artifactId>
         <groupId>org.esa.beam</groupId>
         <version>1</version>
     </parent>
-    <modelVersion>4.0.0</modelVersion>
 
     <artifactId>beam-plugin-parent</artifactId>
     <version>1.1-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>BEAM Plugin Parent</name>
-    <description>This POM serves as parent for all internal plugin modules, providing their dependency management.
+    <description>
+        This POM serves as parent for all internal plugin modules, providing their dependency management.
     </description>
 
     <properties>
@@ -25,7 +27,7 @@
         <jide.version>3.5.3</jide.version>
         <!-- This property is set in beam-parent. Reason? See there!-->
         <!--<hdf.version>2.7</hdf.version>-->
-        <netcdf.version>4.2.20</netcdf.version>
+        <netcdf.version>4.3.16</netcdf.version>
     </properties>
 
     <dependencyManagement>
@@ -128,7 +130,17 @@
             <dependency>
                 <groupId>edu.ucar</groupId>
                 <artifactId>nujan</artifactId>
-                <version>1.4.1</version>
+                <version>1.4.1.1</version>
+            </dependency>
+            <dependency>
+                <groupId>org.htmlparser</groupId>
+                <artifactId>htmlparser</artifactId>
+                <version>1.6</version>
+            </dependency>
+            <dependency>
+                <groupId>edu.ucar</groupId>
+                <artifactId>opendap</artifactId>
+                <version>4.3.16</version>
             </dependency>
 
             <!-- GeoTools Libraries ############################################# -->
@@ -376,7 +388,7 @@
             <dependency>
                 <groupId>Jama</groupId>
                 <artifactId>Jama</artifactId>
-                <version>1.0.2</version>
+                <version>1.0.3</version>
             </dependency>
 
             <!-- Test Libraries ############################################# -->

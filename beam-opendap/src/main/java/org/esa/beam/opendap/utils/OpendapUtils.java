@@ -16,10 +16,10 @@
 
 package org.esa.beam.opendap.utils;
 
-import opendap.dap.http.HTTPMethod;
-import opendap.dap.http.HTTPSession;
 import org.esa.beam.opendap.datamodel.OpendapLeaf;
 import thredds.catalog.InvDatasetImpl;
+import ucar.nc2.util.net.HTTPMethod;
+import ucar.nc2.util.net.HTTPSession;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -45,7 +45,7 @@ public class OpendapUtils {
 
     public static String getResponse(String fileUri) throws IOException {
         HTTPSession session = new HTTPSession();
-        final HTTPMethod httpMethod = session.newMethodGet(fileUri);
+        final HTTPMethod httpMethod = HTTPMethod.Get(session, fileUri);
         httpMethod.execute();
         InputStream responseStream = httpMethod.getResponseAsStream();
         return convertStreamToString(responseStream, httpMethod.getCharSet());

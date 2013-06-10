@@ -15,14 +15,13 @@
  */
 package org.esa.beam.processor.cloud.internal.util;
 
-// TODO make this public API
-
 /**
  * <p><i><b>IMPORTANT NOTE:</b>
  * This class not an API.
  * It is not intended to be used by clients.</i>
  * </p>
- */public class Interp {
+ */
+public class Interp {
 
     /**
      * The method returns a status code which can be one of the following values: <blockquote> 0 : Normal <br> 1 :
@@ -36,7 +35,6 @@ package org.esa.beam.processor.cloud.internal.util;
      * @param x  co-ordinate of the point to interpolate
      * @param xi tabulated values to search in
      * @param i  the fractional index, must not be <code>null</code>, contains the result
-     *
      * @return the status code, see above
      */
     public static int interpCoord(final double x, final double[] xi, final FractIndex i) {

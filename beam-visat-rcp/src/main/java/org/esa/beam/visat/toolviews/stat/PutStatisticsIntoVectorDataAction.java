@@ -25,6 +25,7 @@ import org.esa.beam.statistics.output.BandNameCreator;
 import org.esa.beam.statistics.output.FeatureStatisticsWriter;
 import org.esa.beam.statistics.output.StatisticsOutputContext;
 import org.esa.beam.statistics.output.Util;
+import org.esa.beam.util.logging.BeamLogManager;
 import org.esa.beam.visat.VisatApp;
 import org.geotools.data.collection.ListFeatureCollection;
 import org.geotools.feature.FeatureCollection;
@@ -88,7 +89,15 @@ class PutStatisticsIntoVectorDataAction extends AbstractAction {
             return;
         }
 
+
         for (final SimpleFeatureType featureType : getFeatureTypes()) {
+            final VectorDataNode originalVDN = featureType2VDN.get(featureType);
+            if (originalVDN.isPermanent()) {
+                BeamLogManager.getSystemLogger().warning("Unable to put statistics into permanent vector data.");
+                VisatApp.getApp().showErrorDialog("Unable to put statistics into permanent vector data (such as pins/GCPs).");
+                continue;
+            }
+
             FeatureStatisticsWriter featureStatisticsWriter =
                     FeatureStatisticsWriter.createFeatureStatisticsWriter(getFeatureCollection(featureType),
                                                                           null,

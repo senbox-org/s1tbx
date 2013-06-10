@@ -14,6 +14,8 @@ import ucar.nc2.Group;
 import ucar.nc2.NetcdfFile;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 public class HdfEosNetCdfReaderPlugIn extends AbstractNetCdfReaderPlugIn {
@@ -23,19 +25,7 @@ public class HdfEosNetCdfReaderPlugIn extends AbstractNetCdfReaderPlugIn {
         try {
             Element eosElement = HdfEosUtils.getEosElement(HdfEosUtils.STRUCT_METADATA, netcdfFile.getRootGroup());
             // check for GRID
-            String gridName = getGridName(eosElement);
-            if (gridName == null || gridName.isEmpty()) {
-                return DecodeQualification.UNABLE;
-            }
-            //check for projection
-            Element gridStructure = eosElement.getChild("GridStructure");
-            Element gridElem = (Element) gridStructure.getChildren().get(0);
-            Element projectionElem = gridElem.getChild("Projection");
-            if (projectionElem == null) {
-                return DecodeQualification.UNABLE;
-            }
-            String projection = projectionElem.getValue();
-            if (projection.equals("GCTP_GEO") || projection.equals("GCTP_SNSOID")) {
+            if (!HdfEosGridInfo.createGridInfos(eosElement).isEmpty()) {
                 return DecodeQualification.INTENDED;
             }
         } catch (Exception ignore) {
@@ -46,20 +36,23 @@ public class HdfEosNetCdfReaderPlugIn extends AbstractNetCdfReaderPlugIn {
     @Override
     protected void initReadContext(ProfileReadContext ctx) throws IOException {
         Group eosGroup = ctx.getNetcdfFile().getRootGroup();
-        Element eosStructElement;
-        String gridName;
-        eosStructElement = HdfEosUtils.getEosElement(HdfEosUtils.STRUCT_METADATA, eosGroup);
-        gridName = getGridName(eosStructElement);
-        if (gridName == null || gridName.isEmpty()) {
-            throw new ProductIOException("Could not find grid.");
+        Element eosElement = HdfEosUtils.getEosElement(HdfEosUtils.STRUCT_METADATA, eosGroup);
+        List<HdfEosGridInfo> gridInfos = HdfEosGridInfo.createGridInfos(eosElement);
+        List<HdfEosGridInfo> compatibleGridInfos = HdfEosGridInfo.getCompatibleGridInfos(gridInfos);
+        if (compatibleGridInfos.isEmpty()) {
+            throw new ProductIOException("Could not find grids.");
         }
-        Group gridGroup = HdfEosUtils.findGroupNested(eosGroup, gridName);
-        if (gridGroup == null) {
+        List<Group> gridGroups = new ArrayList<Group>();
+        for (HdfEosGridInfo gridInfo : compatibleGridInfos) {
+            gridGroups.add(HdfEosUtils.findGroupNested(eosGroup, gridInfo.gridName));
+        }
+        if (gridGroups.isEmpty()) {
             throw new ProductIOException("Could not find grid group.");
         }
-        RasterDigest rasterDigest = RasterDigest.createRasterDigest(gridGroup);
+        Group[] groups = gridGroups.toArray(new Group[gridGroups.size()]);
+        RasterDigest rasterDigest = RasterDigest.createRasterDigest(groups);
         ctx.setRasterDigest(rasterDigest);
-        ctx.setProperty(HdfEosUtils.STRUCT_METADATA, eosStructElement);
+        ctx.setProperty(HdfEosUtils.STRUCT_METADATA, eosElement);
         ctx.setProperty(HdfEosUtils.CORE_METADATA,
                         HdfEosUtils.getEosElement(HdfEosUtils.CORE_METADATA, eosGroup));
         ctx.setProperty(HdfEosUtils.ARCHIVE_METADATA,
@@ -109,22 +102,6 @@ public class HdfEosNetCdfReaderPlugIn extends AbstractNetCdfReaderPlugIn {
     @Override
     public ProfilePartReader createMetadataPartReader() {
         return new HdfEosMetadataPart();
-    }
-
-    private String getGridName(Element eosElement) throws IOException {
-        if (eosElement != null) {
-            Element gridStructure = eosElement.getChild("GridStructure");
-            if (gridStructure != null && gridStructure.getChildren() != null && !gridStructure.getChildren().isEmpty()) {
-                Element gridElem = (Element) gridStructure.getChildren().get(0);
-                if (gridElem != null) {
-                    Element gridNameElem = gridElem.getChild("GridName");
-                    if (gridNameElem != null) {
-                        return gridNameElem.getText();
-                    }
-                }
-            }
-        }
-        return null;
     }
 
 }

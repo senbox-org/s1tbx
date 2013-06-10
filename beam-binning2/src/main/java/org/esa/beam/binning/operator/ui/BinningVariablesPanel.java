@@ -82,7 +82,7 @@ class BinningVariablesPanel extends JPanel {
                 final String name;
                 final int expressionCount = bandsTable.getExpressionCount();
                 name = "<expression_" + expressionCount + ">";
-                bandsTable.addRow(name, null, AggregatorAverage.Descriptor.NAME, Double.NaN, Float.NaN, -1);
+                bandsTable.addRow(name, null, AggregatorAverage.Descriptor.NAME, 1.0, 0);
             }
         });
         removeButton.addActionListener(new ActionListener() {
@@ -161,19 +161,23 @@ class BinningVariablesPanel extends JPanel {
         superSamplingTextField.setPreferredSize(new Dimension(120, 20));
         superSamplingTextField.setMinimumSize(new Dimension(120, 20));
 
-        binningFormModel.getBindingContext().getPropertySet().addProperty(BinningDialog.createProperty(BinningFormModel.PROPERTY_KEY_TARGET_HEIGHT, Integer.class));
-        binningFormModel.getBindingContext().getPropertySet().addProperty(BinningDialog.createProperty(BinningFormModel.PROPERTY_KEY_SUPERSAMPLING, Integer.class));
+        binningFormModel.getBindingContext().getPropertySet().addProperty(
+                BinningDialog.createProperty(BinningFormModel.PROPERTY_KEY_TARGET_HEIGHT, Integer.class));
+        binningFormModel.getBindingContext().getPropertySet().addProperty(
+                BinningDialog.createProperty(BinningFormModel.PROPERTY_KEY_SUPERSAMPLING, Integer.class));
         binningFormModel.getBindingContext().bind(BinningFormModel.PROPERTY_KEY_TARGET_HEIGHT, targetHeightTextField);
         binningFormModel.getBindingContext().bind(BinningFormModel.PROPERTY_KEY_SUPERSAMPLING, superSamplingTextField);
-        binningFormModel.getBindingContext().getBinding(BinningFormModel.PROPERTY_KEY_TARGET_HEIGHT).setPropertyValue(BinningFormModel.DEFAULT_NUM_ROWS);
+        binningFormModel.getBindingContext().getBinding(BinningFormModel.PROPERTY_KEY_TARGET_HEIGHT).setPropertyValue(
+                BinningFormModel.DEFAULT_NUM_ROWS);
         binningFormModel.getBindingContext().getBinding(BinningFormModel.PROPERTY_KEY_SUPERSAMPLING).setPropertyValue(1);
 
-        binningFormModel.getBindingContext().getPropertySet().getProperty(BinningFormModel.PROPERTY_KEY_TARGET_HEIGHT).addPropertyChangeListener(new PropertyChangeListener() {
-            @Override
-            public void propertyChange(PropertyChangeEvent evt) {
-                updateResolutionLabel(targetHeightTextField, resolutionLabel);
-            }
-        });
+        binningFormModel.getBindingContext().getPropertySet().getProperty(BinningFormModel.PROPERTY_KEY_TARGET_HEIGHT).addPropertyChangeListener(
+                new PropertyChangeListener() {
+                    @Override
+                    public void propertyChange(PropertyChangeEvent evt) {
+                        updateResolutionLabel(targetHeightTextField, resolutionLabel);
+                    }
+                });
 
         final JPanel panel = GridBagUtils.createPanel();
         GridBagConstraints gbc = GridBagUtils.createDefaultConstraints();
@@ -187,7 +191,8 @@ class BinningVariablesPanel extends JPanel {
     }
 
     private static void updateResolutionLabel(JTextField targetHeightTextField, JLabel resolutionLabel) {
-        resolutionLabel.setText("Spatial resolution: ~ " + getResolutionString(Integer.parseInt(targetHeightTextField.getText())));
+        resolutionLabel.setText(
+                "Spatial resolution: ~ " + getResolutionString(Integer.parseInt(targetHeightTextField.getText())));
     }
 
     static String getResolutionString(int numRows) {

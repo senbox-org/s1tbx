@@ -32,4 +32,9 @@ public interface BinningContext {
      */
     Integer getSuperSampling();
 
+    /**
+     * @return The definition of a "spatial data-day", or more generally, a spatial data-period used for the binning. May be {@code null}, if not used.
+     * @since BEAM 5
+     */
+    DataPeriod getDataPeriod();
 }

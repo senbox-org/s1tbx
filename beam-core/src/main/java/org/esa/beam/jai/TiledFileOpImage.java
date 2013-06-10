@@ -65,7 +65,7 @@ public class TiledFileOpImage extends SourcelessOpImage {
         return create(new File(imageDir.getBasePath()), defaultImageProperties);
     }
 
-    private TiledFileOpImage(ImageHeader imageHeader, Map configuration, VirtualDir imageDir) {
+    private TiledFileOpImage(ImageHeader imageHeader, Map configuration, VirtualDir imageDir) throws IOException {
         super(imageHeader.getImageLayout(),
               configuration,
               imageHeader.getImageLayout().getSampleModel(null),
@@ -279,11 +279,8 @@ public class TiledFileOpImage extends SourcelessOpImage {
 
         private File tmpDir;
 
-        private RawZipImageInputStreamFactory() {
-            tmpDir = new File(System.getProperty("java.io.tmpdir", ".temp"));
-            if (!tmpDir.exists()) {
-                tmpDir.mkdirs();
-            }
+        private RawZipImageInputStreamFactory() throws IOException {
+            tmpDir = VirtualDir.createUniqueTempDir();
             // System.out.println("TiledFileOpImage: Using temporary directory '" + tmpDir + "'");
         }
 
@@ -301,11 +298,8 @@ public class TiledFileOpImage extends SourcelessOpImage {
 
         private File tmpDir;
 
-        private ZipInputStreamFactory() {
-            tmpDir = new File(System.getProperty("java.io.tmpdir", ".temp"));
-            if (!tmpDir.exists()) {
-                tmpDir.mkdirs();
-            }
+        private ZipInputStreamFactory() throws IOException {
+            tmpDir = VirtualDir.createUniqueTempDir();
             // System.out.println("TiledFileOpImage: Using temporary directory '" + tmpDir + "'");
         }
 

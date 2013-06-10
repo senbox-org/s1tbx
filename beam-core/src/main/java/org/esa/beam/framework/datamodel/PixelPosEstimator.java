@@ -18,7 +18,6 @@ package org.esa.beam.framework.datamodel;
 import org.esa.beam.util.math.CosineDistanceCalculator;
 import org.esa.beam.util.math.DistanceCalculator;
 import org.esa.beam.util.math.MathUtils;
-import org.esa.beam.util.math.Rotator;
 import org.esa.beam.util.math.SphericalDistanceCalculator;
 
 import javax.media.jai.PlanarImage;
@@ -49,10 +48,6 @@ public class PixelPosEstimator {
         }
         approximations = createApproximations(lonImage, latImage, maskImage, accuracy, tiling, steppingFactory,
                                               pixelDimension);
-    }
-
-    private PixelPosEstimator(PixelPosEstimator pixelPosEstimator) {
-        approximations = pixelPosEstimator.getApproximations();
     }
 
     public final Approximation[] getApproximations() {

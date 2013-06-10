@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2013 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -71,7 +71,6 @@ public class Reprojector {
      *
      * @param planetaryGrid The binning grid.
      * @param roiGeometry   The region of interest in geo-graphical coordinates.
-     *
      * @return The sub-region in pixel coordinates.
      */
     public static Rectangle computeRasterSubRegion(PlanetaryGrid planetaryGrid, Geometry roiGeometry) {
@@ -117,7 +116,6 @@ public class Reprojector {
 
     /**
      * @param planetaryGrid The planetary grid used for the binning.
-     *
      * @return The pixel size in degree of a raster resulting from the given {@code planetaryGrid}.
      */
     public static double getRasterPixelSize(PlanetaryGrid planetaryGrid) {
@@ -184,8 +182,7 @@ public class Reprojector {
         final int x2 = rasterRegion.x + rasterRegion.width - 1;
         final int y1 = rasterRegion.y;
         final PlanetaryGrid planetaryGrid = binningContext.getPlanetaryGrid();
-        final BinManager binManager = binningContext.getBinManager();
-        final WritableVector outputVector = binManager.createOutputVector();
+        Vector resultVector = null;
         final double lat = 90.0 - (y + 0.5) * 180.0 / gridHeight;
         long lastBinIndex = -1;
         TemporalBin temporalBin = null;
@@ -200,7 +197,7 @@ public class Reprojector {
                     final long binIndex = binRow.get(i).getIndex();
                     if (binIndex == wantedBinIndex) {
                         temporalBin = binRow.get(i);
-                        binManager.computeOutput(temporalBin, outputVector);
+                        resultVector = temporalBin.toVector();
                         lastBinIndex = wantedBinIndex;
                         rowIndex = i;
                         break;
@@ -210,7 +207,7 @@ public class Reprojector {
                 }
             }
             if (temporalBin != null) {
-                temporalBinRenderer.renderBin(x - x1, y - y1, temporalBin, outputVector);
+                temporalBinRenderer.renderBin(x - x1, y - y1, temporalBin, resultVector);
             } else {
                 temporalBinRenderer.renderMissingBin(x - x1, y - y1);
             }

@@ -3,13 +3,11 @@ package org.esa.beam.binning.operator;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
+import org.esa.beam.binning.DataPeriod;
 import org.esa.beam.binning.aggregators.AggregatorAverage;
+import org.esa.beam.binning.aggregators.AggregatorPercentile;
 import org.esa.beam.framework.dataio.ProductIO;
-import org.esa.beam.framework.datamodel.CrsGeoCoding;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.datamodel.TiePointGeoCoding;
-import org.esa.beam.framework.datamodel.TiePointGrid;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.main.GPT;
@@ -28,7 +26,7 @@ import java.util.HashMap;
 import java.util.Set;
 import java.util.SortedMap;
 
-import static java.lang.Math.*;
+import static java.lang.Math.sqrt;
 import static org.junit.Assert.*;
 
 /**
@@ -49,6 +47,11 @@ public class BinningOpTest {
     @Before
     public void setUp() throws Exception {
         TESTDATA_DIR.mkdirs();
+
+        // @todo 1 tb/tb should read like the lines commented below .... see todo in tearDown()
+//        if (!TESTDATA_DIR.mkdirs()) {
+//            fail("Can't create test I/O directory: " + TESTDATA_DIR);
+//        }
         if (!TESTDATA_DIR.isDirectory()) {
             fail("Can't create test I/O directory: " + TESTDATA_DIR);
         }
@@ -57,7 +60,10 @@ public class BinningOpTest {
     @After
     public void tearDown() throws Exception {
         if (!FileUtils.deleteTree(TESTDATA_DIR)) {
-            System.out.println("Warning: failed to completely delete test I/O directory:" + TESTDATA_DIR);
+            // @todo 1 tb/tb check why this fails. I suppose it has to do with the copy operation in the binning op
+            // BinningOp line 595 - need to enable the fail after this has been clarified.
+            //fail("Warning: failed to completely delete test I/O directory:" + TESTDATA_DIR);
+            System.err.println("Warning: failed to completely delete test I/O directory:" + TESTDATA_DIR);
         }
     }
 
@@ -160,7 +166,6 @@ public class BinningOpTest {
      */
     @Test
     public void testGlobalBinning() throws Exception {
-
         BinningConfig binningConfig = createBinningConfig();
         FormatterConfig formatterConfig = createFormatterConfig();
 
@@ -189,7 +194,7 @@ public class BinningOpTest {
         assertNotNull(targetProduct);
         try {
             assertGlobalBinningProductIsOk(targetProduct, null, obs1, obs2, obs3, obs4, obs5);
-        } catch (Exception e) {
+        } finally {
             targetProduct.dispose();
         }
     }
@@ -523,25 +528,40 @@ public class BinningOpTest {
     }
 
     @Test
-    public void testFilterAccordingToTime() throws Exception {
-        final Product product1 = new Product("name1", "type", 10, 10);
-        final Product product2 = new Product("name2", "type", 10, 10);
-        final Product product3 = new Product("name3", "type", 10, 10);
-        Product[] inputProducts = {product1, product2, product3};
-        Product[] expectedProducts = {product1, product2, product3};
-        Product[] filteredProducts = BinningOp.filterSourceProducts(inputProducts,
-                                                                    ProductData.UTC.parse("01-JUL-2000 00:00:00"),
-                                                                    ProductData.UTC.parse("01-AUG-2000 00:00:00"));
-        assertArrayEquals(expectedProducts, filteredProducts);
+    public void testCreateAllProductsFilter() throws Exception {
+        BinningOp binningOp = new BinningOp();
+        binningOp.useSpatialDataDay = false;
+        binningOp.startDate = null;
+        binningOp.endDate = null;
 
-        product1.setStartTime(ProductData.UTC.parse("02-JUL-2000 00:00:00"));
-        product1.setEndTime(ProductData.UTC.parse("02-AUG-2000 00:00:00"));
+        assertSame(BinningOp.AllProductFilter.class, binningOp.createSourceProductFilter(null, null, null).getClass());
+    }
 
-        inputProducts = new Product[]{product1, product2, product3};
-        expectedProducts = new Product[]{product2, product3};
-        filteredProducts = BinningOp.filterSourceProducts(inputProducts, ProductData.UTC.parse("01-JUL-2000 00:00:00"),
-                                                          ProductData.UTC.parse("01-AUG-2000 00:00:00"));
-        assertArrayEquals(expectedProducts, filteredProducts);
+    @Test
+    public void testCreateSpatialDataDayFilter() throws Exception {
+        DataPeriod dataPeriod = TestUtils.createSpatialDataPeriod();
+
+        Product product1 = TestUtils.createProduct(dataPeriod, DataPeriod.Membership.PREVIOUS_PERIODS, DataPeriod.Membership.PREVIOUS_PERIODS);
+        Product product2 = TestUtils.createProduct(dataPeriod, DataPeriod.Membership.PREVIOUS_PERIODS, DataPeriod.Membership.CURRENT_PERIOD);
+        Product product3 = TestUtils.createProduct(dataPeriod, DataPeriod.Membership.PREVIOUS_PERIODS, DataPeriod.Membership.SUBSEQUENT_PERIODS);
+
+        Product product4 = TestUtils.createProduct(dataPeriod, DataPeriod.Membership.CURRENT_PERIOD, DataPeriod.Membership.CURRENT_PERIOD);
+        Product product5 = TestUtils.createProduct(dataPeriod, DataPeriod.Membership.CURRENT_PERIOD, DataPeriod.Membership.SUBSEQUENT_PERIODS);
+
+        Product product6 = TestUtils.createProduct(dataPeriod, DataPeriod.Membership.SUBSEQUENT_PERIODS, DataPeriod.Membership.SUBSEQUENT_PERIODS);
+
+        BinningOp binningOp = new BinningOp();
+        binningOp.useSpatialDataDay = true;
+        ProductFilter filter = binningOp.createSourceProductFilter(dataPeriod, null, null);
+
+        assertSame(SpatialDataDaySourceProductFilter.class, filter.getClass());
+
+        assertFalse(filter.accept(product1));
+        assertTrue(filter.accept(product2));
+        assertTrue(filter.accept(product3));
+        assertTrue(filter.accept(product4));
+        assertTrue(filter.accept(product5));
+        assertFalse(filter.accept(product6));
     }
 
     @Test
@@ -567,6 +587,47 @@ public class BinningOpTest {
         Rectangle2D.Double expected = new Rectangle2D.Double(10.0, 36.0, 14.0, 14.0);
 
         assertEquals(expected, shape.getBounds2D());
+    }
+
+    @Test
+    public void testParseDateUtc() {
+        final ProductData.UTC utc = BinningOp.parseDateUtc("Gerda", "2012-05-22");
+        assertEquals("22-MAY-2012 00:00:00.000000", utc.format());
+    }
+
+    @Test
+    public void testParseDateUtc_errorCase() {
+        try {
+            BinningOp.parseDateUtc("Fritz", "yesterday evening");
+            fail("OperatorException expected");
+        } catch (OperatorException expected) {
+            assertEquals("Invalid parameter 'Fritz': Unparseable date: \"yesterday evening\"", expected.getMessage());
+        }
+    }
+
+    @Test
+    public void testBinningSetsCorrectStartAndStopTimesFromProductTimes() throws Exception {
+        final BinningConfig binningConfig = createBinningConfig();
+        final FormatterConfig formatterConfig = createFormatterConfig();
+
+        float obs1 = 0.2F;
+
+        final BinningOp binningOp = new BinningOp();
+
+        final JtsGeometryConverter geometryConverter = new JtsGeometryConverter();
+
+        final Product sourceProduct = createSourceProduct(obs1);
+        sourceProduct.setStartTime(ProductData.UTC.parse("02-JAN-2002 11:30:25"));
+        sourceProduct.setEndTime(ProductData.UTC.parse("02-JAN-2002 12:28:19"));
+
+        binningOp.setSourceProducts(sourceProduct);
+        binningOp.setBinningConfig(binningConfig);
+        binningOp.setFormatterConfig(formatterConfig);
+        binningOp.setRegion(geometryConverter.parse("POLYGON ((-180 -90, -180 90, 180 90, 180 -90, -180 -90))"));
+
+        final Product targetProduct = binningOp.getTargetProduct();
+        assertNotNull(targetProduct);
+
     }
 
     private void assertGlobalBinningProductIsOk(Product targetProduct, File location, float obs1, float obs2,
@@ -600,10 +661,12 @@ public class BinningOpTest {
         assertNotNull(targetProduct.getBand("num_passes"));
         assertNotNull(targetProduct.getBand("chl_mean"));
         assertNotNull(targetProduct.getBand("chl_sigma"));
+        assertNotNull(targetProduct.getBand("chl_p70"));
         assertEquals(_o_, targetProduct.getBand("num_obs").getNoDataValue(), 1e-10);
         assertEquals(_o_, targetProduct.getBand("num_passes").getNoDataValue(), 1e-10);
         assertEquals(_x_, targetProduct.getBand("chl_mean").getNoDataValue(), 1e-10);
         assertEquals(_x_, targetProduct.getBand("chl_sigma").getNoDataValue(), 1e-10);
+        assertEquals(_x_, targetProduct.getBand("chl_p70").getNoDataValue(), 1e-10);
 
         // Test pixel values of band "num_obs"
         //
@@ -615,7 +678,7 @@ public class BinningOpTest {
                 _o_, _o_, _o_, _o_,
         };
         final int[] actualNobs = new int[w * h];
-        targetProduct.getBand("num_obs").readPixels(x0, y0, w, h, actualNobs);
+        targetProduct.getBand("num_obs").getSourceImage().getData().getPixels(x0, y0, w, h, actualNobs);
         assertArrayEquals(expectedNobs, actualNobs);
 
         // Test pixel values of band "num_passes"
@@ -628,7 +691,7 @@ public class BinningOpTest {
                 _o_, _o_, _o_, _o_,
         };
         final int[] actualNpas = new int[w * h];
-        targetProduct.getBand("num_passes").readPixels(x0, y0, w, h, actualNpas);
+        targetProduct.getBand("num_passes").getSourceImage().getData().getPixels(x0, y0, w, h, actualNpas);
         assertArrayEquals(expectedNpas, actualNpas);
 
         // Test pixel values of band "chl_mean"
@@ -641,7 +704,7 @@ public class BinningOpTest {
                 _x_, _x_, _x_, _x_,
         };
         final float[] actualMeas = new float[w * h];
-        targetProduct.getBand("chl_mean").readPixels(x0, y0, w, h, actualMeas);
+        targetProduct.getBand("chl_mean").getSourceImage().getData().getPixels(x0, y0, w, h, actualMeas);
         assertArrayEquals(expectedMeas, actualMeas, 1e-4F);
 
         // Test pixel values of band "chl_sigma"
@@ -655,15 +718,31 @@ public class BinningOpTest {
                 _x_, _x_, _x_, _x_,
         };
         final float[] actualSigs = new float[w * h];
-        targetProduct.getBand("chl_sigma").readPixels(x0, y0, w, h, actualSigs);
+        targetProduct.getBand("chl_sigma").getSourceImage().getData().getPixels(x0, y0, w, h, actualSigs);
         assertArrayEquals(expectedSigs, actualSigs, 1e-4F);
+
+        // Test pixel values of band "chl_p70"
+        //
+        final float p70 = AggregatorPercentile.computePercentile(70, new float[]{obs1, obs2, obs3, obs4, obs5});
+        final float[] expectedP70 = new float[]{
+                _x_, _x_, _x_, _x_,
+                _x_, p70, p70, _x_,
+                _x_, p70, p70, _x_,
+                _x_, _x_, _x_, _x_,
+        };
+        final float[] actualP70 = new float[w * h];
+        targetProduct.getBand("chl_p70").getSourceImage().getData().getPixels(x0, y0, w, h, actualP70);
+        assertArrayEquals(expectedP70, actualP70, 1e-4F);
     }
 
     static BinningConfig createBinningConfig() {
-        AggregatorAverage.Config c = new AggregatorAverage.Config();
-        c.setVarName("chl");
+        AggregatorAverage.Config chlAvg = new AggregatorAverage.Config();
+        chlAvg.setVarName("chl");
+        AggregatorPercentile.Config chlP70 = new AggregatorPercentile.Config();
+        chlP70.setVarName("chl");
+        chlP70.setPercentage(70);
         final BinningConfig binningConfig = new BinningConfig();
-        binningConfig.setAggregatorConfigs(c);
+        binningConfig.setAggregatorConfigs(chlAvg, chlP70);
         binningConfig.setNumRows(180);
         binningConfig.setMaskExpr("true");
         return binningConfig;

@@ -35,9 +35,6 @@
     <version>5.0-SNAPSHOT</version>
 
     <properties>
-        <!-- In version 3.0 of Maven the sourceEncoding property will be embedded in the build tag.
-        For now the convention is to that it as property.
-        TODO: Move the sourceEncoding property to the build tag if version 3.0 is released -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <beam.version>5.0-SNAPSHOT</beam.version>
         <ceres.version>0.14-SNAPSHOT</ceres.version>
@@ -45,7 +42,7 @@
         <jide.version>3.5.3</jide.version>
         <!-- This property is set in beam-parent; reason? see there!-->
         <!--<hdf.version>2.7</hdf.version>-->
-        <netcdf.version>4.2.20</netcdf.version>
+        <netcdf.version>4.3.16</netcdf.version>
     </properties>
     <modules>
         <!-- the bootstrap module has no sources, its only purpose is to construct a class path for VISAT -->
@@ -169,7 +166,7 @@
             <dependency>
                 <groupId>edu.ucar</groupId>
                 <artifactId>nujan</artifactId>
-                <version>1.4.1</version>
+                <version>1.4.1.1</version>
             </dependency>
 
             <!-- GeoTools Libraries ############################################# -->
@@ -417,7 +414,7 @@
             <dependency>
                 <groupId>Jama</groupId>
                 <artifactId>Jama</artifactId>
-                <version>1.0.2</version>
+                <version>1.0.3</version>
             </dependency>
 
             <!-- Test Libraries ############################################# -->

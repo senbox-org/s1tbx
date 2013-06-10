@@ -20,7 +20,7 @@ import javax.swing.tree.DefaultTreeModel;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 @RunWith(HeadlessTestRunner.class)
 public class CatalogTree_appendNodeUnitTest {
@@ -43,7 +43,7 @@ public class CatalogTree_appendNodeUnitTest {
         final InvDatasetImpl dapDataset = createDataset(new String[]{serviceType});
 
         // execution
-        new CatalogTree(null, new DefaultAppContext("")).appendLeafNode(parentNode, getDefaultTreeModel(), dapDataset);
+        new CatalogTree(null, new DefaultAppContext(""), null).appendLeafNode(parentNode, getDefaultTreeModel(), dapDataset);
 
         // verification
         testThatChildIsOnlyDapNodeWithoutFileAccess(parentNode);
@@ -56,7 +56,7 @@ public class CatalogTree_appendNodeUnitTest {
         final InvDatasetImpl dapDataset = createDataset(new String[]{serviceName});
 
         // execution
-        new CatalogTree(null, new DefaultAppContext("")).appendLeafNode(parentNode, getDefaultTreeModel(), dapDataset);
+        new CatalogTree(null, new DefaultAppContext(""), null).appendLeafNode(parentNode, getDefaultTreeModel(), dapDataset);
 
         // verification
         testThatChildIsNodeWithFileAccess(parentNode);
@@ -70,7 +70,7 @@ public class CatalogTree_appendNodeUnitTest {
         final InvDatasetImpl dapDataset = createDataset(new String[]{fileServiceName, dapServiceName});
 
         // execution
-        new CatalogTree(null, new DefaultAppContext("")).appendLeafNode(parentNode, getDefaultTreeModel(), dapDataset);
+        new CatalogTree(null, new DefaultAppContext(""), null).appendLeafNode(parentNode, getDefaultTreeModel(), dapDataset);
 
         // verification
         testThatChildIsDapNodeWhichHasFileAccessToo(parentNode);
@@ -84,7 +84,7 @@ public class CatalogTree_appendNodeUnitTest {
         catalogReference.setCatalog(new InvCatalogImpl("whatever", "1.0", whatever));
 
         //execution
-        CatalogTree.appendCatalogNode(parentNode, getDefaultTreeModel(), catalogReference);
+        CatalogTreeUtils.appendCatalogNode(parentNode, getDefaultTreeModel(), catalogReference);
 
         //verification
         assertEquals(1, parentNode.getChildCount());
@@ -103,24 +103,24 @@ public class CatalogTree_appendNodeUnitTest {
     private void testThatChildIsNodeWithFileAccess(DefaultMutableTreeNode parentNode) {
         assertEquals(1, parentNode.getChildCount());
         assertEquals(true, parentNode.getChildAt(0).isLeaf());
-        assertEquals(false, CatalogTree.isDapNode(parentNode.getChildAt(0)));
-        assertEquals(true, CatalogTree.isFileNode(parentNode.getChildAt(0)));
+        assertEquals(false, CatalogTreeUtils.isDapNode(parentNode.getChildAt(0)));
+        assertEquals(true, CatalogTreeUtils.isFileNode(parentNode.getChildAt(0)));
     }
 
     private void testThatChildIsOnlyDapNodeWithoutFileAccess(DefaultMutableTreeNode parentNode) {
         testThatChildIsDapNode(parentNode);
-        assertEquals(false, CatalogTree.isFileNode(parentNode.getChildAt(0)));
+        assertEquals(false, CatalogTreeUtils.isFileNode(parentNode.getChildAt(0)));
     }
 
     private void testThatChildIsDapNodeWhichHasFileAccessToo(DefaultMutableTreeNode parentNode) {
         testThatChildIsDapNode(parentNode);
-        assertEquals(true, CatalogTree.isFileNode(parentNode.getChildAt(0)));
+        assertEquals(true, CatalogTreeUtils.isFileNode(parentNode.getChildAt(0)));
     }
 
     private void testThatChildIsDapNode(DefaultMutableTreeNode parentNode) {
         assertEquals(1, parentNode.getChildCount());
         assertEquals(true, parentNode.getChildAt(0).isLeaf());
-        assertEquals(true, CatalogTree.isDapNode(parentNode.getChildAt(0)));
+        assertEquals(true, CatalogTreeUtils.isDapNode(parentNode.getChildAt(0)));
     }
 
     private InvDatasetImpl createDataset(String[] serviceTypeNames) throws URISyntaxException {

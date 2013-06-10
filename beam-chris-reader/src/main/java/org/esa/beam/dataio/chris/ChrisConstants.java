@@ -23,47 +23,47 @@ public class ChrisConstants {
 
     public static final String MPH_NAME = "MPH";
     public static final String SPH_NAME = "SPH";
-    public static final String BAND_INFORMATION_NAME = "Band Information";
+    public static final String BAND_INFORMATION_NAME = "Band_Information";
     // Meta data attributes
-    public static final String ATTR_NAME_SENSOR_TYPE = "Sensor Type";
-    public static final String ATTR_NAME_DATA_RIGHTS = "Data Rights";
-    public static final String ATTR_NAME_TARGET_NAME = "Target Name";
-    public static final String ATTR_NAME_IMAGE_DATE = "Image Date";
-    public static final String ATTR_NAME_IMAGE_NUMBER = "Image Number";
-    public static final String ATTR_NAME_IMAGE_TAG = "Image Tag";
-    public static final String ATTR_NAME_TARGET_LON = "Target Longitude";
-    public static final String ATTR_NAME_TARGET_LAT = "Target Latitude";
-    public static final String ATTR_NAME_TARGET_ALT = "Target Altitude";
-    public static final String ATTR_NAME_FLY_BY_ZENITH_ANGLE = "Fly-by Zenith Angle";
-    public static final String ATTR_NAME_MINIMUM_ZENITH_ANGLE = "Minimum Zenith Angle";
-    public static final String ATTR_NAME_SOLAR_ZENITH_ANGLE = "Solar Zenith Angle";
-    public static final String ATTR_NAME_SOLAR_AZIMUTH_ANGLE = "Solar Azimuth Angle";
-    public static final String ATTR_NAME_FLY_BY_TIME = "Fly-by Time";
-    public static final String ATTR_NAME_IMAGE_CENTRE_TIME = "Calculated Image Centre Time";
-    public static final String ATTR_NAME_OBSERVATION_ZENITH_ANGLE = "Observation Zenith Angle";
-    public static final String ATTR_NAME_OBSERVATION_AZIMUTH_ANGLE = "Observation Azimuth Angle";
-    public static final String ATTR_NAME_CHRIS_MODE = "CHRIS Mode";
-    public static final String ATTR_NAME_NUMBER_OF_SAMPLES = "Number of Samples";
-    public static final String ATTR_NAME_NUMBER_OF_GROUND_LINES = "Number of Ground Lines";
-    public static final String ATTR_NAME_NUMBER_OF_BANDS = "Number of Bands";
-    public static final String ATTR_NAME_PLATFORM_ALTITUDE = "Platform Altitude";
-    public static final String ATTR_NAME_RESPONSE_FILE_CREATION_TIME = "Response File Creation Time";
-    public static final String ATTR_NAME_DARK_FILE_CREATION_TIME = "Dark File Creation Time";
-    public static final String ATTR_NAME_CALIBRATION_DATA_UNITS = "Calibration Data Units";
-    public static final String ATTR_NAME_CHRIS_TEMPERATURE = "CHRIS Temperature";
-    public static final String ATTR_NAME_KEY_TO_MASK = "Key to Mask";
-    public static final String ATTR_NAME_IMAGE_FLIPPED_ALONG_TRACK = "Image Flipped Along-Track";
+    public static final String ATTR_NAME_SENSOR_TYPE = "Sensor_Type";
+    public static final String ATTR_NAME_DATA_RIGHTS = "Data_Rights";
+    public static final String ATTR_NAME_TARGET_NAME = "Target_Name";
+    public static final String ATTR_NAME_IMAGE_DATE = "Image_Date";
+    public static final String ATTR_NAME_IMAGE_NUMBER = "Image_Number";
+    public static final String ATTR_NAME_IMAGE_TAG = "Image_Tag";
+    public static final String ATTR_NAME_TARGET_LON = "Target_Longitude";
+    public static final String ATTR_NAME_TARGET_LAT = "Target_Latitude";
+    public static final String ATTR_NAME_TARGET_ALT = "Target_Altitude";
+    public static final String ATTR_NAME_FLY_BY_ZENITH_ANGLE = "Fly-by_Zenith_Angle";
+    public static final String ATTR_NAME_MINIMUM_ZENITH_ANGLE = "Minimum_Zenith_Angle";
+    public static final String ATTR_NAME_SOLAR_ZENITH_ANGLE = "Solar_Zenith_Angle";
+    public static final String ATTR_NAME_SOLAR_AZIMUTH_ANGLE = "Solar_Azimuth_Angle";
+    public static final String ATTR_NAME_FLY_BY_TIME = "Fly-by_Time";
+    public static final String ATTR_NAME_IMAGE_CENTRE_TIME = "Calculated_Image_Centre_Time";
+    public static final String ATTR_NAME_OBSERVATION_ZENITH_ANGLE = "Observation_Zenith_Angle";
+    public static final String ATTR_NAME_OBSERVATION_AZIMUTH_ANGLE = "Observation_Azimuth_Angle";
+    public static final String ATTR_NAME_CHRIS_MODE = "CHRIS_Mode";
+    public static final String ATTR_NAME_NUMBER_OF_SAMPLES = "Number_of_Samples";
+    public static final String ATTR_NAME_NUMBER_OF_GROUND_LINES = "Number_of_Ground_Lines";
+    public static final String ATTR_NAME_NUMBER_OF_BANDS = "Number_of_Bands";
+    public static final String ATTR_NAME_PLATFORM_ALTITUDE = "Platform_Altitude";
+    public static final String ATTR_NAME_RESPONSE_FILE_CREATION_TIME = "Response_File_Creation_Time";
+    public static final String ATTR_NAME_DARK_FILE_CREATION_TIME = "Dark_File_Creation_Time";
+    public static final String ATTR_NAME_CALIBRATION_DATA_UNITS = "Calibration_Data_Units";
+    public static final String ATTR_NAME_CHRIS_TEMPERATURE = "CHRIS_Temperature";
+    public static final String ATTR_NAME_KEY_TO_MASK = "Key_to_Mask";
+    public static final String ATTR_NAME_IMAGE_FLIPPED_ALONG_TRACK = "Image_Flipped_Along-Track";
 
     public static final String ATTR_NAME_NOISE_REDUCTION = "Noise Reduction";
 
     // Scientific data set names
-    static final String SDS_NAME_RCI_IMAGE = "RCI Image";
-    static final String SDS_NAME_MASK = "Saturation/Reset Mask";
+    static final String SDS_NAME_RCI_IMAGE = "RCI_Image";
+    static final String SDS_NAME_MASK = "Saturation_Reset_Mask";
 
-    static final String VS_NAME_GAIN_INFO = "Gain Information";
-    static final String VS_NAME_GAIN_SETTING = "Gain Setting";
-    static final String VS_NAME_GAIN_VALUE = "Gain Value";
-    static final String VS_NAME_MODE_INFO = "Mode Information";
-    static final String[] VS_NAME_MODE_FIELDS = {"WlLow","WlHigh","WlMid","BWidth","Gain","Low Row","High Row"};
+    static final String VS_NAME_GAIN_INFO = "Gain_Information";
+    static final String VS_NAME_GAIN_SETTING = "Gain_Setting";
+    static final String VS_NAME_GAIN_VALUE = "Gain_Value";
+    static final String VS_NAME_MODE_INFO = "Mode_Information";
+    static final String[] VS_NAME_MODE_FIELDS = {"WlLow","WlHigh","WlMid","BWidth","Gain","Low_Row","High_Row"};
 
 }

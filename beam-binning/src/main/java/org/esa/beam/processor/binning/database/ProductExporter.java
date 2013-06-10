@@ -34,8 +34,8 @@ import org.esa.beam.framework.processor.ProcessorException;
 import org.esa.beam.framework.processor.ProcessorUtils;
 import org.esa.beam.framework.processor.ProductRef;
 import org.esa.beam.processor.binning.L3Constants;
-import org.esa.beam.processor.binning.L3ProjectionRaster;
 import org.esa.beam.processor.binning.L3Context;
+import org.esa.beam.processor.binning.L3ProjectionRaster;
 import org.esa.beam.processor.binning.algorithm.Algorithm;
 import org.esa.beam.util.io.FileUtils;
 
@@ -43,11 +43,12 @@ import java.awt.Point;
 import java.awt.geom.Rectangle2D;
 import java.io.IOException;
 import java.util.logging.Logger;
-import java.util.List;
-import java.util.ArrayList;
 
+@Deprecated
 /**
  * Export a TemporalBinDatabse into a product.
+ *
+ * @Deprecated since beam-binning 2.1.2 as part of the BEAM 4.11-release. Use module 'beam-binning2' instead.
  */
 public class ProductExporter {
 
@@ -77,12 +78,11 @@ public class ProductExporter {
      * Calculates the size of the product from the content of the binDatabase.
      *
      * @param pm a monitor to inform the user about progress
-     *
      * @throws ProcessorException
      * @throws IOException
      */
     public void estimateExportRegion(ProgressMonitor pm) throws ProcessorException,
-                                                                IOException {
+            IOException {
         final GeoPos upperLeft = new GeoPos();
         final GeoPos upperRight = new GeoPos();
         final GeoPos lowerRight = new GeoPos();
@@ -96,7 +96,6 @@ public class ProductExporter {
      * Set the size of the product by its border.
      *
      * @param border
-     *
      * @throws ProcessorException
      */
     public void setExportRegion(Rectangle2D border) throws ProcessorException {
@@ -117,8 +116,8 @@ public class ProductExporter {
     public void createOutputProduct(ProductRef outputProductRef,
                                     L3Context.BandDefinition[] bandDefinitions,
                                     MetadataElement[] metadata) throws
-                                                                                                                 ProcessorException,
-                                                                                                                 IOException {
+            ProcessorException,
+            IOException {
         logger.info(L3Constants.LOG_MSG_CREATE_OUTPUT);
 
         final int width = projection.getWidth();
@@ -160,7 +159,6 @@ public class ProductExporter {
      * Processes the actual projection and closes the written product afterwards.
      *
      * @param locator
-     *
      * @return aborted true, if the process has been aborted.
      */
     public boolean outputBinDatabase(BinLocator locator, ProgressMonitor pm) throws IOException {
@@ -264,23 +262,23 @@ public class ProductExporter {
      * Initializes the projection parameters needed.
      */
     private void initProjection(GeoPos upperLeft, GeoPos upperRight, GeoPos lowerRight, GeoPos lowerLeft) throws
-                                                                                                          ProcessorException {
+            ProcessorException {
         logger.info(L3Constants.LOG_MSG_CALC_PROJ_PARAM);
 
         projection.init(stepsPerDegree, upperLeft, upperRight, lowerRight, lowerLeft);
 
         if (projection.getWidth() * projection.getHeight() == 0
-            || projection.getWidth() == -1
-            || projection.getHeight() == -1) {
+                || projection.getWidth() == -1
+                || projection.getHeight() == -1) {
             throw new ProcessorException("No output product is created, because it would not contain data.\n" +
-                                         "Please check your processing parameters.");
+                                                 "Please check your processing parameters.");
         }
 
         logger.info(L3Constants.LOG_MSG_PROJ_BORDER);
         logger.info(L3Constants.LOG_MSG_LAT_MIN + lowerLeft.getLatString() +
-                    L3Constants.LOG_MSG_LAT_MAX + upperLeft.getLatString());
+                            L3Constants.LOG_MSG_LAT_MAX + upperLeft.getLatString());
         logger.info(L3Constants.LOG_MSG_LON_MIN + lowerLeft.getLonString() +
-                    L3Constants.LOG_MSG_LON_MAX + lowerRight.getLonString());
+                            L3Constants.LOG_MSG_LON_MAX + lowerRight.getLonString());
         logger.info(ProcessorConstants.LOG_MSG_SUCCESS);
     }
 }

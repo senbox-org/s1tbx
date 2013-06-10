@@ -278,19 +278,19 @@ public class TestOpendapAPI {
         while (variables.hasMoreElements()) {
             final Object currentVariable = variables.nextElement();
             assertTrue(currentVariable instanceof DArray || currentVariable instanceof DGrid);
-            variableNames.add(((BaseType) currentVariable).getName());
+            variableNames.add(((BaseType) currentVariable).getEncodedName());
             if (currentVariable instanceof DArray) {
                 final DArray variable = (DArray) currentVariable;
-                if (variable.getName().equals("lat")) {
+                if (variable.getEncodedName().equals("lat")) {
                     assertEquals(1, variable.numDimensions());
                     assertEquals(89, variable.getDimension(0).getSize());
-                } else if (variable.getName().equals("lon")) {
+                } else if (variable.getEncodedName().equals("lon")) {
                     assertEquals(1, variable.numDimensions());
                     assertEquals(180, variable.getDimension(0).getSize());
-                } else if (variable.getName().equals("time")) {
+                } else if (variable.getEncodedName().equals("time")) {
                     assertEquals(1, variable.numDimensions());
                     assertEquals(1857, variable.getDimension(0).getSize());
-                } else if (variable.getName().equals("time_bnds")) {
+                } else if (variable.getEncodedName().equals("time_bnds")) {
                     assertEquals(2, variable.numDimensions());
                     assertEquals(1857, variable.getDimension(0).getSize());
                     assertEquals(2, variable.getDimension(1).getSize());
@@ -363,7 +363,7 @@ public class TestOpendapAPI {
     }
 
     private void testMap(DArrayDimension map, String expectedName, int expectedSize) {
-        assertEquals(expectedName, map.getName());
+        assertEquals(expectedName, map.getEncodedName());
         assertEquals(expectedSize, map.getSize());
     }
 
@@ -415,20 +415,20 @@ public class TestOpendapAPI {
             attributeNamesSet.add(attributeName);
         }
         for (Attribute attribute : attributeSet) {
-            if (attribute.getName().equals("units")) {
+            if (attribute.getEncodedName().equals("units")) {
                 assertTrue(attribute.getValueAt(0).matches("degrees_.*"));
-            } else if (attribute.getName().equals("long_name")) {
+            } else if (attribute.getEncodedName().equals("long_name")) {
                 assertEquals(expectedLongName, attribute.getValueAt(0));
-            } else if (attribute.getName().equals("actual_range")) {
+            } else if (attribute.getEncodedName().equals("actual_range")) {
                 assertEquals(Attribute.FLOAT32, attribute.getType());
                 final Iterator valuesIterator = attribute.getValuesIterator();
                 assertEquals(expectedMin, Float.parseFloat(valuesIterator.next().toString()), 1.0E-7);
                 assertEquals(expectedMax, Float.parseFloat(valuesIterator.next().toString()), 1.0E-7);
-            } else if (attribute.getName().equals("standard_name")) {
+            } else if (attribute.getEncodedName().equals("standard_name")) {
                 assertEquals(expectedStandardName, attribute.getValueAt(0));
-            } else if (attribute.getName().equals("axis")) {
+            } else if (attribute.getEncodedName().equals("axis")) {
                 assertEquals(expectedAxis, attribute.getValueAt(0));
-            } else if (attribute.getName().equals("coordinate_defines")) {
+            } else if (attribute.getEncodedName().equals("coordinate_defines")) {
                 assertEquals("center", attribute.getValueAt(0));
             }
         }

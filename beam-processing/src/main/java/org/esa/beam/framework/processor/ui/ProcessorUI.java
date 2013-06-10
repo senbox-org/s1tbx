@@ -15,11 +15,10 @@
  */
 package org.esa.beam.framework.processor.ui;
 
-import java.util.Vector;
+import org.esa.beam.framework.processor.ProcessorException;
 
 import javax.swing.JComponent;
-
-import org.esa.beam.framework.processor.ProcessorException;
+import java.util.Vector;
 
 // todo - deprecate most methods, only single requests are supported
 // todo - deprecate setApp(), application context should be passed to the ProcessorUI factory method of ProcessorApp
@@ -27,11 +26,14 @@ import org.esa.beam.framework.processor.ProcessorException;
 /**
  * This interface defines the basic operations any processor user interface has to provide to interact with the
  * processor framework.
- *
+ * <p/>
  * <p>Clients should use the {@link AbstractProcessorUI} as base class for their implementations, because the
- *  {@link ProcessorUI}
+ * {@link ProcessorUI}
  * interface may change in the future.</p>
+ *
+ * @deprecated since BEAM 4.11. Use the {@link org.esa.beam.framework.gpf Graph Processing Framework} instead.
  */
+@Deprecated
 public interface ProcessorUI {
 
     /**

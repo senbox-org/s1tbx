@@ -15,23 +15,6 @@
  */
 package org.esa.beam.framework.processor;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
-import java.util.Vector;
-import java.util.logging.Level;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.net.MalformedURLException;
-
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
-
 import org.esa.beam.framework.param.ParamValidateException;
 import org.esa.beam.framework.param.Parameter;
 import org.esa.beam.util.Guardian;
@@ -40,6 +23,22 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
+import java.io.File;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+import java.util.Vector;
+import java.util.logging.Level;
+
 /**
  * This class is responsible for loading request files. It first parses the xml code, creates a <code>Request</code>
  * object and (optionally) verifies that all parameters in the request file are within predefined ranges.
@@ -47,7 +46,10 @@ import org.xml.sax.helpers.DefaultHandler;
  * To enable the request loader to verify parameter ranges, each user has to supply a custom
  * <code>RequestElemetFactory</code> to the request loader. Initially all parameters in the request are assumed having
  * <code>String</code> data type and can contain anything.
+ *
+ * @deprecated since BEAM 4.11. Use the {@link org.esa.beam.framework.gpf Graph Processing Framework} instead.
  */
+@Deprecated
 public class RequestLoader {
 
     private File _file;
@@ -66,7 +68,6 @@ public class RequestLoader {
      * Constructs the object with a given request file.
      *
      * @param requestFile the XML file containing the requestlist
-     *
      * @throws RequestElementFactoryException
      */
     public RequestLoader(final File requestFile) throws RequestElementFactoryException {
@@ -78,7 +79,6 @@ public class RequestLoader {
      * Sets the request file to be parsed and parses it if possible
      *
      * @param requestFile the XML file containing the requestlist
-     *
      * @throws RequestElementFactoryException
      */
     public void setAndParseRequestFile(final File requestFile) throws RequestElementFactoryException {
@@ -126,7 +126,6 @@ public class RequestLoader {
      * Returns the request at the given index.
      *
      * @param index the index of the request to be returned
-     *
      * @throws ArrayIndexOutOfBoundsException
      */
     public Request getRequestAt(final int index) {
@@ -152,6 +151,7 @@ public class RequestLoader {
         _currentRequest = null;
         _elemFactory = null;
     }
+
     /**
      * Checks whether the <code>URL</code> passed in contains a valid file and can be opened for reading. If so, the
      * <code>File</code> is set.
@@ -174,8 +174,8 @@ public class RequestLoader {
      * @throws IOException
      */
     private void parse() throws ParserConfigurationException,
-                                SAXException,
-                                IOException {
+            SAXException,
+            IOException {
         // Use the default (non-validating) parser
         final SAXParserFactory factory = SAXParserFactory.newInstance();
 
@@ -187,8 +187,8 @@ public class RequestLoader {
     /**
      * Creates or configures a new request element.
      *
-     * @param qName        qualified name
-     * @param attrs        the element attributes
+     * @param qName qualified name
+     * @param attrs the element attributes
      */
     private void maybeCreateOrConfigureRequest(final String qName, final Attributes attrs) throws ProcessorException {
         if (qName.equalsIgnoreCase(RequestTags.TAG_REQUEST)) {
@@ -216,7 +216,7 @@ public class RequestLoader {
     /**
      * Finishes a complete request element.
      *
-     * @param qName        qualified name
+     * @param qName qualified name
      */
     private void maybeFinishRequest(final String qName) {
         if (qName.equalsIgnoreCase(RequestTags.TAG_REQUEST)) {
@@ -332,7 +332,7 @@ public class RequestLoader {
             String name = null;
             String value = null;
 
-            final HashMap<String,String> attribsMap = new HashMap<String, String>();
+            final HashMap<String, String> attribsMap = new HashMap<String, String>();
             for (int n = 0; n < attrs.getLength(); n++) {
                 // get the parameter name - is an attribute named "name"
                 final String qName = attrs.getQName(n);
@@ -375,9 +375,9 @@ public class RequestLoader {
                 }
 
                 if (attribsMap.size() > 0) {
-                    final Set<Map.Entry<String,String>> set = attribsMap.entrySet();
-                    for (Iterator<Map.Entry<String,String>> iterator = set.iterator(); iterator.hasNext();) {
-                        final Map.Entry<String,String> entry = iterator.next();
+                    final Set<Map.Entry<String, String>> set = attribsMap.entrySet();
+                    for (Iterator<Map.Entry<String, String>> iterator = set.iterator(); iterator.hasNext(); ) {
+                        final Map.Entry<String, String> entry = iterator.next();
                         final String key = entry.getKey();
                         final String sValue = entry.getValue();
                         param.getProperties().setPropertyValue(Request.PREFIX_QUALIFIER + key, sValue);
@@ -405,7 +405,7 @@ public class RequestLoader {
      */
     private static File createFileFromURL(String urlString) {
         if (urlString.startsWith("file:")) {
-            if(!urlString.startsWith("file:/")) {
+            if (!urlString.startsWith("file:/")) {
                 urlString = urlString.replace("file:", "file:/");
             }
             try {

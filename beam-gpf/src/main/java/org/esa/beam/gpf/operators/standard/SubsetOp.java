@@ -83,13 +83,13 @@ public class SubsetOp extends Operator {
     private Product targetProduct;
 
     @Parameter(description = "The subset region in pixel coordinates.\n" +
-                             "If not given, the entire scene is used. Either 'region' or 'geoRegion must be given.")
+                             "If not given, the entire scene is used. The 'geoRegion' parameter has precedence over this parameter.")
     private Rectangle region;
     @Parameter(converter = JtsGeometryConverter.class,
                description = "The subset region in geographical coordinates using WKT-format,\n" +
                              "e.g. POLYGON((<lon1> <lat1>, <lon2> <lat2>, ..., <lon1> <lat1>))\n" +
                              "(make sure to quote the option due to spaces in <geometry>).\n" +
-                             "If not given, the entire scene is used. Either 'region' or 'geoRegion must be given.")
+                             "If not given, the entire scene is used.")
     private Geometry geoRegion;
     @Parameter(defaultValue = "1",
                description = "The pixel sub-sampling step in X (horizontal image direction)")
@@ -352,7 +352,7 @@ public class SubsetOp extends Operator {
         }
 
         public Rectangle getPixelRegion() {
-            return new Rectangle(x1, y1, x2 - x1 + 1, y2 - y1 + 1);
+            return new Rectangle(x1, y1, x2 - x1, y2 - y1);
         }
     }
 }

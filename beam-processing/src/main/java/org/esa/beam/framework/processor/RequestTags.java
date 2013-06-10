@@ -17,7 +17,10 @@ package org.esa.beam.framework.processor;
 
 /**
  * This class defines all tags that are valid in a request file and recognized by the <code>RequestLoader</code>.
+ *
+ * @deprecated since BEAM 4.11. Use the {@link org.esa.beam.framework.gpf Graph Processing Framework} instead.
  */
+@Deprecated
 public class RequestTags {
 
     // the tags

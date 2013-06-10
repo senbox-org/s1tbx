@@ -9,96 +9,109 @@
     <tr class="header">
         <td class="header">&nbsp;Unmix Operator</td>
         <td class="header" align="right">
-           <a href="../general/BeamOverview.html">             <img src="images/BeamHeader.jpg" border="0"/></a>
+            <a href="../general/BeamOverview.html"> <img src="images/BeamHeader.jpg" border="0"/></a>
         </td>
     </tr>
 </table>
 <h1>Unmix Operator Description</h1>
+
 <h2>Overview</h2>
 <table>
-  <tr><td><b>Name:</b></td><td><code>Unmix</code></td></tr>
-  <tr><td><b>Full name:</b></td><td><code>org.esa.beam.unmixing.SpectralUnmixingOp</code></td></tr>
-  <tr><td><b>Purpose:</b></td><td>Performs a linear spectral unmixing.</td></tr>
-  <tr><td><b>Version:</b></td><td>1.0</td></tr>
+    <tr>
+        <td><b>Name:</b></td>
+        <td><code>Unmix</code></td>
+    </tr>
+    <tr>
+        <td><b>Full name:</b></td>
+        <td><code>org.esa.beam.unmixing.SpectralUnmixingOp</code></td>
+    </tr>
+    <tr>
+        <td><b>Purpose:</b></td>
+        <td>Performs a linear spectral unmixing.</td>
+    </tr>
+    <tr>
+        <td><b>Version:</b></td>
+        <td>1.0</td>
+    </tr>
 </table>
 <h2>Description</h2>
 Implements a spectral unmixing algorithm.
 <h2>Sources</h2>
 <table>
-<tr>
-  <th>Name</th>
-  <th>Description</th>
-</tr>
-<tr>
-  <td><code>sourceProduct</code></td>
-  <td>The source product.</td>
-</tr>
+    <tr>
+        <th>Name</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td><code>sourceProduct</code></td>
+        <td>The source product.</td>
+    </tr>
 </table>
 <h2>Parameters</h2>
 <table>
-<tr>
-  <th>Name</th>
-  <th>Data Type</th>
-  <th>Default</th>
-  <th>Description</th>
-  <th>Constraints</th>
-</tr>
-<tr>
-  <td><code>sourceBands</code></td>
-  <td><code>String[]</code></td>
-  <td><code></code></td>
-  <td>The list of spectral bands providing the source spectrum.</td>
-  <td></td>
-</tr>
-<tr>
-  <td><code>endmembers</code></td>
-  <td><code>Endmember[]</code></td>
-  <td><code></code></td>
-  <td>The list of endmember spectra. Wavelengths must be given in nanometers.</td>
-  <td></td>
-</tr>
-<tr>
-  <td><code>endmemberFile</code></td>
-  <td><code>File</code></td>
-  <td><code></code></td>
-  <td>A text file containing (additional) endmembers in a table. Wavelengths must be given in nanometers.</td>
-  <td></td>
-</tr>
-<tr>
-  <td><code>unmixingModelName</code></td>
-  <td><code>String</code></td>
-  <td><code>Constrained LSU</code></td>
-  <td>The unmixing model.</td>
-  <td>value set: [Unconstrained LSU, Constrained LSU, Fully Constrained LSU]</td>
-</tr>
-<tr>
-  <td><code>abundanceBandNameSuffix</code></td>
-  <td><code>String</code></td>
-  <td><code>_abundance</code></td>
-  <td>The suffix for the generated abundance band names (name = endmember + suffix).</td>
-  <td>not null; pattern: [a-zA-Z_0-9]*</td>
-</tr>
-<tr>
-  <td><code>errorBandNameSuffix</code></td>
-  <td><code>String</code></td>
-  <td><code>_error</code></td>
-  <td>The suffix for the generated error band names (name = source + suffix).</td>
-  <td>not null; pattern: [a-zA-Z_0-9]*</td>
-</tr>
-<tr>
-  <td><code>computeErrorBands</code></td>
-  <td><code>boolean</code></td>
-  <td><code>false</code></td>
-  <td>If 'true', error bands for all source bands will be generated.</td>
-  <td></td>
-</tr>
-<tr>
-  <td><code>minBandwidth</code></td>
-  <td><code>double</code></td>
-  <td><code>10.0</code></td>
-  <td>Minimum spectral bandwidth used for endmember wavelength matching.</td>
-  <td>interval: (0,*)</td>
-</tr>
+    <tr>
+        <th>Name</th>
+        <th>Data Type</th>
+        <th>Default</th>
+        <th>Description</th>
+        <th>Constraints</th>
+    </tr>
+    <tr>
+        <td><code>sourceBands</code></td>
+        <td><code>String[]</code></td>
+        <td><code></code></td>
+        <td>The list of spectral bands providing the source spectrum.</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><code>endmembers</code></td>
+        <td><code>Endmember[]</code></td>
+        <td><code></code></td>
+        <td>The list of endmember spectra. Wavelengths must be given in nanometers.</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><code>endmemberFile</code></td>
+        <td><code>File</code></td>
+        <td><code></code></td>
+        <td>A text file containing (additional) endmembers in a table. Wavelengths must be given in nanometers.</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><code>unmixingModelName</code></td>
+        <td><code>String</code></td>
+        <td><code>Constrained LSU</code></td>
+        <td>The unmixing model.</td>
+        <td>value set: [Unconstrained LSU, Constrained LSU, Fully Constrained LSU]</td>
+    </tr>
+    <tr>
+        <td><code>abundanceBandNameSuffix</code></td>
+        <td><code>String</code></td>
+        <td><code>_abundance</code></td>
+        <td>The suffix for the generated abundance band names (name = endmember + suffix).</td>
+        <td>not null; pattern: [a-zA-Z_0-9]*</td>
+    </tr>
+    <tr>
+        <td><code>errorBandNameSuffix</code></td>
+        <td><code>String</code></td>
+        <td><code>_error</code></td>
+        <td>The suffix for the generated error band names (name = source + suffix).</td>
+        <td>not null; pattern: [a-zA-Z_0-9]*</td>
+    </tr>
+    <tr>
+        <td><code>computeErrorBands</code></td>
+        <td><code>boolean</code></td>
+        <td><code>false</code></td>
+        <td>If 'true', error bands for all source bands will be generated.</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><code>minBandwidth</code></td>
+        <td><code>double</code></td>
+        <td><code>10.0</code></td>
+        <td>Minimum spectral bandwidth used for endmember wavelength matching.</td>
+        <td>interval: (0,*)</td>
+    </tr>
 </table>
 <hr/>
 </body>

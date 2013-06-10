@@ -15,18 +15,20 @@
  */
 package org.esa.beam.processor.binning;
 
-import java.awt.Point;
-
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.util.math.MathUtils;
 
+import java.awt.Point;
 
+@Deprecated
 /**
  * This class implements the mathematics for the SeaWifs binning raster. In contrast to the original NASA document (see
  * documentation), this raster class allows arbitrary cell widths.
  * <p/>
  * The class implements conversion methods to convert a point in geo coordinates (lat/lon) to grid cell index and vice
  * versa.
+ *
+ * @Deprecated since beam-binning 2.1.2 as part of the BEAM 4.11-release. Use module 'beam-binning2' instead.
  */
 public class L3ProjectionRaster {
 

@@ -48,30 +48,18 @@ public class HdfEosGeocodingPart extends ProfilePartIO {
     @Override
     public void decode(ProfileReadContext ctx, Product p) throws IOException {
         Element eosElement = (Element) ctx.getProperty(HdfEosUtils.STRUCT_METADATA);
-        Element gridStructure = eosElement.getChild("GridStructure");
-        Element gridElem = (Element) gridStructure.getChildren().get(0);
-        Element projectionElem = gridElem.getChild("Projection");
-        Element ulPointElem = gridElem.getChild("UpperLeftPointMtrs");
-        Element lrPointElem = gridElem.getChild("LowerRightMtrs");
-        if (projectionElem == null || ulPointElem == null || lrPointElem == null) {
-            return;
+
+        List<HdfEosGridInfo> gridInfos = HdfEosGridInfo.createGridInfos(eosElement);
+        List<HdfEosGridInfo> compatibleGridInfos = HdfEosGridInfo.getCompatibleGridInfos(gridInfos);
+        if (!compatibleGridInfos.isEmpty()) {
+            HdfEosGridInfo hdfEosGeocodingInfo = compatibleGridInfos.get(0);
+            attachGeoCoding(p,
+                            hdfEosGeocodingInfo.upperLeftLon,
+                            hdfEosGeocodingInfo.upperLeftLat,
+                            hdfEosGeocodingInfo.lowerRightLon,
+                            hdfEosGeocodingInfo.lowerRightLat,
+                            hdfEosGeocodingInfo.projection);
         }
-
-        List<Element> ulList = ulPointElem.getChildren();
-        String ulLon = ulList.get(0).getValue();
-        String ulLat = ulList.get(1).getValue();
-        double upperLeftLon = Double.parseDouble(ulLon);
-        double upperLeftLat = Double.parseDouble(ulLat);
-
-        List<Element> lrList = lrPointElem.getChildren();
-        String lrLon = lrList.get(0).getValue();
-        String lrLat = lrList.get(1).getValue();
-        double lowerRightLon = Double.parseDouble(lrLon);
-        double lowerRightLat = Double.parseDouble(lrLat);
-
-        String projection = projectionElem.getValue();
-
-        attachGeoCoding(p, upperLeftLon, upperLeftLat, lowerRightLon, lowerRightLat, projection);
     }
 
     @Override

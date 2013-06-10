@@ -31,7 +31,6 @@
     <name>BEAM Core API</name>
     <groupId>org.esa.beam</groupId>
     <artifactId>beam-core</artifactId>
-    <version>5.0-SNAPSHOT</version>
 
     <packaging>jar</packaging>
     <dependencies>

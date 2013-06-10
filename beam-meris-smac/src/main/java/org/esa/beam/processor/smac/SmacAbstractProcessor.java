@@ -33,8 +33,10 @@ import java.io.IOException;
 import java.util.Vector;
 import java.util.logging.Logger;
 
-//@todo 1 se/** - add (more) class documentation
-
+/*
+ * @deprecated since BEAM 4.11. No replacement.
+ */
+@Deprecated
 public abstract class SmacAbstractProcessor {
 
     private Product _inputProduct;
@@ -103,14 +105,14 @@ public abstract class SmacAbstractProcessor {
      * Scans the request for processor specific parameter values.
      */
     abstract public void loadRequestParameter() throws IllegalProcessorStateException,
-                                                       ProcessorException;
+            ProcessorException;
 
     /**
      * Creates the output product as specified by the request
      */
     public void createOuputProduct() throws IllegalProcessorStateException,
-                                            IOException,
-                                            ProcessorException {
+            IOException,
+            ProcessorException {
         Request request = getRequestSafe();
         ProductRef prod;
         ProductWriter writer;
@@ -151,22 +153,22 @@ public abstract class SmacAbstractProcessor {
      * the base class (this) during the output product construction process.
      */
     abstract protected void addBandsToOutput() throws IllegalProcessorStateException,
-                                                      ProcessorException;
+            ProcessorException;
 
     /**
      * Copies the relevant tie point datasets from the input product to the output product. This method is called from
      * thebase class during the output product construction process.
      */
     abstract protected void copyTiePointDatasets() throws IllegalProcessorStateException,
-                                                          IOException,
-                                                          ProcessorException;
+            IOException,
+            ProcessorException;
 
     /**
      * Loads the request parameter which are comon to all processor types. These are currently <ul> <li>aerosol optical
      * depth <li>aerosol type and <li>invalid pixel value </ul>
      */
     protected void loadRequestBaseParameter() throws IllegalProcessorStateException,
-                                                     ProcessorException {
+            ProcessorException {
         Request request = getRequestSafe();
         Parameter param;
 
@@ -362,7 +364,6 @@ public abstract class SmacAbstractProcessor {
      * <code>SensorCoefficientManager</code>.
      *
      * @param type the request type string
-     *
      * @throws java.lang.IllegalArgumentException
      *          on unknown aerosol types
      */

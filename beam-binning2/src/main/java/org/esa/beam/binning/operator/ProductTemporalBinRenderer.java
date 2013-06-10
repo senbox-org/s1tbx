@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2013 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -18,9 +18,10 @@ package org.esa.beam.binning.operator;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.binning.BinningContext;
+import org.esa.beam.binning.ProductCustomizer;
 import org.esa.beam.binning.TemporalBin;
 import org.esa.beam.binning.TemporalBinRenderer;
-import org.esa.beam.binning.WritableVector;
+import org.esa.beam.binning.Vector;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.dataio.ProductWriter;
 import org.esa.beam.framework.datamodel.Band;
@@ -42,6 +43,7 @@ import java.io.IOException;
  * @author Norman Fomferra
  */
 public final class ProductTemporalBinRenderer implements TemporalBinRenderer {
+
     private final Product product;
     private final int rasterWidth;
     private final ProductData numObsLine;
@@ -63,6 +65,7 @@ public final class ProductTemporalBinRenderer implements TemporalBinRenderer {
                                       double pixelSize,
                                       ProductData.UTC startTime,
                                       ProductData.UTC endTime,
+                                      ProductCustomizer productCustomizer,
                                       MetadataElement... metadataElements) throws IOException {
 
         productWriter = ProductIO.getProductWriter(outputFormat);
@@ -83,28 +86,46 @@ public final class ProductTemporalBinRenderer implements TemporalBinRenderer {
             product.getMetadataRoot().addElement(metadataElement);
         }
 
-        numObsBand = product.addBand("num_obs", ProductData.TYPE_INT32);
-        numObsBand.setNoDataValue(-1);
-        numObsBand.setNoDataValueUsed(true);
-        numObsLine = numObsBand.createCompatibleRasterData(outputRegion.width, 1);
+        Band localNumObsBand = product.addBand("num_obs", ProductData.TYPE_INT32);
+        localNumObsBand.setNoDataValue(-1);
+        localNumObsBand.setNoDataValueUsed(true);
 
-        numPassesBand = product.addBand("num_passes", ProductData.TYPE_INT16);
-        numPassesBand.setNoDataValue(-1);
-        numPassesBand.setNoDataValueUsed(true);
-        numPassesLine = numPassesBand.createCompatibleRasterData(outputRegion.width, 1);
+        Band localNumPassesBand = product.addBand("num_passes", ProductData.TYPE_INT16);
+        localNumPassesBand.setNoDataValue(-1);
+        localNumPassesBand.setNoDataValueUsed(true);
 
-        String[] outputFeatureNames = binningContext.getBinManager().getOutputFeatureNames();
+        for (String name : binningContext.getBinManager().getResultFeatureNames()) {
+            Band band = product.addBand(name, ProductData.TYPE_FLOAT32);
+            band.setNoDataValue(Float.NaN);
+            band.setNoDataValueUsed(true);
+        }
+
+        if (productCustomizer != null) {
+            productCustomizer.customizeProduct(product);
+        }
+        numObsBand = product.getBand("num_obs");
+        if (numObsBand != null) {
+            numObsLine = numObsBand.createCompatibleRasterData(outputRegion.width, 1);
+        } else {
+            numObsLine = null;
+        }
+        numPassesBand = product.getBand("num_passes");
+        if (numPassesBand != null) {
+            numPassesLine = numPassesBand.createCompatibleRasterData(outputRegion.width, 1);
+        } else {
+            numPassesLine = null;
+        }
+
+        String[] outputFeatureNames = binningContext.getBinManager().getResultFeatureNames();
         outputBands = new Band[outputFeatureNames.length];
         outputLines = new ProductData[outputFeatureNames.length];
         for (int i = 0; i < outputFeatureNames.length; i++) {
             String name = outputFeatureNames[i];
-            outputBands[i] = product.addBand(name, ProductData.TYPE_FLOAT32);
-            outputBands[i].setNoDataValue(binningContext.getBinManager().getOutputFeatureFillValue(i));
-            outputBands[i].setNoDataValueUsed(true);
+            outputBands[i] = product.getBand(name);
             outputLines[i] = outputBands[i].createCompatibleRasterData(outputRegion.width, 1);
         }
 
-        this.rasterWidth = numObsBand.getSceneRasterWidth();
+        this.rasterWidth = outputRegion.width;
         this.fillValues = new float[outputBands.length];
         for (int i = 0; i < outputBands.length; i++) {
             fillValues[i] = (float) outputBands[i].getNoDataValue();
@@ -135,7 +156,7 @@ public final class ProductTemporalBinRenderer implements TemporalBinRenderer {
     }
 
     @Override
-    public void renderBin(int x, int y, TemporalBin temporalBin, WritableVector outputVector) throws IOException {
+    public void renderBin(int x, int y, TemporalBin temporalBin, Vector outputVector) throws IOException {
         if (y != yLast) {
             completeLine();
             yLast = y;
@@ -158,8 +179,12 @@ public final class ProductTemporalBinRenderer implements TemporalBinRenderer {
     }
 
     private void writeLine(int y) throws IOException {
-        productWriter.writeBandRasterData(numObsBand, 0, y, rasterWidth, 1, numObsLine, ProgressMonitor.NULL);
-        productWriter.writeBandRasterData(numPassesBand, 0, y, rasterWidth, 1, numPassesLine, ProgressMonitor.NULL);
+        if (numObsBand != null) {
+            productWriter.writeBandRasterData(numObsBand, 0, y, rasterWidth, 1, numObsLine, ProgressMonitor.NULL);
+        }
+        if (numPassesBand != null) {
+            productWriter.writeBandRasterData(numPassesBand, 0, y, rasterWidth, 1, numPassesLine, ProgressMonitor.NULL);
+        }
         for (int i = 0; i < outputBands.length; i++) {
             productWriter.writeBandRasterData(outputBands[i], 0, y, rasterWidth, 1, outputLines[i], ProgressMonitor.NULL);
         }
@@ -171,17 +196,25 @@ public final class ProductTemporalBinRenderer implements TemporalBinRenderer {
         }
     }
 
-    private void setData(int x, TemporalBin temporalBin, WritableVector outputVector) {
-        numObsLine.setElemIntAt(x, temporalBin.getNumObs());
-        numPassesLine.setElemIntAt(x, temporalBin.getNumPasses());
+    private void setData(int x, TemporalBin temporalBin, Vector outputVector) {
+        if (numObsLine != null) {
+            numObsLine.setElemIntAt(x, temporalBin.getNumObs());
+        }
+        if (numPassesLine != null) {
+            numPassesLine.setElemIntAt(x, temporalBin.getNumPasses());
+        }
         for (int i = 0; i < outputBands.length; i++) {
             outputLines[i].setElemFloatAt(x, outputVector.get(i));
         }
     }
 
     private void setNoData(int x) {
-        numObsLine.setElemIntAt(x, -1);
-        numPassesLine.setElemIntAt(x, -1);
+        if (numObsLine != null) {
+            numObsLine.setElemIntAt(x, -1);
+        }
+        if (numPassesLine != null) {
+            numPassesLine.setElemIntAt(x, -1);
+        }
         for (int i = 0; i < outputBands.length; i++) {
             outputLines[i].setElemFloatAt(x, fillValues[i]);
         }

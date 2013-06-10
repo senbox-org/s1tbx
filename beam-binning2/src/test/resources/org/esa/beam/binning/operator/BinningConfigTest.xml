@@ -16,22 +16,18 @@
         <aggregator>
             <type>AVG</type>
             <varName>tsm</varName>
-            <fillValue>-1</fillValue>
         </aggregator>
         <aggregator>
             <type>AVG_ML</type>
             <varName>algal1</varName>
-            <fillValue>NaN</fillValue>
         </aggregator>
         <aggregator>
             <type>AVG_ML</type>
             <varName>algal2</varName>
-            <fillValue>NaN</fillValue>
         </aggregator>
         <aggregator>
             <type>AVG_ML</type>
             <varName>chl</varName>
-            <fillValue>-999</fillValue>
         </aggregator>
         <aggregator>
             <type>ON_MAX_SET</type>

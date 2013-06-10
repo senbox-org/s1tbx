@@ -32,6 +32,7 @@
     <groupId>org.esa.beam</groupId>
     <artifactId>beam-aatsr-sst</artifactId>
     <version>1.5.1.${beam.version}</version>
+
     <packaging>jar</packaging>
 
     <dependencies>

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2013 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -19,7 +19,7 @@ package org.esa.beam.binning.operator;
 import org.esa.beam.binning.BinningContext;
 import org.esa.beam.binning.TemporalBin;
 import org.esa.beam.binning.TemporalBinRenderer;
-import org.esa.beam.binning.WritableVector;
+import org.esa.beam.binning.Vector;
 import org.esa.beam.util.io.FileUtils;
 
 import javax.imageio.ImageIO;
@@ -75,7 +75,7 @@ public final class ImageTemporalBinRenderer implements TemporalBinRenderer {
             Arrays.fill(bandData[i], Float.NaN);
         }
 
-        String[] outputFeatureNames = binningContext.getBinManager().getOutputFeatureNames();
+        String[] outputFeatureNames = binningContext.getBinManager().getResultFeatureNames();
         bandIndices = new int[bandCount];
         bandNames = new String[bandCount];
         bandMinValues = new float[bandCount];
@@ -126,7 +126,7 @@ public final class ImageTemporalBinRenderer implements TemporalBinRenderer {
     }
 
     @Override
-    public void renderBin(int x, int y, TemporalBin temporalBin, WritableVector outputVector) {
+    public void renderBin(int x, int y, TemporalBin temporalBin, Vector outputVector) {
         for (int i = 0; i < bandCount; i++) {
             bandData[i][rasterWidth * y + x] = outputVector.get(bandIndices[i]);
         }

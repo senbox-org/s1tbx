@@ -145,7 +145,8 @@ public class OperatorContext {
 
     private static synchronized TileCache getTileCache() {
         if (tileCache == null) {
-            boolean useFileTileCache = Boolean.parseBoolean(System.getProperty(GPF.USE_FILE_TILE_CACHE_PROPERTY, "false"));
+            boolean useFileTileCache = Boolean.parseBoolean(
+                    System.getProperty(GPF.USE_FILE_TILE_CACHE_PROPERTY, "false"));
             if (useFileTileCache) {
                 tileCache = new SwappingTileCache(JAI.getDefaultInstance().getTileCache().getMemoryCapacity(),
                                                   new DefaultSwapSpace(SwappingTileCache.DEFAULT_SWAP_DIR,
@@ -153,9 +154,10 @@ public class OperatorContext {
             } else {
                 tileCache = JAI.getDefaultInstance().getTileCache();
             }
-            BeamLogManager.getSystemLogger().info(String.format("All GPF operators will share an instance of %s with a capacity of %dM",
-                                                                tileCache.getClass().getName(),
-                                                                tileCache.getMemoryCapacity() / (1024 * 1024)));
+            BeamLogManager.getSystemLogger().info(
+                    String.format("All GPF operators will share an instance of %s with a capacity of %dM",
+                                  tileCache.getClass().getName(),
+                                  tileCache.getMemoryCapacity() / (1024 * 1024)));
         }
         return tileCache;
     }
@@ -352,25 +354,8 @@ public class OperatorContext {
         this.computeTileStackMethodUsable = computeTileStackMethodUsable;
     }
 
-    /**
-     * @deprecated since BEAM 4.9, use {@link #getSourceTile(RasterDataNode, Rectangle)} instead
-     */
-    @Deprecated
-    public Tile getSourceTile(RasterDataNode rasterDataNode, Rectangle region, ProgressMonitor pm) {
-        return getSourceTile(rasterDataNode, region);
-    }
-
     public Tile getSourceTile(RasterDataNode rasterDataNode, Rectangle region) {
-        return getSourceTile(rasterDataNode, region, (BorderExtender) null);
-    }
-
-    /**
-     * @deprecated since BEAM 4.9, use {@link #getSourceTile(RasterDataNode, Rectangle, BorderExtender)} instead
-     */
-    @Deprecated
-    public Tile getSourceTile(RasterDataNode rasterDataNode, Rectangle region, BorderExtender borderExtender,
-                              ProgressMonitor pm) {
-        return getSourceTile(rasterDataNode, region, borderExtender);
+        return getSourceTile(rasterDataNode, region, null);
     }
 
     public Tile getSourceTile(RasterDataNode rasterDataNode, Rectangle region, BorderExtender borderExtender) {
@@ -439,7 +424,7 @@ public class OperatorContext {
     private static boolean implementsMethod(Class<?> aClass, String methodName, Class[] methodParameterTypes) {
         while (true) {
             if (Operator.class.equals(aClass)
-                    || !Operator.class.isAssignableFrom(aClass)) {
+                || !Operator.class.isAssignableFrom(aClass)) {
                 return false;
             }
             try {
@@ -531,10 +516,16 @@ public class OperatorContext {
 
         OperatorMetadata operatorMetadata = context.operator.getClass().getAnnotation(OperatorMetadata.class);
         if (operatorMetadata != null) {
-            targetNodeME.addAttribute(new MetadataAttribute("purpose", ProductData.createInstance(operatorMetadata.description()), false));
-            targetNodeME.addAttribute(new MetadataAttribute("authors", ProductData.createInstance(operatorMetadata.authors()), false));
-            targetNodeME.addAttribute(new MetadataAttribute("version", ProductData.createInstance(operatorMetadata.version()), false));
-            targetNodeME.addAttribute(new MetadataAttribute("copyright", ProductData.createInstance(operatorMetadata.copyright()), false));
+            targetNodeME.addAttribute(
+                    new MetadataAttribute("purpose", ProductData.createInstance(operatorMetadata.description()),
+                                          false));
+            targetNodeME.addAttribute(
+                    new MetadataAttribute("authors", ProductData.createInstance(operatorMetadata.authors()), false));
+            targetNodeME.addAttribute(
+                    new MetadataAttribute("version", ProductData.createInstance(operatorMetadata.version()), false));
+            targetNodeME.addAttribute(
+                    new MetadataAttribute("copyright", ProductData.createInstance(operatorMetadata.copyright()),
+                                          false));
         }
 
 
@@ -696,8 +687,8 @@ public class OperatorContext {
         Dimension tileSize = null;
         for (final Product sourceProduct : sourceProductList) {
             if (sourceProduct.getPreferredTileSize() != null &&
-                    sourceProduct.getSceneRasterWidth() == targetProduct.getSceneRasterWidth() &&
-                    sourceProduct.getSceneRasterHeight() == targetProduct.getSceneRasterHeight()) {
+                sourceProduct.getSceneRasterWidth() == targetProduct.getSceneRasterWidth() &&
+                sourceProduct.getSceneRasterHeight() == targetProduct.getSceneRasterHeight()) {
                 tileSize = sourceProduct.getPreferredTileSize();
                 break;
             }
@@ -809,7 +800,7 @@ public class OperatorContext {
     }
 
     private void processSourceProductField(Field declaredField, SourceProduct sourceProductAnnotation) throws
-            OperatorException {
+                                                                                                       OperatorException {
         if (declaredField.getType().equals(Product.class)) {
             String productMapName = declaredField.getName();
             Product sourceProduct = getSourceProduct(productMapName);
@@ -842,7 +833,7 @@ public class OperatorContext {
     }
 
     private void processSourceProductsField(Field declaredField, SourceProducts sourceProductsAnnotation) throws
-            OperatorException {
+                                                                                                          OperatorException {
         if (declaredField.getType().equals(Product[].class)) {
             Product[] sourceProducts = getSourceProductsFieldValue(declaredField);
             if (sourceProducts != null) {
@@ -1037,7 +1028,8 @@ public class OperatorContext {
                         Object object = descriptor.getAttribute(RasterDataNodeValues.ATTRIBUTE_NAME);
                         Class<? extends RasterDataNode> rasterDataNodeType = (Class<? extends RasterDataNode>) object;
                         final boolean includeEmptyValue = !descriptor.isNotNull() && !descriptor.isNotEmpty() && !descriptor.getType().isArray();
-                        String[] names = RasterDataNodeValues.getNames(sourceProduct, rasterDataNodeType, includeEmptyValue);
+                        String[] names = RasterDataNodeValues.getNames(sourceProduct, rasterDataNodeType,
+                                                                       includeEmptyValue);
                         ValueSet valueSet = new ValueSet(names);
                         descriptor.setValueSet(valueSet);
                     }
@@ -1088,7 +1080,8 @@ public class OperatorContext {
             long endNanos = System.nanoTime();
             int tileX = operatorImage.XToTileX(destRect.x);
             int tileY = operatorImage.YToTileY(destRect.y);
-            tileComputationObserver.tileComputed(new TileComputationEvent(operatorImage, tileX, tileY, startNanos, endNanos));
+            tileComputationObserver.tileComputed(
+                    new TileComputationEvent(operatorImage, tileX, tileY, startNanos, endNanos));
         }
     }
 

@@ -28,11 +28,8 @@
     <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
 
 
-    <!--<changelog><![CDATA[-->
-    <!--Changes in 1.0.1:<br/>-->
-    <!--Adapted to BEAM 5.0<br/>-->
-    <!--]]>-->
-    <!--</changelog>-->
+    <changelog><![CDATA[ ]]></changelog>
+
 
     <dependency>
         <module>beam-core</module>

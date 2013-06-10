@@ -17,7 +17,6 @@
 package org.esa.beam.binning;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Abstract base class that provides the aggregator's static metadata.
@@ -31,22 +30,19 @@ public abstract class AbstractAggregator implements Aggregator {
     private final String[] spatialFeatureNames;
     private final String[] temporalFeatureNames;
     private final String[] outputFeatureNames;
-    private final float fillValue;
 
-    protected AbstractAggregator(String name, String[] featureNames, Number fillValue) {
-        this(name, featureNames, featureNames, featureNames, fillValue);
+    protected AbstractAggregator(String name, String[] featureNames) {
+        this(name, featureNames, featureNames, featureNames);
     }
 
     protected AbstractAggregator(String name,
                                  String[] spatialFeatureNames,
                                  String[] temporalFeatureNames,
-                                 String[] outputFeatureNames,
-                                 Number fillValue) {
+                                 String[] outputFeatureNames) {
         this.name = name;
         this.spatialFeatureNames = spatialFeatureNames;
         this.temporalFeatureNames = temporalFeatureNames;
         this.outputFeatureNames = outputFeatureNames;
-        this.fillValue = fillValue != null ? fillValue.floatValue() : Float.NaN;
     }
 
     @Override
@@ -67,23 +63,24 @@ public abstract class AbstractAggregator implements Aggregator {
 
     @Override
     public String[] getOutputFeatureNames() {
-        final List<String> result = new ArrayList<String>(outputFeatureNames.length);
-        for (String name : outputFeatureNames) {
-            result.add(name.replace("<", "").replace(">", ""));
-        }
-        return result.toArray(new String[result.size()]);
+        return outputFeatureNames;
     }
 
-    @Override
-    public float getOutputFillValue() {
-        return fillValue;
-    }
-
-    public static String[] createFeatureNames(String varName, String... names) {
-        String[] featureNames = new String[names.length];
-        for (int i = 0; i < names.length; i++) {
-            featureNames[i] = varName + "_" + names[i];
+    /**
+     * Helper function that generates feature names by concatenating the given postfixes to the variable name.
+     *
+     * @param varName   The variable name.
+     * @param postfixes Array of postfixes to append. A postfix may be {@code null}, in this case no corresponding feature name is generated.
+     *
+     * @return Array of feature names. Its length may be less than the length of the postfixes array.
+     */
+    public static String[] createFeatureNames(String varName, String... postfixes) {
+        ArrayList<String> featureNames = new ArrayList<String>(postfixes.length);
+        for (final String postfix : postfixes) {
+            if (postfix != null) {
+                featureNames.add(varName + "_" + postfix);
+            }
         }
-        return featureNames;
+        return featureNames.toArray(new String[featureNames.size()]);
     }
 }

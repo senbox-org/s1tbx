@@ -40,7 +40,10 @@ import java.io.File;
  * <p/>
  * Also, this class implements some helper functions for creating standard parameters of type <ul> <li>file parameter
  * <li>bitmask parameter <li>float value parameter and <li>string array parameter </ul>
+ *
+ * @deprecated since BEAM 4.11. Use the {@link org.esa.beam.framework.gpf Graph Processing Framework} instead.
  */
+@Deprecated
 public class DefaultRequestElementFactory implements RequestElementFactory, ProcessorConstants {
 
     /**
@@ -96,7 +99,6 @@ public class DefaultRequestElementFactory implements RequestElementFactory, Proc
      * Creates a default logging pattern parameter set to the prefix passed in.
      *
      * @param prefix the default setting for the logging pattern
-     *
      * @return a logging pattern Parameter conforming the system settings
      */
     public Parameter createDefaultLogPatternParameter(String prefix) {
@@ -119,7 +121,6 @@ public class DefaultRequestElementFactory implements RequestElementFactory, Proc
      * The current value is set to the given parameter <code>value</code>.
      *
      * @param value the value as <code>String</code> this parameter is set to.
-     *
      * @return a logging to output product parameter
      */
     public Parameter createLogToOutputParameter(final String value) throws ParamValidateException {
@@ -146,7 +147,6 @@ public class DefaultRequestElementFactory implements RequestElementFactory, Proc
      * @param fileSelectionMode the file selection mode, can be FSM_FILES_ONLY, FSM_DIRECTORIES_ONLY and
      *                          FSM_FILES_AND_DIRECTORIES defined in {@link ParamProperties}.
      * @param defaultValue      the default value wich was set at the returned <code>ParamProperties</code>
-     *
      * @throws IllegalArgumentException if the parameter <code>fileSelectionMode</code> is not a valid selection mode:
      *                                  Valid file selection modes are FSM_FILES_ONLY, FSM_DIRECTORIES_ONLY and
      *                                  FSM_FILES_AND_DIRECTORIES
@@ -309,7 +309,7 @@ public class DefaultRequestElementFactory implements RequestElementFactory, Proc
         };
         return filters;
     }
-    
+
     // Initialization on demand holder idiom
     private static class Holder {
         private static final DefaultRequestElementFactory instance = new DefaultRequestElementFactory();

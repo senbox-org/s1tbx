@@ -37,8 +37,8 @@ public class AggregatorMinMax extends AbstractAggregator {
 
     private final int varIndex;
 
-    public AggregatorMinMax(VariableContext varCtx, String varName, Number fillValue) {
-        super(Descriptor.NAME, createFeatureNames(varName, "min", "max"), fillValue);
+    public AggregatorMinMax(VariableContext varCtx, String varName) {
+        super(Descriptor.NAME, createFeatureNames(varName, "min", "max"));
 
         if (varCtx == null) {
             throw new NullPointerException("varCtx");
@@ -130,12 +130,11 @@ public class AggregatorMinMax extends AbstractAggregator {
         public Aggregator createAggregator(VariableContext varCtx, AggregatorConfig aggregatorConfig) {
             PropertySet propertySet = aggregatorConfig.asPropertySet();
             return new AggregatorMinMax(varCtx,
-                                        (String) propertySet.getValue("varName"),
-                                        (Float) propertySet.getValue("fillValue"));
+                                        (String) propertySet.getValue("varName"));
         }
 
         @Override
-        public AggregatorConfig createAggregatorConfig() {
+        public AggregatorConfig createConfig() {
             return new Config();
         }
 

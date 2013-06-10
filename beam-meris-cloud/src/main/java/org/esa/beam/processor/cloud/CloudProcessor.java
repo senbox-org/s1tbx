@@ -37,12 +37,15 @@ import java.awt.Rectangle;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Logger;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * The <code>CloudProcessor</code> implements all specific functionality to calculate a cloud probability.
+ *
+ * @deprecated since BEAM 4.11. No replacement.
  */
+@Deprecated
 public class CloudProcessor extends Processor {
 
     public static final String PROCESSOR_NAME = "Cloud Probability Processor";
@@ -194,7 +197,7 @@ public class CloudProcessor extends Processor {
         l1bProduct = loadInputProduct(0);
         if (!EnvisatConstants.MERIS_L1_TYPE_PATTERN.matcher(l1bProduct.getProductType()).matches()) {
             throw new ProcessorException("Product type '" + l1bProduct.getProductType() + "' is not supported." +
-                    "It must be a MERIS Level 1b product.");
+                                                 "It must be a MERIS Level 1b product.");
         }
         cloudProduct = cloudNode.readProductNodes(l1bProduct, null);
         cloudNodeBands = cloudProduct.getBands();
@@ -202,12 +205,12 @@ public class CloudProcessor extends Processor {
         copyFlagBands(l1bProduct, cloudProduct);
 //        PNHelper.copyAllBandsToProduct(l1bProduct, cloudProduct, true);
         ProductUtils.copyTiePointGrids(l1bProduct, cloudProduct);
-        
+
         copyGeoCoding(l1bProduct, cloudProduct);
         cloudProduct.setStartTime(l1bProduct.getStartTime());
         cloudProduct.setEndTime(l1bProduct.getEndTime());
         copyRequestMetaData(cloudProduct);
-        
+
         prepareProcessing();
 
         PNHelper.initWriter(getRequest().getOutputProductAt(0), cloudProduct, _logger);

@@ -41,8 +41,10 @@ import java.util.Vector;
  * SENSOR_NAME - is defined by the public fields xxx_NAME where xxx denotes the satellite sensor BAND_NAME - must match
  * the band names defined in <code>BeamConstants</code> ATMOSPHERE_TYPE - dependent on the coefficient set - this
  * string will be seen in the SMAC UI COEFFICIENT_FILE - name of the coefficient file
+ *
+ * @deprecated since BEAM 4.11. No replacement.
  */
-
+@Deprecated
 class SensorCoefficientManager {
 
     public static final String AER_DES_NAME = "DES";
@@ -68,7 +70,6 @@ class SensorCoefficientManager {
      * Constructs the object with a given location for the sensor coefficient files. Scans this URL for valid files.
      *
      * @param location the URL where the sensor coefficient files reside
-     *
      * @throws java.io.IOException when unable to access <code>URL</code>
      */
     public SensorCoefficientManager(URL location) throws IOException {
@@ -82,7 +83,6 @@ class SensorCoefficientManager {
      * Sets the URL where the sensor coefficient files reside. Scans this URL for valid files.
      *
      * @param location the URL where the coefficients reside
-     *
      * @throws java.io.IOException when unable to access <code>URL</code>
      */
     public void setURL(URL location) throws IOException {
@@ -276,7 +276,7 @@ class SensorCoefficientManager {
                 current = (BandDb) _bands.elementAt(n);
 
                 if (ObjectUtils.equalObjects(name, current.getBandName())
-                    && ObjectUtils.equalObjects(aerosolType, current.getAerosolType())) {
+                        && ObjectUtils.equalObjects(aerosolType, current.getAerosolType())) {
                     ret = current;
                     break;
                 }

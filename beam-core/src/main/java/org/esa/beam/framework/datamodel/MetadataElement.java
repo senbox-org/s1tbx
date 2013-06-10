@@ -51,6 +51,7 @@ public class MetadataElement extends ProductNode {
 
     /**
      * Gets the group of child elements. The method returns null, if this element has no children.
+     *
      * @return The child element group, may be null.
      */
     public ProductNodeGroup<MetadataElement> getElementGroup() {
@@ -96,6 +97,7 @@ public class MetadataElement extends ProductNode {
      * Removes the given element from this element.
      *
      * @param element the element to be removed, ignored if <code>null</code>
+     *
      * @return true, if so
      */
     public boolean removeElement(MetadataElement element) {
@@ -116,7 +118,9 @@ public class MetadataElement extends ProductNode {
      * Returns the element at the given index.
      *
      * @param index the element index
+     *
      * @return the element at the given index
+     *
      * @throws IndexOutOfBoundsException if the index is out of bounds
      */
     public MetadataElement getElementAt(int index) {
@@ -156,6 +160,7 @@ public class MetadataElement extends ProductNode {
      * Returns the element with the given name.
      *
      * @param name the element name
+     *
      * @return the element with the given name or <code>null</code> if a element with the given name is not contained in
      *         this element.
      */
@@ -171,6 +176,7 @@ public class MetadataElement extends ProductNode {
      * Tests if a element with the given name is contained in this element.
      *
      * @param name the name, must not be <code>null</code>
+     *
      * @return <code>true</code> if a element with the given name is contained in this element, <code>false</code>
      *         otherwise
      */
@@ -181,8 +187,11 @@ public class MetadataElement extends ProductNode {
 
     /**
      * Gets the index of the given element.
-     * @param element  The element .
+     *
+     * @param element The element .
+     *
      * @return The element's index, or -1.
+     *
      * @since BEAM 4.7
      */
     public int getElementIndex(MetadataElement element) {
@@ -213,6 +222,7 @@ public class MetadataElement extends ProductNode {
      * does nothing.
      *
      * @param attribute the attribute to be removed, <code>null</code> is ignored
+     *
      * @return <code>true</code> if it was removed
      */
     public boolean removeAttribute(MetadataAttribute attribute) {
@@ -236,7 +246,9 @@ public class MetadataElement extends ProductNode {
      * Returns the attribute at the given index.
      *
      * @param index the attribute index
+     *
      * @return the attribute, or <code>null</code> if this node does not contain attributes
+     *
      * @throws IndexOutOfBoundsException
      */
     public MetadataAttribute getAttributeAt(int index) {
@@ -275,6 +287,7 @@ public class MetadataElement extends ProductNode {
      * Returns the attribute with the given name.
      *
      * @param name the attribute name
+     *
      * @return the attribute with the given name or <code>null</code> if it could not be found
      */
     public MetadataAttribute getAttribute(String name) {
@@ -288,6 +301,7 @@ public class MetadataElement extends ProductNode {
      * Checks whether this node has an element with the given name.
      *
      * @param name the attribute name
+     *
      * @return <code>true</code> if so
      */
     public boolean containsAttribute(String name) {
@@ -296,8 +310,11 @@ public class MetadataElement extends ProductNode {
 
     /**
      * Gets the index of the given attribute.
-     * @param attribute  The attribute.
+     *
+     * @param attribute The attribute.
+     *
      * @return The attribute's index, or -1.
+     *
      * @since BEAM 4.7
      */
     public int getAttributeIndex(MetadataAttribute attribute) {
@@ -314,7 +331,9 @@ public class MetadataElement extends ProductNode {
      *
      * @param name         the attribute name
      * @param defaultValue the default value
+     *
      * @return the attribute value as double.
+     *
      * @throws NumberFormatException if the attribute type is ASCII but cannot be converted to a number
      */
     public double getAttributeDouble(String name, double defaultValue) {
@@ -333,7 +352,9 @@ public class MetadataElement extends ProductNode {
      * attribute with the given name could not be found in this node.
      *
      * @param name the attribute name
+     *
      * @return the attribute value as double.
+     *
      * @throws NumberFormatException    if the attribute type is ASCII but cannot be converted to a number
      * @throws IllegalArgumentException if an attribute with the given name could not be found
      */
@@ -354,6 +375,7 @@ public class MetadataElement extends ProductNode {
      *
      * @param name         the attribute name
      * @param defaultValue the default value
+     *
      * @return the attribute value as UTC.
      */
     public ProductData.UTC getAttributeUTC(String name, ProductData.UTC defaultValue) {
@@ -372,7 +394,9 @@ public class MetadataElement extends ProductNode {
      * Returns the UTC value of the attribute with the given name.
      *
      * @param name the attribute name
+     *
      * @return the attribute value as UTC.
+     *
      * @throws IllegalArgumentException if an attribute with the given name could not be found
      */
     public ProductData.UTC getAttributeUTC(String name) {
@@ -393,7 +417,9 @@ public class MetadataElement extends ProductNode {
      *
      * @param name         the attribute name
      * @param defaultValue the default value
+     *
      * @return the attribute value as integer.
+     *
      * @throws NumberFormatException if the attribute type is ASCII but cannot be converted to a number
      */
     public int getAttributeInt(String name, int defaultValue) {
@@ -412,7 +438,9 @@ public class MetadataElement extends ProductNode {
      * attribute with the given name could not be found in this node.
      *
      * @param name the attribute name
+     *
      * @return the attribute value as integer.
+     *
      * @throws NumberFormatException    if the attribute type is ASCII but cannot be converted to a number
      * @throws IllegalArgumentException if an attribute with the given name could not be found
      */
@@ -477,7 +505,9 @@ public class MetadataElement extends ProductNode {
      * attribute with the given name could not be found in this node.
      *
      * @param name the attribute name
+     *
      * @return the attribute value as integer.
+     *
      * @throws IllegalArgumentException if an attribute with the given name could not be found
      */
     public String getAttributeString(String name) {
@@ -494,6 +524,7 @@ public class MetadataElement extends ProductNode {
      *
      * @param name         the attribute name
      * @param defaultValue the default value
+     *
      * @return the attribute value as integer.
      */
     public String getAttributeString(String name, String defaultValue) {
@@ -577,6 +608,7 @@ public class MetadataElement extends ProductNode {
      * Gets an estimated, raw storage size in bytes of this product node.
      *
      * @param subsetDef if not <code>null</code> the subset may limit the size returned
+     *
      * @return the size in bytes.
      */
     @Override
@@ -643,20 +675,6 @@ public class MetadataElement extends ProductNode {
 
     private static String getAttributeNotFoundMessage(String name) {
         return "Metadata attribute '" + name + "' not found";
-    }
-
-    /////////////////////////////////////////////////////////////////////////
-    // Deprecated API
-
-    /**
-     * Adds an attribute to this node. It will not check if a node exists
-     *
-     * @param attribute the attribute to be added, <code>null</code> is ignored
-     * @deprecated since BEAM 4.7, {@link #addAttribute(MetadataAttribute)} should now be fast enough
-     */
-    @Deprecated
-    public void addAttributeFast(MetadataAttribute attribute) {
-        addAttribute(attribute);
     }
 
 }

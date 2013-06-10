@@ -103,7 +103,6 @@
             <binaries>
                 <outputDirectory>modules</outputDirectory>
                 <unpack>false</unpack>
-                <!--<outputFileNameMapping>${module.artifactId}-${module.version}.${module.extension}</outputFileNameMapping>-->
                 <outputFileNameMapping>${module.artifactId}.${module.extension}</outputFileNameMapping>
                 <includeDependencies>false</includeDependencies>
                 <dependencySets>
@@ -116,7 +115,6 @@
                     </dependencySet>
                     <dependencySet>
                         <outputDirectory>lib</outputDirectory>
-                        <!--<outputFileNameMapping>${artifact.artifactId}-${artifact.version}.${artifact.extension}-->
                         <outputFileNameMapping>${artifact.artifactId}.${artifact.extension}
                         </outputFileNameMapping>
                         <excludes>
@@ -130,7 +128,6 @@
                     </dependencySet>
                     <dependencySet>
                         <outputDirectory>modules</outputDirectory>
-                        <!--<outputFileNameMapping>${artifact.artifactId}-${artifact.version}.${artifact.extension}-->
                         <outputFileNameMapping>${artifact.artifactId}.${artifact.extension}
                         </outputFileNameMapping>
                         <includes>

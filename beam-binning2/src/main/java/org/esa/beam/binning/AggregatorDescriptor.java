@@ -22,11 +22,7 @@ package org.esa.beam.binning;
  * @author MarcoZ
  * @author Norman
  */
-public interface AggregatorDescriptor {
-
-    String getName();
-
-    AggregatorConfig createAggregatorConfig();
+public interface AggregatorDescriptor extends TypedDescriptor<AggregatorConfig> {
 
     Aggregator createAggregator(VariableContext varCtx, AggregatorConfig aggregatorConfig);
 }

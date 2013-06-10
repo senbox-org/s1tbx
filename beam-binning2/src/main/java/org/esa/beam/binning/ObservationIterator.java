@@ -19,6 +19,7 @@ import java.util.NoSuchElementException;
  * the fly each time {@link ObservationIterator#next() next()} is called.
  *
  * @author Marco Peters
+ * @author Norman Fomferra
  */
 abstract class ObservationIterator implements Iterator<Observation> {
 
@@ -27,9 +28,17 @@ abstract class ObservationIterator implements Iterator<Observation> {
     private SamplePointer pointer;
     private final GeoCoding gc;
     private final Product product;
+    private final DataPeriod dataPeriod;
 
+    @Deprecated
     public static ObservationIterator create(Raster[] sourceTiles, Product product, Raster maskTile,
                                              float[] superSamplingSteps) {
+        return create(sourceTiles, product, maskTile, superSamplingSteps, null);
+    }
+
+    public static ObservationIterator create(Raster[] sourceTiles, Product product, Raster maskTile,
+                                             float[] superSamplingSteps,
+                                             DataPeriod dataPeriod) {
 
         SamplePointer pointer;
         if (superSamplingSteps.length == 1) {
@@ -39,14 +48,15 @@ abstract class ObservationIterator implements Iterator<Observation> {
             pointer = SamplePointer.create(sourceTiles, sourceTiles[0].getBounds(), superSamplingPoints);
         }
         if (maskTile == null) {
-            return new NoMaskObservationIterator(product, pointer);
+            return new NoMaskObservationIterator(product, pointer, dataPeriod);
         } else {
-            return new FullObservationIterator(product, pointer, maskTile);
+            return new FullObservationIterator(product, pointer, maskTile, dataPeriod);
         }
     }
 
-    protected ObservationIterator(Product product, SamplePointer pointer) {
+    protected ObservationIterator(Product product, SamplePointer pointer, DataPeriod dataPeriod) {
         this.pointer = pointer;
+        this.dataPeriod = dataPeriod;
         if (product.getStartTime() != null || product.getEndTime() != null) {
             this.product = product;
         } else {
@@ -89,23 +99,23 @@ abstract class ObservationIterator implements Iterator<Observation> {
 
     protected abstract Observation getNextObservation();
 
-    protected abstract boolean isSampleValid(int x, int y);
-
     protected Observation createObservation(int x, int y) {
         SamplePointer pointer = getPointer();
-        final float[] samples = pointer.createSamples();
 
         Point2D.Float superSamplingPoint = pointer.getSuperSamplingPoint();
-        final PixelPos pixelPos = new PixelPos();
-        pixelPos.setLocation(x + superSamplingPoint.x, y + superSamplingPoint.y);
+        final PixelPos pixelPos = new PixelPos(x + superSamplingPoint.x, y + superSamplingPoint.y);
         final GeoPos geoPos = getGeoPos(pixelPos);
 
         double mjd = 0.0;
-        if (product != null) {
+        if (product != null && dataPeriod != null) {
             ProductData.UTC scanLineTime = ProductUtils.getScanLineTime(product, y + 0.5);
             mjd = scanLineTime.getMJD();
+            if (dataPeriod.getObservationMembership(geoPos.lon, mjd) != DataPeriod.Membership.CURRENT_PERIOD) {
+                return null;
+            }
         }
 
+        final float[] samples = pointer.createSamples();
         return new ObservationImpl(geoPos.lat, geoPos.lon, mjd, samples);
     }
 
@@ -119,9 +129,8 @@ abstract class ObservationIterator implements Iterator<Observation> {
 
         private final Raster maskTile;
 
-
-        FullObservationIterator(Product product, SamplePointer pointer, Raster maskTile) {
-            super(product, pointer);
+        FullObservationIterator(Product product, SamplePointer pointer, Raster maskTile, DataPeriod dataPeriod) {
+            super(product, pointer, dataPeriod);
             this.maskTile = maskTile;
         }
 
@@ -131,14 +140,16 @@ abstract class ObservationIterator implements Iterator<Observation> {
             while (pointer.canMove()) {
                 pointer.move();
                 if (isSampleValid(pointer.getX(), pointer.getY())) {
-                    return createObservation(pointer.getX(), pointer.getY());
+                    Observation observation = createObservation(pointer.getX(), pointer.getY());
+                    if (observation != null) {
+                        return observation;
+                    }
                 }
             }
             return null;
         }
 
-        @Override
-        protected boolean isSampleValid(int x, int y) {
+        private boolean isSampleValid(int x, int y) {
             return maskTile.getSample(x, y, 0) != 0;
         }
 
@@ -147,24 +158,21 @@ abstract class ObservationIterator implements Iterator<Observation> {
     static class NoMaskObservationIterator extends ObservationIterator {
 
 
-        NoMaskObservationIterator(Product product, SamplePointer pointer) {
-            super(product, pointer);
+        NoMaskObservationIterator(Product product, SamplePointer pointer, DataPeriod dataPeriod) {
+            super(product, pointer, dataPeriod);
         }
 
         @Override
         protected Observation getNextObservation() {
             SamplePointer pointer = getPointer();
-            if (pointer.canMove()) {
+            while (pointer.canMove()) {
                 pointer.move();
-                return createObservation(pointer.getX(), pointer.getY());
+                Observation observation = createObservation(pointer.getX(), pointer.getY());
+                if (observation != null) {
+                    return observation;
+                }
             }
             return null;
         }
-
-        @Override
-        protected boolean isSampleValid(int x, int y) {
-            return true;
-        }
-
     }
 }

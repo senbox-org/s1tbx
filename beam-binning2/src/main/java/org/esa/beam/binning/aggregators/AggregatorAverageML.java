@@ -42,13 +42,19 @@ public class AggregatorAverageML extends AbstractAggregator {
 
     private final int varIndex;
     private final WeightFn weightFn;
+    private final boolean writeSums;
 
-    public AggregatorAverageML(VariableContext ctx, String varName, Double weightCoeff, Number fillValue) {
+    public AggregatorAverageML(VariableContext ctx, String varName, Double weightCoeff) {
+        this(ctx, varName, weightCoeff, false);
+    }
+
+    public AggregatorAverageML(VariableContext ctx, String varName, Double weightCoeff, boolean writeSums) {
         super(Descriptor.NAME,
               createFeatureNames(varName, "sum", "sum_sq"),
               createFeatureNames(varName, "sum", "sum_sq", "weights"),
-              createFeatureNames(varName, "mean", "sigma", "median", "mode"),
-              fillValue);
+              createFeatureNames(varName, "mean", "sigma", "median", "mode",
+                                 writeSums ? "sum" : null, writeSums ? "sum_sq" : null));
+        this.writeSums = writeSums;
         this.varIndex = ctx.getVariableIndex(varName);
         this.weightFn = WeightFn.createPow(weightCoeff != null ? weightCoeff : 0.5);
     }
@@ -109,6 +115,10 @@ public class AggregatorAverageML extends AbstractAggregator {
         outputVector.set(1, (float) sigma);
         outputVector.set(2, (float) median);
         outputVector.set(3, (float) mode);
+        if (writeSums) {
+            outputVector.set(4, (float) sumX);
+            outputVector.set(5, (float) sumXX);
+        }
     }
 
     @Override
@@ -130,6 +140,8 @@ public class AggregatorAverageML extends AbstractAggregator {
         Double weightCoeff;
         @Parameter
         Float fillValue;
+        @Parameter
+        Boolean writeSums;
 
         public Config() {
             super(Descriptor.NAME);
@@ -151,17 +163,18 @@ public class AggregatorAverageML extends AbstractAggregator {
         }
 
         @Override
-        public AggregatorConfig createAggregatorConfig() {
+        public AggregatorConfig createConfig() {
             return new Config();
         }
 
         @Override
         public Aggregator createAggregator(VariableContext varCtx, AggregatorConfig aggregatorConfig) {
             PropertySet propertySet = aggregatorConfig.asPropertySet();
+            Boolean writeSums = propertySet.getValue("writeSums");
             return new AggregatorAverageML(varCtx,
                                            (String) propertySet.getValue("varName"),
                                            (Double) propertySet.getValue("weightCoeff"),
-                                           (Float) propertySet.getValue("fillValue"));
+                                           writeSums != null ? writeSums : false);
         }
     }
 }

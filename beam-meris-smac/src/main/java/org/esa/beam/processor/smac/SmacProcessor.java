@@ -48,7 +48,10 @@ import java.util.logging.Logger;
 
 /**
  * This is the main class for the SMAC scientific module.
+ *
+ * @deprecated since BEAM 4.11. No replacement.
  */
+@Deprecated
 public class SmacProcessor extends Processor {
 
     public static final String PROCESSOR_NAME = "BEAM SMAC Processor";
@@ -129,7 +132,6 @@ public class SmacProcessor extends Processor {
      * Processes the request actually set.
      *
      * @param pm a monitor to inform the user about progress
-     *
      * @throws org.esa.beam.framework.processor.ProcessorException
      *          on any failure during processing
      */
@@ -259,7 +261,6 @@ public class SmacProcessor extends Processor {
      * Retrieves a progress message for the request passed in. Override this method if you need custom messaging.
      *
      * @param request the request
-     *
      * @return the progress message for the request
      */
     @Override
@@ -338,7 +339,7 @@ public class SmacProcessor extends Processor {
     // Creates the appropriate <code>Product</code> for the current request and assembles a list of <code>RsBands</code>
     // to be processed. This method does NOT load the tie point ADS because these are product specific.
     private void loadInputProduct() throws IOException,
-                                           ProcessorException {
+            ProcessorException {
         Request request = getRequest();
         Band band;
         Parameter bandParam;
@@ -533,7 +534,7 @@ public class SmacProcessor extends Processor {
 
     // Creates the output product for the given request.
     private void createOutputProduct(ProgressMonitor pm) throws IOException,
-                                                                ProcessorException {
+            ProcessorException {
 
         // take only the first output product. There might be more but we will ignore
         // these in SMAC.
@@ -703,7 +704,7 @@ public class SmacProcessor extends Processor {
 
         // progress init
         pm.beginTask(SmacConstants.LOG_MSG_GENERATING_PIXEL_1 + spectralBand.getName() +
-                     SmacConstants.LOG_MSG_GENERATING_PIXEL_2,
+                             SmacConstants.LOG_MSG_GENERATING_PIXEL_2,
                      height * 6);
         try {
             // loop over all scanlines
@@ -786,7 +787,7 @@ public class SmacProcessor extends Processor {
         // progress bar init
         // -----------------
         pm.beginTask(SmacConstants.LOG_MSG_GENERATING_PIXEL_1 + band.getName() +
-                     SmacConstants.LOG_MSG_GENERATING_PIXEL_2, height * 10);
+                             SmacConstants.LOG_MSG_GENERATING_PIXEL_2, height * 10);
         try {
             // loop over all scanlines
             // -----------------------
@@ -942,7 +943,7 @@ public class SmacProcessor extends Processor {
 
         // progress init
         pm.beginTask(SmacConstants.LOG_MSG_GENERATING_PIXEL_1 + band.getName() +
-                     SmacConstants.LOG_MSG_GENERATING_PIXEL_2,
+                             SmacConstants.LOG_MSG_GENERATING_PIXEL_2,
                      height * 6);
         try {
             // loop over all scanlines
@@ -1059,7 +1060,6 @@ public class SmacProcessor extends Processor {
      * <code>SensorCoefficientManager</code>.
      *
      * @param type the request type string
-     *
      * @throws java.lang.IllegalArgumentException
      *          on unknown aerosol types
      */
@@ -1078,7 +1078,6 @@ public class SmacProcessor extends Processor {
      * Checks if the given band is an AATSR forward band.
      *
      * @param band the <code>Band</code> to be checked.
-     *
      * @return true when the band is a forward band
      */
     private static boolean checkForAATSRForwardBand(Band band) {

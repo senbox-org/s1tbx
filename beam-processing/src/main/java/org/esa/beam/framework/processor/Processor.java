@@ -52,7 +52,10 @@ import java.util.logging.Logger;
 /**
  * Base class for all scientific processors using the processor framework. Override this class to create new
  * processors.
+ *
+ * @deprecated since BEAM 4.11. Use the {@link org.esa.beam.framework.gpf Graph Processing Framework} instead.
  */
+@Deprecated
 public abstract class Processor {
 
     private static final String _defaultUITitle = "BEAM Processor";
@@ -125,7 +128,6 @@ public abstract class Processor {
      * Initializes the processor. Override to perform processor specific initializations.
      *
      * @param request the request to be processed next
-     *
      * @throws IllegalArgumentException when called with null argument
      */
     public void setRequest(Request request) {
@@ -266,7 +268,6 @@ public abstract class Processor {
      * informed each time a processor in this processor runner fire an event.
      *
      * @param listener the listener to be added
-     *
      * @return boolean if listener was added or not
      */
     public boolean addProcessorStatusListener(ProcessorStatusListener listener) {
@@ -353,7 +354,6 @@ public abstract class Processor {
      * Gets a progress message for the request passed in. Override this method if you need custom messaging.
      *
      * @param request
-     *
      * @return a progress message, never null
      */
     public String getProgressMessage(Request request) {
@@ -429,7 +429,7 @@ public abstract class Processor {
     }
 
     protected Product loadInputProduct(int index) throws ProcessorException,
-                                                         IOException {
+            IOException {
         final Request request = getRequest();
         int numInputProducts = request.getNumInputProducts();
 
@@ -480,8 +480,8 @@ public abstract class Processor {
      */
     @Deprecated
     protected final void copyFlagBandData(Product inputProduct, Product outputProduct, ProgressMonitor pm) throws
-                                                                                                           IOException,
-                                                                                                           ProcessorException {
+            IOException,
+            ProcessorException {
         if (inputProduct.getFlagCodingGroup().getNodeCount() > 0) {
             // loop over bands and check if they have a flags coding attached
             for (int n = 0; n < inputProduct.getNumBands(); n++) {
@@ -499,7 +499,6 @@ public abstract class Processor {
      * @param inputProduct  the product that contains the source bands
      * @param outputProduct the product that contains the destination bands
      * @param pm            a monitor to inform the user about progress
-     *
      * @throws IOException        if the data could not be copied because of an I/O error
      * @throws ProcessorException if the data could not be copied because any other reason
      */
@@ -507,7 +506,7 @@ public abstract class Processor {
                                       Product inputProduct,
                                       Product outputProduct,
                                       ProgressMonitor pm) throws IOException,
-                                                                 ProcessorException {
+            ProcessorException {
         pm.beginTask("Copying band data ...", bandNames.length);
         try {
             for (String bandName : bandNames) {
@@ -528,14 +527,13 @@ public abstract class Processor {
      * @param inputProduct  the product that should contain the source band.
      * @param outputProduct the product that should contain the destination band.
      * @param pm            a monitor to inform the user about progress
-     *
      * @throws IOException
      * @throws ProcessorException
      */
     protected void copyBandData(String bandName,
                                 Product inputProduct,
                                 Product outputProduct, ProgressMonitor pm) throws ProcessorException,
-                                                                                  IOException {
+            IOException {
         final String m0 = "Unable to copy band data because ";
         final String m1 = "the sourceProduct '";
         final String m2 = "' does not contain a band named '"; /*I18N*/
@@ -614,7 +612,6 @@ public abstract class Processor {
      * Gets all band names which shall be copied to the output product.
      *
      * @return The names of bands to be copied.
-     *
      * @see #addToBandNamesToCopy(String)
      * @see #copyBand(String, Product, Product)
      * @see #copyFlagBands(Product, Product)
@@ -627,7 +624,6 @@ public abstract class Processor {
      * Adds the band name to the internal list of band which shall be copied.
      *
      * @param bandName The name of the band.
-     *
      * @see #getBandNamesToCopy()
      * @see #copyBand(String, Product, Product)
      * @see #copyFlagBands(Product, Product)
@@ -645,7 +641,6 @@ public abstract class Processor {
      * @param bandName      The name of the band to be copied.
      * @param inputProduct  The input product.
      * @param outputProduct The output product.
-     *
      * @see #copyBandData(String[], Product, Product, ProgressMonitor)
      * @see #addToBandNamesToCopy (String)
      * @see #getBandNamesToCopy()

@@ -54,6 +54,7 @@ import org.esa.beam.framework.ui.product.ProductSceneImage;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.glayer.MaskCollectionLayerType;
 import org.esa.beam.util.PropertyMap;
+import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.visat.actions.session.dom.SessionDomConverter;
 
 import javax.swing.JComponent;
@@ -197,14 +198,7 @@ public class Session {
 
     private static URI getFileLocationURI(URI rootURI, Product product) {
         File file = product.getFileLocation();
-        if (file == null) {
-            return null;
-        }
-        URI uri = file.toURI();
-        if (rootURI == null) {
-            return uri;
-        }
-        return rootURI.relativize(uri);
+        return FileUtils.getRelativeUri(rootURI, file);
     }
 
     private static LayerRef[] getLayerRefs(List<Layer> layers, ProductManager productManager) {

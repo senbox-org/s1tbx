@@ -16,19 +16,22 @@
  */
 package org.esa.beam.processor.binning.database;
 
-import java.awt.Point;
-import java.awt.Rectangle;
-
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.util.Guardian;
 
+import java.awt.Point;
+import java.awt.Rectangle;
+
+@Deprecated
 /**
+ *
  * Implementation of the BinLocator interface used for resampling.
  * Note: the resampling grid follows a Plate Carre (latlon) mapping
  * with the bounds falling at exact degrees east and north.
  *
  * @author T.H.G.Lankester, Infoterra Ltd.
  * @version 0.1, 26/04/05
+ * @Deprecated since beam-binning 2.1.2 as part of the BEAM 4.11-release. Use module 'beam-binning2' instead.
  */
 public class LatLonBinLocator implements BinLocator {
 
@@ -106,7 +109,6 @@ public class LatLonBinLocator implements BinLocator {
      * Retrieves the bin index for a given latitude and longitude.
      *
      * @param lat_lon object encapsulating the latitude and longitude
-     *
      * @return linear (1D) index for the resampled pixel covering the
      *         geo-position or -1 if the geo-position is outside the
      *         resampling grid
@@ -149,7 +151,6 @@ public class LatLonBinLocator implements BinLocator {
      * Retrieves the row / column pair for a given lat/lon pair.
      *
      * @param lat_lon object encapsulating the latitude and longitude
-     *
      * @return grid coordinates for the resampled pixel covering the
      *         geo-position or null if the geo-position is outside the
      *         resampling grid
@@ -161,7 +162,7 @@ public class LatLonBinLocator implements BinLocator {
         final int maxLon = _topLeftLatLon.x + _lonWidth;
 
         if (lat_lon == null || lat_lon.lat < minLat || lat_lon.lon < minLon
-            || lat_lon.lat > maxLat || lat_lon.lon > maxLon) {
+                || lat_lon.lat > maxLat || lat_lon.lon > maxLon) {
             row_col = null;
         } else {
             // ensure that the GeoPos is not null
@@ -183,7 +184,6 @@ public class LatLonBinLocator implements BinLocator {
      * Transforms a two dimensional grid coordinate to a one dimensional
      *
      * @param row_col grid coordinates of a resampled pixel
-     *
      * @return linear (1D) index for the resampled pixel position or -1
      *         if the specified grid coordinates are off the resampling grid
      */
@@ -209,7 +209,7 @@ public class LatLonBinLocator implements BinLocator {
 
         // set to null if the coordinates are not within the grid
         if (row_col == null || row_col.x < 0 || row_col.y < 0
-            || row_col.x >= _rixDimX || row_col.y >= _rixDimY) {
+                || row_col.x >= _rixDimX || row_col.y >= _rixDimY) {
             validPos = false;
         }
 

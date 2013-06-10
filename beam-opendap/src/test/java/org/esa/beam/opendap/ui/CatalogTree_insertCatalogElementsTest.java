@@ -16,7 +16,7 @@ import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 @RunWith(HeadlessTestRunner.class)
 public class CatalogTree_insertCatalogElementsTest {
@@ -26,7 +26,7 @@ public class CatalogTree_insertCatalogElementsTest {
 
     @Before
     public void setUp() throws Exception {
-        catalogTree = new CatalogTree(null, new DefaultAppContext(""));
+        catalogTree = new CatalogTree(null, new DefaultAppContext(""), null);
         parentNode = (DefaultMutableTreeNode) ((JTree) catalogTree.getComponent()).getModel().getRoot();
     }
 
@@ -51,7 +51,7 @@ public class CatalogTree_insertCatalogElementsTest {
             final DefaultMutableTreeNode catalogNameNode = (DefaultMutableTreeNode) parentNode.getChildAt(0);
             assertEquals("CatalogName", catalogNameNode.getUserObject());
             final TreeNode catalogReferenceNode = catalogNameNode.getChildAt(0);
-            assertEquals(true, CatalogTree.isCatalogReferenceNode(catalogReferenceNode));
+            assertEquals(true, CatalogTreeUtils.isCatalogReferenceNode(catalogReferenceNode));
         } finally {
             if (catalogIS != null) {
                 catalogIS.close();
@@ -72,8 +72,8 @@ public class CatalogTree_insertCatalogElementsTest {
 
             //verification
             assertEquals(2, parentNode.getChildCount());
-            assertEquals(true, CatalogTree.isDapNode(parentNode.getChildAt(0)));
-            assertEquals(true, CatalogTree.isDapNode(parentNode.getChildAt(1)));
+            assertEquals(true, CatalogTreeUtils.isDapNode(parentNode.getChildAt(0)));
+            assertEquals(true, CatalogTreeUtils.isDapNode(parentNode.getChildAt(1)));
             DefaultMutableTreeNode firstChild = (DefaultMutableTreeNode) parentNode.getChildAt(0);
             OpendapLeaf firstLeaf = (OpendapLeaf) firstChild.getUserObject();
             assertEquals("http://every.where/opendap/hyrax/data/child/ProductName.N1.nc.dds", firstLeaf.getDdsUri());

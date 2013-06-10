@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2013 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -89,8 +89,8 @@ public class ModisConstantsTest extends TestCase {
     public void testMetadataKeyConstants() {
         assertEquals("Number of Day mode scans", ModisConstants.NUM_OF_DAY_SCANS_KEY);
         assertEquals("Number of Night mode scans", ModisConstants.NUM_OF_NIGHT_SCANS_KEY);
-        assertEquals("CoreMetadata.0", ModisConstants.CORE_META_KEY);
-        assertEquals("StructMetadata.0", ModisConstants.STRUCT_META_KEY);
+        assertEquals("CoreMetadata\\.0", ModisConstants.CORE_META_KEY);
+        assertEquals("StructMetadata\\.0", ModisConstants.STRUCT_META_KEY);
         assertEquals("GROUP", ModisConstants.GROUP_KEY);
         assertEquals("END_GROUP", ModisConstants.GROUP_END_KEY);
         assertEquals("Dimension", ModisConstants.DIMENSION_KEY);

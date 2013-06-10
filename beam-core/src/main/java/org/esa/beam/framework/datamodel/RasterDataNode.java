@@ -19,6 +19,8 @@ import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
 import com.bc.ceres.glevel.MultiLevelImage;
 import com.bc.ceres.glevel.MultiLevelModel;
+import com.bc.ceres.glevel.MultiLevelSource;
+import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
 import com.bc.ceres.glevel.support.DefaultMultiLevelImage;
 import com.bc.ceres.glevel.support.DefaultMultiLevelSource;
 import com.bc.ceres.glevel.support.GenericMultiLevelSource;
@@ -27,6 +29,8 @@ import com.bc.ceres.jai.operator.ReinterpretDescriptor;
 import com.bc.ceres.jai.operator.ScalingType;
 import org.esa.beam.framework.dataop.barithm.BandArithmetic;
 import org.esa.beam.jai.ImageManager;
+import org.esa.beam.jai.ResolutionLevel;
+import org.esa.beam.jai.VirtualBandOpImage;
 import org.esa.beam.util.BitRaster;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.ObjectUtils;
@@ -72,6 +76,10 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
 
     public static final String PROPERTY_NAME_IMAGE_INFO = "imageInfo";
     public static final String PROPERTY_NAME_LOG_10_SCALED = "log10Scaled";
+    /**
+     * @deprecated since BEAM 4.11, no replacement
+     */
+    @Deprecated
     public static final String PROPERTY_NAME_ROI_DEFINITION = "roiDefinition";
     public static final String PROPERTY_NAME_SCALING_FACTOR = "scalingFactor";
     public static final String PROPERTY_NAME_SCALING_OFFSET = "scalingOffset";
@@ -91,11 +99,6 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * position.
      */
     public static final String INVALID_POS_TEXT = "Invalid pos."; /*I18N*/
-    /**
-     * Text returned by the <code>{@link #getPixelString(int, int)}</code> method if pixel data was not loaded.
-     */
-    @Deprecated
-    public static final String NOT_LOADED_TEXT = "Not loaded"; /*I18N*/
     /**
      * Text returned by the <code>{@link #getPixelString(int, int)}</code> method if an I/O error occurred while pixel data was
      * reloaded.
@@ -706,23 +709,6 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         }
     }
 
-    private BitRaster computeValidBitRaster() {
-        BitRaster validBitMask = new BitRaster(getSceneRasterWidth(), getSceneRasterHeight());
-        if (isValidMaskUsed()) {
-            ROI roi = getValidMaskROI();
-            for (int y = 0; y < getSceneRasterHeight(); y++) {
-                for (int x = 0; x < getSceneRasterWidth(); x++) {
-                    validBitMask.set(x, y, roi.contains(x, y));
-                }
-            }
-        } else {
-            for (int i = 0; i < getSceneRasterWidth() * getSceneRasterHeight(); i++) {
-                validBitMask.set(i);
-            }
-        }
-        return validBitMask;
-    }
-
     /**
      * {@inheritDoc}
      */
@@ -753,7 +739,9 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @see #getRasterHeight
      * @see #getSceneRasterWidth
      * @see #getSceneRasterHeight
+     * @deprecated since BEAM 4.11, use {@link #getSourceImage()} instead.
      */
+    @Deprecated
     public abstract ProductData getSceneRasterData();
 
 
@@ -762,18 +750,23 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * false.
      *
      * @return true, if so.
+     * @deprecated since BEAM 4.11. No replacement.
      */
+    @Deprecated
     public boolean hasRasterData() {
         return getRasterData() != null;
     }
 
 
     /**
-     * Gets the raster data for this dataset. If the data has'nt been loaded so far the method returns
+     * Gets the raster data for this dataset. If the data hasn't been loaded so far the method returns
      * <code>null</code>.
      *
      * @return the raster data for this band, or <code>null</code> if data has not been loaded
+     * @deprecated Since BEAM 4.11. Use {@link #getSourceImage()} or the various {@link #readPixels readPixels()}
+     *             method variants to retrieve or read raster data.
      */
+    @Deprecated
     public ProductData getRasterData() {
         return getData();
     }
@@ -787,7 +780,10 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      *
      * @param rasterData the raster data for this dataset
      * @see #getRasterData()
+     * @deprecated Since BEAM 4.11. Use {@link #setSourceImage setSourceImage()} or the various {@link #writePixels readPixels()}
+     *             method variants to set or write raster data.
      */
+    @Deprecated
     public void setRasterData(ProductData rasterData) {
         setData(rasterData);
     }
@@ -795,7 +791,9 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     /**
      * @throws java.io.IOException if an I/O error occurs
      * @see #loadRasterData(com.bc.ceres.core.ProgressMonitor)
+     * @deprecated since BEAM 4.11. No replacement.
      */
+    @Deprecated
     public void loadRasterData() throws IOException {
         loadRasterData(ProgressMonitor.NULL);
     }
@@ -811,7 +809,9 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @param pm a monitor to inform the user about progress
      * @throws IOException if an I/O error occurs
      * @see #unloadRasterData()
+     * @deprecated since BEAM 4.11. No replacement.
      */
+    @Deprecated
     public void loadRasterData(ProgressMonitor pm) throws IOException {
     }
 
@@ -824,7 +824,9 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * <p>The default implementation of this method does nothing.
      *
      * @see #loadRasterData()
+     * @deprecated since BEAM 4.11. No replacement.
      */
+    @Deprecated
     public void unloadRasterData() {
     }
 
@@ -982,7 +984,9 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @param y the Y co-ordinate of the pixel location
      * @return the pixel value at (x,y)
      * @throws ArrayIndexOutOfBoundsException if the co-ordinates are not in bounds
+     * @deprecated since BEAM 4.11. Use {@link #getSampleInt(int, int)} instead.
      */
+    @Deprecated
     public abstract int getPixelInt(int x, int y);
 
     /**
@@ -992,7 +996,9 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @param y the Y co-ordinate of the pixel location
      * @return the pixel value at (x,y)
      * @throws ArrayIndexOutOfBoundsException if the co-ordinates are not in bounds
+     * @deprecated since BEAM 4.11. Use {@link #getSampleFloat(int, int)} instead.
      */
+    @Deprecated
     public abstract float getPixelFloat(int x, int y);
 
     /**
@@ -1002,7 +1008,9 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @param y the Y co-ordinate of the pixel location
      * @return the pixel value at (x,y)
      * @throws ArrayIndexOutOfBoundsException if the co-ordinates are not in bounds
+     * @deprecated since BEAM 4.11. Use {@link #getSampleFloat(int, int)} instead.
      */
+    @Deprecated
     public abstract double getPixelDouble(int x, int y);
 
     /**
@@ -1012,7 +1020,9 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @param y          the Y co-ordinate of the pixel location
      * @param pixelValue the new pixel value at (x,y)
      * @throws ArrayIndexOutOfBoundsException if the co-ordinates are not in bounds
+     * @deprecated since BEAM 4.11. No replacement.
      */
+    @Deprecated
     public abstract void setPixelInt(int x, int y, int pixelValue);
 
     /**
@@ -1022,7 +1032,9 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @param y          the Y co-ordinate of the pixel location
      * @param pixelValue the new pixel value at (x,y)
      * @throws ArrayIndexOutOfBoundsException if the co-ordinates are not in bounds
+     * @deprecated since BEAM 4.11. No replacement.
      */
+    @Deprecated
     public abstract void setPixelFloat(int x, int y, float pixelValue);
 
     /**
@@ -1032,13 +1044,16 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @param y          the Y co-ordinate of the pixel location
      * @param pixelValue the new pixel value at (x,y)
      * @throws ArrayIndexOutOfBoundsException if the co-ordinates are not in bounds
+     * @deprecated since BEAM 4.11. No replacement.
      */
+    @Deprecated
     public abstract void setPixelDouble(int x, int y, double pixelValue);
-
 
     /**
      * @see #getPixels(int, int, int, int, int[], ProgressMonitor)
+     * @deprecated since BEAM 4.11. Use {@link #getSourceImage()} instead.
      */
+    @Deprecated
     public int[] getPixels(int x, int y, int w, int h, int[] pixels) {
         return getPixels(x, y, w, h, pixels, ProgressMonitor.NULL);
     }
@@ -1053,12 +1068,16 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @param h      height of the pixel array to be read.
      * @param pixels integer array to be filled with data
      * @param pm     a monitor to inform the user about progress
+     * @deprecated since BEAM 4.11. Use {@link #getSourceImage()} instead.
      */
+    @Deprecated
     public abstract int[] getPixels(int x, int y, int w, int h, int[] pixels, ProgressMonitor pm);
 
     /**
      * @see #getPixels(int, int, int, int, float[], ProgressMonitor)
+     * @deprecated since BEAM 4.11. Use {@link #getSourceImage()} instead.
      */
+    @Deprecated
     public float[] getPixels(int x, int y, int w, int h, float[] pixels) {
         return getPixels(x, y, w, h, pixels, ProgressMonitor.NULL);
     }
@@ -1073,12 +1092,16 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @param h      height of the pixel array to be read.
      * @param pixels float array to be filled with data
      * @param pm     a monitor to inform the user about progress
+     * @deprecated since BEAM 4.11. Use {@link #getSourceImage()} instead.
      */
+    @Deprecated
     public abstract float[] getPixels(int x, int y, int w, int h, float[] pixels, ProgressMonitor pm);
 
     /**
      * @see #getPixels(int, int, int, int, double[], ProgressMonitor)
+     * @deprecated since BEAM 4.11. Use {@link #getSourceImage()} instead.
      */
+    @Deprecated
     public double[] getPixels(int x, int y, int w, int h, double[] pixels) {
         return getPixels(x, y, w, h, pixels, ProgressMonitor.NULL);
     }
@@ -1093,7 +1116,9 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @param h      height of the pixel array to be read.
      * @param pixels double array to be filled with data
      * @param pm     a monitor to inform the user about progress
+     * @deprecated since BEAM 4.11. Use {@link #getSourceImage()} instead.
      */
+    @Deprecated
     public abstract double[] getPixels(int x, int y, int w, int h, double[] pixels, ProgressMonitor pm);
 
 
@@ -1107,7 +1132,10 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @param h      height of the pixel array to be written.
      * @param pixels integer array to be written
      * @throws NullPointerException if this band has no raster data
+     * @deprecated since BEAM 4.11. Use {@link #setSourceImage setSourceImage()} or the various {@link #writePixels readPixels()}
+     *             method variants to set or write raster data.
      */
+    @Deprecated
     public abstract void setPixels(int x, int y, int w, int h, int[] pixels);
 
     /**
@@ -1120,7 +1148,10 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @param h      height of the pixel array to be written.
      * @param pixels float array to be written
      * @throws NullPointerException if this band has no raster data
+     * @deprecated since BEAM 4.11. Use {@link #setSourceImage setSourceImage()} or the various {@link #writePixels readPixels()}
+     *             method variants to set or write raster data.
      */
+    @Deprecated
     public abstract void setPixels(int x, int y, int w, int h, float[] pixels);
 
     /**
@@ -1133,7 +1164,10 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @param h      height of the pixel array to be written.
      * @param pixels double array to be written
      * @throws NullPointerException if this band has no raster data
+     * @deprecated since BEAM 4.11. Use {@link #setSourceImage setSourceImage()} or the various {@link #writePixels readPixels()}
+     *             method variants to set or write raster data.
      */
+    @Deprecated
     public abstract void setPixels(int x, int y, int w, int h, double[] pixels);
 
     /**
@@ -1156,12 +1190,16 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @param pixels array to be filled with data
      * @param pm     a progress monitor
      * @return the pixels read
+     * @deprecated since BEAM 4.11. Use {@link #getSourceImage()} instead.
      */
+    @Deprecated
     public abstract int[] readPixels(int x, int y, int w, int h, int[] pixels, ProgressMonitor pm) throws IOException;
 
     /**
      * @see #readPixels(int, int, int, int, float[], ProgressMonitor)
+     * @deprecated since BEAM 4.11. Use {@link #getSourceImage()} instead.
      */
+    @Deprecated
     public float[] readPixels(int x, int y, int w, int h, float[] pixels) throws IOException {
         return readPixels(x, y, w, h, pixels, ProgressMonitor.NULL);
     }
@@ -1179,13 +1217,17 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @param pixels array to be filled with data
      * @param pm     a progress monitor
      * @return the pixels read
+     * @deprecated since BEAM 4.11. Use {@link #getSourceImage()} instead.
      */
+    @Deprecated
     public abstract float[] readPixels(int x, int y, int w, int h, float[] pixels, ProgressMonitor pm) throws
             IOException;
 
     /**
      * @see #readPixels(int, int, int, int, double[], ProgressMonitor)
+     * @deprecated since BEAM 4.11. Use {@link #getSourceImage()} instead.
      */
+    @Deprecated
     public double[] readPixels(int x, int y, int w, int h, double[] pixels) throws IOException {
         return readPixels(x, y, w, h, pixels, ProgressMonitor.NULL);
     }
@@ -1203,7 +1245,9 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @param pixels array to be filled with data
      * @param pm     a progress monitor
      * @return the pixels read
+     * @deprecated since BEAM 4.11. Use {@link #getSourceImage()} instead.
      */
+    @Deprecated
     public abstract double[] readPixels(int x, int y, int w, int h, double[] pixels, ProgressMonitor pm) throws
             IOException;
 
@@ -1287,7 +1331,9 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     /**
      * @throws java.io.IOException if an I/O error occurs
      * @see #readRasterDataFully(ProgressMonitor)
+     * @deprecated since BEAM 4.11. Use {@link #getSourceImage()} instead.
      */
+    @Deprecated
     public void readRasterDataFully() throws IOException {
         readRasterDataFully(ProgressMonitor.NULL);
     }
@@ -1306,7 +1352,9 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @throws java.io.IOException if an I/O error occurs
      * @see #loadRasterData
      * @see #readRasterData(int, int, int, int, ProductData, com.bc.ceres.core.ProgressMonitor)
+     * @deprecated since BEAM 4.11. Use {@link #getSourceImage()} instead.
      */
+    @Deprecated
     public abstract void readRasterDataFully(ProgressMonitor pm) throws IOException;
 
     /**
@@ -1323,7 +1371,9 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @throws IllegalStateException    if this product raster was not added to a product so far, or if the product to
      *                                  which this product raster belongs to, has no associated product reader
      * @see org.esa.beam.framework.dataio.ProductReader#readBandRasterData(Band, int, int, int, int, ProductData, com.bc.ceres.core.ProgressMonitor)
+     * @deprecated since BEAM 4.11. Use {@link #getSourceImage()} instead.
      */
+    @Deprecated
     public void readRasterData(int offsetX, int offsetY,
                                int width, int height,
                                ProductData rasterData) throws IOException {
@@ -1344,7 +1394,9 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @throws IllegalArgumentException if the raster is null
      * @throws IllegalStateException    if this product raster was not added to a product so far, or if the product to
      *                                  which this product raster belongs to, has no associated product reader
+     * @deprecated since BEAM 4.11. Use {@link #getSourceImage()} instead.
      */
+    @Deprecated
     public abstract void readRasterData(int offsetX, int offsetY,
                                         int width, int height,
                                         ProductData rasterData,
@@ -1362,6 +1414,11 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      */
     public abstract void writeRasterDataFully(ProgressMonitor pm) throws IOException;
 
+    /**
+     * @deprecated since BEAM 4.11. Use {@link #setSourceImage setSourceImage()} or the various {@link #writePixels
+     *             readPixels()} method variants to set or write raster data.
+     */
+    @Deprecated
     public void writeRasterData(int offsetX, int offsetY, int width, int height, ProductData rasterData)
             throws IOException {
         writeRasterData(offsetX, offsetY, width, height, rasterData, ProgressMonitor.NULL);
@@ -1384,7 +1441,10 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @throws IllegalStateException    if this product raster was not added to a product so far, or if the product to
      *                                  which this product raster belongs to, has no associated product reader
      * @see org.esa.beam.framework.dataio.ProductReader#readBandRasterData(Band, int, int, int, int, ProductData, com.bc.ceres.core.ProgressMonitor)
+     * @deprecated since BEAM 4.11. Use {@link #setSourceImage setSourceImage()} or the various {@link #writePixels
+     *             readPixels()} method variants to set or write raster data.
      */
+    @Deprecated
     public abstract void writeRasterData(int offsetX, int offsetY,
                                          int width, int height,
                                          ProductData rasterData,
@@ -1433,7 +1493,9 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @param w          the raster width
      * @param h          the raster height
      * @return {@code true} if so
+     * @deprecated since BEAM 4.11. No replacement.
      */
+    @Deprecated
     public boolean isCompatibleRasterData(ProductData rasterData, int w, int h) {
         return rasterData != null
                 && rasterData.getType() == getDataType()
@@ -1446,7 +1508,9 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @param rasterData the raster data
      * @param w          the raster width
      * @param h          the raster height
+     * @deprecated since BEAM 4.11. No replacement.
      */
+    @Deprecated
     public void checkCompatibleRasterData(ProductData rasterData, int w, int h) {
         if (!isCompatibleRasterData(rasterData, w, h)) {
             throw new IllegalArgumentException("invalid raster data buffer for '" + getName() + "'");
@@ -2015,7 +2079,16 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         if (!isValidMaskImageSet() && isValidMaskUsed()) {
             synchronized (this) {
                 if (!isValidMaskImageSet() && isValidMaskUsed()) {
-                    validMaskImage = ImageManager.getInstance().createValidMaskMultiLevelImage(this);
+                    final MultiLevelModel model = ImageManager.getMultiLevelModel(this);
+                    final MultiLevelSource mls = new AbstractMultiLevelSource(model) {
+
+                        @Override
+                        public RenderedImage createImage(int level) {
+                            return VirtualBandOpImage.createMask(RasterDataNode.this,
+                                                                 ResolutionLevel.create(getModel(), level));
+                        }
+                    };
+                    validMaskImage = new DefaultMultiLevelImage(mls);
                 }
             }
         }
@@ -2230,17 +2303,6 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     @Deprecated
     public ProductNodeGroup<Mask> getRoiMaskGroup() {
         return roiMasks;
-    }
-
-    /**
-     * Gets all associated bitmask definitions. An empty arry is returned if no bitmask defintions are associated.
-     *
-     * @return Associated bitmask definitions.
-     * @deprecated since BEAM 4.7, use {@link #getOverlayMaskGroup()}
-     */
-    @Deprecated
-    public BitmaskDef[] getBitmaskDefs() {
-        return new BitmaskDef[0];
     }
 
 

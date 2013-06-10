@@ -24,6 +24,9 @@ import com.sun.javadoc.RootDoc;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 
+// This Main must be started with ceres launcher. Otherwise not all dependencies are on the classpath.
+
+
 /**
  * A doclet which scans the classpath for GPF operators and creates
  * associated documentation derived from an operator's annotations
@@ -69,33 +72,48 @@ public class OperatorDoclet extends Doclet {
             System.exit(1);
         }
 
+        // Todo (mp) -  Binning2 does not work; always getting error : java.lang.NoClassDefFoundError: ucar/ma2/InvalidRangeException
         com.sun.tools.javadoc.Main.main(new String[]{
                 "-doclet", OperatorDoclet.class.getName(),
                 "-sourcepath", "" +
-                        "./beam-gpf/src/main/java;" +
-                        "./beam-cluster-analysis/src/main/java;" +
-                        "./beam-collocation/src/main/java;" +
-                        "./beam-pixel-extraction/src/main/java;" +
-                        "./beam-meris-radiometry/src/main/java;" +
-                        "./beam-unmix/src/main/java",
-/*
+                               "./beam-gpf/src/main/java;" +
+                               "./beam-aatsr-sst/src/main/java;" +
+                               "./beam-binning2/src/main/java;" +
+                               "./beam-cluster-analysis/src/main/java;" +
+                               "./beam-collocation/src/main/java;" +
+                               "./beam-flhmci/src/main/java;" +
+                               "./beam-meris-radiometry/src/main/java;" +
+                               "./beam-pixel-extraction/src/main/java;" +
+                               "./beam-statistics-op/src/main/java;" +
+                               "./beam-temporal-percentile/src/main/java;" +
+                               "./beam-unmix/src/main/java",
+
                 "-classpath", "" +
-                        "./modules/beam-core-4.10;" +
-                        "./modules/beam-gpf-4.10;" +
-                        "./modules/beam-unmix-1.2;" +
-                        "./modules/beam-cluster-analysis-1.1.1;" +
-                        "./modules/beam-meris-radiometry-1.1;" +
-                        "./modules/beam-collocation-1.4;" +
-                        "./modules/beam-pixel-extraction-1.1",
-*/
+                              "./modules/beam-core-4.11;" +
+                              "./modules/beam-gpf-4.11;" +
+                              "./modules/beam-aatsr-sst-1.5.1;" +
+                              "./modules/beam-binning2-0.8.2-SNAPSHOT;" +
+                              "./modules/beam-collocation-1.4.1;" +
+                              "./modules/beam-flhmci-1.6.204;" +
+                              "./modules/beam-meris-radiometry-1.1.2;" +
+                              "./modules/beam-pixel-extraction-1.3;" +
+                              "./modules/beam-statistics-op-1.0;" +
+                              "./modules/beam-temporal-percentile-op-1.0;" +
+                              "./modules/beam-unmix-1.2.1",
+
                 "org.esa.beam.gpf.operators.standard",
                 "org.esa.beam.gpf.operators.standard.reproject",
                 "org.esa.beam.gpf.operators.meris",
-                "org.esa.beam.unmixing",
+                "org.esa.beam.aatsr.sst",
+                "org.esa.beam.binning.operator",
                 "org.esa.beam.cluster",
                 "org.esa.beam.collocation",
-                "org.esa.beam.pixex",
                 "org.esa.beam.meris.radiometry",
+                "org.esa.beam.pixex",
+                "org.esa.beam.processor.flh_mci",
+                "org.esa.beam.statistics",
+                "org.esa.beam.statistics.percentile.interpolated",
+                "org.esa.beam.unmixing",
         });
     }
 
@@ -124,7 +142,8 @@ public class OperatorDoclet extends Doclet {
                 try {
                     System.out.println("Processing " + classDoc.typeName() + "...");
                     // Class<? extends Operator> type = (Class<? extends Operator>) Class.forName(classDoc.qualifiedTypeName());
-                    Class<? extends Operator> type = (Class<? extends Operator>)  Thread.currentThread().getContextClassLoader().loadClass(classDoc.qualifiedTypeName());
+                    Class<? extends Operator> type = (Class<? extends Operator>) Thread.currentThread().getContextClassLoader().loadClass(
+                            classDoc.qualifiedTypeName());
                     OperatorMetadata annotation = type.getAnnotation(OperatorMetadata.class);
                     if (annotation != null) {
                         if (!annotation.internal()) {

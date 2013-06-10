@@ -1,7 +1,5 @@
 package org.esa.beam.pixex;
 
-import static org.junit.Assert.*;
-
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.CrsGeoCoding;
@@ -15,7 +13,9 @@ import org.esa.beam.framework.gpf.graph.GraphIO;
 import org.esa.beam.framework.gpf.graph.GraphProcessor;
 import org.esa.beam.measurement.Measurement;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
-import org.junit.*;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.operation.TransformException;
 
@@ -33,6 +33,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
+
+import static org.junit.Assert.*;
 
 public class PixExOpTest {
 

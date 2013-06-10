@@ -49,7 +49,10 @@ import java.util.logging.Logger;
  * The <code>NdviProcessor</code> implements all specific functionality to calculate a ndvi product from a given MERIS
  * product. This simple processor does not take any flags into account, it just calculates the ndvi over the whole
  * product.
+ *
+ * @deprecated since BEAM 4.11. No replacement.
  */
+@Deprecated
 public class NdviProcessor extends Processor {
 
     // Constants
@@ -341,7 +344,7 @@ public class NdviProcessor extends Processor {
         // and initialize the disk representation
         writer.writeProductNodes(_outputProduct, new File(outputRef.getFilePath()));
         copyBandData(getBandNamesToCopy(), _inputProduct, _outputProduct, pm);
-        
+
         _logger.info("Output product successfully created");
     }
 
@@ -382,6 +385,7 @@ public class NdviProcessor extends Processor {
     /**
      * Performs the actual processing of the output product. Reads both input bands line
      * by line, calculates the processor and writes the result to the output band
+     *
      * @param pm
      */
     private void processNdvi(ProgressMonitor pm) throws IOException {

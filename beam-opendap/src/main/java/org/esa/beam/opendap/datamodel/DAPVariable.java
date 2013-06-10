@@ -92,7 +92,7 @@ public class DAPVariable implements Comparable<DAPVariable> {
                 return true;
             }
 
-            boolean dimsEqual = dimension1.getName().equals(dimension2.getName());
+            boolean dimsEqual = dimension1.getEncodedName().equals(dimension2.getEncodedName());
             if (!dimsEqual) {
                 return false;
             }
@@ -120,7 +120,7 @@ public class DAPVariable implements Comparable<DAPVariable> {
             if (i == 0) {
                 builder.append(" (");
             }
-            builder.append(dimension.getName())
+            builder.append(dimension.getEncodedName())
                     .append(":")
                     .append(dimension.getSize());
 
@@ -154,7 +154,7 @@ public class DAPVariable implements Comparable<DAPVariable> {
     private String getDenominator(DAPVariable var) {
         StringBuilder denominator = new StringBuilder(var.getName());
         for (DArrayDimension dimension : var.dimensions) {
-            denominator.append(dimension.getName());
+            denominator.append(dimension.getEncodedName());
         }
         return denominator.toString();
     }
@@ -167,7 +167,7 @@ public class DAPVariable implements Comparable<DAPVariable> {
                 builder.append("(");
             }
             final DArrayDimension dimension = dimensions[i];
-            builder.append(dimension.getName());
+            builder.append(dimension.getEncodedName());
             if (i < dimensions.length - 1) {
                 builder.append(",");
             } else {

@@ -3,7 +3,6 @@ package org.esa.beam.dataio.modis.netcdf;
 import ucar.nc2.Attribute;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 
 public class NetCDFAttributes {
@@ -19,9 +18,8 @@ public class NetCDFAttributes {
             return;
         }
 
-        for (Iterator<Attribute> iterator = globalAttributes.iterator(); iterator.hasNext(); ) {
-            final Attribute attribute = iterator.next();
-            attributeHashMap.put(attribute.getName(), attribute);
+        for (final Attribute attribute : globalAttributes) {
+            attributeHashMap.put(attribute.getShortName(), attribute);
         }
     }
 

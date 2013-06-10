@@ -82,7 +82,7 @@ public class DaacAttributes implements ModisGlobalAttributes {
         final String[] dimensionNames = new String[dimensions.size()];
         for (int i = 0; i < dimensions.size(); i++) {
             ucar.nc2.Dimension dimension = dimensions.get(i);
-            dimensionNames[i] = dimension.getName();
+            dimensionNames[i] = dimension.getShortName();
         }
         result.setDimensionNames(dimensionNames);
         return result;
@@ -132,7 +132,7 @@ public class DaacAttributes implements ModisGlobalAttributes {
 
     // package access for testing only tb 2012-05-22
     static boolean isHeightDimension(ucar.nc2.Dimension dimension) {
-        final String dimensionName = dimension.getName();
+        final String dimensionName = dimension.getShortName();
         return dimensionName.contains("10*nscans") ||
                 dimensionName.contains("20*nscans") ||
                 dimensionName.contains("YDim") ||
@@ -141,7 +141,7 @@ public class DaacAttributes implements ModisGlobalAttributes {
 
     // package access for testing only tb 2012-05-22
     static boolean isWidthDimension(ucar.nc2.Dimension dimension) {
-        final String dimensionName = dimension.getName();
+        final String dimensionName = dimension.getShortName();
         return dimensionName.contains("Max_EV_frames") ||
                 dimensionName.contains("XDim") ||
                 dimensionName.contains("Number_of_samples_per_record");

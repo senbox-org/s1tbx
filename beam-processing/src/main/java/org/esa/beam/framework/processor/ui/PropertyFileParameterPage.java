@@ -62,7 +62,9 @@ import java.io.PrintWriter;
  * @author Marco Peters
  * @author Ralf Quast
  * @author Norman Fomferra
+ * @deprecated since BEAM 4.11. Use the {@link org.esa.beam.framework.gpf Graph Processing Framework} instead.
  */
+@Deprecated
 public class PropertyFileParameterPage extends ParameterPage {
 
     /**
@@ -91,7 +93,6 @@ public class PropertyFileParameterPage extends ParameterPage {
      * This given file is used as the default parameter file.
      *
      * @param propertyFile the property file
-     *
      * @see org.esa.beam.framework.processor.ProcessorConstants
      */
     public PropertyFileParameterPage(final File propertyFile) {
@@ -105,7 +106,6 @@ public class PropertyFileParameterPage extends ParameterPage {
      * The given file by this parameter is used as the default parameter file.
      *
      * @param paramGroup the paramGroup to create the UI from
-     *
      * @see org.esa.beam.framework.processor.ProcessorConstants
      */
     public PropertyFileParameterPage(final ParamGroup paramGroup) {
@@ -119,7 +119,6 @@ public class PropertyFileParameterPage extends ParameterPage {
      * Sets the parameter values by these given with the {@link Request request}.
      *
      * @param request the request to obtain the parameters
-     *
      * @throws ProcessorException if an error occurred
      */
     @Override
@@ -131,7 +130,6 @@ public class PropertyFileParameterPage extends ParameterPage {
      * Fills the given {@link Request request} with parameters.
      *
      * @param request the request to fill
-     *
      * @throws ProcessorException if an error occurred
      */
     @Override
@@ -154,9 +152,9 @@ public class PropertyFileParameterPage extends ParameterPage {
                 if (!storedPropertyText.equals(textArea.getText())) {
                     // here is parameter OK, not to confuse the user
                     app.showInfoDialog("Parameter file is modified.\n" +
-                                       "Unable to start processing.\n" +
-                                       "\n" +
-                                       "Please save the parameter file first.", null);
+                                               "Unable to start processing.\n" +
+                                               "\n" +
+                                               "Please save the parameter file first.", null);
                     return false;
                 }
                 return true;
@@ -282,8 +280,8 @@ public class PropertyFileParameterPage extends ParameterPage {
             if (app != null) {
                 app.showWarningDialog("I/O Error",
                                       "Unable to read property file '" + propertyFile.getName() + "'." +
-                                      "\n\n" +
-                                      e.getMessage());
+                                              "\n\n" +
+                                              e.getMessage());
             }
             return false;
         }
@@ -316,7 +314,7 @@ public class PropertyFileParameterPage extends ParameterPage {
             public void actionPerformed(final ActionEvent event) {
                 final int answer = JOptionPane.showConfirmDialog((Component) event.getSource(),
                                                                  "Do you really want to reload the default parameters file?\n" +
-                                                                 "All current settings will be lost.");
+                                                                         "All current settings will be lost.");
                 if (answer == JOptionPane.YES_OPTION) {
                     setPropertyFileParameter(defaultPropertyFile);
                     restoreDefaultsButton.setEnabled(false);
@@ -350,7 +348,7 @@ public class PropertyFileParameterPage extends ParameterPage {
             while (propertyFile.equals(defaultPropertyFile) || !app.promptForOverwrite(propertyFile)) {
                 if (propertyFile.equals(defaultPropertyFile)) {
                     final String msgText = "It is not allowed to overwrite the default parameters file.\n" +
-                                           "Please choose a different file name.";
+                            "Please choose a different file name.";
                     if (getApp() != null) {
                         getApp().showWarningDialog(getTitle(), msgText);
                     } else {
@@ -378,8 +376,8 @@ public class PropertyFileParameterPage extends ParameterPage {
             final ProcessorApp app = getApp();
             if (app != null) {
                 app.showWarningDialog("I/O Error", "Unable to write '" + file.getName() + "'." +
-                                                   "\n\n" +
-                                                   e.getMessage());
+                        "\n\n" +
+                        e.getMessage());
             }
             return null;
         }
@@ -413,7 +411,7 @@ public class PropertyFileParameterPage extends ParameterPage {
         } catch (IOException e) {
             Debug.trace(e);
             final String msgText = "Not able to load parameters from file: \n"
-                                   + e.getMessage();
+                    + e.getMessage();
             if (getApp() != null) {
                 getApp().showErrorDialog(getTitle(), msgText);
             } else {

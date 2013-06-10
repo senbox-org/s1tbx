@@ -1,6 +1,5 @@
 package org.esa.beam.opendap.ui;
 
-import com.bc.ceres.core.ProgressBarProgressMonitor;
 import com.jidesoft.combobox.AbstractComboBox;
 import com.jidesoft.combobox.FolderChooserComboBox;
 import com.jidesoft.combobox.PopupPanel;
@@ -42,12 +41,14 @@ import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.JTree;
+import javax.swing.SwingWorker;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 import java.awt.BorderLayout;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -58,12 +59,11 @@ import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class OpendapAccessPanel extends JPanel {
+public class OpendapAccessPanel extends JPanel implements CatalogTree.UIContext {
 
     private static final String PROPERTY_KEY_SERVER_URLS = "opendap.server.urls";
     private final static int DDS_AREA_INDEX = 0;
@@ -165,32 +165,7 @@ public class OpendapAccessPanel extends JPanel {
             }
         });
 
-        catalogTree = new CatalogTree(new CatalogTree.LeafSelectionListener() {
-
-            @Override
-            public void dapLeafSelected(OpendapLeaf leaf) {
-                setMetadataText(metaInfoArea.getSelectedIndex(), leaf);
-            }
-
-            @Override
-            public void fileLeafSelected(OpendapLeaf leaf) {
-                setMetadataText(metaInfoArea.getSelectedIndex(), leaf);
-            }
-
-            @Override
-            public void leafSelectionChanged(boolean isSelected, OpendapLeaf dapObject) {
-                int dataSize = dapObject.getFileSize();
-                currentDataSize += isSelected ? dataSize : -dataSize;
-                if (currentDataSize <= 0) {
-                    updateStatusBar("Ready.");
-                    downloadButton.setEnabled(false);
-                } else {
-                    downloadButton.setEnabled(true);
-                    double dataSizeInMB = currentDataSize / 1024.0;
-                    updateStatusBar("Total size of currently selected files: " + OpendapUtils.format(dataSizeInMB) + " MB");
-                }
-            }
-        }, appContext);
+        catalogTree = new CatalogTree(new DefaultLeafSelectionListener(), appContext, this);
         useDatasetNameFilter = new JCheckBox("Use dataset name filter");
         useTimeRangeFilter = new JCheckBox("Use time range filter");
         useRegionFilter = new JCheckBox("Use region filter");
@@ -293,7 +268,8 @@ public class OpendapAccessPanel extends JPanel {
         textArea.setCaretPosition(0);
     }
 
-    private void updateStatusBar(String message) {
+    @Override
+    public void updateStatusBar(String message) {
         LabelStatusBarItem messageItem = (LabelStatusBarItem) statusBar.getItemByName("label");
         messageItem.setText(message);
     }
@@ -320,7 +296,7 @@ public class OpendapAccessPanel extends JPanel {
         }
     }
 
-    private boolean contains(JComboBox urlField, String url) {
+    private static boolean contains(JComboBox urlField, String url) {
         for (int i = 0; i < urlField.getItemCount(); i++) {
             if (urlField.getItemAt(i).toString().equals(url)) {
                 return true;
@@ -377,7 +353,7 @@ public class OpendapAccessPanel extends JPanel {
         final JPanel downloadButtonPanel = new JPanel(new BorderLayout(8, 5));
         downloadButtonPanel.setBorder(new EmptyBorder(8, 8, 8, 8));
         cancelButton = new JButton("Cancel");
-        final DownloadProgressBarProgressMonitor pm = new DownloadProgressBarProgressMonitor(progressBar, preMessageLabel, postMessageLabel, cancelButton);
+        final DownloadProgressBarPM pm = new DownloadProgressBarPM(progressBar, preMessageLabel, postMessageLabel, cancelButton);
         progressBar.setVisible(false);
         folderChooserComboBox = new FolderChooserComboBox() {
             @Override
@@ -437,7 +413,7 @@ public class OpendapAccessPanel extends JPanel {
         this.add(statusBar, BorderLayout.SOUTH);
     }
 
-    private DownloadAction createDownloadAction(DownloadProgressBarProgressMonitor pm) {
+    private DownloadAction createDownloadAction(DownloadProgressBarPM pm) {
         return new DownloadAction(pm, new ParameterProviderImpl(), new DownloadAction.DownloadHandler() {
 
             @Override
@@ -511,105 +487,12 @@ public class OpendapAccessPanel extends JPanel {
         }
     }
 
-    public static class DownloadProgressBarProgressMonitor extends ProgressBarProgressMonitor implements
-            LabelledProgressBarPM {
-
-        private final JProgressBar progressBar;
-        private final JLabel preMessageLabel;
-        private JLabel postMessageLabel;
-        private int totalWork;
-        private int currentWork;
-        private long startTime;
-        private JButton cancelButton;
-
-        public DownloadProgressBarProgressMonitor(JProgressBar progressBar, JLabel preMessageLabel, JLabel postMessageLabel, JButton cancelButton) {
-            super(progressBar, preMessageLabel);
-            this.progressBar = progressBar;
-            this.preMessageLabel = preMessageLabel;
-            this.postMessageLabel = postMessageLabel;
-            this.cancelButton = cancelButton;
-        }
-
-        @Override
-        public void setPreMessage(String preMessageText) {
-            setTaskName(preMessageText);
-        }
-
-        @Override
-        public void setPostMessage(String postMessageText) {
-            postMessageLabel.setText(postMessageText);
-        }
-
-        @Override
-        public void setTooltip(String tooltip) {
-            preMessageLabel.setToolTipText(tooltip);
-            postMessageLabel.setToolTipText(tooltip);
-            progressBar.setToolTipText(tooltip);
-        }
-
-        @Override
-        public void beginTask(String name, int totalWork) {
-            super.beginTask(name, totalWork);
-            this.totalWork = totalWork;
-            this.currentWork = 0;
-            progressBar.setValue(0);
-        }
-
-        @Override
-        public void worked(int work) {
-            super.worked(work);
-            currentWork += work;
-        }
-
-        @Override
-        protected void setDescription(String description) {
-        }
-
-        @Override
-        protected void setVisibility(boolean visible) {
-            // once the progress bar has been made visible, it shall always be visible
-            progressBar.setVisible(true);
-        }
-
-        @Override
-        protected void setRunning() {
-        }
-
-        @Override
-        protected void finish() {
-            cancelButton.setEnabled(false);
-        }
-
-        @Override
-        public int getTotalWork() {
-            return totalWork;
-        }
-
-        @Override
-        public int getCurrentWork() {
-            return currentWork;
-        }
-
-        public void updateTask(int additionalWork) {
-            totalWork += additionalWork;
-            progressBar.setMaximum(totalWork);
-            progressBar.updateUI();
-        }
-
-        public void resetStartTime() {
-            GregorianCalendar gc = new GregorianCalendar();
-            startTime = gc.getTimeInMillis();
-        }
-
-        public long getStartTime() {
-            return startTime;
-        }
-    }
-
     private class ParameterProviderImpl implements DownloadAction.ParameterProvider {
 
         Map<String, Boolean> dapURIs = new HashMap<String, Boolean>();
         List<String> fileURIs = new ArrayList<String>();
+        private boolean mayAlwaysOverwrite = false;
+        private boolean mayNeverOverwrite = false;
 
         @Override
         public Map<String, Boolean> getDapURIs() {
@@ -635,7 +518,7 @@ public class OpendapAccessPanel extends JPanel {
 
             for (TreePath selectionPath : selectionPaths) {
                 final DefaultMutableTreeNode treeNode = (DefaultMutableTreeNode) selectionPath.getLastPathComponent();
-                if (CatalogTree.isDapNode(treeNode) || CatalogTree.isFileNode(treeNode)) {
+                if (CatalogTreeUtils.isDapNode(treeNode) || CatalogTreeUtils.isFileNode(treeNode)) {
                     final OpendapLeaf leaf = (OpendapLeaf) treeNode.getUserObject();
                     if (leaf.isDapAccess()) {
                         dapURIs.put(leaf.getDapUri(), leaf.getFileSize() >= 2 * 1024 * 1024);
@@ -650,6 +533,8 @@ public class OpendapAccessPanel extends JPanel {
         public void reset() {
             dapURIs.clear();
             fileURIs.clear();
+            mayAlwaysOverwrite = false;
+            mayNeverOverwrite = false;
         }
 
         @Override
@@ -671,6 +556,92 @@ public class OpendapAccessPanel extends JPanel {
             }
             return targetDirectory;
         }
+
+        @Override
+        public boolean inquireOverwritePermission(String filename) {
+            if (mayAlwaysOverwrite) {
+                return true;
+            }
+            if (mayNeverOverwrite) {
+                return false;
+            }
+            boolean mayOverwrite = false;
+            String[] options = {
+                    "Overwrite",
+                    "Always overwrite",
+                    "Skip this file",
+                    "Never overwrite"
+            };
+            int result = JOptionPane.showOptionDialog(OpendapAccessPanel.this,
+                                                      "Target file '" + filename + "' already exists.",
+                                                      "Target file already exists",
+                                                      JOptionPane.DEFAULT_OPTION,
+                                                      JOptionPane.QUESTION_MESSAGE,
+                                                      null, options, "Yes");
+            switch (result) {
+                case 0:
+                    mayOverwrite = true;
+                    break;
+                case 1:
+                    mayOverwrite = true;
+                    mayAlwaysOverwrite = true;
+                    break;
+                case 2:
+                    mayOverwrite = false;
+                    break;
+                case 3:
+                    mayOverwrite = false;
+                    mayNeverOverwrite = true;
+                    break;
+            }
+            return mayOverwrite;
+        }
     }
 
+    private class DefaultLeafSelectionListener implements CatalogTree.LeafSelectionListener {
+
+        @Override
+        public void dapLeafSelected(final OpendapLeaf leaf) {
+            setText(leaf);
+        }
+
+        @Override
+        public void fileLeafSelected(OpendapLeaf leaf) {
+            setText(leaf);
+        }
+
+        private void setText(final OpendapLeaf leaf) {
+            new SwingWorker<Void, Void>() {
+
+                @Override
+                protected Void doInBackground() throws Exception {
+                    updateStatusBar("Retrieving metadata...");
+                    setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+                    setMetadataText(metaInfoArea.getSelectedIndex(), leaf);
+                    return null;
+                }
+
+                @Override
+                protected void done() {
+                    updateStatusBar("Ready.");
+                    setCursor(Cursor.getDefaultCursor());
+                }
+
+            }.execute();
+        }
+
+        @Override
+        public void leafSelectionChanged(boolean isSelected, OpendapLeaf dapObject) {
+            int dataSize = dapObject.getFileSize();
+            currentDataSize += isSelected ? dataSize : -dataSize;
+            if (currentDataSize <= 0) {
+                updateStatusBar("Ready.");
+                downloadButton.setEnabled(false);
+            } else {
+                downloadButton.setEnabled(true);
+                double dataSizeInMB = currentDataSize / 1024.0;
+                updateStatusBar("Total size of currently selected files: " + OpendapUtils.format(dataSizeInMB) + " MB");
+            }
+        }
+    }
 }

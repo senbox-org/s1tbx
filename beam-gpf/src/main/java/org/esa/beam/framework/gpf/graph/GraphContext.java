@@ -24,10 +24,16 @@ import org.esa.beam.framework.gpf.internal.OperatorConfiguration;
 import org.esa.beam.util.logging.BeamLogManager;
 
 import javax.media.jai.JAI;
-import java.awt.*;
+import java.awt.Dimension;
 import java.text.MessageFormat;
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Deque;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.logging.Logger;
 
 /**
@@ -65,7 +71,7 @@ public class GraphContext {
      * @param graph the {@link org.esa.beam.framework.gpf.graph.Graph} to create the context for
      * @throws GraphException if the graph context could not be created
      */
-    GraphContext(Graph graph, Operator graphOp) throws GraphException {
+    public GraphContext(Graph graph, Operator graphOp) throws GraphException {
         if (graph.getNodeCount() == 0) {
             throw new GraphException("Empty graph.");
         }

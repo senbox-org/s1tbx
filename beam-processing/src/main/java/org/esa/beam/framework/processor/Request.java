@@ -24,7 +24,6 @@ import org.esa.beam.util.ObjectUtils;
 
 import java.io.File;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
@@ -37,7 +36,10 @@ import java.util.Vector;
  * A request can contain the following entities: <ul> <li>any number of input products</li> <li>any number of output
  * products</li> <li>any number logging file locations</li> <li>any number parameters</li> <li>a type string</li> <li>an
  * associated request file</li> </ul>
+ *
+ * @deprecated since BEAM 4.11. Use the {@link org.esa.beam.framework.gpf Graph Processing Framework} instead.
  */
+@Deprecated
 public class Request implements Serializable {
 
     public static final String METADATA_ELEM_NAME_PROCESSING_REQUEST = "processing_request";
@@ -92,7 +94,6 @@ public class Request implements Serializable {
      * Adds an input product to the request.
      *
      * @param product the product to be added
-     *
      * @throws IllegalArgumentException when null is added
      */
     public void addInputProduct(ProductRef product) {
@@ -127,7 +128,6 @@ public class Request implements Serializable {
      * Retrieves the input product at a given index.
      *
      * @param index the product index
-     *
      * @throws ArrayIndexOutOfBoundsException
      */
     public ProductRef getInputProductAt(int index) {
@@ -138,7 +138,6 @@ public class Request implements Serializable {
      * Adds an output product to the request.
      *
      * @param product the product to be added
-     *
      * @throws IllegalArgumentException when null is added
      */
     public void addOutputProduct(ProductRef product) {
@@ -166,7 +165,6 @@ public class Request implements Serializable {
      * Retrieves the output product at a given index.
      *
      * @param index the product index
-     *
      * @throws ArrayIndexOutOfBoundsException
      */
     public ProductRef getOutputProductAt(int index) {
@@ -177,7 +175,6 @@ public class Request implements Serializable {
      * Adds a logging file location to the curreent request.
      *
      * @param logFile the logging file location.
-     *
      * @throws IllegalArgumentException on null argument
      */
     public void addLogFileLocation(File logFile) {
@@ -213,7 +210,6 @@ public class Request implements Serializable {
      * Retrieves the logging file location at a given index.
      *
      * @param index the logging file location index
-     *
      * @throws ArrayIndexOutOfBoundsException
      */
     public File getLogFileLocationAt(int index) {
@@ -224,7 +220,6 @@ public class Request implements Serializable {
      * Adds a parameter to the request.
      *
      * @param parameter the parameter to be added
-     *
      * @throws IllegalArgumentException when adding <code>null</code> parameter
      */
     public void addParameter(Parameter parameter) {
@@ -252,7 +247,6 @@ public class Request implements Serializable {
      * Retrieves the parameter at a given index.
      *
      * @param index the parameter index
-     *
      * @throws ArrayIndexOutOfBoundsException
      */
     public Parameter getParameterAt(int index) {
@@ -263,7 +257,6 @@ public class Request implements Serializable {
      * Retrieves a parameter by name.
      *
      * @param name the parameter name to be found. Must not be null or empty
-     *
      * @return a parameter with the given name or <code>null</code> if no parameter with the given name is found.
      */
     public Parameter getParameter(String name) {
@@ -301,7 +294,6 @@ public class Request implements Serializable {
      * Sets the type of request.
      *
      * @param type the request type
-     *
      * @throws IllegalArgumentException when passing <code>null</code> as argument
      */
     public void setType(String type) {
@@ -330,7 +322,6 @@ public class Request implements Serializable {
      *
      * @param request     the request for checking type
      * @param requestType the request type for check
-     *
      * @throws ProcessorException       if the given request to check is null
      * @throws ProcessorException       on invalid request type
      * @throws IllegalArgumentException if the given requestType is <code>null</code> or empty
@@ -349,7 +340,6 @@ public class Request implements Serializable {
      * Tests whether or not this request is for the given request type.
      *
      * @param requestType the request type for check
-     *
      * @return true if so, otherwise false.
      */
     public boolean isRequestType(String requestType) {

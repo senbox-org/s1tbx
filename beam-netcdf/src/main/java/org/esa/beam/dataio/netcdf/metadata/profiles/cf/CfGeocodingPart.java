@@ -45,6 +45,7 @@ import ucar.nc2.Variable;
 
 import java.awt.Dimension;
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.List;
 
 public class CfGeocodingPart extends ProfilePartIO {
@@ -250,9 +251,24 @@ public class CfGeocodingPart extends ProfilePartIO {
         double pixelSizeY;
 
         boolean yFlipped;
-
-        final Array lonData = lon.read();
+        Array lonData = lon.read();
+        // SPECIAL CASE: check if we have a global geographic lat/lon with lon from 0..360 instead of -180..180
+        if (isGlobalShifted180(lonData)) {
+            // if this is true, subtract 180 from all longitudes and
+            // add a global attribute which will be analyzed when setting up the image(s)
+            final List<Variable> variables = ctx.getNetcdfFile().getVariables();
+            for (Iterator<Variable> iterator = variables.iterator(); iterator.hasNext(); ) {
+                Variable next = iterator.next();
+                next.getAttributes().add(new Attribute("LONGITUDE_SHIFTED_180", 1));
+            }
+            for (int i = 0; i < lonData.getSize(); i++) {
+                final Index ii = lonData.getIndex().set(i);
+                final double theLon = lonData.getDouble(ii) - 180.0;
+                lonData.setDouble(ii, theLon);
+            }
+        }
         final Array latData = lat.read();
+
 
         final int lonSize = lon.getShape(0);
         final Index i0 = lonData.getIndex().set(0);
@@ -286,6 +302,16 @@ public class CfGeocodingPart extends ProfilePartIO {
                                 easting, northing,
                                 pixelSizeX, pixelSizeY,
                                 pixelX, pixelY);
+    }
+
+    private static boolean isGlobalShifted180(Array lonData) {
+        // todo: very draft implementation, works for NOAA CMAP precipitation files. to be further investigated!!
+        final Index i0 = lonData.getIndex().set(0);
+        final Index i1 = lonData.getIndex().set(1);
+        final Index iN = lonData.getIndex().set((int) lonData.getSize() - 1);
+        double lonDelta = (lonData.getDouble(i1) - lonData.getDouble(i0));
+
+        return (lonData.getDouble(0) < lonDelta && lonData.getDouble(iN) > 360.0 - lonDelta);
     }
 
     private static GeoCoding readPixelGeoCoding(Product product) throws IOException {

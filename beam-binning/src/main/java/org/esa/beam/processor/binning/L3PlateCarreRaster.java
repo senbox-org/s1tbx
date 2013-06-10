@@ -17,12 +17,14 @@ package org.esa.beam.processor.binning;
 
 import org.esa.beam.processor.binning.database.BinDatabaseConstants;
 
+@Deprecated
 /**
  * Class specialised in handling a latlon equi-rectangular non-projected raster
  * map.
  *
  * @author Thomas Lankester, Infoterra Ltd.
  * @version 0.10, 21/05/03
+ * @Deprecated since beam-binning 2.1.2 as part of the BEAM 4.11-release. Use module 'beam-binning2' instead.
  */
 public class L3PlateCarreRaster extends L3ProjectionRaster {
 

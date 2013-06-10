@@ -36,6 +36,7 @@ import org.esa.beam.framework.gpf.experimental.Output;
 import org.esa.beam.framework.gpf.internal.OperatorExecutor;
 import org.esa.beam.framework.gpf.internal.OperatorExecutor.ExecutionOrder;
 import org.esa.beam.jai.ImageManager;
+import org.esa.beam.util.Guardian;
 import org.esa.beam.util.math.MathUtils;
 
 import javax.media.jai.JAI;
@@ -127,11 +128,11 @@ public class WriteOp extends Operator implements Output {
 
     private ProductWriter productWriter;
     private List<Band> writableBands;
-    private boolean productFileWritten;
     private Dimension tileSize;
     private int tileCountX;
 
     private boolean outputFileExists = false;
+    private boolean incremental = false;
 
     public WriteOp() {
         setRequiresAllBands(true);
@@ -139,18 +140,10 @@ public class WriteOp extends Operator implements Output {
 
     public WriteOp(Product sourceProduct, File file, String formatName) {
         this();
+        Guardian.assertNotNull("file", file);
         this.sourceProduct = sourceProduct;
         this.file = file;
         this.formatName = formatName;
-    }
-
-    /**
-     * @deprecated since BEAM 4.9
-     */
-    @Deprecated
-    public WriteOp(Product sourceProduct, File file, String formatName, boolean deleteOutputOnFailure) {
-        this(sourceProduct, file, formatName);
-        this.deleteOutputOnFailure = deleteOutputOnFailure;
     }
 
     public File getFile() {
@@ -163,6 +156,10 @@ public class WriteOp extends Operator implements Output {
 
     public String getFormatName() {
         return formatName;
+    }
+
+    public void setIncremental(boolean incremental) {
+        this.incremental = incremental;
     }
 
     public void setFormatName(String formatName) {
@@ -203,7 +200,7 @@ public class WriteOp extends Operator implements Output {
         getLogger().info("Start writing product " + getTargetProduct().getName() + " to " + getFile());
         OperatorExecutor operatorExecutor = OperatorExecutor.create(this);
         try {
-            operatorExecutor.execute(ExecutionOrder.ROW_BAND_COLUMN, pm);
+            operatorExecutor.execute(ExecutionOrder.SCHEDULE_ROW_COLUMN_BAND, pm);
 
             getLogger().info("End writing product " + getTargetProduct().getName() + " to " + getFile());
 
@@ -239,7 +236,7 @@ public class WriteOp extends Operator implements Output {
         if (productWriter == null) {
             throw new OperatorException("No data product writer for the '" + formatName + "' format available");
         }
-        productWriter.setIncrementalMode(false);
+        productWriter.setIncrementalMode(incremental);
         targetProduct.setProductWriter(productWriter);
         final Band[] bands = targetProduct.getBands();
         writableBands = new ArrayList<Band>(bands.length);
@@ -253,6 +250,11 @@ public class WriteOp extends Operator implements Output {
         tileSize = ImageManager.getPreferredTileSize(targetProduct);
         targetProduct.setPreferredTileSize(tileSize);
         tileCountX = MathUtils.ceilInt(targetProduct.getSceneRasterWidth() / (double) tileSize.width);
+        try {
+            productWriter.writeProductNodes(targetProduct, file);
+        } catch (IOException e) {
+            throw new OperatorException("Not able to write product file: '" + file.getAbsolutePath() + "'", e);
+        }
     }
 
     @Override
@@ -261,12 +263,6 @@ public class WriteOp extends Operator implements Output {
             return;
         }
         try {
-            synchronized (this) {
-                if (!productFileWritten) {
-                    productWriter.writeProductNodes(targetProduct, file);
-                    productFileWritten = true;
-                }
-            }
             final Rectangle rect = targetTile.getRectangle();
             if (writeEntireTileRows) {
                 int tileX = MathUtils.floorInt(targetTile.getMinX() / (double) tileSize.width);
@@ -288,7 +284,6 @@ public class WriteOp extends Operator implements Output {
             if (deleteOutputOnFailure && !outputFileExists) {
                 try {
                     productWriter.deleteOutput();
-                    productFileWritten = false;
                 } catch (IOException ignored) {
                 }
             }
@@ -399,48 +394,6 @@ public class WriteOp extends Operator implements Output {
             todoLists.put(sourceImage, todoList);
         }
         return todoList;
-    }
-
-    /**
-     * @deprecated since BEAM 4.9
-     */
-    @Deprecated
-    public static void writeProduct(Product sourceProduct, File file, String formatName, ProgressMonitor pm) {
-        WriteOp writeOp = new WriteOp(sourceProduct, file, formatName);
-        writeOp.setWriteEntireTileRows(true);
-        writeOp.writeProduct(pm);
-    }
-
-    /**
-     * @deprecated since BEAM 4.9
-     */
-    @Deprecated
-    public static void writeProduct(Product sourceProduct,
-                                    File file,
-                                    String formatName,
-                                    boolean deleteOutputOnFailure,
-                                    ProgressMonitor pm) {
-        WriteOp writeOp = new WriteOp(sourceProduct, file, formatName);
-        writeOp.setDeleteOutputOnFailure(deleteOutputOnFailure);
-        writeOp.setWriteEntireTileRows(true);
-        writeOp.writeProduct(pm);
-    }
-
-    /**
-     * @deprecated since BEAM 4.9
-     */
-    @Deprecated
-    public static void writeProduct(Product sourceProduct,
-                                    File file,
-                                    String formatName,
-                                    boolean deleteOutputOnFailure,
-                                    boolean writeEntireTileRows,
-                                    ExecutionOrder executionOrder,
-                                    ProgressMonitor pm) {
-        WriteOp writeOp = new WriteOp(sourceProduct, file, formatName);
-        writeOp.setDeleteOutputOnFailure(deleteOutputOnFailure);
-        writeOp.setWriteEntireTileRows(writeEntireTileRows);
-        writeOp.writeProduct(pm);
     }
 
     @Override

@@ -3,7 +3,7 @@ package org.esa.beam.opendap.utils;
 import opendap.dap.DAP2Exception;
 import opendap.dap.DArrayDimension;
 import opendap.dap.DDS;
-import opendap.dap.parser.ParseException;
+import opendap.dap.parsers.ParseException;
 import org.esa.beam.opendap.datamodel.DAPVariable;
 import org.esa.beam.opendap.datamodel.OpendapLeaf;
 import org.junit.Test;
@@ -11,7 +11,7 @@ import thredds.catalog.InvDataset;
 
 import java.io.ByteArrayInputStream;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 public class VariableExtractorTest {
 
@@ -37,9 +37,9 @@ public class VariableExtractorTest {
         assertEquals("Float32", dapVariables[0].getDataType());
         assertEquals(2, dapVariables[0].getNumDimensions());
         final DArrayDimension[] dimensions = dapVariables[0].getDimensions();
-        assertEquals("Y", dimensions[0].getName());
+        assertEquals("Y", dimensions[0].getEncodedName());
         assertEquals(849, dimensions[0].getSize());
-        assertEquals("X", dimensions[1].getName());
+        assertEquals("X", dimensions[1].getEncodedName());
         assertEquals(1121, dimensions[1].getSize());
     }
 

@@ -42,10 +42,13 @@
     <changelog>
         <![CDATA[
         <p/>Changes in 5.0:<br/>
+        [BEAM-1514] ProductUtils.getScanLineTime fails for products with height 1<br/>
+        [BEAM-1513] BEAM shall enable users to use Modified Julian Date (MJD) in band arithmetics<br/>
         [BEAM-1456] All bands shall use same image pyramid model<br/>
-        <p/>Changes in 4.10.4:<br/>
+        <p/>Changes in 4.11:<br/>
+        [BEAM-1420] Support (A)ATSR Autumn 2012 reprocessed data products<br/>
+        [BEAM-1126] Pixel-geocoding comsumes to much memory<br/>
         [BEAM-1471] The time extraction from file name should support DAY_OF_YEAR<br/>
-        <p/>Changes in 4.10.4:<br/>
         [BEAM-1447] Dimap reader\writer handling very very large files<br/>
         <p/>Changes in 4.10.3:<br/>
         [BEAM-1427] Histogram for SPOT SM Band not correct<br/>

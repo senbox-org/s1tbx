@@ -1,9 +1,24 @@
+/*
+ * Copyright (C) 2013 Brockmann Consult GmbH (info@brockmann-consult.de)
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 3 of the License, or (at your option)
+ * any later version.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, see http://www.gnu.org/licenses/
+ */
+
 package org.esa.beam.binning.support;
 
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 /**
  * @author Norman Fomferra
@@ -43,12 +58,12 @@ public class SeadasGridTest {
         //
         //  Calvalus           SeaDAS (minus one)
         //  row     bin        row      bin
-        //   0    0 ..  2       5    43 .. 45
-        //   1    3 .. 10       4    35 .. 42
-        //   2   11 .. 22       3    23 .. 34
-        //   3   23 .. 34       2    11 .. 22
-        //   4   35 .. 42       1     3 .. 10
-        //   5   43 .. 45       0     0 ..  2
+        //   0    0 ..  2       5    44 .. 46
+        //   1    3 .. 10       4    36 .. 43
+        //   2   11 .. 22       3    24 .. 35
+        //   3   23 .. 34       2    12 .. 23
+        //   4   35 .. 42       1     4 .. 11
+        //   5   43 .. 45       0     1 ..  3
 
         SeadasGrid seadasGrid = new SeadasGrid(baseGrid);
 

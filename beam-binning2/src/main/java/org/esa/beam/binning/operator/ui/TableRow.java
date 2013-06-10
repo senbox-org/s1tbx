@@ -17,6 +17,7 @@
 package org.esa.beam.binning.operator.ui;
 
 import org.esa.beam.binning.AggregatorDescriptor;
+import org.esa.beam.util.StringUtils;
 
 /**
  * Simple configuration class containing a number of public final fields.
@@ -29,27 +30,24 @@ class TableRow {
     final String expression;
     final AggregatorDescriptor aggregator;
     final Double weight;
-    final Float fillValue;
-    public Integer percentile;
+    final Integer percentile;
 
-    TableRow(String name, String expression, AggregatorDescriptor aggregator, Double weight, Integer percentile, Float fillValue) {
-        this.name = name;
-        this.expression = expression;
+    TableRow(String name, String expression, AggregatorDescriptor aggregator, Double weight, Integer percentile) {
+        this.name = name.replace("<", "").replace(">", "");
+        this.expression = StringUtils.isNullOrEmpty(expression) ? null : expression;
         this.aggregator = aggregator;
         this.weight = weight;
         this.percentile = percentile;
-        this.fillValue = fillValue;
     }
 
     @Override
     public String toString() {
         return "TableRow{" +
-                "aggregator=" + aggregator +
-                ", name='" + name + '\'' +
-                ", expression='" + expression + '\'' +
-                ", weight=" + weight +
-                ", percentile=" + percentile +
-                ", fillValue=" + fillValue +
-                '}';
+               "aggregator=" + aggregator +
+               ", name='" + name + '\'' +
+               ", expression='" + expression + '\'' +
+               ", weight=" + weight +
+               ", percentile=" + percentile +
+               '}';
     }
 }

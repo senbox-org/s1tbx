@@ -107,7 +107,6 @@ class StatisticsPanel extends PagePanel implements MultipleRoiComputePanel.Compu
     private ExportStatisticsAsCsvAction exportAsCsvAction;
     private PutStatisticsIntoVectorDataAction putStatisticsIntoVectorDataAction;
     private AccuracyModel accuracyModel;
-    private int maxMaskNameLength;
 
     public StatisticsPanel(final ToolView parentDialog, String helpID) {
         super(parentDialog, helpID, TITLE_PREFIX);
@@ -173,46 +172,14 @@ class StatisticsPanel extends PagePanel implements MultipleRoiComputePanel.Compu
         contentScrollPane.setBackground(Color.WHITE);
 
         backgroundPanel = new JPanel(new GridBagLayout());
-        backgroundPanel.add(contentScrollPane);
-        backgroundPanel.add(rightPanel);
-        adjustBackgroundPanelLayout();
+        GridBagConstraints gbc = new GridBagConstraints();
+        GridBagUtils.addToPanel(backgroundPanel, contentScrollPane, gbc, "fill=BOTH, weightx=1.0, weighty=1.0, anchor=NORTH");
+        GridBagUtils.addToPanel(backgroundPanel, rightPanel, gbc, "gridx=1, fill=VERTICAL, weightx=0.0");
 
         JLayeredPane layeredPane = new JLayeredPane();
-        layeredPane.add(backgroundPanel, new Integer(0));
-        layeredPane.add(hideAndShowButton, new Integer(1));
+        layeredPane.add(backgroundPanel);
+        layeredPane.add(hideAndShowButton);
         add(layeredPane);
-    }
-
-    @Override
-    protected void handleNodeSelectionChanged() {
-        super.handleNodeSelectionChanged();
-        adjustBackgroundPanelLayout();
-    }
-
-    private void determineMaxMaskNameLength() {
-        maxMaskNameLength = 0;
-        if (getProduct() != null) {
-            final ProductNodeGroup<Mask> maskGroup = getProduct().getMaskGroup();
-            for (int i = 0; i < maskGroup.getNodeCount(); i++) {
-                final String maskName = maskGroup.get(i).getName();
-                if (maskName.length() > maxMaskNameLength) {
-                    maxMaskNameLength = maskName.length();
-                }
-            }
-        }
-
-    }
-
-    private void adjustBackgroundPanelLayout() {
-        determineMaxMaskNameLength();
-        int padx = maxMaskNameLength * 3 + 20;
-        GridBagConstraints gbc = new GridBagConstraints();
-        final Component[] components = backgroundPanel.getComponents();
-        backgroundPanel.removeAll();
-        GridBagUtils.addToPanel(backgroundPanel, components[0], gbc, "fill=BOTH, weightx=1.0, weighty=1.0, anchor=NORTH");
-        GridBagUtils.addToPanel(backgroundPanel, components[1], gbc, "gridx=1, fill=VERTICAL, weightx=0.0,ipadx=" + padx);
-        backgroundPanel.revalidate();
-        backgroundPanel.repaint();
     }
 
     private JPanel createAccuracyPanel() {
@@ -424,11 +391,11 @@ class StatisticsPanel extends PagePanel implements MultipleRoiComputePanel.Compu
 
         Object[][] tableData = new Object[][]{
                 new Object[]{"#Pixels total:", histogram.getTotals()[0]},
-                new Object[]{"Minimum:", histogram.getLowValue()[0]},
-                new Object[]{"Maximum:", histogram.getHighValue()[0]},
-                new Object[]{"Mean:", histogram.getMean()[0]},
-                new Object[]{"Sigma:", histogram.getStandardDeviation()[0]},
-                new Object[]{"Median:", histogram.getPTileThreshold(0.5)[0]},
+                new Object[]{"Minimum:", stx.getMinimum()},
+                new Object[]{"Maximum:", stx.getMaximum()},
+                new Object[]{"Mean:", stx.getMean()},
+                new Object[]{"Sigma:", stx.getStandardDeviation()},
+                new Object[]{"Median:", stx.getMedian()},
                 new Object[]{"P75 threshold:", histogram.getPTileThreshold(0.75)[0]},
                 new Object[]{"P80 threshold:", histogram.getPTileThreshold(0.80)[0]},
                 new Object[]{"P85 threshold:", histogram.getPTileThreshold(0.85)[0]},
@@ -681,6 +648,7 @@ class StatisticsPanel extends PagePanel implements MultipleRoiComputePanel.Compu
     // The fields of this class are used by the binding framework
     @SuppressWarnings("UnusedDeclaration")
     static class AccuracyModel {
+
         private int accuracy = 3;
         private boolean useAutoAccuracy = true;
     }

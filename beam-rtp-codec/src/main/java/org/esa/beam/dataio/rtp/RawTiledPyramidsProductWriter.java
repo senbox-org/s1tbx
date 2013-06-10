@@ -43,6 +43,7 @@ import java.util.HashSet;
 import java.util.Properties;
 
 public class RawTiledPyramidsProductWriter extends AbstractProductWriter {
+
     private File headerFile;
     private HashSet<Band> writtenBands;
     private final ProductNodeHandler productNodeHandler;
@@ -62,10 +63,8 @@ public class RawTiledPyramidsProductWriter extends AbstractProductWriter {
         final ProductDescriptor productDescriptor = createProductDescriptor(product);
         final XStream xStream = RawTiledPyramidsProductCodecSpi.createXStream();
         final File productDir = headerFile.getParentFile();
-        if (!productDir.exists()) {
-            if (!productDir.mkdirs()) {
-                throw new IOException("Failed to create product folder.");
-            }
+        if (productDir != null && !productDir.exists() && !productDir.mkdirs()) {
+            throw new IOException("Failed to create product folder.");
         }
         final FileWriter writer = new FileWriter(headerFile);
         try {
@@ -112,7 +111,8 @@ public class RawTiledPyramidsProductWriter extends AbstractProductWriter {
         return bandList.toArray(new BandDescriptor[bandList.size()]);
     }
 
-    public synchronized void writeBandRasterData(Band band, int sourceOffsetX, int sourceOffsetY, int sourceWidth, int sourceHeight, ProductData sourceBuffer, ProgressMonitor pm) throws IOException {
+    public synchronized void writeBandRasterData(Band band, int sourceOffsetX, int sourceOffsetY, int sourceWidth, int sourceHeight,
+                                                 ProductData sourceBuffer, ProgressMonitor pm) throws IOException {
         if (writtenBands.contains(band)) {
             return;
         }
@@ -135,11 +135,11 @@ public class RawTiledPyramidsProductWriter extends AbstractProductWriter {
         final double[] flatmatrix = new double[6];
         image.getModel().getImageToModelTransform(0).getMatrix(flatmatrix);
         imageProperties.setProperty("i2mTransform", flatmatrix[0]
-                + "," + flatmatrix[1]
-                + "," + flatmatrix[2]
-                + "," + flatmatrix[3]
-                + "," + flatmatrix[4]
-                + "," + flatmatrix[5]);
+                                                    + "," + flatmatrix[1]
+                                                    + "," + flatmatrix[2]
+                                                    + "," + flatmatrix[3]
+                                                    + "," + flatmatrix[4]
+                                                    + "," + flatmatrix[5]);
         imageProperties.store(new FileWriter(new File(bandDir, "image.properties")), "File created by " + getClass());
 
 
@@ -212,8 +212,11 @@ public class RawTiledPyramidsProductWriter extends AbstractProductWriter {
 
     public synchronized void deleteOutput() throws IOException {
         close();
-        final File dir = headerFile.getParentFile();
         headerFile.delete();
+        final File dir = headerFile.getParentFile();
+        if (dir == null) {
+            throw new IOException("Could not retrieve the parent directory of '" + headerFile.getAbsolutePath() + "'.");
+        }
         final Product product = getSourceProduct();
         final String[] bandNames = product.getBandNames();
         for (String bandName : bandNames) {
@@ -226,6 +229,7 @@ public class RawTiledPyramidsProductWriter extends AbstractProductWriter {
     }
 
     private class ProductNodeHandler implements ProductNodeListener {
+
         public void nodeChanged(ProductNodeEvent event) {
         }
 

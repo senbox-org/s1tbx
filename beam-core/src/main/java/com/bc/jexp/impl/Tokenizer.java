@@ -284,7 +284,6 @@ public final class Tokenizer {
      * The keywords are not allowed as external names.
      *
      * @param name the name to test
-     *
      * @return <code>true</code> if the name is a valid external name, <code>false</code> otherwise
      */
     public static boolean isExternalName(final String name) {
@@ -308,7 +307,6 @@ public final class Tokenizer {
      * the name is escaped with single quotes.
      *
      * @param name the name
-     *
      * @return a valid external name
      */
     public static String createExternalName(final String name) {

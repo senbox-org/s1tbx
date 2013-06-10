@@ -2,6 +2,7 @@ package org.esa.beam.opendap.ui;
 
 import org.esa.beam.framework.gpf.ui.DefaultAppContext;
 import org.esa.beam.opendap.datamodel.OpendapLeaf;
+import org.junit.Assume;
 import org.junit.Test;
 import thredds.catalog.InvAccessImpl;
 import thredds.catalog.InvCatalog;
@@ -20,6 +21,7 @@ import javax.swing.tree.TreeCellRenderer;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
+import java.awt.GraphicsEnvironment;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -32,7 +34,8 @@ public class CatalogTree_simpleDifferentTests {
 
     @Test
     public void testThatGetComponentGetsAWellDefinedJTreeComponent() {
-        final CatalogTree catalogTree = new CatalogTree(null, new DefaultAppContext(""));
+        Assume.assumeTrue(!GraphicsEnvironment.isHeadless());
+        final CatalogTree catalogTree = new CatalogTree(null, new DefaultAppContext(""), null);
         final Component component = catalogTree.getComponent();
 
         assertNotNull(component);
@@ -53,7 +56,7 @@ public class CatalogTree_simpleDifferentTests {
 
     @Test
     public void testThatAWellDefinedRootNodeIsCreated() {
-        final DefaultMutableTreeNode rootNode = CatalogTree.createRootNode();
+        final DefaultMutableTreeNode rootNode = CatalogTreeUtils.createRootNode();
         assertNotNull(rootNode);
 
         final Object userObject = rootNode.getUserObject();
@@ -69,7 +72,7 @@ public class CatalogTree_simpleDifferentTests {
         assertNotNull(renderer1);
         assertEquals(true, renderer1 instanceof DefaultTreeCellRenderer);
 
-        CatalogTree.addCellRenderer(jTree);
+        CatalogTreeUtils.addCellRenderer(jTree);
 
         final TreeCellRenderer renderer2 = jTree.getCellRenderer();
         assertNotNull(renderer2);
@@ -80,7 +83,7 @@ public class CatalogTree_simpleDifferentTests {
     @Test
     public void testThatRendererRendersDifferentTypes() {
         final JTree jTree = new JTree();
-        CatalogTree.addCellRenderer(jTree);
+        CatalogTreeUtils.addCellRenderer(jTree);
         final TreeCellRenderer dapCellRenderer = jTree.getCellRenderer();
 
         final OpendapLeaf opendapLeaf = new OpendapLeaf("This is A dap Node", new InvDataset(null, "") {
@@ -99,9 +102,6 @@ public class CatalogTree_simpleDifferentTests {
         final DefaultTreeCellRenderer tcr1 = (DefaultTreeCellRenderer) component;
         assertEquals("otherNode", tcr1.getText());
         assertEquals(true, tcr1.getIcon() instanceof ImageIcon);
-        final ImageIcon icon1 = (ImageIcon) tcr1.getIcon();
-        // todo change the expected icon to a realistic icon
-        assertEquals("/NoAccess16.png", icon1.getDescription().substring(icon1.getDescription().lastIndexOf("/")));
 
         final Color foreground = tcr1.getForeground();
         final Color background = tcr1.getBackground();
@@ -143,7 +143,8 @@ public class CatalogTree_simpleDifferentTests {
 
     @Test
     public void testGetLeaves() throws Exception {
-        final CatalogTree catalogTree = new CatalogTree(null, new DefaultAppContext(""));
+        Assume.assumeTrue(!GraphicsEnvironment.isHeadless());
+        final CatalogTree catalogTree = new CatalogTree(null, new DefaultAppContext(""), null);
         List<InvDataset> datasets = new ArrayList<InvDataset>();
         InvCatalog catalog = new InvCatalogImpl("catalogName", "1.0", new URI("http://x.y"));
         final InvDataset rootDataset = createDataset(catalog, "first", "OPENDAP");

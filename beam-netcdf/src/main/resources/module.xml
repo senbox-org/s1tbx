@@ -17,7 +17,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-netcdf</symbolicName>
-    <version>1.1.2</version>
+    <version>1.1.3</version>
     <name>NetCDF Product Reader and Writer</name>
     <description>
         A product reader and writer for NetCDF files. It supports metadata profiles for CF, BEAM, HDF-EOS, ODESA.
@@ -31,8 +31,11 @@
 
     <changelog>
         <![CDATA[
-        <!--Changes in 1.1.3:<br/>-->
-        <!--Adapted to BEAM 5.0<br/>-->
+        Changes in 1.1.3:<br/>
+        [BEAM-1506] - Scalar variables are wrongly written to NetCDF4<br/>
+        [BEAM-1505] - HDF-EOS reader should scale bands to highest resolution<br/>
+        [BEAM-1504] - Update NetCDF library to version 4.3.16<br/>
+        Adapted to BEAM 5.0<br/>
         Changes in 1.1.2:<br/>
         Extend MetadataUtils with maxNumValuesRead in methods
             readNetcdfMetadata(NetcdfFile, MetadataElement, int maxNumValuesRead)
@@ -137,6 +140,15 @@
             <useAllFileFilter>true</useAllFileFilter>
             <shortDescr>Writes a product in NetCDF-4/BEAM format</shortDescr>
             <description>Writes a product in NetCDF-4/BEAM format</description>
+            <helpId>exportNetCdf4Product</helpId>
+        </action>
+        <action>
+            <id>exportNetCdf4CFProduct</id>
+            <class>org.esa.beam.visat.actions.ProductExportAction</class>
+            <formatName>NetCDF4-CF</formatName>
+            <useAllFileFilter>true</useAllFileFilter>
+            <shortDescr>Writes a product in NetCDF-4/CF format</shortDescr>
+            <description>Writes a product in NetCDF-4/CF format</description>
             <helpId>exportNetCdf4Product</helpId>
         </action>
     </extension>

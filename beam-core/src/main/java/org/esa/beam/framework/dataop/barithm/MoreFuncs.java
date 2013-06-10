@@ -16,11 +16,21 @@
 
 package org.esa.beam.framework.dataop.barithm;
 
-import com.bc.jexp.*;
+import com.bc.jexp.EvalEnv;
+import com.bc.jexp.EvalException;
+import com.bc.jexp.Symbol;
+import com.bc.jexp.Term;
+import com.bc.jexp.WritableNamespace;
 import com.bc.jexp.impl.AbstractFunction;
 import com.bc.jexp.impl.AbstractSymbol;
 import com.bc.jexp.impl.SymbolFactory;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.GeoCoding;
+import org.esa.beam.framework.datamodel.GeoPos;
+import org.esa.beam.framework.datamodel.PixelPos;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.util.ProductUtils;
 
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Method;
@@ -146,8 +156,10 @@ class MoreFuncs {
                         return longitude;
                     }
                 };
+                final Symbol mjd = new MJD(product);
                 BandArithmetic.registerSymbol(lat);
                 BandArithmetic.registerSymbol(lon);
+                BandArithmetic.registerSymbol(mjd);
             }
         });
     }
@@ -169,8 +181,8 @@ class MoreFuncs {
             final String methodName = method.getName();
             final Class methodType = method.getReturnType();
             if (methodType.isPrimitive() &&
-                    MoreFuncs.hasGetterPrefix(methodName) &&
-                    method.getParameterTypes().length == 0) {
+                MoreFuncs.hasGetterPrefix(methodName) &&
+                method.getParameterTypes().length == 0) {
                 Object propertyValue = null;
                 try {
                     propertyValue = method.invoke(band, (Object[]) null);
@@ -189,12 +201,12 @@ class MoreFuncs {
     private static void registerConstant(WritableNamespace namespace, final String symbolName, Object propertyValue) {
         final Class getterType = propertyValue.getClass();
         if (getterType.equals(Double.class) ||
-                getterType.equals(Float.class)) {
+            getterType.equals(Float.class)) {
             namespace.registerSymbol(SymbolFactory.createConstant(symbolName, ((Number) propertyValue).doubleValue()));
         } else if (getterType.equals(Byte.class) ||
-                getterType.equals(Short.class) ||
-                getterType.equals(Integer.class) ||
-                getterType.equals(Long.class)) {
+                   getterType.equals(Short.class) ||
+                   getterType.equals(Integer.class) ||
+                   getterType.equals(Long.class)) {
             namespace.registerSymbol(SymbolFactory.createConstant(symbolName, ((Number) propertyValue).intValue()));
         } else if (getterType.equals(Boolean.class)) {
             namespace.registerSymbol(
@@ -242,5 +254,25 @@ class MoreFuncs {
 
     private static double cosech(final double x) {
         return 2.0 / (Math.exp(x) - Math.exp(-x));
+    }
+
+    static class MJD extends AbstractSymbol.D {
+
+        private final Product product;
+
+        public MJD(Product product) {
+            super("MJD");
+            this.product = product;
+        }
+
+        @Override
+        public double evalD(EvalEnv env) throws EvalException {
+            int pixelY = ((RasterDataEvalEnv) env).getPixelY();
+            ProductData.UTC scanLineTime = ProductUtils.getScanLineTime(product, pixelY);
+            if (scanLineTime != null) {
+                return scanLineTime.getMJD();
+            }
+            return Double.NaN;
+        }
     }
 }

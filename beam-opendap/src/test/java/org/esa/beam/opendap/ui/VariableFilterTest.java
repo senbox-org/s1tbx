@@ -29,8 +29,7 @@ import thredds.catalog.InvDataset;
 
 import javax.swing.JCheckBox;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * @author Thomas Storm
@@ -46,7 +45,7 @@ public class VariableFilterTest {
     @Before
     public void setUp() {
         Lm.verifyLicense("Brockmann Consult", "BEAM", "lCzfhklpZ9ryjomwWxfdupxIcuIoCxg2");
-        variableFilter = new VariableFilter(new JCheckBox(), new CatalogTree(null, new DefaultAppContext("")));
+        variableFilter = new VariableFilter(new JCheckBox(), new CatalogTree(null, new DefaultAppContext(""), null));
         variableFilter.getUI();
         leaf = new OpendapLeaf("leafName", new InvDataset(null, "") {
         });

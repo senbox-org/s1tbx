@@ -24,7 +24,7 @@ import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
 import org.esa.beam.binning.AggregatorConfig;
 import org.esa.beam.binning.AggregatorDescriptor;
-import org.esa.beam.binning.AggregatorDescriptorRegistry;
+import org.esa.beam.binning.TypedDescriptorsRegistry;
 import org.esa.beam.binning.operator.BinningConfig;
 import org.esa.beam.binning.operator.BinningOp;
 import org.esa.beam.binning.operator.FormatterConfig;
@@ -91,22 +91,19 @@ public class BinningDialog extends SingleTargetProductDialog {
             variableConfigs.add(new VariableConfig(tableRow.name, tableRow.expression));
             aggregatorConfigs.add(createAggregatorConfig(tableRow.aggregator.getName(),
                                                          tableRow.name,
-                                                         tableRow.fillValue,
                                                          tableRow.weight,
                                                          tableRow.percentile));
         }
         return createBinningConfig(variableConfigs, aggregatorConfigs);
     }
 
-    private AggregatorConfig createAggregatorConfig(String aggregatorName, String varName, Float fillValue, Double weightCoeff, int percentile) {
-        AggregatorDescriptor aggregatorDescriptor = AggregatorDescriptorRegistry.getInstance().getAggregatorDescriptor(aggregatorName);
-        final AggregatorConfig aggregatorConfig = aggregatorDescriptor.createAggregatorConfig();
+    private AggregatorConfig createAggregatorConfig(String aggregatorName, String varName, Double weightCoeff, int percentile) {
+        TypedDescriptorsRegistry registry = TypedDescriptorsRegistry.getInstance();
+        AggregatorDescriptor aggregatorDescriptor = registry.getDescriptor(AggregatorDescriptor.class, aggregatorName);
+        final AggregatorConfig aggregatorConfig = aggregatorDescriptor.createConfig();
         PropertyContainer pc = PropertyContainer.createObjectBacked(aggregatorConfig);
         if (pc.isPropertyDefined("varName")) {
             pc.setValue("varName", varName);
-        }
-        if (pc.isPropertyDefined("fillValue")) {
-            pc.setValue("fillValue", fillValue);
         }
         if (pc.isPropertyDefined("weightCoeff")) {
             pc.setValue("weightCoeff", weightCoeff);

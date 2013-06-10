@@ -450,7 +450,7 @@ public class ReprojectorTest {
         }
 
         @Override
-        public void renderBin(int x, int y, TemporalBin temporalBin, WritableVector outputVector) throws IOException {
+        public void renderBin(int x, int y, TemporalBin temporalBin, Vector outputVector) throws IOException {
             nobsData[y * w + x] = temporalBin.getNumObs();
         }
 

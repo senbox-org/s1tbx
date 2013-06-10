@@ -33,8 +33,11 @@ import org.esa.beam.util.Guardian;
 
 import java.util.logging.Logger;
 
+@Deprecated
 /**
  * The main class for the BEAM Level 3 processor.
+ *
+ * @Deprecated since beam-binning 2.1.2 as part of the BEAM 4.11-release. Use module 'beam-binning2' instead.
  */
 public class L3Processor extends Processor {
 
@@ -75,6 +78,7 @@ public class L3Processor extends Processor {
 
     /**
      * Constructs the processor.
+     *
      * @param uiType one of {@link #UI_TYPE_INIT}, {@link #UI_TYPE_UPDATE}, {@link #UI_TYPE_FINAL}, {@link #UI_TYPE_ONE_SHOT}
      */
     public L3Processor(final int uiType) {
@@ -241,7 +245,6 @@ public class L3Processor extends Processor {
      * Retrieves a progress message for the request passed in. Override this method if you need custom messaging.
      *
      * @param request
-     *
      * @return the progress message
      */
     @Override

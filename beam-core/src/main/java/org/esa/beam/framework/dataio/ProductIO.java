@@ -21,12 +21,14 @@ import org.esa.beam.dataio.dimap.DimapProductConstants;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.util.Guardian;
+import org.esa.beam.util.logging.BeamLogManager;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.logging.Logger;
 
 /**
  * The <code>ProductIO</code> class provides several utility methods concerning data I/O for remote sensing data
@@ -246,11 +248,15 @@ public class ProductIO {
      * @see ProductReader#readProductNodes(Object, ProductSubsetDef)
      */
     public static ProductReader getProductReaderForInput(Object input) {
+        Logger logger = BeamLogManager.getSystemLogger();
+        logger.fine("searching reader plugin for '" + input + "'");
         ProductIOPlugInManager registry = ProductIOPlugInManager.getInstance();
         Iterator<ProductReaderPlugIn> it = registry.getAllReaderPlugIns();
         ProductReaderPlugIn selectedPlugIn = null;
         while (it.hasNext()) {
             ProductReaderPlugIn plugIn = it.next();
+
+            logger.fine("checking reader plugin " + plugIn.getClass().getName());
             DecodeQualification decodeQualification = plugIn.getDecodeQualification(input);
             if (decodeQualification == DecodeQualification.INTENDED) {
                 selectedPlugIn = plugIn;
@@ -260,9 +266,12 @@ public class ProductIO {
             }
         }
         if (selectedPlugIn != null) {
+            logger.fine("selected " + selectedPlugIn.getClass().getName());
             return selectedPlugIn.createReaderInstance();
+        } else {
+            logger.fine("no suitable reader plugin found");
+            return null;
         }
-        return null;
     }
 
     /**
