@@ -84,6 +84,49 @@ public class SARGeocoding {
         }
     }
 
+    public static void computeSensorPositionsAndVelocities(AbstractMetadata.OrbitStateVector[] orbitStateVectors,
+                                                           double[] timeArray, double[] xPosArray,
+                                                           double[] yPosArray, double[] zPosArray,
+                                                           double[] xVelArray, double[] yVelArray, double[] zVelArray,
+                                                           double[][] sensorPosition, double[][] sensorVelocity,
+                                                           double firstLineUTC, double lineTimeInterval,
+                                                           int sourceImageHeight) {
+
+        final int numVectors = orbitStateVectors.length;
+        final int numVectorsUsed = timeArray.length;
+        final int d = numVectors / numVectorsUsed;
+
+        for (int i = 0; i < numVectorsUsed; i++) {
+            timeArray[i] = orbitStateVectors[i*d].time_mjd;
+            xPosArray[i] = orbitStateVectors[i*d].x_pos; // m
+            yPosArray[i] = orbitStateVectors[i*d].y_pos; // m
+            zPosArray[i] = orbitStateVectors[i*d].z_pos; // m
+            xVelArray[i] = orbitStateVectors[i*d].x_vel; // m/s
+            yVelArray[i] = orbitStateVectors[i*d].y_vel; // m/s
+            zVelArray[i] = orbitStateVectors[i*d].z_vel; // m/s
+        }
+
+        final PosVector pos = new PosVector();
+
+        // Lagrange polynomial interpolation
+        for (int i = 0; i < sourceImageHeight; i++) {
+            final double time = firstLineUTC + i*lineTimeInterval; // zero Doppler time (in days) for each range line
+
+            final double[] weight = MathUtils.lagrangeWeight(timeArray, time);
+            MathUtils.lagrangeInterpolatingPolynomial(xPosArray, yPosArray, zPosArray, weight, pos);
+
+            sensorPosition[i][0] = pos.x;
+            sensorPosition[i][1] = pos.y;
+            sensorPosition[i][2] = pos.z;
+
+            MathUtils.lagrangeInterpolatingPolynomial(xVelArray, yVelArray, zVelArray, weight, pos);
+
+            sensorVelocity[i][0] = pos.x;
+            sensorVelocity[i][1] = pos.y;
+            sensorVelocity[i][2] = pos.z;
+        }
+    }
+
     public static double getEarthPointZeroDopplerTimeNewton(final double firstLineUTC,
                                                       final double lineTimeInterval, final double wavelength,
                                                       final double[] earthPoint, final double[][] sensorPosition,
