@@ -500,7 +500,7 @@ public class GCPSelectionOp extends Operator {
                             //System.out.println();
 
                         } //else {
-                            //System.out.println("GCP(" + i + ") is invalid.");
+                            //System.out.println("GCP(" + mPin.getName() + ") is invalid.");
                         //}
                     }
 
@@ -682,7 +682,7 @@ public class GCPSelectionOp extends Operator {
             } else {
                 offset[0] = (w - peakCol)*nRgLooks;
             }
-            System.out.println("offsetX = " + offset[0] + ", offsetY = " + offset[1]);
+            // System.out.println("offsetX = " + offset[0] + ", offsetY = " + offset[1]);
 
         } catch(Throwable e) {
             OperatorUtils.catchOperatorException(getId()+ " getCoarseSlaveGCPPosition ", e);
@@ -769,18 +769,8 @@ public class GCPSelectionOp extends Operator {
 
         try {
             final double[] mI = getMasterImagette(mGCPPixelPos);
-            if (!checkImagetteValidity(masterBand1.getNoDataValue(), mI)) {
-                return false;
-            }
             //System.out.println("Master imagette:");
             //outputRealImage(mI);
-
-            double[] sI = getSlaveImagette(slaveBand, slaveBand2, sGCPPixelPos);
-            if (!checkImagetteValidity(slaveBand.getNoDataValue(), sI)) {
-                return false;
-            }
-            //System.out.println("Slave imagette:");
-            //outputRealImage(sI);
 
             double rowShift = gcpTolerance + 1;
             double colShift = gcpTolerance + 1;
@@ -796,6 +786,10 @@ public class GCPSelectionOp extends Operator {
                     return false;
                 }
 
+                final double[] sI = getSlaveImagette(slaveBand, slaveBand2, sGCPPixelPos);
+                //System.out.println("Slave imagette:");
+                //outputRealImage(sI);
+
                 final double[] shift = {0,0};
                 if (!getSlaveGCPShift(shift, mI, sI)) {
                     return false;
@@ -805,7 +799,6 @@ public class GCPSelectionOp extends Operator {
                 colShift = shift[1];
                 sGCPPixelPos.x += (float) colShift;
                 sGCPPixelPos.y += (float) rowShift;
-                sI = getSlaveImagette(slaveBand, slaveBand2, sGCPPixelPos);
                 numIter++;
             }
 
@@ -865,8 +858,8 @@ public class GCPSelectionOp extends Operator {
                                         throws OperatorException {
         
         final double[] sI = new double[cWindowWidth*cWindowHeight];
-        final float xx = gcpPixelPos.x;
-        final float yy = gcpPixelPos.y;
+        final double xx = gcpPixelPos.x;
+        final double yy = gcpPixelPos.y;
         final int xul = (int)xx - cHalfWindowWidth;
         final int yul = (int)yy - cHalfWindowHeight;
         final Rectangle slaveImagetteRectangle = new Rectangle(xul, yul, cWindowWidth + 3, cWindowHeight + 3);
@@ -889,17 +882,17 @@ public class GCPSelectionOp extends Operator {
             final TileIndex index1 = new TileIndex(slaveImagetteRaster1);
 
             for (int j = 0; j < cWindowHeight; j++) {
-                final float y = yy - cHalfWindowHeight + j + 1;
+                final double y = yy - cHalfWindowHeight + j + 1;
                 final int y0 = (int)y;
                 final int y1 = y0 + 1;
                 final int offset0 = index0.calculateStride(y0);
                 final int offset1 = index1.calculateStride(y1);
                 final double wy = (double)(y - y0);
                 for (int i = 0; i < cWindowWidth; i++) {
-                    final float x = xx - cHalfWindowWidth + i + 1;
+                    final double x = xx - cHalfWindowWidth + i + 1;
                     final int x0 = (int)x;
                     final int x1 = x0 + 1;
-                    final double wx = (double)(x - x0);
+                    final double wx = x - x0;
 
                     final int x00 = x0 - offset0;
                     final int x01 = x0 - offset1;
@@ -997,6 +990,7 @@ public class GCPSelectionOp extends Operator {
             } else {
                 shift[1] = (double)(w - peakCol) / (double)colUpSamplingFactor;
             }
+
             return true;
         } catch(Throwable t) {
             System.out.println("getSlaveGCPShift failed "+t.getMessage());
@@ -1173,16 +1167,6 @@ public class GCPSelectionOp extends Operator {
         // Retrieve both the maximum and minimum pixel value
         final double[][] extrema = (double[][]) op.getProperty("extrema");
         return extrema[1][0];
-    }
-
-    private static boolean checkImagetteValidity(final double noDataValue, final double[] I) {
-
-        for (double v:I) {
-            if (v == noDataValue){
-                return false;
-            }
-        }
-        return true;
     }
 
     // This function is for debugging only.
