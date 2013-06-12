@@ -50,7 +50,12 @@
 <h4>Product:</h4>
 
 <p>Selects the current input product providing source bands, tie-point grids and flags.
-    This selector is only shown if there is more than one compatible product.</p>
+    This selector is only shown if there is more than one compatible product.<br/>
+    If there is more than one input product available the references to bands and tie-points
+    need to be prepended by a dollar and the reference number of the corresponding product separated by a dot.<br/>
+    The reference number of a product is the number in square brackets at the beginning of the product name.
+    An expression pointing to a band called band_1 would than e.g. be <code>$2.band_1</code>.
+</p>
 
 <h4>Data Sources:</h4>
 

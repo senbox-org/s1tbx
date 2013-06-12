@@ -16,7 +16,12 @@
 package org.esa.beam.gpf.operators.standard;
 
 import com.bc.ceres.core.ProgressMonitor;
-import com.bc.jexp.*;
+import com.bc.jexp.Namespace;
+import com.bc.jexp.ParseException;
+import com.bc.jexp.Parser;
+import com.bc.jexp.Symbol;
+import com.bc.jexp.Term;
+import com.bc.jexp.WritableNamespace;
 import com.bc.jexp.impl.ParserImpl;
 import com.bc.jexp.impl.SymbolFactory;
 import org.esa.beam.framework.datamodel.Band;
@@ -37,7 +42,7 @@ import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.StringUtils;
 
-import java.awt.*;
+import java.awt.Rectangle;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -50,11 +55,11 @@ import java.util.Map;
  * <p>
  * To reference a band of one of the source products within an expression use the following syntax:<br/>
  * <br/>
- * <code>sourceProducts<b>#</b>.bandName</code><br/>
+ * <code>$sourceProducts<b>#</b>.bandName</code><br/>
  * <br/>
  * Where <b>#</b> means the index of the source product. The index is zero based.<br/>
- * The bands of the first source product (<code>sourceProducts<b>0</b></code>) can be referenced without this
- * product identifier.
+ * The bands of the first source product (<code>$sourceProducts<b>0</b></code>) can be referenced without this
+ * product identifier. The band name is sufficient.
  * </p>
  * <p>
  * When using this operator from the command-line Graph XML file must be provided in order to
