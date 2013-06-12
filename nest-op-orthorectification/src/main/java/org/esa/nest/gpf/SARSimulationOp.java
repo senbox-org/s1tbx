@@ -702,7 +702,7 @@ public final class SARSimulationOp extends Operator {
 
                 for (int x = x0; x < xmax; x++) {
                     final int xx = x - x0;
-                    double alt = localDEM[yy][xx];
+                    double alt = localDEM[yy+1][xx+1];
 
                     if (alt == demNoDataValue)
                         continue;
