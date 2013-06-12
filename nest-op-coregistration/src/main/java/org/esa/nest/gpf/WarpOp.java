@@ -750,7 +750,7 @@ public class WarpOp extends Operator {
                                                  final WarpData warpData, final boolean appendFlag,
                                                  final float threshold, final int parseIndex, final String bandName)
             throws OperatorException {
-
+        /*
         float[] xCoeffs = null;
         float[] yCoeffs = null;
 
@@ -758,7 +758,7 @@ public class WarpOp extends Operator {
             xCoeffs = warpData.jaiWarp.getXCoeffs();
             yCoeffs = warpData.jaiWarp.getYCoeffs();
         }
-
+        */
         final File residualFile = getResidualsFile(sourceProduct);
         PrintStream p = null; // declare a print stream object
 
@@ -783,13 +783,13 @@ public class WarpOp extends Operator {
             if (!warpData.notEnoughGCPs) {
                 p.println();
                 p.println("WARP coefficients:");
-                for (float xCoeff : xCoeffs) {
-                    p.print(xCoeff + ", ");
+                for (double xCoeff : warpData.xCoef) {
+                    p.print((float)xCoeff + ", ");
                 }
 
                 p.println();
-                for (float yCoeff : yCoeffs) {
-                    p.print(yCoeff + ", ");
+                for (double yCoeff : warpData.yCoef) {
+                    p.print((float)yCoeff + ", ");
                 }
                 p.println();
             }
@@ -935,6 +935,44 @@ public class WarpOp extends Operator {
          * @param warpPolynomialOrder The WARP polynimal order.
          */
         public void computeWARP(final int warpPolynomialOrder) {
+
+            // check if master and slave GCP coordinates are identical, if yes set the warp polynomial coefficients
+            // directly, no need to compute them using JAI function because JAI produces incorrect result due to ill
+            // conditioned matrix.
+            float sum = 0.0f;
+            for (int i = 0; i < slaveGCPCoords.length; i++) {
+                sum += Math.abs(slaveGCPCoords[i] - masterGCPCoords[i]);
+            }
+            if (sum < 0.01) {
+                switch (warpPolynomialOrder) {
+                    case 1: {
+                        xCoef = new double[3];
+                        yCoef = new double[3];
+                        xCoef[0] = 0; xCoef[1] = 1; xCoef[2] = 0;
+                        yCoef[0] = 0; yCoef[1] = 0; yCoef[2] = 1;
+                        break;
+                    }
+                    case 2: {
+                        xCoef = new double[6];
+                        yCoef = new double[6];
+                        xCoef[0] = 0; xCoef[1] = 1; xCoef[2] = 0; xCoef[3] = 0; xCoef[4] = 0; xCoef[5] = 0;
+                        yCoef[0] = 0; yCoef[1] = 0; yCoef[2] = 1; yCoef[3] = 0; yCoef[4] = 0; yCoef[5] = 0;
+                        break;
+                    }
+                    case 3: {
+                        xCoef = new double[10];
+                        yCoef = new double[10];
+                        xCoef[0] = 0; xCoef[1] = 1; xCoef[2] = 0; xCoef[3] = 0; xCoef[4] = 0;
+                        xCoef[5] = 0; xCoef[6] = 0; xCoef[7] = 0; xCoef[8] = 0; xCoef[9] = 0;
+                        yCoef[0] = 0; yCoef[1] = 0; yCoef[2] = 1; yCoef[3] = 0; yCoef[4] = 0;
+                        yCoef[5] = 0; yCoef[6] = 0; yCoef[7] = 0; yCoef[8] = 0; yCoef[9] = 0;
+                        break;
+                    }
+                    default:
+                        throw new OperatorException("Incorrect WARP degree");
+                }
+                return;
+            }
 
             jaiWarp = WarpPolynomial.createWarp(slaveGCPCoords, //source
                     0,
