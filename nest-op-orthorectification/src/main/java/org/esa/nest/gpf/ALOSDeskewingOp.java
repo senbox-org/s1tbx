@@ -18,6 +18,8 @@ package org.esa.nest.gpf;
 import com.bc.ceres.core.ProgressMonitor;
 import org.apache.commons.math.util.FastMath;
 import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.dataop.dem.ElevationModel;
+import org.esa.beam.framework.dataop.resamp.ResamplingFactory;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
@@ -26,10 +28,12 @@ import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
+import org.esa.nest.dataio.dem.DEMFactory;
 import org.esa.nest.datamodel.AbstractMetadata;
 import org.esa.nest.datamodel.PosVector;
 import org.esa.nest.eo.Constants;
 import org.esa.nest.eo.GeoUtils;
+import org.esa.nest.eo.SARGeocoding;
 import org.esa.nest.util.MathUtils;
 
 import java.awt.*;
@@ -60,6 +64,18 @@ public class ALOSDeskewingOp extends Operator {
             rasterDataNodeType = Band.class, label="Source Bands")
     private String[] sourceBandNames = null;
 
+    //@Parameter(defaultValue="false", label="Use Mapready Shift Only")
+    boolean useMapreadyShiftOnly = false;
+
+    //@Parameter(defaultValue="false", label="Use FAQ Shift Only")
+    boolean useFAQShiftOnly = false;
+
+    //@Parameter(defaultValue="false", label="Use Mapready + FAQ Shift")
+    boolean useBoth = false;
+
+    //@Parameter(defaultValue="false", label="Use Mapready + Hybrid Shift")
+    boolean useHybrid = true;
+
     private int sourceImageWidth = 0;
     private int sourceImageHeight = 0;
     private double absShift = 0;
@@ -74,8 +90,8 @@ public class ALOSDeskewingOp extends Operator {
     private double azimuthSpacing = 0.0;
     private double slantRangeToFirstPixel = 0.0;
     private double radarWaveLength = 0.0;
-    //private double[][] sensorPosition = null;
-    //private double[][] sensorVelocity = null;
+    private double[][] sensorPosition = null;
+    private double[][] sensorVelocity = null;
     private double[] timeArray = null;
     private double[] xPosArray = null;
     private double[] yPosArray = null;
@@ -83,17 +99,20 @@ public class ALOSDeskewingOp extends Operator {
     private double[] xVelArray = null;
     private double[] yVelArray = null;
     private double[] zVelArray = null;
-    //private double[] targetVel = new double[3];
 
     private final HashMap<String, String[]> targetBandNameToSourceBandName = new HashMap<String, String[]>();
 
     private final static double AngularVelocity = getAngularVelocity();
 
-    private boolean useMapreadyShiftOnly = false;
-    private boolean useFAQShiftOnly = false;
-    private boolean useBoth = true; // Note: Here "both" means that the shift for each pixel has two parts, one is the
-                                     // shift computed by using MapReady method, the second part is a constant that is
-                                     // the shift computed  for pixel (0,0) using FAQ method.
+    /*
+     Note:
+        if useMapreadyShiftOnly is true, the shift is computed using MapReady method;
+        if useFAQShiftOnly is true, the shift is computed using method from FAQ;
+        if useBoth is true, the shift for each pixel has two parts, one is the shift computed by using MapReady method,
+           the second part is the shift computed using FAQ method;
+        if useHybrid is true, the shift for each pixel has two parts, one is the shift computed by using MapReady
+           method, the second part is a constant shift computed for pixel (0,0) using zero Doppler time.
+     */
 
     /**
      * Initializes this operator and sets the one and only target product.
@@ -112,15 +131,13 @@ public class ALOSDeskewingOp extends Operator {
     public void initialize() throws OperatorException {
 
         try {
-            if (!useMapreadyShiftOnly && !useFAQShiftOnly && !useBoth) {
+            if (!useMapreadyShiftOnly && !useFAQShiftOnly && !useBoth && !useHybrid) {
                 throw new OperatorException("No method was selected for shift calculation");
             }
 
             getMetadata();
 
             computeSensorPositionsAndVelocities();
-
-            // computeTargetVelocity();
 
             createTargetProduct();
 
@@ -213,60 +230,13 @@ public class ALOSDeskewingOp extends Operator {
         xVelArray = new double[numVectorsUsed];
         yVelArray = new double[numVectorsUsed];
         zVelArray = new double[numVectorsUsed];
-        // sensorPosition = new double[sourceImageHeight][3]; // xPos, yPos, zPos
-        // sensorVelocity = new double[sourceImageHeight][3]; // xVel, yVel, zVel
+        sensorPosition = new double[sourceImageHeight][3]; // xPos, yPos, zPos
+        sensorVelocity = new double[sourceImageHeight][3]; // xVel, yVel, zVel
 
-        final int numVectors = orbitStateVectors.length;
-        int k;
-        for (k = 0; k < numVectors; k++) {
-            if (orbitStateVectors[k].time_mjd >= firstLineTime) {
-                break;
-            }
-        }
-
-        final int j0 = Math.max(k-3, 0);
-        final int j1 = Math.min(j0 + numVectorsUsed, numVectors);
-        for (int j = j0; j < j1; j++) {
-            timeArray[j-j0] = orbitStateVectors[j].time_mjd;
-            xPosArray[j-j0] = orbitStateVectors[j].x_pos; // m
-            yPosArray[j-j0] = orbitStateVectors[j].y_pos; // m
-            zPosArray[j-j0] = orbitStateVectors[j].z_pos; // m
-            xVelArray[j-j0] = orbitStateVectors[j].x_vel; // m/s
-            yVelArray[j-j0] = orbitStateVectors[j].y_vel; // m/s
-            zVelArray[j-j0] = orbitStateVectors[j].z_vel; // m/s
-        }
-
-        // Lagrange polynomial interpolation
-        /*
-        for (int i = 0; i < sourceImageHeight; i++) {
-            final double time = firstLineTime + i*lineTimeInterval; // zero Doppler time (in days) for each range line
-            if (time > lastLineTime) {
-                System.out.println();
-            }
-            sensorPosition[i][0] = MathUtils.lagrangeInterpolatingPolynomial(timeArray, xPosArray, time);
-            sensorPosition[i][1] = MathUtils.lagrangeInterpolatingPolynomial(timeArray, yPosArray, time);
-            sensorPosition[i][2] = MathUtils.lagrangeInterpolatingPolynomial(timeArray, zPosArray, time);
-            sensorVelocity[i][0] = MathUtils.lagrangeInterpolatingPolynomial(timeArray, xVelArray, time);
-            sensorVelocity[i][1] = MathUtils.lagrangeInterpolatingPolynomial(timeArray, yVelArray, time);
-            sensorVelocity[i][2] = MathUtils.lagrangeInterpolatingPolynomial(timeArray, zVelArray, time);
-        }
-        */
+        SARGeocoding.computeSensorPositionsAndVelocities(
+                orbitStateVectors, timeArray, xPosArray, yPosArray, zPosArray, xVelArray, yVelArray, zVelArray,
+                sensorPosition, sensorVelocity, firstLineTime, lineTimeInterval, sourceImageHeight);
     }
-    /*
-    private void computeTargetVelocity() throws Exception {
-
-        final double angVel = getAngularVelocity();
-        final double lat = AbstractMetadata.getAttributeDouble(absRoot, AbstractMetadata.first_near_lat);
-        final double lon = AbstractMetadata.getAttributeDouble(absRoot, AbstractMetadata.first_near_long);
-        final GeoPos geoPos = new GeoPos((float)lat, (float)lon);
-        final double[] targetPos = new double[3];
-        GeoUtils.geo2xyz(geoPos, targetPos);
-
-        targetVel[0] = -angVel*targetPos[1];
-        targetVel[1] = angVel*targetPos[0];
-        targetVel[2] = 0.0;
-    }
-    */
 
     /**
      * Called by the framework in order to compute the stack of tiles for the given target bands.
@@ -318,13 +288,11 @@ public class ALOSDeskewingOp extends Operator {
                         if (useMapreadyShiftOnly) {
                             totalShift = FastMath.round(fracShift*x);
                         } else if (useFAQShiftOnly) {
-                            totalShift = computeShift(v, x);
+                            totalShift = computeFAQShift(v, x);
                         } else if (useBoth) {
-                            double faqShift = computeShift(v, x);
-                            double fraction = FastMath.round(fracShift*x);
-                            totalShift = faqShift + fraction;
-                            //totalShift = absShift + FastMath.round(fracShift*x);
-                            //System.out.println(faqShift);
+                            totalShift = computeFAQShift(v, x) + FastMath.round(fracShift*x);
+                        } else if (useHybrid) {
+                            totalShift = absShift + FastMath.round(fracShift*x);
                         } else {
                             throw new OperatorException("No method was selected for shift calculation");
                         }
@@ -347,9 +315,11 @@ public class ALOSDeskewingOp extends Operator {
 
         if (useMapreadyShiftOnly) {
             return FastMath.round(txMax*fracShift);
-        } else {
+        } else if (useFAQShiftOnly) {
             final stateVector v = getOrbitStateVector(firstLineTime + ty0*lineTimeInterval);
-            return computeShift(v, txMax) + FastMath.round(txMax*fracShift);
+            return computeFAQShift(v, txMax) + FastMath.round(txMax*fracShift);
+        } else { // hybrid
+            return absShift + FastMath.round(txMax*fracShift);
         }
     }
 
@@ -374,7 +344,7 @@ public class ALOSDeskewingOp extends Operator {
         return new Rectangle(sx0, sy0, sw, sh);
     }
 
-    private double computeShift(final stateVector v, final int x) throws Exception {
+    private double computeFAQShift(final stateVector v, final int x) throws Exception {
 
         final double slr = slantRangeToFirstPixel + x*rangeSpacing;
         final double fd = getDopplerFrequency(x);
@@ -388,18 +358,59 @@ public class ALOSDeskewingOp extends Operator {
      */
     private void computeShift() throws Exception {
 
+        if (useFAQShiftOnly) {
+            return;
+        }
+
         final stateVector v = getOrbitStateVector(firstLineTime);
         final double slr = slantRangeToFirstPixel + 0*rangeSpacing;
         final double fd = getDopplerFrequency(0);
-
-        // absolute shift
-        final double vel = Math.sqrt(v.xVel*v.xVel + v.yVel*v.yVel + v.zVel*v.zVel);
-        absShift = FastMath.round(slr*fd*radarWaveLength/(2.0*vel*azimuthSpacing));
 
         // fractional shift
         final double[] lookYaw = new double[2];
         computeLookYawAngles(v, slr, fd, lookYaw);
         fracShift = FastMath.sin(lookYaw[0])*FastMath.sin(lookYaw[1]);
+
+        if (useMapreadyShiftOnly) {
+            return;
+        }
+
+        // compute absolute shift
+        GeoPos geoPos = new GeoPos();
+        sourceProduct.getGeoCoding().getGeoPos(new PixelPos(0.5f,0.5f), geoPos);
+        final double lat = geoPos.lat;
+        double lon = geoPos.lon;
+        if (lon >= 180.0) {
+            lon -= 360.0;
+        }
+
+        final String demName = "SRTM 3Sec";
+        final String demResamplingMethod = ResamplingFactory.BILINEAR_INTERPOLATION_NAME;
+        DEMFactory.validateDEM(demName, sourceProduct);
+        ElevationModel dem = DEMFactory.createElevationModel(demName, demResamplingMethod);
+        final float demNoDataValue = dem.getDescriptor().getNoDataValue();
+
+        final double alt = dem.getElevation(new GeoPos((float)lat, (float)lon));
+        if (alt == demNoDataValue) {
+            final double vel = Math.sqrt(v.xVel*v.xVel + v.yVel*v.yVel + v.zVel*v.zVel);
+            absShift = FastMath.round(slr*fd*radarWaveLength/(2.0*vel*azimuthSpacing));
+            return;
+        }
+
+        final double[] earthPoint = new double[3];
+        final double[] sensorPos = new double[3];
+        GeoUtils.geo2xyzWGS84(geoPos.getLat(), geoPos.getLon(), alt, earthPoint);
+
+        final double zeroDopplerTime = SARGeocoding.getEarthPointZeroDopplerTime(
+                firstLineTime, lineTimeInterval, radarWaveLength, earthPoint, sensorPosition, sensorVelocity);
+
+        final double slantRange = SARGeocoding.computeSlantRange(
+                zeroDopplerTime, timeArray, xPosArray, yPosArray, zPosArray, earthPoint, sensorPos);
+
+        final double zeroDopplerTimeWithoutBias =
+                zeroDopplerTime + slantRange / Constants.lightSpeedInMetersPerDay;
+
+        absShift = (zeroDopplerTimeWithoutBias - firstLineTime)/lineTimeInterval;
     }
 
     /**
