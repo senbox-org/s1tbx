@@ -376,45 +376,48 @@ public class ALOSDeskewingOp extends Operator {
         }
 
         // compute absolute shift
-        GeoPos geoPos = new GeoPos();
-        sourceProduct.getGeoCoding().getGeoPos(new PixelPos(0.5f,0.5f), geoPos);
-        final double lat = geoPos.lat;
-        double lon = geoPos.lon;
-        if (lon >= 180.0) {
-            lon -= 360.0;
-        }
-
         final String demName = "SRTM 3Sec";
         final String demResamplingMethod = ResamplingFactory.BILINEAR_INTERPOLATION_NAME;
         DEMFactory.validateDEM(demName, sourceProduct);
         ElevationModel dem = DEMFactory.createElevationModel(demName, demResamplingMethod);
         final float demNoDataValue = dem.getDescriptor().getNoDataValue();
 
-        final double alt = dem.getElevation(new GeoPos((float)lat, (float)lon));
-        if (alt == demNoDataValue) {
-            absShift = computeFAQShift(v, 0);
+        GeoPos geoPos = new GeoPos();
+        for (int y = 0; y < sourceImageHeight; y++) {
+            sourceProduct.getGeoCoding().getGeoPos(new PixelPos(0.5f, y + 0.5f), geoPos);
+            final double lat = geoPos.lat;
+            double lon = geoPos.lon;
+            if (lon >= 180.0) {
+                lon -= 360.0;
+            }
+
+            final double alt = dem.getElevation(new GeoPos((float)lat, (float)lon));
+            if (alt == demNoDataValue) {
+                continue;
+            }
+
+            final double[] earthPoint = new double[3];
+            final double[] sensorPos = new double[3];
+            GeoUtils.geo2xyzWGS84(geoPos.getLat(), geoPos.getLon(), alt, earthPoint);
+
+            final double zeroDopplerTime = SARGeocoding.getEarthPointZeroDopplerTime(
+                    firstLineTime, lineTimeInterval, radarWaveLength, earthPoint, sensorPosition, sensorVelocity);
+
+            if (zeroDopplerTime == SARGeocoding.NonValidZeroDopplerTime) {
+                continue;
+            }
+
+            final double slantRange = SARGeocoding.computeSlantRange(
+                    zeroDopplerTime, timeArray, xPosArray, yPosArray, zPosArray, earthPoint, sensorPos);
+
+            final double zeroDopplerTimeWithoutBias =
+                    zeroDopplerTime + slantRange / Constants.lightSpeedInMetersPerDay;
+
+            absShift = (zeroDopplerTimeWithoutBias - firstLineTime)/lineTimeInterval - y;
             return;
+
         }
-
-        final double[] earthPoint = new double[3];
-        final double[] sensorPos = new double[3];
-        GeoUtils.geo2xyzWGS84(geoPos.getLat(), geoPos.getLon(), alt, earthPoint);
-
-        final double zeroDopplerTime = SARGeocoding.getEarthPointZeroDopplerTime(
-                firstLineTime, lineTimeInterval, radarWaveLength, earthPoint, sensorPosition, sensorVelocity);
-
-        if (zeroDopplerTime == SARGeocoding.NonValidZeroDopplerTime) {
-            absShift = computeFAQShift(v, 0);
-            return;
-        }
-
-        final double slantRange = SARGeocoding.computeSlantRange(
-                zeroDopplerTime, timeArray, xPosArray, yPosArray, zPosArray, earthPoint, sensorPos);
-
-        final double zeroDopplerTimeWithoutBias =
-                zeroDopplerTime + slantRange / Constants.lightSpeedInMetersPerDay;
-
-        absShift = (zeroDopplerTimeWithoutBias - firstLineTime)/lineTimeInterval;
+        absShift = computeFAQShift(v, 0);
     }
 
     /**
