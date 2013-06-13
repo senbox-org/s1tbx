@@ -117,7 +117,7 @@ public class BinManager {
         return temporalFeatureCount;
     }
 
-    final int getOutputFeatureCount() {
+    public final int getOutputFeatureCount() {
         return outputFeatureCount;
     }
 
