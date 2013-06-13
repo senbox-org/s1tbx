@@ -35,6 +35,7 @@ import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.datamodel.VirtualBand;
 import org.esa.beam.jai.FillConstantOpImage;
 import org.esa.beam.jai.ImageManager;
+import org.esa.beam.jai.ReplaceValueOpImage;
 import org.esa.beam.util.StopWatch;
 import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.math.MathUtils;
@@ -126,24 +127,38 @@ public class SpatialProductBinner {
             final String nodeName = variableContext.getVariableName(i);
             final RasterDataNode node = getRasterDataNode(product, nodeName);
             MultiLevelImage varImage = node.getGeophysicalImage();
-            MultiLevelImage validMaskImage = node.getValidMaskImage();
-            if (validMaskImage != null) {
-                varImage = createNoDataReplacedImage(product, varImage, validMaskImage, Double.NaN);
+            if (node.getValidPixelExpression() != null) {
+                varImage = replaceInvalidValuesByNaN(product, varImage, node.getValidMaskImage());
+            }else if (node.isNoDataValueSet() && node.isNoDataValueUsed()) {
+                varImage =  replaceNoDataValueByNaN(product, varImage, node.getNoDataValue());
             }
             varImages[i] = varImage;
         }
         return varImages;
     }
 
-    private static MultiLevelImage createNoDataReplacedImage(final Product product, final MultiLevelImage srcImage,
-                                                             final MultiLevelImage maskImage, final double noData) {
+    private static MultiLevelImage replaceInvalidValuesByNaN(final Product product, final MultiLevelImage srcImage,
+                                                             final MultiLevelImage maskImage) {
 
         final MultiLevelModel multiLevelModel = ImageManager.getMultiLevelModel(product.getBandAt(0));
         return new DefaultMultiLevelImage(new AbstractMultiLevelSource(multiLevelModel) {
 
             @Override
             public RenderedImage createImage(int sourceLevel) {
-                return new FillConstantOpImage(srcImage.getImage(sourceLevel), maskImage.getImage(sourceLevel), noData);
+                return new FillConstantOpImage(srcImage.getImage(sourceLevel), maskImage.getImage(sourceLevel), Double.NaN);
+            }
+        });
+    }
+
+    private static MultiLevelImage replaceNoDataValueByNaN(final Product product, final MultiLevelImage srcImage,
+                                                           final double noDataValue) {
+
+        final MultiLevelModel multiLevelModel = ImageManager.getMultiLevelModel(product.getBandAt(0));
+        return new DefaultMultiLevelImage(new AbstractMultiLevelSource(multiLevelModel) {
+
+            @Override
+            public RenderedImage createImage(int sourceLevel) {
+                return new ReplaceValueOpImage(srcImage, noDataValue, Double.NaN);
             }
         });
     }
