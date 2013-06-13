@@ -36,6 +36,7 @@ import org.esa.beam.framework.dataop.barithm.SingleFlagSymbol;
 import org.esa.beam.framework.dataop.maptransf.MapInfo;
 import org.esa.beam.framework.dataop.maptransf.MapProjection;
 import org.esa.beam.framework.dataop.maptransf.MapTransform;
+import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.BitRaster;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.Guardian;
@@ -645,6 +646,8 @@ public class Product extends ProductNode {
         }
 
         fileLocation = null;
+
+        ImageManager.getInstance().clearMaskImageCache(this);
     }
 
     /**
