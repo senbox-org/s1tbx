@@ -200,12 +200,12 @@ class AlosPalsarProductDirectory extends CEOSProductDirectory {
             }
         }
 
-        a[24] = facilityRecord.getAttributeDouble("Origin Latitude");
-        b[24] = facilityRecord.getAttributeDouble("Origin Longitude");
+        //a[24] = facilityRecord.getAttributeDouble("Origin Latitude");
+        //b[24] = facilityRecord.getAttributeDouble("Origin Longitude");
 
         // create geocoding grid
-        final int gridWidth = 4;
-        final int gridHeight = 4;
+        final int gridWidth  = 11;
+        final int gridHeight = 11;
         final float[] targetLatTiePoints = new float[gridWidth*gridHeight];
         final float[] targetLonTiePoints = new float[gridWidth*gridHeight];
         final int sourceImageWidth = product.getSceneRasterWidth();
