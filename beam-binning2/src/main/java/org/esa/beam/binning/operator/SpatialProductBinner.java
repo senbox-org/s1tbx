@@ -18,6 +18,9 @@ package org.esa.beam.binning.operator;
 
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.glevel.MultiLevelImage;
+import com.bc.ceres.glevel.MultiLevelModel;
+import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
+import com.bc.ceres.glevel.support.DefaultMultiLevelImage;
 import com.vividsolutions.jts.geom.Geometry;
 import org.esa.beam.binning.CompositingType;
 import org.esa.beam.binning.ObservationSlice;
@@ -30,6 +33,7 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.datamodel.VirtualBand;
+import org.esa.beam.jai.FillConstantOpImage;
 import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.StopWatch;
 import org.esa.beam.util.StringUtils;
@@ -39,6 +43,7 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.image.Raster;
+import java.awt.image.RenderedImage;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -120,11 +125,29 @@ public class SpatialProductBinner {
         for (int i = 0; i < variableContext.getVariableCount(); i++) {
             final String nodeName = variableContext.getVariableName(i);
             final RasterDataNode node = getRasterDataNode(product, nodeName);
-            final MultiLevelImage varImage = node.getGeophysicalImage();
+            MultiLevelImage varImage = node.getGeophysicalImage();
+            MultiLevelImage validMaskImage = node.getValidMaskImage();
+            if (validMaskImage != null) {
+                varImage = createNoDataReplacedImage(product, varImage, validMaskImage, Double.NaN);
+            }
             varImages[i] = varImage;
         }
         return varImages;
     }
+
+    private static MultiLevelImage createNoDataReplacedImage(final Product product, final MultiLevelImage srcImage,
+                                                             final MultiLevelImage maskImage, final double noData) {
+
+        final MultiLevelModel multiLevelModel = ImageManager.getMultiLevelModel(product.getBandAt(0));
+        return new DefaultMultiLevelImage(new AbstractMultiLevelSource(multiLevelModel) {
+
+            @Override
+            public RenderedImage createImage(int sourceLevel) {
+                return new FillConstantOpImage(srcImage.getImage(sourceLevel), maskImage.getImage(sourceLevel), noData);
+            }
+        });
+    }
+
 
     private static MultiLevelImage getMaskImage(Product product, String maskExpr) {
         MultiLevelImage maskImage = null;
