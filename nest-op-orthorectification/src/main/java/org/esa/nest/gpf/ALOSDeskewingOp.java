@@ -392,8 +392,7 @@ public class ALOSDeskewingOp extends Operator {
 
         final double alt = dem.getElevation(new GeoPos((float)lat, (float)lon));
         if (alt == demNoDataValue) {
-            final double vel = Math.sqrt(v.xVel*v.xVel + v.yVel*v.yVel + v.zVel*v.zVel);
-            absShift = FastMath.round(slr*fd*radarWaveLength/(2.0*vel*azimuthSpacing));
+            absShift = computeFAQShift(v, 0);
             return;
         }
 
@@ -403,6 +402,11 @@ public class ALOSDeskewingOp extends Operator {
 
         final double zeroDopplerTime = SARGeocoding.getEarthPointZeroDopplerTime(
                 firstLineTime, lineTimeInterval, radarWaveLength, earthPoint, sensorPosition, sensorVelocity);
+
+        if (zeroDopplerTime == SARGeocoding.NonValidZeroDopplerTime) {
+            absShift = computeFAQShift(v, 0);
+            return;
+        }
 
         final double slantRange = SARGeocoding.computeSlantRange(
                 zeroDopplerTime, timeArray, xPosArray, yPosArray, zPosArray, earthPoint, sensorPos);
