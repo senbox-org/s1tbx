@@ -19,8 +19,6 @@ import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
 import com.bc.ceres.glevel.MultiLevelImage;
 import com.bc.ceres.glevel.MultiLevelModel;
-import com.bc.ceres.glevel.MultiLevelSource;
-import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
 import com.bc.ceres.glevel.support.DefaultMultiLevelImage;
 import com.bc.ceres.glevel.support.DefaultMultiLevelSource;
 import com.bc.ceres.glevel.support.GenericMultiLevelSource;
@@ -29,8 +27,6 @@ import com.bc.ceres.jai.operator.ReinterpretDescriptor;
 import com.bc.ceres.jai.operator.ScalingType;
 import org.esa.beam.framework.dataop.barithm.BandArithmetic;
 import org.esa.beam.jai.ImageManager;
-import org.esa.beam.jai.ResolutionLevel;
-import org.esa.beam.jai.VirtualBandOpImage;
 import org.esa.beam.util.BitRaster;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.ObjectUtils;
@@ -2079,16 +2075,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         if (!isValidMaskImageSet() && isValidMaskUsed()) {
             synchronized (this) {
                 if (!isValidMaskImageSet() && isValidMaskUsed()) {
-                    final MultiLevelModel model = ImageManager.getMultiLevelModel(this);
-                    final MultiLevelSource mls = new AbstractMultiLevelSource(model) {
-
-                        @Override
-                        public RenderedImage createImage(int level) {
-                            return VirtualBandOpImage.createMask(RasterDataNode.this,
-                                                                 ResolutionLevel.create(getModel(), level));
-                        }
-                    };
-                    validMaskImage = new DefaultMultiLevelImage(mls);
+                    validMaskImage = ImageManager.getInstance().getMaskImage(getValidMaskExpression(), getProduct());
                 }
             }
         }
