@@ -89,6 +89,7 @@ import java.awt.image.renderable.ParameterBlock;
 import java.lang.ref.WeakReference;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -765,6 +766,18 @@ public class ImageManager {
                 maskImageMap.put(key, mli);
             }
             return mli;
+        }
+    }
+
+    public void clearMaskImageCache(Product product) {
+        synchronized (maskImageMap) {
+            final Iterator<MaskKey> keySetIterator = maskImageMap.keySet().iterator();
+            while (keySetIterator.hasNext()) {
+                MaskKey next = keySetIterator.next();
+                if (next.product.get() == product) {
+                    keySetIterator.remove();
+                }
+            }
         }
     }
 
