@@ -23,9 +23,8 @@ import static org.junit.Assert.*;
  */
 public class FillConstantOpImageTest {
 
-
     @Test
-    public void testValueReplacing2() throws Exception {
+    public void testFillingImage() throws Exception {
         int width = 4;
         int height = 4;
         Product product = new Product("n", "t", width, height);
