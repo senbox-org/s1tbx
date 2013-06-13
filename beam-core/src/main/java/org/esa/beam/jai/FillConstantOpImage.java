@@ -13,9 +13,8 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.beam.gpf.operators.standard.reproject;
+package org.esa.beam.jai;
 
-import org.esa.beam.framework.gpf.internal.OperatorContext;
 
 import javax.media.jai.PointOpImage;
 import javax.media.jai.RasterAccessor;
@@ -25,16 +24,27 @@ import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
 import java.awt.image.WritableRaster;
 
-final class InsertNoDataValueOpImage extends PointOpImage {
-    private final double noDataValue;
+/**
+ * An image to replace values in the source image controlled by a mask.
+ */
+public final class FillConstantOpImage extends PointOpImage {
+
+    private final double fillValue;
     private final RasterFormatTag maskRasterFormatTag;
 
-    InsertNoDataValueOpImage(RenderedImage sourceImage, RenderedImage maskImage, double noDataValue) {
+    /**
+     * Where the mask image is set the original values in the source image are preserved.
+     * Otherwise the values are replaced by the no-data value.
+     *
+     * @param sourceImage The source image.
+     * @param maskImage   The mask image. This mask prevents pixel values from being overwritten by fill value (where mask != 0).
+     * @param fillValue The value to replace the original ones.
+     */
+    public FillConstantOpImage(RenderedImage sourceImage, RenderedImage maskImage, double fillValue) {
         super(sourceImage, maskImage, null, null, true);
-        this.noDataValue = noDataValue;
+        this.fillValue = fillValue;
         int compatibleTagId = RasterAccessor.findCompatibleTag(null, maskImage.getSampleModel());
         maskRasterFormatTag = new RasterFormatTag(maskImage.getSampleModel(), compatibleTagId);
-        OperatorContext.setTileCache(this);
     }
 
     @Override
@@ -45,23 +55,23 @@ final class InsertNoDataValueOpImage extends PointOpImage {
         RasterAccessor d = new RasterAccessor(dest, destRect, formatTags[2], getColorModel());
         switch (d.getDataType()) {
             case 0: // '\0'
-                computeRectByte(s, m, d, (byte) noDataValue);
+                computeRectByte(s, m, d, (byte) fillValue);
                 break;
 
             case 1: // '\001'
             case 2: // '\002'
-                computeRectShort(s, m, d, (short) noDataValue);
+                computeRectShort(s, m, d, (short) fillValue);
                 break;
 
             case 3: // '\003'
-                computeRectInt(s, m, d, (int) noDataValue);
+                computeRectInt(s, m, d, (int) fillValue);
                 break;
             case 4: // '\004'
-                computeRectFloat(s, m, d, (float) noDataValue);
+                computeRectFloat(s, m, d, (float) fillValue);
                 break;
 
             case 5: // '\005'
-                computeRectDouble(s, m, d, noDataValue);
+                computeRectDouble(s, m, d, fillValue);
                 break;
         }
         d.copyDataToRaster();

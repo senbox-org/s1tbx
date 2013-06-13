@@ -45,6 +45,8 @@ import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
+import org.esa.beam.framework.gpf.internal.OperatorContext;
+import org.esa.beam.jai.FillConstantOpImage;
 import org.esa.beam.jai.ImageManager;
 import org.esa.beam.jai.ResolutionLevel;
 import org.esa.beam.util.Debug;
@@ -150,9 +152,9 @@ public class ReprojectionOp extends Operator {
     private File wktFile;
 
     @Parameter(description = "A text specifying the target Coordinate Reference System, either in WKT or as an " +
-            "authority code. For appropriate EPSG authority codes see (www.epsg-registry.org). " +
-            "AUTO authority can be used with code 42001 (UTM), and 42002 (Transverse Mercator) " +
-            "where the scene center is used as reference. Examples: EPSG:4326, AUTO:42001")
+                             "authority code. For appropriate EPSG authority codes see (www.epsg-registry.org). " +
+                             "AUTO authority can be used with code 42001 (UTM), and 42002 (Transverse Mercator) " +
+                             "where the scene center is used as reference. Examples: EPSG:4326, AUTO:42001")
     private String crs;
 
     @Parameter(alias = "resampling",
@@ -191,7 +193,7 @@ public class ReprojectionOp extends Operator {
     private boolean orthorectify;
 
     @Parameter(description = "The name of the elevation model for the orthorectification. " +
-            "If not given tie-point data is used.")
+                             "If not given tie-point data is used.")
     private String elevationModelName;
 
     @Parameter(description = "The value used to indicate no-data.")
@@ -428,7 +430,11 @@ public class ReprojectionOp extends Operator {
 
             @Override
             public RenderedImage createImage(int sourceLevel) {
-                return new InsertNoDataValueOpImage(srcImage.getImage(sourceLevel), maskImage.getImage(sourceLevel), noData);
+                FillConstantOpImage noDataValueOpImage = new FillConstantOpImage(srcImage.getImage(sourceLevel),
+                                                                                 maskImage.getImage(sourceLevel),
+                                                                                 noData);
+                OperatorContext.setTileCache(noDataValueOpImage);
+                return noDataValueOpImage;
             }
         });
     }
@@ -510,7 +516,7 @@ public class ReprojectionOp extends Operator {
             meanTime = new ProductData.UTC(0.5 * (startTime.getMJD() + endTime.getMJD()));
         } else if (startTime != null) {
             meanTime = startTime;
-        } else  if (endTime != null) {
+        } else if (endTime != null) {
             meanTime = endTime;
         } else {
             meanTime = null;
@@ -569,7 +575,7 @@ public class ReprojectionOp extends Operator {
 
     protected void validateCrsParameters() {
         final String msgPattern = "Invalid target CRS specification.\nSpecify {0} one of the " +
-                "''wktFile'', ''crs'' or ''collocationProduct'' parameters.";
+                                  "''wktFile'', ''crs'' or ''collocationProduct'' parameters.";
 
         if (wktFile == null && crs == null && collocationProduct == null) {
             throw new OperatorException(MessageFormat.format(msgPattern, "at least"));
@@ -623,15 +629,15 @@ public class ReprojectionOp extends Operator {
 
     void validateReferencingParameters() {
         if (!((referencePixelX == null && referencePixelY == null && easting == null && northing == null)
-                || (referencePixelX != null && referencePixelY != null && easting != null && northing != null))) {
+              || (referencePixelX != null && referencePixelY != null && easting != null && northing != null))) {
             throw new OperatorException("Invalid referencing parameters: \n" +
-                                                "'referencePixelX', 'referencePixelY', 'easting' and 'northing' have to be specified either all or not at all.");
+                                        "'referencePixelX', 'referencePixelY', 'easting' and 'northing' have to be specified either all or not at all.");
         }
     }
 
     void validateTargetGridParameters() {
         if ((pixelSizeX != null && pixelSizeY == null) ||
-                (pixelSizeX == null && pixelSizeY != null)) {
+            (pixelSizeX == null && pixelSizeY != null)) {
             throw new OperatorException("'pixelSizeX' and 'pixelSizeY' must be specified both or not at all.");
         }
     }
