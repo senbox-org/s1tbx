@@ -204,9 +204,9 @@ public class ProductManager {
                 if (productList.remove(product)) {
                     productList.clearRemovedList();
                     product.removeProductNodeListener(productNodeNameChangeListener);
-                    product.resetRefNo();
                     clearProductManager(product);
                     fireEvent(product, PRODUCT_REMOVED);
+                    product.resetRefNo();         //NESTMOD
                     return true;
                 }
             }

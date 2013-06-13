@@ -113,6 +113,8 @@ public class SubsetUI extends BaseOperatorUI {
 
             pixelPanel.setVisible(false);
             geoPanel.setVisible(true);
+
+            getGeoRegion();
         }
     }
 

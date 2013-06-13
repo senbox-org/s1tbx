@@ -79,19 +79,11 @@ public class SubsetOp extends Operator {
 
     @Override
     public void initialize() throws OperatorException {
-        if(width == 0) {
+        if(width == 0 || regionX+width > sourceProduct.getSceneRasterWidth()) {
             width = sourceProduct.getSceneRasterWidth() - regionX;
         }
-        if(height == 0) {
+        if(height == 0 || regionY+height > sourceProduct.getSceneRasterHeight()) {
             height = sourceProduct.getSceneRasterHeight() - regionY;
-        }
-        if(regionX+width > sourceProduct.getSceneRasterWidth()) {
-            throw new OperatorException("Selected region must be within the source product dimensions of "+
-                                        sourceProduct.getSceneRasterWidth()+" x "+ sourceProduct.getSceneRasterHeight());
-        }
-        if(regionY+height > sourceProduct.getSceneRasterHeight()) {
-            throw new OperatorException("Selected region must be within the source product dimensions of "+
-                                        sourceProduct.getSceneRasterWidth()+" x "+ sourceProduct.getSceneRasterHeight());
         }
 
         subsetReader = new ProductSubsetBuilder();

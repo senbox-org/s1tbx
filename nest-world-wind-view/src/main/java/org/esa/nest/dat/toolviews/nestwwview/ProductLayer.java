@@ -36,6 +36,7 @@ import java.awt.*;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.PathIterator;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -58,6 +59,15 @@ public class ProductLayer extends RenderableLayer {
 
     public String[] getProductNames() {
         return outlineTable.keySet().toArray(new String[outlineTable.size()]);
+    }
+
+    private static String getUniqueName(final Product product) {
+        return product.getProductRefString();
+       /* String name = product.getName();
+        File file = product.getFileLocation();
+        if(file != null)
+            name += file.getAbsolutePath();
+        return name; */
     }
 
     @Override
@@ -88,9 +98,10 @@ public class ProductLayer extends RenderableLayer {
     public void setSelectedProduct(Product product) {
         selectedProduct = product;
         if (selectedProduct != null) {
+            final String selName = getUniqueName(selectedProduct);
             for (String name : outlineTable.keySet()) {
                 final Polyline[] lineList = outlineTable.get(name);
-                final boolean highlight = name.equals(selectedProduct.getName());
+                final boolean highlight = name.equals(selName);
                 for (Polyline line : lineList) {
                     line.setHighlighted(highlight);
                     line.setHighlightColor(Color.RED);
@@ -104,7 +115,7 @@ public class ProductLayer extends RenderableLayer {
     }
 
     public void addProduct(final Product product) {
-        final String name = product.getName();
+        final String name = getUniqueName(product);
         if (this.outlineTable.get(name) != null)
             return;
 
@@ -125,7 +136,7 @@ public class ProductLayer extends RenderableLayer {
     }
 
     private void addSurfaceImage(final Product product) {
-        final String name = product.getName();
+        final String name = getUniqueName(product);
 
         final SwingWorker worker = new SwingWorker() {
 
@@ -203,7 +214,7 @@ public class ProductLayer extends RenderableLayer {
             addRenderable(polyLineList[i]);
             ++i;
         }
-        outlineTable.put(product.getName(), polyLineList);
+        outlineTable.put(getUniqueName(product), polyLineList);
     }
 
     private void addWaveProduct(final Product product) {
@@ -241,12 +252,12 @@ public class ProductLayer extends RenderableLayer {
             addRenderable(line);
             lineList[cnt++] = line;
         }
-        outlineTable.put(product.getName(), lineList);
+        outlineTable.put(getUniqueName(product), lineList);
     }
 
     public void removeProduct(final Product product) {
-        removeOutline(product.getName());
-        removeImage(product.getName());
+        removeOutline(getUniqueName(product));
+        removeImage(getUniqueName(product));
     }
 
     private void removeOutline(String imagePath) {

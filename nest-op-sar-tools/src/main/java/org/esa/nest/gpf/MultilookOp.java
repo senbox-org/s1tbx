@@ -143,7 +143,7 @@ public final class MultilookOp extends Operator {
      *          If an error occurs during computation of the target raster.
      */
     @Override
-    public void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
+    public synchronized void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
 
         final Rectangle targetTileRectangle = targetTile.getRectangle();
         final int tx0 = targetTileRectangle.x;
@@ -194,24 +194,27 @@ public final class MultilookOp extends Operator {
             final boolean isComplex = outputIntensity && (bandUnit == Unit.UnitType.REAL || bandUnit == Unit.UnitType.IMAGINARY);
 
             double meanValue;
-            int tOffset, sOffset;
+            int offset;
             final int maxy = ty0 + th;
             final int maxx = tx0 + tw;
             if(nRgLooks == 1 && nAzLooks == 1) {
                 //no mean
-                if(isComplex) {
+                if(!isComplex && targetTile.getDataBuffer().getType() == sourceRaster1.getDataBuffer().getType()) {
+                    targetTile.setRawSamples(sourceRaster1.getRawSamples());
+                } else {
                     for (int ty = ty0; ty < maxy; ty++) {
-                        tOffset = trgIndex.calculateStride(ty);
-                        sOffset = srcIndex.calculateStride(ty);
+                        offset = trgIndex.calculateStride(ty);
                         for (int tx = tx0; tx < maxx; tx++) {
-                            final int sIndex = tx - sOffset;
-                            final double i = srcData1.getElemDoubleAt(sIndex);
-                            final double q = srcData2.getElemDoubleAt(sIndex);
-                            trgData.setElemDoubleAt(tx - tOffset, i*i + q*q);
+                            final int index = tx - offset;
+                            final double i = srcData1.getElemDoubleAt(index);
+                            if(srcData2 != null) {
+                                final double q = srcData2.getElemDoubleAt(index);
+                                trgData.setElemDoubleAt(index, i*i + q*q);
+                            } else {
+                                trgData.setElemDoubleAt(index, i);
+                            }
                         }
                     }
-                } else {
-                    targetTile.setRawSamples(getSourceTile(sourceBand1, targetTile.getRectangle()).getRawSamples());
                 }
             } else {
                 for (int ty = ty0; ty < maxy; ty++) {
