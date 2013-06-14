@@ -42,7 +42,7 @@ public abstract class AbstractAggregator implements Aggregator {
         this.name = name;
         this.spatialFeatureNames = spatialFeatureNames;
         this.temporalFeatureNames = temporalFeatureNames;
-        this.outputFeatureNames = outputFeatureNames;
+        this.outputFeatureNames = replaceBrackets(outputFeatureNames);
     }
 
     @Override
@@ -82,5 +82,14 @@ public abstract class AbstractAggregator implements Aggregator {
             }
         }
         return featureNames.toArray(new String[featureNames.size()]);
+    }
+
+    private String[] replaceBrackets(String[] outputFeatureNames) {
+        String[] result = new String[outputFeatureNames.length];
+        for (int i = 0; i < outputFeatureNames.length; i++) {
+            String outFeatureName = outputFeatureNames[i];
+            result[i] = outFeatureName.replace("<", "").replace(">", "");
+        }
+        return result;
     }
 }
