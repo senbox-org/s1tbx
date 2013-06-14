@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2013 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -42,19 +42,20 @@ public class AggregatorAverageML extends AbstractAggregator {
 
     private final int varIndex;
     private final WeightFn weightFn;
-    private final boolean writeSums;
+    private final boolean outputSums;
 
     public AggregatorAverageML(VariableContext ctx, String varName, Double weightCoeff) {
         this(ctx, varName, weightCoeff, false);
     }
 
-    public AggregatorAverageML(VariableContext ctx, String varName, Double weightCoeff, boolean writeSums) {
+    public AggregatorAverageML(VariableContext ctx, String varName, Double weightCoeff, boolean outputSums) {
         super(Descriptor.NAME,
               createFeatureNames(varName, "sum", "sum_sq"),
               createFeatureNames(varName, "sum", "sum_sq", "weights"),
-              createFeatureNames(varName, "mean", "sigma", "median", "mode",
-                                 writeSums ? "sum" : null, writeSums ? "sum_sq" : null));
-        this.writeSums = writeSums;
+              outputSums ?
+                      createFeatureNames(varName, "sum", "sum_sq", "weights") :
+                      createFeatureNames(varName, "mean", "sigma", "median", "mode"));
+        this.outputSums = outputSums;
         this.varIndex = ctx.getVariableIndex(varName);
         this.weightFn = WeightFn.createPow(weightCoeff != null ? weightCoeff : 0.5);
     }
@@ -104,32 +105,35 @@ public class AggregatorAverageML extends AbstractAggregator {
         final double sumX = temporalVector.get(0);
         final double sumXX = temporalVector.get(1);
         final double sumW = temporalVector.get(2);
-        final double avLogs = sumX / sumW;
-        final double vrLogs = sumXX / sumW - avLogs * avLogs;
-        final double mean = exp(avLogs + 0.5 * vrLogs);
-        final double expVrLogs = exp(vrLogs);
-        final double sigma = mean * (expVrLogs > 1.0 ? sqrt(expVrLogs - 1.0) : 0.0);
-        final double median = exp(avLogs);
-        final double mode = exp(avLogs - vrLogs);
-        outputVector.set(0, (float) mean);
-        outputVector.set(1, (float) sigma);
-        outputVector.set(2, (float) median);
-        outputVector.set(3, (float) mode);
-        if (writeSums) {
-            outputVector.set(4, (float) sumX);
-            outputVector.set(5, (float) sumXX);
+        if (outputSums) {
+            outputVector.set(0, (float) sumX);
+            outputVector.set(1, (float) sumXX);
+            outputVector.set(2, (float) sumW);
+        } else {
+            final double avLogs = sumX / sumW;
+            final double vrLogs = sumXX / sumW - avLogs * avLogs;
+            final double mean = exp(avLogs + 0.5 * vrLogs);
+            final double expVrLogs = exp(vrLogs);
+            final double sigma = mean * (expVrLogs > 1.0 ? sqrt(expVrLogs - 1.0) : 0.0);
+            final double median = exp(avLogs);
+            final double mode = exp(avLogs - vrLogs);
+
+            outputVector.set(0, (float) mean);
+            outputVector.set(1, (float) sigma);
+            outputVector.set(2, (float) median);
+            outputVector.set(3, (float) mode);
         }
     }
 
     @Override
     public String toString() {
         return "AggregatorAverageML{" +
-               "varIndex=" + varIndex +
-               ", weightFn=" + weightFn +
-               ", spatialFeatureNames=" + Arrays.toString(getSpatialFeatureNames()) +
-               ", temporalFeatureNames=" + Arrays.toString(getTemporalFeatureNames()) +
-               ", outputFeatureNames=" + Arrays.toString(getOutputFeatureNames()) +
-               '}';
+                "varIndex=" + varIndex +
+                ", weightFn=" + weightFn +
+                ", spatialFeatureNames=" + Arrays.toString(getSpatialFeatureNames()) +
+                ", temporalFeatureNames=" + Arrays.toString(getTemporalFeatureNames()) +
+                ", outputFeatureNames=" + Arrays.toString(getOutputFeatureNames()) +
+                '}';
     }
 
     public static class Config extends AggregatorConfig {
@@ -141,7 +145,7 @@ public class AggregatorAverageML extends AbstractAggregator {
         @Parameter
         Float fillValue;
         @Parameter
-        Boolean writeSums;
+        Boolean outputSums;
 
         public Config() {
             super(Descriptor.NAME);
@@ -170,11 +174,11 @@ public class AggregatorAverageML extends AbstractAggregator {
         @Override
         public Aggregator createAggregator(VariableContext varCtx, AggregatorConfig aggregatorConfig) {
             PropertySet propertySet = aggregatorConfig.asPropertySet();
-            Boolean writeSums = propertySet.getValue("writeSums");
+            Boolean outputSums = propertySet.getValue("outputSums");
             return new AggregatorAverageML(varCtx,
                                            (String) propertySet.getValue("varName"),
                                            (Double) propertySet.getValue("weightCoeff"),
-                                           writeSums != null ? writeSums : false);
+                                           outputSums != null ? outputSums : false);
         }
     }
 }

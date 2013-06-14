@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2013 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -22,8 +22,9 @@ import org.esa.beam.binning.support.VectorImpl;
 import org.junit.Before;
 import org.junit.Test;
 
-import static java.lang.Float.*;
-import static java.lang.Math.*;
+import static java.lang.Float.NaN;
+import static java.lang.Math.log;
+import static java.lang.Math.sqrt;
 import static org.esa.beam.binning.aggregators.AggregatorTestUtils.*;
 import static org.junit.Assert.*;
 
@@ -37,7 +38,29 @@ public class AggregatorAverageMLTest {
     }
 
     @Test
-    public void testMetadata() {
+    public void testMetadata_noSums() {
+        AggregatorAverageML agg = new AggregatorAverageML(new MyVariableContext("b"), "b", null, false);
+
+        assertEquals("AVG_ML", agg.getName());
+
+        assertEquals(2, agg.getSpatialFeatureNames().length);
+        assertEquals("b_sum", agg.getSpatialFeatureNames()[0]);
+        assertEquals("b_sum_sq", agg.getSpatialFeatureNames()[1]);
+
+        assertEquals(3, agg.getTemporalFeatureNames().length);
+        assertEquals("b_sum", agg.getTemporalFeatureNames()[0]);
+        assertEquals("b_sum_sq", agg.getTemporalFeatureNames()[1]);
+        assertEquals("b_weights", agg.getTemporalFeatureNames()[2]);
+
+        assertEquals(4, agg.getOutputFeatureNames().length);
+        assertEquals("b_mean", agg.getOutputFeatureNames()[0]);
+        assertEquals("b_sigma", agg.getOutputFeatureNames()[1]);
+        assertEquals("b_median", agg.getOutputFeatureNames()[2]);
+        assertEquals("b_mode", agg.getOutputFeatureNames()[3]);
+    }
+
+    @Test
+    public void testMetadata_withSums() {
         AggregatorAverageML agg = new AggregatorAverageML(new MyVariableContext("b"), "b", null, true);
 
         assertEquals("AVG_ML", agg.getName());
@@ -51,14 +74,10 @@ public class AggregatorAverageMLTest {
         assertEquals("b_sum_sq", agg.getTemporalFeatureNames()[1]);
         assertEquals("b_weights", agg.getTemporalFeatureNames()[2]);
 
-        assertEquals(6, agg.getOutputFeatureNames().length);
-        assertEquals("b_mean", agg.getOutputFeatureNames()[0]);
-        assertEquals("b_sigma", agg.getOutputFeatureNames()[1]);
-        assertEquals("b_median", agg.getOutputFeatureNames()[2]);
-        assertEquals("b_mode", agg.getOutputFeatureNames()[3]);
-        assertEquals("b_sum", agg.getOutputFeatureNames()[4]);
-        assertEquals("b_sum_sq", agg.getOutputFeatureNames()[5]);
-
+        assertEquals(3, agg.getOutputFeatureNames().length);
+        assertEquals("b_sum", agg.getOutputFeatureNames()[0]);
+        assertEquals("b_sum_sq", agg.getOutputFeatureNames()[1]);
+        assertEquals("b_weights", agg.getOutputFeatureNames()[2]);
     }
 
     @Test
@@ -116,7 +135,7 @@ public class AggregatorAverageMLTest {
 
         VectorImpl svec = vec(NaN, NaN);
         VectorImpl tvec = vec(NaN, NaN, NaN);
-        VectorImpl out = vec(NaN, NaN, NaN, NaN, NaN, NaN);
+        VectorImpl out = vec(NaN, NaN, NaN);
 
         agg.initSpatial(ctx, svec);
         assertEquals(0.0f, svec.get(0), 0.0f);
@@ -146,22 +165,16 @@ public class AggregatorAverageMLTest {
         agg.aggregateTemporal(ctx, vec(0.1f, 0.01f), 7, tvec);
         sumX = 0.3f + 0.1f + 0.2f + 0.1f;
         sumXX = 0.09f + 0.01f + 0.04f + 0.01f;
+        double sumW = sqrt(3f) + sqrt(2f) + sqrt(1f) + sqrt(7f);
         assertEquals(sumX, tvec.get(0), 1e-5);
         assertEquals(sumXX, tvec.get(1), 1e-5);
-        assertEquals(sqrt(3f) + sqrt(2f) + sqrt(1f) + sqrt(7f), tvec.get(2), 1e-5);
+        assertEquals(sumW, tvec.get(2), 1e-5);
 
         agg.completeTemporal(ctx, 4, tvec);
 
-        float mean = 1.114932F;
-        float sigma = 0.119713F;
-        float median = 1.108560F;
-        float mode = 1.095926F;
         agg.computeOutput(tvec, out);
-        assertEquals(mean, out.get(0), 1e-5f);
-        assertEquals(sigma, out.get(1), 1e-5f);
-        assertEquals(median, out.get(2), 1e-5f);
-        assertEquals(mode, out.get(3), 1e-5f);
-        assertEquals(sumX, out.get(4), 1e-5f);
-        assertEquals(sumXX, out.get(5), 1e-5f);
+        assertEquals(sumX, out.get(0), 1e-5);
+        assertEquals(sumXX, out.get(1), 1e-5);
+        assertEquals(sumW, out.get(2), 1e-5);
     }
 }

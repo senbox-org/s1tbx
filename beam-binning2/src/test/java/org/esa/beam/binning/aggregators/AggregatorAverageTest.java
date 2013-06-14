@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2013 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -23,8 +23,8 @@ import org.esa.beam.binning.support.VectorImpl;
 import org.junit.Before;
 import org.junit.Test;
 
-import static java.lang.Float.*;
-import static java.lang.Math.*;
+import static java.lang.Float.NaN;
+import static java.lang.Math.sqrt;
 import static org.esa.beam.binning.aggregators.AggregatorTestUtils.*;
 import static org.junit.Assert.*;
 
@@ -38,7 +38,30 @@ public class AggregatorAverageTest {
     }
 
     @Test
-    public void testMetadata() {
+    public void testMetadata_noSums() {
+        AggregatorAverage agg = new AggregatorAverage(new MyVariableContext("c"), "c", 0.0, false, false);
+
+        assertEquals("AVG", agg.getName());
+
+        String[] spatialFeatureNames = agg.getSpatialFeatureNames();
+        assertEquals(2, spatialFeatureNames.length);
+        assertEquals("c_sum", spatialFeatureNames[0]);
+        assertEquals("c_sum_sq", spatialFeatureNames[1]);
+
+        String[] temporalFeatureNames = agg.getTemporalFeatureNames();
+        assertEquals(3, temporalFeatureNames.length);
+        assertEquals("c_sum", temporalFeatureNames[0]);
+        assertEquals("c_sum_sq", temporalFeatureNames[1]);
+        assertEquals("c_weights", temporalFeatureNames[2]);
+
+        String[] outputFeatureNames = agg.getOutputFeatureNames();
+        assertEquals(2, outputFeatureNames.length);
+        assertEquals("c_mean", outputFeatureNames[0]);
+        assertEquals("c_sigma", outputFeatureNames[1]);
+    }
+
+    @Test
+    public void testMetadata_withSums() {
         AggregatorAverage agg = new AggregatorAverage(new MyVariableContext("c"), "c", 0.0, false, true);
 
         assertEquals("AVG", agg.getName());
@@ -55,11 +78,10 @@ public class AggregatorAverageTest {
         assertEquals("c_weights", temporalFeatureNames[2]);
 
         String[] outputFeatureNames = agg.getOutputFeatureNames();
-        assertEquals(4, outputFeatureNames.length);
-        assertEquals("c_mean", outputFeatureNames[0]);
-        assertEquals("c_sigma", outputFeatureNames[1]);
-        assertEquals("c_sum", outputFeatureNames[2]);
-        assertEquals("c_sum_sq", outputFeatureNames[3]);
+        assertEquals(3, outputFeatureNames.length);
+        assertEquals("c_sum", outputFeatureNames[0]);
+        assertEquals("c_sum_sq", outputFeatureNames[1]);
+        assertEquals("c_weights", outputFeatureNames[2]);
     }
 
     @Test
@@ -297,7 +319,7 @@ public class AggregatorAverageTest {
 
         VectorImpl svec = vec(NaN, NaN);
         VectorImpl tvec = vec(NaN, NaN, NaN);
-        VectorImpl out = vec(NaN, NaN, NaN, NaN);
+        VectorImpl out = vec(NaN, NaN, NaN);
 
         agg.initSpatial(ctx, svec);
         assertEquals(0.0f, svec.get(0), 0.0f);
@@ -327,17 +349,15 @@ public class AggregatorAverageTest {
         agg.aggregateTemporal(ctx, vec(0.1f, 0.01f), 7, tvec);
         sumX = 0.3f + 0.1f + 0.2f + 0.1f;
         sumXX = 0.09f + 0.01f + 0.04f + 0.01f;
+        float weights = 4f;
         assertEquals(sumX, tvec.get(0), 1e-5f);
         assertEquals(sumXX, tvec.get(1), 1e-5f);
-        assertEquals(4f, tvec.get(2), 1e-5f);
+        assertEquals(weights, tvec.get(2), 1e-5f);
 
-        float mean = (0.3f + 0.1f + 0.2f + 0.1f) / 4f;
-        float sigma = (float) sqrt((0.09f + 0.01f + 0.04f + 0.01f) / 4f - mean * mean);
         agg.computeOutput(tvec, out);
-        assertEquals(mean, out.get(0), 1e-5f);
-        assertEquals(sigma, out.get(1), 1e-5f);
-        assertEquals(sumX, out.get(2), 1e-5f);
-        assertEquals(sumXX, out.get(3), 1e-5f);
+        assertEquals(sumX, out.get(0), 1e-5f);
+        assertEquals(sumXX, out.get(1), 1e-5f);
+        assertEquals(weights, out.get(2), 1e-5f);
     }
 
     @Test
@@ -346,7 +366,7 @@ public class AggregatorAverageTest {
 
         VectorImpl svec = vec(NaN, NaN);
         VectorImpl tvec = vec(NaN, NaN, NaN);
-        VectorImpl out = vec(NaN, NaN, NaN, NaN);
+        VectorImpl out = vec(NaN, NaN, NaN);
 
         agg.initSpatial(ctx, svec);
         assertEquals(0.0f, svec.get(0), 0.0f);
@@ -381,13 +401,10 @@ public class AggregatorAverageTest {
         assertEquals(sumXX, tvec.get(1), 1e-5f);
         assertEquals(weightSum, tvec.get(2), 1e-5f);
 
-        float mean = sumX / weightSum;
-        float sigma = (float) sqrt(sumXX / weightSum - mean * mean);
         agg.computeOutput(tvec, out);
-        assertEquals(mean, out.get(0), 1e-5f);
-        assertEquals(sigma, out.get(1), 1e-5f);
-        assertEquals(sumX, out.get(2), 1e-5f);
-        assertEquals(sumXX, out.get(3), 1e-5f);
+        assertEquals(sumX, out.get(0), 1e-5f);
+        assertEquals(sumXX, out.get(1), 1e-5f);
+        assertEquals(weightSum, out.get(2), 1e-5f);
     }
 
     @Test
@@ -396,7 +413,7 @@ public class AggregatorAverageTest {
 
         VectorImpl svec = vec(NaN, NaN, NaN);
         VectorImpl tvec = vec(NaN, NaN, NaN, NaN);
-        VectorImpl out = vec(NaN, NaN, NaN, NaN, NaN);
+        VectorImpl out = vec(NaN, NaN, NaN, NaN);
 
         agg.initSpatial(ctx, svec);
         assertEquals(0.0f, svec.get(0), 0.0f);
@@ -437,14 +454,11 @@ public class AggregatorAverageTest {
         assertEquals(weightSum, tvec.get(2), 1e-5f);
         assertEquals(counts, tvec.get(2), 1e-5f);
 
-        float mean = sumX / weightSum;
-        float sigma = (float) sqrt(sumXX / weightSum - mean * mean);
         agg.computeOutput(tvec, out);
-        assertEquals(mean, out.get(0), 1e-5f);
-        assertEquals(sigma, out.get(1), 1e-5f);
-        assertEquals(counts, out.get(2), 1e-5f);
-        assertEquals(sumX, out.get(3), 1e-5f);
-        assertEquals(sumXX, out.get(4), 1e-5f);
+        assertEquals(sumX, out.get(0), 1e-5f);
+        assertEquals(sumXX, out.get(1), 1e-5f);
+        assertEquals(weightSum, out.get(2), 1e-5f);
+        assertEquals(counts, out.get(3), 1e-5f);
     }
 
     @Test
@@ -453,7 +467,7 @@ public class AggregatorAverageTest {
 
         VectorImpl svec = vec(NaN, NaN);
         VectorImpl tvec = vec(NaN, NaN, NaN);
-        VectorImpl out = vec(NaN, NaN, NaN, NaN);
+        VectorImpl out = vec(NaN, NaN, NaN);
 
         agg.initSpatial(ctx, svec);
         assertEquals(0.0f, svec.get(0), 0.0f);
@@ -483,17 +497,15 @@ public class AggregatorAverageTest {
         agg.aggregateTemporal(ctx, vec(0.1f, 0.01f), 7, tvec);
         sumX = 3 * 0.3f + 2 * 0.1f + 1 * 0.2f + 7 * 0.1f;
         sumXX = 3 * 0.09f + 2 * 0.01f + 1 * 0.04f + 7 * 0.01f;
+        float sumW = 3f + 2f + 1f + 7f;
         assertEquals(sumX, tvec.get(0), 1e-5f);
         assertEquals(sumXX, tvec.get(1), 1e-5f);
-        assertEquals(3f + 2f + 1f + 7f, tvec.get(2), 1e-5f);
+        assertEquals(sumW, tvec.get(2), 1e-5f);
 
-        float mean = (3 * 0.3f + 2 * 0.1f + 1 * 0.2f + 7 * 0.1f) / (3f + 2f + 1f + 7f);
-        float sigma = (float) sqrt((3 * 0.09f + 2 * 0.01f + 1 * 0.04f + 7 * 0.01f) / (3f + 2f + 1f + 7f) - mean * mean);
         agg.computeOutput(tvec, out);
-        assertEquals(mean, out.get(0), 1e-5f);
-        assertEquals(sigma, out.get(1), 1e-5f);
-        assertEquals(sumX, out.get(2), 1e-5f);
-        assertEquals(sumXX, out.get(3), 1e-5f);
+        assertEquals(sumX, out.get(0), 1e-5f);
+        assertEquals(sumXX, out.get(1), 1e-5f);
+        assertEquals(sumW, out.get(2), 1e-5f);
     }
 
 }
