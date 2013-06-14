@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2013 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -104,8 +104,6 @@ public class AggregatorMinMax extends AbstractAggregator {
 
         @Parameter
         String varName;
-        @Parameter
-        Float fillValue;
 
         public Config() {
             super(Descriptor.NAME);

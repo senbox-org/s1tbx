@@ -143,8 +143,6 @@ public class AggregatorAverageML extends AbstractAggregator {
         @Parameter
         Double weightCoeff;
         @Parameter
-        Float fillValue;
-        @Parameter
         Boolean outputSums;
 
         public Config() {

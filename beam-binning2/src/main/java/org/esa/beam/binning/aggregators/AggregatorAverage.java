@@ -153,7 +153,6 @@ public final class AggregatorAverage extends AbstractAggregator {
         final double sumW = temporalVector.get(2);
 
         int index = 0;
-        // todo - use fillValue here (nf)
         if (outputSums) {
             outputVector.set(index++, (float) sumX);
             outputVector.set(index++, (float) sumXX);
@@ -213,22 +212,19 @@ public final class AggregatorAverage extends AbstractAggregator {
         @Parameter
         Double weightCoeff;
         @Parameter
-        Float fillValue;
-        @Parameter
         Boolean outputCounts;
         @Parameter
         Boolean outputSums;
 
 
         public Config() {
-            this(null, null, null, null, null);
+            this(null, null, null, null);
         }
 
-        public Config(String varName, Double weightCoeff, Float fillValue, Boolean outputCounts, Boolean outputSums) {
+        public Config(String varName, Double weightCoeff, Boolean outputCounts, Boolean outputSums) {
             super(Descriptor.NAME);
             this.varName = varName;
             this.weightCoeff = weightCoeff;
-            this.fillValue = fillValue;
             this.outputCounts = outputCounts;
             this.outputSums = outputSums;
         }

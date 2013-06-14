@@ -85,13 +85,6 @@ public class AggregatorAverageTest {
     }
 
     @Test
-    public void testMetadata_ForDedicatedFillValue() {
-        AggregatorAverage agg = new AggregatorAverage(new MyVariableContext("c"), "c", 0.0);
-
-        assertEquals("AVG", agg.getName());
-    }
-
-    @Test
     public void testAggregatorAverageNoWeight() {
         AggregatorAverage agg = new AggregatorAverage(new MyVariableContext("c"), "c", 0.0);
 

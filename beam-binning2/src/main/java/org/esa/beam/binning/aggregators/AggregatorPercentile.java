@@ -126,7 +126,6 @@ public class AggregatorPercentile extends AbstractAggregator {
         if (!Float.isNaN(value)) {
             outputVector.set(0, value);
         } else {
-            // todo - use fillValue here (nf)
             outputVector.set(0, Float.NaN);
         }
     }
@@ -175,8 +174,6 @@ public class AggregatorPercentile extends AbstractAggregator {
         String varName;
         @Parameter
         Integer percentage;
-        @Parameter
-        Float fillValue;
 
         public Config() {
             super(Descriptor.NAME);
