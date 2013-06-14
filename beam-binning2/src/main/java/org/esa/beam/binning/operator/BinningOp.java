@@ -154,6 +154,10 @@ public class BinningOp extends Operator implements Output {
                              "target product. The output file name will be <target>-bins.nc", defaultValue = "true")
     boolean outputBinnedData;
 
+    @Parameter(description = "If true, a target is product. Set this to 'false' if only a binned product is needed.",
+               defaultValue = "true")
+    boolean outputTargetProduct;
+
     @Parameter(notNull = true,
                description = "The configuration used for the binning process. Specifies the binning grid, any variables and their aggregators.")
     BinningConfig binningConfig;
@@ -185,14 +189,12 @@ public class BinningOp extends Operator implements Output {
     private transient ProductData.UTC minDateUtc;
     private transient ProductData.UTC maxDateUtc;
     private transient SortedMap<String, String> metadataProperties;
-    private transient boolean outputTargetProduct;
     private transient BinWriter binWriter;
 
     private final Map<Product, List<Band>> addedBands;
 
     public BinningOp() throws OperatorException {
         addedBands = new HashMap<Product, List<Band>>();
-        outputTargetProduct = true;
     }
 
     public Geometry getRegion() {
@@ -382,6 +384,9 @@ public class BinningOp extends Operator implements Output {
         if (!metadataTemplateDir.exists()) {
             String msgPattern = "Directory given by 'metadataTemplateDir' does not exist: %s";
             throw new OperatorException(String.format(msgPattern, metadataTemplateDir));
+        }
+        if (!outputBinnedData && !outputTargetProduct) {
+            throw new OperatorException("At least one of the parameters 'outputBinnedData' and 'outputTargetProduct' must be 'true'");
         }
     }
 
