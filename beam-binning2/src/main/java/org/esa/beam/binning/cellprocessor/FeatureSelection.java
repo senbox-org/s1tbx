@@ -1,4 +1,3 @@
-package org.esa.beam.binning.cellprocessor;
 /*
  * Copyright (C) 2013 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
@@ -14,6 +13,8 @@ package org.esa.beam.binning.cellprocessor;
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
+
+package org.esa.beam.binning.cellprocessor;
 
 import com.bc.ceres.binding.PropertySet;
 import org.esa.beam.binning.CellProcessor;
@@ -31,17 +32,38 @@ public class FeatureSelection extends CellProcessor {
 
     private final int[] varIndexes;
 
-    public FeatureSelection(VariableContext varCtx, String... outputFeatureNames) {
-        super(outputFeatureNames);
-        varIndexes = new int[outputFeatureNames.length];
-        for (int i = 0; i < outputFeatureNames.length; i++) {
-            String name = outputFeatureNames[i];
+    public FeatureSelection(VariableContext varCtx, String... featureNames) {
+        super(getOutputFeatureNames(featureNames));
+        String[] inputFeatureNames = getInputFeatureNames(featureNames);
+        varIndexes = new int[inputFeatureNames.length];
+        for (int i = 0; i < inputFeatureNames.length; i++) {
+            String name = inputFeatureNames[i];
             int variableIndex = varCtx.getVariableIndex(name);
             if (variableIndex == -1) {
                 throw new IllegalArgumentException("unknown feature name: " + name);
             }
             varIndexes[i] = variableIndex;
         }
+    }
+
+    private static String[] getInputFeatureNames(String[] featureNames) {
+        return getFeatureNames(featureNames, 1);
+    }
+
+    private static String[] getOutputFeatureNames(String[] featureNames) {
+        return getFeatureNames(featureNames, 0);
+    }
+
+    private static String[] getFeatureNames(String[] featureNames, int index) {
+        String[] result = new String[featureNames.length];
+        for (int i = 0; i < featureNames.length; i++) {
+            String featureName = featureNames[i];
+            if (featureName.contains("=")) {
+                featureName = featureName.split("=")[index];
+            }
+            result[i] = featureName;
+        }
+        return result;
     }
 
     @Override

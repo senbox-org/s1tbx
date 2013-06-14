@@ -65,7 +65,7 @@ public class BinningConfigWithProcessorTest {
         assertEquals(AggregatorMinMax.class, binManager.getAggregator(5).getClass());
         assertArrayEquals(new String[]{"chl_min", "chl_max"}, binManager.getAggregator(5).getOutputFeatureNames());
 
-        assertArrayEquals(new String[]{"tsm_mean", "tsm_sigma", "chl_min"}, binManager.getResultFeatureNames());
+        assertArrayEquals(new String[]{"tsm_mean", "tsm_sigma", "chl_min", "cmax"}, binManager.getResultFeatureNames());
         assertTrue(binManager.hasPostProcessor());
     }
 
