@@ -16,6 +16,9 @@
 package org.esa.beam.jai;
 
 
+import org.esa.beam.util.jai.SingleBandedSampleModel;
+
+import javax.media.jai.ImageLayout;
 import javax.media.jai.PointOpImage;
 import javax.media.jai.RasterAccessor;
 import javax.media.jai.RasterFormatTag;
@@ -29,7 +32,7 @@ import java.awt.image.WritableRaster;
  */
 public final class FillConstantOpImage extends PointOpImage {
 
-    private final double fillValue;
+    private final Number fillValue;
     private final RasterFormatTag maskRasterFormatTag;
 
     /**
@@ -38,13 +41,21 @@ public final class FillConstantOpImage extends PointOpImage {
      *
      * @param sourceImage The source image.
      * @param maskImage   The mask image. This mask prevents pixel values from being overwritten by fill value (where mask != 0).
-     * @param fillValue The value to replace the original ones.
+     * @param fillValue   The value to replace the original ones.
      */
-    public FillConstantOpImage(RenderedImage sourceImage, RenderedImage maskImage, double fillValue) {
-        super(sourceImage, maskImage, null, null, true);
+    public FillConstantOpImage(RenderedImage sourceImage, RenderedImage maskImage, Number fillValue) {
+        super(sourceImage, maskImage, createImageLayout(sourceImage, fillValue), null, true);
         this.fillValue = fillValue;
         int compatibleTagId = RasterAccessor.findCompatibleTag(null, maskImage.getSampleModel());
         maskRasterFormatTag = new RasterFormatTag(maskImage.getSampleModel(), compatibleTagId);
+    }
+
+    private static ImageLayout createImageLayout(RenderedImage sourceImage, Number fillValue) {
+        int targetDataType = Math.max(sourceImage.getSampleModel().getDataType(), DataBufferUtils.getDataBufferType(fillValue));
+        SingleBandedSampleModel sampleModel = new SingleBandedSampleModel(targetDataType,
+                                                                          sourceImage.getTileWidth(),
+                                                                          sourceImage.getTileHeight());
+        return new ImageLayout(sourceImage).setSampleModel(sampleModel);
     }
 
     @Override
@@ -55,23 +66,23 @@ public final class FillConstantOpImage extends PointOpImage {
         RasterAccessor d = new RasterAccessor(dest, destRect, formatTags[2], getColorModel());
         switch (d.getDataType()) {
             case 0: // '\0'
-                computeRectByte(s, m, d, (byte) fillValue);
+                computeRectByte(s, m, d, fillValue.byteValue());
                 break;
 
             case 1: // '\001'
             case 2: // '\002'
-                computeRectShort(s, m, d, (short) fillValue);
+                computeRectShort(s, m, d, fillValue.shortValue());
                 break;
 
             case 3: // '\003'
-                computeRectInt(s, m, d, (int) fillValue);
+                computeRectInt(s, m, d, fillValue.intValue());
                 break;
             case 4: // '\004'
-                computeRectFloat(s, m, d, (float) fillValue);
+                computeRectFloat(s, m, d, fillValue.floatValue());
                 break;
 
             case 5: // '\005'
-                computeRectDouble(s, m, d, fillValue);
+                computeRectDouble(s, m, d, fillValue.doubleValue());
                 break;
         }
         d.copyDataToRaster();

@@ -16,6 +16,9 @@
 package org.esa.beam.jai;
 
 
+import org.esa.beam.util.jai.SingleBandedSampleModel;
+
+import javax.media.jai.ImageLayout;
 import javax.media.jai.PointOpImage;
 import javax.media.jai.RasterAccessor;
 import javax.media.jai.RasterFormatTag;
@@ -34,15 +37,26 @@ public final class ReplaceValueOpImage extends PointOpImage {
 
     /**
      * The {@code valueToBeReplaced} are replaced by {@code replaceValue} within the {@code sourceImage}
+     * The data type of the {@link java.awt.image.SampleModel} of the resulting image is determined by using the source image and the
+     * data types of the old and new value. The image will have the 'bigger' data type of those three in order to prevent loss of accuracy.
      *
      * @param sourceImage The source image.
-     * @param oldValue The value to be replaced.
-     * @param newValue The value replacing the old value
+     * @param oldValue    The value to be replaced.
+     * @param newValue    The value replacing the old value.
      */
     public ReplaceValueOpImage(RenderedImage sourceImage, Number oldValue, Number newValue) {
-        super(sourceImage, null, null, true);
+        super(sourceImage, createImageLayout(sourceImage, oldValue, newValue), null, true);
         this.oldValue = oldValue;
         this.newValue = newValue;
+    }
+
+    private static ImageLayout createImageLayout(RenderedImage sourceImage, Number oldValue, Number newValue) {
+        int targetDataType = Math.max(sourceImage.getSampleModel().getDataType(), DataBufferUtils.getDataBufferType(oldValue));
+        targetDataType = Math.max(targetDataType, DataBufferUtils.getDataBufferType(newValue));
+        SingleBandedSampleModel sampleModel = new SingleBandedSampleModel(targetDataType,
+                                                                          sourceImage.getTileWidth(),
+                                                                          sourceImage.getTileHeight());
+        return new ImageLayout(sourceImage).setSampleModel(sampleModel);
     }
 
     @Override
@@ -234,7 +248,7 @@ public final class ReplaceValueOpImage extends PointOpImage {
             sLineOffset += sLineStride;
             dLineOffset += dLineStride;
             for (int w = 0; w < dwidth; w++) {
-                if (!(Math.abs(s[sPixelOffset] - value) <= 1.0e-8f)) {
+                if (!(Math.abs(s[sPixelOffset] - value) <= 1.0e-6f)) {
                     d[dPixelOffset] = s[sPixelOffset];
                 } else {
                     d[dPixelOffset] = replacement;
