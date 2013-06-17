@@ -16,10 +16,7 @@
 package org.esa.nest.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.datamodel.VirtualBand;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.dataop.dem.ElevationModel;
 import org.esa.beam.framework.dataop.resamp.ResamplingFactory;
 import org.esa.beam.framework.gpf.Operator;
@@ -177,7 +174,8 @@ public final class CreateElevationOp extends Operator {
 
                 final float demNoDataValue = dem.getDescriptor().getNoDataValue();
                 final double[][] localDEM = new double[h+2][w+2];
-                DEMFactory.getLocalDEM(dem, demNoDataValue, resamplingMethod, tileGeoRef, x0, y0, w, h, localDEM);
+                DEMFactory.getLocalDEM(
+                        dem, demNoDataValue, resamplingMethod, tileGeoRef, x0, y0, w, h, sourceProduct, localDEM);
 
                 final TileIndex trgIndex = new TileIndex(targetTile);
 
