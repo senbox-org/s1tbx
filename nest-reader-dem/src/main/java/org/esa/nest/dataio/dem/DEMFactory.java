@@ -15,10 +15,7 @@
  */
 package org.esa.nest.dataio.dem;
 
-import org.esa.beam.framework.datamodel.GeoCoding;
-import org.esa.beam.framework.datamodel.GeoPos;
-import org.esa.beam.framework.datamodel.PixelPos;
-import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.dataop.dem.ElevationModel;
 import org.esa.beam.framework.dataop.dem.ElevationModelDescriptor;
 import org.esa.beam.framework.dataop.dem.ElevationModelRegistry;
@@ -26,7 +23,9 @@ import org.esa.beam.framework.dataop.resamp.Resampling;
 import org.esa.beam.framework.dataop.resamp.ResamplingFactory;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.visat.VisatApp;
+import org.esa.nest.datamodel.AbstractMetadata;
 import org.esa.nest.gpf.TileGeoreferencing;
+import org.jlinda.core.*;
 
 import java.util.Arrays;
 
@@ -150,12 +149,15 @@ public class DEMFactory {
      */
     public static boolean getLocalDEM(final ElevationModel dem, final float demNoDataValue,
                                       final String demResamplingMethod,
-                                       final TileGeoreferencing tileGeoRef,
-                                       final int x0, final int y0,
-                                       final int tileWidth, final int tileHeight,
-                                       final double[][] localDEM) throws Exception {
+                                      final TileGeoreferencing tileGeoRef,
+                                      final int x0, final int y0,
+                                      final int tileWidth, final int tileHeight,
+                                      final Product sourceProduct,
+                                      final double[][] localDEM) throws Exception {
+
         if(demResamplingMethod.equals(DELAUNAY_INTERPOLATION)) {
-            return getLocalDEMUsingDelaunayInterpolation(dem, demNoDataValue, tileGeoRef, x0, y0, tileWidth, tileHeight, localDEM);
+            return getLocalDEMUsingDelaunayInterpolation(
+                    dem, demNoDataValue, tileGeoRef, x0, y0, tileWidth, tileHeight, sourceProduct, localDEM);
         }
 
         // Note: the localDEM covers current tile with 1 extra row above, 1 extra row below, 1 extra column to
@@ -193,7 +195,8 @@ public class DEMFactory {
 
     public synchronized static boolean getLocalDEMUsingDelaunayInterpolation(
             final ElevationModel dem, final float demNoDataValue, final TileGeoreferencing tileGeoRef, final int x0,
-            final int y0, final int tileWidth, final int tileHeight, final double[][] localDEM) throws Exception {
+            final int y0, final int tileWidth, final int tileHeight, final Product sourceProduct,
+            final double[][] localDEM) throws Exception {
 
         // Note: the localDEM covers current tile with 1 extra row above, 1 extra row below, 1 extra column to
         //       the left and 1 extra column to the right of the tile.
@@ -262,8 +265,8 @@ public class DEMFactory {
                 for (int x = startX, j = 0; x < endX; x++, j++) {
                     pos.setLocation(x,y);
                     tileGeoRef.getPixelPos(dem.getGeoPos(pos), pixelPos);
-                    x_in[i][j] = pixelPos.x; // lon
-                    y_in[i][j] = pixelPos.y; // lat
+                    x_in[i][j] = pixelPos.x; // x coordinate in SAR image tile of given point pos
+                    y_in[i][j] = pixelPos.y; // y coordinate in SAR image tile of given point pos
                     try {
                         float elev = dem.getSample(x, y);
                         if (Float.isNaN(elev))
@@ -290,8 +293,8 @@ public class DEMFactory {
                 for (int x = startX, j = 0; x < endX; x++, j++) {
                     pos.setLocation(x,y);
                     tileGeoRef.getPixelPos(dem.getGeoPos(pos), pixelPos);
-                    x_in[i][j] = pixelPos.x; // lon
-                    y_in[i][j] = pixelPos.y; // lat
+                    x_in[i][j] = pixelPos.x; // x coordinate in SAR image tile of given point pos
+                    y_in[i][j] = pixelPos.y; // y coordinate in SAR image tile of given point pos
                     try {
                         float elev = dem.getSample(x, y);
                         if (Float.isNaN(elev))
@@ -307,8 +310,8 @@ public class DEMFactory {
                 for (int x = 0, j = endX - startX; x < (int)lowerRightCornerPos.x; x++, j++) {
                     pos.setLocation(x,y);
                     tileGeoRef.getPixelPos(dem.getGeoPos(pos), pixelPos);
-                    x_in[i][j] = pixelPos.x; // lon
-                    y_in[i][j] = pixelPos.y; // lat
+                    x_in[i][j] = pixelPos.x; // x coordinate in SAR image tile of given point pos
+                    y_in[i][j] = pixelPos.y; // y coordinate in SAR image tile of given point pos
                     try {
                         float elev = dem.getSample(x, y);
                         if (Float.isNaN(elev))
@@ -321,7 +324,25 @@ public class DEMFactory {
             }
         }
 
-        final double[][] elevation = org.jlinda.core.utils.TriangleUtils.gridDataLinear(y_in, x_in, z_in, tileWindow, 1, 1, 1, demNoDataValue, 0);
+        // compute range-azimuth spacing ratio
+        MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
+        SLCImage meta = new SLCImage(absRoot);
+        Orbit orbit = new Orbit(absRoot, 3);
+        final long firstLine = tileWindow.linelo + 1;
+        final long lastLine = tileWindow.linehi - 1;
+        final long firstPixel = tileWindow.pixlo + 1;
+        final long lastPixel = tileWindow.pixhi - 1;
+        final Point p1 = orbit.lp2xyz(firstLine, firstPixel, meta);
+        final Point p2 = orbit.lp2xyz(firstLine, lastPixel, meta);
+        final Point p3 = orbit.lp2xyz(lastLine, firstPixel, meta);
+        final Point p4 = orbit.lp2xyz(lastLine, lastPixel, meta);
+        final double rangeSpacing = ((p1.min(p2)).norm() + (p3.min(p4)).norm()) / 2 / (lastPixel - firstPixel);
+        final double aziSpacing = ((p1.min(p3)).norm() + (p2.min(p4)).norm()) / 2 / (lastLine - firstLine);
+        final double rngAzRatio = rangeSpacing / aziSpacing;
+
+        // y - lines, x - pixels, z - heights
+        final double[][] elevation = org.jlinda.core.utils.TriangleUtils.gridDataLinear(
+                y_in, x_in, z_in, tileWindow, rngAzRatio, 1, 1, demNoDataValue, 0);
 
         float alt;
         boolean valid = false;
