@@ -45,8 +45,6 @@ import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
-import org.esa.beam.framework.gpf.internal.OperatorContext;
-import org.esa.beam.jai.FillConstantOpImage;
 import org.esa.beam.jai.ImageManager;
 import org.esa.beam.jai.ResolutionLevel;
 import org.esa.beam.util.Debug;
@@ -353,7 +351,7 @@ public class ReprojectionOp extends Operator {
         final GeoCoding sourceGeoCoding = getSourceGeoCoding(sourceRaster);
         final String exp = sourceRaster.getValidMaskExpression();
         if (exp != null) {
-            sourceImage = createNoDataReplacedImage(sourceImage, sourceRaster.getValidMaskImage(), targetNoDataValue);
+            sourceImage = createNoDataReplacedImage(sourceRaster, targetNoDataValue);
         }
 
         final Interpolation resampling = getResampling(targetBand);
@@ -423,20 +421,8 @@ public class ReprojectionOp extends Operator {
         });
     }
 
-    private MultiLevelImage createNoDataReplacedImage(final MultiLevelImage srcImage, final MultiLevelImage maskImage,
-                                                      final double noData) {
-
-        return new DefaultMultiLevelImage(new AbstractMultiLevelSource(srcModel) {
-
-            @Override
-            public RenderedImage createImage(int sourceLevel) {
-                FillConstantOpImage noDataValueOpImage = new FillConstantOpImage(srcImage.getImage(sourceLevel),
-                                                                                 maskImage.getImage(sourceLevel),
-                                                                                 noData);
-                OperatorContext.setTileCache(noDataValueOpImage);
-                return noDataValueOpImage;
-            }
-        });
+    private MultiLevelImage createNoDataReplacedImage(final RasterDataNode rasterDataNode, final double noData) {
+        return ImageManager.createMaskedGeophysicalImage(rasterDataNode, noData);
     }
 
     private MultiLevelImage createProjectedImage(final GeoCoding sourceGeoCoding, final MultiLevelImage sourceImage,

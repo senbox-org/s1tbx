@@ -869,6 +869,42 @@ public class ImageManager {
         return BandMergeDescriptor.create(colorImage, alphaImage, hints);
     }
 
+    public static MultiLevelImage createMaskedGeophysicalImage(final RasterDataNode node, Number maskValue) {
+        MultiLevelImage varImage = node.getGeophysicalImage();
+        if (node.getValidPixelExpression() != null) {
+            varImage = replaceInvalidValuesByNaN(node, varImage, node.getValidMaskImage(), maskValue);
+        }else if (node.isNoDataValueSet() && node.isNoDataValueUsed()) {
+            varImage =  replaceNoDataValueByNaN(node, varImage, node.getNoDataValue(), maskValue);
+        }
+        return varImage;
+    }
+
+    private static MultiLevelImage replaceInvalidValuesByNaN(final RasterDataNode rasterDataNode, final MultiLevelImage srcImage,
+                                                             final MultiLevelImage maskImage, final Number fillValue) {
+
+        final MultiLevelModel multiLevelModel = getMultiLevelModel(rasterDataNode);
+        return new DefaultMultiLevelImage(new AbstractMultiLevelSource(multiLevelModel) {
+
+            @Override
+            public RenderedImage createImage(int sourceLevel) {
+                return new FillConstantOpImage(srcImage.getImage(sourceLevel), maskImage.getImage(sourceLevel), fillValue);
+            }
+        });
+    }
+
+    private static MultiLevelImage replaceNoDataValueByNaN(RasterDataNode rasterDataNode, final MultiLevelImage srcImage,
+                                                           final double noDataValue, final Number newValue) {
+
+        final MultiLevelModel multiLevelModel = getMultiLevelModel(rasterDataNode);
+        return new DefaultMultiLevelImage(new AbstractMultiLevelSource(multiLevelModel) {
+
+            @Override
+            public RenderedImage createImage(int sourceLevel) {
+                return new ReplaceValueOpImage(srcImage, noDataValue, newValue);
+            }
+        });
+    }
+
     public static RenderedImage createFormatOp(RenderedImage image, int dataType) {
         if (image.getSampleModel().getDataType() == dataType) {
             return PlanarImage.wrapRenderedImage(image);

@@ -19,6 +19,7 @@ package org.esa.beam.statistics.percentile.interpolated;
 import com.bc.ceres.binding.ConversionException;
 import com.bc.ceres.binding.Converter;
 import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.glevel.MultiLevelImage;
 import org.esa.beam.dataio.dimap.DimapProductConstants;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.dataio.ProductWriter;
@@ -36,10 +37,9 @@ import org.esa.beam.framework.gpf.Tile;
 import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProducts;
-import org.esa.beam.framework.gpf.internal.OperatorContext;
 import org.esa.beam.interpolators.Interpolator;
 import org.esa.beam.interpolators.InterpolatorFactory;
-import org.esa.beam.jai.FillConstantOpImage;
+import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.DateTimeUtils;
 import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.io.FileUtils;
@@ -398,8 +398,8 @@ public class TemporalPercentileOp extends Operator {
             } else {
                 band = collocatedProduct.getBand(BAND_MATH_EXPRESSION_BAND_NAME);
             }
-            FillConstantOpImage nanImage = new FillConstantOpImage(band.getGeophysicalImage(), band.getValidMaskImage(), Double.NaN);
-            OperatorContext.setTileCache(nanImage);
+            MultiLevelImage nanImage = ImageManager.createMaskedGeophysicalImage(band, Double.NaN);
+            sources.add(nanImage);
         }
         return new MeanOpImage(sources);
     }
