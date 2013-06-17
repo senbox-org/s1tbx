@@ -145,6 +145,7 @@ public final class SARSimulationOp extends Operator {
     public final static String simulatedLocalIncidenceAngleBandName = "Simulated_LocalIncidenceAngle";
     public final static String layoverShadowMaskBandName = "layover_shadow_mask";
 
+    private MetadataElement absRoot = null;
     private ElevationModel dem = null;
     private GeoCoding targetGeoCoding = null;
 
@@ -180,8 +181,8 @@ public final class SARSimulationOp extends Operator {
     private double delLat = 0.0;
     private double delLon = 0.0;
 
-    private SLCImage meta;
-    private Orbit orbit;
+    private SLCImage meta = null;
+    private Orbit orbit = null;
 
     /**
      * Initializes this operator and sets the one and only target product.
@@ -204,6 +205,8 @@ public final class SARSimulationOp extends Operator {
                 throw new OperatorException("Source product already map projected");
             }
 
+            absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
+
             getSourceImageDimension();
 
             getMetadata();
@@ -221,7 +224,6 @@ public final class SARSimulationOp extends Operator {
             computeDEMTraversalSampleInterval();
 
             if(orbitMethod) {
-                final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
                 meta = new SLCImage(absRoot);
                 orbit = new Orbit(absRoot, 3);
             }
@@ -244,7 +246,6 @@ public final class SARSimulationOp extends Operator {
      */
     private void getMetadata() throws Exception {
 
-        final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
         srgrFlag = AbstractMetadata.getAttributeBoolean(absRoot, AbstractMetadata.srgr_flag);
         wavelength = OperatorUtils.getRadarFrequency(absRoot);
         rangeSpacing = AbstractMetadata.getAttributeDouble(absRoot, AbstractMetadata.range_spacing);
@@ -692,7 +693,8 @@ public final class SARSimulationOp extends Operator {
                  }
              } else {
 
-                final boolean valid = DEMFactory.getLocalDEM(dem, demNoDataValue, demResamplingMethod, tileGeoRef, x0, ymin, w, ymax-ymin, localDEM);
+                final boolean valid = DEMFactory.getLocalDEM(
+                        dem, demNoDataValue, demResamplingMethod, tileGeoRef, x0, ymin, w, ymax-ymin, sourceProduct, localDEM);
                 if(!valid)
                     return;
              }
