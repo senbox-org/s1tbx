@@ -175,7 +175,8 @@ public class CreateLandMaskOp extends Operator {
 
             final float demNoDataValue = dem.getDescriptor().getNoDataValue();
             final double[][] localDEM = new double[maxY-minY+2][maxX-minX+2];
-            DEMFactory.getLocalDEM(dem, demNoDataValue, null, tileGeoRef, minX, minY, maxX-minX, maxY-minY, localDEM);
+            DEMFactory.getLocalDEM(
+                    dem, demNoDataValue, null, tileGeoRef, minX, minY, maxX-minX, maxY-minY, null, localDEM);
 
             for (int y = minY; y < maxY; ++y) {
                 tileIndex.calculateStride(y);
