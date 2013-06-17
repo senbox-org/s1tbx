@@ -16,6 +16,7 @@
 package org.esa.nest.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
+import org.apache.commons.lang.exception.Nestable;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.dataop.dem.ElevationModel;
 import org.esa.beam.framework.dataop.resamp.Resampling;
@@ -38,6 +39,7 @@ import org.esa.nest.datamodel.CalibrationFactory;
 import org.esa.nest.datamodel.Calibrator;
 import org.esa.nest.datamodel.Unit;
 import org.esa.nest.eo.*;
+import org.esa.nest.eo.Constants;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import java.awt.*;
@@ -797,7 +799,8 @@ public class RangeDopplerGeocodingOp extends Operator {
             if(useAvgSceneHeight) {
                 DEMFactory.fillDEM(localDEM, (float)avgSceneHeight);
             } else {
-                final boolean valid = DEMFactory.getLocalDEM(dem, demNoDataValue, demResamplingMethod, tileGeoRef, x0, y0, w, h, localDEM);
+                final boolean valid = DEMFactory.getLocalDEM(
+                        dem, demNoDataValue, demResamplingMethod, tileGeoRef, x0, y0, w, h, sourceProduct, localDEM);
                 if(!valid && nodataValueAtSea)
                     return;
             }
