@@ -263,7 +263,7 @@ public class DEMFactory {
             final int endY = startY + nLatPixels;
             for (int y = startY, i = 0; y < endY; y++, i++) {
                 for (int x = startX, j = 0; x < endX; x++, j++) {
-                    pos.setLocation(x,y);
+                    pos.setLocation(x+0.5f,y+0.5f);
                     tileGeoRef.getPixelPos(dem.getGeoPos(pos), pixelPos);
                     x_in[i][j] = pixelPos.x; // x coordinate in SAR image tile of given point pos
                     y_in[i][j] = pixelPos.y; // y coordinate in SAR image tile of given point pos
@@ -291,7 +291,7 @@ public class DEMFactory {
             final int endY = startY + nLatPixels;
             for (int y = startY, i = 0; y < endY; y++, i++) {
                 for (int x = startX, j = 0; x < endX; x++, j++) {
-                    pos.setLocation(x,y);
+                    pos.setLocation(x+0.5f,y+0.5f);
                     tileGeoRef.getPixelPos(dem.getGeoPos(pos), pixelPos);
                     x_in[i][j] = pixelPos.x; // x coordinate in SAR image tile of given point pos
                     y_in[i][j] = pixelPos.y; // y coordinate in SAR image tile of given point pos
@@ -308,7 +308,7 @@ public class DEMFactory {
 
             for (int y = startY, i = 0; y < endY; y++, i++) {
                 for (int x = 0, j = endX - startX; x < (int)lowerRightCornerPos.x; x++, j++) {
-                    pos.setLocation(x,y);
+                    pos.setLocation(x+0.5f,y+0.5f);
                     tileGeoRef.getPixelPos(dem.getGeoPos(pos), pixelPos);
                     x_in[i][j] = pixelPos.x; // x coordinate in SAR image tile of given point pos
                     y_in[i][j] = pixelPos.y; // y coordinate in SAR image tile of given point pos
