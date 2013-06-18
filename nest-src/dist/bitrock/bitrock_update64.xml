@@ -1,7 +1,7 @@
 <project>
     <shortName>NEST</shortName>
     <fullName>NEST</fullName>
-    <version>5.0.5</version>
+    <version>5.0.9</version>
     <installerFilename>${product_shortname}-${product_version}-${platform_name}64-update.${platform_exec_suffix}</installerFilename>
     <readmeFile>../../../what's new.txt</readmeFile>
     <licenseFile>../../../LICENSE.txt</licenseFile>
@@ -211,13 +211,13 @@ check_for_updates = 1
     <saveRelativePaths>1</saveRelativePaths>
     <startMenuGroupName>Next ESA SAR Toolbox</startMenuGroupName>
     <vendor>ESA</vendor>
-	<windows64bitMode>1</windows64bitMode>
-	<customLanguageFileList>
+    <windows64bitMode>1</windows64bitMode>
+    <customLanguageFileList>
         <language>
             <code>en</code>
             <file>custom-en.lng</file>
         </language>
-    </customLanguageFileList>    
+    </customLanguageFileList>
     <parameterList>
         <directoryParameter>
             <name>installdir</name>
