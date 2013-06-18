@@ -337,6 +337,10 @@ public final class SLCImage {
         return currentWindow;
     }
 
+    public Window getOriginalWindow() {
+        return originalWindow;
+    }
+
     public double getPRF() {
         return PRF;
     }

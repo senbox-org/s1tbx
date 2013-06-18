@@ -11,8 +11,11 @@ import static org.jblas.MatrixFunctions.pow;
 public class PolyUtils {
 
     // TODO: Major clean-up and open sourcing of Polynomial and PolyFit classess from ppolabs.commons
+    private static final Logger logger = (Logger) LoggerFactory.getLogger(PolyUtils.class);
 
-    public static final Logger logger = (Logger) LoggerFactory.getLogger(PolyUtils.class);
+    private static void setLoggerLevel() {
+        logger.setLevel(Level.WARN);
+    }
 
     public static double normalize2(double data, final int min, final int max) {
         data -= (0.5 * (min + max));
@@ -61,7 +64,7 @@ public class PolyUtils {
 
     public static double[] polyFit2D(final DoubleMatrix x, final DoubleMatrix y, final DoubleMatrix z, final int degree) throws IllegalArgumentException {
 
-        logger.setLevel(Level.INFO);
+        setLoggerLevel();
 
         if (x.length != y.length || !x.isVector() || !y.isVector()) {
             logger.error("polyfit: require same size vectors.");
@@ -69,10 +72,7 @@ public class PolyUtils {
         }
 
         final int numOfObs = x.length;
-        final int numOfUnkn = numberOfCoefficients(degree) + 1;
-
-        DoubleMatrix A = new DoubleMatrix(numOfObs, numOfUnkn); // designmatrix
-
+        DoubleMatrix A = new DoubleMatrix(); // designmatrix
         DoubleMatrix mul;
 
         /** Set up design-matrix */
@@ -108,7 +108,7 @@ public class PolyUtils {
 
         // work out residuals
         DoubleMatrix y_hat = A.mmul(rhs);
-        DoubleMatrix e_hat = y.sub(y_hat);
+        DoubleMatrix e_hat = z.sub(y_hat);
 
         if (e_hat.normmax() > 0.02) {
             logger.warn("WARNING: Max. polyFit2D approximation error at datapoints (x,y,or z?): {}", e_hat.normmax());
@@ -128,7 +128,7 @@ public class PolyUtils {
 
     public static double[] polyFit(DoubleMatrix t, DoubleMatrix y, final int degree) throws IllegalArgumentException {
 
-        logger.setLevel(Level.INFO);
+        setLoggerLevel();
 
         if (t.length != y.length || !t.isVector() || !y.isVector()) {
             logger.error("polyfit: require same size vectors.");
@@ -217,6 +217,8 @@ public class PolyUtils {
     }
 
     public static double[][] polyval(final double[] x, final double[] y, final double coeff[], int degree) {
+
+        setLoggerLevel();
 
         if (degree < -1) {
             logger.warn("polyValGrid: degree < -1 ????");
@@ -443,6 +445,8 @@ public class PolyUtils {
     }
 
     public static DoubleMatrix polyval(final DoubleMatrix x, final DoubleMatrix y, final DoubleMatrix coeff, int degree) {
+
+        setLoggerLevel();
 
         if (!x.isColumnVector()) {
             logger.warn("polyValGrid: require (x) standing data vectors!");
@@ -691,6 +695,8 @@ public class PolyUtils {
     }
 
     public static double polyval(final double x, final double y, final double[] coeff, int degree) {
+
+        setLoggerLevel();
 
         if (degree < 0 || degree > 1000) {
             logger.warn("polyval: degree value [" + degree + "] not realistic!");
