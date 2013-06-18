@@ -143,7 +143,7 @@ public final class MultilookOp extends Operator {
      *          If an error occurs during computation of the target raster.
      */
     @Override
-    public synchronized void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
+    public void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
 
         final Rectangle targetTileRectangle = targetTile.getRectangle();
         final int tx0 = targetTileRectangle.x;
