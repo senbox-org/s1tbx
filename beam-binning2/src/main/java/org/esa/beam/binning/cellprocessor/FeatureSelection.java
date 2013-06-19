@@ -61,7 +61,7 @@ public class FeatureSelection extends CellProcessor {
             if (featureName.contains("=")) {
                 featureName = featureName.split("=")[index];
             }
-            result[i] = featureName;
+            result[i] = featureName.trim();
         }
         return result;
     }
