@@ -4,14 +4,18 @@
 
 * Autoupdate installation
 * Support for left facing missions
-* Rigourous TerraSAR-X calibration
+* Rigorous TerraSAR-X calibration
 * TC of TerraSAR-X detected products
-* copy, move, delete from product library
-* graphical subset selection
-* mapping tools layers
+* Cross Interferometry
+* Copy, move, delete from product library
+* Graphical subset selection
+* Mapping tools layers
 * Mosaic several bands at once to create RGB mosaics
-* import vector operator
-* flip operator
+* Import vector operator
+* Flip operator
+* Update to ENVISAT reader for ASAR 4/C specification
+* Fix for GeoTIFF projection issue
+* Deskewing of ALOS L1.1 to allow terrain correction
 
 Visit our website for updates to tutorial and forums
 We want to hear from you.
