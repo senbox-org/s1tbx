@@ -323,8 +323,11 @@ public class Sentinel1ProductDirectory extends XMLProductDirectory {
                     imageInformation.getAttributeInt("numberOfLines"));
             AbstractMetadata.setAttribute(bandAbsRoot, AbstractMetadata.sample_type,
                     imageInformation.getAttributeString("pixelValue").toUpperCase());
-            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.slant_range_to_first_pixel,
-                    imageInformation.getAttributeDouble("slantRangeTime")* Constants.halfLightSpeed);
+
+            if (swath.contains("1")) {
+                AbstractMetadata.setAttribute(absRoot, AbstractMetadata.slant_range_to_first_pixel,
+                        imageInformation.getAttributeDouble("slantRangeTime")* Constants.halfLightSpeed);
+            }
 
             if(!commonMetadataRetrieved) {
                 // these should be the same for all swaths
