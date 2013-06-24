@@ -874,7 +874,7 @@ public class ImageManager {
         if (node.getValidPixelExpression() != null) {
             varImage = replaceInvalidValuesByNaN(node, varImage, node.getValidMaskImage(), maskValue);
         }else if (node.isNoDataValueSet() && node.isNoDataValueUsed()) {
-            varImage =  replaceNoDataValueByNaN(node, varImage, node.getNoDataValue(), maskValue);
+            varImage =  replaceNoDataValueByNaN(node, varImage, node.getGeophysicalNoDataValue(), maskValue);
         }
         return varImage;
     }
