@@ -163,7 +163,7 @@ class GraphPanel extends JPanel implements ActionListener, PopupMenuListener, Mo
 
     void AutoConnectGraph() {
         if(!graphEx.IsGraphComplete()) {
-            List<GraphNode> nodes = graphEx.GetGraphNodes();
+            final List<GraphNode> nodes = graphEx.GetGraphNodes();
             Collections.sort(nodes, new GraphNodePosComparator());
 
             for(int i=0; i < nodes.size()-1; ++i) {
@@ -492,11 +492,16 @@ class GraphPanel extends JPanel implements ActionListener, PopupMenuListener, Mo
 
         public int compare(GraphNode o1, GraphNode o2) {
             double x1=o1.getPos().getX();
+            double y1=o1.getPos().getY();
             double x2=o2.getPos().getX();
+            double y2=o2.getPos().getY();
 
-            if (x1 > x2)
+            double h1 = Math.hypot(x1, y1);
+            double h2 = Math.hypot(x2, y2);
+
+            if (h1 > h2)
                 return -1;
-            else if ( x1 < x2)
+            else if ( h1 < h2)
                 return +1;
             else
                 return 0;
