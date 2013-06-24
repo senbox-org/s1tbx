@@ -45,7 +45,7 @@ public class ReplaceValueOpImageTest {
 
         band.setNoDataValue(1.7);
         band.setNoDataValueUsed(true);
-        ReplaceValueOpImage nanImage = new ReplaceValueOpImage(sourceImage, 1.7, Double.NaN);
+        ReplaceValueOpImage nanImage = new ReplaceValueOpImage(sourceImage, 1.7, Double.NaN, DataBuffer.TYPE_DOUBLE);
         assertEquals(DataBuffer.TYPE_DOUBLE, nanImage.getSampleModel().getDataType());
         double[] result = nanImage.getData().getPixels(0, 0, width, height, new double[width * height]);
 
@@ -90,7 +90,7 @@ public class ReplaceValueOpImageTest {
 
         band.setNoDataValue(-1);
         band.setNoDataValueUsed(true);
-        ReplaceValueOpImage nanImage = new ReplaceValueOpImage(sourceImage, -1, Double.NaN);
+        ReplaceValueOpImage nanImage = new ReplaceValueOpImage(sourceImage, -1, Double.NaN, DataBuffer.TYPE_DOUBLE);
         assertEquals(DataBuffer.TYPE_DOUBLE, nanImage.getSampleModel().getDataType());
         double[] result = nanImage.getData().getPixels(0, 0, width, height, new double[width * height]);
 
@@ -135,7 +135,7 @@ public class ReplaceValueOpImageTest {
 
         band.setNoDataValue(-1);
         band.setNoDataValueUsed(true);
-        ReplaceValueOpImage nanImage = new ReplaceValueOpImage(sourceImage, -1, Float.NaN);
+        ReplaceValueOpImage nanImage = new ReplaceValueOpImage(sourceImage, -1, Float.NaN, DataBuffer.TYPE_FLOAT);
         assertEquals(DataBuffer.TYPE_FLOAT, nanImage.getSampleModel().getDataType());
         float[] result = nanImage.getData().getPixels(0, 0, width, height, new float[width * height]);
 
@@ -180,7 +180,7 @@ public class ReplaceValueOpImageTest {
 
         band.setNoDataValue(-1);
         band.setNoDataValueUsed(true);
-        ReplaceValueOpImage nanImage = new ReplaceValueOpImage(sourceImage, (short)-1, (short)-99);
+        ReplaceValueOpImage nanImage = new ReplaceValueOpImage(sourceImage, (short)-1, (short)-99, DataBuffer.TYPE_SHORT);
         assertEquals(DataBuffer.TYPE_SHORT, nanImage.getSampleModel().getDataType());
         float[] result = nanImage.getData().getPixels(0, 0, width, height, new float[width * height]);
 

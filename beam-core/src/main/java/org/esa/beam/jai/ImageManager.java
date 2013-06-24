@@ -892,15 +892,16 @@ public class ImageManager {
         });
     }
 
-    private static MultiLevelImage replaceNoDataValueByNaN(RasterDataNode rasterDataNode, final MultiLevelImage srcImage,
+    private static MultiLevelImage replaceNoDataValueByNaN(final RasterDataNode rasterDataNode, final MultiLevelImage srcImage,
                                                            final double noDataValue, final Number newValue) {
 
         final MultiLevelModel multiLevelModel = getMultiLevelModel(rasterDataNode);
+        final int targetDataType = ImageManager.getDataBufferType(rasterDataNode.getGeophysicalDataType());
         return new DefaultMultiLevelImage(new AbstractMultiLevelSource(multiLevelModel) {
 
             @Override
             public RenderedImage createImage(int sourceLevel) {
-                return new ReplaceValueOpImage(srcImage, noDataValue, newValue);
+                return new ReplaceValueOpImage(srcImage, noDataValue, newValue, targetDataType);
             }
         });
     }
