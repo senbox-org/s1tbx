@@ -44,17 +44,18 @@ abstract class SamplePointer {
 
     private static final class SamplePointerImpl extends SamplePointer {
 
+        private final int x1;
+        private final int x2;
+        private final int y2;
+        private final Raster[] sourceTiles;
+        private final Point2D.Float[] superSamplingPoints;
+        private final float[] lastSamples;
+
         private int x;
         private int y;
-        private int x1;
-        private int x2;
-        private int y2;
-        private Raster[] sourceTiles;
-        private final Point2D.Float[] superSamplingPoints;
-        private int superSamplingIndex;
         private int lastX;
         private int lastY;
-        private float[] lastSamples;
+        private int superSamplingIndex;
 
 
         SamplePointerImpl(Raster[] sourceTiles, Rectangle bounds, Point2D.Float[] superSamplingPoints) {
@@ -132,12 +133,13 @@ abstract class SamplePointer {
 
         private static final Point2D.Float CENTER = new Point2D.Float(0.5f, 0.5f);
 
+        private final int x1;
+        private final int x2;
+        private final int y2;
+        private final Raster[] sourceTiles;
+
         private int x;
         private int y;
-        private int x1;
-        private int x2;
-        private int y2;
-        private Raster[] sourceTiles;
 
 
         SamplePointerNoSuperSampling(Raster[] sourceTiles, Rectangle bounds) {
