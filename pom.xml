@@ -680,13 +680,13 @@
 			<dependency>
 				<groupId>org.apache.derby</groupId>
 				<artifactId>derby</artifactId>
-				<version>10.9.1.0</version>
+				<version>10.10.1.1</version>
 			</dependency>
 			
 			<dependency>
 	            <groupId>commons-net</groupId>
 	            <artifactId>commons-net</artifactId>
-	            <version>3.2</version>
+	            <version>3.3</version>
 	        </dependency>
             <dependency>
                 <groupId>commons-io</groupId>
@@ -760,7 +760,7 @@
     </dependencies>
 
 	<prerequisites>
-       <maven>2.2.1</maven>
+       <maven>3.0.0</maven>
     </prerequisites>
 	
     <build>
@@ -964,6 +964,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				  <artifactId>maven-pdf-plugin</artifactId>
+				  <version>1.2</version>
 				  <executions>
 					<execution>
 					  <id>pdf</id>
