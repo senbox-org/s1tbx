@@ -64,7 +64,8 @@ public class TestMultilookOperator extends TestCase {
         op.setSourceProduct(sourceProduct);
         op.setNumRangeLooks(4);
         MultilookOp.DerivedParams param = new MultilookOp.DerivedParams();
-        op.getDerivedParameters(sourceProduct, 4, param);
+        param.nRgLooks = 4;
+        op.getDerivedParameters(sourceProduct, param);
         op.setNumAzimuthLooks(param.nAzLooks);
 
         // get targetProduct: execute initialize()
