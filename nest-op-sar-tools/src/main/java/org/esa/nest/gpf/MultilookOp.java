@@ -422,11 +422,10 @@ public final class MultilookOp extends Operator {
     /**
      * Compute number of azimuth looks and the mean ground pixel spacings for given number of range looks.
      * @param srcProduct The source product.
-     * @param nRgLooks The number of range looks.
      * @param param The computed parameters.
      * @throws Exception The exception.
      */
-    public static void getDerivedParameters(Product srcProduct, int nRgLooks, DerivedParams param) throws Exception {
+    public static void getDerivedParameters(Product srcProduct, DerivedParams param) throws Exception {
 
         final MetadataElement abs = AbstractMetadata.getAbstractedMetadata(srcProduct);
         final boolean srgrFlag = AbstractMetadata.getAttributeBoolean(abs, AbstractMetadata.srgr_flag);
@@ -446,10 +445,15 @@ public final class MultilookOp extends Operator {
             }
         }
 
-        final int nAzLooks = Math.max(1, (int)((double)nRgLooks * groundRangeSpacing / azimuthSpacing + 0.5));
-        final float meanGRSqaurePixel = (float)((nRgLooks*groundRangeSpacing + nAzLooks*azimuthSpacing)*0.5);
-        param.nAzLooks = nAzLooks;
-        param.meanGRSqaurePixel = meanGRSqaurePixel;
+        //final int nAzLooks = Math.max(1, (int)((double)nRgLooks * groundRangeSpacing / azimuthSpacing + 0.5));
+        final double nAzLooks = param.nRgLooks*groundRangeSpacing/azimuthSpacing;
+        if (nAzLooks < 1.0) {
+            param.nAzLooks = 1;
+            param.nRgLooks = (int)Math.round(azimuthSpacing/groundRangeSpacing);
+        } else {
+            param.nAzLooks = (int)Math.round(nAzLooks);
+        }
+        param.meanGRSqaurePixel = (float)((param.nRgLooks*groundRangeSpacing + param.nAzLooks*azimuthSpacing)*0.5);
     }
 
     /**
@@ -471,6 +475,7 @@ public final class MultilookOp extends Operator {
 
     static class DerivedParams {
         int nAzLooks = 0;
+        int nRgLooks = 0;
         float meanGRSqaurePixel = 0;
     }
 
