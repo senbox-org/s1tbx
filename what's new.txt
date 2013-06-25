@@ -3,10 +3,9 @@
 #################################################
 
 * Autoupdate installation
-* Support for left facing missions
+* New abstraction for left/right facing missions
 * Rigorous TerraSAR-X calibration
 * TC of TerraSAR-X detected products
-* Cross Interferometry
 * Copy, move, delete from product library
 * Graphical subset selection
 * Mapping tools layers
