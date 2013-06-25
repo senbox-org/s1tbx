@@ -78,11 +78,11 @@ public class MultilookOpUI extends BaseOperatorUI {
         if(sourceProducts != null && sourceProducts.length > 0) {
             try {
                 if (grSquarePixel.isSelected()) {
-                    final int nRgLooksVal = Integer.parseInt(nRgLooks.getText());
                     final MultilookOp.DerivedParams param = new MultilookOp.DerivedParams();
-                    MultilookOp.getDerivedParameters(sourceProducts[0], nRgLooksVal, param);
-                    final int azimuthLooks = param.nAzLooks;
-                    nAzLooks.setText(String.valueOf(azimuthLooks));
+                    param.nRgLooks = Integer.parseInt(nRgLooks.getText());
+                    MultilookOp.getDerivedParameters(sourceProducts[0], param);
+                    nAzLooks.setText(String.valueOf(param.nAzLooks));
+                    nRgLooks.setText(String.valueOf(param.nRgLooks));
 
                     final float meanSqaurePixel = param.meanGRSqaurePixel;
                     meanGRSqaurePixel.setText(String.valueOf(meanSqaurePixel));
