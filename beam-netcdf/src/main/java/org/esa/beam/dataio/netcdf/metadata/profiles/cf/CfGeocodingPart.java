@@ -71,7 +71,8 @@ public class CfGeocodingPart extends ProfilePartIO {
     }
 
     private void hdfDecode(ProfileReadContext ctx, Product p) throws IOException {
-        final CfHdfEosGeoInfoExtractor cfHdfEosGeoInfoExtractor = new CfHdfEosGeoInfoExtractor(ctx.getNetcdfFile().getGlobalAttributes());
+        final CfHdfEosGeoInfoExtractor cfHdfEosGeoInfoExtractor = new CfHdfEosGeoInfoExtractor(
+                ctx.getNetcdfFile().getGlobalAttributes());
         cfHdfEosGeoInfoExtractor.extractInfo();
 
         String projection = cfHdfEosGeoInfoExtractor.getProjection();
@@ -173,7 +174,7 @@ public class CfGeocodingPart extends ProfilePartIO {
 
     static boolean isGeographicCRS(final GeoCoding geoCoding) {
         return (geoCoding instanceof CrsGeoCoding || geoCoding instanceof MapGeoCoding) &&
-                CRS.equalsIgnoreMetadata(geoCoding.getMapCRS(), DefaultGeographicCRS.WGS84);
+               CRS.equalsIgnoreMetadata(geoCoding.getMapCRS(), DefaultGeographicCRS.WGS84);
     }
 
     private void addGeographicCoordinateVariables(NFileWriteable ncFile, GeoPos ul, GeoPos br) throws IOException {
@@ -325,6 +326,8 @@ public class CfGeocodingPart extends ProfilePartIO {
         }
         if (latBand != null && lonBand != null) {
             return new PixelGeoCoding(latBand, lonBand, latBand.getValidMaskExpression(), 5);
+            // leave here for the purpose of testing
+            // return new PixelGeoCoding2(latBand, lonBand, "lat >= -90.0 && lat <= 90.0 && lon >= -180.0 && lon <= 180.0");
         }
         return null;
     }
