@@ -28,6 +28,7 @@ import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
+import org.esa.beam.util.ProductUtils;
 import org.esa.nest.dataio.dem.DEMFactory;
 import org.esa.nest.datamodel.AbstractMetadata;
 import org.esa.nest.datamodel.PosVector;
@@ -203,6 +204,12 @@ public class ALOSDeskewingOp extends Operator {
                 sourceProduct, sourceBandNames, targetProduct, targetBandNameToSourceBandName, false, false);
 
         OperatorUtils.copyProductNodes(sourceProduct, targetProduct);
+
+        for(Band srcBand : sourceProduct.getBands()) {
+            if(srcBand instanceof VirtualBand) {
+                OperatorUtils.copyVirtualBand(targetProduct, (VirtualBand)srcBand, srcBand.getName());
+            }
+        }
     }
 
     private void updateTargetProductMetadata() {
