@@ -25,6 +25,7 @@ import org.esa.beam.framework.gpf.ui.BaseOperatorUI;
 import org.esa.beam.framework.gpf.ui.UIValidation;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.WorldMapPane;
+import org.esa.beam.visat.VisatApp;
 import org.esa.nest.dat.toolviews.productlibrary.DatabaseQueryListener;
 import org.esa.nest.dat.toolviews.productlibrary.WorldMapUI;
 import org.esa.nest.util.DialogUtils;
@@ -56,6 +57,7 @@ public class SubsetUI extends BaseOperatorUI {
 
     private final WorldMapUI worldMapUI = new WorldMapUI();
     private final JTextField geoText = new JTextField("");
+    private final JButton geoUpdateButton = new JButton("Update");
     private Geometry geoRegion = null;
 
     @Override
@@ -68,6 +70,12 @@ public class SubsetUI extends BaseOperatorUI {
         initParameters();
 
         geoText.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                updateGeoRegion();
+            }
+        });
+        geoUpdateButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 updateGeoRegion();
@@ -197,9 +205,14 @@ public class SubsetUI extends BaseOperatorUI {
 
         final WorldMapPane worldPane = worldMapUI.getWorlMapPane();
         worldPane.setPreferredSize(new Dimension(500, 130));
+
+        final JPanel geoTextPanel = new JPanel(new BorderLayout());
         geoText.setColumns(45);
+        geoTextPanel.add(geoText, BorderLayout.CENTER);
+        geoTextPanel.add(geoUpdateButton, BorderLayout.EAST);
+
         geoPanel.add(worldPane, BorderLayout.CENTER);
-        geoPanel.add(geoText, BorderLayout.SOUTH);
+        geoPanel.add(geoTextPanel, BorderLayout.SOUTH);
 
         gbc.gridx = 0;
         gbc.gridwidth = 2;
@@ -257,8 +270,7 @@ public class SubsetUI extends BaseOperatorUI {
             worldMapUI.getWorlMapPane().revalidate();
             worldMapUI.getWorlMapPane().getLayerCanvas().updateUI();
         } catch(Exception e) {
-            e.printStackTrace();
-            // do nothing
+            VisatApp.getApp().showErrorDialog(e.getMessage());
         }
     }
 

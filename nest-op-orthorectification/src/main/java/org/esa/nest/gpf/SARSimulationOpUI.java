@@ -15,6 +15,7 @@
  */
 package org.esa.nest.gpf;
 
+import org.esa.beam.framework.dataop.resamp.ResamplingFactory;
 import org.esa.beam.framework.gpf.ui.BaseOperatorUI;
 import org.esa.beam.framework.gpf.ui.UIValidation;
 import org.esa.beam.framework.ui.AppContext;
@@ -40,7 +41,7 @@ public class SARSimulationOpUI extends BaseOperatorUI {
     private final JComboBox<String> demName = new JComboBox<String>(DEMFactory.getDEMNameList());
     private static final String externalDEMStr = "External DEM";
 
-    private final JComboBox demResamplingMethod = new JComboBox<String>(DEMFactory.getDEMResamplingMethods());
+    private final JComboBox demResamplingMethod = new JComboBox<String>(ResamplingFactory.resamplingNames);
 
     private final JTextField externalDEMFile = new JTextField("");
     private final JTextField externalDEMNoDataValue = new JTextField("");
@@ -54,13 +55,13 @@ public class SARSimulationOpUI extends BaseOperatorUI {
     private final JCheckBox saveLocalIncidenceAngleCheckBox = new JCheckBox("Save Simulated Local Incidence Angle");
     private final JCheckBox saveLayoverShadowMaskCheckBox = new JCheckBox("Save Layover-Shadow Mask");
 
-    private boolean isSARSimTC = false;
-    private boolean reGridMethod = false;
-    private boolean orbitMethod = false;
-    private boolean saveDEM = false;
-    private boolean saveZeroHeightSimulation = false;
-    private boolean saveLocalIncidenceAngle = false;
-    private boolean saveLayoverShadowMask = false;
+    private Boolean isSARSimTC = false;
+    private Boolean reGridMethod = false;
+    private Boolean orbitMethod = false;
+    private Boolean saveDEM = false;
+    private Boolean saveZeroHeightSimulation = false;
+    private Boolean saveLocalIncidenceAngle = false;
+    private Boolean saveLayoverShadowMask = false;
     private Double extNoDataValue = 0.0;
 
     private final DialogUtils.TextAreaKeyListener textAreaKeyListener = new DialogUtils.TextAreaKeyListener();
@@ -153,6 +154,8 @@ public class SARSimulationOpUI extends BaseOperatorUI {
         }
 
         isSARSimTC = (Boolean)paramMap.get("isSARSimTC");
+        if(isSARSimTC == null)
+            isSARSimTC = true;
 
         if(!isSARSimTC) {
             reGridMethod = (Boolean)paramMap.get("reGridMethod");

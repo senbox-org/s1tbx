@@ -119,22 +119,22 @@ public final class SARSimulationOp extends Operator {
     @Parameter(label="DEM No Data Value", defaultValue = "0")
     private double externalDEMNoDataValue = 0;
 
-    @Parameter(defaultValue="false", label="Simulate for SARSimTC")
-    boolean isSARSimTC = false;                                    // disable extra options int the UI for SARSimTC
+    //@Parameter(defaultValue="false", label="Simulate for SARSimTC")
+    boolean isSARSimTC = true;                                    // disable extra options int the UI for SARSimTC
 
-    @Parameter(defaultValue="false", label="Re-grid method (slower)")
+    //@Parameter(defaultValue="false", label="Re-grid method (slower)")
     boolean reGridMethod = false;
 
-    @Parameter(defaultValue="false", label="Orbit method")
+    //@Parameter(defaultValue="false", label="Orbit method")
     boolean orbitMethod = false;
 
-    @Parameter(defaultValue="false", label="Save DEM band")
+    //@Parameter(defaultValue="false", label="Save DEM band")
     private boolean saveDEM = false;
 
-    @Parameter(defaultValue="false", label="Save zero height simulation")
+    //@Parameter(defaultValue="false", label="Save zero height simulation")
     private boolean saveZeroHeightSimulation = false;
 
-    @Parameter(defaultValue="false", label="Save Simulated Local Incidence Angle")
+    //@Parameter(defaultValue="false", label="Save Simulated Local Incidence Angle")
     private boolean saveLocalIncidenceAngle = false;
 
     @Parameter(defaultValue="false", label="Save Layover-Shadow Mask")
