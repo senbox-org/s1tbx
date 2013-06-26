@@ -20,35 +20,35 @@ import org.esa.beam.framework.dataio.ProductSubsetDef;
 import org.esa.beam.framework.dataop.barithm.BandArithmetic;
 import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.jai.ImageManager;
-import org.esa.beam.util.Debug;
 import org.esa.beam.util.Guardian;
-import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.math.DistanceCalculator;
 import org.esa.beam.util.math.MathUtils;
 import org.esa.beam.util.math.SinusoidalDistanceCalculator;
 
-import javax.media.jai.Interpolation;
 import javax.media.jai.PlanarImage;
 import javax.media.jai.operator.ConstantDescriptor;
-import javax.media.jai.operator.CropDescriptor;
-import javax.media.jai.operator.ScaleDescriptor;
-import java.awt.Rectangle;
 import java.awt.geom.Dimension2D;
 import java.awt.image.Raster;
-import java.awt.image.RenderedImage;
 
+/**
+ * This is an experimental pixel geo-coding, which solves some problems of {@link PixelGeoCoding},
+ * but may bring-up others.
+ *
+ * @author Ralf Quast
+ */
 public class PixelGeoCoding2 extends AbstractGeoCoding {
 
     private static final String SYSPROP_PIXEL_GEO_CODING_FRACTION_ACCURACY = "beam.pixelGeoCoding.fractionAccuracy";
 
+    private final Band latBand;
+    private final Band lonBand;
     private final String maskExpression;
+
     private final int rasterW;
     private final int rasterH;
     private final boolean fractionAccuracy = Boolean.getBoolean(SYSPROP_PIXEL_GEO_CODING_FRACTION_ACCURACY);
     private final double pixelDiagonalSquared;
 
-    private final Band latBand;
-    private final Band lonBand;
     private PixelPosEstimator pixelPosEstimator;
     private final PixelFinder pixelFinder;
 
@@ -148,11 +148,7 @@ public class PixelGeoCoding2 extends AbstractGeoCoding {
         final double pixelSizeY = pixelDimension.getHeight();
         pixelDiagonalSquared = pixelSizeX * pixelSizeX + pixelSizeY * pixelSizeY;
 
-        pixelPosEstimator = new PixelPosEstimator(lonImage,
-                                                  latImage,
-                                                  maskImage,
-                                                  0.5, 10.0, new PixelPosEstimator.PixelSteppingFactory(),
-                                                  pixelDimension);
+        pixelPosEstimator = new PixelPosEstimator(lonImage, latImage, maskImage, 0.5);
         pixelFinder = new DefaultPixelFinder(lonImage, latImage, maskImage);
     }
 
@@ -330,13 +326,6 @@ public class PixelGeoCoding2 extends AbstractGeoCoding {
         return result;
     }
 
-    /**
-     * Releases all of the resources used by this object instance and all of its owned children. Its primary use is to
-     * allow the garbage collector to perform a vanilla job.
-     * <p/>
-     * <p>This method should be called only if it is for sure that this object instance will never be used again. The
-     * results of referencing an instance of this class after a call to <code>dispose()</code> are undefined.
-     */
     @Override
     public synchronized void dispose() {
         pixelPosEstimator = null;
@@ -379,123 +368,34 @@ public class PixelGeoCoding2 extends AbstractGeoCoding {
         return data.getSample(x, y, 0);
     }
 
-    /*
-     * Computes the absolute and smaller difference for two angles.
-     * @param a1 the first angle in the degrees (-180 <= a1 <= 180)
-     * @param a2 the second angle in degrees (-180 <= a2 <= 180)
-     * @return the difference between 0 and 180 degrees
-     */
-
-    /**
-     * Transfers the geo-coding of the {@link org.esa.beam.framework.datamodel.Scene srcScene} to the {@link org.esa.beam.framework.datamodel.Scene destScene} with respect to the given
-     * {@link org.esa.beam.framework.dataio.ProductSubsetDef subsetDef}.
-     *
-     * @param srcScene  the source scene
-     * @param destScene the destination scene
-     * @param subsetDef the definition of the subset, may be <code>null</code>
-     * @return true, if the geo-coding could be transferred.
-     */
     @Override
-    public boolean transferGeoCoding(final Scene srcScene, final Scene destScene, final ProductSubsetDef subsetDef) {
-        final Band srcLatBand = getLatBand();
-        final Product destProduct = destScene.getProduct();
-        Band latBand = destProduct.getBand(srcLatBand.getName());
-        if (latBand == null) {
-            latBand = createSubset(srcLatBand, destScene, subsetDef);
-            destProduct.addBand(latBand);
+    public boolean transferGeoCoding(final Scene sourceScene, final Scene targetScene, final ProductSubsetDef subsetDef) {
+        final Product targetProduct = targetScene.getProduct();
+        final Band targetLatBand = targetProduct.getBand(latBand.getName());
+        if (targetLatBand == null) {
+            return false;
         }
-        final Band srcLonBand = getLonBand();
-        Band lonBand = destProduct.getBand(srcLonBand.getName());
-        if (lonBand == null) {
-            lonBand = createSubset(srcLonBand, destScene, subsetDef);
-            destProduct.addBand(lonBand);
+        final Band targetLonBand = targetProduct.getBand(getLonBand().getName());
+        if (targetLonBand == null) {
+            return false;
         }
-        String validMaskExpression = getValidMask();
+        final String validMaskExpression = getValidMask();
         try {
             if (validMaskExpression != null) {
-                copyReferencedRasters(validMaskExpression, srcScene, destScene, subsetDef);
+                final Product sourceProduct = sourceScene.getProduct();
+                final RasterDataNode[] nodes = BandArithmetic.getRefRasters(validMaskExpression, sourceProduct);
+                for (RasterDataNode node : nodes) {
+                    if (!targetProduct.containsRasterDataNode(node.getName())) {
+                        return false;
+                    }
+                }
             }
         } catch (ParseException ignored) {
-            Debug.trace("Referenced rasters could not be copied.");
+            // cannot happen
         }
-        destScene.setGeoCoding(new PixelGeoCoding2(latBand, lonBand, validMaskExpression));
+        targetScene.setGeoCoding(new PixelGeoCoding2(targetLatBand, targetLonBand, validMaskExpression));
 
         return true;
-    }
-
-    private void copyReferencedRasters(String validMaskExpression, Scene srcScene, Scene destScene,
-                                       ProductSubsetDef subsetDef) throws ParseException {
-        Product destProduct = destScene.getProduct();
-        final RasterDataNode[] dataNodes = BandArithmetic.getRefRasters(validMaskExpression,
-                                                                        srcScene.getProduct());
-        for (RasterDataNode dataNode : dataNodes) {
-            if (!destProduct.containsRasterDataNode(dataNode.getName())) {
-                if (dataNode instanceof TiePointGrid) {
-                    TiePointGrid tpg = TiePointGrid.createSubset((TiePointGrid) dataNode, subsetDef);
-                    destProduct.addTiePointGrid(tpg);
-                }
-                if (dataNode instanceof Band) {
-                    final Band srcBand = (Band) dataNode;
-                    Band band = createSubset(srcBand, destScene, subsetDef);
-                    destProduct.addBand(band);
-                    setFlagCoding(band, srcBand.getFlagCoding());
-                }
-            }
-        }
-    }
-
-    private static void setFlagCoding(Band band, FlagCoding flagCoding) {
-        if (flagCoding != null) {
-            String flagCodingName = flagCoding.getName();
-            final Product product = band.getProduct();
-            if (!product.getFlagCodingGroup().contains(flagCodingName)) {
-                addFlagCoding(product, flagCoding);
-            }
-            band.setSampleCoding(product.getFlagCodingGroup().get(flagCodingName));
-        }
-    }
-
-    private static void addFlagCoding(Product product, FlagCoding flagCoding) {
-        final FlagCoding targetFlagCoding = new FlagCoding(flagCoding.getName());
-
-        targetFlagCoding.setDescription(flagCoding.getDescription());
-        ProductUtils.copyMetadata(flagCoding, targetFlagCoding);
-        product.getFlagCodingGroup().add(targetFlagCoding);
-    }
-
-    private Band createSubset(Band srcBand, Scene destScene, ProductSubsetDef subsetDef) {
-        Band band = new Band(srcBand.getName(),
-                             srcBand.getDataType(),
-                             destScene.getRasterWidth(),
-                             destScene.getRasterHeight());
-        ProductUtils.copyRasterDataNodeProperties(srcBand, band);
-        band.setSourceImage(getSourceImage(subsetDef, srcBand));
-        return band;
-    }
-
-    private RenderedImage getSourceImage(ProductSubsetDef subsetDef, Band band) {
-        RenderedImage image = band.getSourceImage();
-        if (subsetDef != null) {
-            final Rectangle region = subsetDef.getRegion();
-            if (region != null) {
-                final float x = region.x;
-                final float y = region.y;
-                final float width = region.width;
-                final float height = region.height;
-                image = CropDescriptor.create(image, x, y, width, height, null);
-            }
-            final int subSamplingX = subsetDef.getSubSamplingX();
-            final int subSamplingY = subsetDef.getSubSamplingY();
-            if (subSamplingX != 1 || subSamplingY != 1) {
-                final float scaleX = 1.0f / subSamplingX;
-                final float scaleY = 1.0f / subSamplingY;
-                final float transX = 0.0f;
-                final float transY = 0.0f;
-                final Interpolation interpolation = Interpolation.getInstance(Interpolation.INTERP_NEAREST);
-                image = ScaleDescriptor.create(image, scaleX, scaleY, transX, transY, interpolation, null);
-            }
-        }
-        return image;
     }
 
     /**

@@ -15,14 +15,11 @@ package org.esa.beam.framework.datamodel;
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-import org.esa.beam.util.math.CosineDistanceCalculator;
 import org.esa.beam.util.math.DistanceCalculator;
-import org.esa.beam.util.math.MathUtils;
 import org.esa.beam.util.math.SphericalDistanceCalculator;
 
 import javax.media.jai.PlanarImage;
 import javax.media.jai.operator.ConstantDescriptor;
-import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.geom.Dimension2D;
 import java.awt.geom.Point2D;
@@ -30,6 +27,12 @@ import java.awt.image.Raster;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * A class for estimating the pixel position for a given geo-location. To be used with
+ * pixel geo-codings in order to obtain a fast and accurate estimate.
+ *
+ * @author Ralf Quast
+ */
 public class PixelPosEstimator {
 
     private static final int LAT = 0;
@@ -40,18 +43,18 @@ public class PixelPosEstimator {
 
     private final Approximation[] approximations;
 
-    public PixelPosEstimator(PlanarImage lonImage, PlanarImage latImage, PlanarImage maskImage, double accuracy,
-                             double tiling, SteppingFactory steppingFactory, Dimension2D pixelDimension) {
-        if (maskImage == null) {
-            maskImage = ConstantDescriptor.create((float) lonImage.getWidth(), (float) lonImage.getHeight(),
-                                                  new Byte[]{1}, null);
-        }
-        approximations = createApproximations(lonImage, latImage, maskImage, accuracy, tiling, steppingFactory,
-                                              pixelDimension);
+    public PixelPosEstimator(PlanarImage lonImage, PlanarImage latImage, PlanarImage maskImage, double accuracy) {
+        this(lonImage, latImage, maskImage, accuracy, new PixelSteppingFactory());
     }
 
-    public final Approximation[] getApproximations() {
-        return approximations;
+    public PixelPosEstimator(PlanarImage lonImage, PlanarImage latImage, PlanarImage maskImage, double accuracy,
+                             SteppingFactory steppingFactory) {
+        if (maskImage == null) {
+            maskImage = ConstantDescriptor.create((float) lonImage.getWidth(),
+                                                  (float) lonImage.getHeight(),
+                                                  new Byte[]{1}, null);
+        }
+        approximations = createApproximations(lonImage, latImage, maskImage, accuracy, steppingFactory);
     }
 
     public final boolean canGetPixelPos() {
@@ -59,7 +62,6 @@ public class PixelPosEstimator {
     }
 
     public Approximation getPixelPos(GeoPos geoPos, PixelPos pixelPos) {
-        // TODO? - self-overlapping AATSR products (found in TiePointGeoCoding)
         Approximation approximation = null;
         if (approximations != null) {
             if (pixelPos == null) {
@@ -112,48 +114,23 @@ public class PixelPosEstimator {
                                                 PlanarImage latImage,
                                                 PlanarImage maskImage,
                                                 double accuracy,
-                                                double tiling,
-                                                SteppingFactory steppingFactory, Dimension2D pixelDimension) {
-        final int w = latImage.getWidth();
-        final int h = latImage.getHeight();
-        final int tileCount = calculateTileCount(lonImage, latImage, tiling, pixelDimension);
-
-        final Dimension tileCounts = MathUtils.fitDimension(tileCount, w, h);
-        final int tileCountX = tileCounts.width;
-        final int tileCountY = tileCounts.height;
-
-        final Rectangle[] rectangles = MathUtils.subdivideRectangle(w, h, tileCountX, tileCountY, 1);
-        final Approximation[] approximations = new Approximation[rectangles.length];
-        for (int i = 0; i < rectangles.length; i++) {
-            final Stepping stepping = steppingFactory.createStepping(rectangles[i], MAX_POINT_COUNT_PER_TILE);
-            final double[][] data = extractWarpPoints(lonImage, latImage, maskImage, stepping);
-            final Approximation approximation = createApproximation(data, accuracy, stepping);
-            if (approximation == null) {
-                return null;
+                                                SteppingFactory steppingFactory) {
+        final int tileCount = lonImage.getNumYTiles() * lonImage.getNumXTiles();
+        final Approximation[] approximations = new Approximation[tileCount];
+        for (int y = 0, i = 0; y < lonImage.getNumYTiles(); y++) {
+            for (int x = 0; x < lonImage.getNumXTiles(); x++, i++) {
+                final Rectangle rectangle = lonImage.getTileRect(x, y);
+                final Stepping stepping = steppingFactory.createStepping(rectangle, MAX_POINT_COUNT_PER_TILE);
+                final double[][] data = extractWarpPoints(lonImage, latImage, maskImage, stepping);
+                final Approximation approximation = createApproximation(data, accuracy, stepping);
+                if (approximation == null) {
+                    return null;
+                }
+                approximations[i] = approximation;
             }
-            approximations[i] = approximation;
         }
 
         return approximations;
-    }
-
-    static int calculateTileCount(PlanarImage lonImage, PlanarImage latImage, double tiling,
-                                  Dimension2D pixelDimension) {
-        final int w = latImage.getWidth();
-        final int h = latImage.getHeight();
-        final double tileSizeX = tiling / pixelDimension.getWidth();
-        final double tileSizeY = tiling / pixelDimension.getHeight();
-        int tileCountX = (int) (w / tileSizeX + 1.0);
-        int tileCountY = (int) (h / tileSizeY + 1.0);
-
-        if (tileCountX == 0) { // calculation has failed due to NaN values
-            tileCountX = lonImage.getNumXTiles();
-        }
-        if (tileCountY == 0) { // calculation has failed due to NaN values
-            tileCountY = lonImage.getNumYTiles();
-        }
-
-        return tileCountX * tileCountY;
     }
 
     static Approximation createApproximation(double[][] data, double accuracy, Stepping stepping) {
@@ -175,7 +152,7 @@ public class PixelPosEstimator {
         }
 
         return new Approximation(fX, fY, maxDistance * 1.1, rotator,
-                                 new CosineDistanceCalculator(centerLon, centerLat), stepping);
+                                 new SphericalDistanceCalculator(centerLon, centerLat), stepping);
     }
 
     static double maxDistance(final double[][] data, double centerLon, double centerLat) {
@@ -291,7 +268,7 @@ public class PixelPosEstimator {
         return new RationalFunctionModel(degreeP, degreeQ, x, y, g);
     }
 
-    static final class Stepping {
+    public static final class Stepping {
 
         private final int minX;
         private final int minY;
@@ -394,7 +371,7 @@ public class PixelPosEstimator {
         }
     }
 
-    static interface SteppingFactory {
+    public static interface SteppingFactory {
 
         Stepping createStepping(Rectangle rectangle, int maxPointCount);
     }
