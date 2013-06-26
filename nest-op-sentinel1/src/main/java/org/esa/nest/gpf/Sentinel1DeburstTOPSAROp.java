@@ -55,9 +55,6 @@ public final class Sentinel1DeburstTOPSAROp extends Operator {
     @Parameter(description = "The list of polarisations", label="Polarisations")
     private String[] selectedPolarisations;
 
-    @Parameter(defaultValue = "false", label="Azimuth De-burst only")
-    private boolean deburstOnly = false;
-
     private MetadataElement absRoot = null;
     private String acquisitionMode = null;
 

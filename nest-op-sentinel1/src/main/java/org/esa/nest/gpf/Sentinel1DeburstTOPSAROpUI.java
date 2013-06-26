@@ -34,22 +34,12 @@ public class Sentinel1DeburstTOPSAROpUI extends BaseOperatorUI {
 
     private final JList<String> polList = new JList<String>();
 
-    private final JCheckBox deburstOnlyCheckBox = new JCheckBox("Azimuth De-burst only");
-    private Boolean deburstOnly = true;
-
     @Override
     public JComponent CreateOpTab(String operatorName, Map<String, Object> parameterMap, AppContext appContext) {
 
         initializeOperatorUI(operatorName, parameterMap);
         final JComponent panel = createPanel();
         initParameters();
-
-        deburstOnlyCheckBox.addItemListener(new ItemListener() {
-                public void itemStateChanged(ItemEvent e) {
-                    deburstOnly = (e.getStateChange() == ItemEvent.SELECTED);
-                }
-        });
-
         return new JScrollPane(panel);
     }
 
@@ -65,12 +55,6 @@ public class Sentinel1DeburstTOPSAROpUI extends BaseOperatorUI {
 
             OperatorUIUtils.initParamList(polList, polarisations);
         }
-
-        deburstOnly = (Boolean)paramMap.get("deburstOnly");
-        if(deburstOnly != null) {
-            deburstOnlyCheckBox.setSelected(deburstOnly);
-        }
-        deburstOnlyCheckBox.setVisible(isComplexSrcProduct());
     }
 
     @Override
@@ -82,8 +66,6 @@ public class Sentinel1DeburstTOPSAROpUI extends BaseOperatorUI {
     public void updateParameters() {
 
         OperatorUIUtils.updateParamList(polList, paramMap, "selectedPolarisations");
-
-        paramMap.put("deburstOnly", deburstOnly);
     }
 
     private JComponent createPanel() {
@@ -92,8 +74,6 @@ public class Sentinel1DeburstTOPSAROpUI extends BaseOperatorUI {
         final GridBagConstraints gbc = DialogUtils.createGridBagConstraints();
 
         DialogUtils.addComponent(contentPane, gbc, "Polarisations:", polList);
-        gbc.gridy++;
-        contentPane.add(deburstOnlyCheckBox, gbc);
 
         DialogUtils.fillPanel(contentPane, gbc);
 
