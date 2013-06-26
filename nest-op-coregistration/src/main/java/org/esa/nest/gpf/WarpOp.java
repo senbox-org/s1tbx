@@ -124,6 +124,8 @@ public class WarpOp extends Operator {
     private String processedSlaveBand;
     private String[] masterBandNames = null;
 
+    private int maxIterations = 10;
+
     /**
      * Default constructor. The graph processing framework
      * requires that an operator has a default constructor.
@@ -346,40 +348,20 @@ public class WarpOp extends Operator {
             if (slaveGCPGroup.getNodeCount() < 3) {
                 warpData.notEnoughGCPs = true;
                 continue;
-                //throw new OperatorException(slaveGCPGroup.getNodeCount() +
-                //        " GCPs survived. Try using more GCPs or a larger window");
             }
 
-            int parseIdex = 0;
             final ProductNodeGroup<Placemark> masterGCPGroup = sourceProduct.getGcpGroup(masterBand);
 
-            computeWARPPolynomial(warpData, warpPolynomialOrder, masterGCPGroup); // compute initial warp polynomial
-            if(warpData.notEnoughGCPs) continue;
-            outputCoRegistrationInfo(
-                    sourceProduct, warpPolynomialOrder, warpData, appendFlag, 0.0f, parseIdex, srcBand.getName());
+            computeWARPPolynomialFromGCPs(sourceProduct, srcBand, warpPolynomialOrder, masterGCPGroup, maxIterations,
+                                          rmsThreshold, appendFlag, warpData);
 
-            appendFlag = true;
-            if (warpData.rmsMean > rmsThreshold && eliminateGCPsBasedOnRMS(warpData, (float) warpData.rmsMean)) {
-                final float threshold = (float) warpData.rmsMean;
-                computeWARPPolynomial(warpData, warpPolynomialOrder, masterGCPGroup); // compute 2nd warp polynomial
-                if(warpData.notEnoughGCPs) continue;
-                outputCoRegistrationInfo(
-                        sourceProduct, warpPolynomialOrder, warpData, appendFlag, threshold, ++parseIdex, srcBand.getName());
+            if(warpData.notEnoughGCPs) {
+                continue;
             }
 
-            if (warpData.rmsMean > rmsThreshold && eliminateGCPsBasedOnRMS(warpData, (float) warpData.rmsMean)) {
-                final float threshold = (float) warpData.rmsMean;
-                computeWARPPolynomial(warpData, warpPolynomialOrder, masterGCPGroup); // compute 3rd warp polynomial
-                if(warpData.notEnoughGCPs) continue;
-                outputCoRegistrationInfo(
-                        sourceProduct, warpPolynomialOrder, warpData, appendFlag, threshold, ++parseIdex, srcBand.getName());
+            if (!appendFlag) {
+                appendFlag = true;
             }
-
-            eliminateGCPsBasedOnRMS(warpData, rmsThreshold);
-            computeWARPPolynomial(warpData, warpPolynomialOrder, masterGCPGroup); // compute final warp polynomial
-            if(warpData.notEnoughGCPs) continue;
-            outputCoRegistrationInfo(
-                    sourceProduct, warpPolynomialOrder, warpData, appendFlag, rmsThreshold, ++parseIdex, srcBand.getName());
 
             addSlaveGCPs(warpData, srcBand.getName());
         }
@@ -402,6 +384,46 @@ public class WarpOp extends Operator {
         writeWarpDataToMetadata();
 
         warpDataAvailable = true;
+    }
+
+    public static void computeWARPPolynomialFromGCPs(
+            final Product sourceProduct, final Band srcBand, final int warpPolynomialOrder,
+            final ProductNodeGroup<Placemark> masterGCPGroup, final int maxIterations, final float rmsThreshold,
+            final boolean appendFlag, WarpData warpData) {
+
+        boolean append;
+        float threshold = 0.0f;
+        for (int iter = 0; iter < maxIterations; iter++) {
+
+            if (iter == 0) {
+                append = appendFlag;
+            } else {
+                append = true;
+
+                if (iter < maxIterations - 1 && warpData.rmsMean > rmsThreshold) {
+                    threshold = (float)(warpData.rmsMean + warpData.rmsStd);
+                } else {
+                    threshold = rmsThreshold;
+                }
+            }
+
+            if (threshold > 0.0f) {
+                eliminateGCPsBasedOnRMS(warpData, threshold);
+            }
+
+            computeWARPPolynomial(warpData, warpPolynomialOrder, masterGCPGroup);
+
+            if(warpData.notEnoughGCPs) {
+                break;
+            }
+
+            outputCoRegistrationInfo(
+                    sourceProduct, warpPolynomialOrder, warpData, append, threshold, iter, srcBand.getName());
+
+            if (iter > 0 && threshold <= rmsThreshold) {
+                break;
+            }
+        }
     }
 
     private void writeWarpDataToMetadata() {
@@ -796,7 +818,7 @@ public class WarpOp extends Operator {
 
             if (appendFlag) {
                 p.println();
-                p.format("RMS Threshold: %5.2f", threshold);
+                p.format("RMS Threshold: %5.3f", threshold);
                 p.println();
             }
 
