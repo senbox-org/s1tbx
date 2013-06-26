@@ -724,37 +724,10 @@ public class SARSimTerrainCorrectionOp extends Operator {
             final WarpOp.WarpData warpData = new WarpOp.WarpData(slaveGCPGroup);
             warpDataMap.put(srcBand, warpData);
 
-            int parseIdex = 0;
-            float threshold = 0.0f;
-            WarpOp.computeWARPPolynomial(warpData, warpPolynomialOrder, masterGCPGroup); // compute initial warp polynomial
-            WarpOp.outputCoRegistrationInfo(
-                    sourceProduct, warpPolynomialOrder, warpData, i != 1, threshold, ++parseIdex, srcBand.getName());
-            if(warpData.notEnoughGCPs) continue;
+            final int maxIterations = 10;
+            WarpOp.computeWARPPolynomialFromGCPs(sourceProduct, srcBand, warpPolynomialOrder, masterGCPGroup,
+                                                 maxIterations, rmsThreshold, appendFlag, warpData);
 
-            threshold = (float)warpData.rmsMean;
-            if (threshold > rmsThreshold && WarpOp.eliminateGCPsBasedOnRMS(warpData, threshold)) {
-                WarpOp.computeWARPPolynomial(warpData, warpPolynomialOrder, masterGCPGroup); // compute 2nd warp polynomial
-                if(warpData.notEnoughGCPs) continue;
-                WarpOp.outputCoRegistrationInfo(
-                        sourceProduct, warpPolynomialOrder, warpData, true, threshold, ++parseIdex, srcBand.getName());
-            }
-
-            threshold = (float)warpData.rmsMean;
-            if (threshold > rmsThreshold && WarpOp.eliminateGCPsBasedOnRMS(warpData, threshold)) {
-                WarpOp.computeWARPPolynomial(warpData, warpPolynomialOrder, masterGCPGroup); // compute 3rd warp polynomial
-                if(warpData.notEnoughGCPs) continue;
-                WarpOp.outputCoRegistrationInfo(
-                        sourceProduct, warpPolynomialOrder, warpData, true, threshold, ++parseIdex, srcBand.getName());
-            }
-
-            threshold = rmsThreshold;
-            WarpOp.eliminateGCPsBasedOnRMS(warpData, threshold);
-            WarpOp.computeWARPPolynomial(warpData, warpPolynomialOrder, masterGCPGroup); // compute final warp polynomial
-            if(warpData.notEnoughGCPs) continue;
-            WarpOp.outputCoRegistrationInfo(
-                    sourceProduct, warpPolynomialOrder, warpData, true, threshold, ++parseIdex, srcBand.getName());
-
-            outputGCPShifts(warpData, srcBand.getName(), appendFlag);
             if (!appendFlag) {
                 appendFlag = true;
             }
