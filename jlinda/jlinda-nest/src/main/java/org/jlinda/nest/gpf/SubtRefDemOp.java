@@ -14,6 +14,7 @@ import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
+import org.esa.beam.visat.VisatApp;
 import org.esa.nest.dataio.dem.FileElevationModel;
 import org.esa.nest.datamodel.AbstractMetadata;
 import org.esa.nest.datamodel.Unit;
@@ -80,7 +81,8 @@ public final class SubtRefDemOp extends Operator {
 
     private ElevationModel dem = null;
     private float demNoDataValue = 0;
-    private double demSampling;
+    private double demSamplingLat;
+    private double demSamplingLon;
 
     // source maps
     private HashMap<Integer, CplxContainer> masterMap = new HashMap<Integer, CplxContainer>();
@@ -127,32 +129,51 @@ public final class SubtRefDemOp extends Operator {
 
     private void defineDEM() throws IOException {
 
-        final ElevationModelRegistry elevationModelRegistry = ElevationModelRegistry.getInstance();
-        final ElevationModelDescriptor demDescriptor = elevationModelRegistry.getDescriptor(demName);
-
-        if (demDescriptor == null) {
-            throw new OperatorException("The DEM '" + demName + "' is not supported.");
-        }
-
-        if (demDescriptor.isInstallingDem()) {
-            throw new OperatorException("The DEM '" + demName + "' is currently being installed.");
-        }
-
         Resampling resampling = Resampling.BILINEAR_INTERPOLATION;
+        final ElevationModelRegistry elevationModelRegistry;
+        final ElevationModelDescriptor demDescriptor;
+
+        if (externalDEMFile == null) {
+            elevationModelRegistry = ElevationModelRegistry.getInstance();
+            demDescriptor = elevationModelRegistry.getDescriptor(demName);
+
+            if (demDescriptor == null) {
+                throw new OperatorException("The DEM '" + demName + "' is not supported.");
+            }
+
+            if (!demDescriptor.isInstallingDem() && !demDescriptor.isDemInstalled()) {
+                if(!demDescriptor.installDemFiles(VisatApp.getApp())) {
+                    throw new OperatorException("DEM "+ demName +" must be installed first");
+                }
+            }
+
+
+            dem = demDescriptor.createDem(resampling);
+            if (dem == null) {
+                throw new OperatorException("The DEM '" + demName + "' has not been installed.");
+            }
+
+            demNoDataValue = demDescriptor.getNoDataValue();
+            demSamplingLat = demDescriptor.getDegreeRes() * (1.0f / demDescriptor.getPixelRes()) * Constants.DTOR;
+            demSamplingLon = demSamplingLat;
+
+        }
+
 
         if (externalDEMFile != null) { // if external DEM file is specified by user
             dem = new FileElevationModel(externalDEMFile, resampling, (float) externalDEMNoDataValue);
 
-            demNoDataValue = (float) externalDEMNoDataValue;
             demName = externalDEMFile.getPath();
+            demNoDataValue = (float) externalDEMNoDataValue;
 
-        } else {
-            dem = demDescriptor.createDem(resampling);
-            if (dem == null)
-                throw new OperatorException("The DEM '" + demName + "' has not been installed.");
+            // assume the same sampling in X and Y direction?
+            try {
+                demSamplingLat = (dem.getGeoPos(new PixelPos(1, 0)).getLat() - dem.getGeoPos(new PixelPos(0, 0)).getLat()) * Constants.DTOR;
+                demSamplingLon = (dem.getGeoPos(new PixelPos(0, 1)).getLat() - dem.getGeoPos(new PixelPos(0, 0)).getLat()) * Constants.DTOR;
+            } catch (Exception e) {
+                throw new OperatorException("The DEM '" + demName + "' cannot be properly interpreted.");
+            }
 
-            demNoDataValue = demDescriptor.getNoDataValue();
-            demSampling = demDescriptor.getDegreeRes() * (1.0f / demDescriptor.getPixelRes()) * Constants.DTOR;
         }
 
 
@@ -281,7 +302,6 @@ public final class SubtRefDemOp extends Operator {
             final String tag0 = targetMap.get(key).sourceMaster.date;
             final String tag1 = targetMap.get(key).sourceSlave.date;
             if (CREATE_VIRTUAL_BAND) {
-//                String countStr = "_" + PRODUCT_TAG + "_" + tag0 + "_" + tag1;
                 String countStr = PRODUCT_TAG + "_" + tag0 + "_" + tag1;
                 ReaderUtils.createVirtualIntensityBand(targetProduct, targetProduct.getBand(targetBandName_I), targetProduct.getBand(targetBandName_Q), countStr);
                 ReaderUtils.createVirtualPhaseBand(targetProduct, targetProduct.getBand(targetBandName_I), targetProduct.getBand(targetBandName_Q), countStr);
@@ -325,38 +345,6 @@ public final class SubtRefDemOp extends Operator {
             Band topoPhaseBand;
             Band targetBand_I;
             Band targetBand_Q;
-
-            // TODO: Smarter extension of search space:: use BEAM interpolation to get approximate heights of edges -- should be better then working on ellipsoid!???
-
-            /*
-                final GeoCoding geoCoding = targetProduct.getGeoCoding();
-                final ProductData trgData = targetTile.getDataBuffer();
-
-                pm.beginTask("Computing elevations from " + demName + "...", h);
-                try {
-                     final GeoPos geoPos = new GeoPos();
-                     final PixelPos pixelPos = new PixelPos();
-                     float elevation;
-
-                     for (int y = y0; y < y0 + h; ++y) {
-                         for (int x = x0; x < x0 + w; ++x) {
-                             pixelPos.setLocation(x + 0.5f, y + 0.5f);
-                             geoCoding.getGeoPos(pixelPos, geoPos);
-                             try {
-                                    if(fileElevationModel != null) {
-                                        elevation = fileElevationModel.getElevation(geoPos);
-                                    } else {
-                                        elevation = dem.getElevation(geoPos);
-                                    }
-                                } catch (Exception e) {
-                                elevation = noDataValue;
-                            }
-                            trgData.setElemDoubleAt(targetTile.getDataBufferIndex(x, y), (short) Math.round(elevation));
-                        }
-                        pm.worked(1);
-                    }
-
-             */
 
             // TODO: smarter extension of search space : foreshortening extension? can I calculate how bit tile I
             // need (extra space) for the coverage, taking into the consideration only height of the tile?
@@ -418,7 +406,7 @@ public final class SubtRefDemOp extends Operator {
                 }
 
                 DemTile demTile = new DemTile(upperLeftGeo.lat * Constants.DTOR, upperLeftGeo.lon * Constants.DTOR,
-                        nLatPixels, nLonPixels, demSampling, demSampling, (long) demNoDataValue);
+                        nLatPixels, nLonPixels, Math.abs(demSamplingLat), Math.abs(demSamplingLon), (long) demNoDataValue);
                 demTile.setData(elevation);
 
                 final TopoPhase topoPhase = new TopoPhase(product.sourceMaster.metaData, product.sourceMaster.orbit,

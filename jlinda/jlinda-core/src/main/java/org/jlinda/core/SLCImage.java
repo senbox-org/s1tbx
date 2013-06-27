@@ -281,6 +281,8 @@ public final class SLCImage {
         this.doppler.f_DC_a2 = resFile.parseDoubleValue("Xtrack_f_DC_quadratic \\(Hz/s/s, early edge\\)");
         this.doppler.checkConstant();
 
+        this.approxRadarCentreOriginal = new Point(originalWindow.pixels() / 2, originalWindow.lines() / 2);
+
     }
 
     /*---  RANGE CONVERSIONS ----*/

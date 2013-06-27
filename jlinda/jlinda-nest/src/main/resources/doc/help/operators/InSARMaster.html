@@ -30,14 +30,9 @@
     master implies improved visual interpretation of the interferograms and aids quality assessment.
 </p>
 
-<p><strong>Note:</strong>The modeled coherence, and other information provided by this operator, is purely based on the
-    metadata information of input products. The complex data (nor any other information from the source product bands)
-    in modeling of the coherence and other parameters is not used at all. Thus this function can also be applied on the
-    detected products, however, the interpretation of the modeled coherence and acceptance of recommendations for the
-    choice of the master image has to be performed with great care.
 </p>
 
-<h4>Implementation details for selection of master image:</h4>&nbsp;
+<h4>Implementation details for selection of master image</h4>&nbsp;
 
 <p>
     The stack coherence for a stack with master image <i>m</i> is defined as:
@@ -55,7 +50,25 @@
 <p> The values given in the first equation, are typical for ERS and Envisat.
 </p>
 
-<br>
+<h4>Notes and known issues</h4>
+
+<h5>Reliability of the modeled coherence:</h5>
+
+<p> The coherence modeled by this functionality, and other
+    information provided by this functionality, is purely based on the metadata information of input products.
+    The complex data (nor any other information from the source product bands) in modeling of the coherence and
+    other parameters is <u>not</u> used at all. Thus this function can also be applied on the detected products,
+    however, the interpretation of the modeled coherence and acceptance of recommendations for the
+    choice of the master image has to be performed with great care.
+</p>
+
+<h5>Known issues:</h5>
+
+<p> The model used in computation of coherence will severely underestimate the coherence in ERS-2 / Envisat
+    Cross Interferometry applications. For this, and similar application, more robust model that integrates
+    the principles of the wave-number shift shall be used.
+</p>
+
 <br>
 <hr>
 </body>

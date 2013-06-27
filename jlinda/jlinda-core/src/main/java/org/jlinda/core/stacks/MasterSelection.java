@@ -1,20 +1,18 @@
 package org.jlinda.core.stacks;
 
-import org.jlinda.core.Baseline;
-import org.jlinda.core.Orbit;
-import org.jlinda.core.SLCImage;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.MetadataElement;
-import org.esa.beam.visat.VisatApp;
-import org.esa.beam.util.Debug;
-import org.esa.nest.datamodel.AbstractMetadata;
-
-import java.util.List;
-import java.util.ArrayList;
-import java.awt.*;
-
-import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
 import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
+import org.esa.beam.framework.datamodel.MetadataElement;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.util.Debug;
+import org.esa.beam.visat.VisatApp;
+import org.esa.nest.datamodel.AbstractMetadata;
+import org.jlinda.core.*;
+import org.jlinda.core.Point;
+
+import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * User: pmar@ppolabs.com
@@ -264,32 +262,43 @@ public class MasterSelection implements OptimalMaster {
 
     public static class IfgPair {
 
+        int refLine;
+        int refPixel;
+        double refHeight;
+
         CplxContainer master;
         CplxContainer slave;
 
         float bPerp;   // perpendicular baseline
         float bTemp;   // temporal baseline
-        float delft_fDc;     // doppler centroid frequency difference
+        float deltaDoppler;     // doppler centroid frequency difference
         float coherence;     // modeled coherence
+        float heightAmb;     // modeled coherence
 
         public IfgPair(CplxContainer master, CplxContainer slave) {
 
             this.master = master;
             this.slave = slave;
 
+            final Point refPoint = master.metaData.getApproxRadarCentreOriginal();
+            this.refPixel = (int) refPoint.x;
+            this.refLine = (int) refPoint.y;
+            this.refHeight = 0;
+
             try {
-                Baseline tempBaseline = new Baseline();
-                tempBaseline.model(master.metaData, slave.metaData, master.orbit, slave.orbit);
-                bPerp = (float) tempBaseline.getBperp(1, 1);
+                Baseline baseline = new Baseline();
+                baseline.model(master.metaData, slave.metaData, master.orbit, slave.orbit);
+                bPerp = (float) baseline.getBperp(refLine, refPixel);
+                heightAmb = (float) baseline.getHamb(refLine, refPixel, refHeight);
 
             } catch (Exception e) {
                 e.printStackTrace();
             }
 
             bTemp = (float) (master.dateMjd - slave.dateMjd);
-            delft_fDc = (float) (master.metaData.doppler.getF_DC_a0() - slave.metaData.doppler.getF_DC_a0());
+            deltaDoppler = (float) (master.metaData.doppler.getF_DC_a0() - slave.metaData.doppler.getF_DC_a0());
 
-            coherence = modelCoherence(bPerp, bTemp, delft_fDc);
+            coherence = modelCoherence(bPerp, bTemp, deltaDoppler);
 
         }
 
@@ -302,11 +311,15 @@ public class MasterSelection implements OptimalMaster {
         }
 
         public float getDopplerDifference() {
-            return delft_fDc;
+            return deltaDoppler;
         }
 
         public float getCoherence() {
             return coherence;
+        }
+
+        public float getHeightAmb() {
+            return heightAmb;
         }
 
         public SLCImage getMasterMetadata() {

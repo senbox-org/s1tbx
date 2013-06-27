@@ -49,7 +49,6 @@ public class InSARMasterDialog extends ModelessDialog {
     private final JCheckBox searchDBCheckBox = new JCheckBox("Search Product Library");
 
     public InSARMasterDialog(String helpId) {
-//        super(VisatApp.getApp().getMainFrame(), "Stack Overview and Optimal InSAR Master Selection", ModalDialog.ID_OK_CANCEL_HELP, null);
         super(VisatApp.getApp().getMainFrame(), "Stack Overview and Optimal InSAR Master Selection", ModalDialog.ID_OK_CANCEL_HELP, helpId);
 
         getButton(ID_OK).setText("Overview");
@@ -161,7 +160,7 @@ public class InSARMasterDialog extends ModelessDialog {
     private void updateData(final MasterSelection.IfgPair[] slaveList, final int masterIndex) {
         outputFileModel.clear();
         final File mstFile = slcFileMap.get(slaveList[masterIndex].getMasterMetadata());
-        String test = df.format(slaveList[masterIndex].getCoherence());
+//        String test = df.format(slaveList[masterIndex].getCoherence());
         try {
             final Product productMst = ProductIO.readProduct(mstFile);
             final MetadataElement absRootMst = AbstractMetadata.getAbstractedMetadata(productMst);
@@ -173,7 +172,9 @@ public class InSARMasterDialog extends ModelessDialog {
                     String.valueOf(absRootMst.getAttributeInt(AbstractMetadata.ABS_ORBIT, 0)),
                     String.valueOf(df.format(slaveList[masterIndex].getPerpendicularBaseline())),
                     String.valueOf(df.format(slaveList[masterIndex].getTemporalBaseline())),
-                    String.valueOf(df.format(slaveList[masterIndex].getCoherence()))
+                    String.valueOf(df.format(slaveList[masterIndex].getCoherence())),
+                    String.valueOf(df.format(slaveList[masterIndex].getHeightAmb())),
+                    String.valueOf(df.format(slaveList[masterIndex].getDopplerDifference()))
             };
             outputFileModel.addFile(mstFile, mstValues);
         } catch (Exception e) {
@@ -195,7 +196,9 @@ public class InSARMasterDialog extends ModelessDialog {
                             String.valueOf(absRoot.getAttributeInt(AbstractMetadata.ABS_ORBIT, 0)),
                             String.valueOf(df.format(slave.getPerpendicularBaseline())),
                             String.valueOf(df.format(slave.getTemporalBaseline())),
-                            String.valueOf(df.format(slave.getCoherence()))
+                            String.valueOf(df.format(slave.getCoherence())),
+                            String.valueOf(df.format(slave.getHeightAmb())),
+                            String.valueOf(df.format(slave.getDopplerDifference()))
                     };
                     outputFileModel.addFile(slvFile, slvValues);
                 } catch (Exception e) {

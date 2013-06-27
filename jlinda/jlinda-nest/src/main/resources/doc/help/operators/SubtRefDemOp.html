@@ -18,7 +18,7 @@
 
 <p>
     This operator estimates and subtracts topographic phase from the interferogram.
-    More specifically, this operator first radarcodes the Digital Elevation Model (DEM)
+    More specifically, this operator first "radarcodes" the Digital Elevation Model (DEM)
     of the area of interferogram, and then subtracts it from the complex interferogram.
 </p>
 
@@ -35,8 +35,8 @@
     by NEST.
     <!--, as well as support for custom DEMs. -->
     The elevation models for which tiles are
-    automatically handled by NEST are: SRTM, ACE, and GETASSE. For all others, some
-    administration work is needed. Namely, a manual selection and download of tiles
+    automatically handled by NEST are: SRTM, ACE, and GETASSE. For all others, some administration
+    and data manipulation work might be needed. Namely, a manual selection and download of tiles
     covering the area-of-interest has to be performed; while interpolation and pre-processing
     of DEM for interefometric applications is also performed automatically by the operator.
     <!--Note, that the "External DEM" should be in the WGS84 system (or in the same reference as-->
@@ -63,7 +63,7 @@
     </li>
 </ul>
 
-<h4>Operator parameters:</h4>&nbsp;&nbsp;
+<h4>Operator parameters:</h4>
 <ol>
     <li>
         <b>Orbit Interpolation Degree:</b> Degree of orbit interpolation polynomial.
@@ -77,14 +77,21 @@
     </li>
 </ol>
 
-<h4>Source bands:</h4>&nbsp;&nbsp;
-<p> Source Bands are stack of flat-earth subtracted ("flattened") interferograms.</p>
+<h4>Input/Output bands:</h4>
 
-<h4>Output bands:</h4>&nbsp;&nbsp;
-<p> Output Bands are stack of interferograms with subtracted DEM reference phase and other optional bands,
+<p> <b>Source Bands</b> are stack of flat-earth subtracted ("flattened") interferograms.</p>
+
+<p> <b>Output Bands</b> are stack of interferograms with subtracted DEM reference phase and other optional bands,
     for example: radarcoded elevation of the area, of topographic phase.
 </p>
 
+<h4>Known issues:</h4>&nbsp;&nbsp;
+<p>
+    When using 'External DEM' as a reference surface, user has to make sure that the input DEM sufficiently covers and
+    and extends, the area of input interferogram. In practice, this means that the input DEM should be 10-15%
+    bigger in its extent (wider and higher) then the interferogram. This issue will be addressed in NEST 5A-FINAL
+    release.
+</p>
 
 <br>
 <br>

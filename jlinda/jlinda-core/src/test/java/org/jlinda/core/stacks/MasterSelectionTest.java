@@ -1,5 +1,6 @@
 package org.jlinda.core.stacks;
 
+import com.bc.ceres.core.ProgressMonitor;
 import org.jlinda.core.Orbit;
 import org.jlinda.core.SLCImage;
 import org.junit.After;
@@ -9,7 +10,6 @@ import org.junit.Test;
 import java.io.File;
 
 import static junit.framework.Assert.assertEquals;
-import com.bc.ceres.core.ProgressMonitor;
 
 /**
  * User: pmar@ppolabs.com
@@ -28,7 +28,7 @@ public class MasterSelectionTest {
     @Before
     public void setUp() throws Exception {
 
-        final String testDirectory = "/d2/testStacksData/";
+        final String testDirectory = "/d2/test.processing/testStacksData/";
         final long[] listOfOrbits;
 
         listOfOrbits = new long[]{147872, 148373, 148874, 150878, 151379, 151880,
