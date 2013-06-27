@@ -450,59 +450,59 @@ public final class SARSimulationOp extends Operator {
         }
     }
 
-    private double computeTileOverlapPercentage(final int x0, final int y0, final int w, final int h) throws Exception {
+    private void computeTileOverlapPercentage(final int x0, final int y0, final int w, final int h,
+                                              double[] overlapPercentages)
+            throws Exception {
 
         final PixelPos pixPos = new PixelPos();
         final GeoPos geoPos = new GeoPos();
-        double altMax = -32768;
-        int xMax = 0, yMax = 0;
-        boolean foundMax = false;
+        final double[] earthPoint = new double[3];
+        final double[] sensorPos = new double[3];
+        double tileOverlapPercentageMax = -Double.MAX_VALUE;
+        double tileOverlapPercentageMin = Double.MAX_VALUE;
         for (int y = y0; y < y0 + h; y+=20) {
             for (int x = x0; x < x0 + w; x+=20) {
                 pixPos.setLocation(x,y);
                 targetGeoCoding.getGeoPos(pixPos, geoPos);
                 final double alt = dem.getElevation(geoPos);
-                if(alt != demNoDataValue && altMax < alt) {
-                    altMax = alt;
-                    xMax = x;
-                    yMax = y;
-                    foundMax = true;
+                GeoUtils.geo2xyzWGS84(geoPos.getLat(), geoPos.getLon(), alt, earthPoint);
+
+                final double zeroDopplerTime = SARGeocoding.getEarthPointZeroDopplerTime(
+                        firstLineUTC, lineTimeInterval, wavelength, earthPoint, sensorPosition, sensorVelocity);
+
+                if (zeroDopplerTime == SARGeocoding.NonValidZeroDopplerTime) {
+                    continue;
+                }
+
+                final double slantRange = SARGeocoding.computeSlantRange(
+                        zeroDopplerTime,  timeArray, xPosArray, yPosArray, zPosArray, earthPoint, sensorPos);
+
+                final double zeroDopplerTimeWithoutBias = zeroDopplerTime + slantRange / Constants.lightSpeedInMetersPerDay;
+
+                final int azimuthIndex = (int)((zeroDopplerTimeWithoutBias - firstLineUTC) / lineTimeInterval + 0.5);
+
+                double tileOverlapPercentage = (float)(azimuthIndex - y)/ (float)tileSize;
+
+                if (tileOverlapPercentage > tileOverlapPercentageMax) {
+                    tileOverlapPercentageMax = tileOverlapPercentage;
+                }
+                if (tileOverlapPercentage < tileOverlapPercentageMin) {
+                    tileOverlapPercentageMin = tileOverlapPercentage;
                 }
             }
         }
 
-        if (!foundMax) {
-            return 0.0;
-        }
-
-        final double[] earthPoint = new double[3];
-        final double[] sensorPos = new double[3];
-
-        pixPos.setLocation(xMax, yMax);
-        targetGeoCoding.getGeoPos(pixPos, geoPos);
-        GeoUtils.geo2xyzWGS84(geoPos.getLat(), geoPos.getLon(), altMax, earthPoint);
-
-        final double zeroDopplerTime = SARGeocoding.getEarthPointZeroDopplerTime(
-                firstLineUTC, lineTimeInterval, wavelength, earthPoint, sensorPosition, sensorVelocity);
-
-        if (zeroDopplerTime == SARGeocoding.NonValidZeroDopplerTime) {
-            return 0.0;
-        }
-
-        final double slantRange = SARGeocoding.computeSlantRange(
-                zeroDopplerTime,  timeArray, xPosArray, yPosArray, zPosArray, earthPoint, sensorPos);
-
-        final double zeroDopplerTimeWithoutBias = zeroDopplerTime + slantRange / Constants.lightSpeedInMetersPerDay;
-
-        final int azimuthIndex = (int)((zeroDopplerTimeWithoutBias - firstLineUTC) / lineTimeInterval + 0.5);
-
-        double tileOverlapPercentage = (float)(azimuthIndex - yMax)/ (float)tileSize;
-        if (tileOverlapPercentage >= 0.0) {
-            tileOverlapPercentage += 1.5;
+        if (tileOverlapPercentageMin != Double.MAX_VALUE && tileOverlapPercentageMin < 0.0) {
+            overlapPercentages[0] = tileOverlapPercentageMin - 1.0;
         } else {
-            tileOverlapPercentage -= 1.5;
+            overlapPercentages[0] = 0.0;
         }
-        return tileOverlapPercentage;
+
+        if (tileOverlapPercentageMax != -Double.MAX_VALUE && tileOverlapPercentageMax > 0.0) {
+            overlapPercentages[1] = tileOverlapPercentageMax + 1.0;
+        } else {
+            overlapPercentages[1] = 0.0;
+        }
     }
 
     /**
@@ -523,13 +523,15 @@ public final class SARSimulationOp extends Operator {
         final int h  = targetRectangle.height;
         //System.out.println("x0 = " + x0 + ", y0 = " + y0 + ", w = " + w + ", h = " + h);
 
-        double tileOverlapPercentage;
+        double[] tileOverlapPercentage = {0.0, 0.0};
         try {
             if (!isElevationModelAvailable) {
                 getElevationModel();
             }
-            tileOverlapPercentage = computeTileOverlapPercentage(x0, y0, w, h);
-            //System.out.println("x0 = " + x0 + ", y0 = " + y0 + ", w = " + w + ", h = " + h + ", tileOverlapPercentage = " + tileOverlapPercentage);
+            computeTileOverlapPercentage(x0, y0, w, h, tileOverlapPercentage);
+            //System.out.println("x0 = " + x0 + ", y0 = " + y0 + ", w = " + w + ", h = " + h +
+            //                   ", tileOverlapPercentageMin = " + tileOverlapPercentage[0] +
+            //                   ", tileOverlapPercentageMax = " + tileOverlapPercentage[1]);
         } catch(Exception e) {
             throw new OperatorException(e);
         }
@@ -553,14 +555,8 @@ public final class SARSimulationOp extends Operator {
             layoverShadowMaskBuffer = targetTiles.get(targetProduct.getBand(layoverShadowMaskBandName)).getDataBuffer();
         }
 
-        int ymin, ymax;
-        if (tileOverlapPercentage >= 0.0f) {
-            ymin = Math.max(y0 - (int)(tileSize*tileOverlapPercentage), 0);
-            ymax = y0 + h;
-        } else {
-            ymin = y0;
-            ymax = y0 + h + (int)(tileSize*Math.abs(tileOverlapPercentage));
-        }
+        final int ymin = Math.max(y0 - (int)(tileSize*tileOverlapPercentage[1]), 0);
+        final int ymax = y0 + h + (int)(tileSize*Math.abs(tileOverlapPercentage[0]));
         final int xmax = x0 + w;
 
         final PositionData posData = new PositionData();
