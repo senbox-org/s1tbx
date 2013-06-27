@@ -82,6 +82,7 @@ public class GeoCodingMathTransform extends AbstractMathTransform implements Mat
             t.transform(geoCoding, srcPts, srcOff, dstPts, dstOff, numPts);
         } catch (TransformException e) {
             e.setLastCompletedTransform(this);
+            throw e;
         }
     }
 
