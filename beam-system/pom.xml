@@ -165,6 +165,11 @@
             </dependency>
             <dependency>
                 <groupId>edu.ucar</groupId>
+                <artifactId>opendap</artifactId>
+                <version>${netcdf.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>edu.ucar</groupId>
                 <artifactId>nujan</artifactId>
                 <version>1.4.1.1</version>
             </dependency>

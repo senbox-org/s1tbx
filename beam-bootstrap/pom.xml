@@ -180,7 +180,6 @@
         <dependency>
             <groupId>edu.ucar</groupId>
             <artifactId>opendap</artifactId>
-            <version>2.2.2</version>
         </dependency>
 
         <dependency>
