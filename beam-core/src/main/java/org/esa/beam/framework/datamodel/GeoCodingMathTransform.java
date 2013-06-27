@@ -78,12 +78,7 @@ public class GeoCodingMathTransform extends AbstractMathTransform implements Mat
     public void transform(double[] srcPts, int srcOff,
                           double[] dstPts, int dstOff,
                           int numPts) throws TransformException {
-        try {
-            t.transform(geoCoding, srcPts, srcOff, dstPts, dstOff, numPts);
-        } catch (TransformException e) {
-            e.setLastCompletedTransform(this);
-            throw e;
-        }
+        t.transform(geoCoding, srcPts, srcOff, dstPts, dstOff, numPts);
     }
 
     @Override
@@ -165,7 +160,6 @@ public class GeoCodingMathTransform extends AbstractMathTransform implements Mat
                               double[] srcPts, int srcOff,
                               double[] dstPts, int dstOff,
                               int numPts) throws TransformException {
-            boolean ok = true;
             try {
                 GeoPos geoPos = new GeoPos();
                 PixelPos pixelPos = new PixelPos();
@@ -179,17 +173,11 @@ public class GeoCodingMathTransform extends AbstractMathTransform implements Mat
 
                     dstPts[dstOff + firstIndex] = pixelPos.x;
                     dstPts[dstOff + secondIndex] = pixelPos.y;
-                    if (ok) {
-                        ok = pixelPos.isValid();
-                    }
                 }
             } catch (Exception e) {
                 final TransformException transformException = new TransformException();
                 transformException.initCause(e);
                 throw transformException;
-            }
-            if (!ok) {
-                throw new TransformException("Cannot transform geo-location.");
             }
         }
     }
