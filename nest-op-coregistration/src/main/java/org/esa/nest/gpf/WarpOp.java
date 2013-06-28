@@ -124,7 +124,7 @@ public class WarpOp extends Operator {
     private String processedSlaveBand;
     private String[] masterBandNames = null;
 
-    private int maxIterations = 10;
+    private int maxIterations = 20;
 
     /**
      * Default constructor. The graph processing framework
@@ -413,14 +413,10 @@ public class WarpOp extends Operator {
 
             computeWARPPolynomial(warpData, warpPolynomialOrder, masterGCPGroup);
 
-            if(warpData.notEnoughGCPs) {
-                break;
-            }
-
             outputCoRegistrationInfo(
                     sourceProduct, warpPolynomialOrder, warpData, append, threshold, iter, srcBand.getName());
 
-            if (iter > 0 && threshold <= rmsThreshold) {
+            if (warpData.notEnoughGCPs || iter > 0 && threshold <= rmsThreshold) {
                 break;
             }
         }
