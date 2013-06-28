@@ -228,6 +228,7 @@ public class SARSimTerrainCorrectionOp extends Operator {
     private String mission = null;
 
     private boolean nearRangeOnLeft = true; // temp fix for descending Radarsat2
+    private int maxIterations = 20;
 
     /**
      * Initializes this operator and sets the one and only target product.
@@ -724,7 +725,6 @@ public class SARSimTerrainCorrectionOp extends Operator {
             final WarpOp.WarpData warpData = new WarpOp.WarpData(slaveGCPGroup);
             warpDataMap.put(srcBand, warpData);
 
-            final int maxIterations = 10;
             WarpOp.computeWARPPolynomialFromGCPs(sourceProduct, srcBand, warpPolynomialOrder, masterGCPGroup,
                                                  maxIterations, rmsThreshold, appendFlag, warpData);
 
