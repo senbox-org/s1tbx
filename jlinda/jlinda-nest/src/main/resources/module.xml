@@ -2,7 +2,7 @@
 
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>jlinda-nest</symbolicName>
-    <version>0.0</version>
+    <version>0.5</version>
     <name>NEST InSAR Operators</name>
     <description>NEST InSAR operators</description>
 

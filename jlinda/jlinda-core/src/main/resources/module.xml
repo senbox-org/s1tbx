@@ -2,7 +2,7 @@
 
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>jlinda-core</symbolicName>
-    <version>0.0</version>
+    <version>0.5</version>
     <name>jLinda Core Libs</name>
     <description>jLinda Core Libs</description>
 

@@ -13,7 +13,7 @@ Installation
 Building NEST from the source
 
 1. Download and install the required build tools
-* Install J2SE 1.6 JDK and set JAVA_HOME accordingly. 
+* Install J2SE 1.7 JDK and set JAVA_HOME accordingly. 
 * Install Maven and set MAVEN_HOME accordingly. 
 2. Add $JAVA_HOME/bin, $MAVEN_HOME/bin to your PATH.
 
@@ -24,6 +24,7 @@ Building NEST from the source
 
     * To build IDEA project files for NEST: Type mvn compile idea:idea
     * In IDEA, go to the IDEA Main Menu/File/Open Project and simply open the created project file $MY_PROJECTS/nest/nest.ipr
+	* In module settings, set Project SDK to the Java 1.7 JDK and the project language level to 7.0
 
 7. Open project in the your IDE. Eclipse users:
 

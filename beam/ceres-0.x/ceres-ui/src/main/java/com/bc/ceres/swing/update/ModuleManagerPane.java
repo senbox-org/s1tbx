@@ -387,11 +387,13 @@ public class ModuleManagerPane extends JPanel {
                         success = get();
                     } catch (InterruptedException e) {
                         showErrorDialog("Update action(s) failed:\n" + e.getMessage() + "\n" +
-                                "No changes will be performed.");
+                                "No changes will be performed." +'\n'+
+                                "Try running the software as administrator");
                         return;
                     } catch (ExecutionException e) {
                         showErrorDialog("Update action(s) failed:\n" + e.getCause().getMessage() + "\n" +
-                                "No changes will be performed.");
+                                "No changes will be performed." +'\n'+
+                                "Try running the software as administrator");
                         return;
                     }
 
