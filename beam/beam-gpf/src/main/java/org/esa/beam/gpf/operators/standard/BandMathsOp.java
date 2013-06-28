@@ -254,9 +254,15 @@ public class BandMathsOp extends Operator {
         }
 
         ProductUtils.copyMetadata(sourceProducts[0], targetProduct);
+        ProductUtils.copyTiePointGrids(sourceProducts[0], targetProduct);
+        ProductUtils.copyFlagCodings(sourceProducts[0], targetProduct);
         ProductUtils.copyGeoCoding(sourceProducts[0], targetProduct);
+        ProductUtils.copyMasks(sourceProducts[0], targetProduct);
+        ProductUtils.copyVectorData(sourceProducts[0], targetProduct);
+        ProductUtils.copyIndexCodings(sourceProducts[0], targetProduct);
         targetProduct.setStartTime(sourceProducts[0].getStartTime());
         targetProduct.setEndTime(sourceProducts[0].getEndTime());
+        targetProduct.setDescription(sourceProducts[0].getDescription());
     }
 
     @Override

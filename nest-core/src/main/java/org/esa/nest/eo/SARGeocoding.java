@@ -19,6 +19,9 @@ public class SARGeocoding {
     public static final double NonValidIncidenceAngle = -99999.0;
 
     public static boolean isNearRangeOnLeft(final TiePointGrid incidenceAngle, final int sourceImageWidth) {
+        // for products without incidence angle tpg just assume left facing
+        if(incidenceAngle == null) return true;
+
         final double incidenceAngleToFirstPixel = incidenceAngle.getPixelDouble(0, 0);
         final double incidenceAngleToLastPixel = incidenceAngle.getPixelDouble(sourceImageWidth-1, 0);
         return (incidenceAngleToFirstPixel < incidenceAngleToLastPixel);

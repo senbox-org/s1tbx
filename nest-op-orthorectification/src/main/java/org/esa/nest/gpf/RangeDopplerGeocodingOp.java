@@ -946,7 +946,7 @@ public class RangeDopplerGeocodingOp extends Operator {
                             }
                         }
 
-                        if (saveIncidenceAngleFromEllipsoid) {
+                        if (saveIncidenceAngleFromEllipsoid && incidenceAngle != null) {
                             incidenceAngleFromEllipsoidBuffer.setElemDoubleAt(
                                     index, incidenceAngle.getPixelFloat((float)rangeIndex, (float)azimuthIndex));
                         }
