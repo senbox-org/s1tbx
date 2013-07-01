@@ -50,11 +50,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 class FileBackedSpatialBinCollector implements SpatialBinCollector {
 
-    private static final int NUM_BINS_PER_FILE = 100000;
-    private static final int MAX_NUMBER_OF_CACHE_FILES = 100;
-    private static final String FILE_NAME_PATTERN = "bins-%03d.tmp";
+    private static final int DEFAULT_NUM_BINS_PER_FILE = 1000;
+    private static final int MAX_NUMBER_OF_CACHE_FILES = 10000;
+    private static final String FILE_NAME_PATTERN = "bins-%05d.tmp"; // at least 5 digits; zero padded
 
     private final long maximumNumberOfBins;
+    private final int numBinsPerFile;
     private final SortedMap<Long, List<SpatialBin>> map;
     private final AtomicBoolean consumingCompleted;
     private final File tempDir;
@@ -63,10 +64,11 @@ class FileBackedSpatialBinCollector implements SpatialBinCollector {
     public FileBackedSpatialBinCollector(long maximumNumberOfBins) throws IOException {
         Assert.argument(maximumNumberOfBins > 0, "maximumNumberOfBins > 0");
         this.maximumNumberOfBins = maximumNumberOfBins;
+        numBinsPerFile = getNumBinsPerFile(maximumNumberOfBins);
         tempDir = VirtualDir.createUniqueTempDir();
         map = new TreeMap<Long, List<SpatialBin>>();
         consumingCompleted = new AtomicBoolean(false);
-        currentFileIndex = -1;
+        currentFileIndex = 0;
     }
 
     @Override
@@ -137,6 +139,13 @@ class FileBackedSpatialBinCollector implements SpatialBinCollector {
         }
     }
 
+    private static int getNumBinsPerFile(long maxBinCount) {
+        int numCacheFiles = (int) Math.ceil(maxBinCount / (float) DEFAULT_NUM_BINS_PER_FILE);
+        numCacheFiles = Math.min(numCacheFiles, MAX_NUMBER_OF_CACHE_FILES);
+        int binsPerFile = (int) Math.ceil(maxBinCount / (float) numCacheFiles);
+        return Math.max(DEFAULT_NUM_BINS_PER_FILE, binsPerFile);
+    }
+
     private void writeMapToFile(long fileIndex) throws IOException {
         if (!map.isEmpty()) {
             File file = getFile(fileIndex);
@@ -179,15 +188,7 @@ class FileBackedSpatialBinCollector implements SpatialBinCollector {
     }
 
     private int calculateNextFileIndex(long binIndex) {
-        int numBinsPerFile = getNumBinsPerFile(maximumNumberOfBins);
         return (int) (binIndex / numBinsPerFile);
-    }
-
-    private static int getNumBinsPerFile(long maxBinCount) {
-        int numCacheFiles = (int) Math.ceil(maxBinCount / NUM_BINS_PER_FILE);
-        numCacheFiles = Math.min(numCacheFiles, MAX_NUMBER_OF_CACHE_FILES);
-        int binsPerFile = (int) Math.ceil(maxBinCount / (float) numCacheFiles);
-        return binsPerFile < NUM_BINS_PER_FILE ? NUM_BINS_PER_FILE : binsPerFile;
     }
 
     private class FileBackedBinCollection implements SpatialBinCollection {
