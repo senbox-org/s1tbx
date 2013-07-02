@@ -8,6 +8,8 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.util.ProductUtils;
 
+import javax.media.jai.PlanarImage;
+import java.awt.Rectangle;
 import java.awt.geom.Point2D;
 import java.awt.image.Raster;
 import java.util.Iterator;
@@ -31,26 +33,25 @@ abstract class ObservationIterator implements Iterator<Observation> {
     private final DataPeriod dataPeriod;
 
     @Deprecated
-    public static ObservationIterator create(Raster[] sourceTiles, Product product, Raster maskTile,
-                                             float[] superSamplingSteps) {
-        return create(sourceTiles, product, maskTile, superSamplingSteps, null);
+    public static ObservationIterator create(PlanarImage[] sourceImages, PlanarImage maskImage, Product product,
+                                             float[] superSamplingSteps, Rectangle sliceRectangle) {
+        return create(sourceImages, maskImage, product, superSamplingSteps, sliceRectangle, null);
     }
 
-    public static ObservationIterator create(Raster[] sourceTiles, Product product, Raster maskTile,
-                                             float[] superSamplingSteps,
-                                             DataPeriod dataPeriod) {
+    public static ObservationIterator create(PlanarImage[] sourceImages, PlanarImage maskImage, Product product,
+                                             float[] superSamplingSteps, Rectangle sliceRectangle, DataPeriod dataPeriod) {
 
         SamplePointer pointer;
         if (superSamplingSteps.length == 1) {
-            pointer = SamplePointer.create(sourceTiles, sourceTiles[0].getBounds());
+            pointer = SamplePointer.create(sourceImages, new Rectangle[]{sliceRectangle});
         } else {
             Point2D.Float[] superSamplingPoints = SamplePointer.createSamplingPoints(superSamplingSteps);
-            pointer = SamplePointer.create(sourceTiles, sourceTiles[0].getBounds(), superSamplingPoints);
+            pointer = SamplePointer.create(sourceImages, new Rectangle[]{sliceRectangle}, superSamplingPoints);
         }
-        if (maskTile == null) {
+        if (maskImage == null) {
             return new NoMaskObservationIterator(product, pointer, dataPeriod);
         } else {
-            return new FullObservationIterator(product, pointer, maskTile, dataPeriod);
+            return new FullObservationIterator(product, pointer, maskImage, dataPeriod);
         }
     }
 
@@ -127,11 +128,12 @@ abstract class ObservationIterator implements Iterator<Observation> {
 
     static class FullObservationIterator extends ObservationIterator {
 
-        private final Raster maskTile;
+        private Raster maskTile;
+        private final PlanarImage maskImage;
 
-        FullObservationIterator(Product product, SamplePointer pointer, Raster maskTile, DataPeriod dataPeriod) {
+        FullObservationIterator(Product product, SamplePointer pointer, PlanarImage maskImage, DataPeriod dataPeriod) {
             super(product, pointer, dataPeriod);
-            this.maskTile = maskTile;
+            this.maskImage = maskImage;
         }
 
         @Override
@@ -150,6 +152,12 @@ abstract class ObservationIterator implements Iterator<Observation> {
         }
 
         private boolean isSampleValid(int x, int y) {
+            if (maskTile == null || !maskTile.getBounds().contains(x, y)) {
+                int tileX = maskImage.XToTileX(x);
+                int tileY = maskImage.YToTileY(y);
+                maskTile = maskImage.getTile(tileX, tileY);
+            }
+
             return maskTile.getSample(x, y, 0) != 0;
         }
 

@@ -1,8 +1,9 @@
 package org.esa.beam.binning;
 
+import com.bc.ceres.glevel.MultiLevelImage;
 import org.esa.beam.framework.datamodel.Product;
 
-import java.awt.image.Raster;
+import java.awt.Rectangle;
 import java.util.Iterator;
 
 /**
@@ -13,28 +14,26 @@ import java.util.Iterator;
  */
 public class ObservationSlice implements Iterable<Observation> {
 
-    private Raster[] sourceTiles;
-    private Raster maskTile;
-    private Product product;
+    private final MultiLevelImage[] sourceImages;
+    private final MultiLevelImage maskImage;
+    private final Product product;
     private float[] superSamplingSteps;
-    private DataPeriod dataPeriod;
+    private final Rectangle sliceRect;
+    private final DataPeriod dataPeriod;
 
-    @Deprecated
-    public ObservationSlice(Raster[] sourceTiles, Raster maskTile, Product product, float[] superSamplingSteps) {
-        this(sourceTiles, maskTile, product, superSamplingSteps, null);
-    }
-
-    public ObservationSlice(Raster[] sourceTiles, Raster maskTile, Product product, float[] superSamplingSteps, DataPeriod dataPeriod) {
-        this.sourceTiles = sourceTiles;
-        this.maskTile = maskTile;
+    public ObservationSlice(MultiLevelImage[] sourceImages, MultiLevelImage maskImage, Product product,
+                            float[] superSamplingSteps, Rectangle sliceRect, DataPeriod dataPeriod) {
+        this.sourceImages = sourceImages;
+        this.maskImage = maskImage;
         this.product = product;
         this.superSamplingSteps = superSamplingSteps;
+        this.sliceRect = sliceRect;
         this.dataPeriod = dataPeriod;
     }
 
     @Override
     public Iterator<Observation> iterator() {
-        return ObservationIterator.create(sourceTiles, product, maskTile, superSamplingSteps, dataPeriod);
+        return ObservationIterator.create(sourceImages, maskImage, product, superSamplingSteps, sliceRect, dataPeriod);
     }
 
 }

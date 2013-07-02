@@ -2,11 +2,15 @@ package org.esa.beam.binning;
 
 import org.junit.Test;
 
+import javax.media.jai.PlanarImage;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.geom.Point2D;
+import java.awt.image.BufferedImage;
+import java.awt.image.ColorModel;
 import java.awt.image.DataBuffer;
 import java.awt.image.Raster;
+import java.awt.image.WritableRaster;
 
 import static org.junit.Assert.*;
 
@@ -32,9 +36,9 @@ public class SamplePointerTest {
     public void testSamplePointerAllValid() throws Exception {
         int width = 2;
         int height = 3;
-        Raster[] sourceTiles = createSourceTiles(width, height);
-        Rectangle bounds = new Rectangle(0, 0, width, height);
-        SamplePointer pointer = SamplePointer.create(sourceTiles, bounds);
+        PlanarImage[] sourceImages = createSourceImages(width, height);
+        Rectangle[] bounds = {new Rectangle(0, 0, width, height)};
+        SamplePointer pointer = SamplePointer.create(sourceImages, bounds);
 
         Point2D.Float center = new Point2D.Float(0.5f, 0.5f);
 
@@ -68,22 +72,21 @@ public class SamplePointerTest {
             fail("IllegalStateException expected");
         } catch (IllegalStateException expected) {
         }
-
     }
 
     @Test
     public void testSamplePointerAllValidWithSuperSampling() throws Exception {
         int width = 2;
         int height = 3;
-        Rectangle bounds = new Rectangle(0, 0, width, height);
-        Raster[] sourceTiles = createSourceTiles(width, height);
+        Rectangle[] bounds = {new Rectangle(0, 0, width, height)};
+        PlanarImage[] sourceImages = createSourceImages(width, height);
 
         Point2D.Float[] superSamplingPoints = {
                 new Point2D.Float(0.33f, 0.33f),
                 new Point2D.Float(0.66f, 0.66f),
                 new Point2D.Float(0.99f, 0.99f),
         };
-        SamplePointer pointer = SamplePointer.create(sourceTiles, bounds, superSamplingPoints);
+        SamplePointer pointer = SamplePointer.create(sourceImages, bounds, superSamplingPoints);
 
         assertTrue(pointer.canMove());
         pointer.move();
@@ -118,9 +121,11 @@ public class SamplePointerTest {
         assertEquals(superSamplingPoints[1], pointer.getSuperSamplingPoint());
     }
 
-    private Raster[] createSourceTiles(int width, int height) {
-        Raster sourceTile = Raster.createBandedRaster(DataBuffer.TYPE_INT, width, height, 1, new Point(0, 0));
-        return new Raster[]{sourceTile};
+    private PlanarImage[] createSourceImages(int width, int height) {
+        WritableRaster sourceTile = Raster.createBandedRaster(DataBuffer.TYPE_INT, width, height, 1, new Point(0, 0));
+        ColorModel cm = PlanarImage.getDefaultColorModel(sourceTile.getDataBuffer().getDataType(), 1);
+        BufferedImage bufferedImage = new BufferedImage(cm, sourceTile, false, null);
+        return new PlanarImage[]{PlanarImage.wrapRenderedImage(bufferedImage)};
     }
 
     private void movePointer(SamplePointer pointer, int steps) {

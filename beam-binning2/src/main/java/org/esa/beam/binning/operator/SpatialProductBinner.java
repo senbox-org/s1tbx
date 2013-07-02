@@ -33,16 +33,17 @@ import org.esa.beam.framework.datamodel.VirtualBand;
 import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.StopWatch;
 import org.esa.beam.util.StringUtils;
+import org.esa.beam.util.logging.BeamLogManager;
 import org.esa.beam.util.math.MathUtils;
 
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.image.Raster;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 /**
  * Utility class which performs a spatial binning of single input products.
@@ -104,12 +105,15 @@ public class SpatialProductBinner {
         final float[] superSamplingSteps = getSuperSamplingSteps(superSampling);
         long numObsTotal = 0;
         progressMonitor.beginTask("Spatially binning of " + product.getName(), sliceRectangles.length);
+        final Logger logger = BeamLogManager.getSystemLogger();
         for (int idx = 0; idx < sliceRectangles.length; idx++) {
             StopWatch stopWatch = new StopWatch();
             stopWatch.start();
             numObsTotal += processSlice(spatialBinner, progressMonitor, superSamplingSteps, maskImage, varImages,
                                         product, sliceRectangles[idx]);
-            stopWatch.stopAndTrace(String.format("Processed slice %d of %d", idx + 1, sliceRectangles.length));
+            final String label = String.format("Processed slice %d of %d : ", idx + 1, sliceRectangles.length);
+            stopWatch.stop();
+            logger.info(label + stopWatch.getTimeDiffString());
         }
         spatialBinner.complete();
         return numObsTotal;
@@ -185,15 +189,7 @@ public class SpatialProductBinner {
     private static long processSlice(SpatialBinner spatialBinner, ProgressMonitor progressMonitor,
                                      float[] superSamplingSteps, MultiLevelImage maskImage, MultiLevelImage[] varImages,
                                      Product product, Rectangle sliceRect) {
-        final Raster maskTile = maskImage != null ? maskImage.getData(sliceRect) : null;
-        final Raster[] varTiles = new Raster[varImages.length];
-        for (int i = 0; i < varImages.length; i++) {
-            varTiles[i] = varImages[i].getData(sliceRect);
-        }
-
-        final ObservationSlice observationSlice = new ObservationSlice(varTiles, maskTile, product,
-                                                                       superSamplingSteps,
-                                                                       spatialBinner.getBinningContext().getDataPeriod());
+        final ObservationSlice observationSlice = new ObservationSlice(varImages, maskImage, product, superSamplingSteps, sliceRect, null);
         long numObservations = spatialBinner.processObservationSlice(observationSlice);
         progressMonitor.worked(1);
         return numObservations;
