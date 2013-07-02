@@ -56,6 +56,7 @@ class TemporalBinList extends AbstractList<TemporalBin> {
     private final File tempDir;
     private int size;
     private int lastFileIndex;
+    private boolean firstGet;
 
     public TemporalBinList(int numberOfBins) throws IOException {
         this(numberOfBins, DEFAULT_MAX_CACHE_FILES, DEFAULT_BINS_PER_FILE);
@@ -67,7 +68,8 @@ class TemporalBinList extends AbstractList<TemporalBin> {
         binsPerFile = computeBinsPerFile(numberOfBins, maxNumberOfCacheFiles, preferredBinsPerFile);
         currentBinList = new LinkedList<TemporalBin>();
         size = 0;
-        lastFileIndex = -1;
+        lastFileIndex = 0;
+        firstGet = true;
     }
 
     @Override
@@ -97,7 +99,17 @@ class TemporalBinList extends AbstractList<TemporalBin> {
     @Override
     public TemporalBin get(int index) {
         if (index >= numberOfBins) {
-            throw new IllegalStateException(String.format("Index out of range. Maximum is %d but was %d", numberOfBins-1, index));
+            throw new IllegalStateException(String.format("Index out of range. Maximum is %d but was %d", numberOfBins - 1, index));
+        }
+        if (firstGet) {
+            try {
+                writeBinList(lastFileIndex, currentBinList);
+            } catch (IOException e) {
+                logger.log(Level.SEVERE, "Error storing temporal bins.", e);
+                return null;
+            }finally {
+                firstGet = false;
+            }
         }
         synchronized (currentBinList) {
             try {
@@ -109,7 +121,7 @@ class TemporalBinList extends AbstractList<TemporalBin> {
                 }
 
                 int fileBinOffset = binsPerFile * currentFileIndex;
-                return currentBinList.remove(index - fileBinOffset);
+                return currentBinList.get(index - fileBinOffset);
 
             } catch (IOException e) {
                 logger.log(Level.SEVERE, String.format("Error getting temporal bin at index %d.", index), e);
