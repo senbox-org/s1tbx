@@ -1,3 +1,19 @@
+/*
+ * Copyright (C) 2013 Brockmann Consult GmbH (info@brockmann-consult.de)
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 3 of the License, or (at your option)
+ * any later version.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, see http://www.gnu.org/licenses/
+ */
+
 package org.esa.beam.binning.operator;
 
 import com.vividsolutions.jts.geom.Geometry;
@@ -5,11 +21,8 @@ import org.esa.beam.binning.BinManager;
 import org.esa.beam.binning.BinningContext;
 import org.esa.beam.binning.PlanetaryGrid;
 import org.esa.beam.binning.TemporalBin;
-import org.esa.beam.binning.support.SEAGrid;
 import org.esa.beam.binning.support.SeadasGrid;
 import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.util.io.FileUtils;
-import org.esa.beam.util.logging.BeamLogManager;
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
 import ucar.ma2.InvalidRangeException;
@@ -18,41 +31,28 @@ import ucar.nc2.Dimension;
 import ucar.nc2.NetcdfFileWriteable;
 import ucar.nc2.Variable;
 
-import java.io.File;
 import java.io.IOException;
-import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Logger;
 
 /**
  * Utility class that writes SeaDAS-Level-3-alike NetCDF files containing binned Level-3 data.
  *
  * @author Norman Fomferra
  */
-class SeaDASLevel3BinWriter implements BinWriter {
+class SeaDASLevel3BinWriter extends AbstractBinWriter {
 
-    private static final DateFormat dateFormat = ProductData.UTC.createDateFormat(BinningOp.DATETIME_PATTERN);
     private final static int BUFFER_SIZE = 4096;
 
-    private final Geometry region;
-    private final ProductData.UTC startTime;
-    private final ProductData.UTC stopTime;
     private BinningContext binningContext;
     private SeadasGrid seadasGrid;
     private PlanetaryGrid planetaryGrid;
-    private File targetFilePath;
-    private Logger logger;
 
-    public SeaDASLevel3BinWriter(Geometry region, ProductData.UTC startTime,
-                                 ProductData.UTC stopTime) {
-        this.region = region;
-        this.startTime = startTime;
-        this.stopTime = stopTime;
-        this.logger = BeamLogManager.getSystemLogger();
+    public SeaDASLevel3BinWriter(Geometry region, ProductData.UTC startTime, ProductData.UTC stopTime) {
+        super(region, startTime, stopTime);
     }
 
     @Override
@@ -63,33 +63,18 @@ class SeaDASLevel3BinWriter implements BinWriter {
     }
 
     @Override
-    public void setLogger(Logger logger) {
-        this.logger = logger;
-    }
-
-    @Override
-    public void setTargetFileTemplatePath(String targetFileTemplatePath) {
-        targetFilePath = FileUtils.exchangeExtension(new File(targetFileTemplatePath), "-bins.nc");
-    }
-
-    @Override
-    public String getTargetFilePath() {
-        return targetFilePath.getAbsolutePath();
-    }
-
-    @Override
     public void write(Map<String, String> metadataProperties, List<TemporalBin> temporalBins) throws IOException {
-        final NetcdfFileWriteable netcdfFile = NetcdfFileWriteable.createNew(targetFilePath.getAbsolutePath());
+        final NetcdfFileWriteable netcdfFile = NetcdfFileWriteable.createNew(getTargetFilePath());
 
         netcdfFile.addGlobalAttribute("title", "Level-3 Binned Data");
         netcdfFile.addGlobalAttribute("super_sampling", binningContext.getSuperSampling());
-        if (region != null) {
-            netcdfFile.addGlobalAttribute("region", region.toText());
+        if (getRegion() != null) {
+            netcdfFile.addGlobalAttribute("region", getRegion().toText());
         }
 
         writeGlobalTimeCoverageMetadata(netcdfFile);
         writeGlobalCommonMetadata(metadataProperties, netcdfFile);
-        writeGlobalSEAGridMetadata(netcdfFile);
+        writeGlobalSEAGridMetadata(netcdfFile, planetaryGrid.getNumRows());
 
         final Dimension binIndexDim = netcdfFile.addDimension("bin_index", planetaryGrid.getNumRows());
         final Dimension binListDim = netcdfFile.addDimension("bin_list", temporalBins.size());
@@ -150,39 +135,6 @@ class SeaDASLevel3BinWriter implements BinWriter {
         } finally {
             netcdfFile.close();
         }
-    }
-
-    private void writeGlobalSEAGridMetadata(NetcdfFileWriteable netcdfFile) {
-        netcdfFile.addGlobalAttribute("SEAGrid_bins", 2 * planetaryGrid.getNumRows());
-        netcdfFile.addGlobalAttribute("SEAGrid_radius", SEAGrid.RE);
-        netcdfFile.addGlobalAttribute("SEAGrid_max_north", +90.0);
-        netcdfFile.addGlobalAttribute("SEAGrid_max_south", -90.0);
-        netcdfFile.addGlobalAttribute("SEAGrid_seam_lon", -180.0);
-    }
-
-    private void writeGlobalCommonMetadata(Map<String, String> metadataProperties, NetcdfFileWriteable netcdfFile) {
-        for (String name : metadataProperties.keySet()) {
-            final String value = metadataProperties.get(name);
-            try {
-                netcdfFile.addGlobalAttribute(name, value);
-            } catch (Exception e) {
-                logger.warning(String.format("Failed to write metadata property to '%s': %s = %s", targetFilePath.getAbsolutePath(), name, value));
-            }
-        }
-    }
-
-    // package access for testing only tb 2013-05-06
-    static String toDateString(ProductData.UTC utc) {
-        return utc != null ? dateFormat.format(utc.getAsDate()) : "";
-    }
-
-    private void writeGlobalTimeCoverageMetadata(NetcdfFileWriteable netcdfFile) {
-        final String startTimeString = toDateString(startTime);
-        final String stopTimeString = toDateString(stopTime);
-        netcdfFile.addGlobalAttribute("start_time", startTimeString);
-        netcdfFile.addGlobalAttribute("stop_time", stopTimeString);
-        netcdfFile.addGlobalAttribute("time_coverage_start", startTimeString);
-        netcdfFile.addGlobalAttribute("time_coverage_end", stopTimeString);
     }
 
     private void writeBinIndexVariables(final NetcdfFileWriteable netcdfFile,
@@ -305,7 +257,7 @@ class SeaDASLevel3BinWriter implements BinWriter {
     private void writeBinIndexVariable(NetcdfFileWriteable netcdfFile,
                                        Variable variable,
                                        BinIndexElementSetter setter) throws IOException, InvalidRangeException {
-        logger.info("Writing bin index variable " + variable.getName());
+        getLogger().info("Writing bin index variable " + variable.getName());
         final int numRows = seadasGrid.getNumRows();
         final Array array = Array.factory(variable.getDataType(), new int[]{numRows});
         for (int row = 0; row < numRows; row++) {
@@ -320,7 +272,7 @@ class SeaDASLevel3BinWriter implements BinWriter {
                                        int[] binRowBeginOffsets,
                                        long[] binRowBegins,
                                        int[] binRowExtends) throws IOException, InvalidRangeException {
-        logger.info("Writing bin list variables");
+        getLogger().info("Writing bin list variables");
 
         final int[] origin = new int[1];
         int bufferIndex = 0;
@@ -381,54 +333,5 @@ class SeaDASLevel3BinWriter implements BinWriter {
         binRowBegins[rowIndex] = rowBins.get(0).getIndex();
         binRowExtends[rowIndex] = rowBins.size();
         return bufferIndex;
-    }
-
-    private void setBinListVarsArrayElement(List<BinListVar> vars, TemporalBin temporalBin, int bufferIndex) {
-        for (BinListVar var : vars) {
-            var.setter.setArray(var.buffer, bufferIndex, temporalBin);
-        }
-    }
-
-    private void writeBinListVars(NetcdfFileWriteable netcdfFile, List<BinListVar> vars, int[] origin) throws IOException, InvalidRangeException {
-        for (BinListVar var : vars) {
-            netcdfFile.write(var.variable.getName(),
-                    origin,
-                    var.buffer);
-        }
-    }
-
-    private void writeBinListVars(NetcdfFileWriteable netcdfFile, List<BinListVar> vars, int[] origin, int bufferIndex) throws IOException,
-            InvalidRangeException {
-        final int[] origin0 = {0};
-        final int[] shape = {bufferIndex};
-        for (BinListVar var : vars) {
-            netcdfFile.write(var.variable.getName(),
-                    origin,
-                    var.buffer.section(origin0, shape));
-        }
-    }
-
-    private interface BinIndexElementSetter {
-
-        void setArray(Array array, int rowIndex, SeadasGrid grid);
-    }
-
-    private interface BinListElementSetter {
-
-        void setArray(Array array, int binIndex, TemporalBin bin);
-    }
-
-
-    private static class BinListVar {
-
-        private final Variable variable;
-        private final BinListElementSetter setter;
-        private final Array buffer;
-
-        BinListVar(Variable variable, BinListElementSetter setter) {
-            this.variable = variable;
-            this.setter = setter;
-            this.buffer = Array.factory(variable.getDataType(), new int[]{BUFFER_SIZE});
-        }
     }
 }
