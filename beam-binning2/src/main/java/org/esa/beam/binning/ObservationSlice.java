@@ -17,7 +17,7 @@ public class ObservationSlice implements Iterable<Observation> {
     private final MultiLevelImage[] sourceImages;
     private final MultiLevelImage maskImage;
     private final Product product;
-    private float[] superSamplingSteps;
+    private final float[] superSamplingSteps;
     private final Rectangle sliceRect;
     private final DataPeriod dataPeriod;
 
