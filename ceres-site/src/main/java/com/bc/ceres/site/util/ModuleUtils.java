@@ -25,6 +25,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static com.bc.ceres.site.util.ExclusionListBuilder.*;
 
@@ -97,15 +99,27 @@ public class ModuleUtils {
      * @return the year
      */
     public static String retrieveYear(Module module) {
-        String copyright;
-        String year = "-1";
-        if ((copyright = module.getCopyright()) != null) {
-            copyright = copyright.toLowerCase().replace("copyright", "");
-            copyright = copyright.toLowerCase().replace("(c)", "");
-            int endIndex = copyright.indexOf(" by");
-            year = copyright.substring(0, endIndex);
+        return parseYearFromCopyrightString(module.getCopyright());
+    }
+
+    static String parseYearFromCopyrightString(String copyright) {
+        if (copyright == null) {
+            return "-1";
         }
-        return year;
+
+        String regex = "(\\d{4})\\s?-?\\s?(\\d{4})?"; // YYYY - YYYY | YYYY | YYYY-YYYY
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(copyright);
+        if (matcher.find()) {
+            String firstYear = matcher.group(1);
+            if (matcher.group(2) != null) {
+                return firstYear + "-" + matcher.group(2);
+            } else {
+                return firstYear;
+            }
+        } else {
+            return "-1";
+        }
     }
 
     /**

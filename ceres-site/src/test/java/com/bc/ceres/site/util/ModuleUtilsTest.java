@@ -34,7 +34,9 @@ import java.util.Arrays;
 import java.util.List;
 
 import static com.bc.ceres.site.util.ExclusionListBuilder.*;
-import static junit.framework.Assert.*;
+import static com.bc.ceres.site.util.ModuleUtils.*;
+import static org.hamcrest.core.Is.*;
+import static org.junit.Assert.*;
 
 public class ModuleUtilsTest {
 
@@ -143,6 +145,19 @@ public class ModuleUtilsTest {
 
         resultModuleArray = ModuleUtils.removeDoubles(moduleArray);
         assertEquals(moduleArray.length - 1, resultModuleArray.length);
+    }
+
+    @Test
+    public void testParseYearFromCopyrightString() throws Exception {
+        assertThat(parseYearFromCopyrightString(null), is("-1"));
+        assertThat(parseYearFromCopyrightString("Copyright (c) 2012 by Brockmann Consult GmbH"), is("2012"));
+        assertThat(parseYearFromCopyrightString("(c) Copyright 1999 by Brockmann Consult GmbH"), is("1999"));
+        assertThat(parseYearFromCopyrightString("(c) Copyright 2004 by NASA"), is("2004"));
+        assertThat(parseYearFromCopyrightString("(c) 1756 Copyright by NASA"), is("1756"));
+        assertThat(parseYearFromCopyrightString("(c) Copyright 3084 by FUB"), is("3084"));
+        assertThat(parseYearFromCopyrightString("(c) Copyright 2009-2013 by FUB"), is("2009-2013"));
+        assertThat(parseYearFromCopyrightString("(c) Copyright 2009 - 2013 by FUB"), is("2009-2013"));
+        assertThat(parseYearFromCopyrightString("(c) Copyright 2008 BC GmbH"), is("2008"));
     }
 
     private Module[] addModule(String name) throws Exception {
