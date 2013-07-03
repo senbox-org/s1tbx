@@ -28,6 +28,7 @@ public final class Constants
     public static final double MeanEarthRadius = 6371008.7714; // in m (WGS84)
 
     public static final double oneMillion = 1000000.0;
+    public static final double tenMillion = 10000000.0;
     public static final double oneBillion = 1000000000.0;
     public static final double oneBillionth = 1.0 / oneBillion;
 
