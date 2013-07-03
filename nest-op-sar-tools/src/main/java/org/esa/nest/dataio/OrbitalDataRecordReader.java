@@ -261,8 +261,8 @@ public final class OrbitalDataRecordReader {
 
         double lat, lon;
         if (productSpecifier.contains("xODR")) {
-            lat = (double)dataRecord.latitude / Constants.oneMillion; // xODR: 0.1 microdegrees to degrees
-            lon = (double)dataRecord.longitude / Constants.oneMillion; // xODR: 0.1 microdegrees, [-180, 180]
+            lat = (double)dataRecord.latitude / Constants.tenMillion; // xODR: 0.1 microdegrees to degrees
+            lon = (double)dataRecord.longitude / Constants.tenMillion; // xODR: 0.1 microdegrees, [-180, 180]
         } else if (productSpecifier.contains("@ODR")) {
             lat = (double)dataRecord.latitude / Constants.oneMillion; //  @ODR: microdegrees to degrees
             lon = (double)dataRecord.longitude / Constants.oneMillion; // @ODR: in microdegrees, [0, 360]
