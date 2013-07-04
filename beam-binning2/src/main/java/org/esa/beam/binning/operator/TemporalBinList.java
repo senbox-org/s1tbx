@@ -64,6 +64,7 @@ class TemporalBinList extends AbstractList<TemporalBin> {
 
     TemporalBinList(int numberOfBins, int maxNumberOfCacheFiles, int preferredBinsPerFile) throws IOException {
         tempDir = VirtualDir.createUniqueTempDir();
+        Runtime.getRuntime().addShutdownHook(new DeleteDirThread(tempDir));
         this.numberOfBins = numberOfBins;
         binsPerFile = computeBinsPerFile(numberOfBins, maxNumberOfCacheFiles, preferredBinsPerFile);
         currentBinList = new LinkedList<TemporalBin>();
