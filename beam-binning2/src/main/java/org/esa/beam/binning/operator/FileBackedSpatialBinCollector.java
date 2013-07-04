@@ -50,7 +50,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 class FileBackedSpatialBinCollector implements SpatialBinCollector {
 
-    private static final int DEFAULT_NUM_BINS_PER_FILE = 1000;
+    private static final int DEFAULT_NUM_BINS_PER_FILE = 100000;
     private static final int MAX_NUMBER_OF_CACHE_FILES = 10000;
     private static final String FILE_NAME_PATTERN = "bins-%05d.tmp"; // at least 5 digits; zero padded
 
@@ -66,6 +66,7 @@ class FileBackedSpatialBinCollector implements SpatialBinCollector {
         this.maximumNumberOfBins = maximumNumberOfBins;
         numBinsPerFile = getNumBinsPerFile(maximumNumberOfBins);
         tempDir = VirtualDir.createUniqueTempDir();
+        Runtime.getRuntime().addShutdownHook(new DeleteDirHook());
         map = new TreeMap<Long, List<SpatialBin>>();
         consumingCompleted = new AtomicBoolean(false);
         currentFileIndex = 0;
@@ -156,7 +157,7 @@ class FileBackedSpatialBinCollector implements SpatialBinCollector {
 
     private void writeToFile(SortedMap<Long, List<SpatialBin>> map, File file) throws IOException {
         FileOutputStream fos = new FileOutputStream(file);
-        DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(fos, 1024 * 1024));
+        DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(fos, 5 * 1024 * 1024));
         try {
             writeToStream(map, dos);
         } finally {
@@ -175,7 +176,7 @@ class FileBackedSpatialBinCollector implements SpatialBinCollector {
 
     private static void readIntoMap(File file, SortedMap<Long, List<SpatialBin>> map) throws IOException {
         FileInputStream fis = new FileInputStream(file);
-        DataInputStream dis = new DataInputStream(new BufferedInputStream(fis, 1024 * 1024));
+        DataInputStream dis = new DataInputStream(new BufferedInputStream(fis, 5 * 1024 * 1024));
         try {
             readFromStream(dis, map);
         } finally {
@@ -295,6 +296,14 @@ class FileBackedSpatialBinCollector implements SpatialBinCollector {
             public void remove() {
                 // nothing to do
             }
+        }
+    }
+
+    private class DeleteDirHook extends Thread {
+
+        @Override
+        public void run() {
+            FileUtils.deleteTree(tempDir);
         }
     }
 }
