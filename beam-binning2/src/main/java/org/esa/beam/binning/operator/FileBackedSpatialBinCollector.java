@@ -54,22 +54,22 @@ class FileBackedSpatialBinCollector implements SpatialBinCollector {
     private static final int MAX_NUMBER_OF_CACHE_FILES = 10000;
     private static final String FILE_NAME_PATTERN = "bins-%05d.tmp"; // at least 5 digits; zero padded
 
-    private final long maximumNumberOfBins;
     private final int numBinsPerFile;
     private final SortedMap<Long, List<SpatialBin>> map;
     private final AtomicBoolean consumingCompleted;
     private final File tempDir;
     private long currentFileIndex;
+    private long numBinsComsumed;
 
     public FileBackedSpatialBinCollector(long maximumNumberOfBins) throws IOException {
         Assert.argument(maximumNumberOfBins > 0, "maximumNumberOfBins > 0");
-        this.maximumNumberOfBins = maximumNumberOfBins;
         numBinsPerFile = getNumBinsPerFile(maximumNumberOfBins);
         tempDir = VirtualDir.createUniqueTempDir();
         Runtime.getRuntime().addShutdownHook(new DeleteDirThread(tempDir));
         map = new TreeMap<Long, List<SpatialBin>>();
         consumingCompleted = new AtomicBoolean(false);
         currentFileIndex = 0;
+        numBinsComsumed = 0;
     }
 
     @Override
@@ -79,6 +79,7 @@ class FileBackedSpatialBinCollector implements SpatialBinCollector {
         }
         synchronized (map) {
             for (SpatialBin spatialBin : spatialBins) {
+                numBinsComsumed++;
                 long spatialBinIndex = spatialBin.getIndex();
                 int nextFileIndex = calculateNextFileIndex(spatialBinIndex);
                 if (nextFileIndex != currentFileIndex) {
@@ -107,7 +108,7 @@ class FileBackedSpatialBinCollector implements SpatialBinCollector {
 
     @Override
     public SpatialBinCollection getSpatialBinCollection() throws IOException {
-        return new FileBackedBinCollection();
+        return new FileBackedBinCollection(numBinsComsumed);
     }
 
     public void close() {
@@ -195,7 +196,10 @@ class FileBackedSpatialBinCollector implements SpatialBinCollector {
     private class FileBackedBinCollection implements SpatialBinCollection {
 
 
-        public FileBackedBinCollection() {
+        private final long size;
+
+        public FileBackedBinCollection(long size) {
+            this.size = size;
         }
 
         @Override
@@ -210,7 +214,7 @@ class FileBackedSpatialBinCollector implements SpatialBinCollector {
 
         @Override
         public long size() {
-            return maximumNumberOfBins;
+            return size;
         }
 
         @Override
