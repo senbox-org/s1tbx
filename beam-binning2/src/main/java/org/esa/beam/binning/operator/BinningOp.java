@@ -159,11 +159,11 @@ public class BinningOp extends Operator implements Output {
     boolean outputTargetProduct;
 
     @Parameter(notNull = true,
-               description = "The configuration used for the binning process. Specifies the binning grid, any variables and their aggregators.")
+            description = "The configuration used for the binning process. Specifies the binning grid, any variables and their aggregators.")
     BinningConfig binningConfig;
 
     @Parameter(notNull = true,
-               description = "The configuration used for the output formatting process.")
+            description = "The configuration used for the output formatting process.")
     FormatterConfig formatterConfig;
 
     @Parameter(
@@ -172,7 +172,7 @@ public class BinningOp extends Operator implements Output {
     File metadataPropertiesFile;
 
     @Parameter(description = "The name of the directory containing metadata templates (google \"Apache Velocity VTL format\").",
-               defaultValue = ".")
+            defaultValue = ".")
     File metadataTemplateDir;
 
     @Parameter(description = "Applies a sensor-dependent, spatial data-day definition to the given time range. " +
@@ -581,11 +581,11 @@ public class BinningOp extends Operator implements Output {
         getLogger().fine(String.format("Product start time '%s'...", sourceProduct.getStartTime()));
         getLogger().fine(String.format("Product end time   '%s'...", sourceProduct.getEndTime()));
         final long numObs = SpatialProductBinner.processProduct(sourceProduct, spatialBinner,
-                                                                binningContext.getSuperSampling(), addedBands,
-                                                                ProgressMonitor.NULL);
+                binningContext.getSuperSampling(), addedBands,
+                ProgressMonitor.NULL);
         stopWatch.stop();
         getLogger().info(String.format("Spatial binning of product '%s' done, %d observations seen, took %s",
-                                       sourceProduct.getName(), numObs, stopWatch));
+                sourceProduct.getName(), numObs, stopWatch));
         sourceProductCount++;
     }
 
@@ -596,9 +596,12 @@ public class BinningOp extends Operator implements Output {
         long numberOfBins = spatialBinMap.size();
         final TemporalBinner temporalBinner = new TemporalBinner(binningContext);
         final CellProcessorChain cellChain = new CellProcessorChain(binningContext);
-        final TemporalBinList temporalBins = new TemporalBinList((int) spatialBinMap.size());
+        final TemporalBinList temporalBins = new TemporalBinList((int) numberOfBins);
         Iterable<List<SpatialBin>> spatialBinListCollection = spatialBinMap.getBinCollection();
+        double binCounter = 0;
+        long hundredthOfNumBins = numberOfBins / 100;
         for (List<SpatialBin> spatialBinList : spatialBinListCollection) {
+            binCounter++;
             SpatialBin spatialBin = spatialBinList.get(0);
             long spatialBinIndex = spatialBin.getIndex();
             TemporalBin temporalBin = temporalBinner.processSpatialBins(spatialBinIndex, spatialBinList);
@@ -607,6 +610,9 @@ public class BinningOp extends Operator implements Output {
             temporalBin = cellChain.process(temporalBin);
 
             temporalBins.add(temporalBin);
+            if (binCounter % hundredthOfNumBins == 0) {
+                getLogger().info(String.format("Finished %d%% temporal bins", (int) (binCounter * 100 / numberOfBins)));
+            }
         }
         stopWatch.stop();
         getLogger().info(String.format("Temporal binning of %d bins done, took %s", numberOfBins, stopWatch));
