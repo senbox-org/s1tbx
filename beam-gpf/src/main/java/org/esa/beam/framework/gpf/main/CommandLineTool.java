@@ -245,8 +245,8 @@ class CommandLineTool implements GraphProcessingObserver {
     private void runOperator() throws Exception {
         Map<String, String> parameterMap = getRawParameterMap();
         String operatorName = commandLineArgs.getOperatorName();
-        Map<String, Object> parameters = convertParameterMap(operatorName, parameterMap);
         Map<String, Product> sourceProducts = getSourceProductMap();
+        Map<String, Object> parameters = convertParameterMap(operatorName, parameterMap, sourceProducts);
         Product targetProduct = createOpProduct(operatorName, parameters, sourceProducts);
         // write product only if Operator does not implement the Output interface
         OperatorProductReader opProductReader = null;
@@ -338,11 +338,12 @@ class CommandLineTool implements GraphProcessingObserver {
         metadataResourceEngine.readResource("graphXml", graphFile.getPath());
     }
 
-    private Map<String, Object> convertParameterMap(String operatorName, Map<String, String> parameterMap) throws
-                                                                                                           ValidationException {
+    private Map<String, Object> convertParameterMap(String operatorName, Map<String, String> parameterMap,
+                                                    Map<String, Product> sourceProductMap) throws ValidationException {
         HashMap<String, Object> parameters = new HashMap<String, Object>();
         PropertyContainer container = ParameterDescriptorFactory.createMapBackedOperatorPropertyContainer(operatorName,
-                                                                                                          parameters);
+                                                                                                          parameters,
+                                                                                                          new ParameterDescriptorFactory(sourceProductMap));
         // explicitly set default values for putting them into the backing map
         container.setDefaultValues();
 

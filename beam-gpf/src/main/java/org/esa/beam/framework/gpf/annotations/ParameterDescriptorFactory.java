@@ -49,8 +49,13 @@ public class ParameterDescriptorFactory implements PropertyDescriptorFactory {
 
     public static PropertyContainer createMapBackedOperatorPropertyContainer(String operatorName,
                                                                              Map<String, Object> operatorParameters) {
-        return PropertyContainer.createMapBacked(operatorParameters, getOpType(operatorName),
-                                                 new ParameterDescriptorFactory());
+        return createMapBackedOperatorPropertyContainer(operatorName, operatorParameters, new ParameterDescriptorFactory());
+    }
+
+    public static PropertyContainer createMapBackedOperatorPropertyContainer(String operatorName,
+                                                                             Map<String, Object> operatorParameters,
+                                                                             ParameterDescriptorFactory descriptorFactory) {
+        return PropertyContainer.createMapBacked(operatorParameters, getOpType(operatorName), descriptorFactory);
     }
 
     public ParameterDescriptorFactory() {
