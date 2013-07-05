@@ -45,12 +45,7 @@ import java.io.FileOutputStream;
 import java.io.PrintStream;
 
 /**
- * The operator performs the following operations for all master/slave pairs that user selected:
- *
- * 1. For both PCA images read in the min values computed in the previous step by PCAMinOp;
- * 2. Read also the eigendevector matrix saved in the temporary metadata;
- * 3. Compute the PCA images again and substract the min value from each;
- * 4. Output the final PCA images to target product.
+ * The operator performs principle component analysis for user selected master/slave pairs.
  */
 
 @OperatorMetadata(alias="PCA", description="Principle Component Analysis", internal = false, category="Analysis")
@@ -281,6 +276,12 @@ public class PCAOp extends Operator {
                                 throws OperatorException {
 
         try {
+            final int x0 = targetRectangle.x;
+            final int y0 = targetRectangle.y;
+            final int w = targetRectangle.width;
+            final int h = targetRectangle.height;
+            //System.out.println("x0 = " + x0 + ", y0 = " + y0 + ", w = " + w + ", h = " + h);
+
             if(!statsCalculated) {
                 calculateStatistics();
             }
@@ -290,20 +291,26 @@ public class PCAOp extends Operator {
                 bandsRawSamples[i] =
                         getSourceTile(sourceProduct.getBand(sourceBandNames[i]), targetRectangle).getRawSamples();
             }
-            final int n = bandsRawSamples[0].getNumElems();
 
             for (int i = 0; i < numPCA; i++) {
 
                 final Band targetBand = targetProduct.getBand("PC" + i);
                 final Tile targetTile = targetTileMap.get(targetBand);
                 final ProductData trgData = targetTile.getDataBuffer();
-
-                for (int k = 0; k < n; k++) {
-                    double vPCA = 0.0;
-                    for (int j = 0; j < numOfSourceBands; j++) {
-                        vPCA += bandsRawSamples[j].getElemDoubleAt(k)*eigenVectorMatrices[j][i];
+                final TileIndex targetIndex = new TileIndex(targetTile);
+                int index;
+                int k = 0;
+                for (int y = y0; y < y0+h; y++) {
+                    targetIndex.calculateStride(y);
+                    for (int x = x0; x < x0+w; x++) {
+                        index = targetIndex.getIndex(x);
+                        double vPCA = 0.0;
+                        for (int j = 0; j < numOfSourceBands; j++) {
+                            vPCA += bandsRawSamples[j].getElemDoubleAt(k)*eigenVectorMatrices[j][i];
+                        }
+                        k++;
+                        trgData.setElemDoubleAt(index, vPCA - minPCA[i]);
                     }
-                    trgData.setElemDoubleAt(k, vPCA - minPCA[i]);
                 }
             }
 
