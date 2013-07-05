@@ -43,6 +43,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -52,6 +53,8 @@ import java.util.logging.Logger;
  * @author Marco Zühlke
  */
 public class SpatialProductBinner {
+
+    private static final String PROPERTY_KEY_SLICE_HEIGHT = "beam.binning.sliceHeight";
 
     /**
      * Processes a source product and generated spatial bins.
@@ -205,7 +208,11 @@ public class SpatialProductBinner {
         } else {
             sliceHeight = ImageManager.getPreferredTileSize(product).height;
         }
-        return new Dimension(sliceWidth, sliceHeight);
+        String sliceHeightString = System.getProperty(PROPERTY_KEY_SLICE_HEIGHT, String.valueOf(sliceHeight));
+        Dimension dimension = new Dimension(sliceWidth, Integer.parseInt(sliceHeightString));
+        String logMsg = String.format("Using slice dimension [width=%d, height=%d] in binning", dimension.width, dimension.height);
+        BeamLogManager.getSystemLogger().log(Level.INFO, logMsg);
+        return dimension;
     }
 
     private static void addVariablesToProduct(VariableContext variableContext, Product product,
