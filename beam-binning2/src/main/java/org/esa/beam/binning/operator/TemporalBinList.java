@@ -170,7 +170,7 @@ class TemporalBinList extends AbstractList<TemporalBin> {
 
     private static void writeToFile(List<TemporalBin> temporalBins, File file) throws IOException {
         FileOutputStream fos = new FileOutputStream(file);
-        DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(fos, 1024 * 1024));
+        DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(fos, 5 * 1024 * 1024));
         try {
             for (TemporalBin bin : temporalBins) {
                 dos.writeLong(bin.getIndex());
@@ -183,7 +183,7 @@ class TemporalBinList extends AbstractList<TemporalBin> {
 
     private static void readFromFile(File file, List<TemporalBin> temporalBins) throws IOException {
         FileInputStream fis = new FileInputStream(file);
-        DataInputStream dis = new DataInputStream(new BufferedInputStream(fis, 1024 * 1024));
+        DataInputStream dis = new DataInputStream(new BufferedInputStream(fis, 5 * 1024 * 1024));
         try {
             while (dis.available() != 0) {
                 long binIndex = dis.readLong();
