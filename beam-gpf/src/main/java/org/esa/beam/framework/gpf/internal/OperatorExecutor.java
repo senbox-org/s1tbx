@@ -245,7 +245,7 @@ public class OperatorExecutor {
         }
     }
 
-    // unused (mz) left for debuggin purpose
+    // unused (mz) left for debugging purpose
     // does not schedule tile but instead calls getTile blocking
     private void executeRowBandColumn(ProgressMonitor pm) {
         for (int tileY = 0; tileY < tileCountY; tileY++) {
