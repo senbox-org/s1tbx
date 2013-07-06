@@ -302,7 +302,7 @@
             <dependency>
                 <groupId>org.esa.nest</groupId>
                 <artifactId>nest-core</artifactId>
-                <version>${nest.version}</version>
+                <version>5.0.1</version>
             </dependency>
 			
 			<dependency>

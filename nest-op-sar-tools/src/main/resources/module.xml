@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>nest-op-sar-tools</symbolicName>
-    <version>5.0</version>
+    <version>5.0.1</version>
     <name>NEST SAR Tools</name>
     <description>NEST SAR Tools</description>
 	

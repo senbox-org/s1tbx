@@ -9,7 +9,7 @@
   <groupId>org.esa.nest</groupId>
   <artifactId>nest-op-sar-tools</artifactId>
   <name>NEST SAR Tools</name>
-  <version>5.0</version>
+  <version>5.0.1</version>
   <description>Provides various operators for processing on SAR data</description>
   
   <dependencies>
