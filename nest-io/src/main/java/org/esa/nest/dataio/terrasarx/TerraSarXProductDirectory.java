@@ -419,8 +419,8 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
         final File georefFile = new File(getBaseDir(), "ANNOTATION"+File.separator+"GEOREF.xml");
         if(georefFile.exists()) {
             try {
-                readGeoRef(product, georefFile);
-                return;
+                //readGeoRef(product, georefFile);
+                //return;
             } catch(Exception e) {
                 //
             }
@@ -456,6 +456,7 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
         int i = 0;
         int r = numRg-1;
         int c = 0;
+        boolean regridNeeded = false;
         final List<Element> grdPntList = geoGrid.getChildren("gridPoint");
         for(Element pnt : grdPntList) {
             int index = i;
@@ -480,6 +481,7 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
             final Element rowElem = pnt.getChild("row");
             if(rowElem != null) {
                 row[index] = Integer.parseInt(rowElem.getValue()) - 1;
+                regridNeeded = true;
             }
             final Element colElem = pnt.getChild("col");
             if(colElem != null) {
@@ -496,22 +498,30 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
         final int gridHeight = numAz;
         final int newGridWidth = gridWidth;
         final int newGridHeight = gridHeight;
-        final float[] newLatList = new float[newGridWidth*newGridHeight];
-        final float[] newLonList = new float[newGridWidth*newGridHeight];
-        final float[] newIncList = new float[newGridWidth*newGridHeight];
+        float[] newLatList = new float[newGridWidth*newGridHeight];
+        float[] newLonList = new float[newGridWidth*newGridHeight];
+        float[] newIncList = new float[newGridWidth*newGridHeight];
         final int sceneRasterWidth = product.getSceneRasterWidth();
         final int sceneRasterHeight = product.getSceneRasterHeight();
         final double subSamplingX = sceneRasterWidth / (double)(newGridWidth - 1);
         final double subSamplingY = sceneRasterHeight / (double)(newGridHeight - 1);
 
-        getListInEvenlySpacedGrid(sceneRasterWidth, sceneRasterHeight, gridWidth, gridHeight, col, row, latList,
+        if(regridNeeded) {
+            getListInEvenlySpacedGrid(sceneRasterWidth, sceneRasterHeight, gridWidth, gridHeight, col, row, latList,
                 newGridWidth, newGridHeight, subSamplingX, subSamplingY, newLatList);
 
-        getListInEvenlySpacedGrid(sceneRasterWidth, sceneRasterHeight, gridWidth, gridHeight, col, row, lonList,
+            getListInEvenlySpacedGrid(sceneRasterWidth, sceneRasterHeight, gridWidth, gridHeight, col, row, lonList,
                 newGridWidth, newGridHeight, subSamplingX, subSamplingY, newLonList);
 
-        getListInEvenlySpacedGrid(sceneRasterWidth, sceneRasterHeight, gridWidth, gridHeight, col, row, incList,
+            getListInEvenlySpacedGrid(sceneRasterWidth, sceneRasterHeight, gridWidth, gridHeight, col, row, incList,
                 newGridWidth, newGridHeight, subSamplingX, subSamplingY, newIncList);
+        } else {
+            for(int m=0;m< newLatList.length; ++m) {
+                newLatList[m] = (float)latList[m];
+                newLonList[m] = (float)lonList[m];
+                newIncList[m] = (float)incList[m];
+            }
+        }
 
         final TiePointGrid latGrid = new TiePointGrid(OperatorUtils.TPG_LATITUDE,
                 newGridWidth, newGridHeight, 0.5f, 0.5f, (float)subSamplingX, (float)subSamplingY, newLatList);

@@ -206,11 +206,7 @@ class CommandLineTool {
                 String value = entry.getValue();
                 for(Node node : graph.getNodes()) {
                     final DomElement param = node.getConfiguration();
-                    for(DomElement elem : param.getChildren()) {
-                        if(elem.getName().equals(name)) {
-                            elem.setValue(value);
-                        }
-                    }
+                    findAndReplace(param, name, value);
                 }
             }
 
@@ -230,6 +226,7 @@ class CommandLineTool {
 
                 graph.addNode(targetNode);
             } else {
+                final DomElement param = writerNode.getConfiguration();
                 String targetPath = lineArgs.getTargetFilepath();
                 if(targetPath == null && !lineArgs.getTargetFilepathMap().isEmpty()) {
                     final String key = lineArgs.getTargetFilepathMap().firstKey();
@@ -237,12 +234,10 @@ class CommandLineTool {
                 }
 
                 if(targetPath != null) {
-                    final DomElement param = new DefaultDomElement("parameters");
-                    param.createChild("file").setValue(targetPath);
-                    if(lineArgs.getTargetFormatName() != null)
-                        param.createChild("formatName").setValue(lineArgs.getTargetFormatName());
-                    param.createChild("clearCacheAfterRowWrite").setValue(Boolean.toString(lineArgs.isClearCacheAfterRowWrite()));
-                    writerNode.setConfiguration(param);
+                    findAndReplace(param, "file", targetPath);
+                }
+                if(lineArgs.getTargetFormatName() != null) {
+                    findAndReplace(param, "formatName", lineArgs.getTargetFormatName());
                 }
             }
 
@@ -257,6 +252,14 @@ class CommandLineTool {
         }
         final long duration = timeMonitor.stop();
         System.out.println("Processing completed in "+ ProcessTimeMonitor.formatDuration(duration));
+    }
+
+    private static void findAndReplace(final DomElement param, final String name, final String value) {
+        for(DomElement elem : param.getChildren()) {
+            if(elem.getName().equals(name)) {
+                elem.setValue(value);
+            }
+        }
     }
 
     private static Node findNode(final Graph graph, final String alias) {

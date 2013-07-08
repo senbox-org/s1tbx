@@ -30,6 +30,7 @@
     <name>BEAM Graph Processing Framework (GPF)</name>
     <groupId>org.esa.beam</groupId>
     <artifactId>beam-gpf</artifactId>
+	<version>5.0.1-4.10.4</version>
     <packaging>jar</packaging>
 
     <dependencies>
