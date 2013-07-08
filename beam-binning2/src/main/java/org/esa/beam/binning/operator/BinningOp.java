@@ -611,7 +611,7 @@ public class BinningOp extends Operator implements Output {
 
             temporalBins.add(temporalBin);
             if (binCounter % hundredthOfNumBins == 0) {
-                getLogger().info(String.format("Finished %d%% temporal bins", (int) (binCounter * 100 / numberOfBins)));
+                getLogger().info(String.format("Finished %d%% of temporal bins", (int) (binCounter * 100 / numberOfBins)));
             }
         }
         stopWatch.stop();
