@@ -16,14 +16,15 @@
 package org.esa.beam.framework.gpf.internal;
 
 import com.bc.ceres.core.ProgressMonitor;
-import junit.framework.TestCase;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
-import org.esa.beam.framework.gpf.internal.OperatorExecutor.ExecutionOrder;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 import javax.media.jai.JAI;
 import javax.media.jai.OpImage;
@@ -38,7 +39,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-public class OperatorExecutorTest extends TestCase {
+import static org.junit.Assert.*;
+
+public class OperatorExecutorTest {
 
     private class RecordingTileScheduler implements TileScheduler {
 
@@ -156,18 +159,19 @@ public class OperatorExecutorTest extends TestCase {
     private TileScheduler defaultTileScheduler;
     private RecordingTileScheduler recordingTileScheduler;
 
-    @Override
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         defaultTileScheduler = JAI.getDefaultInstance().getTileScheduler();
         recordingTileScheduler = new RecordingTileScheduler(defaultTileScheduler);
         JAI.getDefaultInstance().setTileScheduler(recordingTileScheduler);
     }
 
-    @Override
-    protected void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
         JAI.getDefaultInstance().setTileScheduler(defaultTileScheduler);
     }
 
+    @Test
     public void testOneTile() {
         Product sourceProduct = createSourceProduct();
         Operator op = new TestOP(sourceProduct);
@@ -184,6 +188,7 @@ public class OperatorExecutorTest extends TestCase {
     }
 
 
+    @Test
     public void testManyTilesOneBand() {
         Product sourceProduct = createSourceProduct();
         sourceProduct.setPreferredTileSize(50, 50);
@@ -200,6 +205,7 @@ public class OperatorExecutorTest extends TestCase {
         assertEquals(new Point(1, 1), recordingTileScheduler.requestedTileIndices.get(3));
     }
 
+    @Test
     public void testManyTilesTwoBands() {
         Product sourceProduct = createSourceProduct();
         Band bandB = sourceProduct.addBand("b", ProductData.TYPE_INT8);
@@ -223,6 +229,7 @@ public class OperatorExecutorTest extends TestCase {
         assertEquals(new Point(1, 1), recordingTileScheduler.requestedTileIndices.get(7));
     }
 
+    @Test
     public void testManyTilesTwoBands_ColumnBandOrder() {
         Product sourceProduct = createSourceProduct();
         Band bandB = sourceProduct.addBand("b", ProductData.TYPE_INT8);
@@ -232,7 +239,7 @@ public class OperatorExecutorTest extends TestCase {
         Operator op = new TestOP(sourceProduct);
         OperatorExecutor operatorExecutor = OperatorExecutor.create(op);
         System.setProperty("beam.gpf.executionOrder", "SCHEDULE_ROW_COLUMN_BAND");
-        operatorExecutor.execute(ExecutionOrder.PULL_ROW_BAND_COLUMN, ProgressMonitor.NULL);
+        operatorExecutor.execute(OperatorExecutor.ExecutionOrder.PULL_ROW_BAND_COLUMN, ProgressMonitor.NULL);
 
         assertEquals(13, recordingTileScheduler.recordedCalls.size());
 
