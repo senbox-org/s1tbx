@@ -16,6 +16,11 @@
 * Fix for GeoTIFF projection issue
 * Deskewing of ALOS L1.1 to allow terrain correction
 
++ fix for TSX detected 
++ fix for writing file format from GPT
++ fix to layer manager to allow multiple selections
++ fix to apply DELFT orbit file
+
 Visit our website for updates to tutorial and forums
 We want to hear from you.
 
