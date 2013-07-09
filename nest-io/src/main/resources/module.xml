@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>nest-io</symbolicName>
-    <version>5.0.1</version>
+    <version>5.0.2</version>
     <name>NEST Readers and Writers</name>
 
     <description>
