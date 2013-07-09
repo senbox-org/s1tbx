@@ -20,7 +20,7 @@
         <dependency>
             <groupId>org.esa.nest</groupId>
             <artifactId>nest-core</artifactId>
-            <version>${nest.version}</version>
+            <version>5.0.1</version>
         </dependency>
         <dependency>
             <groupId>org.esa.beam</groupId>
@@ -30,7 +30,7 @@
         <dependency>
             <groupId>org.esa.beam</groupId>
             <artifactId>beam-gpf</artifactId>
-            <version>${beam.version}</version>
+            <version>5.0.1-4.10.4</version>
         </dependency>
         <dependency>
             <groupId>org</groupId>

@@ -45,7 +45,6 @@
         <dependency>
             <groupId>org.esa.nest</groupId>
             <artifactId>nest-core</artifactId>
-			<version>5.0</version>
         </dependency>
     </dependencies>
 
