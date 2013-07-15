@@ -64,13 +64,11 @@ public class OperatorImageTileStack extends OperatorImage {
 
     @Override
     public Raster computeTile(int tileX, int tileY) {
-        Object tileLock = locks[tileX][tileY];
-
         // Lock to prevent multiple simultaneous computations.
         // Q: Why should multiple threads want to compute the same tile index?
-        // A: 
+        // A:
         // todo - check: can we avoid waiting here?
-        synchronized (tileLock) {
+        synchronized (locks[tileX][tileY]) {
             Raster tileFromCache = getTileFromCache(tileX, tileY);
             if (tileFromCache != null) {
                 return tileFromCache;
@@ -95,31 +93,32 @@ public class OperatorImageTileStack extends OperatorImage {
 
         long startNanos = System.nanoTime();
 
-        Band[] targetBands = getOperatorContext().getTargetProduct().getBands();
+        final OperatorContext operatorContext = getOperatorContext();
+        Band[] targetBands = operatorContext.getTargetProduct().getBands();
         Map<Band, Tile> targetTiles = new HashMap<Band, Tile>(targetBands.length * 2);
         Map<Band, WritableRaster> writableRasters = new HashMap<Band, WritableRaster>(targetBands.length);
 
         for (Band band : targetBands) {
-            if (band == getTargetBand() || getOperatorContext().isComputingImageOf(band)) {
+            if (band == getTargetBand() || operatorContext.isComputingImageOf(band)) {
                 WritableRaster tileRaster = getWritableRaster(band, tile);
                 writableRasters.put(band, tileRaster);
                 Tile targetTile = createTargetTile(band, tileRaster, destRect);
                 targetTiles.put(band, targetTile);
             } else if (requiresAllBands()) {
-                Tile targetTile = getOperatorContext().getSourceTile(band, destRect);
+                Tile targetTile = operatorContext.getSourceTile(band, destRect);
                 targetTiles.put(band, targetTile);
             }
         }
 
-        getOperatorContext().getOperator().computeTileStack(targetTiles, destRect, ProgressMonitor.NULL);
+        operatorContext.getOperator().computeTileStack(targetTiles, destRect, ProgressMonitor.NULL);
 
+        final int tileX = XToTileX(destRect.x);
+        final int tileY = YToTileY(destRect.y);
         for (Entry<Band, WritableRaster> entry : writableRasters.entrySet()) {
             Band band = entry.getKey();
             WritableRaster writableRaster = entry.getValue();
             // casting to access "addTileToCache" method
-            OperatorImageTileStack operatorImage = (OperatorImageTileStack) getOperatorContext().getTargetImage(band);
-            final int tileX = XToTileX(destRect.x);
-            final int tileY = YToTileY(destRect.y);
+            OperatorImageTileStack operatorImage = (OperatorImageTileStack) operatorContext.getTargetImage(band);
             //put raster into cache after computing them.
             operatorImage.addTileToCache(tileX, tileY, writableRaster);
 
@@ -127,7 +126,7 @@ public class OperatorImageTileStack extends OperatorImage {
             /*
             getOperatorContext().addTileToLocalCache(band, tileX, tileY, writableRaster);
             */
-            getOperatorContext().fireTileComputed(operatorImage, destRect, startNanos);
+            operatorContext.fireTileComputed(operatorImage, destRect, startNanos);
         }
     }
 
@@ -177,9 +176,9 @@ public class OperatorImageTileStack extends OperatorImage {
      */
     static Object[][] createLocks(int width, int height, Dimension tileSize) {
         int tw = tileSize.width;
-        int numXTiles = PlanarImage.XToTileX(0 + width - 1, 0, tw) - PlanarImage.XToTileX(0, 0, tw) + 1;
+        int numXTiles = PlanarImage.XToTileX(width - 1, 0, tw) - PlanarImage.XToTileX(0, 0, tw) + 1;
         int th = tileSize.height;
-        int numYTiles = PlanarImage.YToTileY(0 + height - 1, 0, th) - PlanarImage.YToTileY(0, 0, th) + 1;
+        int numYTiles = PlanarImage.YToTileY(height - 1, 0, th) - PlanarImage.YToTileY(0, 0, th) + 1;
         final Object[][] lock = new Object[numXTiles][numYTiles];
         for (int x = 0; x < numXTiles; x++) {
             for (int y = 0; y < numYTiles; y++) {
