@@ -189,7 +189,7 @@ class CommandLineTool {
                     final Node n = graph.getNode(sourceId);
                     if(n != null) {
                         n.setConfiguration(param);
-                    } else if(sourceId.equals(GPF.SOURCE_PRODUCT_FIELD_NAME)) {
+                    } else { //if(sourceId.equals(GPF.SOURCE_PRODUCT_FIELD_NAME)) {
                         readerNode.setConfiguration(param);
                     }
                 } else if (graph.getNode(sourceNodeId) == null) {
