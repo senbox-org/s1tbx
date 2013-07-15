@@ -70,8 +70,8 @@ Options:
                      See http://velocity.apache.org/ and option -m.
   -m <file>          A (Java Properties) file containing (constant) metadata
                      in the form <name>=<value> or any XML file. Its primary 
-					 usage is to provide an additional context to be used 
-					 from within the Velocity templates. See option -v.
+                     usage is to provide an additional context to be used
+                     from within the Velocity templates. See option -v.
 
 Operators:
 {5}
