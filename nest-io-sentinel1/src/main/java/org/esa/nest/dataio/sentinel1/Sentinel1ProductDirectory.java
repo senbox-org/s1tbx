@@ -575,8 +575,8 @@ public class Sentinel1ProductDirectory extends XMLProductDirectory {
             return;
         }
 
-        MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
-        String acquisitionMode = absRoot.getAttributeString(AbstractMetadata.ACQUISITION_MODE);
+        final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
+        final String acquisitionMode = absRoot.getAttributeString(AbstractMetadata.ACQUISITION_MODE);
         int numOfSubSwath;
         switch (acquisitionMode) {
             case "IW":
@@ -586,7 +586,7 @@ public class Sentinel1ProductDirectory extends XMLProductDirectory {
                 numOfSubSwath = 5;
                 break;
             default:
-                throw new OperatorException("Acquisition mode is not IW or EW");
+                return;
         }
 
         String[] bandNames = product.getBandNames();
@@ -603,30 +603,32 @@ public class Sentinel1ProductDirectory extends XMLProductDirectory {
                 lastSWBandFound = true;
             }
         }
+        if(firstSWBand == null && lastSWBand == null)
+            return;
 
-        GeoCoding firstSWBandGeoCoding = firstSWBand.getGeoCoding();
+        final GeoCoding firstSWBandGeoCoding = firstSWBand.getGeoCoding();
         final int firstSWBandHeight = firstSWBand.getRasterHeight();
 
-        GeoCoding lastSWBandGeoCoding = lastSWBand.getGeoCoding();
+        final GeoCoding lastSWBandGeoCoding = lastSWBand.getGeoCoding();
         final int lastSWBandWidth = lastSWBand.getRasterWidth();
         final int lastSWBandHeight = lastSWBand.getRasterHeight();
 
-        PixelPos ulPix = new PixelPos(0, 0);
-        PixelPos llPix = new PixelPos(0, firstSWBandHeight - 1);
-        GeoPos ulGeo = new GeoPos();
-        GeoPos llGeo = new GeoPos();
+        final PixelPos ulPix = new PixelPos(0, 0);
+        final PixelPos llPix = new PixelPos(0, firstSWBandHeight - 1);
+        final GeoPos ulGeo = new GeoPos();
+        final GeoPos llGeo = new GeoPos();
         firstSWBandGeoCoding.getGeoPos(ulPix, ulGeo);
         firstSWBandGeoCoding.getGeoPos(llPix, llGeo);
 
-        PixelPos urPix = new PixelPos(lastSWBandWidth - 1, 0);
-        PixelPos lrPix = new PixelPos(lastSWBandWidth - 1, lastSWBandHeight - 1);
-        GeoPos urGeo = new GeoPos();
-        GeoPos lrGeo = new GeoPos();
+        final PixelPos urPix = new PixelPos(lastSWBandWidth - 1, 0);
+        final PixelPos lrPix = new PixelPos(lastSWBandWidth - 1, lastSWBandHeight - 1);
+        final GeoPos urGeo = new GeoPos();
+        final GeoPos lrGeo = new GeoPos();
         lastSWBandGeoCoding.getGeoPos(urPix, urGeo);
         lastSWBandGeoCoding.getGeoPos(lrPix, lrGeo);
 
-        float[] latCorners = {ulGeo.getLat(), urGeo.getLat(), llGeo.getLat(), lrGeo.getLat()};
-        float[] lonCorners = {ulGeo.getLon(), urGeo.getLon(), llGeo.getLon(), lrGeo.getLon()};
+        final float[] latCorners = {ulGeo.getLat(), urGeo.getLat(), llGeo.getLat(), lrGeo.getLat()};
+        final float[] lonCorners = {ulGeo.getLon(), urGeo.getLon(), llGeo.getLon(), lrGeo.getLon()};
 
         ReaderUtils.addGeoCoding(product, latCorners, lonCorners);
 

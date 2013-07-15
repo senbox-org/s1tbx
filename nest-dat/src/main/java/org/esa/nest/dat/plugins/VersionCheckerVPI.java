@@ -57,7 +57,7 @@ public class VersionCheckerVPI extends AbstractVisatPlugIn {
     public void start(VisatApp visatApp) {
         remoteVersionUrl = VersionUtil.getRemoteVersionURL("DAT");
 
-        if (!isVersionCheckQuestionSuppressed() || isVersionCheckEnabled()) {
+        if (true) { //!isVersionCheckQuestionSuppressed() || isVersionCheckEnabled()) {
             final Timer timer = new Timer(DELAY_MILLIS, new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     runAuto();
