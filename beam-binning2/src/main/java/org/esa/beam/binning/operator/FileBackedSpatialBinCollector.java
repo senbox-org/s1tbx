@@ -275,7 +275,7 @@ class FileBackedSpatialBinCollector implements SpatialBinCollector {
 
             private void readIntoList(File file, List<List<SpatialBin>> lists) throws IOException {
                 FileInputStream fis = new FileInputStream(file);
-                DataInputStream dis = new DataInputStream(new BufferedInputStream(fis, 1024 * 1024));
+                DataInputStream dis = new DataInputStream(new BufferedInputStream(fis, 5 * 1024 * 1024));
                 try {
                     readIntoList(dis, lists);
                 } finally {
