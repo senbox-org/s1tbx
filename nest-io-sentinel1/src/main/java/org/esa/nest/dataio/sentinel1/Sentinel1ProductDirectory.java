@@ -352,7 +352,7 @@ public class Sentinel1ProductDirectory extends XMLProductDirectory {
                 AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_looks,
                         azimuthProcessing.getAttributeDouble("numberOfLooks"));
 
-                if(!isTOPSAR()) {
+                if(!isTOPSAR() || !isSLC()) {
                     AbstractMetadata.setAttribute(absRoot, AbstractMetadata.num_output_lines,
                             imageInformation.getAttributeInt("numberOfLines"));
                     AbstractMetadata.setAttribute(absRoot, AbstractMetadata.num_samples_per_line,
