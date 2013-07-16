@@ -338,15 +338,20 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
             final float lonLR = (float)sceneCoordsGeographic.getAttributeDouble("lowerRightLongitude", 0);
 
             int k = 0;
-            final double e = 1e-3;
+            double d0, d1, d2, d3;
             for(CornerCoord coord : coordList) {
-                if (Math.abs(coord.lat - latUL) < e && Math.abs(coord.lon - lonUL) < e) {
+                d0 = Math.abs(coord.lat - latUL) + Math.abs(coord.lon - lonUL);
+                d1 = Math.abs(coord.lat - latUR) + Math.abs(coord.lon - lonUR);
+                d2 = Math.abs(coord.lat - latLL) + Math.abs(coord.lon - lonLL);
+                d3 = Math.abs(coord.lat - latLR) + Math.abs(coord.lon - lonLR);
+
+                if (d0 <= d1 && d0 <= d2 && d0 <= d3) {
                     indexArray[k] = 0;
-                } else if (Math.abs(coord.lat - latUR) < e && Math.abs(coord.lon - lonUR) < e) {
+                } else if (d1 <= d0 && d1 <= d2 && d1 <= d3) {
                     indexArray[k] = 1;
-                } else if (Math.abs(coord.lat - latLL) < e && Math.abs(coord.lon - lonLL) < e) {
+                } else if (d2 <= d0 && d2 <= d1 && d2 <= d3) {
                     indexArray[k] = 2;
-                } else if (Math.abs(coord.lat - latLR) < e && Math.abs(coord.lon - lonLR) < e) {
+                } else if (d3 <= d0 && d3 <= d1 && d3 <= d2) {
                     indexArray[k] = 3;
                 }
                 k++;
