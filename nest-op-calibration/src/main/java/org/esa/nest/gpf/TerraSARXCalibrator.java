@@ -231,11 +231,12 @@ public class TerraSARXCalibrator extends BaseCalibrator implements Calibrator {
                 index[i] = (int)((record[i].timeUTC - firstLineUTC) / lineTimeInterval + 0.5);
                 for (int j = 0; j < sourceImageWidth; ++j) {
                     final double slantRgTime = slantRangeTime.getPixelDouble(j, index[i])/1.0e9; // ns to s
-                    if (slantRgTime < record[i].validityRangeMin || slantRgTime > record[i].validityRangeMax) {
-                        throw new OperatorException("TerraSARXCalibrator: Invalid slant range time: " + slantRgTime);
+                    if (slantRgTime >= record[i].validityRangeMin && slantRgTime <= record[i].validityRangeMax) {
+                        noise[i][j] = org.esa.nest.util.MathUtils.computePolynomialValue(
+                                slantRgTime - record[i].referencePoint, record[i].coefficient);
+                    } else {
+                        noise[i][j] = 0.0;
                     }
-                    noise[i][j] = org.esa.nest.util.MathUtils.computePolynomialValue(
-                            slantRgTime - record[i].referencePoint, record[i].coefficient);
                 }
             }
             rangeLineIndex.put(pol, index);
