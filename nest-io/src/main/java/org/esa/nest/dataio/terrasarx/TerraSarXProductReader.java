@@ -22,11 +22,13 @@ import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.util.Debug;
 import org.esa.nest.dataio.generic.GenericReader;
 import org.esa.nest.dataio.imageio.ImageIOFile;
 import org.esa.nest.datamodel.AbstractMetadata;
 import org.esa.nest.datamodel.Unit;
+import org.esa.nest.gpf.OperatorUtils;
 import org.esa.nest.gpf.ReaderUtils;
 
 import javax.imageio.ImageReadParam;
@@ -129,16 +131,26 @@ public class TerraSarXProductReader extends AbstractProductReader {
             if(bandInfo != null && bandInfo.img != null) {
 
                 Product product = destBand.getProduct();
-                MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
-                final boolean isAscending = absRoot.getAttributeString(AbstractMetadata.PASS).equals("ASCENDING");
-                if (isAscending) {
-                    readAscendingRasterBand(sourceOffsetX, sourceOffsetY, sourceStepX, sourceStepY,
-                                            destBuffer, destOffsetX, destOffsetY, destWidth, destHeight,
-                                            0, bandInfo.img, bandInfo.bandSampleOffset);
+
+                if(OperatorUtils.isMapProjected(product)) {
+
+                    bandInfo.img.readImageIORasterBand(sourceOffsetX, sourceOffsetY, sourceStepX, sourceStepY,
+                            destBuffer, destOffsetX, destOffsetY, destWidth, destHeight, bandInfo.imageID,
+                            bandInfo.bandSampleOffset);
+
                 } else {
-                    readDescendingRasterBand(sourceOffsetX, sourceOffsetY, sourceStepX, sourceStepY,
-                                             destBuffer, destOffsetX, destOffsetY, destWidth, destHeight,
-                                             0, bandInfo.img, bandInfo.bandSampleOffset);
+
+                    MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
+                    final boolean isAscending = absRoot.getAttributeString(AbstractMetadata.PASS).equals("ASCENDING");
+                    if (isAscending) {
+                        readAscendingRasterBand(sourceOffsetX, sourceOffsetY, sourceStepX, sourceStepY,
+                                                destBuffer, destOffsetX, destOffsetY, destWidth, destHeight,
+                                                0, bandInfo.img, bandInfo.bandSampleOffset);
+                    } else {
+                        readDescendingRasterBand(sourceOffsetX, sourceOffsetY, sourceStepX, sourceStepY,
+                                                 destBuffer, destOffsetX, destOffsetY, destWidth, destHeight,
+                                                 0, bandInfo.img, bandInfo.bandSampleOffset);
+                    }
                 }
 
             } else {
