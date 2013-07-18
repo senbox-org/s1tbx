@@ -21,7 +21,7 @@ import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.junit.Test;
 
-import java.awt.*;
+import java.awt.Dimension;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -29,13 +29,13 @@ import java.io.InputStreamReader;
 import static org.junit.Assert.*;
 
 
-public class LandsatMetadataTest {
+public class Landsat57MetadataTest {
 
     @Test
     public void testReadMetadata_L5() throws IOException {
-        InputStream stream = LandsatMetadataTest.class.getResourceAsStream("test_MTL.txt");
+        InputStream stream = Landsat57MetadataTest.class.getResourceAsStream("test_MTL.txt");
         InputStreamReader reader = new InputStreamReader(stream);
-        LandsatMetadata landsatMetadata = new LandsatMetadata(reader);
+        Landsat57Metadata landsatMetadata = new Landsat57Metadata(reader);
 
         MetadataElement element = landsatMetadata.getMetaDataElementRoot();
         assertNotNull(element);
@@ -77,9 +77,9 @@ public class LandsatMetadataTest {
 
     @Test
     public void testReadMetadata_L7() throws IOException {
-        final InputStream stream = LandsatMetadataTest.class.getResourceAsStream("test_MTL_L7.txt");
+        final InputStream stream = Landsat57MetadataTest.class.getResourceAsStream("test_MTL_L7.txt");
         final InputStreamReader reader = new InputStreamReader(stream);
-        final LandsatMetadata landsatMetadata = new LandsatMetadata(reader);
+        final Landsat57Metadata landsatMetadata = new Landsat57Metadata(reader);
 
         final MetadataElement elementRoot = landsatMetadata.getMetaDataElementRoot();
         assertNotNull(elementRoot);

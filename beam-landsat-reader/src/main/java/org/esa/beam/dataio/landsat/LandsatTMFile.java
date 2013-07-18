@@ -21,7 +21,11 @@ import org.esa.beam.util.Guardian;
 import org.esa.beam.util.io.FileUtils;
 
 import javax.imageio.ImageIO;
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.Enumeration;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -191,7 +195,7 @@ public final class LandsatTMFile {
      * @param format set the format typ of the input file
      */
     private void setFormat(final int format) {
-// todo - boolean function searching array for valid formats
+//  todo - boolean function searching array for valid formats
         assert format == LandsatConstants.INVALID_FORMAT || format == LandsatConstants.FAST_L5
                || format == LandsatConstants.CEOS || format == LandsatConstants.ZIPED_UNKNOWN_FORMAT;
         this.format = format;
@@ -216,8 +220,8 @@ public final class LandsatTMFile {
         File filesInFolder[] = folder.listFiles();
 
         for (int i = 0; i < filesInFolder.length; i++) {
-            if (filesInFolder[i].length() == Landsat5FASTConstants.FAST_FORMAT_HEADER_SIZE && format == Landsat5FASTConstants.FAST_L5)
-            {
+            if (filesInFolder[i].length() == Landsat5FASTConstants.FAST_FORMAT_HEADER_SIZE &&
+                format == Landsat5FASTConstants.FAST_L5) {
                 return filesInFolder[i];
             } else if (isFastCEOSHeader(FileUtils.getFilenameWithoutExtension(
                     filesInFolder[i].getName())) && format == Landsat5FASTConstants.CEOS) {
@@ -264,14 +268,14 @@ public final class LandsatTMFile {
         boolean isHeader = false;
 
         switch (format) {
-        case (LandsatConstants.FAST_L5):
-            isHeader = isFastL5Header(fileNameWithoutExt);
-            break;
-        case (LandsatConstants.CEOS):
-            isHeader = isFastCEOSHeader(fileNameWithoutExt);
-            break;
-        case (LandsatConstants.INVALID_FORMAT):
-            break;
+            case (LandsatConstants.FAST_L5):
+                isHeader = isFastL5Header(fileNameWithoutExt);
+                break;
+            case (LandsatConstants.CEOS):
+                isHeader = isFastCEOSHeader(fileNameWithoutExt);
+                break;
+            case (LandsatConstants.INVALID_FORMAT):
+                break;
         }
         setHeader(isHeader);
     }
@@ -333,12 +337,12 @@ public final class LandsatTMFile {
 
     private static byte[] getHeaderBegin(final int format) {
         switch (format) {
-        case(LandsatConstants.FAST_L5):
-            return new byte[Landsat5FASTConstants.FASTB_HEADER_DECODE_VALUES];
-        case(LandsatConstants.CEOS):
-            return new byte[48];
-        default:
-            return null;
+            case (LandsatConstants.FAST_L5):
+                return new byte[Landsat5FASTConstants.FASTB_HEADER_DECODE_VALUES];
+            case (LandsatConstants.CEOS):
+                return new byte[48];
+            default:
+                return null;
         }
     }
 
@@ -426,15 +430,15 @@ public final class LandsatTMFile {
     private void setSatellite(InputStreamReader inputReader) throws
                                                              IOException {
         switch (format) {
-        case (LandsatConstants.FAST_L5):
-            setSatellite(inputReader, Landsat5FASTConstants.SATELLITE_OFFSET_FASTB,
-                         Landsat5FASTConstants.SATELLITE_SIZE_FASTB);
-            break;
-        case (LandsatConstants.CEOS):
-            setSatellite(inputReader, 45, 2);
-            break;
-        case (LandsatConstants.INVALID_FORMAT):
-            break;
+            case (LandsatConstants.FAST_L5):
+                setSatellite(inputReader, Landsat5FASTConstants.SATELLITE_OFFSET_FASTB,
+                             Landsat5FASTConstants.SATELLITE_SIZE_FASTB);
+                break;
+            case (LandsatConstants.CEOS):
+                setSatellite(inputReader, 45, 2);
+                break;
+            case (LandsatConstants.INVALID_FORMAT):
+                break;
         }
     }
 
@@ -450,14 +454,14 @@ public final class LandsatTMFile {
             IOException {
 
         switch (format) {
-        case (LandsatConstants.FAST_L5):
-            setInstrument(ipStreamReader, 14, Landsat5FASTConstants.INSTRUMENT_SIZE_FASTB);
-            break;
-        case (LandsatConstants.CEOS):
-            setInstrument(ipStreamReader, 1, 1);
-            break;
-        case (LandsatConstants.INVALID_FORMAT):
-            break;
+            case (LandsatConstants.FAST_L5):
+                setInstrument(ipStreamReader, 14, Landsat5FASTConstants.INSTRUMENT_SIZE_FASTB);
+                break;
+            case (LandsatConstants.CEOS):
+                setInstrument(ipStreamReader, 1, 1);
+                break;
+            case (LandsatConstants.INVALID_FORMAT):
+                break;
         }
     }
 

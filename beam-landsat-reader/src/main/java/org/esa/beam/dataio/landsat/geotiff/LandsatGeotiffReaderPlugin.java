@@ -40,7 +40,7 @@ public class LandsatGeotiffReaderPlugin implements ProductReaderPlugIn {
     private static final String[] FORMAT_NAMES = new String[]{"LandsatGeoTIFF"};
     private static final String[] DEFAULT_FILE_EXTENSIONS = new String[]{".txt", ".TXT"};
     private static final String READER_DESCRIPTION = "Landsat Data Products (GeoTIFF)";
-    private static final BeamFileFilter FILE_FILTER = new LandsatGeoTiffFileFilter();
+    private static final BeamFileFilter FILE_FILTER = new BeamFileFilter(FORMAT_NAMES[0], DEFAULT_FILE_EXTENSIONS, READER_DESCRIPTION);
 
     @Override
     public DecodeQualification getDecodeQualification(Object input) {
@@ -79,7 +79,7 @@ public class LandsatGeotiffReaderPlugin implements ProductReaderPlugIn {
                 File file = virtualDir.getFile(fileName);
                 if (isMetadataFile(file)) {
                     fileReader = new FileReader(file);
-                    LandsatMetadata landsatMetadata = new LandsatMetadata(fileReader);
+                    Landsat57Metadata landsatMetadata = new Landsat57Metadata(fileReader);
                     if (landsatMetadata.isLandsatTM() || landsatMetadata.isLandsatETM_Plus()) {
                         return DecodeQualification.INTENDED;
                     }
@@ -104,7 +104,7 @@ public class LandsatGeotiffReaderPlugin implements ProductReaderPlugIn {
 
     @Override
     public ProductReader createReaderInstance() {
-        return new LandsatGeotiffReader(this);
+        return new LandsatGeotiffReader(this, new LandsatMetadataFactory.Landsat57MetadataFactory());
     }
 
     @Override
@@ -131,7 +131,9 @@ public class LandsatGeotiffReaderPlugin implements ProductReaderPlugIn {
      * Retrieves the VirtualDir for input from the input object passed in
      *
      * @param input the input object (File or String)
+     *
      * @return the VirtualDir representing the product
+     *
      * @throws java.io.IOException on disk access failures
      */
     public static VirtualDir getInput(Object input) throws IOException {
@@ -173,33 +175,16 @@ public class LandsatGeotiffReaderPlugin implements ProductReaderPlugIn {
         }
 
         return extension.contains("zip")
-                || extension.contains("tar")
-                || extension.contains("tgz")
-                || extension.contains("gz");
+               || extension.contains("tar")
+               || extension.contains("tgz")
+               || extension.contains("gz");
     }
 
     static boolean isMatchingArchiveFileName(String fileName) {
         return StringUtils.isNotNullAndNotEmpty(fileName) &&
-                (fileName.startsWith("L5_")
-                        || fileName.startsWith("LT5")
-                        || fileName.startsWith("L7_")
-                        || fileName.startsWith("LE7"));
-    }
-
-    private static class LandsatGeoTiffFileFilter extends BeamFileFilter {
-
-        public LandsatGeoTiffFileFilter() {
-            super();
-            setFormatName(FORMAT_NAMES[0]);
-            setDescription(READER_DESCRIPTION);
-        }
-
-        @Override
-        public boolean accept(final File file) {
-            if (file.isDirectory()) {
-                return true;
-            }
-            return isMetadataFile(file);
-        }
+               (fileName.startsWith("L5_")
+                || fileName.startsWith("LT5")
+                || fileName.startsWith("L7_")
+                || fileName.startsWith("LE7"));
     }
 }

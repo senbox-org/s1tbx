@@ -20,24 +20,25 @@ import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.VirtualDir;
 import org.esa.beam.dataio.geotiff.GeoTiffProductReaderPlugIn;
 import org.esa.beam.framework.dataio.AbstractProductReader;
-import org.esa.beam.framework.dataio.ProductIOException;
 import org.esa.beam.framework.dataio.ProductReader;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.dataio.ProductReaderPlugIn;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.MetadataAttribute;
+import org.esa.beam.framework.datamodel.MetadataElement;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
 
 import javax.media.jai.Interpolation;
 import javax.media.jai.PlanarImage;
 import javax.media.jai.RenderedOp;
 import javax.media.jai.operator.CropDescriptor;
 import javax.media.jai.operator.ScaleDescriptor;
-import java.awt.*;
+import java.awt.Dimension;
 import java.awt.image.RenderedImage;
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -47,29 +48,17 @@ import java.util.regex.Pattern;
  */
 public class LandsatGeotiffReader extends AbstractProductReader {
 
-    private static final float[] wavelengths = {490, 560, 660, 830, 1670, 11500, 2240, 710};
-    private static final float[] bandwidths = {66, 82, 67, 128, 217, 1000, 252, 380};
-    private static final Map<String, String> bandDescriptions = new HashMap<String, String>();
     private static final String UNITS = "W/(m^2*sr*µm)";
 
-    static {
-        bandDescriptions.put("1", "Visible (30m)");
-        bandDescriptions.put("2", "Visible (30m)");
-        bandDescriptions.put("3", "Visible (30m)");
-        bandDescriptions.put("4", "Near-Infrared (30m)");
-        bandDescriptions.put("5", "Near-Infrared (30m)");
-        bandDescriptions.put("6", "Thermal (120m)");
-        bandDescriptions.put("61", "Thermal - Low Gain (60m)");
-        bandDescriptions.put("62", "Thermal - High Gain (60m)");
-        bandDescriptions.put("7", "Mid-Infrared (30m)");
-        bandDescriptions.put("8", "Panchromatic (15m)");
-    }
-
+    final LandsatMetadataFactory landsatMetadataFactory;
+    private LandsatMetadata landsatMetadata;
     private List<Product> bandProducts;
     private VirtualDir input;
 
-    public LandsatGeotiffReader(LandsatGeotiffReaderPlugin readerPlugin) {
+
+    public LandsatGeotiffReader(ProductReaderPlugIn readerPlugin, LandsatMetadataFactory landsatMetadataFactory) {
         super(readerPlugin);
+        this.landsatMetadataFactory = landsatMetadataFactory;
     }
 
     @Override
@@ -90,10 +79,7 @@ public class LandsatGeotiffReader extends AbstractProductReader {
         if (!mtlFile.canRead()) {
             throw new IOException("Can not read metadata file: " + mtlFile.getAbsolutePath());
         }
-        LandsatMetadata landsatMetadata = new LandsatMetadata(new FileReader(mtlFile));
-        if (!(landsatMetadata.isLandsatTM() || landsatMetadata.isLandsatETM_Plus())) {
-            throw new ProductIOException("Product is not a 'Landsat5' or 'Landsat7' product.");
-        }
+        landsatMetadata = landsatMetadataFactory.create(mtlFile);
         Dimension refDim = landsatMetadata.getReflectanceDim();
         Dimension thmDim = landsatMetadata.getThermalDim();
         Dimension panDim = landsatMetadata.getPanchromaticDim();
@@ -112,7 +98,7 @@ public class LandsatGeotiffReader extends AbstractProductReader {
         product.setStartTime(utcCenter);
         product.setEndTime(utcCenter);
 
-        addBands(product, landsatMetadata, input);
+        addBands(product, input);
 
         return product;
     }
@@ -133,12 +119,14 @@ public class LandsatGeotiffReader extends AbstractProductReader {
         return dim1;
     }
 
-    private void addBands(Product product, LandsatMetadata landsatMetadata, VirtualDir folder) throws IOException {
+    private void addBands(Product product, VirtualDir folder) throws IOException {
         final GeoTiffProductReaderPlugIn plugIn = new GeoTiffProductReaderPlugIn();
         final MetadataAttribute[] productAttributes = landsatMetadata.getProductMetadata().getAttributes();
-        final Pattern pattern = Pattern.compile("BAND(\\d{1,2})_FILE_NAME");
+        final Pattern pattern = landsatMetadata.getBandFileNamePattern();
 
         bandProducts = new ArrayList<Product>();
+        float[] wavelengths = landsatMetadata.getWavelengths();
+        float[] bandwidths = landsatMetadata.getBandwidths();
         for (MetadataAttribute metadataAttribute : productAttributes) {
             String attributeName = metadataAttribute.getName();
             Matcher matcher = pattern.matcher(attributeName);
@@ -164,7 +152,7 @@ public class LandsatGeotiffReader extends AbstractProductReader {
                     band.setScalingFactor(landsatMetadata.getScalingFactor(bandNumber));
                     band.setScalingOffset(landsatMetadata.getScalingOffset(bandNumber));
 
-                    band.setDescription(bandDescriptions.get(bandNumber));
+                    band.setDescription(landsatMetadata.getBandDescription(bandNumber));
                     band.setUnit(UNITS);
                 }
             }
@@ -172,8 +160,8 @@ public class LandsatGeotiffReader extends AbstractProductReader {
 
         for (Product bandProduct : bandProducts) {
             if (product.getGeoCoding() == null &&
-                    product.getSceneRasterWidth() == bandProduct.getSceneRasterWidth() &&
-                    product.getSceneRasterHeight() == bandProduct.getSceneRasterHeight()) {
+                product.getSceneRasterWidth() == bandProduct.getSceneRasterWidth() &&
+                product.getSceneRasterHeight() == bandProduct.getSceneRasterHeight()) {
                 product.setGeoCoding(bandProduct.getGeoCoding());
                 break;
             }
@@ -183,7 +171,7 @@ public class LandsatGeotiffReader extends AbstractProductReader {
             Product bandProduct = bandProducts.get(i);
             Band band = product.getBandAt(i);
             if (product.getSceneRasterWidth() == bandProduct.getSceneRasterWidth() &&
-                    product.getSceneRasterHeight() == bandProduct.getSceneRasterHeight()) {
+                product.getSceneRasterHeight() == bandProduct.getSceneRasterHeight()) {
                 band.setSourceImage(bandProduct.getBandAt(0).getSourceImage());
             } else {
                 PlanarImage image = createScaledImage(product.getSceneRasterWidth(), product.getSceneRasterHeight(),

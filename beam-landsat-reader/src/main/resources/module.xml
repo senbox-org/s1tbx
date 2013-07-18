@@ -69,6 +69,16 @@
             <shortDescr>Import a Landsat TM (GeoTIFF) data product or product subset.</shortDescr>
             <description>Import a Landsat TM (in GeoTIFF format) data product or product subset.</description>
         </action>
+        <action>
+            <class>org.esa.beam.visat.actions.ProductImportAction</class>
+            <id>importLandsat8GeoTIFFProduct</id>
+            <helpId>importLandsatTMProduct</helpId>
+            <formatName>Landsat8GeoTIFF</formatName>
+            <useAllFileFilter>true</useAllFileFilter>
+            <text>Landsat 8 TM (GeoTIFF)</text>
+            <shortDescr>Import a Landsat 8 TM (GeoTIFF) data product or product subset.</shortDescr>
+            <description>Import a Landsat 8 TM (in GeoTIFF format) data product or product subset.</description>
+        </action>
     </extension>
 
     <extension point="beam-core:rgbProfiles">
