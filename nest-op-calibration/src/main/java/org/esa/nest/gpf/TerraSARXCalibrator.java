@@ -41,6 +41,7 @@ import java.util.Set;
 public class TerraSARXCalibrator extends BaseCalibrator implements Calibrator {
 
     private String productType = null;
+    private String acquisitionMode = null;
     private Boolean useIncidenceAngleFromGIM = false;
     private double firstLineUTC = 0.0; // in days
     private double lineTimeInterval = 0.0; // in days
@@ -91,6 +92,8 @@ public class TerraSARXCalibrator extends BaseCalibrator implements Calibrator {
 
             getMission();
 
+            getAcquisitionMode();
+
             getProductType();
 
             getCalibrationFlag();
@@ -128,6 +131,15 @@ public class TerraSARXCalibrator extends BaseCalibrator implements Calibrator {
         if(!(mission.contains("TSX") || mission.contains("TDX")))
             throw new OperatorException("TerraSARXCalibrator: " + mission +
                     " is not a valid mission for TerraSAT-X Calibration");
+    }
+
+    /**
+     * Get acquisition mode.
+     */
+    private void getAcquisitionMode() {
+        acquisitionMode = absRoot.getAttributeString(AbstractMetadata.ACQUISITION_MODE);
+        if(acquisitionMode.contains("ScanSAR"))
+            throw new OperatorException("ScanSAR calibration is currently not supported.");
     }
 
     /**
