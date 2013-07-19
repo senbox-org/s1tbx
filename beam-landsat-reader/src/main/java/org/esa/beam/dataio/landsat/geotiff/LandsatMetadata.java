@@ -54,4 +54,6 @@ interface LandsatMetadata {
     String getBandDescription(String bandNumber);
 
     String getQualityBandNameKey();
+
+    String getBandNamePrefix(String bandNumber);
 }

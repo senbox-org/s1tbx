@@ -142,7 +142,7 @@ public class LandsatGeotiffReader extends AbstractProductReader {
                 if (bandProduct != null) {
                     bandProducts.add(bandProduct);
                     Band srcBand = bandProduct.getBandAt(0);
-                    String bandName = "radiance_" + bandNumber; // todo - apply better band names
+                    String bandName = landsatMetadata.getBandNamePrefix(bandNumber);
                     Band band = product.addBand(bandName, srcBand.getDataType());
                     band.setNoDataValue(0.0);
                     band.setNoDataValueUsed(true);

@@ -22,8 +22,6 @@ import org.esa.beam.framework.datamodel.ProductData;
 import java.awt.Dimension;
 import java.io.IOException;
 import java.io.Reader;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.regex.Pattern;
 
 /**
@@ -31,21 +29,19 @@ import java.util.regex.Pattern;
  */
 class Landsat8Metadata extends AbstractLandsatMetadata {
 
-    private static final Map<String, String> BAND_DESCRIPTIONS = new HashMap<String, String>();
-
-    static {
-        BAND_DESCRIPTIONS.put("1", "Coastal Aerosol (Operational Land Imager (OLI))");
-        BAND_DESCRIPTIONS.put("2", "Blue (OLI)");
-        BAND_DESCRIPTIONS.put("3", "Green (OLI)");
-        BAND_DESCRIPTIONS.put("4", "Red (OLI)");
-        BAND_DESCRIPTIONS.put("5", "Near-Infrared (NIR) (OLI)");
-        BAND_DESCRIPTIONS.put("6", "Short Wavelength Infrared (SWIR) 1 (OLI)");
-        BAND_DESCRIPTIONS.put("7", "SWIR 2 (OLI)");
-        BAND_DESCRIPTIONS.put("8", "Panchromatic (OLI)");
-        BAND_DESCRIPTIONS.put("9", "Cirrus (OLI)");
-        BAND_DESCRIPTIONS.put("10", "Thermal Infrared Sensor (TIRS) 1");
-        BAND_DESCRIPTIONS.put("11", "TIRS 2");
-    }
+    private static final String[] BAND_DESCRIPTIONS = {
+            "Coastal Aerosol (Operational Land Imager (OLI))",
+            "Blue (OLI)",
+            "Green (OLI)",
+            "Red (OLI)",
+            "Near-Infrared (NIR) (OLI)",
+            "Short Wavelength Infrared (SWIR) 1 (OLI)",
+            "SWIR 2 (OLI)",
+            "Panchromatic (OLI)",
+            "Cirrus (OLI)",
+            "Thermal Infrared Sensor (TIRS) 1",
+            "TIRS 2"
+    };
 
     private static final float[] WAVELENGTHS = new float[]{
             433,
@@ -60,6 +56,22 @@ class Landsat8Metadata extends AbstractLandsatMetadata {
             10800,
             12000
     };
+    private static final String[] BAND_NAMES = {
+            "coastal_aerosol",
+            "blue",
+            "green",
+            "red",
+            "near_infrared",
+            "swir_1",
+            "swir_2",
+            "panchromatic",
+            "cirrus",
+            "thermal_infrared_(tirs)_1",
+            "thermal_infrared_(tirs)_2",
+    };
+
+    private static final float[] BANDWIDTHS = new float[]{20, 60, 60, 30, 30, 80, 180, 380, 20, 590, 1010};
+
 
     private final MetadataElement root;
 
@@ -118,23 +130,35 @@ class Landsat8Metadata extends AbstractLandsatMetadata {
     }
 
     @Override
+    public String getQualityBandNameKey() {
+        return "FILE_NAME_BAND_QUALITY";
+    }
+
+    @Override
     public float getWavelength(String bandIndexNumber) {
-        int index = Integer.parseInt(bandIndexNumber) - 1; // bandIndexNumber is 1-based
+        int index = getIndex(bandIndexNumber);
         return WAVELENGTHS[index];
     }
 
     @Override
     public float getBandwidth(String bandIndexNumber) {
-        return 0.0F;
+        int index = getIndex(bandIndexNumber);
+        return BANDWIDTHS[index];
     }
 
     @Override
     public String getBandDescription(String bandNumber) {
-        return BAND_DESCRIPTIONS.get(bandNumber);
+        int index = getIndex(bandNumber);
+        return BAND_DESCRIPTIONS[index];
     }
 
     @Override
-    public String getQualityBandNameKey() {
-        return "FILE_NAME_BAND_QUALITY";
+    public String getBandNamePrefix(String bandNumber) {
+        int index = getIndex(bandNumber);
+        return BAND_NAMES[index];
+    }
+
+    private static int getIndex(String bandIndexNumber) {
+        return Integer.parseInt(bandIndexNumber) - 1;
     }
 }

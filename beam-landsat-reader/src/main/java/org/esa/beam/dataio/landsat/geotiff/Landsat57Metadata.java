@@ -128,6 +128,11 @@ class Landsat57Metadata extends AbstractLandsatMetadata {
         return null;
     }
 
+    @Override
+    public String getBandNamePrefix(String bandNumber) {
+        return "radiance_" + bandNumber;
+    }
+
     boolean isLandsatTM() {
         final MetadataElement productMetadata = getProductMetadata();
         return "TM".equals(productMetadata.getAttributeString(SENSOR_ID));
