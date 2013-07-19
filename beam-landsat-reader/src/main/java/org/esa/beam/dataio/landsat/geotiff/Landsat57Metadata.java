@@ -45,6 +45,9 @@ class Landsat57Metadata extends AbstractLandsatMetadata {
     }
 
     private static final String SENSOR_ID = "SENSOR_ID";
+    private static final float[] WAVELENGTHS = new float[]{490, 560, 660, 830, 1670, 11500, 2240, 710};
+    private static final float[] BANDWIDTHS = new float[]{66, 82, 67, 128, 217, 1000, 252, 380};
+
     private final MetadataElement root;
 
     Landsat57Metadata(Reader mtlReader) throws IOException {
@@ -97,23 +100,32 @@ class Landsat57Metadata extends AbstractLandsatMetadata {
     }
 
     @Override
-    public Pattern getBandFileNamePattern() {
+    public Pattern getOpticalBandFileNamePattern() {
         return Pattern.compile("BAND(\\d{1,2})_FILE_NAME");
     }
 
     @Override
-    public float[] getWavelengths() {
-        return new float[]{490, 560, 660, 830, 1670, 11500, 2240, 710};
+    public float getWavelength(String bandNumber) {
+        String bandIndexNumber = bandNumber.substring(0, 1);
+        int index = Integer.parseInt(bandIndexNumber) - 1;
+        return WAVELENGTHS[index];
     }
 
     @Override
-    public float[] getBandwidths() {
-        return new float[]{66, 82, 67, 128, 217, 1000, 252, 380};
+    public float getBandwidth(String bandNumber) {
+        String bandIndexNumber = bandNumber.substring(0, 1);
+        int index = Integer.parseInt(bandIndexNumber) - 1;
+        return BANDWIDTHS[index];
     }
 
     @Override
     public String getBandDescription(String bandNumber) {
         return BAND_DESCRIPTIONS.get(bandNumber);
+    }
+
+    @Override
+    public String getQualityBandNameKey() {
+        return null;
     }
 
     boolean isLandsatTM() {

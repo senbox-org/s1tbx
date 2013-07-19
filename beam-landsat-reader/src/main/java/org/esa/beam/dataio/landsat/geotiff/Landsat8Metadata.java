@@ -47,6 +47,20 @@ class Landsat8Metadata extends AbstractLandsatMetadata {
         BAND_DESCRIPTIONS.put("11", "TIRS 2");
     }
 
+    private static final float[] WAVELENGTHS = new float[]{
+            433,
+            482,
+            562,
+            655,
+            865,
+            1610,
+            2200,
+            590,
+            1375,
+            10800,
+            12000
+    };
+
     private final MetadataElement root;
 
     public Landsat8Metadata(Reader fileReader) throws IOException {
@@ -99,22 +113,28 @@ class Landsat8Metadata extends AbstractLandsatMetadata {
     }
 
     @Override
-    public Pattern getBandFileNamePattern() {
+    public Pattern getOpticalBandFileNamePattern() {
         return Pattern.compile("FILE_NAME_BAND_(\\d{1,2})");
     }
 
     @Override
-    public float[] getWavelengths() {
-        return new float[]{433, 482, 562, 655, 865, 1610, 2200, 590, 1375, 10800, 12000};
+    public float getWavelength(String bandIndexNumber) {
+        int index = Integer.parseInt(bandIndexNumber) - 1; // bandIndexNumber is 1-based
+        return WAVELENGTHS[index];
     }
 
     @Override
-    public float[] getBandwidths() {
-        return new float[getWavelengths().length];
+    public float getBandwidth(String bandIndexNumber) {
+        return 0.0F;
     }
 
     @Override
     public String getBandDescription(String bandNumber) {
         return BAND_DESCRIPTIONS.get(bandNumber);
+    }
+
+    @Override
+    public String getQualityBandNameKey() {
+        return "FILE_NAME_BAND_QUALITY";
     }
 }

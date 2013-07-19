@@ -45,11 +45,13 @@ interface LandsatMetadata {
 
     ProductData.UTC getCenterTime();
 
-    Pattern getBandFileNamePattern();
+    Pattern getOpticalBandFileNamePattern();
 
-    float[] getWavelengths();
+    float getWavelength(String bandNumber);
 
-    float[] getBandwidths();
+    float getBandwidth(String bandNumber);
 
     String getBandDescription(String bandNumber);
+
+    String getQualityBandNameKey();
 }

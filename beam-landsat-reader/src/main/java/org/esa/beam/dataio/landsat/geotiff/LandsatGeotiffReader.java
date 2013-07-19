@@ -122,11 +122,9 @@ public class LandsatGeotiffReader extends AbstractProductReader {
     private void addBands(Product product, VirtualDir folder) throws IOException {
         final GeoTiffProductReaderPlugIn plugIn = new GeoTiffProductReaderPlugIn();
         final MetadataAttribute[] productAttributes = landsatMetadata.getProductMetadata().getAttributes();
-        final Pattern pattern = landsatMetadata.getBandFileNamePattern();
+        final Pattern pattern = landsatMetadata.getOpticalBandFileNamePattern();
 
         bandProducts = new ArrayList<Product>();
-        float[] wavelengths = landsatMetadata.getWavelengths();
-        float[] bandwidths = landsatMetadata.getBandwidths();
         for (MetadataAttribute metadataAttribute : productAttributes) {
             String attributeName = metadataAttribute.getName();
             Matcher matcher = pattern.matcher(attributeName);
@@ -144,16 +142,29 @@ public class LandsatGeotiffReader extends AbstractProductReader {
                     Band band = product.addBand(bandName, srcBand.getDataType());
                     band.setNoDataValue(0.0);
                     band.setNoDataValueUsed(true);
-                    String bandIndexNumber = bandNumber.substring(0, 1);
-                    int index = Integer.parseInt(bandIndexNumber) - 1;
-                    band.setSpectralWavelength(wavelengths[index]);
-                    band.setSpectralBandwidth(bandwidths[index]);
+
+                    band.setSpectralWavelength(landsatMetadata.getWavelength(bandNumber));
+                    band.setSpectralBandwidth(landsatMetadata.getBandwidth(bandNumber));
 
                     band.setScalingFactor(landsatMetadata.getScalingFactor(bandNumber));
                     band.setScalingOffset(landsatMetadata.getScalingOffset(bandNumber));
 
                     band.setDescription(landsatMetadata.getBandDescription(bandNumber));
                     band.setUnit(UNITS);
+                }
+            } else if (attributeName.equals(landsatMetadata.getQualityBandNameKey())) {
+                String fileName = metadataAttribute.getData().getElemString();
+                File bandFile = folder.getFile(fileName);
+                ProductReader productReader = plugIn.createReaderInstance();
+                Product bandProduct = productReader.readProductNodes(bandFile, null);
+                if (bandProduct != null) {
+                    bandProducts.add(bandProduct);
+                    Band srcBand = bandProduct.getBandAt(0);
+                    String bandName = "quality";
+                    Band band = product.addBand(bandName, srcBand.getDataType());
+                    band.setNoDataValue(0.0);
+                    band.setNoDataValueUsed(true);
+                    band.setDescription("Quality Band");
                 }
             }
         }
