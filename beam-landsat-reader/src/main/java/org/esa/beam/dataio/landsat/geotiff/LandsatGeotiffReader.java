@@ -23,6 +23,8 @@ import org.esa.beam.framework.dataio.AbstractProductReader;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.FlagCoding;
+import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.MetadataAttribute;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
@@ -33,11 +35,13 @@ import javax.media.jai.PlanarImage;
 import javax.media.jai.RenderedOp;
 import javax.media.jai.operator.CropDescriptor;
 import javax.media.jai.operator.ScaleDescriptor;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.image.RenderedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -138,7 +142,7 @@ public class LandsatGeotiffReader extends AbstractProductReader {
                 if (bandProduct != null) {
                     bandProducts.add(bandProduct);
                     Band srcBand = bandProduct.getBandAt(0);
-                    String bandName = "radiance_" + bandNumber;
+                    String bandName = "radiance_" + bandNumber; // todo - apply better band names
                     Band band = product.addBand(bandName, srcBand.getDataType());
                     band.setNoDataValue(0.0);
                     band.setNoDataValueUsed(true);
@@ -160,11 +164,28 @@ public class LandsatGeotiffReader extends AbstractProductReader {
                 if (bandProduct != null) {
                     bandProducts.add(bandProduct);
                     Band srcBand = bandProduct.getBandAt(0);
-                    String bandName = "quality";
+                    String bandName = "flags";
+
                     Band band = product.addBand(bandName, srcBand.getDataType());
                     band.setNoDataValue(0.0);
                     band.setNoDataValueUsed(true);
                     band.setDescription("Quality Band");
+
+                    FlagCoding flagCoding = createFlagCoding(bandName);
+                    for (String flagName : flagCoding.getFlagNames()) {
+                        MetadataAttribute flag = flagCoding.getFlag(flagName);
+                        Mask mask = Mask.BandMathsType.create(flagName,
+                                                              flag.getDescription(),
+                                                              product.getSceneRasterWidth(),
+                                                              product.getSceneRasterHeight(),
+                                                              "'flags." + flagName + "'",
+                                                              ColorIterator.next(),
+                                                              0.5F);
+                        product.getMaskGroup().add(mask);
+                    }
+
+                    band.setSampleCoding(flagCoding);
+                    product.getFlagCodingGroup().add(flagCoding);
                 }
             }
         }
@@ -193,6 +214,32 @@ public class LandsatGeotiffReader extends AbstractProductReader {
         }
     }
 
+    private FlagCoding createFlagCoding(String bandName) {
+        FlagCoding flagCoding = new FlagCoding(bandName);
+        flagCoding.addFlag("Designated Fill", 1, "Designated Fill");
+        flagCoding.addFlag("Dropped Frame", 2, "Dropped Frame");
+        flagCoding.addFlag("Terrain Occlusion", 4, "Terrain Occlusion");
+//                    flagCoding.addFlag("Reserved", 8, "Reserved");
+        flagCoding.addFlag("Water confidence low", 16, "Water confidence 0-35%");
+        flagCoding.addFlag("Water confidence medium", 32, "Water confidence 36-64%");
+        flagCoding.addFlag("Water confidence high", 48, "Water confidence 64-100%");
+//                    flagCoding.addFlag("Reserved", 64, "Reserved for a future 2-bit class artifact designation");
+//                    flagCoding.addFlag("Reserved", 128, "Reserved for a future 2-bit class artifact designation");
+        flagCoding.addFlag("Vegetation confidence low", 256, "Vegetation confidence 0-35%");
+        flagCoding.addFlag("Vegetation confidence medium", 512, "Vegetation confidence 36-64%");
+        flagCoding.addFlag("Vegetation confidence high", 768, "Vegetation confidence 65-100%");
+        flagCoding.addFlag("Snow/ice confidence low", 1024, "Snow/ice confidence 0-35%");
+        flagCoding.addFlag("Snow/ice confidence medium", 2048, "Snow/ice confidence 36-64%");
+        flagCoding.addFlag("Snow/ice confidence high", 3072, "Snow/ice confidence 65-100%");
+        flagCoding.addFlag("Cirrus confidence low", 4096, "Cirrus confidence 0-35%");
+        flagCoding.addFlag("Cirrus confidence medium", 8192, "Cirrus confidence 36-64%");
+        flagCoding.addFlag("Cirrus confidence high", 12288, "Cirrus confidence 65-100%");
+        flagCoding.addFlag("Cloud confidence low", 16384, "Cloud confidence 0-35%");
+        flagCoding.addFlag("Cloud confidence medium", 32768, "Cloud confidence 36-64%");
+        flagCoding.addFlag("Cloud confidence high", 49152, "Cloud confidence 65-100%");
+        return flagCoding;
+    }
+
     private static RenderedOp createScaledImage(int targetWidth, int targetHeight, int sourceWidth, int sourceHeight, RenderedImage srcImg) {
         float xScale = (float) targetWidth / (float) sourceWidth;
         float yScale = (float) targetHeight / (float) sourceHeight;
@@ -217,4 +264,41 @@ public class LandsatGeotiffReader extends AbstractProductReader {
         input = null;
         super.close();
     }
+
+    private static class ColorIterator {
+
+        static ArrayList<Color> colors;
+        static Iterator<Color> colorIterator;
+
+        static {
+            colors = new ArrayList<Color>();
+            colors.add(Color.red);
+            colors.add(Color.red);
+            colors.add(Color.red);
+            colors.add(Color.blue);
+            colors.add(Color.blue.darker());
+            colors.add(Color.blue.darker().darker());
+            colors.add(Color.green);
+            colors.add(Color.green.darker());
+            colors.add(Color.green.darker().darker());
+            colors.add(Color.yellow);
+            colors.add(Color.yellow.darker());
+            colors.add(Color.yellow.darker().darker());
+            colors.add(Color.magenta);
+            colors.add(Color.magenta.darker());
+            colors.add(Color.magenta.darker().darker());
+            colors.add(Color.pink);
+            colors.add(Color.pink.darker());
+            colors.add(Color.pink.darker().darker());
+            colorIterator = colors.iterator();
+        }
+
+        static Color next() {
+            if (!colorIterator.hasNext()) {
+                colorIterator = colors.iterator();
+            }
+            return colorIterator.next();
+        }
+    }
+
 }
