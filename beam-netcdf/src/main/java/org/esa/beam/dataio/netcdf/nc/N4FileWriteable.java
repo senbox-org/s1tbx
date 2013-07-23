@@ -116,13 +116,17 @@ public class N4FileWriteable implements NFileWriteable {
             chunkLens[0] = tileSize.height;
             chunkLens[1] = tileSize.width;
             // compute tile size so that number of tiles is considerably smaller than Short.MAX_VALUE
-            long imageWidth = nhDims[1].getLength();
-            long imageHeight = nhDims[0].getLength();
-            long imageSize = imageHeight * imageWidth;
+            int imageWidth = nhDims[1].getLength();
+            int imageHeight = nhDims[0].getLength();
+            long imageSize = (long)imageHeight * imageWidth;
             for (int scalingFactor = 2; imageSize / (chunkLens[0] * chunkLens[1]) > Short.MAX_VALUE / 2; scalingFactor *= 2) {
                 chunkLens[0] = tileSize.height * scalingFactor;
                 chunkLens[1] = tileSize.width * scalingFactor;
             }
+
+            // ensure that chunklens <= scene width/height
+            chunkLens[1] = Math.min(chunkLens[1], imageWidth);
+            chunkLens[0] = Math.min(chunkLens[0], imageHeight);
             tileSize = new Dimension(chunkLens[1], chunkLens[0]);
         } else {
             for (int i = 0; i < dims.length; i++) {
