@@ -29,13 +29,13 @@ import java.io.InputStreamReader;
 import static org.junit.Assert.*;
 
 
-public class Landsat57MetadataTest {
+public class LandsatLegacyMetadataTest {
 
     @Test
     public void testReadMetadata_L5() throws IOException {
-        InputStream stream = Landsat57MetadataTest.class.getResourceAsStream("test_MTL.txt");
+        InputStream stream = LandsatLegacyMetadataTest.class.getResourceAsStream("test_MTL.txt");
         InputStreamReader reader = new InputStreamReader(stream);
-        Landsat57Metadata landsatMetadata = new Landsat57Metadata(reader);
+        LandsatLegacyMetadata landsatMetadata = new LandsatLegacyMetadata(reader);
 
         MetadataElement element = landsatMetadata.getMetaDataElementRoot();
         assertNotNull(element);
@@ -77,9 +77,9 @@ public class Landsat57MetadataTest {
 
     @Test
     public void testReadMetadata_L7() throws IOException {
-        final InputStream stream = Landsat57MetadataTest.class.getResourceAsStream("test_MTL_L7.txt");
+        final InputStream stream = LandsatLegacyMetadataTest.class.getResourceAsStream("test_MTL_L7.txt");
         final InputStreamReader reader = new InputStreamReader(stream);
-        final Landsat57Metadata landsatMetadata = new Landsat57Metadata(reader);
+        final LandsatLegacyMetadata landsatMetadata = new LandsatLegacyMetadata(reader);
 
         final MetadataElement elementRoot = landsatMetadata.getMetaDataElementRoot();
         assertNotNull(elementRoot);

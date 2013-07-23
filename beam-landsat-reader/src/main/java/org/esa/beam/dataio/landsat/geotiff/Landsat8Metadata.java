@@ -72,21 +72,17 @@ class Landsat8Metadata extends AbstractLandsatMetadata {
 
     private static final float[] BANDWIDTHS = new float[]{20, 60, 60, 30, 30, 80, 180, 380, 20, 590, 1010};
 
-
-    private final MetadataElement root;
-
     public Landsat8Metadata(Reader fileReader) throws IOException {
-        root = parseMTL(fileReader);
+        super(fileReader);
+    }
+
+    public Landsat8Metadata(MetadataElement root) throws IOException {
+        super(root);
     }
 
     @Override
     public MetadataElement getProductMetadata() {
-        return root.getElement("PRODUCT_METADATA");
-    }
-
-    @Override
-    public MetadataElement getMetaDataElementRoot() {
-        return root;
+        return getMetaDataElementRoot().getElement("PRODUCT_METADATA");
     }
 
     @Override

@@ -33,6 +33,21 @@ import java.util.Date;
  */
 abstract class AbstractLandsatMetadata implements LandsatMetadata {
 
+    private final MetadataElement root;
+
+    public AbstractLandsatMetadata(Reader fileReader) throws IOException {
+        root = parseMTL(fileReader);
+    }
+
+    public AbstractLandsatMetadata(MetadataElement root) throws IOException {
+        this.root = root;
+    }
+
+    @Override
+    public MetadataElement getMetaDataElementRoot() {
+        return root;
+    }
+
     protected MetadataElement parseMTL(Reader mtlReader) throws IOException {
         MetadataElement base = null;
         MetadataElement currentElement = null;

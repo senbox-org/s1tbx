@@ -27,7 +27,7 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 
-class Landsat57Metadata extends AbstractLandsatMetadata {
+class LandsatLegacyMetadata extends AbstractLandsatMetadata {
 
     private static final Map<String, String> BAND_DESCRIPTIONS = new HashMap<String, String>();
 
@@ -48,15 +48,12 @@ class Landsat57Metadata extends AbstractLandsatMetadata {
     private static final float[] WAVELENGTHS = new float[]{490, 560, 660, 830, 1670, 11500, 2240, 710};
     private static final float[] BANDWIDTHS = new float[]{66, 82, 67, 128, 217, 1000, 252, 380};
 
-    private final MetadataElement root;
-
-    Landsat57Metadata(Reader mtlReader) throws IOException {
-        root = parseMTL(mtlReader);
+    LandsatLegacyMetadata(Reader mtlReader) throws IOException {
+        super(mtlReader);
     }
 
-    @Override
-    public MetadataElement getMetaDataElementRoot() {
-        return root;
+    public LandsatLegacyMetadata(MetadataElement root) throws IOException {
+        super(root);
     }
 
     @Override
@@ -81,7 +78,7 @@ class Landsat57Metadata extends AbstractLandsatMetadata {
 
     @Override
     public MetadataElement getProductMetadata() {
-        return root.getElement("PRODUCT_METADATA");
+        return getMetaDataElementRoot().getElement("PRODUCT_METADATA");
     }
 
     @Override

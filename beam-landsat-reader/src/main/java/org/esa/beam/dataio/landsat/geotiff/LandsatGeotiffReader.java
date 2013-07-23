@@ -54,25 +54,25 @@ public class LandsatGeotiffReader extends AbstractProductReader {
 
     private static final String UNITS = "W/(m^2*sr*µm)";
 
-    final LandsatMetadataFactory landsatMetadataFactory;
+    final ILandsatMetadataFactory landsatMetadataFactory;
     private LandsatMetadata landsatMetadata;
     private List<Product> bandProducts;
     private VirtualDir input;
 
 
-    public LandsatGeotiffReader(ProductReaderPlugIn readerPlugin, LandsatMetadataFactory landsatMetadataFactory) {
+    public LandsatGeotiffReader(ProductReaderPlugIn readerPlugin, ILandsatMetadataFactory landsatMetadataFactory) {
         super(readerPlugin);
         this.landsatMetadataFactory = landsatMetadataFactory;
     }
 
     @Override
     protected Product readProductNodesImpl() throws IOException {
-        input = LandsatGeotiffReaderPlugin.getInput(getInput());
+        input = LandsatLegacyGeotiffReaderPlugin.getInput(getInput());
         String[] list = input.list("");
         File mtlFile = null;
         for (String fileName : list) {
             final File file = input.getFile(fileName);
-            if (LandsatGeotiffReaderPlugin.isMetadataFile(file)) {
+            if (LandsatLegacyGeotiffReaderPlugin.isMetadataFile(file)) {
                 mtlFile = file;
                 break;
             }
