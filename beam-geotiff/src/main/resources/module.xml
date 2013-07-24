@@ -17,7 +17,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-geotiff</symbolicName>
-    <version>1.2.3</version>
+    <version>1.2.4</version>
     <name>GeoTIFF Product Module</name>
     <description>A module for reading and writing GeoTIFF Data Products</description>
 
@@ -28,6 +28,8 @@
 
     <changelog>
         <![CDATA[
+        Changes in 1.2.4:<br/>
+         [BEAM-1523] - GeoTIFF Product Reader performance poor<br/>
         Changes in 1.2.3:<br/>
         [BEAM-1510] GeoTiff coordinates are wrongly shifted<br>
         Changes in 1.2.2:<br/>

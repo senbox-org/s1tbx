@@ -156,8 +156,7 @@ public class GeoTiffProductReader extends AbstractProductReader {
                 boolean isInteger = dataBufferType == DataBuffer.TYPE_SHORT
                                     || dataBufferType == DataBuffer.TYPE_USHORT
                                     || dataBufferType == DataBuffer.TYPE_INT;
-                boolean isIntegerTarget = destBuffer.getElems() instanceof int[]
-                                          || destBuffer.getElems() instanceof short[];
+                boolean isIntegerTarget = destBuffer.getElems() instanceof int[];
                 if (isInteger && isIntegerTarget) {
                     sampleModel.getSamples(0, 0, data.getWidth(), data.getHeight(), bandIdx, (int[]) destBuffer.getElems(), dataBuffer);
                 } else if (dataBufferType == DataBuffer.TYPE_FLOAT && destBuffer.getElems() instanceof float[]) {
