@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2013 Brockmann Consult GmbH (info@brockmann-consult.de) 
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -16,9 +16,9 @@
 
 package org.esa.beam.dataio.netcdf.metadata.profiles.hdfeos;
 
-import org.esa.beam.dataio.netcdf.metadata.ProfilePartIO;
 import org.esa.beam.dataio.netcdf.ProfileReadContext;
 import org.esa.beam.dataio.netcdf.ProfileWriteContext;
+import org.esa.beam.dataio.netcdf.metadata.ProfilePartIO;
 import org.esa.beam.dataio.netcdf.metadata.profiles.cf.CfBandPart;
 import org.esa.beam.dataio.netcdf.util.AbstractNetcdfMultiLevelImage;
 import org.esa.beam.dataio.netcdf.util.Constants;
@@ -95,20 +95,20 @@ public class HdfEosBandPart extends ProfilePartIO {
             int sourceWidth = (int) (rdn.getSceneRasterWidth() / scaleFactor);
             int sourceHeight = (int) (rdn.getSceneRasterHeight() / scaleFactor);
             ResolutionLevel resolutionLevel = ResolutionLevel.create(getModel(), level);
-            Dimension tileSize = getPreferredTileSize(rdn);
+            Dimension imageTileSize = new Dimension(getTileWidth(), getTileHeight());
 
             RenderedImage netcdfImg;
             if (variable.getDataType() == DataType.LONG) {
                 if (rdn.getName().endsWith("_lsb")) {
                     netcdfImg = NetcdfOpImage.createLsbImage(variable, imageOrigin, isYFlipped, lock, dataBufferType,
-                                                             sourceWidth, sourceHeight, tileSize, resolutionLevel);
+                                                             sourceWidth, sourceHeight, imageTileSize, resolutionLevel);
                 } else {
                     netcdfImg = NetcdfOpImage.createMsbImage(variable, imageOrigin, isYFlipped, lock, dataBufferType,
-                                                             sourceWidth, sourceHeight, tileSize, resolutionLevel);
+                                                             sourceWidth, sourceHeight, imageTileSize, resolutionLevel);
                 }
             } else {
                 netcdfImg = new NetcdfOpImage(variable, imageOrigin, isYFlipped, lock,
-                                              dataBufferType, sourceWidth, sourceHeight, tileSize, resolutionLevel);
+                                              dataBufferType, sourceWidth, sourceHeight, imageTileSize, resolutionLevel);
             }
 
             return ScaleDescriptor.create(netcdfImg, scaleFactor, scaleFactor, 0.5f, 0.5f,
