@@ -30,7 +30,7 @@
     <groupId>org.esa.beam</groupId>
     <artifactId>beam-landsat-reader</artifactId>
     <name>BEAM Landsat Reader</name>
-    <version>1.3.2.${beam.version}</version>
+    <version>1.4.${beam.version}</version>
     <url>http://envisat.esa.int/beam/</url>
 
     <dependencies>

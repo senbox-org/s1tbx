@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-landsat-reader</symbolicName>
-    <version>1.3.2</version>
+    <version>1.4</version>
     <name>Landsat TM Product Reader</name>
     <description>
         A product reader for Landsat TM 5 (FAST and GeoTIFF) files.
@@ -14,6 +14,8 @@
 
     <changelog>
         <![CDATA[
+        From 1.3.2 to 1.4:<br/>
+            [BEAM-1515] Landsat products in GeoTiff format can not be opened <br/>
         From 1.3.1 to 1.3.2:<br/>
             [BEAM-1425] NPE in Landsat GeoTIFF reader<br/>
             [BEAM-1426] Landsat GeoTIFF reader hides other format readers<br/>
