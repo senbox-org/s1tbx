@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2013 Brockmann Consult GmbH (info@brockmann-consult.de) 
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -873,7 +873,7 @@ public class ImageManager {
         MultiLevelImage varImage = node.getGeophysicalImage();
         if (node.getValidPixelExpression() != null) {
             varImage = replaceInvalidValuesByNaN(node, varImage, node.getValidMaskImage(), maskValue);
-        }else if (node.isNoDataValueSet() && node.isNoDataValueUsed()) {
+        }else if (node.isNoDataValueSet() && node.isNoDataValueUsed() && Double.compare(maskValue.doubleValue(), node.getGeophysicalNoDataValue()) != 0) {
             varImage =  replaceNoDataValueByNaN(node, varImage, node.getGeophysicalNoDataValue(), maskValue);
         }
         return varImage;
