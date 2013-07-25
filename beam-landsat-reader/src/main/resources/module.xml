@@ -4,7 +4,8 @@
     <version>1.4</version>
     <name>Landsat TM Product Reader</name>
     <description>
-        A product reader for Landsat TM 5 (FAST and GeoTIFF) files.
+        A product reader for Landsat TM files. Can read Landsat 5, 7 and 8 in GeoTIFF format.
+        Landsat 5 additionally in 5 FAST format.
     </description>
 
     <vendor>Christian Berwanger (ai0263@umwelt-campus.de)</vendor>
