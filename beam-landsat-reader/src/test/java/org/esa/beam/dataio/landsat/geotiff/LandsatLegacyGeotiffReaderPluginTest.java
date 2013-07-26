@@ -2,8 +2,6 @@ package org.esa.beam.dataio.landsat.geotiff;
 
 import com.bc.ceres.core.VirtualDir;
 import org.esa.beam.dataio.landsat.TestUtil;
-import org.esa.beam.framework.dataio.DecodeQualification;
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.File;
@@ -123,12 +121,5 @@ public class LandsatLegacyGeotiffReaderPluginTest {
         assertFalse(LandsatLegacyGeotiffReaderPlugin.isMatchingArchiveFileName("SchnickSchnack.zip"));
         assertFalse(LandsatLegacyGeotiffReaderPlugin.isMatchingArchiveFileName("hoppla.txt"));
         assertFalse(LandsatLegacyGeotiffReaderPlugin.isMatchingArchiveFileName(""));
-    }
-
-    @Test
-    public void testName() throws Exception {
-        File input = new File("C:\\dev\\Ressourcen\\EOData\\Landsat\\Landsat5_reprocessed\\LT51970181984155XXX03\\LT51970181984155XXX03_MTL.txt");
-        Assert.assertEquals(DecodeQualification.UNABLE, new LandsatLegacyGeotiffReaderPlugin().getDecodeQualification(input));
-
     }
 }
