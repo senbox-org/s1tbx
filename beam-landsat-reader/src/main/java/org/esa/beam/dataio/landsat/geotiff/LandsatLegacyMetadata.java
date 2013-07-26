@@ -140,4 +140,9 @@ class LandsatLegacyMetadata extends AbstractLandsatMetadata {
         return "ETM+".equals(productMetadata.getAttributeString(SENSOR_ID));
     }
 
+    boolean isLegacyFormat() {
+        MetadataElement metadata = getProductMetadata();
+        return metadata.getAttribute("BAND1_FILE_NAME") != null;
+    }
+
 }

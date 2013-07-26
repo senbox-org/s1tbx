@@ -44,7 +44,6 @@ public class LandsatLegacyGeotiffReaderPlugin implements ProductReaderPlugIn {
 
     @Override
     public DecodeQualification getDecodeQualification(Object input) {
-        // Landsat 7 files must start with L7
         VirtualDir virtualDir;
         try {
             virtualDir = getInput(input);
@@ -80,7 +79,8 @@ public class LandsatLegacyGeotiffReaderPlugin implements ProductReaderPlugIn {
                 if (isMetadataFile(file)) {
                     fileReader = new FileReader(file);
                     LandsatLegacyMetadata landsatMetadata = new LandsatLegacyMetadata(fileReader);
-                    if (landsatMetadata.isLandsatTM() || landsatMetadata.isLandsatETM_Plus()) {
+                    if ((landsatMetadata.isLandsatTM() || landsatMetadata.isLandsatETM_Plus()) &&
+                        landsatMetadata.isLegacyFormat()) {
                         return DecodeQualification.INTENDED;
                     }
                 }

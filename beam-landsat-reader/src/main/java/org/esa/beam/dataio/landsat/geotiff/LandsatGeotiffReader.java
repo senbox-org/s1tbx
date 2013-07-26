@@ -174,14 +174,10 @@ public class LandsatGeotiffReader extends AbstractProductReader {
                     FlagCoding flagCoding = createFlagCoding(bandName);
                     for (String flagName : flagCoding.getFlagNames()) {
                         MetadataAttribute flag = flagCoding.getFlag(flagName);
-                        Mask mask = Mask.BandMathsType.create(flagName,
-                                                              flag.getDescription(),
-                                                              product.getSceneRasterWidth(),
-                                                              product.getSceneRasterHeight(),
-                                                              "'flags." + flagName + "'",
-                                                              ColorIterator.next(),
-                                                              0.5F);
-                        product.getMaskGroup().add(mask);
+                        List<Mask> masks = createMasks(product, flagName, flag);
+                        for (Mask mask : masks) {
+                            product.getMaskGroup().add(mask);
+                        }
                     }
 
                     band.setSampleCoding(flagCoding);
@@ -214,29 +210,54 @@ public class LandsatGeotiffReader extends AbstractProductReader {
         }
     }
 
+    private List<Mask> createMasks(Product product, String flagName, MetadataAttribute flag) {
+        ArrayList<Mask> masks = new ArrayList<Mask>();
+        Mask mask = Mask.BandMathsType.create(flagName,
+                                              flag.getDescription(),
+                                              product.getSceneRasterWidth(),
+                                              product.getSceneRasterHeight(),
+                                              "'flags." + flagName + "'",
+                                              ColorIterator.next(),
+                                              0.5F);
+        masks.add(mask);
+        if (flagName.contains("_medium")) {
+            String expression = "'flags." + flagName + "' and '" + "flags." +
+                                flagName.replace("_medium", "_low") + "'";
+            Mask highMask = Mask.BandMathsType.create(flagName.replace("_medium", "_high"),
+                                                      flag.getDescription().replace("36-64%", "65-100%"),
+                                                      product.getSceneRasterWidth(),
+                                                      product.getSceneRasterHeight(),
+                                                      expression,
+                                                      ColorIterator.next(),
+                                                      0.5F);
+            masks.add(highMask);
+        }
+        return masks;
+    }
+
     private FlagCoding createFlagCoding(String bandName) {
         FlagCoding flagCoding = new FlagCoding(bandName);
-        flagCoding.addFlag("Designated Fill", 1, "Designated Fill");
-        flagCoding.addFlag("Dropped Frame", 2, "Dropped Frame");
-        flagCoding.addFlag("Terrain Occlusion", 4, "Terrain Occlusion");
+        flagCoding.addFlag("designated_fill", 1, "Designated Fill");
+        flagCoding.addFlag("dropped_frame", 2, "Dropped Frame");
+        flagCoding.addFlag("terrain_occlusion", 4, "Terrain Occlusion");
 //                    flagCoding.addFlag("Reserved", 8, "Reserved");
-        flagCoding.addFlag("Water confidence low", 16, "Water confidence 0-35%");
-        flagCoding.addFlag("Water confidence medium", 32, "Water confidence 36-64%");
-        flagCoding.addFlag("Water confidence high", 48, "Water confidence 64-100%");
+        flagCoding.addFlag("water_confidence_low", 16, "Water confidence 0-35%");
+        flagCoding.addFlag("water_confidence_medium", 32, "Water confidence 36-64%");
+//        flagCoding.addFlag("Water_confidence_high", 48, "Water confidence 64-100%");
 //                    flagCoding.addFlag("Reserved", 64, "Reserved for a future 2-bit class artifact designation");
 //                    flagCoding.addFlag("Reserved", 128, "Reserved for a future 2-bit class artifact designation");
-        flagCoding.addFlag("Vegetation confidence low", 256, "Vegetation confidence 0-35%");
-        flagCoding.addFlag("Vegetation confidence medium", 512, "Vegetation confidence 36-64%");
-        flagCoding.addFlag("Vegetation confidence high", 768, "Vegetation confidence 65-100%");
-        flagCoding.addFlag("Snow/ice confidence low", 1024, "Snow/ice confidence 0-35%");
-        flagCoding.addFlag("Snow/ice confidence medium", 2048, "Snow/ice confidence 36-64%");
-        flagCoding.addFlag("Snow/ice confidence high", 3072, "Snow/ice confidence 65-100%");
-        flagCoding.addFlag("Cirrus confidence low", 4096, "Cirrus confidence 0-35%");
-        flagCoding.addFlag("Cirrus confidence medium", 8192, "Cirrus confidence 36-64%");
-        flagCoding.addFlag("Cirrus confidence high", 12288, "Cirrus confidence 65-100%");
-        flagCoding.addFlag("Cloud confidence low", 16384, "Cloud confidence 0-35%");
-        flagCoding.addFlag("Cloud confidence medium", 32768, "Cloud confidence 36-64%");
-        flagCoding.addFlag("Cloud confidence high", 49152, "Cloud confidence 65-100%");
+        flagCoding.addFlag("vegetation_confidence_low", 256, "Vegetation confidence 0-35%");
+        flagCoding.addFlag("vegetation_confidence_medium", 512, "Vegetation confidence 36-64%");
+//        flagCoding.addFlag("Vegetation confidence_high", 768, "Vegetation confidence 65-100%");
+        flagCoding.addFlag("snow/ice_confidence_low", 1024, "Snow/ice confidence 0-35%");
+        flagCoding.addFlag("snow/ice_confidence_medium", 2048, "Snow/ice confidence 36-64%");
+//        flagCoding.addFlag("Snow/ice_confidence_high", 3072, "Snow/ice confidence 65-100%");
+        flagCoding.addFlag("cirrus_confidence_low", 4096, "Cirrus confidence 0-35%");
+        flagCoding.addFlag("cirrus_confidence_medium", 8192, "Cirrus confidence 36-64%");
+//        flagCoding.addFlag("Cirrus_confidence_high", 12288, "Cirrus confidence 65-100%");
+        flagCoding.addFlag("cloud_confidence_low", 16384, "Cloud confidence 0-35%");
+        flagCoding.addFlag("cloud_confidence_medium", 32768, "Cloud confidence 36-64%");
+//        flagCoding.addFlag("Cloud_confidence_high", 49152, "Cloud confidence 65-100%");
         return flagCoding;
     }
 
