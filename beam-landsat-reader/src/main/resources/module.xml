@@ -5,7 +5,7 @@
     <name>Landsat TM Product Reader</name>
     <description>
         A product reader for Landsat TM files. Can read Landsat 5, 7 and 8 in GeoTIFF format.
-        Landsat 5 additionally in 5 FAST format.
+        Landsat 5 additionally in FAST format.
     </description>
 
     <vendor>Christian Berwanger (ai0263@umwelt-campus.de)</vendor>
@@ -96,6 +96,12 @@
             <red>radiance_4</red>
             <green>radiance_3</green>
             <blue>radiance_2</blue>
+        </rgbProfile>
+        <rgbProfile>
+            <name>LandsatTM-8 red,green,blue</name>
+            <red>red</red>
+            <green>green</green>
+            <blue>blue</blue>
         </rgbProfile>
     </extension>
 </module>
