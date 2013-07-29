@@ -72,8 +72,8 @@ public class BinningOpTest {
         BinningOp binningOp = new BinningOp();
 
         binningOp.setSourceProducts(createSourceProduct(0.1F),
-                                    createSourceProduct(0.2F),
-                                    createSourceProduct(0.3F));
+                createSourceProduct(0.2F),
+                createSourceProduct(0.3F));
 
         binningOp.setStartDate("2002-01-01");
         binningOp.setEndDate("2002-01-10");
@@ -178,10 +178,10 @@ public class BinningOpTest {
         final BinningOp binningOp = new BinningOp();
 
         binningOp.setSourceProducts(createSourceProduct(obs1),
-                                    createSourceProduct(obs2),
-                                    createSourceProduct(obs3),
-                                    createSourceProduct(obs4),
-                                    createSourceProduct(obs5));
+                createSourceProduct(obs2),
+                createSourceProduct(obs3),
+                createSourceProduct(obs4),
+                createSourceProduct(obs5));
 
         JtsGeometryConverter geometryConverter = new JtsGeometryConverter();
         binningOp.setStartDate("2002-01-01");
@@ -222,10 +222,10 @@ public class BinningOpTest {
         final BinningOp binningOp = new BinningOp();
 
         binningOp.setSourceProducts(createSourceProduct(obs1),
-                                    createSourceProduct(obs2),
-                                    createSourceProduct(obs3),
-                                    createSourceProduct(obs4),
-                                    createSourceProduct(obs5));
+                createSourceProduct(obs2),
+                createSourceProduct(obs3),
+                createSourceProduct(obs4),
+                createSourceProduct(obs5));
 
         GeometryFactory gf = new GeometryFactory();
         binningOp.setRegion(gf.createPolygon(gf.createLinearRing(new Coordinate[]{
@@ -276,11 +276,11 @@ public class BinningOpTest {
         parameters.put("region", "POLYGON ((-180 -90, -180 90, 180 90, 180 -90, -180 -90))");
 
         final Product targetProduct = GPF.createProduct("Binning", parameters,
-                                                        createSourceProduct(obs1),
-                                                        createSourceProduct(obs2),
-                                                        createSourceProduct(obs3),
-                                                        createSourceProduct(obs4),
-                                                        createSourceProduct(obs5));
+                createSourceProduct(obs1),
+                createSourceProduct(obs2),
+                createSourceProduct(obs3),
+                createSourceProduct(obs4),
+                createSourceProduct(obs5));
 
         assertNotNull(targetProduct);
         try {
@@ -316,12 +316,12 @@ public class BinningOpTest {
         parameters.put("formatterConfig", formatterConfig);
 
         final Product targetProduct = GPF.createProduct("Binning",
-                                                        parameters,
-                                                        createSourceProduct(obs1),
-                                                        createSourceProduct(obs2),
-                                                        createSourceProduct(obs3),
-                                                        createSourceProduct(obs4),
-                                                        createSourceProduct(obs5));
+                parameters,
+                createSourceProduct(obs1),
+                createSourceProduct(obs2),
+                createSourceProduct(obs3),
+                createSourceProduct(obs4),
+                createSourceProduct(obs5));
         assertNotNull(targetProduct);
         try {
             assertLocalBinningProductIsOk(targetProduct, null, obs1, obs2, obs3, obs4, obs5);
@@ -627,7 +627,30 @@ public class BinningOpTest {
 
         final Product targetProduct = binningOp.getTargetProduct();
         assertNotNull(targetProduct);
+    }
 
+    @SuppressWarnings("NullArgumentToVariableArgMethod")
+    @Test
+    public void testHasNoAggregatorConfigs() {
+        final BinningConfig binningConfig = new BinningConfig();
+        assertTrue(BinningOp.hasNoAggregatorConfigs(binningConfig));
+        binningConfig.setAggregatorConfigs(null);
+        assertTrue(BinningOp.hasNoAggregatorConfigs(binningConfig));
+
+        binningConfig.setAggregatorConfigs(new AggregatorAverage.Config());
+        assertFalse(BinningOp.hasNoAggregatorConfigs(binningConfig));
+    }
+
+    @SuppressWarnings("NullArgumentToVariableArgMethod")
+    @Test
+    public void testHasNoVariableConfigs() {
+        final BinningConfig binningConfig = new BinningConfig();
+        assertTrue(BinningOp.hasNoVariableConfigs(binningConfig));
+        binningConfig.setVariableConfigs(null);
+        assertTrue(BinningOp.hasNoVariableConfigs(binningConfig));
+
+        binningConfig.setVariableConfigs(new VariableConfig());
+        assertFalse(BinningOp.hasNoVariableConfigs(binningConfig));
     }
 
     private void assertGlobalBinningProductIsOk(Product targetProduct, File location, float obs1, float obs2,

@@ -372,6 +372,9 @@ public class BinningOp extends Operator implements Output {
         if (binningConfig.getNumRows() <= 2) {
             throw new OperatorException("Operator parameter 'binningConfig.numRows' must be greater than 2");
         }
+        if (hasNoVariableConfigs(binningConfig) && hasNoAggregatorConfigs(binningConfig)) {
+            throw new OperatorException("Operator config does not define any output variable");
+        }
         if (formatterConfig == null) {
             throw new OperatorException("Missing operator parameter 'formatterConfig'");
         }
@@ -388,6 +391,16 @@ public class BinningOp extends Operator implements Output {
         if (!outputBinnedData && !outputTargetProduct) {
             throw new OperatorException("At least one of the parameters 'outputBinnedData' and 'outputTargetProduct' must be 'true'");
         }
+    }
+
+    // package access for testing only tb 2013-07-29
+    static boolean hasNoAggregatorConfigs(BinningConfig binningConfig) {
+        return binningConfig.getAggregatorConfigs() == null || binningConfig.getAggregatorConfigs().length == 0;
+    }
+
+    // package access for testing only tb 2013-07-29
+    static boolean hasNoVariableConfigs(BinningConfig binningConfig) {
+        return binningConfig.getVariableConfigs() == null || binningConfig.getVariableConfigs().length == 0;
     }
 
     ProductFilter createSourceProductFilter(DataPeriod dataPeriod, ProductData.UTC startTime, ProductData.UTC endTime) {
