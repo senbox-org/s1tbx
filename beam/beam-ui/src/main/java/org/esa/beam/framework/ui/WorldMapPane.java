@@ -64,6 +64,12 @@ public class WorldMapPane extends JPanel {
     private boolean navControlShown;
     private WakefulComponent navControlWrapper;
 
+    private final static Color transWhiteColor = new Color(255, 255, 255, 10);
+    private final static Color transRedColor = new Color(255, 0, 0, 30);
+
+    private final static Color selectionFillColor = new Color(255, 255, 0, 70);
+    private final static Color selectionBorderColor = new Color(255, 255, 0, 255);
+
     public WorldMapPane(WorldMapPaneDataModel dataModel) {
         this.dataModel = dataModel;
         layerCanvas = new LayerCanvas();
@@ -351,11 +357,6 @@ public class WorldMapPane extends JPanel {
     }
 
     private class BoundaryOverlay implements LayerCanvas.Overlay {
-        final Color transWhiteColor = new Color(255, 255, 255, 10);
-        final Color transRedColor = new Color(255, 0, 0, 30);
-
-        final Color selectionFillColor = new Color(255, 255, 0, 70);
-        final Color selectionBorderColor = new Color(255, 255, 0, 255);
 
         @Override
         public void paintOverlay(LayerCanvas canvas, Rendering rendering) {
@@ -383,8 +384,7 @@ public class WorldMapPane extends JPanel {
                             transWhiteColor, Color.RED);
             }
 
-            final GeoPos[] selectionBox = dataModel.getSelectionBox();
-            drawGeoBoundary(rendering.getGraphics(), selectionBox, null, null,
+            drawGeoBoundary(rendering.getGraphics(), dataModel.getSelectionBox(), null, null,
                             selectionFillColor, selectionBorderColor);
         }
 
@@ -407,7 +407,7 @@ public class WorldMapPane extends JPanel {
             final AffineTransform transform = layerCanvas.getViewport().getModelToViewTransform();
             for (GeneralPath boundaryPath : boundaryPaths) {
                 boundaryPath.transform(transform);
-                drawPath(g2d, boundaryPath, 0.0f, fillColor, borderColor);
+                drawPath(g2d, boundaryPath, fillColor, borderColor);
             }
 
             drawText(g2d, text, textCenter, 0.0f);
@@ -421,14 +421,17 @@ public class WorldMapPane extends JPanel {
             final AffineTransform transform = layerCanvas.getViewport().getModelToViewTransform();
             for (GeneralPath boundaryPath : boundaryPaths) {
                 boundaryPath.transform(transform);
-                drawPath(g2d, boundaryPath, 0.0f, fillColor, borderColor);
+                //drawPath(g2d, boundaryPath, fillColor, borderColor);
+                g2d.setColor(fillColor);
+                g2d.fill(boundaryPath);
+                g2d.setColor(borderColor);
+                g2d.draw(boundaryPath);
             }
             drawText(g2d, text, textCenter, 0.0f);
         }
 
-        private void drawPath(Graphics2D g2d, final GeneralPath gp, final float offsetX,
+        private void drawPath(Graphics2D g2d, final GeneralPath gp,
                               final Color fillColor, final Color borderColor) {
-            g2d = prepareGraphics2D(offsetX, g2d);
             g2d.setColor(fillColor);
             g2d.fill(gp);
             g2d.setColor(borderColor);
