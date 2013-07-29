@@ -17,13 +17,11 @@
 package org.esa.beam.dataio.landsat.geotiff;
 
 import com.bc.ceres.core.VirtualDir;
-import org.esa.beam.dataio.landsat.tgz.VirtualDirTgz;
 import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.io.BeamFileFilter;
-import org.esa.beam.util.io.FileUtils;
 
 import java.io.File;
 import java.io.FileReader;
@@ -46,7 +44,7 @@ public class LandsatLegacyGeotiffReaderPlugin implements ProductReaderPlugIn {
     public DecodeQualification getDecodeQualification(Object input) {
         VirtualDir virtualDir;
         try {
-            virtualDir = getInput(input);
+            virtualDir = LandsatGeotiffReaderPlugin.getInput(input);
         } catch (IOException e) {
             return DecodeQualification.UNABLE;
         }
@@ -55,12 +53,12 @@ public class LandsatLegacyGeotiffReaderPlugin implements ProductReaderPlugIn {
             return DecodeQualification.UNABLE;
         }
 
-        if (virtualDir.isCompressed() || virtualDir.isArchive()) {
-            if (isMatchingArchiveFileName(getFileInput(input).getName())) {
-                return DecodeQualification.INTENDED;
-            }
-            return DecodeQualification.UNABLE;
-        }
+//        if (virtualDir.isCompressed() || virtualDir.isArchive()) {
+//            if (isMatchingArchiveFileName(LandsatGeotiffReaderPlugin.getFileInput(input).getName())) {
+//                return DecodeQualification.INTENDED;
+//            }
+//            return DecodeQualification.UNABLE;
+//        }
 
         String[] list;
         try {
@@ -76,7 +74,7 @@ public class LandsatLegacyGeotiffReaderPlugin implements ProductReaderPlugIn {
             FileReader fileReader = null;
             try {
                 File file = virtualDir.getFile(fileName);
-                if (isMetadataFile(file)) {
+                if (LandsatGeotiffReader.isMetadataFile(file)) {
                     fileReader = new FileReader(file);
                     LandsatLegacyMetadata landsatMetadata = new LandsatLegacyMetadata(fileReader);
                     if ((landsatMetadata.isLandsatTM() || landsatMetadata.isLandsatETM_Plus()) &&
@@ -104,7 +102,7 @@ public class LandsatLegacyGeotiffReaderPlugin implements ProductReaderPlugIn {
 
     @Override
     public ProductReader createReaderInstance() {
-        return new LandsatGeotiffReader(this, new ILandsatMetadataFactory.LandsatLegacyMetadataFactory());
+        return new LandsatGeotiffReader(this);
     }
 
     @Override
@@ -125,59 +123,6 @@ public class LandsatLegacyGeotiffReaderPlugin implements ProductReaderPlugIn {
     @Override
     public BeamFileFilter getProductFileFilter() {
         return FILE_FILTER;
-    }
-
-    /**
-     * Retrieves the VirtualDir for input from the input object passed in
-     *
-     * @param input the input object (File or String)
-     *
-     * @return the VirtualDir representing the product
-     *
-     * @throws java.io.IOException on disk access failures
-     */
-    public static VirtualDir getInput(Object input) throws IOException {
-        File inputFile = getFileInput(input);
-
-        if (inputFile.isFile() && !isCompressedFile(inputFile)) {
-            final File absoluteFile = inputFile.getAbsoluteFile();
-            inputFile = absoluteFile.getParentFile();
-            if (inputFile == null) {
-                throw new IOException("Unable to retrieve parent to file: " + absoluteFile.getAbsolutePath());
-            }
-        }
-
-        VirtualDir virtualDir = VirtualDir.create(inputFile);
-        if (virtualDir == null) {
-            virtualDir = new VirtualDirTgz(inputFile);
-        }
-        return virtualDir;
-    }
-
-    static File getFileInput(Object input) {
-        if (input instanceof String) {
-            return new File((String) input);
-        } else if (input instanceof File) {
-            return (File) input;
-        }
-        return null;
-    }
-
-    static boolean isMetadataFile(File file) {
-        final String filename = file.getName().toLowerCase();
-        return filename.endsWith("_mtl.txt");
-    }
-
-    static boolean isCompressedFile(File file) {
-        final String extension = FileUtils.getExtension(file);
-        if (StringUtils.isNullOrEmpty(extension)) {
-            return false;
-        }
-
-        return extension.contains("zip")
-               || extension.contains("tar")
-               || extension.contains("tgz")
-               || extension.contains("gz");
     }
 
     static boolean isMatchingArchiveFileName(String fileName) {

@@ -1,3 +1,2 @@
 org.esa.beam.dataio.landsat.geotiff.LandsatGeotiffReaderPlugin
-org.esa.beam.dataio.landsat.geotiff.LandsatLegacyGeotiffReaderPlugin
 org.esa.beam.dataio.landsat.LandsatTMReaderPlugIn

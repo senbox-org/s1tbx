@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
- * 
+ * Copyright (C) 2013 Brockmann Consult GmbH (info@brockmann-consult.de)
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation; either version 3 of the License, or (at your option)
@@ -9,11 +9,10 @@
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
  * more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-
 package org.esa.beam.dataio.landsat.geotiff;
 
 import org.esa.beam.framework.dataio.ProductIOException;
@@ -26,24 +25,19 @@ import java.io.IOException;
 /**
  * @author Thomas Storm
  */
-interface ILandsatMetadataFactory {
+class LandsatMetadataFactory {
 
-    public LandsatMetadata create(File mtlFile) throws IOException;
-
-    class LandsatLegacyMetadataFactory implements ILandsatMetadataFactory {
-
-        public LandsatMetadata create(File mtlFile) throws IOException {
-            LandsatLegacyMetadata landsatMetadata = new LandsatLegacyMetadata(new FileReader(mtlFile));
-            if (!(landsatMetadata.isLandsatTM() || landsatMetadata.isLandsatETM_Plus())) {
-                throw new ProductIOException("Product is not a legacy Landsat5 or Landsat7 ETM+ product.");
+    static LandsatMetadata create(File mtlFile) throws IOException {
+        LandsatLegacyMetadata landsatMetadata = new LandsatLegacyMetadata(new FileReader(mtlFile));
+        if (landsatMetadata.isLegacyFormat()) {
+            // legacy format case
+            if (landsatMetadata.isLandsatTM() || landsatMetadata.isLandsatETM_Plus()) {
+                return landsatMetadata;
+            } else {
+                throw new ProductIOException("Product is of a legacy landsat format, not a legacy Landsat5 or Landsat7 ETM+ product.");
             }
-            return landsatMetadata;
-        }
-    }
-
-    class LandsatMetadataFactory implements ILandsatMetadataFactory {
-
-        public LandsatMetadata create(File mtlFile) throws IOException {
+        } else {
+            // new format case
             BufferedReader reader = null;
             try {
                 FileReader fileReader = new FileReader(mtlFile);
@@ -68,5 +62,4 @@ interface ILandsatMetadataFactory {
                     "File '" + mtlFile + "' does not contain spacecraft information. (Field 'SPACECRAFT_ID' missing)");
         }
     }
-
 }

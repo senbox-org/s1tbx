@@ -64,17 +64,6 @@
         </action>
         <action>
             <class>org.esa.beam.visat.actions.ProductImportAction</class>
-            <id>importLandsatLegacyGeoTIFFProduct</id>
-            <helpId>importLandsatTMProduct</helpId>
-            <formatName>LandsatLegacyGeoTIFF</formatName>
-            <useAllFileFilter>true</useAllFileFilter>
-            <text>Landsat Legacy TM (GeoTIFF)</text>
-            <mnemonic>G</mnemonic>
-            <shortDescr>Import a Landsat Legacy TM (GeoTIFF) data product or product subset.</shortDescr>
-            <description>Import a Landsat Legacy TM (in GeoTIFF format) data product or product subset.</description>
-        </action>
-        <action>
-            <class>org.esa.beam.visat.actions.ProductImportAction</class>
             <id>importLandsatGeoTIFFProduct</id>
             <helpId>importLandsatTMProduct</helpId>
             <formatName>LandsatGeoTIFF</formatName>

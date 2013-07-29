@@ -54,25 +54,22 @@ public class LandsatGeotiffReader extends AbstractProductReader {
 
     private static final String UNITS = "W/(m^2*sr*µm)";
 
-    final ILandsatMetadataFactory landsatMetadataFactory;
     private LandsatMetadata landsatMetadata;
     private List<Product> bandProducts;
     private VirtualDir input;
 
-
-    public LandsatGeotiffReader(ProductReaderPlugIn readerPlugin, ILandsatMetadataFactory landsatMetadataFactory) {
+    public LandsatGeotiffReader(ProductReaderPlugIn readerPlugin) {
         super(readerPlugin);
-        this.landsatMetadataFactory = landsatMetadataFactory;
     }
 
     @Override
     protected Product readProductNodesImpl() throws IOException {
-        input = LandsatLegacyGeotiffReaderPlugin.getInput(getInput());
+        input = LandsatGeotiffReaderPlugin.getInput(getInput());
         String[] list = input.list("");
         File mtlFile = null;
         for (String fileName : list) {
             final File file = input.getFile(fileName);
-            if (LandsatLegacyGeotiffReaderPlugin.isMetadataFile(file)) {
+            if (isMetadataFile(file)) {
                 mtlFile = file;
                 break;
             }
@@ -83,7 +80,7 @@ public class LandsatGeotiffReader extends AbstractProductReader {
         if (!mtlFile.canRead()) {
             throw new IOException("Can not read metadata file: " + mtlFile.getAbsolutePath());
         }
-        landsatMetadata = landsatMetadataFactory.create(mtlFile);
+        landsatMetadata = LandsatMetadataFactory.create(mtlFile);
         Dimension refDim = landsatMetadata.getReflectanceDim();
         Dimension thmDim = landsatMetadata.getThermalDim();
         Dimension panDim = landsatMetadata.getPanchromaticDim();
@@ -112,7 +109,6 @@ public class LandsatGeotiffReader extends AbstractProductReader {
         int extensionIndex = filename.toLowerCase().indexOf("_mtl.txt");
         return filename.substring(0, extensionIndex);
     }
-
 
     private static Dimension max(Dimension dim1, Dimension dim2) {
         if (dim2 != null) {
@@ -240,12 +236,12 @@ public class LandsatGeotiffReader extends AbstractProductReader {
         flagCoding.addFlag("designated_fill", 1, "Designated Fill");
         flagCoding.addFlag("dropped_frame", 2, "Dropped Frame");
         flagCoding.addFlag("terrain_occlusion", 4, "Terrain Occlusion");
-//                    flagCoding.addFlag("Reserved", 8, "Reserved");
+//        flagCoding.addFlag("Reserved", 8, "Reserved");
         flagCoding.addFlag("water_confidence_low", 16, "Water confidence 0-35%");
         flagCoding.addFlag("water_confidence_medium", 32, "Water confidence 36-64%");
 //        flagCoding.addFlag("Water_confidence_high", 48, "Water confidence 64-100%");
-//                    flagCoding.addFlag("Reserved", 64, "Reserved for a future 2-bit class artifact designation");
-//                    flagCoding.addFlag("Reserved", 128, "Reserved for a future 2-bit class artifact designation");
+//        flagCoding.addFlag("Reserved", 64, "Reserved for a future 2-bit class artifact designation");
+//        flagCoding.addFlag("Reserved", 128, "Reserved for a future 2-bit class artifact designation");
         flagCoding.addFlag("vegetation_confidence_low", 256, "Vegetation confidence 0-35%");
         flagCoding.addFlag("vegetation_confidence_medium", 512, "Vegetation confidence 36-64%");
 //        flagCoding.addFlag("Vegetation confidence_high", 768, "Vegetation confidence 65-100%");
@@ -284,6 +280,11 @@ public class LandsatGeotiffReader extends AbstractProductReader {
         input.close();
         input = null;
         super.close();
+    }
+
+    static boolean isMetadataFile(File file) {
+        final String filename = file.getName().toLowerCase();
+        return filename.endsWith("_mtl.txt");
     }
 
     private static class ColorIterator {

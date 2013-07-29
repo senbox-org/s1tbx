@@ -16,23 +16,23 @@ public class LandsatLegacyGeotiffReaderPluginTest {
 
     @Test
     public void testIsCompressedFile() {
-        assertTrue(LandsatLegacyGeotiffReaderPlugin.isCompressedFile(new File("test.zip")));
-        assertTrue(LandsatLegacyGeotiffReaderPlugin.isCompressedFile(new File("test.tar")));
-        assertTrue(LandsatLegacyGeotiffReaderPlugin.isCompressedFile(new File("test.tgz")));
-        assertTrue(LandsatLegacyGeotiffReaderPlugin.isCompressedFile(new File("test.tar.gz")));
-        assertTrue(LandsatLegacyGeotiffReaderPlugin.isCompressedFile(new File("test.gz")));
+        assertTrue(LandsatGeotiffReaderPlugin.isCompressedFile(new File("test.zip")));
+        assertTrue(LandsatGeotiffReaderPlugin.isCompressedFile(new File("test.tar")));
+        assertTrue(LandsatGeotiffReaderPlugin.isCompressedFile(new File("test.tgz")));
+        assertTrue(LandsatGeotiffReaderPlugin.isCompressedFile(new File("test.tar.gz")));
+        assertTrue(LandsatGeotiffReaderPlugin.isCompressedFile(new File("test.gz")));
 
-        assertFalse(LandsatLegacyGeotiffReaderPlugin.isCompressedFile(new File("test.txt")));
-        assertFalse(LandsatLegacyGeotiffReaderPlugin.isCompressedFile(new File("test.doc")));
-        assertFalse(LandsatLegacyGeotiffReaderPlugin.isCompressedFile(new File("test.xml")));
-        assertFalse(LandsatLegacyGeotiffReaderPlugin.isCompressedFile(new File("test")));
+        assertFalse(LandsatGeotiffReaderPlugin.isCompressedFile(new File("test.txt")));
+        assertFalse(LandsatGeotiffReaderPlugin.isCompressedFile(new File("test.doc")));
+        assertFalse(LandsatGeotiffReaderPlugin.isCompressedFile(new File("test.xml")));
+        assertFalse(LandsatGeotiffReaderPlugin.isCompressedFile(new File("test")));
     }
 
     @Test
     public void testGetInput_Directory_File() throws IOException {
         final File testDirectory = TestUtil.getTestDirectory("tgz");
 
-        final VirtualDir input = LandsatLegacyGeotiffReaderPlugin.getInput(testDirectory);
+        final VirtualDir input = LandsatGeotiffReaderPlugin.getInput(testDirectory);
         assertNotNull(input);
         assertEquals(testDirectory.getPath(), input.getBasePath());
     }
@@ -41,7 +41,7 @@ public class LandsatLegacyGeotiffReaderPluginTest {
     public void testGetInput_Directory_String() throws IOException {
         final File testDirectory = TestUtil.getTestDirectory("tgz");
 
-        final VirtualDir input = LandsatLegacyGeotiffReaderPlugin.getInput(testDirectory.getPath());
+        final VirtualDir input = LandsatGeotiffReaderPlugin.getInput(testDirectory.getPath());
         assertNotNull(input);
         assertEquals(testDirectory.getPath(), input.getBasePath());
     }
@@ -50,7 +50,7 @@ public class LandsatLegacyGeotiffReaderPluginTest {
     public void testGetInput_File_File() throws IOException {
         final File testFile = TestUtil.getTestFile("geotiff/test_MTL.txt");
 
-        final VirtualDir input = LandsatLegacyGeotiffReaderPlugin.getInput(testFile);
+        final VirtualDir input = LandsatGeotiffReaderPlugin.getInput(testFile);
         assertNotNull(input);
         assertEquals(testFile.getAbsoluteFile().getParentFile().getPath(), input.getBasePath());
     }
@@ -59,7 +59,7 @@ public class LandsatLegacyGeotiffReaderPluginTest {
     public void testGetInput_File_String() throws IOException {
         final File testFile = TestUtil.getTestFile("geotiff/test_MTL.txt");
 
-        final VirtualDir input = LandsatLegacyGeotiffReaderPlugin.getInput(testFile.getPath());
+        final VirtualDir input = LandsatGeotiffReaderPlugin.getInput(testFile.getPath());
         assertNotNull(input);
         assertEquals(testFile.getAbsoluteFile().getParentFile().getPath(), input.getBasePath());
     }
@@ -68,7 +68,7 @@ public class LandsatLegacyGeotiffReaderPluginTest {
     public void testGetInput_Zip_File() throws IOException {
         final File testFile = TestUtil.getTestFile("zip/test-archive.zip");
 
-        final VirtualDir input = LandsatLegacyGeotiffReaderPlugin.getInput(testFile);
+        final VirtualDir input = LandsatGeotiffReaderPlugin.getInput(testFile);
         assertNotNull(input);
         assertEquals(testFile.getPath(), input.getBasePath());
     }
@@ -77,7 +77,7 @@ public class LandsatLegacyGeotiffReaderPluginTest {
     public void testGetInput_Tar_File() throws IOException {
         final File testFile = TestUtil.getTestFile("tgz/test-archive.tar");
 
-        final VirtualDir input = LandsatLegacyGeotiffReaderPlugin.getInput(testFile);
+        final VirtualDir input = LandsatGeotiffReaderPlugin.getInput(testFile);
         assertNotNull(input);
         assertEquals(testFile.getPath(), input.getBasePath());
     }
@@ -86,7 +86,7 @@ public class LandsatLegacyGeotiffReaderPluginTest {
     public void testGetInput_Tgz_File() throws IOException {
         final File testFile = TestUtil.getTestFile("tgz/test-archive.tgz");
 
-        final VirtualDir input = LandsatLegacyGeotiffReaderPlugin.getInput(testFile);
+        final VirtualDir input = LandsatGeotiffReaderPlugin.getInput(testFile);
         assertNotNull(input);
         assertEquals(testFile.getPath(), input.getBasePath());
     }
@@ -96,8 +96,8 @@ public class LandsatLegacyGeotiffReaderPluginTest {
         final File metaFile = new File("L5043033_03319950627_MTL.txt");
         final File nonMetaFile = new File("L5043033_03319950627_B50.TIF");
 
-        assertTrue(LandsatLegacyGeotiffReaderPlugin.isMetadataFile(metaFile));
-        assertFalse(LandsatLegacyGeotiffReaderPlugin.isMetadataFile(nonMetaFile));
+        assertTrue(LandsatGeotiffReader.isMetadataFile(metaFile));
+        assertFalse(LandsatGeotiffReader.isMetadataFile(nonMetaFile));
     }
 
     @Test

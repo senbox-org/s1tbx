@@ -68,9 +68,41 @@ public class LandsatGeotiffReaderPluginTest {
         assertTrue(LandsatGeotiffReaderPlugin.isLandsat8Filename("LO82160332013191LGN00.tar.gz"));
         assertTrue(LandsatGeotiffReaderPlugin.isLandsat8Filename("LT82160332013191LGN00.tar.gz"));
 
-        assertFalse(LandsatGeotiffReaderPlugin.isLandsat8Filename("L5196030_03020031023_MTL.txt"));  // Sensor type missing
+        assertFalse(LandsatGeotiffReaderPlugin.isLandsat8Filename("L8196030_03020031023_MTL.txt"));  // Sensor type missing
         assertFalse(LandsatGeotiffReaderPlugin.isLandsat8Filename("LT52160332013191LGN00.tar.gz")); // '8' expected after 'LT'
         assertFalse(LandsatGeotiffReaderPlugin.isLandsat8Filename("LT82160332013191LGN00.tgz")); // 'tar.gz' expected as extension
+    }
+
+    @Test
+    public void testIsLandsat5LegacyFilename() throws Exception {
+        assertTrue(LandsatGeotiffReaderPlugin.isLandsat5LegacyFilename("LT51960300302003GSI01_MTL.txt")); //according to specification
+        assertTrue(LandsatGeotiffReaderPlugin.isLandsat5LegacyFilename("LT51960300302003GSI01_MTL.TXT"));
+
+        assertTrue(LandsatGeotiffReaderPlugin.isLandsat5LegacyFilename("L5196030_03020031023_MTL.txt")); //according to real-world data
+        assertTrue(LandsatGeotiffReaderPlugin.isLandsat5LegacyFilename("L5196030_03020031023_MTL.TXT"));
+
+        assertTrue(LandsatGeotiffReaderPlugin.isLandsat5LegacyFilename("LT51960302003296MTI01.tar.gz"));
+
+        assertFalse(LandsatGeotiffReaderPlugin.isLandsat5LegacyFilename("L51950302003257MTI01.tar.gz"));  // Sensor type missing
+        assertFalse(LandsatGeotiffReaderPlugin.isLandsat5LegacyFilename("LT72160332013191LGN00.tar.gz")); // '5' expected after 'LT'
+        assertFalse(LandsatGeotiffReaderPlugin.isLandsat5LegacyFilename("LT82160332013191LGN00.tgz")); // 'tar.gz' or 'txt' expected as extension
+        assertFalse(LandsatGeotiffReaderPlugin.isLandsat5LegacyFilename("LT82160332013191LGN00.dat")); // 'tar.gz' or 'txt' expected as extension
+    }
+
+    @Test
+    public void testIsLandsat7LegacyFilename() throws Exception {
+        assertTrue(LandsatGeotiffReaderPlugin.isLandsat7LegacyFilename("LE71960300302003GSI01_MTL.txt")); //according to specification
+        assertTrue(LandsatGeotiffReaderPlugin.isLandsat7LegacyFilename("LE71960300302003GSI01_MTL.TXT"));
+
+        assertTrue(LandsatGeotiffReaderPlugin.isLandsat7LegacyFilename("L71196030_03020031023_MTL.txt")); //according to real-world data
+        assertTrue(LandsatGeotiffReaderPlugin.isLandsat7LegacyFilename("L71196030_03020031023_MTL.TXT"));
+
+        assertTrue(LandsatGeotiffReaderPlugin.isLandsat7LegacyFilename("LE71960302003296ASN01.tar.gz"));
+
+        assertFalse(LandsatGeotiffReaderPlugin.isLandsat7LegacyFilename("L71950302003257MTI01.tar.gz"));  // Sensor type missing
+        assertFalse(LandsatGeotiffReaderPlugin.isLandsat7LegacyFilename("LE52160332013191LGN00.tar.gz")); // '7' expected after 'LT'
+        assertFalse(LandsatGeotiffReaderPlugin.isLandsat7LegacyFilename("LE72160332013191LGN00.tgz")); // 'tar.gz' or 'txt' expected as extension
+        assertFalse(LandsatGeotiffReaderPlugin.isLandsat7LegacyFilename("LE72160332013191LGN00.dat")); // 'tar.gz' or 'txt' expected as extension
     }
 
     @Test
@@ -83,7 +115,6 @@ public class LandsatGeotiffReaderPluginTest {
         ProductReader productReader = plugin.createReaderInstance();
         assertNotNull(productReader);
         assertTrue(productReader instanceof LandsatGeotiffReader);
-        assertTrue(((LandsatGeotiffReader) productReader).landsatMetadataFactory instanceof ILandsatMetadataFactory.LandsatMetadataFactory);
     }
 
     @Test

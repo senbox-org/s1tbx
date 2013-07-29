@@ -31,34 +31,34 @@ public class LandsatMetadataFactoryTest {
     @Test
     public void testCreate_5_reproc() throws Exception {
         File testFile = new File(getClass().getResource("test_5_reproc_MTL.txt").getFile());
-        LandsatMetadata landsatMetadata = new ILandsatMetadataFactory.LandsatMetadataFactory().create(testFile);
+        LandsatMetadata landsatMetadata = LandsatMetadataFactory.create(testFile);
         assertTrue(landsatMetadata instanceof LandsatReprocessedMetadata);
     }
 
     @Test
     public void testCreate_7_reproc() throws Exception {
         File testFile = new File(getClass().getResource("test_7_reproc_MTL.txt").getFile());
-        LandsatMetadata landsatMetadata = new ILandsatMetadataFactory.LandsatMetadataFactory().create(testFile);
+        LandsatMetadata landsatMetadata = LandsatMetadataFactory.create(testFile);
         assertTrue(landsatMetadata instanceof LandsatReprocessedMetadata);
     }
 
     @Test
     public void testCreate_8() throws Exception {
         File testFile = new File(getClass().getResource("test_L8_MTL.txt").getFile());
-        LandsatMetadata landsatMetadata = new ILandsatMetadataFactory.LandsatMetadataFactory().create(testFile);
+        LandsatMetadata landsatMetadata = LandsatMetadataFactory.create(testFile);
         assertTrue(landsatMetadata instanceof Landsat8Metadata);
     }
 
     @Test
     public void testCreate_Legacy() throws Exception {
         File testFile = new File(getClass().getResource("test_L7_MTL.txt").getFile());
-        LandsatMetadata landsatMetadata = new ILandsatMetadataFactory.LandsatLegacyMetadataFactory().create(testFile);
+        LandsatMetadata landsatMetadata = LandsatMetadataFactory.create(testFile);
         assertTrue(landsatMetadata instanceof LandsatLegacyMetadata);
     }
 
     @Test(expected = IllegalStateException.class)
     public void testFail() throws IOException {
         File testFile = new File(getClass().getResource("test_broken_MTL.txt").getFile());
-        new ILandsatMetadataFactory.LandsatMetadataFactory().create(testFile);
+        LandsatMetadataFactory.create(testFile);
     }
 }
