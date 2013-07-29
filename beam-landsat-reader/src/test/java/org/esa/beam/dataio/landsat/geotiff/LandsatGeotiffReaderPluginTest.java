@@ -139,8 +139,10 @@ public class LandsatGeotiffReaderPluginTest {
 
     @Test
     public void testIsMetadataFile() throws Exception {
-        File positiveFile = new File(getClass().getResource("test_L8_MTL.txt").getFile());
-        assertTrue(LandsatGeotiffReaderPlugin.isMetadataFile(positiveFile));
+        File positiveFile1 = new File(getClass().getResource("test_L8_MTL.txt").getFile());
+        assertTrue(LandsatGeotiffReaderPlugin.isMetadataFile(positiveFile1));
+        File positiveFile2 = new File(getClass().getResource("test_legacy_L5_WithTrailingWhiteSpace_MTL.txt").getFile());
+        assertTrue(LandsatGeotiffReaderPlugin.isMetadataFile(positiveFile2));
         File negativeFile = new File(getClass().getResource("test_MTL_L7.txt").getFile());
         assertFalse(LandsatGeotiffReaderPlugin.isMetadataFile(negativeFile));
 
