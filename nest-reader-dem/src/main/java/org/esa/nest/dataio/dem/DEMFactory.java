@@ -155,7 +155,7 @@ public class DEMFactory {
                                       final Product sourceProduct,
                                       final double[][] localDEM) throws Exception {
 
-        if(demResamplingMethod.equals(DELAUNAY_INTERPOLATION)) {
+        if(demResamplingMethod != null && demResamplingMethod.equals(DELAUNAY_INTERPOLATION)) {
             return getLocalDEMUsingDelaunayInterpolation(
                     dem, demNoDataValue, tileGeoRef, x0, y0, tileWidth, tileHeight, sourceProduct, localDEM);
         }
