@@ -15,11 +15,13 @@ public class BinnedFileFilter extends BeamFileFilter {
     @Override
     public boolean accept(File file) {
         if (file.isDirectory()) {
-            return true;
+            return true;    // needed to be able to browse through directories when used from VISAT tb 2013-07-29
         }
+
         if (super.accept(file)) {
             return isBinnedName(file.getName());
         }
+
         return false;
     }
 

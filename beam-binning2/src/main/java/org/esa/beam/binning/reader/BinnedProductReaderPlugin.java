@@ -12,9 +12,9 @@ import java.util.Locale;
 
 public class BinnedProductReaderPlugin implements ProductReaderPlugIn {
 
-    public static final String FORMAT_NAME = "Binned_data_product";
-    public static final String FORMAT_DESCRIPTION = "SeaDAS-Level-3-alike NetCDF files containing binned Level-3 data";
-    public static final String FILE_EXTENSION = ".nc";
+    static final String FORMAT_NAME = "Binned_data_product";
+    static final String FORMAT_DESCRIPTION = "SeaDAS-Level-3-alike NetCDF files containing binned Level-3 data";
+    static final String FILE_EXTENSION = ".nc";
 
     public DecodeQualification getDecodeQualification(Object input) {
         if (input == null) {
@@ -84,5 +84,4 @@ public class BinnedProductReaderPlugin implements ProductReaderPlugIn {
     public String getDescription(Locale locale) {
         return "Reader for SeaDAS-Level-3-alike NetCDF files containing binned Level-3 data";
     }
-
 }
