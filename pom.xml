@@ -51,6 +51,7 @@
         <module>beam-system</module>
         <module>beam-plugins</module>
         <module>beam-plugin-parent</module>
+        <module>beam-reader-tests</module>
     </modules>
 
     <properties>
