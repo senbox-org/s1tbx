@@ -42,7 +42,7 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -66,7 +66,7 @@ public class BinnedProductReader extends AbstractProductReader {
     private int[] binIndexes;
     private double pixelSizeX;
 
-    private final Map<Band, Array> bandDataCacheMap;
+    private NcArrayCache ncArrayCache;
 
     /**
      * Constructs a new MERIS Binned Level-3 product reader.
@@ -75,7 +75,6 @@ public class BinnedProductReader extends AbstractProductReader {
      */
     public BinnedProductReader(BinnedProductReaderPlugin readerPlugIn) {
         super(readerPlugIn);
-        bandDataCacheMap = new Hashtable<Band, Array>();
     }
 
     /**
@@ -102,7 +101,10 @@ public class BinnedProductReader extends AbstractProductReader {
             //create indexMap
 
             final Variable bl_bin_num = netcdfFile.findVariable("bl_bin_num");
-            if (bl_bin_num != null) {
+            final Variable bi_begin = netcdfFile.findVariable("bi_begin");
+            final Variable bi_extent = netcdfFile.findVariable("bi_extent");
+            if (bl_bin_num != null && bi_begin != null && bi_extent != null) {
+                // sparsely populated grid
                 synchronized (netcdfFile) {
                     final Object storage = bl_bin_num.read().getStorage();
                     binIndexes = (int[]) storage;
@@ -110,27 +112,12 @@ public class BinnedProductReader extends AbstractProductReader {
                     for (int i = 0; i < binIndexes.length; i++) {
                         indexMap.put(binIndexes[i], i);
                     }
-                }
-            }
-
-            final Variable bi_begin = netcdfFile.findVariable("bi_begin");
-            if (bi_begin != null) {
-                synchronized (netcdfFile) {
-                    final Object storage = bi_begin.read().getStorage();
-                    binOffsets = (int[]) storage;
+                    binOffsets = (int[]) bi_begin.read().getStorage();
+                    binExtents = (int[]) bi_extent.read().getStorage();
                 }
             } else {
-                binOffsets = new int[sceneRasterHeight];
-                Arrays.fill(binOffsets, 1);
-            }
-
-
-            final Variable bi_extent = netcdfFile.findVariable("bi_extent");
-            if (bi_extent != null) {
-                synchronized (netcdfFile) {
-                    final Object storage = bi_extent.read().getStorage();
-                    binExtents = (int[]) storage;
-                }
+                // fully populated grid
+                ncArrayCache = new NcArrayCache();
             }
         } catch (IOException e) {
             dispose();
@@ -166,6 +153,7 @@ public class BinnedProductReader extends AbstractProductReader {
         product.setAutoGrouping("adg:aph:atot:bl_Rrs:chlor_a:Rrs:water");
         product.setStartTime(extractStartTime(netcdfFile));
         product.setEndTime(extractEndTime(netcdfFile));
+        product.setPreferredTileSize(sceneRasterWidth, 64);
     }
 
     private void initPlanetaryGrid() {
@@ -221,7 +209,7 @@ public class BinnedProductReader extends AbstractProductReader {
      */
     @Override
     protected void readBandRasterDataImpl(int sourceOffsetX, int sourceOffsetY, int sourceWidth, int sourceHeight,
-                                          int sourceStepX, int sourceStepY, Band destBand, int destOffsetX,
+                                          int sourceStepX, int sourceStepY, final Band destBand, int destOffsetX,
                                           int destOffsetY, int destWidth, int destHeight, ProductData destBuffer,
                                           ProgressMonitor pm) throws IOException {
         if (sourceStepX != 1 || sourceStepY != 1) {
@@ -245,104 +233,86 @@ public class BinnedProductReader extends AbstractProductReader {
                 throw new IOException("Format problem. Band datatype should be float32 or int32.");
             }
             for (int y = sourceOffsetY; y < sourceOffsetY + sourceHeight; y++) {
-
+                Array lineValues = null;
+                final int startBinIndex;
+                final int endBinIndex;
+                int binOffset = 0;
+                int[] origin = {0};
                 int lineIndex = sceneRasterHeight - y - 1;
-
-                final int binOffset = binOffsets[lineIndex];
-                if (binOffset > 0) {
-                    int[] origin = {0};
-                    int[] shape = {1};
-                    final int startBinIndex;
-                    final int endBinIndex;
-                    if (indexMap != null) {
+                if (indexMap != null) {
+                    // sparsely populated grid
+                    binOffset = binOffsets[lineIndex];
+                    if (binOffset > 0) {
+                        int[] shape = {1};
                         final Integer binIndexInBinList = indexMap.get(binOffset);
                         origin[0] = binIndexInBinList;
                         final int binExtent = binExtents[lineIndex];
                         shape[0] = binExtent;
                         startBinIndex = 0;
                         endBinIndex = binExtent;
-                    } else {
-                        startBinIndex = getBinIndexInGrid(sourceOffsetX, lineIndex);
-                        endBinIndex = getBinIndexInGrid(sourceOffsetX + sourceWidth - 1, lineIndex) + 1;
-                        final int extent = endBinIndex - startBinIndex;
-                        origin[0] = 0;
-                        shape[0] = extent;
-                    }
-                    final Array lineValues;
-                    try {
-                        if (indexMap != null) {
-                            synchronized (netcdfFile) {
+                        synchronized (netcdfFile) {
+                            try {
                                 lineValues = binVariable.read(origin, shape);
-                            }
-                        } else {
-                            final Array cachedBandData = getCachedBandData(destBand);
-                            if (cachedBandData != null) {
-                                lineValues = cachedBandData;
-                            } else {
-                                synchronized (netcdfFile) {
-                                    lineValues = binVariable.read();
-                                }
+                            } catch (InvalidRangeException e) {
+                                throw new IOException("Failed reading from netcdf.", e);
                             }
                         }
-                    } catch (InvalidRangeException e) {
-                        throw new IOException("Format problem.");
+                    } else {
+                        continue; // skip line
                     }
+                } else {
+                    // fully populated grid
+                    startBinIndex = getBinIndexInGrid(sourceOffsetX, lineIndex);
+                    endBinIndex = getBinIndexInGrid(sourceOffsetX + sourceWidth - 1, lineIndex) + 1;
+                    final int extent = endBinIndex - startBinIndex;
+                    origin[0] = startBinIndex;
 
-                    if (indexMap == null) {
-                        appendBandDataToCache(destBand, lineValues);
+                    synchronized (ncArrayCache) {
+                        CacheEntry cacheEntry = ncArrayCache.get(destBand);
+                        if (cacheEntry != null) {
+                            lineValues = cacheEntry.getData();
+                        } else {
+                            synchronized (netcdfFile) {
+                                lineValues = binVariable.read();
+                            }
+                            ncArrayCache.put(destBand, new CacheEntry(lineValues));
+                        }
                     }
+                }
+                for (int i = startBinIndex; i < endBinIndex; i++) {
+                    final float value = lineValues.getFloat(i);
+                    if (value != fillValue) {
+                        int binIndexInGrid;
+                        if (indexMap != null) {
+                            binIndexInGrid = binIndexes[indexMap.get(binOffset) + i];
+                        } else {
+                            binIndexInGrid = i;
+                        }
 
-                    for (int i = startBinIndex; i < endBinIndex; i++) {
-                        final float value = lineValues.getFloat(i);
-                        if (value != fillValue) {
-                            int binIndexInGrid;
-                            if (indexMap != null) {
-                                binIndexInGrid = binIndexes[indexMap.get(binOffset) + i];
-                            } else {
-                                binIndexInGrid = origin[0] + i;
-                            }
-
-                            final int[] xValuesForBin = getXValuesForBin(binIndexInGrid, lineIndex);
-                            final int destStart = Math.max(xValuesForBin[0], sourceOffsetX);
-                            final int destEnd = Math.min(xValuesForBin[1], sourceOffsetX + sourceWidth);
-                            for (int x = destStart; x < destEnd; x++) {
-                                final int destRasterIndex = sourceWidth * (y - sourceOffsetY) + (x - sourceOffsetX);
-                                destBuffer.setElemFloatAt(destRasterIndex, value);
-                            }
+                        final int[] xValuesForBin = getXValuesForBin(binIndexInGrid, lineIndex);
+                        final int destStart = Math.max(xValuesForBin[0], sourceOffsetX);
+                        final int destEnd = Math.min(xValuesForBin[1], sourceOffsetX + sourceWidth);
+                        for (int x = destStart; x < destEnd; x++) {
+                            final int destRasterIndex = sourceWidth * (y - sourceOffsetY) + (x - sourceOffsetX);
+                            destBuffer.setElemFloatAt(destRasterIndex, value);
                         }
                     }
                 }
             }
             pm.worked(1);
-        } finally {
+        } finally
+
+        {
             pm.done();
         }
-    }
-
-    private Array getCachedBandData(Band band) {
-        return bandDataCacheMap.get(band);
-    }
-
-    private void appendBandDataToCache(final Band band, Array bandData) {
-        if (bandDataCacheMap.containsKey(band)) {
-            return;
-        }
-        bandDataCacheMap.put(band, bandData);
-        final Timer timer = new Timer();
-        timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                bandDataCacheMap.remove(band);
-            }
-        }, 2000);
     }
 
     private int[] getXValuesForBin(int binIndexInGrid, int row) {
         int numberOfBinsInRow = planetaryGrid.getNumCols(row);
         int firstBinIndex = (int) planetaryGrid.getFirstBinIndex(row);
-        if (firstBinIndex >= binIndexInGrid) {
+        if (firstBinIndex > binIndexInGrid) {  // TODO check for sparse grid: >= or > ???
             numberOfBinsInRow = planetaryGrid.getNumCols(row - 1);
-            firstBinIndex = (int) planetaryGrid.getFirstBinIndex(row -1) + 1;
+            firstBinIndex = (int) planetaryGrid.getFirstBinIndex(row - 1) + 1;
         }
         double binIndexInRow = binIndexInGrid - firstBinIndex;
         final double longitudeExtent = 360.0 / numberOfBinsInRow;
@@ -387,6 +357,7 @@ public class BinnedProductReader extends AbstractProductReader {
         }
         product = null;
         planetaryGrid = null;
+        ncArrayCache.dispose();
     }
 
     /////////////////////////////////////////////////////////////////////////
@@ -522,4 +493,61 @@ public class BinnedProductReader extends AbstractProductReader {
         }
     }
 
+    private static class CacheEntry {
+        final Array cachedData;
+        long lastAccess;
+
+        private CacheEntry(Array data) {
+            cachedData = data;
+            lastAccess = System.currentTimeMillis();
+        }
+
+        private Array getData() {
+            lastAccess = System.currentTimeMillis();
+            return cachedData;
+        }
+
+        private long getLastAccess() {
+            return lastAccess;
+        }
+    }
+
+    private static class NcArrayCache {
+        private final Map<Band, CacheEntry> cache;
+        private final Timer timer;
+
+        private NcArrayCache() {
+            cache = new HashMap<Band, CacheEntry>();
+            timer = new Timer();
+            TimerTask clearCacheTask = new TimerTask() {
+                @Override
+                public void run() {
+                    final long expired = System.currentTimeMillis() - 2000;
+                    synchronized (cache) {
+                        Iterator<Map.Entry<Band, CacheEntry>> iterator = cache.entrySet().iterator();
+                        while (iterator.hasNext()) {
+                            if (iterator.next().getValue().getLastAccess() < expired) {
+                                iterator.remove();
+                            }
+                        }
+                    }
+                }
+            };
+            timer.schedule(clearCacheTask, 2000, 2000);
+        }
+
+
+        private void dispose() {
+            cache.clear();
+            timer.cancel();
+        }
+
+        public CacheEntry get(Band destBand) {
+            return cache.get(destBand);
+        }
+
+        public void put(Band destBand, CacheEntry cacheEntry) {
+            cache.put(destBand, cacheEntry);
+        }
+    }
 }
