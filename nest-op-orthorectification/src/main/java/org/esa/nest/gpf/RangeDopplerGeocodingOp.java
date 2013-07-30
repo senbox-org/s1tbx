@@ -800,7 +800,8 @@ public class RangeDopplerGeocodingOp extends Operator {
                 DEMFactory.fillDEM(localDEM, (float)avgSceneHeight);
             } else {
                 final boolean valid = DEMFactory.getLocalDEM(
-                        dem, demNoDataValue, demResamplingMethod, tileGeoRef, x0, y0, w, h, sourceProduct, localDEM);
+                        dem, demNoDataValue, demResamplingMethod, tileGeoRef, x0, y0, w, h, sourceProduct,
+                        nodataValueAtSea, localDEM);
                 if(!valid && nodataValueAtSea)
                     return;
             }
