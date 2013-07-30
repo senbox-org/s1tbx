@@ -690,8 +690,10 @@ public final class SARSimulationOp extends Operator {
              } else {
 
                 final boolean valid = DEMFactory.getLocalDEM(
-                        dem, demNoDataValue, demResamplingMethod, tileGeoRef, x0, ymin, w, ymax-ymin, sourceProduct, localDEM);
-                if(!valid)
+                        dem, demNoDataValue, demResamplingMethod, tileGeoRef, x0, ymin, w, ymax-ymin, sourceProduct,
+                        true, localDEM);
+
+                 if(!valid)
                     return;
              }
 

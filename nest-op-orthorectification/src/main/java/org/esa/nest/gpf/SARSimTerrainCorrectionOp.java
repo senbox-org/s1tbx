@@ -893,7 +893,7 @@ public class SARSimTerrainCorrectionOp extends Operator {
                 DEMFactory.fillDEM(localDEM, (float) avgSceneHeight);
             } else {
                 final boolean valid = DEMFactory.getLocalDEM(
-                        dem, demNoDataValue, demResamplingMethod, tileGeoRef, x0, y0, w, h, sourceProduct, localDEM);
+                        dem, demNoDataValue, demResamplingMethod, tileGeoRef, x0, y0, w, h, sourceProduct, true, localDEM);
                 if(!valid)
                     return;
             }
