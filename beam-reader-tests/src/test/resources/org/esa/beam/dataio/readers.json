@@ -1,0 +1,78 @@
+{
+    "testReaders": [
+        {
+            "pluginClassName": "org.esa.beam.dataio.ceos.avnir2.Avnir2ProductReaderPlugIn"
+        },
+        {
+            "pluginClassName": "org.esa.beam.dataio.ceos.prism.PrismProductReaderPlugIn"
+        },
+        {
+            "pluginClassName": "org.esa.beam.dataio.atsr.AtsrProductReaderPlugIn"
+        },
+        {
+            "pluginClassName": "org.esa.beam.dataio.avhrr.AvhrrReaderPlugIn"
+        },
+        {
+            "pluginClassName": "org.esa.beam.binning.reader.BinnedProductReaderPlugin",
+            "intendedProductNames": [
+                "ESACCI-OC-L3S-OC_PRODUCTS-MERGED-1M_MONTHLY_4km_PML_TEST_COMPOSITE_200306.nc"
+            ],
+            "suitableProductNames": [
+            ]
+        },
+        {
+            "pluginClassName": "org.esa.beam.dataio.chris.ChrisProductReaderPlugIn"
+        },
+        {
+            "pluginClassName": "org.esa.beam.dataio.dimap.DimapProductReaderPlugIn"
+        },
+        {
+            "pluginClassName": "org.esa.beam.dataio.rgb.ImageProductReaderPlugIn"
+        },
+        {
+            "pluginClassName": "org.esa.beam.csv.dataio.reader.CsvProductReaderPlugIn"
+        },
+        {
+            "pluginClassName": "org.esa.beam.dataio.envisat.EnvisatProductReaderPlugIn"
+        },
+        {
+            "pluginClassName": "org.esa.beam.dataio.geotiff.GeoTiffProductReaderPlugIn"
+        },
+        {
+            "pluginClassName": "org.esa.beam.dataio.getasse30.GETASSE30ReaderPlugIn"
+        },
+        {
+            "pluginClassName": "org.esa.beam.dataio.landsat.LandsatTMReaderPlugIn"
+        },
+        {
+            "pluginClassName": "org.esa.beam.dataio.landsat.geotiff.LandsatGeotiffReaderPlugin"
+        },
+        {
+            "pluginClassName": "org.esa.beam.dataio.landsat.geotiff.LandsatLegacyGeotiffReaderPlugin"
+        },
+        {
+            "pluginClassName": "org.esa.beam.dataio.merisl3.MerisL3ProductReaderPlugIn"
+        },
+        {
+            "pluginClassName": "org.esa.beam.dataio.modis.ModisProductReaderPlugIn"
+        },
+        {
+            "pluginClassName": "org.esa.beam.dataio.netcdf.GenericNetCdfReaderPlugIn"
+        },
+        {
+            "pluginClassName": "org.esa.beam.dataio.netcdf.metadata.profiles.beam.BeamNetCdfReaderPlugIn"
+        },
+        {
+            "pluginClassName": "org.esa.beam.dataio.netcdf.metadata.profiles.cf.CfNetCdfReaderPlugIn"
+        },
+        {
+            "pluginClassName": "org.esa.beam.dataio.netcdf.metadata.profiles.hdfeos.HdfEosNetCdfReaderPlugIn"
+        },
+        {
+            "pluginClassName": "org.esa.beam.dataio.pgx.PgxProductReaderPlugIn"
+        },
+        {
+            "pluginClassName": "org.esa.beam.dataio.spot.SpotVgtProductReaderPlugIn"
+        }
+    ]
+}

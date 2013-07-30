@@ -7,6 +7,8 @@
         <groupId>org.esa.beam</groupId>
         <version>1</version>
     </parent>
+
+    <name>BEAM Acceptance Test for ProductReader</name>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>beam-reader-tests</artifactId>
@@ -16,6 +18,94 @@
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>4.8.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.codehaus.jackson</groupId>
+            <artifactId>jackson-mapper-asl</artifactId>
+            <version>1.8.5</version>
+        </dependency>
+
+        <!-- beam reader dependencies -->
+
+        <dependency>
+            <groupId>org.esa.beam</groupId>
+            <artifactId>beam-core</artifactId>
+            <version>5.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.beam</groupId>
+            <artifactId>beam-binning2</artifactId>
+            <version>1.0.5.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.beam</groupId>
+            <artifactId>beam-alos-reader</artifactId>
+            <version>1.3.1.5.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.beam</groupId>
+            <artifactId>beam-atsr-reader</artifactId>
+            <version>1.0.3.5.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.beam</groupId>
+            <artifactId>beam-avhrr-reader</artifactId>
+            <version>1.2.1.5.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.beam</groupId>
+            <artifactId>beam-chris-reader</artifactId>
+            <version>1.7.2.5.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.beam</groupId>
+            <artifactId>beam-csv-dataio</artifactId>
+            <version>5.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.beam</groupId>
+            <artifactId>beam-envisat-reader</artifactId>
+            <version>1.5.2.5.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.beam</groupId>
+            <artifactId>beam-geotiff</artifactId>
+            <version>1.3.5.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.beam</groupId>
+            <artifactId>beam-getasse30-reader</artifactId>
+            <version>1.0.1.5.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.beam</groupId>
+            <artifactId>beam-landsat-reader</artifactId>
+            <version>1.4.5.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.beam</groupId>
+            <artifactId>beam-merisl3-reader</artifactId>
+            <version>1.2.2.5.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.beam</groupId>
+            <artifactId>beam-modis-reader</artifactId>
+            <version>1.3.1.5.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.beam</groupId>
+            <artifactId>beam-netcdf</artifactId>
+            <version>1.1.3.5.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.beam</groupId>
+            <artifactId>beam-pgx-reader</artifactId>
+            <version>1.0.0.5.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.beam</groupId>
+            <artifactId>beam-spot-vgt-reader</artifactId>
+            <version>1.3.0.5.0-SNAPSHOT</version>
         </dependency>
     </dependencies>
 
