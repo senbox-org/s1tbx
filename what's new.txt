@@ -20,6 +20,9 @@
 + fix for writing file format from GPT
 + fix to layer manager to allow multiple selections
 + fix to apply DELFT orbit file
++ fix for TSX SSC flipping
++ fix for land mask
++ fix RTC no dem area
 
 Visit our website for updates to tutorial and forums
 We want to hear from you.
