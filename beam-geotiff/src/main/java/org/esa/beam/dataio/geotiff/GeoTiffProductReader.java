@@ -420,11 +420,12 @@ public class GeoTiffProductReader extends AbstractProductReader {
 
             double[] tiePoints = info.getField(GeoTIFFTagSet.TAG_MODEL_TIE_POINT).getAsDoubles();
 
+            boolean isGlobal = isGlobal(product, info);
+
             // check if we have a global geographic lat/lon with lon from 0..360 instead of -180..180
-            // todo: very draft implementation, works for NCEP air temperature files. to be further investigated!!
             final double deltaX = Math.ceil(360. / product.getSceneRasterWidth());
-            if (tiePoints.length == 6 && Math.abs(tiePoints[3]) < deltaX) {
-                // e.g. tiePoints[3] = -0.5, productWidth=722 --> we have a lon range of 360 which should start
+            if (isGlobal && tiePoints.length == 6 && Math.abs(tiePoints[3]) < deltaX) {
+                // e.g. tiePoints[3] = -0.5, productWidth=722 --> we have a lon range of 361 which should start
                 // at or near -180 but not at zero
                 isGlobalShifted180 = true;
                 // subtract 180 from the longitudes
@@ -446,12 +447,28 @@ public class GeoTiffProductReader extends AbstractProductReader {
         }
     }
 
+    private boolean isGlobal(Product product, TiffFileInfo info) {
+        boolean isGlobal = false;
+        double[] pixelScales = info.getField(GeoTIFFTagSet.TAG_MODEL_PIXEL_SCALE).getAsDoubles();
+
+        if (isPixelScaleValid(pixelScales)) {
+            final double widthInDegree = pixelScales[0] * product.getSceneRasterWidth();
+            isGlobal = Math.ceil(widthInDegree) >= 360;
+        }
+        return isGlobal;
+    }
+
+    private boolean isPixelScaleValid(double[] pixelScales) {
+        return pixelScales != null &&
+               !Double.isNaN(pixelScales[0]) && !Double.isInfinite(pixelScales[0]) &&
+               !Double.isNaN(pixelScales[1]) && !Double.isInfinite(pixelScales[1]);
+    }
+
     private static void applyGeoCodingFromGeoTiff(TIFFImageMetadata metadata, Product product) throws Exception {
-        final Rectangle imageBounds = new Rectangle(product.getSceneRasterWidth(),
-                                                    product.getSceneRasterHeight());
+        final Rectangle imageBounds = new Rectangle(product.getSceneRasterWidth(), product.getSceneRasterHeight());
         final GeoTiffIIOMetadataDecoder metadataDecoder = new GeoTiffIIOMetadataDecoder(metadata);
         final GeoTiffMetadata2CRSAdapter geoTiff2CRSAdapter = new GeoTiffMetadata2CRSAdapter(null);
-        // todo reactivate the following line if geotools has fixed the problem.
+        // todo reactivate the following line if geotools has fixed the problem. (see BEAM-1510)
         // final MathTransform toModel = GeoTiffMetadata2CRSAdapter.getRasterToModel(metadataDecoder, false);
         final MathTransform toModel = getRasterToModel(metadataDecoder, false);
         CoordinateReferenceSystem crs;
