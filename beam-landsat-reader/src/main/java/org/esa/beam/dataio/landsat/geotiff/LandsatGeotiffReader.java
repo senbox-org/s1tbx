@@ -168,16 +168,13 @@ public class LandsatGeotiffReader extends AbstractProductReader {
                     band.setDescription("Quality Band");
 
                     FlagCoding flagCoding = createFlagCoding(bandName);
-                    for (String flagName : flagCoding.getFlagNames()) {
-                        MetadataAttribute flag = flagCoding.getFlag(flagName);
-                        List<Mask> masks = createMasks(product, flagName, flag);
-                        for (Mask mask : masks) {
-                            product.getMaskGroup().add(mask);
-                        }
-                    }
-
                     band.setSampleCoding(flagCoding);
                     product.getFlagCodingGroup().add(flagCoding);
+                    List<Mask> masks = createMasks(product);
+                    for (Mask mask : masks) {
+                        product.getMaskGroup().add(mask);
+                    }
+
                 }
             }
         }
@@ -206,28 +203,58 @@ public class LandsatGeotiffReader extends AbstractProductReader {
         }
     }
 
-    private List<Mask> createMasks(Product product, String flagName, MetadataAttribute flag) {
+    private List<Mask> createMasks(Product product) {
         ArrayList<Mask> masks = new ArrayList<Mask>();
-        Mask mask = Mask.BandMathsType.create(flagName,
-                                              flag.getDescription(),
-                                              product.getSceneRasterWidth(),
-                                              product.getSceneRasterHeight(),
-                                              "'flags." + flagName + "'",
-                                              ColorIterator.next(),
-                                              0.5F);
-        masks.add(mask);
-        if (flagName.contains("_medium")) {
-            String expression = "'flags." + flagName + "' and '" + "flags." +
-                                flagName.replace("_medium", "_low") + "'";
-            Mask highMask = Mask.BandMathsType.create(flagName.replace("_medium", "_high"),
-                                                      flag.getDescription().replace("36-64%", "65-100%"),
-                                                      product.getSceneRasterWidth(),
-                                                      product.getSceneRasterHeight(),
-                                                      expression,
-                                                      ColorIterator.next(),
-                                                      0.5F);
-            masks.add(highMask);
-        }
+        final int width = product.getSceneRasterWidth();
+        final int height = product.getSceneRasterHeight();
+
+        masks.add(Mask.BandMathsType.create("designated_fill",
+                                            "Designated Fill",
+                                            width, height,
+                                            "flags.designated_fill",
+                                            ColorIterator.next(),
+                                            0.5));
+        masks.add(Mask.BandMathsType.create("dropped_frame",
+                                            "Dropped Frame",
+                                            width, height,
+                                            "flags.dropped_frame",
+                                            ColorIterator.next(),
+                                            0.5));
+        masks.add(Mask.BandMathsType.create("terrain_occlusion",
+                                            "Terrain Occlusion",
+                                            width, height,
+                                            "flags.terrain_occlusion",
+                                            ColorIterator.next(),
+                                            0.5));
+        masks.addAll(createConfidenceMasks("water_confidence", "Water confidence", height, width));
+        masks.addAll(createConfidenceMasks("vegetation_confidence", "Vegetation confidence", height, width));
+        masks.addAll(createConfidenceMasks("snow_ice_confidence", "Snow/ice confidence", height, width));
+        masks.addAll(createConfidenceMasks("cirrus_confidence", "Cirrus confidence", height, width));
+        masks.addAll(createConfidenceMasks("cloud_confidence", "Cloud confidence", height, width));
+
+        return masks;
+    }
+
+    private List<Mask> createConfidenceMasks(String flagMaskBaseName, String descriptionBaseName, int height, int width) {
+        List<Mask> masks = new ArrayList<Mask>();
+        masks.add(Mask.BandMathsType.create(flagMaskBaseName + "_low",
+                                            descriptionBaseName + " 0-35%",
+                                            width, height,
+                                            "flags." + flagMaskBaseName + "_one and not flags." + flagMaskBaseName + "_two",
+                                            ColorIterator.next(),
+                                            0.5));
+        masks.add(Mask.BandMathsType.create(flagMaskBaseName + "_mid",
+                                            descriptionBaseName + " 36-64%",
+                                            width, height,
+                                            "not flags." + flagMaskBaseName + "_one and flags." + flagMaskBaseName + "_two",
+                                            ColorIterator.next(),
+                                            0.5));
+        masks.add(Mask.BandMathsType.create(flagMaskBaseName + "_high",
+                                            descriptionBaseName + " 65-100%",
+                                            width, height,
+                                            "flags." + flagMaskBaseName + "_one and flags." + flagMaskBaseName + "_two",
+                                            ColorIterator.next(),
+                                            0.5));
         return masks;
     }
 
@@ -236,24 +263,19 @@ public class LandsatGeotiffReader extends AbstractProductReader {
         flagCoding.addFlag("designated_fill", 1, "Designated Fill");
         flagCoding.addFlag("dropped_frame", 2, "Dropped Frame");
         flagCoding.addFlag("terrain_occlusion", 4, "Terrain Occlusion");
-//        flagCoding.addFlag("Reserved", 8, "Reserved");
-        flagCoding.addFlag("water_confidence_low", 16, "Water confidence 0-35%");
-        flagCoding.addFlag("water_confidence_medium", 32, "Water confidence 36-64%");
-//        flagCoding.addFlag("Water_confidence_high", 48, "Water confidence 64-100%");
-//        flagCoding.addFlag("Reserved", 64, "Reserved for a future 2-bit class artifact designation");
-//        flagCoding.addFlag("Reserved", 128, "Reserved for a future 2-bit class artifact designation");
-        flagCoding.addFlag("vegetation_confidence_low", 256, "Vegetation confidence 0-35%");
-        flagCoding.addFlag("vegetation_confidence_medium", 512, "Vegetation confidence 36-64%");
-//        flagCoding.addFlag("Vegetation confidence_high", 768, "Vegetation confidence 65-100%");
-        flagCoding.addFlag("snow/ice_confidence_low", 1024, "Snow/ice confidence 0-35%");
-        flagCoding.addFlag("snow/ice_confidence_medium", 2048, "Snow/ice confidence 36-64%");
-//        flagCoding.addFlag("Snow/ice_confidence_high", 3072, "Snow/ice confidence 65-100%");
-        flagCoding.addFlag("cirrus_confidence_low", 4096, "Cirrus confidence 0-35%");
-        flagCoding.addFlag("cirrus_confidence_medium", 8192, "Cirrus confidence 36-64%");
-//        flagCoding.addFlag("Cirrus_confidence_high", 12288, "Cirrus confidence 65-100%");
-        flagCoding.addFlag("cloud_confidence_low", 16384, "Cloud confidence 0-35%");
-        flagCoding.addFlag("cloud_confidence_medium", 32768, "Cloud confidence 36-64%");
-//        flagCoding.addFlag("Cloud_confidence_high", 49152, "Cloud confidence 65-100%");
+        flagCoding.addFlag("reserved_1", 8, "Reserved for a future 1-bit class artifact designation");
+        flagCoding.addFlag("water_confidence_one", 16, "Water confidence bit one");
+        flagCoding.addFlag("water_confidence_two", 32, "Water confidence bit two");
+        flagCoding.addFlag("reserved_2_one", 64, "Reserved for a future 2-bit class artifact designation");
+        flagCoding.addFlag("reserved_2_two", 128, "Reserved for a future 2-bit class artifact designation");
+        flagCoding.addFlag("vegetation_confidence_one", 256, "Vegetation confidence bit one");
+        flagCoding.addFlag("vegetation_confidence_two", 512, "Vegetation confidence bit two");
+        flagCoding.addFlag("snow_ice_confidence_one", 1024, "Snow/ice confidence bit one");
+        flagCoding.addFlag("snow_ice_confidence_two", 2048, "Snow/ice confidence bit two");
+        flagCoding.addFlag("cirrus_confidence_one", 4096, "Cirrus confidence bit one");
+        flagCoding.addFlag("cirrus_confidence_two", 8192, "Cirrus confidence bit two");
+        flagCoding.addFlag("cloud_confidence_one", 16384, "Cloud confidence bit one");
+        flagCoding.addFlag("cloud_confidence_two", 32768, "Cloud confidence bit two");
         return flagCoding;
     }
 
@@ -266,7 +288,9 @@ public class LandsatGeotiffReader extends AbstractProductReader {
     }
 
     @Override
-    protected void readBandRasterDataImpl(int sourceOffsetX, int sourceOffsetY, int sourceWidth, int sourceHeight, int sourceStepX, int sourceStepY, Band destBand, int destOffsetX, int destOffsetY, int destWidth, int destHeight, ProductData destBuffer, ProgressMonitor pm) throws IOException {
+    protected void readBandRasterDataImpl(int sourceOffsetX, int sourceOffsetY, int sourceWidth, int sourceHeight, int sourceStepX, int sourceStepY,
+                                          Band destBand, int destOffsetX, int destOffsetY, int destWidth, int destHeight, ProductData destBuffer,
+                                          ProgressMonitor pm) throws IOException {
         // all bands use source images as source for its data
         throw new IllegalStateException();
     }
