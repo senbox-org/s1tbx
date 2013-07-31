@@ -226,16 +226,16 @@ public class LandsatGeotiffReader extends AbstractProductReader {
                                             "flags.terrain_occlusion",
                                             ColorIterator.next(),
                                             0.5));
-        masks.addAll(createConfidenceMasks("water_confidence", "Water confidence", height, width));
-        masks.addAll(createConfidenceMasks("vegetation_confidence", "Vegetation confidence", height, width));
-        masks.addAll(createConfidenceMasks("snow_ice_confidence", "Snow/ice confidence", height, width));
-        masks.addAll(createConfidenceMasks("cirrus_confidence", "Cirrus confidence", height, width));
-        masks.addAll(createConfidenceMasks("cloud_confidence", "Cloud confidence", height, width));
+        masks.addAll(createConfidenceMasks("water_confidence", "Water confidence", width, height));
+        masks.addAll(createConfidenceMasks("vegetation_confidence", "Vegetation confidence", width, height));
+        masks.addAll(createConfidenceMasks("snow_ice_confidence", "Snow/ice confidence", width, height));
+        masks.addAll(createConfidenceMasks("cirrus_confidence", "Cirrus confidence", width, height));
+        masks.addAll(createConfidenceMasks("cloud_confidence", "Cloud confidence", width, height));
 
         return masks;
     }
 
-    private List<Mask> createConfidenceMasks(String flagMaskBaseName, String descriptionBaseName, int height, int width) {
+    private List<Mask> createConfidenceMasks(String flagMaskBaseName, String descriptionBaseName, int width, int height) {
         List<Mask> masks = new ArrayList<Mask>();
         masks.add(Mask.BandMathsType.create(flagMaskBaseName + "_low",
                                             descriptionBaseName + " 0-35%",
