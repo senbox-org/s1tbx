@@ -1,8 +1,9 @@
 {
     "testProducts" : [
         {
-            "name" : "ESACCI-OC-L3S-OC_PRODUCTS-MERGED-1M_MONTHLY_4km_PML_TEST_COMPOSITE_200306.nc",
-            "relativePath" : "OC-CCI"
+            "id" : "ESACCI-OC-L3S-OC_PRODUCTS-MERGED-1M_MONTHLY-full-grid-from-PML",
+            "relativePath" : "OC-CCI/ESACCI-OC-L3S-OC_PRODUCTS-MERGED-1M_MONTHLY_4km_PML_TEST_COMPOSITE_200306.nc" ,
+            "description" : "fully populated grid file that was sent by PML"
         }
     ]
 }

@@ -4,6 +4,7 @@ package org.esa.beam.dataio;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
+import org.esa.beam.util.SystemUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -48,12 +49,12 @@ public class ProductReaderAcceptanceTest {
 
     private DecodeQualification getExpectedDecodeQualification(TestProductReader testReader, TestProduct testProduct) {
         final ArrayList<String> intendedProductNames = testReader.getIntendedProductNames();
-        if (intendedProductNames.contains(testProduct.getName())) {
+        if (intendedProductNames.contains(testProduct.getId())) {
             return DecodeQualification.INTENDED;
         }
 
         final ArrayList<String> suitableProductNames = testReader.getSuitableProductNames();
-        if (suitableProductNames.contains(testProduct.getName())) {
+        if (suitableProductNames.contains(testProduct.getId())) {
             return DecodeQualification.SUITABLE;
         }
         return DecodeQualification.UNABLE;
@@ -61,7 +62,7 @@ public class ProductReaderAcceptanceTest {
 
     private File getTestProductFile(TestProduct testProduct) {
         final String relativePath = testProduct.getRelativePath();
-        final String name = testProduct.getName();
+        final String name = testProduct.getId();
         final String filePath = "C:/Data" + File.separator + relativePath + File.separator + name;
         final File testProductFile = new File(filePath);
         assertTrue(testProductFile.exists());
@@ -94,11 +95,33 @@ public class ProductReaderAcceptanceTest {
     }
 
     private void readProductReadersList() throws IOException {
-        final URL resource = ProductReaderAcceptanceTest.class.getResource("readers.json");
-        final File readerssFile = new File(resource.getPath());
-        assertTrue(readerssFile.isFile());
+        final Iterable<ProductReaderPlugIn> readerPlugIns = SystemUtils.loadServices(ProductReaderPlugIn.class);
 
-        final ObjectMapper mapper = new ObjectMapper();
-        productReaderList = mapper.readValue(readerssFile, ProductReaderList.class);
+        for (ProductReaderPlugIn readerPlugIn : readerPlugIns) {
+            final Class<? extends ProductReaderPlugIn> readerPlugInClass = readerPlugIn.getClass();
+            final String resourceFilename = getReaderTestResourceName(readerPlugInClass.getName());
+
+            final URL testConfigUrl = readerPlugInClass.getResource(resourceFilename);
+            if (testConfigUrl == null) {
+                fail("Unable to load reader test config file: " + resourceFilename);
+            }
+            final File readerConfigFile = new File(testConfigUrl.getPath());
+            assertTrue(readerConfigFile.isFile());
+        }
+
+
+//        final URL resource = ProductReaderAcceptanceTest.class.getResource("readers.json");
+//        final File readerssFile = new File(resource.getPath());
+//        assertTrue(readerssFile.isFile());
+//
+//        final ObjectMapper mapper = new ObjectMapper();
+//        productReaderList = mapper.readValue(readerssFile, ProductReaderList.class);
+
+        productReaderList = new ProductReaderList();
+    }
+
+    private String getReaderTestResourceName(String fullyQualifiedName) {
+        final String name = fullyQualifiedName.substring(fullyQualifiedName.lastIndexOf(".") + 1);
+        return name + "-test.json";
     }
 }

@@ -3,15 +3,16 @@ package org.esa.beam.dataio;
 
 class TestProduct {
 
-    private String name;
+    private String id;
     private String relativePath;
+    private String description;
 
-    void setName(String name) {
-        this.name = name;
+    void setId(String name) {
+        this.id = name;
     }
 
-    String getName() {
-        return name;
+    String getId() {
+        return id;
     }
 
     void setRelativePath(String relativePath) {
@@ -20,5 +21,13 @@ class TestProduct {
 
     String getRelativePath() {
         return relativePath;
+    }
+
+    String getDescription() {
+        return description;
+    }
+
+    void setDescription(String description) {
+        this.description = description;
     }
 }

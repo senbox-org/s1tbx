@@ -7,6 +7,10 @@ class ProductReaderList {
 
     private ArrayList<TestProductReader> testReaders;
 
+    ProductReaderList() {
+        testReaders = new ArrayList<TestProductReader>();
+    }
+
     ArrayList<TestProductReader> getTestReaders() {
         return testReaders;
     }
