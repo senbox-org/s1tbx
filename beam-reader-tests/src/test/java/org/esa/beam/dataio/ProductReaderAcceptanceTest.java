@@ -88,6 +88,12 @@ public class ProductReaderAcceptanceTest {
         for (final ExpectedBand expectedBand : expectedBands) {
             final Band band = product.getBand(expectedBand.getName());
             assertNotNull(band);
+
+            final ExpectedPixel[] expectedPixel = expectedBand.getExpectedPixel();
+            for (ExpectedPixel pixel : expectedPixel) {
+                final float bandValue = band.getSampleFloat(pixel.getX(), pixel.getY());
+                assertEquals(pixel.getValue(), bandValue, 1e-6);
+            }
         }
     }
 

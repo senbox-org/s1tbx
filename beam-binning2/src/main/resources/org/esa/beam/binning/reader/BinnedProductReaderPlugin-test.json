@@ -1,34 +1,83 @@
 {
-    "intendedProductIds" : [
+    "intendedProductIds": [
         "ESACCI-OC-L3S-OC_PRODUCTS-MERGED-1M_MONTHLY-full-grid-from-PML"
     ],
-    "suitableProductIds" : [
+    "suitableProductIds": [
     ],
-    "expectedContentList" : [
+    "expectedContentList": [
         {
-            "id" : "ESACCI-OC-L3S-OC_PRODUCTS-MERGED-1M_MONTHLY-full-grid-from-PML",
-            "bands" : [
-                {"name": "longitude"},
-                {"name": "latitude"},
-                {"name": "atot_412"},
-                {"name": "atot_443"},
-                {"name": "atot_490"},
-                {"name": "atot_510"},
-                {"name": "atot_555"},
-                {"name": "atot_670"},
-                {"name": "adg_412"},
-                {"name": "adg_443"},
-                {"name": "adg_490"},
-                {"name": "adg_510"},
-                {"name": "adg_555"},
-                {"name": "adg_670"},
-                {"name": "aph_412"},
-                {"name": "aph_443"},
-                {"name": "aph_490"},
-                {"name": "aph_510"},
-                {"name": "aph_555"},
-                {"name": "aph_670"},
-                {"name": "chlor_a"}
+            "id": "ESACCI-OC-L3S-OC_PRODUCTS-MERGED-1M_MONTHLY-full-grid-from-PML",
+            "bands": [
+                {
+                    "name": "longitude",
+                    "expectedPixel": [
+                        {
+                            "x": "5297",
+                            "y": "2372",
+                            "value": "40.735622"
+                        }
+                    ]
+                },
+                {
+                    "name": "latitude"
+                },
+                {
+                    "name": "atot_412"
+                },
+                {
+                    "name": "atot_443"
+                },
+                {
+                    "name": "atot_490"
+                },
+                {
+                    "name": "atot_510"
+                },
+                {
+                    "name": "atot_555"
+                },
+                {
+                    "name": "atot_670"
+                },
+                {
+                    "name": "adg_412"
+                },
+                {
+                    "name": "adg_443"
+                },
+                {
+                    "name": "adg_490"
+                },
+                {
+                    "name": "adg_510"
+                },
+                {
+                    "name": "adg_555"
+                },
+                {
+                    "name": "adg_670"
+                },
+                {
+                    "name": "aph_412"
+                },
+                {
+                    "name": "aph_443"
+                },
+                {
+                    "name": "aph_490"
+                },
+                {
+                    "name": "aph_510"
+                },
+                {
+                    "name": "aph_555"
+                },
+                {
+                    "name": "aph_670"
+                },
+                {
+                    "name": "chlor_a"
+                }
             ]
         }
     ]
