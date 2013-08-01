@@ -220,7 +220,10 @@ public class CfBandPart extends ProfilePartIO {
         if (attribute == null) {
             attribute = variable.findAttribute("scaling_factor");
         }
-        return attribute != null ? attribute.getNumericValue().doubleValue() : 1.0;
+        if (attribute != null) {
+            return getAttributeValue(attribute).doubleValue();
+        }
+        return 1.0;
     }
 
     private static double getAddOffset(Variable variable) {
@@ -228,7 +231,10 @@ public class CfBandPart extends ProfilePartIO {
         if (attribute == null) {
             attribute = variable.findAttribute(Constants.INTERCEPT_ATT_NAME);
         }
-        return attribute != null ? attribute.getNumericValue().doubleValue() : 0.0;
+        if (attribute != null) {
+            return getAttributeValue(attribute).doubleValue();
+        }
+        return 0.0;
     }
 
     private static Number getNoDataValue(Variable variable) {
@@ -236,7 +242,24 @@ public class CfBandPart extends ProfilePartIO {
         if (attribute == null) {
             attribute = variable.findAttribute(Constants.MISSING_VALUE_ATT_NAME);
         }
-        return attribute != null ? attribute.getNumericValue().doubleValue() : null;
+        if (attribute != null) {
+            return getAttributeValue(attribute);
+        }
+        return null;
+    }
+
+    private static Number getAttributeValue(Attribute attribute) {
+        if (attribute.isString()) {
+            String stringValue = attribute.getStringValue();
+            if (stringValue.endsWith("b")) {
+                // Special management for bytes; Can occur in e.g. ASCAT files from EUMETSAT
+                return Byte.parseByte(stringValue.substring(0, stringValue.length() - 1));
+            } else {
+                return Double.parseDouble(stringValue);
+            }
+        } else {
+            return attribute.getNumericValue();
+        }
     }
 
     private static int getRasterDataType(Variable variable, DataTypeWorkarounds workarounds) {
