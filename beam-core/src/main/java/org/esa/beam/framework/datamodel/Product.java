@@ -2535,7 +2535,8 @@ public class Product extends ProductNode {
      *
      * @throws IOException if an I/O error occurs
      * @see #createValidMask(String, com.bc.ceres.core.ProgressMonitor)
-     * @deprecated since BEAM 4.7, use {@link Mask.BandMathsType.create()} and {@link #getMaskGroup()}) instead
+     * @deprecated since BEAM 4.7, use {@link Mask.BandMathsType#create(String, String, int, int, String, java.awt.Color, double) Mask.BandMathsType.create()}
+     *             and {@link #getMaskGroup()}) instead
      */
     @Deprecated
     public BitRaster createValidMask(final Term term, final ProgressMonitor pm) throws IOException {
@@ -2597,7 +2598,9 @@ public class Product extends ProductNode {
      *
      * @throws IOException if an I/O error occurs, when referenced flag datasets are reloaded
      * @see #parseExpression(String)
-     * @deprecated since BEAM 4.7, add a new mask to product (see {@link Mask.BandMathsType.create()} and {@link #getMaskGroup()}) and use its source image instead
+     * @deprecated since BEAM 4.7, add a new mask to product
+     *             (see {@link Mask.BandMathsType#create(String, String, int, int, String, java.awt.Color, double) Mask.BandMathsType.create()}
+     *             and {@link #getMaskGroup()}) and use its source image instead
      */
     @Deprecated
     public void readBitmask(final int offsetX,
@@ -2646,7 +2649,9 @@ public class Product extends ProductNode {
      *
      * @throws IOException if an I/O error occurs, when referenced flag datasets are reloaded
      * @see #parseExpression(String)
-     * @deprecated since BEAM 4.7, add a new mask to product (see {@link Mask.BandMathsType.create()} and {@link #getMaskGroup()}) and use its source image instead
+     * @deprecated since BEAM 4.7, add a new mask to product
+     *             (see {@link Mask.BandMathsType#create(String, String, int, int, String, java.awt.Color, double) Mask.BandMathsType.create()}
+     *             and {@link #getMaskGroup()}) and use its source image instead
      */
     @Deprecated
     public synchronized void readBitmask(final int offsetX,
