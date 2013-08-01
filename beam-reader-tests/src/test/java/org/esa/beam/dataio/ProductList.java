@@ -14,4 +14,13 @@ class ProductList {
     void setTestProducts(ArrayList<TestProduct> testProducts) {
         this.testProducts = testProducts;
     }
+
+    TestProduct geById(String id) {
+        for (TestProduct testProduct : testProducts) {
+            if (testProduct.getId().equalsIgnoreCase(id)) {
+                return testProduct;
+            }
+        }
+        return null;
+    }
 }

@@ -3,7 +3,10 @@ package org.esa.beam.dataio;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.esa.beam.framework.dataio.DecodeQualification;
+import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.util.SystemUtils;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -15,6 +18,7 @@ import java.net.URL;
 import java.util.ArrayList;
 
 import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.fail;
 import static org.junit.Assert.assertTrue;
 
@@ -36,16 +40,6 @@ public class ProductReaderAcceptanceTest {
         readProductReadersList();
     }
 
-    private static void validateProductList() {
-        final ArrayList<TestProduct> testProducts = testProductList.getTestProducts();
-        for (TestProduct testProduct : testProducts) {
-            final String relativePath = testProduct.getRelativePath();
-            final File productFile = new File(dataRootDir, relativePath);
-            if (!productFile.exists()) {
-                fail("test product does not exist: " + productFile.getAbsolutePath());
-            }
-        }
-    }
 
     @Test
     public void testPluginDecodeQualifications() throws ClassNotFoundException, IllegalAccessException, InstantiationException {
@@ -61,6 +55,39 @@ public class ProductReaderAcceptanceTest {
                 final DecodeQualification decodeQualification = productReaderPlugin.getDecodeQualification(productFile);
                 assertEquals(expected, decodeQualification);
             }
+        }
+    }
+
+    @Test
+    public void testReadIntendedProductContent() throws IOException {
+        final ArrayList<TestProductReader> testReaders = productReaderList.getTestReaders();
+        for (TestProductReader testReader : testReaders) {
+            final ArrayList<String> intendedProductIds = testReader.getIntendedProductIds();
+            for (String productId : intendedProductIds) {
+                final TestProduct testProduct = testProductList.geById(productId);
+                final File testProductFile = getTestProductFile(testProduct);
+
+                final ProductReader productReader = testReader.getProductReaderPlugin().createReaderInstance();
+                final Product product = productReader.readProductNodes(testProductFile, null);
+                try {
+                    final ExpectedContent expectedContent = testReader.getExpectedContent(productId);
+                    if (expectedContent != null) {
+                        testExpectedContent(expectedContent, product);
+                    }
+                } finally {
+                    if (product != null) {
+                        product.dispose();
+                    }
+                }
+            }
+        }
+    }
+
+    private void testExpectedContent(ExpectedContent expectedContent, Product product) {
+        final ExpectedBand[] expectedBands = expectedContent.getBands();
+        for (final ExpectedBand expectedBand : expectedBands) {
+            final Band band = product.getBand(expectedBand.getName());
+            assertNotNull(band);
         }
     }
 
@@ -102,6 +129,17 @@ public class ProductReaderAcceptanceTest {
 
         final ObjectMapper mapper = new ObjectMapper();
         testProductList = mapper.readValue(productsFile, ProductList.class);
+    }
+
+    private static void validateProductList() {
+        final ArrayList<TestProduct> testProducts = testProductList.getTestProducts();
+        for (TestProduct testProduct : testProducts) {
+            final String relativePath = testProduct.getRelativePath();
+            final File productFile = new File(dataRootDir, relativePath);
+            if (!productFile.exists()) {
+                fail("test product does not exist: " + productFile.getAbsolutePath());
+            }
+        }
     }
 
     private static void readProductReadersList() throws IOException {

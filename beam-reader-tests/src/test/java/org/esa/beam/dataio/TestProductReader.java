@@ -9,6 +9,7 @@ class TestProductReader {
     private ArrayList<String> intendedProductIds;
     private ArrayList<String> suitableProductIds;
     private ProductReaderPlugIn productReaderPlugin;
+    private ArrayList<ExpectedContent> expectedContentList;
 
     TestProductReader() {
         intendedProductIds = new ArrayList<String>();
@@ -37,5 +38,23 @@ class TestProductReader {
 
     void setProductReaderPlugin(ProductReaderPlugIn productReaderPlugin) {
         this.productReaderPlugin = productReaderPlugin;
+    }
+
+    ArrayList<ExpectedContent> getExpectedContentList() {
+        return expectedContentList;
+    }
+
+    ExpectedContent getExpectedContent(String productId) {
+        for (ExpectedContent expectedContent : expectedContentList) {
+            if (expectedContent.getId().equalsIgnoreCase(productId)) {
+                return expectedContent;
+            }
+        }
+
+        return null;
+    }
+
+    void setExpectedContentList(ArrayList<ExpectedContent> expectedContentList) {
+        this.expectedContentList = expectedContentList;
     }
 }
