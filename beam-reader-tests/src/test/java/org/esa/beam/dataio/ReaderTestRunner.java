@@ -7,6 +7,7 @@ import org.junit.runners.model.InitializationError;
 
 public class ReaderTestRunner extends BlockJUnit4ClassRunner {
 
+    private static final String EXECUTE_READER_TESTS_PROPERTYNAME = "beam.reader.tests.execute";
     private boolean runAcceptanceTests;
     private Class<?> clazz;
 
@@ -15,7 +16,7 @@ public class ReaderTestRunner extends BlockJUnit4ClassRunner {
 
         this.clazz = clazz;
 
-        final String property = System.getProperty("run.reader.tests");
+        final String property = System.getProperty(EXECUTE_READER_TESTS_PROPERTYNAME);
         runAcceptanceTests = "true".equalsIgnoreCase(property);
     }
 
@@ -29,7 +30,8 @@ public class ReaderTestRunner extends BlockJUnit4ClassRunner {
         if (runAcceptanceTests) {
             super.run(runNotifier);
         } else {
-            final Description description = Description.createTestDescription(clazz, "allMethods. Reader acceptance tests disabled. Set VM param -Drun.reader.tests=true to enable.");
+            final Description description = Description.createTestDescription(clazz, "allMethods. Reader acceptance tests disabled. " +
+                                                                                     "Set VM param -D" + EXECUTE_READER_TESTS_PROPERTYNAME + "=true to enable.");
             runNotifier.fireTestIgnored(description);
         }
     }

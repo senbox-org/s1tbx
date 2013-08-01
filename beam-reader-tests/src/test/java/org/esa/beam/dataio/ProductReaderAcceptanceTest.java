@@ -1,7 +1,7 @@
 package org.esa.beam.dataio;
 
 
-import org.codehaus.jackson.map.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 import org.esa.beam.util.SystemUtils;
@@ -21,6 +21,7 @@ import static org.junit.Assert.assertTrue;
 @RunWith(ReaderTestRunner.class)
 public class ProductReaderAcceptanceTest {
 
+    private static final String READER_TESTS_DATA_DIR_PROPERTYNAME = "beam.reader.tests.data.dir";
     private static ProductList testProductList;
     private static ProductReaderList productReaderList;
     private static File dataRootDir;
@@ -84,7 +85,7 @@ public class ProductReaderAcceptanceTest {
     }
 
     private static void readTestDataDirProperty() {
-        final String dataDirProperty = System.getProperty("reader.tests.data.dir");
+        final String dataDirProperty = System.getProperty(READER_TESTS_DATA_DIR_PROPERTYNAME);
         if (dataDirProperty == null) {
             fail("Data directory path not set");
         }
