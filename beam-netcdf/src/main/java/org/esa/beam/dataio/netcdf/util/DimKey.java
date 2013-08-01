@@ -30,8 +30,8 @@ import java.util.List;
  */
 public class DimKey {
 
-    private static final String[] TYPICAL_X_DIM_NAMES = new String[]{"lon", "long", "longitude", "ni", "NX", "SX", "x",};
-    private static final String[] TYPICAL_Y_DIM_NAMES = new String[]{"lat", "lat", "latitude", "nj", "NY", "SY", "y",};
+    private static final String[] TYPICAL_X_DIM_NAMES = new String[]{"lon", "long", "longitude", "ni", "NX", "SX", "x", "xc", "across_track", "numRows"};
+    private static final String[] TYPICAL_Y_DIM_NAMES = new String[]{"lat", "lat", "latitude", "nj", "NY", "SY", "y", "yc", "along_track", "numCells"};
 
     private final Dimension[] dims;
     private final int xDimIndex;
