@@ -5,7 +5,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 import org.esa.beam.util.SystemUtils;
-import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -21,11 +21,13 @@ import static org.junit.Assert.assertTrue;
 @RunWith(ReaderTestRunner.class)
 public class ProductReaderAcceptanceTest {
 
-    private ProductList testProductList;
-    private ProductReaderList productReaderList;
+    private static ProductList testProductList;
+    private static ProductReaderList productReaderList;
+    private static File dataRootDir;
 
-    @Before
-    public void setUp() throws IOException {
+    @BeforeClass
+    public static void initialize() throws IOException {
+        readTestDataDirProperty();
         readTestProductsList();
         readProductReadersList();
     }
@@ -85,7 +87,18 @@ public class ProductReaderAcceptanceTest {
         return null;
     }
 
-    private void readTestProductsList() throws IOException {
+    private static void readTestDataDirProperty() {
+        final String dataDirProperty = System.getProperty("reader.tests.data.dir");
+        if (dataDirProperty == null) {
+            fail("Data directory path not set");
+        }
+        dataRootDir = new File(dataDirProperty);
+        if (!dataRootDir.isDirectory()) {
+            fail("Data directory is not valid: " + dataDirProperty);
+        }
+    }
+
+    private static void readTestProductsList() throws IOException {
         final URL resource = ProductReaderAcceptanceTest.class.getResource("products.json");
         final File productsFile = new File(resource.getPath());
         assertTrue(productsFile.isFile());
@@ -94,7 +107,7 @@ public class ProductReaderAcceptanceTest {
         testProductList = mapper.readValue(productsFile, ProductList.class);
     }
 
-    private void readProductReadersList() throws IOException {
+    private static void readProductReadersList() throws IOException {
         final Iterable<ProductReaderPlugIn> readerPlugIns = SystemUtils.loadServices(ProductReaderPlugIn.class);
 
         for (ProductReaderPlugIn readerPlugIn : readerPlugIns) {
@@ -120,7 +133,7 @@ public class ProductReaderAcceptanceTest {
         productReaderList = new ProductReaderList();
     }
 
-    private String getReaderTestResourceName(String fullyQualifiedName) {
+    private static String getReaderTestResourceName(String fullyQualifiedName) {
         final String name = fullyQualifiedName.substring(fullyQualifiedName.lastIndexOf(".") + 1);
         return name + "-test.json";
     }
