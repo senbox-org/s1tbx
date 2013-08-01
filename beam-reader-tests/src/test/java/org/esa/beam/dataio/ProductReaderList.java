@@ -15,6 +15,10 @@ class ProductReaderList {
         return testReaders;
     }
 
+    void add(TestProductReader testProductReader) {
+        testReaders.add(testProductReader);
+    }
+
     void setTestReaders(ArrayList<TestProductReader> testReaders) {
         this.testReaders = testReaders;
     }

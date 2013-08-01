@@ -1,39 +1,41 @@
 package org.esa.beam.dataio;
 
+import org.esa.beam.framework.dataio.ProductReaderPlugIn;
+
 import java.util.ArrayList;
 
 class TestProductReader {
 
-    private String pluginClassName;
-    private ArrayList<String> intendedProductNames;
-    private ArrayList<String> suitableProductNames;
+    private ArrayList<String> intendedProductIds;
+    private ArrayList<String> suitableProductIds;
+    private ProductReaderPlugIn productReaderPlugin;
 
     TestProductReader() {
-        intendedProductNames = new ArrayList<String>();
-        suitableProductNames = new ArrayList<String>();
+        intendedProductIds = new ArrayList<String>();
+        suitableProductIds = new ArrayList<String>();
     }
 
-    String getPluginClassName() {
-        return pluginClassName;
+    ArrayList<String> getIntendedProductIds() {
+        return intendedProductIds;
     }
 
-    void setPluginClassName(String pluginClassName) {
-        this.pluginClassName = pluginClassName;
+    void setIntendedProductIds(ArrayList<String> intendedProductIds) {
+        this.intendedProductIds = intendedProductIds;
     }
 
-    ArrayList<String> getIntendedProductNames() {
-        return intendedProductNames;
+    ArrayList<String> getSuitableProductIds() {
+        return suitableProductIds;
     }
 
-    void setIntendedProductNames(ArrayList<String> intendedProductNames) {
-        this.intendedProductNames = intendedProductNames;
+    void setSuitableProductIds(ArrayList<String> suitableProductIds) {
+        this.suitableProductIds = suitableProductIds;
     }
 
-    ArrayList<String> getSuitableProductNames() {
-        return suitableProductNames;
+    public ProductReaderPlugIn getProductReaderPlugin() {
+        return productReaderPlugin;
     }
 
-    void setSuitableProductNames(ArrayList<String> suitableProductNames) {
-        this.suitableProductNames = suitableProductNames;
+    void setProductReaderPlugin(ProductReaderPlugIn productReaderPlugin) {
+        this.productReaderPlugin = productReaderPlugin;
     }
 }

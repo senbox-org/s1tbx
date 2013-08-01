@@ -28,15 +28,29 @@ public class ProductReaderAcceptanceTest {
     @BeforeClass
     public static void initialize() throws IOException {
         readTestDataDirProperty();
-        readTestProductsList();
+
+        readProductsList();
+        validateProductList();
+
         readProductReadersList();
+    }
+
+    private static void validateProductList() {
+        final ArrayList<TestProduct> testProducts = testProductList.getTestProducts();
+        for (TestProduct testProduct : testProducts) {
+            final String relativePath = testProduct.getRelativePath();
+            final File productFile = new File(dataRootDir, relativePath);
+            if (!productFile.exists()) {
+                fail("test product does not exist: " + productFile.getAbsolutePath());
+            }
+        }
     }
 
     @Test
     public void testPluginDecodeQualifications() throws ClassNotFoundException, IllegalAccessException, InstantiationException {
         final ArrayList<TestProductReader> testReaders = productReaderList.getTestReaders();
         for (TestProductReader testReader : testReaders) {
-            final ProductReaderPlugIn productReaderPlugin = createProductReaderPlugIn(testReader);
+            final ProductReaderPlugIn productReaderPlugin = testReader.getProductReaderPlugin();
 
             final ArrayList<TestProduct> testProducts = testProductList.getTestProducts();
             for (TestProduct testProduct : testProducts) {
@@ -50,12 +64,12 @@ public class ProductReaderAcceptanceTest {
     }
 
     private DecodeQualification getExpectedDecodeQualification(TestProductReader testReader, TestProduct testProduct) {
-        final ArrayList<String> intendedProductNames = testReader.getIntendedProductNames();
+        final ArrayList<String> intendedProductNames = testReader.getIntendedProductIds();
         if (intendedProductNames.contains(testProduct.getId())) {
             return DecodeQualification.INTENDED;
         }
 
-        final ArrayList<String> suitableProductNames = testReader.getSuitableProductNames();
+        final ArrayList<String> suitableProductNames = testReader.getSuitableProductIds();
         if (suitableProductNames.contains(testProduct.getId())) {
             return DecodeQualification.SUITABLE;
         }
@@ -64,27 +78,9 @@ public class ProductReaderAcceptanceTest {
 
     private File getTestProductFile(TestProduct testProduct) {
         final String relativePath = testProduct.getRelativePath();
-        final String name = testProduct.getId();
-        final String filePath = "C:/Data" + File.separator + relativePath + File.separator + name;
-        final File testProductFile = new File(filePath);
+        final File testProductFile = new File(dataRootDir, relativePath);
         assertTrue(testProductFile.exists());
         return testProductFile;
-    }
-
-    private ProductReaderPlugIn createProductReaderPlugIn(TestProductReader testReader) {
-        try {
-            final String pluginClassName = testReader.getPluginClassName();
-            final Class<?> pluginClass = Class.forName(pluginClassName);
-            return (ProductReaderPlugIn) pluginClass.newInstance();
-        } catch (ClassNotFoundException e) {
-        } catch (InstantiationException e) {
-        } catch (IllegalAccessException e) {
-        }
-
-        final String message = "Failed to instantiate ProductReaderPlugin: " + testReader.getPluginClassName();
-        System.err.println(message);
-        fail(message);
-        return null;
     }
 
     private static void readTestDataDirProperty() {
@@ -98,7 +94,7 @@ public class ProductReaderAcceptanceTest {
         }
     }
 
-    private static void readTestProductsList() throws IOException {
+    private static void readProductsList() throws IOException {
         final URL resource = ProductReaderAcceptanceTest.class.getResource("products.json");
         final File productsFile = new File(resource.getPath());
         assertTrue(productsFile.isFile());
@@ -108,7 +104,9 @@ public class ProductReaderAcceptanceTest {
     }
 
     private static void readProductReadersList() throws IOException {
+        final ObjectMapper mapper = new ObjectMapper();
         final Iterable<ProductReaderPlugIn> readerPlugIns = SystemUtils.loadServices(ProductReaderPlugIn.class);
+        productReaderList = new ProductReaderList();
 
         for (ProductReaderPlugIn readerPlugIn : readerPlugIns) {
             final Class<? extends ProductReaderPlugIn> readerPlugInClass = readerPlugIn.getClass();
@@ -118,19 +116,14 @@ public class ProductReaderAcceptanceTest {
             if (testConfigUrl == null) {
                 fail("Unable to load reader test config file: " + resourceFilename);
             }
+
             final File readerConfigFile = new File(testConfigUrl.getPath());
             assertTrue(readerConfigFile.isFile());
+
+            final TestProductReader testProductReader = mapper.readValue(readerConfigFile, TestProductReader.class);
+            testProductReader.setProductReaderPlugin(readerPlugIn);
+            productReaderList.add(testProductReader);
         }
-
-
-//        final URL resource = ProductReaderAcceptanceTest.class.getResource("readers.json");
-//        final File readerssFile = new File(resource.getPath());
-//        assertTrue(readerssFile.isFile());
-//
-//        final ObjectMapper mapper = new ObjectMapper();
-//        productReaderList = mapper.readValue(readerssFile, ProductReaderList.class);
-
-        productReaderList = new ProductReaderList();
     }
 
     private static String getReaderTestResourceName(String fullyQualifiedName) {

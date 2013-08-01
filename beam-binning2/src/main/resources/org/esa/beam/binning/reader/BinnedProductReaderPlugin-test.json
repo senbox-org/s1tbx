@@ -1,1 +1,7 @@
-{}
+{
+    "intendedProductIds" : [
+        "ESACCI-OC-L3S-OC_PRODUCTS-MERGED-1M_MONTHLY-full-grid-from-PML"
+    ],
+    "suitableProductIds" : [
+    ]
+}
