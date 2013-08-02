@@ -8,6 +8,7 @@ import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.util.SystemUtils;
+import org.esa.beam.util.logging.BeamLogManager;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -16,6 +17,8 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.Logger;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
@@ -31,12 +34,13 @@ public class ProductReaderAcceptanceTest {
     private static ProductList testProductList;
     private static ProductReaderList productReaderList;
     private static File dataRootDir;
+    private static Logger logger;
 
     @BeforeClass
     public static void initialize() throws IOException {
-        if(!FAIL_ON_MISSING_DATA) {
-            // todo - use logger here
-            System.out.println("WARNING: Tests will not fail if test data is missing!");
+        initLogger();
+        if (!FAIL_ON_MISSING_DATA) {
+            logger.warning("Tests will not fail if test data is missing!");
         }
         readTestDataDirProperty();
 
@@ -44,6 +48,14 @@ public class ProductReaderAcceptanceTest {
         validateProductList();
 
         readProductReadersList();
+    }
+
+    private static void initLogger() throws IOException {
+        logger = Logger.getLogger(ProductReaderAcceptanceTest.class.getSimpleName());
+        BeamLogManager.removeRootLoggerHandlers();
+        final ConsoleHandler handler = new ConsoleHandler();
+        handler.setFormatter(new CustomLogFormatter());
+        logger.addHandler(handler);
     }
 
 
@@ -188,4 +200,5 @@ public class ProductReaderAcceptanceTest {
         final String path = fullyQualifiedName.replace(".", "/");
         return "/" + path + "-test.json";
     }
+
 }
