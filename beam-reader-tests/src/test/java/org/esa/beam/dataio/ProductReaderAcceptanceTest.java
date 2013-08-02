@@ -31,6 +31,7 @@ public class ProductReaderAcceptanceTest {
     private static final String PROPERTYNAME_DATA_DIR = "beam.reader.tests.data.dir";
     private static final String PROPERTYNAME_FAIL_ON_MISSING_DATA = "beam.reader.tests.failOnMissingData";
     private static final boolean FAIL_ON_MISSING_DATA = Boolean.parseBoolean(System.getProperty(PROPERTYNAME_FAIL_ON_MISSING_DATA, "true"));
+    private static final String INDENT = "\t";
     private static ProductList testProductList;
     private static ProductReaderList productReaderList;
     private static File dataRootDir;
@@ -62,18 +63,23 @@ public class ProductReaderAcceptanceTest {
     @Test
     public void testPluginDecodeQualifications() throws ClassNotFoundException, IllegalAccessException, InstantiationException {
         final ArrayList<TestProductReader> testReaders = productReaderList.getTestReaders();
+        logger.info("Testing DecodeQualification:");
         for (TestProductReader testReader : testReaders) {
             final ProductReaderPlugIn productReaderPlugin = testReader.getProductReaderPlugin();
+            logger.info(INDENT + productReaderPlugin.getClass().getSimpleName());
 
             final ArrayList<TestProduct> testProducts = testProductList.getTestProducts();
             for (TestProduct testProduct : testProducts) {
                 if (testProduct.exists()) {
+                    logger.info(INDENT + INDENT + testProduct.getId());
                     final File productFile = getTestProductFile(testProduct);
                     final String message = productReaderPlugin.getClass().getName() + ": " + testProduct.getRelativePath();
 
                     final DecodeQualification expected = getExpectedDecodeQualification(testReader, testProduct);
                     final DecodeQualification decodeQualification = productReaderPlugin.getDecodeQualification(productFile);
                     assertEquals(message, expected, decodeQualification);
+                } else {
+                    logger.info(INDENT + INDENT + testProduct.getId() + " not existent");
                 }
             }
         }
@@ -82,11 +88,14 @@ public class ProductReaderAcceptanceTest {
     @Test
     public void testReadIntendedProductContent() throws IOException {
         final ArrayList<TestProductReader> testReaders = productReaderList.getTestReaders();
+        logger.info("Testing IntendedProductContent:");
         for (TestProductReader testReader : testReaders) {
             final ArrayList<String> intendedProductIds = testReader.getIntendedProductIds();
+            logger.info(INDENT + testReader.getProductReaderPlugin().getClass().getSimpleName());
             for (String productId : intendedProductIds) {
                 final TestProduct testProduct = testProductList.geById(productId);
                 if (testProduct.exists()) {
+                    logger.info(INDENT + INDENT + productId);
                     final File testProductFile = getTestProductFile(testProduct);
 
                     final ProductReader productReader = testReader.getProductReaderPlugin().createReaderInstance();
@@ -101,6 +110,8 @@ public class ProductReaderAcceptanceTest {
                             product.dispose();
                         }
                     }
+                }else {
+                    logger.info(INDENT + INDENT + productId + " not existent");
                 }
             }
         }
