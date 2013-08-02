@@ -25,13 +25,19 @@ import static org.junit.Assert.assertTrue;
 @RunWith(ReaderTestRunner.class)
 public class ProductReaderAcceptanceTest {
 
-    private static final String READER_TESTS_DATA_DIR_PROPERTYNAME = "beam.reader.tests.data.dir";
+    private static final String PROPERTYNAME_DATA_DIR = "beam.reader.tests.data.dir";
+    private static final String PROPERTYNAME_FAIL_ON_MISSING_DATA = "beam.reader.tests.failOnMissingData";
+    private static final boolean FAIL_ON_MISSING_DATA = Boolean.parseBoolean(System.getProperty(PROPERTYNAME_FAIL_ON_MISSING_DATA, "true"));
     private static ProductList testProductList;
     private static ProductReaderList productReaderList;
     private static File dataRootDir;
 
     @BeforeClass
     public static void initialize() throws IOException {
+        if(FAIL_ON_MISSING_DATA) {
+            // todo - use logger here
+            System.out.println("WARNING: Tests will not fail if test data is missing!");
+        }
         readTestDataDirProperty();
 
         readProductsList();
@@ -49,11 +55,13 @@ public class ProductReaderAcceptanceTest {
 
             final ArrayList<TestProduct> testProducts = testProductList.getTestProducts();
             for (TestProduct testProduct : testProducts) {
-                final File productFile = getTestProductFile(testProduct);
+                if (testProduct.exists()) {
+                    final File productFile = getTestProductFile(testProduct);
 
-                final DecodeQualification expected = getExpectedDecodeQualification(testReader, testProduct);
-                final DecodeQualification decodeQualification = productReaderPlugin.getDecodeQualification(productFile);
-                assertEquals(expected, decodeQualification);
+                    final DecodeQualification expected = getExpectedDecodeQualification(testReader, testProduct);
+                    final DecodeQualification decodeQualification = productReaderPlugin.getDecodeQualification(productFile);
+                    assertEquals(expected, decodeQualification);
+                }
             }
         }
     }
@@ -65,18 +73,20 @@ public class ProductReaderAcceptanceTest {
             final ArrayList<String> intendedProductIds = testReader.getIntendedProductIds();
             for (String productId : intendedProductIds) {
                 final TestProduct testProduct = testProductList.geById(productId);
-                final File testProductFile = getTestProductFile(testProduct);
+                if (testProduct.exists()) {
+                    final File testProductFile = getTestProductFile(testProduct);
 
-                final ProductReader productReader = testReader.getProductReaderPlugin().createReaderInstance();
-                final Product product = productReader.readProductNodes(testProductFile, null);
-                try {
-                    final ExpectedContent expectedContent = testReader.getExpectedContent(productId);
-                    if (expectedContent != null) {
-                        testExpectedContent(expectedContent, product);
-                    }
-                } finally {
-                    if (product != null) {
-                        product.dispose();
+                    final ProductReader productReader = testReader.getProductReaderPlugin().createReaderInstance();
+                    final Product product = productReader.readProductNodes(testProductFile, null);
+                    try {
+                        final ExpectedContent expectedContent = testReader.getExpectedContent(productId);
+                        if (expectedContent != null) {
+                            testExpectedContent(expectedContent, product);
+                        }
+                    } finally {
+                        if (product != null) {
+                            product.dispose();
+                        }
                     }
                 }
             }
@@ -118,7 +128,7 @@ public class ProductReaderAcceptanceTest {
     }
 
     private static void readTestDataDirProperty() {
-        final String dataDirProperty = System.getProperty(READER_TESTS_DATA_DIR_PROPERTYNAME);
+        final String dataDirProperty = System.getProperty(PROPERTYNAME_DATA_DIR);
         if (dataDirProperty == null) {
             fail("Data directory path not set");
         }
@@ -143,7 +153,10 @@ public class ProductReaderAcceptanceTest {
             final String relativePath = testProduct.getRelativePath();
             final File productFile = new File(dataRootDir, relativePath);
             if (!productFile.exists()) {
-                fail("test product does not exist: " + productFile.getAbsolutePath());
+                testProduct.exists(false);
+                if (FAIL_ON_MISSING_DATA) {
+                    fail("test product does not exist: " + productFile.getAbsolutePath());
+                }
             }
         }
     }

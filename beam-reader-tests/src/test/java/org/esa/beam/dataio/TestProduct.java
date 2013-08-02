@@ -6,6 +6,7 @@ class TestProduct {
     private String id;
     private String relativePath;
     private String description;
+    private transient boolean exists = true;
 
     void setId(String name) {
         this.id = name;
@@ -29,5 +30,13 @@ class TestProduct {
 
     void setDescription(String description) {
         this.description = description;
+    }
+
+    void exists(boolean exists) {
+        this.exists = exists;
+    }
+
+    boolean exists() {
+        return exists;
     }
 }
