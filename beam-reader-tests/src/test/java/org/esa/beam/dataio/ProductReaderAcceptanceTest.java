@@ -7,6 +7,7 @@ import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.util.StopWatch;
 import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.logging.BeamLogManager;
 import org.junit.BeforeClass;
@@ -64,6 +65,7 @@ public class ProductReaderAcceptanceTest {
     public void testPluginDecodeQualifications() throws ClassNotFoundException, IllegalAccessException, InstantiationException {
         final ArrayList<TestProductReader> testReaders = productReaderList.getTestReaders();
         logger.info("Testing DecodeQualification:");
+        final StopWatch stopWatch = new StopWatch();
         for (TestProductReader testReader : testReaders) {
             final ProductReaderPlugIn productReaderPlugin = testReader.getProductReaderPlugin();
             logger.info(INDENT + productReaderPlugin.getClass().getSimpleName());
@@ -71,12 +73,15 @@ public class ProductReaderAcceptanceTest {
             final ArrayList<TestProduct> testProducts = testProductList.getTestProducts();
             for (TestProduct testProduct : testProducts) {
                 if (testProduct.exists()) {
-                    logger.info(INDENT + INDENT + testProduct.getId());
                     final File productFile = getTestProductFile(testProduct);
                     final String message = productReaderPlugin.getClass().getName() + ": " + testProduct.getRelativePath();
 
                     final DecodeQualification expected = getExpectedDecodeQualification(testReader, testProduct);
+                    stopWatch.start();
                     final DecodeQualification decodeQualification = productReaderPlugin.getDecodeQualification(productFile);
+                    stopWatch.stop();
+                    logger.info(INDENT + INDENT + testProduct.getId() + ": " + stopWatch.getTimeDiffString());
+
                     assertEquals(message, expected, decodeQualification);
                 } else {
                     logger.info(INDENT + INDENT + testProduct.getId() + " not existent");
@@ -110,7 +115,7 @@ public class ProductReaderAcceptanceTest {
                             product.dispose();
                         }
                     }
-                }else {
+                } else {
                     logger.info(INDENT + INDENT + productId + " not existent");
                 }
             }
