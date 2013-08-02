@@ -23,11 +23,9 @@ import org.esa.beam.util.io.CsvReader;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.List;
-import java.util.Map;
-import java.util.StringTokenizer;
-import java.util.Vector;
+import java.util.*;
 
 /**
  * A <code>DDDB</code> instance is used read record infos from the ENVISAT data description database (DDDB).
@@ -50,6 +48,18 @@ public class DDDB {
     public static final String SCALE_LOG_NAME = "Log_Scale";
 
     public static final String EXPRESSION_PREFIX = "=";
+
+    private static final Map<String, URL> resourceMap = new HashMap<String, URL>(100);
+
+    private static URL emptyURL;
+    static {
+        try {
+            emptyURL = new URL("file:/empty");
+        } catch(MalformedURLException e) {
+            //ignore
+            e.printStackTrace();
+        }
+    }
 
     /**
      * The database path.
@@ -145,24 +155,6 @@ public class DDDB {
         Debug.assertNotNull(productInfo);
         return productInfo.description;
     }
-
-//    /**
-//     * Gets the dataset description string for the given product type identifier
-//     * and dataset name.
-//     *
-//     * @param productType the product type identifier, e.g. "MER_FR__2P"
-//     * @param datasetName the dataset name
-//     * @return the description string for datasets of the given product type and
-//     *  the given dataset name, never <code>null</code>
-//     * @throws java.lang.IllegalArgumentException if the product type or dataset name is null
-//     * @throws org.esa.beam.dataio.envisat.DDDBException if a database I/O error occurs
-//     */
-//    public String getDatasetDescription(String productType, String datasetName)
-//            throws DDDBException {
-//        DatasetInfo datasetInfo = getDatasetInfo(productType, datasetName);
-//        Debug.assertNotNull(datasetInfo);
-//        return datasetInfo.description;
-//    }
 
 
     /**
@@ -538,14 +530,14 @@ public class DDDB {
         return scalingMethod;
     }
 
-    private String getTokenValue(String token) {
+    private static String getTokenValue(String token) {
         if (token == null || token.length() == 0 || token.equals("*")) {
             return null;
         }
         return token;
     }
 
-    private float resolveGadsValueFloat(String gadsRef, String gadsName, Record gadsRecord)
+    private static float resolveGadsValueFloat(String gadsRef, String gadsName, Record gadsRecord)
             throws DDDBException {
         Debug.assertNotNullOrEmpty(gadsRef);
         try {
@@ -940,11 +932,15 @@ public class DDDB {
     }
 
     static URL getDatabaseResource(String resourcePath) throws DDDBException {
-        String databasePath = DB_DIR_PATH + "/" + resourcePath;
+        String databasePath = DB_DIR_PATH + '/' + resourcePath;
         //Debug.trace("DDDB: searching for resource file '" + databasePath + "'"); /*I18N*/
 
-        URL url = DDDB.class.getResource(databasePath);
-        if (url == null) {
+        URL url = resourceMap.get(databasePath);
+        if(url == null) {
+            url = DDDB.class.getResource(databasePath);
+            resourceMap.put(databasePath, url);
+        }
+        if (url == null || url == emptyURL) {
             throw new DDDBException("DDDB resource not found: missing file: " + databasePath); /*I18N*/
         }
 
@@ -957,17 +953,24 @@ public class DDDB {
      * @return true if found
      */
     static boolean databaseResourceExists(String resourcePath) {
-        String databasePath = DB_DIR_PATH + "/" + resourcePath;
-
-        return DDDB.class.getResource(databasePath) != null;
+        String databasePath = DB_DIR_PATH + '/' + resourcePath;
+        URL url = resourceMap.get(databasePath);
+        if(url == null) {
+            url = DDDB.class.getResource(databasePath);
+            if(url != null)
+                resourceMap.put(databasePath, url);
+            else
+                resourceMap.put(databasePath, emptyURL);
+        }
+        return url != null && url != emptyURL;
     }
 
-    private boolean isValidDataLine(String[] tokens) {
+    private static boolean isValidDataLine(String[] tokens) {
         Debug.assertNotNull(tokens);
         return tokens.length > 0 && !tokens[0].startsWith("#");
     }
 
-    private int parseIntegerField(String numFieldElemsStr, Map parameters)
+    private static int parseIntegerField(String numFieldElemsStr, Map parameters)
             throws DDDBException {
 
         Debug.assertNotNull(numFieldElemsStr);
@@ -1005,7 +1008,7 @@ public class DDDB {
         return numFieldElems;
     }
 
-    private CsvReader openCsvReader(URL url) throws DDDBException {
+    private static CsvReader openCsvReader(URL url) throws DDDBException {
         Debug.assertNotNull(url);
         try {
             return new CsvReader(new InputStreamReader(url.openStream()),
@@ -1020,7 +1023,7 @@ public class DDDB {
         }
     }
 
-    private void closeCsvReader(CsvReader csvReader, URL url) {
+    private static void closeCsvReader(CsvReader csvReader, URL url) {
         Debug.assertNotNull(csvReader);
         Debug.assertNotNull(url);
         try {
@@ -1049,7 +1052,7 @@ public class DDDB {
         }
     }
 
-    private void raiseSyntaxError(CsvReader csvReader, URL url, String message) throws DDDBException {
+    private static void raiseSyntaxError(CsvReader csvReader, URL url, String message) throws DDDBException {
         StringBuffer sb = new StringBuffer();
         sb.append(message);
         sb.append(": file ");

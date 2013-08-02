@@ -199,7 +199,7 @@ public abstract class DataNode extends ProductNode {
         final String oldValue = this.unit;
         if (!ObjectUtils.equalObjects(oldValue, unit)) {
             this.unit = unit;
-            fireProductNodeChanged(PROPERTY_NAME_UNIT, oldValue, unit);
+            //fireProductNodeChanged(PROPERTY_NAME_UNIT, oldValue, unit);
             setModified(true);
         }
     }
