@@ -19,7 +19,14 @@
                     ]
                 },
                 {
-                    "name": "latitude"
+                    "name": "latitude",
+                    "expectedPixel" : [
+                        {
+                            "x": "406",
+                            "y": "3621",
+                            "value": "-60.895832"
+                        }
+                    ]
                 },
                 {
                     "name": "atot_412"
