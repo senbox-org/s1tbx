@@ -65,6 +65,12 @@
             <directoryMode>0755</directoryMode>
         </fileSet>
 		
+		<fileSet>
+            <directory>../../dist/jdk7/mac64/jre</directory>
+            <outputDirectory>jre</outputDirectory>
+			<fileMode>0755</fileMode>
+            <directoryMode>0755</directoryMode>
+        </fileSet>
     </fileSets>
 
     <moduleSets>

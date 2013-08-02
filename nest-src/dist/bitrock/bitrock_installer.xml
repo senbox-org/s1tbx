@@ -254,6 +254,9 @@
                         <distributionDirectory>
                             <origin>../../../target/nest-5.0-bin-mac.dir/autoupdate-osx.app</origin>
                         </distributionDirectory>
+                        <distributionDirectory>
+                            <origin>../../../target/nest-5.0-bin-mac.dir/jre</origin>
+                        </distributionDirectory>
                     </distributionFileList>
                 </folder>
             </folderList>
