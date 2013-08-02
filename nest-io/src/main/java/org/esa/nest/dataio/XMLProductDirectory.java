@@ -76,7 +76,7 @@ public class XMLProductDirectory {
 
     protected void addImageFile(final File file) throws IOException {
         final String name = file.getName().toLowerCase();
-        if ((name.endsWith("tif") || name.endsWith("tiff")) && name.startsWith("imagery")) {
+        if ((name.endsWith("tif") || name.endsWith("tiff")) && name.startsWith("image")) {
             final ImageIOFile img = new ImageIOFile(file, ImageIOFile.getTiffIIOReader(file));
             bandImageFileMap.put(img.getName(), img);
 
