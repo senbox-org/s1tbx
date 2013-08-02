@@ -30,20 +30,26 @@ public interface CsvSourceParser {
      * Triggers parsing of the records. Before calling this method, {@link CsvSourceParser#parseMetadata()} must
      * have been called.
      *
-     * @throws IllegalStateException         if this method is called before {@link CsvSourceParser#parseMetadata()} has
-     *                                       been called.
-     * @throws IOException                   if something goes wrong.
-     * @param offset                         the offset from which to start parsing.
-     * @param numRecords                     the number of records to parse. If -1 is given, all records are parsed.
+     * @param offset     the offset from which to start parsing.
+     * @param numRecords the number of records to parse. If -1 is given, all records are parsed.
+     * @throws IllegalStateException if this method is called before {@link CsvSourceParser#parseMetadata()} has
+     *                               been called.
+     * @throws IOException           if something goes wrong.
      */
     void parseRecords(int offset, int numRecords) throws IOException;
 
     /**
      * @return A view on the {@link CsvSource} parsed using this interface.
-     *
      * @throws IOException if something goes wrong.
      */
     CsvSource parseMetadata() throws IOException;
+
+    /**
+     * Tries to interpet the first record.
+     *
+     * @throws IOException if the first record cannot be interpreted.
+     */
+    void checkReadingFirstRecord() throws IOException;
 
     /**
      * Closes the parser and its associated data sources.

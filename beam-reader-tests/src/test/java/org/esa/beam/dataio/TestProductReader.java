@@ -14,6 +14,7 @@ class TestProductReader {
     TestProductReader() {
         intendedProductIds = new ArrayList<String>();
         suitableProductIds = new ArrayList<String>();
+        expectedContentList = new ArrayList<ExpectedContent>();
     }
 
     ArrayList<String> getIntendedProductIds() {

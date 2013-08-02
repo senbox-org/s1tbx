@@ -27,7 +27,6 @@ import org.esa.beam.util.io.Constants;
 import org.esa.beam.util.io.FileUtils;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Locale;
 
 /**
@@ -49,7 +48,8 @@ public class CsvProductReaderPlugIn implements ProductReaderPlugIn {
         try {
             csvFile = CsvFile.createCsvSourceParser(input.toString());
             csvFile.parseMetadata();
-        } catch (IOException e) {
+            csvFile.checkReadingFirstRecord();
+        } catch (Exception e) {
             return DecodeQualification.UNABLE;
         } finally {
             if (csvFile != null) {

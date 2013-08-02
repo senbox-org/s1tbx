@@ -91,6 +91,23 @@ public class CsvFile implements CsvSourceParser, CsvSource {
     }
 
     @Override
+    public void checkReadingFirstRecord() throws IOException {
+       Converter<?>[] converters = VectorDataNodeIO.getConverters(simpleFeatureType);
+       skipToLine(0);
+       final String line = stream.readLine() ;
+       final String[] tokens = getTokens(line);
+
+       for (int i = 0; i < converters.length; i++) {
+           Converter<?> converter = converters[i];
+           try {
+               converter.parse(tokens[i + (hasFeatureId ? 1 : 0)]);
+           } catch (ConversionException e) {
+               throw new IOException(e);
+           }
+       }
+   }
+
+    @Override
     public void parseRecords(int offset, int numRecords) throws IOException {
         Converter<?>[] converters = VectorDataNodeIO.getConverters(simpleFeatureType);
 

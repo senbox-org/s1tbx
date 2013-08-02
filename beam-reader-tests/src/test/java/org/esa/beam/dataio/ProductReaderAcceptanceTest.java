@@ -57,10 +57,11 @@ public class ProductReaderAcceptanceTest {
             for (TestProduct testProduct : testProducts) {
                 if (testProduct.exists()) {
                     final File productFile = getTestProductFile(testProduct);
+                    final String message = productReaderPlugin.getClass().getName() + ": " + testProduct.getRelativePath();
 
                     final DecodeQualification expected = getExpectedDecodeQualification(testReader, testProduct);
                     final DecodeQualification decodeQualification = productReaderPlugin.getDecodeQualification(productFile);
-                    assertEquals(expected, decodeQualification);
+                    assertEquals(message, expected, decodeQualification);
                 }
             }
         }
