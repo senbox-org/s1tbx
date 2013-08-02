@@ -34,7 +34,7 @@ public class ProductReaderAcceptanceTest {
 
     @BeforeClass
     public static void initialize() throws IOException {
-        if(FAIL_ON_MISSING_DATA) {
+        if(!FAIL_ON_MISSING_DATA) {
             // todo - use logger here
             System.out.println("WARNING: Tests will not fail if test data is missing!");
         }
