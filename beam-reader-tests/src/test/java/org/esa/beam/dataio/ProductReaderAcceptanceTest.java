@@ -169,8 +169,7 @@ public class ProductReaderAcceptanceTest {
         for (ProductReaderPlugIn readerPlugIn : readerPlugIns) {
             final Class<? extends ProductReaderPlugIn> readerPlugInClass = readerPlugIn.getClass();
             final String resourceFilename = getReaderTestResourceName(readerPlugInClass.getName());
-
-            final URL testConfigUrl = readerPlugInClass.getResource(resourceFilename);
+            URL testConfigUrl = readerPlugInClass.getResource(resourceFilename);
             if (testConfigUrl == null) {
                 fail("Unable to load reader test config file: " + resourceFilename);
             }
@@ -185,7 +184,7 @@ public class ProductReaderAcceptanceTest {
     }
 
     private static String getReaderTestResourceName(String fullyQualifiedName) {
-        final String name = fullyQualifiedName.substring(fullyQualifiedName.lastIndexOf(".") + 1);
-        return name + "-test.json";
+        final String path = fullyQualifiedName.replace(".", "/");
+        return "/" + path + "-test.json";
     }
 }
