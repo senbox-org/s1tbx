@@ -1,37 +1,21 @@
 package org.esa.beam.binning.reader;
 
-import org.esa.beam.util.io.FileUtils;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
 
-import static junit.framework.Assert.*;
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 public class BinnedFileFilterTest {
 
-    static final File TESTDATA_DIR = new File("target/binning-test-io");
+//    private static final File TESTDATA_DIR = new File("target/binning-test-io");
     private static final String endsWith = ".nc";
     private BinnedFileFilter filter;
 
     @Before
     public void setUp() throws Exception {
         filter = new BinnedFileFilter();
-
-        if (!TESTDATA_DIR.mkdirs()) {
-            fail("Unable to create test data directory");
-        }
-    }
-
-    @After
-    public void tearDown() throws Exception {
-        if (TESTDATA_DIR.isDirectory()) {
-            if (!FileUtils.deleteTree(TESTDATA_DIR)) {
-                fail("Unable to delete test data directory");
-            }
-        }
     }
 
     @Test
@@ -47,7 +31,9 @@ public class BinnedFileFilterTest {
 
     @Test
     public void testAccept() {
-        assertTrue(filter.accept(TESTDATA_DIR));
+        final File tempDir = new File(System.getProperty("java.io.tmpdir"));
+        assertTrue(tempDir.isDirectory());
+        assertTrue(filter.accept(tempDir));
         assertTrue(filter.accept(new File("ESACCI-OC-L3S-OC_PRODUCTS-MERGED-1M_MONTHLY_4km_PML_TEST_COMPOSITE_200306.nc")));
 
         assertFalse(filter.accept(new File("ESACCI-OC-L3S-OC_PRODUCTS-MERGED-1M_MONTHLY_4km_PML_TEST_COMPOSITE_200306")));
