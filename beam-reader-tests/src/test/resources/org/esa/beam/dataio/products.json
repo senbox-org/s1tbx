@@ -1,14 +1,24 @@
 {
-    "testProducts" : [
+    "testProducts": [
         {
-            "id" : "ESACCI-OC-L3S-OC_PRODUCTS-MERGED-1M_MONTHLY-full-grid-from-PML",
-            "relativePath" : "OC-CCI/ESACCI-OC-L3S-OC_PRODUCTS-MERGED-1M_MONTHLY_4km_PML_TEST_COMPOSITE_200306.nc" ,
-            "description" : "fully populated grid file that was sent by PML"
+            "id": "ESACCI-OC-L3S-OC_PRODUCTS-MERGED-1M_MONTHLY-full-grid-from-PML",
+            "relativePath": "OC-CCI/ESACCI-OC-L3S-OC_PRODUCTS-MERGED-1M_MONTHLY_4km_PML_TEST_COMPOSITE_200306.nc",
+            "description": "fully populated grid file that was sent by PML"
         } ,
         {
             "id": "L5197022_02219850809",
-            "relativePath" : "Landsat/Landsat_4_5_7_8_IntertidalFlats/19850809_197_22/L5197022_02219850809_MTL.txt",
-            "description" : "L5 Test product"
+            "relativePath": "Landsat/Landsat_4_5_7_8_IntertidalFlats/19850809_197_22/L5197022_02219850809_MTL.txt",
+            "description": "Landsat 5 GeoTIFF Test product"
+        },
+        {
+            "id": "LC81960222013195LGN00",
+            "relativePath": "Landsat/Landsat_8/LC81960222013195LGN00/LC81960222013195LGN00_MTL.txt",
+            "description": "Landsat 8 GeoTIFF Test product"
+        },
+        {
+            "id": "L71191027_02720070313",
+            "relativePath": "Landsat/legacy/L71191027_02720070313/L71191027_02720070313_MTL.txt",
+            "description": "Landsat 7 legacy Test product"
         }
     ]
 }

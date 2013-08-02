@@ -121,7 +121,7 @@ public class ProductReaderAcceptanceTest {
         final ExpectedBand[] expectedBands = expectedContent.getBands();
         for (final ExpectedBand expectedBand : expectedBands) {
             final Band band = product.getBand(expectedBand.getName());
-            assertNotNull(band);
+            assertNotNull("missing band '" + expectedBand.getName() + " in product '" + product.getFileLocation(), band);
 
             final ExpectedPixel[] expectedPixel = expectedBand.getExpectedPixel();
             for (ExpectedPixel pixel : expectedPixel) {
