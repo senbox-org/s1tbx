@@ -232,12 +232,13 @@ public class ProductReaderAcceptanceTest {
                 fail("Unable to load reader test config file: " + resourceFilename);
             }
 
-            final File readerConfigFile = new File(testConfigUrl.getPath());
-            assertTrue(readerConfigFile.isFile());
-
-            final TestProductReader testProductReader = mapper.readValue(readerConfigFile, TestProductReader.class);
-            testProductReader.setProductReaderPlugin(readerPlugIn);
-            productReaderList.add(testProductReader);
+            try {
+                final TestProductReader testProductReader = mapper.readValue(testConfigUrl, TestProductReader.class);
+                testProductReader.setProductReaderPlugin(readerPlugIn);
+                productReaderList.add(testProductReader);
+            } catch (IOException e) {
+                fail("Unable to load reader test config file: " + testConfigUrl);
+            }
         }
     }
 
