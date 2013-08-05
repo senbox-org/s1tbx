@@ -101,7 +101,7 @@ public class ProductReaderAcceptanceTest {
             final ArrayList<String> intendedProductIds = testReader.getIntendedProductIds();
             logger.info(INDENT + testReader.getProductReaderPlugin().getClass().getSimpleName());
             for (String productId : intendedProductIds) {
-                final TestProduct testProduct = testProductList.geById(productId);
+                final TestProduct testProduct = testProductList.getById(productId);
                 Assert.assertNotNull("Test file not defined for ID=" + productId, testProduct);
 
                 if (testProduct.exists()) {
@@ -213,7 +213,7 @@ public class ProductReaderAcceptanceTest {
             final ProductList list = mapper.readValue(productsFile, ProductList.class);
             for (TestProduct testProduct : list) {
                 final String id = testProduct.getId();
-                if (testProductList.geById(id) != null) {
+                if (testProductList.getById(id) != null) {
                     fail("Test file with ID=" + id + " already defined");
                 }
                 testProductList.add(testProduct);

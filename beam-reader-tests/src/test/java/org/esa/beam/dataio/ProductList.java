@@ -18,7 +18,7 @@ class ProductList implements Iterable<TestProduct> {
         this.testProducts = testProducts;
     }
 
-    TestProduct geById(String id) {
+    TestProduct getById(String id) {
         for (TestProduct testProduct : testProducts) {
             if (testProduct.getId().equalsIgnoreCase(id)) {
                 return testProduct;
