@@ -32,7 +32,6 @@ import org.esa.beam.framework.gpf.pointop.ProductConfigurer;
 import org.esa.beam.framework.gpf.pointop.Sample;
 import org.esa.beam.framework.gpf.pointop.SampleConfigurer;
 import org.esa.beam.framework.gpf.pointop.WritableSample;
-import org.esa.beam.framework.processor.ProcessorException;
 import org.esa.beam.jai.ResolutionLevel;
 import org.esa.beam.jai.VirtualBandOpImage;
 import org.esa.beam.util.ProductUtils;
@@ -70,7 +69,7 @@ public class FlhMciOp extends PixelOperator {
     private String maskExpression;
     @Parameter(defaultValue = "1.005")
     private float cloudCorrectionFactor;
-    @Parameter(defaultValue = "0.0", label = "Invalid FLH/MCI value",
+    @Parameter(defaultValue = "NaN", label = "Invalid FLH/MCI value",
                description = "Value used to fill invalid FLH/MCI pixels")
     private float invalidFlhMciValue;
 
@@ -123,6 +122,8 @@ public class FlhMciOp extends PixelOperator {
         lineHeightBand.setUnit(signalBand.getUnit());
         lineHeightBand.setDescription("Line height band");
         lineHeightBand.setValidPixelExpression(validPixelExpression);
+        lineHeightBand.setNoDataValueUsed(true);
+        lineHeightBand.setNoDataValue(invalidFlhMciValue);
 
         ProductUtils.copySpectralBandProperties(signalBand, lineHeightBand);
 
@@ -170,12 +171,7 @@ public class FlhMciOp extends PixelOperator {
         final float lambda3 = getWavelength(upperBaselineBandName);
 
         algorithm = new BaselineAlgorithm();
-        try {
-            algorithm.setWavelengths(lambda1, lambda3, lambda2);
-        } catch (ProcessorException e) {
-            throw new OperatorException(e);
-        }
-        algorithm.setInvalidValue(invalidFlhMciValue);
+        algorithm.setWavelengths(lambda1, lambda3, lambda2);
         algorithm.setCloudCorrectionFactor(cloudCorrectionFactor);
 
         if (maskExpression != null && !maskExpression.isEmpty()) {
