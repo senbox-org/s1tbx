@@ -115,19 +115,42 @@ public class FlhMciOp extends PixelOperator {
     protected void configureTargetProduct(ProductConfigurer productConfigurer) {
         super.configureTargetProduct(productConfigurer);
 
+        final String validPixelExpression = createValidMaskExpression();
+
         final Band lineHeightBand = productConfigurer.addBand(lineHeightBandName, ProductData.TYPE_FLOAT32);
+
         final Band signalBand = sourceProduct.getBand(signalBandName);
         lineHeightBand.setUnit(signalBand.getUnit());
-        lineHeightBand.setDescription(FlhMciConstants.LINEHEIGHT_BAND_DESCRIPTION);
+        lineHeightBand.setDescription("Line height band");
+        lineHeightBand.setValidPixelExpression(validPixelExpression);
+
         ProductUtils.copySpectralBandProperties(signalBand, lineHeightBand);
 
         if (slope) {
             final Band slopeBand = productConfigurer.addBand(slopeBandName, ProductData.TYPE_FLOAT32);
             slopeBand.setUnit(signalBand.getUnit() + " nm-1");
-            slopeBand.setDescription(FlhMciConstants.SLOPE_BAND_DESCRIPTION);
+            slopeBand.setDescription("Baseline slope band");
+            slopeBand.setNoDataValueUsed(true);
+            slopeBand.setNoDataValue(Double.NaN);
+            slopeBand.setValidPixelExpression(validPixelExpression);
         }
 
         ProductUtils.copyFlagBands(sourceProduct, productConfigurer.getTargetProduct(), true);
+    }
+
+    private String createValidMaskExpression() {
+        if (maskExpression != null && !maskExpression.trim().isEmpty()) {
+            return maskExpression;
+        }
+        final String expression;
+        if (sourceProduct.getBand("l1_flags") != null && sourceProduct.getFlagCodingGroup().get("l1_flags") != null) {
+            expression = "!l1_flags.INVALID && !l1_flags.LAND_OCEAN";
+        } else if (sourceProduct.getBand("l2_flags") != null && sourceProduct.getFlagCodingGroup().get("l2_flags") != null) {
+            expression = "l2_flags.WATER && !l2_flags.CLOUD";
+        } else {
+            expression = null;
+        }
+        return expression;
     }
 
     @Override

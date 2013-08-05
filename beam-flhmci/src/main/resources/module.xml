@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-flhmci</symbolicName>
-    <version>1.6.204</version>
+    <version>1.7</version>
     <name>MERIS FLH/MCI Processor</name>
 
     <description>
@@ -25,6 +25,8 @@
 
     <changelog>
         <![CDATA[
+        Changes in 1.7 (SNAPSHOT):<br/>
+        [BEAM-1528] FLH/MCI operator does not set valid mask of output bands<br>
         Changes in 1.6.204:<br/>
         Aligned version numbers of module.xml and pom.xml<br>
         Changes in 1.6.203:<br/>
