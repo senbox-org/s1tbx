@@ -66,10 +66,9 @@ public class ProductReaderAcceptanceTest {
 
     @Test
     public void testPluginDecodeQualifications() throws ClassNotFoundException, IllegalAccessException, InstantiationException {
-        final ArrayList<TestProductReader> testReaders = productReaderList.getTestReaders();
         logger.info("Testing DecodeQualification:");
         final StopWatch stopWatch = new StopWatch();
-        for (TestProductReader testReader : testReaders) {
+        for (TestProductReader testReader : productReaderList) {
             final ProductReaderPlugIn productReaderPlugin = testReader.getProductReaderPlugin();
             logger.info(INDENT + productReaderPlugin.getClass().getSimpleName());
 
@@ -94,9 +93,8 @@ public class ProductReaderAcceptanceTest {
 
     @Test
     public void testReadIntendedProductContent() throws IOException {
-        final ArrayList<TestProductReader> testReaders = productReaderList.getTestReaders();
         logger.info("Testing IntendedProductContent:");
-        for (TestProductReader testReader : testReaders) {
+        for (TestProductReader testReader : productReaderList) {
             final ArrayList<String> intendedProductIds = testReader.getIntendedProductIds();
             logger.info(INDENT + testReader.getProductReaderPlugin().getClass().getSimpleName());
             for (String productId : intendedProductIds) {
