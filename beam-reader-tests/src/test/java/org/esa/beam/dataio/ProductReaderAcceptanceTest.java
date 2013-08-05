@@ -11,6 +11,7 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.util.StopWatch;
 import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.logging.BeamLogManager;
+import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -19,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -35,7 +37,7 @@ public class ProductReaderAcceptanceTest {
     private static final String PROPERTYNAME_FAIL_ON_MISSING_DATA = "beam.reader.tests.failOnMissingData";
     private static final boolean FAIL_ON_MISSING_DATA = Boolean.parseBoolean(System.getProperty(PROPERTYNAME_FAIL_ON_MISSING_DATA, "true"));
     private static final String INDENT = "\t";
-    private static ProductList testProductList;
+    private static final ProductList testProductList = new ProductList();
     private static ProductReaderList productReaderList;
     private static File dataRootDir;
     private static Logger logger;
@@ -100,6 +102,8 @@ public class ProductReaderAcceptanceTest {
             logger.info(INDENT + testReader.getProductReaderPlugin().getClass().getSimpleName());
             for (String productId : intendedProductIds) {
                 final TestProduct testProduct = testProductList.geById(productId);
+                Assert.assertNotNull("Test file not defined for ID=" + productId, testProduct);
+
                 if (testProduct.exists()) {
                     logger.info(INDENT + INDENT + productId);
                     final File testProductFile = getTestProductFile(testProduct);
@@ -141,7 +145,7 @@ public class ProductReaderAcceptanceTest {
                     logger.log(Level.SEVERE, message, e);
                     fail(message);
                 }
-            }else {
+            } else {
                 logProductNotExistent(testProduct);
             }
         }
@@ -198,12 +202,24 @@ public class ProductReaderAcceptanceTest {
     }
 
     private static void readProductsList() throws IOException {
-        final URL resource = ProductReaderAcceptanceTest.class.getResource("products.json");
-        final File productsFile = new File(resource.getPath());
-        assertTrue(productsFile.isFile());
-
+        final ClassLoader classLoader = ProductReaderAcceptanceTest.class.getClassLoader();
+        final Enumeration<URL> resources = classLoader.getResources("org/esa/beam/dataio/products.json");
         final ObjectMapper mapper = new ObjectMapper();
-        testProductList = mapper.readValue(productsFile, ProductList.class);
+
+        while (resources.hasMoreElements()) {
+            URL url = resources.nextElement();
+            final File productsFile = new File(url.getPath());
+            assertTrue(productsFile.isFile());
+            final ProductList list = mapper.readValue(productsFile, ProductList.class);
+            for (TestProduct testProduct : list) {
+                final String id = testProduct.getId();
+                if (testProductList.geById(id) != null) {
+                    fail("Test file with ID=" + id + " already defined");
+                }
+                testProductList.add(testProduct);
+            }
+        }
+
     }
 
     private static void validateProductList() {

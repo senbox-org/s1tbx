@@ -1,11 +1,6 @@
 {
     "testProducts": [
         {
-            "id": "ESACCI-OC-L3S-OC_PRODUCTS-MERGED-1M_MONTHLY-full-grid-from-PML",
-            "relativePath": "OC-CCI/ESACCI-OC-L3S-OC_PRODUCTS-MERGED-1M_MONTHLY_4km_PML_TEST_COMPOSITE_200306.nc",
-            "description": "fully populated grid file that was sent by PML"
-        } ,
-        {
             "id": "L5197022_02219850809",
             "relativePath": "Landsat/Landsat_4_5_7_8_IntertidalFlats/19850809_197_22/L5197022_02219850809_MTL.txt",
             "description": "Landsat 5 GeoTIFF Test product"
