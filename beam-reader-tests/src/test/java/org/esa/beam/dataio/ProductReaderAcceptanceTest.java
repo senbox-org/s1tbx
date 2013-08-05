@@ -3,6 +3,7 @@ package org.esa.beam.dataio;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.esa.beam.framework.dataio.DecodeQualification;
+import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 import org.esa.beam.framework.datamodel.Band;
@@ -19,6 +20,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.logging.ConsoleHandler;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static junit.framework.Assert.assertEquals;
@@ -70,11 +72,9 @@ public class ProductReaderAcceptanceTest {
             final ProductReaderPlugIn productReaderPlugin = testReader.getProductReaderPlugin();
             logger.info(INDENT + productReaderPlugin.getClass().getSimpleName());
 
-            final ArrayList<TestProduct> testProducts = testProductList.getTestProducts();
-            for (TestProduct testProduct : testProducts) {
+            for (TestProduct testProduct : testProductList) {
                 if (testProduct.exists()) {
                     final File productFile = getTestProductFile(testProduct);
-                    final String message = productReaderPlugin.getClass().getName() + ": " + testProduct.getRelativePath();
 
                     final DecodeQualification expected = getExpectedDecodeQualification(testReader, testProduct);
                     stopWatch.start();
@@ -82,9 +82,10 @@ public class ProductReaderAcceptanceTest {
                     stopWatch.stop();
                     logger.info(INDENT + INDENT + testProduct.getId() + ": " + stopWatch.getTimeDiffString());
 
+                    final String message = productReaderPlugin.getClass().getName() + ": " + testProduct.getRelativePath();
                     assertEquals(message, expected, decodeQualification);
                 } else {
-                    logger.info(INDENT + INDENT + testProduct.getId() + " not existent");
+                    logProductNotExistent(testProduct);
                 }
             }
         }
@@ -116,13 +117,38 @@ public class ProductReaderAcceptanceTest {
                         }
                     }
                 } else {
-                    logger.info(INDENT + INDENT + productId + " not existent");
+                    logProductNotExistent(testProduct);
                 }
             }
         }
     }
 
-    private void testExpectedContent(ExpectedContent expectedContent, Product product) {
+    @Test
+    public void testProductIO_readProduct() throws Exception {
+        logger.info("Testing ProductIO.readProduct");
+        final StopWatch stopWatch = new StopWatch();
+        for (TestProduct testProduct : testProductList) {
+            if (testProduct.exists()) {
+                final File testProductFile = getTestProductFile(testProduct);
+                try {
+                    stopWatch.start();
+                    ProductIO.readProduct(testProductFile);
+                    stopWatch.stop();
+                    logger.info(INDENT + testProduct.getId() + " " + stopWatch.getTimeDiffString());
+                } catch (Exception e) {
+                    final String message = "ProductIO.readProduct " + testProduct.getId() + " caused an exception.\n" +
+                                           "Should only return NULL or a product instance but should not cause any exception.";
+                    logger.log(Level.SEVERE, message, e);
+                    fail(message);
+                }
+            }else {
+                logProductNotExistent(testProduct);
+            }
+        }
+
+    }
+
+    private static void testExpectedContent(ExpectedContent expectedContent, Product product) {
         final ExpectedBand[] expectedBands = expectedContent.getBands();
         for (final ExpectedBand expectedBand : expectedBands) {
             final Band band = product.getBand(expectedBand.getName());
@@ -136,7 +162,7 @@ public class ProductReaderAcceptanceTest {
         }
     }
 
-    private DecodeQualification getExpectedDecodeQualification(TestProductReader testReader, TestProduct testProduct) {
+    private static DecodeQualification getExpectedDecodeQualification(TestProductReader testReader, TestProduct testProduct) {
         final ArrayList<String> intendedProductNames = testReader.getIntendedProductIds();
         if (intendedProductNames.contains(testProduct.getId())) {
             return DecodeQualification.INTENDED;
@@ -149,11 +175,15 @@ public class ProductReaderAcceptanceTest {
         return DecodeQualification.UNABLE;
     }
 
-    private File getTestProductFile(TestProduct testProduct) {
+    private static File getTestProductFile(TestProduct testProduct) {
         final String relativePath = testProduct.getRelativePath();
         final File testProductFile = new File(dataRootDir, relativePath);
         assertTrue(testProductFile.exists());
         return testProductFile;
+    }
+
+    private static void logProductNotExistent(TestProduct testProduct) {
+        logger.info(INDENT + INDENT + testProduct.getId() + " not existent");
     }
 
     private static void readTestDataDirProperty() {
@@ -177,8 +207,7 @@ public class ProductReaderAcceptanceTest {
     }
 
     private static void validateProductList() {
-        final ArrayList<TestProduct> testProducts = testProductList.getTestProducts();
-        for (TestProduct testProduct : testProducts) {
+        for (TestProduct testProduct : testProductList) {
             final String relativePath = testProduct.getRelativePath();
             final File productFile = new File(dataRootDir, relativePath);
             if (!productFile.exists()) {
