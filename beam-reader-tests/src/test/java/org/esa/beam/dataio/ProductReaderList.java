@@ -2,8 +2,9 @@ package org.esa.beam.dataio;
 
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
-class ProductReaderList {
+class ProductReaderList implements Iterable<TestProductReader>{
 
     private ArrayList<TestProductReader> testReaders;
 
@@ -21,5 +22,10 @@ class ProductReaderList {
 
     void setTestReaders(ArrayList<TestProductReader> testReaders) {
         this.testReaders = testReaders;
+    }
+
+    @Override
+    public Iterator<TestProductReader> iterator() {
+        return testReaders.iterator();
     }
 }
