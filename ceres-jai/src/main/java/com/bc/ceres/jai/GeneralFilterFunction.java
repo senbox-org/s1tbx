@@ -16,15 +16,14 @@
 
 package com.bc.ceres.jai;
 
+import java.util.Arrays;
+
 /**
  * A general filter function.
  * This class is used as parameter for the
  * {@link com.bc.ceres.jai.operator.GeneralFilterDescriptor GeneralFilter} operation.
  */
 public abstract class GeneralFilterFunction {
-    public static final GeneralFilterFunction MIN_3X3 = new Min(3);
-    public static final GeneralFilterFunction MAX_3X3 = new Max(3);
-    public static final GeneralFilterFunction MEAN_3X3 = new Mean(3);
 
     private final int width;
     private final int height;
@@ -114,7 +113,7 @@ public abstract class GeneralFilterFunction {
 
     public abstract float filter(float[] fdata);
 
-    private static class Min extends GeneralFilterFunction {
+    public static class Min extends GeneralFilterFunction {
         public Min(int size) {
             super(size);
         }
@@ -128,17 +127,19 @@ public abstract class GeneralFilterFunction {
         }
 
         public float filter(float[] fdata) {
-            float min = Float.MAX_VALUE;
+            float min = Float.POSITIVE_INFINITY;
+            int n = 0;
             for (float v : fdata) {
                 if (v < min) {
                     min = v;
+                    n++;
                 }
             }
-            return min;
+            return n > 0 ? min : Float.NaN;
         }
     }
 
-    private  static class Max extends GeneralFilterFunction {
+    public static class Max extends GeneralFilterFunction {
         public Max(int size) {
             super(size);
         }
@@ -152,18 +153,55 @@ public abstract class GeneralFilterFunction {
         }
 
         public float filter(float[] fdata) {
-            float max = -Float.MAX_VALUE;
+            float max = Float.NEGATIVE_INFINITY;
+            int n = 0;
             for (float v : fdata) {
                 if (v > max) {
                     max = v;
+                    n++;
                 }
             }
-            return max;
+            return n > 0 ? max : Float.NaN;
         }
     }
 
-    private static class Mean extends GeneralFilterFunction {
-        private final float n;
+    public static class Median extends GeneralFilterFunction {
+
+        public Median(int size) {
+            this(size, size);
+        }
+
+        public Median(int width, int height) {
+            this(width, height, width / 2, height / 2);
+        }
+
+        public Median(int width, int height, int xOrigin, int yOrigin) {
+            super(width, height, xOrigin, yOrigin);
+        }
+
+        public float filter(float[] fdata) {
+            // Note: NaN's are moved to the end of the array
+            Arrays.sort(fdata);
+            int n = 0;
+            for (float v : fdata) {
+                if (!Float.isNaN(v))  {
+                    n++;
+                    break;
+                }
+            }
+            if (n == 0) {
+                return Float.NaN;
+            } else if (n == 1) {
+                return fdata[0];
+            } else if (n % 2 == 1) {
+                return fdata[n/2];
+            } else {
+                return 0.5F * (fdata[n/2] + fdata[n/2 + 1]);
+            }
+        }
+    }
+
+    public static class Mean extends GeneralFilterFunction {
 
         public Mean(int size) {
             this(size, size);
@@ -175,16 +213,58 @@ public abstract class GeneralFilterFunction {
 
         public Mean(int width, int height, int xOrigin, int yOrigin) {
             super(width, height, xOrigin, yOrigin);
-            n = width * height;
         }
 
         public float filter(float[] fdata) {
-            final float a = 1.0F / n;
-            float sum = 0.0F;
+            float sum = 0F;
+            int n = 0;
             for (float v : fdata) {
-                sum += a * v;
+                if (!Float.isNaN(v))  {
+                    sum += v;
+                    n++;
+                }
             }
-            return sum;
+            return n > 0 ? sum/n : Float.NaN;
+        }
+    }
+
+    public static class StdDev extends GeneralFilterFunction {
+
+        public StdDev(int size) {
+            this(size, size);
+        }
+
+        public StdDev(int width, int height) {
+            this(width, height, width / 2, height / 2);
+        }
+
+        public StdDev(int width, int height, int xOrigin, int yOrigin) {
+            super(width, height, xOrigin, yOrigin);
+        }
+
+        @Override
+        public float filter(float[] fdata) {
+            float sum = 0F;
+            int n = 0;
+            for (float v : fdata) {
+                if (!Float.isNaN(v)) {
+                    sum += v;
+                    n++;
+                }
+            }
+            if (n > 0) {
+                float mean = sum / n;
+                float sqrSum = 0;
+                for (float v : fdata) {
+                    if (!Float.isNaN(v)) {
+                        float delta = v - mean;
+                        sqrSum += delta * delta;
+                    }
+                }
+                return (float) Math.sqrt(sqrSum / n);
+            } else {
+                return Float.NaN;
+            }
         }
     }
 }
