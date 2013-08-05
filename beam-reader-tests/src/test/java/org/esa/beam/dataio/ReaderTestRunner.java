@@ -16,8 +16,7 @@ public class ReaderTestRunner extends BlockJUnit4ClassRunner {
 
         this.clazz = clazz;
 
-        final String property = System.getProperty(PROPERTYNAME_EXECUTE_READER_TESTS);
-        runAcceptanceTests = "true".equalsIgnoreCase(property);
+        runAcceptanceTests = Boolean.getBoolean(PROPERTYNAME_EXECUTE_READER_TESTS);
     }
 
     @Override
