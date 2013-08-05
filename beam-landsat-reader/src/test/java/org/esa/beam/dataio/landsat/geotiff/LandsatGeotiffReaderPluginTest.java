@@ -37,6 +37,16 @@ public class LandsatGeotiffReaderPluginTest {
     }
 
     @Test
+    public void testIsLandsat4Filename() throws Exception {
+        assertTrue(LandsatGeotiffReaderPlugin.isLandsat4Filename("LT40140341983030XXX13_MTL.txt"));
+        assertTrue(LandsatGeotiffReaderPlugin.isLandsat4Filename("LT40140341982315PAC00_MTL.txt"));
+        assertTrue(LandsatGeotiffReaderPlugin.isLandsat4Filename("LT41160361989137XXX02_MTL.txt"));
+
+        assertFalse(LandsatGeotiffReaderPlugin.isLandsat4Filename("LT40140341982315PAC00_B1.TIF"));
+        assertFalse(LandsatGeotiffReaderPlugin.isLandsat4Filename("LT51920342011274MPS00.tgz"));
+    }
+
+    @Test
     public void testIsLandsat5Filename() throws Exception {
         assertTrue(LandsatGeotiffReaderPlugin.isLandsat5Filename("LT51231232013068GSI01_MTL.txt"));
         assertTrue(LandsatGeotiffReaderPlugin.isLandsat5Filename("LT51231232013068GSI01_MTL.TXT"));

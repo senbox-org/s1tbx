@@ -44,11 +44,12 @@ public class LandsatGeotiffReaderPlugin implements ProductReaderPlugIn {
     @Override
     public DecodeQualification getDecodeQualification(Object input) {
         String filename = new File(input.toString()).getName();
-        if (!isLandsat5Filename(filename)
-            && !isLandsat7Filename(filename)
-            && !isLandsat8Filename(filename)
-            && !isLandsat5LegacyFilename(filename)
-            && !isLandsat7LegacyFilename(filename)) {
+        if (!isLandsat4Filename(filename)
+                && !isLandsat5Filename(filename)
+                && !isLandsat7Filename(filename)
+                && !isLandsat8Filename(filename)
+                && !isLandsat5LegacyFilename(filename)
+                && !isLandsat7LegacyFilename(filename)) {
             return DecodeQualification.UNABLE;
         }
 
@@ -167,6 +168,13 @@ public class LandsatGeotiffReaderPlugin implements ProductReaderPlugIn {
         return null;
     }
 
+    static boolean isLandsat4Filename(String filename) {
+        if (filename.matches("LT4\\d{13}\\w{3}\\d{2}_MTL.(txt|TXT)")) {
+            return true;
+        }
+        return false;
+    }
+
     static boolean isLandsat5Filename(String filename) {
         if (filename.matches("LT5\\d{13}.{3}\\d{2}_MTL.(txt|TXT)")) {
             return true;
@@ -230,8 +238,8 @@ public class LandsatGeotiffReaderPlugin implements ProductReaderPlugIn {
         extension = extension.toLowerCase();
 
         return extension.contains("zip")
-               || extension.contains("tar")
-               || extension.contains("tgz")
-               || extension.contains("gz");
+                || extension.contains("tar")
+                || extension.contains("tgz")
+                || extension.contains("gz");
     }
 }

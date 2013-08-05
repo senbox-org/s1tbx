@@ -1,6 +1,11 @@
 {
     "testProducts": [
         {
+            "id": "LT40140341983030XXX13",
+            "relativePath": "Landsat/LT40140341983030XXX13/LT40140341983030XXX13_MTL.txt",
+            "description": "Landsat 4 GeoTIFF Test product"
+        },
+        {
             "id": "L5197022_02219850809",
             "relativePath": "Landsat/Landsat_4_5_7_8_IntertidalFlats/19850809_197_22/L5197022_02219850809_MTL.txt",
             "description": "Landsat 5 GeoTIFF Test product"
@@ -9,6 +14,11 @@
             "id": "LC81960222013195LGN00",
             "relativePath": "Landsat/Landsat_8/LC81960222013195LGN00/LC81960222013195LGN00_MTL.txt",
             "description": "Landsat 8 GeoTIFF Test product"
+        },
+        {
+            "id": "LT51970222006231KIS02",
+            "relativePath": "Landsat/legacy/LT51970222006231KIS02.tar.gz",
+            "description": "Landsat 5 legacy Test product"
         },
         {
             "id": "L71191027_02720070313",
