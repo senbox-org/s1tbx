@@ -140,14 +140,14 @@ public class LandsatGeotiffReader extends AbstractProductReader {
                     Band srcBand = bandProduct.getBandAt(0);
                     String bandName = landsatMetadata.getBandNamePrefix(bandNumber);
                     Band band = product.addBand(bandName, srcBand.getDataType());
+                    band.setScalingFactor(landsatMetadata.getScalingFactor(bandNumber));
+                    band.setScalingOffset(landsatMetadata.getScalingOffset(bandNumber));
+
                     band.setNoDataValue(0.0);
                     band.setNoDataValueUsed(true);
 
                     band.setSpectralWavelength(landsatMetadata.getWavelength(bandNumber));
                     band.setSpectralBandwidth(landsatMetadata.getBandwidth(bandNumber));
-
-                    band.setScalingFactor(landsatMetadata.getScalingFactor(bandNumber));
-                    band.setScalingOffset(landsatMetadata.getScalingOffset(bandNumber));
 
                     band.setDescription(landsatMetadata.getBandDescription(bandNumber));
                     band.setUnit(UNITS);

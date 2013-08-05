@@ -5,6 +5,8 @@ class ExpectedBand {
 
     private String name;
     private String description;
+    private String geophysicalUnit;
+    private String noDataValue;
     private ExpectedPixel[] expectedPixel;
 
     ExpectedBand() {
@@ -27,8 +29,24 @@ class ExpectedBand {
         this.description = description;
     }
 
+    String getGeophysicalUnit() {
+        return geophysicalUnit;
+    }
+
+    void setGeophysicalUnit(String geophysicalUnit) {
+        this.geophysicalUnit = geophysicalUnit;
+    }
+
     ExpectedPixel[] getExpectedPixel() {
         return expectedPixel;
+    }
+
+    String getNoDataValue() {
+        return noDataValue;
+    }
+
+    void setNoDataValue(String noDataValue) {
+        this.noDataValue = noDataValue;
     }
 
     void setExpectedPixel(ExpectedPixel[] expectedPixel) {
