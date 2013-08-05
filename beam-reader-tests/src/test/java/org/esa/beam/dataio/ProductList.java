@@ -8,6 +8,12 @@ class ProductList implements Iterable<TestProduct> {
 
     private ArrayList<TestProduct> testProducts;
 
+    ProductList() {
+        this.testProducts = new ArrayList<TestProduct>();
+    }
+
+    // used by JSON
+    @SuppressWarnings("UnusedDeclaration")
     void setTestProducts(ArrayList<TestProduct> testProducts) {
         this.testProducts = testProducts;
     }
@@ -24,5 +30,9 @@ class ProductList implements Iterable<TestProduct> {
     @Override
     public Iterator<TestProduct> iterator() {
         return testProducts.iterator();
+    }
+
+    public void add(TestProduct testProduct) {
+        testProducts.add(testProduct);
     }
 }
