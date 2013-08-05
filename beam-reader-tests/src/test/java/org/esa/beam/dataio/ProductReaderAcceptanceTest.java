@@ -20,7 +20,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -67,10 +66,9 @@ public class ProductReaderAcceptanceTest {
 
     @Test
     public void testPluginDecodeQualifications() throws ClassNotFoundException, IllegalAccessException, InstantiationException {
-        final ArrayList<TestProductReader> testReaders = productReaderList.getTestReaders();
         logger.info("Testing DecodeQualification:");
         final StopWatch stopWatch = new StopWatch();
-        for (TestProductReader testReader : testReaders) {
+        for (TestProductReader testReader : productReaderList) {
             final ProductReaderPlugIn productReaderPlugin = testReader.getProductReaderPlugin();
             logger.info(INDENT + productReaderPlugin.getClass().getSimpleName());
 
@@ -87,7 +85,7 @@ public class ProductReaderAcceptanceTest {
                     final String message = productReaderPlugin.getClass().getName() + ": " + testProduct.getRelativePath();
                     assertEquals(message, expected, decodeQualification);
                 } else {
-                    logProductNotExistent(testProduct);
+                    logProductNotExistent(2, testProduct);
                 }
             }
         }
@@ -95,9 +93,8 @@ public class ProductReaderAcceptanceTest {
 
     @Test
     public void testReadIntendedProductContent() throws IOException {
-        final ArrayList<TestProductReader> testReaders = productReaderList.getTestReaders();
         logger.info("Testing IntendedProductContent:");
-        for (TestProductReader testReader : testReaders) {
+        for (TestProductReader testReader : productReaderList) {
             final ArrayList<String> intendedProductIds = testReader.getIntendedProductIds();
             logger.info(INDENT + testReader.getProductReaderPlugin().getClass().getSimpleName());
             for (String productId : intendedProductIds) {
@@ -121,7 +118,7 @@ public class ProductReaderAcceptanceTest {
                         }
                     }
                 } else {
-                    logProductNotExistent(testProduct);
+                    logProductNotExistent(2, testProduct);
                 }
             }
         }
@@ -138,7 +135,7 @@ public class ProductReaderAcceptanceTest {
                     stopWatch.start();
                     ProductIO.readProduct(testProductFile);
                     stopWatch.stop();
-                    logger.info(INDENT + testProduct.getId() + " " + stopWatch.getTimeDiffString());
+                    logger.info(INDENT + testProduct.getId() + ": " + stopWatch.getTimeDiffString());
                 } catch (Exception e) {
                     final String message = "ProductIO.readProduct " + testProduct.getId() + " caused an exception.\n" +
                                            "Should only return NULL or a product instance but should not cause any exception.";
@@ -146,7 +143,7 @@ public class ProductReaderAcceptanceTest {
                     fail(message);
                 }
             } else {
-                logProductNotExistent(testProduct);
+                logProductNotExistent(1, testProduct);
             }
         }
 
@@ -186,8 +183,12 @@ public class ProductReaderAcceptanceTest {
         return testProductFile;
     }
 
-    private static void logProductNotExistent(TestProduct testProduct) {
-        logger.info(INDENT + INDENT + testProduct.getId() + " not existent");
+    private static void logProductNotExistent(int indention, TestProduct testProduct) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < indention; i++) {
+            sb.append(INDENT);
+        }
+        logger.info(sb.toString() + testProduct.getId() + ": Not existent");
     }
 
     private static void readTestDataDirProperty() {
@@ -202,15 +203,24 @@ public class ProductReaderAcceptanceTest {
     }
 
     private static void readProductsList() throws IOException {
-        final ClassLoader classLoader = ProductReaderAcceptanceTest.class.getClassLoader();
-        final Enumeration<URL> resources = classLoader.getResources("org/esa/beam/dataio/products.json");
+        final ArrayList<URL> resources = new ArrayList<URL>();
+        final Iterable<ProductReaderPlugIn> readerPlugins = SystemUtils.loadServices(ProductReaderPlugIn.class);
+        for (ProductReaderPlugIn readerPlugin : readerPlugins) {
+            final Class<? extends ProductReaderPlugIn> readerPlugInClass = readerPlugin.getClass();
+
+            final String dataResource = getReaderTestResourceName(readerPlugInClass.getName(), "-data.json");
+            final URL resource = readerPlugInClass.getResource(dataResource);
+            if (resource != null) {
+                resources.add(resource);
+            } else {
+                logger.warning(readerPlugInClass.getSimpleName() + " does not define test data");
+            }
+        }
+
         final ObjectMapper mapper = new ObjectMapper();
 
-        while (resources.hasMoreElements()) {
-            URL url = resources.nextElement();
-            final File productsFile = new File(url.getPath());
-            assertTrue(productsFile.isFile());
-            final ProductList list = mapper.readValue(productsFile, ProductList.class);
+        for (URL resource : resources) {
+            final ProductList list = mapper.readValue(resource, ProductList.class);
             for (TestProduct testProduct : list) {
                 final String id = testProduct.getId();
                 if (testProductList.getById(id) != null) {
@@ -242,7 +252,7 @@ public class ProductReaderAcceptanceTest {
 
         for (ProductReaderPlugIn readerPlugIn : readerPlugIns) {
             final Class<? extends ProductReaderPlugIn> readerPlugInClass = readerPlugIn.getClass();
-            final String resourceFilename = getReaderTestResourceName(readerPlugInClass.getName());
+            final String resourceFilename = getReaderTestResourceName(readerPlugInClass.getName(), "-test.json");
             URL testConfigUrl = readerPlugInClass.getResource(resourceFilename);
             if (testConfigUrl == null) {
                 fail("Unable to load reader test config file: " + resourceFilename);
@@ -258,9 +268,9 @@ public class ProductReaderAcceptanceTest {
         }
     }
 
-    private static String getReaderTestResourceName(String fullyQualifiedName) {
+    private static String getReaderTestResourceName(String fullyQualifiedName, String suffix) {
         final String path = fullyQualifiedName.replace(".", "/");
-        return "/" + path + "-test.json";
+        return "/" + path + suffix;
     }
 
 }
