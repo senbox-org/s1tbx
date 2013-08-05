@@ -12,6 +12,7 @@
             "bands": [
                 {
                     "name": "radiance_1",
+                    "description" : "Visible (30m)",
                     "expectedPixel": [
                         {
                             "x": "1278",
@@ -22,6 +23,7 @@
                 },
                 {
                     "name": "radiance_2",
+                    "description" : "Visible (30m)",
                     "expectedPixel": [
                         {
                             "x": "4045",
@@ -32,6 +34,7 @@
                 },
                 {
                     "name": "radiance_3",
+                    "description" : "Visible (30m)",
                     "expectedPixel": [
                         {
                             "x": "371",
@@ -42,6 +45,7 @@
                 },
                 {
                     "name": "radiance_4",
+                    "description" : "Near-Infrared (30m)",
                     "expectedPixel": [
                         {
                             "x": "6394",
@@ -52,6 +56,7 @@
                 },
                 {
                     "name": "radiance_5",
+                    "description" : "Near-Infrared (30m)",
                     "expectedPixel": [
                         {
                             "x": "2893",
@@ -62,6 +67,7 @@
                 },
                 {
                     "name": "radiance_6",
+                    "description" : "Thermal (120m)",
                     "expectedPixel": [
                         {
                             "x": "4311",
@@ -72,6 +78,7 @@
                 },
                 {
                     "name": "radiance_7",
+                    "description" : "Mid-Infrared (30m)",
                     "expectedPixel": [
                         {
                             "x": "2048",
@@ -87,6 +94,7 @@
             "bands": [
                 {
                     "name": "coastal_aerosol",
+                    "description" : "Coastal Aerosol (Operational Land Imager (OLI))",
                     "expectedPixel": [
                         {
                             "x": "13876",
@@ -97,6 +105,7 @@
                 },
                 {
                     "name": "blue",
+                    "description" : "Blue (OLI)",
                     "expectedPixel": [
                         {
                             "x": "4680",
@@ -107,6 +116,7 @@
                 },
                 {
                     "name": "green",
+                    "description" : "Green (OLI)",
                     "expectedPixel": [
                         {
                             "x": "11673",
@@ -117,6 +127,7 @@
                 },
                 {
                     "name": "red",
+                    "description" : "Red (OLI)",
                     "expectedPixel": [
                         {
                             "x": "2848",
@@ -127,6 +138,7 @@
                 },
                 {
                     "name": "near_infrared",
+                    "description" : "Near-Infrared (NIR) (OLI)",
                     "expectedPixel": [
                         {
                             "x": "11808",
@@ -137,6 +149,7 @@
                 },
                 {
                     "name": "swir_1",
+                    "description" : "Short Wavelength Infrared (SWIR) 1 (OLI)",
                     "expectedPixel": [
                         {
                             "x": "9639",
@@ -152,6 +165,7 @@
                 },
                 {
                     "name": "swir_2",
+                    "description" : "SWIR 2 (OLI)",
                     "expectedPixel": [
                         {
                             "x": "14548",
@@ -162,6 +176,7 @@
                 },
                 {
                     "name": "panchromatic",
+                    "description" : "Panchromatic (OLI)",
                     "expectedPixel": [
                         {
                             "x": "1386",
@@ -172,6 +187,7 @@
                 }                        ,
                 {
                     "name": "cirrus",
+                    "description" : "Cirrus (OLI)",
                     "expectedPixel": [
                         {
                             "x": "6559",
@@ -182,6 +198,7 @@
                 },
                 {
                     "name": "thermal_infrared_(tirs)_1",
+                    "description" : "Thermal Infrared Sensor (TIRS) 1",
                     "expectedPixel": [
                         {
                             "x": "7942",
@@ -192,6 +209,7 @@
                 },
                 {
                     "name": "thermal_infrared_(tirs)_2",
+                    "description" : "TIRS 2",
                     "expectedPixel": [
                         {
                             "x": "8782",

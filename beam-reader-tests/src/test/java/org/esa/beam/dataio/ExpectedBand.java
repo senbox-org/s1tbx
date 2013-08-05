@@ -4,6 +4,7 @@ package org.esa.beam.dataio;
 class ExpectedBand {
 
     private String name;
+    private String description;
     private ExpectedPixel[] expectedPixel;
 
     ExpectedBand() {
@@ -16,6 +17,14 @@ class ExpectedBand {
 
     void setName(String name) {
         this.name = name;
+    }
+
+    String getDescription() {
+        return description;
+    }
+
+    void setDescription(String description) {
+        this.description = description;
     }
 
     ExpectedPixel[] getExpectedPixel() {

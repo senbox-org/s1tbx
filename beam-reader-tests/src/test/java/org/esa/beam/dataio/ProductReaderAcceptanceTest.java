@@ -9,6 +9,7 @@ import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.util.StopWatch;
+import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.logging.BeamLogManager;
 import org.junit.Assert;
@@ -155,10 +156,17 @@ public class ProductReaderAcceptanceTest {
             final Band band = product.getBand(expectedBand.getName());
             assertNotNull("missing band '" + expectedBand.getName() + " in product '" + product.getFileLocation(), band);
 
+            final String assertMessagePrefix = product.getFileLocation() + " " + band.getName();
+
+            final String expectedDescription = expectedBand.getDescription();
+            if (StringUtils.isNotNullAndNotEmpty(expectedDescription)) {
+                assertEquals(assertMessagePrefix, expectedDescription, band.getDescription());
+            }
+
             final ExpectedPixel[] expectedPixel = expectedBand.getExpectedPixel();
             for (ExpectedPixel pixel : expectedPixel) {
                 final float bandValue = band.getSampleFloat(pixel.getX(), pixel.getY());
-                assertEquals(pixel.getValue(), bandValue, 1e-6);
+                assertEquals(assertMessagePrefix, pixel.getValue(), bandValue, 1e-6);
             }
         }
     }
