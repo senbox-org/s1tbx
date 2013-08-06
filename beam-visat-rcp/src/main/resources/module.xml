@@ -27,6 +27,8 @@
 
     <changelog>
         <![CDATA[
+        <p>Changes in 5.0<br/>
+          [BEAM-1527] Add missing Standard Deviation nonlinear image filter<br/>
         <p>Changes in 4.11.1<br/>
           [BEAM-1416] The export of transect pixels from a reprojected data product results in an empty file<br/>
         <p>Changes in 4.11<br/>

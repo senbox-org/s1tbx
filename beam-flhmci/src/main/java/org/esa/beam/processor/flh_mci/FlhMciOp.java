@@ -32,7 +32,6 @@ import org.esa.beam.framework.gpf.pointop.ProductConfigurer;
 import org.esa.beam.framework.gpf.pointop.Sample;
 import org.esa.beam.framework.gpf.pointop.SampleConfigurer;
 import org.esa.beam.framework.gpf.pointop.WritableSample;
-import org.esa.beam.framework.processor.ProcessorException;
 import org.esa.beam.jai.ResolutionLevel;
 import org.esa.beam.jai.VirtualBandOpImage;
 import org.esa.beam.util.ProductUtils;
@@ -70,7 +69,7 @@ public class FlhMciOp extends PixelOperator {
     private String maskExpression;
     @Parameter(defaultValue = "1.005")
     private float cloudCorrectionFactor;
-    @Parameter(defaultValue = "0.0", label = "Invalid FLH/MCI value",
+    @Parameter(defaultValue = "NaN", label = "Invalid FLH/MCI value",
                description = "Value used to fill invalid FLH/MCI pixels")
     private float invalidFlhMciValue;
 
@@ -115,19 +114,44 @@ public class FlhMciOp extends PixelOperator {
     protected void configureTargetProduct(ProductConfigurer productConfigurer) {
         super.configureTargetProduct(productConfigurer);
 
+        final String validPixelExpression = createValidMaskExpression();
+
         final Band lineHeightBand = productConfigurer.addBand(lineHeightBandName, ProductData.TYPE_FLOAT32);
+
         final Band signalBand = sourceProduct.getBand(signalBandName);
         lineHeightBand.setUnit(signalBand.getUnit());
-        lineHeightBand.setDescription(FlhMciConstants.LINEHEIGHT_BAND_DESCRIPTION);
+        lineHeightBand.setDescription("Line height band");
+        lineHeightBand.setValidPixelExpression(validPixelExpression);
+        lineHeightBand.setNoDataValueUsed(true);
+        lineHeightBand.setNoDataValue(invalidFlhMciValue);
+
         ProductUtils.copySpectralBandProperties(signalBand, lineHeightBand);
 
         if (slope) {
             final Band slopeBand = productConfigurer.addBand(slopeBandName, ProductData.TYPE_FLOAT32);
             slopeBand.setUnit(signalBand.getUnit() + " nm-1");
-            slopeBand.setDescription(FlhMciConstants.SLOPE_BAND_DESCRIPTION);
+            slopeBand.setDescription("Baseline slope band");
+            slopeBand.setNoDataValueUsed(true);
+            slopeBand.setNoDataValue(Double.NaN);
+            slopeBand.setValidPixelExpression(validPixelExpression);
         }
 
         ProductUtils.copyFlagBands(sourceProduct, productConfigurer.getTargetProduct(), true);
+    }
+
+    private String createValidMaskExpression() {
+        if (maskExpression != null && !maskExpression.trim().isEmpty()) {
+            return maskExpression;
+        }
+        final String expression;
+        if (sourceProduct.getBand("l1_flags") != null && sourceProduct.getFlagCodingGroup().get("l1_flags") != null) {
+            expression = "!l1_flags.INVALID && !l1_flags.LAND_OCEAN";
+        } else if (sourceProduct.getBand("l2_flags") != null && sourceProduct.getFlagCodingGroup().get("l2_flags") != null) {
+            expression = "l2_flags.WATER && !l2_flags.CLOUD";
+        } else {
+            expression = null;
+        }
+        return expression;
     }
 
     @Override
@@ -147,12 +171,7 @@ public class FlhMciOp extends PixelOperator {
         final float lambda3 = getWavelength(upperBaselineBandName);
 
         algorithm = new BaselineAlgorithm();
-        try {
-            algorithm.setWavelengths(lambda1, lambda3, lambda2);
-        } catch (ProcessorException e) {
-            throw new OperatorException(e);
-        }
-        algorithm.setInvalidValue(invalidFlhMciValue);
+        algorithm.setWavelengths(lambda1, lambda3, lambda2);
         algorithm.setCloudCorrectionFactor(cloudCorrectionFactor);
 
         if (maskExpression != null && !maskExpression.isEmpty()) {

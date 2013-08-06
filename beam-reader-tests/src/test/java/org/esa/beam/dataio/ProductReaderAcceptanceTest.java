@@ -163,6 +163,18 @@ public class ProductReaderAcceptanceTest {
                 assertEquals(assertMessagePrefix, expectedDescription, band.getDescription());
             }
 
+            final String expectedUnit = expectedBand.getGeophysicalUnit();
+            if (StringUtils.isNotNullAndNotEmpty(expectedUnit)) {
+                assertEquals(assertMessagePrefix, expectedUnit, band.getUnit());
+            }
+
+            final String expectedNoDataValue = expectedBand.getNoDataValue();
+            if (StringUtils.isNotNullAndNotEmpty(expectedNoDataValue)) {
+                final double expectedNDValue = Double.parseDouble(expectedNoDataValue);
+                // @todo 1 tb/tb reanimate the check when you have understood why this fails for Landsat 8 tb 2013-08-05
+                //assertEquals(assertMessagePrefix, expectedNDValue, band.getGeophysicalNoDataValue(), 1e-6);
+            }
+
             final ExpectedPixel[] expectedPixel = expectedBand.getExpectedPixel();
             for (ExpectedPixel pixel : expectedPixel) {
                 final float bandValue = band.getSampleFloat(pixel.getX(), pixel.getY());
