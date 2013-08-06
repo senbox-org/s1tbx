@@ -2,16 +2,17 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <parent>
-        <artifactId>beam-parent</artifactId>
-        <groupId>org.esa.beam</groupId>
-        <version>1</version>
-    </parent>
-
-    <name>BEAM Acceptance Test for ProductReader</name>
     <modelVersion>4.0.0</modelVersion>
 
+    <parent>
+        <groupId>org.esa.beam</groupId>
+        <artifactId>beam-system</artifactId>
+        <version>5.0-SNAPSHOT</version>
+        <relativePath>../beam-system/pom.xml</relativePath>
+    </parent>
+
     <artifactId>beam-reader-tests</artifactId>
+    <name>BEAM Acceptance Test for ProductReader</name>
 
     <dependencies>
         <dependency>
