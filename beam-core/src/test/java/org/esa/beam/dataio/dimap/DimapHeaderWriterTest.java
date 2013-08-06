@@ -144,8 +144,8 @@ public class DimapHeaderWriterTest extends TestCase {
                     "            <SCALING_FACTOR>1.0</SCALING_FACTOR>" + LS +
                     "            <SCALING_OFFSET>0.0</SCALING_OFFSET>" + LS +
                     "            <LOG10_SCALED>false</LOG10_SCALED>" + LS +
-                    "            <NO_DATA_VALUE_USED>false</NO_DATA_VALUE_USED>" + LS +
-                    "            <NO_DATA_VALUE>0.0</NO_DATA_VALUE>" + LS +
+                    "            <NO_DATA_VALUE_USED>true</NO_DATA_VALUE_USED>" + LS +
+                    "            <NO_DATA_VALUE>NaN</NO_DATA_VALUE>" + LS +
                     "            <Filter_Band_Info bandType=\"ConvolutionFilterBand\">" + LS +
                     "                <FILTER_SOURCE>b2</FILTER_SOURCE>" + LS +
                     "                <Filter_Kernel>" + LS +
@@ -160,7 +160,7 @@ public class DimapHeaderWriterTest extends TestCase {
                     "            <BAND_INDEX>4</BAND_INDEX>" + LS +
                     "            <BAND_NAME>gfb1</BAND_NAME>" + LS +
                     "            <BAND_DESCRIPTION />" + LS +
-                    "            <DATA_TYPE>int16</DATA_TYPE>" + LS +
+                    "            <DATA_TYPE>float32</DATA_TYPE>" + LS +
                     "            <PHYSICAL_UNIT />" + LS +
                     "            <SOLAR_FLUX>0.0</SOLAR_FLUX>" + LS +
                     "            <BAND_WAVELEN>0.0</BAND_WAVELEN>" + LS +
@@ -168,8 +168,8 @@ public class DimapHeaderWriterTest extends TestCase {
                     "            <SCALING_FACTOR>1.0</SCALING_FACTOR>" + LS +
                     "            <SCALING_OFFSET>0.0</SCALING_OFFSET>" + LS +
                     "            <LOG10_SCALED>false</LOG10_SCALED>" + LS +
-                    "            <NO_DATA_VALUE_USED>false</NO_DATA_VALUE_USED>" + LS +
-                    "            <NO_DATA_VALUE>0.0</NO_DATA_VALUE>" + LS +
+                    "            <NO_DATA_VALUE_USED>true</NO_DATA_VALUE_USED>" + LS +
+                    "            <NO_DATA_VALUE>NaN</NO_DATA_VALUE>" + LS +
                     "            <Filter_Band_Info bandType=\"GeneralFilterBand\" version=\"1.1\">" + LS +
                     "                <FILTER_SOURCE>b2</FILTER_SOURCE>" + LS +
                     "                <FILTER_SUB_WINDOW_SIZE>150</FILTER_SUB_WINDOW_SIZE>" + LS +

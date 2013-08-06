@@ -150,7 +150,7 @@ public class GeneralFilterBandPersistableTest extends TestCase {
         assertEquals(-1, gfb.getSpectralBandIndex());
         assertEquals("filtered_coffee", gfb.getName());
         assertEquals("with milk & sugar", gfb.getDescription());
-        assertEquals(_source.getGeophysicalDataType(), gfb.getDataType());
+        assertEquals(ProductData.TYPE_FLOAT32, gfb.getDataType());
         assertEquals("l", gfb.getUnit());
         assertEquals(0.0, gfb.getSolarFlux(), EPS);
         assertEquals(0.0, gfb.getSpectralWavelength(), EPS);
@@ -183,8 +183,7 @@ public class GeneralFilterBandPersistableTest extends TestCase {
         contentList.add(createElement(DimapProductConstants.TAG_BAND_INDEX, "1"));
         contentList.add(createElement(DimapProductConstants.TAG_BAND_NAME, "filtered_coffee"));
         contentList.add(createElement(DimapProductConstants.TAG_BAND_DESCRIPTION, "with milk & sugar"));
-        final String typeString = ProductData.getTypeString(_source.getGeophysicalDataType());
-        contentList.add(createElement(DimapProductConstants.TAG_DATA_TYPE, typeString));
+        contentList.add(createElement(DimapProductConstants.TAG_DATA_TYPE, "float32"));
         contentList.add(createElement(DimapProductConstants.TAG_PHYSICAL_UNIT, "l"));
         contentList.add(createElement(DimapProductConstants.TAG_SOLAR_FLUX, "0.0"));
         contentList.add(createElement(DimapProductConstants.TAG_BAND_WAVELEN, "0.0"));
