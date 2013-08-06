@@ -302,12 +302,7 @@ public class LandsatGeotiffReader extends AbstractProductReader {
         RenderedOp tempImg = ScaleDescriptor.create(srcImg, xScale, yScale, 0.5f, 0.5f,
                                                     Interpolation.getInstance(Interpolation.INTERP_NEAREST),
                                                     renderingHints);
-        System.out.println("tempImg.getTileWidth() = " + tempImg.getTileWidth());
-        System.out.println("tempImg.getTileHeight() = " + tempImg.getTileHeight());
-        final RenderedOp cropImg = CropDescriptor.create(tempImg, 0f, 0f, (float) targetWidth, (float) targetHeight, renderingHints);
-        System.out.println("cropImg.getTileWidth() = " + cropImg.getTileWidth());
-        System.out.println("cropImg.getTileHeight() = " + cropImg.getTileHeight());
-        return cropImg;
+        return CropDescriptor.create(tempImg, 0f, 0f, (float) targetWidth, (float) targetHeight, renderingHints);
     }
 
     @Override
