@@ -13,7 +13,17 @@
         {
             "id": "LC81960222013195LGN00",
             "relativePath": "Landsat/Landsat_8/LC81960222013195LGN00/LC81960222013195LGN00_MTL.txt",
-            "description": "Landsat 8 GeoTIFF Test product"
+            "description": "Landsat 8 OLI_TIRS GeoTIFF Test product"
+        },
+        {
+            "id": "LC81970222013122LGN01",
+            "relativePath": "Landsat/Landsat_8/LC81970222013122LGN01/LC81970222013122LGN01_MTL.txt",
+            "description": "Landsat 8 OLI_TIRS GeoTIFF Test product"
+        },
+        {
+            "id": "LT82270322013068LGN01",
+            "relativePath": "Landsat/Landsat_8/LT82270322013068LGN01/LT82270322013068LGN01_MTL.txt",
+            "description": "Landsat 8 TIRS GeoTIFF Test product"
         },
         {
             "id": "LT51970222006231KIS02",

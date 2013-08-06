@@ -7,6 +7,8 @@ class ExpectedBand {
     private String description;
     private String geophysicalUnit;
     private String noDataValue;
+    private String spectralWavelength;
+    private String spectralBandwidth;
     private ExpectedPixel[] expectedPixel;
 
     ExpectedBand() {
@@ -37,16 +39,32 @@ class ExpectedBand {
         this.geophysicalUnit = geophysicalUnit;
     }
 
-    ExpectedPixel[] getExpectedPixel() {
-        return expectedPixel;
-    }
-
     String getNoDataValue() {
         return noDataValue;
     }
 
     void setNoDataValue(String noDataValue) {
         this.noDataValue = noDataValue;
+    }
+
+    String getSpectralWavelength() {
+        return spectralWavelength;
+    }
+
+    void setSpectralWavelength(String spectralWavelength) {
+        this.spectralWavelength = spectralWavelength;
+    }
+
+    String getSpectralBandwidth() {
+        return spectralBandwidth;
+    }
+
+    void setSpectralBandwidth(String spectralBandwidth) {
+        this.spectralBandwidth = spectralBandwidth;
+    }
+
+    ExpectedPixel[] getExpectedPixel() {
+        return expectedPixel;
     }
 
     void setExpectedPixel(ExpectedPixel[] expectedPixel) {

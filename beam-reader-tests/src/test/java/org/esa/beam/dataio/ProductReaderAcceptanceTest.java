@@ -168,11 +168,22 @@ public class ProductReaderAcceptanceTest {
                 assertEquals(assertMessagePrefix, expectedUnit, band.getUnit());
             }
 
-            final String expectedNoDataValue = expectedBand.getNoDataValue();
-            if (StringUtils.isNotNullAndNotEmpty(expectedNoDataValue)) {
-                final double expectedNDValue = Double.parseDouble(expectedNoDataValue);
-                // @todo 1 tb/tb reanimate the check when you have understood why this fails for Landsat 8 tb 2013-08-05
-                //assertEquals(assertMessagePrefix, expectedNDValue, band.getGeophysicalNoDataValue(), 1e-6);
+            final String noDataValueString = expectedBand.getNoDataValue();
+            if (StringUtils.isNotNullAndNotEmpty(noDataValueString)) {
+                final double expectedNDValue = Double.parseDouble(noDataValueString);
+                assertEquals(assertMessagePrefix, expectedNDValue, band.getGeophysicalNoDataValue(), 1e-6);
+            }
+
+            final String spectralWavelengthString = expectedBand.getSpectralWavelength();
+            if (StringUtils.isNotNullAndNotEmpty(spectralWavelengthString)) {
+                final float expectedSpectralWavelength = Float.parseFloat(spectralWavelengthString);
+                assertEquals(assertMessagePrefix, expectedSpectralWavelength, band.getSpectralWavelength(), 1e-6);
+            }
+
+            final String spectralBandwidthString = expectedBand.getSpectralBandwidth();
+            if (StringUtils.isNotNullAndNotEmpty(spectralBandwidthString)) {
+                final float expectedSpectralBandwidth = Float.parseFloat(spectralBandwidthString);
+                assertEquals(assertMessagePrefix, expectedSpectralBandwidth, band.getSpectralBandwidth(), 1e-6);
             }
 
             final ExpectedPixel[] expectedPixel = expectedBand.getExpectedPixel();
