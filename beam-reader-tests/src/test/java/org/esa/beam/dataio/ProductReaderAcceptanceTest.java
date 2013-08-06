@@ -174,6 +174,12 @@ public class ProductReaderAcceptanceTest {
                 assertEquals(assertMessagePrefix, expectedNDValue, band.getGeophysicalNoDataValue(), 1e-6);
             }
 
+            final String noDataValueUsedString = expectedBand.isNoDataValueUsed();
+            if (StringUtils.isNotNullAndNotEmpty(noDataValueUsedString)) {
+                final boolean expectedNDUsedValue = Boolean.parseBoolean(noDataValueUsedString);
+                assertEquals(assertMessagePrefix, expectedNDUsedValue, band.isNoDataValueUsed());
+            }
+
             final String spectralWavelengthString = expectedBand.getSpectralWavelength();
             if (StringUtils.isNotNullAndNotEmpty(spectralWavelengthString)) {
                 final float expectedSpectralWavelength = Float.parseFloat(spectralWavelengthString);

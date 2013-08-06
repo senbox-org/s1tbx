@@ -7,6 +7,7 @@ class ExpectedBand {
     private String description;
     private String geophysicalUnit;
     private String noDataValue;
+    private String noDataValueUsed;
     private String spectralWavelength;
     private String spectralBandwidth;
     private ExpectedPixel[] expectedPixel;
@@ -45,6 +46,14 @@ class ExpectedBand {
 
     void setNoDataValue(String noDataValue) {
         this.noDataValue = noDataValue;
+    }
+
+    String isNoDataValueUsed() {
+        return noDataValueUsed;
+    }
+
+    void setNoDataValueUsed(String noDataValueUsed) {
+        this.noDataValueUsed = noDataValueUsed;
     }
 
     String getSpectralWavelength() {
