@@ -18,6 +18,7 @@ package org.esa.beam.dataio.landsat.geotiff;
 
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.VirtualDir;
+import com.bc.ceres.glevel.MultiLevelImage;
 import org.esa.beam.dataio.geotiff.GeoTiffProductReaderPlugIn;
 import org.esa.beam.framework.dataio.AbstractProductReader;
 import org.esa.beam.framework.dataio.ProductReader;
@@ -29,14 +30,18 @@ import org.esa.beam.framework.datamodel.MetadataAttribute;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.jai.ImageManager;
 
+import javax.media.jai.ImageLayout;
 import javax.media.jai.Interpolation;
+import javax.media.jai.JAI;
 import javax.media.jai.PlanarImage;
 import javax.media.jai.RenderedOp;
 import javax.media.jai.operator.CropDescriptor;
 import javax.media.jai.operator.ScaleDescriptor;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.RenderingHints;
 import java.awt.image.RenderedImage;
 import java.io.File;
 import java.io.IOException;
@@ -92,7 +97,6 @@ public class LandsatGeotiffReader extends AbstractProductReader {
         MetadataElement metadataElement = landsatMetadata.getMetaDataElementRoot();
         Product product = new Product(getProductName(mtlFile), landsatMetadata.getProductType(), productDim.width, productDim.height);
         product.setFileLocation(mtlFile);
-
         product.getMetadataRoot().addElement(metadataElement);
 
         ProductData.UTC utcCenter = landsatMetadata.getCenterTime();
@@ -179,25 +183,36 @@ public class LandsatGeotiffReader extends AbstractProductReader {
             }
         }
 
+        ImageLayout imageLayout  = new ImageLayout();
         for (Product bandProduct : bandProducts) {
             if (product.getGeoCoding() == null &&
                 product.getSceneRasterWidth() == bandProduct.getSceneRasterWidth() &&
                 product.getSceneRasterHeight() == bandProduct.getSceneRasterHeight()) {
                 product.setGeoCoding(bandProduct.getGeoCoding());
+                Dimension tileSize = bandProduct.getPreferredTileSize();
+                if (tileSize != null) {
+                    tileSize = ImageManager.getPreferredTileSize(bandProduct);
+                }
+                product.setPreferredTileSize(tileSize);
+                imageLayout.setTileWidth(tileSize.width);
+                imageLayout.setTileHeight(tileSize.height);
                 break;
             }
         }
 
+
         for (int i = 0; i < bandProducts.size(); i++) {
             Product bandProduct = bandProducts.get(i);
             Band band = product.getBandAt(i);
+            final MultiLevelImage sourceImage = bandProduct.getBandAt(0).getSourceImage();
             if (product.getSceneRasterWidth() == bandProduct.getSceneRasterWidth() &&
                 product.getSceneRasterHeight() == bandProduct.getSceneRasterHeight()) {
-                band.setSourceImage(bandProduct.getBandAt(0).getSourceImage());
+                band.setSourceImage(sourceImage);
             } else {
+                final RenderingHints renderingHints = new RenderingHints(JAI.KEY_IMAGE_LAYOUT, imageLayout);
                 PlanarImage image = createScaledImage(product.getSceneRasterWidth(), product.getSceneRasterHeight(),
                                                       bandProduct.getSceneRasterWidth(), bandProduct.getSceneRasterHeight(),
-                                                      bandProduct.getBandAt(0).getSourceImage());
+                                                      sourceImage, renderingHints);
                 band.setSourceImage(image);
             }
         }
@@ -279,12 +294,20 @@ public class LandsatGeotiffReader extends AbstractProductReader {
         return flagCoding;
     }
 
-    private static RenderedOp createScaledImage(int targetWidth, int targetHeight, int sourceWidth, int sourceHeight, RenderedImage srcImg) {
+    private static RenderedOp createScaledImage(int targetWidth, int targetHeight, int sourceWidth, int sourceHeight, RenderedImage srcImg,
+                                                RenderingHints renderingHints) {
         float xScale = (float) targetWidth / (float) sourceWidth;
         float yScale = (float) targetHeight / (float) sourceHeight;
+
         RenderedOp tempImg = ScaleDescriptor.create(srcImg, xScale, yScale, 0.5f, 0.5f,
-                                                    Interpolation.getInstance(Interpolation.INTERP_NEAREST), null);
-        return CropDescriptor.create(tempImg, 0f, 0f, (float) targetWidth, (float) targetHeight, null);
+                                                    Interpolation.getInstance(Interpolation.INTERP_NEAREST),
+                                                    renderingHints);
+        System.out.println("tempImg.getTileWidth() = " + tempImg.getTileWidth());
+        System.out.println("tempImg.getTileHeight() = " + tempImg.getTileHeight());
+        final RenderedOp cropImg = CropDescriptor.create(tempImg, 0f, 0f, (float) targetWidth, (float) targetHeight, renderingHints);
+        System.out.println("cropImg.getTileWidth() = " + cropImg.getTileWidth());
+        System.out.println("cropImg.getTileHeight() = " + cropImg.getTileHeight());
+        return cropImg;
     }
 
     @Override

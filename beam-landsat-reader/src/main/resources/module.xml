@@ -4,7 +4,7 @@
     <version>1.4</version>
     <name>Landsat TM Product Reader</name>
     <description>
-        A product reader for Landsat TM files. Can read Landsat 5, 7 and 8 in GeoTIFF format.
+        A product reader for Landsat TM files. Can read Landsat 4, 5, 7 and 8 in GeoTIFF format.
         Landsat 5 additionally in FAST format.
     </description>
 
@@ -16,12 +16,12 @@
     <changelog>
         <![CDATA[
         From 1.3.2 to 1.4:<br/>
+            [BEAM-1531] Implement support for Landsat 4 GeoTIFF products<br/>
             [BEAM-1524] Support Landsat8 TM in GeoTIFF format<br/>
             [BEAM-1515] Landsat products in GeoTiff format can not be opened <br/>
-            [BEAM-1531] Implement support for Landsat 4 GeoTIFF products<br/>
         From 1.3.1 to 1.3.2:<br/>
-            [BEAM-1425] NPE in Landsat GeoTIFF reader<br/>
             [BEAM-1426] Landsat GeoTIFF reader hides other format readers<br/>
+            [BEAM-1425] NPE in Landsat GeoTIFF reader<br/>
         From 1.3 to 1.3.1:<br/>
             Adapted to new Maven-architecture<br/>
         From 1.2 to 1.2.100:<br/>
