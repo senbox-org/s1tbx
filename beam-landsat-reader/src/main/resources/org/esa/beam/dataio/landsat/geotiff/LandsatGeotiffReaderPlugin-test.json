@@ -198,7 +198,19 @@
                     "geophysicalUnit": "W/(m^2*sr*µm)",
                     "noDataValue": "0.09999579989013337",
                     "spectralWavelength": "10800.0",
-                    "spectralBandwidth": "590.0"
+                    "spectralBandwidth": "590.0",
+                    "expectedPixel": [
+                        {
+                            "x": "502",
+                            "y": "10597",
+                            "value": "6.8067236"
+                        },
+                        {
+                            "x": "425",
+                            "y": "10457",
+                            "value": "0.09999579989013337"
+                        }
+                    ]
                 },
                 {
                     "name": "thermal_infrared_(tirs)_2",
@@ -206,11 +218,35 @@
                     "geophysicalUnit": "W/(m^2*sr*µm)",
                     "noDataValue": "0.09999579989013337",
                     "spectralWavelength": "12000.0",
-                    "spectralBandwidth": "1010.0"
+                    "spectralBandwidth": "1010.0",
+                    "expectedPixel": [
+                        {
+                            "x": "2270",
+                            "y": "5788",
+                            "value": "6.7545886"
+                        },
+                        {
+                            "x": "1932",
+                            "y": "5598",
+                            "value": "0.09999579989013337"
+                        }
+                    ]
                 },
                 {
                     "name": "flags",
-                    "description": "Quality Band"
+                    "description": "Quality Band",
+                    "expectedPixel": [
+                        {
+                            "x": "4867",
+                            "y": "7218",
+                            "value": "53248"
+                        },
+                        {
+                            "x": "969",
+                            "y": "868",
+                            "value": "1 "
+                        }
+                    ]
                 }
             ]
         },
