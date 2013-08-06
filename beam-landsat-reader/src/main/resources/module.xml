@@ -4,8 +4,8 @@
     <version>1.4</version>
     <name>Landsat TM Product Reader</name>
     <description>
-        A product reader for Landsat TM files. Can read Landsat 4, 5, 7 and 8 in GeoTIFF format.
-        Landsat 5 additionally in FAST format.
+        A product reader for Landsat files. It supports the instruments TM of Landsat 4 and 5, ETM+ of Landsat 7
+        and OLI and TIRS if Landsat 8 in GeoTIFF format. Landsat TM 5 is additionally supported in FAST format.
     </description>
 
     <vendor>Christian Berwanger (ai0263@umwelt-campus.de)</vendor>
@@ -17,7 +17,7 @@
         <![CDATA[
         From 1.3.2 to 1.4:<br/>
             [BEAM-1531] Implement support for Landsat 4 GeoTIFF products<br/>
-            [BEAM-1524] Support Landsat8 TM in GeoTIFF format<br/>
+            [BEAM-1524] Support Landsat8 in GeoTIFF format<br/>
             [BEAM-1515] Landsat products in GeoTiff format can not be opened <br/>
         From 1.3.1 to 1.3.2:<br/>
             [BEAM-1426] Landsat GeoTIFF reader hides other format readers<br/>
@@ -59,19 +59,19 @@
             <formatName>FAST L5</formatName>
             <useAllFileFilter>true</useAllFileFilter>
             <mnemonic>L</mnemonic>
-            <shortDescr>Import a Landsat TM (Fast) data product or product subset.</shortDescr>
-            <description>Import a Landsat TM (in Fast format) data product or product subset.</description>
-            <helpId>importLandsatTMProduct</helpId>
+            <shortDescr>Import a Landsat 5 TM (Fast) data product or product subset.</shortDescr>
+            <description>Import a Landsat 5 TM (in Fast format) data product or product subset.</description>
+            <helpId>importLandsatProduct</helpId>
         </action>
         <action>
             <class>org.esa.beam.visat.actions.ProductImportAction</class>
             <id>importLandsatGeoTIFFProduct</id>
-            <helpId>importLandsatTMProduct</helpId>
+            <helpId>importLandsatProduct</helpId>
             <formatName>LandsatGeoTIFF</formatName>
             <useAllFileFilter>true</useAllFileFilter>
-            <text>Landsat TM (GeoTIFF)</text>
-            <shortDescr>Import a Landsat TM (GeoTIFF) data product or product subset.</shortDescr>
-            <description>Import a Landsat TM (in GeoTIFF format) data product or product subset.</description>
+            <text>Landsat (GeoTIFF)</text>
+            <shortDescr>Import a Landsat (GeoTIFF) data product or product subset.</shortDescr>
+            <description>Import a Landsat (in GeoTIFF format) data product or product subset.</description>
         </action>
     </extension>
 
