@@ -156,49 +156,49 @@ public class ProductReaderAcceptanceTest {
             final Band band = product.getBand(expectedBand.getName());
             assertNotNull("missing band '" + expectedBand.getName() + " in product '" + product.getFileLocation(), band);
 
-            final String assertMessagePrefix = product.getFileLocation() + " " + band.getName();
+            final String assertMessagePrefix = expectedContent.getId() + " " + band.getName();
 
             final String expectedDescription = expectedBand.getDescription();
             if (StringUtils.isNotNullAndNotEmpty(expectedDescription)) {
-                assertEquals(assertMessagePrefix, expectedDescription, band.getDescription());
+                assertEquals(assertMessagePrefix + " Description", expectedDescription, band.getDescription());
             }
 
             final String expectedUnit = expectedBand.getGeophysicalUnit();
             if (StringUtils.isNotNullAndNotEmpty(expectedUnit)) {
-                assertEquals(assertMessagePrefix, expectedUnit, band.getUnit());
+                assertEquals(assertMessagePrefix + " Unit", expectedUnit, band.getUnit());
             }
 
             final String noDataValueString = expectedBand.getNoDataValue();
             if (StringUtils.isNotNullAndNotEmpty(noDataValueString)) {
                 final double expectedNDValue = Double.parseDouble(noDataValueString);
-                assertEquals(assertMessagePrefix, expectedNDValue, band.getGeophysicalNoDataValue(), 1e-6);
+                assertEquals(assertMessagePrefix + " NoDataValue", expectedNDValue, band.getGeophysicalNoDataValue(), 1e-6);
             }
 
             final String noDataValueUsedString = expectedBand.isNoDataValueUsed();
             if (StringUtils.isNotNullAndNotEmpty(noDataValueUsedString)) {
                 final boolean expectedNDUsedValue = Boolean.parseBoolean(noDataValueUsedString);
-                assertEquals(assertMessagePrefix, expectedNDUsedValue, band.isNoDataValueUsed());
+                assertEquals(assertMessagePrefix + " NoDataValueUsed", expectedNDUsedValue, band.isNoDataValueUsed());
             }
 
             final String spectralWavelengthString = expectedBand.getSpectralWavelength();
             if (StringUtils.isNotNullAndNotEmpty(spectralWavelengthString)) {
                 final float expectedSpectralWavelength = Float.parseFloat(spectralWavelengthString);
-                assertEquals(assertMessagePrefix, expectedSpectralWavelength, band.getSpectralWavelength(), 1e-6);
+                assertEquals(assertMessagePrefix + " SpectralWavelength", expectedSpectralWavelength, band.getSpectralWavelength(), 1e-6);
             }
 
             final String spectralBandwidthString = expectedBand.getSpectralBandwidth();
             if (StringUtils.isNotNullAndNotEmpty(spectralBandwidthString)) {
                 final float expectedSpectralBandwidth = Float.parseFloat(spectralBandwidthString);
-                assertEquals(assertMessagePrefix, expectedSpectralBandwidth, band.getSpectralBandwidth(), 1e-6);
+                assertEquals(assertMessagePrefix + " SpectralBandWidth", expectedSpectralBandwidth, band.getSpectralBandwidth(), 1e-6);
             }
 
             final ExpectedPixel[] expectedPixel = expectedBand.getExpectedPixel();
             for (ExpectedPixel pixel : expectedPixel) {
                 float bandValue = band.getSampleFloat(pixel.getX(), pixel.getY());
-                if(!band.isPixelValid(pixel.getX(), pixel.getY())) {
+                if (!band.isPixelValid(pixel.getX(), pixel.getY())) {
                     bandValue = Float.NaN;
                 }
-                assertEquals(assertMessagePrefix, pixel.getValue(), bandValue, 1e-6);
+                assertEquals(assertMessagePrefix + " Pixel(" + pixel.getX() + "," + pixel.getY() + ")", pixel.getValue(), bandValue, 1e-6);
             }
         }
     }
