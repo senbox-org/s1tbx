@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2013 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -256,8 +256,10 @@ public class ProductIO {
         while (it.hasNext()) {
             ProductReaderPlugIn plugIn = it.next();
 
-            logger.fine("checking reader plugin " + plugIn.getClass().getName());
+            final long startTime = System.currentTimeMillis();
             DecodeQualification decodeQualification = plugIn.getDecodeQualification(input);
+            final long endTime = System.currentTimeMillis();
+            logger.fine(String.format("checking reader plugin %s (%d ms)", plugIn.getClass().getName(), (endTime - startTime)));
             if (decodeQualification == DecodeQualification.INTENDED) {
                 selectedPlugIn = plugIn;
                 break;
