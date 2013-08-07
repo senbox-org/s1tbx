@@ -1,6 +1,8 @@
 package org.esa.beam.dataio;
 
 
+import org.esa.beam.util.StringUtils;
+
 class ExpectedBand {
 
     private String name;
@@ -32,12 +34,21 @@ class ExpectedBand {
         this.description = description;
     }
 
+    boolean isDescriptionSet() {
+        return StringUtils.isNotNullAndNotEmpty(description);
+    }
+
+
     String getGeophysicalUnit() {
         return geophysicalUnit;
     }
 
     void setGeophysicalUnit(String geophysicalUnit) {
         this.geophysicalUnit = geophysicalUnit;
+    }
+
+    boolean isGeophysicalUnitSet() {
+        return StringUtils.isNotNullAndNotEmpty(geophysicalUnit);
     }
 
     String getNoDataValue() {
@@ -48,6 +59,10 @@ class ExpectedBand {
         this.noDataValue = noDataValue;
     }
 
+    boolean isNoDataValueSet() {
+        return StringUtils.isNotNullAndNotEmpty(noDataValue);
+    }
+
     String isNoDataValueUsed() {
         return noDataValueUsed;
     }
@@ -56,12 +71,21 @@ class ExpectedBand {
         this.noDataValueUsed = noDataValueUsed;
     }
 
+    public boolean isNoDataValueUsedSet() {
+        return StringUtils.isNotNullAndNotEmpty(noDataValueUsed);
+    }
+
+
     String getSpectralWavelength() {
         return spectralWavelength;
     }
 
     void setSpectralWavelength(String spectralWavelength) {
         this.spectralWavelength = spectralWavelength;
+    }
+
+    boolean isSpectralWavelengthSet() {
+        return StringUtils.isNotNullAndNotEmpty(spectralWavelength);
     }
 
     String getSpectralBandwidth() {
@@ -72,6 +96,10 @@ class ExpectedBand {
         this.spectralBandwidth = spectralBandwidth;
     }
 
+    public boolean isSpectralBandWidthSet() {
+        return StringUtils.isNotNullAndNotEmpty(spectralBandwidth);
+    }
+
     ExpectedPixel[] getExpectedPixel() {
         return expectedPixel;
     }
@@ -79,4 +107,5 @@ class ExpectedBand {
     void setExpectedPixel(ExpectedPixel[] expectedPixel) {
         this.expectedPixel = expectedPixel;
     }
+
 }

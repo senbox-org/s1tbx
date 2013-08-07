@@ -9,7 +9,6 @@ import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.util.StopWatch;
-import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.logging.BeamLogManager;
 import org.junit.Assert;
@@ -151,6 +150,13 @@ public class ProductReaderAcceptanceTest {
     }
 
     private static void testExpectedContent(ExpectedContent expectedContent, Product product) {
+        if (expectedContent.isSceneWidthSet()) {
+            assertEquals(expectedContent.getId() + " SceneWidth", expectedContent.getSceneWidth(), product.getSceneRasterWidth());
+        }
+        if (expectedContent.isSceneHeightSet()) {
+            assertEquals(expectedContent.getId() + " SceneHeight", expectedContent.getSceneHeight(), product.getSceneRasterHeight());
+        }
+
         final ExpectedBand[] expectedBands = expectedContent.getBands();
         for (final ExpectedBand expectedBand : expectedBands) {
             final Band band = product.getBand(expectedBand.getName());
@@ -158,37 +164,31 @@ public class ProductReaderAcceptanceTest {
 
             final String assertMessagePrefix = expectedContent.getId() + " " + band.getName();
 
-            final String expectedDescription = expectedBand.getDescription();
-            if (StringUtils.isNotNullAndNotEmpty(expectedDescription)) {
-                assertEquals(assertMessagePrefix + " Description", expectedDescription, band.getDescription());
+            if (expectedBand.isDescriptionSet()) {
+                assertEquals(assertMessagePrefix + " Description", expectedBand.getDescription(), band.getDescription());
             }
 
-            final String expectedUnit = expectedBand.getGeophysicalUnit();
-            if (StringUtils.isNotNullAndNotEmpty(expectedUnit)) {
-                assertEquals(assertMessagePrefix + " Unit", expectedUnit, band.getUnit());
+            if (expectedBand.isGeophysicalUnitSet()) {
+                assertEquals(assertMessagePrefix + " Unit", expectedBand.getGeophysicalUnit(), band.getUnit());
             }
 
-            final String noDataValueString = expectedBand.getNoDataValue();
-            if (StringUtils.isNotNullAndNotEmpty(noDataValueString)) {
-                final double expectedNDValue = Double.parseDouble(noDataValueString);
+            if (expectedBand.isNoDataValueSet()) {
+                final double expectedNDValue = Double.parseDouble(expectedBand.getNoDataValue());
                 assertEquals(assertMessagePrefix + " NoDataValue", expectedNDValue, band.getGeophysicalNoDataValue(), 1e-6);
             }
 
-            final String noDataValueUsedString = expectedBand.isNoDataValueUsed();
-            if (StringUtils.isNotNullAndNotEmpty(noDataValueUsedString)) {
-                final boolean expectedNDUsedValue = Boolean.parseBoolean(noDataValueUsedString);
+            if (expectedBand.isNoDataValueUsedSet()) {
+                final boolean expectedNDUsedValue = Boolean.parseBoolean(expectedBand.isNoDataValueUsed());
                 assertEquals(assertMessagePrefix + " NoDataValueUsed", expectedNDUsedValue, band.isNoDataValueUsed());
             }
 
-            final String spectralWavelengthString = expectedBand.getSpectralWavelength();
-            if (StringUtils.isNotNullAndNotEmpty(spectralWavelengthString)) {
-                final float expectedSpectralWavelength = Float.parseFloat(spectralWavelengthString);
+            if (expectedBand.isSpectralWavelengthSet()) {
+                final float expectedSpectralWavelength = Float.parseFloat(expectedBand.getSpectralWavelength());
                 assertEquals(assertMessagePrefix + " SpectralWavelength", expectedSpectralWavelength, band.getSpectralWavelength(), 1e-6);
             }
 
-            final String spectralBandwidthString = expectedBand.getSpectralBandwidth();
-            if (StringUtils.isNotNullAndNotEmpty(spectralBandwidthString)) {
-                final float expectedSpectralBandwidth = Float.parseFloat(spectralBandwidthString);
+            if (expectedBand.isSpectralBandWidthSet()) {
+                final float expectedSpectralBandwidth = Float.parseFloat(expectedBand.getSpectralBandwidth());
                 assertEquals(assertMessagePrefix + " SpectralBandWidth", expectedSpectralBandwidth, band.getSpectralBandwidth(), 1e-6);
             }
 
