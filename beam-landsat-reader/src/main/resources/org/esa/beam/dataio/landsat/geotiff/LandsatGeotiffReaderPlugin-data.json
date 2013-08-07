@@ -2,8 +2,13 @@
     "testProducts": [
         {
             "id": "LT40140341983030XXX13",
-            "relativePath": "Landsat/LT40140341983030XXX13/LT40140341983030XXX13_MTL.txt",
+            "relativePath": "Landsat/Landsat_4/LT40140341983030XXX13/LT40140341983030XXX13_MTL.txt",
             "description": "Landsat 4 GeoTIFF Test product"
+        },
+        {
+            "id": "LT41160361989057XXX02",
+            "relativePath": "Landsat/Landsat_4/LT41160361989057XXX02/LT41160361989057XXX02_MTL.txt",
+            "description": "Landsat 4 GeoTIFF Test product reprocessed metadata"
         },
         {
             "id": "L5197022_02219850809",
