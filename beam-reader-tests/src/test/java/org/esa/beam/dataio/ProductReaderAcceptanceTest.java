@@ -19,11 +19,13 @@ import org.junit.runner.RunWith;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.net.URL;
-import java.security.CodeSource;
-import java.security.ProtectionDomain;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+import java.util.Locale;
+import java.util.TimeZone;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -258,20 +260,13 @@ public class ProductReaderAcceptanceTest {
             final StreamHandler streamHandler = new StreamHandler(fos, new CustomLogFormatter());
             logger.addHandler(streamHandler);
         }
+        logger.info("Reader Acceptance Tests");
+        final Calendar calendar = GregorianCalendar.getInstance(TimeZone.getTimeZone("UTC"), Locale.ENGLISH);
+        final SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM-yyyy HH:mm:ss", Locale.ENGLISH);
+        logger.info("Date: " + dateFormat.format(calendar.getTime()));
         // Suppress ugly (and harmless) JAI error messages saying that a JAI is going to continue in pure Java mode.
         System.setProperty("com.sun.media.jai.disableMediaLib", "true");  // disable native libraries for JAI
 
-    }
-
-    private static File getModuleBaseDir() throws URISyntaxException {
-        final ProtectionDomain protectionDomain = ProductReaderAcceptanceTest.class.getProtectionDomain();
-        final CodeSource codeSource = protectionDomain.getCodeSource();
-        final URL location = codeSource.getLocation();
-        File tempDir = new File(location.toURI());
-        while (!tempDir.getName().equals("beam-reader-tests")) {
-            tempDir = tempDir.getParentFile();
-        }
-        return tempDir;
     }
 
     private static void readProductsList() throws IOException {
