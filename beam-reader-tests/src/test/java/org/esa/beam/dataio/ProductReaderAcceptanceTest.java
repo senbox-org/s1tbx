@@ -93,6 +93,7 @@ public class ProductReaderAcceptanceTest {
     @Test
     public void testReadIntendedProductContent() throws IOException {
         logger.info("Testing IntendedProductContent:");
+        final StopWatch stopWatch = new StopWatch();
         for (TestProductReader testReader : productReaderList) {
             final ArrayList<String> intendedProductIds = testReader.getIntendedProductIds();
             logger.info(INDENT + testReader.getProductReaderPlugin().getClass().getSimpleName());
@@ -101,10 +102,11 @@ public class ProductReaderAcceptanceTest {
                 Assert.assertNotNull("Test file not defined for ID=" + productId, testProduct);
 
                 if (testProduct.exists()) {
-                    logger.info(INDENT + INDENT + productId);
+
                     final File testProductFile = getTestProductFile(testProduct);
 
                     final ProductReader productReader = testReader.getProductReaderPlugin().createReaderInstance();
+                    stopWatch.start();
                     final Product product = productReader.readProductNodes(testProductFile, null);
                     try {
                         final ExpectedContent expectedContent = testReader.getExpectedContent(productId);
@@ -116,6 +118,8 @@ public class ProductReaderAcceptanceTest {
                             product.dispose();
                         }
                     }
+                    stopWatch.stop();
+                    logger.info(INDENT + INDENT + productId + ": " + stopWatch.getTimeDiffString());
                 } else {
                     logProductNotExistent(2, testProduct);
                 }
@@ -149,18 +153,7 @@ public class ProductReaderAcceptanceTest {
     }
 
     private static void testExpectedContent(ExpectedContent expectedContent, Product product) {
-        if (expectedContent.isSceneWidthSet()) {
-            assertEquals(expectedContent.getId() + " SceneWidth", expectedContent.getSceneWidth(), product.getSceneRasterWidth());
-        }
-        if (expectedContent.isSceneHeightSet()) {
-            assertEquals(expectedContent.getId() + " SceneHeight", expectedContent.getSceneHeight(), product.getSceneRasterHeight());
-        }
-        if (expectedContent.isStartTimeSet()) {
-            assertEquals(expectedContent.getId() + " StartTime", expectedContent.getStartTime(), product.getStartTime().format());
-        }
-        if (expectedContent.isEndTimeSet()) {
-            assertEquals(expectedContent.getId() + " EndTime", expectedContent.getEndTime(), product.getEndTime().format());
-        }
+        assertExpectedProductProperties(expectedContent, product);
 
         final ExpectedBand[] expectedBands = expectedContent.getBands();
         for (final ExpectedBand expectedBand : expectedBands) {
@@ -205,6 +198,21 @@ public class ProductReaderAcceptanceTest {
                 }
                 assertEquals(assertMessagePrefix + " Pixel(" + pixel.getX() + "," + pixel.getY() + ")", pixel.getValue(), bandValue, 1e-6);
             }
+        }
+    }
+
+    private static void assertExpectedProductProperties(ExpectedContent expectedContent, Product product) {
+        if (expectedContent.isSceneWidthSet()) {
+            assertEquals(expectedContent.getId() + " SceneWidth", expectedContent.getSceneWidth(), product.getSceneRasterWidth());
+        }
+        if (expectedContent.isSceneHeightSet()) {
+            assertEquals(expectedContent.getId() + " SceneHeight", expectedContent.getSceneHeight(), product.getSceneRasterHeight());
+        }
+        if (expectedContent.isStartTimeSet()) {
+            assertEquals(expectedContent.getId() + " StartTime", expectedContent.getStartTime(), product.getStartTime().format());
+        }
+        if (expectedContent.isEndTimeSet()) {
+            assertEquals(expectedContent.getId() + " EndTime", expectedContent.getEndTime(), product.getEndTime().format());
         }
     }
 
