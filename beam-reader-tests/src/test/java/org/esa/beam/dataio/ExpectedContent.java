@@ -5,6 +5,8 @@ class ExpectedContent {
     private String id;
     private Integer sceneWidth;
     private Integer sceneHeight;
+    private String startTime;
+    private String endTime;
     private ExpectedBand[] bands;
 
     ExpectedContent() {
@@ -41,6 +43,31 @@ class ExpectedContent {
 
     public boolean isSceneHeightSet() {
         return sceneHeight != null;
+    }
+
+
+    String getStartTime() {
+        return startTime;
+    }
+
+    void setStartTime(String startTime) {
+        this.startTime = startTime;
+    }
+
+    boolean isStartTimeSet() {
+        return startTime != null;
+    }
+
+    String getEndTime() {
+        return endTime;
+    }
+
+    void setEndTime(String endTime) {
+        this.endTime = endTime;
+    }
+
+    boolean isEndTimeSet() {
+        return endTime != null;
     }
 
     ExpectedBand[] getBands() {

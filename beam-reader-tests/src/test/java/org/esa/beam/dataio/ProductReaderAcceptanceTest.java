@@ -156,6 +156,12 @@ public class ProductReaderAcceptanceTest {
         if (expectedContent.isSceneHeightSet()) {
             assertEquals(expectedContent.getId() + " SceneHeight", expectedContent.getSceneHeight(), product.getSceneRasterHeight());
         }
+        if (expectedContent.isStartTimeSet()) {
+            assertEquals(expectedContent.getId() + " StartTime", expectedContent.getStartTime(), product.getStartTime().format());
+        }
+        if (expectedContent.isEndTimeSet()) {
+            assertEquals(expectedContent.getId() + " EndTime", expectedContent.getEndTime(), product.getEndTime().format());
+        }
 
         final ExpectedBand[] expectedBands = expectedContent.getBands();
         for (final ExpectedBand expectedBand : expectedBands) {
