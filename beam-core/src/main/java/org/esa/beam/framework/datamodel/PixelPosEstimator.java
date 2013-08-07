@@ -21,7 +21,6 @@ import org.esa.beam.util.math.SphericalDistanceCalculator;
 import javax.media.jai.PlanarImage;
 import javax.media.jai.operator.ConstantDescriptor;
 import java.awt.Rectangle;
-import java.awt.geom.Dimension2D;
 import java.awt.geom.Point2D;
 import java.awt.image.Raster;
 import java.util.ArrayList;
@@ -42,6 +41,7 @@ public class PixelPosEstimator {
     private static final int MAX_POINT_COUNT_PER_TILE = 1000;
 
     private final Approximation[] approximations;
+    private final Rectangle bounds;
 
     public PixelPosEstimator(PlanarImage lonImage, PlanarImage latImage, PlanarImage maskImage, double accuracy) {
         this(lonImage, latImage, maskImage, accuracy, new PixelSteppingFactory());
@@ -55,6 +55,7 @@ public class PixelPosEstimator {
                                                   new Byte[]{1}, null);
         }
         approximations = createApproximations(lonImage, latImage, maskImage, accuracy, steppingFactory);
+        bounds = lonImage.getBounds();
     }
 
     public final boolean canGetPixelPos() {
@@ -77,8 +78,18 @@ public class PixelPosEstimator {
                     rotator.transform(p);
                     lon = p.getX();
                     lat = p.getY();
-                    pixelPos.x = (float) approximation.getFX().getValue(lat, lon);
-                    pixelPos.y = (float) approximation.getFY().getValue(lat, lon);
+                    final double x = approximation.getFX().getValue(lat, lon);
+                    if (x < bounds.getMinX() || x > bounds.getMaxX()) {
+                        pixelPos.setInvalid();
+                    } else {
+                        final double y = approximation.getFY().getValue(lat, lon);
+                        if (y < bounds.getMinY() || y > bounds.getMaxY()) {
+                            pixelPos.setInvalid();
+                        } else {
+                            pixelPos.x = (float) x;
+                            pixelPos.y = (float) y;
+                        }
+                    }
                 } else {
                     pixelPos.setInvalid();
                 }
@@ -115,25 +126,27 @@ public class PixelPosEstimator {
                                                 PlanarImage maskImage,
                                                 double accuracy,
                                                 SteppingFactory steppingFactory) {
-        final int tileCount = lonImage.getNumYTiles() * lonImage.getNumXTiles();
-        final Approximation[] approximations = new Approximation[tileCount];
-        for (int y = 0, i = 0; y < lonImage.getNumYTiles(); y++) {
-            for (int x = 0; x < lonImage.getNumXTiles(); x++, i++) {
+        final ArrayList<Approximation> approximations = new ArrayList<Approximation>();
+        final int tileCountX = lonImage.getNumXTiles();
+        final int tileCountY = lonImage.getNumYTiles();
+
+        for (int y = 0; y < tileCountY; y++) {
+            for (int x = 0; x < tileCountX; x++) {
                 final Rectangle rectangle = lonImage.getTileRect(x, y);
                 final Stepping stepping = steppingFactory.createStepping(rectangle, MAX_POINT_COUNT_PER_TILE);
                 final double[][] data = extractWarpPoints(lonImage, latImage, maskImage, stepping);
-                final Approximation approximation = createApproximation(data, accuracy, stepping);
+                final Approximation approximation = createApproximation(data, accuracy, rectangle);
                 if (approximation == null) {
                     return null;
                 }
-                approximations[i] = approximation;
+                approximations.add(approximation);
             }
         }
 
-        return approximations;
+        return approximations.toArray(new Approximation[approximations.size()]);
     }
 
-    static Approximation createApproximation(double[][] data, double accuracy, Stepping stepping) {
+    static Approximation createApproximation(double[][] data, double accuracy, Rectangle rectangle) {
         final Point2D centerPoint = Rotator.calculateCenter(data, LON, LAT);
         final double centerLon = centerPoint.getX();
         final double centerLat = centerPoint.getY();
@@ -152,7 +165,7 @@ public class PixelPosEstimator {
         }
 
         return new Approximation(fX, fY, maxDistance * 1.1, rotator,
-                                 new SphericalDistanceCalculator(centerLon, centerLat), stepping);
+                                 new SphericalDistanceCalculator(centerLon, centerLat), rectangle);
     }
 
     static double maxDistance(final double[][] data, double centerLon, double centerLat) {
@@ -334,40 +347,40 @@ public class PixelPosEstimator {
         private final double maxDistance;
         private final Rotator rotator;
         private final DistanceCalculator calculator;
-        private final Stepping stepping;
+        private final Rectangle rectangle;
 
-        public Approximation(RationalFunctionModel fX, RationalFunctionModel fY, double maxDistance,
-                             Rotator rotator, DistanceCalculator calculator, Stepping stepping) {
+        Approximation(RationalFunctionModel fX, RationalFunctionModel fY, double maxDistance,
+                             Rotator rotator, DistanceCalculator calculator, Rectangle rectangle) {
             this.fX = fX;
             this.fY = fY;
             this.maxDistance = maxDistance;
             this.rotator = rotator;
             this.calculator = calculator;
-            this.stepping = stepping;
+            this.rectangle = rectangle;
         }
 
-        public RationalFunctionModel getFX() {
+        RationalFunctionModel getFX() {
             return fX;
         }
 
-        public RationalFunctionModel getFY() {
+        RationalFunctionModel getFY() {
             return fY;
         }
 
-        public double getMaxDistance() {
+        double getMaxDistance() {
             return maxDistance;
         }
 
-        public double getDistance(double lat, double lon) {
+        double getDistance(double lat, double lon) {
             return calculator.distance(lon, lat);
         }
 
-        public Rotator getRotator() {
+        Rotator getRotator() {
             return rotator;
         }
 
-        public Stepping getStepping() {
-            return stepping;
+        Rectangle getRectangle() {
+            return rectangle;
         }
     }
 

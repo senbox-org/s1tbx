@@ -28,7 +28,6 @@ import javax.media.jai.SourcelessOpImage;
 import javax.media.jai.operator.ConstantDescriptor;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
-import java.awt.geom.Dimension2D;
 import java.awt.geom.Point2D;
 import java.awt.image.DataBuffer;
 import java.awt.image.Raster;
@@ -56,13 +55,13 @@ public class PixelPosEstimatorTest {
         final PlanarImage maskImage = images[2];
         final PixelPosEstimator estimator = new PixelPosEstimator(lonImage, latImage, maskImage, 0.5);
 
-        final Raster lonData = lonImage.getData();
-        final Raster latData = latImage.getData();
-
         final GeoPos g = new GeoPos();
         final PixelPos p = new PixelPos();
 
         for (int y = 0; y < ny; y++) {
+            final Rectangle region = new Rectangle(0, y, nx, 1);
+            final Raster lonData = lonImage.getData(region);
+            final Raster latData = latImage.getData(region);
             for (int x = 0; x < nx; x++) {
                 final float lon = lonData.getSampleFloat(x, y, 0);
                 final float lat = latData.getSampleFloat(x, y, 0);
@@ -93,7 +92,7 @@ public class PixelPosEstimatorTest {
                 rectangle, 1000);
 
         final double[][] data = PixelPosEstimator.extractWarpPoints(lonImage, latImage, maskImage, stepping);
-        final PixelPosEstimator.Approximation a = PixelPosEstimator.createApproximation(data, 0.5, stepping);
+        final PixelPosEstimator.Approximation a = PixelPosEstimator.createApproximation(data, 0.5, rectangle);
         final RationalFunctionModel fx = a.getFX();
         final RationalFunctionModel fy = a.getFY();
 
