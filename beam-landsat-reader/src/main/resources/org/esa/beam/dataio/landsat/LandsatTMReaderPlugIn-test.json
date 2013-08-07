@@ -1,2 +1,155 @@
 {
+    "intendedProductIds": [
+        "l5_20050528_197-23"
+    ],
+    "expectedContentList": [
+        {
+            "id": "l5_20050528_197-23",
+            "sceneWidth": 6920,
+            "sceneHeight": 5960,
+            "startTime": "28-MAY-2005 00:00:00.000000",
+            "bands": [
+                {
+                    "name": "radiance_1",
+                    "description": "LANDSAT 5 TM SCENE",
+                    "geophysicalUnit": "mW/(cm^2*sr*nm)",
+                    "noDataValue": "-1.5",
+                    "spectralWavelength": "490.0",
+                    "spectralBandwidth": "66.0",
+                    "expectedPixel": [
+                        {
+                            "x": "6113",
+                            "y": "770",
+                            "value": "44.8848"
+                        },
+                        {
+                            "x": "6706",
+                            "y": "804",
+                            "value": "NaN"
+                        }
+                    ]
+                },
+                {
+                    "name": "radiance_2",
+                    "description": "LANDSAT 5 TM SCENE",
+                    "geophysicalUnit": "mW/(cm^2*sr*nm)",
+                    "noDataValue": "-2.8",
+                    "spectralWavelength": "560.0",
+                    "spectralBandwidth": "82.0",
+                    "expectedPixel": [
+                        {
+                            "x": "6144",
+                            "y": "3066",
+                            "value": "34.7968"
+                        },
+                        {
+                            "x": "6654",
+                            "y": "3133",
+                            "value": "NaN"
+                        }
+                    ]
+                },
+                {
+                    "name": "radiance_3",
+                    "description": "LANDSAT 5 TM SCENE",
+                    "geophysicalUnit": "mW/(cm^2*sr*nm)",
+                    "noDataValue": "-1.2",
+                    "spectralWavelength": "660.0",
+                    "spectralBandwidth": "67.0",
+                    "expectedPixel": [
+                        {
+                            "x": "4582",
+                            "y": "4807",
+                            "value": "33.4537"
+                        },
+                        {
+                            "x": "249",
+                            "y": "5874",
+                            "value": "NaN"
+                        }
+                    ]
+                },
+                {
+                    "name": "radiance_4",
+                    "description": "LANDSAT 5 TM SCENE",
+                    "geophysicalUnit": "mW/(cm^2*sr*nm)",
+                    "noDataValue": "-1.5",
+                    "spectralWavelength": "830.0",
+                    "spectralBandwidth": "128.0",
+                    "expectedPixel": [
+                        {
+                            "x": "479",
+                            "y": "4015",
+                            "value": "88.095"
+                        },
+                        {
+                            "x": "329",
+                            "y": "4158",
+                            "value": "NaN"
+                        }
+                    ]
+                },
+                {
+                    "name": "radiance_5",
+                    "description": "LANDSAT 5 TM SCENE",
+                    "geophysicalUnit": "mW/(cm^2*sr*nm)",
+                    "noDataValue": "-0.37",
+                    "spectralWavelength": "1670.0",
+                    "spectralBandwidth": "217.0",
+                    "expectedPixel": [
+                        {
+                            "x": "2911",
+                            "y": "2388",
+                            "value": "1.0353"
+                        },
+                        {
+                            "x": "258",
+                            "y": "2118",
+                            "value": "NaN"
+                        }
+                    ]
+                },
+                {
+                    "name": "radiance_6",
+                    "description": "LANDSAT 5 TM SCENE",
+                    "geophysicalUnit": "mW/(cm^2*sr*nm)",
+                    "noDataValue": "1.2378",
+                    "spectralWavelength": "11500.0",
+                    "spectralBandwidth": "1000.0",
+                    "expectedPixel": [
+                        {
+                            "x": "1109",
+                            "y": "2038",
+                            "value": "7.917"
+                        },
+                        {
+                            "x": "334",
+                            "y": "1545",
+                            "value": "NaN"
+                        }
+                    ]
+                },
+                {
+                    "name": "radiance_7",
+                    "description": "LANDSAT 5 TM SCENE",
+                    "geophysicalUnit": "mW/(cm^2*sr*nm)",
+                    "noDataValue": "-0.15",
+                    "spectralWavelength": "2240.0",
+                    "spectralBandwidth": "252.0",
+                    "expectedPixel": [
+                        {
+                            "x": "1375",
+                            "y": "724",
+                            "value": "1.104"
+                        },
+                        {
+                            "x": "491",
+                            "y": "947",
+                            "value": "NaN"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
 }

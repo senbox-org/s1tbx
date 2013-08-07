@@ -1,0 +1,9 @@
+{
+    "testProducts": [
+        {
+            "id": "l5_20050528_197-23",
+            "relativePath": "Landsat/Landsat_5/fastTM/197_23/header.dat",
+            "description": "Landsat 5 TM fast format"
+        }
+    ]
+}
