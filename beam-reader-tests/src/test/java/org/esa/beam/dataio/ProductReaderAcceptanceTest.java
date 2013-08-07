@@ -61,6 +61,9 @@ public class ProductReaderAcceptanceTest {
         final ConsoleHandler handler = new ConsoleHandler();
         handler.setFormatter(new CustomLogFormatter());
         logger.addHandler(handler);
+        // Suppress ugly (and harmless) JAI error messages saying that a JAI is going to continue in pure Java mode.
+        System.setProperty("com.sun.media.jai.disableMediaLib", "true");  // disable native libraries for JAI
+
     }
 
 
