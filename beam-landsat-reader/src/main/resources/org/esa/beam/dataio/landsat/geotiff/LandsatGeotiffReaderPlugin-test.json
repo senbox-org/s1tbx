@@ -2,7 +2,6 @@
     "intendedProductIds": [
         "LT40140341983030XXX13",
         "LT41160361989057XXX02",
-        "L5197022_02219850809",
         "LC81960222013195LGN00",
         "LC81970222013122LGN01",
         "LT82270322013068LGN01",
@@ -11,109 +10,13 @@
     ],
     "expectedContentList": [
         {
-            "id": "L5197022_02219850809",
-            "bands": [
-                {
-                    "name": "radiance_1",
-                    "description": "Visible (30m)",
-                    "geophysicalUnit": "W/(m^2*sr*µm)",
-                    "noDataValue": "-2.191338582677165",
-                    "expectedPixel": [
-                        {
-                            "x": "1278",
-                            "y": "5133",
-                            "value": "65.61386"
-                        }
-                    ]
-                },
-                {
-                    "name": "radiance_2",
-                    "description": "Visible (30m)",
-                    "geophysicalUnit": "W/(m^2*sr*µm)",
-                    "noDataValue": "-4.162204724409449",
-                    "expectedPixel": [
-                        {
-                            "x": "4045",
-                            "y": "1586",
-                            "value": "88.39213"
-                        }
-                    ]
-                },
-                {
-                    "name": "radiance_3",
-                    "description": "Visible (30m)",
-                    "geophysicalUnit": "W/(m^2*sr*µm)",
-                    "noDataValue": "-2.213976377952756",
-                    "expectedPixel": [
-                        {
-                            "x": "371",
-                            "y": "1405",
-                            "value": "NaN"
-                        }
-                    ]
-                },
-                {
-                    "name": "radiance_4",
-                    "description": "Near-Infrared (30m)",
-                    "geophysicalUnit": "W/(m^2*sr*µm)",
-                    "noDataValue": "-2.386023622047244",
-                    "expectedPixel": [
-                        {
-                            "x": "6394",
-                            "y": "5815",
-                            "value": "72.95201"
-                        }
-                    ]
-                },
-                {
-                    "name": "radiance_5",
-                    "description": "Near-Infrared (30m)",
-                    "geophysicalUnit": "W/(m^2*sr*µm)",
-                    "noDataValue": "-0.4903543307086614",
-                    "expectedPixel": [
-                        {
-                            "x": "2893",
-                            "y": "5862",
-                            "value": "4.9255905"
-                        }
-                    ]
-                },
-                {
-                    "name": "radiance_6",
-                    "description": "Thermal (120m)",
-                    "geophysicalUnit": "W/(m^2*sr*µm)",
-                    "noDataValue": "1.1826259842519684",
-                    "expectedPixel": [
-                        {
-                            "x": "4311",
-                            "y": "2604",
-                            "value": "4.892685"
-                        }
-                    ]
-                },
-                {
-                    "name": "radiance_7",
-                    "description": "Mid-Infrared (30m)",
-                    "geophysicalUnit": "W/(m^2*sr*µm)",
-                    "noDataValue": "-0.2155511811023622",
-                    "expectedPixel": [
-                        {
-                            "x": "2048",
-                            "y": "199",
-                            "value": "4.241929"
-                        }
-                    ]
-                }
-            ]
-        } ,
-        {
             "id": "LC81960222013195LGN00",
             "bands": [
                 {
                     "name": "coastal_aerosol",
                     "description": "Coastal Aerosol (Operational Land Imager (OLI))",
                     "geophysicalUnit": "W/(m^2*sr*µm)",
-                    "noDataValue": "-63.508831766411326",
+                    "noDataValue": "-62.44129825891903",
                     "expectedPixel": [
                         {
                             "x": "13876",
@@ -126,7 +29,7 @@
                     "name": "blue",
                     "description": "Blue (OLI)",
                     "geophysicalUnit": "W/(m^2*sr*µm)",
-                    "noDataValue": "-64.76229245872372",
+                    "noDataValue": "-63.67368473754082",
                     "expectedPixel": [
                         {
                             "x": "4680",
@@ -139,7 +42,7 @@
                     "name": "green",
                     "description": "Green (OLI)",
                     "geophysicalUnit": "W/(m^2*sr*µm)",
-                    "noDataValue": "-59.30042008316293",
+                    "noDataValue": "-58.303620723593866",
                     "expectedPixel": [
                         {
                             "x": "11673",
@@ -152,7 +55,7 @@
                     "name": "red",
                     "description": "Red (OLI)",
                     "geophysicalUnit": "W/(m^2*sr*µm)",
-                    "noDataValue": "-50.22382476439711",
+                    "noDataValue": "-49.37959591891232",
                     "expectedPixel": [
                         {
                             "x": "2848",
@@ -165,7 +68,7 @@
                     "name": "near_infrared",
                     "description": "Near-Infrared (NIR) (OLI)",
                     "geophysicalUnit": "W/(m^2*sr*µm)",
-                    "noDataValue": "-30.476375274666584",
+                    "noDataValue": "-29.964092818079166",
                     "expectedPixel": [
                         {
                             "x": "11808",
@@ -178,7 +81,7 @@
                     "name": "swir_1",
                     "description": "Short Wavelength Infrared (SWIR) 1 (OLI)",
                     "geophysicalUnit": "W/(m^2*sr*µm)",
-                    "noDataValue": "-7.678525704977569",
+                    "noDataValue": "-7.549449890896328",
                     "expectedPixel": [
                         {
                             "x": "9639",
@@ -188,7 +91,7 @@
                         {
                             "x": "712",
                             "y": "2584",
-                            "value": "-7.549449920654297"
+                            "value": "NaN"
                         }
                     ]
                 },
@@ -196,7 +99,7 @@
                     "name": "swir_2",
                     "description": "SWIR 2 (OLI)",
                     "geophysicalUnit": "W/(m^2*sr*µm)",
-                    "noDataValue": "-2.497809561906797",
+                    "noDataValue": "-2.4558211647389143",
                     "expectedPixel": [
                         {
                             "x": "14548",
@@ -209,7 +112,7 @@
                     "name": "panchromatic",
                     "description": "Panchromatic (OLI)",
                     "geophysicalUnit": "W/(m^2*sr*µm)",
-                    "noDataValue": "-56.573954791711174",
+                    "noDataValue": "-55.622994598223826",
                     "expectedPixel": [
                         {
                             "x": "1386",
@@ -222,7 +125,7 @@
                     "name": "cirrus",
                     "description": "Cirrus (OLI)",
                     "geophysicalUnit": "W/(m^2*sr*µm)",
-                    "noDataValue": "-12.52400480117191",
+                    "noDataValue": "-12.31348269737846",
                     "expectedPixel": [
                         {
                             "x": "6559",
@@ -288,7 +191,7 @@
                         {
                             "x": "4323",
                             "y": "231",
-                            "value": "-63.508831766411326"
+                            "value": "NaN"
                         }
                     ]
                 },
@@ -308,7 +211,7 @@
                         {
                             "x": "8208",
                             "y": "1322",
-                            "value": "-64.76229245872372"
+                            "value": "NaN"
                         }
                     ]
                 },
@@ -328,7 +231,7 @@
                         {
                             "x": "13564",
                             "y": "3043",
-                            "value": "-59.30042008316293"
+                            "value": "NaN"
                         }
                     ]
                 },
@@ -348,7 +251,7 @@
                         {
                             "x": "11149",
                             "y": "2295",
-                            "value": "-50.22382476439711"
+                            "value": "NaN"
                         }
                     ]
                 },
@@ -368,7 +271,7 @@
                         {
                             "x": "15063",
                             "y": "6465",
-                            "value": "-30.476375274666584"
+                            "value": "NaN"
                         }
                     ]
                 },
@@ -388,7 +291,7 @@
                         {
                             "x": "14263",
                             "y": "8949",
-                            "value": "-7.678525704977569"
+                            "value": "NaN"
                         }
                     ]
                 },
@@ -408,7 +311,7 @@
                         {
                             "x": "13044",
                             "y": "12827",
-                            "value": "-2.497809561906797"
+                            "value": "NaN"
                         }
                     ]
                 },
@@ -428,7 +331,7 @@
                         {
                             "x": "7011",
                             "y": "13877",
-                            "value": "-56.573954791711174"
+                            "value": "NaN"
                         }
                     ]
                 },
@@ -448,7 +351,7 @@
                         {
                             "x": "2952",
                             "y": "12586",
-                            "value": "-12.52400480117191"
+                            "value": "NaN"
                         }
                     ]
                 },
@@ -468,7 +371,7 @@
                         {
                             "x": "425",
                             "y": "10457",
-                            "value": "0.09999579989013337"
+                            "value": "NaN"
                         }
                     ]
                 },
@@ -488,7 +391,7 @@
                         {
                             "x": "1932",
                             "y": "5598",
-                            "value": "0.09999579989013337"
+                            "value": "NaN"
                         }
                     ]
                 },
@@ -529,7 +432,7 @@
                         {
                             "x": "191",
                             "y": "5196",
-                            "value": "0.09999579989013337"
+                            "value": "NaN"
                         }
                     ]
                 },
@@ -549,7 +452,7 @@
                         {
                             "x": "6258",
                             "y": "895",
-                            "value": "0.09999579989013337"
+                            "value": "NaN"
                         }
                     ]
                 },
@@ -568,7 +471,7 @@
                         {
                             "x": "3875",
                             "y": "839",
-                            "value": "-6.978740215301514"
+                            "value": "NaN"
                         },
                         {
                             "x": "6988",
@@ -608,7 +511,7 @@
                         {
                             "x": "12634",
                             "y": "11328",
-                            "value": "-5.7397637367248535"
+                            "value": "NaN"
                         }
                     ]
                 },
@@ -623,7 +526,7 @@
                         {
                             "x": "13442",
                             "y": "4660",
-                            "value": "-1.126220464706421"
+                            "value": "NaN"
                         }
                     ]
                 },
@@ -638,7 +541,7 @@
                         {
                             "x": "10331",
                             "y": "10195",
-                            "value": "-0.0670866146683693"
+                            "value": "NaN"
                         }
                     ]
                 },
@@ -653,7 +556,7 @@
                         {
                             "x": "396",
                             "y": "12122",
-                            "value": "3.162795305252075"
+                            "value": "NaN"
                         }
                     ]
                 },
@@ -668,7 +571,7 @@
                         {
                             "x": "7132",
                             "y": "5364",
-                            "value": "-0.3938976526260376"
+                            "value": "NaN"
                         }
                     ]
                 },
@@ -683,7 +586,7 @@
                         {
                             "x": "10847",
                             "y": "3596",
-                            "value": "-5.675590515136719"
+                            "value": "NaN"
                         }
                     ]
                 }

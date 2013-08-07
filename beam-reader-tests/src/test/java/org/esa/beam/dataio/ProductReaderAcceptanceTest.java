@@ -275,7 +275,6 @@ public class ProductReaderAcceptanceTest {
                 testProductList.add(testProduct);
             }
         }
-
     }
 
     private static void validateProductList() {

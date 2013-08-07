@@ -11,11 +11,6 @@
             "description": "Landsat 4 GeoTIFF Test product reprocessed metadata"
         },
         {
-            "id": "L5197022_02219850809",
-            "relativePath": "Landsat/Landsat_4_5_7_8_IntertidalFlats/19850809_197_22/L5197022_02219850809_MTL.txt",
-            "description": "Landsat 5 GeoTIFF Test product"
-        },
-        {
             "id": "LC81960222013195LGN00",
             "relativePath": "Landsat/Landsat_8/LC81960222013195LGN00/LC81960222013195LGN00_MTL.txt",
             "description": "Landsat 8 OLI_TIRS GeoTIFF Test product"
@@ -32,17 +27,17 @@
         },
         {
             "id": "LT51970222006231KIS02",
-            "relativePath": "Landsat/legacy/LT51970222006231KIS02.tar.gz",
+            "relativePath": "Landsat/Landsat_5/legacy/LT51970222006231KIS02.tar.gz",
             "description": "Landsat 5 legacy Test product"
         },
         {
             "id": "L71191027_02720070313",
-            "relativePath": "Landsat/legacy/L71191027_02720070313/L71191027_02720070313_MTL.txt",
+            "relativePath": "Landsat/Landsat_7/legacy/L71191027_02720070313/L71191027_02720070313_MTL.txt",
             "description": "Landsat 7 legacy Test product"
         },
         {
             "id": "L71196000_00020010502",
-            "relativePath": "Landsat/Landsat_4_5_7_8_IntertidalFlats/L71196000_00020010502/L71196000_00020010502_MTL.FST",
+            "relativePath": "Landsat/Landsat_7/fast/L71196000_00020010502/L71196000_00020010502_MTL.FST",
             "description": "Landsat 7 FAST-L7A Test product"
         }
     ]
