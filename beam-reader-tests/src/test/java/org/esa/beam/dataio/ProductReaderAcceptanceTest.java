@@ -194,7 +194,10 @@ public class ProductReaderAcceptanceTest {
 
             final ExpectedPixel[] expectedPixel = expectedBand.getExpectedPixel();
             for (ExpectedPixel pixel : expectedPixel) {
-                final float bandValue = band.getSampleFloat(pixel.getX(), pixel.getY());
+                float bandValue = band.getSampleFloat(pixel.getX(), pixel.getY());
+                if(!band.isPixelValid(pixel.getX(), pixel.getY())) {
+                    bandValue = Float.NaN;
+                }
                 assertEquals(assertMessagePrefix, pixel.getValue(), bandValue, 1e-6);
             }
         }
