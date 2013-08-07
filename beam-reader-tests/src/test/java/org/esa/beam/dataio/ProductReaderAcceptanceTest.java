@@ -256,7 +256,6 @@ public class ProductReaderAcceptanceTest {
         final String logFilePath = System.getProperty(PROPERTYNAME_LOG_FILE_PATH);
         if (logFilePath != null) {
             final File logFile = new File(logFilePath);
-            System.out.println("logFile.getAbsolutePath() = " + logFile.getAbsolutePath());
             final FileOutputStream fos = new FileOutputStream(logFile);
             final StreamHandler streamHandler = new StreamHandler(fos, new CustomLogFormatter());
             logger.addHandler(streamHandler);
