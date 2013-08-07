@@ -15,6 +15,9 @@ To be able to run the tests, two VM properties need to be present:
     By default the reader tests fail if test data is missing. This property can be set to false to avoid this.
     It is helpful for developer if they don't have the complete test data set on their developer machine.
 
+-Dbeam.reader.tests.log.file=<Path_To_LogFile>
+    Specifies the path the log file shall be written to. If not given not log file will be created.
+
 
 
 Creating a reader test

@@ -39,6 +39,7 @@ public class ProductReaderAcceptanceTest {
 
     private static final String PROPERTYNAME_DATA_DIR = "beam.reader.tests.data.dir";
     private static final String PROPERTYNAME_FAIL_ON_MISSING_DATA = "beam.reader.tests.failOnMissingData";
+    private static final String PROPERTYNAME_LOG_FILE_PATH = "beam.reader.tests.log.file";
     private static final boolean FAIL_ON_MISSING_DATA = Boolean.parseBoolean(System.getProperty(PROPERTYNAME_FAIL_ON_MISSING_DATA, "true"));
     private static final String INDENT = "\t";
     private static final ProductList testProductList = new ProductList();
@@ -250,10 +251,13 @@ public class ProductReaderAcceptanceTest {
         final ConsoleHandler consoleHandler = new ConsoleHandler();
         consoleHandler.setFormatter(new CustomLogFormatter());
         logger.addHandler(consoleHandler);
-        final FileOutputStream fos = new FileOutputStream(new File(getModuleBaseDir(), "reader-acceptance-tests-log.txt"));
-        final StreamHandler streamHandler = new StreamHandler(fos, new CustomLogFormatter());
-        logger.addHandler(streamHandler);
-
+        final String logFilePath = System.getProperty(PROPERTYNAME_LOG_FILE_PATH);
+        if (logFilePath != null) {
+            final File logFile = new File(logFilePath);
+            final FileOutputStream fos = new FileOutputStream(logFile);
+            final StreamHandler streamHandler = new StreamHandler(fos, new CustomLogFormatter());
+            logger.addHandler(streamHandler);
+        }
         // Suppress ugly (and harmless) JAI error messages saying that a JAI is going to continue in pure Java mode.
         System.setProperty("com.sun.media.jai.disableMediaLib", "true");  // disable native libraries for JAI
 
