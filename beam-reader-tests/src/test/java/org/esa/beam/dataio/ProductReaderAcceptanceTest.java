@@ -38,6 +38,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.Locale;
@@ -81,11 +82,7 @@ public class ProductReaderAcceptanceTest {
 
     @Test
     public void testPluginDecodeQualifications() throws ClassNotFoundException, IllegalAccessException, InstantiationException {
-        logger.info("");
-        logger.info("********************************");
-        logger.info("  Testing DecodeQualification");
-        logger.info("********************************");
-        logger.info("");
+        logInfoWithStars("Testing DecodeQualification");
         final StopWatch stopWatch = new StopWatch();
         for (TestProductReader testReader : productReaderList) {
             final ProductReaderPlugIn productReaderPlugin = testReader.getProductReaderPlugin();
@@ -112,12 +109,7 @@ public class ProductReaderAcceptanceTest {
 
     @Test
     public void testReadIntendedProductContent() throws IOException {
-        logger.info("");
-        logger.info("***********************************");
-        logger.info("  Testing IntendedProductContent");
-        logger.info("***********************************");
-        logger.info("");
-
+        logInfoWithStars("Testing IntendedProductContent");
         final StopWatch stopWatch = new StopWatch();
         for (TestProductReader testReader : productReaderList) {
             final ArrayList<String> intendedProductIds = testReader.getIntendedProductIds();
@@ -154,11 +146,7 @@ public class ProductReaderAcceptanceTest {
 
     @Test
     public void testProductIO_readProduct() throws Exception {
-        logger.info("");
-        logger.info("*********************************");
-        logger.info("  Testing ProductIO.readProduct");
-        logger.info("*********************************");
-        logger.info("");
+        logInfoWithStars("Testing ProductIO.readProduct");
         final StopWatch stopWatch = new StopWatch();
         for (TestProduct testProduct : testProductList) {
             if (testProduct.exists()) {
@@ -285,6 +273,9 @@ public class ProductReaderAcceptanceTest {
     }
 
     private static void initLogger() throws Exception {
+        // Suppress ugly (and harmless) JAI error messages saying that a JAI is going to continue in pure Java mode.
+        System.setProperty("com.sun.media.jai.disableMediaLib", "true");  // disable native libraries for JAI
+
         logger = Logger.getLogger(ProductReaderAcceptanceTest.class.getSimpleName());
         BeamLogManager.removeRootLoggerHandlers();
         final ConsoleHandler consoleHandler = new ConsoleHandler();
@@ -297,13 +288,9 @@ public class ProductReaderAcceptanceTest {
             final StreamHandler streamHandler = new StreamHandler(fos, new CustomLogFormatter());
             logger.addHandler(streamHandler);
         }
-        logger.info("Reader Acceptance Tests");
         final Calendar calendar = GregorianCalendar.getInstance(TimeZone.getTimeZone("UTC"), Locale.ENGLISH);
-        final SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM-yyyy HH:mm:ss", Locale.ENGLISH);
-        logger.info("Date: " + dateFormat.format(calendar.getTime()));
-        // Suppress ugly (and harmless) JAI error messages saying that a JAI is going to continue in pure Java mode.
-        System.setProperty("com.sun.media.jai.disableMediaLib", "true");  // disable native libraries for JAI
-
+        final SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM-yyyy HH:mm", Locale.ENGLISH);
+        logInfoWithStars("Reader Acceptance Tests / " + dateFormat.format(calendar.getTime()));
     }
 
     private static void readProductsList() throws IOException {
@@ -375,5 +362,19 @@ public class ProductReaderAcceptanceTest {
         final String path = fullyQualifiedName.replace(".", "/");
         return "/" + path + suffix;
     }
+
+    private static void logInfoWithStars(final String text) {
+        final String msg = "  " + text + "  ";
+        final char[] stars = new char[msg.length()];
+        Arrays.fill(stars, '*');
+        final String starString = new String(stars);
+        logger.info("");
+        logger.info(starString);
+        logger.info(msg);
+        logger.info(starString);
+        logger.info("");
+    }
+
+
 
 }
