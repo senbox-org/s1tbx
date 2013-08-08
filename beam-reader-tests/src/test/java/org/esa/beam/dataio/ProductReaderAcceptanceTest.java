@@ -23,6 +23,9 @@ import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.GeoCoding;
+import org.esa.beam.framework.datamodel.GeoPos;
+import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.util.StopWatch;
 import org.esa.beam.util.SystemUtils;
@@ -48,10 +51,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.logging.StreamHandler;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.fail;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 @RunWith(ReaderTestRunner.class)
 public class ProductReaderAcceptanceTest {
@@ -170,55 +170,78 @@ public class ProductReaderAcceptanceTest {
     }
 
     private static void testExpectedContent(ExpectedContent expectedContent, Product product) {
-        assertExpectedProductProperties(expectedContent, product);
-
+        testExpectedProductProperties(expectedContent, product);
+        testExpectedGeoCoding(expectedContent, product);
         final ExpectedBand[] expectedBands = expectedContent.getBands();
         for (final ExpectedBand expectedBand : expectedBands) {
-            final Band band = product.getBand(expectedBand.getName());
-            assertNotNull("missing band '" + expectedBand.getName() + " in product '" + product.getFileLocation(), band);
-
-            final String assertMessagePrefix = expectedContent.getId() + " " + band.getName();
-
-            if (expectedBand.isDescriptionSet()) {
-                assertEquals(assertMessagePrefix + " Description", expectedBand.getDescription(), band.getDescription());
-            }
-
-            if (expectedBand.isGeophysicalUnitSet()) {
-                assertEquals(assertMessagePrefix + " Unit", expectedBand.getGeophysicalUnit(), band.getUnit());
-            }
-
-            if (expectedBand.isNoDataValueSet()) {
-                final double expectedNDValue = Double.parseDouble(expectedBand.getNoDataValue());
-                assertEquals(assertMessagePrefix + " NoDataValue", expectedNDValue, band.getGeophysicalNoDataValue(), 1e-6);
-            }
-
-            if (expectedBand.isNoDataValueUsedSet()) {
-                final boolean expectedNDUsedValue = Boolean.parseBoolean(expectedBand.isNoDataValueUsed());
-                assertEquals(assertMessagePrefix + " NoDataValueUsed", expectedNDUsedValue, band.isNoDataValueUsed());
-            }
-
-            if (expectedBand.isSpectralWavelengthSet()) {
-                final float expectedSpectralWavelength = Float.parseFloat(expectedBand.getSpectralWavelength());
-                assertEquals(assertMessagePrefix + " SpectralWavelength", expectedSpectralWavelength, band.getSpectralWavelength(), 1e-6);
-            }
-
-            if (expectedBand.isSpectralBandWidthSet()) {
-                final float expectedSpectralBandwidth = Float.parseFloat(expectedBand.getSpectralBandwidth());
-                assertEquals(assertMessagePrefix + " SpectralBandWidth", expectedSpectralBandwidth, band.getSpectralBandwidth(), 1e-6);
-            }
-
-            final ExpectedPixel[] expectedPixel = expectedBand.getExpectedPixel();
-            for (ExpectedPixel pixel : expectedPixel) {
-                float bandValue = band.getSampleFloat(pixel.getX(), pixel.getY());
-                if (!band.isPixelValid(pixel.getX(), pixel.getY())) {
-                    bandValue = Float.NaN;
-                }
-                assertEquals(assertMessagePrefix + " Pixel(" + pixel.getX() + "," + pixel.getY() + ")", pixel.getValue(), bandValue, 1e-6);
-            }
+            testExpectedBand(expectedContent, expectedBand, product);
         }
     }
 
-    private static void assertExpectedProductProperties(ExpectedContent expectedContent, Product product) {
+    private static void testExpectedGeoCoding(ExpectedContent expectedContent, Product product) {
+        if(expectedContent.isGeoCodingSet()) {
+            final ExpectedGeoCoding expectedGeoCoding = expectedContent.getGeoCoding();
+            final GeoCoding geoCoding = product.getGeoCoding();
+            assertNotNull(expectedContent.getId() + " has no GeoCoding", geoCoding);
+
+            final ExpectedGeoCoordinates[] coordinates = expectedGeoCoding.getCoordinates();
+            for (ExpectedGeoCoordinates coordinate : coordinates) {
+                final PixelPos pixelPos = coordinate.getPixelPos();
+                final GeoPos expectedGeoPos = coordinate.getGeoPos();
+                final GeoPos actualGeoPos = geoCoding.getGeoPos(pixelPos, null);
+                assertEquals(expectedContent.getId() + " GeoPos at Pixel(" + pixelPos.getX() + "," + pixelPos.getY() + ")",
+                             expectedGeoPos, actualGeoPos);
+            }
+        }
+
+    }
+
+
+    private static void testExpectedBand(ExpectedContent expectedContent, ExpectedBand expectedBand, Product product) {
+        final Band band = product.getBand(expectedBand.getName());
+        assertNotNull("missing band '" + expectedBand.getName() + " in product '" + product.getFileLocation(), band);
+
+        final String assertMessagePrefix = expectedContent.getId() + " " + band.getName();
+
+        if (expectedBand.isDescriptionSet()) {
+            assertEquals(assertMessagePrefix + " Description", expectedBand.getDescription(), band.getDescription());
+        }
+
+        if (expectedBand.isGeophysicalUnitSet()) {
+            assertEquals(assertMessagePrefix + " Unit", expectedBand.getGeophysicalUnit(), band.getUnit());
+        }
+
+        if (expectedBand.isNoDataValueSet()) {
+            final double expectedNDValue = Double.parseDouble(expectedBand.getNoDataValue());
+            assertEquals(assertMessagePrefix + " NoDataValue", expectedNDValue, band.getGeophysicalNoDataValue(), 1e-6);
+        }
+
+        if (expectedBand.isNoDataValueUsedSet()) {
+            final boolean expectedNDUsedValue = Boolean.parseBoolean(expectedBand.isNoDataValueUsed());
+            assertEquals(assertMessagePrefix + " NoDataValueUsed", expectedNDUsedValue, band.isNoDataValueUsed());
+        }
+
+        if (expectedBand.isSpectralWavelengthSet()) {
+            final float expectedSpectralWavelength = Float.parseFloat(expectedBand.getSpectralWavelength());
+            assertEquals(assertMessagePrefix + " SpectralWavelength", expectedSpectralWavelength, band.getSpectralWavelength(), 1e-6);
+        }
+
+        if (expectedBand.isSpectralBandWidthSet()) {
+            final float expectedSpectralBandwidth = Float.parseFloat(expectedBand.getSpectralBandwidth());
+            assertEquals(assertMessagePrefix + " SpectralBandWidth", expectedSpectralBandwidth, band.getSpectralBandwidth(), 1e-6);
+        }
+
+        final ExpectedPixel[] expectedPixel = expectedBand.getExpectedPixel();
+        for (ExpectedPixel pixel : expectedPixel) {
+            float bandValue = band.getSampleFloat(pixel.getX(), pixel.getY());
+            if (!band.isPixelValid(pixel.getX(), pixel.getY())) {
+                bandValue = Float.NaN;
+            }
+            assertEquals(assertMessagePrefix + " Pixel(" + pixel.getX() + "," + pixel.getY() + ")", pixel.getValue(), bandValue, 1e-6);
+        }
+    }
+
+    private static void testExpectedProductProperties(ExpectedContent expectedContent, Product product) {
         if (expectedContent.isSceneWidthSet()) {
             assertEquals(expectedContent.getId() + " SceneWidth", expectedContent.getSceneWidth(), product.getSceneRasterWidth());
         }

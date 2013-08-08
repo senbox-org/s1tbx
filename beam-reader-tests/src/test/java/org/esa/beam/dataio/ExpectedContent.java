@@ -7,6 +7,7 @@ class ExpectedContent {
     private Integer sceneHeight;
     private String startTime;
     private String endTime;
+    private ExpectedGeoCoding geoCoding;
     private ExpectedBand[] bands;
 
     ExpectedContent() {
@@ -45,7 +46,6 @@ class ExpectedContent {
         return sceneHeight != null;
     }
 
-
     String getStartTime() {
         return startTime;
     }
@@ -68,6 +68,18 @@ class ExpectedContent {
 
     boolean isEndTimeSet() {
         return endTime != null;
+    }
+
+    ExpectedGeoCoding getGeoCoding() {
+        return geoCoding;
+    }
+
+    void setGeoCoding(ExpectedGeoCoding geoCoding) {
+        this.geoCoding = geoCoding;
+    }
+
+    boolean isGeoCodingSet(){
+     return geoCoding != null;
     }
 
     ExpectedBand[] getBands() {
