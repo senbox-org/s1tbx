@@ -28,6 +28,7 @@ import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.util.StopWatch;
+import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.logging.BeamLogManager;
 import org.junit.Assert;
@@ -337,6 +338,9 @@ public class ProductReaderAcceptanceTest {
             final ProductList list = mapper.readValue(resource, ProductList.class);
             for (TestProduct testProduct : list) {
                 final String id = testProduct.getId();
+                if(StringUtils.isNullOrEmpty(id)) {
+                    fail("Test product defined without an id in " + resource.toExternalForm());
+                }
                 if (testProductList.getById(id) != null) {
                     fail("Test file with ID=" + id + " already defined");
                 }
