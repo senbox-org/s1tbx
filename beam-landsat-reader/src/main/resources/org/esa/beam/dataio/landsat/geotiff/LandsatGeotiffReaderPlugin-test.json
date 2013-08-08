@@ -1197,23 +1197,23 @@
         },
         {
             "id": "L71191027_02720070313",
-            "sceneWidth": 16501,
-            "sceneHeight": 15301,
-            "startTime": "23-MAR-2007 10:17:24.932000",
-            "endTime": "23-MAR-2007 10:17:24.932000",
+            "sceneWidth": 16801,
+            "sceneHeight": 15041,
+            "startTime": "13-MAR-2007 09:42:18.669000",
+            "endTime": "13-MAR-2007 09:42:18.669000",
             "geoCoding": {
                 "coordinates": [
                     {
                         "x": 16404.5,
                         "y": 15196.5,
-                        "lat": 53.496094,
-                        "lon": 9.793926
+                        "lat": 46.41355,
+                        "lon": 15.724335
                     },
                     {
                         "x": 9162.85,
                         "y": 7125.3667,
-                        "lat": 54.583767,
-                        "lon": 8.134167
+                        "lat": 47.50315,
+                        "lon": 14.296798
                     }
                 ]
             },
@@ -1343,6 +1343,108 @@
                         }
                     ]
                 }
+            ]
+        },
+        {
+            "id": "LT51970222006231KIS02",
+            "sceneWidth": 8511,
+            "sceneHeight": 7651,
+            "startTime": "19-AUG-2006 10:20:20.964000",
+            "endTime": "19-AUG-2006 10:20:20.964000",
+            "geoCoding": {
+                "coordinates": [
+                    {
+                        "x": 1532.5,
+                        "y": 688.5,
+                        "lat": 55.324867,
+                        "lon": 6.751987
+                    },
+                    {
+                        "x": 3361.4312,
+                        "y": 2557.3333,
+                        "lat": 54.834045,
+                        "lon": 7.633711
+                    }
+                ]
+            },
+            "bands": [
+                {
+                    "name": "radiance_1",
+                    "geophysicalUnit": "W/(m^2*sr*µm)",
+                    "expectedPixel": [
+                        {
+                            "x": "1656",
+                            "y": "495",
+                            "value": "81.95512"
+                        }
+                    ]
+                },
+                {
+                    "name": "radiance_2",
+                    "geophysicalUnit": "W/(m^2*sr*µm)",
+                    "expectedPixel": [
+                        {
+                            "x": "1656",
+                            "y": "495",
+                            "value": "59.432125"
+                        }
+                    ]
+                }  ,
+                {
+                    "name": "radiance_3",
+                    "geophysicalUnit": "W/(m^2*sr*µm)",
+                    "expectedPixel": [
+                        {
+                            "x": "1656",
+                            "y": "495",
+                            "value": "44.76496"
+                        }
+                    ]
+                },
+                {
+                    "name": "radiance_4",
+                    "geophysicalUnit": "W/(m^2*sr*µm)",
+                    "expectedPixel": [
+                        {
+                            "x": "1656",
+                            "y": "495",
+                            "value": "27.398779"
+                        }
+                    ]
+                },
+                {
+                    "name": "radiance_5",
+                    "geophysicalUnit": "W/(m^2*sr*µm)",
+                    "expectedPixel": [
+                        {
+                            "x": "1656",
+                            "y": "495",
+                            "value": "NaN"
+                        }
+                    ]
+                },
+                {
+                    "name": "radiance_6",
+                    "geophysicalUnit": "W/(m^2*sr*µm)",
+                    "expectedPixel": [
+                        {
+                            "x": "1656",
+                            "y": "495",
+                            "value": "NaN"
+                        }
+                    ]
+                },
+                {
+                    "name": "radiance_7",
+                    "geophysicalUnit": "W/(m^2*sr*µm)",
+                    "expectedPixel": [
+                        {
+                            "x": "1656",
+                            "y": "495",
+                            "value": "NaN"
+                        }
+                    ]
+               }
             ]
         }
     ]
