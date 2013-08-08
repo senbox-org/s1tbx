@@ -18,7 +18,6 @@ package com.bc.ceres.swing.progress;
 
 import com.bc.ceres.swing.SwingHelper;
 
-import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
@@ -27,12 +26,7 @@ import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
-import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.Dialog;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.Window;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
@@ -50,6 +44,8 @@ public class ProgressDialog {
     private Component parentComponent;
     private String title;
     private JComponent messageComponent;
+    private JComponent extensibleMessageComponent;
+    int notExtendedDialogHeight;
     private String note;
     private int minimum;
     private int maximum;
@@ -62,6 +58,8 @@ public class ProgressDialog {
     public JButton cancelButton;
 
     private boolean canceled = false;
+    private boolean placeExtensibleMessageAboveProgressBar;
+    private boolean placeMessageAboveProgressBar;
 
     /**
      * Constructs a graphic object that shows progress, typically by filling
@@ -88,7 +86,22 @@ public class ProgressDialog {
     }
 
     public void setMessageComponent(JComponent messageComponent) {
+        setMessageComponent(messageComponent, true);
+    }
+
+    public void setMessageComponent(JComponent messageComponent, boolean placeMessageAboveProgressBar) {
         this.messageComponent = messageComponent;
+        this.placeMessageAboveProgressBar = placeMessageAboveProgressBar;
+    }
+
+    public JComponent getExtensibleMessageComponent() {
+        return extensibleMessageComponent;
+    }
+
+    public void setExtensibleMessageComponent(JComponent extensibleMessageComponent,
+                                              boolean placeExtensibleMessageAboveProgressBar) {
+        this.extensibleMessageComponent = extensibleMessageComponent;
+        this.placeExtensibleMessageAboveProgressBar = placeExtensibleMessageAboveProgressBar;
     }
 
     public Dialog.ModalityType getModalityType() {
@@ -303,15 +316,40 @@ public class ProgressDialog {
         }
         messagePanel.add(noteLabel, BorderLayout.SOUTH);
 
-
         JPanel progressPanel = new JPanel(new BorderLayout(4, 4));
-        progressPanel.add(messagePanel, BorderLayout.CENTER);
         progressPanel.add(progressBar, BorderLayout.SOUTH);
 
-        JPanel contentPanel = new JPanel(new BorderLayout(4, 4));
-        contentPanel.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
-        contentPanel.add(progressPanel, BorderLayout.CENTER);
+        JPanel extensibleMessagePanel = new JPanel(new BorderLayout(4, 4));
+        if (extensibleMessageComponent != null) {
+            extensibleMessageComponent.setVisible(false);
+            final String moreButtonText = "More >>";
+            final String lessButtonText = "Less <<";
+            final JButton extendButton = new JButton(moreButtonText);
+            extendButton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    if (extensibleMessageComponent.isVisible()) {
+                        extensibleMessageComponent.setVisible(false);
+                        extendButton.setText(moreButtonText);
+                        Dimension size = dialog.getSize();
+                        dialog.setSize(size.width, notExtendedDialogHeight);
+                        dialog.pack();
+                    } else {
+                        extensibleMessageComponent.setVisible(true);
+                        extendButton.setText(lessButtonText);
+                        Dimension size = dialog.getSize();
+                        dialog.setSize(size.width,
+                                Math.max(notExtendedDialogHeight + 200, size.height));
+                    }
+                }
+            });
+            JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+            buttonPanel.add(extendButton);
+            extensibleMessagePanel.add(buttonPanel, BorderLayout.NORTH);
+            extensibleMessagePanel.add(extensibleMessageComponent, BorderLayout.CENTER);
+        }
 
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         if (cancelable) {
             this.cancelButton = new JButton(UIManager.getString("OptionPane.cancelButtonText"));
             this.cancelButton.addActionListener(new ActionListener() {
@@ -319,9 +357,44 @@ public class ProgressDialog {
                     cancel();
                 }
             });
-            JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
             buttonPanel.add(cancelButton);
-            contentPanel.add(buttonPanel, BorderLayout.SOUTH);
+        }
+
+        GridBagLayout gbl = new GridBagLayout();
+        JPanel contentPanel = new JPanel(gbl);
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.weightx = 1;
+        gbc.insets = new Insets(4, 4, 4, 4);
+        if(messageComponent != null) {
+            gbc.gridy = 3;
+            if(placeMessageAboveProgressBar) {
+                gbc.gridy = 0;
+            }
+            gbc.weighty = 1;
+            gbc.fill = GridBagConstraints.BOTH;
+            gbl.addLayoutComponent(messagePanel, gbc);
+            contentPanel.add(messagePanel);
+        }
+        if(extensibleMessageComponent != null) {
+            gbc.gridy = 4;
+            if(placeExtensibleMessageAboveProgressBar) {
+                gbc.gridy = 1;
+            }
+            gbc.weighty = 1;
+            gbc.fill = GridBagConstraints.BOTH;
+            gbl.addLayoutComponent(extensibleMessagePanel, gbc);
+            contentPanel.add(extensibleMessagePanel);
+        }
+        gbc.gridy = 2;
+        gbc.weighty = 0;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbl.addLayoutComponent(progressBar, gbc);
+        contentPanel.add(progressBar);
+        if(cancelable) {
+            gbc.gridy = 5;
+            gbl.addLayoutComponent(buttonPanel, gbc);
+            contentPanel.add(buttonPanel);
         }
 
         dialog = new JDialog(parentWindow, title, modalityType);
@@ -337,6 +410,8 @@ public class ProgressDialog {
 
         dialog.pack();
         SwingHelper.centerComponent(dialog, parentWindow);
+
+        notExtendedDialogHeight = dialog.getHeight();
 
         dialog.setVisible(true);
     }
