@@ -16,7 +16,7 @@ To be able to run the tests, two VM properties need to be present:
     It is helpful for developer if they don't have the complete test data set on their developer machine.
 
 -Dbeam.reader.tests.log.file=<Path_To_LogFile>
-    Specifies the path the log file shall be written to. If not given not log file will be created.
+    Specifies the path the log file shall be written to. If not given no log file will be created.
 
 
 
@@ -28,7 +28,9 @@ as the implemented plugin. The files must be named as follows
     <PLUGIN_NAME>-data.json
     <PLUGIN_NAME>-test.json
 Example for Landsat:
-Plugin is org.esa.beam.dataio.landsat.geotiff.LandsatGeotiffReaderPlugin. The files must be located in
+Plugin is org.esa.beam.dataio.landsat.geotiff.LandsatGeotiffReaderPlugin.
+
+The files must be located in
 \src\main\resources\org\esa\beam\dataio\landsat\geotiff\LandsatGeotiffReaderPlugin-data.json
 \src\main\resources\org\esa\beam\dataio\landsat\geotiff\LandsatGeotiffReaderPlugin-test.json
 
