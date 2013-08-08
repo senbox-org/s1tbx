@@ -393,13 +393,9 @@ public class ProductReaderAcceptanceTest {
                 fail("Unable to load reader test config file: " + resourceFilename);
             }
 
-            try {
-                final TestProductReader testProductReader = mapper.readValue(testConfigUrl, TestProductReader.class);
-                testProductReader.setProductReaderPlugin(readerPlugIn);
-                productReaderList.add(testProductReader);
-            } catch (IOException e) {
-                fail("Unable to load reader test config file: " + testConfigUrl);
-            }
+            final TestProductReader testProductReader = mapper.readValue(testConfigUrl, TestProductReader.class);
+            testProductReader.setProductReaderPlugin(readerPlugIn);
+            productReaderList.add(testProductReader);
         }
     }
 
