@@ -1,33 +1,37 @@
 package org.esa.beam.dataio;
 
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 class ExpectedContent {
+    @JsonProperty(required = true)
     private String id;
+    @JsonProperty
     private Integer sceneWidth;
+    @JsonProperty
     private Integer sceneHeight;
+    @JsonProperty
     private String startTime;
+    @JsonProperty
     private String endTime;
+    @JsonProperty
     private ExpectedGeoCoding geoCoding;
+    @JsonProperty
+    private ExpectedFlagCoding[] flagCodings;
+    @JsonProperty
     private ExpectedBand[] bands;
 
     ExpectedContent() {
         bands = new ExpectedBand[0];
+        flagCodings = new ExpectedFlagCoding[0];
     }
 
     String getId() {
         return id;
     }
 
-    void setId(String id) {
-        this.id = id;
-    }
-
     int getSceneWidth() {
         return sceneWidth;
-    }
-
-    void setSceneWidth(int sceneWidth) {
-        this.sceneWidth = sceneWidth;
     }
 
     public boolean isSceneWidthSet() {
@@ -38,20 +42,12 @@ class ExpectedContent {
         return sceneHeight;
     }
 
-    void setSceneHeight(int sceneHeight) {
-        this.sceneHeight = sceneHeight;
-    }
-
     public boolean isSceneHeightSet() {
         return sceneHeight != null;
     }
 
     String getStartTime() {
         return startTime;
-    }
-
-    void setStartTime(String startTime) {
-        this.startTime = startTime;
     }
 
     boolean isStartTimeSet() {
@@ -62,10 +58,6 @@ class ExpectedContent {
         return endTime;
     }
 
-    void setEndTime(String endTime) {
-        this.endTime = endTime;
-    }
-
     boolean isEndTimeSet() {
         return endTime != null;
     }
@@ -74,20 +66,16 @@ class ExpectedContent {
         return geoCoding;
     }
 
-    void setGeoCoding(ExpectedGeoCoding geoCoding) {
-        this.geoCoding = geoCoding;
-    }
-
     boolean isGeoCodingSet(){
      return geoCoding != null;
     }
 
-    ExpectedBand[] getBands() {
-        return bands;
+    ExpectedFlagCoding[] getFlagCodings() {
+        return flagCodings;
     }
 
-    void setBands(ExpectedBand[] bands) {
-        this.bands = bands;
+    ExpectedBand[] getBands() {
+        return bands;
     }
 
 }

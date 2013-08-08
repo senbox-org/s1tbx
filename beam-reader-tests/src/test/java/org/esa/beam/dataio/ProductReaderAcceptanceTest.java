@@ -23,12 +23,13 @@ import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.FlagCoding;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.GeoPos;
+import org.esa.beam.framework.datamodel.MetadataAttribute;
 import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.util.StopWatch;
-import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.logging.BeamLogManager;
 import org.junit.Assert;
@@ -173,9 +174,29 @@ public class ProductReaderAcceptanceTest {
     private static void testExpectedContent(ExpectedContent expectedContent, Product product) {
         testExpectedProductProperties(expectedContent, product);
         testExpectedGeoCoding(expectedContent, product);
+        testExpectedFlagCoding(expectedContent, product);
         final ExpectedBand[] expectedBands = expectedContent.getBands();
         for (final ExpectedBand expectedBand : expectedBands) {
             testExpectedBand(expectedContent, expectedBand, product);
+        }
+    }
+
+    private static void testExpectedFlagCoding(ExpectedContent expectedContent, Product product) {
+
+        for (ExpectedFlagCoding expectedFlagCoding : expectedContent.getFlagCodings()) {
+            final String name = expectedFlagCoding.getName();
+            final FlagCoding actualFlagCoding = product.getFlagCodingGroup().get(name);
+            final ExpectedFlag[] expectedFlags = expectedFlagCoding.getFlags();
+            final String msgPrefix = expectedContent.getId() + " FlagCoding '" + name;
+            assertEquals(msgPrefix + "' number of flags", expectedFlags.length, actualFlagCoding.getNumAttributes());
+            for (ExpectedFlag expectedFlag : expectedFlags) {
+                final MetadataAttribute actualFlag = actualFlagCoding.getFlag(expectedFlag.getName());
+                assertNotNull(msgPrefix + " flag '" + expectedFlag.getName() + "' does not exist", actualFlag);
+                assertEquals(msgPrefix + " flag '" + expectedFlag.getName() + "' Value",
+                             expectedFlag.getValue(), actualFlag.getData().getElemUInt());
+                assertEquals(msgPrefix + " flag '" + expectedFlag.getName() + "' Description",
+                             expectedFlag.getDescription(), actualFlag.getDescription());
+            }
         }
     }
 
@@ -338,9 +359,6 @@ public class ProductReaderAcceptanceTest {
             final ProductList list = mapper.readValue(resource, ProductList.class);
             for (TestProduct testProduct : list) {
                 final String id = testProduct.getId();
-                if(StringUtils.isNullOrEmpty(id)) {
-                    fail("Test product defined without an id in " + resource.toExternalForm());
-                }
                 if (testProductList.getById(id) != null) {
                     fail("Test file with ID=" + id + " already defined");
                 }

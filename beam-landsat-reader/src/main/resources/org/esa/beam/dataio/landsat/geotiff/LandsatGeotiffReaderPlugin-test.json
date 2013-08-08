@@ -387,6 +387,113 @@
         },
         {
             "id": "LC81960222013195LGN00",
+            "sceneWidth": 15901,
+            "sceneHeight": 16121,
+            "startTime": "14-JUL-2013 10:22:41.078000",
+            "endTime": "14-JUL-2013 10:22:41.078000",
+            "geoCoding": {
+                "coordinates": [
+                    {
+                        "x": 654.5,
+                        "y": 631.5,
+                        "lat": 55.499588,
+                        "lon": 7.812998
+                    },
+                    {
+                        "x": 7572.2583,
+                        "y": 5902.5,
+                        "lat": 54.79402,
+                        "lon": 9.44768
+                    }
+                ]
+            },
+            "flagCodings": [
+                {
+                    "name": "flags",
+                    "flags": [
+                        {
+                            "name":  "designated_fill",
+                            "value": 1,
+                            "description": "Designated Fill"
+                        },
+                        {
+                            "name":  "dropped_frame",
+                            "value": 2,
+                            "description": "Dropped Frame"
+                        },
+                        {
+                            "name":  "terrain_occlusion",
+                            "value": 4,
+                            "description": "Terrain Occlusion"
+                        },
+                        {
+                            "name":  "reserved_1",
+                            "value": 8,
+                            "description": "Reserved for a future 1-bit class artifact designation"
+                        },
+                        {
+                            "name":  "water_confidence_one",
+                            "value": 16,
+                            "description": "Water confidence bit one"
+                        },
+                        {
+                            "name":  "water_confidence_two",
+                            "value": 32,
+                            "description": "Water confidence bit two"
+                        },
+                        {
+                            "name":  "reserved_2_one",
+                            "value": 64,
+                            "description": "Reserved for a future 2-bit class artifact designation"
+                        },
+                        {
+                            "name":  "reserved_2_two",
+                            "value": 128,
+                            "description": "Reserved for a future 2-bit class artifact designation"
+                        },
+                        {
+                            "name":  "vegetation_confidence_one",
+                            "value": 256,
+                            "description": "Vegetation confidence bit one"
+                        },
+                        {
+                            "name":  "vegetation_confidence_two",
+                            "value": 512,
+                            "description": "Vegetation confidence bit two"
+                        },
+                        {
+                            "name":  "snow_ice_confidence_one",
+                            "value": 1024,
+                            "description": "Snow/ice confidence bit one"
+                        },
+                        {
+                            "name":  "snow_ice_confidence_two",
+                            "value": 2048,
+                            "description": "Snow/ice confidence bit two"
+                        },
+                        {
+                            "name":  "cirrus_confidence_one",
+                            "value": 4096,
+                            "description": "Cirrus confidence bit one"
+                        },
+                        {
+                            "name":  "cirrus_confidence_two",
+                            "value": 8192,
+                            "description": "Cirrus confidence bit two"
+                        },
+                        {
+                            "name":  "cloud_confidence_one",
+                            "value": 16384,
+                            "description": "Cloud confidence bit one"
+                        },
+                        {
+                            "name":  "cloud_confidence_two",
+                            "value": 32768,
+                            "description": "Cloud confidence bit two"
+                        }
+                    ]
+                }
+            ],
             "bands": [
                 {
                     "name": "coastal_aerosol",
