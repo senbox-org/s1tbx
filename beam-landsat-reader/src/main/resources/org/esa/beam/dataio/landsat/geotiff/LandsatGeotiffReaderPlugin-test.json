@@ -35,7 +35,7 @@
             "bands": [
                 {
                     "name": "radiance_1",
-                    "expectedPixel": [
+                    "expectedPixels": [
                         {
                             "x": "7520",
                             "y": "1327",
@@ -50,7 +50,7 @@
                 },
                 {
                     "name": "radiance_2",
-                    "expectedPixel": [
+                    "expectedPixels": [
                         {
                             "x": "2174",
                             "y": "702",
@@ -65,7 +65,7 @@
                 },
                 {
                     "name": "radiance_3",
-                    "expectedPixel": [
+                    "expectedPixels": [
                         {
                             "x": "2196",
                             "y": "2680",
@@ -80,7 +80,7 @@
                 },
                 {
                     "name": "radiance_4",
-                    "expectedPixel": [
+                    "expectedPixels": [
                         {
                             "x": "3914",
                             "y": "3156",
@@ -95,7 +95,7 @@
                 },
                 {
                     "name": "radiance_5",
-                    "expectedPixel": [
+                    "expectedPixels": [
                         {
                             "x": "5862",
                             "y": "4613",
@@ -110,7 +110,7 @@
                 },
                 {
                     "name": "radiance_6",
-                    "expectedPixel": [
+                    "expectedPixels": [
                         {
                             "x": "5550",
                             "y": "6577",
@@ -125,7 +125,7 @@
                 },
                 {
                     "name": "radiance_7",
-                    "expectedPixel": [
+                    "expectedPixels": [
                         {
                             "x": "2709",
                             "y": "4784",
@@ -168,7 +168,7 @@
                     "description": "Visible (30m)",
                     "geophysicalUnit": "W/(m^2*sr*µm)",
                     "noDataValue": "-2.1992125984251967",
-                    "expectedPixel": [
+                    "expectedPixels": [
                         {
                             "x": "4984",
                             "y": "2943",
@@ -181,7 +181,7 @@
                     "description": "Visible (30m)",
                     "geophysicalUnit": "W/(m^2*sr*µm)",
                     "noDataValue": "-4.174015748031496",
-                    "expectedPixel": [
+                    "expectedPixels": [
                         {
                             "x": "4984",
                             "y": "2943",
@@ -194,7 +194,7 @@
                     "description": "Visible (30m)",
                     "geophysicalUnit": "W/(m^2*sr*µm)",
                     "noDataValue": "-2.1746062992125985",
-                    "expectedPixel": [
+                    "expectedPixels": [
                         {
                             "x": "4984",
                             "y": "2943",
@@ -207,7 +207,7 @@
                     "description": "Near-Infrared (30m)",
                     "geophysicalUnit": "W/(m^2*sr*µm)",
                     "noDataValue": "-2.386023622047244",
-                    "expectedPixel": [
+                    "expectedPixels": [
                         {
                             "x": "4984",
                             "y": "2943",
@@ -220,7 +220,7 @@
                     "description": "Near-Infrared (30m)",
                     "geophysicalUnit": "W/(m^2*sr*µm)",
                     "noDataValue": "-0.4950787401574803",
-                    "expectedPixel": [
+                    "expectedPixels": [
                         {
                             "x": "7228",
                             "y": "2880",
@@ -233,7 +233,7 @@
                     "description": "Thermal (120m)",
                     "geophysicalUnit": "W/(m^2*sr*µm)",
                     "noDataValue": "1.1826259842519684",
-                    "expectedPixel": [
+                    "expectedPixels": [
                         {
                             "x": "7228",
                             "y": "2880",
@@ -246,7 +246,7 @@
                     "description": "Mid-Infrared (30m)",
                     "geophysicalUnit": "W/(m^2*sr*µm)",
                     "noDataValue": "-0.21594488188976377",
-                    "expectedPixel": [
+                    "expectedPixels": [
                         {
                             "x": "7228",
                             "y": "2880",
@@ -286,7 +286,7 @@
                     "noDataValue": "-2.1677165354330707",
                     "spectralWavelength": "490.0",
                     "spectralBandwidth": "66.0",
-                    "expectedPixel": [
+                    "expectedPixels": [
                         {
                             "x": "1931",
                             "y": "835",
@@ -306,7 +306,7 @@
                     "noDataValue": "-4.174015748031496",
                     "spectralWavelength": "560.0",
                     "spectralBandwidth": "82.0",
-                    "expectedPixel": [
+                    "expectedPixels": [
                         {
                             "x": "2777",
                             "y": "1634",
@@ -326,7 +326,7 @@
                     "noDataValue": "-2.1746062992125985",
                     "spectralWavelength": "660.0",
                     "spectralBandwidth": "67.0",
-                    "expectedPixel": [
+                    "expectedPixels": [
                         {
                             "x": "3981",
                             "y": "3412",
@@ -346,7 +346,7 @@
                     "noDataValue": "-2.386023622047244",
                     "spectralWavelength": "830.0",
                     "spectralBandwidth": "128.0",
-                    "expectedPixel": [
+                    "expectedPixels": [
                         {
                             "x": "4674",
                             "y": "4918",
@@ -366,7 +366,7 @@
                     "noDataValue": "-0.4950787401574803",
                     "spectralWavelength": "1670.0",
                     "spectralBandwidth": "217.0",
-                    "expectedPixel": [
+                    "expectedPixels": [
                         {
                             "x": "6852",
                             "y": "4152",
@@ -386,7 +386,7 @@
                     "noDataValue": "1.1826259842519684",
                     "spectralWavelength": "11500.0",
                     "spectralBandwidth": "1000.0",
-                    "expectedPixel": [
+                    "expectedPixels": [
                         {
                             "x": "2353",
                             "y": "6081",
@@ -406,7 +406,7 @@
                     "noDataValue": "-0.21594488188976377",
                     "spectralWavelength": "2240.0",
                     "spectralBandwidth": "252.0",
-                    "expectedPixel": [
+                    "expectedPixels": [
                         {
                             "x": "917",
                             "y": "3703",
@@ -536,7 +536,7 @@
                     "description": "Coastal Aerosol (Operational Land Imager (OLI))",
                     "geophysicalUnit": "W/(m^2*sr*µm)",
                     "noDataValue": "-62.44129825891903",
-                    "expectedPixel": [
+                    "expectedPixels": [
                         {
                             "x": "13876",
                             "y": "4362",
@@ -549,7 +549,7 @@
                     "description": "Blue (OLI)",
                     "geophysicalUnit": "W/(m^2*sr*µm)",
                     "noDataValue": "-63.67368473754082",
-                    "expectedPixel": [
+                    "expectedPixels": [
                         {
                             "x": "4680",
                             "y": "3958",
@@ -562,7 +562,7 @@
                     "description": "Green (OLI)",
                     "geophysicalUnit": "W/(m^2*sr*µm)",
                     "noDataValue": "-58.303620723593866",
-                    "expectedPixel": [
+                    "expectedPixels": [
                         {
                             "x": "11673",
                             "y": "8716",
@@ -575,7 +575,7 @@
                     "description": "Red (OLI)",
                     "geophysicalUnit": "W/(m^2*sr*µm)",
                     "noDataValue": "-49.37959591891232",
-                    "expectedPixel": [
+                    "expectedPixels": [
                         {
                             "x": "2848",
                             "y": "9556",
@@ -588,7 +588,7 @@
                     "description": "Near-Infrared (NIR) (OLI)",
                     "geophysicalUnit": "W/(m^2*sr*µm)",
                     "noDataValue": "-29.964092818079166",
-                    "expectedPixel": [
+                    "expectedPixels": [
                         {
                             "x": "11808",
                             "y": "10716",
@@ -601,7 +601,7 @@
                     "description": "Short Wavelength Infrared (SWIR) 1 (OLI)",
                     "geophysicalUnit": "W/(m^2*sr*µm)",
                     "noDataValue": "-7.549449890896328",
-                    "expectedPixel": [
+                    "expectedPixels": [
                         {
                             "x": "9639",
                             "y": "3757",
@@ -619,7 +619,7 @@
                     "description": "SWIR 2 (OLI)",
                     "geophysicalUnit": "W/(m^2*sr*µm)",
                     "noDataValue": "-2.4558211647389143",
-                    "expectedPixel": [
+                    "expectedPixels": [
                         {
                             "x": "14548",
                             "y": "4580",
@@ -632,7 +632,7 @@
                     "description": "Panchromatic (OLI)",
                     "geophysicalUnit": "W/(m^2*sr*µm)",
                     "noDataValue": "-55.622994598223826",
-                    "expectedPixel": [
+                    "expectedPixels": [
                         {
                             "x": "1386",
                             "y": "10027",
@@ -645,7 +645,7 @@
                     "description": "Cirrus (OLI)",
                     "geophysicalUnit": "W/(m^2*sr*µm)",
                     "noDataValue": "-12.31348269737846",
-                    "expectedPixel": [
+                    "expectedPixels": [
                         {
                             "x": "6559",
                             "y": "5214",
@@ -658,7 +658,7 @@
                     "description": "Thermal Infrared Sensor (TIRS) 1",
                     "geophysicalUnit": "W/(m^2*sr*µm)",
                     "noDataValue": "0.09999579989013337",
-                    "expectedPixel": [
+                    "expectedPixels": [
                         {
                             "x": "7942",
                             "y": "8144",
@@ -671,7 +671,7 @@
                     "description": "TIRS 2",
                     "geophysicalUnit": "W/(m^2*sr*µm)",
                     "noDataValue": "0.09999579989013337",
-                    "expectedPixel": [
+                    "expectedPixels": [
                         {
                             "x": "8782",
                             "y": "4076",
@@ -681,7 +681,7 @@
                 } ,
                 {
                     "name": "flags",
-                    "expectedPixel": [
+                    "expectedPixels": [
                         {
                             "x": "10243",
                             "y": "6525",
@@ -808,7 +808,7 @@
                     "noDataValue": "-63.508831766411326",
                     "spectralWavelength": "433.0",
                     "spectralBandwidth": "20.0",
-                    "expectedPixel": [
+                    "expectedPixels": [
                         {
                             "x": "4241",
                             "y": "1243",
@@ -828,7 +828,7 @@
                     "noDataValue": "-64.76229245872372",
                     "spectralWavelength": "482.0",
                     "spectralBandwidth": "60.0",
-                    "expectedPixel": [
+                    "expectedPixels": [
                         {
                             "x": "7630",
                             "y": "1988",
@@ -848,7 +848,7 @@
                     "noDataValue": "-59.30042008316293",
                     "spectralWavelength": "562.0",
                     "spectralBandwidth": "60.0",
-                    "expectedPixel": [
+                    "expectedPixels": [
                         {
                             "x": "13265",
                             "y": "3111",
@@ -868,7 +868,7 @@
                     "noDataValue": "-50.22382476439711",
                     "spectralWavelength": "655.0",
                     "spectralBandwidth": "30.0",
-                    "expectedPixel": [
+                    "expectedPixels": [
                         {
                             "x": "10904",
                             "y": "3271",
@@ -888,7 +888,7 @@
                     "noDataValue": "-30.476375274666584",
                     "spectralWavelength": "865.0",
                     "spectralBandwidth": "30.0",
-                    "expectedPixel": [
+                    "expectedPixels": [
                         {
                             "x": "15028",
                             "y": "5847",
@@ -908,7 +908,7 @@
                     "noDataValue": "-7.678525704977569",
                     "spectralWavelength": "1610.0",
                     "spectralBandwidth": "80.0",
-                    "expectedPixel": [
+                    "expectedPixels": [
                         {
                             "x": "13545",
                             "y": "8730",
@@ -928,7 +928,7 @@
                     "noDataValue": "-2.497809561906797",
                     "spectralWavelength": "2200.0",
                     "spectralBandwidth": "180.0",
-                    "expectedPixel": [
+                    "expectedPixels": [
                         {
                             "x": "12672",
                             "y": "12527",
@@ -948,7 +948,7 @@
                     "noDataValue": "-56.573954791711174",
                     "spectralWavelength": "590.0",
                     "spectralBandwidth": "380.0",
-                    "expectedPixel": [
+                    "expectedPixels": [
                         {
                             "x": "7885",
                             "y": "13301",
@@ -968,7 +968,7 @@
                     "noDataValue": "-12.52400480117191",
                     "spectralWavelength": "1375.0",
                     "spectralBandwidth": "20.0",
-                    "expectedPixel": [
+                    "expectedPixels": [
                         {
                             "x": "3096",
                             "y": "12438",
@@ -988,7 +988,7 @@
                     "noDataValue": "0.09999579989013337",
                     "spectralWavelength": "10800.0",
                     "spectralBandwidth": "590.0",
-                    "expectedPixel": [
+                    "expectedPixels": [
                         {
                             "x": "502",
                             "y": "10597",
@@ -1008,7 +1008,7 @@
                     "noDataValue": "0.09999579989013337",
                     "spectralWavelength": "12000.0",
                     "spectralBandwidth": "1010.0",
-                    "expectedPixel": [
+                    "expectedPixels": [
                         {
                             "x": "2270",
                             "y": "5788",
@@ -1024,7 +1024,7 @@
                 {
                     "name": "flags",
                     "description": "Quality Band",
-                    "expectedPixel": [
+                    "expectedPixels": [
                         {
                             "x": "4867",
                             "y": "7218",
@@ -1156,7 +1156,7 @@
                     "noDataValue": "0.09999579989013337",
                     "spectralWavelength": "10800.0",
                     "spectralBandwidth": "590.0",
-                    "expectedPixel": [
+                    "expectedPixels": [
                         {
                             "x": "2678",
                             "y": "2012",
@@ -1176,7 +1176,7 @@
                     "noDataValue": "0.09999579989013337",
                     "spectralWavelength": "12000.0",
                     "spectralBandwidth": "1010.0",
-                    "expectedPixel": [
+                    "expectedPixels": [
                         {
                             "x": "5691",
                             "y": "4953",
@@ -1220,7 +1220,7 @@
             "bands": [
                 {
                     "name": "radiance_1",
-                    "expectedPixel": [
+                    "expectedPixels": [
                         {
                             "x": "3875",
                             "y": "839",
@@ -1235,7 +1235,7 @@
                 },
                 {
                     "name": "radiance_2",
-                    "expectedPixel": [
+                    "expectedPixels": [
                         {
                             "x": "6134",
                             "y": "4807",
@@ -1245,7 +1245,7 @@
                 }  ,
                 {
                     "name": "radiance_3",
-                    "expectedPixel": [
+                    "expectedPixels": [
                         {
                             "x": "6632",
                             "y": "7257",
@@ -1255,7 +1255,7 @@
                 },
                 {
                     "name": "radiance_4",
-                    "expectedPixel": [
+                    "expectedPixels": [
                         {
                             "x": "12019",
                             "y": "11295",
@@ -1270,7 +1270,7 @@
                 },
                 {
                     "name": "radiance_5",
-                    "expectedPixel": [
+                    "expectedPixels": [
                         {
                             "x": "12586",
                             "y": "4296",
@@ -1285,7 +1285,7 @@
                 },
                 {
                     "name": "radiance_61",
-                    "expectedPixel": [
+                    "expectedPixels": [
                         {
                             "x": "9898",
                             "y": "10669",
@@ -1300,7 +1300,7 @@
                 },
                 {
                     "name": "radiance_62",
-                    "expectedPixel": [
+                    "expectedPixels": [
                         {
                             "x": "1042",
                             "y": "11804",
@@ -1315,7 +1315,7 @@
                 },
                 {
                     "name": "radiance_7",
-                    "expectedPixel": [
+                    "expectedPixels": [
                         {
                             "x": "7045",
                             "y": "5261",
@@ -1330,7 +1330,7 @@
                 },
                 {
                     "name": "radiance_8",
-                    "expectedPixel": [
+                    "expectedPixels": [
                         {
                             "x": "10679",
                             "y": "3717",
@@ -1371,7 +1371,7 @@
                 {
                     "name": "radiance_1",
                     "geophysicalUnit": "W/(m^2*sr*µm)",
-                    "expectedPixel": [
+                    "expectedPixels": [
                         {
                             "x": "1656",
                             "y": "495",
@@ -1382,7 +1382,7 @@
                 {
                     "name": "radiance_2",
                     "geophysicalUnit": "W/(m^2*sr*µm)",
-                    "expectedPixel": [
+                    "expectedPixels": [
                         {
                             "x": "1656",
                             "y": "495",
@@ -1393,7 +1393,7 @@
                 {
                     "name": "radiance_3",
                     "geophysicalUnit": "W/(m^2*sr*µm)",
-                    "expectedPixel": [
+                    "expectedPixels": [
                         {
                             "x": "1656",
                             "y": "495",
@@ -1404,7 +1404,7 @@
                 {
                     "name": "radiance_4",
                     "geophysicalUnit": "W/(m^2*sr*µm)",
-                    "expectedPixel": [
+                    "expectedPixels": [
                         {
                             "x": "1656",
                             "y": "495",
@@ -1415,7 +1415,7 @@
                 {
                     "name": "radiance_5",
                     "geophysicalUnit": "W/(m^2*sr*µm)",
-                    "expectedPixel": [
+                    "expectedPixels": [
                         {
                             "x": "1656",
                             "y": "495",
@@ -1426,7 +1426,7 @@
                 {
                     "name": "radiance_6",
                     "geophysicalUnit": "W/(m^2*sr*µm)",
-                    "expectedPixel": [
+                    "expectedPixels": [
                         {
                             "x": "1656",
                             "y": "495",
@@ -1437,7 +1437,7 @@
                 {
                     "name": "radiance_7",
                     "geophysicalUnit": "W/(m^2*sr*µm)",
-                    "expectedPixel": [
+                    "expectedPixels": [
                         {
                             "x": "1656",
                             "y": "495",

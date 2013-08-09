@@ -10,6 +10,15 @@ class ExpectedPixel {
     @JsonProperty(required = true)
     private float value;
 
+    ExpectedPixel() {
+    }
+
+    ExpectedPixel(int x, int y, float value) {
+        this.x = x;
+        this.y = y;
+        this.value = value;
+    }
+
     public int getX() {
         return x;
     }

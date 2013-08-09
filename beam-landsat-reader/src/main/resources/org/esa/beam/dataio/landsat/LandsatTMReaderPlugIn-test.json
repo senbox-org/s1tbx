@@ -16,7 +16,7 @@
                     "noDataValue": "-1.5",
                     "spectralWavelength": "490.0",
                     "spectralBandwidth": "66.0",
-                    "expectedPixel": [
+                    "expectedPixels": [
                         {
                             "x": "6113",
                             "y": "770",
@@ -36,7 +36,7 @@
                     "noDataValue": "-2.8",
                     "spectralWavelength": "560.0",
                     "spectralBandwidth": "82.0",
-                    "expectedPixel": [
+                    "expectedPixels": [
                         {
                             "x": "6144",
                             "y": "3066",
@@ -56,7 +56,7 @@
                     "noDataValue": "-1.2",
                     "spectralWavelength": "660.0",
                     "spectralBandwidth": "67.0",
-                    "expectedPixel": [
+                    "expectedPixels": [
                         {
                             "x": "4582",
                             "y": "4807",
@@ -76,15 +76,15 @@
                     "noDataValue": "-1.5",
                     "spectralWavelength": "830.0",
                     "spectralBandwidth": "128.0",
-                    "expectedPixel": [
+                    "expectedPixels": [
                         {
-                            "x": "479",
-                            "y": "4015",
-                            "value": "88.095"
+                            "x": 479,
+                            "y": 4015,
+                            "value": 88.095
                         },
                         {
-                            "x": "329",
-                            "y": "4158",
+                            "x": 329,
+                            "y": 4158,
                             "value": "NaN"
                         }
                     ]
@@ -96,7 +96,7 @@
                     "noDataValue": "-0.37",
                     "spectralWavelength": "1670.0",
                     "spectralBandwidth": "217.0",
-                    "expectedPixel": [
+                    "expectedPixels": [
                         {
                             "x": "2911",
                             "y": "2388",
@@ -116,7 +116,7 @@
                     "noDataValue": "1.2378",
                     "spectralWavelength": "11500.0",
                     "spectralBandwidth": "1000.0",
-                    "expectedPixel": [
+                    "expectedPixels": [
                         {
                             "x": "1109",
                             "y": "2038",
@@ -136,7 +136,7 @@
                     "noDataValue": "-0.15",
                     "spectralWavelength": "2240.0",
                     "spectralBandwidth": "252.0",
-                    "expectedPixel": [
+                    "expectedPixels": [
                         {
                             "x": "1375",
                             "y": "724",

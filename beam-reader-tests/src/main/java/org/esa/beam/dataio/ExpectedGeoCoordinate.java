@@ -7,7 +7,7 @@ import org.esa.beam.framework.datamodel.PixelPos;
 /**
  * @author Marco Peters
  */
-public class ExpectedGeoCoordinates {
+class ExpectedGeoCoordinate {
     @JsonProperty(required = true)
     private Float x;
     @JsonProperty(required = true)
@@ -17,6 +17,16 @@ public class ExpectedGeoCoordinates {
     @JsonProperty(required = true)
     private Float lon;
 
+    ExpectedGeoCoordinate() {
+    }
+
+    public ExpectedGeoCoordinate(float x, float y, float lat, float lon) {
+        this();
+        this.x = x;
+        this.y = y;
+        this.lat = lat;
+        this.lon = lon;
+    }
 
     float getX() {
         return x;

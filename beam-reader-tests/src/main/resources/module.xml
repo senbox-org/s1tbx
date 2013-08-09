@@ -1,0 +1,37 @@
+<module>
+    <manifestVersion>1.0.0</manifestVersion>
+    <symbolicName>beam-reader-tests</symbolicName>
+    <version>5.0</version>
+    <name>BEAM Reader Acceptance Tests</name>
+
+    <description>
+        Creates and copies template Json code to the clipboard for further use in the BEAM reader acceptance tests.
+    </description>
+
+    <dependency>
+        <module>beam-core</module>
+    </dependency>
+    <dependency>
+        <module>beam-visat-rcp</module>
+    </dependency>
+
+    <extension point="beam-ui:actions">
+
+        <action>
+            <id>createExpectedJsonCode</id>
+            <class>org.esa.beam.visat.actions.CreateExpectedJsonCodeCommand</class>
+            <text>Copy Expected Json Code to Clipboard</text>
+            <shortDescr>Copies expected Json code to the clipboard</shortDescr>
+            <description>Copies expected Json code to the clipboard.</description>
+            <!--<smallIcon>icons/NewVectorDataNode16.gif</smallIcon>-->
+            <!--<largeIcon>icons/NewVectorDataNode24.gif</largeIcon>-->
+            <!--<helpId>createVectorDataNode</helpId>-->
+            <context>product</context>
+            <!--<parent>tools</parent>-->
+            <!--<placeAfter>createFilteredBand</placeAfter>-->
+            <!--<placeBefore>attachPixelGeoCoding</placeBefore>-->
+            <!--<separatorAfter>true</separatorAfter>-->
+        </action>
+    </extension>
+
+</module>

@@ -103,7 +103,7 @@ public class ProductReaderAcceptanceTest {
                     stopWatch.stop();
                     logger.info(INDENT + INDENT + testProduct.getId() + ": " + stopWatch.getTimeDiffString());
 
-                    final String message = productReaderPlugin.getClass().getName() + ": " + testProduct.getRelativePath();
+                    final String message = productReaderPlugin.getClass().getName() + ": " + testProduct.getId();
                     Assert.assertEquals(message, expected, decodeQualification);
                 } else {
                     logProductNotExistent(2, testProduct);
@@ -225,8 +225,8 @@ public class ProductReaderAcceptanceTest {
             final GeoCoding geoCoding = product.getGeoCoding();
             assertNotNull(expectedContent.getId() + " has no GeoCoding", geoCoding);
 
-            final ExpectedGeoCoordinates[] coordinates = expectedGeoCoding.getCoordinates();
-            for (ExpectedGeoCoordinates coordinate : coordinates) {
+            final ExpectedGeoCoordinate[] coordinates = expectedGeoCoding.getCoordinates();
+            for (ExpectedGeoCoordinate coordinate : coordinates) {
                 final PixelPos pixelPos = coordinate.getPixelPos();
                 final GeoPos expectedGeoPos = coordinate.getGeoPos();
                 final GeoPos actualGeoPos = geoCoding.getGeoPos(pixelPos, null);
@@ -272,7 +272,7 @@ public class ProductReaderAcceptanceTest {
             Assert.assertEquals(assertMessagePrefix + " SpectralBandWidth", expectedSpectralBandwidth, band.getSpectralBandwidth(), 1e-6);
         }
 
-        final ExpectedPixel[] expectedPixel = expectedBand.getExpectedPixel();
+        final ExpectedPixel[] expectedPixel = expectedBand.getExpectedPixels();
         for (ExpectedPixel pixel : expectedPixel) {
             float bandValue = band.getSampleFloat(pixel.getX(), pixel.getY());
             if (!band.isPixelValid(pixel.getX(), pixel.getY())) {

@@ -33,7 +33,7 @@
             "bands": [
                 {
                     "name": "longitude",
-                    "expectedPixel": [
+                    "expectedPixels": [
                         {
                             "x": "5297",
                             "y": "2372",
@@ -48,7 +48,7 @@
                 },
                 {
                     "name": "latitude",
-                    "expectedPixel": [
+                    "expectedPixels" : [
                         {
                             "x": "406",
                             "y": "3621",
@@ -63,7 +63,7 @@
                 },
                 {
                     "name": "atot_412",
-                    "expectedPixel": [
+                    "expectedPixels": [
                         {
                             "x": "359",
                             "y": "540",
@@ -78,7 +78,7 @@
                 },
                 {
                     "name": "atot_443",
-                    "expectedPixel": [
+                    "expectedPixels": [
                         {
                             "x": "4233",
                             "y": "2100",
@@ -186,7 +186,7 @@
             "bands": [
                 {
                     "name": "bl_bin_num",
-                    "expectedPixel": [
+                    "expectedPixels": [
                         {
                             "x": "444",
                             "y": "450",
@@ -201,7 +201,7 @@
                 },
                 {
                     "name": "bl_nobs",
-                    "expectedPixel": [
+                    "expectedPixels": [
                         {
                             "x": "2543",
                             "y": "142",
@@ -216,7 +216,7 @@
                 },
                 {
                     "name": "bl_nscenes",
-                    "expectedPixel": [
+                    "expectedPixels": [
                         {
                             "x": "3884",
                             "y": "201",
@@ -231,7 +231,7 @@
                 },
                 {
                     "name": "bl_radiance_1_mean",
-                    "expectedPixel": [
+                    "expectedPixels": [
                         {
                             "x": "4025",
                             "y": "1966",
@@ -246,7 +246,7 @@
                 },
                 {
                     "name": "bl_radiance_1_sigma",
-                    "expectedPixel": [
+                    "expectedPixels": [
                         {
                             "x": "3011",
                             "y": "2052",
@@ -261,7 +261,7 @@
                 },
                 {
                     "name": "bl_radiance_2_mean",
-                    "expectedPixel": [
+                    "expectedPixels": [
                         {
                             "x": "2017",
                             "y": "1435",
@@ -276,7 +276,7 @@
                 },
                 {
                     "name": "bl_radiance_2_sigma",
-                    "expectedPixel": [
+                    "expectedPixels": [
                         {
                             "x": "2360",
                             "y": "315",
@@ -291,7 +291,7 @@
                 },
                 {
                     "name": "bl_radiance_3_mean",
-                    "expectedPixel": [
+                    "expectedPixels": [
                         {
                             "x": "111",
                             "y": "1821",
@@ -306,7 +306,7 @@
                 } ,
                 {
                     "name": "bl_radiance_3_sigma",
-                    "expectedPixel": [
+                    "expectedPixels": [
                         {
                             "x": "291",
                             "y": "836",
@@ -346,7 +346,7 @@
             "bands": [
                 {
                     "name": "longitude",
-                    "expectedPixel": [
+                    "expectedPixels": [
                         {
                             "x": "252",
                             "y": "1934",
@@ -361,7 +361,7 @@
                 },
                 {
                     "name": "latitude",
-                    "expectedPixel": [
+                    "expectedPixels": [
                         {
                             "x": "239",
                             "y": "564",
@@ -376,7 +376,7 @@
                 },
                 {
                     "name": "aph_412",
-                    "expectedPixel": [
+                    "expectedPixels": [
                         {
                             "x": "2187",
                             "y": "368",
