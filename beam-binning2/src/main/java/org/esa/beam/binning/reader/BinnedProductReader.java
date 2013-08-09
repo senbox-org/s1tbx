@@ -40,12 +40,7 @@ import ucar.nc2.Variable;
 import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.*;
 
 
 public class BinnedProductReader extends AbstractProductReader {
@@ -357,7 +352,9 @@ public class BinnedProductReader extends AbstractProductReader {
         }
         product = null;
         planetaryGrid = null;
-        ncArrayCache.dispose();
+        if (ncArrayCache != null) {
+            ncArrayCache.dispose();
+        }
     }
 
     /////////////////////////////////////////////////////////////////////////
@@ -373,10 +370,10 @@ public class BinnedProductReader extends AbstractProductReader {
         double pixelSizeY = 180.0 / sceneRasterHeight;
         try {
             product.setGeoCoding(new CrsGeoCoding(DefaultGeographicCRS.WGS84,
-                                                  sceneRasterWidth, sceneRasterHeight,
-                                                  easting, northing,
-                                                  pixelSizeX, pixelSizeY,
-                                                  pixelX, pixelY));
+                    sceneRasterWidth, sceneRasterHeight,
+                    easting, northing,
+                    pixelSizeX, pixelSizeY,
+                    pixelX, pixelY));
         } catch (FactoryException e) {
             throw new IOException(e);
         } catch (TransformException e) {

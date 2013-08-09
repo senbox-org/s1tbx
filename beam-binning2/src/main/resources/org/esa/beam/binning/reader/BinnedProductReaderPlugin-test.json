@@ -1,12 +1,35 @@
 {
     "intendedProductIds": [
-        "ESACCI-OC-L3S-OC_PRODUCTS-MERGED-1M_MONTHLY-full-grid-from-PML"
+        "ESACCI-OC-L3S-OC_PRODUCTS-MERGED-1M_MONTHLY-full-grid-from-PML",
+        "MER_RR_BINNED_sparse-bins",
+        "ESACCI-OC-L3S-MERGED-OC_PRODUCTS-1M_MONTHLY_9km_PML+JRC_OC4v6_QAA-20030101_20030131-fv0.1",
+        "ESACCI-OC-L3S-OC_PRODUCTS-MERGED-1D_DAILY_9km_sparse_PML+JRC_OC4v6_QAA-20030101-fv0.2"
     ],
     "suitableProductIds": [
     ],
     "expectedContentList": [
         {
             "id": "ESACCI-OC-L3S-OC_PRODUCTS-MERGED-1M_MONTHLY-full-grid-from-PML",
+            "sceneWidth": 8640,
+            "sceneHeight": 4320,
+            "startTime": "01-JUN-2003 00:00:00.000000",
+            "endTime": "01-JUN-2003 23:59:00.000000",
+            "geoCoding": {
+                "coordinates": [
+                    {
+                        "x": 824.5,
+                        "y": 925.5,
+                        "lon": -145.64583,
+                        "lat": 51.4375
+                    },
+                    {
+                        "x": 7067.5,
+                        "y": 2520.5,
+                        "lon": 114.479164,
+                        "lat": -15.020833
+                    }
+                ]
+            },
             "bands": [
                 {
                     "name": "longitude",
@@ -15,21 +38,43 @@
                             "x": "5297",
                             "y": "2372",
                             "value": "40.735622"
+                        },
+                        {
+                            "x": "8043",
+                            "y": "4125",
+                            "value": "155.02463"
                         }
                     ]
                 },
                 {
                     "name": "latitude",
-                    "expectedPixel" : [
+                    "expectedPixel": [
                         {
                             "x": "406",
                             "y": "3621",
                             "value": "-60.895832"
+                        },
+                        {
+                            "x": "7762",
+                            "y": "3743",
+                            "value": "-65.979164"
                         }
                     ]
                 },
                 {
-                    "name": "atot_412"
+                    "name": "atot_412",
+                    "expectedPixel": [
+                        {
+                            "x": "359",
+                            "y": "540",
+                            "value": "-8737.725"
+                        },
+                        {
+                            "x": "435",
+                            "y": "497",
+                            "value": "NaN"
+                        }
+                    ]
                 },
                 {
                     "name": "atot_443"
@@ -86,6 +131,213 @@
                     "name": "chlor_a"
                 }
             ]
+        },
+        {
+            "id": "MER_RR_BINNED_sparse-bins",
+            "sceneWidth": 4320,
+            "sceneHeight": 2160,
+            "startTime": "30-NOV-2005 23:06:00.430000",
+            "endTime": "04-DEC-2005 23:01:00.210000",
+            "geoCoding": {
+                "coordinates": [
+                    {
+                        "x": 801.5,
+                        "y": 848.5,
+                        "lon": -113.208336,
+                        "lat": 19.291666
+                    },
+                    {
+                        "x": 2693.5,
+                        "y": 93.5,
+                        "lon": 44.458332,
+                        "lat": 82.208336
+                    }
+                ]
+            },
+            "bands": [
+                {
+                    "name": "bl_bin_num",
+                    "expectedPixel": [
+                        {
+                            "x": "444",
+                            "y": "450",
+                            "value": "5321640"
+                        },
+                        {
+                            "x": "2917",
+                            "y": "1652",
+                            "value": "NaN"
+                        }
+                    ]
+                },
+                {
+                    "name": "bl_nobs",
+                    "expectedPixel": [
+                        {
+                            "x": "2543",
+                            "y": "142",
+                            "value": "71"
+                        },
+                        {
+                            "x": "3067",
+                            "y": "393",
+                            "value": "NaN"
+                        }
+                    ]
+                },
+                {
+                    "name": "bl_nscenes",
+                    "expectedPixel": [
+                        {
+                            "x": "3884",
+                            "y": "201",
+                            "value": "1"
+                        },
+                        {
+                            "x": "3706",
+                            "y": "297",
+                            "value": "NaN"
+                        }
+                    ]
+                },
+                {
+                    "name": "bl_radiance_1_mean",
+                    "expectedPixel": [
+                        {
+                            "x": "4025",
+                            "y": "1966",
+                            "value": "215.80313"
+                        },
+                        {
+                            "x": "3954",
+                            "y": "297",
+                            "value": "NaN"
+                        }
+                    ]
+                },
+                {
+                    "name": "bl_radiance_1_sigma",
+                    "expectedPixel": [
+                        {
+                            "x": "3011",
+                            "y": "2052",
+                            "value": "0.44117704"
+                        },
+                        {
+                            "x": "2842",
+                            "y": "1838",
+                            "value": "NaN"
+                        }
+                    ]
+                },
+                {
+                    "name": "bl_radiance_2_mean",
+                    "expectedPixel": [
+                        {
+                            "x": "2017",
+                            "y": "1435",
+                            "value": "56.237778"
+                        },
+                        {
+                            "x": "2167",
+                            "y": "1456",
+                            "value": "NaN"
+                        }
+                    ]
+                },
+                {
+                    "name": "bl_radiance_2_sigma",
+                    "expectedPixel": [
+                        {
+                            "x": "2360",
+                            "y": "315",
+                            "value": "1.3915763"
+                        },
+                        {
+                            "x": "2164",
+                            "y": "217",
+                            "value": "NaN"
+                        }
+                    ]
+                },
+                {
+                    "name": "bl_radiance_3_mean",
+                    "expectedPixel": [
+                        {
+                            "x": "111",
+                            "y": "1821",
+                            "value": "39.928116"
+                        },
+                        {
+                            "x": "249",
+                            "y": "1877",
+                            "value": "NaN"
+                        }
+                    ]
+                } ,
+                {
+                    "name": "bl_radiance_3_sigma",
+                    "expectedPixel": [
+                        {
+                            "x": "291",
+                            "y": "836",
+                            "value": "34.920498"
+                        },
+                        {
+                            "x": "444",
+                            "y": "873",
+                            "value": "NaN"
+                        }
+                    ]
+                }
+            ]
+        } ,
+        {
+            "id": "ESACCI-OC-L3S-MERGED-OC_PRODUCTS-1M_MONTHLY_9km_PML+JRC_OC4v6_QAA-20030101_20030131-fv0.1",
+            "sceneWidth": 4320,
+            "sceneHeight": 2160,
+            "startTime": "01-JAN-2003 00:00:00.000000",
+            "endTime": "25-JAN-2003 23:59:00.000000",
+            "geoCoding": {
+                "coordinates": [
+                    {
+                        "x": 608.5,
+                        "y": 737.5,
+                        "lon": -129.29167,
+                        "lat": 28.541666
+                    },
+                    {
+                        "x": 4178.5,
+                        "y": 1814.5,
+                        "lon": 168.20833,
+                        "lat": -61.208332
+                    }
+                ]
+            },
+            "bands": [
+                {
+                    "name": "longitude",
+                    "expectedPixel": [
+                        {
+                            "x": "252",
+                            "y": "1934",
+                            "value": "21.077585"
+                        },
+                        {
+                            "x": "4076",
+                            "y": "172",
+                            "value": "339.70178"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "ESACCI-OC-L3S-OC_PRODUCTS-MERGED-1D_DAILY_9km_sparse_PML+JRC_OC4v6_QAA-20030101-fv0.2",
+            "sceneWidth": 4320,
+            "sceneHeight": 2160,
+            "startTime": "01-JAN-2003 00:00:00.000000",
+            "endTime": "01-JAN-2003 23:59:00.000000"
         }
     ]
 
