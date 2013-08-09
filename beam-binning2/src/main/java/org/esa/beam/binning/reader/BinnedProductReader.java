@@ -64,7 +64,7 @@ public class BinnedProductReader extends AbstractProductReader {
     private NcArrayCache ncArrayCache;
 
     /**
-     * Constructs a new MERIS Binned Level-3 product reader.
+     * Constructs a new Binned Level-3 product reader.
      *
      * @param readerPlugIn the plug-in which created this reader instance
      */
@@ -82,7 +82,7 @@ public class BinnedProductReader extends AbstractProductReader {
      */
     @Override
     protected Product readProductNodesImpl() throws IOException {
-        String path = getInput().toString();
+        final String path = getInput().toString();
         netcdfFile = NetcdfFile.open(path);
         bandMap = new HashMap<Band, Variable>();
         try {
@@ -95,12 +95,13 @@ public class BinnedProductReader extends AbstractProductReader {
 
             //create indexMap
 
-            final Variable bl_bin_num = netcdfFile.findVariable("bl_bin_num");
-            final Variable bi_begin = netcdfFile.findVariable("bi_begin");
-            final Variable bi_extent = netcdfFile.findVariable("bi_extent");
-            if (bl_bin_num != null && bi_begin != null && bi_extent != null) {
+            if (isSparseGridded(netcdfFile)) {
                 // sparsely populated grid
                 synchronized (netcdfFile) {
+                    final Variable bl_bin_num = netcdfFile.findVariable("bl_bin_num");
+                    final Variable bi_begin = netcdfFile.findVariable("bi_begin");
+                    final Variable bi_extent = netcdfFile.findVariable("bi_extent");
+
                     final Object storage = bl_bin_num.read().getStorage();
                     binIndexes = (int[]) storage;
                     indexMap = new HashMap<Integer, Integer>(binIndexes.length);
@@ -121,11 +122,19 @@ public class BinnedProductReader extends AbstractProductReader {
         return product;
     }
 
+    private static boolean isSparseGridded(NetcdfFile netcdfFile) {
+        final Variable bl_bin_num = netcdfFile.findVariable("bl_bin_num");
+        final Variable bi_begin = netcdfFile.findVariable("bi_begin");
+        final Variable bi_extent = netcdfFile.findVariable("bi_extent");
+
+        return bl_bin_num != null && bi_begin != null && bi_extent != null;
+    }
+
     private void initBands() throws IOException {
         int largestDimensionSize = getLargestDimensionSize();
         //read geophysical band values
         for (Variable variable : netcdfFile.getVariables()) {
-            final String bandName = variable.getName();
+            final String bandName = variable.getFullName();
             if (variable.getDimensions().get(0).getLength() == largestDimensionSize) {
                 addBand(bandName);
             }
@@ -487,25 +496,6 @@ public class BinnedProductReader extends AbstractProductReader {
             this.description = description;
             this.fillValue = fillValue;
             this.dataType = dataType;
-        }
-    }
-
-    private static class CacheEntry {
-        final Array cachedData;
-        long lastAccess;
-
-        private CacheEntry(Array data) {
-            cachedData = data;
-            lastAccess = System.currentTimeMillis();
-        }
-
-        private Array getData() {
-            lastAccess = System.currentTimeMillis();
-            return cachedData;
-        }
-
-        private long getLastAccess() {
-            return lastAccess;
         }
     }
 
