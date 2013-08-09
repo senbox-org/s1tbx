@@ -1,17 +1,26 @@
 package org.esa.beam.dataio;
 
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.esa.beam.util.StringUtils;
 
 class ExpectedBand {
 
+    @JsonProperty(required = true)
     private String name;
+    @JsonProperty
     private String description;
+    @JsonProperty
     private String geophysicalUnit;
+    @JsonProperty
     private String noDataValue;
+    @JsonProperty
     private String noDataValueUsed;
+    @JsonProperty
     private String spectralWavelength;
+    @JsonProperty
     private String spectralBandwidth;
+    @JsonProperty
     private ExpectedPixel[] expectedPixel;
 
     ExpectedBand() {
@@ -22,16 +31,8 @@ class ExpectedBand {
         return name;
     }
 
-    void setName(String name) {
-        this.name = name;
-    }
-
     String getDescription() {
         return description;
-    }
-
-    void setDescription(String description) {
-        this.description = description;
     }
 
     boolean isDescriptionSet() {
@@ -43,10 +44,6 @@ class ExpectedBand {
         return geophysicalUnit;
     }
 
-    void setGeophysicalUnit(String geophysicalUnit) {
-        this.geophysicalUnit = geophysicalUnit;
-    }
-
     boolean isGeophysicalUnitSet() {
         return StringUtils.isNotNullAndNotEmpty(geophysicalUnit);
     }
@@ -55,20 +52,12 @@ class ExpectedBand {
         return noDataValue;
     }
 
-    void setNoDataValue(String noDataValue) {
-        this.noDataValue = noDataValue;
-    }
-
     boolean isNoDataValueSet() {
         return StringUtils.isNotNullAndNotEmpty(noDataValue);
     }
 
     String isNoDataValueUsed() {
         return noDataValueUsed;
-    }
-
-    void setNoDataValueUsed(String noDataValueUsed) {
-        this.noDataValueUsed = noDataValueUsed;
     }
 
     public boolean isNoDataValueUsedSet() {
@@ -80,10 +69,6 @@ class ExpectedBand {
         return spectralWavelength;
     }
 
-    void setSpectralWavelength(String spectralWavelength) {
-        this.spectralWavelength = spectralWavelength;
-    }
-
     boolean isSpectralWavelengthSet() {
         return StringUtils.isNotNullAndNotEmpty(spectralWavelength);
     }
@@ -92,20 +77,12 @@ class ExpectedBand {
         return spectralBandwidth;
     }
 
-    void setSpectralBandwidth(String spectralBandwidth) {
-        this.spectralBandwidth = spectralBandwidth;
-    }
-
     public boolean isSpectralBandWidthSet() {
         return StringUtils.isNotNullAndNotEmpty(spectralBandwidth);
     }
 
     ExpectedPixel[] getExpectedPixel() {
         return expectedPixel;
-    }
-
-    void setExpectedPixel(ExpectedPixel[] expectedPixel) {
-        this.expectedPixel = expectedPixel;
     }
 
 }

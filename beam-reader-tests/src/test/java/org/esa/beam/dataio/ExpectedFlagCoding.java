@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * @author Marco Peters
  */
 public class ExpectedFlagCoding {
-    @JsonProperty
+    @JsonProperty(required = true)
     private String name;
     @JsonProperty
     private ExpectedFlag[] flags;

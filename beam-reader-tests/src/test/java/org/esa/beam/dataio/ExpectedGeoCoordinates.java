@@ -1,5 +1,6 @@
 package org.esa.beam.dataio;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.PixelPos;
 
@@ -7,47 +8,34 @@ import org.esa.beam.framework.datamodel.PixelPos;
  * @author Marco Peters
  */
 public class ExpectedGeoCoordinates {
-
+    @JsonProperty(required = true)
     private Float x;
+    @JsonProperty(required = true)
     private Float y;
+    @JsonProperty(required = true)
     private Float lat;
+    @JsonProperty(required = true)
     private Float lon;
 
 
-    public float getX() {
+    float getX() {
         return x;
     }
 
-    public void setX(float x) {
-        this.x = x;
-    }
-
-    public float getY() {
+    float getY() {
         return y;
-    }
-
-    public void setY(float y) {
-        this.y = y;
     }
 
     PixelPos getPixelPos() {
         return new PixelPos(getX(), getY());
     }
 
-    public float getLat() {
+    float getLat() {
         return lat;
     }
 
-    public void setLat(float lat) {
-        this.lat = lat;
-    }
-
-    public float getLon() {
+    float getLon() {
         return lon;
-    }
-
-    public void setLon(float lon) {
-        this.lon = lon;
     }
 
     GeoPos getGeoPos() {
