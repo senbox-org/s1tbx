@@ -391,7 +391,7 @@
                 },
                 {
                     "name": "aph_412_bias_uncertainty",
-                    "expectedPixel": [
+                    "expectedPixels": [
                         {
                             "x": "408",
                             "y": "1383",
@@ -431,7 +431,7 @@
             "bands": [
                 {
                     "name": "bl_bin_num",
-                    "expectedPixel": [
+                    "expectedPixels": [
                         {
                             "x": "1869",
                             "y": "749",
