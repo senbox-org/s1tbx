@@ -15,19 +15,13 @@
  */
 package org.esa.beam.gpf.operators.standard;
 
-import static org.junit.Assert.*;
-
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.binding.dom.DefaultDomConverter;
 import com.bc.ceres.binding.dom.DefaultDomElement;
 import com.bc.ceres.binding.dom.DomElement;
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.CrsGeoCoding;
-import org.esa.beam.framework.datamodel.GeoCoding;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.annotations.ParameterDescriptorFactory;
@@ -41,12 +35,14 @@ import org.junit.Before;
 import org.junit.Test;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
-import java.awt.Rectangle;
+import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+
+import static org.junit.Assert.*;
 
 public class BandMathsOpTest {
 
@@ -113,7 +109,7 @@ public class BandMathsOpTest {
     public void testSimplestCaseWithFactoryMethod() throws Exception {
         Product sourceProduct = createTestProduct(4, 4);
 
-        BandMathsOp bandMathsOp = BandMathsOp.createBooleanExpressionBand("band1 > 0", sourceProduct);
+        BandMathsOp bandMathsOp = createBooleanExpressionBand(sourceProduct, "band1 > 0");
         assertNotNull(bandMathsOp);
 
         Product targetProduct = bandMathsOp.getTargetProduct();
@@ -319,4 +315,18 @@ public class BandMathsOpTest {
         band3.setData(ProductData.createInstance(shortValues));
         return testProduct;
     }
+
+    public static BandMathsOp createBooleanExpressionBand(Product sourceProduct, String expression) {
+        BandMathsOp.BandDescriptor bandDescriptor = new BandMathsOp.BandDescriptor();
+        bandDescriptor.name = "band1";
+        bandDescriptor.expression = expression;
+        bandDescriptor.type = ProductData.TYPESTRING_INT8;
+
+        BandMathsOp bandMathsOp = new BandMathsOp();
+        bandMathsOp.setSourceProduct(sourceProduct);
+        bandMathsOp.setTargetBandDescriptors(bandDescriptor);
+        return bandMathsOp;
+    }
+
+
 }

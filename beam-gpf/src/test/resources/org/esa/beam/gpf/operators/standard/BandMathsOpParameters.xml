@@ -7,7 +7,7 @@
             <type>float</type>
             <unit/>
             <validExpression>reflec_13 >= 0</validExpression>
-            <noDataValue>-999</noDataValue>
+            <noDataValue>-999.0</noDataValue>
             <spectralBandIndex>13</spectralBandIndex>
             <spectralWavelength/>
             <spectralBandwidth/>
@@ -19,7 +19,7 @@
             <type>float</type>
             <unit>myunits</unit>
             <validExpression>reflec_14 >= 0</validExpression>
-            <noDataValue>-999</noDataValue>
+            <noDataValue>-999.0</noDataValue>
             <spectralBandIndex>14</spectralBandIndex>
             <spectralWavelength/>
             <spectralBandwidth/>
