@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 /**
  * @author Marco Peters
  */
-public class ExpectedFlag {
+public class ExpectedSample {
     @JsonProperty(required = true)
     private String name;
     @JsonProperty(required = true)

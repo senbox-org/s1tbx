@@ -446,7 +446,7 @@
             "flagCodings": [
                 {
                     "name": "flags",
-                    "flags": [
+                    "samples": [
                         {
                             "name":  "designated_fill",
                             "value": 1,
@@ -716,7 +716,7 @@
             "flagCodings": [
                 {
                     "name": "flags",
-                    "flags": [
+                    "samples": [
                         {
                             "name":  "designated_fill",
                             "value": 1,
@@ -1048,7 +1048,7 @@
             "flagCodings": [
                 {
                     "name": "flags",
-                    "flags": [
+                    "samples": [
                         {
                             "name":  "designated_fill",
                             "value": 1,

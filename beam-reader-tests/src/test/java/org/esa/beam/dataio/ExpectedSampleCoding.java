@@ -5,18 +5,18 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 /**
  * @author Marco Peters
  */
-public class ExpectedFlagCoding {
+public class ExpectedSampleCoding {
     @JsonProperty(required = true)
     private String name;
     @JsonProperty
-    private ExpectedFlag[] flags;
+    private ExpectedSample[] samples;
 
     public String getName() {
         return name;
     }
 
-    public ExpectedFlag[] getFlags() {
-        return flags;
+    public ExpectedSample[] getSamples() {
+        return samples;
     }
 
 }

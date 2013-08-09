@@ -26,9 +26,12 @@ import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.FlagCoding;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.GeoPos;
+import org.esa.beam.framework.datamodel.IndexCoding;
 import org.esa.beam.framework.datamodel.MetadataAttribute;
 import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductNodeGroup;
+import org.esa.beam.framework.datamodel.SampleCoding;
 import org.esa.beam.util.StopWatch;
 import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.logging.BeamLogManager;
@@ -101,7 +104,7 @@ public class ProductReaderAcceptanceTest {
                     logger.info(INDENT + INDENT + testProduct.getId() + ": " + stopWatch.getTimeDiffString());
 
                     final String message = productReaderPlugin.getClass().getName() + ": " + testProduct.getRelativePath();
-                    assertEquals(message, expected, decodeQualification);
+                    Assert.assertEquals(message, expected, decodeQualification);
                 } else {
                     logProductNotExistent(2, testProduct);
                 }
@@ -175,6 +178,7 @@ public class ProductReaderAcceptanceTest {
         testExpectedProductProperties(expectedContent, product);
         testExpectedGeoCoding(expectedContent, product);
         testExpectedFlagCoding(expectedContent, product);
+        testExpectedIndexCoding(expectedContent, product);
         final ExpectedBand[] expectedBands = expectedContent.getBands();
         for (final ExpectedBand expectedBand : expectedBands) {
             testExpectedBand(expectedContent, expectedBand, product);
@@ -183,25 +187,40 @@ public class ProductReaderAcceptanceTest {
 
     private static void testExpectedFlagCoding(ExpectedContent expectedContent, Product product) {
 
-        for (ExpectedFlagCoding expectedFlagCoding : expectedContent.getFlagCodings()) {
+        final ProductNodeGroup<FlagCoding> flagCodingGroup = product.getFlagCodingGroup();
+        for (ExpectedSampleCoding expectedFlagCoding : expectedContent.getFlagCodings()) {
             final String name = expectedFlagCoding.getName();
-            final FlagCoding actualFlagCoding = product.getFlagCodingGroup().get(name);
-            final ExpectedFlag[] expectedFlags = expectedFlagCoding.getFlags();
-            final String msgPrefix = expectedContent.getId() + " FlagCoding '" + name;
-            assertEquals(msgPrefix + "' number of flags", expectedFlags.length, actualFlagCoding.getNumAttributes());
-            for (ExpectedFlag expectedFlag : expectedFlags) {
-                final MetadataAttribute actualFlag = actualFlagCoding.getFlag(expectedFlag.getName());
-                assertNotNull(msgPrefix + " flag '" + expectedFlag.getName() + "' does not exist", actualFlag);
-                assertEquals(msgPrefix + " flag '" + expectedFlag.getName() + "' Value",
-                             expectedFlag.getValue(), actualFlag.getData().getElemUInt());
-                assertEquals(msgPrefix + " flag '" + expectedFlag.getName() + "' Description",
-                             expectedFlag.getDescription(), actualFlag.getDescription());
-            }
+            final FlagCoding actualFlagCoding = flagCodingGroup.get(name);
+            assertEqualSampleCodings(expectedContent.getId() + " FlagCoding '" + name, expectedFlagCoding, actualFlagCoding);
+        }
+    }
+
+    private static void testExpectedIndexCoding(ExpectedContent expectedContent, Product product) {
+
+        final ProductNodeGroup<IndexCoding> indexCodingGroup = product.getIndexCodingGroup();
+        for (ExpectedSampleCoding expectedIndexCoding : expectedContent.getIndexCodings()) {
+            final String name = expectedIndexCoding.getName();
+            final IndexCoding actualIndexCoding = indexCodingGroup.get(name);
+            assertEqualSampleCodings(expectedContent.getId() + " IndexCoding '" + name, expectedIndexCoding, actualIndexCoding);
+        }
+    }
+
+    private static void assertEqualSampleCodings(String msgPrefix, ExpectedSampleCoding expectedSampleCoding, SampleCoding actualSampleCoding) {
+        final ExpectedSample[] expectedSamples = expectedSampleCoding.getSamples();
+        Assert.assertEquals(msgPrefix + "' number of samples", expectedSamples.length, actualSampleCoding.getNumAttributes());
+        for (ExpectedSample expectedSample : expectedSamples) {
+            final String expectedSampleName = expectedSample.getName();
+            final MetadataAttribute actualSample = actualSampleCoding.getAttribute(expectedSampleName);
+            assertNotNull(msgPrefix + " sample '" + expectedSampleName + "' does not exist", actualSample);
+            assertEquals(msgPrefix + " sample '" + expectedSampleName + "' Value",
+                         expectedSample.getValue(), actualSample.getData().getElemUInt());
+            assertEquals(msgPrefix + " sample '" + expectedSampleName + "' Description",
+                         expectedSample.getDescription(), actualSample.getDescription());
         }
     }
 
     private static void testExpectedGeoCoding(ExpectedContent expectedContent, Product product) {
-        if(expectedContent.isGeoCodingSet()) {
+        if (expectedContent.isGeoCodingSet()) {
             final ExpectedGeoCoding expectedGeoCoding = expectedContent.getGeoCoding();
             final GeoCoding geoCoding = product.getGeoCoding();
             assertNotNull(expectedContent.getId() + " has no GeoCoding", geoCoding);
@@ -211,8 +230,8 @@ public class ProductReaderAcceptanceTest {
                 final PixelPos pixelPos = coordinate.getPixelPos();
                 final GeoPos expectedGeoPos = coordinate.getGeoPos();
                 final GeoPos actualGeoPos = geoCoding.getGeoPos(pixelPos, null);
-                assertEquals(expectedContent.getId() + " GeoPos at Pixel(" + pixelPos.getX() + "," + pixelPos.getY() + ")",
-                             expectedGeoPos, actualGeoPos);
+                Assert.assertEquals(expectedContent.getId() + " GeoPos at Pixel(" + pixelPos.getX() + "," + pixelPos.getY() + ")",
+                                    expectedGeoPos, actualGeoPos);
             }
         }
 
@@ -226,31 +245,31 @@ public class ProductReaderAcceptanceTest {
         final String assertMessagePrefix = expectedContent.getId() + " " + band.getName();
 
         if (expectedBand.isDescriptionSet()) {
-            assertEquals(assertMessagePrefix + " Description", expectedBand.getDescription(), band.getDescription());
+            Assert.assertEquals(assertMessagePrefix + " Description", expectedBand.getDescription(), band.getDescription());
         }
 
         if (expectedBand.isGeophysicalUnitSet()) {
-            assertEquals(assertMessagePrefix + " Unit", expectedBand.getGeophysicalUnit(), band.getUnit());
+            Assert.assertEquals(assertMessagePrefix + " Unit", expectedBand.getGeophysicalUnit(), band.getUnit());
         }
 
         if (expectedBand.isNoDataValueSet()) {
             final double expectedNDValue = Double.parseDouble(expectedBand.getNoDataValue());
-            assertEquals(assertMessagePrefix + " NoDataValue", expectedNDValue, band.getGeophysicalNoDataValue(), 1e-6);
+            Assert.assertEquals(assertMessagePrefix + " NoDataValue", expectedNDValue, band.getGeophysicalNoDataValue(), 1e-6);
         }
 
         if (expectedBand.isNoDataValueUsedSet()) {
             final boolean expectedNDUsedValue = Boolean.parseBoolean(expectedBand.isNoDataValueUsed());
-            assertEquals(assertMessagePrefix + " NoDataValueUsed", expectedNDUsedValue, band.isNoDataValueUsed());
+            Assert.assertEquals(assertMessagePrefix + " NoDataValueUsed", expectedNDUsedValue, band.isNoDataValueUsed());
         }
 
         if (expectedBand.isSpectralWavelengthSet()) {
             final float expectedSpectralWavelength = Float.parseFloat(expectedBand.getSpectralWavelength());
-            assertEquals(assertMessagePrefix + " SpectralWavelength", expectedSpectralWavelength, band.getSpectralWavelength(), 1e-6);
+            Assert.assertEquals(assertMessagePrefix + " SpectralWavelength", expectedSpectralWavelength, band.getSpectralWavelength(), 1e-6);
         }
 
         if (expectedBand.isSpectralBandWidthSet()) {
             final float expectedSpectralBandwidth = Float.parseFloat(expectedBand.getSpectralBandwidth());
-            assertEquals(assertMessagePrefix + " SpectralBandWidth", expectedSpectralBandwidth, band.getSpectralBandwidth(), 1e-6);
+            Assert.assertEquals(assertMessagePrefix + " SpectralBandWidth", expectedSpectralBandwidth, band.getSpectralBandwidth(), 1e-6);
         }
 
         final ExpectedPixel[] expectedPixel = expectedBand.getExpectedPixel();
@@ -259,22 +278,22 @@ public class ProductReaderAcceptanceTest {
             if (!band.isPixelValid(pixel.getX(), pixel.getY())) {
                 bandValue = Float.NaN;
             }
-            assertEquals(assertMessagePrefix + " Pixel(" + pixel.getX() + "," + pixel.getY() + ")", pixel.getValue(), bandValue, 1e-6);
+            Assert.assertEquals(assertMessagePrefix + " Pixel(" + pixel.getX() + "," + pixel.getY() + ")", pixel.getValue(), bandValue, 1e-6);
         }
     }
 
     private static void testExpectedProductProperties(ExpectedContent expectedContent, Product product) {
         if (expectedContent.isSceneWidthSet()) {
-            assertEquals(expectedContent.getId() + " SceneWidth", expectedContent.getSceneWidth(), product.getSceneRasterWidth());
+            Assert.assertEquals(expectedContent.getId() + " SceneWidth", expectedContent.getSceneWidth(), product.getSceneRasterWidth());
         }
         if (expectedContent.isSceneHeightSet()) {
-            assertEquals(expectedContent.getId() + " SceneHeight", expectedContent.getSceneHeight(), product.getSceneRasterHeight());
+            Assert.assertEquals(expectedContent.getId() + " SceneHeight", expectedContent.getSceneHeight(), product.getSceneRasterHeight());
         }
         if (expectedContent.isStartTimeSet()) {
-            assertEquals(expectedContent.getId() + " StartTime", expectedContent.getStartTime(), product.getStartTime().format());
+            Assert.assertEquals(expectedContent.getId() + " StartTime", expectedContent.getStartTime(), product.getStartTime().format());
         }
         if (expectedContent.isEndTimeSet()) {
-            assertEquals(expectedContent.getId() + " EndTime", expectedContent.getEndTime(), product.getEndTime().format());
+            Assert.assertEquals(expectedContent.getId() + " EndTime", expectedContent.getEndTime(), product.getEndTime().format());
         }
     }
 
@@ -415,7 +434,6 @@ public class ProductReaderAcceptanceTest {
         logger.info(starString);
         logger.info("");
     }
-
 
 
 }

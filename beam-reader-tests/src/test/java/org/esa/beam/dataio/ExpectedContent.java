@@ -17,13 +17,16 @@ class ExpectedContent {
     @JsonProperty
     private ExpectedGeoCoding geoCoding;
     @JsonProperty
-    private ExpectedFlagCoding[] flagCodings;
+    private ExpectedSampleCoding[] flagCodings;
+    @JsonProperty
+    private ExpectedSampleCoding[] indexCodings;
     @JsonProperty
     private ExpectedBand[] bands;
 
     ExpectedContent() {
         bands = new ExpectedBand[0];
-        flagCodings = new ExpectedFlagCoding[0];
+        flagCodings = new ExpectedSampleCoding[0];
+        indexCodings = new ExpectedSampleCoding[0];
     }
 
     String getId() {
@@ -70,8 +73,12 @@ class ExpectedContent {
      return geoCoding != null;
     }
 
-    ExpectedFlagCoding[] getFlagCodings() {
+    ExpectedSampleCoding[] getFlagCodings() {
         return flagCodings;
+    }
+
+    ExpectedSampleCoding[] getIndexCodings() {
+        return indexCodings;
     }
 
     ExpectedBand[] getBands() {
