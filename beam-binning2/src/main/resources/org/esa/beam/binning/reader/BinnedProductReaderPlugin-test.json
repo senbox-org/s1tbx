@@ -98,7 +98,7 @@
                 },
                 {
                     "name": "atot_490",
-                    "expectedPixel": [
+                    "expectedPixels": [
                         {
                             "x": "7700",
                             "y": "790",
