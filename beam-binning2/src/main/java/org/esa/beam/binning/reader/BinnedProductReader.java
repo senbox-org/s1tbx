@@ -31,7 +31,6 @@ import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.operation.TransformException;
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
-import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Attribute;
 import ucar.nc2.Dimension;
 import ucar.nc2.NetcdfFile;
@@ -40,28 +39,21 @@ import ucar.nc2.Variable;
 import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 
 public class BinnedProductReader extends AbstractProductReader {
 
     private NetcdfFile netcdfFile;
+    private BinnedReaderImpl readerImpl;
     private Product product;
     private SEAGrid planetaryGrid;
     private int sceneRasterWidth;
     private int sceneRasterHeight;
     private Map<Band, Variable> bandMap;
-    /**
-     * Key: BinIndex in PlanetaryGrid
-     * Value: BinIndex in bin_list
-     */
-    private Map<Integer, Integer> indexMap;
-    private int[] binOffsets;
-    private int[] binExtents;
-    private int[] binIndexes;
     private double pixelSizeX;
-
-    private NcArrayCache ncArrayCache;
 
     /**
      * Constructs a new Binned Level-3 product reader.
@@ -84,6 +76,13 @@ public class BinnedProductReader extends AbstractProductReader {
     protected Product readProductNodesImpl() throws IOException {
         final String path = getInput().toString();
         netcdfFile = NetcdfFile.open(path);
+
+        if (isSparseGridded(netcdfFile)) {
+            readerImpl = new SparseGridReader(netcdfFile);
+        } else {
+            readerImpl = new FullGridReader(netcdfFile);
+        }
+
         bandMap = new HashMap<Band, Variable>();
         try {
             initProductWidthAndHeight();
@@ -92,29 +91,6 @@ public class BinnedProductReader extends AbstractProductReader {
             readMetadata();
             initBands();
             initPlanetaryGrid();
-
-            //create indexMap
-
-            if (isSparseGridded(netcdfFile)) {
-                // sparsely populated grid
-                synchronized (netcdfFile) {
-                    final Variable bl_bin_num = netcdfFile.findVariable("bl_bin_num");
-                    final Variable bi_begin = netcdfFile.findVariable("bi_begin");
-                    final Variable bi_extent = netcdfFile.findVariable("bi_extent");
-
-                    final Object storage = bl_bin_num.read().getStorage();
-                    binIndexes = (int[]) storage;
-                    indexMap = new HashMap<Integer, Integer>(binIndexes.length);
-                    for (int i = 0; i < binIndexes.length; i++) {
-                        indexMap.put(binIndexes[i], i);
-                    }
-                    binOffsets = (int[]) bi_begin.read().getStorage();
-                    binExtents = (int[]) bi_extent.read().getStorage();
-                }
-            } else {
-                // fully populated grid
-                ncArrayCache = new NcArrayCache();
-            }
         } catch (IOException e) {
             dispose();
             throw e;
@@ -149,8 +125,9 @@ public class BinnedProductReader extends AbstractProductReader {
     }
 
     private void initProduct() {
-        File productFile = new File(getInput().toString());
+        final File productFile = new File(getInput().toString());
         final String productName = FileUtils.getFilenameWithoutExtension(productFile);
+
         final String productType = netcdfFile.findGlobalAttribute("title").getStringValue();
         product = new Product(productName, productType, sceneRasterWidth, sceneRasterHeight, this);
         product.setFileLocation(productFile);
@@ -175,12 +152,13 @@ public class BinnedProductReader extends AbstractProductReader {
     }
 
     private void initProductWidthAndHeight() {
+        sceneRasterHeight = 2160;
+
         final Dimension bin_index = netcdfFile.findDimension("bin_index");
         if (bin_index != null) {
             sceneRasterHeight = bin_index.getLength();
-        } else {
-            sceneRasterHeight = 2160;
         }
+
         sceneRasterWidth = 2 * sceneRasterHeight;
     }
 
@@ -240,58 +218,21 @@ public class BinnedProductReader extends AbstractProductReader {
                 Array lineValues = null;
                 final int startBinIndex;
                 final int endBinIndex;
-                int binOffset = 0;
-                int[] origin = {0};
                 int lineIndex = sceneRasterHeight - y - 1;
-                if (indexMap != null) {
-                    // sparsely populated grid
-                    binOffset = binOffsets[lineIndex];
-                    if (binOffset > 0) {
-                        int[] shape = {1};
-                        final Integer binIndexInBinList = indexMap.get(binOffset);
-                        origin[0] = binIndexInBinList;
-                        final int binExtent = binExtents[lineIndex];
-                        shape[0] = binExtent;
-                        startBinIndex = 0;
-                        endBinIndex = binExtent;
-                        synchronized (netcdfFile) {
-                            try {
-                                lineValues = binVariable.read(origin, shape);
-                            } catch (InvalidRangeException e) {
-                                throw new IOException("Failed reading from netcdf.", e);
-                            }
-                        }
-                    } else {
-                        continue; // skip line
-                    }
+                if (isSparseGridded(netcdfFile)) {
+                    startBinIndex = readerImpl.getStartBinIndex();
+                    endBinIndex = readerImpl.getEndBinIndex(lineIndex);
+                    lineValues = readerImpl.getLineValues(destBand, binVariable, lineIndex);
                 } else {
-                    // fully populated grid
                     startBinIndex = getBinIndexInGrid(sourceOffsetX, lineIndex);
                     endBinIndex = getBinIndexInGrid(sourceOffsetX + sourceWidth - 1, lineIndex) + 1;
-                    final int extent = endBinIndex - startBinIndex;
-                    origin[0] = startBinIndex;
 
-                    synchronized (ncArrayCache) {
-                        CacheEntry cacheEntry = ncArrayCache.get(destBand);
-                        if (cacheEntry != null) {
-                            lineValues = cacheEntry.getData();
-                        } else {
-                            synchronized (netcdfFile) {
-                                lineValues = binVariable.read();
-                            }
-                            ncArrayCache.put(destBand, new CacheEntry(lineValues));
-                        }
-                    }
+                    lineValues = readerImpl.getLineValues(destBand, binVariable, lineIndex);
                 }
                 for (int i = startBinIndex; i < endBinIndex; i++) {
                     final float value = lineValues.getFloat(i);
                     if (value != fillValue) {
-                        int binIndexInGrid;
-                        if (indexMap != null) {
-                            binIndexInGrid = binIndexes[indexMap.get(binOffset) + i];
-                        } else {
-                            binIndexInGrid = i;
-                        }
+                        int binIndexInGrid = readerImpl.getBinIndexInGrid(i, lineIndex);
 
                         final int[] xValuesForBin = getXValuesForBin(binIndexInGrid, lineIndex);
                         final int destStart = Math.max(xValuesForBin[0], sourceOffsetX);
@@ -351,19 +292,18 @@ public class BinnedProductReader extends AbstractProductReader {
             IOException {
         super.close();
 
+        if (readerImpl != null) {
+            readerImpl.dispose();
+            readerImpl = null;
+        }
+
         if (netcdfFile != null) {
             netcdfFile.close();
             netcdfFile = null;
         }
         bandMap.clear();
-        if (indexMap != null) {
-            indexMap.clear();
-        }
         product = null;
         planetaryGrid = null;
-        if (ncArrayCache != null) {
-            ncArrayCache.dispose();
-        }
     }
 
     /////////////////////////////////////////////////////////////////////////
@@ -496,45 +436,6 @@ public class BinnedProductReader extends AbstractProductReader {
             this.description = description;
             this.fillValue = fillValue;
             this.dataType = dataType;
-        }
-    }
-
-    private static class NcArrayCache {
-        private final Map<Band, CacheEntry> cache;
-        private final Timer timer;
-
-        private NcArrayCache() {
-            cache = new HashMap<Band, CacheEntry>();
-            timer = new Timer();
-            TimerTask clearCacheTask = new TimerTask() {
-                @Override
-                public void run() {
-                    final long expired = System.currentTimeMillis() - 2000;
-                    synchronized (cache) {
-                        Iterator<Map.Entry<Band, CacheEntry>> iterator = cache.entrySet().iterator();
-                        while (iterator.hasNext()) {
-                            if (iterator.next().getValue().getLastAccess() < expired) {
-                                iterator.remove();
-                            }
-                        }
-                    }
-                }
-            };
-            timer.schedule(clearCacheTask, 2000, 2000);
-        }
-
-
-        private void dispose() {
-            cache.clear();
-            timer.cancel();
-        }
-
-        public CacheEntry get(Band destBand) {
-            return cache.get(destBand);
-        }
-
-        public void put(Band destBand, CacheEntry cacheEntry) {
-            cache.put(destBand, cacheEntry);
         }
     }
 }
