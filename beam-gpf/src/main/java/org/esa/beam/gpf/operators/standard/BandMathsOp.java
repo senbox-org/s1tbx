@@ -161,7 +161,7 @@ public class BandMathsOp extends Operator {
     public static class Variable {
         /** Variable name as it will be used in {@link BandDescriptor#expression}. */
         public String name;
-        /** Variable type name: int8, uint8, int16, uint16, int32, uint32, float32, float64. */
+        /** Variable type name: int8, uint8, int16, uint16, int32, uint32, float32, float64 or boolean. */
         public String type;
         /** Variable value (as string). */
         public String value;
