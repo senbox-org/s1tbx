@@ -22,8 +22,7 @@ import ucar.nc2.NetcdfFile;
 
 import java.net.URL;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 
 /**
  * @author Thomas Storm
@@ -60,5 +59,22 @@ public class BinnedProductReaderTest {
         final NetcdfFile netcdfFile = NetcdfFile.openInMemory(resource.toURI());
         ProductData.UTC endTime = BinnedProductReader.extractEndTime(netcdfFile);
         assertNull(endTime);
+    }
+
+    @Test
+    public void testGetWavelengthFromBandName() {
+        assertEquals(670, BinnedProductReader.getWavelengthFromBandName("atot_670"));
+        assertEquals(443, BinnedProductReader.getWavelengthFromBandName("aph_443"));
+
+        assertEquals(0, BinnedProductReader.getWavelengthFromBandName("chlor_a"));
+        assertEquals(0, BinnedProductReader.getWavelengthFromBandName("latitude"));
+    }
+
+    @Test
+    public void testIsSubSampled() {
+         assertTrue(BinnedProductReader.isSubSampled(2, 1));
+         assertTrue(BinnedProductReader.isSubSampled(1, 4));
+
+         assertFalse(BinnedProductReader.isSubSampled(1, 1));
     }
 }

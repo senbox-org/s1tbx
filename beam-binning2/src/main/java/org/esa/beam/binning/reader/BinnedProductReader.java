@@ -197,17 +197,19 @@ public class BinnedProductReader extends AbstractProductReader {
                                           int sourceStepX, int sourceStepY, final Band destBand, int destOffsetX,
                                           int destOffsetY, int destWidth, int destHeight, ProductData destBuffer,
                                           ProgressMonitor pm) throws IOException {
-        if (sourceStepX != 1 || sourceStepY != 1) {
+        if (isSubSampled(sourceStepX, sourceStepY)) {
             throw new IOException("Sub-sampling is not supported by this product reader.");
         }
         if (sourceWidth != destWidth || sourceHeight != destHeight) {
             throw new IllegalStateException("sourceWidth != destWidth || sourceHeight != destHeight");
         }
-        Variable binVariable = bandMap.get(destBand);
+
+        final Variable binVariable = bandMap.get(destBand);
+
         pm.beginTask("Reading band '" + destBand.getName() + "'...", sourceHeight);
         try {
-            final Number fillValueN = getAttributeNumericValue(binVariable, "_FillValue");
-            float fillValue = fillValueN != null ? fillValueN.floatValue() : 0;
+            float fillValue = getFillValue(binVariable);
+
             if (destBuffer.getType() == ProductData.TYPE_FLOAT32) {
                 float[] destRasterData = (float[]) destBuffer.getElems();
                 Arrays.fill(destRasterData, fillValue);
@@ -217,6 +219,7 @@ public class BinnedProductReader extends AbstractProductReader {
             } else {
                 throw new IOException("Format problem. Band datatype should be float32 or int32.");
             }
+
             for (int y = sourceOffsetY; y < sourceOffsetY + sourceHeight; y++) {
                 int lineIndex = sceneRasterHeight - y - 1;
 
@@ -233,6 +236,7 @@ public class BinnedProductReader extends AbstractProductReader {
                         final int[] xValuesForBin = getXValuesForBin(binIndexInGrid, lineIndex);
                         final int destStart = Math.max(xValuesForBin[0], sourceOffsetX);
                         final int destEnd = Math.min(xValuesForBin[1], sourceOffsetX + sourceWidth);
+
                         for (int x = destStart; x < destEnd; x++) {
                             final int destRasterIndex = sourceWidth * (y - sourceOffsetY) + (x - sourceOffsetX);
                             destBuffer.setElemFloatAt(destRasterIndex, value);
@@ -241,11 +245,19 @@ public class BinnedProductReader extends AbstractProductReader {
                 }
             }
             pm.worked(1);
-        } finally
-
-        {
+        } finally {
             pm.done();
         }
+    }
+
+    private float getFillValue(Variable binVariable) {
+        final Number fillValueN = getAttributeNumericValue(binVariable, "_FillValue");
+        return fillValueN != null ? fillValueN.floatValue() : 0;
+    }
+
+    // package access for testing only tb 2013-08-12
+    static boolean isSubSampled(int sourceStepX, int sourceStepY) {
+        return sourceStepX != 1 || sourceStepY != 1;
     }
 
     private int[] getXValuesForBin(int binIndexInGrid, int row) {
@@ -339,7 +351,8 @@ public class BinnedProductReader extends AbstractProductReader {
         }
     }
 
-    private int getWavelengthFromBandName(String bandName) {
+    // package access for testing only tb 2013-08-12
+    static int getWavelengthFromBandName(String bandName) {
         final String[] bandNameParts = bandName.split("_");
         for (String bandNamePart : bandNameParts) {
             if (StringUtils.isNumeric(bandNamePart, Integer.class)) {

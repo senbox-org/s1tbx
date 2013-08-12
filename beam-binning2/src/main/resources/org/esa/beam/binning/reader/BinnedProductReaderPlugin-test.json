@@ -3,7 +3,8 @@
         "ESACCI-OC-L3S-OC_PRODUCTS-MERGED-1M_MONTHLY-full-grid-from-PML",
         "MER_RR_BINNED_sparse-bins",
         "ESACCI-OC-L3S-MERGED-OC_PRODUCTS-1M_MONTHLY_9km_PML+JRC_OC4v6_QAA-20030101_20030131-fv0.1",
-        "ESACCI-OC-L3S-OC_PRODUCTS-MERGED-1D_DAILY_9km_sparse_PML+JRC_OC4v6_QAA-20030101-fv0.2"
+        "ESACCI-OC-L3S-OC_PRODUCTS-MERGED-1D_DAILY_9km_sparse_PML+JRC_OC4v6_QAA-20030101-fv0.2",
+        "ESACCI-OC-L3S-OC_PRODUCTS-MERGED-1D_DAILY_4km_PML_OC4v6_QAA-20090711-fv0.9"
     ],
     "suitableProductIds": [
     ],
@@ -441,6 +442,558 @@
                             "x": "1962",
                             "y": "742",
                             "value": "NaN"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id" : "ESACCI-OC-L3S-OC_PRODUCTS-MERGED-1D_DAILY_4km_PML_OC4v6_QAA-20090711-fv0.9",
+            "sceneWidth" : 8640,
+            "sceneHeight" : 4320,
+            "startTime" : "11-JUL-2009 00:00:00.000000",
+            "endTime" : "11-JUL-2009 23:59:00.000000",
+            "geoCoding" : {
+                "coordinates" : [
+                    {
+                        "x" : 3726.5586,
+                        "y" : 2322.277,
+                        "lat" : -6.7615457,
+                        "lon" : -24.726725
+                    }
+                ],
+                "reverseAccuracy" : 0.01
+            },
+            "bands" : [
+                {
+                    "name" : "atot_412",
+                    "noDataValue" : "-32767.0",
+                    "noDataValueUsed" : "true",
+                    "spectralWavelength" : "412.0",
+                    "spectralBandwidth" : "0.0",
+                    "expectedPixels" : [
+                        {
+                            "x" : 6414,
+                            "y" : 2803,
+                            "value" : "NaN"
+                        },
+                        {
+                            "x" : 450,
+                            "y" : 769,
+                            "value" : 0.1805143
+                        }
+                    ]
+                },
+                {
+                    "name" : "atot_443",
+                    "noDataValue" : "-32767.0",
+                    "noDataValueUsed" : "true",
+                    "spectralWavelength" : "443.0",
+                    "spectralBandwidth" : "0.0",
+                    "expectedPixels" : [
+                        {
+                            "x" : 4119,
+                            "y" : 776,
+                            "value" : "0.11335787"
+                        },
+                        {
+                            "x" : 2513,
+                            "y" : 1109,
+                            "value" : "NaN"
+                        }
+                    ]
+                },
+                {
+                    "name" : "atot_490",
+                    "noDataValue" : "-32767.0",
+                    "noDataValueUsed" : "true",
+                    "spectralWavelength" : "490.0",
+                    "spectralBandwidth" : "0.0",
+                    "expectedPixels" : [
+                        {
+                            "x" : 5274,
+                            "y" : 1578,
+                            "value" : "NaN"
+                        },
+                        {
+                            "x" : 4752,
+                            "y" : 3219,
+                            "value" : "NaN"
+                        }
+                    ]
+                },
+                {
+                    "name" : "atot_510",
+                    "noDataValue" : "-32767.0",
+                    "noDataValueUsed" : "true",
+                    "spectralWavelength" : "510.0",
+                    "spectralBandwidth" : "0.0",
+                    "expectedPixels" : [
+                        {
+                            "x" : 5256,
+                            "y" : 4010,
+                            "value" : "NaN"
+                        },
+                        {
+                            "x" : 1367,
+                            "y" : 2877,
+                            "value" : "NaN"
+                        }
+                    ]
+                },
+                {
+                    "name" : "atot_555",
+                    "noDataValue" : "-32767.0",
+                    "noDataValueUsed" : "true",
+                    "spectralWavelength" : "555.0",
+                    "spectralBandwidth" : "0.0",
+                    "expectedPixels" : [
+                        {
+                            "x" : 4485,
+                            "y" : 3946,
+                            "value" : "NaN"
+                        },
+                        {
+                            "x" : 6533,
+                            "y" : 2093,
+                            "value" : "NaN"
+                        }
+                    ]
+                },
+                {
+                    "name" : "atot_670",
+                    "noDataValue" : "-32767.0",
+                    "noDataValueUsed" : "true",
+                    "spectralWavelength" : "670.0",
+                    "spectralBandwidth" : "0.0",
+                    "expectedPixels" : [
+                        {
+                            "x" : 8214,
+                            "y" : 2098,
+                            "value" : 0.45561144
+                        },
+                        {
+                            "x" : 2941,
+                            "y" : 3885,
+                            "value" : "NaN"
+                        }
+                    ]
+                },
+                {
+                    "name" : "chlor_a",
+                    "noDataValue" : "-32767.0",
+                    "noDataValueUsed" : "true",
+                    "spectralWavelength" : "0.0",
+                    "spectralBandwidth" : "0.0",
+                    "expectedPixels" : [
+                        {
+                            "x" : 86,
+                            "y" : 2033,
+                            "value" : 0.10911284
+                        },
+                        {
+                            "x" : 2829,
+                            "y" : 851,
+                            "value" : "NaN"
+                        }
+                    ]
+                },
+                {
+                    "name" : "aph_412",
+                    "noDataValue" : "-32767.0",
+                    "noDataValueUsed" : "true",
+                    "spectralWavelength" : "412.0",
+                    "spectralBandwidth" : "0.0",
+                    "expectedPixels" : [
+                        {
+                            "x" : 2360,
+                            "y" : 186,
+                            "value" : "NaN"
+                        },
+                        {
+                            "x" : 8393,
+                            "y" : 2612,
+                            "value" : 0.0103733335
+                        }
+                    ]
+                },
+                {
+                    "name" : "aph_443",
+                    "noDataValue" : "-32767.0",
+                    "noDataValueUsed" : "true",
+                    "spectralWavelength" : "443.0",
+                    "spectralBandwidth" : "0.0",
+                    "expectedPixels" : [
+                        {
+                            "x" : 4944,
+                            "y" : 3096,
+                            "value" : "NaN"
+                        },
+                        {
+                            "x" : 2004,
+                            "y" : 2149,
+                            "value" : "NaN"
+                        }
+                    ]
+                },
+                {
+                    "name" : "aph_490",
+                    "noDataValue" : "-32767.0",
+                    "noDataValueUsed" : "true",
+                    "spectralWavelength" : "490.0",
+                    "spectralBandwidth" : "0.0",
+                    "expectedPixels" : [
+                        {
+                            "x" : 2774,
+                            "y" : 3121,
+                            "value" : "NaN"
+                        },
+                        {
+                            "x" : 3094,
+                            "y" : 2152,
+                            "value" : "NaN"
+                        }
+                    ]
+                },
+                {
+                    "name" : "aph_510",
+                    "noDataValue" : "-32767.0",
+                    "noDataValueUsed" : "true",
+                    "spectralWavelength" : "510.0",
+                    "spectralBandwidth" : "0.0",
+                    "expectedPixels" : [
+                        {
+                            "x" : 3480,
+                            "y" : 1910,
+                            "value" : 0.0070218723
+                        },
+                        {
+                            "x" : 4965,
+                            "y" : 396,
+                            "value" : 0.020859377
+                        }
+                    ]
+                },
+                {
+                    "name" : "aph_555",
+                    "noDataValue" : "-32767.0",
+                    "noDataValueUsed" : "true",
+                    "spectralWavelength" : "555.0",
+                    "spectralBandwidth" : "0.0",
+                    "expectedPixels" : [
+                        {
+                            "x" : 5575,
+                            "y" : 68,
+                            "value" : "NaN"
+                        },
+                        {
+                            "x" : 8425,
+                            "y" : 1586,
+                            "value" : 7.919595E-5
+                        }
+                    ]
+                },
+                {
+                    "name" : "aph_670",
+                    "noDataValue" : "-32767.0",
+                    "noDataValueUsed" : "true",
+                    "spectralWavelength" : "670.0",
+                    "spectralBandwidth" : "0.0",
+                    "expectedPixels" : [
+                        {
+                            "x" : 8209,
+                            "y" : 4088,
+                            "value" : "NaN"
+                        },
+                        {
+                            "x" : 958,
+                            "y" : 1952,
+                            "value" : "NaN"
+                        }
+                    ]
+                },
+                {
+                    "name" : "adg_412",
+                    "noDataValue" : "-32767.0",
+                    "noDataValueUsed" : "true",
+                    "spectralWavelength" : "412.0",
+                    "spectralBandwidth" : "0.0",
+                    "expectedPixels" : [
+                        {
+                            "x" : 4932,
+                            "y" : 2429,
+                            "value" : "NaN"
+                        },
+                        {
+                            "x" : 4370,
+                            "y" : 2253,
+                            "value" : 0.4251738
+                        }
+                    ]
+                },
+                {
+                    "name" : "adg_443",
+                    "noDataValue" : "-32767.0",
+                    "noDataValueUsed" : "true",
+                    "spectralWavelength" : "443.0",
+                    "spectralBandwidth" : "0.0",
+                    "expectedPixels" : [
+                        {
+                            "x" : 3894,
+                            "y" : 2509,
+                            "value" : "NaN"
+                        },
+                        {
+                            "x" : 124,
+                            "y" : 1834,
+                            "value" : "NaN"
+                        }
+                    ]
+                },
+                {
+                    "name" : "adg_490",
+                    "noDataValue" : "-32767.0",
+                    "noDataValueUsed" : "true",
+                    "spectralWavelength" : "490.0",
+                    "spectralBandwidth" : "0.0",
+                    "expectedPixels" : [
+                        {
+                            "x" : 606,
+                            "y" : 4289,
+                            "value" : "NaN"
+                        },
+                        {
+                            "x" : 2564,
+                            "y" : 3218,
+                            "value" : "NaN"
+                        }
+                    ]
+                },
+                {
+                    "name" : "adg_510",
+                    "noDataValue" : "-32767.0",
+                    "noDataValueUsed" : "true",
+                    "spectralWavelength" : "510.0",
+                    "spectralBandwidth" : "0.0",
+                    "expectedPixels" : [
+                        {
+                            "x" : 6942,
+                            "y" : 3181,
+                            "value" : "NaN"
+                        },
+                        {
+                            "x" : 7209,
+                            "y" : 4084,
+                            "value" : "NaN"
+                        }
+                    ]
+                },
+                {
+                    "name" : "adg_555",
+                    "noDataValue" : "-32767.0",
+                    "noDataValueUsed" : "true",
+                    "spectralWavelength" : "555.0",
+                    "spectralBandwidth" : "0.0",
+                    "expectedPixels" : [
+                        {
+                            "x" : 2147,
+                            "y" : 2297,
+                            "value" : "NaN"
+                        },
+                        {
+                            "x" : 5279,
+                            "y" : 1123,
+                            "value" : 0.008641783
+                        }
+                    ]
+                },
+                {
+                    "name" : "adg_670",
+                    "noDataValue" : "-32767.0",
+                    "noDataValueUsed" : "true",
+                    "spectralWavelength" : "670.0",
+                    "spectralBandwidth" : "0.0",
+                    "expectedPixels" : [
+                        {
+                            "x" : 4776,
+                            "y" : 652,
+                            "value" : 0.0013321801
+                        },
+                        {
+                            "x" : 4108,
+                            "y" : 2415,
+                            "value" : "NaN"
+                        }
+                    ]
+                },
+                {
+                    "name" : "sensor_contributions",
+                    "noDataValue" : "-1.0",
+                    "noDataValueUsed" : "true",
+                    "spectralWavelength" : "0.0",
+                    "spectralBandwidth" : "0.0",
+                    "expectedPixels" : [
+                        {
+                            "x" : 824,
+                            "y" : 3671,
+                            "value" : 0.0
+                        },
+                        {
+                            "x" : 831,
+                            "y" : 336,
+                            "value" : 0.0
+                        }
+                    ]
+                },
+                {
+                    "name" : "Rrs_412",
+                    "noDataValue" : "NaN",
+                    "noDataValueUsed" : "true",
+                    "spectralWavelength" : "412.0",
+                    "spectralBandwidth" : "0.0",
+                    "expectedPixels" : [
+                        {
+                            "x" : 3931,
+                            "y" : 2921,
+                            "value" : "NaN"
+                        },
+                        {
+                            "x" : 4018,
+                            "y" : 3867,
+                            "value" : "NaN"
+                        }
+                    ]
+                },
+                {
+                    "name" : "Rrs_443",
+                    "noDataValue" : "NaN",
+                    "noDataValueUsed" : "true",
+                    "spectralWavelength" : "443.0",
+                    "spectralBandwidth" : "0.0",
+                    "expectedPixels" : [
+                        {
+                            "x" : 7494,
+                            "y" : 2592,
+                            "value" : "NaN"
+                        },
+                        {
+                            "x" : 8312,
+                            "y" : 1645,
+                            "value" : 0.011191688
+                        }
+                    ]
+                },
+                {
+                    "name" : "Rrs_490",
+                    "noDataValue" : "NaN",
+                    "noDataValueUsed" : "true",
+                    "spectralWavelength" : "490.0",
+                    "spectralBandwidth" : "0.0",
+                    "expectedPixels" : [
+                        {
+                            "x" : 759,
+                            "y" : 2301,
+                            "value" : "NaN"
+                        },
+                        {
+                            "x" : 6354,
+                            "y" : 2570,
+                            "value" : 0.0064097275
+                        }
+                    ]
+                },
+                {
+                    "name" : "Rrs_510",
+                    "noDataValue" : "NaN",
+                    "noDataValueUsed" : "true",
+                    "spectralWavelength" : "510.0",
+                    "spectralBandwidth" : "0.0",
+                    "expectedPixels" : [
+                        {
+                            "x" : 8434,
+                            "y" : 803,
+                            "value" : "NaN"
+                        },
+                        {
+                            "x" : 3977,
+                            "y" : 1127,
+                            "value" : "NaN"
+                        }
+                    ]
+                },
+                {
+                    "name" : "Rrs_555",
+                    "noDataValue" : "NaN",
+                    "noDataValueUsed" : "true",
+                    "spectralWavelength" : "555.0",
+                    "spectralBandwidth" : "0.0",
+                    "expectedPixels" : [
+                        {
+                            "x" : 1979,
+                            "y" : 2798,
+                            "value" : 0.0014665098
+                        },
+                        {
+                            "x" : 5526,
+                            "y" : 1890,
+                            "value" : "NaN"
+                        }
+                    ]
+                },
+                {
+                    "name" : "Rrs_670",
+                    "noDataValue" : "NaN",
+                    "noDataValueUsed" : "true",
+                    "spectralWavelength" : "670.0",
+                    "spectralBandwidth" : "0.0",
+                    "expectedPixels" : [
+                        {
+                            "x" : 4592,
+                            "y" : 2450,
+                            "value" : 2.3585297E-4
+                        },
+                        {
+                            "x" : 3420,
+                            "y" : 923,
+                            "value" : "NaN"
+                        }
+                    ]
+                },
+                {
+                    "name" : "longitude",
+                    "noDataValue" : "-999.0",
+                    "noDataValueUsed" : "true",
+                    "spectralWavelength" : "0.0",
+                    "spectralBandwidth" : "0.0",
+                    "expectedPixels" : [
+                        {
+                            "x" : 2410,
+                            "y" : 3839,
+                            "value" : -79.53347
+                        },
+                        {
+                            "x" : 8170,
+                            "y" : 2505,
+                            "value" : 160.44928
+                        }
+                    ]
+                },
+                {
+                    "name" : "latitude",
+                    "noDataValue" : "-999.0",
+                    "noDataValueUsed" : "true",
+                    "spectralWavelength" : "0.0",
+                    "spectralBandwidth" : "0.0",
+                    "expectedPixels" : [
+                        {
+                            "x" : 6549,
+                            "y" : 1417,
+                            "value" : 30.9375
+                        },
+                        {
+                            "x" : 4843,
+                            "y" : 1256,
+                            "value" : 37.645832
                         }
                     ]
                 }

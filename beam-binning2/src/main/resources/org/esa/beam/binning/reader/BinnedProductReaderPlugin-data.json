@@ -19,6 +19,11 @@
             "id": "ESACCI-OC-L3S-OC_PRODUCTS-MERGED-1D_DAILY_9km_sparse_PML+JRC_OC4v6_QAA-20030101-fv0.2",
             "relativePath": "cci/oc/oc-v0/binned-sparsegrid/ESACCI-OC-L3S-OC_PRODUCTS-MERGED-1D_DAILY_9km_sparse_PML+JRC_OC4v6_QAA-20030101-fv0.2.nc",
             "description": "sparse grid file OC-CCI format version 0"
+        },
+        {
+            "id": "ESACCI-OC-L3S-OC_PRODUCTS-MERGED-1D_DAILY_4km_PML_OC4v6_QAA-20090711-fv0.9",
+            "relativePath": "cci/oc/oc-0.9/ESACCI-OC-L3S-OC_PRODUCTS-MERGED-1D_DAILY_4km_PML_OC4v6_QAA-20090711-fv0.9.nc",
+            "description": "sparse grid file OC-CCI format version 0.9"
         }
     ]
 }
