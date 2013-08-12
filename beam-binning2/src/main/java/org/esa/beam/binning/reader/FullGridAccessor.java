@@ -7,12 +7,12 @@ import ucar.nc2.Variable;
 
 import java.io.IOException;
 
-class FullGridReader extends BinnedReaderImpl {
+class FullGridAccessor extends AbstractGridAccessor {
 
     final private NcArrayCache ncArrayCache;
     private final NetcdfFile netcdfFile;
 
-    FullGridReader(NetcdfFile netcdfFile) {
+    FullGridAccessor(NetcdfFile netcdfFile) {
         this.netcdfFile = netcdfFile;
 
         ncArrayCache = new NcArrayCache();
@@ -38,13 +38,13 @@ class FullGridReader extends BinnedReaderImpl {
     }
 
     @Override
-    int getStartBinIndex() {
-        return 0;  //To change body of implemented methods use File | Settings | File Templates.
+    int getStartBinIndex(int sourceOffsetX, int lineIndex) {
+        return getBinIndexInPlanetaryGrid(sourceOffsetX, lineIndex);
     }
 
     @Override
-    int getEndBinIndex(int lineIndex) {
-        return 0;  //To change body of implemented methods use File | Settings | File Templates.
+    int getEndBinIndex(int sourceOffsetX, int sourceWidth, int lineIndex) {
+        return getBinIndexInPlanetaryGrid(sourceOffsetX + sourceWidth - 1, lineIndex) + 1;
     }
 
     @Override
@@ -55,5 +55,13 @@ class FullGridReader extends BinnedReaderImpl {
     @Override
     void dispose() {
         ncArrayCache.dispose();
+    }
+
+    private int getBinIndexInPlanetaryGrid(int x, int y) {
+        final int numberOfBinsInRow = planetaryGrid.getNumCols(y);
+        final double longitudeExtentPerBin = 360.0 / numberOfBinsInRow;
+        final double pixelCenterLongitude = x * pixelSizeX + pixelSizeX / 2;
+        final int firstBinIndex = (int) planetaryGrid.getFirstBinIndex(y);
+        return ((int) (pixelCenterLongitude / longitudeExtentPerBin)) + firstBinIndex;
     }
 }

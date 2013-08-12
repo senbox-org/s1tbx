@@ -10,7 +10,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-class SparseGridReader extends BinnedReaderImpl {
+class SparseGridAccessor extends AbstractGridAccessor {
 
     private final NetcdfFile netcdfFile;
     private final int[] binIndexes;
@@ -23,7 +23,7 @@ class SparseGridReader extends BinnedReaderImpl {
      */
     private final Map<Integer, Integer> indexMap;
 
-    SparseGridReader(NetcdfFile netcdfFile) throws IOException {
+    SparseGridAccessor(NetcdfFile netcdfFile) throws IOException {
         this.netcdfFile = netcdfFile;
 
         final Variable bl_bin_num = netcdfFile.findVariable("bl_bin_num");
@@ -72,12 +72,12 @@ class SparseGridReader extends BinnedReaderImpl {
     }
 
     @Override
-    int getStartBinIndex() {
+    int getStartBinIndex(int sourceOffsetX, int lineIndex) {
         return 0;
     }
 
     @Override
-    int getEndBinIndex(int lineIndex) {
+    int getEndBinIndex(int sourceOffsetX, int sourceWidth, int lineIndex) {
         return binExtents[lineIndex];
     }
 

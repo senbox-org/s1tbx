@@ -47,7 +47,7 @@ import java.util.Map;
 public class BinnedProductReader extends AbstractProductReader {
 
     private NetcdfFile netcdfFile;
-    private BinnedReaderImpl readerImpl;
+    private AbstractGridAccessor gridAccessor;
     private Product product;
     private SEAGrid planetaryGrid;
     private int sceneRasterWidth;
@@ -78,9 +78,9 @@ public class BinnedProductReader extends AbstractProductReader {
         netcdfFile = NetcdfFile.open(path);
 
         if (isSparseGridded(netcdfFile)) {
-            readerImpl = new SparseGridReader(netcdfFile);
+            gridAccessor = new SparseGridAccessor(netcdfFile);
         } else {
-            readerImpl = new FullGridReader(netcdfFile);
+            gridAccessor = new FullGridAccessor(netcdfFile);
         }
 
         bandMap = new HashMap<Band, Variable>();
@@ -91,6 +91,9 @@ public class BinnedProductReader extends AbstractProductReader {
             readMetadata();
             initBands();
             initPlanetaryGrid();
+
+            gridAccessor.setPlanetaryGrid(planetaryGrid);
+            gridAccessor.setPixelSizeX(pixelSizeX);
         } catch (IOException e) {
             dispose();
             throw e;
@@ -215,24 +218,17 @@ public class BinnedProductReader extends AbstractProductReader {
                 throw new IOException("Format problem. Band datatype should be float32 or int32.");
             }
             for (int y = sourceOffsetY; y < sourceOffsetY + sourceHeight; y++) {
-                Array lineValues = null;
-                final int startBinIndex;
-                final int endBinIndex;
                 int lineIndex = sceneRasterHeight - y - 1;
-                if (isSparseGridded(netcdfFile)) {
-                    startBinIndex = readerImpl.getStartBinIndex();
-                    endBinIndex = readerImpl.getEndBinIndex(lineIndex);
-                    lineValues = readerImpl.getLineValues(destBand, binVariable, lineIndex);
-                } else {
-                    startBinIndex = getBinIndexInGrid(sourceOffsetX, lineIndex);
-                    endBinIndex = getBinIndexInGrid(sourceOffsetX + sourceWidth - 1, lineIndex) + 1;
 
-                    lineValues = readerImpl.getLineValues(destBand, binVariable, lineIndex);
-                }
+                final int startBinIndex = gridAccessor.getStartBinIndex(sourceOffsetX, lineIndex);
+                final int endBinIndex = gridAccessor.getEndBinIndex(sourceOffsetX, sourceWidth, lineIndex);
+
+                final Array lineValues = gridAccessor.getLineValues(destBand, binVariable, lineIndex);
+
                 for (int i = startBinIndex; i < endBinIndex; i++) {
                     final float value = lineValues.getFloat(i);
                     if (value != fillValue) {
-                        int binIndexInGrid = readerImpl.getBinIndexInGrid(i, lineIndex);
+                        int binIndexInGrid = gridAccessor.getBinIndexInGrid(i, lineIndex);
 
                         final int[] xValuesForBin = getXValuesForBin(binIndexInGrid, lineIndex);
                         final int destStart = Math.max(xValuesForBin[0], sourceOffsetX);
@@ -268,14 +264,6 @@ public class BinnedProductReader extends AbstractProductReader {
         return new int[]{startX, endX};
     }
 
-    private int getBinIndexInGrid(int x, int y) {
-        final int numberOfBinsInRow = planetaryGrid.getNumCols(y);
-        final double longitudeExtentPerBin = 360.0 / numberOfBinsInRow;
-        final double pixelCenterLongitude = x * pixelSizeX + pixelSizeX / 2;
-        final int firstBinIndex = (int) planetaryGrid.getFirstBinIndex(y);
-        return ((int) (pixelCenterLongitude / longitudeExtentPerBin)) + firstBinIndex;
-    }
-
     /**
      * Closes the access to all currently opened resources such as file input streams and all resources of this children
      * directly owned by this reader. Its primary use is to allow the garbage collector to perform a vanilla job.
@@ -292,9 +280,9 @@ public class BinnedProductReader extends AbstractProductReader {
             IOException {
         super.close();
 
-        if (readerImpl != null) {
-            readerImpl.dispose();
-            readerImpl = null;
+        if (gridAccessor != null) {
+            gridAccessor.dispose();
+            gridAccessor = null;
         }
 
         if (netcdfFile != null) {
