@@ -14,8 +14,12 @@ import java.util.Random;
 class ExpectedGeoCoding {
     @JsonProperty(required = true)
     private ExpectedGeoCoordinate[] coordinates;
+    @JsonProperty()
+    private Float reverseAccuracy;
+
 
     ExpectedGeoCoding() {
+        reverseAccuracy = 1.0e-2f;
     }
 
     ExpectedGeoCoding(Product product, Random random) {
@@ -27,10 +31,14 @@ class ExpectedGeoCoding {
         final ExpectedGeoCoordinate expectedCoordinate = new ExpectedGeoCoordinate(x, y, geoPos.getLat(), geoPos.getLon());
 
         coordinates = new ExpectedGeoCoordinate[] {expectedCoordinate};
+        reverseAccuracy = 1.0e-2f;
     }
 
     public ExpectedGeoCoordinate[] getCoordinates() {
         return coordinates;
     }
 
+    Float getReverseAccuracy() {
+        return reverseAccuracy;
+    }
 }

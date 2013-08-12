@@ -17,6 +17,7 @@
             "startTime": "30-JAN-1983 15:09:55.958000",
             "endTime": "30-JAN-1983 15:09:55.958000",
             "geoCoding": {
+                "reverseAccuracy" : 2.0e-2,
                 "coordinates": [
                     {
                         "x": 2490.5,
@@ -698,6 +699,7 @@
             "startTime": "02-MAY-2013 10:28:40.390000",
             "endTime": "02-MAY-2013 10:28:40.390000",
             "geoCoding": {
+                "reverseAccuracy" : 2.0e-2,
                 "coordinates": [
                     {
                         "x": 6477.104,

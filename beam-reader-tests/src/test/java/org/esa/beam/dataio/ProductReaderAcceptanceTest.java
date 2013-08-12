@@ -224,14 +224,20 @@ public class ProductReaderAcceptanceTest {
             final ExpectedGeoCoding expectedGeoCoding = expectedContent.getGeoCoding();
             final GeoCoding geoCoding = product.getGeoCoding();
             assertNotNull(expectedContent.getId() + " has no GeoCoding", geoCoding);
-
+            final Float reverseAccuracy = expectedGeoCoding.getReverseAccuracy();
             final ExpectedGeoCoordinate[] coordinates = expectedGeoCoding.getCoordinates();
             for (ExpectedGeoCoordinate coordinate : coordinates) {
-                final PixelPos pixelPos = coordinate.getPixelPos();
+                final PixelPos expectedPixelPos = coordinate.getPixelPos();
                 final GeoPos expectedGeoPos = coordinate.getGeoPos();
-                final GeoPos actualGeoPos = geoCoding.getGeoPos(pixelPos, null);
-                Assert.assertEquals(expectedContent.getId() + " GeoPos at Pixel(" + pixelPos.getX() + "," + pixelPos.getY() + ")",
-                                    expectedGeoPos, actualGeoPos);
+                final GeoPos actualGeoPos = geoCoding.getGeoPos(expectedPixelPos, null);
+                assertEquals(expectedContent.getId() + " GeoPos at Pixel(" + expectedPixelPos.getX() + "," + expectedPixelPos.getY() + ")",
+                             expectedGeoPos, actualGeoPos);
+
+                final PixelPos actualPixelPos = geoCoding.getPixelPos(actualGeoPos, null);
+                assertEquals(expectedContent.getId() + " Pixel.X at GeoPos(" + actualGeoPos.getLat() + "," + actualGeoPos.getLon() + ")",
+                             expectedPixelPos.getX(), actualPixelPos.getX(), reverseAccuracy);
+                assertEquals(expectedContent.getId() + " Pixel.Y at GeoPos(" + actualGeoPos.getLat() + "," + actualGeoPos.getLon() + ")",
+                             expectedPixelPos.getY(), actualPixelPos.getY(), reverseAccuracy);
             }
         }
 
