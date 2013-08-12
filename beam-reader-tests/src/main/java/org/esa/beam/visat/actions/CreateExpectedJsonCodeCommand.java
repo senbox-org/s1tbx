@@ -52,7 +52,8 @@ public class CreateExpectedJsonCodeCommand extends ExecCommand {
         final Window window = VisatApp.getApp().getApplicationWindow();
         final ProgressMonitorSwingWorker worker = new ProgressMonitorSwingWorker(window, "Extracting expected content.") {
             @Override
-            protected Void doInBackground(ProgressMonitor progressMonitor) throws Exception {
+            protected Void doInBackground(ProgressMonitor pm) throws Exception {
+                pm.beginTask("Collecting data...", ProgressMonitor.UNKNOWN);
                 fillClipboardWithJsonCode(product);
                 return null;
             }
