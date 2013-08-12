@@ -3,6 +3,7 @@ package org.esa.beam.dataio;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.ProductNodeGroup;
@@ -29,11 +30,14 @@ public class ExpectedContent {
     private ExpectedSampleCoding[] indexCodings;
     @JsonProperty
     private ExpectedBand[] bands;
+    @JsonProperty
+    private ExpectedMask[] masks;
 
     ExpectedContent() {
         bands = new ExpectedBand[0];
         flagCodings = new ExpectedSampleCoding[0];
         indexCodings = new ExpectedSampleCoding[0];
+        masks = new ExpectedMask[0];
     }
 
     public ExpectedContent(Product product, Random random) {
@@ -56,6 +60,19 @@ public class ExpectedContent {
         this.indexCodings = createExpectedSampleCodings(product.getIndexCodingGroup());
 
         this.bands = createExpectedBands(product, random);
+        this.masks = createExpectedMasks(product);
+    }
+
+    private ExpectedMask[] createExpectedMasks(Product product) {
+        final ProductNodeGroup<Mask> maskGroup = product.getMaskGroup();
+        final ExpectedMask[] expectedMasks = new ExpectedMask[maskGroup.getNodeCount()];
+        for (int i = 0; i < expectedMasks.length; i++) {
+            final Mask mask = maskGroup.get(i);
+            expectedMasks[i] = new ExpectedMask(mask);
+        }
+        return expectedMasks;
+
+
     }
 
     private ExpectedBand[] createExpectedBands(Product product, Random random) {
@@ -134,4 +151,7 @@ public class ExpectedContent {
         return bands;
     }
 
+    public ExpectedMask[] getMasks() {
+        return masks;
+    }
 }

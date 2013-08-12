@@ -27,6 +27,7 @@ import org.esa.beam.framework.datamodel.FlagCoding;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.IndexCoding;
+import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.MetadataAttribute;
 import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.Product;
@@ -179,10 +180,27 @@ public class ProductReaderAcceptanceTest {
         testExpectedGeoCoding(expectedContent, product);
         testExpectedFlagCoding(expectedContent, product);
         testExpectedIndexCoding(expectedContent, product);
-        final ExpectedBand[] expectedBands = expectedContent.getBands();
-        for (final ExpectedBand expectedBand : expectedBands) {
-            testExpectedBand(expectedContent, expectedBand, product);
+        testExpectedBands(expectedContent, product);
+        testExpectedMasks(expectedContent, product);
+    }
+
+    private static void testExpectedMasks(ExpectedContent expectedContent, Product product) {
+        ExpectedMask[] expectedMasks = expectedContent.getMasks();
+        final ProductNodeGroup<Mask> actualMaskGroup = product.getMaskGroup();
+        for (ExpectedMask expectedMask : expectedMasks) {
+            final String expectedName = expectedMask.getName();
+            final Mask actualMask = actualMaskGroup.get(expectedName);
+            final String msgPrefix = expectedContent.getId() + " Mask '" + expectedName;
+            assertNotNull(msgPrefix + "' does not exist", actualMask);
+            assertEqualMasks(msgPrefix, expectedMask, actualMask);
         }
+
+    }
+
+    private static void assertEqualMasks(String msgPrefix, ExpectedMask expectedMask, Mask actualMask) {
+        assertEquals(msgPrefix + " Type", expectedMask.getType(), actualMask.getImageType().getClass());
+        assertEquals(expectedMask.getColor(), actualMask.getImageColor());
+        assertEquals(expectedMask.getDescription(), actualMask.getDescription());
     }
 
     private static void testExpectedFlagCoding(ExpectedContent expectedContent, Product product) {
@@ -191,7 +209,9 @@ public class ProductReaderAcceptanceTest {
         for (ExpectedSampleCoding expectedFlagCoding : expectedContent.getFlagCodings()) {
             final String name = expectedFlagCoding.getName();
             final FlagCoding actualFlagCoding = flagCodingGroup.get(name);
-            assertEqualSampleCodings(expectedContent.getId() + " FlagCoding '" + name, expectedFlagCoding, actualFlagCoding);
+            final String msgPrefix = expectedContent.getId() + " FlagCoding '" + name;
+            assertNotNull(msgPrefix +  "' does not exist", flagCodingGroup.contains(name));
+            assertEqualSampleCodings(msgPrefix, expectedFlagCoding, actualFlagCoding);
         }
     }
 
@@ -201,7 +221,9 @@ public class ProductReaderAcceptanceTest {
         for (ExpectedSampleCoding expectedIndexCoding : expectedContent.getIndexCodings()) {
             final String name = expectedIndexCoding.getName();
             final IndexCoding actualIndexCoding = indexCodingGroup.get(name);
-            assertEqualSampleCodings(expectedContent.getId() + " IndexCoding '" + name, expectedIndexCoding, actualIndexCoding);
+            final String msgPrefix = expectedContent.getId() + " IndexCoding '" + name;
+            assertNotNull(msgPrefix + "' does not exist", actualIndexCoding);
+            assertEqualSampleCodings(msgPrefix, expectedIndexCoding, actualIndexCoding);
         }
     }
 
@@ -243,6 +265,12 @@ public class ProductReaderAcceptanceTest {
 
     }
 
+    private static void testExpectedBands(ExpectedContent expectedContent, Product product) {
+        final ExpectedBand[] expectedBands = expectedContent.getBands();
+        for (final ExpectedBand expectedBand : expectedBands) {
+            testExpectedBand(expectedContent, expectedBand, product);
+        }
+    }
 
     private static void testExpectedBand(ExpectedContent expectedContent, ExpectedBand expectedBand, Product product) {
         final Band band = product.getBand(expectedBand.getName());

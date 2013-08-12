@@ -531,6 +531,116 @@
                     ]
                 }
             ],
+            "masks" : [
+                {
+                    "name" : "designated_fill",
+                    "type" : "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                    "color" : "255,0,0",
+                    "description" : "Designated Fill"
+                },
+                {
+                    "name" : "dropped_frame",
+                    "type" : "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                    "color" : "255,0,0",
+                    "description" : "Dropped Frame"
+                },
+                {
+                    "name" : "terrain_occlusion",
+                    "type" : "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                    "color" : "255,0,0",
+                    "description" : "Terrain Occlusion"
+                },
+                {
+                    "name" : "water_confidence_low",
+                    "type" : "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                    "color" : "0,0,255",
+                    "description" : "Water confidence 0-35%"
+                },
+                {
+                    "name" : "water_confidence_mid",
+                    "type" : "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                    "color" : "0,0,178",
+                    "description" : "Water confidence 36-64%"
+                },
+                {
+                    "name" : "water_confidence_high",
+                    "type" : "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                    "color" : "0,0,124",
+                    "description" : "Water confidence 65-100%"
+                },
+                {
+                    "name" : "vegetation_confidence_low",
+                    "type" : "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                    "color" : "0,255,0",
+                    "description" : "Vegetation confidence 0-35%"
+                },
+                {
+                    "name" : "vegetation_confidence_mid",
+                    "type" : "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                    "color" : "0,178,0",
+                    "description" : "Vegetation confidence 36-64%"
+                },
+                {
+                    "name" : "vegetation_confidence_high",
+                    "type" : "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                    "color" : "0,124,0",
+                    "description" : "Vegetation confidence 65-100%"
+                },
+                {
+                    "name" : "snow_ice_confidence_low",
+                    "type" : "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                    "color" : "255,255,0",
+                    "description" : "Snow/ice confidence 0-35%"
+                },
+                {
+                    "name" : "snow_ice_confidence_mid",
+                    "type" : "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                    "color" : "178,178,0",
+                    "description" : "Snow/ice confidence 36-64%"
+                },
+                {
+                    "name" : "snow_ice_confidence_high",
+                    "type" : "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                    "color" : "124,124,0",
+                    "description" : "Snow/ice confidence 65-100%"
+                },
+                {
+                    "name" : "cirrus_confidence_low",
+                    "type" : "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                    "color" : "255,0,255",
+                    "description" : "Cirrus confidence 0-35%"
+                },
+                {
+                    "name" : "cirrus_confidence_mid",
+                    "type" : "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                    "color" : "178,0,178",
+                    "description" : "Cirrus confidence 36-64%"
+                },
+                {
+                    "name" : "cirrus_confidence_high",
+                    "type" : "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                    "color" : "124,0,124",
+                    "description" : "Cirrus confidence 65-100%"
+                },
+                {
+                    "name" : "cloud_confidence_low",
+                    "type" : "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                    "color" : "255,175,175",
+                    "description" : "Cloud confidence 0-35%"
+                },
+                {
+                    "name" : "cloud_confidence_mid",
+                    "type" : "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                    "color" : "178,122,122",
+                    "description" : "Cloud confidence 36-64%"
+                },
+                {
+                    "name" : "cloud_confidence_high",
+                    "type" : "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                    "color" : "124,85,85",
+                    "description" : "Cloud confidence 65-100%"
+                }
+            ],
             "bands": [
                 {
                     "name": "coastal_aerosol",
@@ -800,6 +910,116 @@
                             "description": "Cloud confidence bit two"
                         }
                     ]
+                }
+            ],
+            "masks" : [
+                {
+                    "name" : "designated_fill",
+                    "type" : "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                    "color" : "255,0,0",
+                    "description" : "Designated Fill"
+                },
+                {
+                    "name" : "dropped_frame",
+                    "type" : "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                    "color" : "255,0,0",
+                    "description" : "Dropped Frame"
+                },
+                {
+                    "name" : "terrain_occlusion",
+                    "type" : "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                    "color" : "255,0,0",
+                    "description" : "Terrain Occlusion"
+                },
+                {
+                    "name" : "water_confidence_low",
+                    "type" : "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                    "color" : "0,0,255",
+                    "description" : "Water confidence 0-35%"
+                },
+                {
+                    "name" : "water_confidence_mid",
+                    "type" : "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                    "color" : "0,0,178",
+                    "description" : "Water confidence 36-64%"
+                },
+                {
+                    "name" : "water_confidence_high",
+                    "type" : "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                    "color" : "0,0,124",
+                    "description" : "Water confidence 65-100%"
+                },
+                {
+                    "name" : "vegetation_confidence_low",
+                    "type" : "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                    "color" : "0,255,0",
+                    "description" : "Vegetation confidence 0-35%"
+                },
+                {
+                    "name" : "vegetation_confidence_mid",
+                    "type" : "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                    "color" : "0,178,0",
+                    "description" : "Vegetation confidence 36-64%"
+                },
+                {
+                    "name" : "vegetation_confidence_high",
+                    "type" : "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                    "color" : "0,124,0",
+                    "description" : "Vegetation confidence 65-100%"
+                },
+                {
+                    "name" : "snow_ice_confidence_low",
+                    "type" : "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                    "color" : "255,255,0",
+                    "description" : "Snow/ice confidence 0-35%"
+                },
+                {
+                    "name" : "snow_ice_confidence_mid",
+                    "type" : "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                    "color" : "178,178,0",
+                    "description" : "Snow/ice confidence 36-64%"
+                },
+                {
+                    "name" : "snow_ice_confidence_high",
+                    "type" : "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                    "color" : "124,124,0",
+                    "description" : "Snow/ice confidence 65-100%"
+                },
+                {
+                    "name" : "cirrus_confidence_low",
+                    "type" : "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                    "color" : "255,0,255",
+                    "description" : "Cirrus confidence 0-35%"
+                },
+                {
+                    "name" : "cirrus_confidence_mid",
+                    "type" : "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                    "color" : "178,0,178",
+                    "description" : "Cirrus confidence 36-64%"
+                },
+                {
+                    "name" : "cirrus_confidence_high",
+                    "type" : "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                    "color" : "124,0,124",
+                    "description" : "Cirrus confidence 65-100%"
+                },
+                {
+                    "name" : "cloud_confidence_low",
+                    "type" : "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                    "color" : "255,175,175",
+                    "description" : "Cloud confidence 0-35%"
+                },
+                {
+                    "name" : "cloud_confidence_mid",
+                    "type" : "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                    "color" : "178,122,122",
+                    "description" : "Cloud confidence 36-64%"
+                },
+                {
+                    "name" : "cloud_confidence_high",
+                    "type" : "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                    "color" : "124,85,85",
+                    "description" : "Cloud confidence 65-100%"
                 }
             ],
             "bands": [
@@ -1132,6 +1352,116 @@
                             "description": "Cloud confidence bit two"
                         }
                     ]
+                }
+            ],
+            "masks" : [
+                {
+                    "name" : "designated_fill",
+                    "type" : "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                    "color" : "255,0,0",
+                    "description" : "Designated Fill"
+                },
+                {
+                    "name" : "dropped_frame",
+                    "type" : "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                    "color" : "255,0,0",
+                    "description" : "Dropped Frame"
+                },
+                {
+                    "name" : "terrain_occlusion",
+                    "type" : "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                    "color" : "255,0,0",
+                    "description" : "Terrain Occlusion"
+                },
+                {
+                    "name" : "water_confidence_low",
+                    "type" : "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                    "color" : "0,0,255",
+                    "description" : "Water confidence 0-35%"
+                },
+                {
+                    "name" : "water_confidence_mid",
+                    "type" : "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                    "color" : "0,0,178",
+                    "description" : "Water confidence 36-64%"
+                },
+                {
+                    "name" : "water_confidence_high",
+                    "type" : "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                    "color" : "0,0,124",
+                    "description" : "Water confidence 65-100%"
+                },
+                {
+                    "name" : "vegetation_confidence_low",
+                    "type" : "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                    "color" : "0,255,0",
+                    "description" : "Vegetation confidence 0-35%"
+                },
+                {
+                    "name" : "vegetation_confidence_mid",
+                    "type" : "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                    "color" : "0,178,0",
+                    "description" : "Vegetation confidence 36-64%"
+                },
+                {
+                    "name" : "vegetation_confidence_high",
+                    "type" : "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                    "color" : "0,124,0",
+                    "description" : "Vegetation confidence 65-100%"
+                },
+                {
+                    "name" : "snow_ice_confidence_low",
+                    "type" : "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                    "color" : "255,255,0",
+                    "description" : "Snow/ice confidence 0-35%"
+                },
+                {
+                    "name" : "snow_ice_confidence_mid",
+                    "type" : "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                    "color" : "178,178,0",
+                    "description" : "Snow/ice confidence 36-64%"
+                },
+                {
+                    "name" : "snow_ice_confidence_high",
+                    "type" : "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                    "color" : "124,124,0",
+                    "description" : "Snow/ice confidence 65-100%"
+                },
+                {
+                    "name" : "cirrus_confidence_low",
+                    "type" : "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                    "color" : "255,0,255",
+                    "description" : "Cirrus confidence 0-35%"
+                },
+                {
+                    "name" : "cirrus_confidence_mid",
+                    "type" : "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                    "color" : "178,0,178",
+                    "description" : "Cirrus confidence 36-64%"
+                },
+                {
+                    "name" : "cirrus_confidence_high",
+                    "type" : "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                    "color" : "124,0,124",
+                    "description" : "Cirrus confidence 65-100%"
+                },
+                {
+                    "name" : "cloud_confidence_low",
+                    "type" : "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                    "color" : "255,175,175",
+                    "description" : "Cloud confidence 0-35%"
+                },
+                {
+                    "name" : "cloud_confidence_mid",
+                    "type" : "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                    "color" : "178,122,122",
+                    "description" : "Cloud confidence 36-64%"
+                },
+                {
+                    "name" : "cloud_confidence_high",
+                    "type" : "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                    "color" : "124,85,85",
+                    "description" : "Cloud confidence 65-100%"
                 }
             ],
             "geoCoding": {
