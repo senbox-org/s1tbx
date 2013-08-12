@@ -18,8 +18,8 @@ package org.esa.beam.opendap.ui;
 
 import com.jidesoft.utils.Lm;
 import opendap.dap.DArrayDimension;
+import org.esa.beam.HeadlessTestRunner;
 import org.esa.beam.framework.gpf.ui.DefaultAppContext;
-import org.esa.beam.opendap.HeadlessTestRunner;
 import org.esa.beam.opendap.datamodel.DAPVariable;
 import org.esa.beam.opendap.datamodel.OpendapLeaf;
 import org.junit.Before;

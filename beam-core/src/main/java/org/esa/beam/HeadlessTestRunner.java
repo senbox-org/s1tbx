@@ -14,7 +14,7 @@
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-package org.esa.beam.opendap;
+package org.esa.beam;
 
 import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.BlockJUnit4ClassRunner;
@@ -23,7 +23,10 @@ import org.junit.runners.model.InitializationError;
 import java.awt.GraphicsEnvironment;
 
 /**
+ * Test runner to disable tests if they are executed in headless mode.
+ *
  * @author Thomas Storm
+ * @author Marco Peters
  */
 public class HeadlessTestRunner extends BlockJUnit4ClassRunner {
 

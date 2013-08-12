@@ -1,7 +1,7 @@
 package org.esa.beam.opendap.ui;
 
+import org.esa.beam.HeadlessTestRunner;
 import org.esa.beam.framework.gpf.ui.DefaultAppContext;
-import org.esa.beam.opendap.HeadlessTestRunner;
 import org.esa.beam.opendap.datamodel.CatalogNode;
 import org.junit.After;
 import org.junit.Before;

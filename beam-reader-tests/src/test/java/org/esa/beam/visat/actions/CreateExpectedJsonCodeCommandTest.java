@@ -1,5 +1,6 @@
 package org.esa.beam.visat.actions;
 
+import org.esa.beam.HeadlessTestRunner;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
