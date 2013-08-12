@@ -2,7 +2,6 @@ package org.esa.beam.binning.reader;
 
 import org.esa.beam.framework.datamodel.Band;
 import ucar.ma2.Array;
-import ucar.ma2.InvalidRangeException;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
 
@@ -49,7 +48,7 @@ class SparseGridAccessor extends AbstractGridAccessor {
     }
 
     @Override
-    Array getLineValues(Band destBand, Variable binVariable, int lineIndex) throws IOException {
+    Array getLineValues(Band destBand, VariableReader variableReader, int lineIndex) throws IOException {
         int[] origin = {0};
 
         Array lineValues = null;
@@ -61,11 +60,7 @@ class SparseGridAccessor extends AbstractGridAccessor {
             final int binExtent = binExtents[lineIndex];
             shape[0] = binExtent;
             synchronized (netcdfFile) {
-                try {
-                    lineValues = binVariable.read(origin, shape);
-                } catch (InvalidRangeException e) {
-                    throw new IOException("Failed reading from netcdf.", e);
-                }
+                lineValues = variableReader.read(origin, shape);
             }
         }
         return lineValues;

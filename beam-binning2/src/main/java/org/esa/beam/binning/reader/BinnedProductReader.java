@@ -41,6 +41,7 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 
@@ -52,7 +53,7 @@ public class BinnedProductReader extends AbstractProductReader {
     private SEAGrid planetaryGrid;
     private int sceneRasterWidth;
     private int sceneRasterHeight;
-    private Map<Band, Variable> bandMap;
+    private Map<Band, VariableReader> bandMap;
     private double pixelSizeX;
 
     /**
@@ -83,7 +84,7 @@ public class BinnedProductReader extends AbstractProductReader {
             gridAccessor = new FullGridAccessor(netcdfFile);
         }
 
-        bandMap = new HashMap<Band, Variable>();
+        bandMap = new HashMap<Band, VariableReader>();
         try {
             initProductWidthAndHeight();
             initProduct();
@@ -114,8 +115,15 @@ public class BinnedProductReader extends AbstractProductReader {
         //read geophysical band values
         for (Variable variable : netcdfFile.getVariables()) {
             final String bandName = variable.getFullName();
-            if (variable.getDimensions().get(0).getLength() == largestDimensionSize) {
-                addBand(bandName);
+            final List<Dimension> dimensions = variable.getDimensions();
+            if (dimensions.get(0).getLength() == largestDimensionSize) {
+                if (dimensions.size() == 1) {
+                    addBand(bandName);
+                } else {
+                    for (int i = 0; i < dimensions.get(1).getLength(); i++) {
+                        addBand(bandName, i);
+                    }
+                }
             }
         }
         if (product.getNumBands() == 0) {
@@ -204,11 +212,11 @@ public class BinnedProductReader extends AbstractProductReader {
             throw new IllegalStateException("sourceWidth != destWidth || sourceHeight != destHeight");
         }
 
-        final Variable binVariable = bandMap.get(destBand);
+        final VariableReader variableReader = bandMap.get(destBand);
 
         pm.beginTask("Reading band '" + destBand.getName() + "'...", sourceHeight);
         try {
-            float fillValue = getFillValue(binVariable);
+            float fillValue = getFillValue(variableReader.getBinVariable());
 
             if (destBuffer.getType() == ProductData.TYPE_FLOAT32) {
                 float[] destRasterData = (float[]) destBuffer.getElems();
@@ -226,7 +234,7 @@ public class BinnedProductReader extends AbstractProductReader {
                 final int startBinIndex = gridAccessor.getStartBinIndex(sourceOffsetX, lineIndex);
                 final int endBinIndex = gridAccessor.getEndBinIndex(sourceOffsetX, sourceWidth, lineIndex);
 
-                final Array lineValues = gridAccessor.getLineValues(destBand, binVariable, lineIndex);
+                final Array lineValues = gridAccessor.getLineValues(destBand, variableReader, lineIndex);
 
                 for (int i = startBinIndex; i < endBinIndex; i++) {
                     final float value = lineValues.getFloat(i);
@@ -347,7 +355,26 @@ public class BinnedProductReader extends AbstractProductReader {
             band.setNoDataValueUsed(variableMetadata.fillValue != Double.NaN);
             band.setSpectralWavelength(getWavelengthFromBandName(varName));
             product.addBand(band);
-            bandMap.put(band, variableMetadata.variable);
+            final VariableReader variableReader = new VariableReader(variableMetadata.variable);
+            bandMap.put(band, variableReader);
+        }
+    }
+
+    private void addBand(String varName, int layer) {
+        final VariableMetadata variableMetadata = getVariableMetadata(varName);
+
+        if (variableMetadata != null) {
+            final String bandName = variableMetadata.name + "_" + layer;
+
+            final Band band = new Band(bandName, variableMetadata.dataType, sceneRasterWidth, sceneRasterHeight);
+            band.setDescription(variableMetadata.description);
+            band.setNoDataValue(variableMetadata.fillValue);
+            band.setNoDataValueUsed(variableMetadata.fillValue != Double.NaN);
+            band.setSpectralWavelength(getWavelengthFromBandName(varName));
+
+            product.addBand(band);
+            final VariableReader variableReader = new VariableReader(variableMetadata.variable, layer);
+            bandMap.put(band, variableReader);
         }
     }
 

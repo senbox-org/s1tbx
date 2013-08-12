@@ -511,9 +511,9 @@
                     "spectralBandwidth" : "0.0",
                     "expectedPixels" : [
                         {
-                            "x" : 5274,
-                            "y" : 1578,
-                            "value" : "NaN"
+                            "x" : 7044,
+                            "y" : 2381,
+                            "value" : "0.038734496"
                         },
                         {
                             "x" : 4752,
@@ -530,9 +530,9 @@
                     "spectralBandwidth" : "0.0",
                     "expectedPixels" : [
                         {
-                            "x" : 5256,
-                            "y" : 4010,
-                            "value" : "NaN"
+                            "x" : 4867,
+                            "y" : 441,
+                            "value" : "0.06253554"
                         },
                         {
                             "x" : 1367,
@@ -549,9 +549,9 @@
                     "spectralBandwidth" : "0.0",
                     "expectedPixels" : [
                         {
-                            "x" : 4485,
-                            "y" : 3946,
-                            "value" : "NaN"
+                            "x" : 6578,
+                            "y" : 1790,
+                            "value" : "0.06385356"
                         },
                         {
                             "x" : 6533,
@@ -606,14 +606,14 @@
                     "spectralBandwidth" : "0.0",
                     "expectedPixels" : [
                         {
-                            "x" : 2360,
-                            "y" : 186,
-                            "value" : "NaN"
-                        },
-                        {
                             "x" : 8393,
                             "y" : 2612,
                             "value" : 0.0103733335
+                        },
+                        {
+                            "x" : 2360,
+                            "y" : 186,
+                            "value" : "NaN"
                         }
                     ]
                 },
@@ -625,9 +625,9 @@
                     "spectralBandwidth" : "0.0",
                     "expectedPixels" : [
                         {
-                            "x" : 4944,
-                            "y" : 3096,
-                            "value" : "NaN"
+                            "x" : 2189,
+                            "y" : 2024,
+                            "value" : "0.021269483491778374"
                         },
                         {
                             "x" : 2004,
@@ -644,9 +644,9 @@
                     "spectralBandwidth" : "0.0",
                     "expectedPixels" : [
                         {
-                            "x" : 2774,
-                            "y" : 3121,
-                            "value" : "NaN"
+                            "x" : 7818,
+                            "y" : 1562,
+                            "value" : "0.005439220927655697"
                         },
                         {
                             "x" : 3094,
@@ -827,7 +827,45 @@
                     ]
                 },
                 {
-                    "name" : "sensor_contributions",
+                    "name" : "sensor_contributions_0",
+                    "noDataValue" : "-1.0",
+                    "noDataValueUsed" : "true",
+                    "spectralWavelength" : "0.0",
+                    "spectralBandwidth" : "0.0",
+                    "expectedPixels" : [
+                        {
+                            "x" : 824,
+                            "y" : 3671,
+                            "value" : 0.0
+                        },
+                        {
+                            "x" : 831,
+                            "y" : 336,
+                            "value" : 0.0
+                        }
+                    ]
+                },
+                {
+                    "name" : "sensor_contributions_1",
+                    "noDataValue" : "-1.0",
+                    "noDataValueUsed" : "true",
+                    "spectralWavelength" : "0.0",
+                    "spectralBandwidth" : "0.0",
+                    "expectedPixels" : [
+                        {
+                            "x" : 824,
+                            "y" : 3671,
+                            "value" : 0.0
+                        },
+                        {
+                            "x" : 831,
+                            "y" : 336,
+                            "value" : 0.0
+                        }
+                    ]
+                },
+                {
+                    "name" : "sensor_contributions_2",
                     "noDataValue" : "-1.0",
                     "noDataValueUsed" : "true",
                     "spectralWavelength" : "0.0",

@@ -3,7 +3,6 @@ package org.esa.beam.binning.reader;
 import org.esa.beam.framework.datamodel.Band;
 import ucar.ma2.Array;
 import ucar.nc2.NetcdfFile;
-import ucar.nc2.Variable;
 
 import java.io.IOException;
 
@@ -19,7 +18,7 @@ class FullGridAccessor extends AbstractGridAccessor {
     }
 
     @Override
-    Array getLineValues(Band destBand, Variable binVariable,int lineIndex) throws IOException {
+    Array getLineValues(Band destBand, VariableReader variableReader, int lineIndex) throws IOException {
         Array lineValues;
 
         synchronized (ncArrayCache) {
@@ -28,7 +27,7 @@ class FullGridAccessor extends AbstractGridAccessor {
                 lineValues = cacheEntry.getData();
             } else {
                 synchronized (netcdfFile) {
-                    lineValues = binVariable.read();
+                    lineValues = variableReader.readFully();
                 }
                 ncArrayCache.put(destBand, new CacheEntry(lineValues));
             }
