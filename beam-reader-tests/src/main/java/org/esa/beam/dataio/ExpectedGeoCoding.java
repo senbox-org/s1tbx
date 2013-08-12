@@ -31,7 +31,6 @@ class ExpectedGeoCoding {
         final ExpectedGeoCoordinate expectedCoordinate = new ExpectedGeoCoordinate(x, y, geoPos.getLat(), geoPos.getLon());
 
         coordinates = new ExpectedGeoCoordinate[] {expectedCoordinate};
-        reverseAccuracy = 1.0e-2f;
     }
 
     public ExpectedGeoCoordinate[] getCoordinates() {
