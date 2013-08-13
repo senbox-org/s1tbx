@@ -50,11 +50,15 @@ public class CreateExpectedJsonCodeCommand extends ExecCommand {
 
     private void run(final Product product) {
         final Window window = VisatApp.getApp().getApplicationWindow();
-        final ProgressMonitorSwingWorker worker = new ProgressMonitorSwingWorker(window, "Extracting expected content.") {
+        final ProgressMonitorSwingWorker worker = new ProgressMonitorSwingWorker(window, "Extracting Expected Content") {
             @Override
             protected Void doInBackground(ProgressMonitor pm) throws Exception {
                 pm.beginTask("Collecting data...", ProgressMonitor.UNKNOWN);
-                fillClipboardWithJsonCode(product);
+                try {
+                    fillClipboardWithJsonCode(product);
+                } finally {
+                    pm.done();
+                }
                 return null;
             }
         };
@@ -68,21 +72,23 @@ public class CreateExpectedJsonCodeCommand extends ExecCommand {
             StringSelection clipboardContent = new StringSelection(jsonCode);
             clipboard.setContents(clipboardContent, clipboardContent);
         } else {
-            BeamLogManager.getSystemLogger().severe("Not able to obtain a clipboard instance");
+            final String msg = "Not able to obtain a clipboard instance";
+            BeamLogManager.getSystemLogger().severe(msg);
+            VisatApp.getApp().showErrorDialog(msg);
         }
     }
 
     String createJsonCode(Product product) throws IOException {
         final ExpectedContent expectedContent = new ExpectedContent(product, new Random(123546));
 
-        ObjectWriter writer = getConfigureJsonWriter();
+        ObjectWriter writer = getConfiguredJsonWriter();
         final StringWriter stringWriter = new StringWriter();
         writer.writeValue(stringWriter, expectedContent);
         stringWriter.flush();
         return stringWriter.toString();
     }
 
-    private ObjectWriter getConfigureJsonWriter() {
+    private ObjectWriter getConfiguredJsonWriter() {
         final ObjectMapper mapper = new ObjectMapper();
         mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         mapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
@@ -91,27 +97,28 @@ public class CreateExpectedJsonCodeCommand extends ExecCommand {
         mapper.setVisibilityChecker(visibilityChecker);
         final ObjectWriter writer = mapper.writer();
         final DefaultPrettyPrinter prettyPrinter = new DefaultPrettyPrinter();
-        final DefaultPrettyPrinter.NopIndenter ideaLikeIndenter = new DefaultPrettyPrinter.NopIndenter() {
-
-            @Override
-            public boolean isInline() {
-                return false;
-            }
-
-            @Override
-            public void writeIndentation(JsonGenerator jg, int level) throws IOException {
-                jg.writeRaw(LF);
-                while (level > 0) {
-                    jg.writeRaw("    ");
-                    level--;
-                }
-
-            }
-        };
-        prettyPrinter.indentArraysWith(ideaLikeIndenter);
-        prettyPrinter.indentObjectsWith(ideaLikeIndenter);
+        final IdeaLikeIndenter indenter = new IdeaLikeIndenter();
+        prettyPrinter.indentArraysWith(indenter);
+        prettyPrinter.indentObjectsWith(indenter);
         return writer.with(prettyPrinter);
     }
 
 
+    private static class IdeaLikeIndenter extends DefaultPrettyPrinter.NopIndenter {
+
+        @Override
+        public boolean isInline() {
+            return false;
+        }
+
+        @Override
+        public void writeIndentation(JsonGenerator jg, int level) throws IOException {
+            jg.writeRaw(LF);
+            while (level > 0) {
+                jg.writeRaw("    ");
+                level--;
+            }
+
+        }
+    }
 }

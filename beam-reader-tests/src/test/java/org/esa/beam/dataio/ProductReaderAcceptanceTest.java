@@ -29,6 +29,7 @@ import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.IndexCoding;
 import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.MetadataAttribute;
+import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductNodeGroup;
@@ -182,6 +183,26 @@ public class ProductReaderAcceptanceTest {
         testExpectedIndexCoding(expectedContent, product);
         testExpectedBands(expectedContent, product);
         testExpectedMasks(expectedContent, product);
+        testExpectedMetadata(expectedContent, product);
+    }
+
+    private static void testExpectedMetadata(ExpectedContent expectedContent, Product product) {
+        ExpectedMetadata[] expectedMetadataList = expectedContent.getMetadata();
+        for (ExpectedMetadata expectedMetadata : expectedMetadataList) {
+            String path = expectedMetadata.getPath();
+            final String[] pathTokens = path.split("/");
+            final String[] elementNames = Arrays.copyOf(pathTokens, pathTokens.length - 1);
+            final String attributeName = pathTokens[pathTokens.length - 1];
+            MetadataElement currentElement = product.getMetadataRoot();
+            for (String elementName : elementNames) {
+                currentElement = currentElement.getElement(elementName);
+                assertNotNull("Metadata path '" + path + "' not valid. Element '" + elementName + "' not found", currentElement);
+            }
+            final MetadataAttribute attribute = currentElement.getAttribute(attributeName);
+            assertNotNull("Metadata path '" + path + "' not valid. Attribute '" + attributeName + "' not found", attribute);
+            assertEquals("Metadata '" + path + "' value", expectedMetadata.getValue(), attribute.getData().getElemString());
+
+        }
     }
 
     private static void testExpectedMasks(ExpectedContent expectedContent, Product product) {
@@ -210,7 +231,7 @@ public class ProductReaderAcceptanceTest {
             final String name = expectedFlagCoding.getName();
             final FlagCoding actualFlagCoding = flagCodingGroup.get(name);
             final String msgPrefix = expectedContent.getId() + " FlagCoding '" + name;
-            assertNotNull(msgPrefix +  "' does not exist", flagCodingGroup.contains(name));
+            assertNotNull(msgPrefix + "' does not exist", flagCodingGroup.contains(name));
             assertEqualSampleCodings(msgPrefix, expectedFlagCoding, actualFlagCoding);
         }
     }

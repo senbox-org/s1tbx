@@ -263,6 +263,16 @@
             "sceneHeight" : 7131,
             "startTime": "11-NOV-1982 15:08:36.951000",
             "endTime" : "11-NOV-1982 15:08:36.951000",
+            "metadata" : [
+                {
+                    "path" : "L1_METADATA_FILE/PRODUCT_METADATA/SCENE_CENTER_SCAN_TIME",
+                    "value" : "15:08:35.9510630Z"
+                },
+                {
+                    "path" : "L1_METADATA_FILE/CORRECTIONS_APPLIED/DROPPED_LINES",
+                    "value" : "N"
+                }
+            ],
             "geoCoding": {
                 "coordinates": [
                     {
@@ -1267,6 +1277,16 @@
             "sceneHeight": 7711,
             "startTime": "09-MAR-2013 13:39:28.793000",
             "endTime": "09-MAR-2013 13:39:28.793000",
+            "metadata" : [
+                {
+                    "path" : "L1_METADATA_FILE/METADATA_FILE_INFO/ORIGIN",
+                    "value" : "Image courtesy of the U.S. Geological Survey"
+                },
+                {
+                    "path" : "L1_METADATA_FILE/RADIOMETRIC_RESCALING/RADIANCE_ADD_BAND_10",
+                    "value" : "0.1"
+                }
+            ],
             "flagCodings": [
                 {
                     "name": "flags",

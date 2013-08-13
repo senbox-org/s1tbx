@@ -4,6 +4,8 @@ package org.esa.beam.dataio;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.esa.beam.framework.datamodel.Mask;
+import org.esa.beam.framework.datamodel.MetadataAttribute;
+import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.ProductNodeGroup;
@@ -12,6 +14,7 @@ import org.esa.beam.framework.datamodel.SampleCoding;
 import java.util.Random;
 
 public class ExpectedContent {
+
     @JsonProperty(required = true)
     private String id;
     @JsonProperty
@@ -32,11 +35,14 @@ public class ExpectedContent {
     private ExpectedBand[] bands;
     @JsonProperty
     private ExpectedMask[] masks;
+    @JsonProperty
+    private ExpectedMetadata[] metadata;
 
     ExpectedContent() {
-        bands = new ExpectedBand[0];
+        metadata = new ExpectedMetadata[0];
         flagCodings = new ExpectedSampleCoding[0];
         indexCodings = new ExpectedSampleCoding[0];
+        bands = new ExpectedBand[0];
         masks = new ExpectedMask[0];
     }
 
@@ -53,14 +59,42 @@ public class ExpectedContent {
         if (startTime != null) {
             this.startTime = startTime.format();
         }
-        if (product.getGeoCoding() != null) {
-            this.geoCoding = new ExpectedGeoCoding(product, random);
-        }
+        this.metadata = createExpectedMetadata(product);
+        this.geoCoding = createExpectedGeoCoding(product, random);
         this.flagCodings = createExpectedSampleCodings(product.getFlagCodingGroup());
         this.indexCodings = createExpectedSampleCodings(product.getIndexCodingGroup());
-
         this.bands = createExpectedBands(product, random);
         this.masks = createExpectedMasks(product);
+    }
+
+    private ExpectedMetadata[] createExpectedMetadata(Product product) {
+        final MetadataElement metadataRoot = product.getMetadataRoot();
+        if (metadataRoot.getNumElements() > 0 ||
+            metadataRoot.getNumAttributes() > 0) {
+            final ExpectedMetadata[] expectedMetadata = new ExpectedMetadata[2];
+            final Random random = new Random();
+            for (int i = 0; i < expectedMetadata.length; i++) {
+                MetadataElement currentElem = metadataRoot;
+                while (currentElem != null && currentElem.getNumElements() > 0) {
+                    currentElem = currentElem.getElementAt((int) (currentElem.getNumElements() * random.nextFloat()));
+                }
+                if (currentElem != null && currentElem.getNumAttributes() > 0) {
+                    final MetadataAttribute attributeAt = currentElem.getAttributeAt((int) (currentElem.getNumAttributes() * random.nextFloat()));
+                    expectedMetadata[i] = new ExpectedMetadata(attributeAt);
+                }
+            }
+            return expectedMetadata;
+        }else {
+            return new ExpectedMetadata[0];
+        }
+
+    }
+
+    private ExpectedGeoCoding createExpectedGeoCoding(Product product, Random random) {
+        if (product.getGeoCoding() != null) {
+            return new ExpectedGeoCoding(product, random);
+        }
+        return null;
     }
 
     private ExpectedMask[] createExpectedMasks(Product product) {
@@ -135,8 +169,8 @@ public class ExpectedContent {
     }
 
     @JsonIgnoreProperties
-    boolean isGeoCodingSet(){
-     return geoCoding != null;
+    boolean isGeoCodingSet() {
+        return geoCoding != null;
     }
 
     ExpectedSampleCoding[] getFlagCodings() {
@@ -153,5 +187,9 @@ public class ExpectedContent {
 
     public ExpectedMask[] getMasks() {
         return masks;
+    }
+
+    public ExpectedMetadata[] getMetadata() {
+        return metadata;
     }
 }
