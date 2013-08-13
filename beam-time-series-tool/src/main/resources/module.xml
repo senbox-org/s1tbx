@@ -2,7 +2,7 @@
     <manifestVersion>1.0.0</manifestVersion>
 
     <symbolicName>time-series-tool</symbolicName>
-    <version>3.0</version>
+    <version>3.0.1</version>
     <name>Time Series Tool</name>
     <funding>ESA, EU</funding>
 
@@ -17,6 +17,9 @@
 
     <changelog>
         <![CDATA[
+        <p>Changes in 3.0.1<br/>
+            [BEAM-1533] KMZ exports have slightly wrong image envelope coordinates<br/>
+        </p>
         <p>Changes in 3.0<br/>
             <ul>
             <li>Complete revision of time series graph tool
@@ -26,9 +29,11 @@
             <li>Many fixes regarding stability and usability
             <li>New icons
             </ul>
+        </p>
         <p>Changes in 2.1<br/>
           [GLOB-007] When adding geometries to time series, an ArrayIndexOutOfBoundsException is thrown<br/>
-                ]]>
+        </p>
+        ]]>
     </changelog>
 
     <vendor>Brockmann Consult GmbH</vendor>

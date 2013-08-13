@@ -169,9 +169,9 @@ public class ExportKmzFileAction extends ExecCommand {
         final RasterDataNode raster = view.getRaster();
         final Product product = raster.getProduct();
         final GeoCoding geoCoding = raster.getGeoCoding();
-        final PixelPos upperLeftPP = new PixelPos(0.5f, 0.5f);
-        final PixelPos lowerRightPP = new PixelPos(product.getSceneRasterWidth() - 0.5f,
-                                                   product.getSceneRasterHeight() - 0.5f);
+        final PixelPos upperLeftPP = new PixelPos(0, 0);
+        final PixelPos lowerRightPP = new PixelPos(product.getSceneRasterWidth(),
+                                                   product.getSceneRasterHeight());
         final GeoPos upperLeftGP = geoCoding.getGeoPos(upperLeftPP, null);
         final GeoPos lowerRightGP = geoCoding.getGeoPos(lowerRightPP, null);
         float eastLon = lowerRightGP.getLon();

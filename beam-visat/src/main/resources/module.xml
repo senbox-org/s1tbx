@@ -41,6 +41,9 @@
 
     <changelog>
         <![CDATA[
+        <p>Changes in 5.0<br/>
+          [BEAM-1533] KMZ exports have slightly wrong image envelope coordinates<br/>
+          [BEAM-1527] Add missing Standard Deviation nonlinear image filter<br/>
         <p>Changes in 4.11<br/>
           [BEAM-1482] Saving a product is slow if it is computed by an operator<br/>
           [BEAM-1454] When I try to put statistics into the vector data, the original vector data becomes corrupted and in such a way that the original content of this file is reduced to one record.<br/>

@@ -200,9 +200,9 @@ public class ExportTimeBasedKmz extends ExecCommand {
         final KmlFolder folder = new KmlFolder(refRaster.getName(), refRaster.getDescription());
         for (RasterDataNode raster : bands) {
             final GeoCoding geoCoding = raster.getGeoCoding();
-            final PixelPos upperLeftPP = new PixelPos(0.5f, 0.5f);
-            final PixelPos lowerRightPP = new PixelPos(raster.getSceneRasterWidth() - 0.5f,
-                                                       raster.getSceneRasterHeight() - 0.5f);
+            final PixelPos upperLeftPP = new PixelPos(0, 0);
+            final PixelPos lowerRightPP = new PixelPos(raster.getSceneRasterWidth(),
+                                                       raster.getSceneRasterHeight());
             final GeoPos upperLeftGP = geoCoding.getGeoPos(upperLeftPP, null);
             final GeoPos lowerRightGP = geoCoding.getGeoPos(lowerRightPP, null);
             double north = upperLeftGP.getLat();
