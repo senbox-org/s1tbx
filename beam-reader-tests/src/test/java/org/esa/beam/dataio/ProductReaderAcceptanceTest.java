@@ -81,10 +81,9 @@ public class ProductReaderAcceptanceTest {
         }
         readTestDataDirProperty();
 
-        readProductsList();
-        validateProductList();
+        readProductDataList();
 
-        readProductReadersList();
+        readProductReaderTestDefinitions();
     }
 
     @Test
@@ -412,7 +411,7 @@ public class ProductReaderAcceptanceTest {
         logInfoWithStars("Reader Acceptance Tests / " + dateFormat.format(calendar.getTime()));
     }
 
-    private static void readProductsList() throws IOException {
+    private static void readProductDataList() throws IOException {
         final ArrayList<URL> resources = new ArrayList<URL>();
         final Iterable<ProductReaderPlugIn> readerPlugins = SystemUtils.loadServices(ProductReaderPlugIn.class);
         for (ProductReaderPlugIn readerPlugin : readerPlugins) {
@@ -432,29 +431,32 @@ public class ProductReaderAcceptanceTest {
         for (URL resource : resources) {
             final ProductList list = mapper.readValue(resource, ProductList.class);
             for (TestProduct testProduct : list) {
-                final String id = testProduct.getId();
-                if (testProductList.getById(id) != null) {
-                    fail("Test file with ID=" + id + " already defined");
-                }
+                testIfProductFileExists(testProduct);
+                testIfIdAlreadyRegistered(testProduct);
                 testProductList.add(testProduct);
             }
         }
     }
 
-    private static void validateProductList() {
-        for (TestProduct testProduct : testProductList) {
-            final String relativePath = testProduct.getRelativePath();
-            final File productFile = new File(dataRootDir, relativePath);
-            if (!productFile.exists()) {
-                testProduct.exists(false);
-                if (FAIL_ON_MISSING_DATA) {
-                    fail("test product does not exist: " + productFile.getAbsolutePath());
-                }
+    private static void testIfIdAlreadyRegistered(TestProduct testProduct) {
+        final String id = testProduct.getId();
+        if (testProductList.getById(id) != null) {
+            fail("Test file with ID=" + id + " already defined");
+        }
+    }
+
+    private static void testIfProductFileExists(TestProduct testProduct) {
+        final String relativePath = testProduct.getRelativePath();
+        final File productFile = new File(dataRootDir, relativePath);
+        if (!productFile.exists()) {
+            testProduct.exists(false);
+            if (FAIL_ON_MISSING_DATA) {
+                fail("Test product does not exist: " + productFile.getAbsolutePath());
             }
         }
     }
 
-    private static void readProductReadersList() throws IOException {
+    private static void readProductReaderTestDefinitions() throws IOException {
         final ObjectMapper mapper = new ObjectMapper();
         final Iterable<ProductReaderPlugIn> readerPlugIns = SystemUtils.loadServices(ProductReaderPlugIn.class);
         productReaderList = new ProductReaderList();
