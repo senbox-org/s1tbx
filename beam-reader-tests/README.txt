@@ -44,3 +44,22 @@ ATTENTION:  Remember to install the reader module to your local maven repository
 
 For external reader acceptance tests the test class 'org.esa.beam.dataio.ProductReaderAcceptanceTest' must
 be implemented empty. Just to have something to start.
+In the dependency list of the external module additionally to the 'normal' dependency of beam-reader-tests module
+the 'test-jar' type dependency must be added.
+
+    <dependency>
+        <groupId>org.esa.beam</groupId>
+        <artifactId>beam-reader-tests</artifactId>
+        <version>${beam.version}</version>
+    </dependency>
+    <dependency>
+        <groupId>org.esa.beam</groupId>
+        <artifactId>beam-reader-tests</artifactId>
+        <type>test-jar</type>
+        <scope>test</scope>
+        <version>${beam.version}</version>
+    </dependency>
+
+
+
+

@@ -21,7 +21,7 @@ public class ReaderTestRunner extends BlockJUnit4ClassRunner {
 
     @Override
     public Description getDescription() {
-        return Description.createSuiteDescription("Product Reader Acceptance Test Runner");
+        return Description.createSuiteDescription("Dataio Reader Test Runner");
     }
 
     @Override
