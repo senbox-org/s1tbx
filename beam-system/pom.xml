@@ -42,7 +42,7 @@
         <jide.version>3.5.3</jide.version>
         <!-- This property is set in beam-parent; reason? see there!-->
         <!--<hdf.version>2.7</hdf.version>-->
-        <netcdf.version>4.3.16</netcdf.version>
+        <netcdf.version>4.3.18</netcdf.version>
     </properties>
     <modules>
         <!-- the bootstrap module has no sources, its only purpose is to construct a class path for VISAT -->
@@ -402,9 +402,9 @@
             <!-- JDOM Library ############################################# -->
 
             <dependency>
-                <groupId>jdom</groupId>
-                <artifactId>jdom</artifactId>
-                <version>1.1</version>
+                <groupId>org.jdom</groupId>
+                <artifactId>jdom2</artifactId>
+                <version>2.0.4</version>
             </dependency>
 
             <!-- BC Neural Network Library ############################################# -->

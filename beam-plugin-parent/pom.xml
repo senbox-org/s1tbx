@@ -27,7 +27,7 @@
         <jide.version>3.5.3</jide.version>
         <!-- This property is set in beam-parent. Reason? See there!-->
         <!--<hdf.version>2.7</hdf.version>-->
-        <netcdf.version>4.3.16</netcdf.version>
+        <netcdf.version>4.3.18</netcdf.version>
     </properties>
 
     <dependencyManagement>
@@ -140,7 +140,7 @@
             <dependency>
                 <groupId>edu.ucar</groupId>
                 <artifactId>opendap</artifactId>
-                <version>4.3.16</version>
+                <version>${netcdf.version}</version>
             </dependency>
 
             <!-- GeoTools Libraries ############################################# -->

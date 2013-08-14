@@ -15,7 +15,7 @@
     <changelog>
         <![CDATA[
                 Changes in 1.3.0:<br/>
-                [BEAM-1504] - Update NetCDF library to version 4.3.16<br/>
+                [BEAM-1504] - Update NetCDF library to latest version<br/>
                 Changes in 1.2.3:<br/>
                 [BEAM-1427] Histogram for SPOT SM Band not correct<br/>
                 Changes in 1.2.2:<br/>

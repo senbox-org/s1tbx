@@ -23,7 +23,7 @@
     <changelog>
         <![CDATA[
         Changes in 1.1.0:<br/>
-          [BEAM-1504] - Update NetCDF library to version 4.3.16<br/>
+          [BEAM-1504] - Update NetCDF library to latest version<br/>
         ]]>
     </changelog>
 

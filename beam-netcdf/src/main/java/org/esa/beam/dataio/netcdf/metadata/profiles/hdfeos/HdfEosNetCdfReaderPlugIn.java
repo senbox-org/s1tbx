@@ -9,7 +9,7 @@ import org.esa.beam.dataio.netcdf.util.Constants;
 import org.esa.beam.dataio.netcdf.util.RasterDigest;
 import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.dataio.ProductIOException;
-import org.jdom.Element;
+import org.jdom2.Element;
 import ucar.nc2.Group;
 import ucar.nc2.NetcdfFile;
 
