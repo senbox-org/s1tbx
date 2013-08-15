@@ -29,7 +29,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * A wrapper around the netCDF 3 {@link ucar.nc2.NetcdfFileWriteable}.
+ * A wrapper around the netCDF 4 {@link edu.ucar.ral.nujan.netcdf.NhFileWriter}.
  *
  * @author MarcoZ
  */
