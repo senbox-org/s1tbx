@@ -66,7 +66,7 @@ public class BeamMaskPart extends ProfilePartIO {
 
     private static void readMasks(ProfileReadContext ctx, Product p) throws ProductIOException {
         for (Variable variable : ctx.getNetcdfFile().getVariables()) {
-            if (variable.getRank() != 0 || !variable.getName().endsWith(SUFFIX_MASK)) {
+            if (variable.getRank() != 0 || !variable.getFullName().endsWith(SUFFIX_MASK)) {
                 continue;
             }
             final Attribute expressionAttribute = variable.findAttribute(EXPRESSION);
@@ -78,7 +78,7 @@ public class BeamMaskPart extends ProfilePartIO {
             if (nameAttribute != null) {
                 maskName = nameAttribute.getStringValue();
             } else {
-                String variableName = variable.getName();
+                String variableName = variable.getFullName();
                 maskName = variableName.substring(0, variableName.lastIndexOf(SUFFIX_MASK));
             }
             final Mask mask = new Mask(maskName, p.getSceneRasterWidth(), p.getSceneRasterHeight(),

@@ -139,21 +139,21 @@ public class DAPDownloader {
         final List<Variable> variables = sourceNetcdfFile.getVariables();
         final List<String> variableNames = new ArrayList<String>();
         for (Variable variable : variables) {
-            variableNames.add(variable.getName());
+            variableNames.add(variable.getFullName());
         }
         final List<String> filteredVariables = filterVariables(variableNames, constraintExpression);
         final List<Dimension> filteredDimensions = filterDimensions(filteredVariables, sourceNetcdfFile);
 
         final NetcdfFileWriteable targetNetCDF = NetcdfFileWriteable.createNew(file.getAbsolutePath());
         for (Dimension filteredDimension : filteredDimensions) {
-            targetNetCDF.addDimension(filteredDimension.getName(), filteredDimension.getLength(),
+            targetNetCDF.addDimension(filteredDimension.getShortName(), filteredDimension.getLength(),
                                       filteredDimension.isShared(), filteredDimension.isUnlimited(),
                                       filteredDimension.isVariableLength());
         }
         for (String filteredVariable : filteredVariables) {
             String varName = EscapeStrings.backslashEscape(filteredVariable, NetcdfFile.reservedSectionSpec);
             final Variable variable = sourceNetcdfFile.findVariable(varName);
-            final Variable targetVariable = targetNetCDF.addVariable(variable.getName(), variable.getDataType(),
+            final Variable targetVariable = targetNetCDF.addVariable(variable.getFullName(), variable.getDataType(),
                                                                      variable.getDimensions());
             for (Attribute attribute : variable.getAttributes()) {
                 targetVariable.addAttribute(attribute);

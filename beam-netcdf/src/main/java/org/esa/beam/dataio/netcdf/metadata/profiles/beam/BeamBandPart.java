@@ -69,7 +69,7 @@ public class BeamBandPart extends ProfilePartIO {
             if (dimensions.get(yDimIndex).getLength() == p.getSceneRasterHeight()
                 && dimensions.get(xDimIndex).getLength() == p.getSceneRasterWidth()) {
                 final int rasterDataType = DataTypeUtils.getRasterDataType(variable);
-                final Band band = p.addBand(variable.getName(), rasterDataType);
+                final Band band = p.addBand(variable.getFullName(), rasterDataType);
                 CfBandPart.readCfBandAttributes(variable, band);
                 readBeamBandAttributes(variable, band);
                 band.setSourceImage(new NetcdfMultiLevelImage(band, variable, ctx));

@@ -87,7 +87,7 @@ public class CfGeocodingPart extends ProfilePartIO {
 
     private boolean hasHdfMetadataOrigin(List<Attribute> netcdfAttributes) {
         for (Attribute att : netcdfAttributes) {
-            if (att.getName().startsWith("StructMetadata")) {
+            if (att.getShortName().startsWith("StructMetadata")) {
                 return true;
             }
         }

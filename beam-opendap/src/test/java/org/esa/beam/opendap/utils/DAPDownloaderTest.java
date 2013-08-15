@@ -95,7 +95,7 @@ public class DAPDownloaderTest {
         final List<Variable> variables = netcdfFile.getVariables();
         final List<String> variableNames = new ArrayList<String>();
         for (Variable variable : variables) {
-            variableNames.add(variable.getName());
+            variableNames.add(variable.getFullName());
         }
         String constraintExpression = null;
         List<String> filteredVariables = DAPDownloader.filterVariables(variableNames, constraintExpression);
@@ -139,25 +139,25 @@ public class DAPDownloaderTest {
         List<Dimension> dimensions = DAPDownloader.filterDimensions(variableNames, netcdfFile);
         Collections.sort(dimensions);
         assertEquals(3, dimensions.size());
-        assertEquals("COADSX", dimensions.get(0).getName());
-        assertEquals("COADSY", dimensions.get(1).getName());
-        assertEquals("TIME", dimensions.get(2).getName());
+        assertEquals("COADSX", dimensions.get(0).getShortName());
+        assertEquals("COADSY", dimensions.get(1).getShortName());
+        assertEquals("TIME", dimensions.get(2).getShortName());
 
         variableNames.clear();
         variableNames.add("wind");
         dimensions = DAPDownloader.filterDimensions(variableNames, netcdfFile);
         Collections.sort(dimensions);
         assertEquals(2, dimensions.size());
-        assertEquals("COADSX", dimensions.get(0).getName());
-        assertEquals("COADSY", dimensions.get(1).getName());
+        assertEquals("COADSX", dimensions.get(0).getShortName());
+        assertEquals("COADSY", dimensions.get(1).getShortName());
 
         variableNames.clear();
         variableNames.add("sst");
         dimensions = DAPDownloader.filterDimensions(variableNames, netcdfFile);
         Collections.sort(dimensions);
-        assertEquals("COADSX", dimensions.get(0).getName());
-        assertEquals("COADSY", dimensions.get(1).getName());
-        assertEquals("TIME", dimensions.get(2).getName());
+        assertEquals("COADSX", dimensions.get(0).getShortName());
+        assertEquals("COADSY", dimensions.get(1).getShortName());
+        assertEquals("TIME", dimensions.get(2).getShortName());
     }
 
     @Test

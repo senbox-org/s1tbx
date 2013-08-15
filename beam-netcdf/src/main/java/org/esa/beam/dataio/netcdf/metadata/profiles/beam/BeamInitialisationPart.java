@@ -37,7 +37,7 @@ public class BeamInitialisationPart extends CfInitialisationPart {
         Dimension x = null;
         Dimension y = null;
         for (Dimension dimension : ctx.getNetcdfFile().getDimensions()) {
-            final String name = dimension.getName();
+            final String name = dimension.getShortName();
             if ("x".equalsIgnoreCase(name) || "lon".equalsIgnoreCase(name)) {
                 x = dimension;
             } else if ("y".equalsIgnoreCase(name) || "lat".equalsIgnoreCase(name)) {

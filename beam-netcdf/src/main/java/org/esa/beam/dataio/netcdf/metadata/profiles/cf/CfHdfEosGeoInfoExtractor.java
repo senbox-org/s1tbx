@@ -29,7 +29,7 @@ public class CfHdfEosGeoInfoExtractor {
     public void extractInfo() throws NumberFormatException {
         Attribute structMetadataAttr = null;
         for (Attribute att : netcdfAttributes) {
-            if (att.getName().startsWith("StructMetadata")) {
+            if (att.getShortName().startsWith("StructMetadata")) {
                 structMetadataAttr = att;
                 break;
             }

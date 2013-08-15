@@ -61,7 +61,7 @@ public class ReaderUtils {
         for (int i = 0; i < names.length; i++) {
             final String name = names[i];
             for (Variable variable : variables) {
-                if (variable.getName().equalsIgnoreCase(name)) {
+                if (variable.getFullName().equalsIgnoreCase(name)) {
                     result[i] = variable;
                     break;
                 }
@@ -74,7 +74,7 @@ public class ReaderUtils {
     }
 
     public static String getVariableName(RasterDataNode rasterDataNode) {
-        String name = N3iosp.createValidNetcdf3ObjectName(rasterDataNode.getName());
+        String name = N3iosp.makeValidNetcdfObjectName(rasterDataNode.getName());
         return name.replace( '.', '_' );
     }
 
@@ -83,7 +83,7 @@ public class ReaderUtils {
         if (attribute != null) {
             return attribute.getStringValue();
         } else {
-            return variable.getName();
+            return variable.getFullName();
         }
     }
 }

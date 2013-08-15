@@ -49,7 +49,7 @@ public class DimKey {
 
     public int findXDimensionIndex() {
         for (int i = 0; i < dims.length; i++) {
-            final String dimName = dims[i].getName();
+            final String dimName = dims[i].getShortName();
             if (dimName != null) {
                 for (String typicalXDimName : TYPICAL_X_DIM_NAMES) {
                     if (dimName.equalsIgnoreCase(typicalXDimName)) {
@@ -64,10 +64,10 @@ public class DimKey {
 
     public int findYDimensionIndex() {
         for (int i = 0; i < dims.length; i++) {
-            final String dimName = dims[i].getName();
+            final String dimName = dims[i].getShortName();
             if (dimName != null) {
                 for (String typicalYDimName : TYPICAL_Y_DIM_NAMES) {
-                    if (dims[i].getName().equalsIgnoreCase(typicalYDimName)) {
+                    if (dims[i].getShortName().equalsIgnoreCase(typicalYDimName)) {
                         return i;
                     }
                 }
@@ -145,9 +145,9 @@ public class DimKey {
     }
 
     private boolean matchesXYDimNames(final String xName, final String yName) {
-        if (getDimensionX().getName() != null && getDimensionY().getName() != null) {
-            return getDimensionX().getName().equalsIgnoreCase(xName)
-                    && getDimensionY().getName().equalsIgnoreCase(yName);
+        if (getDimensionX().getShortName() != null && getDimensionY().getShortName() != null) {
+            return getDimensionX().getShortName().equalsIgnoreCase(xName)
+                    && getDimensionY().getShortName().equalsIgnoreCase(yName);
         } else {
             return false;
         }
