@@ -121,7 +121,7 @@ public abstract class AbstractBinWriter implements BinWriter {
 
     protected static void writeBinListVars(NetcdfFileWriteable netcdfFile, List<BinListVar> vars, int[] origin) throws IOException, InvalidRangeException {
         for (BinListVar var : vars) {
-            netcdfFile.write(var.variable.getName(),
+            netcdfFile.write(var.variable.getFullName(),
                              origin,
                              var.buffer);
         }
@@ -132,7 +132,7 @@ public abstract class AbstractBinWriter implements BinWriter {
         final int[] origin0 = {0};
         final int[] shape = {bufferIndex};
         for (BinListVar var : vars) {
-            netcdfFile.write(var.variable.getName(),
+            netcdfFile.write(var.variable.getFullName(),
                     origin,
                     var.buffer.section(origin0, shape));
         }

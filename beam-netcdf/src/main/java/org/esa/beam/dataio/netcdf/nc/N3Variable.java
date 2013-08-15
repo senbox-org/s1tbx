@@ -43,7 +43,7 @@ public class N3Variable implements NVariable {
 
     @Override
     public String getName() {
-        return variable.getName();
+        return variable.getFullName();
     }
 
     @Override
@@ -69,7 +69,7 @@ public class N3Variable implements NVariable {
     @Override
     public void writeFully(Array values) throws IOException {
         try {
-            netcdfFileWriteable.write(variable.getName(), values);
+            netcdfFileWriteable.write(variable.getFullName(), values);
         } catch (InvalidRangeException e) {
             throw new IOException(e);
         }
@@ -77,7 +77,7 @@ public class N3Variable implements NVariable {
 
     @Override
     public void write(int x, int y, int width, int height, boolean isYFlipped, ProductData data) throws IOException {
-        String variableName = variable.getName();
+        String variableName = variable.getFullName();
         final int yIndex = 0;
         final int xIndex = 1;
         final DataType dataType = variable.getDataType();

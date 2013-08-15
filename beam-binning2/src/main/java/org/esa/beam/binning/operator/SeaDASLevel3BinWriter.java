@@ -257,13 +257,13 @@ class SeaDASLevel3BinWriter extends AbstractBinWriter {
     private void writeBinIndexVariable(NetcdfFileWriteable netcdfFile,
                                        Variable variable,
                                        BinIndexElementSetter setter) throws IOException, InvalidRangeException {
-        getLogger().info("Writing bin index variable " + variable.getName());
+        getLogger().info("Writing bin index variable " + variable.getFullName());
         final int numRows = seadasGrid.getNumRows();
         final Array array = Array.factory(variable.getDataType(), new int[]{numRows});
         for (int row = 0; row < numRows; row++) {
             setter.setArray(array, row, seadasGrid);
         }
-        netcdfFile.write(variable.getName(), array);
+        netcdfFile.write(variable.getFullName(), array);
     }
 
     private void writeBinListVariable0(NetcdfFileWriteable netcdfFile,
