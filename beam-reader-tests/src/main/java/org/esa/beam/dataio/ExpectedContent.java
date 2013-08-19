@@ -13,6 +13,7 @@ import org.esa.beam.framework.datamodel.SampleCoding;
 
 import java.util.Random;
 
+// Must be with public access for json-framework usage tb 2013-08-19
 public class ExpectedContent {
 
     @JsonProperty(required = true)
@@ -38,7 +39,9 @@ public class ExpectedContent {
     @JsonProperty
     private ExpectedMetadata[] metadata;
 
-    ExpectedContent() {
+
+
+    public ExpectedContent() {
         metadata = new ExpectedMetadata[0];
         flagCodings = new ExpectedSampleCoding[0];
         indexCodings = new ExpectedSampleCoding[0];

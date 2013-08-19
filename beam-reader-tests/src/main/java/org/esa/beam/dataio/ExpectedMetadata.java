@@ -6,8 +6,10 @@ import org.esa.beam.framework.datamodel.MetadataElement;
 
 /**
  * @author Marco Peters
+ *
+ * Must be with public access for json-framework usage tb 2013-08-19
  */
-class ExpectedMetadata {
+public class ExpectedMetadata {
 
     @JsonProperty(required = true)
     private String path;
@@ -15,8 +17,11 @@ class ExpectedMetadata {
     @JsonProperty(required = true)
     private String value;
 
+    // needed by json engine tb 2013-08-19
+    public ExpectedMetadata() {
+    }
 
-    ExpectedMetadata(MetadataAttribute attribute) {
+    public ExpectedMetadata(MetadataAttribute attribute) {
         final MetadataElement metadataRoot = attribute.getProduct().getMetadataRoot();
         MetadataElement currentElement = attribute.getParentElement();
         final StringBuilder sb = new StringBuilder();
