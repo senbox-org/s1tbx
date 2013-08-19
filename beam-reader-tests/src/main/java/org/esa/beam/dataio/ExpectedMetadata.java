@@ -7,7 +7,7 @@ import org.esa.beam.framework.datamodel.MetadataElement;
 /**
  * @author Marco Peters
  */
-public class ExpectedMetadata {
+class ExpectedMetadata {
 
     @JsonProperty(required = true)
     private String path;
@@ -16,11 +16,7 @@ public class ExpectedMetadata {
     private String value;
 
 
-    public ExpectedMetadata() {
-    }
-
-    public ExpectedMetadata(MetadataAttribute attribute) {
-        this();
+    ExpectedMetadata(MetadataAttribute attribute) {
         final MetadataElement metadataRoot = attribute.getProduct().getMetadataRoot();
         MetadataElement currentElement = attribute.getParentElement();
         final StringBuilder sb = new StringBuilder();
@@ -38,11 +34,11 @@ public class ExpectedMetadata {
     }
 
 
-    public String getPath() {
+    String getPath() {
         return path;
     }
 
-    public String getValue() {
+    String getValue() {
         return value;
     }
 }
