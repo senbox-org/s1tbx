@@ -131,7 +131,7 @@ public class TestUndersamplingOperator extends TestCase {
      * Tests high pass kernel filtering in undersampling operator with a 6x12 "DETECTED" test product.
      * @throws Exception general exception
      */
-    public void testUndersamplingWithHighPassKernel() throws Exception {
+  /*  public void testUndersamplingWithHighPassKernel() throws Exception {
 
         Product sourceProduct = createTestProduct(12, 6);
 
@@ -166,13 +166,13 @@ public class TestUndersamplingOperator extends TestCase {
         TestUtils.attributeEquals(abs, AbstractMetadata.range_spacing, 6.0);
         TestUtils.attributeEquals(abs, AbstractMetadata.line_time_interval, 0.03);
         TestUtils.attributeEquals(abs, AbstractMetadata.first_line_time, "10-MAY-2008 20:30:46.900682");
-    }
+    }     */
 
     /**
      * Tests edge detect kernel filtering in undersampling operator with a 6x12 "DETECTED" test product.
      * @throws Exception general exception
      */
-    public void testUndersamplingWithEdgeDetectKernel() throws Exception {
+ /*   public void testUndersamplingWithEdgeDetectKernel() throws Exception {
 
         Product sourceProduct = createTestProduct(12, 6);
 
@@ -207,13 +207,13 @@ public class TestUndersamplingOperator extends TestCase {
         TestUtils.attributeEquals(abs, AbstractMetadata.range_spacing, 6.0);
         TestUtils.attributeEquals(abs, AbstractMetadata.line_time_interval, 0.03);
         TestUtils.attributeEquals(abs, AbstractMetadata.first_line_time, "10-MAY-2008 20:30:46.900682");
-    }
+    }         */
 
     /**
      * Tests edge enhance kernel filtering in undersampling operator with a 6x12 "DETECTED" test product.
      * @throws Exception general exception
      */
-    public void testUndersamplingWithEdgeEnhanceKernel() throws Exception {
+  /*  public void testUndersamplingWithEdgeEnhanceKernel() throws Exception {
 
         Product sourceProduct = createTestProduct(12, 6);
 
@@ -248,7 +248,7 @@ public class TestUndersamplingOperator extends TestCase {
         TestUtils.attributeEquals(abs, AbstractMetadata.range_spacing, 6.0);
         TestUtils.attributeEquals(abs, AbstractMetadata.line_time_interval, 0.03);
         TestUtils.attributeEquals(abs, AbstractMetadata.first_line_time, "10-MAY-2008 20:30:46.900682");
-    }
+    }          */
 
     /**
      * Tests horizontal kernel filtering in undersampling operator with a 6x12 "DETECTED" test product.

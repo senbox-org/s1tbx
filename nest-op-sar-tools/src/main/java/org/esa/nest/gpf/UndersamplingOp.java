@@ -497,12 +497,10 @@ public class UndersamplingOp extends Operator {
                                     targetImageHeight);
 
         OperatorUtils.addSelectedBands(
-                sourceProduct, sourceBandNames, targetProduct, targetBandNameToSourceBandName, true, true);
+                sourceProduct, sourceBandNames, targetProduct, targetBandNameToSourceBandName, false, true);
 
         ProductUtils.copyMetadata(sourceProduct, targetProduct);
-        //ProductUtils.copyTiePointGrids(sourceProduct, targetProduct);
         ProductUtils.copyFlagCodings(sourceProduct, targetProduct);
-        //ProductUtils.copyGeoCoding(sourceProduct, targetProduct);
         targetProduct.setStartTime(sourceProduct.getStartTime());
         targetProduct.setEndTime(sourceProduct.getEndTime());
 
@@ -690,7 +688,7 @@ public class UndersamplingOp extends Operator {
                     final double dn = srcData1.getElemDoubleAt(index);
                     filteredValue += Math.pow(10, dn / 10.0)*weight; // dB to linear
 
-                } else if (bandUnitType == Unit.UnitType.AMPLITUDE || bandUnitType == Unit.UnitType.INTENSITY) {
+                } else if (sourceRaster2 == null) {
 
                     filteredValue += srcData1.getElemDoubleAt(index)*weight;
 
