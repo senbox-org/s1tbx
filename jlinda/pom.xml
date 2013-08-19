@@ -1,22 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <name>jLinda</name>
     <groupId>org.jlinda</groupId>
     <artifactId>jlinda</artifactId>
-    <version>0.5</version>
+    <version>0.6-SNAPSHOT</version>
 
     <description>Java Library for Interferometric Data Analysis (jLinda)</description>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <jlinda.version>0.5</jlinda.version>
+        <jlinda.version>0.6-SNAPSHOT</jlinda.version>
         <nest.version>5.0</nest.version>
         <beam.version>5.0-4.10.4</beam.version>
-        <jblas.version>1.2.0</jblas.version>
+        <jblas.version>1.2.3</jblas.version>
         <junit.version>4.11</junit.version>
         <outputdir>../../output</outputdir>
     </properties>
@@ -44,6 +42,17 @@
 
     <repositories>
         <repository>
+            <id>ppolabs-mvn-repo</id>
+            <name>Public Maven Repository of PPO.labs</name>
+            <url>http://maven.ppolabs.me/</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+		<repository>
             <id>array-mvn-repo</id>
             <name>Public Maven Repository at Array Systems Computing Inc</name>
             <url>http://www.array.ca/nest-web/maven</url>
@@ -54,27 +63,6 @@
                 <enabled>true</enabled>
             </snapshots>
         </repository>
-        <repository>
-            <id>ppolabs-mvn-repo</id>
-            <name>Public Maven Repository of PPO.labs</name>
-            <url>http://94.209.52.167/mvn</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-        <repository>
-            <id>maven2-repository.dev.java.net</id>
-            <name>Java.net repository</name>
-            <url>http://download.java.net/maven/2</url>
-        </repository>
-        <repository>
-            <id>osgeo</id>
-            <name>Open Source Geospatial Foundation Repository</name>
-            <url>http://download.osgeo.org/webdav/geotools/</url>
-        </repository>
     </repositories>
 
     <build>
@@ -82,20 +70,26 @@
         <plugins>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>2.3.2</version>
+                <version>3.1</version>
                 <configuration>
                     <source>1.7</source>
                     <target>1.7</target>
+                    <encoding>ISO-8859-1</encoding>
+                    <!-- encoding>UTF-8</encoding -->
+                    <optimize>true</optimize>	                    
                     <debug>true</debug>
-                    <optimize>true</optimize>
-                    <encoding>UTF-8</encoding>
+        		    <showWarnings>false</showWarnings>
+        		    <showDeprecation>false</showDeprecation>
+        		    <!-- <compilerArgs> -->
+        		    <!--   <arg>-Xlint</arg> -->
+        		    <!-- </compilerArgs> -->
                 </configuration>
             </plugin>
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.11</version>
+                <version>2.15</version>
                 <configuration>
-                    <!--<parallel>methods</parallel>-->
+                    <!-- <parallel>methods</parallel> -->
                     <!--<threadCount>4</threadCount>-->
                     <!--<skip>false</skip>-->
                     <skip>true</skip>
@@ -103,18 +97,55 @@
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <version>2.1.2</version>
+                <version>2.2.1</version>
                 <artifactId>maven-source-plugin</artifactId>
                 <executions>
                     <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
+                      <id>attach-sources</id>
+                      <phase>package</phase>
+                      <goals>
+                        <goal>jar</goal>
+                      </goals>
                     </execution>
                 </executions>
             </plugin>
-        </plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-release-plugin</artifactId>
+                <version>2.4.1</version>
+                <!--<configuration>-->
+                    <!--<tagNameFormat>v@{project.version}</tagNameFormat>-->
+                <!--</configuration>-->
+            </plugin>
+    	</plugins>
     </build>
+
+    <developers>
+        <developer>
+            <id>pmar</id>
+            <name>Petar Marinkovic</name>
+            <email>petarmar@gmail.com</email>
+        </developer>
+    </developers>
+
+   <distributionManagement>
+        <repository>
+            <uniqueVersion>true</uniqueVersion>
+            <id>nexus-releases</id>
+            <url>http://maven.ppolabs.me/content/repositories/releases/</url>
+        </repository>
+        <snapshotRepository>
+            <uniqueVersion>false</uniqueVersion>
+            <id>nexus-snapshots</id>
+            <url>http://maven.ppolabs.me/content/repositories/snapshots/</url>
+        </snapshotRepository>
+    </distributionManagement>
+
+    <scm>
+        <connection>scm:git:git@github.com:ppolabs/jlinda.git</connection>
+        <developerConnection>scm:git:ppolabs/jlinda.git</developerConnection>
+        <url>https://github.com/ppolabs/jlinda</url>
+      <tag>jlinda-0.6</tag>
+  </scm>
 
 </project>

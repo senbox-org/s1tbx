@@ -10,17 +10,17 @@
 	           TODO: Move the sourceEncoding property to the build tag if version 3.0 is released
 	           -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<skipTests>true</skipTests>
-		
-		<beam.version>5.0-4.10.4</beam.version>
-        <ceres.version>5.0-0.14</ceres.version>
-        <geotools.version>9.0-M0</geotools.version>
-		<jide.version>3.5.3</jide.version>
-		<hdf.version>2.7</hdf.version>
-        <netcdf.version>4.2.20</netcdf.version>
-		<nest.version>5.0</nest.version>
-		<jlinda.version>0.5</jlinda.version>
-		<outputdir>../output</outputdir>
+	<skipTests>true</skipTests>
+	
+	<beam.version>5.0-4.10.4</beam.version>
+	<ceres.version>5.0-0.14</ceres.version>
+	<geotools.version>9.0-M0</geotools.version>
+	<jide.version>3.5.3</jide.version>
+	<hdf.version>2.7</hdf.version>
+	<netcdf.version>4.2.20</netcdf.version>
+	<nest.version>5.0</nest.version>
+	<jlinda.version>0.6-SNAPSHOT</jlinda.version>
+	<outputdir>../output</outputdir>
     </properties>
 	
     <name>NEST Project</name>
@@ -63,7 +63,7 @@
                 <enabled>true</enabled>
             </snapshots>
         </repository-->
-		<repository>
+	<repository>
             <id>array-mvn-repo</id>
             <name>Public Maven Repository at Array Systems Computing Inc</name>
             <url>http://www.array.ca/nest-web/maven</url>
@@ -154,9 +154,9 @@
 		<module>nest-world-wind-view</module>
 		<module>nest-reader-dem</module>
 		<module>nest-io</module>
-	    <module>nest-op-calibration</module>
-	    <module>nest-op-coregistration</module>
-	    <module>nest-op-sar-tools</module>
+		<module>nest-op-calibration</module>
+		<module>nest-op-coregistration</module>
+		<module>nest-op-sar-tools</module>
 		<module>nest-op-orthorectification</module>
 		<module>nest-ocean-tools</module>
 		<module>nest-developer-tools</module>
@@ -289,7 +289,7 @@
                 <version>1.4.1.1</version>
             </dependency>
 			
-			<!-- jlinda Modules ############################################# -->
+	    <!-- jlinda Modules ############################################# -->
 			
 			<dependency>
                 <groupId>org.jlinda</groupId>
@@ -1097,5 +1097,54 @@
             </roles>
         </developer>
     </developers>
+
+    <profiles>
+
+        <!-- NEST InSAR Build Profile ######################################## -->
+        <profile>
+            <id>insar</id>
+            <modules>
+                <module>beam</module>
+                <module>jlinda</module>
+                <module>nest-bootstrap</module>
+                <module>nest-help</module>
+                <module>nest-core</module>
+                <module>nest-dat</module>
+                <module>nest-graph-builder</module>
+                <module>nest-world-wind-view</module>
+                <module>nest-reader-dem</module>
+                <module>nest-io</module>
+                <module>nest-op-calibration</module>
+                <module>nest-op-coregistration</module>
+                <module>nest-op-sar-tools</module>
+                <module>nest-op-orthorectification</module>
+                <module>nest-ocean-tools</module>
+                <module>nest-developer-tools</module>
+                <module>nest-src</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>jlinda</id>
+            <modules>
+                <module>beam</module>
+                <module>jlinda</module>
+                <module>nest-bootstrap</module>
+                <module>nest-help</module>
+                <module>nest-core</module>
+                <module>nest-dat</module>
+                <module>nest-graph-builder</module>
+                <module>nest-world-wind-view</module>
+                <module>nest-reader-dem</module>
+                <module>nest-io</module>
+                <module>nest-op-calibration</module>
+                <module>nest-op-coregistration</module>
+                <module>nest-op-sar-tools</module>
+                <module>nest-op-orthorectification</module>
+                <module>nest-ocean-tools</module>
+                <module>nest-developer-tools</module>
+                <module>nest-src</module>
+            </modules>
+	</profile>
+    </profiles>
 
 </project>

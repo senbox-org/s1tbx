@@ -1,0 +1,3 @@
+[submodule "jlinda"]
+	path = jlinda
+	url = git@bitbucket.org:pmar/jlinda.git
