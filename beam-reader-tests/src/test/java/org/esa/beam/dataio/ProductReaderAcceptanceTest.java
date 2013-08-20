@@ -90,7 +90,7 @@ public class ProductReaderAcceptanceTest {
     public void testPluginDecodeQualifications() throws ClassNotFoundException, IllegalAccessException, InstantiationException {
         logInfoWithStars("Testing DecodeQualification");
         final StopWatch stopWatch = new StopWatch();
-        for (TestProductReader testReader : productReaderList) {
+        for (TestDefinition testReader : productReaderList) {
             final ProductReaderPlugIn productReaderPlugin = testReader.getProductReaderPlugin();
             logger.info(INDENT + productReaderPlugin.getClass().getSimpleName());
 
@@ -117,7 +117,7 @@ public class ProductReaderAcceptanceTest {
     public void testReadIntendedProductContent() throws IOException {
         logInfoWithStars("Testing IntendedProductContent");
         final StopWatch stopWatch = new StopWatch();
-        for (TestProductReader testReader : productReaderList) {
+        for (TestDefinition testReader : productReaderList) {
             final ArrayList<String> intendedProductIds = testReader.getIntendedProductIds();
             logger.info(INDENT + testReader.getProductReaderPlugin().getClass().getSimpleName());
             for (String productId : intendedProductIds) {
@@ -351,7 +351,7 @@ public class ProductReaderAcceptanceTest {
         }
     }
 
-    private static DecodeQualification getExpectedDecodeQualification(TestProductReader testReader, TestProduct testProduct) {
+    private static DecodeQualification getExpectedDecodeQualification(TestDefinition testReader, TestProduct testProduct) {
         final ArrayList<String> intendedProductNames = testReader.getIntendedProductIds();
         if (intendedProductNames.contains(testProduct.getId())) {
             return DecodeQualification.INTENDED;
@@ -469,9 +469,9 @@ public class ProductReaderAcceptanceTest {
                 fail("Unable to load reader test config file: " + resourceFilename);
             }
 
-            final TestProductReader testProductReader = mapper.readValue(testConfigUrl, TestProductReader.class);
-            testProductReader.setProductReaderPlugin(readerPlugIn);
-            productReaderList.add(testProductReader);
+            final TestDefinition testDefinition = mapper.readValue(testConfigUrl, TestDefinition.class);
+            testDefinition.setProductReaderPlugin(readerPlugIn);
+            productReaderList.add(testDefinition);
         }
     }
 

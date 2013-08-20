@@ -1,21 +1,18 @@
 package org.esa.beam.dataio;
 
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 
 class ProductList implements Iterable<TestProduct> {
 
+    @JsonProperty
     private ArrayList<TestProduct> testProducts;
 
     ProductList() {
         this.testProducts = new ArrayList<TestProduct>();
-    }
-
-    // used by JSON
-    @SuppressWarnings("UnusedDeclaration")
-    void setTestProducts(ArrayList<TestProduct> testProducts) {
-        this.testProducts = testProducts;
     }
 
     TestProduct getById(String id) {
@@ -27,12 +24,12 @@ class ProductList implements Iterable<TestProduct> {
         return null;
     }
 
+    void add(TestProduct testProduct) {
+        testProducts.add(testProduct);
+    }
+
     @Override
     public Iterator<TestProduct> iterator() {
         return testProducts.iterator();
-    }
-
-    public void add(TestProduct testProduct) {
-        testProducts.add(testProduct);
     }
 }
