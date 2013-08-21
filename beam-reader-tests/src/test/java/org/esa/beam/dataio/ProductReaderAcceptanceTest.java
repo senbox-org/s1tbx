@@ -22,18 +22,7 @@ import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.FlagCoding;
-import org.esa.beam.framework.datamodel.GeoCoding;
-import org.esa.beam.framework.datamodel.GeoPos;
-import org.esa.beam.framework.datamodel.IndexCoding;
-import org.esa.beam.framework.datamodel.Mask;
-import org.esa.beam.framework.datamodel.MetadataAttribute;
-import org.esa.beam.framework.datamodel.MetadataElement;
-import org.esa.beam.framework.datamodel.PixelPos;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductNodeGroup;
-import org.esa.beam.framework.datamodel.SampleCoding;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.util.StopWatch;
 import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.SystemUtils;
@@ -48,12 +37,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
-import java.util.Locale;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -165,7 +149,7 @@ public class ProductReaderAcceptanceTest {
                     logger.info(INDENT + testProduct.getId() + ": " + stopWatch.getTimeDiffString());
                 } catch (Exception e) {
                     final String message = "ProductIO.readProduct " + testProduct.getId() + " caused an exception.\n" +
-                                           "Should only return NULL or a product instance but should not cause any exception.";
+                            "Should only return NULL or a product instance but should not cause any exception.";
                     logger.log(Level.SEVERE, message, e);
                     fail(message);
                 }
@@ -221,7 +205,10 @@ public class ProductReaderAcceptanceTest {
     private static void assertEqualMasks(String msgPrefix, ExpectedMask expectedMask, Mask actualMask) {
         assertEquals(msgPrefix + " Type", expectedMask.getType(), actualMask.getImageType().getClass());
         assertEquals(expectedMask.getColor(), actualMask.getImageColor());
-        assertEquals(expectedMask.getDescription(), actualMask.getDescription());
+        final String expectedMaskDescription = expectedMask.getDescription();
+        if (StringUtils.isNotNullAndNotEmpty(expectedMaskDescription)) {
+            assertEquals(expectedMaskDescription, actualMask.getDescription());
+        }
     }
 
     private static void testExpectedFlagCoding(ExpectedContent expectedContent, Product product) {
@@ -256,12 +243,12 @@ public class ProductReaderAcceptanceTest {
             final MetadataAttribute actualSample = actualSampleCoding.getAttribute(expectedSampleName);
             assertNotNull(msgPrefix + " sample '" + expectedSampleName + "' does not exist", actualSample);
             assertEquals(msgPrefix + " sample '" + expectedSampleName + "' Value",
-                         expectedSample.getValue(), actualSample.getData().getElemUInt());
+                    expectedSample.getValue(), actualSample.getData().getElemUInt());
 
             final String expectedSampleDescription = expectedSample.getDescription();
             if (StringUtils.isNotNullAndNotEmpty(expectedSampleDescription)) {
-            assertEquals(msgPrefix + " sample '" + expectedSampleName + "' Description",
-                    expectedSampleDescription, actualSample.getDescription());
+                assertEquals(msgPrefix + " sample '" + expectedSampleName + "' Description",
+                        expectedSampleDescription, actualSample.getDescription());
             }
         }
     }
@@ -278,13 +265,13 @@ public class ProductReaderAcceptanceTest {
                 final GeoPos expectedGeoPos = coordinate.getGeoPos();
                 final GeoPos actualGeoPos = geoCoding.getGeoPos(expectedPixelPos, null);
                 assertEquals(expectedContent.getId() + " GeoPos at Pixel(" + expectedPixelPos.getX() + "," + expectedPixelPos.getY() + ")",
-                             expectedGeoPos, actualGeoPos);
+                        expectedGeoPos, actualGeoPos);
 
                 final PixelPos actualPixelPos = geoCoding.getPixelPos(actualGeoPos, null);
                 assertEquals(expectedContent.getId() + " Pixel.X at GeoPos(" + actualGeoPos.getLat() + "," + actualGeoPos.getLon() + ")",
-                             expectedPixelPos.getX(), actualPixelPos.getX(), reverseAccuracy);
+                        expectedPixelPos.getX(), actualPixelPos.getX(), reverseAccuracy);
                 assertEquals(expectedContent.getId() + " Pixel.Y at GeoPos(" + actualGeoPos.getLat() + "," + actualGeoPos.getLon() + ")",
-                             expectedPixelPos.getY(), actualPixelPos.getY(), reverseAccuracy);
+                        expectedPixelPos.getY(), actualPixelPos.getY(), reverseAccuracy);
             }
         }
 
