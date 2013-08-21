@@ -35,6 +35,7 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductNodeGroup;
 import org.esa.beam.framework.datamodel.SampleCoding;
 import org.esa.beam.util.StopWatch;
+import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.logging.BeamLogManager;
 import org.junit.Assert;
@@ -256,8 +257,12 @@ public class ProductReaderAcceptanceTest {
             assertNotNull(msgPrefix + " sample '" + expectedSampleName + "' does not exist", actualSample);
             assertEquals(msgPrefix + " sample '" + expectedSampleName + "' Value",
                          expectedSample.getValue(), actualSample.getData().getElemUInt());
+
+            final String expectedSampleDescription = expectedSample.getDescription();
+            if (StringUtils.isNotNullAndNotEmpty(expectedSampleDescription)) {
             assertEquals(msgPrefix + " sample '" + expectedSampleName + "' Description",
-                         expectedSample.getDescription(), actualSample.getDescription());
+                    expectedSampleDescription, actualSample.getDescription());
+            }
         }
     }
 
