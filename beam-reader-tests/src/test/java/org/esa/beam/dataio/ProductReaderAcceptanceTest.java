@@ -22,7 +22,18 @@ import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.FlagCoding;
+import org.esa.beam.framework.datamodel.GeoCoding;
+import org.esa.beam.framework.datamodel.GeoPos;
+import org.esa.beam.framework.datamodel.IndexCoding;
+import org.esa.beam.framework.datamodel.Mask;
+import org.esa.beam.framework.datamodel.MetadataAttribute;
+import org.esa.beam.framework.datamodel.MetadataElement;
+import org.esa.beam.framework.datamodel.PixelPos;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductNodeGroup;
+import org.esa.beam.framework.datamodel.SampleCoding;
 import org.esa.beam.util.StopWatch;
 import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.SystemUtils;
@@ -37,11 +48,18 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+import java.util.Locale;
+import java.util.TimeZone;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.logging.StreamHandler;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static org.junit.Assert.*;
 
@@ -149,7 +167,7 @@ public class ProductReaderAcceptanceTest {
                     logger.info(INDENT + testProduct.getId() + ": " + stopWatch.getTimeDiffString());
                 } catch (Exception e) {
                     final String message = "ProductIO.readProduct " + testProduct.getId() + " caused an exception.\n" +
-                            "Should only return NULL or a product instance but should not cause any exception.";
+                                           "Should only return NULL or a product instance but should not cause any exception.";
                     logger.log(Level.SEVERE, message, e);
                     fail(message);
                 }
@@ -176,17 +194,61 @@ public class ProductReaderAcceptanceTest {
             String path = expectedMetadata.getPath();
             final String[] pathTokens = path.split("/");
             final String[] elementNames = Arrays.copyOf(pathTokens, pathTokens.length - 1);
+            final String msgPrefix = "Metadata '" + path + "' path not valid.";
+            MetadataElement currentElement = getMetadataElement(msgPrefix, elementNames, product.getMetadataRoot());
             final String attributeName = pathTokens[pathTokens.length - 1];
-            MetadataElement currentElement = product.getMetadataRoot();
-            for (String elementName : elementNames) {
-                currentElement = currentElement.getElement(elementName);
-                assertNotNull("Metadata path '" + path + "' not valid. Element '" + elementName + "' not found", currentElement);
-            }
-            final MetadataAttribute attribute = currentElement.getAttribute(attributeName);
+            final MetadataAttribute attribute = getMetadataAttribute(msgPrefix, currentElement, attributeName);
             assertNotNull("Metadata path '" + path + "' not valid. Attribute '" + attributeName + "' not found", attribute);
             assertEquals("Metadata '" + path + "' value", expectedMetadata.getValue(), attribute.getData().getElemString());
 
         }
+    }
+
+    private static MetadataAttribute getMetadataAttribute(String msgPrefix, MetadataElement currentElement, String attributeName) {
+        final Pattern pattern = Pattern.compile("(.*)\\[(\\d++)\\]");
+        final Matcher matcher = pattern.matcher(attributeName);
+        if(matcher.matches()) {
+            String attributeBaseName = matcher.group(1);
+            int attribIndex = Integer.parseInt(matcher.group(2)); // following XPath, the index is one based
+            assertTrue(msgPrefix + " Index must be >= 1", attribIndex >= 1);
+            final MetadataAttribute[] attributes = currentElement.getAttributes();
+            for (MetadataAttribute attrib : attributes) {
+                if (attrib.getName().equals(attributeBaseName)) {
+                    attribIndex--;
+                    if(attribIndex == 0) {
+                        return attrib;
+                    }
+                }
+            }
+        }
+        return currentElement.getAttribute(attributeName);
+    }
+
+    private static MetadataElement getMetadataElement(String msgPrefix, String[] pathElementNames, MetadataElement rootElement) {
+        MetadataElement element = rootElement;
+        final Pattern pattern = Pattern.compile("(.*)\\[(\\d++)\\]");
+        for (String elementName : pathElementNames) {
+            final Matcher matcher = pattern.matcher(elementName);
+            if(matcher.matches()) {
+                elementName = matcher.group(1);
+                int elemIndex = Integer.parseInt(matcher.group(2)); // following XPath, the index is one based
+                assertTrue(msgPrefix + " Index must be >= 1", elemIndex >= 1);
+                final MetadataElement[] elements = element.getElements();
+                for (MetadataElement elem : elements) {
+                    if (elem.getName().equals(elementName)) {
+                        elemIndex--;
+                        if(elemIndex == 0) {
+                            element = elem;
+                            break;
+                        }
+                    }
+                }
+            }else {
+                element = element.getElement(elementName);
+            }
+            assertNotNull(msgPrefix + " Element '" + elementName + "' not found", element);
+        }
+        return element;
     }
 
     private static void testExpectedMasks(ExpectedContent expectedContent, Product product) {
@@ -265,13 +327,13 @@ public class ProductReaderAcceptanceTest {
                 final GeoPos expectedGeoPos = coordinate.getGeoPos();
                 final GeoPos actualGeoPos = geoCoding.getGeoPos(expectedPixelPos, null);
                 assertEquals(expectedContent.getId() + " GeoPos at Pixel(" + expectedPixelPos.getX() + "," + expectedPixelPos.getY() + ")",
-                        expectedGeoPos, actualGeoPos);
+                             expectedGeoPos, actualGeoPos);
 
                 final PixelPos actualPixelPos = geoCoding.getPixelPos(actualGeoPos, null);
                 assertEquals(expectedContent.getId() + " Pixel.X at GeoPos(" + actualGeoPos.getLat() + "," + actualGeoPos.getLon() + ")",
-                        expectedPixelPos.getX(), actualPixelPos.getX(), reverseAccuracy);
+                             expectedPixelPos.getX(), actualPixelPos.getX(), reverseAccuracy);
                 assertEquals(expectedContent.getId() + " Pixel.Y at GeoPos(" + actualGeoPos.getLat() + "," + actualGeoPos.getLon() + ")",
-                        expectedPixelPos.getY(), actualPixelPos.getY(), reverseAccuracy);
+                             expectedPixelPos.getY(), actualPixelPos.getY(), reverseAccuracy);
             }
         }
 
