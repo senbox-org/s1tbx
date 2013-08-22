@@ -17,29 +17,14 @@
 package com.bc.ceres.swing.progress;
 
 import com.bc.ceres.swing.SwingHelper;
+import com.jidesoft.swing.JideButton;
 
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.JDialog;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JProgressBar;
-import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
-import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.Dialog;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-import java.awt.Window;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.awt.image.FilteredImageSource;
+import java.awt.image.RGBImageFilter;
+import java.util.EventObject;
 
 /**
  * A utility class very similar to {@link javax.swing.ProgressMonitor} but with the following extensions:
@@ -49,6 +34,11 @@ import java.awt.event.WindowEvent;
  * </ul>
  */
 public class ProgressDialog {
+
+    public static final Color SELECTED_BORDER_COLOR = new Color(8, 36, 107);
+    private static final Color SELECTED_BACKGROUND_COLOR = new Color(130, 146, 185);
+    private static final Color ROLLOVER_BACKGROUND_COLOR = new Color(181, 190, 214);
+    private static final int BUTTON_MIN_SIZE = 16;
 
     private Component parentComponent;
     private String title;
@@ -325,16 +315,23 @@ public class ProgressDialog {
             final ImageIcon[] icons = new ImageIcon[]{
                     new ImageIcon(getClass().getResource("icons/PanelUp12.png")),
                     new ImageIcon(getClass().getResource("icons/PanelDown12.png"))};
+            final ImageIcon[] rolloverIcons = new ImageIcon[]{
+                    createRolloverIcon(icons[0]),
+                    createRolloverIcon(icons[1]),
+            };
             final JLabel extendLabel = new JLabel();
             final String moreText = "More";
             final String lessText = "Less";
-            final JButton extendButton = new JButton(icons[1]);
+            final JideButton extendButton = new JideButton(icons[1]);
+            configure(extendButton);
+            extendLabel.setText(moreText);
             extendButton.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     if (extensibleMessageComponent.isVisible()) {
                         extensibleMessageComponent.setVisible(false);
                         extendButton.setIcon(icons[1]);
+                        extendButton.setRolloverIcon(rolloverIcons[1]);
                         extendLabel.setText(moreText);
                         Dimension size = dialog.getSize();
                         dialog.setSize(size.width, notExtendedDialogHeight);
@@ -342,6 +339,7 @@ public class ProgressDialog {
                     } else {
                         extensibleMessageComponent.setVisible(true);
                         extendButton.setIcon(icons[0]);
+                        extendButton.setRolloverIcon(rolloverIcons[0]);
                         extendLabel.setText(lessText);
                         Dimension size = dialog.getSize();
                         dialog.setSize(size.width,
@@ -349,7 +347,7 @@ public class ProgressDialog {
                     }
                 }
             });
-            JPanel extendPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+            JPanel extendPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
             extendPanel.add(extendButton);
             extendPanel.add(extendLabel);
             extensibleMessagePanel.add(extendPanel, BorderLayout.NORTH);
@@ -422,5 +420,49 @@ public class ProgressDialog {
 
         dialog.setVisible(true);
     }
+
+    private void configure(AbstractButton button) {
+        Icon icon = button.getIcon();
+        final int space = 3;
+        Dimension prefSize = new Dimension(Math.max(icon.getIconWidth(), BUTTON_MIN_SIZE) + space,
+                Math.max(icon.getIconHeight(), BUTTON_MIN_SIZE) + space);
+        Dimension minSize = new Dimension(Math.max(icon.getIconWidth(), BUTTON_MIN_SIZE),
+                Math.max(icon.getIconHeight(), BUTTON_MIN_SIZE));
+        Dimension maxSize = new Dimension(Math.max(icon.getIconWidth(), BUTTON_MIN_SIZE) + space,
+                Math.max(icon.getIconHeight(), BUTTON_MIN_SIZE) + space);
+        button.setPreferredSize(prefSize);
+        button.setMaximumSize(maxSize);
+        button.setMinimumSize(minSize);
+
+    }
+
+    public static ImageIcon createRolloverIcon(ImageIcon imageIcon) {
+        return new ImageIcon(createRolloverImage(imageIcon.getImage()));
+    }
+
+    private static Image createRolloverImage(Image image) {
+        return Toolkit.getDefaultToolkit().createImage(new FilteredImageSource(image.getSource(),
+                new BrightBlueFilter()));
+    }
+
+    private static class BrightBlueFilter extends RGBImageFilter {
+
+        public BrightBlueFilter() {
+            canFilterIndexColorModel = true;
+        }
+
+        @Override
+        public int filterRGB(int x, int y, int rgb) {
+            int a = (rgb & 0xff000000) >> 24;
+            int r = (rgb & 0x00ff0000) >> 16;
+            int g = (rgb & 0x0000ff00) >> 8;
+            int b = rgb & 0x000000ff;
+            int i = (r + g + b) / 3;
+            r = g = i;
+            b = 255;
+            return a << 24 | r << 16 | g << 8 | b;
+        }
+    }
+
 
 }
