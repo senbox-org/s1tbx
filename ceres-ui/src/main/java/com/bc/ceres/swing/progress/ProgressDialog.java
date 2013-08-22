@@ -18,6 +18,9 @@ package com.bc.ceres.swing.progress;
 
 import com.bc.ceres.swing.SwingHelper;
 
+import javax.swing.AbstractButton;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
@@ -26,11 +29,21 @@ import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dialog;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.image.RGBImageFilter;
 
 /**
  * A utility class very similar to {@link javax.swing.ProgressMonitor} but with the following extensions:
@@ -130,7 +143,6 @@ public class ProgressDialog {
      *
      * @param progress an int specifying the current value, between the
      *                 maximum and minimum specified for this component
-     *
      * @see #setMinimum
      * @see #setMaximum
      * @see #close
@@ -180,7 +192,6 @@ public class ProgressDialog {
      * Returns the minimum value -- the lower end of the progress value.
      *
      * @return an int representing the minimum value
-     *
      * @see #setMinimum
      */
     public int getMinimum() {
@@ -191,7 +202,6 @@ public class ProgressDialog {
      * Specifies the minimum value.
      *
      * @param minimum an int specifying the minimum value
-     *
      * @see #getMinimum
      */
     public void setMinimum(int minimum) {
@@ -205,7 +215,6 @@ public class ProgressDialog {
      * Returns the maximum value -- the higher end of the progress value.
      *
      * @return an int representing the maximum value
-     *
      * @see #setMaximum
      */
     public int getMaximum() {
@@ -216,7 +225,6 @@ public class ProgressDialog {
      * Specifies the maximum value.
      *
      * @param maximum an int specifying the maximum value
-     *
      * @see #getMaximum
      */
     public void setMaximum(int maximum) {
@@ -237,7 +245,6 @@ public class ProgressDialog {
      * Specifies the message that is displayed.
      *
      * @param title a String specifying the message to display
-     *
      * @see #getTitle
      */
     public void setTitle(String title) {
@@ -251,7 +258,6 @@ public class ProgressDialog {
      * Specifies the message that is displayed.
      *
      * @return a String specifying the message to display
-     *
      * @see #setTitle
      */
     public String getTitle() {
@@ -264,7 +270,6 @@ public class ProgressDialog {
      * is currently being copied during a multiple-file copy.
      *
      * @param note a String specifying the note to display
-     *
      * @see #getNote
      */
     public void setNote(String note) {
@@ -279,7 +284,6 @@ public class ProgressDialog {
      * progress message.
      *
      * @return a String specifying the note to display
-     *
      * @see #setNote
      */
     public String getNote() {
@@ -319,34 +323,40 @@ public class ProgressDialog {
         JPanel progressPanel = new JPanel(new BorderLayout(4, 4));
         progressPanel.add(progressBar, BorderLayout.SOUTH);
 
-        JPanel extensibleMessagePanel = new JPanel(new BorderLayout(4, 4));
+//        JPanel extensibleMessagePanel = new JPanel(new BorderLayout(4, 4));
+//        if (extensibleMessageComponent != null) {
+//            extensibleMessageComponent.setVisible(false);
+//            final String moreButtonText = "More >>";
+//            final String lessButtonText = "Less <<";
+//            final JButton extendButton = new JButton(moreButtonText);
+//            extendButton.addActionListener(new ActionListener() {
+//                @Override
+//                public void actionPerformed(ActionEvent e) {
+//                    if (extensibleMessageComponent.isVisible()) {
+//                        extensibleMessageComponent.setVisible(false);
+//                        extendButton.setText(moreButtonText);
+//                        Dimension size = dialog.getSize();
+//                        dialog.setSize(size.width, notExtendedDialogHeight);
+//                        dialog.pack();
+//                    } else {
+//                        extensibleMessageComponent.setVisible(true);
+//                        extendButton.setText(lessButtonText);
+//                        Dimension size = dialog.getSize();
+//                        dialog.setSize(size.width,
+//                                       Math.max(notExtendedDialogHeight + 200, size.height));
+//                    }
+//                }
+//            });
+//            JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+//            buttonPanel.add(extendButton);
+//            extensibleMessagePanel.add(buttonPanel, BorderLayout.NORTH);
+//            extensibleMessagePanel.add(extensibleMessageComponent, BorderLayout.CENTER);
+//        }
+
+        MoreOptionsPane moreOptionsPane = new MoreOptionsPane();
         if (extensibleMessageComponent != null) {
-            extensibleMessageComponent.setVisible(false);
-            final String moreButtonText = "More >>";
-            final String lessButtonText = "Less <<";
-            final JButton extendButton = new JButton(moreButtonText);
-            extendButton.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    if (extensibleMessageComponent.isVisible()) {
-                        extensibleMessageComponent.setVisible(false);
-                        extendButton.setText(moreButtonText);
-                        Dimension size = dialog.getSize();
-                        dialog.setSize(size.width, notExtendedDialogHeight);
-                        dialog.pack();
-                    } else {
-                        extensibleMessageComponent.setVisible(true);
-                        extendButton.setText(lessButtonText);
-                        Dimension size = dialog.getSize();
-                        dialog.setSize(size.width,
-                                Math.max(notExtendedDialogHeight + 200, size.height));
-                    }
-                }
-            });
-            JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-            buttonPanel.add(extendButton);
-            extensibleMessagePanel.add(buttonPanel, BorderLayout.NORTH);
-            extensibleMessagePanel.add(extensibleMessageComponent, BorderLayout.CENTER);
+            moreOptionsPane.setComponent(extensibleMessageComponent);
+//            extensibleMessagePanel.add(moreOptionsPane)
         }
 
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
@@ -366,9 +376,9 @@ public class ProgressDialog {
         gbc.gridx = 0;
         gbc.weightx = 1;
         gbc.insets = new Insets(4, 4, 4, 4);
-        if(messageComponent != null) {
+        if (messageComponent != null) {
             gbc.gridy = 3;
-            if(placeMessageAboveProgressBar) {
+            if (placeMessageAboveProgressBar) {
                 gbc.gridy = 0;
             }
             gbc.weighty = 1;
@@ -376,22 +386,22 @@ public class ProgressDialog {
             gbl.addLayoutComponent(messagePanel, gbc);
             contentPanel.add(messagePanel);
         }
-        if(extensibleMessageComponent != null) {
+        if (extensibleMessageComponent != null) {
             gbc.gridy = 4;
-            if(placeExtensibleMessageAboveProgressBar) {
+            if (placeExtensibleMessageAboveProgressBar) {
                 gbc.gridy = 1;
             }
             gbc.weighty = 1;
             gbc.fill = GridBagConstraints.BOTH;
-            gbl.addLayoutComponent(extensibleMessagePanel, gbc);
-            contentPanel.add(extensibleMessagePanel);
+            gbl.addLayoutComponent(moreOptionsPane.getContentPanel(), gbc);
+            contentPanel.add(moreOptionsPane.getContentPanel());
         }
         gbc.gridy = 2;
         gbc.weighty = 0;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbl.addLayoutComponent(progressBar, gbc);
         contentPanel.add(progressBar);
-        if(cancelable) {
+        if (cancelable) {
             gbc.gridy = 5;
             gbl.addLayoutComponent(buttonPanel, gbc);
             contentPanel.add(buttonPanel);
@@ -416,5 +426,131 @@ public class ProgressDialog {
         dialog.setVisible(true);
     }
 
+    static class MoreOptionsPane {
+        private static ImageIcon[] icons;
+
+        private final JPanel contentPanel;
+        private final JLabel[] headerLabels;
+        private final AbstractButton headerButton;
+
+        private JComponent component;
+        private boolean collapsed;
+
+        MoreOptionsPane() {
+
+            if (icons == null) {
+                icons = new ImageIcon[]{
+                        new ImageIcon(getClass().getResource("icons/PanelUp12.png")),
+                        new ImageIcon(getClass().getResource("icons/PanelDown12.png"))
+                };
+            }
+            headerLabels = new JLabel[]
+
+                    {
+                            new JLabel("More Options"),
+                            new JLabel("Less Options"),
+                    }
+
+            ;
+            Color headerLabelColor = UIManager.getLookAndFeelDefaults().getColor("TitledBorder.titleColor");
+            if (headerLabelColor != null)
+
+            {
+                headerLabels[0].setForeground(headerLabelColor);
+                headerLabels[1].setForeground(headerLabelColor);
+            }
+
+            component = new
+
+                    JLabel(); // dummy
+
+            collapsed = true;
+
+            headerButton = createButton(icons[0], false);
+            headerButton.setName("MoreOptionsPane.headerButton");
+            headerButton.addActionListener(new
+
+                                                   ActionListener() {
+                                                       @Override
+                                                       public void actionPerformed(ActionEvent e) {
+                                                           setCollapsed(!isCollapsed());
+                                                       }
+                                                   }
+
+            );
+
+            final JPanel titleBar = new JPanel(new BorderLayout(2, 2));
+            titleBar.add(headerButton, BorderLayout.WEST);
+
+            contentPanel = new
+
+                    JPanel(new BorderLayout(2, 2)
+
+            );
+            contentPanel.add(titleBar, BorderLayout.NORTH);
+            contentPanel.setName("MoreOptionsPane.contentPanel");
+        }
+
+        public static AbstractButton createButton(Icon icon, boolean toggle) {
+            AbstractButton button = new JButton();
+            button.setIcon(icon);
+            return button;
+        }
+
+        public JPanel getContentPanel() {
+            return contentPanel;
+        }
+
+        public JComponent getComponent() {
+            return component;
+        }
+
+        public void setComponent(JComponent component) {
+            contentPanel.remove(this.component);
+            this.component = component;
+            updateState();
+        }
+
+        public boolean isCollapsed() {
+            return collapsed;
+        }
+
+        public void setCollapsed(boolean collapsed) {
+            this.collapsed = collapsed;
+            updateState();
+        }
+
+        private void updateState() {
+            if (collapsed) {
+                contentPanel.remove(this.component);
+            } else {
+                contentPanel.add(this.component, BorderLayout.CENTER);
+            }
+            final int i = collapsed ? 0 : 1;
+            headerButton.setIcon(icons[i]);
+        }
+//}
+
+        // copied from ToolButtonFactory -> move ToolButtonFactory to ceres?
+        private static class BrightBlueFilter extends RGBImageFilter {
+
+            public BrightBlueFilter() {
+                canFilterIndexColorModel = true;
+            }
+
+            @Override
+            public int filterRGB(int x, int y, int rgb) {
+                int a = (rgb & 0xff000000) >> 24;
+                int r = (rgb & 0x00ff0000) >> 16;
+                int g = (rgb & 0x0000ff00) >> 8;
+                int b = rgb & 0x000000ff;
+                int i = (r + g + b) / 3;
+                r = g = i;
+                b = 255;
+                return a << 24 | r << 16 | g << 8 | b;
+            }
+        }
+
+    }
 
 }
