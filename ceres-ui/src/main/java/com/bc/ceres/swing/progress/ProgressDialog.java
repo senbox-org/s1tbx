@@ -18,8 +18,6 @@ package com.bc.ceres.swing.progress;
 
 import com.bc.ceres.swing.SwingHelper;
 
-import javax.swing.AbstractButton;
-import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -30,7 +28,6 @@ import javax.swing.JProgressBar;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dialog;
 import java.awt.Dimension;
@@ -322,40 +319,41 @@ public class ProgressDialog {
         JPanel progressPanel = new JPanel(new BorderLayout(4, 4));
         progressPanel.add(progressBar, BorderLayout.SOUTH);
 
-//        JPanel extensibleMessagePanel = new JPanel(new BorderLayout(4, 4));
-//        if (extensibleMessageComponent != null) {
-//            extensibleMessageComponent.setVisible(false);
-//            final String moreButtonText = "More >>";
-//            final String lessButtonText = "Less <<";
-//            final JButton extendButton = new JButton(moreButtonText);
-//            extendButton.addActionListener(new ActionListener() {
-//                @Override
-//                public void actionPerformed(ActionEvent e) {
-//                    if (extensibleMessageComponent.isVisible()) {
-//                        extensibleMessageComponent.setVisible(false);
-//                        extendButton.setText(moreButtonText);
-//                        Dimension size = dialog.getSize();
-//                        dialog.setSize(size.width, notExtendedDialogHeight);
-//                        dialog.pack();
-//                    } else {
-//                        extensibleMessageComponent.setVisible(true);
-//                        extendButton.setText(lessButtonText);
-//                        Dimension size = dialog.getSize();
-//                        dialog.setSize(size.width,
-//                                       Math.max(notExtendedDialogHeight + 200, size.height));
-//                    }
-//                }
-//            });
-//            JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-//            buttonPanel.add(extendButton);
-//            extensibleMessagePanel.add(buttonPanel, BorderLayout.NORTH);
-//            extensibleMessagePanel.add(extensibleMessageComponent, BorderLayout.CENTER);
-//        }
-
-        MoreOptionsPane moreOptionsPane = new MoreOptionsPane();
+        JPanel extensibleMessagePanel = new JPanel(new BorderLayout(4, 4));
         if (extensibleMessageComponent != null) {
-            moreOptionsPane.setComponent(extensibleMessageComponent);
-//            extensibleMessagePanel.add(moreOptionsPane)
+            extensibleMessageComponent.setVisible(false);
+            final ImageIcon[] icons = new ImageIcon[]{
+                    new ImageIcon(getClass().getResource("icons/PanelUp12.png")),
+                    new ImageIcon(getClass().getResource("icons/PanelDown12.png"))};
+            final JLabel extendLabel = new JLabel();
+            final String moreText = "More";
+            final String lessText = "Less";
+            final JButton extendButton = new JButton(icons[1]);
+            extendButton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    if (extensibleMessageComponent.isVisible()) {
+                        extensibleMessageComponent.setVisible(false);
+                        extendButton.setIcon(icons[1]);
+                        extendLabel.setText(moreText);
+                        Dimension size = dialog.getSize();
+                        dialog.setSize(size.width, notExtendedDialogHeight);
+                        dialog.pack();
+                    } else {
+                        extensibleMessageComponent.setVisible(true);
+                        extendButton.setIcon(icons[0]);
+                        extendLabel.setText(lessText);
+                        Dimension size = dialog.getSize();
+                        dialog.setSize(size.width,
+                                       Math.max(notExtendedDialogHeight + 200, size.height));
+                    }
+                }
+            });
+            JPanel extendPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+            extendPanel.add(extendButton);
+            extendPanel.add(extendLabel);
+            extensibleMessagePanel.add(extendPanel, BorderLayout.NORTH);
+            extensibleMessagePanel.add(extensibleMessageComponent, BorderLayout.CENTER);
         }
 
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
@@ -392,8 +390,8 @@ public class ProgressDialog {
             }
             gbc.weighty = 1;
             gbc.fill = GridBagConstraints.BOTH;
-            gbl.addLayoutComponent(moreOptionsPane.getContentPanel(), gbc);
-            contentPanel.add(moreOptionsPane.getContentPanel());
+            gbl.addLayoutComponent(extensibleMessagePanel, gbc);
+            contentPanel.add(extensibleMessagePanel);
         }
         gbc.gridy = 2;
         gbc.weighty = 0;
@@ -423,113 +421,6 @@ public class ProgressDialog {
         notExtendedDialogHeight = dialog.getHeight();
 
         dialog.setVisible(true);
-    }
-
-    static class MoreOptionsPane {
-        private static ImageIcon[] icons;
-
-        private final JPanel contentPanel;
-        private final JLabel[] headerLabels;
-        private final AbstractButton headerButton;
-
-        private JComponent component;
-        private boolean collapsed;
-
-        MoreOptionsPane() {
-
-            if (icons == null) {
-                icons = new ImageIcon[]{
-                        new ImageIcon(getClass().getResource("icons/PanelUp12.png")),
-                        new ImageIcon(getClass().getResource("icons/PanelDown12.png"))
-                };
-            }
-            headerLabels = new JLabel[]
-
-                    {
-                            new JLabel("More Options"),
-                            new JLabel("Less Options"),
-                    }
-
-            ;
-            Color headerLabelColor = UIManager.getLookAndFeelDefaults().getColor("TitledBorder.titleColor");
-            if (headerLabelColor != null)
-
-            {
-                headerLabels[0].setForeground(headerLabelColor);
-                headerLabels[1].setForeground(headerLabelColor);
-            }
-
-            component = new
-
-                    JLabel(); // dummy
-
-            collapsed = true;
-
-            headerButton = createButton(icons[0], false);
-            headerButton.setName("MoreOptionsPane.headerButton");
-            headerButton.addActionListener(new
-
-                                                   ActionListener() {
-                                                       @Override
-                                                       public void actionPerformed(ActionEvent e) {
-                                                           setCollapsed(!isCollapsed());
-                                                       }
-                                                   }
-
-            );
-
-            final JPanel titleBar = new JPanel(new BorderLayout(2, 2));
-            titleBar.add(headerButton, BorderLayout.WEST);
-
-            contentPanel = new
-
-                    JPanel(new BorderLayout(2, 2)
-
-            );
-            contentPanel.add(titleBar, BorderLayout.NORTH);
-            contentPanel.setName("MoreOptionsPane.contentPanel");
-        }
-
-        public static AbstractButton createButton(Icon icon, boolean toggle) {
-            AbstractButton button = new JButton();
-            button.setIcon(icon);
-            return button;
-        }
-
-        public JPanel getContentPanel() {
-            return contentPanel;
-        }
-
-        public JComponent getComponent() {
-            return component;
-        }
-
-        public void setComponent(JComponent component) {
-            contentPanel.remove(this.component);
-            this.component = component;
-            updateState();
-        }
-
-        public boolean isCollapsed() {
-            return collapsed;
-        }
-
-        public void setCollapsed(boolean collapsed) {
-            this.collapsed = collapsed;
-            updateState();
-        }
-
-        private void updateState() {
-            if (collapsed) {
-                contentPanel.remove(this.component);
-            } else {
-                contentPanel.add(this.component, BorderLayout.CENTER);
-            }
-            final int i = collapsed ? 0 : 1;
-            headerButton.setIcon(icons[i]);
-        }
-//}
-
     }
 
 }
