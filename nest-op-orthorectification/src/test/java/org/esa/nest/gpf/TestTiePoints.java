@@ -82,6 +82,9 @@ public class TestTiePoints  extends TestCase {
     }
 
     public void testCompareFloats() throws Exception {
+        if(TestUtils.skipTest(this))
+            return;
+
         if(product1 == null) {
             TestUtils.skipTest(this);
             return;

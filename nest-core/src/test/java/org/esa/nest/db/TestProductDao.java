@@ -42,7 +42,9 @@ public class TestProductDao extends TestCase {
     public void setUp() throws Exception {
         super.setUp();
 
+        System.out.println("Test Add ALL A");
         db = ProductDB.instance();
+        System.out.println("Test Add ALL B");
     }
 
     public void tearDown() throws Exception {
@@ -52,6 +54,12 @@ public class TestProductDao extends TestCase {
     }
 
     public void testAddAll() throws Exception {
+        System.out.println("Test Add ALL 1");
+        if(TestUtils.skipTest(this))
+            return;
+
+        System.out.println("Test Add ALL 1");
+
         final File folder1 = new File(TestUtils.rootPathASAR);
         if(!folder1.exists()) {
             TestUtils.skipTest(this);

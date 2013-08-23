@@ -56,6 +56,8 @@ public class TestMultilookOperator extends TestCase {
      * @throws Exception general exception
      */
     public void testMultilookOfRealImage() throws Exception {
+        if(TestUtils.skipTest(this))
+            return;
 
         final Product sourceProduct = createTestProduct(16, 4);
 

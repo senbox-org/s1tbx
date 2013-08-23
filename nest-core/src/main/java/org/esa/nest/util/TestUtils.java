@@ -71,8 +71,8 @@ public class TestUtils {
     public static final boolean canTestReadersOnAllProducts = testReadersOnAllProducts != null && testReadersOnAllProducts.equalsIgnoreCase("true");
     public static final boolean canTestProcessingOnAllProducts = testProcessingOnAllProducts != null && testProcessingOnAllProducts.equalsIgnoreCase("true");
 
-    private static final boolean DEBUG = true;
-    private static final boolean FailOnSkip = true;
+    private static final boolean DEBUG = false;
+    private static final boolean FailOnSkip = false;
 
     public static void initTestEnvironment() throws RuntimeConfigException {
         final RuntimeConfig runtimeConfig = new DefaultRuntimeConfig();
@@ -446,13 +446,14 @@ public class TestUtils {
         return iterations;
     }
 
-    public static void skipTest(final TestCase obj) throws Exception {
+    public static boolean skipTest(final TestCase obj) throws Exception {
         if(DEBUG) {
             System.out.println(obj.getClass().getName()+':'+obj.getName()+" skipped");
         }
         if(FailOnSkip) {
             throw new Exception(obj.getClass().getName()+':'+obj.getName()+" skipped");
         }
+        return true;
     }
 
     private static void throwErr(final String description) throws Exception {

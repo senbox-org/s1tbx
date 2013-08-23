@@ -10,7 +10,8 @@
 	           TODO: Move the sourceEncoding property to the build tag if version 3.0 is released
 	           -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-	<skipTests>true</skipTests>
+	<skipTests>false</skipTests>
+	<ceresContext>nest</ceresContext>
 	
 	<beam.version>5.0-4.10.4</beam.version>
 	<ceres.version>5.0-0.14</ceres.version>
@@ -67,6 +68,17 @@
             <id>array-mvn-repo</id>
             <name>Public Maven Repository at Array Systems Computing Inc</name>
             <url>http://www.array.ca/nest-web/maven</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+		<repository>
+            <id>ppolabs-mvn-repo</id>
+            <name>Public Maven Repository of PPO.labs</name>
+            <url>http://maven.ppolabs.me/</url>
             <releases>
                 <enabled>true</enabled>
             </releases>
@@ -161,6 +173,9 @@
 		<module>nest-ocean-tools</module>
 		<module>nest-developer-tools</module>
 		<module>nest-src</module>
+		
+		<module>nest-io-sentinel1</module>
+		<module>nest-op-sentinel1</module>
   </modules>
 
     <dependencyManagement>
@@ -822,7 +837,7 @@
 						<aggregate>true</aggregate>
 						<maxmemory>600m</maxmemory>
 						<links>
-	                            <link>http://java.sun.com/javase/6/docs/api/</link>
+	                            <link>http://docs.oracle.com/javase/7/docs/api/</link>
 	                    </links>
 	                    <subpackages>
 	                        org.esa.nest:com.bc.ceres:org.esa.beam.framework:org.esa.beam.util:org.esa.beam.visat:com.bc.jexp
@@ -851,7 +866,7 @@
                                 <value>target/test-data</value>
                             </property>
                         </systemProperties>
-                        <argLine>-Xmx512M -enableassertions</argLine>
+                        <argLine>-Xmx512M -enableassertions -Dceres.context=${ceresContext}</argLine>
                     </configuration>
                     
                 </plugin>

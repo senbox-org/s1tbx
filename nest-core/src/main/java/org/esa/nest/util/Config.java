@@ -31,7 +31,7 @@ public class Config {
 
     private Config() {
         try {
-            prefs.load(new File(SystemUtils.getBeamHomeDir(), "config"+File.separator+SystemUtils.getApplicationContextId()+".config"));
+            prefs.load(new File(SystemUtils.getApplicationHomeDir(), "config"+File.separator+SystemUtils.getApplicationContextId()+".config"));
         } catch(IOException e) {
             System.out.println("Unable to load config preferences "+e.getMessage());
         }

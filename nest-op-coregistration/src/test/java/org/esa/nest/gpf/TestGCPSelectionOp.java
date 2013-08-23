@@ -21,6 +21,7 @@ import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.nest.datamodel.Unit;
+import org.esa.nest.util.TestUtils;
 
 /**
  * Unit test for GCPSelectionOp.
@@ -41,6 +42,8 @@ public class TestGCPSelectionOp extends TestCase {
     }
 
     public void testOperator() throws Exception {
+        if(TestUtils.skipTest(this))
+            return;
 
         final Product product = createTestMasterProduct(40,40);
 

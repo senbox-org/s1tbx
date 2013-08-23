@@ -302,7 +302,7 @@ public final class ResourceUtils {
         final String nestHome = System.getProperty(getContextID()+".home");
         File homePath;
         if(nestHome == null)
-            homePath = SystemUtils.getBeamHomeDir();
+            homePath = SystemUtils.getApplicationHomeDir();
         else
             homePath = new File(nestHome);
         String homePathStr = homePath.getAbsolutePath();
