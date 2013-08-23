@@ -50,7 +50,7 @@ import java.util.*;
  * calibrated SAR images are essential to quantitative use of SAR data. Typically processing of SAR data to
  * produce level 1 images does not include geometric and radiometric corrections and significant radiometric
  * and geometric bias remains. Corrections to the radiometric and geometric bias will therefore be applied
- * to SAR images so that the pixel values of SAR images are a true representation of the reflecting surface’s
+ * to SAR images so that the pixel values of SAR images are a true representation of the reflecting surface's
  * radar backscatter. Calibration is necessary to compare SAR images acquired with different sensors as well
  * as when acquired from the same sensor but at different times, in different modes, or processed by different
  * processors.

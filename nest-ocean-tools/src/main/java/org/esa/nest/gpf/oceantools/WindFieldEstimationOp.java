@@ -64,10 +64,10 @@ import java.util.List;
  * This operator supports only ERS and ENVISAT products. It is asssumed that the product has been calibrated
  * before applying this operator.
  * 
- * [1] H. Hersbach, CMOD5, “An Improved Geophysical Model Function for ERS C-Band Scatterometry”, Report of
+ * [1] H. Hersbach, CMOD5, "An Improved Geophysical Model Function for ERS C-Band Scatterometry", Report of
  *     the European Centre Medium-Range Weather Forecasts (ECMWF), 2003.
  *
- * [2] C. C. Wackerman, W. G. Pichel, P. Clemente-Colon, “Automated Estimation of Wind Vectors from SAR”,
+ * [2] C. C. Wackerman, W. G. Pichel, P. Clemente-Colon, "Automated Estimation of Wind Vectors from SAR",
  *     12th Conference on Interactions of the Sea and Atmosphere, 2003.
  */
 
@@ -445,7 +445,7 @@ public class WindFieldEstimationOp extends Operator {
         // 2. Each window is flattened by applying a large average filter, then dividing by the filtered image.
         //    The filter size for this implementation is set to 11x11.
         //
-        // 3. The FFT’s are applied and the four resulting spectra are averaged.
+        // 3. The FFTï¿½s are applied and the four resulting spectra are averaged.
         //
         // 4. An annulus is applied to the spectrum to zero out any energy outside of a wavenumber region.
         //    The limits of the annulus are set to wave lengths of 3 km to 15 km.

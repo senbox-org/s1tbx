@@ -48,7 +48,7 @@ import java.util.List;
  *
  * This operator implements the 2-parameter CFAR detector by applying an adaptive thresholding algorithm [1].
  *
- * [1] D. J. Crisp, "The State-of-the-Art in Ship Detection in Synthetic Aperture Radar Imagery." DSTO–RR–0272,
+ * [1] D. J. Crisp, "The State-of-the-Art in Ship Detection in Synthetic Aperture Radar Imagery." DSTO-RR-0272,
  * 2004-05.
  */
 // todo replace t by t/sqrt(n) in case of multi-pixel target window, where n is the number of independent samples in target window

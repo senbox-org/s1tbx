@@ -172,14 +172,14 @@ class DatAboutBox extends ModalDialog {
                 "&nbsp;&nbsp;<b>Sabine Embacher</b> (programming)<br>" +
                 "&nbsp;&nbsp;<b>Olga Faber</b> (testing)<br>" +
                 "&nbsp;&nbsp;<b>Norman Fomferra</b> (project lead)<br>" +
-                "&nbsp;&nbsp;<b>Uwe Krämer</b> (Mac OS X porting)<br>" +
+                "&nbsp;&nbsp;<b>Uwe Kramer</b> (Mac OS X porting)<br>" +
                 "</td><td>" +
                 "&nbsp;&nbsp;<b>Des Murphy</b> (contract management)<br>" +
                 "&nbsp;&nbsp;<b>Michael Paperin</b> (web development)<br>" +
                 "&nbsp;&nbsp;<b>Marco Peters</b> (programming)<br>" +
                 "&nbsp;&nbsp;<b>Ralf Quast</b> (programming)<br>" +
                 "&nbsp;&nbsp;<b>Kerstin Stelzer</b> (quality control)<br>" +
-                "&nbsp;&nbsp;<b>Marco Zühlke</b> (programming)<br>" +
+                "&nbsp;&nbsp;<b>Marco Zuhlke</b> (programming)<br>" +
                 "</td></tr>" +
                 "</table>" +
                 "<br><hr>Special contributions made by:" +

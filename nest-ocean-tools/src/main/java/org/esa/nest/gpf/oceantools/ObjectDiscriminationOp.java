@@ -46,8 +46,7 @@ import java.util.Map;
  * extracts the width and length information from the target. Based on these measurements and user input
  * discrimination criteria, targets that are too big or too small are eliminated.
  *
- * [1] D. J. Crisp, "The State-of-the-Art in Ship Detection in Synthetic Aperture Radar Imagery." DSTO–RR–0272,
- * 2004-05.
+ * [1] D. J. Crisp, "The State-of-the-Art in Ship Detection in Synthetic Aperture Radar Imagery." DSTO-RR-0272, 2004-05.
  */
 @OperatorMetadata(alias = "Object-Discrimination",
         category = "Ocean-Tools",

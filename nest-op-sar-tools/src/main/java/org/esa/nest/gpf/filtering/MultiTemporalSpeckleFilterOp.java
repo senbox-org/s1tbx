@@ -65,8 +65,8 @@ import java.util.Map;
  * the operator is assumed to be a product with multiple calibrated and co-registrated bands.
  *
  * Reference:
- * [1] S. Quegan, T. L. Toan, J. J. Yu, F. Ribbes and N. Floury, “Multitemporal ERS SAR Analysis Applied to
- * Forest Mapping”, IEEE Transactions on Geoscience and Remote Sensing, vol. 38, no. 2, March 2000.
+ * [1] S. Quegan, T. L. Toan, J. J. Yu, F. Ribbes and N. Floury, "Multitemporal ERS SAR Analysis Applied to
+ * Forest Mapping", IEEE Transactions on Geoscience and Remote Sensing, vol. 38, no. 2, March 2000.
  */
 
 @OperatorMetadata(alias="Multi-Temporal-Speckle-Filter",

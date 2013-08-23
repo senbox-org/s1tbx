@@ -45,13 +45,13 @@ import java.io.File;
  *    1)  Get the range line index y for the tie point;
  *    2)  Get zero Doppler time t for the range line.
  *    3)  Compute satellite position and velocity for the zero Doppler time t using cubic interpolation. (dorisReader)
- *    4)  Get sample number x (index in the range line).            c
+ *    4)  Get sample number x (index in the range line).
  *    5)  Get slant range time for pixel (x, y) from the old slant range time tie point grid.
  *    6)  Get incidence angle for pixel (x, y) from the old incidence angle tie point grid.
  *    7)  Get latitude for pixel (x, y) from the old latitude tie point grid.
  *    8)  Get longitude for pixel (x, y) from the old longitude tie point grid.
  *    9)  Convert (latitude, longitude, h = 0) to global Cartesian coordinate (x0, y0, z0).
- *    10) Solve Range equation, Doppler equation and Earth equation system for accurate (x, y, z) using Newton’s
+ *    10) Solve Range equation, Doppler equation and Earth equation system for accurate (x, y, z) using Newton's
  *        method with (x0, y0, z0) as initial point.
  *    11) Convert (x, y, z) back to (latitude, longitude, h).
  *    12) Save the new latitude and longitude for current tie point.
