@@ -219,14 +219,6 @@ public final class ResourceUtils {
         return dir;
     }
 
-    public static File getDATUserDir() {
-        final File dir = new File(getApplicationUserDir(true), getContextID()+"-dat");
-        if (!dir.exists()) {
-            dir.mkdirs();
-        }
-        return dir;
-    }
-
     public static String getContextID() {
         if (RuntimeActivator.getInstance() != null
                 && RuntimeActivator.getInstance().getModuleContext() != null) {

@@ -48,7 +48,7 @@
             <targetProductNameSuffix>_Deburst</targetProductNameSuffix>
         </action>
 
-        <action>
+        <!--action>
             <id>MergeSlices</id>
             <helpId>MergeSlices</helpId>
             <class>org.esa.nest.dat.actions.GraphAction</class>
@@ -58,7 +58,7 @@
             <shortDescr>Merge slice products together</shortDescr>
             <dialogTitle>Merge Slices</dialogTitle>
             <graphFile>MergeSlicesGraph.xml</graphFile>
-        </action>
+        </action-->
 
     </extension>
 

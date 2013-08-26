@@ -731,7 +731,9 @@ public final class Sentinel1DeburstTOPSAROp extends Operator {
                     qVal = srcArrayQ[k][idx];
                 }
 
-                if(iVal == 0 && qVal == 0 && burstInfo.swath1 != -1) {
+                double intensity = iVal*iVal+qVal*qVal;
+                //if(burstInfo.swath1 != -1 && iVal == 0 && qVal == 0) {
+                if(burstInfo.swath1 != -1 && intensity < 300) {
                     // edge of swaths found therefore use other swath
                     if(subswathIndex == burstInfo.swath0)
                         subswathIndex = burstInfo.swath1;
@@ -750,7 +752,7 @@ public final class Sentinel1DeburstTOPSAROp extends Operator {
                     }
                     idx = srcTiles[k].getDataBufferIndex(sx, sy);
 
-                    if(idx >=0) {
+                    if(idx >=0 && !(srcArrayI[k][idx] == 0 && srcArrayQ[k][idx] == 0)) {
                         iVal = srcArrayI[k][idx];
                         qVal = srcArrayQ[k][idx];
                     }
