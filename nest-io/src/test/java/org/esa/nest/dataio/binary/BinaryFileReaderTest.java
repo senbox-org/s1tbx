@@ -109,7 +109,7 @@ public class BinaryFileReaderTest extends TestCase {
     }
 
     public void testReadB2() throws IOException, IllegalBinaryFormatException {
-        final String prefix = "ß3534aß0uawemqw34mfavsdpvhaweföldv:";
+        final String prefix = "ÃŸ3534a?0uawemqw34mfavsdpvhawef?ldv:";
         final String suffix = "lfjldfkjvg45";
         final short expected = -12354;
         _ios.writeBytes(prefix);
@@ -123,7 +123,7 @@ public class BinaryFileReaderTest extends TestCase {
     }
 
     public void testReadB4() throws IOException, IllegalBinaryFormatException {
-        final String prefix = "ß3534aß0uawemqw34mfavsdpvhaweföldv:";
+        final String prefix = "?3534a?0uawemqw34mfavsdpvhawef?ldv:";
         final String suffix = "lfjldfkjvg45";
         _ios.writeBytes(prefix);
         _ios.writeInt(7100);

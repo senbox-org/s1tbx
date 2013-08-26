@@ -1,0 +1,111 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <artifactId>nest</artifactId>
+        <groupId>org.esa.nest</groupId>
+        <version>5.0</version>
+    </parent>
+
+    <groupId>org.esa.nest</groupId>
+    <artifactId>nest-op-image-processing</artifactId>
+    <name>NEST Image Processing Tools</name>
+    <version>5.0</version>
+	
+    <packaging>jar</packaging>
+
+	<developers>
+        <developer>
+            <id>emanuela.boros</id>
+            <name>Emanuela Boros</name>
+            <email>emanuela.boros@gmail.com</email>
+            <url>http://emanuelaboros.ro</url>
+            <organization>Alexandru Ioan Cuza University</organization>
+            <roles>
+                <role>student</role>
+                <role>developer</role>
+            </roles>
+            <timezone>0</timezone>
+        </developer>
+    </developers>
+	
+    <dependencies>
+        <dependency>
+            <groupId>org.esa.beam</groupId>
+            <artifactId>beam-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.beam</groupId>
+            <artifactId>beam-visat-rcp</artifactId>
+        </dependency>
+		<dependency>
+			<groupId>org.esa.nest</groupId>
+            <artifactId>nest-core</artifactId>
+        </dependency>
+        <dependency>
+			<groupId>org.jaitools</groupId>
+            <artifactId>jt-all</artifactId>
+        </dependency>
+        <dependency>
+			<groupId>net.imagej</groupId>
+			<artifactId>ij</artifactId>
+		</dependency>
+		<dependency>
+            <groupId>Jama</groupId>
+            <artifactId>Jama</artifactId>
+        </dependency>
+		
+        <dependency>
+            <groupId>org.openimaj</groupId>
+            <artifactId>core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openimaj</groupId>
+            <artifactId>core-feature</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openimaj</groupId>
+            <artifactId>core-image</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openimaj</groupId>
+            <artifactId>image-processing</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openimaj</groupId>
+            <artifactId>image-feature-extraction</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openimaj</groupId>
+            <artifactId>nearest-neighbour</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openimaj</groupId>
+            <artifactId>clustering</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openimaj</groupId>
+            <artifactId>core-math</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.openimaj</groupId>
+            <artifactId>image-local-features</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.sf.jafama</groupId>
+            <artifactId>JaFaMa</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.googlecode.matrix-toolkits-java</groupId>
+            <artifactId>mtj</artifactId>
+        </dependency>
+		<dependency>
+			<groupId>de.lmu.ifi.dbs.jfeaturelib</groupId>
+			<artifactId>JFeatureLib</artifactId>
+		</dependency>
+    </dependencies>
+</project>

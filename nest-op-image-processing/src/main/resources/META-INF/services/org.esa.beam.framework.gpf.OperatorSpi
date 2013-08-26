@@ -1,0 +1,10 @@
+org.esa.nest.gpf.morphology.MorphologyOp$Spi
+org.esa.nest.gpf.segmentation.thresholding.BasicThresholdingOp$Spi
+org.esa.nest.gpf.segmentation.thresholding.separate.OtsuThresholdingOp$Spi
+org.esa.nest.gpf.segmentation.thresholding.separate.MixtureModelingThresholdingOp$Spi
+org.esa.nest.gpf.segmentation.thresholding.separate.HysteresisThresholdingOp$Spi
+org.esa.nest.gpf.segmentation.thresholding.separate.MaximumEntropyThresholdingOp$Spi
+org.esa.nest.gpf.ActiveContour.ActiveContourOp$Spi
+org.esa.nest.gpf.features.local.SIFTKeypointOp$Spi
+org.esa.nest.gpf.features.local.ASIFTKeypointOp$Spi
+org.esa.nest.gpf.features.local.MSEROp$Spi

@@ -43,7 +43,7 @@ public class FilePointerRecordTest extends TestCase {
         _prefix = "fdkjglsdkfhierr.m b9b0970w34";
         _ios.writeBytes(_prefix);
         writeRecordData(_ios);
-        _ios.writeBytes("nq3tf9ß8nvnvpdi er 0 324p3f"); // as suffix
+        _ios.writeBytes("nq3tf9ÃŸ8nvnvpdi er 0 324p3f"); // as suffix
         _reader = new BinaryFileReader(_ios);
     }
 

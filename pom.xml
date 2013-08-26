@@ -64,7 +64,7 @@
                 <enabled>true</enabled>
             </snapshots>
         </repository-->
-	<repository>
+		<repository>
             <id>array-mvn-repo</id>
             <name>Public Maven Repository at Array Systems Computing Inc</name>
             <url>http://www.array.ca/nest-web/maven</url>
@@ -159,20 +159,22 @@
 		<module>beam</module>
 		<module>jlinda</module>
 		<module>nest-bootstrap</module>
-		<module>nest-help</module>
 		<module>nest-core</module>
 		<module>nest-dat</module>
+		<module>nest-developer-tools</module>
 		<module>nest-graph-builder</module>
-		<module>nest-world-wind-view</module>
-		<module>nest-reader-dem</module>
+		<module>nest-help</module>
 		<module>nest-io</module>
+		<module>nest-ocean-tools</module>
 		<module>nest-op-calibration</module>
 		<module>nest-op-coregistration</module>
-		<module>nest-op-sar-tools</module>
+		<module>nest-op-image-processing</module>
+		<module>nest-op-machine-learning</module>
 		<module>nest-op-orthorectification</module>
-		<module>nest-ocean-tools</module>
-		<module>nest-developer-tools</module>
+		<module>nest-op-sar-tools</module>
+		<module>nest-reader-dem</module>
 		<module>nest-src</module>
+		<module>nest-world-wind-view</module>
 		
 		<module>nest-io-sentinel1</module>
 		<module>nest-op-sentinel1</module>
@@ -736,6 +738,100 @@
 				<groupId>net.sf.sevenzipjbinding</groupId>
 				<artifactId>native-libs</artifactId>
 				<version>4.65-1.04</version>
+			</dependency>
+			
+			<!-- Image Processing -->
+			<dependency>
+				<groupId>org.geonames</groupId>
+				<artifactId>geonames</artifactId>
+				<version>1.1.0</version>
+				<exclusions>
+					<exclusion>
+                        <groupId>jdom</groupId>
+                        <artifactId>jdom</artifactId>
+                    </exclusion>
+                </exclusions>
+			</dependency>
+			<dependency>
+				<groupId>org.jaitools</groupId>
+	            <artifactId>jt-all</artifactId>
+				<version>1.3.1</version>
+	        </dependency>
+	        <dependency>
+				<groupId>net.imagej</groupId>
+	            <artifactId>ij</artifactId>
+				<version>1.47g</version>
+	        </dependency>
+
+            <dependency>
+                <groupId>de.lmu.ifi.dbs.jfeaturelib</groupId>
+                <artifactId>JFeatureLib</artifactId>
+                <version>1.3.1</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.google.guava</groupId>
+                        <artifactId>guava</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+			<!-- OpenImaj	#################################################-->
+			
+			<dependency>
+				<groupId>org.openimaj</groupId>
+				<artifactId>core</artifactId>
+				<version>1.0.6-SNAPSHOT</version>
+			</dependency>
+			<dependency>
+				<groupId>org.openimaj</groupId>
+				<artifactId>core-feature</artifactId>
+				<version>1.0.6-SNAPSHOT</version>
+			</dependency>
+			<dependency>
+				<groupId>org.openimaj</groupId>
+				<artifactId>core-image</artifactId>
+				<version>1.0.6-SNAPSHOT</version>
+			</dependency>
+			<dependency>
+				<groupId>org.openimaj</groupId>
+				<artifactId>image-processing</artifactId>
+				<version>1.0.6-SNAPSHOT</version>
+			</dependency>
+			<dependency>
+				<groupId>org.openimaj</groupId>
+				<artifactId>image-feature-extraction</artifactId>
+				<version>1.0.6-SNAPSHOT</version>
+			</dependency>
+			<dependency>
+				<groupId>org.openimaj</groupId>
+				<artifactId>nearest-neighbour</artifactId>
+				<version>1.0.6-SNAPSHOT</version>
+			</dependency>
+			<dependency>
+				<groupId>org.openimaj</groupId>
+				<artifactId>clustering</artifactId>
+				<version>1.0.6-SNAPSHOT</version>
+			</dependency>
+			<dependency>
+				<groupId>org.openimaj</groupId>
+				<artifactId>core-math</artifactId>
+				<version>1.0.6-SNAPSHOT</version>
+			</dependency>
+			<dependency>
+				<groupId>org.openimaj</groupId>
+				<artifactId>image-local-features</artifactId>
+				<version>1.0.6-SNAPSHOT</version>
+			</dependency>
+			
+			<dependency>
+				<groupId>net.sf.jafama</groupId>
+				<artifactId>JaFaMa</artifactId>
+				<version>1.2</version>
+			</dependency>
+			<dependency>
+				<groupId>com.googlecode.matrix-toolkits-java</groupId>
+				<artifactId>mtj</artifactId>
+				<version>0.9.14</version>
 			</dependency>
 			
 			<!-- World Wind   ###############################################-->

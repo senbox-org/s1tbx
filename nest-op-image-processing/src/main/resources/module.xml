@@ -1,0 +1,160 @@
+<module>
+    <manifestVersion>1.0.0</manifestVersion>
+    <symbolicName>nest-op-image-processing</symbolicName>
+    <version>5.0</version>
+    <name>NEST Image Processing Tools</name>
+
+    <description>Tools for Image Processing</description>
+
+    <vendor>Array Systems Computing Inc</vendor>
+    <contactAddress>1120 Finch Ave W. Toronto (Canada)</contactAddress>
+    <copyright>(C) 2013 by Array Systems Computing Inc</copyright>
+    <url>http://www.array.ca/nest</url>
+    <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
+	<funding>European Space Agency</funding>
+
+    <dependency>
+        <module>beam-core</module>
+    </dependency>
+    <dependency>
+        <module>nest-core</module>
+    </dependency>
+		
+    <categories>Processor</categories>
+
+    <extension point="beam-ui:actions">
+
+        <action>
+            <id>MorphologyOp</id>
+            <helpId>MorphologyOp</helpId>
+            <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <icon>esaIcon</icon>
+            <parent>Image Processing</parent>
+            <text>Morphology Operators</text>
+            <operatorName>MorphologyOperator</operatorName>
+            <dialogTitle>Morphology Operators</dialogTitle>
+            <shortDescr>Invoke a Morphology Operator on a single product</shortDescr>
+            <targetProductNameSuffix>_Mrh</targetProductNameSuffix>
+            <placeAfter>modeFilterOp</placeAfter>
+        </action>
+
+        <action>
+            <id>BasicThresholdingOp</id>
+            <helpId>BasicThresholdingOp</helpId>
+            <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <icon>esaIcon</icon>
+            <parent>Image Processing</parent>
+            <text>Basic Thresholding Methods</text>
+            <operatorName>BasicThresholding</operatorName>
+            <dialogTitle>Basic Thresholding Methods</dialogTitle>
+            <shortDescr>Invoke Basic Thresholding Methods on a single product</shortDescr>
+            <targetProductNameSuffix>_Met</targetProductNameSuffix>
+        </action>
+        <action>
+            <id>OtsuThresholdingOp</id>
+            <helpId>OtsuThresholdingOp</helpId>
+            <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <icon>esaIcon</icon>
+            <parent>Image Processing</parent>
+            <text>Otsu Thresholding</text>
+            <operatorName>OtsuThresholding</operatorName>
+            <dialogTitle>Otsu Thresholding</dialogTitle>
+            <shortDescr>Invoke Otsu Thresholding on a single product</shortDescr>
+            <targetProductNameSuffix>_Ot</targetProductNameSuffix>
+            <placeAfter>BasicThresholdingOp</placeAfter>
+        </action>
+        <action>
+            <id>MixtureModelingThresholdingOp</id>
+            <helpId>MixtureModelingThresholdingOp</helpId>
+            <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <icon>esaIcon</icon>
+            <parent>Image Processing</parent>
+            <text>Mixture Modeling Thresholding</text>
+            <operatorName>MixtureModelingThresholding</operatorName>
+            <dialogTitle>Mixture Modeling Thresholding</dialogTitle>
+            <shortDescr>Invoke Mixture Modeling Thresholding on a single product</shortDescr>
+            <targetProductNameSuffix>_Mmt</targetProductNameSuffix>
+            <placeAfter>BasicThresholdingOp</placeAfter>
+        </action>
+
+        <action>
+            <id>HysteresisThresholdingOp</id>
+            <helpId>HysteresisThresholdingOp</helpId>
+            <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <icon>esaIcon</icon>
+            <parent>Image Processing</parent>
+            <text>Hysteresis Thresholding</text>
+            <operatorName>HysteresisThresholding</operatorName>
+            <dialogTitle>Hysteresis Thresholding</dialogTitle>
+            <shortDescr>Invoke Hysteresis Thresholding on a single product</shortDescr>
+            <targetProductNameSuffix>_Hys</targetProductNameSuffix>
+            <placeAfter>BasicThresholdingOp</placeAfter>
+        </action>
+        <action>
+            <id>MaximumEntropyThresholdingOp</id>
+            <helpId>MaximumEntropyThresholdingOp</helpId>
+            <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <icon>esaIcon</icon>
+            <parent>Image Processing</parent>
+            <text>Maximum Entropy Thresholding</text>
+            <operatorName>MaximumEntropyThresholding</operatorName>
+            <dialogTitle>Maximum Entropy Thresholding</dialogTitle>
+            <shortDescr>Invoke MaximumEntropy Thresholding on a single product</shortDescr>
+            <targetProductNameSuffix>_Met</targetProductNameSuffix>
+            <placeAfter>BasicThresholdingOp</placeAfter>
+        </action>
+
+        <!--action>
+            <id>ActiveContourOp</id>
+            <helpId>ActiveContourOp</helpId>
+            <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <icon>esaIcon</icon>
+            <parent>Image Processing</parent>
+            <text>Active Contour</text>
+            <operatorName>ActiveContour</operatorName>
+            <dialogTitle>Active Contour</dialogTitle>
+            <shortDescr>Invoke Active Contour on a single product</shortDescr>
+            <targetProductNameSuffix>_Hys</targetProductNameSuffix>
+        </action>
+
+        <action>
+            <id>SIFTKeypointOp</id>
+            <helpId>SIFTKeypointOp</helpId>
+            <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <icon>esaIcon</icon>
+            <parent>Image Processing</parent>
+            <text>SIFT Keypoints Detector</text>
+            <operatorName>SIFTKeypoint</operatorName>
+            <dialogTitle>SIFT Keypoints Detector</dialogTitle>
+            <shortDescr>Invoke SIFT Keypoints Detector on a single product</shortDescr>
+            <targetProductNameSuffix>_Sft</targetProductNameSuffix>
+        </action>
+        <action>
+            <id>ASIFTKeypointOp</id>
+            <helpId>ASIFTKeypointOp</helpId>
+            <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <icon>esaIcon</icon>
+            <parent>Image Processing</parent>
+            <text>ASIFT Keypoints Detector</text>
+            <operatorName>SIFTKeypoint</operatorName>
+            <dialogTitle>ASIFT Keypoints Detector</dialogTitle>
+            <shortDescr>Invoke ASIFT Keypoints Detector on a single product</shortDescr>
+            <targetProductNameSuffix>_ASft</targetProductNameSuffix>
+        </action>
+
+        <action>
+            <id>MSEROp</id>
+            <helpId>MSEROp</helpId>
+            <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <icon>esaIcon</icon>
+            <parent>Image Processing</parent>
+            <text>MSER Detector</text>
+            <operatorName>MSER</operatorName>
+            <dialogTitle>MSER Detector</dialogTitle>
+            <shortDescr>Invoke MSER Detector on a single product</shortDescr>
+            <targetProductNameSuffix>_Ded</targetProductNameSuffix>
+        </action-->
+
+    </extension>
+
+</module>
