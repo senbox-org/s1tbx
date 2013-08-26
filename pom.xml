@@ -10,18 +10,18 @@
 	           TODO: Move the sourceEncoding property to the build tag if version 3.0 is released
 	           -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-	<skipTests>false</skipTests>
-	<ceresContext>nest</ceresContext>
-	
-	<beam.version>5.0-4.10.4</beam.version>
-	<ceres.version>5.0-0.14</ceres.version>
-	<geotools.version>9.0-M0</geotools.version>
-	<jide.version>3.5.3</jide.version>
-	<hdf.version>2.7</hdf.version>
-	<netcdf.version>4.2.20</netcdf.version>
-	<nest.version>5.0</nest.version>
-	<jlinda.version>0.6-SNAPSHOT</jlinda.version>
-	<outputdir>../output</outputdir>
+		<skipTests>true</skipTests>
+		<ceresContext>nest</ceresContext>
+		
+		<beam.version>5.0-4.10.4</beam.version>
+		<ceres.version>5.0-0.14</ceres.version>
+		<geotools.version>9.0-M0</geotools.version>
+		<jide.version>3.5.3</jide.version>
+		<hdf.version>2.7</hdf.version>
+		<netcdf.version>4.2.20</netcdf.version>
+		<nest.version>5.0</nest.version>
+		<jlinda.version>0.6-SNAPSHOT</jlinda.version>
+		<outputdir>../output</outputdir>
     </properties>
 	
     <name>NEST Project</name>
