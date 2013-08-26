@@ -182,6 +182,71 @@
             <groupId>org</groupId>
             <artifactId>jblas</artifactId>
         </dependency>
+
+		<dependency>
+			<groupId>org.geonames</groupId>
+			<artifactId>geonames</artifactId>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.jaitools</groupId>
+            <artifactId>jt-all</artifactId>
+        </dependency>
+        <dependency>
+			<groupId>net.imagej</groupId>
+			<artifactId>ij</artifactId>
+		</dependency>
+
+        <dependency>
+            <groupId>de.lmu.ifi.dbs.jfeaturelib</groupId>
+            <artifactId>JFeatureLib</artifactId>
+        </dependency>
+		
+		<dependency>
+            <groupId>org.openimaj</groupId>
+            <artifactId>core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openimaj</groupId>
+            <artifactId>core-feature</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openimaj</groupId>
+            <artifactId>core-image</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openimaj</groupId>
+            <artifactId>image-processing</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openimaj</groupId>
+            <artifactId>image-feature-extraction</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openimaj</groupId>
+            <artifactId>nearest-neighbour</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openimaj</groupId>
+            <artifactId>clustering</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openimaj</groupId>
+            <artifactId>core-math</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openimaj</groupId>
+            <artifactId>image-local-features</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>net.sf.jafama</groupId>
+            <artifactId>JaFaMa</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.googlecode.matrix-toolkits-java</groupId>
+            <artifactId>mtj</artifactId>
+        </dependency>
+		
 		<dependency>
             <groupId>net.sf.sevenzipjbinding</groupId>
             <artifactId>sevenzipjbinding</artifactId>

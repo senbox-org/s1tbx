@@ -361,7 +361,8 @@ public class DatApp extends VisatApp {
         boolean incImageProcessing = false;
         boolean incWizards = false;
         final CommandManager cmdMan = getCommandManager();
-        for (int i = 0; i < cmdMan.getNumCommands(); i++) {
+        final int numCmnds = cmdMan.getNumCommands();
+        for (int i = 0; i < numCmnds; i++) {
             final String parent = cmdMan.getCommandAt(i).getParent();
             if(parent == null)
                 continue;
