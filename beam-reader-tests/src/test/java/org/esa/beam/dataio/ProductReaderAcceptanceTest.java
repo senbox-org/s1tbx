@@ -35,6 +35,7 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductNodeGroup;
 import org.esa.beam.framework.datamodel.SampleCoding;
 import org.esa.beam.util.StopWatch;
+import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.logging.BeamLogManager;
 import org.junit.Assert;
@@ -57,6 +58,8 @@ import java.util.logging.ConsoleHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.logging.StreamHandler;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static org.junit.Assert.*;
 
@@ -90,7 +93,7 @@ public class ProductReaderAcceptanceTest {
     public void testPluginDecodeQualifications() throws ClassNotFoundException, IllegalAccessException, InstantiationException {
         logInfoWithStars("Testing DecodeQualification");
         final StopWatch stopWatch = new StopWatch();
-        for (TestProductReader testReader : productReaderList) {
+        for (TestDefinition testReader : productReaderList) {
             final ProductReaderPlugIn productReaderPlugin = testReader.getProductReaderPlugin();
             logger.info(INDENT + productReaderPlugin.getClass().getSimpleName());
 
@@ -117,7 +120,7 @@ public class ProductReaderAcceptanceTest {
     public void testReadIntendedProductContent() throws IOException {
         logInfoWithStars("Testing IntendedProductContent");
         final StopWatch stopWatch = new StopWatch();
-        for (TestProductReader testReader : productReaderList) {
+        for (TestDefinition testReader : productReaderList) {
             final ArrayList<String> intendedProductIds = testReader.getIntendedProductIds();
             logger.info(INDENT + testReader.getProductReaderPlugin().getClass().getSimpleName());
             for (String productId : intendedProductIds) {
@@ -191,17 +194,61 @@ public class ProductReaderAcceptanceTest {
             String path = expectedMetadata.getPath();
             final String[] pathTokens = path.split("/");
             final String[] elementNames = Arrays.copyOf(pathTokens, pathTokens.length - 1);
+            final String msgPrefix = "Metadata '" + path + "' path not valid.";
+            MetadataElement currentElement = getMetadataElement(msgPrefix, elementNames, product.getMetadataRoot());
             final String attributeName = pathTokens[pathTokens.length - 1];
-            MetadataElement currentElement = product.getMetadataRoot();
-            for (String elementName : elementNames) {
-                currentElement = currentElement.getElement(elementName);
-                assertNotNull("Metadata path '" + path + "' not valid. Element '" + elementName + "' not found", currentElement);
-            }
-            final MetadataAttribute attribute = currentElement.getAttribute(attributeName);
+            final MetadataAttribute attribute = getMetadataAttribute(msgPrefix, currentElement, attributeName);
             assertNotNull("Metadata path '" + path + "' not valid. Attribute '" + attributeName + "' not found", attribute);
             assertEquals("Metadata '" + path + "' value", expectedMetadata.getValue(), attribute.getData().getElemString());
 
         }
+    }
+
+    private static MetadataAttribute getMetadataAttribute(String msgPrefix, MetadataElement currentElement, String attributeName) {
+        final Pattern pattern = Pattern.compile("(.*)\\[(\\d++)\\]");
+        final Matcher matcher = pattern.matcher(attributeName);
+        if(matcher.matches()) {
+            String attributeBaseName = matcher.group(1);
+            int attribIndex = Integer.parseInt(matcher.group(2)); // following XPath, the index is one based
+            assertTrue(msgPrefix + " Index must be >= 1", attribIndex >= 1);
+            final MetadataAttribute[] attributes = currentElement.getAttributes();
+            for (MetadataAttribute attrib : attributes) {
+                if (attrib.getName().equals(attributeBaseName)) {
+                    attribIndex--;
+                    if(attribIndex == 0) {
+                        return attrib;
+                    }
+                }
+            }
+        }
+        return currentElement.getAttribute(attributeName);
+    }
+
+    private static MetadataElement getMetadataElement(String msgPrefix, String[] pathElementNames, MetadataElement rootElement) {
+        MetadataElement element = rootElement;
+        final Pattern pattern = Pattern.compile("(.*)\\[(\\d++)\\]");
+        for (String elementName : pathElementNames) {
+            final Matcher matcher = pattern.matcher(elementName);
+            if(matcher.matches()) {
+                elementName = matcher.group(1);
+                int elemIndex = Integer.parseInt(matcher.group(2)); // following XPath, the index is one based
+                assertTrue(msgPrefix + " Index must be >= 1", elemIndex >= 1);
+                final MetadataElement[] elements = element.getElements();
+                for (MetadataElement elem : elements) {
+                    if (elem.getName().equals(elementName)) {
+                        elemIndex--;
+                        if(elemIndex == 0) {
+                            element = elem;
+                            break;
+                        }
+                    }
+                }
+            }else {
+                element = element.getElement(elementName);
+            }
+            assertNotNull(msgPrefix + " Element '" + elementName + "' not found", element);
+        }
+        return element;
     }
 
     private static void testExpectedMasks(ExpectedContent expectedContent, Product product) {
@@ -220,7 +267,10 @@ public class ProductReaderAcceptanceTest {
     private static void assertEqualMasks(String msgPrefix, ExpectedMask expectedMask, Mask actualMask) {
         assertEquals(msgPrefix + " Type", expectedMask.getType(), actualMask.getImageType().getClass());
         assertEquals(expectedMask.getColor(), actualMask.getImageColor());
-        assertEquals(expectedMask.getDescription(), actualMask.getDescription());
+        final String expectedMaskDescription = expectedMask.getDescription();
+        if (StringUtils.isNotNullAndNotEmpty(expectedMaskDescription)) {
+            assertEquals(expectedMaskDescription, actualMask.getDescription());
+        }
     }
 
     private static void testExpectedFlagCoding(ExpectedContent expectedContent, Product product) {
@@ -255,9 +305,13 @@ public class ProductReaderAcceptanceTest {
             final MetadataAttribute actualSample = actualSampleCoding.getAttribute(expectedSampleName);
             assertNotNull(msgPrefix + " sample '" + expectedSampleName + "' does not exist", actualSample);
             assertEquals(msgPrefix + " sample '" + expectedSampleName + "' Value",
-                         expectedSample.getValue(), actualSample.getData().getElemUInt());
-            assertEquals(msgPrefix + " sample '" + expectedSampleName + "' Description",
-                         expectedSample.getDescription(), actualSample.getDescription());
+                    expectedSample.getValue(), actualSample.getData().getElemUInt());
+
+            final String expectedSampleDescription = expectedSample.getDescription();
+            if (StringUtils.isNotNullAndNotEmpty(expectedSampleDescription)) {
+                assertEquals(msgPrefix + " sample '" + expectedSampleName + "' Description",
+                        expectedSampleDescription, actualSample.getDescription());
+            }
         }
     }
 
@@ -351,7 +405,7 @@ public class ProductReaderAcceptanceTest {
         }
     }
 
-    private static DecodeQualification getExpectedDecodeQualification(TestProductReader testReader, TestProduct testProduct) {
+    private static DecodeQualification getExpectedDecodeQualification(TestDefinition testReader, TestProduct testProduct) {
         final ArrayList<String> intendedProductNames = testReader.getIntendedProductIds();
         if (intendedProductNames.contains(testProduct.getId())) {
             return DecodeQualification.INTENDED;
@@ -469,9 +523,9 @@ public class ProductReaderAcceptanceTest {
                 fail("Unable to load reader test config file: " + resourceFilename);
             }
 
-            final TestProductReader testProductReader = mapper.readValue(testConfigUrl, TestProductReader.class);
-            testProductReader.setProductReaderPlugin(readerPlugIn);
-            productReaderList.add(testProductReader);
+            final TestDefinition testDefinition = mapper.readValue(testConfigUrl, TestDefinition.class);
+            testDefinition.setProductReaderPlugin(readerPlugIn);
+            productReaderList.add(testDefinition);
         }
     }
 

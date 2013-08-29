@@ -4,28 +4,28 @@ package org.esa.beam.dataio;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-class ProductReaderList implements Iterable<TestProductReader>{
+class ProductReaderList implements Iterable<TestDefinition>{
 
-    private ArrayList<TestProductReader> testReaders;
+    private ArrayList<TestDefinition> testReaders;
 
     ProductReaderList() {
-        testReaders = new ArrayList<TestProductReader>();
+        testReaders = new ArrayList<TestDefinition>();
     }
 
-    ArrayList<TestProductReader> getTestReaders() {
+    ArrayList<TestDefinition> getTestReaders() {
         return testReaders;
     }
 
-    void add(TestProductReader testProductReader) {
-        testReaders.add(testProductReader);
+    void add(TestDefinition testDefinition) {
+        testReaders.add(testDefinition);
     }
 
-    void setTestReaders(ArrayList<TestProductReader> testReaders) {
+    void setTestReaders(ArrayList<TestDefinition> testReaders) {
         this.testReaders = testReaders;
     }
 
     @Override
-    public Iterator<TestProductReader> iterator() {
+    public Iterator<TestDefinition> iterator() {
         return testReaders.iterator();
     }
 }

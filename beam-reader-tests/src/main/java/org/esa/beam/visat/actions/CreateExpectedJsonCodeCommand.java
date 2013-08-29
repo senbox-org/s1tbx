@@ -4,7 +4,9 @@ import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.PrettyPrinter;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
@@ -55,7 +57,7 @@ public class CreateExpectedJsonCodeCommand extends ExecCommand {
             protected Void doInBackground(ProgressMonitor pm) throws Exception {
                 pm.beginTask("Collecting data...", ProgressMonitor.UNKNOWN);
                 try {
-                    fillClipboardWithJsonCode(product);
+                    fillClipboardWithJsonCode(product, new Random(123546));
                 } finally {
                     pm.done();
                 }
@@ -66,8 +68,8 @@ public class CreateExpectedJsonCodeCommand extends ExecCommand {
 
     }
 
-    void fillClipboardWithJsonCode(Product product) throws IOException {
-        final String jsonCode = createJsonCode(product);
+    void fillClipboardWithJsonCode(Product product, Random random) throws IOException {
+        final String jsonCode = createJsonCode(product, random);
         if (clipboard != null) {
             StringSelection clipboardContent = new StringSelection(jsonCode);
             clipboard.setContents(clipboardContent, clipboardContent);
@@ -78,8 +80,8 @@ public class CreateExpectedJsonCodeCommand extends ExecCommand {
         }
     }
 
-    String createJsonCode(Product product) throws IOException {
-        final ExpectedContent expectedContent = new ExpectedContent(product, new Random(123546));
+    String createJsonCode(Product product, Random random) throws IOException {
+        final ExpectedContent expectedContent = new ExpectedContent(product, random);
 
         ObjectWriter writer = getConfiguredJsonWriter();
         final StringWriter stringWriter = new StringWriter();
@@ -96,7 +98,7 @@ public class CreateExpectedJsonCodeCommand extends ExecCommand {
         final VisibilityChecker<?> visibilityChecker = defaultVisibilityChecker.withIsGetterVisibility(JsonAutoDetect.Visibility.NONE);
         mapper.setVisibilityChecker(visibilityChecker);
         final ObjectWriter writer = mapper.writer();
-        final DefaultPrettyPrinter prettyPrinter = new DefaultPrettyPrinter();
+        final MyDefaultPrettyPrinter prettyPrinter = new MyDefaultPrettyPrinter();
         final IdeaLikeIndenter indenter = new IdeaLikeIndenter();
         prettyPrinter.indentArraysWith(indenter);
         prettyPrinter.indentObjectsWith(indenter);
@@ -120,5 +122,60 @@ public class CreateExpectedJsonCodeCommand extends ExecCommand {
             }
 
         }
+    }
+
+    private static class MyDefaultPrettyPrinter implements PrettyPrinter {
+
+        private final DefaultPrettyPrinter defaultPrettyPrinter = new DefaultPrettyPrinter();
+
+        public void indentArraysWith(DefaultPrettyPrinter.Indenter i) {
+            defaultPrettyPrinter.indentArraysWith(i);
+        }
+
+        public void indentObjectsWith(DefaultPrettyPrinter.Indenter i) {
+            defaultPrettyPrinter.indentObjectsWith(i);
+        }
+
+        public void writeRootValueSeparator(JsonGenerator jg) throws IOException, JsonGenerationException {
+            defaultPrettyPrinter.writeRootValueSeparator(jg);
+        }
+
+        public void writeStartObject(JsonGenerator jg) throws IOException, JsonGenerationException {
+            defaultPrettyPrinter.writeStartObject(jg);
+        }
+
+        public void beforeObjectEntries(JsonGenerator jg) throws IOException, JsonGenerationException {
+            defaultPrettyPrinter.beforeObjectEntries(jg);
+        }
+
+        public void writeObjectFieldValueSeparator(JsonGenerator jg) throws IOException, JsonGenerationException {
+            jg.writeRaw(": ");
+//            defaultPrettyPrinter.writeObjectFieldValueSeparator(jg);
+        }
+
+        public void writeObjectEntrySeparator(JsonGenerator jg) throws IOException, JsonGenerationException {
+            defaultPrettyPrinter.writeObjectEntrySeparator(jg);
+        }
+
+        public void writeEndObject(JsonGenerator jg, int nrOfEntries) throws IOException, JsonGenerationException {
+            defaultPrettyPrinter.writeEndObject(jg, nrOfEntries);
+        }
+
+        public void writeStartArray(JsonGenerator jg) throws IOException, JsonGenerationException {
+            defaultPrettyPrinter.writeStartArray(jg);
+        }
+
+        public void beforeArrayValues(JsonGenerator jg) throws IOException, JsonGenerationException {
+            defaultPrettyPrinter.beforeArrayValues(jg);
+        }
+
+        public void writeArrayValueSeparator(JsonGenerator jg) throws IOException, JsonGenerationException {
+            defaultPrettyPrinter.writeArrayValueSeparator(jg);
+        }
+
+        public void writeEndArray(JsonGenerator jg, int nrOfValues) throws IOException, JsonGenerationException {
+            defaultPrettyPrinter.writeEndArray(jg, nrOfValues);
+        }
+
     }
 }

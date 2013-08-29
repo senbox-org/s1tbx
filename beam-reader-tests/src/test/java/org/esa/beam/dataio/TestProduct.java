@@ -1,23 +1,21 @@
 package org.esa.beam.dataio;
 
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 class TestProduct {
 
+    @JsonProperty(required = true)
     private String id;
+    @JsonProperty(required = true)
     private String relativePath;
+    @JsonProperty()
     private String description;
-    private transient boolean exists = true;
 
-    void setId(String name) {
-        this.id = name;
-    }
+    private transient boolean exists = true;
 
     String getId() {
         return id;
-    }
-
-    void setRelativePath(String relativePath) {
-        this.relativePath = relativePath;
     }
 
     String getRelativePath() {
@@ -26,10 +24,6 @@ class TestProduct {
 
     String getDescription() {
         return description;
-    }
-
-    void setDescription(String description) {
-        this.description = description;
     }
 
     void exists(boolean exists) {

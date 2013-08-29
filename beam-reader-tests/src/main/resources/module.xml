@@ -20,17 +20,11 @@
         <action>
             <id>createExpectedJsonCode</id>
             <class>org.esa.beam.visat.actions.CreateExpectedJsonCodeCommand</class>
-            <text>Copy Expected Json Code to Clipboard</text>
-            <shortDescr>Copies expected Json code to the clipboard</shortDescr>
-            <description>Copies expected Json code to the clipboard.</description>
-            <!--<smallIcon>icons/NewVectorDataNode16.gif</smallIcon>-->
-            <!--<largeIcon>icons/NewVectorDataNode24.gif</largeIcon>-->
-            <!--<helpId>createVectorDataNode</helpId>-->
+            <text>Copy Expected JSON Code to Clipboard</text>
+            <shortDescr>Copies expected JSON code to the clipboard</shortDescr>
+            <description>Copies expected JSON code to the clipboard.</description>
+            <parent>exportOther</parent>
             <context>product</context>
-            <!--<parent>tools</parent>-->
-            <!--<placeAfter>createFilteredBand</placeAfter>-->
-            <!--<placeBefore>attachPixelGeoCoding</placeBefore>-->
-            <!--<separatorAfter>true</separatorAfter>-->
         </action>
     </extension>
 

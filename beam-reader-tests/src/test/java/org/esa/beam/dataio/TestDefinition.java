@@ -1,17 +1,22 @@
 package org.esa.beam.dataio;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 
 import java.util.ArrayList;
 
-class TestProductReader {
+class TestDefinition {
 
+    @JsonProperty
     private ArrayList<String> intendedProductIds;
+    @JsonProperty
     private ArrayList<String> suitableProductIds;
-    private ProductReaderPlugIn productReaderPlugin;
+    @JsonProperty
     private ArrayList<ExpectedContent> expectedContentList;
 
-    TestProductReader() {
+    private transient ProductReaderPlugIn productReaderPlugin;
+
+    TestDefinition() {
         intendedProductIds = new ArrayList<String>();
         suitableProductIds = new ArrayList<String>();
         expectedContentList = new ArrayList<ExpectedContent>();
@@ -21,28 +26,8 @@ class TestProductReader {
         return intendedProductIds;
     }
 
-    void setIntendedProductIds(ArrayList<String> intendedProductIds) {
-        this.intendedProductIds = intendedProductIds;
-    }
-
     ArrayList<String> getSuitableProductIds() {
         return suitableProductIds;
-    }
-
-    void setSuitableProductIds(ArrayList<String> suitableProductIds) {
-        this.suitableProductIds = suitableProductIds;
-    }
-
-    public ProductReaderPlugIn getProductReaderPlugin() {
-        return productReaderPlugin;
-    }
-
-    void setProductReaderPlugin(ProductReaderPlugIn productReaderPlugin) {
-        this.productReaderPlugin = productReaderPlugin;
-    }
-
-    ArrayList<ExpectedContent> getExpectedContentList() {
-        return expectedContentList;
     }
 
     ExpectedContent getExpectedContent(String productId) {
@@ -55,7 +40,12 @@ class TestProductReader {
         return null;
     }
 
-    void setExpectedContentList(ArrayList<ExpectedContent> expectedContentList) {
-        this.expectedContentList = expectedContentList;
+    ProductReaderPlugIn getProductReaderPlugin() {
+        return productReaderPlugin;
     }
+
+    void setProductReaderPlugin(ProductReaderPlugIn productReaderPlugin) {
+        this.productReaderPlugin = productReaderPlugin;
+    }
+
 }

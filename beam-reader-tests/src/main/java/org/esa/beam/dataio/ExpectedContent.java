@@ -13,6 +13,7 @@ import org.esa.beam.framework.datamodel.SampleCoding;
 
 import java.util.Random;
 
+// Must be with public access for json-framework usage tb 2013-08-19
 public class ExpectedContent {
 
     @JsonProperty(required = true)
@@ -38,7 +39,9 @@ public class ExpectedContent {
     @JsonProperty
     private ExpectedMetadata[] metadata;
 
-    ExpectedContent() {
+
+
+    public ExpectedContent() {
         metadata = new ExpectedMetadata[0];
         flagCodings = new ExpectedSampleCoding[0];
         indexCodings = new ExpectedSampleCoding[0];
@@ -59,20 +62,19 @@ public class ExpectedContent {
         if (startTime != null) {
             this.startTime = startTime.format();
         }
-        this.metadata = createExpectedMetadata(product);
         this.geoCoding = createExpectedGeoCoding(product, random);
         this.flagCodings = createExpectedSampleCodings(product.getFlagCodingGroup());
         this.indexCodings = createExpectedSampleCodings(product.getIndexCodingGroup());
         this.bands = createExpectedBands(product, random);
         this.masks = createExpectedMasks(product);
+        this.metadata = createExpectedMetadata(product, random);
     }
 
-    private ExpectedMetadata[] createExpectedMetadata(Product product) {
+    private ExpectedMetadata[] createExpectedMetadata(Product product, Random random) {
         final MetadataElement metadataRoot = product.getMetadataRoot();
         if (metadataRoot.getNumElements() > 0 ||
             metadataRoot.getNumAttributes() > 0) {
             final ExpectedMetadata[] expectedMetadata = new ExpectedMetadata[2];
-            final Random random = new Random();
             for (int i = 0; i < expectedMetadata.length; i++) {
                 MetadataElement currentElem = metadataRoot;
                 while (currentElem != null && currentElem.getNumElements() > 0) {

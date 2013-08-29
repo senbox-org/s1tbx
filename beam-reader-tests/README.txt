@@ -25,8 +25,8 @@ Creating a reader test
 
 2 files must be provided in the resource directory of the reader module. They must be placed in the same package
 as the implemented plugin. The files must be named as follows
-    <PLUGIN_NAME>-data.json
-    <PLUGIN_NAME>-test.json
+    <READER_PLUGIN_NAME>-data.json
+    <READER_PLUGIN_NAME>-test.json
 Example for Landsat:
 Plugin is org.esa.beam.dataio.landsat.geotiff.LandsatGeotiffReaderPlugin.
 
