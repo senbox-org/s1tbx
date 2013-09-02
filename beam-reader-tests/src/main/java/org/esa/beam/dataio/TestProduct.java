@@ -18,6 +18,10 @@ class TestProduct {
         return id;
     }
 
+    void setId(String id) {
+        this.id = id;
+    }
+
     String getRelativePath() {
         return relativePath;
     }
@@ -32,5 +36,13 @@ class TestProduct {
 
     boolean exists() {
         return exists;
+    }
+
+    boolean isDifferent(TestProduct other) {
+        if (!(id.equals(other.getId()) &&
+                relativePath.equals(other.getRelativePath()))) {
+            return true;
+        }
+        return false;
     }
 }

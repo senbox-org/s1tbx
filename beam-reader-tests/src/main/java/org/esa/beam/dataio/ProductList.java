@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 class ProductList implements Iterable<TestProduct> {
 
@@ -31,5 +32,20 @@ class ProductList implements Iterable<TestProduct> {
     @Override
     public Iterator<TestProduct> iterator() {
         return testProducts.iterator();
+    }
+
+    List<TestProduct> getAll() {
+        return testProducts;
+    }
+
+    public String[] getAllIds() {
+        final String[] ids = new String[testProducts.size()];
+        int index = 0;
+        for (TestProduct product : testProducts) {
+            ids[index] = product.getId();
+            ++index;
+        }
+
+        return ids;
     }
 }

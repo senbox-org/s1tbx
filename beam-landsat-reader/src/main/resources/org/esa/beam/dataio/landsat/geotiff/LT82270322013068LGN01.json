@@ -1,0 +1,279 @@
+{
+    "id": "LT82270322013068LGN01",
+    "decodeQualification": "intended",
+    "expectedContent": {
+        "sceneWidth": 7381,
+        "sceneHeight": 7711,
+        "startTime": "09-MAR-2013 13:39:28.793000",
+        "endTime": "09-MAR-2013 13:39:28.793000",
+        "metadata": [
+            {
+                "path": "L1_METADATA_FILE/METADATA_FILE_INFO/ORIGIN",
+                "value": "Image courtesy of the U.S. Geological Survey"
+            },
+            {
+                "path": "L1_METADATA_FILE/RADIOMETRIC_RESCALING/RADIANCE_ADD_BAND_10",
+                "value": "0.1"
+            }
+        ],
+        "flagCodings": [
+            {
+                "name": "flags",
+                "samples": [
+                    {
+                        "name": "designated_fill",
+                        "value": 1,
+                        "description": "Designated Fill"
+                    },
+                    {
+                        "name": "dropped_frame",
+                        "value": 2,
+                        "description": "Dropped Frame"
+                    },
+                    {
+                        "name": "terrain_occlusion",
+                        "value": 4,
+                        "description": "Terrain Occlusion"
+                    },
+                    {
+                        "name": "reserved_1",
+                        "value": 8,
+                        "description": "Reserved for a future 1-bit class artifact designation"
+                    },
+                    {
+                        "name": "water_confidence_one",
+                        "value": 16,
+                        "description": "Water confidence bit one"
+                    },
+                    {
+                        "name": "water_confidence_two",
+                        "value": 32,
+                        "description": "Water confidence bit two"
+                    },
+                    {
+                        "name": "reserved_2_one",
+                        "value": 64,
+                        "description": "Reserved for a future 2-bit class artifact designation"
+                    },
+                    {
+                        "name": "reserved_2_two",
+                        "value": 128,
+                        "description": "Reserved for a future 2-bit class artifact designation"
+                    },
+                    {
+                        "name": "vegetation_confidence_one",
+                        "value": 256,
+                        "description": "Vegetation confidence bit one"
+                    },
+                    {
+                        "name": "vegetation_confidence_two",
+                        "value": 512,
+                        "description": "Vegetation confidence bit two"
+                    },
+                    {
+                        "name": "snow_ice_confidence_one",
+                        "value": 1024,
+                        "description": "Snow/ice confidence bit one"
+                    },
+                    {
+                        "name": "snow_ice_confidence_two",
+                        "value": 2048,
+                        "description": "Snow/ice confidence bit two"
+                    },
+                    {
+                        "name": "cirrus_confidence_one",
+                        "value": 4096,
+                        "description": "Cirrus confidence bit one"
+                    },
+                    {
+                        "name": "cirrus_confidence_two",
+                        "value": 8192,
+                        "description": "Cirrus confidence bit two"
+                    },
+                    {
+                        "name": "cloud_confidence_one",
+                        "value": 16384,
+                        "description": "Cloud confidence bit one"
+                    },
+                    {
+                        "name": "cloud_confidence_two",
+                        "value": 32768,
+                        "description": "Cloud confidence bit two"
+                    }
+                ]
+            }
+        ],
+        "masks": [
+            {
+                "name": "designated_fill",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,0,0",
+                "description": "Designated Fill"
+            },
+            {
+                "name": "dropped_frame",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,0,0",
+                "description": "Dropped Frame"
+            },
+            {
+                "name": "terrain_occlusion",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,0,0",
+                "description": "Terrain Occlusion"
+            },
+            {
+                "name": "water_confidence_low",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "0,0,255",
+                "description": "Water confidence 0-35%"
+            },
+            {
+                "name": "water_confidence_mid",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "0,0,178",
+                "description": "Water confidence 36-64%"
+            },
+            {
+                "name": "water_confidence_high",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "0,0,124",
+                "description": "Water confidence 65-100%"
+            },
+            {
+                "name": "vegetation_confidence_low",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "0,255,0",
+                "description": "Vegetation confidence 0-35%"
+            },
+            {
+                "name": "vegetation_confidence_mid",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "0,178,0",
+                "description": "Vegetation confidence 36-64%"
+            },
+            {
+                "name": "vegetation_confidence_high",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "0,124,0",
+                "description": "Vegetation confidence 65-100%"
+            },
+            {
+                "name": "snow_ice_confidence_low",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,255,0",
+                "description": "Snow/ice confidence 0-35%"
+            },
+            {
+                "name": "snow_ice_confidence_mid",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "178,178,0",
+                "description": "Snow/ice confidence 36-64%"
+            },
+            {
+                "name": "snow_ice_confidence_high",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "124,124,0",
+                "description": "Snow/ice confidence 65-100%"
+            },
+            {
+                "name": "cirrus_confidence_low",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,0,255",
+                "description": "Cirrus confidence 0-35%"
+            },
+            {
+                "name": "cirrus_confidence_mid",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "178,0,178",
+                "description": "Cirrus confidence 36-64%"
+            },
+            {
+                "name": "cirrus_confidence_high",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "124,0,124",
+                "description": "Cirrus confidence 65-100%"
+            },
+            {
+                "name": "cloud_confidence_low",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,175,175",
+                "description": "Cloud confidence 0-35%"
+            },
+            {
+                "name": "cloud_confidence_mid",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "178,122,122",
+                "description": "Cloud confidence 36-64%"
+            },
+            {
+                "name": "cloud_confidence_high",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "124,85,85",
+                "description": "Cloud confidence 65-100%"
+            }
+        ],
+        "geoCoding": {
+            "coordinates": [
+                {
+                    "x": 5470.9146,
+                    "y": 3706.8333,
+                    "lat": 40.369446,
+                    "lon": -44.051487
+                },
+                {
+                    "x": 78.96875,
+                    "y": 0.98333335,
+                    "lat": 41.37075,
+                    "lon": -45.971325
+                }
+            ]
+        },
+        "bands": [
+            {
+                "name": "thermal_infrared_(tirs)_1",
+                "description": "Thermal Infrared Sensor (TIRS) 1",
+                "geophysicalUnit": "W/(m^2*sr*µm)",
+                "noDataValue": "0.09999579989013337",
+                "spectralWavelength": "10800.0",
+                "spectralBandwidth": "590.0",
+                "expectedPixels": [
+                    {
+                        "x": "2678",
+                        "y": "2012",
+                        "value": "5.149425"
+                    },
+                    {
+                        "x": "191",
+                        "y": "5196",
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "thermal_infrared_(tirs)_2",
+                "description": "TIRS 2",
+                "geophysicalUnit": "W/(m^2*sr*µm)",
+                "noDataValue": "0.09999579989013337",
+                "spectralWavelength": "12000.0",
+                "spectralBandwidth": "1010.0",
+                "expectedPixels": [
+                    {
+                        "x": "5691",
+                        "y": "4953",
+                        "value": "5.2961392"
+                    },
+                    {
+                        "x": "6258",
+                        "y": "895",
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "flags",
+                "description": "Quality Band"
+            }
+        ]
+    }
+}

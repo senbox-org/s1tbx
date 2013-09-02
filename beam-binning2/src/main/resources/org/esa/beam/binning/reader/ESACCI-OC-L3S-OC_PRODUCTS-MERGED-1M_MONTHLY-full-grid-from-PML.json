@@ -1,0 +1,156 @@
+{
+    "id": "ESACCI-OC-L3S-OC_PRODUCTS-MERGED-1M_MONTHLY-full-grid-from-PML",
+    "decodeQualification" : "intended",
+    "expectedContent" : {
+        "sceneWidth": 8640,
+        "sceneHeight": 4320,
+        "startTime": "01-JUN-2003 00:00:00.000000",
+        "endTime": "01-JUN-2003 23:59:00.000000",
+        "geoCoding": {
+            "coordinates": [
+                {
+                    "x": 824.5,
+                    "y": 925.5,
+                    "lon": -145.64583,
+                    "lat": 51.4375
+                },
+                {
+                    "x": 7067.5,
+                    "y": 2520.5,
+                    "lon": 114.479164,
+                    "lat": -15.020833
+                }
+            ]
+        },
+        "bands": [
+            {
+                "name": "longitude",
+                "expectedPixels": [
+                    {
+                        "x": "5297",
+                        "y": "2372",
+                        "value": "40.735622"
+                    },
+                    {
+                        "x": "8043",
+                        "y": "4125",
+                        "value": "155.02463"
+                    }
+                ]
+            },
+            {
+                "name": "latitude",
+                "expectedPixels": [
+                    {
+                        "x": "406",
+                        "y": "3621",
+                        "value": "-60.895832"
+                    },
+                    {
+                        "x": "7762",
+                        "y": "3743",
+                        "value": "-65.979164"
+                    }
+                ]
+            },
+            {
+                "name": "atot_412",
+                "expectedPixels": [
+                    {
+                        "x": "359",
+                        "y": "540",
+                        "value": "-8737.725"
+                    },
+                    {
+                        "x": "435",
+                        "y": "497",
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "atot_443",
+                "expectedPixels": [
+                    {
+                        "x": "4233",
+                        "y": "2100",
+                        "value": "-26213.591796875"
+                    },
+                    {
+                        "x": "4147",
+                        "y": "2012",
+                        "value": "NaN"
+                    },
+                    {
+                        "x": "4896",
+                        "y": "4319",
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "atot_490",
+                "expectedPixels": [
+                    {
+                        "x": "7700",
+                        "y": "790",
+                        "value": "-13106.719"
+                    },
+                    {
+                        "x": "5372",
+                        "y": "1962",
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "atot_510"
+            },
+            {
+                "name": "atot_555"
+            },
+            {
+                "name": "atot_670"
+            },
+            {
+                "name": "adg_412"
+            },
+            {
+                "name": "adg_443"
+            },
+            {
+                "name": "adg_490"
+            },
+            {
+                "name": "adg_510"
+            },
+            {
+                "name": "adg_555"
+            },
+            {
+                "name": "adg_670"
+            },
+            {
+                "name": "aph_412"
+            },
+            {
+                "name": "aph_443"
+            },
+            {
+                "name": "aph_490"
+            },
+            {
+                "name": "aph_510"
+            },
+            {
+                "name": "aph_555"
+            },
+            {
+                "name": "aph_670"
+            },
+            {
+                "name": "chlor_a"
+            }
+        ]
+    }
+}

@@ -1,0 +1,153 @@
+{
+    "id": "L71191027_02720070313",
+    "decodeQualification": "intended",
+    "expectedContent": {
+        "sceneWidth": 16801,
+        "sceneHeight": 15041,
+        "startTime": "13-MAR-2007 09:42:18.669000",
+        "endTime": "13-MAR-2007 09:42:18.669000",
+        "geoCoding": {
+            "coordinates": [
+                {
+                    "x": 16404.5,
+                    "y": 15196.5,
+                    "lat": 46.41355,
+                    "lon": 15.724335
+                },
+                {
+                    "x": 9162.85,
+                    "y": 7125.3667,
+                    "lat": 47.50315,
+                    "lon": 14.296798
+                }
+            ]
+        },
+        "bands": [
+            {
+                "name": "radiance_1",
+                "expectedPixels": [
+                    {
+                        "x": "3875",
+                        "y": "839",
+                        "value": "NaN"
+                    },
+                    {
+                        "x": "6988",
+                        "y": "8008",
+                        "value": "151.88425"
+                    }
+                ]
+            },
+            {
+                "name": "radiance_2",
+                "expectedPixels": [
+                    {
+                        "x": "6134",
+                        "y": "4807",
+                        "value": "35.138584"
+                    }
+                ]
+            }  ,
+            {
+                "name": "radiance_3",
+                "expectedPixels": [
+                    {
+                        "x": "6632",
+                        "y": "7257",
+                        "value": "112.49252"
+                    }
+                ]
+            },
+            {
+                "name": "radiance_4",
+                "expectedPixels": [
+                    {
+                        "x": "12019",
+                        "y": "11295",
+                        "value": "37.76417"
+                    },
+                    {
+                        "x": "12634",
+                        "y": "11328",
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "radiance_5",
+                "expectedPixels": [
+                    {
+                        "x": "12586",
+                        "y": "4296",
+                        "value": "4.806142"
+                    },
+                    {
+                        "x": "13442",
+                        "y": "4660",
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "radiance_61",
+                "expectedPixels": [
+                    {
+                        "x": "9898",
+                        "y": "10669",
+                        "value": "7.1782675"
+                    },
+                    {
+                        "x": "10331",
+                        "y": "10195",
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "radiance_62",
+                "expectedPixels": [
+                    {
+                        "x": "1042",
+                        "y": "11804",
+                        "value": "7.5901575"
+                    },
+                    {
+                        "x": "396",
+                        "y": "12122",
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "radiance_7",
+                "expectedPixels": [
+                    {
+                        "x": "7045",
+                        "y": "5261",
+                        "value": "2.1082678"
+                    },
+                    {
+                        "x": "7132",
+                        "y": "5364",
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "radiance_8",
+                "expectedPixels": [
+                    {
+                        "x": "10679",
+                        "y": "3717",
+                        "value": "45.05512"
+                    },
+                    {
+                        "x": "10847",
+                        "y": "3596",
+                        "value": "NaN"
+                    }
+                ]
+            }
+        ]
+    }
+}

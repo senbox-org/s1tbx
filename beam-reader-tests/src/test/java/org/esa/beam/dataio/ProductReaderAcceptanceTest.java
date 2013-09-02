@@ -22,18 +22,7 @@ import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.FlagCoding;
-import org.esa.beam.framework.datamodel.GeoCoding;
-import org.esa.beam.framework.datamodel.GeoPos;
-import org.esa.beam.framework.datamodel.IndexCoding;
-import org.esa.beam.framework.datamodel.Mask;
-import org.esa.beam.framework.datamodel.MetadataAttribute;
-import org.esa.beam.framework.datamodel.MetadataElement;
-import org.esa.beam.framework.datamodel.PixelPos;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductNodeGroup;
-import org.esa.beam.framework.datamodel.SampleCoding;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.util.StopWatch;
 import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.SystemUtils;
@@ -48,12 +37,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
-import java.util.Locale;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -72,36 +56,37 @@ public class ProductReaderAcceptanceTest {
     private static final boolean FAIL_ON_MISSING_DATA = Boolean.parseBoolean(System.getProperty(PROPERTYNAME_FAIL_ON_MISSING_DATA, "true"));
     private static final String INDENT = "\t";
     private static final ProductList testProductList = new ProductList();
-    private static ProductReaderList productReaderList;
+    private static TestDefinitionList testDefinitionList;
     private static File dataRootDir;
     private static Logger logger;
 
     @BeforeClass
     public static void initialize() throws Exception {
         initLogger();
-        if (!FAIL_ON_MISSING_DATA) {
-            logger.warning("Tests will not fail if test data is missing!");
-        }
-        readTestDataDirProperty();
 
-        readProductDataList();
+        logFailOnMissingDataMessage();
 
-        readProductReaderTestDefinitions();
+        assertTestDataDirectory();
+        loadProductReaderTestDefinitions();
+
+        createGlobalProductList();
     }
 
     @Test
     public void testPluginDecodeQualifications() throws ClassNotFoundException, IllegalAccessException, InstantiationException {
         logInfoWithStars("Testing DecodeQualification");
+
         final StopWatch stopWatch = new StopWatch();
-        for (TestDefinition testReader : productReaderList) {
-            final ProductReaderPlugIn productReaderPlugin = testReader.getProductReaderPlugin();
+
+        for (TestDefinition testDefinition : testDefinitionList) {
+            final ProductReaderPlugIn productReaderPlugin = testDefinition.getProductReaderPlugin();
             logger.info(INDENT + productReaderPlugin.getClass().getSimpleName());
 
             for (TestProduct testProduct : testProductList) {
                 if (testProduct.exists()) {
                     final File productFile = getTestProductFile(testProduct);
 
-                    final DecodeQualification expected = getExpectedDecodeQualification(testReader, testProduct);
+                    final DecodeQualification expected = getExpectedDecodeQualification(testDefinition, testProduct);
                     stopWatch.start();
                     final DecodeQualification decodeQualification = productReaderPlugin.getDecodeQualification(productFile);
                     stopWatch.stop();
@@ -120,7 +105,7 @@ public class ProductReaderAcceptanceTest {
     public void testReadIntendedProductContent() throws IOException {
         logInfoWithStars("Testing IntendedProductContent");
         final StopWatch stopWatch = new StopWatch();
-        for (TestDefinition testReader : productReaderList) {
+        for (TestDefinition testReader : testDefinitionList) {
             final ArrayList<String> intendedProductIds = testReader.getIntendedProductIds();
             logger.info(INDENT + testReader.getProductReaderPlugin().getClass().getSimpleName());
             for (String productId : intendedProductIds) {
@@ -167,7 +152,7 @@ public class ProductReaderAcceptanceTest {
                     logger.info(INDENT + testProduct.getId() + ": " + stopWatch.getTimeDiffString());
                 } catch (Exception e) {
                     final String message = "ProductIO.readProduct " + testProduct.getId() + " caused an exception.\n" +
-                                           "Should only return NULL or a product instance but should not cause any exception.";
+                            "Should only return NULL or a product instance but should not cause any exception.";
                     logger.log(Level.SEVERE, message, e);
                     fail(message);
                 }
@@ -207,7 +192,7 @@ public class ProductReaderAcceptanceTest {
     private static MetadataAttribute getMetadataAttribute(String msgPrefix, MetadataElement currentElement, String attributeName) {
         final Pattern pattern = Pattern.compile("(.*)\\[(\\d++)\\]");
         final Matcher matcher = pattern.matcher(attributeName);
-        if(matcher.matches()) {
+        if (matcher.matches()) {
             String attributeBaseName = matcher.group(1);
             int attribIndex = Integer.parseInt(matcher.group(2)); // following XPath, the index is one based
             assertTrue(msgPrefix + " Index must be >= 1", attribIndex >= 1);
@@ -215,7 +200,7 @@ public class ProductReaderAcceptanceTest {
             for (MetadataAttribute attrib : attributes) {
                 if (attrib.getName().equals(attributeBaseName)) {
                     attribIndex--;
-                    if(attribIndex == 0) {
+                    if (attribIndex == 0) {
                         return attrib;
                     }
                 }
@@ -229,7 +214,7 @@ public class ProductReaderAcceptanceTest {
         final Pattern pattern = Pattern.compile("(.*)\\[(\\d++)\\]");
         for (String elementName : pathElementNames) {
             final Matcher matcher = pattern.matcher(elementName);
-            if(matcher.matches()) {
+            if (matcher.matches()) {
                 elementName = matcher.group(1);
                 int elemIndex = Integer.parseInt(matcher.group(2)); // following XPath, the index is one based
                 assertTrue(msgPrefix + " Index must be >= 1", elemIndex >= 1);
@@ -237,13 +222,13 @@ public class ProductReaderAcceptanceTest {
                 for (MetadataElement elem : elements) {
                     if (elem.getName().equals(elementName)) {
                         elemIndex--;
-                        if(elemIndex == 0) {
+                        if (elemIndex == 0) {
                             element = elem;
                             break;
                         }
                     }
                 }
-            }else {
+            } else {
                 element = element.getElement(elementName);
             }
             assertNotNull(msgPrefix + " Element '" + elementName + "' not found", element);
@@ -257,7 +242,8 @@ public class ProductReaderAcceptanceTest {
         for (ExpectedMask expectedMask : expectedMasks) {
             final String expectedName = expectedMask.getName();
             final Mask actualMask = actualMaskGroup.get(expectedName);
-            final String msgPrefix = expectedContent.getId() + " Mask '" + expectedName;
+            //final String msgPrefix = expectedContent.getId() + " Mask '" + expectedName;
+            final String msgPrefix = "TODO replace with dataset" + " Mask '" + expectedName;
             assertNotNull(msgPrefix + "' does not exist", actualMask);
             assertEqualMasks(msgPrefix, expectedMask, actualMask);
         }
@@ -279,7 +265,8 @@ public class ProductReaderAcceptanceTest {
         for (ExpectedSampleCoding expectedFlagCoding : expectedContent.getFlagCodings()) {
             final String name = expectedFlagCoding.getName();
             final FlagCoding actualFlagCoding = flagCodingGroup.get(name);
-            final String msgPrefix = expectedContent.getId() + " FlagCoding '" + name;
+            //final String msgPrefix = expectedContent.getId() + " FlagCoding '" + name;
+            final String msgPrefix = "TODO replace with dataset" + " FlagCoding '" + name;
             assertNotNull(msgPrefix + "' does not exist", flagCodingGroup.contains(name));
             assertEqualSampleCodings(msgPrefix, expectedFlagCoding, actualFlagCoding);
         }
@@ -291,7 +278,8 @@ public class ProductReaderAcceptanceTest {
         for (ExpectedSampleCoding expectedIndexCoding : expectedContent.getIndexCodings()) {
             final String name = expectedIndexCoding.getName();
             final IndexCoding actualIndexCoding = indexCodingGroup.get(name);
-            final String msgPrefix = expectedContent.getId() + " IndexCoding '" + name;
+            //final String msgPrefix = expectedContent.getId() + " IndexCoding '" + name;
+            final String msgPrefix = "TODO replace with dataset" + " IndexCoding '" + name;
             assertNotNull(msgPrefix + "' does not exist", actualIndexCoding);
             assertEqualSampleCodings(msgPrefix, expectedIndexCoding, actualIndexCoding);
         }
@@ -319,21 +307,28 @@ public class ProductReaderAcceptanceTest {
         if (expectedContent.isGeoCodingSet()) {
             final ExpectedGeoCoding expectedGeoCoding = expectedContent.getGeoCoding();
             final GeoCoding geoCoding = product.getGeoCoding();
-            assertNotNull(expectedContent.getId() + " has no GeoCoding", geoCoding);
+            //assertNotNull(expectedContent.getId() + " has no GeoCoding", geoCoding);
+            assertNotNull("TODO replace with dataset" + " has no GeoCoding", geoCoding);
             final Float reverseAccuracy = expectedGeoCoding.getReverseAccuracy();
             final ExpectedGeoCoordinate[] coordinates = expectedGeoCoding.getCoordinates();
             for (ExpectedGeoCoordinate coordinate : coordinates) {
                 final PixelPos expectedPixelPos = coordinate.getPixelPos();
                 final GeoPos expectedGeoPos = coordinate.getGeoPos();
                 final GeoPos actualGeoPos = geoCoding.getGeoPos(expectedPixelPos, null);
-                assertEquals(expectedContent.getId() + " GeoPos at Pixel(" + expectedPixelPos.getX() + "," + expectedPixelPos.getY() + ")",
-                             expectedGeoPos, actualGeoPos);
+//                assertEquals(expectedContent.getId() + " GeoPos at Pixel(" + expectedPixelPos.getX() + "," + expectedPixelPos.getY() + ")",
+//                        expectedGeoPos, actualGeoPos);
+                assertEquals("TODO replace with dataset" + " GeoPos at Pixel(" + expectedPixelPos.getX() + "," + expectedPixelPos.getY() + ")",
+                        expectedGeoPos, actualGeoPos);
 
                 final PixelPos actualPixelPos = geoCoding.getPixelPos(actualGeoPos, null);
-                assertEquals(expectedContent.getId() + " Pixel.X at GeoPos(" + actualGeoPos.getLat() + "," + actualGeoPos.getLon() + ")",
-                             expectedPixelPos.getX(), actualPixelPos.getX(), reverseAccuracy);
-                assertEquals(expectedContent.getId() + " Pixel.Y at GeoPos(" + actualGeoPos.getLat() + "," + actualGeoPos.getLon() + ")",
-                             expectedPixelPos.getY(), actualPixelPos.getY(), reverseAccuracy);
+//                assertEquals(expectedContent.getId() + " Pixel.X at GeoPos(" + actualGeoPos.getLat() + "," + actualGeoPos.getLon() + ")",
+//                        expectedPixelPos.getX(), actualPixelPos.getX(), reverseAccuracy);
+                assertEquals("TODO replace with dataset" + " Pixel.X at GeoPos(" + actualGeoPos.getLat() + "," + actualGeoPos.getLon() + ")",
+                        expectedPixelPos.getX(), actualPixelPos.getX(), reverseAccuracy);
+//                assertEquals(expectedContent.getId() + " Pixel.Y at GeoPos(" + actualGeoPos.getLat() + "," + actualGeoPos.getLon() + ")",
+//                        expectedPixelPos.getY(), actualPixelPos.getY(), reverseAccuracy);
+                assertEquals("TODO replace with dataset" + " Pixel.Y at GeoPos(" + actualGeoPos.getLat() + "," + actualGeoPos.getLon() + ")",
+                        expectedPixelPos.getY(), actualPixelPos.getY(), reverseAccuracy);
             }
         }
 
@@ -350,7 +345,8 @@ public class ProductReaderAcceptanceTest {
         final Band band = product.getBand(expectedBand.getName());
         assertNotNull("missing band '" + expectedBand.getName() + " in product '" + product.getFileLocation(), band);
 
-        final String assertMessagePrefix = expectedContent.getId() + " " + band.getName();
+        //final String assertMessagePrefix = expectedContent.getId() + " " + band.getName();
+        final String assertMessagePrefix = "TODO replace with dataset" + " " + band.getName();
 
         if (expectedBand.isDescriptionSet()) {
             Assert.assertEquals(assertMessagePrefix + " Description", expectedBand.getDescription(), band.getDescription());
@@ -392,28 +388,23 @@ public class ProductReaderAcceptanceTest {
 
     private static void testExpectedProductProperties(ExpectedContent expectedContent, Product product) {
         if (expectedContent.isSceneWidthSet()) {
-            Assert.assertEquals(expectedContent.getId() + " SceneWidth", expectedContent.getSceneWidth(), product.getSceneRasterWidth());
+            Assert.assertEquals("TODO replace with dataset" + " SceneWidth", expectedContent.getSceneWidth(), product.getSceneRasterWidth());
         }
         if (expectedContent.isSceneHeightSet()) {
-            Assert.assertEquals(expectedContent.getId() + " SceneHeight", expectedContent.getSceneHeight(), product.getSceneRasterHeight());
+            Assert.assertEquals("TODO replace with dataset" + " SceneHeight", expectedContent.getSceneHeight(), product.getSceneRasterHeight());
         }
         if (expectedContent.isStartTimeSet()) {
-            Assert.assertEquals(expectedContent.getId() + " StartTime", expectedContent.getStartTime(), product.getStartTime().format());
+            Assert.assertEquals("TODO replace with dataset" + " StartTime", expectedContent.getStartTime(), product.getStartTime().format());
         }
         if (expectedContent.isEndTimeSet()) {
-            Assert.assertEquals(expectedContent.getId() + " EndTime", expectedContent.getEndTime(), product.getEndTime().format());
+            Assert.assertEquals("TODO replace with dataset" + " EndTime", expectedContent.getEndTime(), product.getEndTime().format());
         }
     }
 
-    private static DecodeQualification getExpectedDecodeQualification(TestDefinition testReader, TestProduct testProduct) {
-        final ArrayList<String> intendedProductNames = testReader.getIntendedProductIds();
-        if (intendedProductNames.contains(testProduct.getId())) {
-            return DecodeQualification.INTENDED;
-        }
-
-        final ArrayList<String> suitableProductNames = testReader.getSuitableProductIds();
-        if (suitableProductNames.contains(testProduct.getId())) {
-            return DecodeQualification.SUITABLE;
+    private static DecodeQualification getExpectedDecodeQualification(TestDefinition testDefinition, TestProduct testProduct) {
+        final ExpectedDataset expectedDataset = testDefinition.getExpectedDataset(testProduct.getId());
+        if (expectedDataset != null) {
+            return expectedDataset.getDecodeQualification();
         }
         return DecodeQualification.UNABLE;
     }
@@ -433,7 +424,13 @@ public class ProductReaderAcceptanceTest {
         logger.info(sb.toString() + testProduct.getId() + ": Not existent");
     }
 
-    private static void readTestDataDirProperty() {
+    private static void logFailOnMissingDataMessage() {
+        if (!FAIL_ON_MISSING_DATA) {
+            logger.warning("Tests will not fail if test data is missing!");
+        }
+    }
+
+    private static void assertTestDataDirectory() {
         final String dataDirProperty = System.getProperty(PROPERTYNAME_DATA_DIR);
         if (dataDirProperty == null) {
             fail("Data directory path not set");
@@ -465,38 +462,56 @@ public class ProductReaderAcceptanceTest {
         logInfoWithStars("Reader Acceptance Tests / " + dateFormat.format(calendar.getTime()));
     }
 
-    private static void readProductDataList() throws IOException {
-        final ArrayList<URL> resources = new ArrayList<URL>();
-        final Iterable<ProductReaderPlugIn> readerPlugins = SystemUtils.loadServices(ProductReaderPlugIn.class);
-        for (ProductReaderPlugIn readerPlugin : readerPlugins) {
-            final Class<? extends ProductReaderPlugIn> readerPlugInClass = readerPlugin.getClass();
+//    private static void readProductDataList() throws IOException {
+//        final ArrayList<URL> resources = new ArrayList<URL>();
+//        final Iterable<ProductReaderPlugIn> readerPlugins = SystemUtils.loadServices(ProductReaderPlugIn.class);
+//        for (ProductReaderPlugIn readerPlugin : readerPlugins) {
+//            final Class<? extends ProductReaderPlugIn> readerPlugInClass = readerPlugin.getClass();
+//
+//            final String dataResource = getReaderTestResourceName(readerPlugInClass.getName(), "-data.json");
+//            final URL resource = readerPlugInClass.getResource(dataResource);
+//            if (resource != null) {
+//                resources.add(resource);
+//            } else {
+//                logger.warning(readerPlugInClass.getSimpleName() + " does not define test data");
+//            }
+//        }
+//
+//        final ObjectMapper mapper = new ObjectMapper();
+//
+//        for (URL resource : resources) {
+//            final ProductList list = mapper.readValue(resource, ProductList.class);
+//            for (TestProduct testProduct : list) {
+//                testIfProductFileExists(testProduct);
+//                testIfIdAlreadyRegistered(testProduct);
+//                testProductList.add(testProduct);
+//            }
+//        }
+//    }
 
-            final String dataResource = getReaderTestResourceName(readerPlugInClass.getName(), "-data.json");
-            final URL resource = readerPlugInClass.getResource(dataResource);
-            if (resource != null) {
-                resources.add(resource);
-            } else {
-                logger.warning(readerPlugInClass.getSimpleName() + " does not define test data");
-            }
-        }
-
-        final ObjectMapper mapper = new ObjectMapper();
-
-        for (URL resource : resources) {
-            final ProductList list = mapper.readValue(resource, ProductList.class);
-            for (TestProduct testProduct : list) {
-                testIfProductFileExists(testProduct);
-                testIfIdAlreadyRegistered(testProduct);
-                testProductList.add(testProduct);
+    private static void createGlobalProductList() {
+        for (TestDefinition testDefinition : testDefinitionList) {
+            final List<TestProduct> allPluginProducts = testDefinition.getAllProducts();
+            for (TestProduct testProduct : allPluginProducts) {
+                if (!testIfIdAlreadyRegistered(testProduct)) {
+                    testProductList.add(testProduct);
+                }
             }
         }
     }
 
-    private static void testIfIdAlreadyRegistered(TestProduct testProduct) {
+    private static boolean testIfIdAlreadyRegistered(TestProduct testProduct) {
         final String id = testProduct.getId();
-        if (testProductList.getById(id) != null) {
-            fail("Test file with ID=" + id + " already defined");
+        final TestProduct storedProduct = testProductList.getById(id);
+        if (storedProduct != null) {
+            if (storedProduct.isDifferent(testProduct)) {
+                fail("Test file with ID=" + id + " already defined with different settings");
+            }
+
+            return true;
         }
+
+        return false;
     }
 
     private static void testIfProductFileExists(TestProduct testProduct) {
@@ -510,22 +525,58 @@ public class ProductReaderAcceptanceTest {
         }
     }
 
-    private static void readProductReaderTestDefinitions() throws IOException {
+    private static void testIfProductFilesExists(ProductList productList) {
+        for (TestProduct testProduct : productList) {
+            final String relativePath = testProduct.getRelativePath();
+            final File productFile = new File(dataRootDir, relativePath);
+            if (!productFile.exists()) {
+                testProduct.exists(false);
+                if (FAIL_ON_MISSING_DATA) {
+                    fail("Test product does not exist: " + productFile.getAbsolutePath());
+                }
+            }
+        }
+    }
+
+    private static void loadProductReaderTestDefinitions() throws IOException {
         final ObjectMapper mapper = new ObjectMapper();
         final Iterable<ProductReaderPlugIn> readerPlugIns = SystemUtils.loadServices(ProductReaderPlugIn.class);
-        productReaderList = new ProductReaderList();
+        testDefinitionList = new TestDefinitionList();
 
         for (ProductReaderPlugIn readerPlugIn : readerPlugIns) {
+            final TestDefinition testDefinition = new TestDefinition();
             final Class<? extends ProductReaderPlugIn> readerPlugInClass = readerPlugIn.getClass();
-            final String resourceFilename = getReaderTestResourceName(readerPlugInClass.getName(), "-test.json");
-            URL testConfigUrl = readerPlugInClass.getResource(resourceFilename);
-            if (testConfigUrl == null) {
-                fail("Unable to load reader test config file: " + resourceFilename);
+            testDefinition.setProductReaderPlugin(readerPlugIn);
+            testDefinitionList.add(testDefinition);
+
+            final String dataResourceName = getReaderTestResourceName(readerPlugInClass.getName(), "-data.json");
+            final URL dataResource = readerPlugInClass.getResource(dataResourceName);
+            if (dataResource == null) {
+                logger.warning(readerPlugInClass.getSimpleName() + " does not define test data");
+                continue;
             }
 
-            final TestDefinition testDefinition = mapper.readValue(testConfigUrl, TestDefinition.class);
-            testDefinition.setProductReaderPlugin(readerPlugIn);
-            productReaderList.add(testDefinition);
+            final ProductList productList = mapper.readValue(dataResource, ProductList.class);
+            testIfProductFilesExists(productList);
+            testDefinition.addTestProducts(productList.getAll());
+
+            final String[] ids = productList.getAllIds();
+            for (String id : ids) {
+                final String fileResourceName = id + ".json";
+                final URL fileResource = readerPlugInClass.getResource(fileResourceName);
+                if (fileResource == null) {
+                    fail(readerPlugInClass.getSimpleName() + " resource file '" + fileResourceName + "' is missing");
+                }
+
+                System.out.println("fileResource = " + fileResource);
+                final ExpectedDataset expectedDataset = mapper.readValue(fileResource, ExpectedDataset.class);
+                testDefinition.addExpectedDataset(expectedDataset);
+            }
+
+
+//            final TestDefinition testDefinition = mapper.readValue(testConfigUrl, TestDefinition.class);
+//            testDefinition.setProductReaderPlugin(readerPlugIn);
+
         }
     }
 
@@ -545,6 +596,4 @@ public class ProductReaderAcceptanceTest {
         logger.info(starString);
         logger.info("");
     }
-
-
 }

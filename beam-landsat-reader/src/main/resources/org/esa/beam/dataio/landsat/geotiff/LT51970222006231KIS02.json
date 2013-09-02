@@ -1,0 +1,105 @@
+{
+    "id": "LT51970222006231KIS02",
+    "decodeQualification": "intended",
+    "expectedContent": {
+        "sceneWidth": 8511,
+        "sceneHeight": 7651,
+        "startTime": "19-AUG-2006 10:20:20.964000",
+        "endTime": "19-AUG-2006 10:20:20.964000",
+        "geoCoding": {
+            "coordinates": [
+                {
+                    "x": 1532.5,
+                    "y": 688.5,
+                    "lat": 55.324867,
+                    "lon": 6.751987
+                },
+                {
+                    "x": 3361.4312,
+                    "y": 2557.3333,
+                    "lat": 54.834045,
+                    "lon": 7.633711
+                }
+            ]
+        },
+        "bands": [
+            {
+                "name": "radiance_1",
+                "geophysicalUnit": "W/(m^2*sr*µm)",
+                "expectedPixels": [
+                    {
+                        "x": "1656",
+                        "y": "495",
+                        "value": "81.95512"
+                    }
+                ]
+            },
+            {
+                "name": "radiance_2",
+                "geophysicalUnit": "W/(m^2*sr*µm)",
+                "expectedPixels": [
+                    {
+                        "x": "1656",
+                        "y": "495",
+                        "value": "59.432125"
+                    }
+                ]
+            }  ,
+            {
+                "name": "radiance_3",
+                "geophysicalUnit": "W/(m^2*sr*µm)",
+                "expectedPixels": [
+                    {
+                        "x": "1656",
+                        "y": "495",
+                        "value": "44.76496"
+                    }
+                ]
+            },
+            {
+                "name": "radiance_4",
+                "geophysicalUnit": "W/(m^2*sr*µm)",
+                "expectedPixels": [
+                    {
+                        "x": "1656",
+                        "y": "495",
+                        "value": "27.398779"
+                    }
+                ]
+            },
+            {
+                "name": "radiance_5",
+                "geophysicalUnit": "W/(m^2*sr*µm)",
+                "expectedPixels": [
+                    {
+                        "x": "1656",
+                        "y": "495",
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "radiance_6",
+                "geophysicalUnit": "W/(m^2*sr*µm)",
+                "expectedPixels": [
+                    {
+                        "x": "1656",
+                        "y": "495",
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "radiance_7",
+                "geophysicalUnit": "W/(m^2*sr*µm)",
+                "expectedPixels": [
+                    {
+                        "x": "1656",
+                        "y": "495",
+                        "value": "NaN"
+                    }
+                ]
+            }
+        ]
+    }
+}

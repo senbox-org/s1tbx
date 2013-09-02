@@ -1,0 +1,584 @@
+{
+    "id": "ESACCI-OC-L3S-OC_PRODUCTS-MERGED-1D_DAILY_4km_PML_OC4v6_QAA-20030729-fv0.95",
+    "decodeQualification": "intended",
+    "expectedContent": {
+        "sceneWidth": 8640,
+        "sceneHeight": 4320,
+        "startTime": "29-JUL-2003 00:00:00.000000",
+        "endTime": "29-JUL-2003 23:59:00.000000",
+        "geoCoding": {
+            "coordinates": [
+                {
+                    "x": 3726.5586,
+                    "y": 2322.277,
+                    "lat": -6.7615457,
+                    "lon": -24.726725
+                }
+            ],
+            "reverseAccuracy": 0.01
+        },
+        "bands": [
+            {
+                "name": "nobs",
+                "noDataValue": "-1.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 6414,
+                        "y": 2803,
+                        "value": 2.0
+                    },
+                    {
+                        "x": 450,
+                        "y": 769,
+                        "value": 0.0
+                    }
+                ]
+            },
+            {
+                "name": "MODISA_index",
+                "noDataValue": "-1.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 3639,
+                        "y": 1162,
+                        "value": 1.0
+                    },
+                    {
+                        "x": 2513,
+                        "y": 1109,
+                        "value": 0.0
+                    }
+                ]
+            },
+            {
+                "name": "MERIS_index",
+                "noDataValue": "-1.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 1313,
+                        "y": 2385,
+                        "value": 1.0
+                    },
+                    {
+                        "x": 4752,
+                        "y": 3219,
+                        "value": 0.0
+                    }
+                ]
+            },
+            {
+                "name": "SeaWiFS_index",
+                "noDataValue": "-1.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 1167,
+                        "y": 855,
+                        "value": 1.0
+                    },
+                    {
+                        "x": 1367,
+                        "y": 2877,
+                        "value": 0.0
+                    }
+                ]
+            },
+            {
+                "name": "atot_412",
+                "noDataValue": "-32767.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "412.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 6263,
+                        "y": 1935,
+                        "value": "0.104823165"
+                    },
+                    {
+                        "x": 6533,
+                        "y": 2093,
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "atot_443",
+                "noDataValue": "-32767.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "443.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 8214,
+                        "y": 2098,
+                        "value": 0.016656077
+                    },
+                    {
+                        "x": 2941,
+                        "y": 3885,
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "atot_490",
+                "noDataValue": "-32767.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "490.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 5795,
+                        "y": 361,
+                        "value": "0.0547285862"
+                    },
+                    {
+                        "x": 2829,
+                        "y": 851,
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "atot_510",
+                "noDataValue": "-32767.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "510.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 7725,
+                        "y": 1636,
+                        "value": "0.03749818"
+                    },
+                    {
+                        "x": 8393,
+                        "y": 2612,
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "atot_555",
+                "noDataValue": "-32767.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "555.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 4944,
+                        "y": 3096,
+                        "value": "0.062048655"
+                    },
+                    {
+                        "x": 2004,
+                        "y": 2149,
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "atot_670",
+                "noDataValue": "-32767.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "670.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 2812,
+                        "y": 3264,
+                        "value": "1.1581551"
+                    },
+                    {
+                        "x": 3094,
+                        "y": 2152,
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "chlor_a",
+                "noDataValue": "-32767.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 3963,
+                        "y": 1937,
+                        "value": "0.67322045564"
+                    },
+                    {
+                        "x": 4965,
+                        "y": 396,
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "aph_412",
+                "noDataValue": "-32767.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "412.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 2379,
+                        "y": 772,
+                        "value": "0.024478825"
+                    },
+                    {
+                        "x": 8425,
+                        "y": 1586,
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "aph_443",
+                "noDataValue": "-32767.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "443.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 958,
+                        "y": 1952,
+                        "value": 0.012289662
+                    },
+                    {
+                        "x": 8209,
+                        "y": 4088,
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "aph_490",
+                "noDataValue": "-32767.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "490.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 6270,
+                        "y": 2051,
+                        "value": "0.01113253552466631"
+                    },
+                    {
+                        "x": 4370,
+                        "y": 2253,
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "aph_510",
+                "noDataValue": "-32767.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "510.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 3894,
+                        "y": 2509,
+                        "value": 0.0031408165
+                    },
+                    {
+                        "x": 124,
+                        "y": 1834,
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "aph_555",
+                "noDataValue": "-32767.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "555.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 4461,
+                        "y": 2242,
+                        "value": "0.04617399"
+                    },
+                    {
+                        "x": 2564,
+                        "y": 3218,
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "aph_670",
+                "noDataValue": "-32767.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "670.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 5715,
+                        "y": 501,
+                        "value": "0.18442872"
+                    },
+                    {
+                        "x": 7209,
+                        "y": 4084,
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "adg_412",
+                "noDataValue": "-32767.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "412.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 691,
+                        "y": 2943,
+                        "value": "0.011703069"
+                    },
+                    {
+                        "x": 5279,
+                        "y": 1123,
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "adg_443",
+                "noDataValue": "-32767.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "443.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 2542,
+                        "y": 3034,
+                        "value": 0.087201245
+                    },
+                    {
+                        "x": 4108,
+                        "y": 2415,
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "adg_490",
+                "noDataValue": "-32767.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "490.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 7165,
+                        "y": 2644,
+                        "value": 0.024291154
+                    },
+                    {
+                        "x": 831,
+                        "y": 336,
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "adg_510",
+                "noDataValue": "-32767.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "510.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 7075,
+                        "y": 333,
+                        "value": 0.16835144
+                    },
+                    {
+                        "x": 4018,
+                        "y": 3867,
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "adg_555",
+                "noDataValue": "-32767.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "555.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 8312,
+                        "y": 1645,
+                        "value": 5.5410166E-4
+                    },
+                    {
+                        "x": 7494,
+                        "y": 2592,
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "adg_670",
+                "noDataValue": "-32767.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "670.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 759,
+                        "y": 2301,
+                        "value": 2.2474729E-4
+                    },
+                    {
+                        "x": 4300,
+                        "y": 2091,
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "Rrs_412",
+                "noDataValue": "NaN",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "412.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 910,
+                        "y": 1724,
+                        "value": 0.012973905
+                    },
+                    {
+                        "x": 3977,
+                        "y": 1127,
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "Rrs_443",
+                "noDataValue": "NaN",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "443.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 7330,
+                        "y": 2333,
+                        "value": 0.004003568
+                    },
+                    {
+                        "x": 5526,
+                        "y": 1890,
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "Rrs_490",
+                "noDataValue": "NaN",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "490.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 557,
+                        "y": 1396,
+                        "value": 0.00585632538422
+                    },
+                    {
+                        "x": 3420,
+                        "y": 923,
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "Rrs_510",
+                "noDataValue": "NaN",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "510.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 6851,
+                        "y": 2482,
+                        "value": 0.0030361076351
+                    },
+                    {
+                        "x": 8170,
+                        "y": 2505,
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "Rrs_555",
+                "noDataValue": "NaN",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "555.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 3764,
+                        "y": 2303,
+                        "value": 0.0015709182
+                    },
+                    {
+                        "x": 4843,
+                        "y": 1256,
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "Rrs_670",
+                "noDataValue": "NaN",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "670.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 2831,
+                        "y": 1623,
+                        "value": 2.6206925394E-4
+                    },
+                    {
+                        "x": 934,
+                        "y": 3832,
+                        "value": "NaN"
+                    }
+                ]
+            }
+        ],
+        "metadata": [
+            {
+                "path": "Global_Attributes/date_created",
+                "value": "Thu Aug  1 13:22:14 UTC 2013"
+            },
+            {
+                "path": "Global_Attributes/history",
+                "value": "Source data atmospheric correction for SeaWiFS and MODIS from NASA R2013.1 reprocessing. MERIS L1B data from ESA 3rd reprocessing passed through Polymer v2.7.x - Products (SeaDAS v6.4-OCCCI) and uncertainty generation by PML, merging by JRC"
+            }
+        ]
+    }
+}

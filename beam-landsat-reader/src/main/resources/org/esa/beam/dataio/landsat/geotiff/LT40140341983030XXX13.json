@@ -1,0 +1,134 @@
+{
+    "id": "LT40140341983030XXX13",
+    "decodeQualification": "intended",
+    "expectedContent": {
+        "sceneWidth": 7881,
+        "sceneHeight": 7131,
+        "startTime": "30-JAN-1983 15:09:55.958000",
+        "endTime": "30-JAN-1983 15:09:55.958000",
+        "geoCoding": {
+            "reverseAccuracy": 2.0e-2,
+            "coordinates": [
+                {
+                    "x": 2490.5,
+                    "y": 534.5,
+                    "lat": 38.295933,
+                    "lon": -76.31265
+                },
+                {
+                    "x": 7796.5,
+                    "y": 6732.5,
+                    "lat": 36.626232,
+                    "lon": -74.50346
+                }
+            ]
+        },
+        "bands": [
+            {
+                "name": "radiance_1",
+                "expectedPixels": [
+                    {
+                        "x": "7520",
+                        "y": "1327",
+                        "value": "148.10252"
+                    },
+                    {
+                        "x": "4382",
+                        "y": "449",
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "radiance_2",
+                "expectedPixels": [
+                    {
+                        "x": "2174",
+                        "y": "702",
+                        "value": "143.90173"
+                    },
+                    {
+                        "x": "2568",
+                        "y": "144",
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "radiance_3",
+                "expectedPixels": [
+                    {
+                        "x": "2196",
+                        "y": "2680",
+                        "value": "117.37354"
+                    },
+                    {
+                        "x": "7401",
+                        "y": "2851",
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "radiance_4",
+                "expectedPixels": [
+                    {
+                        "x": "3914",
+                        "y": "3156",
+                        "value": "46.6713"
+                    },
+                    {
+                        "x": "6955",
+                        "y": "4837",
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "radiance_5",
+                "expectedPixels": [
+                    {
+                        "x": "5862",
+                        "y": "4613",
+                        "value": "0.2553937"
+                    },
+                    {
+                        "x": "6636",
+                        "y": "6606",
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "radiance_6",
+                "expectedPixels": [
+                    {
+                        "x": "5550",
+                        "y": "6577",
+                        "value": "6.8861494"
+                    },
+                    {
+                        "x": "3847",
+                        "y": "6770",
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "radiance_7",
+                "expectedPixels": [
+                    {
+                        "x": "2709",
+                        "y": "4784",
+                        "value": "0.047834646"
+                    },
+                    {
+                        "x": "479",
+                        "y": "6160",
+                        "value": "NaN"
+                    }
+                ]
+            }
+        ]
+    }
+}

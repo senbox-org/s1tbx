@@ -16,8 +16,6 @@ import java.util.Random;
 // Must be with public access for json-framework usage tb 2013-08-19
 public class ExpectedContent {
 
-    @JsonProperty(required = true)
-    private String id;
     @JsonProperty
     private Integer sceneWidth;
     @JsonProperty
@@ -39,8 +37,6 @@ public class ExpectedContent {
     @JsonProperty
     private ExpectedMetadata[] metadata;
 
-
-
     public ExpectedContent() {
         metadata = new ExpectedMetadata[0];
         flagCodings = new ExpectedSampleCoding[0];
@@ -49,9 +45,9 @@ public class ExpectedContent {
         masks = new ExpectedMask[0];
     }
 
+    // @todo 1 tb/tb move to dataset and add test
     public ExpectedContent(Product product, Random random) {
         this();
-        this.id = product.getName();
         this.sceneWidth = product.getSceneRasterWidth();
         this.sceneHeight = product.getSceneRasterHeight();
         final ProductData.UTC endTime = product.getEndTime();
@@ -128,10 +124,6 @@ public class ExpectedContent {
         return sampleCodings;
     }
 
-    String getId() {
-        return id;
-    }
-
     int getSceneWidth() {
         return sceneWidth;
     }
@@ -194,4 +186,5 @@ public class ExpectedContent {
     public ExpectedMetadata[] getMetadata() {
         return metadata;
     }
+
 }

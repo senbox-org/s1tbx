@@ -1,0 +1,462 @@
+{
+    "id": "LC81970222013122LGN01",
+    "decodeQualification": "intended",
+    "expectedContent": {
+        "sceneWidth": 15841,
+        "sceneHeight": 15461,
+        "startTime": "02-MAY-2013 10:28:40.390000",
+        "endTime": "02-MAY-2013 10:28:40.390000",
+        "geoCoding": {
+            "reverseAccuracy": 2.0e-2,
+            "coordinates": [
+                {
+                    "x": 6477.104,
+                    "y": 15376.3,
+                    "lat": 53.470154,
+                    "lon": 7.703725
+                },
+                {
+                    "x": 15684.3,
+                    "y": 69.8,
+                    "lat": 55.537838,
+                    "lon": 9.82499
+                }
+            ]
+        },
+        "flagCodings": [
+            {
+                "name": "flags",
+                "samples": [
+                    {
+                        "name": "designated_fill",
+                        "value": 1,
+                        "description": "Designated Fill"
+                    },
+                    {
+                        "name": "dropped_frame",
+                        "value": 2,
+                        "description": "Dropped Frame"
+                    },
+                    {
+                        "name": "terrain_occlusion",
+                        "value": 4,
+                        "description": "Terrain Occlusion"
+                    },
+                    {
+                        "name": "reserved_1",
+                        "value": 8,
+                        "description": "Reserved for a future 1-bit class artifact designation"
+                    },
+                    {
+                        "name": "water_confidence_one",
+                        "value": 16,
+                        "description": "Water confidence bit one"
+                    },
+                    {
+                        "name": "water_confidence_two",
+                        "value": 32,
+                        "description": "Water confidence bit two"
+                    },
+                    {
+                        "name": "reserved_2_one",
+                        "value": 64,
+                        "description": "Reserved for a future 2-bit class artifact designation"
+                    },
+                    {
+                        "name": "reserved_2_two",
+                        "value": 128,
+                        "description": "Reserved for a future 2-bit class artifact designation"
+                    },
+                    {
+                        "name": "vegetation_confidence_one",
+                        "value": 256,
+                        "description": "Vegetation confidence bit one"
+                    },
+                    {
+                        "name": "vegetation_confidence_two",
+                        "value": 512,
+                        "description": "Vegetation confidence bit two"
+                    },
+                    {
+                        "name": "snow_ice_confidence_one",
+                        "value": 1024,
+                        "description": "Snow/ice confidence bit one"
+                    },
+                    {
+                        "name": "snow_ice_confidence_two",
+                        "value": 2048,
+                        "description": "Snow/ice confidence bit two"
+                    },
+                    {
+                        "name": "cirrus_confidence_one",
+                        "value": 4096,
+                        "description": "Cirrus confidence bit one"
+                    },
+                    {
+                        "name": "cirrus_confidence_two",
+                        "value": 8192,
+                        "description": "Cirrus confidence bit two"
+                    },
+                    {
+                        "name": "cloud_confidence_one",
+                        "value": 16384,
+                        "description": "Cloud confidence bit one"
+                    },
+                    {
+                        "name": "cloud_confidence_two",
+                        "value": 32768,
+                        "description": "Cloud confidence bit two"
+                    }
+                ]
+            }
+        ],
+        "masks": [
+            {
+                "name": "designated_fill",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,0,0",
+                "description": "Designated Fill"
+            },
+            {
+                "name": "dropped_frame",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,0,0",
+                "description": "Dropped Frame"
+            },
+            {
+                "name": "terrain_occlusion",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,0,0",
+                "description": "Terrain Occlusion"
+            },
+            {
+                "name": "water_confidence_low",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "0,0,255",
+                "description": "Water confidence 0-35%"
+            },
+            {
+                "name": "water_confidence_mid",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "0,0,178",
+                "description": "Water confidence 36-64%"
+            },
+            {
+                "name": "water_confidence_high",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "0,0,124",
+                "description": "Water confidence 65-100%"
+            },
+            {
+                "name": "vegetation_confidence_low",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "0,255,0",
+                "description": "Vegetation confidence 0-35%"
+            },
+            {
+                "name": "vegetation_confidence_mid",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "0,178,0",
+                "description": "Vegetation confidence 36-64%"
+            },
+            {
+                "name": "vegetation_confidence_high",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "0,124,0",
+                "description": "Vegetation confidence 65-100%"
+            },
+            {
+                "name": "snow_ice_confidence_low",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,255,0",
+                "description": "Snow/ice confidence 0-35%"
+            },
+            {
+                "name": "snow_ice_confidence_mid",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "178,178,0",
+                "description": "Snow/ice confidence 36-64%"
+            },
+            {
+                "name": "snow_ice_confidence_high",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "124,124,0",
+                "description": "Snow/ice confidence 65-100%"
+            },
+            {
+                "name": "cirrus_confidence_low",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,0,255",
+                "description": "Cirrus confidence 0-35%"
+            },
+            {
+                "name": "cirrus_confidence_mid",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "178,0,178",
+                "description": "Cirrus confidence 36-64%"
+            },
+            {
+                "name": "cirrus_confidence_high",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "124,0,124",
+                "description": "Cirrus confidence 65-100%"
+            },
+            {
+                "name": "cloud_confidence_low",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,175,175",
+                "description": "Cloud confidence 0-35%"
+            },
+            {
+                "name": "cloud_confidence_mid",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "178,122,122",
+                "description": "Cloud confidence 36-64%"
+            },
+            {
+                "name": "cloud_confidence_high",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "124,85,85",
+                "description": "Cloud confidence 65-100%"
+            }
+        ],
+        "bands": [
+            {
+                "name": "coastal_aerosol",
+                "description": "Coastal Aerosol (Operational Land Imager (OLI))",
+                "geophysicalUnit": "W/(m^2*sr*µm)",
+                "noDataValue": "-63.508831766411326",
+                "spectralWavelength": "433.0",
+                "spectralBandwidth": "20.0",
+                "expectedPixels": [
+                    {
+                        "x": "4241",
+                        "y": "1243",
+                        "value": "54.85893"
+                    },
+                    {
+                        "x": "4323",
+                        "y": "231",
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "blue",
+                "description": "Blue (OLI)",
+                "geophysicalUnit": "W/(m^2*sr*µm)",
+                "noDataValue": "-64.76229245872372",
+                "spectralWavelength": "482.0",
+                "spectralBandwidth": "60.0",
+                "expectedPixels": [
+                    {
+                        "x": "7630",
+                        "y": "1988",
+                        "value": "45.527893"
+                    },
+                    {
+                        "x": "8208",
+                        "y": "1322",
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "green",
+                "description": "Green (OLI)",
+                "geophysicalUnit": "W/(m^2*sr*µm)",
+                "noDataValue": "-59.30042008316293",
+                "spectralWavelength": "562.0",
+                "spectralBandwidth": "60.0",
+                "expectedPixels": [
+                    {
+                        "x": "13265",
+                        "y": "3111",
+                        "value": "31.666418"
+                    },
+                    {
+                        "x": "13564",
+                        "y": "3043",
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "red",
+                "description": "Red (OLI)",
+                "geophysicalUnit": "W/(m^2*sr*µm)",
+                "noDataValue": "-50.22382476439711",
+                "spectralWavelength": "655.0",
+                "spectralBandwidth": "30.0",
+                "expectedPixels": [
+                    {
+                        "x": "10904",
+                        "y": "3271",
+                        "value": "52.343266"
+                    },
+                    {
+                        "x": "11149",
+                        "y": "2295",
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "near_infrared",
+                "description": "Near-Infrared (NIR) (OLI)",
+                "geophysicalUnit": "W/(m^2*sr*µm)",
+                "noDataValue": "-30.476375274666584",
+                "spectralWavelength": "865.0",
+                "spectralBandwidth": "30.0",
+                "expectedPixels": [
+                    {
+                        "x": "15028",
+                        "y": "5847",
+                        "value": "65.249916"
+                    },
+                    {
+                        "x": "15063",
+                        "y": "6465",
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "swir_1",
+                "description": "Short Wavelength Infrared (SWIR) 1 (OLI)",
+                "geophysicalUnit": "W/(m^2*sr*µm)",
+                "noDataValue": "-7.678525704977569",
+                "spectralWavelength": "1610.0",
+                "spectralBandwidth": "80.0",
+                "expectedPixels": [
+                    {
+                        "x": "13545",
+                        "y": "8730",
+                        "value": "15.380085"
+                    },
+                    {
+                        "x": "14263",
+                        "y": "8949",
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "swir_2",
+                "description": "SWIR 2 (OLI)",
+                "geophysicalUnit": "W/(m^2*sr*µm)",
+                "noDataValue": "-2.497809561906797",
+                "spectralWavelength": "2200.0",
+                "spectralBandwidth": "180.0",
+                "expectedPixels": [
+                    {
+                        "x": "12672",
+                        "y": "12527",
+                        "value": "2.6801496"
+                    },
+                    {
+                        "x": "13044",
+                        "y": "12827",
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "panchromatic",
+                "description": "Panchromatic (OLI)",
+                "geophysicalUnit": "W/(m^2*sr*µm)",
+                "noDataValue": "-56.573954791711174",
+                "spectralWavelength": "590.0",
+                "spectralBandwidth": "380.0",
+                "expectedPixels": [
+                    {
+                        "x": "7885",
+                        "y": "13301",
+                        "value": "60.522823"
+                    },
+                    {
+                        "x": "7011",
+                        "y": "13877",
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "cirrus",
+                "description": "Cirrus (OLI)",
+                "geophysicalUnit": "W/(m^2*sr*µm)",
+                "noDataValue": "-12.52400480117191",
+                "spectralWavelength": "1375.0",
+                "spectralBandwidth": "20.0",
+                "expectedPixels": [
+                    {
+                        "x": "3096",
+                        "y": "12438",
+                        "value": "0.07764989"
+                    },
+                    {
+                        "x": "2952",
+                        "y": "12586",
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "thermal_infrared_(tirs)_1",
+                "description": "Thermal Infrared Sensor (TIRS) 1",
+                "geophysicalUnit": "W/(m^2*sr*µm)",
+                "noDataValue": "0.09999579989013337",
+                "spectralWavelength": "10800.0",
+                "spectralBandwidth": "590.0",
+                "expectedPixels": [
+                    {
+                        "x": "502",
+                        "y": "10597",
+                        "value": "6.8067236"
+                    },
+                    {
+                        "x": "425",
+                        "y": "10457",
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "thermal_infrared_(tirs)_2",
+                "description": "TIRS 2",
+                "geophysicalUnit": "W/(m^2*sr*µm)",
+                "noDataValue": "0.09999579989013337",
+                "spectralWavelength": "12000.0",
+                "spectralBandwidth": "1010.0",
+                "expectedPixels": [
+                    {
+                        "x": "2270",
+                        "y": "5788",
+                        "value": "6.7545886"
+                    },
+                    {
+                        "x": "1932",
+                        "y": "5598",
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "flags",
+                "description": "Quality Band",
+                "expectedPixels": [
+                    {
+                        "x": "4867",
+                        "y": "7218",
+                        "value": "53248"
+                    },
+                    {
+                        "x": "969",
+                        "y": "868",
+                        "value": "1 "
+                    }
+                ]
+            }
+        ]
+    }
+}
