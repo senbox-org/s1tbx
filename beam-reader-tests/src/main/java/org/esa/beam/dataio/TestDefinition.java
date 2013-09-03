@@ -1,39 +1,34 @@
 package org.esa.beam.dataio;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
 class TestDefinition {
-
-    @JsonProperty
-    private ArrayList<String> intendedProductIds;
-    @JsonProperty
-    private ArrayList<String> suitableProductIds;
-    @JsonProperty
-    private ArrayList<ExpectedContent> expectedContentList;
 
     private transient ProductReaderPlugIn productReaderPlugin;
     private final ArrayList<TestProduct> testProducts;
     private HashMap<String, ExpectedDataset> expectedDatasets;
 
     TestDefinition() {
-        intendedProductIds = new ArrayList<String>();
-        suitableProductIds = new ArrayList<String>();
-        expectedContentList = new ArrayList<ExpectedContent>();
         testProducts = new ArrayList<TestProduct>();
         expectedDatasets = new HashMap<String, ExpectedDataset>();
     }
 
-    ArrayList<String> getIntendedProductIds() {
-        return intendedProductIds;
-    }
+    List<String> getIntendedProductIds() {
+        final ArrayList<String> result = new ArrayList<String>();
 
-    ArrayList<String> getSuitableProductIds() {
-        return suitableProductIds;
+        final Collection<ExpectedDataset> values = expectedDatasets.values();
+        for (ExpectedDataset dataset : values) {
+            if (dataset.getDecodeQualification() == DecodeQualification.INTENDED) {
+                result.add(dataset.getId());
+            }
+        }
+        return result;
     }
 
     ExpectedContent getExpectedContent(String productId) {
