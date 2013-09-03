@@ -514,17 +514,6 @@ public class ProductReaderAcceptanceTest {
         return false;
     }
 
-    private static void testIfProductFileExists(TestProduct testProduct) {
-        final String relativePath = testProduct.getRelativePath();
-        final File productFile = new File(dataRootDir, relativePath);
-        if (!productFile.exists()) {
-            testProduct.exists(false);
-            if (FAIL_ON_MISSING_DATA) {
-                fail("Test product does not exist: " + productFile.getAbsolutePath());
-            }
-        }
-    }
-
     private static void testIfProductFilesExists(ProductList productList) {
         for (TestProduct testProduct : productList) {
             final String relativePath = testProduct.getRelativePath();
@@ -568,15 +557,9 @@ public class ProductReaderAcceptanceTest {
                     fail(readerPlugInClass.getSimpleName() + " resource file '" + fileResourceName + "' is missing");
                 }
 
-                System.out.println("fileResource = " + fileResource);
                 final ExpectedDataset expectedDataset = mapper.readValue(fileResource, ExpectedDataset.class);
                 testDefinition.addExpectedDataset(expectedDataset);
             }
-
-
-//            final TestDefinition testDefinition = mapper.readValue(testConfigUrl, TestDefinition.class);
-//            testDefinition.setProductReaderPlugin(readerPlugIn);
-
         }
     }
 

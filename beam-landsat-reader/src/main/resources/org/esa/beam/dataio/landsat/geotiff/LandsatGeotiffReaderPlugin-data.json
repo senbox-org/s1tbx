@@ -39,11 +39,6 @@
             "id": "L71191027_02720070313",
             "relativePath": "Landsat/Landsat_7/legacy/L71191027_02720070313/L71191027_02720070313_MTL.txt",
             "description": "Landsat 7 legacy Test product"
-        },
-        {
-            "id": "L71196000_00020010502",
-            "relativePath": "Landsat/Landsat_7/fast/L71196000_00020010502/L71196000_00020010502_MTL.FST",
-            "description": "Landsat 7 FAST-L7A Test product"
         }
     ]
 }
