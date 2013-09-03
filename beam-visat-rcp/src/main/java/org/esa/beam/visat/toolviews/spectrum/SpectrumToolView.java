@@ -725,7 +725,7 @@ public class SpectrumToolView extends AbstractToolView {
             List<XYSeries> pinSeries = new ArrayList<XYSeries>();
             Color pinColor = PlacemarkUtils.getPlacemarkColor(pin, getCurrentView());
             for (DisplayableSpectrum spectrum : spectra) {
-                XYSeries series = new XYSeries(spectrum.getName() + "_" + pin.getName());
+                XYSeries series = new XYSeries(spectrum.getName() + "_" + pin.getLabel());
                 final Band[] spectralBands = spectrum.getSelectedBands();
                 Map<Band, Double> bandToEnergy;
                 if (pinToEnergies.containsKey(pin)) {
@@ -805,7 +805,7 @@ public class SpectrumToolView extends AbstractToolView {
             for (Placemark pin : displayedPins) {
                 Paint pinPaint = PlacemarkUtils.getPlacemarkColor(pin, getCurrentView());
                 for (DisplayableSpectrum spectrum : spectra) {
-                    String legendLabel = pin.getName() + "_" + spectrum.getName();
+                    String legendLabel = pin.getLabel() + "_" + spectrum.getName();
                     LegendItem item = createLegendItem(spectrum, pinPaint, legendLabel);
                     itemCollection.add(item);
                 }
