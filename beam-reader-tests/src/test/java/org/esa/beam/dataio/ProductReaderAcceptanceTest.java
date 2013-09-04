@@ -22,7 +22,7 @@ import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.util.StopWatch;
 import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.logging.BeamLogManager;
@@ -42,7 +42,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.logging.StreamHandler;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 @RunWith(ReaderTestRunner.class)
 public class ProductReaderAcceptanceTest {
@@ -118,7 +119,7 @@ public class ProductReaderAcceptanceTest {
                     stopWatch.start();
                     final Product product = productReader.readProductNodes(testProductFile, null);
                     try {
-                        testExpectedContent(testDefinition, productId, product);
+                        assertExpectedContent(testDefinition, productId, product);
                     } finally {
                         if (product != null) {
                             product.dispose();
@@ -140,9 +141,12 @@ public class ProductReaderAcceptanceTest {
         for (TestProduct testProduct : testProductList) {
             if (testProduct.exists()) {
                 final File testProductFile = getTestProductFile(testProduct);
+                Product product = null;
                 try {
                     stopWatch.start();
-                    ProductIO.readProduct(testProductFile);
+
+                    product = ProductIO.readProduct(testProductFile);
+
                     stopWatch.stop();
                     logger.info(INDENT + testProduct.getId() + ": " + stopWatch.getTimeDiffString());
                 } catch (Exception e) {
@@ -150,6 +154,10 @@ public class ProductReaderAcceptanceTest {
                             "Should only return NULL or a product instance but should not cause any exception.";
                     logger.log(Level.SEVERE, message, e);
                     fail(message);
+                } finally {
+                    if (product != null) {
+                        product.dispose();
+                    }
                 }
             } else {
                 logProductNotExistent(1, testProduct);
@@ -157,10 +165,10 @@ public class ProductReaderAcceptanceTest {
         }
     }
 
-    private static void testExpectedContent(TestDefinition testDefinition, String productId, Product product) {
+    private static void assertExpectedContent(TestDefinition testDefinition, String productId, Product product) {
         final ExpectedContent expectedContent = testDefinition.getExpectedContent(productId);
         if (expectedContent == null) {
-            return; // can this happen? Should this happen?? tb 2013-09-03
+            return;
         }
 
         final ContentAssert contentAssert = new ContentAssert(expectedContent, productId, product);
