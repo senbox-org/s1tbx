@@ -34,7 +34,7 @@ public class TestDefinitionTest {
     }
 
     @Test
-    public void testAddListAndGetAll(){
+    public void testAddListAndGetAll() {
         final TestProduct testProduct = new TestProduct();
         final ArrayList<TestProduct> testProducts = new ArrayList<TestProduct>();
         testProducts.add(testProduct);
@@ -52,7 +52,7 @@ public class TestDefinitionTest {
     }
 
     @Test
-    public void testGetExpectedDataset() {
+    public void testGetExpectedDatasetbyId() {
         final ExpectedDataset expectedDataset = new ExpectedDataset();
         expectedDataset.setId("identifier");
 
@@ -60,5 +60,43 @@ public class TestDefinitionTest {
 
         final ExpectedDataset dataset = definition.getExpectedDataset("identifier");
         assertNotNull(dataset);
+    }
+
+    @Test
+    public void testGetIntendedProductIds_empty() {
+        final List<String> expectedIds = definition.getIntendedProductIds();
+
+        assertNotNull(expectedIds);
+        assertEquals(0, expectedIds.size());
+    }
+
+    @Test
+    public void testGetIntendedProductIds() {
+        final ExpectedDataset expectedDataset = new ExpectedDataset();
+        expectedDataset.setId("identifier");
+        expectedDataset.setDecodeQualification("intended");
+        definition.addExpectedDataset(expectedDataset);
+
+        final List<String> expectedIds = definition.getIntendedProductIds();
+
+        assertEquals(1, expectedIds.size());
+    }
+
+    @Test
+    public void testGetIntendedProductIds_mixed() {
+        final ExpectedDataset suitableDataset = new ExpectedDataset();
+        suitableDataset.setId("id_suitable");
+        suitableDataset.setDecodeQualification("suitable");
+        definition.addExpectedDataset(suitableDataset);
+
+        final ExpectedDataset intendedDataset = new ExpectedDataset();
+        intendedDataset.setId("id_intended");
+        intendedDataset.setDecodeQualification("intended");
+        definition.addExpectedDataset(intendedDataset);
+
+        final List<String> expectedIds = definition.getIntendedProductIds();
+
+        assertEquals(1, expectedIds.size());
+        assertEquals("id_intended", expectedIds.get(0));
     }
 }
