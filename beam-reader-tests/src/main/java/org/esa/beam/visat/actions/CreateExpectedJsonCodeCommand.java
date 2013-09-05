@@ -18,8 +18,7 @@ import org.esa.beam.framework.ui.command.ExecCommand;
 import org.esa.beam.util.logging.BeamLogManager;
 import org.esa.beam.visat.VisatApp;
 
-import java.awt.Toolkit;
-import java.awt.Window;
+import java.awt.*;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.io.IOException;
@@ -58,6 +57,10 @@ public class CreateExpectedJsonCodeCommand extends ExecCommand {
                 pm.beginTask("Collecting data...", ProgressMonitor.UNKNOWN);
                 try {
                     fillClipboardWithJsonCode(product, new Random(123546));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    BeamLogManager.getSystemLogger().severe(e.getMessage());
+                    VisatApp.getApp().showErrorDialog(e.getMessage());
                 } finally {
                     pm.done();
                 }
