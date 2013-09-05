@@ -19,7 +19,7 @@ package org.esa.beam.framework.gpf;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 
-import java.awt.*;
+import java.awt.RenderingHints;
 import java.util.Map;
 
 /**
@@ -70,7 +70,7 @@ public abstract class OperatorSpi {
     }
 
     /**
-     * <p>Creates an operator instance with no arguments. The default implemrentation calls
+     * <p>Creates an operator instance with no arguments. The default implementation calls
      * the default constructor. If no such is defined in the operator, an exception is thrown.</p>
      * <p>This method may be overridden by clients in order to provide a no-argument instance of their operator.
      * Implementors should call {@link Operator#setSpi(OperatorSpi) operator.setSpi(this)}
