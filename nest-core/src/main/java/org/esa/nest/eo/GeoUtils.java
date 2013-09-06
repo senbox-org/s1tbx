@@ -21,6 +21,8 @@ import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.nest.datamodel.Orbits;
 
+import static org.esa.beam.util.math.MathUtils.DTOR;
+
 public final class GeoUtils
 {
     private static final double EPS5 = 1e-5;
@@ -151,7 +153,7 @@ public final class GeoUtils
         final double theta = FastMath.atan(z*a/(s*b));
 
         geoPos.lon = (float)(FastMath.atan(y/x) * org.esa.beam.util.math.MathUtils.RTOD);
-        
+
         if (geoPos.lon < 0.0 && y >= 0.0) {
             geoPos.lon += 180.0;
         } else if (geoPos.lon > 0.0 && y < 0.0) {
@@ -159,8 +161,8 @@ public final class GeoUtils
         }
 
         geoPos.lat = (float)(FastMath.atan((z + ep2*b*FastMath.pow(FastMath.sin(theta), 3)) /
-                                       (s - e2*a*FastMath.pow(FastMath.cos(theta), 3))) *
-                                       org.esa.beam.util.math.MathUtils.RTOD);
+                (s - e2*a*FastMath.pow(FastMath.cos(theta), 3))) *
+                org.esa.beam.util.math.MathUtils.RTOD);
     }
 
     /**
@@ -188,6 +190,65 @@ public final class GeoUtils
                 (s - WGS84.e2*WGS84.a*FastMath.pow(FastMath.cos(theta), 3))) *
                 org.esa.beam.util.math.MathUtils.RTOD);
     }
+
+    /**
+     * Convert polar coordinates to Cartesian vector.
+     * <p>
+     * <b>Definitions:<b/>
+     *  <p>Latitude: angle from XY-plane towards +Z-axis.<p/>
+     *  <p>Longitude: angle in XY-plane measured from +X-axis towards +Y-axis.<p/>
+     * </p>
+     * <p>
+     * Note: Apache's FastMath used in implementation.
+     * </p>
+     * @param latitude The latitude of a given pixel (in degree).
+     * @param longitude The longitude of the given pixel (in degree).
+     * @param radius The radius of the given point (in m)
+     * @param xyz The return array vector of X, Y and Z coordinates for the input point.
+     *
+     * @author Petar Marikovic, PPO.labs
+     */
+    public static void polar2cartesian(final double latitude, final double longitude, final double radius, final double xyz[]) {
+
+        final double latRad = latitude * DTOR;
+        final double lonRad = longitude * DTOR;
+
+        final double sinLat = FastMath.sin(latRad);
+        final double cosLat = FastMath.cos(latRad);
+
+        xyz[0] = radius * cosLat * FastMath.cos(lonRad);
+        xyz[1] = radius * cosLat * FastMath.sin(lonRad);
+        xyz[2] = radius * sinLat;
+
+    }
+
+    /**
+     * Convert Cartesian to Polar coordinates.
+     * <p>
+     * <b>Definitions:<b/>
+     *  <p>Latitude: angle from XY-plane towards +Z-axis.<p/>
+     *  <p>Longitude: angle in XY-plane measured from +X-axis towards +Y-axis.<p/>
+     * </p>
+     * <p>
+     *  Implementation Details: Unlike for rest of utility methods GeoPos class container is not used for storing polar
+     *  coordinates. GeoPos fields are declared as floats and can introduced numerical errors, especially in radius/height.
+     * </p>
+     * <p>
+     *  Note: Apache's FastMath used in implementation.
+     * </p>
+     * @param xyz Array of x, y, and z coordinates.
+     * @param phiLamHeight Array of latitude (in radians), longitude (in radians), and radius (in meters).
+     *
+     * @author Petar Marikovic, PPO.labs
+     */
+    public static void cartesian2polar(final double[] xyz, final double[] phiLamHeight) {
+
+        phiLamHeight[2] = Math.sqrt(xyz[0] * xyz[0] + xyz[1] * xyz[1] + xyz[2] * xyz[2]);
+        phiLamHeight[1] = Math.atan2(xyz[1], xyz[0]);
+        phiLamHeight[0] = Math.asin(xyz[2] / phiLamHeight[2]);
+
+    }
+
 
     /**
      * Compute accurate target position for given orbit information using Newton's method.
@@ -332,7 +393,7 @@ public final class GeoUtils
         pos.heading = BAZ * org.esa.beam.util.math.MathUtils.RTOD;
 
         while (pos.heading < 0)
-           pos.heading += 360;
+            pos.heading += 360;
 
         return pos;
     }
@@ -427,11 +488,11 @@ public final class GeoUtils
         output.distance = S;
         output.heading1 = FAZ * org.esa.beam.util.math.MathUtils.RTOD;
         output.heading2 = BAZ * org.esa.beam.util.math.MathUtils.RTOD;
-        
+
         while (output.heading1< 0)
             output.heading1 += 360;
         while (output.heading2<0)
-                        output.heading2+=360;
+            output.heading2+=360;
 
         return output;
     }

@@ -34,7 +34,7 @@ public final class AsarAbstractMetadata {
     /**
      * If AbstractedMetadata is modified by adding new attributes then this version number needs to be incremented
      */
-    private static final String METADATA_VERSION = "4C-1.0";
+    private static final String METADATA_VERSION = "5.0";
     
     private final String _productType;
     private final String _version;
@@ -426,7 +426,7 @@ public final class AsarAbstractMetadata {
     }
 
     private double getPulseRepetitionFreq(MetadataElement mppAds) {
-        return mppAds.getAttributeDouble("ASAR_Main_ADSR.sd/image_parameters"+_version+".prf_value", 0);
+        return mppAds.getAttributeDouble("ASAR_Main_ADSR.sd/image_parameters.prf_value", 0);
     }
 
     private static void addOrbitStateVectors(MetadataElement root, MetadataElement dest) {

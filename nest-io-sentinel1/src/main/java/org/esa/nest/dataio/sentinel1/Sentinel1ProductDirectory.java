@@ -199,6 +199,14 @@ public class Sentinel1ProductDirectory extends XMLProductDirectory {
                 final MetadataElement instrument = platform.getElement("instrument");
                 AbstractMetadata.setAttribute(absRoot, AbstractMetadata.SWATH, instrument.getAttributeString("swath", defStr));
                 acqMode = instrument.getAttributeString("mode", defStr);
+                if(acqMode == null || acqMode.equals(defStr)) {
+                    final MetadataElement extensionElem = instrument.getElement("extension");
+                    if(extensionElem != null)  {
+                        final MetadataElement instrumentModeElem = extensionElem.getElement("instrumentMode");
+                        if(instrumentModeElem != null)
+                            acqMode = instrumentModeElem.getAttributeString("mode", defStr);
+                    }
+                }
                 AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ACQUISITION_MODE, acqMode);
             } else if(id.equals("measurementOrbitReference")) {
                 final MetadataElement orbitReference = findElement(metadataObject, "orbitReference");
@@ -211,12 +219,17 @@ public class Sentinel1ProductDirectory extends XMLProductDirectory {
             } else if(id.equals("measurementFrameSet")) {
 
             } else if(id.equals("generalProductInformation")) {
-                final MetadataElement generalProductInformation = findElement(metadataObject, "generalProductInformation");
-                final String productType;
-                if(OCNReader != null)
+                MetadataElement generalProductInformation = findElement(metadataObject, "generalProductInformation");
+                if(generalProductInformation == null)
+                    generalProductInformation = findElement(metadataObject, "standAloneProductInformation");
+
+                String productType = "unknown";
+                if(OCNReader != null) {
                     productType = "OCN";
-                else
-                    productType = generalProductInformation.getAttributeString("productType", defStr);
+                } else {
+                    if(generalProductInformation != null)
+                        productType = generalProductInformation.getAttributeString("productType", defStr);
+                }
                 product.setProductType(productType);
                 AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PRODUCT_TYPE, productType);
                 if(productType.contains("SLC")) {
@@ -237,13 +250,16 @@ public class Sentinel1ProductDirectory extends XMLProductDirectory {
         determineProductDimensions(product, absRoot);
     }
 
-    private void determineProductDimensions(final Product product, final MetadataElement absRoot) {
+    private void determineProductDimensions(final Product product, final MetadataElement absRoot) throws IOException {
         int width = 0, height = 0;
         int totalWidth = 0, totalHeight = 0;
         for (Map.Entry<String, ImageIOFile> stringImageIOFileEntry : bandImageFileMap.entrySet()) {
             final ImageIOFile img = stringImageIOFileEntry.getValue();
             final String imgName = img.getName().toLowerCase();
-            final MetadataElement bandMetadata = absRoot.getElement(imgBandMetadataMap.get(imgName));
+            final String bandMetadataName = imgBandMetadataMap.get(imgName);
+            if(bandMetadataName == null)
+                throw new IOException("Metadata for measurement dataset "+imgName+" not found");
+            final MetadataElement bandMetadata = absRoot.getElement(bandMetadataName);
 
             width = bandMetadata.getAttributeInt(AbstractMetadata.num_samples_per_line);
             height = bandMetadata.getAttributeInt(AbstractMetadata.num_output_lines);

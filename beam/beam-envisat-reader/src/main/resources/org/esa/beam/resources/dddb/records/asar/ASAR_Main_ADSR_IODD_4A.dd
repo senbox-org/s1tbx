@@ -38,7 +38,7 @@ parameter_codes        |@+ASAR_Main_ADSR.sd/parameter_codes.dd    |*            
 spare_4                |Spare                   |*             |60|1|*|Spare|30|
 error_counters         |@+ASAR_Main_ADSR.sd/error_counters.dd     |*             | *|1|*|Error counters|31|
 spare_5                |Spare                   |*             |26|1|*|Spare|32|
-image_parameters       |@+ASAR_Main_ADSR.sd/image_parameters_IODD_4A.dd |*       | *|1|*|Image Data Set parameters.Only one value is filled for each IM and WV modes. Two values are filled for AP mode (for MDS1 and MDS2). Five values are filled for WS and GM modes (for SS1 to SS5, respectively).Unused vales set to zero|33|
+image_parameters       |@+ASAR_Main_ADSR.sd/image_parameters.dd |*       | *|1|*|Image Data Set parameters.Only one value is filled for each IM and WV modes. Two values are filled for AP mode (for MDS1 and MDS2). Five values are filled for WS and GM modes (for SS1 to SS5, respectively).Unused vales set to zero|33|
 spare_6                |Spare                   |*             |62|1|*|Spare|34|
 first_proc_range_samp  |ULong                   |samples       | 4|1|*|First processed input range sample, first sample is 1|35|
 range_ref              |Float                   |m             | 4|1|*|Range spreading loss reference range|36|

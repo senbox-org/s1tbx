@@ -792,7 +792,7 @@ public class RangeDopplerGeocodingOp extends Operator {
         final int h  = targetRectangle.height;
         //System.out.println("x0 = " + x0 + ", y0 = " + y0 + ", w = " + w + ", h = " + h);
 
-        final TileGeoreferencing tileGeoRef = new TileGeoreferencing(targetProduct, x0, y0, w, h);
+        final TileGeoreferencing tileGeoRef = new TileGeoreferencing(targetProduct, x0-1, y0-1, w+2, h+2);
 
         try {
             double[][] localDEM = new double[h+2][w+2];
@@ -983,7 +983,7 @@ public class RangeDopplerGeocodingOp extends Operator {
                 }
             }
             localDEM = null;
-            
+
         } catch(Throwable e) {
             orthoDataProduced = true; //to prevent multiple error messages
             OperatorUtils.catchOperatorException(getId(), e);

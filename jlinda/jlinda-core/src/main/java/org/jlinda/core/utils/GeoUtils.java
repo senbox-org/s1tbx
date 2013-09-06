@@ -1,18 +1,18 @@
 package org.jlinda.core.utils;
 
-import org.esa.beam.framework.datamodel.GeoPos;
 import org.jlinda.core.*;
+import org.jlinda.core.GeoPoint;
 
 public class GeoUtils {
 
     /* compute tile geocorners at height defined in float[4] array */
-    public static GeoPos[] computeCorners(final SLCImage meta, final Orbit orbit, final Window tile, final float height[]) throws Exception {
+    public static GeoPoint[] computeCorners(final SLCImage meta, final Orbit orbit, final Window tile, final float height[]) throws Exception {
 
         if (height.length != 4) {
             throw new IllegalArgumentException("input height array has to have 4 elements");
         }
 
-        GeoPos[] corners = new GeoPos[2];
+        GeoPoint[] corners = new GeoPoint[2];
         double[] phiAndLambda;
 
         final double l0 = tile.linelo;
@@ -45,38 +45,38 @@ public class GeoUtils {
         double lambdaMin = Math.min(Math.min(Math.min(lambda_l0p0, lambda_lNp0), lambda_lNpN), lambda_l0pN);
         double lambdaMax = Math.max(Math.max(Math.max(lambda_l0p0, lambda_lNp0), lambda_lNpN), lambda_l0pN);
 
-        corners[0] = new GeoPos((float) (phiMax * Constants.RTOD), (float) (lambdaMin * Constants.RTOD));
-        corners[1] = new GeoPos((float) (phiMin * Constants.RTOD), (float) (lambdaMax * Constants.RTOD));
+        corners[0] = new GeoPoint((float) (phiMax * Constants.RTOD), (float) (lambdaMin * Constants.RTOD));
+        corners[1] = new GeoPoint((float) (phiMin * Constants.RTOD), (float) (lambdaMax * Constants.RTOD));
 
         return corners;
     }
 
     /* compute input tile geocorners on ellipsoid */
-    public static GeoPos[] computeCorners(final SLCImage meta, final Orbit orbit, final Window tile) throws Exception {
+    public static GeoPoint[] computeCorners(final SLCImage meta, final Orbit orbit, final Window tile) throws Exception {
         final float height[] = new float[4];
         return computeCorners(meta, orbit, tile, height);
     }
 
-    public static GeoPos[] extendCorners(final GeoPos extraGeo, final GeoPos[] inGeo) {
+    public static GeoPoint[] extendCorners(final GeoPoint extraGeo, final GeoPoint[] inGeo) {
 
         if (inGeo.length != 2) {
-            throw new IllegalArgumentException("Input GeoPos[] array has to have exactly 2 elements");
+            throw new IllegalArgumentException("Input GeoPoint[] array has to have exactly 2 elements");
         }
 
-        GeoPos[] outGeo = new GeoPos[inGeo.length];
+        GeoPoint[] outGeo = new GeoPoint[inGeo.length];
 
-        outGeo[0] = new GeoPos();
+        outGeo[0] = new GeoPoint();
         outGeo[0].lat = inGeo[0].lat + extraGeo.lat;
         outGeo[0].lon = inGeo[0].lon - extraGeo.lon;
 
-        outGeo[1] = new GeoPos();
+        outGeo[1] = new GeoPoint();
         outGeo[1].lat = inGeo[1].lat - extraGeo.lat;
         outGeo[1].lon = inGeo[1].lon + extraGeo.lon;
 
         return outGeo;
     }
 
-    public synchronized static GeoPos defineExtraPhiLam(final double heightMin, final double heightMax, final Window window, final SLCImage meta, final Orbit orbit) throws Exception {
+    public synchronized static GeoPoint defineExtraPhiLam(final double heightMin, final double heightMax, final Window window, final SLCImage meta, final Orbit orbit) throws Exception {
 
         // compute Phi, Lambda for Tile corners
         double[] latLonMax;
@@ -87,14 +87,14 @@ public class GeoUtils {
         float lonExtra = (float) (Math.abs(latLonMin[1] - latLonMax[1]) * Constants.RTOD);
         float latExtra = (float) (Math.abs(latLonMin[0] - latLonMax[0]) * Constants.RTOD);
 
-        return new GeoPos(latExtra, lonExtra);
+        return new GeoPoint(latExtra, lonExtra);
     }
 
     @Deprecated
-    public static GeoPos[] computeCorners(final SLCImage meta, final Orbit orbit, final Window tile,
+    public static GeoPoint[] computeCorners(final SLCImage meta, final Orbit orbit, final Window tile,
                                                        final double phiExtra, final double lambdaExtra) throws Exception {
 
-        GeoPos[] corners = new GeoPos[2];
+        GeoPoint[] corners = new GeoPoint[2];
         double[] phiAndLambda;
 
         final double l0 = tile.linelo;
@@ -134,18 +134,18 @@ public class GeoUtils {
         lambdaMax += lambdaExtra;
         lambdaMin -= lambdaExtra;
 
-        corners[0] = new GeoPos((float) (phiMax * Constants.RTOD), (float) (lambdaMin * Constants.RTOD));
-        corners[1] = new GeoPos((float) (phiMin * Constants.RTOD), (float) (lambdaMax * Constants.RTOD));
+        corners[0] = new GeoPoint((float) (phiMax * Constants.RTOD), (float) (lambdaMin * Constants.RTOD));
+        corners[1] = new GeoPoint((float) (phiMin * Constants.RTOD), (float) (lambdaMax * Constants.RTOD));
 
         return corners;
     }
 
     @Deprecated
-    public static GeoPos defineExtraPhiLam(double latDelta, double lonDelta) {
+    public static GeoPoint defineExtraPhiLam(double latDelta, double lonDelta) {
         double latExtra = (1.5 * lonDelta + (0.1 / 25.0) * Constants.DTOR);
         double lonExtra = (1.5 * latDelta + (0.1 / 25.0) * Constants.DTOR); // for Etna
 
-        return new GeoPos((float) latExtra, (float) lonExtra);
+        return new GeoPoint((float) latExtra, (float) lonExtra);
     }
 
 }

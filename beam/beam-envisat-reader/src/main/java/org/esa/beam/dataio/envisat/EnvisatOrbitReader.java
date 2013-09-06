@@ -49,11 +49,11 @@ public class EnvisatOrbitReader extends EnvisatAuxReader {
 
             OrbitVector orb = null;
             final SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM-yyyy HH:mm:ss.SSSSSS");
-		    final ArrayList<OrbitVector> orbitVectorList = new ArrayList<OrbitVector>();
+            final ArrayList<OrbitVector> orbitVectorList = new ArrayList<OrbitVector>();
 
             final int numFields = orbitRecord.getNumFields();
             for (int i = 0; i < numFields; ++i) {
-                
+
                 final Field f = orbitRecord.getFieldAt(i);
 
                 final String fieldName = f.getName();
@@ -93,7 +93,7 @@ public class EnvisatOrbitReader extends EnvisatAuxReader {
                 } else if (fieldName.contains("qual_flags")) {
                     if (orb != null)
                         orb.qualFlags = f.getData().getElemString();
-                        orbitVectorList.add(orb);
+                    orbitVectorList.add(orb);
                 }
             }
 
@@ -122,41 +122,76 @@ public class EnvisatOrbitReader extends EnvisatAuxReader {
      */
     public OrbitVector getOrbitVector(double utc) throws Exception {
 
-        final int n = Arrays.binarySearch(recordTimes, utc);
-		
-		if (n >= 0) {
-			return dataRecords[n];
-		}
-		
-		final int n2 = -n - 1;
-        final int n0 = n2 - 2;
-        final int n1 = n2 - 1;
-        final int n3 = n2 + 1;
+        final int interpOrder = 8;
+        final int nRecords = recordTimes.length;
+        double t0 = recordTimes[0];
+        double tN = recordTimes[nRecords - 1];
 
-        if (n0 < 0 || n1 < 0 || n2 >= recordTimes.length || n3 >= recordTimes.length) {
+        // final int n = Arrays.binarySearch(recordTimes, utc);
+        // binary search not needed, we can pre-compute index for given utc wrt delta, and start/end time
+        final double tRel = (utc - t0) / (tN - t0) * (nRecords - 1); // data index from 0
+        final int itRel = (int) Math.max(1, Math.min(Math.round(tRel) - (interpOrder / 2), (nRecords - 1) - interpOrder));
+
+        // indices for populating arrays - Working with 8th Order => 9 points
+        final int n0 = itRel;
+        final int n1 = itRel + 1;
+        final int n2 = itRel + 2;
+        final int n3 = itRel + 3;
+        final int n4 = itRel + 4; // <- closest to interpolation point
+        final int n5 = itRel + 5;
+        final int n6 = itRel + 6;
+        final int n7 = itRel + 7;
+        final int n8 = itRel + 8;
+
+        // TODO: Verify validity of check for incorrect UTC time in parsing orbit
+        // ....I'm not sure that this check is very smart, and that it would pick up not fully overlapping arc
+        if (n0 < 0 || n1 < 0 || n2 < 0 || n3 < 0 || n4 < 0 || n5 > nRecords || n6 > nRecords || n7 > nRecords || n8 > nRecords) {
             throw new Exception("Incorrect UTC time");
         }
 
-        final double[] timeArray = {recordTimes[n0], recordTimes[n1], recordTimes[n2], recordTimes[n3]};
-        final double[] delta_ut1Array = {dataRecords[n0].delta_ut1, dataRecords[n1].delta_ut1, dataRecords[n2].delta_ut1, dataRecords[n3].delta_ut1};
-        final double[] xPosArray = {dataRecords[n0].xPos, dataRecords[n1].xPos, dataRecords[n2].xPos, dataRecords[n3].xPos};
-        final double[] yPosArray = {dataRecords[n0].yPos, dataRecords[n1].yPos, dataRecords[n2].yPos, dataRecords[n3].yPos};
-        final double[] zPosArray = {dataRecords[n0].zPos, dataRecords[n1].zPos, dataRecords[n2].zPos, dataRecords[n3].zPos};
-        final double[] xVelArray = {dataRecords[n0].xVel, dataRecords[n1].xVel, dataRecords[n2].xVel, dataRecords[n3].xVel};
-        final double[] yVelArray = {dataRecords[n0].yVel, dataRecords[n1].yVel, dataRecords[n2].yVel, dataRecords[n3].yVel};
-        final double[] zVelArray = {dataRecords[n0].zVel, dataRecords[n1].zVel, dataRecords[n2].zVel, dataRecords[n3].zVel};
+        final double[] delta_ut1Array = {dataRecords[n0].delta_ut1, dataRecords[n1].delta_ut1, dataRecords[n2].delta_ut1, dataRecords[n3].delta_ut1,
+                dataRecords[n4].delta_ut1,
+                dataRecords[n5].delta_ut1, dataRecords[n6].delta_ut1, dataRecords[n7].delta_ut1, dataRecords[n8].delta_ut1};
+
+        final double[] xPosArray = {dataRecords[n0].xPos, dataRecords[n1].xPos, dataRecords[n2].xPos, dataRecords[n3].xPos,
+                dataRecords[n4].xPos,
+                dataRecords[n5].xPos, dataRecords[n6].xPos, dataRecords[n7].xPos, dataRecords[n8].xPos};
+
+        final double[] yPosArray = {dataRecords[n0].yPos, dataRecords[n1].yPos, dataRecords[n2].yPos, dataRecords[n3].yPos,
+                dataRecords[n4].yPos,
+                dataRecords[n5].yPos, dataRecords[n6].yPos, dataRecords[n7].yPos, dataRecords[n8].yPos};
+
+        final double[] zPosArray = {dataRecords[n0].zPos, dataRecords[n1].zPos, dataRecords[n2].zPos, dataRecords[n3].zPos,
+                dataRecords[n4].zPos,
+                dataRecords[n5].zPos, dataRecords[n6].zPos, dataRecords[n7].zPos, dataRecords[n8].zPos};
+
+        final double[] xVelArray = {dataRecords[n0].xVel, dataRecords[n1].xVel, dataRecords[n2].xVel, dataRecords[n3].xVel,
+                dataRecords[n4].xVel,
+                dataRecords[n5].xVel, dataRecords[n6].xVel, dataRecords[n7].xVel, dataRecords[n8].xVel};
+
+        final double[] yVelArray = {dataRecords[n0].yVel, dataRecords[n1].yVel, dataRecords[n2].yVel, dataRecords[n3].yVel,
+                dataRecords[n4].yVel,
+                dataRecords[n5].yVel, dataRecords[n6].yVel, dataRecords[n7].yVel, dataRecords[n8].yVel};
+
+        final double[] zVelArray = {dataRecords[n0].zVel, dataRecords[n1].zVel, dataRecords[n2].zVel, dataRecords[n3].zVel,
+                dataRecords[n4].zVel,
+                dataRecords[n5].zVel, dataRecords[n6].zVel, dataRecords[n7].zVel, dataRecords[n8].zVel};
+
 
         final OrbitVector orb = new OrbitVector();
+
+        double ref = tRel - itRel;
+
         orb.utcTime = utc;
         orb.absOrbit = dataRecords[n1].absOrbit;
         orb.qualFlags = dataRecords[n1].qualFlags;
-        orb.delta_ut1 = lagrangeInterpolatingPolynomial(timeArray, delta_ut1Array, utc);
-        orb.xPos = lagrangeInterpolatingPolynomial(timeArray, xPosArray, utc);
-        orb.yPos = lagrangeInterpolatingPolynomial(timeArray, yPosArray, utc);
-        orb.zPos = lagrangeInterpolatingPolynomial(timeArray, zPosArray, utc);
-        orb.xVel = lagrangeInterpolatingPolynomial(timeArray, xVelArray, utc);
-        orb.yVel = lagrangeInterpolatingPolynomial(timeArray, yVelArray, utc);
-        orb.zVel = lagrangeInterpolatingPolynomial(timeArray, zVelArray, utc);
+        orb.delta_ut1 = lagrangeEightOrderInterpolation(delta_ut1Array, ref);
+        orb.xPos = lagrangeEightOrderInterpolation(xPosArray, ref);
+        orb.yPos = lagrangeEightOrderInterpolation(yPosArray, ref);
+        orb.zPos = lagrangeEightOrderInterpolation(zPosArray, ref);
+        orb.xVel = lagrangeEightOrderInterpolation(xVelArray, ref);
+        orb.yVel = lagrangeEightOrderInterpolation(yVelArray, ref);
+        orb.zVel = lagrangeEightOrderInterpolation(zVelArray, ref);
         /*
         final double dt = (utc - recordTimes[n1]) / (recordTimes[n2] - recordTimes[n1]);
         final double w0 = w(dt + 1.0);
@@ -253,6 +288,41 @@ public class EnvisatOrbitReader extends EnvisatAuxReader {
         return retVal;
     }
 
+    /**
+     * Interpolate vector using 8th order Legendre interpolation.
+     *
+     * <p>The method interpolates a n-dimensional vector, at desired point given as input an equidistant
+     * n-dimensional vectors.</p>
+     *
+     * <p><b>Notes:</b> Coefficients for 8th order interpolation are pre-computed. Method is primarily designed for
+     * interpolating orbits, and it should be used with care in other applications, although it should work anywhere.</p>
+     *
+     * <p><b>Implementation details:</b> Adapted from 'getorb' package.</p>
+     *
+     * @param samples Sample value array.
+     * @param x Desired position.
+     * @return The interpolated sample value.
+     *
+     * @author Petar Marinkovic, PPO.labs
+     */
+    public static double lagrangeEightOrderInterpolation(double[] samples, double x) {
+
+        double out = 0.0d;
+        final double[] denominators = {40320, -5040, 1440, -720, 576, -720, 1440, -5040, 40320};
+        final double numerator = x * (x - 1) * (x - 2) * (x - 3) * (x - 4) * (x - 5) * (x - 6) * (x - 7) * (x - 8);
+
+        if (numerator == 0) {
+            return samples[(int) Math.round(x)];
+        }
+
+        double coeff;
+        for (int i = 0; i < samples.length; i++) {
+            coeff = numerator / denominators[i] / (x - i);
+            out += coeff * samples[i];
+        }
+        return out;
+    }
+
     public final static class OrbitVector {
         public double utcTime = 0;
         public double delta_ut1 = 0;
@@ -266,7 +336,7 @@ public class EnvisatOrbitReader extends EnvisatAuxReader {
         public String qualFlags = null;
     }
 
-        /**
+    /**
      * Gets the singleton instance of this class.
      * @return the singlton instance
      */

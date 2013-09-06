@@ -62,7 +62,7 @@ public class Sentinel1ProductReaderPlugIn implements ProductReaderPlugIn {
         final File[] files = folder.listFiles();
         if(files != null) {
             for(File f : files) {
-                if(f.isFile() && (f.getName().startsWith("s1") || f.getName().startsWith("asa"))) {
+                if(f.isFile() && (f.getName().startsWith("s1") || f.getName().startsWith("asa") || f.getName().startsWith("rs2"))) {
                     return DecodeQualification.INTENDED;
                 }
             }

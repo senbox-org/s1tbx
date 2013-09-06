@@ -885,7 +885,7 @@ public class SARSimTerrainCorrectionOp extends Operator {
             trgTileList.add(td);
         }
         final RangeDopplerGeocodingOp.TileData[] trgTiles = trgTileList.toArray(new RangeDopplerGeocodingOp.TileData[trgTileList.size()]);
-        final TileGeoreferencing tileGeoRef = new TileGeoreferencing(targetProduct, x0, y0, w, h);
+        final TileGeoreferencing tileGeoRef = new TileGeoreferencing(targetProduct, x0-1, y0-1, w+2, h+2);
 
         try {
             final double[][] localDEM = new double[h+2][w+2];

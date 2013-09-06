@@ -23,7 +23,6 @@ import org.esa.nest.util.ResourceUtils;
 import org.esa.nest.util.ZipUtils;
 
 import java.io.*;
-import java.util.Arrays;
 import java.util.Date;
 
 /**
@@ -55,6 +54,8 @@ public final class PrareOrbitReader {
     private static final double microMeterToMeter = 0.000001;
     private static final double microSecondToSecond = 0.000001;
     private static final double secondToDay = 1.0 / (24*3600);
+
+    private static final int interpolationOrder = 8; // this is minima with which we can get required interp smoothness
 
     /**
      * Read Data Set Identification Record and Data Header Record from the orbit file.
@@ -467,37 +468,71 @@ public final class PrareOrbitReader {
      */
     public OrbitVector getOrbitVector(double utc) throws Exception {
 
-        final int n = Arrays.binarySearch(recordTimes, utc);
+        final int order = interpolationOrder;
+        final int nRecords = recordTimes.length;
+        double t0 = recordTimes[0];
+        double tN = recordTimes[nRecords - 1];
 
-        if (n >= 0) {
-			return orbitVectors[n];
-		}
+        // final int n = Arrays.binarySearch(recordTimes, utc);
+        // binary search not needed, we can pre-compute index for given utc wrt delta, and start/end time
+        final double tRel = (utc - t0) / (tN - t0) * (nRecords - 1); // data index from 0
+        final int itRel = (int) Math.max(1, Math.min(Math.round(tRel) - (order / 2), (nRecords - 1) - order));
 
-		final int n2 = -n - 1;
-        final int n0 = n2 - 2;
-        final int n1 = n2 - 1;
-        final int n3 = n2 + 1;
+        // indices for populating arrays - Working with 8th Order => 9 points
+        final int n0 = itRel;
+        final int n1 = itRel + 1;
+        final int n2 = itRel + 2;
+        final int n3 = itRel + 3;
+        final int n4 = itRel + 4; // <- closest to interpolation point
+        final int n5 = itRel + 5;
+        final int n6 = itRel + 6;
+        final int n7 = itRel + 7;
+        final int n8 = itRel + 8;
 
-        if (n0 < 0 || n1 < 0 || n2 >= recordTimes.length || n3 >= recordTimes.length) {
+        // TODO: Verify validity of check for incorrect UTC time in parsing orbit
+        // ....I'm not sure that this check is very smart, and that it would pick up not fully overlapping arc
+        if (n0 < 0 || n1 < 0 || n2 < 0 || n3 < 0 || n4 < 0 || n5 > nRecords || n6 > nRecords || n7 > nRecords || n8 > nRecords) {
             throw new Exception("Incorrect UTC time");
         }
 
-        final double[] timeArray = {recordTimes[n0], recordTimes[n1], recordTimes[n2], recordTimes[n3]};
-        final double[] xPosArray = {orbitVectors[n0].xPos, orbitVectors[n1].xPos, orbitVectors[n2].xPos, orbitVectors[n3].xPos};
-        final double[] yPosArray = {orbitVectors[n0].yPos, orbitVectors[n1].yPos, orbitVectors[n2].yPos, orbitVectors[n3].yPos};
-        final double[] zPosArray = {orbitVectors[n0].zPos, orbitVectors[n1].zPos, orbitVectors[n2].zPos, orbitVectors[n3].zPos};
-        final double[] xVelArray = {orbitVectors[n0].xVel, orbitVectors[n1].xVel, orbitVectors[n2].xVel, orbitVectors[n3].xVel};
-        final double[] yVelArray = {orbitVectors[n0].yVel, orbitVectors[n1].yVel, orbitVectors[n2].yVel, orbitVectors[n3].yVel};
-        final double[] zVelArray = {orbitVectors[n0].zVel, orbitVectors[n1].zVel, orbitVectors[n2].zVel, orbitVectors[n3].zVel};
+        //        final double[] timeArray = {recordTimes[n0], recordTimes[n1], recordTimes[n2], recordTimes[n3]};
+        final double[] xPosArray = {orbitVectors[n0].xPos, orbitVectors[n1].xPos, orbitVectors[n2].xPos, orbitVectors[n3].xPos,
+                                    orbitVectors[n4].xPos,
+                                    orbitVectors[n5].xPos, orbitVectors[n6].xPos, orbitVectors[n7].xPos, orbitVectors[n8].xPos};
+
+        final double[] yPosArray = {orbitVectors[n0].yPos, orbitVectors[n1].yPos, orbitVectors[n2].yPos, orbitVectors[n3].yPos,
+                                    orbitVectors[n4].yPos,
+                                    orbitVectors[n5].yPos, orbitVectors[n6].yPos, orbitVectors[n7].yPos, orbitVectors[n8].yPos};
+
+        final double[] zPosArray = {orbitVectors[n0].zPos, orbitVectors[n1].zPos, orbitVectors[n2].zPos, orbitVectors[n3].zPos,
+                                    orbitVectors[n4].zPos,
+                                    orbitVectors[n5].zPos, orbitVectors[n6].zPos, orbitVectors[n7].zPos, orbitVectors[n8].zPos};
+
+        final double[] xVelArray = {orbitVectors[n0].xVel, orbitVectors[n1].xVel, orbitVectors[n2].xVel, orbitVectors[n3].xVel,
+                                    orbitVectors[n4].xVel,
+                                    orbitVectors[n5].xVel, orbitVectors[n6].xVel, orbitVectors[n7].xVel, orbitVectors[n8].xVel};
+
+        final double[] yVelArray = {orbitVectors[n0].yVel, orbitVectors[n1].yVel, orbitVectors[n2].yVel, orbitVectors[n3].yVel,
+                                    orbitVectors[n4].yVel,
+                                    orbitVectors[n5].yVel, orbitVectors[n6].yVel, orbitVectors[n7].yVel, orbitVectors[n8].yVel};
+
+        final double[] zVelArray = {orbitVectors[n0].zVel, orbitVectors[n1].zVel, orbitVectors[n2].zVel, orbitVectors[n3].zVel,
+                                    orbitVectors[n4].zVel,
+                                    orbitVectors[n5].zVel, orbitVectors[n6].zVel, orbitVectors[n7].zVel, orbitVectors[n8].zVel};
 
         final OrbitVector orb = new OrbitVector();
+
+        double ref = tRel - itRel;
+
         orb.utcTime = utc;
-        orb.xPos = MathUtils.lagrangeInterpolatingPolynomial(timeArray, xPosArray, utc);
-        orb.yPos = MathUtils.lagrangeInterpolatingPolynomial(timeArray, yPosArray, utc);
-        orb.zPos = MathUtils.lagrangeInterpolatingPolynomial(timeArray, zPosArray, utc);
-        orb.xVel = MathUtils.lagrangeInterpolatingPolynomial(timeArray, xVelArray, utc);
-        orb.yVel = MathUtils.lagrangeInterpolatingPolynomial(timeArray, yVelArray, utc);
-        orb.zVel = MathUtils.lagrangeInterpolatingPolynomial(timeArray, zVelArray, utc);
+        orb.xPos = MathUtils.lagrangeEightOrderInterpolation(xPosArray, ref);
+        orb.yPos = MathUtils.lagrangeEightOrderInterpolation(yPosArray, ref);
+        orb.zPos = MathUtils.lagrangeEightOrderInterpolation(zPosArray, ref);
+        orb.xVel = MathUtils.lagrangeEightOrderInterpolation(xVelArray, ref);
+        orb.yVel = MathUtils.lagrangeEightOrderInterpolation(yVelArray, ref);
+        orb.zVel = MathUtils.lagrangeEightOrderInterpolation(zVelArray, ref);
+
+        return orb;
         /*
         final double mu = (utc - recordTimes[n1]) / (recordTimes[n2] - recordTimes[n1]);
 
@@ -524,7 +559,6 @@ public final class PrareOrbitReader {
         orb.zVel = MathUtils.interpolationCubic(
             orbitVectors[n0].zVel, orbitVectors[n1].zVel, orbitVectors[n2].zVel, orbitVectors[n3].zVel, mu);
         */
-        return orb;
     }
 
     // PRC Data Set Identification Record

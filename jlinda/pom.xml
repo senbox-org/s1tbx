@@ -5,13 +5,13 @@
     <name>jLinda</name>
     <groupId>org.jlinda</groupId>
     <artifactId>jlinda</artifactId>
-    <version>0.6-SNAPSHOT</version>
+    <version>0.6</version>
 
     <description>Java Library for Interferometric Data Analysis (jLinda)</description>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <jlinda.version>0.6-SNAPSHOT</jlinda.version>
+        <jlinda.version>0.6</jlinda.version>
         <nest.version>5.0</nest.version>
         <beam.version>5.0-4.10.4</beam.version>
         <jblas.version>1.2.3</jblas.version>

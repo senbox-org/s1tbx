@@ -4,14 +4,14 @@
     <parent>
         <groupId>org.jlinda</groupId>
         <artifactId>jlinda</artifactId>
-        <version>0.6-SNAPSHOT</version>
+        <version>0.6</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <name>jLinda Core Libs</name>
     <groupId>org.jlinda</groupId>
     <artifactId>jlinda-core</artifactId>
-    <version>0.6-SNAPSHOT</version>
+    <version>0.6</version>
 
     <dependencies>
         <dependency>
@@ -28,6 +28,16 @@
             <groupId>org.esa.beam</groupId>
             <artifactId>beam-gpf</artifactId>
             <version>5.0.1-4.10.4</version>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.beam</groupId>
+            <artifactId>beam-visat</artifactId>
+            <version>${beam.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.bc.ceres</groupId>
+            <artifactId>ceres-ui</artifactId>
+            <version>5.0-0.14</version>
         </dependency>
         <dependency>
             <groupId>org.jblas</groupId>

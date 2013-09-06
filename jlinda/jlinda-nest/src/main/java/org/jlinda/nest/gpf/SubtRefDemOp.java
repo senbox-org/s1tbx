@@ -23,9 +23,7 @@ import org.esa.nest.gpf.ReaderUtils;
 import org.jblas.ComplexDoubleMatrix;
 import org.jblas.DoubleMatrix;
 import org.jblas.MatrixFunctions;
-import org.jlinda.core.Constants;
-import org.jlinda.core.Orbit;
-import org.jlinda.core.SLCImage;
+import org.jlinda.core.*;
 import org.jlinda.core.Window;
 import org.jlinda.core.geom.DemTile;
 import org.jlinda.core.geom.TopoPhase;
@@ -355,28 +353,28 @@ public final class SubtRefDemOp extends Operator {
                 /// get dem of tile ///
 
                 // compute tile geo-corners ~ work on ellipsoid
-                GeoPos[] geoCorners = GeoUtils.computeCorners(product.sourceMaster.metaData,
+                GeoPoint[] geoCorners = GeoUtils.computeCorners(product.sourceMaster.metaData,
                         product.sourceMaster.orbit,
                         tileWindow);
 
                 // get corners as DEM indices
                 PixelPos[] pixelCorners = new PixelPos[2];
-                pixelCorners[0] = dem.getIndex(geoCorners[0]);
-                pixelCorners[1] = dem.getIndex(geoCorners[1]);
+                pixelCorners[0] = dem.getIndex(new GeoPos((float) geoCorners[0].lat, (float) geoCorners[0].lon));
+                pixelCorners[1] = dem.getIndex(new GeoPos((float) geoCorners[1].lat, (float) geoCorners[1].lon));
 
                 // get max/min height of tile ~ uses 'fast' GCP based interpolation technique
                 double[] tileHeights = computeMaxHeight(pixelCorners, targetRectangle);
 
                 // compute extra lat/lon for dem tile
-                GeoPos geoExtent = GeoUtils.defineExtraPhiLam(tileHeights[0], tileHeights[1],
+                GeoPoint geoExtent = GeoUtils.defineExtraPhiLam(tileHeights[0], tileHeights[1],
                         tileWindow, product.sourceMaster.metaData, product.sourceMaster.orbit);
 
                 // extend corners
                 geoCorners = GeoUtils.extendCorners(geoExtent, geoCorners);
 
                 // update corners
-                pixelCorners[0] = dem.getIndex(geoCorners[0]);
-                pixelCorners[1] = dem.getIndex(geoCorners[1]);
+                pixelCorners[0] = dem.getIndex(new GeoPos((float) geoCorners[0].lat, (float) geoCorners[0].lon));
+                pixelCorners[1] = dem.getIndex(new GeoPos((float) geoCorners[1].lat, (float) geoCorners[1].lon));
 
                 pixelCorners[0] = new PixelPos((float) Math.ceil(pixelCorners[0].x), (float) Math.floor(pixelCorners[0].y));
                 pixelCorners[1] = new PixelPos((float) Math.floor(pixelCorners[1].x), (float) Math.ceil(pixelCorners[1].y));
@@ -448,14 +446,31 @@ public final class SubtRefDemOp extends Operator {
 
     private double[] computeMaxHeight(PixelPos[] corners, Rectangle rectangle) throws Exception {
 
+        /* Notes:
+
+          - The scaling and extensions of extreme values of DEM tiles has to be performed to guarantee the overlap
+            between SAR and DEM tiles, and avoid blanks in the simulated Topo phase.
+
+          - More conservative, while also more reliable parameters are introduced that guarantee good results even
+            in some extreme cases.
+
+          - Parameters are defined for the reliability, not(!) the performance.
+
+         */
+
+        final float extraTileX = 1.75f; // = 1.5f
+        final float extraTileY = 1.75f; // = 1.5f
+        final float scaleMinHeight = 0;
+        final float scaleMaxHeight = 5; // = 1.25f
+
         double[] heightArray = new double[2];
 
         // double square root : scales with the size of tile
         final int numberOfPoints = (int) (10 * Math.sqrt(Math.sqrt(rectangle.width * rectangle.height)));
 
-        // work with 1.5x size of tile
-        int offsetX = (int) (1.5 * rectangle.width);
-        int offsetY = (int) (1.5 * rectangle.height);
+        // extend tiles for which statistics is computed
+        int offsetX = (int) (extraTileX * rectangle.width);
+        int offsetY = (int) (extraTileY * rectangle.height);
 
         // define window
         final Window window = new Window((long) (corners[0].y - offsetY), (long) (corners[1].y + offsetY),
@@ -473,10 +488,13 @@ public final class SubtRefDemOp extends Operator {
             }
         }
 
-        // get max/min and add extra 25% to max height ~ just to be sure
+
+        // get max/min and add extras ~ just to be sure
         if (heights.size() > 2) {
-            heightArray[0] = Collections.min(heights);
-            heightArray[1] = Collections.max(heights) * 1.25;
+            // set minimum to 'zero', eg, what if there's small lake in tile?
+            // heightArray[0] = Collections.min(heights);
+            heightArray[0] = 0;
+            heightArray[1] = Collections.max(heights) * scaleMaxHeight;
         } else { // if nodatavalues return 0s ~ tile in the sea
             heightArray[0] = 0;
             heightArray[1] = 0;

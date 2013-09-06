@@ -179,7 +179,7 @@
 			<artifactId>jtransforms</artifactId>
 		</dependency>
         <dependency>
-            <groupId>org</groupId>
+            <groupId>org.jblas</groupId>
             <artifactId>jblas</artifactId>
         </dependency>
 

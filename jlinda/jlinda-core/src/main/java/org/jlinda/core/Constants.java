@@ -20,7 +20,6 @@ public class Constants {
 
     public static final double PI = 3.14159265358979323846264338327950288;
 
-
-
+    public static final double LIGHT_SPEED = 299792458.0; //  m / s
 
 }

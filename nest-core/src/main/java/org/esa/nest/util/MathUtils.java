@@ -21,7 +21,7 @@ import org.esa.nest.datamodel.PosVector;
 import org.esa.nest.eo.Constants;
 
 public final class MathUtils
-{    
+{
     private MathUtils()
     {
     }
@@ -137,10 +137,10 @@ public final class MathUtils
         //    throw new OperatorException("Incorrect sample array length");
         //}
         return interpolationCubic(interpolationCubic(v[0][0], v[0][1], v[0][2], v[0][3], muX),
-                                interpolationCubic(v[1][0], v[1][1], v[1][2], v[1][3], muX),
-                                interpolationCubic(v[2][0], v[2][1], v[2][2], v[2][3], muX),
-                                interpolationCubic(v[3][0], v[3][1], v[3][2], v[3][3], muX),
-                                muY);
+                interpolationCubic(v[1][0], v[1][1], v[1][2], v[1][3], muX),
+                interpolationCubic(v[2][0], v[2][1], v[2][2], v[2][3], muX),
+                interpolationCubic(v[3][0], v[3][1], v[3][2], v[3][3], muX),
+                muY);
     }
 
     /**
@@ -157,9 +157,9 @@ public final class MathUtils
         //    throw new OperatorException("Incorrect sample array length");
         //}
         return interpolationCubic2(interpolationCubic2(v[0][0], v[0][1], v[0][2], v[0][3], muX),
-                                   interpolationCubic2(v[1][0], v[1][1], v[1][2], v[1][3], muX),
-                                   interpolationCubic2(v[2][0], v[2][1], v[2][2], v[2][3], muX),
-                                   interpolationCubic2(v[3][0], v[3][1], v[3][2], v[3][3], muX), muY);
+                interpolationCubic2(v[1][0], v[1][1], v[1][2], v[1][3], muX),
+                interpolationCubic2(v[2][0], v[2][1], v[2][2], v[2][3], muX),
+                interpolationCubic2(v[3][0], v[3][1], v[3][2], v[3][3], muX), muY);
     }
 
     /**
@@ -193,7 +193,24 @@ public final class MathUtils
     public static double[] lagrangeWeight(final double pos[], final double desiredPos)  {
 
         final int length = pos.length;
+        if (desiredPos < pos[0] || desiredPos > pos[length-1]) {
+            double time = desiredPos - (int)desiredPos;
+            final double[] timeArray = new double[length];
+            for (int i = 0; i < length; i++) {
+                timeArray[i] = pos[i] - (int)pos[i];
+            }
+
+            return computeWeight(timeArray, time);
+
+        } else {
+            return computeWeight(pos, desiredPos);
+        }
+    }
+
+    private static double[] computeWeight(final double pos[], final double desiredPos) {
+        final int length = pos.length;
         final double[] weight = new double[length];
+
         for (int i = 0; i < length; ++i) {
             double weightVal = 1;
             for (int j = 0; j < length; ++j) {
@@ -203,6 +220,7 @@ public final class MathUtils
             }
             weight[i] = weightVal;
         }
+
         return weight;
     }
 
@@ -244,6 +262,41 @@ public final class MathUtils
             retVal += weight * val[i];
         }
         return retVal;
+    }
+
+    /**
+     * Interpolate vector using 8th order Legendre interpolation.
+     *
+     * <p>The method interpolates a n-dimensional vector, at desired point given as input an equidistant
+     * n-dimensional vectors.</p>
+     *
+     * <p><b>Notes:</b> Coefficients for 8th order interpolation are pre-computed. Method is primarily designed for
+     * interpolating orbits, and it should be used with care in other applications, although it should work anywhere.</p>
+     *
+     * <p><b>Implementation details:</b> Adapted from 'getorb' package.</p>
+     *
+     * @param samples Sample value array.
+     * @param x Desired position.
+     * @return The interpolated sample value.
+     *
+     * @author Petar Marinkovic, PPO.labs
+     */
+    public static double lagrangeEightOrderInterpolation(double[] samples, double x) {
+
+        double out = 0.0d;
+        final double[] denominators = {40320, -5040, 1440, -720, 576, -720, 1440, -5040, 40320};
+        final double numerator = x * (x - 1) * (x - 2) * (x - 3) * (x - 4) * (x - 5) * (x - 6) * (x - 7) * (x - 8);
+
+        if (numerator == 0) {
+            return samples[(int) Math.round(x)];
+        }
+
+        double coeff;
+        for (int i = 0; i < samples.length; i++) {
+            coeff = numerator / denominators[i] / (x - i);
+            out += coeff * samples[i];
+        }
+        return out;
     }
 
     /**

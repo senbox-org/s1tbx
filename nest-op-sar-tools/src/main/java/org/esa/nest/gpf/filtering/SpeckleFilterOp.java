@@ -82,8 +82,6 @@ public class SpeckleFilterOp extends Operator {
                 label="Number of looks")
     private double enl = 1.0;
 
-    private double cu, cu2;
-
     static final String MEAN_SPECKLE_FILTER = "Mean";
     static final String MEDIAN_SPECKLE_FILTER = "Median";
     static final String FROST_SPECKLE_FILTER = "Frost";
@@ -236,6 +234,9 @@ public class SpeckleFilterOp extends Operator {
             final TileIndex trgIndex = new TileIndex(targetTile);
             final TileIndex srcIndex = new TileIndex(sourceRaster1);
 
+
+            double cu, cu2, n;
+
             switch (filter) {
                 case MEAN_SPECKLE_FILTER:
 
@@ -258,25 +259,29 @@ public class SpeckleFilterOp extends Operator {
                 case GAMMA_MAP_SPECKLE_FILTER:
 
                     if (estimateENL) {
-                        computeEquivalentNumberOfLooks(sourceRaster1, sourceRaster2, bandUnit, x0, y0, w, h);
+                        n = computeEquivalentNumberOfLooks(sourceRaster1, sourceRaster2, bandUnit, x0, y0, w, h);
+                    } else {
+                        n = enl;
                     }
-                    cu = 1.0 / Math.sqrt(enl);
+                    cu = 1.0 / Math.sqrt(n);
                     cu2 = cu * cu;
 
                     computeGammaMap(srcData1, srcData2, trgData, bandUnit, neighborValues, srcIndex, trgIndex,
-                            x0, y0, w, h, sx0, sy0, sw, sh);
+                            x0, y0, w, h, sx0, sy0, sw, sh, cu, cu2, n);
 
                     break;
                 case LEE_SPECKLE_FILTER:
 
                     if (estimateENL) {
-                        computeEquivalentNumberOfLooks(sourceRaster1, sourceRaster2, bandUnit, x0, y0, w, h);
+                        n = computeEquivalentNumberOfLooks(sourceRaster1, sourceRaster2, bandUnit, x0, y0, w, h);
+                    } else {
+                        n = enl;
                     }
-                    cu = 1.0 / Math.sqrt(enl);
+                    cu = 1.0 / Math.sqrt(n);
                     cu2 = cu * cu;
 
                     computeLee(srcData1, srcData2, trgData, bandUnit, neighborValues, srcIndex, trgIndex,
-                            x0, y0, w, h, sx0, sy0, sw, sh);
+                            x0, y0, w, h, sx0, sy0, sw, sh, cu, cu2);
 
                     break;
                 case LEE_REFINED_FILTER:
@@ -465,7 +470,8 @@ public class SpeckleFilterOp extends Operator {
                                  final Unit.UnitType unit, final double[] neighborValues,
                                  final TileIndex srcIndex, final TileIndex trgIndex,
                                  final int x0, final int y0, final int w, final int h,
-                                 final int sx0, final int sy0, final int sw, final int sh) {
+                                 final int sx0, final int sy0, final int sw, final int sh,
+                                 final double cu, final double cu2, final double enl) {
 
         final int maxY = y0 + h;
         final int maxX = x0 + w;
@@ -475,7 +481,7 @@ public class SpeckleFilterOp extends Operator {
 
                 getNeighborValues(x, y, sx0, sy0, sw, sh, srcData1, srcData2, srcIndex, unit, neighborValues);
 
-                trgData.setElemDoubleAt(x-offset, getGammaMapValue(neighborValues));
+                trgData.setElemDoubleAt(x-offset, getGammaMapValue(neighborValues, cu, cu2, enl));
             }
         }
     }
@@ -502,7 +508,8 @@ public class SpeckleFilterOp extends Operator {
                             final Unit.UnitType unit, final double[] neighborValues,
                             final TileIndex srcIndex, final TileIndex trgIndex,
                             final int x0, final int y0, final int w, final int h,
-                            final int sx0, final int sy0, final int sw, final int sh) {
+                            final int sx0, final int sy0, final int sw, final int sh,
+                            final double cu, final double cu2) {
 
         final int maxY = y0 + h;
         final int maxX = x0 + w;
@@ -512,7 +519,7 @@ public class SpeckleFilterOp extends Operator {
 
                 getNeighborValues(x, y, sx0, sy0, sw, sh, srcData1, srcData2, srcIndex, unit, neighborValues);
 
-                trgData.setElemDoubleAt(x-offset, getLeeValue(neighborValues));
+                trgData.setElemDoubleAt(x-offset, getLeeValue(neighborValues, cu, cu2));
             }
         }
     }
@@ -704,7 +711,7 @@ public class SpeckleFilterOp extends Operator {
      * @throws org.esa.beam.framework.gpf.OperatorException
      *          If an error occurs in computation of the Gamma filtered value.
      */
-    private double getGammaMapValue(final double[] neighborValues) {
+    private double getGammaMapValue(final double[] neighborValues, final double cu, final double cu2, final double enl) {
 
         final double mean = getMeanValue(neighborValues);
         if (mean <= Double.MIN_VALUE) {
@@ -743,7 +750,7 @@ public class SpeckleFilterOp extends Operator {
      * @throws org.esa.beam.framework.gpf.OperatorException
      *          If an error occurs in computation of the Lee filtered value.
      */
-    private double getLeeValue(final double[] neighborValues) {
+    private double getLeeValue(final double[] neighborValues, final double cu, final double cu2) {
 
         final double mean = getMeanValue(neighborValues);
         if (Double.compare(mean, Double.MIN_VALUE) <= 0) {
@@ -775,15 +782,19 @@ public class SpeckleFilterOp extends Operator {
      * @param y0 Y coordinate of the upper left corner point of the target tile rectangle.
      * @param w The width of the target tile rectangle.
      * @param h The height of the target tile rectangle.
+     * @return The equivalent number of looks.
      */
-    void computeEquivalentNumberOfLooks(final Tile sourceRaster1, final Tile sourceRaster2, final Unit.UnitType bandUnit,
-                                        final int x0, final int y0, final int w, final int h) {
+    private double computeEquivalentNumberOfLooks(
+            final Tile sourceRaster1, final Tile sourceRaster2, final Unit.UnitType bandUnit,
+            final int x0, final int y0, final int w, final int h) {
 
         final ProductData srcData1 = sourceRaster1.getDataBuffer();
         ProductData srcData2 = null;
-        if(sourceRaster2 != null)
+        if(sourceRaster2 != null) {
             srcData2 = sourceRaster2.getDataBuffer();
+        }
 
+        double enl = 1.0;
         if (bandUnit != null && (bandUnit == Unit.UnitType.REAL || bandUnit == Unit.UnitType.IMAGINARY)) {
             double sum = 0;
             double sum2 = 0;
@@ -799,11 +810,13 @@ public class SpeckleFilterOp extends Operator {
                 }
             }
 
-            final double area = h * w;
-            final double m = sum / area;
-            final double m2 = sum2 / area;
-            final double mm = m*m;
-            enl = mm / (m2 - mm);
+            if (sum != 0.0 && sum2 > 0.0) {
+                final double area = h * w;
+                final double m = sum / area;
+                final double m2 = sum2 / area;
+                final double mm = m*m;
+                enl = mm / (m2 - mm);
+            }
 
         } else if (bandUnit != null && bandUnit == Unit.UnitType.INTENSITY) {
             double sum = 0;
@@ -817,11 +830,13 @@ public class SpeckleFilterOp extends Operator {
                 }
             }
 
-            final double area = h * w;
-            final double m = sum / area;
-            final double m2 = sum2 / area;
-            final double mm = m*m;
-            enl = mm / (m2 - mm);
+            if (sum != 0.0 && sum2 > 0.0) {
+                final double area = h * w;
+                final double m = sum / area;
+                final double m2 = sum2 / area;
+                final double mm = m*m;
+                enl = mm / (m2 - mm);
+            }
 
         } else {
 
@@ -837,12 +852,16 @@ public class SpeckleFilterOp extends Operator {
                 }
             }
 
-            final double area = h * w;
-            final double m2 = sum2 / area;
-            final double m4 = sum4 / area;
-            final double m2m2 = m2*m2;
-            enl = m2m2 / (m4 - m2m2);
+            if (sum2 > 0.0 && sum4 > 0.0) {
+                final double area = h * w;
+                final double m2 = sum2 / area;
+                final double m4 = sum4 / area;
+                final double m2m2 = m2*m2;
+                enl = m2m2 / (m4 - m2m2);
+            }
         }
+
+        return enl;
     }
 
     /**

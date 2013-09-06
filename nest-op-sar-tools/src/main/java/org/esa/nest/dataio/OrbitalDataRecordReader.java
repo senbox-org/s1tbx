@@ -25,9 +25,10 @@ import org.esa.nest.util.ResourceUtils;
 import java.io.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.StringTokenizer;
+
+import static org.esa.beam.util.math.MathUtils.RTOD;
 
 /**
  * Reads Delft ODR format orbit files
@@ -54,6 +55,8 @@ public final class OrbitalDataRecordReader {
     private static final double halfSecond = 0.5 / (24*3600); // in days
 
     public static final int invalidArcNumber = -1;
+
+    private static final int INTERPOLATION_ORDER = 8; // this is minima with which we can get required interp smoothness
 
     public boolean readOrbitFile(String path) throws Exception {
 
@@ -87,13 +90,13 @@ public final class OrbitalDataRecordReader {
         } catch(Exception e) {
             in = null;
             return false;
-        } 
+        }
         return true;
     }
 
     void parseHeader1() {
         if(in == null) return;
-        
+
         try {
             // Product specifier ('@ODR' or 'xODR').
             productSpecifier = readAn(4);
@@ -166,7 +169,7 @@ public final class OrbitalDataRecordReader {
             //505. as 305. EGM96 gravity field model used instead of JGM-3
             //524. as 324. EGM96 gravity field model used instead of JGM-3
             version = in.readInt();
-            
+
         } catch (IOException e) {
 
             System.out.print(e);
@@ -178,7 +181,7 @@ public final class OrbitalDataRecordReader {
 
         try {
             data.time = in.readInt();
-            
+
             //latitude
             //@ODR: in microdegrees.
             //xODR: in 0.1 microdegrees.
@@ -186,7 +189,7 @@ public final class OrbitalDataRecordReader {
 
             //longitude
             //@ODR: in microdegrees, interval 0 to 360 degrees.
-	        //xODR: in 0.1 microdegrees, interval -180 to 180 degrees.
+            //xODR: in 0.1 microdegrees, interval -180 to 180 degrees.
             data.longitude = in.readInt();
 
             data.heightOfCenterOfMass = in.readInt();
@@ -244,9 +247,9 @@ public final class OrbitalDataRecordReader {
     }
 
     /**
-     * Convert satellite position from deodetic coordinate to global cartesian coordinate.
+     * Convert satellite position from geodetic coordinate to pseudo-cartesian coordinate system.
      * @param dataRecord The data record read from delft orbit file.
-     * @return The data record in cartesian coordinate.
+     * @return The data record in pseudo-cartesian coordinate.
      */
     private OrbitPositionRecord computeOrbitPosition(OrbitDataRecord dataRecord) {
 
@@ -274,7 +277,13 @@ public final class OrbitalDataRecordReader {
         }
 
         final double[] xyz = new double[3];
-        GeoUtils.geo2xyz(lat, lon, alt, xyz, GeoUtils.EarthModel.GRS80);
+/*
+        NOTE: For interpolation we need only certesian coordinates, therefpre orbit arcs are
+        converted to Cartesian from Polar only, and NOT to GeoCentric coordinates.
+        // GeoUtils.geo2xyz(lat, lon, alt, xyz, GeoUtils.EarthModel.GRS80);
+*/
+        // convert (lat,lon,alt) records to pseudo-X,Y,Z
+        GeoUtils.polar2cartesian(lat, lon, alt, xyz);
 
         final OrbitPositionRecord orbitPosition = new OrbitPositionRecord();
         orbitPosition.utcTime = utcTime;
@@ -293,62 +302,66 @@ public final class OrbitalDataRecordReader {
      */
     private OrbitPositionRecord getOrbitPosition(double utc) throws Exception {
 
-        final int n = Arrays.binarySearch(recordTimes, utc);
+        final int order = INTERPOLATION_ORDER;
+        final int nRecords = recordTimes.length;
+        double t0 = recordTimes[0];
+        double tN = recordTimes[nRecords - 1];
 
-		if (n >= 0) {
-			return orbitPositions[n];
-		}
+        // final int n = Arrays.binarySearch(recordTimes, utc);
+        // binary search not needed, we can pre-compute index for given utc wrt delta, and start/end time
+        final double tRel = (utc - t0) / (tN - t0) * (nRecords - 1); // data index from 0
+        final int itRel = (int) Math.max(1, Math.min(Math.round(tRel) - (order / 2), (nRecords - 1) - order));
 
-		final int n2 = -n - 1;
-        final int n0 = n2 - 2;
-        final int n1 = n2 - 1;
-        final int n3 = n2 + 1;
+        // indices for populating arrays - Working with 8th Order => 9 points
+        final int n0 = itRel;
+        final int n1 = itRel + 1;
+        final int n2 = itRel + 2;
+        final int n3 = itRel + 3;
+        final int n4 = itRel + 4; // <- closest to interpolation point
+        final int n5 = itRel + 5;
+        final int n6 = itRel + 6;
+        final int n7 = itRel + 7;
+        final int n8 = itRel + 8;
 
-        if (n0 < 0 || n1 < 0 || n2 >= recordTimes.length || n3 >= recordTimes.length) {
+        // TODO: Verify validity of check for incorrect UTC time in parsing orbit
+        // ....I'm not sure that this check is very smart, and that it would pick up not fully overlapping arc
+        if (n0 < 0 || n1 < 0 || n2 < 0 || n3 < 0 || n4 < 0 || n5 > nRecords || n6 > nRecords || n7 > nRecords || n8 > nRecords) {
             throw new Exception("Incorrect UTC time");
         }
 
-        final double[] timeArray = {recordTimes[n0], recordTimes[n1], recordTimes[n2], recordTimes[n3]};
-        final double[] xPosArray = {orbitPositions[n0].xPos, orbitPositions[n1].xPos, orbitPositions[n2].xPos, orbitPositions[n3].xPos};
-        final double[] yPosArray = {orbitPositions[n0].yPos, orbitPositions[n1].yPos, orbitPositions[n2].yPos, orbitPositions[n3].yPos};
-        final double[] zPosArray = {orbitPositions[n0].zPos, orbitPositions[n1].zPos, orbitPositions[n2].zPos, orbitPositions[n3].zPos};
+        final double[] xPosArray = {orbitPositions[n0].xPos, orbitPositions[n1].xPos, orbitPositions[n2].xPos, orbitPositions[n3].xPos,
+                                    orbitPositions[n4].xPos,
+                                    orbitPositions[n5].xPos, orbitPositions[n6].xPos, orbitPositions[n7].xPos, orbitPositions[n8].xPos};
+
+        final double[] yPosArray = {orbitPositions[n0].yPos, orbitPositions[n1].yPos, orbitPositions[n2].yPos, orbitPositions[n3].yPos,
+                                    orbitPositions[n4].yPos,
+                                    orbitPositions[n5].yPos, orbitPositions[n6].yPos, orbitPositions[n7].yPos, orbitPositions[n8].yPos};
+
+        final double[] zPosArray = {orbitPositions[n0].zPos, orbitPositions[n1].zPos, orbitPositions[n2].zPos, orbitPositions[n3].zPos,
+                                    orbitPositions[n4].zPos,
+                                    orbitPositions[n5].zPos, orbitPositions[n6].zPos, orbitPositions[n7].zPos, orbitPositions[n8].zPos};
 
         final OrbitPositionRecord orbitPosition = new OrbitPositionRecord();
         orbitPosition.utcTime = utc;
-        orbitPosition.xPos = MathUtils.lagrangeInterpolatingPolynomial(timeArray, xPosArray, utc);
-        orbitPosition.yPos = MathUtils.lagrangeInterpolatingPolynomial(timeArray, yPosArray, utc);
-        orbitPosition.zPos = MathUtils.lagrangeInterpolatingPolynomial(timeArray, zPosArray, utc);
-        /*
-        final double mu = (utc - recordTimes[n1]) / (recordTimes[n2] - recordTimes[n1]);
 
-        OrbitPositionRecord orbitPosition = new OrbitPositionRecord();
+        double ref = tRel - itRel;
+        double[] xyz = new double[3];
+        double[] phiLamHeight = new double[3];
 
-        orbitPosition.utcTime = MathUtils.interpolationCubic(orbitPositions[n0].utcTime,
-                                                             orbitPositions[n1].utcTime,
-                                                             orbitPositions[n2].utcTime,
-                                                             orbitPositions[n3].utcTime,
-                                                             mu);
+        xyz[0] = MathUtils.lagrangeEightOrderInterpolation(xPosArray, ref);
+        xyz[1] = MathUtils.lagrangeEightOrderInterpolation(yPosArray, ref);
+        xyz[2] = MathUtils.lagrangeEightOrderInterpolation(zPosArray, ref);
 
-        orbitPosition.xPos = MathUtils.interpolationCubic(orbitPositions[n0].xPos,
-                                                          orbitPositions[n1].xPos,
-                                                          orbitPositions[n2].xPos,
-                                                          orbitPositions[n3].xPos,
-                                                          mu);
+        GeoUtils.cartesian2polar(xyz,phiLamHeight);
+        GeoUtils.geo2xyz(phiLamHeight[0] * RTOD, phiLamHeight[1] * RTOD, phiLamHeight[2], xyz, GeoUtils.EarthModel.GRS80);
 
-        orbitPosition.yPos = MathUtils.interpolationCubic(orbitPositions[n0].yPos,
-                                                          orbitPositions[n1].yPos,
-                                                          orbitPositions[n2].yPos,
-                                                          orbitPositions[n3].yPos,
-                                                          mu);
+        orbitPosition.xPos = xyz[0];
+        orbitPosition.yPos = xyz[1];
+        orbitPosition.zPos = xyz[2];
 
-        orbitPosition.zPos = MathUtils.interpolationCubic(orbitPositions[n0].zPos,
-                                                          orbitPositions[n1].zPos,
-                                                          orbitPositions[n2].zPos,
-                                                          orbitPositions[n3].zPos,
-                                                          mu);
-        */
         return orbitPosition;
     }
+
 
     /**
      * Get orbit vector for given UTC time.
@@ -375,7 +388,6 @@ public final class OrbitalDataRecordReader {
 
         return orbitVector;
     }
-    
     /**
      * Get the arc number from the arclist file for a given product date.
      * @param file The arclist file.

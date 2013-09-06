@@ -973,8 +973,12 @@ public class MosaicOp extends Operator {
                         allValid = false;
                     }
 
+                    try {
                     samples[i][j] = dataBuffer.getElemDoubleAt(tile.getDataBufferIndex(x[j], y[i]));
-
+                    } catch (Exception e) {
+                        samples[i][j] =  Float.NaN;
+                        allValid = false;
+                    }
                     if (usesNoData) {
                         if (scalingApplied && geophysicalNoDataValue == samples[i][j] || noDataValue == samples[i][j]) {
                             samples[i][j] = Float.NaN;

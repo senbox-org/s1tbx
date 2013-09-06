@@ -17,9 +17,9 @@ file formats using the plug-in writer modules. Internally, the data is
 stored in a Generic Product Model (GPM) and organized in a similar
 structure as its external representation the BEAM-DIMAP file format.
 The BEAM-DIMAP format consists of an XML file containing meta-data and
-a file folder containing image bands in flatbinary files.<br><br>The
+a file folder containing image bands in flat binary files.<br><br>The
 Convert Datatype Operator performs gain conversion. The data will be
-formated to be able to adjust for the dynamic range of the data in the
+formatted to be able to adjust for the dynamic range of the data in the
 following ways:<br><ul><li>no value scaling (truncation)</li><li>linear scaling using slope and intercept: new value = slope * old value + intercept</li><li>linear scaling between min. and max. pixel values or &#8216;clipped&#8217; (%) histogram</li><li>logarithmic scaling using slope and intercept: new value = 10**(slope * old value + intercept)</li><li>Look-Up Table defined by the user containing the mapping</li></ul><br>This will make it possible to be able to convert between the following data types:<br><ul><li>8-bit integer</li><li>16-bit integer</li><li>32-bit integer</li><li>32-bit float</li><li>complex integer (16 bits + 16 bits)</li><li>complex float (32 bits + 32 bits)</li></ul>
 <hr>
 </body></html>

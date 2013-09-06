@@ -129,7 +129,7 @@ public class DEMFactory {
 
     public static String appendAutoDEM(String demName) {
         if(demName.equals("GETASSE30") || demName.equals("SRTM 3Sec") || demName.equals("ACE2_5Min")
-           || demName.equals("ACE30"))
+                || demName.equals("ACE30"))
             demName += AUTODEM;
         return demName;
     }
@@ -234,7 +234,15 @@ public class DEMFactory {
 
         GeoPos[] geoCorners = {upperLeftCorner, lowerRightCorner};
         final GeoPos geoExtent = new GeoPos((float)(0.25*(latMax - latMin)), (float)(0.25*(lonMax - lonMin)));
-        geoCorners = org.jlinda.core.utils.GeoUtils.extendCorners(geoExtent, geoCorners);
+
+        /* inline of extendCorners call: avoiding ambiguous dependencies GeoPos vs GeoPoint */
+        // geoCorners = extendCorners(geoExtent, geoCorners);
+
+        geoCorners[0].lat = geoCorners[0].lat + geoExtent.lat;
+        geoCorners[0].lon = geoCorners[0].lon - geoExtent.lon;
+
+        geoCorners[1].lat = geoCorners[1].lat - geoExtent.lat;
+        geoCorners[1].lon = geoCorners[1].lon + geoExtent.lon;
 
         if (geoCorners[0].lon > 180) {
             geoCorners[0].lon -= 360;
@@ -365,4 +373,24 @@ public class DEMFactory {
         }
         return valid;
     }
+
+    private static GeoPos[] extendCorners(final GeoPos extraGeo, final GeoPos[] inGeo) {
+
+        if (inGeo.length != 2) {
+            throw new IllegalArgumentException("Input GeoPos[] array has to have exactly 2 elements");
+        }
+
+        GeoPos[] outGeo = new GeoPos[inGeo.length];
+
+        outGeo[0] = new GeoPos();
+        outGeo[0].lat = inGeo[0].lat + extraGeo.lat;
+        outGeo[0].lon = inGeo[0].lon - extraGeo.lon;
+
+        outGeo[1] = new GeoPos();
+        outGeo[1].lat = inGeo[1].lat - extraGeo.lat;
+        outGeo[1].lon = inGeo[1].lon + extraGeo.lon;
+
+        return outGeo;
+    }
+
 }

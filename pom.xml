@@ -20,7 +20,7 @@
 		<hdf.version>2.7</hdf.version>
 		<netcdf.version>4.2.20</netcdf.version>
 		<nest.version>5.0</nest.version>
-		<jlinda.version>0.6-SNAPSHOT</jlinda.version>
+		<jlinda.version>0.6</jlinda.version>
 		<outputdir>../output</outputdir>
 	</properties>
 	
@@ -722,8 +722,8 @@
 				<version>2.3</version>
 			</dependency>
 	        <dependency>
-	            <groupId>org</groupId>
-	            <version>1.2.0</version>
+	            <groupId>org.jblas</groupId>
+	            <version>1.2.3</version>
 	            <artifactId>jblas</artifactId>
 	        </dependency>
 			

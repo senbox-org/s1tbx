@@ -413,10 +413,10 @@ public class InterferogramOp extends Operator {
 
                     // normalize range and azimuth axis
                     DoubleMatrix rangeAxisNormalized = DoubleMatrix.linspace(x0, xN, complexMaster.columns);
-                    rangeAxisNormalized = normalizeDoubleMatrix(rangeAxisNormalized);
+                    rangeAxisNormalized = normalizeDoubleMatrix(rangeAxisNormalized, sourceImageWidth);
 
                     DoubleMatrix azimuthAxisNormalized = DoubleMatrix.linspace(y0, yN, complexMaster.rows);
-                    azimuthAxisNormalized = normalizeDoubleMatrix(azimuthAxisNormalized);
+                    azimuthAxisNormalized = normalizeDoubleMatrix(azimuthAxisNormalized, sourceImageHeight);
 
                     // pull polynomial from the map
                     DoubleMatrix polyCoeffs = flatEarthPolyMap.get(product.sourceSlave.name);
@@ -430,7 +430,6 @@ public class InterferogramOp extends Operator {
                     ComplexDoubleMatrix complexReferencePhase =
                             new ComplexDoubleMatrix(MatrixFunctions.cos(realReferencePhase),
                                     MatrixFunctions.sin(realReferencePhase));
-
 
                     complexSlave.muli(complexReferencePhase); // no conjugate here!
                 }
@@ -455,9 +454,9 @@ public class InterferogramOp extends Operator {
         }
     }
 
-    private DoubleMatrix normalizeDoubleMatrix(DoubleMatrix matrix) {
-        matrix.subi(0.5 * (1 + sourceImageWidth));
-        matrix.divi(0.25 * (sourceImageWidth - 1));
+    private DoubleMatrix normalizeDoubleMatrix(DoubleMatrix matrix, int factor) {
+        matrix.subi(0.5 * (1 + factor));
+        matrix.divi(0.25 * (factor - 1));
         return matrix;
     }
 
