@@ -139,7 +139,7 @@ public class PlacemarkGroup extends ProductNodeGroup<Placemark> {
                         for (SimpleFeature feature : oldFeatures) {
                             final Placemark placemark = placemarkMap.get(feature);
                             if (placemark != null) {
-                                // Only call add() if we don't have the pin already
+                                // Only call remove() if we don't have the pin already
                                 _remove(placemark);
                             }
                         }
