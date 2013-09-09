@@ -80,6 +80,11 @@
             <artifactId>beam-landsat-reader</artifactId>
             <version>1.4.5.0-SNAPSHOT</version>
         </dependency>
+        <dependency>
+            <groupId>org.esa.beam</groupId>
+            <artifactId>beam-envisat-reader</artifactId>
+            <version>1.5.2.5.0-SNAPSHOT</version>
+        </dependency>
 
         <!--<dependency>-->
             <!--<groupId>org.esa.beam</groupId>-->
@@ -106,11 +111,7 @@
             <!--<artifactId>beam-csv-dataio</artifactId>-->
             <!--<version>5.0-SNAPSHOT</version>-->
         <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>org.esa.beam</groupId>-->
-            <!--<artifactId>beam-envisat-reader</artifactId>-->
-            <!--<version>1.5.2.5.0-SNAPSHOT</version>-->
-        <!--</dependency>-->
+
         <!--<dependency>-->
             <!--<groupId>org.esa.beam</groupId>-->
             <!--<artifactId>beam-geotiff</artifactId>-->

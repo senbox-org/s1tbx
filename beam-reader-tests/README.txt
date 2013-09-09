@@ -23,19 +23,20 @@ To be able to run the tests, two VM properties need to be present:
 Creating a reader test
 ~~~~~~~~~~~~~~~~~~~~~~
 
-2 files must be provided in the resource directory of the reader module. They must be placed in the same package
+A number of files must be provided in the resource directory of the reader module. They must be placed in the same package
 as the implemented plugin. The files must be named as follows
     <READER_PLUGIN_NAME>-data.json
-    <READER_PLUGIN_NAME>-test.json
+    <PRODUCT-ID>.json
+where <PRODUCT-ID> must macth the product identifier that is defined in the *-data.json file.
 Example for Landsat:
 Plugin is org.esa.beam.dataio.landsat.geotiff.LandsatGeotiffReaderPlugin.
 
 The files must be located in
     \src\main\resources\org\esa\beam\dataio\landsat\geotiff\LandsatGeotiffReaderPlugin-data.json
-    \src\main\resources\org\esa\beam\dataio\landsat\geotiff\LandsatGeotiffReaderPlugin-test.json
+    \src\main\resources\org\esa\beam\dataio\landsat\geotiff\L71191027_02720070313.json
 
 Within the data file the test products are defined. Each definition consists of an id, a relative Path and a
-description (see class org.esa.beam.dataio.TestProduct). Within the test file the expected content of each product
+description (see class org.esa.beam.dataio.TestProduct). Within the product-id file the expected content of each product
 is defined (see class org.esa.beam.dataio.ExpectedContent).
 
 The dependency to the reader must be added to the dependency list of the beam-reader-tests module.

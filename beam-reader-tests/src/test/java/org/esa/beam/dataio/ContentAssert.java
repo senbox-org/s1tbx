@@ -9,9 +9,7 @@ import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 class ContentAssert {
 
@@ -27,9 +25,10 @@ class ContentAssert {
 
     void assertProductContent() {
         assertExpectedProductProperties(expectedContent, productId, product);
-        testExpectedGeoCoding(expectedContent, productId,  product);
+        testExpectedGeoCoding(expectedContent, productId, product);
         testExpectedFlagCoding(expectedContent, productId, product);
         testExpectedIndexCoding(expectedContent, productId, product);
+        testExpectedTiePointGrids(expectedContent, productId, product);
         testExpectedBands(expectedContent, productId, product);
         testExpectedMasks(expectedContent, productId, product);
         testExpectedMetadata(expectedContent, product);
@@ -62,8 +61,9 @@ class ContentAssert {
                 final PixelPos expectedPixelPos = coordinate.getPixelPos();
                 final GeoPos expectedGeoPos = coordinate.getGeoPos();
                 final GeoPos actualGeoPos = geoCoding.getGeoPos(expectedPixelPos, null);
-                assertEquals(productId + " GeoPos at Pixel(" + expectedPixelPos.getX() + "," + expectedPixelPos.getY() + ")",
-                        expectedGeoPos, actualGeoPos);
+                final String message = productId + " GeoPos at Pixel(" + expectedPixelPos.getX() + "," + expectedPixelPos.getY() + ")";
+                assertEquals(message, expectedGeoPos.getLat(), actualGeoPos.getLat(), 1e-6);
+                assertEquals(message, expectedGeoPos.getLon(), actualGeoPos.getLon(), 1e-6);
 
                 final PixelPos actualPixelPos = geoCoding.getPixelPos(actualGeoPos, null);
                 assertEquals(productId + " Pixel.X at GeoPos(" + actualGeoPos.getLat() + "," + actualGeoPos.getLon() + ")",
@@ -114,10 +114,52 @@ class ContentAssert {
         }
     }
 
+    private static void testExpectedTiePointGrids(ExpectedContent expectedContent, String productId, Product product) {
+        final ExpectedTiePointGrid[] tiePointGrids = expectedContent.getTiePointGrids();
+        for (ExpectedTiePointGrid tiePointGrid : tiePointGrids) {
+            testExpectedTiePointGrid(productId, tiePointGrid, product);
+        }
+    }
+
     private static void testExpectedBands(ExpectedContent expectedContent, String productId, Product product) {
         final ExpectedBand[] expectedBands = expectedContent.getBands();
         for (final ExpectedBand expectedBand : expectedBands) {
             testExpectedBand(productId, expectedBand, product);
+        }
+    }
+
+    private static void testExpectedTiePointGrid(String productId, ExpectedTiePointGrid expectedTiePointGrid, Product product) {
+        final TiePointGrid tiePointGrid = product.getTiePointGrid(expectedTiePointGrid.getName());
+        assertNotNull("missing tie-point grid '" + expectedTiePointGrid.getName() + " in product '" + product.getFileLocation(), tiePointGrid);
+
+        final String assertMessagePrefix = productId + " " + tiePointGrid.getName();
+
+        if (expectedTiePointGrid.isDescriptionSet()) {
+            assertEquals(assertMessagePrefix + " Description", expectedTiePointGrid.getDescription(), tiePointGrid.getDescription());
+        }
+
+        if (expectedTiePointGrid.isOffsetXSet()) {
+            assertEquals(assertMessagePrefix + " OffsetX", expectedTiePointGrid.getOffsetX(), tiePointGrid.getOffsetX(), 1e-6);
+        }
+
+        if (expectedTiePointGrid.isOffsetYSet()) {
+            assertEquals(assertMessagePrefix + " OffsetY", expectedTiePointGrid.getOffsetY(), tiePointGrid.getOffsetY(), 1e-6);
+        }
+
+        if (expectedTiePointGrid.isSubSamplingXSet()) {
+            assertEquals(assertMessagePrefix + " SubSamplingX", expectedTiePointGrid.getSubSamplingX(), tiePointGrid.getSubSamplingX(), 1e-6);
+        }
+
+        if (expectedTiePointGrid.isSubSamplingYSet()) {
+            assertEquals(assertMessagePrefix + " SubSamplingY", expectedTiePointGrid.getSubSamplingY(), tiePointGrid.getSubSamplingY(), 1e-6);
+        }
+        final ExpectedPixel[] expectedPixel = expectedTiePointGrid.getExpectedPixels();
+        for (ExpectedPixel pixel : expectedPixel) {
+            float bandValue = tiePointGrid.getSampleFloat(pixel.getX(), pixel.getY());
+            if (!tiePointGrid.isPixelValid(pixel.getX(), pixel.getY())) {
+                bandValue = Float.NaN;
+            }
+            Assert.assertEquals(assertMessagePrefix + " Pixel(" + pixel.getX() + "," + pixel.getY() + ")", pixel.getValue(), bandValue, 1e-6);
         }
     }
 
@@ -165,7 +207,7 @@ class ContentAssert {
         }
     }
 
-   private static void assertEqualMasks(String msgPrefix, ExpectedMask expectedMask, Mask actualMask) {
+    private static void assertEqualMasks(String msgPrefix, ExpectedMask expectedMask, Mask actualMask) {
         assertEquals(msgPrefix + " Type", expectedMask.getType(), actualMask.getImageType().getClass());
         assertEquals(expectedMask.getColor(), actualMask.getImageColor());
         final String expectedMaskDescription = expectedMask.getDescription();

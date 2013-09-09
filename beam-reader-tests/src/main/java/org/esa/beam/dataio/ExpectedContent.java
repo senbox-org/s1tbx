@@ -3,13 +3,7 @@ package org.esa.beam.dataio;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.esa.beam.framework.datamodel.Mask;
-import org.esa.beam.framework.datamodel.MetadataAttribute;
-import org.esa.beam.framework.datamodel.MetadataElement;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.datamodel.ProductNodeGroup;
-import org.esa.beam.framework.datamodel.SampleCoding;
+import org.esa.beam.framework.datamodel.*;
 
 import java.util.Random;
 
@@ -31,6 +25,8 @@ public class ExpectedContent {
     @JsonProperty
     private ExpectedSampleCoding[] indexCodings;
     @JsonProperty
+    private ExpectedTiePointGrid[] tiePointGrids;
+    @JsonProperty
     private ExpectedBand[] bands;
     @JsonProperty
     private ExpectedMask[] masks;
@@ -41,6 +37,7 @@ public class ExpectedContent {
         metadata = new ExpectedMetadata[0];
         flagCodings = new ExpectedSampleCoding[0];
         indexCodings = new ExpectedSampleCoding[0];
+        tiePointGrids = new ExpectedTiePointGrid[0];
         bands = new ExpectedBand[0];
         masks = new ExpectedMask[0];
     }
@@ -61,6 +58,7 @@ public class ExpectedContent {
         this.geoCoding = createExpectedGeoCoding(product, random);
         this.flagCodings = createExpectedSampleCodings(product.getFlagCodingGroup());
         this.indexCodings = createExpectedSampleCodings(product.getIndexCodingGroup());
+        this.tiePointGrids = createExpectedTiePointGrids(product, random);
         this.bands = createExpectedBands(product, random);
         this.masks = createExpectedMasks(product);
         this.metadata = createExpectedMetadata(product, random);
@@ -69,7 +67,7 @@ public class ExpectedContent {
     private ExpectedMetadata[] createExpectedMetadata(Product product, Random random) {
         final MetadataElement metadataRoot = product.getMetadataRoot();
         if (metadataRoot.getNumElements() > 0 ||
-            metadataRoot.getNumAttributes() > 0) {
+                metadataRoot.getNumAttributes() > 0) {
             final ExpectedMetadata[] expectedMetadata = new ExpectedMetadata[2];
             for (int i = 0; i < expectedMetadata.length; i++) {
                 MetadataElement currentElem = metadataRoot;
@@ -82,7 +80,7 @@ public class ExpectedContent {
                 }
             }
             return expectedMetadata;
-        }else {
+        } else {
             return new ExpectedMetadata[0];
         }
 
@@ -103,8 +101,14 @@ public class ExpectedContent {
             expectedMasks[i] = new ExpectedMask(mask);
         }
         return expectedMasks;
+    }
 
-
+    private ExpectedTiePointGrid[] createExpectedTiePointGrids(Product product, Random random) {
+        final ExpectedTiePointGrid[] expectedTiePointGrids = new ExpectedTiePointGrid[product.getNumTiePointGrids()];
+        for (int i = 0; i < expectedTiePointGrids.length; i++) {
+            expectedTiePointGrids[i] = new ExpectedTiePointGrid(product.getTiePointGridAt(i), random);
+        }
+        return expectedTiePointGrids;
     }
 
     private ExpectedBand[] createExpectedBands(Product product, Random random) {
@@ -173,6 +177,10 @@ public class ExpectedContent {
 
     ExpectedSampleCoding[] getIndexCodings() {
         return indexCodings;
+    }
+
+    public ExpectedTiePointGrid[] getTiePointGrids() {
+        return tiePointGrids;
     }
 
     ExpectedBand[] getBands() {

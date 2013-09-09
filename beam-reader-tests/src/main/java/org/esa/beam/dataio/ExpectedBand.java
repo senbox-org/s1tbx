@@ -35,7 +35,7 @@ class ExpectedBand {
         this.name = band.getName();
         this.description = band.getDescription();
         this.geophysicalUnit = band.getUnit();
-        this.noDataValue = String.valueOf(band.getNoDataValue());
+        this.noDataValue = String.valueOf(band.getGeophysicalNoDataValue());
         this.noDataValueUsed = String.valueOf(band.isNoDataValueUsed());
         this.spectralWavelength = String.valueOf(band.getSpectralWavelength());
         this.spectralBandwidth = String.valueOf(band.getSpectralBandwidth());
@@ -64,7 +64,6 @@ class ExpectedBand {
     boolean isDescriptionSet() {
         return StringUtils.isNotNullAndNotEmpty(description);
     }
-
 
     String getGeophysicalUnit() {
         return geophysicalUnit;
