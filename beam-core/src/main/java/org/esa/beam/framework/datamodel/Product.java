@@ -1261,7 +1261,6 @@ public class Product extends ProductNode {
 
     /**
      * Gets the group of ground-control points (GCPs).
-     * Note that this method will create the group, if none exists already.
      *
      * @return the GCP group.
      */
@@ -1283,7 +1282,6 @@ public class Product extends ProductNode {
 
     /**
      * Gets the group of pins.
-     * Note that this method will create the group, if none exists already.
      *
      * @return the pin group.
      */
