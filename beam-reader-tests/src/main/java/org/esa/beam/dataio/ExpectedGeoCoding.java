@@ -14,10 +14,13 @@ import java.util.Random;
  * @author Marco Peters
  */
 class ExpectedGeoCoding {
+
     @JsonProperty(required = true)
     private ExpectedGeoCoordinate[] coordinates;
     @JsonProperty()
     private Float reverseAccuracy;
+    @JsonProperty()
+    private Class<? extends GeoCoding> geoCodingClass;
 
 
     ExpectedGeoCoding() {
@@ -27,8 +30,9 @@ class ExpectedGeoCoding {
     ExpectedGeoCoding(Product product, Random random) {
         this();
         final ArrayList<Point2D> pointList = ExpectedPixel.createPointList(product, random);
-        coordinates = new ExpectedGeoCoordinate[pointList.size()];
         final GeoCoding geoCoding = product.getGeoCoding();
+        geoCodingClass = geoCoding.getClass();
+        coordinates = new ExpectedGeoCoordinate[pointList.size()];
         for (int i = 0; i < pointList.size(); i++) {
             Point2D point = pointList.get(i);
             final float x = (float) point.getX();
@@ -44,5 +48,9 @@ class ExpectedGeoCoding {
 
     Float getReverseAccuracy() {
         return reverseAccuracy;
+    }
+
+    Class<? extends GeoCoding> getGeoCodingClass() {
+        return geoCodingClass;
     }
 }

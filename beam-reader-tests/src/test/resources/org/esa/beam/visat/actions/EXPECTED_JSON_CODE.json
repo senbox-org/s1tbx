@@ -3,6 +3,24 @@
     "sceneHeight": 20,
     "startTime": "23-AUG-1983 12:10:10.000000",
     "endTime": "23-AUG-1983 12:14:41.000000",
+    "geoCoding": {
+        "coordinates": [
+            {
+                "x": 7.0,
+                "y": 6.0,
+                "lat": 5.5,
+                "lon": 6.5
+            },
+            {
+                "x": 0.0,
+                "y": 0.0,
+                "lat": -0.5,
+                "lon": -0.5
+            }
+        ],
+        "reverseAccuracy": 0.01,
+        "geoCodingClass": "org.esa.beam.framework.datamodel.CrsGeoCoding"
+    },
     "bands": [
         {
             "name": "band_1",

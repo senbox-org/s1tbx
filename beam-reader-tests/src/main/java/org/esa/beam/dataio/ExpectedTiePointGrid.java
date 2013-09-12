@@ -108,10 +108,6 @@ class ExpectedTiePointGrid {
         return expectedPixels;
     }
 
-    void setExpectedPixels(ExpectedPixel[] expectedPixels) {
-        this.expectedPixels = expectedPixels;
-    }
-
     private ExpectedPixel[] createExpectedPixels(TiePointGrid tiePointGrid, Random random) {
         final ArrayList<Point2D> pointList = ExpectedPixel.createPointList(tiePointGrid.getProduct(), random);
         final ExpectedPixel[] expectedPixels = new ExpectedPixel[pointList.size()];

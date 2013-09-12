@@ -1,7 +1,19 @@
 package org.esa.beam.dataio;
 
 
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.FlagCoding;
+import org.esa.beam.framework.datamodel.GeoCoding;
+import org.esa.beam.framework.datamodel.GeoPos;
+import org.esa.beam.framework.datamodel.IndexCoding;
+import org.esa.beam.framework.datamodel.Mask;
+import org.esa.beam.framework.datamodel.MetadataAttribute;
+import org.esa.beam.framework.datamodel.MetadataElement;
+import org.esa.beam.framework.datamodel.PixelPos;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductNodeGroup;
+import org.esa.beam.framework.datamodel.SampleCoding;
+import org.esa.beam.framework.datamodel.TiePointGrid;
 import org.esa.beam.util.StringUtils;
 import org.junit.Assert;
 
@@ -54,6 +66,8 @@ class ContentAssert {
             final ExpectedGeoCoding expectedGeoCoding = expectedContent.getGeoCoding();
             final GeoCoding geoCoding = product.getGeoCoding();
             assertNotNull(productId + " has no GeoCoding", geoCoding);
+            assertEquals(productId + " has not the expected GeoCoding implementation",
+                         expectedGeoCoding.getGeoCodingClass(), product.getGeoCoding().getClass());
 
             final Float reverseAccuracy = expectedGeoCoding.getReverseAccuracy();
             final ExpectedGeoCoordinate[] coordinates = expectedGeoCoding.getCoordinates();
