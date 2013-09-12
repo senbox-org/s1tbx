@@ -26,6 +26,7 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.util.StopWatch;
 import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.logging.BeamLogManager;
+import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -36,14 +37,18 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+import java.util.List;
+import java.util.Locale;
+import java.util.TimeZone;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.logging.StreamHandler;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 @RunWith(ReaderTestRunner.class)
 public class ProductReaderAcceptanceTest {
@@ -57,6 +62,8 @@ public class ProductReaderAcceptanceTest {
     private static TestDefinitionList testDefinitionList;
     private static File dataRootDir;
     private static Logger logger;
+    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd-MMM-yyyy HH:mm", Locale.ENGLISH);
+    private static final Calendar CALENDAR = GregorianCalendar.getInstance(TimeZone.getTimeZone("UTC"), Locale.ENGLISH);
 
     @BeforeClass
     public static void initialize() throws Exception {
@@ -68,6 +75,11 @@ public class ProductReaderAcceptanceTest {
         loadProductReaderTestDefinitions();
 
         createGlobalProductList();
+    }
+
+    @AfterClass
+    public static void tearDown() throws Exception {
+        logInfoWithStars("Finished / " + DATE_FORMAT.format(CALENDAR.getTime()));
     }
 
     @Test
@@ -231,9 +243,7 @@ public class ProductReaderAcceptanceTest {
             final StreamHandler streamHandler = new StreamHandler(fos, new CustomLogFormatter());
             logger.addHandler(streamHandler);
         }
-        final Calendar calendar = GregorianCalendar.getInstance(TimeZone.getTimeZone("UTC"), Locale.ENGLISH);
-        final SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM-yyyy HH:mm", Locale.ENGLISH);
-        logInfoWithStars("Reader Acceptance Tests / " + dateFormat.format(calendar.getTime()));
+        logInfoWithStars("Reader Acceptance Tests / " + DATE_FORMAT.format(CALENDAR.getTime()));
     }
 
     private static void createGlobalProductList() {
