@@ -5,6 +5,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.util.StringUtils;
 
+import java.awt.geom.Point2D;
+import java.util.ArrayList;
 import java.util.Random;
 
 class ExpectedBand {
@@ -43,10 +45,12 @@ class ExpectedBand {
     }
 
     private ExpectedPixel[] createExpectedPixels(Band band, Random random) {
-        final ExpectedPixel[] expectedPixels = new ExpectedPixel[2];
+        ArrayList<Point2D> pointList = ExpectedPixel.createPointList(band.getProduct(), random);
+        final ExpectedPixel[] expectedPixels = new ExpectedPixel[pointList.size()];
         for (int i = 0; i < expectedPixels.length; i++) {
-            final int x = (int) (random.nextFloat() * band.getSceneRasterWidth());
-            final int y = (int) (random.nextFloat() * band.getSceneRasterHeight());
+            final Point2D point = pointList.get(i);
+            final int x = (int) point.getX();
+            final int y = (int) point.getY();
             final float value = band.isPixelValid(x, y) ? band.getSampleFloat(x, y) : Float.NaN;
             expectedPixels[i] = new ExpectedPixel(x, y, value);
         }

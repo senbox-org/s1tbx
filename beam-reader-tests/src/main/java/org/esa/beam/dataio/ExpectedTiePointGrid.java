@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import org.esa.beam.framework.datamodel.TiePointGrid;
 import org.esa.beam.util.StringUtils;
 
+import java.awt.geom.Point2D;
+import java.util.ArrayList;
 import java.util.Random;
 
 class ExpectedTiePointGrid {
@@ -111,10 +113,12 @@ class ExpectedTiePointGrid {
     }
 
     private ExpectedPixel[] createExpectedPixels(TiePointGrid tiePointGrid, Random random) {
-        final ExpectedPixel[] expectedPixels = new ExpectedPixel[2];
+        final ArrayList<Point2D> pointList = ExpectedPixel.createPointList(tiePointGrid.getProduct(), random);
+        final ExpectedPixel[] expectedPixels = new ExpectedPixel[pointList.size()];
         for (int i = 0; i < expectedPixels.length; i++) {
-            final int x = (int) (random.nextFloat() * tiePointGrid.getSceneRasterWidth());
-            final int y = (int) (random.nextFloat() * tiePointGrid.getSceneRasterHeight());
+            final Point2D point = pointList.get(i);
+            final int x = (int) point.getX();
+            final int y = (int) point.getY();
             final float value = tiePointGrid.isPixelValid(x, y) ? tiePointGrid.getSampleFloat(x, y) : Float.NaN;
             expectedPixels[i] = new ExpectedPixel(x, y, value);
         }

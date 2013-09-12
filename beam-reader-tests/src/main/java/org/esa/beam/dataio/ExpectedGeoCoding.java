@@ -6,6 +6,8 @@ import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.Product;
 
+import java.awt.geom.Point2D;
+import java.util.ArrayList;
 import java.util.Random;
 
 /**
@@ -24,13 +26,16 @@ class ExpectedGeoCoding {
 
     ExpectedGeoCoding(Product product, Random random) {
         this();
-        final float x = random.nextFloat() * product.getSceneRasterWidth();
-        final float y = random.nextFloat() * product.getSceneRasterHeight();
+        final ArrayList<Point2D> pointList = ExpectedPixel.createPointList(product, random);
+        coordinates = new ExpectedGeoCoordinate[pointList.size()];
         final GeoCoding geoCoding = product.getGeoCoding();
-        final GeoPos geoPos = geoCoding.getGeoPos(new PixelPos(x, y), null);
-        final ExpectedGeoCoordinate expectedCoordinate = new ExpectedGeoCoordinate(x, y, geoPos.getLat(), geoPos.getLon());
-
-        coordinates = new ExpectedGeoCoordinate[] {expectedCoordinate};
+        for (int i = 0; i < pointList.size(); i++) {
+            Point2D point = pointList.get(i);
+            final float x = (float) point.getX();
+            final float y = (float) point.getY();
+            final GeoPos geoPos = geoCoding.getGeoPos(new PixelPos(x, y), null);
+            coordinates[i] = new ExpectedGeoCoordinate(x, y, geoPos.getLat(), geoPos.getLon());
+        }
     }
 
     public ExpectedGeoCoordinate[] getCoordinates() {

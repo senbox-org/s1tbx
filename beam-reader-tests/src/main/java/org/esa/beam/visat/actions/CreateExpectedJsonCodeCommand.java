@@ -18,7 +18,8 @@ import org.esa.beam.framework.ui.command.ExecCommand;
 import org.esa.beam.util.logging.BeamLogManager;
 import org.esa.beam.visat.VisatApp;
 
-import java.awt.*;
+import java.awt.Toolkit;
+import java.awt.Window;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.io.IOException;
@@ -39,6 +40,11 @@ public class CreateExpectedJsonCodeCommand extends ExecCommand {
     }
 
     CreateExpectedJsonCodeCommand(Clipboard clipboard) {
+        if (clipboard == null) {
+            final String msg = "Clipboard instance is <null>. Not able to create JSON code.";
+            BeamLogManager.getSystemLogger().severe(msg);
+            VisatApp.getApp().showErrorDialog(msg);
+        }
         this.clipboard = clipboard;
     }
 
@@ -73,14 +79,8 @@ public class CreateExpectedJsonCodeCommand extends ExecCommand {
 
     void fillClipboardWithJsonCode(Product product, Random random) throws IOException {
         final String jsonCode = createJsonCode(product, random);
-        if (clipboard != null) {
-            StringSelection clipboardContent = new StringSelection(jsonCode);
-            clipboard.setContents(clipboardContent, clipboardContent);
-        } else {
-            final String msg = "Not able to obtain a clipboard instance";
-            BeamLogManager.getSystemLogger().severe(msg);
-            VisatApp.getApp().showErrorDialog(msg);
-        }
+        StringSelection clipboardContent = new StringSelection(jsonCode);
+        clipboard.setContents(clipboardContent, clipboardContent);
     }
 
     String createJsonCode(Product product, Random random) throws IOException {
