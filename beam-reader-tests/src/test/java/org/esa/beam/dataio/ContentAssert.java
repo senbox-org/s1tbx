@@ -43,7 +43,7 @@ class ContentAssert {
         testExpectedTiePointGrids(expectedContent, productId, product);
         testExpectedBands(expectedContent, productId, product);
         testExpectedMasks(expectedContent, productId, product);
-        testExpectedMetadata(expectedContent, product);
+        testExpectedMetadata(expectedContent, productId, product);
     }
 
     private static void assertExpectedProductProperties(ExpectedContent expectedContent, String productId, Product product) {
@@ -291,18 +291,18 @@ class ContentAssert {
         return currentElement.getAttribute(attributeName);
     }
 
-    private static void testExpectedMetadata(ExpectedContent expectedContent, Product product) {
+    private static void testExpectedMetadata(ExpectedContent expectedContent, String productId, Product product) {
         ExpectedMetadata[] expectedMetadataList = expectedContent.getMetadata();
         for (ExpectedMetadata expectedMetadata : expectedMetadataList) {
             String path = expectedMetadata.getPath();
             final String[] pathTokens = path.split("/");
             final String[] elementNames = Arrays.copyOf(pathTokens, pathTokens.length - 1);
-            final String msgPrefix = "Metadata '" + path + "' path not valid.";
+            final String msgPrefix = productId + " Metadata path '" + path + "' not valid.";
             MetadataElement currentElement = getMetadataElement(msgPrefix, elementNames, product.getMetadataRoot());
             final String attributeName = pathTokens[pathTokens.length - 1];
             final MetadataAttribute attribute = getMetadataAttribute(msgPrefix, currentElement, attributeName);
-            assertNotNull("Metadata path '" + path + "' not valid. Attribute '" + attributeName + "' not found", attribute);
-            assertEquals("Metadata '" + path + "' value", expectedMetadata.getValue(), attribute.getData().getElemString());
+            assertNotNull(msgPrefix + " Attribute '" + attributeName + "' not found", attribute);
+            assertEquals(msgPrefix + " Value", expectedMetadata.getValue(), attribute.getData().getElemString());
 
         }
     }
