@@ -1,0 +1,5 @@
+org.csa.rstb.gpf.PolarimetricSpeckleFilterOp$Spi
+org.csa.rstb.gpf.PolarimetricDecompositionOp$Spi
+org.csa.rstb.gpf.OrientationAngleCorrectionOp$Spi
+org.csa.rstb.gpf.PolarimetricMatricesOp$Spi
+

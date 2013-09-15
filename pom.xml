@@ -21,6 +21,7 @@
 		<netcdf.version>4.2.20</netcdf.version>
 		<nest.version>5.0</nest.version>
 		<jlinda.version>0.6</jlinda.version>
+		<rstb.version>5.6</rstb.version>
 		<outputdir>../output</outputdir>
 	</properties>
 	
@@ -158,6 +159,7 @@
     <modules>
 		<module>beam</module>
 		<module>jlinda</module>
+		<module>rstb</module>
 		<module>nest-bootstrap</module>
 		<module>nest-core</module>
 		<module>nest-dat</module>
@@ -312,6 +314,14 @@
                 <groupId>org.jlinda</groupId>
                 <artifactId>jlinda-core</artifactId>
                 <version>${jlinda.version}</version>
+            </dependency>
+			
+			<!-- RSTB Modules ############################################# -->
+			
+			<dependency>
+                <groupId>org.csa.rstb</groupId>
+                <artifactId>rstb</artifactId>
+                <version>${rstb.version}</version>
             </dependency>
 			
             <!-- NEST Modules ############################################# -->

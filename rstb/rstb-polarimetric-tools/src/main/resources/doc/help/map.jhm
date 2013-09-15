@@ -1,0 +1,13 @@
+<?xml version='1.0' encoding='ISO-8859-1' ?>
+<!DOCTYPE map
+        PUBLIC "-//Sun Microsystems Inc.//DTD JavaHelp Map Version 2.0//EN"
+        "http://java.sun.com/products/javahelp/map_2_0.dtd">
+
+<map version="2.0">
+    <mapID target="PolarimetricMatricesOp" url="operators/PolarimetricMatricesOp.html"/>
+    <mapID target="PolarimetricDecompositionOp" url="operators/PolarimetricDecompositionOp.html"/>
+    <mapID target="PolarimetricSpeckleFilterOp" url="operators/PolarimetricSpeckleFilterOp.html"/>
+	<mapID target="OrientationAngleCorrectionOp" url="operators/OrientationAngleCorrectionOp.html"/>
+	<mapID target="PolarimetricClassificationOp" url="operators/PolarimetricClassificationOp.html"/>
+	<mapID target="SupervisedWishartClassificationOp" url="operators/SupervisedWishartClassificationOp.html"/>
+</map>

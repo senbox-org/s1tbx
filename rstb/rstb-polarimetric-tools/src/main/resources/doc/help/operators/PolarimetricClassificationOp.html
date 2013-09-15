@@ -1,0 +1,137 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head><title>Help - Polarimetric Classification</title>
+
+
+
+
+
+
+
+
+  <link rel="stylesheet" href="../style.css"></head><body>
+<table class="header">
+    <tbody>
+    <tr class="header">
+        <td class="header">&nbsp; Polarimetric Classification<br>
+</td>
+    <td class="header" align="right"><a href="../general/Overview.html"><img src="../images/HeaderLogo.jpg" border="0"></a></td>
+    </tr>
+  </tbody>
+</table>
+<h3>Polarimetric Classification Operator</h3>&nbsp;&nbsp;&nbsp;This operator performs the following polarimetric classification for a full polarimetric SAR product:<br><ul><li>Unsupervised Cloude-Pottier Classification<br>
+</li><li>Unsupervised Whishart Classification</li></ul><h4>Unsupervised Cloude-Pottier Classification<br>
+</h4>&nbsp;&nbsp; The Cloude-Pottier classification is an unsupervised
+classification scheme which is based on the use of the Entropy (H) /
+Alpha (<span style="font-size: 12pt; font-family: &quot;Times New Roman&quot;;" lang="EN-US">&#945;</span>)
+plane. Entropy by definition is a natural measure of the inherent
+reversibility of the scattering data while alpha can be used to
+identify the underlying average scattering mechanisms. The H / Alpha
+plane is divided into nine zones corresponding to nine classes of
+different scattering mechanisms. For each pixel in the source product,
+its entropy and alpha angle are computed. Based on the position of the
+computed entropy and alpha in the H / Alpha plane, the pixel is
+classified into one of the nine zones, a zone index is assigned to the
+pixel. For detail calculations of entropy and alpha, readers are
+referred to on-line help for Polarimetric Decomposition operator.
+Figure 1 shows the locations and boundaries of the nine zones in H /
+Alpha plane:<br>
+&nbsp;&nbsp; <br>
+<img style="width: 710px; height: 533px;" alt="" src="images/polarimetricClassificationHAlphaPlane.jpg"><br>
+<div style="margin-left: 280px;">Figure 1. H / Alpha plane<br>
+</div>
+<h4>Unsupervised Wishart Classification</h4>&nbsp;&nbsp; Similar to the
+Cloude-Pottier classification, the unsupervised Wishart classification
+also separates data into nine clusters using the zones defined in
+the&nbsp; H / Alpha plane above. Different from the Cloude-Pottier
+classification, the Wishart classification will continue to compute the
+centres of the nine clusters, then reclassify the pixels based on their
+Wishart distances to cluster centres. This procedure will repeat
+several time until the user defined total number of
+iterations is reached. To achieve accurate classification result, speckle filtering must be applied before the classification.<br>
+<br>
+&nbsp;&nbsp; The cluster centre<span style="font-style: italic;"> V<sub>m</sub></span> for the <span style="font-style: italic;">m</span>th cluster is the average of the coherency matrices<sub></sub> of all pixels in the cluster. Mathematically it is given by <br>
+<div style="margin-left: 120px;"><img style="width: 116px; height: 49px;" alt="" src="images/polarimetricClassification_eq1.jpg"><br>
+</div>
+<br>
+&nbsp;&nbsp; The Wishart distance measure from coherency matrix <span style="font-style: italic;">T</span> to cluster centre <span style="font-style: italic;">V<sub>m</sub></span> is defined<span style="font-size: 12pt; font-family: &quot;Times New Roman&quot;; font-style: italic;"></span><span style="font-size: 12pt; font-family: &quot;Times New Roman&quot;; font-style: italic;"></span><span style="font-size: 12pt; font-family: &quot;Times New Roman&quot;; font-style: italic;"></span><span style="font-size: 12pt; font-family: &quot;Times New Roman&quot;; font-style: italic;"></span><span style="font-size: 12pt; font-family: &quot;Times New Roman&quot;;"><span style="font-style: italic;"></span></span><span style="font-size: 12pt; font-family: &quot;Times New Roman&quot;; font-style: italic;"></span><span style="font-style: italic;"></span><span style="font-style: italic;"></span><span style="font-style: italic;"></span> as the following:<br>
+<br>
+<div style="margin-left: 120px;"><img style="width: 204px; height: 35px;" alt="" src="images/polarimetricClassification_eq2.jpg"><br>
+</div>
+&nbsp;&nbsp; <br>
+&nbsp;&nbsp; where ln() is the natural logarithm function, |.| and
+Tr(.) indicate the determinant and the trace of the matrix respectively.<br>
+<h4>Unsupervised Freeman-Durden Wishart Classification</h4>
+&nbsp;&nbsp; Similar to the unsupervised Wishart classification method
+above this method is also a Wishart distance based classification.
+Instead of applying Wishart classification to clusters formed by
+H/Alpha decomposition, this method applys Wishart classification to
+clusters in each catgory of the Freeman-Durden decomposition.<br>
+<br>
+&nbsp;&nbsp; First Freeman-Durden decomposition is performed on speckle
+filtered quad-pol image. Then 30 clusters are created in each of the
+three categories (volume, double-bounce and surface) with approximately
+equal number of pixels in the clusters. The clusters in each category
+are then merged based on the Wishart distance between clusters. The
+merge process is repeated until user specified number of clusters is
+reached. Finally Wishart classification is applied to clusters in each
+category&nbsp; to classify pixels&nbsp; in the category.<br>
+
+<h4>Input and Output</h4>
+
+<ul><li>The
+input to this operator can be covariance
+matrix or coherency
+matrix generated by Polarimetric Matrix Generation operator.</li><li>The output of this operator is a band with pixel values being the cluster indices.</li></ul><ol>
+</ol><h4>Parameters Used</h4>&nbsp;&nbsp; For Cloude-Pottier classification, the following processing parameter are needed (see Figure 2):<br><ul><li>Classification: the classification method</li>
+  <li>Window Size: dimension of sliding window for computing mean covariance or coherency matrix</li>
+</ul><br>
+<img style="width: 500px; height: 500px;" alt="" src="images/polarimetricClassification_cloude_pottier.jpg"><br><div style="text-align: left;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; <br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Figure 2. Dialog box for Unsupervised Cloude-Pottier classification<br></div><br><br>
+For Unsupervised Wishart classification, the following parameters are used (see Figure 3):<br><ul><li>Classification: the classification method</li>
+  <li>Window Size: dimension of sliding window for computing mean covariance or coherency matrix</li>
+  <li>Maximum Number of Iterations: the maximum number of iterations<br>
+  </li>
+</ul><img style="width: 500px; height: 500px;" alt="" src="images/polarimetricClassification_unsupervised_wishart.jpg"><br><br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; Figure 3. Dialog box for Unsupervised Wishart classification<br>
+<br>
+For Unsupervised Freeman-Durden Wishart classification, the following parameters are used (see Figure 4):<br>
+<ul>
+<li>Classification: the classification method</li><li>Window Size: dimension of sliding window for computing mean covariance or coherency matrix</li><li>Initial Number of Classes: the initial number of clusters</li>
+  <li>Final Number of Classes: the final number of classes after classification</li>
+  <li>Threshold for Mixed Category: the threshold used in classifying
+pixels to the mixed category. The Freeman-Durden decomposition computes
+for each pixel the contribution of three scattering mechanisms: volume,
+surface and double-bounce. Based on the dominant value of the three
+categories, the pixel is classified to one of the categories. But for
+some pixels, there is no obvious dominant value, in this case the pixel
+is classified to the mixed category. Say the pixel has values Pv, Ps
+and Pd for the three categories, if max(Pv, Ps, Pd) / (Pv + Ps + Pd)
+&lt;= this threshold, it is classified to the mixed category.<br>
+  </li>
+
+</ul>
+
+<p><img style="width: 450px; height: 450px;" alt="" src="images/polarimetricClassification_unsupervised_freeman_durden_wishart.jpg"><br>
+</p>
+<p>Figure 4. Dialog box for Unsupervised Freeman-Durden Wishart classification</p>
+<p><br>
+
+</p>
+<p> Reference:&nbsp;</p>
+<p>[1] J.S. Lee and E. Pottier, Polarimetric Radar Imaging: From Basics to Applications, CRC Press, 2009</p>
+<p>[2] J.S. Lee, M.R. Grunes, and E. Pottier, "Unsupervised terrain
+classification preserving polarimetric scattering characteristics",
+IEEE Transaction on Geoscience and Remote Sensing, Vol. 42, No. 4,
+April 2004.<br>
+<br>
+</p>
+
+
+
+<hr>
+</body></html>

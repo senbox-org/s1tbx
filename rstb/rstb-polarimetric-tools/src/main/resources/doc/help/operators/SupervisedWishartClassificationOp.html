@@ -1,0 +1,114 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head><title>Help - Supervised Wishart Classification</title>
+
+
+
+
+
+
+  <link rel="stylesheet" href="../style.css"></head><body>
+<table class="header">
+    <tbody>
+    <tr class="header">
+        <td class="header">&nbsp; Supervised Wishart Classification<br>
+</td>
+    <td class="header" align="right"><a href="../general/Overview.html"><img src="../images/HeaderLogo.jpg" border="0"></a></td>
+    </tr>
+  </tbody>
+</table>
+<h3>Supervised Wishart Classification Operator</h3>&nbsp;&nbsp; Terrain
+classification is one of the most important applications of
+polarimetric synthetic aperture radar. The Supervised Wishart
+Classification technique classifies the image into a number of clusters
+using Wishart distance measure and user provided training data.
+Different from the Unsupervised Wishart Classification, in the
+Supervised Wishart Classification the cover types to be classified are
+selected by the user. In another word, the clusters (for example,
+forest, water and urban) and their locations are known in advance. This
+information is provided to the classifier through user selected
+training data set. The training set is selected for each class based on
+the ground truth map or scattering contrast differences in PolSAR
+images. User locates these areas on the image and guide the classifier
+with the help of these training sites to learn the relationship between
+the data and the classes. Finally, the image pixels are classified into
+one of the clusters based on their Wishart distances to the center of the cluster.<br>
+<br>
+Therefore, this operator consists of two major processing steps:<br><ul><li>Supervised Training<br>
+</li><li>Wishart Classification</li></ul><h4>Supervised Training<br>
+
+</h4>&nbsp;&nbsp; To perform the supervised
+training, <span style="font-size: 12pt; font-family: &quot;Times New Roman&quot;;" lang="EN-US"></span>the following steps should be followed:<br>
+<ol>
+  <li>Display an intensity image on screen using RSTB (see Figure 1. a subset of RadarSAT-2 data for San Francisco for example);<br>
+  </li>
+  <li>Select areas as training data sets using the "Create a new
+geometry container" and other drawing tools on the right hand side of
+the tool box (in Figure 1, 8 areas for 5 classes have been selected);<br>
+  </li>
+  <li>Select "Supervised Classification Training" from the
+"Polarimetric" menu, then highlight the training geometries and click
+on "OK" to start the training. The center for the coherency matrices of
+the pixels in each user identified class is computed and save in a text
+file in user specified directory.<br>
+  </li>
+</ol>
+
+&nbsp;&nbsp; <br>
+<img style="width: 453px; height: 566px;" alt="" src="images/supervisedWishartClassificationOp_1.jpg"><br>
+
+<div style="margin-left: 80px;">Figure 1. Training data set: 8 areas for 5 classes<br>
+
+</div>&nbsp;&nbsp; <br>
+Note that this processing step may take some time depending on the
+number of classes, the number of areas and the size of the selected
+areas.<br>
+ 
+<h4>Supervised Wishart Classification</h4>
+&nbsp;&nbsp; In this processing step, all image pixels are classified to one of the clusters based on their
+Wishart distances to cluster centres.<br>
+<br>
+&nbsp;&nbsp; The cluster centre<span style="font-style: italic;"> V<sub>m</sub></span> for the <span style="font-style: italic;">m</span>th cluster is the average of the coherency matrices<sub></sub> of all pixels in the cluster. Mathematically it is given by <br>
+<div style="margin-left: 120px;"><img style="width: 116px; height: 49px;" alt="" src="images/polarimetricClassification_eq1.jpg"><br>
+</div>
+<br>
+&nbsp;&nbsp; The Wishart distance measure from coherency matrix <span style="font-style: italic;">T</span> to cluster centre <span style="font-style: italic;">V<sub>m</sub></span> is defined<span style="font-size: 12pt; font-family: &quot;Times New Roman&quot;; font-style: italic;"></span><span style="font-size: 12pt; font-family: &quot;Times New Roman&quot;; font-style: italic;"></span><span style="font-size: 12pt; font-family: &quot;Times New Roman&quot;; font-style: italic;"></span><span style="font-size: 12pt; font-family: &quot;Times New Roman&quot;; font-style: italic;"></span><span style="font-size: 12pt; font-family: &quot;Times New Roman&quot;;"><span style="font-style: italic;"></span></span><span style="font-size: 12pt; font-family: &quot;Times New Roman&quot;; font-style: italic;"></span><span style="font-style: italic;"></span><span style="font-style: italic;"></span><span style="font-style: italic;"></span> as the following:<br>
+<br>
+<div style="margin-left: 120px;"><img style="width: 204px; height: 35px;" alt="" src="images/polarimetricClassification_eq2.jpg"><br>
+</div>
+&nbsp;&nbsp; <br>
+&nbsp;&nbsp; where ln() is the natural logarithm function, |.| and
+Tr(.) indicate the determinant and the trace of the matrix respectively.<br>
+<h4>Input and Output</h4>
+<ul><li>The
+input to this operator can be qual-pol data or the coherency / covariance
+matrix generated by Polarimetric Matrix Generation operator.</li><li>The
+output of this operator is supervised_wishart_class band with pixel
+values being integers indicating the cluster indices. User can give
+different colour to different cluster by using the RSTB "Colour
+Manipulation" tool. (see Figure 2 for the classification result of the
+example given in Figure 1).</li></ul><ol>
+</ol><img style="width: 451px; height: 565px;" alt="" src="images/supervisedWishartClassificationOp_2.jpg"><br>
+<div style="margin-left: 80px;">Figure 2. Classification result<br>
+
+</div>
+<br>
+
+<h4>Parameters Used</h4>
+&nbsp;&nbsp; For Supervised training, the following processing parameter are needed (see Figure 3):<br><ul><li>Product: the source product</li>
+  <li>Training Geometries: user identified classes</li>
+  <li>File name: name for the text file in which cluster centers are saved<br>
+  </li>
+
+</ul><br>
+<img style="width: 490px; height: 276px;" alt="" src="images/supervisedWishartClassificationOp_3.jpg"><br><div style="text-align: left;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp; Figure 3. Dialog box for Supervised training<br></div><br><br>
+For Supervised Wishart classification, the following parameters are used (see Figure 4):<br><ul><li>Training Data Set: the text file in which the computed cluster centers are saved</li>
+  <li>Window Size: dimension of sliding window for computing mean covariance or coherency matrix</li></ul><img style="width: 500px; height: 500px;" alt="" src="images/supervisedWishartClassificationOp_4.jpg"><br><br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; Figure 4. Dialog box for Supervised Wishart classification<br>
+<br>
+<p> Reference:&nbsp;</p><p>[1] Jong-Sen Lee and Eric Pottier, Polarimetric Radar Imaging: From Basics to Applications, CRC Press, 2009</p>
+
+
+<hr>
+</body></html>

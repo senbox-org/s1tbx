@@ -1,0 +1,122 @@
+<?xml version="1.0"?>
+<project
+        xmlns="http://maven.apache.org/POM/4.0.0"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <name>RADARSAT-2 Toolbox</name>
+    <groupId>org.csa.rstb</groupId>
+    <artifactId>rstb</artifactId>
+    <version>5.6</version>
+
+    <description>RADARSAT-2 Polarimetric Tools</description>
+
+	<parent>
+        <groupId>org.esa.nest</groupId>
+        <artifactId>nest</artifactId>
+        <version>5.0</version>
+    </parent>
+	
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <jlinda.version>0.6</jlinda.version>
+        <nest.version>5.0</nest.version>
+        <beam.version>5.0-4.10.4</beam.version>
+		<rstb.version>5.6</rstb.version>
+        <jblas.version>1.2.3</jblas.version>
+        <junit.version>4.11</junit.version>
+        <outputdir>../../output</outputdir>
+    </properties>
+
+    <packaging>pom</packaging>
+
+    <organization>
+        <name>Array Systems Computing Inc.</name>
+        <url>http://www.array.ca</url>
+    </organization>
+    <inceptionYear>2010</inceptionYear>
+
+    <licenses>
+        <license>
+            <name>GNU General Public License (GPL)</name>
+            <url>http://www.gnu.org/licenses/gpl.html</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <modules>
+        <module>rstb-polarimetric-tools</module>
+		<module>rstb-classification</module>
+    </modules>
+
+    <repositories>
+		<repository>
+            <id>array-mvn-repo</id>
+            <name>Public Maven Repository at Array Systems Computing Inc</name>
+            <url>http://www.array.ca/nest-web/maven</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+
+    <build>
+        <outputDirectory>${outputdir}/modules/${project.artifactId}-${rstb.version}</outputDirectory>
+        <plugins>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.1</version>
+                <configuration>
+                    <source>1.7</source>
+                    <target>1.7</target>
+                    <encoding>ISO-8859-1</encoding>
+                    <!-- encoding>UTF-8</encoding -->
+                    <optimize>true</optimize>	                    
+                    <debug>true</debug>
+        		    <showWarnings>false</showWarnings>
+        		    <showDeprecation>false</showDeprecation>
+        		    <!-- <compilerArgs> -->
+        		    <!--   <arg>-Xlint</arg> -->
+        		    <!-- </compilerArgs> -->
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.15</version>
+                <configuration>
+                    <!-- <parallel>methods</parallel> -->
+                    <!--<threadCount>4</threadCount>-->
+                    <!--<skip>false</skip>-->
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <version>2.2.1</version>
+                <artifactId>maven-source-plugin</artifactId>
+                <executions>
+                    <execution>
+                      <id>attach-sources</id>
+                      <phase>package</phase>
+                      <goals>
+                        <goal>jar</goal>
+                      </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-release-plugin</artifactId>
+                <version>2.4.1</version>
+                <!--<configuration>-->
+                    <!--<tagNameFormat>v@{project.version}</tagNameFormat>-->
+                <!--</configuration>-->
+            </plugin>
+    	</plugins>
+    </build>
+
+</project>

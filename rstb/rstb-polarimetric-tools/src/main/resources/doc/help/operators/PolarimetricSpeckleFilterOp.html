@@ -1,0 +1,154 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head><title>Help - Polarimetric Speckle Filter</title>
+
+  <link rel="stylesheet" href="../style.css"></head><body>
+<table class="header">
+    <tbody>
+    <tr class="header">
+        <td class="header">&nbsp; Polarimetric Speckle Filter</td>
+    <td class="header" align="right"><a href="../general/Overview.html"><img src="../images/HeaderLogo.jpg" border="0"></a></td>
+    </tr>
+  </tbody>
+</table>
+<h3>Polarimetric Speckle Filter Operator</h3><p>SAR images have
+inherent salt and pepper like texturing called &#8216;speckle&#8217; which degrades
+the quality of the image and makes interpretation of features more
+difficult. The presence of speckle intensity fluctuations in
+single-look complex SAR imagery is an inevitable consequence of the
+nature of coherent image formation. Each radar resolution cell contains
+multiple individual scatters, each of which contributes to the overall
+signal returned from the resolution cell. Since the radar wavelength is
+normally much smaller than the size of the resolution cell, the phase
+obtained from each individual scatterer is effectively random. The
+signals from each scatter may be summed according to the principle of
+superposition, which results in constructive and destructive
+interference. Cells where destructive interference dominates will
+appear to have a low reflectivity, while cells where constructive
+interference dominates will appear to have a high reflectivity. This
+leads to the phenomenon of speckle. It may be shown thatthe speckle
+intensity is exponentiallydistributed.</p><p>While the presence of
+speckle in a SAR image can impair qualitative interpretation of the
+image, speckle is even more problematic when interpreting SAR data in a
+quantitative manner. In particular, the reliability of image
+segmentation techniques is adversely-effected by the presence of
+speckle.</p><p>For polarimetric SAR data, the speckle filtering is
+based on incoherent averaging and requires handling statistical second
+order representations. Thus the speckle filtering is applied to
+covariance or coherency matrix.</p><p>This operator provides the following polarimetric speckle filterings:</p><ul><li>Box Car filter</li><li>Refined Lee flter</li>
+  <li>IDAN filter<br>
+  </li>
+  <li>Improved Lee Sigma filter<br>
+  </li>
+</ul><h4>Box Car Filter</h4><p>The
+box car filter is a direct application of the incoherent averaging of
+the covariance/coherency matrix over pixels in a neighborhood defined
+by a sliding window. The boxcar filter presents the best filtering
+performance over homogeneous areas. However there are two major
+drawbacks with the box car filter:</p><ul><li><span style="color: red;"></span>the sharp edges are generally blurred</li><li><span style="color: rgb(0, 153, 0);"></span>point scatterers are over filtered and transformed to spread targets</li></ul>&nbsp;&nbsp;&nbsp; The refined Lee filter introduced below does not have these limitations.<br><h4>Refined Lee Filter</h4><p>The
+refine Lee filter is a minimum mean square error (MMSE) filter and was
+developed based on the multiplicative noise model. One major deficiency
+with the MMSE filter is that speckle noise near strong edges is not
+adequately filtered. To compensate this problem, &nbsp;the refined Lee
+filter uses a nonsquare window to match the direction of edges. The
+filter operated in a 7x7 (or 9x9, 11x11) sliding window. One of eight
+edge-aligned windows&nbsp;is selected to filter the center pixel. Only
+the pixels&nbsp;in the non-edge area&nbsp;in the&nbsp;edge-aligned
+window are used in the filtering computation.</p><p>The filter follows&nbsp;three major processing steps as given below:</p><ul><li><span style="font-style: italic;">Edge-aligned window selection</span>: For each pixel,&nbsp;span image is used in selecting the&nbsp;edge-aligned window.</li><li><span style="color: rgb(0, 153, 0);"></span><span style="font-style: italic;">Filtering weight computation</span>: The local statistical filter is applied to the span image to compute the weight <span style="font-style: italic;">b</span>.</li><li><span style="color: rgb(51, 51, 255);"></span><span style="font-style: italic;">Filter the covariance matrix</span>: The same weight <span style="font-style: italic;">b</span> (a scalar) and the same selected window are used to filter each element of&nbsp;matrix, <span style="font-style: italic;">Z</span>, independently and equally. The filtered&nbsp;matrix is then given by</li></ul><div style="margin-left: 40px;"><img style="width: 145px; height: 32px;" alt="" src="images/polarimetricSpeckleFilterOp_eq1.jpeg"></div><p>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; where<span style="text-decoration: underline;"></span></p><p style="margin-left: 40px;"> <img style="width: 22px; height: 29px;" alt="" src="images/polarimetricSpeckleFilterOp_eq2.jpeg"></p><p style="margin-left: 40px;">is the local mean of&nbsp;matrices computed with pixels in the same edge-directed window.<br></p><span style="font-style: italic;"></span>
+<h4>IDAN Filter</h4>
+<p>Conventional filtering method selects pixels from homogeneous areas
+in a fixed size sliding window.&nbsp; The drawback with this approach
+is that the number of pixels selected may not be sufficient to reduce
+the estimation variance.&nbsp; Instead of limiting&nbsp; the pixel
+selection in a fixed size window, the IDAN (Intensity-Driven
+Adaptive-Neighborhood) filter selects pixels with region growing
+techniques and criteria of the Lee sigma filter. In this algorithm, an
+adaptive neighborhood is determined for each pixel by a region growing
+technique. The pixel is then filtered with the MMSE filter computed
+using all selected pixels. The region growing technique consists of two
+stages:<br>
+</p>
+<ul>
+  <li>In stage 1, pixels within one sigma range are selected. This is the initial growing.</li>
+  <li>In stage 2, pixels that are rejected in the initial growing are
+re-examined.&nbsp; Pixels that are within two sigma range are also
+selected in the final adaptive neighborhood. <br>
+  </li>
+</ul>
+<h4>Improved Lee Sigma Filter</h4>
+
+<p>The Lee Sigma filter proposed in [4] assumes Gaussian noise
+distribution and filters the center pixel in a sliding window with the
+average of pixels within the two-sigma range. One major drawback of the
+algorithm is that the mean of pixels within the two-sigma range is
+always underestimated due to the fact that the noise distributions are
+not symmetric and the symmetric thresholds are used in the pixel
+selection. The new Lee Sigma filter [3] extends and improves the Lee
+Sigma filter in the following aspects:<br>
+</p>
+
+<ul>
+<li> The bias problem is solved by redefining the sigma range based on the speckle probability density functions. </li>
+  <li>A target signature preservation technique is developed to prevent point target from being filtered.</li>
+<li>The minimum-mean-square-error (MMSE) estimator is used for adaptive speckle reduction.<br>
+  </li>
+</ul>
+
+<h4>Input and Output</h4><ul><li>The
+input to this operator can be full polarimetric data, it can also be covariance or coherency
+matrix produced by Polarimetric Matrix Generation operator.</li><li>The output of this operator is the&nbsp;corresponding filtered matrix.</li></ul><ol>
+</ol><h4>Parameters Used</h4>&nbsp;&nbsp; For box car filter, the following processing parameters are used&nbsp;by the operator (see Figure 1):<br><ul><li>Speckle Filter:&nbsp; the box car speckle filter</li><li>Filter Size: the dimension of the sliding window used in averaging covariance/coherency matrix</li></ul><br>
+<img style="width: 500px; height: 500px;" alt="" src="images/polarimetricSpeckleFilterOp_BoxCar.jpeg"><br><br><div style="text-align: left;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;Figure 1. Dialog box for Box Car Speckle Filter<br></div><br><br>For refined Lee filter, the following parameters are needed (see Figure 2):<br><ul><li>Speckle Filter: the refined Lee speckle filter</li><li>Number of Looks: the number of looks of SAR data, which is used in estimating the speckle&nbsp;noise standard deviation</li><li>Window Size: the dimension of the edge-aligned window, possible values are 7x7, 9x9 and 11x11</li></ul><img style="width: 500px; height: 500px;" alt="" src="images/polarimetricSpeckleFilterOp_RefinedLee.jpeg"><br><br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;Figure 2. Dialog box for Refined Lee Speckle Filter<br>
+<p><br>
+</p>
+<p>For refined Lee filter, the following parameters are needed (see Figure 3):<br>
+</p>
+<ul>
+<li>Speckle Filter: the IDAN filter</li><li>Number of Looks: the number of looks of SAR data, which is used in estimating the speckle&nbsp;noise standard deviation</li><li>Adaptive Neighbourhood Size: the maximum number of pixels in the adaptive neighbourhood</li>
+</ul>
+<p><img style="width: 450px; height: 450px;" alt="" src="images/polarimetricSpeckleFilterOp_IDAN.jpeg"><br>
+</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp; Figure 3. Dialog box for IDAN Speckle Filter<br>
+
+</p>
+<p><br>
+</p>
+
+<p>For Lee Sigma filter, the following parameters are needed (see Figure 4):<br>
+</p>
+
+<ul>
+<li>Speckle Filter: the Lee Sigma filter</li><li>Number of Looks: the number of looks of SAR data, which is used in estimating the speckle&nbsp;noise standard deviation</li><li>Sigma: <br>
+</li>
+  <li>Filter Window Size: <br>
+  </li>
+  <li>Target Window Size: <br>
+  </li>
+</ul>
+
+<br>
+<p><img style="width: 450px; height: 450px;" alt="" src="images/polarimetricSpeckleFilterOp_LeeSigma.jpg"></p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp; Figure 4. Dialog box for Lee Sigma Speckle Filter<br>
+
+</p>
+
+<p><br>
+</p>
+
+<p> Reference:&nbsp;</p>
+<p>[1] Jong-Sen Lee and Eric Pottier, Polarimetric Radar Imaging: From Basics to Applications, CRC Press, 2009</p>
+<p>[2] G. Vasile, E. Trouve, J.S. Lee and V. Buzuloiu,
+"Intensity-Driven Adaptive-Neighborhood Technique for Polarimetric and
+Interferometric SAR Parameters Estimation", IEEE Transaction on
+Geoscience and Remote Sensing, Vol. 44, No. 6, June 2006.</p>
+<p>[3] J.S. Lee, J.H. Wen, T.L. Ainsworth, K.S. Chen and A.J. Chen,
+"Improved Sigma Filter for Speckle Filtering of SAR Imagery", IEEE
+TRansaction on Geoscience and Remote Sensing, Vol. 47, No. 1, Jan. 2009.</p>
+<p>[4] J.S. Lee, &#8220;Digital image smoothing and the sigma filter,&#8221;
+Comput. Vis. Graph. Image Process., vol. 24, no. 2, pp. 255&#8211;269, Nov.
+1983.<br>
+<br>
+</p>
+
+<hr>
+</body></html>

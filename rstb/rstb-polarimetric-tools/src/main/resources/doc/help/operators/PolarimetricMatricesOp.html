@@ -1,0 +1,27 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+  <title>Help - Polarimetric Matrices</title><link rel="stylesheet" href="../style.css"></head>
+<body>
+<table class="header">
+    <tbody>
+    <tr class="header">
+        <td class="header">&nbsp; Polarimetric Covariance or Coherency Matrices Generation</td>
+    <td class="header" align="right"><a href="../general/Overview.html"><img src="../images/HeaderLogo.jpg" border="0"></a></td>
+    </tr>
+  </tbody>
+</table>
+<h3>Polarimetric Covariance or Coherency Matrices Generation Operator</h3>&nbsp;&nbsp;&nbsp;This
+operator creates the following polarimetric covariance or coherency
+matrices for a given full polarimetric SAR product:<br><ul><li>covariance matrix C3</li><li>covariance matrix C4</li><li>coherency matrix T3</li><li>coherency matrix T4</li></ul><h4>Covariance Matrix C<sub>4</sub></h4>&nbsp;&nbsp; Let <br><div style="margin-left: 40px;"><img style="width: 127px; height: 63px;" alt="" src="images/covarianceMatrixGenerationOp_eq1.jpeg"><br></div><br>&nbsp;&nbsp;&nbsp; be the complex Sinclair scatter matrix and<br><div style="margin-left: 40px;"><img style="width: 230px; height: 33px;" alt="" src="images/covarianceMatrixGenerationOp_eq2.jpeg"><br></div><span style="font-size: 12pt; font-family: &quot;Times New Roman&quot;;"><span style="position: relative; top: 6pt;"></span></span><span style="font-size: 12pt; font-family: &quot;Times New Roman&quot;;"><span style="position: relative; top: 6pt;"></span></span>&nbsp;<br>&nbsp;&nbsp;&nbsp;
+be the 4-D target vector, where superscript&nbsp;T stands for the
+transpose operator. Then the (4x4) covariance matrix&nbsp;C<sub>4</sub> is defined as<br><div style="margin-left: 40px;">&nbsp;&nbsp; <img style="width: 80px; height: 30px;" alt="" src="images/covarianceMatrixGenerationOp_eq3.jpeg"><br></div>&nbsp;&nbsp;&nbsp; where superscript H represents the transpose conjugate operator.<br><h4>Covariance Matrix C<sub>3</sub></h4>&nbsp;&nbsp;
+For monostatic backscattering case, the transmitter and the receiver
+are collocated. The reciprocity constrains the Sinclair scattering
+matrix to be symmetrical, i.e. S<sub>hv</sub> = S<sub>vh</sub>. The 3-D target vector becomes<br><div style="margin-left: 40px;"><img style="width: 203px; height: 38px;" alt="" src="images/covarianceMatrixGenerationOp_eq4.jpeg"><br></div><span style="font-size: 12pt; font-family: &quot;Times New Roman&quot;;"><span style="position: relative; top: 6pt;"></span></span><span style="font-size: 12pt; font-family: &quot;Times New Roman&quot;;"><span style="position: relative; top: 6pt;"></span></span>&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;Then the (3x3) covariance matrix&nbsp;C<sub>3</sub> is given by<br><div style="margin-left: 40px;"><img style="width: 78px; height: 32px;" alt="" src="images/covarianceMatrixGenerationOp_eq5.jpeg"><br></div><h4>Cohrency Matrix T<sub>4</sub></h4>&nbsp;&nbsp; Let &nbsp;the 4-D target vector be defined as the follows<br><div style="margin-left: 40px;"><img style="width: 462px; height: 55px;" alt="" src="images/coherencyMatrixGenerationOp_eq1.jpeg"><br></div>&nbsp;&nbsp;&nbsp;&nbsp;Then the (4x4) coherency matrix T<sub>4</sub> is given by<br><div style="margin-left: 40px;"><img style="width: 77px; height: 30px;" alt="" src="images/coherencyMatrixGenerationOp_eq2.jpeg"></div><h4>Cohrency Matrix T<sub>3</sub></h4>&nbsp;&nbsp; For monostatic backscattering case,&nbsp;&nbsp;the&nbsp;target vector becomes<br><div style="margin-left: 40px;"><img style="width: 312px; height: 55px;" alt="" src="images/coherencyMatrixGenerationOp_eq3.jpeg"><br></div>&nbsp;&nbsp;&nbsp;&nbsp;Then the (3x3) coherency matrix T<sub>3</sub> is given by<br><div style="margin-left: 40px;"><img style="width: 77px; height: 32px;" alt="" src="images/coherencyMatrixGenerationOp_eq4.jpeg"><br></div><h4>Input and Output</h4><ul><li>The
+input to this operator is a full polarimetric SAR product with 8 bands,
+i.e. I and Q bands for HH, VV, HV and VH polarizations.</li><li>Since the output covariance or coherency matrix is Hermitian positive semidefinite, only 9 elements in&nbsp;C<sub>3</sub> or T<sub>3</sub>&nbsp;are independent, and 16 elements in C<sub>4</sub> or T<sub>4</sub> are independent. Therefore only the independent elements are output. For example, the following 9 bands are output:&nbsp;C<sub>11</sub>,&nbsp;C<sub>22_real</sub>, C<sub>12_imag</sub>, C<sub>13_real</sub>, C<sub>13_imag</sub>, C<sub>22</sub>, C<sub>23_real</sub>, C<sub>23_imag</sub>, C<sub>33</sub> for covariance matrix C<sub>3</sub>.</li></ul><ol>
+</ol><h4>Parameters Used</h4><ol><li>&nbsp;&nbsp; Polarimetrix Matrix: The covariance or coherency matrix type. The available types are:&nbsp;C<sub>3</sub>,&nbsp;C<sub>4</sub>, T<sub>3</sub> and T<sub>4</sub>.</li></ol><br>
+<img style="width: 500px; height: 500px;" alt="" src="images/coherencyMatrixGenerationOp.jpeg"><br>
+<p> Reference:&nbsp;</p><p>[1] Jong-Sen Lee and Eric Pottier, Polarimetric Radar Imaging: From Basics to Applications, CRC Press, 2009</p>
+<hr>
+</body></html>

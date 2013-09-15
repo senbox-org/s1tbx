@@ -1,0 +1,189 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head><title>Help - Polarimetric Decomposition</title>
+
+
+
+
+
+
+  <link rel="stylesheet" href="../style.css"></head><body>
+<table class="header">
+    <tbody>
+    <tr class="header">
+        <td class="header">&nbsp; Polarimetric Decomposition</td>
+    <td class="header" align="right"><a href="../general/Overview.html"><img src="../images/HeaderLogo.jpg" border="0"></a></td>
+    </tr>
+  </tbody>
+</table>
+<h3>Polarimetric Decomposition Operator</h3>&nbsp;&nbsp;&nbsp;This operator performs the following polarimetric decompositions&nbsp;for a full polarimetric SAR product:<br><ul><li>Sinclair Decomposition</li><li>Pauli Decomposition</li><li>Freeman-Durden Decomposition</li>
+  <li>Touzi Decomposition<br>
+  </li>
+</ul><h4>Sinclair Decomposition</h4>&nbsp;&nbsp; Let&nbsp;<br><div style="margin-left: 40px;">&nbsp;&nbsp;&nbsp; <img style="width: 462px; height: 55px;" alt="" src="images/coherencyMatrixGenerationOp_eq1.jpeg"><br></div><br>&nbsp;&nbsp;&nbsp;
+be the complex scatter matrix. The Sinclair decomposition produces (R,
+G, B) bands with the following intensities<br>&nbsp;&nbsp;&nbsp; <br><ul><li><span style="color: red;">Red</span>: |S<sub>vv</sub>|<sup>2</sup>,&nbsp;</li><li><span style="color: rgb(0, 153, 0);">Green</span>: |(S<sub>hv</sub> + S<sub>vh</sub>)/2|<sup>2</sup>,&nbsp;</li><li><span style="color: rgb(51, 51, 255);">Blue</span>: |S<sub>hh</sub>|<sup>2</sup>,&nbsp;</li></ul>&nbsp;&nbsp;&nbsp; The main drawback of this decomposition is the physical interpretation of the resulting RGB image.<br><h4>Pauli Decomposition</h4>&nbsp; &nbsp;The (R, G, B) bands produced by the Pauli decomposition correspond to the following intensities:<br><ul><li><span style="color: red;">Red</span>: 0.5*|S<sub>hh</sub> - S<sub>vv</sub>|<sup>2</sup>,&nbsp;which represents the contribution of&nbsp;single- or odd-bounce scattering to the final measured scattering matrix</li><li><span style="color: rgb(0, 153, 0);">Green</span>:&nbsp;0.5*|S<sub>hv</sub> + S<sub>vh</sub>|<sup>2</sup>,&nbsp;which represents the scatter power by targets that are able to return
+the orthogonal polarization, for example the volume scattering produced
+by the forest canopy</li><li><span style="color: rgb(51, 51, 255);">Blue</span>:&nbsp;0.5*|S<sub>hh</sub> + S<sub>vv</sub>|<sup>2</sup>,&nbsp;which&nbsp;represents the power scattered&nbsp;by targets characterized by double- or even-bounce</li></ul><h4>Freeman-Durden Decomposition</h4>&nbsp; &nbsp;The Freeman decomposition models the covariance matrix as the contribution of three scattering mechanisms:<br><ol><li>canopy scatter from a cloud of randomly oriented dipoles, forest for example;</li><li>even- or double-bounce scatter from a pair of orthogonal surfaces with different dielectric constants;</li><li>Bragg scatter from a moderately rough surface.</li></ol>&nbsp;&nbsp;&nbsp;
+The power scattered by the components of the above three scattering
+mechanisms are employed to generate a RGB image as the following:<br><ul><li><span style="color: red;">Red</span>: the power scattered by the double-bounce component of the covariance matrix</li><li><span style="color: rgb(0, 153, 0);">Green</span>: the power scattered by the volume scattering component of the covariance matrix</li><li><span style="color: rgb(51, 51, 255);">Blue</span>: the power scattered by the surface-like&nbsp;scattering component of the covariance matrix</li></ul>
+<h4>Yamaguchi Decomposition</h4>
+&nbsp;&nbsp; The three-component Freeman-Durden decomposition can be
+successfully applied to SAR observations under the reflection symmetry
+assumption. However, there exists areas in an SAR image where the
+reflection symmetry condition does not hold. Yamaguchi et al. proposed,
+in 2005, a four-component scattering model by introducing an additional
+term corresponding to nonreflection symmetric cases. The fourth
+component introduced is equivalent to a helix scattering power. This
+helix scattering power term appears in heterogeneous areas (complicated
+shape targets or man-made structures) whereas disappears for almost all
+natural distributed scattering. Therefore, Yamaguchi decomposition
+models the covariance matrix as the following four scattering
+mechanisms:<br>
+<ol>
+<li>volume;</li><li>double-bounce;</li><li>surface; and</li>
+  <li>helix scatter components.</li>
+</ol>
+<h4>H-A-Alpha Decomposition</h4>
+
+&nbsp; &nbsp;The H-A-Alpha decomposition is based on the eigen decomposition of the coherency matrix [T<sub>3</sub>]. Let <span style="font-size: 12pt; font-family: &quot;Times New Roman&quot;; font-style: italic;">&#955;</span><sub style="font-style: italic;">1</sub>, <span style="font-size: 12pt; font-family: &quot;Times New Roman&quot;; font-style: italic;">&#955;</span><sub style="font-style: italic;">2</sub>, and <span style="font-size: 12pt; font-family: &quot;Times New Roman&quot;; font-style: italic;">&#955;</span><sub style="font-style: italic;">3</sub> be the eigenvalues of the coherency matrix (<span style="font-size: 12pt; font-family: &quot;Times New Roman&quot;; font-style: italic;">&#955;</span><sub style="font-style: italic;">1</sub> <span style="font-size: 12pt; font-family: &quot;Times New Roman&quot;;">&gt; <span style="font-style: italic;">&#955;</span></span><sub style="font-style: italic;">2</sub> &gt; <span style="font-size: 12pt; font-family: &quot;Times New Roman&quot;; font-style: italic;">&#955;</span><sub style="font-style: italic;">3</sub> &gt; 0), and <span style="font-style: italic;">u</span><sub style="font-style: italic;">1</sub>, <span style="font-style: italic;">u</span><sub style="font-style: italic;">2</sub> and <span style="font-style: italic;">u</span><sub style="font-style: italic;">3</sub> be the corresponding eigenvectors which can be expressed as the following:<br>
+<div style="margin-left: 120px;"><img style="width: 325px; height: 41px;" alt="" src="images/polarimetricDecompositionOp_eq4.jpeg"><br>
+</div>
+<br>
+&nbsp;Then three secondary parameters are defined as the follows:<br>
+<ol>
+  <li>Entropy:</li>
+</ol>
+<div style="margin-left: 120px;"><img style="width: 284px; height: 51px;" alt="" src="images/polarimetricDecompositionOp_eq1.jpeg"></div>
+<ol>
+  <li>Anistropy:&nbsp;</li>
+</ol>
+<div style="margin-left: 120px;"><img style="width: 97px; height: 51px;" alt="" src="images/polarimetricDecompositionOp_eq2.jpeg"></div>
+<ol>
+<li>Alpha: <br>
+</li>
+</ol>
+<div style="margin-left: 120px;"><img style="width: 97px; height: 51px;" alt="" src="images/polarimetricDecompositionOp_eq3.jpeg"><br>
+</div>
+<h4>Touzi Decomposition</h4>
+
+&nbsp;&nbsp; In 2007, for the monostatic scattering case, Ridha Touzi
+has proposed a new Target Scattering Vector Model (TSVM) [2]. Based on
+the Kennaugh-Huynen decomposition, this model allows to extract four
+roll-invariant parameters:<br>
+<ol>
+<li>Kennaugh-Huynen maximum polarization parameter: orientation angle (<span style="font-size: 12pt; font-family: &quot;Times New Roman&quot;;">&#936;</span>);</li><li>Kennaugh-Huynen maximum polarization parameter: helicity (<span style="font-size: 12pt; font-family: &quot;Times New Roman&quot;;">&#964;</span>);</li><li>Symmetric scattering type magnitude (<span style="font-size: 12pt; font-family: &quot;Times New Roman&quot;;">&#945;</span>);</li>
+  <li>Symmetric scattering type phase (<span style="font-size: 12pt; font-family: &quot;Times New Roman&quot;;">&#934;</span>).<br>
+  </li>
+</ol>
+&nbsp;&nbsp;&nbsp;
+The roll-invariant incoherent target decomposition, i.e. Touzi decomposition, is as the following:<br>
+<ol>
+
+  <li>Compute target coherency matrix [T<sub>3</sub>] with a sliding window;</li>
+  <li>Perform eigendecomposition on the coherency matrix;</li>
+  <li>Apply the new target scattering vector model to each eigenvector to extract four parameters (<span style="font-size: 12pt; font-family: &quot;Times New Roman&quot;;">&#936;</span><sub>k</sub>, <span style="font-size: 12pt; font-family: &quot;Times New Roman&quot;;">&#964;</span><sub>k</sub>, <span style="font-size: 12pt; font-family: &quot;Times New Roman&quot;;">&#945;</span><sub>k</sub>, <span style="font-size: 12pt; font-family: &quot;Times New Roman&quot;;">&#934;</span><sub>k</sub>, k = 1, 2, 3).</li>
+  <li>Compute averaged parameters (<span style="font-size: 12pt; font-family: &quot;Times New Roman&quot;;">&#936;</span>, <span style="font-size: 12pt; font-family: &quot;Times New Roman&quot;;">&#964;</span>, <span style="font-size: 12pt; font-family: &quot;Times New Roman&quot;;">&#945;</span>, <span style="font-size: 12pt; font-family: &quot;Times New Roman&quot;;">&#934;</span>): <br>
+  </li>
+</ol>
+<div style="margin-left: 120px;"><img style="width: 393px; height: 46px;" alt="" src="images/polarimetricDecompositionOp_eq5.jpeg"></div>
+<ol>
+
+</ol>
+
+<h4>Van Zyl Decomposition</h4>
+&nbsp; &nbsp;The Van Zyl decomposition assumes that the reflection
+symmetry hypothesis establishes and the correlation between
+co-polarized and cross-polarized channels is zero. The assumption is
+generally true in case of natual media such as soil and forest. With
+such an assumption, the eigen decomposition of the averaged covariance
+matric C<sub>3</sub> can be given&nbsp; analytically&nbsp; and C<sub>3</sub> can be expressed in the following manner:  <br>
+<img style="width: 357px; height: 84px;" alt="" src="images/polarimetricDecompositionOp_eq6.jpeg"><br>
+<br>
+The van Zyl decomposition thus shows that the first two eigenvectors
+represent equivalent scattering matrices that can be interpreted in
+terms of odd and even numbers of reflections.<br>
+<span style="font-size: 12pt; font-family: &quot;Times New Roman&quot;; font-style: italic;"></span><span style="font-size: 12pt; font-family: &quot;Times New Roman&quot;; font-style: italic;"></span><span style="font-size: 12pt; font-family: &quot;Times New Roman&quot;; font-style: italic;"></span><span style="font-size: 12pt; font-family: &quot;Times New Roman&quot;; font-style: italic;"></span><span style="font-size: 12pt; font-family: &quot;Times New Roman&quot;;"><span style="font-style: italic;"></span></span><span style="font-size: 12pt; font-family: &quot;Times New Roman&quot;; font-style: italic;"></span><span style="font-style: italic;"></span><span style="font-style: italic;"></span><span style="font-style: italic;"></span>
+<h4>Input and Output</h4>
+<ul><li>The
+input to this operator can be a full polarimetric SAR product with 8
+bands,
+i.e. I and Q bands for HH, VV, HV and VH polarizations, or covariance
+matrix generated by Covariance Matrix Generation operator, or coherency
+matrix output by Coherency Matrix Generation operator.</li><li>The output of this operator are bands corresponding to the decomposition result.</li></ul><ol>
+</ol><h4>Parameters Used</h4>&nbsp;&nbsp; For all decompositions, the following processing parameter is needed (see Figure 1):<br><ul><li>Decomposition: the decomposition method</li></ul><br>
+<img style="width: 500px; height: 500px;" alt="" src="images/polarimetricDecompositionOp.jpeg"><br><div style="text-align: left;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; <br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;Figure 1. Dialog box for
+Polarimetric Decomposition operator<br></div><br><br>
+For Freeman-Durden decomposition, an extra parameter is needed (see Figure 2):<br><ul><li>Window Size: dimension of sliding window for computing mean covariance or coherence matrix</li></ul><img style="width: 500px; height: 500px;" alt="" src="images/polarimetricDecompositionOp_Freeman.jpeg"><br><br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; Figure 2. Dialog box for Freeman-Durden decomposition<br>
+<br>
+<br>
+For Yamaguchi decomposition, the following parameters are needed (see Figure 3):<br>
+<ul>
+<li>Window Size: dimension of sliding window for computing mean covariance or coherence matrix</li>
+</ul>
+<img style="width: 450px; height: 450px;" alt="" src="images/polarimetricDecompositionOp_Yamaguchi.jpeg"><br>
+<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; Figure 3. Dialog box for Yamaguchi decomposition<br>
+
+<br>
+
+For H-A-Alpha decomposition, the following extra parameters are needed (see Figure 4):<br>
+
+
+<ul>
+<li>Window Size: dimension of sliding window for computing mean covariance or coherence matrix</li><li>Checkbox for outputing parameters Entropy (H), Anistropy (A) and Alpha</li><li>Checkbox for outputing parameters Beta, Delta, Gamma and Lambda</li><li>Checkbox for outputing parameters Alpha1, Alpha2 and Alpha3</li><li>Checkbox for outputing parameters Lambda1, Lambda2 and Lambda3</li>
+</ul>
+
+
+<img style="width: 500px; height: 500px;" alt="" src="images/polarimetricDecompositionOp_HAAlpha.jpeg"><br>
+<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; Figure 4. Dialog box for H-A-Alpha decomposition<br>
+
+<br>
+<br>
+For Touzi decomposition, the following extra parameters are needed (see Figure 5):<br>
+
+<ul>
+<li>Window Size: dimension of sliding window for computing mean covariance or coherence matrix</li>
+  <li>Checkbox for outputing parameters Psi, Tau, Alpha and Phi</li>
+  <li>Checkbox for outputing parameters Psi1, Tau1, Alpha1 and Phi1</li>
+  <li>Checkbox for outputing parameters Psi2, Tau2, Alpha2 and Phi2</li>
+  <li>Checkbox for outputing parameters Psi3, Tau3, Alpha3 and Phi3</li>
+</ul>
+
+<br>
+<img style="width: 500px; height: 500px;" alt="" src="images/polarimetricDecompositionOp_Touzi.jpeg"><br>
+<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; Figure 5. Dialog box for Touzi decomposition<br>
+<br>
+For Van Zyl decomposition, the following parameters are used (see Figure 6):<br>
+<ul>
+<li>Window Size: dimension of sliding window for computing mean covariance or coherence matrix</li>
+</ul>
+<img style="width: 450px; height: 450px;" alt="" src="images/polarimetricDecompositionOp_Van_Zyl.jpeg"><br>
+<p><br>
+</p>
+<p>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; Figure 6. Dialog box for Van Zyl decomposition</p>
+<p><br>
+
+</p>
+<p> Reference:&nbsp;</p>
+<p>[1] Jong-Sen Lee and Eric Pottier, Polarimetric Radar Imaging: From Basics to Applications, CRC Press, 2009</p>
+<p>[2] R. Touzi, &#8220;Target Scattering Decomposition in Terms of
+Roll-Invariant Target Parameters,&#8221; IEEE Transactions on Geoscience and
+Remote Sensing, vol. 45, no. 1, pp. 73&#8211;84, January 2007.<br>
+<br>
+</p>
+
+<hr>
+</body></html>

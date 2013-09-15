@@ -1,0 +1,130 @@
+<module>
+    <manifestVersion>1.0.0</manifestVersion>
+    <symbolicName>rstb-classification</symbolicName>
+    <version>5.6</version>
+    <name>RSTB Classification Tools</name>
+
+    <description>Classification Tools</description>
+
+    <vendor>Array Systems Computing Inc</vendor>
+    <contactAddress>1120 Finch Ave W. Toronto (Canada)</contactAddress>
+    <copyright>(C) 2013 by Array Systems Computing Inc</copyright>
+    <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
+	<funding>Canadian Space Agency</funding>
+	
+    <dependency>
+        <module>beam-visat-rcp</module>
+    </dependency>
+    <dependency>
+        <module>beam-core</module>
+    </dependency>
+    <dependency>
+        <module>nest-core</module>
+    </dependency>
+    <dependency>
+        <module>nest-graph-builder</module>
+    </dependency>
+    <dependency>
+        <module>rstb-polarimetric-tools</module>
+    </dependency>
+
+    <categories>Application,DAT</categories>
+
+    <extension point="beam-ui:actions">
+        <action>
+            <id>CoherenceOptimizationOp</id>
+	        <helpId>CoherenceOptimizationOp</helpId>
+            <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <text>Optimum Coherence Estimation</text>
+            <shortDescr>Estimate optimum coherence of stack of images</shortDescr>
+            <parent>products</parent>
+            <operatorName>CoherenceOptimizationOp</operatorName>
+	        <dialogTitle>Estimate optimum coherence of stack of images</dialogTitle>
+            <targetProductNameSuffix>_coh_opt</targetProductNameSuffix>
+        </action>
+
+        <action>
+	        <id>CCDPair</id>
+	        <helpId>CCDPair</helpId>
+	        <class>org.csa.rstb.dat.actions.CCDPairAction</class>
+	        <parent>insar</parent>
+	        <text>Find CCD Pairs</text>
+	    </action>
+
+        <action>
+	        <id>PolarimetricClassificationOp</id>
+	        <helpId>PolarimetricClassificationOp</helpId>
+	        <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <icon>rstbIcon</icon>
+            <parent>polarimetrictools</parent>
+	        <text>Unsupervised Polarimetric Classification</text>
+	        <dialogTitle>Polarimetric Classification</dialogTitle>
+            <shortDescr>Polarimetric Classification</shortDescr>
+            <operatorName>Polarimetric-Classification</operatorName>
+            <targetProductNameSuffix>_Class</targetProductNameSuffix>
+            <placeAfter>PolarimetricDecompositionOp</placeAfter>
+        </action>
+
+        <action>
+            <id>SupervisedTraining</id>
+            <class>org.csa.rstb.dat.actions.SupervisedTrainingAction</class>
+            <icon>rstbIcon</icon>
+            <text>Supervised Classification Training</text>
+            <shortDescr>Use a products geometry to train a classifier</shortDescr>
+            <parent>polarimetrictools</parent>
+            <placeAfter>PolarimetricClassificationOp</placeAfter>
+            <helpId>SupervisedTraining</helpId>
+        </action>
+
+        <action>
+	        <id>SupervisedWishartClassificationOp</id>
+	        <helpId>SupervisedWishartClassificationOp</helpId>
+	        <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <icon>rstbIcon</icon>
+            <parent>polarimetrictools</parent>
+	        <text>Supervised Wishart Classification</text>
+	        <dialogTitle>Supervised Wishart Classification</dialogTitle>
+            <shortDescr>Supervised Wishart Classification</shortDescr>
+            <operatorName>Supervised-Wishart-Classification</operatorName>
+            <targetProductNameSuffix>_Class</targetProductNameSuffix>
+            <placeAfter>SupervisedTraining</placeAfter>
+        </action>
+
+        <action>
+            <id>CCDWizard</id>
+            <class>org.csa.rstb.dat.wizards.CCDWizard.CCDWizardAction</class>
+            <parent>Wizards</parent>
+            <text>Coherent Change Detection Wizard</text>
+            <shortDescr>Wizard for Coherent Change Detection</shortDescr>
+            <description>Wizard for Coherent Change Detection</description>
+            <helpId>CCDWizard</helpId>
+        </action>
+        <action>
+            <id>PolsarWizard</id>
+            <class>org.csa.rstb.dat.wizards.PolarimetryWizard.PolSARWizardAction</class>
+            <parent>Wizards</parent>
+            <text>Polarimetric Classification Wizard</text>
+            <shortDescr>Wizard for Polarimetric Classification</shortDescr>
+            <description>Wizard for Polarimetric Classification</description>
+            <helpId>PolsarWizard</helpId>
+        </action>
+        <action>
+            <id>TerrainFlattenedClassificationWizard</id>
+            <class>org.csa.rstb.dat.wizards.TerrainFlattenedClassification.TerrainFlattenedClassificationWizardAction</class>
+            <parent>Wizards</parent>
+            <text>Terrain Flattened Classification Wizard</text>
+            <shortDescr>Wizard for Polarimetric Terrain Flattened Classification</shortDescr>
+            <description>Wizard for Polarimetric Terrain Flattened Classification</description>
+            <helpId>TerrainFlattenedClassificationWizard</helpId>
+            <placeAfter>PolsarWizard</placeAfter>
+        </action>
+    </extension>
+    
+    <extension point="beam-ui:helpSets">
+        <helpSet>
+            <parent>beam-help</parent>
+			<id>classificationHelp</id>
+            <path>doc/help/classification.hs</path>
+        </helpSet>
+    </extension>
+</module>
