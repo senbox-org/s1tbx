@@ -15,7 +15,7 @@
     <name>BEAM OPeNDAP client</name>
     <description>An OPeNDAP client extension for BEAM</description>
     <artifactId>beam-opendap</artifactId>
-    <version>1.1.0.${beam.version}</version>
+    <version>1.1.1.${beam.version}</version>
     <packaging>jar</packaging>
 
     <organization>
