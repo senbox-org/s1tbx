@@ -32,6 +32,7 @@
 + fix for occasional polynomial normalization issues in interferogram formation
 + fix for occasional artifacts in topo phase removal
 + fix PRF in ASAR 4B, 4C specs
++ fix ERS JDom character issue
 
 Visit our website for updates to tutorial and forums
 We want to hear from you.

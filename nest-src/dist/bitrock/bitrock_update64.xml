@@ -1,7 +1,7 @@
 <project>
     <shortName>NEST</shortName>
     <fullName>NEST</fullName>
-    <version>5.0.13</version>
+    <version>5.0.15</version>
     <installerFilename>${product_shortname}-${product_version}-${platform_name}64-update.${platform_exec_suffix}</installerFilename>
     <readmeFile>../../../what's new.txt</readmeFile>
     <licenseFile>../../../LICENSE.txt</licenseFile>
@@ -21,7 +21,7 @@
                     <name>Next ESA SAR Toolbox</name>
                     <path>${installdir}</path>
                     <platforms>all</platforms>
-                    <runAsAdmin>0</runAsAdmin>
+                    <runAsAdmin>1</runAsAdmin>
                     <runInTerminal>0</runInTerminal>
                     <windowsExec>${installdir}/nest-dat64.exe</windowsExec>
                     <windowsExecArgs></windowsExecArgs>

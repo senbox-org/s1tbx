@@ -13,4 +13,4 @@ resamp_value      |Float |*   |4|5|*|Resampling factor|33j|
 beam_adj_value    |Float |deg.|4|5|*|Beam adjustment delta|33k|
 beam_set_value    |UShort|*   |2|5|*|Antenna Beam Set Number|33l|
 tx_monitor_value  |Float |*   |4|5|*|Auxiliary Tx Monitor Level|33m|
-rank  			  |ULong |*   |4|5|*|Number of PRI between transmitted pulse and return echo|33n|
+
