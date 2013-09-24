@@ -6,7 +6,8 @@
 
 
 
-  <link rel="stylesheet" href="../style.css"></head><body>
+  <link rel="stylesheet" href="../style.css"></head>
+<body>
 <table class="header">
     <tbody>
     <tr class="header">
@@ -15,9 +16,8 @@
     </tr>
   </tbody>
 </table>
-<h3>Polarimetric Decomposition Operator</h3>&nbsp;&nbsp;&nbsp;This operator performs the following polarimetric decompositions&nbsp;for a full polarimetric SAR product:<br><ul><li>Sinclair Decomposition</li><li>Pauli Decomposition</li><li>Freeman-Durden Decomposition</li>
-  <li>Touzi Decomposition<br>
-  </li>
+<h3>Polarimetric Decomposition Operator</h3>&nbsp;&nbsp;&nbsp;This operator performs the following polarimetric decompositions&nbsp;for a full polarimetric SAR product:<br><ul><li>Sinclair Decomposition</li><li>Pauli Decomposition</li><li>Freeman-Durden Decomposition</li><li>Yamaguchi Decomposition</li><li>H-a Alpha Decomposition</li>
+  <li>Touzi Decomposition</li><li>Van Zyl Decomposition</li>
 </ul><h4>Sinclair Decomposition</h4>&nbsp;&nbsp; Let&nbsp;<br><div style="margin-left: 40px;">&nbsp;&nbsp;&nbsp; <img style="width: 462px; height: 55px;" alt="" src="images/coherencyMatrixGenerationOp_eq1.jpeg"><br></div><br>&nbsp;&nbsp;&nbsp;
 be the complex scatter matrix. The Sinclair decomposition produces (R,
 G, B) bands with the following intensities<br>&nbsp;&nbsp;&nbsp; <br><ul><li><span style="color: red;">Red</span>: |S<sub>vv</sub>|<sup>2</sup>,&nbsp;</li><li><span style="color: rgb(0, 153, 0);">Green</span>: |(S<sub>hv</sub> + S<sub>vh</sub>)/2|<sup>2</sup>,&nbsp;</li><li><span style="color: rgb(51, 51, 255);">Blue</span>: |S<sub>hh</sub>|<sup>2</sup>,&nbsp;</li></ul>&nbsp;&nbsp;&nbsp; The main drawback of this decomposition is the physical interpretation of the resulting RGB image.<br><h4>Pauli Decomposition</h4>&nbsp; &nbsp;The (R, G, B) bands produced by the Pauli decomposition correspond to the following intensities:<br><ul><li><span style="color: red;">Red</span>: 0.5*|S<sub>hh</sub> - S<sub>vv</sub>|<sup>2</sup>,&nbsp;which represents the contribution of&nbsp;single- or odd-bounce scattering to the final measured scattering matrix</li><li><span style="color: rgb(0, 153, 0);">Green</span>:&nbsp;0.5*|S<sub>hv</sub> + S<sub>vh</sub>|<sup>2</sup>,&nbsp;which represents the scatter power by targets that are able to return
