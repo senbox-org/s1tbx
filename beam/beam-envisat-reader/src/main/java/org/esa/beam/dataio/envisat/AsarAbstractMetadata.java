@@ -425,8 +425,11 @@ public final class AsarAbstractMetadata {
         }
     }
 
-    private double getPulseRepetitionFreq(MetadataElement mppAds) {
-        return mppAds.getAttributeDouble("ASAR_Main_ADSR.sd/image_parameters.prf_value", 0);
+    private static double getPulseRepetitionFreq(MetadataElement mppAds) {
+        double prf = mppAds.getAttributeDouble("ASAR_Main_ADSR.sd/image_parameters.prf_value", 0);
+        if(prf == 0)
+            prf = mppAds.getAttributeDouble("ASAR_Main_ADSR.sd/image_parameters_IODD_4A.prf_value", 0);
+        return prf;
     }
 
     private static void addOrbitStateVectors(MetadataElement root, MetadataElement dest) {

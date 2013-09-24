@@ -1,7 +1,7 @@
 <project>
     <shortName>NEST</shortName>
     <fullName>NEST</fullName>
-    <version>5.0.15</version>
+    <version>5.0.16</version>
     <readmeFile>../../../what's new.txt</readmeFile>
     <licenseFile>../../../LICENSE.txt</licenseFile>
     <splashImage>../../main/bin/common/res/nest_splash.png</splashImage>
