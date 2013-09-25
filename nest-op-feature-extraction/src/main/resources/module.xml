@@ -19,6 +19,9 @@
     <dependency>
         <module>nest-core</module>
     </dependency>
+    <dependency>
+        <module>nest-graph-builder</module>
+    </dependency>
 		
     <categories>Processor</categories>
 

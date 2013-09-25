@@ -25,5 +25,9 @@
             <groupId>org.esa.nest</groupId>
             <artifactId>nest-core</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.esa.nest</groupId>
+            <artifactId>nest-graph-builder</artifactId>
+        </dependency>
     </dependencies>
 </project>
