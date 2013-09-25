@@ -115,8 +115,12 @@ public class AggregatorPercentile extends AbstractAggregator {
     public void completeTemporal(BinContext ctx, int numTemporalObs, WritableVector temporalVector) {
         GrowableVector measurementsVec = ctx.get(mlName);
         float[] measurements = measurementsVec.getElements();
-        Arrays.sort(measurements);
-        temporalVector.set(0, computePercentile(percentage, measurements));
+        if (measurements.length > 0) {
+            Arrays.sort(measurements);
+            temporalVector.set(0, computePercentile(percentage, measurements));
+        } else {
+            temporalVector.set(0, Float.NaN);
+        }
     }
 
 

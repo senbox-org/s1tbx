@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2013 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -23,10 +23,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static java.lang.Float.NaN;
-import static org.esa.beam.binning.aggregators.AggregatorTestUtils.createCtx;
-import static org.esa.beam.binning.aggregators.AggregatorTestUtils.obsNT;
-import static org.esa.beam.binning.aggregators.AggregatorTestUtils.vec;
-import static org.junit.Assert.assertEquals;
+import static org.esa.beam.binning.aggregators.AggregatorTestUtils.*;
+import static org.junit.Assert.*;
 
 public class AggregatorPercentileTest {
 
@@ -146,4 +144,21 @@ public class AggregatorPercentileTest {
 
         agg.computeOutput(tvec, out);
         assertEquals(0.6f, out.get(0), 1e-5f);
-    }}
+    }
+
+    @Test
+    public void testAggregatorPercentileWithZeroValues() {
+        AggregatorPercentile agg = new AggregatorPercentile(new MyVariableContext("c"), "c", 50);
+
+        VectorImpl svec = vec(NaN);
+        VectorImpl tvec = vec(NaN);
+        VectorImpl out = vec(NaN);
+
+        agg.initSpatial(ctx, svec);
+        agg.completeSpatial(ctx, 0, svec);
+        agg.initTemporal(ctx, tvec);
+        agg.completeTemporal(ctx, 0, tvec);
+        agg.computeOutput(tvec, out);
+        assertTrue(Float.isNaN(out.get(0)));
+    }
+}
