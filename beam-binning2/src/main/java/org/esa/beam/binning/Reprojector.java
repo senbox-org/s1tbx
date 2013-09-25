@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2013 Brockmann Consult GmbH (info@brockmann-consult.de) 
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -37,15 +37,15 @@ import java.util.List;
  */
 public class Reprojector {
 
-    private final BinningContext binningContext;
+    private final PlanetaryGrid planetaryGrid;
     private final TemporalBinRenderer temporalBinRenderer;
     private final Rectangle rasterRegion;
     private int yGlobalUltimate;
 
-    public static void reproject(BinningContext binningContext,
+    public static void reproject(PlanetaryGrid planetaryGrid,
                                  TemporalBinSource temporalBinSource,
                                  TemporalBinRenderer temporalBinRenderer) throws Exception {
-        Reprojector reprojector = new Reprojector(binningContext, temporalBinRenderer);
+        Reprojector reprojector = new Reprojector(planetaryGrid, temporalBinRenderer);
         final int partCount = temporalBinSource.open();
         reprojector.begin();
         for (int i = 0; i < partCount; i++) {
@@ -57,10 +57,10 @@ public class Reprojector {
         temporalBinSource.close();
     }
 
-    Reprojector(BinningContext binningContext, TemporalBinRenderer temporalBinRenderer) {
-        Assert.notNull(binningContext, "binningContext");
+    Reprojector(PlanetaryGrid planetaryGrid, TemporalBinRenderer temporalBinRenderer) {
+        Assert.notNull(planetaryGrid, "planetaryGrid");
         Assert.notNull(temporalBinRenderer, "binRenderer");
-        this.binningContext = binningContext;
+        this.planetaryGrid = planetaryGrid;
         this.temporalBinRenderer = temporalBinRenderer;
         this.rasterRegion = temporalBinRenderer.getRasterRegion();
     }
@@ -124,7 +124,7 @@ public class Reprojector {
 
     void begin() throws Exception {
         yGlobalUltimate = rasterRegion.y - 1;
-        temporalBinRenderer.begin(binningContext);
+        temporalBinRenderer.begin();
     }
 
     void end() throws Exception {
@@ -133,7 +133,7 @@ public class Reprojector {
         final int y1 = rasterRegion.y;
         final int y2 = y1 + rasterRegion.height - 1;
         processRowsWithoutBins(x1, x2, yGlobalUltimate + 1, y2);
-        temporalBinRenderer.end(binningContext);
+        temporalBinRenderer.end();
     }
 
     void processPart(Iterator<? extends TemporalBin> temporalBins) throws Exception {
@@ -141,7 +141,6 @@ public class Reprojector {
         final int x2 = x1 + rasterRegion.width - 1;
         final int y1 = rasterRegion.y;
         final int y2 = y1 + rasterRegion.height - 1;
-        final PlanetaryGrid planetaryGrid = binningContext.getPlanetaryGrid();
         final int gridWidth = planetaryGrid.getNumRows() * 2;
         final int gridHeight = planetaryGrid.getNumRows();
 
@@ -181,7 +180,6 @@ public class Reprojector {
         final int x1 = rasterRegion.x;
         final int x2 = rasterRegion.x + rasterRegion.width - 1;
         final int y1 = rasterRegion.y;
-        final PlanetaryGrid planetaryGrid = binningContext.getPlanetaryGrid();
         Vector resultVector = null;
         final double lat = 90.0 - (y + 0.5) * 180.0 / gridHeight;
         long lastBinIndex = -1;

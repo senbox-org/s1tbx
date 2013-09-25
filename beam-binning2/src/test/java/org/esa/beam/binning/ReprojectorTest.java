@@ -1,6 +1,21 @@
+/*
+ * Copyright (C) 2013 Brockmann Consult GmbH (info@brockmann-consult.de) 
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 3 of the License, or (at your option)
+ * any later version.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, see http://www.gnu.org/licenses/
+ */
+
 package org.esa.beam.binning;
 
-import org.esa.beam.binning.support.BinningContextImpl;
 import org.esa.beam.binning.support.SEAGrid;
 import org.junit.Before;
 import org.junit.Test;
@@ -53,7 +68,7 @@ public class ReprojectorTest {
                      "------------\n",
                      raster.toString());
 
-        reprojector = new Reprojector(createBinningContext(planetaryGrid), raster);
+        reprojector = new Reprojector(planetaryGrid, raster);
         reprojector.begin();
     }
 
@@ -66,7 +81,7 @@ public class ReprojectorTest {
                      "------\n",
                      raster.toString());
 
-        Reprojector reprojector = new Reprojector(createBinningContext(planetaryGrid), raster);
+        Reprojector reprojector = new Reprojector(planetaryGrid, raster);
         reprojector.begin();
 
         ArrayList<TemporalBin> bins = new ArrayList<TemporalBin>();
@@ -417,10 +432,6 @@ public class ReprojectorTest {
         return temporalBin;
     }
 
-    private BinningContext createBinningContext(PlanetaryGrid planetaryGrid) {
-        return new BinningContextImpl(planetaryGrid, binManager, CompositingType.BINNING, 1);
-    }
-
     private static class NobsRaster implements TemporalBinRenderer {
 
         private final int w;
@@ -442,11 +453,11 @@ public class ReprojectorTest {
         }
 
         @Override
-        public void begin(BinningContext context) throws IOException {
+        public void begin() throws IOException {
         }
 
         @Override
-        public void end(BinningContext context) throws IOException {
+        public void end() throws IOException {
         }
 
         @Override

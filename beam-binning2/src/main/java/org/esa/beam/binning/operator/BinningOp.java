@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2013 Brockmann Consult GmbH (info@brockmann-consult.de) 
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -651,8 +651,9 @@ public class BinningOp extends Operator implements Output {
         if (outputTargetProduct) {
             getLogger().info(String.format("Writing mapped product '%s'...", formatterConfig.getOutputFile()));
             final MetadataElement globalAttributes = createGlobalAttributesElement();
-            Formatter.format(binningContext,
+            Formatter.format(binningContext.getPlanetaryGrid(),
                              getTemporalBinSource(temporalBins),
+                             binningContext.getBinManager().getResultFeatureNames(),
                              formatterConfig,
                              region,
                              startTime,
