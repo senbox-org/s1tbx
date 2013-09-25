@@ -24,6 +24,18 @@
 
     <extension point="beam-ui:actions">
 
+        <action>
+	        <id>UrbanAreaDetection</id>
+	        <helpId>UrbanAreaDetection</helpId>
+	        <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <icon>esaIcon</icon>
+            <parent>oceanTools</parent>
+	        <text>Urban Area Detection</text>
+            <shortDescr>Urban Area Detection</shortDescr>
+	        <operatorName>Urban-Area-Detection</operatorName>
+	        <dialogTitle>Urban Area Detection</dialogTitle>
+            <targetProductNameSuffix>_urb</targetProductNameSuffix>
+        </action>
 
     </extension>
 
