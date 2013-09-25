@@ -170,8 +170,9 @@
 		<module>nest-ocean-tools</module>
 		<module>nest-op-calibration</module>
 		<module>nest-op-coregistration</module>
+		<module>nest-op-feature-extraction</module>
 		<module>nest-op-image-processing</module>
-		<module>nest-op-machine-learning</module>
+		<module>nest-op-machine-learning</module>		
 		<module>nest-op-orthorectification</module>
 		<module>nest-op-sar-tools</module>
 		<module>nest-reader-dem</module>
