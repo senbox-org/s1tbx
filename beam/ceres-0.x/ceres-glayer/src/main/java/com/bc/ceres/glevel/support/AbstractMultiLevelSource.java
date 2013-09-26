@@ -131,10 +131,15 @@ public abstract class AbstractMultiLevelSource implements MultiLevelSource {
      */
     @Deprecated
     public static Dimension getImageDimension(int width, int height, double scale) {
+
         final float scaleFactor = (float) (1.0 / scale);
+        try {
         final RenderedOp c = ConstantDescriptor.create((float) width, (float) height, new Float[]{0.0f}, null);
         final RenderedOp s = ScaleDescriptor.create(c, scaleFactor, scaleFactor, 0.0f, 0.0f, null, null);
         return new Dimension(s.getWidth(), s.getHeight());
+        } catch(Throwable e) {         //NESTMOD
+            return new Dimension(Math.max(1, (int)(width*scaleFactor)), Math.max(1, (int)(height*scaleFactor)));
+        }
     }
 
     /**
