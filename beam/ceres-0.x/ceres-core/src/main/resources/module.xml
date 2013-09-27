@@ -2,12 +2,14 @@
     <manifestVersion>1.0.0</manifestVersion>
 
     <symbolicName>ceres-core</symbolicName>
-    <version>5.0-0.14</version>
+    <version>0.14</version>
     <name>Ceres Runtime Library</name>
     <activator>com.bc.ceres.core.runtime.internal.RuntimeActivator</activator>
 
     <changelog>
         <![CDATA[
+        Changes in 0.13.1<br/>
+        [CERES-057] Version text in splash screen shall be configurable<br/>
         Changes in 0.13<br/>
         [CERES-056] Use latest XStream library<br/>
         [CERES-055] Core API: Add extension point "adapters" in order to have declarative extension types<br/>

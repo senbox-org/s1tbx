@@ -2,7 +2,7 @@
     <manifestVersion>1.0.0</manifestVersion>
 
     <symbolicName>ceres-jai</symbolicName>
-    <version>5.0-0.14</version>
+    <version>0.14</version>
     <name>Ceres JAI Library</name>
 
     <categories>System,Library</categories>
@@ -14,6 +14,8 @@
 
     <changelog>
         <![CDATA[
+         Changes in 0.14
+         - fixed initialisation of SampleModel in ReinterpretOpImage
                 ]]>
     </changelog>
 

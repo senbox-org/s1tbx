@@ -34,8 +34,7 @@ import java.awt.image.SampleModel;
 import java.awt.image.WritableRaster;
 import java.util.Map;
 
-import static com.bc.ceres.jai.operator.ReinterpretDescriptor.EXPONENTIAL;
-import static com.bc.ceres.jai.operator.ReinterpretDescriptor.LINEAR;
+import static com.bc.ceres.jai.operator.ReinterpretDescriptor.*;
 
 
 public final class ReinterpretOpImage extends PointOpImage {
@@ -59,10 +58,10 @@ public final class ReinterpretOpImage extends PointOpImage {
                                                                                scalingType,
                                                                                interpretationType);
             final PixelInterleavedSampleModel sampleModel = new PixelInterleavedSampleModel(targetDataType,
-                                                                                            source.getWidth(),
-                                                                                            source.getHeight(),
+                                                                                            source.getTileWidth(),
+                                                                                            source.getTileHeight(),
                                                                                             1,
-                                                                                            source.getWidth(),
+                                                                                            source.getTileWidth(),
                                                                                             new int[]{0});
             imageLayout = ReinterpretDescriptor.createTargetImageLayout(source, sampleModel);
         }
