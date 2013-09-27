@@ -31,17 +31,6 @@
     <categories>Application,DAT</categories>
 
     <extension point="beam-ui:actions">
-        <action>
-            <id>CoherenceOptimizationOp</id>
-	        <helpId>CoherenceOptimizationOp</helpId>
-            <class>org.esa.nest.dat.actions.OperatorAction</class>
-            <text>Optimum Coherence Estimation</text>
-            <shortDescr>Estimate optimum coherence of stack of images</shortDescr>
-            <parent>products</parent>
-            <operatorName>CoherenceOptimizationOp</operatorName>
-	        <dialogTitle>Estimate optimum coherence of stack of images</dialogTitle>
-            <targetProductNameSuffix>_coh_opt</targetProductNameSuffix>
-        </action>
 
         <action>
 	        <id>CCDPair</id>

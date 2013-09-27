@@ -14,7 +14,7 @@
 		<ceresContext>nest</ceresContext>
 		
 		<beam.version>5.0-4.10.4</beam.version>
-		<ceres.version>5.0-0.14</ceres.version>
+		<ceres.version>0.14-SNAPSHOT</ceres.version>
 		<geotools.version>9.0-M0</geotools.version>
 		<jide.version>3.5.3</jide.version>
 		<hdf.version>2.7</hdf.version>
