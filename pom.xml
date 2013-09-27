@@ -76,7 +76,7 @@
                 <enabled>true</enabled>
             </snapshots>
         </repository>
-		<repository>
+		<!--repository>
             <id>ppolabs-mvn-repo</id>
             <name>Public Maven Repository of PPO.labs</name>
             <url>http://maven.ppolabs.me/</url>
@@ -86,7 +86,7 @@
             <snapshots>
                 <enabled>true</enabled>
             </snapshots>
-        </repository>
+        </repository-->
         <!--repository>
           <id>repo1.maven.org</id>
           <name>maven repository</name>
@@ -138,7 +138,7 @@
                 <enabled>true</enabled>
             </snapshots>
         </pluginRepository>
-		<pluginRepository>
+		<!--pluginRepository>
           <id>mojo</id>
           <name>Mojo repository</name>
           <url>https://nexus.codehaus.org/content/groups/snapshots-group</url>
@@ -153,7 +153,7 @@
             <snapshots>
                 <enabled>true</enabled>
             </snapshots>
-        </pluginRepository>
+        </pluginRepository-->
     </pluginRepositories>
 	
     <modules>
