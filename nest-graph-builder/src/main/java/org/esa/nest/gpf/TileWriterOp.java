@@ -155,7 +155,7 @@ public class TileWriterOp extends Operator implements Output {
 
             for(SubsetInfo info : subsetInfo) {
                 final Rectangle trgRect = info.subsetBuilder.getSubsetDef().getRegion();
-                if(!info.written && rect.intersects(trgRect)) {
+                if(rect.intersects(trgRect)) {
                     writeTile(info, targetBand.getName(), trgRect);
                 }
             }
@@ -171,15 +171,13 @@ public class TileWriterOp extends Operator implements Output {
 
     private synchronized void writeTile(final SubsetInfo info, final String bandName, final Rectangle trgRect)
                                         throws IOException {
-        if(info.written) return;
-        
+
         final Tile sourceTile = getSourceTile(sourceProduct.getBand(bandName), trgRect);
         final ProductData rawSamples = sourceTile.getRawSamples();
 
         final Band trgBand = info.product.getBand(bandName);
         info.productWriter.writeBandRasterData(trgBand,
                 0, 0, trgBand.getSceneRasterWidth(), trgBand.getSceneRasterHeight(), rawSamples, ProgressMonitor.NULL);
-        info.written = true;
     }
 
     private void markTileDone(Band targetBand, Tile targetTile) throws IOException {
