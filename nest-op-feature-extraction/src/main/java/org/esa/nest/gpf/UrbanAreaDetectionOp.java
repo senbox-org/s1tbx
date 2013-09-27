@@ -16,6 +16,7 @@
 package org.esa.nest.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
+import com.sun.xml.internal.messaging.saaj.util.FinalArrayList;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
@@ -26,10 +27,14 @@ import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
+import org.esa.beam.util.io.FileUtils;
 import org.esa.nest.datamodel.AbstractMetadata;
 import org.esa.nest.datamodel.Unit;
+import org.esa.nest.util.ResourceUtils;
 
 import java.awt.*;
+import java.io.*;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -46,7 +51,7 @@ import java.util.List;
  */
 
 @OperatorMetadata(alias = "Urban-Area-Detection",
-        category = "Ocean-Tools",
+        category = "Feature-Extraction-Tools",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2013 by Array Systems Computing Inc.",
         description = "Detect urban area.")
@@ -61,21 +66,32 @@ public class UrbanAreaDetectionOp extends Operator {
             rasterDataNodeType = Band.class, label = "Source Bands")
     private String[] sourceBandNames = null;
 
-    @Parameter(valueSet = {WINDOW_SIZE_9x9, WINDOW_SIZE_11x11, WINDOW_SIZE_13x13, WINDOW_SIZE_15x15, WINDOW_SIZE_17x17},
-               defaultValue = WINDOW_SIZE_15x15, label="Window Size")
+    @Parameter(valueSet = {WINDOW_SIZE_5x5, WINDOW_SIZE_7x7, WINDOW_SIZE_9x9, WINDOW_SIZE_11x11, WINDOW_SIZE_13x13,
+            WINDOW_SIZE_15x15, WINDOW_SIZE_17x17}, defaultValue = WINDOW_SIZE_15x15, label="Window Size")
     private String windowSizeStr = WINDOW_SIZE_15x15;
+
+    @Parameter(description = "Patch size in km", interval = "(0, *)", defaultValue = "12.0", label="Patch Size (km)")
+    private double patchSizeKm = 12.0;
+
+    @Parameter(description = "Flag for output statistics", defaultValue = "true", label="Output Statistics")
+    private boolean outputStatistics = true;
 
     private MetadataElement absRoot = null;
     private int sourceImageWidth = 0;
     private int sourceImageHeight = 0;
     private int windowSize = 0;
     private int halfWindowSize = 0;
+    private int patchWidth = 0;
+    private int patchHeight = 0;
 
     private double c = 0.0; // theoretical coefficient of variance
-
     private final HashMap<String, String> targetBandNameToSourceBandName = new HashMap<String, String>();
-    public final static String SPECKLE_DIVERGENCE_MASK_NAME = "_speckle_divergence_msk";
+    private final HashMap<String, File> bandNameToFeatureDir = new HashMap<String, File>();
 
+    public static final String SPECKLE_DIVERGENCE_MASK_NAME = "_speckle_divergence";
+
+    private static final String WINDOW_SIZE_5x5 = "5x5";
+    private static final String WINDOW_SIZE_7x7 = "7x7";
     private static final String WINDOW_SIZE_9x9 = "9x9";
     private static final String WINDOW_SIZE_11x11 = "11x11";
     private static final String WINDOW_SIZE_13x13 = "13x13";
@@ -84,38 +100,70 @@ public class UrbanAreaDetectionOp extends Operator {
 
     @Override
     public void initialize() throws OperatorException {
-        try {
 
+        try {
             absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
 
             sourceImageWidth = sourceProduct.getSceneRasterWidth();
             sourceImageHeight = sourceProduct.getSceneRasterHeight();
 
-            if (windowSizeStr.equals(WINDOW_SIZE_9x9)) {
-                windowSize = 9;
-            } else if (windowSizeStr.equals(WINDOW_SIZE_11x11)) {
-                windowSize = 11;
-            } else if (windowSizeStr.equals(WINDOW_SIZE_13x13)) {
-                windowSize = 13;
-            } else if (windowSizeStr.equals(WINDOW_SIZE_15x15)) {
-                windowSize = 15;
-            } else if (windowSizeStr.equals(WINDOW_SIZE_17x17)) {
-                windowSize = 17;
-            } else {
-                throw new OperatorException("Unknown window size: " + windowSize);
-            }
+            setWindowSize();
 
-            halfWindowSize = windowSize/2;
+            computePatchDimension();
 
             computeTheoreticalCoefficientOfVariance();
 
             createTargetProduct();
+
+            if (outputStatistics) {
+                createFeatureOutputDirectory();
+            }
 
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
         }
     }
 
+    /**
+     * Set Window size.
+     */
+    private void setWindowSize() {
+
+        if (windowSizeStr.equals(WINDOW_SIZE_5x5)) {
+            windowSize = 5;
+        } else if (windowSizeStr.equals(WINDOW_SIZE_7x7)) {
+            windowSize = 7;
+        } else if (windowSizeStr.equals(WINDOW_SIZE_9x9)) {
+            windowSize = 9;
+        } else if (windowSizeStr.equals(WINDOW_SIZE_11x11)) {
+            windowSize = 11;
+        } else if (windowSizeStr.equals(WINDOW_SIZE_13x13)) {
+            windowSize = 13;
+        } else if (windowSizeStr.equals(WINDOW_SIZE_15x15)) {
+            windowSize = 15;
+        } else if (windowSizeStr.equals(WINDOW_SIZE_17x17)) {
+            windowSize = 17;
+        } else {
+            throw new OperatorException("Unknown window size: " + windowSize);
+        }
+
+        halfWindowSize = windowSize/2;
+    }
+
+    /**
+     * Compute patch dimension for given patch size in kilometer.
+     */
+    private void computePatchDimension() {
+
+        final double rangeSpacing = absRoot.getAttributeDouble(AbstractMetadata.range_spacing);
+        final double azimuthSpacing = absRoot.getAttributeDouble(AbstractMetadata.azimuth_spacing);
+        patchWidth = (int)(patchSizeKm*1000.0/rangeSpacing);
+        patchHeight = (int)(patchSizeKm*1000.0/azimuthSpacing);
+
+        if (patchWidth < windowSize && patchHeight < windowSize) {
+            throw new OperatorException("The Patch Size (km) is too small: " + patchSizeKm);
+        }
+    }
 
     /**
      * Compute theoretical coefficient of variance.
@@ -142,6 +190,8 @@ public class UrbanAreaDetectionOp extends Operator {
         OperatorUtils.copyProductNodes(sourceProduct, targetProduct);
 
         addSelectedBands();
+
+        targetProduct.setPreferredTileSize(patchWidth, patchHeight);
     }
 
     /**
@@ -194,8 +244,49 @@ public class UrbanAreaDetectionOp extends Operator {
 
             targetBandMask.setNoDataValue(srcBand.getNoDataValue());
             targetBandMask.setNoDataValueUsed(true);
-            //targetBandMask.setUnit(Unit.AMPLITUDE); // the unit should be ratio, i.e. no unit
+            targetBandMask.setUnit("speckle_divergence");
             targetProduct.addBand(targetBandMask);
+        }
+    }
+
+    /**
+     * Create a feature directory for feature output.
+     * @throws IOException The exception.
+     */
+    private void createFeatureOutputDirectory() throws IOException {
+
+        final File parentDir = new File(ResourceUtils.getApplicationUserDir(true).getAbsolutePath() + File.separator + "log");
+        final File outputDir = new File(parentDir, sourceProduct.getName());
+        makeDir(outputDir);
+
+        for (String bandName:sourceBandNames) {
+            final File featureDir = new File(outputDir, bandName);
+            makeDir(featureDir);
+            bandNameToFeatureDir.put(bandName, featureDir);
+        }
+    }
+
+    /**
+     * Create a directory.
+     * @param dir The directory.
+     * @throws IOException The exceptions.
+     */
+    private void makeDir(final File dir) throws IOException {
+
+        if (dir == null) {
+            throw new IOException(
+                    MessageFormat.format("Invalid directory ''{0}''.", dir));
+        }
+
+        if (dir.exists()) {
+            if (!FileUtils.deleteTree(dir)) {
+                throw new IOException(
+                        MessageFormat.format("Existing directory ''{0}'' cannot be deleted.", dir));
+            }
+        }
+
+        if (!dir.mkdir()) {
+            throw new IOException(MessageFormat.format("Directory ''{0}'' cannot be created.", dir));
         }
     }
 
@@ -234,6 +325,9 @@ public class UrbanAreaDetectionOp extends Operator {
 
             final int maxy = ty0 + th;
             final int maxx = tx0 + tw;
+            int sampleCount = 0;
+            final double[] speckleDivergenceArray = new double[tw*th];
+
             for (int ty = ty0; ty < maxy; ty++) {
                 trgIndex.calculateStride(ty);
                 srcIndex.calculateStride(ty);
@@ -247,8 +341,20 @@ public class UrbanAreaDetectionOp extends Operator {
                     final double cv = computeCoefficientOfVariance(tx, ty, sourceTile, srcData, bandUnit, noDataValue);
                     final double speckleDivergence = cv - c;
                     trgData.setElemFloatAt(trgIndex.getIndex(tx), (float)speckleDivergence);
+                    speckleDivergenceArray[sampleCount++] = speckleDivergence;
                 }
             }
+
+            // Compute statistics for speckle divergence values computed for the tile and output them to file
+            if (outputStatistics) {
+                final StxFactory stxFactory = new StxFactory();
+                final String bandName = targetBand.getName();
+                Band tmpBand = new Band(bandName, ProductData.TYPE_FLOAT64, tw, th);
+                tmpBand.setData(ProductData.createInstance(speckleDivergenceArray));
+                final Stx stx = stxFactory.create(tmpBand, ProgressMonitor.NULL);
+                outputStatistics(tx0, ty0, tw, th, srcBandName, bandName, stx);
+            }
+
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
         }
@@ -256,10 +362,10 @@ public class UrbanAreaDetectionOp extends Operator {
 
     /**
      * Get source tile rectangle.
-     * @param x0 X coordinate of the upper left corner point of the target tile rectangle.
-     * @param y0 Y coordinate of the upper left corner point of the target tile rectangle.
-     * @param w The width of the target tile rectangle.
-     * @param h The height of the target tile rectangle.
+     * @param x0 X coordinate of pixel at the upper left corner of the target tile.
+     * @param y0 Y coordinate of pixel at the upper left corner of the target tile.
+     * @param w The width of the target tile.
+     * @param h The height of the target tile.
      * @return The source tile rectangle.
      */
     private Rectangle getSourceTileRectangle(int x0, int y0, int w, int h) {
@@ -292,8 +398,8 @@ public class UrbanAreaDetectionOp extends Operator {
 
     /**
      * Compute local coefficient of variance.
-     * @param tx The x coordinate of the central point of the sliding window.
-     * @param ty The y coordinate of the central point of the sliding window.
+     * @param tx The x coordinate of the central pixel of the sliding window.
+     * @param ty The y coordinate of the central pixel of the sliding window.
      * @param sourceTile The source image tile.
      * @param srcData The source image data.
      * @param bandUnit The source band unit.
@@ -321,8 +427,8 @@ public class UrbanAreaDetectionOp extends Operator {
 
     /**
      * Get source samples in the sliding window.
-     * @param tx The x coordinate of the central point of the sliding window.
-     * @param ty The y coordinate of the central point of the sliding window.
+     * @param tx The x coordinate of the central pixel of the sliding window.
+     * @param ty The y coordinate of the central pixel of the sliding window.
      * @param bandUnit The source band unit.
      * @param noDataValue the place holder for no data
      * @param sourceTile The source image tile.
@@ -409,6 +515,53 @@ public class UrbanAreaDetectionOp extends Operator {
         }
 
         return var;
+    }
+
+    /**
+     * Output statistics to file.
+     * @param tx0 X coordinate of pixel at the upper left corner of the target tile.
+     * @param ty0 Y coordinate of pixel at the upper left corner of the target tile.
+     * @param tw The width of the target tile.
+     * @param th The height of the target tile.
+     * @param srcBandName The source band name.
+     * @param tgtBandName The target band name.
+     * @param stx The statistics object.
+     * @throws IOException The exceptions.
+     */
+    private synchronized void outputStatistics(final int tx0, final int ty0, final int tw, final int th,
+                                               final String srcBandName, final String tgtBandName,
+                                               final Stx stx) throws IOException {
+
+        final int tileX = tx0/patchWidth;
+        final int tileY = ty0/patchHeight;
+
+        final File featureDir = bandNameToFeatureDir.get(srcBandName);
+        final String tileDirName = String.format("x%02dy%02d", tileX, tileY);
+        final File tileDir = new File(featureDir, tileDirName);
+        if (!tileDir.mkdir()) {
+            throw new IOException(
+                    MessageFormat.format("Tile directory ''{0}'' cannot be created.", tileDir));
+        }
+
+        final File featureFile = new File(tileDir, "features.txt");
+        final Writer featureWriter = new BufferedWriter(new FileWriter(featureFile));
+        try {
+            featureWriter.write(String.format("tileX = %s, tileY = %s, x0 = %s, y0 = %s, width = %s, height = %s\n\n",
+                    tileX, tileY, tx0, ty0, tw, th));
+            featureWriter.write(String.format("%s.minimum = %s\n", tgtBandName, stx.getMinimum()));
+            featureWriter.write(String.format("%s.maximum = %s\n", tgtBandName, stx.getMaximum()));
+            featureWriter.write(String.format("%s.median  = %s\n", tgtBandName, stx.getMedian()));
+            featureWriter.write(String.format("%s.mean    = %s\n", tgtBandName, stx.getMean()));
+            featureWriter.write(String.format("%s.stdev   = %s\n", tgtBandName, stx.getStandardDeviation()));
+            featureWriter.write(String.format("%s.coefVar = %s\n", tgtBandName, stx.getCoefficientOfVariation()));
+            featureWriter.write(String.format("%s.count   = %s\n", tgtBandName, stx.getSampleCount()));
+
+        } finally {
+            try {
+                featureWriter.close();
+            } catch (IOException ignored) {
+            }
+        }
     }
 
 
