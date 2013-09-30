@@ -42,7 +42,7 @@ import java.util.*;
  */
 
 @OperatorMetadata(alias="Terrain-Mask-Generation",
-        category = "Feature-Extraction-Tools",
+        category = "Feature Extraction",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2013 by Array Systems Computing Inc.",
         description="Terrain Mask Generation")

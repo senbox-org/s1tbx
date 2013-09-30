@@ -16,10 +16,6 @@
 package org.esa.nest.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.beam.framework.dataio.ProductIO;
-import org.esa.beam.framework.dataio.ProductSubsetBuilder;
-import org.esa.beam.framework.dataio.ProductSubsetDef;
-import org.esa.beam.framework.dataio.ProductWriter;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
@@ -29,17 +25,11 @@ import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
-import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.ProductUtils;
-import org.esa.beam.util.io.FileUtils;
-import org.esa.beam.util.math.MathUtils;
 import org.esa.nest.datamodel.AbstractMetadata;
 import org.esa.nest.datamodel.Unit;
-import org.esa.nest.util.ResourceUtils;
 
 import java.awt.*;
-import java.io.*;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -56,7 +46,7 @@ import java.util.List;
  */
 
 @OperatorMetadata(alias = "Urban-Area-Detection",
-        category = "Feature-Extraction-Tools",
+        category = "Feature Extraction",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2013 by Array Systems Computing Inc.",
         description = "Detect urban area.")
@@ -72,30 +62,17 @@ public class UrbanAreaDetectionOp extends Operator {
     private String[] sourceBandNames = null;
 
     @Parameter(valueSet = {WINDOW_SIZE_5x5, WINDOW_SIZE_7x7, WINDOW_SIZE_9x9, WINDOW_SIZE_11x11, WINDOW_SIZE_13x13,
-            WINDOW_SIZE_15x15, WINDOW_SIZE_17x17}, defaultValue = WINDOW_SIZE_15x15, label="Window Size")
-    private String windowSizeStr = WINDOW_SIZE_15x15;
-
-    @Parameter(description = "Patch size in km", interval = "(0, *)", defaultValue = "12.0", label="Patch Size (km)")
-    private double patchSizeKm = 12.0;
-
-    @Parameter(defaultValue = ProductIO.DEFAULT_FORMAT_NAME,
-               description = "The name of the output patch format.")
-    private String formatName;
-
-    @Parameter(description = "Flag for output features", defaultValue = "true", label="Output Features")
-    private boolean outputFeatures = true;
+            WINDOW_SIZE_15x15, WINDOW_SIZE_17x17}, defaultValue = WINDOW_SIZE_5x5, label="Window Size")
+    private String windowSizeStr = WINDOW_SIZE_5x5;
 
     private MetadataElement absRoot = null;
     private int sourceImageWidth = 0;
     private int sourceImageHeight = 0;
     private int windowSize = 0;
     private int halfWindowSize = 0;
-    private int patchWidth = 0;
-    private int patchHeight = 0;
 
     private double c = 0.0; // theoretical coefficient of variance
     private final HashMap<String, String> targetBandNameToSourceBandName = new HashMap<String, String>();
-    private final HashMap<String, File> bandNameToFeatureDir = new HashMap<String, File>();
 
     public static final String SPECKLE_DIVERGENCE_MASK_NAME = "_speckle_divergence";
 
@@ -118,15 +95,9 @@ public class UrbanAreaDetectionOp extends Operator {
 
             setWindowSize();
 
-            computePatchDimension();
-
             computeTheoreticalCoefficientOfVariance();
 
             createTargetProduct();
-
-            if (outputFeatures) {
-                createFeatureOutputDirectory();
-            }
 
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
@@ -138,40 +109,33 @@ public class UrbanAreaDetectionOp extends Operator {
      */
     private void setWindowSize() {
 
-        if (windowSizeStr.equals(WINDOW_SIZE_5x5)) {
-            windowSize = 5;
-        } else if (windowSizeStr.equals(WINDOW_SIZE_7x7)) {
-            windowSize = 7;
-        } else if (windowSizeStr.equals(WINDOW_SIZE_9x9)) {
-            windowSize = 9;
-        } else if (windowSizeStr.equals(WINDOW_SIZE_11x11)) {
-            windowSize = 11;
-        } else if (windowSizeStr.equals(WINDOW_SIZE_13x13)) {
-            windowSize = 13;
-        } else if (windowSizeStr.equals(WINDOW_SIZE_15x15)) {
-            windowSize = 15;
-        } else if (windowSizeStr.equals(WINDOW_SIZE_17x17)) {
-            windowSize = 17;
-        } else {
-            throw new OperatorException("Unknown window size: " + windowSize);
+        switch (windowSizeStr) {
+            case WINDOW_SIZE_5x5:
+                windowSize = 5;
+                break;
+            case WINDOW_SIZE_7x7:
+                windowSize = 7;
+                break;
+            case WINDOW_SIZE_9x9:
+                windowSize = 9;
+                break;
+            case WINDOW_SIZE_11x11:
+                windowSize = 11;
+                break;
+            case WINDOW_SIZE_13x13:
+                windowSize = 13;
+                break;
+            case WINDOW_SIZE_15x15:
+                windowSize = 15;
+                break;
+            case WINDOW_SIZE_17x17:
+                windowSize = 17;
+                break;
+            default:
+                throw new OperatorException("Unknown window size: " + windowSize);
         }
 
         halfWindowSize = windowSize/2;
-    }
-
-    /**
-     * Compute patch dimension for given patch size in kilometer.
-     */
-    private void computePatchDimension() {
-
-        final double rangeSpacing = absRoot.getAttributeDouble(AbstractMetadata.range_spacing);
-        final double azimuthSpacing = absRoot.getAttributeDouble(AbstractMetadata.azimuth_spacing);
-        patchWidth = (int)(patchSizeKm*1000.0/rangeSpacing);
-        patchHeight = (int)(patchSizeKm*1000.0/azimuthSpacing);
-
-        if (patchWidth < windowSize && patchHeight < windowSize) {
-            throw new OperatorException("The Patch Size (km) is too small: " + patchSizeKm);
-        }
     }
 
     /**
@@ -183,7 +147,6 @@ public class UrbanAreaDetectionOp extends Operator {
         final int rangeLooks = absRoot.getAttributeInt(AbstractMetadata.range_looks);
         c = 1.0 / (azimuthLooks + rangeLooks);
     }
-
 
     /**
      * Create target product.
@@ -199,8 +162,6 @@ public class UrbanAreaDetectionOp extends Operator {
         OperatorUtils.copyProductNodes(sourceProduct, targetProduct);
 
         addSelectedBands();
-
-        targetProduct.setPreferredTileSize(patchWidth, patchHeight);
     }
 
     /**
@@ -259,48 +220,6 @@ public class UrbanAreaDetectionOp extends Operator {
     }
 
     /**
-     * Create a feature directory for feature output.
-     * @throws IOException The exception.
-     */
-    private void createFeatureOutputDirectory() throws IOException {
-
-        final File parentDir = new File(ResourceUtils.getApplicationUserDir(true).getAbsolutePath() + File.separator + "log");
-        final File outputDir = new File(parentDir, sourceProduct.getName());
-        makeDir(outputDir);
-
-        for (String bandName:sourceBandNames) {
-            final File featureDir = new File(outputDir, bandName);
-            makeDir(featureDir);
-            bandNameToFeatureDir.put(bandName, featureDir);
-        }
-    }
-
-    /**
-     * Create a directory.
-     * @param dir The directory.
-     * @throws IOException The exceptions.
-     */
-    private void makeDir(final File dir) throws IOException {
-
-        if (dir == null) {
-            throw new IOException(
-                    MessageFormat.format("Invalid directory ''{0}''.", dir));
-        }
-
-        if (dir.exists()) {
-            if (!FileUtils.deleteTree(dir)) {
-                throw new IOException(
-                        MessageFormat.format("Existing directory ''{0}'' cannot be deleted.", dir));
-            }
-        }
-
-        if (!dir.mkdir()) {
-            throw new IOException(MessageFormat.format("Directory ''{0}'' cannot be created.", dir));
-        }
-    }
-
-
-    /**
      * Called by the framework in order to compute a tile for the given target band.
      * <p>The default implementation throws a runtime exception with the message "not implemented".</p>
      *
@@ -353,10 +272,6 @@ public class UrbanAreaDetectionOp extends Operator {
                     trgData.setElemFloatAt(trgIndex.getIndex(tx), (float)speckleDivergence);
                     speckleDivergenceArray[sampleCount++] = speckleDivergence;
                 }
-            }
-
-            if (outputFeatures) {
-                outputFeatures(tx0, ty0, tw, th, srcBandName, targetBand.getName(), speckleDivergenceArray);
             }
 
         } catch (Throwable e) {
@@ -520,155 +435,6 @@ public class UrbanAreaDetectionOp extends Operator {
 
         return var;
     }
-
-    /**
-     * Output features to file.
-     * @param tx0 X coordinate of pixel at the upper left corner of the target tile.
-     * @param ty0 Y coordinate of pixel at the upper left corner of the target tile.
-     * @param tw The width of the target tile.
-     * @param th The height of the target tile.
-     * @param srcBandName The source band name.
-     * @param tgtBandName The target band name.
-     * @param speckleDivergenceArray The data array.
-     * @throws IOException The exceptions.
-     */
-    private synchronized void outputFeatures(final int tx0, final int ty0, final int tw, final int th,
-                                               final String srcBandName, final String tgtBandName,
-                                               final double[] speckleDivergenceArray) throws IOException {
-
-        final int tileX = tx0/patchWidth;
-        final int tileY = ty0/patchHeight;
-
-        final File tileDir = createTileFeatureDirectory(tileX, tileY, srcBandName);
-
-        outputStatistics(tx0, ty0, tw, th, tileX, tileY, tgtBandName, tileDir, speckleDivergenceArray);
-
-        //outputPatchImage(tx0, ty0, tw, th, srcBandName, tgtBandName, tileDir);
-    }
-
-    /**
-     * Create directory for current tile feature output.
-     * @param tileX Tile index in X direction.
-     * @param tileY Tile index in Y direction.
-     * @param srcBandName Source band name.
-     * @return The directory.
-     * @throws IOException The exceptions.
-     */
-    private File createTileFeatureDirectory(final int tileX, final int tileY, final String srcBandName)
-            throws IOException {
-
-        final File featureDir = bandNameToFeatureDir.get(srcBandName);
-        final String tileDirName = String.format("x%02dy%02d", tileX, tileY);
-        final File tileDir = new File(featureDir, tileDirName);
-        if (!tileDir.mkdir()) {
-            throw new IOException(
-                    MessageFormat.format("Tile directory ''{0}'' cannot be created.", tileDir));
-        }
-
-        return tileDir;
-    }
-
-    /**
-     * Output statistics to file.
-     * @param tx0 X coordinate of pixel at the upper left corner of the target tile.
-     * @param ty0 Y coordinate of pixel at the upper left corner of the target tile.
-     * @param tw The width of the target tile.
-     * @param th The height of the target tile.
-     * @param tileX Tile index in X direction.
-     * @param tileY Tile index in Y direction.
-     * @param tgtBandName The target band name.
-     * @param tileDir The tile directory for output.
-     * @param speckleDivergenceArray The data array.
-     * @throws IOException The exceptions.
-     */
-    private void outputStatistics(final int tx0, final int ty0, final int tw, final int th, final int tileX,
-                                  final int tileY, final String tgtBandName, final File tileDir,
-                                  final double[] speckleDivergenceArray) throws IOException {
-
-        final StxFactory stxFactory = new StxFactory();
-        Band tmpBand = new Band(tgtBandName, ProductData.TYPE_FLOAT64, tw, th);
-        tmpBand.setData(ProductData.createInstance(speckleDivergenceArray));
-        final Stx stx = stxFactory.create(tmpBand, ProgressMonitor.NULL);
-
-        final File featureFile = new File(tileDir, "features.txt");
-
-        final Writer featureWriter = new BufferedWriter(new FileWriter(featureFile));
-
-        try {
-            featureWriter.write(String.format("tileX = %s, tileY = %s, x0 = %s, y0 = %s, width = %s, height = %s\n\n",
-                    tileX, tileY, tx0, ty0, tw, th));
-            featureWriter.write(String.format("%s.minimum = %s\n", tgtBandName, stx.getMinimum()));
-            featureWriter.write(String.format("%s.maximum = %s\n", tgtBandName, stx.getMaximum()));
-            featureWriter.write(String.format("%s.median  = %s\n", tgtBandName, stx.getMedian()));
-            featureWriter.write(String.format("%s.mean    = %s\n", tgtBandName, stx.getMean()));
-            featureWriter.write(String.format("%s.stdev   = %s\n", tgtBandName, stx.getStandardDeviation()));
-            featureWriter.write(String.format("%s.coefVar = %s\n", tgtBandName, stx.getCoefficientOfVariation()));
-            featureWriter.write(String.format("%s.count   = %s\n", tgtBandName, stx.getSampleCount()));
-
-        } finally {
-            try {
-                featureWriter.close();
-            } catch (IOException ignored) {
-            }
-        }
-    }
-
-    private void outputPatchImage(final int tx0, final int ty0, final int tw, final int th, final String srcBandName,
-                                  final String tgtBandName, final File tileDir) {
-
-        try {
-            // create subset
-            final ProductSubsetDef subsetDef = new ProductSubsetDef();
-            subsetDef.addNodeNames(targetProduct.getTiePointGridNames());
-            subsetDef.addNodeNames(targetProduct.getBandNames());
-            subsetDef.setRegion(tx0, ty0, tw, th);
-            subsetDef.setSubSampling(1, 1);
-            subsetDef.setIgnoreMetadata(false);
-
-            // create subsetInfo
-            SubsetInfo subsetInfo = new SubsetInfo();
-            subsetInfo.subsetBuilder = new ProductSubsetBuilder();
-            subsetInfo.product = subsetInfo.subsetBuilder.readProductNodes(targetProduct, subsetDef);
-            subsetInfo.file = new File(tileDir, "patch.dim");
-
-            subsetInfo.productWriter = ProductIO.getProductWriter(formatName); // BEAM-DIMAP
-            if (subsetInfo.productWriter == null) {
-                throw new OperatorException("No data product writer for the '" + formatName + "' format available");
-            }
-            subsetInfo.productWriter.setIncrementalMode(false);
-            subsetInfo.productWriter.setFormatName(formatName);
-            subsetInfo.product.setProductWriter(subsetInfo.productWriter);
-
-            // output metadata
-            subsetInfo.productWriter.writeProductNodes(subsetInfo.product, subsetInfo.file);
-
-            // output original image
-            final Rectangle trgRect = new Rectangle(tx0,ty0, tw, th);
-            final Tile srcImageTile = getSourceTile(targetProduct.getBand(srcBandName), trgRect);
-            final ProductData srcImageData = srcImageTile.getRawSamples();
-            final Band srcImage = subsetInfo.product.getBand(srcBandName);
-            subsetInfo.productWriter.writeBandRasterData(srcImage, 0, 0,
-                    srcImage.getSceneRasterWidth(), srcImage.getSceneRasterHeight(), srcImageData, ProgressMonitor.NULL);
-
-            // output speckle divergence image
-            final Tile spkDivTile = getSourceTile(targetProduct.getBand(tgtBandName), trgRect);
-            final ProductData spkDivData = spkDivTile.getRawSamples();
-            final Band spkDiv = subsetInfo.product.getBand(tgtBandName);
-            subsetInfo.productWriter.writeBandRasterData(spkDiv, 0, 0,
-                    spkDiv.getSceneRasterWidth(), spkDiv.getSceneRasterHeight(), spkDivData, ProgressMonitor.NULL);
-
-        } catch (Throwable t) {
-            throw new OperatorException(t);
-        }
-    }
-
-    private static class SubsetInfo {
-        Product product;
-        ProductSubsetBuilder subsetBuilder;
-        File file;
-        ProductWriter productWriter;
-    }
-
 
     /**
      * Operator SPI.
