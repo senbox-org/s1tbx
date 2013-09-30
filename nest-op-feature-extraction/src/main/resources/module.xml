@@ -22,7 +22,10 @@
     <dependency>
         <module>nest-graph-builder</module>
     </dependency>
-		
+	<dependency>
+      <module>nest-reader-dem</module>
+    </dependency>
+	
     <categories>Processor</categories>
 
     <extension point="beam-ui:actions">
@@ -38,6 +41,18 @@
 	        <operatorName>Urban-Area-Detection</operatorName>
 	        <dialogTitle>Urban Area Detection</dialogTitle>
             <targetProductNameSuffix>_urb</targetProductNameSuffix>
+        </action>
+        <action>
+	        <id>TerrainMaskGeneration</id>
+	        <helpId>TerrainMaskGeneration</helpId>
+	        <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <icon>esaIcon</icon>
+            <parent>oceanTools</parent>
+	        <text>Terrain Mask Generation</text>
+            <shortDescr>Terrain Mask Generation</shortDescr>
+	        <operatorName>Terrain-Mask-Generation</operatorName>
+	        <dialogTitle>Terrain Mask Generation</dialogTitle>
+            <targetProductNameSuffix>_terr_msk</targetProductNameSuffix>
         </action>
 
     </extension>
