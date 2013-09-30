@@ -302,11 +302,11 @@ public final class TerrainMaskGenerationOp extends Operator {
                 getElevationModel();
             }
 
-            final double[][] localDEM = new double[h+2][w+2];
-            final TileGeoreferencing tileGeoRef = new TileGeoreferencing(targetProduct, x0, y0, w, h);
+            final double[][] localDEM = new double[h+windowSize+2][w+windowSize+2];
+            final TileGeoreferencing tileGeoRef = new TileGeoreferencing(targetProduct, x0, y0, w+windowSize, h+windowSize);
 
             final boolean valid = DEMFactory.getLocalDEM(
-                    dem, demNoDataValue, demResamplingMethod, tileGeoRef, x0, y0, w, h, sourceProduct, true, localDEM);
+                    dem, demNoDataValue, demResamplingMethod, tileGeoRef, x0, y0, w+windowSize, h+windowSize, sourceProduct, true, localDEM);
 
              if(!valid) {
                 return;
@@ -337,8 +337,8 @@ public final class TerrainMaskGenerationOp extends Operator {
         double max = Double.MIN_VALUE;
         double sum = 0.0;
         int numSamples = 0;
-        for (int yy = y; yy < Math.min(y + windowSize, ymax); yy++) {
-            for (int xx = x; xx < Math.min(x + windowSize, xmax); xx++) {
+        for (int yy = y; yy < y + windowSize; yy++) {
+            for (int xx = x; xx < x + windowSize; xx++) {
                 final double h = localDEM[yy - y0 + 1][xx - x0 + 1];
                 if (min > h) {
                     min = h;
