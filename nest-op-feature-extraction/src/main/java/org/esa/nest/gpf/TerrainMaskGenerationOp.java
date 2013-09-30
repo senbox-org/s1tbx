@@ -87,7 +87,7 @@ public final class TerrainMaskGenerationOp extends Operator {
     private boolean isElevationModelAvailable = false;
     private float demNoDataValue = 0; // no data value for DEM
 
-    private static String TERRAIN_MASK_NAME = "Terrain_Mask";
+    public static String TERRAIN_MASK_NAME = "Terrain_Mask";
     private static final String WINDOW_SIZE_5x5 = "5x5";
     private static final String WINDOW_SIZE_7x7 = "7x7";
     private static final String WINDOW_SIZE_9x9 = "9x9";
