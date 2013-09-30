@@ -249,28 +249,35 @@ public class UrbanAreaDetectionOp extends Operator {
             final double noDataValue = sourceBand.getNoDataValue();
             final Unit.UnitType bandUnit = Unit.getUnitType(sourceBand);
 
+            final Band maskBand = sourceProduct.getBand(TerrainMaskGenerationOp.TERRAIN_MASK_NAME);
+            Tile maskTile = null;
+            ProductData maskData = null;
+            if (maskBand != null) {
+                maskTile = getSourceTile(maskBand, targetTileRectangle);
+                maskData = maskTile.getDataBuffer();
+            }
+
             final TileIndex trgIndex = new TileIndex(targetTile);
             final TileIndex srcIndex = new TileIndex(sourceTile);    // src and trg tile are different size
 
             final int maxy = ty0 + th;
             final int maxx = tx0 + tw;
-            int sampleCount = 0;
-            final double[] speckleDivergenceArray = new double[tw*th];
 
             for (int ty = ty0; ty < maxy; ty++) {
                 trgIndex.calculateStride(ty);
                 srcIndex.calculateStride(ty);
                 for (int tx = tx0; tx < maxx; tx++) {
+                    final int idx = trgIndex.getIndex(tx);
+
                     final double v = srcData.getElemDoubleAt(srcIndex.getIndex(tx));
-                    if (v == noDataValue) {
+                    if (v == noDataValue || maskBand != null && maskData.getElemIntAt(idx) == 1) {
                         trgData.setElemFloatAt(trgIndex.getIndex(tx), (float)noDataValue);
                         continue;
                     }
 
                     final double cv = computeCoefficientOfVariance(tx, ty, sourceTile, srcData, bandUnit, noDataValue);
                     final double speckleDivergence = cv - c;
-                    trgData.setElemFloatAt(trgIndex.getIndex(tx), (float)speckleDivergence);
-                    speckleDivergenceArray[sampleCount++] = speckleDivergence;
+                    trgData.setElemFloatAt(idx, (float)speckleDivergence);
                 }
             }
 
