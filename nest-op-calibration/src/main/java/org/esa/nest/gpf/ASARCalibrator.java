@@ -257,7 +257,7 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
         if (antElevCorrFlag) {
             if (multilookFlag || auxFile != null && auxFile.contains(CalibrationOp.PRODUCT_AUX)) {
                 retroCalibrationFlag = false;
-                System.out.println("Only constant and incidence angle corrections will be performed for radiometric calibration");
+                //System.out.println("Only constant and incidence angle corrections will be performed for radiometric calibration");
             } else {
                 retroCalibrationFlag = true;
             }
