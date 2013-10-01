@@ -85,6 +85,8 @@ public class FeatureWriterOp extends Operator implements Output {
     public static final String FEX_EXTENSION = ".fex";
     private static final String VERSION = "NEST 5.5 Urban Detection 0.1";
 
+    private static final double Tdsl = 0.4; // threshold for detection adopted from Esch's paper.
+
     public FeatureWriterOp() {
         setRequiresAllBands(true);
     }
@@ -171,8 +173,8 @@ public class FeatureWriterOp extends Operator implements Output {
             final int tw  = targetTileRectangle.width;
             final int th  = targetTileRectangle.height;
 
-            final int tileX = tx0/tw;
-            final int tileY = ty0/th;
+            final int tileX = tx0/patchWidth;
+            final int tileY = ty0/patchHeight;
             String srcBandName = targetBand.getName();
 
             if(srcBandName.contains(featureBandName)) {
@@ -379,6 +381,7 @@ public class FeatureWriterOp extends Operator implements Output {
             featureWriter.write(String.format("%s.stdev   = %s\n", tgtBandName, stx.getStandardDeviation()));
             featureWriter.write(String.format("%s.coefVar = %s\n", tgtBandName, stx.getCoefficientOfVariation()));
             featureWriter.write(String.format("%s.count   = %s\n", tgtBandName, stx.getSampleCount()));
+            featureWriter.write(String.format("%s.urbanRate = %s%%\n", tgtBandName, computeUrbanRate(dataArray)));
 
             sourceProduct.removeBand(stxBand);
         } finally {
@@ -393,6 +396,18 @@ public class FeatureWriterOp extends Operator implements Output {
             tileInfoList.add(new TileInfo(tileDir.getName(), tileX, tileY, targetTile.getRectangle()));
         }
         return valid;
+    }
+
+    private double computeUrbanRate(final double[] dataArray) {
+
+        int numSamplesAboveThreshold = 0;
+        for (double sd : dataArray) {
+            if (sd > Tdsl) {
+                numSamplesAboveThreshold++;
+            }
+        }
+
+        return 100.0*numSamplesAboveThreshold/dataArray.length;
     }
 
     private void outputPatchImage(final int tx0, final int ty0, final int tw, final int th, final String srcBandName,
