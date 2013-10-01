@@ -37,10 +37,8 @@ import org.esa.nest.datamodel.AbstractMetadata;
 import java.awt.*;
 import java.io.*;
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Output features into patches
@@ -69,14 +67,18 @@ public class FeatureWriterOp extends Operator implements Output {
     private double patchSizeKm = 12.0;
 
     private MetadataElement absRoot = null;
-    private final Map<MultiLevelImage, List<Point>> todoLists = new HashMap<MultiLevelImage, List<Point>>();
-    private final HashMap<String, File> bandNameToFeatureDir = new HashMap<String, File>();
+    private final HashMap<String, File> bandNameToFeatureDir = new HashMap<String, File>(5);
+    private final List<TileInfo> tileInfoList = new ArrayList<TileInfo>(100);
     private String[] sourceBandNames;
 
     private int patchWidth = 0;
     private int patchHeight = 0;
+    private PrintWriter metadataWriter = null;
+    private boolean folderStructureCreated = false;
 
     public static final String featureBandName = "_speckle_divergence";
+    public static final String FEX_EXTENSION = ".fex";
+    private static final String VERSION = "NEST 5.5 Urban Detection 0.1";
 
     public FeatureWriterOp() {
         setRequiresAllBands(true);
@@ -88,8 +90,6 @@ public class FeatureWriterOp extends Operator implements Output {
             if(outputFolder == null || !outputFolder.isAbsolute()) {
                 throw new OperatorException("Please specify an output folder");
             }
-            if(!outputFolder.exists())
-                outputFolder.mkdirs();
 
             absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
             targetProduct = sourceProduct;
@@ -106,8 +106,6 @@ public class FeatureWriterOp extends Operator implements Output {
             }
             sourceBandNames = nameList.toArray(new String[nameList.size()]);
 
-            createFeatureOutputDirectory();
-
         } catch (Throwable t) {
             throw new OperatorException(t);
         }
@@ -122,15 +120,48 @@ public class FeatureWriterOp extends Operator implements Output {
         final double azimuthSpacing = absRoot.getAttributeDouble(AbstractMetadata.azimuth_spacing);
         patchWidth = (int)(patchSizeKm*1000.0/rangeSpacing);
         patchHeight = (int)(patchSizeKm*1000.0/azimuthSpacing);
+    }
 
-        //if (patchWidth < windowSize && patchHeight < windowSize) {
-       //    throw new OperatorException("The Patch Size (km) is too small: " + patchSizeKm);
-        //}
+    private void writeMetadataFile(final File featureDir) throws Exception {
+        final File metadataFile = new File(featureDir, "fex-metadata.txt");
+        metadataWriter = new PrintWriter(metadataFile);
+        metadataWriter.println("# Urban area SAR feature extraction");
+        metadataWriter.println(String.format("version = %s", VERSION));
+        metadataWriter.println(
+                String.format("time = %s",
+                        ProductData.UTC.create(new Date(System.currentTimeMillis()), 0).format().replace(" ", "T")));
+        metadataWriter.println();
+        metadataWriter.println("# Extracted features:");
+        metadataWriter.println("  featureCount = 9");
+        metadataWriter.println("# Mean MCI");
+        metadataWriter.println("  features.0 = mci.mean");
+        metadataWriter.println("# Standard deviation of MCI");
+        metadataWriter.println("  features.1 = mci.stdev");
+        metadataWriter.println("# Number of pixels where MCI was calculated");
+        metadataWriter.println("  features.2 = mci.count");
+        metadataWriter.println("# Mean FLH");
+        metadataWriter.println("  features.3 = flh.mean");
+        metadataWriter.println("# Standard deviation of FLH");
+        metadataWriter.println("  features.4 = flh.stdev");
+        metadataWriter.println("# Number of pixels where FLH was calculated");
+        metadataWriter.println("  features.5 = flh.count");
+        metadataWriter.println("# Mean distance of water pixels to coast (nautical miles)");
+        metadataWriter.println("  features.6 = coast_dist.mean");
+        metadataWriter.println("# Standard deviation of distance of water pixels to coast (nautical miles)");
+        metadataWriter.println("  features.7 = coast_dist.stdev");
+        metadataWriter.println(
+                "# Number of pixels where distance to coast was calculated (i.e. number of water pixels)");
+        metadataWriter.println("  features.8 = coast_dist.count");
+        metadataWriter.println();
     }
 
     @Override
     public void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
         try {
+            if(!folderStructureCreated) {
+                createFeatureOutputDirectory();
+            }
+
             final Rectangle targetTileRectangle = targetTile.getRectangle();
             final int tx0 = targetTileRectangle.x;
             final int ty0 = targetTileRectangle.y;
@@ -146,10 +177,12 @@ public class FeatureWriterOp extends Operator implements Output {
                 final File tileDir = createTileFeatureDirectory(tileX, tileY, srcBandName);
 
                 outputStatistics(tx0, ty0, tw, th, tileX, tileY, targetBand, targetTile, tileDir);
-            } else {
-                final File tileDir = createTileFeatureDirectory(tileX, tileY, srcBandName);
-
                 outputPatchImage(tx0, ty0, tw, th, srcBandName, targetBand, tileDir);
+
+            } else {
+                //final File tileDir = createTileFeatureDirectory(tileX, tileY, srcBandName);
+
+                //outputPatchImage(tx0, ty0, tw, th, srcBandName, targetBand, tileDir);
             }
 
         } catch (Exception e) {
@@ -161,20 +194,57 @@ public class FeatureWriterOp extends Operator implements Output {
         }
     }
 
+    @Override
+    public void dispose() {
+        try {
+            if(!tileInfoList.isEmpty()) {
+                metadataWriter.println("# Number of tiles generated");
+                metadataWriter.println(String.format("  tileCount = %d", tileInfoList.size()));
+                metadataWriter.println();
+                metadataWriter.println("# List of tiles");
+                for (int i = 0; i < tileInfoList.size(); i++) {
+                    final TileInfo tile = tileInfoList.get(i);
+                    metadataWriter.println(String.format("  tiles.%d.name = %s", i, tile.name));
+                    metadataWriter.println(String.format("  tiles.%d.tileX = %d", i, tile.tileX));
+                    metadataWriter.println(String.format("  tiles.%d.tileY = %d", i, tile.tileY));
+                    metadataWriter.println(String.format("  tiles.%d.x = %d", i, tile.x));
+                    metadataWriter.println(String.format("  tiles.%d.y = %d", i, tile.y));
+                    metadataWriter.println(String.format("  tiles.%d.width = %d", i, tile.width));
+                    metadataWriter.println(String.format("  tiles.%d.height = %d", i, tile.height));
+                    metadataWriter.println();
+                }
+                metadataWriter.close();
+            }
+        } catch (Exception ignore) {
+        }
+        super.dispose();
+    }
+
     /**
      * Create a feature directory for feature output.
-     * @throws IOException The exception.
+     * @throws Exception The exception.
      */
-    private void createFeatureOutputDirectory() throws IOException {
+    private synchronized void createFeatureOutputDirectory() throws Exception {
 
-        final File outputDir = new File(outputFolder, sourceProduct.getName());
+        if(folderStructureCreated) return;
+
+        if(!outputFolder.exists())
+            outputFolder.mkdirs();
+        final File outputDir = new File(outputFolder, sourceProduct.getName()+FEX_EXTENSION);
         makeDir(outputDir);
 
-        for (String bandName:sourceBandNames) {
-            final File featureDir = new File(outputDir, bandName);
-            makeDir(featureDir);
-            bandNameToFeatureDir.put(bandName, featureDir);
+        writeMetadataFile(outputDir);
+
+        if(sourceBandNames.length == 1) {
+            bandNameToFeatureDir.put(sourceBandNames[0], outputDir);
+        } else {
+            for (String bandName:sourceBandNames) {
+                final File featureDir = new File(outputDir, bandName);
+                makeDir(featureDir);
+                bandNameToFeatureDir.put(bandName, featureDir);
+            }
         }
+        folderStructureCreated = true;
     }
 
     /**
@@ -196,7 +266,7 @@ public class FeatureWriterOp extends Operator implements Output {
             }
         }
 
-        if (!dir.mkdir()) {
+        if (!dir.mkdirs()) {
             throw new IOException(MessageFormat.format("Directory ''{0}'' cannot be created.", dir));
         }
     }
@@ -237,16 +307,13 @@ public class FeatureWriterOp extends Operator implements Output {
      * @param tileDir The tile directory for output.
      * @throws IOException The exceptions.
      */
-    private void outputStatistics(final int tx0, final int ty0, final int tw, final int th, final int tileX,
+    private synchronized void outputStatistics(final int tx0, final int ty0, final int tw, final int th, final int tileX,
                                          final int tileY, final Band targetBand, final Tile targetTile,
                                          final File tileDir) throws IOException {
 
         final String tgtBandName = targetBand.getName();
-        final StxFactory stxFactory = new StxFactory();
-        Band tmpBand = new Band(tgtBandName, ProductData.TYPE_FLOAT64, tw, th);
-        Tile srcTile = getSourceTile(targetBand, new Rectangle(tx0, ty0, tw, th));
+        final Tile srcTile = getSourceTile(targetBand, new Rectangle(tx0, ty0, tw, th));
 
-        try {
         final double[] dataArray = new double[tw*th];
         int cnt = 0;
         final TileIndex srcIndex = new TileIndex(targetTile);
@@ -257,14 +324,17 @@ public class FeatureWriterOp extends Operator implements Output {
                 dataArray[cnt++] = v;
             }
         }
-        tmpBand.setData(ProductData.createInstance(dataArray));
-        } catch(Exception e) {
-            e.printStackTrace();
-        }
+        final Band stxBand = new Band("Stx_"+tgtBandName, ProductData.TYPE_FLOAT64, tw, th);
+        sourceProduct.addBand(stxBand);
+        stxBand.setOwner(sourceProduct);
+        stxBand.setData(ProductData.createInstance(dataArray));
+        stxBand.setNoDataValue(0);
+        stxBand.setNoDataValueUsed(true);
 
-        final Stx stx = stxFactory.create(tmpBand, ProgressMonitor.NULL);
+        final StxFactory stxFactory = new StxFactory();
+        final Stx stx = stxFactory.create(stxBand, ProgressMonitor.NULL);
 
-        final File featureFile = new File(tileDir, "features.txt");
+        final File featureFile = new File(tileDir, "fea.txt");
 
         final Writer featureWriter = new BufferedWriter(new FileWriter(featureFile));
 
@@ -279,6 +349,8 @@ public class FeatureWriterOp extends Operator implements Output {
             featureWriter.write(String.format("%s.coefVar = %s\n", tgtBandName, stx.getCoefficientOfVariation()));
             featureWriter.write(String.format("%s.count   = %s\n", tgtBandName, stx.getSampleCount()));
 
+            tileInfoList.add(new TileInfo(tileDir.getName(), tileX, tileY, targetTile.getRectangle()));
+            sourceProduct.removeBand(stxBand);
         } finally {
             try {
                 featureWriter.close();
@@ -335,6 +407,27 @@ public class FeatureWriterOp extends Operator implements Output {
         } catch (Throwable t) {
             //throw new OperatorException(t);
             t.printStackTrace();
+        }
+    }
+
+    private static class TileInfo {
+        String name;
+        int tileX;
+        int tileY;
+        int x;
+        int y;
+        int width;
+        int height;
+
+        TileInfo(String name, int tileX, int tileY, Rectangle rectangle) {
+            this.name = name;
+            this.tileX = tileX;
+            this.tileY = tileY;
+
+            x = rectangle.x;
+            y = rectangle.y;
+            width = rectangle.width;
+            height = rectangle.height;
         }
     }
 
