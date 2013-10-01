@@ -1,0 +1,60 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <artifactId>nest</artifactId>
+        <groupId>org.esa.nest</groupId>
+        <version>5.0</version>
+    </parent>
+
+    <packaging>jar</packaging>
+
+    <groupId>org.esa.nest</groupId>
+    <artifactId>nest-cli-bootstrap</artifactId>
+    <name>NEST CLI Bootstrap Classpath</name>
+    <description>Provides the bootstrap classpath to launch GPT from your favourite IDE.</description>
+    <version>5.0</version>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.esa.nest</groupId>
+            <artifactId>nest-bootstrap</artifactId>
+			<version>${nest.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.nest</groupId>
+            <artifactId>nest-reader-dem</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.nest</groupId>
+            <artifactId>nest-io</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.nest</groupId>
+            <artifactId>nest-op-calibration</artifactId>
+        </dependency>
+		<dependency>
+            <groupId>org.esa.nest</groupId>
+            <artifactId>nest-op-orthorectification</artifactId>
+			<version>${nest.version}</version>
+        </dependency>
+		<dependency>
+            <groupId>org.esa.nest</groupId>
+            <artifactId>nest-op-sar-tools</artifactId>
+			<version>5.0.1</version>
+        </dependency>
+		<dependency>
+            <groupId>org.esa.nest</groupId>
+            <artifactId>nest-ocean-tools</artifactId>
+			<version>${nest.version}</version>
+        </dependency>
+		<dependency>
+            <groupId>org.esa.nest</groupId>
+            <artifactId>nest-op-feature-extraction</artifactId>
+			<version>${nest.version}</version>
+        </dependency>
+	</dependencies>	
+</project>

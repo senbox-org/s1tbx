@@ -161,6 +161,7 @@
 		<module>jlinda</module>
 		<module>rstb</module>
 		<module>nest-bootstrap</module>
+		<module>nest-cli-bootstrap</module>
 		<module>nest-core</module>
 		<module>nest-dat</module>
 		<module>nest-developer-tools</module>
