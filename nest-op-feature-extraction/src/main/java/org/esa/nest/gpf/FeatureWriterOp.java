@@ -66,14 +66,19 @@ public class FeatureWriterOp extends Operator implements Output {
     @Parameter(description = "Patch size in km", interval = "(0, *)", defaultValue = "12.0", label="Patch Size (km)")
     private double patchSizeKm = 12.0;
 
+    @Parameter(description = "Minimum number of valid pixels", label="Minimum valid pixels", defaultValue = "500")
+    private int minValidPixels = 500;
+
     private MetadataElement absRoot = null;
     private final HashMap<String, File> bandNameToFeatureDir = new HashMap<String, File>(5);
     private final List<TileInfo> tileInfoList = new ArrayList<TileInfo>(100);
     private String[] sourceBandNames;
 
+    private File productOutputDir;
     private int patchWidth = 0;
     private int patchHeight = 0;
     private PrintWriter metadataWriter = null;
+    private PrintWriter tileIndexWriter = null;
     private boolean folderStructureCreated = false;
 
     public static final String featureBandName = "_speckle_divergence";
@@ -131,27 +136,25 @@ public class FeatureWriterOp extends Operator implements Output {
                 String.format("time = %s",
                         ProductData.UTC.create(new Date(System.currentTimeMillis()), 0).format().replace(" ", "T")));
         metadataWriter.println();
+        metadataWriter.println("# Source product");
+        metadataWriter.println("  source = "+sourceProduct.getName());
+        metadataWriter.println();
         metadataWriter.println("# Extracted features:");
-        metadataWriter.println("  featureCount = 9");
-        metadataWriter.println("# Mean MCI");
-        metadataWriter.println("  features.0 = mci.mean");
-        metadataWriter.println("# Standard deviation of MCI");
-        metadataWriter.println("  features.1 = mci.stdev");
-        metadataWriter.println("# Number of pixels where MCI was calculated");
-        metadataWriter.println("  features.2 = mci.count");
-        metadataWriter.println("# Mean FLH");
-        metadataWriter.println("  features.3 = flh.mean");
-        metadataWriter.println("# Standard deviation of FLH");
-        metadataWriter.println("  features.4 = flh.stdev");
-        metadataWriter.println("# Number of pixels where FLH was calculated");
-        metadataWriter.println("  features.5 = flh.count");
-        metadataWriter.println("# Mean distance of water pixels to coast (nautical miles)");
-        metadataWriter.println("  features.6 = coast_dist.mean");
-        metadataWriter.println("# Standard deviation of distance of water pixels to coast (nautical miles)");
-        metadataWriter.println("  features.7 = coast_dist.stdev");
-        metadataWriter.println(
-                "# Number of pixels where distance to coast was calculated (i.e. number of water pixels)");
-        metadataWriter.println("  features.8 = coast_dist.count");
+        metadataWriter.println("  featureCount = 7");
+        metadataWriter.println("# Minimum speckle divergence");
+        metadataWriter.println("  features.0 = speckle_divergence.minimum");
+        metadataWriter.println("# Maximum speckle divergence");
+        metadataWriter.println("  features.1 = speckle_divergence.maximum");
+        metadataWriter.println("# Median divergence");
+        metadataWriter.println("  features.2 = speckle_divergence.median");
+        metadataWriter.println("# Mean speckle divergence");
+        metadataWriter.println("  features.3 = speckle_divergence.mean");
+        metadataWriter.println("# Speckle divergence standard diviation");
+        metadataWriter.println("  features.4 = speckle_divergence.stdev");
+        metadataWriter.println("# Speckle divergence coefficient of Variation");
+        metadataWriter.println("  features.5 = speckle_divergence.coefVar");
+        metadataWriter.println("# Count of valid pixels");
+        metadataWriter.println("  features.6 = speckle_divergence.count");
         metadataWriter.println();
     }
 
@@ -176,13 +179,12 @@ public class FeatureWriterOp extends Operator implements Output {
                 srcBandName = srcBandName.substring(0, srcBandName.indexOf(featureBandName));
                 final File tileDir = createTileFeatureDirectory(tileX, tileY, srcBandName);
 
-                outputStatistics(tx0, ty0, tw, th, tileX, tileY, targetBand, targetTile, tileDir);
-                outputPatchImage(tx0, ty0, tw, th, srcBandName, targetBand, tileDir);
-
-            } else {
-                //final File tileDir = createTileFeatureDirectory(tileX, tileY, srcBandName);
-
-                //outputPatchImage(tx0, ty0, tw, th, srcBandName, targetBand, tileDir);
+                boolean valid = outputStatistics(tx0, ty0, tw, th, tileX, tileY, targetBand, targetTile, tileDir);
+                if(!valid) {
+                    FileUtils.deleteTree(tileDir);
+                } else {
+                    outputPatchImage(tx0, ty0, tw, th, srcBandName, targetBand, tileDir);
+                }
             }
 
         } catch (Exception e) {
@@ -198,26 +200,51 @@ public class FeatureWriterOp extends Operator implements Output {
     public void dispose() {
         try {
             if(!tileInfoList.isEmpty()) {
-                metadataWriter.println("# Number of tiles generated");
-                metadataWriter.println(String.format("  tileCount = %d", tileInfoList.size()));
-                metadataWriter.println();
-                metadataWriter.println("# List of tiles");
-                for (int i = 0; i < tileInfoList.size(); i++) {
-                    final TileInfo tile = tileInfoList.get(i);
-                    metadataWriter.println(String.format("  tiles.%d.name = %s", i, tile.name));
-                    metadataWriter.println(String.format("  tiles.%d.tileX = %d", i, tile.tileX));
-                    metadataWriter.println(String.format("  tiles.%d.tileY = %d", i, tile.tileY));
-                    metadataWriter.println(String.format("  tiles.%d.x = %d", i, tile.x));
-                    metadataWriter.println(String.format("  tiles.%d.y = %d", i, tile.y));
-                    metadataWriter.println(String.format("  tiles.%d.width = %d", i, tile.width));
-                    metadataWriter.println(String.format("  tiles.%d.height = %d", i, tile.height));
-                    metadataWriter.println();
-                }
-                metadataWriter.close();
+                finishMetadataFile();
+
+                writeTileIndexFile();
             }
         } catch (Exception ignore) {
         }
         super.dispose();
+    }
+
+    private void finishMetadataFile() {
+        metadataWriter.println("# Number of tiles generated");
+        metadataWriter.println(String.format("  tileCount = %d", tileInfoList.size()));
+        metadataWriter.println();
+        metadataWriter.println("# List of tiles");
+        for (int i = 0; i < tileInfoList.size(); i++) {
+            final TileInfo tile = tileInfoList.get(i);
+            metadataWriter.println(String.format("  tiles.%d.name = %s", i, tile.name));
+            metadataWriter.println(String.format("  tiles.%d.tileX = %d", i, tile.tileX));
+            metadataWriter.println(String.format("  tiles.%d.tileY = %d", i, tile.tileY));
+            metadataWriter.println(String.format("  tiles.%d.x = %d", i, tile.x));
+            metadataWriter.println(String.format("  tiles.%d.y = %d", i, tile.y));
+            metadataWriter.println(String.format("  tiles.%d.width = %d", i, tile.width));
+            metadataWriter.println(String.format("  tiles.%d.height = %d", i, tile.height));
+            metadataWriter.println();
+        }
+        metadataWriter.close();
+    }
+
+    private void writeTileIndexFile() {
+
+        for (int i = 0; i < tileInfoList.size(); i++) {
+            final TileInfo tile = tileInfoList.get(i);
+            final File file = new File(productOutputDir, tile.name);
+            tileIndexWriter.println(String.format(" tile.%d.path = %s", i, file.getAbsolutePath()));
+            tileIndexWriter.print(String.format(" tile.%d.name = %s", i, tile.name));
+            tileIndexWriter.print(String.format(" tile.%d.tileX = %d", i, tile.tileX));
+            tileIndexWriter.print(String.format(" tile.%d.tileY = %d", i, tile.tileY));
+            tileIndexWriter.print(String.format(" tile.%d.x = %d", i, tile.x));
+            tileIndexWriter.print(String.format(" tile.%d.y = %d", i, tile.y));
+            tileIndexWriter.print(String.format(" tile.%d.width = %d", i, tile.width));
+            tileIndexWriter.print(String.format(" tile.%d.height = %d", i, tile.height));
+            tileIndexWriter.println();
+            tileIndexWriter.println();
+        }
+        tileIndexWriter.close();
     }
 
     /**
@@ -230,16 +257,20 @@ public class FeatureWriterOp extends Operator implements Output {
 
         if(!outputFolder.exists())
             outputFolder.mkdirs();
-        final File outputDir = new File(outputFolder, sourceProduct.getName()+FEX_EXTENSION);
-        makeDir(outputDir);
+        productOutputDir = new File(outputFolder, sourceProduct.getName()+FEX_EXTENSION);
+        makeDir(productOutputDir);
 
-        writeMetadataFile(outputDir);
+        writeMetadataFile(productOutputDir);
+
+        // write tile index file
+        final File tileIndexFile = new File(outputFolder, "fex-tiles.txt");
+        tileIndexWriter = new PrintWriter(tileIndexFile);
 
         if(sourceBandNames.length == 1) {
-            bandNameToFeatureDir.put(sourceBandNames[0], outputDir);
+            bandNameToFeatureDir.put(sourceBandNames[0], productOutputDir);
         } else {
             for (String bandName:sourceBandNames) {
-                final File featureDir = new File(outputDir, bandName);
+                final File featureDir = new File(productOutputDir, bandName);
                 makeDir(featureDir);
                 bandNameToFeatureDir.put(bandName, featureDir);
             }
@@ -307,7 +338,7 @@ public class FeatureWriterOp extends Operator implements Output {
      * @param tileDir The tile directory for output.
      * @throws IOException The exceptions.
      */
-    private synchronized void outputStatistics(final int tx0, final int ty0, final int tw, final int th, final int tileX,
+    private synchronized boolean outputStatistics(final int tx0, final int ty0, final int tw, final int th, final int tileX,
                                          final int tileY, final Band targetBand, final Tile targetTile,
                                          final File tileDir) throws IOException {
 
@@ -349,7 +380,6 @@ public class FeatureWriterOp extends Operator implements Output {
             featureWriter.write(String.format("%s.coefVar = %s\n", tgtBandName, stx.getCoefficientOfVariation()));
             featureWriter.write(String.format("%s.count   = %s\n", tgtBandName, stx.getSampleCount()));
 
-            tileInfoList.add(new TileInfo(tileDir.getName(), tileX, tileY, targetTile.getRectangle()));
             sourceProduct.removeBand(stxBand);
         } finally {
             try {
@@ -357,6 +387,12 @@ public class FeatureWriterOp extends Operator implements Output {
             } catch (IOException ignored) {
             }
         }
+
+        final boolean valid = stx.getSampleCount() > minValidPixels;
+        if(valid) {
+            tileInfoList.add(new TileInfo(tileDir.getName(), tileX, tileY, targetTile.getRectangle()));
+        }
+        return valid;
     }
 
     private void outputPatchImage(final int tx0, final int ty0, final int tw, final int th, final String srcBandName,
