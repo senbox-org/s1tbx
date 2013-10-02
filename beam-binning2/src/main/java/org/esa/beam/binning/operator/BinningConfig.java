@@ -258,6 +258,9 @@ public class BinningConfig {
     }
 
     public Aggregator[] createAggregators(VariableContext variableContext) {
+        if (aggregatorConfigs == null) {
+            return new Aggregator[0];
+        }
         Aggregator[] aggregators = new Aggregator[aggregatorConfigs.length];
         TypedDescriptorsRegistry registry = TypedDescriptorsRegistry.getInstance();
         for (int i = 0; i < aggregators.length; i++) {
