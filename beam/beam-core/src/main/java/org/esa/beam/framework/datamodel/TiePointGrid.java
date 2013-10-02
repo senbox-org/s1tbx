@@ -1056,11 +1056,23 @@ public class TiePointGrid extends RasterDataNode {
             newTPGHeight = srcTPGRasterHeight - dataOffsetY;
         }
 
+        boolean interpLastLine = false; // handle cases where small subset at the bottom of image has only 1 row of tie points
+        if (newTPGHeight == 1) {
+            newTPGHeight = 2;
+            interpLastLine = true;
+        }
+
         final float[] oldTiePoints = sourceTiePointGrid.getTiePoints();
         final float[] tiePoints = new float[newTPGWidth * newTPGHeight];
         for (int y = 0; y < newTPGHeight; y++) {
-            final int srcPos = srcTPGRasterWidth * (dataOffsetY + y) + dataOffsetX;
-            System.arraycopy(oldTiePoints, srcPos, tiePoints, y * newTPGWidth, newTPGWidth);
+            if (interpLastLine && y == 1) {
+                final float[] lastLineOldTiePoints = computeLastLineTiePoints(
+                        oldTiePoints, srcTPGRasterWidth, srcTPGRasterHeight, srcTPGSubSamplingY, srcSceneRasterHeight);
+                System.arraycopy(lastLineOldTiePoints, 0, tiePoints, y * newTPGWidth, newTPGWidth);
+            } else {
+                final int srcPos = srcTPGRasterWidth * (dataOffsetY + y) + dataOffsetX;
+                System.arraycopy(oldTiePoints, srcPos, tiePoints, y * newTPGWidth, newTPGWidth);
+            }
         }
 
         final TiePointGrid tiePointGrid = new TiePointGrid(sourceTiePointGrid.getName(),
@@ -1076,7 +1088,23 @@ public class TiePointGrid extends RasterDataNode {
         tiePointGrid.setDescription(sourceTiePointGrid.getDescription());
         return tiePointGrid;
     }
-    
+
+    private static float[] computeLastLineTiePoints(final float[] oldTiePoints, final int srcTPGRasterWidth,
+                                                    final int srcTPGRasterHeight, final float srcTPGSubSamplingY,
+                                                    final int srcSceneRasterHeight) {
+
+        float[] lastLineOldTiePoints =  new float[srcTPGRasterWidth];
+        final int n = oldTiePoints.length;
+        for (int i = 0; i < srcTPGRasterWidth; i++) {
+            float p1 = oldTiePoints[n - srcTPGRasterWidth + i];
+            float p2 = oldTiePoints[n - 2*srcTPGRasterWidth + i];
+            float mu = ((srcTPGRasterHeight - 1)*srcTPGSubSamplingY - srcSceneRasterHeight)/(srcTPGSubSamplingY);
+            lastLineOldTiePoints[i] = (1 - mu)*p1 + mu*p2;
+        }
+
+        return lastLineOldTiePoints;
+    }
+
 /**=========================== Quadratic/Biquadratic Interpolations ================================**/
     /**
      * Compute polynomial coefficients for quadratic interpolation. For each tie point record, 3 coefficients
