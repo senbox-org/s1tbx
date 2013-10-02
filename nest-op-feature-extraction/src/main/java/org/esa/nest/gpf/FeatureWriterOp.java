@@ -16,7 +16,6 @@
 package org.esa.nest.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
-import com.bc.ceres.glevel.MultiLevelImage;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.dataio.ProductSubsetBuilder;
 import org.esa.beam.framework.dataio.ProductSubsetDef;
@@ -31,7 +30,10 @@ import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.framework.gpf.experimental.Output;
+import org.esa.beam.jai.ImageManager;
+import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.io.FileUtils;
+import org.esa.beam.util.math.MathUtils;
 import org.esa.nest.datamodel.AbstractMetadata;
 
 import java.awt.*;
@@ -66,8 +68,8 @@ public class FeatureWriterOp extends Operator implements Output {
     @Parameter(description = "Patch size in km", interval = "(0, *)", defaultValue = "12.0", label="Patch Size (km)")
     private double patchSizeKm = 12.0;
 
-    @Parameter(description = "Minimum number of valid pixels", label="Minimum valid pixels", defaultValue = "500")
-    private int minValidPixels = 500;
+    @Parameter(description = "Minimum percentage of valid pixels", label="Minimum valid pixels (%)", defaultValue = "0.1")
+    private float minValidPixels = 0.1f;
 
     private MetadataElement absRoot = null;
     private final HashMap<String, File> bandNameToFeatureDir = new HashMap<String, File>(5);
@@ -80,6 +82,9 @@ public class FeatureWriterOp extends Operator implements Output {
     private PrintWriter metadataWriter = null;
     private PrintWriter tileIndexWriter = null;
     private boolean folderStructureCreated = false;
+
+    private ProductWriter productWriter;
+    private List<Band> writableBands;
 
     public static final String featureBandName = "_speckle_divergence";
     public static final String FEX_EXTENSION = ".fex";
@@ -100,6 +105,14 @@ public class FeatureWriterOp extends Operator implements Output {
 
             absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
             targetProduct = sourceProduct;
+
+            productWriter = ProductIO.getProductWriter(formatName);
+            if (productWriter == null) {
+                throw new OperatorException("No data product writer for the '" + formatName + "' format available");
+            }
+            productWriter.setIncrementalMode(false);
+            productWriter.setFormatName(formatName);
+            targetProduct.setProductWriter(productWriter);
 
             computePatchDimension();
 
@@ -161,23 +174,25 @@ public class FeatureWriterOp extends Operator implements Output {
     }
 
     @Override
-    public void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
+    public synchronized void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
         try {
             if(!folderStructureCreated) {
                 createFeatureOutputDirectory();
             }
-
-            final Rectangle targetTileRectangle = targetTile.getRectangle();
-            final int tx0 = targetTileRectangle.x;
-            final int ty0 = targetTileRectangle.y;
-            final int tw  = targetTileRectangle.width;
-            final int th  = targetTileRectangle.height;
-
-            final int tileX = tx0/patchWidth;
-            final int tileY = ty0/patchHeight;
             String srcBandName = targetBand.getName();
 
             if(srcBandName.contains(featureBandName)) {
+                final Rectangle targetTileRectangle = targetTile.getRectangle();
+                final int tx0 = targetTileRectangle.x;
+                final int ty0 = targetTileRectangle.y;
+                final int tw  = targetTileRectangle.width;
+                final int th  = targetTileRectangle.height;
+
+                final int tileX = tx0/tw;
+                final int tileY = ty0/th;
+
+                //System.out.println(srcBandName+" tile "+ tileX +", "+tileY);
+
                 srcBandName = srcBandName.substring(0, srcBandName.indexOf(featureBandName));
                 final File tileDir = createTileFeatureDirectory(tileX, tileY, srcBandName);
 
@@ -235,16 +250,16 @@ public class FeatureWriterOp extends Operator implements Output {
         for (int i = 0; i < tileInfoList.size(); i++) {
             final TileInfo tile = tileInfoList.get(i);
             final File file = new File(productOutputDir, tile.name);
-            tileIndexWriter.println(String.format(" tile.%d.path = %s", i, file.getAbsolutePath()));
-            tileIndexWriter.print(String.format(" tile.%d.name = %s", i, tile.name));
-            tileIndexWriter.print(String.format(" tile.%d.tileX = %d", i, tile.tileX));
-            tileIndexWriter.print(String.format(" tile.%d.tileY = %d", i, tile.tileY));
-            tileIndexWriter.print(String.format(" tile.%d.x = %d", i, tile.x));
-            tileIndexWriter.print(String.format(" tile.%d.y = %d", i, tile.y));
-            tileIndexWriter.print(String.format(" tile.%d.width = %d", i, tile.width));
-            tileIndexWriter.print(String.format(" tile.%d.height = %d", i, tile.height));
-            tileIndexWriter.println();
-            tileIndexWriter.println();
+
+            final String tileInfo = String.format("%s%s%s %s %s %s %s %s %s",
+                    productOutputDir.getName(), "/", tile.name,
+                    tile.tileX,
+                    tile.tileY,
+                    tile.x,
+                    tile.y,
+                    tile.width,
+                    tile.height);
+            tileIndexWriter.println(tileInfo);
         }
         tileIndexWriter.close();
     }
@@ -266,7 +281,7 @@ public class FeatureWriterOp extends Operator implements Output {
 
         // write tile index file
         final File tileIndexFile = new File(outputFolder, "fex-tiles.txt");
-        tileIndexWriter = new PrintWriter(tileIndexFile);
+        tileIndexWriter = new PrintWriter(new BufferedWriter(new FileWriter(tileIndexFile, true)));
 
         if(sourceBandNames.length == 1) {
             bandNameToFeatureDir.put(sourceBandNames[0], productOutputDir);
@@ -391,7 +406,8 @@ public class FeatureWriterOp extends Operator implements Output {
             }
         }
 
-        final boolean valid = stx.getSampleCount() > minValidPixels;
+        float pct = (stx.getSampleCount()/(float)(patchWidth*patchHeight));
+        final boolean valid = pct > minValidPixels;
         if(valid) {
             tileInfoList.add(new TileInfo(tileDir.getName(), tileX, tileY, targetTile.getRectangle()));
         }

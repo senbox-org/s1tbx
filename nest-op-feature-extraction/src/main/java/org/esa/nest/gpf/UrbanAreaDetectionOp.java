@@ -270,7 +270,7 @@ public class UrbanAreaDetectionOp extends Operator {
                     final int idx = trgIndex.getIndex(tx);
 
                     final double v = srcData.getElemDoubleAt(srcIndex.getIndex(tx));
-                    if (v == noDataValue || maskBand != null && maskData.getElemIntAt(idx) == 1) {
+                    if (v == noDataValue || (maskBand != null && maskData.getElemIntAt(idx) == 1)) {
                         trgData.setElemFloatAt(trgIndex.getIndex(tx), (float)noDataValue);
                         continue;
                     }
@@ -383,7 +383,7 @@ public class UrbanAreaDetectionOp extends Operator {
                 tileIndex.calculateStride(y);
                 for (int x = x0; x < maxx; x++) {
                     final double v = srcData.getElemDoubleAt(tileIndex.getIndex(x));
-                    if (v != noDataValue) {
+                    if (v != noDataValue && v > 0.4) {
                         samples[numSamples++] = v;
                     }
                 }
@@ -395,7 +395,7 @@ public class UrbanAreaDetectionOp extends Operator {
                 tileIndex.calculateStride(y);
                 for (int x = x0; x < maxx; x++) {
                     final double v = srcData.getElemDoubleAt(tileIndex.getIndex(x));
-                    if (v != noDataValue) {
+                    if (v != noDataValue & v*v > 0.4) {
                         samples[numSamples++] = v*v;
                     }
                 }
