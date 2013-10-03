@@ -72,7 +72,7 @@ public class OperatorImage extends SourcelessOpImage {
         }
         // computeTile() may have been deactivated
         if (targetTile != null && getOperatorContext().isComputeTileMethodUsable()) {
-            //System.out.println("compute "+getOperatorContext().getOperator().getSpi().getOperatorAlias()
+            //System.out.println("OperatorImage: computeRect "+getOperatorContext().getOperator().getSpi().getOperatorAlias()
             //    + ":"+targetBand.getName()+ " ("
             //    + targetTile.getMinX()+","+targetTile.getMinY()+") "
             //    + targetTile.getWidth()+" x "+ targetTile.getHeight());  //NESTMOD

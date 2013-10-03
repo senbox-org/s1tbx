@@ -83,9 +83,6 @@ public class FeatureWriterOp extends Operator implements Output {
     private PrintWriter tileIndexWriter = null;
     private boolean folderStructureCreated = false;
 
-    private ProductWriter productWriter;
-    private List<Band> writableBands;
-
     public static final String featureBandName = "_speckle_divergence";
     public static final String FEX_EXTENSION = ".fex";
     private static final String VERSION = "NEST 5.5 Urban Detection 0.1";
@@ -105,14 +102,6 @@ public class FeatureWriterOp extends Operator implements Output {
 
             absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
             targetProduct = sourceProduct;
-
-            productWriter = ProductIO.getProductWriter(formatName);
-            if (productWriter == null) {
-                throw new OperatorException("No data product writer for the '" + formatName + "' format available");
-            }
-            productWriter.setIncrementalMode(false);
-            productWriter.setFormatName(formatName);
-            targetProduct.setProductWriter(productWriter);
 
             computePatchDimension();
 

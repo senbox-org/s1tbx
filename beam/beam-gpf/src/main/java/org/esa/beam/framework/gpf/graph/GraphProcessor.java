@@ -23,6 +23,7 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.internal.OperatorContext;
 import org.esa.beam.util.logging.BeamLogManager;
+import org.esa.beam.util.math.MathUtils;
 import org.esa.nest.util.StdOutProgressMonitor;
 
 import javax.media.jai.JAI;
@@ -262,9 +263,9 @@ public class GraphProcessor {
         Map<Dimension, List<NodeContext>> tileSizeMap = new HashMap<Dimension, List<NodeContext>>(mapSize);
         for (NodeContext outputNodeContext : outputNodeContexts) {
             Product targetProduct = outputNodeContext.getTargetProduct();
-            RenderedImage image = targetProduct.getBandAt(0).getSourceImage();
-            final int numXTiles = image.getNumXTiles();
-            final int numYTiles = image.getNumYTiles();
+            Dimension tileSize = targetProduct.getPreferredTileSize();
+            final int numXTiles = MathUtils.ceilInt(targetProduct.getSceneRasterWidth() / (double) tileSize.width);
+            final int numYTiles = MathUtils.ceilInt(targetProduct.getSceneRasterHeight() / (double) tileSize.height);
             Dimension tileDim = new Dimension(numXTiles, numYTiles);
             List<NodeContext> nodeContextList = tileSizeMap.get(tileDim);
             if (nodeContextList == null) {
@@ -288,6 +289,8 @@ public class GraphProcessor {
         //
         // Note: GPF pull-processing is triggered here!!!
         //
+        //System.out.println("GraphProcessor: forceTileComputation ("+tileX+","+tileY+") ");   //NESTMOD
+
         tileScheduler.scheduleTiles(image, points, listeners);
         //
         /////////////////////////////////////////////////////////////////////
