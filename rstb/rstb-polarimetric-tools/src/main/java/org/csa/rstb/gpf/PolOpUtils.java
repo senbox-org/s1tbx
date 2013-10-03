@@ -40,6 +40,13 @@ public final class PolOpUtils {
     private static final double sqrt2 = Math.sqrt(2);
     public static final double EPS = Constants.EPS;
 
+    public static final String quarterPi = "PI/4 Mode";
+    public static final String rch = "Right Circular Hybrid Mode";
+    public static final String lch = "Left Circular Hybrid Mode";
+    public static final String dcp = "Dual Circular Polarimetric Mode";
+    public static final String dualHHHV = "Dual HH/HV";
+    public static final String dualVVVH = "Dual VV/VH";
+
     /**
      * Get scatter matrix for given pixel.
      * @param index X,Y coordinate of the given pixel
@@ -1226,6 +1233,143 @@ public final class PolOpUtils {
                 invMi[i][j] = invMMat.get(i+n,j);
             }
         }
+    }
+
+    //===================== Compact Pol functions ============================
+    /**
+     * Compute compact pol 2x1 complex scattering vector for given scatter matrix.
+     * @param compactMode Compact polarimetric mode
+     * @param scatterRe Real part of the scatter matrix
+     * @param scatterIm Imaginary part of the scatter matrix
+     * @param kr Real part of the scattering vector
+     * @param ki Imaginary part of the scattering vector
+     */
+    public static void computeCompactPolScatteringVector(
+            final String compactMode, final double[][] scatterRe, final double[][] scatterIm,
+            final double[] kr, final double[] ki) {
+
+        final double sHHr = scatterRe[0][0];
+        final double sHHi = scatterIm[0][0];
+        final double sHVr = scatterRe[0][1];
+        final double sHVi = scatterIm[0][1];
+        final double sVHr = scatterRe[1][0];
+        final double sVHi = scatterIm[1][0];
+        final double sVVr = scatterRe[1][1];
+        final double sVVi = scatterIm[1][1];
+
+        if (compactMode.equals(quarterPi)) {
+            kr[0] = (sHHr + sHVr)/sqrt2;
+            ki[0] = (sHHi + sHVi)/sqrt2;
+            kr[1] = (sVVr + sVHr)/sqrt2;
+            ki[1] = (sVVi + sVHi)/sqrt2;
+        } else if (compactMode.equals(rch)) {
+            kr[0] = (sHHr + sHVi)/sqrt2;
+            ki[0] = (sHHi - sHVr)/sqrt2;
+            kr[1] = (sVHr + sVVi)/sqrt2;
+            ki[1] = (sVHi - sVVr)/sqrt2;
+        } else if (compactMode.equals(lch)) {
+            kr[0] = (sHHr - sHVi)/sqrt2;
+            ki[0] = (sHHi + sHVr)/sqrt2;
+            kr[1] = (sVHr - sVVi)/sqrt2;
+            ki[1] = (sVHi + sVVr)/sqrt2;
+        } else if (compactMode.equals(dcp)) {
+            kr[0] = (sHHr - sVVr + sHVi + sVHi)/2.0;
+            ki[0] = (sHHi - sVVi - sHVr - sVHr)/2.0;
+            kr[1] = (-sHHi - sVVi + sHVr - sVHr)/2.0;
+            ki[1] = (sHHr + sHHi + sHVi - sVHi)/2.0;
+        } else if (compactMode.equals(dualHHHV)) {
+            kr[0] = sHHr;
+            ki[0] = sHHi;
+            kr[1] = sHVr;
+            ki[1] = sHVi;
+        } else if (compactMode.equals(dualVVVH)) {
+            kr[0] = sVHr;
+            ki[0] = sVHi;
+            kr[1] = sVVr;
+            ki[1] = sVVi;
+        }
+    }
+
+    /**
+     * Compute 2x2 compact pol covariance matrix for given scatter matrix.
+     * @param compactMode Compact polarimetric mode
+     * @param scatterRe Real part of the scatter matrix
+     * @param scatterIm Imaginary part of the scatter matrix
+     * @param Cr Real part of the covariance matrix
+     * @param Ci Imaginary part of the covariance matrix
+     */
+    public static void computeCompactPolCovarianceMatrixC2(
+            final String compactMode, final double[][] scatterRe, final double[][] scatterIm,
+            final double[][] Cr, final double[][] Ci) {
+
+        final double[] kr = new double[2];
+        final double[] ki = new double[2];
+
+        //todo should compute mean scattering vector?
+        computeCompactPolScatteringVector(compactMode, scatterRe, scatterIm, kr, ki);
+
+        Cr[0][0] = kr[0]*kr[0] + ki[0]*ki[0];
+        Ci[0][0] = 0.0;
+
+        Cr[0][1] = kr[0]*kr[1] + ki[0]*ki[1];
+        Ci[0][1] = ki[0]*kr[1] - kr[0]*ki[1];
+
+        Cr[1][1] = kr[1]*kr[1] + ki[1]*ki[1];
+        Ci[1][1] = 0.0;
+
+        Cr[1][0] = Cr[0][1];
+        Ci[1][0] = -Ci[0][1];
+    }
+
+    /**
+     * Compute 4x1 compact pol Stokes vector for given scatter matrix.
+     * @param compactMode Compact polarimetric mode
+     * @param scatterRe Real part of the scatter matrix
+     * @param scatterIm Imaginary part of the scatter matrix
+     * @param g Stokes vector
+     */
+    public static void computeCompactPolStokesVector(
+            final String compactMode, final double[][] scatterRe, final double[][] scatterIm, final double[] g) {
+
+        final double[] kr = new double[2];
+        final double[] ki = new double[2];
+
+        //todo should compute mean scattering vector?
+        computeCompactPolScatteringVector(compactMode, scatterRe, scatterIm, kr, ki);
+
+        g[0] = kr[0]*kr[0] + ki[0]*ki[0] + kr[1]*kr[1] + ki[1]*ki[1];
+        g[1] = kr[0]*kr[0] + ki[0]*ki[0] - kr[1]*kr[1] - ki[1]*ki[1];
+        g[2] = 2*(kr[0]*kr[1] + ki[0]*ki[1]);
+        g[3] = -2*(ki[0]*kr[0] - kr[0]*ki[1]);
+    }
+
+    /**
+     * Compute degree of polarization for given 4x1 compact pol Stokes vector.
+     * @param g Stokes vector
+     * @return degree of polarization
+     */
+    public static double computeDegreeOfPolarization(final double[] g) {
+
+        if (g[0] == 0.0) {
+            return -1;
+        }
+
+        return Math.sqrt(g[1]*g[1] + g[2]*g[2] + g[3]*g[3])/g[0];
+    }
+
+    /**
+     * Compute degree of circularity for given 4x1 compact pol Stokes vector.
+     * @param g Stokes vector
+     * @return degree of circularity
+     */
+    public static double computeDegreeOfCircularity(final double[] g) {
+
+        if (g[0] == 0.0) {
+            return -1;
+        }
+
+        return -g[3]/(g[0]*computeDegreeOfPolarization(g));
+        //return 0.5*Math.asin(-g[3]/(g[0]*computeDegreeOfPolarization(g)));
     }
 
 }
