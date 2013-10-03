@@ -251,6 +251,15 @@ public class PolBandUtils {
         }
     }
 
+    public static String[] getC2BandNames() {
+        return new String[] {
+            "C11",
+            "C12_real",
+            "C12_imag",
+            "C22",
+        };
+    }
+
     public static String[] getC3BandNames() {
         return new String[] {
             "C11",
