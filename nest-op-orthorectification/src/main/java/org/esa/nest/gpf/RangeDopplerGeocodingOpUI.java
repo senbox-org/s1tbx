@@ -71,10 +71,11 @@ public class RangeDopplerGeocodingOpUI extends BaseOperatorUI {
     final JLabel sourcePixelSpacingsLabelPart2 = new JLabel("0.0(m) x 0.0(m)");
 
     final JCheckBox nodataValueAtSeaCheckBox = new JCheckBox("Mask out areas without elevation");
-    final JCheckBox saveDEMCheckBox = new JCheckBox("Save DEM band");
-    final JCheckBox saveLocalIncidenceAngleCheckBox = new JCheckBox("Save local incidence angle band");
-    final JCheckBox saveProjectedLocalIncidenceAngleCheckBox = new JCheckBox("Save projected local incidence angle band");
-    final JCheckBox saveSelectedSourceBandCheckBox = new JCheckBox("Save selected source band");
+    final JCheckBox saveDEMCheckBox = new JCheckBox("DEM");
+    final JCheckBox saveIncidenceAngleFromEllipsoidCheckBox = new JCheckBox("Incidence angle from ellipsoid");
+    final JCheckBox saveLocalIncidenceAngleCheckBox = new JCheckBox("Local incidence angle");
+    final JCheckBox saveProjectedLocalIncidenceAngleCheckBox = new JCheckBox("Projected local incidence angle");
+    final JCheckBox saveSelectedSourceBandCheckBox = new JCheckBox("Selected source band");
     final JCheckBox applyRadiometricNormalizationCheckBox = new JCheckBox("Apply radiometric normalization");
     final JCheckBox saveBetaNoughtCheckBox = new JCheckBox("Save Beta0 band");
     final JCheckBox saveGammaNoughtCheckBox = new JCheckBox("Save Gamma0 band");
@@ -87,6 +88,7 @@ public class RangeDopplerGeocodingOpUI extends BaseOperatorUI {
 
     private Boolean nodataValueAtSea = true;
     private Boolean saveDEM = false;
+    private Boolean saveIncidenceAngleFromEllipsoid = false;
     private Boolean saveLocalIncidenceAngle = false;
     private Boolean saveProjectedLocalIncidenceAngle = false;
     private Boolean saveSelectedSourceBand = false;
@@ -165,6 +167,11 @@ public class RangeDopplerGeocodingOpUI extends BaseOperatorUI {
                 public void itemStateChanged(ItemEvent e) {
                     saveDEM = (e.getStateChange() == ItemEvent.SELECTED);
                 }
+        });
+        saveIncidenceAngleFromEllipsoidCheckBox.addItemListener(new ItemListener() {
+            public void itemStateChanged(ItemEvent e) {
+                saveIncidenceAngleFromEllipsoid = (e.getStateChange() == ItemEvent.SELECTED);
+            }
         });
         saveLocalIncidenceAngleCheckBox.addItemListener(new ItemListener() {
                 public void itemStateChanged(ItemEvent e) {
@@ -346,6 +353,11 @@ public class RangeDopplerGeocodingOpUI extends BaseOperatorUI {
             saveDEMCheckBox.setSelected(saveDEM);
         }
 
+        saveIncidenceAngleFromEllipsoid = (Boolean)paramMap.get("saveIncidenceAngleFromEllipsoid");
+        if(saveIncidenceAngleFromEllipsoid != null) {
+            saveIncidenceAngleFromEllipsoidCheckBox.setSelected(saveIncidenceAngleFromEllipsoid);
+        }
+
         saveLocalIncidenceAngle = (Boolean)paramMap.get("saveLocalIncidenceAngle");
         if(saveLocalIncidenceAngle != null) {
             saveLocalIncidenceAngleCheckBox.setSelected(saveLocalIncidenceAngle);
@@ -484,6 +496,7 @@ public class RangeDopplerGeocodingOpUI extends BaseOperatorUI {
 
         paramMap.put("nodataValueAtSea", nodataValueAtSea);
         paramMap.put("saveDEM", saveDEM);
+        paramMap.put("saveIncidenceAngleFromEllipsoid", saveIncidenceAngleFromEllipsoid);
         paramMap.put("saveLocalIncidenceAngle", saveLocalIncidenceAngle);
         paramMap.put("saveProjectedLocalIncidenceAngle", saveProjectedLocalIncidenceAngle);
         paramMap.put("saveSelectedSourceBand", saveSelectedSourceBand);
@@ -543,14 +556,28 @@ public class RangeDopplerGeocodingOpUI extends BaseOperatorUI {
             gbc.gridy++;
             contentPane.add(nodataValueAtSeaCheckBox, gbc);
             gbc.gridy++;
-            contentPane.add(saveSelectedSourceBandCheckBox, gbc);
-            gbc.gridx = 1;
-            contentPane.add(saveDEMCheckBox, gbc);
-            gbc.gridx = 0;
+
+            final JPanel saveBandsPanel = new JPanel(new GridBagLayout());
+            final GridBagConstraints gbc2 = DialogUtils.createGridBagConstraints();
+            saveBandsPanel.setBorder(BorderFactory.createTitledBorder("Output bands for:"));
+
+            gbc2.gridx = 0;
+            saveBandsPanel.add(saveSelectedSourceBandCheckBox, gbc2);
+            gbc2.gridx = 1;
+            saveBandsPanel.add(saveDEMCheckBox, gbc2);
+            gbc2.gridy++;
+            gbc2.gridx = 0;
+            saveBandsPanel.add(saveIncidenceAngleFromEllipsoidCheckBox, gbc2);
+            gbc2.gridx = 1;
+            saveBandsPanel.add(saveLocalIncidenceAngleCheckBox, gbc2);
+            gbc2.gridx = 2;
+            saveBandsPanel.add(saveProjectedLocalIncidenceAngleCheckBox, gbc2);
+
+            gbc.gridwidth = 2;
+            contentPane.add(saveBandsPanel, gbc);
             gbc.gridy++;
-            contentPane.add(saveLocalIncidenceAngleCheckBox, gbc);
-            gbc.gridx = 1;
-            contentPane.add(saveProjectedLocalIncidenceAngleCheckBox, gbc);
+
+            gbc.gridwidth = 1;
             gbc.gridx = 0;
             gbc.gridy++;
             contentPane.add(applyRadiometricNormalizationCheckBox, gbc);

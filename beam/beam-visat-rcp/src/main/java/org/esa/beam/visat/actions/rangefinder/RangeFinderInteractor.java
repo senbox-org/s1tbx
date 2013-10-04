@@ -143,6 +143,11 @@ public class RangeFinderInteractor extends ViewportInteractor {
     
     private void showDetailsDialog(ProductSceneView view) {
         GeoCoding geoCoding = view.getProduct().getGeoCoding();
+        if(geoCoding == null) {  //NESTMOD
+            JOptionPane.showMessageDialog(VisatApp.getApp().getMainFrame(), "Product does not have a geocoding",
+                    TITLE, JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
 
         float distance = 0;
         float distanceError = 0;

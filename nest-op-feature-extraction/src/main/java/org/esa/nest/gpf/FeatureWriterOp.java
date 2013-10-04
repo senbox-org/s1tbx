@@ -36,7 +36,9 @@ import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.util.math.MathUtils;
 import org.esa.nest.datamodel.AbstractMetadata;
 
+import javax.media.jai.operator.FileStoreDescriptor;
 import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.io.*;
 import java.text.MessageFormat;
 import java.util.*;
@@ -432,33 +434,39 @@ public class FeatureWriterOp extends Operator implements Output {
             SubsetInfo subsetInfo = new SubsetInfo();
             subsetInfo.subsetBuilder = new ProductSubsetBuilder();
             subsetInfo.product = subsetInfo.subsetBuilder.readProductNodes(targetProduct, subsetDef);
-            subsetInfo.file = new File(tileDir, srcBandName+".dim");
 
-            subsetInfo.productWriter = ProductIO.getProductWriter(formatName); // BEAM-DIMAP
-            if (subsetInfo.productWriter == null) {
-                throw new OperatorException("No data product writer for the '" + formatName + "' format available");
-            }
-            subsetInfo.productWriter.setIncrementalMode(false);
-            subsetInfo.productWriter.setFormatName(formatName);
-            subsetInfo.product.setProductWriter(subsetInfo.productWriter);
-
-            // output metadata
-            subsetInfo.productWriter.writeProductNodes(subsetInfo.product, subsetInfo.file);
-
-            // output original image
-            final Rectangle trgRect = new Rectangle(tx0,ty0, tw, th);
-            final Tile srcImageTile = getSourceTile(targetProduct.getBand(srcBandName), trgRect);
-            final ProductData srcImageData = srcImageTile.getRawSamples();
             final Band srcImage = subsetInfo.product.getBand(srcBandName);
-            subsetInfo.productWriter.writeBandRasterData(srcImage, 0, 0,
-                    srcImage.getSceneRasterWidth(), srcImage.getSceneRasterHeight(), srcImageData, ProgressMonitor.NULL);
-
-            // output speckle divergence image
-            final Tile spkDivTile = getSourceTile(targetProduct.getBand(tgtBandName), trgRect);
-            final ProductData spkDivData = spkDivTile.getRawSamples();
             final Band spkDiv = subsetInfo.product.getBand(tgtBandName);
-            subsetInfo.productWriter.writeBandRasterData(spkDiv, 0, 0,
-                    spkDiv.getSceneRasterWidth(), spkDiv.getSceneRasterHeight(), spkDivData, ProgressMonitor.NULL);
+
+        /*    if(false) {
+                subsetInfo.productWriter = ProductIO.getProductWriter(formatName); // BEAM-DIMAP
+                if (subsetInfo.productWriter == null) {
+                    throw new OperatorException("No data product writer for the '" + formatName + "' format available");
+                }
+                subsetInfo.productWriter.setIncrementalMode(false);
+                subsetInfo.productWriter.setFormatName(formatName);
+                subsetInfo.product.setProductWriter(subsetInfo.productWriter);
+                subsetInfo.file = new File(tileDir, srcBandName+".dim");
+
+                // output metadata
+                subsetInfo.productWriter.writeProductNodes(subsetInfo.product, subsetInfo.file);
+
+                // output original image
+                final Rectangle trgRect = new Rectangle(tx0,ty0, tw, th);
+                final Tile srcImageTile = getSourceTile(targetProduct.getBand(srcBandName), trgRect);
+                final ProductData srcImageData = srcImageTile.getRawSamples();
+                subsetInfo.productWriter.writeBandRasterData(srcImage, 0, 0,
+                        srcImage.getSceneRasterWidth(), srcImage.getSceneRasterHeight(), srcImageData, ProgressMonitor.NULL);
+
+                // output speckle divergence image
+                final Tile spkDivTile = getSourceTile(targetProduct.getBand(tgtBandName), trgRect);
+                final ProductData spkDivData = spkDivTile.getRawSamples();
+                subsetInfo.productWriter.writeBandRasterData(spkDiv, 0, 0,
+                        spkDiv.getSceneRasterWidth(), spkDiv.getSceneRasterHeight(), spkDivData, ProgressMonitor.NULL);
+            }     */
+
+            final BufferedImage image = ProductUtils.createColorIndexedImage(srcImage, ProgressMonitor.NULL);
+            FileStoreDescriptor.create(image, new File(tileDir, srcBandName+".jpg").getPath(), "JPG", null, null, null);
 
         } catch (Throwable t) {
             //throw new OperatorException(t);

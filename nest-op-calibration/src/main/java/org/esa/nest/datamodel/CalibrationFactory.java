@@ -79,23 +79,23 @@ public class CalibrationFactory {
 
                 expression = trgBandName +
                         "==" + trgBand.getNoDataValue() + '?' + trgBand.getNoDataValue() +
-                        ':' + trgBandName + " / sin(projectedIncidenceAngle * PI/180.0)" +
+                        ':' + trgBandName + " / sin(projectedLocalIncidenceAngle * PI/180.0)" +
                         " * sin(incidenceAngleFromEllipsoid * PI/180)";
 
                 sigmaNoughtVirtualBandName = trgBandName + "_use_inci_angle_from_ellipsoid";
 
-                description = "Sigma0 image created using inci angle from ellipsoid";
+                description = "Sigma0 image created using incidence angle from ellipsoid";
 
             } else if (incidenceAngleForSigma0.contains(Constants.USE_LOCAL_INCIDENCE_ANGLE_FROM_DEM)) {
 
                 expression = trgBandName +
                         "==" + trgBand.getNoDataValue() + '?' + trgBand.getNoDataValue() +
-                        ':' + trgBandName + " / sin(projectedIncidenceAngle * PI/180.0)" +
-                        " * sin(incidenceAngle * PI/180)";
+                        ':' + trgBandName + " / sin(projectedLocalIncidenceAngle * PI/180.0)" +
+                        " * sin(localIncidenceAngle * PI/180)";
 
                 sigmaNoughtVirtualBandName = trgBandName + "_use_local_inci_angle_from_dem";
 
-                description = "Sigma0 image created using local inci angle from DEM";
+                description = "Sigma0 image created using local incidence angle from DEM";
             }
 
             final VirtualBand band = new VirtualBand(sigmaNoughtVirtualBandName,
@@ -127,27 +127,27 @@ public class CalibrationFactory {
             if (incidenceAngleForGamma0.contains(Constants.USE_INCIDENCE_ANGLE_FROM_ELLIPSOID)) {
                 incidenceAngle = "incidenceAngleFromEllipsoid";
             } else if (incidenceAngleForGamma0.contains(Constants.USE_LOCAL_INCIDENCE_ANGLE_FROM_DEM)) {
-                incidenceAngle = "incidenceAngle";
+                incidenceAngle = "localIncidenceAngle";
             } else { // USE_PROJECTED_INCIDENCE_ANGLE_FROM_DEM
-                incidenceAngle = "projectedIncidenceAngle";
+                incidenceAngle = "projectedLocalIncidenceAngle";
             }
 
             final String expression = trgBandName +
                     "==" + trgBand.getNoDataValue() + '?' + trgBand.getNoDataValue() +
-                    ':' + trgBandName + " / sin(projectedIncidenceAngle * PI/180.0)" +
+                    ':' + trgBandName + " / sin(projectedLocalIncidenceAngle * PI/180.0)" +
                     " * sin(" + incidenceAngle + " * PI/180)" + " / cos(" + incidenceAngle + " * PI/180)";
 
             String gammaNoughtVirtualBandName;
             String description;
             if (incidenceAngleForGamma0.contains(Constants.USE_INCIDENCE_ANGLE_FROM_ELLIPSOID)) {
                 gammaNoughtVirtualBandName = "_use_inci_angle_from_ellipsoid";
-                description = "Gamma0 image created using inci angle from ellipsoid";
+                description = "Gamma0 image created using incidence angle from ellipsoid";
             } else if (incidenceAngleForGamma0.contains(Constants.USE_LOCAL_INCIDENCE_ANGLE_FROM_DEM)) {
                 gammaNoughtVirtualBandName = "_use_local_inci_angle_from_dem";
-                description = "Gamma0 image created using local inci angle from DEM";
+                description = "Gamma0 image created using local incidence angle from DEM";
             } else { // USE_PROJECTED_INCIDENCE_ANGLE_FROM_DEM
                 gammaNoughtVirtualBandName = "_use_projected_local_inci_angle_from_dem";
-                description = "Gamma0 image created using projected local inci angle from dem";
+                description = "Gamma0 image created using projected local incidence angle from dem";
             }
 
             if(trgBandName.contains("_HH")) {
@@ -189,9 +189,9 @@ public class CalibrationFactory {
 
             final String expression = trgBandName +
                     "==" + trgBand.getNoDataValue() + '?' + trgBand.getNoDataValue() +
-                    ':' + trgBandName + " / sin(projectedIncidenceAngle * PI/180.0)";
+                    ':' + trgBandName + " / sin(projectedLocalIncidenceAngle * PI/180.0)";
 
-            String betaNoughtVirtualBandName = "Beta0";
+            String betaNoughtVirtualBandName = trgBandName.replace("Sigma0", "Beta0");
             final VirtualBand band = new VirtualBand(betaNoughtVirtualBandName,
                     ProductData.TYPE_FLOAT32,
                     trgBand.getSceneRasterWidth(),

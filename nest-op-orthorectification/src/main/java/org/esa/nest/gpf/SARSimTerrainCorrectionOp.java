@@ -593,12 +593,12 @@ public class SARSimTerrainCorrectionOp extends Operator {
 
         if(saveLocalIncidenceAngle) {
             RangeDopplerGeocodingOp.addTargetBand(targetProduct, targetImageWidth, targetImageHeight,
-                    "incidenceAngle", Unit.DEGREES, null, ProductData.TYPE_FLOAT32);
+                    "localIncidenceAngle", Unit.DEGREES, null, ProductData.TYPE_FLOAT32);
         }
 
         if(saveProjectedLocalIncidenceAngle) {
             RangeDopplerGeocodingOp.addTargetBand(targetProduct, targetImageWidth, targetImageHeight,
-                    "projectedIncidenceAngle", Unit.DEGREES, null, ProductData.TYPE_FLOAT32);
+                    "projectedLocalIncidenceAngle", Unit.DEGREES, null, ProductData.TYPE_FLOAT32);
         }
 
         if (saveLayoverShadowMask) {
@@ -832,8 +832,8 @@ public class SARSimTerrainCorrectionOp extends Operator {
         final int srcMaxRange = sourceImageWidth - 1;
         final int srcMaxAzimuth = sourceImageHeight - 1;
         ProductData demBuffer = null;
-        ProductData incidenceAngleBuffer = null;
-        ProductData projectedIncidenceAngleBuffer = null;
+        ProductData localIncidenceAngleBuffer = null;
+        ProductData projectedLocalIncidenceAngleBuffer = null;
         ProductData layoverShadowingMasksBuffer = null;
         ProductData incidenceAngleFromEllipsoidBuffer = null;
 
@@ -852,13 +852,13 @@ public class SARSimTerrainCorrectionOp extends Operator {
                 continue;
             }
 
-            if(targetBand.getName().equals("incidenceAngle")) {
-                incidenceAngleBuffer = targetTiles.get(targetBand).getDataBuffer();
+            if(targetBand.getName().equals("localIncidenceAngle")) {
+                localIncidenceAngleBuffer = targetTiles.get(targetBand).getDataBuffer();
                 continue;
             }
 
-            if(targetBand.getName().equals("projectedIncidenceAngle")) {
-                projectedIncidenceAngleBuffer = targetTiles.get(targetBand).getDataBuffer();
+            if(targetBand.getName().equals("projectedLocalIncidenceAngle")) {
+                projectedLocalIncidenceAngleBuffer = targetTiles.get(targetBand).getDataBuffer();
                 continue;
             }
 
@@ -973,11 +973,11 @@ public class SARSimTerrainCorrectionOp extends Operator {
                                     saveSigmaNought, x0, y0, x, y, localDEM, localIncidenceAngles); // in degrees
 
                             if (saveLocalIncidenceAngle && localIncidenceAngles[0] != SARGeocoding.NonValidIncidenceAngle) {
-                                incidenceAngleBuffer.setElemDoubleAt(index, localIncidenceAngles[0]);
+                                localIncidenceAngleBuffer.setElemDoubleAt(index, localIncidenceAngles[0]);
                             }
 
                             if (saveProjectedLocalIncidenceAngle && localIncidenceAngles[1] != SARGeocoding.NonValidIncidenceAngle) {
-                                projectedIncidenceAngleBuffer.setElemDoubleAt(index, localIncidenceAngles[1]);
+                                projectedLocalIncidenceAngleBuffer.setElemDoubleAt(index, localIncidenceAngles[1]);
                             }
                         }
 

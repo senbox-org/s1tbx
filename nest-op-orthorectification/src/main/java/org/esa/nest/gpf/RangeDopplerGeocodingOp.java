@@ -128,6 +128,9 @@ public class RangeDopplerGeocodingOp extends Operator {
     @Parameter(defaultValue="false", label="Save DEM as band")
     private boolean saveDEM = false;
 
+    @Parameter(defaultValue="false", label="Save incidence angle from ellipsoid as band")
+    private boolean saveIncidenceAngleFromEllipsoid = false;
+
     @Parameter(defaultValue="false", label="Save local incidence angle as band")
     private boolean saveLocalIncidenceAngle = false;
 
@@ -173,7 +176,6 @@ public class RangeDopplerGeocodingOp extends Operator {
     private GeoCoding targetGeoCoding = null;
 
     private boolean srgrFlag = false;
-    private boolean saveIncidenceAngleFromEllipsoid = false;
     private boolean isElevationModelAvailable = false;
     private boolean usePreCalibrationOp = false;
 
@@ -641,11 +643,11 @@ public class RangeDopplerGeocodingOp extends Operator {
         }
 
         if(saveLocalIncidenceAngle) {
-            addTargetBand("incidenceAngle", Unit.DEGREES, null);
+            addTargetBand("localIncidenceAngle", Unit.DEGREES, null);
         }
 
         if(saveProjectedLocalIncidenceAngle) {
-            addTargetBand("projectedIncidenceAngle", Unit.DEGREES, null);
+            addTargetBand("projectedLocalIncidenceAngle", Unit.DEGREES, null);
         }
 
         if (saveIncidenceAngleFromEllipsoid) {
@@ -812,8 +814,8 @@ public class RangeDopplerGeocodingOp extends Operator {
             final int srcMaxRange = sourceImageWidth - 1;
             final int srcMaxAzimuth = sourceImageHeight - 1;
             ProductData demBuffer = null;
-            ProductData incidenceAngleBuffer = null;
-            ProductData projectedIncidenceAngleBuffer = null;
+            ProductData localIncidenceAngleBuffer = null;
+            ProductData projectedLocalIncidenceAngleBuffer = null;
             ProductData incidenceAngleFromEllipsoidBuffer = null;
 
             final List<TileData> trgTileList = new ArrayList<TileData>();
@@ -825,13 +827,13 @@ public class RangeDopplerGeocodingOp extends Operator {
                     continue;
                 }
 
-                if(targetBand.getName().equals("incidenceAngle")) {
-                    incidenceAngleBuffer = targetTiles.get(targetBand).getDataBuffer();
+                if(targetBand.getName().equals("localIncidenceAngle")) {
+                    localIncidenceAngleBuffer = targetTiles.get(targetBand).getDataBuffer();
                     continue;
                 }
 
-                if(targetBand.getName().equals("projectedIncidenceAngle")) {
-                    projectedIncidenceAngleBuffer = targetTiles.get(targetBand).getDataBuffer();
+                if(targetBand.getName().equals("projectedLocalIncidenceAngle")) {
+                    projectedLocalIncidenceAngleBuffer = targetTiles.get(targetBand).getDataBuffer();
                     continue;
                 }
 
@@ -939,11 +941,11 @@ public class RangeDopplerGeocodingOp extends Operator {
                                     saveSigmaNought, x0, y0, x, y, localDEM, localIncidenceAngles); // in degrees
 
                             if (saveLocalIncidenceAngle && localIncidenceAngles[0] != SARGeocoding.NonValidIncidenceAngle) {
-                                incidenceAngleBuffer.setElemDoubleAt(index, localIncidenceAngles[0]);
+                                localIncidenceAngleBuffer.setElemDoubleAt(index, localIncidenceAngles[0]);
                             }
 
                             if (saveProjectedLocalIncidenceAngle && localIncidenceAngles[1] != SARGeocoding.NonValidIncidenceAngle) {
-                                projectedIncidenceAngleBuffer.setElemDoubleAt(index, localIncidenceAngles[1]);
+                                projectedLocalIncidenceAngleBuffer.setElemDoubleAt(index, localIncidenceAngles[1]);
                             }
                         }
 
