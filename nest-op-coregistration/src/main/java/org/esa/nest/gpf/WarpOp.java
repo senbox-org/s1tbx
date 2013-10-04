@@ -829,12 +829,10 @@ public class WarpOp extends Operator {
             if (!warpData.notEnoughGCPs) {
 
                 p.println();
-                p.println("No. | Master GCP x | Master GCP y | Slave GCP x |" +
-                        " Slave GCP y | Row Residual | Col Residual |    RMS    |");
-                p.println("-------------------------------------------------" +
-                        "--------------------------------------------------------");
+                p.println("  No.  | Master GCP x | Master GCP y | Slave GCP x  | Slave GCP y  | Row Residual | Col Residual |        RMS        |");
+                p.println("----------------------------------------------------------------------------------------------------------------------");
                 for (int i = 0; i < warpData.rms.length; i++) {
-                    p.format("%2d  |%13.3f |%13.3f |%12.3f |%12.3f |%13.3f |%13.3f |%10.3f |",
+                    p.format("%6d |%13.3f |%13.3f |%13.3f |%13.3f |%13.8f |%13.8f |%18.12f |",
                             i, warpData.masterGCPCoords[2 * i], warpData.masterGCPCoords[2 * i + 1],
                             warpData.slaveGCPCoords[2 * i], warpData.slaveGCPCoords[2 * i + 1],
                             warpData.rowResiduals[i], warpData.colResiduals[i], warpData.rms[i]);
