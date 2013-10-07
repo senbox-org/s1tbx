@@ -33,6 +33,8 @@
 
     <changelog>
         <![CDATA[
+        Changes in 5.0:<br>
+        [BEAM-1550] Link in help to general.html does not work<br>
         Changes in 4.10.1:<br>
         [BEAM-1403] Broken links in VISAT help<br>
         Changes in 4.8:<br>
