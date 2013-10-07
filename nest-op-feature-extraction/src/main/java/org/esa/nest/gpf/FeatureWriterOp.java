@@ -30,10 +30,9 @@ import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.framework.gpf.experimental.Output;
-import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.io.FileUtils;
-import org.esa.beam.util.math.MathUtils;
+import org.esa.nest.dataio.kml.KmlWriter;
 import org.esa.nest.datamodel.AbstractMetadata;
 
 import javax.media.jai.operator.FileStoreDescriptor;
@@ -78,6 +77,7 @@ public class FeatureWriterOp extends Operator implements Output {
     private final List<TileInfo> tileInfoList = new ArrayList<TileInfo>(100);
     private String[] sourceBandNames;
 
+    private KmlWriter kmlWriter = null;
     private File productOutputDir;
     private int patchWidth = 0;
     private int patchHeight = 0;
@@ -133,37 +133,6 @@ public class FeatureWriterOp extends Operator implements Output {
         patchHeight = (int)(patchSizeKm*1000.0/azimuthSpacing);
     }
 
-    private void writeMetadataFile(final File featureDir) throws Exception {
-        final File metadataFile = new File(featureDir, "fex-metadata.txt");
-        metadataWriter = new PrintWriter(metadataFile);
-        metadataWriter.println("# Urban area SAR feature extraction");
-        metadataWriter.println(String.format("version = %s", VERSION));
-        metadataWriter.println(
-                String.format("time = %s",
-                        ProductData.UTC.create(new Date(System.currentTimeMillis()), 0).format().replace(" ", "T")));
-        metadataWriter.println();
-        metadataWriter.println("# Source product");
-        metadataWriter.println("  source = "+sourceProduct.getName());
-        metadataWriter.println();
-        metadataWriter.println("# Extracted features:");
-        metadataWriter.println("  featureCount = 7");
-        metadataWriter.println("# Minimum speckle divergence");
-        metadataWriter.println("  features.0 = speckle_divergence.minimum");
-        metadataWriter.println("# Maximum speckle divergence");
-        metadataWriter.println("  features.1 = speckle_divergence.maximum");
-        metadataWriter.println("# Median divergence");
-        metadataWriter.println("  features.2 = speckle_divergence.median");
-        metadataWriter.println("# Mean speckle divergence");
-        metadataWriter.println("  features.3 = speckle_divergence.mean");
-        metadataWriter.println("# Speckle divergence standard diviation");
-        metadataWriter.println("  features.4 = speckle_divergence.stdev");
-        metadataWriter.println("# Speckle divergence coefficient of Variation");
-        metadataWriter.println("  features.5 = speckle_divergence.coefVar");
-        metadataWriter.println("# Count of valid pixels");
-        metadataWriter.println("  features.6 = speckle_divergence.count");
-        metadataWriter.println();
-    }
-
     @Override
     public synchronized void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
         try {
@@ -212,9 +181,45 @@ public class FeatureWriterOp extends Operator implements Output {
 
                 writeTileIndexFile();
             }
+            if (kmlWriter != null) {
+                kmlWriter.close();
+            }
         } catch (Exception ignore) {
         }
         super.dispose();
+    }
+
+    private void writeMetadataFile(final File featureDir) throws Exception {
+        final File metadataFile = new File(featureDir, "fex-metadata.txt");
+        metadataWriter = new PrintWriter(metadataFile);
+        metadataWriter.println("# Urban area SAR feature extraction");
+        metadataWriter.println(String.format("version = %s", VERSION));
+        metadataWriter.println(
+                String.format("time = %s",
+                        ProductData.UTC.create(new Date(System.currentTimeMillis()), 0).format().replace(" ", "T")));
+        metadataWriter.println();
+        metadataWriter.println("# Source product");
+        metadataWriter.println("  source = "+sourceProduct.getName());
+        metadataWriter.println();
+        metadataWriter.println("# Extracted features:");
+        metadataWriter.println("  featureCount = 8");
+        metadataWriter.println("# Minimum speckle divergence");
+        metadataWriter.println("  features.0 = speckle_divergence.minimum");
+        metadataWriter.println("# Maximum speckle divergence");
+        metadataWriter.println("  features.1 = speckle_divergence.maximum");
+        metadataWriter.println("# Median divergence");
+        metadataWriter.println("  features.2 = speckle_divergence.median");
+        metadataWriter.println("# Mean speckle divergence");
+        metadataWriter.println("  features.3 = speckle_divergence.mean");
+        metadataWriter.println("# Speckle divergence standard diviation");
+        metadataWriter.println("  features.4 = speckle_divergence.stdev");
+        metadataWriter.println("# Speckle divergence coefficient of Variation");
+        metadataWriter.println("  features.5 = speckle_divergence.coefVar");
+        metadataWriter.println("# Count of valid pixels");
+        metadataWriter.println("  features.6 = speckle_divergence.count");
+        metadataWriter.println("# Sample percent over threshold of 0.4");
+        metadataWriter.println("  features.7 = speckle_divergence.percentOverPnt4");
+        metadataWriter.println();
     }
 
     private void finishMetadataFile() {
@@ -240,7 +245,6 @@ public class FeatureWriterOp extends Operator implements Output {
 
         for (int i = 0; i < tileInfoList.size(); i++) {
             final TileInfo tile = tileInfoList.get(i);
-            final File file = new File(productOutputDir, tile.name);
 
             final String tileInfo = String.format("%s%s%s %s %s %s %s %s %s",
                     productOutputDir.getName(), "/", tile.name,
@@ -283,6 +287,11 @@ public class FeatureWriterOp extends Operator implements Output {
                 bandNameToFeatureDir.put(bandName, featureDir);
             }
         }
+
+        final Writer writer = new FileWriter(new File(productOutputDir, "overview.kml"));
+        kmlWriter = new KmlWriter(writer, sourceProduct.getName(),
+                "Tiles of " + sourceProduct.getName());
+
         folderStructureCreated = true;
     }
 
@@ -373,13 +382,11 @@ public class FeatureWriterOp extends Operator implements Output {
         final StxFactory stxFactory = new StxFactory();
         final Stx stx = stxFactory.create(stxBand, ProgressMonitor.NULL);
 
-        final File featureFile = new File(tileDir, "fea.txt");
+        final File featureFile = new File(tileDir, "features.txt");
 
         final Writer featureWriter = new BufferedWriter(new FileWriter(featureFile));
 
         try {
-            featureWriter.write(String.format("tileX = %s, tileY = %s, x0 = %s, y0 = %s, width = %s, height = %s\n\n",
-                    tileX, tileY, tx0, ty0, tw, th));
             featureWriter.write(String.format("%s.minimum = %s\n", tgtBandName, stx.getMinimum()));
             featureWriter.write(String.format("%s.maximum = %s\n", tgtBandName, stx.getMaximum()));
             featureWriter.write(String.format("%s.median  = %s\n", tgtBandName, stx.getMedian()));
@@ -387,7 +394,7 @@ public class FeatureWriterOp extends Operator implements Output {
             featureWriter.write(String.format("%s.stdev   = %s\n", tgtBandName, stx.getStandardDeviation()));
             featureWriter.write(String.format("%s.coefVar = %s\n", tgtBandName, stx.getCoefficientOfVariation()));
             featureWriter.write(String.format("%s.count   = %s\n", tgtBandName, stx.getSampleCount()));
-            featureWriter.write(String.format("%s.urbanRate = %s%%\n", tgtBandName, computeUrbanRate(dataArray)));
+            featureWriter.write(String.format("%s.percentOverPnt4 = %s\n", tgtBandName, computeSamplePercentOverPnt4(dataArray)));
 
             sourceProduct.removeBand(stxBand);
         } finally {
@@ -405,7 +412,7 @@ public class FeatureWriterOp extends Operator implements Output {
         return valid;
     }
 
-    private double computeUrbanRate(final double[] dataArray) {
+    private static double computeSamplePercentOverPnt4(final double[] dataArray) {
 
         int numSamplesAboveThreshold = 0;
         for (double sd : dataArray) {
@@ -438,7 +445,7 @@ public class FeatureWriterOp extends Operator implements Output {
             final Band srcImage = subsetInfo.product.getBand(srcBandName);
             final Band spkDiv = subsetInfo.product.getBand(tgtBandName);
 
-        /*    if(false) {
+            if(false) {
                 subsetInfo.productWriter = ProductIO.getProductWriter(formatName); // BEAM-DIMAP
                 if (subsetInfo.productWriter == null) {
                     throw new OperatorException("No data product writer for the '" + formatName + "' format available");
@@ -446,7 +453,7 @@ public class FeatureWriterOp extends Operator implements Output {
                 subsetInfo.productWriter.setIncrementalMode(false);
                 subsetInfo.productWriter.setFormatName(formatName);
                 subsetInfo.product.setProductWriter(subsetInfo.productWriter);
-                subsetInfo.file = new File(tileDir, srcBandName+".dim");
+                subsetInfo.file = new File(tileDir, "subset.dim");
 
                 // output metadata
                 subsetInfo.productWriter.writeProductNodes(subsetInfo.product, subsetInfo.file);
@@ -463,10 +470,24 @@ public class FeatureWriterOp extends Operator implements Output {
                 final ProductData spkDivData = spkDivTile.getRawSamples();
                 subsetInfo.productWriter.writeBandRasterData(spkDiv, 0, 0,
                         spkDiv.getSceneRasterWidth(), spkDiv.getSceneRasterHeight(), spkDivData, ProgressMonitor.NULL);
-            }     */
+            }
 
             final BufferedImage image = ProductUtils.createColorIndexedImage(srcImage, ProgressMonitor.NULL);
-            FileStoreDescriptor.create(image, new File(tileDir, srcBandName+".jpg").getPath(), "JPG", null, null, null);
+            final File rgbFile = new File(tileDir.getParentFile(), tileDir.getName()+"_rgb.png");
+            FileStoreDescriptor.create(image, rgbFile.getPath(), "PNG", null, null, null);
+
+            // write tile to kml
+            float w = subsetInfo.product.getSceneRasterWidth();
+            float h = subsetInfo.product.getSceneRasterHeight();
+
+            // quadPositions: counter clockwise lon,lat coordinates starting at lower-left
+            GeoPos[] quadPositions = new GeoPos[]{
+                    subsetInfo.product.getGeoCoding().getGeoPos(new PixelPos(0, h), null),
+                    subsetInfo.product.getGeoCoding().getGeoPos(new PixelPos(w, h), null),
+                    subsetInfo.product.getGeoCoding().getGeoPos(new PixelPos(w, 0), null),
+                    subsetInfo.product.getGeoCoding().getGeoPos(new PixelPos(0, 0), null),
+            };
+            kmlWriter.writeGroundOverlayEx(rgbFile.getName(), quadPositions, rgbFile.getName());
 
         } catch (Throwable t) {
             //throw new OperatorException(t);

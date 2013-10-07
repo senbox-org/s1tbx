@@ -25,6 +25,9 @@
 	<dependency>
       <module>nest-reader-dem</module>
     </dependency>
+    <dependency>
+        <module>nest-io</module>
+    </dependency>
 	
     <categories>Processor</categories>
 
