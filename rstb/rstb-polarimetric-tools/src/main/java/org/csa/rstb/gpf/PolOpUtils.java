@@ -1236,8 +1236,137 @@ public final class PolOpUtils {
     }
 
     //===================== Compact Pol functions ============================
+
     /**
-     * Compute compact pol 2x1 complex scattering vector for given scatter matrix.
+     * Get mean covariance matrix C2 for given pixel.
+     * @param x X coordinate of the given pixel.
+     * @param y Y coordinate of the given pixel.
+     * @param halfWindowSize The sliding window size / 2
+     * @param sourceProductType The source product type.
+     * @param sourceTiles The source tiles for all bands.
+     * @param dataBuffers Source tile data buffers.
+     * @param Cr The real part of the mean covariance matrix.
+     * @param Ci The imaginary part of the mean covariance matrix.
+     */
+    public static void getMeanCovarianceMatrixC2(
+            final int x, final int y, final int halfWindowSize, final PolBandUtils.MATRIX sourceProductType,
+            final Tile[] sourceTiles, final ProductData[] dataBuffers, final double[][] Cr, final double[][] Ci) {
+
+        final double[] tempKr = new double[2];
+        final double[] tempKi = new double[2];
+        final double[][] tempCr = new double[2][2];
+        final double[][] tempCi = new double[2][2];
+
+        final int xSt = FastMath.max(x - halfWindowSize, sourceTiles[0].getMinX());
+        final int xEd = FastMath.min(x + halfWindowSize, sourceTiles[0].getMaxX() - 1);
+        final int ySt = FastMath.max(y - halfWindowSize, sourceTiles[0].getMinY());
+        final int yEd = FastMath.min(y + halfWindowSize, sourceTiles[0].getMaxY() - 1);
+        final int num = (yEd - ySt + 1)*(xEd - xSt + 1);
+
+        final TileIndex srcIndex = new TileIndex(sourceTiles[0]);
+
+        final Matrix CrMat = new Matrix(2,2);
+        final Matrix CiMat = new Matrix(2,2);
+
+        if (sourceProductType == PolBandUtils.MATRIX.C2) {
+
+            for (int yy = ySt; yy <= yEd; ++yy) {
+                srcIndex.calculateStride(yy);
+                for (int xx = xSt; xx <= xEd; ++xx) {
+                    getCovarianceMatrixC2(srcIndex.getIndex(xx), dataBuffers, tempCr, tempCi);
+                    CrMat.plusEquals(new Matrix(tempCr));
+                    CiMat.plusEquals(new Matrix(tempCi));
+                }
+            }
+
+        } else if (sourceProductType == PolBandUtils.MATRIX.COMPACT) {
+
+            for (int yy = ySt; yy <= yEd; ++yy) {
+                srcIndex.calculateStride(yy);
+                for (int xx = xSt; xx <= xEd; ++xx) {
+                    getCompactPolScatterVector(srcIndex.getIndex(xx), dataBuffers, tempKr, tempKi);
+                    computeCovarianceMatrixC2(tempKr, tempKi, tempCr, tempCi);
+                    CrMat.plusEquals(new Matrix(tempCr));
+                    CiMat.plusEquals(new Matrix(tempCi));
+                }
+            }
+        }
+
+        CrMat.timesEquals(1.0/num);
+        CiMat.timesEquals(1.0/num);
+        for (int i = 0; i < 2; i++) {
+            for (int j = 0; j < 2; j++) {
+                Cr[i][j] = CrMat.get(i,j);
+                Ci[i][j] = CiMat.get(i,j);
+            }
+        }
+    }
+
+    /**
+     * Get covariance matrix C2 for a given pixel in the input C2 product.
+     * @param index X,Y coordinate of the given pixel
+     * @param dataBuffers Source tile data buffers for all 4 source bands
+     * @param Cr Real part of the 2x2 covariance matrix
+     * @param Ci Imaginary part of the 2x2 covariance matrix
+     */
+    public static void getCovarianceMatrixC2(final int index, final ProductData[] dataBuffers,
+                                             final double[][] Cr, final double[][] Ci){
+
+        Cr[0][0] = dataBuffers[0].getElemDoubleAt(index); // C11 - real
+        Ci[0][0] = 0.0;                                   // C11 - imag
+
+        Cr[0][1] = dataBuffers[1].getElemDoubleAt(index); // C12 - real
+        Ci[0][1] = dataBuffers[2].getElemDoubleAt(index); // C12 - imag
+
+        Cr[1][1] = dataBuffers[3].getElemDoubleAt(index); // C22 - real
+        Ci[1][1] = 0.0;                                   // C22 - imag
+
+        Cr[1][0] = Cr[0][1];
+        Ci[1][0] = -Ci[0][1];
+    }
+
+    /**
+     * Get compact pol scatter vector for a given pixel in the input compact pol product.
+     * @param index X,Y coordinate of the given pixel
+     * @param dataBuffers Source tiles dataBuffers for all 4 source bands
+     * @param kr Real part of the scatter vector
+     * @param ki Imaginary part of the scatter vector
+     */
+    public static void getCompactPolScatterVector(final int index, final ProductData[] dataBuffers,
+                                                  final double[] kr, final double[] ki){
+
+        kr[0] = dataBuffers[0].getElemDoubleAt(index); // RH - real
+        ki[0] = dataBuffers[1].getElemDoubleAt(index); // RH - imag
+
+        kr[1] = dataBuffers[2].getElemDoubleAt(index); // RV - real
+        ki[1] = dataBuffers[3].getElemDoubleAt(index); // RV - imag
+    }
+
+    /**
+     * Compute covariance matrix c2 for given complex compact pol 2x1 scatter vector.
+     * @param kr Real part of the scatter vector
+     * @param ki Imaginary part of the scatter vector
+     * @param Cr Real part of the covariance matrix
+     * @param Ci Imaginary part of the covariance matrix
+     */
+    public static void computeCovarianceMatrixC2(final double[] kr, final double[] ki,
+                                                 final double[][] Cr, final double[][] Ci) {
+
+        Cr[0][0] = kr[0]*kr[0] + ki[0]*ki[0];
+        Ci[0][0] = 0.0;
+
+        Cr[0][1] = kr[0]*kr[1] + ki[0]*ki[1];
+        Ci[0][1] = ki[0]*kr[1] - kr[0]*ki[1];
+
+        Cr[1][1] = kr[1]*kr[1] + ki[1]*ki[1];
+        Ci[1][1] = 0.0;
+
+        Cr[1][0] = Cr[0][1];
+        Ci[1][0] = -Ci[0][1];
+    }
+
+    /**
+     * Simulate compact pol 2x1 complex scattering vector using scatter matrix for a given pixel in a full pol product.
      * @param compactMode Compact polarimetric mode
      * @param scatterRe Real part of the scatter matrix
      * @param scatterIm Imaginary part of the scatter matrix
@@ -1291,7 +1420,7 @@ public final class PolOpUtils {
     }
 
     /**
-     * Compute 2x2 compact pol covariance matrix for given scatter matrix.
+     * Simulate 2x2 compact pol covariance matrix using scatter matrix for a given pixel in a full pol product.
      * @param compactMode Compact polarimetric mode
      * @param scatterRe Real part of the scatter matrix
      * @param scatterIm Imaginary part of the scatter matrix
@@ -1305,20 +1434,23 @@ public final class PolOpUtils {
         final double[] kr = new double[2];
         final double[] ki = new double[2];
 
-        //todo should compute mean scattering vector?
         computeCompactPolScatteringVector(compactMode, scatterRe, scatterIm, kr, ki);
 
-        Cr[0][0] = kr[0]*kr[0] + ki[0]*ki[0];
-        Ci[0][0] = 0.0;
+        computeCovarianceMatrixC2(kr, ki, Cr, Ci);
+    }
 
-        Cr[0][1] = kr[0]*kr[1] + ki[0]*ki[1];
-        Ci[0][1] = ki[0]*kr[1] - kr[0]*ki[1];
+    /**
+     * Compute 4x1 compact pol Stokes vector for given mean covariance matrix C2.
+     * @param Cr Real part of the mean covariance matrix.
+     * @param Ci Imaginary part of the mean covariance matrix.
+     * @param g Stokes vector.
+     */
+    public static void computeCompactPolStokesVector(final double[][] Cr, final double[][] Ci, final double[] g) {
 
-        Cr[1][1] = kr[1]*kr[1] + ki[1]*ki[1];
-        Ci[1][1] = 0.0;
-
-        Cr[1][0] = Cr[0][1];
-        Ci[1][0] = -Ci[0][1];
+        g[0] = Cr[0][0] + Cr[1][1];
+        g[1] = Cr[0][0] - Cr[1][1];
+        g[2] = 2*Cr[0][1];
+        g[3] = -2*Ci[0][1];
     }
 
     /**
@@ -1358,18 +1490,34 @@ public final class PolOpUtils {
     }
 
     /**
-     * Compute degree of circularity for given 4x1 compact pol Stokes vector.
+     * Compute Stokes parameters for given 4x1 compact pol Stokes vector.
      * @param g Stokes vector
-     * @return degree of circularity
+     * @return The Stokes parameters.
      */
-    public static double computeDegreeOfCircularity(final double[] g) {
+    public static StokesParameters computeStokesParameters(final double[] g) {
 
-        if (g[0] == 0.0) {
-            return -1;
-        }
+        StokesParameters parameters = new StokesParameters();
 
-        return -g[3]/(g[0]*computeDegreeOfPolarization(g));
-        //return 0.5*Math.asin(-g[3]/(g[0]*computeDegreeOfPolarization(g)));
+        parameters.DegreeOfPolarization = Math.sqrt(g[1]*g[1] + g[2]*g[2] + g[3]*g[3])/g[0];
+        parameters.DegreeOfDepolarization = 1 - parameters.DegreeOfPolarization;
+        parameters.DegreeOfCircularity = -g[3]/(g[0]*parameters.DegreeOfPolarization);
+        parameters.DegreeOfEllipticity = Math.tan(0.5*Math.asin(parameters.DegreeOfCircularity));
+        parameters.circularPolarizationRatio = (g[0] - g[3])/(g[0] + g[3]);
+        parameters.linearPolarizationRatio = (g[0] - g[1])/(g[0] + g[1]);
+        parameters.RelativePhase = Math.atan(g[3]/g[2]);
+
+        return parameters;
+    }
+
+    public static class StokesParameters {
+
+        public double DegreeOfPolarization;
+        public double DegreeOfDepolarization;
+        public double DegreeOfCircularity;
+        public double DegreeOfEllipticity;
+        public double circularPolarizationRatio;
+        public double linearPolarizationRatio;
+        public double RelativePhase;
     }
 
 }
