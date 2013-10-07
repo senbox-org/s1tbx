@@ -42,7 +42,7 @@ public class DecompositionBase {
 
     public static enum TargetBandColour { R, G, B}
 
-    DecompositionBase(final PolBandUtils.QuadSourceBand[] srcBandList, final PolBandUtils.MATRIX sourceProductType,
+    public DecompositionBase(final PolBandUtils.QuadSourceBand[] srcBandList, final PolBandUtils.MATRIX sourceProductType,
                       final int windowSize, final int srcImageWidth, final int srcImageHeight) {
         this.srcBandList = srcBandList;
         this.sourceProductType = sourceProductType;
