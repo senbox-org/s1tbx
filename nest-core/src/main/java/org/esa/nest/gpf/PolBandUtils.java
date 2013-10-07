@@ -31,7 +31,7 @@ import java.util.List;
  */
 public class PolBandUtils {
 
-    public static enum MATRIX { FULL, C3, T3, C4, T4 }
+    public static enum MATRIX { FULL, C3, T3, C4, T4, C2, COMPACT }
 
     public static class QuadSourceBand {
         public final String productName;
@@ -61,7 +61,7 @@ public class PolBandUtils {
     public static MATRIX getSourceProductType(final Product sourceProduct) {
 
         final String[] bandNames = sourceProduct.getBandNames();
-        boolean isC3 = false, isT3 = false;
+        boolean isC3 = false, isT3 = false, isC2 = false, isS2 = false;
         for(String name : bandNames) {
             if(name.contains("C44")) {
                 return MATRIX.C4;
@@ -71,12 +71,21 @@ public class PolBandUtils {
                 isC3 = true;
             } else if(name.contains("T33")) {
                 isT3 = true;
+            } else if(name.contains("C22")) {
+                isC2 = true;
+            } else if (name.contains("RH")) {
+                isS2 = true;
             }
         }
+
         if(isC3)
             return MATRIX.C3;
         else if(isT3)
             return MATRIX.T3;
+        else if (isC2)
+            return MATRIX.C2;
+        else if (isS2)
+            return MATRIX.COMPACT;
 
         return MATRIX.FULL;
     }
@@ -134,6 +143,10 @@ public class PolBandUtils {
             return getProductBands(srcProduct, bandNames, getC4BandNames());
         } else if(sourceProductType == MATRIX.T4) {
             return getProductBands(srcProduct, bandNames, getT4BandNames());
+        } else if(sourceProductType == MATRIX.C2) { // compact pol C2
+            return getProductBands(srcProduct, bandNames, getC2BandNames());
+        } else if(sourceProductType == MATRIX.COMPACT) { // compact pol S2
+            return getProductBands(srcProduct, bandNames, getS2BandNames());
         }
         return null;
     }
@@ -251,6 +264,23 @@ public class PolBandUtils {
         }
     }
 
+    /**
+     * Get compact pol product source band names.
+     * @return The source band names.
+     */
+    public static String[] getS2BandNames() {
+        return new String[] {
+            "i_RH",
+            "q_RH",
+            "i_RV",
+            "q_RV",
+        };
+    }
+
+    /**
+     * Get compact pol covariance matrix product source band names.
+     * @return The source band names.
+     */
     public static String[] getC2BandNames() {
         return new String[] {
             "C11",
