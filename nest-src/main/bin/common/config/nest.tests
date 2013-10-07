@@ -1,0 +1,69 @@
+####################################################################################
+# Configuration for the Automated Testing Framework
+# All properties described here can also be passed to the VM as system
+# properties using the standard Java
+#   -D<property>=<value>
+# syntax. In addition, it is possible to use macros of the form
+#   ${<property>}
+# within a value. Macros will expand to the value of the referred (system) property.
+####################################################################################
+
+####################################################################################
+#Automated Reader and Operator Tests
+#-----------------------------------
+#No output is produced. Readers and Operators are run on all products to
+#ensure no expections are thrown and processing completes.
+####################################################################################
+
+
+# Test Paths
+# Some unit tests open all products within a folder and apply thier processing to verify they don't get any error
+nest.test.ReadersOnAllProducts = false
+nest.test.ProcessingOnAllProducts = false
+nest.test.RunBenchmarks = false
+# max number of products to test from each root folder. Use -1 to test all.
+nest.test.maxProductsPerRootFolder = 0
+nest.test.subsetX = 100
+nest.test.subsetY = 100
+nest.test.subsetWidth = 100
+nest.test.subsetHeight = 100
+
+nest.test.rootPathExpectedProducts = 	P:\\nest\\nest\\ESA Data\\test\\
+nest.test.rootPathTerraSarX = 			P:\\nest\\nest\\ESA Data\\RADAR\\TerraSarX
+nest.test.rootPathASAR= 				P:\\nest\\nest\\ESA Data\\RADAR\\ASAR
+nest.test.rootPathRadarsat2 = 			P:\\nest\\nest\\ESA Data\\RADAR\\Radarsat2
+nest.test.rootPathRadarsat1 = 			P:\\nest\\nest\\ESA Data\\RADAR\\Radarsat1
+nest.test.rootPathERS = 				P:\\nest\\nest\\ESA Data\\RADAR\\ERS_products
+nest.test.rootPathJERS = 				P:\\nest\\nest\\ESA Data\\RADAR\\JERS
+nest.test.rootPathALOS = 				P:\\nest\\nest\\ESA Data\\RADAR\\ALOS PALSAR
+nest.test.rootPathCosmoSkymed = 		P:\\nest\\nest\\ESA Data\\RADAR\\Cosmo
+nest.test.rootPathMixProducts = 		P:\\nest\\nest\\ESA Data\\NestBox
+#nest.test.rootPathMixProducts = 		P:\\nest\\nest\\ESA Data\\RADAR\\Global Monitoring Mode
+
+####################################################################################
+#Automated Graph Processing and Product Comparison of Expected Results
+#---------------------------------------------------------------------
+#If expected results folder is empty, new products will be generated and output products
+#will be identical to expected results.
+#Processing output is compared against products in expected folder
+#If expected_results is not included, only output will be processed without comparison
+####################################################################################
+
+nest.test.1.graph = D:\\Build\\5.0\\nest\\output\\graphs\\Standard Graphs\\Multilook.xml
+nest.test.1.input_products = 	I:\\INPUT\\test
+nest.test.1.expected_results = 	I:\\out\\test\\expected\\test1
+nest.test.1.output_products = 	I:\\out\\test\\output\\test1
+
+nest.test.2.graph = D:\\Build\\5.0\\nest\\output\\graphs\\Standard Graphs\\Calibrate.xml
+nest.test.2.input_products = 	I:\\INPUT\\test
+nest.test.2.expected_results = 	I:\\out\\test\\expected\\test2
+nest.test.2.output_products = 	I:\\out\\test\\output\\test2
+
+nest.test.3.graph = D:\\Build\\5.0\\nest\\output\\graphs\\Standard Graphs\\Orthorectify.xml
+nest.test.3.input_products = 	I:\\INPUT\\test
+nest.test.3.expected_results = 	I:\\out\\test\\expected\\test3
+nest.test.3.output_products = 	I:\\out\\test\\output\\test3
+
+nest.test.4.graph = D:\\Build\\5.0\\nest\\output\\graphs\\Standard Graphs\\Orthorectify.xml
+nest.test.4.input_products = 	I:\\INPUT\\test
+nest.test.4.output_products = 	I:\\out\\test\\output\\test4

@@ -26,12 +26,14 @@ import java.io.IOException;
  */
 public class Config {
 
-    private final PropertyMap prefs = new PropertyMap();
+    private final PropertyMap configPrefs = new PropertyMap();
+    private final PropertyMap testPrefs = new PropertyMap();
     private static Config instance = null;
 
     private Config() {
         try {
-            prefs.load(new File(SystemUtils.getApplicationHomeDir(), "config"+File.separator+SystemUtils.getApplicationContextId()+".config"));
+            configPrefs.load(new File(SystemUtils.getApplicationHomeDir(), "config"+File.separator+SystemUtils.getApplicationContextId()+".config"));
+            testPrefs.load(new File(SystemUtils.getApplicationHomeDir(), "config"+File.separator+SystemUtils.getApplicationContextId()+".tests"));
         } catch(IOException e) {
             System.out.println("Unable to load config preferences "+e.getMessage());
         }
@@ -41,6 +43,13 @@ public class Config {
         if(instance == null) {
             instance = new Config();    
         }
-        return instance.prefs;
+        return instance.configPrefs;
+    }
+
+    public static PropertyMap getAutomatedTestConfigPropertyMap() {
+        if(instance == null) {
+            instance = new Config();
+        }
+        return instance.testPrefs;
     }
 }

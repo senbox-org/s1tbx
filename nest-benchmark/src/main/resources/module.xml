@@ -12,6 +12,9 @@
     <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
 	<funding>European Space Agency</funding>
 
+	<dependency>
+        <module>beam-gpf</module>
+    </dependency>
     <dependency>
         <module>nest-core</module>
     </dependency>

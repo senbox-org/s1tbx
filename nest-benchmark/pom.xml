@@ -21,7 +21,16 @@
     <dependencies>
         <dependency>
             <groupId>org.esa.nest</groupId>
-            <artifactId>nest-core</artifactId>
+            <artifactId>nest-bootstrap</artifactId>
+			<version>${nest.version}</version>
+        </dependency>
+		<dependency>
+            <groupId>org.esa.beam</groupId>
+            <artifactId>beam-gpf</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.nest</groupId>
+            <artifactId>nest-reader-dem</artifactId>
         </dependency>
         <dependency>
             <groupId>org.esa.nest</groupId>
@@ -29,25 +38,28 @@
         </dependency>
         <dependency>
             <groupId>org.esa.nest</groupId>
-            <artifactId>nest-io-sentinel1</artifactId>
-            <version>${nest.version}</version>
+            <artifactId>nest-op-calibration</artifactId>
         </dependency>
-        <dependency>
+		<dependency>
+            <groupId>org.esa.nest</groupId>
+            <artifactId>nest-op-orthorectification</artifactId>
+			<version>${nest.version}</version>
+        </dependency>
+		<dependency>
             <groupId>org.esa.nest</groupId>
             <artifactId>nest-op-sar-tools</artifactId>
+			<version>5.0.1</version>
+        </dependency>
+		<dependency>
+            <groupId>org.esa.nest</groupId>
+            <artifactId>nest-ocean-tools</artifactId>
 			<version>${nest.version}</version>
         </dependency>
         <dependency>
             <groupId>org.esa.nest</groupId>
-            <artifactId>nest-op-calibration</artifactId>
+            <artifactId>nest-io-sentinel1</artifactId>
             <version>${nest.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.esa.nest</groupId>
-            <artifactId>nest-op-orthorectification</artifactId>
-            <version>${nest.version}</version>
-        </dependency>
-
     </dependencies>
 
 </project>

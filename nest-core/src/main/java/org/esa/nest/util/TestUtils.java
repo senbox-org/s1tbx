@@ -36,16 +36,17 @@ import org.esa.nest.gpf.RecursiveProcessor;
 import javax.media.jai.JAI;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 
 /**
  * Utilities for Operator unit tests
- * In order to test the datasets at Array set the foloowing to true in the nest.config
+ * In order to test the datasets at Array, set the following to true in the nest.config
  * nest.test.ReadersOnAllProducts=true nest.test.ProcessingOnAllProducts=true
  */
 public class TestUtils {
 
-    private static final PropertyMap testPreferences = Config.getConfigPropertyMap();
+    private static final PropertyMap testPreferences = Config.getAutomatedTestConfigPropertyMap();
 
     private final static String contextID = ResourceUtils.getContextID();
     public final static String rootPathExpectedProducts = testPreferences.getPropertyString(contextID+".test.rootPathExpectedProducts");
@@ -193,6 +194,49 @@ public class TestUtils {
     }
 
     public static void compareProducts(final Product targetProduct,
+                                       final Product expectedProduct) throws Exception {
+        // compare updated metadata
+        compareMetadata(targetProduct, expectedProduct, null);
+
+        if(targetProduct.getNumBands() != expectedProduct.getNumBands())
+            throwErr("Different number of bands");
+
+        if(!targetProduct.isCompatibleProduct(expectedProduct, 0))
+            throwErr("Geocoding is different");
+
+        for(TiePointGrid expectedTPG : expectedProduct.getTiePointGrids()) {
+            final TiePointGrid trgTPG = targetProduct.getTiePointGrid(expectedTPG.getName());
+            if(trgTPG == null)
+                throwErr("TPG "+expectedTPG.getName()+" not found");
+
+            final float[] expectedTiePoints = expectedTPG.getTiePoints();
+            final float[] trgTiePoints = trgTPG.getTiePoints();
+
+            if(!Arrays.equals(trgTiePoints, expectedTiePoints)) {
+                throwErr("TPGs are different in file "+expectedProduct.getFileLocation().getAbsolutePath());
+            }
+        }
+
+        for(Band expectedBand : expectedProduct.getBands()) {
+
+            final Band trgBand = targetProduct.getBand(expectedBand.getName());
+            if(trgBand == null)
+                throwErr("Band "+expectedBand.getName()+" not found");
+
+            final float[] floatValues = new float[2500];
+            expectedBand.readPixels(40, 40, 50, 50, floatValues, ProgressMonitor.NULL);
+
+            final float[] expectedValues = new float[2500];
+            expectedBand.readPixels(40, 40, 50, 50, expectedValues, ProgressMonitor.NULL);
+
+            if(!Arrays.equals(floatValues, expectedValues)) {
+                throwErr("Pixels are different in file "+expectedProduct.getFileLocation().getAbsolutePath());
+            }
+        }
+    }
+
+
+    public static void compareProducts(final Product targetProduct,
                                        final String expectedPath, final String[] excemptionList) throws Exception {
 
         final Band targetBand = targetProduct.getBandAt(0);
@@ -273,6 +317,44 @@ public class TestUtils {
 
     private static int within(final int val, final int max) {
         return Math.max(0, Math.min(val, max));
+    }
+
+    public static void recurseFindReadableProducts(final File origFolder, ArrayList<File> productList) throws Exception {
+
+
+        final File[] folderList = origFolder.listFiles(ProductFunctions.directoryFileFilter);
+        for(File folder : folderList) {
+            if(!folder.getName().contains("skipTest")) {
+                recurseFindReadableProducts(folder, productList);
+            }
+        }
+
+        final File[] fileList = origFolder.listFiles(new ProductFunctions.ValidProductFileFilter());
+        for(File file : fileList) {
+            try {
+                final ProductReader reader = ProductIO.getProductReaderForFile(file);
+                if(reader != null) {
+                    productList.add(file);
+                } else {
+                    System.out.println(file.getAbsolutePath() + " is non valid");
+                }
+            } catch(Exception e) {
+                boolean ok = false;
+               /* if(exceptionExemptions != null) {
+                    for(String excemption : exceptionExemptions) {
+                        if(e.getMessage().contains(excemption)) {
+                            ok = true;
+                            System.out.println("Excemption for "+e.getMessage());
+                            break;
+                        }
+                    }
+                }    */
+                if(!ok) {
+                    System.out.println("Failed to process "+ file.toString());
+                    throw e;
+                }
+            }
+        }
     }
 
     public static int recurseProcessFolder(final OperatorSpi spi, final File origFolder, int iterations,

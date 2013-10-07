@@ -116,12 +116,14 @@ public abstract class BaseElevationModel implements ElevationModel, Resampling.R
 
     public void dispose() {
         for (ElevationTile tile : elevationTileCache) {
-            tile.dispose();
+            if(tile != null)
+                tile.dispose();
         }
         elevationTileCache.clear();
         for (ElevationFile[] elevationFile : elevationFiles) {
             for (ElevationFile anElevationFile : elevationFile) {
-                anElevationFile.dispose();
+                if(anElevationFile != null)
+                    anElevationFile.dispose();
             }
         }
     }
