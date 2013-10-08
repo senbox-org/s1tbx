@@ -97,7 +97,7 @@ public class VirtualDirTest {
         if (!dir.exists()) {
             dir = new File("./ceres-core/src/test/data/");
             if (!dir.exists()) {
-                junit.framework.Assert.fail("Can't find my test data. Where is '" + dir + "'?");
+                fail("Can't find my test data. Where is '" + dir + "'?");
             }
         }
         return dir;
@@ -107,7 +107,6 @@ public class VirtualDirTest {
         return new File(getTestDataDir(), path);
     }
 
-    @Test
     private void testFileNode(File file, VirtualDir virtualDir) throws IOException {
         assertNotNull(virtualDir);
         try {
@@ -163,19 +162,19 @@ public class VirtualDirTest {
             try {
                 virtualDir.list("dir3");
                 fail("IOException?");
-            } catch (FileNotFoundException e) {
+            } catch (FileNotFoundException ignored) {
                 // ok
             }
             try {
                 virtualDir.getFile("File3");
                 fail("IOException?");
-            } catch (FileNotFoundException e) {
+            } catch (FileNotFoundException ignored) {
                 // ok
             }
             try {
                 virtualDir.getFile("dir1/File1");
                 fail("IOException?");
-            } catch (FileNotFoundException e) {
+            } catch (FileNotFoundException ignored) {
                 // ok
             }
         } finally {

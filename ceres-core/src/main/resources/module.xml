@@ -8,6 +8,8 @@
 
     <changelog>
         <![CDATA[
+        Changes in 0.14<br/>
+        [CERES-58] Temp directory is only usable by the first user<br/>
         Changes in 0.13.1<br/>
         [CERES-057] Version text in splash screen shall be configurable<br/>
         Changes in 0.13<br/>
