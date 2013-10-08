@@ -29,11 +29,13 @@ import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.gpf.operators.standard.WriteOp;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.PropertyMap;
+import org.esa.beam.util.jai.JAIUtils;
 import org.esa.nest.datamodel.AbstractMetadata;
 import org.esa.nest.gpf.ReaderUtils;
 import org.esa.nest.gpf.RecursiveProcessor;
 
 import javax.media.jai.JAI;
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -79,6 +81,7 @@ public class TestUtils {
         final RuntimeConfig runtimeConfig = new DefaultRuntimeConfig();
 
         JAI.getDefaultInstance().getTileScheduler().setParallelism(Runtime.getRuntime().availableProcessors());
+        MemUtils.configureJaiTileCache();
 
         //disable JAI media library
         System.setProperty("com.sun.media.jai.disableMediaLib", "true");
@@ -319,18 +322,21 @@ public class TestUtils {
         return Math.max(0, Math.min(val, max));
     }
 
-    public static void recurseFindReadableProducts(final File origFolder, ArrayList<File> productList) throws Exception {
+    public static void recurseFindReadableProducts(final File origFolder, final ArrayList<File> productList, int maxCount) throws Exception {
 
 
         final File[] folderList = origFolder.listFiles(ProductFunctions.directoryFileFilter);
         for(File folder : folderList) {
             if(!folder.getName().contains("skipTest")) {
-                recurseFindReadableProducts(folder, productList);
+                recurseFindReadableProducts(folder, productList, maxCount);
             }
         }
 
         final File[] fileList = origFolder.listFiles(new ProductFunctions.ValidProductFileFilter());
         for(File file : fileList) {
+            if(productList.size() >= maxCount)
+                return;
+
             try {
                 final ProductReader reader = ProductIO.getProductReaderForFile(file);
                 if(reader != null) {

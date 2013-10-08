@@ -17,7 +17,10 @@ package org.esa.nest.util;
 
 //import org.jaitools.tilecache.DiskMemTileCache;
 
+import org.esa.beam.util.jai.JAIUtils;
+
 import javax.media.jai.JAI;
+import java.awt.*;
 
 /**
  * memory utils
@@ -39,6 +42,16 @@ public class MemUtils {
      */
     public static void tileCacheFreeOldTiles() {
         JAI.getDefaultInstance().getTileCache().memoryControl();
+    }
+
+    public static void configureJaiTileCache() {
+        final int tileCacheCapacity = Integer.parseInt(System.getProperty("jai.tileCache.memoryCapacity", "512"));
+        JAIUtils.setDefaultTileCacheCapacity(tileCacheCapacity);
+        final int tileSize = Integer.parseInt(System.getProperty("jai.tileSize", "256"));
+        JAI.setDefaultTileSize(new Dimension(tileSize, tileSize));
+        JAI.getDefaultInstance().setRenderingHint(
+                JAI.KEY_CACHED_TILE_RECYCLING_ENABLED,
+                Boolean.TRUE);
     }
 
     public static void createTileCache() {
