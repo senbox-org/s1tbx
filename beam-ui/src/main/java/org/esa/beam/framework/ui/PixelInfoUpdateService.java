@@ -67,7 +67,7 @@ class PixelInfoUpdateService {
 
     private void assertTimerStarted() {
         if (updaterFuture == null) {
-            updaterFuture = scheduledExecutorService.scheduleWithFixedDelay(updaterRunnable, 100, 100, TimeUnit.MILLISECONDS);
+            updaterFuture = scheduledExecutorService.scheduleAtFixedRate(updaterRunnable, 100, 100, TimeUnit.MILLISECONDS);
         }
     }
 
