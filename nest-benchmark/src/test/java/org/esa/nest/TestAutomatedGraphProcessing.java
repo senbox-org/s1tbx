@@ -1,9 +1,7 @@
 package org.esa.nest;
 
 import com.bc.ceres.core.ProgressMonitor;
-import junit.framework.TestCase;
 import org.apache.commons.io.FileUtils;
-import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.Product;
@@ -11,8 +9,11 @@ import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.util.PropertyMap;
 import org.esa.nest.gpf.GPFProcessor;
 import org.esa.nest.util.Config;
+import org.esa.nest.util.MemUtils;
 import org.esa.nest.util.ResourceUtils;
 import org.esa.nest.util.TestUtils;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
@@ -23,7 +24,7 @@ import java.util.Properties;
 /**
  * Runs graphs as directed by the tests config file
  */
-public class TestAutomatedGraphProcessing extends TestCase {
+public class TestAutomatedGraphProcessing {
 
     private static final PropertyMap testPreferences = Config.getAutomatedTestConfigPropertyMap();
     private final static String contextID = ResourceUtils.getContextID();
@@ -33,26 +34,22 @@ public class TestAutomatedGraphProcessing extends TestCase {
 
     private final boolean failOnFirstProblem = true;
 
-    @Override
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         TestUtils.initTestEnvironment();
         GPF.getDefaultInstance().getOperatorSpiRegistry().loadOperatorSpis();
 
         importTests();
     }
 
-    @Override
-    protected void tearDown() throws Exception {
-
-    }
-
+    @Test
     public void testAutomatedGraphProcessing() throws Throwable {
 
         for(TestInfo test : testList) {
             try {
                 final ArrayList<File> productList = new ArrayList<>(100);
-                TestUtils.recurseFindReadableProducts(test.inputFolder, productList);
-                int c = 1;
+                TestUtils.recurseFindReadableProducts(test.inputFolder, productList, 1);
+                int c;
                 int numFiles = productList.size();
 
                 if(test.expectedFolder != null) {
@@ -68,6 +65,8 @@ public class TestAutomatedGraphProcessing extends TestCase {
                                 final GPFProcessor proc = new GPFProcessor(test.graphFile);
                                 proc.setIO(file, new File(test.expectedFolder, file.getName()), "BEAM-DIMAP");
                                 proc.executeGraph(ProgressMonitor.NULL);
+
+                                MemUtils.freeAllMemory();
                             }
                             ++c;
                         } catch (Throwable t) {
@@ -98,6 +97,8 @@ public class TestAutomatedGraphProcessing extends TestCase {
                         // compare output to expected
                         TestUtils.compareProducts(outputProduct, expectedProduct);
                     }
+
+                    MemUtils.freeAllMemory();
                     ++c;
                 }
 
@@ -119,9 +120,9 @@ public class TestAutomatedGraphProcessing extends TestCase {
             final String key = prefix+i;
             final String graph = prop.getProperty(key + ".graph");
             if(graph != null) {
-                final String input_products = testPreferences.getPropertyString(key+".input_products");
-                final String expected_results = testPreferences.getPropertyString(key+".expected_results");
-                final String output_products = testPreferences.getPropertyString(key+".output_products");
+                final String input_products = prop.getProperty(key + ".input_products");
+                final String expected_results = prop.getProperty(key + ".expected_results");
+                final String output_products = prop.getProperty(key + ".output_products");
 
                 if(input_products == null || output_products == null) {
                     throw new Exception("Test configuration "+key+" is incomplete");
@@ -130,6 +131,8 @@ public class TestAutomatedGraphProcessing extends TestCase {
                 final TestInfo test = new TestInfo(i, graph, input_products, expected_results, output_products);
                 if(!test.graphFile.exists())
                     throw new Exception(test.graphFile.getAbsolutePath() +" does not exist for "+key);
+                if(!test.inputFolder.exists())
+                    throw new Exception(test.inputFolder.getAbsolutePath() +" does not exist for "+key);
 
                 testList.add(test);
             }
@@ -175,7 +178,10 @@ public class TestAutomatedGraphProcessing extends TestCase {
             this.num = num;
             this.graphFile = new File(graph);
             this.inputFolder = new File(input_products);
-            this.expectedFolder = new File(expected_results);
+            if(expected_results != null)
+                this.expectedFolder = new File(expected_results);
+            else
+                this.expectedFolder = null;
             this.outputFolder = new File(output_products);
         }
     }
