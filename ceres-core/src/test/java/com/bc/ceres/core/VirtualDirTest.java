@@ -16,7 +16,7 @@
 
 package com.bc.ceres.core;
 
-import junit.framework.TestCase;
+import org.junit.Test;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -25,8 +25,11 @@ import java.io.LineNumberReader;
 import java.util.Arrays;
 import java.util.List;
 
-public class VirtualDirTest extends TestCase {
+import static org.junit.Assert.*;
 
+public class VirtualDirTest {
+
+    @Test
     public void testZip() throws IOException {
         File zipFile = getTestDataDir("VirtualDirTest.zip");
         final VirtualDir virtualDir = VirtualDir.create(zipFile);
@@ -41,6 +44,7 @@ public class VirtualDirTest extends TestCase {
         assertTrue(virtualDir.isArchive());
     }
 
+    @Test
     public void testDir() throws IOException {
         final File file = getTestDataDir("VirtualDirTest.dir");
         // make empty "dir2", because git removes empty dirs
@@ -55,12 +59,14 @@ public class VirtualDirTest extends TestCase {
         assertFalse(virtualDir.isArchive());
     }
 
+    @Test
     public void testNoZip() throws IOException {
         File file = getTestDataDir("VirtualDirTest.nozip");
         VirtualDir virtualDir = VirtualDir.create(file);
         assertNull(virtualDir);
     }
 
+    @Test
     public void testNullArg() throws IOException {
         try {
             VirtualDir.create(null);
@@ -70,6 +76,7 @@ public class VirtualDirTest extends TestCase {
         }
     }
 
+    @Test
     public void testFinalize() throws Throwable {
         File zipFile = getTestDataDir("VirtualDirTest.zip");
         final VirtualDir virtualDir = VirtualDir.create(zipFile);
@@ -100,6 +107,7 @@ public class VirtualDirTest extends TestCase {
         return new File(getTestDataDir(), path);
     }
 
+    @Test
     private void testFileNode(File file, VirtualDir virtualDir) throws IOException {
         assertNotNull(virtualDir);
         try {
