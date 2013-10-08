@@ -445,7 +445,7 @@ public class FeatureWriterOp extends Operator implements Output {
             final Band srcImage = subsetInfo.product.getBand(srcBandName);
             final Band spkDiv = subsetInfo.product.getBand(tgtBandName);
 
-            if(false) {
+            if(true) {
                 subsetInfo.productWriter = ProductIO.getProductWriter(formatName); // BEAM-DIMAP
                 if (subsetInfo.productWriter == null) {
                     throw new OperatorException("No data product writer for the '" + formatName + "' format available");

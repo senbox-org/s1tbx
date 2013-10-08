@@ -271,7 +271,7 @@ public class UrbanAreaDetectionOp extends Operator {
 
                     final double v = srcData.getElemDoubleAt(srcIndex.getIndex(tx));
                     if (v == noDataValue || (maskBand != null && maskData.getElemIntAt(idx) == 1)) {
-                        trgData.setElemFloatAt(trgIndex.getIndex(tx), (float)noDataValue);
+                        trgData.setElemFloatAt(idx, (float)noDataValue);
                         continue;
                     }
 
@@ -374,8 +374,8 @@ public class UrbanAreaDetectionOp extends Operator {
         final TileIndex tileIndex = new TileIndex(sourceTile);
 
         int numSamples = 0;
-        final int maxy = y0 + h;
-        final int maxx = x0 + w;
+        final int maxy = Math.min(y0 + h, sourceTile.getMaxY() - 1);
+        final int maxx = Math.min(x0 + w, sourceTile.getMaxX() - 1);
 
         if (bandUnit == Unit.UnitType.INTENSITY) {
 
