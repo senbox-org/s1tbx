@@ -60,6 +60,12 @@
             <artifactId>nest-io-sentinel1</artifactId>
             <version>${nest.version}</version>
         </dependency>
+		
+		<dependency>
+            <groupId>org.esa.nest</groupId>
+            <artifactId>nest-op-feature-extraction</artifactId>
+            <version>${nest.version}</version>
+        </dependency>
     </dependencies>
 
 </project>
