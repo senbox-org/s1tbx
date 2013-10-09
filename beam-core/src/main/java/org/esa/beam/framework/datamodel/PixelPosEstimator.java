@@ -135,7 +135,7 @@ public class PixelPosEstimator {
                 final Rectangle rectangle = lonImage.getTileRect(x, y);
                 final Stepping stepping = steppingFactory.createStepping(rectangle, MAX_POINT_COUNT_PER_TILE);
                 final double[][] data = extractWarpPoints(lonImage, latImage, maskImage, stepping);
-                final Approximation approximation = createApproximation(data, accuracy, rectangle);
+                final Approximation approximation = Approximation.create(data, accuracy, rectangle);
                 if (approximation == null) {
                     return null;
                 }
@@ -144,40 +144,6 @@ public class PixelPosEstimator {
         }
 
         return approximations.toArray(new Approximation[approximations.size()]);
-    }
-
-    static Approximation createApproximation(double[][] data, double accuracy, Rectangle rectangle) {
-        final Point2D centerPoint = Rotator.calculateCenter(data, LON, LAT);
-        final double centerLon = centerPoint.getX();
-        final double centerLat = centerPoint.getY();
-        final double maxDistance = maxDistance(data, centerLon, centerLat);
-
-        final Rotator rotator = new Rotator(centerLon, centerLat);
-        rotator.transform(data, LON, LAT);
-
-        final int[] xIndices = new int[]{LAT, LON, X};
-        final int[] yIndices = new int[]{LAT, LON, Y};
-
-        final RationalFunctionModel fX = findBestModel(data, xIndices, accuracy);
-        final RationalFunctionModel fY = findBestModel(data, yIndices, accuracy);
-        if (fX == null || fY == null) {
-            return null;
-        }
-
-        return new Approximation(fX, fY, maxDistance * 1.1, rotator,
-                                 new SphericalDistanceCalculator(centerLon, centerLat), rectangle);
-    }
-
-    static double maxDistance(final double[][] data, double centerLon, double centerLat) {
-        final DistanceCalculator distanceCalculator = new SphericalDistanceCalculator(centerLon, centerLat);
-        double maxDistance = 0.0;
-        for (final double[] p : data) {
-            final double d = distanceCalculator.distance(p[LON], p[LAT]);
-            if (d > maxDistance) {
-                maxDistance = d;
-            }
-        }
-        return maxDistance;
     }
 
     private static int getSample(int pixelX, int pixelY, PlanarImage image) {
@@ -244,43 +210,6 @@ public class PixelPosEstimator {
         return pointList.toArray(new double[pointList.size()][4]);
     }
 
-    static RationalFunctionModel findBestModel(double[][] data, int[] indexes, double accuracy) {
-        RationalFunctionModel bestModel = null;
-        search:
-        for (int degreeP = 0; degreeP <= 4; degreeP++) {
-            for (int degreeQ = 0; degreeQ <= degreeP; degreeQ++) {
-                final int termCountP = RationalFunctionModel.getTermCountP(degreeP);
-                final int termCountQ = RationalFunctionModel.getTermCountQ(degreeQ);
-                if (data.length >= termCountP + termCountQ) {
-                    final RationalFunctionModel model = createModel(degreeP, degreeQ, data, indexes);
-                    if (bestModel == null || model.getRmse() < bestModel.getRmse()) {
-                        bestModel = model;
-                    }
-                    if (bestModel.getRmse() < accuracy) {
-                        break search;
-                    }
-                }
-            }
-        }
-        return bestModel;
-    }
-
-    static RationalFunctionModel createModel(int degreeP, int degreeQ, double[][] data, int[] indexes) {
-        final int ix = indexes[0];
-        final int iy = indexes[1];
-        final int iz = indexes[2];
-        final double[] x = new double[data.length];
-        final double[] y = new double[data.length];
-        final double[] g = new double[data.length];
-        for (int i = 0; i < data.length; i++) {
-            x[i] = data[i][ix];
-            y[i] = data[i][iy];
-            g[i] = data[i][iz];
-        }
-
-        return new RationalFunctionModel(degreeP, degreeQ, x, y, g);
-    }
-
     public static final class Stepping {
 
         private final int minX;
@@ -340,7 +269,10 @@ public class PixelPosEstimator {
         }
     }
 
-    static final class Approximation {
+    /**
+     * Approximates the x(lat, lon) and y(lat, lon) functions.
+     */
+    public static final class Approximation {
 
         private final RationalFunctionModel fX;
         private final RationalFunctionModel fY;
@@ -349,8 +281,98 @@ public class PixelPosEstimator {
         private final DistanceCalculator calculator;
         private final Rectangle rectangle;
 
-        Approximation(RationalFunctionModel fX, RationalFunctionModel fY, double maxDistance,
-                             Rotator rotator, DistanceCalculator calculator, Rectangle rectangle) {
+        /**
+         * Creates a new instance of this class.
+         *
+         * @param data      The array of (lat, lon, x, y) points that is used to compute the approximations to the
+         *                  x(lat, lon) and y(lat, lon) functions. Note that the contents of the data array is modified
+         *                  by this method.
+         * @param accuracy  The accuracy goal.
+         * @param rectangle The domain of the lat(x, y) and lon(x, y) functions.
+         *
+         * @return a new approximation or {@code null} if the accuracy goal cannot not be met.
+         */
+        public static Approximation create(double[][] data, double accuracy, Rectangle rectangle) {
+            final Point2D centerPoint = Rotator.calculateCenter(data, LON, LAT);
+            final double centerLon = centerPoint.getX();
+            final double centerLat = centerPoint.getY();
+            final double maxDistance = maxDistance(data, centerLon, centerLat);
+
+            final Rotator rotator = new Rotator(centerLon, centerLat);
+            rotator.transform(data, LON, LAT);
+
+            final int[] xIndices = new int[]{LAT, LON, X};
+            final int[] yIndices = new int[]{LAT, LON, Y};
+
+            final RationalFunctionModel fX = findBestModel(data, xIndices, accuracy);
+            final RationalFunctionModel fY = findBestModel(data, yIndices, accuracy);
+            if (fX == null || fY == null) {
+                return null;
+            }
+
+            return new Approximation(fX, fY, maxDistance * 1.1, rotator,
+                                     new SphericalDistanceCalculator(centerLon, centerLat), rectangle);
+        }
+
+        /**
+         * Returns the (approximation to) the x(lat, lon) function.
+         *
+         * @return the (approximation to) the x(lat, lon) function.
+         */
+        public RationalFunctionModel getFX() {
+            return fX;
+        }
+
+        /**
+         * Returns the (approximation to) the y(lat, lon) function.
+         *
+         * @return the (approximation to) the y(lat, lon) function.
+         */
+        public RationalFunctionModel getFY() {
+            return fY;
+        }
+
+        /**
+         * Returns the maximum distance (in radian) within which this approximation is valid.
+         *
+         * @return the maximum distance (in radian).
+         */
+        public double getMaxDistance() {
+            return maxDistance;
+        }
+
+        /**
+         * Returns the distance (in radian) of 'the center of this approximation' to a given (lat, lon) point.
+         *
+         * @param lat The latitude.
+         * @param lon The longitude.
+         *
+         * @return the distance (in radian).
+         */
+        public double getDistance(double lat, double lon) {
+            return calculator.distance(lon, lat);
+        }
+
+        /**
+         * Returns the {@code Rotator} associated with this approximation.
+         *
+         * @return
+         */
+        public Rotator getRotator() {
+            return rotator;
+        }
+
+        /**
+         * Returns the domain of the lat(x, y) and lon(x, y) functions associated with this approximation of the
+         *
+         * @return
+         */
+        public Rectangle getRectangle() {
+            return rectangle;
+        }
+
+        private Approximation(RationalFunctionModel fX, RationalFunctionModel fY, double maxDistance,
+                              Rotator rotator, DistanceCalculator calculator, Rectangle rectangle) {
             this.fX = fX;
             this.fY = fY;
             this.maxDistance = maxDistance;
@@ -359,28 +381,53 @@ public class PixelPosEstimator {
             this.rectangle = rectangle;
         }
 
-        RationalFunctionModel getFX() {
-            return fX;
-        }
-
-        RationalFunctionModel getFY() {
-            return fY;
-        }
-
-        double getMaxDistance() {
+        private static double maxDistance(final double[][] data, double centerLon, double centerLat) {
+            final DistanceCalculator distanceCalculator = new SphericalDistanceCalculator(centerLon, centerLat);
+            double maxDistance = 0.0;
+            for (final double[] p : data) {
+                final double d = distanceCalculator.distance(p[LON], p[LAT]);
+                if (d > maxDistance) {
+                    maxDistance = d;
+                }
+            }
             return maxDistance;
         }
 
-        double getDistance(double lat, double lon) {
-            return calculator.distance(lon, lat);
+        private static RationalFunctionModel findBestModel(double[][] data, int[] indexes, double accuracy) {
+            RationalFunctionModel bestModel = null;
+            search:
+            for (int degreeP = 0; degreeP <= 4; degreeP++) {
+                for (int degreeQ = 0; degreeQ <= degreeP; degreeQ++) {
+                    final int termCountP = RationalFunctionModel.getTermCountP(degreeP);
+                    final int termCountQ = RationalFunctionModel.getTermCountQ(degreeQ);
+                    if (data.length >= termCountP + termCountQ) {
+                        final RationalFunctionModel model = createModel(degreeP, degreeQ, data, indexes);
+                        if (bestModel == null || model.getRmse() < bestModel.getRmse()) {
+                            bestModel = model;
+                        }
+                        if (bestModel.getRmse() < accuracy) {
+                            break search;
+                        }
+                    }
+                }
+            }
+            return bestModel;
         }
 
-        Rotator getRotator() {
-            return rotator;
-        }
+        private static RationalFunctionModel createModel(int degreeP, int degreeQ, double[][] data, int[] indexes) {
+            final int ix = indexes[0];
+            final int iy = indexes[1];
+            final int iz = indexes[2];
+            final double[] x = new double[data.length];
+            final double[] y = new double[data.length];
+            final double[] g = new double[data.length];
+            for (int i = 0; i < data.length; i++) {
+                x[i] = data[i][ix];
+                y[i] = data[i][iy];
+                g[i] = data[i][iz];
+            }
 
-        Rectangle getRectangle() {
-            return rectangle;
+            return new RationalFunctionModel(degreeP, degreeQ, x, y, g);
         }
     }
 

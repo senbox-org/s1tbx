@@ -92,7 +92,7 @@ public class PixelPosEstimatorTest {
                 rectangle, 1000);
 
         final double[][] data = PixelPosEstimator.extractWarpPoints(lonImage, latImage, maskImage, stepping);
-        final PixelPosEstimator.Approximation a = PixelPosEstimator.createApproximation(data, 0.5, rectangle);
+        final PixelPosEstimator.Approximation a = PixelPosEstimator.Approximation.create(data, 0.5, rectangle);
         final RationalFunctionModel fx = a.getFX();
         final RationalFunctionModel fy = a.getFY();
 
