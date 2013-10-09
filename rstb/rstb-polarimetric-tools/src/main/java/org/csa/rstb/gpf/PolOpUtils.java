@@ -1454,20 +1454,12 @@ public final class PolOpUtils {
     }
 
     /**
-     * Compute 4x1 compact pol Stokes vector for given scatter matrix.
-     * @param compactMode Compact polarimetric mode
-     * @param scatterRe Real part of the scatter matrix
-     * @param scatterIm Imaginary part of the scatter matrix
-     * @param g Stokes vector
+     * Compute 4x1 compact pol Stokes vector for given 2x1 complex scatter vector.
+     * @param kr Real part of the scatter vector
+     * @param ki Imaginary part of the scatter vector
+     * @param g The Stokes vector
      */
-    public static void computeCompactPolStokesVector(
-            final String compactMode, final double[][] scatterRe, final double[][] scatterIm, final double[] g) {
-
-        final double[] kr = new double[2];
-        final double[] ki = new double[2];
-
-        //todo should compute mean scattering vector?
-        computeCompactPolScatteringVector(compactMode, scatterRe, scatterIm, kr, ki);
+    public static void computeCompactPolStokesVector(final double[] kr, final double[] ki, final double[] g) {
 
         g[0] = kr[0]*kr[0] + ki[0]*ki[0] + kr[1]*kr[1] + ki[1]*ki[1];
         g[1] = kr[0]*kr[0] + ki[0]*ki[0] - kr[1]*kr[1] - ki[1]*ki[1];
@@ -1507,6 +1499,80 @@ public final class PolOpUtils {
         parameters.RelativePhase = Math.atan(g[3]/g[2]);
 
         return parameters;
+    }
+
+    /**
+     * Reconstruct full pol coherency matrix T3 using compact pol data. The random volume over ground
+     * (RVOG) model is assumed.
+     * @param sourceProductType The compact pol source product type
+     * @param idx Pixel index in source product
+     * @param dataBuffers Source band data buffers
+     * @param Tr Real part of the reconstructed T3 matrix
+     * @param Ti Imaginary part of the reconstructed T3 matrix
+     */
+    public static void reconstructCoherencyMatrixT3(
+            final PolBandUtils.MATRIX sourceProductType, final int idx, final ProductData[] dataBuffers,
+            final double[][] Tr, final double[][] Ti) {
+
+        final double[][] Cr = new double[2][2];
+        final double[][] Ci = new double[2][2];
+        final double[] kr = new double[2];
+        final double[] ki = new double[2];
+        final double[] g = new double[4];
+
+        if (sourceProductType == PolBandUtils.MATRIX.C2) {
+
+            getCovarianceMatrixC2(idx, dataBuffers, Cr, Ci);
+            computeCompactPolStokesVector(Cr, Ci, g);
+
+        } else if (sourceProductType == PolBandUtils.MATRIX.COMPACT) {
+
+            getCompactPolScatterVector(idx, dataBuffers, kr, ki);
+            computeCompactPolStokesVector(kr, ki, g);
+        }
+
+        if (g[0] <= 0) {
+            return;
+        }
+
+        final double m = Math.sqrt(g[1]*g[1] + g[2]*g[2] + g[3]*g[3])/g[0];
+        final double mv = 0.5*g[0]*(1 - m);
+        final double ms = 2.0*g[0]*m;
+        // todo: should check CP mode for LH or RH to decide the sign before g[3]? See Cloude and Chen's paper.
+        final double alpha = 0.5*Math.atan(Math.sqrt(g[1]*g[1] + g[2]*g[2])/g[3]);
+        final double phi = Math.acos(g[1]/Math.sqrt(g[1]*g[1] + g[2]*g[2]));
+
+        final double cosAlpha = Math.cos(alpha);
+        final double sinAlpha = Math.sin(alpha);
+        final double cosPhi = Math.cos(phi);
+        final double sinPhi = Math.sin(phi);
+
+        Tr[0][0] = ms*cosAlpha*cosAlpha + 2.0*mv;
+        Ti[0][0] = 0.0;
+
+        Tr[0][1] = ms*cosAlpha*sinAlpha*cosPhi;
+        Ti[0][1] = ms*cosAlpha*sinAlpha*sinPhi;
+
+        Tr[0][2] = 0.0;
+        Ti[0][2] = 0.0;
+
+        Tr[1][0] = Tr[0][1];
+        Ti[1][0] = -Ti[0][1];
+
+        Tr[1][1] = ms*sinAlpha*sinAlpha + mv;
+        Ti[1][1] = 0.0;
+
+        Tr[1][2] = 0.0;
+        Ti[1][2] = 0.0;
+
+        Tr[2][0] = 0.0;
+        Ti[2][0] = 0.0;
+
+        Tr[2][1] = 0.0;
+        Ti[2][1] = 0.0;
+
+        Tr[2][2] = mv;
+        Ti[2][2] = 0.0;
     }
 
     public static class StokesParameters {
