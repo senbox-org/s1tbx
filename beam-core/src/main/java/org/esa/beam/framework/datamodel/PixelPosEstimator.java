@@ -71,7 +71,7 @@ public class PixelPosEstimator {
             if (geoPos.isValid()) {
                 double lat = geoPos.getLat();
                 double lon = geoPos.getLon();
-                approximation = findBestApproximation(lat, lon);
+                approximation = Approximation.findMostSuitable(approximations, lat, lon);
                 if (approximation != null) {
                     final Rotator rotator = approximation.getRotator();
                     final Point2D p = new Point2D.Double(lon, lat);
@@ -98,27 +98,6 @@ public class PixelPosEstimator {
             }
         }
         return approximation;
-    }
-
-    Approximation findBestApproximation(double lat, double lon) {
-        Approximation bestApproximation = null;
-        if (approximations.length == 1) {
-            Approximation a = approximations[0];
-            final double distance = a.getDistance(lat, lon);
-            if (distance < a.getMaxDistance()) {
-                bestApproximation = a;
-            }
-        } else {
-            double minDistance = Double.MAX_VALUE;
-            for (final Approximation a : approximations) {
-                final double distance = a.getDistance(lat, lon);
-                if (distance < minDistance && distance < a.getMaxDistance()) {
-                    minDistance = distance;
-                    bestApproximation = a;
-                }
-            }
-        }
-        return bestApproximation;
     }
 
     static Approximation[] createApproximations(PlanarImage lonImage,
@@ -312,6 +291,37 @@ public class PixelPosEstimator {
 
             return new Approximation(fX, fY, maxDistance * 1.1, rotator,
                                      new SphericalDistanceCalculator(centerLon, centerLat), rectangle);
+        }
+
+        /**
+         * Among several approximations, returns the approximation that is most suitable for a given (lat, lon) point.
+         *
+         * @param approximations The approximations.
+         * @param lat            The latitude.
+         * @param lon            The longitude.
+         *
+         * @return the approximation that is most suitable for the given (lat, lon) point,
+         *         or {@code null}, if none is suitable.
+         */
+        public static Approximation findMostSuitable(Approximation[] approximations, double lat, double lon) {
+            Approximation bestApproximation = null;
+            if (approximations.length == 1) {
+                Approximation a = approximations[0];
+                final double distance = a.getDistance(lat, lon);
+                if (distance < a.getMaxDistance()) {
+                    bestApproximation = a;
+                }
+            } else {
+                double minDistance = Double.MAX_VALUE;
+                for (final Approximation a : approximations) {
+                    final double distance = a.getDistance(lat, lon);
+                    if (distance < minDistance && distance < a.getMaxDistance()) {
+                        minDistance = distance;
+                        bestApproximation = a;
+                    }
+                }
+            }
+            return bestApproximation;
         }
 
         /**
