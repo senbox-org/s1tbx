@@ -227,7 +227,7 @@ public class TestUtils {
                 throwErr("Band "+expectedBand.getName()+" not found");
 
             final float[] floatValues = new float[2500];
-            expectedBand.readPixels(40, 40, 50, 50, floatValues, ProgressMonitor.NULL);
+            trgBand.readPixels(40, 40, 50, 50, floatValues, ProgressMonitor.NULL);
 
             final float[] expectedValues = new float[2500];
             expectedBand.readPixels(40, 40, 50, 50, expectedValues, ProgressMonitor.NULL);
