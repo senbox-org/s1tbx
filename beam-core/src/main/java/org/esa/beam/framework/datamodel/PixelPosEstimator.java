@@ -47,8 +47,8 @@ public class PixelPosEstimator {
         this(lonImage, latImage, maskImage, accuracy, new PixelSteppingFactory());
     }
 
-    public PixelPosEstimator(PlanarImage lonImage, PlanarImage latImage, PlanarImage maskImage, double accuracy,
-                             SteppingFactory steppingFactory) {
+    PixelPosEstimator(PlanarImage lonImage, PlanarImage latImage, PlanarImage maskImage, double accuracy,
+                      SteppingFactory steppingFactory) {
         if (maskImage == null) {
             maskImage = ConstantDescriptor.create((float) lonImage.getWidth(),
                                                   (float) lonImage.getHeight(),
@@ -109,12 +109,15 @@ public class PixelPosEstimator {
         final int tileCountX = lonImage.getNumXTiles();
         final int tileCountY = lonImage.getNumYTiles();
 
+        final SampleSource lonSamples = new PlanarImageSampleSource(lonImage);
+        final SampleSource latSamples = new PlanarImageSampleSource(latImage);
+        final SampleSource maskSamples = new PlanarImageSampleSource(maskImage);
+
         for (int y = 0; y < tileCountY; y++) {
             for (int x = 0; x < tileCountX; x++) {
-                final Rectangle rectangle = lonImage.getTileRect(x, y);
-                final Stepping stepping = steppingFactory.createStepping(rectangle, MAX_POINT_COUNT_PER_TILE);
-                final double[][] data = extractWarpPoints(lonImage, latImage, maskImage, stepping);
-                final Approximation approximation = Approximation.create(data, accuracy, rectangle);
+                final Rectangle range = lonImage.getTileRect(x, y);
+                final Approximation approximation = Approximation.create(lonSamples, latSamples, maskSamples, accuracy,
+                                                                         range, steppingFactory);
                 if (approximation == null) {
                     return null;
                 }
@@ -125,127 +128,11 @@ public class PixelPosEstimator {
         return approximations.toArray(new Approximation[approximations.size()]);
     }
 
-    private static int getSample(int pixelX, int pixelY, PlanarImage image) {
-        final int x = image.getMinX() + pixelX;
-        final int y = image.getMinY() + pixelY;
-        final int tileX = image.XToTileX(x);
-        final int tileY = image.YToTileY(y);
-        final Raster data = image.getTile(tileX, tileY);
+    public interface SampleSource {
 
-        return data.getSample(x, y, 0);
-    }
+        int getSample(int x, int y);
 
-    private static double getSampleDouble(int pixelX, int pixelY, PlanarImage image) {
-        final int x = image.getMinX() + pixelX;
-        final int y = image.getMinY() + pixelY;
-        final int tileX = image.XToTileX(x);
-        final int tileY = image.YToTileY(y);
-        final Raster data = image.getTile(tileX, tileY);
-
-        return data.getSampleDouble(x, y, 0);
-    }
-
-    static double[][] extractWarpPoints(PlanarImage lonImage, PlanarImage latImage, PlanarImage maskImage,
-                                        Stepping stepping) {
-        final int minX = stepping.getMinX();
-        final int maxX = stepping.getMaxX();
-        final int minY = stepping.getMinY();
-        final int maxY = stepping.getMaxY();
-        final int pointCountX = stepping.getPointCountX();
-        final int pointCountY = stepping.getPointCountY();
-        final int stepX = stepping.getStepX();
-        final int stepY = stepping.getStepY();
-        final int pointCount = stepping.getPointCount();
-        final List<double[]> pointList = new ArrayList<double[]>(pointCount);
-
-        for (int j = 0, k = 0; j < pointCountY; j++) {
-            int y = minY + j * stepY;
-            // adjust bottom border
-            if (y > maxY) {
-                y = maxY;
-            }
-            for (int i = 0; i < pointCountX; i++, k++) {
-                int x = minX + i * stepX;
-                // adjust right border
-                if (x > maxX) {
-                    x = maxX;
-                }
-                final int mask = getSample(x, y, maskImage);
-                if (mask != 0) {
-                    final double lat = getSampleDouble(x, y, latImage);
-                    final double lon = getSampleDouble(x, y, lonImage);
-                    if (lon >= -180.0 && lon <= 180.0 && lat >= -90.0 && lat <= 90.0) {
-                        final double[] point = new double[4];
-                        point[LAT] = lat;
-                        point[LON] = lon;
-                        point[X] = x + 0.5;
-                        point[Y] = y + 0.5;
-                        pointList.add(point);
-                    }
-                }
-            }
-        }
-
-        return pointList.toArray(new double[pointList.size()][4]);
-    }
-
-    public static final class Stepping {
-
-        private final int minX;
-        private final int minY;
-        private final int maxX;
-        private final int maxY;
-        private final int pointCountX;
-        private final int pointCountY;
-        private final int stepX;
-        private final int stepY;
-
-        Stepping(int minX, int minY, int maxX, int maxY, int pointCountX, int pointCountY, int stepX, int stepY) {
-            this.minX = minX;
-            this.maxX = maxX;
-            this.minY = minY;
-            this.maxY = maxY;
-            this.pointCountX = pointCountX;
-            this.pointCountY = pointCountY;
-            this.stepX = stepX;
-            this.stepY = stepY;
-        }
-
-        int getMinX() {
-            return minX;
-        }
-
-        int getMaxX() {
-            return maxX;
-        }
-
-        int getMinY() {
-            return minY;
-        }
-
-        int getMaxY() {
-            return maxY;
-        }
-
-        int getPointCountX() {
-            return pointCountX;
-        }
-
-        int getPointCountY() {
-            return pointCountY;
-        }
-
-        int getStepX() {
-            return stepX;
-        }
-
-        int getStepY() {
-            return stepY;
-        }
-
-        int getPointCount() {
-            return pointCountX * pointCountY;
-        }
+        double getSampleDouble(int x, int y);
     }
 
     /**
@@ -258,20 +145,62 @@ public class PixelPosEstimator {
         private final double maxDistance;
         private final Rotator rotator;
         private final DistanceCalculator calculator;
-        private final Rectangle rectangle;
+        private final Rectangle range;
+
 
         /**
          * Creates a new instance of this class.
          *
-         * @param data      The array of (lat, lon, x, y) points that is used to compute the approximations to the
-         *                  x(lat, lon) and y(lat, lon) functions. Note that the contents of the data array is modified
-         *                  by this method.
-         * @param accuracy  The accuracy goal.
-         * @param rectangle The domain of the lat(x, y) and lon(x, y) functions.
+         * @param lonSamples  The longitude samples.
+         * @param latSamples  The latitude samples.
+         * @param maskSamples The mask samples.
+         * @param accuracy    The accuracy goal.
+         * @param range       The range of the x(lat, lon) and y(lat, lon) functions.
          *
          * @return a new approximation or {@code null} if the accuracy goal cannot not be met.
          */
-        public static Approximation create(double[][] data, double accuracy, Rectangle rectangle) {
+        public static Approximation create(SampleSource lonSamples,
+                                           SampleSource latSamples,
+                                           SampleSource maskSamples,
+                                           double accuracy,
+                                           Rectangle range) {
+            return create(lonSamples, latSamples, maskSamples, accuracy, range, new PixelSteppingFactory());
+        }
+
+        /**
+         * Creates a new instance of this class.
+         *
+         * @param lonSamples      The longitude samples.
+         * @param latSamples      The latitude samples.
+         * @param maskSamples     The mask samples.
+         * @param accuracy        The accuracy goal.
+         * @param range           The range of the x(lat, lon) and y(lat, lon) functions.
+         * @param steppingFactory The stepping factory.
+         *
+         * @return a new approximation or {@code null} if the accuracy goal cannot not be met.
+         */
+        static Approximation create(SampleSource lonSamples,
+                                    SampleSource latSamples,
+                                    SampleSource maskSamples,
+                                    double accuracy,
+                                    Rectangle range, SteppingFactory steppingFactory) {
+            final Stepping stepping = steppingFactory.createStepping(range, MAX_POINT_COUNT_PER_TILE);
+            final double[][] data = extractWarpPoints(lonSamples, latSamples, maskSamples, stepping);
+            return Approximation.create(data, accuracy, range);
+        }
+
+        /**
+         * Creates a new instance of this class.
+         *
+         * @param data     The array of (lat, lon, x, y) points that is used to compute the approximations to the
+         *                 x(lat, lon) and y(lat, lon) functions. Note that the contents of the data array is modified
+         *                 by this method.
+         * @param accuracy The accuracy goal.
+         * @param range    The range of the x(lat, lon) and y(lat, lon) functions.
+         *
+         * @return a new approximation or {@code null} if the accuracy goal cannot not be met.
+         */
+        public static Approximation create(double[][] data, double accuracy, Rectangle range) {
             final Point2D centerPoint = Rotator.calculateCenter(data, LON, LAT);
             final double centerLon = centerPoint.getX();
             final double centerLat = centerPoint.getY();
@@ -290,7 +219,7 @@ public class PixelPosEstimator {
             }
 
             return new Approximation(fX, fY, maxDistance * 1.1, rotator,
-                                     new SphericalDistanceCalculator(centerLon, centerLat), rectangle);
+                                     new SphericalDistanceCalculator(centerLon, centerLat), range);
         }
 
         /**
@@ -373,22 +302,22 @@ public class PixelPosEstimator {
         }
 
         /**
-         * Returns the domain of the lat(x, y) and lon(x, y) functions associated with this approximation.
+         * Returns the range of the x(lat, lon) and y(lat, lon) functions.
          *
-         * @return the domain of the lat(x, y) and lon(x, y) functions associated with this approximation.
+         * @return the range of the x(lat, lon) and y(lat, lon) functions.
          */
-        public Rectangle getRectangle() {
-            return rectangle;
+        public Rectangle getRange() {
+            return range;
         }
 
         private Approximation(RationalFunctionModel fX, RationalFunctionModel fY, double maxDistance,
-                              Rotator rotator, DistanceCalculator calculator, Rectangle rectangle) {
+                              Rotator rotator, DistanceCalculator calculator, Rectangle range) {
             this.fX = fX;
             this.fY = fY;
             this.maxDistance = maxDistance;
             this.rotator = rotator;
             this.calculator = calculator;
-            this.rectangle = rectangle;
+            this.range = range;
         }
 
         private static double maxDistance(final double[][] data, double centerLon, double centerLat) {
@@ -439,9 +368,125 @@ public class PixelPosEstimator {
 
             return new RationalFunctionModel(degreeP, degreeQ, x, y, g);
         }
+
+        private static double[][] extractWarpPoints(SampleSource lonSamples,
+                                                    SampleSource latSamples,
+                                                    SampleSource maskSamples,
+                                                    Stepping stepping) {
+            final int minX = stepping.getMinX();
+            final int maxX = stepping.getMaxX();
+            final int minY = stepping.getMinY();
+            final int maxY = stepping.getMaxY();
+            final int pointCountX = stepping.getPointCountX();
+            final int pointCountY = stepping.getPointCountY();
+            final int stepX = stepping.getStepX();
+            final int stepY = stepping.getStepY();
+            final int pointCount = stepping.getPointCount();
+            final List<double[]> pointList = new ArrayList<double[]>(pointCount);
+
+            for (int j = 0, k = 0; j < pointCountY; j++) {
+                int y = minY + j * stepY;
+                // adjust bottom border
+                if (y > maxY) {
+                    y = maxY;
+                }
+                for (int i = 0; i < pointCountX; i++, k++) {
+                    int x = minX + i * stepX;
+                    // adjust right border
+                    if (x > maxX) {
+                        x = maxX;
+                    }
+                    final int mask = maskSamples.getSample(x, y);
+                    if (mask != 0) {
+                        final double lat = latSamples.getSampleDouble(x, y);
+                        final double lon = lonSamples.getSampleDouble(x, y);
+                        if (lon >= -180.0 && lon <= 180.0 && lat >= -90.0 && lat <= 90.0) {
+                            final double[] point = new double[4];
+                            point[LAT] = lat;
+                            point[LON] = lon;
+                            point[X] = x + 0.5;
+                            point[Y] = y + 0.5;
+                            pointList.add(point);
+                        }
+                    }
+                }
+            }
+
+            return pointList.toArray(new double[pointList.size()][4]);
+        }
     }
 
-    public static interface SteppingFactory {
+    static double[][] extractWarpPoints(PlanarImage lonImage,
+                                        PlanarImage latImage,
+                                        PlanarImage maskImage,
+                                        Stepping stepping) {
+        return Approximation.extractWarpPoints(new PlanarImageSampleSource(lonImage),
+                                               new PlanarImageSampleSource(latImage),
+                                               new PlanarImageSampleSource(maskImage),
+                                               stepping);
+    }
+
+
+    static final class Stepping {
+
+        private final int minX;
+        private final int minY;
+        private final int maxX;
+        private final int maxY;
+        private final int pointCountX;
+        private final int pointCountY;
+        private final int stepX;
+        private final int stepY;
+
+        Stepping(int minX, int minY, int maxX, int maxY, int pointCountX, int pointCountY, int stepX, int stepY) {
+            this.minX = minX;
+            this.maxX = maxX;
+            this.minY = minY;
+            this.maxY = maxY;
+            this.pointCountX = pointCountX;
+            this.pointCountY = pointCountY;
+            this.stepX = stepX;
+            this.stepY = stepY;
+        }
+
+        int getMinX() {
+            return minX;
+        }
+
+        int getMaxX() {
+            return maxX;
+        }
+
+        int getMinY() {
+            return minY;
+        }
+
+        int getMaxY() {
+            return maxY;
+        }
+
+        int getPointCountX() {
+            return pointCountX;
+        }
+
+        int getPointCountY() {
+            return pointCountY;
+        }
+
+        int getStepX() {
+            return stepX;
+        }
+
+        int getStepY() {
+            return stepY;
+        }
+
+        int getPointCount() {
+            return pointCountX * pointCountY;
+        }
+    }
+
+    static interface SteppingFactory {
 
         Stepping createStepping(Rectangle rectangle, int maxPointCount);
     }
@@ -494,4 +539,42 @@ public class PixelPosEstimator {
         }
     }
 
+    private static class PlanarImageSampleSource implements SampleSource {
+
+        private final PlanarImage image;
+
+        public PlanarImageSampleSource(PlanarImage image) {
+            this.image = image;
+        }
+
+        @Override
+        public int getSample(int x, int y) {
+            return getSample(x, y, image);
+        }
+
+        @Override
+        public double getSampleDouble(int x, int y) {
+            return getSampleDouble(x, y, image);
+        }
+
+        private static int getSample(int pixelX, int pixelY, PlanarImage image) {
+            final int x = image.getMinX() + pixelX;
+            final int y = image.getMinY() + pixelY;
+            final int tileX = image.XToTileX(x);
+            final int tileY = image.YToTileY(y);
+            final Raster data = image.getTile(tileX, tileY);
+
+            return data.getSample(x, y, 0);
+        }
+
+        private static double getSampleDouble(int pixelX, int pixelY, PlanarImage image) {
+            final int x = image.getMinX() + pixelX;
+            final int y = image.getMinY() + pixelY;
+            final int tileX = image.XToTileX(x);
+            final int tileY = image.YToTileY(y);
+            final Raster data = image.getTile(tileX, tileY);
+
+            return data.getSampleDouble(x, y, 0);
+        }
+    }
 }
