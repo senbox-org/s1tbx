@@ -366,16 +366,16 @@ public class PixelPosEstimator {
         /**
          * Returns the {@code Rotator} associated with this approximation.
          *
-         * @return
+         * @return the {@code Rotator} associated with this approximation.
          */
         public Rotator getRotator() {
             return rotator;
         }
 
         /**
-         * Returns the domain of the lat(x, y) and lon(x, y) functions associated with this approximation of the
+         * Returns the domain of the lat(x, y) and lon(x, y) functions associated with this approximation.
          *
-         * @return
+         * @return the domain of the lat(x, y) and lon(x, y) functions associated with this approximation.
          */
         public Rectangle getRectangle() {
             return rectangle;
