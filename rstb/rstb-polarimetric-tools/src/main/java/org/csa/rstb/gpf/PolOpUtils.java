@@ -1520,6 +1520,7 @@ public final class PolOpUtils {
         final double[] ki = new double[2];
         final double[] g = new double[4];
 
+        // todo: should use averaged c2 in computing g?
         if (sourceProductType == PolBandUtils.MATRIX.C2) {
 
             getCovarianceMatrixC2(idx, dataBuffers, Cr, Ci);
@@ -1531,16 +1532,18 @@ public final class PolOpUtils {
             computeCompactPolStokesVector(kr, ki, g);
         }
 
-        if (g[0] <= 0) {
+        if (g[0] <= 0 || g[3] == 0) {
             return;
         }
 
         final double m = Math.sqrt(g[1]*g[1] + g[2]*g[2] + g[3]*g[3])/g[0];
         final double mv = 0.5*g[0]*(1 - m);
         final double ms = 2.0*g[0]*m;
-        // todo: should check CP mode for LH or RH to decide the sign before g[3]? See Cloude and Chen's paper.
-        final double alpha = 0.5*Math.atan(Math.sqrt(g[1]*g[1] + g[2]*g[2])/g[3]);
-        final double phi = Math.acos(g[1]/Math.sqrt(g[1]*g[1] + g[2]*g[2]));
+        // todo: should check compact mode for LH or RH to decide the sign before g[3]
+        final double alpha = 0.5*Math.atan(Math.sqrt(g[1]*g[1] + g[2]*g[2])/(-g[3])); // RHC
+        final double phi = Math.acos(g[1]/Math.sqrt(g[1]*g[1] + g[2]*g[2]));          // RHC
+        //final double alpha = 0.5*Math.atan(Math.sqrt(g[1]*g[1] + g[2]*g[2])/g[3]);  // LHC
+        //final double phi = -Math.acos(g[1]/Math.sqrt(g[1]*g[1] + g[2]*g[2]));       // LHC
 
         final double cosAlpha = Math.cos(alpha);
         final double sinAlpha = Math.sin(alpha);
