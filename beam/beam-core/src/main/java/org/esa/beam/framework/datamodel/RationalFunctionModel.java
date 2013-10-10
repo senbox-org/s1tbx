@@ -35,10 +35,12 @@ public class RationalFunctionModel implements Cloneable {
      * Coefficients for the numerator polynomial P.
      */
     private final double[] c;
+
     /**
      * Coefficients for the denominator polynomial Q.
      */
     private final double[] d;
+
     /**
      * The root mean square error of the approximation.
      */
@@ -107,10 +109,9 @@ public class RationalFunctionModel implements Cloneable {
         if (x.length != g.length) {
             throw new IllegalArgumentException("x.length != g.length");
         }
-        // todo - NaN checking
 
-        final int termCountP = ((degreeP + 1) * (degreeP + 2)) / 2;
-        final int termCountQ = ((degreeQ + 1) * (degreeQ + 2)) / 2 - 1;
+        final int termCountP = getTermCountP(degreeP);
+        final int termCountQ = getTermCountQ(degreeQ);
 
         maxDegree = Math.max(degreeP, degreeQ);
         termCount = Math.max(termCountP, termCountQ + 1);
@@ -130,6 +131,14 @@ public class RationalFunctionModel implements Cloneable {
         }
 
         rmse = rmse(x, y, g);
+    }
+
+    public static int getTermCountP(int degreeP) {
+        return ((degreeP + 1) * (degreeP + 2)) / 2;
+    }
+
+    public static int getTermCountQ(int degreeQ) {
+        return ((degreeQ + 1) * (degreeQ + 2)) / 2 - 1;
     }
 
     /**

@@ -21,7 +21,12 @@ import org.esa.beam.util.SystemUtils;
 import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.logging.*;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.Formatter;
+import java.util.logging.Handler;
+import java.util.logging.Level;
+import java.util.logging.LogManager;
+import java.util.logging.Logger;
 
 /**
  * This class is the central manager class for logging. It exposes a set of convenience methods for the initializytion
@@ -122,16 +127,16 @@ public class BeamLogManager {
         Logger sysLogger = getSystemLogger();
 
         Handler handler;
-        Handler[] handlers = sysLogger.getHandlers();
+        Handler[] sysHandlers = sysLogger.getHandlers();
         boolean hasNoConsoleHandler = true;
         boolean hasNoCacheHandler = true;
 
         // check if there is already a console handler
         // if so we do not need a second one
-        for (int n = 0; n < handlers.length; n++) {
-            if (handlers[n] instanceof ConsoleHandler) {
+        for (Handler sysHandler : sysHandlers) {
+            if (sysHandler instanceof ConsoleHandler) {
                 hasNoConsoleHandler = false;
-            } else if (handlers[n] instanceof CacheHandler) {
+            } else if (sysHandler instanceof CacheHandler) {
                 hasNoCacheHandler = false;
             }
         }
@@ -156,9 +161,9 @@ public class BeamLogManager {
         Logger sysLogger = getSystemLogger();
         Handler[] handlers = sysLogger.getHandlers();
         CacheHandler cacheHandler = null;
-        for (int n = 0; n < handlers.length; n++) {
-            if (handlers[n] instanceof CacheHandler) {
-                cacheHandler = (CacheHandler) handlers[n];
+        for (Handler handler : handlers) {
+            if (handler instanceof CacheHandler) {
+                cacheHandler = (CacheHandler) handler;
                 return cacheHandler;
             }
         }
@@ -186,14 +191,14 @@ public class BeamLogManager {
     public static void removeRootLoggerHandlers() {
         Logger rootLogger = LogManager.getLogManager().getLogger("");
         Handler[] handlers = rootLogger.getHandlers();
-        for (int n = 0; n < handlers.length; n++) {
-            rootLogger.removeHandler(handlers[n]);
+        for (Handler handler : handlers) {
+            rootLogger.removeHandler(handler);
         }
     }
 
     public static void ensureLogPathFromPatternExists(String logPattern) {
         File logDir = new File(logPattern).getParentFile();
-        if (!logDir.exists()) {
+        if (logDir != null && !logDir.exists()) {
             logDir.mkdirs();
         }
     }

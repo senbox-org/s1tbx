@@ -22,9 +22,9 @@ import Jama.SingularValueDecomposition;
  * A utility class which can be used to find approximation functions for a given dataset.
  *
  * @author Norman Fomferra
-
+ * @version $Revision$ $Date$
  */
-public final class Approximator {
+public class Approximator {
 
     /**
      * Solves a linear equation system with each term having the form c * f(x). The method finds the coefficients
@@ -59,7 +59,10 @@ public final class Approximator {
             for (j = i; j < n; j++) {  // Columns 1..n
                 for (k = 0; k < m; k++) {
                     x = data[k][iX];
-                    a[i][j] += f[i].f(x) * f[j].f(x); // sum fi(x) * fj(x)
+                    final double result = f[i].f(x) * f[j].f(x);
+                    if (!Double.isNaN(result)) {
+                        a[i][j] += result; // sum fi(x) * fj(x)
+                    }
                 }
             }
             // Copy, since matrix is symetric
@@ -70,7 +73,10 @@ public final class Approximator {
             for (k = 0; k < m; k++) {
                 x = data[k][iX];
                 y = data[k][iY];
-                b[i] += y * f[i].f(x); // sum y * fi(x)
+                final double result = y * f[i].f(x);
+                if (!Double.isNaN(result)) {
+                    b[i] += result; // sum y * fi(x)
+                }
             }
         }
         solve2(a, b, c);
@@ -94,9 +100,10 @@ public final class Approximator {
                                       final FXY[] f,
                                       final double[] c) {
         final int n = f.length;
+        final int m = data.length;
         final double[][] a = new double[n][n];
         final double[] b = new double[n];
-        double x, y;
+        double x, y, z;
         int iX = 0;
         int iY = 1;
         int iZ = 2;
@@ -107,10 +114,13 @@ public final class Approximator {
         }
         for (int i = 0; i < n; i++) { // Rows i=1..n
             for (int j = i; j < n; j++) {  // Columns j=1..n
-                for (double[] aData : data) {
-                    x = aData[iX];
-                    y = aData[iY];
-                    a[i][j] += f[i].f(x, y) * f[j].f(x, y);  // sum fi(x,y) * fj(x,y)
+                for (double[] point : data) {
+                    x = point[iX];
+                    y = point[iY];
+                    final double result = f[i].f(x, y) * f[j].f(x, y);
+                    if (!Double.isNaN(result)) {
+                        a[i][j] += result;  // sum fi(x,y) * fj(x,y)
+                    }
                 }
             }
             // Copy, since matrix is symetric
@@ -118,8 +128,14 @@ public final class Approximator {
                 a[i][j] = a[j][i];
             }
             // Column n+1
-            for (double[] aData : data) {
-                b[i] += aData[iZ] * f[i].f(aData[iX], aData[iY]);  // sum z * fi(x,y)
+            for (double[] point : data) {
+                x = point[iX];
+                y = point[iY];
+                z = point[iZ];
+                final double result = z * f[i].f(x, y);
+                if (!Double.isNaN(result)) {
+                    b[i] += result;  // sum z * fi(x,y)
+                }
             }
         }
         solve2(a, b, c);
@@ -145,9 +161,9 @@ public final class Approximator {
             iX = indices[0];
             iY = indices[1];
         }
-        for (double[] aData : data) {
-            x = aData[iX];
-            y = aData[iY];
+        for (double[] point : data) {
+            x = point[iX];
+            y = point[iY];
             d = computeY(f, c, x) - y;
             mse += d * d;
         }
@@ -178,10 +194,10 @@ public final class Approximator {
             iY = indices[1];
             iZ = indices[2];
         }
-        for (double[] aData : data) {
-            x = aData[iX];
-            y = aData[iY];
-            z = aData[iZ];
+        for (double[] point : data) {
+            x = point[iX];
+            y = point[iY];
+            z = point[iZ];
             d = FXYSum.computeZ(f, c, x, y) - z;
             mse += d * d;
         }
@@ -213,10 +229,10 @@ public final class Approximator {
             iY = indices[1];
             iZ = indices[2];
         }
-        for (double[] aData : data) {
-            x = aData[iX];
-            y = aData[iY];
-            z = aData[iZ];
+        for (double[] point : data) {
+            x = point[iX];
+            y = point[iY];
+            z = point[iZ];
             d = FXYSum.computeZ(f, c, x, y) - z;
             emax = Math.max(emax, Math.abs(d));
             mse += d * d;
@@ -289,9 +305,20 @@ public final class Approximator {
         final int m = b.length;
         final int n = x.length;
 
-        final SingularValueDecomposition svd = new Matrix(a, m, n).svd();
-        final Matrix u = svd.getU();
-        final Matrix v = svd.getV();
+        final SingularValueDecomposition svd;
+        final Matrix u;
+        final Matrix v;
+
+
+        final Matrix matrix = new Matrix(a, m, n);
+        final double det = matrix.det();
+        if (det == 0.0 || Double.isNaN(det) || Double.isInfinite(det)) {
+            throw new ArithmeticException("Expected an invertible matrix, but matrix is degenerate: det = " + det);
+        }
+
+        svd = matrix.svd();
+        u = svd.getU();
+        v = svd.getV();
 
         final double[] s = svd.getSingularValues();
         final int rank = svd.rank();

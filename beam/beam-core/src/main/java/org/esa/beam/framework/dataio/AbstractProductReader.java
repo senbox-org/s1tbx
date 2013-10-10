@@ -43,6 +43,7 @@ import java.util.logging.Logger;
  * @see #readBandRasterData
  */
 public abstract class AbstractProductReader implements ProductReader {
+
     /**
      * @since BEAM 4.9
      */
@@ -346,6 +347,9 @@ public abstract class AbstractProductReader implements ProductReader {
         }
 
         final File parent = inputFile.getParentFile();
+        if (parent == null) {
+            return null;
+        }
         final TreeNode<File> result = new TreeNode<File>(parent.getName());
         result.setContent(parent);
 

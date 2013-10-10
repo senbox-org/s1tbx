@@ -80,7 +80,7 @@ public class GeneralFilterBandPersistableSpiTest extends TestCase {
 
     public void testCanPersist() {
         final Band source = new Band("b", ProductData.TYPE_INT8, 2, 2);
-        final GeneralFilterBand gfb = new GeneralFilterBand("test", source, 3, 3, GeneralFilterBand.MAX);
+        final GeneralFilterBand gfb = new GeneralFilterBand("test", source, 3, GeneralFilterBand.MAX);
 
         assertTrue(_persistableSpi.canPersist(gfb));
 

@@ -30,7 +30,7 @@ import com.bc.jexp.Term;
  * The resulting term in this case is an instance of <code>{@link com.bc.jexp.Term.Ref}</code>.
  *
  * @author Norman Fomferra (norman.fomferra@brockmann-consult.de)
-
+ * @version $Revision$ $Date$
  */
 public final  class SingleFlagSymbol extends RasterDataSymbol {
 
@@ -57,16 +57,19 @@ public final  class SingleFlagSymbol extends RasterDataSymbol {
 
     @Override
     public final  boolean evalB(final EvalEnv env) throws EvalException {
-        return (data.getElemIntAt(((RasterDataEvalEnv) env).getElemIndex()) & flagMask) == flagMask;
+        final int elemIndex = ((RasterDataEvalEnv) env).getElemIndex();
+        return (data.getElemIntAt(elemIndex) & flagMask) == flagMask;
     }
 
     @Override
     public final int evalI(final EvalEnv env) throws EvalException {
-        return (data.getElemIntAt(((RasterDataEvalEnv) env).getElemIndex()) & flagMask) == flagMask ? 1 : 0;
+        final int elemIndex = ((RasterDataEvalEnv) env).getElemIndex();
+        return (data.getElemIntAt(elemIndex) & flagMask) == flagMask ? 1 : 0;
     }
 
     @Override
     public final double evalD(final EvalEnv env) throws EvalException {
-        return (data.getElemIntAt(((RasterDataEvalEnv) env).getElemIndex()) & flagMask) == flagMask ? 1.0 : 0.0;
+        final int elemIndex = ((RasterDataEvalEnv) env).getElemIndex();
+        return (data.getElemIntAt(elemIndex) & flagMask) == flagMask ? 1.0 : 0.0;
     }
 }

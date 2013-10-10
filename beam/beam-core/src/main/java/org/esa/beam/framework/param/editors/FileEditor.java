@@ -21,7 +21,7 @@ import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.io.BeamFileChooser;
 import org.esa.beam.util.io.FileChooserFactory;
 
-import javax.swing.*;
+import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileFilter;
 import java.io.File;
 
@@ -100,7 +100,10 @@ public class FileEditor extends TextFieldXEditor {
     private void updateLastDir() {
         File file = (File) getParameter().getValue();
         if (file != null) {
-            setLastDir(file.getParentFile());
+            File parentFile = file.getParentFile();
+            if (parentFile != null) {
+                setLastDir(parentFile);
+            }
         }
     }
 

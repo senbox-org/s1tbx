@@ -16,10 +16,20 @@
 package org.esa.beam.framework.datamodel;
 
 import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.glevel.MultiLevelModel;
+import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
+import com.bc.ceres.glevel.support.DefaultMultiLevelImage;
+import org.esa.beam.jai.FillConstantOpImage;
+import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.Guardian;
 
-import java.awt.Rectangle;
-import java.awt.image.Raster;
+import javax.media.jai.BorderExtender;
+import javax.media.jai.BorderExtenderCopy;
+import javax.media.jai.JAI;
+import javax.media.jai.PlanarImage;
+import javax.media.jai.operator.FormatDescriptor;
+import java.awt.RenderingHints;
+import java.awt.image.DataBuffer;
 import java.awt.image.RenderedImage;
 import java.io.IOException;
 
@@ -33,24 +43,63 @@ import java.io.IOException;
  */
 public abstract class FilterBand extends Band {
 
-    private RasterDataNode _source;
+    private RasterDataNode source;
 
     protected FilterBand(String name, int dataType, int width, int height, RasterDataNode source) {
         super(name, dataType, width, height);
         Guardian.assertNotNull("source", source);
-        _source = source;
+        this.source = source;
+        setOwner(source.getProduct());
         setSynthetic(true);
+        setNoDataValue(Double.NaN);
+        setNoDataValueUsed(true);
     }
 
     public RasterDataNode getSource() {
-        return _source;
+        return source;
     }
 
     @Override
     public void dispose() {
-        _source = null;
+        source = null;
         super.dispose();
     }
+
+    @Override
+    protected RenderedImage createSourceImage() {
+        final MultiLevelModel model = ImageManager.getMultiLevelModel(this);
+        final AbstractMultiLevelSource multiLevelSource = new AbstractMultiLevelSource(model) {
+            @Override
+            protected RenderedImage createImage(int level) {
+                ImageManager imageManager = ImageManager.getInstance();
+
+                RenderingHints rh = new RenderingHints(JAI.KEY_BORDER_EXTENDER, BorderExtender.createInstance(
+                        BorderExtenderCopy.BORDER_COPY));
+
+                PlanarImage geophysicalImage = imageManager.getGeophysicalImage(getSource(), level);
+
+                int dataBufferType = getDataType() == ProductData.TYPE_FLOAT64 ? DataBuffer.TYPE_DOUBLE : DataBuffer.TYPE_FLOAT;
+                geophysicalImage = FormatDescriptor.create(geophysicalImage, dataBufferType, null);
+
+                PlanarImage validMaskImage = imageManager.getValidMaskImage(getSource(), level);
+                if (validMaskImage != null) {
+                    geophysicalImage = new FillConstantOpImage(geophysicalImage, validMaskImage, Float.NaN);
+                }
+
+                return createSourceLevelImage(geophysicalImage, level, rh);
+            }
+        };
+        return new DefaultMultiLevelImage(multiLevelSource);
+    }
+
+    /**
+     * @param sourceImage The geophysical source image. No-data is masked as NaN.
+     * @param level       The image level.
+     * @param rh          Rendering hints. JAI.KEY_BORDER_EXTENDER is set to BorderExtenderCopy.BORDER_COPY.
+     * @return The resulting filtered level image.
+     * @since BEAM 5
+     */
+    protected abstract RenderedImage createSourceLevelImage(RenderedImage sourceImage, int level, RenderingHints rh);
 
     /**
      * {@inheritDoc}

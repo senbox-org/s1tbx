@@ -470,4 +470,15 @@ public class FileUtils {
 
         return tree.delete();
     }
+
+    public static URI getRelativeUri(URI rootURI, File file) {
+        if (file == null) {
+            return null;
+        }
+        URI uri = file.toURI();
+        if (rootURI == null) {
+            return uri;
+        }
+        return rootURI.relativize(uri);
+    }
 }

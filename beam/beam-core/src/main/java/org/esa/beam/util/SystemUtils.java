@@ -152,6 +152,7 @@ public class SystemUtils {
      * "http://www.brockmann-consult.de/beam/".
      *
      * @return the current user's application data directory
+     *
      * @since BEAM 4.10
      */
     public static String getApplicationHomepageUrl() {
@@ -162,6 +163,7 @@ public class SystemUtils {
      * Gets the current user's application data directory.
      *
      * @return the current user's application data directory
+     *
      * @since BEAM 4.2
      */
     public static File getApplicationDataDir() {
@@ -172,7 +174,9 @@ public class SystemUtils {
      * Optionally creates and returns the current user's application data directory.
      *
      * @param force if true, the directory will be created if it didn't exist before
+     *
      * @return the current user's application data directory
+     *
      * @since BEAM 4.2
      */
     public static File getApplicationDataDir(boolean force) {
@@ -190,6 +194,7 @@ public class SystemUtils {
      * the string "beam" is used.
      *
      * @return The application context ID.
+     *
      * @since BEAM 4.10
      */
     public static String getApplicationContextId() {
@@ -210,6 +215,7 @@ public class SystemUtils {
      * the string "BEAM" is used.
      *
      * @return The application name.
+     *
      * @see #getApplicationContextId()
      * @since BEAM 4.10
      */
@@ -290,7 +296,9 @@ public class SystemUtils {
      * then assumed to be the requested home directory.
      *
      * @param url the URL
+     *
      * @return an assumption of an application's home directory, never <code>null</code>
+     *
      * @throws IllegalArgumentException if the given url is <code>null</code>.
      */
     public static File getApplicationHomeDir(final URL url) {
@@ -322,7 +330,9 @@ public class SystemUtils {
      * class <code>java.util.Date</code>.
      *
      * @param aClass The class.
+     *
      * @return the file name of the given class
+     *
      * @throws IllegalArgumentException if the given parameter is <code>null</code>.
      */
     public static String getClassFileName(final Class aClass) {
@@ -357,6 +367,7 @@ public class SystemUtils {
      * is given, it is returned, otherwise <code>getApplicationHomeDir()</code> is returned.
      *
      * @return the BEAM home directory
+     *
      * @deprecated since BEAM 4.10, use {@link #getApplicationHomeDir()} instead
      */
     @Deprecated
@@ -407,25 +418,19 @@ public class SystemUtils {
      * Replace the separator character '/' with the system-dependent path-separator character.
      *
      * @param urlPath an URL path or any other string containing the forward slash '/' as directory separator.
+     *
      * @return a path string with all occurrences of '/'
+     *
      * @throws IllegalArgumentException if the given parameter is <code>null</code>.
      */
     public static String convertToLocalPath(String urlPath) {
         Guardian.assertNotNull("urlPath", urlPath);
         if (File.separatorChar != _URL_DIR_SEPARATOR_CHAR
-                && urlPath.indexOf(_URL_DIR_SEPARATOR_CHAR) >= 0) {
+            && urlPath.indexOf(_URL_DIR_SEPARATOR_CHAR) >= 0) {
             return urlPath.replace(_URL_DIR_SEPARATOR_CHAR,
                                    File.separatorChar);
         }
         return urlPath;
-    }
-
-    /**
-     * @deprecated Since BEAM 4.9, use {@link FileUtils#deleteTree(File)} instead
-     */
-    @Deprecated
-    public static void deleteFileTree(File treeRoot) {
-        FileUtils.deleteTree(treeRoot);
     }
 
     /**
@@ -436,6 +441,7 @@ public class SystemUtils {
      * suffixed with a dot ('.') character.
      *
      * @param e the exception
+     *
      * @return a modified message text, or <code>null</code> if <code>e</code> was null.
      */
     public static String createHumanReadableExceptionMessage(final Exception e) {
@@ -507,13 +513,14 @@ public class SystemUtils {
         final String currentLafName = UIManager.getLookAndFeel().getClass().getName();
 
         return System.getProperty(macOsSpecificPropertyKey) != null
-                && systemLafName.equals(currentLafName);
+               && systemLafName.equals(currentLafName);
     }
 
     /**
      * Loads services from all <code>META-INF/services/</code> resources.
      *
      * @param serviceType the type of the service to be loaded.
+     *
      * @return the services of type <code>serviceType</code> found.
      */
     public static <S> Iterable<S> loadServices(Class<S> serviceType) {
@@ -525,6 +532,7 @@ public class SystemUtils {
      *
      * @param serviceType the type of the service to be loaded.
      * @param classLoader the class loader.
+     *
      * @return the services of type <code>serviceType</code> found.
      */
     public static <S> Iterable<S> loadServices(Class<S> serviceType, ClassLoader classLoader) {
@@ -572,7 +580,8 @@ public class SystemUtils {
     }
 
     @Deprecated
-    private static Class<?> loadClassWithNativeDependencies(Class<?> callerClass, String className, String warningPattern) {
+    private static Class<?> loadClassWithNativeDependencies(Class<?> callerClass, String className,
+                                                            String warningPattern) {
         ClassLoader classLoader = callerClass.getClassLoader();
 
         String classResourceName = "/" + className.replace('.', '/') + ".class";
@@ -581,7 +590,8 @@ public class SystemUtils {
             try {
                 return Class.forName(className, true, classLoader);
             } catch (Throwable error) {
-                BeamLogManager.getSystemLogger().warning(MessageFormat.format(warningPattern, callerClass, error.getClass(), error.getMessage()));
+                BeamLogManager.getSystemLogger().warning(
+                        MessageFormat.format(warningPattern, callerClass, error.getClass(), error.getMessage()));
                 return null;
             }
         } else {
@@ -593,6 +603,7 @@ public class SystemUtils {
      * Initialize third party libraries of BEAM.
      *
      * @param cl The most useful class loader.
+     *
      * @since BEAM 4.8
      */
     public static void init3rdPartyLibs(ClassLoader cl) {
@@ -607,6 +618,7 @@ public class SystemUtils {
     }
 
     private static void initJAI(ClassLoader cl) {
+        // Suppress ugly (and harmless) JAI error messages saying that a JAI is going to continue in pure Java mode.
         System.setProperty("com.sun.media.jai.disableMediaLib", "true");  // disable native libraries for JAI
         // Must use a new operation registry in order to register JAI operators defined in Ceres and BEAM
         OperationRegistry operationRegistry = OperationRegistry.getThreadSafeOperationRegistry();
@@ -620,16 +632,20 @@ public class SystemUtils {
                 operationRegistry.registerServices(cl);
                 JAI.getDefaultInstance().setOperationRegistry(operationRegistry);
             } catch (IOException e) {
-                BeamLogManager.getSystemLogger().log(Level.SEVERE, MessageFormat.format("Error loading {0}: {1}", JAI_REGISTRY_PATH, e.getMessage()), e);
+                BeamLogManager.getSystemLogger().log(Level.SEVERE,
+                                                     MessageFormat.format("Error loading {0}: {1}", JAI_REGISTRY_PATH,
+                                                                          e.getMessage()), e);
             } finally {
                 setSystemErr(oldErr);
             }
         } else {
             BeamLogManager.getSystemLogger().warning(MessageFormat.format("{0} not found", JAI_REGISTRY_PATH));
         }
-        Integer parallelism = Integer.getInteger(BEAM_PARALLELISM_PROPERTY_NAME, Runtime.getRuntime().availableProcessors());
+        Integer parallelism = Integer.getInteger(BEAM_PARALLELISM_PROPERTY_NAME,
+                                                 Runtime.getRuntime().availableProcessors());
         JAI.getDefaultInstance().getTileScheduler().setParallelism(parallelism);
-        BeamLogManager.getSystemLogger().info(MessageFormat.format("JAI tile scheduler parallelism set to {0}", parallelism));
+        BeamLogManager.getSystemLogger().info(
+                MessageFormat.format("JAI tile scheduler parallelism set to {0}", parallelism));
     }
 
     private static void setSystemErr(PrintStream oldErr) {
@@ -668,7 +684,7 @@ public class SystemUtils {
 
         // Returns image
         public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException,
-                IOException {
+                                                                IOException {
             if (!DataFlavor.imageFlavor.equals(flavor)) {
                 throw new UnsupportedFlavorException(flavor);
             }

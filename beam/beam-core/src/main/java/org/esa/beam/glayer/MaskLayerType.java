@@ -65,7 +65,7 @@ public class MaskLayerType extends ImageLayer.Type {
         }
         configuration.setValue(ImageLayer.PROPERTY_NAME_MULTI_LEVEL_SOURCE, multiLevelSource);
         configuration.setValue(ImageLayer.PROPERTY_NAME_BORDER_SHOWN, false);
-        configuration.setValue(ImageLayer.PROPERTY_NAME_BORDER_SHOWN, false);
+        configuration.setValue(ImageLayer.PROPERTY_NAME_PIXEL_BORDER_SHOWN, false);
         final ImageLayer layer = new ImageLayer(this, multiLevelSource, configuration);
         final Mask mask = (Mask) configuration.getValue(PROPERTY_NAME_MASK);
         layer.setName(mask.getName());

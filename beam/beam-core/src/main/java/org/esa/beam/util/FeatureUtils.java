@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2013 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -100,7 +100,6 @@ public class FeatureUtils {
         }
     }
 
-    //todo se ... norman zeigen
     public static FeatureCollection<SimpleFeatureType, SimpleFeature> clipFeatureCollectionToProductBounds(FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection, Product product, FeatureCrsProvider crsProvider, ProgressMonitor pm) {
         final CoordinateReferenceSystem targetCrs = ImageManager.getModelCrs(product.getGeoCoding());
         final Geometry clipGeometry = createGeoBoundaryPolygon(product);
@@ -118,7 +117,6 @@ public class FeatureUtils {
                                            SubProgressMonitor.create(pm, 80));
     }
 
-    //todo se ... norman zeigen
     public static FeatureCollection<SimpleFeatureType, SimpleFeature> loadFeatureCollectionFromShapefile(File shapefile) throws IOException {
         final URL shapefileUrl = shapefile.toURI().toURL();
         FeatureSource<SimpleFeatureType, SimpleFeature> featureSource = getFeatureSource(shapefileUrl);
@@ -213,16 +211,16 @@ public class FeatureUtils {
 
                     pm.worked(1);
 
-                    Geometry targetGeometry;
+                    Geometry clippedSourceGeometry;
                     try {
                         Geometry sourceGeometry = (Geometry) sourceFeature.getDefaultGeometry();
-                        targetGeometry = getClippedGeometry(sourceGeometry, clipGeometry);
+                        clippedSourceGeometry = getClippedGeometry(sourceGeometry, clipGeometry);
                     } catch (TopologyException ignored) {
                         continue;
                     }
 
-                    if (!targetGeometry.isEmpty()) {
-                        SimpleFeature targetFeature = createTargetFeature(targetGeometry, targetSchema,
+                    if (!clippedSourceGeometry.isEmpty()) {
+                        SimpleFeature targetFeature = createTargetFeature(clippedSourceGeometry, targetSchema,
                                                                           sourceFeature, source2TargetTransformer);
                         if (targetFeature != null) {
                             targetCollection.add(targetFeature);
@@ -239,23 +237,25 @@ public class FeatureUtils {
         }
     }
 
-    private static SimpleFeature createTargetFeature(Geometry targetGeometry, SimpleFeatureType targetSchema,
+    private static SimpleFeature createTargetFeature(Geometry sourceGeometry, SimpleFeatureType targetSchema,
                                                      SimpleFeature sourceFeature,
                                                      GeometryCoordinateSequenceTransformer source2TargetTransformer) {
         SimpleFeature targetFeature;
         if (source2TargetTransformer != null) {
+            Geometry targetGeometry;
             try {
-                targetGeometry = source2TargetTransformer.transform(targetGeometry);
+                targetGeometry = source2TargetTransformer.transform(sourceGeometry);
             } catch (Exception e) {
                 Debug.trace(e);
                 return null;
             }
             targetFeature = SimpleFeatureBuilder.retype(sourceFeature, targetSchema);
+            targetFeature.setDefaultGeometry(targetGeometry);
         } else {
             targetFeature = SimpleFeatureBuilder.copy(sourceFeature);
+            targetFeature.setDefaultGeometry(sourceGeometry);
         }
 
-        targetFeature.setDefaultGeometry(targetGeometry);
         return targetFeature;
     }
 

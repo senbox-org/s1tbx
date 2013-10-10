@@ -25,10 +25,17 @@ import org.esa.beam.framework.datamodel.ImageInfo;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.jai.ImageManager;
 
-import java.awt.Shape;
+import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.RenderedImage;
 
+/**
+ * A multi-level source (= level-image source for image pyramids) for visual RGB images derived from
+ * {@code RasterDataNode}s.
+ *
+ * @author Norman Fomferra
+ * @since Since BEAM 4.0
+ */
 public class BandImageMultiLevelSource extends AbstractMultiLevelSource {
 
     private final RasterDataNode[] rasterDataNodes;
@@ -41,15 +48,27 @@ public class BandImageMultiLevelSource extends AbstractMultiLevelSource {
     public static BandImageMultiLevelSource create(RasterDataNode[] rasterDataNodes, ProgressMonitor pm) {
         RasterDataNode rdn = rasterDataNodes[0];
         MultiLevelModel model = ImageManager.getMultiLevelModel(rdn);
+        return create(rasterDataNodes, model, pm);
+    }
+
+    public static BandImageMultiLevelSource create(RasterDataNode[] rasterDataNodes, MultiLevelModel model, ProgressMonitor pm) {
         ImageManager.getInstance().prepareImageInfos(rasterDataNodes, pm);
         return new BandImageMultiLevelSource(model, rasterDataNodes);
     }
 
+    /**
+     * @deprecated since BEAM 5 because it creates a {@code DefaultMultiLevelModel}, which is not the desired behaviour in many cases
+     */
+    @Deprecated
     public static BandImageMultiLevelSource create(RasterDataNode rasterDataNode,
                                                    AffineTransform i2mTransform, ProgressMonitor pm) {
         return create(new RasterDataNode[]{rasterDataNode}, i2mTransform, pm);
     }
 
+    /**
+     * @deprecated since BEAM 5 because it creates a {@code DefaultMultiLevelModel}, which is not the desired behaviour in many cases
+     */
+    @Deprecated
     public static BandImageMultiLevelSource create(RasterDataNode[] rasterDataNodes,
                                                    AffineTransform i2mTransform, ProgressMonitor pm) {
         return create(rasterDataNodes, i2mTransform,
@@ -57,6 +76,10 @@ public class BandImageMultiLevelSource extends AbstractMultiLevelSource {
                                                            rasterDataNodes[0].getSceneRasterHeight()), pm);
     }
 
+    /**
+     * @deprecated since BEAM 5 because it creates a {@code DefaultMultiLevelModel}, which is not the desired behaviour in many cases
+     */
+    @Deprecated
     private static BandImageMultiLevelSource create(RasterDataNode[] rasterDataNodes,
                                                     AffineTransform i2mTransform,
                                                     int levelCount,
@@ -66,8 +89,7 @@ public class BandImageMultiLevelSource extends AbstractMultiLevelSource {
         final int w = rasterDataNodes[0].getSceneRasterWidth();
         final int h = rasterDataNodes[0].getSceneRasterHeight();
         MultiLevelModel model = new DefaultMultiLevelModel(levelCount, i2mTransform, w, h);
-        ImageManager.getInstance().prepareImageInfos(rasterDataNodes, pm);
-        return new BandImageMultiLevelSource(model, rasterDataNodes);
+        return create(rasterDataNodes, model, pm);
     }
 
     private BandImageMultiLevelSource(MultiLevelModel model, RasterDataNode[] rasterDataNodes) {

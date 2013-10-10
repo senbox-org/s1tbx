@@ -4,10 +4,81 @@ import org.junit.Test;
 
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 
 import static org.junit.Assert.*;
 
 public class ImageGeometryTest {
+
+    @Test
+    public void testCreateValidRect() {
+        int width = 100;
+        int height = 100;
+        Product product = new Product("product", "type", width, height);
+        Band latBand = new Band("lat", ProductData.TYPE_FLOAT32, width, height);
+        Band lonBand = new Band("lon", ProductData.TYPE_FLOAT32, width, height);
+        float[] latData = new float[width * height];
+        float[] lonData = new float[width * height];
+        for (int i = 0; i < width; i++) {
+            for (int j = 0; j < height; j++) {
+                float latValue = Float.NaN;
+                float lonValue = Float.NaN;
+                if (i >= width / 4 && i <= 3 * (width / 4) &&
+                        j >= height / 4 && j <= 3 * (height / 4)) {
+                    latValue = i;
+                    lonValue = j;
+                }
+                latData[width * i + j] = latValue;
+                lonData[height * i + j] = lonValue;
+            }
+        }
+        latBand.setDataElems(latData);
+        lonBand.setDataElems(lonData);
+        latBand.setNoDataValue(Float.NaN);
+        latBand.setNoDataValueUsed(true);
+        lonBand.setNoDataValue(Float.NaN);
+        lonBand.setNoDataValueUsed(true);
+        product.addBand(latBand);
+        product.addBand(lonBand);
+        product.setGeoCoding(new PixelGeoCoding2(latBand, lonBand, null));
+
+        final Rectangle2D rect = ImageGeometry.createValidRect(product);
+
+        assertEquals(width / 4 + 0.5, rect.getX(), 0);
+        assertEquals(height / 4 + 0.5, rect.getY(), 0);
+        assertEquals(width * 3 / 4 + 0.5, rect.getX() + rect.getWidth(), 0);
+        assertEquals(height * 3 / 4 + 0.5, rect.getY() + rect.getHeight(), 0);
+        for (int x = (int) rect.getX(); x < rect.getX() + rect.getWidth(); x++) {
+            for (int y = (int) rect.getY(); y < rect.getY() + rect.getHeight(); y++) {
+                assertNotSame(latBand.getNoDataValue(), latBand.getSampleFloat(x, y));
+            }
+        }
+        boolean leftColumnContainsNoDataValues = true;
+        boolean rightColumnContainsNoDataValues = true;
+        for (int y = (int) rect.getY(); y < rect.getY() + rect.getHeight(); y++) {
+            if (latBand.getSampleFloat((int) rect.getX() - 1, y) == latBand.getNoDataValue()) {
+                leftColumnContainsNoDataValues = false;
+            }
+            if (latBand.getSampleFloat((int) (rect.getX() + rect.getWidth()), y) == latBand.getNoDataValue()) {
+                rightColumnContainsNoDataValues = false;
+            }
+        }
+        assertTrue(leftColumnContainsNoDataValues);
+        assertTrue(rightColumnContainsNoDataValues);
+        boolean upperLineContainsNoDataValues = true;
+        boolean lowerLineContainsNoDataValues = true;
+        for (int x = (int) rect.getX(); x < rect.getX() + rect.getWidth(); x++) {
+            if (latBand.getSampleFloat(x, (int) rect.getY() - 1) == latBand.getNoDataValue()) {
+                upperLineContainsNoDataValues = false;
+            }
+            if (latBand.getSampleFloat(x, (int) (rect.getY() + rect.getHeight())) == latBand.getNoDataValue()) {
+                lowerLineContainsNoDataValues = false;
+            }
+        }
+        assertTrue(upperLineContainsNoDataValues);
+        assertTrue(lowerLineContainsNoDataValues);
+    }
+
     @Test
     public void testImageToMapTransform() throws Exception {
 

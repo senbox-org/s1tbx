@@ -16,40 +16,116 @@
 
 package org.esa.beam.jai;
 
-import junit.framework.TestCase;
+import com.bc.ceres.glevel.MultiLevelModel;
+import com.bc.ceres.glevel.support.DefaultMultiLevelModel;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.junit.Test;
 
+import javax.media.jai.ImageLayout;
 import javax.media.jai.PlanarImage;
 import javax.media.jai.operator.ConstantDescriptor;
+import java.awt.Rectangle;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+import java.awt.image.DataBuffer;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Norman Fomferra
  * @version $revision$ $date$
  */
-public class ImageManagerTest extends TestCase {
+public class ImageManagerTest {
 
     private static final double EPS_L = 1.0e-3;
     private static final double EPS_H = 1.0e-6;
 
+    @Test
+    public void testSentinel2L1CTileResolutions() throws Exception {
+        DefaultMultiLevelModel model = new DefaultMultiLevelModel(6, new AffineTransform(), new Rectangle2D.Double(0, 0, 1, 1));
+
+        // S-2 MSI 10m and 20m Tile
+        testGetLevelImageBounds(4096, 4096, 0, model);
+        testGetLevelImageBounds(2048, 4096, 1, model);
+        testGetLevelImageBounds(1024, 4096, 2, model);
+        testGetLevelImageBounds(512, 4096, 3, model);
+        testGetLevelImageBounds(256, 4096, 4, model);
+        testGetLevelImageBounds(128, 4096, 5, model);
+
+        // S-2 MSI 60m Tile
+        testGetLevelImageBounds(1826, 1826, 0, model);
+        testGetLevelImageBounds(913, 1826, 1, model);
+        testGetLevelImageBounds(457, 1826, 2, model);
+        testGetLevelImageBounds(229, 1826, 3, model);
+        testGetLevelImageBounds(115, 1826, 4, model);
+        testGetLevelImageBounds(58, 1826, 5, model);
+    }
+
+    private void testGetLevelImageBounds(int expectedSize, int size, int level, DefaultMultiLevelModel model) {
+        Rectangle expected = new Rectangle(0, 0, expectedSize, expectedSize);
+        ResolutionLevel resolutionLevel = new ResolutionLevel(level, model.getScale(level));
+        ImageLayout imageLayout = ImageManager.createSingleBandedImageLayout(DataBuffer.TYPE_USHORT, size, size, null, resolutionLevel);
+        assertEquals("at resolution level " + level + ":",
+                     expected,
+                     new Rectangle(imageLayout.getMinX(null),
+                                   imageLayout.getMinY(null),
+                                   imageLayout.getWidth(null),
+                                   imageLayout.getHeight(null)));
+    }
+
+    /**
+     * Tests use of Product.getNumResolutionsMax in ImageManager.getMultiLevelModel introduced in BEAM 5.
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testGetMultiLevelModel() throws Exception {
+        MultiLevelModel mlm1, mlm2;
+        final Product p = new Product("P", "T", 10960, 10960);
+
+        final Band b1 = p.addBand("B1", "0"); // Virtual band image --> source image set
+        final Band b2 = p.addBand("B2", ProductData.TYPE_FLOAT32); // Normal band image --> source image NOT set
+
+        mlm1 = ImageManager.getMultiLevelModel(b1);
+        mlm2 = ImageManager.getMultiLevelModel(b2);
+        assertEquals(0, p.getNumResolutionsMax());
+        assertEquals(7, mlm1.getLevelCount());
+        assertEquals(7, mlm2.getLevelCount());
+
+        p.setNumResolutionsMax(3);
+
+        b1.getSourceImage();
+
+        mlm1 = ImageManager.getMultiLevelModel(b1);
+        mlm2 = ImageManager.getMultiLevelModel(b2);
+        assertEquals(3, p.getNumResolutionsMax());
+        assertEquals(3, mlm1.getLevelCount());
+        assertEquals(3, mlm2.getLevelCount());
+    }
+
+    @Test
     public void testBandWithNoScaling() {
         Band band = createBand(1.0, 0.0, false);
         checkTargetImageSampleValues(band, EPS_H);
     }
 
+    @Test
     public void testBandWithLinearScaling() {
         Band band = createBand(0.1, 0.5, false);
         checkTargetImageSampleValues(band, EPS_H);
     }
 
+    @Test
     public void testBandWithLog10Scaling() {
         Band band = createBand(1.0, 0.0, true);
         checkTargetImageSampleValues(band, EPS_L);
     }
 
+    @Test
     public void testBandWithLinearAndLog10Scaling() {
         Band band = createBand(0.1, 0.5, true);
         checkTargetImageSampleValues(band, EPS_H);
@@ -64,6 +140,7 @@ public class ImageManagerTest extends TestCase {
      * <p/>
      * they shall not produce different results.
      */
+    @Test
     public void testImageAndMaskSize() {
         Product p = new Product("n", "t", 8501, 7651);
         Band b = p.addBand("b", ProductData.TYPE_FLOAT32);
@@ -83,7 +160,8 @@ public class ImageManagerTest extends TestCase {
     }
 
     private Band createBand(double factor, double offset, boolean log10Scaled) {
-        Band band = new Band("b", ProductData.TYPE_INT8, 2, 2);
+        Product p = new Product("n", "t", 2, 2);
+        Band band = p.addBand("b", ProductData.TYPE_INT8);
         band.setScalingFactor(factor);
         band.setScalingOffset(offset);
         band.setLog10Scaled(log10Scaled);

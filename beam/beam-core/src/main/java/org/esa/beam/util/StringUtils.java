@@ -15,6 +15,8 @@
  */
 package org.esa.beam.util;
 
+import com.bc.jexp.impl.Tokenizer;
+
 import java.awt.Color;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -22,8 +24,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.StringTokenizer;
 import java.util.Vector;
-
-import com.bc.jexp.impl.Tokenizer;
 
 /**
  * The <code>StringUtils</code> class provides frequently used utility methods dealing with <code>String</code> values
@@ -34,9 +34,9 @@ import com.bc.jexp.impl.Tokenizer;
  * @author Tom Block
  * @author Norman Fomferra
  * @author Sabine Embacher
-
+ * @version $Revision$ $Date$
  */
-public final class StringUtils {
+public class StringUtils {
 
     /**
      * Splits the given text into a list of tokens by using the supplied separators. Empty tokens are created for
@@ -49,26 +49,24 @@ public final class StringUtils {
      * @param trimTokens if true, white space characters are removed from both ends of each token
      * @param tokens     can be null. If not null, all tokens are added to this list and the method it, otherwise a new
      *                   list is created.
-     *
      * @return a list of tokens extracted from the given text, never <code>null</code>
-     *
      * @throws IllegalArgumentException if one of the arguments was null
      * @see java.util.StringTokenizer
      */
     public static List split(String text, char[] separators, boolean trimTokens, List tokens) {
 
-        //Guardian.assertNotNull("text", text);
+        Guardian.assertNotNull("text", text);
 
-        //if (separators == null || separators.length == 0) {
-        //    throw new IllegalArgumentException(UtilConstants.MSG_NULL_OR_EMPTY_SEPARATOR);
-        //}
+        if (separators == null || separators.length == 0) {
+            throw new IllegalArgumentException(UtilConstants.MSG_NULL_OR_EMPTY_SEPARATOR);
+        }
 
         if (tokens == null) {
             tokens = new Vector();
         }
 
-        final String sepsStr = new String(separators);
-        final StringTokenizer st = new StringTokenizer(text, sepsStr, true);
+        String sepsStr = new String(separators);
+        StringTokenizer st = new StringTokenizer(text, sepsStr, true);
         String token = null;
         String lastToken = null;
         while (st.hasMoreTokens()) {
@@ -108,9 +106,7 @@ public final class StringUtils {
      * @param text       the text to be splitted into tokens
      * @param separators the characters used to separate the tokens
      * @param trimTokens if true, white space characters are removed from both ends of each token
-     *
      * @return an array of tokens extracted from the given text, never <code>null</code>
-     *
      * @see java.util.StringTokenizer
      */
     public static String[] split(String text, char[] separators, boolean trimTokens) {
@@ -128,11 +124,9 @@ public final class StringUtils {
      *
      * @param tokens    the list of tokens to join, must not be null
      * @param separator the separator string, must not be null
-     *
      * @return the list of tokens as a text string
-     *
      * @throws IllegalArgumentException if one of the arguments was null
-     * @see #split(String , char[], boolean)
+     * @see #split(String, char[], boolean)
      */
     public static String join(Object[] tokens, String separator) {
 
@@ -165,9 +159,7 @@ public final class StringUtils {
      *
      * @param tokens    the list of tokens to join, must not be null
      * @param separator the separator string, must not be null
-     *
      * @return the list of tokens as a text string
-     *
      * @throws IllegalArgumentException if one of the arguments was null
      * @see #join(Object[], String)
      */
@@ -182,7 +174,6 @@ public final class StringUtils {
      * Checks whether the given token string represents an integer number or not.
      *
      * @param token the token string to be checked
-     *
      * @return <code>true</code> if the string represents an integer (radix=10)
      */
     public static boolean isIntegerString(String token) {
@@ -194,7 +185,6 @@ public final class StringUtils {
      *
      * @param token the token string to be checked
      * @param radix the radix of the integer represented by the token string
-     *
      * @return <code>true</code> if the string represents an integer with tzhe given radix
      */
     public static boolean isIntegerString(String token, int radix) {
@@ -219,9 +209,7 @@ public final class StringUtils {
      *
      * @param text  the text to be converted
      * @param delim the delimiter between the number values
-     *
      * @return the <code>int</code> array parsed from the given text
-     *
      * @throws IllegalArgumentException if the text is null or cannot be converted to an array of the requested number
      *                                  type
      */
@@ -248,14 +236,12 @@ public final class StringUtils {
      *
      * @param text  the text to be converted
      * @param delim the delimiter between the number values
-     *
      * @return the <code>float</code> array parsed from the given text
-     *
      * @throws IllegalArgumentException if the text is null or cannot be converted to an array of the requested number
      *                                  type
      */
     public static float[] toFloatArray(String text, String delim) {
-        //Guardian.assertNotNull("text", text);
+        Guardian.assertNotNull("text", text);
         if (delim == null || delim.length() == 0) {
             delim = ",";
         }
@@ -277,14 +263,12 @@ public final class StringUtils {
      *
      * @param text  the text to be converted
      * @param delim the delimiter between the number values
-     *
      * @return the <code>double</code> array parsed from the given text
-     *
      * @throws IllegalArgumentException if the text is null or cannot be converted to an array of the requested number
      *                                  type
      */
     public static double[] toDoubleArray(String text, String delim) {
-        //Guardian.assertNotNull("text", text);
+        Guardian.assertNotNull("text", text);
         if (delim == null || delim.length() == 0) {
             delim = ",";
         }
@@ -306,14 +290,12 @@ public final class StringUtils {
      *
      * @param text   the text to be converted
      * @param delims the delimiter characters used between the tokens
-     *
      * @return the <code>String</code> array parsed from the given text, never null
-     *
      * @throws IllegalArgumentException if the text is null or cannot be converted to an array of the requested number
      *                                  type
      */
     public static String[] toStringArray(String text, String delims) {
-        //Guardian.assertNotNull("text", text);
+        Guardian.assertNotNull("text", text);
         if (delims == null || delims.length() == 0) {
             delims = ",";
         }
@@ -326,14 +308,13 @@ public final class StringUtils {
      * object - the value of <code>object.toString()</code> is stored,  null-values remain null-values.
      *
      * @param objArray the object array to be converted, if <code>null</code> the method returns <code>null</code> too
-     *
      * @return the string array
      */
     public static String[] toStringArray(Object[] objArray) {
         if (objArray == null || objArray instanceof String[]) {
             return (String[]) objArray;
         }
-        final String[] strArray = new String[objArray.length];
+        String[] strArray = new String[objArray.length];
         int i=0;
         for(Object obj : objArray) {
             strArray[i++] = (obj != null) ? obj.toString() : null;
@@ -345,7 +326,6 @@ public final class StringUtils {
      * Tests whether or not the given string is null or empty.
      *
      * @param str the string to be tested
-     *
      * @return <code>true</code> if so
      */
     public static boolean isNullOrEmpty(String str) {
@@ -356,7 +336,6 @@ public final class StringUtils {
      * Tests whether or not the given string is not null and not empty.
      *
      * @param str the string to be tested
-     *
      * @return <code>true</code> if so
      */
     public static boolean isNotNullAndNotEmpty(String str) {
@@ -368,7 +347,6 @@ public final class StringUtils {
      * String was added to the end of array
      *
      * @return new <code>String[]</code> with all Strings
-     *
      * @throws IllegalArgumentException if one of the arguments are <code>null</code>
      */
     public static String[] addToArray(String[] array, String toAdd) throws IllegalArgumentException {
@@ -386,7 +364,6 @@ public final class StringUtils {
      * occurrence of the given String was removed.
      *
      * @return new <code>String[]</code> without the first occurrence of the given String
-     *
      * @throws IllegalArgumentException if one of the arguments are <code>null</code>
      */
     public static String[] removeFromArray(String[] array, String toRemove) throws IllegalArgumentException {
@@ -416,7 +393,6 @@ public final class StringUtils {
      *
      * @return new <code>String[]</code> without the first occurrence of the given Strings in the string array to
      *         remove
-     *
      * @throws IllegalArgumentException if array is <code>null</code>
      */
     public static String[] removeFromArray(String[] array, String[] toRemove) throws IllegalArgumentException {
@@ -436,7 +412,6 @@ public final class StringUtils {
      * Returns a string array which is a concatenation of the two given string arrays.
      *
      * @return a new <code>String[]</code> which is a concatenation of the two given string arrays.
-     *
      * @throws IllegalArgumentException if one of the arguments are <code>null</code>
      */
     public static String[] addArrays(String[] arr1, String[] arr2) throws IllegalArgumentException {
@@ -456,9 +431,7 @@ public final class StringUtils {
      *
      * @param a the string array in which to search
      * @param s the string for which the search is performed
-     *
      * @return <code>true</code> if the string <code>s</code> is contained in the array <code>a</code>
-     *
      * @throws IllegalArgumentException if one of the arguments are <code>null</code>
      */
     public static boolean contains(String[] a, String s) {
@@ -470,9 +443,7 @@ public final class StringUtils {
      *
      * @param a the string array in which to search
      * @param s the string for which the search is performed
-     *
      * @return <code>true</code> if the string <code>s</code> is contained in the array <code>a</code>
-     *
      * @throws IllegalArgumentException if one of the arguments are <code>null</code>
      */
     public static boolean containsIgnoreCase(String[] a, String s) {
@@ -484,9 +455,7 @@ public final class StringUtils {
      *
      * @param l the string list in which to search
      * @param s the string for which the search is performed
-     *
      * @return <code>true</code> if the string <code>s</code> is contained in the array <code>a</code>
-     *
      * @throws IllegalArgumentException if one of the arguments are <code>null</code>
      */
     public static boolean containsIgnoreCase(List l, String s) {
@@ -497,7 +466,6 @@ public final class StringUtils {
      * Retrieves whether the entries in the string array are unique - or not.
      *
      * @param array
-     *
      * @return <code>true</code> if the entries in the string array are unique, otherwise <code>false</code>.
      */
     public static boolean areEntriesUnique(final String[] array) {
@@ -519,10 +487,8 @@ public final class StringUtils {
      *
      * @param a the string array in which to search
      * @param s the string for which the search is performed
-     *
      * @return the array index of the first occurence of <code>s</code> in <code>a</code> or <code>-1</code> if it is
      *         not cointained in the array
-     *
      * @throws IllegalArgumentException if one of the arguments is <code>null</code>
      */
     public static int indexOf(String[] a, String s) {
@@ -542,10 +508,8 @@ public final class StringUtils {
      *
      * @param a the string array in which to search
      * @param s the string for which the search is performed
-     *
      * @return the array index of the first occurence of <code>s</code> in <code>a</code> or <code>-1</code> if it is
      *         not cointained in the array
-     *
      * @throws IllegalArgumentException if one of the arguments is <code>null</code>
      */
     public static int indexOfIgnoreCase(String[] a, String s) {
@@ -565,10 +529,8 @@ public final class StringUtils {
      *
      * @param l the string list in which to search
      * @param s the string for which the search is performed
-     *
      * @return the array index of the first occurence of <code>s</code> in <code>a</code> or <code>-1</code> if it is
      *         not cointained in the array
-     *
      * @throws IllegalArgumentException if one of the arguments is <code>null</code>
      */
     public static int indexOfIgnoreCase(List l, String s) {
@@ -586,9 +548,7 @@ public final class StringUtils {
      * Gets a comma separate value string for the given array object.
      *
      * @param array the array object of values.
-     *
      * @return a comma separate value string for the given array object.
-     *
      * @throws IllegalArgumentException if the given Object is not an <code>array</code> or <code>null</code>.
      */
     public static String arrayToCsv(final Object array) {
@@ -600,9 +560,7 @@ public final class StringUtils {
      *
      * @param array the array object
      * @param s     the separator string, e.g. ","
-     *
      * @return a string represenation of the array
-     *
      * @throws IllegalArgumentException if the given Object is not an <code>array</code> or <code>null</code>.
      */
     public static String arrayToString(final Object array, final String s) {
@@ -627,9 +585,7 @@ public final class StringUtils {
      * Gets a String[] from the given comma separated value string.
      *
      * @param csvString the CSV (comma separated value) String.
-     *
      * @return an array of strings created from the given comma separated value string, never <code>null</code>
-     *
      * @throws IllegalArgumentException if the given csvString is <code>null</code> or <code>empty</code>.
      */
     public static String[] csvToArray(String csvString) {
@@ -791,12 +747,12 @@ public final class StringUtils {
 
     /**
      * Checks if the string is numeric
-     * @param str the String input
+     *
+     * @param str   the String input
      * @param clazz the type to check against
      * @return true if numeric false if not
      */
-    public static boolean isNumeric(String str, Class<? extends Number> clazz)
-    {
+    public static boolean isNumeric(String str, Class<? extends Number> clazz) {
         try {
             if (clazz.equals(Byte.class)) {
                 Byte.parseByte(str);
@@ -817,7 +773,7 @@ public final class StringUtils {
         return true;
     }
 
-   /**
+    /**
      * Turns the first letter of the given string to upper case.
      *
      * @param string the string to change
@@ -827,4 +783,26 @@ public final class StringUtils {
         String firstChar = string.substring(0, 1).toUpperCase();
         return firstChar + string.substring(1);
     }
+
+    /**
+     * Gets the array index of the i-th occurrence of a given string in a string array or <code>-1</code> if
+     * the string could not be found.
+     *
+     * @param a the string array in which to search
+     * @param s the string for which the search is performed
+     * @param i the index of the occurrence of the requested string
+     * @return the array index of the <code>i-th</code> occurrence of <code>s</code> in <code>a</code> or
+     *         <code>-1</code> if <code>s</code> is contained less than <code>i</code> times in the array or if
+     *         <code>i</code> is less than 1
+     * @throws IllegalArgumentException if <code>a</code> <code>s</code> are <code>null</code>
+     */
+    public static int indexOfSpecificOccurrence(String a, String s, int i) {
+        int indexOfLastOccurrence = -1;
+        for (int j = 0; j < i; j++) {
+            indexOfLastOccurrence = a.indexOf(s, indexOfLastOccurrence + 1);
+            if (indexOfLastOccurrence == -1 || indexOfLastOccurrence == a.length()) return -1;
+        }
+        return indexOfLastOccurrence;
+    }
+
 }

@@ -26,6 +26,7 @@ import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.dataop.maptransf.IdentityTransformDescriptor;
 import org.esa.beam.framework.dataop.maptransf.MapInfo;
 import org.esa.beam.framework.dataop.maptransf.MapProjectionRegistry;
+import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.util.ProductUtils;
 import org.esa.nest.datamodel.AbstractMetadata;
 import org.esa.nest.eo.Constants;
@@ -38,9 +39,8 @@ import java.awt.geom.PathIterator;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -282,7 +282,7 @@ public class ProductLayer extends RenderableLayer {
         if(product.getGeoCoding() instanceof MapGeoCoding)
             return true;
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
-        return absRoot != null && !absRoot.getAttributeString(AbstractMetadata.map_projection, "").isEmpty();
+        return absRoot != null && !absRoot.getAttributeString(AbstractMetadata.map_projection, "").trim().isEmpty();
     }
 
     private static Product createSubsampledProduct(final Product product) throws IOException {
@@ -299,11 +299,15 @@ public class ProductLayer extends RenderableLayer {
         Product productSubset = product.createSubset(productSubsetDef, quicklookBandName, null);
 
         if(!isMapProjected(product)) {
-            final MapInfo mapInfo = ProductUtils.createSuitableMapInfo(productSubset,
-                                                MapProjectionRegistry.getProjection(IdentityTransformDescriptor.NAME),
-                                                0.0,
-                                                product.getBand(quicklookBandName).getNoDataValue());
-            productSubset = productSubset.createProjectedProduct(mapInfo, quicklookBandName, null);
+            try {
+                final Map<String, Object> projParameters = new HashMap<String, Object>();
+                Map<String, Product> projProducts = new HashMap<String, Product>();
+                projProducts.put("source", productSubset);
+                projParameters.put("crs", "WGS84(DD)");
+                productSubset = GPF.createProduct("Reproject", projParameters, projProducts);
+            } catch(Exception e) {
+                e.printStackTrace();
+            }
         }
 
         return productSubset;

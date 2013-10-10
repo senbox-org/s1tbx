@@ -23,7 +23,11 @@ import org.esa.beam.framework.dataio.AbstractProductReader;
 import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
-import org.esa.beam.framework.dataop.maptransf.*;
+import org.esa.beam.framework.dataop.maptransf.Datum;
+import org.esa.beam.framework.dataop.maptransf.IdentityTransformDescriptor;
+import org.esa.beam.framework.dataop.maptransf.MapInfo;
+import org.esa.beam.framework.dataop.maptransf.MapProjection;
+import org.esa.beam.framework.dataop.maptransf.MapTransform;
 import org.esa.beam.util.BeamConstants;
 import org.esa.beam.util.BitRaster;
 import org.esa.beam.util.ObjectUtils;
@@ -32,14 +36,22 @@ import org.esa.beam.util.io.BeamFileFilter;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.awt.*;
+import java.awt.Dimension;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 
 public class ProductTest {
@@ -62,15 +74,15 @@ public class ProductTest {
         product.acceptVisitor(visitor);
         List<String> visitedList = visitor.getVisitedList();
 
-        assertEquals(true, visitedList.contains("bandGroup"));
-        assertEquals(true, visitedList.contains("tiePointGridGroup"));
-        assertEquals(true, visitedList.contains("bitmaskDefGroup"));
-        assertEquals(true, visitedList.contains("maskGroup"));
-        assertEquals(true, visitedList.contains("indexCodingGroup"));
-        assertEquals(true, visitedList.contains("flagCodingGroup"));
+        assertEquals(true, visitedList.contains("bands"));
+        assertEquals(true, visitedList.contains("tie_point_grids"));
+        assertEquals(true, visitedList.contains("bitmask_defs"));
+        assertEquals(true, visitedList.contains("masks"));
+        assertEquals(true, visitedList.contains("index_codings"));
+        assertEquals(true, visitedList.contains("flag_codings"));
         assertEquals(true, visitedList.contains("pins"));
         assertEquals(true, visitedList.contains("ground_control_points"));
-        assertEquals(true, visitedList.contains("vectorDataGroup"));
+        assertEquals(true, visitedList.contains("vector_data"));
 
         try {
             product.acceptVisitor(null);
@@ -405,15 +417,15 @@ public class ProductTest {
         assertNotNull(autoGrouping);
         assertEquals(10, autoGrouping.size());
 
-        assertArrayEquals(new String []{"L_1"}, autoGrouping.get(0));
+        assertArrayEquals(new String[]{"L_1"}, autoGrouping.get(0));
         assertArrayEquals(new String []{"L_1_err"}, autoGrouping.get(1));
-        assertArrayEquals(new String []{"L_2"}, autoGrouping.get(2));
-        assertArrayEquals(new String []{"L_2_err"}, autoGrouping.get(3));
-        assertArrayEquals(new String []{"L_10"}, autoGrouping.get(4));
-        assertArrayEquals(new String []{"L_10_err"}, autoGrouping.get(5));
+        assertArrayEquals(new String[]{"L_2"}, autoGrouping.get(2));
+        assertArrayEquals(new String[]{"L_2_err"}, autoGrouping.get(3));
+        assertArrayEquals(new String[]{"L_10"}, autoGrouping.get(4));
+        assertArrayEquals(new String[]{"L_10_err"}, autoGrouping.get(5));
         assertArrayEquals(new String []{"L_11"}, autoGrouping.get(6));
-        assertArrayEquals(new String []{"L_11_err"}, autoGrouping.get(7));
-        assertArrayEquals(new String []{"L_21"}, autoGrouping.get(8));
+        assertArrayEquals(new String[]{"L_11_err"}, autoGrouping.get(7));
+        assertArrayEquals(new String[]{"L_21"}, autoGrouping.get(8));
         assertArrayEquals(new String []{"L_21_err"}, autoGrouping.get(9));
 
         assertEquals(0, autoGrouping.indexOf("L_1_CAM1"));
@@ -549,6 +561,54 @@ public class ProductTest {
         } catch (IllegalArgumentException ignored) {
             fail("IllegalArgumentException not expected");
         }
+    }
+
+    @Test
+    public void testDefaultGroups() throws Exception {
+        final Product p = new Product("n", "t", 10, 10);
+        final ProductNodeGroup<ProductNodeGroup> groups = p.getGroups();
+        assertNotNull(groups);
+        int n = groups.getNodeCount();
+
+        assertNotNull(p.getGroup("bands"));
+        assertSame(p.getGroup("bands"), groups.get("bands"));
+
+        assertNotNull(p.getGroup("tie_point_grids"));
+        assertSame(p.getGroup("tie_point_grids"), groups.get("tie_point_grids"));
+
+        assertNotNull(p.getGroup("index_codings"));
+        assertSame(p.getGroup("index_codings"), groups.get("index_codings"));
+
+        assertNotNull(p.getGroup("flag_codings"));
+        assertSame(p.getGroup("flag_codings"), groups.get("flag_codings"));
+
+        assertNotNull(p.getGroup("masks"));
+        assertSame(p.getGroup("masks"), groups.get("masks"));
+
+        assertNotNull(p.getGroup("vector_data"));
+        assertSame(p.getGroup("vector_data"), groups.get("vector_data"));
+    }
+
+    @Test
+    public void testAddAndRemoveGroup() throws Exception {
+        final Product p = new Product("n", "t", 10, 10);
+        final ProductNodeGroup<ProductNodeGroup> groups = p.getGroups();
+        assertNotNull(groups);
+
+        int nodeCount0 = groups.getNodeCount();
+        final TracingProductNodeListener listener = new TracingProductNodeListener();
+        final int eventCount0 = listener.events.size();
+        p.addProductNodeListener(listener);
+        final ProductNodeGroup<MetadataElement> spectra = new ProductNodeGroup<MetadataElement>(p, "spectra", true);
+        groups.add(spectra);
+        assertEquals(groups.getNodeCount(), nodeCount0 + 1);
+        assertEquals(listener.events.size(), eventCount0 + 1);
+
+        assertSame(spectra, p.getGroup("spectra"));
+        spectra.add(new MetadataElement("radiance"));
+        assertEquals(listener.events.size(), eventCount0 + 2);
+        spectra.add(new MetadataElement("reflectance"));
+        assertEquals(listener.events.size(), eventCount0 + 3);
     }
 
 
@@ -815,6 +875,29 @@ public class ProductTest {
 
         @Override
         public void nodeRemoved(ProductNodeEvent event) {
+        }
+    }
+
+    private static class TracingProductNodeListener extends ProductNodeListenerAdapter {
+        List<ProductNodeEvent> events = new ArrayList<ProductNodeEvent>();
+        @Override
+        public void nodeChanged(ProductNodeEvent event) {
+            events.add(event);
+        }
+
+        @Override
+        public void nodeDataChanged(ProductNodeEvent event) {
+            events.add(event);
+        }
+
+        @Override
+        public void nodeAdded(ProductNodeEvent event) {
+            events.add(event);
+        }
+
+        @Override
+        public void nodeRemoved(ProductNodeEvent event) {
+            events.add(event);
         }
     }
 }

@@ -18,7 +18,6 @@ package org.esa.beam.glevel;
 
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.glevel.MultiLevelModel;
-import com.bc.ceres.glevel.MultiLevelSource;
 import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
 import com.bc.ceres.glevel.support.DefaultMultiLevelModel;
 import org.esa.beam.jai.TiledFileOpImage;
@@ -78,13 +77,4 @@ public class TiledFileMultiLevelSource extends AbstractMultiLevelSource {
         return image;
     }
 
-    @Deprecated
-    public TiledFileMultiLevelSource(MultiLevelModel model, File imageDir, Properties imageProperties, boolean visualDebug) {
-        this(model, imageDir, imageProperties);
-    }
-
-    @Deprecated
-    public static MultiLevelSource create(File imageDir, boolean visualDebug) throws IOException {
-        return create(imageDir);
-    }
 }

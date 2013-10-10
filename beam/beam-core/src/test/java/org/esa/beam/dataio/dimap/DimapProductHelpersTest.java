@@ -593,30 +593,30 @@ public class DimapProductHelpersTest extends TestCase {
 
     }
 
-    public void testCreateGeoCodingForPixelGeoCoding() throws IOException {
-        final Band latBand = product.getBand("b1");
-        final Band lonBand = product.getBand("b2");
-        final byte[] bandData = new byte[product.getSceneRasterWidth() * product.getSceneRasterHeight()];
-        latBand.setDataElems(bandData);
-        lonBand.setDataElems(bandData);
-        final PixelGeoCoding sourcePixelGeoCoding = new PixelGeoCoding(latBand, lonBand,
-                                                                       "Not NaN", 4, ProgressMonitor.NULL);
-        final byte[] bytes = createPixelGeoCodingString(sourcePixelGeoCoding).getBytes();
-        final Document dom = DimapProductHelpers.createDom(new ByteArrayInputStream(bytes));
-        final GeoCoding geoCoding = DimapProductHelpers.createGeoCoding(dom, product)[0];
-
-        assertNotNull(geoCoding);
-        assertEquals(PixelGeoCoding.class, geoCoding.getClass());
-        final PixelGeoCoding pixelGeoCoding = (PixelGeoCoding) geoCoding;
-
-        assertEquals("b1", pixelGeoCoding.getLatBand().getName());
-        assertEquals("b2", pixelGeoCoding.getLonBand().getName());
-        assertEquals("Not NaN", pixelGeoCoding.getValidMask());
-        assertEquals(4, pixelGeoCoding.getSearchRadius());
-        assertNotNull(pixelGeoCoding.getPixelPosEstimator());
-        assertEqual(fxyGeoCoding, (FXYGeoCoding) pixelGeoCoding.getPixelPosEstimator());
-
-    }
+//    public void testCreateGeoCodingForPixelGeoCoding() throws IOException {
+//        final Band latBand = product.getBand("b1");
+//        final Band lonBand = product.getBand("b2");
+//        final byte[] bandData = new byte[product.getSceneRasterWidth() * product.getSceneRasterHeight()];
+//        latBand.setDataElems(bandData);
+//        lonBand.setDataElems(bandData);
+//        final PixelGeoCoding sourcePixelGeoCoding = new PixelGeoCoding(latBand, lonBand,
+//                                                                       "Not NaN", 4, ProgressMonitor.NULL);
+//        final byte[] bytes = createPixelGeoCodingString(sourcePixelGeoCoding).getBytes();
+//        final Document dom = DimapProductHelpers.createDom(new ByteArrayInputStream(bytes));
+//        final GeoCoding geoCoding = DimapProductHelpers.createGeoCoding(dom, product)[0];
+//
+//        assertNotNull(geoCoding);
+//        assertEquals(PixelGeoCoding.class, geoCoding.getClass());
+//        final PixelGeoCoding pixelGeoCoding = (PixelGeoCoding) geoCoding;
+//
+//        assertEquals("b1", pixelGeoCoding.getLatBand().getName());
+//        assertEquals("b2", pixelGeoCoding.getLonBand().getName());
+//        assertEquals("Not NaN", pixelGeoCoding.getValidMask());
+//        assertEquals(4, pixelGeoCoding.getSearchRadius());
+//        assertNotNull(pixelGeoCoding.getPixelPosEstimator());
+//        assertEqual(fxyGeoCoding, (FXYGeoCoding) pixelGeoCoding.getPixelPosEstimator());
+//
+//    }
 
     public void testCreateGeoCodingForCrsGeoCoding() throws Exception {
         final Rectangle imageBounds = new Rectangle(product.getSceneRasterWidth(),

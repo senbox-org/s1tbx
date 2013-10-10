@@ -252,7 +252,7 @@ public class CreateFilteredBandAction extends ExecCommand {
             final GeneralFilter generalFilter = (GeneralFilter) filter;
             filterBand = new GeneralFilterBand(bandName, raster,
                                                generalFilter.width,
-                                               generalFilter.height, generalFilter.operator);
+                                               generalFilter.operator);
         }
         final String descr = MessageFormat.format("Filter ''{0}'' applied to ''{1}''",
                                                   filter.toString(),

@@ -49,11 +49,6 @@ import java.io.IOException;
 public class VirtualBand extends Band {
 
     public static final String PROPERTY_NAME_EXPRESSION = "expression";
-    /**
-     * @deprecated since 4.9, no replacement
-     */
-    @Deprecated
-    public static final String PROPERTY_NAME_WRITE_DATA = "writeData";
 
     private String expression;
 

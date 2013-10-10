@@ -47,8 +47,8 @@ public class Debug {
      * Set the DEBUG constant to false, if you want your Java compiler to completely remove method bodies caused by dead
      * code blocks.
      */
-    //private static final boolean DEBUG = true;
-    private static final boolean DEBUG = false;
+    private static final boolean DEBUG = true;
+    //private static final boolean DEBUG = false;
 
     /**
      * If false, debugging will be disabled.

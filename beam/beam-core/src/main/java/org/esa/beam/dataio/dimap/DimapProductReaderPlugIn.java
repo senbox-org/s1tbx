@@ -23,6 +23,7 @@ import org.esa.beam.util.io.BeamFileFilter;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Locale;
 
 /**
@@ -42,6 +43,7 @@ import java.util.Locale;
 public class DimapProductReaderPlugIn implements ProductReaderPlugIn {
 
     private final BeamFileFilter dimapFileFilter = (BeamFileFilter) DimapProductHelpers.createDimapFileFilter();
+    private ArrayList<DimapProductReader.ReaderExtender> readerExtenders;
 
     /**
      * Constructs a new BEAM-DIMAP product reader plug-in instance.
@@ -110,7 +112,7 @@ public class DimapProductReaderPlugIn implements ProductReaderPlugIn {
                 if (fr.read(cbuf) != -1) {
                     final String s = new String(cbuf);
                     fr.close();
-                    if (s.indexOf("<"+DimapProductConstants.TAG_ROOT) != -1) {
+                    if (s.indexOf("<Dimap_Document") != -1) {
                         return DecodeQualification.INTENDED;
                     }
                 }
@@ -147,10 +149,34 @@ public class DimapProductReaderPlugIn implements ProductReaderPlugIn {
      * @return a new instance of the <code>DimapProductReader</code> class
      */
     public ProductReader createReaderInstance() {
-        return new DimapProductReader(this);
+        final DimapProductReader dimapProductReader = new DimapProductReader(this);
+        if (readerExtenders != null) {
+            for (DimapProductReader.ReaderExtender readerExtender : readerExtenders) {
+                dimapProductReader.addExtender(readerExtender);
+            }
+        }
+        return dimapProductReader;
     }
 
     public BeamFileFilter getProductFileFilter() {
         return dimapFileFilter;
     }
+
+    public void addReaderExtender(DimapProductReader.ReaderExtender extender) {
+        if (extender == null) {
+            return;
+        }
+        if (readerExtenders == null) {
+            readerExtenders = new ArrayList<DimapProductReader.ReaderExtender>();
+        }
+        readerExtenders.add(extender);
+    }
+
+    public void removeReaderExtender(DimapProductReader.ReaderExtender extender) {
+        if (extender == null || readerExtenders == null) {
+            return;
+        }
+        readerExtenders.remove(extender);
+    }
+
 }

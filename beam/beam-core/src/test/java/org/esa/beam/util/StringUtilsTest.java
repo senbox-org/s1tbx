@@ -302,8 +302,8 @@ public class StringUtilsTest extends TestCase {
 
         //ignore values out of range
         values = "" + ((long) Integer.MIN_VALUE - 1) +
-                 "," + Integer.MIN_VALUE + ",-1,0,1," + Integer.MAX_VALUE +
-                 "," + ((long) Integer.MAX_VALUE + 1);
+                "," + Integer.MIN_VALUE + ",-1,0,1," + Integer.MAX_VALUE +
+                "," + ((long) Integer.MAX_VALUE + 1);
         try {
             current = StringUtils.toIntArray(values, null);
             fail("NumberFormatException expected");
@@ -354,10 +354,10 @@ public class StringUtilsTest extends TestCase {
 
         final double[] doubles = new double[]{Double.MAX_VALUE, Double.MIN_VALUE, 0, 1, -1};
         assertEquals("1.7976931348623157E308" +
-                     "4.9E-324" +
-                     "0.0" +
-                     "1.0" +
-                     "-1.0", StringUtils.arrayToString(doubles, ""));
+                             "4.9E-324" +
+                             "0.0" +
+                             "1.0" +
+                             "-1.0", StringUtils.arrayToString(doubles, ""));
 
         final String[] strings = new String[]{"a", "b", "string", "noch einer", "a_%&§$\"!"};
         assertEquals("a,b,string,noch einer,a_%&§$\"!", StringUtils.arrayToString(strings, ","));
@@ -372,8 +372,8 @@ public class StringUtilsTest extends TestCase {
 
         final Object[] objects = new Object[]{new Rectangle(3, 4, 5, 6), new Point(12, 13), hashMap};
         assertEquals("java.awt.Rectangle[x=3,y=4,width=5,height=6]," +
-                     "java.awt.Point[x=12,y=13]," +
-                     "{wert1=8, wert2=string}", StringUtils.arrayToString(objects, ","));
+                             "java.awt.Point[x=12,y=13]," +
+                             "{wert1=8, wert2=string}", StringUtils.arrayToString(objects, ","));
 
         try {
             // the parameter is not an array
@@ -578,5 +578,21 @@ public class StringUtilsTest extends TestCase {
         assertTrue(StringUtils.isNumeric("123.69", Double.class));
 
     }
+
+    public void testIndexOfSpecificOccurrence() {
+        String a = "ababab";
+        assertEquals(-1, StringUtils.indexOfSpecificOccurrence(a, "a", 0));
+        assertEquals(-1, StringUtils.indexOfSpecificOccurrence(a, "b", 0));
+        assertEquals(0, StringUtils.indexOfSpecificOccurrence(a, "a", 1));
+        assertEquals(1, StringUtils.indexOfSpecificOccurrence(a, "b", 1));
+        assertEquals(-1, StringUtils.indexOfSpecificOccurrence(a, "c", 1));
+        assertEquals(2, StringUtils.indexOfSpecificOccurrence(a, "a", 2));
+        assertEquals(3, StringUtils.indexOfSpecificOccurrence(a, "b", 2));
+        assertEquals(4, StringUtils.indexOfSpecificOccurrence(a, "a", 3));
+        assertEquals(5, StringUtils.indexOfSpecificOccurrence(a, "b", 3));
+        assertEquals(-1, StringUtils.indexOfSpecificOccurrence(a, "a", 4));
+        assertEquals(-1, StringUtils.indexOfSpecificOccurrence(a, "b", 4));
+    }
+
 }
 

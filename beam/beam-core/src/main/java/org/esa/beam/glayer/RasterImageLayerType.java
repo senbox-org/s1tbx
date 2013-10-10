@@ -27,8 +27,6 @@ import com.bc.ceres.glevel.MultiLevelSource;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.glevel.BandImageMultiLevelSource;
 
-import java.awt.geom.AffineTransform;
-
 @LayerTypeMetadata(name = "RasterImageLayerType",
                    aliasNames = {"org.esa.beam.glayer.RasterImageLayerType"})
 public class RasterImageLayerType extends ImageLayer.Type {
@@ -41,8 +39,7 @@ public class RasterImageLayerType extends ImageLayer.Type {
                 ImageLayer.PROPERTY_NAME_MULTI_LEVEL_SOURCE);
         if (multiLevelSource == null) {
             final RasterDataNode raster = (RasterDataNode) configuration.getValue(PROPERTY_NAME_RASTER);
-            final AffineTransform i2mTransform = raster.getSourceImage().getModel().getImageToModelTransform(0);
-            multiLevelSource = BandImageMultiLevelSource.create(raster, i2mTransform, ProgressMonitor.NULL);
+            multiLevelSource = BandImageMultiLevelSource.create(raster, ProgressMonitor.NULL);
             configuration.setValue(ImageLayer.PROPERTY_NAME_MULTI_LEVEL_SOURCE, multiLevelSource);
         }
         return new ImageLayer(this, multiLevelSource, configuration);

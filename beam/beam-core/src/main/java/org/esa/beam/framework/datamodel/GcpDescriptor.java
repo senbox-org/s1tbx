@@ -19,31 +19,44 @@ package org.esa.beam.framework.datamodel;
 public class GcpDescriptor extends PointPlacemarkDescriptor {
 
     public static GcpDescriptor getInstance() {
-        return (GcpDescriptor) PlacemarkDescriptorRegistry.getInstance().getPlacemarkDescriptor(GcpDescriptor.class.getName());
+        return (GcpDescriptor) PlacemarkDescriptorRegistry.getInstance().getPlacemarkDescriptor(
+                GcpDescriptor.class.getName());
     }
 
     public GcpDescriptor() {
         super("org.esa.beam.GroundControlPoint");
     }
 
+    /**
+     * @deprecated since 4.10
+     */
     @Override
     @Deprecated
     public String getShowLayerCommandId() {
         return "showGcpOverlay";
     }
 
+    /**
+     * @deprecated since 4.10
+     */
     @Override
     @Deprecated
     public String getRoleName() {
         return "gcp";
     }
 
+    /**
+     * @deprecated since 4.10
+     */
     @Override
     @Deprecated
     public String getRoleLabel() {
         return "GCP";
     }
 
+    /**
+     * @deprecated since 4.10
+     */
     @Override
     @Deprecated
     public PlacemarkGroup getPlacemarkGroup(Product product) {

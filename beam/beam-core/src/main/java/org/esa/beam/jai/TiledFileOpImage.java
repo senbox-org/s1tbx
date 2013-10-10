@@ -65,7 +65,7 @@ public class TiledFileOpImage extends SourcelessOpImage {
         return create(new File(imageDir.getBasePath()), defaultImageProperties);
     }
 
-    private TiledFileOpImage(ImageHeader imageHeader, Map configuration, VirtualDir imageDir) {
+    private TiledFileOpImage(ImageHeader imageHeader, Map configuration, VirtualDir imageDir) throws IOException {
         super(imageHeader.getImageLayout(),
               configuration,
               imageHeader.getImageLayout().getSampleModel(null),

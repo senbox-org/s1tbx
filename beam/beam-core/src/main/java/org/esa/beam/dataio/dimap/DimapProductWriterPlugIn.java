@@ -20,7 +20,9 @@ import org.esa.beam.framework.dataio.ProductWriterPlugIn;
 import org.esa.beam.util.io.BeamFileFilter;
 
 import java.io.File;
+import java.util.HashSet;
 import java.util.Locale;
+import java.util.Set;
 
 /**
  * The <code>DimapProductWriterPlugIn</code> class is the plug-in entry-point for the BEAM-DIMAP product writer.
@@ -404,11 +406,13 @@ public class DimapProductWriterPlugIn implements ProductWriterPlugIn {
 
     public final static String DIMAP_FORMAT_NAME = DimapProductConstants.DIMAP_FORMAT_NAME;
     private final BeamFileFilter dimapFileFilter = (BeamFileFilter) DimapProductHelpers.createDimapFileFilter();
+    private Set<DimapProductWriter.WriterExtender> dimapWriterWriterExtenders;
 
     /**
      * Constructs a new BEAM-DIMAP product writer plug-in instance.
      */
     public DimapProductWriterPlugIn() {
+
     }
 
     /**
@@ -463,10 +467,31 @@ public class DimapProductWriterPlugIn implements ProductWriterPlugIn {
      * @return a new instance of the <code>DimapProductWriter</code> class
      */
     public ProductWriter createWriterInstance() {
-        return new DimapProductWriter(this);
+        final DimapProductWriter dimapProductWriter = new DimapProductWriter(this);
+        if (dimapWriterWriterExtenders != null) {
+            for (DimapProductWriter.WriterExtender writerExtender : dimapWriterWriterExtenders) {
+                dimapProductWriter.addExtender(writerExtender);
+            }
+        }
+        return dimapProductWriter;
     }
 
     public BeamFileFilter getProductFileFilter() {
         return dimapFileFilter;
+    }
+
+    public void addWriterExtender(DimapProductWriter.WriterExtender writerExtender) {
+        if (dimapWriterWriterExtenders == null) {
+            dimapWriterWriterExtenders = new HashSet<DimapProductWriter.WriterExtender>();
+        }
+        if (writerExtender != null) {
+            dimapWriterWriterExtenders.add(writerExtender);
+        }
+    }
+
+    public void removeWriterExtender(DimapProductWriter.WriterExtender writerExtender) {
+        if (dimapWriterWriterExtenders == null) {
+            dimapWriterWriterExtenders.remove(writerExtender);
+        }
     }
 }

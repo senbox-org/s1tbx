@@ -61,10 +61,8 @@ public class Mask extends Band {
 
     private final ImageType imageType;
     private final PropertyChangeListener imageConfigListener;
-    private PropertyContainer imageConfig = null;
-    private Color initialColor;
-    private double initialTransparency;
-    private String initialExpression;
+    private final PropertyContainer imageConfig;
+
 
     /**
      * Constructs a new mask.
@@ -87,6 +85,8 @@ public class Mask extends Band {
                 fireProductNodeChanged(evt.getPropertyName(), evt.getOldValue(), evt.getNewValue());
             }
         };
+        this.imageConfig = imageType.createImageConfig();
+        this.imageConfig.addPropertyChangeListener(imageConfigListener);
     }
 
     /**
@@ -99,42 +99,24 @@ public class Mask extends Band {
     /**
      * @return The image configuration of this mask.
      */
-    public final PropertyContainer getImageConfig() {
-        if(imageConfig == null) {
-            this.imageConfig = imageType.createImageConfig();
-            this.imageConfig.addPropertyChangeListener(imageConfigListener);
-            if(initialColor != null)
-                setImageColor(initialColor);
-            setImageTransparency(initialTransparency);
-            setExpression(initialExpression);
-        }
+    public PropertyContainer getImageConfig() {
         return imageConfig;
     }
 
     public Color getImageColor() {
-        return (Color) getImageConfig().getValue(ImageType.PROPERTY_NAME_COLOR);
+        return (Color) imageConfig.getValue(ImageType.PROPERTY_NAME_COLOR);
     }
 
     public void setImageColor(Color color) {
-        this.initialColor = color;
-        if(imageConfig != null)
-            getImageConfig().setValue(ImageType.PROPERTY_NAME_COLOR, color);
+        imageConfig.setValue(ImageType.PROPERTY_NAME_COLOR, color);
     }
 
     public double getImageTransparency() {
-        return (Double) getImageConfig().getValue(ImageType.PROPERTY_NAME_TRANSPARENCY);
+        return (Double) imageConfig.getValue(ImageType.PROPERTY_NAME_TRANSPARENCY);
     }
 
     public void setImageTransparency(double transparency) {
-        this.initialTransparency = transparency;
-        if(imageConfig != null)
-            getImageConfig().setValue(ImageType.PROPERTY_NAME_TRANSPARENCY, transparency);
-    }
-
-    public void setExpression(String expression) {
-        this.initialExpression = expression;
-        if(imageConfig != null && expression != null)
-            getImageConfig().setValue(BandMathsType.PROPERTY_NAME_EXPRESSION, expression);
+        imageConfig.setValue(ImageType.PROPERTY_NAME_TRANSPARENCY, transparency);
     }
 
     /**
@@ -167,7 +149,7 @@ public class Mask extends Band {
 
     @Override
     public void dispose() {
-        getImageConfig().removePropertyChangeListener(imageConfigListener);
+        imageConfig.removePropertyChangeListener(imageConfigListener);
         super.dispose();
     }
 
@@ -391,9 +373,13 @@ public class Mask extends Band {
         public void handleRename(Mask mask, String oldExternalName, String newExternalName) {
             String oldExpression = getExpression(mask);
             final String newExpression = StringUtils.replaceWord(oldExpression, oldExternalName, newExternalName);
-            mask.setExpression(newExpression);
+            setExpression(mask, newExpression);
 
             super.handleRename(mask, oldExternalName, newExternalName);
+        }
+
+        public static void setExpression(Mask mask, String expression) {
+            mask.getImageConfig().setValue(PROPERTY_NAME_EXPRESSION, expression);
         }
 
         public static String getExpression(Mask mask) {
@@ -408,7 +394,7 @@ public class Mask extends Band {
             }
             mask.setImageColor(color);
             mask.setImageTransparency(transparency);
-            mask.setExpression(expression);
+            BandMathsType.setExpression(mask, expression);
             return mask;
         }
 

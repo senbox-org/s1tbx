@@ -69,19 +69,6 @@ public class ProductNodeEvent extends EventObject {
     /**
      * Constructs a productEvent object.
      *
-     * @param sourceNode   the product node whose property has changed
-     * @param propertyName the name of the property that was changed.
-     * @param oldValue     the old value.
-     * @deprecated Since BEAM 4.7
-     */
-    @Deprecated
-    public ProductNodeEvent(final ProductNode sourceNode, final String propertyName, final Object oldValue) {
-        this(sourceNode, propertyName, oldValue, null);
-    }
-
-    /**
-     * Constructs a productEvent object.
-     *
      * @param sourceNode   The product node whose property has changed
      * @param propertyName The name of the property that was changed.
      * @param oldValue     The old value.
@@ -155,18 +142,6 @@ public class ProductNodeEvent extends EventObject {
                              getSourceNode(),
                              getPropertyName(),
                              getType());
-    }
-
-
-    /**
-     * Gets the event type.
-     *
-     * @return the event type.
-     * @deprecated since BEAM 4.7, use {@link #getType()} instead
-     */
-    @Deprecated
-    public final int getId() {
-        return type;
     }
 
 

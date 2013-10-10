@@ -19,9 +19,9 @@ import com.bc.jexp.EvalEnv;
 import com.bc.jexp.EvalException;
 import com.bc.jexp.Symbol;
 import com.bc.jexp.Term;
+import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.RasterDataNode;
-import org.esa.beam.framework.datamodel.Mask;
 
 /**
  * Represents a read-only symbol. A symbol can be a named constant or variable.
@@ -32,9 +32,10 @@ import org.esa.beam.framework.datamodel.Mask;
  * The resulting term in this case is an instance of <code>{@link com.bc.jexp.Term.Ref}</code>.
  *
  * @author Norman Fomferra (norman.fomferra@brockmann-consult.de)
-
+ * @version $Revision$ $Date$
  */
 public class RasterDataSymbol implements Symbol {
+
     public static final Source RAW = Source.RAW;
     public static final Source GEOPHYSICAL = Source.GEOPHYSICAL;
 
@@ -57,11 +58,6 @@ public class RasterDataSymbol implements Symbol {
     private final RasterDataNode raster;
     private final Source source;
     protected ProductData data;
-
-    @Deprecated
-    public RasterDataSymbol(final String symbolName, final RasterDataNode raster) {
-        this(symbolName, raster, GEOPHYSICAL);
-    }
 
     public RasterDataSymbol(final String symbolName, final Mask mask) {
         this(symbolName, Term.TYPE_B, mask, RAW);
@@ -97,6 +93,7 @@ public class RasterDataSymbol implements Symbol {
 
     /**
      * @return The source image type.
+     *
      * @since BEAM 4.7
      */
     public Source getSource() {
@@ -107,7 +104,7 @@ public class RasterDataSymbol implements Symbol {
         return raster;
     }
 
-    public final void setData(final Object data) {
+    public void setData(final Object data) {
         if (ProductData.class.isAssignableFrom(data.getClass())) {
             this.data = (ProductData) data;
         } else if (data instanceof float[]) {
@@ -121,21 +118,25 @@ public class RasterDataSymbol implements Symbol {
 
     @Override
     public boolean evalB(final EvalEnv env) throws EvalException {
-        return Term.toB(data.getElemDoubleAt(((RasterDataEvalEnv) env).getElemIndex()));
+        final int elemIndex = ((RasterDataEvalEnv) env).getElemIndex();
+        return Term.toB(data.getElemDoubleAt(elemIndex));
     }
 
     @Override
     public int evalI(final EvalEnv env) throws EvalException {
-        return data.getElemIntAt(((RasterDataEvalEnv) env).getElemIndex());
+        final int elemIndex = ((RasterDataEvalEnv) env).getElemIndex();
+        return data.getElemIntAt(elemIndex);
     }
 
     @Override
     public double evalD(final EvalEnv env) throws EvalException {
-        return data.getElemDoubleAt(((RasterDataEvalEnv) env).getElemIndex());
+        final int elemIndex = ((RasterDataEvalEnv) env).getElemIndex();
+        return data.getElemDoubleAt(elemIndex);
     }
 
     @Override
-    public final String evalS(EvalEnv env) throws EvalException {
-        return Double.toString(evalD(env));
+    public String evalS(EvalEnv env) throws EvalException {
+        final double value = evalD(env);
+        return Double.toString(value);
     }
 }

@@ -27,12 +27,12 @@ import javax.media.jai.UnpackedImageData;
  * @author Norman Fomferra
  * @since BEAM 4.5.1, full revision in BEAM 4.10
  */
-final class HistogramStxOp extends StxOp {
+final public class HistogramStxOp extends StxOp {
 
     private final Histogram histogram;
     private final Scaling scaling;
 
-    HistogramStxOp(int binCount, double minimum, double maximum, boolean intHistogram, boolean logHistogram) {
+    public HistogramStxOp(int binCount, double minimum, double maximum, boolean intHistogram, boolean logHistogram) {
         super("Histogram");
         if (Double.isNaN(minimum) || Double.isInfinite(minimum)) {
             minimum = 0.0;

@@ -57,7 +57,7 @@ import java.util.regex.Pattern;
  */
 public class TimeStampExtractor {
 
-    private static final String LEGAL_DATE_TIME_CHAR_MATCHER = "[yMdhms:_\\.-]+";
+    private static final String LEGAL_DATE_TIME_CHAR_MATCHER = "[yMdDhms:_\\.-]+";
     private static final String LEGAL_FILENAME_CHAR_MATCHER = "[\\?\\*\\w\\. -]*";
 
     private static final String START_DATE_PLACEHOLDER = "${startDate}";
@@ -78,6 +78,7 @@ public class TimeStampExtractor {
      *
      * @param dateInterpretationPattern     the date interpretation pattern; see class documentation for specification.
      * @param filenameInterpretationPattern the filename interpretation pattern; see class documentation for specification.
+     *
      * @throws IllegalStateException if the filename interpretation pattern contains neither <i>${startDate}</i> nor
      *                               <i>endDate</i>.
      */
@@ -91,7 +92,9 @@ public class TimeStampExtractor {
      * Provides the start and stop time of the respective filename.
      *
      * @param fileName The filename to extract time information from.
+     *
      * @return An array of length 2 containing start and stop time, never <code>null</code>.
+     *
      * @throws ValidationException if the given filename does not match the given date pattern.
      */
     public ProductData.UTC[] extractTimeStamps(String fileName) throws ValidationException {
@@ -122,16 +125,20 @@ public class TimeStampExtractor {
         final int yearIndex = datePattern.indexOf("yyyy");
         final int monthIndex = datePattern.indexOf("MM");
         final int dayIndex = datePattern.indexOf("dd");
+        final int doyIndex = datePattern.indexOf("DDD");
         final int hourIndex = datePattern.indexOf("hh");
         final int minuteIndex = datePattern.indexOf("mm");
         final int secondIndex = datePattern.indexOf("ss");
-        List<Integer> indices = new ArrayList<Integer>(6);
+        List<Integer> indices = new ArrayList<Integer>(7);
         indices.add(yearIndex);
         if (monthIndex != -1) {
             indices.add(monthIndex);
         }
         if (dayIndex != -1) {
             indices.add(dayIndex);
+        }
+        if (doyIndex != -1) {
+            indices.add(doyIndex);
         }
         if (hourIndex != -1) {
             indices.add(0, hourIndex);
@@ -143,11 +150,15 @@ public class TimeStampExtractor {
             indices.add(secondIndex);
         }
         Collections.sort(indices);
-        createGroupIndices(0, yearIndex, monthIndex, dayIndex, hourIndex, minuteIndex, secondIndex, indices, startDateGroupIndices);
-        createGroupIndices(startDateGroupIndices.size(), yearIndex, monthIndex, dayIndex, hourIndex, minuteIndex, secondIndex, indices, stopDateGroupIndices);
+        createGroupIndices(0, yearIndex, monthIndex, dayIndex, doyIndex, hourIndex, minuteIndex, secondIndex, indices,
+                           startDateGroupIndices);
+        createGroupIndices(startDateGroupIndices.size(), yearIndex, monthIndex, dayIndex, doyIndex, hourIndex,
+                           minuteIndex, secondIndex, indices, stopDateGroupIndices);
     }
 
-    private void createGroupIndices(int offset, int yearIndex, int monthIndex, int dayIndex, int hourIndex, int minuteIndex, int secondIndex, List<Integer> indices, Map<DateType, Integer> groupIndices) {
+    private void createGroupIndices(int offset, int yearIndex, int monthIndex, int dayIndex, int doyIndex,
+                                    int hourIndex, int minuteIndex, int secondIndex, List<Integer> indices,
+                                    Map<DateType, Integer> groupIndices) {
         int position = offset + 1;
         for (Integer index : indices) {
             if (index == yearIndex) {
@@ -158,6 +169,9 @@ public class TimeStampExtractor {
                 position++;
             } else if (index == dayIndex) {
                 groupIndices.put(DateType.DAY, position);
+                position++;
+            } else if (index == doyIndex) {
+                groupIndices.put(DateType.DAY_OF_YEAR, position);
                 position++;
             } else if (index == hourIndex) {
                 groupIndices.put(DateType.HOUR, position);
@@ -176,16 +190,18 @@ public class TimeStampExtractor {
         final String startYearGroup = getString(matcher, DateType.YEAR, groupIndices);
         final String startMonthGroup = getString(matcher, DateType.MONTH, groupIndices);
         final String startDayGroup = getString(matcher, DateType.DAY, groupIndices);
+        final String startDoyGroup = getString(matcher, DateType.DAY_OF_YEAR, groupIndices);
         final String startHourGroup = getString(matcher, DateType.HOUR, groupIndices);
         final String startMinuteGroup = getString(matcher, DateType.MINUTE, groupIndices);
         final String startSecondGroup = getString(matcher, DateType.SECOND, groupIndices);
 
-        String pattern = createPattern(startYearGroup, startMonthGroup, startDayGroup, startHourGroup, startMinuteGroup, startSecondGroup);
+        String pattern = createPattern(startYearGroup, startMonthGroup, startDayGroup, startDoyGroup,
+                                       startHourGroup, startMinuteGroup, startSecondGroup);
         final ProductData.UTC startTime;
         try {
             startTime = ProductData.UTC.parse(
-                    startYearGroup + startMonthGroup + startDayGroup + startHourGroup + startMinuteGroup +
-                            startSecondGroup, pattern);
+                    startYearGroup + startMonthGroup + startDayGroup + startDoyGroup + startHourGroup +
+                    startMinuteGroup + startSecondGroup, pattern);
         } catch (ParseException e) {
             throw new IllegalStateException(e);
         }
@@ -199,7 +215,8 @@ public class TimeStampExtractor {
         return matcher.group(groupIndices.get(dateType));
     }
 
-    private String createPattern(String yearGroup, String monthGroup, String dayGroup, String hourGroup, String minuteGroup, String secondGroup) {
+    private String createPattern(String yearGroup, String monthGroup, String dayGroup, String doyGroup,
+                                 String hourGroup, String minuteGroup, String secondGroup) {
         final StringBuilder pattern = new StringBuilder();
         if (!"".equals(yearGroup)) {
             pattern.append("yyyy");
@@ -209,6 +226,9 @@ public class TimeStampExtractor {
         }
         if (!"".equals(dayGroup)) {
             pattern.append("dd");
+        }
+        if (!"".equals(doyGroup)) {
+            pattern.append("DDD");
         }
         if (!"".equals(hourGroup)) {
             pattern.append("hh");
@@ -240,6 +260,7 @@ public class TimeStampExtractor {
         final String yearPattern = "yyyy";
         final String monthPattern = "MM";
         final String dayPattern = "dd";
+        final String doyPattern = "DDD";
         final String hourPattern = "hh";
         final String minutePattern = "mm";
         final String secondPattern = "ss";
@@ -247,6 +268,7 @@ public class TimeStampExtractor {
         final String yearMatcher = "(\\\\d{" + yearPattern.length() + "})";
         final String monthMatcher = "(\\\\d{" + monthPattern.length() + "})";
         final String dayMatcher = "(\\\\d{" + dayPattern.length() + "})";
+        final String doyMatcher = "(\\\\d{" + doyPattern.length() + "})";
         final String hourMatcher = "(\\\\d{" + hourPattern.length() + "})";
         final String minuteMatcher = "(\\\\d{" + minutePattern.length() + "})";
         final String secondMatcher = "(\\\\d{" + secondPattern.length() + "})";
@@ -254,6 +276,7 @@ public class TimeStampExtractor {
         String dateMatcher = datePattern.replaceAll(yearPattern, yearMatcher);
         dateMatcher = dateMatcher.replaceAll(monthPattern, monthMatcher);
         dateMatcher = dateMatcher.replaceAll(dayPattern, dayMatcher);
+        dateMatcher = dateMatcher.replaceAll(doyPattern, doyMatcher);
         dateMatcher = dateMatcher.replaceAll(hourPattern, hourMatcher);
         dateMatcher = dateMatcher.replaceAll(minutePattern, minuteMatcher);
         dateMatcher = dateMatcher.replaceAll(secondPattern, secondMatcher);
@@ -276,21 +299,23 @@ public class TimeStampExtractor {
             }
             if (!pattern.matches(LEGAL_DATE_TIME_CHAR_MATCHER)) {
                 throw new ValidationException("Value of dateInterpretationPattern contains illegal charachters.\n" +
-                                                      "Valid characters are: 'y' 'M' 'd' 'h' 'm' 's' ':' '_' '-' '.'");
+                                              "Valid characters are: 'y' 'M' 'd' 'D' 'h' 'm' 's' ':' '_' '-' '.'");
             }
             if (!pattern.contains("yyyy")) {
-                throw new ValidationException("Value of dateInterpretationPattern must contain 'yyyy' as year placeholder.");
+                throw new ValidationException(
+                        "Value of dateInterpretationPattern must contain 'yyyy' as year placeholder.");
             }
             if (countOf("yyyy").in(pattern) > 1
-                    || countOf("MM").in(pattern) > 1
-                    || countOf("dd").in(pattern) > 1
-                    || countOf("hh").in(pattern) > 1
-                    || countOf("mm").in(pattern) > 1
-                    || countOf("ss").in(pattern) > 1
+                || countOf("MM").in(pattern) > 1
+                || countOf("dd").in(pattern) > 1
+                || countOf("DDD").in(pattern) > 1
+                || countOf("hh").in(pattern) > 1
+                || countOf("mm").in(pattern) > 1
+                || countOf("ss").in(pattern) > 1
                     ) {
                 throw new ValidationException(
                         "Value of dateInterpretationPattern can contain each of character sequences " +
-                                "('yyyy', 'MM', 'dd', 'hh', 'mm', 'ss') only once.");
+                        "('yyyy', 'MM', 'dd', 'DDD', 'hh', 'mm', 'ss') only once.");
             }
         }
     }
@@ -312,23 +337,23 @@ public class TimeStampExtractor {
             if (hasStartDate && hasEndDate) {
                 if (!pattern.matches(
                         LEGAL_FILENAME_CHAR_MATCHER + START_DATE_MATCHER + LEGAL_FILENAME_CHAR_MATCHER +
-                                END_DATE_MATCHER +
-                                LEGAL_FILENAME_CHAR_MATCHER)) {
+                        END_DATE_MATCHER +
+                        LEGAL_FILENAME_CHAR_MATCHER)) {
                     throw new ValidationException(
                             "Value of filenameInterpretationPattern contains illegal characters.\n" +
-                                    "legal characters are a-zA-Z0-9_-*.?${}");
+                            "legal characters are a-zA-Z0-9_-*.?${}");
                 }
             } else if (hasStartDate && !hasEndDate) {
                 if (!pattern.matches(LEGAL_FILENAME_CHAR_MATCHER + START_DATE_MATCHER + LEGAL_FILENAME_CHAR_MATCHER)) {
                     throw new ValidationException(
                             "Value of filenameInterpretationPattern contains illegal characters.\n" +
-                                    "legal characters are a-zA-Z0-9_-*.?${}");
+                            "legal characters are a-zA-Z0-9_-*.?${}");
                 }
             } else if (hasEndDate) {
                 if (!pattern.matches(LEGAL_FILENAME_CHAR_MATCHER + END_DATE_MATCHER + LEGAL_FILENAME_CHAR_MATCHER)) {
                     throw new ValidationException(
                             "Value of filenameInterpretationPattern contains illegal characters.\n" +
-                                    "legal characters are a-zA-Z0-9_-*.?${}");
+                            "legal characters are a-zA-Z0-9_-*.?${}");
                 }
             }
         }
@@ -338,7 +363,7 @@ public class TimeStampExtractor {
             if (dateCount > 1) {
                 throw new ValidationException(
                         "Value of filenameInterpretationPattern must contain the date placeholder '" +
-                                placeholder + "' at most once.");
+                        placeholder + "' at most once.");
             }
             return dateCount;
         }
@@ -372,6 +397,7 @@ public class TimeStampExtractor {
         YEAR,
         MONTH,
         DAY,
+        DAY_OF_YEAR,
         HOUR,
         MINUTE,
         SECOND

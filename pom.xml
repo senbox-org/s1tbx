@@ -160,6 +160,7 @@
 		<module>beam</module>
 		<module>jlinda</module>
 		<module>rstb</module>
+		<module>nest-benchmark</module>
 		<module>nest-bootstrap</module>
 		<module>nest-cli-bootstrap</module>
 		<module>nest-core</module>

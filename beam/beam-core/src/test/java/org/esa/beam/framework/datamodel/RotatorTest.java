@@ -18,6 +18,7 @@ package org.esa.beam.framework.datamodel;
 
 import junit.framework.TestCase;
 
+import java.awt.Point;
 import java.awt.geom.Point2D;
 import java.util.Arrays;
 
@@ -28,6 +29,25 @@ import java.util.Arrays;
  * @version $Revision$ $Date$
  */
 public class RotatorTest extends TestCase {
+
+    public void testRotatedPoleTransform() throws Exception {
+        // Values are taken from http://www.arolla.ethz.ch/IDL/RotateGridInfo.pdf
+        final double rotatedPoleLon = 10.0;
+        final double rotatedPoleLat = 32.5;
+        final Rotator rotator = new Rotator(rotatedPoleLon, 90.0 - rotatedPoleLat);
+
+        final Point2D p1 = new Point.Double(-10.0, 35.0);
+        rotator.transform(p1);
+
+        assertEquals(-17.339, p1.getX(), 0.05);
+        assertEquals(-19.939, p1.getY(), 0.05);
+
+        final Point2D p2 = new Point.Double(-11.0, 44.0);
+        rotator.transform(p2);
+
+        assertEquals(-15.232, p2.getX(), 0.05);
+        assertEquals(-11.137, p2.getY(), 0.05);
+    }
 
     public void testRotateX() {
         final Point2D p1 = new Point2D.Double(0.0, 0.0);
@@ -163,14 +183,14 @@ public class RotatorTest extends TestCase {
 
     public void testRotateToGcpCenter() {
         final double[] lats = new double[]{
-                85, 84, 83,
-                75, 74, 73,
-                65, 64, 63
+                    85, 84, 83,
+                    75, 74, 73,
+                    65, 64, 63
         };
         final double[] lons = new double[]{
-                -15, -5, 5,
-                -16, -6, 4,
-                -17, -7, 3
+                    -15, -5, 5,
+                    -16, -6, 4,
+                    -17, -7, 3
         };
 
         final GeoPos geoPos = GcpGeoCoding.calculateCentralGeoPos(lons, lats);
@@ -190,42 +210,50 @@ public class RotatorTest extends TestCase {
 
     // test that rotating really improves the GCP approximation
     public void doNotTestRotationOfRealSceneOfItalianLakes() {
-        double[] x = new double[]{43.5,
-                37.5,
-                523.5,
-                530.5,
-                1075.5,
-                1074.5,
-                832.5,
-                229.5,
-                524.5};
-        double[] y = new double[]{22.5,
-                284.5,
-                289.5,
-                18.5,
-                17.5,
-                284.5,
-                157.5,
-                157.5,
-                155.5};
-        double[] lats = new double[]{49.27275,
-                46.573524,
-                45.553078,
-                48.319298,
-                46.770004,
-                44.09146,
-                46.09978,
-                47.545685,
-                46.92791};
-        double[] lons = new double[]{6.051173,
-                5.255776,
-                11.624002,
-                12.795015,
-                19.971725,
-                18.575577,
-                16.156733,
-                8.208557,
-                12.158185};
+        double[] x = new double[]{
+                    43.5,
+                    37.5,
+                    523.5,
+                    530.5,
+                    1075.5,
+                    1074.5,
+                    832.5,
+                    229.5,
+                    524.5
+        };
+        double[] y = new double[]{
+                    22.5,
+                    284.5,
+                    289.5,
+                    18.5,
+                    17.5,
+                    284.5,
+                    157.5,
+                    157.5,
+                    155.5
+        };
+        double[] lats = new double[]{
+                    49.27275,
+                    46.573524,
+                    45.553078,
+                    48.319298,
+                    46.770004,
+                    44.09146,
+                    46.09978,
+                    47.545685,
+                    46.92791
+        };
+        double[] lons = new double[]{
+                    6.051173,
+                    5.255776,
+                    11.624002,
+                    12.795015,
+                    19.971725,
+                    18.575577,
+                    16.156733,
+                    8.208557,
+                    12.158185
+        };
 
         final GeoPos geoPos = GcpGeoCoding.calculateCentralGeoPos(lons, lats);
 
@@ -236,9 +264,9 @@ public class RotatorTest extends TestCase {
         rotator.transform(lons2, lats2);
 
         final GcpGeoCoding.RationalFunctionMap2D forwardMap =
-                new GcpGeoCoding.RationalFunctionMap2D(2, 0, x, y, lons, lats);
+                    new GcpGeoCoding.RationalFunctionMap2D(2, 0, x, y, lons, lats);
         final GcpGeoCoding.RationalFunctionMap2D forwardMap2 =
-                new GcpGeoCoding.RationalFunctionMap2D(2, 0, x, y, lons2, lats2);
+                    new GcpGeoCoding.RationalFunctionMap2D(2, 0, x, y, lons2, lats2);
 
         System.out.println("forwardMap.getRmseU() = " + forwardMap.getRmseU());
         System.out.println("forwardMap.getRmseV() = " + forwardMap.getRmseV());
@@ -248,9 +276,9 @@ public class RotatorTest extends TestCase {
         assertTrue(forwardMap.getRmseV() > forwardMap2.getRmseV());
 
         final GcpGeoCoding.RationalFunctionMap2D inverseMap =
-                new GcpGeoCoding.RationalFunctionMap2D(2, 0, lons, lats, x, y);
+                    new GcpGeoCoding.RationalFunctionMap2D(2, 0, lons, lats, x, y);
         final GcpGeoCoding.RationalFunctionMap2D inverseMap2 =
-                new GcpGeoCoding.RationalFunctionMap2D(2, 0, lons2, lats2, x, y);
+                    new GcpGeoCoding.RationalFunctionMap2D(2, 0, lons2, lats2, x, y);
 
         System.out.println("inverseMap.getRmseU() = " + inverseMap.getRmseU());
         System.out.println("inverseMap.getRmseV() = " + inverseMap.getRmseV());
@@ -266,5 +294,24 @@ public class RotatorTest extends TestCase {
             assertEquals(lats[i], lats2[i], 1.0E-6);
             assertEquals(lons[i], lons2[i], 1.0E-6);
         }
+    }
+
+    public void testRotate10_20to0_0() {
+        final Rotator rotator = new Rotator(20, 10);
+
+        final Point2D.Double rotatedPoint1 = new Point2D.Double(0d,0d);
+        final Point2D.Double rotatedPoint2 = new Point2D.Double(-5d, 0);
+        final Point2D.Double rotatedPoint3 = new Point2D.Double(5d, 0);
+
+        rotator.transformInversely(rotatedPoint1);
+        rotator.transformInversely(rotatedPoint2);
+        rotator.transformInversely(rotatedPoint3);
+
+        assertEquals(20d, rotatedPoint1.getX(), 1e-14);
+        assertEquals(10d,rotatedPoint1.getY(), 1e-14);
+        assertEquals(14.9232, rotatedPoint2.getX(), 1e-4);
+        assertEquals(9.9615, rotatedPoint2.getY(), 1e-4);
+        assertEquals(25.0767, rotatedPoint3.getX(), 1e-4);
+        assertEquals(9.9615, rotatedPoint3.getY(), 1e-4);
     }
 }

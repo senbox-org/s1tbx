@@ -466,7 +466,7 @@ public class Histogram extends Range {
         Guardian.assertNotNull("validator", validator);
         final int numValues = values.length;
         final int[] binVals = new int[numBins];
-        //pm.beginTask("Computing histogram", range == null ? 2 : 1);
+        pm.beginTask("Computing histogram", range == null ? 2 : 1);
         try {
             if (range == null) {
                 range = computeRangeShort(values, validator, range, SubProgressMonitor.create(pm, 1));
@@ -476,8 +476,8 @@ public class Histogram extends Range {
             final int delta = max > min ? max - min : 1;
             int value;
             int binIndex;
-            //ProgressMonitor subPm = SubProgressMonitor.create(pm, 1);
-            //subPm.beginTask("Computing histogram", numValues);
+            ProgressMonitor subPm = SubProgressMonitor.create(pm, 1);
+            subPm.beginTask("Computing histogram", numValues);
             try {
                 for (int i = 0; i < numValues; i++) {
                     if (validator.validateIndex(i)) {
@@ -490,10 +490,10 @@ public class Histogram extends Range {
                             binVals[binIndex]++;
                         }
                     }
-                    //subPm.worked(1);
+                    subPm.worked(1);
                 }
             } finally {
-                //subPm.done();
+                subPm.done();
             }
             if (histo != null) {
                 histo.setBinCounts(binVals, min, max);
@@ -501,7 +501,7 @@ public class Histogram extends Range {
                 histo = new Histogram(binVals, min, max);
             }
         } finally {
-            //pm.done();
+            pm.done();
         }
         return histo;
     }

@@ -203,9 +203,11 @@ public class ImageGeometry {
             final CoordinateReferenceSystem sourceCrs = product.getGeoCoding().getImageCRS();
             final int sourceW = product.getSceneRasterWidth();
             final int sourceH = product.getSceneRasterHeight();
-
-            Rectangle2D rect = XRectangle2D.createFromExtremums(0.5, 0.5, sourceW - 0.5, sourceH - 0.5);
-            int pointsPerSide = Math.min(sourceH, sourceW) / 10;
+            //todo decide on when to use createValidRect
+            Rectangle2D rect;
+            rect = XRectangle2D.createFromExtremums(0.5, 0.5, sourceW - 0.5, sourceH - 0.5);
+//                rect = createValidRect(product);
+            int pointsPerSide = Math.max(sourceH, sourceW) / 10;
             pointsPerSide = Math.max(9, pointsPerSide);
             final ReferencedEnvelope sourceEnvelope = new ReferencedEnvelope(rect, sourceCrs);
             final ReferencedEnvelope targetEnvelope = sourceEnvelope.transform(targetCrs, true, pointsPerSide);
@@ -219,6 +221,99 @@ public class ImageGeometry {
         } catch (Exception e) {
             throw new IllegalStateException(e);
         }
+    }
+
+    public static Rectangle2D createValidRect(Product product) {
+        final GeoCoding geoCoding = product.getGeoCoding();
+        float currentX = 0.5f;
+        float currentY = 0.5f;
+        int currentWidth = product.getSceneRasterWidth();
+        int currentHeight = product.getSceneRasterHeight();
+        int numberOfInvalidPositionsOnTheLeft = Integer.MAX_VALUE;
+        int numberOfInvalidPositionsOnTheRight = Integer.MAX_VALUE;
+        int numberOfInvalidPositionsAtTheTop = Integer.MAX_VALUE;
+        int numberOfInvalidPositionsAtTheBottom = Integer.MAX_VALUE;
+        int biggestNumberOfInvalidPositions = Integer.MAX_VALUE;
+        while (numberOfInvalidPositionsOnTheLeft > 0 || numberOfInvalidPositionsOnTheRight > 0 ||
+                numberOfInvalidPositionsAtTheTop > 0 || numberOfInvalidPositionsAtTheBottom > 0) {
+            if (numberOfInvalidPositionsOnTheLeft == biggestNumberOfInvalidPositions) {
+                numberOfInvalidPositionsOnTheLeft = 0;
+                for (float y = currentY; y < currentY + currentHeight; y++) {
+                    if (!geoCoding.getGeoPos(new PixelPos(currentX, y), null).isValid()) {
+                        numberOfInvalidPositionsOnTheLeft++;
+                    }
+                }
+            }
+            if (numberOfInvalidPositionsOnTheRight == biggestNumberOfInvalidPositions) {
+                numberOfInvalidPositionsOnTheRight = 0;
+                for (float y = currentY; y < currentY + currentHeight; y++) {
+                    if (!geoCoding.getGeoPos(new PixelPos(currentX + currentWidth, y), null).isValid()) {
+                        numberOfInvalidPositionsOnTheRight++;
+                    }
+                }
+            }
+            if (numberOfInvalidPositionsAtTheTop == biggestNumberOfInvalidPositions) {
+                numberOfInvalidPositionsAtTheTop = 0;
+                for (float x = currentX; x < currentX + currentWidth; x++) {
+                    if (!geoCoding.getGeoPos(new PixelPos(x, currentY), null).isValid()) {
+                        numberOfInvalidPositionsAtTheTop++;
+                    }
+                }
+            }
+            if (numberOfInvalidPositionsAtTheBottom == biggestNumberOfInvalidPositions) {
+                numberOfInvalidPositionsAtTheBottom = 0;
+                for (float x = currentX; x < currentX + currentWidth; x++) {
+                    if (!geoCoding.getGeoPos(new PixelPos(x, currentY + currentHeight), null).isValid()) {
+                        numberOfInvalidPositionsAtTheBottom++;
+                    }
+                }
+            }
+            biggestNumberOfInvalidPositions = Math.max(numberOfInvalidPositionsOnTheLeft,
+                                                       Math.max(numberOfInvalidPositionsOnTheRight,
+                                                                Math.max(numberOfInvalidPositionsAtTheTop,
+                                                                         numberOfInvalidPositionsAtTheBottom)));
+            if (biggestNumberOfInvalidPositions > 0) {
+                if (numberOfInvalidPositionsOnTheLeft == biggestNumberOfInvalidPositions) {
+                    currentX++;
+                    currentWidth--;
+                    if (!geoCoding.getGeoPos(new PixelPos(currentX - 1, currentY), null).isValid()) {
+                        numberOfInvalidPositionsAtTheTop--;
+                    }
+                    if (!geoCoding.getGeoPos(new PixelPos(currentX - 1, currentY + currentHeight), null).isValid()) {
+                        numberOfInvalidPositionsAtTheBottom--;
+                    }
+                }
+                if (numberOfInvalidPositionsOnTheRight == biggestNumberOfInvalidPositions) {
+                    currentWidth--;
+                    if (!geoCoding.getGeoPos(new PixelPos(currentX + currentWidth, currentY), null).isValid()) {
+                        numberOfInvalidPositionsAtTheTop--;
+                    }
+                    if (!geoCoding.getGeoPos(new PixelPos(currentX + currentWidth, currentY + currentHeight), null).isValid()) {
+                        numberOfInvalidPositionsAtTheBottom--;
+                    }
+                }
+                if (numberOfInvalidPositionsAtTheTop == biggestNumberOfInvalidPositions) {
+                    currentY++;
+                    currentHeight--;
+                    if (!geoCoding.getGeoPos(new PixelPos(currentX, currentY - 1), null).isValid()) {
+                        numberOfInvalidPositionsOnTheLeft--;
+                    }
+                    if (!geoCoding.getGeoPos(new PixelPos(currentX + currentWidth, currentY - 1), null).isValid()) {
+                        numberOfInvalidPositionsOnTheRight--;
+                    }
+                }
+                if (numberOfInvalidPositionsAtTheBottom == biggestNumberOfInvalidPositions) {
+                    currentHeight--;
+                    if (!geoCoding.getGeoPos(new PixelPos(currentX, currentY + currentHeight), null).isValid()) {
+                        numberOfInvalidPositionsOnTheLeft--;
+                    }
+                    if (!geoCoding.getGeoPos(new PixelPos(currentX + currentWidth, currentY + currentHeight), null).isValid()) {
+                        numberOfInvalidPositionsOnTheRight--;
+                    }
+                }
+            }
+        }
+        return XRectangle2D.createFromExtremums(currentX, currentY, currentX + currentWidth, currentY + currentHeight);
     }
 
     static AffineTransform createImageToMapTransform(double referencePixelX,

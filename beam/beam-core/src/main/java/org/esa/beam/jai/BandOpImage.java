@@ -55,28 +55,25 @@ public class BandOpImage extends RasterDataNodeOpImage {
             throw new IllegalStateException("no product reader for band " + getBand().getDisplayName());
         }
         try {
-            if (getLevel() == 0) {
-                productReader.readBandRasterData(getBand(), destRect.x, destRect.y,
-                                                 destRect.width, destRect.height,
-                                                 productData,
+		if (getLevel() == 0) {
+            productReader.readBandRasterData(getBand(), destRect.x, destRect.y,
+                                             destRect.width, destRect.height,
+                                             productData,
+                                             ProgressMonitor.NULL);
+        } else {
+            final int sourceWidth = getSourceWidth(destRect.width);
+            ProductData lineData = ProductData.createInstance(getBand().getDataType(), sourceWidth);
+            int[] sourceCoords = getSourceCoords(sourceWidth, destRect.width);
+            for (int y = 0; y < destRect.height; y++) {
+                productReader.readBandRasterData(getBand(),
+                                                 getSourceX(destRect.x),
+                                                 getSourceY(destRect.y + y),
+                                                 lineData.getNumElems(), 1,
+                                                 lineData,
                                                  ProgressMonitor.NULL);
-            } else {
-                final int sourceWidth = getSourceWidth(destRect.width);
-                final ProductData lineData = ProductData.createInstance(getBand().getDataType(), sourceWidth);
-                final int[] sourceCoords = getSourceCoords(sourceWidth, destRect.width);
-                final Band band = getBand();
-                final int srcX = getSourceX(destRect.x);
-                final int destWidth = lineData.getNumElems();
-                for (int y = 0; y < destRect.height; y++) {
-                    productReader.readBandRasterData(band,
-                                                     srcX,
-                                                     getSourceY(destRect.y + y),
-                                                     destWidth, 1,
-                                                     lineData,
-                                                     ProgressMonitor.NULL);
-                    copyLine(y, destRect.width, lineData, productData, sourceCoords);
-                }
+                copyLine(y, destRect.width, lineData, productData, sourceCoords);
             }
+        }
         } catch(EOFException e) {
             getBand().getProduct().setCorrupt(true);    
         }

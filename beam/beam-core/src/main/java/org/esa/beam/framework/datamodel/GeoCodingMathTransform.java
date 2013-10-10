@@ -16,6 +16,7 @@
 
 package org.esa.beam.framework.datamodel;
 
+import org.esa.beam.util.ProductUtils;
 import org.geotools.parameter.DefaultParameterDescriptorGroup;
 import org.geotools.referencing.operation.transform.AbstractMathTransform;
 import org.opengis.parameter.GeneralParameterDescriptor;
@@ -24,6 +25,8 @@ import org.opengis.referencing.operation.MathTransform2D;
 import org.opengis.referencing.operation.NoninvertibleTransformException;
 import org.opengis.referencing.operation.TransformException;
 
+import java.awt.Rectangle;
+
 /**
  * A math transform which converts from grid (pixel) coordinates to geographical coordinates.
  *
@@ -31,7 +34,7 @@ import org.opengis.referencing.operation.TransformException;
  * @author Norman Fomferra
  * @since BEAM 4.6
  */
-public class GeoCodingMathTransform extends AbstractMathTransform implements MathTransform2D{
+public class GeoCodingMathTransform extends AbstractMathTransform implements MathTransform2D {
 
     private static final TG2P G2P = new TG2P();
     private static final TP2G P2G = new TP2G();
@@ -89,7 +92,7 @@ public class GeoCodingMathTransform extends AbstractMathTransform implements Mat
         if (!super.equals(o)) {
             return false;
         }
-        
+
         GeoCodingMathTransform that = (GeoCodingMathTransform) o;
         if (t != that.t) {
             return false;
@@ -105,7 +108,7 @@ public class GeoCodingMathTransform extends AbstractMathTransform implements Mat
         result = 31 * result + t.hashCode();
         return result;
     }
-    
+
     private interface T {
 
         void transform(GeoCoding geoCoding, double[] srcPts, int srcOff,
@@ -130,6 +133,14 @@ public class GeoCodingMathTransform extends AbstractMathTransform implements Mat
                     pixelPos.y = (float) srcPts[srcOff + secondIndex];
 
                     geoCoding.getGeoPos(pixelPos, geoPos);
+                    //todo remove this when ImageGeometry.createValidRect is used
+                    if (!geoPos.isValid()) {
+                        if (geoCoding instanceof PixelGeoCoding2) {
+                            Rectangle region = new Rectangle(0, 0, ((PixelGeoCoding2) geoCoding).getRasterWidth(),
+                                                             ((PixelGeoCoding2) geoCoding).getRasterHeight());
+                            geoPos = ProductUtils.getClosestGeoPos(geoCoding, pixelPos, region, 20);
+                        }
+                    }
 
                     dstPts[dstOff + firstIndex] = geoPos.lon;
                     dstPts[dstOff + secondIndex] = geoPos.lat;
@@ -164,7 +175,7 @@ public class GeoCodingMathTransform extends AbstractMathTransform implements Mat
                     dstPts[dstOff + secondIndex] = pixelPos.y;
                 }
             } catch (Exception e) {
-                TransformException transformException = new TransformException();
+                final TransformException transformException = new TransformException();
                 transformException.initCause(e);
                 throw transformException;
             }

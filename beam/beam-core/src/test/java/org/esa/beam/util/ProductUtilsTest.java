@@ -16,14 +16,30 @@
 
 package org.esa.beam.util;
 
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.FlagCoding;
+import org.esa.beam.framework.datamodel.GeoCoding;
+import org.esa.beam.framework.datamodel.GeoPos;
+import org.esa.beam.framework.datamodel.IndexCoding;
+import org.esa.beam.framework.datamodel.Mask;
+import org.esa.beam.framework.datamodel.MetadataAttribute;
+import org.esa.beam.framework.datamodel.MetadataElement;
+import org.esa.beam.framework.datamodel.PixelGeoCoding2;
+import org.esa.beam.framework.datamodel.PixelPos;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.ProductNodeGroup;
+import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.datamodel.TiePointGeoCoding;
+import org.esa.beam.framework.datamodel.TiePointGrid;
 import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.junit.Test;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
 
 import javax.media.jai.operator.ConstantDescriptor;
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Rectangle;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -263,7 +279,7 @@ public class ProductUtilsTest {
         final int size = 10;
         final Product source = new Product("source", "test", size, size);
         final Band flagBand = source.addBand("flag", ProductData.TYPE_INT8);
-        flagBand.setSourceImage(ConstantDescriptor.create((float)size, (float)size, new Byte[]{42}, null));
+        flagBand.setSourceImage(ConstantDescriptor.create((float) size, (float) size, new Byte[]{42}, null));
         final FlagCoding originalFlagCoding = new FlagCoding("flagCoding");
         originalFlagCoding.addFlag("erni", 1, "erni flag");
         originalFlagCoding.addFlag("bert", 2, "bert flag");
@@ -514,6 +530,31 @@ public class ProductUtilsTest {
     }
 
     @Test
+    public void testGetScanLineTime_1_pixel() throws Exception {
+        Product product = new Product("name", "type", 1, 1);
+        ProductData.UTC startTime = ProductData.UTC.parse("01-01-2010", "dd-MM-yyyy");
+        ProductData.UTC endTime = ProductData.UTC.parse("02-01-2010", "dd-MM-yyyy");
+        product.setStartTime(startTime);
+        product.setEndTime(endTime);
+        double startTimeMJD = startTime.getMJD();
+        assertEquals(startTimeMJD, ProductUtils.getScanLineTime(product, 0).getMJD(), 1E-6);
+        assertNotSame(startTime, ProductUtils.getScanLineTime(product, 0));
+    }
+
+    @Test
+    public void testGetScanLineTime() throws Exception {
+        Product product = new Product("name", "type", 10, 10);
+        ProductData.UTC startTime = ProductData.UTC.parse("01-01-2010", "dd-MM-yyyy");
+        ProductData.UTC endTime = ProductData.UTC.parse("02-01-2010", "dd-MM-yyyy");
+        product.setStartTime(startTime);
+        product.setEndTime(endTime);
+        double startTimeMJD = startTime.getMJD();
+        double endTimeMJD = endTime.getMJD();
+        assertEquals(startTimeMJD, ProductUtils.getScanLineTime(product, 0).getMJD(), 1E-6);
+        assertEquals(endTimeMJD, ProductUtils.getScanLineTime(product, 9).getMJD(), 1E-6);
+    }
+
+    @Test
     public void testCopyMetadata() {
         try {
             ProductUtils.copyMetadata((Product) null, null);
@@ -565,6 +606,56 @@ public class ProductUtilsTest {
         for (int i = 0; i < geoPoses.length; i++) {
             GeoPos geoPos = geoPoses[i];
             assertTrue(String.format("geoPos at <%d> is invalid", i), geoPos.isValid());
+        }
+    }
+
+    @Test
+    public void testGetClosestGeoPos() {
+        final int sceneRasterWidth = 12;
+        final int sceneRasterHeight = sceneRasterWidth;
+        Product product = new Product("product", "float", sceneRasterWidth, sceneRasterHeight);
+        Band latBand = new Band("lat", ProductData.TYPE_FLOAT32, sceneRasterWidth, sceneRasterHeight);
+        Band lonBand = new Band("lon", ProductData.TYPE_FLOAT32, sceneRasterWidth, sceneRasterHeight);
+        float[] latData = new float[sceneRasterWidth * sceneRasterHeight];
+        float[] lonData = new float[sceneRasterWidth * sceneRasterHeight];
+        for (int i = 0; i < sceneRasterWidth; i++) {
+            for (int j = 0; j < sceneRasterHeight; j++) {
+                float latValue = Float.NaN;
+                float lonValue = Float.NaN;
+                if (i >= sceneRasterWidth / 4 && i <= 3 * (sceneRasterWidth / 4) &&
+                    j >= sceneRasterHeight / 4 && j <= 3 * (sceneRasterHeight / 4)) {
+                    latValue = i;
+                    lonValue = j;
+                }
+                latData[sceneRasterWidth * i + j] = latValue;
+                lonData[sceneRasterHeight * i + j] = lonValue;
+            }
+        }
+        latBand.setDataElems(latData);
+        lonBand.setDataElems(lonData);
+        latBand.setNoDataValue(Float.NaN);
+        latBand.setNoDataValueUsed(true);
+        lonBand.setNoDataValue(Float.NaN);
+        lonBand.setNoDataValueUsed(true);
+        product.addBand(latBand);
+        product.addBand(lonBand);
+        PixelGeoCoding2 geoCoding = new PixelGeoCoding2(latBand, lonBand, "");
+        Rectangle region = new Rectangle(0, 0, sceneRasterWidth, sceneRasterHeight);
+
+        for (int x = 0; x < 3; x++) {
+            for (int y = 0; y < 3; y++) {
+                if (x != 1 && y != 1) {
+                    for (int step = 1; step <= 4; step++) {
+                        PixelPos pixelPos = new PixelPos(x * (sceneRasterWidth / 2), y * (sceneRasterHeight / 2));
+                        final GeoPos ordinaryGeoPos = geoCoding.getGeoPos(pixelPos, null);
+                        assertEquals(Float.NaN, ordinaryGeoPos.getLon(), 0f);
+                        assertEquals(Float.NaN, ordinaryGeoPos.getLat(), 0f);
+                        final GeoPos closestGeoPos = ProductUtils.getClosestGeoPos(geoCoding, pixelPos, region, step);
+                        assertEquals((x + 1) * 3f, closestGeoPos.getLon(), 0f);
+                        assertEquals((y + 1) * 3f, closestGeoPos.getLat(), 0f);
+                    }
+                }
+            }
         }
     }
 

@@ -49,21 +49,22 @@ nest.test.rootPathMixProducts = 		P:\\nest\\nest\\ESA Data\\NestBox
 #If expected_results is not included, only output will be processed without comparison
 ####################################################################################
 
-nest.test.1.graph = D:\\Build\\5.0\\nest\\output\\graphs\\Standard Graphs\\Multilook.xml
-nest.test.1.input_products = 	I:\\INPUT\\test
-nest.test.1.expected_results = 	I:\\out\\test\\expected\\test1
-nest.test.1.output_products = 	I:\\out\\test\\output\\test1
+nest.test.1.graph = P:\\nest\\nest\\ESA Data\\test\\AutoTests\\graphs\\Standard Graphs\\Multilook.xml
+nest.test.1.input_products = 	P:\\nest\\input
+nest.test.1.expected_results = 	P:\\nest\\nest\\ESA Data\\test\\AutoTests\\expected\\test1
+nest.test.1.output_products = 	P:\\nest\\nest\\ESA Data\\test\\AutoTests\\output\\test1
 
-nest.test.2.graph = D:\\Build\\5.0\\nest\\output\\graphs\\Standard Graphs\\Calibrate.xml
-nest.test.2.input_products = 	I:\\INPUT\\test
-nest.test.2.expected_results = 	I:\\out\\test\\expected\\test2
-nest.test.2.output_products = 	I:\\out\\test\\output\\test2
+nest.test.2.graph = P:\\nest\\nest\\ESA Data\\test\\AutoTests\\graphs\\Standard Graphs\\Calibrate.xml
+nest.test.2.input_products = 	P:\\nest\\input
+nest.test.2.expected_results = 	P:\\nest\\nest\\ESA Data\\test\\AutoTests\\expected\\test2
+nest.test.2.output_products = 	P:\\nest\\nest\\ESA Data\\test\\AutoTests\\output\\test2
 
-nest.test.3.graph = D:\\Build\\5.0\\nest\\output\\graphs\\Standard Graphs\\Orthorectify.xml
-nest.test.3.input_products = 	I:\\INPUT\\test
-nest.test.3.expected_results = 	I:\\out\\test\\expected\\test3
-nest.test.3.output_products = 	I:\\out\\test\\output\\test3
+nest.test.3.graph = P:\\nest\\nest\\ESA Data\\test\\AutoTests\\graphs\\Standard Graphs\\Orthorectify.xml
+nest.test.3.input_products = 	P:\\nest\\input
+nest.test.3.expected_results = 	P:\\nest\\nest\\ESA Data\\test\\AutoTests\\expected\\test3
+nest.test.3.output_products = 	P:\\nest\\nest\\ESA Data\\test\\AutoTests\\output\\test3
 
-nest.test.4.graph = D:\\Build\\5.0\\nest\\output\\graphs\\Standard Graphs\\Orthorectify.xml
-nest.test.4.input_products = 	I:\\INPUT\\test
-nest.test.4.output_products = 	I:\\out\\test\\output\\test4
+nest.test.4.graph = P:\\nest\\nest\\ESA Data\\test\\AutoTests\\graphs\\Subset_Cal.xml
+nest.test.4.input_products = 	P:\\nest\\input
+nest.test.4.expected_results = 	P:\\nest\\nest\\ESA Data\\test\\AutoTests\\expected\\test4
+nest.test.4.output_products = 	P:\\nest\\nest\\ESA Data\\test\\AutoTests\\output\\test4

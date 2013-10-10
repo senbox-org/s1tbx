@@ -16,19 +16,23 @@
 
 package org.esa.beam.util.jai;
 
-import junit.framework.TestCase;
 import org.esa.beam.util.IntMap;
+import org.junit.Assert;
+import org.junit.Test;
 
 import javax.media.jai.PlanarImage;
 import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBuffer;
 import java.awt.image.Raster;
-import java.util.Set;
 import java.util.HashSet;
+import java.util.Set;
 
-public class JAIUtilsTest extends TestCase {
+import static org.junit.Assert.*;
 
+public class JAIUtilsTest {
+
+    @Test
     public void testIntMapOp() {
 
         testIntMapOp(BufferedImage.TYPE_USHORT_GRAY, new int[]{
@@ -56,47 +60,13 @@ public class JAIUtilsTest extends TestCase {
         });
     }
 
-    private void testIntMapOp(int sourceType, int[] sourceSamples, int expectedTargetType, int[] expectedTargetSamples) {
-        final BufferedImage sourceImage = createSourceImage(sourceType, sourceSamples);
-        final IntMap intMap = createIntMap(sourceImage);
-        final PlanarImage targetImage = JAIUtils.createIndexedImage(sourceImage, intMap, 0);
-        assertNotNull(targetImage);
-        assertEquals(1, targetImage.getNumBands());
-        assertEquals(sourceImage.getWidth(), targetImage.getWidth());
-        assertEquals(sourceImage.getHeight(), targetImage.getHeight());
-        assertEquals(expectedTargetType, targetImage.getSampleModel().getDataType());
-        final Raster targetData = targetImage.getData();
-        final DataBuffer dataBuffer = targetData.getDataBuffer();
-        for (int i = 0; i < expectedTargetSamples.length; i++) {
-            final int elem = targetData.getDataBuffer().getElem(i);
-            assertEquals("i=" + i, expectedTargetSamples[i], elem);
-        }
+    @Test
+    public void testComputePreferredTileSize_WithDifferentGranularity() throws Exception {
+        assertEquals(new Dimension(408, 424), JAIUtils.computePreferredTileSize(4481, 2113, 4));
+        assertEquals(new Dimension(498, 302), JAIUtils.computePreferredTileSize(4481, 2113, 1));
     }
 
-    private static IntMap createIntMap(BufferedImage sourceImage) {
-        final DataBuffer dataBuffer = sourceImage.getRaster().getDataBuffer();
-        final Set<Integer> set = new HashSet<Integer>();
-        final IntMap intMap = new IntMap(0, 1000);
-        for (int i = 0; i < dataBuffer.getSize(); i++) {
-            final int elem = dataBuffer.getElem(i);
-            if (!set.contains(elem)) {
-                //System.out.println("elem = " + elem);
-                 intMap.putValue(elem, intMap.getSize());
-                set.add(elem);
-            }
-        }
-        return intMap;
-    }
-
-    private static BufferedImage createSourceImage(int sourceType, int[] sourceValues) {
-        final BufferedImage sourceImage = new BufferedImage(4, 4, sourceType);
-        for (int i = 0; i < sourceValues.length; i++) {
-            sourceImage.getRaster().getDataBuffer().setElem(i, sourceValues[i]);
-        }
-        return sourceImage;
-    }
-
-
+    @Test
     public void testPreferredTileSizeProperty() {
         // "small" images
         assertEquals(new Dimension(20, 10), JAIUtils.computePreferredTileSize(20, 10, 1));
@@ -141,6 +111,47 @@ public class JAIUtilsTest extends TestCase {
 
         // A NEST SAR Image
         assertEquals(new Dimension(624, 436), JAIUtils.computePreferredTileSize(5602, 5221, 4));
+    }
+
+    private void testIntMapOp(int sourceType, int[] sourceSamples, int expectedTargetType,
+                              int[] expectedTargetSamples) {
+        final BufferedImage sourceImage = createSourceImage(sourceType, sourceSamples);
+        final IntMap intMap = createIntMap(sourceImage);
+        final PlanarImage targetImage = JAIUtils.createIndexedImage(sourceImage, intMap, 0);
+        Assert.assertNotNull(targetImage);
+        assertEquals(1, targetImage.getNumBands());
+        assertEquals(sourceImage.getWidth(), targetImage.getWidth());
+        assertEquals(sourceImage.getHeight(), targetImage.getHeight());
+        assertEquals(expectedTargetType, targetImage.getSampleModel().getDataType());
+        final Raster targetData = targetImage.getData();
+        final DataBuffer dataBuffer = targetData.getDataBuffer();
+        for (int i = 0; i < expectedTargetSamples.length; i++) {
+            final int elem = dataBuffer.getElem(i);
+            assertEquals("i=" + i, expectedTargetSamples[i], elem);
+        }
+    }
+
+    private static IntMap createIntMap(BufferedImage sourceImage) {
+        final DataBuffer dataBuffer = sourceImage.getRaster().getDataBuffer();
+        final Set<Integer> set = new HashSet<Integer>();
+        final IntMap intMap = new IntMap(0, 1000);
+        for (int i = 0; i < dataBuffer.getSize(); i++) {
+            final int elem = dataBuffer.getElem(i);
+            if (!set.contains(elem)) {
+                //System.out.println("elem = " + elem);
+                intMap.putValue(elem, intMap.getSize());
+                set.add(elem);
+            }
+        }
+        return intMap;
+    }
+
+    private static BufferedImage createSourceImage(int sourceType, int[] sourceValues) {
+        final BufferedImage sourceImage = new BufferedImage(4, 4, sourceType);
+        for (int i = 0; i < sourceValues.length; i++) {
+            sourceImage.getRaster().getDataBuffer().setElem(i, sourceValues[i]);
+        }
+        return sourceImage;
     }
 
 

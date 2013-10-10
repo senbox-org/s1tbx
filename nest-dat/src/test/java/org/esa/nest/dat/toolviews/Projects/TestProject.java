@@ -16,6 +16,7 @@
 package org.esa.nest.dat.toolviews.Projects;
 
 import junit.framework.TestCase;
+import org.apache.commons.io.FileUtils;
 import org.esa.beam.util.SystemUtils;
 import org.esa.nest.util.ResourceUtils;
 
@@ -44,7 +45,7 @@ public class TestProject extends TestCase {
 
     @Override
     public void tearDown() throws Exception {
-        SystemUtils.deleteFileTree(projectFolder);
+        FileUtils.deleteDirectory(projectFolder);
         project = null;
     }
 

@@ -142,12 +142,12 @@ public class Quantizer {
         final float srcScale = 256f / delta;
         final float srcOffset = -srcScale * srcMin;
         int quantizedValue;
-        //pm.beginTask("Quantize values...", srcSize);
+        pm.beginTask("Quantize values...", srcSize);
         try {
             if (delta == 0) {
                 for (int iSrc = 0, iDst = dstPos; iSrc < srcSize; iSrc++, iDst += dstStride) {
                     dstValues[iDst] = 0;
-                    //pm.worked(1);
+                    pm.worked(1);
                 }
             } else {
                 for (int iSrc = 0, iDst = dstPos; iSrc < srcSize; iSrc++, iDst += dstStride) {
@@ -158,11 +158,11 @@ public class Quantizer {
                         quantizedValue = 255;
                     }
                     dstValues[iDst] = (byte) quantizedValue;
-                    //pm.worked(1);
+                    pm.worked(1);
                 }
             }
         } finally {
-            //pm.done();
+            pm.done();
         }
     }
 

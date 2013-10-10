@@ -43,9 +43,7 @@ public class DimapPersistenceTest extends TestCase {
     }
 
     public void testGetPersistabelByObject() {
-        final GeneralFilterBand gfb = new GeneralFilterBand("test1",
-                                                            new Band("b", ProductData.TYPE_UINT16, 2, 2),
-                                                            1, 1,
+        final GeneralFilterBand gfb = new GeneralFilterBand("test1", new Band("b", ProductData.TYPE_UINT16, 2, 2), 1,
                                                             GeneralFilterBand.MAX);
         final DimapPersistable gfbPersistable = DimapPersistence.getPersistable(gfb);
         assertNotNull(gfbPersistable);

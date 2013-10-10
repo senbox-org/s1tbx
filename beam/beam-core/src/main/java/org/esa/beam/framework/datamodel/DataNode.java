@@ -66,7 +66,7 @@ public abstract class DataNode extends ProductNode {
 
     public DataNode(String name, ProductData data, boolean readOnly) {
         super(name);
-        //Guardian.assertNotNull("data", data);
+        Guardian.assertNotNull("data", data);
         this.dataType = data.getType();
         this.numElems = data.getNumElems();
         this.data = data;
@@ -98,7 +98,7 @@ public abstract class DataNode extends ProductNode {
      * Gets the number of data elements in this data node.
      */
     public long getNumDataElems() {
-        //checkState();
+        checkState();
         return numElems;
     }
 
@@ -140,7 +140,7 @@ public abstract class DataNode extends ProductNode {
 
     /**
      * Sets the data elements of this data node.
-     *
+     * @deprecated since 5.0
      * @see ProductData#setElems(Object)
      */
     public void setDataElems(Object elems) {

@@ -44,7 +44,7 @@ abstract class StxOp {
 
     static DoubleList asDoubleList(UnpackedImageData dataPixels) {
         if (dataPixels.type == DataBuffer.TYPE_BYTE) {
-            return new DoubleList.Byte(dataPixels.getByteData(0));
+            return new DoubleList.UByte(dataPixels.getByteData(0));
         } else if (dataPixels.type == DataBuffer.TYPE_SHORT) {
             return new DoubleList.Short(dataPixels.getShortData(0));
         } else if (dataPixels.type == DataBuffer.TYPE_USHORT) {

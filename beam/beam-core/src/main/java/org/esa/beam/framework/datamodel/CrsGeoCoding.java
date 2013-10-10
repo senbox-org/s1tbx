@@ -35,6 +35,7 @@ import org.opengis.geometry.DirectPosition;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.crs.DerivedCRS;
+import org.opengis.referencing.crs.GeneralDerivedCRS;
 import org.opengis.referencing.datum.GeodeticDatum;
 import org.opengis.referencing.operation.CoordinateOperationFactory;
 import org.opengis.referencing.operation.MathTransform;
@@ -214,12 +215,13 @@ public class CrsGeoCoding extends AbstractGeoCoding {
     }
 
     @Override
-    public final GeoPos getGeoPos(PixelPos pixelPos, GeoPos geoPos) {
+    public GeoPos getGeoPos(PixelPos pixelPos, GeoPos geoPos) {
         if (geoPos == null) {
             geoPos = new GeoPos();
         }
         try {
-            DirectPosition directGeoPos = imageToGeo.transform(new DirectPosition2D(pixelPos), null);
+            DirectPosition directPixelPos = new DirectPosition2D(pixelPos);
+            DirectPosition directGeoPos = imageToGeo.transform(directPixelPos, null);
             geoPos.setLocation((float) directGeoPos.getOrdinate(1), (float) directGeoPos.getOrdinate(0));
         } catch (Exception ignored) {
             geoPos.setInvalid();
@@ -252,12 +254,13 @@ public class CrsGeoCoding extends AbstractGeoCoding {
     }
 
     @Override
-    public final PixelPos getPixelPos(GeoPos geoPos, PixelPos pixelPos) {
+    public PixelPos getPixelPos(GeoPos geoPos, PixelPos pixelPos) {
         if (pixelPos == null) {
             pixelPos = new PixelPos();
         }
         try {
-            DirectPosition directPixelPos = geoToImage.transform(new DirectPosition2D(geoPos.getLon(), geoPos.getLat()), null);
+            DirectPosition directGeoPos = new DirectPosition2D(geoPos.getLon(), geoPos.getLat());
+            DirectPosition directPixelPos = geoToImage.transform(directGeoPos, null);
             pixelPos.setLocation((float) directPixelPos.getOrdinate(0), (float) directPixelPos.getOrdinate(1));
         } catch (Exception ignored) {
             pixelPos.setInvalid();

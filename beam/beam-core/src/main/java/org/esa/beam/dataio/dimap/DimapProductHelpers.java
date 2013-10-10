@@ -66,7 +66,6 @@ import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.util.logging.BeamLogManager;
 import org.esa.beam.util.math.FXYSum;
 import org.geotools.referencing.CRS;
-import org.jdom.Attribute;
 import org.jdom.Content;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -859,28 +858,6 @@ public class DimapProductHelpers {
                 product.getGcpGroup().add(placemark);
             }
         }
-		//NESTMOD add bandGCPs
-		final List bandGCGroupElements = dom.getRootElement().getChildren(DimapProductConstants.TAG_BAND_GCP_GROUP);
-        for(Object o : bandGCGroupElements) {
-            final Element groupElem = (Element)o;
-            final Attribute bandAttrib = groupElem.getAttribute("band");
-            final Band band = product.getBand(bandAttrib.getValue());
-			final ProductNodeGroup<Placemark> bandGCPGroup = product.getGcpGroup(band);
-
-			List elem;
-	        if (groupElem != null) {
-	            elem = groupElem.getChildren(DimapProductConstants.TAG_PLACEMARK);
-	        } else {
-	            elem = Collections.EMPTY_LIST;
-	        }
-	        for (Object elementObj : elem) {
-	            final Element element = (Element) elementObj;
-	            final Placemark placemark = PlacemarkIO.createPlacemark(element, GcpDescriptor.getInstance(), product.getGeoCoding());
-	            if (placemark != null) {
-	                bandGCPGroup.add(placemark);
-	            }
-	        }
-        }
     }
 
     static void addMaskUsages(Document dom, Product product) {
@@ -1107,7 +1084,7 @@ public class DimapProductHelpers {
                 final int type = ProductData.getType(attType);
 
                 final String attValue = attribElement.getTextTrim();
-                if (attValue == null) {           // allow blank attribute values // NESTMOD
+                if (attValue == null || attValue.length() == 0) {
                     continue;
                 }
                 final ProductData data;
