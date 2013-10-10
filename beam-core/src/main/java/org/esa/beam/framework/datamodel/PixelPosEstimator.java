@@ -169,7 +169,7 @@ public class PixelPosEstimator {
          *
          * @return a new approximation or {@code null} if the accuracy goal cannot not be met.
          */
-        static Approximation create(SampleSource lonSamples,
+        public static Approximation create(SampleSource lonSamples,
                                     SampleSource latSamples,
                                     SampleSource maskSamples,
                                     double accuracy,
@@ -189,11 +189,12 @@ public class PixelPosEstimator {
          *
          * @return a new approximation or {@code null} if the accuracy goal cannot not be met.
          */
-        static Approximation create(SampleSource lonSamples,
+        public static Approximation create(SampleSource lonSamples,
                                     SampleSource latSamples,
                                     SampleSource maskSamples,
                                     double accuracy,
-                                    Rectangle range, SteppingFactory steppingFactory) {
+                                    Rectangle range,
+                                    SteppingFactory steppingFactory) {
             final Stepping stepping = steppingFactory.createStepping(range, MAX_POINT_COUNT_PER_TILE);
             final double[][] data = extractWarpPoints(lonSamples, latSamples, maskSamples, stepping);
             return Approximation.create(data, accuracy, range);
@@ -210,7 +211,7 @@ public class PixelPosEstimator {
          *
          * @return a new approximation or {@code null} if the accuracy goal cannot not be met.
          */
-        static Approximation create(double[][] data, double accuracy, Rectangle range) {
+        public static Approximation create(double[][] data, double accuracy, Rectangle range) {
             final Point2D centerPoint = Rotator.calculateCenter(data, LON, LAT);
             final double centerLon = centerPoint.getX();
             final double centerLat = centerPoint.getY();
@@ -242,7 +243,7 @@ public class PixelPosEstimator {
          * @return the approximation that is most suitable for the given (lat, lon) point,
          *         or {@code null}, if none is suitable.
          */
-        static Approximation findMostSuitable(Approximation[] approximations, double lat, double lon) {
+        public static Approximation findMostSuitable(Approximation[] approximations, double lat, double lon) {
             Approximation bestApproximation = null;
             if (approximations.length == 1) {
                 Approximation a = approximations[0];
