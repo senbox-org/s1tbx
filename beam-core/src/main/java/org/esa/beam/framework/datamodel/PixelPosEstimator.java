@@ -47,8 +47,8 @@ public class PixelPosEstimator {
         this(lonImage, latImage, maskImage, accuracy, new PixelSteppingFactory());
     }
 
-    PixelPosEstimator(PlanarImage lonImage, PlanarImage latImage, PlanarImage maskImage, double accuracy,
-                      SteppingFactory steppingFactory) {
+    private PixelPosEstimator(PlanarImage lonImage, PlanarImage latImage, PlanarImage maskImage, double accuracy,
+                              SteppingFactory steppingFactory) {
         if (maskImage == null) {
             maskImage = ConstantDescriptor.create((float) lonImage.getWidth(),
                                                   (float) lonImage.getHeight(),
@@ -100,32 +100,22 @@ public class PixelPosEstimator {
         return approximation;
     }
 
-    static Approximation[] createApproximations(PlanarImage lonImage,
-                                                PlanarImage latImage,
-                                                PlanarImage maskImage,
-                                                double accuracy,
-                                                SteppingFactory steppingFactory) {
-        final ArrayList<Approximation> approximations = new ArrayList<Approximation>();
-        final int tileCountX = lonImage.getNumXTiles();
-        final int tileCountY = lonImage.getNumYTiles();
-
+    private static Approximation[] createApproximations(PlanarImage lonImage,
+                                                        PlanarImage latImage,
+                                                        PlanarImage maskImage,
+                                                        double accuracy,
+                                                        SteppingFactory steppingFactory) {
         final SampleSource lonSamples = new PlanarImageSampleSource(lonImage);
         final SampleSource latSamples = new PlanarImageSampleSource(latImage);
         final SampleSource maskSamples = new PlanarImageSampleSource(maskImage);
-
-        for (int y = 0; y < tileCountY; y++) {
-            for (int x = 0; x < tileCountX; x++) {
-                final Rectangle range = lonImage.getTileRect(x, y);
-                final Approximation approximation = Approximation.create(lonSamples, latSamples, maskSamples, accuracy,
-                                                                         range, steppingFactory);
-                if (approximation == null) {
-                    return null;
-                }
-                approximations.add(approximation);
-            }
+        final Raster[] tiles = lonImage.getTiles();
+        final Rectangle[] rectangles = new Rectangle[tiles.length];
+        for (int i = 0; i < rectangles.length; i++) {
+            rectangles[i] = tiles[i].getBounds();
         }
 
-        return approximations.toArray(new Approximation[approximations.size()]);
+        return Approximation.createApproximations(lonSamples, latSamples, maskSamples, accuracy, rectangles,
+                                                  steppingFactory);
     }
 
     public interface SampleSource {
@@ -149,6 +139,26 @@ public class PixelPosEstimator {
 
 
         /**
+         * Creates an array of approximations for given set of (x, y) rectangles.
+         *
+         * @param lonSamples  The longitude samples.
+         * @param latSamples  The latitude samples.
+         * @param maskSamples The mask samples.
+         * @param accuracy    The accuracy goal.
+         * @param rectangles  The (x, y) rectangles.
+         *
+         * @return a new approximation or {@code null} if the accuracy goal cannot not be met.
+         */
+        public static Approximation[] createApproximations(SampleSource lonSamples,
+                                                           SampleSource latSamples,
+                                                           SampleSource maskSamples,
+                                                           double accuracy,
+                                                           Rectangle[] rectangles) {
+            return createApproximations(lonSamples, latSamples, maskSamples, accuracy, rectangles,
+                                        new PixelSteppingFactory());
+        }
+
+        /**
          * Creates a new instance of this class.
          *
          * @param lonSamples  The longitude samples.
@@ -159,11 +169,11 @@ public class PixelPosEstimator {
          *
          * @return a new approximation or {@code null} if the accuracy goal cannot not be met.
          */
-        public static Approximation create(SampleSource lonSamples,
-                                           SampleSource latSamples,
-                                           SampleSource maskSamples,
-                                           double accuracy,
-                                           Rectangle range) {
+        static Approximation create(SampleSource lonSamples,
+                                    SampleSource latSamples,
+                                    SampleSource maskSamples,
+                                    double accuracy,
+                                    Rectangle range) {
             return create(lonSamples, latSamples, maskSamples, accuracy, range, new PixelSteppingFactory());
         }
 
@@ -200,7 +210,7 @@ public class PixelPosEstimator {
          *
          * @return a new approximation or {@code null} if the accuracy goal cannot not be met.
          */
-        public static Approximation create(double[][] data, double accuracy, Rectangle range) {
+        static Approximation create(double[][] data, double accuracy, Rectangle range) {
             final Point2D centerPoint = Rotator.calculateCenter(data, LON, LAT);
             final double centerLon = centerPoint.getX();
             final double centerLat = centerPoint.getY();
@@ -232,7 +242,7 @@ public class PixelPosEstimator {
          * @return the approximation that is most suitable for the given (lat, lon) point,
          *         or {@code null}, if none is suitable.
          */
-        public static Approximation findMostSuitable(Approximation[] approximations, double lat, double lon) {
+        static Approximation findMostSuitable(Approximation[] approximations, double lat, double lon) {
             Approximation bestApproximation = null;
             if (approximations.length == 1) {
                 Approximation a = approximations[0];
@@ -251,6 +261,25 @@ public class PixelPosEstimator {
                 }
             }
             return bestApproximation;
+        }
+
+        static Approximation[] createApproximations(SampleSource lonSamples,
+                                                    SampleSource latSamples,
+                                                    SampleSource maskSamples,
+                                                    double accuracy,
+                                                    Rectangle[] rectangles,
+                                                    SteppingFactory steppingFactory) {
+            final ArrayList<Approximation> approximations = new ArrayList<Approximation>();
+            for (final Rectangle rectangle : rectangles) {
+                final Approximation approximation = create(lonSamples, latSamples, maskSamples, accuracy,
+                                                           rectangle, steppingFactory);
+                if (approximation == null) {
+                    return null;
+                }
+                approximations.add(approximation);
+            }
+
+            return approximations.toArray(new Approximation[approximations.size()]);
         }
 
         /**
