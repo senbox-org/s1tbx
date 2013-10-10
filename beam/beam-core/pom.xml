@@ -60,21 +60,28 @@
             <artifactId>jai-codec</artifactId>
         </dependency>
         <dependency>
+            <groupId>javax.media.jai</groupId>
+            <artifactId>mlibwrapper-jai</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.sun.media</groupId>
             <artifactId>jai-imageio</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.media</groupId>
+            <artifactId>clibwrapper-jiio</artifactId>
         </dependency>
         <dependency>
             <groupId>org.jdom</groupId>
             <artifactId>jdom</artifactId>
         </dependency>
         <dependency>
-            <groupId>Jama</groupId>
-            <artifactId>Jama</artifactId>
+            <groupId>com.bc.jnn</groupId>
+            <artifactId>jnn</artifactId>
         </dependency>
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <scope>compile</scope>
+            <groupId>Jama</groupId>
+            <artifactId>Jama</artifactId>
         </dependency>
         <dependency>
             <groupId>org.geotools</groupId>
@@ -103,6 +110,10 @@
         <dependency>
             <groupId>org.geotools</groupId>
             <artifactId>gt-cql</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
         </dependency>
 		<dependency>
 			<groupId>com.vividsolutions</groupId>
