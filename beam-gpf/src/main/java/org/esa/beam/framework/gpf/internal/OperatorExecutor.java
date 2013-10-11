@@ -152,8 +152,6 @@ public class OperatorExecutor {
     private void scheduleBandRowColumn(Semaphore semaphore, TileComputationListener[] listeners, ProgressMonitor pm) {
         for (final PlanarImage image : images) {
             for (int tileY = 0; tileY < tileCountY; tileY++) {
-                BeamLogManager.getSystemLogger().info(String.format("Scheduling tile row %d(%d) for %s",
-                                                                    tileY + 1, tileCountY, image));
                 for (int tileX = 0; tileX < tileCountX; tileX++) {
                     scheduleTile(image, tileX, tileY, semaphore, listeners, pm);
                 }
@@ -164,8 +162,6 @@ public class OperatorExecutor {
     private void scheduleRowBandColumn(Semaphore semaphore, TileComputationListener[] listeners, ProgressMonitor pm) {
         for (int tileY = 0; tileY < tileCountY; tileY++) {
             for (final PlanarImage image : images) {
-                BeamLogManager.getSystemLogger().info(String.format("Scheduling tile row %d(%d) for %s",
-                                                                    tileY + 1, tileCountY, image));
                 for (int tileX = 0; tileX < tileCountX; tileX++) {
                     scheduleTile(image, tileX, tileY, semaphore, listeners, pm);
                 }
@@ -177,11 +173,8 @@ public class OperatorExecutor {
         //better handle stack operators, should equal well work for normal operators
         final TileComputationListener tcl = new OperatorTileComputationListenerStack(semaphore, images);
         listeners = new TileComputationListener[]{tcl};
-
         for (int tileY = 0; tileY < tileCountY; tileY++) {
             for (int tileX = 0; tileX < tileCountX; tileX++) {
-                BeamLogManager.getSystemLogger().info(String.format("Scheduling tile x=%d(%d) y=%d(%d)",
-                                                                    tileX + 1, tileCountX, tileY + 1, tileCountY));
                 scheduleTile(images[0], tileX, tileY, semaphore, listeners, pm);
             }
         }
@@ -189,6 +182,10 @@ public class OperatorExecutor {
 
     private void scheduleTile(final PlanarImage image, int tileX, int tileY, Semaphore semaphore,
                               TileComputationListener[] listeners, ProgressMonitor pm) {
+
+        BeamLogManager.getSystemLogger().finest(String.format("Scheduling tile x=%d/%d y=%d/%d for %s",
+                                                              tileX + 1, tileCountX, tileY + 1, tileCountY, image));
+
         checkForCancelation(pm);
         acquirePermits(semaphore, 1);
         if (error != null) {
