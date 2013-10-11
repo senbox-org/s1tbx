@@ -139,7 +139,7 @@ public class OperatorContext {
             image.setTileCache(null);
         } else if (image.getTileCache() == null) {
             image.setTileCache(getTileCache());
-            BeamLogManager.getSystemLogger().info(String.format("Tile cache assigned to %s", image));
+            BeamLogManager.getSystemLogger().finest(String.format("Tile cache assigned to %s", image));
         }
     }
 

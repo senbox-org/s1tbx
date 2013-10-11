@@ -30,6 +30,8 @@
 
     <changelog>
         <![CDATA[
+        <p>From 4.x to 5.0:<br/>
+            [BEAM-1551] Improve GPT logging output<br/>
         <p>From 4.11.0 to 4.11.1:<br/>
             [BEAM-1092] Time information gets lost when reprojecting.<br/>
         <p>From 4.10 to 4.10.4:<br/>
