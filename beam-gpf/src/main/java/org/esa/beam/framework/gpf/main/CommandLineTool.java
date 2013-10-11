@@ -210,8 +210,6 @@ class CommandLineTool implements GraphProcessingObserver {
             final String message = String.format("Failed to read metadata file '%s': %s", path, e.getMessage());
             if (commandLineContext.fileExists(path)) {
                 logSevereProblem(message, e);
-            } else {
-                commandLineContext.getLogger().warning(message);
             }
         }
     }
