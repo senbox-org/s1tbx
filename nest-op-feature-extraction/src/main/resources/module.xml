@@ -45,6 +45,7 @@
 	        <dialogTitle>Urban Area Detection</dialogTitle>
             <targetProductNameSuffix>_urb</targetProductNameSuffix>
         </action>
+
         <action>
 	        <id>TerrainMaskGeneration</id>
 	        <helpId>TerrainMaskGeneration</helpId>
@@ -56,6 +57,19 @@
 	        <operatorName>Terrain-Mask-Generation</operatorName>
 	        <dialogTitle>Terrain Mask Generation</dialogTitle>
             <targetProductNameSuffix>_terr_msk</targetProductNameSuffix>
+        </action>
+
+        <action>
+	        <id>ForestAreaDetection</id>
+	        <helpId>ForestAreaDetection</helpId>
+	        <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <icon>esaIcon</icon>
+            <parent>oceanTools</parent>
+	        <text>Forest Area Detection</text>
+            <shortDescr>Forest Area Detection</shortDescr>
+	        <operatorName>Forest-Area-Detection</operatorName>
+	        <dialogTitle>Forest Area Detection</dialogTitle>
+            <targetProductNameSuffix>_forest</targetProductNameSuffix>
         </action>
 
     </extension>
