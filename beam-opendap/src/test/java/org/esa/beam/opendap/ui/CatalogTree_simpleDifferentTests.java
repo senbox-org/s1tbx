@@ -107,7 +107,7 @@ public class CatalogTree_simpleDifferentTests {
         assertTrue(component instanceof DefaultTreeCellRenderer);
         final DefaultTreeCellRenderer tcr1 = (DefaultTreeCellRenderer) component;
         assertEquals("otherNode", tcr1.getText());
-        assertEquals(true, tcr1.getIcon() != null); // rq-20131014 - assertion fails on Mac OS
+        assertEquals(true, tcr1.getIcon() != null);
 
         final Color foreground = tcr1.getForeground();
         final Color background = tcr1.getBackground();
