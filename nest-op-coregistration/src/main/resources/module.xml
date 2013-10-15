@@ -72,7 +72,7 @@
 	        <dialogTitle>Principal Component Analysis</dialogTitle>
             <targetProductNameSuffix>_pca</targetProductNameSuffix>
             <shortDescr>Principal Component Analysis</shortDescr>
-            <parent>imageAnalysis</parent>
+            <parent>FeatureExtraction</parent>
             <helpId>PCA</helpId>
         </action>
 

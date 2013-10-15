@@ -37,7 +37,7 @@ import java.awt.*;
  */
 
 @OperatorMetadata(alias="Reprojection",
-        category = "Geometry",
+        category = "Geometric",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2013 by Array Systems Computing Inc.",
         description="Applies a map projection")

@@ -64,7 +64,7 @@ import java.util.Map;
  */
 
 @OperatorMetadata(alias="Ellipsoid-Correction-GG",
-        category = "Geometry\\Ellipsoid Correction",
+        category = "Geometric\\Ellipsoid Correction",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2013 by Array Systems Computing Inc.",
         description="GG method for orthorectification")

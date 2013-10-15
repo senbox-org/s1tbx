@@ -46,7 +46,7 @@ import java.util.Properties;
  */
 
 @OperatorMetadata(alias="Supervised-Wishart-Classification",
-                  category = "Polarimetric Tools",
+                  category = "Polarimetric",
                   description="Perform supervised Wishart classification")
 public final class SupervisedWishartClassificationOp extends Operator {
 

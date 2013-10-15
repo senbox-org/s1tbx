@@ -41,7 +41,7 @@ import java.util.Map;
  */
 
 @OperatorMetadata(alias="Polarimetric-Matrices",
-                  category = "Polarimetric Tools",
+                  category = "Polarimetric",
                   description="Generates covariance or coherency matrix for given product")
 public final class PolarimetricMatricesOp extends Operator {
 

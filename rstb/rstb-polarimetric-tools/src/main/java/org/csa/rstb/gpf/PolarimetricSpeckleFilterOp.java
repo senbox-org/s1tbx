@@ -40,7 +40,7 @@ import java.util.List;
  * Applies a Polarimetric Speckle Filter to the data (covariance/coherency matrix data)
  */
 @OperatorMetadata(alias="Polarimetric-Speckle-Filter",
-        category = "Polarimetric Tools",
+        category = "Polarimetric",
         description = "Polarimetric Speckle Reduction")
 public class PolarimetricSpeckleFilterOp extends Operator {
 

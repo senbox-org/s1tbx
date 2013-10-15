@@ -46,7 +46,7 @@ import java.util.List;
  */
 
 @OperatorMetadata(alias = "Urban-Area-Detection",
-        category = "Feature Extraction",
+        category = "Classification\\Feature Extraction",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2013 by Array Systems Computing Inc.",
         description = "Detect urban area.")

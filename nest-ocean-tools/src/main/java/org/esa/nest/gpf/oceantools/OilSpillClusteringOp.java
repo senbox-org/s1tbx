@@ -40,7 +40,7 @@ import java.util.List;
  * clustered and then discriminated based on the size of the cluster.
  */
 @OperatorMetadata(alias = "Oil-Spill-Clustering",
-        category = "Ocean-Tools",
+        category = "Classification\\Ocean Tools",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2013 by Array Systems Computing Inc.",
         description = "Remove small clusters from detected area.")

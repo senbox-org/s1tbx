@@ -34,11 +34,26 @@
     <extension point="beam-ui:actions">
 
         <action>
+            <id>FeatureExtraction</id>
+            <class>org.esa.beam.visat.actions.ActionGroup</class>
+            <text>Feature Extraction</text>
+            <parent>classification</parent>
+        </action>
+
+        <action>
+            <id>Masks</id>
+            <class>org.esa.beam.visat.actions.ActionGroup</class>
+            <text>Masks</text>
+            <parent>classification</parent>
+            <placeBefore>FeatureExtraction</placeBefore>
+        </action>
+
+        <action>
 	        <id>UrbanAreaDetection</id>
 	        <helpId>UrbanAreaDetection</helpId>
 	        <class>org.esa.nest.dat.actions.OperatorAction</class>
             <icon>esaIcon</icon>
-            <parent>oceanTools</parent>
+            <parent>FeatureExtraction</parent>
 	        <text>Urban Area Detection</text>
             <shortDescr>Urban Area Detection</shortDescr>
 	        <operatorName>Urban-Area-Detection</operatorName>
@@ -47,29 +62,29 @@
         </action>
 
         <action>
-	        <id>TerrainMaskGeneration</id>
-	        <helpId>TerrainMaskGeneration</helpId>
-	        <class>org.esa.nest.dat.actions.OperatorAction</class>
-            <icon>esaIcon</icon>
-            <parent>oceanTools</parent>
-	        <text>Terrain Mask Generation</text>
-            <shortDescr>Terrain Mask Generation</shortDescr>
-	        <operatorName>Terrain-Mask-Generation</operatorName>
-	        <dialogTitle>Terrain Mask Generation</dialogTitle>
-            <targetProductNameSuffix>_terr_msk</targetProductNameSuffix>
-        </action>
-
-        <action>
 	        <id>ForestAreaDetection</id>
 	        <helpId>ForestAreaDetection</helpId>
 	        <class>org.esa.nest.dat.actions.OperatorAction</class>
             <icon>esaIcon</icon>
-            <parent>oceanTools</parent>
+            <parent>FeatureExtraction</parent>
 	        <text>Forest Area Detection</text>
             <shortDescr>Forest Area Detection</shortDescr>
 	        <operatorName>Forest-Area-Detection</operatorName>
 	        <dialogTitle>Forest Area Detection</dialogTitle>
             <targetProductNameSuffix>_forest</targetProductNameSuffix>
+        </action>
+
+        <action>
+            <id>TerrainMaskGeneration</id>
+            <helpId>TerrainMaskGeneration</helpId>
+            <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <icon>esaIcon</icon>
+            <parent>Masks</parent>
+            <text>Create Terrain Mask</text>
+            <shortDescr>Terrain Mask Generation</shortDescr>
+            <operatorName>Terrain-Mask-Generation</operatorName>
+            <dialogTitle>Terrain Mask Generation</dialogTitle>
+            <targetProductNameSuffix>_terr_msk</targetProductNameSuffix>
         </action>
 
     </extension>

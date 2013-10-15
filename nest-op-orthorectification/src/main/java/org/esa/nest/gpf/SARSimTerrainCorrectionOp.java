@@ -75,7 +75,7 @@ import java.util.List;
  */
 
 @OperatorMetadata(alias="SARSim-Terrain-Correction",
-        category = "Geometry\\Terrain Correction",
+        category = "Geometric\\Terrain Correction",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2013 by Array Systems Computing Inc.",
         description="Orthorectification with SAR simulation")

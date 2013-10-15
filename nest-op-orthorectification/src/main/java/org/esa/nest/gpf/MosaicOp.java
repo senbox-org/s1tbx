@@ -46,7 +46,7 @@ import java.util.List;
  * The Mosaic operator.
  */
 @OperatorMetadata(alias = "Mosaic",
-        category = "Geometry",
+        category = "Geometric",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2013 by Array Systems Computing Inc.",
         description = "Mosaics two or more products based on their geo-codings.")

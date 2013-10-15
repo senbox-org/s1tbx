@@ -48,7 +48,8 @@ import java.io.PrintStream;
  * The operator performs principle component analysis for user selected master/slave pairs.
  */
 
-@OperatorMetadata(alias="PCA", description="Principle Component Analysis", internal = false, category="Analysis")
+@OperatorMetadata(alias="PCA", description="Principle Component Analysis", internal = false,
+        category="Classification\\Feature Extraction")
 public class PCAOp extends Operator {
 
     @SourceProduct

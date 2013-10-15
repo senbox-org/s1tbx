@@ -48,7 +48,7 @@ import java.util.Set;
  */
 
 @OperatorMetadata(alias="ALOS-Deskewing",
-                  category = "Geometry",
+                  category = "Geometric",
                   authors = "Jun Lu, Luis Veci",
                   copyright = "Copyright (C) 2013 by Array Systems Computing Inc.",
                   description="Deskewing ALOS product")

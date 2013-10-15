@@ -28,7 +28,7 @@ import org.esa.beam.framework.gpf.annotations.TargetProduct;
  */
 
 @OperatorMetadata(alias="Ellipsoid-Correction-RD",
-        category = "Geometry\\Ellipsoid Correction",
+        category = "Geometric\\Ellipsoid Correction",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2013 by Array Systems Computing Inc.",
         description="Ellipsoid correction with RD method and average scene height")

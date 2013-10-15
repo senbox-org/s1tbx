@@ -41,7 +41,7 @@ import java.util.Map;
  */
 
 @OperatorMetadata(alias="Polarimetric-Classification",
-                  category = "Polarimetric Tools",
+                  category = "Polarimetric",
                   description="Perform Polarimetric classification of a given product")
 public final class PolarimetricClassificationOp extends Operator {
 

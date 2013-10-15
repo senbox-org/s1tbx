@@ -50,7 +50,7 @@ import java.util.List;
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2013 by Array Systems Computing Inc.",
         description = "Writes a features into patches.",
-        category = "Feature Extraction")
+        category = "Classification\\Feature Extraction")
 public class FeatureWriterOp extends Operator implements Output {
 
     @TargetProduct
@@ -211,7 +211,7 @@ public class FeatureWriterOp extends Operator implements Output {
         metadataWriter.println("  features.2 = speckle_divergence.median");
         metadataWriter.println("# Mean speckle divergence");
         metadataWriter.println("  features.3 = speckle_divergence.mean");
-        metadataWriter.println("# Speckle divergence standard diviation");
+        metadataWriter.println("# Speckle divergence standard deviation");
         metadataWriter.println("  features.4 = speckle_divergence.stdev");
         metadataWriter.println("# Speckle divergence coefficient of Variation");
         metadataWriter.println("  features.5 = speckle_divergence.coefVar");

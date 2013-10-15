@@ -72,7 +72,7 @@ import java.util.List;
  */
 
 @OperatorMetadata(alias = "Wind-Field-Estimation",
-        category = "Ocean-Tools",
+        category = "Classification\\Ocean Tools",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2013 by Array Systems Computing Inc.",
         description = "Estimate wind speed and direction")

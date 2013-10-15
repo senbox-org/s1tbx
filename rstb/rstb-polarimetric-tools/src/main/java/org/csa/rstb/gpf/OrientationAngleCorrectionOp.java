@@ -42,7 +42,7 @@ import java.util.Map;
  */
 
 @OperatorMetadata(alias="Orientation-Angle-Correction",
-                  category = "Polarimetric Tools",
+                  category = "Polarimetric",
                   description="Perform polarization orientation angle correction for given coherency matrix")
 public final class OrientationAngleCorrectionOp extends Operator {
 

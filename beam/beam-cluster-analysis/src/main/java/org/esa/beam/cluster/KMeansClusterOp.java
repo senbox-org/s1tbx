@@ -48,7 +48,7 @@ import java.awt.Rectangle;
                   version = "1.0",
                   authors = "Ralf Quast, Marco Zuehlke",
                   copyright = "(c) 2008 by Brockmann Consult",
-                  category = "Analysis",
+                  category = "Classification",
                   description = "Performs a K-Means cluster analysis.")
 public class KMeansClusterOp extends Operator {
 

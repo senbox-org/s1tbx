@@ -48,7 +48,7 @@ import java.util.Set;
  * The CreateLandMask operator.
  */
 @OperatorMetadata(alias = "Create-LandMask",
-        category = "Ocean-Tools",
+        category = "Classification\\Masks",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2013 by Array Systems Computing Inc.",
         description = "Creates a bitmask defining land vs ocean.")
