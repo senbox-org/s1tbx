@@ -176,7 +176,7 @@ public class EnvisatProductReaderPlugIn implements ProductReaderPlugIn {
      * @throws java.io.IOException if an I/O error occured
      */
     static InputStream getInflaterInputStream(File file) throws IOException {
-        if (file.getName().endsWith(".gz")) {
+        if (file.getName().endsWith(".gz") && !file.getName().endsWith(".tar.gz")) {
             try {
                 return createGZIPInputStream(file);
             } catch (IOException e) {

@@ -16,13 +16,22 @@
 package org.esa.nest.dataio.radarsat2;
 
 import org.esa.beam.framework.dataio.DecodeQualification;
+import org.esa.beam.framework.dataio.IllegalFileFormatException;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 import org.esa.beam.util.io.BeamFileFilter;
 import org.esa.nest.gpf.ReaderUtils;
+import org.esa.nest.util.ZipUtils;
 
+import javax.imageio.stream.ImageInputStream;
+import javax.imageio.stream.MemoryCacheImageInputStream;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Enumeration;
 import java.util.Locale;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 /**
  * The ReaderPlugIn for Radarsat2 products.
@@ -54,7 +63,29 @@ public class Radarsat2ProductReaderPlugIn implements ProductReaderPlugIn {
             }
             return DecodeQualification.INTENDED;
         }
+       /* if(filename.endsWith(".ZIP")) {
+            if (isZippedRS2(file)) {
+                return DecodeQualification.INTENDED;
+            }
+        }   */
         return DecodeQualification.UNABLE;
+    }
+
+    private static boolean isZippedRS2(final File file) {
+        try {
+            final ZipFile productZip = new ZipFile(file, ZipFile.OPEN_READ);
+            final Enumeration<? extends ZipEntry> entries = productZip.entries();
+
+            while(entries.hasMoreElements()) {
+                final ZipEntry zipEntry = entries.nextElement();
+                if (zipEntry.getName().endsWith("product.xml")) {
+                    return true;
+                }
+            }
+        } catch(Exception e) {
+            //
+        }
+        return false;
     }
 
     /**
