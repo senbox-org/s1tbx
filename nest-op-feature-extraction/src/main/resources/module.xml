@@ -48,7 +48,7 @@
             <placeBefore>FeatureExtraction</placeBefore>
         </action>
 
-        <action>
+        <!--action>
 	        <id>UrbanAreaDetection</id>
 	        <helpId>UrbanAreaDetection</helpId>
 	        <class>org.esa.nest.dat.actions.OperatorAction</class>
@@ -59,7 +59,7 @@
 	        <operatorName>Urban-Area-Detection</operatorName>
 	        <dialogTitle>Urban Area Detection</dialogTitle>
             <targetProductNameSuffix>_urb</targetProductNameSuffix>
-        </action>
+        </action-->
 
         <action>
 	        <id>ForestAreaDetection</id>
@@ -72,6 +72,32 @@
 	        <operatorName>Forest-Area-Detection</operatorName>
 	        <dialogTitle>Forest Area Detection</dialogTitle>
             <targetProductNameSuffix>_forest</targetProductNameSuffix>
+        </action>
+
+        <action>
+            <id>FloodDetection</id>
+            <helpId>FloodDetection</helpId>
+            <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <icon>esaIcon</icon>
+            <parent>FeatureExtraction</parent>
+            <text>Flood Detection</text>
+            <shortDescr>Flood Detection</shortDescr>
+            <operatorName>Flood-Detection</operatorName>
+            <dialogTitle>Flood Detection</dialogTitle>
+            <targetProductNameSuffix>_flood</targetProductNameSuffix>
+        </action>
+
+        <action>
+            <id>UrbanAreaDetection</id>
+            <helpId>UrbanAreaDetection</helpId>
+            <class>org.esa.nest.dat.actions.GraphAction</class>
+            <icon>esaIcon</icon>
+            <parent>FeatureExtraction</parent>
+            <text>Urban Area Detection</text>
+            <shortDescr>Urban Area Detection</shortDescr>
+            <dialogTitle>Urban Area Detection</dialogTitle>
+            <graphFile>FeatureExtractors\UrbanDetectionGraph.xml</graphFile>
+            <targetProductNameSuffix>_urb</targetProductNameSuffix>
         </action>
 
         <action>

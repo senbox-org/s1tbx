@@ -1,0 +1,92 @@
+<graph id="Graph">
+  <version>1.0</version>
+  <node id="1-Read">
+    <operator>Read</operator>
+    <sources/>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement"/>
+  </node>
+  <node id="2-Write">
+    <operator>Write</operator>
+    <sources>
+      <sourceProduct refid="6-Urban-Area-Detection"/>
+    </sources>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <formatName>BEAM-DIMAP</formatName>
+      <file>E:\out\target.dim</file>
+    </parameters>
+  </node>
+  <node id="3-Calibration">
+    <operator>Calibration</operator>
+    <sources>
+      <sourceProduct refid="1-Read"/>
+    </sources>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <sourceBands/>
+      <auxFile>Latest Auxiliary File</auxFile>
+      <externalAuxFile/>
+      <outputImageInComplex>false</outputImageInComplex>
+      <outputImageScaleInDb>false</outputImageScaleInDb>
+      <createGammaBand>false</createGammaBand>
+      <createBetaBand>false</createBetaBand>
+    </parameters>
+  </node>
+  <node id="4-Create-LandMask">
+    <operator>Create-LandMask</operator>
+    <sources>
+      <sourceProduct refid="3-Calibration"/>
+    </sources>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <sourceBands/>
+      <landMask>false</landMask>
+      <useSRTM>true</useSRTM>
+      <geometry/>
+      <invertGeometry>false</invertGeometry>
+      <byPass>false</byPass>
+    </parameters>
+  </node>
+  <node id="5-Terrain-Mask-Generation">
+    <operator>Terrain-Mask-Generation</operator>
+    <sources>
+      <sourceProduct refid="4-Create-LandMask"/>
+    </sources>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <demName>SRTM 3Sec</demName>
+      <demResamplingMethod>BICUBIC_INTERPOLATION</demResamplingMethod>
+      <externalDEMFile/>
+      <externalDEMNoDataValue>0.0</externalDEMNoDataValue>
+      <windowSizeStr>15x15</windowSizeStr>
+      <thresholdInMeter>40.0</thresholdInMeter>
+    </parameters>
+  </node>
+  <node id="6-Urban-Area-Detection">
+    <operator>Urban-Area-Detection</operator>
+    <sources>
+      <sourceProduct refid="5-Terrain-Mask-Generation"/>
+    </sources>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <sourceBands/>
+      <windowSizeStr>5x5</windowSizeStr>
+    </parameters>
+  </node>
+  <applicationData id="Presentation">
+    <Description/>
+    <node id="2-Write">
+      <displayPosition y="222.0" x="430.0"/>
+    </node>
+    <node id="6-Urban-Area-Detection">
+      <displayPosition y="222.0" x="280.0"/>
+    </node>
+    <node id="5-Terrain-Mask-Generation">
+      <displayPosition y="222.0" x="119.0"/>
+    </node>
+    <node id="4-Create-LandMask">
+      <displayPosition y="178.0" x="112.0"/>
+    </node>
+    <node id="3-Calibration">
+      <displayPosition y="134.0" x="112.0"/>
+    </node>
+    <node id="1-Read">
+      <displayPosition y="134.0" x="37.0"/>
+    </node>
+  </applicationData>
+</graph>

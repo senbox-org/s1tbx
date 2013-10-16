@@ -35,7 +35,6 @@ import org.esa.nest.datamodel.Unit;
 
 import java.awt.*;
 import java.io.File;
-import java.util.*;
 
 /**
  * This operator detects mountain area using DEM and gnerates a terrain mask for given SAR image.
@@ -77,8 +76,8 @@ public final class TerrainMaskGenerationOp extends Operator {
             WINDOW_SIZE_15x15, WINDOW_SIZE_17x17}, defaultValue = WINDOW_SIZE_15x15, label="Window Size")
     private String windowSizeStr = WINDOW_SIZE_15x15;
 
-    @Parameter(description = "Threshold for detection", interval = "(0, *)", defaultValue = "50.0", label="Threshold (m)")
-    private double thresholdInMeter = 50.0;
+    @Parameter(description = "Threshold for detection", interval = "(0, *)", defaultValue = "40.0", label="Threshold (m)")
+    private double thresholdInMeter = 40.0;
 
     private ElevationModel dem = null;
     private int windowSize = 0;
@@ -267,8 +266,8 @@ public final class TerrainMaskGenerationOp extends Operator {
                              Mask.BandMathsType.INSTANCE);
 
                 mask.setDescription("Terrain Detection");
-                mask.getImageConfig().setValue("color", Color.RED);
-                mask.getImageConfig().setValue("transparency", 0.5);
+                mask.getImageConfig().setValue("color", Color.ORANGE);
+                mask.getImageConfig().setValue("transparency", 0.7);
                 mask.getImageConfig().setValue("expression", expression);
                 mask.setNoDataValue(0);
                 mask.setNoDataValueUsed(true);
@@ -340,6 +339,9 @@ public final class TerrainMaskGenerationOp extends Operator {
         for (int yy = y; yy < y + windowSize; yy++) {
             for (int xx = x; xx < x + windowSize; xx++) {
                 final double h = localDEM[yy - y0 + 1][xx - x0 + 1];
+                if(h == demNoDataValue)
+                    continue;
+
                 if (min > h) {
                     min = h;
                 }
