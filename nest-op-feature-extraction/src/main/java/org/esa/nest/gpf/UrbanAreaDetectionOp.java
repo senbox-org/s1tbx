@@ -16,10 +16,7 @@
 package org.esa.nest.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.MetadataElement;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
@@ -219,6 +216,22 @@ public class UrbanAreaDetectionOp extends Operator {
             targetBandMask.setNoDataValueUsed(true);
             targetBandMask.setUnit("speckle_divergence");
             targetProduct.addBand(targetBandMask);
+
+
+            final String expression = targetBandMask.getName() + " > 0.2";
+
+            final Mask mask = new Mask(targetBandMask.getName()+"_mask",
+                    targetProduct.getSceneRasterWidth(),
+                    targetProduct.getSceneRasterHeight(),
+                    Mask.BandMathsType.INSTANCE);
+
+            mask.setDescription("Urban Area");
+            mask.getImageConfig().setValue("color", Color.MAGENTA);
+            mask.getImageConfig().setValue("transparency", 0.7);
+            mask.getImageConfig().setValue("expression", expression);
+            mask.setNoDataValue(0);
+            mask.setNoDataValueUsed(true);
+            targetProduct.getMaskGroup().add(mask);
         }
     }
 

@@ -245,7 +245,7 @@ public final class TerrainMaskGenerationOp extends Operator {
             }
         }
 
-        Band targetBand = new Band(TERRAIN_MASK_NAME,
+        final Band targetBand = new Band(TERRAIN_MASK_NAME,
                                    ProductData.TYPE_INT8,
                                    sourceImageWidth,
                                    sourceImageHeight);
@@ -294,7 +294,6 @@ public final class TerrainMaskGenerationOp extends Operator {
         final int y0 = targetTileRectangle.y;
         final int w  = targetTileRectangle.width;
         final int h  = targetTileRectangle.height;
-        //System.out.println("x0 = " + x0 + ", y0 = " + y0 + ", w = " + w + ", h = " + h);
 
         try {
             if (!isElevationModelAvailable) {
@@ -313,13 +312,13 @@ public final class TerrainMaskGenerationOp extends Operator {
 
             final ProductData targetData = targetTile.getDataBuffer();
             final TileIndex targetIndex = new TileIndex(targetTile);
+            final double[] minMaxMean = {demNoDataValue, demNoDataValue, demNoDataValue};
 
             final int ymax = y0 + h;
             final int xmax = x0 + w;
             for (int y = y0; y < ymax; y += windowSize) {
                 for (int x = x0; x < xmax; x += windowSize) {
-                    final double[] minMaxMean = {demNoDataValue, demNoDataValue, demNoDataValue};
-                    getMinMaxMean(x0, y0, x, y, xmax, ymax, localDEM, minMaxMean);
+                    getMinMaxMean(x0, y0, x, y, localDEM, minMaxMean);
                     createTerrainMask(x0, y0, x, y, xmax, ymax, minMaxMean, localDEM, targetIndex, targetData);
                 }
             }
@@ -329,16 +328,19 @@ public final class TerrainMaskGenerationOp extends Operator {
         }
     }
 
-    private void getMinMaxMean(final int x0, final int y0, final int x, final int y, final int xmax, final int ymax,
+    private void getMinMaxMean(final int x0, final int y0, final int x, final int y,
                                final double[][] localDEM, final double[] minMaxMean) {
 
         double min = Double.MAX_VALUE;
-        double max = Double.MIN_VALUE;
+        double max = -Double.MAX_VALUE;
         double sum = 0.0;
         int numSamples = 0;
-        for (int yy = y; yy < y + windowSize; yy++) {
-            for (int xx = x; xx < x + windowSize; xx++) {
-                final double h = localDEM[yy - y0 + 1][xx - x0 + 1];
+        final int maxX = x + windowSize;
+        final int maxY = y + windowSize;
+        for (int yy = y; yy < maxY; yy++) {
+            final int yIdx = yy - y0 + 1;
+            for (int xx = x; xx < maxX; xx++) {
+                final double h = localDEM[yIdx][xx - x0 + 1];
                 if(h == demNoDataValue)
                     continue;
 
@@ -364,16 +366,18 @@ public final class TerrainMaskGenerationOp extends Operator {
                                    final double[] minMaxMean, final double[][] localDEM, final TileIndex targetIndex,
                                    final ProductData targetData)
     {
+        final int maxX = Math.min(x + windowSize, xmax);
+        final int maxY = Math.min(y + windowSize, ymax);
 
         final double elevDiff = minMaxMean[1] - minMaxMean[0];
 
         if (elevDiff >= thresholdInMeter) { // mountain detected
 
-            //final double mean = minMaxMean[2];
-            for (int yy = y; yy < Math.min(y + windowSize, ymax); yy++) {
+            for (int yy = y; yy < maxY; yy++) {
                 targetIndex.calculateStride(yy);
-                for (int xx = x; xx < Math.min(x + windowSize, xmax); xx++) {
-                    final double h = localDEM[yy - y0 + 1][xx - x0 + 1];
+                final int yIdx = yy - y0 + 1;
+                for (int xx = x; xx < maxX; xx++) {
+                    final double h = localDEM[yIdx][xx - x0 + 1];
                     if (h != demNoDataValue) {
                         targetData.setElemIntAt(targetIndex.getIndex(xx), 1);
                     } else {
@@ -384,9 +388,9 @@ public final class TerrainMaskGenerationOp extends Operator {
 
         } else { // no mountain detected
 
-            for (int yy = y; yy < Math.min(y + windowSize, ymax); yy++) {
+            for (int yy = y; yy < maxY; yy++) {
                 targetIndex.calculateStride(yy);
-                for (int xx = x; xx < Math.min(x + windowSize, xmax); xx++) {
+                for (int xx = x; xx < maxX; xx++) {
                     targetData.setElemIntAt(targetIndex.getIndex(xx), 0);
                 }
             }

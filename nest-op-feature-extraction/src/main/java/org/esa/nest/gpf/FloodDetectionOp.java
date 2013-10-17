@@ -135,23 +135,33 @@ public class FloodDetectionOp extends Operator {
 
             final Band targetBand = ProductUtils.copyBand(srcBandNames, sourceProduct, targetProduct, false);
             targetBand.setSourceImage(srcBand.getSourceImage());
-
-            //create Mask
-            final String expression = targetBand.getName() + " < 0.05";
-
-            final Mask mask = new Mask(targetBand.getName()+"_flood",
-                    targetBand.getSceneRasterWidth(),
-                    targetBand.getSceneRasterHeight(),
-                    Mask.BandMathsType.INSTANCE);
-
-            mask.setDescription("Flood");
-            mask.getImageConfig().setValue("color", Color.BLUE);
-            mask.getImageConfig().setValue("transparency", 0.7);
-            mask.getImageConfig().setValue("expression", expression);
-            mask.setNoDataValue(0);
-            mask.setNoDataValueUsed(true);
-            targetProduct.getMaskGroup().add(mask);
         }
+
+        final Band mstBand = targetProduct.getBandAt(0);
+        final Band slvBand = targetProduct.getBandAt(1);
+        final Band terrainMask = targetProduct.getBand("Terrain_Mask");
+
+        //create Mask
+        String expression = "("+mstBand.getName() + " < 0.05 && "+mstBand.getName()+ " > 0)";
+        if(slvBand != null) {
+            expression += " && !("+slvBand.getName() + " < 0.05 && "+slvBand.getName()+ " > 0)";
+        }
+        if(terrainMask != null) {
+            expression += " && "+terrainMask.getName()+" == 0";
+        }
+
+        final Mask mask = new Mask(mstBand.getName()+"_flood",
+                mstBand.getSceneRasterWidth(),
+                mstBand.getSceneRasterHeight(),
+                Mask.BandMathsType.INSTANCE);
+
+        mask.setDescription("Flood");
+        mask.getImageConfig().setValue("color", Color.BLUE);
+        mask.getImageConfig().setValue("transparency", 0.7);
+        mask.getImageConfig().setValue("expression", expression);
+        mask.setNoDataValue(0);
+        mask.setNoDataValueUsed(true);
+        targetProduct.getMaskGroup().add(mask);
 
 
     }
