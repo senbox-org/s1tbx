@@ -276,7 +276,7 @@ if (isBeamInstallation &amp;&amp; !context.getBooleanVariable("sys.confirmedUpda
                       <void property="script">
                         <object class="com.install4j.api.beans.ScriptProperty">
                           <void property="value">
-                            <string>(int)Math.max(1024, context.getMediaName().contains("32") ? 1300 : (SystemInfo.getPhysicalMemory() * 0.5f) / (1024 * 1024)) + "M"</string>
+                            <string>(int)Math.max(1024, context.getMediaName().contains("32") || context.getMediaName().contains("Unix") ? 1300 : (SystemInfo.getPhysicalMemory() * 0.5f) / (1024 * 1024)) + "M"</string>
                           </void>
                         </object>
                       </void>
