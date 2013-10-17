@@ -42,7 +42,7 @@ public class TerraSARXCalibrator extends BaseCalibrator implements Calibrator {
 
     private String productType = null;
     private String acquisitionMode = null;
-    private Boolean useIncidenceAngleFromGIM = false;
+    private boolean useIncidenceAngleFromGIM = false;
     private double firstLineUTC = 0.0; // in days
     private double lineTimeInterval = 0.0; // in days
     private int sourceImageWidth = 0;
@@ -53,6 +53,7 @@ public class TerraSARXCalibrator extends BaseCalibrator implements Calibrator {
     private final HashMap<String, int[]> rangeLineIndex = new HashMap<String, int[]>(2); // y indices of noise records
     private final HashMap<String, double[][]> rangeLineNoise = new HashMap<String, double[][]>(2);
     private Product sourceGIMProduct = null;
+    private boolean noiseCorrectedFlag = false;
 
     /**
      * Default constructor. The graph processing framework
@@ -88,6 +89,8 @@ public class TerraSARXCalibrator extends BaseCalibrator implements Calibrator {
             targetProduct = tgtProduct;
 
             absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
+            origMetadataRoot = AbstractMetadata.getOriginalProductMetadata(sourceProduct);
+
             sourceImageWidth = sourceProduct.getSceneRasterWidth();
 
             getMission();
@@ -104,15 +107,18 @@ public class TerraSARXCalibrator extends BaseCalibrator implements Calibrator {
 
             getCalibrationFactor();
 
-            getNoiseRecords();
-
             getTiePointGridData();
 
             if (useIncidenceAngleFromGIM) {
                 getGIMProduct();
             }
 
-            computeNoiseForRangeLines();
+            getNoiseCorrectedFlag();
+
+            if (!noiseCorrectedFlag) {
+                getNoiseRecords();
+                computeNoiseForRangeLines();
+            }
 
             if (mustUpdateMetadata) {
                 updateTargetProductMetadata();
@@ -138,8 +144,8 @@ public class TerraSARXCalibrator extends BaseCalibrator implements Calibrator {
      */
     private void getAcquisitionMode() {
         acquisitionMode = absRoot.getAttributeString(AbstractMetadata.ACQUISITION_MODE);
-        if(acquisitionMode.contains("ScanSAR"))
-            throw new OperatorException("ScanSAR calibration is currently not supported.");
+        //if(acquisitionMode.contains("ScanSAR"))
+        //    throw new OperatorException("ScanSAR calibration is currently not supported.");
     }
 
     /**
@@ -156,8 +162,7 @@ public class TerraSARXCalibrator extends BaseCalibrator implements Calibrator {
      * Get calibration factors for all polarizations.
      */
     private void getCalibrationFactor() {
-        final MetadataElement origProdRoot = AbstractMetadata.getOriginalProductMetadata(sourceProduct);
-        final MetadataElement level1Product = origProdRoot.getElement("level1Product");
+        final MetadataElement level1Product = origMetadataRoot.getElement("level1Product");
         final MetadataElement calibrationElem = level1Product.getElement("calibration");
         final MetadataElement[] subElems = calibrationElem.getElements();
         for (MetadataElement ele : subElems) {
@@ -177,13 +182,26 @@ public class TerraSARXCalibrator extends BaseCalibrator implements Calibrator {
         }
     }
 
+    private void getNoiseCorrectedFlag() {
+
+        final MetadataElement level1Product = origMetadataRoot.getElement("level1Product");
+        final MetadataElement processingFlagsElem = level1Product.getElement("processing").getElement("processingFlags");
+        if (processingFlagsElem == null) {
+            throw new OperatorException("Cannot find \"processingFlags\" element in level1Product metadata");
+        }
+        noiseCorrectedFlag = processingFlagsElem.getAttributeString("noiseCorrectedFlag").contains("true");
+
+        if(acquisitionMode.contains("ScanSAR") && !noiseCorrectedFlag) {
+            throw new OperatorException("Noise correction for ScanSAR is currently not supported.");
+        }
+    }
+
     /**
      * Get image noise records.
      */
     private void getNoiseRecords() {
 
-        final MetadataElement origProdRoot = AbstractMetadata.getOriginalProductMetadata(sourceProduct);
-        final MetadataElement level1Product = origProdRoot.getElement("level1Product");
+        final MetadataElement level1Product = origMetadataRoot.getElement("level1Product");
         final MetadataElement[] subElems = level1Product.getElements();
         for (MetadataElement ele : subElems) {
             if (!ele.getName().contains("noise")) {
@@ -355,8 +373,11 @@ public class TerraSARXCalibrator extends BaseCalibrator implements Calibrator {
             Ks = calibrationFactor.get(pol);
         }
 
-        double[][] tileNoise = new double[h][w];
-        computeTileNoise(pol, x0, y0, w, h, tileNoise);
+        double[][] tileNoise = null;
+        if (!noiseCorrectedFlag) {
+            tileNoise = new double[h][w];
+            computeTileNoise(pol, x0, y0, w, h, tileNoise);
+        }
 
         final ProductData trgData = targetTile.getDataBuffer();
         final TileIndex srcIndex = new TileIndex(sourceRaster1);
@@ -389,12 +410,18 @@ public class TerraSARXCalibrator extends BaseCalibrator implements Calibrator {
                     throw new OperatorException("TerraSARXCalibrator: unhandled unit");
                 }
 
-                if (!useIncidenceAngleFromGIM) {
-                    sigma = Ks*(sigma - tileNoise[y-y0][x-x0])*Math.sin(incidenceAngle.getPixelDouble(x, y)*MathUtils.DTOR);
-                } else {
+                double inciAng;
+                if (useIncidenceAngleFromGIM) {
                     final int gim = srcGIMData.getElemIntAt(index);
-                    final double inciAng = (gim - (gim%10))/100.0;
-                    sigma = Ks*(sigma - tileNoise[y-y0][x-x0])*Math.sin(inciAng*MathUtils.DTOR);
+                    inciAng = (gim - (gim%10))/100.0*MathUtils.DTOR;
+                } else {
+                    inciAng = incidenceAngle.getPixelDouble(x, y)*MathUtils.DTOR;
+                }
+
+                if (noiseCorrectedFlag) {
+                    sigma = Ks*sigma*Math.sin(inciAng);
+                } else {
+                    sigma = Ks*(sigma - tileNoise[y-y0][x-x0])*Math.sin(inciAng);
                 }
 
                 if (outputImageScaleInDb) { // convert calibration result to dB
