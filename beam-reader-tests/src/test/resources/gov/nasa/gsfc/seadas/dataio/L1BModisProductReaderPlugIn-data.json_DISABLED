@@ -1,0 +1,14 @@
+{
+    "testProducts": [
+        {
+            "id": "A2003001000000.L1B_LAC",
+            "relativePath": "SeaDAS/MODIS/A2003001000000.L1B_LAC",
+            "description": "Modis L1b"
+        },
+        {
+            "id": "A2006302181500.L1B_LAC",
+            "relativePath": "SeaDAS/MODIS/A2006302181500.L1B_LAC",
+            "description": "Modis L1b1.4.3-SNAP"
+        }
+    ]
+}
