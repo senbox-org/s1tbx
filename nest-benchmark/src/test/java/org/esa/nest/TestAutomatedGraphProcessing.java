@@ -33,6 +33,7 @@ public class TestAutomatedGraphProcessing {
     private static final Logger log = Logger.getLogger("Test");
 
     private final boolean failOnFirstProblem = true;
+    private int maxNumberOfInputProducts = -1;
 
     @Before
     public void setUp() throws Exception {
@@ -48,7 +49,7 @@ public class TestAutomatedGraphProcessing {
         for(TestInfo test : testList) {
             try {
                 final ArrayList<File> productList = new ArrayList<>(100);
-                TestUtils.recurseFindReadableProducts(test.inputFolder, productList, 1);
+                TestUtils.recurseFindReadableProducts(test.inputFolder, productList, maxNumberOfInputProducts);
                 int c;
                 int numFiles = productList.size();
 
@@ -115,11 +116,21 @@ public class TestAutomatedGraphProcessing {
         final String prefix = contextID+".test.";
 
         final Properties prop = testPreferences.getProperties();
+        String maxIn = prop.getProperty("rstb.test.maxProductsPerInputFolder");
+        if(maxIn != null) {
+            maxNumberOfInputProducts = Integer.parseInt(maxIn);
+        }
+
         final int numProperties = prop.size()/4;
         for(int i=0; i < numProperties; ++i) {
             final String key = prefix+i;
             final String graph = prop.getProperty(key + ".graph");
             if(graph != null) {
+                final String skip = prop.getProperty(key + ".skip");
+                if(skip != null && skip.equalsIgnoreCase("true")) {
+                    continue;
+                }
+
                 final String input_products = prop.getProperty(key + ".input_products");
                 final String expected_results = prop.getProperty(key + ".expected_results");
                 final String output_products = prop.getProperty(key + ".output_products");

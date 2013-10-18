@@ -40,12 +40,12 @@ import java.io.File;
  * This operator detects mountain area using DEM and gnerates a terrain mask for given SAR image.
  */
 
-@OperatorMetadata(alias="Terrain-Mask-Generation",
+@OperatorMetadata(alias="Terrain-Mask",
         category = "Classification\\Masks",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2013 by Array Systems Computing Inc.",
         description="Terrain Mask Generation")
-public final class TerrainMaskGenerationOp extends Operator {
+public final class TerrainMaskOp extends Operator {
 
     @SourceProduct(alias="source")
     private Product sourceProduct;
@@ -62,9 +62,9 @@ public final class TerrainMaskGenerationOp extends Operator {
                            ResamplingFactory.CUBIC_CONVOLUTION_NAME,
                            ResamplingFactory.BICUBIC_INTERPOLATION_NAME,
                            ResamplingFactory.BISINC_INTERPOLATION_NAME},
-               defaultValue = ResamplingFactory.BICUBIC_INTERPOLATION_NAME,
+               defaultValue = ResamplingFactory.NEAREST_NEIGHBOUR_NAME,
                label="DEM Resampling Method")
-    private String demResamplingMethod = ResamplingFactory.BICUBIC_INTERPOLATION_NAME;
+    private String demResamplingMethod = ResamplingFactory.NEAREST_NEIGHBOUR_NAME;
 
     @Parameter(label="External DEM")
     private File externalDEMFile = null;
@@ -408,7 +408,7 @@ public final class TerrainMaskGenerationOp extends Operator {
      */
     public static class Spi extends OperatorSpi {
         public Spi() {
-            super(TerrainMaskGenerationOp.class);
+            super(TerrainMaskOp.class);
         }
     }
 }

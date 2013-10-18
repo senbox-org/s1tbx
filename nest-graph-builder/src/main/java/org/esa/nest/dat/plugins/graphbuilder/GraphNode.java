@@ -56,6 +56,7 @@ public class GraphNode {
     private Point displayPosition = new Point(0,0);
 
     private XppDom displayParameters;
+    private Color shadowColor = new Color(0, 0, 0, 128);
 
     GraphNode(final Node n) throws IllegalArgumentException {
         node = n;
@@ -325,10 +326,17 @@ public class GraphNode {
         final int stringWidth = (int) rect.getWidth();
         setSize(Math.max(stringWidth, 50) + 10, 25);
 
+        g.setColor(Color.BLACK);
+        g.drawLine(x+1, y+nodeHeight, x+nodeWidth, y+nodeHeight);
+        g.drawLine(x+nodeWidth, y+1, x+nodeWidth, y+nodeHeight);
+        g.setColor(shadowColor);
+        g.drawLine(x+2, y+nodeHeight+1, x+nodeWidth, y+nodeHeight+1);
+        g.drawLine(x+nodeWidth+1, y+2, x+nodeWidth+1, y+nodeHeight+1);
+
         g.setColor(col);
-        g.fill3DRect(x, y, nodeWidth, nodeHeight, true);
+        g.fill3DRect(x, y, nodeWidth-1, nodeHeight-1, true);
         g.setColor(Color.blue);
-        g.draw3DRect(x, y, nodeWidth, nodeHeight, true);
+        g.draw3DRect(x, y, nodeWidth-1, nodeHeight-1, true);
 
         g.setColor(Color.black);
         g.drawString(name, x + (nodeWidth - stringWidth) / 2, y + 15);
@@ -368,20 +376,52 @@ public class GraphNode {
      */
     public void drawConnectionLine(final Graphics g, final GraphNode src) {
 
-        final Point tail = displayPosition;
-        final Point head = src.displayPosition;
-        if (tail.x + nodeWidth < head.x) {
-            drawArrow(g, tail.x + nodeWidth, tail.y + halfNodeHeight,
-                    head.x, head.y + src.getHalfNodeHeight());
-        } else if (tail.x < head.x + halfNodeWidth && head.y > tail.y) {
-            drawArrow(g, tail.x + halfNodeWidth, tail.y + nodeHeight,
-                    head.x + src.getHalfNodeWidth(), head.y);
-        } else if (tail.x < head.x + nodeWidth && head.y < tail.y) {
-            drawArrow(g, tail.x + halfNodeWidth, tail.y,
-                    head.x + src.getHalfNodeWidth(), head.y + nodeHeight);
+        final Point nodePos = displayPosition;
+        final Point srcPos = src.displayPosition;
+
+        final int nodeEndX = nodePos.x + nodeWidth;
+        final int nodeMidY = nodePos.y + halfNodeHeight;
+        final int srcEndX = srcPos.x + src.getWidth();
+        final int srcMidY = srcPos.y + src.getHalfNodeHeight();
+
+        if (srcEndX <= nodePos.x) {
+            if(srcPos.y > nodePos.y + nodeHeight) {
+                // to UR
+                drawArrow(g, nodePos.x + halfNodeWidth, nodePos.y + nodeHeight,
+                        srcEndX, srcMidY);
+            } else if(srcPos.y + src.getHeight() < nodePos.y) {
+                // to DR
+                drawArrow(g, nodePos.x + halfNodeWidth, nodePos.y,
+                        srcEndX, srcMidY);
+            } else {
+                // to R
+                drawArrow(g, nodePos.x, nodeMidY,
+                        srcEndX, srcMidY);
+            }
+        } else if(srcPos.x >= nodeEndX) {
+            if(srcPos.y > nodePos.y + nodeHeight) {
+                // to UL
+                drawArrow(g, nodePos.x + halfNodeWidth, nodePos.y + nodeHeight,
+                        srcPos.x, srcPos.y + halfNodeHeight);
+            } else if(srcPos.y + src.getHeight() < nodePos.y) {
+                // to DL
+                drawArrow(g, nodePos.x + halfNodeWidth, nodePos.y,
+                        srcPos.x, srcPos.y + halfNodeHeight);
+            } else {
+                // to L
+                drawArrow(g, nodeEndX, nodeMidY,
+                        srcPos.x, srcPos.y + halfNodeHeight);
+            }
         } else {
-            drawArrow(g, tail.x, tail.y + halfNodeHeight,
-                    head.x + src.getWidth(), head.y + src.getHalfNodeHeight());
+            if(srcPos.y > nodePos.y + nodeHeight) {
+                // U
+                drawArrow(g, nodePos.x + halfNodeWidth, nodePos.y + nodeHeight,
+                        srcPos.x + src.getHalfNodeWidth(), srcPos.y);
+            } else {
+                // D
+                drawArrow(g, nodePos.x + halfNodeWidth, nodePos.y,
+                        srcPos.x + src.getHalfNodeWidth(), srcPos.y + src.getHeight());
+            }
         }
     }
 

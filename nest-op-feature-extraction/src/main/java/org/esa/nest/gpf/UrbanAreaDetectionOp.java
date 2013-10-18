@@ -62,8 +62,8 @@ public class UrbanAreaDetectionOp extends Operator {
     private String[] sourceBandNames = null;
 
     @Parameter(valueSet = {WINDOW_SIZE_5x5, WINDOW_SIZE_7x7, WINDOW_SIZE_9x9, WINDOW_SIZE_11x11, WINDOW_SIZE_13x13,
-            WINDOW_SIZE_15x15, WINDOW_SIZE_17x17}, defaultValue = WINDOW_SIZE_5x5, label="Window Size")
-    private String windowSizeStr = WINDOW_SIZE_5x5;
+            WINDOW_SIZE_15x15, WINDOW_SIZE_17x17}, defaultValue = WINDOW_SIZE_15x15, label="Window Size")
+    private String windowSizeStr = WINDOW_SIZE_15x15;
 
     private MetadataElement absRoot = null;
     private int sourceImageWidth = 0;
@@ -265,7 +265,7 @@ public class UrbanAreaDetectionOp extends Operator {
             final double noDataValue = sourceBand.getNoDataValue();
             final Unit.UnitType bandUnit = Unit.getUnitType(sourceBand);
 
-            final Band maskBand = sourceProduct.getBand(TerrainMaskGenerationOp.TERRAIN_MASK_NAME);
+            final Band maskBand = sourceProduct.getBand(TerrainMaskOp.TERRAIN_MASK_NAME);
             Tile maskTile = null;
             ProductData maskData = null;
             if (maskBand != null) {

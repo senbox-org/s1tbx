@@ -1,0 +1,183 @@
+<graph id="Graph">
+  <version>1.0</version>
+  <node id="1-Read">
+    <operator>Read</operator>
+    <sources/>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <file></file>
+    </parameters>
+  </node>
+  <node id="2-Write">
+    <operator>Write</operator>
+    <sources>
+      <sourceProduct refid="5-Flood-Detection"/>
+    </sources>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <formatName>BEAM-DIMAP</formatName>
+      <file>flood_detection.dim</file>
+    </parameters>
+  </node>
+  <node id="3-Create-LandMask">
+    <operator>Create-LandMask</operator>
+    <sources>
+      <sourceProduct refid="11-Warp"/>
+    </sources>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <sourceBands/>
+      <landMask>false</landMask>
+      <useSRTM>true</useSRTM>
+      <geometry/>
+      <invertGeometry>false</invertGeometry>
+      <byPass>false</byPass>
+    </parameters>
+  </node>
+  <node id="4-Terrain-Mask">
+    <operator>Terrain-Mask</operator>
+    <sources>
+      <sourceProduct refid="3-Create-LandMask"/>
+    </sources>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <demName>SRTM 3Sec</demName>
+      <demResamplingMethod>NEAREST_NEIGHBOUR</demResamplingMethod>
+      <externalDEMFile/>
+      <externalDEMNoDataValue>0.0</externalDEMNoDataValue>
+      <windowSizeStr>15x15</windowSizeStr>
+      <thresholdInMeter>40.0</thresholdInMeter>
+    </parameters>
+  </node>
+  <node id="5-Flood-Detection">
+    <operator>Flood-Detection</operator>
+    <sources>
+      <sourceProduct refid="4-Terrain-Mask"/>
+    </sources>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <sourceBands>
+      </sourceBands>
+    </parameters>
+  </node>
+  <node id="6-Read">
+    <operator>Read</operator>
+    <sources/>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <file></file>
+    </parameters>
+  </node>
+  <node id="7-Calibration">
+    <operator>Calibration</operator>
+    <sources>
+      <sourceProduct refid="6-Read"/>
+    </sources>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <sourceBands/>
+      <auxFile>Product Auxiliary File</auxFile>
+      <externalAuxFile/>
+      <outputImageInComplex>false</outputImageInComplex>
+      <outputImageScaleInDb>false</outputImageScaleInDb>
+      <createGammaBand>false</createGammaBand>
+      <createBetaBand>false</createBetaBand>
+    </parameters>
+  </node>
+  <node id="8-Calibration">
+    <operator>Calibration</operator>
+    <sources>
+      <sourceProduct refid="1-Read"/>
+    </sources>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <sourceBands/>
+      <auxFile>Product Auxiliary File</auxFile>
+      <externalAuxFile/>
+      <outputImageInComplex>false</outputImageInComplex>
+      <outputImageScaleInDb>false</outputImageScaleInDb>
+      <createGammaBand>false</createGammaBand>
+      <createBetaBand>false</createBetaBand>
+    </parameters>
+  </node>
+  <node id="9-CreateStack">
+    <operator>CreateStack</operator>
+    <sources>
+      <sourceProduct refid="7-Calibration"/>
+      <sourceProduct refid="8-Calibration"/>
+    </sources>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <masterBands>
+        <band></band>
+      </masterBands>
+      <sourceBands>
+        <band></band>
+      </sourceBands>
+      <resamplingType>BILINEAR_INTERPOLATION</resamplingType>
+      <extent>Master</extent>
+    </parameters>
+  </node>
+  <node id="10-GCP-Selection">
+    <operator>GCP-Selection</operator>
+    <sources>
+      <sourceProduct refid="9-CreateStack"/>
+    </sources>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <numGCPtoGenerate>200</numGCPtoGenerate>
+      <coarseRegistrationWindowWidth>128</coarseRegistrationWindowWidth>
+      <coarseRegistrationWindowHeight>128</coarseRegistrationWindowHeight>
+      <rowInterpFactor>2</rowInterpFactor>
+      <columnInterpFactor>2</columnInterpFactor>
+      <maxIteration>2</maxIteration>
+      <gcpTolerance>0.5</gcpTolerance>
+      <applyFineRegistration>true</applyFineRegistration>
+      <fineRegistrationWindowWidth>32</fineRegistrationWindowWidth>
+      <fineRegistrationWindowHeight>32</fineRegistrationWindowHeight>
+      <coherenceWindowSize>3</coherenceWindowSize>
+      <coherenceThreshold>0.6</coherenceThreshold>
+      <useSlidingWindow>false</useSlidingWindow>
+      <computeOffset>false</computeOffset>
+      <onlyGCPsOnLand>false</onlyGCPsOnLand>
+    </parameters>
+  </node>
+  <node id="11-Warp">
+    <operator>Warp</operator>
+    <sources>
+      <sourceProduct refid="10-GCP-Selection"/>
+    </sources>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <rmsThreshold>1.0</rmsThreshold>
+      <warpPolynomialOrder>1</warpPolynomialOrder>
+      <interpolationMethod>Bilinear interpolation</interpolationMethod>
+      <openResidualsFile>false</openResidualsFile>
+    </parameters>
+  </node>
+  <applicationData id="Presentation">
+    <Description/>
+    <node id="1-Read">
+      <displayPosition y="63.0" x="30.0"/>
+    </node>
+    <node id="2-Write">
+      <displayPosition y="243.0" x="427.0"/>
+    </node>
+    <node id="3-Create-LandMask">
+      <displayPosition y="97.0" x="403.0"/>
+    </node>
+    <node id="4-Terrain-Mask">
+      <displayPosition y="146.0" x="380.0"/>
+    </node>
+    <node id="5-Flood-Detection">
+      <displayPosition y="193.0" x="405.0"/>
+    </node>
+    <node id="6-Read">
+      <displayPosition y="20.0" x="32.0"/>
+    </node>
+    <node id="7-Calibration">
+      <displayPosition y="22.0" x="114.0"/>
+    </node>
+    <node id="8-Calibration">
+      <displayPosition y="65.0" x="114.0"/>
+    </node>
+    <node id="9-CreateStack">
+      <displayPosition y="41.0" x="204.0"/>
+    </node>
+    <node id="10-GCP-Selection">
+      <displayPosition y="42.0" x="303.0"/>
+    </node>
+    <node id="11-Warp">
+      <displayPosition y="46.0" x="431.0"/>
+    </node>
+  </applicationData>
+</graph>

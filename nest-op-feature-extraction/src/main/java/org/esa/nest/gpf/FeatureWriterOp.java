@@ -89,7 +89,7 @@ public class FeatureWriterOp extends Operator implements Output {
 
     public static final String featureBandName = "_speckle_divergence";
     public static final String FEX_EXTENSION = ".fex";
-    private static final String VERSION = "NEST 5.5 Urban Detection 0.1";
+    private static final String VERSION = "NEST 5.5 Urban Detection 0.2";
 
     private static final double Tdsl = 0.4; // threshold for detection adopted from Esch's paper.
 
@@ -149,6 +149,10 @@ public class FeatureWriterOp extends Operator implements Output {
                 final int ty0 = targetTileRectangle.y;
                 final int tw  = targetTileRectangle.width;
                 final int th  = targetTileRectangle.height;
+
+                if(tw*th != patchWidth*patchHeight) {
+                    return;
+                }
 
                 final int tileX = tx0/tw;
                 final int tileY = ty0/th;
@@ -363,17 +367,18 @@ public class FeatureWriterOp extends Operator implements Output {
 
         final String tgtBandName = targetBand.getName();
         final Tile srcTile = getSourceTile(targetBand, new Rectangle(tx0, ty0, tw, th));
-
         final double[] dataArray = new double[tw*th];
-        int cnt = 0;
-        final TileIndex srcIndex = new TileIndex(targetTile);
-        for (int ty = ty0; ty < ty0 + th; ty++) {
-            srcIndex.calculateStride(ty);
-            for (int tx = tx0; tx < tx0 + tw; tx++) {
-                final double v = srcTile.getDataBuffer().getElemDoubleAt(srcIndex.getIndex(tx));
-                dataArray[cnt++] = v;
-            }
+
+        final RegionGrower blob = new RegionGrower(srcTile);
+        blob.run(Tdsl, dataArray);
+        final int maxClusterSize = blob.getMaxClusterSize();
+        final int numSamplesOverThreshold = blob.getNumSamples();
+
+        final double pctOverPnt4 = numSamplesOverThreshold/(double)(tw*th);
+        if(pctOverPnt4 < minValidPixels) {
+            return false;
         }
+
         final Band stxBand = new Band("Stx_"+tgtBandName, ProductData.TYPE_FLOAT64, tw, th);
         sourceProduct.addBand(stxBand);
         stxBand.setOwner(sourceProduct);
@@ -385,6 +390,7 @@ public class FeatureWriterOp extends Operator implements Output {
         final Stx stx = stxFactory.create(stxBand, ProgressMonitor.NULL);
 
         final File featureFile = new File(tileDir, "features.txt");
+        //final File featureFile = new File(tileDir.getParentFile(), tileDir.getName()+"_features.txt");
 
         final Writer featureWriter = new BufferedWriter(new FileWriter(featureFile));
 
@@ -396,7 +402,8 @@ public class FeatureWriterOp extends Operator implements Output {
             featureWriter.write(String.format("%s.stdev   = %s\n", tgtBandName, stx.getStandardDeviation()));
             featureWriter.write(String.format("%s.coefVar = %s\n", tgtBandName, stx.getCoefficientOfVariation()));
             featureWriter.write(String.format("%s.count   = %s\n", tgtBandName, stx.getSampleCount()));
-            featureWriter.write(String.format("%s.percentOverPnt4 = %s\n", tgtBandName, computeSamplePercentOverPnt4(dataArray)));
+            featureWriter.write(String.format("%s.percentOverPnt4 = %s\n", tgtBandName, 100*pctOverPnt4));
+            featureWriter.write(String.format("%s.largestConnectedBlob = %s\n", tgtBandName, 100.0*maxClusterSize/(double)(tw*th)));
 
             sourceProduct.removeBand(stxBand);
         } finally {
@@ -407,23 +414,11 @@ public class FeatureWriterOp extends Operator implements Output {
         }
 
         float pct = (stx.getSampleCount()/(float)(patchWidth*patchHeight));
-        final boolean valid = pct > minValidPixels;
-        if(valid) {
-            tileInfoList.add(new TileInfo(tileDir.getName(), tileX, tileY, targetTile.getRectangle()));
-        }
-        return valid;
-    }
+        if(pct < minValidPixels)
+            return false;
 
-    private static double computeSamplePercentOverPnt4(final double[] dataArray) {
-
-        int numSamplesAboveThreshold = 0;
-        for (double sd : dataArray) {
-            if (sd > Tdsl) {
-                numSamplesAboveThreshold++;
-            }
-        }
-
-        return 100.0*numSamplesAboveThreshold/dataArray.length;
+        tileInfoList.add(new TileInfo(tileDir.getName(), tileX, tileY, targetTile.getRectangle()));
+        return true;
     }
 
     private void outputPatchImage(final int tx0, final int ty0, final int tw, final int th, final String srcBandName,
@@ -447,7 +442,7 @@ public class FeatureWriterOp extends Operator implements Output {
             final Band srcImage = subsetInfo.product.getBand(srcBandName);
             final Band spkDiv = subsetInfo.product.getBand(tgtBandName);
 
-            if(true) {
+            if(false) {//true) {
                 subsetInfo.productWriter = ProductIO.getProductWriter(formatName); // BEAM-DIMAP
                 if (subsetInfo.productWriter == null) {
                     throw new OperatorException("No data product writer for the '" + formatName + "' format available");
@@ -462,10 +457,10 @@ public class FeatureWriterOp extends Operator implements Output {
 
                 // output original image
                 final Rectangle trgRect = new Rectangle(tx0,ty0, tw, th);
-                final Tile srcImageTile = getSourceTile(targetProduct.getBand(srcBandName), trgRect);
-                final ProductData srcImageData = srcImageTile.getRawSamples();
-                subsetInfo.productWriter.writeBandRasterData(srcImage, 0, 0,
-                        srcImage.getSceneRasterWidth(), srcImage.getSceneRasterHeight(), srcImageData, ProgressMonitor.NULL);
+                //final Tile srcImageTile = getSourceTile(targetProduct.getBand(srcBandName), trgRect);
+                //final ProductData srcImageData = srcImageTile.getRawSamples();
+                //subsetInfo.productWriter.writeBandRasterData(srcImage, 0, 0,
+                //        srcImage.getSceneRasterWidth(), srcImage.getSceneRasterHeight(), srcImageData, ProgressMonitor.NULL);
 
                 // output speckle divergence image
                 final Tile spkDivTile = getSourceTile(targetProduct.getBand(tgtBandName), trgRect);
@@ -477,6 +472,10 @@ public class FeatureWriterOp extends Operator implements Output {
             final BufferedImage image = ProductUtils.createColorIndexedImage(srcImage, ProgressMonitor.NULL);
             final File rgbFile = new File(tileDir.getParentFile(), tileDir.getName()+"_rgb.png");
             FileStoreDescriptor.create(image, rgbFile.getPath(), "PNG", null, null, null);
+
+            final BufferedImage image2 = ProductUtils.createColorIndexedImage(spkDiv, ProgressMonitor.NULL);
+            final File feaFile = new File(tileDir.getParentFile(), tileDir.getName()+"_fea.png");
+            FileStoreDescriptor.create(image2, feaFile.getPath(), "PNG", null, null, null);
 
             // write tile to kml
             float w = subsetInfo.product.getSceneRasterWidth();

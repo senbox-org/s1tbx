@@ -1,5 +1,5 @@
 org.esa.nest.gpf.UrbanAreaDetectionOp$Spi
 org.esa.nest.gpf.FeatureWriterOp$Spi
-org.esa.nest.gpf.TerrainMaskGenerationOp$Spi
+org.esa.nest.gpf.TerrainMaskOp$Spi
 org.esa.nest.gpf.ForestAreaDetectionOp$Spi
 org.esa.nest.gpf.FloodDetectionOp$Spi

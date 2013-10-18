@@ -5,16 +5,6 @@
     <sources/>
     <parameters class="com.bc.ceres.binding.dom.XppDomElement"/>
   </node>
-  <node id="2-Write">
-    <operator>Write</operator>
-    <sources>
-      <sourceProduct refid="6-Urban-Area-Detection"/>
-    </sources>
-    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
-      <formatName>BEAM-DIMAP</formatName>
-      <file>urban_area.dim</file>
-    </parameters>
-  </node>
   <node id="3-Calibration">
     <operator>Calibration</operator>
     <sources>
@@ -68,25 +58,37 @@
       <windowSizeStr>15x15</windowSizeStr>
     </parameters>
   </node>
+  <node id="7-FeatureWriter">
+    <operator>FeatureWriter</operator>
+    <sources>
+      <sourceProduct refid="6-Urban-Area-Detection"/>
+    </sources>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <outputFolder>p:\nest\out</outputFolder>
+      <formatName>BEAM-DIMAP</formatName>
+      <patchSizeKm>4.0</patchSizeKm>
+      <minValidPixels>0.05</minValidPixels>
+    </parameters>
+  </node>
   <applicationData id="Presentation">
     <Description/>
-    <node id="2-Write">
-      <displayPosition y="222.0" x="430.0"/>
-    </node>
-    <node id="6-Urban-Area-Detection">
-      <displayPosition y="222.0" x="280.0"/>
-    </node>
-    <node id="5-Terrain-Mask">
-      <displayPosition y="222.0" x="119.0"/>
-    </node>
-    <node id="4-Create-LandMask">
-      <displayPosition y="178.0" x="112.0"/>
+    <node id="1-Read">
+      <displayPosition y="134.0" x="37.0"/>
     </node>
     <node id="3-Calibration">
       <displayPosition y="134.0" x="112.0"/>
     </node>
-    <node id="1-Read">
-      <displayPosition y="134.0" x="37.0"/>
+    <node id="4-Create-LandMask">
+      <displayPosition y="178.0" x="112.0"/>
+    </node>
+    <node id="5-Terrain-Mask">
+      <displayPosition y="222.0" x="119.0"/>
+    </node>
+    <node id="6-Urban-Area-Detection">
+      <displayPosition y="222.0" x="280.0"/>
+    </node>
+    <node id="7-FeatureWriter">
+      <displayPosition y="222.0" x="426.0"/>
     </node>
   </applicationData>
 </graph>

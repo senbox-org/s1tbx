@@ -108,7 +108,7 @@
             <parent>Masks</parent>
             <text>Create Terrain Mask</text>
             <shortDescr>Terrain Mask Generation</shortDescr>
-            <operatorName>Terrain-Mask-Generation</operatorName>
+            <operatorName>Terrain-Mask</operatorName>
             <dialogTitle>Terrain Mask Generation</dialogTitle>
             <targetProductNameSuffix>_terr_msk</targetProductNameSuffix>
         </action>

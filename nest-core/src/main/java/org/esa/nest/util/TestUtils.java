@@ -334,7 +334,7 @@ public class TestUtils {
 
         final File[] fileList = origFolder.listFiles(new ProductFunctions.ValidProductFileFilter());
         for(File file : fileList) {
-            if(productList.size() >= maxCount)
+            if(maxCount > 0 && productList.size() >= maxCount)
                 return;
 
             try {
