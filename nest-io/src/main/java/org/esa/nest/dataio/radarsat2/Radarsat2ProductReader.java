@@ -154,7 +154,8 @@ public class Radarsat2ProductReader extends AbstractProductReader {
         final double offset = Double.parseDouble(offsetElem.getValue());
 
         final Element gainsElem = rootElement.getChild("gains");
-        double[] gainsArray = StringUtils.toDoubleArray(gainsElem.getValue().trim(), " ");
+        final String gainsValue = gainsElem.getValue().trim().replace("  ", " ");
+        final double[] gainsArray = StringUtils.toDoubleArray(gainsValue, " ");
         if (flipLUT) {
             double tmp;
             for (int i = 0; i < gainsArray.length/2; i++) {
