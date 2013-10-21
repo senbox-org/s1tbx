@@ -3,3 +3,4 @@ org.esa.nest.gpf.FeatureWriterOp$Spi
 org.esa.nest.gpf.TerrainMaskOp$Spi
 org.esa.nest.gpf.ForestAreaDetectionOp$Spi
 org.esa.nest.gpf.FloodDetectionOp$Spi
+org.esa.nest.gpf.GLCMOp$Spi
