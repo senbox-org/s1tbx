@@ -113,6 +113,19 @@
             <targetProductNameSuffix>_terr_msk</targetProductNameSuffix>
         </action>
 
+        <action>
+            <id>GLCMOp</id>
+            <helpId>GLCMOp</helpId>
+            <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <icon>esaIcon</icon>
+            <parent>FeatureExtraction</parent>
+            <text>GLCM</text>
+            <shortDescr>Extract Texture Features</shortDescr>
+            <operatorName>GLCM</operatorName>
+            <dialogTitle>GLCM</dialogTitle>
+            <targetProductNameSuffix>_glcm</targetProductNameSuffix>
+        </action>
+
     </extension>
 
 </module>
