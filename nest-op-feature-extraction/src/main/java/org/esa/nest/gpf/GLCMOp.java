@@ -15,6 +15,7 @@
  */
 package org.esa.nest.gpf;
 
+import ch.qos.logback.core.joran.spi.ElementSelector;
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
@@ -77,7 +78,7 @@ public final class GLCMOp extends Operator {
     private String angleStr = ANGLE_0;
 
     @Parameter(valueSet = {QUANTIZATION_LEVELS_16, QUANTIZATION_LEVELS_32, QUANTIZATION_LEVELS_64},
-            defaultValue = QUANTIZATION_LEVELS_16, label="Quantization Levels")
+            defaultValue = QUANTIZATION_LEVELS_64, label="Quantization Levels")
     private String quantizationLevelsStr = QUANTIZATION_LEVELS_64;
 
     @Parameter(description = "Pixel displacement", interval = "[1, 10]", defaultValue = "1", label="Displacement")
@@ -130,7 +131,10 @@ public final class GLCMOp extends Operator {
     private int displacementY = 0;
     private int sourceImageWidth = 0;
     private int sourceImageHeight = 0;
+    private double bandMax = 0.0;
+    private double bandMin = 0.0;
     private double delta = 0.0;
+    private String bandUnit = null;
 
     private List<String> targetBandNameList = new ArrayList<String>(10);
 
@@ -291,16 +295,21 @@ public final class GLCMOp extends Operator {
         if (sourceBandNames == null || sourceBandNames.length == 0) {
             final Band[] bands = sourceProduct.getBands();
             for (Band band : bands) {
-                if(band.getUnit() != null && band.getUnit().equals(Unit.INTENSITY)) {
+                bandUnit = band.getUnit();
+                if (bandUnit != null && (bandUnit.equals(Unit.INTENSITY) || bandUnit.equals(Unit.INTENSITY_DB) ||
+                    bandUnit.equals(Unit.AMPLITUDE) || bandUnit.equals(Unit.AMPLITUDE_DB))) {
                     sourceBandNames = new String[1];
                     sourceBandNames[0] = band.getName();
                     break;
                 }
             }
+        } else {
+            bandUnit = sourceProduct.getBand(sourceBandNames[0]).getUnit();
         }
 
-        if (sourceBandNames.length > 1 || !sourceProduct.getBand(sourceBandNames[0]).getUnit().equals(Unit.INTENSITY)) {
-            throw new OperatorException("Please select one intensity band.");
+        if (sourceBandNames.length > 1 || bandUnit == null || !(bandUnit.equals(Unit.INTENSITY) ||
+            bandUnit.equals(Unit.INTENSITY_DB) || bandUnit.equals(Unit.AMPLITUDE) || bandUnit.equals(Unit.AMPLITUDE_DB))) {
+            throw new OperatorException("Please select one amplitude or intensity band.");
         }
 
         final Band targetBand = ProductUtils.copyBand(sourceBandNames[0], sourceProduct, targetProduct, false);
@@ -357,7 +366,25 @@ public final class GLCMOp extends Operator {
 
     private void getImageMaxMin() {
         final Band srcBand = sourceProduct.getBand(sourceBandNames[0]);
-        delta = (srcBand.getStx().getMaximum() - srcBand.getStx().getMinimum())/numQuantLevels;
+        bandMax = convertToIntensityDB(srcBand.getStx(true,ProgressMonitor.NULL).getMaximum());
+        bandMin = convertToIntensityDB(srcBand.getStx(true,ProgressMonitor.NULL).getMinimum());
+        delta = (bandMax - bandMin)/numQuantLevels;
+    }
+
+    private double convertToIntensityDB(final double v) {
+
+        switch (bandUnit) {
+            case Unit.INTENSITY_DB:
+                return v;
+            case Unit.INTENSITY:
+                return 10.0*Math.log10(v + Constants.EPS);
+            case Unit.AMPLITUDE:
+                return 10.0*Math.log10(v*v + Constants.EPS);
+            case Unit.AMPLITUDE_DB:
+                return 10.0*Math.log10(Math.pow(10, 2*v) + Constants.EPS);
+            default:
+                return 0.0;
+        }
     }
 
     /**
@@ -572,7 +599,7 @@ public final class GLCMOp extends Operator {
     }
 
     private int quantize(final double v) {
-        return Math.min((int)(v/delta), numQuantLevels-1);
+        return Math.min((int)((convertToIntensityDB(v) - bandMin)/delta), numQuantLevels-1);
     }
 
     private static class TileData {
