@@ -208,7 +208,7 @@ public class FeatureWriterOp extends Operator implements Output {
         metadataWriter.println("  source = "+sourceProduct.getName());
         metadataWriter.println();
         metadataWriter.println("# Extracted features:");
-        metadataWriter.println("  featureCount = 8");
+        metadataWriter.println("  featureCount = 9");
         metadataWriter.println("# Minimum speckle divergence");
         metadataWriter.println("  features.0 = speckle_divergence.minimum");
         metadataWriter.println("# Maximum speckle divergence");
@@ -225,6 +225,8 @@ public class FeatureWriterOp extends Operator implements Output {
         metadataWriter.println("  features.6 = speckle_divergence.count");
         metadataWriter.println("# Sample percent over threshold of 0.4");
         metadataWriter.println("  features.7 = speckle_divergence.percentOverPnt4");
+        metadataWriter.println("# Largest connected cluster size as a percent of tile");
+        metadataWriter.println("  features.8 = speckle_divergence.largestConnectedBlob");
         metadataWriter.println();
     }
 
