@@ -133,38 +133,97 @@ class DatAboutBox extends ModalDialog {
     }
 
     private static String getCreditsHtml() {
-        return
-                "<html>" +
-                "<br>The NEST team at Array Systems Computing is:" +
+        return "<html>" +
+                "<hr><center><u><b>The NEST team</b></u></center>"+
+                "<b>Array Systems Computing</b>:" +
                 "<table border=0>" +
                 "<tr><td>" +
                 "&nbsp;&nbsp;<b>Rajesh Jha</b> (project manager)<br>" +
                 "&nbsp;&nbsp;<b>Luis Veci</b> (software lead)<br>" +
+                "</td><td>" +
                 "&nbsp;&nbsp;<b>Jun Lu</b> (scientist/developer)<br>" +
                 "&nbsp;&nbsp;<b>Shengli Dai</b> (scientist)<br>" +
                 "</td><td>" +
-                "&nbsp;&nbsp;<b>Andrew Taylor</b> (IT support)<br>" +
                 "&nbsp;&nbsp;<b>Iris Buchan</b> (quality assurance)<br>" +
-                "&nbsp;&nbsp;<b>Nisso Keslassy</b> (contracts officer)<br>" +
-                "&nbsp;&nbsp;<b></b> <br>" +
+                "&nbsp;&nbsp;<b>Andrew Taylor</b> (IT support)<br>" +
                 "</td></tr>" +
                 "</table>" +
-                "<br><hr>The JLINDA team at PPO.Labs/TU Delft is:" +
+                "<b>TU Delft/PPO.Labs</b>:" +
                 "<table border=0>" +
                 "<tr><td>" +
                 "&nbsp;&nbsp;<b>Ramon Hanssen</b> (project manager)<br>" +
+                "</td><td>" +
                 "&nbsp;&nbsp;<b>Petar Marinkovic</b> (software lead/scientist)<br>" +
                 "</td></tr>" +
                 "</table>" +
-                "<br><hr>The NEST team at ESA/ESRIN is:" +
+                "<b>European Space Agency</b> (ESA) ESRIN:" +
                 "<table border=0>" +
                 "<tr><td>" +
                 "&nbsp;&nbsp;<b>Marcus Engdahl</b> (technical officer)<br>" +
+                "</td><td>" +
                 "&nbsp;&nbsp;<b>Andrea Minchella</b> (scientist)<br>" +
+                "</td><td>" +
                 "&nbsp;&nbsp;<b>Romain Husson</b> (scientist)<br>" +
                 "</td></tr>" +
                 "</table>" +
-                "<br><hr>The BEAM team at Brockmann Consult is:" +
+
+                "<hr><center><u><b>The RSTB team</b></u></center>"+
+                "<b>Array Systems Computing</b>:" +
+                "<table border=0>" +
+                "<tr><td>" +
+                "&nbsp;&nbsp;<b>Rajesh Jha</b> (project manager)<br>" +
+                "&nbsp;&nbsp;<b>Luis Veci</b> (software lead)<br>" +
+                "</td><td>" +
+                "&nbsp;&nbsp;<b>Jun Lu</b> (scientist/developer)<br>" +
+                "&nbsp;&nbsp;<b>Cecilia Wong</b> (developer)<br>" +
+                "</td><td>" +
+                "&nbsp;&nbsp;<b>Roberta Manners</b> (scientist)<br>" +
+                "&nbsp;&nbsp;<b></b><br>" +
+                "</td></tr>" +
+                "</table>" +
+                "<b>Canadian Space Agency</b> (CSA):" +
+                "<table border=0>" +
+                "<tr><td>" +
+                "&nbsp;&nbsp;<b>Stéphane Chalifoux</b> (project authority)<br>" +
+                "</td><td>" +
+                "&nbsp;&nbsp;<b>Robert Saint-Jean</b> (technical authority)<br>" +
+                "</td></tr>" +
+                "</table>" +
+                "<b>Canadian Centre for Remote Sensing</b> (CCRS):" +
+                "<table border=0>" +
+                "<tr><td>" +
+                "&nbsp;&nbsp;<b>Francois Charboneau</b> (technical authority)<br>" +
+                "</td><td>" +
+                "&nbsp;&nbsp;<b></b><br>" +
+                "</td></tr>" +
+                "</table>" +
+                "<b>Canadian Forest Service</b> (CFS):" +
+                "<table border=0>" +
+                "<tr><td>" +
+                "&nbsp;&nbsp;<b>Hao Chen</b> (research associate)<br>" +
+                "</td><td>" +
+                "&nbsp;&nbsp;<b>David Hill</b> (Analyst)<br>" +
+                "</td></tr>" +
+                "</table>" +
+                "<b>Geological Survey of Canada</b> (GSC):" +
+                "<table border=0>" +
+                "<tr><td>" +
+                "&nbsp;&nbsp;<b>Paul Fraser</b> (remote sensing specialist)<br>" +
+                "</td><td>" +
+                "&nbsp;&nbsp;<b>Dustin Whalen</b> (physical scientist)<br>" +
+                "</td></tr>" +
+                "</table>" +
+                "<b>Agriculture and Agri-Food Canada</b> (AAFC):" +
+                "<table border=0>" +
+                "<tr><td>" +
+                "&nbsp;&nbsp;<b>Heather McNairn</b><br>" +
+                "</td><td>" +
+                "&nbsp;&nbsp;<b>Amine Merzouki</b><br>" +
+                "</td></tr>" +
+                "</table>" +
+
+                "<hr><center><u><b>The BEAM team</b></u></center>" +
+                "<b>Brockmann Consult</b>:" +
                 "<table border=0>" +
                 "<tr><td>" +
                 "&nbsp;&nbsp;<b>Tom Block</b> (programming)<br>" +
@@ -182,18 +241,46 @@ class DatAboutBox extends ModalDialog {
                 "&nbsp;&nbsp;<b>Marco Zuhlke</b> (programming)<br>" +
                 "</td></tr>" +
                 "</table>" +
-                "<br><hr>Special contributions made by:" +
+                "<b>European Space Agency</b> (ESA) ESRIN:" +
+                "<table border=0>" +
+                "<tr><td>" +
+                "&nbsp;&nbsp;<b>Peter Regner</b> (technical officer)<br>" +
+                "</td></tr>" +
+                "</table>" +
+
+                "<hr>Special contributions made by:" +
                 "<table border=0>" +
                 "<tr><td>" +
                 "&nbsp;&nbsp;<b>Jason Fritz</b> (Cosmo-Skymed Calibration)<br>" +
+                "</td>" +
+                "<td>" +
+                "&nbsp;&nbsp;<b>Emanuella Boros</b> (Summer of Code)<br>" +
                 "</td></tr>" +
                 "</table>" +
-                "<br><hr>The NEST developers would also like to say thank you to" +
-                "<br>&nbsp;&nbsp;<b>NASA</b> for the wonderful WorldWind Java SDK," +        
+
+                "<hr>Special thanks to:" +
+                "<table border=0>" +
+                "<tr><td>" +
+                "&nbsp;&nbsp;Yves Louis Desnos<br>" +
+                "&nbsp;&nbsp;Yann Denis<br>" +
+                "&nbsp;&nbsp;Pier Georgio Marchetti<br>" +
+                "&nbsp;&nbsp;Steven Delwart<br>" +
+                "</td><td>" +
+                "&nbsp;&nbsp;Medhavy Thankappan<br>" +
+                "&nbsp;&nbsp;Mark Williams<br>" +
+                "&nbsp;&nbsp;Joe Buckley<br>" +
+                "&nbsp;&nbsp;David Goodenough<br>" +
+                "</td></tr>" +
+                "</table>" +
+
+                "<hr>The developers would also like to say thank you to" +
+                "<br>&nbsp;&nbsp;All researchers contributing to the world of Earth Observation." +
+                "<br>&nbsp;&nbsp;<b>NASA</b> for the wonderful WorldWind Java SDK," +
                 "<br>&nbsp;&nbsp;<b>IntelliJ</b> for the best IDE in the world," +
                 "<br>&nbsp;&nbsp;<b>JIDE Software</b> for a great docking framework," +
-                "<br>&nbsp;&nbsp;all companies and organisations supporting the open-source idea." +
-                "<br><br><hr>" +
+                "<br>&nbsp;&nbsp;<b>Bitrock</b> for a cross platform installer," +
+                "<br>&nbsp;&nbsp;All companies and organisations supporting the open-source idea." +
+                "<br>" +
                 "</html>"; /*I18N*/
     }
 
