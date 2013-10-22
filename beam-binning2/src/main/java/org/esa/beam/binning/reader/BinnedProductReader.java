@@ -114,9 +114,9 @@ public class BinnedProductReader extends AbstractProductReader {
         int largestDimensionSize = getLargestDimensionSize();
         //read geophysical band values
         for (Variable variable : netcdfFile.getVariables()) {
-            final String bandName = variable.getFullName();
             final List<Dimension> dimensions = variable.getDimensions();
-            if (dimensions.get(0).getLength() == largestDimensionSize) {
+            if (!dimensions.isEmpty() && dimensions.get(0).getLength() == largestDimensionSize) {
+                final String bandName = variable.getFullName();
                 if (dimensions.size() == 1) {
                     addBand(bandName);
                 } else {
@@ -142,7 +142,7 @@ public class BinnedProductReader extends AbstractProductReader {
         final String productType = netcdfFile.findGlobalAttribute("title").getStringValue();
         product = new Product(productName, productType, sceneRasterWidth, sceneRasterHeight, this);
         product.setFileLocation(productFile);
-        product.setAutoGrouping("adg:aph:atot:bl_Rrs:chlor_a:Rrs:water");
+        product.setAutoGrouping("adg:aph:atot:bbp:bl_Rrs:chlor_a:Rrs:water");
         product.setStartTime(extractStartTime(netcdfFile));
         product.setEndTime(extractEndTime(netcdfFile));
         product.setPreferredTileSize(sceneRasterWidth, 64);
@@ -163,11 +163,26 @@ public class BinnedProductReader extends AbstractProductReader {
     }
 
     private void initProductWidthAndHeight() {
-        sceneRasterHeight = 2160;
+        sceneRasterHeight = 0;
 
-        final Dimension bin_index = netcdfFile.findDimension("bin_index");
-        if (bin_index != null) {
-            sceneRasterHeight = bin_index.getLength();
+        for (Variable variable : netcdfFile.getVariables()) {
+            Attribute gridMappingAttr = variable.findAttribute("grid_mapping_name");
+            if (gridMappingAttr != null) {
+                if ("1D binned sinusoidal".equalsIgnoreCase(gridMappingAttr.getStringValue())) {
+                    Attribute numberOfLatitudeRows = variable.findAttribute("number_of_latitude_rows");
+                    sceneRasterHeight = numberOfLatitudeRows.getNumericValue().intValue();
+                    break;
+                }
+            }
+        }
+        if (sceneRasterHeight == 0)  {
+            final Dimension bin_index = netcdfFile.findDimension("bin_index");
+            if (bin_index != null) {
+                sceneRasterHeight = bin_index.getLength();
+            }
+        }
+        if (sceneRasterHeight == 0)  {
+            sceneRasterHeight = 2160;
         }
 
         sceneRasterWidth = 2 * sceneRasterHeight;

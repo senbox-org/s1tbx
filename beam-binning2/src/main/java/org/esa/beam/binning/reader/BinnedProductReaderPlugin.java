@@ -1,10 +1,28 @@
+/*
+ * Copyright (C) 2013 Brockmann Consult GmbH (info@brockmann-consult.de)
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 3 of the License, or (at your option)
+ * any later version.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, see http://www.gnu.org/licenses/
+ */
+
 package org.esa.beam.binning.reader;
 
 import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 import org.esa.beam.util.io.BeamFileFilter;
+import ucar.nc2.Attribute;
 import ucar.nc2.NetcdfFile;
+import ucar.nc2.Variable;
 
 import java.io.File;
 import java.io.IOException;
@@ -23,6 +41,27 @@ public class BinnedProductReaderPlugin implements ProductReaderPlugIn {
         final String path = input.toString();
         final String name = new File(path).getName();
         if (!BinnedFileFilter.isBinnedName(name)) {
+            try {
+                NetcdfFile netcdfFile = null;
+                try {
+                    netcdfFile = NetcdfFile.open(path);
+                    for (Variable variable : netcdfFile.getVariables()) {
+                        Attribute gridMappingName = variable.findAttribute("grid_mapping_name");
+                        if (gridMappingName != null) {
+                            if ("1D binned sinusoidal".equalsIgnoreCase(gridMappingName.getStringValue())) {
+                                return DecodeQualification.INTENDED;
+                            }
+                        }
+                    }
+                } finally {
+                    if (netcdfFile != null) {
+                        netcdfFile.close();
+                    }
+                }
+            } catch (IOException e) {
+                return DecodeQualification.UNABLE;
+            }
+
             return DecodeQualification.UNABLE;
         }
         try {
