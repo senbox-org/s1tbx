@@ -100,10 +100,8 @@
     </sources>
     <parameters class="com.bc.ceres.binding.dom.XppDomElement">
       <masterBands>
-        <band></band>
       </masterBands>
       <sourceBands>
-        <band></band>
       </sourceBands>
       <resamplingType>BILINEAR_INTERPOLATION</resamplingType>
       <extent>Master</extent>
@@ -156,7 +154,7 @@
       <displayPosition y="97.0" x="403.0"/>
     </node>
     <node id="4-Terrain-Mask">
-      <displayPosition y="146.0" x="380.0"/>
+      <displayPosition y="146.0" x="413.0"/>
     </node>
     <node id="5-Flood-Detection">
       <displayPosition y="193.0" x="405.0"/>
