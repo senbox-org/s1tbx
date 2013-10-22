@@ -51,7 +51,7 @@ import java.util.Map;
  * 9. GLCM Variance
  * 10. GLCM Correlation
  *
- * [1] Robert M. Haralick, K. Shanmugam, and Its’hak Dinstein. “Textural Features for Image Classification”
+ * [1] Robert M. Haralick, K. Shanmugam, and Its'hak Dinstein. "Textural Features for Image Classification"
  *     IEEE Trans. on Systems, Man and Cybernetics, Vol 3 , No. 6, pp. 610-621, Nov. 1973.
  */
 
@@ -134,6 +134,7 @@ public final class GLCMOp extends Operator {
     private double bandMax = 0.0;
     private double bandMin = 0.0;
     private double delta = 0.0;
+    private boolean bandMinMaxAvailable = false;
     private String bandUnit = null;
 
     private List<String> targetBandNameList = new ArrayList<String>(10);
@@ -195,8 +196,6 @@ public final class GLCMOp extends Operator {
             setXYDisplacements();
 
             createTargetProduct();
-
-            getImageMaxMin();
 
         } catch(Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
@@ -376,11 +375,17 @@ public final class GLCMOp extends Operator {
         return targetBandNameList.toArray(new String[targetBandNameList.size()]);
     }
 
-    private void getImageMaxMin() {
+    private synchronized void getImageMaxMin() {
+
+        if (bandMinMaxAvailable) {
+            return;
+        }
+
         final Band srcBand = sourceProduct.getBand(sourceBandNames[0]);
         bandMax = convertToIntensityDB(srcBand.getStx(true,ProgressMonitor.NULL).getMaximum());
         bandMin = convertToIntensityDB(srcBand.getStx(true,ProgressMonitor.NULL).getMinimum());
         delta = (bandMax - bandMin)/numQuantLevels;
+        bandMinMaxAvailable = true;
     }
 
     private double convertToIntensityDB(final double v) {
@@ -412,6 +417,10 @@ public final class GLCMOp extends Operator {
     @Override
     public void computeTileStack(Map<Band, Tile> targetTiles, Rectangle targetRectangle, ProgressMonitor pm) throws OperatorException {
 
+        if (!bandMinMaxAvailable) {
+            getImageMaxMin();
+        }
+
         final int tx0 = targetRectangle.x;
         final int ty0 = targetRectangle.y;
         final int tw  = targetRectangle.width;
@@ -442,9 +451,9 @@ public final class GLCMOp extends Operator {
                 for (int tx = tx0; tx < maxX; tx++) {
                     final int idx = trgIndex.getIndex(tx);
 
-                    final double[][] GLCM = computeGLCM(tx, ty, sourceTile, srcData, noDataValue);
+                    ArrayList<GLCMElem> GLCMElemList = computeGLCM(tx, ty, sourceTile, srcData, noDataValue);
 
-                    TextureFeatures tf = computeTextureFeatures(GLCM);
+                    TextureFeatures tf = computeTextureFeatures(GLCMElemList);
 
                     for(final TileData tileData : tileDataList) {
 
@@ -514,8 +523,8 @@ public final class GLCMOp extends Operator {
         return new Rectangle(sx0, sy0, sw, sh);
     }
 
-    private double[][] computeGLCM(final int tx, final int ty, final Tile sourceTile, final ProductData srcData,
-                                   final double noDataValue) {
+    private ArrayList<GLCMElem> computeGLCM(final int tx, final int ty, final Tile sourceTile, final ProductData srcData,
+                                            final double noDataValue) {
 
         final int x0 = Math.max(tx - halfWindowSize, 0);
         final int y0 = Math.max(ty - halfWindowSize, 0);
@@ -548,61 +557,61 @@ public final class GLCMOp extends Operator {
             }
         }
 
+        ArrayList<GLCMElem> GLCMElemList = new ArrayList<GLCMElem>();
+
         if (counter > 0) {
             for (int i = 0; i < numQuantLevels; i++) {
                 for (int j = 0; j < numQuantLevels; j++) {
-                    GLCM[i][j] /= counter;
+                    if (GLCM[i][j] > 0.0) {
+                        final GLCMElem ele = new GLCMElem(i, j, GLCM[i][j]/counter);
+                        GLCMElemList.add(ele);
+                    }
                 }
             }
         }
-
-        return GLCM;
+        return GLCMElemList;
     }
 
-    private TextureFeatures computeTextureFeatures(final double[][] GLCM) {
+    private TextureFeatures computeTextureFeatures(ArrayList<GLCMElem> GLCMElemList) {
 
         double Contrast = 0.0, Dissimilarity = 0.0, Homogeneity = 0.0, ASM = 0.0, MAX = 0.0, Entropy = 0.0,
                GLCMMeanX = 0.0,GLCMMeanY = 0.0;
-        for (int i = 0; i < numQuantLevels; i++) {
-            for (int j = 0; j < numQuantLevels; j++) {
-                final int ij = i-j;
-                final double GLCMval = GLCM[i][j];
-                Contrast += GLCMval*ij*ij;
 
-                if(outputDissimilarity)
-                    Dissimilarity += GLCMval*Math.abs(ij);
+        for (GLCMElem e : GLCMElemList) {
+            final int ij = e.row - e.col;
+            final double GLCMval = e.prob;
 
-                Homogeneity += GLCMval/(1 + ij*ij);
-                ASM += GLCMval*GLCMval;
+            Contrast += GLCMval*ij*ij;
 
-                if (MAX < GLCMval)
-                    MAX = GLCMval;
+            if(outputDissimilarity)
+                Dissimilarity += GLCMval*Math.abs(ij);
 
-                if(outputEntropy)
-                    Entropy += -GLCMval*Math.log(GLCMval + Constants.EPS);
+            Homogeneity += GLCMval/(1 + ij*ij);
+            ASM += GLCMval*GLCMval;
 
-                GLCMMeanY += GLCMval*i;
-                GLCMMeanX += GLCMval*j;
-            }
+            if (MAX < GLCMval)
+                MAX = GLCMval;
+
+            if(outputEntropy)
+                Entropy += -GLCMval*Math.log(GLCMval + Constants.EPS);
+
+            GLCMMeanY += GLCMval*e.row;
+            GLCMMeanX += GLCMval*e.col;
         }
 
         double GLCMVarianceX = 0.0, GLCMVarianceY = 0.0;
         if(outputVariance) {
-            for (int i = 0; i < numQuantLevels; i++) {
-                for (int j = 0; j < numQuantLevels; j++) {
-                    GLCMVarianceX += GLCM[i][j]*(j - GLCMMeanX)*(j - GLCMMeanX);
-                    GLCMVarianceY += GLCM[i][j]*(i - GLCMMeanY)*(i - GLCMMeanY);
-                }
+            for (GLCMElem e : GLCMElemList) {
+                GLCMVarianceX += e.prob*(e.col - GLCMMeanX)*(e.col - GLCMMeanX);
+                GLCMVarianceY += e.prob*(e.row - GLCMMeanY)*(e.row - GLCMMeanY);
             }
         }
 
         double GLCMCorrelation = 0.0;
         if(outputCorrelation) {
             double sqrtOfGLCMVariance = Math.sqrt(GLCMVarianceX*GLCMVarianceY);
-            for (int i = 0; i < numQuantLevels; i++) {
-                for (int j = 0; j < numQuantLevels; j++) {
-                    GLCMCorrelation += GLCM[i][j]*(i - GLCMMeanY)*(j - GLCMMeanX)/sqrtOfGLCMVariance;
-                }
+            for (GLCMElem e : GLCMElemList) {
+                GLCMCorrelation += e.prob*(e.row - GLCMMeanY)*(e.col - GLCMMeanX)/sqrtOfGLCMVariance;
             }
         }
 
@@ -694,6 +703,19 @@ public final class GLCMOp extends Operator {
             this.GLCMMean = GLCMMean;
             this.GLCMVariance = GLCMVariance;
             this.GLCMCorrelation = GLCMCorrelation;
+        }
+    }
+
+    private static class GLCMElem {
+
+        public final int row;
+        public final int col;
+        public final double prob;
+
+        GLCMElem(final int row, final int col, final double prob) {
+            this.row = row;
+            this.col = col;
+            this.prob = prob;
         }
     }
 
