@@ -51,7 +51,7 @@ import java.util.Map;
  * 9. GLCM Variance
  * 10. GLCM Correlation
  *
- * [1] Robert M. Haralick, K. Shanmugam, and Itsíhak Dinstein. ìTextural Features for Image Classificationî
+ * [1] Robert M. Haralick, K. Shanmugam, and Its‚Äôhak Dinstein. ‚ÄúTextural Features for Image Classification‚Äù
  *     IEEE Trans. on Systems, Man and Cybernetics, Vol 3 , No. 6, pp. 610-621, Nov. 1973.
  */
 
@@ -152,6 +152,18 @@ public final class GLCMOp extends Operator {
     private static final String WINDOW_SIZE_9x9 = "9x9";
     private static final String WINDOW_SIZE_11x11 = "11x11";
 
+    enum GLCM_TYPES {
+        Contrast,
+        Dissimilarity,
+        Homogeneity,
+        ASM,
+        Energy,
+        MAX,
+        Entropy,
+        GLCMMean,
+        GLCMVariance,
+        GLCMCorrelation,
+        Unknown }
 
     /**
      * Initializes this operator and sets the one and only target product.
@@ -322,43 +334,43 @@ public final class GLCMOp extends Operator {
     private String[] getTargetBandNames() {
 
         if (outputContrast) {
-            targetBandNameList.add("Contrast");
+            targetBandNameList.add(GLCM_TYPES.Contrast.toString());
         }
 
         if (outputDissimilarity) {
-            targetBandNameList.add("Dissimilarity");
+            targetBandNameList.add(GLCM_TYPES.Dissimilarity.toString());
         }
 
         if (outputHomogeneity) {
-            targetBandNameList.add("Homogeneity");
+            targetBandNameList.add(GLCM_TYPES.Homogeneity.toString());
         }
 
         if (outputASM) {
-            targetBandNameList.add("ASM");
+            targetBandNameList.add(GLCM_TYPES.ASM.toString());
         }
 
         if (outputEnergy) {
-            targetBandNameList.add("Energy");
+            targetBandNameList.add(GLCM_TYPES.Energy.toString());
         }
 
         if (outputMAX) {
-            targetBandNameList.add("MAX");
+            targetBandNameList.add(GLCM_TYPES.MAX.toString());
         }
 
         if (outputEntropy) {
-            targetBandNameList.add("Entropy");
+            targetBandNameList.add(GLCM_TYPES.Entropy.toString());
         }
 
         if (outputMean) {
-            targetBandNameList.add("GLCMMean");
+            targetBandNameList.add(GLCM_TYPES.GLCMMean.toString());
         }
 
         if (outputVariance) {
-            targetBandNameList.add("GLCMVariance");
+            targetBandNameList.add(GLCM_TYPES.GLCMVariance.toString());
         }
 
         if (outputCorrelation) {
-            targetBandNameList.add("GLCMCorrelation");
+            targetBandNameList.add(GLCM_TYPES.GLCMCorrelation.toString());
         }
 
         return targetBandNameList.toArray(new String[targetBandNameList.size()]);
@@ -436,25 +448,25 @@ public final class GLCMOp extends Operator {
 
                     for(final TileData tileData : tileDataList) {
 
-                        if (outputContrast && tileData.bandName.equals("Contrast")) {
+                        if (outputContrast && tileData.type.equals(GLCM_TYPES.Contrast)) {
                             tileData.dataBuffer.setElemFloatAt(idx, (float)tf.Contrast);
-                        } else if (outputDissimilarity && tileData.bandName.equals("Dissimilarity")) {
+                        } else if (outputDissimilarity && tileData.type.equals(GLCM_TYPES.Dissimilarity)) {
                             tileData.dataBuffer.setElemFloatAt(idx, (float)tf.Dissimilarity);
-                        } else if (outputHomogeneity && tileData.bandName.equals("Homogeneity")) {
+                        } else if (outputHomogeneity && tileData.type.equals(GLCM_TYPES.Homogeneity)) {
                             tileData.dataBuffer.setElemFloatAt(idx, (float)tf.Homogeneity);
-                        } else if (outputASM && tileData.bandName.equals("ASM")) {
+                        } else if (outputASM && tileData.type.equals(GLCM_TYPES.ASM)) {
                             tileData.dataBuffer.setElemFloatAt(idx, (float)tf.ASM);
-                        } else if (outputEnergy && tileData.bandName.equals("Energy")) {
+                        } else if (outputEnergy && tileData.type.equals(GLCM_TYPES.Energy)) {
                             tileData.dataBuffer.setElemFloatAt(idx, (float)tf.Energy);
-                        } else if (outputMAX && tileData.bandName.equals("MAX")) {
+                        } else if (outputMAX && tileData.type.equals(GLCM_TYPES.MAX)) {
                             tileData.dataBuffer.setElemFloatAt(idx, (float)tf.MAX);
-                        } else if (outputEntropy && tileData.bandName.equals("Entropy")) {
+                        } else if (outputEntropy && tileData.type.equals(GLCM_TYPES.Entropy)) {
                             tileData.dataBuffer.setElemFloatAt(idx, (float)tf.Entropy);
-                        } else if (outputMean && tileData.bandName.equals("GLCMMean")) {
+                        } else if (outputMean && tileData.type.equals(GLCM_TYPES.GLCMMean)) {
                             tileData.dataBuffer.setElemFloatAt(idx, (float)tf.GLCMMean);
-                        } else if (outputVariance && tileData.bandName.equals("GLCMVariance")) {
+                        } else if (outputVariance && tileData.type.equals(GLCM_TYPES.GLCMVariance)) {
                             tileData.dataBuffer.setElemFloatAt(idx, (float)tf.GLCMVariance);
-                        } else if (outputCorrelation && tileData.bandName.equals("GLCMCorrelation")) {
+                        } else if (outputCorrelation && tileData.type.equals(GLCM_TYPES.GLCMCorrelation)) {
                             tileData.dataBuffer.setElemFloatAt(idx, (float)tf.GLCMCorrelation);
                         }
                     }
@@ -549,53 +561,62 @@ public final class GLCMOp extends Operator {
 
     private TextureFeatures computeTextureFeatures(final double[][] GLCM) {
 
-        TextureFeatures tf = new TextureFeatures();
-
         double Contrast = 0.0, Dissimilarity = 0.0, Homogeneity = 0.0, ASM = 0.0, MAX = 0.0, Entropy = 0.0,
                GLCMMeanX = 0.0,GLCMMeanY = 0.0;
         for (int i = 0; i < numQuantLevels; i++) {
             for (int j = 0; j < numQuantLevels; j++) {
-                Contrast += GLCM[i][j]*(i-j)*(i-j);
-                Dissimilarity += GLCM[i][j]*Math.abs(i-j);
-                Homogeneity += GLCM[i][j]/(1 + (i-j)*(i-j));
-                ASM += GLCM[i][j]*GLCM[i][j];
+                final int ij = i-j;
+                final double GLCMval = GLCM[i][j];
+                Contrast += GLCMval*ij*ij;
 
-                if (MAX < GLCM[i][j])
-                    MAX = GLCM[i][j];
+                if(outputDissimilarity)
+                    Dissimilarity += GLCMval*Math.abs(ij);
 
-                Entropy += -GLCM[i][j]*Math.log(GLCM[i][j] + Constants.EPS);
-                GLCMMeanY += GLCM[i][j]*i;
-                GLCMMeanX += GLCM[i][j]*j;
+                Homogeneity += GLCMval/(1 + ij*ij);
+                ASM += GLCMval*GLCMval;
+
+                if (MAX < GLCMval)
+                    MAX = GLCMval;
+
+                if(outputEntropy)
+                    Entropy += -GLCMval*Math.log(GLCMval + Constants.EPS);
+
+                GLCMMeanY += GLCMval*i;
+                GLCMMeanX += GLCMval*j;
             }
         }
 
         double GLCMVarianceX = 0.0, GLCMVarianceY = 0.0;
-        for (int i = 0; i < numQuantLevels; i++) {
-            for (int j = 0; j < numQuantLevels; j++) {
-                GLCMVarianceX += GLCM[i][j]*(j - GLCMMeanX)*(j - GLCMMeanX);
-                GLCMVarianceY += GLCM[i][j]*(i - GLCMMeanY)*(i - GLCMMeanY);
+        if(outputVariance) {
+            for (int i = 0; i < numQuantLevels; i++) {
+                for (int j = 0; j < numQuantLevels; j++) {
+                    GLCMVarianceX += GLCM[i][j]*(j - GLCMMeanX)*(j - GLCMMeanX);
+                    GLCMVarianceY += GLCM[i][j]*(i - GLCMMeanY)*(i - GLCMMeanY);
+                }
             }
         }
 
         double GLCMCorrelation = 0.0;
-        for (int i = 0; i < numQuantLevels; i++) {
-            for (int j = 0; j < numQuantLevels; j++) {
-                GLCMCorrelation += GLCM[i][j]*(i - GLCMMeanY)*(j - GLCMMeanX)/Math.sqrt(GLCMVarianceX*GLCMVarianceY);
+        if(outputCorrelation) {
+            double sqrtOfGLCMVariance = Math.sqrt(GLCMVarianceX*GLCMVarianceY);
+            for (int i = 0; i < numQuantLevels; i++) {
+                for (int j = 0; j < numQuantLevels; j++) {
+                    GLCMCorrelation += GLCM[i][j]*(i - GLCMMeanY)*(j - GLCMMeanX)/sqrtOfGLCMVariance;
+                }
             }
         }
 
-        tf.Contrast = Contrast;
-        tf.Dissimilarity = Dissimilarity;
-        tf.Homogeneity = Homogeneity;
-        tf.ASM = ASM;
-        tf.Energy = Math.sqrt(ASM);
-        tf.MAX = MAX;
-        tf.Entropy = Entropy;
-        tf.GLCMMean = (GLCMMeanX + GLCMMeanY)/2.0;
-        tf.GLCMVariance = (GLCMVarianceX + GLCMVarianceY)/2.0;
-        tf.GLCMCorrelation = GLCMCorrelation;
-
-        return tf;
+        return new TextureFeatures(
+                Contrast,
+                Dissimilarity,
+                Homogeneity,
+                ASM,
+                Math.sqrt(ASM),
+                MAX,
+                Entropy,
+                (GLCMMeanX + GLCMMeanY)/2.0,
+                (GLCMVarianceX + GLCMVarianceY)/2.0,
+                GLCMCorrelation);
     }
 
     private int quantize(final double v) {
@@ -606,26 +627,74 @@ public final class GLCMOp extends Operator {
         final Tile tile;
         final ProductData dataBuffer;
         final String bandName;
+        final GLCM_TYPES type;
 
         public TileData(final Tile tile, final String bandName) {
             this.tile = tile;
             this.dataBuffer = tile.getDataBuffer();
             this.bandName = bandName;
+
+            if(bandName.startsWith(GLCM_TYPES.Contrast.toString()))
+                type = GLCM_TYPES.Contrast;
+            else if(bandName.startsWith(GLCM_TYPES.Dissimilarity.toString()))
+                type = GLCM_TYPES.Dissimilarity;
+            else if(bandName.startsWith(GLCM_TYPES.Homogeneity.toString()))
+                type = GLCM_TYPES.Homogeneity;
+            else if(bandName.startsWith(GLCM_TYPES.ASM.toString()))
+                type = GLCM_TYPES.ASM;
+            else if(bandName.startsWith(GLCM_TYPES.Energy.toString()))
+                type = GLCM_TYPES.Energy;
+            else if(bandName.startsWith(GLCM_TYPES.MAX.toString()))
+                type = GLCM_TYPES.MAX;
+            else if(bandName.startsWith(GLCM_TYPES.Entropy.toString()))
+                type = GLCM_TYPES.Entropy;
+            else if(bandName.startsWith(GLCM_TYPES.GLCMMean.toString()))
+                type = GLCM_TYPES.GLCMMean;
+            else if(bandName.startsWith(GLCM_TYPES.GLCMVariance.toString()))
+                type = GLCM_TYPES.GLCMVariance;
+            else if(bandName.startsWith(GLCM_TYPES.GLCMCorrelation.toString()))
+                type = GLCM_TYPES.GLCMCorrelation;
+            else
+                type = GLCM_TYPES.Unknown;
         }
     }
 
     private static class TextureFeatures {
 
-        public double Contrast;
-        public double Dissimilarity;
-        public double Homogeneity;
-        public double ASM;
-        public double Energy;
-        public double MAX;
-        public double Entropy;
-        public double GLCMMean;
-        public double GLCMVariance;
-        public double GLCMCorrelation;
+        public final double Contrast;
+        public final double Dissimilarity;
+        public final double Homogeneity;
+        public final double ASM;
+        public final double Energy;
+        public final double MAX;
+        public final double Entropy;
+        public final double GLCMMean;
+        public final double GLCMVariance;
+        public final double GLCMCorrelation;
+
+        TextureFeatures(
+                final double Contrast,
+                final double Dissimilarity,
+                final double Homogeneity,
+                final double ASM,
+                final double Energy,
+                final double MAX,
+                final double Entropy,
+                final double GLCMMean,
+                final double GLCMVariance,
+                final double GLCMCorrelation)
+        {
+            this.Contrast = Contrast;
+            this.Dissimilarity = Dissimilarity;
+            this.Homogeneity = Homogeneity;
+            this.ASM = ASM;
+            this.Energy = Energy;
+            this.MAX = MAX;
+            this.Entropy = Entropy;
+            this.GLCMMean = GLCMMean;
+            this.GLCMVariance = GLCMVariance;
+            this.GLCMCorrelation = GLCMCorrelation;
+        }
     }
 
     /**
