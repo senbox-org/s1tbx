@@ -24,13 +24,12 @@ import org.esa.beam.framework.datamodel.TiePointGrid;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.TreeNode;
-import org.esa.beam.util.logging.BeamLogManager;
 
 import java.awt.Dimension;
 import java.io.File;
 import java.io.IOException;
-import java.text.MessageFormat;
-import java.util.logging.Logger;
+
+import static org.esa.beam.util.logging.BeamLogManager.getSystemLogger;
 
 /**
  * The <code>AbstractProductReader</code>  class can be used as a base class for new product reader implementations. The
@@ -441,14 +440,16 @@ public abstract class AbstractProductReader implements ProductReader {
                                                   System.getProperty(SYSPROP_READER_TILE_WIDTH),
                                                   System.getProperty(SYSPROP_READER_TILE_HEIGHT));
         if (newSize != null) {
-            Logger logger = BeamLogManager.getSystemLogger();
-            logger.info(MessageFormat.format("Adjusting tile size for product {0}", product.getName()));
-            if (product.getPreferredTileSize() != null) {
-                Dimension oldSize = product.getPreferredTileSize();
-                logger.info(MessageFormat.format("Overwriting current tile size {0} x {1} pixels", oldSize.width, oldSize.height));
+            Dimension oldSize = product.getPreferredTileSize();
+            if (oldSize == null) {
+                product.setPreferredTileSize(newSize);
+                getSystemLogger().fine(String.format("Product '%s': tile size set to %d x %d pixels",
+                                                                    product.getName(), newSize.width, newSize.height));
+            } else if (!oldSize.equals(newSize)) {
+                product.setPreferredTileSize(newSize);
+                getSystemLogger().fine(String.format("Product '%s': tile size set to %d x %d pixels, was %d x %d pixels",
+                                                                    product.getName(), newSize.width, newSize.height, oldSize.width, oldSize.height));
             }
-            product.setPreferredTileSize(newSize);
-            logger.info(MessageFormat.format("Tile size now set to {0} x {1} pixels", newSize.width, newSize.height));
         }
     }
 
