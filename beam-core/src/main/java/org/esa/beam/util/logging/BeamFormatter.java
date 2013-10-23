@@ -15,12 +15,13 @@
  */
 package org.esa.beam.util.logging;
 
+import org.esa.beam.util.Guardian;
+
 import java.util.logging.Handler;
 import java.util.logging.SimpleFormatter;
 
-import org.esa.beam.util.Guardian;
 
-
+@Deprecated
 public class BeamFormatter extends SimpleFormatter {
 
     private String _head;
