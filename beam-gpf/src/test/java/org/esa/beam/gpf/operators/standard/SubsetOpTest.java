@@ -44,7 +44,13 @@ import java.awt.geom.AffineTransform;
 import java.util.Arrays;
 import java.util.HashMap;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
 
 public class SubsetOpTest {
 
@@ -228,6 +234,34 @@ public class SubsetOpTest {
         assertNotNull(meta2_1);
         final MetadataAttribute attrib2_1 = meta2_1.getAttribute("attrib2_1");
         assertEquals("meta2_1_value", attrib2_1.getData().getElemString());
+    }
+
+    @Test
+    public void testAvoidCopyMetadata() throws Exception {
+        final Product sp = createTestProduct(100, 100);
+        addMetadata(sp);
+        final String[] bandNames = {"radiance_1", "radiance_3"};
+
+        SubsetOp op = new SubsetOp();
+        op.setSourceProduct(sp);
+        op.setBandNames(bandNames);
+        op.setCopyMetadata(false);
+
+        assertSame(sp, op.getSourceProduct());
+        assertNotSame(bandNames, op.getBandNames());
+
+        Product tp = op.getTargetProduct();
+
+        assertEquals(2, tp.getNumBands());
+        assertNotNull(tp.getBand("radiance_1"));
+        assertNull(tp.getBand("radiance_2"));
+        assertNotNull(tp.getBand("radiance_3"));
+
+        final MetadataElement root = tp.getMetadataRoot();
+        assertNotNull(root);
+        assertFalse(root.containsElement("attribRoot"));
+        assertFalse(root.containsElement("meta1"));
+        assertFalse(root.containsElement("meta2"));
     }
 
     private static Polygon createBBOX(double x, double y, double w, double h) {

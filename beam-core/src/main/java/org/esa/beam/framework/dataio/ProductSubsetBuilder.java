@@ -17,12 +17,25 @@ package org.esa.beam.framework.dataio;
 
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.FlagCoding;
+import org.esa.beam.framework.datamodel.GeoCoding;
+import org.esa.beam.framework.datamodel.ImageInfo;
+import org.esa.beam.framework.datamodel.IndexCoding;
+import org.esa.beam.framework.datamodel.MetadataElement;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.datamodel.Stx;
+import org.esa.beam.framework.datamodel.TiePointGeoCoding;
+import org.esa.beam.framework.datamodel.TiePointGrid;
+import org.esa.beam.framework.datamodel.VirtualBand;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.ProductUtils;
 
 import javax.media.jai.Histogram;
-import java.awt.*;
+import java.awt.Dimension;
+import java.awt.Rectangle;
 import java.io.IOException;
 import java.util.Map;
 
@@ -308,15 +321,13 @@ public class ProductSubsetBuilder extends AbstractProductBuilder {
         }
         if (!isMetadataIgnored()) {
             ProductUtils.copyMetadata(sourceProduct, product);
-            addTiePointGridsToProduct(product);
-            addFlagCodingsToProduct(product);
-            addIndexCodingsToProduct(product);
         }
+        addTiePointGridsToProduct(product);
+        addFlagCodingsToProduct(product);
+        addIndexCodingsToProduct(product);
         addBandsToProduct(product);
         ProductUtils.copyMasks(sourceProduct, product);
-        if (!isMetadataIgnored()) {
-            addGeoCodingToProduct(product);
-        }
+        addGeoCodingToProduct(product);
         ProductUtils.copyVectorData(sourceProduct, product);
         ProductUtils.copyOverlayMasks(sourceProduct, product);
         ProductUtils.copyPreferredTileSize(sourceProduct, product);

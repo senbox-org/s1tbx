@@ -57,7 +57,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.logging.Level;
 
-import static java.lang.Math.*;
+import static java.lang.Math.ceil;
+import static java.lang.Math.floor;
+import static java.lang.Math.max;
+import static java.lang.Math.min;
 
 /**
  * This operator is used to create either spatial and/or spectral subsets of a data product.
@@ -72,7 +75,7 @@ import static java.lang.Math.*;
  */
 @OperatorMetadata(alias = "Subset",
                   authors = "Marco Zuehlke, Norman Fomferra, Marco Peters",
-                  version = "1.0",
+                  version = "1.1",
                   copyright = "(c) 2011 by Brockmann Consult",
                   description = "Create a spatial and/or spectral subset of a data product.")
 public class SubsetOp extends Operator {
@@ -200,10 +203,7 @@ public class SubsetOp extends Operator {
         }
 
         subsetDef.setSubSampling(subSamplingX, subSamplingY);
-
-        if (copyMetadata) {
-            subsetDef.setIgnoreMetadata(false);
-        }
+        subsetDef.setIgnoreMetadata(!copyMetadata);
 
         try {
             targetProduct = subsetReader.readProductNodes(sourceProduct, subsetDef);
