@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2013 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -32,7 +32,7 @@ import java.io.IOException;
  * A generic product reader for NetCDF files. Trying to find the best matching metadata profile
  * for the given input.
  */
-class GenericNetCdfReader extends AbstractProductReader {
+public class GenericNetCdfReader extends AbstractProductReader {
 
     private NetcdfFile netcdfFile;
     private ProductReader netCdfReader;
