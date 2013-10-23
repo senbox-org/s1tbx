@@ -48,6 +48,10 @@ public final class SceneFactory {
                                              final Scene targetScene,
                                              final ProductSubsetDef subsetDef) {
         final GeoCoding sourceGeoCoding = sourceScene.getGeoCoding();
+        if (sourceGeoCoding == null) {
+            targetScene.setGeoCoding(null);
+            return true;
+        }
         if (sourceGeoCoding instanceof AbstractGeoCoding) {
             AbstractGeoCoding abstractGeoCoding = (AbstractGeoCoding) sourceGeoCoding;
             return abstractGeoCoding.transferGeoCoding(sourceScene, targetScene, subsetDef);
