@@ -171,14 +171,14 @@ class DatAboutBox extends ModalDialog {
                 "<b>Array Systems Computing</b>:" +
                 "<table border=0>" +
                 "<tr><td>" +
-                "&nbsp;&nbsp;<b>Rajesh Jha</b> (project manager)<br>" +
+                "&nbsp;&nbsp;<b>Rajesh Jha</b> (RSTB PM)<br>" +
+                "&nbsp;&nbsp;<b>Ali Mahmoodi</b> (ASMERS PM)<br>" +
+                "</td><td>" +
                 "&nbsp;&nbsp;<b>Luis Veci</b> (software lead)<br>" +
-                "</td><td>" +
                 "&nbsp;&nbsp;<b>Jun Lu</b> (scientist/developer)<br>" +
-                "&nbsp;&nbsp;<b>Cecilia Wong</b> (developer)<br>" +
                 "</td><td>" +
+                "&nbsp;&nbsp;<b>Cecilia Wong</b> (developer)<br>" +
                 "&nbsp;&nbsp;<b>Roberta Manners</b> (scientist)<br>" +
-                "&nbsp;&nbsp;<b></b><br>" +
                 "</td></tr>" +
                 "</table>" +
                 "<b>Canadian Space Agency</b> (CSA):" +
