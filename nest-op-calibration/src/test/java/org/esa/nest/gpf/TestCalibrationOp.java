@@ -37,8 +37,9 @@ public class TestCalibrationOp extends TestCase {
     private final static String expectedPathIMS =  TestUtils.rootPathExpectedProducts+"\\expected\\subset_0_of_ERS-2_SAR_SLC-ORBIT_10249_DATE__06-APR-1997_03_09_34_Calib.dim";
 
     private String[] productTypeExemptions = { "_BP", "XCA", "WVW", "WVI", "WVS", "WSS", "DOR", "GeoTIFF", "SCS_U" };
-    private String[] exceptionExemptions = { "Calibration: SCS_U calibration is not currently supported",
-                                             "Calibration: Absolute radiometric calibration has already been applied to the product" };
+    private String[] exceptionExemptions = { "not supported",
+                                             "calibration has already been applied",
+                                             "Cannot apply calibration to coregistered product"};
 
     @Override
     protected void setUp() throws Exception {
@@ -111,6 +112,6 @@ public class TestCalibrationOp extends TestCase {
 
     public void testProcessAllNestBox() throws Exception
     {
-        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathMixProducts, productTypeExemptions, null);
+        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathMixProducts, productTypeExemptions, exceptionExemptions);
     }
 }

@@ -32,7 +32,7 @@ import org.esa.nest.dat.dialogs.AutoCloseOptionPane;
 import org.esa.nest.datamodel.AbstractMetadata;
 import org.esa.nest.datamodel.Unit;
 import org.esa.nest.util.ResourceUtils;
-import org.jblas.DoubleMatrix;
+import org.jlinda.core.coregistration.SimpleLUT;
 
 import javax.media.jai.*;
 import java.awt.*;
@@ -165,20 +165,15 @@ public class WarpOp extends Operator {
             if (complexCoregistration) {
 
                 if (interpolationMethod.equals(CC4P)) {
-                    createInSARInterpTable(4);
-
+                    constructInterpolationTable(CC4P);
                 } else if (interpolationMethod.equals(CC6P)) {
-                    createInSARInterpTable(6);
-
+                    constructInterpolationTable(CC6P);
                 } else if (interpolationMethod.equals(TS6P)) {
-                    createInSARInterpTable(6);
-
+                    constructInterpolationTable(TS6P);
                 } else if (interpolationMethod.equals(TS8P)) {
-                    createInSARInterpTable(8);
-
+                    constructInterpolationTable(TS8P);
                 } else if (interpolationMethod.equals(TS16P)) {
-                    createInSARInterpTable(16);
-
+                    constructInterpolationTable(TS16P);
                 } else {
                     interp = Interpolation.getInstance(Interpolation.INTERP_NEAREST);
                 }
@@ -206,18 +201,28 @@ public class WarpOp extends Operator {
         } 
     }
 
-    private void createInSARInterpTable(final int numberOfKernelPoints) {
+    private void constructInterpolationTable(String interpolationMethod) {
+
+        // construct interpolation LUT
+        SimpleLUT lut = new SimpleLUT(interpolationMethod);
+        lut.constructLUT();
+
+        int kernelLength = lut.getKernelLength();
+
+        // get LUT and cast it to float for JAI
+        double[] lutArrayDoubles = lut.getKernelAsArray();
+        float lutArrayFloats[] = new float[lutArrayDoubles.length];
+        int i = 0;
+        for (double lutElement : lutArrayDoubles) {
+            lutArrayFloats[i++] = (float) lutElement;
+        }
+
+        // construct interpolation table for JAI resampling
         final int subsampleBits = 7;
         final int precisionBits = 32;
-        final int padding = numberOfKernelPoints/2 - 1;
-        final double[] kernelAxis = InSARInterpolationKernels.defineXAxis(numberOfKernelPoints);
-        final double[] lutInsar = InSARInterpolationKernels.constructKernel(kernelAxis, interpolationMethod);
-        final float data[] = new float[lutInsar.length];
-        int i = 0;
-        for(double lut : lutInsar) {
-            data[i++] = (float)lut;
-        }
-        interpTable = new InterpolationTable(padding, numberOfKernelPoints, subsampleBits, precisionBits, data);
+        int padding = kernelLength / 2 - 1;
+
+        interpTable = new InterpolationTable(padding, kernelLength, subsampleBits, precisionBits, lutArrayFloats);
     }
 
     private void addSlaveGCPs(final WarpData warpData, final String bandName) {
@@ -1045,305 +1050,6 @@ public class WarpOp extends Operator {
             super(WarpOp.class);
             super.setOperatorUI(WarpOpUI.class);
         }
-    }
-
-    private static class InSARInterpolationKernels {
-
-        // instances
-        public double[] x;
-        public double[] y;
-
-        InSARInterpolationKernels() {
-        }
-
-        // set kernelAxis : no additional checks here!
-        public void setXAxis(double[] doubles) {
-            this.x = doubles;
-        }
-
-        // construct kernel axis for numberOfKernelPoints
-        // eg. kernelLength = 4  --->  xKernelAxis = [-1 0 1 2]
-        public static double[] defineXAxis(final int kernelLength) {
-            final double[] xKernelAxis = new double[kernelLength];
-            for (int i = 0; i < kernelLength; ++i) {
-                xKernelAxis[i] = 1.0d - (kernelLength / 2) + i;
-            }
-            return xKernelAxis;
-        }
-
-        private enum ResampleKernels {
-            RECT, TRI,
-            TS6P, TS8P, TS16P,
-            CC4P, CC6P,
-            RS_KNAB4P, RS_KNAB6P, RS_KNAB8P, RS_KNAB10P, RS_KNAB16P,
-            RS_RC6P, RS_RC12P
-        }
-
-        public static double[] constructKernel(double[] kernelAxis, final String resampleMethod) {
-
-            final int kernelPoints = kernelAxis.length;
-
-            final int INTERVAL = 127;            // precision: 1./INTERVAL [pixel]
-            final int Ninterval = INTERVAL + 1;   // size of lookup table
-            final double dx = 1.0 / INTERVAL;       // interval look up table
-
-            DoubleMatrix kernel;
-            final DoubleMatrix pntKernelAz = new DoubleMatrix(Ninterval,kernelPoints);
-
-            for (int i = 0; i < Ninterval; i++) {
-            //                switch (ResampleKernels.valueOf(resampleMethod.toUpperCase())) {
-            //                    case RECT:
-            //                        kernel = new DoubleMatrix(rect(kernelAxis));
-            //                        pntKernelAz.putRow(i,kernel);
-            //                        break;
-            //                    case TRI:
-            //            ......
-            if (resampleMethod.equals(RECT)) {
-                    kernel = new DoubleMatrix(rect(kernelAxis));
-                    pntKernelAz.putRow(i, kernel);
-                } else if (resampleMethod.equals(TRI)) {
-                    kernel = new DoubleMatrix(tri(kernelAxis));
-                    pntKernelAz.putRow(i, kernel);
-                } else if (resampleMethod.equals(TS6P)) {
-                    kernel = new DoubleMatrix(ts6(kernelAxis));
-                    pntKernelAz.putRow(i, kernel);
-                } else if (resampleMethod.equals(TS8P)) {
-                    kernel = new DoubleMatrix(ts8(kernelAxis));
-                    pntKernelAz.putRow(i, kernel);
-                } else if (resampleMethod.equals(TS16P)) {
-                    kernel = new DoubleMatrix(ts16(kernelAxis));
-                    pntKernelAz.putRow(i, kernel);
-                } else if (resampleMethod.equals(CC4P)) {
-                    kernel = new DoubleMatrix(cc4(kernelAxis));
-                    pntKernelAz.putRow(i, kernel);
-                } else if (resampleMethod.equals(CC6P)) {
-                    kernel = new DoubleMatrix(cc6(kernelAxis));
-                    pntKernelAz.putRow(i, kernel);
-                }
-                kernelAxis = new DoubleMatrix(kernelAxis).sub(dx).toArray();
-            }
-
-            // normalization
-            pntKernelAz.divColumnVector(pntKernelAz.rowSums());
-
-            return pntKernelAz.transpose().toArray();
-        }
-
-        // methods for interpolators
-        // -------------------------------------------
-        // cc4: cubic convolution 4 points
-        // input:
-        //   - x-axis
-        // output:
-        //  - y=f(x); function evaluated at x
-        public static double[] cc4(final double[] x) {
-
-            final double alpha = -1.0;
-            final double[] y = new double[x.length];
-
-            for (int i = 0; i < y.length; i++) {
-                final double xx2 = Math.sqrt(x[i]);
-                final double xx = Math.sqrt(xx2);
-                if (xx < 1)
-                    y[i] = (alpha + 2) * xx2 * xx - (alpha + 3) * xx2 + 1;
-                else if (xx < 2)
-                    y[i] = alpha * xx2 * xx - 5 * alpha * xx2 + 8 * alpha * xx - 4 * alpha;
-                else
-                    y[i] = 0;
-            }
-
-            return y;
-
-        } // END cc4
-
-
-        // cc6: cubic convolution 4 points
-        // input:
-        //   - x-axis
-        // output:
-        //  - y=f(x); function evaluated at x
-
-        private static double[] cc6(final double[] x) {
-
-            final double alpha = -0.5;
-            final double beta = 0.5;
-            final double[] y = new double[x.length];
-
-            for (int i = 0; i < y.length; i++) {
-                final double xx2 = Math.pow(x[i], 2);
-                final double xx = Math.sqrt(xx2);
-                if (xx < 1)
-                    y[i] = (alpha - beta + 2) * xx2 * xx - (alpha - beta + 3) * xx2 + 1;
-                    //y[i] = (alpha+beta+2)*xx2*xx - (alpha+beta+3)*xx2 + 1; // wrong in reference paper??
-                else if (xx < 2)
-                    y[i] = alpha * xx2 * xx - (5 * alpha - beta) * xx2
-                            + (8 * alpha - 3 * beta) * xx - (4 * alpha - 2 * beta);
-                else if (xx < 3)
-                    y[i] = beta * xx2 * xx - 8 * beta * xx2 + 21 * beta * xx - 18 * beta;
-                else
-                    y[i] = 0.0;
-            }
-
-            return y;
-
-        } // END cc6
-
-        // ts6: truncated sinc 6 points
-        // input:
-        //   - x-axis
-        // output:
-        //  - y=f(x); function evaluated at x
-
-        private static double[] ts6(final double[] x) {
-
-            final double[] y = new double[x.length];
-
-            for (int i = 0; i < y.length; i++)
-                y[i] = sinc(x[i]) * rect(x[i] / 6.0);
-
-            return y;
-
-        } // END ts6
-
-        // ts8: truncated sinc 8 points
-        // input:
-        //   - x-axis
-        // output:
-        //  - y=f(x); function evaluated at x
-
-        private static double[] ts8(final double[] x) {
-
-            final double[] y = new double[x.length];
-
-            for (int i = 0; i < y.length; i++)
-                y[i] = sinc(x[i]) * rect(x[i] / 8.0);
-
-            return y;
-
-        } // END ts8
-
-        // ts16: truncated sinc 6 points
-        // input:
-        //   - x-axis
-        // output:
-        //  - y=f(x); function evaluated at x
-
-        private static double[] ts16(final double[] x) {
-
-            double[] y = new double[x.length];
-
-            for (int i = 0; i < y.length; i++)
-                y[i] = sinc(x[i]) * rect(x[i] / 16.0);
-
-            return y;
-
-        } // END cc6
-
-        // rect :: rect function for matrix (stepping function?)
-        // input:
-        //    - x-axis
-        // output:
-        //    - y=f(x); function evaluated at x
-
-        private static double[] rect(final double[] x) {
-            final double[] y = new double[x.length];
-            for (int i = 0; i < y.length; i++) {
-                y[i] = rect(x[i]);
-            }
-            return y;
-        } // END rect
-
-        // tri ::  tri function for matrix (piecewize linear?, triangle)
-        // input:
-        //    - x-axis
-        // output:
-        //    - y=f(x); function evaluated at x
-
-        private static double[] tri(final double[] x) {
-            final double[] y = new double[x.length];
-            for (int i = 0; i < y.length; i++) {
-                y[i] = tri(x[i]);
-            }
-            return y;
-        } // END tri
-
-        /*
-              knab :: KNAB window of N points, oversampling factor CHI
-                   defined by: Migliaccio IEEE letters vol41,no5, pp1105,1110, 2003
-                   k = sinc(x).*(cosh((pi*v*L/2)*sqrt(1-(2.*x./L).^2))/cosh(pi*v*L/2));
-                    input:
-                       - x-axis
-                       - oversampling factor of bandlimited sigal CHI
-                       - N points of kernel size
-                   output:
-                       - y=f(x); function evaluated at x
-        */
-
-        private static double[] knab(final double[] x, final double CHI, final int N) {
-            final double[] y = new double[x.length];
-            final double v = 1.0 - 1.0 / CHI;
-            final double vv = Math.PI * v * N / 2.0;
-            final double coshvv = Math.cosh(vv);
-
-            for (int i = 0; i < y.length; i++) {
-                y[i] = sinc(x[i]) * Math.cosh(vv * Math.sqrt(1.0 - Math.pow(2.0 * x[i] / (double) N, 2))) / coshvv;
-            }
-            return y;
-
-        } // END knab
-
-        /*
-       rc_kernel: Raised Cosine window of N points, oversampling factor CHI
-                  defined by: Cho, Kong and Kim, J.Elektromagn.Waves and appl
-                                    vol19, no.1, pp, 129-135, 2005;
-       claimed to be best, 0.9999 for 6 points kernel.
-       k(x) = sinc(x).*[cos(v*pi*x)/(1-4*v^2*x^2)]*rect(x/L)
-             where v = 1-B/fs = 1-1/Chi (roll-off factor; ERS: 15.55/18.96)
-             L = 6 (window size)
-        input:
-                - x-axis
-                - oversampling factor of bandlimited sigal CHI
-                - N points of kernel size
-       output:
-                - y=f(x); function evaluated at x
-        */
-
-        private static double[] rc_kernel(final double[] x, final double CHI, final int N) {
-
-            final double[] y = new double[x.length];
-            final double v = 1.0 - 1.0 / CHI;// alpha in paper cho05
-            final double v2 = 2.0*v;
-            final double vPI = v * Math.PI;
-
-            for (int i = 0; i < y.length; i++) {
-                y[i] = sinc(x[i]) * rect(x[i] / N) *
-                        Math.cos(vPI * x[i]) / (1.0 - Math.pow(v2 * x[i], 2));
-            }
-            return y;
-        } // END rc_kernel
-
-        private static double sinc(final double x) {
-            return ((x == 0) ? 1 : Math.sin(Math.PI * x) / (Math.PI * x));
-        }
-
-        private static double rect(final double x) {
-            double ans = 0.0;
-            if (x < 0.5 && x > -0.5) {
-                ans = 1;
-            } else if (x == 0.5 || x == -0.5) {
-                ans = 0.5;
-            }
-            return ans;
-        }
-
-        private static double tri(final double x) {
-            double ans = 0.0;
-            if (x < 1.0 && x > -1.0) {
-                ans = (x < 0) ? 1 + x : 1 - x;
-            }
-            return ans;
-        }
-
     }
 
 }

@@ -37,7 +37,7 @@ public class TestMultilookOperator extends TestCase {
     private final static String expectedPathWSM =  TestUtils.rootPathExpectedProducts+"\\expected\\subset_1_of_ENVISAT-ASA_WSM_1PNPDE20080119_093446_000000852065_00165_30780_2977_ML.dim";
 
     private String[] productTypeExemptions = { "_BP", "XCA", "WVW", "WVI", "WVS", "WSS", "DOR_VOR_AX" };
-    private String[] exceptionExemptions = { "not supported" };
+    private String[] exceptionExemptions = { "not supported", "not intended" };
 
     @Override
     protected void setUp() throws Exception {
@@ -175,7 +175,7 @@ public class TestMultilookOperator extends TestCase {
 
     public void testProcessAllRadarsat2() throws Exception
     {
-        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathRadarsat2, null, null);
+        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathRadarsat2, null, exceptionExemptions);
     }
 
     public void testProcessAllTerraSARX() throws Exception
@@ -190,6 +190,6 @@ public class TestMultilookOperator extends TestCase {
 
     public void testProcessAllNestBox() throws Exception
     {
-        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathMixProducts, productTypeExemptions, null);
+        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathMixProducts, productTypeExemptions, exceptionExemptions);
     }
 }

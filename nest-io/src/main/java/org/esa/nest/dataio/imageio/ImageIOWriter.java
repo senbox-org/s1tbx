@@ -83,6 +83,7 @@ public class ImageIOWriter extends AbstractProductWriter {
         final Iterator<ImageWriter> writerList = ImageIO.getImageWritersBySuffix(format);
         writer = writerList.next();
 
+        file.getParentFile().mkdirs();
         _outputStream = ImageIO.createImageOutputStream(file);
         writer.setOutput(_outputStream);
 

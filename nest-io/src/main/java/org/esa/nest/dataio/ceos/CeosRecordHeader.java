@@ -57,6 +57,10 @@ public class CeosRecordHeader {
         return recordNum;
     }
 
+    public int getRecordLength() {
+        return recordLength;
+    }
+
     public void seekToEnd() throws IOException {
         reader.seek(startPos + recordLength);
     }

@@ -48,7 +48,7 @@ public class TestRangeDopplerOp extends TestCase {
     private final static String expectedPathAPM =  TestUtils.rootPathExpectedProducts+"\\expected\\ENVISAT-ASA_APM_1PNIPA20030327_091853_000000152015_00036_05601_5422.N1_TC.dim";
 
     private String[] productTypeExemptions = { "_BP", "XCA", "WVW", "WVI", "WVS", "WSS", "DOR_VOR_AX" };
-    private String[] exceptionExemptions = { "not supported", "already map projected" };
+    private String[] exceptionExemptions = { "not supported", "already map projected", "outside of SRTM valid area" };
 
     @Override
     protected void setUp() throws Exception {

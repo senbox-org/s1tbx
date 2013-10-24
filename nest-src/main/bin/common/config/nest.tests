@@ -18,11 +18,11 @@
 
 # Test Paths
 # Some unit tests open all products within a folder and apply thier processing to verify they don't get any error
-nest.test.ReadersOnAllProducts = false
-nest.test.ProcessingOnAllProducts = false
+nest.test.ReadersOnAllProducts = true
+nest.test.ProcessingOnAllProducts = true
 nest.test.RunBenchmarks = false
 # max number of products to test from each root folder. Use -1 to test all.
-nest.test.maxProductsPerRootFolder = 0
+nest.test.maxProductsPerRootFolder = -1
 nest.test.subsetX = 100
 nest.test.subsetY = 100
 nest.test.subsetWidth = 100
@@ -38,7 +38,6 @@ nest.test.rootPathJERS = 				P:\\nest\\nest\\ESA Data\\RADAR\\JERS
 nest.test.rootPathALOS = 				P:\\nest\\nest\\ESA Data\\RADAR\\ALOS PALSAR
 nest.test.rootPathCosmoSkymed = 		P:\\nest\\nest\\ESA Data\\RADAR\\Cosmo
 nest.test.rootPathMixProducts = 		P:\\nest\\nest\\ESA Data\\NestBox
-#nest.test.rootPathMixProducts = 		P:\\nest\\nest\\ESA Data\\RADAR\\Global Monitoring Mode
 
 ####################################################################################
 #Automated Graph Processing and Product Comparison of Expected Results
@@ -49,22 +48,55 @@ nest.test.rootPathMixProducts = 		P:\\nest\\nest\\ESA Data\\NestBox
 #If expected_results is not included, only output will be processed without comparison
 ####################################################################################
 
-nest.test.1.graph = P:\\nest\\nest\\ESA Data\\test\\AutoTests\\graphs\\Standard Graphs\\Multilook.xml
-nest.test.1.input_products = 	P:\\nest\\input
-nest.test.1.expected_results = 	P:\\nest\\nest\\ESA Data\\test\\AutoTests\\expected\\test1
-nest.test.1.output_products = 	P:\\nest\\nest\\ESA Data\\test\\AutoTests\\output\\test1
+testRoot = C:\\Build\\5.0\\NEST\\nest-test
+dataRoot = P:\\nest\\input
+maxProductsPerInputFolder = -1
 
-nest.test.2.graph = P:\\nest\\nest\\ESA Data\\test\\AutoTests\\graphs\\Standard Graphs\\Calibrate.xml
-nest.test.2.input_products = 	P:\\nest\\input
-nest.test.2.expected_results = 	P:\\nest\\nest\\ESA Data\\test\\AutoTests\\expected\\test2
-nest.test.2.output_products = 	P:\\nest\\nest\\ESA Data\\test\\AutoTests\\output\\test2
+nest.test.1.graph = ${testRoot}\\graphs\\StandardGraphs\\Subset_ML.xml
+nest.test.1.input_products = 	${dataRoot}
+nest.test.1.expected_results = 	${testRoot}\\expected
+nest.test.1.output_products = 	${testRoot}\\output
 
-nest.test.3.graph = P:\\nest\\nest\\ESA Data\\test\\AutoTests\\graphs\\Standard Graphs\\Orthorectify.xml
-nest.test.3.input_products = 	P:\\nest\\input
-nest.test.3.expected_results = 	P:\\nest\\nest\\ESA Data\\test\\AutoTests\\expected\\test3
-nest.test.3.output_products = 	P:\\nest\\nest\\ESA Data\\test\\AutoTests\\output\\test3
+nest.test.2.graph = ${testRoot}\\graphs\\StandardGraphs\\Subset_Cal.xml
+nest.test.2.input_products = 	${dataRoot}
+nest.test.2.expected_results = 	${testRoot}\\expected
+nest.test.2.output_products = 	${testRoot}\\output
 
-nest.test.4.graph = P:\\nest\\nest\\ESA Data\\test\\AutoTests\\graphs\\Subset_Cal.xml
-nest.test.4.input_products = 	P:\\nest\\input
-nest.test.4.expected_results = 	P:\\nest\\nest\\ESA Data\\test\\AutoTests\\expected\\test4
-nest.test.4.output_products = 	P:\\nest\\nest\\ESA Data\\test\\AutoTests\\output\\test4
+nest.test.3.skip = true
+nest.test.3.graph = ${testRoot}\\graphs\\StandardGraphs\\Subset_TC.xml
+nest.test.3.input_products = 	${dataRoot}
+nest.test.3.expected_results = 	${testRoot}\\expected
+nest.test.3.output_products = 	${testRoot}\\output
+
+nest.test.4.graph = ${testRoot}\\graphs\\Writers\\WriteGeoTIFF.xml
+nest.test.4.input_products = 	${dataRoot}
+nest.test.4.expected_results = 	${testRoot}\\expected
+nest.test.4.output_products = 	${testRoot}\\output
+
+nest.test.5.skip = true
+nest.test.5.graph = ${testRoot}\\graphs\\Writers\\WriteHDF5.xml
+nest.test.5.input_products = 	${dataRoot}
+nest.test.5.expected_results = 	${testRoot}\\expected
+nest.test.5.output_products = 	${testRoot}\\output
+
+nest.test.6.graph = ${testRoot}\\graphs\\Writers\\WriteENVI.xml
+nest.test.6.input_products = 	${dataRoot}
+nest.test.6.expected_results = 	${testRoot}\\expected
+nest.test.6.output_products = 	${testRoot}\\output
+
+nest.test.7.graph = ${testRoot}\\graphs\\Writers\\WritePolSARPro.xml
+nest.test.7.input_products = 	${dataRoot}
+nest.test.7.expected_results = 	${testRoot}\\expected
+nest.test.7.output_products = 	${testRoot}\\output
+
+nest.test.8.skip = true
+nest.test.8.graph = ${testRoot}\\graphs\\Writers\\WriteNetCDF.xml
+nest.test.8.input_products = 	${dataRoot}
+nest.test.8.expected_results = 	${testRoot}\\expected
+nest.test.8.output_products = 	${testRoot}\\output
+
+nest.test.9.skip = true
+nest.test.9.graph = ${testRoot}\\graphs\\Writers\\WriteJPG.xml
+nest.test.9.input_products = 	${dataRoot}
+nest.test.9.expected_results = 	${testRoot}\\expected
+nest.test.9.output_products = 	${testRoot}\\output

@@ -15,13 +15,13 @@
 	<parent>
         <groupId>org.esa.nest</groupId>
         <artifactId>nest</artifactId>
-        <version>5.0</version>
+        <version>6.0-SNAPSHOT</version>
     </parent>
 	
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <jlinda.version>0.6</jlinda.version>
-        <nest.version>5.0</nest.version>
+        <jlinda.version>0.7-SNAPSHOT</jlinda.version>
+        <nest.version>6.0-SNAPSHOT</nest.version>
         <beam.version>5.0-4.10.4</beam.version>
 		<rstb.version>5.6</rstb.version>
         <jblas.version>1.2.3</jblas.version>

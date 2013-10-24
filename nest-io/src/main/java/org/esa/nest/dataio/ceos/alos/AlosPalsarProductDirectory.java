@@ -299,7 +299,7 @@ class AlosPalsarProductDirectory extends CEOSProductDirectory {
         final BinaryRecord sceneRec = leaderFile.getSceneRecord();
 
         // slant range time (2-way)
-        if(leaderFile.getProductLevel() == AlosPalsarConstants.LEVEL1_1) {
+        if(leaderFile.getProductLevel() == AlosPalsarConstants.LEVEL1_1 && sceneRec != null) {
 
             final double samplingRate = sceneRec.getAttributeDouble("Range sampling rate") * Constants.oneMillion;  // MHz to Hz
 
@@ -343,31 +343,33 @@ class AlosPalsarProductDirectory extends CEOSProductDirectory {
         product.addTiePointGrid(slantRangeGrid);
 
         // incidence angle
-        final double a0 = sceneRec.getAttributeDouble("Incidence angle constant term");
-        final double a1 = sceneRec.getAttributeDouble("Incidence angle linear term");
-        final double a2 = sceneRec.getAttributeDouble("Incidence angle quadratic term");
-        final double a3 = sceneRec.getAttributeDouble("Incidence angle cubic term");
-        final double a4 = sceneRec.getAttributeDouble("Incidence angle fourth term");
-        final double a5 = sceneRec.getAttributeDouble("Incidence angle fifth term");
+        if(sceneRec != null) {
+            final double a0 = sceneRec.getAttributeDouble("Incidence angle constant term");
+            final double a1 = sceneRec.getAttributeDouble("Incidence angle linear term");
+            final double a2 = sceneRec.getAttributeDouble("Incidence angle quadratic term");
+            final double a3 = sceneRec.getAttributeDouble("Incidence angle cubic term");
+            final double a4 = sceneRec.getAttributeDouble("Incidence angle fourth term");
+            final double a5 = sceneRec.getAttributeDouble("Incidence angle fifth term");
 
-        final float[] angles = new float[gridWidth*gridHeight];
-        int k = 0;
-        for(int j = 0; j < gridHeight; j++) {
-            for (int i = 0; i < gridWidth; i++) {
-                angles[k] = (float)((a0 + a1*rangeDist[k]/1000.0 +
-                                     a2*Math.pow(rangeDist[k]/1000.0, 2.0) +
-                                     a3*Math.pow(rangeDist[k]/1000.0, 3.0) +
-                                     a4*Math.pow(rangeDist[k]/1000.0, 4.0) +
-                                     a5*Math.pow(rangeDist[k]/1000.0, 5.0) ) * MathUtils.RTOD);
-                k++;
+            final float[] angles = new float[gridWidth*gridHeight];
+            int k = 0;
+            for(int j = 0; j < gridHeight; j++) {
+                for (int i = 0; i < gridWidth; i++) {
+                    angles[k] = (float)((a0 + a1*rangeDist[k]/1000.0 +
+                                         a2*Math.pow(rangeDist[k]/1000.0, 2.0) +
+                                         a3*Math.pow(rangeDist[k]/1000.0, 3.0) +
+                                         a4*Math.pow(rangeDist[k]/1000.0, 4.0) +
+                                         a5*Math.pow(rangeDist[k]/1000.0, 5.0) ) * MathUtils.RTOD);
+                    k++;
+                }
             }
+
+            final TiePointGrid incidentAngleGrid = new TiePointGrid(OperatorUtils.TPG_INCIDENT_ANGLE,
+                    gridWidth, gridHeight, 0, 0, subSamplingX, subSamplingY, angles);
+
+            incidentAngleGrid.setUnit(Unit.DEGREES);
+            product.addTiePointGrid(incidentAngleGrid);
         }
-
-        final TiePointGrid incidentAngleGrid = new TiePointGrid(OperatorUtils.TPG_INCIDENT_ANGLE,
-                gridWidth, gridHeight, 0, 0, subSamplingX, subSamplingY, angles);
-
-        incidentAngleGrid.setUnit(Unit.DEGREES);
-        product.addTiePointGrid(incidentAngleGrid);
     }
 
     private static double[] computePolynomialCoefficients(
@@ -502,6 +504,9 @@ class AlosPalsarProductDirectory extends CEOSProductDirectory {
         final BinaryRecord sceneRec = leaderFile.getSceneRecord();
         final BinaryRecord mapProjRec = leaderFile.getMapProjRecord();
         final BinaryRecord radiometricRec = leaderFile.getRadiometricRecord();
+
+        if(sceneRec == null)
+            return;
 
         //mph
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PRODUCT, getProductName());

@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>nest-op-image-processing</symbolicName>
-    <version>5.0</version>
+    <version>6.0-SNAPSHOT</version>
     <name>NEST Image Processing Tools</name>
 
     <description>Tools for Image Processing</description>

@@ -7,7 +7,7 @@
     <parent>
         <artifactId>nest</artifactId>
         <groupId>org.esa.nest</groupId>
-        <version>5.0</version>
+        <version>6.0-SNAPSHOT</version>
     </parent>
 
     <packaging>jar</packaging>
@@ -16,7 +16,7 @@
     <artifactId>nest-cli-bootstrap</artifactId>
     <name>NEST CLI Bootstrap Classpath</name>
     <description>Provides the bootstrap classpath to launch GPT from your favourite IDE.</description>
-    <version>5.0</version>
+    <version>6.0-SNAPSHOT</version>
 
     <dependencies>
         <dependency>
@@ -44,7 +44,7 @@
 		<dependency>
             <groupId>org.esa.nest</groupId>
             <artifactId>nest-op-sar-tools</artifactId>
-			<version>5.0.1</version>
+			<version>${nest.version}</version>
         </dependency>
 		<dependency>
             <groupId>org.esa.nest</groupId>

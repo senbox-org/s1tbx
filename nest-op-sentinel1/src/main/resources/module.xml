@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>nest-op-sentinel1</symbolicName>
-    <version>5.0</version>
+    <version>6.0-SNAPSHOT</version>
     <name>NEST Sentinel-1 Tools</name>
 
     <description>Tools for Sentinel-1 products</description>

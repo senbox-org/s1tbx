@@ -27,7 +27,7 @@ public class TestEllipsoidCorrectionRDOp extends TestCase {
 
     private OperatorSpi spi;
 
-    private String[] productTypeExemptions = { "_BP", "XCA", "WVW", "WVI", "WVS", "WSS", "DOR_VOR_AX" };
+    private String[] productTypeExemptions = { "_BP", "XCA", "WVW", "WVI", "WVS", "WSS", "GeoTIFF", "DOR_VOR_AX" };
     private String[] exceptionExemptions = { "not supported", "already map projected" };
 
     @Override

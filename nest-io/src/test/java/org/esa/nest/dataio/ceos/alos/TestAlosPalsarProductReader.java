@@ -31,7 +31,7 @@ public class TestAlosPalsarProductReader extends TestCase {
     private AlosPalsarProductReaderPlugIn readerPlugin;
     private ProductReader reader;
 
-    private String[] exceptionExemptions = { "geocoding is null" };
+    private String[] exceptionExemptions = { "geocoding is null", "not supported" };
 
     public TestAlosPalsarProductReader(String name) {
         super(name);

@@ -1746,7 +1746,8 @@ public class VisatApp extends BasicApp implements AppContext {
     }
 
     protected void configureJaiTileCache() {
-        final int tileCacheCapacity = getPreferences().getPropertyInt(PROPERTY_KEY_JAI_TILE_CACHE_CAPACITY, 512);
+        final int tileCacheCapacity = getPreferences().getPropertyInt(PROPERTY_KEY_JAI_TILE_CACHE_CAPACITY,
+                Integer.parseInt(System.getProperty(PROPERTY_KEY_JAI_TILE_CACHE_CAPACITY)));
         JAIUtils.setDefaultTileCacheCapacity(tileCacheCapacity);
         final int tileSize = Integer.parseInt(System.getProperty(PROPERTY_KEY_JAI_TILE_SIZE, "256"));
         JAI.setDefaultTileSize(new Dimension(tileSize, tileSize));

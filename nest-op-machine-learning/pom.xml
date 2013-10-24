@@ -6,13 +6,13 @@
     <parent>
         <artifactId>nest</artifactId>
         <groupId>org.esa.nest</groupId>
-        <version>5.0</version>
+        <version>6.0-SNAPSHOT</version>
     </parent>
 
     <groupId>org.esa.nest</groupId>
     <artifactId>nest-op-machine-learning</artifactId>
     <name>NEST Machine Learning Tools</name>
-    <version>5.0</version>
+    <version>6.0-SNAPSHOT</version>
 	
     <packaging>jar</packaging>
 

@@ -7,14 +7,14 @@
     <parent>
         <groupId>org.esa.nest</groupId>
         <artifactId>nest</artifactId>
-        <version>5.0</version>
+        <version>6.0-SNAPSHOT</version>
     </parent>
 
     <groupId>org.esa.nest</groupId>
     <artifactId>nest-help</artifactId>
     <name>NEST Help</name>
     <description>Provides the software user manual.</description>
-    <version>5.0</version>
+    <version>6.0-SNAPSHOT</version>
 
     <build>
         <plugins>

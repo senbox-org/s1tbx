@@ -48,7 +48,6 @@ public class Debug {
      * code blocks.
      */
     private static final boolean DEBUG = true;
-    //private static final boolean DEBUG = false;
 
     /**
      * If false, debugging will be disabled.

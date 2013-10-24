@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>nest-reader-dem</symbolicName>
-    <version>5.0</version>
+    <version>6.0-SNAPSHOT</version>
     <name>NEST DEM Reader</name>
 
     <description>Enables NEST to read the SRTM, ACE and D-TED digital elevation models.</description>

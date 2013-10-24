@@ -8,13 +8,13 @@
     <parent>
         <groupId>org.esa.nest</groupId>
         <artifactId>nest</artifactId>
-        <version>5.0</version>
+        <version>6.0-SNAPSHOT</version>
     </parent>
 
     <name>NEST Benchmark Test</name>
     <groupId>org.esa.nest</groupId>
     <artifactId>nest-benchmark</artifactId>
-    <version>5.0</version>
+    <version>6.0-SNAPSHOT</version>
 
     <packaging>jar</packaging>
 
@@ -48,22 +48,22 @@
 		<dependency>
             <groupId>org.esa.nest</groupId>
             <artifactId>nest-op-sar-tools</artifactId>
-			<version>5.0.1</version>
+			<version>${nest.version}</version>
         </dependency>
 		<dependency>
             <groupId>org.esa.nest</groupId>
             <artifactId>nest-ocean-tools</artifactId>
 			<version>${nest.version}</version>
         </dependency>
-        <dependency>
+		<dependency>
             <groupId>org.esa.nest</groupId>
-            <artifactId>nest-io-sentinel1</artifactId>
-            <version>${nest.version}</version>
+            <artifactId>nest-ocean-tools</artifactId>
+			<version>${nest.version}</version>
         </dependency>
 		
 		<dependency>
             <groupId>org.esa.nest</groupId>
-            <artifactId>nest-op-feature-extraction</artifactId>
+            <artifactId>nest-io-sentinel1</artifactId>
             <version>${nest.version}</version>
         </dependency>
     </dependencies>

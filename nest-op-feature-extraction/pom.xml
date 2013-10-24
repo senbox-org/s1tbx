@@ -6,13 +6,13 @@
     <parent>
         <artifactId>nest</artifactId>
         <groupId>org.esa.nest</groupId>
-        <version>5.0</version>
+        <version>6.0-SNAPSHOT</version>
     </parent>
 
     <groupId>org.esa.nest</groupId>
     <artifactId>nest-op-feature-extraction</artifactId>
     <name>NEST Feature Extraction Tools</name>
-    <version>5.0</version>
+    <version>6.0-SNAPSHOT</version>
 	
     <packaging>jar</packaging>
 
@@ -30,8 +30,8 @@
             <artifactId>nest-graph-builder</artifactId>
         </dependency>
         <dependency>
-        <groupId>org.esa.nest</groupId>
-        <artifactId>nest-reader-dem</artifactId>
+			<groupId>org.esa.nest</groupId>
+			<artifactId>nest-reader-dem</artifactId>
         </dependency>
         <dependency>
             <groupId>org.esa.nest</groupId>

@@ -79,11 +79,10 @@ public class GPFProcessor {
         final String writeOperatorAlias = OperatorSpi.getOperatorAlias(WriteOp.class);
         final Node writerNode = findNode(graph, writeOperatorAlias);
         if (writerNode != null && tgtFile != null) {
-            final DomElement param = new DefaultDomElement("parameters");
-            param.createChild("file").setValue(tgtFile.getAbsolutePath());
+            final DomElement origParam = writerNode.getConfiguration();
+            origParam.getChild("file").setValue(tgtFile.getAbsolutePath());
             if(format != null)
-                param.createChild("formatName").setValue(format);
-            writerNode.setConfiguration(param);
+                origParam.getChild("formatName").setValue(format);
         }
     }
 

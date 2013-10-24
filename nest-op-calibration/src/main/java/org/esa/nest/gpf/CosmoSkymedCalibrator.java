@@ -93,7 +93,7 @@ public class CosmoSkymedCalibrator extends BaseCalibrator implements Calibrator 
 
             final String productType = absRoot.getAttributeString(AbstractMetadata.PRODUCT_TYPE);
             if(productType.equals("SCS_U"))
-            	throw new OperatorException(productType + " calibration is not currently supported");
+            	throw new OperatorException(productType + " calibration is not supported");
             
             if (absRoot.getAttribute(AbstractMetadata.abs_calibration_flag).getData().getElemBoolean()) {
                 throw new OperatorException("Absolute radiometric calibration has already been applied to the product");

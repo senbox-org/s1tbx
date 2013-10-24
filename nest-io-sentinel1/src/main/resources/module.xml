@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>nest-io-sentinel1</symbolicName>
-    <version>5.0</version>
+    <version>6.0-SNAPSHOT</version>
     <name>NEST Sentinel-1 Reader</name>
 
     <description>Reads Sentinel-1 SAFE format products</description>
