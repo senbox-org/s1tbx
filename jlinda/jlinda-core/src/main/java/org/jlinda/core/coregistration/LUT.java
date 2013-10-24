@@ -9,15 +9,20 @@ import org.jlinda.core.Constants;
 import org.jlinda.core.SLCImage;
 import org.slf4j.LoggerFactory;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 public class LUT {
 
     private static final Logger logger = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(LUT.class);
+    private static Level loggerLevel = Level.TRACE;
 
-
+/*
     public static final String NEAREST_NEIGHBOR = "Nearest-neighbor interpolation";
     public static final String BILINEAR = "Bilinear interpolation";
     public static final String BICUBIC = "Bicubic interpolation";
     public static final String BICUBIC2 = "Bicubic2 interpolation";
+*/
     public static final String RECT = "Step function (nearest-neighbor)";
     public static final String TRI = "Linear interpolation";
     public static final String CC4P = "Cubic convolution (4 points)";
@@ -26,49 +31,85 @@ public class LUT {
     public static final String TS8P = "Truncated sinc (8 points)";
     public static final String TS16P = "Truncated sinc (16 points)";
 
-
-    private enum ResampleKernels {
-        RECT, TRI,
-        TS6P, TS8P, TS16P,
-        CC4P, CC6P,
-        RS_KNAB4P, RS_KNAB6P, RS_KNAB8P, RS_KNAB10P, RS_KNAB16P,
-        RS_RC6P, RS_RC12P
-    }
-
     private static final int INTERVAL = 127;            // precision: 1./interval [pixel]
-    private final int nInterval = INTERVAL + 1;   // size of lookup table
-    private final double dx = 1.0 / INTERVAL;       // interval look up table
+    protected final int nInterval = INTERVAL + 1;   // size of lookup table
+    protected final double dx = 1.0 / INTERVAL;       // interval look up table
 
-    private DoubleMatrix kernel;
-    private DoubleMatrix axis;
+    protected DoubleMatrix kernel;
+    protected DoubleMatrix axis;
 
-    private String method;
-    private int kernelLength;
+    protected String method;
+    protected int kernelLength;
 
-    public static int getInterval() {
-        return INTERVAL;
+    private boolean normalized = true;
+
+    public LUT(String method) {
+
+        this.method = method;
+
+        this.kernelLength = LUT.extractNumber(method);
+
+        setUpLogger();
     }
 
     public LUT(String method, int kernelLength) {
         this.method = method;
         this.kernelLength = kernelLength;
 
-        logger.setLevel(Level.TRACE);
-        logger.trace("Start LUT [development code]");
+        setUpLogger();
+    }
 
+    public LUT(String method, int kernelLength, boolean normalizeFlag) {
+        this.method = method;
+        this.kernelLength = kernelLength;
+
+        this.normalized = normalizeFlag;
+
+        setUpLogger();
+
+    }
+
+    private void setUpLogger() {
+
+        logger.setLevel(loggerLevel);
+        logger.trace("Start LUT [development code]");
+    }
+
+    public static int getInterval() {
+        return INTERVAL;
     }
 
     public DoubleMatrix getKernel() {
         return kernel;
     }
 
+    public double[] getKernelAsArray() {
+        return kernel.transpose().toArray();
+    }
+
     public DoubleMatrix getAxis() {
         return axis;
     }
 
+    public boolean getNormalized() {
+        return normalized;
+    }
+
+    public void setNormalize(boolean flag) {
+        this.normalized = flag;
+    }
+
+    public int getKernelLength() {
+        return kernelLength;
+    }
+
+    public String getMethod() {
+        return method;
+    }
+
     // construct kernel axis for numberOfKernelPoints
     // eg. kernelLength = 4  --->  xKernelAxis = [-1 0 1 2]
-    private double[] defineAxis(final int kernelLength) {
+    public double[] defineAxis(final int kernelLength) {
         final double[] xKernelAxis = new double[kernelLength];
         for (int i = 0; i < kernelLength; ++i) {
             xKernelAxis[i] = 1.0d - (kernelLength / 2) + i;
@@ -126,31 +167,31 @@ public class LUT {
             //            ......
             if (method.equals(RECT)) {
                 kernelTemp = new DoubleMatrix(rect(kernelAxis));
-                kernelTemp.divi(kernelTemp.sum()); // normalize
+                if (normalized) kernelTemp.divi(kernelTemp.sum());
                 kernel.putRow(i, kernelTemp);
             } else if (method.equals(TRI)) {
                 kernelTemp = new DoubleMatrix(tri(kernelAxis));
-                kernelTemp.divi(kernelTemp.sum()); // normalize
+                if (normalized) kernelTemp.divi(kernelTemp.sum());
                 kernel.putRow(i, kernelTemp);
             } else if (method.equals(TS6P)) {
                 kernelTemp = new DoubleMatrix(ts6(kernelAxis));
-                kernelTemp.divi(kernelTemp.sum()); // normalize
+                if (normalized) kernelTemp.divi(kernelTemp.sum());
                 kernel.putRow(i, kernelTemp);
             } else if (method.equals(TS8P)) {
                 kernelTemp = new DoubleMatrix(ts8(kernelAxis));
-                kernelTemp.divi(kernelTemp.sum()); // normalize
+                if (normalized) kernelTemp.divi(kernelTemp.sum());
                 kernel.putRow(i, kernelTemp);
             } else if (method.equals(TS16P)) {
                 kernelTemp = new DoubleMatrix(ts16(kernelAxis));
-                kernelTemp.divi(kernelTemp.sum()); // normalize
+                if (normalized) kernelTemp.divi(kernelTemp.sum());
                 kernel.putRow(i, kernelTemp);
             } else if (method.equals(CC4P)) {
                 kernelTemp = new DoubleMatrix(cc4(kernelAxis));
-                kernelTemp.divi(kernelTemp.sum()); // normalize
+                if (normalized) kernelTemp.divi(kernelTemp.sum());
                 kernel.putRow(i, kernelTemp);
             } else if (method.equals(CC6P)) {
                 kernelTemp = new DoubleMatrix(cc6(kernelAxis));
-                kernelTemp.divi(kernelTemp.sum()); // normalize
+                if (normalized) kernelTemp.divi(kernelTemp.sum());
                 kernel.putRow(i, kernelTemp);
             }
             axisTemp = new DoubleMatrix(kernelAxis);
@@ -166,28 +207,38 @@ public class LUT {
     /**
      * Log kernels to check sum, etc.
      */
-    public void overviewOfLut() {
+    public void overviewLUT() {
 
-        logger.debug("Overview of LUT for interpolation kernel follows:");
-        logger.debug("-------------------------------------------------");
+        logger.debug("Overview of LUT for interpolation");
+        logger.debug("---------------------------------");
 
         for (int i = 0; i < nInterval; ++i) {
 
             // math
             DoubleMatrix row = kernel.getRow(i);
             double sum = row.sum();
-//            row.divi(sum);
 
             // logger
             logger.debug(axis.getRow(i).toString());
             logger.debug("Normalized kernel by dividing LUT elements by sum:");
-//            logger.debug(row.toString() + "( sum   : " + sum + ")");
             logger.debug("{} ( {} : sum )", row.toString(), sum);
 
         }
-        logger.debug("Resample: normalized lookup table created (kernel and axis).");
+        logger.debug("Look-Up Table (normalized) constructed, both kernel and axis.");
     }
 
+
+    public static int extractNumber(String line) {
+
+        String numbers = new String();
+
+        Pattern p = Pattern.compile("\\d+");
+        Matcher m = p.matcher(line);
+        while (m.find()) {
+            numbers = numbers + m.group();
+        }
+        return Integer.parseInt(numbers);
+    }
 
     // methods for interpolators
     // -------------------------------------------
@@ -223,7 +274,7 @@ public class LUT {
     // output:
     //  - y=f(x); function evaluated at x
 
-    private double[] cc6(final double[] x) {
+    protected double[] cc6(final double[] x) {
 
         final double alpha = -0.5;
         final double beta = 0.5;
@@ -254,7 +305,7 @@ public class LUT {
     // output:
     //  - y=f(x); function evaluated at x
 
-    private double[] ts6(final double[] x) {
+    protected double[] ts6(final double[] x) {
 
         final double[] y = new double[x.length];
 
@@ -271,7 +322,7 @@ public class LUT {
     // output:
     //  - y=f(x); function evaluated at x
 
-    private double[] ts8(final double[] x) {
+    protected double[] ts8(final double[] x) {
 
         final double[] y = new double[x.length];
 
@@ -288,7 +339,7 @@ public class LUT {
     // output:
     //  - y=f(x); function evaluated at x
 
-    private double[] ts16(final double[] x) {
+    protected double[] ts16(final double[] x) {
 
         double[] y = new double[x.length];
 
@@ -305,7 +356,7 @@ public class LUT {
     // output:
     //    - y=f(x); function evaluated at x
 
-    private double[] rect(final double[] x) {
+    protected double[] rect(final double[] x) {
         final double[] y = new double[x.length];
         for (int i = 0; i < y.length; i++) {
             y[i] = rect(x[i]);
@@ -319,7 +370,7 @@ public class LUT {
     // output:
     //    - y=f(x); function evaluated at x
 
-    private double[] tri(final double[] x) {
+    protected double[] tri(final double[] x) {
         final double[] y = new double[x.length];
         for (int i = 0; i < y.length; i++) {
             y[i] = tri(x[i]);

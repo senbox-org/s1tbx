@@ -21,6 +21,7 @@ public final class SLCImage {
     private int formatFlag; // not used
 
     // sensor
+    private String mission;
     private String sensor;
     private String sarProcessor;
     private double radar_wavelength; // TODO: close this modifier
@@ -84,7 +85,7 @@ public final class SLCImage {
     //    private static Rectangle originalWindow;       // position and size of the full scene
     Window originalWindow;       // position and size of the full scene
     Window currentWindow;        // position and size of the subset
-    Window slaveMasterOffsets;   // overlapping slave window in master coordinates
+    SlaveWindow slaveMasterOffsets;   // overlapping slave window in master coordinates
     public Doppler doppler;
 
     public SLCImage() {
@@ -142,11 +143,17 @@ public final class SLCImage {
         this.doppler.f_DC_a2 = 0.0;
 //        f_DC_const = (actualDopplerChange() < maximumDopplerChange());
 
+
+        this.slaveMasterOffsets = new SlaveWindow();
+
     }
 
     public SLCImage(MetadataElement element) {
 
         this();
+
+        this.sensor = element.getAttributeString(AbstractMetadata.MISSION);
+        this.mission = sensor; // redundant parameter, for legacy use
 
         // orbit number
         this.orbitNumber = element.getAttributeInt(AbstractMetadata.REL_ORBIT);
@@ -333,6 +340,10 @@ public final class SLCImage {
         return approxXYZCentreOriginal;
     }
 
+    public void setCurrentWindow(final Window window) {
+        this.currentWindow = window;
+    }
+
     public Window getCurrentWindow() {
         return currentWindow;
     }
@@ -341,6 +352,9 @@ public final class SLCImage {
         return originalWindow;
     }
 
+    public void setOriginalWindow(final Window window) {
+        this.originalWindow = window;
+    }
     public double getPRF() {
         return PRF;
     }
@@ -407,6 +421,37 @@ public final class SLCImage {
 
     public long getOrbitNumber() {
         return orbitNumber;
+    }
+
+    public String getSensor() {
+        return sensor;
+    }
+
+    public String getMission() {
+        return mission;
+    }
+
+    public int getOvsRg() {
+        return ovsRg;
+    }
+
+    public void setOvsRg(int ovsRg) {
+        this.ovsRg = ovsRg;
+    }
+
+    public void setSlaveMaterOffset() {
+        this.slaveMasterOffsets = new SlaveWindow();
+    }
+
+    public SlaveWindow getSlaveMaterOffset() {
+        return slaveMasterOffsets;
+    }
+
+    public void setSlaveMasterOffset(double ll00, double pp00, double ll0N, double pp0N, double llN0,
+                                     double ppN0, double llNN, double ppNN) {
+
+        this.slaveMasterOffsets = new SlaveWindow(ll00, pp00, ll0N, pp0N, llN0, ppN0, llNN, ppNN);
+
     }
 
     public class Doppler {
@@ -505,10 +550,50 @@ public final class SLCImage {
     }
 
     public double computeRangeResolution(double pixel) {
-         return ((rsr2x / 2.) / rangeBandwidth) * (computeDeltaRange(pixel) / mlRg);
+        return ((rsr2x / 2.) / rangeBandwidth) * (computeDeltaRange(pixel) / mlRg);
     }
 
     public double computeRangeResolution(Point sarPixel) {
         return computeRangeResolution(sarPixel.x);
+    }
+
+    public class SlaveWindow {
+
+        public double l00, p00, l0N, p0N, lN0, pN0, lNN, pNN;
+
+        SlaveWindow() {
+            this.l00 = 0;
+            this.p00 = 0;
+            this.l0N = 0;
+            this.p0N = 0;
+            this.lN0 = 0;
+            this.pN0 = 0;
+            this.lNN = 0;
+            this.pNN = 0;
+        }
+
+        SlaveWindow(double ll00, double pp00, double ll0N, double pp0N, double llN0,
+                    double ppN0, double llNN, double ppNN) {
+            this.l00 = ll00;
+            this.p00 = pp00;
+            this.l0N = ll0N;
+            this.p0N = pp0N;
+            this.lN0 = llN0;
+            this.pN0 = ppN0;
+            this.lNN = llNN;
+            this.pNN = ppNN;
+        }
+
+        SlaveWindow(final SlaveWindow w) {
+            l00 = w.l00;
+            p00 = w.p00;
+            l0N = w.l0N;
+            p0N = w.p0N;
+            lN0 = w.lN0;
+            pN0 = w.pN0;
+            lNN = w.lNN;
+            pNN = w.pNN;
+        }
+
     }
 }

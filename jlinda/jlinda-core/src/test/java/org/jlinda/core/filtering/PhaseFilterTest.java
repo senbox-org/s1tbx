@@ -27,9 +27,9 @@ import static org.jlinda.core.io.DataReader.readFloatData;
  */
 public class PhaseFilterTest {
 
-    private static final String testDirectoryGoldstein = "/d2/etna_test/phaseFiltTest/goldstein/";
-    private static final String testDirectorySpectral = "/d2/etna_test/phaseFiltTest/spectral/";
-    private static final String testDirectorySpatial = "/d2/etna_test/phaseFiltTest/spatialconv/";
+    private static final String testDirectoryGoldstein = "/d2/etna/etna_test/phaseFiltTest/goldstein/";
+    private static final String testDirectorySpectral = "/d2/etna/etna_test/phaseFiltTest/spectral/";
+    private static final String testDirectorySpatial = "/d2/etna/etna_test/phaseFiltTest/spatialconv/";
     private static final double DELTA_01 = 1e-01;
     private static final double DELTA_03 = 1e-03;
     private static final double DELTA_005 = 5e-01;
@@ -89,6 +89,34 @@ public class PhaseFilterTest {
         Assert.assertArrayEquals(cplxDataFilt_EXPECTED.imag().toArray(), cplxDataFilt_ACTUAL.imag().toArray(), DELTA_01);
 
     }
+
+/*
+    @Test
+    public void testPhaseFilterClass() throws Exception {
+
+        // load input data
+        // master data
+        String cplxDataFileName = testDirectoryGoldstein + "data_input.cr4.swap";
+        ComplexDoubleMatrix cplxData = readCplxFloatData(cplxDataFileName, 32, 512);
+
+        String cplxDataFilteredFileName = testDirectoryGoldstein + "data_filtered_smooth.cr4.swap";
+        ComplexDoubleMatrix cplxDataFilt_EXPECTED = readCplxFloatData(cplxDataFilteredFileName, 32, 512);
+
+        String method = "goldstein";
+        double[] kernelArray = new double[]{0.2, 0.2, 0.2, 0.2, 0.2};
+        float alpha = (float) 0.5;
+        int overlap = 1;
+        int blockSize = 32;
+        PhaseFilter phaseFilter = new PhaseFilter(method, cplxData, blockSize, overlap, kernelArray, alpha);
+        phaseFilter.filter();
+
+        ComplexDoubleMatrix cplxDataFilt_ACTUAL = phaseFilter.getData();
+
+        Assert.assertArrayEquals(cplxDataFilt_EXPECTED.real().toArray(), cplxDataFilt_ACTUAL.real().toArray(), DELTA_01);
+        Assert.assertArrayEquals(cplxDataFilt_EXPECTED.imag().toArray(), cplxDataFilt_ACTUAL.imag().toArray(), DELTA_01);
+
+    }
+*/
 
     @Before
     public void setUpFilterKernel2d() {

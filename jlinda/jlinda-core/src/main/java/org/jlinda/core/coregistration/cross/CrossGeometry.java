@@ -19,16 +19,18 @@ import org.slf4j.LoggerFactory;
  */
 public class CrossGeometry {
 
+    // logger
     private static final Logger logger = (Logger) LoggerFactory.getLogger(CrossGeometry.class);
+    private static Level level = Level.WARN;
 
-    // used only for scaling
+    // used only for normalization
     private Window dataWindow;
 
-    // original sampling geometry
+    // original sampling geometry: source
     private double prfOriginal;
     private double rsrOriginal;
 
-    // target sampling geometry
+    // target sampling geometry: target
     private double prfTarget;
     private double rsrTarget;
 
@@ -38,8 +40,14 @@ public class CrossGeometry {
     private double ratioRSR;
 
     // estimation parameters, can be overridden
-    private int numberOfWindows = 5000;
     private int polyDegree = 2;
+    private int numberOfWindows = 5000;
+    private boolean normalizeFlag = true;
+
+    // geometry grids - need them because interfacing them with JAI
+    private double[][] sourceGrid;
+    private double[][] targetGrid;
+    private double[][] offsetGrid;
 
     // coefficients of polynomials that describe transition from one sampling into another one
     private double[] coeffsAz;
@@ -132,21 +140,31 @@ public class CrossGeometry {
         return coeffsRg;
     }
 
+    public double[][] getSourceGrid() {
+        return sourceGrid;
+    }
+
+    public double[][] getTargetGrid() {
+        return targetGrid;
+    }
+
+    public double[][] getOffsetGrid() {
+        return offsetGrid;
+    }
+
+    public void setNormalizeFlag(boolean normalizeFlag) {
+        this.normalizeFlag = normalizeFlag;
+    }
+
     private void setLoggerLevel() {
         // logger level
-        logger.setLevel(Level.WARN);
+        logger.setLevel(level);
     }
 
-    private void computeFrequencyRatios() {
-        ratioPRF = prfOriginal / prfTarget;
-        ratioRSR = rsrOriginal / rsrTarget;
 
-        ratiosComputed = true;
-    }
+    public void constructGrids() {
 
-    public void computeCoefficients() {
-
-        // TODO: make estimation 'smarter', check on ratio between freqs, if ratio within some range, only then estimate
+        // ToDo: make estimation 'smarter', check on ratio between freqs, if ratio within some range, only then estimate
 
         if (!ratiosComputed) {
             computeFrequencyRatios();
@@ -155,51 +173,109 @@ public class CrossGeometry {
         // -----------------------------------------------
         // distribute points
         // -----------------------------------------------
-        int[][] result = MathUtils.distributePoints(numberOfWindows, dataWindow);
+        sourceGrid = MathUtils.distributePointsDoubles(numberOfWindows, dataWindow);
 
         // -----------------------------------------------
         // create synthetic offsets
         // -----------------------------------------------
-        double[][] resultMaster = new double[numberOfWindows][2];
+        targetGrid = new double[numberOfWindows][2];
+        offsetGrid = new double[numberOfWindows][2];
 
         for (int i = 0; i < numberOfWindows; i++) {
-            resultMaster[i][0] = result[i][0] * ratioPRF;
-            resultMaster[i][1] = result[i][1] * ratioRSR;
+            targetGrid[i][0] = sourceGrid[i][0] * ratioPRF;
+            targetGrid[i][1] = sourceGrid[i][1] * ratioRSR;
+
+            // semantic of jLinda is always : offset = (source - target)
+            offsetGrid[i][0] = targetGrid[i][0] - sourceGrid[i][0];
+            offsetGrid[i][1] = targetGrid[i][1] - sourceGrid[i][1];
         }
 
-        double[][] offset = new double[numberOfWindows][2];
-        for (int i = 0; i < numberOfWindows; i++) {
-            offset[i][0] = result[i][0] - resultMaster[i][0];
-            offset[i][1] = result[i][1] - resultMaster[i][1];
-        }
+    }
+
+    // compute Coefficients from Offsets - for jLinda semantics
+    public void computeCoeffsFromOffsets() {
+
+        constructGrids();
 
         // -----------------------------------------------
         // estimation of (dummy) coregistration polynomial
         // -----------------------------------------------
 
         // declare matrices
-        DoubleMatrix linesNorm = new DoubleMatrix(numberOfWindows, 1);
-        DoubleMatrix pixelsNorm = new DoubleMatrix(numberOfWindows, 1);
-        DoubleMatrix offset_lines = new DoubleMatrix(numberOfWindows, 1);
-        DoubleMatrix offset_pixels = new DoubleMatrix(numberOfWindows, 1);
+        DoubleMatrix sourceY = new DoubleMatrix(numberOfWindows, 1);
+        DoubleMatrix sourceX = new DoubleMatrix(numberOfWindows, 1);
+        DoubleMatrix offsetY = new DoubleMatrix(numberOfWindows, 1);
+        DoubleMatrix offsetX = new DoubleMatrix(numberOfWindows, 1);
 
         // normalize, and store into jblas matrices
         for (int i = 0; i < numberOfWindows; i++) {
-            linesNorm.put(i, PolyUtils.normalize2(resultMaster[i][0], dataWindow.linelo, dataWindow.linehi));
-            pixelsNorm.put(i, PolyUtils.normalize2(resultMaster[i][1], dataWindow.pixlo, dataWindow.pixhi));
-            offset_lines.put(i, offset[i][0]);
-            offset_pixels.put(i, offset[i][1]);
+            if (normalizeFlag) {
+                sourceY.put(i, PolyUtils.normalize2(sourceGrid[i][0], dataWindow.linelo, dataWindow.linehi));
+                sourceX.put(i, PolyUtils.normalize2(sourceGrid[i][1], dataWindow.pixlo, dataWindow.pixhi));
+            } else {
+                sourceY.put(i, sourceGrid[i][0]);
+                sourceX.put(i, sourceGrid[i][1]);
+            }
+
+            offsetY.put(i, offsetGrid[i][0]);
+            offsetX.put(i, offsetGrid[i][1]);
         }
 
         // compute coefficients using polyFit2D
         // ...NOTE: order in which input axis are given => (x,y,z) <=
-        coeffsAz = PolyUtils.polyFit2D(pixelsNorm, linesNorm, offset_lines, polyDegree);
-        coeffsRg = PolyUtils.polyFit2D(pixelsNorm, linesNorm, offset_pixels, polyDegree);
+        coeffsAz = PolyUtils.polyFit2D(sourceX, sourceY, offsetY, polyDegree);
+        coeffsRg = PolyUtils.polyFit2D(sourceX, sourceY, offsetX, polyDegree);
 
         // show polynomials depending on logger level <- not in production
-        logger.debug("coeffsAZ : estimated with PolyUtils.polyFit2D : {}", ArrayUtils.toString(coeffsAz));
-        logger.debug("coeffsRg : estimated with PolyUtils.polyFit2D : {}", ArrayUtils.toString(coeffsRg));
+        logger.debug("coeffsAZ (offsets): estimated with PolyUtils.polyFit2D : {}", ArrayUtils.toString(coeffsAz));
+        logger.debug("coeffsRg (offsets): estimated with PolyUtils.polyFit2D : {}", ArrayUtils.toString(coeffsRg));
 
+    }
+
+    // compute coefficients from Coordinates - for NEST/BEAM/JAI semantics
+    public void computeCoeffsFromCoords_JAI() {
+
+        constructGrids();
+
+        // -----------------------------------------------
+        // estimation of (dummy) coregistration polynomial
+        // -----------------------------------------------
+
+        // declare matrices
+        DoubleMatrix targetY = new DoubleMatrix(numberOfWindows, 1);
+        DoubleMatrix targetX = new DoubleMatrix(numberOfWindows, 1);
+        DoubleMatrix sourceY = new DoubleMatrix(numberOfWindows, 1);
+        DoubleMatrix sourceX = new DoubleMatrix(numberOfWindows, 1);
+
+        for (int i = 0; i < numberOfWindows; i++) {
+            if (normalizeFlag) {
+                sourceY.put(i, PolyUtils.normalize2(sourceGrid[i][0], dataWindow.linelo, dataWindow.linehi));
+                sourceX.put(i, PolyUtils.normalize2(sourceGrid[i][1], dataWindow.pixlo, dataWindow.pixhi));
+            } else {
+                sourceY.put(i, sourceGrid[i][0]);
+                sourceX.put(i, sourceGrid[i][1]);
+            }
+
+            targetY.put(i, targetGrid[i][0]);
+            targetX.put(i, targetGrid[i][1]);
+        }
+
+        // compute coefficients using polyFit2D
+        // ...NOTE: order in which input axis are given => (x,y,z) <=
+        coeffsAz = PolyUtils.polyFit2D(sourceX, sourceY, targetY, polyDegree);
+        coeffsRg = PolyUtils.polyFit2D(sourceX, sourceY, targetX, polyDegree);
+
+        // show polynomials depending on logger level <- not in production
+        logger.debug("coeffsAZ (coords): estimated with PolyUtils.polyFit2D : {}", ArrayUtils.toString(coeffsAz));
+        logger.debug("coeffsRg (coords): estimated with PolyUtils.polyFit2D : {}", ArrayUtils.toString(coeffsRg));
+
+    }
+
+    private void computeFrequencyRatios() {
+        ratioPRF = 1 / (prfOriginal / prfTarget);
+        ratioRSR = 1 / (rsrOriginal / rsrTarget);
+
+        ratiosComputed = true;
     }
 
 }

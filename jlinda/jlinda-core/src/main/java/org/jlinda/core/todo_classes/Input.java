@@ -53,10 +53,10 @@ public class Input {
     public class Resample {
 
         // arguments for resampling slave
-        String method;                 // method selector (interpolator)
-        Window dbow_geo;               // cut out of original master.geo
-        Window dbow;                   // cut out of original master.radar
-        boolean shiftAziSpectra;        // [true] shift spectrum to 0
+        public String method;                 // method selector (interpolator)
+        public Window dbow_geo;               // cut out of original master.geo
+        public Window dbow;                   // cut out of original master.radar
+        public boolean shiftAziSpectra;        // [true] shift spectrum to 0
 
     }
 
@@ -127,6 +127,88 @@ public class Input {
         String method;                 // method selector
         long offsetL;                  // offset applied before subtraction
         long offsetP;                  // offset applied before subtraction
+    }
+
+
+    // Coregistration INPUT
+    // ----------------------
+    public class CoarseCorr // arguments for correlation
+    {
+        public String ifpositions; // input file name for positions
+        public String method; // method selector
+        public int Nwin; // #windows
+        public int MasksizeL; // size of correlation window
+        public int MasksizeP; // size of correlation window
+        public int AccL; // #lines to be searched in 1 direction
+        public int AccP; // #pixels to be searched in 1 direction
+        public long initoffsetL; // initial offset lines
+        public long initoffsetP; // initial offset pixels
+    }
+
+    public class FineCorr // arguments for fine coreg.
+    {
+        public String ifpositions; // input file name for positions
+        public String method; // method selector
+        public int Nwin; // #windows
+        public int MasksizeL; // size of correlation window
+        public int MasksizeP; // size of correlation window
+        public int AccL; // #lines to be searched in l direction
+        public int AccP; // #pixels to be searched in p direction
+        public long initoffsetL; // initial offset lines
+        public long initoffsetP; // initial offset pixels
+        public int osfactor; // oversampling factor
+        boolean plotoffsets; // call script
+        boolean plotmagbg; // call script
+        boolean plotthreshold; // call script
+    }
+
+    public class RelTiming // arguments for timing [FvL]
+    {
+        float threshold; // threshold for correlation
+        long maxiter; // max. #pnts to remove (wtests)
+        float k_alpha; // critical value for automated outlier removal
+    }
+
+    public class DemAssist // arguments for DEM assisted ICoregistration [FvL]
+    {
+        String firefdem; // input filename reference dem
+        int iformatflag; // input format [signed short]
+        int demrows; // number of
+        int demcols; // number of
+        double demdeltalat; // radians
+        double demdeltalon; // radians
+        double demlatleftupper; // radians
+        double demlonleftupper; // radians
+        double demnodata; // identifier/flag
+        String forefdemhei; // output filename DEM in radarcoord.
+        String fodem; // flag+name output of cropped dem
+        String fodemi; // flag+name output of interpolated dem
+    }
+
+    public class CoregPM // arguments for coregpm.
+    {
+        String idcoregpm;
+        public float threshold; // threshold for correlation
+        public int degree; // degree of polynomial
+        public int weightflag; // 0: all same weight
+        // 1: choice1: weigh with correlation ??
+        public int maxiter; // max. #pnts to remove (wtests)
+        public float k_alpha; // critical value for automated outlier removal
+        boolean dumpmodel; // create float files with model
+        boolean plot; // plot e_hat etc.
+        boolean plotmagbg; // plot magnitude in background
+    }
+
+    public class MasterTiming {
+        	String ifpositions; // input file name for positions
+        	int method; // method selector, [MA] rm if not nec.
+        	int Nwin; // #windows
+        	int MasksizeL; // size of correlation window
+        	int MasksizeP; // size of correlation window
+        	int AccL; // #lines to be searched in 1 direction
+        	int AccP; // #pixels to be searched in 1 direction
+        	long initoffsetL; // initial offset lines
+        	long initoffsetP; // initial offset pixels
     }
 
 }

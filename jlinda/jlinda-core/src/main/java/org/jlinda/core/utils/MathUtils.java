@@ -71,6 +71,20 @@ public class MathUtils {
         return result;
     }
 
+    public static double[][] distributePointsDoubles(final int numOfPoints, final Window window) {
+
+        double[][] doublePoints = new double[numOfPoints][2];
+        int[][] intPoints = distributePoints(numOfPoints, window);
+
+        // cast to double
+        for (int i = 0; i < numOfPoints; i++) {
+            doublePoints[i][0] = (double) intPoints[i][0];
+            doublePoints[i][1] = (double) intPoints[i][1];
+        }
+
+        return doublePoints;
+    }
+
     // 1D increment
     public static double[] increment(int m, double begin, double pitch) {
         double[] array = new double[m];

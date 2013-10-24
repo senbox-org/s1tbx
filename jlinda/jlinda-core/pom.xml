@@ -4,20 +4,20 @@
     <parent>
         <groupId>org.jlinda</groupId>
         <artifactId>jlinda</artifactId>
-        <version>0.6</version>
+        <version>0.7-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <name>jLinda Core Libs</name>
     <groupId>org.jlinda</groupId>
     <artifactId>jlinda-core</artifactId>
-    <version>0.6</version>
+    <version>0.7-SNAPSHOT</version>
 
     <dependencies>
         <dependency>
             <groupId>org.esa.nest</groupId>
             <artifactId>nest-core</artifactId>
-            <version>5.0.1</version>
+            <version>${nest.version}</version>
         </dependency>
         <dependency>
             <groupId>org.esa.beam</groupId>
@@ -76,9 +76,34 @@
             <version>14.0.1</version>
         </dependency>
         <dependency>
+            <groupId>net.sf.trove4j</groupId>
+            <artifactId>trove4j</artifactId>
+            <version>3.0.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.perf4j</groupId>
+            <artifactId>perf4j</artifactId>
+            <version>0.9.16</version>
+        </dependency>
+        <dependency>
+            <groupId>com.googlecode.efficient-java-matrix-library</groupId>
+            <artifactId>ejml</artifactId>
+            <version>0.19</version>
+        </dependency>
+        <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
             <version>3.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.ujmp</groupId>
+            <artifactId>ujmp-complete</artifactId>
+            <version>0.2.5</version>
+        </dependency>
+        <dependency>
+            <groupId>com.winvector</groupId>
+            <artifactId>wvlpsolver</artifactId>
+            <version>1.0</version>
         </dependency>
     </dependencies>
 </project>

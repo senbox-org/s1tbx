@@ -11,6 +11,9 @@ import static org.jblas.MatrixFunctions.pow;
 public class PolyUtils {
 
     // TODO: Major clean-up and open sourcing of Polynomial and PolyFit classess from ppolabs.commons
+
+    // ToDo: polyfit and polyval are in conflict
+    // Description: Polynomial I fit using coeffs=polyfit(x,y), I have to evaluate using polyval(y,x,coeffs)
     private static final Logger logger = (Logger) LoggerFactory.getLogger(PolyUtils.class);
 
     private static void setLoggerLevel() {

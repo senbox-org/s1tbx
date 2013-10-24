@@ -1,18 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <name>jLinda</name>
     <groupId>org.jlinda</groupId>
     <artifactId>jlinda</artifactId>
-    <version>0.6</version>
+    <version>0.7-SNAPSHOT</version>
 
     <description>Java Library for Interferometric Data Analysis (jLinda)</description>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <jlinda.version>0.6</jlinda.version>
-        <nest.version>5.0</nest.version>
+        <jlinda.version>0.7-SNAPSHOT</jlinda.version>
+        <nest.version>6.0-SNAPSHOT</nest.version>
         <beam.version>5.0-4.10.4</beam.version>
         <jblas.version>1.2.3</jblas.version>
         <junit.version>4.11</junit.version>
@@ -74,15 +75,15 @@
                 <configuration>
                     <source>1.7</source>
                     <target>1.7</target>
-                    <encoding>ISO-8859-1</encoding>
-                    <!-- encoding>UTF-8</encoding -->
-                    <optimize>true</optimize>	                    
+                    <!--<encoding>ISO-8859-1</encoding>-->
+                    <encoding>UTF-8</encoding>
+                    <optimize>true</optimize>
                     <debug>true</debug>
-        		    <showWarnings>false</showWarnings>
-        		    <showDeprecation>false</showDeprecation>
-        		    <!-- <compilerArgs> -->
-        		    <!--   <arg>-Xlint</arg> -->
-        		    <!-- </compilerArgs> -->
+                    <showWarnings>false</showWarnings>
+                    <showDeprecation>false</showDeprecation>
+                    <!-- <compilerArgs> -->
+                    <!--   <arg>-Xlint</arg> -->
+                    <!-- </compilerArgs> -->
                 </configuration>
             </plugin>
             <plugin>
@@ -101,11 +102,11 @@
                 <artifactId>maven-source-plugin</artifactId>
                 <executions>
                     <execution>
-                      <id>attach-sources</id>
-                      <phase>package</phase>
-                      <goals>
-                        <goal>jar</goal>
-                      </goals>
+                        <id>attach-sources</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
                     </execution>
                 </executions>
             </plugin>
@@ -114,10 +115,10 @@
                 <artifactId>maven-release-plugin</artifactId>
                 <version>2.4.1</version>
                 <!--<configuration>-->
-                    <!--<tagNameFormat>v@{project.version}</tagNameFormat>-->
+                <!--<tagNameFormat>v@{project.version}</tagNameFormat>-->
                 <!--</configuration>-->
             </plugin>
-    	</plugins>
+        </plugins>
     </build>
 
     <developers>
@@ -128,7 +129,7 @@
         </developer>
     </developers>
 
-   <distributionManagement>
+    <distributionManagement>
         <repository>
             <uniqueVersion>true</uniqueVersion>
             <id>nexus-releases</id>
@@ -145,7 +146,7 @@
         <connection>scm:git:git@github.com:ppolabs/jlinda.git</connection>
         <developerConnection>scm:git:ppolabs/jlinda.git</developerConnection>
         <url>https://github.com/ppolabs/jlinda</url>
-      <tag>jlinda-0.6</tag>
-  </scm>
+        <!--<tag>jlinda-0.6</tag>-->
+    </scm>
 
 </project>
