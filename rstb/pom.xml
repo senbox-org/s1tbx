@@ -8,7 +8,7 @@
     <name>RADARSAT-2 Toolbox</name>
     <groupId>org.csa.rstb</groupId>
     <artifactId>rstb</artifactId>
-    <version>5.6</version>
+    <version>5.7</version>
 
     <description>RADARSAT-2 Polarimetric Tools</description>
 
@@ -23,7 +23,7 @@
         <jlinda.version>0.7-SNAPSHOT</jlinda.version>
         <nest.version>6.0-SNAPSHOT</nest.version>
         <beam.version>5.0-4.10.4</beam.version>
-		<rstb.version>5.6</rstb.version>
+		<rstb.version>5.7</rstb.version>
         <jblas.version>1.2.3</jblas.version>
         <junit.version>4.11</junit.version>
         <outputdir>../../output</outputdir>

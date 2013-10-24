@@ -8,13 +8,13 @@
     <parent>
         <groupId>org.csa.rstb</groupId>
         <artifactId>rstb</artifactId>
-        <version>5.6</version>
+        <version>5.7</version>
     </parent>
 
     <name>RSTB Polarimetric SAR Tools</name>
     <groupId>org.csa.rstb</groupId>
     <artifactId>rstb-polarimetric-tools</artifactId>
-    <version>5.6</version>
+    <version>5.7</version>
 
     <packaging>jar</packaging>
 
