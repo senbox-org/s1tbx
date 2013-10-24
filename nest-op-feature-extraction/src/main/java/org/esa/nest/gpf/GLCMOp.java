@@ -525,31 +525,26 @@ public final class GLCMOp extends Operator {
 
     private ArrayList<GLCMElem> computeGLCM(final int tx, final int ty, final Tile sourceTile, final ProductData srcData,
                                             final double noDataValue) {
-
         final int x0 = Math.max(tx - halfWindowSize, 0);
         final int y0 = Math.max(ty - halfWindowSize, 0);
         final int w  = Math.min(tx + halfWindowSize, sourceImageWidth - 1) - x0 + 1;
         final int h  = Math.min(ty + halfWindowSize, sourceImageHeight - 1) - y0 + 1;
-        final int maxy = Math.min(y0 + h, sourceTile.getMaxY() - 1) - displacementX;
-        final int maxx = Math.min(x0 + w, sourceTile.getMaxX() - 1) - displacementY;
+        final int maxy = Math.min(y0 + h, sourceTile.getMaxY() - 1) - displacementY;
+        final int maxx = Math.min(x0 + w, sourceTile.getMaxX() - 1) - displacementX;
 
+        final int[][] quantizedImage = computeQuantizedImage(x0, y0, w, h, sourceTile, srcData, noDataValue);
         final double[][] GLCM = new double[numQuantLevels][numQuantLevels];
-        int counter = 0;
+
+        int xx, yy, counter = 0;
         for (int y = y0; y < maxy; y++) {
+            yy = y - y0;
             for (int x = x0; x < maxx; x++) {
-                final double vi = srcData.getElemDoubleAt(sourceTile.getDataBufferIndex(x,y));
-                if (vi == noDataValue) {
+                xx = x - x0;
+                final int i = quantizedImage[yy][xx];
+                final int j = quantizedImage[yy + displacementY][xx + displacementX];
+                if (i < 0 || j < 0) {
                     continue;
                 }
-
-                final double vj = srcData.getElemDoubleAt(
-                        sourceTile.getDataBufferIndex(x + displacementX, y + displacementY));
-                if (vj == noDataValue) {
-                    continue;
-                }
-
-                final int i = quantize(vi);
-                final int j = quantize(vj);
 
                 GLCM[i][j]++;
                 GLCM[j][i]++;
@@ -569,7 +564,27 @@ public final class GLCMOp extends Operator {
                 }
             }
         }
+
         return GLCMElemList;
+    }
+
+    private int[][] computeQuantizedImage(final int x0, final int y0, final int w, final int h, final Tile sourceTile,
+                                          final ProductData srcData, final double noDataValue) {
+        final int[][] data = new int[h][w];
+        int xx, yy;
+        for (int y = y0; y < y0 + h; y++) {
+            yy = y - y0;
+            for (int x = x0; x < x0 + w; x++) {
+                xx = x - x0;
+                final double v = srcData.getElemDoubleAt(sourceTile.getDataBufferIndex(x,y));
+                if (v == noDataValue) {
+                    data[yy][xx] = -1;
+                } else {
+                    data[yy][xx] = Math.min((int)((convertToIntensityDB(v) - bandMin)/delta), numQuantLevels-1);
+                }
+            }
+        }
+        return data;
     }
 
     private TextureFeatures computeTextureFeatures(ArrayList<GLCMElem> GLCMElemList) {
