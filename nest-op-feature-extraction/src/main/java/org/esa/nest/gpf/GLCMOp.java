@@ -33,6 +33,7 @@ import org.esa.nest.datamodel.Unit;
 import org.esa.nest.eo.Constants;
 import org.junit.Ignore;
 
+import javax.media.jai.Histogram;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -76,6 +77,10 @@ public final class GLCMOp extends Operator {
     @Parameter(valueSet = {ANGLE_0, ANGLE_45, ANGLE_90, ANGLE_135},
             defaultValue = ANGLE_0, label="Angle")
     private String angleStr = ANGLE_0;
+
+    @Parameter(valueSet = {EQUAL_DISTANCE_QUANTIZER, PROBABILISTIC_QUANTIZER},
+            defaultValue = EQUAL_DISTANCE_QUANTIZER, label="Quantizer")
+    private String quantizerStr = EQUAL_DISTANCE_QUANTIZER;
 
     @Parameter(valueSet = {QUANTIZATION_LEVELS_16, QUANTIZATION_LEVELS_32, QUANTIZATION_LEVELS_64},
             defaultValue = QUANTIZATION_LEVELS_64, label="Quantization Levels")
@@ -134,8 +139,10 @@ public final class GLCMOp extends Operator {
     private double bandMax = 0.0;
     private double bandMin = 0.0;
     private double delta = 0.0;
-    private boolean bandMinMaxAvailable = false;
+    private boolean useProbabilisticQuantizer = false;
+    private boolean quantizerAvailable = false;
     private String bandUnit = null;
+    private double[] newBinLowValues = null;
 
     private List<String> targetBandNameList = new ArrayList<String>(10);
 
@@ -143,6 +150,9 @@ public final class GLCMOp extends Operator {
     private static final String ANGLE_45 = "45";
     private static final String ANGLE_90 = "90";
     private static final String ANGLE_135 = "135";
+
+    private static final String EQUAL_DISTANCE_QUANTIZER = "Equal Distance Quantizer";
+    private static final String PROBABILISTIC_QUANTIZER = "Probabilistic Quantizer";
 
     private static final String QUANTIZATION_LEVELS_16 = "16";
     private static final String QUANTIZATION_LEVELS_32 = "32";
@@ -191,6 +201,8 @@ public final class GLCMOp extends Operator {
 
             setWindowSize();
 
+            setQuantizer();
+
             setQuantizationLevels();
 
             setXYDisplacements();
@@ -229,6 +241,13 @@ public final class GLCMOp extends Operator {
         if (displacement >= windowSize) {
             throw new OperatorException("Displacement should not be larger than window size.");
         }
+    }
+
+    /**
+     * Set quantizer flag.
+     */
+    private void setQuantizer() {
+        useProbabilisticQuantizer = quantizerStr.equals(PROBABILISTIC_QUANTIZER);
     }
 
     /**
@@ -375,33 +394,49 @@ public final class GLCMOp extends Operator {
         return targetBandNameList.toArray(new String[targetBandNameList.size()]);
     }
 
-    private synchronized void getImageMaxMin() {
+    private synchronized void computeQuantizationBins() {
 
-        if (bandMinMaxAvailable) {
+        if (quantizerAvailable) {
             return;
         }
 
         final Band srcBand = sourceProduct.getBand(sourceBandNames[0]);
-        bandMax = convertToIntensityDB(srcBand.getStx(true,ProgressMonitor.NULL).getMaximum());
-        bandMin = convertToIntensityDB(srcBand.getStx(true,ProgressMonitor.NULL).getMinimum());
-        delta = (bandMax - bandMin)/numQuantLevels;
-        bandMinMaxAvailable = true;
-    }
+        if (useProbabilisticQuantizer) {
 
-    private double convertToIntensityDB(final double v) {
+            Histogram hist = srcBand.getStx().getHistogram();
+            int numBins = hist.getNumBins(0);
+            int[] bins = hist.getBins(0);
+            int totalNumPixels = 0;
+            for (int i = 0; i < numBins; i++) {
+                totalNumPixels += bins[i];
+            }
 
-        switch (bandUnit) {
-            case Unit.INTENSITY_DB:
-                return v;
-            case Unit.INTENSITY:
-                return 10.0*Math.log10(v + Constants.EPS);
-            case Unit.AMPLITUDE:
-                return 10.0*Math.log10(v*v + Constants.EPS);
-            case Unit.AMPLITUDE_DB:
-                return 10.0*Math.log10(Math.pow(10, 2*v) + Constants.EPS);
-            default:
-                return 0.0;
+            final int newBinSize = totalNumPixels/numQuantLevels;
+            newBinLowValues = new double[numQuantLevels+1];
+            newBinLowValues[0] = hist.getBinLowValue(0,0);
+            int k = 1;
+            int sum = 0;
+            for (int i = 0; i < numBins; i++) {
+                sum += bins[i];
+                if (sum >= k*newBinSize) {
+                    newBinLowValues[k] = hist.getBinLowValue(0,i);
+                    if (k < numQuantLevels - 1) {
+                        k++;
+                    } else {
+                        newBinLowValues[numQuantLevels] = hist.getHighValue(0);
+                        break;
+                    }
+                }
+            }
+
+        } else {
+
+            bandMin = srcBand.getStx(true,ProgressMonitor.NULL).getMinimum();
+            bandMax = srcBand.getStx(true,ProgressMonitor.NULL).getMaximum();
+            delta = (bandMax - bandMin)/numQuantLevels;
         }
+
+        quantizerAvailable = true;
     }
 
     /**
@@ -417,8 +452,8 @@ public final class GLCMOp extends Operator {
     @Override
     public void computeTileStack(Map<Band, Tile> targetTiles, Rectangle targetRectangle, ProgressMonitor pm) throws OperatorException {
 
-        if (!bandMinMaxAvailable) {
-            getImageMaxMin();
+        if (!quantizerAvailable) {
+            computeQuantizationBins();
         }
 
         final int tx0 = targetRectangle.x;
@@ -523,8 +558,9 @@ public final class GLCMOp extends Operator {
         return new Rectangle(sx0, sy0, sw, sh);
     }
 
-    private ArrayList<GLCMElem> computeGLCM(final int tx, final int ty, final Tile sourceTile, final ProductData srcData,
-                                            final double noDataValue) {
+    private ArrayList<GLCMElem> computeGLCM(final int tx, final int ty, final Tile sourceTile,
+                                            final ProductData srcData, final double noDataValue) {
+
         final int x0 = Math.max(tx - halfWindowSize, 0);
         final int y0 = Math.max(ty - halfWindowSize, 0);
         final int w  = Math.min(tx + halfWindowSize, sourceImageWidth - 1) - x0 + 1;
@@ -570,17 +606,38 @@ public final class GLCMOp extends Operator {
 
     private int[][] computeQuantizedImage(final int x0, final int y0, final int w, final int h, final Tile sourceTile,
                                           final ProductData srcData, final double noDataValue) {
+
         final int[][] data = new int[h][w];
-        int xx, yy;
-        for (int y = y0; y < y0 + h; y++) {
-            yy = y - y0;
-            for (int x = x0; x < x0 + w; x++) {
-                xx = x - x0;
-                final double v = srcData.getElemDoubleAt(sourceTile.getDataBufferIndex(x,y));
-                if (v == noDataValue) {
-                    data[yy][xx] = -1;
-                } else {
-                    data[yy][xx] = Math.min((int)((convertToIntensityDB(v) - bandMin)/delta), numQuantLevels-1);
+
+        if (useProbabilisticQuantizer) {
+
+            int xx, yy;
+            for (int y = y0; y < y0 + h; y++) {
+                yy = y - y0;
+                for (int x = x0; x < x0 + w; x++) {
+                    xx = x - x0;
+                    final double v = srcData.getElemDoubleAt(sourceTile.getDataBufferIndex(x,y));
+                    if (Double.isNaN(v) || v == noDataValue) {
+                        data[yy][xx] = -1;
+                    } else {
+                        data[yy][xx] = probQuantizer(v);
+                    }
+                }
+            }
+
+        } else {
+
+            int xx, yy;
+            for (int y = y0; y < y0 + h; y++) {
+                yy = y - y0;
+                for (int x = x0; x < x0 + w; x++) {
+                    xx = x - x0;
+                    final double v = srcData.getElemDoubleAt(sourceTile.getDataBufferIndex(x,y));
+                    if (Double.isNaN(v) || v == noDataValue) {
+                        data[yy][xx] = -1;
+                    } else {
+                        data[yy][xx] = equalDisQuantizer(v);
+                    }
                 }
             }
         }
@@ -643,8 +700,34 @@ public final class GLCMOp extends Operator {
                 GLCMCorrelation);
     }
 
-    private int quantize(final double v) {
-        return Math.min((int)((convertToIntensityDB(v) - bandMin)/delta), numQuantLevels-1);
+    private int probQuantizer(final double v) {
+
+        if (v < newBinLowValues[0]) {
+            return 0;
+        }
+
+        if (v >= newBinLowValues[numQuantLevels]) {
+            return numQuantLevels - 1;
+        }
+
+        int low = 0;
+        int high = numQuantLevels;
+        int mid = -1;
+        while (low < high) {
+            mid = (low + high)/2;
+            if (v >= newBinLowValues[mid] && v < newBinLowValues[mid+1]) {
+                break;
+            } else if (v < newBinLowValues[mid]) {
+                high = mid;
+            } else {
+                low = mid;
+            }
+        }
+        return mid;
+    }
+
+    private int equalDisQuantizer(final double v) {
+        return Math.min((int)((v - bandMin)/delta), numQuantLevels-1);
     }
 
     private static class TileData {
