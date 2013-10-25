@@ -359,6 +359,7 @@ public class DatApp extends VisatApp {
 
         boolean incMultispectralTools = false;
         boolean incImageProcessing = false;
+        boolean incSoilMoisture = false;
         boolean incWizards = false;
         final CommandManager cmdMan = getCommandManager();
         final int numCmnds = cmdMan.getNumCommands();
@@ -371,6 +372,8 @@ public class DatApp extends VisatApp {
                 incMultispectralTools = true;
             else if(parent.equals("Image Processing"))
                 incImageProcessing = true;
+            else if(parent.equals("Soil Moisture"))
+                incSoilMoisture = true;
             else if(parent.equals("Wizards"))
                 incWizards = true;
         }
@@ -397,6 +400,8 @@ public class DatApp extends VisatApp {
             menuBar.add(createJMenu("multispectraltools", "Multispectral", 'M'));
         if(incImageProcessing)
             menuBar.add(createJMenu("Image Processing", "Image Processing", 'N'));
+        if(incSoilMoisture)
+            menuBar.add(createJMenu("Soil Moisture", "Soil Moisture", 'O'));
         menuBar.add(createJMenu("graphs", "Graphs", 'R'));
         if(incWizards)
             menuBar.add(createJMenu("Wizards", "Wizards", 'Z'));

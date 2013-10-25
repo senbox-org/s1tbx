@@ -183,8 +183,27 @@ public final class ReaderUtils {
         return (stopTime-startTime) / (double)(sceneHeight-1);
     }
 
+    public static void addMetadataProductSize(final Product product) {
+        AbstractMetadata.setAttribute(AbstractMetadata.getAbstractedMetadata(product),
+                AbstractMetadata.TOT_SIZE, ReaderUtils.getTotalSize(product));
+    }
+
     public static int getTotalSize(final Product product) {
         return (int)(product.getRawStorageSize() / (1024.0f * 1024.0f));
+    }
+
+    public static void addMetadataIncidenceAngles(final Product product) {
+        final TiePointGrid tpg = product.getTiePointGrid(OperatorUtils.TPG_INCIDENT_ANGLE);
+        if(tpg == null)
+            return;
+
+        final int midAz = product.getSceneRasterHeight() / 2;
+        final float inc1 = tpg.getPixelFloat(0, midAz);
+        final float inc2 = tpg.getPixelFloat(product.getSceneRasterWidth(), midAz);
+
+        final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.incidence_near, Math.min(inc1, inc2));
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.incidence_far, Math.max(inc1, inc2));
     }
 
     public static void verifyProduct(final Product product, final boolean verifyTimes) throws Exception {

@@ -910,8 +910,7 @@ public class Sentinel1ProductDirectory extends XMLProductDirectory {
         product.setProductType(getProductType());
         product.setDescription(getProductDescription());
 
-        AbstractMetadata.setAttribute(AbstractMetadata.getAbstractedMetadata(product),
-                AbstractMetadata.TOT_SIZE, ReaderUtils.getTotalSize(product));
+        ReaderUtils.addMetadataProductSize(product);
 
         return product;
     }

@@ -35,7 +35,7 @@ public final class AbstractMetadata {
     /**
      * If AbstractedMetadata is modified by adding new attributes then this version number needs to be incremented
      */
-    private static final String METADATA_VERSION = "5.0";
+    private static final String METADATA_VERSION = "6.0";
 
     public static final int NO_METADATA = 99999;
     private static final short NO_METADATA_BYTE = 0;
@@ -70,7 +70,10 @@ public final class AbstractMetadata {
     public static final String REL_ORBIT = "REL_ORBIT";
     public static final String ABS_ORBIT = "ABS_ORBIT";
     public static final String STATE_VECTOR_TIME = "STATE_VECTOR_TIME";
-    private static final String VECTOR_SOURCE = "VECTOR_SOURCE";
+    public static final String VECTOR_SOURCE = "VECTOR_SOURCE";
+
+    public static final String incidence_near = "incidence_near";
+    public static final String incidence_far = "incidence_far";
 
     // SPH
     private static final String NUM_SLICES = "NUM_SLICES";
@@ -220,6 +223,9 @@ public final class AbstractMetadata {
         addAbstractedAttribute(absRoot, ABS_ORBIT, ProductData.TYPE_INT32, "", "Orbit");
         addAbstractedAttribute(absRoot, STATE_VECTOR_TIME, ProductData.TYPE_UTC, "utc", "Time of orbit state vector");
         addAbstractedAttribute(absRoot, VECTOR_SOURCE, ProductData.TYPE_ASCII, "", "State vector source");
+
+        addAbstractedAttribute(absRoot, incidence_near, ProductData.TYPE_FLOAT64, "deg", "");
+        addAbstractedAttribute(absRoot, incidence_far, ProductData.TYPE_FLOAT64, "deg", "");
 
         // SPH
         addAbstractedAttribute(absRoot, NUM_SLICES, ProductData.TYPE_INT32, "", "Number of slices");

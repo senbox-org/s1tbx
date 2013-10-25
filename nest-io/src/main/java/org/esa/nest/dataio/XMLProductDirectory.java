@@ -15,6 +15,7 @@
  */
 package org.esa.nest.dataio;
 
+import com.sun.imageio.plugins.common.ReaderUtil;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
@@ -23,6 +24,7 @@ import org.esa.nest.dataio.imageio.ImageIOFile;
 import org.esa.nest.datamodel.AbstractMetadata;
 import org.esa.nest.datamodel.AbstractMetadataIO;
 import org.esa.nest.datamodel.Unit;
+import org.esa.nest.gpf.OperatorUtils;
 import org.esa.nest.gpf.ReaderUtils;
 import org.esa.nest.util.XMLSupport;
 import org.jdom.Element;
@@ -112,8 +114,8 @@ public class XMLProductDirectory {
         product.setProductType(getProductType());
         product.setDescription(getProductDescription());
 
-        AbstractMetadata.setAttribute(AbstractMetadata.getAbstractedMetadata(product),
-                AbstractMetadata.TOT_SIZE, ReaderUtils.getTotalSize(product));
+        ReaderUtils.addMetadataIncidenceAngles(product);
+        ReaderUtils.addMetadataProductSize(product);
 
         return product;
     }
