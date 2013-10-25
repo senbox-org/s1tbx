@@ -320,7 +320,7 @@
 			<dependency>
                 <groupId>org.esa.nest</groupId>
                 <artifactId>nest-core</artifactId>
-                <version>5.0.1</version>
+                <version>6.0-SNAPSHOT</version>
             </dependency>
 			
             <!-- GeoTools Libraries ############################################# -->
