@@ -40,7 +40,7 @@
         <dependency>
             <groupId>org.esa.nest</groupId>
             <artifactId>nest-reader-dem</artifactId>
-            <version>5.0</version>
+            <version>${nest.version}</version>
         </dependency>
         <dependency>
             <groupId>org.esa.beam</groupId>
@@ -50,7 +50,7 @@
         <dependency>
             <groupId>org.esa.nest</groupId>
             <artifactId>nest-graph-builder</artifactId>
-            <version>5.0</version>
+            <version>${nest.version}</version>
         </dependency>
         <dependency>
             <groupId>org.jblas</groupId>
