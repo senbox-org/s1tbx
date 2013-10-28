@@ -69,15 +69,20 @@ public class TileWriterOp extends Operator implements Output {
                description = "The name of the output file format.")
     private String formatName;
 
+    @Parameter(defaultValue = "Tiles", valueSet = {"Tiles","Pixels"}, label = "Division by",
+            description = "How to divide the tiles")
+    private String divisionBy = "Tiles";
+
     @Parameter(defaultValue = "4", valueSet = {"2","4","9","16","36","64","100","256"},
                description = "The number of output tiles")
     private String numberOfTiles = "4";
 
+    @Parameter(description = "Tile pixel size", label = "Pixel size", defaultValue = "200")
+    private int pixelSize = 200;
+
     private final Map<MultiLevelImage, List<Point>> todoLists = new HashMap<MultiLevelImage, List<Point>>();
 
     private boolean productFileWritten;
-    private Dimension tileSize;
-    private int tileCountX;
 
     private SubsetInfo[] subsetInfo = null;
 
@@ -90,23 +95,29 @@ public class TileWriterOp extends Operator implements Output {
         try {
             targetProduct = sourceProduct;
 
-            tileSize = ImageManager.getPreferredTileSize(targetProduct);
-            targetProduct.setPreferredTileSize(tileSize);
-            tileCountX = MathUtils.ceilInt(targetProduct.getSceneRasterWidth() / (double) tileSize.width);
-
-            final int numFiles = Integer.parseInt(numberOfTiles);
-            final int numRows = (int)Math.sqrt(numFiles);
-            final int width = sourceProduct.getSceneRasterWidth() / numRows;
-            final int height = sourceProduct.getSceneRasterHeight() / numRows;
+            int numFiles, numRows, numCols, width, height;
+            if(divisionBy.equals("Tiles")) {
+                numFiles = Integer.parseInt(numberOfTiles);
+                numRows = (int)Math.sqrt(numFiles);
+                numCols = numRows;
+                width = sourceProduct.getSceneRasterWidth() / numRows;
+                height = sourceProduct.getSceneRasterHeight() / numRows;
+            } else {
+                width = pixelSize;
+                height = pixelSize;
+                numCols = sourceProduct.getSceneRasterWidth() / width;
+                numRows = sourceProduct.getSceneRasterHeight() / height;
+                numFiles = numRows*numCols;
+            }
 
             subsetInfo = new SubsetInfo[numFiles];
             int n = 0;
-            for(int i=0; i<numRows; ++i) {
-                for(int j=0; j<numRows; ++j) {
+            for(int r=0; r<numRows; ++r) {
+                for(int c=0; c<numCols; ++c) {
                     final ProductSubsetDef subsetDef = new ProductSubsetDef();
                     subsetDef.addNodeNames(sourceProduct.getTiePointGridNames());
                     subsetDef.addNodeNames(sourceProduct.getBandNames());
-                    subsetDef.setRegion(i*width, j*height, width, height);
+                    subsetDef.setRegion(c*width, r*height, width, height);
                     subsetDef.setSubSampling(1, 1);
                     subsetDef.setIgnoreMetadata(false);
 
@@ -246,7 +257,6 @@ public class TileWriterOp extends Operator implements Output {
         ProductSubsetBuilder subsetBuilder;
         File file;
         ProductWriter productWriter;
-        boolean written = false;
     }
 
     public static class Spi extends OperatorSpi {

@@ -13,6 +13,7 @@ import org.esa.nest.util.MemUtils;
 import org.esa.nest.util.ResourceUtils;
 import org.esa.nest.util.TestUtils;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
@@ -24,6 +25,7 @@ import java.util.Properties;
 /**
  * Runs graphs as directed by the tests config file
  */
+@Ignore
 public class TestAutomatedGraphProcessing {
 
     private static final PropertyMap testPreferences = Config.getAutomatedTestConfigPropertyMap();

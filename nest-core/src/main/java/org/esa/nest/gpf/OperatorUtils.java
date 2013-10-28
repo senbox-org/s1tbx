@@ -225,13 +225,15 @@ public final class OperatorUtils {
             final Band[] srcBands = sourceProduct.getBands();
             final Band[] trgBands = targetProduct.getBands();
 
-            for(int i=0; i < trgBands.length; ++i) {
-                if(srcBands[i].getName().equals(trgBands[i].getName()) &&
-                   srcBands[i].getSampleCoding() != null) {
-                    final String srcSampleCoding = srcBands[i].getSampleCoding().getName();
-                    final IndexCoding trgIndexCoding = targetProduct.getIndexCodingGroup().get(srcSampleCoding);
-                    if(trgIndexCoding != null) {
-                        trgBands[i].setSampleCoding(trgIndexCoding);
+            for (Band trgBand : trgBands) {
+                for (Band srcBand : srcBands) {
+                    if (srcBand.getName().equals(trgBand.getName()) &&
+                            srcBand.getSampleCoding() != null) {
+                        final String srcSampleCoding = srcBand.getSampleCoding().getName();
+                        final IndexCoding trgIndexCoding = targetProduct.getIndexCodingGroup().get(srcSampleCoding);
+                        if (trgIndexCoding != null) {
+                            trgBand.setSampleCoding(trgIndexCoding);
+                        }
                     }
                 }
             }

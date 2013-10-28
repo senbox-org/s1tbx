@@ -33,6 +33,10 @@
             <groupId>org.esa.beam</groupId>
             <artifactId>beam-envi-reader</artifactId>
         </dependency>
+		<dependency>
+			<groupId>org.esa.beam</groupId>
+			<artifactId>beam-envisat-reader</artifactId>
+		</dependency>
         <dependency>
             <groupId>org.esa.beam</groupId>
             <artifactId>beam-arcbingrid-reader</artifactId>

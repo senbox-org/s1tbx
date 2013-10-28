@@ -251,9 +251,7 @@ public class FeatureWriterOp extends Operator implements Output {
 
     private void writeTileIndexFile() {
 
-        for (int i = 0; i < tileInfoList.size(); i++) {
-            final TileInfo tile = tileInfoList.get(i);
-
+        for (final TileInfo tile : tileInfoList) {
             final String tileInfo = String.format("%s%s%s %s %s %s %s %s %s",
                     productOutputDir.getName(), "/", tile.name,
                     tile.tileX,

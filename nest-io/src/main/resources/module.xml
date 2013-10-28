@@ -28,6 +28,9 @@
     <dependency>
         <module>beam-envi-reader</module>
     </dependency>
+	<dependency>
+		<module>beam-envisat-reader</module>
+    </dependency>
     <dependency>
         <module>beam-arcbingrid-reader</module>
     </dependency>
