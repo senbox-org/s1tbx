@@ -46,13 +46,6 @@
     <extension point="beam-ui:actions">
 
         <action>
-            <id>oceanTools</id>
-            <class>org.esa.beam.visat.actions.ActionGroup</class>
-            <text>Ocean Tools</text>
-            <parent>FeatureExtraction</parent>
-        </action>
-
-        <action>
 	        <id>createLandMaskOp</id>
 	        <helpId>CreateLandMask</helpId>
 	        <class>org.esa.nest.dat.actions.OperatorAction</class>

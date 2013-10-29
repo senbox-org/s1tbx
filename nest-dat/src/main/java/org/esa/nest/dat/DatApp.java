@@ -393,15 +393,15 @@ public class DatApp extends VisatApp {
         menuBar.add(createJMenu("sartools", "SAR Tools", 'S'));
         menuBar.add(createJMenu("geometry", "Geometric", 'G'));
         menuBar.add(createJMenu("insar", "Interferometric", 'I'));
-        //menuBar.add(createJMenu("oceanTools", "Ocean Tools", 'O'));
         menuBar.add(createJMenu("polarimetrictools", "Polarimetric", 'P'));
-        menuBar.add(createJMenu("classification", "Classification", 'C'));
         if(incMultispectralTools)
-            menuBar.add(createJMenu("multispectraltools", "Multispectral", 'M'));
+            menuBar.add(createJMenu("multispectraltools", "Multispectral", 'L'));
+        menuBar.add(createJMenu("classification", "Classification", 'C'));
         if(incImageProcessing)
             menuBar.add(createJMenu("Image Processing", "Image Processing", 'N'));
         if(incSoilMoisture)
-            menuBar.add(createJMenu("Soil Moisture", "Soil Moisture", 'O'));
+            menuBar.add(createJMenu("Soil Moisture", "Soil Moisture", 'M'));
+        menuBar.add(createJMenu("oceanTools", "Ocean Tools", 'O'));
         menuBar.add(createJMenu("graphs", "Graphs", 'R'));
         if(incWizards)
             menuBar.add(createJMenu("Wizards", "Wizards", 'Z'));
