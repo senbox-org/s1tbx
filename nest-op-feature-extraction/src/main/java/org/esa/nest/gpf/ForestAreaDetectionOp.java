@@ -32,6 +32,7 @@ import org.esa.nest.datamodel.Unit;
 import org.esa.nest.eo.Constants;
 
 import java.awt.*;
+import java.util.Map;
 
 /**
  * The forest area detection operator.
@@ -44,16 +45,24 @@ import java.awt.*;
  */
 
 @OperatorMetadata(alias = "Forest-Area-Detection",
-        category = "Classification\\Feature Extraction",
-        authors = "Jun Lu, Luis Veci",
-        copyright = "Copyright (C) 2013 by Array Systems Computing Inc.",
-        description = "Detect forest area.")
+                  category = "Classification\\Feature Extraction",
+                  authors = "Jun Lu, Luis Veci",
+                  copyright = "Copyright (C) 2013 by Array Systems Computing Inc.",
+                  description = "Detect forest area.")
 public class ForestAreaDetectionOp extends Operator {
 
     @SourceProduct(alias="source")
     private Product sourceProduct;
     @TargetProduct
     private Product targetProduct = null;
+
+    @Parameter(description = "The list of source bands.", alias = "sourceBands", itemAlias = "band",
+               rasterDataNodeType = Band.class, label = "Nominator Band")
+    private String nominatorBandName = null;
+
+    @Parameter(description = "The list of source bands.", alias = "sourceBands", itemAlias = "band",
+               rasterDataNodeType = Band.class, label = "Denominator Band")
+    private String denominatorBandName = null;
 
     @Parameter(valueSet = {WINDOW_SIZE_3x3, WINDOW_SIZE_5x5, WINDOW_SIZE_7x7, WINDOW_SIZE_9x9},
             defaultValue = WINDOW_SIZE_3x3, label="Window Size")
@@ -79,6 +88,7 @@ public class ForestAreaDetectionOp extends Operator {
     private String[] sourceBandNames = new String[2];
 
     public static final String FOREST_MASK_NAME = "forest_mask";
+    public static final String RATIO_BAND_NAME = "ratio";
 
     private static final String WINDOW_SIZE_3x3 = "3x3";
     private static final String WINDOW_SIZE_5x5 = "5x5";
@@ -155,32 +165,28 @@ public class ForestAreaDetectionOp extends Operator {
      */
     private void addSelectedBands() throws OperatorException {
 
-        boolean hasHH = false, hasHV = false;
-        final Band[] bands = sourceProduct.getBands();
-        for (Band band : bands) {
-            final String bandName = band.getName();
-            if(!hasHH && band.getUnit() != null && band.getUnit().equals(Unit.INTENSITY) && bandName.contains("HH")) {
-                sourceBandNames[0] = bandName;
-                hasHH = true;
-            }
-
-            if(!hasHV && band.getUnit() != null && band.getUnit().equals(Unit.INTENSITY) && bandName.contains("HV")) {
-                sourceBandNames[1] = bandName;
-                hasHV = true;
-            }
-
-            if (hasHH && hasHV) {
-                break;
-            }
-        }
-
-        if (!hasHH || !hasHV) {
-            throw new OperatorException("The source product should be processed and have intensity HH, HV bands");
-        }
-
+        sourceBandNames[0] = nominatorBandName;
+        sourceBandNames[1] = denominatorBandName;
         for (String bandName : sourceProduct.getBandNames()) {
+            final String bandUnit = sourceProduct.getBand(bandName).getUnit();
+
+            if (!bandUnit.equals(Unit.AMPLITUDE) && !bandUnit.equals(Unit.INTENSITY) &&
+                !bandUnit.equals(Unit.AMPLITUDE_DB) && !bandUnit.equals(Unit.INTENSITY_DB)) {
+                throw new OperatorException("Please select amplitude or intensity band");
+            }
+
             ProductUtils.copyBand(bandName, sourceProduct, bandName, targetProduct, true);
         }
+
+        final Band targetRatioBand = new Band(RATIO_BAND_NAME,
+                                              ProductData.TYPE_FLOAT32,
+                                              sourceImageWidth,
+                                              sourceImageHeight);
+
+        targetRatioBand.setNoDataValue(0);
+        targetRatioBand.setNoDataValueUsed(true);
+        targetRatioBand.setUnit("ratio");
+        targetProduct.addBand(targetRatioBand);
 
         final Band targetBandMask = new Band(FOREST_MASK_NAME,
                                              ProductData.TYPE_INT8,
@@ -194,43 +200,51 @@ public class ForestAreaDetectionOp extends Operator {
     }
 
     /**
-     * Called by the framework in order to compute a tile for the given target band.
+     * Called by the framework in order to compute the stack of tiles for the given target bands.
      * <p>The default implementation throws a runtime exception with the message "not implemented".</p>
      *
-     * @param targetBand The target band.
-     * @param targetTile The current tile associated with the target band to be computed.
-     * @param pm         A progress monitor which should be used to determine computation cancelation requests.
+     * @param targetTiles     The current tiles to be computed for each target band.
+     * @param targetRectangle The area in pixel coordinates to be computed (same for all rasters in <code>targetRasters</code>).
+     * @param pm              A progress monitor which should be used to determine computation cancelation requests.
      * @throws org.esa.beam.framework.gpf.OperatorException
-     *          If an error occurs during computation of the target raster.
+     *          if an error occurs during computation of the target rasters.
      */
     @Override
-    public void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
+    public void computeTileStack(Map<Band, Tile> targetTiles, Rectangle targetRectangle, ProgressMonitor pm) throws OperatorException {
 
         try {
-            final Rectangle targetTileRectangle = targetTile.getRectangle();
-            final int tx0 = targetTileRectangle.x;
-            final int ty0 = targetTileRectangle.y;
-            final int tw  = targetTileRectangle.width;
-            final int th  = targetTileRectangle.height;
-            final ProductData trgData = targetTile.getDataBuffer();
+            final int tx0 = targetRectangle.x;
+            final int ty0 = targetRectangle.y;
+            final int tw  = targetRectangle.width;
+            final int th  = targetRectangle.height;
             //System.out.println("tx0 = " + tx0 + ", ty0 = " + ty0 + ", tw = " + tw + ", th = " + th);
 
             final Rectangle sourceTileRectangle = getSourceTileRectangle(tx0, ty0, tw, th);
-            final Band sourceBandHH = sourceProduct.getBand(sourceBandNames[0]);
-            final Band sourceBandHV = sourceProduct.getBand(sourceBandNames[1]);
-            final Tile sourceTileHH = getSourceTile(sourceBandHH, sourceTileRectangle);
-            final Tile sourceTileHV = getSourceTile(sourceBandHV, sourceTileRectangle);
-            final ProductData srcDataHH = sourceTileHH.getDataBuffer();
-            final ProductData srcDataHV = sourceTileHV.getDataBuffer();
-            final double noDataValue = sourceBandHH.getNoDataValue();
+            final Band nominatorBand = sourceProduct.getBand(sourceBandNames[0]);
+            final Band denominatorBand = sourceProduct.getBand(sourceBandNames[1]);
+            final Tile nominatorTile = getSourceTile(nominatorBand, sourceTileRectangle);
+            final Tile denominatorTile = getSourceTile(denominatorBand, sourceTileRectangle);
+            final ProductData nominatorData = nominatorTile.getDataBuffer();
+            final ProductData denominatorData = denominatorTile.getDataBuffer();
+            final String nominatorBandUnit = nominatorBand.getUnit();
+            final String denominatorBandUnit = denominatorBand.getUnit();
+            final double noDataValueN = nominatorBand.getNoDataValue();
+            final double noDataValueD = denominatorBand.getNoDataValue();
 
-            final TileIndex trgIndex = new TileIndex(targetTile);
-            final TileIndex srcIndex = new TileIndex(sourceTileHH);    // src and trg tile are different size
+            final Band targetRatioBand = targetProduct.getBand(RATIO_BAND_NAME);
+            final Tile targetRatioTile = targetTiles.get(targetRatioBand);
+            final ProductData ratioData = targetRatioTile.getDataBuffer();
+            final Band targetMaskBand = targetProduct.getBand(FOREST_MASK_NAME);
+            final Tile targetMaskTile = targetTiles.get(targetMaskBand);
+            final ProductData maskData = targetMaskTile.getDataBuffer();
+
+            final TileIndex trgIndex = new TileIndex(targetTiles.get(targetTiles.keySet().iterator().next()));
+            final TileIndex srcIndex = new TileIndex(nominatorTile);    // src and trg tile are different size
 
             final int maxy = ty0 + th;
             final int maxx = tx0 + tw;
 
-            double vHVDB, vRatioDB;
+            double vDDB, vRatioDB;
             for (int ty = ty0; ty < maxy; ty++) {
                 trgIndex.calculateStride(ty);
                 srcIndex.calculateStride(ty);
@@ -238,30 +252,33 @@ public class ForestAreaDetectionOp extends Operator {
                     final int trgIdx = trgIndex.getIndex(tx);
                     final int srcIdx = srcIndex.getIndex(tx);
 
-                    final double vHH = srcDataHH.getElemDoubleAt(srcIdx);
-                    final double vHV = srcDataHV.getElemDoubleAt(srcIdx);
-                    if (vHH == noDataValue || vHV == noDataValue) {
-                        trgData.setElemIntAt(trgIdx, -1);
+                    final double vN = nominatorData.getElemDoubleAt(srcIdx);
+                    final double vD = denominatorData.getElemDoubleAt(srcIdx);
+                    if (vN == noDataValueN || vD == noDataValueD) {
+                        maskData.setElemIntAt(trgIdx, -1);
+                        ratioData.setElemFloatAt(trgIdx, 0.0f);
                         continue;
                     }
 
-                    final double vRatio = computeHHHVRatio(
-                            tx, ty, sourceTileHH, srcDataHH, sourceTileHV, srcDataHV, noDataValue);
+                    final double vRatio = computeRatio(tx, ty, nominatorTile, nominatorData, denominatorTile,
+                            denominatorData, nominatorBandUnit, denominatorBandUnit, noDataValueN, noDataValueD);
 
-                    if (vRatio == noDataValue) {
-                        trgData.setElemIntAt(trgIdx, -1);
+                    if (vRatio == noDataValueN || vRatio == noDataValueD) {
+                        maskData.setElemIntAt(trgIdx, -1);
+                        ratioData.setElemFloatAt(trgIdx, 0.0f);
                         continue;
                     }
 
                     vRatioDB = 10.0*Math.log10(Math.max(vRatio, Constants.EPS));
-                    vHVDB = 10.0*Math.log10(Math.max(vHV, Constants.EPS));
+                    vDDB = 10.0*Math.log10(Math.max(vD, Constants.EPS));
 
                     int maskBit = 0;
-                    if (vRatioDB > T_Ratio_Low && vRatioDB < T_Ratio_High && vHVDB > T_HV_Low) {
+                    if (vRatioDB > T_Ratio_Low && vRatioDB < T_Ratio_High && vDDB > T_HV_Low) {
                         maskBit = 1;
                     }
 
-                    trgData.setElemIntAt(trgIdx, maskBit);
+                    maskData.setElemIntAt(trgIdx, maskBit);
+                    ratioData.setElemFloatAt(trgIdx, (float)vRatio);
                 }
             }
 
@@ -307,54 +324,60 @@ public class ForestAreaDetectionOp extends Operator {
     }
 
     /**
-     * Compute local coefficient of variance.
+     * Compute pixel value for ratio band.
      * @param tx The x coordinate of the central pixel of the sliding window.
      * @param ty The y coordinate of the central pixel of the sliding window.
-     * @param sourceTileHH The source image tile for HH band.
-     * @param srcDataHH The source image data for HH band.
-     * @param sourceTileHV The source image tile for HV band.
-     * @param srcDataHV The source image data for HV band.
-     * @param noDataValue the place holder for no data
+     * @param nominatorTile The source image tile for nominator band.
+     * @param nominatorData The source image data for nominator band.
+     * @param denominatorTile The source image tile for denominator band.
+     * @param denominatorData The source image data for denominator band.
+     * @param bandUnitN Unit for nominator band.
+     * @param bandUnitD Unit for denominator band.
+     * @param noDataValueN The place holder for no data for nominator band.
+     * @param noDataValueD The place holder for no data for denominator band.
      * @return The local coefficient of variance.
      */
-    private double computeHHHVRatio(final int tx, final int ty, final Tile sourceTileHH, final ProductData srcDataHH,
-                                    final Tile sourceTileHV, final ProductData srcDataHV, final double noDataValue) {
+    private double computeRatio(final int tx, final int ty, final Tile nominatorTile, final ProductData nominatorData,
+                                final Tile denominatorTile, final ProductData denominatorData,
+                                final String bandUnitN, final String bandUnitD,
+                                final double noDataValueN, final double noDataValueD) {
 
-        final double[] samplesHH = new double[windowSize*windowSize];
-        final double[] samplesHV = new double[windowSize*windowSize];
+        final double[] samplesN = new double[windowSize*windowSize];
+        final double[] samplesD = new double[windowSize*windowSize];
 
-        final int numSamplesHH = getSamples(tx, ty, noDataValue, sourceTileHH, srcDataHH, samplesHH);
-        if (numSamplesHH == 0) {
-            return noDataValue;
+        final int numSamplesN = getSamples(tx, ty, bandUnitN, noDataValueN, nominatorTile, nominatorData, samplesN);
+        if (numSamplesN == 0) {
+            return noDataValueN;
         }
 
-        final int numSamplesHV = getSamples(tx, ty, noDataValue, sourceTileHV, srcDataHV, samplesHV);
-        if (numSamplesHV == 0) {
-            return noDataValue;
+        final int numSamplesD = getSamples(tx, ty, bandUnitD, noDataValueD, denominatorTile, denominatorData, samplesD);
+        if (numSamplesD == 0) {
+            return noDataValueD;
         }
 
-        final double meanHH = getMeanValue(samplesHH, numSamplesHH);
+        final double meanN = getMeanValue(samplesN, numSamplesN);
 
-        final double meanHV = getMeanValue(samplesHV, numSamplesHV);
+        final double meanD = getMeanValue(samplesD, numSamplesD);
 
-        if (meanHV == 0.0) {
-            return noDataValue;
+        if (meanD == 0.0) {
+            return noDataValueD;
         }
 
-        return meanHH/meanHV;
+        return meanN/meanD;
     }
 
     /**
      * Get source samples in the sliding window.
      * @param tx The x coordinate of the central pixel of the sliding window.
      * @param ty The y coordinate of the central pixel of the sliding window.
+     * @param bandUnit Band unit.
      * @param noDataValue the place holder for no data
      * @param sourceTile The source image tile.
      * @param srcData The source image data.
      * @param samples The sample array.
      * @return The number of samples.
      */
-    private int getSamples(final int tx, final int ty, final double noDataValue,
+    private int getSamples(final int tx, final int ty, final String bandUnit, final double noDataValue,
                            final Tile sourceTile, final ProductData srcData, final double[] samples) {
 
 
@@ -369,14 +392,62 @@ public class ForestAreaDetectionOp extends Operator {
         final int maxy = Math.min(y0 + h, sourceTile.getMaxY() - 1);
         final int maxx = Math.min(x0 + w, sourceTile.getMaxX() - 1);
 
-        for (int y = y0; y < maxy; y++) {
-            tileIndex.calculateStride(y);
-            for (int x = x0; x < maxx; x++) {
-                final double v = srcData.getElemDoubleAt(tileIndex.getIndex(x));
-                if (v != noDataValue) {
-                    samples[numSamples++] = v;
+        switch (bandUnit) {
+            case Unit.AMPLITUDE:
+
+                for (int y = y0; y < maxy; y++) {
+                    tileIndex.calculateStride(y);
+                    for (int x = x0; x < maxx; x++) {
+                        final double v = srcData.getElemDoubleAt(tileIndex.getIndex(x));
+                        if (v != noDataValue) {
+                            samples[numSamples++] = v*v;
+                        }
+                    }
                 }
-            }
+                break;
+
+            case Unit.INTENSITY:
+
+                for (int y = y0; y < maxy; y++) {
+                    tileIndex.calculateStride(y);
+                    for (int x = x0; x < maxx; x++) {
+                        final double v = srcData.getElemDoubleAt(tileIndex.getIndex(x));
+                        if (v != noDataValue) {
+                            samples[numSamples++] = v;
+                        }
+                    }
+                }
+                break;
+
+            case Unit.AMPLITUDE_DB:
+
+                for (int y = y0; y < maxy; y++) {
+                    tileIndex.calculateStride(y);
+                    for (int x = x0; x < maxx; x++) {
+                        final double v = srcData.getElemDoubleAt(tileIndex.getIndex(x));
+                        if (v != noDataValue) {
+                            double vv = Math.pow(10.0, v/10.0);
+                            samples[numSamples++] = vv*vv;
+                        }
+                    }
+                }
+                break;
+
+            case Unit.INTENSITY_DB:
+
+                for (int y = y0; y < maxy; y++) {
+                    tileIndex.calculateStride(y);
+                    for (int x = x0; x < maxx; x++) {
+                        final double v = srcData.getElemDoubleAt(tileIndex.getIndex(x));
+                        if (v != noDataValue) {
+                            samples[numSamples++] = Math.pow(10.0, v/10.0);
+                        }
+                    }
+                }
+                break;
+
+            default:
+                throw new OperatorException("Unknown band unit:" + bandUnit);
         }
 
         return numSamples;
