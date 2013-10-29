@@ -167,7 +167,7 @@ public class ForestAreaDetectionOp extends Operator {
 
         sourceBandNames[0] = nominatorBandName;
         sourceBandNames[1] = denominatorBandName;
-        for (String bandName : sourceProduct.getBandNames()) {
+        for (String bandName : sourceBandNames) {
             final String bandUnit = sourceProduct.getBand(bandName).getUnit();
 
             if (!bandUnit.equals(Unit.AMPLITUDE) && !bandUnit.equals(Unit.INTENSITY) &&
