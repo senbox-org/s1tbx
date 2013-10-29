@@ -18,11 +18,7 @@ package org.esa.nest.datamodel;
 import org.esa.beam.framework.datamodel.Band;
 
 /**
- * Created by IntelliJ IDEA.
- * User: lveci
- * Date: Nov 27, 2008
- * Time: 3:25:19 PM
- * To change this template use File | Settings | File Templates.
+    Valid unit values
  */
 public final class Unit {
 
@@ -41,10 +37,12 @@ public final class Unit {
     public static final String INTENSITY_DB = INTENSITY+'_'+DB;
 
     public static final String METERS = "meters";
+    public static final String CLASS = "class";
 
-    public enum UnitType { AMPLITUDE, INTENSITY, REAL, IMAGINARY, PHASE, ABS_PHASE, COHERENCE, INTENSITY_DB, AMPLITUDE_DB, METERS, UNKNOWN }
+    public enum UnitType { AMPLITUDE, INTENSITY, REAL, IMAGINARY, PHASE, ABS_PHASE, COHERENCE,
+                           AMPLITUDE_DB, INTENSITY_DB, METERS, CLASS, UNKNOWN }
 
-    public static UnitType getUnitType(Band sourceBand) {
+    public static UnitType getUnitType(final Band sourceBand) {
 
         if(sourceBand.getUnit() == null)
             return UnitType.UNKNOWN;
@@ -71,6 +69,8 @@ public final class Unit {
              return UnitType.METERS;
         } else if (unit.contains(COHERENCE)) {
             return UnitType.COHERENCE;
+        } else if (unit.contains(CLASS)) {
+            return UnitType.CLASS;
         } else {
             return UnitType.UNKNOWN;
         }
