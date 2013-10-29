@@ -17,6 +17,7 @@ package org.esa.nest.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.Operator;
@@ -76,9 +77,9 @@ public class ForestAreaDetectionOp extends Operator {
                 label="Ratio upper bound (dB)")
     private double T_Ratio_High = 6.55;
 
-    @Parameter(description = "The lower bound for HV image", interval = "(-30, *)", defaultValue = "-13.85",
-                label="HV lower bound (dB)")
-    private double T_HV_Low = -13.85;
+    //@Parameter(description = "The lower bound for HV image", interval = "(-30, *)", defaultValue = "-13.85",
+    //            label="HV lower bound (dB)")
+    //private double T_HV_Low = -13.85;
 
     private int sourceImageWidth = 0;
     private int sourceImageHeight = 0;
@@ -188,6 +189,22 @@ public class ForestAreaDetectionOp extends Operator {
         targetRatioBand.setUnit("ratio");
         targetProduct.addBand(targetRatioBand);
 
+        final String expression = RATIO_BAND_NAME + " > " + String.valueOf(T_Ratio_Low) + " && " +
+                                  RATIO_BAND_NAME + " < " + String.valueOf(T_Ratio_High);
+
+        final Mask mask = new Mask(FOREST_MASK_NAME,
+                                   targetProduct.getSceneRasterWidth(),
+                                   targetProduct.getSceneRasterHeight(),
+                                   Mask.BandMathsType.INSTANCE);
+
+        mask.setDescription("Forest Area");
+        mask.getImageConfig().setValue("color", Color.MAGENTA);
+        mask.getImageConfig().setValue("transparency", 0.7);
+        mask.getImageConfig().setValue("expression", expression);
+        mask.setNoDataValue(0);
+        mask.setNoDataValueUsed(true);
+        targetProduct.getMaskGroup().add(mask);
+        /*
         final Band targetBandMask = new Band(FOREST_MASK_NAME,
                                              ProductData.TYPE_INT8,
                                              sourceImageWidth,
@@ -197,6 +214,7 @@ public class ForestAreaDetectionOp extends Operator {
         targetBandMask.setNoDataValueUsed(true);
         targetBandMask.setUnit(Unit.AMPLITUDE);
         targetProduct.addBand(targetBandMask);
+        */
     }
 
     /**
@@ -234,9 +252,9 @@ public class ForestAreaDetectionOp extends Operator {
             final Band targetRatioBand = targetProduct.getBand(RATIO_BAND_NAME);
             final Tile targetRatioTile = targetTiles.get(targetRatioBand);
             final ProductData ratioData = targetRatioTile.getDataBuffer();
-            final Band targetMaskBand = targetProduct.getBand(FOREST_MASK_NAME);
-            final Tile targetMaskTile = targetTiles.get(targetMaskBand);
-            final ProductData maskData = targetMaskTile.getDataBuffer();
+            //final Band targetMaskBand = targetProduct.getBand(FOREST_MASK_NAME);
+            //final Tile targetMaskTile = targetTiles.get(targetMaskBand);
+            //final ProductData maskData = targetMaskTile.getDataBuffer();
 
             final TileIndex trgIndex = new TileIndex(targetTiles.get(targetTiles.keySet().iterator().next()));
             final TileIndex srcIndex = new TileIndex(nominatorTile);    // src and trg tile are different size
@@ -255,7 +273,7 @@ public class ForestAreaDetectionOp extends Operator {
                     final double vN = nominatorData.getElemDoubleAt(srcIdx);
                     final double vD = denominatorData.getElemDoubleAt(srcIdx);
                     if (vN == noDataValueN || vD == noDataValueD) {
-                        maskData.setElemIntAt(trgIdx, -1);
+                        //maskData.setElemIntAt(trgIdx, -1);
                         ratioData.setElemFloatAt(trgIdx, 0.0f);
                         continue;
                     }
@@ -264,7 +282,7 @@ public class ForestAreaDetectionOp extends Operator {
                             denominatorData, nominatorBandUnit, denominatorBandUnit, noDataValueN, noDataValueD);
 
                     if (vRatio == noDataValueN || vRatio == noDataValueD) {
-                        maskData.setElemIntAt(trgIdx, -1);
+                        //maskData.setElemIntAt(trgIdx, -1);
                         ratioData.setElemFloatAt(trgIdx, 0.0f);
                         continue;
                     }
@@ -272,13 +290,13 @@ public class ForestAreaDetectionOp extends Operator {
                     vRatioDB = 10.0*Math.log10(Math.max(vRatio, Constants.EPS));
                     vDDB = 10.0*Math.log10(Math.max(vD, Constants.EPS));
 
-                    int maskBit = 0;
-                    if (vRatioDB > T_Ratio_Low && vRatioDB < T_Ratio_High && vDDB > T_HV_Low) {
-                        maskBit = 1;
-                    }
+                    //int maskBit = 0;
+                    //if (vRatioDB > T_Ratio_Low && vRatioDB < T_Ratio_High && vDDB > T_HV_Low) {
+                    //    maskBit = 1;
+                    //}
 
-                    maskData.setElemIntAt(trgIdx, maskBit);
-                    ratioData.setElemFloatAt(trgIdx, (float)vRatio);
+                    //maskData.setElemIntAt(trgIdx, maskBit);
+                    ratioData.setElemFloatAt(trgIdx, (float)vRatioDB);
                 }
             }
 
