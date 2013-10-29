@@ -45,12 +45,12 @@ import java.util.List;
  *     on Geoscience and Remote Sensing, vol. 48, no. 2, pp. 905-916, 2010.
  */
 
-@OperatorMetadata(alias = "Urban-Area-Detection",
-        category = "Classification\\Feature Extraction",
+@OperatorMetadata(alias = "Speckle-Divergence",
+        category = "Classification\\Primitive Features",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2013 by Array Systems Computing Inc.",
         description = "Detect urban area.")
-public class UrbanAreaDetectionOp extends Operator {
+public class SpeckleDivergenceOp extends Operator {
 
     @SourceProduct(alias="source")
     private Product sourceProduct;
@@ -465,7 +465,7 @@ public class UrbanAreaDetectionOp extends Operator {
     public static class Spi extends OperatorSpi {
 
         public Spi() {
-            super(UrbanAreaDetectionOp.class);
+            super(SpeckleDivergenceOp.class);
         }
     }
 }

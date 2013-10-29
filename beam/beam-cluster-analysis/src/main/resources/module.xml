@@ -40,6 +40,7 @@
             <helpId>clusterAnalysisEM</helpId>
             <class>org.esa.beam.visat.actions.DefaultOperatorAction</class>
             <parent>classification</parent>
+            <placeAfter>FeatureExtractionGroup</placeAfter>
             <text>EM Clustering</text>
             <mnemonic>C</mnemonic>
             <operatorName>EMClusterAnalysis</operatorName>
@@ -51,6 +52,7 @@
             <helpId>clusterAnalysisKMeans</helpId>
             <class>org.esa.beam.visat.actions.DefaultOperatorAction</class>
             <parent>classification</parent>
+            <placeAfter>emClusterAnalysis</placeAfter>
             <text>K-Means Clustering</text>
             <mnemonic>C</mnemonic>
             <operatorName>KMeansClusterAnalysis</operatorName>

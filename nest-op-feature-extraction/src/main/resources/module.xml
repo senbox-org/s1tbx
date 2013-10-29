@@ -34,13 +34,6 @@
     <extension point="beam-ui:actions">
 
         <action>
-            <id>FeatureExtraction</id>
-            <class>org.esa.beam.visat.actions.ActionGroup</class>
-            <text>Feature Extraction</text>
-            <parent>classification</parent>
-        </action>
-
-        <action>
             <id>Masks</id>
             <class>org.esa.beam.visat.actions.ActionGroup</class>
             <text>Masks</text>
@@ -48,25 +41,41 @@
             <placeBefore>FeatureExtraction</placeBefore>
         </action>
 
-        <!--action>
-	        <id>UrbanAreaDetection</id>
-	        <helpId>UrbanAreaDetection</helpId>
+        <action>
+            <id>PrimitiveFeatureGroup</id>
+            <class>org.esa.beam.visat.actions.ActionGroup</class>
+            <text>Primitive Features</text>
+            <parent>classification</parent>
+            <placeAfter>Masks</placeAfter>
+        </action>
+
+        <action>
+            <id>FeatureExtractionGroup</id>
+            <class>org.esa.beam.visat.actions.ActionGroup</class>
+            <text>Feature Extraction</text>
+            <parent>classification</parent>
+            <placeAfter>PrimitiveFeatureGroup</placeAfter>
+        </action>
+
+        <action>
+	        <id>SpeckleDivergence</id>
+	        <helpId>SpeckleDivergence</helpId>
 	        <class>org.esa.nest.dat.actions.OperatorAction</class>
             <icon>esaIcon</icon>
-            <parent>FeatureExtraction</parent>
-	        <text>Urban Area Detection</text>
-            <shortDescr>Urban Area Detection</shortDescr>
-	        <operatorName>Urban-Area-Detection</operatorName>
+            <parent>PrimitiveFeatureGroup</parent>
+	        <text>Speckle-Divergence</text>
+            <shortDescr>Speckle-Divergence</shortDescr>
+	        <operatorName>Speckle-Divergence</operatorName>
 	        <dialogTitle>Urban Area Detection</dialogTitle>
             <targetProductNameSuffix>_urb</targetProductNameSuffix>
-        </action-->
+        </action>
 
         <action>
 	        <id>ForestAreaDetection</id>
 	        <helpId>ForestAreaDetection</helpId>
 	        <class>org.esa.nest.dat.actions.OperatorAction</class>
             <icon>esaIcon</icon>
-            <parent>FeatureExtraction</parent>
+            <parent>PrimitiveFeatureGroup</parent>
 	        <text>Forest Area Detection</text>
             <shortDescr>Forest Area Detection</shortDescr>
 	        <operatorName>Forest-Area-Detection</operatorName>
@@ -79,7 +88,7 @@
             <helpId>FloodDetection</helpId>
             <class>org.esa.nest.dat.actions.OperatorAction</class>
             <icon>esaIcon</icon>
-            <parent>FeatureExtraction</parent>
+            <parent>PrimitiveFeatureGroup</parent>
             <text>Flood Detection</text>
             <shortDescr>Flood Detection</shortDescr>
             <operatorName>Flood-Detection</operatorName>
@@ -92,7 +101,7 @@
             <helpId>UrbanAreaDetection</helpId>
             <class>org.esa.nest.dat.actions.GraphAction</class>
             <icon>esaIcon</icon>
-            <parent>FeatureExtraction</parent>
+            <parent>FeatureExtractionGroup</parent>
             <text>Urban Area Detection</text>
             <shortDescr>Urban Area Detection</shortDescr>
             <dialogTitle>Urban Area Detection</dialogTitle>
@@ -106,7 +115,7 @@
             <class>org.esa.nest.dat.actions.OperatorAction</class>
             <icon>esaIcon</icon>
             <parent>Masks</parent>
-            <text>Create Terrain Mask</text>
+            <text>Terrain Mask</text>
             <shortDescr>Terrain Mask Generation</shortDescr>
             <operatorName>Terrain-Mask</operatorName>
             <dialogTitle>Terrain Mask Generation</dialogTitle>
@@ -118,7 +127,7 @@
             <helpId>GLCMOp</helpId>
             <class>org.esa.nest.dat.actions.OperatorAction</class>
             <icon>esaIcon</icon>
-            <parent>FeatureExtraction</parent>
+            <parent>PrimitiveFeatureGroup</parent>
             <text>GLCM</text>
             <shortDescr>Extract Texture Features</shortDescr>
             <operatorName>GLCM</operatorName>

@@ -49,7 +49,7 @@ import java.io.PrintStream;
  */
 
 @OperatorMetadata(alias="PCA", description="Principle Component Analysis", internal = false,
-        category="Classification\\Feature Extraction")
+        category="Classification\\Primitive Features")
 public class PCAOp extends Operator {
 
     @SourceProduct

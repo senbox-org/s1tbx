@@ -51,7 +51,7 @@
 	        <class>org.esa.nest.dat.actions.OperatorAction</class>
             <icon>esaIcon</icon>
             <parent>Masks</parent>
-	        <text>Create Land/Sea Mask</text>
+	        <text>Land/Sea Mask</text>
             <shortDescr>Create a Land/Sea Mask</shortDescr>
             <dialogTitle>Create a Land/Sea Mask</dialogTitle>
             <operatorName>Create-LandMask</operatorName>

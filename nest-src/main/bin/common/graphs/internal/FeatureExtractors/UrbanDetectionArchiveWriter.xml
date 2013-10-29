@@ -48,8 +48,8 @@
       <thresholdInMeter>30.0</thresholdInMeter>
     </parameters>
   </node>
-  <node id="6-Urban-Area-Detection">
-    <operator>Urban-Area-Detection</operator>
+  <node id="6-Speckle-Divergence">
+    <operator>Speckle-Divergence</operator>
     <sources>
       <sourceProduct refid="5-Terrain-Mask"/>
     </sources>
@@ -61,7 +61,7 @@
   <node id="7-FeatureWriter">
     <operator>FeatureWriter</operator>
     <sources>
-      <sourceProduct refid="6-Urban-Area-Detection"/>
+      <sourceProduct refid="6-Speckle-Divergence"/>
     </sources>
     <parameters class="com.bc.ceres.binding.dom.XppDomElement">
       <outputFolder>p:\nest\out</outputFolder>
@@ -84,7 +84,7 @@
     <node id="5-Terrain-Mask">
       <displayPosition y="222.0" x="119.0"/>
     </node>
-    <node id="6-Urban-Area-Detection">
+    <node id="6-Speckle-Divergence">
       <displayPosition y="222.0" x="280.0"/>
     </node>
     <node id="7-FeatureWriter">
