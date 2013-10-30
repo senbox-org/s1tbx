@@ -13,7 +13,6 @@ import org.esa.beam.binning.TypedDescriptorsRegistry;
 /**
  * @author Norman Fomferra
  * @author Marco Zuehlke
- *
  * @see TypedConfig
  * @see TypedDescriptor
  */
@@ -26,7 +25,7 @@ public class TypedConfigDomConverter<TD extends TypedDescriptor, TC extends Type
     protected TypedConfigDomConverter(Class<TD> descriptorClass, Class<TC> configClass) {
         this.descriptorClass = descriptorClass;
         this.configClass = configClass;
-        this.childConverter  = new DefaultDomConverter(configClass);
+        this.childConverter = new DefaultDomConverter(configClass);
     }
 
     @Override
@@ -38,7 +37,7 @@ public class TypedConfigDomConverter<TD extends TypedDescriptor, TC extends Type
     public Object convertDomToValue(DomElement parentElement, Object value) throws ConversionException, ValidationException {
         DomElement typeElement = parentElement.getChild("type");
         if (typeElement == null) {
-           throw new ConversionException("Missing element 'type'");
+            throw new ConversionException(String.format("Missing element 'type' in parent element '%s'", parentElement.getName()));
         }
         String typeName = typeElement.getValue();
         TC config;
