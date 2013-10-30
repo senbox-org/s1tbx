@@ -45,10 +45,10 @@ class LandsatMetadataFactory {
                 String line = reader.readLine();
                 while (line != null) {
                     if (line.contains("SPACECRAFT_ID")) {
-                        if (line.contains("LANDSAT_4") ||line.contains("LANDSAT_5") || line.contains("LANDSAT_7")) {
-                            return new LandsatReprocessedMetadata(new FileReader(mtlFile));
-                        } else if (line.contains("LANDSAT_8")) {
+                        if (line.contains("LANDSAT_8")) {
                             return new Landsat8Metadata(new FileReader(mtlFile));
+                        } else {
+                            return new LandsatReprocessedMetadata(new FileReader(mtlFile));
                         }
                     }
                     line = reader.readLine();
