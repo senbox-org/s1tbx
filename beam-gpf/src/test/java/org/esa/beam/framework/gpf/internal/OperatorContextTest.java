@@ -16,6 +16,7 @@
 
 package org.esa.beam.framework.gpf.internal;
 
+import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.Operator;
@@ -23,6 +24,7 @@ import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.SourceProducts;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
+import org.esa.beam.gpf.operators.standard.SubsetOp;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -99,6 +101,29 @@ public class OperatorContextTest {
         assertEquals("bibo", opContext.getSourceProductId(productP1Bibo));
         assertEquals("p2", opContext.getSourceProductId(productP2Bert));
         assertEquals("xyz", opContext.getSourceProductId(productUnnamed));
+
+    }
+
+    @Test
+    public void testProcessingGraphInMetadata() {
+        // using the SubsetOp here, because when using a TestOperator the module.xml is not found
+        final SubsetOp testOp = new SubsetOp();
+        final Product source = new Product("dummy", "T", 10, 10);
+        testOp.setSourceProduct(source);
+
+        Product targetProduct = testOp.getTargetProduct();
+
+        MetadataElement metadataRoot = targetProduct.getMetadataRoot();
+        MetadataElement elementPG = metadataRoot.getElement(OperatorContext.PROCESSING_GRAPH_ELEMENT_NAME);
+        assertNotNull(elementPG);
+        MetadataElement node0Element = elementPG.getElement("node.0");
+        assertNotNull(node0Element);
+        assertEquals(8, node0Element.getNumAttributes());
+        assertNotNull(node0Element.getAttribute("id"));
+        assertNotNull(node0Element.getAttribute("operator"));
+        assertNotNull(node0Element.getAttribute("moduleName"));
+        assertEquals("beam-gpf", node0Element.getAttributeString("moduleName"));
+        assertNotNull(node0Element.getAttribute("moduleVersion"));
 
     }
 
