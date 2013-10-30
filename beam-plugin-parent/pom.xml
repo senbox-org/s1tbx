@@ -27,7 +27,7 @@
         <jide.version>3.5.3</jide.version>
         <!-- This property is set in beam-parent. Reason? See there!-->
         <!--<hdf.version>2.7</hdf.version>-->
-        <netcdf.version>4.3.18</netcdf.version>
+        <netcdf.version>4.3.19</netcdf.version>
     </properties>
 
     <dependencyManagement>
@@ -127,6 +127,13 @@
                 <artifactId>netcdf</artifactId>
                 <version>${netcdf.version}</version>
             </dependency>
+            <!-- for supporting BUFR format
+            <dependency>
+                <groupId>edu.ucar</groupId>
+                <artifactId>bufr</artifactId>
+                <version>${netcdf.version}</version>
+            </dependency>
+            -->
             <dependency>
                 <groupId>edu.ucar</groupId>
                 <artifactId>nujan</artifactId>
