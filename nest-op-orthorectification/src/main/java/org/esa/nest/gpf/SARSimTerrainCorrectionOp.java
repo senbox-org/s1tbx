@@ -536,15 +536,6 @@ public class SARSimTerrainCorrectionOp extends Operator {
                 continue;
             }
 
-            final String unit = srcBand.getUnit();
-            if(unit == null) {
-                throw new OperatorException("band " + srcBand.getName() + " requires a unit");
-            }
-
-            if (!isPolsar && (unit.contains(Unit.PHASE) || unit.contains(Unit.REAL) || unit.contains(Unit.IMAGINARY))) {
-                throw new OperatorException("Only amplitude or intensity band should be used for orthorectification");
-            }
-
             final String[] srcBandNames = {bandName};
             if (saveSigmaNought) {
                 if (bandName.contains("HH")) {
@@ -578,7 +569,7 @@ public class SARSimTerrainCorrectionOp extends Operator {
                 if(imgResampling.equals(Resampling.NEAREST_NEIGHBOUR))
                     dataType = srcBand.getDataType();
                 if (RangeDopplerGeocodingOp.addTargetBand(targetProduct, targetImageWidth, targetImageHeight,
-                                                          targetBandName, unit, srcBand, dataType) != null) {
+                                                          targetBandName, srcBand.getUnit(), srcBand, dataType) != null) {
                     targetBandNameToSourceBandName.put(targetBandName, srcBandNames);
                     targetBandapplyRadiometricNormalizationFlag.put(targetBandName, false);
                     targetBandApplyRetroCalibrationFlag.put(targetBandName, false);

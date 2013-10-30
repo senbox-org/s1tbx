@@ -201,10 +201,6 @@ public final class SARSimulationOp extends Operator {
     public void initialize() throws OperatorException {
 
         try {
-            if(OperatorUtils.isMapProjected(sourceProduct)) {
-                throw new OperatorException("Source product already map projected");
-            }
-
             absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
 
             getSourceImageDimension();
@@ -366,7 +362,6 @@ public final class SARSimulationOp extends Operator {
         targetProduct.addBand(targetBand);
 
         // add selected slave bands
-        boolean bandSlected = false;
         if (sourceBandNames == null || sourceBandNames.length == 0) {
             final Band[] bands = sourceProduct.getBands();
             final List<String> bandNameList = new ArrayList<String>(sourceProduct.getNumBands());
@@ -377,9 +372,6 @@ public final class SARSimulationOp extends Operator {
                 }
             }
             sourceBandNames = bandNameList.toArray(new String[bandNameList.size()]);
-            bandSlected = false;
-        } else {
-            bandSlected = true;
         }
 
         final Band[] sourceBands = new Band[sourceBandNames.length];
@@ -393,19 +385,6 @@ public final class SARSimulationOp extends Operator {
         }
 
         for (Band srcBand : sourceBands) {
-            String unit = srcBand.getUnit();
-            if(unit == null) {
-                unit = Unit.AMPLITUDE;
-            }
-
-            if (!isPolsar && (unit.contains(Unit.IMAGINARY) || unit.contains(Unit.REAL) || unit.contains(Unit.PHASE))) {
-                if (bandSlected) {
-                    throw new OperatorException("Please select amplitude or intensity band");
-                } else {
-                    continue;
-                }
-            }
-
             targetBand = ProductUtils.copyBand(srcBand.getName(), sourceProduct, targetProduct, false);
             targetBand.setSourceImage(srcBand.getSourceImage());
         }

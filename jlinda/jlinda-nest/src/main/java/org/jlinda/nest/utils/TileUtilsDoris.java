@@ -19,8 +19,6 @@ public class TileUtilsDoris {
     // see javadoc for org.esa.beam.framework.gpf.Tile (interface)
     public static ComplexDoubleMatrix pullComplexDoubleMatrix(Tile tile1, Tile tile2) {
 
-        // TODO: validate input
-
         final int height = tile1.getHeight();
         final int width = tile1.getWidth();
         ComplexDoubleMatrix result = new ComplexDoubleMatrix(height, width);
@@ -34,6 +32,9 @@ public class TileUtilsDoris {
                         samples2.getElemDoubleAt(y * width + x)));
             }
         }
+
+        samples1.dispose();
+        samples2.dispose();
         return result;
     }
 
@@ -51,6 +52,9 @@ public class TileUtilsDoris {
                 result.put(y, x, samples.getElemDoubleAt(y * width + x));
             }
         }
+
+        samples.dispose();
+
         return result;
     }
 
@@ -63,6 +67,7 @@ public class TileUtilsDoris {
             }
         }
         tile.setRawSamples(samples); // commit
+        samples.dispose();
     }
 
     public static void pushFloatMatrix(DoubleMatrix data, Tile tile, Rectangle rect) {
@@ -76,6 +81,7 @@ public class TileUtilsDoris {
             }
         }
         tile.setRawSamples(samples); // commit
+        samples.dispose();
     }
 
     public static void pushDoubleMatrix(DoubleMatrix data, Tile tile, Rectangle rect) {
@@ -89,6 +95,7 @@ public class TileUtilsDoris {
             }
         }
         tile.setRawSamples(samples); // commit
+        samples.dispose();
     }
 
     public static void pushDoubleMatrix(DoubleMatrix data, Tile tile, Rectangle rect, int y0, int x0) {
@@ -102,6 +109,7 @@ public class TileUtilsDoris {
             }
         }
         tile.setRawSamples(samples); // commit
+        samples.dispose();
     }
 
     public static void pushDoubleArray2D(double[][] data, Tile tile, Rectangle rect) {
@@ -115,6 +123,7 @@ public class TileUtilsDoris {
             }
         }
         tile.setRawSamples(samples); // commit
+        samples.dispose();
     }
 
     public static void pushDoubleMatrix(FloatMatrix data, Tile tile, Rectangle rect) {
@@ -128,6 +137,7 @@ public class TileUtilsDoris {
             }
         }
         tile.setRawSamples(samples); // commit
+        samples.dispose();
     }
 
     public static void pushComplexFloatMatrix(ComplexDoubleMatrix cplxData, Tile tileReal, Tile tileImag, Rectangle rect) {
@@ -155,6 +165,9 @@ public class TileUtilsDoris {
 
         tileReal.setRawSamples(samplesReal); // commit
         tileImag.setRawSamples(samplesImag); // commit
+
+        samplesImag.dispose();
+        samplesReal.dispose();
 
     }
 

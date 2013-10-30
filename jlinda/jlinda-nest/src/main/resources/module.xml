@@ -69,6 +69,14 @@
             <parent>insar</parent>
         </action>
 
+        <action>
+            <id>insar_coregistration</id>
+            <class>org.esa.beam.visat.actions.ActionGroup</class>
+            <text>Coregistration</text>
+            <placeAfter>unwrapping</placeAfter>
+            <parent>insar</parent>
+        </action>
+
         <!--/// PRODUCTS ///-->
 
         <action>
@@ -101,7 +109,7 @@
         <action>
             <id>SimulateAmplitudeOp</id>
             <helpId>SimulateAmplitudeOp</helpId>
-            <class>org.jdoris.nest.dat.SimulateAmplitudeAction</class>
+            <class>org.jlinda.nest.dat.SimulateAmplitudeAction</class>
             <text>Simulate Amplitude</text>
             <shortDescr>Simulate Amplitude</shortDescr>
             <placeAfter>CoherenceOp</placeAfter>
@@ -208,6 +216,20 @@
             <useAllFileFilter>true</useAllFileFilter>
             <shortDescr>Export Snaphu Product</shortDescr>
             <helpId>exportSnaphuProduct</helpId>
+        </action>
+
+        <!--/// COREGISTRATION ///-->
+
+        <action>
+            <id>CreateInSARStackOp</id>
+            <helpId>CreateInSARStack</helpId>
+            <class>org.esa.nest.dat.actions.GraphAction</class>
+            <icon>esaIcon</icon>
+            <parent>insar_coregistration</parent>
+            <text>Create InSAR Stack</text>
+            <dialogTitle>Create InSAR Stack</dialogTitle>
+            <shortDescr>Stacks together several products on their metadata.</shortDescr>
+            <graphFile>CreateInSARStackGraph.xml</graphFile>
         </action>
 
     </extension>

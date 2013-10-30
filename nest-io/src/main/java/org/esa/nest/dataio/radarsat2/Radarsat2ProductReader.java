@@ -50,6 +50,9 @@ public class Radarsat2ProductReader extends AbstractProductReader {
     private static final String lutgamma = "lutGamma";
     private static final String lutbeta = "lutBeta";
 
+    private boolean isAscending;
+    private boolean isAntennaPointingRight;
+
     private static final boolean flipToSARGeometry = System.getProperty(SystemUtils.getApplicationContextId()+
             ".flip.to.sar.geometry", "false").equals("true");
 
@@ -105,6 +108,10 @@ public class Radarsat2ProductReader extends AbstractProductReader {
             product.setFileLocation(fileFromInput);
             product.setProductReader(this);
             product.setModified(false);
+
+            final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
+            isAscending = absRoot.getAttributeString(AbstractMetadata.PASS).equals("ASCENDING");
+            isAntennaPointingRight = absRoot.getAttributeString(AbstractMetadata.antenna_pointing).equals("right");
         } catch (Exception e) {
             Debug.trace(e.toString());
             final IOException ioException = new IOException(e.getMessage());
@@ -188,12 +195,7 @@ public class Radarsat2ProductReader extends AbstractProductReader {
 
         final ImageIOFile.BandInfo bandInfo = dataDir.getBandInfo(destBand);
         if(bandInfo != null && bandInfo.img != null) {
-
-            final Product product = destBand.getProduct();
-            final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
-            final boolean isAscending = absRoot.getAttributeString(AbstractMetadata.PASS).equals("ASCENDING");
-            final boolean isAntennaPointingRight = absRoot.getAttributeString(AbstractMetadata.antenna_pointing).equals("right");
-            if (flipToSARGeometry && isAscending) {
+            if (isAscending) {
                 readAscendingRasterBand(sourceOffsetX, sourceOffsetY, sourceStepX, sourceStepY,
                                         destBuffer, destOffsetX, destOffsetY, destWidth, destHeight,
                                         0, bandInfo.img, bandInfo.bandSampleOffset, isAntennaPointingRight);
@@ -224,35 +226,49 @@ public class Radarsat2ProductReader extends AbstractProductReader {
                                        sourceOffsetY % sourceStepY);
 
             final RenderedImage image = reader.readAsRenderedImage(0, param);
-            data = image.getData(new Rectangle(destOffsetX, img.getSceneHeight() - destOffsetY - destHeight,
-                                               destWidth, destHeight));
+            if (flipToSARGeometry) {
+                if (isAntennaPointingRight) { // flip the image up side down
+                    data = image.getData(new Rectangle(destOffsetX,
+                                                       img.getSceneHeight() - destOffsetY - destHeight,
+                                                       destWidth, destHeight));
+                } else { // flip the image upside down, then flip it left to right
+                    data = image.getData(new Rectangle(img.getSceneWidth() - destOffsetX - destWidth,
+                                                       img.getSceneHeight() - destOffsetY - destHeight,
+                                                       destWidth, destHeight));
+                }
+            } else {
+                data = image.getData(new Rectangle(destOffsetX,	destOffsetY, destWidth, destHeight));
+            }
         }
 
         final DataBuffer dataBuffer = data.getDataBuffer();
         final SampleModel sampleModel = data.getSampleModel();
-        final int destSize = destWidth * destHeight;
         final int sampleOffset = imageID + bandSampleOffset;
 
-        final double[] dArray = new double[destSize];
-        sampleModel.getSamples(0, 0, destWidth, destHeight, sampleOffset, dArray, dataBuffer);
+        if (flipToSARGeometry) {
+            final int[] dArray = new int[destWidth * destHeight];
+            sampleModel.getSamples(0, 0, destWidth, destHeight, imageID + bandSampleOffset, dArray, dataBuffer);
 
-        int srcStride, destStride;
-        if (isAntennaPointingRight) { // flip the image upside down
-            for (int r = 0; r < destHeight; r++) {
-                srcStride = r*destWidth;
-                destStride = (destHeight - r - 1)*destWidth;
-                for (int c = 0; c < destWidth; c++) {
-                    destBuffer.setElemDoubleAt(destStride + c, dArray[srcStride + c]);
+            int srcStride, destStride;
+            if (isAntennaPointingRight) { // flip the image upside down
+                for (int r = 0; r < destHeight; r++) {
+                    srcStride = r*destWidth;
+                    destStride = (destHeight - r - 1)*destWidth;
+                    for (int c = 0; c < destWidth; c++) {
+                        destBuffer.setElemIntAt(destStride + c, dArray[srcStride + c]);
+                    }
+                }
+            } else { // flip the image upside down, then flip it left to right
+                for (int r = 0; r < destHeight; r++) {
+                    srcStride = r*destWidth;
+                    destStride = (destHeight - r)*destWidth;
+                    for (int c = 0; c < destWidth; c++) {
+                        destBuffer.setElemIntAt(destStride - c - 1, dArray[srcStride + c]);
+                    }
                 }
             }
-        } else { // flip the image upside down, then flip it left to right
-            for (int r = 0; r < destHeight; r++) {
-                srcStride = r*destWidth;
-                destStride = (destHeight - r)*destWidth;
-                for (int c = 0; c < destWidth; c++) {
-                    destBuffer.setElemDoubleAt(destStride - c - 1, dArray[srcStride + c]);
-                }
-            }
+        } else { // no flipping is needed
+            sampleModel.getSamples(0, 0, destWidth, destHeight, sampleOffset, (int[])destBuffer.getElems(), dataBuffer);
         }
     }
 
@@ -275,7 +291,7 @@ public class Radarsat2ProductReader extends AbstractProductReader {
                                        sourceOffsetY % sourceStepY);
 
             final RenderedImage image = reader.readAsRenderedImage(0, param);
-			if (flipToSARGeometry && isAntennaPointingRight) {
+			if (flipToSARGeometry && isAntennaPointingRight) {  // flip the image left to right
 				data = image.getData(new Rectangle(img.getSceneWidth() - destOffsetX - destWidth,
 												   destOffsetY, destWidth, destHeight));
 			} else {
@@ -288,7 +304,7 @@ public class Radarsat2ProductReader extends AbstractProductReader {
         final int sampleOffset = imageID + bandSampleOffset;
 
         if (flipToSARGeometry && isAntennaPointingRight) { // flip the image left to right
-            final double[] dArray = new double[destWidth * destHeight];
+            final int[] dArray = new int[destWidth * destHeight];
             sampleModel.getSamples(0, 0, destWidth, destHeight, sampleOffset, dArray, dataBuffer);
 
             int srcStride, destStride;
@@ -296,7 +312,7 @@ public class Radarsat2ProductReader extends AbstractProductReader {
                 srcStride = r*destWidth;
                 destStride = r*destWidth + destWidth;
                 for (int c = 0; c < destWidth; c++) {
-                    destBuffer.setElemDoubleAt(destStride - c - 1, dArray[srcStride + c]);
+                    destBuffer.setElemIntAt(destStride - c - 1, dArray[srcStride + c]);
                 }
             }
         } else { // no flipping is needed

@@ -1,0 +1,43 @@
+<graph id="Graph">
+  <version>1.0</version>
+  <node id="1-ProductSet-Reader">
+    <operator>ProductSet-Reader</operator>
+    <sources/>
+    <parameters>
+      <fileList/>
+    </parameters>
+  </node>
+  <node id="2-Create-InSAR-Stack">
+    <operator>CreateInSARStack</operator>
+    <sources>
+      <sourceProduct refid="1-ProductSet-Reader"/>
+    </sources>
+    <parameters>
+      <masterBands/>
+      <sourceBands/>
+      <initialOffsetMethod>ORBIT</initialOffsetMethod>
+    </parameters>
+  </node>
+  <node id="3-Write">
+    <operator>Write</operator>
+    <sources>
+      <sourceProduct refid="2-Create-InSAR-Stack"/>
+    </sources>
+    <parameters>
+      <formatName>BEAM-DIMAP</formatName>
+      <file>insar_stack.dim</file>
+    </parameters>
+  </node>
+  <applicationData id="Presentation">
+    <Description/>
+	<node id="1-ProductSet-Reader">
+      <displayPosition y="102.0" x="72.0"/>
+    </node>
+    <node id="2-Create-InSAR-Stack">
+      <displayPosition y="102.0" x="201.0"/>
+    </node>
+    <node id="3-Write">
+      <displayPosition y="170.0" x="319.0"/>
+    </node>
+  </applicationData>
+</graph>

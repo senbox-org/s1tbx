@@ -95,7 +95,7 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
                     for(int b=0; b < img.getNumBands(); ++b) {
                         final String imgName = img.getName().toLowerCase();
                         bandName = "Amplitude_" + polarizationMap.get(imgName);
-                        final Band band = new Band(bandName, img.getDataType(), width, height);
+                        final Band band = new Band(bandName, ProductData.TYPE_UINT32, width, height);
                         band.setUnit(Unit.AMPLITUDE);
 
                         product.addBand(band);
@@ -682,6 +682,7 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
         final double startSeconds = startTime.getMJD() * 24 * 3600;
         final double pixelSpacing = absRoot.getAttributeDouble(AbstractMetadata.range_spacing, 0);
         final boolean isDescending = absRoot.getAttributeString(AbstractMetadata.PASS).equals("DESCENDING");
+        final boolean isAntennaPointingRight = absRoot.getAttributeString(AbstractMetadata.antenna_pointing).equals("right");
 
         final int gridWidth = 11;
         final int gridHeight = 11;
@@ -725,8 +726,9 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
         // get slant range time in nanoseconds from range distance in meters
         for(int i = 0; i < rangeDist.length; i++) {
             int index = i;
-            if(!flipToSARGeometry && isDescending) // flip for descending RS2
+            if(!flipToSARGeometry && (isDescending && isAntennaPointingRight || !isDescending && !isAntennaPointingRight)) // flip for descending RS2
                 index = rangeDist.length-1 - i;
+
             rangeTime[index] = (float)(rangeDist[i] / Constants.halfLightSpeed * Constants.oneBillion); // in ns
         }
 
