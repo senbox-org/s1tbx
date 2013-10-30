@@ -32,7 +32,7 @@
             <parent>edit</parent>
             <id>selectionAction</id>
             <class>org.esa.beam.examples.selection.SelectionAwareAction</class>
-            <text>Number selected placemarks...</text>
+            <text>Number of selected placemarks...</text>
             <placeAfter>properties</placeAfter>
             <shortDescr>Shows number selected placemarks.</shortDescr>
             <description>Shows the number of selected placemarks, is any.</description>

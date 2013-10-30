@@ -42,6 +42,7 @@
     <changelog>
         <![CDATA[
         <p>Changes in 5.0<br/>
+          [BEAM-1563] Copy WKT of selected geometry<br/>
           [BEAM-1533] KMZ exports have slightly wrong image envelope coordinates<br/>
           [BEAM-1527] Add missing Standard Deviation nonlinear image filter<br/>
         <p>Changes in 4.11<br/>
