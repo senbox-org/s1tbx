@@ -37,6 +37,9 @@ public class TypedConfigDomConverter<TD extends TypedDescriptor, TC extends Type
     @Override
     public Object convertDomToValue(DomElement parentElement, Object value) throws ConversionException, ValidationException {
         DomElement typeElement = parentElement.getChild("type");
+        if (typeElement == null) {
+           throw new ConversionException("Missing element 'type'");
+        }
         String typeName = typeElement.getValue();
         TC config;
         if (value == null) {
