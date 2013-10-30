@@ -18,6 +18,7 @@ package org.esa.nest.dat.actions;
 import com.bc.ceres.core.CoreException;
 import com.bc.ceres.core.runtime.ConfigurationElement;
 import org.esa.beam.framework.ui.ModelessDialog;
+import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.visat.actions.DefaultOperatorAction;
 import org.esa.nest.dat.dialogs.NestSingleTargetProductDialog;
 import org.esa.nest.util.ResourceUtils;
@@ -34,11 +35,22 @@ import javax.swing.*;
  */
 public class OperatorAction extends DefaultOperatorAction {
     private String iconName;
+    private boolean disable = false;
 
     @Override
     public void configure(ConfigurationElement config) throws CoreException {
         super.configure(config);
         iconName = getConfigString(config, "icon");
+        String disableStr = getConfigString(config, "disable");
+        if(disableStr != null) {
+            disable = disableStr.equalsIgnoreCase("true");
+        }
+    }
+
+    @Override
+    public void updateState(final CommandEvent event) {
+        if(disable)
+            setEnabled(false);
     }
 
     @Override
