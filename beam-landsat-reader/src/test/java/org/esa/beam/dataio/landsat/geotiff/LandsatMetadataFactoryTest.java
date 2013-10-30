@@ -29,6 +29,20 @@ import static org.junit.Assert.*;
 public class LandsatMetadataFactoryTest {
 
     @Test
+    public void testCreate_L1_MSS_reproc() throws Exception {
+        File testFile = new File(getClass().getResource("test_L1_MSS_MTL.txt").getFile());
+        LandsatMetadata landsatMetadata = LandsatMetadataFactory.create(testFile);
+        assertTrue(landsatMetadata instanceof LandsatReprocessedMetadata);
+    }
+
+    @Test
+    public void testCreate_L3_MSS_reproc() throws Exception {
+        File testFile = new File(getClass().getResource("test_L3_MSS_MTL.txt").getFile());
+        LandsatMetadata landsatMetadata = LandsatMetadataFactory.create(testFile);
+        assertTrue(landsatMetadata instanceof LandsatReprocessedMetadata);
+    }
+
+    @Test
     public void testCreate_5_reproc() throws Exception {
         File testFile = new File(getClass().getResource("test_5_reproc_MTL.txt").getFile());
         LandsatMetadata landsatMetadata = LandsatMetadataFactory.create(testFile);
