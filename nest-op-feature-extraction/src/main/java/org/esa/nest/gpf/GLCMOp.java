@@ -339,11 +339,6 @@ public final class GLCMOp extends Operator {
             bandUnit = sourceProduct.getBand(sourceBandNames[0]).getUnit();
         }
 
-        if (sourceBandNames.length > 1 || bandUnit == null || !(bandUnit.equals(Unit.INTENSITY) ||
-            bandUnit.equals(Unit.INTENSITY_DB) || bandUnit.equals(Unit.AMPLITUDE) || bandUnit.equals(Unit.AMPLITUDE_DB))) {
-            throw new OperatorException("Please select one amplitude or intensity band.");
-        }
-
         final Band targetBand = ProductUtils.copyBand(sourceBandNames[0], sourceProduct, targetProduct, false);
         targetBand.setSourceImage(sourceProduct.getBand(sourceBandNames[0]).getSourceImage());
 
