@@ -591,8 +591,8 @@ public class BinningOp extends Operator implements Output {
         stopWatch.start();
         updateDateRangeUtc(sourceProduct);
         getLogger().info(String.format("Spatial binning of product '%s'...", sourceProduct.getName()));
-        getLogger().fine(String.format("Product start time '%s'...", sourceProduct.getStartTime()));
-        getLogger().fine(String.format("Product end time   '%s'...", sourceProduct.getEndTime()));
+        getLogger().fine(String.format("Product start time: '%s'", sourceProduct.getStartTime()));
+        getLogger().fine(String.format("Product end time:   '%s'", sourceProduct.getEndTime()));
         final long numObs = SpatialProductBinner.processProduct(sourceProduct, spatialBinner,
                 binningContext.getSuperSampling(), addedBands,
                 ProgressMonitor.NULL);
