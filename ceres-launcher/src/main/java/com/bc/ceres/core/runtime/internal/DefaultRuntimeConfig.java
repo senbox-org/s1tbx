@@ -513,6 +513,12 @@ public final class DefaultRuntimeConfig implements RuntimeConfig {
         logger = Logger.getLogger(contextId);
         logger.setLevel(logLevel);
         if (!logLevel.equals(Level.OFF)) {
+            // if any of the log handler has our LogFormatter we have already configured the logger
+            for (Handler handler : logger.getHandlers()) {
+                if (handler.getFormatter() instanceof  LogFormatter)  {
+                    return;
+                }
+            }
             LogFormatter formatter = new LogFormatter();
             if (consoleLog) {
                 if (consoleHandler == null) {
