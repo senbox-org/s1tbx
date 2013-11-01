@@ -84,6 +84,19 @@
         </action>
 
         <action>
+	        <id>ForestAreaClassification</id>
+	        <helpId>ForestAreaClassification</helpId>
+	        <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <icon>esaIcon</icon>
+            <parent>PrimitiveFeatureGroup</parent>
+	        <text>Forest Area Classification</text>
+            <shortDescr>Forest Area Classification</shortDescr>
+	        <operatorName>Forest-Area-Classification</operatorName>
+	        <dialogTitle>Forest Area Classification</dialogTitle>
+            <targetProductNameSuffix>_cls</targetProductNameSuffix>
+        </action>
+
+        <action>
             <id>FloodDetection</id>
             <helpId>FloodDetection</helpId>
             <class>org.esa.nest.dat.actions.OperatorAction</class>
