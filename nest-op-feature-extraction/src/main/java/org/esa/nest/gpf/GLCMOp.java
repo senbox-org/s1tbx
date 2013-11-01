@@ -40,7 +40,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * The operator extracts 14 texture features using GLCM:
+ * The operator extracts 10 texture features using GLCM:
  * 1. Contrast
  * 2. Dissimilarity (DIS)
  * 3. Homogeneity (HOM)
@@ -81,8 +81,8 @@ public final class GLCMOp extends Operator {
     private String angleStr = ANGLE_0;
 
     @Parameter(valueSet = {EQUAL_DISTANCE_QUANTIZER, PROBABILISTIC_QUANTIZER},
-            defaultValue = EQUAL_DISTANCE_QUANTIZER, label="Quantizer")
-    private String quantizerStr = EQUAL_DISTANCE_QUANTIZER;
+            defaultValue = PROBABILISTIC_QUANTIZER, label="Quantizer")
+    private String quantizerStr = PROBABILISTIC_QUANTIZER;
 
     @Parameter(valueSet = {QUANTIZATION_LEVELS_16, QUANTIZATION_LEVELS_32, QUANTIZATION_LEVELS_64},
             defaultValue = QUANTIZATION_LEVELS_64, label="Quantization Levels")
