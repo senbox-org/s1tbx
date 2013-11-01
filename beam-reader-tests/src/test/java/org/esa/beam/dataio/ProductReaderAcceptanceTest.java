@@ -27,7 +27,6 @@ import org.esa.beam.util.StopWatch;
 import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.logging.BeamLogManager;
 import org.junit.AfterClass;
-import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -56,6 +55,7 @@ public class ProductReaderAcceptanceTest {
     private static final String PROPERTYNAME_DATA_DIR = "beam.reader.tests.data.dir";
     private static final String PROPERTYNAME_FAIL_ON_MISSING_DATA = "beam.reader.tests.failOnMissingData";
     private static final String PROPERTYNAME_LOG_FILE_PATH = "beam.reader.tests.log.file";
+    private static final String PROPERTYNAME_CASS_NAME = "beam.reader.tests.class.name";
     private static final boolean FAIL_ON_MISSING_DATA = Boolean.parseBoolean(System.getProperty(PROPERTYNAME_FAIL_ON_MISSING_DATA, "true"));
     private static final String INDENT = "\t";
     private static final ProductList testProductList = new ProductList();
@@ -90,7 +90,7 @@ public class ProductReaderAcceptanceTest {
 
         for (TestDefinition testDefinition : testDefinitionList) {
             final ProductReaderPlugIn productReaderPlugin = testDefinition.getProductReaderPlugin();
-            logger.info(INDENT + productReaderPlugin.getClass().getSimpleName());
+            logger.info(INDENT + productReaderPlugin.getClass().getName());
 
             for (TestProduct testProduct : testProductList) {
                 if (testProduct.exists()) {
@@ -100,10 +100,10 @@ public class ProductReaderAcceptanceTest {
                     stopWatch.start();
                     final DecodeQualification decodeQualification = productReaderPlugin.getDecodeQualification(productFile);
                     stopWatch.stop();
-                    logger.info(INDENT + INDENT + testProduct.getId() + ": " + stopWatch.getTimeDiffString());
+                    logger.info(INDENT + INDENT + stopWatch.getTimeDiffString() + " - " + testProduct.getId());
 
                     final String message = productReaderPlugin.getClass().getName() + ": " + testProduct.getId();
-                    Assert.assertEquals(message, expected, decodeQualification);
+                    assertEquals(message, expected, decodeQualification);
                 } else {
                     logProductNotExistent(2, testProduct);
                 }
@@ -122,7 +122,7 @@ public class ProductReaderAcceptanceTest {
 
             for (String productId : intendedProductIds) {
                 final TestProduct testProduct = testProductList.getById(productId);
-                Assert.assertNotNull("Test file not defined for ID=" + productId, testProduct);
+                assertNotNull("Test file not defined for ID=" + productId, testProduct);
 
                 if (testProduct.exists()) {
                     final File testProductFile = getTestProductFile(testProduct);
@@ -138,7 +138,7 @@ public class ProductReaderAcceptanceTest {
                         }
                     }
                     stopWatch.stop();
-                    logger.info(INDENT + INDENT + productId + ": " + stopWatch.getTimeDiffString());
+                    logger.info(INDENT + INDENT + stopWatch.getTimeDiffString() + " - " + testProduct.getId());
                 } else {
                     logProductNotExistent(2, testProduct);
                 }
@@ -160,7 +160,7 @@ public class ProductReaderAcceptanceTest {
                     product = ProductIO.readProduct(testProductFile);
 
                     stopWatch.stop();
-                    logger.info(INDENT + testProduct.getId() + ": " + stopWatch.getTimeDiffString());
+                    logger.info(INDENT + stopWatch.getTimeDiffString() + " - " + testProduct.getId());
                 } catch (Exception e) {
                     final String message = "ProductIO.readProduct " + testProduct.getId() + " caused an exception.\n" +
                             "Should only return NULL or a product instance but should not cause any exception.";
@@ -207,7 +207,7 @@ public class ProductReaderAcceptanceTest {
         for (int i = 0; i < indention; i++) {
             sb.append(INDENT);
         }
-        logger.info(sb.toString() + testProduct.getId() + ": Not existent");
+        logger.info(sb.toString() + "Not existent - " + testProduct.getId() );
     }
 
     private static void logFailOnMissingDataMessage() {
@@ -289,9 +289,14 @@ public class ProductReaderAcceptanceTest {
         final Iterable<ProductReaderPlugIn> readerPlugIns = SystemUtils.loadServices(ProductReaderPlugIn.class);
         testDefinitionList = new TestDefinitionList();
 
+        final String className = System.getProperty(PROPERTYNAME_CASS_NAME);
+
         for (ProductReaderPlugIn readerPlugIn : readerPlugIns) {
             final TestDefinition testDefinition = new TestDefinition();
             final Class<? extends ProductReaderPlugIn> readerPlugInClass = readerPlugIn.getClass();
+            if (className != null && !readerPlugInClass.getName().equals(className)) {
+                continue;
+            }
             testDefinition.setProductReaderPlugin(readerPlugIn);
             testDefinitionList.add(testDefinition);
 

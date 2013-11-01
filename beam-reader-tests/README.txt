@@ -18,6 +18,8 @@ To be able to run the tests, two VM properties need to be present:
 -Dbeam.reader.tests.log.file=<Path_To_LogFile>
     Specifies the path the log file shall be written to. If not given no log file will be created.
 
+-Dbeam.reader.tests.class.name=<ProductReaderPlugIn_ClassName>
+    If the ProductReaderPlugIn class name is given only test for this reader plugin are executed.
 
 
 Creating a reader test
