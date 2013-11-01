@@ -20,6 +20,7 @@ import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 import org.esa.beam.util.io.BeamFileFilter;
+import org.esa.beam.util.io.FileUtils;
 import ucar.nc2.Attribute;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
@@ -39,8 +40,7 @@ public class BinnedProductReaderPlugin implements ProductReaderPlugIn {
             return DecodeQualification.UNABLE;
         }
         final String path = input.toString();
-        final String name = new File(path).getName();
-        if (!BinnedFileFilter.isBinnedName(name)) {
+        if (BinnedProductReaderPlugin.FILE_EXTENSION.equalsIgnoreCase(FileUtils.getExtension(path))) {
             try {
                 NetcdfFile netcdfFile = null;
                 try {
@@ -52,6 +52,17 @@ public class BinnedProductReaderPlugin implements ProductReaderPlugIn {
                                 return DecodeQualification.INTENDED;
                             }
                         }
+                        Attribute gridMapping = variable.findAttribute("grid_mapping");
+                        if (gridMapping != null) {
+                            if ("sinusoidal".equalsIgnoreCase(gridMapping.getStringValue())) {
+                                return DecodeQualification.INTENDED;
+                            }
+                        }
+                    }
+                    if (netcdfFile.findDimension("bin_index") != null &&
+                            (netcdfFile.findDimension("sin_grid") != null ||
+                                    netcdfFile.findDimension("bin_list") != null)) {
+                        return DecodeQualification.INTENDED;
                     }
                 } finally {
                     if (netcdfFile != null) {
@@ -61,23 +72,8 @@ public class BinnedProductReaderPlugin implements ProductReaderPlugIn {
             } catch (IOException e) {
                 return DecodeQualification.UNABLE;
             }
-
-            return DecodeQualification.UNABLE;
         }
-        try {
-            NetcdfFile netcdfFile = null;
-            try {
-                netcdfFile = NetcdfFile.open(path);
-            } finally {
-                if (netcdfFile != null) {
-                    netcdfFile.close();
-                }
-            }
-        } catch (IOException e) {
-            return DecodeQualification.UNABLE;
-        }
-
-        return DecodeQualification.INTENDED;
+        return DecodeQualification.UNABLE;
     }
 
     public Class[] getInputTypes() {
