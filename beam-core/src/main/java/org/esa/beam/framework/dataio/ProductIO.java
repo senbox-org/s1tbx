@@ -249,7 +249,7 @@ public class ProductIO {
      */
     public static ProductReader getProductReaderForInput(Object input) {
         Logger logger = BeamLogManager.getSystemLogger();
-        logger.fine("searching reader plugin for '" + input + "'");
+        logger.fine("Searching reader plugin for '" + input + "'");
         ProductIOPlugInManager registry = ProductIOPlugInManager.getInstance();
         Iterator<ProductReaderPlugIn> it = registry.getAllReaderPlugIns();
         ProductReaderPlugIn selectedPlugIn = null;
@@ -259,7 +259,7 @@ public class ProductIO {
             final long startTime = System.currentTimeMillis();
             DecodeQualification decodeQualification = plugIn.getDecodeQualification(input);
             final long endTime = System.currentTimeMillis();
-            logger.fine(String.format("checking reader plugin %s (%d ms)", plugIn.getClass().getName(), (endTime - startTime)));
+            logger.fine(String.format("Checking reader plugin %s (took %d ms)", plugIn.getClass().getName(), (endTime - startTime)));
             if (decodeQualification == DecodeQualification.INTENDED) {
                 selectedPlugIn = plugIn;
                 break;
@@ -268,10 +268,10 @@ public class ProductIO {
             }
         }
         if (selectedPlugIn != null) {
-            logger.fine("selected " + selectedPlugIn.getClass().getName());
+            logger.fine("Selected " + selectedPlugIn.getClass().getName());
             return selectedPlugIn.createReaderInstance();
         } else {
-            logger.fine("no suitable reader plugin found");
+            logger.fine("No suitable reader plugin found");
             return null;
         }
     }
