@@ -110,8 +110,21 @@
         </action>
 
         <action>
-            <id>UrbanAreaDetection</id>
-            <helpId>UrbanAreaDetection</helpId>
+            <id>GLCMOp</id>
+            <helpId>GLCMOp</helpId>
+            <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <icon>esaIcon</icon>
+            <parent>PrimitiveFeatureGroup</parent>
+            <text>GLCM</text>
+            <shortDescr>Extract Texture Features</shortDescr>
+            <operatorName>GLCM</operatorName>
+            <dialogTitle>GLCM</dialogTitle>
+            <targetProductNameSuffix>_glcm</targetProductNameSuffix>
+        </action>
+
+        <action>
+            <id>UrbanAreaDetectionGraph</id>
+            <helpId>UrbanAreaDetectionGraph</helpId>
             <class>org.esa.nest.dat.actions.GraphAction</class>
             <icon>esaIcon</icon>
             <parent>FeatureExtractionGroup</parent>
@@ -120,6 +133,20 @@
             <dialogTitle>Urban Area Detection</dialogTitle>
             <graphFile>FeatureExtractors\UrbanDetectionGraph.xml</graphFile>
             <targetProductNameSuffix>_urb</targetProductNameSuffix>
+        </action>
+
+        <action>
+            <id>FloodDetectionGraph</id>
+            <helpId>FloodDetectionGraph</helpId>
+            <class>org.esa.nest.dat.actions.GraphAction</class>
+            <icon>esaIcon</icon>
+            <parent>FeatureExtractionGroup</parent>
+            <text>Flood Detection</text>
+            <shortDescr>Flood Detection</shortDescr>
+            <dialogTitle>Flood Detection</dialogTitle>
+            <graphFile>FeatureExtractors\FloodDetectionGraph.xml</graphFile>
+            <enableEditing>true</enableEditing>
+            <targetProductNameSuffix>_flood</targetProductNameSuffix>
         </action>
 
         <action>
@@ -133,19 +160,6 @@
             <operatorName>Terrain-Mask</operatorName>
             <dialogTitle>Terrain Mask Generation</dialogTitle>
             <targetProductNameSuffix>_terr_msk</targetProductNameSuffix>
-        </action>
-
-        <action>
-            <id>GLCMOp</id>
-            <helpId>GLCMOp</helpId>
-            <class>org.esa.nest.dat.actions.OperatorAction</class>
-            <icon>esaIcon</icon>
-            <parent>PrimitiveFeatureGroup</parent>
-            <text>GLCM</text>
-            <shortDescr>Extract Texture Features</shortDescr>
-            <operatorName>GLCM</operatorName>
-            <dialogTitle>GLCM</dialogTitle>
-            <targetProductNameSuffix>_glcm</targetProductNameSuffix>
         </action>
 
     </extension>

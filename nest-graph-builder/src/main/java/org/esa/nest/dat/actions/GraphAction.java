@@ -32,17 +32,22 @@ import java.io.File;
  */
 public class GraphAction extends OperatorAction {
     private String graphFileName;
+    private boolean enableEditing = false;
 
     @Override
     public void configure(ConfigurationElement config) throws CoreException {
         super.configure(config);
 
         graphFileName = getConfigString(config, "graphFile");
+        String enableEditingStr = getConfigString(config, "enableEditing");
+        if(enableEditingStr != null) {
+            enableEditing = enableEditingStr.equalsIgnoreCase("true");
+        }
     }
 
     @Override
     protected ModelessDialog createOperatorDialog() {
-        final GraphBuilderDialog dialog = new GraphBuilderDialog(getAppContext(), dialogTitle, getHelpId(), false);
+        final GraphBuilderDialog dialog = new GraphBuilderDialog(getAppContext(), dialogTitle, getHelpId(), enableEditing);
         dialog.show();
 
         final File graphPath = GraphBuilderDialog.getInternalGraphFolder();
