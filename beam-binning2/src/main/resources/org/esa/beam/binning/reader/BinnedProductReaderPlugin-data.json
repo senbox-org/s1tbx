@@ -29,6 +29,17 @@
             "id": "ESACCI-OC-L3S-OC_PRODUCTS-MERGED-1D_DAILY_4km_PML_OC4v6_QAA-20030729-fv0.95",
             "relativePath": "cci/oc/oc-v0.95/ESACCI-OC-L3S-OC_PRODUCTS-MERGED-1D_DAILY_4km_PML_OC4v6_QAA-20030729-fv0.95.nc",
             "description": "sparse grid file OC-CCI format version 0.99"
+        },
+        {
+            "id": "ESACCI-OC-L3S-OC_PRODUCTS-MERGED-1D_DAILY_4km_PML_OC4v6_QAA-20040613-fv1.0-test-for-marco",
+            "relativePath": "cci/oc/oc-v1.0/ESACCI-OC-L3S-OC_PRODUCTS-MERGED-1D_DAILY_4km_PML_OC4v6_QAA-20040613-fv1.0-test-for-marco.nc",
+            "description": "full grid file OC-CCI format version 1.0"
+        },
+        {
+            "id": "ESACCI-OC-L3S-OC_PRODUCTS-MERGED-1D_DAILY_4km_GEO_PML_OC4v6_QAA-20000518-fv1.0",
+            "relativePath": "cci/oc/oc-v1.0/ESACCI-OC-L3S-OC_PRODUCTS-MERGED-1D_DAILY_4km_GEO_PML_OC4v6_QAA-20000518-fv1.0.nc",
+            "description": "mapped file OC-CCI format version 0.99"
         }
+
     ]
 }
