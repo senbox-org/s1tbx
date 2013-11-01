@@ -335,6 +335,10 @@ public final class GLCMOp extends Operator {
                     break;
                 }
             }
+            if (sourceBandNames == null || sourceBandNames.length == 0) {
+                sourceBandNames = new String[1];
+                sourceBandNames[0] = sourceProduct.getBandAt(0).getName();
+            }
         } else {
             bandUnit = sourceProduct.getBand(sourceBandNames[0]).getUnit();
         }
