@@ -1,29 +1,46 @@
+/*
+ * Copyright (C) 2013 Brockmann Consult GmbH (info@brockmann-consult.de)
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 3 of the License, or (at your option)
+ * any later version.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, see http://www.gnu.org/licenses/
+ */
+
 package org.esa.beam.dataio;
 
 import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 class TestDefinition {
 
     private transient ProductReaderPlugIn productReaderPlugin;
     private final ArrayList<TestProduct> testProducts;
-    private HashMap<String, ExpectedDataset> expectedDatasets;
+    private final Map<String, ExpectedDataset> expectedDatasetsMap;
+    private final List<ExpectedDataset> expectedDatasetsList;
 
     TestDefinition() {
         testProducts = new ArrayList<TestProduct>();
-        expectedDatasets = new HashMap<String, ExpectedDataset>();
+        expectedDatasetsMap = new HashMap<String, ExpectedDataset>();
+        expectedDatasetsList = new ArrayList<ExpectedDataset>();
     }
 
     List<String> getIntendedProductIds() {
         final ArrayList<String> result = new ArrayList<String>();
 
-        final Collection<ExpectedDataset> values = expectedDatasets.values();
-        for (ExpectedDataset dataset : values) {
+        for (ExpectedDataset dataset : expectedDatasetsList) {
             if (dataset.getDecodeQualification() == DecodeQualification.INTENDED) {
                 result.add(dataset.getId());
             }
@@ -32,11 +49,10 @@ class TestDefinition {
     }
 
     ExpectedContent getExpectedContent(String productId) {
-        final ExpectedDataset expectedDataset = expectedDatasets.get(productId);
+        final ExpectedDataset expectedDataset = expectedDatasetsMap.get(productId);
         if (expectedDataset != null) {
             return expectedDataset.getExpectedContent();
         }
-
         return null;
     }
 
@@ -57,11 +73,12 @@ class TestDefinition {
     }
 
     public ExpectedDataset getExpectedDataset(String id) {
-        return expectedDatasets.get(id);
+        return expectedDatasetsMap.get(id);
     }
 
     public void addExpectedDataset(ExpectedDataset expectedDataset) {
         final String id = expectedDataset.getId();
-        expectedDatasets.put(id, expectedDataset);
+        expectedDatasetsMap.put(id, expectedDataset);
+        expectedDatasetsList.add(expectedDataset);
     }
 }
