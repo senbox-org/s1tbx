@@ -1,4 +1,3 @@
-org.esa.nest.gpf.CreateElevationOp$Spi
 org.esa.nest.gpf.RangeDopplerGeocodingOp$Spi
 org.esa.nest.gpf.GeolocationGridGeocodingOp$Spi
 org.esa.nest.gpf.EllipsoidCorrectionRDOp$Spi

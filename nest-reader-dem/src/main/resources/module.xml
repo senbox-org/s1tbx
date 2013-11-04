@@ -29,6 +29,15 @@
     <categories>Reader,DEM</categories>
 
     <extension point="beam-ui:actions">
+
+        <action>
+            <id>DEMTools</id>
+            <class>org.esa.beam.visat.actions.ActionGroup</class>
+            <text>DEM Tools</text>
+            <parent>geometry</parent>
+            <placeAfter>EllipsoidCorrection</placeAfter>
+        </action>
+
         <action>
             <id>createElevationAction</id>
             <class>org.esa.nest.dat.CreateElevationAction</class>
@@ -38,6 +47,19 @@
             <context>product</context>
             <helpId>createElevationBand</helpId>
             <parent>DEMTools</parent>
+        </action>
+
+        <action>
+            <id>FillHoleOp</id>
+            <helpId>FillHoleOp</helpId>
+            <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <icon>esaIcon</icon>
+            <parent>DEMTools</parent>
+            <text>Fill DEM Hole</text>
+            <operatorName>Fill-Hole</operatorName>
+            <dialogTitle>Fill holes in DEM product</dialogTitle>
+            <shortDescr>Fill holes in a DEM product</shortDescr>
+            <targetProductNameSuffix>_Filled</targetProductNameSuffix>
         </action>
 
         <action>
