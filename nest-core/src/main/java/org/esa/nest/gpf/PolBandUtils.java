@@ -265,7 +265,20 @@ public class PolBandUtils {
     }
 
     /**
-     * Get compact pol product source band names.
+     * Get compact pol Stokes vector product band names.
+     * @return The source band names.
+     */
+    public static String[] getG4BandNames() {
+        return new String[] {
+            "g0",
+            "g1",
+            "g2",
+            "g3",
+        };
+    }
+
+    /**
+     * Get compact pol scatter vector product band names.
      * @return The source band names.
      */
     public static String[] getS2BandNames() {
