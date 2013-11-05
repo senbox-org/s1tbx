@@ -34,9 +34,6 @@ import org.esa.beam.binning.operator.FormatterConfig;
 import org.esa.beam.binning.operator.VariableConfig;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.GPF;
-import org.esa.beam.framework.gpf.OperatorSpi;
-import org.esa.beam.framework.gpf.ui.OperatorMenu;
-import org.esa.beam.framework.gpf.ui.OperatorParameterSupport;
 import org.esa.beam.framework.gpf.ui.ParameterUpdater;
 import org.esa.beam.framework.gpf.ui.SingleTargetProductDialog;
 import org.esa.beam.framework.gpf.ui.TargetProductSelectorModel;
@@ -68,7 +65,8 @@ public class BinningDialog extends SingleTargetProductDialog {
         formModel = new BinningFormModelImpl();
         form = new BinningForm(appContext, formModel, getTargetProductSelector());
 
-
+/*
+        TODO menu entries for binning op, still a work in progress by nf 2013-11-05
         OperatorSpi operatorSpi = GPF.getDefaultInstance().getOperatorSpiRegistry().getOperatorSpi(OPERATOR_NAME);
 
         ParameterUpdater parameterUpdater = new BinningParameterUpdater();
@@ -85,6 +83,7 @@ public class BinningDialog extends SingleTargetProductDialog {
 
         getJDialog().setJMenuBar(operatorMenu.createDefaultMenu());
 
+*/
     }
 
     static Property createProperty(String name, Class type) {
