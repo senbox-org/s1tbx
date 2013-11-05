@@ -17,13 +17,11 @@
 package org.esa.beam.binning.operator;
 
 import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import org.esa.beam.binning.DataPeriod;
 import org.esa.beam.binning.aggregators.AggregatorAverage;
 import org.esa.beam.binning.aggregators.AggregatorPercentile;
 import org.esa.beam.framework.dataio.ProductIO;
-import org.esa.beam.framework.datamodel.CrsGeoCoding;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.ProductFilter;
@@ -34,13 +32,10 @@ import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.main.GPT;
 import org.esa.beam.util.converters.JtsGeometryConverter;
 import org.esa.beam.util.io.FileUtils;
-import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.awt.geom.GeneralPath;
-import java.awt.geom.Rectangle2D;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
@@ -583,30 +578,6 @@ public class BinningOpTest {
         assertTrue(filter.accept(product4));
         assertTrue(filter.accept(product5));
         assertFalse(filter.accept(product6));
-    }
-
-    @Test
-    public void testGetRegionFromProductsExtent() throws Exception {
-        BinningOp binningOp = new BinningOp();
-        final Product product1 = new Product("name1", "type", 10, 10);
-        final Product product2 = new Product("name2", "type", 10, 10);
-
-        product1.setGeoCoding(new CrsGeoCoding(DefaultGeographicCRS.WGS84, 10, 10, 10.0, 50.0, 1.0, 1.0));
-        product2.setGeoCoding(new CrsGeoCoding(DefaultGeographicCRS.WGS84, 10, 10, 15.0, 45.0, 1.0, 1.0));
-
-        Product[] sourceProducts = new Product[]{product1, product2};
-        Geometry region = BinningOp.getRegionFromProductsExtent(null, sourceProducts, binningOp.getLogger());
-
-        GeneralPath shape = new GeneralPath();
-        shape.moveTo((float) region.getCoordinates()[0].x, (float) region.getCoordinates()[0].y);
-
-        for (int i = 1; i < region.getNumPoints(); i++) {
-            shape.lineTo((float) region.getCoordinates()[i].x, (float) region.getCoordinates()[i].y);
-        }
-
-        Rectangle2D.Double expected = new Rectangle2D.Double(10.0, 36.0, 14.0, 14.0);
-
-        assertEquals(expected, shape.getBounds2D());
     }
 
     @Test

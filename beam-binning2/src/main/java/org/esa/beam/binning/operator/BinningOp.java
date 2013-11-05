@@ -66,19 +66,16 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /*
 
@@ -324,44 +321,6 @@ public class BinningOp extends Operator implements Output {
         stopWatch.stopAndTrace(String.format("Total time for binning %d product(s)", sourceProductCount));
 
         processMetadataTemplates();
-    }
-
-    static Geometry getRegionFromProductsExtent(String[] sourceProductPaths, Product[] sourceProducts, Logger logger) throws IOException {
-        Set<GeneralPath[]> extents = new HashSet<GeneralPath[]>();
-        if (sourceProductPaths != null) {
-            SortedSet<File> fileSet = new TreeSet<File>();
-            for (String filePattern : sourceProductPaths) {
-                WildcardMatcher.glob(filePattern, fileSet);
-            }
-            for (File file : fileSet) {
-                Product sourceProduct = ProductIO.readProduct(file);
-                if (sourceProduct != null) {
-                    try {
-                        extents.add(ProductUtils.createGeoBoundaryPaths(sourceProduct));
-                    } finally {
-                        sourceProduct.dispose();
-                    }
-                } else {
-                    String msgPattern = "Failed to read file '%s' (not a data product or reader missing)";
-                    logger.severe(String.format(msgPattern, file));
-                }
-            }
-        }
-
-        if (sourceProducts != null) {
-            for (Product sourceProduct : sourceProducts) {
-                extents.add(ProductUtils.createGeoBoundaryPaths(sourceProduct));
-            }
-        }
-
-        Area area = new Area();
-        for (GeneralPath[] extent : extents) {
-            for (GeneralPath generalPath : extent) {
-                area.add(new Area(generalPath));
-            }
-        }
-
-        return JTS.shapeToGeometry(area, new GeometryFactory());
     }
 
     private void validateInput(ProductData.UTC startDateUtc, ProductData.UTC endDateUtc) {
