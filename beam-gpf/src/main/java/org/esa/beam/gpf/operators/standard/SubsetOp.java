@@ -264,6 +264,11 @@ public class SubsetOp extends Operator {
         }
     }
 
+    // todo - nf/mz 20131105 - move this method to a more prominent location (e.g. FeatureUtils)
+
+    /**
+     * Non-API (yet).
+     */
     public static Rectangle computePixelRegion(Product product, Geometry geoRegion, int numBorderPixels) {
         final Geometry productGeometry = computeProductGeometry(product);
         final Geometry regionIntersection = geoRegion.intersection(productGeometry);
