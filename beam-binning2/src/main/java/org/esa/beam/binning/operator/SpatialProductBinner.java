@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2013 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -20,6 +20,7 @@ import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.glevel.MultiLevelImage;
 import com.vividsolutions.jts.geom.Geometry;
 import org.esa.beam.binning.CompositingType;
+import org.esa.beam.binning.DataPeriod;
 import org.esa.beam.binning.ObservationSlice;
 import org.esa.beam.binning.PlanetaryGrid;
 import org.esa.beam.binning.SpatialBinner;
@@ -74,6 +75,8 @@ public class SpatialProductBinner {
                                       Integer superSampling,
                                       Map<Product, List<Band>> addedBands,
                                       ProgressMonitor progressMonitor) throws IOException {
+
+        //TODO mz/nf 2013-11-05 superSampling must not be a parameter, spatialBinner.getBinnigContext() has it !!
         if (product.getGeoCoding() == null) {
             throw new IllegalArgumentException("product.getGeoCoding() == null");
         }
@@ -192,7 +195,8 @@ public class SpatialProductBinner {
     private static long processSlice(SpatialBinner spatialBinner, ProgressMonitor progressMonitor,
                                      float[] superSamplingSteps, MultiLevelImage maskImage, MultiLevelImage[] varImages,
                                      Product product, Rectangle sliceRect) {
-        final ObservationSlice observationSlice = new ObservationSlice(varImages, maskImage, product, superSamplingSteps, sliceRect, null);
+        DataPeriod dataPeriod = spatialBinner.getBinningContext().getDataPeriod();
+        final ObservationSlice observationSlice = new ObservationSlice(varImages, maskImage, product, superSamplingSteps, sliceRect, dataPeriod, null);
         long numObservations = spatialBinner.processObservationSlice(observationSlice);
         progressMonitor.worked(1);
         return numObservations;
@@ -208,8 +212,11 @@ public class SpatialProductBinner {
         } else {
             sliceHeight = ImageManager.getPreferredTileSize(product).height;
         }
+
+        // TODO make this a parameter nf/mz 2013-11-05
         String sliceHeightString = System.getProperty(PROPERTY_KEY_SLICE_HEIGHT, String.valueOf(sliceHeight));
         Dimension dimension = new Dimension(sliceWidth, Integer.parseInt(sliceHeightString));
+        // TODO logging in a getter is not a good idea nf/mz 2013-11-05
         String logMsg = String.format("Using slice dimension [width=%d, height=%d] in binning", dimension.width, dimension.height);
         BeamLogManager.getSystemLogger().log(Level.INFO, logMsg);
         return dimension;

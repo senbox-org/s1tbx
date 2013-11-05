@@ -45,6 +45,7 @@ import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProducts;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.framework.gpf.experimental.Output;
+import org.esa.beam.gpf.operators.standard.SubsetOp;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.StopWatch;
 import org.esa.beam.util.StringUtils;
@@ -77,6 +78,7 @@ import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /*
 
@@ -138,15 +140,13 @@ public class BinningOp extends Operator implements Output {
                              "input products.")
     Geometry region;
 
-    @Parameter(description =
-                       "The start date. If not given, taken from the 'oldest' source product. Products that have " +
-                       "a start date before the start date given by this parameter are not considered.",
+    @Parameter(description = "The start date. If not given, taken from the 'oldest' source product. Products that have " +
+                             "a start date before the start date given by this parameter are not considered.",
                format = DATE_PATTERN)
     String startDate;
 
-    @Parameter(description =
-                       "The end date. If not given, taken from the 'youngest' source product. Products that have " +
-                       "an end date after the end date given by this parameter are not considered.",
+    @Parameter(description = "The end date. If not given, taken from the 'youngest' source product. Products that have " +
+                             "an end date after the end date given by this parameter are not considered.",
                format = DATE_PATTERN)
     String endDate;
 
@@ -159,11 +159,11 @@ public class BinningOp extends Operator implements Output {
     boolean outputTargetProduct;
 
     @Parameter(notNull = true,
-            description = "The configuration used for the binning process. Specifies the binning grid, any variables and their aggregators.")
+               description = "The configuration used for the binning process. Specifies the binning grid, any variables and their aggregators.")
     BinningConfig binningConfig;
 
     @Parameter(notNull = true,
-            description = "The configuration used for the output formatting process.")
+               description = "The configuration used for the output formatting process.")
     FormatterConfig formatterConfig;
 
     @Parameter(
@@ -172,7 +172,7 @@ public class BinningOp extends Operator implements Output {
     File metadataPropertiesFile;
 
     @Parameter(description = "The name of the directory containing metadata templates (google \"Apache Velocity VTL format\").",
-            defaultValue = ".")
+               defaultValue = ".")
     File metadataTemplateDir;
 
     @Parameter(description = "Applies a sensor-dependent, spatial data-day definition to the given time range. " +
@@ -190,7 +190,9 @@ public class BinningOp extends Operator implements Output {
     private transient ProductData.UTC maxDateUtc;
     private transient SortedMap<String, String> metadataProperties;
     private transient BinWriter binWriter;
+    private transient Area regionArea;
 
+    // TODO nf/mz 2013-11-05 review with thomas use of this field
     private final Map<Product, List<Band>> addedBands;
 
     public BinningOp() throws OperatorException {
@@ -266,13 +268,9 @@ public class BinningOp extends Operator implements Output {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
-
         if (region == null) {
-            try {
-                setRegionToProductsExtent();
-            } catch (IOException e) {
-                throw new OperatorException(e);
-            }
+            // TODO use JTS directly
+            regionArea = new Area();
         }
 
         if (startDate != null && useSpatialDataDay) {
@@ -281,8 +279,10 @@ public class BinningOp extends Operator implements Output {
 
         binningContext = binningConfig.createBinningContext();
 
-        ProductFilter productFilter = createSourceProductFilter(binningContext.getDataPeriod(),
-                                                                startDateUtc, endDateUtc);
+        ProductFilter productFilter = createSourceProductFilter(useSpatialDataDay ? binningContext.getDataPeriod() : null,
+                                                                startDateUtc,
+                                                                endDateUtc,
+                                                                region);
 
         metadataProperties = new TreeMap<String, String>();
         sourceProductCount = 0;
@@ -291,6 +291,10 @@ public class BinningOp extends Operator implements Output {
             // Step 1: Spatial binning - creates time-series of spatial bins for each bin ID ordered by ID. The tree map structure is <ID, time-series>
             SpatialBinCollection spatialBinMap = doSpatialBinning(productFilter);
             if (!spatialBinMap.isEmpty()) {
+                // update region
+                if (region == null && regionArea != null) {
+                    region = JTS.shapeToGeometry(regionArea, new GeometryFactory());
+                }
                 // Step 2: Temporal binning - creates a list of temporal bins, sorted by bin ID
                 TemporalBinList temporalBins = doTemporalBinning(spatialBinMap);
                 // Step 3: Formatting
@@ -316,7 +320,7 @@ public class BinningOp extends Operator implements Output {
         processMetadataTemplates();
     }
 
-    void setRegionToProductsExtent() throws IOException {
+    static Geometry getRegionFromProductsExtent(String[] sourceProductPaths, Product[] sourceProducts, Logger logger) throws IOException {
         Set<GeneralPath[]> extents = new HashSet<GeneralPath[]>();
         if (sourceProductPaths != null) {
             SortedSet<File> fileSet = new TreeSet<File>();
@@ -333,7 +337,7 @@ public class BinningOp extends Operator implements Output {
                     }
                 } else {
                     String msgPattern = "Failed to read file '%s' (not a data product or reader missing)";
-                    getLogger().severe(String.format(msgPattern, file));
+                    logger.severe(String.format(msgPattern, file));
                 }
             }
         }
@@ -350,7 +354,8 @@ public class BinningOp extends Operator implements Output {
                 area.add(new Area(generalPath));
             }
         }
-        region = JTS.shapeToGeometry(area, new GeometryFactory());
+
+        return JTS.shapeToGeometry(area, new GeometryFactory());
     }
 
     private void validateInput(ProductData.UTC startDateUtc, ProductData.UTC endDateUtc) {
@@ -403,24 +408,20 @@ public class BinningOp extends Operator implements Output {
         return binningConfig.getVariableConfigs() == null || binningConfig.getVariableConfigs().length == 0;
     }
 
-    ProductFilter createSourceProductFilter(DataPeriod dataPeriod, ProductData.UTC startTime, ProductData.UTC endTime) {
-        if (startTime == null && endTime == null && !useSpatialDataDay) {
-            return new AllProductFilter();
+    static ProductFilter createSourceProductFilter(DataPeriod dataPeriod, ProductData.UTC startTime, ProductData.UTC endTime, Geometry region) {
+        ProductFilter productFilter = ProductFilter.ALL;
+
+        if (dataPeriod != null) {
+            productFilter = new SpatialDataDaySourceProductFilter(dataPeriod);
+        } else if (startTime != null || endTime != null) {
+            productFilter = new TimeRangeProductFilter(startTime, endTime);
         }
 
-        if (useSpatialDataDay) {
-            return new SpatialDataDaySourceProductFilter(dataPeriod);
-        } else {
-            return new SourceProductFilter(startTime, endTime);
+        if (region != null) {
+            productFilter = new RegionProductFilter(productFilter, region);
         }
-    }
 
-    static class AllProductFilter implements ProductFilter {
-
-        @Override
-        public boolean accept(Product product) {
-            return true;
-        }
+        return productFilter;
     }
 
     private void cleanSourceProducts() {
@@ -593,12 +594,24 @@ public class BinningOp extends Operator implements Output {
         getLogger().info(String.format("Spatial binning of product '%s'...", sourceProduct.getName()));
         getLogger().fine(String.format("Product start time: '%s'", sourceProduct.getStartTime()));
         getLogger().fine(String.format("Product end time:   '%s'", sourceProduct.getEndTime()));
+        if (region != null) {
+            SubsetOp subsetOp = new SubsetOp();
+            subsetOp.setSourceProduct(sourceProduct);
+            subsetOp.setGeoRegion(region);
+            sourceProduct = subsetOp.getTargetProduct();
+        }
         final long numObs = SpatialProductBinner.processProduct(sourceProduct, spatialBinner,
-                binningContext.getSuperSampling(), addedBands,
-                ProgressMonitor.NULL);
+                                                                binningContext.getSuperSampling(), addedBands,
+                                                                ProgressMonitor.NULL);
         stopWatch.stop();
         getLogger().info(String.format("Spatial binning of product '%s' done, %d observations seen, took %s",
-                sourceProduct.getName(), numObs, stopWatch));
+                                       sourceProduct.getName(), numObs, stopWatch));
+
+        if (region == null && regionArea != null) {
+            for (GeneralPath generalPath : ProductUtils.createGeoBoundaryPaths(sourceProduct)) {
+                regionArea.add(new Area(generalPath));
+            }
+        }
         sourceProductCount++;
     }
 
@@ -634,7 +647,7 @@ public class BinningOp extends Operator implements Output {
     }
 
     private void writeOutput(List<TemporalBin> temporalBins, ProductData.UTC startTime, ProductData.UTC stopTime) throws
-                                                                                                                  Exception {
+            Exception {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 

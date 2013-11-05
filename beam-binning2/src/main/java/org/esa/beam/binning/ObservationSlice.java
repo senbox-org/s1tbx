@@ -1,6 +1,23 @@
+/*
+ * Copyright (C) 2013 Brockmann Consult GmbH (info@brockmann-consult.de)
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 3 of the License, or (at your option)
+ * any later version.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, see http://www.gnu.org/licenses/
+ */
+
 package org.esa.beam.binning;
 
 import com.bc.ceres.glevel.MultiLevelImage;
+import com.vividsolutions.jts.geom.Geometry;
 import org.esa.beam.framework.datamodel.Product;
 
 import java.awt.Rectangle;
@@ -20,20 +37,22 @@ public class ObservationSlice implements Iterable<Observation> {
     private final float[] superSamplingSteps;
     private final Rectangle sliceRect;
     private final DataPeriod dataPeriod;
+    private final Geometry region;
 
     public ObservationSlice(MultiLevelImage[] sourceImages, MultiLevelImage maskImage, Product product,
-                            float[] superSamplingSteps, Rectangle sliceRect, DataPeriod dataPeriod) {
+                            float[] superSamplingSteps, Rectangle sliceRect, DataPeriod dataPeriod, Geometry region) {
         this.sourceImages = sourceImages;
         this.maskImage = maskImage;
         this.product = product;
         this.superSamplingSteps = superSamplingSteps;
         this.sliceRect = sliceRect;
         this.dataPeriod = dataPeriod;
+        this.region = region;
     }
 
     @Override
     public Iterator<Observation> iterator() {
-        return ObservationIterator.create(sourceImages, maskImage, product, superSamplingSteps, sliceRect, dataPeriod);
+        return ObservationIterator.create(sourceImages, maskImage, product, superSamplingSteps, sliceRect, dataPeriod, region);
     }
 
 }

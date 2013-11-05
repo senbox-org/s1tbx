@@ -1,3 +1,19 @@
+/*
+ * Copyright (C) 2013 Brockmann Consult GmbH (info@brockmann-consult.de)
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 3 of the License, or (at your option)
+ * any later version.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, see http://www.gnu.org/licenses/
+ */
+
 package org.esa.beam.binning.operator;/*
  * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
@@ -14,20 +30,29 @@ package org.esa.beam.binning.operator;/*
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-import org.esa.beam.framework.datamodel.*;
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.Polygon;
+import org.esa.beam.framework.datamodel.GeoCoding;
+import org.esa.beam.framework.datamodel.GeoPos;
+import org.esa.beam.framework.datamodel.PixelPos;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.ProductFilter;
 import org.esa.beam.framework.dataop.maptransf.Datum;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
-public class SourceProductFilterTest {
+public class TimeRangeProductFilterTest {
 
     @Test
     public void testAcceptProductWithProperGeoCoding() throws Exception {
-        final ProductFilter filter = new SourceProductFilter(null, null);
+        final ProductFilter filter = new TimeRangeProductFilter(null, null);
         final Product product = new Product("P", "T", 10, 10);
 
         product.setGeoCoding(new MockGeoCoding(true, false));
@@ -39,7 +64,7 @@ public class SourceProductFilterTest {
 
     @Test
     public void testRejectProductWithoutProperGeoCoding() throws Exception {
-        final ProductFilter filter = new SourceProductFilter(null, null);
+        final ProductFilter filter = new TimeRangeProductFilter(null, null);
         final Product product = new Product("P", "T", 10, 10);
 
         assertFalse(filter.accept(product));
@@ -56,8 +81,8 @@ public class SourceProductFilterTest {
 
     @Test
     public void testAcceptProductWithStartAndEndTime() throws Exception {
-        final ProductFilter filter = new SourceProductFilter(ProductData.UTC.parse("02-MAY-2013 00:00:00"),
-                                                             ProductData.UTC.parse("02-MAY-2013 23:59:59"));
+        final ProductFilter filter = new TimeRangeProductFilter(ProductData.UTC.parse("02-MAY-2013 00:00:00"),
+                                                                ProductData.UTC.parse("02-MAY-2013 23:59:59"));
         final Product product = new Product("P", "T", 10, 10);
         product.setGeoCoding(new MockGeoCoding(true, true));
 
@@ -167,5 +192,74 @@ public class SourceProductFilterTest {
         public MathTransform getImageToMapTransform() {
             return null;
         }
+    }
+
+    /**
+     * This test was only introduced to measure the performance of
+     * point in polygon test. No production code is executed.
+     */
+    @Test
+    @Ignore
+    public void testPointInPolygonPerformance() throws Exception {
+        final GeometryFactory geometryFactory = new GeometryFactory();
+        Polygon box1 = geometryFactory.createPolygon(geometryFactory.createLinearRing(new Coordinate[]{
+                new Coordinate(0.1, 0.1),
+                new Coordinate(0.8, 0.1),
+                new Coordinate(0.8, 0.8),
+                new Coordinate(0.1, 0.8),
+                new Coordinate(0.1, 0.1),
+        }), null);
+        Polygon box2 = geometryFactory.createPolygon(geometryFactory.createLinearRing(new Coordinate[]{
+                new Coordinate(0.11, 0.12),
+                new Coordinate(0.85, 0.11),
+                new Coordinate(0.84, 0.83),
+                new Coordinate(0.19, 0.87),
+                new Coordinate(0.16, 0.19),
+                new Coordinate(0.11, 0.12),
+        }), null);
+
+        final int N = 14000000; // 14E6 ~ one MERIS orbit
+
+        double n2m = 1.0 / (1000 * 1000);
+
+        PIP emptyPip = new PIP() {
+            @Override
+            public boolean isPIP(double x, double y, Geometry polygon) {
+                return false;
+            }
+        };
+
+        PIP realPip = new PIP() {
+            @Override
+            public boolean isPIP(double x, double y, Geometry polygon) {
+                return polygon.contains(geometryFactory.createPoint(new Coordinate(x, y)));
+            }
+        };
+
+        long dt1 = runPip(box1, N, emptyPip);
+        System.out.println("dt(fake) = " + dt1 * n2m + " ms");
+
+        long dt2 = runPip(box1, N, realPip);
+        System.out.println("dt(box1) = " + dt2 * n2m + " ms");
+
+        long dt3 = runPip(box2, N, realPip);
+        System.out.println("dt(box2) = " + dt3 * n2m + " ms");
+
+        System.out.println("box1: dt = " + (dt2 - dt1) * n2m + " ms");
+        System.out.println("box2: dt = " + (dt3 - dt1) * n2m + " ms");
+    }
+
+
+    private static long runPip(Polygon polygon, int n, PIP pip) {
+        long t0 = System.nanoTime();
+        for (int i = 0; i < n; i++) {
+            pip.isPIP(Math.random(), Math.random(), polygon);
+        }
+        long t1 = System.nanoTime();
+        return t1 - t0;
+    }
+
+    interface PIP {
+        boolean isPIP(double x, double y, Geometry polygon);
     }
 }

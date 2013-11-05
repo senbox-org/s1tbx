@@ -1,5 +1,24 @@
+/*
+ * Copyright (C) 2013 Brockmann Consult GmbH (info@brockmann-consult.de)
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 3 of the License, or (at your option)
+ * any later version.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, see http://www.gnu.org/licenses/
+ */
+
 package org.esa.beam.binning;
 
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
 import org.esa.beam.binning.support.ObservationImpl;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.GeoPos;
@@ -14,6 +33,8 @@ import java.awt.geom.Point2D;
 import java.awt.image.Raster;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+
+// todo - nf20131031 - review with marcop/marcoz - this class should be instantiated using a builder so that we can have flexible parameterisation
 
 /**
  * Abstract implementation of Iterator interface which iterates over {@link org.esa.beam.binning.Observation Observations}.
@@ -30,16 +51,25 @@ abstract class ObservationIterator implements Iterator<Observation> {
     private SamplePointer pointer;
     private final GeoCoding gc;
     private final Product product;
+    private final boolean productHasTime;
     private final DataPeriod dataPeriod;
+    private final Geometry region;
+    private final GeometryFactory geometryFactory;
 
     @Deprecated
     public static ObservationIterator create(PlanarImage[] sourceImages, PlanarImage maskImage, Product product,
                                              float[] superSamplingSteps, Rectangle sliceRectangle) {
-        return create(sourceImages, maskImage, product, superSamplingSteps, sliceRectangle, null);
+        return create(sourceImages, maskImage, product, superSamplingSteps, sliceRectangle, null, null);
+    }
+
+    @Deprecated
+    public static ObservationIterator create(PlanarImage[] sourceImages, PlanarImage maskImage, Product product,
+                                             float[] superSamplingSteps, Rectangle sliceRectangle, DataPeriod dataPeriod) {
+        return create(sourceImages, maskImage, product, superSamplingSteps, sliceRectangle, dataPeriod, null);
     }
 
     public static ObservationIterator create(PlanarImage[] sourceImages, PlanarImage maskImage, Product product,
-                                             float[] superSamplingSteps, Rectangle sliceRectangle, DataPeriod dataPeriod) {
+                                             float[] superSamplingSteps, Rectangle sliceRectangle, DataPeriod dataPeriod, Geometry region) {
 
         SamplePointer pointer;
         if (superSamplingSteps.length == 1) {
@@ -49,21 +79,20 @@ abstract class ObservationIterator implements Iterator<Observation> {
             pointer = SamplePointer.create(sourceImages, new Rectangle[]{sliceRectangle}, superSamplingPoints);
         }
         if (maskImage == null) {
-            return new NoMaskObservationIterator(product, pointer, dataPeriod);
+            return new NoMaskObservationIterator(product, pointer, dataPeriod, region);
         } else {
-            return new FullObservationIterator(product, pointer, maskImage, dataPeriod);
+            return new FullObservationIterator(product, pointer, maskImage, dataPeriod, region);
         }
     }
 
-    protected ObservationIterator(Product product, SamplePointer pointer, DataPeriod dataPeriod) {
+    protected ObservationIterator(Product product, SamplePointer pointer, DataPeriod dataPeriod, Geometry region) {
         this.pointer = pointer;
         this.dataPeriod = dataPeriod;
-        if (product.getStartTime() != null || product.getEndTime() != null) {
-            this.product = product;
-        } else {
-            this.product = null;
-        }
+        this.region = region;
+        this.product = product;
+        this.productHasTime = product.getStartTime() != null || product.getEndTime() != null;
         this.gc = product.getGeoCoding();
+        geometryFactory = new GeometryFactory();
     }
 
     public final SamplePointer getPointer() {
@@ -101,23 +130,33 @@ abstract class ObservationIterator implements Iterator<Observation> {
     protected abstract Observation getNextObservation();
 
     protected Observation createObservation(int x, int y) {
-        SamplePointer pointer = getPointer();
+        final SamplePointer pointer = getPointer();
 
-        Point2D.Float superSamplingPoint = pointer.getSuperSamplingPoint();
+        final Point2D.Float superSamplingPoint = pointer.getSuperSamplingPoint();
         final PixelPos pixelPos = new PixelPos(x + superSamplingPoint.x, y + superSamplingPoint.y);
         final GeoPos geoPos = getGeoPos(pixelPos);
 
+        if (!acceptGeoPos(geoPos)) {
+            return null;
+        }
+
         double mjd = 0.0;
-        if (product != null && dataPeriod != null) {
+        if (productHasTime) {
             ProductData.UTC scanLineTime = ProductUtils.getScanLineTime(product, y + 0.5);
             mjd = scanLineTime.getMJD();
-            if (dataPeriod.getObservationMembership(geoPos.lon, mjd) != DataPeriod.Membership.CURRENT_PERIOD) {
+            if (dataPeriod != null && dataPeriod.getObservationMembership(geoPos.lon, mjd) != DataPeriod.Membership.CURRENT_PERIOD) {
                 return null;
             }
         }
 
         final float[] samples = pointer.createSamples();
         return new ObservationImpl(geoPos.lat, geoPos.lon, mjd, samples);
+    }
+
+    private boolean acceptGeoPos(GeoPos geoPos) {
+        return region == null
+                || region.contains(geometryFactory.createPoint(new Coordinate(geoPos.lon, geoPos.lat)));
+
     }
 
     protected GeoPos getGeoPos(PixelPos pixelPos) {
@@ -131,8 +170,8 @@ abstract class ObservationIterator implements Iterator<Observation> {
         private Raster maskTile;
         private final PlanarImage maskImage;
 
-        FullObservationIterator(Product product, SamplePointer pointer, PlanarImage maskImage, DataPeriod dataPeriod) {
-            super(product, pointer, dataPeriod);
+        FullObservationIterator(Product product, SamplePointer pointer, PlanarImage maskImage, DataPeriod dataPeriod, Geometry region) {
+            super(product, pointer, dataPeriod, region);
             this.maskImage = maskImage;
         }
 
@@ -166,8 +205,8 @@ abstract class ObservationIterator implements Iterator<Observation> {
     static class NoMaskObservationIterator extends ObservationIterator {
 
 
-        NoMaskObservationIterator(Product product, SamplePointer pointer, DataPeriod dataPeriod) {
-            super(product, pointer, dataPeriod);
+        NoMaskObservationIterator(Product product, SamplePointer pointer, DataPeriod dataPeriod, Geometry region) {
+            super(product, pointer, dataPeriod, region);
         }
 
         @Override

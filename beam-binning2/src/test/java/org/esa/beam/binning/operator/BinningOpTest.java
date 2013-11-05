@@ -1,3 +1,19 @@
+/*
+ * Copyright (C) 2013 Brockmann Consult GmbH (info@brockmann-consult.de)
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 3 of the License, or (at your option)
+ * any later version.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, see http://www.gnu.org/licenses/
+ */
+
 package org.esa.beam.binning.operator;
 
 import com.vividsolutions.jts.geom.Coordinate;
@@ -7,7 +23,12 @@ import org.esa.beam.binning.DataPeriod;
 import org.esa.beam.binning.aggregators.AggregatorAverage;
 import org.esa.beam.binning.aggregators.AggregatorPercentile;
 import org.esa.beam.framework.dataio.ProductIO;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.CrsGeoCoding;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.ProductFilter;
+import org.esa.beam.framework.datamodel.TiePointGeoCoding;
+import org.esa.beam.framework.datamodel.TiePointGrid;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.main.GPT;
@@ -534,7 +555,7 @@ public class BinningOpTest {
         binningOp.startDate = null;
         binningOp.endDate = null;
 
-        assertSame(BinningOp.AllProductFilter.class, binningOp.createSourceProductFilter(null, null, null).getClass());
+        assertSame(ProductFilter.ALL, BinningOp.createSourceProductFilter(null, null, null, null));
     }
 
     @Test
@@ -552,7 +573,7 @@ public class BinningOpTest {
 
         BinningOp binningOp = new BinningOp();
         binningOp.useSpatialDataDay = true;
-        ProductFilter filter = binningOp.createSourceProductFilter(dataPeriod, null, null);
+        ProductFilter filter = BinningOp.createSourceProductFilter(dataPeriod, null, null, null);
 
         assertSame(SpatialDataDaySourceProductFilter.class, filter.getClass());
 
@@ -565,7 +586,7 @@ public class BinningOpTest {
     }
 
     @Test
-    public void testSetRegionToProductsExtent() throws Exception {
+    public void testGetRegionFromProductsExtent() throws Exception {
         BinningOp binningOp = new BinningOp();
         final Product product1 = new Product("name1", "type", 10, 10);
         final Product product2 = new Product("name2", "type", 10, 10);
@@ -573,9 +594,8 @@ public class BinningOpTest {
         product1.setGeoCoding(new CrsGeoCoding(DefaultGeographicCRS.WGS84, 10, 10, 10.0, 50.0, 1.0, 1.0));
         product2.setGeoCoding(new CrsGeoCoding(DefaultGeographicCRS.WGS84, 10, 10, 15.0, 45.0, 1.0, 1.0));
 
-        binningOp.sourceProducts = new Product[]{product1, product2};
-        binningOp.setRegionToProductsExtent();
-        Geometry region = binningOp.getRegion();
+        Product[] sourceProducts = new Product[]{product1, product2};
+        Geometry region = BinningOp.getRegionFromProductsExtent(null, sourceProducts, binningOp.getLogger());
 
         GeneralPath shape = new GeneralPath();
         shape.moveTo((float) region.getCoordinates()[0].x, (float) region.getCoordinates()[0].y);

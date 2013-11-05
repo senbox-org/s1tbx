@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
- * 
+ * Copyright (C) 2013 Brockmann Consult GmbH (info@brockmann-consult.de)
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation; either version 3 of the License, or (at your option)
@@ -9,16 +9,19 @@
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
  * more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
 package org.esa.beam.binning.operator.ui;
 
+import com.bc.ceres.binding.ConversionException;
 import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.PropertyDescriptor;
+import com.bc.ceres.binding.PropertySet;
+import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.accessors.DefaultPropertyAccessor;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
@@ -31,6 +34,10 @@ import org.esa.beam.binning.operator.FormatterConfig;
 import org.esa.beam.binning.operator.VariableConfig;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.GPF;
+import org.esa.beam.framework.gpf.OperatorSpi;
+import org.esa.beam.framework.gpf.ui.OperatorMenu;
+import org.esa.beam.framework.gpf.ui.OperatorParameterSupport;
+import org.esa.beam.framework.gpf.ui.ParameterUpdater;
 import org.esa.beam.framework.gpf.ui.SingleTargetProductDialog;
 import org.esa.beam.framework.gpf.ui.TargetProductSelectorModel;
 import org.esa.beam.framework.ui.AppContext;
@@ -40,6 +47,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * UI for binning operator.
@@ -48,7 +56,7 @@ import java.util.Map;
  * @author Thomas Storm
  */
 public class BinningDialog extends SingleTargetProductDialog {
-
+    private static final String OPERATOR_NAME = "Binning";
     private final BinningForm form;
     private final BinningFormModel formModel;
 
@@ -59,6 +67,24 @@ public class BinningDialog extends SingleTargetProductDialog {
         }
         formModel = new BinningFormModelImpl();
         form = new BinningForm(appContext, formModel, getTargetProductSelector());
+
+
+        OperatorSpi operatorSpi = GPF.getDefaultInstance().getOperatorSpiRegistry().getOperatorSpi(OPERATOR_NAME);
+
+        ParameterUpdater parameterUpdater = new BinningParameterUpdater();
+
+
+        OperatorParameterSupport parameterSupport = new OperatorParameterSupport(operatorSpi.getOperatorClass(),
+                                                                                 null,
+                                                                                 null,
+                                                                                 parameterUpdater);
+        OperatorMenu operatorMenu = new OperatorMenu(this.getJDialog(),
+                                                     operatorSpi.getOperatorClass(),
+                                                     parameterSupport,
+                                                     helpID);
+
+        getJDialog().setJMenuBar(operatorMenu.createDefaultMenu());
+
     }
 
     static Property createProperty(String name, Class type) {
@@ -159,4 +185,30 @@ public class BinningDialog extends SingleTargetProductDialog {
         }
     }
 
+    private class BinningParameterUpdater implements ParameterUpdater {
+        @Override
+        public void handleParameterSaveRequest(Map<String, Object> parameterMap) throws ValidationException, ConversionException {
+            formModel.getBindingContext().adjustComponents();
+            final PropertySet propertySet = formModel.getBindingContext().getPropertySet();
+            final Property[] properties = propertySet.getProperties();
+            for (Property property : properties) {
+                parameterMap.put(property.getName(), property.getValue());
+            }
+        }
+
+        @Override
+        public void handleParameterLoadRequest(Map<String, Object> parameterMap) throws ValidationException, ConversionException {
+            final PropertySet propertySet = formModel.getBindingContext().getPropertySet();
+            final Set<Map.Entry<String,Object>> entries = parameterMap.entrySet();
+            for (Map.Entry<String, Object> entry : entries) {
+                try {
+                    propertySet.setValue(entry.getKey(), entry.getValue());
+                } catch (IllegalArgumentException e) {
+                    // todo - handle exception (Norman, 14.05.13)
+                    e.printStackTrace();
+                }
+            }
+            formModel.getBindingContext().adjustComponents();
+        }
+    }
 }
