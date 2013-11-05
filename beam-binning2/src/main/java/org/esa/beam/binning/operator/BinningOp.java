@@ -134,6 +134,12 @@ public class BinningOp extends Operator implements Output {
                              "'?' (matches any single character).")
     String[] sourceProductPaths;
 
+    // TODO nf/mz 2013-11-05 review this before BEAM 5, this could be a common Operator parameter
+    @Parameter(description = "The common product format of all source products. This parameter is optional and may be used in conjunction " +
+                             "with parameter 'sourceProductPaths' and only to speed up source product opening." +
+                             "Try \"NetCDF-CF\", \"GeoTIFF\", \"BEAM-DIMAP\", or \"ENVISAT\", etc.", defaultValue = "")
+    private String sourceProductFormat;
+
     @Parameter(converter = JtsGeometryConverter.class,
                description = "The considered geographical region as a geometry in well-known text format (WKT).\n" +
                              "If not given, the geographical region will be computed according to the extents of the " +
@@ -192,7 +198,7 @@ public class BinningOp extends Operator implements Output {
     private transient BinWriter binWriter;
     private transient Area regionArea;
 
-    // TODO nf/mz 2013-11-05 review with thomas use of this field
+    // TODO nf/mz 2013-11-05 review before BEAM 5 with thomas, discuss use of this field
     private final Map<Product, List<Band>> addedBands;
 
     public BinningOp() throws OperatorException {
@@ -565,7 +571,12 @@ public class BinningOp extends Operator implements Output {
                 getLogger().warning("The given source file patterns did not match any files");
             }
             for (File file : fileSet) {
-                Product sourceProduct = ProductIO.readProduct(file);
+                Product sourceProduct;
+                if (sourceProductFormat != null) {
+                    sourceProduct = ProductIO.readProduct(file, sourceProductFormat);
+                } else {
+                    sourceProduct = ProductIO.readProduct(file);
+                }
                 if (sourceProduct != null) {
                     try {
                         if (productFilter.accept(sourceProduct)) {
