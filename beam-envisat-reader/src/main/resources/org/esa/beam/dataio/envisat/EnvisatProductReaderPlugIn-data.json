@@ -2,7 +2,7 @@
     "testProducts": [
         {
             "id": "ATS_TOA_1PRUPA20051211_100417",
-            "relativePath": "problems/jira/ATS_TOA_1PRUPA20051211_100417_000065272043_00179_19772_4909.N1",
+            "relativePath": "problems/jira/180_meridian/ATS_TOA_1PRUPA20051211_100417_000065272043_00179_19772_4909.N1",
             "description": "AATSR TOA L1 product intersecting anti meridian twice, Proc.Ver. AATSR/6.01"
         },
         {
