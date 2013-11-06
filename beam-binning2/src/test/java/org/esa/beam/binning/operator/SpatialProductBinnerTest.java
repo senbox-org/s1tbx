@@ -47,7 +47,7 @@ public class SpatialProductBinnerTest {
 
     @Test
     public void testThatProductMustHaveAGeoCoding() throws Exception {
-        BinningContext ctx = createValidCtx(null);
+        BinningContext ctx = createValidCtx(1, null);
 
         try {
             MySpatialBinConsumer mySpatialBinProcessor = new MySpatialBinConsumer();
@@ -63,7 +63,7 @@ public class SpatialProductBinnerTest {
     @Test
     public void testProcessProduct() throws Exception {
 
-        BinningContext ctx = createValidCtx(null);
+        BinningContext ctx = createValidCtx(1, null);
         Product product = createProduct();
 
         MySpatialBinConsumer mySpatialBinProcessor = new MySpatialBinConsumer();
@@ -91,7 +91,7 @@ public class SpatialProductBinnerTest {
                 return Membership.SUBSEQUENT_PERIODS;
             }
         };
-        BinningContext ctx = createValidCtx(testDataPeriod);
+        BinningContext ctx = createValidCtx(1, testDataPeriod);
         Product product = createProduct();
 
         MySpatialBinConsumer mySpatialBinProcessor = new MySpatialBinConsumer();
@@ -102,12 +102,11 @@ public class SpatialProductBinnerTest {
 
     @Test
     public void testProcessProductWithSuperSampling() throws Exception {
-
-        BinningContext ctx = createValidCtx(null);
+        int superSampling = 3;
+        BinningContext ctx = createValidCtx(superSampling, null);
         Product product = createProduct();
 
         MySpatialBinConsumer mySpatialBinConsumer = new MySpatialBinConsumer();
-        int superSampling = 3;
         SpatialProductBinner.processProduct(product, new SpatialBinner(ctx, mySpatialBinConsumer),
                                             superSampling, new HashMap<Product, List<Band>>(), ProgressMonitor.NULL);
         Assert.assertEquals(32 * 256 * superSampling * superSampling, mySpatialBinConsumer.numObs);
@@ -116,7 +115,7 @@ public class SpatialProductBinnerTest {
     @Test
     public void testAddedBands() throws Exception {
 
-        BinningContext ctx = createValidCtx(null);
+        BinningContext ctx = createValidCtx(1, null);
         Product product = createProduct();
 
         HashMap<Product, List<Band>> productBandListMap = new HashMap<Product, List<Band>>();
@@ -137,7 +136,7 @@ public class SpatialProductBinnerTest {
     @Test
     public void testProcessProductWithMask() throws Exception {
 
-        BinningContext ctx = createValidCtx(null);
+        BinningContext ctx = createValidCtx(1, null);
         VariableContextImpl variableContext = (VariableContextImpl) ctx.getVariableContext();
         variableContext.setMaskExpr("floor(X) % 2");
         Product product = createProduct();
@@ -153,14 +152,13 @@ public class SpatialProductBinnerTest {
 
     @Test
     public void testProcessProductWithMaskAndSuperSampling() throws Exception {
-
-        BinningContext ctx = createValidCtx(null);
+        int superSampling = 3;
+        BinningContext ctx = createValidCtx(superSampling, null);
         VariableContextImpl variableContext = (VariableContextImpl) ctx.getVariableContext();
         variableContext.setMaskExpr("floor(X) % 2");
         Product product = createProduct();
 
         MySpatialBinConsumer mySpatialBinConsumer = new MySpatialBinConsumer();
-        int superSampling = 3;
         SpatialBinner spatialBinner = new SpatialBinner(ctx, mySpatialBinConsumer);
         long numObservations = SpatialProductBinner.processProduct(product, spatialBinner, superSampling,
                                                                    new HashMap<Product, List<Band>>(),
@@ -206,7 +204,7 @@ public class SpatialProductBinnerTest {
         return product;
     }
 
-    private static BinningContext createValidCtx(DataPeriod dataPeriod) {
+    private static BinningContext createValidCtx(int superSampling, DataPeriod dataPeriod) {
         VariableContextImpl variableContext = new VariableContextImpl();
         variableContext.setMaskExpr("!invalid");
         variableContext.defineVariable("invalid", "0");
@@ -218,7 +216,7 @@ public class SpatialProductBinnerTest {
                                                new AggregatorAverage(variableContext, "a", null),
                                                new AggregatorAverage(variableContext, "b", null));
 
-        return new BinningContextImpl(planetaryGrid, binManager, CompositingType.BINNING, 1, dataPeriod);
+        return new BinningContextImpl(planetaryGrid, binManager, CompositingType.BINNING, superSampling, dataPeriod, null);
     }
 
     private static class MySpatialBinConsumer implements SpatialBinConsumer {

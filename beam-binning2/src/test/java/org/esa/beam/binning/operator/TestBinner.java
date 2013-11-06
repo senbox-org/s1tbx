@@ -93,7 +93,7 @@ public class TestBinner {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
-        BinningContext binningContext = binningConfig.createBinningContext();
+        BinningContext binningContext = binningConfig.createBinningContext(null);
 
         // Step 1: Spatial binning - creates time-series of spatial bins for each bin ID ordered by ID. The tree map structure is <ID, time-series>
         SortedMap<Long, List<SpatialBin>> spatialBinMap = doSpatialBinning(binningContext, sourceFiles);

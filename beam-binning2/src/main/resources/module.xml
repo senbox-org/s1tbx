@@ -31,6 +31,7 @@
         <![CDATA[
         Changes from version 0.9 to 1.0:<br\>
         <ol>
+        <li>[BEAM-1565] Binning shall use parameter 'region' to subset source products</li>
         <li>[BEAM-1495] NaN should be considered in L3-Binning</li>
         </ol>
         Changes from version 0.8.1 to 0.9:<br\>

@@ -48,7 +48,7 @@ public class ProductTemporalBinRendererTest {
         File tempFile = File.createTempFile("BEAM", ".nc");
         tempFile.deleteOnExit();
         BinningContextImpl binningContext = new BinningContextImpl(new SEAGrid(10), new BinManager(),
-                                                                   CompositingType.BINNING, 1);
+                                                                   CompositingType.BINNING, 1, null, null);
         ProductTemporalBinRenderer binRenderer = createBinRenderer(tempFile, binningContext);
         Rectangle region = binRenderer.getRasterRegion();
 

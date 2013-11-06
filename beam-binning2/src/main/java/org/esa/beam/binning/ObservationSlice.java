@@ -17,7 +17,6 @@
 package org.esa.beam.binning;
 
 import com.bc.ceres.glevel.MultiLevelImage;
-import com.vividsolutions.jts.geom.Geometry;
 import org.esa.beam.framework.datamodel.Product;
 
 import java.awt.Rectangle;
@@ -36,23 +35,21 @@ public class ObservationSlice implements Iterable<Observation> {
     private final Product product;
     private final float[] superSamplingSteps;
     private final Rectangle sliceRect;
-    private final DataPeriod dataPeriod;
-    private final Geometry region;
+    private final BinningContext binningContext;
 
     public ObservationSlice(MultiLevelImage[] sourceImages, MultiLevelImage maskImage, Product product,
-                            float[] superSamplingSteps, Rectangle sliceRect, DataPeriod dataPeriod, Geometry region) {
+                            float[] superSamplingSteps, Rectangle sliceRect, BinningContext binningContext) {
         this.sourceImages = sourceImages;
         this.maskImage = maskImage;
         this.product = product;
         this.superSamplingSteps = superSamplingSteps;
         this.sliceRect = sliceRect;
-        this.dataPeriod = dataPeriod;
-        this.region = region;
+        this.binningContext = binningContext;
     }
 
     @Override
     public Iterator<Observation> iterator() {
-        return ObservationIterator.create(sourceImages, maskImage, product, superSamplingSteps, sliceRect, dataPeriod, region);
+        return ObservationIterator.create(sourceImages, maskImage, product, superSamplingSteps, sliceRect, binningContext);
     }
 
 }

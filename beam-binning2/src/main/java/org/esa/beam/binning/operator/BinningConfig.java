@@ -17,6 +17,7 @@
 package org.esa.beam.binning.operator;
 
 import com.bc.ceres.binding.BindingException;
+import com.vividsolutions.jts.geom.Geometry;
 import org.esa.beam.binning.Aggregator;
 import org.esa.beam.binning.AggregatorConfig;
 import org.esa.beam.binning.AggregatorDescriptor;
@@ -215,13 +216,19 @@ public class BinningConfig {
         }
     }
 
+    @Deprecated
     public BinningContext createBinningContext() {
+        return createBinningContext(null);
+    }
+
+    public BinningContext createBinningContext(Geometry region) {
         VariableContext variableContext = createVariableContext();
         return new BinningContextImpl(createPlanetaryGrid(),
                                       createBinManager(variableContext),
                                       compositingType,
                                       getSuperSampling() != null ? getSuperSampling() : 1,
-                                      createDataPeriod());
+                                      createDataPeriod(startDate, periodDuration, minDataHour),
+                                      region);
     }
 
     /**
@@ -308,7 +315,7 @@ public class BinningConfig {
         return variableContext;
     }
 
-    private DataPeriod createDataPeriod() {
+    private static DataPeriod createDataPeriod(String startDate, Integer periodDuration, Double minDataHour) {
         if (startDate != null) {
             final ProductData.UTC startUtc;
             try {

@@ -134,7 +134,8 @@ public class BinningOp extends Operator implements Output {
     // TODO nf/mz 2013-11-05 review this before BEAM 5, this could be a common Operator parameter
     @Parameter(description = "The common product format of all source products. This parameter is optional and may be used in conjunction " +
                              "with parameter 'sourceProductPaths' and only to speed up source product opening." +
-                             "Try \"NetCDF-CF\", \"GeoTIFF\", \"BEAM-DIMAP\", or \"ENVISAT\", etc.", defaultValue = "")
+                             "Try \"NetCDF-CF\", \"GeoTIFF\", \"BEAM-DIMAP\", or \"ENVISAT\", etc.",
+               defaultValue = "")
     private String sourceProductFormat;
 
     @Parameter(converter = JtsGeometryConverter.class,
@@ -154,10 +155,12 @@ public class BinningOp extends Operator implements Output {
     String endDate;
 
     @Parameter(description = "If true, a SeaDAS-style, binned data NetCDF file is written in addition to the\n" +
-                             "target product. The output file name will be <target>-bins.nc", defaultValue = "true")
+                             "target product. The output file name will be <target>-bins.nc",
+               defaultValue = "true")
     boolean outputBinnedData;
 
-    @Parameter(description = "If true, a target is product. Set this to 'false' if only a binned product is needed.",
+    @Parameter(description = "If true, a mapped product is written. Set this to 'false' if only a binned product is needed.",
+               alias = "outputMappedProduct",
                defaultValue = "true")
     boolean outputTargetProduct;
 
@@ -169,9 +172,8 @@ public class BinningOp extends Operator implements Output {
                description = "The configuration used for the output formatting process.")
     FormatterConfig formatterConfig;
 
-    @Parameter(
-            description = "The name of the file containing metadata key-value pairs (google \"Java Properties file format\").",
-            defaultValue = "./metadata.properties")
+    @Parameter(description = "The name of the file containing metadata key-value pairs (google \"Java Properties file format\").",
+               defaultValue = "./metadata.properties")
     File metadataPropertiesFile;
 
     @Parameter(description = "The name of the directory containing metadata templates (google \"Apache Velocity VTL format\").",
@@ -180,9 +182,11 @@ public class BinningOp extends Operator implements Output {
 
     @Parameter(description = "Applies a sensor-dependent, spatial data-day definition to the given time range. " +
                              "The decision, whether a source pixel contributes to a bin or not, is a functions of the pixel's observation longitude and time." +
-                             "If true, the parameters 'startDate', 'endDate' must also be given.", defaultValue = "false")
+                             "If true, the parameters 'startDate', 'endDate' must also be given.",
+               defaultValue = "false")
     boolean useSpatialDataDay;
 
+    // TODO mz 2013-11-06 unused !?!
     @Parameter(description = "The time in hours of a day (0 to 24) at which a given sensor has a minimum number of " +
                              "observations at the date line (the 180 degree meridian). Only used if parameters 'startDate' and 'useSpatialDataDay' are set.")
     private Double minDataHour;
@@ -272,7 +276,7 @@ public class BinningOp extends Operator implements Output {
         stopWatch.start();
 
         if (region == null) {
-            // TODO use JTS directly
+            // TODO use JTS directly (nf 2013-11-06)
             regionArea = new Area();
         }
 
@@ -280,7 +284,7 @@ public class BinningOp extends Operator implements Output {
             binningConfig.setStartDate(startDate);
         }
 
-        binningContext = binningConfig.createBinningContext();
+        binningContext = binningConfig.createBinningContext(region);
 
         ProductFilter productFilter = createSourceProductFilter(useSpatialDataDay ? binningContext.getDataPeriod() : null,
                                                                 startDateUtc,
@@ -569,6 +573,9 @@ public class BinningOp extends Operator implements Output {
             subsetOp.setSourceProduct(sourceProduct);
             subsetOp.setGeoRegion(region);
             sourceProduct = subsetOp.getTargetProduct();
+            // TODO mz/nf/mp 2013-11-06
+            // TODO replace suvbset with rectangle as paramter to SpatialProductBinner
+            // TODO grow rectangle by binSize in pixel units (see lc-tools solution and integrate here)
         }
         final long numObs = SpatialProductBinner.processProduct(sourceProduct, spatialBinner,
                                                                 binningContext.getSuperSampling(), addedBands,

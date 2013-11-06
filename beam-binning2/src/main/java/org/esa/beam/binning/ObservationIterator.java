@@ -56,20 +56,8 @@ abstract class ObservationIterator implements Iterator<Observation> {
     private final Geometry region;
     private final GeometryFactory geometryFactory;
 
-    @Deprecated
-    public static ObservationIterator create(PlanarImage[] sourceImages, PlanarImage maskImage, Product product,
-                                             float[] superSamplingSteps, Rectangle sliceRectangle) {
-        return create(sourceImages, maskImage, product, superSamplingSteps, sliceRectangle, null, null);
-    }
-
-    @Deprecated
-    public static ObservationIterator create(PlanarImage[] sourceImages, PlanarImage maskImage, Product product,
-                                             float[] superSamplingSteps, Rectangle sliceRectangle, DataPeriod dataPeriod) {
-        return create(sourceImages, maskImage, product, superSamplingSteps, sliceRectangle, dataPeriod, null);
-    }
-
-    public static ObservationIterator create(PlanarImage[] sourceImages, PlanarImage maskImage, Product product,
-                                             float[] superSamplingSteps, Rectangle sliceRectangle, DataPeriod dataPeriod, Geometry region) {
+    static ObservationIterator create(PlanarImage[] sourceImages, PlanarImage maskImage, Product product,
+                                      float[] superSamplingSteps, Rectangle sliceRectangle, BinningContext binningContext) {
 
         SamplePointer pointer;
         if (superSamplingSteps.length == 1) {
@@ -79,16 +67,16 @@ abstract class ObservationIterator implements Iterator<Observation> {
             pointer = SamplePointer.create(sourceImages, new Rectangle[]{sliceRectangle}, superSamplingPoints);
         }
         if (maskImage == null) {
-            return new NoMaskObservationIterator(product, pointer, dataPeriod, region);
+            return new NoMaskObservationIterator(product, pointer, binningContext);
         } else {
-            return new FullObservationIterator(product, pointer, maskImage, dataPeriod, region);
+            return new FullObservationIterator(product, pointer, maskImage, binningContext);
         }
     }
 
-    protected ObservationIterator(Product product, SamplePointer pointer, DataPeriod dataPeriod, Geometry region) {
+    private ObservationIterator(Product product, SamplePointer pointer, BinningContext binningContext) {
         this.pointer = pointer;
-        this.dataPeriod = dataPeriod;
-        this.region = region;
+        this.dataPeriod = binningContext.getDataPeriod();
+        this.region = binningContext.getRegion();
         this.product = product;
         this.productHasTime = product.getStartTime() != null || product.getEndTime() != null;
         this.gc = product.getGeoCoding();
@@ -170,8 +158,8 @@ abstract class ObservationIterator implements Iterator<Observation> {
         private Raster maskTile;
         private final PlanarImage maskImage;
 
-        FullObservationIterator(Product product, SamplePointer pointer, PlanarImage maskImage, DataPeriod dataPeriod, Geometry region) {
-            super(product, pointer, dataPeriod, region);
+        FullObservationIterator(Product product, SamplePointer pointer, PlanarImage maskImage, BinningContext binningContext) {
+            super(product, pointer, binningContext);
             this.maskImage = maskImage;
         }
 
@@ -205,8 +193,8 @@ abstract class ObservationIterator implements Iterator<Observation> {
     static class NoMaskObservationIterator extends ObservationIterator {
 
 
-        NoMaskObservationIterator(Product product, SamplePointer pointer, DataPeriod dataPeriod, Geometry region) {
-            super(product, pointer, dataPeriod, region);
+        NoMaskObservationIterator(Product product, SamplePointer pointer, BinningContext binningContext) {
+            super(product, pointer, binningContext);
         }
 
         @Override

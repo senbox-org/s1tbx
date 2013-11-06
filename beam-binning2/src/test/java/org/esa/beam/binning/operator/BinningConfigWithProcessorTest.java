@@ -40,7 +40,7 @@ public class BinningConfigWithProcessorTest {
 
     @Test
     public void testResultingBinManager() {
-        BinManager binManager = config.createBinningContext().getBinManager();
+        BinManager binManager = config.createBinningContext(null).getBinManager();
         assertEquals(6, binManager.getAggregatorCount());
 
         assertEquals(AggregatorAverage.class, binManager.getAggregator(0).getClass());

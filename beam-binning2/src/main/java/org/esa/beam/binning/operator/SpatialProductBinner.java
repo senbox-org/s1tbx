@@ -19,8 +19,8 @@ package org.esa.beam.binning.operator;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.glevel.MultiLevelImage;
 import com.vividsolutions.jts.geom.Geometry;
+import org.esa.beam.binning.BinningContext;
 import org.esa.beam.binning.CompositingType;
-import org.esa.beam.binning.DataPeriod;
 import org.esa.beam.binning.ObservationSlice;
 import org.esa.beam.binning.PlanetaryGrid;
 import org.esa.beam.binning.SpatialBinner;
@@ -80,11 +80,12 @@ public class SpatialProductBinner {
         if (product.getGeoCoding() == null) {
             throw new IllegalArgumentException("product.getGeoCoding() == null");
         }
-        final VariableContext variableContext = spatialBinner.getBinningContext().getVariableContext();
+        BinningContext binningContext = spatialBinner.getBinningContext();
+        final VariableContext variableContext = binningContext.getVariableContext();
         addVariablesToProduct(variableContext, product, addedBands);
 
-        PlanetaryGrid planetaryGrid = spatialBinner.getBinningContext().getPlanetaryGrid();
-        CompositingType compositingType = spatialBinner.getBinningContext().getCompositingType();
+        PlanetaryGrid planetaryGrid = binningContext.getPlanetaryGrid();
+        CompositingType compositingType = binningContext.getCompositingType();
         Geometry sourceProductGeometry = null;
         final MultiLevelImage maskImage;
         if (CompositingType.MOSAICKING.equals(compositingType)) {
@@ -105,10 +106,10 @@ public class SpatialProductBinner {
             Dimension tileSize = product.getPreferredTileSize();
             sliceRectangles = plateCarreeGrid.getDataSliceRectangles(sourceProductGeometry, tileSize);
         } else {
-            final Dimension defaultSliceDimension = getDefaultSliceDimension(product);
+            final Dimension defaultSliceDimension = computeDefaultSliceDimension(product);
             sliceRectangles = computeDataSliceRectangles(maskImage, varImages, defaultSliceDimension);
         }
-        final float[] superSamplingSteps = getSuperSamplingSteps(superSampling);
+        final float[] superSamplingSteps = getSuperSamplingSteps(binningContext.getSuperSampling());
         long numObsTotal = 0;
         progressMonitor.beginTask("Spatially binning of " + product.getName(), sliceRectangles.length);
         final Logger logger = BeamLogManager.getSystemLogger();
@@ -195,15 +196,14 @@ public class SpatialProductBinner {
     private static long processSlice(SpatialBinner spatialBinner, ProgressMonitor progressMonitor,
                                      float[] superSamplingSteps, MultiLevelImage maskImage, MultiLevelImage[] varImages,
                                      Product product, Rectangle sliceRect) {
-        DataPeriod dataPeriod = spatialBinner.getBinningContext().getDataPeriod();
-        final ObservationSlice observationSlice = new ObservationSlice(varImages, maskImage, product, superSamplingSteps, sliceRect, dataPeriod, null);
+        final ObservationSlice observationSlice = new ObservationSlice(varImages, maskImage, product, superSamplingSteps, sliceRect, spatialBinner.getBinningContext());
         long numObservations = spatialBinner.processObservationSlice(observationSlice);
         progressMonitor.worked(1);
         return numObservations;
     }
 
 
-    private static Dimension getDefaultSliceDimension(Product product) {
+    private static Dimension computeDefaultSliceDimension(Product product) {
         final int sliceWidth = product.getSceneRasterWidth();
         Dimension preferredTileSize = product.getPreferredTileSize();
         int sliceHeight;
@@ -216,7 +216,6 @@ public class SpatialProductBinner {
         // TODO make this a parameter nf/mz 2013-11-05
         String sliceHeightString = System.getProperty(PROPERTY_KEY_SLICE_HEIGHT, String.valueOf(sliceHeight));
         Dimension dimension = new Dimension(sliceWidth, Integer.parseInt(sliceHeightString));
-        // TODO logging in a getter is not a good idea nf/mz 2013-11-05
         String logMsg = String.format("Using slice dimension [width=%d, height=%d] in binning", dimension.width, dimension.height);
         BeamLogManager.getSystemLogger().log(Level.INFO, logMsg);
         return dimension;
