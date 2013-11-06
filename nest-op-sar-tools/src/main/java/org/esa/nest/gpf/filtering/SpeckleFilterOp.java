@@ -94,7 +94,6 @@ public class SpeckleFilterOp extends Operator {
     private int halfSizeY;
     private int sourceImageWidth;
     private int sourceImageHeight;
-    private static final double NonValidPixelValue = -1.0;
 
     /**
      * Default constructor. The graph processing framework
@@ -189,50 +188,39 @@ public class SpeckleFilterOp extends Operator {
 
         try {
             final Rectangle targetTileRectangle = targetTile.getRectangle();
-            final int x0 = targetTileRectangle.x;
-            final int y0 = targetTileRectangle.y;
-            final int w = targetTileRectangle.width;
-            final int h = targetTileRectangle.height;
-            //System.out.println("x0 = " + x0 + ", y0 = " + y0 + ", w = " + w + ", h = " + h);
+            final int tx0 = targetTileRectangle.x;
+            final int ty0 = targetTileRectangle.y;
+            final int tw = targetTileRectangle.width;
+            final int th = targetTileRectangle.height;
+            final ProductData trgData = targetTile.getDataBuffer();
+            //System.out.println("x0 = " + tx0 + ", y0 = " + ty0 + ", w = " + tw + ", h = " + th);
 
-            final Rectangle sourceTileRectangle = getSourceTileRectangle(x0, y0, w, h);
-            Tile sourceRaster1;
-            Tile sourceRaster2 = null;
+            final Rectangle sourceTileRectangle = getSourceTileRectangle(tx0, ty0, tw, th);
+            Tile sourceTile1 = null;
+            Tile sourceTile2 = null;
+            ProductData sourceData1 = null;
+            ProductData sourceData2 = null;
             final String[] srcBandNames = targetBandNameToSourceBandName.get(targetBand.getName());
             Band sourceBand1;
             if (srcBandNames.length == 1) {
                 sourceBand1 = sourceProduct.getBand(srcBandNames[0]);
-                sourceRaster1 = getSourceTile(sourceBand1, sourceTileRectangle);
-                if (sourceRaster1 == null) {
-                    throw new OperatorException("Cannot get source tile");
-                }
+                sourceTile1 = getSourceTile(sourceBand1, sourceTileRectangle);
+                sourceData1 = sourceTile1.getDataBuffer();
             } else {
                 sourceBand1 = sourceProduct.getBand(srcBandNames[0]);
                 Band sourceBand2 = sourceProduct.getBand(srcBandNames[1]);
-                sourceRaster1 = getSourceTile(sourceBand1, sourceTileRectangle);
-                sourceRaster2 = getSourceTile(sourceBand2, sourceTileRectangle);
-                if (sourceRaster1 == null || sourceRaster2 == null) {
-                    throw new OperatorException("Cannot get source tile");
-                }
+                sourceTile1 = getSourceTile(sourceBand1, sourceTileRectangle);
+                sourceTile2 = getSourceTile(sourceBand2, sourceTileRectangle);
+                sourceData1 = sourceTile1.getDataBuffer();
+                sourceData2 = sourceTile2.getDataBuffer();
             }
             final Unit.UnitType bandUnit = Unit.getUnitType(sourceBand1);
-
-            final Rectangle srcTileRectangle = sourceRaster1.getRectangle();
-            final int sx0 = srcTileRectangle.x;
-            final int sy0 = srcTileRectangle.y;
-            final int sw = srcTileRectangle.width;
-            final int sh = srcTileRectangle.height;
-
-            final double[] neighborValues = new double[filterSizeX*filterSizeY];
-            final ProductData trgData = targetTile.getDataBuffer();
-
-            final ProductData srcData1 = sourceRaster1.getDataBuffer();
-            ProductData srcData2 = null;
-            if(sourceRaster2 != null)
-                srcData2 = sourceRaster2.getDataBuffer();
+            final double noDataValue = sourceBand1.getNoDataValue();
 
             final TileIndex trgIndex = new TileIndex(targetTile);
-            final TileIndex srcIndex = new TileIndex(sourceRaster1);
+            final TileIndex srcIndex = new TileIndex(sourceTile1);
+
+            final double[] neighborValues = new double[filterSizeX*filterSizeY];
 
 
             double cu, cu2, n;
@@ -240,54 +228,56 @@ public class SpeckleFilterOp extends Operator {
             switch (filter) {
                 case MEAN_SPECKLE_FILTER:
 
-                    computeMean(srcData1, srcData2, trgData, bandUnit, neighborValues, srcIndex, trgIndex,
-                            x0, y0, w, h, sx0, sy0, sw, sh);
+                    computeMean(sourceData1, sourceData2, trgData, noDataValue, bandUnit, neighborValues,
+                                srcIndex, trgIndex, tx0, ty0, tw, th);
 
                     break;
                 case MEDIAN_SPECKLE_FILTER:
 
-                    computeMedian(srcData1, srcData2, trgData, bandUnit, neighborValues, srcIndex, trgIndex,
-                            x0, y0, w, h, sx0, sy0, sw, sh);
+                    computeMedian(sourceData1, sourceData2, trgData, noDataValue, bandUnit, neighborValues,
+                                  srcIndex, trgIndex, tx0, ty0, tw, th);
 
                     break;
                 case FROST_SPECKLE_FILTER:
 
-                    computeFrost(srcData1, srcData2, trgData, bandUnit, neighborValues, srcIndex, trgIndex,
-                            x0, y0, w, h, sx0, sy0, sw, sh);
+                    computeFrost(sourceData1, sourceData2, trgData, noDataValue, bandUnit, neighborValues,
+                                 srcIndex, trgIndex, tx0, ty0, tw, th);
 
                     break;
                 case GAMMA_MAP_SPECKLE_FILTER:
 
                     if (estimateENL) {
-                        n = computeEquivalentNumberOfLooks(sourceRaster1, sourceRaster2, bandUnit, x0, y0, w, h);
+                        n = computeEquivalentNumberOfLooks(sourceData1, sourceData2, noDataValue, bandUnit,
+                                                           srcIndex, tx0, ty0, tw, th);
                     } else {
                         n = enl;
                     }
                     cu = 1.0 / Math.sqrt(n);
                     cu2 = cu * cu;
 
-                    computeGammaMap(srcData1, srcData2, trgData, bandUnit, neighborValues, srcIndex, trgIndex,
-                            x0, y0, w, h, sx0, sy0, sw, sh, cu, cu2, n);
+                    computeGammaMap(sourceData1, sourceData2, trgData, noDataValue, bandUnit, neighborValues,
+                                    srcIndex, trgIndex, tx0, ty0, tw, th, cu, cu2, n);
 
                     break;
                 case LEE_SPECKLE_FILTER:
 
                     if (estimateENL) {
-                        n = computeEquivalentNumberOfLooks(sourceRaster1, sourceRaster2, bandUnit, x0, y0, w, h);
+                        n = computeEquivalentNumberOfLooks(sourceData1, sourceData2, noDataValue, bandUnit,
+                                                           srcIndex, tx0, ty0, tw, th);
                     } else {
                         n = enl;
                     }
                     cu = 1.0 / Math.sqrt(n);
                     cu2 = cu * cu;
 
-                    computeLee(srcData1, srcData2, trgData, bandUnit, neighborValues, srcIndex, trgIndex,
-                            x0, y0, w, h, sx0, sy0, sw, sh, cu, cu2);
+                    computeLee(sourceData1, sourceData2, trgData, noDataValue, bandUnit, neighborValues,
+                               srcIndex, trgIndex, tx0, ty0, tw, th, cu, cu2);
 
                     break;
                 case LEE_REFINED_FILTER:
 
-                    computeRefinedLee(srcData1, srcData2, trgData, bandUnit, srcIndex, trgIndex,
-                            x0, y0, w, h, sx0, sy0, sw, sh);
+                    computeRefinedLee(sourceData1, sourceData2, trgData, noDataValue, bandUnit,
+                                      srcIndex, trgIndex, tx0, ty0, tw, th, sourceTileRectangle);
                     break;
             }
 
@@ -338,35 +328,39 @@ public class SpeckleFilterOp extends Operator {
      * Filter the given tile of image with Mean filter.
      * @param srcData1 The source ProductData for the 1st band.
      * @param srcData2 The source ProductData for the 2nd band.
-     * @param trgData target ProductData
+     * @param trgData target ProductData.
+     * @param noDataValue the place holder for no data.
      * @param unit Unit for the 1st band.
-     * @param neighborValues data to fill
-     * @param x0 X coordinate for the upper-left point of the target_Tile_Rectangle.
-     * @param y0 Y coordinate for the upper-left point of the target_Tile_Rectangle.
-     * @param w Width for the target_Tile_Rectangle.
-     * @param h Hight for the target_Tile_Rectangle.
-     * @param sx0 src rect x
-     * @param sy0 src rect y
-     * @param sw src rect w
-     * @param sh src rect h
+     * @param neighborValues data to fill.
+     * @param srcIndex The source tile index.
+     * @param trgIndex The target tile index.
+     * @param tx0 X coordinate for the upper-left point of the target_Tile_Rectangle.
+     * @param ty0 Y coordinate for the upper-left point of the target_Tile_Rectangle.
+     * @param tw Width for the target_Tile_Rectangle.
+     * @param th Height for the target_Tile_Rectangle.
      * @throws org.esa.beam.framework.gpf.OperatorException
      *          If an error occurs during computation of the filtered value.
      */
     private void computeMean(final ProductData srcData1, final ProductData srcData2, final ProductData trgData,
-                             final Unit.UnitType unit, final double[] neighborValues,
+                             final double noDataValue, final Unit.UnitType unit, final double[] neighborValues,
                              final TileIndex srcIndex, final TileIndex trgIndex,
-                             final int x0, final int y0, final int w, final int h,
-                             final int sx0, final int sy0, final int sw, final int sh) {
+                             final int tx0, final int ty0, final int tw, final int th) {
 
-        final int maxY = y0 + h;
-        final int maxX = x0 + w;
-        for (int y = y0; y < maxY; ++y) {
-            final int offset = trgIndex.calculateStride(y);
-            for (int x = x0; x < maxX; ++x) {
+        final int maxY = ty0 + th;
+        final int maxX = tx0 + tw;
+        for (int y = ty0; y < maxY; ++y) {
+            trgIndex.calculateStride(y);
+            for (int x = tx0; x < maxX; ++x) {
+                final int idx = trgIndex.getIndex(x);
 
-                getNeighborValues(x, y, sx0, sy0, sw, sh, srcData1, srcData2, srcIndex, unit, neighborValues);
+                final int numSamples = getNeighborValues(
+                        x, y, srcData1, srcData2, srcIndex, noDataValue, unit, neighborValues);
 
-                trgData.setElemDoubleAt(x-offset, getMeanValue(neighborValues));
+                if (numSamples > 0) {
+                    trgData.setElemDoubleAt(idx, getMeanValue(neighborValues, numSamples));
+                } else {
+                    trgData.setElemDoubleAt(idx, noDataValue);
+                }
             }
         }
     }
@@ -376,34 +370,38 @@ public class SpeckleFilterOp extends Operator {
      * @param srcData1 The source ProductData for the 1st band.
      * @param srcData2 The source ProductData for the 2nd band.
      * @param trgData target ProductData
+     * @param noDataValue the place holder for no data
      * @param unit Unit for the 1st band.
      * @param neighborValues data to fill
+     * @param srcIndex The source tile index.
+     * @param trgIndex The target tile index.
      * @param x0 X coordinate for the upper-left point of the target_Tile_Rectangle.
      * @param y0 Y coordinate for the upper-left point of the target_Tile_Rectangle.
      * @param w Width for the target_Tile_Rectangle.
-     * @param h Hight for the target_Tile_Rectangle.
-     * @param sx0 src rect x
-     * @param sy0 src rect y
-     * @param sw src rect w
-     * @param sh src rect h
+     * @param h Height for the target_Tile_Rectangle.
      * @throws org.esa.beam.framework.gpf.OperatorException
      *          If an error occurs during computation of the filtered value.
      */
     private void computeMedian(final ProductData srcData1, final ProductData srcData2, final ProductData trgData,
-                               final Unit.UnitType unit, final double[] neighborValues,
+                               final double noDataValue, final Unit.UnitType unit, final double[] neighborValues,
                                final TileIndex srcIndex, final TileIndex trgIndex,
-                               final int x0, final int y0, final int w, final int h,
-                               final int sx0, final int sy0, final int sw, final int sh) {
+                               final int x0, final int y0, final int w, final int h) {
 
         final int maxY = y0 + h;
         final int maxX = x0 + w;
         for (int y = y0; y < maxY; ++y) {
-            final int offset = trgIndex.calculateStride(y);
+            trgIndex.calculateStride(y);
             for (int x = x0; x < maxX; ++x) {
+                final int idx = trgIndex.getIndex(x);
 
-                getNeighborValues(x, y, sx0, sy0, sw, sh, srcData1, srcData2, srcIndex, unit, neighborValues);
+                final int numSamples = getNeighborValues(
+                        x, y, srcData1, srcData2, srcIndex, noDataValue, unit, neighborValues);
 
-                trgData.setElemDoubleAt(x-offset, getMedianValue(neighborValues));
+                if (numSamples > 0) {
+                    trgData.setElemDoubleAt(idx, getMedianValue(neighborValues, numSamples));
+                } else {
+                    trgData.setElemDoubleAt(idx, noDataValue);
+                }
             }
         }
     }
@@ -412,25 +410,23 @@ public class SpeckleFilterOp extends Operator {
      * Filter the given tile of image with Frost filter.
      * @param srcData1 The source ProductData for the 1st band.
      * @param srcData2 The source ProductData for the 2nd band.
-     * @param trgData target ProductData
+     * @param trgData target ProductData.
+     * @param noDataValue the place holder for no data.
      * @param unit Unit for the 1st band.
-     * @param neighborValues data to fill
+     * @param neighborValues data to fill.
+     * @param srcIndex The source tile index.
+     * @param trgIndex The target tile index.
      * @param x0 X coordinate for the upper-left point of the target_Tile_Rectangle.
      * @param y0 Y coordinate for the upper-left point of the target_Tile_Rectangle.
      * @param w Width for the target_Tile_Rectangle.
-     * @param h Hight for the target_Tile_Rectangle.
-     * @param sx0 src rect x
-     * @param sy0 src rect y
-     * @param sw src rect w
-     * @param sh src rect h
+     * @param h Height for the target_Tile_Rectangle.
      * @throws org.esa.beam.framework.gpf.OperatorException
      *          If an error occurs during computation of the filtered value.
      */
     private void computeFrost(final ProductData srcData1, final ProductData srcData2, final ProductData trgData,
-                              final Unit.UnitType unit, final double[] neighborValues,
+                              final double noDataValue, final Unit.UnitType unit, final double[] neighborValues,
                               final TileIndex srcIndex, final TileIndex trgIndex,
-                              final int x0, final int y0, final int w, final int h,
-                              final int sx0, final int sy0, final int sw, final int sh) {
+                              final int x0, final int y0, final int w, final int h) {
 
         final double[] mask = new double[filterSizeX*filterSizeY];
         getFrostMask(mask);
@@ -438,12 +434,18 @@ public class SpeckleFilterOp extends Operator {
         final int maxY = y0 + h;
         final int maxX = x0 + w;
         for (int y = y0; y < maxY; ++y) {
-            final int offset = trgIndex.calculateStride(y);
+            trgIndex.calculateStride(y);
             for (int x = x0; x < maxX; ++x) {
+                final int idx = trgIndex.getIndex(x);
 
-                getNeighborValues(x, y, sx0, sy0, sw, sh, srcData1, srcData2, srcIndex, unit, neighborValues);
+                final int numSamples = getNeighborValues(
+                        x, y, srcData1, srcData2, srcIndex, noDataValue, unit, neighborValues);
 
-                trgData.setElemDoubleAt(x-offset, getFrostValue(neighborValues, mask));
+                if (numSamples > 0) {
+                    trgData.setElemDoubleAt(idx, getFrostValue(neighborValues, numSamples, mask));
+                } else {
+                    trgData.setElemDoubleAt(idx, noDataValue);
+                }
             }
         }
     }
@@ -453,35 +455,39 @@ public class SpeckleFilterOp extends Operator {
      * @param srcData1 The source ProductData for the 1st band.
      * @param srcData2 The source ProductData for the 2nd band.
      * @param trgData target ProductData
+     * @param noDataValue the place holder for no data.
      * @param unit Unit for the 1st band.
-     * @param neighborValues data to fill
+     * @param neighborValues data to fill.
+     * @param srcIndex The source tile index.
+     * @param trgIndex The target tile index.
      * @param x0 X coordinate for the upper-left point of the target_Tile_Rectangle.
      * @param y0 Y coordinate for the upper-left point of the target_Tile_Rectangle.
      * @param w Width for the target_Tile_Rectangle.
-     * @param h Hight for the target_Tile_Rectangle.
-     * @param sx0 src rect x
-     * @param sy0 src rect y
-     * @param sw src rect w
-     * @param sh src rect h
+     * @param h Height for the target_Tile_Rectangle.
      * @throws org.esa.beam.framework.gpf.OperatorException
      *          If an error occurs during computation of the filtered value.
      */
     private void computeGammaMap(final ProductData srcData1, final ProductData srcData2, final ProductData trgData,
-                                 final Unit.UnitType unit, final double[] neighborValues,
+                                 final double noDataValue, final Unit.UnitType unit, final double[] neighborValues,
                                  final TileIndex srcIndex, final TileIndex trgIndex,
                                  final int x0, final int y0, final int w, final int h,
-                                 final int sx0, final int sy0, final int sw, final int sh,
                                  final double cu, final double cu2, final double enl) {
 
         final int maxY = y0 + h;
         final int maxX = x0 + w;
         for (int y = y0; y < maxY; ++y) {
-            final int offset = trgIndex.calculateStride(y);
+            trgIndex.calculateStride(y);
             for (int x = x0; x < maxX; ++x) {
+                final int idx = trgIndex.getIndex(x);
 
-                getNeighborValues(x, y, sx0, sy0, sw, sh, srcData1, srcData2, srcIndex, unit, neighborValues);
+                final int numSamples = getNeighborValues(
+                        x, y, srcData1, srcData2, srcIndex, noDataValue, unit, neighborValues);
 
-                trgData.setElemDoubleAt(x-offset, getGammaMapValue(neighborValues, cu, cu2, enl));
+                if (numSamples > 0) {
+                    trgData.setElemDoubleAt(idx, getGammaMapValue(neighborValues, numSamples, cu, cu2, enl));
+                } else {
+                    trgData.setElemDoubleAt(idx, noDataValue);
+                }
             }
         }
     }
@@ -491,166 +497,155 @@ public class SpeckleFilterOp extends Operator {
      * @param srcData1 The source ProductData for the 1st band.
      * @param srcData2 The source ProductData for the 2nd band.
      * @param trgData target ProductData
+     * @param noDataValue the place holder for no data.
      * @param unit Unit for the 1st band.
-     * @param neighborValues data to fill
+     * @param neighborValues data to fill.
+     * @param srcIndex The source tile index.
+     * @param trgIndex The target tile index.
      * @param x0 X coordinate for the upper-left point of the target_Tile_Rectangle.
      * @param y0 Y coordinate for the upper-left point of the target_Tile_Rectangle.
      * @param w Width for the target_Tile_Rectangle.
-     * @param h Hight for the target_Tile_Rectangle.
-     * @param sx0 src rect x
-     * @param sy0 src rect y
-     * @param sw src rect w
-     * @param sh src rect h
+     * @param h Height for the target_Tile_Rectangle.
      * @throws org.esa.beam.framework.gpf.OperatorException
      *          If an error occurs during computation of the filtered value.
      */
     private void computeLee(final ProductData srcData1, final ProductData srcData2, final ProductData trgData,
-                            final Unit.UnitType unit, final double[] neighborValues,
+                            final double noDataValue, final Unit.UnitType unit, final double[] neighborValues,
                             final TileIndex srcIndex, final TileIndex trgIndex,
                             final int x0, final int y0, final int w, final int h,
-                            final int sx0, final int sy0, final int sw, final int sh,
                             final double cu, final double cu2) {
 
         final int maxY = y0 + h;
         final int maxX = x0 + w;
         for (int y = y0; y < maxY; ++y) {
-            final int offset = trgIndex.calculateStride(y);
+            trgIndex.calculateStride(y);
             for (int x = x0; x < maxX; ++x) {
+                final int idx = trgIndex.getIndex(x);
 
-                getNeighborValues(x, y, sx0, sy0, sw, sh, srcData1, srcData2, srcIndex, unit, neighborValues);
+                final int numSamples = getNeighborValues(
+                        x, y, srcData1, srcData2, srcIndex, noDataValue, unit, neighborValues);
 
-                trgData.setElemDoubleAt(x-offset, getLeeValue(neighborValues, cu, cu2));
+                if (numSamples > 0) {
+                    trgData.setElemDoubleAt(idx, getLeeValue(neighborValues, numSamples, cu, cu2));
+                } else {
+                    trgData.setElemDoubleAt(idx, noDataValue);
+                }
             }
         }
     }
 
     /**
-     * Get pixel values in a filter size rectanglar region centered at the given pixel.
-     * @param x X coordinate of a given pixel.
-     * @param y Y coordinate of a given pixel.
-     * @param sx0 X coordinate of pixel at upper left corner of source tile.
-     * @param sy0 Y coordinate of pixel at upper left corner of source tile.
-     * @param sw Source tile width.
-     * @param sh Source tile height.
+     * Get pixel values in a filter size rectangular region centered at the given pixel.
+     * @param tx X coordinate of a given pixel.
+     * @param ty Y coordinate of a given pixel.
      * @param srcData1 The source ProductData for 1st band.
      * @param srcData2 The source ProductData for 2nd band.
+     * @param srcIndex The source tile index.
+     * @param noDataValue the place holder for no data
      * @param bandUnit Unit for the 1st band.
      * @param neighborValues Array holding the pixel values.
+     * @return The number of valid samples.
      * @throws org.esa.beam.framework.gpf.OperatorException
      *          If an error occurs in obtaining the pixel values.
      */
-    private void getNeighborValues(final int x, final int y, final int sx0, final int sy0, final int sw, final int sh,
-                                   final ProductData srcData1, final ProductData srcData2, final TileIndex srcIndex,
-                                   final Unit.UnitType bandUnit, final double[] neighborValues) {
+    private int getNeighborValues(final int tx, final int ty, final ProductData srcData1, final ProductData srcData2,
+                                  final TileIndex srcIndex, final double noDataValue, final Unit.UnitType bandUnit,
+                                  final double[] neighborValues) {
 
+        final int x0 = Math.max(tx - halfSizeX, 0);
+        final int y0 = Math.max(ty - halfSizeY, 0);
+        final int w  = Math.min(tx + halfSizeX, sourceImageWidth - 1) - x0 + 1;
+        final int h  = Math.min(ty + halfSizeY, sourceImageHeight - 1) - y0 + 1;
+        final int xMax = x0 + w;
+        final int yMax = y0 + h;
+
+        int numSamples = 0;
         if (bandUnit == Unit.UnitType.REAL || bandUnit == Unit.UnitType.IMAGINARY) {
 
-            for (int j = 0; j < filterSizeY; ++j) {
-
-                int yj = y - halfSizeY + j;
-                if (yj < sy0) {
-                    yj = sy0;
-                } else if (yj >= sy0 + sh) {
-                    yj = sy0 + sh - 1;
-                }
-
-                final int stride = j*filterSizeX;
-                final int offset = srcIndex.calculateStride(yj);
-                for (int i = 0; i < filterSizeX; ++i) {
-
-                    int xi = x - halfSizeX + i;
-                    if (xi < sx0) {
-                        xi = sx0;
-                    } else if (xi >= sx0 + sw) {
-                        xi = sx0 + sw - 1;
+            for (int y = y0; y < yMax; y++) {
+                srcIndex.calculateStride(y);
+                for (int x = x0; x < xMax; x++) {
+                    final int idx = srcIndex.getIndex(x);
+                    final double I = srcData1.getElemDoubleAt(idx);
+                    final double Q = srcData2.getElemDoubleAt(idx);
+                    if (I != noDataValue && Q != noDataValue) {
+                        neighborValues[numSamples++] = I*I + Q*Q;
                     }
-                    int idx = xi-offset;
-                    double I = srcData1.getElemDoubleAt(idx);
-                    double Q = srcData2.getElemDoubleAt(idx);
-                    neighborValues[stride + j] = I*I + Q*Q;
                 }
             }
 
         } else {
 
-            for (int j = 0; j < filterSizeY; ++j) {
-
-                int yj = y - halfSizeY + j;
-                if (yj < sy0) {
-                    yj = sy0;
-                } else if (yj >= sy0 + sh) {
-                    yj = sy0 + sh - 1;
-                }
-                final int stride = j*filterSizeX;
-                final int offset = srcIndex.calculateStride(yj);
-                for (int i = 0; i < filterSizeX; ++i) {
-
-                    int xi = x - halfSizeX + i;
-                    if (xi < sx0) {
-                        xi = sx0;
-                    } else if (xi >= sx0 + sw) {
-                        xi = sx0 + sw - 1;
+            for (int y = y0; y < yMax; y++) {
+                srcIndex.calculateStride(y);
+                for (int x = x0; x < xMax; x++) {
+                    final int idx = srcIndex.getIndex(x);
+                    final double v = srcData1.getElemDoubleAt(idx);
+                    if (v != noDataValue) {
+                        neighborValues[numSamples++] = v;
                     }
-                    neighborValues[stride + i] = srcData1.getElemDoubleAt(xi-offset);
                 }
             }
         }
+
+        return numSamples;
     }
 
     /**
-     * Get the mean value of pixel intensities in a given rectanglar region.
-     * @param neighborValues The pixel values in the given rectanglar region.
+     * Get the mean value of pixel intensities in a given rectangular region.
+     * @param neighborValues The pixel values in the given rectangular region.
+     * @param numSamples The number of samples.
      * @return mean The mean value.
-     * @throws org.esa.beam.framework.gpf.OperatorException
-     *          If an error occurs in computation of the mean value.
      */
-    private static double getMeanValue(final double[] neighborValues) {
+    private static double getMeanValue(final double[] neighborValues, final int numSamples) {
 
         double mean = 0.0;
-        for (double neighborValue : neighborValues) {
-            mean += neighborValue;
+        for (int i = 0; i < numSamples; i++) {
+            mean += neighborValues[i];
         }
-        mean /= neighborValues.length;
+        mean /= numSamples;
 
         return mean;
     }
 
     /**
-     * Get the variance of pixel intensities in a given rectanglar region.
-     * @param neighborValues The pixel values in the given rectanglar region.
-     * @param mean the mean of neighborValues
+     * Get the variance of pixel intensities in a given rectangular region.
+     * @param neighborValues The pixel values in the given rectangular region.
+     * @param numSamples The number of samples.
+     * @param mean the mean of neighborValues.
      * @return var The variance value.
      * @throws org.esa.beam.framework.gpf.OperatorException
      *          If an error occurs in computation of the variance.
      */
-    private static double getVarianceValue(final double[] neighborValues, final double mean) {
+    private static double getVarianceValue(final double[] neighborValues, final int numSamples, final double mean) {
 
         double var = 0.0;
-        if (neighborValues.length > 1) {
+        if (numSamples > 1) {
 
-            for (double neighborValue : neighborValues) {
-                final double diff = neighborValue - mean;
+            for (int i = 0; i < numSamples; i++) {
+                final double diff = neighborValues[i] - mean;
                 var += diff * diff;
             }
-            var /= (neighborValues.length - 1);
+            var /= (numSamples - 1);
         }
 
         return var;
     }
 
     /**
-     * Get the median value of pixel intensities in a given rectanglar region.
+     * Get the median value of pixel intensities in a given rectangular region.
      * @param neighborValues Array holding pixel values.
+     * @param numSamples The number of samples.
      * @return median The median value.
      * @throws org.esa.beam.framework.gpf.OperatorException
      *          If an error occurs in computation of the median value.
      */
-    private static double getMedianValue(final double[] neighborValues) {
+    private static double getMedianValue(final double[] neighborValues, final int numSamples) {
 
-        Arrays.sort(neighborValues);
+        Arrays.sort(neighborValues, 0, numSamples);
 
         // Then get the median value
-        return neighborValues[(neighborValues.length / 2)];
+        return neighborValues[(numSamples / 2)];
     }
 
     /**
@@ -673,21 +668,22 @@ public class SpeckleFilterOp extends Operator {
     }
 
     /**
-     * Get the Frost filtered pixel intensity for pixels in a given rectanglar region.
-     * @param neighborValues Array holding the pixel valuses.
+     * Get the Frost filtered pixel intensity for pixels in a given rectangular region.
+     * @param neighborValues Array holding the pixel values.
+     * @param numSamples The number of samples.
      * @param mask Array holding Frost filter mask values.
      * @return val The Frost filtered value.
      * @throws org.esa.beam.framework.gpf.OperatorException
      *          If an error occurs in computation of the Frost filtered value.
      */
-    private double getFrostValue(final double[] neighborValues, final double[] mask) {
+    private double getFrostValue(final double[] neighborValues, final int numSamples, final double[] mask) {
 
-        final double mean = getMeanValue(neighborValues);
+        final double mean = getMeanValue(neighborValues, numSamples);
         if (mean <= Double.MIN_VALUE) {
             return mean;
         }
 
-        final double var = getVarianceValue(neighborValues, mean);
+        final double var = getVarianceValue(neighborValues, numSamples, mean);
         if (var <= Double.MIN_VALUE) {
             return mean;
         }
@@ -705,20 +701,22 @@ public class SpeckleFilterOp extends Operator {
     }
 
     /**
-     * Get the Gamma filtered pixel intensity for pixels in a given rectanglar region.
-     * @param neighborValues Array holding the pixel valuses.
+     * Get the Gamma filtered pixel intensity for pixels in a given rectangular region.
+     * @param neighborValues Array holding the pixel values.
+     * @param numSamples The number of samples.
      * @return val The Gamma filtered value.
      * @throws org.esa.beam.framework.gpf.OperatorException
      *          If an error occurs in computation of the Gamma filtered value.
      */
-    private double getGammaMapValue(final double[] neighborValues, final double cu, final double cu2, final double enl) {
+    private double getGammaMapValue(
+            final double[] neighborValues, final int numSamples, final double cu, final double cu2, final double enl) {
 
-        final double mean = getMeanValue(neighborValues);
+        final double mean = getMeanValue(neighborValues, numSamples);
         if (mean <= Double.MIN_VALUE) {
             return mean;
         }
 
-        final double var = getVarianceValue(neighborValues, mean);
+        final double var = getVarianceValue(neighborValues, numSamples, mean);
         if (var <= Double.MIN_VALUE) {
             return mean;
         }
@@ -728,7 +726,7 @@ public class SpeckleFilterOp extends Operator {
             return mean;
         }
 
-        final double cp = neighborValues[(neighborValues.length/2)];
+        final double cp = neighborValues[(numSamples/2)];
 
         if (cu < ci) {
             final double cmax = Math.sqrt(2)*cu;
@@ -744,20 +742,21 @@ public class SpeckleFilterOp extends Operator {
     }
 
     /**
-     * Get the Lee filtered pixel intensity for pixels in a given rectanglar region.
-     * @param neighborValues Array holding the pixel valuses.
+     * Get the Lee filtered pixel intensity for pixels in a given rectangular region.
+     * @param neighborValues Array holding the pixel values.
+     * @param numSamples The number of samples.
      * @return val The Lee filtered value.
      * @throws org.esa.beam.framework.gpf.OperatorException
      *          If an error occurs in computation of the Lee filtered value.
      */
-    private double getLeeValue(final double[] neighborValues, final double cu, final double cu2) {
+    private double getLeeValue(final double[] neighborValues, final int numSamples, final double cu, final double cu2) {
 
-        final double mean = getMeanValue(neighborValues);
+        final double mean = getMeanValue(neighborValues, numSamples);
         if (Double.compare(mean, Double.MIN_VALUE) <= 0) {
             return mean;
         }
 
-        final double var = getVarianceValue(neighborValues, mean);
+        final double var = getVarianceValue(neighborValues, numSamples, mean);
         if (Double.compare(var, Double.MIN_VALUE) <= 0) {
             return mean;
         }
@@ -767,7 +766,7 @@ public class SpeckleFilterOp extends Operator {
             return mean;
         }
 
-        final double cp = neighborValues[(neighborValues.length/2)];
+        final double cp = neighborValues[(numSamples/2)];
         final double w = 1 - cu2 / (ci*ci);
 
         return cp*w + mean*(1 - w);
@@ -775,9 +774,11 @@ public class SpeckleFilterOp extends Operator {
 
     /**
      * Compute the equivalent number of looks.
-     * @param sourceRaster1 The source tile for 1st band.
-     * @param sourceRaster2 The source tile for 2nd band.
+     * @param srcData1 The source ProductData for the 1st band.
+     * @param srcData2 The source ProductData for the 2nd band.
+     * @param noDataValue The place holder for no data.
      * @param bandUnit Unit for 1st band.
+     * @param srcIndex The source tile index.
      * @param x0 X coordinate of the upper left corner point of the target tile rectangle.
      * @param y0 Y coordinate of the upper left corner point of the target tile rectangle.
      * @param w The width of the target tile rectangle.
@@ -785,77 +786,84 @@ public class SpeckleFilterOp extends Operator {
      * @return The equivalent number of looks.
      */
     private double computeEquivalentNumberOfLooks(
-            final Tile sourceRaster1, final Tile sourceRaster2, final Unit.UnitType bandUnit,
-            final int x0, final int y0, final int w, final int h) {
-
-        final ProductData srcData1 = sourceRaster1.getDataBuffer();
-        ProductData srcData2 = null;
-        if(sourceRaster2 != null) {
-            srcData2 = sourceRaster2.getDataBuffer();
-        }
+            final ProductData srcData1, final ProductData srcData2, final double noDataValue,
+            final Unit.UnitType bandUnit, final TileIndex srcIndex, final int x0, final int y0,
+            final int w, final int h) {
 
         double enl = 1.0;
-        if (bandUnit != null && (bandUnit == Unit.UnitType.REAL || bandUnit == Unit.UnitType.IMAGINARY)) {
-            double sum = 0;
-            double sum2 = 0;
-            for (int y = y0; y < y0 + h; y++) {
-                for (int x = x0; x < x0 + w; x++) {
+        double sum = 0;
+        double sum2 = 0;
+        double sum4 = 0;
+        int numSamples = 0;
 
-                    final int idx = sourceRaster1.getDataBufferIndex(x, y);
+        if (bandUnit != null && (bandUnit == Unit.UnitType.REAL || bandUnit == Unit.UnitType.IMAGINARY)) {
+
+            for (int y = y0; y < y0 + h; y++) {
+                srcIndex.calculateStride(y);
+                for (int x = x0; x < x0 + w; x++) {
+                    final int idx = srcIndex.getIndex(x);
+
                     final double i = srcData1.getElemDoubleAt(idx);
                     final double q = srcData2.getElemDoubleAt(idx);
-                    double v = i*i + q*q;
-                    sum += v;
-                    sum2 += v*v;
+                    if (i != noDataValue && q != noDataValue) {
+                        double v = i*i + q*q;
+                        sum += v;
+                        sum2 += v*v;
+                        numSamples++;
+                    }
                 }
             }
 
             if (sum != 0.0 && sum2 > 0.0) {
-                final double area = h * w;
-                final double m = sum / area;
-                final double m2 = sum2 / area;
+                final double m = sum / numSamples;
+                final double m2 = sum2 / numSamples;
                 final double mm = m*m;
                 enl = mm / (m2 - mm);
             }
 
         } else if (bandUnit != null && bandUnit == Unit.UnitType.INTENSITY) {
-            double sum = 0;
-            double sum2 = 0;
-            for (int y = y0; y < y0 + h; y++) {
-                for (int x = x0; x < x0 + w; x++) {
 
-                    final double v = srcData1.getElemDoubleAt(sourceRaster1.getDataBufferIndex(x, y));
-                    sum += v;
-                    sum2 += v*v;
+            for (int y = y0; y < y0 + h; y++) {
+                srcIndex.calculateStride(y);
+                for (int x = x0; x < x0 + w; x++) {
+                    final int idx = srcIndex.getIndex(x);
+
+                    final double v = srcData1.getElemDoubleAt(idx);
+                    if (v != noDataValue) {
+                        sum += v;
+                        sum2 += v*v;
+                        numSamples++;
+                    }
                 }
             }
 
             if (sum != 0.0 && sum2 > 0.0) {
-                final double area = h * w;
-                final double m = sum / area;
-                final double m2 = sum2 / area;
+                final double m = sum / numSamples;
+                final double m2 = sum2 / numSamples;
                 final double mm = m*m;
                 enl = mm / (m2 - mm);
             }
 
         } else {
 
-            double sum2 = 0;
-            double sum4 = 0;
             for (int y = y0; y < y0 + h; y++) {
+                srcIndex.calculateStride(y);
                 for (int x = x0; x < x0 + w; x++) {
+                    final int idx = srcIndex.getIndex(x);
 
-                    final double v = srcData1.getElemDoubleAt(sourceRaster1.getDataBufferIndex(x, y));
-                    final double v2 = v*v;
-                    sum2 += v2;
-                    sum4 += v2*v2;
+                    final double v = srcData1.getElemDoubleAt(idx);
+                    if (v != noDataValue) {
+                        final double v2 = v*v;
+                        sum2 += v2;
+                        sum4 += v2*v2;
+                        numSamples++;
+                    }
                 }
             }
 
             if (sum2 > 0.0 && sum4 > 0.0) {
-                final double area = h * w;
-                final double m2 = sum2 / area;
-                final double m4 = sum4 / area;
+                final double m2 = sum2 / numSamples;
+                final double m4 = sum4 / numSamples;
                 final double m2m2 = m2*m2;
                 enl = m2m2 / (m4 - m2m2);
             }
@@ -869,82 +877,95 @@ public class SpeckleFilterOp extends Operator {
      * @param srcData1 The source ProductData for the 1st band.
      * @param srcData2 The source ProductData for the 2nd band.
      * @param trgData target ProductData
+     * @param noDataValue The place holder for no data.
      * @param unit Unit for the 1st band.
+     * @param srcIndex The source tile index.
+     * @param trgIndex The target tile index.
      * @param x0 X coordinate for the upper-left point of the target_Tile_Rectangle.
      * @param y0 Y coordinate for the upper-left point of the target_Tile_Rectangle.
      * @param w Width for the target_Tile_Rectangle.
-     * @param h Hight for the target_Tile_Rectangle.
-     * @param sx0 src rect x
-     * @param sy0 src rect y
-     * @param sw src rect w
-     * @param sh src rect h
+     * @param h Height for the target_Tile_Rectangle.
      */
     private void computeRefinedLee(final ProductData srcData1, final ProductData srcData2, final ProductData trgData,
-                                   final Unit.UnitType unit,
+                                   final double noDataValue, final Unit.UnitType unit,
                                    final TileIndex srcIndex, final TileIndex trgIndex,
                                    final int x0, final int y0, final int w, final int h,
-                                   final int sx0, final int sy0, final int sw, final int sh) {
+                                   final Rectangle sourceTileRectangle) {
 
         final double[][] neighborPixelValues = new double[filterSizeY][filterSizeX];
         final int maxY = y0 + h;
         final int maxX = x0 + w;
         for (int y = y0; y < maxY; ++y) {
-            final int offset = trgIndex.calculateStride(y);
+            trgIndex.calculateStride(y);
             for (int x = x0; x < maxX; ++x) {
-                final int n = getNeighborValuesWithoutBorderExt(
-                        x, y, sx0, sy0, sw, sh, srcData1, srcData2, unit, neighborPixelValues, srcIndex);
+                final int idx = trgIndex.getIndex(x);
 
-                trgData.setElemDoubleAt(x-offset, getRefinedLeeValue(n, neighborPixelValues));
+                final int numSamples = getNeighborValuesWithoutBorderExt(
+                        x, y, srcData1, srcData2, srcIndex, noDataValue, unit, sourceTileRectangle, neighborPixelValues);
+
+                if (numSamples > 0) {
+                    trgData.setElemDoubleAt(idx, getRefinedLeeValue(numSamples, noDataValue, neighborPixelValues));
+                } else {
+                    trgData.setElemDoubleAt(idx, noDataValue);
+                }
             }
         }
     }
 
     /**
-     * Get pixel intensities in a filter size rectanglar region centered at the given pixel.
+     * Get pixel intensities in a filter size rectangular region centered at the given pixel.
      * @param x X coordinate of the given pixel.
      * @param y Y coordinate of the given pixel.
-     * @param sx0 X coordinate of pixel at upper left corner of source tile.
-     * @param sy0 Y coordinate of pixel at upper left corner of source tile.
-     * @param sw Source tile width.
-     * @param sh Source tile height.
-     * @param srcData1 databuffer 1
-     * @param srcData2 databuffer 2
+     * @param srcData1 The data buffer of the first band.
+     * @param srcData2 The data buffer of the second band.
+     * @param srcIndex The source tile index.
+     * @param noDataValue The place holder for no data.
      * @param bandUnit Unit for the 1st band.
-     * @param neighborPixelValues 2-D array holding the pixel valuse.
+     * @param sourceTileRectangle The source tile rectangle.
+     * @param neighborPixelValues 2-D array holding the pixel values.
      * @return The number of valid pixels.
      * @throws org.esa.beam.framework.gpf.OperatorException
      *          If an error occurs in obtaining the pixel values.
      */
-    private int getNeighborValuesWithoutBorderExt(final int x, final int y, final int sx0, final int sy0,
-                                                  final int sw, final int sh,
-                                                  final ProductData srcData1, final ProductData srcData2,
-                                                  final Unit.UnitType bandUnit,
-                                                  final double[][] neighborPixelValues,
-                                                  final TileIndex srcIndex) {
+    private int getNeighborValuesWithoutBorderExt(final int x, final int y, final ProductData srcData1,
+                                                  final ProductData srcData2, final TileIndex srcIndex,
+                                                  final double noDataValue, final Unit.UnitType bandUnit,
+                                                  final Rectangle sourceTileRectangle,
+                                                  final double[][] neighborPixelValues) {
+
+        final int sx0 = sourceTileRectangle.x;
+        final int sy0 = sourceTileRectangle.y;
+        final int sw = sourceTileRectangle.width;
+        final int sh = sourceTileRectangle.height;
         final int maxY = sy0 + sh;
         final int maxX = sx0 + sw;
-        int k = 0;
+        int numSamples = 0;
         if (bandUnit == Unit.UnitType.REAL || bandUnit == Unit.UnitType.IMAGINARY) {
 
             for (int j = 0; j < filterSizeY; ++j) {
                 final int yj = y - halfSizeY + j;
                 if(yj < sy0 || yj >= maxY) {
                     for (int i = 0; i < filterSizeX; ++i) {
-                        neighborPixelValues[j][i] = NonValidPixelValue;
+                        neighborPixelValues[j][i] = noDataValue;
                     }
                     continue;
                 }
-                final int offset = srcIndex.calculateStride(yj);
+
+                srcIndex.calculateStride(yj);
                 for (int i = 0; i < filterSizeX; ++i) {
                     final int xi = x - halfSizeX + i;
                     if (xi < sx0 || xi >= maxX) {
-                        neighborPixelValues[j][i] = NonValidPixelValue;
+                        neighborPixelValues[j][i] = noDataValue;
                     } else {
-                        final int idx = xi-offset;
+                        final int idx = srcIndex.getIndex(xi);
                         final double I = srcData1.getElemDoubleAt(idx);
                         final double Q = srcData2.getElemDoubleAt(idx);
-                        neighborPixelValues[j][i] = I*I + Q*Q;
-                        k++;
+                        if (I != noDataValue && Q != noDataValue) {
+                            neighborPixelValues[j][i] = I*I + Q*Q;
+                            numSamples++;
+                        } else {
+                            neighborPixelValues[j][i] = noDataValue;
+                        }
                     }
                 }
             }
@@ -955,59 +976,81 @@ public class SpeckleFilterOp extends Operator {
                 final int yj = y - halfSizeY + j;
                 if(yj < sy0 || yj >= maxY) {
                     for (int i = 0; i < filterSizeX; ++i) {
-                        neighborPixelValues[j][i] = NonValidPixelValue;
+                        neighborPixelValues[j][i] = noDataValue;
                     }
                     continue;
                 }
-                final int offset = srcIndex.calculateStride(yj);
+
+                srcIndex.calculateStride(yj);
                 for (int i = 0; i < filterSizeX; ++i) {
                     final int xi = x - halfSizeX + i;
                     if (xi < sx0 || xi >= maxX) {
-                        neighborPixelValues[j][i] = NonValidPixelValue;
+                        neighborPixelValues[j][i] = noDataValue;
                     } else {
-                        neighborPixelValues[j][i] = srcData1.getElemDoubleAt(xi-offset);
-                        k++;
+                        final int idx = srcIndex.getIndex(xi);
+                        final double v = srcData1.getElemDoubleAt(idx);
+                        if (v != noDataValue) {
+                            neighborPixelValues[j][i] = v;
+                            numSamples++;
+                        } else {
+                            neighborPixelValues[j][i] = noDataValue;
+                        }
                     }
                 }
             }
         }
 
-        return k;
+        return numSamples;
     }
 
     /**
      * Compute filtered pixel value using refined Lee filter.
-     * @param n The number of valid pixel in the neighborhood.
+     * @param numSamples The number of valid pixel in the neighborhood.
+     * @param noDataValue The place holder for no data.
      * @param neighborPixelValues The neighbor pixel values.
      * @return The filtered pixel value.
      */
-    private double getRefinedLeeValue(final int n, final double[][] neighborPixelValues) {
+    private double getRefinedLeeValue(
+            final int numSamples, final double noDataValue, final double[][] neighborPixelValues) {
 
-        if (n < filterSizeX*filterSizeY) {
-            return computePixelValueUsingLocalStatistics(neighborPixelValues);
+        if (numSamples < filterSizeX*filterSizeY) {
+            return computePixelValueUsingLocalStatistics(neighborPixelValues, noDataValue);
         }
 
-        final double var = getLocalVarianceValue(getLocalMeanValue(neighborPixelValues), neighborPixelValues);
+        final double var = getLocalVarianceValue(
+                getLocalMeanValue(neighborPixelValues, noDataValue), neighborPixelValues, noDataValue);
         if (var < edgeThreshold) {
-            return computePixelValueUsingLocalStatistics(neighborPixelValues);
+            return computePixelValueUsingLocalStatistics(neighborPixelValues, noDataValue);
         }
 
-        return computePixelValueUsingEdgeDetection(neighborPixelValues);
+        return computePixelValueUsingEdgeDetection(neighborPixelValues, noDataValue);
     }
 
     /**
      * Compute filtered pixel value using Local Statistics filter.
      * @param neighborPixelValues The pixel values in the neighborhood.
+     * @param noDataValue The place holder for no data.
      * @return The filtered pixel value.
      */
-    private double computePixelValueUsingLocalStatistics(final double[][] neighborPixelValues) {
-        // y is the pixel amplitude or intensity and x is the pixel reflectance before degradation
-        final double meanY = getLocalMeanValue(neighborPixelValues);
-        final double varY = getLocalVarianceValue(meanY, neighborPixelValues);
-        if (varY == 0.0) {
-            return 0.0;
+    private double computePixelValueUsingLocalStatistics(
+            final double[][] neighborPixelValues, final double noDataValue) {
+
+        if (neighborPixelValues[halfSizeY][halfSizeX] == noDataValue) {
+            return noDataValue;
         }
-        final double sigmaV = getLocalNoiseVarianceValue(neighborPixelValues);
+
+        // y is the pixel amplitude or intensity and x is the pixel reflectance before degradation
+        final double meanY = getLocalMeanValue(neighborPixelValues, noDataValue);
+        if (meanY == noDataValue) {
+            return noDataValue;
+        }
+
+        final double varY = getLocalVarianceValue(meanY, neighborPixelValues, noDataValue);
+        if (varY == 0.0 || varY == noDataValue) {
+            return noDataValue;
+        }
+
+        final double sigmaV = getLocalNoiseVarianceValue(neighborPixelValues, noDataValue);
         double varX = (varY - meanY*meanY*sigmaV) / (1 + sigmaV);
         if (varX < 0) {
             varX = 0.0;
@@ -1019,9 +1062,11 @@ public class SpeckleFilterOp extends Operator {
     /**
      * Compute filtered pixel value using refined Lee filter.
      * @param neighborPixelValues The pixel values in the neighborhood.
+     * @param noDataValue The place holder for no data.
      * @return The filtered pixel value.
      */
-    private static double computePixelValueUsingEdgeDetection(final double[][] neighborPixelValues) {
+    private static double computePixelValueUsingEdgeDetection(
+            final double[][] neighborPixelValues, final double noDataValue) {
 
         final double[][] subAreaMeans = new double[3][3];
         computeSubAreaMeans(neighborPixelValues, subAreaMeans);
@@ -1085,12 +1130,12 @@ public class SpeckleFilterOp extends Operator {
         final double[] pixels = new double[28];
         getNonEdgeAreaPixelValues(neighborPixelValues, d, pixels);
 
-        final double meanY = getMeanValue(pixels);
-        final double varY = getVarianceValue(pixels, meanY);
+        final double meanY = getMeanValue(pixels, pixels.length);
+        final double varY = getVarianceValue(pixels, pixels.length, meanY);
         if (varY == 0.0) {
             return 0.0;
         }
-        final double sigmaV = getLocalNoiseVarianceValue(neighborPixelValues);
+        final double sigmaV = getLocalNoiseVarianceValue(neighborPixelValues, noDataValue);
         double varX = (varY - meanY*meanY*sigmaV) / (1 + sigmaV);
         if (varX < 0) {
             varX = 0.0;
@@ -1100,51 +1145,67 @@ public class SpeckleFilterOp extends Operator {
     }
 
     /**
-     * Comppute local mean for pixels in the neighborhood.
+     * Compute local mean for pixels in the neighborhood.
      * @param neighborPixelValues The pixel values in the neighborhood.
+     * @param noDataValue The place holder for no data.
      * @return The local mean.
      */
-    private double getLocalMeanValue(final double[][] neighborPixelValues) {
+    private double getLocalMeanValue(final double[][] neighborPixelValues, final double noDataValue) {
+
         int k = 0;
         double mean = 0;
         for (int j = 0; j < filterSizeY; ++j) {
             for (int i = 0; i < filterSizeX; ++i) {
-                if (neighborPixelValues[j][i] != NonValidPixelValue) {
+                if (neighborPixelValues[j][i] != noDataValue) {
                     mean += neighborPixelValues[j][i];
                     k++;
                 }
             }
         }
-        return mean/k;
+
+        if (k > 0) {
+            return mean/k;
+        }
+
+        return noDataValue;
     }
 
     /**
-     * Comppute local variance for pixels in the neighborhood.
+     * Compute local variance for pixels in the neighborhood.
      * @param mean The mean value for pixels in the neighborhood.
      * @param neighborPixelValues The pixel values in the neighborhood.
+     * @param noDataValue The place holder for no data.
      * @return The local variance.
      */
-    private double getLocalVarianceValue(final double mean, final double[][] neighborPixelValues) {
+    private double getLocalVarianceValue(
+            final double mean, final double[][] neighborPixelValues, final double noDataValue) {
+
         int k = 0;
         double var = 0.0;
         for (int j = 0; j < filterSizeY; ++j) {
             for (int i = 0; i < filterSizeX; ++i) {
-                if (neighborPixelValues[j][i] != NonValidPixelValue) {
+                if (neighborPixelValues[j][i] != noDataValue) {
                     final double diff = neighborPixelValues[j][i] - mean;
                     var += diff * diff;
                     k++;
                 }
             }
         }
-        return var/(k-1);
+
+        if (k > 1) {
+            return var/(k-1);
+        }
+
+        return noDataValue;
     }
 
     /**
-     * Comppute local noise variance for pixels in the neighborhood.
+     * Compute local noise variance for pixels in the neighborhood.
      * @param neighborPixelValues The pixel values in the neighborhood.
+     * @param noDataValue The place holder for no data.
      * @return The local noise variance.
      */
-    private static double getLocalNoiseVarianceValue(final double[][] neighborPixelValues) {
+    private static double getLocalNoiseVarianceValue(final double[][] neighborPixelValues, final double noDataValue) {
 
         final double[] subAreaVariances = new double[9];
         final double[] subArea = new double[9];
@@ -1158,7 +1219,7 @@ public class SpeckleFilterOp extends Operator {
                 for (int y = y0; y < y0 + 3; y++) {
                     final int yy = (y-y0)*3;
                     for (int x = x0; x < x0 + 3; x++) {
-                        if (neighborPixelValues[y][x] != NonValidPixelValue) {
+                        if (neighborPixelValues[y][x] != noDataValue) {
                             subArea[yy + (x-x0)] = neighborPixelValues[y][x];
                             k++;
                         }
@@ -1166,9 +1227,9 @@ public class SpeckleFilterOp extends Operator {
                 }
 
                 if (k == 9) {
-                    final double subAreaMean = getMeanValue(subArea);
+                    final double subAreaMean = getMeanValue(subArea, k);
                     if (subAreaMean > 0) {
-                        subAreaVariances[numSubArea] = getVarianceValue(subArea, subAreaMean) / (subAreaMean*subAreaMean);
+                        subAreaVariances[numSubArea] = getVarianceValue(subArea, k, subAreaMean) / (subAreaMean*subAreaMean);
                     } else {
                         subAreaVariances[numSubArea] = 0.0;
                     }
@@ -1191,7 +1252,9 @@ public class SpeckleFilterOp extends Operator {
      * @param neighborPixelValues The pixel values in the 7x7 neighborhood.
      * @param subAreaMeans The 9 mean values.
      */
-    private static void computeSubAreaMeans(final double[][] neighborPixelValues, double[][] subAreaMeans) {
+    private static void computeSubAreaMeans(
+            final double[][] neighborPixelValues, double[][] subAreaMeans) {
+
         for (int j = 0; j < 3; j++) {
             final int y0 = 2*j;
             for (int i = 0; i < 3; i++) {
@@ -1205,6 +1268,7 @@ public class SpeckleFilterOp extends Operator {
                         k++;
                     }
                 }
+
                 subAreaMeans[j][i] = mean / k;
             }
         }
