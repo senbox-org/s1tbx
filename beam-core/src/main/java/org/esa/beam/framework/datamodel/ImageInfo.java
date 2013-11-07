@@ -17,7 +17,8 @@ package org.esa.beam.framework.datamodel;
 
 import com.bc.ceres.core.Assert;
 
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Transparency;
 import java.awt.color.ColorSpace;
 import java.awt.image.ComponentColorModel;
 import java.awt.image.DataBuffer;
@@ -205,7 +206,7 @@ public class ImageInfo implements Cloneable {
      * @return a copy of this object
      */
     @Override
-    public final Object clone() {
+    public final ImageInfo clone() {
         try {
             ImageInfo imageInfo = (ImageInfo) super.clone();
             if (colorPaletteDef != null) {
