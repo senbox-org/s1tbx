@@ -4,6 +4,11 @@
             "id": "ESACCI-OC-L3S-OC_PRODUCTS-MERGED-1D_DAILY_4km_PML_OC4v6_QAA-20090711-fv0.9",
             "relativePath": "cci/oc/oc-v0.9/ESACCI-OC-L3S-OC_PRODUCTS-MERGED-1D_DAILY_4km_PML_OC4v6_QAA-20090711-fv0.9.nc",
             "description": "sparse grid file OC-CCI format version 0.9"
+        },
+        {
+            "id": "ESACCI-OC-L3S-OC_PRODUCTS-MERGED-1D_DAILY_4km_GEO_PML_OC4v6_QAA-20000518-fv1.0",
+            "relativePath": "cci/oc/oc-v1.0/ESACCI-OC-L3S-OC_PRODUCTS-MERGED-1D_DAILY_4km_GEO_PML_OC4v6_QAA-20000518-fv1.0.nc",
+            "description": "mapped file OC-CCI format version 0.99"
         }
     ]
 }
