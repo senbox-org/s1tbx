@@ -16,6 +16,7 @@
 package org.esa.nest.dat.wizards;
 
 import org.esa.beam.visat.VisatApp;
+import org.esa.nest.dat.dialogs.FileTable;
 import org.esa.nest.dat.dialogs.ProductSetPanel;
 
 import javax.swing.*;
@@ -72,7 +73,7 @@ public abstract class AbstractMultipleInputPanel extends WizardPanel {
         final JPanel textPanel = createTextPanel("Instructions", getInstructions());
         this.add(textPanel, BorderLayout.NORTH);
 
-        productSetPanel = new ProductSetPanel(VisatApp.getApp());
+        productSetPanel = new ProductSetPanel(VisatApp.getApp(), null, new FileTable(), true, true);
         this.add(productSetPanel, BorderLayout.CENTER);
     }
 }

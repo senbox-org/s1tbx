@@ -39,9 +39,9 @@ public class ProductSetReaderOpUI extends BaseOperatorUI {
 
         initializeOperatorUI(operatorName, parameterMap);
 
-        final JComponent comp = ProductSetPanel.createComponent(productSetTable, true);
+        ProductSetPanel panel = new ProductSetPanel(appContext, "", productSetTable, false, true);
         initParameters();
-        return comp;
+        return panel;
     }
 
     @Override

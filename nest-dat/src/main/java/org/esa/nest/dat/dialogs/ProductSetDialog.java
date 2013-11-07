@@ -37,13 +37,13 @@ public class ProductSetDialog extends ModelessDialog {
 
     private boolean ok = false;
 
-    public ProductSetDialog(String title, ProductSet prodSet) {
+    public ProductSetDialog(final String title, final ProductSet prodSet) {
         super(VisatApp.getApp().getMainFrame(), title, ModalDialog.ID_OK_CANCEL, null);
         productSet = prodSet;
 
         productSetTable.setFiles(productSet.getFileList());
 
-        final JComponent content =  ProductSetPanel.createComponent(productSetTable, true);
+        final ProductSetPanel content = new ProductSetPanel(VisatApp.getApp(), "", productSetTable, false, true);
 
         final JPanel topPanel = new JPanel(new BorderLayout(4, 4));
         final JLabel nameLabel = new JLabel("Name:");

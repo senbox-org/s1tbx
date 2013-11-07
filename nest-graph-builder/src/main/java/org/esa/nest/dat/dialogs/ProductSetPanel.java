@@ -46,25 +46,30 @@ public class ProductSetPanel extends JPanel {
     private String targetProductNameSuffix = "";
     private JPanel buttonPanel = null;
 
+    private JButton addAllOpenButton = null;
+    private JButton dbQueryButton = null;
+    private JButton removeButton = null;
+    private JButton moveUpButton = null;
+    private JButton moveDownButton = null;
+    private JButton clearButton = null;
+
+    final JLabel countLabel = new JLabel();
+
     public ProductSetPanel(final AppContext theAppContext, final String title) {
-        this(theAppContext, title, null, false, false);
+        this(theAppContext, title, new FileTable(), false, false);
     }
 
     public ProductSetPanel(final AppContext theAppContext, final String title, final FileTableModel fileModel) {
-        this(theAppContext, title, fileModel, false, false);
+        this(theAppContext, title, new FileTable(fileModel), false, false);
     }
 
-    public ProductSetPanel(final AppContext theAppContext) {
-        this(theAppContext, null, null, true, true);
-    }
-
-    public ProductSetPanel(final AppContext theAppContext, final String title, final FileTableModel fileModel,
+    public ProductSetPanel(final AppContext theAppContext, final String title, final FileTable fileTable,
                            final boolean incTrgProduct, final boolean incButtonPanel) {
         super(new BorderLayout());
         this.appContext = theAppContext;
+        this.productSetTable = fileTable;
         setBorderTitle(title);
 
-        productSetTable = new FileTable(fileModel);
         final JPanel productSetContent = createComponent(productSetTable, false);
         if(incButtonPanel) {
             buttonPanel = createButtonPanel(productSetTable);
@@ -84,6 +89,8 @@ public class ProductSetPanel extends JPanel {
         } else {
             targetProductSelector = null;
         }
+
+        updateComponents();
     }
 
     public void setBorderTitle(final String title) {
@@ -95,7 +102,7 @@ public class ProductSetPanel extends JPanel {
         return buttonPanel;
     }
 
-    public static JPanel createComponent(final FileTable table, final boolean incButtonPanel) {
+    private JPanel createComponent(final FileTable table, final boolean incButtonPanel) {
 
         final JPanel fileListPanel = new JPanel(new BorderLayout(4, 4));
 
@@ -109,11 +116,38 @@ public class ProductSetPanel extends JPanel {
         return fileListPanel;
     }
 
-    public static JPanel createButtonPanel(final FileTable table) {
+    private void updateComponents() {
+
+        final int rowCount = productSetTable.getFileCount();
+
+        final boolean enableButtons = (rowCount > 0);
+        if(dbQueryButton != null)
+            dbQueryButton.setEnabled(enableButtons);
+        if(removeButton != null)
+            removeButton.setEnabled(enableButtons);
+        if(moveUpButton != null)
+            moveUpButton.setEnabled(rowCount > 1);
+        if(moveDownButton != null)
+            moveDownButton.setEnabled(rowCount > 1);
+        if(clearButton != null)
+            clearButton.setEnabled(enableButtons);
+
+        if(addAllOpenButton != null) {
+            addAllOpenButton.setEnabled(VisatApp.getApp().getProductManager().getProducts().length > 0);
+        }
+
+        String cntMsg = "";
+        if(rowCount == 1)
+            cntMsg = rowCount+" Product";
+        else if(rowCount > 1)
+            cntMsg = rowCount+" Products";
+        countLabel.setText(cntMsg);
+    }
+
+    public JPanel createButtonPanel(final FileTable table) {
         final FileTableModel tableModel = table.getModel();
 
         final JPanel panel = new JPanel(new GridLayout(10, 1));
-        final JLabel countLabel = new JLabel();
 
         final JButton addButton = DialogUtils.CreateButton("addButton", "Add", null, panel);
         addButton.addActionListener(new ActionListener() {
@@ -124,14 +158,14 @@ public class ProductSetPanel extends JPanel {
                     for(File file : files) {
                         if (ProductFunctions.isValidProduct(file)) {
                             tableModel.addFile(file);
-                            countLabel.setText(tableModel.getRowCount()+" Products");
                         }
                     }
+                    updateComponents();
                 }
             }
         });
 
-        final JButton addAllOpenButton = DialogUtils.CreateButton("addAllOpenButton", "Add Opened", null, panel);
+        addAllOpenButton = DialogUtils.CreateButton("addAllOpenButton", "Add Opened", null, panel);
         addAllOpenButton.addActionListener(new ActionListener() {
 
             public void actionPerformed(final ActionEvent e) {
@@ -142,11 +176,26 @@ public class ProductSetPanel extends JPanel {
                         tableModel.addFile(file);
                     }
                 }
-                countLabel.setText(tableModel.getRowCount()+" Products");
+                updateComponents();
             }
         });
 
-        final JButton removeButton = DialogUtils.CreateButton("removeButton", "Remove", null, panel);
+        dbQueryButton = DialogUtils.CreateButton("dbQueryButton", "DB Query", null, panel);
+        dbQueryButton.addActionListener(new ActionListener() {
+
+            public void actionPerformed(final ActionEvent e) {
+                final Product[] products = VisatApp.getApp().getProductManager().getProducts();
+                for(Product prod : products) {
+                    final File file = prod.getFileLocation();
+                    if(file != null && file.exists()) {
+                        tableModel.addFile(file);
+                    }
+                }
+                updateComponents();
+            }
+        });
+
+        removeButton = DialogUtils.CreateButton("removeButton", "Remove", null, panel);
         removeButton.addActionListener(new ActionListener() {
 
             public void actionPerformed(final ActionEvent e) {
@@ -159,12 +208,12 @@ public class ProductSetPanel extends JPanel {
                     int index = tableModel.getIndexOf(file);
                     tableModel.removeFile(index);
                 }
-                countLabel.setText(tableModel.getRowCount()+" Products");
+                updateComponents();
             }
 
         });
 
-        final JButton moveUpButton = DialogUtils.CreateButton("moveUpButton", "Move Up", null, panel);
+        moveUpButton = DialogUtils.CreateButton("moveUpButton", "Move Up", null, panel);
         moveUpButton.addActionListener(new ActionListener() {
 
             public void actionPerformed(final ActionEvent e) {
@@ -183,7 +232,7 @@ public class ProductSetPanel extends JPanel {
 
         });
 
-        final JButton moveDownButton = DialogUtils.CreateButton("moveDownButton", "Move Down", null, panel);
+        moveDownButton = DialogUtils.CreateButton("moveDownButton", "Move Down", null, panel);
         moveDownButton.addActionListener(new ActionListener() {
 
             public void actionPerformed(final ActionEvent e) {
@@ -202,17 +251,18 @@ public class ProductSetPanel extends JPanel {
 
         });
 
-        final JButton clearButton = DialogUtils.CreateButton("clearButton", "Clear", null, panel);
+        clearButton = DialogUtils.CreateButton("clearButton", "Clear", null, panel);
         clearButton.addActionListener(new ActionListener() {
 
             public void actionPerformed(final ActionEvent e) {
                 tableModel.clear();
-                countLabel.setText("");
+                updateComponents();
             }
         });
 
         panel.add(addButton);
         panel.add(addAllOpenButton);
+        panel.add(dbQueryButton);
         panel.add(moveUpButton);
         panel.add(moveDownButton);
         panel.add(removeButton);

@@ -84,6 +84,16 @@ public class FileTable extends JTable {
         }
     }
 
+    public int getFileCount() {
+        int cnt = fileModel.getRowCount();
+        if(cnt == 1) {
+            File file = fileModel.getFileAt(0);
+            if(file.getName().isEmpty())
+                return 0;
+        }
+        return cnt;
+    }
+
     public File[] getFileList() {
         return fileModel.getFileList();
     }

@@ -54,7 +54,7 @@ public final class DatabasePane extends JPanel {
     private final DateComboBox startDateBox = new DateComboBox();
     private final DateComboBox endDateBox = new DateComboBox();
     private final JComboBox polarizationCombo = new JComboBox(new String[] {
-            DBQuery.ANY, DBQuery.DUALPOL, DBQuery.QUADPOL, "HH", "VV", "HV", "VH" });
+            DBQuery.ANY, DBQuery.QUADPOL, DBQuery.DUALPOL, "HH", "VV", "HV", "VH" });
     private final JComboBox calibrationCombo = new JComboBox(new String[] {
             DBQuery.ANY, DBQuery.CALIBRATED, DBQuery.NOT_CALIBRATED });
     private final JComboBox orbitCorrectionCombo = new JComboBox(new String[] {

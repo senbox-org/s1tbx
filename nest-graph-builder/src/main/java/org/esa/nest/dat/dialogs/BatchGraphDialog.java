@@ -116,7 +116,7 @@ public class BatchGraphDialog extends ModelessDialog {
         progressPanel.setVisible(false);
         mainPanel.add(progressPanel, BorderLayout.SOUTH);
 
-        productSetPanel = new ProductSetPanel(appContext);
+        productSetPanel = new ProductSetPanel(appContext, null, new FileTable(), true, true);
         tabbedPane.add("I/O Parameters", productSetPanel);
 
         getButton(ID_APPLY).setText("Run");
