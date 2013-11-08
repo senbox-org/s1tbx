@@ -33,14 +33,6 @@
     <extension point="beam-ui:actions">
 
         <action>
-	        <id>CCDPair</id>
-	        <helpId>CCDPair</helpId>
-	        <class>org.csa.rstb.dat.actions.CCDPairAction</class>
-	        <parent>insar</parent>
-	        <text>Find CCD Pairs</text>
-	    </action>
-
-        <action>
 	        <id>PolarimetricClassificationOp</id>
 	        <helpId>PolarimetricClassificationOp</helpId>
 	        <class>org.esa.nest.dat.actions.OperatorAction</class>
@@ -79,15 +71,6 @@
             <placeAfter>SupervisedTraining</placeAfter>
         </action>
 
-        <action>
-            <id>CCDWizard</id>
-            <class>org.csa.rstb.dat.wizards.CCDWizard.CCDWizardAction</class>
-            <parent>Wizards</parent>
-            <text>Coherent Change Detection Wizard</text>
-            <shortDescr>Wizard for Coherent Change Detection</shortDescr>
-            <description>Wizard for Coherent Change Detection</description>
-            <helpId>CCDWizard</helpId>
-        </action>
         <action>
             <id>PolsarWizard</id>
             <class>org.csa.rstb.dat.wizards.PolarimetryWizard.PolSARWizardAction</class>

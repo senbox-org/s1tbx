@@ -184,14 +184,20 @@ public class ProductSetPanel extends JPanel {
         dbQueryButton.addActionListener(new ActionListener() {
 
             public void actionPerformed(final ActionEvent e) {
-                final Product[] products = VisatApp.getApp().getProductManager().getProducts();
-                for(Product prod : products) {
-                    final File file = prod.getFileLocation();
-                    if(file != null && file.exists()) {
-                        tableModel.addFile(file);
+                try {
+                    final File mstFile = tableModel.getFileAt(0);
+                    if(mstFile.exists()) {
+                        final ProductEntry[] entryList = DBSearch.search(mstFile);
+                        for(ProductEntry entry : entryList) {
+                            if(tableModel.getIndexOf(entry.getFile()) < 0)
+                                tableModel.addFile(entry);
+                        }
                     }
+
+                    updateComponents();
+                } catch (Exception ex) {
+                    appContext.handleError("Unable to query DB", ex);
                 }
-                updateComponents();
             }
         });
 
