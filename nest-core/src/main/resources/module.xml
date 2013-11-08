@@ -22,7 +22,7 @@
         <module>beam-gpf</module>
     </dependency>
     <dependency>
-        <module>beam-envisat-reader</module>
+        <module>beam-visat-rcp</module>
     </dependency>
     
     <categories>System</categories>

@@ -22,6 +22,7 @@ import org.esa.beam.framework.ui.BasicApp;
 import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.io.FileChooserFactory;
 import org.esa.beam.visat.VisatApp;
+import org.esa.nest.db.DBSearch;
 import org.esa.nest.db.ProductEntry;
 import org.esa.nest.util.DialogUtils;
 import org.esa.nest.util.ProductFunctions;

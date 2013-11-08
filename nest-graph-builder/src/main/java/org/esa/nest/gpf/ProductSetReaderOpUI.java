@@ -46,8 +46,6 @@ public class ProductSetReaderOpUI extends BaseOperatorUI {
 
     @Override
     public void initParameters() {
-        convertFromDOM();
-
         final String[] fList = (String[])paramMap.get("fileList");
         productSetTable.setFiles(fList);
     }

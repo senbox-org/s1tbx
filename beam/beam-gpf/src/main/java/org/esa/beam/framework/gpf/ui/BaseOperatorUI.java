@@ -166,24 +166,6 @@ public abstract class BaseOperatorUI implements OperatorUI {
         return geometryNames.toArray(new String[geometryNames.size()]);
     }
 
-    public void convertFromDOM() {
-
-        final Property[] properties = valueContainer.getProperties();
-        for (Property p : properties) {
-
-            final PropertyDescriptor descriptor = p.getDescriptor();
-            final String name =  descriptor.getName();
-            try {
-                final Object value = paramMap.get(name);
-                if(value != null) {
-                    p.setValue(value);
-                }
-            } catch(ValidationException e) {
-                throw new IllegalArgumentException(name);
-            }
-        }
-    }
-
     private void setParamsToConfiguration(final XppDom config) {
         if(paramMap == null) return;
         final Set<String> keys = paramMap.keySet();                     // The set of keys in the map.

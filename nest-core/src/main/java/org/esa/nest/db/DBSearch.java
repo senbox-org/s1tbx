@@ -1,4 +1,4 @@
-package org.esa.nest.dat.dialogs;
+package org.esa.nest.db;
 
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.GeoPos;
