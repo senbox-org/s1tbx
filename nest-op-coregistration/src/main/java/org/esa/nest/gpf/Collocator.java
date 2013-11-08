@@ -44,7 +44,10 @@ public class Collocator {
         final int maxX = targetRectangle.x + targetRectangle.width;
         final int maxY = targetRectangle.y + targetRectangle.height;
 
-        final Tile sourceTile = operator.getSourceTile(sourceBand, sourceRectangle);
+        Tile sourceTile = null;
+        if(sourceRectangle!=null)
+            sourceTile = operator.getSourceTile(sourceBand, sourceRectangle);
+
         if (sourceTile != null) {
             final Product srcProduct = sourceBand.getProduct();
             final int sourceRasterHeight = srcProduct.getSceneRasterHeight();
