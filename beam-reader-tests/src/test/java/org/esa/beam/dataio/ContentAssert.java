@@ -81,11 +81,13 @@ class ContentAssert {
                 assertEquals(message, expectedGeoPos.getLat(), actualGeoPos.getLat(), 1e-6);
                 assertEquals(message, expectedGeoPos.getLon(), actualGeoPos.getLon(), 1e-6);
 
-                final PixelPos actualPixelPos = geoCoding.getPixelPos(actualGeoPos, null);
-                assertEquals(productId + " Pixel.X at GeoPos(" + actualGeoPos.getLat() + "," + actualGeoPos.getLon() + ")",
-                             expectedPixelPos.getX(), actualPixelPos.getX(), reverseAccuracy);
-                assertEquals(productId + " Pixel.Y at GeoPos(" + actualGeoPos.getLat() + "," + actualGeoPos.getLon() + ")",
-                             expectedPixelPos.getY(), actualPixelPos.getY(), reverseAccuracy);
+                if (reverseAccuracy >= 0) {
+                    final PixelPos actualPixelPos = geoCoding.getPixelPos(actualGeoPos, null);
+                    assertEquals(productId + " Pixel.X at GeoPos(" + actualGeoPos.getLat() + "," + actualGeoPos.getLon() + ")",
+                                 expectedPixelPos.getX(), actualPixelPos.getX(), reverseAccuracy);
+                    assertEquals(productId + " Pixel.Y at GeoPos(" + actualGeoPos.getLat() + "," + actualGeoPos.getLon() + ")",
+                                 expectedPixelPos.getY(), actualPixelPos.getY(), reverseAccuracy);
+                }
             }
         }
     }
