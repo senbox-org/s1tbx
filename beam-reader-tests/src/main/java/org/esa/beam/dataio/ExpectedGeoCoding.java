@@ -24,7 +24,7 @@ class ExpectedGeoCoding {
 
 
     ExpectedGeoCoding() {
-        reverseAccuracy = 1.0e-2f;
+        reverseAccuracy = -1.0F;
     }
 
     ExpectedGeoCoding(Product product, Random random) {
@@ -38,6 +38,11 @@ class ExpectedGeoCoding {
             final float x = (float) point.getX();
             final float y = (float) point.getY();
             final GeoPos geoPos = geoCoding.getGeoPos(new PixelPos(x, y), null);
+            final PixelPos pixelPos = geoCoding.getPixelPos(geoPos, null);
+            float xAccuracy = Math.abs(x - pixelPos.x);
+            float yAccuracy = Math.abs(y - pixelPos.y);
+            float accuracy = Math.max(xAccuracy, yAccuracy);
+            reverseAccuracy = Math.max(reverseAccuracy, accuracy);
             coordinates[i] = new ExpectedGeoCoordinate(x, y, geoPos.getLat(), geoPos.getLon());
         }
     }
