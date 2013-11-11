@@ -12,6 +12,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
 import org.esa.beam.dataio.ExpectedContent;
+import org.esa.beam.dataio.ExpectedDataset;
+import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.framework.ui.command.ExecCommand;
@@ -85,10 +87,13 @@ public class CreateExpectedJsonCodeCommand extends ExecCommand {
 
     String createJsonCode(Product product, Random random) throws IOException {
         final ExpectedContent expectedContent = new ExpectedContent(product, random);
-
+        ExpectedDataset expectedDataset = new ExpectedDataset();
+        expectedDataset.setId(product.getName());
+        expectedDataset.setExpectedContent(expectedContent);
+        expectedDataset.setDecodeQualification(DecodeQualification.INTENDED.name());
         ObjectWriter writer = getConfiguredJsonWriter();
         final StringWriter stringWriter = new StringWriter();
-        writer.writeValue(stringWriter, expectedContent);
+        writer.writeValue(stringWriter, expectedDataset);
         stringWriter.flush();
         return stringWriter.toString();
     }
