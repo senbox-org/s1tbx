@@ -76,9 +76,9 @@ public final class GLCMOp extends Operator {
             defaultValue = WINDOW_SIZE_9x9, label="Window Size")
     private String windowSizeStr = WINDOW_SIZE_9x9;
 
-    @Parameter(valueSet = {ANGLE_0, ANGLE_45, ANGLE_90, ANGLE_135},
-            defaultValue = ANGLE_0, label="Angle")
-    private String angleStr = ANGLE_0;
+    @Parameter(valueSet = {ANGLE_0, ANGLE_45, ANGLE_90, ANGLE_135, ANGLE_ALL},
+            defaultValue = ANGLE_ALL, label="Angle")
+    private String angleStr = ANGLE_ALL;
 
     @Parameter(valueSet = {EQUAL_DISTANCE_QUANTIZER, PROBABILISTIC_QUANTIZER},
             defaultValue = PROBABILISTIC_QUANTIZER, label="Quantizer")
@@ -143,6 +143,7 @@ public final class GLCMOp extends Operator {
     private double delta = 0.0;
     private boolean useProbabilisticQuantizer = false;
     private boolean quantizerAvailable = false;
+    private boolean computeGLCPWithAllAngles = false;
     private String bandUnit = null;
     private double[] newBinLowValues = null;
 
@@ -152,6 +153,7 @@ public final class GLCMOp extends Operator {
     private static final String ANGLE_45 = "45";
     private static final String ANGLE_90 = "90";
     private static final String ANGLE_135 = "135";
+    private static final String ANGLE_ALL = "ALL";
 
     private static final String EQUAL_DISTANCE_QUANTIZER = "Equal Distance Quantizer";
     private static final String PROBABILISTIC_QUANTIZER = "Probabilistic Quantizer";
@@ -294,6 +296,9 @@ public final class GLCMOp extends Operator {
                 displacementX = -displacement;
                 displacementY = displacement;
                 break;
+	        case ANGLE_ALL:
+		        computeGLCPWithAllAngles = true;
+		        break;
             default:
                 throw new OperatorException("Unknown angle: " + angleStr);
         }
@@ -566,28 +571,91 @@ public final class GLCMOp extends Operator {
         final int y0 = Math.max(ty - halfWindowSize, 0);
         final int w  = Math.min(tx + halfWindowSize, sourceImageWidth - 1) - x0 + 1;
         final int h  = Math.min(ty + halfWindowSize, sourceImageHeight - 1) - y0 + 1;
-        final int maxy = Math.min(y0 + h, sourceTile.getMaxY() - 1) - displacementY;
-        final int maxx = Math.min(x0 + w, sourceTile.getMaxX() - 1) - displacementX;
+        final int xMax = x0 + w;
+        final int yMax = y0 + h;
 
         final int[][] quantizedImage = computeQuantizedImage(x0, y0, w, h, sourceTile, srcData, noDataValue);
         final double[][] GLCM = new double[numQuantLevels][numQuantLevels];
 
-        int xx, yy, counter = 0;
-        for (int y = y0; y < maxy; y++) {
-            yy = y - y0;
-            for (int x = x0; x < maxx; x++) {
-                xx = x - x0;
-                final int i = quantizedImage[yy][xx];
-                final int j = quantizedImage[yy + displacementY][xx + displacementX];
-                if (i < 0 || j < 0) {
-                    continue;
-                }
+        int xx, yy, dX, dY, counter = 0;
+        if (computeGLCPWithAllAngles) {
 
-                GLCM[i][j]++;
-                GLCM[j][i]++;
-                counter++;
-            }
-        }
+            for (int y = y0; y < yMax; y++) {
+                yy = y - y0;
+	            for (int x = x0; x < xMax; x++) {
+                    xx = x - x0;
+	                final int i = quantizedImage[yy][xx];
+                    if (i < 0) {
+                        continue;
+                    }
+
+                    for (int angle = 0; angle <= 135; angle +=45) {
+                        switch (angle) {
+                            case 0:
+                                dX = displacement;
+                                dY = 0;
+                                break;
+                            case 45:
+                                dX = displacement;
+                                dY = displacement;
+                                break;
+                            case 90:
+                                dX = 0;
+                                dY = displacement;
+                                break;
+                            case 135:
+                                dX = -displacement;
+                                dY = displacement;
+                                break;
+                            default:
+                                throw new OperatorException("Unknown angle: " + angle);
+			            }
+
+                        int j;
+                        if (y + dY >= y0 && y + dY < yMax && x + dX >= x0 && x + dX < xMax) {
+                            j = quantizedImage[yy + dY][xx + dX];
+                            if (j < 0) {
+                                continue;
+                            }
+                        } else {
+                            continue;
+                        }
+
+                        GLCM[i][j]++;
+                        GLCM[j][i]++;
+                        counter++;
+			        }
+		        }
+		    }
+
+	    } else {
+
+            for (int y = y0; y < yMax; y++) {
+                yy = y - y0;
+                for (int x = x0; x < xMax; x++) {
+                    xx = x - x0;
+                    final int i = quantizedImage[yy][xx];
+                    if (i < 0) {
+                        continue;
+			        }
+
+                    int j;
+                    if (y + displacementY >= y0 && y + displacementY < yMax &&
+                        x + displacementX >= x0 && x + displacementX < xMax) {
+                        j = quantizedImage[yy + displacementY][xx + displacementX];
+                        if (j < 0) {
+                            continue;
+                        }
+                    } else {
+                        continue;
+                    }
+
+                    GLCM[i][j]++;
+                    GLCM[j][i]++;
+                    counter++;
+		        }
+		    }
+	    }
 
         ArrayList<GLCMElem> GLCMElemList = new ArrayList<GLCMElem>();
 
