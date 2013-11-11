@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2013 Brockmann Consult GmbH (info@brockmann-consult.de) 
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -16,12 +16,22 @@
 
 package org.esa.beam.visat.toolviews.stat;
 
+import com.bc.ceres.core.runtime.Module;
+import com.bc.ceres.core.runtime.internal.ModuleReader;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.AbstractBand;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.ProductNodeEvent;
+import org.esa.beam.framework.datamodel.TiePointGrid;
 import org.esa.beam.framework.ui.application.ToolView;
 import org.esa.beam.util.StringUtils;
+import org.esa.beam.util.logging.BeamLogManager;
 
+import java.net.URL;
+import java.util.logging.Logger;
 
 /**
  * The information pane within the statistcs window.
@@ -95,10 +105,12 @@ class InformationPanel extends TextPagePanel {
         final String productFormatName = getProductFormatName(product);
         final String productFormatNameString = productFormatName != null ? productFormatName : "unknown";
         appendEntry(sb, "Product format:", productFormatNameString, null);
+        sb.append('\n');
 
-        final String productReaderName = getProductReaderName(product);
-        final String productReaderNameString = productReaderName != null ? productReaderName : "unknown";
-        appendEntry(sb, "Product reader:", productReaderNameString, null);
+        appendEntry(sb, "Product reader:", getProductReaderName(product), null);
+        appendEntry(sb, "Product reader class:", getProductReaderClass(product), null);
+        appendEntry(sb, "Product reader module:", getProductReaderModule(product), null);
+        sb.append('\n');
 
         appendEntry(sb, "Product file location:",
                     product.getFileLocation() != null ? product.getFileLocation().getPath() : "Not yet saved", "");
@@ -128,14 +140,43 @@ class InformationPanel extends TextPagePanel {
 
     private static String getProductReaderName(final Product product) {
         final ProductReader productReader = product.getProductReader();
-        if (productReader == null) {
-            return null;
+        if (productReader != null) {
+            final ProductReaderPlugIn readerPlugIn = productReader.getReaderPlugIn();
+            if (readerPlugIn != null) {
+                String description = readerPlugIn.getDescription(null);
+                if (description != null) {
+                    return description;
+                }
+            }
         }
-        final ProductReaderPlugIn readerPlugIn = productReader.getReaderPlugIn();
-        if (readerPlugIn != null) {
-            return readerPlugIn.getDescription(null);
+        return "unknown";
+    }
+
+    private static String getProductReaderClass(final Product product) {
+        final ProductReader productReader = product.getProductReader();
+        if (productReader != null) {
+            final ProductReaderPlugIn readerPlugIn = productReader.getReaderPlugIn();
+            if (readerPlugIn != null) {
+                return readerPlugIn.getClass().getName();
+            }
         }
-        return null;
+        return "unknown";
+    }
+
+    private static String getProductReaderModule(final Product product) {
+        final ProductReader productReader = product.getProductReader();
+        if (productReader != null) {
+            Logger logger = BeamLogManager.getSystemLogger();
+            ModuleReader moduleReader = new ModuleReader(logger);
+            URL moduleLocation = productReader.getClass().getProtectionDomain().getCodeSource().getLocation();
+            try {
+                Module module = moduleReader.readFromLocation(moduleLocation);
+                return module.getSymbolicName() +"  v " + module.getVersion().toString();
+            } catch (Exception e) {
+                logger.warning("Could not read " + moduleLocation.toString());
+            }
+        }
+        return "unknown";
     }
 
     private static String getProductFormatName(final Product product) {
