@@ -604,12 +604,6 @@
                 "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
                 "color": "124,85,85",
                 "description": "Cloud confidence 65-100%"
-            },
-            {
-                "name": "pins",
-                "type": "org.esa.beam.framework.datamodel.Mask$VectorDataType",
-                "color": "255,0,0",
-                "description": "Mask derived from geometries in 'pins'"
             }
         ],
         "metadata": [
