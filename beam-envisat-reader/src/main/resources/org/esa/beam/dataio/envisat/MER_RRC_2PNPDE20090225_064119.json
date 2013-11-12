@@ -1,0 +1,871 @@
+{
+    "id": "MER_RRC_2PNPDE20090225_064119",
+    "decodeQualification": "intended",
+    "expectedContent": {
+        "sceneWidth": 1121,
+        "sceneHeight": 10496,
+        "startTime": "25-FEB-2009 06:41:19.442781",
+        "endTime": "25-FEB-2009 07:12:06.445690",
+        "geoCoding": {
+            "coordinates": [
+                {
+                    "x": 483.0,
+                    "y": 5642.0,
+                    "lat": 12.040739,
+                    "lon": 46.61581
+                },
+                {
+                    "x": 832.0,
+                    "y": 6810.0,
+                    "lat": -0.8641972,
+                    "lon": 47.10935
+                }
+            ],
+            "reverseAccuracy": 0.01,
+            "geoCodingClass": "org.esa.beam.framework.datamodel.TiePointGeoCoding"
+        },
+        "flagCodings": [
+            {
+                "name": "l2_flags",
+                "samples": [
+                    {
+                        "name": "LAND",
+                        "value": 8388608,
+                        "description": "Land product available"
+                    },
+                    {
+                        "name": "CLOUD",
+                        "value": 4194304,
+                        "description": "Cloud product available"
+                    },
+                    {
+                        "name": "WATER",
+                        "value": 2097152,
+                        "description": "Water product available"
+                    },
+                    {
+                        "name": "PCD_1_13",
+                        "value": 1048576,
+                        "description": "Uncertain normalized surface reflectance"
+                    },
+                    {
+                        "name": "PCD_14",
+                        "value": 524288,
+                        "description": "Uncertain total water vapour content"
+                    },
+                    {
+                        "name": "PCD_15",
+                        "value": 262144,
+                        "description": "Uncertain algal pigment index 1 or cloud top pressure or top of atmosphere vegetation index"
+                    },
+                    {
+                        "name": "PCD_16",
+                        "value": 131072,
+                        "description": "Uncertain yellow substance and total suspended matter or rectified reflectances"
+                    },
+                    {
+                        "name": "PCD_17",
+                        "value": 65536,
+                        "description": "Uncertain algal pigment index 2 or bottom of atmosphere vegetation index"
+                    },
+                    {
+                        "name": "PCD_18",
+                        "value": 32768,
+                        "description": "Uncertain PAR or cloud albedo or land surface pressure"
+                    },
+                    {
+                        "name": "PCD_19",
+                        "value": 16384,
+                        "description": "Uncertain aerosol type and optical thickness or cloud optical thickness"
+                    },
+                    {
+                        "name": "COASTLINE",
+                        "value": 8192,
+                        "description": "Coastline pixel"
+                    },
+                    {
+                        "name": "COSMETIC",
+                        "value": 4096,
+                        "description": "Cosmetic pixel (from level-1b)"
+                    },
+                    {
+                        "name": "SUSPECT",
+                        "value": 2048,
+                        "description": "Suspect pixel (from level-1b)"
+                    },
+                    {
+                        "name": "OOADB",
+                        "value": 1024,
+                        "description": "Aerosol model is out of aerosol model database"
+                    },
+                    {
+                        "name": "ABSOA_DUST",
+                        "value": 512,
+                        "description": "Dust-like absorbing aerosol selected for atmosphere correction"
+                    },
+                    {
+                        "name": "CASE2_S",
+                        "value": 2097408,
+                        "description": "Turbid (sediment dominated Case 2) water"
+                    },
+                    {
+                        "name": "SNOW_ICE",
+                        "value": 8388864,
+                        "description": "Snow/Ice covered land"
+                    },
+                    {
+                        "name": "CASE2_ANOM",
+                        "value": 2097280,
+                        "description": "Anomalous scattering water"
+                    },
+                    {
+                        "name": "TOAVI_BRIGHT",
+                        "value": 8388736,
+                        "description": "Bright pixel flagged by MGVI processing"
+                    },
+                    {
+                        "name": "CASE2_Y",
+                        "value": 2097216,
+                        "description": "Yellow substance loaded water"
+                    },
+                    {
+                        "name": "TOAVI_BAD",
+                        "value": 8388672,
+                        "description": "Bad pixel flagged by MGVI processing"
+                    },
+                    {
+                        "name": "ICE_HAZE",
+                        "value": 2097184,
+                        "description": "Ice or high aerosol load pixel"
+                    },
+                    {
+                        "name": "TOAVI_CSI",
+                        "value": 8388640,
+                        "description": "Cloud, snow or ice over land pixel acc. to MGVI processing"
+                    },
+                    {
+                        "name": "MEDIUM_GLINT",
+                        "value": 2097168,
+                        "description": "Corrected for glint (water)"
+                    },
+                    {
+                        "name": "TOAVI_WS",
+                        "value": 8388624,
+                        "description": "Water/shadow pixel acc. to MGVI processing (land)"
+                    },
+                    {
+                        "name": "DDV",
+                        "value": 8388616,
+                        "description": "Dense Dark Vegetation (land)"
+                    },
+                    {
+                        "name": "BPAC_ON",
+                        "value": 2097160,
+                        "description": "Bright pixels atmospheric correction activated (water)"
+                    },
+                    {
+                        "name": "HIGH_GLINT",
+                        "value": 2097156,
+                        "description": "High (uncorrected) glint (water)"
+                    },
+                    {
+                        "name": "TOAVI_INVAL_REC",
+                        "value": 8388612,
+                        "description": "Invalid rectification (land)"
+                    },
+                    {
+                        "name": "LOW_SUN",
+                        "value": 2,
+                        "description": "Sun low above horizon (or conversely high sun zenith angle)"
+                    },
+                    {
+                        "name": "WHITE_SCATTERER",
+                        "value": 2097153,
+                        "description": "Presence of white scatterer in water"
+                    }
+                ]
+            }
+        ],
+        "tiePointGrids": [
+            {
+                "name": "latitude",
+                "description": "Latitude of the tie points (WGS-84), positive N",
+                "offsetX": "0.5",
+                "offsetY": "0.5",
+                "subSamplingX": "16.0",
+                "subSamplingY": "16.0",
+                "expectedPixels": [
+                    {
+                        "x": 58,
+                        "y": 1870,
+                        "value": 52.027424
+                    },
+                    {
+                        "x": 767,
+                        "y": 8927,
+                        "value": -22.81117
+                    }
+                ]
+            },
+            {
+                "name": "longitude",
+                "description": "Longitude of the tie points (WGS-84), Greenwich origin, positive E",
+                "offsetX": "0.5",
+                "offsetY": "0.5",
+                "subSamplingX": "16.0",
+                "subSamplingY": "16.0",
+                "expectedPixels": [
+                    {
+                        "x": 326,
+                        "y": 2695,
+                        "value": 52.67698
+                    },
+                    {
+                        "x": 684,
+                        "y": 3833,
+                        "value": 53.26475
+                    }
+                ]
+            },
+            {
+                "name": "dem_alt",
+                "description": "Digital elevation model altitude",
+                "offsetX": "0.5",
+                "offsetY": "0.5",
+                "subSamplingX": "16.0",
+                "subSamplingY": "16.0",
+                "expectedPixels": [
+                    {
+                        "x": 616,
+                        "y": 7823,
+                        "value": -3054.875
+                    },
+                    {
+                        "x": 681,
+                        "y": 9745,
+                        "value": -4966.3906
+                    }
+                ]
+            },
+            {
+                "name": "dem_rough",
+                "description": "Digital elevation model roughness",
+                "offsetX": "0.5",
+                "offsetY": "0.5",
+                "subSamplingX": "16.0",
+                "subSamplingY": "16.0",
+                "expectedPixels": [
+                    {
+                        "x": 177,
+                        "y": 6990,
+                        "value": 1.9375
+                    },
+                    {
+                        "x": 581,
+                        "y": 9588,
+                        "value": 0.0
+                    }
+                ]
+            },
+            {
+                "name": "lat_corr",
+                "description": "Digital elevation model latitude corrections",
+                "offsetX": "0.5",
+                "offsetY": "0.5",
+                "subSamplingX": "16.0",
+                "subSamplingY": "16.0",
+                "expectedPixels": [
+                    {
+                        "x": 847,
+                        "y": 5086,
+                        "value": 8.947109E-4
+                    },
+                    {
+                        "x": 1065,
+                        "y": 5099,
+                        "value": 0.0
+                    }
+                ]
+            },
+            {
+                "name": "lon_corr",
+                "description": "Digital elevation model longitude corrections",
+                "offsetX": "0.5",
+                "offsetY": "0.5",
+                "subSamplingX": "16.0",
+                "subSamplingY": "16.0",
+                "expectedPixels": [
+                    {
+                        "x": 381,
+                        "y": 9440,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 11,
+                        "y": 4941,
+                        "value": 0.0072104456
+                    }
+                ]
+            },
+            {
+                "name": "sun_zenith",
+                "description": "Sun zenith angle",
+                "offsetX": "0.5",
+                "offsetY": "0.5",
+                "subSamplingX": "16.0",
+                "subSamplingY": "16.0",
+                "expectedPixels": [
+                    {
+                        "x": 367,
+                        "y": 2068,
+                        "value": 62.701157
+                    },
+                    {
+                        "x": 306,
+                        "y": 453,
+                        "value": 76.41458
+                    }
+                ]
+            },
+            {
+                "name": "sun_azimuth",
+                "description": "Sun azimuth angles",
+                "offsetX": "0.5",
+                "offsetY": "0.5",
+                "subSamplingX": "16.0",
+                "subSamplingY": "16.0",
+                "expectedPixels": [
+                    {
+                        "x": 1089,
+                        "y": 6347,
+                        "value": 114.394585
+                    },
+                    {
+                        "x": 641,
+                        "y": 7523,
+                        "value": 94.35806
+                    }
+                ]
+            },
+            {
+                "name": "view_zenith",
+                "description": "Viewing zenith angles",
+                "offsetX": "0.5",
+                "offsetY": "0.5",
+                "subSamplingX": "16.0",
+                "subSamplingY": "16.0",
+                "expectedPixels": [
+                    {
+                        "x": 260,
+                        "y": 5221,
+                        "value": 24.245422
+                    },
+                    {
+                        "x": 359,
+                        "y": 7583,
+                        "value": 16.654367
+                    }
+                ]
+            },
+            {
+                "name": "view_azimuth",
+                "description": "Viewing azimuth angles",
+                "offsetX": "0.5",
+                "offsetY": "0.5",
+                "subSamplingX": "16.0",
+                "subSamplingY": "16.0",
+                "expectedPixels": [
+                    {
+                        "x": 401,
+                        "y": 5229,
+                        "value": 102.229416
+                    },
+                    {
+                        "x": 451,
+                        "y": 4642,
+                        "value": 102.44535
+                    }
+                ]
+            },
+            {
+                "name": "zonal_wind",
+                "description": "Zonal wind",
+                "offsetX": "0.5",
+                "offsetY": "0.5",
+                "subSamplingX": "16.0",
+                "subSamplingY": "16.0",
+                "expectedPixels": [
+                    {
+                        "x": 644,
+                        "y": 964,
+                        "value": 2.3500001
+                    },
+                    {
+                        "x": 723,
+                        "y": 166,
+                        "value": -0.17578124
+                    }
+                ]
+            },
+            {
+                "name": "merid_wind",
+                "description": "Meridional wind",
+                "offsetX": "0.5",
+                "offsetY": "0.5",
+                "subSamplingX": "16.0",
+                "subSamplingY": "16.0",
+                "expectedPixels": [
+                    {
+                        "x": 1093,
+                        "y": 3855,
+                        "value": 0.14609376
+                    },
+                    {
+                        "x": 1065,
+                        "y": 9933,
+                        "value": 1.19375
+                    }
+                ]
+            },
+            {
+                "name": "atm_press",
+                "description": "Mean sea level pressure",
+                "offsetX": "0.5",
+                "offsetY": "0.5",
+                "subSamplingX": "16.0",
+                "subSamplingY": "16.0",
+                "expectedPixels": [
+                    {
+                        "x": 124,
+                        "y": 4742,
+                        "value": 1012.8876
+                    },
+                    {
+                        "x": 639,
+                        "y": 5903,
+                        "value": 1014.7
+                    }
+                ]
+            },
+            {
+                "name": "ozone",
+                "description": "Total ozone",
+                "offsetX": "0.5",
+                "offsetY": "0.5",
+                "subSamplingX": "16.0",
+                "subSamplingY": "16.0",
+                "expectedPixels": [
+                    {
+                        "x": 567,
+                        "y": 5474,
+                        "value": 245.4943
+                    },
+                    {
+                        "x": 505,
+                        "y": 6098,
+                        "value": 256.22693
+                    }
+                ]
+            },
+            {
+                "name": "rel_hum",
+                "description": "Relative humidity",
+                "offsetX": "0.5",
+                "offsetY": "0.5",
+                "subSamplingX": "16.0",
+                "subSamplingY": "16.0",
+                "expectedPixels": [
+                    {
+                        "x": 16,
+                        "y": 4456,
+                        "value": 38.550003
+                    },
+                    {
+                        "x": 78,
+                        "y": 10420,
+                        "value": 83.58437
+                    }
+                ]
+            }
+        ],
+        "bands": [
+            {
+                "name": "water_vapour",
+                "description": "Water vapour content",
+                "geophysicalUnit": "g/cm^2",
+                "noDataValue": "-0.029999999329447746",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 332,
+                        "y": 7820,
+                        "value": 0.12
+                    },
+                    {
+                        "x": 900,
+                        "y": 7729,
+                        "value": 3.33
+                    }
+                ]
+            },
+            {
+                "name": "cloud_opt_thick",
+                "description": "Cloud optical thickness",
+                "geophysicalUnit": "dl",
+                "noDataValue": "-1.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 935,
+                        "y": 9924,
+                        "value": 35.0
+                    },
+                    {
+                        "x": 278,
+                        "y": 5581,
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "cloud_top_press",
+                "description": "Cloud top pressure",
+                "geophysicalUnit": "hPa",
+                "noDataValue": "-4.027559280395508",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 684,
+                        "y": 2729,
+                        "value": "NaN"
+                    },
+                    {
+                        "x": 619,
+                        "y": 1584,
+                        "value": 926.3386
+                    }
+                ]
+            },
+            {
+                "name": "cloud_type",
+                "description": "Cloud type",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 533,
+                        "y": 5868,
+                        "value": "NaN"
+                    },
+                    {
+                        "x": 106,
+                        "y": 8919,
+                        "value": 130.0
+                    }
+                ]
+            },
+            {
+                "name": "l2_flags",
+                "description": "Level 2 Classification and quality flags",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 107,
+                        "y": 816,
+                        "value": 4194307.0
+                    },
+                    {
+                        "x": 510,
+                        "y": 7098,
+                        "value": 2097176.0
+                    }
+                ]
+            }
+        ],
+        "masks": [
+            {
+                "name": "coastline",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "0,255,0",
+                "description": "Coastline pixel"
+            },
+            {
+                "name": "land",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "102,102,102",
+                "description": "Land product available"
+            },
+            {
+                "name": "cloud",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,255,255",
+                "description": "Cloud product available"
+            },
+            {
+                "name": "water",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "0,0,0",
+                "description": "Water product available"
+            },
+            {
+                "name": "invalid_reflectances",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "0,0,0",
+                "description": "Pixels flagged for invalid reflectances"
+            },
+            {
+                "name": "invalid_water_vapour",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "0,0,0",
+                "description": "Pixels flagged for invalid water vapour"
+            },
+            {
+                "name": "invalid_algal_1",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "0,0,0",
+                "description": "Water pixels flagged for invalid algal1"
+            },
+            {
+                "name": "invalid_algal2_tsm_ys",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "0,0,0",
+                "description": "Water pixels flagged for invalid algal2 and yellow_subs and total_susp"
+            },
+            {
+                "name": "invalid_photosyn_rad",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "0,0,0",
+                "description": "Water pixels flagged for invalid PAR"
+            },
+            {
+                "name": "invalid_toa_veg",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "0,0,0",
+                "description": "Land pixels flagged for invalid toa_veg"
+            },
+            {
+                "name": "invalid_boa_veg",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "0,0,0",
+                "description": "Land pixels flagged for invalid boa_veg"
+            },
+            {
+                "name": "invalid_rect_refl",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "0,0,0",
+                "description": "Land pixels flagged for invalid rectified reflectances"
+            },
+            {
+                "name": "invalid_surf_press",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "0,0,0",
+                "description": "Land pixels flagged for invalid surf_press"
+            },
+            {
+                "name": "invalid_aero_products",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "0,0,0",
+                "description": "Land and water pixels flagged for invalid aero_alpha and aero_opt_thick_(i)"
+            },
+            {
+                "name": "invalid_cloud_albedo",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "0,0,0",
+                "description": "Cloud pixels flagged for invalid cloud_albedo"
+            },
+            {
+                "name": "invalid_cloud_opt_thick_and_type",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "0,0,0",
+                "description": "Cloud pixels flagged for invalid cloud_opt_thick and cloud_type"
+            },
+            {
+                "name": "invalid_cloud_top_press",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "0,0,0",
+                "description": "Cloud pixels flagged for invalid cloud_top_press"
+            },
+            {
+                "name": "low_sun",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "153,0,153",
+                "description": "Sun low above horizon (or conversely high sun zenith angle)"
+            },
+            {
+                "name": "high_glint",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "204,0,204",
+                "description": "High (uncorrected) glint (water)"
+            },
+            {
+                "name": "medium_glint",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,51,255",
+                "description": "Corrected for glint (water)"
+            },
+            {
+                "name": "ice_haze",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,255,0",
+                "description": "Ice or high aerosol load pixel"
+            },
+            {
+                "name": "land_aerosol_on",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "51,51,255"
+            },
+            {
+                "name": "absoa_dust",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "0,204,255",
+                "description": "Dust-like absorbing aerosol selected for atmosphere correction"
+            },
+            {
+                "name": "bpac_on",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "153,255,204",
+                "description": "Bright pixels atmospheric correction activated (water)"
+            },
+            {
+                "name": "case2_s",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,255,153",
+                "description": "Turbid (sediment dominated Case 2) water"
+            },
+            {
+                "name": "case2_anom",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "153,153,0",
+                "description": "Anomalous scattering water"
+            },
+            {
+                "name": "case2_y",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "204,204,0",
+                "description": "Yellow substance loaded water"
+            },
+            {
+                "name": "uncertain_aerosol_model",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "0,204,0",
+                "description": "Aerosol model is out of aerosol model database"
+            },
+            {
+                "name": "toavi_bright",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,204,204",
+                "description": "Bright pixel flagged by MGVI processing"
+            },
+            {
+                "name": "toavi_bad",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,153,102",
+                "description": "Bad pixel flagged by MGVI processing"
+            },
+            {
+                "name": "toavi_csi",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,153,0",
+                "description": "Cloud, snow or ice over land pixel acc. to MGVI processing"
+            },
+            {
+                "name": "toavi_ws",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "204,102,0",
+                "description": "Water/shadow pixel acc. to MGVI processing (land)"
+            },
+            {
+                "name": "toavi_inval_rec",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "153,51,0",
+                "description": "Invalid rectification (land)"
+            },
+            {
+                "name": "low_pressure",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "204,204,255"
+            },
+            {
+                "name": "white_scatterer",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "204,204,255",
+                "description": "Presence of white scatterer in water"
+            },
+            {
+                "name": "cosmetic",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "204,153,255",
+                "description": "Cosmetic pixel (from level-1b)"
+            },
+            {
+                "name": "suspect",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "204,102,255",
+                "description": "Suspect pixel (from level-1b)"
+            },
+            {
+                "name": "pcd_1_13",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,0,0",
+                "description": "Uncertain normalized surface reflectance"
+            },
+            {
+                "name": "pcd_14",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,0,0",
+                "description": "Uncertain total water vapour content"
+            },
+            {
+                "name": "pcd_15",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,0,0",
+                "description": "Uncertain algal pigment index 1 or cloud top pressure or top of atmosphere vegetation index"
+            },
+            {
+                "name": "pcd_16",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,0,0",
+                "description": "Uncertain yellow substance and total suspended matter or rectified reflectances"
+            },
+            {
+                "name": "pcd_17",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,0,0",
+                "description": "Uncertain algal pigment index 2 or bottom of atmosphere vegetation index"
+            },
+            {
+                "name": "pcd_18",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,0,0",
+                "description": "Uncertain PAR or cloud albedo or land surface pressure"
+            },
+            {
+                "name": "pcd_19",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,0,0",
+                "description": "Uncertain aerosol type and optical thickness or cloud optical thickness"
+            }
+        ],
+        "metadata": [
+            {
+                "path": "DSD/DSD.33/RECORD_SIZE",
+                "value": "0"
+            },
+            {
+                "path": "Quality_ADS/Quality_ADS.79/perc_low_neural_press",
+                "value": "99"
+            }
+        ]
+    }
+}

@@ -1,0 +1,124 @@
+{
+    "id": "ALAV2A016102690-O1B2R_U",
+    "decodeQualification": "INTENDED",
+    "expectedContent": {
+        "sceneWidth": 7173,
+        "sceneHeight": 7000,
+        "startTime": "13-MAY-2006 22:00:00.000000",
+        "endTime": "13-MAY-2006 22:00:00.000000",
+        "geoCoding": {
+            "coordinates": [
+                {
+                    "x": 3093.0,
+                    "y": 3762.0,
+                    "lat": 45.049454,
+                    "lon": -6.8548174
+                },
+                {
+                    "x": 5325.0,
+                    "y": 4542.0,
+                    "lat": 44.94592,
+                    "lon": -6.593089
+                }
+            ],
+            "reverseAccuracy": 0.006,
+            "geoCodingClass": "org.esa.beam.framework.datamodel.MapGeoCoding"
+        },
+        "bands": [
+            {
+                "name": "radiance_1",
+                "description": "Radiance band 1",
+                "geophysicalUnit": "mw / (m^2*sr*nm)",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "420.0",
+                "spectralBandwidth": "80.0",
+                "expectedPixels": [
+                    {
+                        "x": 374,
+                        "y": 1247,
+                        "value": 75.852
+                    },
+                    {
+                        "x": 4914,
+                        "y": 5954,
+                        "value": 78.792
+                    }
+                ]
+            },
+            {
+                "name": "radiance_2",
+                "description": "Radiance band 2",
+                "geophysicalUnit": "mw / (m^2*sr*nm)",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "520.0",
+                "spectralBandwidth": "80.0",
+                "expectedPixels": [
+                    {
+                        "x": 2086,
+                        "y": 1797,
+                        "value": 48.705
+                    },
+                    {
+                        "x": 4379,
+                        "y": 2556,
+                        "value": 70.479
+                    }
+                ]
+            },
+            {
+                "name": "radiance_3",
+                "description": "Radiance band 3",
+                "geophysicalUnit": "mw / (m^2*sr*nm)",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "610.0",
+                "spectralBandwidth": "80.0",
+                "expectedPixels": [
+                    {
+                        "x": 3945,
+                        "y": 5217,
+                        "value": 54.718
+                    },
+                    {
+                        "x": 4363,
+                        "y": 6499,
+                        "value": 58.232
+                    }
+                ]
+            },
+            {
+                "name": "radiance_4",
+                "description": "Radiance band 4",
+                "geophysicalUnit": "mw / (m^2*sr*nm)",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "760.0",
+                "spectralBandwidth": "130.0",
+                "expectedPixels": [
+                    {
+                        "x": 1135,
+                        "y": 4662,
+                        "value": 60.955
+                    },
+                    {
+                        "x": 3723,
+                        "y": 6394,
+                        "value": 105.21
+                    }
+                ]
+            }
+        ],
+        "metadata": [
+            {
+                "path": "VOLUME_DESCRIPTOR/Logical volume ID",
+                "value": "AL1AV220060530  "
+            },
+            {
+                "path": "VOLUME_DESCRIPTOR/Logical volume ID",
+                "value": "AL1AV220060530  "
+            }
+        ]
+    }
+}

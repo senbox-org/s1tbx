@@ -1,0 +1,57 @@
+{
+    "id": "PSM_MMC_FR__0000105003",
+    "decodeQualification": "intended",
+    "expectedContent": {
+        "sceneWidth": 19583,
+        "sceneHeight": 18020,
+        "startTime": "12-OCT-2006 22:00:00.000000",
+        "endTime": "12-OCT-2006 22:00:00.000000",
+        "geoCoding": {
+            "coordinates": [
+                {
+                    "x": 11972.5,
+                    "y": 7814.5,
+                    "lat": 54.234413,
+                    "lon": 9.099673
+                }
+            ],
+            "reverseAccuracy": 0.06,
+            "geoCodingClass": "org.esa.beam.framework.datamodel.MapGeoCoding"
+        },
+        "bands": [
+            {
+                "name": "radiance_1",
+                "geophysicalUnit": "mw / (m^2*sr*nm)",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "645.0",
+                "spectralBandwidth": "250.0",
+                "expectedPixels": [
+                    {
+                        "x": 11972,
+                        "y": 7814,
+                        "value": 114.151
+                    }
+                ]
+            }
+        ],
+        "masks": [
+            {
+                "name": "pins",
+                "type": "org.esa.beam.framework.datamodel.Mask$VectorDataType",
+                "color": "255,0,0",
+                "description": "Mask derived from geometries in 'pins'"
+            }
+        ],
+        "metadata": [
+            {
+                "path": "SPH/Radiometric Calibration/ABSOLUTE_GAIN_BAND",
+                "value": "0.541"
+            },
+            {
+                "path": "VOLUME_DESCRIPTOR/FilePointerRecord 1/Second record subtype",
+                "value": "18"
+            }
+        ]
+    }
+}

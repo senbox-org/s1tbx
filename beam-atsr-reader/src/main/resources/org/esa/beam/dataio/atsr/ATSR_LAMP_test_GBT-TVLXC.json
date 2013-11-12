@@ -1,0 +1,666 @@
+{
+    "id": "ATSR_LAMP_test_GBT-TVLXC",
+    "decodeQualification": "INTENDED",
+    "expectedContent": {
+        "sceneWidth": 512,
+        "sceneHeight": 512,
+        "geoCoding": {
+            "coordinates": [
+                {
+                    "x": 200.5,
+                    "y": 190.5,
+                    "lat": 33.96619,
+                    "lon": 10.3721695
+                }
+            ],
+            "reverseAccuracy": 0.06,
+            "geoCodingClass": "org.esa.beam.framework.datamodel.TiePointGeoCoding"
+        },
+        "flagCodings": [
+            {
+                "name": "cloud_flags_nadir",
+                "samples": [
+                    {
+                        "name": "LAND",
+                        "value": 1,
+                        "description": "Pixel is over land"
+                    },
+                    {
+                        "name": "CLOUDY",
+                        "value": 2,
+                        "description": "Pixel is cloudy (result of all cloud tests)"
+                    },
+                    {
+                        "name": "SUN_GLINT",
+                        "value": 4,
+                        "description": "Sunglint detected in pixel"
+                    },
+                    {
+                        "name": "CLOUDY_REFL_HIST",
+                        "value": 8,
+                        "description": "1.6 um reflectance histogram test (day-time only)"
+                    },
+                    {
+                        "name": "CLOUDY_SPAT_COHER_16",
+                        "value": 16,
+                        "description": "1.6 um spatial coherence test (day-time only)"
+                    },
+                    {
+                        "name": "CLOUDY_SPAT_COHER_11",
+                        "value": 32,
+                        "description": "11 um spatial coherence test"
+                    },
+                    {
+                        "name": "CLOUDY_GROSS_12",
+                        "value": 64,
+                        "description": "12 um gross cloud test"
+                    },
+                    {
+                        "name": "CLOUDY_MED_HI_LEVEL_37_12",
+                        "value": 256,
+                        "description": "3.7/12 um medium/high level test (night-time only)"
+                    },
+                    {
+                        "name": "CLOUDY_FOG_LOW_STRATUS_11_37",
+                        "value": 512,
+                        "description": "11/3.7 um fog/low stratus test (night-time only)"
+                    },
+                    {
+                        "name": "CLOUDY_VW_DIFF_11_12",
+                        "value": 1024,
+                        "description": "11/12 um view difference test"
+                    },
+                    {
+                        "name": "CLOUDY_VW_DIFF_37_11",
+                        "value": 2048,
+                        "description": "3.7/11 um view difference test (night-time only)"
+                    },
+                    {
+                        "name": "CLOUDY_THERM_HIST_11_12",
+                        "value": 4096,
+                        "description": "11/12 um thermal histogram test"
+                    }
+                ]
+            },
+            {
+                "name": "cloud_flags_fward",
+                "samples": [
+                    {
+                        "name": "LAND",
+                        "value": 1,
+                        "description": "Pixel is over land"
+                    },
+                    {
+                        "name": "CLOUDY",
+                        "value": 2,
+                        "description": "Pixel is cloudy (result of all cloud tests)"
+                    },
+                    {
+                        "name": "SUN_GLINT",
+                        "value": 4,
+                        "description": "Sunglint detected in pixel"
+                    },
+                    {
+                        "name": "CLOUDY_REFL_HIST",
+                        "value": 8,
+                        "description": "1.6 um reflectance histogram test (day-time only)"
+                    },
+                    {
+                        "name": "CLOUDY_SPAT_COHER_16",
+                        "value": 16,
+                        "description": "1.6 um spatial coherence test (day-time only)"
+                    },
+                    {
+                        "name": "CLOUDY_SPAT_COHER_11",
+                        "value": 32,
+                        "description": "11 um spatial coherence test"
+                    },
+                    {
+                        "name": "CLOUDY_GROSS_12",
+                        "value": 64,
+                        "description": "12 um gross cloud test"
+                    },
+                    {
+                        "name": "CLOUDY_MED_HI_LEVEL_37_12",
+                        "value": 256,
+                        "description": "3.7/12 um medium/high level test (night-time only)"
+                    },
+                    {
+                        "name": "CLOUDY_FOG_LOW_STRATUS_11_37",
+                        "value": 512,
+                        "description": "11/3.7 um fog/low stratus test (night-time only)"
+                    },
+                    {
+                        "name": "CLOUDY_VW_DIFF_11_12",
+                        "value": 1024,
+                        "description": "11/12 um view difference test"
+                    },
+                    {
+                        "name": "CLOUDY_VW_DIFF_37_11",
+                        "value": 2048,
+                        "description": "3.7/11 um view difference test (night-time only)"
+                    },
+                    {
+                        "name": "CLOUDY_THERM_HIST_11_12",
+                        "value": 4096,
+                        "description": "11/12 um thermal histogram test"
+                    }
+                ]
+            }
+        ],
+        "tiePointGrids": [
+            {
+                "name": "sun_elev_nadir",
+                "description": "Nadir-view solar elevation",
+                "offsetX": "6.0",
+                "offsetY": "0.0",
+                "subSamplingX": "50.0",
+                "subSamplingY": "512.0",
+                "expectedPixels": [
+                    {
+                        "x": 200,
+                        "y": 190,
+                        "value": 71.50248
+                    }
+                ]
+            },
+            {
+                "name": "view_elev_nadir",
+                "description": "Nadir-view satellite elevation",
+                "offsetX": "6.0",
+                "offsetY": "0.0",
+                "subSamplingX": "50.0",
+                "subSamplingY": "512.0",
+                "expectedPixels": [
+                    {
+                        "x": 200,
+                        "y": 190,
+                        "value": 84.98495
+                    }
+                ]
+            },
+            {
+                "name": "sun_azimuth_nadir",
+                "description": "Nadir-view solar azimuth",
+                "offsetX": "6.0",
+                "offsetY": "0.0",
+                "subSamplingX": "50.0",
+                "subSamplingY": "512.0",
+                "expectedPixels": [
+                    {
+                        "x": 200,
+                        "y": 190,
+                        "value": 121.983246
+                    }
+                ]
+            },
+            {
+                "name": "view_azimuth_nadir",
+                "description": "Nadir-view satellite azimuth",
+                "offsetX": "6.0",
+                "offsetY": "0.0",
+                "subSamplingX": "50.0",
+                "subSamplingY": "512.0",
+                "expectedPixels": [
+                    {
+                        "x": 200,
+                        "y": 190,
+                        "value": -65.95432
+                    }
+                ]
+            },
+            {
+                "name": "sun_elev_forward",
+                "description": "Forward-view solar elevation",
+                "offsetX": "6.0",
+                "offsetY": "0.0",
+                "subSamplingX": "50.0",
+                "subSamplingY": "512.0",
+                "expectedPixels": [
+                    {
+                        "x": 200,
+                        "y": 190,
+                        "value": 71.3668
+                    }
+                ]
+            },
+            {
+                "name": "view_elev_forward",
+                "description": "Forward-view satellite elevation",
+                "offsetX": "6.0",
+                "offsetY": "0.0",
+                "subSamplingX": "50.0",
+                "subSamplingY": "512.0",
+                "expectedPixels": [
+                    {
+                        "x": 200,
+                        "y": 190,
+                        "value": 35.752735
+                    }
+                ]
+            },
+            {
+                "name": "sun_azimuth_forward",
+                "description": "Forward-view solar azimuth",
+                "offsetX": "6.0",
+                "offsetY": "0.0",
+                "subSamplingX": "50.0",
+                "subSamplingY": "512.0",
+                "expectedPixels": [
+                    {
+                        "x": 200,
+                        "y": 190,
+                        "value": 121.25603
+                    }
+                ]
+            },
+            {
+                "name": "view_azimuth_forward",
+                "description": "Forward-view satellite azimuth",
+                "offsetX": "6.0",
+                "offsetY": "0.0",
+                "subSamplingX": "50.0",
+                "subSamplingY": "512.0",
+                "expectedPixels": [
+                    {
+                        "x": 200,
+                        "y": 190,
+                        "value": 8.483163
+                    }
+                ]
+            },
+            {
+                "name": "latitude",
+                "description": "Latitudes of image pixels",
+                "offsetX": "0.0",
+                "offsetY": "0.0",
+                "subSamplingX": "16.0",
+                "subSamplingY": "16.0",
+                "expectedPixels": [
+                    {
+                        "x": 200,
+                        "y": 190,
+                        "value": 33.96619
+                    }
+                ]
+            },
+            {
+                "name": "longitude",
+                "description": "Longitudes of image pixels",
+                "offsetX": "0.0",
+                "offsetY": "0.0",
+                "subSamplingX": "16.0",
+                "subSamplingY": "16.0",
+                "expectedPixels": [
+                    {
+                        "x": 200,
+                        "y": 190,
+                        "value": 10.3721695
+                    }
+                ]
+            }
+        ],
+        "bands": [
+            {
+                "name": "btemp_nadir_1200",
+                "description": "Nadir-view 12.0um brightness temperature image",
+                "geophysicalUnit": "K",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "12000.0",
+                "spectralBandwidth": "1000.0",
+                "expectedPixels": [
+                    {
+                        "x": 200,
+                        "y": 190,
+                        "value": 293.74
+                    }
+                ]
+            },
+            {
+                "name": "btemp_nadir_1100",
+                "description": "Nadir-view 11.0um brightness temperature image",
+                "geophysicalUnit": "K",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "10800.0",
+                "spectralBandwidth": "1000.0",
+                "expectedPixels": [
+                    {
+                        "x": 200,
+                        "y": 190,
+                        "value": 294.93
+                    }
+                ]
+            },
+            {
+                "name": "btemp_nadir_370",
+                "description": "Nadir-view 3.7um brightness temperature image",
+                "geophysicalUnit": "K",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "3700.0",
+                "spectralBandwidth": "300.0",
+                "expectedPixels": [
+                    {
+                        "x": 200,
+                        "y": 190,
+                        "value": 307.13998
+                    }
+                ]
+            },
+            {
+                "name": "btemp_fward_1200",
+                "description": "Forward-view 12.0um brightness temperature image",
+                "geophysicalUnit": "K",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "12000.0",
+                "spectralBandwidth": "1000.0",
+                "expectedPixels": [
+                    {
+                        "x": 200,
+                        "y": 190,
+                        "value": 289.72
+                    }
+                ]
+            },
+            {
+                "name": "btemp_fward_1100",
+                "description": "Forward-view 11.0um brightness temperature image",
+                "geophysicalUnit": "K",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "10800.0",
+                "spectralBandwidth": "1000.0",
+                "expectedPixels": [
+                    {
+                        "x": 200,
+                        "y": 190,
+                        "value": 291.52
+                    }
+                ]
+            },
+            {
+                "name": "btemp_fward_370",
+                "description": "Forward-view 3.7um brightness temperature image",
+                "geophysicalUnit": "K",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "3700.0",
+                "spectralBandwidth": "300.0",
+                "expectedPixels": [
+                    {
+                        "x": 200,
+                        "y": 190,
+                        "value": 296.83
+                    }
+                ]
+            },
+            {
+                "name": "reflec_nadir_1600",
+                "description": "Nadir-view 1.6um reflectance image",
+                "geophysicalUnit": "%",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "1600.0",
+                "spectralBandwidth": "300.0",
+                "expectedPixels": [
+                    {
+                        "x": 200,
+                        "y": 190,
+                        "value": 15.49
+                    }
+                ]
+            },
+            {
+                "name": "reflec_fward_1600",
+                "description": "Forward-view 1.6um reflectance image",
+                "geophysicalUnit": "%",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "1600.0",
+                "spectralBandwidth": "300.0",
+                "expectedPixels": [
+                    {
+                        "x": 200,
+                        "y": 190,
+                        "value": 10.96
+                    }
+                ]
+            },
+            {
+                "name": "reflec_nadir_870",
+                "description": "Nadir-view 0.87um reflectance image",
+                "geophysicalUnit": "%",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "870.0",
+                "spectralBandwidth": "20.0",
+                "expectedPixels": [
+                    {
+                        "x": 200,
+                        "y": 190,
+                        "value": 14.17
+                    }
+                ]
+            },
+            {
+                "name": "reflec_nadir_650",
+                "description": "Nadir-view 0.65um reflectance image",
+                "geophysicalUnit": "%",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "670.0",
+                "spectralBandwidth": "20.0",
+                "expectedPixels": [
+                    {
+                        "x": 200,
+                        "y": 190,
+                        "value": 18.0
+                    }
+                ]
+            },
+            {
+                "name": "reflec_nadir_550",
+                "description": "Nadir-view 0.55um reflectance image",
+                "geophysicalUnit": "%",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "550.0",
+                "spectralBandwidth": "20.0",
+                "expectedPixels": [
+                    {
+                        "x": 200,
+                        "y": 190,
+                        "value": 13.45
+                    }
+                ]
+            },
+            {
+                "name": "reflec_fward_870",
+                "description": "Forward-view 0.87um reflectance image",
+                "geophysicalUnit": "%",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "870.0",
+                "spectralBandwidth": "20.0",
+                "expectedPixels": [
+                    {
+                        "x": 200,
+                        "y": 190,
+                        "value": 11.78
+                    }
+                ]
+            },
+            {
+                "name": "reflec_fward_650",
+                "description": "Forward-view 0.65um reflectance image",
+                "geophysicalUnit": "%",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "670.0",
+                "spectralBandwidth": "20.0",
+                "expectedPixels": [
+                    {
+                        "x": 200,
+                        "y": 190,
+                        "value": 15.849999
+                    }
+                ]
+            },
+            {
+                "name": "reflec_fward_550",
+                "description": "Forward-view 0.55um reflectance image",
+                "geophysicalUnit": "%",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "550.0",
+                "spectralBandwidth": "20.0",
+                "expectedPixels": [
+                    {
+                        "x": 200,
+                        "y": 190,
+                        "value": 12.55
+                    }
+                ]
+            },
+            {
+                "name": "x_offs_nadir",
+                "description": "X coordinate offsets (across-track) of nadir view pixels",
+                "geophysicalUnit": "km",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 200,
+                        "y": 190,
+                        "value": 0.69140625
+                    }
+                ]
+            },
+            {
+                "name": "y_offs_nadir",
+                "description": "Y coordinate offsets (along-track) of nadir view pixels",
+                "geophysicalUnit": "km",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 200,
+                        "y": 190,
+                        "value": 0.11328125
+                    }
+                ]
+            },
+            {
+                "name": "x_offs_fward",
+                "description": "X coordinate offsets (across-track) of forward view pixels",
+                "geophysicalUnit": "km",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 200,
+                        "y": 190,
+                        "value": 0.0
+                    }
+                ]
+            },
+            {
+                "name": "y_offs_fward",
+                "description": "Y coordinate offsets (along-track) of forward view pixels",
+                "geophysicalUnit": "km",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 200,
+                        "y": 190,
+                        "value": 0.0
+                    }
+                ]
+            },
+            {
+                "name": "cloud_flags_nadir",
+                "description": "Nadir-view cloud-clearing/land-flagging results",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 200,
+                        "y": 190,
+                        "value": 1062.0
+                    }
+                ]
+            },
+            {
+                "name": "cloud_flags_fward",
+                "description": "Forward-view cloud-clearing/land-flagging results",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 200,
+                        "y": 190,
+                        "value": 1058.0
+                    }
+                ]
+            }
+        ],
+        "masks": [
+            {
+                "name": "fire_nadir_1",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,0,0",
+                "description": "ATSR active fire (ALGO1)"
+            },
+            {
+                "name": "fire_nadir_2",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "178,0,0",
+                "description": "ATSR active fire (ALGO2)"
+            },
+            {
+                "name": "fire_fward_1",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,0,0",
+                "description": "ATSR active fire (ALGO1)"
+            },
+            {
+                "name": "fire_fward_2",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "178,0,0",
+                "description": "ATSR active fire (ALGO2)"
+            },
+            {
+                "name": "pins",
+                "type": "org.esa.beam.framework.datamodel.Mask$VectorDataType",
+                "color": "255,0,0",
+                "description": "Mask derived from geometries in 'pins'"
+            }
+        ],
+        "metadata": [
+            {
+                "path": "SPH/PIXEL_SELECTION_MAPS_FORWARD",
+                "value": "14,-1"
+            },
+            {
+                "path": "QUALITY_ADS/ERS_PLATFORM_MODE_RTMC_FORWARD",
+                "value": "0"
+            }
+        ]
+    }
+}

@@ -7,7 +7,6 @@
         "startTime": "02-MAY-2013 10:28:40.390000",
         "endTime": "02-MAY-2013 10:28:40.390000",
         "geoCoding": {
-            "reverseAccuracy": 2.0e-2,
             "coordinates": [
                 {
                     "x": 6477.104,
@@ -21,7 +20,9 @@
                     "lat": 55.537838,
                     "lon": 9.82499
                 }
-            ]
+            ],
+            "reverseAccuracy": 0.008,
+            "geoCodingClass": "org.esa.beam.framework.datamodel.CrsGeoCoding"
         },
         "flagCodings": [
             {

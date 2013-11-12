@@ -1,0 +1,132 @@
+{
+    "id": "LM42310081982267ESA00",
+    "decodeQualification": "INTENDED",
+    "expectedContent": {
+        "sceneWidth": 4268,
+        "sceneHeight": 4260,
+        "startTime": "24-SEP-1982 13:18:42.013000",
+        "endTime": "24-SEP-1982 13:18:42.013000",
+        "geoCoding": {
+            "coordinates": [
+                {
+                    "x": 2401.5,
+                    "y": 3728.5,
+                    "lat": 72.61829,
+                    "lon": -25.292501
+                },
+                {
+                    "x": 1661.5,
+                    "y": 274.5,
+                    "lat": 74.48283,
+                    "lon": -26.58049
+                }
+            ],
+            "reverseAccuracy": 0.005,
+            "geoCodingClass": "org.esa.beam.framework.datamodel.CrsGeoCoding"
+        },
+        "bands": [
+            {
+                "name": "radiance_1",
+                "description": "Visible (30m)",
+                "geophysicalUnit": "W/(m^2*sr*µm)",
+                "noDataValue": "1.0614173228346457",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "490.0",
+                "spectralBandwidth": "66.0",
+                "expectedPixels": [
+                    {
+                        "x": 2401,
+                        "y": 3728,
+                        "value": 46.344883
+                    },
+                    {
+                        "x": 1661,
+                        "y": 274,
+                        "value": 108.4
+                    }
+                ]
+            },
+            {
+                "name": "radiance_2",
+                "description": "Visible (30m)",
+                "geophysicalUnit": "W/(m^2*sr*µm)",
+                "noDataValue": "3.215748031496063",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "560.0",
+                "spectralBandwidth": "82.0",
+                "expectedPixels": [
+                    {
+                        "x": 2401,
+                        "y": 3728,
+                        "value": 38.796852
+                    },
+                    {
+                        "x": 1661,
+                        "y": 274,
+                        "value": 102.43228
+                    }
+                ]
+            },
+            {
+                "name": "radiance_3",
+                "description": "Visible (30m)",
+                "geophysicalUnit": "W/(m^2*sr*µm)",
+                "noDataValue": "3.505511811023622",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "660.0",
+                "spectralBandwidth": "67.0",
+                "expectedPixels": [
+                    {
+                        "x": 2401,
+                        "y": 3728,
+                        "value": 32.680313
+                    },
+                    {
+                        "x": 1661,
+                        "y": 274,
+                        "value": 70.755905
+                    }
+                ]
+            },
+            {
+                "name": "radiance_4",
+                "description": "Near-Infrared (30m)",
+                "geophysicalUnit": "W/(m^2*sr*µm)",
+                "noDataValue": "2.494488188976378",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "830.0",
+                "spectralBandwidth": "128.0",
+                "expectedPixels": [
+                    {
+                        "x": 2401,
+                        "y": 3728,
+                        "value": 23.725985
+                    },
+                    {
+                        "x": 1661,
+                        "y": 274,
+                        "value": 42.42992
+                    }
+                ]
+            }
+        ],
+        "masks": [
+            {
+                "name": "pins",
+                "type": "org.esa.beam.framework.datamodel.Mask$VectorDataType",
+                "color": "255,0,0",
+                "description": "Mask derived from geometries in 'pins'"
+            }
+        ],
+        "metadata": [
+            {
+                "path": "L1_METADATA_FILE/MIN_MAX_PIXEL_VALUE/QUANTIZE_CAL_MIN_BAND_3",
+                "value": "1"
+            },
+            {
+                "path": "L1_METADATA_FILE/METADATA_FILE_INFO/REQUEST_ID",
+                "value": "0008209240000_00000 "
+            }
+        ]
+    }
+}

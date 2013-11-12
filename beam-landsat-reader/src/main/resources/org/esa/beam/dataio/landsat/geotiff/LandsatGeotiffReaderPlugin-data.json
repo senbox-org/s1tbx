@@ -2,43 +2,68 @@
     "testProducts": [
         {
             "id": "LT40140341983030XXX13",
-            "relativePath": "Landsat/Landsat_4/geotiff/LT40140341983030XXX13/LT40140341983030XXX13_MTL.txt",
-            "description": "Landsat 4 GeoTIFF Test product"
+            "relativePath": "sensors_platforms/LANDSAT/LANDSAT_4_TM/geotiff/LT40140341983030XXX13/LT40140341983030XXX13_MTL.txt",
+            "description": "Landsat 4 GeoTIFF Test product, PROCESSING_SOFTWARE: LPGS_12.1.4"
         },
         {
             "id": "LT41160361989057XXX02",
-            "relativePath": "Landsat/Landsat_4/geotiff/LT41160361989057XXX02/LT41160361989057XXX02_MTL.txt",
-            "description": "Landsat 4 GeoTIFF Test product reprocessed metadata"
+            "relativePath": "sensors_platforms/LANDSAT/LANDSAT_4_TM/geotiff/LT41160361989057XXX02/LT41160361989057XXX02_MTL.txt",
+            "description": "Landsat 4 GeoTIFF Test product reprocessed metadata,PROCESSING_SOFTWARE_VERSION: LPGS_12.1.4"
         },
         {
             "id": "LT40140341982315PAC00",
-            "relativePath": "Landsat/Landsat_4/geotiff/LT40140341982315PAC00/LT40140341982315PAC00_MTL.txt",
-            "description": "Landsat 4 GeoTIFF Test product reprocessed metadata"
+            "relativePath": "sensors_platforms/LANDSAT/LANDSAT_4_TM/geotiff/LT40140341982315PAC00/LT40140341982315PAC00_MTL.txt",
+            "description": "Landsat 4 GeoTIFF Test product reprocessed metadata, PROCESSING_SOFTWARE: LPGS_12.1.3"
         },
         {
             "id": "LC81960222013195LGN00",
-            "relativePath": "Landsat/Landsat_8/LC81960222013195LGN00/LC81960222013195LGN00_MTL.txt",
-            "description": "Landsat 8 OLI_TIRS GeoTIFF Test product"
+            "relativePath": "sensors_platforms/LANDSAT/LANDSAT_8_OLI_TIRS/geotiff/LC81960222013195LGN00/LC81960222013195LGN00_MTL.txt",
+            "description": "Landsat 8 OLI_TIRS GeoTIFF Test product, PROCESSING_SOFTWARE_VERSION: LPGS_2.2.2"
         },
         {
             "id": "LC81970222013122LGN01",
-            "relativePath": "Landsat/Landsat_8/LC81970222013122LGN01/LC81970222013122LGN01_MTL.txt",
-            "description": "Landsat 8 OLI_TIRS GeoTIFF Test product"
+            "relativePath": "sensors_platforms/LANDSAT/LANDSAT_8_OLI_TIRS/geotiff/LC81970222013122LGN01/LC81970222013122LGN01_MTL.txt",
+            "description": "Landsat 8 OLI_TIRS GeoTIFF Test product, PROCESSING_SOFTWARE_VERSION: LPGS_2.2.2"
         },
         {
             "id": "LT82270322013068LGN01",
-            "relativePath": "Landsat/Landsat_8/LT82270322013068LGN01/LT82270322013068LGN01_MTL.txt",
-            "description": "Landsat 8 TIRS GeoTIFF Test product"
+            "relativePath": "sensors_platforms/LANDSAT/LANDSAT_8_TIRS/geotiff/LT82270322013068LGN01/LT82270322013068LGN01_MTL.txt",
+            "description": "Landsat 8 TIRS GeoTIFF Test product,PROCESSING_SOFTWARE_VERSION: LPGS_2.2.2"
         },
         {
             "id": "LT51970222006231KIS02",
-            "relativePath": "Landsat/Landsat_5/legacy/LT51970222006231KIS02.tar.gz",
-            "description": "Landsat 5 legacy Test product"
+            "relativePath": "sensors_platforms/LANDSAT/LANDSAT_5_TM/legacy/LT51970222006231KIS02.tar.gz",
+            "description": "Landsat 5 legacy Test product, PROCESSING_SOFTWARE: LPGS_11.0.0"
         },
         {
             "id": "L71191027_02720070313",
-            "relativePath": "Landsat/Landsat_7/legacy/L71191027_02720070313/L71191027_02720070313_MTL.txt",
-            "description": "Landsat 7 legacy Test product"
+            "relativePath": "sensors_platforms/LANDSAT/LANDSAT_7_ETM/legacy/L71191027_02720070313/L71191027_02720070313_MTL.txt",
+            "description": "Landsat 7 legacy Test product, Product type: Landsat7_ETM+_L1T, PROCESSING_SOFTWARE: LPGS_10.1.0"
+        },
+        {
+            "id": "LM11870291976166ESA00",
+            "relativePath": "sensors_platforms/LANDSAT/LANDSAT_1_MSS/geotiff/LM11870291976166ESA00/LM11870291976166ESA00_MTL.txt",
+            "description": "Product type: LANDSAT_1_MSS_L1T, PROCESSING_SOFTWARE_VERSION: SLAP_03.02"
+        },
+        {
+            "id": "LM32170241982254XXX01",
+            "relativePath": "sensors_platforms/LANDSAT/LANDSAT_3_MSS/geotiff/LM32170241982254XXX01/LM32170241982254XXX01_MTL.txt",
+            "description": "Product type: LANDSAT_3_MSS_L1G, PROCESSING_SOFTWARE_VERSION: LPGS_12.3.0"
+        },
+        {
+            "id": "LM42310081982267ESA00",
+            "relativePath": "sensors_platforms/LANDSAT/LANDSAT_4_MSS/geotiff/LM42310081982267ESA00/LM42310081982267ESA00_MTL.txt",
+            "description": "Product type: LANDSAT_4_MSS_L1T, PROCESSING_SOFTWARE_VERSION: SLAP_03.02"
+        },
+        {
+            "id": "LM52010241984295AAA03",
+            "relativePath": "sensors_platforms/LANDSAT/LANDSAT_5_MSS/geotiff/LM52010241984295AAA03/LM52010241984295AAA03_MTL.txt",
+            "description": "Product type: LANDSAT_5_MSS_L1T, PROCESSING_SOFTWARE_VERSION: LPGS_12.3.0"
+        },
+        {
+            "id": "L5043033_03319950627",
+            "relativePath": "sensors_platforms/LANDSAT/LANDSAT_5_TM/geotiff/L5_30m19950627/L5043033_03319950627_MTL.txt",
+            "description": "Product type: Landsat5_TM_L1T, PROCESSING_SOFTWARE: LPGS_11.0.0"
         }
     ]
 }

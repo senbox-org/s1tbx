@@ -1,0 +1,24 @@
+{
+    "testProducts": [
+        {
+            "id": "PSM_MMC_TP__0002294001",
+            "relativePath": "sensors_platforms/PRISM/1A/PSM_MMC_TP__0002294001/VOL-ALPSMN075752830-O1A____N",
+            "description": "PRISM product Level PRM1A"
+        },
+        {
+            "id": "ALPSMF019602670-O1B1",
+            "relativePath": "sensors_platforms/PRISM/1B1/ALPSMF019602670-O1B1___F/VOL-ALPSMF019602670-O1B1___F",
+            "description": "PRISM product Level PRM1B1"
+        },
+        {
+            "id": "PSM_MMC_FR__0000105003",
+            "relativePath": "sensors_platforms/PRISM/1B2/G/PSM_MMC_FR__0000105003/VOL-ALPSMB038272560-O1B2G_UB",
+            "description": "RISM product Level PRM1B2"
+        } ,
+        {
+            "id": "ALPSMB016102805-O1B2R",
+            "relativePath": "sensors_platforms/PRISM/1B2/R/ALPSMB016102805-O1B2R_UB-A0600527-020/VOL-ALPSMB016102805-O1B2R_UB",
+            "description": "RISM product Level PRM1B2"
+        }
+    ]
+}

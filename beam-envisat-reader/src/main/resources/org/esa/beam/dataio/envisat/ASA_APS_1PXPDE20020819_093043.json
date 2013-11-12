@@ -1,0 +1,290 @@
+{
+    "id": "ASA_APS_1PXPDE20020819_093043",
+    "decodeQualification": "intended",
+    "expectedContent": {
+        "sceneWidth": 5150,
+        "sceneHeight": 12056,
+        "startTime": "19-AUG-2002 09:30:43.576315",
+        "endTime": "19-AUG-2002 09:30:50.871694",
+        "geoCoding": {
+            "coordinates": [
+                {
+                    "x": 2221.0,
+                    "y": 6480.0,
+                    "lat": 51.34551,
+                    "lon": 13.893567
+                },
+                {
+                    "x": 3823.0,
+                    "y": 7823.0,
+                    "lat": 51.360313,
+                    "lon": 13.435609
+                }
+            ],
+            "reverseAccuracy": 0.01,
+            "geoCodingClass": "org.esa.beam.framework.datamodel.TiePointGeoCoding"
+        },
+        "tiePointGrids": [
+            {
+                "name": "slant_range_time",
+                "description": "2 way slant range time",
+                "offsetX": "0.0",
+                "offsetY": "0.0",
+                "subSamplingX": "515.0",
+                "subSamplingY": "2412.0",
+                "expectedPixels": [
+                    {
+                        "x": 268,
+                        "y": 2147,
+                        "value": 5554924.0
+                    },
+                    {
+                        "x": 3528,
+                        "y": 10254,
+                        "value": 5724647.5
+                    }
+                ]
+            },
+            {
+                "name": "incident_angle",
+                "description": "Incident angle",
+                "offsetX": "0.0",
+                "offsetY": "0.0",
+                "subSamplingX": "515.0",
+                "subSamplingY": "2412.0",
+                "expectedPixels": [
+                    {
+                        "x": 1498,
+                        "y": 3096,
+                        "value": 21.16471
+                    },
+                    {
+                        "x": 3144,
+                        "y": 4403,
+                        "value": 23.572788
+                    }
+                ]
+            },
+            {
+                "name": "latitude",
+                "description": "Latitude of the tie points (WGS-84), positive N",
+                "offsetX": "0.0",
+                "offsetY": "0.0",
+                "subSamplingX": "515.0",
+                "subSamplingY": "2412.0",
+                "expectedPixels": [
+                    {
+                        "x": 2832,
+                        "y": 8985,
+                        "value": 51.28154
+                    },
+                    {
+                        "x": 3132,
+                        "y": 11193,
+                        "value": 51.215176
+                    }
+                ]
+            },
+            {
+                "name": "longitude",
+                "description": "Longitude of the tie points (WGS-84), Greenwich origin, positive E",
+                "offsetX": "0.0",
+                "offsetY": "0.0",
+                "subSamplingX": "515.0",
+                "subSamplingY": "2412.0",
+                "expectedPixels": [
+                    {
+                        "x": 815,
+                        "y": 8029,
+                        "value": 14.296371
+                    },
+                    {
+                        "x": 2673,
+                        "y": 11013,
+                        "value": 13.705659
+                    }
+                ]
+            }
+        ],
+        "bands": [
+            {
+                "name": "i_HV",
+                "description": "Alternating Polarization SLC Image (i)",
+                "geophysicalUnit": "real",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 3894,
+                        "y": 5842,
+                        "value": -20.0
+                    },
+                    {
+                        "x": 4896,
+                        "y": 5857,
+                        "value": 15.0
+                    }
+                ]
+            },
+            {
+                "name": "q_HV",
+                "description": "Alternating Polarization SLC Image (q)",
+                "geophysicalUnit": "imaginary",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 1753,
+                        "y": 10843,
+                        "value": -19.0
+                    },
+                    {
+                        "x": 51,
+                        "y": 5675,
+                        "value": 32.0
+                    }
+                ]
+            },
+            {
+                "name": "Intensity_HV",
+                "description": "Intensity Image",
+                "geophysicalUnit": "intensity",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 1686,
+                        "y": 2376,
+                        "value": 1010.0
+                    },
+                    {
+                        "x": 1406,
+                        "y": 520,
+                        "value": 101.0
+                    }
+                ]
+            },
+            {
+                "name": "Phase_HV",
+                "description": "Phase Image",
+                "geophysicalUnit": "phase",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 5003,
+                        "y": 7290,
+                        "value": -0.30092025
+                    },
+                    {
+                        "x": 2947,
+                        "y": 8641,
+                        "value": -1.4219064
+                    }
+                ]
+            },
+            {
+                "name": "i_HH",
+                "description": "Alternating Polarization SLC Image (i)",
+                "geophysicalUnit": "real",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 1194,
+                        "y": 5998,
+                        "value": 32.0
+                    },
+                    {
+                        "x": 1653,
+                        "y": 8711,
+                        "value": -40.0
+                    }
+                ]
+            },
+            {
+                "name": "q_HH",
+                "description": "Alternating Polarization SLC Image (q)",
+                "geophysicalUnit": "imaginary",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 1844,
+                        "y": 6006,
+                        "value": 81.0
+                    },
+                    {
+                        "x": 2074,
+                        "y": 5332,
+                        "value": 34.0
+                    }
+                ]
+            },
+            {
+                "name": "Intensity_HH",
+                "description": "Intensity Image",
+                "geophysicalUnit": "intensity",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 2959,
+                        "y": 1107,
+                        "value": 500.0
+                    },
+                    {
+                        "x": 3323,
+                        "y": 190,
+                        "value": 1765.0
+                    }
+                ]
+            },
+            {
+                "name": "Phase_HH",
+                "description": "Phase Image",
+                "geophysicalUnit": "phase",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 5022,
+                        "y": 4428,
+                        "value": -1.4977558
+                    },
+                    {
+                        "x": 4893,
+                        "y": 11409,
+                        "value": -2.8273609
+                    }
+                ]
+            }
+        ],
+        "metadata": [
+            {
+                "path": "MPH/X_POSITION",
+                "value": "-6877259.778"
+            },
+            {
+                "path": "MDS2_SQ_ADS/thresh_dop_cen",
+                "value": "0.6"
+            }
+        ]
+    }
+}

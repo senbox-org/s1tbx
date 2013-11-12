@@ -1,0 +1,124 @@
+{
+    "id": "LM52010241984295AAA03",
+    "decodeQualification": "INTENDED",
+    "expectedContent": {
+        "sceneWidth": 4093,
+        "sceneHeight": 3728,
+        "startTime": "21-OCT-1984 10:22:27.686000",
+        "endTime": "21-OCT-1984 10:22:27.686000",
+        "geoCoding": {
+            "coordinates": [
+                {
+                    "x": 1765.0,
+                    "y": 2004.0,
+                    "lat": 51.632545,
+                    "lon": 0.24702425
+                },
+                {
+                    "x": 3038.0,
+                    "y": 2419.0,
+                    "lat": 51.429432,
+                    "lon": 1.3581177
+                }
+            ],
+            "reverseAccuracy": 0.002,
+            "geoCodingClass": "org.esa.beam.framework.datamodel.CrsGeoCoding"
+        },
+        "bands": [
+            {
+                "name": "radiance_1",
+                "description": "Visible (30m)",
+                "geophysicalUnit": "W/(m^2*sr*µm)",
+                "noDataValue": "1.6405511811023623",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "490.0",
+                "spectralBandwidth": "66.0",
+                "expectedPixels": [
+                    {
+                        "x": 213,
+                        "y": 664,
+                        "value": "NaN"
+                    },
+                    {
+                        "x": 2804,
+                        "y": 3171,
+                        "value": 30.002361
+                    }
+                ]
+            },
+            {
+                "name": "radiance_2",
+                "description": "Visible (30m)",
+                "geophysicalUnit": "W/(m^2*sr*µm)",
+                "noDataValue": "2.0665354330708663",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "560.0",
+                "spectralBandwidth": "82.0",
+                "expectedPixels": [
+                    {
+                        "x": 1190,
+                        "y": 957,
+                        "value": 17.269686
+                    },
+                    {
+                        "x": 2498,
+                        "y": 1361,
+                        "value": 20.437008
+                    }
+                ]
+            },
+            {
+                "name": "radiance_3",
+                "description": "Visible (30m)",
+                "geophysicalUnit": "W/(m^2*sr*µm)",
+                "noDataValue": "3.2216535433070863",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "660.0",
+                "spectralBandwidth": "67.0",
+                "expectedPixels": [
+                    {
+                        "x": 2251,
+                        "y": 2778,
+                        "value": 28.668898
+                    },
+                    {
+                        "x": 2489,
+                        "y": 3461,
+                        "value": 4.3783464
+                    }
+                ]
+            },
+            {
+                "name": "radiance_4",
+                "description": "Near-Infrared (30m)",
+                "geophysicalUnit": "W/(m^2*sr*µm)",
+                "noDataValue": "2.4488188976377954",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "830.0",
+                "spectralBandwidth": "128.0",
+                "expectedPixels": [
+                    {
+                        "x": 647,
+                        "y": 2483,
+                        "value": 18.240158
+                    },
+                    {
+                        "x": 2124,
+                        "y": 3405,
+                        "value": 34.482677
+                    }
+                ]
+            }
+        ],
+        "metadata": [
+            {
+                "path": "L1_METADATA_FILE/MIN_MAX_RADIANCE/RADIANCE_MINIMUM_BAND_4",
+                "value": "2.9"
+            },
+            {
+                "path": "L1_METADATA_FILE/IMAGE_ATTRIBUTES/GEOMETRIC_RMSE_VERIFY_QUAD_LL",
+                "value": "0.518"
+            }
+        ]
+    }
+}

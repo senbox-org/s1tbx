@@ -227,7 +227,9 @@
                     "lat": 41.37075,
                     "lon": -45.971325
                 }
-            ]
+            ]  ,
+            "reverseAccuracy": 0.005,
+            "geoCodingClass": "org.esa.beam.framework.datamodel.CrsGeoCoding"
         },
         "bands": [
             {

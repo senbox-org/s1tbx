@@ -1,0 +1,124 @@
+{
+    "id": "LM32170241982254XXX01",
+    "decodeQualification": "INTENDED",
+    "expectedContent": {
+        "sceneWidth": 4181,
+        "sceneHeight": 3770,
+        "startTime": "11-SEP-1982 10:21:12.013000",
+        "endTime": "11-SEP-1982 10:21:12.013000",
+        "geoCoding": {
+            "coordinates": [
+                {
+                    "x": 1803.0,
+                    "y": 2026.0,
+                    "lat": 51.40962,
+                    "lon": -0.06686043
+                },
+                {
+                    "x": 3104.0,
+                    "y": 2446.0,
+                    "lat": 51.15016,
+                    "lon": 1.033143
+                }
+            ],
+            "reverseAccuracy": 0.004,
+            "geoCodingClass": "org.esa.beam.framework.datamodel.CrsGeoCoding"
+        },
+        "bands": [
+            {
+                "name": "radiance_4",
+                "description": "Near-Infrared (30m)",
+                "geophysicalUnit": "W/(m^2*sr*µm)",
+                "noDataValue": "2.690551181102362",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "830.0",
+                "spectralBandwidth": "128.0",
+                "expectedPixels": [
+                    {
+                        "x": 218,
+                        "y": 671,
+                        "value": "NaN"
+                    },
+                    {
+                        "x": 2864,
+                        "y": 3206,
+                        "value": 120.9189
+                    }
+                ]
+            },
+            {
+                "name": "radiance_5",
+                "description": "Near-Infrared (30m)",
+                "geophysicalUnit": "W/(m^2*sr*µm)",
+                "noDataValue": "2.164566929133858",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "1670.0",
+                "spectralBandwidth": "217.0",
+                "expectedPixels": [
+                    {
+                        "x": 1216,
+                        "y": 968,
+                        "value": 2.8
+                    },
+                    {
+                        "x": 2552,
+                        "y": 1377,
+                        "value": 66.34331
+                    }
+                ]
+            },
+            {
+                "name": "radiance_6",
+                "description": "Thermal (120m)",
+                "geophysicalUnit": "W/(m^2*sr*µm)",
+                "noDataValue": "2.3358267716535432",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "11500.0",
+                "spectralBandwidth": "1000.0",
+                "expectedPixels": [
+                    {
+                        "x": 2299,
+                        "y": 2809,
+                        "value": 80.755905
+                    },
+                    {
+                        "x": 2543,
+                        "y": 3500,
+                        "value": 51.4189
+                    }
+                ]
+            },
+            {
+                "name": "radiance_7",
+                "description": "Mid-Infrared (30m)",
+                "geophysicalUnit": "W/(m^2*sr*µm)",
+                "noDataValue": "0.5248031496062993",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "2240.0",
+                "spectralBandwidth": "252.0",
+                "expectedPixels": [
+                    {
+                        "x": 661,
+                        "y": 2511,
+                        "value": 1.0
+                    },
+                    {
+                        "x": 2170,
+                        "y": 3443,
+                        "value": 32.36299
+                    }
+                ]
+            }
+        ],
+        "metadata": [
+            {
+                "path": "L1_METADATA_FILE/MIN_MAX_RADIANCE/RADIANCE_MINIMUM_BAND_7",
+                "value": "1.0"
+            },
+            {
+                "path": "L1_METADATA_FILE/IMAGE_ATTRIBUTES/SUN_ELEVATION",
+                "value": "39.07968272"
+            }
+        ]
+    }
+}

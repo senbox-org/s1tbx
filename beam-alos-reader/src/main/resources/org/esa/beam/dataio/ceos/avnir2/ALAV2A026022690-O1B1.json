@@ -1,0 +1,106 @@
+{
+    "id": "ALAV2A026022690-O1B1",
+    "decodeQualification": "INTENDED",
+    "expectedContent": {
+        "sceneWidth": 7100,
+        "sceneHeight": 8000,
+        "startTime": "21-JUL-2006 09:11:07.000159",
+        "endTime": "21-JUL-2006 09:11:18.000025",
+        "geoCoding": {
+            "coordinates": [
+                {
+                    "x": 2365.5,
+                    "y": 5654.5,
+                    "lat": 43.30777,
+                    "lon": 4.8346753
+                }
+            ],
+            "reverseAccuracy": 0.03,
+            "geoCodingClass": "org.esa.beam.framework.datamodel.FXYGeoCoding"
+        },
+        "bands": [
+            {
+                "name": "radiance_1",
+                "description": "Radiance band 1",
+                "geophysicalUnit": "mw / (m^2*sr*nm)",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "420.0",
+                "spectralBandwidth": "80.0",
+                "expectedPixels": [
+                    {
+                        "x": 2365,
+                        "y": 5654,
+                        "value": 67.032
+                    }
+                ]
+            },
+            {
+                "name": "radiance_2",
+                "description": "Radiance band 2",
+                "geophysicalUnit": "mw / (m^2*sr*nm)",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "520.0",
+                "spectralBandwidth": "80.0",
+                "expectedPixels": [
+                    {
+                        "x": 2365,
+                        "y": 5654,
+                        "value": 48.132
+                    }
+                ]
+            },
+            {
+                "name": "radiance_3",
+                "description": "Radiance band 3",
+                "geophysicalUnit": "mw / (m^2*sr*nm)",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "610.0",
+                "spectralBandwidth": "80.0",
+                "expectedPixels": [
+                    {
+                        "x": 2365,
+                        "y": 5654,
+                        "value": 24.096
+                    }
+                ]
+            },
+            {
+                "name": "radiance_4",
+                "description": "Radiance band 4",
+                "geophysicalUnit": "mw / (m^2*sr*nm)",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "760.0",
+                "spectralBandwidth": "130.0",
+                "expectedPixels": [
+                    {
+                        "x": 2365,
+                        "y": 5654,
+                        "value": 8.35
+                    }
+                ]
+            }
+        ],
+        "masks": [
+            {
+                "name": "pins",
+                "type": "org.esa.beam.framework.datamodel.Mask$VectorDataType",
+                "color": "255,0,0",
+                "description": "Mask derived from geometries in 'pins'"
+            }
+        ],
+        "metadata": [
+            {
+                "path": "SPH/Platform Position Data/DATA_POINT_21_POSITIONAL_VECTOR_Y",
+                "value": "-1088953.26759334"
+            },
+            {
+                "path": "VOLUME_DESCRIPTOR/First record subtype",
+                "value": "192"
+            }
+        ]
+    }
+}

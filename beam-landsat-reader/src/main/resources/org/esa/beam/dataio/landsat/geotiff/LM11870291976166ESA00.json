@@ -1,0 +1,132 @@
+{
+    "id": "LM11870291976166ESA00",
+    "decodeQualification": "INTENDED",
+    "expectedContent": {
+        "sceneWidth": 3608,
+        "sceneHeight": 3360,
+        "startTime": "14-JUN-1976 06:53:43.868000",
+        "endTime": "14-JUN-1976 06:53:43.868000",
+        "geoCoding": {
+            "coordinates": [
+                {
+                    "x": 1411.5,
+                    "y": 646.5,
+                    "lat": 44.979168,
+                    "lon": 39.294434
+                },
+                {
+                    "x": 2598.5,
+                    "y": 3157.5,
+                    "lat": 43.61716,
+                    "lon": 40.17036
+                }
+            ],
+            "reverseAccuracy": 0.003,
+            "geoCodingClass": "org.esa.beam.framework.datamodel.CrsGeoCoding"
+        },
+        "bands": [
+            {
+                "name": "radiance_4",
+                "description": "Near-Infrared (30m)",
+                "geophysicalUnit": "W/(m^2*sr*µm)",
+                "noDataValue": "-0.7913385826771654",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "830.0",
+                "spectralBandwidth": "128.0",
+                "expectedPixels": [
+                    {
+                        "x": 1411,
+                        "y": 646,
+                        "value": 56.97638
+                    },
+                    {
+                        "x": 2598,
+                        "y": 3157,
+                        "value": 52.228348
+                    }
+                ]
+            },
+            {
+                "name": "radiance_5",
+                "description": "Near-Infrared (30m)",
+                "geophysicalUnit": "W/(m^2*sr*µm)",
+                "noDataValue": "8.461417322834645",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "1670.0",
+                "spectralBandwidth": "217.0",
+                "expectedPixels": [
+                    {
+                        "x": 1411,
+                        "y": 646,
+                        "value": 37.83622
+                    },
+                    {
+                        "x": 2598,
+                        "y": 3157,
+                        "value": 41.667717
+                    }
+                ]
+            },
+            {
+                "name": "radiance_6",
+                "description": "Thermal (120m)",
+                "geophysicalUnit": "W/(m^2*sr*µm)",
+                "noDataValue": "-9.069291338582678",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "11500.0",
+                "spectralBandwidth": "1000.0",
+                "expectedPixels": [
+                    {
+                        "x": 1411,
+                        "y": 646,
+                        "value": 6.993701
+                    },
+                    {
+                        "x": 2598,
+                        "y": 3157,
+                        "value": 45.143307
+                    }
+                ]
+            },
+            {
+                "name": "radiance_7",
+                "description": "Mid-Infrared (30m)",
+                "geophysicalUnit": "W/(m^2*sr*µm)",
+                "noDataValue": "-0.6259842519685039",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "2240.0",
+                "spectralBandwidth": "252.0",
+                "expectedPixels": [
+                    {
+                        "x": 1411,
+                        "y": 646,
+                        "value": 11.267716
+                    },
+                    {
+                        "x": 2598,
+                        "y": 3157,
+                        "value": 48.200787
+                    }
+                ]
+            }
+        ],
+        "masks": [
+            {
+                "name": "pins",
+                "type": "org.esa.beam.framework.datamodel.Mask$VectorDataType",
+                "color": "255,0,0",
+                "description": "Mask derived from geometries in 'pins'"
+            }
+        ],
+        "metadata": [
+            {
+                "path": "L1_METADATA_FILE/MIN_MAX_PIXEL_VALUE/QUANTIZE_CAL_MIN_BAND_6",
+                "value": "1"
+            },
+            {
+                "path": "L1_METADATA_FILE/METADATA_FILE_INFO/REQUEST_ID",
+                "value": "0007606140000_00000 "
+            }
+        ]
+    }
+}

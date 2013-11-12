@@ -1,0 +1,62 @@
+{
+    "id": "ASA_WVS_1PXPDE20020503_033815",
+    "decodeQualification": "INTENDED",
+    "expectedContent": {
+        "sceneWidth": 432,
+        "sceneHeight": 25,
+        "bands": [
+            {
+                "name": "Cross_Spectra_I",
+                "description": "Real Cross Spectra",
+                "geophysicalUnit": "real",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 186,
+                        "y": 13,
+                        "value": 10.0
+                    },
+                    {
+                        "x": 320,
+                        "y": 16,
+                        "value": 3.0
+                    }
+                ]
+            },
+            {
+                "name": "Cross_Spectra_Q",
+                "description": "Imaginary Cross Spectra",
+                "geophysicalUnit": "imaginary",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 22,
+                        "y": 4,
+                        "value": 136.0
+                    },
+                    {
+                        "x": 295,
+                        "y": 21,
+                        "value": 74.0
+                    }
+                ]
+            }
+        ],
+        "metadata": [
+            {
+                "path": "SPH/COMPRESSION",
+                "value": "FBAQ2"
+            },
+            {
+                "path": "SQ_ADS/SQ_ADS.10/input_mean",
+                "value": "0.0021097297,0.0015323204"
+            }
+        ]
+    }
+}

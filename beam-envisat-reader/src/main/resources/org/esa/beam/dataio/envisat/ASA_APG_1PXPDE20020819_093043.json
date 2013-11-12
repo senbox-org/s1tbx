@@ -1,0 +1,205 @@
+{
+    "id": "ASA_APG_1PXPDE20020819_093043",
+    "decodeQualification": "intended",
+    "expectedContent": {
+        "sceneWidth": 10161,
+        "sceneHeight": 9911,
+        "startTime": "01-JAN-2000 00:00:00.000000",
+        "endTime": "01-JAN-2000 00:00:00.000000",
+        "geoCoding": {
+            "coordinates": [
+                {
+                    "x": 4382.0,
+                    "y": 5327.0,
+                    "lat": 51.108467,
+                    "lon": 13.89589
+                },
+                {
+                    "x": 7543.0,
+                    "y": 6431.0,
+                    "lat": 50.977734,
+                    "lon": 13.336147
+                }
+            ],
+            "reverseAccuracy": 0.01,
+            "geoCodingClass": "org.esa.beam.framework.datamodel.TiePointGeoCoding"
+        },
+        "tiePointGrids": [
+            {
+                "name": "slant_range_time",
+                "description": "2 way slant range time",
+                "offsetX": "0.0",
+                "offsetY": "0.0",
+                "subSamplingX": "1016.0",
+                "subSamplingY": "826.0",
+                "expectedPixels": [
+                    {
+                        "x": 530,
+                        "y": 1765,
+                        "value": 5555468.0
+                    },
+                    {
+                        "x": 6961,
+                        "y": 8430,
+                        "value": 5695649.5
+                    }
+                ]
+            },
+            {
+                "name": "incident_angle",
+                "description": "Incident angle",
+                "offsetX": "0.0",
+                "offsetY": "0.0",
+                "subSamplingX": "1016.0",
+                "subSamplingY": "826.0",
+                "expectedPixels": [
+                    {
+                        "x": 2955,
+                        "y": 2545,
+                        "value": 21.182386
+                    },
+                    {
+                        "x": 6203,
+                        "y": 3620,
+                        "value": 23.769344
+                    }
+                ]
+            },
+            {
+                "name": "latitude",
+                "description": "Latitude of the tie points (WGS-84), positive N",
+                "offsetX": "0.0",
+                "offsetY": "0.0",
+                "subSamplingX": "1016.0",
+                "subSamplingY": "826.0",
+                "expectedPixels": [
+                    {
+                        "x": 5588,
+                        "y": 7387,
+                        "value": 50.874672
+                    },
+                    {
+                        "x": 6181,
+                        "y": 9201,
+                        "value": 50.66962
+                    }
+                ]
+            },
+            {
+                "name": "longitude",
+                "description": "Longitude of the tie points (WGS-84), Greenwich origin, positive E",
+                "offsetX": "0.0",
+                "offsetY": "0.0",
+                "subSamplingX": "1016.0",
+                "subSamplingY": "826.0",
+                "expectedPixels": [
+                    {
+                        "x": 1608,
+                        "y": 6601,
+                        "value": 14.392997
+                    },
+                    {
+                        "x": 5275,
+                        "y": 9053,
+                        "value": 13.74767
+                    }
+                ]
+            }
+        ],
+        "bands": [
+            {
+                "name": "Amplitude_HV",
+                "description": "Alternating Polarization Geocoded Image",
+                "geophysicalUnit": "amplitude",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 7683,
+                        "y": 4803,
+                        "value": 71.0
+                    },
+                    {
+                        "x": 9660,
+                        "y": 4815,
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "Intensity_HV",
+                "description": "Intensity Image",
+                "geophysicalUnit": "intensity",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 3459,
+                        "y": 8914,
+                        "value": 197136.0
+                    },
+                    {
+                        "x": 101,
+                        "y": 4665,
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "Amplitude_HH",
+                "description": "Alternating Polarization Geocoded Image",
+                "geophysicalUnit": "amplitude",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 3327,
+                        "y": 1953,
+                        "value": 212.0
+                    },
+                    {
+                        "x": 2775,
+                        "y": 428,
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "Intensity_HH",
+                "description": "Intensity Image",
+                "geophysicalUnit": "intensity",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 9871,
+                        "y": 5993,
+                        "value": "NaN"
+                    },
+                    {
+                        "x": 5815,
+                        "y": 7104,
+                        "value": 481636.0
+                    }
+                ]
+            }
+        ],
+        "metadata": [
+            {
+                "path": "DSD/DSD.9/FILE_NAME"
+            },
+            {
+                "path": "ANTENNA_ELEV_PATTERN_ADS/ANTENNA_ELEV_PATTERN_ADS.1/beam_id",
+                "value": "NS "
+            }
+        ]
+    }
+}

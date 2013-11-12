@@ -1,0 +1,205 @@
+{
+    "id": "ASA_APM_1PNPDE20040816_024450",
+    "decodeQualification": "intended",
+    "expectedContent": {
+        "sceneWidth": 901,
+        "sceneHeight": 3828,
+        "startTime": "16-AUG-2004 02:44:50.550298",
+        "endTime": "16-AUG-2004 02:45:33.772206",
+        "geoCoding": {
+            "coordinates": [
+                {
+                    "x": 388.0,
+                    "y": 2057.0,
+                    "lat": 45.30585,
+                    "lon": -73.19829
+                },
+                {
+                    "x": 668.0,
+                    "y": 2484.0,
+                    "lat": 45.622707,
+                    "lon": -73.00516
+                }
+            ],
+            "reverseAccuracy": 0.01,
+            "geoCodingClass": "org.esa.beam.framework.datamodel.TiePointGeoCoding"
+        },
+        "tiePointGrids": [
+            {
+                "name": "slant_range_time",
+                "description": "2 way slant range time",
+                "offsetX": "0.0",
+                "offsetY": "0.0",
+                "subSamplingX": "90.0",
+                "subSamplingY": "132.0",
+                "expectedPixels": [
+                    {
+                        "x": 47,
+                        "y": 682,
+                        "value": 6329548.5
+                    },
+                    {
+                        "x": 617,
+                        "y": 3256,
+                        "value": 6504658.0
+                    }
+                ]
+            },
+            {
+                "name": "incident_angle",
+                "description": "Incident angle",
+                "offsetX": "0.0",
+                "offsetY": "0.0",
+                "subSamplingX": "90.0",
+                "subSamplingY": "132.0",
+                "expectedPixels": [
+                    {
+                        "x": 262,
+                        "y": 983,
+                        "value": 36.781666
+                    },
+                    {
+                        "x": 550,
+                        "y": 1398,
+                        "value": 37.995274
+                    }
+                ]
+            },
+            {
+                "name": "latitude",
+                "description": "Latitude of the tie points (WGS-84), positive N",
+                "offsetX": "0.0",
+                "offsetY": "0.0",
+                "subSamplingX": "90.0",
+                "subSamplingY": "132.0",
+                "expectedPixels": [
+                    {
+                        "x": 495,
+                        "y": 2853,
+                        "value": 45.847786
+                    },
+                    {
+                        "x": 548,
+                        "y": 3554,
+                        "value": 46.31966
+                    }
+                ]
+            },
+            {
+                "name": "longitude",
+                "description": "Longitude of the tie points (WGS-84), Greenwich origin, positive E",
+                "offsetX": "0.0",
+                "offsetY": "0.0",
+                "subSamplingX": "90.0",
+                "subSamplingY": "132.0",
+                "expectedPixels": [
+                    {
+                        "x": 142,
+                        "y": 2549,
+                        "value": -73.51372
+                    },
+                    {
+                        "x": 467,
+                        "y": 3496,
+                        "value": -73.366234
+                    }
+                ]
+            }
+        ],
+        "bands": [
+            {
+                "name": "Amplitude_VV",
+                "description": "Amplitude Image Dataset 1",
+                "geophysicalUnit": "amplitude",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 681,
+                        "y": 1855,
+                        "value": 1695.0
+                    },
+                    {
+                        "x": 856,
+                        "y": 1859,
+                        "value": 1774.0
+                    }
+                ]
+            },
+            {
+                "name": "Intensity_VV",
+                "description": "Intensity Image Dataset 1",
+                "geophysicalUnit": "intensity",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 306,
+                        "y": 3443,
+                        "value": 2172676.0
+                    },
+                    {
+                        "x": 8,
+                        "y": 1802,
+                        "value": 4072324.0
+                    }
+                ]
+            },
+            {
+                "name": "Amplitude_VH",
+                "description": "Amplitude Image Dataset 2",
+                "geophysicalUnit": "amplitude",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 295,
+                        "y": 754,
+                        "value": 793.0
+                    },
+                    {
+                        "x": 246,
+                        "y": 165,
+                        "value": 857.0
+                    }
+                ]
+            },
+            {
+                "name": "Intensity_VH",
+                "description": "Intensity Image Dataset 2",
+                "geophysicalUnit": "intensity",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 875,
+                        "y": 2314,
+                        "value": "NaN"
+                    },
+                    {
+                        "x": 515,
+                        "y": 2743,
+                        "value": 824464.0
+                    }
+                ]
+            }
+        ],
+        "metadata": [
+            {
+                "path": "DSD/DSD.9/FILE_NAME"
+            },
+            {
+                "path": "CHIRP_PARAMS_ADS/CHIRP_PARAMS_ADS.1/ASAR_Chirp_ADSR.sd/cal_pulse_info.15.avg_val_1a",
+                "value": "0.9889239"
+            }
+        ]
+    }
+}

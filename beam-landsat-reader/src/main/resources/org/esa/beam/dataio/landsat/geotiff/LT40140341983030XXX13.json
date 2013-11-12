@@ -1,133 +1,194 @@
 {
     "id": "LT40140341983030XXX13",
-    "decodeQualification": "intended",
+    "decodeQualification": "INTENDED",
     "expectedContent": {
         "sceneWidth": 7881,
         "sceneHeight": 7131,
         "startTime": "30-JAN-1983 15:09:55.958000",
         "endTime": "30-JAN-1983 15:09:55.958000",
         "geoCoding": {
-            "reverseAccuracy": 2.0e-2,
             "coordinates": [
                 {
-                    "x": 2490.5,
-                    "y": 534.5,
-                    "lat": 38.295933,
-                    "lon": -76.31265
-                },
-                {
-                    "x": 7796.5,
-                    "y": 6732.5,
+                    "x": 7796.5103,
+                    "y": 6732.4917,
                     "lat": 36.626232,
                     "lon": -74.50346
+                },
+                {
+                    "x": 2018.5,
+                    "y": 1801.5,
+                    "lat": 37.95155,
+                    "lon": -76.46766
                 }
-            ]
+            ],
+            "reverseAccuracy": 0.009,
+            "geoCodingClass": "org.esa.beam.framework.datamodel.CrsGeoCoding"
         },
         "bands": [
             {
                 "name": "radiance_1",
+                "description": "Visible (30m)",
+                "geophysicalUnit": "W/(m^2*sr*µm)",
+                "noDataValue": "-2.1677165354330707",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "490.0",
+                "spectralBandwidth": "66.0",
                 "expectedPixels": [
                     {
-                        "x": "7520",
-                        "y": "1327",
-                        "value": "148.10252"
+                        "x": 7796,
+                        "y": 6732,
+                        "value": "NaN"
                     },
                     {
-                        "x": "4382",
-                        "y": "449",
-                        "value": "NaN"
+                        "x": 2018,
+                        "y": 1801,
+                        "value": 136.44362
                     }
                 ]
             },
             {
                 "name": "radiance_2",
+                "description": "Visible (30m)",
+                "geophysicalUnit": "W/(m^2*sr*µm)",
+                "noDataValue": "-4.174015748031496",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "560.0",
+                "spectralBandwidth": "82.0",
                 "expectedPixels": [
                     {
-                        "x": "2174",
-                        "y": "702",
-                        "value": "143.90173"
+                        "x": 7796,
+                        "y": 6732,
+                        "value": "NaN"
                     },
                     {
-                        "x": "2568",
-                        "y": "144",
-                        "value": "NaN"
+                        "x": 2018,
+                        "y": 1801,
+                        "value": 122.55748
                     }
                 ]
             },
             {
                 "name": "radiance_3",
+                "description": "Visible (30m)",
+                "geophysicalUnit": "W/(m^2*sr*µm)",
+                "noDataValue": "-2.1746062992125985",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "660.0",
+                "spectralBandwidth": "67.0",
                 "expectedPixels": [
                     {
-                        "x": "2196",
-                        "y": "2680",
-                        "value": "117.37354"
+                        "x": 7796,
+                        "y": 6732,
+                        "value": "NaN"
                     },
                     {
-                        "x": "7401",
-                        "y": "2851",
-                        "value": "NaN"
+                        "x": 2018,
+                        "y": 1801,
+                        "value": 109.33669
                     }
                 ]
             },
             {
                 "name": "radiance_4",
+                "description": "Near-Infrared (30m)",
+                "geophysicalUnit": "W/(m^2*sr*µm)",
+                "noDataValue": "-2.386023622047244",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "830.0",
+                "spectralBandwidth": "128.0",
                 "expectedPixels": [
                     {
-                        "x": "3914",
-                        "y": "3156",
-                        "value": "46.6713"
+                        "x": 7796,
+                        "y": 6732,
+                        "value": "NaN"
                     },
                     {
-                        "x": "6955",
-                        "y": "4837",
-                        "value": "NaN"
+                        "x": 2018,
+                        "y": 1801,
+                        "value": 80.83622
                     }
                 ]
             },
             {
                 "name": "radiance_5",
+                "description": "Near-Infrared (30m)",
+                "geophysicalUnit": "W/(m^2*sr*µm)",
+                "noDataValue": "-0.4950787401574803",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "1670.0",
+                "spectralBandwidth": "217.0",
                 "expectedPixels": [
                     {
-                        "x": "5862",
-                        "y": "4613",
-                        "value": "0.2553937"
+                        "x": 7796,
+                        "y": 6732,
+                        "value": "NaN"
                     },
                     {
-                        "x": "6636",
-                        "y": "6606",
-                        "value": "NaN"
+                        "x": 2018,
+                        "y": 1801,
+                        "value": 16.015314
                     }
                 ]
             },
             {
                 "name": "radiance_6",
+                "description": "Thermal (120m)",
+                "geophysicalUnit": "W/(m^2*sr*µm)",
+                "noDataValue": "1.1826259842519684",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "11500.0",
+                "spectralBandwidth": "1000.0",
                 "expectedPixels": [
                     {
-                        "x": "5550",
-                        "y": "6577",
-                        "value": "6.8861494"
+                        "x": 7796,
+                        "y": 6732,
+                        "value": "NaN"
                     },
                     {
-                        "x": "3847",
-                        "y": "6770",
-                        "value": "NaN"
+                        "x": 2018,
+                        "y": 1801,
+                        "value": 5.9447913
                     }
                 ]
             },
             {
                 "name": "radiance_7",
+                "description": "Mid-Infrared (30m)",
+                "geophysicalUnit": "W/(m^2*sr*µm)",
+                "noDataValue": "-0.21594488188976377",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "2240.0",
+                "spectralBandwidth": "252.0",
                 "expectedPixels": [
                     {
-                        "x": "2709",
-                        "y": "4784",
-                        "value": "0.047834646"
+                        "x": 7796,
+                        "y": 6732,
+                        "value": "NaN"
                     },
                     {
-                        "x": "479",
-                        "y": "6160",
-                        "value": "NaN"
+                        "x": 2018,
+                        "y": 1801,
+                        "value": 5.1915355
                     }
                 ]
+            }
+        ],
+        "masks": [
+            {
+                "name": "pins",
+                "type": "org.esa.beam.framework.datamodel.Mask$VectorDataType",
+                "color": "255,0,0",
+                "description": "Mask derived from geometries in 'pins'"
+            }
+        ],
+        "metadata": [
+            {
+                "path": "L1_METADATA_FILE/PRODUCT_PARAMETERS/SUN_AZIMUTH",
+                "value": "145.7565945"
+            },
+            {
+                "path": "L1_METADATA_FILE/METADATA_FILE_INFO/REQUEST_ID",
+                "value": "0101303200002_00002"
             }
         ]
     }

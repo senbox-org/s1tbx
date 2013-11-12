@@ -1,0 +1,869 @@
+{
+    "id": "MER_FSG_1PNUPA20050515_104058",
+    "decodeQualification": "intended",
+    "expectedContent": {
+        "sceneWidth": 4481,
+        "sceneHeight": 4225,
+        "startTime": "15-MAY-2005 10:40:58.014637",
+        "endTime": "15-MAY-2005 10:44:03.857965",
+        "geoCoding": {
+            "coordinates": [
+                {
+                    "x": 2684.5,
+                    "y": 2723.5,
+                    "lat": 49.96103,
+                    "lon": 1.2323203
+                },
+                {
+                    "x": 1452.5,
+                    "y": 1696.5,
+                    "lat": 53.360836,
+                    "lon": -2.045416
+                }
+            ],
+            "reverseAccuracy": 0.01,
+            "geoCodingClass": "org.esa.beam.framework.datamodel.TiePointGeoCoding"
+        },
+        "flagCodings": [
+            {
+                "name": "l1_flags",
+                "samples": [
+                    {
+                        "name": "COSMETIC",
+                        "value": 1,
+                        "description": "Pixel is cosmetic"
+                    },
+                    {
+                        "name": "DUPLICATED",
+                        "value": 2,
+                        "description": "Pixel has been duplicated (filled in)"
+                    },
+                    {
+                        "name": "GLINT_RISK",
+                        "value": 4,
+                        "description": "Pixel has glint risk"
+                    },
+                    {
+                        "name": "SUSPECT",
+                        "value": 8,
+                        "description": "Pixel is suspect"
+                    },
+                    {
+                        "name": "LAND_OCEAN",
+                        "value": 16,
+                        "description": "Pixel is over land, not ocean"
+                    },
+                    {
+                        "name": "BRIGHT",
+                        "value": 32,
+                        "description": "Pixel is bright"
+                    },
+                    {
+                        "name": "COASTLINE",
+                        "value": 64,
+                        "description": "Pixel is part of a coastline"
+                    },
+                    {
+                        "name": "INVALID",
+                        "value": 128,
+                        "description": "Pixel is invalid"
+                    }
+                ]
+            }
+        ],
+        "tiePointGrids": [
+            {
+                "name": "latitude",
+                "description": "Latitude of the tie points (WGS-84), positive N",
+                "offsetX": "0.5",
+                "offsetY": "0.5",
+                "subSamplingX": "64.0",
+                "subSamplingY": "64.0",
+                "expectedPixels": [
+                    {
+                        "x": 2684,
+                        "y": 2723,
+                        "value": 49.96103
+                    },
+                    {
+                        "x": 1452,
+                        "y": 1696,
+                        "value": 53.360836
+                    }
+                ]
+            },
+            {
+                "name": "longitude",
+                "description": "Longitude of the tie points (WGS-84), Greenwich origin, positive E",
+                "offsetX": "0.5",
+                "offsetY": "0.5",
+                "subSamplingX": "64.0",
+                "subSamplingY": "64.0",
+                "expectedPixels": [
+                    {
+                        "x": 2684,
+                        "y": 2723,
+                        "value": 1.2323203
+                    },
+                    {
+                        "x": 1452,
+                        "y": 1696,
+                        "value": -2.045416
+                    }
+                ]
+            },
+            {
+                "name": "dem_alt",
+                "description": "Digital elevation model altitude",
+                "offsetX": "0.5",
+                "offsetY": "0.5",
+                "subSamplingX": "64.0",
+                "subSamplingY": "64.0",
+                "expectedPixels": [
+                    {
+                        "x": 2684,
+                        "y": 2723,
+                        "value": 32.961914
+                    },
+                    {
+                        "x": 1452,
+                        "y": 1696,
+                        "value": 217.78125
+                    }
+                ]
+            },
+            {
+                "name": "dem_rough",
+                "description": "Digital elevation model roughness",
+                "offsetX": "0.5",
+                "offsetY": "0.5",
+                "subSamplingX": "64.0",
+                "subSamplingY": "64.0",
+                "expectedPixels": [
+                    {
+                        "x": 2684,
+                        "y": 2723,
+                        "value": 35.317383
+                    },
+                    {
+                        "x": 1452,
+                        "y": 1696,
+                        "value": 45.625
+                    }
+                ]
+            },
+            {
+                "name": "lat_corr",
+                "description": "Digital elevation model latitude corrections",
+                "offsetX": "0.5",
+                "offsetY": "0.5",
+                "subSamplingX": "64.0",
+                "subSamplingY": "64.0",
+                "expectedPixels": [
+                    {
+                        "x": 2684,
+                        "y": 2723,
+                        "value": 1.4516601E-5
+                    },
+                    {
+                        "x": 1452,
+                        "y": 1696,
+                        "value": -1.3784374E-4
+                    }
+                ]
+            },
+            {
+                "name": "lon_corr",
+                "description": "Digital elevation model longitude corrections",
+                "offsetX": "0.5",
+                "offsetY": "0.5",
+                "subSamplingX": "64.0",
+                "subSamplingY": "64.0",
+                "expectedPixels": [
+                    {
+                        "x": 2684,
+                        "y": 2723,
+                        "value": 7.49707E-5
+                    },
+                    {
+                        "x": 1452,
+                        "y": 1696,
+                        "value": -9.143438E-4
+                    }
+                ]
+            },
+            {
+                "name": "sun_zenith",
+                "description": "Sun zenith angle",
+                "offsetX": "0.5",
+                "offsetY": "0.5",
+                "subSamplingX": "64.0",
+                "subSamplingY": "64.0",
+                "expectedPixels": [
+                    {
+                        "x": 2684,
+                        "y": 2723,
+                        "value": 33.893543
+                    },
+                    {
+                        "x": 1452,
+                        "y": 1696,
+                        "value": 37.914772
+                    }
+                ]
+            },
+            {
+                "name": "sun_azimuth",
+                "description": "Sun azimuth angles",
+                "offsetX": "0.5",
+                "offsetY": "0.5",
+                "subSamplingX": "64.0",
+                "subSamplingY": "64.0",
+                "expectedPixels": [
+                    {
+                        "x": 2684,
+                        "y": 2723,
+                        "value": 150.0536
+                    },
+                    {
+                        "x": 1452,
+                        "y": 1696,
+                        "value": 147.23988
+                    }
+                ]
+            },
+            {
+                "name": "view_zenith",
+                "description": "Viewing zenith angles",
+                "offsetX": "0.5",
+                "offsetY": "0.5",
+                "subSamplingX": "64.0",
+                "subSamplingY": "64.0",
+                "expectedPixels": [
+                    {
+                        "x": 2684,
+                        "y": 2723,
+                        "value": 9.322193
+                    },
+                    {
+                        "x": 1452,
+                        "y": 1696,
+                        "value": 16.27884
+                    }
+                ]
+            },
+            {
+                "name": "view_azimuth",
+                "description": "Viewing azimuth angles",
+                "offsetX": "0.5",
+                "offsetY": "0.5",
+                "subSamplingX": "64.0",
+                "subSamplingY": "64.0",
+                "expectedPixels": [
+                    {
+                        "x": 2684,
+                        "y": 2723,
+                        "value": 287.05685
+                    },
+                    {
+                        "x": 1452,
+                        "y": 1696,
+                        "value": 104.172066
+                    }
+                ]
+            },
+            {
+                "name": "zonal_wind",
+                "description": "Zonal wind",
+                "offsetX": "0.5",
+                "offsetY": "0.5",
+                "subSamplingX": "64.0",
+                "subSamplingY": "64.0",
+                "expectedPixels": [
+                    {
+                        "x": 2684,
+                        "y": 2723,
+                        "value": -1.2125
+                    },
+                    {
+                        "x": 1452,
+                        "y": 1696,
+                        "value": 0.66562504
+                    }
+                ]
+            },
+            {
+                "name": "merid_wind",
+                "description": "Meridional wind",
+                "offsetX": "0.5",
+                "offsetY": "0.5",
+                "subSamplingX": "64.0",
+                "subSamplingY": "64.0",
+                "expectedPixels": [
+                    {
+                        "x": 2684,
+                        "y": 2723,
+                        "value": -1.4549805
+                    },
+                    {
+                        "x": 1452,
+                        "y": 1696,
+                        "value": -0.2
+                    }
+                ]
+            },
+            {
+                "name": "atm_press",
+                "description": "Mean sea level pressure",
+                "offsetX": "0.5",
+                "offsetY": "0.5",
+                "subSamplingX": "64.0",
+                "subSamplingY": "64.0",
+                "expectedPixels": [
+                    {
+                        "x": 2684,
+                        "y": 2723,
+                        "value": 1018.15155
+                    },
+                    {
+                        "x": 1452,
+                        "y": 1696,
+                        "value": 1018.58124
+                    }
+                ]
+            },
+            {
+                "name": "ozone",
+                "description": "Total ozone",
+                "offsetX": "0.5",
+                "offsetY": "0.5",
+                "subSamplingX": "64.0",
+                "subSamplingY": "64.0",
+                "expectedPixels": [
+                    {
+                        "x": 2684,
+                        "y": 2723,
+                        "value": 373.98914
+                    },
+                    {
+                        "x": 1452,
+                        "y": 1696,
+                        "value": 372.415
+                    }
+                ]
+            },
+            {
+                "name": "rel_hum",
+                "description": "Relative humidity",
+                "offsetX": "0.5",
+                "offsetY": "0.5",
+                "subSamplingX": "64.0",
+                "subSamplingY": "64.0",
+                "expectedPixels": [
+                    {
+                        "x": 2684,
+                        "y": 2723,
+                        "value": 68.10146
+                    },
+                    {
+                        "x": 1452,
+                        "y": 1696,
+                        "value": 57.178123
+                    }
+                ]
+            }
+        ],
+        "bands": [
+            {
+                "name": "radiance_1",
+                "description": "TOA radiance band 1",
+                "geophysicalUnit": "mW/(m^2*sr*nm)",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "412.691",
+                "spectralBandwidth": "9.937",
+                "expectedPixels": [
+                    {
+                        "x": 2684,
+                        "y": 2723,
+                        "value": 58.954422
+                    },
+                    {
+                        "x": 1452,
+                        "y": 1696,
+                        "value": 234.81909
+                    }
+                ]
+            },
+            {
+                "name": "radiance_2",
+                "description": "TOA radiance band 2",
+                "geophysicalUnit": "mW/(m^2*sr*nm)",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "442.55902",
+                "spectralBandwidth": "9.946",
+                "expectedPixels": [
+                    {
+                        "x": 2684,
+                        "y": 2723,
+                        "value": 51.96159
+                    },
+                    {
+                        "x": 1452,
+                        "y": 1696,
+                        "value": 253.08905
+                    }
+                ]
+            },
+            {
+                "name": "radiance_3",
+                "description": "TOA radiance band 3",
+                "geophysicalUnit": "mW/(m^2*sr*nm)",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "489.88202",
+                "spectralBandwidth": "9.957001",
+                "expectedPixels": [
+                    {
+                        "x": 2684,
+                        "y": 2723,
+                        "value": 38.781902
+                    },
+                    {
+                        "x": 1452,
+                        "y": 1696,
+                        "value": 255.02664
+                    }
+                ]
+            },
+            {
+                "name": "radiance_4",
+                "description": "TOA radiance band 4",
+                "geophysicalUnit": "mW/(m^2*sr*nm)",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "509.81903",
+                "spectralBandwidth": "9.961",
+                "expectedPixels": [
+                    {
+                        "x": 2684,
+                        "y": 2723,
+                        "value": 35.895157
+                    },
+                    {
+                        "x": 1452,
+                        "y": 1696,
+                        "value": 250.97876
+                    }
+                ]
+            },
+            {
+                "name": "radiance_5",
+                "description": "TOA radiance band 5",
+                "geophysicalUnit": "mW/(m^2*sr*nm)",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "559.69403",
+                "spectralBandwidth": "9.97",
+                "expectedPixels": [
+                    {
+                        "x": 2684,
+                        "y": 2723,
+                        "value": 35.337986
+                    },
+                    {
+                        "x": 1452,
+                        "y": 1696,
+                        "value": 226.06845
+                    }
+                ]
+            },
+            {
+                "name": "radiance_6",
+                "description": "TOA radiance band 6",
+                "geophysicalUnit": "mW/(m^2*sr*nm)",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "619.601",
+                "spectralBandwidth": "9.979",
+                "expectedPixels": [
+                    {
+                        "x": 2684,
+                        "y": 2723,
+                        "value": 22.22498
+                    },
+                    {
+                        "x": 1452,
+                        "y": 1696,
+                        "value": 203.78056
+                    }
+                ]
+            },
+            {
+                "name": "radiance_7",
+                "description": "TOA radiance band 7",
+                "geophysicalUnit": "mW/(m^2*sr*nm)",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "664.57306",
+                "spectralBandwidth": "9.985001",
+                "expectedPixels": [
+                    {
+                        "x": 2684,
+                        "y": 2723,
+                        "value": 16.334883
+                    },
+                    {
+                        "x": 1452,
+                        "y": 1696,
+                        "value": 197.74953
+                    }
+                ]
+            },
+            {
+                "name": "radiance_8",
+                "description": "TOA radiance band 8",
+                "geophysicalUnit": "mW/(m^2*sr*nm)",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "680.82104",
+                "spectralBandwidth": "7.4880004",
+                "expectedPixels": [
+                    {
+                        "x": 2684,
+                        "y": 2723,
+                        "value": 14.942988
+                    },
+                    {
+                        "x": 1452,
+                        "y": 1696,
+                        "value": 192.59622
+                    }
+                ]
+            },
+            {
+                "name": "radiance_9",
+                "description": "TOA radiance band 9",
+                "geophysicalUnit": "mW/(m^2*sr*nm)",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "708.32904",
+                "spectralBandwidth": "9.992001",
+                "expectedPixels": [
+                    {
+                        "x": 2684,
+                        "y": 2723,
+                        "value": 37.301964
+                    },
+                    {
+                        "x": 1452,
+                        "y": 1696,
+                        "value": 192.71114
+                    }
+                ]
+            },
+            {
+                "name": "radiance_10",
+                "description": "TOA radiance band 10",
+                "geophysicalUnit": "mW/(m^2*sr*nm)",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "753.37103",
+                "spectralBandwidth": "7.4950004",
+                "expectedPixels": [
+                    {
+                        "x": 2684,
+                        "y": 2723,
+                        "value": 117.513
+                    },
+                    {
+                        "x": 1452,
+                        "y": 1696,
+                        "value": 195.43279
+                    }
+                ]
+            },
+            {
+                "name": "radiance_11",
+                "description": "TOA radiance band 11",
+                "geophysicalUnit": "mW/(m^2*sr*nm)",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "761.50806",
+                "spectralBandwidth": "3.7440002",
+                "expectedPixels": [
+                    {
+                        "x": 2684,
+                        "y": 2723,
+                        "value": 36.284103
+                    },
+                    {
+                        "x": 1452,
+                        "y": 1696,
+                        "value": 78.24255
+                    }
+                ]
+            },
+            {
+                "name": "radiance_12",
+                "description": "TOA radiance band 12",
+                "geophysicalUnit": "mW/(m^2*sr*nm)",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "778.40906",
+                "spectralBandwidth": "15.010001",
+                "expectedPixels": [
+                    {
+                        "x": 2684,
+                        "y": 2723,
+                        "value": 120.00982
+                    },
+                    {
+                        "x": 1452,
+                        "y": 1696,
+                        "value": 184.6833
+                    }
+                ]
+            },
+            {
+                "name": "radiance_13",
+                "description": "TOA radiance band 13",
+                "geophysicalUnit": "mW/(m^2*sr*nm)",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "864.87604",
+                "spectralBandwidth": "20.047",
+                "expectedPixels": [
+                    {
+                        "x": 2684,
+                        "y": 2723,
+                        "value": 104.30463
+                    },
+                    {
+                        "x": 1452,
+                        "y": 1696,
+                        "value": 153.24918
+                    }
+                ]
+            },
+            {
+                "name": "radiance_14",
+                "description": "TOA radiance band 14",
+                "geophysicalUnit": "mW/(m^2*sr*nm)",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "884.94403",
+                "spectralBandwidth": "10.018001",
+                "expectedPixels": [
+                    {
+                        "x": 2684,
+                        "y": 2723,
+                        "value": 100.91125
+                    },
+                    {
+                        "x": 1452,
+                        "y": 1696,
+                        "value": 149.13794
+                    }
+                ]
+            },
+            {
+                "name": "radiance_15",
+                "description": "TOA radiance band 15",
+                "geophysicalUnit": "mW/(m^2*sr*nm)",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "900.00006",
+                "spectralBandwidth": "10.02",
+                "expectedPixels": [
+                    {
+                        "x": 2684,
+                        "y": 2723,
+                        "value": 76.42857
+                    },
+                    {
+                        "x": 1452,
+                        "y": 1696,
+                        "value": 123.032295
+                    }
+                ]
+            },
+            {
+                "name": "l1_flags",
+                "description": "Level 1b classification and quality flags",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 2684,
+                        "y": 2723,
+                        "value": 16.0
+                    },
+                    {
+                        "x": 1452,
+                        "y": 1696,
+                        "value": 48.0
+                    }
+                ]
+            },
+            {
+                "name": "detector_index",
+                "description": "Detector index",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 2684,
+                        "y": 2723,
+                        "value": 1385.0
+                    },
+                    {
+                        "x": 1452,
+                        "y": 1696,
+                        "value": 2631.0
+                    }
+                ]
+            },
+            {
+                "name": "corr_longitude",
+                "description": "Orthocorrected longitude",
+                "geophysicalUnit": "deg",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 2684,
+                        "y": 2723,
+                        "value": 1.231191
+                    },
+                    {
+                        "x": 1452,
+                        "y": 1696,
+                        "value": -2.0454
+                    }
+                ]
+            },
+            {
+                "name": "corr_latitude",
+                "description": "Orthocorrected latitude",
+                "geophysicalUnit": "deg",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 2684,
+                        "y": 2723,
+                        "value": 49.96191
+                    },
+                    {
+                        "x": 1452,
+                        "y": 1696,
+                        "value": 53.360886
+                    }
+                ]
+            },
+            {
+                "name": "altitude",
+                "description": "DEM altitude",
+                "geophysicalUnit": "m",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 2684,
+                        "y": 2723,
+                        "value": 163.0
+                    },
+                    {
+                        "x": 1452,
+                        "y": 1696,
+                        "value": 263.0
+                    }
+                ]
+            }
+        ],
+        "masks": [
+            {
+                "name": "coastline",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "0,255,0",
+                "description": "Pixel is part of a coastline"
+            },
+            {
+                "name": "land",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "51,153,0",
+                "description": "Pixel is over land, not ocean"
+            },
+            {
+                "name": "water",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "153,153,255",
+                "description": "Not Pixel is over land, not ocean"
+            },
+            {
+                "name": "cosmetic",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "204,153,255",
+                "description": "Pixel is cosmetic"
+            },
+            {
+                "name": "duplicated",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,200,0",
+                "description": "Pixel has been duplicated (filled in)"
+            },
+            {
+                "name": "glint_risk",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,0,255",
+                "description": "Pixel has glint risk"
+            },
+            {
+                "name": "suspect",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "204,102,255",
+                "description": "Pixel is suspect"
+            },
+            {
+                "name": "bright",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,255,0",
+                "description": "Pixel is bright"
+            },
+            {
+                "name": "invalid",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,0,0",
+                "description": "Pixel is invalid"
+            },
+            {
+                "name": "pins",
+                "type": "org.esa.beam.framework.datamodel.Mask$VectorDataType",
+                "color": "255,0,0",
+                "description": "Mask derived from geometries in 'pins'"
+            }
+        ],
+        "metadata": [
+            {
+                "path": "DSD/DSD.18/NUM_RECORDS",
+                "value": "4225"
+            },
+            {
+                "path": "Quality_ADS/Quality_ADS.1/dsr_time",
+                "value": "15-MAY-2005 10:40:58.014637"
+            }
+        ]
+    }
+}
