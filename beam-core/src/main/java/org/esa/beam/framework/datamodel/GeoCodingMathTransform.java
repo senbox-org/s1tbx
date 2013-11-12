@@ -133,7 +133,7 @@ public class GeoCodingMathTransform extends AbstractMathTransform implements Mat
                     pixelPos.y = (float) srcPts[srcOff + secondIndex];
 
                     geoCoding.getGeoPos(pixelPos, geoPos);
-                    //todo remove this when ImageGeometry.createValidRect is used
+                    //todo remove this when ImageGeometry.createValidRect is used in ImageGeometry.createMapBoundary()
                     if (!geoPos.isValid()) {
                         if (geoCoding instanceof PixelGeoCoding2) {
                             Rectangle region = new Rectangle(0, 0, ((PixelGeoCoding2) geoCoding).getRasterWidth(),
