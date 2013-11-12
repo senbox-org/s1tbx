@@ -110,14 +110,6 @@
                 ]
             }
         ],
-        "masks": [
-            {
-                "name": "pins",
-                "type": "org.esa.beam.framework.datamodel.Mask$VectorDataType",
-                "color": "255,0,0",
-                "description": "Mask derived from geometries in 'pins'"
-            }
-        ],
         "metadata": [
             {
                 "path": "L1_METADATA_FILE/MIN_MAX_PIXEL_VALUE/QUANTIZE_CAL_MIN_BAND_6",

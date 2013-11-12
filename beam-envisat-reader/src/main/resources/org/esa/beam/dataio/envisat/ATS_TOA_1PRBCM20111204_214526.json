@@ -1596,12 +1596,6 @@
                 "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
                 "color": "178,0,0",
                 "description": "ATSR active fire (ALGO2)"
-            },
-            {
-                "name": "pins",
-                "type": "org.esa.beam.framework.datamodel.Mask$VectorDataType",
-                "color": "255,0,0",
-                "description": "Mask derived from geometries in 'pins'"
             }
         ],
         "metadata": [

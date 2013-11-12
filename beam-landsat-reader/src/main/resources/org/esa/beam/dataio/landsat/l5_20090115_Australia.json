@@ -172,14 +172,6 @@
                 ]
             }
         ],
-        "masks": [
-            {
-                "name": "pins",
-                "type": "org.esa.beam.framework.datamodel.Mask$VectorDataType",
-                "color": "255,0,0",
-                "description": "Mask derived from geometries in 'pins'"
-            }
-        ],
         "metadata": [
             {
                 "path": "Geometric/Lower left/easting",

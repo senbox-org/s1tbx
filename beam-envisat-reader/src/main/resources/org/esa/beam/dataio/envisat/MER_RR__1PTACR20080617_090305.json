@@ -950,12 +950,6 @@
                 "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
                 "color": "255,0,0",
                 "description": "Pixel is invalid"
-            },
-            {
-                "name": "pins",
-                "type": "org.esa.beam.framework.datamodel.Mask$VectorDataType",
-                "color": "255,0,0",
-                "description": "Mask derived from geometries in 'pins'"
             }
         ],
         "metadata": [

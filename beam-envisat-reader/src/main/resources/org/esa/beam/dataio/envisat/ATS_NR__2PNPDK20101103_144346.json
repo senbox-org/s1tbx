@@ -760,12 +760,6 @@
                 "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
                 "color": "255,200,0",
                 "description": "Dual-view SST retrieval includes 3.7 micron channel"
-            },
-            {
-                "name": "pins",
-                "type": "org.esa.beam.framework.datamodel.Mask$VectorDataType",
-                "color": "255,0,0",
-                "description": "Mask derived from geometries in 'pins'"
             }
         ],
         "metadata": [
