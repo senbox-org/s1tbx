@@ -229,7 +229,7 @@ public abstract class SingleTargetProductDialog extends ModelessDialog {
         File productFile = getTargetProductSelector().getModel().getProductFile();
         final String message = MessageFormat.format(
                 "The target product has been successfully written to\n{0}\n" +
-                        "Total time spend for processing: {2}",
+                        "Total time spend for processing: {1}",
                 formatFile(productFile),
                 formatDuration(saveTime));
         showSuppressibleInformationDialog(message, "saveInfo");
