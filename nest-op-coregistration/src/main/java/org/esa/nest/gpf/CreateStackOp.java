@@ -356,7 +356,7 @@ public class CreateStackOp extends Operator {
                 } else {
                     final Product prod = getMasterProduct(masterBandNames[1]);
                     if(prod != masterProduct) {
-                        throw new OperatorException("Please select master bands from the same product");
+                        //throw new OperatorException("Please select master bands from the same product");
                     }
                     masterBands[1] = masterProduct.getBand(getBandName(masterBandNames[1]));
                     if(!masterBands[1].getUnit().equals(Unit.IMAGINARY))

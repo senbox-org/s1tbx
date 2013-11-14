@@ -103,8 +103,8 @@ public class SnaphuExportOpUI_Prototype extends BaseOperatorUI {
 
         final String bandNames[] = getBandNames();
 
-        OperatorUIUtils.initBandList(ifgBandList, bandNames);
-        OperatorUIUtils.initBandList(cohBandList, bandNames);
+        OperatorUIUtils.initParamList(ifgBandList, bandNames);
+        OperatorUIUtils.initParamList(cohBandList, bandNames);
 
         OperatorUIUtils.setSelectedListIndices(ifgBandList, getSelectedIndices(bandNames,
                                                                 (String[])paramMap.get("ifgBandNames"),

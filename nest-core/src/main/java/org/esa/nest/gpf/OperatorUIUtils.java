@@ -32,9 +32,18 @@ public final class OperatorUIUtils {
 
     public final static String SOURCE_BAND_NAMES = "sourceBandNames";
 
-    @Deprecated
-    public static void initBandList(final JList bandList, final String[] availNames) {
-        initParamList(bandList, availNames);
+    public static void initParamList(final JList paramList, final String[] availNames, final Object[] paramDefaults) {
+        if(paramDefaults != null) {
+            final String[] srcBandNames = new String[paramDefaults.length];
+            final int[] indixes = new int[paramDefaults.length];
+            for(int i=0;i < srcBandNames.length; ++i) {
+                srcBandNames[i] = (String)paramDefaults[i];
+                indixes[i] = i;
+            }
+            paramList.setListData(srcBandNames);
+            paramList.setSelectedIndices(indixes);
+        }
+        initParamList(paramList, availNames);
     }
 
     public static void initParamList(final JList paramList, final String[] availNames) {
@@ -68,11 +77,6 @@ public final class OperatorUIUtils {
             selIndex[i] = indices.get(i);
         }
         list.setSelectedIndices(selIndex);
-    }
-
-    @Deprecated
-    public static void updatebandList(final JList bandList, final Map<String, Object> paramMap, final String paramName) {
-        updateParamList(bandList, paramMap, paramName);
     }
 
     public static void updateParamList(final JList paramList, final Map<String, Object> paramMap, final String paramName) {
