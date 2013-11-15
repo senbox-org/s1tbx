@@ -33,19 +33,20 @@
 
     <changelog>
         <![CDATA[
-        Changes in 5.0:<br>
-        [BEAM-1550] Link in help to general.html does not work<br>
-        Changes in 4.10.1:<br>
-        [BEAM-1403] Broken links in VISAT help<br>
-        Changes in 4.8:<br>
-        [BEAM-1082] Installation instructions are wrong for GETASSE30<br>
-        Changes in 4.2:<br>
-        [BEAM-758] Provide BEAM help on website<br>
-        <br>Changes in 4.1:<br>
-        Provide compatibility with BEAM 4.1 API.<br>
-        <br>Changes in 4.0.1:<br>
-        List of data sources updated.<br>
-        Some minor correction to other pages.<br>
+        Changes in 5.0:<br/>
+        [BEAM-1547] BEAM Help documentation for "Define Subset" dialog has not been updated<br/>
+        [BEAM-1550] Link in help to general.html does not work<br/>
+        Changes in 4.10.1:<br/>
+        [BEAM-1403] Broken links in VISAT help<br/>
+        Changes in 4.8:<br/>
+        [BEAM-1082] Installation instructions are wrong for GETASSE30<br/>
+        Changes in 4.2:<br/>
+        [BEAM-758] Provide BEAM help on website<br/>
+        <br/>Changes in 4.1:<br/>
+        Provide compatibility with BEAM 4.1 API.<br/>
+        <br/>Changes in 4.0.1:<br/>
+        List of data sources updated.<br/>
+        Some minor correction to other pages.<br/>
         ]]>
     </changelog>
 
