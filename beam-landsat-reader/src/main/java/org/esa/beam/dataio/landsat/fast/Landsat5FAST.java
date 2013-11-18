@@ -196,7 +196,7 @@ public final class Landsat5FAST extends Landsat5FASTConstants implements Landsat
 
         for (int i = 0; i < presentBands.length; i++) {
             landsatBands[i] = new Landsat5TMBand(i, presentBands[i], sources.getLandsatImageSourceAt(i),
-                                                 RadiometricData.getRadiometricData(), inputFile);
+                                                 landsatHeader.getRadData(), inputFile);
         }
 
         metadata = new Landsat5FASTMetadata(landsatHeader, landsatBands);

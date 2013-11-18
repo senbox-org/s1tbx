@@ -16,6 +16,7 @@
     <changelog>
         <![CDATA[
         Changes in 1.4.1:<br/>
+            [BEAM-1572] Landsat 5 TM in Fast format can have wrong scaling and offset<br/>
             [BEAM-1558] Support MSS data products of Landsat 1-5<br/>
         Changes in 1.4:<br/>
             [BEAM-1534] Landsat TM Reader: Naming is misleading<br/>
