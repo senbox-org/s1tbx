@@ -264,9 +264,9 @@ public class GeoPos {
             }
         }
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         sb.append(degree);
-        sb.append('\260');  // degree
+        sb.append('°');
         if (minutes != 0 || seconds != 0) {
             if (minutes < 10) {
                 sb.append('0');
