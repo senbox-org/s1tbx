@@ -52,9 +52,10 @@ public class Radarsat2ProductReaderPlugIn implements ProductReaderPlugIn {
         if (file == null) {
             return DecodeQualification.UNABLE;
         }
-        final String filename = file.getName().toUpperCase();
-        if (filename.startsWith(Radarsat2Constants.PRODUCT_HEADER_PREFIX)  &&
-                filename.endsWith(Radarsat2Constants.getIndicationKey())) {
+        final String filename = file.getName().toLowerCase();
+        if (filename.equals(Radarsat2Constants.PRODUCT_HEADER_NAME) ||
+            filename.equalsIgnoreCase(Radarsat2Constants.RSM_SIM_PRODUCT_HEADER_NAME)) {
+
             final File[] files = file.getParentFile().listFiles();
             for(File f : files) {
                 if(f.getName().toLowerCase().endsWith("ntf")) {
@@ -63,7 +64,7 @@ public class Radarsat2ProductReaderPlugIn implements ProductReaderPlugIn {
             }
             return DecodeQualification.INTENDED;
         }
-       /* if(filename.endsWith(".ZIP")) {
+       /* if(filename.endsWith(".zip")) {
             if (isZippedRS2(file)) {
                 return DecodeQualification.INTENDED;
             }
