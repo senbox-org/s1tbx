@@ -1,7 +1,7 @@
 {
     "testProducts": [
         {
-            "id": "l5_20050528_197-23",
+            "id": "LANDSAT 5 TM SCENE 20050528",
             "relativePath": "sensors_platforms/LANDSAT/LANDSAT_5_TM/fastTM/197_23/header.dat",
             "description": "Landsat 5 TM fast format"
         },
