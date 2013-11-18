@@ -25,7 +25,6 @@ import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.util.StopWatch;
 import org.esa.beam.util.SystemUtils;
-import org.esa.beam.util.logging.BeamLogManager;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -43,7 +42,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
 import java.util.logging.ConsoleHandler;
+import java.util.logging.Handler;
 import java.util.logging.Level;
+import java.util.logging.LogManager;
 import java.util.logging.Logger;
 import java.util.logging.StreamHandler;
 
@@ -100,10 +101,11 @@ public class ProductReaderAcceptanceTest {
                     stopWatch.start();
                     final DecodeQualification decodeQualification = productReaderPlugin.getDecodeQualification(productFile);
                     stopWatch.stop();
-                    logger.info(INDENT + INDENT + stopWatch.getTimeDiffString() + " - " + testProduct.getId());
 
                     final String message = productReaderPlugin.getClass().getName() + ": " + testProduct.getId();
                     assertEquals(message, expected, decodeQualification);
+
+                    logger.info(INDENT + INDENT + stopWatch.getTimeDiffString() + " - ["+expected+"] " + testProduct.getId());
                 } else {
                     logProductNotExistent(2, testProduct);
                 }
@@ -232,7 +234,7 @@ public class ProductReaderAcceptanceTest {
         System.setProperty("com.sun.media.jai.disableMediaLib", "true");  // disable native libraries for JAI
 
         logger = Logger.getLogger(ProductReaderAcceptanceTest.class.getSimpleName());
-        BeamLogManager.removeRootLoggerHandlers();
+        removeRootLogHandler();
         final ConsoleHandler consoleHandler = new ConsoleHandler();
         consoleHandler.setFormatter(new CustomLogFormatter());
         logger.addHandler(consoleHandler);
@@ -244,6 +246,14 @@ public class ProductReaderAcceptanceTest {
             logger.addHandler(streamHandler);
         }
         logInfoWithStars("Reader Acceptance Tests / " + DATE_FORMAT.format(CALENDAR.getTime()));
+    }
+
+    private static void removeRootLogHandler() {
+        Logger rootLogger = LogManager.getLogManager().getLogger("");
+        Handler[] handlers = rootLogger.getHandlers();
+        for (Handler handler : handlers) {
+            rootLogger.removeHandler(handler);
+        }
     }
 
     private static void createGlobalProductList() {
