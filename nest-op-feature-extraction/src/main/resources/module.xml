@@ -122,6 +122,19 @@
             <targetProductNameSuffix>_glcm</targetProductNameSuffix>
         </action>
 
+		<action>
+            <id>GaborFilterOp</id>
+            <helpId>GaborFilterOp</helpId>
+            <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <icon>esaIcon</icon>
+            <parent>PrimitiveFeatureGroup</parent>
+            <text>Gabor Filter</text>
+            <shortDescr>Extract Texture Features</shortDescr>
+            <operatorName>GaborFilter</operatorName>
+            <dialogTitle>Gabor Filter</dialogTitle>
+            <targetProductNameSuffix>_gab</targetProductNameSuffix>
+        </action>
+		
         <action>
             <id>UrbanAreaDetectionGraph</id>
             <helpId>UrbanAreaDetectionGraph</helpId>
