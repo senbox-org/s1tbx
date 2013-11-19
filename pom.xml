@@ -81,7 +81,7 @@
         <repository>
             <id>maven-repository.unidata.ucar.edu</id>
             <name>Unidata Repository</name>
-            <url>https://artifacts.unidata.ucar.edu/content/repositories/unidata-releases</url>
+            <url>http://artifacts.unidata.ucar.edu/content/repositories/unidata-releases</url>
         </repository>
         <repository>
             <id>osgeo</id>
