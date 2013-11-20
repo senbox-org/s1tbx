@@ -36,7 +36,7 @@ public class LandsatTMMetadata {
     private List<MetadataElement> landsatMetadataElements;
 
     /**
-     * stores an integer value in a metadata attibute
+     * stores an integer value in a metadata attribute
      *
      * @param name
      * @param intData
@@ -49,7 +49,7 @@ public class LandsatTMMetadata {
     }
 
     /**
-     * stores a string value in a metadata attibute
+     * stores a string value in a metadata attribute
      *
      * @param name
      * @param stringData
@@ -58,11 +58,17 @@ public class LandsatTMMetadata {
      */
     protected static MetadataAttribute createAttribute(final String name, final String stringData) {
         final ProductData data = ProductData.createInstance(stringData);
+        if(stringData.startsWith("145")) {
+            System.out.println("*****************************");
+            System.out.println("stringData           = " + stringData);
+            System.out.println("data.getElemString() = " + data.getElemString());
+            System.out.println("*****************************");
+        }
         return new MetadataAttribute(name, data, true);
     }
 
     /**
-     * stores an double value in a metadata attibute
+     * stores an double value in a metadata attribute
      *
      * @param name
      * @param doubleData
@@ -142,13 +148,13 @@ public class LandsatTMMetadata {
         if (data instanceof String) {
             attri = createAttribute(shortDescription, (String) data);
         } else if (data instanceof Integer) {
-            attri = createAttribute(shortDescription, ((Integer) data).intValue());
+            attri = createAttribute(shortDescription, ((Integer) data));
         } else if (data instanceof Double) {
-            attri = createAttribute(shortDescription, ((Double) data).doubleValue());
+            attri = createAttribute(shortDescription, (Double) data);
         } else if (data instanceof Long) {
-            attri = createAttribute(shortDescription, ((Long) data).longValue());
+            attri = createAttribute(shortDescription, ((Long) data));
         } else if (data instanceof Float) {
-            attri = createAttribute(shortDescription, ((Float) data).floatValue());
+            attri = createAttribute(shortDescription, ((Float) data));
         } else if (data instanceof ProductData.UTC) {
             attri = createAttribute(shortDescription, (ProductData.UTC) data);
         } else {
