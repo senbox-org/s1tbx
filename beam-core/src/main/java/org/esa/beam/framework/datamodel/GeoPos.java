@@ -266,7 +266,7 @@ public class GeoPos {
 
         StringBuilder sb = new StringBuilder();
         sb.append(degree);
-        char c = '\u00B0';
+        String c = "\u00B0";
         System.out.println("Appending degree: " + c);
         sb.append(c);
         System.out.println("Appended: " + sb.toString());
