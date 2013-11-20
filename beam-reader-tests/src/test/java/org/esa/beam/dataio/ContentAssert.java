@@ -304,14 +304,7 @@ class ContentAssert {
             final String attributeName = pathTokens[pathTokens.length - 1];
             final MetadataAttribute attribute = getMetadataAttribute(msgPrefix, currentElement, attributeName);
             assertNotNull(msgPrefix + " Attribute '" + attributeName + "' not found", attribute);
-            String value = expectedMetadata.getValue();
-            System.out.println("expectedMetadata.Value = " + value);
-            String elemString = attribute.getData().getElemString();
-            System.out.println("actualMetadata.Value = " + elemString);
-            System.out.println("actualMetadata.Elems(bytes) = " + StringUtils.arrayToCsv(attribute.getData().getElems()));
-            System.out.println("actualMetadata.byteArray = " + StringUtils.arrayToCsv(elemString.getBytes()));
-            System.out.println("actualMetadata.charArray = " + StringUtils.arrayToCsv(elemString.toCharArray()));
-            assertEquals(msgPrefix + " Value", value, elemString);
+            assertEquals(msgPrefix + " Value", expectedMetadata.getValue(), attribute.getData().getElemString());
 
         }
     }
