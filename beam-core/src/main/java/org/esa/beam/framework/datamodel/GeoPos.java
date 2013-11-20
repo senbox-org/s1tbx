@@ -107,9 +107,9 @@ public class GeoPos {
      *
      * @return true, if so
      */
-    public static boolean areValid(GeoPos[] a) {
-        for (int i = 0; i < a.length; i++) {
-            if (!a[i].isValid()) {
+    public static boolean areValid(GeoPos[] gepPositions) {
+        for (GeoPos geoPos : gepPositions) {
+            if (!geoPos.isValid()) {
                 return false;
             }
         }
@@ -266,11 +266,7 @@ public class GeoPos {
 
         StringBuilder sb = new StringBuilder();
         sb.append(degree);
-        String c = "\u00B0";
-        System.out.println("Default Encoding = " + System.getProperty("file.encoding"));
-        System.out.println("Appending degree: " + c);
-        sb.append(c);
-        System.out.println("Appended: " + sb.toString());
+        sb.append('°');
         if (minutes != 0 || seconds != 0) {
             if (minutes < 10) {
                 sb.append('0');
