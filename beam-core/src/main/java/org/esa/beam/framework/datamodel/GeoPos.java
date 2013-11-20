@@ -266,7 +266,10 @@ public class GeoPos {
 
         StringBuilder sb = new StringBuilder();
         sb.append(degree);
-        sb.append('°');
+        char c = '°';
+        System.out.println("Appending degree: " + c);
+        sb.append(c);
+        System.out.println("Appended: " + sb.toString());
         if (minutes != 0 || seconds != 0) {
             if (minutes < 10) {
                 sb.append('0');
