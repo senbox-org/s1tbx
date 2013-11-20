@@ -267,6 +267,7 @@ public class GeoPos {
         StringBuilder sb = new StringBuilder();
         sb.append(degree);
         String c = "\u00B0";
+        System.out.println("Default Encoding = " + System.getProperty("file.encoding"));
         System.out.println("Appending degree: " + c);
         sb.append(c);
         System.out.println("Appended: " + sb.toString());
