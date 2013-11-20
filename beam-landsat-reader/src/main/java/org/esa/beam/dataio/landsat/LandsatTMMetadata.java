@@ -58,12 +58,6 @@ public class LandsatTMMetadata {
      */
     protected static MetadataAttribute createAttribute(final String name, final String stringData) {
         final ProductData data = ProductData.createInstance(stringData);
-        if(stringData.startsWith("145")) {
-            System.out.println("*****************************");
-            System.out.println("stringData           = " + stringData);
-            System.out.println("data.getElemString() = " + data.getElemString());
-            System.out.println("*****************************");
-        }
         return new MetadataAttribute(name, data, true);
     }
 
