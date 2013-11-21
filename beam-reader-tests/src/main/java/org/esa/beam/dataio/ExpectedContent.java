@@ -3,8 +3,16 @@ package org.esa.beam.dataio;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.Mask;
+import org.esa.beam.framework.datamodel.MetadataAttribute;
+import org.esa.beam.framework.datamodel.MetadataElement;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.ProductNodeGroup;
+import org.esa.beam.framework.datamodel.SampleCoding;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 // Must be with public access for json-framework usage tb 2013-08-19
@@ -67,7 +75,7 @@ public class ExpectedContent {
     private ExpectedMetadata[] createExpectedMetadata(Product product, Random random) {
         final MetadataElement metadataRoot = product.getMetadataRoot();
         if (metadataRoot.getNumElements() > 0 ||
-                metadataRoot.getNumAttributes() > 0) {
+            metadataRoot.getNumAttributes() > 0) {
             final ExpectedMetadata[] expectedMetadata = new ExpectedMetadata[2];
             for (int i = 0; i < expectedMetadata.length; i++) {
                 MetadataElement currentElem = metadataRoot;
@@ -95,12 +103,19 @@ public class ExpectedContent {
 
     private ExpectedMask[] createExpectedMasks(Product product) {
         final ProductNodeGroup<Mask> maskGroup = product.getMaskGroup();
-        final ExpectedMask[] expectedMasks = new ExpectedMask[maskGroup.getNodeCount()];
-        for (int i = 0; i < expectedMasks.length; i++) {
+        final List<ExpectedMask> expectedMasks = new ArrayList<ExpectedMask>();
+        for (int i = 0; i < maskGroup.getNodeCount(); i++) {
             final Mask mask = maskGroup.get(i);
-            expectedMasks[i] = new ExpectedMask(mask);
+            // exclude pins and gcp masks; they are only temporarily created (for the normal test case)
+            if (!(mask.getName().equals("pins") || mask.getName().equals("ground_control_points"))) {
+                expectedMasks.add(new ExpectedMask(mask));
+            }
         }
-        return expectedMasks;
+        if(expectedMasks.size() > 0) {
+            return expectedMasks.toArray(new ExpectedMask[expectedMasks.size()]);
+        }else {
+            return null;
+        }
     }
 
     private ExpectedTiePointGrid[] createExpectedTiePointGrids(Product product, Random random) {
