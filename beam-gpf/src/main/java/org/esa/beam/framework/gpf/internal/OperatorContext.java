@@ -27,10 +27,8 @@ import com.bc.ceres.binding.dom.DefaultDomConverter;
 import com.bc.ceres.binding.dom.DomElement;
 import com.bc.ceres.binding.dom.XppDomElement;
 import com.bc.ceres.core.Assert;
-import com.bc.ceres.core.CoreException;
 import com.bc.ceres.core.ProgressMonitor;
-import com.bc.ceres.core.runtime.internal.ModuleImpl;
-import com.bc.ceres.core.runtime.internal.ModuleReader;
+import com.bc.ceres.core.runtime.Module;
 import com.bc.ceres.glevel.MultiLevelImage;
 import com.bc.ceres.jai.tilecache.DefaultSwapSpace;
 import com.bc.ceres.jai.tilecache.SwappingTileCache;
@@ -70,7 +68,6 @@ import java.awt.image.RenderedImage;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -521,20 +518,16 @@ public class OperatorContext {
         targetNodeME.addAttribute(new MetadataAttribute("id", ProductData.createInstance(opId), false));
         targetNodeME.addAttribute(new MetadataAttribute("operator", ProductData.createInstance(opName), false));
 
-        ModuleReader moduleReader = new ModuleReader(logger);
-        URL moduleLocation = operatorClass.getProtectionDomain().getCodeSource().getLocation();
-        try {
-            ModuleImpl module = moduleReader.readFromLocation(moduleLocation);
-
+        Module module = operatorSpi.getModule();
+        if (module == null) {
+            logger.warning("Could not read module information");
+        }else {
             ProductData nameValue = ProductData.createInstance(module.getSymbolicName());
             targetNodeME.addAttribute(new MetadataAttribute("moduleName", nameValue, false));
 
             ProductData versionValue = ProductData.createInstance(module.getVersion().toString());
-            targetNodeME.addAttribute(new MetadataAttribute("moduleVersion", versionValue,false));
-        } catch (CoreException e) {
-            logger.warning("Could not read " + moduleLocation.toString());
+            targetNodeME.addAttribute(new MetadataAttribute("moduleVersion", versionValue, false));
         }
-
         OperatorMetadata operatorMetadata = operatorClass.getAnnotation(OperatorMetadata.class);
         if (operatorMetadata != null) {
             ProductData purposeValue = ProductData.createInstance(operatorMetadata.description());
