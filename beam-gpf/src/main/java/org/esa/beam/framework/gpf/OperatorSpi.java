@@ -18,7 +18,6 @@ package org.esa.beam.framework.gpf;
 
 import com.bc.ceres.core.CoreException;
 import com.bc.ceres.core.runtime.Module;
-import com.bc.ceres.core.runtime.internal.ModuleImpl;
 import com.bc.ceres.core.runtime.internal.ModuleReader;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
@@ -74,8 +73,6 @@ public abstract class OperatorSpi {
     protected OperatorSpi(Class<? extends Operator> operatorClass, String operatorAlias) {
         this.operatorClass = operatorClass;
         this.operatorAlias = operatorAlias;
-        this.module = loadModule(operatorClass);
-
     }
 
     /**
@@ -172,6 +169,9 @@ public abstract class OperatorSpi {
      * @return The {@link Module module} containing the operator or {@code null} if no module is defined.
      */
     public Module getModule() {
+        if(module == null) {
+            this.module = loadModule();
+        }
         return module;
     }
 
@@ -183,7 +183,7 @@ public abstract class OperatorSpi {
         return operatorClass.getSimpleName();
     }
 
-    private ModuleImpl loadModule(Class<? extends Operator> operatorClass) {
+    private Module loadModule() {
         ModuleReader moduleReader = new ModuleReader(Logger.getAnonymousLogger());
         URL moduleLocation = operatorClass.getProtectionDomain().getCodeSource().getLocation();
         try {
