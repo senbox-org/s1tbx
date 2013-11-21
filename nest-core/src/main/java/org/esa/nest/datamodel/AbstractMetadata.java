@@ -190,6 +190,8 @@ public final class AbstractMetadata {
 
     public static final DateFormat dateFormat = ProductData.UTC.createDateFormat("yyyy-MM-dd HH:mm:ss");
 
+    public static final String compact_mode = "compact_mode";
+
     /**
      * Abstract common metadata from products to be used uniformly by all operators
      * @param root the product metadata root
