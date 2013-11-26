@@ -294,8 +294,8 @@ class ContentAssert {
     }
 
     private static void testExpectedMetadata(ExpectedContent expectedContent, String productId, Product product) {
-        ExpectedMetadata[] expectedMetadataList = expectedContent.getMetadata();
-        for (ExpectedMetadata expectedMetadata : expectedMetadataList) {
+        ExpectedMetadata[] expectedMetadataArray = expectedContent.getMetadata();
+        for (ExpectedMetadata expectedMetadata : expectedMetadataArray) {
             String path = expectedMetadata.getPath();
             final String[] pathTokens = path.split("/");
             final String[] elementNames = Arrays.copyOf(pathTokens, pathTokens.length - 1);

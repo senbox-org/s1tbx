@@ -74,23 +74,20 @@ public class ExpectedContent {
 
     private ExpectedMetadata[] createExpectedMetadata(Product product, Random random) {
         final MetadataElement metadataRoot = product.getMetadataRoot();
-        if (metadataRoot.getNumElements() > 0 ||
-            metadataRoot.getNumAttributes() > 0) {
-            final ExpectedMetadata[] expectedMetadata = new ExpectedMetadata[2];
-            for (int i = 0; i < expectedMetadata.length; i++) {
+        final List<ExpectedMetadata> expectedMetadata = new ArrayList<ExpectedMetadata>();
+        if (metadataRoot.getNumElements() > 0 || metadataRoot.getNumAttributes() > 0) {
+            while(expectedMetadata.size() < 2) {
                 MetadataElement currentElem = metadataRoot;
                 while (currentElem != null && currentElem.getNumElements() > 0) {
                     currentElem = currentElem.getElementAt((int) (currentElem.getNumElements() * random.nextFloat()));
                 }
                 if (currentElem != null && currentElem.getNumAttributes() > 0) {
                     final MetadataAttribute attributeAt = currentElem.getAttributeAt((int) (currentElem.getNumAttributes() * random.nextFloat()));
-                    expectedMetadata[i] = new ExpectedMetadata(attributeAt);
+                    expectedMetadata.add(new ExpectedMetadata(attributeAt));
                 }
             }
-            return expectedMetadata;
-        } else {
-            return new ExpectedMetadata[0];
         }
+        return expectedMetadata.toArray(new ExpectedMetadata[expectedMetadata.size()]);
 
     }
 
