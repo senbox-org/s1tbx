@@ -88,7 +88,7 @@ public class CreateExpectedJsonCodeCommand extends ExecCommand {
     String createJsonCode(Product product, Random random) throws IOException {
         final ExpectedContent expectedContent = new ExpectedContent(product, random);
         ExpectedDataset expectedDataset = new ExpectedDataset();
-        expectedDataset.setId(product.getName());
+        expectedDataset.setId(generateID(product));
         expectedDataset.setExpectedContent(expectedContent);
         expectedDataset.setDecodeQualification(DecodeQualification.INTENDED.name());
         ObjectWriter writer = getConfiguredJsonWriter();
@@ -96,6 +96,13 @@ public class CreateExpectedJsonCodeCommand extends ExecCommand {
         writer.writeValue(stringWriter, expectedDataset);
         stringWriter.flush();
         return stringWriter.toString();
+    }
+
+    String generateID(Product product) {
+        String id = product.getName();
+        id = id.replace(" ", "_");
+        id = id.replace(".", "_");
+        return id;
     }
 
     private ObjectWriter getConfiguredJsonWriter() {

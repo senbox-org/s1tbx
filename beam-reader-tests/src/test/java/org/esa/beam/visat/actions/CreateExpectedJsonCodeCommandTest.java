@@ -156,6 +156,14 @@ public class CreateExpectedJsonCodeCommandTest {
         assertEquals(EXPECTED_JSON_CODE, actualJsonCode);
     }
 
+    @Test
+    public void testIdGeneration() throws Exception {
+        final CreateExpectedJsonCodeCommand jsonCodeCommand = new CreateExpectedJsonCodeCommand();
+        final Product testProduct = new Product("blah test.1", "d", 3, 3);
+        assertEquals("blah_test_1", jsonCodeCommand.generateID(testProduct));
+        testProduct.setName("B  L..A H");
+        assertEquals("B__L__A_H", jsonCodeCommand.generateID(testProduct));
+    }
     private Random createMockedRandom() {
         final Random mock = Mockito.mock(Random.class);
         OngoingStubbing<Float> ongoingStubbing = when(mock.nextFloat());
