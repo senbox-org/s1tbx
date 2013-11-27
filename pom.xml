@@ -212,7 +212,6 @@
                             <include>**/*Test*.java</include>
                             <include>**/*TestCase.java</include>
                         </includes>
-                        <argLine>-Dfile.encoding=UTF-8</argLine>
                         <systemProperties>
                             <property>
                                 <name>org.esa.beam.testdata.out</name>
