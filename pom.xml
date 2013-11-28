@@ -213,13 +213,10 @@
                             <include>**/*Test*.java</include>
                             <include>**/*TestCase.java</include>
                         </includes>
-                        <systemProperties>
-                            <property>
-                                <name>org.esa.beam.testdata.out</name>
-                                <value>target/test-data</value>
-                            </property>
-                        </systemProperties>
-                        <argLine>-Xmx512M -enableassertions</argLine>
+                        <systemPropertyVariables>
+                            <org.esa.beam.testdata.out>target/test-data</org.esa.beam.testdata.out>
+                        </systemPropertyVariables>
+                        <argLine>-Xmx512M -enableassertions -Dfile.encoding=UTF-8</argLine>
                     </configuration>
                 </plugin>
 
