@@ -57,6 +57,7 @@
         <!--This property needs to be set here and not in the one of the other parent poms, because it is used for
         filtering the gpt scripts during the assembly phase. -->
         <hdf.version>2.7</hdf.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
     <repositories>

@@ -35,7 +35,6 @@
     <version>5.0-SNAPSHOT</version>
 
     <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <beam.version>5.0-SNAPSHOT</beam.version>
         <ceres.version>0.14-SNAPSHOT</ceres.version>
         <geotools.version>2.7.4</geotools.version>
