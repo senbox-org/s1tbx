@@ -91,7 +91,7 @@
             </activation>
             <dependencies>
                 <dependency>
-                    <groupId>com.sun</groupId>
+                    <groupId>com.oracle</groupId>
                     <artifactId>tools</artifactId>
                     <version>1.7.0</version>
                     <scope>system</scope>
