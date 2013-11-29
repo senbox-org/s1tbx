@@ -35,7 +35,7 @@ public class ExpectedMetadata {
         }
 
         final StringBuilder sb = new StringBuilder();
-        sb.append(attribute.getName());
+        sb.append(escapeSlashes(attribute.getName()));
         if(index > 1) {
             sb.append("[").append(index).append("]");
         }
@@ -55,7 +55,7 @@ public class ExpectedMetadata {
             if(elemIndex > 1) {
                 sb.insert(0, "[" + elemIndex + "]");
             }
-            sb.insert(0, currentElement.getName());
+            sb.insert(0, escapeSlashes(currentElement.getName()));
             if(metadataRoot == nextElement) {
                 break;
             }
@@ -63,6 +63,10 @@ public class ExpectedMetadata {
         }
         this.path = sb.toString();
         this.value = attribute.getData().getElemString();
+    }
+
+    private String escapeSlashes(String name) {
+        return name.replace("/", "//");
     }
 
 

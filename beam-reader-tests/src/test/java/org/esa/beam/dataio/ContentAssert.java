@@ -17,6 +17,7 @@ import org.esa.beam.framework.datamodel.TiePointGrid;
 import org.esa.beam.util.StringUtils;
 import org.junit.Assert;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -297,7 +298,7 @@ class ContentAssert {
         ExpectedMetadata[] expectedMetadataArray = expectedContent.getMetadata();
         for (ExpectedMetadata expectedMetadata : expectedMetadataArray) {
             String path = expectedMetadata.getPath();
-            final String[] pathTokens = path.split("/");
+            final String[] pathTokens = getPathTokens(path);
             final String[] elementNames = Arrays.copyOf(pathTokens, pathTokens.length - 1);
             final String msgPrefix = productId + " Metadata path '" + path + "' not valid.";
             MetadataElement currentElement = getMetadataElement(msgPrefix, elementNames, product.getMetadataRoot());
@@ -307,5 +308,19 @@ class ContentAssert {
             assertEquals(msgPrefix + " Value", expectedMetadata.getValue(), attribute.getData().getElemString());
 
         }
+    }
+
+    private static String[] getPathTokens(String path) {
+        String[] splits = path.split("/");
+        ArrayList<String> tokens = new ArrayList<String>();
+        for (int i = 0; i < splits.length; i++) {
+            String currentSplit = splits[i];
+            if (currentSplit.isEmpty()) {
+                tokens.add(tokens.remove(tokens.size() - 1) + "/" + splits[++i]);
+            } else {
+                tokens.add(currentSplit);
+            }
+        }
+        return tokens.toArray(new String[tokens.size()]);
     }
 }
