@@ -131,7 +131,7 @@ public class CloudePottier extends PolClassifierBase implements PolClassifier {
      * @param useLeeHAlphaPlaneDefinition Use Lee's H-Alpha plane definition if true, otherwise use PolSARPro definition
      * @return The zone index
      */
-    static int getZoneIndex(final double entropy, final double alpha, final boolean useLeeHAlphaPlaneDefinition) {
+    public static int getZoneIndex(final double entropy, final double alpha, final boolean useLeeHAlphaPlaneDefinition) {
 
         if (useLeeHAlphaPlaneDefinition) {
 
