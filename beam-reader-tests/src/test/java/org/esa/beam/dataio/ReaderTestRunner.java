@@ -21,8 +21,6 @@ import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.BlockJUnit4ClassRunner;
 import org.junit.runners.model.InitializationError;
 
-import java.nio.charset.Charset;
-
 public class ReaderTestRunner extends BlockJUnit4ClassRunner {
 
     private static final String PROPERTYNAME_EXECUTE_READER_TESTS = "beam.reader.tests.execute";
@@ -44,8 +42,6 @@ public class ReaderTestRunner extends BlockJUnit4ClassRunner {
 
     @Override
     public void run(RunNotifier runNotifier) {
-        System.out.println("file.encoding = " + System.getProperties().get("file.encoding"));
-        System.out.println("defaultCharset = " + Charset.defaultCharset());
         if (runAcceptanceTests) {
             super.run(runNotifier);
         } else {
