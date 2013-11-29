@@ -21,7 +21,7 @@
                     "lon": 13.336147
                 }
             ],
-            "reverseAccuracy": 0.01,
+            "reverseAccuracy": 0.8,
             "geoCodingClass": "org.esa.beam.framework.datamodel.TiePointGeoCoding"
         },
         "tiePointGrids": [
@@ -194,7 +194,8 @@
         ],
         "metadata": [
             {
-                "path": "DSD/DSD.9/FILE_NAME"
+                "path": "DSD/DSD.9/FILE_NAME",
+                "value": ""
             },
             {
                 "path": "ANTENNA_ELEV_PATTERN_ADS/ANTENNA_ELEV_PATTERN_ADS.1/beam_id",

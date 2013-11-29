@@ -818,7 +818,8 @@
         ],
         "metadata": [
             {
-                "path": "DSD/DSD.21/DATASET_NAME"
+                "path": "DSD/DSD.21/DATASET_NAME",
+                "value": ""
             },
             {
                 "path": "Tie_points_ADS/Tie_points_ADS.64/attach_flag",

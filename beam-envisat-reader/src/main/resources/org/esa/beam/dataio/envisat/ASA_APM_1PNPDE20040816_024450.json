@@ -21,7 +21,7 @@
                     "lon": -73.00516
                 }
             ],
-            "reverseAccuracy": 0.01,
+            "reverseAccuracy": 0.02,
             "geoCodingClass": "org.esa.beam.framework.datamodel.TiePointGeoCoding"
         },
         "tiePointGrids": [
@@ -194,10 +194,11 @@
         ],
         "metadata": [
             {
-                "path": "DSD/DSD.9/FILE_NAME"
+                "path": "DSD/DSD.9/FILE_NAME",
+                "value": ""
             },
             {
-                "path": "CHIRP_PARAMS_ADS/CHIRP_PARAMS_ADS.1/ASAR_Chirp_ADSR.sd/cal_pulse_info.15.avg_val_1a",
+                "path": "CHIRP_PARAMS_ADS/CHIRP_PARAMS_ADS.1/ASAR_Chirp_ADSR.sd//cal_pulse_info.15.avg_val_1a",
                 "value": "0.9889239"
             }
         ]
