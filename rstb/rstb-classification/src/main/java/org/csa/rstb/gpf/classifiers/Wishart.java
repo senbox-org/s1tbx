@@ -367,7 +367,7 @@ public class Wishart extends PolClassifierBase implements PolClassifier {
             }
 
         } catch(Throwable e) {
-            OperatorUtils.catchOperatorException(op.getId()+ " computeInitialClusterCenters ", e);
+            OperatorUtils.catchOperatorException(op.getId()+ " computeFinalClusterCenters ", e);
         } finally {
             status.done();
         }
