@@ -1,6 +1,8 @@
 package org.esa.beam.visat.actions;
 
+import com.fasterxml.jackson.databind.ObjectWriter;
 import org.esa.beam.HeadlessTestRunner;
+import org.esa.beam.dataio.ExpectedMetadata;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.CrsGeoCoding;
 import org.esa.beam.framework.datamodel.GeoCoding;
@@ -27,6 +29,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.StringWriter;
 import java.util.Random;
 
 import static org.junit.Assert.*;
@@ -69,7 +72,7 @@ public class CreateExpectedJsonCodeCommandTest {
         product.setEndTime(ProductData.UTC.parse("23-AUG-1983 12:14:41"));
         product.setGeoCoding(new CrsGeoCoding(DefaultGeographicCRS.WGS84, WIDTH, HEIGHT, 0.0, 0.0, 1.0, -1.0));
         final Band band1 = product.addBand("band_1", ProductData.TYPE_INT32);
-        band1.setSourceImage(ConstantDescriptor.create((float)WIDTH, (float)HEIGHT, new Integer[]{1}, null));
+        band1.setSourceImage(ConstantDescriptor.create((float) WIDTH, (float) HEIGHT, new Integer[]{1}, null));
         band1.setDescription("description_1");
         band1.setUnit("abc");
         band1.setGeophysicalNoDataValue(1);
@@ -77,7 +80,7 @@ public class CreateExpectedJsonCodeCommandTest {
         final Band band2 = product.addBand("band_2", ProductData.TYPE_FLOAT32);
         band2.setDescription("description_2");
         band2.setUnit("m/w^2");
-        band2.setSourceImage(ConstantDescriptor.create((float)WIDTH, (float)HEIGHT, new Float[]{2.0f}, null));
+        band2.setSourceImage(ConstantDescriptor.create((float) WIDTH, (float) HEIGHT, new Float[]{2.0f}, null));
         final MetadataElement metadataRoot = product.getMetadataRoot();
         final MetadataElement test1Element = new MetadataElement("test_1");
         final MetadataElement abc_1 = new MetadataElement("ABC");
@@ -164,6 +167,7 @@ public class CreateExpectedJsonCodeCommandTest {
         testProduct.setName("B  L..A H");
         assertEquals("B__L__A_H", jsonCodeCommand.generateID(testProduct));
     }
+
     private Random createMockedRandom() {
         final Random mock = Mockito.mock(Random.class);
         OngoingStubbing<Float> ongoingStubbing = when(mock.nextFloat());
@@ -174,4 +178,22 @@ public class CreateExpectedJsonCodeCommandTest {
         return mock;
     }
 
+
+    @Test
+    public void testJsonWriter() throws Exception {
+        ObjectWriter jsonWriter = CreateExpectedJsonCodeCommand.getConfiguredJsonWriter();
+        ExpectedMetadata expectedMetadata = new ExpectedMetadata();
+        expectedMetadata.setPath("DSD/DSD.21/Name");
+        expectedMetadata.setValue("");
+        StringWriter writer = new StringWriter(500);
+        jsonWriter.writeValue(writer, expectedMetadata);
+
+        String expectedString = "{" + CreateExpectedJsonCodeCommand.LF +
+                          "    \"path\": \"DSD/DSD.21/Name\"," + CreateExpectedJsonCodeCommand.LF +
+                          "    \"value\": \"\"" + CreateExpectedJsonCodeCommand.LF +
+                          "}";
+        String actualString = writer.getBuffer().toString();
+        assertEquals(expectedString, actualString);
+
+    }
 }

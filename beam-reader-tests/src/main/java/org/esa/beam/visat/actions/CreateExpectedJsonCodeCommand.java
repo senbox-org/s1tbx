@@ -4,12 +4,12 @@ import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.PrettyPrinter;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
 import org.esa.beam.dataio.ExpectedContent;
 import org.esa.beam.dataio.ExpectedDataset;
@@ -33,8 +33,8 @@ import java.util.Random;
  */
 public class CreateExpectedJsonCodeCommand extends ExecCommand {
 
+    public static final String LF = System.getProperty("line.separator");
     private final Clipboard clipboard;
-    private static final String LF = System.getProperty("line.separator");
 
 
     public CreateExpectedJsonCodeCommand() {
@@ -105,10 +105,10 @@ public class CreateExpectedJsonCodeCommand extends ExecCommand {
         return id;
     }
 
-    private ObjectWriter getConfiguredJsonWriter() {
+    static ObjectWriter getConfiguredJsonWriter() {
         final ObjectMapper mapper = new ObjectMapper();
         mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-        mapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+        mapper.configure(SerializationFeature.WRITE_EMPTY_JSON_ARRAYS, false);
         final VisibilityChecker<?> defaultVisibilityChecker = mapper.getSerializationConfig().getDefaultVisibilityChecker();
         final VisibilityChecker<?> visibilityChecker = defaultVisibilityChecker.withIsGetterVisibility(JsonAutoDetect.Visibility.NONE);
         mapper.setVisibilityChecker(visibilityChecker);
@@ -151,44 +151,43 @@ public class CreateExpectedJsonCodeCommand extends ExecCommand {
             defaultPrettyPrinter.indentObjectsWith(i);
         }
 
-        public void writeRootValueSeparator(JsonGenerator jg) throws IOException, JsonGenerationException {
+        public void writeRootValueSeparator(JsonGenerator jg) throws IOException {
             defaultPrettyPrinter.writeRootValueSeparator(jg);
         }
 
-        public void writeStartObject(JsonGenerator jg) throws IOException, JsonGenerationException {
+        public void writeStartObject(JsonGenerator jg) throws IOException {
             defaultPrettyPrinter.writeStartObject(jg);
         }
 
-        public void beforeObjectEntries(JsonGenerator jg) throws IOException, JsonGenerationException {
+        public void beforeObjectEntries(JsonGenerator jg) throws IOException {
             defaultPrettyPrinter.beforeObjectEntries(jg);
         }
 
-        public void writeObjectFieldValueSeparator(JsonGenerator jg) throws IOException, JsonGenerationException {
+        public void writeObjectFieldValueSeparator(JsonGenerator jg) throws IOException {
             jg.writeRaw(": ");
-//            defaultPrettyPrinter.writeObjectFieldValueSeparator(jg);
         }
 
-        public void writeObjectEntrySeparator(JsonGenerator jg) throws IOException, JsonGenerationException {
+        public void writeObjectEntrySeparator(JsonGenerator jg) throws IOException {
             defaultPrettyPrinter.writeObjectEntrySeparator(jg);
         }
 
-        public void writeEndObject(JsonGenerator jg, int nrOfEntries) throws IOException, JsonGenerationException {
+        public void writeEndObject(JsonGenerator jg, int nrOfEntries) throws IOException {
             defaultPrettyPrinter.writeEndObject(jg, nrOfEntries);
         }
 
-        public void writeStartArray(JsonGenerator jg) throws IOException, JsonGenerationException {
+        public void writeStartArray(JsonGenerator jg) throws IOException {
             defaultPrettyPrinter.writeStartArray(jg);
         }
 
-        public void beforeArrayValues(JsonGenerator jg) throws IOException, JsonGenerationException {
+        public void beforeArrayValues(JsonGenerator jg) throws IOException {
             defaultPrettyPrinter.beforeArrayValues(jg);
         }
 
-        public void writeArrayValueSeparator(JsonGenerator jg) throws IOException, JsonGenerationException {
+        public void writeArrayValueSeparator(JsonGenerator jg) throws IOException {
             defaultPrettyPrinter.writeArrayValueSeparator(jg);
         }
 
-        public void writeEndArray(JsonGenerator jg, int nrOfValues) throws IOException, JsonGenerationException {
+        public void writeEndArray(JsonGenerator jg, int nrOfValues) throws IOException {
             defaultPrettyPrinter.writeEndArray(jg, nrOfValues);
         }
 
