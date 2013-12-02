@@ -110,12 +110,12 @@ class PrismProductDirectory {
         addBand(product);
 
         final Calendar imageStartDate = leaderFile.getDateImageWasTaken();
-        imageStartDate.add(Calendar.MILLISECOND, imageFiles[0].getTotalMillisInDayOfLine(0));
+        imageStartDate.set(Calendar.MILLISECOND, imageFiles[0].getTotalMillisInDayOfLine(0));
         final ProductData.UTC utcScanStartTime = ProductData.UTC.create(imageStartDate.getTime(),
                                                                         imageFiles[0].getMicrosecondsOfLine(0));
 
         final Calendar imageEndDate = leaderFile.getDateImageWasTaken();
-        imageEndDate.add(Calendar.MILLISECOND, imageFiles[0].getTotalMillisInDayOfLine(sceneHeight - 1));
+        imageEndDate.set(Calendar.MILLISECOND, imageFiles[0].getTotalMillisInDayOfLine(sceneHeight - 1));
         final ProductData.UTC utcScanStopTime = ProductData.UTC.create(imageEndDate.getTime(),
                                                                        imageFiles[0].getMicrosecondsOfLine(
                                                                                sceneHeight - 1));

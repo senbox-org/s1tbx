@@ -375,14 +375,14 @@ class Avnir2ProductDirectory {
     private ProductData.UTC getUTCScanStartTime() throws IOException,
                                                          IllegalCeosFormatException {
         final Calendar imageStartDate = leaderFile.getDateImageWasTaken();
-        imageStartDate.add(Calendar.MILLISECOND, imageFiles[0].getTotalMillisInDayOfLine(0));
+        imageStartDate.set(Calendar.MILLISECOND, imageFiles[0].getTotalMillisInDayOfLine(0));
         return ProductData.UTC.create(imageStartDate.getTime(), imageFiles[0].getMicrosecondsOfLine(0));
     }
 
     private ProductData.UTC getUTCScanStopTime() throws IOException,
                                                         IllegalCeosFormatException {
         final Calendar imageStartDate = leaderFile.getDateImageWasTaken();
-        imageStartDate.add(Calendar.MILLISECOND, imageFiles[0].getTotalMillisInDayOfLine(sceneHeight - 1));
+        imageStartDate.set(Calendar.MILLISECOND, imageFiles[0].getTotalMillisInDayOfLine(sceneHeight - 1));
         return ProductData.UTC.create(imageStartDate.getTime(), imageFiles[0].getMicrosecondsOfLine(sceneHeight - 1));
     }
 
