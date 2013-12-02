@@ -1,0 +1,356 @@
+{
+    "id": "MOD02QKM_A2012151_0255_005_2012151095153",
+    "decodeQualification": "INTENDED",
+    "expectedContent": {
+        "sceneWidth": 5416,
+        "sceneHeight": 2030,
+        "startTime": "30-MAY-2012 00:55:00.000000",
+        "endTime": "30-MAY-2012 01:00:00.000000",
+        "geoCoding": {
+            "coordinates": [
+                {
+                    "x": 438.5,
+                    "y": 269.5,
+                    "lat": -14.131142,
+                    "lon": 104.1874
+                },
+                {
+                    "x": 1887.5,
+                    "y": 1025.5,
+                    "lat": -16.360039,
+                    "lon": 109.13784
+                },
+                {
+                    "x": 4199.5,
+                    "y": 1398.5,
+                    "lat": -17.876286,
+                    "lon": 114.90562
+                },
+                {
+                    "x": 5308.5,
+                    "y": 1888.5,
+                    "lat": -19.413036,
+                    "lon": 120.68789
+                }
+            ],
+            "reverseAccuracy": "1.0",
+            "geoCodingClass": "org.esa.beam.dataio.modis.ModisTiePointGeoCoding"
+        },
+        "tiePointGrids": [
+            {
+                "name": "Latitude",
+                "offsetX": "1.0",
+                "offsetY": "0.5",
+                "subSamplingX": "4.0",
+                "subSamplingY": "4.0",
+                "expectedPixels": [
+                    {
+                        "x": 438,
+                        "y": 269,
+                        "value": -14.260673
+                    },
+                    {
+                        "x": 1887,
+                        "y": 1025,
+                        "value": -16.813768
+                    },
+                    {
+                        "x": 4199,
+                        "y": 1398,
+                        "value": -18.486437
+                    },
+                    {
+                        "x": 5308,
+                        "y": 1888,
+                        "value": -20.196568
+                    },
+                    {
+                        "x": 0,
+                        "y": 0,
+                        "value": -12.971263
+                    },
+                    {
+                        "x": 1887,
+                        "y": 1025,
+                        "value": -16.813768
+                    },
+                    {
+                        "x": 4201,
+                        "y": 1406,
+                        "value": -18.499874
+                    },
+                    {
+                        "x": 0,
+                        "y": 0,
+                        "value": -12.971263
+                    }
+                ]
+            },
+            {
+                "name": "Longitude",
+                "offsetX": "1.0",
+                "offsetY": "0.5",
+                "subSamplingX": "4.0",
+                "subSamplingY": "4.0",
+                "expectedPixels": [
+                    {
+                        "x": 438,
+                        "y": 269,
+                        "value": 104.15733
+                    },
+                    {
+                        "x": 1887,
+                        "y": 1025,
+                        "value": 109.03055
+                    },
+                    {
+                        "x": 4199,
+                        "y": 1398,
+                        "value": 114.77786
+                    },
+                    {
+                        "x": 5308,
+                        "y": 1888,
+                        "value": 120.55102
+                    },
+                    {
+                        "x": 0,
+                        "y": 0,
+                        "value": 100.847374
+                    },
+                    {
+                        "x": 1887,
+                        "y": 1025,
+                        "value": 109.03055
+                    },
+                    {
+                        "x": 4201,
+                        "y": 1406,
+                        "value": 114.77958
+                    },
+                    {
+                        "x": 0,
+                        "y": 0,
+                        "value": 100.847374
+                    }
+                ]
+            }
+        ],
+        "bands": [
+            {
+                "name": "EV_250_RefSB.1",
+                "description": "Earth View 250M Reflective Solar Bands Scaled Integers",
+                "geophysicalUnit": "Watts/m^2/micrometer/steradian",
+                "noDataValue": "1721.956390645355",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "645.0",
+                "spectralBandwidth": "50.0",
+                "expectedPixels": [
+                    {
+                        "x": 438,
+                        "y": 269,
+                        "value": 14.320077
+                    },
+                    {
+                        "x": 1887,
+                        "y": 1025,
+                        "value": 10.483872
+                    },
+                    {
+                        "x": 4199,
+                        "y": 1398,
+                        "value": 10.168569
+                    },
+                    {
+                        "x": 5308,
+                        "y": 1888,
+                        "value": 41.14723
+                    },
+                    {
+                        "x": 0,
+                        "y": 0,
+                        "value": 33.448547
+                    },
+                    {
+                        "x": 1887,
+                        "y": 1025,
+                        "value": 10.483872
+                    },
+                    {
+                        "x": 4201,
+                        "y": 1406,
+                        "value": 10.378771
+                    },
+                    {
+                        "x": 0,
+                        "y": 0,
+                        "value": 33.448547
+                    }
+                ]
+            },
+            {
+                "name": "EV_250_RefSB.2",
+                "description": "Earth View 250M Reflective Solar Bands Scaled Integers",
+                "geophysicalUnit": "Watts/m^2/micrometer/steradian",
+                "noDataValue": "642.0622242428362",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "858.5",
+                "spectralBandwidth": "35.0",
+                "expectedPixels": [
+                    {
+                        "x": 438,
+                        "y": 269,
+                        "value": 4.5753117
+                    },
+                    {
+                        "x": 1887,
+                        "y": 1025,
+                        "value": 3.1939008
+                    },
+                    {
+                        "x": 4199,
+                        "y": 1398,
+                        "value": 3.1939008
+                    },
+                    {
+                        "x": 5308,
+                        "y": 1888,
+                        "value": 55.79529
+                    },
+                    {
+                        "x": 0,
+                        "y": 0,
+                        "value": 15.117144
+                    },
+                    {
+                        "x": 1887,
+                        "y": 1025,
+                        "value": 3.1939008
+                    },
+                    {
+                        "x": 4201,
+                        "y": 1406,
+                        "value": 3.321265
+                    },
+                    {
+                        "x": 0,
+                        "y": 0,
+                        "value": 15.117144
+                    }
+                ]
+            },
+            {
+                "name": "EV_250_RefSB_Uncert_Indexes.1",
+                "description": "Earth View 250M Reflective Solar Bands Uncertainty Indexes",
+                "geophysicalUnit": "percent",
+                "noDataValue": "-1.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 438,
+                        "y": 269,
+                        "value": 6.259101
+                    },
+                    {
+                        "x": 1887,
+                        "y": 1025,
+                        "value": 8.3290615
+                    },
+                    {
+                        "x": 4199,
+                        "y": 1398,
+                        "value": 11.083584
+                    },
+                    {
+                        "x": 5308,
+                        "y": 1888,
+                        "value": 2.6561925
+                    },
+                    {
+                        "x": 0,
+                        "y": 0,
+                        "value": 2.6561925
+                    },
+                    {
+                        "x": 1887,
+                        "y": 1025,
+                        "value": 8.3290615
+                    },
+                    {
+                        "x": 4201,
+                        "y": 1406,
+                        "value": 7.2202797
+                    },
+                    {
+                        "x": 0,
+                        "y": 0,
+                        "value": 2.6561925
+                    }
+                ]
+            },
+            {
+                "name": "EV_250_RefSB_Uncert_Indexes.2",
+                "description": "Earth View 250M Reflective Solar Bands Uncertainty Indexes",
+                "geophysicalUnit": "percent",
+                "noDataValue": "-1.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 438,
+                        "y": 269,
+                        "value": 7.2202797
+                    },
+                    {
+                        "x": 1887,
+                        "y": 1025,
+                        "value": 11.083584
+                    },
+                    {
+                        "x": 4199,
+                        "y": 1398,
+                        "value": 8.3290615
+                    },
+                    {
+                        "x": 5308,
+                        "y": 1888,
+                        "value": 1.7303476
+                    },
+                    {
+                        "x": 0,
+                        "y": 0,
+                        "value": 2.6561925
+                    },
+                    {
+                        "x": 1887,
+                        "y": 1025,
+                        "value": 11.083584
+                    },
+                    {
+                        "x": 4201,
+                        "y": 1406,
+                        "value": 6.259101
+                    },
+                    {
+                        "x": 0,
+                        "y": 0,
+                        "value": 2.6561925
+                    }
+                ]
+            }
+        ],
+        "metadata": [
+            {
+                "path": "GLOBAL_METADATA/Granule_Average_QA_Values",
+                "value": "290.0324,290.0126,290.04483,290.02658,290.01358,289.97794,290.05475,290.0248,290.0277,289.99963,289.9897,289.99347,269.79782,270.03467,83.39427,83.019875,277.79156,277.78806,278.49347,276.53046,277.25668,276.10233,275.44955,269.02826,265.86575,267.21716,267.34467,82.73936,82.83825,127.23856,127.10419,186.45477,5.368265,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0"
+            },
+            {
+                "path": "GLOBAL_METADATA/Earth-Sun_Distance",
+                "value": "1.0137583"
+            }
+        ]
+    }
+}

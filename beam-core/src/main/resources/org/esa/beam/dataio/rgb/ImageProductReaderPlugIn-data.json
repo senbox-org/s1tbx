@@ -1,0 +1,18 @@
+{    "testProducts": [
+         {
+             "id": "MER_FSG_1PNMAP20050608_094337_RGB",
+             "relativePath": "applications/generic_reader/RGB/MER_FSG_1PNMAP20050608_094337_RGB.jpg",
+             "description": ""
+         },
+         {
+             "id": "LC81970222013202LGN00",
+             "relativePath": "applications/generic_reader/RGB/LC81970222013202LGN00.jpg",
+             "description": ""
+         } ,
+         {
+             "id": "LANDSAT_5_TM_SCENE_20050528_RGB",
+             "relativePath": "applications/generic_reader/RGB/LANDSAT 5 TM SCENE 20050528_RGB.bmp",
+             "description": ""
+         }
+     ]
+}

@@ -1,0 +1,92 @@
+{
+    "id": "LANDSAT_5_TM_SCENE_20050528_RGB",
+    "decodeQualification": "INTENDED",
+    "expectedContent": {
+        "sceneWidth": 898,
+        "sceneHeight": 559,
+        "bands": [
+            {
+                "name": "red",
+                "description": "Image component #1",
+                "geophysicalUnit": "dl",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "700.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 387,
+                        "y": 300,
+                        "value": 109.0
+                    },
+                    {
+                        "x": 666,
+                        "y": 362,
+                        "value": 51.0
+                    }
+                ]
+            },
+            {
+                "name": "green",
+                "description": "Image component #2",
+                "geophysicalUnit": "dl",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "546.1",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 46,
+                        "y": 99,
+                        "value": 51.0
+                    },
+                    {
+                        "x": 615,
+                        "y": 475,
+                        "value": 58.0
+                    }
+                ]
+            },
+            {
+                "name": "blue",
+                "description": "Image component #3",
+                "geophysicalUnit": "dl",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "435.8",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 261,
+                        "y": 143,
+                        "value": 111.0
+                    },
+                    {
+                        "x": 548,
+                        "y": 204,
+                        "value": 36.0
+                    }
+                ]
+            },
+            {
+                "name": "gray",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 493,
+                        "y": 416,
+                        "value": 51.0
+                    },
+                    {
+                        "x": 546,
+                        "y": 519,
+                        "value": 0.0
+                    }
+                ]
+            }
+        ]
+    }
+}

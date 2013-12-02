@@ -1,0 +1,39 @@
+{
+    "testProducts": [
+        {
+            "id": "calvalus_tiny99",
+            "relativePath": "applications/generic_reader/GeoTIFF/tiny99.tif",
+            "description": "product_type: CALVALUS-L3, Product description: NetCDF/CF Data Product"
+        },
+        {
+            "id": "GLOBCOVER-L4_LANDCOVER_200412-200606_V2.0_CLA",
+            "relativePath": "applications/generic_reader/GeoTIFF/GLOBCOVER-L4_LANDCOVER_200412-200606_V2.0_CLA.tif",
+            "description": "GeoTIFF data product"
+        },
+        {
+            "id": "MC_ST09_7_12_spring",
+            "relativePath": "applications/generic_reader/GeoTIFF/MC_ST09_7_12_spring.tif",
+            "description": "GeoTIFF data product"
+        },
+        {
+            "id": "L5_60m19950627",
+            "relativePath": "sensors_platforms/LANDSAT/LANDSAT_5_TM/geotiff/L5_60m19950627/L5043033_03319950627_B60.TIF",
+            "description": "UTM Zone 10 N with WGS84"
+        },
+        {
+            "id": "IDL_TIFF_file",
+            "relativePath": "applications/generic_reader/GeoTIFF/Romo.tif",
+            "description": "IDL TIFF file"
+        },
+        {
+            "id": "MERIS_300m_24_B05_Africa",
+            "relativePath": "applications/generic_reader/GeoTIFF/MERIS_300m_24_B05_Africa.tif",
+            "description": "IMAGINE GeoTIFF"
+        },
+        {
+            "id": "ESACCI-LC-Map-300m-2000-V1_0",
+            "relativePath": "applications/generic_reader/GeoTIFF/ESACCI-LC-Map-300m-2000-V1.0.tif",
+            "description": "GeoTIFF data product"
+        }
+    ]
+}

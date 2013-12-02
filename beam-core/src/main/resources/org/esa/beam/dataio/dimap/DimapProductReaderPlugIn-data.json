@@ -1,0 +1,59 @@
+{
+    "testProducts": [
+        {
+            "id": "MER_RR__2PRBCM20110802_102509_000001013105_00123_49275_0001",
+            "relativePath": "applications/generic_reader/BEAM-DIMAP/band_maths/MER_RR__2PRBCM20110802_102509_000001013105_00123_49275_0001.dim",
+            "description": "MERIS Reduced Resolution Geophysical Product, SOFTWARE_VER: MEGS/8.0 L"
+        },
+        {
+            "id": "CHRIS_AM_080805_A34C_41_gcp_geocoding",
+            "relativePath": "applications/generic_reader/BEAM-DIMAP/gcp_geo-coding/CHRIS_AM_080805_A34C_41_gcp_geocoding.dim",
+            "description": "Product type: CHRIS_M1"
+        },
+        {
+            "id": "L2_of_MER_FSG_1PNBCG20060411_124001",
+            "relativePath": "applications/generic_reader/BEAM-DIMAP/pixel_geo-coding/L2_of_MER_FSG_1PNBCG20060411_124001_000001712046_00410_21506_0001.dim",
+            "description": "Meris.CorrectRadiometry, the product uses a pixel based geo-coding"
+        },
+        {
+            "id": "MER_FSG_2PNMAP20050528_021222_pix",
+            "relativePath": "applications/generic_reader/BEAM-DIMAP/pixel_geo-coding/MER_FSG_2PNMAP20050528_021222_000000732037_00361_16948_pix.dim",
+            "description": "MERIS Full Resolution Full Swath Geo/Ortho-corrected TOA Reflectance, the product uses a pixel based geo-coding"
+        },
+        {
+            "id": "MER_FR__2PNUPA20030808_073810_beam_3_1",
+            "relativePath": "applications/generic_reader/BEAM-DIMAP/previous_beam_version/MER_FR__2PNUPA20030808_073810_000000982018_00450_07518_5912_beam_3_1.dim",
+            "description": "exported by BEAM3.1,"
+        },
+        {
+            "id": "subset_of_MER_RR__1_test_beam_4_0",
+            "relativePath": "applications/generic_reader/BEAM-DIMAP/previous_beam_version/subset_of_MER_RR__1_test_beam_4_0.dim",
+            "description": "exported by BEAM4.0"
+        },
+        {
+            "id": "reproj_geo_lat_long_MER_RR__1_test",
+            "relativePath": "applications/generic_reader/BEAM-DIMAP/reprojection/reproj_geo_lat_long_MER_RR__1_test.dim",
+            "description": "The product uses a geo-coding based on a cartographic map CRS"
+        },
+        {
+            "id": "proj_UTM_MER_RR__2CPLRA",
+            "relativePath": "applications/generic_reader/BEAM-DIMAP/reprojection/proj_UTM_MER_RR__2CPLRA.dim",
+            "description": "UTM Zone 33"
+        },
+        {
+            "id": "subset_1_LANDSAT_5_TM",
+            "relativePath": "applications/generic_reader/BEAM-DIMAP/subset/subset_1_LANDSAT 5 TM SCENE 20060702.dim",
+            "description": ""
+        },
+        {
+            "id": "MER_RR__1PQBCM20030502_221113_16pixels",
+            "relativePath": "applications/generic_reader/BEAM-DIMAP/subset/MER_RR__1PQBCM20030502_221113_000002002016_00058_06124_0743_middle_16pixels.dim",
+            "description": "180°"
+        },
+        {
+            "id": "MER_RR__2PNMAP20070729_shape_pin",
+            "relativePath": "applications/generic_reader/BEAM-DIMAP/vector_data/MER_RR__2PNMAP20070729_shape_pin.dim",
+            "description": ""
+        }
+    ]
+}

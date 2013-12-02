@@ -1,0 +1,166 @@
+{
+    "id": "MYD15A2_A2012113_h08v06_005_2012122082139",
+    "decodeQualification": "INTENDED",
+    "expectedContent": {
+        "sceneWidth": 1200,
+        "sceneHeight": 1200,
+        "startTime": "21-APR-2012 22:00:00.000000",
+        "endTime": "29-APR-2012 21:59:59.000000",
+        "geoCoding": {
+            "coordinates": [
+                {
+                    "x": 517.0,
+                    "y": 645.0,
+                    "lat": 24.629168,
+                    "lon": -105.273155
+                },
+                {
+                    "x": 890.0,
+                    "y": 778.0,
+                    "lat": 23.520832,
+                    "lon": -100.97718
+                }
+            ],
+            "reverseAccuracy": 0.01,
+            "geoCodingClass": "org.esa.beam.framework.datamodel.MapGeoCoding"
+        },
+        "bands": [
+            {
+                "name": "Fpar_1km",
+                "description": "MYD15A2 MODIS/Aqua Gridded 1KM FPAR (8-day composite)",
+                "geophysicalUnit": "Percent",
+                "noDataValue": "2.5499999430030584",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 62,
+                        "y": 213,
+                        "value": 0.13
+                    },
+                    {
+                        "x": 822,
+                        "y": 1020,
+                        "value": 0.24
+                    }
+                ]
+            },
+            {
+                "name": "Lai_1km",
+                "description": "MYD15A2 MODIS/Aqua Gridded 1KM Leaf Area Index LAI (8-day composite)",
+                "geophysicalUnit": "m^2/m^2",
+                "noDataValue": "25.50000037997961",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 349,
+                        "y": 308,
+                        "value": 0.4
+                    },
+                    {
+                        "x": 732,
+                        "y": 438,
+                        "value": 0.2
+                    }
+                ]
+            },
+            {
+                "name": "FparLai_QC",
+                "description": "MYD15A2 MODIS/Aqua QC for FPAR and LAI (8-day composite)",
+                "geophysicalUnit": "class-flag",
+                "noDataValue": "255.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 660,
+                        "y": 894,
+                        "value": "NaN"
+                    },
+                    {
+                        "x": 730,
+                        "y": 1114,
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "FparExtra_QC",
+                "description": "MYD15A2 MODIS/Aqua pass-through QC for FPAR and LAI (8-day composite)",
+                "geophysicalUnit": "class-flag",
+                "noDataValue": "255.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 189,
+                        "y": 799,
+                        "value": "NaN"
+                    },
+                    {
+                        "x": 622,
+                        "y": 1096,
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "FparStdDev_1km",
+                "description": "MYD15A2 MODIS/Aqua Gridded 1KM Standard Deviation FPAR (8-day composite)",
+                "geophysicalUnit": "Percent",
+                "noDataValue": "2.5499999430030584",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 907,
+                        "y": 581,
+                        "value": 0.07
+                    },
+                    {
+                        "x": 1140,
+                        "y": 583,
+                        "value": 0.02
+                    }
+                ]
+            },
+            {
+                "name": "LaiStdDev_1km",
+                "description": "MYD15A2 MODIS/Aqua Gridded 1KM Standard Deviation Leaf Area Index (8-day composite)",
+                "geophysicalUnit": "m^2/m^2",
+                "noDataValue": "25.50000037997961",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 408,
+                        "y": 1079,
+                        "value": 0.2
+                    },
+                    {
+                        "x": 11,
+                        "y": 564,
+                        "value": "NaN"
+                    }
+                ]
+            }
+        ],
+        "metadata": [
+            {
+                "path": "GLOBAL_METADATA/MOD15A2_FparLai_QC_DOC",
+                "value": "\nFparLai_QC 5 BITFIELDS IN 8 BITWORD\nMODLAND_QC START 0 END 0 VALIDS 2\nMODLAND_QC   0 = Good Quality (main algorithm with or without saturation)\nMODLAND_QC   1 = Other Quality (back-up algorithm or fill value)\nSENSOR START 1 END 1 VALIDS 2\nSENSOR       0  = Terra\nSENSOR       1  = Aqua\nDEADDETECTOR START 2 END 2 VALIDS 2\nDEADDETECTOR 0 = Detectors apparently fine for up to 50% of channels 1,2\nDEADDETECTOR 1 = Dead detectors caused >50% adjacent detector retrieval\nCLOUDSTATE START 3 END 4 VALIDS 4 (this inherited from Aggregate_QC bits {0,1} cloud state)\nCLOUDSTATE   00 = 0 Significant clouds NOT present (clear)\nCLOUDSTATE   01 = 1 Significant clouds WERE present\nCLOUDSTATE   10 = 2 Mixed cloud present on pixel\nCLOUDSTATE   11 = 3 Cloud state not defined,assumed clear\nSCF_QC START 5 END 7 VALIDS 5\nSCF_QC       000=0 Main (RT) algorithm used, best result possible (no saturation)\nSCF_QC       001=1 Main (RT) algorithm used, saturation occured. Good, very usable.\nSCF_QC       010=2 Main algorithm failed due to bad geometry, empirical algorithm used\nSCF_QC       011=3 Main algorithm faild due to problems other than geometry, empirical algorithm used\nSCF_QC       100=4 Pixel not produced at all, value coudn't be retrieved (possible reasons: bad L1B data, unusable MODAGAGG data)\n"
+            },
+            {
+                "path": "GLOBAL_METADATA/HDF4_Version",
+                "value": "4.1.5 (NCSA HDF Version 4.1 Release 5, November 5, 2001)"
+            }
+        ]
+    }
+}

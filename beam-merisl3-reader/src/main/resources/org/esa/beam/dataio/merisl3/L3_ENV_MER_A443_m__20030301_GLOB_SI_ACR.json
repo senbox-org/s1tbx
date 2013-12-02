@@ -1,0 +1,152 @@
+{
+    "id": "L3_ENV_MER_A443_m__20030301_GLOB_SI_ACR",
+    "decodeQualification": "INTENDED",
+    "expectedContent": {
+        "sceneWidth": 4320,
+        "sceneHeight": 2160,
+        "geoCoding": {
+            "coordinates": [
+                {
+                    "x": 1863.0,
+                    "y": 1161.0,
+                    "lat": -6.750003,
+                    "lon": -24.749996
+                },
+                {
+                    "x": 3207.0,
+                    "y": 1401.0,
+                    "lat": -26.750004,
+                    "lon": 87.25001
+                }
+            ],
+            "reverseAccuracy": 0.01,
+            "geoCodingClass": "org.esa.beam.framework.datamodel.CrsGeoCoding"
+        },
+        "bands": [
+            {
+                "name": "mean",
+                "description": "Arithmetic mean of the geophysical variable",
+                "noDataValue": "-0.06729449071281124",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 225,
+                        "y": 384,
+                        "value": "NaN"
+                    },
+                    {
+                        "x": 2959,
+                        "y": 1837,
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "stdev",
+                "description": "Standard deviation of the geophysical variable",
+                "noDataValue": "-0.19047264089022065",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 1256,
+                        "y": 554,
+                        "value": "NaN"
+                    },
+                    {
+                        "x": 2637,
+                        "y": 789,
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "min",
+                "description": "Minimum value of the geophysical variable",
+                "noDataValue": "-0.06729449071281124",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 2376,
+                        "y": 1609,
+                        "value": "NaN"
+                    },
+                    {
+                        "x": 2628,
+                        "y": 2005,
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "max",
+                "description": "Maximum value of the geophysical variable",
+                "noDataValue": "-0.06729450525017455",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 683,
+                        "y": 1438,
+                        "value": "NaN"
+                    },
+                    {
+                        "x": 2242,
+                        "y": 1973,
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "count",
+                "description": "Number of input level 2 data involved in each bin",
+                "noDataValue": "-21.378010435029864",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 3266,
+                        "y": 1046,
+                        "value": "NaN"
+                    },
+                    {
+                        "x": 4107,
+                        "y": 1049,
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "col_index",
+                "description": "Zero-based column index in the global ISIN grid",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 1470,
+                        "y": 1942,
+                        "value": 457.0
+                    },
+                    {
+                        "x": 43,
+                        "y": 1016,
+                        "value": 43.0
+                    }
+                ]
+            }
+        ],
+        "metadata": [
+            null,
+            null
+        ]
+    }
+}

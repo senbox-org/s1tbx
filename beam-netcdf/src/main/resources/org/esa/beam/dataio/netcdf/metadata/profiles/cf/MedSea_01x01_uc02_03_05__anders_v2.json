@@ -1,0 +1,206 @@
+{
+    "id": "MedSea_01x01_uc02_03_05__anders_v2",
+    "decodeQualification": "INTENDED",
+    "expectedContent": {
+        "sceneWidth": 1121,
+        "sceneHeight": 1137,
+        "geoCoding": {
+            "coordinates": [
+                {
+                    "x": 483.0,
+                    "y": 611.0,
+                    "lat": 34.50199,
+                    "lon": 27.705713
+                },
+                {
+                    "x": 832.0,
+                    "y": 737.0,
+                    "lat": 32.40113,
+                    "lon": 31.101767
+                }
+            ],
+            "reverseAccuracy": 0.5,
+            "geoCodingClass": "org.esa.beam.framework.datamodel.PixelGeoCoding"
+        },
+        "bands": [
+            {
+                "name": "lat",
+                "description": "Latitude",
+                "geophysicalUnit": "degrees_north",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 58,
+                        "y": 202,
+                        "value": 39.55676
+                    },
+                    {
+                        "x": 767,
+                        "y": 967,
+                        "value": 30.178345
+                    }
+                ]
+            },
+            {
+                "name": "lon",
+                "description": "Longitude",
+                "geophysicalUnit": "degrees_east",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 326,
+                        "y": 292,
+                        "value": 26.851925
+                    },
+                    {
+                        "x": 684,
+                        "y": 415,
+                        "value": 30.54701
+                    }
+                ]
+            },
+            {
+                "name": "aot_550",
+                "description": "aerosol optical thickness at 550 nm",
+                "geophysicalUnit": "1",
+                "noDataValue": "-1.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 616,
+                        "y": 847,
+                        "value": 0.22
+                    },
+                    {
+                        "x": 681,
+                        "y": 1055,
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "e_aot_550",
+                "description": "error aerosol optical thickness",
+                "geophysicalUnit": "1",
+                "noDataValue": "100.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 177,
+                        "y": 757,
+                        "value": "NaN"
+                    },
+                    {
+                        "x": 581,
+                        "y": 1038,
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "angstroem_440_681",
+                "description": "angstroem coefficient based on 440nm and 681 nm",
+                "geophysicalUnit": "1",
+                "noDataValue": "-1.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 847,
+                        "y": 551,
+                        "value": "NaN"
+                    },
+                    {
+                        "x": 1065,
+                        "y": 552,
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "e_angstroem",
+                "description": "error of angstroem coefficient",
+                "geophysicalUnit": "1",
+                "noDataValue": "100.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 381,
+                        "y": 1022,
+                        "value": "NaN"
+                    },
+                    {
+                        "x": 11,
+                        "y": 535,
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "cost",
+                "description": "cost function",
+                "geophysicalUnit": "1/sr",
+                "noDataValue": "100.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 367,
+                        "y": 224,
+                        "value": "NaN"
+                    },
+                    {
+                        "x": 306,
+                        "y": 49,
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "nfit",
+                "description": "number of fitting channels",
+                "geophysicalUnit": "1",
+                "noDataValue": "-1.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 1089,
+                        "y": 687,
+                        "value": "NaN"
+                    },
+                    {
+                        "x": 641,
+                        "y": 814,
+                        "value": 1.0
+                    }
+                ]
+            }
+        ],
+        "metadata": [
+            {
+                "path": "Variable_Attributes/aot_550/units",
+                "value": "1"
+            },
+            {
+                "path": "Variable_Attributes/lat/units",
+                "value": "degrees_north"
+            }
+        ]
+    }
+}

@@ -1,0 +1,2247 @@
+{
+    "id": "CHRIS_KH_080725_A27B_41",
+    "decodeQualification": "intended",
+    "expectedContent": {
+        "sceneWidth": 370,
+        "sceneHeight": 748,
+        "startTime": "25-JUL-2008 06:38:58.000000",
+        "endTime": "25-JUL-2008 06:38:58.000000",
+        "flagCodings": [
+            {
+                "name": "CHRIS",
+                "samples": [
+                    {
+                        "name": "dropout",
+                        "value": 1,
+                        "description": "Dropout pixel"
+                    },
+                    {
+                        "name": "saturated",
+                        "value": 2,
+                        "description": "Saturated pixel"
+                    },
+                    {
+                        "name": "dropout_corrected",
+                        "value": 256,
+                        "description": "Corrected dropout pixel"
+                    }
+                ]
+            }
+        ],
+        "bands": [
+            {
+                "name": "radiance_1",
+                "description": "Radiance for spectral band 1",
+                "geophysicalUnit": "microWatts/nm/m^2/str",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "442.3",
+                "spectralBandwidth": "10.5",
+                "expectedPixels": [
+                    {
+                        "x": 159,
+                        "y": 402,
+                        "value": 75237.0
+                    },
+                    {
+                        "x": 274,
+                        "y": 485,
+                        "value": 68523.0
+                    }
+                ]
+            },
+            {
+                "name": "radiance_2",
+                "description": "Radiance for spectral band 2",
+                "geophysicalUnit": "microWatts/nm/m^2/str",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "490.1",
+                "spectralBandwidth": "11.6",
+                "expectedPixels": [
+                    {
+                        "x": 19,
+                        "y": 133,
+                        "value": 57976.0
+                    },
+                    {
+                        "x": 253,
+                        "y": 636,
+                        "value": 64737.0
+                    }
+                ]
+            },
+            {
+                "name": "radiance_3",
+                "description": "Radiance for spectral band 3",
+                "geophysicalUnit": "microWatts/nm/m^2/str",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "529.9",
+                "spectralBandwidth": "11.5",
+                "expectedPixels": [
+                    {
+                        "x": 107,
+                        "y": 192,
+                        "value": 61441.0
+                    },
+                    {
+                        "x": 225,
+                        "y": 273,
+                        "value": 68015.0
+                    }
+                ]
+            },
+            {
+                "name": "radiance_4",
+                "description": "Radiance for spectral band 4",
+                "geophysicalUnit": "microWatts/nm/m^2/str",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "551.2",
+                "spectralBandwidth": "12.9",
+                "expectedPixels": [
+                    {
+                        "x": 203,
+                        "y": 557,
+                        "value": 59551.0
+                    },
+                    {
+                        "x": 225,
+                        "y": 694,
+                        "value": 79109.0
+                    }
+                ]
+            },
+            {
+                "name": "radiance_5",
+                "description": "Radiance for spectral band 5",
+                "geophysicalUnit": "microWatts/nm/m^2/str",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "569.8",
+                "spectralBandwidth": "10.7",
+                "expectedPixels": [
+                    {
+                        "x": 58,
+                        "y": 498,
+                        "value": 57511.0
+                    },
+                    {
+                        "x": 192,
+                        "y": 683,
+                        "value": 65959.0
+                    }
+                ]
+            },
+            {
+                "name": "radiance_6",
+                "description": "Radiance for spectral band 6",
+                "geophysicalUnit": "microWatts/nm/m^2/str",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "631.2",
+                "spectralBandwidth": "14.1",
+                "expectedPixels": [
+                    {
+                        "x": 279,
+                        "y": 362,
+                        "value": 40661.0
+                    },
+                    {
+                        "x": 351,
+                        "y": 363,
+                        "value": 50126.0
+                    }
+                ]
+            },
+            {
+                "name": "radiance_7",
+                "description": "Radiance for spectral band 7",
+                "geophysicalUnit": "microWatts/nm/m^2/str",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "660.9",
+                "spectralBandwidth": "15.7",
+                "expectedPixels": [
+                    {
+                        "x": 125,
+                        "y": 672,
+                        "value": 62383.0
+                    },
+                    {
+                        "x": 3,
+                        "y": 352,
+                        "value": 24798.0
+                    }
+                ]
+            },
+            {
+                "name": "radiance_8",
+                "description": "Radiance for spectral band 8",
+                "geophysicalUnit": "microWatts/nm/m^2/str",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "674.3",
+                "spectralBandwidth": "11.0",
+                "expectedPixels": [
+                    {
+                        "x": 121,
+                        "y": 147,
+                        "value": 54949.0
+                    },
+                    {
+                        "x": 101,
+                        "y": 32,
+                        "value": 24766.0
+                    }
+                ]
+            },
+            {
+                "name": "radiance_9",
+                "description": "Radiance for spectral band 9",
+                "geophysicalUnit": "microWatts/nm/m^2/str",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "685.5",
+                "spectralBandwidth": "11.3",
+                "expectedPixels": [
+                    {
+                        "x": 359,
+                        "y": 452,
+                        "value": 48723.0
+                    },
+                    {
+                        "x": 211,
+                        "y": 536,
+                        "value": 30183.0
+                    }
+                ]
+            },
+            {
+                "name": "radiance_10",
+                "description": "Radiance for spectral band 10",
+                "geophysicalUnit": "microWatts/nm/m^2/str",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "697.2",
+                "spectralBandwidth": "11.9",
+                "expectedPixels": [
+                    {
+                        "x": 85,
+                        "y": 372,
+                        "value": 51798.0
+                    },
+                    {
+                        "x": 118,
+                        "y": 540,
+                        "value": 37511.0
+                    }
+                ]
+            },
+            {
+                "name": "radiance_11",
+                "description": "Radiance for spectral band 11",
+                "geophysicalUnit": "microWatts/nm/m^2/str",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "706.2",
+                "spectralBandwidth": "6.1",
+                "expectedPixels": [
+                    {
+                        "x": 132,
+                        "y": 372,
+                        "value": 59977.0
+                    },
+                    {
+                        "x": 149,
+                        "y": 330,
+                        "value": 65192.0
+                    }
+                ]
+            },
+            {
+                "name": "radiance_12",
+                "description": "Radiance for spectral band 12",
+                "geophysicalUnit": "microWatts/nm/m^2/str",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "712.3",
+                "spectralBandwidth": "6.2",
+                "expectedPixels": [
+                    {
+                        "x": 212,
+                        "y": 68,
+                        "value": 58515.0
+                    },
+                    {
+                        "x": 238,
+                        "y": 11,
+                        "value": 57163.0
+                    }
+                ]
+            },
+            {
+                "name": "radiance_13",
+                "description": "Radiance for spectral band 13",
+                "geophysicalUnit": "microWatts/nm/m^2/str",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "718.6",
+                "spectralBandwidth": "6.3",
+                "expectedPixels": [
+                    {
+                        "x": 360,
+                        "y": 274,
+                        "value": 64820.0
+                    },
+                    {
+                        "x": 351,
+                        "y": 707,
+                        "value": 49672.0
+                    }
+                ]
+            },
+            {
+                "name": "radiance_14",
+                "description": "Radiance for spectral band 14",
+                "geophysicalUnit": "microWatts/nm/m^2/str",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "725.0",
+                "spectralBandwidth": "6.5",
+                "expectedPixels": [
+                    {
+                        "x": 41,
+                        "y": 337,
+                        "value": 54846.0
+                    },
+                    {
+                        "x": 211,
+                        "y": 420,
+                        "value": 52302.0
+                    }
+                ]
+            },
+            {
+                "name": "radiance_15",
+                "description": "Radiance for spectral band 15",
+                "geophysicalUnit": "microWatts/nm/m^2/str",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "731.5",
+                "spectralBandwidth": "6.5",
+                "expectedPixels": [
+                    {
+                        "x": 187,
+                        "y": 390,
+                        "value": 62544.0
+                    },
+                    {
+                        "x": 166,
+                        "y": 434,
+                        "value": 60695.0
+                    }
+                ]
+            },
+            {
+                "name": "radiance_16",
+                "description": "Radiance for spectral band 16",
+                "geophysicalUnit": "microWatts/nm/m^2/str",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "738.1",
+                "spectralBandwidth": "6.7",
+                "expectedPixels": [
+                    {
+                        "x": 5,
+                        "y": 317,
+                        "value": 71828.0
+                    },
+                    {
+                        "x": 25,
+                        "y": 742,
+                        "value": 70923.0
+                    }
+                ]
+            },
+            {
+                "name": "radiance_17",
+                "description": "Radiance for spectral band 17",
+                "geophysicalUnit": "microWatts/nm/m^2/str",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "744.9",
+                "spectralBandwidth": "6.8",
+                "expectedPixels": [
+                    {
+                        "x": 109,
+                        "y": 557,
+                        "value": 47656.0
+                    },
+                    {
+                        "x": 297,
+                        "y": 550,
+                        "value": 86964.0
+                    }
+                ]
+            },
+            {
+                "name": "radiance_18",
+                "description": "Radiance for spectral band 18",
+                "geophysicalUnit": "microWatts/nm/m^2/str",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "751.8",
+                "spectralBandwidth": "7.0",
+                "expectedPixels": [
+                    {
+                        "x": 308,
+                        "y": 707,
+                        "value": 95237.0
+                    },
+                    {
+                        "x": 91,
+                        "y": 397,
+                        "value": 83247.0
+                    }
+                ]
+            },
+            {
+                "name": "radiance_19",
+                "description": "Radiance for spectral band 19",
+                "geophysicalUnit": "microWatts/nm/m^2/str",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "758.7",
+                "spectralBandwidth": "7.1",
+                "expectedPixels": [
+                    {
+                        "x": 226,
+                        "y": 194,
+                        "value": 59282.0
+                    },
+                    {
+                        "x": 204,
+                        "y": 112,
+                        "value": 60381.0
+                    }
+                ]
+            },
+            {
+                "name": "radiance_20",
+                "description": "Radiance for spectral band 20",
+                "geophysicalUnit": "microWatts/nm/m^2/str",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "765.9",
+                "spectralBandwidth": "7.2",
+                "expectedPixels": [
+                    {
+                        "x": 175,
+                        "y": 418,
+                        "value": 45501.0
+                    },
+                    {
+                        "x": 35,
+                        "y": 635,
+                        "value": 51502.0
+                    }
+                ]
+            },
+            {
+                "name": "radiance_21",
+                "description": "Radiance for spectral band 21",
+                "geophysicalUnit": "microWatts/nm/m^2/str",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "773.2",
+                "spectralBandwidth": "7.4",
+                "expectedPixels": [
+                    {
+                        "x": 35,
+                        "y": 58,
+                        "value": 86351.0
+                    },
+                    {
+                        "x": 168,
+                        "y": 505,
+                        "value": 88981.0
+                    }
+                ]
+            },
+            {
+                "name": "radiance_22",
+                "description": "Radiance for spectral band 22",
+                "geophysicalUnit": "microWatts/nm/m^2/str",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "784.3",
+                "spectralBandwidth": "15.0",
+                "expectedPixels": [
+                    {
+                        "x": 172,
+                        "y": 669,
+                        "value": 85621.0
+                    },
+                    {
+                        "x": 320,
+                        "y": 448,
+                        "value": 71204.0
+                    }
+                ]
+            },
+            {
+                "name": "radiance_23",
+                "description": "Radiance for spectral band 23",
+                "geophysicalUnit": "microWatts/nm/m^2/str",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "795.9",
+                "spectralBandwidth": "7.8",
+                "expectedPixels": [
+                    {
+                        "x": 355,
+                        "y": 284,
+                        "value": 79838.0
+                    },
+                    {
+                        "x": 32,
+                        "y": 398,
+                        "value": 71703.0
+                    }
+                ]
+            },
+            {
+                "name": "radiance_24",
+                "description": "Radiance for spectral band 24",
+                "geophysicalUnit": "microWatts/nm/m^2/str",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "803.7",
+                "spectralBandwidth": "8.0",
+                "expectedPixels": [
+                    {
+                        "x": 272,
+                        "y": 445,
+                        "value": 83762.0
+                    },
+                    {
+                        "x": 361,
+                        "y": 139,
+                        "value": 63337.0
+                    }
+                ]
+            },
+            {
+                "name": "radiance_25",
+                "description": "Radiance for spectral band 25",
+                "geophysicalUnit": "microWatts/nm/m^2/str",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "867.3",
+                "spectralBandwidth": "18.1",
+                "expectedPixels": [
+                    {
+                        "x": 170,
+                        "y": 195,
+                        "value": 76679.0
+                    },
+                    {
+                        "x": 84,
+                        "y": 484,
+                        "value": 75239.0
+                    }
+                ]
+            },
+            {
+                "name": "radiance_26",
+                "description": "Radiance for spectral band 26",
+                "geophysicalUnit": "microWatts/nm/m^2/str",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "885.6",
+                "spectralBandwidth": "18.7",
+                "expectedPixels": [
+                    {
+                        "x": 236,
+                        "y": 327,
+                        "value": 57325.0
+                    },
+                    {
+                        "x": 196,
+                        "y": 424,
+                        "value": 58359.0
+                    }
+                ]
+            },
+            {
+                "name": "radiance_27",
+                "description": "Radiance for spectral band 27",
+                "geophysicalUnit": "microWatts/nm/m^2/str",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "899.9",
+                "spectralBandwidth": "9.5",
+                "expectedPixels": [
+                    {
+                        "x": 146,
+                        "y": 159,
+                        "value": 49916.0
+                    },
+                    {
+                        "x": 103,
+                        "y": 664,
+                        "value": 49351.0
+                    }
+                ]
+            },
+            {
+                "name": "radiance_28",
+                "description": "Radiance for spectral band 28",
+                "geophysicalUnit": "microWatts/nm/m^2/str",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "909.5",
+                "spectralBandwidth": "9.9",
+                "expectedPixels": [
+                    {
+                        "x": 349,
+                        "y": 433,
+                        "value": 47486.0
+                    },
+                    {
+                        "x": 280,
+                        "y": 245,
+                        "value": 27736.0
+                    }
+                ]
+            },
+            {
+                "name": "radiance_29",
+                "description": "Radiance for spectral band 29",
+                "geophysicalUnit": "microWatts/nm/m^2/str",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "919.3",
+                "spectralBandwidth": "9.8",
+                "expectedPixels": [
+                    {
+                        "x": 207,
+                        "y": 217,
+                        "value": 27137.0
+                    },
+                    {
+                        "x": 306,
+                        "y": 651,
+                        "value": 38314.0
+                    }
+                ]
+            },
+            {
+                "name": "radiance_30",
+                "description": "Radiance for spectral band 30",
+                "geophysicalUnit": "microWatts/nm/m^2/str",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "929.2",
+                "spectralBandwidth": "10.0",
+                "expectedPixels": [
+                    {
+                        "x": 40,
+                        "y": 663,
+                        "value": 28206.0
+                    },
+                    {
+                        "x": 127,
+                        "y": 608,
+                        "value": 26265.0
+                    }
+                ]
+            },
+            {
+                "name": "radiance_31",
+                "description": "Radiance for spectral band 31",
+                "geophysicalUnit": "microWatts/nm/m^2/str",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "944.3",
+                "spectralBandwidth": "20.4",
+                "expectedPixels": [
+                    {
+                        "x": 67,
+                        "y": 517,
+                        "value": 12329.0
+                    },
+                    {
+                        "x": 219,
+                        "y": 410,
+                        "value": 16968.0
+                    }
+                ]
+            },
+            {
+                "name": "radiance_32",
+                "description": "Radiance for spectral band 32",
+                "geophysicalUnit": "microWatts/nm/m^2/str",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "959.8",
+                "spectralBandwidth": "10.4",
+                "expectedPixels": [
+                    {
+                        "x": 76,
+                        "y": 228,
+                        "value": 20958.0
+                    },
+                    {
+                        "x": 151,
+                        "y": 646,
+                        "value": 23445.0
+                    }
+                ]
+            },
+            {
+                "name": "radiance_33",
+                "description": "Radiance for spectral band 33",
+                "geophysicalUnit": "microWatts/nm/m^2/str",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "970.2",
+                "spectralBandwidth": "10.5",
+                "expectedPixels": [
+                    {
+                        "x": 259,
+                        "y": 671,
+                        "value": 27709.0
+                    },
+                    {
+                        "x": 110,
+                        "y": 742,
+                        "value": 28652.0
+                    }
+                ]
+            },
+            {
+                "name": "radiance_34",
+                "description": "Radiance for spectral band 34",
+                "geophysicalUnit": "microWatts/nm/m^2/str",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "980.7",
+                "spectralBandwidth": "10.8",
+                "expectedPixels": [
+                    {
+                        "x": 202,
+                        "y": 87,
+                        "value": 41528.0
+                    },
+                    {
+                        "x": 72,
+                        "y": 419,
+                        "value": 37430.0
+                    }
+                ]
+            },
+            {
+                "name": "radiance_35",
+                "description": "Radiance for spectral band 35",
+                "geophysicalUnit": "microWatts/nm/m^2/str",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "991.5",
+                "spectralBandwidth": "10.7",
+                "expectedPixels": [
+                    {
+                        "x": 169,
+                        "y": 96,
+                        "value": 53881.0
+                    },
+                    {
+                        "x": 306,
+                        "y": 428,
+                        "value": 38815.0
+                    }
+                ]
+            },
+            {
+                "name": "radiance_36",
+                "description": "Radiance for spectral band 36",
+                "geophysicalUnit": "microWatts/nm/m^2/str",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "1002.2",
+                "spectralBandwidth": "10.8",
+                "expectedPixels": [
+                    {
+                        "x": 37,
+                        "y": 506,
+                        "value": 41507.0
+                    },
+                    {
+                        "x": 270,
+                        "y": 353,
+                        "value": 54106.0
+                    }
+                ]
+            },
+            {
+                "name": "radiance_37",
+                "description": "Radiance for spectral band 37",
+                "geophysicalUnit": "microWatts/nm/m^2/str",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "1024.0",
+                "spectralBandwidth": "33.0",
+                "expectedPixels": [
+                    {
+                        "x": 52,
+                        "y": 49,
+                        "value": 61440.0
+                    },
+                    {
+                        "x": 311,
+                        "y": 224,
+                        "value": 77113.0
+                    }
+                ]
+            },
+            {
+                "name": "mask_1",
+                "description": "Quality mask for spectral band 1",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "442.3",
+                "spectralBandwidth": "10.5",
+                "expectedPixels": [
+                    {
+                        "x": 219,
+                        "y": 726,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 287,
+                        "y": 20,
+                        "value": 0.0
+                    }
+                ]
+            },
+            {
+                "name": "mask_2",
+                "description": "Quality mask for spectral band 2",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "490.1",
+                "spectralBandwidth": "11.6",
+                "expectedPixels": [
+                    {
+                        "x": 80,
+                        "y": 184,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 118,
+                        "y": 144,
+                        "value": 0.0
+                    }
+                ]
+            },
+            {
+                "name": "mask_3",
+                "description": "Quality mask for spectral band 3",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "529.9",
+                "spectralBandwidth": "11.5",
+                "expectedPixels": [
+                    {
+                        "x": 104,
+                        "y": 660,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 369,
+                        "y": 56,
+                        "value": 0.0
+                    }
+                ]
+            },
+            {
+                "name": "mask_4",
+                "description": "Quality mask for spectral band 4",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "551.2",
+                "spectralBandwidth": "12.9",
+                "expectedPixels": [
+                    {
+                        "x": 303,
+                        "y": 375,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 23,
+                        "y": 288,
+                        "value": 0.0
+                    }
+                ]
+            },
+            {
+                "name": "mask_5",
+                "description": "Quality mask for spectral band 5",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "569.8",
+                "spectralBandwidth": "10.7",
+                "expectedPixels": [
+                    {
+                        "x": 102,
+                        "y": 435,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 343,
+                        "y": 103,
+                        "value": 0.0
+                    }
+                ]
+            },
+            {
+                "name": "mask_6",
+                "description": "Quality mask for spectral band 6",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "631.2",
+                "spectralBandwidth": "14.1",
+                "expectedPixels": [
+                    {
+                        "x": 38,
+                        "y": 108,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 326,
+                        "y": 79,
+                        "value": 0.0
+                    }
+                ]
+            },
+            {
+                "name": "mask_7",
+                "description": "Quality mask for spectral band 7",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "660.9",
+                "spectralBandwidth": "15.7",
+                "expectedPixels": [
+                    {
+                        "x": 136,
+                        "y": 659,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 216,
+                        "y": 430,
+                        "value": 0.0
+                    }
+                ]
+            },
+            {
+                "name": "mask_8",
+                "description": "Quality mask for spectral band 8",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "674.3",
+                "spectralBandwidth": "11.0",
+                "expectedPixels": [
+                    {
+                        "x": 124,
+                        "y": 243,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 138,
+                        "y": 640,
+                        "value": 0.0
+                    }
+                ]
+            },
+            {
+                "name": "mask_9",
+                "description": "Quality mask for spectral band 9",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "685.5",
+                "spectralBandwidth": "11.3",
+                "expectedPixels": [
+                    {
+                        "x": 120,
+                        "y": 512,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 238,
+                        "y": 505,
+                        "value": 0.0
+                    }
+                ]
+            },
+            {
+                "name": "mask_10",
+                "description": "Quality mask for spectral band 10",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "697.2",
+                "spectralBandwidth": "11.9",
+                "expectedPixels": [
+                    {
+                        "x": 196,
+                        "y": 97,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 171,
+                        "y": 598,
+                        "value": 0.0
+                    }
+                ]
+            },
+            {
+                "name": "mask_11",
+                "description": "Quality mask for spectral band 11",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "706.2",
+                "spectralBandwidth": "6.1",
+                "expectedPixels": [
+                    {
+                        "x": 296,
+                        "y": 674,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 9,
+                        "y": 522,
+                        "value": 0.0
+                    }
+                ]
+            },
+            {
+                "name": "mask_12",
+                "description": "Quality mask for spectral band 12",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "712.3",
+                "spectralBandwidth": "6.2",
+                "expectedPixels": [
+                    {
+                        "x": 328,
+                        "y": 430,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 235,
+                        "y": 678,
+                        "value": 0.0
+                    }
+                ]
+            },
+            {
+                "name": "mask_13",
+                "description": "Quality mask for spectral band 13",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "718.6",
+                "spectralBandwidth": "6.3",
+                "expectedPixels": [
+                    {
+                        "x": 363,
+                        "y": 241,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 132,
+                        "y": 4,
+                        "value": 0.0
+                    }
+                ]
+            },
+            {
+                "name": "mask_14",
+                "description": "Quality mask for spectral band 14",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "725.0",
+                "spectralBandwidth": "6.5",
+                "expectedPixels": [
+                    {
+                        "x": 310,
+                        "y": 425,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 218,
+                        "y": 297,
+                        "value": 0.0
+                    }
+                ]
+            },
+            {
+                "name": "mask_15",
+                "description": "Quality mask for spectral band 15",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "731.5",
+                "spectralBandwidth": "6.5",
+                "expectedPixels": [
+                    {
+                        "x": 146,
+                        "y": 739,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 84,
+                        "y": 536,
+                        "value": 0.0
+                    }
+                ]
+            },
+            {
+                "name": "mask_16",
+                "description": "Quality mask for spectral band 16",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "738.1",
+                "spectralBandwidth": "6.7",
+                "expectedPixels": [
+                    {
+                        "x": 347,
+                        "y": 215,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 116,
+                        "y": 637,
+                        "value": 0.0
+                    }
+                ]
+            },
+            {
+                "name": "mask_17",
+                "description": "Quality mask for spectral band 17",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "744.9",
+                "spectralBandwidth": "6.8",
+                "expectedPixels": [
+                    {
+                        "x": 121,
+                        "y": 395,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 132,
+                        "y": 598,
+                        "value": 0.0
+                    }
+                ]
+            },
+            {
+                "name": "mask_18",
+                "description": "Quality mask for spectral band 18",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "751.8",
+                "spectralBandwidth": "7.0",
+                "expectedPixels": [
+                    {
+                        "x": 207,
+                        "y": 163,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 35,
+                        "y": 526,
+                        "value": 0.0
+                    }
+                ]
+            },
+            {
+                "name": "mask_19",
+                "description": "Quality mask for spectral band 19",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "758.7",
+                "spectralBandwidth": "7.1",
+                "expectedPixels": [
+                    {
+                        "x": 259,
+                        "y": 594,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 312,
+                        "y": 50,
+                        "value": 0.0
+                    }
+                ]
+            },
+            {
+                "name": "mask_20",
+                "description": "Quality mask for spectral band 20",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "765.9",
+                "spectralBandwidth": "7.2",
+                "expectedPixels": [
+                    {
+                        "x": 309,
+                        "y": 169,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 241,
+                        "y": 695,
+                        "value": 0.0
+                    }
+                ]
+            },
+            {
+                "name": "mask_21",
+                "description": "Quality mask for spectral band 21",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "773.2",
+                "spectralBandwidth": "7.4",
+                "expectedPixels": [
+                    {
+                        "x": 99,
+                        "y": 644,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 142,
+                        "y": 277,
+                        "value": 0.0
+                    }
+                ]
+            },
+            {
+                "name": "mask_22",
+                "description": "Quality mask for spectral band 22",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "784.3",
+                "spectralBandwidth": "15.0",
+                "expectedPixels": [
+                    {
+                        "x": 359,
+                        "y": 509,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 268,
+                        "y": 319,
+                        "value": 0.0
+                    }
+                ]
+            },
+            {
+                "name": "mask_23",
+                "description": "Quality mask for spectral band 23",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "795.9",
+                "spectralBandwidth": "7.8",
+                "expectedPixels": [
+                    {
+                        "x": 184,
+                        "y": 103,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 358,
+                        "y": 101,
+                        "value": 0.0
+                    }
+                ]
+            },
+            {
+                "name": "mask_24",
+                "description": "Quality mask for spectral band 24",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "803.7",
+                "spectralBandwidth": "8.0",
+                "expectedPixels": [
+                    {
+                        "x": 266,
+                        "y": 415,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 261,
+                        "y": 740,
+                        "value": 0.0
+                    }
+                ]
+            },
+            {
+                "name": "mask_25",
+                "description": "Quality mask for spectral band 25",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "867.3",
+                "spectralBandwidth": "18.1",
+                "expectedPixels": [
+                    {
+                        "x": 237,
+                        "y": 677,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 309,
+                        "y": 397,
+                        "value": 0.0
+                    }
+                ]
+            },
+            {
+                "name": "mask_26",
+                "description": "Quality mask for spectral band 26",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "885.6",
+                "spectralBandwidth": "18.7",
+                "expectedPixels": [
+                    {
+                        "x": 184,
+                        "y": 695,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 211,
+                        "y": 577,
+                        "value": 0.0
+                    }
+                ]
+            },
+            {
+                "name": "mask_27",
+                "description": "Quality mask for spectral band 27",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "899.9",
+                "spectralBandwidth": "9.5",
+                "expectedPixels": [
+                    {
+                        "x": 343,
+                        "y": 29,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 260,
+                        "y": 540,
+                        "value": 0.0
+                    }
+                ]
+            },
+            {
+                "name": "mask_28",
+                "description": "Quality mask for spectral band 28",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "909.5",
+                "spectralBandwidth": "9.9",
+                "expectedPixels": [
+                    {
+                        "x": 128,
+                        "y": 5,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 80,
+                        "y": 643,
+                        "value": 0.0
+                    }
+                ]
+            },
+            {
+                "name": "mask_29",
+                "description": "Quality mask for spectral band 29",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "919.3",
+                "spectralBandwidth": "9.8",
+                "expectedPixels": [
+                    {
+                        "x": 46,
+                        "y": 75,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 31,
+                        "y": 85,
+                        "value": 0.0
+                    }
+                ]
+            },
+            {
+                "name": "mask_30",
+                "description": "Quality mask for spectral band 30",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "929.2",
+                "spectralBandwidth": "10.0",
+                "expectedPixels": [
+                    {
+                        "x": 257,
+                        "y": 52,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 178,
+                        "y": 649,
+                        "value": 0.0
+                    }
+                ]
+            },
+            {
+                "name": "mask_31",
+                "description": "Quality mask for spectral band 31",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "944.3",
+                "spectralBandwidth": "20.4",
+                "expectedPixels": [
+                    {
+                        "x": 61,
+                        "y": 176,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 92,
+                        "y": 726,
+                        "value": 0.0
+                    }
+                ]
+            },
+            {
+                "name": "mask_32",
+                "description": "Quality mask for spectral band 32",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "959.8",
+                "spectralBandwidth": "10.4",
+                "expectedPixels": [
+                    {
+                        "x": 264,
+                        "y": 254,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 238,
+                        "y": 381,
+                        "value": 0.0
+                    }
+                ]
+            },
+            {
+                "name": "mask_33",
+                "description": "Quality mask for spectral band 33",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "970.2",
+                "spectralBandwidth": "10.5",
+                "expectedPixels": [
+                    {
+                        "x": 335,
+                        "y": 380,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 318,
+                        "y": 417,
+                        "value": 0.0
+                    }
+                ]
+            },
+            {
+                "name": "mask_34",
+                "description": "Quality mask for spectral band 34",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "980.7",
+                "spectralBandwidth": "10.8",
+                "expectedPixels": [
+                    {
+                        "x": 296,
+                        "y": 569,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 309,
+                        "y": 550,
+                        "value": 0.0
+                    }
+                ]
+            },
+            {
+                "name": "mask_35",
+                "description": "Quality mask for spectral band 35",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "991.5",
+                "spectralBandwidth": "10.7",
+                "expectedPixels": [
+                    {
+                        "x": 232,
+                        "y": 318,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 199,
+                        "y": 570,
+                        "value": 0.0
+                    }
+                ]
+            },
+            {
+                "name": "mask_36",
+                "description": "Quality mask for spectral band 36",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "1002.2",
+                "spectralBandwidth": "10.8",
+                "expectedPixels": [
+                    {
+                        "x": 234,
+                        "y": 113,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 326,
+                        "y": 235,
+                        "value": 0.0
+                    }
+                ]
+            },
+            {
+                "name": "mask_37",
+                "description": "Quality mask for spectral band 37",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "1024.0",
+                "spectralBandwidth": "33.0",
+                "expectedPixels": [
+                    {
+                        "x": 101,
+                        "y": 287,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 252,
+                        "y": 139,
+                        "value": 0.0
+                    }
+                ]
+            }
+        ],
+        "masks": [
+            {
+                "name": "spectrum_dropout",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,0,0",
+                "description": "Spectrum contains a dropout pixel"
+            },
+            {
+                "name": "spectrum_saturated",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,200,0",
+                "description": "Spectrum contains a saturated pixel"
+            },
+            {
+                "name": "spectrum_dropout_corrected",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "0,255,0",
+                "description": "Spectrum contains a corrected dropout pixel"
+            },
+            {
+                "name": "radiance_1_dropout",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,0,0",
+                "description": "Dropout pixel"
+            },
+            {
+                "name": "radiance_1_saturated",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,200,0",
+                "description": "Saturated pixel"
+            },
+            {
+                "name": "radiance_1_dropout_corrected",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "0,255,0",
+                "description": "Corrected dropout pixel"
+            },
+            {
+                "name": "radiance_2_dropout",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,0,0",
+                "description": "Dropout pixel"
+            },
+            {
+                "name": "radiance_2_saturated",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,200,0",
+                "description": "Saturated pixel"
+            },
+            {
+                "name": "radiance_2_dropout_corrected",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "0,255,0",
+                "description": "Corrected dropout pixel"
+            },
+            {
+                "name": "radiance_3_dropout",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,0,0",
+                "description": "Dropout pixel"
+            },
+            {
+                "name": "radiance_3_saturated",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,200,0",
+                "description": "Saturated pixel"
+            },
+            {
+                "name": "radiance_3_dropout_corrected",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "0,255,0",
+                "description": "Corrected dropout pixel"
+            },
+            {
+                "name": "radiance_4_dropout",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,0,0",
+                "description": "Dropout pixel"
+            },
+            {
+                "name": "radiance_4_saturated",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,200,0",
+                "description": "Saturated pixel"
+            },
+            {
+                "name": "radiance_4_dropout_corrected",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "0,255,0",
+                "description": "Corrected dropout pixel"
+            },
+            {
+                "name": "radiance_5_dropout",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,0,0",
+                "description": "Dropout pixel"
+            },
+            {
+                "name": "radiance_5_saturated",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,200,0",
+                "description": "Saturated pixel"
+            },
+            {
+                "name": "radiance_5_dropout_corrected",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "0,255,0",
+                "description": "Corrected dropout pixel"
+            },
+            {
+                "name": "radiance_6_dropout",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,0,0",
+                "description": "Dropout pixel"
+            },
+            {
+                "name": "radiance_6_saturated",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,200,0",
+                "description": "Saturated pixel"
+            },
+            {
+                "name": "radiance_6_dropout_corrected",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "0,255,0",
+                "description": "Corrected dropout pixel"
+            },
+            {
+                "name": "radiance_7_dropout",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,0,0",
+                "description": "Dropout pixel"
+            },
+            {
+                "name": "radiance_7_saturated",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,200,0",
+                "description": "Saturated pixel"
+            },
+            {
+                "name": "radiance_7_dropout_corrected",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "0,255,0",
+                "description": "Corrected dropout pixel"
+            },
+            {
+                "name": "radiance_8_dropout",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,0,0",
+                "description": "Dropout pixel"
+            },
+            {
+                "name": "radiance_8_saturated",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,200,0",
+                "description": "Saturated pixel"
+            },
+            {
+                "name": "radiance_8_dropout_corrected",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "0,255,0",
+                "description": "Corrected dropout pixel"
+            },
+            {
+                "name": "radiance_9_dropout",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,0,0",
+                "description": "Dropout pixel"
+            },
+            {
+                "name": "radiance_9_saturated",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,200,0",
+                "description": "Saturated pixel"
+            },
+            {
+                "name": "radiance_9_dropout_corrected",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "0,255,0",
+                "description": "Corrected dropout pixel"
+            },
+            {
+                "name": "radiance_10_dropout",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,0,0",
+                "description": "Dropout pixel"
+            },
+            {
+                "name": "radiance_10_saturated",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,200,0",
+                "description": "Saturated pixel"
+            },
+            {
+                "name": "radiance_10_dropout_corrected",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "0,255,0",
+                "description": "Corrected dropout pixel"
+            },
+            {
+                "name": "radiance_11_dropout",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,0,0",
+                "description": "Dropout pixel"
+            },
+            {
+                "name": "radiance_11_saturated",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,200,0",
+                "description": "Saturated pixel"
+            },
+            {
+                "name": "radiance_11_dropout_corrected",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "0,255,0",
+                "description": "Corrected dropout pixel"
+            },
+            {
+                "name": "radiance_12_dropout",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,0,0",
+                "description": "Dropout pixel"
+            },
+            {
+                "name": "radiance_12_saturated",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,200,0",
+                "description": "Saturated pixel"
+            },
+            {
+                "name": "radiance_12_dropout_corrected",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "0,255,0",
+                "description": "Corrected dropout pixel"
+            },
+            {
+                "name": "radiance_13_dropout",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,0,0",
+                "description": "Dropout pixel"
+            },
+            {
+                "name": "radiance_13_saturated",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,200,0",
+                "description": "Saturated pixel"
+            },
+            {
+                "name": "radiance_13_dropout_corrected",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "0,255,0",
+                "description": "Corrected dropout pixel"
+            },
+            {
+                "name": "radiance_14_dropout",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,0,0",
+                "description": "Dropout pixel"
+            },
+            {
+                "name": "radiance_14_saturated",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,200,0",
+                "description": "Saturated pixel"
+            },
+            {
+                "name": "radiance_14_dropout_corrected",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "0,255,0",
+                "description": "Corrected dropout pixel"
+            },
+            {
+                "name": "radiance_15_dropout",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,0,0",
+                "description": "Dropout pixel"
+            },
+            {
+                "name": "radiance_15_saturated",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,200,0",
+                "description": "Saturated pixel"
+            },
+            {
+                "name": "radiance_15_dropout_corrected",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "0,255,0",
+                "description": "Corrected dropout pixel"
+            },
+            {
+                "name": "radiance_16_dropout",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,0,0",
+                "description": "Dropout pixel"
+            },
+            {
+                "name": "radiance_16_saturated",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,200,0",
+                "description": "Saturated pixel"
+            },
+            {
+                "name": "radiance_16_dropout_corrected",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "0,255,0",
+                "description": "Corrected dropout pixel"
+            },
+            {
+                "name": "radiance_17_dropout",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,0,0",
+                "description": "Dropout pixel"
+            },
+            {
+                "name": "radiance_17_saturated",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,200,0",
+                "description": "Saturated pixel"
+            },
+            {
+                "name": "radiance_17_dropout_corrected",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "0,255,0",
+                "description": "Corrected dropout pixel"
+            },
+            {
+                "name": "radiance_18_dropout",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,0,0",
+                "description": "Dropout pixel"
+            },
+            {
+                "name": "radiance_18_saturated",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,200,0",
+                "description": "Saturated pixel"
+            },
+            {
+                "name": "radiance_18_dropout_corrected",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "0,255,0",
+                "description": "Corrected dropout pixel"
+            },
+            {
+                "name": "radiance_19_dropout",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,0,0",
+                "description": "Dropout pixel"
+            },
+            {
+                "name": "radiance_19_saturated",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,200,0",
+                "description": "Saturated pixel"
+            },
+            {
+                "name": "radiance_19_dropout_corrected",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "0,255,0",
+                "description": "Corrected dropout pixel"
+            },
+            {
+                "name": "radiance_20_dropout",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,0,0",
+                "description": "Dropout pixel"
+            },
+            {
+                "name": "radiance_20_saturated",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,200,0",
+                "description": "Saturated pixel"
+            },
+            {
+                "name": "radiance_20_dropout_corrected",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "0,255,0",
+                "description": "Corrected dropout pixel"
+            },
+            {
+                "name": "radiance_21_dropout",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,0,0",
+                "description": "Dropout pixel"
+            },
+            {
+                "name": "radiance_21_saturated",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,200,0",
+                "description": "Saturated pixel"
+            },
+            {
+                "name": "radiance_21_dropout_corrected",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "0,255,0",
+                "description": "Corrected dropout pixel"
+            },
+            {
+                "name": "radiance_22_dropout",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,0,0",
+                "description": "Dropout pixel"
+            },
+            {
+                "name": "radiance_22_saturated",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,200,0",
+                "description": "Saturated pixel"
+            },
+            {
+                "name": "radiance_22_dropout_corrected",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "0,255,0",
+                "description": "Corrected dropout pixel"
+            },
+            {
+                "name": "radiance_23_dropout",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,0,0",
+                "description": "Dropout pixel"
+            },
+            {
+                "name": "radiance_23_saturated",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,200,0",
+                "description": "Saturated pixel"
+            },
+            {
+                "name": "radiance_23_dropout_corrected",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "0,255,0",
+                "description": "Corrected dropout pixel"
+            },
+            {
+                "name": "radiance_24_dropout",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,0,0",
+                "description": "Dropout pixel"
+            },
+            {
+                "name": "radiance_24_saturated",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,200,0",
+                "description": "Saturated pixel"
+            },
+            {
+                "name": "radiance_24_dropout_corrected",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "0,255,0",
+                "description": "Corrected dropout pixel"
+            },
+            {
+                "name": "radiance_25_dropout",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,0,0",
+                "description": "Dropout pixel"
+            },
+            {
+                "name": "radiance_25_saturated",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,200,0",
+                "description": "Saturated pixel"
+            },
+            {
+                "name": "radiance_25_dropout_corrected",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "0,255,0",
+                "description": "Corrected dropout pixel"
+            },
+            {
+                "name": "radiance_26_dropout",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,0,0",
+                "description": "Dropout pixel"
+            },
+            {
+                "name": "radiance_26_saturated",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,200,0",
+                "description": "Saturated pixel"
+            },
+            {
+                "name": "radiance_26_dropout_corrected",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "0,255,0",
+                "description": "Corrected dropout pixel"
+            },
+            {
+                "name": "radiance_27_dropout",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,0,0",
+                "description": "Dropout pixel"
+            },
+            {
+                "name": "radiance_27_saturated",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,200,0",
+                "description": "Saturated pixel"
+            },
+            {
+                "name": "radiance_27_dropout_corrected",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "0,255,0",
+                "description": "Corrected dropout pixel"
+            },
+            {
+                "name": "radiance_28_dropout",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,0,0",
+                "description": "Dropout pixel"
+            },
+            {
+                "name": "radiance_28_saturated",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,200,0",
+                "description": "Saturated pixel"
+            },
+            {
+                "name": "radiance_28_dropout_corrected",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "0,255,0",
+                "description": "Corrected dropout pixel"
+            },
+            {
+                "name": "radiance_29_dropout",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,0,0",
+                "description": "Dropout pixel"
+            },
+            {
+                "name": "radiance_29_saturated",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,200,0",
+                "description": "Saturated pixel"
+            },
+            {
+                "name": "radiance_29_dropout_corrected",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "0,255,0",
+                "description": "Corrected dropout pixel"
+            },
+            {
+                "name": "radiance_30_dropout",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,0,0",
+                "description": "Dropout pixel"
+            },
+            {
+                "name": "radiance_30_saturated",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,200,0",
+                "description": "Saturated pixel"
+            },
+            {
+                "name": "radiance_30_dropout_corrected",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "0,255,0",
+                "description": "Corrected dropout pixel"
+            },
+            {
+                "name": "radiance_31_dropout",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,0,0",
+                "description": "Dropout pixel"
+            },
+            {
+                "name": "radiance_31_saturated",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,200,0",
+                "description": "Saturated pixel"
+            },
+            {
+                "name": "radiance_31_dropout_corrected",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "0,255,0",
+                "description": "Corrected dropout pixel"
+            },
+            {
+                "name": "radiance_32_dropout",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,0,0",
+                "description": "Dropout pixel"
+            },
+            {
+                "name": "radiance_32_saturated",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,200,0",
+                "description": "Saturated pixel"
+            },
+            {
+                "name": "radiance_32_dropout_corrected",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "0,255,0",
+                "description": "Corrected dropout pixel"
+            },
+            {
+                "name": "radiance_33_dropout",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,0,0",
+                "description": "Dropout pixel"
+            },
+            {
+                "name": "radiance_33_saturated",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,200,0",
+                "description": "Saturated pixel"
+            },
+            {
+                "name": "radiance_33_dropout_corrected",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "0,255,0",
+                "description": "Corrected dropout pixel"
+            },
+            {
+                "name": "radiance_34_dropout",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,0,0",
+                "description": "Dropout pixel"
+            },
+            {
+                "name": "radiance_34_saturated",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,200,0",
+                "description": "Saturated pixel"
+            },
+            {
+                "name": "radiance_34_dropout_corrected",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "0,255,0",
+                "description": "Corrected dropout pixel"
+            },
+            {
+                "name": "radiance_35_dropout",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,0,0",
+                "description": "Dropout pixel"
+            },
+            {
+                "name": "radiance_35_saturated",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,200,0",
+                "description": "Saturated pixel"
+            },
+            {
+                "name": "radiance_35_dropout_corrected",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "0,255,0",
+                "description": "Corrected dropout pixel"
+            },
+            {
+                "name": "radiance_36_dropout",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,0,0",
+                "description": "Dropout pixel"
+            },
+            {
+                "name": "radiance_36_saturated",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,200,0",
+                "description": "Saturated pixel"
+            },
+            {
+                "name": "radiance_36_dropout_corrected",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "0,255,0",
+                "description": "Corrected dropout pixel"
+            },
+            {
+                "name": "radiance_37_dropout",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,0,0",
+                "description": "Dropout pixel"
+            },
+            {
+                "name": "radiance_37_saturated",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,200,0",
+                "description": "Saturated pixel"
+            },
+            {
+                "name": "radiance_37_dropout_corrected",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "0,255,0",
+                "description": "Corrected dropout pixel"
+            }
+        ],
+        "metadata": [
+            {
+                "path": "MPH/Noise Reduction",
+                "value": "None"
+            },
+            {
+                "path": "MPH/Solar_Zenith_Angle",
+                "value": "029.00"
+            }
+        ]
+    }
+}

@@ -1,0 +1,55 @@
+{
+    "testProducts": [
+        {
+            "id": "NSS_LHRR_NL_D05152_S0446_E0454_B2418080_WI",
+            "relativePath": "sensors_platforms/AVHRR_3_L1B/NOAA/NOAA-16/NSS.LHRR.NL.D05152.S0446.E0454.B2418080.WI",
+            "description": "AVHRR/3 Level-1b Data Product"
+        },
+        {
+            "id": "NSS_HRPT_NM_D02220_S1812_E1819_B0064040_GC",
+            "relativePath": "sensors_platforms/AVHRR_3_L1B/NOAA/NOAA-17/NSS.HRPT.NM.D02220.S1812.E1819.B0064040.GC",
+            "description": "AVHRR/3 Level-1b Data Product"
+        },
+        {
+            "id": "NSS_HRPT_NN_D06334_S2347_E0000_B0788990_EB",
+            "relativePath": "sensors_platforms/AVHRR_3_L1B/NOAA/NOAA-18/NSS.HRPT.NN.D06334.S2347.E0000.B0788990.EB.L8780211",
+            "description": "AVHRR/3 Level-1b Data Product"
+        },
+        {
+            "id": "NSS_FRAC_M2_D08001_S1341_E1521_B0623536_SV",
+            "relativePath": "sensors_platforms/AVHRR_3_L1B/NOAA/MetOp-A/NSS.FRAC.M2.D08001.S1341.E1521.B0623536.SV",
+            "description": "AVHRR/3 Level-1b Data Product"
+        },
+        {
+            "id": "NSS_GHRR_NK_D10152_S0150_E0337_B6264647_GC",
+            "relativePath": "sensors_platforms/AVHRR_3_L1B/NOAA/GAC/NOAA-15/NSS.GHRR.NK.D10152.S0150.E0337.B6264647.GC",
+            "description": "AVHRR/3 Level-1b Data Product"
+        },
+        {
+            "id": "NSS_GHRR_NL_D10152_S0519_E0714_B4995859_WI",
+            "relativePath": "sensors_platforms/AVHRR_3_L1B/NOAA/GAC/NOAA-16/NSS.GHRR.NL.D10152.S0519.E0714.B4995859.WI",
+            "description": "AVHRR/3 Level-1b Data Product"
+        },
+        {
+            "id": "NSS_GHRR_NM_D10152_S0626_E0805_B4124445_GC",
+            "relativePath": "sensors_platforms/AVHRR_3_L1B/NOAA/GAC/NOAA-17/NSS.GHRR.NM.D10152.S0626.E0805.B4124445.GC",
+            "description": "AVHRR/3 Level-1b Data Product"
+        },
+        {
+            "id": "NSS_GHRR_NN_D10152_S1719_E1840_B2592526_WI",
+            "relativePath": "sensors_platforms/AVHRR_3_L1B/NOAA/GAC/NOAA-18/NSS.GHRR.NN.D10152.S1719.E1840.B2592526.WI",
+            "description": "AVHRR/3 Level-1b Data Product"
+        },
+        {
+            "id": "NSS_GHRR_NP_D10153_S0439_E0634_B0677980_WI",
+            "relativePath": "sensors_platforms/AVHRR_3_L1B/NOAA/GAC/NOAA-19/NSS.GHRR.NP.D10153.S0439.E0634.B0677980.WI",
+            "description": "AVHRR/3 Level-1b Data Product"
+        },
+        {
+            "id": "NSS_GHRR_M2_D10152_S1111_E1252_B1876465_SV",
+            "relativePath": "sensors_platforms/AVHRR_3_L1B/NOAA/GAC/MetOp-A/NSS.GHRR.M2.D10152.S1111.E1252.B1876465.SV",
+            "description": "AVHRR/3 Level-1b Data Product"
+        }
+
+    ]
+}

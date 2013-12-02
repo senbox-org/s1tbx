@@ -1,0 +1,92 @@
+{
+    "id": "LC81970222013202LGN00",
+    "decodeQualification": "INTENDED",
+    "expectedContent": {
+        "sceneWidth": 8051,
+        "sceneHeight": 8151,
+        "bands": [
+            {
+                "name": "red",
+                "description": "Image component #1",
+                "geophysicalUnit": "dl",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "700.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 3472,
+                        "y": 4381,
+                        "value": 11.0
+                    },
+                    {
+                        "x": 5977,
+                        "y": 5289,
+                        "value": 106.0
+                    }
+                ]
+            },
+            {
+                "name": "green",
+                "description": "Image component #2",
+                "geophysicalUnit": "dl",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "546.1",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 420,
+                        "y": 1452,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 5515,
+                        "y": 6933,
+                        "value": 135.0
+                    }
+                ]
+            },
+            {
+                "name": "blue",
+                "description": "Image component #3",
+                "geophysicalUnit": "dl",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "435.8",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 2341,
+                        "y": 2093,
+                        "value": 135.0
+                    },
+                    {
+                        "x": 4915,
+                        "y": 2977,
+                        "value": 46.0
+                    }
+                ]
+            },
+            {
+                "name": "gray",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 4428,
+                        "y": 6075,
+                        "value": 23.94
+                    },
+                    {
+                        "x": 4897,
+                        "y": 7567,
+                        "value": 0.0
+                    }
+                ]
+            }
+        ]
+    }
+}

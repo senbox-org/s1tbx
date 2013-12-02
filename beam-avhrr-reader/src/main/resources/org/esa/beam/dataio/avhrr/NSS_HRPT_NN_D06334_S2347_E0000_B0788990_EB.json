@@ -1,0 +1,522 @@
+{
+    "id": "NSS_HRPT_NN_D06334_S2347_E0000_B0788990_EB_L8780211",
+    "decodeQualification": "intended",
+    "expectedContent": {
+        "sceneWidth": 2001,
+        "sceneHeight": 4761,
+        "startTime": "30-NOV-2006 23:47:31.000000",
+        "endTime": "01-DEC-2006 00:00:48.000000",
+        "geoCoding": {
+            "coordinates": [
+                {
+                    "x": 30.159668,
+                    "y": 22.864496,
+                    "lat": 40.567116,
+                    "lon": -178.59456
+                },
+                {
+                    "x": 220.5,
+                    "y": 2049.5,
+                    "lat": 23.01642,
+                    "lon": -165.60126
+                }
+            ],
+            "reverseAccuracy": 0.01,
+            "geoCodingClass": "org.esa.beam.framework.datamodel.TiePointGeoCoding"
+        },
+        "flagCodings": [
+            {
+                "name": "flags",
+                "samples": [
+                    {
+                        "name": "QUALITY_ERROR",
+                        "value": 1,
+                        "description": "Set if any of the bits from the quality indicator bit-field are set"
+                    },
+                    {
+                        "name": "SCANLINE_ERROR",
+                        "value": 2,
+                        "description": "Set if any of the bits from the scanline quality flags are set"
+                    },
+                    {
+                        "name": "CALIB_CH_3B_ERROR",
+                        "value": 4,
+                        "description": "Set if any of the bits from the scanline quality flags are set"
+                    },
+                    {
+                        "name": "CALIB_CH_4_ERROR",
+                        "value": 8,
+                        "description": "Set if any of the bits from the scanline quality flags are set"
+                    },
+                    {
+                        "name": "CALIB_CH_5_ERROR",
+                        "value": 16,
+                        "description": "Set if any of the bits from the scanline quality flags are set"
+                    },
+                    {
+                        "name": "FRAME_SYNC_ERROR",
+                        "value": 32,
+                        "description": "Set if there are bit errors in the frame sync"
+                    }
+                ]
+            }
+        ],
+        "tiePointGrids": [
+            {
+                "name": "sun_zenith",
+                "offsetX": "0.5",
+                "offsetY": "0.5",
+                "subSamplingX": "40.0",
+                "subSamplingY": "40.0",
+                "expectedPixels": [
+                    {
+                        "x": 30,
+                        "y": 22,
+                        "value": 62.464127
+                    },
+                    {
+                        "x": 220,
+                        "y": 2049,
+                        "value": 47.383
+                    }
+                ]
+            },
+            {
+                "name": "view_zenith",
+                "offsetX": "0.5",
+                "offsetY": "0.5",
+                "subSamplingX": "40.0",
+                "subSamplingY": "40.0",
+                "expectedPixels": [
+                    {
+                        "x": 30,
+                        "y": 22,
+                        "value": 63.930004
+                    },
+                    {
+                        "x": 220,
+                        "y": 2049,
+                        "value": 49.486126
+                    }
+                ]
+            },
+            {
+                "name": "delta_azimuth",
+                "offsetX": "0.5",
+                "offsetY": "0.5",
+                "subSamplingX": "40.0",
+                "subSamplingY": "40.0",
+                "expectedPixels": [
+                    {
+                        "x": 30,
+                        "y": 22,
+                        "value": -116.95162
+                    },
+                    {
+                        "x": 220,
+                        "y": 2049,
+                        "value": -123.15762
+                    }
+                ]
+            },
+            {
+                "name": "latitude",
+                "offsetX": "0.5",
+                "offsetY": "0.5",
+                "subSamplingX": "40.0",
+                "subSamplingY": "40.0",
+                "expectedPixels": [
+                    {
+                        "x": 30,
+                        "y": 22,
+                        "value": 40.574673
+                    },
+                    {
+                        "x": 220,
+                        "y": 2049,
+                        "value": 23.01642
+                    }
+                ]
+            },
+            {
+                "name": "longitude",
+                "offsetX": "0.5",
+                "offsetY": "0.5",
+                "subSamplingX": "40.0",
+                "subSamplingY": "40.0",
+                "expectedPixels": [
+                    {
+                        "x": 30,
+                        "y": 22,
+                        "value": -178.58301
+                    },
+                    {
+                        "x": 220,
+                        "y": 2049,
+                        "value": -165.60126
+                    }
+                ]
+            }
+        ],
+        "bands": [
+            {
+                "name": "radiance_1",
+                "description": "Spectral radiance for channel 1",
+                "geophysicalUnit": "mW / (m^2 sr nm)",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "630.0",
+                "spectralBandwidth": "100.0",
+                "expectedPixels": [
+                    {
+                        "x": 30,
+                        "y": 22,
+                        "value": 137.71432
+                    },
+                    {
+                        "x": 220,
+                        "y": 2049,
+                        "value": 14.623732
+                    }
+                ]
+            },
+            {
+                "name": "radiance_2",
+                "description": "Spectral radiance for channel 2",
+                "geophysicalUnit": "mW / (m^2 sr nm)",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "862.5",
+                "spectralBandwidth": "275.0",
+                "expectedPixels": [
+                    {
+                        "x": 30,
+                        "y": 22,
+                        "value": 92.424706
+                    },
+                    {
+                        "x": 220,
+                        "y": 2049,
+                        "value": 4.417006
+                    }
+                ]
+            },
+            {
+                "name": "radiance_3a",
+                "description": "Zero-filled placeholder for radiance_3a, no data available",
+                "geophysicalUnit": "-",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "1610.0",
+                "spectralBandwidth": "60.0",
+                "expectedPixels": [
+                    {
+                        "x": 30,
+                        "y": 22,
+                        "value": "NaN"
+                    },
+                    {
+                        "x": 220,
+                        "y": 2049,
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "radiance_3b",
+                "description": "Earth scene radiance for channel 3b",
+                "geophysicalUnit": "mW / (m^2 sr cm^-1)",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "3740.0",
+                "spectralBandwidth": "38.0",
+                "expectedPixels": [
+                    {
+                        "x": 30,
+                        "y": 22,
+                        "value": 0.21719201
+                    },
+                    {
+                        "x": 220,
+                        "y": 2049,
+                        "value": 0.56704587
+                    }
+                ]
+            },
+            {
+                "name": "radiance_4",
+                "description": "Earth scene radiance for channel 4",
+                "geophysicalUnit": "mW / (m^2 sr cm^-1)",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "10800.0",
+                "spectralBandwidth": "1000.0",
+                "expectedPixels": [
+                    {
+                        "x": 30,
+                        "y": 22,
+                        "value": 26.597034
+                    },
+                    {
+                        "x": 220,
+                        "y": 2049,
+                        "value": 101.15991
+                    }
+                ]
+            },
+            {
+                "name": "radiance_5",
+                "description": "Earth scene radiance for channel 5",
+                "geophysicalUnit": "mW / (m^2 sr cm^-1)",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "12000.0",
+                "spectralBandwidth": "1000.0",
+                "expectedPixels": [
+                    {
+                        "x": 30,
+                        "y": 22,
+                        "value": 33.705967
+                    },
+                    {
+                        "x": 220,
+                        "y": 2049,
+                        "value": 112.51047
+                    }
+                ]
+            },
+            {
+                "name": "reflec_1",
+                "description": "Reflectance factor for channel 1",
+                "geophysicalUnit": "%",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "630.0",
+                "spectralBandwidth": "100.0",
+                "expectedPixels": [
+                    {
+                        "x": 30,
+                        "y": 22,
+                        "value": 25.591
+                    },
+                    {
+                        "x": 220,
+                        "y": 2049,
+                        "value": 2.71748
+                    }
+                ]
+            },
+            {
+                "name": "reflec_2",
+                "description": "Reflectance factor for channel 2",
+                "geophysicalUnit": "%",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "862.5",
+                "spectralBandwidth": "275.0",
+                "expectedPixels": [
+                    {
+                        "x": 30,
+                        "y": 22,
+                        "value": 28.443
+                    },
+                    {
+                        "x": 220,
+                        "y": 2049,
+                        "value": 1.3593
+                    }
+                ]
+            },
+            {
+                "name": "reflec_3a",
+                "description": "Zero-filled placeholder for reflec_3a, no data available",
+                "geophysicalUnit": "-",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "1610.0",
+                "spectralBandwidth": "60.0",
+                "expectedPixels": [
+                    {
+                        "x": 30,
+                        "y": 22,
+                        "value": "NaN"
+                    },
+                    {
+                        "x": 220,
+                        "y": 2049,
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "temp_3b",
+                "description": "Blackbody temperature for channel 3b",
+                "geophysicalUnit": "K",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "3740.0",
+                "spectralBandwidth": "38.0",
+                "expectedPixels": [
+                    {
+                        "x": 30,
+                        "y": 22,
+                        "value": 275.50787
+                    },
+                    {
+                        "x": 220,
+                        "y": 2049,
+                        "value": 296.1506
+                    }
+                ]
+            },
+            {
+                "name": "temp_4",
+                "description": "Blackbody temperature for channel 4",
+                "geophysicalUnit": "K",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "10800.0",
+                "spectralBandwidth": "1000.0",
+                "expectedPixels": [
+                    {
+                        "x": 30,
+                        "y": 22,
+                        "value": 226.85355
+                    },
+                    {
+                        "x": 220,
+                        "y": 2049,
+                        "value": 293.12103
+                    }
+                ]
+            },
+            {
+                "name": "temp_5",
+                "description": "Blackbody temperature for channel 5",
+                "geophysicalUnit": "K",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "12000.0",
+                "spectralBandwidth": "1000.0",
+                "expectedPixels": [
+                    {
+                        "x": 30,
+                        "y": 22,
+                        "value": 225.09274
+                    },
+                    {
+                        "x": 220,
+                        "y": 2049,
+                        "value": 290.22745
+                    }
+                ]
+            },
+            {
+                "name": "flags",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 30,
+                        "y": 22,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 220,
+                        "y": 2049,
+                        "value": 0.0
+                    }
+                ]
+            },
+            {
+                "name": "cloudFlag",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 30,
+                        "y": 22,
+                        "value": 3.0
+                    },
+                    {
+                        "x": 220,
+                        "y": 2049,
+                        "value": 0.0
+                    }
+                ]
+            }
+        ],
+        "masks": [
+            {
+                "name": "QUALITY_ERROR",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "128,128,255",
+                "description": "Set if any of the bits from the quality indicator bit-field are set"
+            },
+            {
+                "name": "SCANLINE_ERROR",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "238,17,191",
+                "description": "Set if any of the bits from the scanline quality flags are set"
+            },
+            {
+                "name": "CALIB_CH_3B_ERROR",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "238,17,64",
+                "description": "Set if any of the bits from the scanline quality flags are set"
+            },
+            {
+                "name": "CALIB_CH_4_ERROR",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "128,128,0",
+                "description": "Set if any of the bits from the scanline quality flags are set"
+            },
+            {
+                "name": "CALIB_CH_5_ERROR",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "17,238,64",
+                "description": "Set if any of the bits from the scanline quality flags are set"
+            },
+            {
+                "name": "FRAME_SYNC_ERROR",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "17,238,191",
+                "description": "Set if there are bit errors in the frame sync"
+            },
+            {
+                "name": "clear",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "192,192,192"
+            },
+            {
+                "name": "probably_clear",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,255,0"
+            },
+            {
+                "name": "probably_cloudy",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,200,0"
+            },
+            {
+                "name": "cloudy",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,0,0"
+            }
+        ],
+        "metadata": [
+            {
+                "path": "ARCHIVE_RETRIEVAL_SYSTEM_HEADER/DATA_SELECTION_CRITERIA/NUMBER_OF_MINUTES",
+                "value": "ALL"
+            },
+            {
+                "path": "HeaderRecord/FILE_IDENTIFICATION/NOAA_LEVEL_1B_FORMAT_VERSION_DAY_OF_YEAR",
+                "value": "318"
+            }
+        ]
+    }
+}

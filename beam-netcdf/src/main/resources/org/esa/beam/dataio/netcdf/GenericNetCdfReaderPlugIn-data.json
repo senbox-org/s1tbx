@@ -9,8 +9,151 @@
             "id": "ESACCI-OC-L3S-OC_PRODUCTS-MERGED-1D_DAILY_4km_GEO_PML_OC4v6_QAA-20000518-fv1.0",
             "relativePath": "projects/oc/oc-v1.0/ESACCI-OC-L3S-OC_PRODUCTS-MERGED-1D_DAILY_4km_GEO_PML_OC4v6_QAA-20000518-fv1.0.nc",
             "description": "mapped file OC-CCI format version 1.0  for generic NetCDF reader"
+        },
+        {
+            "id": "MER_FRS_1PNMAP20090808_073618_C2IOP",
+            "relativePath": "applications/generic_reader/NetCDF/NetCDF-BEAM/MER_FRS_1PNMAP20090808_073618_000001632081_00264_38895_0001.N1_C2IOP.nc",
+            "description": "Meris.Case2Regional product, product_type: MERIS_LREG, format: NetCDF-BEAM, conventions: CF-1.4"
+        },
+        {
+            "id": "LM11870291976166ESA00_nc",
+            "relativePath": "applications/generic_reader/NetCDF/NetCDF-BEAM/LM11870291976166ESA00.nc",
+            "description": "product_type: LANDSAT_1_MSS_L1T, format: NetCDF-BEAM, conventions: CF-1.4"
+        },
+        {
+            "id": "MER_FR__1PNUPA20030808_073810_C2IOP",
+            "relativePath": "applications/generic_reader/NetCDF/NetCDF4-BEAM/MER_FR__1PNUPA20030808_073810_000000982018_00450_07518_6007.N1_C2IOP.nc",
+            "description": "Meris.Case2Regional product, product_type: MERIS_LREG, format: NetCDF4-BEAM, conventions: CF-1.4"
+        },
+        {
+            "id": "LT40140341983030XXX13_nc",
+            "relativePath": "applications/generic_reader/NetCDF/NetCDF4-BEAM/LT40140341983030XXX13.nc",
+            "description": "product_type: Landsat4_TM_L1T, format: NetCDF4-BEAM, conventions: CF-1.4"
+        },
+        {
+             "id": "MER_FRS_1PNACR20040515_101402_ncbeam",
+             "relativePath": "applications/generic_reader/NetCDF/NetCDF-BEAM/MER_FRS_1PNACR20040515_101402_000002112026_00466_11542_ncbeam.nc",
+             "description": "product_type: MER_FRS_1P, format: NetCDF-BEAM, conventions: CF-1.4"
+        },
+        {
+            "id": "MER_FR__1_test_C2IOP",
+            "relativePath": "applications/generic_reader/NetCDF/NetCDF-CF/MER_FR__1_test.N1_C2IOP.nc",
+            "description": "Meris.Case2Regional product, format: NetCDF-CF, conventions: CF-1.4"
+        },
+        {
+            "id": "LM32170241982254XXX01_nc",
+            "relativePath": "applications/generic_reader/NetCDF/NetCDF-CF/LM32170241982254XXX01.nc",
+            "description": "product_type: LANDSAT_1_MSS_L1T, format: NetCDF-CF, conventions: CF-1.4"
+        },
+        {
+            "id": "20101103-ATS_NR_2P-UPA-L2P",
+            "relativePath": "applications/generic_reader/NetCDF/NetCDF-CF/20101103-ATS_NR_2P-UPA-L2P-ATS_NR__2PNPDK20101103_130629_000060673096_00096_45369_7055-v01.nc",
+            "description": "Sea Surface Temperature from AATSR, format: NetCDF-CF, conventions: CF-1.0"
+        },
+        {
+            "id": "MedSea_01x01_uc02_03_05__anders_v2",
+            "relativePath": "applications/generic_reader/NetCDF/NetCDF-CF/MedSea_01x01_uc02.03.05__anders_v2.nc",
+            "description": "old product, format: NetCDF-CF, conventions: CF-1.0"
+        },
+        {
+            "id": "netCDF_L3_ENV_MER_TR_test",
+            "relativePath": "applications/generic_reader/NetCDF/NetCDF-CF/netCDF_L3_ENV_MER_TR_test.nc",
+            "description": "Product created by ACRI-ST, Product type: COARDS, format: NetCDF-CF"
+        },
+        {
+            "id": "netCDF_L3_ENV_MER_test",
+            "relativePath": "applications/generic_reader/NetCDF/NetCDF-CF/netCDF_L3_ENV_MER_test.nc",
+            "description": "Product created by ACRI-ST, Product type: COARDS, format: NetCDF-CF"
+        },
+        {
+            "id": "L5043033_03319950627_nc",
+            "relativePath": "applications/generic_reader/NetCDF/NetCDF4-CF/L5043033_03319950627.nc",
+            "description": "format:  NetCDF4-CF, conventions: CF-1.4"
+        },
+        {
+            "id": "MER_RR__1PPBCM20100101_213129_C2IOP",
+            "relativePath": "applications/generic_reader/NetCDF/NetCDF4-CF/MER_RR__1PPBCM20100101_213129_000003972085_00358_40993_0096.N1_C2IOP.nc",
+            "description": "Meris.Case2Regional product, format:  NetCDF4-CF, conventions: CF-1.4"
+        },
+        {
+            "id": "CHRIS_AM_080805_A34A_41",
+            "relativePath": "sensors_platforms/CHRIS_PROBA/AM/HDF4/CHRIS_AM_080805_A34A_41.hdf",
+            "description": "Product type: CHRIS_M1"
+        },
+        {
+            "id": "CHRIS_BR_050717_576C_41",
+            "relativePath": "sensors_platforms/CHRIS_PROBA/BR/HDF4/CHRIS_BR_050717_576C_41.hdf",
+            "description": "Product type: CHRIS_M1"
+        },
+        {
+            "id": "CHRIS_CG_080804_A334_41",
+            "relativePath": "sensors_platforms/CHRIS_PROBA/CG/HDF4/CHRIS_CG_080804_A334_41.hdf",
+            "description": "Product type: CHRIS_M4"
+        },
+        {
+            "id": "CHRIS_CS_080722_A24B_41",
+            "relativePath": "sensors_platforms/CHRIS_PROBA/CS/HDF4/CHRIS_CS_080722_A24B_41.hdf",
+            "description": "Product type: CHRIS_M1"
+        },
+        {
+            "id": "CHRIS_DZ_080726_A294_41",
+            "relativePath": "sensors_platforms/CHRIS_PROBA/DZ/HDF4/CHRIS_DZ_080726_A294_41.hdf",
+            "description": "Product type: CHRIS_M3"
+        },
+        {
+            "id": "CHRIS_GY_080711_A186_41",
+            "relativePath": "sensors_platforms/CHRIS_PROBA/GY/HDF4/CHRIS_GY_080711_A186_41.hdf",
+            "description": "Product type: CHRIS_M1"
+        },
+        {
+            "id": "CHRIS_HR_050623_560E_41",
+            "relativePath": "sensors_platforms/CHRIS_PROBA/HR/HDF4/CHRIS_HR_050623_560E_41.hdf",
+            "description": "Product type: CHRIS_M2"
+        },
+        {
+            "id": "CHRIS_IL_030902_377D_41",
+            "relativePath": "sensors_platforms/CHRIS_PROBA/IL/HDF4/CHRIS_IL_030902_377D_41.hdf",
+            "description": "Product type: CHRIS_M0"
+        },
+        {
+            "id": "CHRIS_KH_080725_A27B_41",
+            "relativePath": "sensors_platforms/CHRIS_PROBA/KH/HDF4/CHRIS_KH_080725_A27B_41.hdf",
+            "description": "Product type: CHRIS_M5"
+        },
+        {
+            "id": "CHRIS_LT_080730_A2DA_41",
+            "relativePath": "sensors_platforms/CHRIS_PROBA/LT/HDF4/CHRIS_LT_080730_A2DA_41.hdf",
+            "description": "Product type: CHRIS_M1"
+        },
+        {
+            "id": "CHRIS_MZ_080731_A2E4_41",
+            "relativePath": "sensors_platforms/CHRIS_PROBA/MZ/HDF4/CHRIS_MZ_080731_A2E4_41.hdf",
+            "description": "Product type: CHRIS_M1"
+        },
+        {
+            "id": "CHRIS_PU_080801_A315_41",
+            "relativePath": "sensors_platforms/CHRIS_PROBA/PU/HDF4/CHRIS_PU_080801_A315_41.hdf",
+            "description": "Product type: CHRIS_M20"
+        },
+        {
+            "id": "CHRIS_RD_080805_A34E_41",
+            "relativePath": "sensors_platforms/CHRIS_PROBA/RD/HDF4/CHRIS_RD_080805_A34E_41.hdf",
+            "description": "Product type: CHRIS_M1"
+        },
+        {
+            "id": "CHRIS_SO_041001_472B_31",
+            "relativePath": "sensors_platforms/CHRIS_PROBA/SO/HDF4/CHRIS_SO_041001_472B_31.hdf",
+            "description": "Product type: CHRIS_M1"
+        },
+        {
+            "id": "CHRIS_UK_080723_A24E_41",
+            "relativePath": "sensors_platforms/CHRIS_PROBA/UK/HDF4/CHRIS_UK_080723_A24E_41.hdf",
+            "description": "Product type: CHRIS_M3"
+        },
+        {
+            "id": "CHRIS_VI_080801_A2FB_41",
+            "relativePath": "sensors_platforms/CHRIS_PROBA/VI/HDF4/CHRIS_VI_080801_A2FB_41.hdf",
+            "description": "Product type: CHRIS_M2"
         }
-
-
     ]
 }

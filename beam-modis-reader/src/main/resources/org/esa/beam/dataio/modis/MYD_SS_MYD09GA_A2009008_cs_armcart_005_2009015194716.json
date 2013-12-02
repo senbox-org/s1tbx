@@ -1,0 +1,289 @@
+{
+    "id": "MYD_SS_MYD09GA_A2009008_cs_armcart_005_2009015194716",
+    "decodeQualification": "INTENDED",
+    "expectedContent": {
+        "sceneWidth": 596,
+        "sceneHeight": 472,
+        "startTime": "08-JAN-2009 17:05:00.000000",
+        "endTime": "08-JAN-2009 18:55:00.000000",
+        "geoCoding": {
+            "coordinates": [
+                {
+                    "x": 257.0,
+                    "y": 253.0,
+                    "lat": 36.722916,
+                    "lon": -97.331276
+                },
+                {
+                    "x": 442.0,
+                    "y": 306.0,
+                    "lat": 36.502083,
+                    "lon": -96.09401
+                }
+            ],
+            "reverseAccuracy": 0.01,
+            "geoCodingClass": "org.esa.beam.framework.datamodel.MapGeoCoding"
+        },
+        "bands": [
+            {
+                "name": "num_observations_500m",
+                "description": "Number of Observations",
+                "noDataValue": "-1.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 31,
+                        "y": 84,
+                        "value": 1.0
+                    },
+                    {
+                        "x": 408,
+                        "y": 401,
+                        "value": 1.0
+                    }
+                ]
+            },
+            {
+                "name": "sur_refl_b01_1",
+                "description": "500m Surface Reflectance Band 1 - first layer",
+                "geophysicalUnit": "reflectance",
+                "noDataValue": "-2.8671999275684357",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "645.0",
+                "spectralBandwidth": "50.0",
+                "expectedPixels": [
+                    {
+                        "x": 173,
+                        "y": 121,
+                        "value": 0.141
+                    },
+                    {
+                        "x": 363,
+                        "y": 172,
+                        "value": 0.1116
+                    }
+                ]
+            },
+            {
+                "name": "sur_refl_b02_1",
+                "description": "500m Surface Reflectance Band 2 - first layer",
+                "geophysicalUnit": "reflectance",
+                "noDataValue": "-2.8671999275684357",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "858.5",
+                "spectralBandwidth": "35.0",
+                "expectedPixels": [
+                    {
+                        "x": 327,
+                        "y": 351,
+                        "value": 0.103
+                    },
+                    {
+                        "x": 362,
+                        "y": 438,
+                        "value": 0.2043
+                    }
+                ]
+            },
+            {
+                "name": "sur_refl_b03_1",
+                "description": "500m Surface Reflectance Band 3 - first layer",
+                "geophysicalUnit": "reflectance",
+                "noDataValue": "-2.8671999275684357",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "469.0",
+                "spectralBandwidth": "20.0",
+                "expectedPixels": [
+                    {
+                        "x": 94,
+                        "y": 314,
+                        "value": 0.061899997
+                    },
+                    {
+                        "x": 309,
+                        "y": 431,
+                        "value": 0.0559
+                    }
+                ]
+            },
+            {
+                "name": "sur_refl_b04_1",
+                "description": "500m Surface Reflectance Band 4 - first layer",
+                "geophysicalUnit": "reflectance",
+                "noDataValue": "-2.8671999275684357",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "555.0",
+                "spectralBandwidth": "20.0",
+                "expectedPixels": [
+                    {
+                        "x": 450,
+                        "y": 228,
+                        "value": 0.0953
+                    },
+                    {
+                        "x": 566,
+                        "y": 229,
+                        "value": 0.1206
+                    }
+                ]
+            },
+            {
+                "name": "sur_refl_b05_1",
+                "description": "500m Surface Reflectance Band 5 - first layer",
+                "geophysicalUnit": "reflectance",
+                "noDataValue": "-2.8671999275684357",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "1240.0",
+                "spectralBandwidth": "20.0",
+                "expectedPixels": [
+                    {
+                        "x": 202,
+                        "y": 424,
+                        "value": 0.2738
+                    },
+                    {
+                        "x": 5,
+                        "y": 222,
+                        "value": 0.2719
+                    }
+                ]
+            },
+            {
+                "name": "sur_refl_b06_1",
+                "description": "500m Surface Reflectance Band 6 - first layer",
+                "geophysicalUnit": "reflectance",
+                "noDataValue": "-2.8671999275684357",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "1640.0",
+                "spectralBandwidth": "24.0",
+                "expectedPixels": [
+                    {
+                        "x": 195,
+                        "y": 93,
+                        "value": 0.3633
+                    },
+                    {
+                        "x": 162,
+                        "y": 20,
+                        "value": 0.3775
+                    }
+                ]
+            },
+            {
+                "name": "sur_refl_b07_1",
+                "description": "500m Surface Reflectance Band 7 - first layer",
+                "geophysicalUnit": "reflectance",
+                "noDataValue": "-2.8671999275684357",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "2130.0",
+                "spectralBandwidth": "50.0",
+                "expectedPixels": [
+                    {
+                        "x": 578,
+                        "y": 285,
+                        "value": 0.1857
+                    },
+                    {
+                        "x": 341,
+                        "y": 338,
+                        "value": 0.191
+                    }
+                ]
+            },
+            {
+                "name": "QC_500m_1",
+                "description": "500m Reflectance Band Quality - first layer",
+                "geophysicalUnit": "bit field",
+                "noDataValue": "7.87410671E8",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 138,
+                        "y": 234,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 191,
+                        "y": 341,
+                        "value": 0.0
+                    }
+                ]
+            },
+            {
+                "name": "obscov_500m_1",
+                "description": "Observation coverage - first layer",
+                "geophysicalUnit": "percent",
+                "noDataValue": "-0.009999999776482582",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 213,
+                        "y": 235,
+                        "value": 0.29999998
+                    },
+                    {
+                        "x": 240,
+                        "y": 208,
+                        "value": 0.45999998
+                    }
+                ]
+            },
+            {
+                "name": "iobs_res_1",
+                "description": "observation number in coarser grid - first layer",
+                "noDataValue": "255.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 342,
+                        "y": 43,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 384,
+                        "y": 7,
+                        "value": 0.0
+                    }
+                ]
+            },
+            {
+                "name": "q_scan_1",
+                "description": "250m scan value information - first layer",
+                "noDataValue": "255.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 581,
+                        "y": 173,
+                        "value": "NaN"
+                    },
+                    {
+                        "x": 566,
+                        "y": 446,
+                        "value": "NaN"
+                    }
+                ]
+            }
+        ],
+        "metadata": [
+            {
+                "path": "GLOBAL_METADATA/_History",
+                "value": "Direct read of HDF4 file through CDM library; HDF-EOS StructMetadata information was read"
+            },
+            {
+                "path": "GLOBAL_METADATA/l2g_storage_format_500m",
+                "value": "compact"
+            }
+        ]
+    }
+}

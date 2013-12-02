@@ -1,0 +1,273 @@
+{
+    "id": "MODOCL2_A2000338_1810_004_2002170165045",
+    "decodeQualification": "INTENDED",
+    "expectedContent": {
+        "sceneWidth": 1354,
+        "sceneHeight": 2030,
+        "startTime": "03-DEC-2000 17:10:00.000000",
+        "endTime": "03-DEC-2000 17:15:00.000000",
+        "bands": [
+            {
+                "name": "nLw_412",
+                "description": "Normalized water-leaving radiance at 412 nm",
+                "geophysicalUnit": "W/m^2/um/sr",
+                "noDataValue": "-5.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "412.5",
+                "spectralBandwidth": "15.0",
+                "expectedPixels": [
+                    {
+                        "x": 584,
+                        "y": 1091,
+                        "value": 9.044001
+                    },
+                    {
+                        "x": 1005,
+                        "y": 1317,
+                        "value": -0.9999998
+                    }
+                ]
+            },
+            {
+                "name": "nLw_443",
+                "description": "Normalized water-leaving radiance at 443 nm",
+                "geophysicalUnit": "W/m^2/um/sr",
+                "noDataValue": "-5.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "443.0",
+                "spectralBandwidth": "10.0",
+                "expectedPixels": [
+                    {
+                        "x": 70,
+                        "y": 361,
+                        "value": 6.7210007
+                    },
+                    {
+                        "x": 927,
+                        "y": 1726,
+                        "value": 9.258
+                    }
+                ]
+            },
+            {
+                "name": "nLw_488",
+                "description": "Normalized water-leaving radiance at 488 nm",
+                "geophysicalUnit": "W/m^2/um/sr",
+                "noDataValue": "-5.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "488.0",
+                "spectralBandwidth": "10.0",
+                "expectedPixels": [
+                    {
+                        "x": 393,
+                        "y": 521,
+                        "value": 4.2540007
+                    },
+                    {
+                        "x": 826,
+                        "y": 741,
+                        "value": -0.9999998
+                    }
+                ]
+            },
+            {
+                "name": "nLw_531",
+                "description": "Normalized water-leaving radiance at 531 nm",
+                "geophysicalUnit": "W/m^2/um/sr",
+                "noDataValue": "-5.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "531.0",
+                "spectralBandwidth": "10.0",
+                "expectedPixels": [
+                    {
+                        "x": 744,
+                        "y": 1513,
+                        "value": 5.3790007
+                    },
+                    {
+                        "x": 823,
+                        "y": 1884,
+                        "value": 5.0710006
+                    }
+                ]
+            },
+            {
+                "name": "nLw_551",
+                "description": "Normalized water-leaving radiance at 551 nm",
+                "geophysicalUnit": "W/m^2/um/sr",
+                "noDataValue": "-5.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "551.0",
+                "spectralBandwidth": "10.0",
+                "expectedPixels": [
+                    {
+                        "x": 214,
+                        "y": 1352,
+                        "value": -0.9999998
+                    },
+                    {
+                        "x": 702,
+                        "y": 1854,
+                        "value": -0.9999998
+                    }
+                ]
+            },
+            {
+                "name": "nLw_667",
+                "description": "Normalized water-leaving radiance at 667 nm",
+                "geophysicalUnit": "W/m^2/um/sr",
+                "noDataValue": "-5.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "667.0",
+                "spectralBandwidth": "10.0",
+                "expectedPixels": [
+                    {
+                        "x": 1023,
+                        "y": 983,
+                        "value": 0.084000245
+                    },
+                    {
+                        "x": 1287,
+                        "y": 986,
+                        "value": -5.0
+                    }
+                ]
+            },
+            {
+                "name": "nLw_678",
+                "description": "Normalized water-leaving radiance at 678 nm",
+                "geophysicalUnit": "W/m^2/um/sr",
+                "noDataValue": "-5.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "678.0",
+                "spectralBandwidth": "10.0",
+                "expectedPixels": [
+                    {
+                        "x": 460,
+                        "y": 1825,
+                        "value": -0.9999998
+                    },
+                    {
+                        "x": 13,
+                        "y": 955,
+                        "value": -0.9999998
+                    }
+                ]
+            },
+            {
+                "name": "Tau_865",
+                "description": "Aerosol optical thickness at 865 nm",
+                "geophysicalUnit": "non-dimensional",
+                "noDataValue": "-5.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 443,
+                        "y": 400,
+                        "value": 2.3748726E-7
+                    },
+                    {
+                        "x": 369,
+                        "y": 87,
+                        "value": 2.3748726E-7
+                    }
+                ]
+            },
+            {
+                "name": "Eps_78",
+                "description": "Epsilon of aerosol correction at 765 and 865 nm",
+                "geophysicalUnit": "non-dimensional",
+                "noDataValue": "-5.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 1315,
+                        "y": 1227,
+                        "value": 2.3748726E-7
+                    },
+                    {
+                        "x": 774,
+                        "y": 1455,
+                        "value": 1.1040003
+                    }
+                ]
+            },
+            {
+                "name": "aer_model1",
+                "description": "Aerosol model identification number 1",
+                "geophysicalUnit": "non-dimensional",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 314,
+                        "y": 1009,
+                        "value": 6.0
+                    },
+                    {
+                        "x": 434,
+                        "y": 1466,
+                        "value": 10.0
+                    }
+                ]
+            },
+            {
+                "name": "aer_model2",
+                "description": "Aerosol model identification number 2",
+                "geophysicalUnit": "non-dimensional",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 484,
+                        "y": 1011,
+                        "value": 8.0
+                    },
+                    {
+                        "x": 545,
+                        "y": 897,
+                        "value": 10.0
+                    }
+                ]
+            },
+            {
+                "name": "eps_clr_water",
+                "description": "Epsilon of clear water aerosol correction at 531 and 667 nm",
+                "geophysicalUnit": "non-dimensional",
+                "noDataValue": "-5.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 778,
+                        "y": 186,
+                        "value": 2.3748726E-7
+                    },
+                    {
+                        "x": 873,
+                        "y": 32,
+                        "value": 2.3748726E-7
+                    }
+                ]
+            }
+        ],
+        "metadata": [
+            {
+                "path": "GLOBAL_METADATA/MsKeyWords"
+            },
+            {
+                "path": "GLOBAL_METADATA/StructMetadata\\.0",
+                "value": "GROUP=SwathStructure\n\tGROUP=SWATH_1\n\t\tSwathName=\"Swath\"\n\t\tGROUP=Dimension\n\t\t\tOBJECT=Dimension_1\n\t\t\t\tDimensionName=\"Number of records\"\n\t\t\t\tSize=2030\n\t\t\tEND_OBJECT=Dimension_1\n\t\t\tOBJECT=Dimension_2\n\t\t\t\tDimensionName=\"Number of samples per record\"\n\t\t\t\tSize=1354\n\t\t\tEND_OBJECT=Dimension_2\n\t\tEND_GROUP=Dimension\n\t\tGROUP=DimensionMap\n\t\tEND_GROUP=DimensionMap\n\t\tGROUP=IndexDimensionMap\n\t\tEND_GROUP=IndexDimensionMap\n\t\tGROUP=GeoField\n\t\tEND_GROUP=GeoField\n\t\tGROUP=DataField\n\t\t\tOBJECT=DataField_1\n\t\t\t\tDataFieldName=\"nLw_412\"\n\t\t\t\tDataType=DFNT_UINT16\n\t\t\t\tDimList=(\"Number of records\",\"Number of samples per record\")\n\t\t\tEND_OBJECT=DataField_1\n\t\t\tOBJECT=DataField_2\n\t\t\t\tDataFieldName=\"nLw_443\"\n\t\t\t\tDataType=DFNT_UINT16\n\t\t\t\tDimList=(\"Number of records\",\"Number of samples per record\")\n\t\t\tEND_OBJECT=DataField_2\n\t\t\tOBJECT=DataField_3\n\t\t\t\tDataFieldName=\"nLw_488\"\n\t\t\t\tDataType=DFNT_UINT16\n\t\t\t\tDimList=(\"Number of records\",\"Number of samples per record\")\n\t\t\tEND_OBJECT=DataField_3\n\t\t\tOBJECT=DataField_4\n\t\t\t\tDataFieldName=\"nLw_531\"\n\t\t\t\tDataType=DFNT_UINT16\n\t\t\t\tDimList=(\"Number of records\",\"Number of samples per record\")\n\t\t\tEND_OBJECT=DataField_4\n\t\t\tOBJECT=DataField_5\n\t\t\t\tDataFieldName=\"nLw_551\"\n\t\t\t\tDataType=DFNT_UINT16\n\t\t\t\tDimList=(\"Number of records\",\"Number of samples per record\")\n\t\t\tEND_OBJECT=DataField_5\n\t\t\tOBJECT=DataField_6\n\t\t\t\tDataFieldName=\"nLw_667\"\n\t\t\t\tDataType=DFNT_UINT16\n\t\t\t\tDimList=(\"Number of records\",\"Number of samples per record\")\n\t\t\tEND_OBJECT=DataField_6\n\t\t\tOBJECT=DataField_7\n\t\t\t\tDataFieldName=\"nLw_678\"\n\t\t\t\tDataType=DFNT_UINT16\n\t\t\t\tDimList=(\"Number of records\",\"Number of samples per record\")\n\t\t\tEND_OBJECT=DataField_7\n\t\t\tOBJECT=DataField_8\n\t\t\t\tDataFieldName=\"Tau_865\"\n\t\t\t\tDataType=DFNT_UINT16\n\t\t\t\tDimList=(\"Number of records\",\"Number of samples per record\")\n\t\t\tEND_OBJECT=DataField_8\n\t\t\tOBJECT=DataField_9\n\t\t\t\tDataFieldName=\"Eps_78\"\n\t\t\t\tDataType=DFNT_UINT16\n\t\t\t\tDimList=(\"Number of records\",\"Number of samples per record\")\n\t\t\tEND_OBJECT=DataField_9\n\t\t\tOBJECT=DataField_10\n\t\t\t\tDataFieldName=\"aer_model1\"\n\t\t\t\tDataType=DFNT_UINT16\n\t\t\t\tDimList=(\"Number of records\",\"Number of samples per record\")\n\t\t\tEND_OBJECT=DataField_10\n\t\t\tOBJECT=DataField_11\n\t\t\t\tDataFieldName=\"aer_model2\"\n\t\t\t\tDataType=DFNT_UINT16\n\t\t\t\tDimList=(\"Number of records\",\"Number of samples per record\")\n\t\t\tEND_OBJECT=DataField_11\n\t\t\tOBJECT=DataField_12\n\t\t\t\tDataFieldName=\"eps_clr_water\"\n\t\t\t\tDataType=DFNT_UINT16\n\t\t\t\tDimList=(\"Number of records\",\"Number of samples per record\")\n\t\t\tEND_OBJECT=DataField_12\n\t\t\tOBJECT=DataField_13\n\t\t\t\tDataFieldName=\"cldmsk_flags\"\n\t\t\t\tDataType=DFNT_UINT32\n\t\t\t\tDimList=(\"Number of records\",\"Number of samples per record\")\n\t\t\tEND_OBJECT=DataField_13\n\t\t\tOBJECT=DataField_14\n\t\t\t\tDataFieldName=\"common_flags\"\n\t\t\t\tDataType=DFNT_UINT8\n\t\t\t\tDimList=(\"Number of records\",\"Number of samples per record\")\n\t\t\tEND_OBJECT=DataField_14\n\t\t\tOBJECT=DataField_15\n\t\t\t\tDataFieldName=\"L2_flags\"\n\t\t\t\tDataType=DFNT_UINT16\n\t\t\t\tDimList=(\"Number of records\",\"Number of samples per record\")\n\t\t\tEND_OBJECT=DataField_15\n\t\t\tOBJECT=DataField_16\n\t\t\t\tDataFieldName=\"quality\"\n\t\t\t\tDataType=DFNT_UINT8\n\t\t\t\tDimList=(\"Number of records\",\"Number of samples per record\")\n\t\t\tEND_OBJECT=DataField_16\n\t\tEND_GROUP=DataField\n\t\tGROUP=MergedFields\n\t\tEND_GROUP=MergedFields\n\tEND_GROUP=SWATH_1\nEND_GROUP=SwathStructure\nGROUP=GridStructure\nEND_GROUP=GridStructure\nGROUP=PointStructure\nEND_GROUP=PointStructure\nEND\n"
+            }
+        ]
+    }
+}

@@ -1,0 +1,146 @@
+{
+    "id": "MYD28L2_A2005365_0830_040_2006004132536",
+    "decodeQualification": "INTENDED",
+    "expectedContent": {
+        "sceneWidth": 1354,
+        "sceneHeight": 2030,
+        "startTime": "31-DEC-2005 07:30:00.000000",
+        "endTime": "31-DEC-2005 07:35:00.000000",
+        "bands": [
+            {
+                "name": "sst",
+                "description": "Sea Surface Temperature",
+                "geophysicalUnit": "Deg C",
+                "noDataValue": "-300.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 584,
+                        "y": 1091,
+                        "value": -18.930006
+                    },
+                    {
+                        "x": 1005,
+                        "y": 1317,
+                        "value": -29.290007
+                    }
+                ]
+            },
+            {
+                "name": "sst4",
+                "description": "Sea Surface Temperature, 4 micrometer",
+                "geophysicalUnit": "Deg C",
+                "noDataValue": "-300.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 70,
+                        "y": 361,
+                        "value": -28.080006
+                    },
+                    {
+                        "x": 927,
+                        "y": 1726,
+                        "value": -23.680006
+                    }
+                ]
+            },
+            {
+                "name": "cldmsk_flags",
+                "description": "First four bytes from MOD35 Cloud_Mask product",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 393,
+                        "y": 521,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 826,
+                        "y": 741,
+                        "value": 0.0
+                    }
+                ]
+            },
+            {
+                "name": "common_flags",
+                "description": "Ocean data common flags",
+                "geophysicalUnit": "bits",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 744,
+                        "y": 1513,
+                        "value": 128.0
+                    },
+                    {
+                        "x": 823,
+                        "y": 1884,
+                        "value": 128.0
+                    }
+                ]
+            },
+            {
+                "name": "L2_flags",
+                "description": "Ocean L2 bit mask and flags",
+                "geophysicalUnit": "bits",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 214,
+                        "y": 1352,
+                        "value": 52326.0
+                    },
+                    {
+                        "x": 702,
+                        "y": 1854,
+                        "value": 52326.0
+                    }
+                ]
+            },
+            {
+                "name": "quality",
+                "description": "Product quality",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 1023,
+                        "y": 983,
+                        "value": 15.0
+                    },
+                    {
+                        "x": 1287,
+                        "y": 986,
+                        "value": 15.0
+                    }
+                ]
+            }
+        ],
+        "metadata": [
+            {
+                "path": "GLOBAL_METADATA/ArchiveMetadata\\.0",
+                "value": "\nGROUP                  = ARCHIVEDMETADATA\n  GROUPTYPE            = MASTERGROUP\n\n  OBJECT                 = PROCESSINGENVIRONMENT\n    NUM_VAL              = 1\n    VALUE                = \"Linux minion5104 2.6.8.1-24mdksmp #1 SMP Thu Jan 13 23:11:43 MST 2005 i686 Intel(R) Pentium(R) III CPU family      1133MHz unknown GNU/Linux\"\n  END_OBJECT             = PROCESSINGENVIRONMENT\n\n  OBJECT                 = DESCRREVISION\n    NUM_VAL              = 1\n    VALUE                = \"4.0\"\n  END_OBJECT             = DESCRREVISION\n\n  OBJECT                 = PRODUCTIONHISTORY\n    NUM_VAL              = 1\n    VALUE                = \"PGE10 modsst 4.10.6;PGE02:4.3.1.24;PGE01:4.1.19\"\n  END_OBJECT             = PRODUCTIONHISTORY\n\n  GROUP                  = BOUNDINGRECTANGLE\n\n    OBJECT                 = NORTHBOUNDINGCOORDINATE\n      NUM_VAL              = 1\n      VALUE                = 71.3945588435224\n    END_OBJECT             = NORTHBOUNDINGCOORDINATE\n\n    OBJECT                 = SOUTHBOUNDINGCOORDINATE\n      NUM_VAL              = 1\n      VALUE                = 48.6529031390168\n    END_OBJECT             = SOUTHBOUNDINGCOORDINATE\n\n    OBJECT                 = EASTBOUNDINGCOORDINATE\n      NUM_VAL              = 1\n      VALUE                = -59.8599230038132\n    END_OBJECT             = EASTBOUNDINGCOORDINATE\n\n    OBJECT                 = WESTBOUNDINGCOORDINATE\n      NUM_VAL              = 1\n      VALUE                = -113.38707917066\n    END_OBJECT             = WESTBOUNDINGCOORDINATE\n\n  END_GROUP              = BOUNDINGRECTANGLE\n\n  OBJECT                 = LONGNAME\n    NUM_VAL              = 1\n    VALUE                = \"MODIS/Aqua Sea Surface Temperature Products 5-Min L2 Swath 1km\"\n  END_OBJECT             = LONGNAME\n\nEND_GROUP              = ARCHIVEDMETADATA\n\nEND\n"
+            },
+            {
+                "path": "GLOBAL_METADATA/Descending_Start",
+                "value": "1"
+            }
+        ]
+    }
+}

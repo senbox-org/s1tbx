@@ -1,0 +1,1979 @@
+{
+    "id": "MOD021KM_calibrated_AQUA_50848_1322180205",
+    "decodeQualification": "INTENDED",
+    "expectedContent": {
+        "sceneWidth": 1354,
+        "sceneHeight": 4150,
+        "startTime": "24-NOV-2011 23:03:34.000000",
+        "endTime": "24-NOV-2011 23:13:48.000000",
+        "geoCoding": {
+            "coordinates": [
+                {
+                    "x": 584.0,
+                    "y": 2230.0,
+                    "lat": 38.058937,
+                    "lon": 26.832748
+                },
+                {
+                    "x": 1005.0,
+                    "y": 2692.0,
+                    "lat": 33.203365,
+                    "lon": 30.504412
+                }
+            ],
+            "reverseAccuracy": 0.07,
+            "geoCodingClass": "org.esa.beam.dataio.modis.ModisTiePointGeoCoding"
+        },
+        "tiePointGrids": [
+            {
+                "name": "Latitude",
+                "offsetX": "2.0",
+                "offsetY": "2.5",
+                "subSamplingX": "5.0",
+                "subSamplingY": "5.0",
+                "expectedPixels": [
+                    {
+                        "x": 70,
+                        "y": 739,
+                        "value": 52.164856
+                    },
+                    {
+                        "x": 927,
+                        "y": 3529,
+                        "value": 25.976488
+                    }
+                ]
+            },
+            {
+                "name": "Longitude",
+                "offsetX": "2.0",
+                "offsetY": "2.5",
+                "subSamplingX": "5.0",
+                "subSamplingY": "5.0",
+                "expectedPixels": [
+                    {
+                        "x": 393,
+                        "y": 1065,
+                        "value": 27.370422
+                    },
+                    {
+                        "x": 826,
+                        "y": 1515,
+                        "value": 31.802338
+                    }
+                ]
+            },
+            {
+                "name": "Height",
+                "offsetX": "2.0",
+                "offsetY": "2.5",
+                "subSamplingX": "5.0",
+                "subSamplingY": "5.0",
+                "expectedPixels": [
+                    {
+                        "x": 744,
+                        "y": 3093,
+                        "value": 197.20016
+                    },
+                    {
+                        "x": 823,
+                        "y": 3853,
+                        "value": 635.0802
+                    }
+                ]
+            },
+            {
+                "name": "SensorZenith",
+                "offsetX": "2.0",
+                "offsetY": "2.5",
+                "subSamplingX": "5.0",
+                "subSamplingY": "5.0",
+                "expectedPixels": [
+                    {
+                        "x": 214,
+                        "y": 2764,
+                        "value": 42.635
+                    },
+                    {
+                        "x": 702,
+                        "y": 3791,
+                        "value": 2.3290024
+                    }
+                ]
+            },
+            {
+                "name": "SensorAzimuth",
+                "offsetX": "2.0",
+                "offsetY": "2.5",
+                "subSamplingX": "5.0",
+                "subSamplingY": "5.0",
+                "expectedPixels": [
+                    {
+                        "x": 1023,
+                        "y": 2011,
+                        "value": -77.10859
+                    },
+                    {
+                        "x": 1287,
+                        "y": 2016,
+                        "value": -72.931
+                    }
+                ]
+            },
+            {
+                "name": "Range",
+                "offsetX": "2.0",
+                "offsetY": "2.5",
+                "subSamplingX": "5.0",
+                "subSamplingY": "5.0",
+                "expectedPixels": [
+                    {
+                        "x": 460,
+                        "y": 3732,
+                        "value": 743720.0
+                    },
+                    {
+                        "x": 13,
+                        "y": 1953,
+                        "value": 1364133.5
+                    }
+                ]
+            },
+            {
+                "name": "SolarZenith",
+                "offsetX": "2.0",
+                "offsetY": "2.5",
+                "subSamplingX": "5.0",
+                "subSamplingY": "5.0",
+                "expectedPixels": [
+                    {
+                        "x": 443,
+                        "y": 818,
+                        "value": 139.974
+                    },
+                    {
+                        "x": 369,
+                        "y": 179,
+                        "value": 136.187
+                    }
+                ]
+            },
+            {
+                "name": "SolarAzimuth",
+                "offsetX": "2.0",
+                "offsetY": "2.5",
+                "subSamplingX": "5.0",
+                "subSamplingY": "5.0",
+                "expectedPixels": [
+                    {
+                        "x": 1315,
+                        "y": 2509,
+                        "value": 83.03999
+                    },
+                    {
+                        "x": 774,
+                        "y": 2974,
+                        "value": 78.471
+                    }
+                ]
+            }
+        ],
+        "bands": [
+            {
+                "name": "EV_250_Aggr1km_RefSB.1",
+                "description": "Earth View 250M Aggregated 1km Reflective Solar Bands Scaled Integers",
+                "geophysicalUnit": "Watts/m^2/micrometer/steradian",
+                "noDataValue": "1673.0588213447481",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "645.0",
+                "spectralBandwidth": "50.0",
+                "expectedPixels": [
+                    {
+                        "x": 314,
+                        "y": 2064,
+                        "value": "NaN"
+                    },
+                    {
+                        "x": 434,
+                        "y": 2998,
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "EV_250_Aggr1km_RefSB.2",
+                "description": "Earth View 250M Aggregated 1km Reflective Solar Bands Scaled Integers",
+                "geophysicalUnit": "Watts/m^2/micrometer/steradian",
+                "noDataValue": "567.2637440124527",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "858.5",
+                "spectralBandwidth": "35.0",
+                "expectedPixels": [
+                    {
+                        "x": 484,
+                        "y": 2067,
+                        "value": "NaN"
+                    },
+                    {
+                        "x": 545,
+                        "y": 1835,
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "EV_500_Aggr1km_RefSB.3",
+                "description": "Earth View 500M Aggregated 1km Reflective Solar Bands Scaled Integers",
+                "geophysicalUnit": "Watts/m^2/micrometer/steradian",
+                "noDataValue": "1543.4913404099643",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "469.0",
+                "spectralBandwidth": "20.0",
+                "expectedPixels": [
+                    {
+                        "x": 778,
+                        "y": 381,
+                        "value": "NaN"
+                    },
+                    {
+                        "x": 873,
+                        "y": 65,
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "EV_500_Aggr1km_RefSB.4",
+                "description": "Earth View 500M Aggregated 1km Reflective Solar Bands Scaled Integers",
+                "geophysicalUnit": "Watts/m^2/micrometer/steradian",
+                "noDataValue": "1239.5998593326658",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "555.0",
+                "spectralBandwidth": "20.0",
+                "expectedPixels": [
+                    {
+                        "x": 1320,
+                        "y": 1524,
+                        "value": "NaN"
+                    },
+                    {
+                        "x": 1286,
+                        "y": 3927,
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "EV_500_Aggr1km_RefSB.5",
+                "description": "Earth View 500M Aggregated 1km Reflective Solar Bands Scaled Integers",
+                "geophysicalUnit": "Watts/m^2/micrometer/steradian",
+                "noDataValue": "321.1774721927941",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "1240.0",
+                "spectralBandwidth": "20.0",
+                "expectedPixels": [
+                    {
+                        "x": 150,
+                        "y": 1875,
+                        "value": "NaN"
+                    },
+                    {
+                        "x": 773,
+                        "y": 2334,
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "EV_500_Aggr1km_RefSB.6",
+                "description": "Earth View 500M Aggregated 1km Reflective Solar Bands Scaled Integers",
+                "geophysicalUnit": "Watts/m^2/micrometer/steradian",
+                "noDataValue": "174.3232372147031",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "1640.0",
+                "spectralBandwidth": "24.0",
+                "expectedPixels": [
+                    {
+                        "x": 684,
+                        "y": 2164,
+                        "value": "NaN"
+                    },
+                    {
+                        "x": 610,
+                        "y": 2411,
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "EV_500_Aggr1km_RefSB.7",
+                "description": "Earth View 500M Aggregated 1km Reflective Solar Bands Scaled Integers",
+                "geophysicalUnit": "Watts/m^2/micrometer/steradian",
+                "noDataValue": "53.95647877041483",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "2130.0",
+                "spectralBandwidth": "50.0",
+                "expectedPixels": [
+                    {
+                        "x": 19,
+                        "y": 1762,
+                        "value": "NaN"
+                    },
+                    {
+                        "x": 95,
+                        "y": 4120,
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "EV_1KM_RefSB.8",
+                "description": "Earth View 1KM Reflective Solar Bands Scaled Integers",
+                "geophysicalUnit": "Watts/m^2/micrometer/steradian",
+                "noDataValue": "589.0295382291079",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "412.5",
+                "spectralBandwidth": "15.0",
+                "expectedPixels": [
+                    {
+                        "x": 401,
+                        "y": 3092,
+                        "value": "NaN"
+                    },
+                    {
+                        "x": 1087,
+                        "y": 3056,
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "EV_1KM_RefSB.9",
+                "description": "Earth View 1KM Reflective Solar Bands Scaled Integers",
+                "geophysicalUnit": "Watts/m^2/micrometer/steradian",
+                "noDataValue": "377.20229169214144",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "443.0",
+                "spectralBandwidth": "10.0",
+                "expectedPixels": [
+                    {
+                        "x": 1129,
+                        "y": 3923,
+                        "value": "NaN"
+                    },
+                    {
+                        "x": 336,
+                        "y": 2206,
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "EV_1KM_RefSB.10",
+                "description": "Earth View 1KM Reflective Solar Bands Scaled Integers",
+                "geophysicalUnit": "Watts/m^2/micrometer/steradian",
+                "noDataValue": "258.07317836023867",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "488.0",
+                "spectralBandwidth": "10.0",
+                "expectedPixels": [
+                    {
+                        "x": 827,
+                        "y": 1079,
+                        "value": "NaN"
+                    },
+                    {
+                        "x": 748,
+                        "y": 626,
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "EV_1KM_RefSB.11",
+                "description": "Earth View 1KM Reflective Solar Bands Scaled Integers",
+                "geophysicalUnit": "Watts/m^2/micrometer/steradian",
+                "noDataValue": "194.54120955686085",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "531.0",
+                "spectralBandwidth": "10.0",
+                "expectedPixels": [
+                    {
+                        "x": 643,
+                        "y": 2320,
+                        "value": "NaN"
+                    },
+                    {
+                        "x": 129,
+                        "y": 3526,
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "EV_1KM_RefSB.12",
+                "description": "Earth View 1KM Reflective Solar Bands Scaled Integers",
+                "geophysicalUnit": "Watts/m^2/micrometer/steradian",
+                "noDataValue": "152.93707527057268",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "551.0",
+                "spectralBandwidth": "10.0",
+                "expectedPixels": [
+                    {
+                        "x": 130,
+                        "y": 322,
+                        "value": "NaN"
+                    },
+                    {
+                        "x": 616,
+                        "y": 2806,
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "EV_1KM_RefSB.13lo",
+                "description": "Earth View 1KM Reflective Solar Bands Scaled Integers",
+                "geophysicalUnit": "Watts/m^2/micrometer/steradian",
+                "noDataValue": "74.2117869053036",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "667.0",
+                "spectralBandwidth": "10.0",
+                "expectedPixels": [
+                    {
+                        "x": 629,
+                        "y": 3715,
+                        "value": "NaN"
+                    },
+                    {
+                        "x": 1174,
+                        "y": 2490,
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "EV_1KM_RefSB.13hi",
+                "description": "Earth View 1KM Reflective Solar Bands Scaled Integers",
+                "geophysicalUnit": "Watts/m^2/micrometer/steradian",
+                "noDataValue": "35.59051939280471",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "667.0",
+                "spectralBandwidth": "10.0",
+                "expectedPixels": [
+                    {
+                        "x": 1302,
+                        "y": 1581,
+                        "value": "NaN"
+                    },
+                    {
+                        "x": 118,
+                        "y": 2210,
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "EV_1KM_RefSB.14lo",
+                "description": "Earth View 1KM Reflective Solar Bands Scaled Integers",
+                "geophysicalUnit": "Watts/m^2/micrometer/steradian",
+                "noDataValue": "75.1687833351316",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "678.0",
+                "spectralBandwidth": "10.0",
+                "expectedPixels": [
+                    {
+                        "x": 995,
+                        "y": 2469,
+                        "value": "NaN"
+                    },
+                    {
+                        "x": 1321,
+                        "y": 771,
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "EV_1KM_RefSB.14hi",
+                "description": "Earth View 1KM Reflective Solar Bands Scaled Integers",
+                "geophysicalUnit": "Watts/m^2/micrometer/steradian",
+                "noDataValue": "27.252809361554682",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "678.0",
+                "spectralBandwidth": "10.0",
+                "expectedPixels": [
+                    {
+                        "x": 623,
+                        "y": 1083,
+                        "value": "NaN"
+                    },
+                    {
+                        "x": 310,
+                        "y": 2687,
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "EV_1KM_RefSB.15",
+                "description": "Earth View 1KM Reflective Solar Bands Scaled Integers",
+                "geophysicalUnit": "Watts/m^2/micrometer/steradian",
+                "noDataValue": "61.048137633828446",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "748.0",
+                "spectralBandwidth": "10.0",
+                "expectedPixels": [
+                    {
+                        "x": 866,
+                        "y": 1815,
+                        "value": "NaN"
+                    },
+                    {
+                        "x": 719,
+                        "y": 2353,
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "EV_1KM_RefSB.16",
+                "description": "Earth View 1KM Reflective Solar Bands Scaled Integers",
+                "geophysicalUnit": "Watts/m^2/micrometer/steradian",
+                "noDataValue": "39.463193858682644",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "869.5",
+                "spectralBandwidth": "15.0",
+                "expectedPixels": [
+                    {
+                        "x": 536,
+                        "y": 887,
+                        "value": "NaN"
+                    },
+                    {
+                        "x": 377,
+                        "y": 3688,
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "EV_1KM_RefSB.17",
+                "description": "Earth View 1KM Reflective Solar Bands Scaled Integers",
+                "geophysicalUnit": "Watts/m^2/micrometer/steradian",
+                "noDataValue": "412.44787040678784",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "905.0",
+                "spectralBandwidth": "30.0",
+                "expectedPixels": [
+                    {
+                        "x": 1280,
+                        "y": 2406,
+                        "value": "NaN"
+                    },
+                    {
+                        "x": 1026,
+                        "y": 1361,
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "EV_1KM_RefSB.18",
+                "description": "Earth View 1KM Reflective Solar Bands Scaled Integers",
+                "geophysicalUnit": "Watts/m^2/micrometer/steradian",
+                "noDataValue": "605.5492160078138",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "936.0",
+                "spectralBandwidth": "10.0",
+                "expectedPixels": [
+                    {
+                        "x": 759,
+                        "y": 1207,
+                        "value": "NaN"
+                    },
+                    {
+                        "x": 1122,
+                        "y": 3613,
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "EV_1KM_RefSB.19",
+                "description": "Earth View 1KM Reflective Solar Bands Scaled Integers",
+                "geophysicalUnit": "Watts/m^2/micrometer/steradian",
+                "noDataValue": "451.69402471510693",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "940.0",
+                "spectralBandwidth": "50.0",
+                "expectedPixels": [
+                    {
+                        "x": 146,
+                        "y": 3681,
+                        "value": "NaN"
+                    },
+                    {
+                        "x": 465,
+                        "y": 3378,
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "EV_1KM_RefSB.26",
+                "description": "Earth View 1KM Reflective Solar Bands Scaled Integers",
+                "geophysicalUnit": "Watts/m^2/micrometer/steradian",
+                "noDataValue": "183.75556893483736",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "1375.0",
+                "spectralBandwidth": "30.0",
+                "expectedPixels": [
+                    {
+                        "x": 246,
+                        "y": 2873,
+                        "value": "NaN"
+                    },
+                    {
+                        "x": 802,
+                        "y": 2278,
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "EV_1KM_Emissive.20",
+                "description": "Earth View 1KM Emissive Bands Scaled Integers",
+                "geophysicalUnit": "Watts/m^2/micrometer/steradian",
+                "noDataValue": "4.371069250257278",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "3750.0",
+                "spectralBandwidth": "180.0",
+                "expectedPixels": [
+                    {
+                        "x": 278,
+                        "y": 1270,
+                        "value": 0.10186374
+                    },
+                    {
+                        "x": 555,
+                        "y": 3584,
+                        "value": 0.18281494
+                    }
+                ]
+            },
+            {
+                "name": "EV_1KM_Emissive.21",
+                "description": "Earth View 1KM Emissive Bands Scaled Integers",
+                "geophysicalUnit": "Watts/m^2/micrometer/steradian",
+                "noDataValue": "218.60347241302952",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "3959.0",
+                "spectralBandwidth": "60.0",
+                "expectedPixels": [
+                    {
+                        "x": 950,
+                        "y": 3724,
+                        "value": 0.2856714
+                    },
+                    {
+                        "x": 402,
+                        "y": 4119,
+                        "value": 0.30300593
+                    }
+                ]
+            },
+            {
+                "name": "EV_1KM_Emissive.22",
+                "description": "Earth View 1KM Emissive Bands Scaled Integers",
+                "geophysicalUnit": "Watts/m^2/micrometer/steradian",
+                "noDataValue": "4.80907599467173",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "3959.0",
+                "spectralBandwidth": "60.0",
+                "expectedPixels": [
+                    {
+                        "x": 740,
+                        "y": 484,
+                        "value": 0.10569087
+                    },
+                    {
+                        "x": 263,
+                        "y": 2328,
+                        "value": 0.14161204
+                    }
+                ]
+            },
+            {
+                "name": "EV_1KM_Emissive.23",
+                "description": "Earth View 1KM Emissive Bands Scaled Integers",
+                "geophysicalUnit": "Watts/m^2/micrometer/steradian",
+                "noDataValue": "5.676090052838845",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "4050.0",
+                "spectralBandwidth": "60.0",
+                "expectedPixels": [
+                    {
+                        "x": 620,
+                        "y": 534,
+                        "value": 0.1530704
+                    },
+                    {
+                        "x": 1122,
+                        "y": 2377,
+                        "value": 0.45803675
+                    }
+                ]
+            },
+            {
+                "name": "EV_1KM_Emissive.24",
+                "description": "Earth View 1KM Emissive Bands Scaled Integers",
+                "geophysicalUnit": "Watts/m^2/micrometer/steradian",
+                "noDataValue": "2.034031462721032",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "4465.5",
+                "spectralBandwidth": "65.0",
+                "expectedPixels": [
+                    {
+                        "x": 138,
+                        "y": 2808,
+                        "value": 0.076225586
+                    },
+                    {
+                        "x": 989,
+                        "y": 1959,
+                        "value": 0.06884145
+                    }
+                ]
+            },
+            {
+                "name": "EV_1KM_Emissive.25",
+                "description": "Earth View 1KM Emissive Bands Scaled Integers",
+                "geophysicalUnit": "Watts/m^2/micrometer/steradian",
+                "noDataValue": "3.608056465989648",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "4515.5",
+                "spectralBandwidth": "67.0",
+                "expectedPixels": [
+                    {
+                        "x": 193,
+                        "y": 276,
+                        "value": 0.17239052
+                    },
+                    {
+                        "x": 1139,
+                        "y": 1243,
+                        "value": 0.16579193
+                    }
+                ]
+            },
+            {
+                "name": "EV_1KM_Emissive.27",
+                "description": "Earth View 1KM Emissive Bands Scaled Integers",
+                "geophysicalUnit": "Watts/m^2/micrometer/steradian",
+                "noDataValue": "7.401117837885977",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "6715.0",
+                "spectralBandwidth": "360.0",
+                "expectedPixels": [
+                    {
+                        "x": 801,
+                        "y": 4033,
+                        "value": 1.3901558
+                    },
+                    {
+                        "x": 1052,
+                        "y": 113,
+                        "value": 0.9484038
+                    }
+                ]
+            },
+            {
+                "name": "EV_1KM_Emissive.28",
+                "description": "Earth View 1KM Emissive Bands Scaled Integers",
+                "geophysicalUnit": "Watts/m^2/micrometer/steradian",
+                "noDataValue": "12.166192336648237",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "7325.0",
+                "spectralBandwidth": "300.0",
+                "expectedPixels": [
+                    {
+                        "x": 293,
+                        "y": 1022,
+                        "value": 2.64455
+                    },
+                    {
+                        "x": 432,
+                        "y": 804,
+                        "value": 2.5021372
+                    }
+                ]
+            },
+            {
+                "name": "EV_1KM_Emissive.29",
+                "description": "Earth View 1KM Emissive Bands Scaled Integers",
+                "geophysicalUnit": "Watts/m^2/micrometer/steradian",
+                "noDataValue": "35.05455623072339",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "8550.0",
+                "spectralBandwidth": "300.0",
+                "expectedPixels": [
+                    {
+                        "x": 382,
+                        "y": 3665,
+                        "value": 5.300097
+                    },
+                    {
+                        "x": 1350,
+                        "y": 313,
+                        "value": 2.8539371
+                    }
+                ]
+            },
+            {
+                "name": "EV_1KM_Emissive.30",
+                "description": "Earth View 1KM Emissive Bands Scaled Integers",
+                "geophysicalUnit": "Watts/m^2/micrometer/steradian",
+                "noDataValue": "25.99440652274643",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "9730.0",
+                "spectralBandwidth": "300.0",
+                "expectedPixels": [
+                    {
+                        "x": 1108,
+                        "y": 2082,
+                        "value": 3.3504076
+                    },
+                    {
+                        "x": 84,
+                        "y": 1599,
+                        "value": 2.4719365
+                    }
+                ]
+            },
+            {
+                "name": "EV_1KM_Emissive.31",
+                "description": "Earth View 1KM Emissive Bands Scaled Integers",
+                "geophysicalUnit": "Watts/m^2/micrometer/steradian",
+                "noDataValue": "41.32565148273716",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "11030.0",
+                "spectralBandwidth": "500.0",
+                "expectedPixels": [
+                    {
+                        "x": 375,
+                        "y": 2415,
+                        "value": 6.3968277
+                    },
+                    {
+                        "x": 1257,
+                        "y": 576,
+                        "value": 3.9465384
+                    }
+                ]
+            },
+            {
+                "name": "EV_1KM_Emissive.32",
+                "description": "Earth View 1KM Emissive Bands Scaled Integers",
+                "geophysicalUnit": "Watts/m^2/micrometer/steradian",
+                "noDataValue": "36.21057153865695",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "12020.0",
+                "spectralBandwidth": "500.0",
+                "expectedPixels": [
+                    {
+                        "x": 141,
+                        "y": 604,
+                        "value": 5.670566
+                    },
+                    {
+                        "x": 1196,
+                        "y": 442,
+                        "value": 4.508007
+                    }
+                ]
+            },
+            {
+                "name": "EV_1KM_Emissive.33",
+                "description": "Earth View 1KM Emissive Bands Scaled Integers",
+                "geophysicalUnit": "Watts/m^2/micrometer/steradian",
+                "noDataValue": "16.53626166068716",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "13335.0",
+                "spectralBandwidth": "300.0",
+                "expectedPixels": [
+                    {
+                        "x": 500,
+                        "y": 3657,
+                        "value": 5.1862473
+                    },
+                    {
+                        "x": 792,
+                        "y": 2388,
+                        "value": 5.0104814
+                    }
+                ]
+            },
+            {
+                "name": "EV_1KM_Emissive.34",
+                "description": "Earth View 1KM Emissive Bands Scaled Integers",
+                "geophysicalUnit": "Watts/m^2/micrometer/steradian",
+                "noDataValue": "12.662201160972472",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "13635.0",
+                "spectralBandwidth": "300.0",
+                "expectedPixels": [
+                    {
+                        "x": 457,
+                        "y": 1352,
+                        "value": 3.5534217
+                    },
+                    {
+                        "x": 506,
+                        "y": 3553,
+                        "value": 4.2235336
+                    }
+                ]
+            },
+            {
+                "name": "EV_1KM_Emissive.35",
+                "description": "Earth View 1KM Emissive Bands Scaled Integers",
+                "geophysicalUnit": "Watts/m^2/micrometer/steradian",
+                "noDataValue": "11.142176652283524",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "13935.0",
+                "spectralBandwidth": "300.0",
+                "expectedPixels": [
+                    {
+                        "x": 441,
+                        "y": 2842,
+                        "value": 3.3697217
+                    },
+                    {
+                        "x": 871,
+                        "y": 2802,
+                        "value": 3.3410861
+                    }
+                ]
+            },
+            {
+                "name": "EV_1KM_Emissive.36",
+                "description": "Earth View 1KM Emissive Bands Scaled Integers",
+                "geophysicalUnit": "Watts/m^2/micrometer/steradian",
+                "noDataValue": "7.476118255101028",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "14235.0",
+                "spectralBandwidth": "300.0",
+                "expectedPixels": [
+                    {
+                        "x": 717,
+                        "y": 541,
+                        "value": 2.208962
+                    },
+                    {
+                        "x": 627,
+                        "y": 3322,
+                        "value": 2.5129209
+                    }
+                ]
+            },
+            {
+                "name": "EV_Band26",
+                "description": "Earth View Band 26 Scaled Integers",
+                "geophysicalUnit": "Watts/m^2/micrometer/steradian",
+                "noDataValue": "183.75556893483736",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "1375.0",
+                "spectralBandwidth": "30.0",
+                "expectedPixels": [
+                    {
+                        "x": 1086,
+                        "y": 3743,
+                        "value": -0.0027392125
+                    },
+                    {
+                        "x": 34,
+                        "y": 2898,
+                        "value": 0.031071482
+                    }
+                ]
+            },
+            {
+                "name": "EV_250_Aggr1km_RefSB_Uncert_Indexes.1",
+                "description": "Earth View 250M Aggregated 1km Reflective Solar Bands Uncertainty Indexes",
+                "geophysicalUnit": "percent",
+                "noDataValue": "-1.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 1203,
+                        "y": 2390,
+                        "value": 1.3003168
+                    },
+                    {
+                        "x": 863,
+                        "y": 3766,
+                        "value": 1.3003168
+                    }
+                ]
+            },
+            {
+                "name": "EV_250_Aggr1km_RefSB_Uncert_Indexes.2",
+                "description": "Earth View 250M Aggregated 1km Reflective Solar Bands Uncertainty Indexes",
+                "geophysicalUnit": "percent",
+                "noDataValue": "-1.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 1330,
+                        "y": 1340,
+                        "value": 1.3003168
+                    },
+                    {
+                        "x": 486,
+                        "y": 22,
+                        "value": 1.3003168
+                    }
+                ]
+            },
+            {
+                "name": "EV_500_Aggr1km_RefSB_Uncert_Indexes.3",
+                "description": "Earth View 500M Aggregated 1km Reflective Solar Bands Uncertainty Indexes",
+                "geophysicalUnit": "percent",
+                "noDataValue": "-1.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 1136,
+                        "y": 2361,
+                        "value": 1.3003168
+                    },
+                    {
+                        "x": 799,
+                        "y": 1652,
+                        "value": 1.3003168
+                    }
+                ]
+            },
+            {
+                "name": "EV_500_Aggr1km_RefSB_Uncert_Indexes.4",
+                "description": "Earth View 500M Aggregated 1km Reflective Solar Bands Uncertainty Indexes",
+                "geophysicalUnit": "percent",
+                "noDataValue": "-1.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 534,
+                        "y": 4101,
+                        "value": 1.3003168
+                    },
+                    {
+                        "x": 310,
+                        "y": 2976,
+                        "value": 1.3003168
+                    }
+                ]
+            },
+            {
+                "name": "EV_500_Aggr1km_RefSB_Uncert_Indexes.5",
+                "description": "Earth View 500M Aggregated 1km Reflective Solar Bands Uncertainty Indexes",
+                "geophysicalUnit": "percent",
+                "noDataValue": "-1.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 1271,
+                        "y": 1197,
+                        "value": 1.2280961
+                    },
+                    {
+                        "x": 425,
+                        "y": 3535,
+                        "value": 1.2280961
+                    }
+                ]
+            },
+            {
+                "name": "EV_500_Aggr1km_RefSB_Uncert_Indexes.6",
+                "description": "Earth View 500M Aggregated 1km Reflective Solar Bands Uncertainty Indexes",
+                "geophysicalUnit": "percent",
+                "noDataValue": "-1.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 443,
+                        "y": 2194,
+                        "value": 1.2280961
+                    },
+                    {
+                        "x": 484,
+                        "y": 3318,
+                        "value": 1.2280961
+                    }
+                ]
+            },
+            {
+                "name": "EV_500_Aggr1km_RefSB_Uncert_Indexes.7",
+                "description": "Earth View 500M Aggregated 1km Reflective Solar Bands Uncertainty Indexes",
+                "geophysicalUnit": "percent",
+                "noDataValue": "-1.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 758,
+                        "y": 905,
+                        "value": 1.2280961
+                    },
+                    {
+                        "x": 128,
+                        "y": 2923,
+                        "value": 1.2280961
+                    }
+                ]
+            },
+            {
+                "name": "EV_1KM_Emissive_Uncert_Indexes.20",
+                "description": "Earth View 1KM Emissive Bands Uncertainty Indexes",
+                "geophysicalUnit": "percent",
+                "noDataValue": "-1.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 951,
+                        "y": 3299,
+                        "value": 0.6870391
+                    },
+                    {
+                        "x": 1142,
+                        "y": 282,
+                        "value": 1.0249418
+                    }
+                ]
+            },
+            {
+                "name": "EV_1KM_Emissive_Uncert_Indexes.21",
+                "description": "Earth View 1KM Emissive Bands Uncertainty Indexes",
+                "geophysicalUnit": "percent",
+                "noDataValue": "-1.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 1132,
+                        "y": 942,
+                        "value": 39.10658
+                    },
+                    {
+                        "x": 883,
+                        "y": 3860,
+                        "value": 11.204223
+                    }
+                ]
+            },
+            {
+                "name": "EV_1KM_Emissive_Uncert_Indexes.22",
+                "description": "Earth View 1KM Emissive Bands Uncertainty Indexes",
+                "geophysicalUnit": "percent",
+                "noDataValue": "-1.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 362,
+                        "y": 3575,
+                        "value": 0.5
+                    },
+                    {
+                        "x": 523,
+                        "y": 1539,
+                        "value": 0.6420127
+                    }
+                ]
+            },
+            {
+                "name": "EV_1KM_Emissive_Uncert_Indexes.23",
+                "description": "Earth View 1KM Emissive Bands Uncertainty Indexes",
+                "geophysicalUnit": "percent",
+                "noDataValue": "-1.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 1315,
+                        "y": 2824,
+                        "value": 0.6420127
+                    },
+                    {
+                        "x": 981,
+                        "y": 1775,
+                        "value": 0.6420127
+                    }
+                ]
+            },
+            {
+                "name": "EV_1KM_Emissive_Uncert_Indexes.24",
+                "description": "Earth View 1KM Emissive Bands Uncertainty Indexes",
+                "geophysicalUnit": "percent",
+                "noDataValue": "-1.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 675,
+                        "y": 576,
+                        "value": 1.3591409
+                    },
+                    {
+                        "x": 1311,
+                        "y": 564,
+                        "value": 2.8773015
+                    }
+                ]
+            },
+            {
+                "name": "EV_1KM_Emissive_Uncert_Indexes.25",
+                "description": "Earth View 1KM Emissive Bands Uncertainty Indexes",
+                "geophysicalUnit": "percent",
+                "noDataValue": "-1.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 976,
+                        "y": 2307,
+                        "value": 0.5
+                    },
+                    {
+                        "x": 955,
+                        "y": 4107,
+                        "value": 0.5
+                    }
+                ]
+            },
+            {
+                "name": "EV_1KM_Emissive_Uncert_Indexes.27",
+                "description": "Earth View 1KM Emissive Bands Uncertainty Indexes",
+                "geophysicalUnit": "percent",
+                "noDataValue": "-1.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 867,
+                        "y": 3759,
+                        "value": 0.5
+                    },
+                    {
+                        "x": 1131,
+                        "y": 2203,
+                        "value": 0.5
+                    }
+                ]
+            },
+            {
+                "name": "EV_1KM_Emissive_Uncert_Indexes.28",
+                "description": "Earth View 1KM Emissive Bands Uncertainty Indexes",
+                "geophysicalUnit": "percent",
+                "noDataValue": "-1.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 676,
+                        "y": 3858,
+                        "value": 0.5
+                    },
+                    {
+                        "x": 774,
+                        "y": 3205,
+                        "value": 0.5
+                    }
+                ]
+            },
+            {
+                "name": "EV_1KM_Emissive_Uncert_Indexes.29",
+                "description": "Earth View 1KM Emissive Bands Uncertainty Indexes",
+                "geophysicalUnit": "percent",
+                "noDataValue": "-1.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 1258,
+                        "y": 162,
+                        "value": 0.5
+                    },
+                    {
+                        "x": 953,
+                        "y": 3000,
+                        "value": 0.5
+                    }
+                ]
+            },
+            {
+                "name": "EV_1KM_Emissive_Uncert_Indexes.30",
+                "description": "Earth View 1KM Emissive Bands Uncertainty Indexes",
+                "geophysicalUnit": "percent",
+                "noDataValue": "-1.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 470,
+                        "y": 28,
+                        "value": 0.5
+                    },
+                    {
+                        "x": 293,
+                        "y": 3570,
+                        "value": 0.5
+                    }
+                ]
+            },
+            {
+                "name": "EV_1KM_Emissive_Uncert_Indexes.31",
+                "description": "Earth View 1KM Emissive Bands Uncertainty Indexes",
+                "geophysicalUnit": "percent",
+                "noDataValue": "-1.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 170,
+                        "y": 421,
+                        "value": 0.375
+                    },
+                    {
+                        "x": 116,
+                        "y": 475,
+                        "value": 0.375
+                    }
+                ]
+            },
+            {
+                "name": "EV_1KM_Emissive_Uncert_Indexes.32",
+                "description": "Earth View 1KM Emissive Bands Uncertainty Indexes",
+                "geophysicalUnit": "percent",
+                "noDataValue": "-1.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 942,
+                        "y": 290,
+                        "value": 0.375
+                    },
+                    {
+                        "x": 651,
+                        "y": 3602,
+                        "value": 0.375
+                    }
+                ]
+            },
+            {
+                "name": "EV_1KM_Emissive_Uncert_Indexes.33",
+                "description": "Earth View 1KM Emissive Bands Uncertainty Indexes",
+                "geophysicalUnit": "percent",
+                "noDataValue": "-1.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 226,
+                        "y": 981,
+                        "value": 0.5
+                    },
+                    {
+                        "x": 340,
+                        "y": 4030,
+                        "value": 0.5
+                    }
+                ]
+            },
+            {
+                "name": "EV_1KM_Emissive_Uncert_Indexes.34",
+                "description": "Earth View 1KM Emissive Bands Uncertainty Indexes",
+                "geophysicalUnit": "percent",
+                "noDataValue": "-1.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 969,
+                        "y": 1410,
+                        "value": 0.5
+                    },
+                    {
+                        "x": 872,
+                        "y": 2118,
+                        "value": 0.5
+                    }
+                ]
+            },
+            {
+                "name": "EV_1KM_Emissive_Uncert_Indexes.35",
+                "description": "Earth View 1KM Emissive Bands Uncertainty Indexes",
+                "geophysicalUnit": "percent",
+                "noDataValue": "-1.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 1228,
+                        "y": 2112,
+                        "value": 0.5
+                    },
+                    {
+                        "x": 1165,
+                        "y": 2317,
+                        "value": 0.5
+                    }
+                ]
+            },
+            {
+                "name": "EV_1KM_Emissive_Uncert_Indexes.36",
+                "description": "Earth View 1KM Emissive Bands Uncertainty Indexes",
+                "geophysicalUnit": "percent",
+                "noDataValue": "-1.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 1083,
+                        "y": 3159,
+                        "value": 0.5
+                    },
+                    {
+                        "x": 1130,
+                        "y": 3054,
+                        "value": 21.260542
+                    }
+                ]
+            },
+            {
+                "name": "EV_1KM_RefSB_Uncert_Indexes.8",
+                "description": "Earth View 1KM Reflective Solar Bands Uncertainty Indexes",
+                "geophysicalUnit": "percent",
+                "noDataValue": "-1.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 852,
+                        "y": 1768,
+                        "value": 1.3003168
+                    },
+                    {
+                        "x": 731,
+                        "y": 3167,
+                        "value": 1.3003168
+                    }
+                ]
+            },
+            {
+                "name": "EV_1KM_RefSB_Uncert_Indexes.9",
+                "description": "Earth View 1KM Reflective Solar Bands Uncertainty Indexes",
+                "geophysicalUnit": "percent",
+                "noDataValue": "-1.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 858,
+                        "y": 630,
+                        "value": 1.3003168
+                    },
+                    {
+                        "x": 1194,
+                        "y": 1306,
+                        "value": 1.3003168
+                    }
+                ]
+            },
+            {
+                "name": "EV_1KM_RefSB_Uncert_Indexes.10",
+                "description": "Earth View 1KM Reflective Solar Bands Uncertainty Indexes",
+                "geophysicalUnit": "percent",
+                "noDataValue": "-1.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 370,
+                        "y": 1595,
+                        "value": 1.3003168
+                    },
+                    {
+                        "x": 923,
+                        "y": 773,
+                        "value": 1.3003168
+                    }
+                ]
+            },
+            {
+                "name": "EV_1KM_RefSB_Uncert_Indexes.11",
+                "description": "Earth View 1KM Reflective Solar Bands Uncertainty Indexes",
+                "geophysicalUnit": "percent",
+                "noDataValue": "-1.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 196,
+                        "y": 4095,
+                        "value": 1.3003168
+                    },
+                    {
+                        "x": 532,
+                        "y": 3128,
+                        "value": 1.3003168
+                    }
+                ]
+            },
+            {
+                "name": "EV_1KM_RefSB_Uncert_Indexes.12",
+                "description": "Earth View 1KM Reflective Solar Bands Uncertainty Indexes",
+                "geophysicalUnit": "percent",
+                "noDataValue": "-1.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 95,
+                        "y": 2892,
+                        "value": 1.3003168
+                    },
+                    {
+                        "x": 823,
+                        "y": 3581,
+                        "value": 1.3003168
+                    }
+                ]
+            },
+            {
+                "name": "EV_1KM_RefSB_Uncert_Indexes.13lo",
+                "description": "Earth View 1KM Reflective Solar Bands Uncertainty Indexes",
+                "geophysicalUnit": "percent",
+                "noDataValue": "-1.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 793,
+                        "y": 1379,
+                        "value": 1.3003168
+                    },
+                    {
+                        "x": 592,
+                        "y": 71,
+                        "value": 1.3003168
+                    }
+                ]
+            },
+            {
+                "name": "EV_1KM_RefSB_Uncert_Indexes.13hi",
+                "description": "Earth View 1KM Reflective Solar Bands Uncertainty Indexes",
+                "geophysicalUnit": "percent",
+                "noDataValue": "-1.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 814,
+                        "y": 2771,
+                        "value": 1.3003168
+                    },
+                    {
+                        "x": 1062,
+                        "y": 370,
+                        "value": 1.3003168
+                    }
+                ]
+            },
+            {
+                "name": "EV_1KM_RefSB_Uncert_Indexes.14lo",
+                "description": "Earth View 1KM Reflective Solar Bands Uncertainty Indexes",
+                "geophysicalUnit": "percent",
+                "noDataValue": "-1.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 1219,
+                        "y": 344,
+                        "value": 1.3003168
+                    },
+                    {
+                        "x": 104,
+                        "y": 3419,
+                        "value": 1.3003168
+                    }
+                ]
+            },
+            {
+                "name": "EV_1KM_RefSB_Uncert_Indexes.14hi",
+                "description": "Earth View 1KM Reflective Solar Bands Uncertainty Indexes",
+                "geophysicalUnit": "percent",
+                "noDataValue": "-1.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 172,
+                        "y": 3790,
+                        "value": 1.3003168
+                    },
+                    {
+                        "x": 262,
+                        "y": 1336,
+                        "value": 1.3003168
+                    }
+                ]
+            },
+            {
+                "name": "EV_1KM_RefSB_Uncert_Indexes.15",
+                "description": "Earth View 1KM Reflective Solar Bands Uncertainty Indexes",
+                "geophysicalUnit": "percent",
+                "noDataValue": "-1.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 738,
+                        "y": 2962,
+                        "value": 1.3003168
+                    },
+                    {
+                        "x": 159,
+                        "y": 905,
+                        "value": 1.3003168
+                    }
+                ]
+            },
+            {
+                "name": "EV_1KM_RefSB_Uncert_Indexes.16",
+                "description": "Earth View 1KM Reflective Solar Bands Uncertainty Indexes",
+                "geophysicalUnit": "percent",
+                "noDataValue": "-1.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 553,
+                        "y": 3124,
+                        "value": 1.3003168
+                    },
+                    {
+                        "x": 110,
+                        "y": 3105,
+                        "value": 1.3003168
+                    }
+                ]
+            },
+            {
+                "name": "EV_1KM_RefSB_Uncert_Indexes.17",
+                "description": "Earth View 1KM Reflective Solar Bands Uncertainty Indexes",
+                "geophysicalUnit": "percent",
+                "noDataValue": "-1.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 1242,
+                        "y": 882,
+                        "value": 1.3003168
+                    },
+                    {
+                        "x": 1192,
+                        "y": 2915,
+                        "value": 1.3003168
+                    }
+                ]
+            },
+            {
+                "name": "EV_1KM_RefSB_Uncert_Indexes.18",
+                "description": "Earth View 1KM Reflective Solar Bands Uncertainty Indexes",
+                "geophysicalUnit": "percent",
+                "noDataValue": "-1.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 164,
+                        "y": 113,
+                        "value": 1.3003168
+                    },
+                    {
+                        "x": 385,
+                        "y": 3813,
+                        "value": 1.3003168
+                    }
+                ]
+            },
+            {
+                "name": "EV_1KM_RefSB_Uncert_Indexes.19",
+                "description": "Earth View 1KM Reflective Solar Bands Uncertainty Indexes",
+                "geophysicalUnit": "percent",
+                "noDataValue": "-1.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 810,
+                        "y": 3004,
+                        "value": 1.3003168
+                    },
+                    {
+                        "x": 690,
+                        "y": 1964,
+                        "value": 1.3003168
+                    }
+                ]
+            },
+            {
+                "name": "EV_1KM_RefSB_Uncert_Indexes.26",
+                "description": "Earth View 1KM Reflective Solar Bands Uncertainty Indexes",
+                "geophysicalUnit": "percent",
+                "noDataValue": "-1.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 576,
+                        "y": 634,
+                        "value": 1.2280961
+                    },
+                    {
+                        "x": 35,
+                        "y": 3298,
+                        "value": 1.2280961
+                    }
+                ]
+            },
+            {
+                "name": "EV_Band26_Uncert_Indexes",
+                "description": "Earth View Band 26 Uncertainty Indexes",
+                "geophysicalUnit": "percent",
+                "noDataValue": "-1.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 913,
+                        "y": 2934,
+                        "value": 30.128305
+                    },
+                    {
+                        "x": 399,
+                        "y": 816,
+                        "value": 30.128305
+                    }
+                ]
+            },
+            {
+                "name": "EV_250_Aggr1km_RefSB_Samples_Used.1",
+                "description": "Earth View 250M Aggregated 1km Reflective Solar Bands Number of Samples Used in Aggregation",
+                "geophysicalUnit": "none",
+                "noDataValue": "-1.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 257,
+                        "y": 2322,
+                        "value": "NaN"
+                    },
+                    {
+                        "x": 779,
+                        "y": 2696,
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "EV_250_Aggr1km_RefSB_Samples_Used.2",
+                "description": "Earth View 250M Aggregated 1km Reflective Solar Bands Number of Samples Used in Aggregation",
+                "geophysicalUnit": "none",
+                "noDataValue": "-1.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 710,
+                        "y": 353,
+                        "value": "NaN"
+                    },
+                    {
+                        "x": 1051,
+                        "y": 1361,
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "EV_500_Aggr1km_RefSB_Samples_Used.3",
+                "description": "Earth View 500M Aggregated 1km Reflective Solar Bands Number of Samples Used in Aggregation",
+                "geophysicalUnit": "none",
+                "noDataValue": "-1.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 1177,
+                        "y": 3818,
+                        "value": "NaN"
+                    },
+                    {
+                        "x": 644,
+                        "y": 2286,
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "EV_500_Aggr1km_RefSB_Samples_Used.4",
+                "description": "Earth View 500M Aggregated 1km Reflective Solar Bands Number of Samples Used in Aggregation",
+                "geophysicalUnit": "none",
+                "noDataValue": "-1.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 777,
+                        "y": 3938,
+                        "value": "NaN"
+                    },
+                    {
+                        "x": 1258,
+                        "y": 774,
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "EV_500_Aggr1km_RefSB_Samples_Used.5",
+                "description": "Earth View 500M Aggregated 1km Reflective Solar Bands Number of Samples Used in Aggregation",
+                "geophysicalUnit": "none",
+                "noDataValue": "-1.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 92,
+                        "y": 3069,
+                        "value": "NaN"
+                    },
+                    {
+                        "x": 88,
+                        "y": 2252,
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "EV_500_Aggr1km_RefSB_Samples_Used.6",
+                "description": "Earth View 500M Aggregated 1km Reflective Solar Bands Number of Samples Used in Aggregation",
+                "geophysicalUnit": "none",
+                "noDataValue": "-1.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 938,
+                        "y": 3585,
+                        "value": "NaN"
+                    },
+                    {
+                        "x": 770,
+                        "y": 3646,
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "EV_500_Aggr1km_RefSB_Samples_Used.7",
+                "description": "Earth View 500M Aggregated 1km Reflective Solar Bands Number of Samples Used in Aggregation",
+                "geophysicalUnit": "none",
+                "noDataValue": "-1.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 495,
+                        "y": 3893,
+                        "value": "NaN"
+                    },
+                    {
+                        "x": 1215,
+                        "y": 1021,
+                        "value": "NaN"
+                    }
+                ]
+            }
+        ],
+        "metadata": [
+            {
+                "path": "GLOBAL_METADATA/Solar_Irradiance_on_RSB_Detectors_over_pi",
+                "value": "511.5847,511.5847,511.5847,511.5847,511.5847,511.5847,511.5847,511.5681,511.6439,511.7642,511.8329,511.8869,511.9466,511.989,512.0393,512.0604,512.0804,512.0942,512.0903,512.0883,512.093,512.0934,512.0903,512.0821,512.062,512.0376,511.998,511.9641,511.9197,511.849,511.802,511.802,511.802,511.802,511.802,511.802,511.802,511.802,511.802,511.802,315.487,315.487,315.487,315.487,315.487,315.487,315.487,315.4888,315.4988,315.5071,315.5167,315.5217,315.5312,315.5349,315.5373,315.5381,315.5366,315.5335,315.5343,315.5335,315.5268,315.5221,315.5186,315.5095,315.505,315.4981,315.4882,315.4736,315.4604,315.4509,315.4449,315.4714,315.5046,315.5408,315.5948,315.7431,315.8229,315.8856,315.8856,315.8856,664.7366,664.7366,664.7366,664.7366,664.7001,664.7471,664.7432,664.7266,664.7188,664.7175,664.7213,664.7332,664.6851,664.7102,664.6629,664.6442,664.6538,664.5352,664.5352,664.5352,593.7072,593.7072,593.7072,593.7072,593.7002,593.7049,593.7009,593.7031,593.705,593.7073,593.7085,593.7102,593.7186,593.7206,593.7256,593.7644,593.7889,593.8388,593.8388,593.8388,151.1796,151.1796,151.1796,151.1796,151.1796,151.1736,151.1773,151.1852,151.1772,151.1772,151.1794,151.1822,151.1736,151.1762,151.1933,151.1835,151.1895,151.1704,151.1704,151.1704,76.58249,76.58249,76.58249,76.58249,76.58288,76.58443,76.58517,76.58396,76.58341,76.59081,76.5913,76.58757,76.58487,76.63879,76.59094,76.59262,76.58382,76.5772,76.5772,76.5772,28.77769,28.77769,28.77769,28.77769,28.77304,28.77208,28.77557,28.77727,28.77688,28.77847,28.77579,28.77209,28.77242,28.77489,28.77381,28.77135,28.7709,28.77033,28.77033,28.77033,556.0842,556.0842,556.0053,556.1355,556.2669,556.4036,556.5035,556.7288,556.5127,556.51,606.8428,606.8428,606.8634,606.7712,606.714,606.7194,606.7739,606.7804,606.5257,606.7693,629.313,629.313,629.313,629.4122,629.4171,629.3915,629.2726,629.1608,629.4336,629.3894,600.215,600.215,600.215,600.1813,600.1444,600.1643,600.2406,600.2057,599.6879,599.6879,602.4011,602.4011,602.4814,602.4875,602.497,602.5059,602.5154,602.5306,602.5897,602.696,492.4797,492.4797,492.5938,492.6044,492.6185,492.6247,492.6229,492.6167,492.582,492.5184,492.4797,492.4797,492.5938,492.6044,492.6185,492.6247,492.6229,492.6167,492.582,492.5184,479.4278,479.4278,479.4126,479.4116,479.4093,479.4072,479.4096,479.4182,479.4037,479.3895,479.4278,479.4278,479.4126,479.4116,479.4093,479.4072,479.4096,479.4182,479.4037,479.3895,412.0707,412.0707,412.1205,412.1488,412.1434,412.1468,412.1477,412.0982,412.0902,412.0751,309.7169,309.7169,309.7085,309.7431,309.7635,309.7625,309.7625,309.7609,309.8164,310.0857,297.4603,297.4603,297.462,297.4626,297.4647,297.4636,297.4626,297.4617,297.46,297.46,277.6909,277.6909,277.6905,277.691,277.6906,277.6904,277.6903,277.6896,277.6893,277.6893,277.9197,277.9197,277.9197,277.9191,277.9202,277.9189,277.9188,277.9177,277.9178,277.9178,116.2086,116.2086,116.2058,116.2001,116.1993,116.2024,116.2058,116.2076,116.2047,116.2047"
+            },
+            {
+                "path": "GLOBAL_METADATA/Noise_in_Black_Body_Thermistors",
+                "value": "1,4,8,2,4,6,6,2,6,6,10,5"
+            }
+        ]
+    }
+}

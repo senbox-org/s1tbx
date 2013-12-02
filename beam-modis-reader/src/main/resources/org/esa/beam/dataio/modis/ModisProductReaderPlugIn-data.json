@@ -1,0 +1,99 @@
+{
+    "testProducts": [
+        {
+            "id": "MOD02HKM_A2012136_2330_005_2012137073318",
+            "relativePath": "sensors_platforms/MODIS/MOD02HKM/HDF4/MOD02HKM.A2012136.2330.005.2012137073318.hdf",
+            "description": "HDF4_Version: 4.2.5 (HDF Version 4.2 Release 5, February 17, 2010)"
+        },
+        {
+            "id": "MOD02QKM_A2012133_2240_005_2012134074758",
+            "relativePath": "sensors_platforms/MODIS/MOD02QKM/HDF4/MOD02QKM.A2012133.2240.005.2012134074758.hdf",
+            "description": "HDF4_Version: 4.2.5 (HDF Version 4.2 Release 5, February 17, 2010)"
+        },
+        {
+            "id": "MOD02QKM_A2012151_0255_005_2012151095153",
+            "relativePath": "sensors_platforms/MODIS/MOD02QKM/HDF4/MOD02QKM.A2012151.0255.005.2012151095153.hdf",
+            "description": "HDF4_Version: 4.2.5 (HDF Version 4.2 Release 5, February 17, 2010)"
+        },
+        {
+             "id": "MOD_SS_MOD09GA_A2009242_cs_armcart_005_2009244131940",
+             "relativePath": "sensors_platforms/MODIS/MOD09/HDF4/MOD09GA.A2009242.cs_armcart.005.2009244131940.hdf",
+             "description": "HDF4_Version: 4.1.5 (NCSA HDF Version 4.1 Release 5, November 5, 2001)"
+        },
+        {
+             "id": "MOD13A2_A2012113_h03v09_005_2012130025450",
+             "relativePath": "sensors_platforms/MODIS/MOD13/HDF4/MOD13A2.A2012113.h03v09.005.2012130025450.hdf",
+             "description": "HDF4_Version: 4.1.5 (NCSA HDF Version 4.1 Release 5, November 5, 2001)"
+        },
+        {
+             "id": "MOD15A2_A2012121_h10v05_005_2012130084250",
+             "relativePath": "sensors_platforms/MODIS/MOD15/HDF4/MOD15A2.A2012121.h10v05.005.2012130084250.hdf",
+             "description": "HDF4_Version: 4.1.5 (NCSA HDF Version 4.1 Release 5, November 5, 2001)"
+        },
+        {
+             "id": "MOD021KM_A2009055_2155_005_2009056072725",
+             "relativePath": "sensors_platforms/MODIS/MOD021KM/HDF4/MOD021KM.A2009055.2155.005.2009056072725.hdf",
+             "description": "HDF4_Version: 4.2.1 (NCSA HDF Version 4.2 Release 1-post3, January 27, 2006)"
+        },
+        {
+             "id": "MOD021KM_calibrated_AQUA_50848_1322180205",
+             "relativePath": "sensors_platforms/MODIS/MOD021KM/HDF4/MOD021KM_calibrated_AQUA_50848_1322180205.hdf",
+             "description": "HDF4_Version: 4.2.0 (NCSA HDF Version 4.2 Release 0, December 2, 2003)"
+         },
+        {
+             "id": "MOD28L2_A2001185_0830_003_2001308112641",
+             "relativePath": "sensors_platforms/MODIS/MOD28/HDF4/MOD28L2.A2001185.0830.003.2001308112641.hdf",
+             "description": "HDF4_Version: 4.1.1 (NCSA HDF Version 4.1 Release 1, February 21, 1997)"
+        },
+        {
+             "id": "MODOCL2B_A2002074_1650_004_2002224193847",
+             "relativePath": "sensors_platforms/MODIS/MODOC/HDF4/MODOCL2B.A2002074.1650.004.2002224193847.hdf",
+             "description": "HDF4_Version: 4.1.1 (NCSA HDF Version 4.1 Release 1, February 21, 1997)"
+         },
+        {
+             "id": "MODOCL2_A2000338_1810_004_2002170165045",
+             "relativePath": "sensors_platforms/MODIS/MODOC/HDF4/MODOCL2.A2000338.1810.004.2002170165045.hdf",
+             "description": "HDF4_Version: 4.1.1 (NCSA HDF Version 4.1 Release 1, February 21, 1997)"
+        },
+        {
+             "id": "MYD02HKM_A2012136_0645_005_2012136170837",
+             "relativePath": "sensors_platforms/MODIS/MYD02HKM/HDF4/MYD02HKM.A2012136.0645.005.2012136170837.hdf",
+             "description": "HDF4_Version: 4.2.5 (HDF Version 4.2 Release 5, February 17, 2010)"
+         },
+        {
+             "id": "MYD02QKM_A2012143_0440_005_2012143154602",
+             "relativePath": "sensors_platforms/MODIS/MYD02QKM/HDF4/MYD02QKM.A2012143.0440.005.2012143154602.hdf",
+             "description": "HDF4_Version: 4.2.5 (HDF Version 4.2 Release 5, February 17, 2010)"
+        },
+        {
+             "id": "MYD_SS_MYD09GA_A2009008_cs_armcart_005_2009015194716",
+             "relativePath": "sensors_platforms/MODIS/MYD09/HDF4/MYD09GA.A2009008.cs_armcart.005.2009015194716.hdf",
+             "description": "HDF4_Version: 4.1.5 (NCSA HDF Version 4.1 Release 5, November 5, 2001)"
+         },
+        {
+             "id": "MYD13A2_A2012105_h14v03_005_2012122030803",
+             "relativePath": "sensors_platforms/MODIS/MYD13/HDF4/MYD13A2.A2012105.h14v03.005.2012122030803.hdf",
+             "description": "HDF4_Version: 4.1.5 (NCSA HDF Version 4.1 Release 5, November 5, 2001)"
+        },
+        {
+             "id": "MYD15A2_A2012113_h08v06_005_2012122082139",
+             "relativePath": "sensors_platforms/MODIS/MYD15/HDF4/MYD15A2.A2012113.h08v06.005.2012122082139.hdf",
+             "description": "HDF4_Version: 4.1.5 (NCSA HDF Version 4.1 Release 5, November 5, 2001)"
+         },
+        {
+             "id": "MYD021KM_A2012143_0500_005_2012143154414",
+             "relativePath": "sensors_platforms/MODIS/MYD021KM/HDF4/MYD021KM.A2012143.0500.005.2012143154414.hdf",
+             "description": "HDF4_Version: 4.1.5 (NCSA HDF Version 4.1 Release 5, November 5, 2001)"
+        },
+        {
+             "id": "MYD28L2_A2005365_0830_040_2006004132536",
+             "relativePath": "sensors_platforms/MODIS/MYD28/HDF4/MYD28L2.A2005365.0830.040.2006004132536.hdf",
+             "description": "HDF4_Version: 4.1.5 (NCSA HDF Version 4.1 Release 5, November 5, 2001)"
+         },
+        {
+             "id": "MOD021KM_A2012144_0045_005_2012144075646",
+             "relativePath": "problems/jira/180_meridian/MOD021KM.A2012144.0045.005.2012144075646.hdf",
+             "description": "HDF4_Version: 4.2.1 (NCSA HDF Version 4.2 Release 1-post3, January 27, 2006)"
+         }
+    ]
+}

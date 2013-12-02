@@ -1,0 +1,86 @@
+{
+    "id": "subset_MER_FRS_1PNACR20040515101402",
+    "decodeQualification": "INTENDED",
+    "expectedContent": {
+        "sceneWidth": 160,
+        "sceneHeight": 160,
+        "bands": [
+            {
+                "name": "radiance_1",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 69,
+                        "y": 86,
+                        "value": 78.55301
+                    },
+                    {
+                        "x": 118,
+                        "y": 103,
+                        "value": 77.4051
+                    }
+                ]
+            },
+            {
+                "name": "l1_flags",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 8,
+                        "y": 28,
+                        "value": 16.0
+                    },
+                    {
+                        "x": 109,
+                        "y": 136,
+                        "value": 0.0
+                    }
+                ]
+            },
+            {
+                "name": "latitude",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 46,
+                        "y": 41,
+                        "value": 43.773907
+                    },
+                    {
+                        "x": 97,
+                        "y": 58,
+                        "value": 43.6248
+                    }
+                ]
+            },
+            {
+                "name": "longitude",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 88,
+                        "y": 119,
+                        "value": 4.443816
+                    },
+                    {
+                        "x": 97,
+                        "y": 148,
+                        "value": 4.3841276
+                    }
+                ]
+            }
+        ]
+    }
+}

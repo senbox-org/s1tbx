@@ -2,17 +2,17 @@
     "testProducts": [
         {
             "id": "ATSR_ETNA_test_GBT-TVLXC",
-            "relativePath": "sensors_platforms/ERS/ATSR2/ATSR_ETNA_test.GBT-TVLXC",
+            "relativePath": "sensors_platforms/ERS/ATSR2/GBT/ATSR_ETNA_test.GBT-TVLXC",
             "description": "Product type: ATSR2"
         },
         {
             "id": "ATSR_SICI_test_GSST-LXC",
-            "relativePath": "sensors_platforms/ERS/ATSR2/ATSR_ETNA_test.GBT-TVLXC",
+            "relativePath": "sensors_platforms/ERS/ATSR2/GSST/ATSR_SICI_test.GSST-LXC",
             "description": "Product type: ATSR2"
         },
         {
             "id": "ATSR_LAMP_test_GBT-TVLXC",
-            "relativePath": "sensors_platforms/ERS/ATSR2/ATSR_ETNA_test.GBT-TVLXC",
+            "relativePath": "sensors_platforms/ERS/ATSR2/GBT/ATSR_LAMP_test.GBT-TVLXC",
             "description": "Product type: ATSR2"
         }
     ]

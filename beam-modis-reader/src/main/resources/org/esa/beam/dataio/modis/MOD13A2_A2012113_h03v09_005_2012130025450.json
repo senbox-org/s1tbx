@@ -1,0 +1,38 @@
+{
+    "id": "MOD13A2_A2012113_h03v09_005_2012130025450",
+    "decodeQualification": "INTENDED",
+    "expectedContent": {
+        "sceneWidth": 1200,
+        "sceneHeight": 1200,
+        "startTime": "21-APR-2012 22:00:00.000000",
+        "endTime": "07-MAY-2012 21:59:59.000000",
+        "geoCoding": {
+            "coordinates": [
+                {
+                    "x": 517.0,
+                    "y": 645.0,
+                    "lat": -5.3708334,
+                    "lon": -146.33829
+                },
+                {
+                    "x": 890.0,
+                    "y": 778.0,
+                    "lat": -6.4791665,
+                    "lon": -143.50407
+                }
+            ],
+            "reverseAccuracy": 0.01,
+            "geoCodingClass": "org.esa.beam.framework.datamodel.MapGeoCoding"
+        },
+        "metadata": [
+            {
+                "path": "GLOBAL_METADATA/featureType",
+                "value": "GRID"
+            },
+            {
+                "path": "GLOBAL_METADATA/StructMetadata\\.0",
+                "value": "GROUP=SwathStructure\nEND_GROUP=SwathStructure\nGROUP=GridStructure\n\tGROUP=GRID_1\n\t\tGridName=\"MODIS_Grid_16DAY_1km_VI\"\n\t\tXDim=1200\n\t\tYDim=1200\n\t\tUpperLeftPointMtrs=(-16679257.795000,0.000000)\n\t\tLowerRightMtrs=(-15567307.275333,-1111950.519667)\n\t\tProjection=GCTP_SNSOID\n\t\tProjParams=(6371007.181000,0,0,0,0,0,0,0,0,0,0,0,0)\n\t\tSphereCode=-1\n\t\tGROUP=Dimension\n\t\tEND_GROUP=Dimension\n\t\tGROUP=DataField\n\t\t\tOBJECT=DataField_1\n\t\t\t\tDataFieldName=\"1 km 16 days NDVI\"\n\t\t\t\tDataType=DFNT_INT16\n\t\t\t\tDimList=(\"YDim\",\"XDim\")\n\t\t\tEND_OBJECT=DataField_1\n\t\t\tOBJECT=DataField_2\n\t\t\t\tDataFieldName=\"1 km 16 days EVI\"\n\t\t\t\tDataType=DFNT_INT16\n\t\t\t\tDimList=(\"YDim\",\"XDim\")\n\t\t\tEND_OBJECT=DataField_2\n\t\t\tOBJECT=DataField_3\n\t\t\t\tDataFieldName=\"1 km 16 days VI Quality\"\n\t\t\t\tDataType=DFNT_UINT16\n\t\t\t\tDimList=(\"YDim\",\"XDim\")\n\t\t\tEND_OBJECT=DataField_3\n\t\t\tOBJECT=DataField_4\n\t\t\t\tDataFieldName=\"1 km 16 days red reflectance\"\n\t\t\t\tDataType=DFNT_INT16\n\t\t\t\tDimList=(\"YDim\",\"XDim\")\n\t\t\tEND_OBJECT=DataField_4\n\t\t\tOBJECT=DataField_5\n\t\t\t\tDataFieldName=\"1 km 16 days NIR reflectance\"\n\t\t\t\tDataType=DFNT_INT16\n\t\t\t\tDimList=(\"YDim\",\"XDim\")\n\t\t\tEND_OBJECT=DataField_5\n\t\t\tOBJECT=DataField_6\n\t\t\t\tDataFieldName=\"1 km 16 days blue reflectance\"\n\t\t\t\tDataType=DFNT_INT16\n\t\t\t\tDimList=(\"YDim\",\"XDim\")\n\t\t\tEND_OBJECT=DataField_6\n\t\t\tOBJECT=DataField_7\n\t\t\t\tDataFieldName=\"1 km 16 days MIR reflectance\"\n\t\t\t\tDataType=DFNT_INT16\n\t\t\t\tDimList=(\"YDim\",\"XDim\")\n\t\t\tEND_OBJECT=DataField_7\n\t\t\tOBJECT=DataField_8\n\t\t\t\tDataFieldName=\"1 km 16 days view zenith angle\"\n\t\t\t\tDataType=DFNT_INT16\n\t\t\t\tDimList=(\"YDim\",\"XDim\")\n\t\t\tEND_OBJECT=DataField_8\n\t\t\tOBJECT=DataField_9\n\t\t\t\tDataFieldName=\"1 km 16 days sun zenith angle\"\n\t\t\t\tDataType=DFNT_INT16\n\t\t\t\tDimList=(\"YDim\",\"XDim\")\n\t\t\tEND_OBJECT=DataField_9\n\t\t\tOBJECT=DataField_10\n\t\t\t\tDataFieldName=\"1 km 16 days relative azimuth angle\"\n\t\t\t\tDataType=DFNT_INT16\n\t\t\t\tDimList=(\"YDim\",\"XDim\")\n\t\t\tEND_OBJECT=DataField_10\n\t\t\tOBJECT=DataField_11\n\t\t\t\tDataFieldName=\"1 km 16 days composite day of the year\"\n\t\t\t\tDataType=DFNT_INT16\n\t\t\t\tDimList=(\"YDim\",\"XDim\")\n\t\t\tEND_OBJECT=DataField_11\n\t\t\tOBJECT=DataField_12\n\t\t\t\tDataFieldName=\"1 km 16 days pixel reliability\"\n\t\t\t\tDataType=DFNT_INT8\n\t\t\t\tDimList=(\"YDim\",\"XDim\")\n\t\t\tEND_OBJECT=DataField_12\n\t\tEND_GROUP=DataField\n\t\tGROUP=MergedFields\n\t\tEND_GROUP=MergedFields\n\tEND_GROUP=GRID_1\nEND_GROUP=GridStructure\nGROUP=PointStructure\nEND_GROUP=PointStructure\nEND\n"
+            }
+        ]
+    }
+}

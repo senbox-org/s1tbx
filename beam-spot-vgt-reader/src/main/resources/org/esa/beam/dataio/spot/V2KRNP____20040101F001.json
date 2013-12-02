@@ -1,0 +1,400 @@
+{
+    "id": "V2KRNP____20040101F001",
+    "decodeQualification": "INTENDED",
+    "expectedContent": {
+        "sceneWidth": 4952,
+        "sceneHeight": 7492,
+        "startTime": "01-JAN-2004 14:04:32.000000",
+        "endTime": "01-JAN-2004 14:22:32.000000",
+        "geoCoding": {
+            "coordinates": [
+                {
+                    "x": 2135.0,
+                    "y": 4027.0,
+                    "lat": -25.941963,
+                    "lon": -67.57589
+                },
+                {
+                    "x": 3676.0,
+                    "y": 4861.0,
+                    "lat": -33.388393,
+                    "lon": -53.816963
+                }
+            ],
+            "reverseAccuracy": 0.01,
+            "geoCodingClass": "org.esa.beam.framework.datamodel.CrsGeoCoding"
+        },
+        "flagCodings": [
+            {
+                "name": "SM",
+                "samples": [
+                    {
+                        "name": "B0_GOOD",
+                        "value": 128,
+                        "description": "Radiometric quality for band B0 is good."
+                    },
+                    {
+                        "name": "B2_GOOD",
+                        "value": 64,
+                        "description": "Radiometric quality for band B2 is good."
+                    },
+                    {
+                        "name": "B3_GOOD",
+                        "value": 32,
+                        "description": "Radiometric quality for band B3 is good."
+                    },
+                    {
+                        "name": "MIR_GOOD",
+                        "value": 16,
+                        "description": "Radiometric quality for band MIR is good."
+                    },
+                    {
+                        "name": "LAND",
+                        "value": 8,
+                        "description": "Land code 1 or water code 0."
+                    },
+                    {
+                        "name": "ICE_SNOW",
+                        "value": 4,
+                        "description": "Ice/snow code 1, code 0 if there is no ice/snow"
+                    },
+                    {
+                        "name": "CLOUD_2",
+                        "value": 2
+                    },
+                    {
+                        "name": "CLOUD_1",
+                        "value": 1
+                    }
+                ]
+            }
+        ],
+        "bands": [
+            {
+                "name": "AG",
+                "description": "Troposheric Aerosol",
+                "geophysicalUnit": "1",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 258,
+                        "y": 1334,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 3392,
+                        "y": 6372,
+                        "value": 0.076
+                    }
+                ]
+            },
+            {
+                "name": "B0",
+                "description": "B0 spectral band",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "450.0",
+                "spectralBandwidth": "40.0",
+                "expectedPixels": [
+                    {
+                        "x": 1440,
+                        "y": 1924,
+                        "value": "NaN"
+                    },
+                    {
+                        "x": 3023,
+                        "y": 2736,
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "B2",
+                "description": "B2 spectral band",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "645.0",
+                "spectralBandwidth": "70.0",
+                "expectedPixels": [
+                    {
+                        "x": 2723,
+                        "y": 5584,
+                        "value": 0.126
+                    },
+                    {
+                        "x": 3012,
+                        "y": 6956,
+                        "value": 0.058
+                    }
+                ]
+            },
+            {
+                "name": "B3",
+                "description": "B3 spectral band",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "835.0",
+                "spectralBandwidth": "110.0",
+                "expectedPixels": [
+                    {
+                        "x": 783,
+                        "y": 4990,
+                        "value": "NaN"
+                    },
+                    {
+                        "x": 2570,
+                        "y": 6844,
+                        "value": 0.05
+                    }
+                ]
+            },
+            {
+                "name": "MIR",
+                "description": "MIR spectral band",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "1665.0",
+                "spectralBandwidth": "170.0",
+                "expectedPixels": [
+                    {
+                        "x": 3744,
+                        "y": 3630,
+                        "value": "NaN"
+                    },
+                    {
+                        "x": 4708,
+                        "y": 3640,
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "OG",
+                "description": "Ozone",
+                "geophysicalUnit": "atm.cm",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 1685,
+                        "y": 6738,
+                        "value": 0.32
+                    },
+                    {
+                        "x": 49,
+                        "y": 3526,
+                        "value": 0.0
+                    }
+                ]
+            },
+            {
+                "name": "SAA",
+                "description": "Solar Azimuth Angle",
+                "geophysicalUnit": "Degrees",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 1621,
+                        "y": 1476,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 1352,
+                        "y": 323,
+                        "value": 0.0
+                    }
+                ]
+            },
+            {
+                "name": "SM",
+                "description": "Status Map",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 4810,
+                        "y": 4530,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 2834,
+                        "y": 5370,
+                        "value": 248.0
+                    }
+                ]
+            },
+            {
+                "name": "SZA",
+                "description": "Solar Zenith Angle",
+                "geophysicalUnit": "Degrees",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 1148,
+                        "y": 3727,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 1590,
+                        "y": 5413,
+                        "value": 36.5
+                    }
+                ]
+            },
+            {
+                "name": "VAA",
+                "description": "Viewing Azimuth Angle",
+                "geophysicalUnit": "Degrees",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 1773,
+                        "y": 3732,
+                        "value": 106.5
+                    },
+                    {
+                        "x": 1994,
+                        "y": 3313,
+                        "value": 105.0
+                    }
+                ]
+            },
+            {
+                "name": "VZA",
+                "description": "Viewing Zenith Angle",
+                "geophysicalUnit": "Degrees",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 2845,
+                        "y": 688,
+                        "value": 50.5
+                    },
+                    {
+                        "x": 3195,
+                        "y": 118,
+                        "value": 41.0
+                    }
+                ]
+            },
+            {
+                "name": "WVG",
+                "description": "Water Vapor",
+                "geophysicalUnit": "g/cm^2",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 4829,
+                        "y": 2751,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 4705,
+                        "y": 7090,
+                        "value": 0.0
+                    }
+                ]
+            }
+        ],
+        "masks": [
+            {
+                "name": "B0_BAD",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,0,0",
+                "description": "Radiometric quality for band B0 is bad."
+            },
+            {
+                "name": "B2_BAD",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,0,0",
+                "description": "Radiometric quality for band B2 is bad."
+            },
+            {
+                "name": "B3_BAD",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,0,0",
+                "description": "Radiometric quality for band B3 is bad."
+            },
+            {
+                "name": "MIR_BAD",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,0,0",
+                "description": "Radiometric quality for band MIR is bad."
+            },
+            {
+                "name": "LAND",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "0,255,0",
+                "description": "Land mask."
+            },
+            {
+                "name": "WATER",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "0,0,255",
+                "description": "Water mask."
+            },
+            {
+                "name": "ICE_SNOW",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,0,255",
+                "description": "Ice/snow mask."
+            },
+            {
+                "name": "CLEAR",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,200,0",
+                "description": "Clear sky."
+            },
+            {
+                "name": "CLOUD_SHADOW",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "0,255,255",
+                "description": "Cloud shadow."
+            },
+            {
+                "name": "CLOUD_UNCERTAIN",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,200,0",
+                "description": "Cloud uncertain."
+            },
+            {
+                "name": "CLOUD",
+                "type": "org.esa.beam.framework.datamodel.Mask$BandMathsType",
+                "color": "255,255,0",
+                "description": "Cloud certain."
+            }
+        ],
+        "metadata": [
+            {
+                "path": "PHYS_VOL/PRODUCT_#0001_PLAN_03",
+                "value": "_QL.TIF"
+            },
+            {
+                "path": "LOG_VOL/GEO_LOWER_LEFT_LONG",
+                "value": "-086.633929"
+            }
+        ]
+    }
+}

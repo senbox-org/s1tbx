@@ -1,0 +1,92 @@
+{
+    "id": "MER_FSG_1PNMAP20050608_094337_RGB",
+    "decodeQualification": "INTENDED",
+    "expectedContent": {
+        "sceneWidth": 1331,
+        "sceneHeight": 871,
+        "bands": [
+            {
+                "name": "red",
+                "description": "Image component #1",
+                "geophysicalUnit": "dl",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "700.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 574,
+                        "y": 468,
+                        "value": 18.0
+                    },
+                    {
+                        "x": 988,
+                        "y": 565,
+                        "value": 41.0
+                    }
+                ]
+            },
+            {
+                "name": "green",
+                "description": "Image component #2",
+                "geophysicalUnit": "dl",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "546.1",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 69,
+                        "y": 155,
+                        "value": 227.0
+                    },
+                    {
+                        "x": 911,
+                        "y": 740,
+                        "value": 63.0
+                    }
+                ]
+            },
+            {
+                "name": "blue",
+                "description": "Image component #3",
+                "geophysicalUnit": "dl",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "435.8",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 387,
+                        "y": 223,
+                        "value": 64.0
+                    },
+                    {
+                        "x": 812,
+                        "y": 318,
+                        "value": 26.0
+                    }
+                ]
+            },
+            {
+                "name": "gray",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 732,
+                        "y": 649,
+                        "value": 20.92
+                    },
+                    {
+                        "x": 809,
+                        "y": 808,
+                        "value": 0.0
+                    }
+                ]
+            }
+        ]
+    }
+}

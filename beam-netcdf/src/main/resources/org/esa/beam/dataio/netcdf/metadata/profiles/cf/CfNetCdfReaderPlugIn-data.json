@@ -9,6 +9,46 @@
             "id": "ESACCI-OC-L3S-OC_PRODUCTS-MERGED-1D_DAILY_4km_GEO_PML_OC4v6_QAA-20000518-fv1.0",
             "relativePath": "projects/oc/oc-v1.0/ESACCI-OC-L3S-OC_PRODUCTS-MERGED-1D_DAILY_4km_GEO_PML_OC4v6_QAA-20000518-fv1.0.nc",
             "description": "mapped file OC-CCI format version 0.99"
+        },
+        {
+            "id": "MER_FR__1_test_C2IOP",
+            "relativePath": "applications/generic_reader/NetCDF/NetCDF-CF/MER_FR__1_test.N1_C2IOP.nc",
+            "description": "Meris.Case2Regional product, format: NetCDF-CF, conventions: CF-1.4"
+        },
+        {
+            "id": "LM32170241982254XXX01_nc",
+            "relativePath": "applications/generic_reader/NetCDF/NetCDF-CF/LM32170241982254XXX01.nc",
+            "description": "product_type: LANDSAT_1_MSS_L1T, format: NetCDF-CF, conventions: CF-1.4"
+        },
+        {
+            "id": "20101103-ATS_NR_2P-UPA-L2P",
+            "relativePath": "applications/generic_reader/NetCDF/NetCDF-CF/20101103-ATS_NR_2P-UPA-L2P-ATS_NR__2PNPDK20101103_130629_000060673096_00096_45369_7055-v01.nc",
+            "description": "Sea Surface Temperature from AATSR, format: NetCDF-CF, conventions: CF-1.0"
+        },
+        {
+            "id": "MedSea_01x01_uc02_03_05__anders_v2",
+            "relativePath": "applications/generic_reader/NetCDF/NetCDF-CF/MedSea_01x01_uc02.03.05__anders_v2.nc",
+            "description": "old product, format: NetCDF-CF, conventions: CF-1.0"
+        },
+        {
+            "id": "netCDF_L3_ENV_MER_TR_test",
+            "relativePath": "applications/generic_reader/NetCDF/NetCDF-CF/netCDF_L3_ENV_MER_TR_test.nc",
+            "description": "Product created by ACRI-ST, Product type: COARDS, format: NetCDF-CF"
+        },
+        {
+            "id": "netCDF_L3_ENV_MER_test",
+            "relativePath": "applications/generic_reader/NetCDF/NetCDF-CF/netCDF_L3_ENV_MER_test.nc",
+            "description": "Product created by ACRI-ST, Product type: COARDS, format: NetCDF-CF"
+        },
+        {
+            "id": "L5043033_03319950627_nc",
+            "relativePath": "applications/generic_reader/NetCDF/NetCDF4-CF/L5043033_03319950627.nc",
+            "description": "format:  NetCDF4-CF, conventions: CF-1.4"
+        },
+        {
+            "id": "MER_RR__1PPBCM20100101_213129_C2IOP",
+            "relativePath": "applications/generic_reader/NetCDF/NetCDF4-CF/MER_RR__1PPBCM20100101_213129_000003972085_00358_40993_0096.N1_C2IOP.nc",
+            "description": "Meris.Case2Regional product, format:  NetCDF4-CF, conventions: CF-1.4"
         }
     ]
 }

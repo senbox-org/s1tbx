@@ -1,0 +1,1739 @@
+{
+    "id": "MER_FR__1_test_C2IOP",
+    "decodeQualification": "INTENDED",
+    "expectedContent": {
+        "sceneWidth": 2241,
+        "sceneHeight": 2241,
+        "startTime": "01-APR-2004 00:11:07.971135",
+        "endTime": "01-APR-2004 00:12:46.524415",
+        "geoCoding": {
+            "coordinates": [
+                {
+                    "x": 497.5,
+                    "y": 377.5,
+                    "lat": -13.699894,
+                    "lon": 143.97667
+                },
+                {
+                    "x": 1364.5,
+                    "y": 1043.5,
+                    "lat": -15.88022,
+                    "lon": 145.62003
+                },
+                {
+                    "x": 1931.5,
+                    "y": 2027.5,
+                    "lat": -18.724287,
+                    "lon": 146.3988
+                }
+            ],
+            "reverseAccuracy": 0.01,
+            "geoCodingClass": "org.esa.beam.framework.datamodel.PixelGeoCoding"
+        },
+        "flagCodings": [
+            {
+                "name": "agc_flags",
+                "samples": [
+                    {
+                        "name": "LAND",
+                        "value": 1
+                    },
+                    {
+                        "name": "CLOUD_ICE",
+                        "value": 2
+                    },
+                    {
+                        "name": "ATC_OOR",
+                        "value": 4
+                    },
+                    {
+                        "name": "TOA_OOR",
+                        "value": 8
+                    },
+                    {
+                        "name": "TOSA_OOR",
+                        "value": 16
+                    },
+                    {
+                        "name": "SOLZEN",
+                        "value": 32
+                    },
+                    {
+                        "name": "ANCIL",
+                        "value": 64
+                    },
+                    {
+                        "name": "SUNGLINT",
+                        "value": 8
+                    },
+                    {
+                        "name": "HAS_FLINT",
+                        "value": 256
+                    },
+                    {
+                        "name": "INVALID",
+                        "value": 32768
+                    }
+                ]
+            },
+            {
+                "name": "l1_flags",
+                "samples": [
+                    {
+                        "name": "COSMETIC",
+                        "value": 1
+                    },
+                    {
+                        "name": "DUPLICATED",
+                        "value": 2
+                    },
+                    {
+                        "name": "GLINT_RISK",
+                        "value": 4
+                    },
+                    {
+                        "name": "SUSPECT",
+                        "value": 8
+                    },
+                    {
+                        "name": "LAND_OCEAN",
+                        "value": 16
+                    },
+                    {
+                        "name": "BRIGHT",
+                        "value": 32
+                    },
+                    {
+                        "name": "COASTLINE",
+                        "value": 64
+                    },
+                    {
+                        "name": "INVALID",
+                        "value": 128
+                    }
+                ]
+            },
+            {
+                "name": "case2_flags",
+                "samples": [
+                    {
+                        "name": "WLR_OOR",
+                        "value": 1
+                    },
+                    {
+                        "name": "CONC_OOR",
+                        "value": 2
+                    },
+                    {
+                        "name": "OOTR",
+                        "value": 4
+                    },
+                    {
+                        "name": "WHITECAPS",
+                        "value": 8
+                    },
+                    {
+                        "name": "FIT_FAILED",
+                        "value": 16
+                    },
+                    {
+                        "name": "INVALID",
+                        "value": 128
+                    }
+                ]
+            }
+        ],
+        "bands": [
+            {
+                "name": "reflec_1",
+                "description": "Water leaving radiance reflectance at 412.545 nm",
+                "geophysicalUnit": "sr^-1",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 497,
+                        "y": 377,
+                        "value": 0.00514132
+                    },
+                    {
+                        "x": 1364,
+                        "y": 1043,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 1931,
+                        "y": 2027,
+                        "value": 0.0041403105
+                    }
+                ]
+            },
+            {
+                "name": "reflec_2",
+                "description": "Water leaving radiance reflectance at 442.401 nm",
+                "geophysicalUnit": "sr^-1",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 497,
+                        "y": 377,
+                        "value": 0.0050019445
+                    },
+                    {
+                        "x": 1364,
+                        "y": 1043,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 1931,
+                        "y": 2027,
+                        "value": 0.004526193
+                    }
+                ]
+            },
+            {
+                "name": "reflec_3",
+                "description": "Water leaving radiance reflectance at 489.744 nm",
+                "geophysicalUnit": "sr^-1",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 497,
+                        "y": 377,
+                        "value": 0.0049505522
+                    },
+                    {
+                        "x": 1364,
+                        "y": 1043,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 1931,
+                        "y": 2027,
+                        "value": 0.0063840686
+                    }
+                ]
+            },
+            {
+                "name": "reflec_4",
+                "description": "Water leaving radiance reflectance at 509.7 nm",
+                "geophysicalUnit": "sr^-1",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 497,
+                        "y": 377,
+                        "value": 0.003442211
+                    },
+                    {
+                        "x": 1364,
+                        "y": 1043,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 1931,
+                        "y": 2027,
+                        "value": 0.005800592
+                    }
+                ]
+            },
+            {
+                "name": "reflec_5",
+                "description": "Water leaving radiance reflectance at 559.634 nm",
+                "geophysicalUnit": "sr^-1",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 497,
+                        "y": 377,
+                        "value": 0.0020048644
+                    },
+                    {
+                        "x": 1364,
+                        "y": 1043,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 1931,
+                        "y": 2027,
+                        "value": 0.0051742806
+                    }
+                ]
+            },
+            {
+                "name": "reflec_6",
+                "description": "Water leaving radiance reflectance at 619.62 nm",
+                "geophysicalUnit": "sr^-1",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 497,
+                        "y": 377,
+                        "value": 3.8574834E-4
+                    },
+                    {
+                        "x": 1364,
+                        "y": 1043,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 1931,
+                        "y": 2027,
+                        "value": 0.001453195
+                    }
+                ]
+            },
+            {
+                "name": "reflec_7",
+                "description": "Water leaving radiance reflectance at 664.64 nm",
+                "geophysicalUnit": "sr^-1",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 497,
+                        "y": 377,
+                        "value": 2.1764863E-4
+                    },
+                    {
+                        "x": 1364,
+                        "y": 1043,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 1931,
+                        "y": 2027,
+                        "value": 8.735263E-4
+                    }
+                ]
+            },
+            {
+                "name": "reflec_8",
+                "description": "Water leaving radiance reflectance at 680.902 nm",
+                "geophysicalUnit": "sr^-1",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 497,
+                        "y": 377,
+                        "value": 2.0728055E-4
+                    },
+                    {
+                        "x": 1364,
+                        "y": 1043,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 1931,
+                        "y": 2027,
+                        "value": 8.303434E-4
+                    }
+                ]
+            },
+            {
+                "name": "reflec_9",
+                "description": "Water leaving radiance reflectance at 708.426 nm",
+                "geophysicalUnit": "sr^-1",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 497,
+                        "y": 377,
+                        "value": 1.05417945E-4
+                    },
+                    {
+                        "x": 1364,
+                        "y": 1043,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 1931,
+                        "y": 2027,
+                        "value": 4.4780318E-4
+                    }
+                ]
+            },
+            {
+                "name": "reflec_10",
+                "description": "Water leaving radiance reflectance at 753.472 nm",
+                "geophysicalUnit": "sr^-1",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 497,
+                        "y": 377,
+                        "value": 3.4681143E-5
+                    },
+                    {
+                        "x": 1364,
+                        "y": 1043,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 1931,
+                        "y": 2027,
+                        "value": 1.5099566E-4
+                    }
+                ]
+            },
+            {
+                "name": "reflec_12",
+                "description": "Water leaving radiance reflectance at 778.498 nm",
+                "geophysicalUnit": "sr^-1",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 497,
+                        "y": 377,
+                        "value": 2.8137754E-5
+                    },
+                    {
+                        "x": 1364,
+                        "y": 1043,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 1931,
+                        "y": 2027,
+                        "value": 1.2369225E-4
+                    }
+                ]
+            },
+            {
+                "name": "reflec_13",
+                "description": "Water leaving radiance reflectance at 864.833 nm",
+                "geophysicalUnit": "sr^-1",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 497,
+                        "y": 377,
+                        "value": 1.4669169E-5
+                    },
+                    {
+                        "x": 1364,
+                        "y": 1043,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 1931,
+                        "y": 2027,
+                        "value": 6.613955E-5
+                    }
+                ]
+            },
+            {
+                "name": "path_1",
+                "description": "Water leaving radiance reflectance path at 412.545 nm",
+                "geophysicalUnit": "dxd",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 497,
+                        "y": 377,
+                        "value": 0.050859805
+                    },
+                    {
+                        "x": 1364,
+                        "y": 1043,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 1931,
+                        "y": 2027,
+                        "value": 0.04506943
+                    }
+                ]
+            },
+            {
+                "name": "path_2",
+                "description": "Water leaving radiance reflectance path at 442.401 nm",
+                "geophysicalUnit": "dxd",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 497,
+                        "y": 377,
+                        "value": 0.04134803
+                    },
+                    {
+                        "x": 1364,
+                        "y": 1043,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 1931,
+                        "y": 2027,
+                        "value": 0.03655861
+                    }
+                ]
+            },
+            {
+                "name": "path_3",
+                "description": "Water leaving radiance reflectance path at 489.744 nm",
+                "geophysicalUnit": "dxd",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 497,
+                        "y": 377,
+                        "value": 0.030505735
+                    },
+                    {
+                        "x": 1364,
+                        "y": 1043,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 1931,
+                        "y": 2027,
+                        "value": 0.026618142
+                    }
+                ]
+            },
+            {
+                "name": "path_4",
+                "description": "Water leaving radiance reflectance path at 509.7 nm",
+                "geophysicalUnit": "dxd",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 497,
+                        "y": 377,
+                        "value": 0.026921455
+                    },
+                    {
+                        "x": 1364,
+                        "y": 1043,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 1931,
+                        "y": 2027,
+                        "value": 0.02341597
+                    }
+                ]
+            },
+            {
+                "name": "path_5",
+                "description": "Water leaving radiance reflectance path at 559.634 nm",
+                "geophysicalUnit": "dxd",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 497,
+                        "y": 377,
+                        "value": 0.020148037
+                    },
+                    {
+                        "x": 1364,
+                        "y": 1043,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 1931,
+                        "y": 2027,
+                        "value": 0.017539524
+                    }
+                ]
+            },
+            {
+                "name": "path_6",
+                "description": "Water leaving radiance reflectance path at 619.62 nm",
+                "geophysicalUnit": "dxd",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 497,
+                        "y": 377,
+                        "value": 0.015807053
+                    },
+                    {
+                        "x": 1364,
+                        "y": 1043,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 1931,
+                        "y": 2027,
+                        "value": 0.013786371
+                    }
+                ]
+            },
+            {
+                "name": "path_7",
+                "description": "Water leaving radiance reflectance path at 664.64 nm",
+                "geophysicalUnit": "dxd",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 497,
+                        "y": 377,
+                        "value": 0.014528478
+                    },
+                    {
+                        "x": 1364,
+                        "y": 1043,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 1931,
+                        "y": 2027,
+                        "value": 0.01254592
+                    }
+                ]
+            },
+            {
+                "name": "path_8",
+                "description": "Water leaving radiance reflectance path at 680.902 nm",
+                "geophysicalUnit": "dxd",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 497,
+                        "y": 377,
+                        "value": 0.014118253
+                    },
+                    {
+                        "x": 1364,
+                        "y": 1043,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 1931,
+                        "y": 2027,
+                        "value": 0.012205388
+                    }
+                ]
+            },
+            {
+                "name": "path_9",
+                "description": "Water leaving radiance reflectance path at 708.426 nm",
+                "geophysicalUnit": "dxd",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 497,
+                        "y": 377,
+                        "value": 0.013276313
+                    },
+                    {
+                        "x": 1364,
+                        "y": 1043,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 1931,
+                        "y": 2027,
+                        "value": 0.011559561
+                    }
+                ]
+            },
+            {
+                "name": "path_10",
+                "description": "Water leaving radiance reflectance path at 753.472 nm",
+                "geophysicalUnit": "dxd",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 497,
+                        "y": 377,
+                        "value": 0.012428276
+                    },
+                    {
+                        "x": 1364,
+                        "y": 1043,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 1931,
+                        "y": 2027,
+                        "value": 0.010699332
+                    }
+                ]
+            },
+            {
+                "name": "path_12",
+                "description": "Water leaving radiance reflectance path at 778.498 nm",
+                "geophysicalUnit": "dxd",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 497,
+                        "y": 377,
+                        "value": 0.012026025
+                    },
+                    {
+                        "x": 1364,
+                        "y": 1043,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 1931,
+                        "y": 2027,
+                        "value": 0.010344099
+                    }
+                ]
+            },
+            {
+                "name": "path_13",
+                "description": "Water leaving radiance reflectance path at 864.833 nm",
+                "geophysicalUnit": "dxd",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 497,
+                        "y": 377,
+                        "value": 0.010774977
+                    },
+                    {
+                        "x": 1364,
+                        "y": 1043,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 1931,
+                        "y": 2027,
+                        "value": 0.009327002
+                    }
+                ]
+            },
+            {
+                "name": "tau_550",
+                "description": "Spectral aerosol optical depth at 550",
+                "geophysicalUnit": "dl",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 497,
+                        "y": 377,
+                        "value": 0.49969712
+                    },
+                    {
+                        "x": 1364,
+                        "y": 1043,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 1931,
+                        "y": 2027,
+                        "value": 0.14752577
+                    }
+                ]
+            },
+            {
+                "name": "tau_778",
+                "description": "Spectral aerosol optical depth at 778",
+                "geophysicalUnit": "dl",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 497,
+                        "y": 377,
+                        "value": 0.49878246
+                    },
+                    {
+                        "x": 1364,
+                        "y": 1043,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 1931,
+                        "y": 2027,
+                        "value": 0.12509374
+                    }
+                ]
+            },
+            {
+                "name": "tau_865",
+                "description": "Spectral aerosol optical depth at 865",
+                "geophysicalUnit": "dl",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 497,
+                        "y": 377,
+                        "value": 0.4962627
+                    },
+                    {
+                        "x": 1364,
+                        "y": 1043,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 1931,
+                        "y": 2027,
+                        "value": 0.12328815
+                    }
+                ]
+            },
+            {
+                "name": "glint_ratio",
+                "description": "Glint ratio",
+                "geophysicalUnit": "dl",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 497,
+                        "y": 377,
+                        "value": -1.9056175
+                    },
+                    {
+                        "x": 1364,
+                        "y": 1043,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 1931,
+                        "y": 2027,
+                        "value": -0.39172888
+                    }
+                ]
+            },
+            {
+                "name": "ang_443_865",
+                "description": "\"Aerosol Angstrom coefficient\"",
+                "geophysicalUnit": "dl",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 497,
+                        "y": 377,
+                        "value": -0.18593527
+                    },
+                    {
+                        "x": 1364,
+                        "y": 1043,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 1931,
+                        "y": 2027,
+                        "value": 0.6478942
+                    }
+                ]
+            },
+            {
+                "name": "detector_index",
+                "description": "Detector index",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 497,
+                        "y": 377,
+                        "value": 2329.0
+                    },
+                    {
+                        "x": 1364,
+                        "y": 1043,
+                        "value": 1422.0
+                    },
+                    {
+                        "x": 1931,
+                        "y": 2027,
+                        "value": 899.0
+                    }
+                ]
+            },
+            {
+                "name": "a_ys_443",
+                "description": "Yellow substance absorption coefficient at 443 nm.",
+                "geophysicalUnit": "m^-1",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 497,
+                        "y": 377,
+                        "value": 0.01651602
+                    },
+                    {
+                        "x": 1364,
+                        "y": 1043,
+                        "value": 2.4857912
+                    },
+                    {
+                        "x": 1931,
+                        "y": 2027,
+                        "value": 0.045368545
+                    }
+                ]
+            },
+            {
+                "name": "a_pig_443",
+                "description": "Pigment absorption coefficient at 443 nm.",
+                "geophysicalUnit": "m^-1",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 497,
+                        "y": 377,
+                        "value": 0.023696357
+                    },
+                    {
+                        "x": 1364,
+                        "y": 1043,
+                        "value": 0.010031184
+                    },
+                    {
+                        "x": 1931,
+                        "y": 2027,
+                        "value": 0.076352455
+                    }
+                ]
+            },
+            {
+                "name": "a_total_443",
+                "description": "Total absorption coefficient of all water constituents at 443 nm.",
+                "geophysicalUnit": "m^-1",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 497,
+                        "y": 377,
+                        "value": 0.040212378
+                    },
+                    {
+                        "x": 1364,
+                        "y": 1043,
+                        "value": 2.4958224
+                    },
+                    {
+                        "x": 1931,
+                        "y": 2027,
+                        "value": 0.121721
+                    }
+                ]
+            },
+            {
+                "name": "bb_spm_443",
+                "description": "Backscattering of suspended particulate matter at 443 nm.",
+                "geophysicalUnit": "m^-1",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 497,
+                        "y": 377,
+                        "value": 0.002720878
+                    },
+                    {
+                        "x": 1364,
+                        "y": 1043,
+                        "value": 9.3398214E-4
+                    },
+                    {
+                        "x": 1931,
+                        "y": 2027,
+                        "value": 0.011541977
+                    }
+                ]
+            },
+            {
+                "name": "tsm",
+                "description": "Total suspended matter dry weight concentration.",
+                "geophysicalUnit": "g m^-3",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 497,
+                        "y": 377,
+                        "value": 0.2353559
+                    },
+                    {
+                        "x": 1364,
+                        "y": 1043,
+                        "value": 0.08078946
+                    },
+                    {
+                        "x": 1931,
+                        "y": 2027,
+                        "value": 0.99838084
+                    }
+                ]
+            },
+            {
+                "name": "chl_conc",
+                "description": "Chlorophyll concentration.",
+                "geophysicalUnit": "mg m^-3",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 497,
+                        "y": 377,
+                        "value": 0.42843816
+                    },
+                    {
+                        "x": 1364,
+                        "y": 1043,
+                        "value": 0.17523688
+                    },
+                    {
+                        "x": 1931,
+                        "y": 2027,
+                        "value": 1.4466224
+                    }
+                ]
+            },
+            {
+                "name": "chiSquare",
+                "description": "Chi Square Out of Scope.",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 497,
+                        "y": 377,
+                        "value": 0.23557056
+                    },
+                    {
+                        "x": 1364,
+                        "y": 1043,
+                        "value": "Infinity"
+                    },
+                    {
+                        "x": 1931,
+                        "y": 2027,
+                        "value": 0.02488128
+                    }
+                ]
+            },
+            {
+                "name": "K_min",
+                "description": "Minimum downwelling irradiance attenuation coefficient.",
+                "geophysicalUnit": "m^-1",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 497,
+                        "y": 377,
+                        "value": 0.04829198
+                    },
+                    {
+                        "x": 1364,
+                        "y": 1043,
+                        "value": 0.759246
+                    },
+                    {
+                        "x": 1931,
+                        "y": 2027,
+                        "value": 0.109755665
+                    }
+                ]
+            },
+            {
+                "name": "Z90_max",
+                "description": "Maximum signal depth.",
+                "geophysicalUnit": "m",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 497,
+                        "y": 377,
+                        "value": -20.70737
+                    },
+                    {
+                        "x": 1364,
+                        "y": 1043,
+                        "value": -1.3170962
+                    },
+                    {
+                        "x": 1931,
+                        "y": 2027,
+                        "value": -9.111147
+                    }
+                ]
+            },
+            {
+                "name": "Kd_490",
+                "description": "Downwelling irradiance attenuation coefficient at wavelength 490.",
+                "geophysicalUnit": "m^-1",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 497,
+                        "y": 377,
+                        "value": 0.04491671
+                    },
+                    {
+                        "x": 1364,
+                        "y": 1043,
+                        "value": 1.2592844
+                    },
+                    {
+                        "x": 1931,
+                        "y": 2027,
+                        "value": 0.109136984
+                    }
+                ]
+            },
+            {
+                "name": "turbidity_index",
+                "description": "Turbidity index in FNU (Formazine Nephelometric Unit).",
+                "geophysicalUnit": "FNU",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 497,
+                        "y": 377,
+                        "value": 0.6030454
+                    },
+                    {
+                        "x": 1364,
+                        "y": 1043,
+                        "value": 0.39
+                    },
+                    {
+                        "x": 1931,
+                        "y": 2027,
+                        "value": 1.2106824
+                    }
+                ]
+            },
+            {
+                "name": "agc_flags",
+                "description": "Atmosphere Correction - Flag Coding",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 497,
+                        "y": 377,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 1364,
+                        "y": 1043,
+                        "value": 32777.0
+                    },
+                    {
+                        "x": 1931,
+                        "y": 2027,
+                        "value": 0.0
+                    }
+                ]
+            },
+            {
+                "name": "l1_flags",
+                "description": "Level 1b classification and quality flags",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 497,
+                        "y": 377,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 1364,
+                        "y": 1043,
+                        "value": 32.0
+                    },
+                    {
+                        "x": 1931,
+                        "y": 2027,
+                        "value": 0.0
+                    }
+                ]
+            },
+            {
+                "name": "case2_flags",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 497,
+                        "y": 377,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 1364,
+                        "y": 1043,
+                        "value": 5.0
+                    },
+                    {
+                        "x": 1931,
+                        "y": 2027,
+                        "value": 0.0
+                    }
+                ]
+            },
+            {
+                "name": "latitude",
+                "description": "Latitude of the tie points (WGS-84), positive N",
+                "geophysicalUnit": "degree",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 497,
+                        "y": 377,
+                        "value": -13.699894
+                    },
+                    {
+                        "x": 1364,
+                        "y": 1043,
+                        "value": -15.88022
+                    },
+                    {
+                        "x": 1931,
+                        "y": 2027,
+                        "value": -18.724287
+                    }
+                ]
+            },
+            {
+                "name": "longitude",
+                "description": "Longitude of the tie points (WGS-84), Greenwich origin, positive E",
+                "geophysicalUnit": "degree",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 497,
+                        "y": 377,
+                        "value": 143.97667
+                    },
+                    {
+                        "x": 1364,
+                        "y": 1043,
+                        "value": 145.62003
+                    },
+                    {
+                        "x": 1931,
+                        "y": 2027,
+                        "value": 146.3988
+                    }
+                ]
+            },
+            {
+                "name": "dem_alt",
+                "description": "Digital elevation model altitude",
+                "geophysicalUnit": "m",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 497,
+                        "y": 377,
+                        "value": -235.0791
+                    },
+                    {
+                        "x": 1364,
+                        "y": 1043,
+                        "value": 23.441406
+                    },
+                    {
+                        "x": 1931,
+                        "y": 2027,
+                        "value": 11.154053
+                    }
+                ]
+            },
+            {
+                "name": "dem_rough",
+                "description": "Digital elevation model roughness",
+                "geophysicalUnit": "m",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 497,
+                        "y": 377,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 1364,
+                        "y": 1043,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 1931,
+                        "y": 2027,
+                        "value": 2.08667
+                    }
+                ]
+            },
+            {
+                "name": "lat_corr",
+                "description": "Digital elevation model latitude corrections",
+                "geophysicalUnit": "degree",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 497,
+                        "y": 377,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 1364,
+                        "y": 1043,
+                        "value": 7.5517582E-6
+                    },
+                    {
+                        "x": 1931,
+                        "y": 2027,
+                        "value": 7.3676756E-6
+                    }
+                ]
+            },
+            {
+                "name": "lon_corr",
+                "description": "Digital elevation model longitude corrections",
+                "geophysicalUnit": "degree",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 497,
+                        "y": 377,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 1364,
+                        "y": 1043,
+                        "value": 3.5921876E-5
+                    },
+                    {
+                        "x": 1931,
+                        "y": 2027,
+                        "value": 3.8461432E-5
+                    }
+                ]
+            },
+            {
+                "name": "sun_zenith",
+                "description": "Sun zenith angle",
+                "geophysicalUnit": "degree",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 497,
+                        "y": 377,
+                        "value": 38.51954
+                    },
+                    {
+                        "x": 1364,
+                        "y": 1043,
+                        "value": 38.034206
+                    },
+                    {
+                        "x": 1931,
+                        "y": 2027,
+                        "value": 38.760048
+                    }
+                ]
+            },
+            {
+                "name": "sun_azimuth",
+                "description": "Sun azimuth angles",
+                "geophysicalUnit": "degree",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 497,
+                        "y": 377,
+                        "value": 63.98188
+                    },
+                    {
+                        "x": 1364,
+                        "y": 1043,
+                        "value": 60.074783
+                    },
+                    {
+                        "x": 1931,
+                        "y": 2027,
+                        "value": 56.130184
+                    }
+                ]
+            },
+            {
+                "name": "view_zenith",
+                "description": "Viewing zenith angles",
+                "geophysicalUnit": "degree",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 497,
+                        "y": 377,
+                        "value": 9.733313
+                    },
+                    {
+                        "x": 1364,
+                        "y": 1043,
+                        "value": 8.504364
+                    },
+                    {
+                        "x": 1931,
+                        "y": 2027,
+                        "value": 19.855165
+                    }
+                ]
+            },
+            {
+                "name": "view_azimuth",
+                "description": "Viewing azimuth angles",
+                "geophysicalUnit": "degree",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 497,
+                        "y": 377,
+                        "value": 102.854355
+                    },
+                    {
+                        "x": 1364,
+                        "y": 1043,
+                        "value": 282.37973
+                    },
+                    {
+                        "x": 1931,
+                        "y": 2027,
+                        "value": 281.96793
+                    }
+                ]
+            },
+            {
+                "name": "zonal_wind",
+                "description": "Zonal wind",
+                "geophysicalUnit": "m/s",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 497,
+                        "y": 377,
+                        "value": -5.475
+                    },
+                    {
+                        "x": 1364,
+                        "y": 1043,
+                        "value": -5.4031253
+                    },
+                    {
+                        "x": 1931,
+                        "y": 2027,
+                        "value": -3.0056398
+                    }
+                ]
+            },
+            {
+                "name": "merid_wind",
+                "description": "Meridional wind",
+                "geophysicalUnit": "m/s",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 497,
+                        "y": 377,
+                        "value": 3.9406252
+                    },
+                    {
+                        "x": 1364,
+                        "y": 1043,
+                        "value": 5.409473
+                    },
+                    {
+                        "x": 1931,
+                        "y": 2027,
+                        "value": 3.8287354
+                    }
+                ]
+            },
+            {
+                "name": "atm_press",
+                "description": "Mean sea level pressure",
+                "geophysicalUnit": "hPa",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 497,
+                        "y": 377,
+                        "value": 1014.6891
+                    },
+                    {
+                        "x": 1364,
+                        "y": 1043,
+                        "value": 1015.72815
+                    },
+                    {
+                        "x": 1931,
+                        "y": 2027,
+                        "value": 1017.80005
+                    }
+                ]
+            },
+            {
+                "name": "ozone",
+                "description": "Total ozone",
+                "geophysicalUnit": "DU",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 497,
+                        "y": 377,
+                        "value": 259.6547
+                    },
+                    {
+                        "x": 1364,
+                        "y": 1043,
+                        "value": 260.05173
+                    },
+                    {
+                        "x": 1931,
+                        "y": 2027,
+                        "value": 257.12097
+                    }
+                ]
+            },
+            {
+                "name": "rel_hum",
+                "description": "Relative humidity",
+                "geophysicalUnit": "%",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 497,
+                        "y": 377,
+                        "value": 75.76138
+                    },
+                    {
+                        "x": 1364,
+                        "y": 1043,
+                        "value": 72.74697
+                    },
+                    {
+                        "x": 1931,
+                        "y": 2027,
+                        "value": 69.784035
+                    }
+                ]
+            },
+            {
+                "name": "lat",
+                "description": "latitude coordinate",
+                "geophysicalUnit": "degrees_north",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 497,
+                        "y": 377,
+                        "value": -13.699894
+                    },
+                    {
+                        "x": 1364,
+                        "y": 1043,
+                        "value": -15.88022
+                    },
+                    {
+                        "x": 1931,
+                        "y": 2027,
+                        "value": -18.724287
+                    }
+                ]
+            },
+            {
+                "name": "lon",
+                "description": "longitude coordinate",
+                "geophysicalUnit": "degrees_east",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 497,
+                        "y": 377,
+                        "value": 143.97667
+                    },
+                    {
+                        "x": 1364,
+                        "y": 1043,
+                        "value": 145.62003
+                    },
+                    {
+                        "x": 1931,
+                        "y": 2027,
+                        "value": 146.3988
+                    }
+                ]
+            }
+        ],
+        "metadata": [
+            {
+                "path": "Global_Attributes/start_date",
+                "value": "01-APR-2004 00:11:07.971135"
+            },
+            {
+                "path": "Variable_Attributes/Kd_490/long_name",
+                "value": "Downwelling irradiance attenuation coefficient at wavelength 490."
+            }
+        ]
+    }
+}
