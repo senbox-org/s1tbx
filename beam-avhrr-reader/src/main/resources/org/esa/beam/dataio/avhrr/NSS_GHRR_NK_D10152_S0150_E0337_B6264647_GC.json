@@ -1,6 +1,6 @@
 {
     "id": "NSS_GHRR_NK_D10152_S0150_E0337_B6264647_GC",
-    "decodeQualification": "intended",
+    "decodeQualification": "INTENDED",
     "expectedContent": {
         "sceneWidth": 401,
         "sceneHeight": 12841,
@@ -9,19 +9,19 @@
         "geoCoding": {
             "coordinates": [
                 {
-                    "x": 17.5,
-                    "y": 94.5,
-                    "lat": 34.393257,
-                    "lon": 177.99725
+                    "x": 172.0,
+                    "y": 6902.0,
+                    "lat": -15.564711,
+                    "lon": 28.586922
                 },
                 {
-                    "x": 115.5,
-                    "y": 1532.5,
-                    "lat": -6.1022873,
-                    "lon": -163.51067
+                    "x": 297.0,
+                    "y": 8332.0,
+                    "lat": 27.369925,
+                    "lon": 33.307228
                 }
             ],
-            "reverseAccuracy": 0.01,
+            "reverseAccuracy": 3.8323975,
             "geoCodingClass": "org.esa.beam.framework.datamodel.TiePointGeoCoding"
         },
         "flagCodings": [
@@ -70,14 +70,14 @@
                 "subSamplingY": "8.0",
                 "expectedPixels": [
                     {
-                        "x": 17,
-                        "y": 94,
-                        "value": 47.43531
+                        "x": 20,
+                        "y": 2287,
+                        "value": 80.28749
                     },
                     {
-                        "x": 115,
-                        "y": 1532,
-                        "value": 72.31
+                        "x": 274,
+                        "y": 10922,
+                        "value": 58.4575
                     }
                 ]
             },
@@ -89,14 +89,14 @@
                 "subSamplingY": "8.0",
                 "expectedPixels": [
                     {
-                        "x": 17,
-                        "y": 94,
-                        "value": 58.95125
+                        "x": 116,
+                        "y": 3298,
+                        "value": 25.875
                     },
                     {
-                        "x": 115,
-                        "y": 1532,
-                        "value": 26.1125
+                        "x": 244,
+                        "y": 4690,
+                        "value": 13.514999
                     }
                 ]
             },
@@ -108,14 +108,14 @@
                 "subSamplingY": "8.0",
                 "expectedPixels": [
                     {
-                        "x": 17,
-                        "y": 94,
-                        "value": 163.62782
+                        "x": 220,
+                        "y": 9571,
+                        "value": 31.350626
                     },
                     {
-                        "x": 115,
-                        "y": 1532,
-                        "value": 146.58124
+                        "x": 243,
+                        "y": 11922,
+                        "value": -8.400937
                     }
                 ]
             },
@@ -127,14 +127,14 @@
                 "subSamplingY": "8.0",
                 "expectedPixels": [
                     {
-                        "x": 17,
-                        "y": 94,
-                        "value": 34.393257
+                        "x": 63,
+                        "y": 8552,
+                        "value": 32.05896
                     },
                     {
-                        "x": 115,
-                        "y": 1532,
-                        "value": -6.1022873
+                        "x": 208,
+                        "y": 11730,
+                        "value": 51.230125
                     }
                 ]
             },
@@ -146,14 +146,14 @@
                 "subSamplingY": "8.0",
                 "expectedPixels": [
                     {
-                        "x": 17,
-                        "y": 94,
-                        "value": 177.99725
+                        "x": 303,
+                        "y": 6222,
+                        "value": 17.65265
                     },
                     {
-                        "x": 115,
-                        "y": 1532,
-                        "value": -163.51067
+                        "x": 381,
+                        "y": 6238,
+                        "value": 11.527925
                     }
                 ]
             }
@@ -169,14 +169,14 @@
                 "spectralBandwidth": "100.0",
                 "expectedPixels": [
                     {
-                        "x": 17,
-                        "y": 94,
-                        "value": 270.7286
+                        "x": 136,
+                        "y": 11549,
+                        "value": 181.11128
                     },
                     {
-                        "x": 115,
-                        "y": 1532,
-                        "value": 102.395905
+                        "x": 3,
+                        "y": 6045,
+                        "value": -0.14873733
                     }
                 ]
             },
@@ -190,14 +190,14 @@
                 "spectralBandwidth": "275.0",
                 "expectedPixels": [
                     {
-                        "x": 17,
-                        "y": 94,
-                        "value": 149.34555
+                        "x": 131,
+                        "y": 2531,
+                        "value": "NaN"
                     },
                     {
-                        "x": 115,
-                        "y": 1532,
-                        "value": 60.699177
+                        "x": 109,
+                        "y": 554,
+                        "value": 6.607664
                     }
                 ]
             },
@@ -211,13 +211,13 @@
                 "spectralBandwidth": "60.0",
                 "expectedPixels": [
                     {
-                        "x": 17,
-                        "y": 94,
+                        "x": 389,
+                        "y": 7765,
                         "value": "NaN"
                     },
                     {
-                        "x": 115,
-                        "y": 1532,
+                        "x": 229,
+                        "y": 9204,
                         "value": "NaN"
                     }
                 ]
@@ -232,14 +232,14 @@
                 "spectralBandwidth": "38.0",
                 "expectedPixels": [
                     {
-                        "x": 17,
-                        "y": 94,
-                        "value": 0.50581706
+                        "x": 93,
+                        "y": 6388,
+                        "value": 0.21463595
                     },
                     {
-                        "x": 115,
-                        "y": 1532,
-                        "value": 0.08392899
+                        "x": 128,
+                        "y": 9278,
+                        "value": 0.35295698
                     }
                 ]
             },
@@ -253,14 +253,14 @@
                 "spectralBandwidth": "1000.0",
                 "expectedPixels": [
                     {
-                        "x": 17,
-                        "y": 94,
-                        "value": 38.125217
+                        "x": 143,
+                        "y": 6397,
+                        "value": 72.09155
                     },
                     {
-                        "x": 115,
-                        "y": 1532,
-                        "value": 27.047344
+                        "x": 161,
+                        "y": 5679,
+                        "value": 66.23736
                     }
                 ]
             },
@@ -274,14 +274,14 @@
                 "spectralBandwidth": "1000.0",
                 "expectedPixels": [
                     {
-                        "x": 17,
-                        "y": 94,
-                        "value": 46.8503
+                        "x": 230,
+                        "y": 1179,
+                        "value": 90.697754
                     },
                     {
-                        "x": 115,
-                        "y": 1532,
-                        "value": 34.350185
+                        "x": 258,
+                        "y": 203,
+                        "value": 79.85807
                     }
                 ]
             },
@@ -295,14 +295,14 @@
                 "spectralBandwidth": "100.0",
                 "expectedPixels": [
                     {
-                        "x": 17,
-                        "y": 94,
-                        "value": 52.7852
+                        "x": 391,
+                        "y": 4716,
+                        "value": -0.029
                     },
                     {
-                        "x": 115,
-                        "y": 1532,
-                        "value": 19.9646
+                        "x": 380,
+                        "y": 12152,
+                        "value": 18.147
                     }
                 ]
             },
@@ -316,14 +316,14 @@
                 "spectralBandwidth": "275.0",
                 "expectedPixels": [
                     {
-                        "x": 17,
-                        "y": 94,
-                        "value": 46.56889
+                        "x": 44,
+                        "y": 5802,
+                        "value": -0.0852
                     },
                     {
-                        "x": 115,
-                        "y": 1532,
-                        "value": 18.9272
+                        "x": 228,
+                        "y": 7222,
+                        "value": -0.0852
                     }
                 ]
             },
@@ -337,13 +337,13 @@
                 "spectralBandwidth": "60.0",
                 "expectedPixels": [
                     {
-                        "x": 17,
-                        "y": 94,
+                        "x": 202,
+                        "y": 6697,
                         "value": "NaN"
                     },
                     {
-                        "x": 115,
-                        "y": 1532,
+                        "x": 180,
+                        "y": 7460,
                         "value": "NaN"
                     }
                 ]
@@ -358,14 +358,14 @@
                 "spectralBandwidth": "38.0",
                 "expectedPixels": [
                     {
-                        "x": 17,
-                        "y": 94,
-                        "value": 296.3821
+                        "x": 5,
+                        "y": 5452,
+                        "value": 255.04477
                     },
                     {
-                        "x": 115,
-                        "y": 1532,
-                        "value": 260.30774
+                        "x": 28,
+                        "y": 12748,
+                        "value": 302.2213
                     }
                 ]
             },
@@ -379,14 +379,14 @@
                 "spectralBandwidth": "1000.0",
                 "expectedPixels": [
                     {
-                        "x": 17,
-                        "y": 94,
-                        "value": 241.3622
+                        "x": 119,
+                        "y": 9567,
+                        "value": 275.4922
                     },
                     {
-                        "x": 115,
-                        "y": 1532,
-                        "value": 227.24619
+                        "x": 322,
+                        "y": 9456,
+                        "value": 278.73413
                     }
                 ]
             },
@@ -400,14 +400,14 @@
                 "spectralBandwidth": "1000.0",
                 "expectedPixels": [
                     {
-                        "x": 17,
-                        "y": 94,
-                        "value": 240.58492
+                        "x": 334,
+                        "y": 12141,
+                        "value": 262.72308
                     },
                     {
-                        "x": 115,
-                        "y": 1532,
-                        "value": 226.6382
+                        "x": 99,
+                        "y": 6828,
+                        "value": 270.3513
                     }
                 ]
             },
@@ -419,13 +419,13 @@
                 "spectralBandwidth": "0.0",
                 "expectedPixels": [
                     {
-                        "x": 17,
-                        "y": 94,
+                        "x": 245,
+                        "y": 3339,
                         "value": 0.0
                     },
                     {
-                        "x": 115,
-                        "y": 1532,
+                        "x": 221,
+                        "y": 1938,
                         "value": 0.0
                     }
                 ]
@@ -438,13 +438,13 @@
                 "spectralBandwidth": "0.0",
                 "expectedPixels": [
                     {
-                        "x": 17,
-                        "y": 94,
+                        "x": 190,
+                        "y": 7179,
                         "value": 0.0
                     },
                     {
-                        "x": 115,
-                        "y": 1532,
+                        "x": 38,
+                        "y": 10912,
                         "value": 0.0
                     }
                 ]
@@ -509,10 +509,13 @@
             }
         ],
         "metadata": [
-            null,
             {
-                "path": "HeaderRecord/RADIANCE_CONVERSION/CHANNEL_1_SOLAR_IRRADIANCE",
-                "value": "138.70000000000002"
+                "path": "HeaderRecord/FILE_IDENTIFICATION/DATA_SET_NAME",
+                "value": "NSS.GHRR.NK.D10152.S0150.E0337.B6264647.GC"
+            },
+            {
+                "path": "HeaderRecord/NAVIGATION/RIGHT_ASCENSION_OF_THE_ASCENDING_NODE",
+                "value": "139.04806000000002"
             }
         ]
     }

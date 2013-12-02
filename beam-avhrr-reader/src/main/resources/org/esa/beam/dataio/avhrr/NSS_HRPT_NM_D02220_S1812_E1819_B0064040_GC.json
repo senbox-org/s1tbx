@@ -9,19 +9,19 @@
         "geoCoding": {
             "coordinates": [
                 {
-                    "x": 487.5,
-                    "y": 247.5,
-                    "lat": 74.4324,
-                    "lon": -105.83487
+                    "x": 863.0,
+                    "y": 1376.0,
+                    "lat": 62.7525,
+                    "lon": -108.3553
                 },
                 {
-                    "x": 955.5,
-                    "y": 1724.5,
-                    "lat": 59.27488,
-                    "lon": -109.39412
+                    "x": 1485.0,
+                    "y": 1661.0,
+                    "lat": 58.487305,
+                    "lon": -101.66076
                 }
             ],
-            "reverseAccuracy": 0.01,
+            "reverseAccuracy": 0.3,
             "geoCodingClass": "org.esa.beam.framework.datamodel.TiePointGeoCoding"
         },
         "flagCodings": [
@@ -470,10 +470,13 @@
             }
         ],
         "metadata": [
-            null,
             {
-                "path": "HeaderRecord/RADIANCE_CONVERSION/CHANNEL_1_SOLAR_IRRADIANCE",
-                "value": "136.20000000000002"
+                "path": "HeaderRecord/NAVIGATION/EARTH_LOCATION_BIT_FIELD",
+                "value": "2"
+            },
+            {
+                "path": "HeaderRecord/NAVIGATION/RIGHT_ASCENSION_OF_THE_ASCENDING_NODE",
+                "value": "286.79504000000003"
             }
         ]
     }
