@@ -262,7 +262,8 @@
         ],
         "metadata": [
             {
-                "path": "GLOBAL_METADATA/MsKeyWords"
+                "path": "GLOBAL_METADATA/MsKeyWords",
+                "value": ""
             },
             {
                 "path": "GLOBAL_METADATA/StructMetadata\\.0",

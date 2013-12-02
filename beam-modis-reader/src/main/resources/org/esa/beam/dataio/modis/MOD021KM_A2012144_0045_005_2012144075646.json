@@ -7,21 +7,7 @@
         "startTime": "22-MAY-2012 22:45:00.000000",
         "endTime": "22-MAY-2012 22:50:00.000000",
         "geoCoding": {
-            "coordinates": [
-                {
-                    "x": 584.0,
-                    "y": 1091.0,
-                    "lat": 65.70671,
-                    "lon": 161.8677
-                },
-                {
-                    "x": 1005.0,
-                    "y": 1317.0,
-                    "lat": 62.314095,
-                    "lon": 168.74435
-                }
-            ],
-            "reverseAccuracy": "0.5",
+            "reverseAccuracy": "NaN",
             "geoCodingClass": "org.esa.beam.dataio.modis.ModisTiePointGeoCoding"
         },
         "tiePointGrids": [

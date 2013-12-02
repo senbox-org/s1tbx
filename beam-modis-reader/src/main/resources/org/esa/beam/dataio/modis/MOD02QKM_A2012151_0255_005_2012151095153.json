@@ -9,12 +9,6 @@
         "geoCoding": {
             "coordinates": [
                 {
-                    "x": 438.5,
-                    "y": 269.5,
-                    "lat": -14.131142,
-                    "lon": 104.1874
-                },
-                {
                     "x": 1887.5,
                     "y": 1025.5,
                     "lat": -16.360039,
@@ -25,15 +19,9 @@
                     "y": 1398.5,
                     "lat": -17.876286,
                     "lon": 114.90562
-                },
-                {
-                    "x": 5308.5,
-                    "y": 1888.5,
-                    "lat": -19.413036,
-                    "lon": 120.68789
                 }
             ],
-            "reverseAccuracy": "1.0",
+            "reverseAccuracy": "10.0",
             "geoCodingClass": "org.esa.beam.dataio.modis.ModisTiePointGeoCoding"
         },
         "tiePointGrids": [
