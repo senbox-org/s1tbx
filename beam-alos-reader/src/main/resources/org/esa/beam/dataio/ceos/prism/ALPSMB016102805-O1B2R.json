@@ -1,6 +1,6 @@
 {
     "id": "ALPSMB016102805-O1B2R",
-    "decodeQualification": "intended",
+    "decodeQualification": "INTENDED",
     "expectedContent": {
         "sceneWidth": 16325,
         "sceneHeight": 14000,
@@ -9,13 +9,19 @@
         "geoCoding": {
             "coordinates": [
                 {
-                    "x": 6241.5,
-                    "y": 8139.5,
-                    "lat": 42.064304,
-                    "lon": -7.3689103
+                    "x": 7041.0,
+                    "y": 7525.0,
+                    "lat": 42.078953,
+                    "lon": -7.345689
+                },
+                {
+                    "x": 12120.0,
+                    "y": 9084.0,
+                    "lat": 42.049206,
+                    "lon": -7.1904454
                 }
             ],
-            "reverseAccuracy": 0.06,
+            "reverseAccuracy": 0.07,
             "geoCodingClass": "org.esa.beam.framework.datamodel.MapGeoCoding"
         },
         "bands": [
@@ -28,21 +34,26 @@
                 "spectralBandwidth": "250.0",
                 "expectedPixels": [
                     {
-                        "x": 6241,
-                        "y": 8139,
-                        "value": 60.592
+                        "x": 851,
+                        "y": 2494,
+                        "value": 73.035
+                    },
+                    {
+                        "x": 11184,
+                        "y": 11908,
+                        "value": 73.035
                     }
                 ]
             }
         ],
         "metadata": [
             {
-                "path": "SPH/Radiometric Calibration/ABSOLUTE_GAIN_BAND",
-                "value": "0.541"
+                "path": "SPH/Map Projection/PIXELS_PER_LINE",
+                "value": "16325.0"
             },
             {
-                "path": "VOLUME_DESCRIPTOR/FilePointerRecord 1/Second record subtype",
-                "value": "18"
+                "path": "SPH/Radiometric Calibration/ABSOLUTE_GAIN_BAND",
+                "value": "0.541"
             }
         ]
     }
