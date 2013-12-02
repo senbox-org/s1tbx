@@ -109,19 +109,8 @@ class PrismProductDirectory {
 
         addBand(product);
 
-        final Calendar imageStartDate = leaderFile.getDateImageWasTaken();
-        imageStartDate.set(Calendar.MILLISECOND, imageFiles[0].getTotalMillisInDayOfLine(0));
-        final ProductData.UTC utcScanStartTime = ProductData.UTC.create(imageStartDate.getTime(),
-                                                                        imageFiles[0].getMicrosecondsOfLine(0));
-
-        final Calendar imageEndDate = leaderFile.getDateImageWasTaken();
-        imageEndDate.set(Calendar.MILLISECOND, imageFiles[0].getTotalMillisInDayOfLine(sceneHeight - 1));
-        final ProductData.UTC utcScanStopTime = ProductData.UTC.create(imageEndDate.getTime(),
-                                                                       imageFiles[0].getMicrosecondsOfLine(
-                                                                               sceneHeight - 1));
-
-        product.setStartTime(utcScanStartTime);
-        product.setEndTime(utcScanStopTime);
+        product.setStartTime(getScanTimeUTC(0));
+        product.setEndTime(getScanTimeUTC(sceneHeight - 1));
         product.setDescription("PRISM product Level " + productType);
 
         addGeoCoding(product);
@@ -129,6 +118,15 @@ class PrismProductDirectory {
         addMetadataTo(product);
 
         return product;
+    }
+
+    private ProductData.UTC getScanTimeUTC(int lineNumber) throws IOException, IllegalCeosFormatException {
+        final Calendar imageEndDate = leaderFile.getDateImageWasTaken();
+        final PrismImageFile firstImageFile = imageFiles[0];
+        imageEndDate.set(Calendar.MILLISECOND, firstImageFile.getTotalMillisInDayOfLine(lineNumber));
+        final int remainingMillis = imageEndDate.get(Calendar.MILLISECOND);
+        imageEndDate.set(Calendar.MILLISECOND, 0);
+        return ProductData.UTC.create(imageEndDate.getTime(), firstImageFile.getMicrosecondsOfLine(lineNumber) + remainingMillis * 1000);
     }
 
     private void addBand(final Product product) {

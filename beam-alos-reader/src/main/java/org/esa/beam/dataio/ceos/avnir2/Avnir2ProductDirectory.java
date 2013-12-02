@@ -112,12 +112,11 @@ class Avnir2ProductDirectory {
             Band band = createBand(avnir2ImageFile);
             product.addBand(band);
             imageFileMap.put(band, avnir2ImageFile);
-
         }
-        product.setStartTime(getUTCScanStartTime());
-        product.setEndTime(getUTCScanStopTime());
-        product.setDescription(getProductDescription());
 
+        product.setStartTime(getScanTimeUTC(0));
+        product.setEndTime(getScanTimeUTC(sceneHeight - 1));
+        product.setDescription(getProductDescription());
 
         addGeoCoding(product);
 
@@ -372,18 +371,13 @@ class Avnir2ProductDirectory {
         }
     }
 
-    private ProductData.UTC getUTCScanStartTime() throws IOException,
-                                                         IllegalCeosFormatException {
-        final Calendar imageStartDate = leaderFile.getDateImageWasTaken();
-        imageStartDate.set(Calendar.MILLISECOND, imageFiles[0].getTotalMillisInDayOfLine(0));
-        return ProductData.UTC.create(imageStartDate.getTime(), imageFiles[0].getMicrosecondsOfLine(0));
-    }
-
-    private ProductData.UTC getUTCScanStopTime() throws IOException,
-                                                        IllegalCeosFormatException {
-        final Calendar imageStartDate = leaderFile.getDateImageWasTaken();
-        imageStartDate.set(Calendar.MILLISECOND, imageFiles[0].getTotalMillisInDayOfLine(sceneHeight - 1));
-        return ProductData.UTC.create(imageStartDate.getTime(), imageFiles[0].getMicrosecondsOfLine(sceneHeight - 1));
+    private ProductData.UTC getScanTimeUTC(int lineNumber) throws IOException, IllegalCeosFormatException {
+        final Calendar imageEndDate = leaderFile.getDateImageWasTaken();
+        final Avnir2ImageFile firstImageFile = imageFiles[0];
+        imageEndDate.set(Calendar.MILLISECOND, firstImageFile.getTotalMillisInDayOfLine(lineNumber));
+        final int remainingMillis = imageEndDate.get(Calendar.MILLISECOND);
+        imageEndDate.set(Calendar.MILLISECOND, 0);
+        return ProductData.UTC.create(imageEndDate.getTime(), firstImageFile.getMicrosecondsOfLine(lineNumber) + remainingMillis * 1000);
     }
 
     private ImageInputStream createInputStream(final String fileName) throws IOException {
