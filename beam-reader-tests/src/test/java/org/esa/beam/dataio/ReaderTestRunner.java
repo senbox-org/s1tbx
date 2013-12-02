@@ -21,6 +21,8 @@ import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.BlockJUnit4ClassRunner;
 import org.junit.runners.model.InitializationError;
 
+import java.util.Locale;
+
 public class ReaderTestRunner extends BlockJUnit4ClassRunner {
 
     private static final String PROPERTYNAME_EXECUTE_READER_TESTS = "beam.reader.tests.execute";
@@ -29,7 +31,7 @@ public class ReaderTestRunner extends BlockJUnit4ClassRunner {
 
     public ReaderTestRunner(Class<?> clazz) throws InitializationError {
         super(clazz);
-
+        Locale.setDefault(Locale.UK);
         this.clazz = clazz;
 
         runAcceptanceTests = Boolean.getBoolean(PROPERTYNAME_EXECUTE_READER_TESTS);
