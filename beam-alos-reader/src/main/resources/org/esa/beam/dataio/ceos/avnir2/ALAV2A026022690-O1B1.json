@@ -4,8 +4,8 @@
     "expectedContent": {
         "sceneWidth": 7100,
         "sceneHeight": 8000,
-        "startTime": "21-JUL-2006 09:11:07.000159",
-        "endTime": "21-JUL-2006 09:11:18.000025",
+        "startTime": "21-JUL-2006 09:11:07.055159",
+        "endTime": "21-JUL-2006 09:11:18.893025",
         "geoCoding": {
             "coordinates": [
                 {

@@ -1,21 +1,27 @@
 {
     "id": "AV2_MMC_TP__0002292003",
-    "decodeQualification": "intended",
+    "decodeQualification": "INTENDED",
     "expectedContent": {
         "sceneWidth": 7100,
         "sceneHeight": 8000,
-        "startTime": "14-AUG-2008 07:18:16.000169",
-        "endTime": "14-AUG-2008 07:18:28.000406",
+        "startTime": "14-AUG-2008 07:18:16.270169",
+        "endTime": "14-AUG-2008 07:18:28.108406",
         "geoCoding": {
             "coordinates": [
                 {
-                    "x": 1920.5,
-                    "y": 3268.5,
-                    "lat": 38.3224,
-                    "lon": 23.452745
+                    "x": 3062.0,
+                    "y": 4300.0,
+                    "lat": 38.206867,
+                    "lon": 23.552744
+                },
+                {
+                    "x": 5271.0,
+                    "y": 5191.0,
+                    "lat": 38.08102,
+                    "lon": 23.775236
                 }
             ],
-            "reverseAccuracy": 0.02,
+            "reverseAccuracy": 0.022460938,
             "geoCodingClass": "org.esa.beam.framework.datamodel.FXYGeoCoding"
         },
         "bands": [
@@ -29,9 +35,14 @@
                 "spectralBandwidth": "80.0",
                 "expectedPixels": [
                     {
-                        "x": 1920,
-                        "y": 3268,
-                        "value": 59.976
+                        "x": 370,
+                        "y": 1425,
+                        "value": 62.328
+                    },
+                    {
+                        "x": 4864,
+                        "y": 6804,
+                        "value": 68.208
                     }
                 ]
             },
@@ -45,9 +56,14 @@
                 "spectralBandwidth": "80.0",
                 "expectedPixels": [
                     {
-                        "x": 1920,
-                        "y": 3268,
-                        "value": 49.851
+                        "x": 2065,
+                        "y": 2054,
+                        "value": 51.57
+                    },
+                    {
+                        "x": 4334,
+                        "y": 2922,
+                        "value": 61.884
                     }
                 ]
             },
@@ -61,9 +77,14 @@
                 "spectralBandwidth": "80.0",
                 "expectedPixels": [
                     {
-                        "x": 1920,
-                        "y": 3268,
-                        "value": 40.662
+                        "x": 3905,
+                        "y": 5962,
+                        "value": 128.01
+                    },
+                    {
+                        "x": 4319,
+                        "y": 7427,
+                        "value": 25.1
                     }
                 ]
             },
@@ -77,21 +98,26 @@
                 "spectralBandwidth": "130.0",
                 "expectedPixels": [
                     {
-                        "x": 1920,
-                        "y": 3268,
-                        "value": 61.79
+                        "x": 1123,
+                        "y": 5328,
+                        "value": 84.335
+                    },
+                    {
+                        "x": 3685,
+                        "y": 7308,
+                        "value": 60.955
                     }
                 ]
             }
         ],
         "metadata": [
             {
-                "path": "SPH/Radiometric Calibration/DETECTOR_ASSEMBLY_TEMPERATURE_BAND",
-                "value": "18.0,18.409,18.665,18.074"
+                "path": "VOLUME_DESCRIPTOR/Logical volume ID",
+                "value": "AL1AV220080926  "
             },
             {
-                "path": "VOLUME_DESCRIPTOR/First record subtype",
-                "value": "192"
+                "path": "VOLUME_DESCRIPTOR/Logical volume ID",
+                "value": "AL1AV220080926  "
             }
         ]
     }

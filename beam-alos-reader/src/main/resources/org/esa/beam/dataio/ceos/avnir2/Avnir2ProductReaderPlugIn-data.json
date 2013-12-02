@@ -1,11 +1,6 @@
 {
     "testProducts": [
         {
-            "id": "AV2_MMC_TP__0002292003",
-            "relativePath": "sensors_platforms/AVNIR2/1A/AV2_MMC_TP__0002292003/VOL-ALAV2A136142830-O1A____",
-            "description": "AVNIR-2 product Level 1A"
-        },
-        {
             "id": "ALAV2A026022690-O1B1",
             "relativePath": "sensors_platforms/AVNIR2/1B1/ALAV2A026022690-O1B1___-A0601646-031/VOL-ALAV2A026022690-O1B1___",
             "description": "AVNIR-2 product Level 1B1"
@@ -15,6 +10,11 @@
             "relativePath": "sensors_platforms/AVNIR2/1B2/G/AV2_MMC_FR__0000091001/VOL-ALAV2A038712630-O1B2G_U",
             "description": "AVNIR-2 product Level 1B2"
         }   ,
+        {
+            "id": "AV2_MMC_TP__0002292003",
+            "relativePath": "sensors_platforms/AVNIR2/1A/AV2_MMC_TP__0002292003/VOL-ALAV2A136142830-O1A____",
+            "description": "AVNIR-2 product Level 1A"
+        },
         {
             "id": "ALAV2A016102690-O1B2R_U",
             "relativePath": "sensors_platforms/AVNIR2/1B2/R/ALAV2A016102690-O1B2R_U-A0600527-024/VOL-ALAV2A016102690-O1B2R_U",
