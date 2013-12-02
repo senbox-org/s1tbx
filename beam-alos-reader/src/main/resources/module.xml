@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-alos-reader</symbolicName>
-    <version>1.3.1</version>
+    <version>1.3.2</version>
     <name>AVNIR-2/PRISM Product Reader</name>
 
     <description>
@@ -24,6 +24,8 @@
 
     <changelog>
         <![CDATA[
+        <p>Changes in Version 1.3.2<br/>
+        [BEAM-1578] - Sensing start and stop time can be wrong<br>
         <p>Changes in Version 1.3.1<br/>
         Adapted to new Maven-architecture<br>
         <p>Changes in Version 1.3<br/>
