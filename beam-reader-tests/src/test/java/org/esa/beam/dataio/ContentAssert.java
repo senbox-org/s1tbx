@@ -69,11 +69,14 @@ class ContentAssert {
             assertNotNull(productId + " has no GeoCoding", geoCoding);
             if (expectedGeoCoding.getGeoCodingClass() != null) {
                 assertEquals(productId + " has not the expected GeoCoding implementation",
-                             expectedGeoCoding.getGeoCodingClass(), product.getGeoCoding().getClass());
+                        expectedGeoCoding.getGeoCodingClass(), product.getGeoCoding().getClass());
             }
 
             final Float reverseAccuracy = expectedGeoCoding.getReverseAccuracy();
             final ExpectedGeoCoordinate[] coordinates = expectedGeoCoding.getCoordinates();
+            if (coordinates == null) {
+                return;
+            }
             for (ExpectedGeoCoordinate coordinate : coordinates) {
                 final PixelPos expectedPixelPos = coordinate.getPixelPos();
                 final GeoPos expectedGeoPos = coordinate.getGeoPos();
@@ -85,9 +88,9 @@ class ContentAssert {
                 if (reverseAccuracy >= 0) {
                     final PixelPos actualPixelPos = geoCoding.getPixelPos(actualGeoPos, null);
                     assertEquals(productId + " Pixel.X at GeoPos(" + actualGeoPos.getLat() + "," + actualGeoPos.getLon() + ")",
-                                 expectedPixelPos.getX(), actualPixelPos.getX(), reverseAccuracy);
+                            expectedPixelPos.getX(), actualPixelPos.getX(), reverseAccuracy);
                     assertEquals(productId + " Pixel.Y at GeoPos(" + actualGeoPos.getLat() + "," + actualGeoPos.getLon() + ")",
-                                 expectedPixelPos.getY(), actualPixelPos.getY(), reverseAccuracy);
+                            expectedPixelPos.getY(), actualPixelPos.getY(), reverseAccuracy);
                 }
             }
         }
@@ -112,12 +115,12 @@ class ContentAssert {
             final MetadataAttribute actualSample = actualSampleCoding.getAttribute(expectedSampleName);
             assertNotNull(msgPrefix + " sample '" + expectedSampleName + "' does not exist", actualSample);
             assertEquals(msgPrefix + " sample '" + expectedSampleName + "' Value",
-                         expectedSample.getValue(), actualSample.getData().getElemUInt());
+                    expectedSample.getValue(), actualSample.getData().getElemUInt());
 
             final String expectedSampleDescription = expectedSample.getDescription();
             if (StringUtils.isNotNullAndNotEmpty(expectedSampleDescription)) {
                 assertEquals(msgPrefix + " sample '" + expectedSampleName + "' Description",
-                             expectedSampleDescription, actualSample.getDescription());
+                        expectedSampleDescription, actualSample.getDescription());
             }
         }
     }

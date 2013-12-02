@@ -15,7 +15,7 @@ import java.util.Random;
  */
 class ExpectedGeoCoding {
 
-    @JsonProperty(required = true)
+    @JsonProperty()
     private ExpectedGeoCoordinate[] coordinates;
     @JsonProperty()
     private Float reverseAccuracy;
