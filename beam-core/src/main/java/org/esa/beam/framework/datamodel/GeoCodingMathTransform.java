@@ -56,7 +56,6 @@ public class GeoCodingMathTransform extends AbstractMathTransform implements Mat
     @Override
     public ParameterDescriptorGroup getParameterDescriptors() {
         return new DefaultParameterDescriptorGroup(getClass().getSimpleName(), new GeneralParameterDescriptor[0]);
-
     }
 
     @Override
@@ -98,7 +97,7 @@ public class GeoCodingMathTransform extends AbstractMathTransform implements Mat
             return false;
         }
 
-        return geoCoding.equals(that.geoCoding);
+        return geoCoding == that.geoCoding;
     }
 
     @Override

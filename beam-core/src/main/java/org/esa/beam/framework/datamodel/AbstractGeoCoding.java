@@ -26,8 +26,6 @@ import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
 
-import java.awt.geom.AffineTransform;
-
 /**
  * <code>AbstractGeoCoding</code> is the base class of all geo-coding implementation.
  * <p/>
