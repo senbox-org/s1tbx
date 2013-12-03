@@ -1,6 +1,6 @@
 {
     "id": "LANDSAT_5_TM_SCENE_20050528_RGB",
-    "decodeQualification": "INTENDED",
+    "decodeQualification": "SUITABLE",
     "expectedContent": {
         "sceneWidth": 898,
         "sceneHeight": 559,

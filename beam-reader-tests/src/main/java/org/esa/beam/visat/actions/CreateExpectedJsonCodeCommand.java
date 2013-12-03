@@ -14,6 +14,8 @@ import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
 import org.esa.beam.dataio.ExpectedContent;
 import org.esa.beam.dataio.ExpectedDataset;
 import org.esa.beam.framework.dataio.DecodeQualification;
+import org.esa.beam.framework.dataio.ProductReader;
+import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.framework.ui.command.ExecCommand;
@@ -90,12 +92,23 @@ public class CreateExpectedJsonCodeCommand extends ExecCommand {
         ExpectedDataset expectedDataset = new ExpectedDataset();
         expectedDataset.setId(generateID(product));
         expectedDataset.setExpectedContent(expectedContent);
-        expectedDataset.setDecodeQualification(DecodeQualification.INTENDED.name());
+
+        expectedDataset.setDecodeQualification(getDecodeQualification(product));
         ObjectWriter writer = getConfiguredJsonWriter();
         final StringWriter stringWriter = new StringWriter();
         writer.writeValue(stringWriter, expectedDataset);
         stringWriter.flush();
         return stringWriter.toString();
+    }
+
+    private String getDecodeQualification(Product product) {
+        ProductReader reader = product.getProductReader();
+        if(reader == null) {
+            throw new IllegalStateException("Product has no reader associated!");
+        }
+        ProductReaderPlugIn readerPlugIn = reader.getReaderPlugIn();
+        DecodeQualification decodeQualification = readerPlugIn.getDecodeQualification(product.getFileLocation());
+        return decodeQualification.name();
     }
 
     String generateID(Product product) {
