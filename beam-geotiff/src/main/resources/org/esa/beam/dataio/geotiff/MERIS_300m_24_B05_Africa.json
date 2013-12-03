@@ -1,6 +1,6 @@
 {
     "id": "MERIS_300m_24_B05_Africa",
-    "decodeQualification": "INTENDED",
+    "decodeQualification": "SUITABLE",
     "expectedContent": {
         "sceneWidth": 2522,
         "sceneHeight": 9722,

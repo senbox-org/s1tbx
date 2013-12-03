@@ -1,6 +1,6 @@
 {
     "id": "GLOBCOVER-L4_LANDCOVER_200412-200606_V2.0_CLA",
-    "decodeQualification": "INTENDED",
+    "decodeQualification": "SUITABLE",
     "expectedContent": {
         "sceneWidth": 129600,
         "sceneHeight": 64800,

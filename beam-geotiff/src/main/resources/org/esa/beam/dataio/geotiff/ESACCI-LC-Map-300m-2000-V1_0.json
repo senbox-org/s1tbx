@@ -1,6 +1,6 @@
 {
     "id": "ESACCI-LC-Map-300m-2000-V1_0",
-    "decodeQualification": "INTENDED",
+    "decodeQualification": "SUITABLE",
     "expectedContent": {
         "sceneWidth": 129600,
         "sceneHeight": 64800,
