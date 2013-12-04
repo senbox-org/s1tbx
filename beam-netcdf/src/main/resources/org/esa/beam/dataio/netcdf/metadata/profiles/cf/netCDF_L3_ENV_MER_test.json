@@ -1,6 +1,6 @@
 {
     "id": "netCDF_L3_ENV_MER_test",
-    "decodeQualification": "INTENDED",
+    "decodeQualification": "SUITABLE",
     "expectedContent": {
         "sceneWidth": 1243,
         "sceneHeight": 1448,
