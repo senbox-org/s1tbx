@@ -302,13 +302,10 @@ public class ProductReaderAcceptanceTest {
         final String className = System.getProperty(PROPERTYNAME_CASS_NAME);
 
         for (ProductReaderPlugIn readerPlugIn : readerPlugIns) {
-            final TestDefinition testDefinition = new TestDefinition();
             final Class<? extends ProductReaderPlugIn> readerPlugInClass = readerPlugIn.getClass();
             if (className != null && !readerPlugInClass.getName().equals(className)) {
                 continue;
             }
-            testDefinition.setProductReaderPlugin(readerPlugIn);
-            testDefinitionList.add(testDefinition);
 
             final String dataResourceName = getReaderTestResourceName(readerPlugInClass.getName(), "-data.json");
             final URL dataResource = readerPlugInClass.getResource(dataResourceName);
@@ -316,6 +313,10 @@ public class ProductReaderAcceptanceTest {
                 logger.warning(readerPlugInClass.getSimpleName() + " does not define test data");
                 continue;
             }
+
+            final TestDefinition testDefinition = new TestDefinition();
+            testDefinition.setProductReaderPlugin(readerPlugIn);
+            testDefinitionList.add(testDefinition);
 
             final ProductList productList = mapper.readValue(dataResource, ProductList.class);
             testIfProductFilesExists(productList);
