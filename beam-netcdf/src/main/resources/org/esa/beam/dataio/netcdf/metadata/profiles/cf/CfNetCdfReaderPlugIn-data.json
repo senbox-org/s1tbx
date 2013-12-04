@@ -51,6 +51,11 @@
             "description": "format:  NetCDF4-CF, conventions: CF-1.4"
         },
         {
+            "id": "MER_FRS_1PNMAP20090808_073618_C2IOP",
+            "relativePath": "applications/generic_reader/NetCDF/NetCDF-BEAM/MER_FRS_1PNMAP20090808_073618_000001632081_00264_38895_0001.N1_C2IOP.nc",
+            "description": "Meris.Case2Regional product, product_type: MERIS_LREG, format: NetCDF-BEAM, conventions: CF-1.4"
+        },
+        {
             "id": "MER_RR__1PPBCM20100101_213129_C2IOP",
             "relativePath": "applications/generic_reader/NetCDF/NetCDF4-CF/MER_RR__1PPBCM20100101_213129_000003972085_00358_40993_0096.N1_C2IOP.nc",
             "description": "Meris.Case2Regional product, format:  NetCDF4-CF, conventions: CF-1.4"

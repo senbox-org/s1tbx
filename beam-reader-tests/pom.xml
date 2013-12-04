@@ -50,41 +50,40 @@
             <artifactId>beam-binning2</artifactId>
             <version>1.0.5.0-SNAPSHOT</version>
         </dependency>
-        <dependency>
+        <!--<dependency>-->
             <!--
-                actually this version requires BEAM 4.11. To have at least the use case
-                of an external reader we use it, because it is compatible with 5.0
+                not compatible with BEAM 5
             -->
-            <groupId>gov.nasa.gsfc.seadas</groupId>
-            <artifactId>seadas-reader</artifactId>
-            <version>1.4.2</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.esa.beam</groupId>
-                    <artifactId>beam-core</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.esa.beam</groupId>
-                    <artifactId>beam-netcdf</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>edu.ucar</groupId>
-                    <artifactId>netcdf</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.esa.beam</groupId>
-                    <artifactId>beam-merisl3-reader</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.esa.beam</groupId>
-                    <artifactId>beam-ui</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.esa.beam</groupId>
-                    <artifactId>beam-visat-rcp</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
+            <!--<groupId>gov.nasa.gsfc.seadas</groupId>-->
+            <!--<artifactId>seadas-reader</artifactId>-->
+            <!--<version>1.4.2</version>-->
+            <!--<exclusions>-->
+                <!--<exclusion>-->
+                    <!--<groupId>org.esa.beam</groupId>-->
+                    <!--<artifactId>beam-core</artifactId>-->
+                <!--</exclusion>-->
+                <!--<exclusion>-->
+                    <!--<groupId>org.esa.beam</groupId>-->
+                    <!--<artifactId>beam-netcdf</artifactId>-->
+                <!--</exclusion>-->
+                <!--<exclusion>-->
+                    <!--<groupId>edu.ucar</groupId>-->
+                    <!--<artifactId>netcdf</artifactId>-->
+                <!--</exclusion>-->
+                <!--<exclusion>-->
+                    <!--<groupId>org.esa.beam</groupId>-->
+                    <!--<artifactId>beam-merisl3-reader</artifactId>-->
+                <!--</exclusion>-->
+                <!--<exclusion>-->
+                    <!--<groupId>org.esa.beam</groupId>-->
+                    <!--<artifactId>beam-ui</artifactId>-->
+                <!--</exclusion>-->
+                <!--<exclusion>-->
+                    <!--<groupId>org.esa.beam</groupId>-->
+                    <!--<artifactId>beam-visat-rcp</artifactId>-->
+                <!--</exclusion>-->
+            <!--</exclusions>-->
+        <!--</dependency>-->
         <dependency>
             <groupId>org.esa.beam</groupId>
             <artifactId>beam-envisat-reader</artifactId>
