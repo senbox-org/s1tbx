@@ -2,7 +2,6 @@ package org.esa.beam.dataio;
 
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 
 class TestProduct {
 
@@ -14,7 +13,6 @@ class TestProduct {
     private String description;
 
     private transient boolean exists = true;
-    private transient Class<? extends ProductReaderPlugIn> readerPlugInClass;
 
     String getId() {
         return id;
