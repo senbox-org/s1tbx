@@ -92,18 +92,23 @@ public class NestSingleTargetProductDialog extends DefaultSingleTargetProductDia
         final PropertySet propertyContainer = parameterSupport.getPopertySet();
         final List<SourceProductSelector> sourceProductSelectorList = ioParametersPanel.getSourceProductSelectorList();
 
-        sourceProductSelectorList.get(0).addSelectionChangeListener(new AbstractSelectionChangeListener() {
+        if(sourceProductSelectorList.isEmpty()) {
+            VisatApp.getApp().showErrorDialog("SourceProduct @Parameter not found in operator");
+        } else {
 
-            @Override
-            public void selectionChanged(SelectionChangeEvent event) {
-                final Product selectedProduct = (Product) event.getSelection().getSelectedValue();
-                if(selectedProduct != null) {
-                    final TargetProductSelectorModel targetProductSelectorModel = getTargetProductSelector().getModel();
-                    targetProductSelectorModel.setProductName(selectedProduct.getName() + getTargetProductNameSuffix());
-                    opUI.setSourceProducts(new Product[] { selectedProduct });
+            sourceProductSelectorList.get(0).addSelectionChangeListener(new AbstractSelectionChangeListener() {
+
+                @Override
+                public void selectionChanged(SelectionChangeEvent event) {
+                    final Product selectedProduct = (Product) event.getSelection().getSelectedValue();
+                    if(selectedProduct != null) {
+                        final TargetProductSelectorModel targetProductSelectorModel = getTargetProductSelector().getModel();
+                        targetProductSelectorModel.setProductName(selectedProduct.getName() + getTargetProductNameSuffix());
+                        opUI.setSourceProducts(new Product[] { selectedProduct });
+                    }
                 }
-            }
-        });
+            });
+        }
 
         if (propertyContainer.getProperties().length > 0) {
             if (!sourceProductSelectorList.isEmpty()) {
