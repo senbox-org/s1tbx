@@ -17,9 +17,9 @@
 package com.bc.ceres.site.util;
 
 import com.bc.ceres.site.SiteCreator;
-import org.jdom.Element;
-import org.jdom.Namespace;
-import org.jdom.input.DOMBuilder;
+import org.jdom2.Element;
+import org.jdom2.Namespace;
+import org.jdom2.input.DOMBuilder;
 import org.w3c.dom.Document;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -92,7 +92,7 @@ public class ExclusionListBuilder {
             final DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
             final Document w3cDoc = builder.parse(pom.openStream());
             final DOMBuilder domBuilder = new DOMBuilder();
-            final org.jdom.Document doc = domBuilder.build(w3cDoc);
+            final org.jdom2.Document doc = domBuilder.build(w3cDoc);
             final Element root = doc.getRootElement();
             final Namespace namespace = root.getNamespace();
             final List<Element> modules = root.getChildren(MODULES_NODE, namespace);
@@ -106,8 +106,7 @@ public class ExclusionListBuilder {
             }
         } catch (Exception e) {
             e.printStackTrace();
-        }
-        finally {
+        } finally {
             writer.close();
         }
 
