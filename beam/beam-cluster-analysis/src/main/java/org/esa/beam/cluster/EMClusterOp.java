@@ -47,7 +47,7 @@ import java.util.Map;
                   version = "1.0",
                   authors = "Ralf Quast",
                   copyright = "(c) 2007 by Brockmann Consult",
-                  category = "Classification",
+                  category = "Classification\\Clustering",
                   description = "Performs an expectation-maximization (EM) cluster analysis.")
 public class EMClusterOp extends Operator {
 

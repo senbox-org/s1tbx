@@ -36,10 +36,18 @@
     <extension point="beam-ui:actions">
 
         <action>
+            <id>ClusteringGroup</id>
+            <class>org.esa.beam.visat.actions.ActionGroup</class>
+            <text>Clustering</text>
+            <parent>classification</parent>
+            <placeAfter>FeatureExtractionGroup</placeAfter>
+        </action>
+
+        <action>
             <id>emClusterAnalysis</id>
             <helpId>clusterAnalysisEM</helpId>
             <class>org.esa.beam.visat.actions.DefaultOperatorAction</class>
-            <parent>classification</parent>
+            <parent>ClusteringGroup</parent>
             <placeAfter>FeatureExtractionGroup</placeAfter>
             <text>EM Clustering</text>
             <mnemonic>C</mnemonic>
@@ -51,7 +59,7 @@
             <id>kmeansClusterAnalysis</id>
             <helpId>clusterAnalysisKMeans</helpId>
             <class>org.esa.beam.visat.actions.DefaultOperatorAction</class>
-            <parent>classification</parent>
+            <parent>ClusteringGroup</parent>
             <placeAfter>emClusterAnalysis</placeAfter>
             <text>K-Means Clustering</text>
             <mnemonic>C</mnemonic>

@@ -52,7 +52,7 @@ import java.util.List;
  */
 
 @OperatorMetadata(alias = "Oil-Spill-Detection",
-        category = "Classification\\Ocean Tools",
+        category = "Ocean Tools\\Oil Spill Detection",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2013 by Array Systems Computing Inc.",
         description = "Detect oil spill.")

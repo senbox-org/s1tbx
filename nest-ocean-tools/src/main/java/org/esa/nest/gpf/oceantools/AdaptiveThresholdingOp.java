@@ -54,7 +54,7 @@ import java.util.List;
 // todo replace t by t/sqrt(n) in case of multi-pixel target window, where n is the number of independent samples in target window
 
 @OperatorMetadata(alias = "AdaptiveThresholding",
-        category = "Classification\\Ocean Tools",
+        category = "Ocean Tools\\Object Detection",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2013 by Array Systems Computing Inc.",
         description = "Detect ships using Constant False Alarm Rate detector.")

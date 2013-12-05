@@ -17,8 +17,8 @@
       <file>flood_detection.dim</file>
     </parameters>
   </node>
-  <node id="3-Create-LandMask">
-    <operator>Create-LandMask</operator>
+  <node id="3-Land-Sea-Mask">
+    <operator>Land-Sea-Mask</operator>
     <sources>
       <sourceProduct refid="11-Warp"/>
     </sources>
@@ -34,7 +34,7 @@
   <node id="4-Terrain-Mask">
     <operator>Terrain-Mask</operator>
     <sources>
-      <sourceProduct refid="3-Create-LandMask"/>
+      <sourceProduct refid="3-Land-Sea-Mask"/>
     </sources>
     <parameters class="com.bc.ceres.binding.dom.XppDomElement">
       <demName>SRTM 3Sec</demName>
@@ -150,7 +150,7 @@
     <node id="2-Write">
       <displayPosition y="243.0" x="427.0"/>
     </node>
-    <node id="3-Create-LandMask">
+    <node id="3-Land-Sea-Mask">
       <displayPosition y="97.0" x="403.0"/>
     </node>
     <node id="4-Terrain-Mask">

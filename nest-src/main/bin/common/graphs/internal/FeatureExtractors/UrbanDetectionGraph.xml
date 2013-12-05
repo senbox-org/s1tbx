@@ -30,8 +30,8 @@
       <createBetaBand>false</createBetaBand>
     </parameters>
   </node>
-  <node id="4-Create-LandMask">
-    <operator>Create-LandMask</operator>
+  <node id="4-Land-Sea-Mask">
+    <operator>Land-Sea-Mask</operator>
     <sources>
       <sourceProduct refid="3-Calibration"/>
     </sources>
@@ -47,7 +47,7 @@
   <node id="5-Terrain-Mask">
     <operator>Terrain-Mask</operator>
     <sources>
-      <sourceProduct refid="4-Create-LandMask"/>
+      <sourceProduct refid="4-Land-Sea-Mask"/>
     </sources>
     <parameters class="com.bc.ceres.binding.dom.XppDomElement">
       <demName>SRTM 3Sec</demName>
@@ -79,7 +79,7 @@
     <node id="5-Terrain-Mask">
       <displayPosition y="222.0" x="119.0"/>
     </node>
-    <node id="4-Create-LandMask">
+    <node id="4-Land-Sea-Mask">
       <displayPosition y="178.0" x="112.0"/>
     </node>
     <node id="3-Calibration">

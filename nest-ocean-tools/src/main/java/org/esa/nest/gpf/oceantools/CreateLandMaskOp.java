@@ -47,7 +47,7 @@ import java.util.Set;
 /**
  * The CreateLandMask operator.
  */
-@OperatorMetadata(alias = "Create-LandMask",
+@OperatorMetadata(alias = "Land-Sea-Mask",
         category = "Classification\\Masks",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2013 by Array Systems Computing Inc.",

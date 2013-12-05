@@ -7,8 +7,8 @@
       <file></file>
     </parameters>
   </node>
-  <node id="2-Create-LandMask">
-    <operator>Create-LandMask</operator>
+  <node id="2-Land-Sea-Mask">
+    <operator>Land-Sea-Mask</operator>
     <sources>
       <sourceProduct refid="1-Read"/>
     </sources>
@@ -26,7 +26,7 @@
   <node id="3-Oil-Spill-Detection">
     <operator>Oil-Spill-Detection</operator>
     <sources>
-      <sourceProduct refid="2-Create-LandMask"/>
+      <sourceProduct refid="2-Land-Sea-Mask"/>
     </sources>
     <parameters>
       <sourceBands>
@@ -60,7 +60,7 @@
     <node id="1-Read">
       <displayPosition y="93.0" x="30.0"/>
     </node>
-    <node id="2-Create-LandMask">
+    <node id="2-Land-Sea-Mask">
       <displayPosition y="93.0" x="225.0"/>
     </node>
     <node id="3-Oil-Spill-Detection">
