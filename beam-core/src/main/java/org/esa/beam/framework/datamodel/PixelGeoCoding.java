@@ -208,8 +208,12 @@ public class PixelGeoCoding extends AbstractGeoCoding implements BasicPixelGeoCo
             int numTiePoints = tpGridWidth * tpGridHeight;
             final boolean containsAngles = true;
 
-            final float[] latTiePoints = tempLatImg.getAsBufferedImage().getRaster().getPixels(minX, minY, tpGridWidth, tpGridHeight, new float[numTiePoints]);
-            final float[] lonTiePoints = tempLonImg.getAsBufferedImage().getRaster().getPixels(minX, minY, tpGridWidth, tpGridHeight, new float[numTiePoints]);
+            final float[] latTiePoints = tempLatImg.getAsBufferedImage().getRaster().getPixels(minX, minY, tpGridWidth,
+                                                                                               tpGridHeight,
+                                                                                               new float[numTiePoints]);
+            final float[] lonTiePoints = tempLonImg.getAsBufferedImage().getRaster().getPixels(minX, minY, tpGridWidth,
+                                                                                               tpGridHeight,
+                                                                                               new float[numTiePoints]);
 
             final TiePointGrid tpLatGrid = new TiePointGrid("lat", tpGridWidth, tpGridHeight, tpOffsetX, tpOffsetY,
                                                             subSampling, subSampling, latTiePoints, containsAngles);
@@ -253,6 +257,7 @@ public class PixelGeoCoding extends AbstractGeoCoding implements BasicPixelGeoCo
      *                     e.g. for 300 meter pixels a search radius of 5 is a good choice. This parameter is ignored
      *                     if the source product is not geo-coded.
      * @param pm           a monitor to inform the user about progress
+     *
      * @throws IOException if an I/O error occurs while additional data is loaded from the source product
      */
     public PixelGeoCoding(final Band latBand, final Band lonBand, final String validMask, final int searchRadius,
@@ -450,6 +455,7 @@ public class PixelGeoCoding extends AbstractGeoCoding implements BasicPixelGeoCo
      * @param geoPos   the geographical position as lat/lon.
      * @param pixelPos an instance of <code>Point</code> to be used as retun value. If this parameter is
      *                 <code>null</code>, the method creates a new instance which it then returns.
+     *
      * @return the pixel co-ordinates as x/y
      */
     @Override
@@ -641,6 +647,7 @@ public class PixelGeoCoding extends AbstractGeoCoding implements BasicPixelGeoCo
      * @param pixelPos the pixel's co-ordinates given as x,y
      * @param geoPos   an instance of <code>GeoPos</code> to be used as retun value. If this parameter is
      *                 <code>null</code>, the method creates a new instance which it then returns.
+     *
      * @return the geographical position as lat/lon.
      */
     @Override
@@ -1026,13 +1033,13 @@ public class PixelGeoCoding extends AbstractGeoCoding implements BasicPixelGeoCo
             int dy = bestY - y0;
             if (Math.abs(dx) >= searchRadius || Math.abs(dy) >= searchRadius) {
                 Debug.trace("WARNING: search radius reached at " +
-                                    "(x0 = " + x0 + ", y0 = " + y0 + "), " +
-                                    "(dx = " + dx + ", dy = " + dy + "), " +
-                                    "#best = " + bestCount);
+                            "(x0 = " + x0 + ", y0 = " + y0 + "), " +
+                            "(dx = " + dx + ", dy = " + dy + "), " +
+                            "#best = " + bestCount);
             }
         } else {
             Debug.trace("WARNING: no better pixel found at " +
-                                "(x0 = " + x0 + ", y0 = " + y0 + ")");
+                        "(x0 = " + x0 + ", y0 = " + y0 + ")");
         }
     }
 
@@ -1043,6 +1050,7 @@ public class PixelGeoCoding extends AbstractGeoCoding implements BasicPixelGeoCo
      * @param srcScene  the source scene
      * @param destScene the destination scene
      * @param subsetDef the definition of the subset, may be <code>null</code>
+     *
      * @return true, if the geo-coding could be transferred.
      */
     @Override

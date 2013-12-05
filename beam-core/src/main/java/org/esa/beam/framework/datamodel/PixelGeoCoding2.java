@@ -17,7 +17,6 @@ package org.esa.beam.framework.datamodel;
 
 import com.bc.jexp.ParseException;
 import org.esa.beam.framework.dataio.ProductSubsetDef;
-import org.esa.beam.framework.dataop.barithm.BandArithmetic;
 import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.Guardian;
@@ -230,6 +229,7 @@ class PixelGeoCoding2 extends AbstractGeoCoding implements BasicPixelGeoCoding {
      * @param pixelPos the pixel's co-ordinates given as x,y
      * @param geoPos   an instance of <code>GeoPos</code> to be used as retun value. If this parameter is
      *                 <code>null</code>, the method creates a new instance which it then returns.
+     *
      * @return the geographical position as lat/lon.
      */
     @Override
@@ -391,7 +391,8 @@ class PixelGeoCoding2 extends AbstractGeoCoding implements BasicPixelGeoCoding {
     }
 
     @Override
-    public boolean transferGeoCoding(final Scene sourceScene, final Scene targetScene, final ProductSubsetDef subsetDef) {
+    public boolean transferGeoCoding(final Scene sourceScene, final Scene targetScene,
+                                     final ProductSubsetDef subsetDef) {
         final Product targetProduct = targetScene.getProduct();
         Band targetLatBand = targetProduct.getBand(latBand.getName());
         if (targetLatBand == null) {
