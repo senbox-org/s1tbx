@@ -29,7 +29,6 @@
     <packaging>pom</packaging>
 
     <name>BEAM Aggregator of System Level Modules</name>
-    <groupId>org.esa.beam</groupId>
     <artifactId>beam-system</artifactId>
     <description>This POM serves as aggregator for all BEAM system level modules.</description>
     <version>5.0-SNAPSHOT</version>
