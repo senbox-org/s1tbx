@@ -41,7 +41,7 @@
         <action>
             <id>createElevationAction</id>
             <class>org.esa.nest.dat.CreateElevationAction</class>
-            <text>Create Elevation Band</text>
+            <text>Add Elevation Band</text>
             <shortDescr>Creates an elevation band from a selected DEM</shortDescr>
             <description>Creates an elevation band from a selected Digital Elevation Model (DEM)</description>
             <context>product</context>

@@ -1659,6 +1659,8 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
                 name = System.getProperty(SystemUtils.getApplicationContextId()+".phase.color-palette", null);
             } else if(unit.contains("meters")) {
                 name = System.getProperty(SystemUtils.getApplicationContextId()+".meters.color-palette", null);
+            } else if(unit.contains("m^3/m^3") || unit.contains("Farad/m")) {
+                name = System.getProperty(SystemUtils.getApplicationContextId()+".soilmoisture.color-palette", null);
             }
             if(name != null)
                 return loadColorPalette(histogram, filePath+name);

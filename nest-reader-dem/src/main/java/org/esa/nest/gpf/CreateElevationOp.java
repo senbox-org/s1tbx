@@ -41,7 +41,7 @@ import java.util.Map;
     CreateElevationBandOp adds an elevation band to a product
  */
 
-@OperatorMetadata(alias="CreateElevation",
+@OperatorMetadata(alias="AddElevation",
         category = "Geometric\\DEM Tools",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2013 by Array Systems Computing Inc.",

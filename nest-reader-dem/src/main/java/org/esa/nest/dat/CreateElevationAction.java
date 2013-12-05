@@ -48,7 +48,7 @@ import java.util.List;
 
 public class CreateElevationAction extends ExecCommand {
 
-    public static final String DIALOG_TITLE = "Create Elevation Band";
+    public static final String DIALOG_TITLE = "Add Elevation Band";
     public static final String DEFAULT_ELEVATION_BAND_NAME = "elevation";
     public static final String DEFAULT_LATITUDE_BAND_NAME = "corr_latitude";
     public static final String DEFAULT_LONGITUDE_BAND_NAME = "corr_longitude";
