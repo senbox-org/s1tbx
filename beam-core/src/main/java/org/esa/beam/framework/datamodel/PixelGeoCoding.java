@@ -22,7 +22,6 @@ import com.bc.ceres.core.SubProgressMonitor;
 import com.bc.ceres.glevel.MultiLevelImage;
 import com.bc.jexp.ParseException;
 import org.esa.beam.framework.dataio.ProductSubsetDef;
-import org.esa.beam.framework.dataop.barithm.BandArithmetic;
 import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.BitRaster;
@@ -40,7 +39,6 @@ import javax.media.jai.RasterAccessor;
 import javax.media.jai.RasterFactory;
 import javax.media.jai.RasterFormatTag;
 import javax.media.jai.RenderedOp;
-import javax.media.jai.operator.CropDescriptor;
 import javax.media.jai.operator.ScaleDescriptor;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
@@ -1053,13 +1051,13 @@ public class PixelGeoCoding extends AbstractGeoCoding implements BasicPixelGeoCo
         final Product destProduct = destScene.getProduct();
         Band latBand = destProduct.getBand(srcLatBand.getName());
         if (latBand == null) {
-            latBand = createSubset(srcLatBand, destScene, subsetDef);
+            latBand = GeoCodingFactory.createSubset(srcLatBand, destScene, subsetDef);
             destProduct.addBand(latBand);
         }
         final Band srcLonBand = getLonBand();
         Band lonBand = destProduct.getBand(srcLonBand.getName());
         if (lonBand == null) {
-            lonBand = createSubset(srcLonBand, destScene, subsetDef);
+            lonBand = GeoCodingFactory.createSubset(srcLonBand, destScene, subsetDef);
             destProduct.addBand(lonBand);
         }
         if (pixelPosEstimator instanceof AbstractGeoCoding && !estimatorCreatedInternally) {
@@ -1069,7 +1067,7 @@ public class PixelGeoCoding extends AbstractGeoCoding implements BasicPixelGeoCo
         String validMaskExpression = getValidMask();
         try {
             if (validMaskExpression != null) {
-                copyReferencedRasters(validMaskExpression, srcScene, destScene, subsetDef);
+                GeoCodingFactory.copyReferencedRasters(validMaskExpression, srcScene, destScene, subsetDef);
             }
         } catch (ParseException ignored) {
             validMaskExpression = null;
@@ -1078,81 +1076,6 @@ public class PixelGeoCoding extends AbstractGeoCoding implements BasicPixelGeoCo
                                                   validMaskExpression,
                                                   getSearchRadius()));
         return true;
-    }
-
-    private void copyReferencedRasters(String validMaskExpression, Scene srcScene, Scene destScene,
-                                       ProductSubsetDef subsetDef) throws ParseException {
-        Product destProduct = destScene.getProduct();
-        final RasterDataNode[] dataNodes = BandArithmetic.getRefRasters(validMaskExpression,
-                                                                        srcScene.getProduct());
-        for (RasterDataNode dataNode : dataNodes) {
-            if (!destProduct.containsRasterDataNode(dataNode.getName())) {
-                if (dataNode instanceof TiePointGrid) {
-                    TiePointGrid tpg = TiePointGrid.createSubset((TiePointGrid) dataNode, subsetDef);
-                    destProduct.addTiePointGrid(tpg);
-                }
-                if (dataNode instanceof Band) {
-                    final Band srcBand = (Band) dataNode;
-                    Band band = createSubset(srcBand, destScene, subsetDef);
-                    destProduct.addBand(band);
-                    setFlagCoding(band, srcBand.getFlagCoding());
-                }
-            }
-        }
-    }
-
-    private static void setFlagCoding(Band band, FlagCoding flagCoding) {
-        if (flagCoding != null) {
-            String flagCodingName = flagCoding.getName();
-            final Product product = band.getProduct();
-            if (!product.getFlagCodingGroup().contains(flagCodingName)) {
-                addFlagCoding(product, flagCoding);
-            }
-            band.setSampleCoding(product.getFlagCodingGroup().get(flagCodingName));
-        }
-    }
-
-    private static void addFlagCoding(Product product, FlagCoding flagCoding) {
-        final FlagCoding targetFlagCoding = new FlagCoding(flagCoding.getName());
-
-        targetFlagCoding.setDescription(flagCoding.getDescription());
-        ProductUtils.copyMetadata(flagCoding, targetFlagCoding);
-        product.getFlagCodingGroup().add(targetFlagCoding);
-    }
-
-    private Band createSubset(Band srcBand, Scene destScene, ProductSubsetDef subsetDef) {
-        Band band = new Band(srcBand.getName(),
-                             srcBand.getDataType(),
-                             destScene.getRasterWidth(),
-                             destScene.getRasterHeight());
-        ProductUtils.copyRasterDataNodeProperties(srcBand, band);
-        band.setSourceImage(getSourceImage(subsetDef, srcBand));
-        return band;
-    }
-
-    private RenderedImage getSourceImage(ProductSubsetDef subsetDef, Band band) {
-        RenderedImage image = band.getSourceImage();
-        if (subsetDef != null) {
-            final Rectangle region = subsetDef.getRegion();
-            if (region != null) {
-                float x = region.x;
-                float y = region.y;
-                float width = region.width;
-                float height = region.height;
-                image = CropDescriptor.create(image, x, y, width, height, null);
-            }
-            final int subSamplingX = subsetDef.getSubSamplingX();
-            final int subSamplingY = subsetDef.getSubSamplingY();
-            if (subSamplingX != 1 || subSamplingY != 1) {
-                float scaleX = 1.0f / subSamplingX;
-                float scaleY = 1.0f / subSamplingY;
-                float transX = 0.0f;
-                float transY = 0.0f;
-                Interpolation interpolation = Interpolation.getInstance(Interpolation.INTERP_NEAREST);
-                image = ScaleDescriptor.create(image, scaleX, scaleY, transX, transY, interpolation, null);
-            }
-        }
-        return image;
     }
 
     private static class PixelGrid extends TiePointGrid {

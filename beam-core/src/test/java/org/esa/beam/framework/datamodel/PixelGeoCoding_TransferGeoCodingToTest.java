@@ -18,7 +18,6 @@ package org.esa.beam.framework.datamodel;
 import org.esa.beam.framework.dataio.ProductSubsetDef;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -67,12 +66,10 @@ public class PixelGeoCoding_TransferGeoCodingToTest {
                                           sourceP.getSceneRasterWidth(),
                                           sourceP.getSceneRasterHeight());
 
-        if (pixelGeoCoding instanceof PixelGeoCoding) {
-            assertEquals(true, sourceP.transferGeoCodingTo(destP, subsetDef));
-            final GeoCoding destGeoCoding = destP.getGeoCoding();
-            assertNotNull(destGeoCoding);
-            assertEquals(true, destGeoCoding instanceof PixelGeoCoding);
-        }
+        assertEquals(true, sourceP.transferGeoCodingTo(destP, subsetDef));
+        final GeoCoding destGeoCoding = destP.getGeoCoding();
+        assertNotNull(destGeoCoding);
+        assertEquals(true, destGeoCoding instanceof BasicPixelGeoCoding);
     }
 
     private void copyBandTo(Product destP, Band sourceBand) {

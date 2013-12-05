@@ -393,27 +393,23 @@ class PixelGeoCoding2 extends AbstractGeoCoding implements BasicPixelGeoCoding {
     @Override
     public boolean transferGeoCoding(final Scene sourceScene, final Scene targetScene, final ProductSubsetDef subsetDef) {
         final Product targetProduct = targetScene.getProduct();
-        final Band targetLatBand = targetProduct.getBand(latBand.getName());
+        Band targetLatBand = targetProduct.getBand(latBand.getName());
         if (targetLatBand == null) {
-            return false;
+            targetLatBand = GeoCodingFactory.createSubset(latBand, targetScene, subsetDef);
+            targetProduct.addBand(latBand);
         }
-        final Band targetLonBand = targetProduct.getBand(getLonBand().getName());
+        Band targetLonBand = targetProduct.getBand(getLonBand().getName());
         if (targetLonBand == null) {
-            return false;
+            targetLonBand = GeoCodingFactory.createSubset(lonBand, targetScene, subsetDef);
+            targetProduct.addBand(latBand);
         }
         final String validMaskExpression = getValidMask();
         try {
             if (validMaskExpression != null) {
-                final Product sourceProduct = sourceScene.getProduct();
-                final RasterDataNode[] nodes = BandArithmetic.getRefRasters(validMaskExpression, sourceProduct);
-                for (RasterDataNode node : nodes) {
-                    if (!targetProduct.containsRasterDataNode(node.getName())) {
-                        return false;
-                    }
-                }
+                GeoCodingFactory.copyReferencedRasters(validMaskExpression, sourceScene, targetScene, subsetDef);
             }
         } catch (ParseException ignored) {
-            // cannot happen
+            return false; // cannot happen
         }
         targetScene.setGeoCoding(new PixelGeoCoding2(targetLatBand, targetLonBand, validMaskExpression));
 
