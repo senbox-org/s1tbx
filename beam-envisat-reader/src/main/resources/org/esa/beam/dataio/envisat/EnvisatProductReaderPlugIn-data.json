@@ -184,6 +184,26 @@
             "id": "AT2_TOA_1PTRAL20010107_011326",
             "relativePath": "sensors_platforms/ERS/ATSR2/E2/TOA_ENVISAT_format/AT2_TOA_1PTRAL20010107_011326_000000001059_00474_29887_0000.E2",
             "description": "ERS-2/ATSR-2 Gridded brightness temperature and reflectance, SOFTWARE_VER: STEP/0.0+"
+        },
+        {
+            "id": "SAR_IMP_1PXESA19940320_075713_E1",
+            "relativePath": "sensors_platforms/ERS/SAR/E1/SAR_IMP_1PXESA19940320_075713_00000015D131_00021_13995_0737.E1",
+            "description": "SAR Image Mode Precision Image, SOFTWARE_VER: ASAR/4.02P00"
+        },
+        {
+            "id": "SAR_IMG_1PXDLR19960402_104212_E2",
+            "relativePath": "sensors_platforms/ERS/SAR/E2/SAR_IMG_1PXDLR19960402_104212_00000015A010_00108_04972_0002.E2",
+            "description": "SAR Image Mode Ellipsoid Geocoded Image, SOFTWARE_VER: ASAR/4.02P00"
+        },
+        {
+            "id": "SAR_IMM_1PXKSS20080911_080647_E2",
+            "relativePath": "sensors_platforms/ERS/SAR/E2/SAR_IMM_1PXKSS20080911_080647_00000043A140_00035_70029_2012.E2",
+            "description": "SAR Image Mode Precision Image, SOFTWARE_VER: ASAR/5.00P01"
+        },
+        {
+            "id": "SAR_IM__BPXKSS20080911_080647_E2",
+            "relativePath": "sensors_platforms/ERS/SAR/E2/SAR_IM__BPXKSS20080911_080647_00000043A140_00035_70029_2012.E2",
+            "description": ""
         }
     ]
 }
