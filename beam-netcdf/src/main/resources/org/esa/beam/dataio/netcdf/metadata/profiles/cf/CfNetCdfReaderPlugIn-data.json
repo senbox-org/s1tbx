@@ -21,6 +21,11 @@
             "description": "product_type: MER_FRS_1P, format: NetCDF-BEAM, conventions: CF-1.4"
         },
         {
+            "id": "LM11870291976166ESA00_nc",
+            "relativePath": "applications/generic_reader/NetCDF/NetCDF-BEAM/LM11870291976166ESA00.nc",
+            "description": "product_type: LANDSAT_1_MSS_L1T, format: NetCDF-BEAM, conventions: CF-1.4"
+        },
+        {
             "id": "LM32170241982254XXX01_nc",
             "relativePath": "applications/generic_reader/NetCDF/NetCDF-CF/LM32170241982254XXX01.nc",
             "description": "product_type: LANDSAT_1_MSS_L1T, format: NetCDF-CF, conventions: CF-1.4"
@@ -49,6 +54,16 @@
             "id": "L5043033_03319950627_nc",
             "relativePath": "applications/generic_reader/NetCDF/NetCDF4-CF/L5043033_03319950627.nc",
             "description": "format:  NetCDF4-CF, conventions: CF-1.4"
+        },
+        {
+            "id": "LT40140341983030XXX13_nc",
+            "relativePath": "applications/generic_reader/NetCDF/NetCDF4-BEAM/LT40140341983030XXX13.nc",
+            "description": "product_type: Landsat4_TM_L1T, format: NetCDF4-BEAM, conventions: CF-1.4"
+        },
+        {
+            "id": "MER_FR__1PNUPA20030808_073810_C2IOP",
+            "relativePath": "applications/generic_reader/NetCDF/NetCDF4-BEAM/MER_FR__1PNUPA20030808_073810_000000982018_00450_07518_6007.N1_C2IOP.nc",
+            "description": "Meris.Case2Regional product, product_type: MERIS_LREG, format: NetCDF4-BEAM, conventions: CF-1.4"
         },
         {
             "id": "MER_FRS_1PNMAP20090808_073618_C2IOP",
