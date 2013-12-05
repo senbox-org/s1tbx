@@ -119,7 +119,7 @@ public class ProductReaderAcceptanceTest {
         final StopWatch stopWatch = new StopWatch();
 
         for (TestDefinition testDefinition : testDefinitionList) {
-            final List<String> intendedProductIds = testDefinition.getIntendedProductIds();
+            final List<String> intendedProductIds = testDefinition.getDecodableProductIds();
             logger.info(INDENT + testDefinition.getProductReaderPlugin().getClass().getSimpleName());
 
             for (String productId : intendedProductIds) {

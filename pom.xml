@@ -216,7 +216,7 @@
                         <systemPropertyVariables>
                             <org.esa.beam.testdata.out>target/test-data</org.esa.beam.testdata.out>
                         </systemPropertyVariables>
-                        <argLine>-Xmx512M -enableassertions -Dfile.encoding=UTF-8</argLine>
+                        <argLine>-Xmx1024M -enableassertions -Dfile.encoding=UTF-8</argLine>
                     </configuration>
                 </plugin>
 

@@ -37,11 +37,13 @@ class TestDefinition {
         expectedDatasetsList = new ArrayList<ExpectedDataset>();
     }
 
-    List<String> getIntendedProductIds() {
+    List<String> getDecodableProductIds() {
         final ArrayList<String> result = new ArrayList<String>();
 
         for (ExpectedDataset dataset : expectedDatasetsList) {
-            if (dataset.getDecodeQualification() == DecodeQualification.INTENDED) {
+            DecodeQualification decodeQualification = dataset.getDecodeQualification();
+            if (decodeQualification == DecodeQualification.INTENDED ||
+                decodeQualification == DecodeQualification.SUITABLE) {
                 result.add(dataset.getId());
             }
         }

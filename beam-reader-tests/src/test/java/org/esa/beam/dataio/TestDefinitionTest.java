@@ -64,7 +64,7 @@ public class TestDefinitionTest {
 
     @Test
     public void testGetIntendedProductIds_empty() {
-        final List<String> expectedIds = definition.getIntendedProductIds();
+        final List<String> expectedIds = definition.getDecodableProductIds();
 
         assertNotNull(expectedIds);
         assertEquals(0, expectedIds.size());
@@ -77,7 +77,7 @@ public class TestDefinitionTest {
         expectedDataset.setDecodeQualification("intended");
         definition.addExpectedDataset(expectedDataset);
 
-        final List<String> expectedIds = definition.getIntendedProductIds();
+        final List<String> expectedIds = definition.getDecodableProductIds();
 
         assertEquals(1, expectedIds.size());
     }
@@ -94,9 +94,10 @@ public class TestDefinitionTest {
         intendedDataset.setDecodeQualification("intended");
         definition.addExpectedDataset(intendedDataset);
 
-        final List<String> expectedIds = definition.getIntendedProductIds();
+        final List<String> expectedIds = definition.getDecodableProductIds();
 
-        assertEquals(1, expectedIds.size());
-        assertEquals("id_intended", expectedIds.get(0));
+        assertEquals(2, expectedIds.size());
+        assertEquals("id_suitable", expectedIds.get(0));
+        assertEquals("id_intended", expectedIds.get(1));
     }
 }
