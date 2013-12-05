@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2013 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -2514,6 +2514,12 @@ public class ProductUtils {
 
             int runIndexMin = (int) Math.floor((minLon + 180) / 360);
             int runIndexMax = (int) Math.floor((maxLon + 180) / 360);
+
+            if (runIndexMin == 0 && runIndexMax == 0) {
+                // the path is completely within [-180, 180] longitude
+                pathList.add(path);
+                return pathList;
+            }
 
             final Area pathArea = new Area(path);
             for (int k = runIndexMin; k <= runIndexMax; k++) {
