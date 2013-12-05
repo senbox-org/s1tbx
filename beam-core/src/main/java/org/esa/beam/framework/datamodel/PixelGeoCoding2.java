@@ -36,7 +36,7 @@ import java.awt.image.Raster;
  *
  * @author Ralf Quast
  */
-public class PixelGeoCoding2 extends AbstractGeoCoding {
+class PixelGeoCoding2 extends AbstractGeoCoding implements BasicPixelGeoCoding {
 
     private static final String SYSPROP_PIXEL_GEO_CODING_FRACTION_ACCURACY = "beam.pixelGeoCoding.fractionAccuracy";
 
@@ -49,12 +49,12 @@ public class PixelGeoCoding2 extends AbstractGeoCoding {
     private final boolean fractionAccuracy = Boolean.getBoolean(SYSPROP_PIXEL_GEO_CODING_FRACTION_ACCURACY);
     private final double pixelDiagonalSquared;
 
-    private PixelPosEstimator pixelPosEstimator;
-    private final PixelFinder pixelFinder;
+    private transient PixelPosEstimator pixelPosEstimator;
+    private transient final PixelFinder pixelFinder;
 
-    private PlanarImage lonImage;
-    private PlanarImage latImage;
-    private PlanarImage maskImage;
+    private transient PlanarImage lonImage;
+    private transient PlanarImage latImage;
+    private transient PlanarImage maskImage;
 
     public interface PixelFinder {
 
@@ -116,7 +116,7 @@ public class PixelGeoCoding2 extends AbstractGeoCoding {
                 for (int i = 0; i < maskGroup.getNodeCount(); i++) {
                     final Mask mask = maskGroup.get(i);
                     if (mask.getImageType() == Mask.BandMathsType.INSTANCE) {
-                        if (Mask.BandMathsType.getExpression(mask).equals(maskExpression)) {
+                        if (maskExpression.equals(Mask.BandMathsType.getExpression(mask))) {
                             maskImage = mask.getSourceImage();
                             break;
                         }
@@ -152,12 +152,29 @@ public class PixelGeoCoding2 extends AbstractGeoCoding {
         pixelFinder = new DefaultPixelFinder(lonImage, latImage, maskImage);
     }
 
+    @Override
     public Band getLatBand() {
         return latBand;
     }
 
+    @Override
     public Band getLonBand() {
         return lonBand;
+    }
+
+    @Override
+    public String getValidMask() {
+        return maskExpression;
+    }
+
+    @Override
+    public GeoCoding getPixelPosEstimator() {
+        return null;
+    }
+
+    @Override
+    public int getSearchRadius() {
+        return 0;
     }
 
     /**
@@ -168,10 +185,6 @@ public class PixelGeoCoding2 extends AbstractGeoCoding {
     @Override
     public boolean isCrossingMeridianAt180() {
         return false;
-    }
-
-    public String getValidMask() {
-        return maskExpression;
     }
 
     /**
@@ -309,8 +322,14 @@ public class PixelGeoCoding2 extends AbstractGeoCoding {
         if (!lonBand.equals(that.lonBand)) {
             return false;
         }
-        if (!maskExpression.equals(that.maskExpression)) {
-            return false;
+        if (maskExpression != null) {
+            if (!maskExpression.equals(that.maskExpression)) {
+                return false;
+            }
+        } else {
+            if (that.maskExpression != null) {
+                return false;
+            }
         }
 
         return true;
@@ -340,7 +359,10 @@ public class PixelGeoCoding2 extends AbstractGeoCoding {
         final int tileY = image.YToTileY(y);
         final Raster data = image.getTile(tileX, tileY);
         if (maskImage != null) {
-            final int maskValue = maskImage.getTile(tileX, tileY).getSample(x, y, 0);
+            // tile coordinates of images and mask "shall" be equal, but they are not - TODO check why (mz 2013-11-08)
+            final int maskTileX = maskImage.XToTileX(x);
+            final int maskTileY = maskImage.YToTileY(y);
+            final int maskValue = maskImage.getTile(maskTileX, maskTileY).getSample(x, y, 0);
             if (maskValue == 0) {
                 return Float.NaN;
             }

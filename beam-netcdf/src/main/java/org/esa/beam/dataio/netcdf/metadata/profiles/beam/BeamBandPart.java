@@ -26,10 +26,10 @@ import org.esa.beam.dataio.netcdf.util.DataTypeUtils;
 import org.esa.beam.dataio.netcdf.util.NetcdfMultiLevelImage;
 import org.esa.beam.dataio.netcdf.util.ReaderUtils;
 import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.BasicPixelGeoCoding;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.MetadataAttribute;
 import org.esa.beam.framework.datamodel.MetadataElement;
-import org.esa.beam.framework.datamodel.PixelGeoCoding;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.jai.ImageManager;
@@ -135,8 +135,8 @@ public class BeamBandPart extends ProfilePartIO {
 
     private boolean isPixelGeoCodingBand(Band band) {
         final GeoCoding geoCoding = band.getGeoCoding();
-        if (geoCoding instanceof PixelGeoCoding) {
-            PixelGeoCoding pixelGeoCoding = (PixelGeoCoding) geoCoding;
+        if (geoCoding instanceof BasicPixelGeoCoding) {
+            BasicPixelGeoCoding pixelGeoCoding = (BasicPixelGeoCoding) geoCoding;
             return pixelGeoCoding.getLatBand() == band || pixelGeoCoding.getLonBand() == band;
         }
         return false;

@@ -17,9 +17,9 @@
 package org.esa.beam.framework.datamodel;
 
 import com.bc.ceres.core.ProgressMonitor;
-import junit.framework.TestCase;
 import org.esa.beam.framework.dataio.ProductSubsetDef;
 import org.esa.beam.framework.dataop.maptransf.Datum;
+import org.junit.Test;
 
 import javax.media.jai.RenderedOp;
 import javax.media.jai.operator.ConstantDescriptor;
@@ -28,7 +28,13 @@ import java.awt.Rectangle;
 import java.awt.image.Raster;
 import java.io.IOException;
 
-public class PixelGeoCodingTest extends TestCase {
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+public class PixelGeoCodingTest {
 
     private static final int S = 4;
     private static final int GW = 3;
@@ -40,10 +46,7 @@ public class PixelGeoCodingTest extends TestCase {
     private static final float LON_1 = 10.0f;
     private static final float LON_2 = 15.0f;
 
-    public PixelGeoCodingTest(String testName) {
-        super(testName);
-    }
-
+    @Test
     public void testIllegalConstructorCalls() throws IOException {
         Product product;
         Band b1, b2;
@@ -93,7 +96,7 @@ public class PixelGeoCodingTest extends TestCase {
     private static void testIllegalArgumentExceptionNotThrownByConstructor(Band b1, Band b2, String validMask,
                                                                            int searchRadius) {
         try {
-            new PixelGeoCoding(b1, b2, validMask, searchRadius, ProgressMonitor.NULL);
+            GeoCodingFactory.createPixelGeoCoding(b1, b2, validMask, searchRadius, ProgressMonitor.NULL);
         } catch (IOException e) {
             fail();
         } catch (IllegalArgumentException e) {
@@ -104,7 +107,7 @@ public class PixelGeoCodingTest extends TestCase {
     private static void testIllegalArgumentExceptionThrownByConstructor(Band b1, Band b2, String validMask,
                                                                         int searchRadius) {
         try {
-            new PixelGeoCoding(b1, b2, validMask, searchRadius, ProgressMonitor.NULL);
+            GeoCodingFactory.createPixelGeoCoding(b1, b2, validMask, searchRadius, ProgressMonitor.NULL);
             fail();
         } catch (IOException e) {
             fail();
@@ -113,21 +116,29 @@ public class PixelGeoCodingTest extends TestCase {
         }
     }
 
+    @Test
     public void testEquals() throws Exception {
         Product product = createProduct();
-        PixelGeoCoding geoCoding1 = new PixelGeoCoding(product.getBand("latBand"), product.getBand("lonBand"), null, 5);
-        PixelGeoCoding geoCoding2 = new PixelGeoCoding(product.getBand("latBand"), product.getBand("lonBand"), null, 5);
-        PixelGeoCoding geoCoding3 = new PixelGeoCoding(product.getBand("latBand"), product.getBand("lonBand"), null, 7);
+        GeoCoding geoCoding1 = new PixelGeoCoding(product.getBand("latBand"),
+                                                  product.getBand("lonBand"), null, 5);
+        GeoCoding geoCoding2 = new PixelGeoCoding(product.getBand("latBand"),
+                                                  product.getBand("lonBand"), null, 5);
+        GeoCoding geoCoding3 = new PixelGeoCoding(product.getBand("latBand"),
+                                                  product.getBand("lonBand"), null, 7);
         product.setGeoCoding(geoCoding1);
         assertEquals(geoCoding1, geoCoding2);
         assertFalse(geoCoding1.equals(geoCoding3));
     }
 
+    @Test
     public void testGetPixelPos() throws IOException {
         Product product = createProduct();
         TiePointGeoCoding tiePointGeoCoding = (TiePointGeoCoding) product.getGeoCoding();
-        PixelGeoCoding pixelGeoCoding = new PixelGeoCoding(product.getBand("latBand"),
-                                                           product.getBand("lonBand"), null, 2, ProgressMonitor.NULL);
+        GeoCoding pixelGeoCoding = GeoCodingFactory.createPixelGeoCoding(product.getBand("latBand"),
+                                                                         product.getBand("lonBand"),
+                                                                         null,
+                                                                         2,
+                                                                         ProgressMonitor.NULL);
         product.setGeoCoding(pixelGeoCoding);
         TiePointGrid latGrid = tiePointGeoCoding.getLatGrid();
         TiePointGrid lonGrid = tiePointGeoCoding.getLonGrid();
@@ -141,10 +152,12 @@ public class PixelGeoCodingTest extends TestCase {
         assertEquals(new PixelPos(2.5f, 0.5f), pixelPos);
     }
 
+    @Test
     public void testGetGeoPos() throws IOException {
         doTestGetGeoPos();
     }
 
+    @Test
     public void testGetGeoPos_useNoTiling() throws IOException {
         try {
             System.setProperty("beam.pixelGeoCoding.useTiling", "false");
@@ -157,8 +170,9 @@ public class PixelGeoCodingTest extends TestCase {
     private void doTestGetGeoPos() throws IOException {
         Product product = createProduct();
         TiePointGeoCoding tiePointGeoCoding = (TiePointGeoCoding) product.getGeoCoding();
-        PixelGeoCoding pixelGeoCoding = new PixelGeoCoding(product.getBand("latBand"),
-                                                           product.getBand("lonBand"), null, 5, ProgressMonitor.NULL);
+        GeoCoding pixelGeoCoding = GeoCodingFactory.createPixelGeoCoding(product.getBand("latBand"),
+                                                                         product.getBand("lonBand"), null, 5,
+                                                                         ProgressMonitor.NULL);
         product.setGeoCoding(pixelGeoCoding);
 
         String gp;
@@ -184,11 +198,13 @@ public class PixelGeoCodingTest extends TestCase {
         assertEquals(gp, pixelGeoCoding.getGeoPos(new PixelPos(PW - 0.5f, PH - 0.5f), null).toString());
     }
 
+    @Test
     public void testGetGeoPos_withFractionAccuracy() throws IOException {
         Product product = createProduct();
         TiePointGeoCoding tiePointGeoCoding = (TiePointGeoCoding) product.getGeoCoding();
-        PixelGeoCoding pixelGeoCoding = new PixelGeoCoding(product.getBand("latBand"),
-                                                           product.getBand("lonBand"), null, 5, ProgressMonitor.NULL);
+        GeoCoding pixelGeoCoding = GeoCodingFactory.createPixelGeoCoding(product.getBand("latBand"),
+                                                                         product.getBand("lonBand"), null, 5,
+                                                                         ProgressMonitor.NULL);
         product.setGeoCoding(pixelGeoCoding);
 
         String gp = tiePointGeoCoding.getGeoPos(new PixelPos(0.5f, 0.5f), null).toString();
@@ -199,8 +215,9 @@ public class PixelGeoCodingTest extends TestCase {
             System.setProperty("beam.pixelGeoCoding.useTiling", "true");
             product = createProduct();
             tiePointGeoCoding = (TiePointGeoCoding) product.getGeoCoding();
-            pixelGeoCoding = new PixelGeoCoding(product.getBand("latBand"),
-                                                product.getBand("lonBand"), null, 5, ProgressMonitor.NULL);
+            pixelGeoCoding = GeoCodingFactory.createPixelGeoCoding(product.getBand("latBand"),
+                                                                   product.getBand("lonBand"), null, 5,
+                                                                   ProgressMonitor.NULL);
 
             gp = tiePointGeoCoding.getGeoPos(new PixelPos(0.5f, 0.5f), null).toString();
             assertEquals(gp, pixelGeoCoding.getGeoPos(new PixelPos(0.5f, 0.5f), null).toString());
@@ -252,10 +269,12 @@ public class PixelGeoCodingTest extends TestCase {
         }
     }
 
+    @Test
     public void testTransferGeoCoding() throws IOException {
         doTestTransferGeoCoding();
     }
 
+    @Test
     public void testTransferGeoCoding_useNoTiling() throws IOException {
         try {
             System.setProperty("beam.pixelGeoCoding.useTiling", "false");
@@ -267,9 +286,9 @@ public class PixelGeoCodingTest extends TestCase {
 
     private void doTestTransferGeoCoding() throws IOException {
         Product sourceProduct = createProduct();
-        PixelGeoCoding newGeoCoding = new PixelGeoCoding(sourceProduct.getBand("latBand"),
-                                                         sourceProduct.getBand("lonBand"), null, 5,
-                                                         ProgressMonitor.NULL);
+        GeoCoding newGeoCoding = GeoCodingFactory.createPixelGeoCoding(sourceProduct.getBand("latBand"),
+                                                                       sourceProduct.getBand("lonBand"), null, 5,
+                                                                       ProgressMonitor.NULL);
         sourceProduct.setGeoCoding(newGeoCoding);
 
         Product targetProduct = createProduct();
@@ -281,10 +300,12 @@ public class PixelGeoCodingTest extends TestCase {
         assertNotNull(targetGC.getPixelPosEstimator());
     }
 
+    @Test
     public void testTransferGeoCoding_WithSpatialSubset() throws IOException {
         doTestTransferGeoCoding_WithSpatialSubset();
     }
 
+    @Test
     public void testTransferGeoCoding_WithSpatialSubset_useNoTiling() throws IOException {
         try {
             System.setProperty("beam.pixelGeoCoding.useTiling", "false");
@@ -296,9 +317,10 @@ public class PixelGeoCodingTest extends TestCase {
 
     private void doTestTransferGeoCoding_WithSpatialSubset() throws IOException {
         Product sourceProduct = createProduct();
-        PixelGeoCoding newGeoCoding = new PixelGeoCoding(sourceProduct.getBand("latBand"),
-                                                         sourceProduct.getBand("lonBand"), "flagomat.valid", 5,
-                                                         ProgressMonitor.NULL);
+        GeoCoding newGeoCoding = GeoCodingFactory.createPixelGeoCoding(sourceProduct.getBand("latBand"),
+                                                                       sourceProduct.getBand("lonBand"),
+                                                                       "flagomat.valid", 5,
+                                                                       ProgressMonitor.NULL);
         sourceProduct.setGeoCoding(newGeoCoding);
 
         final ProductSubsetDef def = new ProductSubsetDef();
@@ -400,6 +422,7 @@ public class PixelGeoCodingTest extends TestCase {
         return floats;
     }
 
+    @Test
     public void testThatImageMinXYAreImportant() throws Exception {
         int minX = 4;
         int minY = 3;
@@ -437,178 +460,181 @@ public class PixelGeoCodingTest extends TestCase {
         assertEquals(new Rectangle(minX, minY, 8, 8), dst.getTileRect(0, 0));
     }
 
+    @Test
     public void testGetPositiveLonMin() throws Exception {
         float lon0 = 160.0f;
         float lon1 = 150.0f;
         float lon2 = -169.0f;
         float lon3 = 165.0f;
         float result = PixelGeoCoding.getPositiveLonMin(lon0, lon1, lon2, lon3);
-        assertEquals(150.0f, result);
+        assertEquals(150.0f, result, 0.0f);
 
         lon0 = -175.0f;
         lon1 = 170.0f;
         lon2 = -169.0f;
         lon3 = -170.0f;
         result = PixelGeoCoding.getPositiveLonMin(lon0, lon1, lon2, lon3);
-        assertEquals(170.0f, result);
+        assertEquals(170.0f, result, 0.0f);
 
         lon0 = 170.0f;
         lon1 = 160.0f;
         lon2 = -175.0f;
         lon3 = -165.0f;
         result = PixelGeoCoding.getPositiveLonMin(lon0, lon1, lon2, lon3);
-        assertEquals(160.0f, result);
+        assertEquals(160.0f, result, 0.0f);
 
         lon0 = -150.0f;
         lon1 = +160.0f;
         lon2 = -140.0f;
         lon3 = -170.0f;
         result = PixelGeoCoding.getPositiveLonMin(lon0, lon1, lon2, lon3);
-        assertEquals(160.0f, result);
+        assertEquals(160.0f, result, 0.0f);
 
         lon0 = 170.0f;
         lon1 = -175.0f;
         lon2 = -165.0f;
         lon3 = -150.0f;
         result = PixelGeoCoding.getPositiveLonMin(lon0, lon1, lon2, lon3);
-        assertEquals(170.0f, result);
+        assertEquals(170.0f, result, 0.0f);
 
         lon0 = 140.0f;
         lon1 = 150.0f;
         lon2 = 160.0f;
         lon3 = -170.0f;
         result = PixelGeoCoding.getPositiveLonMin(lon0, lon1, lon2, lon3);
-        assertEquals(140.0f, result);
+        assertEquals(140.0f, result, 0.0f);
 
         lon0 = -175.0f;
         lon1 = -165.0f;
         lon2 = 170.0f;
         lon3 = 160.0f;
         result = PixelGeoCoding.getPositiveLonMin(lon0, lon1, lon2, lon3);
-        assertEquals(160.0f, result);
+        assertEquals(160.0f, result, 0.0f);
 
         lon0 = 170.0f;
         lon1 = -140.0f;
         lon2 = 160.0f;
         lon3 = -150.0f;
         result = PixelGeoCoding.getPositiveLonMin(lon0, lon1, lon2, lon3);
-        assertEquals(160.0f, result);
+        assertEquals(160.0f, result, 0.0f);
 
         lon0 = -160.0f;
         lon1 = -150.0f;
         lon2 = 170.0f;
         lon3 = -170.0f;
         result = PixelGeoCoding.getPositiveLonMin(lon0, lon1, lon2, lon3);
-        assertEquals(170.0f, result);
+        assertEquals(170.0f, result, 0.0f);
 
         lon0 = 170.0f;
         lon1 = -170.0f;
         lon2 = 150.0f;
         lon3 = 160.0f;
         result = PixelGeoCoding.getPositiveLonMin(lon0, lon1, lon2, lon3);
-        assertEquals(150.0f, result);
+        assertEquals(150.0f, result, 0.0f);
 
         lon0 = -170.0f;
         lon1 = 150.0f;
         lon2 = 160.0f;
         lon3 = 140.0f;
         result = PixelGeoCoding.getPositiveLonMin(lon0, lon1, lon2, lon3);
-        assertEquals(140.0f, result);
+        assertEquals(140.0f, result, 0.0f);
 
         lon0 = -150.0f;
         lon1 = -170.0f;
         lon2 = -160.0f;
         lon3 = 170.0f;
         result = PixelGeoCoding.getPositiveLonMin(lon0, lon1, lon2, lon3);
-        assertEquals(170.0f, result);
+        assertEquals(170.0f, result, 0.0f);
     }
 
+    @Test
     public void testGetNegativeLonMax() throws Exception {
         float lon0 = 160.0f;
         float lon1 = 150.0f;
         float lon2 = -169.0f;
         float lon3 = 165.0f;
         float result = PixelGeoCoding.getNegativeLonMax(lon0, lon1, lon2, lon3);
-        assertEquals(-169.0f, result);
+        assertEquals(-169.0f, result, 0.0f);
 
         lon0 = -175.0f;
         lon1 = 170.0f;
         lon2 = -169.0f;
         lon3 = -170.0f;
         result = PixelGeoCoding.getNegativeLonMax(lon0, lon1, lon2, lon3);
-        assertEquals(-169.0f, result);
+        assertEquals(-169.0f, result, 0.0f);
 
         lon0 = 170.0f;
         lon1 = 160.0f;
         lon2 = -175.0f;
         lon3 = -165.0f;
         result = PixelGeoCoding.getNegativeLonMax(lon0, lon1, lon2, lon3);
-        assertEquals(-165.0f, result);
+        assertEquals(-165.0f, result, 0.0f);
 
         lon0 = -150.0f;
         lon1 = +160.0f;
         lon2 = -140.0f;
         lon3 = -170.0f;
         result = PixelGeoCoding.getNegativeLonMax(lon0, lon1, lon2, lon3);
-        assertEquals(-140.0f, result);
+        assertEquals(-140.0f, result, 0.0f);
 
         lon0 = 170.0f;
         lon1 = -175.0f;
         lon2 = -165.0f;
         lon3 = -150.0f;
         result = PixelGeoCoding.getNegativeLonMax(lon0, lon1, lon2, lon3);
-        assertEquals(-150.0f, result);
+        assertEquals(-150.0f, result, 0.0f);
 
         lon0 = 140.0f;
         lon1 = 150.0f;
         lon2 = 160.0f;
         lon3 = -170.0f;
         result = PixelGeoCoding.getNegativeLonMax(lon0, lon1, lon2, lon3);
-        assertEquals(-170.0f, result);
+        assertEquals(-170.0f, result, 0.0f);
 
         lon0 = -175.0f;
         lon1 = -165.0f;
         lon2 = 170.0f;
         lon3 = 160.0f;
         result = PixelGeoCoding.getNegativeLonMax(lon0, lon1, lon2, lon3);
-        assertEquals(-165.0f, result);
+        assertEquals(-165.0f, result, 0.0f);
 
         lon0 = 170.0f;
         lon1 = -140.0f;
         lon2 = 160.0f;
         lon3 = -150.0f;
         result = PixelGeoCoding.getNegativeLonMax(lon0, lon1, lon2, lon3);
-        assertEquals(-140.0f, result);
+        assertEquals(-140.0f, result, 0.0f);
 
         lon0 = -160.0f;
         lon1 = -150.0f;
         lon2 = 170.0f;
         lon3 = -170.0f;
         result = PixelGeoCoding.getNegativeLonMax(lon0, lon1, lon2, lon3);
-        assertEquals(-150.0f, result);
+        assertEquals(-150.0f, result, 0.0f);
 
         lon0 = 170.0f;
         lon1 = -170.0f;
         lon2 = 150.0f;
         lon3 = 160.0f;
         result = PixelGeoCoding.getNegativeLonMax(lon0, lon1, lon2, lon3);
-        assertEquals(-170.0f, result);
+        assertEquals(-170.0f, result, 0.0f);
 
         lon0 = -170.0f;
         lon1 = 150.0f;
         lon2 = 160.0f;
         lon3 = 140.0f;
         result = PixelGeoCoding.getNegativeLonMax(lon0, lon1, lon2, lon3);
-        assertEquals(-170.0f, result);
+        assertEquals(-170.0f, result, 0.0f);
 
         lon0 = -150.0f;
         lon1 = -170.0f;
         lon2 = -160.0f;
         lon3 = 170.0f;
         result = PixelGeoCoding.getNegativeLonMax(lon0, lon1, lon2, lon3);
-        assertEquals(-150.0f, result);
+        assertEquals(-150.0f, result, 0.0f);
     }
 
+    @Test
     public void testIsCrossingMeridianInsideQuad() throws Exception {
         float lon0 = 160.0f;
         float lon1 = 150.0f;

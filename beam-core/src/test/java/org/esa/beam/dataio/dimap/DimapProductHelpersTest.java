@@ -15,14 +15,12 @@
  */
 package org.esa.beam.dataio.dimap;
 
-import com.bc.ceres.core.ProgressMonitor;
 import junit.framework.TestCase;
-import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.BasicPixelGeoCoding;
 import org.esa.beam.framework.datamodel.CrsGeoCoding;
 import org.esa.beam.framework.datamodel.FXYGeoCoding;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.MapGeoCoding;
-import org.esa.beam.framework.datamodel.PixelGeoCoding;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.dataop.maptransf.Datum;
@@ -45,7 +43,6 @@ import org.opengis.referencing.operation.MathTransform;
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Vector;
 
@@ -80,81 +77,165 @@ public class DimapProductHelpersTest extends TestCase {
     private static final int[] _notMandatoryLines = new int[]{2, 4, 5, 7, 25, 29, 33, 37, 41, 45, 49};
 
     private final String[] _xmlMapGeocodingStringStyleV1_4_0 = new String[]{
-        "<" + DimapProductConstants.TAG_ROOT + ">" + LS,
-        /*  1 */ "    <Coordinate_Reference_System>" + LS,
-        /*  2 */ "        <GEO_TABLES version=\"1.0\">CUSTOM</GEO_TABLES>" + LS, // notMandatory
-        /*  3 */ "        <Horizontal_CS>" + LS,
-        /*  4 */ "            <HORIZONTAL_CS_TYPE>PROJECTED</HORIZONTAL_CS_TYPE>" + LS, // notMandatory
-        /*  5 */ "            <HORIZONTAL_CS_NAME>" + _projectionName + "</HORIZONTAL_CS_NAME>" + LS, // notMandatory
-        /*  6 */ "            <Geographic_CS>" + LS,
-        /*  7 */ "                <GEOGRAPHIC_CS_NAME>" + _projectionName + "</GEOGRAPHIC_CS_NAME>" + LS, // notMandatory
-        /*  8 */ "                <Horizontal_Datum>" + LS,
-        /*  9 */ "                    <HORIZONTAL_DATUM_NAME>" + _datumName + "</HORIZONTAL_DATUM_NAME>" + LS,
-        /* 10 */ "                    <Ellipsoid>" + LS,
-        /*  1 */ "                        <ELLIPSOID_NAME>" + _ellipsoidName + "</ELLIPSOID_NAME>" + LS,
-        /*  2 */ "                        <Ellipsoid_Parameters>" + LS,
-        /*  3 */ "                            <ELLIPSOID_MAJ_AXIS unit=\"M\">" + _semiMajor + "</ELLIPSOID_MAJ_AXIS>" + LS,
-        /*  4 */ "                            <ELLIPSOID_MIN_AXIS unit=\"M\">" + _semiMinor + "</ELLIPSOID_MIN_AXIS>" + LS,
-        /*  5 */ "                        </Ellipsoid_Parameters>" + LS,
-        /*  6 */ "                    </Ellipsoid>" + LS,
-        /*  7 */ "                </Horizontal_Datum>" + LS,
-        /*  8 */ "            </Geographic_CS>" + LS,
-        /*  9 */ "            <Projection>" + LS,
-        /* 20 */ "                <NAME>" + _projectionName + "</NAME>" + LS,
-        /*  1 */ "                <Projection_CT_Method>" + LS,
-        /*  2 */ "                    <PROJECTION_CT_NAME>" + _typeId + "</PROJECTION_CT_NAME>" + LS,
-        /*  3 */ "                    <Projection_Parameters>" + LS,
-        /*  4 */ "                        <Projection_Parameter>" + LS,
-        /*  5 */ "                            <PROJECTION_PARAMETER_NAME>" + _paramNames[0] + "</PROJECTION_PARAMETER_NAME>" + LS, // notMandatory
-        /*  6 */ "                            <PROJECTION_PARAMETER_VALUE unit=\"" + _paramUnit[0] + "\">" + _expValues[0] + "</PROJECTION_PARAMETER_VALUE>" + LS,
-        /*  7 */ "                        </Projection_Parameter>" + LS,
-        /*  8 */ "                        <Projection_Parameter>" + LS,
-        /*  9 */ "                            <PROJECTION_PARAMETER_NAME>" + _paramNames[1] + "</PROJECTION_PARAMETER_NAME>" + LS, // notMandatory
-        /* 30 */ "                            <PROJECTION_PARAMETER_VALUE unit=\"" + _paramUnit[1] + "\">" + _expValues[1] + "</PROJECTION_PARAMETER_VALUE>" + LS,
-        /*  1 */ "                        </Projection_Parameter>" + LS,
-        /*  2 */ "                        <Projection_Parameter>" + LS,
-        /*  3 */ "                            <PROJECTION_PARAMETER_NAME>" + _paramNames[2] + "</PROJECTION_PARAMETER_NAME>" + LS, // notMandatory
-        /*  4 */ "                            <PROJECTION_PARAMETER_VALUE unit=\"" + _paramUnit[2] + "\">" + _expValues[2] + "</PROJECTION_PARAMETER_VALUE>" + LS,
-        /*  5 */ "                        </Projection_Parameter>" + LS,
-        /*  6 */ "                        <Projection_Parameter>" + LS,
-        /*  7 */ "                            <PROJECTION_PARAMETER_NAME>" + _paramNames[3] + "</PROJECTION_PARAMETER_NAME>" + LS, // notMandatory
-        /*  8 */ "                            <PROJECTION_PARAMETER_VALUE unit=\"" + _paramUnit[3] + "\">" + _expValues[3] + "</PROJECTION_PARAMETER_VALUE>" + LS,
-        /*  9 */ "                        </Projection_Parameter>" + LS,
-        /* 40 */ "                        <Projection_Parameter>" + LS,
-        /*  1 */ "                            <PROJECTION_PARAMETER_NAME>" + _paramNames[4] + "</PROJECTION_PARAMETER_NAME>" + LS, // notMandatory
-        /*  2 */ "                            <PROJECTION_PARAMETER_VALUE unit=\"" + _paramUnit[4] + "\">" + _expValues[4] + "</PROJECTION_PARAMETER_VALUE>" + LS,
-        /*  3 */ "                        </Projection_Parameter>" + LS,
-        /*  4 */ "                        <Projection_Parameter>" + LS,
-        /*  5 */ "                            <PROJECTION_PARAMETER_NAME>" + _paramNames[5] + "</PROJECTION_PARAMETER_NAME>" + LS, // notMandatory
-        /*  6 */ "                            <PROJECTION_PARAMETER_VALUE unit=\"" + _paramUnit[5] + "\">" + _expValues[5] + "</PROJECTION_PARAMETER_VALUE>" + LS,
-        /*  7 */ "                        </Projection_Parameter>" + LS,
-        /*  8 */ "                        <Projection_Parameter>" + LS,
-        /*  9 */ "                            <PROJECTION_PARAMETER_NAME>" + _paramNames[6] + "</PROJECTION_PARAMETER_NAME>" + LS, // notMandatory
-        /* 50 */ "                            <PROJECTION_PARAMETER_VALUE unit=\"" + _paramUnit[6] + "\">" + _expValues[6] + "</PROJECTION_PARAMETER_VALUE>" + LS,
-        /*  1 */ "                        </Projection_Parameter>" + LS,
-        /*  2 */ "                    </Projection_Parameters>" + LS,
-        /*  3 */ "                </Projection_CT_Method>" + LS,
-        /*  4 */ "            </Projection>" + LS,
-        /*  5 */ "            <MAP_INFO>" + LS +
+            "<" + DimapProductConstants.TAG_ROOT + ">" + LS,
+        /*  1 */
+            "    <Coordinate_Reference_System>" + LS,
+        /*  2 */
+            "        <GEO_TABLES version=\"1.0\">CUSTOM</GEO_TABLES>" + LS,
+            // notMandatory
+        /*  3 */
+            "        <Horizontal_CS>" + LS,
+        /*  4 */
+            "            <HORIZONTAL_CS_TYPE>PROJECTED</HORIZONTAL_CS_TYPE>" + LS,
+            // notMandatory
+        /*  5 */
+            "            <HORIZONTAL_CS_NAME>" + _projectionName + "</HORIZONTAL_CS_NAME>" + LS,
+            // notMandatory
+        /*  6 */
+            "            <Geographic_CS>" + LS,
+        /*  7 */
+            "                <GEOGRAPHIC_CS_NAME>" + _projectionName + "</GEOGRAPHIC_CS_NAME>" + LS,
+            // notMandatory
+        /*  8 */
+            "                <Horizontal_Datum>" + LS,
+        /*  9 */
+            "                    <HORIZONTAL_DATUM_NAME>" + _datumName + "</HORIZONTAL_DATUM_NAME>" + LS,
+        /* 10 */
+            "                    <Ellipsoid>" + LS,
+        /*  1 */
+            "                        <ELLIPSOID_NAME>" + _ellipsoidName + "</ELLIPSOID_NAME>" + LS,
+        /*  2 */
+            "                        <Ellipsoid_Parameters>" + LS,
+        /*  3 */
+            "                            <ELLIPSOID_MAJ_AXIS unit=\"M\">" + _semiMajor + "</ELLIPSOID_MAJ_AXIS>" + LS,
+        /*  4 */
+            "                            <ELLIPSOID_MIN_AXIS unit=\"M\">" + _semiMinor + "</ELLIPSOID_MIN_AXIS>" + LS,
+        /*  5 */
+            "                        </Ellipsoid_Parameters>" + LS,
+        /*  6 */
+            "                    </Ellipsoid>" + LS,
+        /*  7 */
+            "                </Horizontal_Datum>" + LS,
+        /*  8 */
+            "            </Geographic_CS>" + LS,
+        /*  9 */
+            "            <Projection>" + LS,
+        /* 20 */
+            "                <NAME>" + _projectionName + "</NAME>" + LS,
+        /*  1 */
+            "                <Projection_CT_Method>" + LS,
+        /*  2 */
+            "                    <PROJECTION_CT_NAME>" + _typeId + "</PROJECTION_CT_NAME>" + LS,
+        /*  3 */
+            "                    <Projection_Parameters>" + LS,
+        /*  4 */
+            "                        <Projection_Parameter>" + LS,
+        /*  5 */
+            "                            <PROJECTION_PARAMETER_NAME>" + _paramNames[0] + "</PROJECTION_PARAMETER_NAME>" + LS,
+            // notMandatory
+        /*  6 */
+            "                            <PROJECTION_PARAMETER_VALUE unit=\"" + _paramUnit[0] + "\">" + _expValues[0] + "</PROJECTION_PARAMETER_VALUE>" + LS,
+        /*  7 */
+            "                        </Projection_Parameter>" + LS,
+        /*  8 */
+            "                        <Projection_Parameter>" + LS,
+        /*  9 */
+            "                            <PROJECTION_PARAMETER_NAME>" + _paramNames[1] + "</PROJECTION_PARAMETER_NAME>" + LS,
+            // notMandatory
+        /* 30 */
+            "                            <PROJECTION_PARAMETER_VALUE unit=\"" + _paramUnit[1] + "\">" + _expValues[1] + "</PROJECTION_PARAMETER_VALUE>" + LS,
+        /*  1 */
+            "                        </Projection_Parameter>" + LS,
+        /*  2 */
+            "                        <Projection_Parameter>" + LS,
+        /*  3 */
+            "                            <PROJECTION_PARAMETER_NAME>" + _paramNames[2] + "</PROJECTION_PARAMETER_NAME>" + LS,
+            // notMandatory
+        /*  4 */
+            "                            <PROJECTION_PARAMETER_VALUE unit=\"" + _paramUnit[2] + "\">" + _expValues[2] + "</PROJECTION_PARAMETER_VALUE>" + LS,
+        /*  5 */
+            "                        </Projection_Parameter>" + LS,
+        /*  6 */
+            "                        <Projection_Parameter>" + LS,
+        /*  7 */
+            "                            <PROJECTION_PARAMETER_NAME>" + _paramNames[3] + "</PROJECTION_PARAMETER_NAME>" + LS,
+            // notMandatory
+        /*  8 */
+            "                            <PROJECTION_PARAMETER_VALUE unit=\"" + _paramUnit[3] + "\">" + _expValues[3] + "</PROJECTION_PARAMETER_VALUE>" + LS,
+        /*  9 */
+            "                        </Projection_Parameter>" + LS,
+        /* 40 */
+            "                        <Projection_Parameter>" + LS,
+        /*  1 */
+            "                            <PROJECTION_PARAMETER_NAME>" + _paramNames[4] + "</PROJECTION_PARAMETER_NAME>" + LS,
+            // notMandatory
+        /*  2 */
+            "                            <PROJECTION_PARAMETER_VALUE unit=\"" + _paramUnit[4] + "\">" + _expValues[4] + "</PROJECTION_PARAMETER_VALUE>" + LS,
+        /*  3 */
+            "                        </Projection_Parameter>" + LS,
+        /*  4 */
+            "                        <Projection_Parameter>" + LS,
+        /*  5 */
+            "                            <PROJECTION_PARAMETER_NAME>" + _paramNames[5] + "</PROJECTION_PARAMETER_NAME>" + LS,
+            // notMandatory
+        /*  6 */
+            "                            <PROJECTION_PARAMETER_VALUE unit=\"" + _paramUnit[5] + "\">" + _expValues[5] + "</PROJECTION_PARAMETER_VALUE>" + LS,
+        /*  7 */
+            "                        </Projection_Parameter>" + LS,
+        /*  8 */
+            "                        <Projection_Parameter>" + LS,
+        /*  9 */
+            "                            <PROJECTION_PARAMETER_NAME>" + _paramNames[6] + "</PROJECTION_PARAMETER_NAME>" + LS,
+            // notMandatory
+        /* 50 */
+            "                            <PROJECTION_PARAMETER_VALUE unit=\"" + _paramUnit[6] + "\">" + _expValues[6] + "</PROJECTION_PARAMETER_VALUE>" + LS,
+        /*  1 */
+            "                        </Projection_Parameter>" + LS,
+        /*  2 */
+            "                    </Projection_Parameters>" + LS,
+        /*  3 */
+            "                </Projection_CT_Method>" + LS,
+        /*  4 */
+            "            </Projection>" + LS,
+        /*  5 */
+            "            <MAP_INFO>" + LS +
         /*  5 */ "                <PIXEL_X value=\"" + _pixelX + "\" />" + LS,
-        /*  6 */ "                <PIXEL_Y value=\"" + _pixelY + "\" />" + LS,
-        /*  7 */ "                <EASTING value=\"" + _easting + "\" />" + LS,
-        /*  8 */ "                <NORTHING value=\"" + _northing + "\" />" + LS,
-        /*  9 */ "                <ORIENTATION value=\"" + _orientation + "\" />" + LS,
-        /* 60 */ "                <PIXELSIZE_X value=\"" + _pixelSizeX + "\" />" + LS,
-        /*  1 */ "                <PIXELSIZE_Y value=\"" + _pixelSizeY + "\" />" + LS,
-        /*  2 */ "                <NODATA_VALUE value=\"" + _noDataValue + "\" />" + LS,
-        /*  3 */ "                <MAPUNIT value=\"" + _mapUnit + "\" />" + LS,
-        /*  4 */ "                <ORTHORECTIFIED value=\"" + _orthorectified + "\" />" + LS,
-        /*  5 */ "                <ELEVATION_MODEL value=\"" + _elevModelName + "\" />" + LS,
-        /*  6 */ "                <SCENE_FITTED value=\"" + _sceneFitted + "\" />" + LS,
-        /*  7 */ "                <SCENE_WIDTH value=\"" + _sceneWidth + "\" />" + LS,
-        /*  8 */ "                <SCENE_HEIGHT value=\"" + _sceneHeight + "\" />" + LS,
-        /*  9 */ "                <RESAMPLING value=\"" + _resamplingName + "\" />" + LS,
-        /* 70 */ "            </MAP_INFO>" + LS,
-        /*  1 */ "        </Horizontal_CS>" + LS,
-        /*  2 */ "    </Coordinate_Reference_System>" + LS,
-        /*  3 */ "</" + DimapProductConstants.TAG_ROOT + ">" + LS
+        /*  6 */
+            "                <PIXEL_Y value=\"" + _pixelY + "\" />" + LS,
+        /*  7 */
+            "                <EASTING value=\"" + _easting + "\" />" + LS,
+        /*  8 */
+            "                <NORTHING value=\"" + _northing + "\" />" + LS,
+        /*  9 */
+            "                <ORIENTATION value=\"" + _orientation + "\" />" + LS,
+        /* 60 */
+            "                <PIXELSIZE_X value=\"" + _pixelSizeX + "\" />" + LS,
+        /*  1 */
+            "                <PIXELSIZE_Y value=\"" + _pixelSizeY + "\" />" + LS,
+        /*  2 */
+            "                <NODATA_VALUE value=\"" + _noDataValue + "\" />" + LS,
+        /*  3 */
+            "                <MAPUNIT value=\"" + _mapUnit + "\" />" + LS,
+        /*  4 */
+            "                <ORTHORECTIFIED value=\"" + _orthorectified + "\" />" + LS,
+        /*  5 */
+            "                <ELEVATION_MODEL value=\"" + _elevModelName + "\" />" + LS,
+        /*  6 */
+            "                <SCENE_FITTED value=\"" + _sceneFitted + "\" />" + LS,
+        /*  7 */
+            "                <SCENE_WIDTH value=\"" + _sceneWidth + "\" />" + LS,
+        /*  8 */
+            "                <SCENE_HEIGHT value=\"" + _sceneHeight + "\" />" + LS,
+        /*  9 */
+            "                <RESAMPLING value=\"" + _resamplingName + "\" />" + LS,
+        /* 70 */
+            "            </MAP_INFO>" + LS,
+        /*  1 */
+            "        </Horizontal_CS>" + LS,
+        /*  2 */
+            "    </Coordinate_Reference_System>" + LS,
+        /*  3 */
+            "</" + DimapProductConstants.TAG_ROOT + ">" + LS
     };
 
     // fields special for FXYGeoCoding
@@ -620,10 +701,11 @@ public class DimapProductHelpersTest extends TestCase {
 
     public void testCreateGeoCodingForCrsGeoCoding() throws Exception {
         final Rectangle imageBounds = new Rectangle(product.getSceneRasterWidth(),
-                                                                      product.getSceneRasterHeight());
+                                                    product.getSceneRasterHeight());
         final AffineTransform expectedI2m = new AffineTransform(0.12, 1.23, 2.34, 3.45, 4.56, 5.67);
         final CoordinateReferenceSystem expectedCrs = CRS.decode("EPSG:4326");
-        final byte[] bytes = createCrsGeoCodingString(new CrsGeoCoding(expectedCrs, imageBounds, expectedI2m)).getBytes();
+        final byte[] bytes = createCrsGeoCodingString(
+                new CrsGeoCoding(expectedCrs, imageBounds, expectedI2m)).getBytes();
         final Document dom = DimapProductHelpers.createDom(new ByteArrayInputStream(bytes));
         final GeoCoding geoCoding = DimapProductHelpers.createGeoCoding(dom, product)[0];
 
@@ -735,7 +817,7 @@ public class DimapProductHelpersTest extends TestCase {
         return StringUtils.arrayToString(strings, "");
     }
 
-    private String createPixelGeoCodingString(PixelGeoCoding geoCoding) {
+    private String createPixelGeoCodingString(BasicPixelGeoCoding geoCoding) {
         return "<" + DimapProductConstants.TAG_ROOT + ">" + LS +
                "    <Geoposition>" + LS +
                "        <LATITUDE_BAND>" + geoCoding.getLatBand().getName() + "</LATITUDE_BAND>" + LS +
@@ -803,7 +885,7 @@ public class DimapProductHelpersTest extends TestCase {
         final double[] matrix = new double[6];
         final MathTransform transform = geoCoding.getImageToMapTransform();
         if (transform instanceof AffineTransform) {
-            ((AffineTransform)transform).getMatrix(matrix);
+            ((AffineTransform) transform).getMatrix(matrix);
         }
 
         return "<" + DimapProductConstants.TAG_ROOT + ">" + LS +
@@ -813,7 +895,8 @@ public class DimapProductHelpersTest extends TestCase {
                "        </WKT>" + LS +
                "    </Coordinate_Reference_System>" + LS +
                "    <Geoposition>" + LS +
-               "        <IMAGE_TO_MODEL_TRANSFORM>"+StringUtils.arrayToCsv(matrix)+"</IMAGE_TO_MODEL_TRANSFORM>" + LS +
+               "        <IMAGE_TO_MODEL_TRANSFORM>" + StringUtils.arrayToCsv(
+                matrix) + "</IMAGE_TO_MODEL_TRANSFORM>" + LS +
                "    </Geoposition>" + LS +
                "</" + DimapProductConstants.TAG_ROOT + ">";
     }

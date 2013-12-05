@@ -15,52 +15,64 @@
  */
 package org.esa.beam.framework.datamodel;
 
-import junit.framework.TestCase;
 import org.esa.beam.framework.dataio.ProductSubsetDef;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
 
-import java.util.Arrays;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
-public class PixelGeoCoding_TransferGeoCodingToTest extends TestCase {
+public class PixelGeoCoding_TransferGeoCodingToTest {
 
     private Product sourceP;
     private String bandNameLat = "latb";
     private String bandNameLon = "lonb";
+    private BasicPixelGeoCoding pixelGeoCoding;
 
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         sourceP = new Product("test", "test", 6, 7);
         final Band latBand = sourceP.addBand(bandNameLat, ProductData.TYPE_FLOAT32);
         fillWithData(latBand, 0.03f, 30f);
         final Band lonBand = sourceP.addBand(bandNameLon, ProductData.TYPE_FLOAT32);
         fillWithData(lonBand, 0.047f, 50f);
-        sourceP.setGeoCoding(new PixelGeoCoding(latBand, lonBand, "lsmf", 5));
+        pixelGeoCoding = GeoCodingFactory.createPixelGeoCoding(latBand, lonBand, null, 5);
+        sourceP.setGeoCoding(pixelGeoCoding);
     }
 
-    protected void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
     }
 
+    @Test
     public void testDestLatLonBandsExisting() {
         final ProductSubsetDef subsetDef = null;
         final Product destP = new Product("dest", "dest",
                                           sourceP.getSceneRasterWidth(),
                                           sourceP.getSceneRasterHeight());
-        copyBandTo(destP, ((PixelGeoCoding) sourceP.getGeoCoding()).getLatBand());
-        copyBandTo(destP, ((PixelGeoCoding) sourceP.getGeoCoding()).getLonBand());
+        copyBandTo(destP, pixelGeoCoding.getLatBand());
+        copyBandTo(destP, pixelGeoCoding.getLonBand());
 
         assertEquals(true, sourceP.transferGeoCodingTo(destP, subsetDef));
         assertNotNull(destP.getGeoCoding());
-        assertEquals(true, destP.getGeoCoding() instanceof PixelGeoCoding);
+        assertEquals(true, destP.getGeoCoding() instanceof BasicPixelGeoCoding);
     }
 
+    @Test
     public void testDestWithoutLatLonBands() {
         final ProductSubsetDef subsetDef = null;
         final Product destP = new Product("dest", "dest",
                                           sourceP.getSceneRasterWidth(),
                                           sourceP.getSceneRasterHeight());
 
-        assertEquals(true, sourceP.transferGeoCodingTo(destP, subsetDef));
-        final GeoCoding destGeoCoding = destP.getGeoCoding();
-        assertNotNull(destGeoCoding);
-        assertEquals(true, destGeoCoding instanceof PixelGeoCoding);
+        if (pixelGeoCoding instanceof PixelGeoCoding) {
+            assertEquals(true, sourceP.transferGeoCodingTo(destP, subsetDef));
+            final GeoCoding destGeoCoding = destP.getGeoCoding();
+            assertNotNull(destGeoCoding);
+            assertEquals(true, destGeoCoding instanceof PixelGeoCoding);
+        }
     }
 
     private void copyBandTo(Product destP, Band sourceBand) {

@@ -40,7 +40,7 @@ public class ImageGeometryTest {
         lonBand.setNoDataValueUsed(true);
         product.addBand(latBand);
         product.addBand(lonBand);
-        product.setGeoCoding(new PixelGeoCoding2(latBand, lonBand, null));
+        product.setGeoCoding(GeoCodingFactory.createPixelGeoCoding(latBand, lonBand, null, 5));
 
         final Rectangle2D rect = ImageGeometry.createValidRect(product);
 

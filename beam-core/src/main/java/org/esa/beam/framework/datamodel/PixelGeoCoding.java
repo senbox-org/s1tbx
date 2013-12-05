@@ -96,7 +96,7 @@ import java.util.Vector;
  * The advantage of this algorithm is that it obviously avoids problems related
  * to the antimeridian and poles included in the source region.
  */
-public class PixelGeoCoding extends AbstractGeoCoding {
+public class PixelGeoCoding extends AbstractGeoCoding implements BasicPixelGeoCoding {
 
     /**
      * @since BEAM 4.9
@@ -358,14 +358,17 @@ public class PixelGeoCoding extends AbstractGeoCoding {
         return size;
     }
 
+    @Override
     public Band getLatBand() {
         return latBand;
     }
 
+    @Override
     public Band getLonBand() {
         return lonBand;
     }
 
+    @Override
     public String getValidMask() {
         return validMaskExpression;
     }
@@ -375,6 +378,7 @@ public class PixelGeoCoding extends AbstractGeoCoding {
      *
      * @return the underlying delegate geo-coding, can be null
      */
+    @Override
     public GeoCoding getPixelPosEstimator() {
         if (estimatorCreatedInternally) {
             return null;
@@ -387,6 +391,7 @@ public class PixelGeoCoding extends AbstractGeoCoding {
      *
      * @return the search radius in pixels
      */
+    @Override
     public int getSearchRadius() {
         return searchRadius;
     }
