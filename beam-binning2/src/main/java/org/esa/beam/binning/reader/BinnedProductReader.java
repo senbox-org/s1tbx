@@ -69,7 +69,7 @@ public class BinnedProductReader extends AbstractProductReader {
      * Reads a data product and returns an in-memory representation of it. This method is called by
      * <code>readProductNodes(input, subsetInfo)</code> of the abstract superclass.
      *
-     * @throws java.lang.IllegalArgumentException
+     * @throws IllegalArgumentException
      *                             if <code>input</code> type is not one of the supported input sources.
      * @throws java.io.IOException if an I/O error occurs
      */
@@ -308,7 +308,7 @@ public class BinnedProductReader extends AbstractProductReader {
      * <p/>
      * <p>Overrides of this method should always call <code>super.close();</code> after disposing this instance.
      *
-     * @throws IOException if an I/O error occurs
+     * @throws java.io.IOException if an I/O error occurs
      */
     @Override
     public void close() throws
@@ -366,6 +366,7 @@ public class BinnedProductReader extends AbstractProductReader {
         if (variableMetadata != null) {
             Band band = new Band(variableMetadata.name, variableMetadata.dataType, sceneRasterWidth, sceneRasterHeight);
             band.setDescription(variableMetadata.description);
+            band.setUnit(variableMetadata.variable.getUnitsString());
             band.setNoDataValue(variableMetadata.fillValue);
             band.setNoDataValueUsed(variableMetadata.fillValue != Double.NaN);
             band.setSpectralWavelength(getWavelengthFromBandName(varName));
@@ -383,6 +384,7 @@ public class BinnedProductReader extends AbstractProductReader {
 
             final Band band = new Band(bandName, variableMetadata.dataType, sceneRasterWidth, sceneRasterHeight);
             band.setDescription(variableMetadata.description);
+            band.setUnit(variableMetadata.variable.getUnitsString());
             band.setNoDataValue(variableMetadata.fillValue);
             band.setNoDataValueUsed(variableMetadata.fillValue != Double.NaN);
             band.setSpectralWavelength(getWavelengthFromBandName(varName));
@@ -411,10 +413,10 @@ public class BinnedProductReader extends AbstractProductReader {
         }
 
         Number numericValue;
-        String stringValue;
-
-        stringValue = getAttributeStringValue(variable, "comment");
-        final String description = stringValue;
+        String description = variable.getDescription();
+        if (description == null) {
+            description = getAttributeStringValue(variable, "comment");
+        }
 
         numericValue = getAttributeNumericValue(variable, "_FillValue");
         final double fillValue = numericValue != null ? numericValue.doubleValue() : Double.NaN;
