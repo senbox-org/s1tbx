@@ -40,11 +40,8 @@ public class PolsarProProductReader extends NestEnviProductReader {
     @Override
     protected Product readProductNodesImpl() throws IOException {
         final File inputFile = ReaderUtils.getFileFromInput(getInput());
-        final File[] fileList;
-        if(inputFile.isDirectory())
-            fileList = inputFile.listFiles();
-        else
-            fileList = new File[] { inputFile };
+        final File folder = inputFile.getParentFile();
+        final File[] fileList = folder.listFiles();
 
         final List<Header> headerList = new ArrayList<Header>(fileList.length);
         final HashMap<Header, File> headerFileMap = new HashMap<Header, File>(fileList.length);
@@ -112,7 +109,7 @@ public class PolsarProProductReader extends NestEnviProductReader {
         applyBeamProperties(product, mainHeader.getBeamProperties());
 
         initMetadata(product, mainHeaderFile);
-        product.setFileLocation(inputFile);
+        product.setFileLocation(mainHeaderFile);
         
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
         absRoot.setAttributeInt(AbstractMetadata.polsarData, 1);

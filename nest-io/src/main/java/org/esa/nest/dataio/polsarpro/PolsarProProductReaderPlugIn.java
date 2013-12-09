@@ -47,18 +47,24 @@ public class PolsarProProductReaderPlugIn extends EnviProductReaderPlugIn {
     @Override
     public DecodeQualification getDecodeQualification(Object input) {
         if (input instanceof File) {
-            final File folder = (File) input;
-            if(folder.isDirectory()) {
-                final FileFilter filter = new SuffixFileFilter(EnviConstants.HDR_EXTENSION);
-                for(File file : folder.listFiles(filter)) {
-                    final DecodeQualification fileQualification = super.getDecodeQualification(file);
-                    if(fileQualification != DecodeQualification.UNABLE)
-                        return fileQualification;
+            final File selectedFile = (File) input;
+            final String fname = selectedFile.getName().toLowerCase();
+            if(fname.equals("config.txt") || fname.endsWith("bin.hdr")) {
+                return DecodeQualification.INTENDED;
+            }
+
+            final File folder = selectedFile.getParentFile();
+            final File[] files = folder.listFiles();
+            if(files != null) {
+                for(File file : files) {
+                    final String name = file.getName().toLowerCase();
+                    if(name.equals("config.txt") || name.endsWith("bin.hdr")) {
+                        return DecodeQualification.INTENDED;
+                    }
                 }
-                return DecodeQualification.UNABLE;
-            } 
+            }
         } 
 
-        return DecodeQualification.UNABLE; //super.getDecodeQualification(input);
+        return DecodeQualification.UNABLE;
     }
 }
