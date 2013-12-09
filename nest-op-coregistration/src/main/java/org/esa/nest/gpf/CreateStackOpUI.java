@@ -200,6 +200,16 @@ public class CreateStackOpUI extends BaseOperatorUI {
         }
         defaultMasterBandIndices.clear();
         defaultSlaveBandIndices.clear();
+
+        if(sourceProducts.length > 1) {
+            for(int i=1; i < sourceProducts.length; ++i) {
+                if(sourceProducts[i].getDisplayName().equals(masterProduct.getDisplayName())) {
+                    masterProduct = null;
+                    return new String[] {};
+                }
+            }
+        }
+
         final List<String> bandNames = new ArrayList<String>(5);
         boolean masterBandsSelected = false;
         for(Product prod : sourceProducts) {
