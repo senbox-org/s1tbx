@@ -412,6 +412,8 @@ public final class TiePointGeoCoding extends AbstractGeoCoding {
         if (lon < -180 || lon > 180) {
             return Float.NaN;
         }
+        return lon; //commented out to fix MAX_EXTENT in createStack
+        /*
         float normalizedLon = lon;
         if (normalizedLon < normalizedLonMin) {
             normalizedLon += 360;
@@ -420,6 +422,7 @@ public final class TiePointGeoCoding extends AbstractGeoCoding {
             return Float.NaN;
         }
         return normalizedLon;
+        */
     }
 
     @Override
@@ -817,9 +820,10 @@ public final class TiePointGeoCoding extends AbstractGeoCoding {
 
     private static Approximation getBestApproximation(final Approximation[] approximations, float lat, float lon) {
         if (approximations.length == 1) {
-            Approximation a = approximations[0];
-            final float squareDistance = a.getSquareDistance(lat, lon);
-            return (squareDistance < a.getMinSquareDistance()) ? a : null;
+            return approximations[0]; // commented out to fix MAX_EXTENT in createStack
+            //Approximation a = approximations[0];
+            //final float squareDistance = a.getSquareDistance(lat, lon);
+            //return (squareDistance < a.getMinSquareDistance()) ? a : null;
         }
             Approximation approximation = null;
             float minSquareDistance = Float.MAX_VALUE;
