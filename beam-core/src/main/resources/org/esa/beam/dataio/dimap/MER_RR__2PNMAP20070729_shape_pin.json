@@ -25,8 +25,7 @@
                     "lon": 121.3042
                 }
             ],
-            "reverseAccuracy": 0.03,
-            "geoCodingClass": "org.esa.beam.framework.datamodel.TiePointGeoCoding"
+            "reverseAccuracy": 0.03
         },
         "flagCodings": [
             {

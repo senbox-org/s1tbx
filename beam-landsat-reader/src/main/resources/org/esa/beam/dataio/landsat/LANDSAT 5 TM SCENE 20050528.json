@@ -20,8 +20,7 @@
                     "lon": 7.9363995
                 }
             ],
-            "reverseAccuracy": 0.01,
-            "geoCodingClass": "org.esa.beam.framework.datamodel.MapGeoCoding"
+            "reverseAccuracy": 0.01
         },
         "bands": [
             {

@@ -21,8 +21,7 @@
                     "lon": -0.30652893
                 }
             ],
-            "reverseAccuracy": 9.0,
-            "geoCodingClass": "org.esa.beam.framework.datamodel.TiePointGeoCoding"
+            "reverseAccuracy": 9.0
         },
         "tiePointGrids": [
             {
