@@ -21,6 +21,7 @@ import com.vividsolutions.jts.geom.Geometry;
 import org.esa.beam.framework.dataio.ProductSubsetBuilder;
 import org.esa.beam.framework.dataio.ProductSubsetDef;
 import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.framework.dataop.resamp.Resampling;
 import org.esa.beam.framework.dataop.resamp.ResamplingFactory;
 import org.esa.beam.framework.gpf.Operator;
@@ -525,6 +526,7 @@ public class CreateStackOp extends Operator {
      * Maximum extents consists of the overall area
      */
     private void determinMaxExtents() throws Exception {
+        /*
         final OperatorUtils.SceneProperties scnProp = new OperatorUtils.SceneProperties();
         OperatorUtils.computeImageGeoBoundary(sourceProduct, scnProp);
 
@@ -552,6 +554,83 @@ public class CreateStackOp extends Operator {
                                     sceneWidth, sceneHeight);
 
         OperatorUtils.addGeoCoding(targetProduct, scnProp);
+        */
+
+        try {
+            final GeoCoding masterGeoCoding = masterProduct.getGeoCoding();
+
+            float xMin = 0;
+            float xMax = masterProduct.getSceneRasterWidth();
+            float yMin = 0;
+            float yMax = masterProduct.getSceneRasterHeight();
+
+            PixelPos pixelPosUL = new PixelPos();
+            PixelPos pixelPosUR = new PixelPos();
+            PixelPos pixelPosLL = new PixelPos();
+            PixelPos pixelPosLR = new PixelPos();
+            GeoPos geoPosUL = new GeoPos();
+            GeoPos geoPosUR = new GeoPos();
+            GeoPos geoPosLL = new GeoPos();
+            GeoPos geoPosLR = new GeoPos();
+
+            for (final Product slvProd : sourceProduct) {
+                if(slvProd != masterProduct) {
+                    final GeoCoding slaveGeoCoding = slvProd.getGeoCoding();
+
+                    final GeoPos geoPosFirstNear = slaveGeoCoding.getGeoPos(
+                            new PixelPos(0, 0), null);
+                    final GeoPos geoPosFirstFar = slaveGeoCoding.getGeoPos(
+                            new PixelPos(slvProd.getSceneRasterWidth() - 1, 0), null);
+                    final GeoPos geoPosLastNear = slaveGeoCoding.getGeoPos(
+                            new PixelPos(0, slvProd.getSceneRasterHeight() - 1), null);
+                    final GeoPos geoPosLastFar = slaveGeoCoding.getGeoPos(
+                            new PixelPos(slvProd.getSceneRasterWidth() - 1,
+                            slvProd.getSceneRasterHeight() - 1), null);
+
+                    masterGeoCoding.getPixelPos(geoPosFirstNear, pixelPosUL);
+                    masterGeoCoding.getPixelPos(geoPosFirstFar, pixelPosUR);
+                    masterGeoCoding.getPixelPos(geoPosLastNear, pixelPosLL);
+                    masterGeoCoding.getPixelPos(geoPosLastFar, pixelPosLR);
+
+                    final float[] xArray = {pixelPosUL.x, pixelPosUR.x, pixelPosLL.x, pixelPosLR.x};
+                    final float[] yArray = {pixelPosUL.y, pixelPosUR.y, pixelPosLL.y, pixelPosLR.y};
+
+                    for (int i = 0; i < 4; i++) {
+                        xMin = Math.min(xMin, xArray[i]);
+                        xMax = Math.max(xMax, xArray[i]);
+                        yMin = Math.min(yMin, yArray[i]);
+                        yMax = Math.max(yMax, yArray[i]);
+                    }
+                }
+            }
+
+            final int sceneWidth = (int)(xMax - xMin) + 1;
+            final int sceneHeight = (int)(yMax - yMin) + 1;
+
+            targetProduct = new Product(masterProduct.getName(), masterProduct.getProductType(), sceneWidth, sceneHeight);
+
+            masterGeoCoding.getGeoPos(new PixelPos(xMin, yMin), geoPosUL);
+            masterGeoCoding.getGeoPos(new PixelPos(xMax, yMin), geoPosUR);
+            masterGeoCoding.getGeoPos(new PixelPos(xMin, yMax), geoPosLL);
+            masterGeoCoding.getGeoPos(new PixelPos(xMax, yMax), geoPosLR);
+
+            final float[] latTiePoints = {geoPosUL.lat, geoPosUR.lat, geoPosLL.lat, geoPosLR.lat};
+            final float[] lonTiePoints = {geoPosUL.lon, geoPosUR.lon, geoPosLL.lon, geoPosLR.lon};
+
+            final TiePointGrid latGrid = new TiePointGrid("latitude", 2, 2, 0.5f, 0.5f,
+                    sceneWidth-1, sceneHeight-1, latTiePoints);
+            latGrid.setUnit(Unit.DEGREES);
+
+            final TiePointGrid lonGrid = new TiePointGrid("longitude", 2, 2, 0.5f, 0.5f,
+                    sceneWidth-1, sceneHeight-1, lonTiePoints, TiePointGrid.DISCONT_AT_180);
+            lonGrid.setUnit(Unit.DEGREES);
+
+            targetProduct.addTiePointGrid(latGrid);
+            targetProduct.addTiePointGrid(lonGrid);
+            targetProduct.setGeoCoding(new TiePointGeoCoding(latGrid, lonGrid, Datum.WGS_84));
+        } catch(Throwable e) {
+            OperatorUtils.catchOperatorException(getId(), e);
+        }
     }
 
     private void computeTargetSlaveCoordinateOffsets() {
