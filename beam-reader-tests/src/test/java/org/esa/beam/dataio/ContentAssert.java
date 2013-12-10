@@ -67,10 +67,6 @@ class ContentAssert {
             final ExpectedGeoCoding expectedGeoCoding = expectedContent.getGeoCoding();
             final GeoCoding geoCoding = product.getGeoCoding();
             assertNotNull(productId + " has no GeoCoding", geoCoding);
-            if (expectedGeoCoding.getGeoCodingClass() != null) {
-                assertEquals(productId + " has not the expected GeoCoding implementation",
-                        expectedGeoCoding.getGeoCodingClass(), product.getGeoCoding().getClass());
-            }
 
             final Float reverseAccuracy = expectedGeoCoding.getReverseAccuracy();
             final ExpectedGeoCoordinate[] coordinates = expectedGeoCoding.getCoordinates();

@@ -19,8 +19,6 @@ class ExpectedGeoCoding {
     private ExpectedGeoCoordinate[] coordinates;
     @JsonProperty()
     private Float reverseAccuracy;
-    @JsonProperty()
-    private Class<? extends GeoCoding> geoCodingClass;
 
 
     ExpectedGeoCoding() {
@@ -31,7 +29,6 @@ class ExpectedGeoCoding {
         this();
         final ArrayList<Point2D> pointList = ExpectedPixel.createPointList(product, random);
         final GeoCoding geoCoding = product.getGeoCoding();
-        geoCodingClass = geoCoding.getClass();
         coordinates = new ExpectedGeoCoordinate[pointList.size()];
         for (int i = 0; i < pointList.size(); i++) {
             Point2D point = pointList.get(i);
@@ -55,7 +52,4 @@ class ExpectedGeoCoding {
         return reverseAccuracy;
     }
 
-    Class<? extends GeoCoding> getGeoCodingClass() {
-        return geoCodingClass;
-    }
 }
