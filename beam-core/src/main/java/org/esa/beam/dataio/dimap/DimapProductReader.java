@@ -25,8 +25,8 @@ import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.FilterBand;
 import org.esa.beam.framework.datamodel.GeoCoding;
+import org.esa.beam.framework.datamodel.GeoCodingFactory;
 import org.esa.beam.framework.datamodel.GeometryDescriptor;
-import org.esa.beam.framework.datamodel.PixelGeoCoding;
 import org.esa.beam.framework.datamodel.PlacemarkDescriptor;
 import org.esa.beam.framework.datamodel.PlacemarkDescriptorRegistry;
 import org.esa.beam.framework.datamodel.Product;
@@ -191,7 +191,8 @@ public class DimapProductReader extends AbstractProductReader {
             final Band lonBand = product.getBand("longitude");
             final Band latBand = product.getBand("latitude");
             if (latBand != null && lonBand != null) {
-                product.setGeoCoding(new PixelGeoCoding(latBand, lonBand, null, 6));
+                final GeoCoding geoCoding = GeoCodingFactory.createPixelGeoCoding(latBand, lonBand, null, 6);
+                product.setGeoCoding(geoCoding);
             }
         }
     }
@@ -299,6 +300,7 @@ public class DimapProductReader extends AbstractProductReader {
      * @param destWidth     the width of region to be read given in the band's raster co-ordinates
      * @param destHeight    the height of region to be read given in the band's raster co-ordinates
      * @param pm            a monitor to inform the user about progress
+     *
      * @throws java.io.IOException if  an I/O error occurs
      * @see #getSubsetDef
      */
@@ -409,7 +411,8 @@ public class DimapProductReader extends AbstractProductReader {
     }
 
     private void readVectorData(final CoordinateReferenceSystem modelCrs, final boolean onlyGCPs) throws IOException {
-        String dataDirName = FileUtils.getFilenameWithoutExtension(inputFile) + DimapProductConstants.DIMAP_DATA_DIRECTORY_EXTENSION;
+        String dataDirName = FileUtils.getFilenameWithoutExtension(
+                inputFile) + DimapProductConstants.DIMAP_DATA_DIRECTORY_EXTENSION;
         File dataDir = new File(inputDir, dataDirName);
         File vectorDataDir = new File(dataDir, "vector_data");
         if (vectorDataDir.exists()) {
@@ -478,19 +481,24 @@ public class DimapProductReader extends AbstractProductReader {
         readerExtenders.add(extender);
     }
 
-    private static class OptimalPlacemarkDescriptorProvider implements VectorDataNodeReader.PlacemarkDescriptorProvider {
+    private static class OptimalPlacemarkDescriptorProvider
+            implements VectorDataNodeReader.PlacemarkDescriptorProvider {
 
         @Override
         public PlacemarkDescriptor getPlacemarkDescriptor(SimpleFeatureType simpleFeatureType) {
             PlacemarkDescriptorRegistry placemarkDescriptorRegistry = PlacemarkDescriptorRegistry.getInstance();
-            if (simpleFeatureType.getUserData().containsKey(PlacemarkDescriptorRegistry.PROPERTY_NAME_PLACEMARK_DESCRIPTOR)) {
-                String placemarkDescriptorClass = simpleFeatureType.getUserData().get(PlacemarkDescriptorRegistry.PROPERTY_NAME_PLACEMARK_DESCRIPTOR).toString();
-                PlacemarkDescriptor placemarkDescriptor = placemarkDescriptorRegistry.getPlacemarkDescriptor(placemarkDescriptorClass);
+            if (simpleFeatureType.getUserData().containsKey(
+                    PlacemarkDescriptorRegistry.PROPERTY_NAME_PLACEMARK_DESCRIPTOR)) {
+                String placemarkDescriptorClass = simpleFeatureType.getUserData().get(
+                        PlacemarkDescriptorRegistry.PROPERTY_NAME_PLACEMARK_DESCRIPTOR).toString();
+                PlacemarkDescriptor placemarkDescriptor = placemarkDescriptorRegistry.getPlacemarkDescriptor(
+                        placemarkDescriptorClass);
                 if (placemarkDescriptor != null) {
                     return placemarkDescriptor;
                 }
             }
-            final PlacemarkDescriptor placemarkDescriptor = placemarkDescriptorRegistry.getPlacemarkDescriptor(simpleFeatureType);
+            final PlacemarkDescriptor placemarkDescriptor = placemarkDescriptorRegistry.getPlacemarkDescriptor(
+                    simpleFeatureType);
             if (placemarkDescriptor != null) {
                 return placemarkDescriptor;
             } else {

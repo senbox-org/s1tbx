@@ -19,10 +19,11 @@ import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.dataio.AbstractProductReader;
 import org.esa.beam.framework.dataio.IllegalFileFormatException;
 import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.GeoCoding;
+import org.esa.beam.framework.datamodel.GeoCodingFactory;
 import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.MetadataAttribute;
 import org.esa.beam.framework.datamodel.MetadataElement;
-import org.esa.beam.framework.datamodel.PixelGeoCoding;
 import org.esa.beam.framework.datamodel.PointingFactory;
 import org.esa.beam.framework.datamodel.PointingFactoryRegistry;
 import org.esa.beam.framework.datamodel.Product;
@@ -403,8 +404,8 @@ public class EnvisatProductReader extends AbstractProductReader {
                 } else {
                     validMask = "l2_flags.LAND or l2_flags.CLOUD or l2_flags.WATER";
                 }
-                final PixelGeoCoding pixelGeoCoding = new PixelGeoCoding(latBand, lonBand, validMask, 6);
-                product.setGeoCoding(pixelGeoCoding);
+                final GeoCoding geoCoding = GeoCodingFactory.createPixelGeoCoding(latBand, lonBand, validMask, 6);
+                product.setGeoCoding(geoCoding);
             }
         }
     }
