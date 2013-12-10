@@ -234,7 +234,8 @@ public class CreateStackOp extends Operator {
                                 targetProduct.getSceneRasterWidth(),
                                 targetProduct.getSceneRasterHeight());
                         ProductUtils.copyRasterDataNodeProperties(srcBand, targetBand);
-                        if (srcProduct == masterProduct || srcProduct.isCompatibleProduct(targetProduct, 1.0e-3f)) {
+                        if (extent.equals(MASTER_EXTENT) &&
+                            (srcProduct == masterProduct || srcProduct.isCompatibleProduct(targetProduct, 1.0e-3f))) {
                             targetBand.setSourceImage(srcBand.getSourceImage());
                         }
 

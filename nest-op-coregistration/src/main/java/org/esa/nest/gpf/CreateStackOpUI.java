@@ -69,8 +69,8 @@ public class CreateStackOpUI extends BaseOperatorUI {
     @Override
     public void initParameters() {
 
-        enableOptimalMasterButton();
-        updateMasterSlaveSelections();
+        //enableOptimalMasterButton();
+        //updateMasterSlaveSelections();
 
         resamplingType.setSelectedItem(paramMap.get("resamplingType"));
         extent.setSelectedItem(paramMap.get("extent"));
@@ -114,8 +114,8 @@ public class CreateStackOpUI extends BaseOperatorUI {
     @Override
     public void updateParameters() {
 
-        OperatorUIUtils.updateParamList(mstBandList, paramMap, "masterBandNames");
-        OperatorUIUtils.updateParamList(slvBandList, paramMap, "slaveBandNames");
+        //OperatorUIUtils.updateParamList(mstBandList, paramMap, "masterBandNames");
+        //OperatorUIUtils.updateParamList(slvBandList, paramMap, "slaveBandNames");
 
         paramMap.put("resamplingType", resamplingType.getSelectedItem());
         paramMap.put("extent", extent.getSelectedItem());
@@ -127,7 +127,7 @@ public class CreateStackOpUI extends BaseOperatorUI {
         contentPane.setLayout(new GridBagLayout());
         final GridBagConstraints gbc = DialogUtils.createGridBagConstraints();
 
-        contentPane.add(new JLabel("Master Bands:"), gbc);
+   /*     contentPane.add(new JLabel("Master Bands:"), gbc);
 
         gbc.fill = GridBagConstraints.BOTH;
         gbc.gridx = 1;
@@ -142,7 +142,7 @@ public class CreateStackOpUI extends BaseOperatorUI {
         gbc.gridx = 1;
         contentPane.add(new JScrollPane(slvBandList), gbc);
         gbc.gridx = 0;
-        gbc.gridy++;
+        gbc.gridy++;        */
 
         DialogUtils.addComponent(contentPane, gbc, "Resampling Type:", resamplingType);
         gbc.gridy++;
@@ -183,10 +183,10 @@ public class CreateStackOpUI extends BaseOperatorUI {
         OperatorUIUtils.initParamList(slvBandList, bandNames);
 
         OperatorUIUtils.setSelectedListIndices(mstBandList, getSelectedIndices(bandNames,
-                                                                (String[])paramMap.get("masterBandNames"),
+                                                                new String[] {}, //String[])paramMap.get("masterBandNames"),
                                                                 defaultMasterBandIndices));
         OperatorUIUtils.setSelectedListIndices(slvBandList, getSelectedIndices(bandNames,
-                                                                (String[])paramMap.get("slaveBandNames"),
+                                                                new String[] {}, //(String[])paramMap.get("slaveBandNames"),
                                                                 defaultSlaveBandIndices));
     }
 

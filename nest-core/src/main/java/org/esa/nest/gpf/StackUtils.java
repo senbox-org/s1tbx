@@ -59,6 +59,9 @@ public final class StackUtils {
 
     public static void saveSlaveProductBandNames(final Product targetProduct, final String slvProductName,
                                               final String[] bandNames) {
+        if(bandNames.length == 0)
+            return;
+
         final MetadataElement targetSlaveMetadataRoot = AbstractMetadata.getSlaveMetadata(targetProduct);
         final MetadataElement elem = targetSlaveMetadataRoot.getElement(slvProductName);
         StringBuilder value = new StringBuilder(255);
@@ -115,7 +118,7 @@ public final class StackUtils {
                     boolean polExist = false;
                     for(String slvName : bandNames) {
                         final String slvPol = OperatorUtils.getPolarizationFromBandName(slvName);
-                        if(slvPol.equalsIgnoreCase(mstPol)) {
+                        if(slvPol != null && slvPol.equalsIgnoreCase(mstPol)) {
                             polExist = true;
                             if(slvName.equals(slvBandName))
                                 return elem.getName();
