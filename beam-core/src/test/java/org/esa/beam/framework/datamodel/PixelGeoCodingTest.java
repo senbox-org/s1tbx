@@ -107,7 +107,7 @@ public class PixelGeoCodingTest {
     private static void testIllegalArgumentExceptionThrownByConstructor(Band b1, Band b2, String validMask,
                                                                         int searchRadius) {
         try {
-            GeoCodingFactory.createPixelGeoCoding(b1, b2, validMask, searchRadius, ProgressMonitor.NULL);
+            new PixelGeoCoding(b1, b2, validMask, searchRadius, ProgressMonitor.NULL);
             fail();
         } catch (IOException e) {
             fail();
@@ -286,9 +286,9 @@ public class PixelGeoCodingTest {
 
     private void doTestTransferGeoCoding() throws IOException {
         Product sourceProduct = createProduct();
-        GeoCoding newGeoCoding = GeoCodingFactory.createPixelGeoCoding(sourceProduct.getBand("latBand"),
-                                                                       sourceProduct.getBand("lonBand"), null, 5,
-                                                                       ProgressMonitor.NULL);
+        GeoCoding newGeoCoding = new PixelGeoCoding(sourceProduct.getBand("latBand"),
+                                                    sourceProduct.getBand("lonBand"), null, 5,
+                                                    ProgressMonitor.NULL);
         sourceProduct.setGeoCoding(newGeoCoding);
 
         Product targetProduct = createProduct();
@@ -341,12 +341,16 @@ public class PixelGeoCodingTest {
         assertTrue(targetProduct.containsBand("latBand"));
         assertTrue(targetProduct.containsBand("lonBand"));
         assertTrue(targetProduct.containsBand("flagomat"));
-        assertTrue(targetProduct.containsTiePointGrid("latGrid"));
-        assertTrue(targetProduct.containsTiePointGrid("lonGrid"));
+        if ("true".equals(System.getProperty(GeoCodingFactory.USE_ALTERNATE_PIXEL_GEO_CODING_PROPERTY))) {
+            assertTrue(targetProduct.containsTiePointGrid("latGrid"));
+            assertTrue(targetProduct.containsTiePointGrid("lonGrid"));
+        }
         assertTrue(targetProduct.getFlagCodingGroup().contains("flags"));
 
         PixelGeoCoding targetGC = (PixelGeoCoding) targetProduct.getGeoCoding();
-        assertNotNull(targetGC.getPixelPosEstimator());
+        if ("true".equals(System.getProperty(GeoCodingFactory.USE_ALTERNATE_PIXEL_GEO_CODING_PROPERTY))) {
+            assertNotNull(targetGC.getPixelPosEstimator());
+        }
 
         final GeoPos sourceGeoPos = sourceProduct.getGeoCoding().getGeoPos(new PixelPos(2.5f, 2.5f), null);
         final GeoPos targetGeoPos = targetProduct.getGeoCoding().getGeoPos(new PixelPos(0.0f, 0.0f), null);

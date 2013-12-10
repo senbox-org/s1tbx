@@ -29,15 +29,16 @@ import java.io.IOException;
 
 public class GeoCodingFactory {
 
+    public static final String USE_ALTERNATE_PIXEL_GEO_CODING_PROPERTY = "beam.useAlternatePixelGeoCoding";
+
     public static BasicPixelGeoCoding createPixelGeoCoding(final Band latBand,
                                                            final Band lonBand,
                                                            final String validMask,
                                                            final int searchRadius) {
-        if ("true".equals(System.getProperty("beam.usePixelGeoCoding2"))) {
-            return new PixelGeoCoding2(latBand, lonBand, validMask);
-        } else {
+        if ("true".equals(System.getProperty(USE_ALTERNATE_PIXEL_GEO_CODING_PROPERTY))) {
             return new PixelGeoCoding(latBand, lonBand, validMask, searchRadius);
         }
+        return new PixelGeoCoding2(latBand, lonBand, validMask);
     }
 
     public static BasicPixelGeoCoding createPixelGeoCoding(final Band latBand,
@@ -45,11 +46,10 @@ public class GeoCodingFactory {
                                                            final String validMask,
                                                            final int searchRadius,
                                                            ProgressMonitor pm) throws IOException {
-        if ("true".equals(System.getProperty("beam.usePixelGeoCoding2"))) {
-            return new PixelGeoCoding2(latBand, lonBand, validMask);
-        } else {
+        if ("true".equals(System.getProperty(USE_ALTERNATE_PIXEL_GEO_CODING_PROPERTY))) {
             return new PixelGeoCoding(latBand, lonBand, validMask, searchRadius, pm); // this is a special constructor
         }
+        return new PixelGeoCoding2(latBand, lonBand, validMask);
     }
 
     static void copyReferencedRasters(String validMaskExpression,

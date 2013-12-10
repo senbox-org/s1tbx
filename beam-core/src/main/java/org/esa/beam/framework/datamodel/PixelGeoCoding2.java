@@ -391,8 +391,35 @@ class PixelGeoCoding2 extends AbstractGeoCoding implements BasicPixelGeoCoding {
     }
 
     @Override
-    public boolean transferGeoCoding(final Scene sourceScene, final Scene targetScene,
+    public boolean transferGeoCoding(final Scene srcScene, final Scene destScene,
                                      final ProductSubsetDef subsetDef) {
+        final Band srcLatBand = getLatBand();
+        final Product destProduct = destScene.getProduct();
+        Band latBand = destProduct.getBand(srcLatBand.getName());
+        if (latBand == null) {
+            latBand = GeoCodingFactory.createSubset(srcLatBand, destScene, subsetDef);
+            destProduct.addBand(latBand);
+        }
+        final Band srcLonBand = getLonBand();
+        Band lonBand = destProduct.getBand(srcLonBand.getName());
+        if (lonBand == null) {
+            lonBand = GeoCodingFactory.createSubset(srcLonBand, destScene, subsetDef);
+            destProduct.addBand(lonBand);
+        }
+        String validMaskExpression = getValidMask();
+        try {
+            if (validMaskExpression != null) {
+                GeoCodingFactory.copyReferencedRasters(validMaskExpression, srcScene, destScene, subsetDef);
+            }
+        } catch (ParseException ignored) {
+            validMaskExpression = null;
+        }
+        destScene.setGeoCoding(new PixelGeoCoding(latBand, lonBand,
+                                                  validMaskExpression,
+                                                  getSearchRadius()));
+        return true;
+
+        /*
         final Product targetProduct = targetScene.getProduct();
         Band targetLatBand = targetProduct.getBand(latBand.getName());
         if (targetLatBand == null) {
@@ -415,6 +442,7 @@ class PixelGeoCoding2 extends AbstractGeoCoding implements BasicPixelGeoCoding {
         targetScene.setGeoCoding(new PixelGeoCoding2(targetLatBand, targetLonBand, validMaskExpression));
 
         return true;
+        */
     }
 
     /**
