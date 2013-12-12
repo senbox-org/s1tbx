@@ -158,49 +158,20 @@ public class ProductSubsetBuilder extends AbstractProductBuilder {
 
         final MetadataElement SRGRCoefficientsElem = absRoot.getElement("SRGR_Coefficients");
         if(SRGRCoefficientsElem != null) {
-            final ProductData.UTC startTimeUTC = targetProduct.getStartTime();
-            final ProductData.UTC endTimeUTC = targetProduct.getEndTime();
-            final double startTime = startTimeUTC==null ? 0 : startTimeUTC.getMJD();
-            final double endTime = endTimeUTC==null ? 0 : endTimeUTC.getMJD();
             final double rangeSpacing = absRoot.getAttributeDouble("RANGE_SPACING", 0);
             final double colIndex = subsetDef.getRegion() == null ? 0 : subsetDef.getRegion().getX();
 
-            // find item before start time
-            MetadataElement itemBeforeStart = null;
-            if(startTimeUTC != null && endTimeUTC != null) {
-                for(MetadataElement srgrList : SRGRCoefficientsElem.getElements()) {
-                    final ProductData.UTC time = srgrList.getAttributeUTC("zero_doppler_time");
-                    if(time.getMJD() < startTime) {
-                        if(itemBeforeStart == null) {
-                            itemBeforeStart = srgrList;
-                        } else {
-                            final ProductData.UTC maxTimeSoFar = itemBeforeStart.getAttributeUTC("zero_doppler_time");
-                            if(maxTimeSoFar.getMJD() < time.getMJD()) {
-                                itemBeforeStart = srgrList;
-                            }
-                        }
-                    }
-                }
-            }
             for(MetadataElement srgrList : SRGRCoefficientsElem.getElements()) {
-                final ProductData.UTC time = srgrList.getAttributeUTC("zero_doppler_time");
-                if(startTimeUTC != null && endTimeUTC != null &&
-                   (time.getMJD() < startTime || time.getMJD() > endTime) &&
-                        srgrList != itemBeforeStart) {
-                    SRGRCoefficientsElem.removeElement(srgrList);
+                final double grO = srgrList.getAttributeDouble("ground_range_origin", 0);
+                double ground_range_origin_subset;
+                if (nearRangeOnLeft) {
+                    ground_range_origin_subset = grO + colIndex*rangeSpacing;
                 } else {
-
-                    final double grO = srgrList.getAttributeDouble("ground_range_origin", 0);
-                    double ground_range_origin_subset;
-                    if (nearRangeOnLeft) {
-                        ground_range_origin_subset = grO + colIndex*rangeSpacing;
-                    } else {
-                        final double colIndexFromRight = sourceProduct.getSceneRasterWidth() - colIndex -
-                                                         targetProduct.getSceneRasterWidth();
-                        ground_range_origin_subset = grO + colIndexFromRight*rangeSpacing;
-                    }
-                    srgrList.setAttributeDouble("ground_range_origin", ground_range_origin_subset);
+                    final double colIndexFromRight = sourceProduct.getSceneRasterWidth() - colIndex -
+                                                     targetProduct.getSceneRasterWidth();
+                    ground_range_origin_subset = grO + colIndexFromRight*rangeSpacing;
                 }
+                srgrList.setAttributeDouble("ground_range_origin", ground_range_origin_subset);
             }
         }
     }
