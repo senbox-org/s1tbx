@@ -7,11 +7,11 @@ import java.io.File;
  */
 public class TestInfo {
 
-    final int num;
-    final File graphFile;
-    final File inputFolder;
-    final File expectedFolder;
-    final File outputFolder;
+    public final int num;
+    public final File graphFile;
+    public final File inputFolder;
+    public final File expectedFolder;
+    public final File outputFolder;
 
     public TestInfo(final int num, final String graph, final String input_products,
                     final String expected_results, final String output_products) {

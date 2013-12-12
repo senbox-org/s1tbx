@@ -4,7 +4,6 @@ import org.esa.beam.util.PropertyMap;
 import org.esa.nest.util.Config;
 import org.esa.nest.util.ResourceUtils;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -14,13 +13,16 @@ import java.util.Properties;
  */
 public class TestConfig {
 
-    final Properties prop = Config.getAutomatedTestConfigPropertyMap().getProperties();
-    private final static String contextID = ResourceUtils.getContextID();
-
+    private final Properties prop;
     private final List<TestInfo> testList = new ArrayList<TestInfo>(20);
     private int maxProductsPerInputFolder = -1;
 
-    public TestConfig() throws Exception {
+    public TestConfig(final String name) throws Exception {
+        final PropertyMap propMap = Config.getAutomatedTestConfigPropertyMap(name);
+        if(propMap == null)
+            throw new Exception("Test config "+name+" not found");
+
+        prop = propMap.getProperties();
         importTests();
     }
 
@@ -33,7 +35,7 @@ public class TestConfig {
     }
 
     private void importTests() throws Exception {
-        final String prefix = contextID+".test.";
+        final String prefix = "test.";
 
         String maxIn = readProp("maxProductsPerInputFolder");
         if(maxIn != null) {

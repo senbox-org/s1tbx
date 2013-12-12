@@ -2,71 +2,72 @@ package org.esa.nest;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.apache.commons.io.FileUtils;
-import org.apache.log4j.Logger;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.GPF;
-import org.esa.beam.util.PropertyMap;
+import org.esa.beam.util.logging.BeamLogManager;
 import org.esa.nest.gpf.GPFProcessor;
-import org.esa.nest.util.Config;
 import org.esa.nest.util.MemUtils;
-import org.esa.nest.util.ResourceUtils;
+import org.esa.nest.util.ProcessTimeMonitor;
 import org.esa.nest.util.TestUtils;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
+import java.util.logging.Logger;
 
 /**
  * Runs graphs as directed by the tests config file
  */
-@Ignore
-public class TestAutomatedGraphProcessing {
-
-    private static final PropertyMap testPreferences = Config.getAutomatedTestConfigPropertyMap();
-    private final static String contextID = ResourceUtils.getContextID();
-
-    private final List<TestInfo> testList = new ArrayList<TestInfo>(20);
-    private static final Logger log = Logger.getLogger("Test");
+public abstract class TestAutomatedGraphProcessing {
 
     private final boolean failOnFirstProblem = true;
-    private int maxNumberOfInputProducts = -1;
+    protected TestConfig config = null;
+
+    protected abstract String getTestFileName();
 
     @Before
     public void setUp() throws Exception {
         TestUtils.initTestEnvironment();
         GPF.getDefaultInstance().getOperatorSpiRegistry().loadOperatorSpis();
 
-        importTests();
+        config = new TestConfig(getTestFileName());
     }
 
     @Test
     public void testAutomatedGraphProcessing() throws Throwable {
+        if(config == null)
+            throw new Exception("Config not initialized in test");
 
+        final ProcessTimeMonitor timeMonitor = new ProcessTimeMonitor();
+        long totalTime = 0;
+
+        final List<TestInfo> testList = config.getTestList();
         for(TestInfo test : testList) {
             try {
                 final ArrayList<File> productList = new ArrayList<>(100);
-                TestUtils.recurseFindReadableProducts(test.inputFolder, productList, maxNumberOfInputProducts);
+                TestUtils.recurseFindReadableProducts(test.inputFolder, productList, config.getMaxProductsPerInputFolder());
                 int c;
                 int numFiles = productList.size();
+
+                TestUtils.log.info(test.num+" "+test.graphFile.getAbsolutePath()+" on "+test.inputFolder);
 
                 if(test.expectedFolder != null) {
                     // generate expected if needed
                     c = 1;
                     for(File file : productList) {
                         try {
-                            final File expectedFile = getOutputProductFile(new File(test.expectedFolder, file.getName()));
+                            final String expectedName = pad(c)+'_'+file.getName();
+                            final File expectedFile = getOutputProductFile(new File(test.expectedFolder, expectedName));
                             if(!expectedFile.exists()) {
-                                log.info(test.num+" ("+c+" of "+numFiles+") "+
-                                        "Generating expected " + test.graphFile.getName() +' '+ file.getName());
+                                TestUtils.log.info(test.num+" ("+c+" of "+numFiles+") "+
+                                        "Generating expected " + test.graphFile.getName() +' '+ expectedName);
 
                                 final GPFProcessor proc = new GPFProcessor(test.graphFile);
-                                proc.setIO(file, new File(test.expectedFolder, file.getName()), "BEAM-DIMAP");
+                                proc.setIO(file, new File(test.expectedFolder, expectedName), null);
                                 proc.executeGraph(ProgressMonitor.NULL);
 
                                 MemUtils.freeAllMemory();
@@ -83,27 +84,42 @@ public class TestAutomatedGraphProcessing {
                 // process output
                 c = 1;
                 for(File file : productList) {
-                    log.info(test.num+" ("+c+" of "+numFiles+") "+
-                            "Processing " + test.graphFile.getName() + ' ' + file.getName());
+                    final String outputName = pad(c)+'_'+file.getName();
+                    TestUtils.log.info(test.num+" ("+c+" of "+numFiles+") "+
+                            "Processing " + test.graphFile.getName() + ' ' + outputName);
+
+                    // Start Benchmark
+                    timeMonitor.start();
 
                     final GPFProcessor proc = new GPFProcessor(test.graphFile);
-                    proc.setIO(file, new File(test.outputFolder, file.getName()), "BEAM-DIMAP");
+                    proc.setIO(file, new File(test.outputFolder, outputName), null);
                     proc.executeGraph(ProgressMonitor.NULL);
 
+                    final long duration = timeMonitor.stop();
+                    totalTime += duration;
+                    TestUtils.log.info(test.num+" time: "+ ProcessTimeMonitor.formatDuration(duration) +" ("+ duration +" s)");
+                    // End Benchmark
+
                     if(test.expectedFolder != null) {
-                        final File outputFile = getOutputProductFile(new File(test.outputFolder, file.getName()));
-                        final File expectedFile = getOutputProductFile(new File(test.expectedFolder, file.getName()));
+                        final File outputFile = getOutputProductFile(new File(test.outputFolder, outputName));
+                        final File expectedFile = getOutputProductFile(new File(test.expectedFolder, outputName));
 
-                        final Product outputProduct = ProductIO.readProduct(outputFile);
-                        final Product expectedProduct = ProductIO.readProduct(expectedFile);
+                        if(outputFile.exists()) {
+                            final Product outputProduct = ProductIO.readProduct(outputFile);
+                            final Product expectedProduct = ProductIO.readProduct(expectedFile);
 
-                        // compare output to expected
-                        TestUtils.compareProducts(outputProduct, expectedProduct);
+                            // compare output to expected
+                            TestUtils.compareProducts(outputProduct, expectedProduct);
+                        }
                     }
 
                     MemUtils.freeAllMemory();
                     ++c;
                 }
+
+                long duration = totalTime / (long)(c);
+                TestUtils.log.info(test.num+" total time: "+ ProcessTimeMonitor.formatDuration(totalTime)
+                        +", avg time: "+ ProcessTimeMonitor.formatDuration(duration) +" ("+ duration +" s)");
 
             } catch(Throwable t) {
                 if(failOnFirstProblem)
@@ -114,42 +130,18 @@ public class TestAutomatedGraphProcessing {
         }
     }
 
-    private void importTests() throws Exception {
-        final String prefix = contextID+".test.";
-
-        final Properties prop = testPreferences.getProperties();
-        String maxIn = prop.getProperty("rstb.test.maxProductsPerInputFolder");
-        if(maxIn != null) {
-            maxNumberOfInputProducts = Integer.parseInt(maxIn);
+    private static String pad(final int c) {
+        StringBuilder str = new StringBuilder(String.valueOf(c));
+        if(c < 1000) {
+            str.insert(0, '0');
         }
-
-        final int numProperties = prop.size()/4;
-        for(int i=0; i < numProperties; ++i) {
-            final String key = prefix+i;
-            final String graph = prop.getProperty(key + ".graph");
-            if(graph != null) {
-                final String skip = prop.getProperty(key + ".skip");
-                if(skip != null && skip.equalsIgnoreCase("true")) {
-                    continue;
-                }
-
-                final String input_products = prop.getProperty(key + ".input_products");
-                final String expected_results = prop.getProperty(key + ".expected_results");
-                final String output_products = prop.getProperty(key + ".output_products");
-
-                if(input_products == null || output_products == null) {
-                    throw new Exception("Test configuration "+key+" is incomplete");
-                }
-
-                final TestInfo test = new TestInfo(i, graph, input_products, expected_results, output_products);
-                if(!test.graphFile.exists())
-                    throw new Exception(test.graphFile.getAbsolutePath() +" does not exist for "+key);
-                if(!test.inputFolder.exists())
-                    throw new Exception(test.inputFolder.getAbsolutePath() +" does not exist for "+key);
-
-                testList.add(test);
-            }
+        if(c < 100) {
+            str.insert(0, '0');
         }
+        if(c < 10) {
+            str.insert(0, '0');
+        }
+        return str.toString();
     }
 
     private static void deleteOldOutput(final TestInfo test, final ArrayList<File> productList) throws Throwable {
@@ -165,7 +157,20 @@ public class TestAutomatedGraphProcessing {
 
     private static File getOutputProductFile(File file) {
         if(!file.exists()) {
-            file = new File(file.getParentFile(), file.getName()+".dim");
+            final File[] files = file.getParentFile().listFiles();
+            boolean found = false;
+            if(files != null) {
+                for(File f : files) {
+                    if(!f.isDirectory() && f.getName().startsWith(file.getName())) {
+                        file = f;
+                        found = true;
+                        break;
+                    }
+                }
+            }
+            if(!found) {
+                file = new File(file.getParentFile(), file.getName()+".dim");
+            }
         }
         return file;
     }
@@ -177,25 +182,5 @@ public class TestAutomatedGraphProcessing {
             FileUtils.deleteDirectory(dataFolder);
         }
         return file.delete();
-    }
-
-    private static class TestInfo {
-        final int num;
-        final File graphFile;
-        final File inputFolder;
-        final File expectedFolder;
-        final File outputFolder;
-
-        public TestInfo(final int num, final String graph, final String input_products,
-                        final String expected_results, final String output_products) {
-            this.num = num;
-            this.graphFile = new File(graph);
-            this.inputFolder = new File(input_products);
-            if(expected_results != null)
-                this.expectedFolder = new File(expected_results);
-            else
-                this.expectedFolder = null;
-            this.outputFolder = new File(output_products);
-        }
     }
 }
