@@ -392,7 +392,7 @@ public class RangeDopplerGeocodingOp extends Operator {
 
         if (srgrFlag) {
             srgrConvParams = AbstractMetadata.getSRGRCoefficients(absRoot);
-            if (srgrConvParams == null) {
+            if (srgrConvParams == null || srgrConvParams.length == 0) {
                 throw new OperatorException("Invalid SRGR Coefficients");
             }
         } else {
@@ -777,7 +777,7 @@ public class RangeDopplerGeocodingOp extends Operator {
      * @throws OperatorException if an error occurs during computation of the target rasters.
      */
     @Override
-    public void computeTileStack(Map<Band, Tile> targetTiles, Rectangle targetRectangle, ProgressMonitor pm) throws OperatorException {
+    public synchronized void computeTileStack(Map<Band, Tile> targetTiles, Rectangle targetRectangle, ProgressMonitor pm) throws OperatorException {
 
         processingStarted = true;
         try {
