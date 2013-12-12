@@ -9,12 +9,15 @@ import java.util.List;
 
 public class DisplayableSpectrum implements Spectrum {
 
+    public final static String mixed_units = "mixed units";
+
     private List<Band> bands;
     private List<Boolean> areBandsSelected;
     private String name;
     private Stroke lineStyle;
     private Shape Symbol;
     private boolean isSelected;
+    private String unit;
 
     public DisplayableSpectrum(String spectrumName) {
         this(spectrumName, new Band[]{});
@@ -25,8 +28,7 @@ public class DisplayableSpectrum implements Spectrum {
         bands = new ArrayList<Band>(spectralBands.length);
         areBandsSelected = new ArrayList<Boolean>();
         for (Band spectralBand : spectralBands) {
-            bands.add(spectralBand);
-            areBandsSelected.add(true);
+            addBand(spectralBand);
         }
         setSelected(true);
     }
@@ -34,6 +36,11 @@ public class DisplayableSpectrum implements Spectrum {
     public void addBand(Band band) {
         bands.add(band);
         areBandsSelected.add(true);
+        if (unit == null) {
+            unit = band.getUnit();
+        } else if (!unit.equals(band.getUnit())) {
+            unit = mixed_units;
+        }
     }
 
     public boolean hasBands() {
@@ -93,5 +100,9 @@ public class DisplayableSpectrum implements Spectrum {
 
     public boolean isSelected() {
         return isSelected;
+    }
+
+    public String getUnit() {
+        return unit;
     }
 }
