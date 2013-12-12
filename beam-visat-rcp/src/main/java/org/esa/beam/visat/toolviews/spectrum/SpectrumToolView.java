@@ -133,7 +133,7 @@ public class SpectrumToolView extends AbstractToolView {
         pinSelectionChangeListener = new PinSelectionChangeListener();
         productToAllSpectraMap = new HashMap<Product, List<DisplayableSpectrum>>();
         pixelPositionListener = new CursorSpectrumPixelPositionListener(this);
-        final JFreeChart chart = ChartFactory.createXYLineChart(CHART_TITLE, "Wavelength (nm)", "mW/(m^2*sr*nm)", null, PlotOrientation.VERTICAL, true, true, false);
+        final JFreeChart chart = ChartFactory.createXYLineChart(CHART_TITLE, "Wavelength (nm)", "", null, PlotOrientation.VERTICAL, true, true, false);
         chartPanel = new ChartPanel(chart);
         chartHandler = new ChartHandler(chart);
     }
@@ -691,6 +691,15 @@ public class SpectrumToolView extends AbstractToolView {
                 }
             }
             chart.getXYPlot().setDataset(dataset);
+            String unitToBeDisplayed = spectra.get(0).getUnit();
+            int i = 1;
+            while (i < spectra.size() && !unitToBeDisplayed.equals(DisplayableSpectrum.mixed_units)) {
+                DisplayableSpectrum displayableSpectrum = spectra.get(i++);
+                if (!unitToBeDisplayed.equals(displayableSpectrum.getUnit())) {
+                    unitToBeDisplayed = DisplayableSpectrum.mixed_units;
+                }
+            }
+            chart.getXYPlot().getRangeAxis().setLabel(unitToBeDisplayed);
         }
 
         private void fillDatasetWithCursorSeries(List<DisplayableSpectrum> spectra, XYSeriesCollection dataset, JFreeChart chart) {
