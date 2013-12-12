@@ -1069,7 +1069,7 @@ public abstract class ProductFile {
             try {
                 sensingStart = mph.getParamDate(KEY_SENSING_START);
             } catch (HeaderParseException e) {
-                getLogger().warning("failed to parse header parameter 'SENSING_START': " + e.getMessage());
+                getLogger().warning("failed to parse header parameter 'SENSING_START': " + e.getMessage()+file.getAbsolutePath());
             }
             try {
                 sensingStop = mph.getParamDate(KEY_SENSING_STOP);

@@ -101,26 +101,26 @@ public class TestProductDao extends TestCase {
     }
 
     public void testGetAllMissions() throws SQLException {
-        System.out.println("Missions:");
+        TestUtils.log.info("Missions:");
         final String[] missions = db.getAllMissions();
         for(String str : missions) {
-            System.out.println(str);
+            TestUtils.log.info(str);
         }
     }
 
     public void testGetENVISATProductTypes() throws SQLException {
-        System.out.println("ENVISAT productTypes:");
+        TestUtils.log.info("ENVISAT productTypes:");
         final String[] productTypes = db.getProductTypes(new String[] { "ENVISAT" });
         for(String str : productTypes) {
-            System.out.println(str);
+            TestUtils.log.info(str);
         }
     }
 
     public void testGetAllProductTypes() throws SQLException {
-        System.out.println("All productTypes:");
+        TestUtils.log.info("All productTypes:");
         final String[] productTypes = db.getAllProductTypes();
         for(String str : productTypes) {
-            System.out.println(str);
+            TestUtils.log.info(str);
         }
     }
 

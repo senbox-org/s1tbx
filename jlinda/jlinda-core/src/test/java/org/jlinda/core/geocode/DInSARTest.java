@@ -2,7 +2,7 @@ package org.jlinda.core.geocode;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
-import org.apache.commons.lang.time.StopWatch;
+import org.perf4j.StopWatch;
 import org.jblas.ComplexDouble;
 import org.jblas.ComplexDoubleMatrix;
 import org.jblas.DoubleMatrix;
@@ -120,7 +120,7 @@ public class DInSARTest {
         dinsar.dinsar();
         watch.stop();
 
-        logger.info("Total processing time: {} milli-seconds", watch.getTime());
+        logger.info("Total processing time: {} milli-seconds", watch.getElapsedTime());
 
         // subtracted expected minus computed and convert to deformation : check on +/- 0.001m level
         ComplexDoubleMatrix expected = SarUtils.computeIfg(defoCplxIfg, dinsar.getDefoData());
@@ -148,7 +148,7 @@ public class DInSARTest {
         dinsar.applyDInSAR(tileWindow, defoData, topoPhase);
         watch.stop();
 
-        logger.info("Total processing time: {} milli-seconds", watch.getTime());
+        logger.info("Total processing time: {} milli-seconds", watch.getElapsedTime());
 
         // subtracted expected minus computed and convert to deformation : check on +/- 0.001m level
         ComplexDoubleMatrix expected = SarUtils.computeIfg(defoCplxIfg, defoData);

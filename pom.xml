@@ -25,7 +25,7 @@
 		<hdf.version>2.7</hdf.version>
 		<netcdf.version>4.2.20</netcdf.version>
 		<nest.version>6.0-SNAPSHOT</nest.version>
-		<jlinda.version>0.7-SNAPSHOT</jlinda.version>
+		<jlinda.version>0.8-SNAPSHOT</jlinda.version>
 		<rstb.version>5.7</rstb.version>
 		<outputdir>../output</outputdir>
 	</properties>

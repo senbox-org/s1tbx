@@ -73,7 +73,7 @@ public class TestGeocoding extends TestCase {
             errorX += Math.abs(pix1.getX()-pix2.getX());
             errorY += Math.abs(pix1.getY()-pix2.getY());
 
-            System.out.println(pix1.getX()+" == "+pix2.getX()+", "+pix1.getY()+" == "+pix2.getY());
+            TestUtils.log.info(pix1.getX()+" == "+pix2.getX()+", "+pix1.getY()+" == "+pix2.getY());
             ++n;
         }
         System.out.println("\nerrorX="+errorX);

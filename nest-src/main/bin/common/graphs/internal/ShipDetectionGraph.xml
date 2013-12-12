@@ -32,7 +32,7 @@
       <targetWindowSizeInMeter>80</targetWindowSizeInMeter>
       <guardWindowSizeInMeter>400</guardWindowSizeInMeter>
       <backgroundWindowSizeInMeter>1000</backgroundWindowSizeInMeter>
-      <pfa>6.5</pfa>
+      <pfa>12.5</pfa>
     </parameters>
   </node>
   <node id="4-Object-Discrimination">

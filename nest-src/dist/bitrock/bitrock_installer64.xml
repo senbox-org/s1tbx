@@ -37,34 +37,34 @@
                     <platforms>all</platforms>
                     <distributionFileList>
                         <distributionDirectory>
-                            <origin>../../../target/nest-5.0-bin-win64.dir/auxdata</origin>
+                            <origin>../../../target/nest-5.1-bin-win64.dir/auxdata</origin>
                         </distributionDirectory>
                         <distributionDirectory>
-                            <origin>../../../target/nest-5.0-bin-win64.dir/bin</origin>
+                            <origin>../../../target/nest-5.1-bin-win64.dir/bin</origin>
                         </distributionDirectory>
                         <distributionDirectory>
-                            <origin>../../../target/nest-5.0-bin-win64.dir/commandline</origin>
+                            <origin>../../../target/nest-5.1-bin-win64.dir/commandline</origin>
                         </distributionDirectory>
                         <distributionDirectory>
-                            <origin>../../../target/nest-5.0-bin-win64.dir/config</origin>
+                            <origin>../../../target/nest-5.1-bin-win64.dir/config</origin>
                         </distributionDirectory>
                         <distributionDirectory>
-                            <origin>../../../target/nest-5.0-bin-win64.dir/graphs</origin>
+                            <origin>../../../target/nest-5.1-bin-win64.dir/graphs</origin>
                         </distributionDirectory>
                         <distributionDirectory>
-                            <origin>../../../target/nest-5.0-bin-win64.dir/images</origin>
+                            <origin>../../../target/nest-5.1-bin-win64.dir/images</origin>
                         </distributionDirectory>
                         <distributionDirectory>
-                            <origin>../../../target/nest-5.0-bin-win64.dir/lib</origin>
+                            <origin>../../../target/nest-5.1-bin-win64.dir/lib</origin>
                         </distributionDirectory>
                         <distributionDirectory>
-                            <origin>../../../target/nest-5.0-bin-win64.dir/licenses</origin>
+                            <origin>../../../target/nest-5.1-bin-win64.dir/licenses</origin>
                         </distributionDirectory>
                         <distributionDirectory>
-                            <origin>../../../target/nest-5.0-bin-win64.dir/modules</origin>
+                            <origin>../../../target/nest-5.1-bin-win64.dir/modules</origin>
                         </distributionDirectory>
                         <distributionDirectory>
-                            <origin>../../../target/nest-5.0-bin-win64.dir/res</origin>
+                            <origin>../../../target/nest-5.1-bin-win64.dir/res</origin>
                         </distributionDirectory>
                     </distributionFileList>
                     <shortcutList>
@@ -91,73 +91,73 @@
                     <platforms>windows</platforms>
                     <distributionFileList>
                         <distributionFile>
-                            <origin>../../../target/nest-5.0-bin-win64.dir/cli.bat</origin>
+                            <origin>../../../target/nest-5.1-bin-win64.dir/cli.bat</origin>
                         </distributionFile>
                         <distributionFile>
-                            <origin>../../../target/nest-5.0-bin-win64.dir/clib_jiio.dll</origin>
+                            <origin>../../../target/nest-5.1-bin-win64.dir/clib_jiio.dll</origin>
                         </distributionFile>
                         <distributionFile>
-                            <origin>../../../target/nest-5.0-bin-win64.dir/clib_jiio_sse2.dll</origin>
+                            <origin>../../../target/nest-5.1-bin-win64.dir/clib_jiio_sse2.dll</origin>
                         </distributionFile>
                         <distributionFile>
-                            <origin>../../../target/nest-5.0-bin-win64.dir/clib_jiio_util.dll</origin>
+                            <origin>../../../target/nest-5.1-bin-win64.dir/clib_jiio_util.dll</origin>
                         </distributionFile>
                         <distributionFile>
-                            <origin>../../../target/nest-5.0-bin-win64.dir/dat.bat</origin>
+                            <origin>../../../target/nest-5.1-bin-win64.dir/dat.bat</origin>
                         </distributionFile>
                         <distributionFile>
-                            <origin>../../../target/nest-5.0-bin-win64.dir/gluegen-rt.dll</origin>
+                            <origin>../../../target/nest-5.1-bin-win64.dir/gluegen-rt.dll</origin>
                         </distributionFile>
                         <distributionFile>
-                            <origin>../../../target/nest-5.0-bin-win64.dir/gpt.bat</origin>
+                            <origin>../../../target/nest-5.1-bin-win64.dir/gpt.bat</origin>
                         </distributionFile>
                         <distributionFile>
-                            <origin>../../../target/nest-5.0-bin-win64.dir/jogl.dll</origin>
+                            <origin>../../../target/nest-5.1-bin-win64.dir/jogl.dll</origin>
                         </distributionFile>
                         <distributionFile>
-                            <origin>../../../target/nest-5.0-bin-win64.dir/jogl_awt.dll</origin>
+                            <origin>../../../target/nest-5.1-bin-win64.dir/jogl_awt.dll</origin>
                         </distributionFile>
                         <distributionFile>
-                            <origin>../../../target/nest-5.0-bin-win64.dir/jogl_cg.dll</origin>
+                            <origin>../../../target/nest-5.1-bin-win64.dir/jogl_cg.dll</origin>
                         </distributionFile>
                         <distributionFile>
-                            <origin>../../../target/nest-5.0-bin-win64.dir/nest-dat64.exe</origin>
+                            <origin>../../../target/nest-5.1-bin-win64.dir/nest-dat64.exe</origin>
                         </distributionFile>
                         <distributionFile>
-                            <origin>../../../target/nest-5.0-bin-win64.dir/post-uninstall.bat</origin>
+                            <origin>../../../target/nest-5.1-bin-win64.dir/post-uninstall.bat</origin>
                         </distributionFile>
                         <distributionFile>
-                            <origin>../../../target/nest-5.0-bin-win64.dir/jhdf5.dll</origin>
+                            <origin>../../../target/nest-5.1-bin-win64.dir/jhdf5.dll</origin>
                         </distributionFile>
                         <distributionFile>
-                            <origin>../../../target/nest-5.0-bin-win64.dir/jhdf.dll</origin>
+                            <origin>../../../target/nest-5.1-bin-win64.dir/jhdf.dll</origin>
                         </distributionFile>
                         <distributionDirectory>
-                            <origin>../../../target/nest-5.0-bin-win64.dir/jre</origin>
+                            <origin>../../../target/nest-5.1-bin-win64.dir/jre</origin>
                         </distributionDirectory>
                         <distributionFile>
-                            <origin>../../../target/nest-5.0-bin-win64.dir/nest-dat64.l4j.ini</origin>
+                            <origin>../../../target/nest-5.1-bin-win64.dir/nest-dat64.l4j.ini</origin>
                         </distributionFile>
                         <distributionFile>
-                            <origin>../../../target/nest-5.0-bin-win64.dir/nest-clean.bat</origin>
+                            <origin>../../../target/nest-5.1-bin-win64.dir/nest-clean.bat</origin>
                         </distributionFile>
                         <distributionFile>
-                            <origin>../../../target/nest-5.0-bin-win64.dir/LIBGFORTRAN-3.dll</origin>
+                            <origin>../../../target/nest-5.1-bin-win64.dir/LIBGFORTRAN-3.dll</origin>
                         </distributionFile>
                         <distributionFile>
-                            <origin>../../../target/nest-5.0-bin-win64.dir/CYGGCC_S-1.dll</origin>
+                            <origin>../../../target/nest-5.1-bin-win64.dir/CYGGCC_S-1.dll</origin>
                         </distributionFile>
                         <distributionFile>
-                            <origin>../../../target/nest-5.0-bin-win64.dir/IESHIMS.dll</origin>
+                            <origin>../../../target/nest-5.1-bin-win64.dir/IESHIMS.dll</origin>
                         </distributionFile>
                         <distributionFile>
-                            <origin>../../../target/nest-5.0-bin-win64.dir/LIBGCC_S_SJLJ-1.dll</origin>
+                            <origin>../../../target/nest-5.1-bin-win64.dir/LIBGCC_S_SJLJ-1.dll</origin>
                         </distributionFile>
                         <distributionFile>
-                            <origin>../../../target/nest-5.0-bin-win64.dir/CYGWIN1.dll</origin>
+                            <origin>../../../target/nest-5.1-bin-win64.dir/CYGWIN1.dll</origin>
                         </distributionFile>
                         <distributionFile>
-                            <origin>../../../target/nest-5.0-bin-win64.dir/autoupdate-windows.exe</origin>
+                            <origin>../../../target/nest-5.1-bin-win64.dir/autoupdate-windows.exe</origin>
                         </distributionFile>
                     </distributionFileList>
                 </folder>

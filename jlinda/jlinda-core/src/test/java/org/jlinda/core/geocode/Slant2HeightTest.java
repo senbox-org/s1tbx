@@ -3,7 +3,7 @@ package org.jlinda.core.geocode;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
-import org.apache.commons.lang.time.StopWatch;
+import org.perf4j.StopWatch;
 import org.jblas.DoubleMatrix;
 import org.jlinda.core.Orbit;
 import org.jlinda.core.SLCImage;
@@ -130,7 +130,7 @@ public class Slant2HeightTest {
         tempSlant.schwabischTotal();
         watch.stop();
 
-        logger.info("Total processing time TOTAL: {} milli-seconds", watch.getTime());
+        logger.info("Total processing time TOTAL: {} milli-seconds", watch.getElapsedTime());
         Assert.assertArrayEquals(heights.toArray(), tempSlant.getTile().toArray(), DELTA_02);
 
     }
@@ -153,7 +153,7 @@ public class Slant2HeightTest {
         slant.schwabisch();
         slant.applySchwabisch(tileWindow, inputTile);
         watch.stop();
-        logger.info("Total processing time for Slant2Height Schwabisch method: {} milli-seconds", watch.getTime());
+        logger.info("Total processing time for Slant2Height Schwabisch method: {} milli-seconds", watch.getElapsedTime());
 
         Assert.assertArrayEquals(heights.toArray(), inputTile.toArray(), DELTA_02);
 

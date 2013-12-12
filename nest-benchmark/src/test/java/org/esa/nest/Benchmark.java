@@ -1,9 +1,6 @@
 package org.esa.nest;
 
 import com.bc.ceres.core.ProgressMonitor;
-import com.bc.ceres.core.runtime.RuntimeConfig;
-import com.bc.ceres.core.runtime.RuntimeConfigException;
-import com.bc.ceres.core.runtime.internal.DefaultRuntimeConfig;
 import junit.framework.TestCase;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.GPF;
@@ -14,8 +11,8 @@ import org.esa.beam.gpf.operators.standard.WriteOp;
 import org.esa.nest.datamodel.AbstractMetadata;
 import org.esa.nest.util.MemUtils;
 import org.esa.nest.util.ProcessTimeMonitor;
+import org.esa.nest.util.TestUtils;
 
-import javax.media.jai.JAI;
 import java.io.File;
 
 /**
@@ -27,7 +24,7 @@ public abstract class Benchmark extends TestCase {
 
     public Benchmark() {
         try {
-            initTestEnvironment();
+            TestUtils.initTestEnvironment();
             DataSets.instance();
 
             spi = CreateOperatorSpi();
@@ -35,15 +32,6 @@ public abstract class Benchmark extends TestCase {
         } catch(Throwable t) {
             t.printStackTrace();
         }
-    }
-
-    private static void initTestEnvironment() throws RuntimeConfigException {
-        final RuntimeConfig runtimeConfig = new DefaultRuntimeConfig();
-
-        JAI.getDefaultInstance().getTileScheduler().setParallelism(Runtime.getRuntime().availableProcessors());
-
-        //disable JAI media library
-        System.setProperty("com.sun.media.jai.disableMediaLib", "true");
     }
 
     @Override

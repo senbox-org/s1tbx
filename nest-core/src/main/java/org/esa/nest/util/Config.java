@@ -20,6 +20,10 @@ import org.esa.beam.util.SystemUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * loads the nest.config file
@@ -27,16 +31,35 @@ import java.io.IOException;
 public class Config {
 
     private final PropertyMap configPrefs = new PropertyMap();
-    private final PropertyMap testPrefs = new PropertyMap();
+    private final Map<String, PropertyMap> testPrefs = new HashMap<String, PropertyMap>(10);
     private static Config instance = null;
 
     private Config() {
         try {
             configPrefs.load(new File(SystemUtils.getApplicationHomeDir(), "config"+File.separator+SystemUtils.getApplicationContextId()+".config"));
-            testPrefs.load(new File(SystemUtils.getApplicationHomeDir(), "config"+File.separator+SystemUtils.getApplicationContextId()+".tests"));
+
+            final File[] testFiles = getTestFiles(new File(SystemUtils.getApplicationHomeDir(), "config"));
+            for(File testFile : testFiles) {
+                PropertyMap testPref = new PropertyMap();
+                testPref.load(testFile);
+                testPrefs.put(testFile.getName(), testPref);
+            }
         } catch(IOException e) {
             System.out.println("Unable to load config preferences "+e.getMessage());
         }
+    }
+
+    private static File[] getTestFiles(final File folder) {
+        final List<File> testFiles = new ArrayList<File>(10);
+        final File[] files = folder.listFiles();
+        if(files != null) {
+            for(File file : files) {
+                if(file.getName().toLowerCase().endsWith(".tests")) {
+                    testFiles.add(file);
+                }
+            }
+        }
+        return testFiles.toArray(new File[testFiles.size()]);
     }
 
     public static PropertyMap getConfigPropertyMap() {
@@ -46,10 +69,10 @@ public class Config {
         return instance.configPrefs;
     }
 
-    public static PropertyMap getAutomatedTestConfigPropertyMap() {
+    public static PropertyMap getAutomatedTestConfigPropertyMap(final String name) {
         if(instance == null) {
             instance = new Config();
         }
-        return instance.testPrefs;
+        return instance.testPrefs.get(name);
     }
 }

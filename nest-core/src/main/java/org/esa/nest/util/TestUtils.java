@@ -30,6 +30,7 @@ import org.esa.beam.gpf.operators.standard.WriteOp;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.PropertyMap;
 import org.esa.beam.util.jai.JAIUtils;
+import org.esa.beam.util.logging.BeamLogManager;
 import org.esa.nest.datamodel.AbstractMetadata;
 import org.esa.nest.gpf.ReaderUtils;
 import org.esa.nest.gpf.RecursiveProcessor;
@@ -40,6 +41,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.logging.Logger;
 
 /**
  * Utilities for Operator unit tests
@@ -48,7 +50,9 @@ import java.util.Arrays;
  */
 public class TestUtils {
 
-    private static final PropertyMap testPreferences = Config.getAutomatedTestConfigPropertyMap();
+    public static final Logger log = BeamLogManager.getSystemLogger();
+
+    private static final PropertyMap testPreferences = Config.getAutomatedTestConfigPropertyMap("nest.tests");
 
     private final static String contextID = ResourceUtils.getContextID();
     public final static String rootPathExpectedProducts = testPreferences.getPropertyString(contextID+".test.rootPathExpectedProducts");
@@ -76,8 +80,12 @@ public class TestUtils {
 
     private static final boolean DEBUG = false;
     private static final boolean FailOnSkip = false;
+    private static boolean testEnviromentInitialized = false;
 
     public static void initTestEnvironment() throws RuntimeConfigException {
+        if(testEnviromentInitialized)
+            return;
+
         final RuntimeConfig runtimeConfig = new DefaultRuntimeConfig();
 
         JAI.getDefaultInstance().getTileScheduler().setParallelism(Runtime.getRuntime().availableProcessors());
@@ -85,6 +93,7 @@ public class TestUtils {
 
         //disable JAI media library
         System.setProperty("com.sun.media.jai.disableMediaLib", "true");
+        testEnviromentInitialized = true;
     }
 
     public static int getMaxIterations() {
@@ -393,26 +402,26 @@ public class TestUtils {
                     final Operator op = spi.createOperator();
                     op.setSourceProduct(sourceProduct);
 
-                    System.out.println(spi.getOperatorAlias()+" Processing "+ file.toString());
+                    TestUtils.log.info(spi.getOperatorAlias()+" Processing "+ file.toString());
                     TestUtils.executeOperator(op);
 
                     ++iterations;
                 } else {
-                    System.out.println(file.getAbsolutePath() + " is non valid");
+                    TestUtils.log.warning(file.getAbsolutePath() + " is non valid");
                 }
             } catch(Exception e) {
                 boolean ok = false;
                 if(exceptionExemptions != null) {
-                    for(String excemption : exceptionExemptions) {
-                        if(e.getMessage().contains(excemption)) {
+                    for(String exemption : exceptionExemptions) {
+                        if(e.getMessage().contains(exemption)) {
                             ok = true;
-                            System.out.println("Excemption for "+e.getMessage());
+                            TestUtils.log.info("Exemption for "+e.getMessage());
                             break;
                         }
                     }
                 }
                 if(!ok) {
-                    System.out.println("Failed to process "+ file.toString());
+                    TestUtils.log.severe("Failed to process "+ file.toString());
                     throw e;
                 }
             }

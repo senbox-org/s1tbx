@@ -36,37 +36,37 @@
                     <platforms>all</platforms>
                     <distributionFileList>
                         <distributionDirectory>
-                            <origin>../../../target/nest-5.0-bin-win64.dir/auxdata</origin>
+                            <origin>../../../target/nest-5.1-bin-win64.dir/auxdata</origin>
                         </distributionDirectory>
                         <distributionDirectory>
-                            <origin>../../../target/nest-5.0-bin-win64.dir/bin</origin>
+                            <origin>../../../target/nest-5.1-bin-win64.dir/bin</origin>
                         </distributionDirectory>
                         <distributionDirectory>
-                            <origin>../../../target/nest-5.0-bin-win64.dir/commandline</origin>
+                            <origin>../../../target/nest-5.1-bin-win64.dir/commandline</origin>
                         </distributionDirectory>
                         <distributionDirectory>
-                            <origin>../../../target/nest-5.0-bin-win64.dir/config</origin>
+                            <origin>../../../target/nest-5.1-bin-win64.dir/config</origin>
                         </distributionDirectory>
                         <distributionDirectory>
-                            <origin>../../../target/nest-5.0-bin-win64.dir/graphs</origin>
+                            <origin>../../../target/nest-5.1-bin-win64.dir/graphs</origin>
                         </distributionDirectory>
                         <distributionDirectory>
-                            <origin>../../../target/nest-5.0-bin-win64.dir/images</origin>
+                            <origin>../../../target/nest-5.1-bin-win64.dir/images</origin>
                         </distributionDirectory>
                         <distributionDirectory>
-                            <origin>../../../target/nest-5.0-bin-win64.dir/lib</origin>
+                            <origin>../../../target/nest-5.1-bin-win64.dir/lib</origin>
                         </distributionDirectory>
                         <distributionDirectory>
-                            <origin>../../../target/nest-5.0-bin-win64.dir/licenses</origin>
+                            <origin>../../../target/nest-5.1-bin-win64.dir/licenses</origin>
                         </distributionDirectory>
                         <distributionDirectory>
-                            <origin>../../../target/nest-5.0-bin-win64.dir/modules</origin>
+                            <origin>../../../target/nest-5.1-bin-win64.dir/modules</origin>
                         </distributionDirectory>
                         <distributionDirectory>
-                            <origin>../../../target/nest-5.0-bin-win64.dir/res</origin>
+                            <origin>../../../target/nest-5.1-bin-win64.dir/res</origin>
                         </distributionDirectory>
                         <distributionFile>
-                            <origin>../../../target/nest-5.0-bin-win64.dir/readme.txt</origin>
+                            <origin>../../../target/nest-5.1-bin-win64.dir/readme.txt</origin>
                         </distributionFile>
                     </distributionFileList>
                     <shortcutList>
@@ -93,28 +93,28 @@
                     <platforms>linux</platforms>
                     <distributionFileList>
                         <distributionFile>
-                            <origin>../../../target/nest-5.0-bin-linux.dir/dat.sh</origin>
+                            <origin>../../../target/nest-5.1-bin-linux.dir/dat.sh</origin>
                         </distributionFile>
                         <distributionFile>
-                            <origin>../../../target/nest-5.0-bin-linux.dir/gpt.sh</origin>
+                            <origin>../../../target/nest-5.1-bin-linux.dir/gpt.sh</origin>
                         </distributionFile>
                         <distributionFile>
-                            <origin>../../../target/nest-5.0-bin-linux.dir/libgluegen-rt.so</origin>
+                            <origin>../../../target/nest-5.1-bin-linux.dir/libgluegen-rt.so</origin>
                         </distributionFile>
                         <distributionFile>
-                            <origin>../../../target/nest-5.0-bin-linux.dir/libjogl.so</origin>
+                            <origin>../../../target/nest-5.1-bin-linux.dir/libjogl.so</origin>
                         </distributionFile>
                         <distributionFile>
-                            <origin>../../../target/nest-5.0-bin-linux.dir/libjogl_awt.so</origin>
+                            <origin>../../../target/nest-5.1-bin-linux.dir/libjogl_awt.so</origin>
                         </distributionFile>
                         <distributionFile>
-                            <origin>../../../target/nest-5.0-bin-linux.dir/libjogl_cg.so</origin>
+                            <origin>../../../target/nest-5.1-bin-linux.dir/libjogl_cg.so</origin>
                         </distributionFile>
                         <distributionDirectory>
-                            <origin>../../../target/nest-5.0-bin-linux.dir/jre</origin>
+                            <origin>../../../target/nest-5.1-bin-linux.dir/jre</origin>
                         </distributionDirectory>
                         <distributionFile>
-                            <origin>../../../target/nest-5.0-bin-linux.dir/autoupdate-linux.run</origin>
+                            <origin>../../../target/nest-5.1-bin-linux.dir/autoupdate-linux.run</origin>
                         </distributionFile>
                     </distributionFileList>
                 </folder>
@@ -125,58 +125,58 @@
                     <platforms>windows</platforms>
                     <distributionFileList>
                         <distributionFile>
-                            <origin>../../../target/nest-5.0-bin-win.dir/cli.bat</origin>
+                            <origin>../../../target/nest-5.1-bin-win.dir/cli.bat</origin>
                         </distributionFile>
                         <distributionFile>
-                            <origin>../../../target/nest-5.0-bin-win.dir/clib_jiio.dll</origin>
+                            <origin>../../../target/nest-5.1-bin-win.dir/clib_jiio.dll</origin>
                         </distributionFile>
                         <distributionFile>
-                            <origin>../../../target/nest-5.0-bin-win.dir/clib_jiio_sse2.dll</origin>
+                            <origin>../../../target/nest-5.1-bin-win.dir/clib_jiio_sse2.dll</origin>
                         </distributionFile>
                         <distributionFile>
-                            <origin>../../../target/nest-5.0-bin-win.dir/clib_jiio_util.dll</origin>
+                            <origin>../../../target/nest-5.1-bin-win.dir/clib_jiio_util.dll</origin>
                         </distributionFile>
                         <distributionFile>
-                            <origin>../../../target/nest-5.0-bin-win.dir/dat.bat</origin>
+                            <origin>../../../target/nest-5.1-bin-win.dir/dat.bat</origin>
                         </distributionFile>
                         <distributionFile>
-                            <origin>../../../target/nest-5.0-bin-win.dir/gluegen-rt.dll</origin>
+                            <origin>../../../target/nest-5.1-bin-win.dir/gluegen-rt.dll</origin>
                         </distributionFile>
                         <distributionFile>
-                            <origin>../../../target/nest-5.0-bin-win.dir/gpt.bat</origin>
+                            <origin>../../../target/nest-5.1-bin-win.dir/gpt.bat</origin>
                         </distributionFile>
                         <distributionFile>
-                            <origin>../../../target/nest-5.0-bin-win.dir/jhdf5.dll</origin>
+                            <origin>../../../target/nest-5.1-bin-win.dir/jhdf5.dll</origin>
                         </distributionFile>
                         <distributionFile>
-                            <origin>../../../target/nest-5.0-bin-win.dir/jhdf.dll</origin>
+                            <origin>../../../target/nest-5.1-bin-win.dir/jhdf.dll</origin>
                         </distributionFile>
                         <distributionFile>
-                            <origin>../../../target/nest-5.0-bin-win.dir/jogl.dll</origin>
+                            <origin>../../../target/nest-5.1-bin-win.dir/jogl.dll</origin>
                         </distributionFile>
                         <distributionFile>
-                            <origin>../../../target/nest-5.0-bin-win.dir/jogl_awt.dll</origin>
+                            <origin>../../../target/nest-5.1-bin-win.dir/jogl_awt.dll</origin>
                         </distributionFile>
                         <distributionFile>
-                            <origin>../../../target/nest-5.0-bin-win.dir/jogl_cg.dll</origin>
+                            <origin>../../../target/nest-5.1-bin-win.dir/jogl_cg.dll</origin>
                         </distributionFile>
                         <distributionFile>
-                            <origin>../../../target/nest-5.0-bin-win.dir/nest-dat.exe</origin>
+                            <origin>../../../target/nest-5.1-bin-win.dir/nest-dat.exe</origin>
                         </distributionFile>
                         <distributionFile>
-                            <origin>../../../target/nest-5.0-bin-win.dir/post-uninstall.bat</origin>
+                            <origin>../../../target/nest-5.1-bin-win.dir/post-uninstall.bat</origin>
                         </distributionFile>
                         <distributionDirectory>
-                            <origin>../../../target/nest-5.0-bin-win.dir/jre</origin>
+                            <origin>../../../target/nest-5.1-bin-win.dir/jre</origin>
                         </distributionDirectory>
                         <distributionFile>
-                            <origin>../../../target/nest-5.0-bin-win.dir/nest-dat.l4j.ini</origin>
+                            <origin>../../../target/nest-5.1-bin-win.dir/nest-dat.l4j.ini</origin>
                         </distributionFile>
                         <distributionFile>
-                            <origin>../../../target/nest-5.0-bin-win.dir/nest-clean.bat</origin>
+                            <origin>../../../target/nest-5.1-bin-win.dir/nest-clean.bat</origin>
                         </distributionFile>
                         <distributionFile>
-                            <origin>../../../target/nest-5.0-bin-win.dir/autoupdate-windows.exe</origin>
+                            <origin>../../../target/nest-5.1-bin-win.dir/autoupdate-windows.exe</origin>
                         </distributionFile>
                     </distributionFileList>
                 </folder>
@@ -187,31 +187,31 @@
                     <platforms>linux-x64</platforms>
                     <distributionFileList>
                         <distributionFile>
-                            <origin>../../../target/nest-5.0-bin-linux64.dir/dat.sh</origin>
+                            <origin>../../../target/nest-5.1-bin-linux64.dir/dat.sh</origin>
                         </distributionFile>
                         <distributionFile>
-                            <origin>../../../target/nest-5.0-bin-linux64.dir/gpt.sh</origin>
+                            <origin>../../../target/nest-5.1-bin-linux64.dir/gpt.sh</origin>
                         </distributionFile>
                         <distributionDirectory>
-                            <origin>../../../target/nest-5.0-bin-linux64.dir/jre</origin>
+                            <origin>../../../target/nest-5.1-bin-linux64.dir/jre</origin>
                         </distributionDirectory>
                         <distributionFile>
-                            <origin>../../../target/nest-5.0-bin-linux64.dir/libclib_jiio.so</origin>
+                            <origin>../../../target/nest-5.1-bin-linux64.dir/libclib_jiio.so</origin>
                         </distributionFile>
                         <distributionFile>
-                            <origin>../../../target/nest-5.0-bin-linux64.dir/libgluegen-rt.so</origin>
+                            <origin>../../../target/nest-5.1-bin-linux64.dir/libgluegen-rt.so</origin>
                         </distributionFile>
                         <distributionFile>
-                            <origin>../../../target/nest-5.0-bin-linux64.dir/libjogl.so</origin>
+                            <origin>../../../target/nest-5.1-bin-linux64.dir/libjogl.so</origin>
                         </distributionFile>
                         <distributionFile>
-                            <origin>../../../target/nest-5.0-bin-linux64.dir/libjogl_awt.so</origin>
+                            <origin>../../../target/nest-5.1-bin-linux64.dir/libjogl_awt.so</origin>
                         </distributionFile>
                         <distributionFile>
-                            <origin>../../../target/nest-5.0-bin-linux64.dir/libjogl_cg.so</origin>
+                            <origin>../../../target/nest-5.1-bin-linux64.dir/libjogl_cg.so</origin>
                         </distributionFile>
                         <distributionFile>
-                            <origin>../../../target/nest-5.0-bin-linux64.dir/autoupdate-linux-x64.run</origin>
+                            <origin>../../../target/nest-5.1-bin-linux64.dir/autoupdate-linux-x64.run</origin>
                         </distributionFile>
                     </distributionFileList>
                 </folder>
@@ -222,40 +222,40 @@
                     <platforms>osx</platforms>
                     <distributionFileList>
                         <distributionFile>
-                            <origin>../../../target/nest-5.0-bin-mac.dir/dat.command</origin>
+                            <origin>../../../target/nest-5.1-bin-mac.dir/dat.command</origin>
                         </distributionFile>
                         <distributionFile>
-                            <origin>../../../target/nest-5.0-bin-mac.dir/gpt.command</origin>
+                            <origin>../../../target/nest-5.1-bin-mac.dir/gpt.command</origin>
                         </distributionFile>
                         <distributionFile>
-                            <origin>../../../target/nest-5.0-bin-mac.dir/libgluegen-rt.jnilib</origin>
+                            <origin>../../../target/nest-5.1-bin-mac.dir/libgluegen-rt.jnilib</origin>
                         </distributionFile>
                         <distributionFile>
-                            <origin>../../../target/nest-5.0-bin-mac.dir/libjhdf.jnilib</origin>
+                            <origin>../../../target/nest-5.1-bin-mac.dir/libjhdf.jnilib</origin>
                         </distributionFile>
                         <distributionFile>
-                            <origin>../../../target/nest-5.0-bin-mac.dir/libjhdf5.jnilib</origin>
+                            <origin>../../../target/nest-5.1-bin-mac.dir/libjhdf5.jnilib</origin>
                         </distributionFile>
                         <distributionFile>
-                            <origin>../../../target/nest-5.0-bin-mac.dir/libjogl.jnilib</origin>
+                            <origin>../../../target/nest-5.1-bin-mac.dir/libjogl.jnilib</origin>
                         </distributionFile>
                         <distributionFile>
-                            <origin>../../../target/nest-5.0-bin-mac.dir/libjogl_awt.jnilib</origin>
+                            <origin>../../../target/nest-5.1-bin-mac.dir/libjogl_awt.jnilib</origin>
                         </distributionFile>
                         <distributionFile>
-                            <origin>../../../target/nest-5.0-bin-mac.dir/libjogl_cg.jnilib</origin>
+                            <origin>../../../target/nest-5.1-bin-mac.dir/libjogl_cg.jnilib</origin>
                         </distributionFile>
                         <distributionDirectory>
-                            <origin>../../../target/nest-5.0-bin-mac.dir/NEST.app</origin>
+                            <origin>../../../target/nest-5.1-bin-mac.dir/NEST.app</origin>
                         </distributionDirectory>
                         <distributionDirectory>
-                            <origin>../../../target/nest-5.0-bin-mac.dir/__MACOSX</origin>
+                            <origin>../../../target/nest-5.1-bin-mac.dir/__MACOSX</origin>
                         </distributionDirectory>
                         <distributionDirectory>
-                            <origin>../../../target/nest-5.0-bin-mac.dir/autoupdate-osx.app</origin>
+                            <origin>../../../target/nest-5.1-bin-mac.dir/autoupdate-osx.app</origin>
                         </distributionDirectory>
                         <distributionDirectory>
-                            <origin>../../../target/nest-5.0-bin-mac.dir/jre</origin>
+                            <origin>../../../target/nest-5.1-bin-mac.dir/jre</origin>
                         </distributionDirectory>
                     </distributionFileList>
                 </folder>

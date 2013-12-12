@@ -1,5 +1,6 @@
 package org.jlinda.core.utils;
 
+import org.apache.commons.math.util.FastMath;
 import org.apache.log4j.Logger;
 import org.jblas.ComplexDouble;
 import org.jblas.ComplexDoubleMatrix;
@@ -151,6 +152,14 @@ public class SarUtils {
 
     public static DoubleMatrix magnitude(final ComplexDoubleMatrix inputMatrix) {
         return sqrt(intensity(inputMatrix));
+    }
+
+    public static DoubleMatrix angle(final ComplexDoubleMatrix cplxData) {
+        DoubleMatrix phaseData = new DoubleMatrix(cplxData.rows, cplxData.columns);
+        for (int i = 0; i < cplxData.length; i++) {
+            phaseData.put(i, FastMath.atan2(cplxData.getImag(i), cplxData.getReal(i)));
+        }
+        return phaseData;
     }
 
     @Deprecated

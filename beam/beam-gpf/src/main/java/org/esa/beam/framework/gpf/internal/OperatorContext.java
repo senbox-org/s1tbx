@@ -140,7 +140,7 @@ public class OperatorContext {
             image.setTileCache(null);
         } else if (image.getTileCache() == null) {
             image.setTileCache(getTileCache());
-            BeamLogManager.getSystemLogger().info(String.format("Tile cache assigned to %s", image));
+            BeamLogManager.getSystemLogger().fine(String.format("Tile cache assigned to %s", image));
         }
     }
 
@@ -154,7 +154,7 @@ public class OperatorContext {
             } else {
                 tileCache = JAI.getDefaultInstance().getTileCache();
             }
-            BeamLogManager.getSystemLogger().info(String.format("All GPF operators will share an instance of %s with a capacity of %dM",
+            BeamLogManager.getSystemLogger().fine(String.format("All GPF operators will share an instance of %s with a capacity of %dM",
                                                                 tileCache.getClass().getName(),
                                                                 tileCache.getMemoryCapacity() / (1024 * 1024)));
         }

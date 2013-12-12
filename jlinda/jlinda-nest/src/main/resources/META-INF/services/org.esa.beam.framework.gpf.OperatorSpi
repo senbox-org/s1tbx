@@ -10,7 +10,8 @@ org.jlinda.nest.gpf.PhaseFilterOp$Spi
 org.jlinda.nest.gpf.unwrapping.SnaphuExportOp$Spi
 org.jlinda.nest.gpf.unwrapping.SnaphuImportOp$Spi
 org.jlinda.nest.gpf.CrossResamplingOp$Spi
-org.jlinda.nest.gpf.CrossResamplingOp$Spi
 org.jlinda.nest.gpf.coregistration.CreateInSARStackOp$Spi
 org.jlinda.nest.gpf.coregistration.CoarseFineCoregOp$Spi
 org.jlinda.nest.gpf.coregistration.ResampleOp$Spi
+org.jlinda.nest.gpf.unwrapping.UnwrapOp$Spi
+org.jlinda.nest.gpf.unwrapping.external.StitchOp$Spi

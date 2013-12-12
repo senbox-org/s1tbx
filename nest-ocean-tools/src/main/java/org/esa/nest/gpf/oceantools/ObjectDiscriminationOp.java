@@ -60,11 +60,11 @@ public class ObjectDiscriminationOp extends Operator {
     @TargetProduct
     private Product targetProduct = null;
 
-    @Parameter(description = "Minimum target size", defaultValue = "80.0", label="Minimum Target Size (m)")
-    private double minTargetSizeInMeter = 80.0;
+    @Parameter(description = "Minimum target size", defaultValue = "120.0", label="Minimum Target Size (m)")
+    private double minTargetSizeInMeter = 120.0;
 
-    @Parameter(description = "Maximum target size", defaultValue = "400.0", label="Maximum Target Size (m)")
-    private double maxTargetSizeInMeter = 400.0;
+    @Parameter(description = "Maximum target size", defaultValue = "600.0", label="Maximum Target Size (m)")
+    private double maxTargetSizeInMeter = 600.0;
 
     private boolean clusteringPerformed = false;
     private int sourceImageWidth = 0;

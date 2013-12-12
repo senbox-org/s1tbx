@@ -31,7 +31,7 @@
       <targetWindowSizeInMeter>75</targetWindowSizeInMeter>
       <guardWindowSizeInMeter>400.0</guardWindowSizeInMeter>
       <backgroundWindowSizeInMeter>1000.0</backgroundWindowSizeInMeter>
-      <pfa>6.5</pfa>
+      <pfa>12.5</pfa>
     </parameters>
   </node>
   <node id="4-Object-Discrimination">
@@ -40,8 +40,8 @@
       <sourceProduct refid="3-AdaptiveThresholding"/>
     </sources>
     <parameters>
-      <minTargetSizeInMeter>80.0</minTargetSizeInMeter>
-      <maxTargetSizeInMeter>400.0</maxTargetSizeInMeter>
+      <minTargetSizeInMeter>120.0</minTargetSizeInMeter>
+      <maxTargetSizeInMeter>600.0</maxTargetSizeInMeter>
     </parameters>
   </node>
   <node id="5-Oil-Spill-Detection">

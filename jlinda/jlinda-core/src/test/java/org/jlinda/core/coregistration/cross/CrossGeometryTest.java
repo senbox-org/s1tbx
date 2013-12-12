@@ -2,7 +2,7 @@ package org.jlinda.core.coregistration.cross;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
-import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.jblas.DoubleMatrix;
 import org.jlinda.core.Window;
 import org.jlinda.core.utils.MathUtils;

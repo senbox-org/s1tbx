@@ -18,6 +18,7 @@ package org.esa.nest.dataio.imageio;
 import junit.framework.TestCase;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.nest.util.TestUtils;
 
 import javax.imageio.ImageIO;
 import java.io.File;
@@ -42,6 +43,7 @@ public class TestImageIOReader extends TestCase {
     public void setUp() throws Exception {
         super.setUp();
 
+        TestUtils.initTestEnvironment();
         readerPlugin = new ImageIOReaderPlugIn();
         reader = readerPlugin.createReaderInstance();
     }
@@ -61,13 +63,13 @@ public class TestImageIOReader extends TestCase {
         String[] writerSuffixes = ImageIO.getWriterFileSuffixes();
 
         for(String s : readerFormats)
-            System.out.println("ImageIOreader: " + s);
+            TestUtils.log.info("ImageIOreader: " + s);
         for(String s : readerSuffixes)
-            System.out.println("ImageIOreaderSuffix: " + s);
+            TestUtils.log.info("ImageIOreaderSuffix: " + s);
         for(String s : writerFormats)
-            System.out.println("ImageIOwriter: " + s);
+            TestUtils.log.info("ImageIOwriter: " + s);
         for(String s : writerSuffixes)
-            System.out.println("ImageIOwriterSuffix: " + s);
+            TestUtils.log.info("ImageIOwriterSuffix: " + s);
     }
 
     public void testOpen() throws IOException
