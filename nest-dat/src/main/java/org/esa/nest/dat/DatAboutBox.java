@@ -202,7 +202,7 @@ class DatAboutBox extends ModalDialog {
                 "<tr><td>" +
                 "&nbsp;&nbsp;<b>Hao Chen</b> (research associate)<br>" +
                 "</td><td>" +
-                "&nbsp;&nbsp;<b>David Hill</b> (Analyst)<br>" +
+                "&nbsp;&nbsp;<b>David Hill</b> (analyst)<br>" +
                 "</td></tr>" +
                 "</table>" +
                 "<b>Geological Survey of Canada</b> (GSC):" +
