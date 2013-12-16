@@ -499,12 +499,13 @@ public class SpectrumToolView extends AbstractToolView {
             while (iterator.hasNext()) {
                 final String spectrumName = iterator.next()[0];
                 DisplayableSpectrum spectrum = new DisplayableSpectrum(spectrumName);
+                final boolean isSelected = autoGrouping.indexOf(getCurrentView().getRaster().getName()) == groupIndex;
+                spectrum.setSelected(isSelected);
                 for (Band availableSpectralBand : availableSpectralBands) {
                     if (autoGrouping.indexOf(availableSpectralBand.getName()) == groupIndex) {
-                        spectrum.addBand(availableSpectralBand);
+                        spectrum.addBand(availableSpectralBand, isSelected);
                     }
                 }
-                spectrum.setSelected(autoGrouping.indexOf(getCurrentView().getRaster().getName()) == groupIndex);
                 groupIndex++;
                 if (spectrum.hasBands()) {
                     spectra.add(spectrum);

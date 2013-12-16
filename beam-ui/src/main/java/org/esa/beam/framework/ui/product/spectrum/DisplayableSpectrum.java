@@ -28,14 +28,14 @@ public class DisplayableSpectrum implements Spectrum {
         bands = new ArrayList<Band>(spectralBands.length);
         areBandsSelected = new ArrayList<Boolean>();
         for (Band spectralBand : spectralBands) {
-            addBand(spectralBand);
+            addBand(spectralBand, true);
         }
         setSelected(true);
     }
 
-    public void addBand(Band band) {
+    public void addBand(Band band, boolean selected) {
         bands.add(band);
-        areBandsSelected.add(true);
+        areBandsSelected.add(selected);
         if (unit == null) {
             unit = band.getUnit();
         } else if (!unit.equals(band.getUnit())) {
