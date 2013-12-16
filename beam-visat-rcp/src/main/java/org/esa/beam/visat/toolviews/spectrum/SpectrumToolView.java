@@ -504,9 +504,7 @@ public class SpectrumToolView extends AbstractToolView {
                         spectrum.addBand(availableSpectralBand);
                     }
                 }
-                if (groupIndex != 0) {
-                    spectrum.setSelected(false);
-                }
+                spectrum.setSelected(autoGrouping.indexOf(getCurrentView().getRaster().getName()) == groupIndex);
                 groupIndex++;
                 if (spectrum.hasBands()) {
                     spectra.add(spectrum);
