@@ -35,6 +35,13 @@
     <description>Provides the bootstrap classpath to launch VISAT from your favourite IDE.</description>
 
     <dependencies>
+
+        <dependency>
+            <groupId>gov.nasa.gsfc.seadas</groupId>
+            <artifactId>seadas-reader</artifactId>
+            <version>1.4.2</version>
+        </dependency>
+
         <dependency>
             <groupId>com.bc.ceres</groupId>
             <artifactId>ceres-launcher</artifactId>

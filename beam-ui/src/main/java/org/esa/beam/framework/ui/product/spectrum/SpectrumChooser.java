@@ -4,6 +4,7 @@ import com.jidesoft.grid.AutoFilterTableHeader;
 import com.jidesoft.grid.HierarchicalTable;
 import com.jidesoft.grid.HierarchicalTableComponentFactory;
 import com.jidesoft.grid.HierarchicalTableModel;
+import com.jidesoft.grid.JideTable;
 import com.jidesoft.grid.SortableTable;
 import com.jidesoft.grid.TreeLikeHierarchicalPanel;
 import org.esa.beam.framework.datamodel.Band;
@@ -246,7 +247,12 @@ public class SpectrumChooser extends ModalDialog {
             if (value == null) {
                 return new JPanel();
             }
-            TableModel model = (TableModel) value;
+            TableModel model;
+            if (value instanceof JideTable) {
+                model = ((JideTable) value).getModel();
+            } else {
+                model = (TableModel) value;
+            }
             SortableTable bandsTable = new SortableTable(model);
             bandsTable.setEnabled((Boolean) spectraTable.getValueAt(row, spectrumSelectedIndex));
             AutoFilterTableHeader bandsHeader = new AutoFilterTableHeader(bandsTable);
