@@ -20,13 +20,19 @@ import org.esa.beam.framework.dataio.ProductSubsetDef;
 import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.Guardian;
+import org.esa.beam.util.jai.SingleBandedSampleModel;
 import org.esa.beam.util.math.DistanceCalculator;
 import org.esa.beam.util.math.MathUtils;
 import org.esa.beam.util.math.SinusoidalDistanceCalculator;
 
+import javax.media.jai.ImageLayout;
+import javax.media.jai.JAI;
 import javax.media.jai.PlanarImage;
+import javax.media.jai.RenderedOp;
 import javax.media.jai.operator.ConstantDescriptor;
+import java.awt.*;
 import java.awt.geom.Dimension2D;
+import java.awt.image.DataBuffer;
 import java.awt.image.Raster;
 
 /**
@@ -122,22 +128,19 @@ class PixelGeoCoding2 extends AbstractGeoCoding implements BasicPixelGeoCoding {
                     }
                 }
                 if (maskImage == null) {
+                    // TODO - ensure that tile layout of lat and lon images is used
                     maskImage = (PlanarImage) ImageManager.getInstance().getMaskImage(maskExpression,
                                                                                       lonBand.getProduct()).getImage(0);
                 }
             } else {
                 maskExpression = null;
                 // TODO - ensure that tile layout of lat and lon images is used
-                maskImage = ConstantDescriptor.create((float) lonImage.getWidth(),
-                                                      (float) lonImage.getHeight(),
-                                                      new Byte[]{1}, null);
+                maskImage = createConstantMaskImage();
             }
         } else {
             maskExpression = null;
                 // TODO - ensure that tile layout of lat and lon images is used
-            maskImage = ConstantDescriptor.create((float) lonImage.getWidth(),
-                                                  (float) lonImage.getHeight(),
-                                                  new Byte[]{1}, null);
+            maskImage = createConstantMaskImage();
         }
         this.maskExpression = maskExpression;
 
@@ -151,6 +154,16 @@ class PixelGeoCoding2 extends AbstractGeoCoding implements BasicPixelGeoCoding {
 
         pixelPosEstimator = new PixelPosEstimator(lonImage, latImage, maskImage, 0.5);
         pixelFinder = new DefaultPixelFinder(lonImage, latImage, maskImage);
+    }
+
+    private RenderedOp createConstantMaskImage() {
+        final int w = lonImage.getWidth();
+        final int h = lonImage.getHeight();
+        final ImageLayout imageLayout = new ImageLayout(lonImage);
+        imageLayout.setSampleModel(new SingleBandedSampleModel(DataBuffer.TYPE_BYTE, w, h));
+        final RenderingHints hints = new RenderingHints(JAI.KEY_IMAGE_LAYOUT, imageLayout);
+
+        return ConstantDescriptor.create((float) w, (float) h, new Byte[]{1}, hints);
     }
 
     @Override
