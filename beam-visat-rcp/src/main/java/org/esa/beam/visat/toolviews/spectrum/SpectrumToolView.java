@@ -498,6 +498,7 @@ public class SpectrumToolView extends AbstractToolView {
     }
 
     private void setUpSpectra() {
+        productToAllSpectraMap.clear();
         if (!areSpectralBandsAvailable()) {
             final ArrayList<DisplayableSpectrum> emptySpectraList = new ArrayList<DisplayableSpectrum>();
             productToAllSpectraMap.put(currentProduct, emptySpectraList);
