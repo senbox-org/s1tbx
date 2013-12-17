@@ -79,11 +79,11 @@ public class PixelPosEstimator {
                     lon = p.getX();
                     lat = p.getY();
                     final double x = approximation.getFX().getValue(lat, lon);
-                    if (x < bounds.getMinX() || x > bounds.getMaxX()) {
+                    if (false && (x < bounds.getMinX() || x > bounds.getMaxX())) {
                         pixelPos.setInvalid();
                     } else {
                         final double y = approximation.getFY().getValue(lat, lon);
-                        if (y < bounds.getMinY() || y > bounds.getMaxY()) {
+                        if (false && (y < bounds.getMinY() || y > bounds.getMaxY())) {
                             pixelPos.setInvalid();
                         } else {
                             pixelPos.x = (float) x;

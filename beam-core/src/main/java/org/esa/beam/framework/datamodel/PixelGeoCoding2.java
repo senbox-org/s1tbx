@@ -418,31 +418,6 @@ class PixelGeoCoding2 extends AbstractGeoCoding implements BasicPixelGeoCoding {
                                                   validMaskExpression,
                                                   getSearchRadius()));
         return true;
-
-        /*
-        final Product targetProduct = targetScene.getProduct();
-        Band targetLatBand = targetProduct.getBand(latBand.getName());
-        if (targetLatBand == null) {
-            targetLatBand = GeoCodingFactory.createSubset(latBand, targetScene, subsetDef);
-            targetProduct.addBand(latBand);
-        }
-        Band targetLonBand = targetProduct.getBand(getLonBand().getName());
-        if (targetLonBand == null) {
-            targetLonBand = GeoCodingFactory.createSubset(lonBand, targetScene, subsetDef);
-            targetProduct.addBand(latBand);
-        }
-        final String validMaskExpression = getValidMask();
-        try {
-            if (validMaskExpression != null) {
-                GeoCodingFactory.copyReferencedRasters(validMaskExpression, sourceScene, targetScene, subsetDef);
-            }
-        } catch (ParseException ignored) {
-            return false; // cannot happen
-        }
-        targetScene.setGeoCoding(new PixelGeoCoding2(targetLatBand, targetLonBand, validMaskExpression));
-
-        return true;
-        */
     }
 
     /**
@@ -475,11 +450,22 @@ class PixelGeoCoding2 extends AbstractGeoCoding implements BasicPixelGeoCoding {
 
         @Override
         public void findPixelPos(GeoPos geoPos, PixelPos pixelPos) {
+            final int searchRadius = 2 * maxSearchCycleCount;
+
             int x0 = (int) Math.floor(pixelPos.x);
             int y0 = (int) Math.floor(pixelPos.y);
 
-            if (x0 >= 0 && x0 < imageW && y0 >= 0 && y0 < imageH) {
-                final int searchRadius = 2 * maxSearchCycleCount;
+            if (x0 + searchRadius >= 0 && x0 - searchRadius < imageW && y0 + searchRadius >= 0 && y0 - searchRadius < imageH) {
+                if (x0 < 0) {
+                    x0 = 0;
+                } else if (x0 >= imageW) {
+                    x0 = imageW - 1;
+                }
+                if (y0 < 0) {
+                    y0 = 0;
+                } else if (y0 >= imageH) {
+                    y0 = imageH - 1;
+                }
 
                 int x1 = Math.max(x0 - searchRadius, 0);
                 int y1 = Math.max(y0 - searchRadius, 0);
