@@ -7,7 +7,7 @@ fi
 
 $NEST_HOME/jre/bin/java \
     -server -Xms512M -Xmx800M -Xverify:none \
-    -XX:+AggressiveOpts -XX:+UseFastAccessorMethods -Xconcurrentio -XX:CompileThreshold=10000 \
+    -XX:+AggressiveOpts -XX:+UseFastAccessorMethods \
     -XX:+UseParallelGC -XX:+UseNUMA -XX:+UseLoopPredicate -XX:+UseStringCache \
     -Dceres.context=nest \
     "-Dnest.home=$NEST_HOME" \

@@ -256,11 +256,6 @@
             <artifactId>native-libs</artifactId>
         </dependency>
 		
-		<dependency>
-			<groupId>com.seaglasslookandfeel</groupId>
-			<artifactId>seaglasslookandfeel</artifactId>
-		</dependency>
-		
         <dependency>
           <groupId>org.geotools</groupId>
           <artifactId>gt-main</artifactId>

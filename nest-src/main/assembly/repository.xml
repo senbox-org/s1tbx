@@ -21,7 +21,7 @@
 		        <fileSets>
 		          <fileSet>
 					<directory>src/main/resources</directory>
-		            <outputDirectory>repository/${artifactId}-${version}</outputDirectory>
+		            <outputDirectory>repository/${artifact.artifactId}-${artifact.version}</outputDirectory>
 		            <includes>
 		              <include>module.xml</include>
 		            </includes>
@@ -30,7 +30,7 @@
 		    </sources>
 
             <binaries>
-                <outputDirectory>repository/${artifactId}-${version}</outputDirectory>
+                <outputDirectory>repository/${artifact.artifactId}-${artifact.version}</outputDirectory>
                 <includeDependencies>false</includeDependencies>
                 <unpack>false</unpack>
             </binaries>

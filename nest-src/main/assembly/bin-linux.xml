@@ -77,27 +77,29 @@
             <binaries>
 				<outputDirectory>modules</outputDirectory>
 				<unpack>false</unpack>
-                <outputFileNameMapping>${artifactId}-${version}.${extension}</outputFileNameMapping>
-                <includeDependencies>false</includeDependencies>
+                <outputFileNameMapping>${module.artifactId}-${module.version}.${module.extension}</outputFileNameMapping>
+                <includeDependencies>true</includeDependencies>
                 <dependencySets>
                     <dependencySet>
                         <outputDirectory>bin</outputDirectory>
-                        <outputFileNameMapping>${artifactId}.${extension}</outputFileNameMapping>
+                        <outputFileNameMapping>${artifact.artifactId}.${artifact.extension}</outputFileNameMapping>
                         <includes>
                             <include>com.bc.ceres:ceres-launcher</include>
                         </includes>
                     </dependencySet>
                     <dependencySet>
                         <outputDirectory>lib</outputDirectory>
-						<outputFileNameMapping>${artifactId}-${version}.${extension}</outputFileNameMapping>
+						<outputFileNameMapping>${artifact.artifactId}-${artifact.version}.${artifact.extension}</outputFileNameMapping>
                         <excludes>
 							<exclude>ncsa.hdf:lib-hdf</exclude>
+							<exclude>org.esa.nest:nest-bootstrap</exclude>
 							<exclude>org.esa.nest:nest-core</exclude>
 							<exclude>org.esa.nest:nest-graph-builder</exclude>
 							<exclude>org.esa.nest:nest-op-calibration</exclude>
 							<exclude>org.esa.nest:nest-op-coregistration</exclude>
 							<exclude>org.esa.nest:nest-op-orthorectification</exclude>
 							<exclude>org.esa.nest:nest-op-sar-tools</exclude>
+							<exclude>org.esa.nest:nest-ocean-tools</exclude>
 							<exclude>org.esa.nest:nest-reader-dem</exclude>
 							<exclude>org.esa.nest:nest-io</exclude>
 							<exclude>org.esa.nest:nest-io-sentinel1</exclude>
