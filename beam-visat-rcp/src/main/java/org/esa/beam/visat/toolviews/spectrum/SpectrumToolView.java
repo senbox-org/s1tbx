@@ -24,6 +24,7 @@ import org.esa.beam.framework.datamodel.ProductManager;
 import org.esa.beam.framework.datamodel.ProductNodeEvent;
 import org.esa.beam.framework.datamodel.ProductNodeGroup;
 import org.esa.beam.framework.datamodel.ProductNodeListenerAdapter;
+import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.framework.ui.GridBagUtils;
 import org.esa.beam.framework.ui.ModalDialog;
@@ -120,6 +121,8 @@ public class SpectrumToolView extends AbstractToolView {
 //    private AbstractButton showAveragePinSpectrumButton;
     //    private AbstractButton showGraphPointsButton;
 
+//    private static AxisRangeControl axisRangeControl;
+
     private String titleBase;
     private boolean tipShown;
     private ProductSceneView currentView;
@@ -127,6 +130,7 @@ public class SpectrumToolView extends AbstractToolView {
     private final ChartPanel chartPanel;
     private final ChartHandler chartHandler;
     private CursorSynchronizer cursorSynchronizer;
+    private Product.AutoGrouping autoGrouping;
 
     public SpectrumToolView() {
         productNodeHandler = new ProductNodeHandler();
@@ -235,13 +239,17 @@ public class SpectrumToolView extends AbstractToolView {
         Band[] bands = getCurrentProduct().getBands();
         ArrayList<Band> spectralBands = new ArrayList<Band>(15);
         for (Band band : bands) {
-            if (band.getSpectralWavelength() > 0.0) {
+            if (isSpectralBand(band)) {
                 if (!band.isFlagBand()) {
                     spectralBands.add(band);
                 }
             }
         }
         return spectralBands.toArray(new Band[spectralBands.size()]);
+    }
+
+    private boolean isSpectralBand(Band band) {
+        return band.getSpectralWavelength() > 0.0;
     }
 
     @Override
@@ -337,6 +345,8 @@ public class SpectrumToolView extends AbstractToolView {
         exportSpectraButton.setToolTipText("Export allSpectra to text file.");
         exportSpectraButton.setName("exportSpectraButton");
 
+//        axisRangeControl = new AxisRangeControl("Y-Axis");
+
         AbstractButton helpButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/Help22.png"), false);
         helpButton.setName("helpButton");
         helpButton.setToolTipText("Help."); /*I18N*/
@@ -364,6 +374,8 @@ public class SpectrumToolView extends AbstractToolView {
 //        buttonPane.add(showGraphPointsButton, gbc);
 //        gbc.gridy++;
         buttonPane.add(exportSpectraButton, gbc);
+//        gbc.gridy++;
+//        buttonPane.add(axisRangeControl.getPanel(), gbc);
 
         gbc.gridy++;
         gbc.insets.bottom = 0;
@@ -488,9 +500,9 @@ public class SpectrumToolView extends AbstractToolView {
     private void initSpectra() {
         if (!areSpectralBandsAvailable()) {
             final ArrayList<DisplayableSpectrum> emptySpectraList = new ArrayList<DisplayableSpectrum>();
-            productToAllSpectraMap.put(getCurrentProduct(), emptySpectraList);
+            productToAllSpectraMap.put(currentProduct, emptySpectraList);
         }
-        final Product.AutoGrouping autoGrouping = this.getCurrentProduct().getAutoGrouping();
+        final Product.AutoGrouping autoGrouping = currentProduct.getAutoGrouping();
         if (autoGrouping != null) {
             List<DisplayableSpectrum> spectra = new ArrayList<DisplayableSpectrum>();
             final Band[] availableSpectralBands = getAvailableSpectralBands();
@@ -544,6 +556,35 @@ public class SpectrumToolView extends AbstractToolView {
         return selectedSpectra;
     }
 
+    private void addBandToSpectra(Band band) {
+        List<DisplayableSpectrum> allSpectra = productToAllSpectraMap.get(getCurrentProduct());
+        autoGrouping = currentProduct.getAutoGrouping();
+        if (autoGrouping != null) {
+            final int bandIndex = autoGrouping.indexOf(band.getName());
+            final String autoGroupingName = autoGrouping.get(bandIndex)[0];
+            boolean spectrumAlreadyPresent = false;
+            if (bandIndex != -1) {
+                int i = 0;
+                while (i < allSpectra.size() && !spectrumAlreadyPresent) {
+                    final DisplayableSpectrum spectrum = allSpectra.get(i);
+                    if (spectrum.getName().equals(autoGroupingName)) {
+                        spectrum.addBand(band, true);
+                        spectrumAlreadyPresent = true;
+                    }
+                    i++;
+                }
+                if (!spectrumAlreadyPresent) {
+                    DisplayableSpectrum spectrum = new DisplayableSpectrum(autoGroupingName);
+                    spectrum.setSelected(true);
+                    spectrum.addBand(band, true);
+                    allSpectra.add(spectrum);
+                }
+            }
+        } else {
+            allSpectra.get(0).addBand(band, true);
+        }
+    }
+
     void removeCursorSpectra() {
         chartHandler.removeCursorSpectra();
     }
@@ -581,6 +622,8 @@ public class SpectrumToolView extends AbstractToolView {
             this.chart = chart;
             setLegend(chart);
             final XYPlot plot = chart.getXYPlot();
+//            plot.getDomainAxis().setAutoRange(false);
+//            plot.getRangeAxis().setAutoRange(false);
             final XYLineAndShapeRenderer renderer = (XYLineAndShapeRenderer) plot.getRenderer();
             renderer.setBaseShapesVisible(true);
             renderer.setBaseShapesFilled(false);
@@ -884,6 +927,12 @@ public class SpectrumToolView extends AbstractToolView {
                 if (propertyName.equals(DataNode.PROPERTY_NAME_UNIT)
                         || propertyName.equals(Band.PROPERTY_NAME_SPECTRAL_WAVELENGTH)) {
                     recreateChart();
+                } else if (propertyName.equals(RasterDataNode.PROPERTY_NAME_STX)) {
+                    final Band newBand = (Band) event.getSourceNode();
+                    if (isSpectralBand(newBand)) {
+                        addBandToSpectra(newBand);
+                        recreateChart();
+                    }
                 }
             } else if (event.getSourceNode() instanceof Placemark) {
                 if (event.getPropertyName().equals("geoPos") || event.getPropertyName().equals("pixelPos")) {
