@@ -9,8 +9,6 @@ import javax.swing.JFrame;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
-import java.util.List;
 
 public class SpectrumChooserMainForManualTesting {
     /*
@@ -26,8 +24,10 @@ public class SpectrumChooserMainForManualTesting {
             bands[i] = createBand(i);
         }
         DisplayableSpectrum spectrum = new DisplayableSpectrum(name, bands);
-        final List<DisplayableSpectrum> spectra = new ArrayList<DisplayableSpectrum>();
-        spectra.add(spectrum);
+//        final List<DisplayableSpectrum> spectra = new ArrayList<DisplayableSpectrum>();
+//        spectra.add(spectrum);
+        final DisplayableSpectrum[] spectra = new DisplayableSpectrum[1];
+        spectra[0] = spectrum;
         final JFrame frame = new JFrame();
         frame.setSize(new Dimension(100, 100));
         JButton button = new JButton("Choose Spectrum");

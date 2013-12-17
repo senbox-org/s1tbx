@@ -58,19 +58,28 @@ public class SpectrumChooser extends ModalDialog {
     private static final int bandBandwidthIndex = 4;
 
     private static HierarchicalTable spectraTable;
+    private final DisplayableSpectrum[] originalSpectra;
 
-    private List<DisplayableSpectrum> allSpectra;
+    private DisplayableSpectrum[] spectra;
     private SpectrumSelectionAdmin selectionAdmin;
     private static boolean selectionChangeLock;
 
     private final Map<Integer, SortableTable> rowToBandsTable;
 
-    public SpectrumChooser(Window parent, List<DisplayableSpectrum> allSpectra, String helpID) {
+    public SpectrumChooser(Window parent, DisplayableSpectrum[] originalSpectra, String helpID) {
         super(parent, "Available Spectra", ModalDialog.ID_OK_CANCEL, helpID);
-        if (allSpectra != null) {
-            this.allSpectra = allSpectra;
+        if (originalSpectra != null) {
+            this.originalSpectra = originalSpectra;
+            List<DisplayableSpectrum> spectraWithBands = new ArrayList<DisplayableSpectrum>();
+            for (DisplayableSpectrum spectrum : originalSpectra) {
+                if (spectrum.hasBands()) {
+                    spectraWithBands.add(spectrum);
+                }
+            }
+            this.spectra = spectraWithBands.toArray(new DisplayableSpectrum[spectraWithBands.size()]);
         } else {
-            this.allSpectra = new ArrayList<DisplayableSpectrum>();
+            this.originalSpectra = new DisplayableSpectrum[0];
+            this.spectra = new DisplayableSpectrum[0];
         }
         selectionAdmin = new SpectrumSelectionAdmin();
         selectionChangeLock = false;
@@ -123,8 +132,8 @@ public class SpectrumChooser extends ModalDialog {
         shapeColumn.setCellEditor(new DefaultCellEditor(shapeComboBox));
     }
 
-    public List<DisplayableSpectrum> getSpectra() {
-        return allSpectra;
+    public DisplayableSpectrum[] getSpectra() {
+        return originalSpectra;
     }
 
     private class SpectrumTableModel extends DefaultTableModel implements HierarchicalTableModel {
@@ -139,14 +148,16 @@ public class SpectrumChooser extends ModalDialog {
 
         private SpectrumTableModel() {
             super(new String[]{"", "Spectrum name", "Line style", "Symbol"}, 0);
-            for (DisplayableSpectrum spectrum : allSpectra) {
-                addRow(spectrum);
+            for (DisplayableSpectrum spectrum : spectra) {
+                if (spectrum.hasBands()) {
+                    addRow(spectrum);
+                }
             }
         }
 
         @Override
         public Object getChildValueAt(final int row) {
-            DisplayableSpectrum spectrum = allSpectra.get(row);
+            DisplayableSpectrum spectrum = spectra[row];
             if (rowToBandsTable.containsKey(row)) {
                 return rowToBandsTable.get(row);
             }
@@ -168,7 +179,7 @@ public class SpectrumChooser extends ModalDialog {
                 public void tableChanged(TableModelEvent e) {
                     e.getSource();
                     if (e.getColumn() == bandSelectedIndex) {
-                        final DisplayableSpectrum spectrum = allSpectra.get(row);
+                        final DisplayableSpectrum spectrum = spectra[row];
                         final int bandRow = e.getFirstRow();
                         final Boolean selected = (Boolean) bandTableModel.getValueAt(bandRow, e.getColumn());
                         spectrum.setBandSelected(bandRow, selected);
@@ -186,14 +197,21 @@ public class SpectrumChooser extends ModalDialog {
         }
 
         private void addRow(DisplayableSpectrum spectrum) {
-            if (spectrum.getLineStyle() == null) {
-                spectrum.setLineStyle(SpectrumConstants.strokes[getRowCount() % SpectrumConstants.strokes.length]);
+            ImageIcon strokeIcon;
+            if (spectrum.isDefaultSpectrum()) {
+                strokeIcon = new ImageIcon();
+            } else {
+                if (spectrum.getLineStyle() == null) {
+                    spectrum.setLineStyle(SpectrumConstants.strokes[getRowCount() % SpectrumConstants.strokes.length]);
+                }
+                strokeIcon =
+                        SpectrumConstants.strokeIcons[ArrayUtils.getElementIndex(spectrum.getLineStyle(), SpectrumConstants.strokes)];
             }
-            final ImageIcon strokeIcon = SpectrumConstants.strokeIcons[ArrayUtils.getElementIndex(spectrum.getLineStyle(), SpectrumConstants.strokes)];
             if (spectrum.getSymbol() == null) {
                 spectrum.setSymbol(SpectrumConstants.shapes[getRowCount() % SpectrumConstants.shapes.length]);
             }
-            final ImageIcon shapeIcon = SpectrumConstants.shapeIcons[ArrayUtils.getElementIndex(spectrum.getSymbol(), SpectrumConstants.shapes)];
+            final ImageIcon shapeIcon =
+                    SpectrumConstants.shapeIcons[ArrayUtils.getElementIndex(spectrum.getSymbol(), SpectrumConstants.shapes)];
 
             selectionAdmin.addSpectrumSelections(spectrum);
             super.addRow(new Object[]{selectionAdmin.getState(getRowCount()), spectrum.getName(), strokeIcon, shapeIcon});
@@ -221,7 +239,7 @@ public class SpectrumChooser extends ModalDialog {
 
         @Override
         public boolean isCellEditable(int row, int column) {
-            return column != spectrumNameIndex;
+            return !(column == spectrumStrokeIndex && spectra[row].isDefaultSpectrum()) && column != spectrumNameIndex;
         }
 
         @Override
@@ -231,14 +249,14 @@ public class SpectrumChooser extends ModalDialog {
                 selectionAdmin.updateState(row, (Integer) aValue);
                 aValue = selectionAdmin.getState(row);
                 updateBandsTable(row);
-                allSpectra.get(row).setSelected(selectionAdmin.isSpectrumSelected(row));
+                spectra[row].setSelected(selectionAdmin.isSpectrumSelected(row));
                 fireTableCellUpdated(row, column);
                 selectionChangeLock = false;
             } else if (column == spectrumStrokeIndex) {
-                allSpectra.get(row).setLineStyle(SpectrumConstants.strokes[ArrayUtils.getElementIndex(aValue, SpectrumConstants.strokeIcons)]);
+                spectra[row].setLineStyle(SpectrumConstants.strokes[ArrayUtils.getElementIndex(aValue, SpectrumConstants.strokeIcons)]);
                 fireTableCellUpdated(row, column);
             } else if (column == spectrumShapeIndex) {
-                allSpectra.get(row).setSymbol(SpectrumConstants.shapes[ArrayUtils.getElementIndex(aValue, SpectrumConstants.shapeIcons)]);
+                spectra[row].setSymbol(SpectrumConstants.shapes[ArrayUtils.getElementIndex(aValue, SpectrumConstants.shapeIcons)]);
                 fireTableCellUpdated(row, column);
             }
             super.setValueAt(aValue, row, column);
@@ -252,8 +270,8 @@ public class SpectrumChooser extends ModalDialog {
                     tableModel.setValueAt(selectionAdmin.isBandSelected(row, i), i, bandSelectedIndex);
                 }
             } else {
-                for (int i = 0; i < allSpectra.get(row).getSpectralBands().length; i++) {
-                    allSpectra.get(row).setBandSelected(i, selectionAdmin.isBandSelected(row, i));
+                for (int i = 0; i < spectra[row].getSpectralBands().length; i++) {
+                    spectra[row].setBandSelected(i, selectionAdmin.isBandSelected(row, i));
                 }
             }
         }

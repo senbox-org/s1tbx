@@ -9,6 +9,7 @@ import java.awt.Rectangle;
 import java.awt.Shape;
 import java.awt.Stroke;
 import java.awt.geom.Ellipse2D;
+import java.awt.geom.GeneralPath;
 import java.awt.geom.Line2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
@@ -44,6 +45,7 @@ public class SpectrumConstants {
             new BasicStroke(1.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, new float[]{10.0f, 10.0f, 1.0f, 10.0f}, 0.0f)
     };
     public static final ImageIcon[] strokeIcons = convertStrokesToIcons();
+    public static final Stroke EMPTY_STROKE = new EmptyStroke();
 
     private static ImageIcon[] convertShapesToIcons() {
         ImageIcon[] icons = new ImageIcon[shapes.length];
@@ -89,5 +91,12 @@ public class SpectrumConstants {
         return new ImageIcon(image);
     }
 
+    private static class EmptyStroke implements Stroke {
+
+        @Override
+        public Shape createStrokedShape(Shape p) {
+            return new GeneralPath();
+        }
+    }
 
 }

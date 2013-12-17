@@ -9,7 +9,9 @@ import java.util.List;
 
 public class DisplayableSpectrum implements Spectrum {
 
-    public final static String mixed_units = "mixed units";
+    public final static String MIXED_UNITS = "mixed units";
+    public final static String DEFAULT_SPECTRUM_NAME = "Available spectral bands";
+    public final static String ALTERNATIVE_DEFAULT_SPECTRUM_NAME = "Further spectral bands";
 
     private List<Band> bands;
     private List<Boolean> areBandsSelected;
@@ -39,8 +41,12 @@ public class DisplayableSpectrum implements Spectrum {
         if (unit == null) {
             unit = band.getUnit();
         } else if (!unit.equals(band.getUnit())) {
-            unit = mixed_units;
+            unit = MIXED_UNITS;
         }
+    }
+
+    public boolean isDefaultSpectrum() {
+        return name.equals(DEFAULT_SPECTRUM_NAME) || name.equals(ALTERNATIVE_DEFAULT_SPECTRUM_NAME);
     }
 
     public boolean hasBands() {
@@ -79,6 +85,9 @@ public class DisplayableSpectrum implements Spectrum {
     }
 
     public Stroke getLineStyle() {
+        if (isDefaultSpectrum()) {
+            return SpectrumConstants.EMPTY_STROKE;
+        }
         return lineStyle;
     }
 

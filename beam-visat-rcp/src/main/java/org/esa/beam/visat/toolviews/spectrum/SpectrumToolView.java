@@ -106,7 +106,7 @@ public class SpectrumToolView extends AbstractToolView {
 
     private static final String SUPPRESS_MESSAGE_KEY = "plugin.spectrum.tip";
 
-    private final Map<Product, List<DisplayableSpectrum>> productToAllSpectraMap;
+    private final Map<Product, DisplayableSpectrum[]> productToAllSpectraMap;
 
     private final ProductNodeListenerAdapter productNodeHandler;
     private final PinSelectionChangeListener pinSelectionChangeListener;
@@ -130,12 +130,11 @@ public class SpectrumToolView extends AbstractToolView {
     private final ChartPanel chartPanel;
     private final ChartHandler chartHandler;
     private CursorSynchronizer cursorSynchronizer;
-    private Product.AutoGrouping autoGrouping;
 
     public SpectrumToolView() {
         productNodeHandler = new ProductNodeHandler();
         pinSelectionChangeListener = new PinSelectionChangeListener();
-        productToAllSpectraMap = new HashMap<Product, List<DisplayableSpectrum>>();
+        productToAllSpectraMap = new HashMap<Product, DisplayableSpectrum[]>();
         pixelPositionListener = new CursorSpectrumPixelPositionListener(this);
         final JFreeChart chart = ChartFactory.createXYLineChart(CHART_TITLE, "Wavelength (nm)", "", null, PlotOrientation.VERTICAL, true, true, false);
         chartPanel = new ChartPanel(chart);
@@ -459,12 +458,12 @@ public class SpectrumToolView extends AbstractToolView {
     }
 
     private void selectSpectralBands() {
-        final List<DisplayableSpectrum> allSpectra = productToAllSpectraMap.get(getCurrentProduct());
+        final DisplayableSpectrum[] allSpectra = productToAllSpectraMap.get(getCurrentProduct());
         final SpectrumChooser spectrumChooser = new SpectrumChooser(getPaneWindow(), allSpectra,
                                                                     getDescriptor().getHelpId());
         if (spectrumChooser.show() == ModalDialog.ID_OK) {
-            final List<DisplayableSpectrum> spectra = spectrumChooser.getSpectra();
-            productToAllSpectraMap.put(getCurrentProduct(), spectra);
+            final DisplayableSpectrum[] spectra = spectrumChooser.getSpectra();
+            productToAllSpectraMap.put(currentProduct, spectra);
         }
     }
 
@@ -499,41 +498,45 @@ public class SpectrumToolView extends AbstractToolView {
 
     private void setUpSpectra() {
         productToAllSpectraMap.clear();
+        DisplayableSpectrum[] spectra;
         if (!areSpectralBandsAvailable()) {
-            final ArrayList<DisplayableSpectrum> emptySpectraList = new ArrayList<DisplayableSpectrum>();
-            productToAllSpectraMap.put(currentProduct, emptySpectraList);
-        }
-        final Product.AutoGrouping autoGrouping = currentProduct.getAutoGrouping();
-        if (autoGrouping != null) {
-            List<DisplayableSpectrum> spectra = new ArrayList<DisplayableSpectrum>();
-            final Band[] availableSpectralBands = getAvailableSpectralBands();
-            final Iterator<String[]> iterator = autoGrouping.iterator();
-            int groupIndex = 0;
-            while (iterator.hasNext()) {
-                final String spectrumName = iterator.next()[0];
-                DisplayableSpectrum spectrum = new DisplayableSpectrum(spectrumName);
-                final boolean isSelected = autoGrouping.indexOf(getCurrentView().getRaster().getName()) == groupIndex;
-                spectrum.setSelected(isSelected);
+            spectra = new DisplayableSpectrum[]{};
+        } else {
+            final Product.AutoGrouping autoGrouping = currentProduct.getAutoGrouping();
+            if (autoGrouping != null) {
+                final int selectedSpectrumIndex = autoGrouping.indexOf(getCurrentView().getRaster().getName());
+                spectra = new DisplayableSpectrum[autoGrouping.size() + 1];
+                final Iterator<String[]> iterator = autoGrouping.iterator();
+                int i = 0;
+                while (iterator.hasNext()) {
+                    final String spectrumName = iterator.next()[0];
+                    DisplayableSpectrum spectrum = new DisplayableSpectrum(spectrumName);
+                    spectrum.setSelected(i == selectedSpectrumIndex);
+                    spectra[i++] = spectrum;
+                }
+                DisplayableSpectrum defaultSpectrum = new DisplayableSpectrum(DisplayableSpectrum.ALTERNATIVE_DEFAULT_SPECTRUM_NAME);
+                defaultSpectrum.setSelected(selectedSpectrumIndex == -1);
+                spectra[spectra.length - 1] = defaultSpectrum;
+                final Band[] availableSpectralBands = getAvailableSpectralBands();
                 for (Band availableSpectralBand : availableSpectralBands) {
-                    if (autoGrouping.indexOf(availableSpectralBand.getName()) == groupIndex) {
-                        spectrum.addBand(availableSpectralBand, isSelected);
+                    final String bandName = availableSpectralBand.getName();
+                    final int spectrumIndex = autoGrouping.indexOf(bandName);
+                    if (spectrumIndex != -1) {
+                        spectra[spectrumIndex].addBand(availableSpectralBand, spectrumIndex == selectedSpectrumIndex);
+                    } else {
+                        spectra[spectra.length - 1].addBand(availableSpectralBand, spectrumIndex == selectedSpectrumIndex);
                     }
                 }
-                groupIndex++;
-                if (spectrum.hasBands()) {
-                    spectra.add(spectrum);
-                }
+            } else {
+                spectra = new DisplayableSpectrum[1];
+                spectra[0] = new DisplayableSpectrum(DisplayableSpectrum.DEFAULT_SPECTRUM_NAME, getAvailableSpectralBands());
             }
-            productToAllSpectraMap.put(getCurrentProduct(), spectra);
-        } else {
-            final ArrayList<DisplayableSpectrum> spectra = new ArrayList<DisplayableSpectrum>();
-            spectra.add(new DisplayableSpectrum("Available spectral bands", getAvailableSpectralBands()));
-            productToAllSpectraMap.put(getCurrentProduct(), spectra);
         }
+        productToAllSpectraMap.put(currentProduct, spectra);
     }
 
-    private List<DisplayableSpectrum> getAllSpectra() {
-        return productToAllSpectraMap.get(getCurrentProduct());
+    private DisplayableSpectrum[] getAllSpectra() {
+        return productToAllSpectraMap.get(currentProduct);
     }
 
     private boolean areSpectralBandsAvailable() {
@@ -546,7 +549,7 @@ public class SpectrumToolView extends AbstractToolView {
 
     List<DisplayableSpectrum> getSelectedSpectra() {
         List<DisplayableSpectrum> selectedSpectra = new ArrayList<DisplayableSpectrum>();
-        List<DisplayableSpectrum> allSpectra = productToAllSpectraMap.get(getCurrentProduct());
+        DisplayableSpectrum[] allSpectra = productToAllSpectraMap.get(currentProduct);
         if (allSpectra != null) {
             for (DisplayableSpectrum displayableSpectrum : allSpectra) {
                 if (displayableSpectrum.isSelected()) {
@@ -558,31 +561,19 @@ public class SpectrumToolView extends AbstractToolView {
     }
 
     private void addBandToSpectra(Band band) {
-        List<DisplayableSpectrum> allSpectra = productToAllSpectraMap.get(getCurrentProduct());
-        autoGrouping = currentProduct.getAutoGrouping();
+        DisplayableSpectrum[] allSpectra = productToAllSpectraMap.get(getCurrentProduct());
+        Product.AutoGrouping autoGrouping = currentProduct.getAutoGrouping();
         if (autoGrouping != null) {
             final int bandIndex = autoGrouping.indexOf(band.getName());
-            final String autoGroupingName = autoGrouping.get(bandIndex)[0];
-            boolean spectrumAlreadyPresent = false;
+            final DisplayableSpectrum spectrum;
             if (bandIndex != -1) {
-                int i = 0;
-                while (i < allSpectra.size() && !spectrumAlreadyPresent) {
-                    final DisplayableSpectrum spectrum = allSpectra.get(i);
-                    if (spectrum.getName().equals(autoGroupingName)) {
-                        spectrum.addBand(band, true);
-                        spectrumAlreadyPresent = true;
-                    }
-                    i++;
-                }
-                if (!spectrumAlreadyPresent) {
-                    DisplayableSpectrum spectrum = new DisplayableSpectrum(autoGroupingName);
-                    spectrum.setSelected(true);
-                    spectrum.addBand(band, true);
-                    allSpectra.add(spectrum);
-                }
+                spectrum = allSpectra[bandIndex];
+            } else {
+                spectrum = allSpectra[allSpectra.length - 1];
             }
+            spectrum.addBand(band, spectrum.isSelected());
         } else {
-            allSpectra.get(0).addBand(band, true);
+            allSpectra[0].addBand(band, true);
         }
     }
 
@@ -663,7 +654,7 @@ public class SpectrumToolView extends AbstractToolView {
             chart.getXYPlot().setDataset(null);
             if (getCurrentProduct() == null) {
                 setPlotMessage(MESSAGE_NO_PRODUCT_SELECTED);
-            } else if (!getAllSpectra().isEmpty()) {
+            } else if (getAllSpectra().length == 0) {
                 setPlotMessage(MESSAGE_NO_SPECTRA_SELECTED);
             } else {
                 setPlotMessage(MESSAGE_NO_SPECTRAL_BANDS);
@@ -736,10 +727,10 @@ public class SpectrumToolView extends AbstractToolView {
             chart.getXYPlot().setDataset(dataset);
             String unitToBeDisplayed = spectra.get(0).getUnit();
             int i = 1;
-            while (i < spectra.size() && !unitToBeDisplayed.equals(DisplayableSpectrum.mixed_units)) {
+            while (i < spectra.size() && !unitToBeDisplayed.equals(DisplayableSpectrum.MIXED_UNITS)) {
                 DisplayableSpectrum displayableSpectrum = spectra.get(i++);
                 if (!unitToBeDisplayed.equals(displayableSpectrum.getUnit())) {
-                    unitToBeDisplayed = DisplayableSpectrum.mixed_units;
+                    unitToBeDisplayed = DisplayableSpectrum.MIXED_UNITS;
                 }
             }
             chart.getXYPlot().getRangeAxis().setLabel(unitToBeDisplayed);
