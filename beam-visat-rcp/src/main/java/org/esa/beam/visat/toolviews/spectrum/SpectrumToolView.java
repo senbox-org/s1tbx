@@ -174,7 +174,7 @@ public class SpectrumToolView extends AbstractToolView {
             }
             if (currentProduct != null) {
                 currentProduct.addProductNodeListener(productNodeHandler);
-                initSpectra();
+                setUpSpectra();
                 recreateChart();
             }
             if (currentProduct == null) {
@@ -497,7 +497,7 @@ public class SpectrumToolView extends AbstractToolView {
         }
     }
 
-    private void initSpectra() {
+    private void setUpSpectra() {
         if (!areSpectralBandsAvailable()) {
             final ArrayList<DisplayableSpectrum> emptySpectraList = new ArrayList<DisplayableSpectrum>();
             productToAllSpectraMap.put(currentProduct, emptySpectraList);
@@ -939,6 +939,11 @@ public class SpectrumToolView extends AbstractToolView {
                     chartHandler.removePinInformation((Placemark) event.getSourceNode());
                 }
                 if (isShowingPinSpectra()) {
+                    recreateChart();
+                }
+            } else if (event.getSourceNode() instanceof Product) {
+                if (event.getPropertyName().equals("autoGrouping")) {
+                    setUpSpectra();
                     recreateChart();
                 }
             }
