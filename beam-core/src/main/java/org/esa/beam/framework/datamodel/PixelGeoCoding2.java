@@ -414,9 +414,8 @@ class PixelGeoCoding2 extends AbstractGeoCoding implements BasicPixelGeoCoding {
         } catch (ParseException ignored) {
             validMaskExpression = null;
         }
-        destScene.setGeoCoding(new PixelGeoCoding(latBand, lonBand,
-                                                  validMaskExpression,
-                                                  getSearchRadius()));
+        destScene.setGeoCoding(new PixelGeoCoding2(latBand, lonBand, validMaskExpression));
+
         return true;
     }
 
