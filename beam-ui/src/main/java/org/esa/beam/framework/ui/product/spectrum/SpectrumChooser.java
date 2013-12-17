@@ -23,7 +23,9 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.JTextField;
 import javax.swing.ListCellRenderer;
+import javax.swing.border.EmptyBorder;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
@@ -33,6 +35,8 @@ import javax.swing.table.TableModel;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Insets;
 import java.awt.Window;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -100,6 +104,9 @@ public class SpectrumChooser extends ModalDialog {
         selectionColumn.setCellRenderer(new TriStateRenderer());
         selectionColumn.setMinWidth(38);
         selectionColumn.setMaxWidth(38);
+
+        final TableColumn nameColumn = spectraTable.getColumnModel().getColumn(spectrumNameIndex);
+        nameColumn.setCellRenderer(new TextFieldRenderer());
 
         final TableColumn strokeColumn = spectraTable.getColumnModel().getColumn(spectrumStrokeIndex);
         JComboBox strokeComboBox = new JComboBox(SpectrumConstants.strokeIcons);
@@ -382,6 +389,30 @@ public class SpectrumChooser extends ModalDialog {
             }
             int state = (Integer) value;
             setState(state);
+            return this;
+        }
+    }
+
+    private class TextFieldRenderer extends JTextField implements TableCellRenderer {
+
+        private TextFieldRenderer() {
+            Font font = this.getFont();
+            font = new Font(font.getName(), Font.BOLD, font.getSize());
+            setFont(font);
+            setBorder(new EmptyBorder(new Insets(0, 0, 0, 0)));
+            setOpaque(true);
+        }
+
+        @Override
+        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+            if (isSelected) {
+                setBackground(table.getSelectionBackground());
+                setForeground(table.getSelectionForeground());
+            } else {
+                setBackground(table.getBackground());
+                setForeground(table.getForeground());
+            }
+            setText(value.toString());
             return this;
         }
     }
