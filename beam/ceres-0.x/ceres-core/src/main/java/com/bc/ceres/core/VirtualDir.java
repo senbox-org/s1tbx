@@ -124,7 +124,7 @@ public abstract class VirtualDir {
         }
         try {
             return new Zip(new ZipFile(file));
-        } catch (IOException e) {
+        } catch (IOException ignored) {
             return null;
         }
     }
@@ -138,7 +138,7 @@ public abstract class VirtualDir {
     }
 
     @Override
-    public void finalize() throws Throwable {
+    protected void finalize() throws Throwable {
         super.finalize();
     }
 
@@ -201,7 +201,7 @@ public abstract class VirtualDir {
         private ZipFile zipFile;
         private File tempZipFileDir;
 
-        private Zip(ZipFile zipFile) throws IOException {
+        private Zip(ZipFile zipFile) {
             this.zipFile = zipFile;
         }
 
@@ -241,7 +241,7 @@ public abstract class VirtualDir {
 
         @Override
         public String[] list(String path) throws IOException {
-            if (path.equals(".") || path.isEmpty()) {
+            if (".".equals(path) || path.isEmpty()) {
                 path = "";
             } else if (!path.endsWith("/")) {
                 path += "/";
@@ -254,7 +254,7 @@ public abstract class VirtualDir {
                 String name = zipEntry.getName();
                 if (name.startsWith(path)) {
                     int i1 = path.length();
-                    int i2 = name.indexOf("/", i1);
+                    int i2 = name.indexOf('/', i1);
                     String entryName;
                     if (i2 == -1) {
                         entryName = name.substring(i1);
@@ -279,7 +279,7 @@ public abstract class VirtualDir {
         }
 
         @Override
-        public void finalize() throws Throwable {
+        protected void finalize() throws Throwable {
             super.finalize();
             cleanup();
         }
@@ -303,7 +303,7 @@ public abstract class VirtualDir {
             try {
                 zipFile.close();
                 zipFile = null;
-            } catch (IOException e) {
+            } catch (IOException ignored) {
                 // ok
             }
             if (tempZipFileDir != null) {
@@ -347,33 +347,6 @@ public abstract class VirtualDir {
                 }
             }
         }
-    }
-
-    /**
-     * Gets the filename without its extension from the given filename.
-     *
-     * @param path the path of the file whose filename is to be extracted.
-     *
-     * @return the filename without its extension.
-     */
-    private static String getFilenameWithoutExtensionFromPath(String path) {
-        String fileName = getFileNameFromPath(path);
-        int i = fileName.lastIndexOf('.');
-        if (i > 0 && i < fileName.length() - 1) {
-            return fileName.substring(0, i);
-        }
-        return fileName;
-    }
-
-    private static String getFileNameFromPath(String path) {
-        String fileName;
-        int lastChar = path.lastIndexOf(File.separator);
-        if (lastChar >= 0) {
-            fileName = path.substring(lastChar + 1, path.length());
-        } else {
-            fileName = path;
-        }
-        return fileName;
     }
 
     /**
@@ -422,7 +395,8 @@ public abstract class VirtualDir {
         if (tempDirName != null) {
             tempDir = new File(tempDirName);
             if (tempDir.exists()) {
-                tempDir = new File(tempDir, contextId);
+                String userName = System.getProperty("user.name");
+                tempDir = new File(tempDir, contextId + "-" + userName);
                 tempDir.mkdir();
             }
         } else {

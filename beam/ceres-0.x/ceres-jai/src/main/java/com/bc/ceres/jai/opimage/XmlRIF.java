@@ -17,10 +17,10 @@
 package com.bc.ceres.jai.opimage;
 
 
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.JDOMException;
-import org.jdom.input.SAXBuilder;
+import org.jdom2.Document;
+import org.jdom2.Element;
+import org.jdom2.JDOMException;
+import org.jdom2.input.SAXBuilder;
 
 import javax.media.jai.EnumeratedParameter;
 import javax.media.jai.Interpolation;
@@ -65,6 +65,7 @@ public class XmlRIF implements RenderedImageFactory {
      *
      * @param paramBlock The source image and the convolution kernel.
      */
+    @Override
     public RenderedImage create(ParameterBlock paramBlock, RenderingHints renderingHints) {
         URI location = (URI) paramBlock.getObjectParameter(0);
         Map<String, Object> configuration = (Map<String, Object>) paramBlock.getObjectParameter(1);
@@ -78,7 +79,8 @@ public class XmlRIF implements RenderedImageFactory {
         }
     }
 
-    private RenderedImage create(URI location, Map<String, Object> configuration, RenderingHints renderingHints) throws JDOMException, IOException, IllegalArgumentException {
+    private RenderedImage create(URI location, Map<String, Object> configuration, RenderingHints renderingHints) throws JDOMException, IOException,
+                                                                                                                        IllegalArgumentException {
         configuration = new HashMap<String, Object>(configuration);
 
         SAXBuilder builder = new SAXBuilder();
@@ -90,7 +92,8 @@ public class XmlRIF implements RenderedImageFactory {
         return parseImage(targetElement, sourceMap, parameterMap, configuration, renderingHints, "rendered");
     }
 
-    private RenderedOp parseImage(Element targetElement, Map<String, Element> definedSourceElements, Map<String, Element> definedParameterElements, Map<String, Object> configuration, RenderingHints renderHints, String modeName) {
+    private RenderedOp parseImage(Element targetElement, Map<String, Element> definedSourceElements, Map<String, Element> definedParameterElements,
+                                  Map<String, Object> configuration, RenderingHints renderHints, String modeName) {
         Element opElement = targetElement.getChild(ENAME_OP);
         String opName = opElement.getValue();
 
@@ -166,7 +169,8 @@ public class XmlRIF implements RenderedImageFactory {
                 if (i < paramNames.length) {
                     parameterName = paramNames[i];
                 } else {
-                    throw new IllegalArgumentException(MessageFormat.format("Operation ''{0}'': Unknown parameter #{1}'", parameterBlock.getOperationDescriptor().getName(), i));
+                    throw new IllegalArgumentException(
+                            MessageFormat.format("Operation ''{0}'': Unknown parameter #{1}'", parameterBlock.getOperationDescriptor().getName(), i));
                 }
             }
             String parameterId = parameterElement.getAttributeValue(ANAME_REFID);
@@ -212,7 +216,9 @@ public class XmlRIF implements RenderedImageFactory {
         ParameterListDescriptor descriptor = parameterBlock.getParameterListDescriptor();
         int parameterIndex = getParameterIndex(descriptor, parameterName);
         if (parameterIndex == -1) {
-            throw new IllegalArgumentException(MessageFormat.format("Operation ''{0}'': Unknown parameter ''{1}''", parameterBlock.getOperationDescriptor().getName(), parameterName));
+            throw new IllegalArgumentException(
+                    MessageFormat.format("Operation ''{0}'': Unknown parameter ''{1}''", parameterBlock.getOperationDescriptor().getName(),
+                                         parameterName));
         }
         Class[] types = descriptor.getParamClasses();
         return parse(parameterBlock.getOperationDescriptor(), types[parameterIndex], text);

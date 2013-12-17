@@ -20,9 +20,9 @@ import com.bc.ceres.jai.ExpressionCompilerConfig;
 import com.bc.ceres.jai.opimage.ExpressionCRIF;
 import com.bc.ceres.jai.opimage.ExpressionOpImage_1;
 import junit.framework.TestCase;
-import org.jdom.Document;
-import org.jdom.JDOMException;
-import org.jdom.input.SAXBuilder;
+import org.jdom2.Document;
+import org.jdom2.JDOMException;
+import org.jdom2.input.SAXBuilder;
 
 import javax.media.jai.ImageLayout;
 import javax.media.jai.JAI;
@@ -36,10 +36,11 @@ import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
 import java.io.File;
 import java.io.IOException;
-import static java.lang.Math.sqrt;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
+
+import static java.lang.Math.*;
 
 public class ExpressionDescriptorTest extends TestCase {
 

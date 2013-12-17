@@ -16,19 +16,31 @@
 
 package com.bc.ceres.binio.binx;
 
-import com.bc.ceres.binio.*;
-import static com.bc.ceres.binio.TypeBuilder.*;
+import com.bc.ceres.binio.CompoundMember;
+import com.bc.ceres.binio.CompoundType;
+import com.bc.ceres.binio.DataFormat;
+import com.bc.ceres.binio.SequenceType;
+import com.bc.ceres.binio.SimpleType;
+import com.bc.ceres.binio.Type;
 import com.bc.ceres.core.Assert;
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.JDOMException;
-import org.jdom.Namespace;
-import org.jdom.input.SAXBuilder;
+import org.jdom2.Document;
+import org.jdom2.Element;
+import org.jdom2.JDOMException;
+import org.jdom2.Namespace;
+import org.jdom2.input.SAXBuilder;
 
 import java.io.IOException;
 import java.net.URI;
 import java.text.MessageFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+
+import static com.bc.ceres.binio.TypeBuilder.*;
 
 /**
  * Utlity class used to read BinX schema files.
@@ -37,6 +49,7 @@ import java.util.*;
  * This class is not thread-safe.
  */
 public class BinX {
+
     static final String ANONYMOUS_COMPOUND_PREFIX = "AnonymousCompound@";
     static final String ARRAY_VARIABLE_PREFIX = "ArrayVariable@";
     static final String DEFAULT_ELEMENT_COUNT_POSTFIX = "_Counter";
@@ -232,8 +245,8 @@ public class BinX {
         CompoundType compoundType = parseStruct(datasetElement);
         // inline single compound member
         if (singleDatasetStructInlined
-                && compoundType.getMemberCount() == 1
-                && compoundType.getMember(0).getType() instanceof CompoundType) {
+            && compoundType.getMemberCount() == 1
+            && compoundType.getMember(0).getType() instanceof CompoundType) {
             final CompoundMember member = compoundType.getMember(0);
             return COMPOUND(member.getName(), ((CompoundType) member.getType()).getMembers());
         } else {
@@ -522,12 +535,12 @@ public class BinX {
 
     private static boolean isIntegerType(Type sizeRefType) {
         return sizeRefType == SimpleType.BYTE
-                || sizeRefType == SimpleType.UBYTE
-                || sizeRefType == SimpleType.SHORT
-                || sizeRefType == SimpleType.USHORT
-                || sizeRefType == SimpleType.INT
-                || sizeRefType == SimpleType.UINT
-                || sizeRefType == SimpleType.LONG
-                || sizeRefType == SimpleType.ULONG;
+               || sizeRefType == SimpleType.UBYTE
+               || sizeRefType == SimpleType.SHORT
+               || sizeRefType == SimpleType.USHORT
+               || sizeRefType == SimpleType.INT
+               || sizeRefType == SimpleType.UINT
+               || sizeRefType == SimpleType.LONG
+               || sizeRefType == SimpleType.ULONG;
     }
 }
