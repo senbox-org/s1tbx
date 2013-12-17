@@ -56,10 +56,7 @@ public class SpectrumChooser extends ModalDialog {
     private static HierarchicalTable spectraTable;
 
     private List<DisplayableSpectrum> allSpectra;
-    private SelectionAdmin selectionAdmin;
-    //    private List<SelectionState> selectionStates;
-//    private List<List<Boolean>> bandSelectionStates;
-//    private List<Integer> numbersOfSelectedBands;
+    private SpectrumSelectionAdmin selectionAdmin;
     private static boolean selectionChangeLock;
 
     private final Map<Integer, SortableTable> rowToBandsTable;
@@ -71,10 +68,7 @@ public class SpectrumChooser extends ModalDialog {
         } else {
             this.allSpectra = new ArrayList<DisplayableSpectrum>();
         }
-        selectionAdmin = new SelectionAdmin();
-//        selectionStates = new ArrayList<SelectionState>();
-//        bandSelectionStates = new ArrayList<List<Boolean>>();
-//        numbersOfSelectedBands = new ArrayList<Integer>();
+        selectionAdmin = new SpectrumSelectionAdmin();
         selectionChangeLock = false;
         rowToBandsTable = new HashMap<Integer, SortableTable>();
         initUI();
@@ -126,7 +120,7 @@ public class SpectrumChooser extends ModalDialog {
         return allSpectra;
     }
 
-    class SpectrumTableModel extends DefaultTableModel implements HierarchicalTableModel {
+    private class SpectrumTableModel extends DefaultTableModel implements HierarchicalTableModel {
 
         private final Class[] COLUMN_CLASSES = {
                 Boolean.class,
@@ -136,7 +130,7 @@ public class SpectrumChooser extends ModalDialog {
         };
         private final String[] bandColumns = new String[]{"", "Band name", "Band description", "Spectral wavelength (nm)", "Spectral bandwidth (nm)"};
 
-        public SpectrumTableModel() {
+        private SpectrumTableModel() {
             super(new String[]{"", "Spectrum name", "Line style", "Symbol"}, 0);
             for (DisplayableSpectrum spectrum : allSpectra) {
                 addRow(spectrum);
@@ -156,10 +150,6 @@ public class SpectrumChooser extends ModalDialog {
                 final boolean selected = spectrum.isBandSelected(i) && spectrum.isSelected();
                 spectrumData[i][bandSelectedIndex] = selected;
                 selectionAdmin.addBand(row, selected);
-//                bandSelectionStates.get(row).add(selected);
-//                if (selected) {
-//                    numbersOfSelectedBands.set(row, numbersOfSelectedBands.get(row) + 1);
-//                }
                 spectrumData[i][bandNameIndex] = spectralBand.getName();
                 spectrumData[i][bandDescriptionIndex] = spectralBand.getDescription();
                 spectrumData[i][bandWavelengthIndex] = spectralBand.getSpectralWavelength();
@@ -178,14 +168,6 @@ public class SpectrumChooser extends ModalDialog {
                         if (!selectionChangeLock) {
                             selectionChangeLock = true;
                             selectionAdmin.updateBandSelections(row, bandRow, selected);
-                            //                            int state;
-//                            if (numbersOfSelectedBands.get(row) == 0) {
-//                                state = TristateCheckBox.STATE_UNSELECTED;
-//                            } else if (numbersOfSelectedBands.get(row) == bandSelectionStates.get(row).size()) {
-//                                state = TristateCheckBox.STATE_SELECTED;
-//                            } else {
-//                                state = TristateCheckBox.STATE_MIXED;
-//                            }
                             spectraTable.getModel().setValueAt(selectionAdmin.getState(row), row, spectrumSelectedIndex);
                             spectrum.setSelected(selectionAdmin.isSpectrumSelected(row));
                             selectionChangeLock = false;
@@ -208,8 +190,6 @@ public class SpectrumChooser extends ModalDialog {
 
             selectionAdmin.addSpectrumSelections(spectrum);
             super.addRow(new Object[]{selectionAdmin.getState(getRowCount()), spectrum.getName(), strokeIcon, shapeIcon});
-//            selectionStates.bandSelectionStates.add(selected);
-//            numbersOfSelectedBands.add(numberOfSelectedBands);
         }
 
         @Override
@@ -241,22 +221,7 @@ public class SpectrumChooser extends ModalDialog {
         public void setValueAt(Object aValue, int row, int column) {
             if (column == spectrumSelectedIndex && !selectionChangeLock) {
                 selectionChangeLock = true;
-
-                if ((Integer) aValue == TristateCheckBox.STATE_MIXED) {
-                    if (selectionAdmin.areNoBandsSelected(row)) {
-                        aValue = TristateCheckBox.STATE_UNSELECTED;
-                    } else if (selectionAdmin.areAllBandsSelected(row)) {
-                        aValue = TristateCheckBox.STATE_SELECTED;
-//                    } else {
-//                        updateBandsTable(row, new MixedSelectedCheckBoxState(bandSelectionStates.get(row)));
-                    }
-                }
-//                if (value == TristateCheckBox.STATE_SELECTED) {
-//                    updateBandsTable(row, new AllSelectedCheckBoxState());
-//                } else if (value == TristateCheckBox.STATE_UNSELECTED) {
-//                    updateBandsTable(row, new NoneSelectedCheckBoxState());
-//                }
-                selectionAdmin.updateBandSelections(row, (Integer) aValue);
+                selectionAdmin.updateState(row, (Integer) aValue);
                 aValue = selectionAdmin.getState(row);
                 updateBandsTable(row);
                 allSpectra.get(row).setSelected(selectionAdmin.isSpectrumSelected(row));
@@ -287,9 +252,9 @@ public class SpectrumChooser extends ModalDialog {
         }
     }
 
-    static class BandTableModel extends DefaultTableModel {
+    private static class BandTableModel extends DefaultTableModel {
 
-        public BandTableModel(Object[][] spectrumData, String[] bandColumns) {
+        private BandTableModel(Object[][] spectrumData, String[] bandColumns) {
             super(spectrumData, bandColumns);
         }
 
@@ -300,7 +265,7 @@ public class SpectrumChooser extends ModalDialog {
 
     }
 
-    class SpectrumTableComponentFactory implements HierarchicalTableComponentFactory {
+    private class SpectrumTableComponentFactory implements HierarchicalTableComponentFactory {
 
         @Override
         public Component createChildComponent(HierarchicalTable table, Object value, int row) {
@@ -356,9 +321,9 @@ public class SpectrumChooser extends ModalDialog {
         }
     }
 
-    class ImageIconComboBoxRenderer extends JLabel implements ListCellRenderer {
+    private class ImageIconComboBoxRenderer extends JLabel implements ListCellRenderer {
 
-        public ImageIconComboBoxRenderer() {
+        private ImageIconComboBoxRenderer() {
             setOpaque(true);
             setHorizontalAlignment(CENTER);
             setVerticalAlignment(CENTER);
@@ -379,9 +344,9 @@ public class SpectrumChooser extends ModalDialog {
 
     }
 
-    class BooleanRenderer extends JCheckBox implements TableCellRenderer {
+    private class BooleanRenderer extends JCheckBox implements TableCellRenderer {
 
-        public BooleanRenderer() {
+        private BooleanRenderer() {
             this.setOpaque(true);
         }
 
@@ -400,9 +365,9 @@ public class SpectrumChooser extends ModalDialog {
         }
     }
 
-    class TriStateRenderer extends TristateCheckBox implements TableCellRenderer {
+    private class TriStateRenderer extends TristateCheckBox implements TableCellRenderer {
 
-        public TriStateRenderer() {
+        private TriStateRenderer() {
             this.setOpaque(true);
         }
 
@@ -419,143 +384,6 @@ public class SpectrumChooser extends ModalDialog {
             setState(state);
             return this;
         }
-    }
-
-    class SelectionAdmin {
-
-        //        private List<SelectionState> selectionStates;
-        private List<List<Boolean>> bandSelectionStates;
-        private List<Integer> numbersOfSelectedBands;
-        private List<Integer> currentStates;
-
-
-        SelectionAdmin() {
-//            selectionStates = new ArrayList<SelectionState>();
-            bandSelectionStates = new ArrayList<List<Boolean>>();
-            numbersOfSelectedBands = new ArrayList<Integer>();
-            currentStates = new ArrayList<Integer>();
-        }
-
-        void addSpectrumSelections(DisplayableSpectrum spectrum) {
-            List<Boolean> selected = new ArrayList<Boolean>();
-            int numberOfSelectedBands = 0;
-            for (int i = 0; i < spectrum.getSpectralBands().length; i++) {
-                final boolean bandSelected = spectrum.isBandSelected(i);
-                selected.add(bandSelected);
-                if (bandSelected) {
-                    numberOfSelectedBands++;
-                }
-            }
-            bandSelectionStates.add(selected);
-            numbersOfSelectedBands.add(numberOfSelectedBands);
-            currentStates.add(-1);
-            evaluate(bandSelectionStates.size() - 1);
-        }
-
-        void addBand(int index, boolean selected) {
-            bandSelectionStates.get(index).add(selected);
-            if (selected) {
-                numbersOfSelectedBands.set(index, numbersOfSelectedBands.get(index) + 1);
-            }
-        }
-
-        boolean areNoBandsSelected(int row) {
-            return numbersOfSelectedBands.get(row) == 0;
-        }
-
-        boolean areAllBandsSelected(int row) {
-            return numbersOfSelectedBands.get(row) == bandSelectionStates.get(row).size();
-        }
-
-        boolean isBandSelected(int row, int i) {
-            if (currentStates.get(row) == TristateCheckBox.STATE_MIXED) {
-                return bandSelectionStates.get(row).get(i);
-            } else if (currentStates.get(row) == TristateCheckBox.STATE_SELECTED) {
-                return true;
-            } else {
-                return false;
-            }
-        }
-
-        void evaluate(int index) {
-            final Integer numberOfBands = numbersOfSelectedBands.get(index);
-            if (numberOfBands == 0) {
-                currentStates.set(index, TristateCheckBox.STATE_UNSELECTED);
-            } else if (numberOfBands == bandSelectionStates.get(index).size()) {
-                currentStates.set(index, TristateCheckBox.STATE_SELECTED);
-            } else {
-                currentStates.set(index, TristateCheckBox.STATE_MIXED);
-            }
-        }
-
-        public int getState(int index) {
-//            evaluate(index);
-            return currentStates.get(index);
-        }
-
-        public boolean isSpectrumSelected(int row) {
-            return currentStates.get(row) != TristateCheckBox.STATE_UNSELECTED;
-        }
-
-        private void updateBandSelections(int row, int bandRow, boolean selected) {
-            bandSelectionStates.get(row).set(bandRow, selected);
-            updateNumbersOfSelectedBands(selected, row);
-//            int state = currentStates.get(row);
-            evaluate(row);
-//            if(state != currentStates.get(row)) {
-//
-//            }
-//            getState(row);
-//            updateBandSelection(row);
-        }
-
-        private void updateBandSelections(int row, int newState) {
-            if (newState == TristateCheckBox.STATE_MIXED) {
-                if (selectionAdmin.areNoBandsSelected(row)) {
-                    newState = TristateCheckBox.STATE_UNSELECTED;
-                } else if (selectionAdmin.areAllBandsSelected(row)) {
-                    newState = TristateCheckBox.STATE_SELECTED;
-                }
-            }
-            currentStates.set(row, newState);
-
-//            updateBandSelection(row);
-
-
-//            if ((Integer) spectraTable.getModel().getValueAt(row, spectrumSelectedIndex) == TristateCheckBox.STATE_SELECTED) {
-//                for (int i = 0; i < bandSelectionStates.get(row).size(); i++) {
-//                    bandSelectionStates.get(row).set(i, true);
-//                }
-//                numbersOfSelectedBands.set(row, bandSelectionStates.get(row).size());
-//            } else if ((Integer) spectraTable.getModel().getValueAt(row, spectrumSelectedIndex) == TristateCheckBox.STATE_UNSELECTED) {
-//                for (int i = 0; i < bandSelectionStates.get(row).size(); i++) {
-//                    bandSelectionStates.get(row).set(i, false);
-//                }
-//                numbersOfSelectedBands.set(row, 0);
-//            }
-
-//            bandSelectionStates.get(row).set(bandRow, selected);
-
-//            updateNumbersOfSelectedBands(selected, row);
-        }
-
-//        private void updateBandSelection(int index) {
-//            final List<Boolean> bandSelection = bandSelectionStates.get(index);
-//            if(newState != TristateCheckBox.STATE_MIXED) {
-//                for (int i = 0; i < bandSelectionStates.get(index).size(); i++) {
-//                    bandSelection.set(i, newState == TristateCheckBox.STATE_SELECTED);
-//                }
-//            }
-//        }
-
-        private void updateNumbersOfSelectedBands(Boolean selected, int row) {
-            if (selected) {
-                numbersOfSelectedBands.set(row, numbersOfSelectedBands.get(row) + 1);
-            } else {
-                numbersOfSelectedBands.set(row, numbersOfSelectedBands.get(row) - 1);
-            }
-        }
-
     }
 
 }
