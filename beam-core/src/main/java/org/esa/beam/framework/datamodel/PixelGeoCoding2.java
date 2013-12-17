@@ -127,12 +127,14 @@ class PixelGeoCoding2 extends AbstractGeoCoding implements BasicPixelGeoCoding {
                 }
             } else {
                 maskExpression = null;
+                // TODO - ensure that tile layout of lat and lon images is used
                 maskImage = ConstantDescriptor.create((float) lonImage.getWidth(),
                                                       (float) lonImage.getHeight(),
                                                       new Byte[]{1}, null);
             }
         } else {
             maskExpression = null;
+                // TODO - ensure that tile layout of lat and lon images is used
             maskImage = ConstantDescriptor.create((float) lonImage.getWidth(),
                                                   (float) lonImage.getHeight(),
                                                   new Byte[]{1}, null);

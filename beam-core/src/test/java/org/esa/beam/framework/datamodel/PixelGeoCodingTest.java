@@ -317,11 +317,11 @@ public class PixelGeoCodingTest {
 
     private void doTestTransferGeoCoding_WithSpatialSubset() throws IOException {
         Product sourceProduct = createProduct();
-        GeoCoding newGeoCoding = GeoCodingFactory.createPixelGeoCoding(sourceProduct.getBand("latBand"),
-                                                                       sourceProduct.getBand("lonBand"),
-                                                                       "flagomat.valid", 5,
-                                                                       ProgressMonitor.NULL);
-        sourceProduct.setGeoCoding(newGeoCoding);
+        GeoCoding pixelGeoCoding = GeoCodingFactory.createPixelGeoCoding(sourceProduct.getBand("latBand"),
+                                                                         sourceProduct.getBand("lonBand"),
+                                                                         "flagomat.valid", 5,
+                                                                         ProgressMonitor.NULL);
+        sourceProduct.setGeoCoding(pixelGeoCoding);
 
         final ProductSubsetDef def = new ProductSubsetDef();
         final int subsetWidth = sourceProduct.getSceneRasterWidth() - 3;
@@ -329,25 +329,30 @@ public class PixelGeoCodingTest {
         def.setRegion(2, 2, subsetWidth, subsetHeight);
         def.setSubSampling(1, 2);
         Product targetProduct = sourceProduct.createSubset(def, "target", "");
-        targetProduct.setGeoCoding(null);   // remove geo-coding of target product
-        targetProduct.removeTiePointGrid(targetProduct.getTiePointGrid("latGrid"));
-        targetProduct.removeTiePointGrid(targetProduct.getTiePointGrid("lonGrid"));
-        targetProduct.removeBand(targetProduct.getBand("latBand"));
-        targetProduct.removeBand(targetProduct.getBand("lonBand"));
-        targetProduct.removeBand(targetProduct.getBand("flagomat"));
-        targetProduct.getFlagCodingGroup().removeAll();
 
-        sourceProduct.transferGeoCodingTo(targetProduct, def);
+        if ("true".equals(System.getProperty(GeoCodingFactory.USE_ALTERNATE_PIXEL_GEO_CODING_PROPERTY))) {
+            targetProduct.setGeoCoding(null);
+            targetProduct.removeTiePointGrid(targetProduct.getTiePointGrid("latGrid"));
+            targetProduct.removeTiePointGrid(targetProduct.getTiePointGrid("lonGrid"));
+            targetProduct.removeBand(targetProduct.getBand("latBand"));
+            targetProduct.removeBand(targetProduct.getBand("lonBand"));
+            targetProduct.removeBand(targetProduct.getBand("flagomat"));
+            targetProduct.getFlagCodingGroup().removeAll();
+            sourceProduct.transferGeoCodingTo(targetProduct, def);
+        }
+
         assertTrue(targetProduct.containsBand("latBand"));
         assertTrue(targetProduct.containsBand("lonBand"));
         assertTrue(targetProduct.containsBand("flagomat"));
+
         if ("true".equals(System.getProperty(GeoCodingFactory.USE_ALTERNATE_PIXEL_GEO_CODING_PROPERTY))) {
             assertTrue(targetProduct.containsTiePointGrid("latGrid"));
             assertTrue(targetProduct.containsTiePointGrid("lonGrid"));
         }
+
         assertTrue(targetProduct.getFlagCodingGroup().contains("flags"));
 
-        PixelGeoCoding targetGC = (PixelGeoCoding) targetProduct.getGeoCoding();
+        BasicPixelGeoCoding targetGC = (BasicPixelGeoCoding) targetProduct.getGeoCoding();
         if ("true".equals(System.getProperty(GeoCodingFactory.USE_ALTERNATE_PIXEL_GEO_CODING_PROPERTY))) {
             assertNotNull(targetGC.getPixelPosEstimator());
         }
@@ -363,7 +368,6 @@ public class PixelGeoCodingTest {
         assertNotNull(data);
         assertEquals(6, data.getWidth());
         assertEquals(7, data.getHeight());
-
     }
 
     private Product createProduct() {
