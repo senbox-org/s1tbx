@@ -50,6 +50,7 @@ import org.jfree.chart.LegendItem;
 import org.jfree.chart.LegendItemCollection;
 import org.jfree.chart.LegendItemSource;
 import org.jfree.chart.annotations.XYTitleAnnotation;
+import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.block.BlockBorder;
 import org.jfree.chart.block.LineBorder;
 import org.jfree.chart.plot.PlotOrientation;
@@ -58,6 +59,7 @@ import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.chart.title.LegendTitle;
 import org.jfree.chart.title.TextTitle;
+import org.jfree.data.Range;
 import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
@@ -212,16 +214,16 @@ public class SpectrumToolView extends AbstractToolView {
         }
     }
 
-    protected void updateSpectra(int pixelX, int pixelY, int level) {
+    protected void updateSpectra(int pixelX, int pixelY, int level, boolean adjustAxes) {
         maybeShowTip();
         chartHandler.setPosition(pixelX, pixelY);
         chartHandler.setLevel(level);
+        chartHandler.setAutomaticRangeAdjustment(adjustAxes);
         chartHandler.updateChart();
         chartPanel.repaint();
     }
 
     private void maybeShowTip() {
-        //todo remove when axes cannot be adjusted anymore
         if (!tipShown) {
             final String message = "Tip: If you press the SHIFT key while moving the mouse cursor over \n" +
                     "an image, " + VisatApp.getApp().getAppName() + " adjusts the diagram axes " +
@@ -344,8 +346,6 @@ public class SpectrumToolView extends AbstractToolView {
         exportSpectraButton.setToolTipText("Export allSpectra to text file.");
         exportSpectraButton.setName("exportSpectraButton");
 
-//        axisRangeControl = new AxisRangeControl("Y-Axis");
-
         AbstractButton helpButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/Help22.png"), false);
         helpButton.setName("helpButton");
         helpButton.setToolTipText("Help."); /*I18N*/
@@ -373,8 +373,6 @@ public class SpectrumToolView extends AbstractToolView {
 //        buttonPane.add(showGraphPointsButton, gbc);
 //        gbc.gridy++;
         buttonPane.add(exportSpectraButton, gbc);
-//        gbc.gridy++;
-//        buttonPane.add(axisRangeControl.getPanel(), gbc);
 
         gbc.gridy++;
         gbc.insets.bottom = 0;
@@ -613,13 +611,25 @@ public class SpectrumToolView extends AbstractToolView {
             chartUpdater = new ChartUpdater();
             this.chart = chart;
             setLegend(chart);
-            final XYPlot plot = chart.getXYPlot();
-//            plot.getDomainAxis().setAutoRange(false);
-//            plot.getRangeAxis().setAutoRange(false);
-            final XYLineAndShapeRenderer renderer = (XYLineAndShapeRenderer) plot.getRenderer();
+            setAutomaticRangeAdjustment(false);
+            final XYLineAndShapeRenderer renderer = (XYLineAndShapeRenderer) chart.getXYPlot().getRenderer();
             renderer.setBaseShapesVisible(true);
             renderer.setBaseShapesFilled(false);
             setPlotMessage(MESSAGE_NO_PRODUCT_SELECTED);
+        }
+
+        private void setAutomaticRangeAdjustment(boolean adjustAxes) {
+            if (adjustAxes != isAutomaticAdjustmentSet()) {
+                final XYPlot plot = chart.getXYPlot();
+                plot.getDomainAxis().setAutoRange(adjustAxes);
+                plot.getRangeAxis().setAutoRange(adjustAxes);
+                chartUpdater.invalidatePlotBounds();
+            }
+        }
+
+        private boolean isAutomaticAdjustmentSet() {
+            return chart.getXYPlot().getDomainAxis().isAutoRange() ||
+                    chart.getXYPlot().getRangeAxis().isAutoRange();
         }
 
         private void setLegend(JFreeChart chart) {
@@ -698,13 +708,25 @@ public class SpectrumToolView extends AbstractToolView {
 
     private class ChartUpdater {
 
+        private final static int domain_axis_index = 0;
+        private final static int range_axis_index = 1;
+        private final static double relativePlotInset = 0.05;
+
         private final Map<Placemark, Map<Band, Double>> pinToEnergies;
         private int pixelX;
         private int pixelY;
         private int level;
+        private Range[] plotBounds;
 
         private ChartUpdater() {
             pinToEnergies = new HashMap<Placemark, Map<Band, Double>>();
+            plotBounds = new Range[2];
+            invalidatePlotBounds();
+        }
+
+        void invalidatePlotBounds() {
+            plotBounds[domain_axis_index] = null;
+            plotBounds[range_axis_index] = null;
         }
 
         private void setLevel(int level) {
@@ -724,7 +746,11 @@ public class SpectrumToolView extends AbstractToolView {
                     fillDatasetWithCursorSeries(spectra, dataset, chart);
                 }
             }
-            chart.getXYPlot().setDataset(dataset);
+            final XYPlot plot = chart.getXYPlot();
+            if (!chartHandler.isAutomaticAdjustmentSet()) {
+                updatePlotBounds(dataset, plot);
+            }
+            plot.setDataset(dataset);
             String unitToBeDisplayed = spectra.get(0).getUnit();
             int i = 1;
             while (i < spectra.size() && !unitToBeDisplayed.equals(DisplayableSpectrum.MIXED_UNITS)) {
@@ -733,7 +759,50 @@ public class SpectrumToolView extends AbstractToolView {
                     unitToBeDisplayed = DisplayableSpectrum.MIXED_UNITS;
                 }
             }
-            chart.getXYPlot().getRangeAxis().setLabel(unitToBeDisplayed);
+            plot.getRangeAxis().setLabel(unitToBeDisplayed);
+        }
+
+        private void updatePlotBounds(XYSeriesCollection dataset, XYPlot plot) {
+            final ValueAxis domainAxis = plot.getDomainAxis();
+            final Range newDomainBounds = dataset.getDomainBounds(true);
+            if (newDomainBounds != null) {
+                updatePlotBounds(domainAxis, newDomainBounds, domain_axis_index);
+            }
+
+            final ValueAxis rangeAxis = plot.getRangeAxis();
+            final Range newRangeBounds = dataset.getRangeBounds(true);
+            if (newRangeBounds != null) {
+                updatePlotBounds(rangeAxis, newRangeBounds, range_axis_index);
+            }
+        }
+
+        private void updatePlotBounds(ValueAxis axis, Range newBounds, int index) {
+            final Range plotBounds = axis.getRange();
+            final Range oldBounds = this.plotBounds[index];
+            this.plotBounds[index] = getNewRange(newBounds, this.plotBounds[index], plotBounds);
+            if (oldBounds != this.plotBounds[index]) {
+                axis.setRange(getNewPlotBounds(this.plotBounds[index]));
+            }
+        }
+
+        private Range getNewRange(Range newBounds, Range currentBounds, Range plotBounds) {
+            if (currentBounds == null) {
+                currentBounds = newBounds;
+            } else {
+                if (plotBounds.getLowerBound() > 0 && newBounds.getLowerBound() < currentBounds.getLowerBound() ||
+                        newBounds.getUpperBound() > currentBounds.getUpperBound()) {
+                    currentBounds = new Range(Math.min(currentBounds.getLowerBound(), newBounds.getLowerBound()),
+                                              Math.max(currentBounds.getUpperBound(), newBounds.getUpperBound()));
+                }
+            }
+            return currentBounds;
+        }
+
+        private Range getNewPlotBounds(Range bounds) {
+            double range = bounds.getLength();
+            double delta = range * relativePlotInset;
+            return new Range(Math.max(0, bounds.getLowerBound() - delta),
+                             bounds.getUpperBound() + delta);
         }
 
         private void fillDatasetWithCursorSeries(List<DisplayableSpectrum> spectra, XYSeriesCollection dataset, JFreeChart chart) {
