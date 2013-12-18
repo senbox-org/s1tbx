@@ -167,7 +167,6 @@ public class SpectrumChooser extends ModalDialog {
                 Band spectralBand = spectralBands[i];
                 final boolean selected = spectrum.isBandSelected(i) && spectrum.isSelected();
                 spectrumData[i][bandSelectedIndex] = selected;
-                selectionAdmin.addBand(row, selected);
                 spectrumData[i][bandNameIndex] = spectralBand.getName();
                 spectrumData[i][bandDescriptionIndex] = spectralBand.getDescription();
                 spectrumData[i][bandWavelengthIndex] = spectralBand.getSpectralWavelength();

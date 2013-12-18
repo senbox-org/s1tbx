@@ -33,13 +33,6 @@ public class SpectrumSelectionAdmin {
         evaluate(bandSelectionStates.size() - 1);
     }
 
-    void addBand(int index, boolean selected) {
-        bandSelectionStates.get(index).add(selected);
-        if (selected) {
-            numbersOfSelectedBands.set(index, numbersOfSelectedBands.get(index) + 1);
-        }
-    }
-
     boolean isBandSelected(int row, int i) {
         if (currentStates.get(row) == TristateCheckBox.STATE_MIXED) {
             return bandSelectionStates.get(row).get(i);
