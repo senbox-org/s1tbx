@@ -25,6 +25,7 @@ import org.esa.beam.framework.datamodel.ProductNodeEvent;
 import org.esa.beam.framework.datamodel.ProductNodeGroup;
 import org.esa.beam.framework.datamodel.ProductNodeListenerAdapter;
 import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.datamodel.VirtualBand;
 import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.framework.ui.GridBagUtils;
 import org.esa.beam.framework.ui.ModalDialog;
@@ -990,7 +991,7 @@ public class SpectrumToolView extends AbstractToolView {
                     recreateChart();
                 } else if (propertyName.equals(RasterDataNode.PROPERTY_NAME_STX)) {
                     final Band newBand = (Band) event.getSourceNode();
-                    if (isSpectralBand(newBand)) {
+                    if (newBand instanceof VirtualBand && isSpectralBand(newBand)) {
                         addBandToSpectra(newBand);
                         recreateChart();
                     }
@@ -1053,6 +1054,16 @@ public class SpectrumToolView extends AbstractToolView {
             recreateChart();
         }
 
+    }
+
+    private class SceneViewImageInfoChangeListener implements PropertyChangeListener {
+
+        @Override
+        public void propertyChange(PropertyChangeEvent evt) {
+            if (ProductSceneView.PROPERTY_NAME_IMAGE_INFO.equals(evt.getPropertyName())) {
+
+            }
+        }
     }
 
 }
