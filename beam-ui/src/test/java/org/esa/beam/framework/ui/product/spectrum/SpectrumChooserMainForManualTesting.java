@@ -17,17 +17,13 @@ public class SpectrumChooserMainForManualTesting {
     public static void main(String[] args) {
         Lm.verifyLicense("Brockmann Consult", "BEAM", "lCzfhklpZ9ryjomwWxfdupxIcuIoCxg2");
 
-        String name = "Radiances";
-        int numBands = 5;
-        Band[] bands = new Band[numBands];
-        for (int i = 0; i < bands.length; i++) {
-            bands[i] = createBand(i);
-        }
-        DisplayableSpectrum spectrum = new DisplayableSpectrum(name, bands);
-//        final List<DisplayableSpectrum> spectra = new ArrayList<DisplayableSpectrum>();
-//        spectra.add(spectrum);
-        final DisplayableSpectrum[] spectra = new DisplayableSpectrum[1];
-        spectra[0] = spectrum;
+        final DisplayableSpectrum[] spectra = new DisplayableSpectrum[3];
+
+        spectra[0] = createSpectrum(0);
+        spectra[1] = createSpectrum(1);
+        spectra[2] = new DisplayableSpectrum(DisplayableSpectrum.ALTERNATIVE_DEFAULT_SPECTRUM_NAME);
+        spectra[2].addBand(createBand(11), spectra[2].isSelected());
+
         final JFrame frame = new JFrame();
         frame.setSize(new Dimension(100, 100));
         JButton button = new JButton("Choose Spectrum");
@@ -40,6 +36,17 @@ public class SpectrumChooserMainForManualTesting {
         });
         frame.add(button);
         frame.setVisible(true);
+    }
+
+    private static DisplayableSpectrum createSpectrum(int offset) {
+        int numBands = 5;
+        String name = "Radiances";
+        Band[] bands = new Band[numBands];
+        final int bandOffset = numBands * offset;
+        for (int i = 0; i < numBands; i++) {
+            bands[i] = createBand(i + bandOffset);
+        }
+        return new DisplayableSpectrum(name + " " + (offset + 1), bands);
     }
 
     /*
