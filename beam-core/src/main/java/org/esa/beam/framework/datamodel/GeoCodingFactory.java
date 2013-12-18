@@ -75,14 +75,27 @@ public class GeoCodingFactory {
         }
     }
 
-    static Band createSubset(Band srcBand, Scene destScene, ProductSubsetDef subsetDef) {
-        Band band = new Band(srcBand.getName(),
-                             srcBand.getDataType(),
-                             destScene.getRasterWidth(),
-                             destScene.getRasterHeight());
-        ProductUtils.copyRasterDataNodeProperties(srcBand, band);
-        band.setSourceImage(getSourceImage(subsetDef, srcBand));
-        return band;
+    static Band createSubset(Band sourceBand, Scene targetScene, ProductSubsetDef subsetDef) {
+        final Band targetBand = new Band(sourceBand.getName(),
+                                         sourceBand.getDataType(),
+                                         targetScene.getRasterWidth(),
+                                         targetScene.getRasterHeight());
+        ProductUtils.copyRasterDataNodeProperties(sourceBand, targetBand);
+        targetBand.setSourceImage(getSourceImage(subsetDef, sourceBand));
+        return targetBand;
+    }
+
+    // for copying mask images - don't remove
+    static Mask createSubset(Mask sourceMask, Scene targetScene, ProductSubsetDef subsetDef) {
+        final Mask targetMask = Mask.BandMathsType.create(sourceMask.getName(),
+                                                          sourceMask.getDescription(),
+                                                          targetScene.getRasterWidth(),
+                                                          targetScene.getRasterHeight(),
+                                                          Mask.BandMathsType.getExpression(sourceMask),
+                                                          sourceMask.getImageColor(),
+                                                          sourceMask.getImageTransparency());
+        targetMask.setSourceImage(getSourceImage(subsetDef, sourceMask));
+        return targetMask;
     }
 
     private static void setFlagCoding(Band band, FlagCoding flagCoding) {
