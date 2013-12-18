@@ -20,7 +20,7 @@ import org.esa.nest.dataio.binary.BinaryFileReader;
 import org.esa.nest.dataio.binary.BinaryRecord;
 import org.esa.nest.dataio.ceos.CEOSLeaderFile;
 import org.esa.nest.dataio.ceos.CeosRecordHeader;
-import org.jdom.Document;
+import org.jdom2.Document;
 
 import javax.imageio.stream.ImageInputStream;
 import java.io.IOException;

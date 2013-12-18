@@ -19,9 +19,9 @@ import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.nest.gpf.ReaderUtils;
 import org.esa.nest.util.XMLSupport;
-import org.jdom.Attribute;
-import org.jdom.Document;
-import org.jdom.Element;
+import org.jdom2.Attribute;
+import org.jdom2.Document;
+import org.jdom2.Element;
 
 import java.io.File;
 import java.io.IOException;

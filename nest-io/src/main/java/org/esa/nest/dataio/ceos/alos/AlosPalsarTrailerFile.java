@@ -16,7 +16,7 @@
 package org.esa.nest.dataio.ceos.alos;
 
 import org.esa.nest.dataio.binary.BinaryDBReader;
-import org.jdom.Document;
+import org.jdom2.Document;
 
 import javax.imageio.stream.ImageInputStream;
 import java.io.IOException;

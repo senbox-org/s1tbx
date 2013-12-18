@@ -27,7 +27,8 @@ import org.esa.nest.datamodel.Unit;
 import org.esa.nest.gpf.OperatorUtils;
 import org.esa.nest.gpf.ReaderUtils;
 import org.esa.nest.util.XMLSupport;
-import org.jdom.Element;
+import org.jdom2.Document;
+import org.jdom2.Element;
 
 import java.io.File;
 import java.io.IOException;
@@ -47,7 +48,7 @@ public class XMLProductDirectory {
     private final File xmlHeader;
     private final File baseDir;
     private final File imgFolder;
-    private org.jdom.Document xmlDoc = null;
+    private Document xmlDoc = null;
 
     private boolean isSLC = false;
     protected int sceneWidth = 0;

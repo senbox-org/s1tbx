@@ -29,7 +29,8 @@ import org.esa.nest.eo.Constants;
 import org.esa.nest.gpf.OperatorUtils;
 import org.esa.nest.gpf.ReaderUtils;
 import org.esa.nest.util.XMLSupport;
-import org.jdom.Element;
+import org.jdom2.Document;
+import org.jdom2.Element;
 
 import java.io.File;
 import java.io.IOException;
@@ -299,7 +300,7 @@ public class Sentinel1ProductDirectory extends XMLProductDirectory {
             if(!metadataFile.isFile())
                 continue;
 
-            org.jdom.Document xmlDoc = XMLSupport.LoadXML(metadataFile.getAbsolutePath());
+            Document xmlDoc = XMLSupport.LoadXML(metadataFile.getAbsolutePath());
             final Element rootElement = xmlDoc.getRootElement();
             final MetadataElement nameElem = new MetadataElement(metadataFile.getName());
             annotationElement.addElement(nameElem);
@@ -406,7 +407,7 @@ public class Sentinel1ProductDirectory extends XMLProductDirectory {
         for(File metadataFile : files) {
             if(metadataFile.getName().startsWith("calibration")) {
 
-                org.jdom.Document xmlDoc = XMLSupport.LoadXML(metadataFile.getAbsolutePath());
+                Document xmlDoc = XMLSupport.LoadXML(metadataFile.getAbsolutePath());
                 final Element rootElement = xmlDoc.getRootElement();
                 final String name = metadataFile.getName().replace("calibration-","");
                 final MetadataElement nameElem = new MetadataElement(name);
@@ -430,7 +431,7 @@ public class Sentinel1ProductDirectory extends XMLProductDirectory {
         for(File metadataFile : files) {
             if(metadataFile.getName().startsWith("noise")) {
 
-                org.jdom.Document xmlDoc = XMLSupport.LoadXML(metadataFile.getAbsolutePath());
+                Document xmlDoc = XMLSupport.LoadXML(metadataFile.getAbsolutePath());
                 final Element rootElement = xmlDoc.getRootElement();
                 final String name = metadataFile.getName().replace("noise-","");
                 final MetadataElement nameElem = new MetadataElement(name);

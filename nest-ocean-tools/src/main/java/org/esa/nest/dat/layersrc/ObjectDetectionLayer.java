@@ -25,8 +25,9 @@ import org.esa.nest.dat.layers.ScreenPixelConverter;
 import org.esa.nest.datamodel.AbstractMetadata;
 import org.esa.nest.gpf.oceantools.ObjectDiscriminationOp;
 import org.esa.nest.util.XMLSupport;
-import org.jdom.Attribute;
-import org.jdom.Element;
+import org.jdom2.Attribute;
+import org.jdom2.Document;
+import org.jdom2.Element;
 
 import java.awt.*;
 import java.awt.geom.Ellipse2D;
@@ -87,7 +88,7 @@ public class ObjectDetectionLayer extends Layer {
         if(file == null)
             return;
 
-        org.jdom.Document doc;
+        Document doc;
         try {
             doc = XMLSupport.LoadXML(file.getAbsolutePath());
         } catch(IOException e) {

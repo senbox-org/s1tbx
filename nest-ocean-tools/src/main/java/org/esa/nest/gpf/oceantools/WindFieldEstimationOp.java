@@ -37,8 +37,8 @@ import org.esa.nest.gpf.OperatorUtils;
 import org.esa.nest.eo.Constants;
 import org.esa.nest.util.ResourceUtils;
 import org.esa.nest.util.XMLSupport;
-import org.jdom.Document;
-import org.jdom.Element;
+import org.jdom2.Document;
+import org.jdom2.Element;
 
 import javax.media.jai.JAI;
 import javax.media.jai.PlanarImage;

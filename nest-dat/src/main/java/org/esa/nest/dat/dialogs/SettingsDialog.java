@@ -24,8 +24,8 @@ import org.esa.beam.framework.ui.ModelessDialog;
 import org.esa.beam.visat.VisatApp;
 import org.esa.nest.util.DialogUtils;
 import org.esa.nest.util.Settings;
-import org.jdom.Attribute;
-import org.jdom.Element;
+import org.jdom2.Attribute;
+import org.jdom2.Element;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;

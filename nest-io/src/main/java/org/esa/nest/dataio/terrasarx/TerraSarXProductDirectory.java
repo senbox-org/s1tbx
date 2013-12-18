@@ -29,7 +29,8 @@ import org.esa.nest.gpf.OperatorUtils;
 import org.esa.nest.gpf.ReaderUtils;
 import org.esa.nest.eo.Constants;
 import org.esa.nest.util.XMLSupport;
-import org.jdom.Element;
+import org.jdom2.Document;
+import org.jdom2.Element;
 
 import javax.imageio.stream.ImageInputStream;
 import java.io.File;
@@ -472,7 +473,7 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
     }
 
     private static void readGeoRef(final Product product, final File georefFile) throws IOException {
-        final org.jdom.Document xmlDoc = XMLSupport.LoadXML(georefFile.getAbsolutePath());
+        final Document xmlDoc = XMLSupport.LoadXML(georefFile.getAbsolutePath());
         final Element root = xmlDoc.getRootElement();
         final Element geoGrid = root.getChild("geolocationGrid");
 

@@ -19,9 +19,9 @@ import org.esa.beam.visat.VisatApp;
 import org.esa.nest.dat.dialogs.ProductSetDialog;
 import org.esa.nest.util.ProductFunctions;
 import org.esa.nest.util.XMLSupport;
-import org.jdom.Attribute;
-import org.jdom.Document;
-import org.jdom.Element;
+import org.jdom2.Attribute;
+import org.jdom2.Document;
+import org.jdom2.Element;
 
 import java.io.File;
 import java.io.IOException;
@@ -102,7 +102,7 @@ public final class ProductSet {
 
         if(!file.exists())
             return false;
-        org.jdom.Document doc;
+        Document doc;
         try {
             doc = XMLSupport.LoadXML(file.getAbsolutePath());
         } catch(IOException e) {

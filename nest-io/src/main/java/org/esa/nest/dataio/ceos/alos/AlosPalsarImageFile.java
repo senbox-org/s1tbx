@@ -19,6 +19,7 @@ import org.esa.nest.dataio.binary.BinaryDBReader;
 import org.esa.nest.dataio.binary.BinaryFileReader;
 import org.esa.nest.dataio.binary.BinaryRecord;
 import org.esa.nest.dataio.ceos.CEOSImageFile;
+import org.jdom2.Document;
 
 import javax.imageio.stream.ImageInputStream;
 import java.io.IOException;
@@ -33,9 +34,9 @@ class AlosPalsarImageFile extends CEOSImageFile {
     private final String imageFileName;
     private final int productLevel;
 
-    private final static org.jdom.Document imgDefXML = BinaryDBReader.loadDefinitionFile(mission, image_DefinitionFile);
-    private final static org.jdom.Document imgRecordXML = BinaryDBReader.loadDefinitionFile(mission, image_recordDefinition);
-    private final static org.jdom.Document procDataXML = BinaryDBReader.loadDefinitionFile(mission, processedData_recordDefinition);
+    private final static Document imgDefXML = BinaryDBReader.loadDefinitionFile(mission, image_DefinitionFile);
+    private final static Document imgRecordXML = BinaryDBReader.loadDefinitionFile(mission, image_recordDefinition);
+    private final static Document procDataXML = BinaryDBReader.loadDefinitionFile(mission, processedData_recordDefinition);
 
     public AlosPalsarImageFile(final ImageInputStream imageStream, int prodLevel, String fileName)
             throws IOException {

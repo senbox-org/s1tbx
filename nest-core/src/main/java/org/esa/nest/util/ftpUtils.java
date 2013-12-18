@@ -21,9 +21,9 @@ import org.apache.commons.net.ftp.FTPFile;
 import org.apache.commons.net.ftp.FTPReply;
 import org.esa.beam.visat.VisatApp;
 import org.esa.nest.gpf.StatusProgressMonitor;
-import org.jdom.Attribute;
-import org.jdom.Document;
-import org.jdom.Element;
+import org.jdom2.Attribute;
+import org.jdom2.Document;
+import org.jdom2.Element;
 
 import java.io.*;
 import java.net.SocketException;
@@ -174,7 +174,7 @@ public final class ftpUtils {
         final Map<String, Long> fileSizeMap = new HashMap<String, Long>(900);
 
         if(useCachedListing) {
-            org.jdom.Document doc = null;
+            Document doc = null;
             try {
                 doc = XMLSupport.LoadXML(listingFile.getAbsolutePath());
             } catch(IOException e) {

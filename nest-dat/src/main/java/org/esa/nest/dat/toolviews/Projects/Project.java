@@ -33,9 +33,9 @@ import org.esa.nest.dat.plugins.graphbuilder.GraphBuilderDialog;
 import org.esa.nest.util.ProductFunctions;
 import org.esa.nest.util.ResourceUtils;
 import org.esa.nest.util.XMLSupport;
-import org.jdom.Attribute;
-import org.jdom.Document;
-import org.jdom.Element;
+import org.jdom2.Attribute;
+import org.jdom2.Document;
+import org.jdom2.Element;
 
 import javax.swing.*;
 import java.io.File;
@@ -571,7 +571,7 @@ public class Project extends Observable {
 
         initProject(file);
 
-        org.jdom.Document doc;
+        Document doc;
         try {
             doc = XMLSupport.LoadXML(file.getAbsolutePath());
         } catch(IOException e) {

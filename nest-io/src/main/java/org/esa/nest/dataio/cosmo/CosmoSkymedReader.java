@@ -29,7 +29,8 @@ import org.esa.nest.gpf.OperatorUtils;
 import org.esa.nest.gpf.ReaderUtils;
 import org.esa.nest.eo.Constants;
 import org.esa.nest.util.XMLSupport;
-import org.jdom.Element;
+import org.jdom2.Document;
+import org.jdom2.Element;
 import ucar.ma2.Array;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.NetcdfFile;
@@ -208,7 +209,7 @@ public class CosmoSkymedReader extends AbstractProductReader {
                 }
             }
             if(dnFile != null) {
-                final org.jdom.Document xmlDoc = XMLSupport.LoadXML(dnFile.getAbsolutePath());
+                final Document xmlDoc = XMLSupport.LoadXML(dnFile.getAbsolutePath());
                 final Element rootElement = xmlDoc.getRootElement();
 
                 AbstractMetadataIO.AddXMLMetadata(rootElement, AbstractMetadata.getOriginalProductMetadata(product));

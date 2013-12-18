@@ -19,6 +19,7 @@ import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.nest.dataio.binary.BinaryDBReader;
 import org.esa.nest.dataio.binary.BinaryFileReader;
 import org.esa.nest.dataio.binary.BinaryRecord;
+import org.jdom2.Document;
 
 import java.io.IOException;
 
@@ -37,9 +38,9 @@ public class CEOSVolumeDirectoryFile {
     private final static String filePointerDefinitionFile = "file_pointer_record.xml";
     private final static String text_recordDefinitionFile = "text_record.xml";
 
-    private static org.jdom.Document volDescXML;
-    private static org.jdom.Document filePointerXML;
-    private static org.jdom.Document textRecXML;
+    private static Document volDescXML;
+    private static Document filePointerXML;
+    private static Document textRecXML;
 
     public CEOSVolumeDirectoryFile(final BinaryFileReader binaryReader, final String mission) throws IOException {
         if(volDescXML == null)

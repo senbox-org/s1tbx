@@ -21,6 +21,7 @@ import org.esa.nest.dataio.binary.BinaryFileReader;
 import org.esa.nest.dataio.binary.BinaryRecord;
 import org.esa.nest.dataio.binary.IllegalBinaryFormatException;
 import org.esa.nest.dataio.ceos.CeosTestHelper;
+import org.jdom2.Document;
 
 import javax.imageio.stream.ImageOutputStream;
 import javax.imageio.stream.MemoryCacheImageOutputStream;
@@ -39,7 +40,7 @@ public class TextRecordTest extends TestCase {
     private final static String mission = "ers";
     private final static String text_recordDefinitionFile = "text_record.xml";
 
-    private final static org.jdom.Document textRecXML = BinaryDBReader.loadDefinitionFile(mission, text_recordDefinitionFile);
+    private final static Document textRecXML = BinaryDBReader.loadDefinitionFile(mission, text_recordDefinitionFile);
 
     @Override
     protected void setUp() throws Exception {

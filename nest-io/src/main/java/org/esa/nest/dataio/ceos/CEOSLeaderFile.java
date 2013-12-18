@@ -19,6 +19,7 @@ import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.nest.dataio.binary.BinaryDBReader;
 import org.esa.nest.dataio.binary.BinaryFileReader;
 import org.esa.nest.dataio.binary.BinaryRecord;
+import org.jdom2.Document;
 
 import javax.imageio.stream.ImageInputStream;
 import java.io.IOException;
@@ -49,16 +50,16 @@ public class CEOSLeaderFile {
     protected final static String detailedProcessing_recordDefinitionFile = "detailed_processing_record.xml";
     protected final static String facility_recordDefinitionFile = "facility_record.xml";
 
-    private static org.jdom.Document sceneXML;
-    private static org.jdom.Document mapProjXML;
-    private static org.jdom.Document platformXML;
-    private static org.jdom.Document attitudeXML;
-    private static org.jdom.Document radiometricXML;
-    private static org.jdom.Document radiometricCompXML;
-    private static org.jdom.Document dataQualityXML;
-    private static org.jdom.Document histogramXML;
-    private static org.jdom.Document detailProcXML;
-    private static org.jdom.Document facilityXML;
+    private static Document sceneXML;
+    private static Document mapProjXML;
+    private static Document platformXML;
+    private static Document attitudeXML;
+    private static Document radiometricXML;
+    private static Document radiometricCompXML;
+    private static Document dataQualityXML;
+    private static Document histogramXML;
+    private static Document detailProcXML;
+    private static Document facilityXML;
 
     protected CEOSLeaderFile() {
     }
@@ -67,7 +68,7 @@ public class CEOSLeaderFile {
             throws IOException {
         final BinaryFileReader reader = new BinaryFileReader(stream);
 
-        org.jdom.Document leaderXML = BinaryDBReader.loadDefinitionFile(mission, defnFile);
+        Document leaderXML = BinaryDBReader.loadDefinitionFile(mission, defnFile);
         _leaderFDR = new BinaryRecord(reader, -1, leaderXML, defnFile);
         reader.seek(_leaderFDR.getRecordEndPosition());
 

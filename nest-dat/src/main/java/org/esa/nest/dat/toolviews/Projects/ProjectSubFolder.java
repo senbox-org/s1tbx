@@ -15,8 +15,8 @@
  */
 package org.esa.nest.dat.toolviews.Projects;
 
-import org.jdom.Attribute;
-import org.jdom.Element;
+import org.jdom2.Attribute;
+import org.jdom2.Element;
 
 import java.io.File;
 import java.util.List;

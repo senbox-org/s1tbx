@@ -26,7 +26,8 @@ import org.esa.nest.dataio.imageio.ImageIOFile;
 import org.esa.nest.datamodel.AbstractMetadata;
 import org.esa.nest.gpf.ReaderUtils;
 import org.esa.nest.util.XMLSupport;
-import org.jdom.Element;
+import org.jdom2.Document;
+import org.jdom2.Element;
 
 import javax.imageio.ImageReadParam;
 import javax.imageio.ImageReader;
@@ -154,7 +155,7 @@ public class Radarsat2ProductReader extends AbstractProductReader {
                                            final boolean flipLUT) throws IOException {
         if(!file.exists())
             return;
-        final org.jdom.Document xmlDoc = XMLSupport.LoadXML(file.getAbsolutePath());
+        final Document xmlDoc = XMLSupport.LoadXML(file.getAbsolutePath());
         final Element rootElement = xmlDoc.getRootElement();
 
         final Element offsetElem = rootElement.getChild("offset");

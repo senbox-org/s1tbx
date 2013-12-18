@@ -20,6 +20,7 @@ import org.esa.nest.dataio.binary.BinaryFileReader;
 import org.esa.nest.dataio.binary.BinaryRecord;
 import org.esa.nest.dataio.binary.IllegalBinaryFormatException;
 import org.esa.nest.dataio.ceos.CEOSImageFile;
+import org.jdom2.Document;
 
 import javax.imageio.stream.ImageInputStream;
 import java.io.IOException;
@@ -35,8 +36,8 @@ class BasicCeosImageFile extends CEOSImageFile {
     private final static String image_recordDefinitionFile = "image_file.xml";
     private final static String image_recordDefinition = "image_record.xml";
 
-    private final static org.jdom.Document imgDefXML = BinaryDBReader.loadDefinitionFile(mission, image_recordDefinitionFile);
-    private final static org.jdom.Document imgRecordXML = BinaryDBReader.loadDefinitionFile(mission, image_recordDefinition);
+    private final static Document imgDefXML = BinaryDBReader.loadDefinitionFile(mission, image_recordDefinitionFile);
+    private final static Document imgRecordXML = BinaryDBReader.loadDefinitionFile(mission, image_recordDefinition);
 
     public BasicCeosImageFile(final ImageInputStream imageStream, final BinaryRecord histogramRecord)
             throws IOException, IllegalBinaryFormatException {

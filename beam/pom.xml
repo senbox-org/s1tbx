@@ -386,10 +386,10 @@
                         <groupId>com.vividsolutions</groupId>
                         <artifactId>jts</artifactId>
                     </exclusion>
-					<exclusion>
+					<!--exclusion>
                         <groupId>jdom</groupId>
                         <artifactId>jdom</artifactId>
-                    </exclusion>
+                    </exclusion-->
 					<exclusion>
                         <groupId>javax.media</groupId>
                         <artifactId>jai_core</artifactId>
@@ -455,10 +455,10 @@
                 <artifactId>gt-shapefile</artifactId>
                 <version>${geotools.version}</version>
                 <exclusions>
-                    <exclusion>
+                    <!--exclusion>
                         <groupId>jdom</groupId>
                         <artifactId>jdom</artifactId>
-                    </exclusion>
+                    </exclusion-->
 					<exclusion>
                         <groupId>javax.media</groupId>
                         <artifactId>jai_core</artifactId>
@@ -580,8 +580,8 @@
 
             <dependency>
                 <groupId>org.jdom</groupId>
-                <artifactId>jdom</artifactId>
-                <version>1.1</version>
+                <artifactId>jdom2</artifactId>
+                <version>2.0.4</version>
             </dependency>
 
             <!-- BC Neural Network Library ############################################# -->

@@ -30,8 +30,8 @@ import org.esa.nest.gpf.OperatorUtils;
 import org.esa.nest.gpf.TileIndex;
 import org.esa.nest.util.ResourceUtils;
 import org.esa.nest.util.XMLSupport;
-import org.jdom.Document;
-import org.jdom.Element;
+import org.jdom2.Document;
+import org.jdom2.Element;
 
 import java.awt.*;
 import java.io.File;

@@ -16,6 +16,7 @@
 package org.esa.nest.dataio.binary;
 
 import org.esa.beam.framework.datamodel.MetadataElement;
+import org.jdom2.Document;
 
 import java.io.IOException;
 
@@ -28,7 +29,7 @@ public class BinaryRecord {
     private final Integer recordLength;
 
     public BinaryRecord(final BinaryFileReader reader, final long startPos,
-                        final org.jdom.Document recordDefinitionXML, final String recName) throws IOException {
+                        final Document recordDefinitionXML, final String recName) throws IOException {
         this.reader = reader;
         // reposition start if needed
         if (startPos != -1) {

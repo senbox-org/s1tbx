@@ -17,8 +17,9 @@ package org.esa.nest.util;
 
 import org.esa.beam.util.SystemUtils;
 import org.esa.beam.visat.VisatApp;
-import org.jdom.Attribute;
-import org.jdom.Element;
+import org.jdom2.Attribute;
+import org.jdom2.Element;
+import org.jdom2.Document;
 
 import java.io.File;
 import java.io.IOException;
@@ -39,7 +40,7 @@ public final class Settings {
     private final Map<String, String> settingMap = new HashMap<String, String>(100);
 
     private Element rootXML = null;
-    private org.jdom.Document doc = null;
+    private Document doc = null;
 
     public static final String VALUE = "value";
     public static final String LABEL = "label";

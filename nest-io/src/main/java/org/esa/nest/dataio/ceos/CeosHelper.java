@@ -20,6 +20,7 @@ import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.util.StringUtils;
 import org.esa.nest.dataio.binary.BinaryFileReader;
 import org.esa.nest.dataio.binary.BinaryRecord;
+import org.jdom2.Document;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -50,7 +51,7 @@ public class CeosHelper {
         return files[0];
     }
 
-    public static FilePointerRecord[] readFilePointers(final BinaryRecord vdr, final org.jdom.Document filePointerXML,
+    public static FilePointerRecord[] readFilePointers(final BinaryRecord vdr, final Document filePointerXML,
                                                        final String recName) throws IOException {
         final int numFilePointers = vdr.getAttributeInt("Number of filepointer records");
         final BinaryFileReader reader = vdr.getReader();

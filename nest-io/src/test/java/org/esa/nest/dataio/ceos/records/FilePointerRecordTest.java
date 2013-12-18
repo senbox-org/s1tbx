@@ -21,6 +21,7 @@ import org.esa.nest.dataio.binary.BinaryDBReader;
 import org.esa.nest.dataio.binary.BinaryFileReader;
 import org.esa.nest.dataio.binary.IllegalBinaryFormatException;
 import org.esa.nest.dataio.ceos.FilePointerRecord;
+import org.jdom2.Document;
 
 import javax.imageio.stream.ImageOutputStream;
 import javax.imageio.stream.MemoryCacheImageOutputStream;
@@ -35,7 +36,7 @@ public class FilePointerRecordTest extends TestCase {
 
     private final static String mission = "ers";
     private final static String filePointerDefinitionFile = "file_pointer_record.xml";
-    private final static org.jdom.Document filePointerXML = BinaryDBReader.loadDefinitionFile(mission, filePointerDefinitionFile);
+    private final static Document filePointerXML = BinaryDBReader.loadDefinitionFile(mission, filePointerDefinitionFile);
 
     protected void setUp() throws Exception {
         final ByteArrayOutputStream os = new ByteArrayOutputStream(24);

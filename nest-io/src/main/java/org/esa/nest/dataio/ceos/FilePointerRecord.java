@@ -18,17 +18,18 @@ package org.esa.nest.dataio.ceos;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.nest.dataio.binary.BinaryFileReader;
 import org.esa.nest.dataio.binary.BinaryRecord;
+import org.jdom2.Document;
 
 import java.io.IOException;
 
 public class FilePointerRecord extends BinaryRecord {
 
-    public FilePointerRecord(final BinaryFileReader reader, final org.jdom.Document filePointerXML, 
+    public FilePointerRecord(final BinaryFileReader reader, final Document filePointerXML,
                              final String recName) throws IOException {
         this(reader, filePointerXML, -1, recName);
     }
 
-    public FilePointerRecord(final BinaryFileReader reader, final org.jdom.Document filePointerXML, final long startPos,
+    public FilePointerRecord(final BinaryFileReader reader, final Document filePointerXML, final long startPos,
                              final String recName) throws IOException {
         super(reader, startPos, filePointerXML, recName);
     }

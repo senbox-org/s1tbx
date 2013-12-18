@@ -20,8 +20,9 @@ import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.nest.util.ResourceUtils;
 import org.esa.nest.util.XMLSupport;
-import org.jdom.Attribute;
-import org.jdom.Element;
+import org.jdom2.Attribute;
+import org.jdom2.Element;
+import org.jdom2.Document;
 
 import java.io.File;
 import java.util.HashMap;
@@ -46,13 +47,13 @@ public final class BinaryDBReader {
     private final static int Debug = -1;
 
     private final Map<String, Object> metaMap = new HashMap<String, Object>(100);
-    private final org.jdom.Document xmlDoc;
+    private final Document xmlDoc;
     private final String recName;
     private final long startPos;
 
     private final static boolean DEBUG_MODE = false;
 
-    public BinaryDBReader(final org.jdom.Document xmlDoc, final String recName, final long startPos) {
+    public BinaryDBReader(final Document xmlDoc, final String recName, final long startPos) {
         this.xmlDoc = xmlDoc;
         this.recName = recName;
         this.startPos = startPos;
@@ -322,7 +323,7 @@ public final class BinaryDBReader {
      * @param fileName definition file
      * @return xml document
      */
-    public static org.jdom.Document loadDefinitionFile(final String mission, final String fileName) {
+    public static Document loadDefinitionFile(final String mission, final String fileName) {
         try {
             final File defFile = getResFile(mission, fileName);
             return XMLSupport.LoadXML(defFile.getAbsolutePath());

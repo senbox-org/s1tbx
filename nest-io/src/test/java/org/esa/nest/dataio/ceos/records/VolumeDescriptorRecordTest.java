@@ -22,6 +22,7 @@ import org.esa.nest.dataio.binary.BinaryFileReader;
 import org.esa.nest.dataio.binary.BinaryRecord;
 import org.esa.nest.dataio.binary.IllegalBinaryFormatException;
 import org.esa.nest.dataio.ceos.CeosTestHelper;
+import org.jdom2.Document;
 
 import javax.imageio.stream.MemoryCacheImageOutputStream;
 import java.io.ByteArrayOutputStream;
@@ -36,7 +37,7 @@ public class VolumeDescriptorRecordTest extends TestCase {
     private static String mission = "ers";
     private static String volume_desc_recordDefinitionFile = "volume_descriptor.xml";
 
-    private final static org.jdom.Document volDescXML = BinaryDBReader.loadDefinitionFile(mission, volume_desc_recordDefinitionFile);
+    private final static Document volDescXML = BinaryDBReader.loadDefinitionFile(mission, volume_desc_recordDefinitionFile);
 
 
     protected void setUp() throws Exception {

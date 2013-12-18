@@ -20,6 +20,7 @@ import org.esa.nest.dataio.binary.BinaryDBReader;
 import org.esa.nest.dataio.binary.BinaryFileReader;
 import org.esa.nest.dataio.binary.BinaryRecord;
 import org.esa.nest.dataio.ceos.CeosHelper;
+import org.jdom2.Document;
 
 import javax.imageio.stream.ImageInputStream;
 import java.io.IOException;
@@ -45,12 +46,12 @@ class ERSLeaderFile {
     private final static String facility_recordDefinitionFile = "facility_record.xml";
     private final static String facilityRelatedPCS_recordDefinitionFile = "facility_related_pcs_record.xml";
 
-    private final static org.jdom.Document leaderXML = BinaryDBReader.loadDefinitionFile(mission, leader_recordDefinitionFile);
-    private final static org.jdom.Document sceneXML = BinaryDBReader.loadDefinitionFile(mission, scene_recordDefinitionFile);
-    private final static org.jdom.Document mapProjXML = BinaryDBReader.loadDefinitionFile(mission, mapproj_recordDefinitionFile);
-    private final static org.jdom.Document platformXML = BinaryDBReader.loadDefinitionFile(mission, platform_recordDefinitionFile);
-    private final static org.jdom.Document facilityXML = BinaryDBReader.loadDefinitionFile(mission, facility_recordDefinitionFile);
-    private final static org.jdom.Document facilityRelXML = BinaryDBReader.loadDefinitionFile(mission, facilityRelatedPCS_recordDefinitionFile);
+    private final static Document leaderXML = BinaryDBReader.loadDefinitionFile(mission, leader_recordDefinitionFile);
+    private final static Document sceneXML = BinaryDBReader.loadDefinitionFile(mission, scene_recordDefinitionFile);
+    private final static Document mapProjXML = BinaryDBReader.loadDefinitionFile(mission, mapproj_recordDefinitionFile);
+    private final static Document platformXML = BinaryDBReader.loadDefinitionFile(mission, platform_recordDefinitionFile);
+    private final static Document facilityXML = BinaryDBReader.loadDefinitionFile(mission, facility_recordDefinitionFile);
+    private final static Document facilityRelXML = BinaryDBReader.loadDefinitionFile(mission, facilityRelatedPCS_recordDefinitionFile);
 
     public ERSLeaderFile(final ImageInputStream leaderStream)
             throws IOException {

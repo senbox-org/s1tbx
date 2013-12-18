@@ -18,13 +18,13 @@ package org.esa.nest.util;
 import org.esa.beam.framework.datamodel.MetadataAttribute;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.ProductData;
-import org.jdom.Attribute;
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.Text;
-import org.jdom.input.DOMBuilder;
-import org.jdom.output.Format;
-import org.jdom.output.XMLOutputter;
+import org.jdom2.Attribute;
+import org.jdom2.Document;
+import org.jdom2.Element;
+import org.jdom2.Text;
+import org.jdom2.input.DOMBuilder;
+import org.jdom2.output.Format;
+import org.jdom2.output.XMLOutputter;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -60,7 +60,7 @@ public final class XMLSupport {
         }
     }
 
-    public static org.jdom.Document LoadXML(final String filePath) throws IOException {
+    public static Document LoadXML(final String filePath) throws IOException {
 
         final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         org.w3c.dom.Document w3cDocument = null;
@@ -92,7 +92,7 @@ public final class XMLSupport {
         }
     }
 
-    public static org.jdom.Document LoadXMLFromResource(final String filePath, final Class theClass) throws IOException {
+    public static Document LoadXMLFromResource(final String filePath, final Class theClass) throws IOException {
        
         final java.net.URL resURL = theClass.getClassLoader().getResource(filePath);
         if (resURL != null)
