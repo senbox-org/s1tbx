@@ -184,7 +184,7 @@ public class SpectrumChooser extends ModalDialog {
                         spectrum.setBandSelected(bandRow, selected);
                         if (!selectionChangeLock) {
                             selectionChangeLock = true;
-                            selectionAdmin.updateBandSelections(row, bandRow, selected);
+                            selectionAdmin.setBandSelected(row, bandRow, selected);
                             spectraTable.getModel().setValueAt(selectionAdmin.getState(row), row, spectrumSelectedIndex);
                             spectrum.setSelected(selectionAdmin.isSpectrumSelected(row));
                             selectionChangeLock = false;
@@ -212,7 +212,7 @@ public class SpectrumChooser extends ModalDialog {
             final ImageIcon shapeIcon =
                     SpectrumConstants.shapeIcons[ArrayUtils.getElementIndex(spectrum.getSymbol(), SpectrumConstants.shapes)];
 
-            selectionAdmin.addSpectrumSelections(spectrum);
+            selectionAdmin.evaluateSpectrumSelections(spectrum);
             super.addRow(new Object[]{selectionAdmin.getState(getRowCount()), spectrum.getName(), strokeIcon, shapeIcon});
         }
 
@@ -245,7 +245,7 @@ public class SpectrumChooser extends ModalDialog {
         public void setValueAt(Object aValue, int row, int column) {
             if (column == spectrumSelectedIndex && !selectionChangeLock) {
                 selectionChangeLock = true;
-                selectionAdmin.updateState(row, (Integer) aValue);
+                selectionAdmin.updateSpectrumSelectionState(row, (Integer) aValue);
                 aValue = selectionAdmin.getState(row);
                 updateBandsTable(row);
                 spectra[row].setSelected(selectionAdmin.isSpectrumSelected(row));
