@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2013 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -21,6 +21,7 @@ import org.esa.beam.dataio.dimap.DimapProductConstants;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.util.Guardian;
+import org.esa.beam.util.logging.BeamLogManager;
 import org.esa.nest.util.ProductFunctions;
 
 import java.io.File;
@@ -28,6 +29,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.logging.Logger;
 
 /**
  * The <code>ProductIO</code> class provides several utility methods concerning data I/O for remote sensing data
@@ -57,6 +59,7 @@ public class ProductIO {
      * Gets a product reader for the given format name.
      *
      * @param formatName the product format name
+     *
      * @return a suitable product reader or <code>null</code> if none was found
      */
     public static ProductReader getProductReader(String formatName) {
@@ -73,18 +76,7 @@ public class ProductIO {
      * Gets an array of writer product file extensions for the given format name.
      *
      * @param formatName the format name
-     * @return an array of extensions or null if the format does not exist
-     * @deprecated since BEAM 4.9 due to typo in name, use {@link #getProductWriterExtensions(String)} instead.
-     */
-    @Deprecated
-    public static String[] getProducWritertExtensions(String formatName) {
-        return getProductWriterExtensions(formatName);
-    }
-
-    /**
-     * Gets an array of writer product file extensions for the given format name.
      *
-     * @param formatName the format name
      * @return an array of extensions or null if the format does not exist
      */
     public static String[] getProductWriterExtensions(String formatName) {
@@ -101,6 +93,7 @@ public class ProductIO {
      * Gets a product writer for the given format name.
      *
      * @param formatName the product format name
+     *
      * @return a suitable product writer or <code>null</code> if none was found
      */
     public static ProductWriter getProductWriter(String formatName) {
@@ -130,8 +123,10 @@ public class ProductIO {
      * @param file        the data product file
      * @param formatNames a list of product format names defining the preference, if more than one reader
      *                    found in the registry is capable of decoding the file.
+     *
      * @return a data model as an in-memory representation of the given product file or <code>null</code>,
      *         if no appropriate reader was found for the given product file
+     *
      * @throws IOException if an I/O error occurs
      * @see #readProduct(String)
      * @see #readProduct(File)
@@ -168,7 +163,7 @@ public class ProductIO {
             }
         }
 
-        return null;
+        return readProductImpl(file, null);
     }
 
     /**
@@ -180,8 +175,10 @@ public class ProductIO {
      * for all bands in the product returned by this method.</p>
      *
      * @param filePath the data product file path
+     *
      * @return a data model as an in-memory representation of the given product file or <code>null</code> if no
      *         appropriate reader was found for the given product file
+     *
      * @throws IOException if an I/O error occurs
      * @see #readProduct(File)
      */
@@ -198,8 +195,10 @@ public class ProductIO {
      * for all bands in the product returned by this method.</p>
      *
      * @param file the data product file
+     *
      * @return a data model as an in-memory representation of the given product file or <code>null</code> if no
      *         appropriate reader was found for the given product file
+     *
      * @throws IOException if an I/O error occurs
      * @see #readProduct(String)
      */
@@ -240,15 +239,45 @@ public class ProductIO {
      * Returns a product reader instance for the given file if any registered product reader can decode the given file.
      *
      * @param file the file to decode.
+     *
      * @return a product reader for the given file or <code>null</code> if the file cannot be decoded.
+     *
+     * @deprecated Since BEAM 4.10. Use {@link #getProductReaderForInput(Object)} instead.
      */
+    @Deprecated
     public static ProductReader getProductReaderForFile(File file) {
+        return getProductReaderForInput(file);
+    }
+
+    /**
+     * Tries to find a product reader instance suitable for the given input.
+     * The method returns {@code null}, if no
+     * registered product reader can handle the given {@code input} value.
+     * <p/>
+     * The {@code input} may be of any type, but most likely it will be a file path given by a {@code String} or
+     * {@code File} value. Some readers may also directly support an {@link javax.imageio.stream.ImageInputStream} object.
+     *
+     * @param input the input object.
+     *
+     * @return a product reader for the given {@code input} or {@code null} if no registered reader can handle
+     *         the it.
+     *
+     * @see ProductReaderPlugIn#getDecodeQualification(Object)
+     * @see ProductReader#readProductNodes(Object, ProductSubsetDef)
+     */
+    public static ProductReader getProductReaderForInput(Object input) {
+        Logger logger = BeamLogManager.getSystemLogger();
+        logger.fine("Searching reader plugin for '" + input + "'");
         ProductIOPlugInManager registry = ProductIOPlugInManager.getInstance();
         Iterator<ProductReaderPlugIn> it = registry.getAllReaderPlugIns();
         ProductReaderPlugIn selectedPlugIn = null;
         while (it.hasNext()) {
             ProductReaderPlugIn plugIn = it.next();
-            DecodeQualification decodeQualification = plugIn.getDecodeQualification(file);
+
+            final long startTime = System.currentTimeMillis();
+            DecodeQualification decodeQualification = plugIn.getDecodeQualification(input);
+            final long endTime = System.currentTimeMillis();
+            logger.fine(String.format("Checking reader plugin %s (took %d ms)", plugIn.getClass().getName(), (endTime - startTime)));
             if (decodeQualification == DecodeQualification.INTENDED) {
                 selectedPlugIn = plugIn;
                 break;
@@ -257,9 +286,12 @@ public class ProductIO {
             }
         }
         if (selectedPlugIn != null) {
+            logger.fine("Selected " + selectedPlugIn.getClass().getName());
             return selectedPlugIn.createReaderInstance();
+        } else {
+            logger.fine("No suitable reader plugin found");
+            return null;
         }
-        return null;
     }
 
     /**
@@ -274,6 +306,7 @@ public class ProductIO {
      * @param filePath   the file path
      * @param formatName the name of a supported product format, e.g. "HDF5". If <code>null</code>, the default format
      *                   "BEAM-DIMAP" will be used
+     *
      * @throws IOException if an IOException occurs
      */
     public static void writeProduct(Product product,
@@ -295,6 +328,7 @@ public class ProductIO {
      * @param formatName the name of a supported product format, e.g. "HDF5". If <code>null</code>, the default format
      *                   "BEAM-DIMAP" will be used
      * @param pm         a monitor to inform the user about progress
+     *
      * @throws IOException if an IOException occurs
      */
     public static void writeProduct(Product product,
@@ -317,6 +351,7 @@ public class ProductIO {
      * @param formatName  the name of a supported product format, e.g. "HDF5". If <code>null</code>, the default format
      *                    "BEAM-DIMAP" will be used
      * @param incremental switch the product writer in incremental mode or not.
+     *
      * @throws IOException if an IOException occurs
      */
     public static void writeProduct(Product product,
@@ -340,6 +375,7 @@ public class ProductIO {
      *                    "BEAM-DIMAP" will be used
      * @param incremental switch the product writer in incremental mode or not.
      * @param pm          a monitor to inform the user about progress
+     *
      * @throws IOException if an IOException occurs
      */
     public static void writeProduct(Product product,
@@ -358,7 +394,6 @@ public class ProductIO {
         }
         productWriter.setIncrementalMode(incremental);
         productWriter.setFormatName(formatName);
-        
         ProductWriter productWriterOld = product.getProductWriter();
         product.setProductWriter(productWriter);
 

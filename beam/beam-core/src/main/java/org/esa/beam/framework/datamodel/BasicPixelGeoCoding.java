@@ -1,5 +1,5 @@
-/*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+package org.esa.beam.framework.datamodel;/*
+ * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -13,26 +13,16 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.beam.util;
 
-import org.esa.beam.dataio.dimap.DimapProductHelpers;
-import org.jdom.Element;
+public interface BasicPixelGeoCoding extends GeoCoding {
 
-import java.awt.Color;
+    Band getLatBand();
 
-/**
- * @deprecated since BEAM 4.2
- */
-@Deprecated
-public class XmlHelper {
+    Band getLonBand();
 
-    @Deprecated
-    public static void printColorTag(int indent, Color color, XmlWriter pw) {
-        DimapProductHelpers.printColorTag(indent, color, pw);
-    }
+    String getValidMask();
 
-    @Deprecated
-    public static Color createColor(Element colorElem) {
-        return DimapProductHelpers.createColor(colorElem);
-    }
+    GeoCoding getPixelPosEstimator();
+
+    int getSearchRadius();
 }
