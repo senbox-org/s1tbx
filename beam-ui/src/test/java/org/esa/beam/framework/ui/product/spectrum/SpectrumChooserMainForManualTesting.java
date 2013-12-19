@@ -20,6 +20,7 @@ public class SpectrumChooserMainForManualTesting {
 
         SpectrumChooser chooser = new SpectrumChooser(null, spectra, "");
         chooser.show();
+        System.exit(0);
     }
 
     private static DisplayableSpectrum createSpectrum(int offset) {
