@@ -386,7 +386,6 @@ public final class DimapProductConstants {
 
     // BEAM-Dimap gcp tags
     public static final String TAG_GCP_GROUP = "Gcp_Group";
-    public static final String TAG_BAND_GCP_GROUP = "Band_GCP_Group";
 
     // attribute
     public static final String ATTRIB_RED = "red";

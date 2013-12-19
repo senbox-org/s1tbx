@@ -20,9 +20,18 @@ package org.esa.beam.framework.datamodel;
  * A filter for products.
  *
  * @author Marco Peters
- * @version $Revision$ $Date$
  */
 public interface ProductFilter {
+
+    /**
+     * A filter that accepts all products (does not filter at all).
+     */
+    ProductFilter ALL = new ProductFilter() {
+        @Override
+        public boolean accept(Product product) {
+            return true;
+        }
+    };
 
     /**
      * @param product The product.
