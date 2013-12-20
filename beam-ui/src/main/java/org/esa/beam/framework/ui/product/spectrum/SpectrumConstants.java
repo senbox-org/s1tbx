@@ -23,6 +23,7 @@ public class SpectrumConstants {
     private static final int crossXPoints[] = {-5, -1, -1, 1, 1, 5, 5, 1, 1, -1, -1, -5};
     private static final int crossYPoints[] = {-1, -1, -5, -5, -1, -1, 1, 1, 5, 5, 1, 1};
     public static final Shape[] shapes = new Shape[]{
+            new Polygon(),
             new Polygon(new int[]{-4, 0, 4, 0}, new int[]{0, -4, 0, 4}, 4),
             new Polygon(new int[]{-4, 0, 4}, new int[]{4, -4, 4}, 3),
             new Polygon(new int[]{-4, 0, 4}, new int[]{-4, 4, -4}, 3),
@@ -57,15 +58,18 @@ public class SpectrumConstants {
 
     private static ImageIcon convertShapeToIcon(Shape seriesShape) {
         Rectangle rectangle = seriesShape.getBounds();
-        BufferedImage image = new BufferedImage((int) (rectangle.getWidth() - rectangle.getX()),
-                                                (int) (rectangle.getHeight() - rectangle.getY()),
-                                                BufferedImage.TYPE_INT_ARGB);
-        final Graphics2D graphics = image.createGraphics();
-        graphics.translate(-rectangle.x, -rectangle.y);
-        graphics.setColor(Color.BLACK);
-        graphics.draw(seriesShape);
-        graphics.dispose();
-        return new ImageIcon(image);
+        if (rectangle.getWidth() > 0 && rectangle.getHeight() > 0) {
+            BufferedImage image = new BufferedImage((int) (rectangle.getWidth() - rectangle.getX()),
+                                                    (int) (rectangle.getHeight() - rectangle.getY()),
+                                                    BufferedImage.TYPE_INT_ARGB);
+            final Graphics2D graphics = image.createGraphics();
+            graphics.translate(-rectangle.x, -rectangle.y);
+            graphics.setColor(Color.BLACK);
+            graphics.draw(seriesShape);
+            graphics.dispose();
+            return new ImageIcon(image);
+        }
+        return new ImageIcon();
     }
 
     private static ImageIcon[] convertStrokesToIcons() {

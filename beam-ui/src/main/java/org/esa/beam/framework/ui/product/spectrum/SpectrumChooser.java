@@ -211,7 +211,7 @@ public class SpectrumChooser extends ModalDialog {
                         SpectrumConstants.strokeIcons[ArrayUtils.getElementIndex(spectrum.getLineStyle(), SpectrumConstants.strokes)];
             }
             if (spectrum.getSymbol() == null) {
-                spectrum.setSymbol(SpectrumConstants.shapes[getRowCount() % SpectrumConstants.shapes.length]);
+                spectrum.setSymbol(SpectrumConstants.shapes[Math.max(1, getRowCount() + 1) % SpectrumConstants.shapes.length]);
             }
             final ImageIcon shapeIcon =
                     SpectrumConstants.shapeIcons[ArrayUtils.getElementIndex(spectrum.getSymbol(), SpectrumConstants.shapes)];
