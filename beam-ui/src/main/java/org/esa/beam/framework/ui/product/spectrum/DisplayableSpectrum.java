@@ -17,7 +17,8 @@ public class DisplayableSpectrum implements Spectrum {
     private List<Boolean> areBandsSelected;
     private String name;
     private Stroke lineStyle;
-    private Shape Symbol;
+    private int symbolIndex;
+    private int symbolSize;
     private boolean isSelected;
     private String unit;
 
@@ -29,6 +30,8 @@ public class DisplayableSpectrum implements Spectrum {
         this.name = spectrumName;
         bands = new ArrayList<Band>(spectralBands.length);
         areBandsSelected = new ArrayList<Boolean>();
+        symbolIndex = -1;
+        symbolSize = SpectrumShapeProvider.DEFAULT_SCALE_GRADE;
         for (Band spectralBand : spectralBands) {
             addBand(spectralBand, true);
         }
@@ -43,6 +46,21 @@ public class DisplayableSpectrum implements Spectrum {
         } else if (!unit.equals(band.getUnit())) {
             unit = MIXED_UNITS;
         }
+    }
+
+    public Shape getScaledShape() {
+        int usedSymbolIndex = getSymbolIndex();
+        Shape symbol;
+        if (symbolIndex == -1) {
+            symbol = SpectrumShapeProvider.shapes[1];
+            usedSymbolIndex = 1;
+        } else {
+            symbol = SpectrumShapeProvider.shapes[getSymbolIndex()];
+        }
+        if (getSymbolSize() != 3) {
+            symbol = SpectrumShapeProvider.getScaledShape(usedSymbolIndex, getSymbolSize());
+        }
+        return symbol;
     }
 
     public boolean isDefaultSpectrum() {
@@ -86,21 +104,13 @@ public class DisplayableSpectrum implements Spectrum {
 
     public Stroke getLineStyle() {
         if (isDefaultSpectrum()) {
-            return SpectrumConstants.EMPTY_STROKE;
+            return SpectrumStrokeProvider.EMPTY_STROKE;
         }
         return lineStyle;
     }
 
     public void setLineStyle(Stroke lineStyle) {
         this.lineStyle = lineStyle;
-    }
-
-    public Shape getSymbol() {
-        return Symbol;
-    }
-
-    public void setSymbol(Shape symbol) {
-        Symbol = symbol;
     }
 
     public void setSelected(boolean selected) {
@@ -113,5 +123,21 @@ public class DisplayableSpectrum implements Spectrum {
 
     public String getUnit() {
         return unit;
+    }
+
+    public int getSymbolSize() {
+        return symbolSize;
+    }
+
+    public void setSymbolSize(int symbolSize) {
+        this.symbolSize = symbolSize;
+    }
+
+    public int getSymbolIndex() {
+        return symbolIndex;
+    }
+
+    public void setSymbolIndex(int symbolIndex) {
+        this.symbolIndex = symbolIndex;
     }
 }

@@ -1,20 +1,18 @@
 package org.esa.beam.framework.ui.product.spectrum;
 
 import javax.swing.ImageIcon;
-import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Polygon;
 import java.awt.Rectangle;
 import java.awt.Shape;
-import java.awt.Stroke;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Ellipse2D;
-import java.awt.geom.GeneralPath;
-import java.awt.geom.Line2D;
+import java.awt.geom.Path2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 
-public class SpectrumConstants {
+public class SpectrumShapeProvider {
 
     private static final int starXPoints[] = {0, 1, 6, 2, 3, 0, -3, -2, -6, -1};
     private static final int starYPoints[] = {-6, -2, -2, 0, 5, 2, 5, 0, -2, -2};
@@ -36,17 +34,9 @@ public class SpectrumConstants {
             new Rectangle2D.Double(-5.0, -2.0, 10.0, 4.0)
     };
     public static final ImageIcon[] shapeIcons = convertShapesToIcons();
-    public static final Stroke[] strokes = new Stroke[]{
-            new BasicStroke(),
-            new BasicStroke(1.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, new float[]{10.0f}, 0.0f),
-            new BasicStroke(1.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, new float[]{1.0f}, 0.0f),
-            new BasicStroke(1.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, new float[]{10.0f, 1.0f}, 0.0f),
-            new BasicStroke(1.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, new float[]{20.0f, 5.0f}, 0.0f),
-            new BasicStroke(1.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, new float[]{1.0f, 5.0f}, 0.0f),
-            new BasicStroke(1.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, new float[]{10.0f, 10.0f, 1.0f, 10.0f}, 0.0f)
-    };
-    public static final ImageIcon[] strokeIcons = convertStrokesToIcons();
-    public static final Stroke EMPTY_STROKE = new EmptyStroke();
+    public static final int DEFAULT_SCALE_GRADE = 3;
+    public static final Integer[] SCALE_GRADES = new Integer[]{1, 2, 3, 4, 5, 6, 7, 8, 9};
+    private static final double[] scaleFactors = new double[]{0.6, 0.8, 1, 1.5, 2, 2.5, 3, 3.5, 4};
 
     private static ImageIcon[] convertShapesToIcons() {
         ImageIcon[] icons = new ImageIcon[shapes.length];
@@ -72,35 +62,11 @@ public class SpectrumConstants {
         return new ImageIcon();
     }
 
-    private static ImageIcon[] convertStrokesToIcons() {
-        ImageIcon[] icons = new ImageIcon[strokes.length];
-        for (int i = 0; i < strokes.length; i++) {
-            icons[i] = convertStrokeToIcon(strokes[i]);
-        }
-        return icons;
-    }
-
-    private static ImageIcon convertStrokeToIcon(Stroke stroke) {
-        Shape strokeShape = new Line2D.Double(-40, 0, 40, 0);
-        final Rectangle rectangle = strokeShape.getBounds();
-        BufferedImage image = new BufferedImage((int) (rectangle.getWidth() - rectangle.getX()),
-                                                1,
-                                                BufferedImage.TYPE_INT_ARGB);
-        final Graphics2D graphics = image.createGraphics();
-        graphics.translate(-rectangle.x, -rectangle.y);
-        graphics.setColor(Color.BLACK);
-        graphics.setStroke(stroke);
-        graphics.draw(strokeShape);
-        graphics.dispose();
-        return new ImageIcon(image);
-    }
-
-    private static class EmptyStroke implements Stroke {
-
-        @Override
-        public Shape createStrokedShape(Shape p) {
-            return new GeneralPath();
-        }
+    public static Shape getScaledShape(int shapeIndex, int scaleGrade) {
+        final Path2D.Double convertedShape = new Path2D.Double(shapes[shapeIndex]);
+        final AffineTransform affineTransform = new AffineTransform();
+        affineTransform.scale(scaleFactors[scaleGrade - 1], scaleFactors[scaleGrade - 1]);
+        return convertedShape.createTransformedShape(affineTransform);
     }
 
 }

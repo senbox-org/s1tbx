@@ -35,7 +35,7 @@ import org.esa.beam.framework.ui.application.support.AbstractToolView;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.framework.ui.product.spectrum.DisplayableSpectrum;
 import org.esa.beam.framework.ui.product.spectrum.SpectrumChooser;
-import org.esa.beam.framework.ui.product.spectrum.SpectrumConstants;
+import org.esa.beam.framework.ui.product.spectrum.SpectrumStrokeProvider;
 import org.esa.beam.framework.ui.tool.ToolButtonFactory;
 import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.Debug;
@@ -873,14 +873,10 @@ public class SpectrumToolView extends AbstractToolView {
             if (lineStyle != null) {
                 renderer.setSeriesStroke(seriesIndex, lineStyle);
             } else {
-                renderer.setSeriesStroke(seriesIndex, SpectrumConstants.strokes[0]);
+                renderer.setSeriesStroke(seriesIndex, SpectrumStrokeProvider.strokes[0]);
             }
-            final Shape symbol = spectrum.getSymbol();
-            if (symbol != null) {
-                renderer.setSeriesShape(seriesIndex, symbol);
-            } else {
-                renderer.setSeriesShape(seriesIndex, SpectrumConstants.shapes[0]);
-            }
+            Shape symbol = spectrum.getScaledShape();
+            renderer.setSeriesShape(seriesIndex, symbol);
         }
 
         private double readEnergy(Placemark pin, Band spectralBand) {
@@ -938,12 +934,9 @@ public class SpectrumToolView extends AbstractToolView {
             Line2D lineShape = new Line2D.Double(0, 5, 40, 5);
             Stroke lineStyle = spectrum.getLineStyle();
             if (lineStyle == null) {
-                lineStyle = SpectrumConstants.strokes[0];
+                lineStyle = SpectrumStrokeProvider.strokes[0];
             }
-            Shape symbol = spectrum.getSymbol();
-            if (symbol == null) {
-                symbol = SpectrumConstants.shapes[0];
-            }
+            Shape symbol = spectrum.getScaledShape();
             return new LegendItem(legendLabel, legendLabel, legendLabel, legendLabel,
                                   true, symbol, false,
                                   paint, true, paint, outlineStroke,
