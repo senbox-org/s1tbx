@@ -50,12 +50,14 @@ public class SpectrumChooser extends ModalDialog {
     private static final int spectrumNameIndex = 1;
     private static final int spectrumStrokeIndex = 2;
     private static final int spectrumShapeIndex = 3;
+    private static final int spectrumUnitIndex = 4;
 
     private static final int bandSelectedIndex = 0;
     private static final int bandNameIndex = 1;
     private static final int bandDescriptionIndex = 2;
     private static final int bandWavelengthIndex = 3;
     private static final int bandBandwidthIndex = 4;
+    private static final int bandUnitIndex = 5;
 
     private static HierarchicalTable spectraTable;
     private final DisplayableSpectrum[] originalSpectra;
@@ -143,11 +145,12 @@ public class SpectrumChooser extends ModalDialog {
                 String.class,
                 ImageIcon.class,
                 ImageIcon.class,
+                String.class
         };
-        private final String[] bandColumns = new String[]{"", "Band name", "Band description", "Spectral wavelength (nm)", "Spectral bandwidth (nm)"};
+        private final String[] bandColumns = new String[]{"", "Band name", "Band description", "Spectral wavelength (nm)", "Spectral bandwidth (nm)", "Unit"};
 
         private SpectrumTableModel() {
-            super(new String[]{"", "Spectrum name", "Line style", "Symbol"}, 0);
+            super(new String[]{"", "Spectrum name", "Line style", "Symbol", "Unit"}, 0);
             for (DisplayableSpectrum spectrum : spectra) {
                 if (spectrum.hasBands()) {
                     addRow(spectrum);
@@ -171,6 +174,7 @@ public class SpectrumChooser extends ModalDialog {
                 spectrumData[i][bandDescriptionIndex] = spectralBand.getDescription();
                 spectrumData[i][bandWavelengthIndex] = spectralBand.getSpectralWavelength();
                 spectrumData[i][bandBandwidthIndex] = spectralBand.getSpectralBandwidth();
+                spectrumData[i][bandUnitIndex] = spectralBand.getUnit();
             }
             final BandTableModel bandTableModel = new BandTableModel(spectrumData, bandColumns);
             bandTableModel.addTableModelListener(new TableModelListener() {
@@ -213,7 +217,7 @@ public class SpectrumChooser extends ModalDialog {
                     SpectrumConstants.shapeIcons[ArrayUtils.getElementIndex(spectrum.getSymbol(), SpectrumConstants.shapes)];
 
             selectionAdmin.evaluateSpectrumSelections(spectrum);
-            super.addRow(new Object[]{selectionAdmin.getState(getRowCount()), spectrum.getName(), strokeIcon, shapeIcon});
+            super.addRow(new Object[]{selectionAdmin.getState(getRowCount()), spectrum.getName(), strokeIcon, shapeIcon, spectrum.getUnit()});
         }
 
         @Override
@@ -238,7 +242,8 @@ public class SpectrumChooser extends ModalDialog {
 
         @Override
         public boolean isCellEditable(int row, int column) {
-            return !(column == spectrumStrokeIndex && spectra[row].isDefaultSpectrum()) && column != spectrumNameIndex;
+            return !(column == spectrumStrokeIndex && spectra[row].isDefaultSpectrum()) && column != spectrumNameIndex
+                    && column != spectrumUnitIndex;
         }
 
         @Override

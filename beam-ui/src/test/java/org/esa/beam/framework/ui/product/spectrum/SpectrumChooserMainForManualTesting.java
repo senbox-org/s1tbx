@@ -41,6 +41,10 @@ public class SpectrumChooserMainForManualTesting {
         band.setDescription("Radiance for band " + (index + 1));
         band.setSpectralWavelength((float) Math.random());
         band.setSpectralBandwidth((float) Math.random());
+        band.setUnit("sr^-1");
+        if (index == 7) {
+            band.setUnit("dl");
+        }
         return band;
     }
 
