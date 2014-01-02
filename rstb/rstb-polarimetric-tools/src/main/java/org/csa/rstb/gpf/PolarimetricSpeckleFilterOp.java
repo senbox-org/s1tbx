@@ -41,6 +41,8 @@ import java.util.List;
  */
 @OperatorMetadata(alias="Polarimetric-Speckle-Filter",
         category = "Polarimetric",
+        authors = "Jun Lu, Luis Veci",
+        copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
         description = "Polarimetric Speckle Reduction")
 public class PolarimetricSpeckleFilterOp extends Operator {
 

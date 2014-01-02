@@ -51,10 +51,9 @@ import java.util.logging.Logger;
 public class TestUtils {
 
     public static final Logger log = BeamLogManager.getSystemLogger();
-
-    private static final PropertyMap testPreferences = Config.getAutomatedTestConfigPropertyMap("nest.tests");
-
     private final static String contextID = ResourceUtils.getContextID();
+    private static final PropertyMap testPreferences = Config.getAutomatedTestConfigPropertyMap(contextID+".tests");
+
     public final static String rootPathExpectedProducts = testPreferences.getPropertyString(contextID+".test.rootPathExpectedProducts");
     public final static String rootPathTerraSarX = testPreferences.getPropertyString(contextID+".test.rootPathTerraSarX");
     public final static String rootPathASAR= testPreferences.getPropertyString(contextID+".test.rootPathASAR");

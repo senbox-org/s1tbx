@@ -46,8 +46,10 @@ import java.util.Properties;
  */
 
 @OperatorMetadata(alias="Supervised-Wishart-Classification",
-                  category = "Polarimetric",
-                  description="Perform supervised Wishart classification")
+        category = "Polarimetric",
+        authors = "Jun Lu, Luis Veci",
+        copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
+        description="Perform supervised Wishart classification")
 public final class SupervisedWishartClassificationOp extends Operator {
 
     @SourceProduct(alias="source")

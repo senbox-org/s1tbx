@@ -41,8 +41,10 @@ import java.util.Map;
  */
 
 @OperatorMetadata(alias="Polarimetric-Decomposition",
-                  category = "Polarimetric",
-                  description="Perform Polarimetric decomposition of a given product")
+        category = "Polarimetric",
+        authors = "Jun Lu, Luis Veci",
+        copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
+        description="Perform Polarimetric decomposition of a given product")
 public final class PolarimetricDecompositionOp extends Operator {
 
     @SourceProduct(alias="source")

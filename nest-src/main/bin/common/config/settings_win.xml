@@ -2,6 +2,7 @@
 <Settings>	
 	<AuxDataPath value="c:\AuxData"/>
 	<demPath value="${AuxDataPath}\DEMs"/>
+	<landCoverPath value="${AuxDataPath}\LandCover"/>
 	
 	<AuxData>
 		<ersAuxDataPath value="${NEST_HOME}\auxdata\ers"/>
@@ -23,6 +24,9 @@
 		<srtm3GeoTiffDEM_FTP value="xftp.jrc.it"/>
 		<srtm3GeoTiffDEM_remotePath value="/pub/srtmV4/tiff/"/>
 	</DEM>
+	<LandCover label="Land Cover Models">
+		<glc2000DataPath value="${landCoverPath}\glc2000"/>
+	</LandCover>
 	<OrbitFiles label="Orbit Files">
 		<dorisFTP value="diss-nas-fp.eo.esa.int"/>
 		<dorisFTP_user value="dorisusr"/>
