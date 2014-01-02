@@ -241,6 +241,12 @@
                 <version>${ceres.version}</version>
             </dependency>
 			
+			<dependency>
+                <groupId>com.bc.ceres</groupId>
+                <artifactId>ceres-metadata</artifactId>
+                <version>${ceres.version}</version>
+            </dependency>
+			
             <!-- BEAM System Level Modules ############################################# -->
 
             <dependency>
@@ -275,7 +281,7 @@
             <dependency>
                 <groupId>org.esa.beam</groupId>
                 <artifactId>beam-geotiff</artifactId>
-                <version>5.0-1.2</version>
+                <version>5.0-1.3</version>
             </dependency>
 
             <dependency>
