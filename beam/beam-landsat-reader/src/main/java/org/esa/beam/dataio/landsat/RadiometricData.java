@@ -34,11 +34,9 @@ public final class RadiometricData {
     private static final int BEFORE1990 = 1;
     private static final int AFTER1990 = 0;
 
-    private static RadiometricData instance = null;
-
     private double[] maxRadiance;                 // in milliwatts/(square cm-steradian)
     private double[] minRadiance;                 // = BIAS
-    private final int [] bandsPresent;
+    private final int[] bandsPresent;
 
     /**
      * @param maxRadOffset   an array with the offsets (you will find them in the specification) of all max Radiance values.
@@ -50,7 +48,7 @@ public final class RadiometricData {
      * @throws IOException if the arrays (<code>maxRadOffset</code> and <code>minRadOffset</code>) have a different array size the shortest size will be chosen for both arrays.
      *                     The extended data will be cut off.
      */
-    private RadiometricData(final int[] maxRadOffset, final int [] minRadOffset, final int size,
+    private RadiometricData(final int[] maxRadOffset, final int[] minRadOffset, final int size,
                             final LandsatImageInputStream input, int[] bandsAvailable) throws
                                                                                        IOException {
         Guardian.assertTrue("maxRadOffset.length == minRadOffset.length", maxRadOffset.length == minRadOffset.length);
@@ -93,8 +91,8 @@ public final class RadiometricData {
      */
     private boolean isLmaxLmin(final double[] maxRad, final double[] minRad, List nominalRadVals) {
         Guardian.assertTrue("maxRad.length == minRad.length", maxRad.length == minRad.length);
-        double [] nominalLmax;
-        double [] nominalLmin;
+        double[] nominalLmax;
+        double[] nominalLmin;
 
         if (isThermalBandpresent(bandsPresent)) {
             final int[] bandsWithoutThermal = getBandsWithoutThermal();
@@ -140,8 +138,8 @@ public final class RadiometricData {
      */
     private boolean isGainBias(final double[] maxRad, final double[] minRad, List nominalRadVals) {
 
-        double [] nominalGain = getNomGains(nominalRadVals, bandsPresent);
-        double [] nominalLmin = getNomLmin(nominalRadVals, bandsPresent);
+        double[] nominalGain = getNomGains(nominalRadVals, bandsPresent);
+        double[] nominalLmin = getNomLmin(nominalRadVals, bandsPresent);
 
         if (getDistance(nominalGain, maxRad) < 0.5) {
             if (getDistance(nominalLmin, minRad) < 0.5) {
@@ -162,28 +160,16 @@ public final class RadiometricData {
      *
      * @throws IOException creates a complete radiometric object
      */
-    public static RadiometricData createRadiometricData(final int[] maxRadOffset, final int [] minRadOffset,
+    public static RadiometricData createRadiometricData(final int[] maxRadOffset, final int[] minRadOffset,
                                                         final int size, final LandsatImageInputStream input,
-                                                        final int [] bandsAvailable) throws
-                                                                                     IOException {
+                                                        final int[] bandsAvailable) throws
+                                                                                    IOException {
 
         if (maxRadOffset.length == minRadOffset.length) {
-            if (instance == null) {
-                instance = new RadiometricData(maxRadOffset, minRadOffset, size, input, bandsAvailable);
-                return instance;
-            }
-            return instance;
+            return new RadiometricData(maxRadOffset, minRadOffset, size, input, bandsAvailable);
         } else {
             return null;
         }
-    }
-
-    /**
-     * @return the instance value, if the Radiometric data weren't created before the function returns <code>null</code>
-     *         Singleton access.
-     */
-    public static RadiometricData getRadiometricData() {
-        return instance;
     }
 
     /**
@@ -219,8 +205,8 @@ public final class RadiometricData {
      *
      * @return a array of radiances in the right unit
      */
-    private static double[] trans2DefaultForm(final double[] radiances, final int [] bandsPresents) {
-        double [] transRad = new double[bandsPresents.length];
+    private static double[] trans2DefaultForm(final double[] radiances, final int[] bandsPresents) {
+        double[] transRad = new double[bandsPresents.length];
         for (int i = 0; i < radiances.length; i++) {
             LandsatConstants.ConstBand band = LandsatConstants.ConstBand.getConstantBandAt(bandsPresents[i]);
             transRad[i] = ((radiances[i] * 10000) / band.getBandwidth());
@@ -234,11 +220,11 @@ public final class RadiometricData {
      *
      * @return the nominal Gain values of the present bands
      */
-    private static double[]getNomGains(final List nominalRadVals, final int [] bandsPresent) {
+    private static double[] getNomGains(final List nominalRadVals, final int[] bandsPresent) {
         double nomGains[] = new double[bandsPresent.length];
         int i = 0;
         for (int j = 0; j < bandsPresent.length; j++) {
-            for (Iterator iter = nominalRadVals.iterator(); iter.hasNext();) {
+            for (Iterator iter = nominalRadVals.iterator(); iter.hasNext(); ) {
                 NomRadiance element = (NomRadiance) iter.next();
                 if (element.getBandNumber() == bandsPresent[j]) {
                     nomGains[i] = element.getGain();
@@ -257,12 +243,12 @@ public final class RadiometricData {
      *
      * @return the nominal Lmin values of the present bands
      */
-    private static double[]getNomLmin(final List nominalRadVals, final int [] bandsPresent) {
+    private static double[] getNomLmin(final List nominalRadVals, final int[] bandsPresent) {
         double nomLmin[] = new double[bandsPresent.length];
         int i = 0;
 
         for (int j = 0; j < bandsPresent.length; j++) {
-            for (Iterator iter = nominalRadVals.iterator(); iter.hasNext();) {
+            for (Iterator iter = nominalRadVals.iterator(); iter.hasNext(); ) {
                 NomRadiance element = (NomRadiance) iter.next();
                 if (element.getBandNumber() == bandsPresent[j]) {
                     nomLmin[i] = element.getLmin();
@@ -281,11 +267,11 @@ public final class RadiometricData {
      *
      * @return the nominal Lmax values of the present bands
      */
-    private static double[]getNomLmax(final List nominalRadVals, final int [] bandsPresent) {
+    private static double[] getNomLmax(final List nominalRadVals, final int[] bandsPresent) {
         double nomLmax[] = new double[bandsPresent.length];
         int i = 0;
         for (int j = 0; j < bandsPresent.length; j++) {
-            for (Iterator iter = nominalRadVals.iterator(); iter.hasNext();) {
+            for (Iterator iter = nominalRadVals.iterator(); iter.hasNext(); ) {
                 NomRadiance element = (NomRadiance) iter.next();
                 if (bandsPresent[j] == element.getBandNumber()) {
                     nomLmax[i] = element.getLmax();
@@ -320,11 +306,11 @@ public final class RadiometricData {
      *
      * @return an array with calculated maximale radiances from the given gain and minimal radiance values.
      */
-    private static double [] calculateLmax(final double [] gain, final double [] Lmin, int formularUsed) {
+    private static double[] calculateLmax(final double[] gain, final double[] Lmin, int formularUsed) {
         Guardian.assertTrue("Lmin.length == gain.length", Lmin.length == gain.length);
         Guardian.assertTrue("formularUsed == AFTER1990 || formularUsed == BEFORE1990",
                             formularUsed == AFTER1990 || formularUsed == BEFORE1990);
-        double [] Lmax = new double [Lmin.length];
+        double[] Lmax = new double[Lmin.length];
         for (int i = 0; i < Lmax.length; i++) {
             if (formularUsed == AFTER1990) {
                 Lmax[i] = gain[i] * 255 + Lmin[i];
@@ -340,7 +326,7 @@ public final class RadiometricData {
      *
      * @return <code>true</code> if thermal band is present on the medium, <code>false</code> if the thermal band doesn't exist on the medium
      */
-    private static boolean isThermalBandpresent(final int [] bandspresent) {
+    private static boolean isThermalBandpresent(final int[] bandspresent) {
         for (int i = 0; i < bandspresent.length; i++) {
             if (bandspresent[i] == 6) {
                 return true;
@@ -353,7 +339,7 @@ public final class RadiometricData {
      * @return the collection of all bands present without the thermal band
      */
     private int[] getBandsWithoutThermal() {
-        int [] withoutThermal = new int[bandsPresent.length - 1];
+        int[] withoutThermal = new int[bandsPresent.length - 1];
         int j = 0;
         for (int i = 0; i < bandsPresent.length; i++) {
             if (bandsPresent[i] != 6) {
@@ -370,8 +356,8 @@ public final class RadiometricData {
      *
      * @return an array with all radiances of the Landsat TM bands but without the thermal band
      */
-    private double[] getRadianceWithoutThermal(final double [] radiances) {
-        double [] radianceWithoutThermal = new double [bandsPresent.length - 1];
+    private double[] getRadianceWithoutThermal(final double[] radiances) {
+        double[] radianceWithoutThermal = new double[bandsPresent.length - 1];
         int j = 0;
         for (int i = 0; i < bandsPresent.length; i++) {
             if (bandsPresent[i] != 6) {
