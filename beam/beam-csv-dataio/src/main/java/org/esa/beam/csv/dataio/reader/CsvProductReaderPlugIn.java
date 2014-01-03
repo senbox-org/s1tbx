@@ -16,18 +16,17 @@
 
 package org.esa.beam.csv.dataio.reader;
 
+import org.esa.beam.csv.dataio.CsvFile;
+import org.esa.beam.csv.dataio.CsvSourceParser;
 import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.io.BeamFileFilter;
 import org.esa.beam.util.io.Constants;
-import org.esa.beam.csv.dataio.CsvFile;
-import org.esa.beam.csv.dataio.CsvSourceParser;
 import org.esa.beam.util.io.FileUtils;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Locale;
 
 /**
@@ -41,7 +40,7 @@ public class CsvProductReaderPlugIn implements ProductReaderPlugIn {
     @Override
     public DecodeQualification getDecodeQualification(Object input) {
         final File file = new File(input.toString());
-        if(!isFileExtensionValid(file)) {
+        if (!isFileExtensionValid(file)) {
             return DecodeQualification.UNABLE;
         }
 
@@ -49,7 +48,8 @@ public class CsvProductReaderPlugIn implements ProductReaderPlugIn {
         try {
             csvFile = CsvFile.createCsvSourceParser(input.toString());
             csvFile.parseMetadata();
-        } catch (IOException e) {
+            csvFile.checkReadingFirstRecord();
+        } catch (Exception e) {
             return DecodeQualification.UNABLE;
         } finally {
             if (csvFile != null) {
@@ -85,7 +85,7 @@ public class CsvProductReaderPlugIn implements ProductReaderPlugIn {
 
     @Override
     public String[] getDefaultFileExtensions() {
-        return new String[]{".csv",".txt",".dat"};
+        return new String[]{".csv", ".txt"};
     }
 
     @Override
