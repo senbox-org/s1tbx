@@ -44,7 +44,8 @@ public class TileWriterUI extends BaseOperatorUI {
             new String[] { "2","4","9","16","36","64","100","256" } );
 
     private final JLabel pixelSizeLabel = new JLabel("Pixel Size:     ");
-    private final JTextField pixelSize = new JTextField("");
+    private final JTextField pixelSizeX = new JTextField("");
+    private final JTextField pixelSizeY = new JTextField("");
 
     private final TargetProductSelector targetProductSelector = new TargetProductSelector();
     private static final String FILE_PARAMETER = "file";
@@ -95,7 +96,9 @@ public class TileWriterUI extends BaseOperatorUI {
         DialogUtils.addComponent(optionsPane, gbc, divisionByLabel, divisionBy);
         gbc.gridy++;
         DialogUtils.addComponent(optionsPane, gbc, numberOfTilesLabel, numberOfTiles);
-        DialogUtils.addComponent(optionsPane, gbc, pixelSizeLabel, pixelSize);
+        DialogUtils.addComponent(optionsPane, gbc, pixelSizeLabel, pixelSizeX);
+        gbc.gridy++;
+        DialogUtils.addComponent(optionsPane, gbc, pixelSizeLabel, pixelSizeY);
 
         contentPane.add(optionsPane, BorderLayout.CENTER);
 
@@ -148,7 +151,8 @@ public class TileWriterUI extends BaseOperatorUI {
             numTiles = "4";
         numberOfTiles.setSelectedItem(numTiles);
 
-        pixelSize.setText(String.valueOf(paramMap.get("pixelSize")));
+        pixelSizeX.setText(String.valueOf(paramMap.get("pixelSizeX")));
+        pixelSizeY.setText(String.valueOf(paramMap.get("pixelSizeY")));
 
         String fileName = "target";
         final Object value = paramMap.get(FILE_PARAMETER);
@@ -177,7 +181,8 @@ public class TileWriterUI extends BaseOperatorUI {
         if(targetProductSelector.getModel().getProductName() != null) {
             paramMap.put("divisionBy", divisionBy.getSelectedItem());
             paramMap.put("numberOfTiles", numberOfTiles.getSelectedItem());
-            paramMap.put("pixelSize", Integer.parseInt(pixelSize.getText()));
+            paramMap.put("pixelSizeX", Integer.parseInt(pixelSizeX.getText()));
+            paramMap.put("pixelSizeY", Integer.parseInt(pixelSizeY.getText()));
 
             paramMap.put("file", targetProductSelector.getModel().getProductFile());
             paramMap.put("formatName", targetProductSelector.getModel().getFormatName());
@@ -190,12 +195,14 @@ public class TileWriterUI extends BaseOperatorUI {
         if(item.equals("Pixels")) {
             numberOfTiles.setVisible(false);
             numberOfTilesLabel.setVisible(false);
-            pixelSize.setVisible(true);
+            pixelSizeX.setVisible(true);
+            pixelSizeY.setVisible(true);
             pixelSizeLabel.setVisible(true);
         } else {
             numberOfTiles.setVisible(true);
             numberOfTilesLabel.setVisible(true);
-            pixelSize.setVisible(false);
+            pixelSizeX.setVisible(false);
+            pixelSizeY.setVisible(false);
             pixelSizeLabel.setVisible(false);
         }
     }

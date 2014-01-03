@@ -77,8 +77,11 @@ public class TileWriterOp extends Operator implements Output {
                description = "The number of output tiles")
     private String numberOfTiles = "4";
 
-    @Parameter(description = "Tile pixel size", label = "Pixel size", defaultValue = "200")
-    private int pixelSize = 200;
+    @Parameter(description = "Tile pixel size", label = "Pixel size X", defaultValue = "200")
+    private int pixelSizeX = 200;
+
+    @Parameter(description = "Tile pixel size", label = "Pixel size Y", defaultValue = "200")
+    private int pixelSizeY = 200;
 
     private final Map<MultiLevelImage, List<Point>> todoLists = new HashMap<MultiLevelImage, List<Point>>();
 
@@ -103,8 +106,8 @@ public class TileWriterOp extends Operator implements Output {
                 width = sourceProduct.getSceneRasterWidth() / numRows;
                 height = sourceProduct.getSceneRasterHeight() / numRows;
             } else {
-                width = pixelSize;
-                height = pixelSize;
+                width = pixelSizeX;
+                height = pixelSizeY;
                 numCols = sourceProduct.getSceneRasterWidth() / width;
                 numRows = sourceProduct.getSceneRasterHeight() / height;
                 numFiles = numRows*numCols;
