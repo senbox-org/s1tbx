@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Brockmann Consult GmbH (info@brockmann-consult.de) 
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -80,7 +80,7 @@ public class Formatter {
         Reprojector.reproject(planetaryGrid, temporalBinSource, temporalBinRenderer);
     }
 
-    private static String getOutputFormat(FormatterConfig formatterConfig, File outputFile) {
+    static String getOutputFormat(FormatterConfig formatterConfig, File outputFile) {
         final String fileName = outputFile.getName();
         final int extPos = fileName.lastIndexOf(".");
         String outputFileNameExt = fileName.substring(extPos + 1);

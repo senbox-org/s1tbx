@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Brockmann Consult GmbH (info@brockmann-consult.de) 
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -509,10 +509,6 @@ public class BinningOp extends Operator implements Output {
         return targetProduct;
     }
 
-    private Product readOutput() throws IOException {
-        return ProductIO.readProduct(new File(formatterConfig.getOutputFile()));
-    }
-
     private SpatialBinCollection doSpatialBinning(ProductFilter productFilter) throws IOException {
         SpatialBinCollector spatialBinCollector = new GeneralSpatialBinCollector(binningContext.getPlanetaryGrid().getNumBins());
         final SpatialBinner spatialBinner = new SpatialBinner(binningContext, spatialBinCollector);
@@ -662,8 +658,17 @@ public class BinningOp extends Operator implements Output {
             // this.targetProduct = readOutput();
             //
             // This is why I have to do the following
-            Product writtenProduct = readOutput();
-            this.targetProduct = copyProduct(writtenProduct);
+
+            final String outputType = formatterConfig.getOutputType();
+            if (outputType.equalsIgnoreCase("Product")) {
+                final File outputFile = new File(formatterConfig.getOutputFile());
+                final String outputFormat = Formatter.getOutputFormat(formatterConfig, outputFile);
+
+                Product writtenProduct = ProductIO.readProduct(outputFile, outputFormat);
+                this.targetProduct = copyProduct(writtenProduct);
+            } else {
+                this.targetProduct = new Product("Dummy", "t", 10, 10);
+            }
         } else {
             this.targetProduct = new Product("Dummy", "t", 10, 10);
         }
