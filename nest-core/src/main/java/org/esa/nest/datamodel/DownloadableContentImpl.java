@@ -19,6 +19,7 @@ import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.visat.VisatApp;
 import org.esa.nest.gpf.StatusProgressMonitor;
 import org.esa.nest.util.ResourceUtils;
+import org.esa.nest.util.ZipUtils;
 import org.esa.nest.util.ftpUtils;
 
 import java.io.*;
@@ -34,40 +35,24 @@ import java.util.zip.ZipFile;
  */
 public abstract class DownloadableContentImpl implements DownloadableContent {
 
-    protected File localFile;
+    private File localFile;
     private final File localZipFile;
-    protected boolean localFileExists = false;
-    protected boolean remoteFileExists = true;
+    private boolean localFileExists = false;
+    private boolean remoteFileExists = true;
     private boolean errorInLocalFile = false;
     private DownloadableFile contentFile = null;
     private ftpUtils ftp = null;
     private Map<String, Long> fileSizeMap = null;
     private boolean unrecoverableError = false;
 
-    private final String remoteFTP;
-    private final String remoteFTPPath;
-    private final String remoteHTTPURL;
+    private final URL remoteURL;
 
     public DownloadableContentImpl(final File localFile,
-                                   final String remoteFTP, final String remoteFTPPath) {
-        this.remoteFTP = remoteFTP;
-        this.remoteFTPPath = remoteFTPPath;
-        this.remoteHTTPURL = null;
+                                   final URL remoteURL, final String archiveExt) {
+        this.remoteURL = remoteURL;
 
         this.localFile = localFile;
-        this.localZipFile = new File(localFile.getParentFile(),
-                    FileUtils.getFilenameWithoutExtension(localFile)+".zip");
-    }
-
-    public DownloadableContentImpl(final File localFile,
-                                   final String remoteHTTPURL) {
-        this.remoteFTP = null;
-        this.remoteFTPPath = null;
-        this.remoteHTTPURL = remoteHTTPURL;
-
-        this.localFile = localFile;
-        this.localZipFile = new File(localFile.getParentFile(),
-                FileUtils.getFilenameWithoutExtension(localFile)+".zip");
+        this.localZipFile = FileUtils.exchangeExtension(localFile, archiveExt);
     }
 
     public void dispose() {
@@ -97,10 +82,15 @@ public abstract class DownloadableContentImpl implements DownloadableContent {
 
     protected abstract DownloadableFile createContentFile(final File dataFile);
 
-    protected abstract boolean getRemoteFile() throws IOException;
-
-    protected boolean findLocalFile() {
+    private boolean findLocalFile() {
         return (localFile.exists() && localFile.isFile()) || (localZipFile.exists() && localZipFile.isFile());
+    }
+
+    private boolean getRemoteFile() throws IOException{
+        if(remoteURL.getProtocol().contains("http"))
+            return getRemoteHttpFile(remoteURL.getPath());
+        else
+            return getRemoteFTPFile(remoteURL);
     }
 
     private synchronized void findFile() throws IOException {
@@ -145,7 +135,7 @@ public abstract class DownloadableContentImpl implements DownloadableContent {
         }
     }
 
-    protected boolean getRemoteHttpFile(final String baseUrl) throws IOException {
+    private boolean getRemoteHttpFile(final String baseUrl) throws IOException {
         final VisatApp visatApp = VisatApp.getApp();
         final String remotePath = baseUrl+localZipFile.getName();
         System.out.println("http retrieving "+remotePath);
@@ -224,17 +214,17 @@ public abstract class DownloadableContentImpl implements DownloadableContent {
         return outputFile;
     }
 
-    protected boolean getRemoteFTPFile() throws IOException {
+    private boolean getRemoteFTPFile(final URL remoteURL) throws IOException {
         try {
             if(ftp == null) {
-                ftp = new ftpUtils(remoteFTP);
-                fileSizeMap = ftpUtils.readRemoteFileList(ftp, remoteFTP, remoteFTPPath);
+                ftp = new ftpUtils(remoteURL.getHost());
+                fileSizeMap = ftpUtils.readRemoteFileList(ftp, remoteURL.getHost(), remoteURL.getPath());
             }
 
             final String remoteFileName = localZipFile.getName();
             final Long fileSize = fileSizeMap.get(remoteFileName);
 
-            final ftpUtils.FTPError result = ftp.retrieveFile(remoteFTPPath + remoteFileName, localZipFile, fileSize);
+            final ftpUtils.FTPError result = ftp.retrieveFile(remoteURL.getPath() + remoteFileName, localZipFile, fileSize);
             if(result == ftpUtils.FTPError.OK) {
                 return true;
             } else {
@@ -254,14 +244,14 @@ public abstract class DownloadableContentImpl implements DownloadableContent {
             if(ftp == null) {
                 unrecoverableError = false;      // allow to continue
                 remoteFileExists = false;
-                throw new IOException("Failed to connect to FTP "+ remoteFTP + '\n' +e.getMessage());
+                throw new IOException("Failed to connect to FTP "+ remoteURL.getHost() + '\n' +e.getMessage());
             }
             dispose();
         }
         return false;
     }
 
-    protected File getFileFromZip(final File dataFile) throws IOException {
+    private File getFileFromZip(final File dataFile) throws IOException {
         final String ext = FileUtils.getExtension(dataFile.getName());
         if (ext.equalsIgnoreCase(".zip")) {
             final String baseName = localFile.getName();
