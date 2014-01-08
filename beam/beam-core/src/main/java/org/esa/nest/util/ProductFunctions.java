@@ -48,7 +48,7 @@ public class ProductFunctions {
         }
 
         // test with readers
-        final ProductReader reader = ProductIO.getProductReaderForFile(file);
+        final ProductReader reader = ProductIO.getProductReaderForInput(file);
         return reader != null;
     }
 

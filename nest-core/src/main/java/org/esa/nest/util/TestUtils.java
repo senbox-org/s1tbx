@@ -105,7 +105,7 @@ public class TestUtils {
             throw new IOException(path + " not found");
         }
 
-        final ProductReader reader = ProductIO.getProductReaderForFile(inputFile);
+        final ProductReader reader = ProductIO.getProductReaderForInput(inputFile);
         if(reader == null)
             throw new IOException("No reader found for "+inputFile);
         return reader.readProductNodes(inputFile, null);
@@ -264,7 +264,7 @@ public class TestUtils {
             throwErr("Expected file not found "+expectedFile.toString());
         }
 
-        final ProductReader reader2 = ProductIO.getProductReaderForFile(expectedFile);
+        final ProductReader reader2 = ProductIO.getProductReaderForInput(expectedFile);
 
         final Product expectedProduct = reader2.readProductNodes(expectedFile, null);
         final Band expectedBand = expectedProduct.getBandAt(0);
@@ -346,7 +346,7 @@ public class TestUtils {
                 return;
 
             try {
-                final ProductReader reader = ProductIO.getProductReaderForFile(file);
+                final ProductReader reader = ProductIO.getProductReaderForInput(file);
                 if(reader != null) {
                     productList.add(file);
                 } else {
@@ -390,7 +390,7 @@ public class TestUtils {
                 break;
 
             try {
-                final ProductReader reader = ProductIO.getProductReaderForFile(file);
+                final ProductReader reader = ProductIO.getProductReaderForInput(file);
                 if(reader != null) {
                     final Product sourceProduct = reader.readProductNodes(file, null);
                     if(productTypeExemptions != null && containsProductType(productTypeExemptions, sourceProduct.getProductType()))

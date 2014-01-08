@@ -17,6 +17,10 @@ package org.esa.nest.util;
 
 import net.sf.sevenzipjbinding.*;
 import net.sf.sevenzipjbinding.impl.RandomAccessFileInStream;
+import net.sf.sevenzipjbinding.simple.ISimpleInArchiveItem;
+import org.apache.commons.compress.archivers.sevenz.SevenZArchiveEntry;
+import org.apache.commons.compress.archivers.sevenz.SevenZFile;
+import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream;
 import org.esa.beam.util.io.FileUtils;
 
 import java.io.*;
@@ -61,7 +65,11 @@ public class ZipUtils {
         }
     }
 
-    public static ISequentialOutStream unzipToStream(final File file) throws Exception {
+    public static InputStream unZipToStream(final File file) throws Exception {
+        return new ZipArchiveInputStream(new FileInputStream(file));
+    }
+
+    public static InputStream unzipToStream(final File file) throws Exception {
 
         final RandomAccessFile randomAccessFile = new RandomAccessFile(file, "r");
         ISevenZipInArchive inArchive = null;
@@ -70,21 +78,40 @@ public class ZipUtils {
                     new RandomAccessFileInStream(randomAccessFile));
 
             final int numItems = inArchive.getNumberOfItems();
-            final int[] in = new int[numItems];
-            for (int i = 0; i < in.length; i++) {
-                in[i] = i;
-            }
-            final ExtractCallback extractCB = new ExtractCallback(inArchive, file, null);
-            inArchive.extract(in, false, // Non-test mode
-                    extractCB);
 
-            ISequentialOutStream stream = extractCB.getStream(0, ExtractAskMode.EXTRACT);
-            return stream;
+            ISimpleInArchiveItem item = inArchive.getSimpleInterface().getArchiveItem(0);
+            return new ArchiveInputStreamHandler(item).getInputStream();
+
+        } catch (Exception e) {
+            e.printStackTrace();
         } finally {
             if (inArchive != null) {
                 inArchive.close();
             }
             randomAccessFile.close();
+        }
+        return null;
+    }
+
+
+    private static class ArchiveInputStreamHandler {
+
+        private final ISimpleInArchiveItem item;
+        private ByteArrayInputStream arrayInputStream;
+        public ArchiveInputStreamHandler(final ISimpleInArchiveItem item) {
+            this.item = item;
+        }
+
+        public InputStream getInputStream() throws SevenZipException{
+
+            item.extractSlow(new ISequentialOutStream() {
+                @Override
+                public int write(byte[] data) throws SevenZipException {
+                    arrayInputStream = new ByteArrayInputStream(data);
+                    return data.length; // Return amount of consumed data
+                }
+            });
+            return arrayInputStream;
         }
     }
 

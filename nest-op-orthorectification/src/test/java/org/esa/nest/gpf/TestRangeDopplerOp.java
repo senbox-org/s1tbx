@@ -90,7 +90,7 @@ public class TestRangeDopplerOp extends TestCase {
             return;
         }
 
-        final ProductReader reader = ProductIO.getProductReaderForFile(inputFile);
+        final ProductReader reader = ProductIO.getProductReaderForInput(inputFile);
         final Product sourceProduct = reader.readProductNodes(inputFile, null);
 
         final ElevationModelRegistry elevationModelRegistry = ElevationModelRegistry.getInstance();

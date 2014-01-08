@@ -86,13 +86,10 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.SortedMap;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.logging.Level;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 public class GeoTiffProductReader extends AbstractProductReader {
 
@@ -117,6 +114,12 @@ public class GeoTiffProductReader extends AbstractProductReader {
         }
         if (input instanceof File) {
             inputFile = (File) input;
+            if(inputFile.getName().toLowerCase().endsWith(".zip")) {
+                final ZipFile productZip = new ZipFile(inputFile, ZipFile.OPEN_READ);
+                final Enumeration<? extends ZipEntry> entries = productZip.entries();
+                final ZipEntry zipEntry = entries.nextElement();
+                input = productZip.getInputStream(zipEntry);
+            }
         }
         inputStream = ImageIO.createImageInputStream(input);
         return readGeoTIFFProduct(inputStream, inputFile);

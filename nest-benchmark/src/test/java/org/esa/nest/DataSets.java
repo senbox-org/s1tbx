@@ -112,7 +112,7 @@ public class DataSets {
                 throw new IOException(path + " not found");
             }
 
-            final ProductReader reader = ProductIO.getProductReaderForFile(inputFile);
+            final ProductReader reader = ProductIO.getProductReaderForInput(inputFile);
             if(reader == null)
                 throw new IOException("No reader found for "+inputFile);
             return reader.readProductNodes(inputFile, null);

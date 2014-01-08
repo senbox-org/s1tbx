@@ -26,6 +26,7 @@
 	</DEM>
 	<LandCover label="Land Cover Models">
 		<glc2000DataPath value="${landCoverPath}/glc2000"/>
+		<globcoverDataPath value="${landCoverPath}/globcover"/>
 	</LandCover>
 	<OrbitFiles label="Orbit Files">
 		<dorisFTP value="diss-nas-fp.eo.esa.int"/>

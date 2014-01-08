@@ -2697,7 +2697,7 @@ public class VisatApp extends BasicApp implements AppContext {
             if (selectedFileFilter instanceof BeamFileFilter) {
                 return ProductIO.getProductReader(((BeamFileFilter) selectedFileFilter).getFormatName());
             } else {
-                return ProductIO.getProductReaderForFile(selectedFile);
+                return ProductIO.getProductReaderForInput(selectedFile);
             }
         }
 

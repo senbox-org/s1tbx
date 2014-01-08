@@ -73,7 +73,7 @@ public class TestProductDao extends TestCase {
                 if(db.pathExistsInDB(file))
                     continue;
 
-                final ProductReader reader = ProductIO.getProductReaderForFile(file);
+                final ProductReader reader = ProductIO.getProductReaderForInput(file);
                 if(reader != null) {
                     Product sourceProduct = null;
                     try {

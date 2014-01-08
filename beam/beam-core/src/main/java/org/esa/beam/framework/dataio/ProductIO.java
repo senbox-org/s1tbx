@@ -224,7 +224,7 @@ public class ProductIO {
         //System.out.println("Reading "+file.getName());
         Product product = ProductFunctions.readCommonProductReader(file);
         if (product == null) {
-            final ProductReader productReader = getProductReaderForFile(file);
+            final ProductReader productReader = getProductReaderForInput(file);
             if (productReader != null) {
                 product = productReader.readProductNodes(file, subsetDef);
             }

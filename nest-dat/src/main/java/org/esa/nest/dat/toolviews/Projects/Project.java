@@ -365,7 +365,7 @@ public class Project extends Observable {
     }
 
     public void importSubset(final ProjectSubFolder parentFolder, final File prodFile) {
-        final ProductReader reader = ProductIO.getProductReaderForFile(prodFile);
+        final ProductReader reader = ProductIO.getProductReaderForInput(prodFile);
         if (reader != null) {
                 final ProjectSubFolder importedFolder = projectSubFolders.findFolder("Imported Products");
                 try {
@@ -419,7 +419,7 @@ public class Project extends Observable {
             pm.beginTask("Importing", productFilesToOpen.length);
             if(importedFolder.getFolderType() == ProjectSubFolder.FolderType.PRODUCT) {
                 for(File prodFile : productFilesToOpen) {
-                    final ProductReader reader = ProductIO.getProductReaderForFile(prodFile);
+                    final ProductReader reader = ProductIO.getProductReaderForInput(prodFile);
                     if (reader != null) {
                         try {
                             final Product product = reader.readProductNodes(prodFile, null);
