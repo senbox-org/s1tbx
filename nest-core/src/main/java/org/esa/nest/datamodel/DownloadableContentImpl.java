@@ -88,7 +88,7 @@ public abstract class DownloadableContentImpl implements DownloadableContent {
 
     private boolean getRemoteFile() throws IOException{
         if(remoteURL.getProtocol().contains("http"))
-            return getRemoteHttpFile(remoteURL.getPath());
+            return getRemoteHttpFile(remoteURL.toString());
         else
             return getRemoteFTPFile(remoteURL);
     }
