@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -30,10 +30,12 @@ import javax.media.jai.JAI;
 import javax.media.jai.PlanarImage;
 import javax.media.jai.RenderedOp;
 import javax.media.jai.operator.ConstantDescriptor;
-import java.awt.*;
+import java.awt.Rectangle;
+import java.awt.RenderingHints;
 import java.awt.geom.Dimension2D;
 import java.awt.image.DataBuffer;
 import java.awt.image.Raster;
+import java.awt.image.SampleModel;
 
 /**
  * This is an experimental pixel geo-coding, which solves some problems of {@link PixelGeoCoding},
@@ -258,25 +260,37 @@ class PixelGeoCoding2 extends AbstractGeoCoding implements BasicPixelGeoCoding {
             int y0 = (int) Math.floor(pixelPos.getY());
             final PlanarImage lonMaskImage = lonBand.getValidMaskImage();
             final PlanarImage latMaskImage = latBand.getValidMaskImage();
-            final float lon0 = getSampleFloat(x0, y0, lonImage, lonMaskImage);
-            final float lat0 = getSampleFloat(x0, y0, latImage, latMaskImage);
 
-            if (lat0 >= -90.0f && lat0 <= 90.0f && lon0 >= -180.0f && lon0 <= 180.0f) {
-                if (fractionAccuracy) {
-                    if (x0 > 0 && pixelPos.x - x0 < 0.5f || x0 == rasterW - 1) {
-                        x0 -= 1;
-                    }
-                    if (y0 > 0 && pixelPos.y - y0 < 0.5f || y0 == rasterH - 1) {
-                        y0 -= 1;
-                    }
+            if (fractionAccuracy) {
+                if (x0 > 0 && pixelPos.x - x0 < 0.5f || x0 == rasterW - 1) {
+                    x0 -= 1;
+                }
+                if (y0 > 0 && pixelPos.y - y0 < 0.5f || y0 == rasterH - 1) {
+                    y0 -= 1;
+                }
 
-                    final float wx = pixelPos.x - (x0 + 0.5f);
-                    final float wy = pixelPos.y - (y0 + 0.5f);
-                    final float lon = interpolate(x0, y0, wx, wy, lonImage, lonMaskImage, -180.0f, 180.0f, lon0);
-                    final float lat = interpolate(x0, y0, wx, wy, latImage, latMaskImage, -90.0f, 90.0f, lat0);
+                final float wx = pixelPos.x - (x0 + 0.5f);
+                final float wy = pixelPos.y - (y0 + 0.5f);
 
-                    geoPos.setLocation(lat, lon);
+                Rectangle region = new Rectangle(x0, y0, 2, 2);
+
+                if (lonMaskImage == null || allValid(lonMaskImage.getData(region))) {
+                    final Raster lonData = lonImage.getData(region);
+                    geoPos.lon = interpolate(wx, wy, lonData, -180.0f, 180.0f);
                 } else {
+                    geoPos.lon = getSampleFloat(x0, y0, lonImage, lonMaskImage);
+                }
+
+                if (latMaskImage == null || allValid(latMaskImage.getData(region))) {
+                    final Raster latData = latImage.getData(region);
+                    geoPos.lat = interpolate(wx, wy, latData, -90.0f, 90.0f);
+                } else {
+                    geoPos.lat = getSampleFloat(x0, y0, latImage, latMaskImage);
+                }
+            } else {
+                final float lon0 = getSampleFloat(x0, y0, lonImage, lonMaskImage);
+                final float lat0 = getSampleFloat(x0, y0, latImage, latMaskImage);
+                if (lat0 >= -90.0f && lat0 <= 90.0f && lon0 >= -180.0f && lon0 <= 180.0f) {
                     geoPos.setLocation(lat0, lon0);
                 }
             }
@@ -284,26 +298,51 @@ class PixelGeoCoding2 extends AbstractGeoCoding implements BasicPixelGeoCoding {
         return geoPos;
     }
 
-    private float interpolate(int x0, int y0, float wx, float wy, PlanarImage image, PlanarImage maskImage,
-                              float min,
-                              float max,
-                              float defaultValue) {
+    private boolean allValid(Raster raster) {
+        final int x0 = raster.getMinX() -  raster.getSampleModelTranslateX();
         final int x1 = x0 + 1;
+        final int y0 = raster.getMinY() - raster.getSampleModelTranslateY();
         final int y1 = y0 + 1;
-        final float d00 = getSampleFloat(x0, y0, image, maskImage);
+        DataBuffer dataBuffer = raster.getDataBuffer();
+        SampleModel sampleModel = raster.getSampleModel();
+
+        if (sampleModel.getSample(x0, y0, 0, dataBuffer) == 0) {
+            return false;
+        }
+        if (sampleModel.getSample(x1, y0, 0, dataBuffer) == 0) {
+            return false;
+        }
+        if (sampleModel.getSample(x0, y1, 0, dataBuffer) == 0) {
+            return false;
+        }
+        if (sampleModel.getSample(x1, y1, 0, dataBuffer) == 0) {
+            return false;
+        }
+        return true;
+    }
+
+    private float interpolate(float wx, float wy, Raster raster, float min, float max) {
+        final int x0 = raster.getMinX() - raster.getSampleModelTranslateX();
+        final int x1 = x0 + 1;
+        final int y0 = raster.getMinY() - raster.getSampleModelTranslateY();
+        final int y1 = y0 + 1;
+        DataBuffer dataBuffer = raster.getDataBuffer();
+        SampleModel sampleModel = raster.getSampleModel();
+
+        final float d00 = sampleModel.getSampleFloat(x0, y0, 0, dataBuffer);
         if (d00 >= min && d00 <= max) {
-            final float d10 = getSampleFloat(x1, y0, image, maskImage);
+            final float d10 = sampleModel.getSampleFloat(x1, y0, 0, dataBuffer);
             if (d10 >= min && d10 <= max) {
-                final float d01 = getSampleFloat(x0, y1, image, maskImage);
+                final float d01 = sampleModel.getSampleFloat(x0, y1, 0, dataBuffer);
                 if (d01 >= min && d01 <= max) {
-                    final float d11 = getSampleFloat(x1, y1, image, maskImage);
+                    final float d11 = sampleModel.getSampleFloat(x1, y1, 0, dataBuffer);
                     if (d11 >= min && d11 <= max) {
                         return MathUtils.interpolate2D(wx, wy, d00, d10, d01, d11);
                     }
                 }
             }
         }
-        return defaultValue;
+        return d00;
     }
 
     private boolean pixelPosIsInsideRasterWH(PixelPos pixelPos) {
@@ -367,14 +406,11 @@ class PixelGeoCoding2 extends AbstractGeoCoding implements BasicPixelGeoCoding {
         latImage = null;
     }
 
-    private static float getSampleFloat(int pixelX, int pixelY, PlanarImage image, PlanarImage maskImage) {
-        final int x = image.getMinX() + pixelX;
-        final int y = image.getMinY() + pixelY;
-        final int tileX = image.XToTileX(x);
-        final int tileY = image.YToTileY(y);
-        final Raster data = image.getTile(tileX, tileY);
+    private static float getSampleFloat(int pixelX, int pixelY, PlanarImage dataImage, PlanarImage maskImage) {
         if (maskImage != null) {
             // tile coordinates of images and mask "shall" be equal, but they are not - TODO check why (mz 2013-11-08)
+            final int x = maskImage.getMinX() + pixelX;
+            final int y = maskImage.getMinY() + pixelY;
             final int maskTileX = maskImage.XToTileX(x);
             final int maskTileY = maskImage.YToTileY(y);
             final int maskValue = maskImage.getTile(maskTileX, maskTileY).getSample(x, y, 0);
@@ -382,6 +418,11 @@ class PixelGeoCoding2 extends AbstractGeoCoding implements BasicPixelGeoCoding {
                 return Float.NaN;
             }
         }
+        final int x = dataImage.getMinX() + pixelX;
+        final int y = dataImage.getMinY() + pixelY;
+        final int tileX = dataImage.XToTileX(x);
+        final int tileY = dataImage.YToTileY(y);
+        final Raster data = dataImage.getTile(tileX, tileY);
         return data.getSampleFloat(x, y, 0);
     }
 
