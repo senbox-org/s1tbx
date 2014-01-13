@@ -32,20 +32,18 @@
 
     <extension point="beam-ui:toolViews">
 
-        <!--toolView>
-            <id>org.esa.nest.dat.toolviews.productlibrary.ProductLibraryToolView</id>
-            <class>org.esa.nest.dat.toolviews.productlibrary.ProductLibraryToolView</class>
-            <title>Product Library - Local Catalogue</title>
-            <tabTitle>Product Library</tabTitle>
-            <mnemonic>D</mnemonic>
-            <accelerator>ctrl alt D</accelerator>
+        <toolView>
+            <id>org.esa.beam.visat.toolviews.cbir.CBIRToolView</id>
+            <class>org.esa.beam.visat.toolviews.cbir.CBIRToolView</class>
+            <title>CBIR</title>
+            <tabTitle>CBIR</tabTitle>
             <smallIcon>/org/esa/beam/resources/images/icons/product_library16.png</smallIcon>
             <largeIcon>/org/esa/beam/resources/images/icons/product_library24.png</largeIcon>
-            <description>Product Library.</description>
+            <description>Content Based Image Retrieval</description>
             <initState>ICONIFIED</initState>
-            <initSide>EAST</initSide>
+            <!--initSide>EAST</initSide-->
             <initIndex>0</initIndex>
-        </toolView-->
+        </toolView>
     </extension>
 
 </module>
