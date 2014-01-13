@@ -1,0 +1,51 @@
+
+<module>
+    <manifestVersion>1.0.0</manifestVersion>
+    <symbolicName>beam-cbir</symbolicName>
+    <version>5.0</version>
+    <name>BEAM Content Based Image Retrieval</name>
+
+
+    <description>CBIR for BEAM and NEST.</description>
+
+    <vendor>Array Systems Computing Inc</vendor>
+    <contactAddress>1120 Finch Ave W. Toronto (Canada)</contactAddress>
+    <copyright>(C) 2013 by Array Systems Computing Inc</copyright>
+    <url>http://www.array.ca/nest</url>
+    <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
+
+    <dependency>
+        <module>beam-core</module>
+    </dependency>
+    <dependency>
+        <module>beam-visat-rcp</module>
+    </dependency>
+
+    <changelog>
+        <![CDATA[
+        <p>Changes in 4.1:<br/>
+
+        </p>]]>
+    </changelog>
+
+    <categories>System,Library</categories>
+
+    <extension point="beam-ui:toolViews">
+
+        <!--toolView>
+            <id>org.esa.nest.dat.toolviews.productlibrary.ProductLibraryToolView</id>
+            <class>org.esa.nest.dat.toolviews.productlibrary.ProductLibraryToolView</class>
+            <title>Product Library - Local Catalogue</title>
+            <tabTitle>Product Library</tabTitle>
+            <mnemonic>D</mnemonic>
+            <accelerator>ctrl alt D</accelerator>
+            <smallIcon>/org/esa/beam/resources/images/icons/product_library16.png</smallIcon>
+            <largeIcon>/org/esa/beam/resources/images/icons/product_library24.png</largeIcon>
+            <description>Product Library.</description>
+            <initState>ICONIFIED</initState>
+            <initSide>EAST</initSide>
+            <initIndex>0</initIndex>
+        </toolView-->
+    </extension>
+
+</module>
