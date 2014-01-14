@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -381,13 +381,28 @@ public class GPF {
      * @param pm          a monitor to inform the user about progress
      */
     public static void writeProduct(Product product, File file, String formatName, boolean incremental, ProgressMonitor pm) {
-        WriteOp writeOp = new WriteOp(product, file, formatName);
-        writeOp.setDeleteOutputOnFailure(true);
-        writeOp.setWriteEntireTileRows(true);
-        writeOp.setClearCacheAfterRowWrite(true);
-        writeOp.setIncremental(incremental);
-        writeOp.writeProduct(pm);
+        writeProduct(product, file, formatName, false, incremental, pm);
     }
+
+    /**
+      * Writes a product with the specified format to the given file.
+      *
+      * @param product     the product
+      * @param file        the product file
+      * @param formatName  the name of a supported product format, e.g. "HDF5". If <code>null</code>, the default format
+      *                    "BEAM-DIMAP" will be used
+      * @param clearCacheAfterRowWrite if true, the internal tile cache is cleared after a tile row has been written.
+      * @param incremental switch the product writer in incremental mode or not.
+      * @param pm          a monitor to inform the user about progress
+      */
+     public static void writeProduct(Product product, File file, String formatName, boolean clearCacheAfterRowWrite, boolean incremental, ProgressMonitor pm) {
+         WriteOp writeOp = new WriteOp(product, file, formatName);
+         writeOp.setDeleteOutputOnFailure(true);
+         writeOp.setWriteEntireTileRows(true);
+         writeOp.setClearCacheAfterRowWrite(clearCacheAfterRowWrite);
+         writeOp.setIncremental(incremental);
+         writeOp.writeProduct(pm);
+     }
 
     static class RenderingKey<T> extends RenderingHints.Key {
 

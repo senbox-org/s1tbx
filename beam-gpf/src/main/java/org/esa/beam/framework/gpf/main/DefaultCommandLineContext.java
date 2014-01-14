@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -60,7 +60,7 @@ class DefaultCommandLineContext implements CommandLineContext {
 
     @Override
     public void writeProduct(Product targetProduct, String filePath, String formatName, boolean clearCacheAfterRowWrite) throws IOException {
-        GPF.writeProduct(targetProduct, new File(filePath), formatName, clearCacheAfterRowWrite, ProgressMonitor.NULL);
+        GPF.writeProduct(targetProduct, new File(filePath), formatName, clearCacheAfterRowWrite, false, ProgressMonitor.NULL);
     }
 
     @Override
