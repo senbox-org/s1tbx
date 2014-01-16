@@ -28,6 +28,7 @@ import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.SourceProducts;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.io.FileUtils;
+import org.esa.beam.util.math.MathUtils;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -356,13 +357,32 @@ public class GPFFacadeTest {
         assertEquals(5*5, stackOp.computeTileStackCounter.get());
     }
 
+    @Test
+    public void testWriteProductWithCacheClearing() throws Exception {
+        StackOp stackOp = new StackOp();
+        Product source = new Product("name", "type", 1000, 1000);
+        source.setPreferredTileSize(200, 200);
+        stackOp.setSourceProduct(source);
+        Product targetProduct = stackOp.getTargetProduct();
+        File outputFile = GlobalTestConfig.getBeamTestDataOutputFile("GPFFacadeTest/testWriteProduct.dim");
+        try {
+            outputFile.getParentFile().mkdirs();
+            GPF.writeProduct(targetProduct, outputFile, "BEAM-DIMAP", true, true, ProgressMonitor.NULL);
+        } finally {
+            FileUtils.deleteTree(outputFile.getParentFile());
+        }
+        assertEquals(5*5, stackOp.computeTileStackCounter.get());
+    }
+
     private static class StackOp extends Operator {
 
         AtomicInteger computeTileStackCounter = new AtomicInteger(0);
+        Dimension tileSize;
 
         @Override
         public void initialize() throws OperatorException {
             Product sourceProduct = getSourceProduct();
+            tileSize = sourceProduct.getPreferredTileSize();
             Product product = new Product("name", "type", sourceProduct.getSceneRasterWidth(), sourceProduct.getSceneRasterHeight());
             product.addBand("A", ProductData.TYPE_FLOAT32);
             product.addBand("B", ProductData.TYPE_FLOAT32);
@@ -371,10 +391,16 @@ public class GPFFacadeTest {
 
         @Override
         public void computeTileStack(Map<Band, Tile> targetTiles, Rectangle targetRectangle, ProgressMonitor pm) throws OperatorException {
-            //System.out.println("targetRectangle = [" + targetRectangle + "]");
+            //logTileIndex(targetRectangle.x, targetRectangle.y);
             computeTileStackCounter.incrementAndGet();
             Arrays.fill(targetTiles.get(getTargetProduct().getBand("A")).getDataBufferFloat(), 5f);
             Arrays.fill(targetTiles.get(getTargetProduct().getBand("B")).getDataBufferFloat(), 7f);
+        }
+
+        private void logTileIndex(int x, int y) {
+            int tileX = MathUtils.floorInt(x / (double) tileSize.width);
+            int tileY = MathUtils.floorInt(y / (double) tileSize.height);
+            System.out.println("tileY = " + tileY + "  tileX = " + tileX);
         }
     }
 }

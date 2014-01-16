@@ -85,6 +85,7 @@ public class OperatorExecutor {
     private final TileScheduler tileScheduler;
     private final int parallelism;
     private volatile OperatorException error = null;
+    private boolean scheduleRowsSeparate = false;
 
     public OperatorExecutor(PlanarImage[] images, int tileCountX, int tileCountY) {
         this(images, tileCountX, tileCountY, JAI.getDefaultInstance().getTileScheduler().getParallelism());
@@ -96,6 +97,10 @@ public class OperatorExecutor {
         this.tileCountY = tileCountY;
         this.parallelism = parallelism;
         this.tileScheduler = JAI.getDefaultInstance().getTileScheduler();
+    }
+
+    public void setScheduleRowsSeparate(boolean scheduleRowsSeparate) {
+        this.scheduleRowsSeparate = scheduleRowsSeparate;
     }
 
     public void execute(ProgressMonitor pm) {
@@ -155,6 +160,11 @@ public class OperatorExecutor {
                 for (int tileX = 0; tileX < tileCountX; tileX++) {
                     scheduleTile(image, tileX, tileY, semaphore, listeners, pm);
                 }
+                if (scheduleRowsSeparate) {
+                    // wait until all threads / tiles are finished
+                    acquirePermits(semaphore, parallelism);
+                    semaphore.release(parallelism);
+                }
             }
         }
     }
@@ -165,6 +175,11 @@ public class OperatorExecutor {
                 for (int tileX = 0; tileX < tileCountX; tileX++) {
                     scheduleTile(image, tileX, tileY, semaphore, listeners, pm);
                 }
+            }
+            if (scheduleRowsSeparate) {
+                // wait until all threads / tiles are finished
+                acquirePermits(semaphore, parallelism);
+                semaphore.release(parallelism);
             }
         }
     }
@@ -177,6 +192,11 @@ public class OperatorExecutor {
             for (int tileX = 0; tileX < tileCountX; tileX++) {
                 scheduleTile(images[0], tileX, tileY, semaphore, listeners, pm);
             }
+            if (scheduleRowsSeparate) {
+                // wait until all threads / tiles are finished
+                acquirePermits(semaphore, parallelism);
+                semaphore.release(parallelism);
+            }
         }
     }
 
@@ -184,7 +204,7 @@ public class OperatorExecutor {
                               TileComputationListener[] listeners, ProgressMonitor pm) {
 
         BeamLogManager.getSystemLogger().finest(String.format("Scheduling tile x=%d/%d y=%d/%d for %s",
-                                                              tileX + 1, tileCountX, tileY + 1, tileCountY, image));
+                tileX + 1, tileCountX, tileY + 1, tileCountY, image));
 
         checkForCancelation(pm);
         acquirePermits(semaphore, 1);
