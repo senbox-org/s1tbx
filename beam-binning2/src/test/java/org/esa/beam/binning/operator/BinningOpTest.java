@@ -38,12 +38,11 @@ import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Set;
-import java.util.SortedMap;
+import java.util.*;
 
 import static java.lang.Math.sqrt;
 import static org.junit.Assert.*;
+import static org.junit.matchers.JUnitMatchers.*;
 
 /**
  * Test that creates a local and a global L3 product from 5 source files.
@@ -87,9 +86,9 @@ public class BinningOpTest {
     public void testMetadataGeneration() throws Exception {
         BinningOp binningOp = new BinningOp();
 
-        binningOp.setSourceProducts(createSourceProduct(0.1F),
-                createSourceProduct(0.2F),
-                createSourceProduct(0.3F));
+        binningOp.setSourceProducts(createSourceProduct(1, 0.1F),
+                createSourceProduct(2, 0.2F),
+                createSourceProduct(3, 0.3F));
 
         binningOp.setStartDate("2002-01-01");
         binningOp.setEndDate("2002-01-10");
@@ -104,14 +103,28 @@ public class BinningOpTest {
 
         SortedMap<String, String> metadataProperties = binningOp.getMetadataProperties();
         assertNotNull(metadataProperties);
-        Set<String> nameSet = metadataProperties.keySet();
-        final String[] names = nameSet.toArray(new String[nameSet.size()]);
-        assertEquals(5, names.length);
-        assertEquals("processing_time", names[0]);
-        assertEquals("product_name", names[1]);
-        assertEquals("software_name", names[2]);
-        assertEquals("software_qualified_name", names[3]);
-        assertEquals("software_version", names[4]);
+
+        assertEquals(6, metadataProperties.size());
+        Set<String> strings = metadataProperties.keySet();
+        String[] names = strings.toArray(new String[strings.size()]);
+        String[] expectedNames = {
+                "processing_time",
+                "product_name",
+                "software_name",
+                "software_qualified_name",
+                "software_version",
+                "source_products",
+        };
+        assertArrayEquals(expectedNames, names);
+
+        assertTrue("processing_time", metadataProperties.get("processing_time").startsWith("201"));
+        assertEquals("target-1", metadataProperties.get("product_name"));
+        assertEquals("Binning", metadataProperties.get("software_name"));
+        assertEquals("org.esa.beam.binning.operator.BinningOp", metadataProperties.get("software_qualified_name"));
+        assertEquals("0.8.2", metadataProperties.get("software_version"));
+        assertThat(metadataProperties.get("source_products"), containsString("P1"));
+        assertThat(metadataProperties.get("source_products"), containsString("P2"));
+        assertThat(metadataProperties.get("source_products"), containsString("P3"));
     }
 
     @Test
@@ -139,7 +152,7 @@ public class BinningOpTest {
         final BinningOp binningOp = new BinningOp();
 
         JtsGeometryConverter geometryConverter = new JtsGeometryConverter();
-        binningOp.setSourceProducts(createSourceProduct(obs1));
+        binningOp.setSourceProducts(createSourceProduct(1, obs1));
         binningOp.setStartDate("2002-01-01");
         binningOp.setEndDate("2002-01-10");
         binningOp.setBinningConfig(binningConfig);
@@ -162,7 +175,7 @@ public class BinningOpTest {
         final BinningOp binningOp = new BinningOp();
 
         JtsGeometryConverter geometryConverter = new JtsGeometryConverter();
-        binningOp.setSourceProducts(createSourceProduct(obs1));
+        binningOp.setSourceProducts(createSourceProduct(1, obs1));
         binningOp.setStartDate("2002-01-01");
         binningOp.setEndDate("2002-01-10");
         binningOp.setBinningConfig(binningConfig);
@@ -193,11 +206,11 @@ public class BinningOpTest {
 
         final BinningOp binningOp = new BinningOp();
 
-        binningOp.setSourceProducts(createSourceProduct(obs1),
-                createSourceProduct(obs2),
-                createSourceProduct(obs3),
-                createSourceProduct(obs4),
-                createSourceProduct(obs5));
+        binningOp.setSourceProducts(createSourceProduct(1, obs1),
+                createSourceProduct(2, obs2),
+                createSourceProduct(3, obs3),
+                createSourceProduct(4, obs4),
+                createSourceProduct(5, obs5));
 
         JtsGeometryConverter geometryConverter = new JtsGeometryConverter();
         binningOp.setStartDate("2002-01-01");
@@ -237,11 +250,11 @@ public class BinningOpTest {
 
         final BinningOp binningOp = new BinningOp();
 
-        binningOp.setSourceProducts(createSourceProduct(obs1),
-                createSourceProduct(obs2),
-                createSourceProduct(obs3),
-                createSourceProduct(obs4),
-                createSourceProduct(obs5));
+        binningOp.setSourceProducts(createSourceProduct(1, obs1),
+                createSourceProduct(2, obs2),
+                createSourceProduct(3, obs3),
+                createSourceProduct(4, obs4),
+                createSourceProduct(5, obs5));
 
         GeometryFactory gf = new GeometryFactory();
         binningOp.setRegion(gf.createPolygon(gf.createLinearRing(new Coordinate[]{
@@ -292,11 +305,11 @@ public class BinningOpTest {
         parameters.put("region", "POLYGON ((-180 -90, -180 90, 180 90, 180 -90, -180 -90))");
 
         final Product targetProduct = GPF.createProduct("Binning", parameters,
-                createSourceProduct(obs1),
-                createSourceProduct(obs2),
-                createSourceProduct(obs3),
-                createSourceProduct(obs4),
-                createSourceProduct(obs5));
+                createSourceProduct(1, obs1),
+                createSourceProduct(2, obs2),
+                createSourceProduct(3, obs3),
+                createSourceProduct(4, obs4),
+                createSourceProduct(5, obs5));
 
         assertNotNull(targetProduct);
         try {
@@ -333,11 +346,11 @@ public class BinningOpTest {
 
         final Product targetProduct = GPF.createProduct("Binning",
                 parameters,
-                createSourceProduct(obs1),
-                createSourceProduct(obs2),
-                createSourceProduct(obs3),
-                createSourceProduct(obs4),
-                createSourceProduct(obs5));
+                createSourceProduct(1, obs1),
+                createSourceProduct(2, obs2),
+                createSourceProduct(3, obs3),
+                createSourceProduct(4, obs4),
+                createSourceProduct(5, obs5));
         assertNotNull(targetProduct);
         try {
             assertLocalBinningProductIsOk(targetProduct, null, obs1, obs2, obs3, obs4, obs5);
@@ -369,11 +382,11 @@ public class BinningOpTest {
         final File sourceFile4 = getTestFile("obs4.dim");
         final File sourceFile5 = getTestFile("obs5.dim");
 
-        ProductIO.writeProduct(createSourceProduct(obs1), sourceFile1, "BEAM-DIMAP", false);
-        ProductIO.writeProduct(createSourceProduct(obs2), sourceFile2, "BEAM-DIMAP", false);
-        ProductIO.writeProduct(createSourceProduct(obs3), sourceFile3, "BEAM-DIMAP", false);
-        ProductIO.writeProduct(createSourceProduct(obs4), sourceFile4, "BEAM-DIMAP", false);
-        ProductIO.writeProduct(createSourceProduct(obs5), sourceFile5, "BEAM-DIMAP", false);
+        ProductIO.writeProduct(createSourceProduct(1, obs1), sourceFile1, "BEAM-DIMAP", false);
+        ProductIO.writeProduct(createSourceProduct(2, obs2), sourceFile2, "BEAM-DIMAP", false);
+        ProductIO.writeProduct(createSourceProduct(3, obs3), sourceFile3, "BEAM-DIMAP", false);
+        ProductIO.writeProduct(createSourceProduct(4, obs4), sourceFile4, "BEAM-DIMAP", false);
+        ProductIO.writeProduct(createSourceProduct(5, obs5), sourceFile5, "BEAM-DIMAP", false);
 
         GPT.run(new String[]{
                 "Binning",
@@ -421,11 +434,11 @@ public class BinningOpTest {
         final File sourceFile4 = getTestFile("obs4.dim");
         final File sourceFile5 = getTestFile("obs5.dim");
 
-        ProductIO.writeProduct(createSourceProduct(obs1), sourceFile1, "BEAM-DIMAP", false);
-        ProductIO.writeProduct(createSourceProduct(obs2), sourceFile2, "BEAM-DIMAP", false);
-        ProductIO.writeProduct(createSourceProduct(obs3), sourceFile3, "BEAM-DIMAP", false);
-        ProductIO.writeProduct(createSourceProduct(obs4), sourceFile4, "BEAM-DIMAP", false);
-        ProductIO.writeProduct(createSourceProduct(obs5), sourceFile5, "BEAM-DIMAP", false);
+        ProductIO.writeProduct(createSourceProduct(1, obs1), sourceFile1, "BEAM-DIMAP", false);
+        ProductIO.writeProduct(createSourceProduct(2, obs2), sourceFile2, "BEAM-DIMAP", false);
+        ProductIO.writeProduct(createSourceProduct(3, obs3), sourceFile3, "BEAM-DIMAP", false);
+        ProductIO.writeProduct(createSourceProduct(4, obs4), sourceFile4, "BEAM-DIMAP", false);
+        ProductIO.writeProduct(createSourceProduct(5, obs5), sourceFile5, "BEAM-DIMAP", false);
 
         GPT.run(new String[]{
                 "Binning",
@@ -472,11 +485,11 @@ public class BinningOpTest {
         final File sourceFile4 = getTestFile("obs4.dim");
         final File sourceFile5 = getTestFile("obs5.dim");
 
-        ProductIO.writeProduct(createSourceProduct(obs1), sourceFile1, "BEAM-DIMAP", false);
-        ProductIO.writeProduct(createSourceProduct(obs2), sourceFile2, "BEAM-DIMAP", false);
-        ProductIO.writeProduct(createSourceProduct(obs3), sourceFile3, "BEAM-DIMAP", false);
-        ProductIO.writeProduct(createSourceProduct(obs4), sourceFile4, "BEAM-DIMAP", false);
-        ProductIO.writeProduct(createSourceProduct(obs5), sourceFile5, "BEAM-DIMAP", false);
+        ProductIO.writeProduct(createSourceProduct(1, obs1), sourceFile1, "BEAM-DIMAP", false);
+        ProductIO.writeProduct(createSourceProduct(2, obs2), sourceFile2, "BEAM-DIMAP", false);
+        ProductIO.writeProduct(createSourceProduct(3, obs3), sourceFile3, "BEAM-DIMAP", false);
+        ProductIO.writeProduct(createSourceProduct(4, obs4), sourceFile4, "BEAM-DIMAP", false);
+        ProductIO.writeProduct(createSourceProduct(5, obs5), sourceFile5, "BEAM-DIMAP", false);
 
         GPT.run(new String[]{
                 "Binning",
@@ -520,11 +533,11 @@ public class BinningOpTest {
         final File sourceFile4 = getTestFile("obs4.dim");
         final File sourceFile5 = getTestFile("obs5.dim");
 
-        ProductIO.writeProduct(createSourceProduct(obs1), sourceFile1, "BEAM-DIMAP", false);
-        ProductIO.writeProduct(createSourceProduct(obs2), sourceFile2, "BEAM-DIMAP", false);
-        ProductIO.writeProduct(createSourceProduct(obs3), sourceFile3, "BEAM-DIMAP", false);
-        ProductIO.writeProduct(createSourceProduct(obs4), sourceFile4, "BEAM-DIMAP", false);
-        ProductIO.writeProduct(createSourceProduct(obs5), sourceFile5, "BEAM-DIMAP", false);
+        ProductIO.writeProduct(createSourceProduct(1, obs1), sourceFile1, "BEAM-DIMAP", false);
+        ProductIO.writeProduct(createSourceProduct(2, obs2), sourceFile2, "BEAM-DIMAP", false);
+        ProductIO.writeProduct(createSourceProduct(3, obs3), sourceFile3, "BEAM-DIMAP", false);
+        ProductIO.writeProduct(createSourceProduct(4, obs4), sourceFile4, "BEAM-DIMAP", false);
+        ProductIO.writeProduct(createSourceProduct(5, obs5), sourceFile5, "BEAM-DIMAP", false);
 
         GPT.run(new String[]{
                 "Binning",
@@ -607,7 +620,7 @@ public class BinningOpTest {
 
         final JtsGeometryConverter geometryConverter = new JtsGeometryConverter();
 
-        final Product sourceProduct = createSourceProduct(obs1);
+        final Product sourceProduct = createSourceProduct(1, obs1);
         sourceProduct.setStartTime(ProductData.UTC.parse("02-JAN-2002 11:30:25"));
         sourceProduct.setEndTime(ProductData.UTC.parse("02-JAN-2002 12:28:19"));
 
@@ -762,7 +775,6 @@ public class BinningOpTest {
         return binningConfig;
     }
 
-    static int sourceProductCounter = 1;
     static int targetProductCounter = 1;
 
     static FormatterConfig createFormatterConfig() throws IOException {
@@ -774,12 +786,8 @@ public class BinningOpTest {
         return formatterConfig;
     }
 
-    static Product createSourceProduct() {
-        return createSourceProduct(1.0F);
-    }
-
-    static Product createSourceProduct(float value) {
-        final Product p = new Product("P" + sourceProductCounter++, "T", 2, 2);
+    static Product createSourceProduct(int sourceProductCounter, float value) {
+        final Product p = new Product("P" + sourceProductCounter, "T", 2, 2);
         final TiePointGrid latitude = new TiePointGrid("latitude", 2, 2, 0.5F, 0.5F, 1.0F, 1.0F, new float[]{
                 1.0F, 1.0F,
                 0.0F, 0.0F,

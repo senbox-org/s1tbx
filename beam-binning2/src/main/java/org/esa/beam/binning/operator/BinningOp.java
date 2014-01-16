@@ -64,17 +64,7 @@ import java.io.IOException;
 import java.io.Writer;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Properties;
-import java.util.SortedMap;
-import java.util.SortedSet;
-import java.util.TreeMap;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.logging.Level;
 
 /*
@@ -192,7 +182,7 @@ public class BinningOp extends Operator implements Output {
     private Double minDataHour;
 
     private transient BinningContext binningContext;
-    private transient int sourceProductCount;
+    private transient List<String> sourceProductNames;
     private transient ProductData.UTC minDateUtc;
     private transient ProductData.UTC maxDateUtc;
     private transient SortedMap<String, String> metadataProperties;
@@ -292,7 +282,7 @@ public class BinningOp extends Operator implements Output {
                                                                 region);
 
         metadataProperties = new TreeMap<String, String>();
-        sourceProductCount = 0;
+        sourceProductNames = new ArrayList<String>();
 
         try {
             // Step 1: Spatial binning - creates time-series of spatial bins for each bin ID ordered by ID. The tree map structure is <ID, time-series>
@@ -322,7 +312,7 @@ public class BinningOp extends Operator implements Output {
             cleanSourceProducts();
         }
 
-        stopWatch.stopAndTrace(String.format("Total time for binning %d product(s)", sourceProductCount));
+        stopWatch.stopAndTrace(String.format("Total time for binning %d product(s)", sourceProductNames.size()));
 
         processMetadataTemplates();
     }
@@ -466,6 +456,7 @@ public class BinningOp extends Operator implements Output {
         metadataProperties.put("software_name", operatorClass.getAnnotation(OperatorMetadata.class).alias());
         metadataProperties.put("software_version", operatorClass.getAnnotation(OperatorMetadata.class).version());
         metadataProperties.put("processing_time", dateFormat.format(new Date()));
+        metadataProperties.put("source_products", StringUtils.join(sourceProductNames, ","));
 
         if (metadataPropertiesFile != null) {
             if (!metadataPropertiesFile.exists()) {
@@ -561,7 +552,9 @@ public class BinningOp extends Operator implements Output {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
         updateDateRangeUtc(sourceProduct);
-        getLogger().info(String.format("Spatial binning of product '%s'...", sourceProduct.getName()));
+        String productName = sourceProduct.getName();
+        sourceProductNames.add(productName);
+        getLogger().info(String.format("Spatial binning of product '%s'...", productName));
         getLogger().fine(String.format("Product start time: '%s'", sourceProduct.getStartTime()));
         getLogger().fine(String.format("Product end time:   '%s'", sourceProduct.getEndTime()));
         if (region != null) {
@@ -578,14 +571,14 @@ public class BinningOp extends Operator implements Output {
                                                                 ProgressMonitor.NULL);
         stopWatch.stop();
         getLogger().info(String.format("Spatial binning of product '%s' done, %d observations seen, took %s",
-                                       sourceProduct.getName(), numObs, stopWatch));
+                productName, numObs, stopWatch));
 
         if (region == null && regionArea != null) {
             for (GeneralPath generalPath : ProductUtils.createGeoBoundaryPaths(sourceProduct)) {
                 regionArea.add(new Area(generalPath));
             }
         }
-        sourceProductCount++;
+
     }
 
     private TemporalBinList doTemporalBinning(SpatialBinCollection spatialBinMap) throws IOException {
