@@ -37,6 +37,7 @@ public class SimpleNetcdfFile extends NetcdfFile {
         super(spi, raf, location, null);
     }
 
+    // currently unused
     public static boolean canOpenNetcdf(Object input) throws IOException {
         ucar.unidata.io.RandomAccessFile raf = null;
         try {
@@ -49,16 +50,6 @@ public class SimpleNetcdfFile extends NetcdfFile {
         }
     }
 
-    public static NetcdfFile openNetcdf(Object input) throws IOException {
-        ucar.unidata.io.RandomAccessFile raf = getRaf(input);
-        try {
-            return open(raf, raf.getLocation());
-        } catch (Throwable t) {
-            raf.close();
-            throw new IOException(t);
-        }
-    }
-
     private static boolean canOpen(ucar.unidata.io.RandomAccessFile raf) throws IOException {
         for (IOServiceProvider iosp : IOSPs) {
             if (iosp.isValidFile(raf)) {
@@ -66,6 +57,19 @@ public class SimpleNetcdfFile extends NetcdfFile {
             }
         }
         return false;
+    }
+
+    public static NetcdfFile openNetcdf(Object input) throws IOException {
+        ucar.unidata.io.RandomAccessFile raf = getRaf(input);
+        if (raf == null) {
+            return null;
+        }
+        try {
+            return open(raf, raf.getLocation());
+        } catch (Throwable t) {
+            raf.close();
+            throw new IOException(t);
+        }
     }
 
     private static NetcdfFile open(ucar.unidata.io.RandomAccessFile raf, String location) throws IOException {
@@ -130,6 +134,16 @@ public class SimpleNetcdfFile extends NetcdfFile {
             if (uriString.startsWith("file:")) {
                 // uriString = uriString.substring(5);
                 uriString = StringUtil2.unescape(uriString.substring(5));  // 11/10/2010 from erussell@ngs.org
+            }
+
+            // added to exclude tar archives (mz)
+            String lowerCaseUri = uriString.toLowerCase();
+            if (lowerCaseUri.endsWith(".tar.gz") ||
+                    lowerCaseUri.endsWith(".tar.Z") ||
+                    lowerCaseUri.endsWith(".tar.gzip") ||
+                    lowerCaseUri.endsWith(".tgz") ||
+                    lowerCaseUri.endsWith(".tar.bz2")) {
+                return null;
             }
 
             String uncompressedFileName = null;
