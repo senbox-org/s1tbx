@@ -51,7 +51,7 @@ public class RuntimeAppBTest extends TestCase {
         runtime = null;
     }
 
-
+    // TODO rq/mp - this test fails on Mac OS (rq-20140116)
     public void testAllExpectedModulesPresent() {
 
         Module[] modules = runtime.getModules();
