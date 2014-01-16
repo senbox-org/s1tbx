@@ -25,6 +25,7 @@ import org.esa.beam.binning.aggregators.AggregatorMinMax;
 import org.esa.beam.binning.support.BinningContextImpl;
 import org.esa.beam.binning.support.SEAGrid;
 import org.esa.beam.binning.support.VariableContextImpl;
+import org.esa.beam.dataio.netcdf.util.SimpleNetcdfFile;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.geotools.geometry.jts.JTS;
 import org.junit.After;
@@ -75,7 +76,7 @@ public class SeaDASLevel3BinWriterTest {
 
         binWriter.write(metadataProperties, temporalBins);
 
-        final NetcdfFile netcdfFile = NetcdfFile.open(binWriter.getTargetFilePath());
+        final NetcdfFile netcdfFile = SimpleNetcdfFile.openNetcdf(binWriter.getTargetFilePath());
         assertNotNull(netcdfFile.findGlobalAttribute("title"));
         assertNotNull(netcdfFile.findGlobalAttribute("super_sampling"));
         assertEquals(numRows * 2, netcdfFile.findGlobalAttribute("SEAGrid_bins").getNumericValue());
@@ -170,7 +171,7 @@ public class SeaDASLevel3BinWriterTest {
                 ProductData.UTC.create(stopTime, 0));
         binWriterWithUtc.write(metadataProperties, temporalBins);
 
-        final NetcdfFile netcdfFile = NetcdfFile.open(binWriterWithUtc.getTargetFilePath());
+        final NetcdfFile netcdfFile = SimpleNetcdfFile.openNetcdf(binWriterWithUtc.getTargetFilePath());
         final Attribute startTimeAttribute = netcdfFile.findGlobalAttribute("start_time");
         assertNotNull(startTimeAttribute);
         assertEquals("1985-11-05T00:53:20.000", startTimeAttribute.getStringValue());

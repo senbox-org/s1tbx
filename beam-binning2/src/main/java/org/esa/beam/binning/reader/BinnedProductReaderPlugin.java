@@ -16,6 +16,7 @@
 
 package org.esa.beam.binning.reader;
 
+import org.esa.beam.dataio.netcdf.util.SimpleNetcdfFile;
 import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
@@ -44,7 +45,7 @@ public class BinnedProductReaderPlugin implements ProductReaderPlugIn {
             try {
                 NetcdfFile netcdfFile = null;
                 try {
-                    netcdfFile = NetcdfFile.open(path);
+                    netcdfFile = SimpleNetcdfFile.openNetcdf(path);
                     for (Variable variable : netcdfFile.getVariables()) {
                         Attribute gridMappingName = variable.findAttribute("grid_mapping_name");
                         if (gridMappingName != null) {

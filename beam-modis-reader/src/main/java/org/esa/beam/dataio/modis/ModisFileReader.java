@@ -29,6 +29,7 @@ import org.esa.beam.dataio.modis.productdb.ModisProductDescription;
 import org.esa.beam.dataio.modis.productdb.ModisSpectralInfo;
 import org.esa.beam.dataio.modis.productdb.ModisTiePointDescription;
 import org.esa.beam.dataio.netcdf.util.DataTypeUtils;
+import org.esa.beam.dataio.netcdf.util.SimpleNetcdfFile;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.Product;
@@ -463,7 +464,7 @@ class ModisFileReader {
         final File qcFileContainerFile = qcFileContainer.getFile();
         logger.info("MODIS QC file found: " + qcFileContainerFile.getPath());
 
-        qcFile = NetcdfFile.open(qcFileContainerFile.getPath(), null);
+        qcFile = SimpleNetcdfFile.openNetcdf(qcFileContainerFile.getPath());
 
         NetCDFAttributes netCDFQCAttributes = new NetCDFAttributes();
         netCDFQCAttributes.add(qcFile.getGlobalAttributes());

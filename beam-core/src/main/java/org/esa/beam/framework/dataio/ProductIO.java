@@ -248,6 +248,7 @@ public class ProductIO {
      * @see ProductReader#readProductNodes(Object, ProductSubsetDef)
      */
     public static ProductReader getProductReaderForInput(Object input) {
+        final long startTimeTotal = System.currentTimeMillis();
         Logger logger = BeamLogManager.getSystemLogger();
         logger.fine("Searching reader plugin for '" + input + "'");
         ProductIOPlugInManager registry = ProductIOPlugInManager.getInstance();
@@ -267,6 +268,8 @@ public class ProductIO {
                 selectedPlugIn = plugIn;
             }
         }
+        final long endTimeTotal = System.currentTimeMillis();
+        logger.fine(String.format("Searching reader plugin took %d ms", (endTimeTotal - startTimeTotal)));
         if (selectedPlugIn != null) {
             logger.fine("Selected " + selectedPlugIn.getClass().getName());
             return selectedPlugIn.createReaderInstance();

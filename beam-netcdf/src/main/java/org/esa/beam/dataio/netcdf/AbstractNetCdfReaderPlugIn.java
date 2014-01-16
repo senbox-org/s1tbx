@@ -19,6 +19,7 @@ package org.esa.beam.dataio.netcdf;
 import org.esa.beam.dataio.netcdf.metadata.ProfileInitPartReader;
 import org.esa.beam.dataio.netcdf.metadata.ProfilePartReader;
 import org.esa.beam.dataio.netcdf.util.RasterDigest;
+import org.esa.beam.dataio.netcdf.util.SimpleNetcdfFile;
 import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
@@ -42,7 +43,7 @@ public abstract class AbstractNetCdfReaderPlugIn implements ProductReaderPlugIn 
     public final DecodeQualification getDecodeQualification(Object input) {
         NetcdfFile netcdfFile = null;
         try {
-            netcdfFile = NetcdfFile.open(input.toString());
+            netcdfFile = SimpleNetcdfFile.openNetcdf(input.toString());
             return getDecodeQualification(netcdfFile);
         } catch (Throwable ignored) {
             // ok -- just clean up and return UNABLE

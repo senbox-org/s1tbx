@@ -1,5 +1,6 @@
 package org.esa.beam.opendap.utils;
 
+import org.esa.beam.dataio.netcdf.util.SimpleNetcdfFile;
 import org.esa.beam.opendap.ui.DownloadProgressBarPM;
 import org.esa.beam.util.io.FileUtils;
 import org.junit.After;
@@ -91,7 +92,7 @@ public class DAPDownloaderTest {
     @Test
     public void testFilterVariables() throws Exception {
         final URL resource = getClass().getResource("test.nc");
-        final NetcdfFile netcdfFile = NetcdfFile.open(resource.toString());
+        final NetcdfFile netcdfFile = SimpleNetcdfFile.openNetcdf(resource.toString());
         final List<Variable> variables = netcdfFile.getVariables();
         final List<String> variableNames = new ArrayList<String>();
         for (Variable variable : variables) {
@@ -130,7 +131,7 @@ public class DAPDownloaderTest {
     @Test
     public void testFilterDimensions() throws Exception {
         final URL resource = getClass().getResource("test.nc");
-        final NetcdfFile netcdfFile = NetcdfFile.open(resource.toString());
+        final NetcdfFile netcdfFile = SimpleNetcdfFile.openNetcdf(resource.toString());
 
         List<String> variableNames = new ArrayList<String>();
         variableNames.add("sst");
@@ -210,7 +211,7 @@ public class DAPDownloaderTest {
         final File testFile = getTestFile("deleteme.nc");
         assertTrue(testFile.exists());
         assertTrue(NetcdfFile.canOpen(testFile.getAbsolutePath()));
-        final NetcdfFile netcdfFile = NetcdfFile.open(testFile.getAbsolutePath());
+        final NetcdfFile netcdfFile = SimpleNetcdfFile.openNetcdf(testFile.getAbsolutePath());
         assertNotNull(netcdfFile.findVariable("SST"));
     }
 
@@ -225,7 +226,7 @@ public class DAPDownloaderTest {
         final File testFile = getTestFile("deleteme.nc");
         assertTrue(testFile.exists());
         assertTrue(NetcdfFile.canOpen(testFile.getAbsolutePath()));
-        final NetcdfFile netcdfFile = NetcdfFile.open(testFile.getAbsolutePath());
+        final NetcdfFile netcdfFile = SimpleNetcdfFile.openNetcdf(testFile.getAbsolutePath());
         assertNull(netcdfFile.findVariable("SST"));
         assertNotNull(netcdfFile.findVariable("COADSX"));
     }
