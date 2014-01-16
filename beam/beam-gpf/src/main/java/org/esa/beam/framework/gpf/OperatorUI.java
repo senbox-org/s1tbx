@@ -16,6 +16,8 @@ import com.bc.ceres.binding.dom.XppDomElement;
  */
 public interface OperatorUI {
 
+    public String getOperatorName();
+
     public JComponent CreateOpTab(String operatorName, Map<String, Object> parameterMap, AppContext appContext);
 
     public void initParameters();

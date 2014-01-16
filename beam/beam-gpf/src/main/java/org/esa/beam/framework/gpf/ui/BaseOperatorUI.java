@@ -33,6 +33,7 @@ public abstract class BaseOperatorUI implements OperatorUI {
     protected PropertyContainer valueContainer = null;
     protected Map<String, Object> paramMap = null;
     protected Product[] sourceProducts = null;
+    protected String operatorName = "";
 
     public abstract JComponent CreateOpTab(final String operatorName,
                                            final Map<String, Object> parameterMap, final AppContext appContext);
@@ -43,7 +44,12 @@ public abstract class BaseOperatorUI implements OperatorUI {
 
     public abstract void updateParameters();
 
+    public String getOperatorName() {
+        return operatorName;
+    }
+
     protected void initializeOperatorUI(final String operatorName, final Map<String, Object> parameterMap) {
+        this.operatorName = operatorName;
 
         final OperatorSpi operatorSpi = GPF.getDefaultInstance().getOperatorSpiRegistry().getOperatorSpi(operatorName);
         if (operatorSpi == null) {

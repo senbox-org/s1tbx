@@ -188,7 +188,7 @@ public class GraphExecuter extends Observable {
         xml.setValue(value);
     }
 
-    private void AssignAllParameters() {
+    private void AssignAllParameters() throws GraphException {
 
         final XppDom presentationXML = new XppDom("Presentation");
 

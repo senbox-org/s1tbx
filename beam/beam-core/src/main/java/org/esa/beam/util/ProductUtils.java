@@ -1421,6 +1421,8 @@ public class ProductUtils {
                 IndexCoding srcIndexCoding = sourceBand.getIndexCoding();
                 copyIndexCoding(srcIndexCoding, targetProduct);
                 targetBand.setSampleCoding(targetProduct.getIndexCodingGroup().get(srcIndexCoding.getName()));
+
+                targetBand.setImageInfo((ImageInfo)sourceBand.getImageInfo().clone());
             }
         }
     }

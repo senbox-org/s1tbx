@@ -24,6 +24,7 @@ import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.OperatorUI;
 import org.esa.beam.framework.gpf.annotations.ParameterDescriptorFactory;
+import org.esa.beam.framework.gpf.graph.GraphException;
 import org.esa.beam.framework.gpf.graph.Node;
 import org.esa.beam.framework.gpf.graph.NodeSource;
 import org.esa.beam.framework.gpf.ui.UIValidation;
@@ -149,7 +150,7 @@ public class GraphNode {
         }
     }
 
-    void AssignParameters(final XppDom presentationXML) {
+    void AssignParameters(final XppDom presentationXML) throws GraphException {
 
         final XppDomElement config = new XppDomElement("parameters");
         updateParameterMap(config);
@@ -304,10 +305,14 @@ public class GraphNode {
         }
     }
 
-    void updateParameterMap(final XppDomElement parentElement) {
+    void updateParameterMap(final XppDomElement parentElement) throws GraphException {
         if(operatorUI != null) {
-            operatorUI.updateParameters();
-            operatorUI.convertToDOM(parentElement);
+            try {
+                operatorUI.updateParameters();
+                operatorUI.convertToDOM(parentElement);
+            } catch (Exception e) {
+                throw new GraphException(operatorUI.getOperatorName()+" error setting parameter "+e.getMessage());
+            }
         }
     }
 
