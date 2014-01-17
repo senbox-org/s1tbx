@@ -30,6 +30,10 @@
 
     <categories>System,Library</categories>
 
+    <extension point="ceres-core:serviceProviders">
+        <serviceProvider>org.esa.beam.framework.PFAApplicationDescriptor</serviceProvider>
+    </extension>
+
     <extension point="beam-ui:toolViews">
 
         <toolView>

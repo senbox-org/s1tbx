@@ -14,17 +14,65 @@
 	<funding>European Space Agency</funding>
 
     <dependency>
+        <module>nest-core</module>
+    </dependency>
+    <dependency>
+        <module>nest-reader-dem</module>
+    </dependency>
+    <dependency>
         <module>beam-core</module>
     </dependency>
     <dependency>
         <module>nest-core</module>
     </dependency>
-		
+    <dependency>
+        <module>nest-graph-builder</module>
+    </dependency>
+    <dependency>
+        <module>nest-dat</module>
+    </dependency>
+
+    
     <categories>Processor</categories>
 
     <extension point="beam-ui:actions">
+        <action>
+            <id>FuzzyKMeansOp</id>
+            <helpId>FuzzyKMeansOp</helpId>
+            <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <text>Fuzzy KMeans</text>
+            <shortDescr>Estimate FuzzyKMeans</shortDescr>
+            <icon>esaIcon</icon>
+            <parent>classification</parent>
+            <operatorName>FuzzyKMeansClusterAnalysis</operatorName>
+            <dialogTitle>Estimate FuzzyKMeans</dialogTitle>
+            <targetProductNameSuffix>_kmeans_opt</targetProductNameSuffix>
+        </action>
 
+        <<action>
+            <id>MeanShiftCanopyOp</id>
+            <helpId>MeanShiftCanopyOp</helpId>
+            <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <icon>esaIcon</icon>
+            <parent>classification</parent>
+            <text>MeanShiftCanopy Clustering</text>
+            <operatorName>MeanShiftClusterAnalysis</operatorName>
+            <dialogTitle>Mean Shift Cluster Analysis</dialogTitle>
+            <shortDescr>Invoke Mean Shift Cluster Analysis</shortDescr>
+            <targetProductNameSuffix>_mean_shift</targetProductNameSuffix>
+        </action>
 
-    </extension>
-
+        <action>
+            <id>DirichletOp</id>
+            <helpId>DirichletOp</helpId>
+            <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <icon>esaIcon</icon>
+            <parent>classification</parent>
+            <text>DirichletOp Clustering</text>
+            <operatorName>DirichletClusterAnalysis</operatorName>
+            <dialogTitle>Dirichlet Analysis</dialogTitle>
+            <shortDescr>Invoke Dirichlet Analysis</shortDescr>
+            <targetProductNameSuffix>_dirichlet</targetProductNameSuffix>
+        </action>>
+        
 </module>

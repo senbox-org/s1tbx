@@ -42,8 +42,8 @@ import java.util.ArrayList;
 public class DragScrollListener implements MouseListener, MouseMotionListener {
 
     //flags used to turn on/off draggable scrolling directions
-    private static final int DRAGABLE_HORIZONTAL_SCROLL_BAR = 1;
-    private static final int DRAGABLE_VERTICAL_SCROLL_BAR = 2;
+    public static final int DRAGABLE_HORIZONTAL_SCROLL_BAR = 1;
+    public static final int DRAGABLE_VERTICAL_SCROLL_BAR = 2;
 
     //defines the intensity of automatic scrolling.
     private int scrollingIntensity = 10;
@@ -66,8 +66,7 @@ public class DragScrollListener implements MouseListener, MouseMotionListener {
     private double pixelsPerMSY;
 
     //flag which defines the draggable scroll directions
-    //private int scrollBarMask = DRAGABLE_HORIZONTAL_SCROLL_BAR | DRAGABLE_VERTICAL_SCROLL_BAR;
-    private int scrollBarMask = DRAGABLE_HORIZONTAL_SCROLL_BAR;
+    private int scrollBarMask = DRAGABLE_HORIZONTAL_SCROLL_BAR | DRAGABLE_VERTICAL_SCROLL_BAR;
 
     //the draggable component
     private final Component draggableComponent;
@@ -82,12 +81,11 @@ public class DragScrollListener implements MouseListener, MouseMotionListener {
     //Uses the Point2D class to represent speeds rather than locations
     private java.util.List<Point2D> dragSpeeds = new ArrayList<Point2D>();
 
-    public DragScrollListener(Component c) {
+    public DragScrollListener(final Component c) {
+        this.draggableComponent = c;
+        this.defaultCursor = draggableComponent.getCursor();
 
-        draggableComponent = c;
-        defaultCursor = draggableComponent.getCursor();
-
-        draggableComponent.addPropertyChangeListener(new PropertyChangeListener() {
+        this.draggableComponent.addPropertyChangeListener(new PropertyChangeListener() {
 
 
             @Override

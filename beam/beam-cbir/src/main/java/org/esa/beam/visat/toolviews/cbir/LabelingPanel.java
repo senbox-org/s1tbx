@@ -17,7 +17,6 @@ package org.esa.beam.visat.toolviews.cbir;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.image.BufferedImage;
 
 /**
     Labeling Panel
@@ -27,7 +26,7 @@ public class LabelingPanel extends TaskPanel {
     private final static String instructionsStr = "Click and drag patches in the relevant list and drop into the irrelevant list";
 
     public LabelingPanel() {
-        super("Labeling");
+        super("Training Images");
 
         createPanel();
 
@@ -50,7 +49,7 @@ public class LabelingPanel extends TaskPanel {
     }
 
     public TaskPanel getNextPanel() {
-        return new QueryPanel();
+        return new RetrievedImagesPanel();
     }
 
     public boolean validateInput() {
@@ -72,6 +71,7 @@ public class LabelingPanel extends TaskPanel {
                                                                 JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 
         final DragScrollListener dl = new DragScrollListener(drawer);
+        dl.setDraggableElements(DragScrollListener.DRAGABLE_HORIZONTAL_SCROLL_BAR);
         drawer.addMouseListener(dl);
         drawer.addMouseMotionListener(dl);
 
@@ -85,6 +85,7 @@ public class LabelingPanel extends TaskPanel {
                                                                  JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 
         final DragScrollListener dl2 = new DragScrollListener(drawer2);
+        dl.setDraggableElements(DragScrollListener.DRAGABLE_HORIZONTAL_SCROLL_BAR);
         drawer2.addMouseListener(dl2);
         drawer2.addMouseMotionListener(dl2);
 
