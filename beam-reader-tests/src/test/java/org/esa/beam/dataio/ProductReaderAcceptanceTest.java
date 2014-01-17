@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -115,7 +115,7 @@ public class ProductReaderAcceptanceTest {
             }
         }
         stopWatchTotal.stop();
-        logInfoWithStars(String.format("Tested DecodeQualification: %d tests  %s", testCounter, stopWatchTotal.getTimeDiffString()));
+        logInfoWithStars(String.format("Tested DecodeQualification: %d tests in %s", testCounter, stopWatchTotal.getTimeDiffString()));
     }
 
     @Test
@@ -156,7 +156,7 @@ public class ProductReaderAcceptanceTest {
             }
         }
         stopWatchTotal.stop();
-        logInfoWithStars(String.format("Tested IntendedProductContent: %d tests  %s", testCounter, stopWatchTotal.getTimeDiffString()));
+        logInfoWithStars(String.format("Tested IntendedProductContent: %d tests in %s", testCounter, stopWatchTotal.getTimeDiffString()));
     }
 
     @Test
@@ -179,12 +179,13 @@ public class ProductReaderAcceptanceTest {
                     stopWatch.stop();
                     String findProductReaderTime = stopWatch.getTimeDiffString();
 
-                    stopWatch.start();
+                    String readProductNodesTime = "--:--:--.---";
                     if (productReader != null) {
+                        stopWatch.start();
                         product = productReader.readProductNodes(testProductFile, null);
+                        stopWatch.stop();
+                        readProductNodesTime = stopWatch.getTimeDiffString();
                     }
-                    stopWatch.stop();
-                    String readProductNodesTime = stopWatch.getTimeDiffString();
                     logger.info(INDENT + findProductReaderTime + " - " + readProductNodesTime + " - " + testProduct.getId());
                 } catch (Exception e) {
                     final String message = "ProductIO.readProduct " + testProduct.getId() + " caused an exception.\n" +
@@ -202,7 +203,7 @@ public class ProductReaderAcceptanceTest {
             }
         }
         stopWatchTotal.stop();
-        logInfoWithStars(String.format("Tested ProductIO.readProduct: %d tests  %s", testCounter, stopWatchTotal.getTimeDiffString()));
+        logInfoWithStars(String.format("Tested ProductIO.readProduct: %d tests in %s", testCounter, stopWatchTotal.getTimeDiffString()));
     }
 
     private static void assertExpectedContent(TestDefinition testDefinition, String productId, Product product) {
