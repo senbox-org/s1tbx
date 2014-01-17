@@ -202,7 +202,7 @@ public class WriteOp extends Operator implements Output {
             if (clearCacheAfterRowWrite && writeEntireTileRows) {
                 operatorExecutor.setScheduleRowsSeparate(true);
             }
-            operatorExecutor.execute(ExecutionOrder.SCHEDULE_ROW_COLUMN_BAND, pm);
+            operatorExecutor.execute(ExecutionOrder.SCHEDULE_ROW_COLUMN_BAND, "Writing...", pm);
 
             getLogger().info("End writing product " + getTargetProduct().getName() + " to " + getFile());
 
