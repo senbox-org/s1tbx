@@ -86,7 +86,9 @@ public class ProductReaderAcceptanceTest {
     @Test
     public void testPluginDecodeQualifications() throws ClassNotFoundException, IllegalAccessException, InstantiationException {
         logInfoWithStars("Testing DecodeQualification");
-
+        final StopWatch stopWatchTotal = new StopWatch();
+        stopWatchTotal.start();
+        int testCounter = 0;
         final StopWatch stopWatch = new StopWatch();
 
         for (TestDefinition testDefinition : testDefinitionList) {
@@ -105,17 +107,23 @@ public class ProductReaderAcceptanceTest {
                     final String message = productReaderPlugin.getClass().getName() + ": " + testProduct.getId();
                     assertEquals(message, expected, decodeQualification);
 
-                    logger.info(INDENT + INDENT + stopWatch.getTimeDiffString() + " - ["+expected+"] " + testProduct.getId());
+                    logger.info(INDENT + INDENT + stopWatch.getTimeDiffString() + " - [" + expected + "] " + testProduct.getId());
+                    testCounter++;
                 } else {
                     logProductNotExistent(2, testProduct);
                 }
             }
         }
+        stopWatchTotal.stop();
+        logInfoWithStars(String.format("Tested DecodeQualification: %d tests  %s", testCounter, stopWatchTotal.getTimeDiffString()));
     }
 
     @Test
     public void testReadIntendedProductContent() throws IOException {
         logInfoWithStars("Testing IntendedProductContent");
+        final StopWatch stopWatchTotal = new StopWatch();
+        stopWatchTotal.start();
+        int testCounter = 0;
         final StopWatch stopWatch = new StopWatch();
 
         for (TestDefinition testDefinition : testDefinitionList) {
@@ -141,16 +149,22 @@ public class ProductReaderAcceptanceTest {
                     }
                     stopWatch.stop();
                     logger.info(INDENT + INDENT + stopWatch.getTimeDiffString() + " - " + testProduct.getId());
+                    testCounter++;
                 } else {
                     logProductNotExistent(2, testProduct);
                 }
             }
         }
+        stopWatchTotal.stop();
+        logInfoWithStars(String.format("Tested IntendedProductContent: %d tests  %s", testCounter, stopWatchTotal.getTimeDiffString()));
     }
 
     @Test
     public void testProductIO_readProduct() throws Exception {
         logInfoWithStars("Testing ProductIO.readProduct");
+        final StopWatch stopWatchTotal = new StopWatch();
+        stopWatchTotal.start();
+        int testCounter = 0;
         final StopWatch stopWatch = new StopWatch();
         for (TestProduct testProduct : testProductList) {
             if (testProduct.exists()) {
@@ -159,10 +173,19 @@ public class ProductReaderAcceptanceTest {
                 try {
                     stopWatch.start();
 
-                    product = ProductIO.readProduct(testProductFile);
-
+                    //product = ProductIO.readProduct(testProductFile);
+                    // method inlined for detailed time measuring
+                    final ProductReader productReader = ProductIO.getProductReaderForInput(testProductFile);
                     stopWatch.stop();
-                    logger.info(INDENT + stopWatch.getTimeDiffString() + " - " + testProduct.getId());
+                    String findProductReaderTime = stopWatch.getTimeDiffString();
+
+                    stopWatch.start();
+                    if (productReader != null) {
+                        product = productReader.readProductNodes(testProductFile, null);
+                    }
+                    stopWatch.stop();
+                    String readProductNodesTime = stopWatch.getTimeDiffString();
+                    logger.info(INDENT + findProductReaderTime + " - " + readProductNodesTime + " - " + testProduct.getId());
                 } catch (Exception e) {
                     final String message = "ProductIO.readProduct " + testProduct.getId() + " caused an exception.\n" +
                             "Should only return NULL or a product instance but should not cause any exception.";
@@ -173,10 +196,13 @@ public class ProductReaderAcceptanceTest {
                         product.dispose();
                     }
                 }
+                testCounter++;
             } else {
                 logProductNotExistent(1, testProduct);
             }
         }
+        stopWatchTotal.stop();
+        logInfoWithStars(String.format("Tested ProductIO.readProduct: %d tests  %s", testCounter, stopWatchTotal.getTimeDiffString()));
     }
 
     private static void assertExpectedContent(TestDefinition testDefinition, String productId, Product product) {
@@ -209,7 +235,7 @@ public class ProductReaderAcceptanceTest {
         for (int i = 0; i < indention; i++) {
             sb.append(INDENT);
         }
-        logger.info(sb.toString() + "Not existent - " + testProduct.getId() );
+        logger.info(sb.toString() + "Not existent - " + testProduct.getId());
     }
 
     private static void logFailOnMissingDataMessage() {
