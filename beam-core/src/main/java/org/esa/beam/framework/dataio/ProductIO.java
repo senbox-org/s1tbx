@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -212,7 +212,12 @@ public class ProductIO {
         }
         final ProductReader productReader = getProductReaderForInput(file);
         if (productReader != null) {
-            return productReader.readProductNodes(file, subsetDef);
+            final long startTime = System.currentTimeMillis();
+            Product product = productReader.readProductNodes(file, subsetDef);
+            final long endTime = System.currentTimeMillis();
+            String msg = String.format("Read product nodes (took %d ms)", (endTime - startTime));
+            BeamLogManager.getSystemLogger().fine(msg);
+            return product;
         }
         return null;
     }
