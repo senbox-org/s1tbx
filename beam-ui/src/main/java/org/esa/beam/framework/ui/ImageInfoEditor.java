@@ -376,7 +376,7 @@ public class ImageInfoEditor extends JPanel {
     }
 
     private String getFormattedValue(double value) {
-        if (value < 0.001) {
+        if (value < 0.01 && value > -0.01 && value != 0.0) {
             return new DecimalFormat("0.##E0").format(value);
         }
         return String.format("%.2f", value);

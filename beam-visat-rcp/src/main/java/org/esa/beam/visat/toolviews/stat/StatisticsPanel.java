@@ -433,7 +433,7 @@ class StatisticsPanel extends PagePanel implements MultipleRoiComputePanel.Compu
             }
 
             private String getFormattedValue(Number value) {
-                if (value.doubleValue() < 0.001) {
+                if (value.doubleValue() < 0.001 && value.doubleValue() > -0.001 && value.doubleValue() != 0.0) {
                     return new DecimalFormat("0.####E0").format(value.doubleValue());
                 }
                 return String.format("%.4f", value.doubleValue());
