@@ -48,7 +48,7 @@ Improvements
 Bugs
 
 [BEAM-1514] ProductUtils.getScanLineTime fails for products with height 1
-
+[BEAM-1564] Binning operator causes NPE with invalid graph XML
 
 _____________________________________________________________________________
 
