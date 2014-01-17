@@ -55,22 +55,6 @@ public final class RecordInfo extends ItemInfo {
         super(recordName, null);
     }
 
-    /*
-    * Constructs a new record-info for the givben name and field-info array.
-    *
-    * @param recordName the record's name
-    * @param fieldInfos the array of field-infos
-    */
-/*
-   RecordInfo(String recordName, FieldInfo[] fieldInfos) {
-       this(recordName);
-       for (int i = 0; i < fieldInfos.length; i++) {
-           add(fieldInfos[i]);
-       }
-       updateSizeInBytes();
-   }
-   */
-
     /**
      * Factory method which creates a new record instance based on the structure description provided by this
      * record-info.
@@ -180,8 +164,8 @@ public final class RecordInfo extends ItemInfo {
      * @see <{FieldInfo}>
      */
     final void add(FieldInfo fieldInfo) {
-        //Guardian.assertNotNull("fieldInfo", fieldInfo);
-        //checkName(fieldInfo.getName());
+        Guardian.assertNotNull("fieldInfo", fieldInfo);
+        checkName(fieldInfo.getName());
         _fieldInfos.addElement(fieldInfo);
         updateSizeInBytes();
     }
@@ -206,15 +190,15 @@ public final class RecordInfo extends ItemInfo {
     }
 
     /**
-     * Adds a complete record infor to this record info.
+     * Adds all fields of the given record info to this record info.
      *
-     * @param recordInfo the record info to be added
+     * @param recordInfo the record info whose fields to be added
      *
      * @throws java.lang.IllegalArgumentException
      *          if recordInfo is null or one of the fields already exists
      */
     final void add(RecordInfo recordInfo) {
-        //Guardian.assertNotNull("recordInfo", recordInfo);
+        Guardian.assertNotNull("recordInfo", recordInfo);
         for (int n = 0; n < recordInfo.getNumFieldInfos(); n++) {
             add(recordInfo.getFieldInfoAt(n));
         }
@@ -230,6 +214,21 @@ public final class RecordInfo extends ItemInfo {
         for (int i = 0; i < n; i++) {
             _sizeInBytes += getFieldInfoAt(i).getSizeInBytes();
         }
+    }
+
+    /**
+     * Returns the offset in bytes of a field given by its index.
+     * @param fieldIndex The field index.
+     * @return The offset in bytes.
+     * @since BEAM 5
+     */
+    public long getFieldOffset(int fieldIndex) {
+        long offset = 0;
+        for (int i = 0; i < fieldIndex; i++) {
+            FieldInfo fieldInfo = getFieldInfoAt(i);
+            offset += fieldInfo.getSizeInBytes();
+        }
+        return offset;
     }
 
     /**
@@ -282,6 +281,7 @@ public final class RecordInfo extends ItemInfo {
             }
         }
     }
+
 }
 
 

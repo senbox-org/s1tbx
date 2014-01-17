@@ -156,6 +156,24 @@ public class DDDB {
         return productInfo.description;
     }
 
+//    /**
+//     * Gets the dataset description string for the given product type identifier
+//     * and dataset name.
+//     *
+//     * @param productType the product type identifier, e.g. "MER_FR__2P"
+//     * @param datasetName the dataset name
+//     * @return the description string for datasets of the given product type and
+//     *  the given dataset name, never <code>null</code>
+//     * @throws java.lang.IllegalArgumentException if the product type or dataset name is null
+//     * @throws org.esa.beam.dataio.envisat.DDDBException if a database I/O error occurs
+//     */
+//    public String getDatasetDescription(String productType, String datasetName)
+//            throws DDDBException {
+//        DatasetInfo datasetInfo = getDatasetInfo(productType, datasetName);
+//        Debug.assertNotNull(datasetInfo);
+//        return datasetInfo.description;
+//    }
+
 
     /**
      * Gets the name of the DSD (as internally used in product data files) for the dataset with the given name.
@@ -308,8 +326,8 @@ public class DDDB {
                                 if (fieldSize > 0 && numDataElems == 1) {
                                     numDataElems = fieldSize;
                                     fieldSize = 1;
-                                    //Debug.trace(
-                                    //        "DDDB: spares detected and adjusted: numDataElems = " + numDataElems); /*I18N*/
+                                    Debug.trace(
+                                            "DDDB: spares detected and adjusted: numDataElems = " + numDataElems); /*I18N*/
                                 }
                             }
                             if (dataType != ProductData.TYPE_ASCII) {
@@ -325,7 +343,7 @@ public class DDDB {
                                                             + FieldInfo.getDataTypeElemSize(dataType));
                                 }
                             } else {
-                                //Debug.trace("DDDB files ASCII - name: " + fieldName + " fieldSize: " + fieldSize);
+                                Debug.trace("DDDB files ASCII - name: " + fieldName + " fieldSize: " + fieldSize);
                                 // because of the String type handling in ASAR and AATSR
                                 numDataElems = fieldSize;
                             }
@@ -1052,7 +1070,7 @@ public class DDDB {
         }
     }
 
-    private static void raiseSyntaxError(CsvReader csvReader, URL url, String message) throws DDDBException {
+    private void raiseSyntaxError(CsvReader csvReader, URL url, String message) throws DDDBException {
         StringBuffer sb = new StringBuffer();
         sb.append(message);
         sb.append(": file ");

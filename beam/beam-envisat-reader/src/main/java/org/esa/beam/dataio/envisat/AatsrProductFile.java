@@ -27,6 +27,7 @@ import javax.imageio.stream.ImageInputStream;
 import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -40,6 +41,9 @@ import java.util.Map;
  * @see org.esa.beam.dataio.envisat.MerisProductFile
  */
 public class AatsrProductFile extends ProductFile {
+
+    private static final String FIRST_LINE_TIME = "FIRST_LINE_TIME";
+    private static final String LAST_LINE_TIME = "LAST_LINE_TIME";
 
     /**
      * Number of pixels in along-track direction
@@ -113,12 +117,16 @@ public class AatsrProductFile extends ProductFile {
     @Override
     public ProductData.UTC getSceneRasterStartTime() {
         try {
-            return getMPH().getParamUTC(KEY_SENSING_START);
+            return getSPH().getParamUTC(FIRST_LINE_TIME);
         } catch (HeaderParseException e) {
-            getLogger().warning("failed to parse header parameter 'SENSING_START': " + e.getMessage());
+            getLogger().warning(
+                    MessageFormat.format("failed to parse specific header parameter ''{0}'': {1}", FIRST_LINE_TIME,
+                                         e.getMessage()));
             return null;
         } catch (HeaderEntryNotFoundException e) {
-            getLogger().warning("failed to parse header parameter 'SENSING_START': " + e.getMessage());
+            getLogger().warning(
+                    MessageFormat.format("failed to parse specific header parameter ''{0}'': {1}", FIRST_LINE_TIME,
+                                         e.getMessage()));
             return null;
         }
     }
@@ -131,12 +139,16 @@ public class AatsrProductFile extends ProductFile {
     @Override
     public ProductData.UTC getSceneRasterStopTime() {
         try {
-            return getMPH().getParamUTC(KEY_SENSING_STOP);
+            return getSPH().getParamUTC(LAST_LINE_TIME);
         } catch (HeaderParseException e) {
-            getLogger().warning("failed to parse header parameter 'SENSING_STOP': " + e.getMessage());
+            getLogger().warning(
+                    MessageFormat.format("failed to parse specific header parameter ''{0}'': {1}", LAST_LINE_TIME,
+                                         e.getMessage()));
             return null;
         } catch (HeaderEntryNotFoundException e) {
-            getLogger().warning("failed to parse header parameter 'SENSING_STOP': " + e.getMessage());
+            getLogger().warning(
+                    MessageFormat.format("failed to parse specific header parameter ''{0}'': {1}", LAST_LINE_TIME,
+                                         e.getMessage()));
             return null;
         }
     }
