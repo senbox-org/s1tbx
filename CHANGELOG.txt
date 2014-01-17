@@ -47,6 +47,7 @@ Improvements
 
 Bugs
 
+[BEAM-1497] Command 'Time Series as Google Earth KMZ' misplaced in tools menu
 [BEAM-1561] Slider labels of colour manipulation tool are all zero for small value ranges
 [BEAM-1568] Numbers are displayed with too little #places after the comma
 [BEAM-1508] No progress indication in VISAT when writing files
