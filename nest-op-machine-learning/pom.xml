@@ -8,6 +8,16 @@
         <groupId>org.esa.nest</groupId>
         <version>6.0-SNAPSHOT</version>
     </parent>
+    <repositories>
+        <repository>
+            <id>apache.snapshots</id>
+            <name>Apache Snapshot Repository</name>
+            <url>http://repository.apache.org/snapshots</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+        </repository>
+    </repositories>
 
     <groupId>org.esa.nest</groupId>
     <artifactId>nest-op-machine-learning</artifactId>
@@ -15,15 +25,110 @@
     <version>6.0-SNAPSHOT</version>
 	
     <packaging>jar</packaging>
-
+        
     <dependencies>
+        <dependency>
+            <groupId>org.esa.beam</groupId>
+            <artifactId>beam-cluster-analysis</artifactId>
+            <version>5.0-1.1.1</version>
+        </dependency>
         <dependency>
             <groupId>org.esa.beam</groupId>
             <artifactId>beam-core</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.esa.beam</groupId>
+            <artifactId>beam-visat-rcp</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.esa.nest</groupId>
             <artifactId>nest-core</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.esa.nest</groupId>
+            <artifactId>nest-graph-builder</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>nz.ac.waikato.cms.weka</groupId>
+            <artifactId>weka-stable</artifactId>
+            <version>3.6.6</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.mahout</groupId>
+            <artifactId>mahout-core</artifactId>
+            <version>0.8</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.mahout</groupId>
+            <artifactId>mahout-math</artifactId>
+            <version>0.8</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.mahout</groupId>
+            <artifactId>mahout-collections</artifactId>
+            <version>1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>nz.ac.waikato.cms.weka</groupId>
+            <artifactId>LibSVM</artifactId>
+            <version>1.0.4</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-core</artifactId>
+            <version>0.20.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.csa.rstb</groupId>
+            <artifactId>rstb-polarimetric-tools</artifactId>
+            <version>5.7</version>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testng</groupId>
+            <artifactId>testng</artifactId>
+            <version>6.8.1</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
+    <build>
+        <plugins>
+            
+            <plugin>
+                <inherited>true</inherited>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>2.2.1</version>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-dependencies</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <!-- configure the plugin here -->
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 </project>
