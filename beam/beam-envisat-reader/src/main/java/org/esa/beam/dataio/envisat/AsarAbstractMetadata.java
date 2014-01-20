@@ -173,7 +173,7 @@ public final class AsarAbstractMetadata {
             addAbstractedAttribute("radar_frequency", 0, "MHz", absRoot, "Radar frequency");
         }
         addAbstractedAttribute("line_time_interval", sph.getAttributeDouble("line_time_interval", 0), "s", absRoot, "");
-        addAbstractedAttribute("total_size", (int)(product.getRawStorageSize() / (1024.0f * 1024.0f)), "Mb", absRoot,
+        addAbstractedAttribute("total_size", (int)(product.getRawStorageSize() / (1024.0f * 1024.0f)), "MB", absRoot,
                             "Total product size");
 
         //MPP

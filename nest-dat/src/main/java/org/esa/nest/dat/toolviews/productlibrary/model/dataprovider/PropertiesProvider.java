@@ -113,7 +113,7 @@ public class PropertiesProvider implements DataProvider {
                     final String pixelSpacing = df.format(entry.getRangeSpacing()) +" x "+
                                                 df.format(entry.getAzimuthSpacing()) +" m";
                     final File file = entry.getFile();
-                    final String fileSize = "("+(entry.getFileSize() / (1024 * 1024)) +" Mb)";
+                    final String fileSize = "("+(entry.getFileSize() / (1024 * 1024)) +" MB)";
 
                     final DateFormat dateFormat = ProductData.UTC.createDateFormat("dd-MMM-yyyy");
                     final String dateString = dateFormat.format(entry.getFirstLineTime().getAsDate());

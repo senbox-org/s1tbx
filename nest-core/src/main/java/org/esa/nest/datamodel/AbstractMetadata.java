@@ -258,7 +258,7 @@ public final class AbstractMetadata {
         addAbstractedAttribute(absRoot, radar_frequency, ProductData.TYPE_FLOAT64, "MHz", "Radar frequency");
         addAbstractedAttribute(absRoot, line_time_interval, ProductData.TYPE_FLOAT64, "s", "");
 
-        addAbstractedAttribute(absRoot, TOT_SIZE, ProductData.TYPE_UINT32, "Mb", "Total product size");
+        addAbstractedAttribute(absRoot, TOT_SIZE, ProductData.TYPE_UINT32, "MB", "Total product size");
         addAbstractedAttribute(absRoot, num_output_lines, ProductData.TYPE_UINT32, "lines", "Raster height");
         addAbstractedAttribute(absRoot, num_samples_per_line, ProductData.TYPE_UINT32, "samples", "Raster width");
 

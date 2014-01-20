@@ -31,8 +31,7 @@ public abstract class RasterDataNodeSampleOpImage extends RasterDataNodeOpImage 
         for (int j = 0; j < targetHeight; j++) {
             final int sourceY = sourceY0 + sourceYs[j];
             for (int i = 0; i < targetWidth; i++) {
-                productData.setElemDoubleAt(elemIndex, computeSample(sourceX0 + sourceXs[i], sourceY));
-                elemIndex++;
+                productData.setElemDoubleAt(elemIndex++, computeSample(sourceX0 + sourceXs[i], sourceY));
             }
         }
     }

@@ -103,7 +103,7 @@ public class TaskSequencePanel extends JPanel implements ActionListener {
 
         this.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
         this.add(this.panels.get(0));
-        final L1R3ButtonPanel buttons = new L1R3ButtonPanel("Help", "Previous", "Next", "Finish");
+        final L1R3ButtonPanel buttons = new L1R3ButtonPanel("Help", "Back", "Next", "Finish");
 
         this.helpButton = buttons.getLeftButton();
         this.helpButton.setEnabled(false);
