@@ -215,6 +215,12 @@ public class SpectrumToolView extends AbstractToolView {
         }
     }
 
+    @Override
+    public void componentShown() {
+        super.componentShown();
+
+    }
+
     protected void updateSpectra(int pixelX, int pixelY, int level, boolean adjustAxes) {
         maybeShowTip();
         chartHandler.setPosition(pixelX, pixelY);
@@ -573,6 +579,12 @@ public class SpectrumToolView extends AbstractToolView {
             spectrum.addBand(band, spectrum.isSelected());
         } else {
             allSpectra[0].addBand(band, true);
+        }
+    }
+
+    private void updateSpectraUnits() {
+        for(DisplayableSpectrum spectrum : getAllSpectra()) {
+            spectrum.updateUnit();
         }
     }
 
@@ -974,19 +986,19 @@ public class SpectrumToolView extends AbstractToolView {
 
         @Override
         public void nodeChanged(final ProductNodeEvent event) {
-            if (!isActive()) {
-                return;
-            }
+            boolean chartHasChanged = false;
             if (event.getSourceNode() instanceof Band) {
                 final String propertyName = event.getPropertyName();
-                if (propertyName.equals(DataNode.PROPERTY_NAME_UNIT)
-                        || propertyName.equals(Band.PROPERTY_NAME_SPECTRAL_WAVELENGTH)) {
-                    recreateChart();
+                if (propertyName.equals(DataNode.PROPERTY_NAME_UNIT)) {
+                    updateSpectraUnits();
+                    chartHasChanged = true;
+                } else if(propertyName.equals(Band.PROPERTY_NAME_SPECTRAL_WAVELENGTH)) {
+                    chartHasChanged = true;
                 } else if (propertyName.equals(RasterDataNode.PROPERTY_NAME_STX)) {
                     final Band newBand = (Band) event.getSourceNode();
                     if (newBand instanceof VirtualBand && isSpectralBand(newBand)) {
                         addBandToSpectra(newBand);
-                        recreateChart();
+                        chartHasChanged = true;
                     }
                 }
             } else if (event.getSourceNode() instanceof Placemark) {
@@ -994,15 +1006,17 @@ public class SpectrumToolView extends AbstractToolView {
                     chartHandler.removePinInformation((Placemark) event.getSourceNode());
                 }
                 if (isShowingPinSpectra()) {
-                    recreateChart();
+                    chartHasChanged = true;
                 }
             } else if (event.getSourceNode() instanceof Product) {
                 if (event.getPropertyName().equals("autoGrouping")) {
                     setUpSpectra();
-                    recreateChart();
+                    chartHasChanged = true;
                 }
             }
-            updateUIState();
+            if (isActive() && chartHasChanged) {
+                recreateChart();
+            }
         }
 
         @Override
@@ -1017,7 +1031,6 @@ public class SpectrumToolView extends AbstractToolView {
                     recreateChart();
                 }
             }
-            updateUIState();
         }
 
         @Override
@@ -1032,7 +1045,6 @@ public class SpectrumToolView extends AbstractToolView {
                     recreateChart();
                 }
             }
-            updateUIState();
         }
 
         private boolean isActive() {
@@ -1047,16 +1059,6 @@ public class SpectrumToolView extends AbstractToolView {
             recreateChart();
         }
 
-    }
-
-    private class SceneViewImageInfoChangeListener implements PropertyChangeListener {
-
-        @Override
-        public void propertyChange(PropertyChangeEvent evt) {
-            if (ProductSceneView.PROPERTY_NAME_IMAGE_INFO.equals(evt.getPropertyName())) {
-
-            }
-        }
     }
 
 }

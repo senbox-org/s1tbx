@@ -1,11 +1,10 @@
 package org.esa.beam.framework.ui.product.spectrum;
 
-import org.esa.beam.framework.datamodel.Band;
-
 import java.awt.Shape;
 import java.awt.Stroke;
 import java.util.ArrayList;
 import java.util.List;
+import org.esa.beam.framework.datamodel.Band;
 
 public class DisplayableSpectrum implements Spectrum {
 
@@ -41,11 +40,7 @@ public class DisplayableSpectrum implements Spectrum {
     public void addBand(Band band, boolean selected) {
         bands.add(band);
         areBandsSelected.add(selected);
-        if (unit == null) {
-            unit = band.getUnit();
-        } else if (!unit.equals(band.getUnit())) {
-            unit = MIXED_UNITS;
-        }
+        updateUnit();
     }
 
     public Shape getScaledShape() {
@@ -139,5 +134,19 @@ public class DisplayableSpectrum implements Spectrum {
 
     public void setSymbolIndex(int symbolIndex) {
         this.symbolIndex = symbolIndex;
+    }
+
+    public void updateUnit() {
+        if (bands.size() > 0) {
+            unit = bands.get(0).getUnit();
+        }
+        if (bands.size() > 1) {
+            for (int i = 1; i < bands.size(); i++) {
+                if (!unit.equals(bands.get(i).getUnit())) {
+                    unit = MIXED_UNITS;
+                    return;
+                }
+            }
+        }
     }
 }
