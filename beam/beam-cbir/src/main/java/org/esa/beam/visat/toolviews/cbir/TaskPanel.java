@@ -92,6 +92,13 @@ public abstract class TaskPanel extends JPanel {
         return textPanel;
     }
 
+    protected JPanel createInstructionsPanel(final String title, final String text) {
+        final JPanel instructPanel = new JPanel(new BorderLayout(2, 2));
+        instructPanel.add(createTitleLabel(), BorderLayout.NORTH);
+        instructPanel.add(createTextPanel(title, text), BorderLayout.CENTER);
+        return instructPanel;
+    }
+
     public abstract boolean validateInput();
 
     /**

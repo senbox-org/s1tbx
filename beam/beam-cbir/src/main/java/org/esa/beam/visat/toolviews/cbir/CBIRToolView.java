@@ -17,6 +17,7 @@ package org.esa.beam.visat.toolviews.cbir;
 
 
 import org.esa.beam.framework.ui.application.support.AbstractToolView;
+import org.esa.beam.visat.toolviews.cbir.taskpanels.CBIRStartPanel;
 
 import javax.swing.*;
 
@@ -35,7 +36,7 @@ public class CBIRToolView extends AbstractToolView {
 
     public JComponent createControl() {
 
-        return new TaskSequencePanel(this, new QueryPanel());
+        return new TaskSequencePanel(this, new CBIRStartPanel());
 
     }
 
