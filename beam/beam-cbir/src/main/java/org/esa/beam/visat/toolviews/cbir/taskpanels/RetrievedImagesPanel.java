@@ -15,6 +15,8 @@
  */
 package org.esa.beam.visat.toolviews.cbir.taskpanels;
 
+import org.esa.beam.search.CBIRSession;
+import org.esa.beam.visat.toolviews.cbir.BlockDrawer;
 import org.esa.beam.visat.toolviews.cbir.DragScrollListener;
 import org.esa.beam.visat.toolviews.cbir.PatchDrawer;
 import org.esa.beam.visat.toolviews.cbir.TaskPanel;
@@ -28,9 +30,13 @@ import java.awt.*;
 public class RetrievedImagesPanel extends TaskPanel {
 
     private final static String instructionsStr = "Click and drag patches in the relevant list and drop into the irrelevant list";
+    private final CBIRSession session;
 
-    public RetrievedImagesPanel() {
+    public RetrievedImagesPanel(final CBIRSession session) {
         super("Retrieved Images");
+        this.session = session;
+
+        session.retrieveImages(200);
 
         createPanel();
 
@@ -53,7 +59,7 @@ public class RetrievedImagesPanel extends TaskPanel {
     }
 
     public TaskPanel getNextPanel() {
-        return new LabelingPanel();
+        return new LabelingPanel(session);
     }
 
     public boolean validateInput() {
@@ -67,7 +73,7 @@ public class RetrievedImagesPanel extends TaskPanel {
         final JPanel relPanel = new JPanel(new BorderLayout(2, 2));
         relPanel.setBorder(BorderFactory.createTitledBorder("Retrieved Images"));
 
-        final PatchDrawer drawer = new PatchDrawer(2500, 2500);
+        final PatchDrawer drawer = new PatchDrawer(session.getRetrievedImages());
         final JScrollPane scrollPane1 = new JScrollPane(drawer);
 
         final DragScrollListener dl = new DragScrollListener(drawer);

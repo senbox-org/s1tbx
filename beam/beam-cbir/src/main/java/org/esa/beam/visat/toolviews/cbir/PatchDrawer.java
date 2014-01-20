@@ -15,50 +15,56 @@
  */
 package org.esa.beam.visat.toolviews.cbir;
 
+import org.esa.beam.search.PatchImage;
+
 import javax.swing.*;
 import java.awt.*;
+import java.awt.image.BufferedImage;
 
 /**
 
  */
 public class PatchDrawer extends JPanel {
 
-    int width = 10000;
-    int height = 10000;
-    Color[][] colors;
+    private final static int width = 100;
+    private final static int height = 100;
+    private final static Font font = new Font("Ariel", Font.BOLD, 18);
 
-    public PatchDrawer(int w, int h) {
+    public PatchDrawer(final PatchImage[] imageList) {
         super();
-        this.width = w;
-        this.height = h;
 
-        setPreferredSize(new Dimension(width, height));
-        colors = new Color[width / 100][height / 100];
-
-        for (int i = 0; i < colors.length; i++) {
-            for (int j = 0; j < colors[i].length; j++) {
-
-                int r = (int) ((255) * Math.random());
-                int g = (int) ((255) * Math.random());
-                int b = (int) ((255) * Math.random());
-
-                colors[i][j] = new Color(r, g, b, 150);
-            }
-        }
+        update(imageList);
     }
 
-    @Override
-    public void paintComponent(Graphics g) {
-        super.paintComponent(g);
+    public void update(final PatchImage[] imageList) {
+        this.removeAll();
 
-        for (int i = 0; i < width; i += 100) {
-            for (int j = 0; j < height; j += 100) {
+        for(PatchImage img : imageList) {
+            final Patch label = new Patch(img);
+            this.add(label);
+        }
+        updateUI();
+    }
 
-                g.setColor(colors[i / 100][j / 100]);
-                g.fillRect(i + 5, j + 5, 95, 95);
-                g.setColor(Color.black);
-                g.drawString(""+i+"x"+j, i+20, j+50);
-            }
+    private static class Patch extends JLabel {
+        private final PatchImage img;
+
+        public Patch(final PatchImage img) {
+            super();
+            this.img = img;
+
+            setIcon(new ImageIcon(img.getImage().getScaledInstance(width, height, BufferedImage.SCALE_FAST)));
+        }
+
+        @Override
+        public void paintComponent(Graphics g) {
+            super.paintComponent(g);
+
+            g.setColor(Color.WHITE);
+            g.fillRect(30, 30, 30, 30);
+            g.setColor(Color.RED);
+            g.setFont(font);
+            g.drawString(Integer.toString(img.getID()), 35, 50);
         }
     }
 }

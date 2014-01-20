@@ -15,22 +15,30 @@
  */
 package org.esa.beam.visat.toolviews.cbir.taskpanels;
 
+import org.esa.beam.search.CBIRSession;
+import org.esa.beam.search.PatchImage;
+import org.esa.beam.visat.VisatApp;
 import org.esa.beam.visat.toolviews.cbir.DragScrollListener;
 import org.esa.beam.visat.toolviews.cbir.PatchDrawer;
 import org.esa.beam.visat.toolviews.cbir.TaskPanel;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 /**
     Labeling Panel
  */
-public class QueryPanel extends TaskPanel {
+public class QueryPanel extends TaskPanel implements ActionListener {
 
     private final static String instructionsStr = "Select query images by selecting patch areas in an image view";
+    private final CBIRSession session;
+    private PatchDrawer drawer;
 
-    public QueryPanel() {
-        super("Training Images");
+    public QueryPanel(final CBIRSession session) {
+        super("Query Images");
+        this.session = session;
 
         createPanel();
 
@@ -53,7 +61,7 @@ public class QueryPanel extends TaskPanel {
     }
 
     public TaskPanel getNextPanel() {
-        return new LabelingPanel();
+        return new FeatureExtractionPanel(session);
     }
 
     public boolean validateInput() {
@@ -64,11 +72,11 @@ public class QueryPanel extends TaskPanel {
 
         this.add(createInstructionsPanel(null, instructionsStr), BorderLayout.NORTH);
 
-        final JPanel relPanel = new JPanel(new BorderLayout(2, 2));
-        relPanel.setBorder(BorderFactory.createTitledBorder("Query Images"));
+        final JPanel imageScrollPanel = new JPanel(new BorderLayout(2, 2));
+        imageScrollPanel.setBorder(BorderFactory.createTitledBorder("Query Images"));
 
-        final PatchDrawer drawer = new PatchDrawer(2500, 100);
-        final JScrollPane scrollPane1 = new JScrollPane(drawer, JScrollPane.VERTICAL_SCROLLBAR_NEVER,
+        drawer = new PatchDrawer(session.getQueryImages());
+        final JScrollPane scrollPane = new JScrollPane(drawer, JScrollPane.VERTICAL_SCROLLBAR_NEVER,
                                                                 JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 
         final DragScrollListener dl = new DragScrollListener(drawer);
@@ -76,13 +84,35 @@ public class QueryPanel extends TaskPanel {
         drawer.addMouseListener(dl);
         drawer.addMouseMotionListener(dl);
 
-        relPanel.add(scrollPane1, BorderLayout.NORTH);
+        imageScrollPanel.add(scrollPane, BorderLayout.NORTH);
 
         final JPanel listsPanel = new JPanel();
         final BoxLayout layout = new BoxLayout(listsPanel, BoxLayout.Y_AXIS);
         listsPanel.setLayout(layout);
-        listsPanel.add(relPanel);
+        listsPanel.add(imageScrollPanel);
+
+        final JButton addButton = new JButton("Add");
+        addButton.setActionCommand("addButton");
+        addButton.addActionListener(this);
+        listsPanel.add(addButton);
 
         this.add(listsPanel, BorderLayout.SOUTH);
+    }
+
+    /**
+     * Handles events.
+     *
+     * @param event the event.
+     */
+    public void actionPerformed(final ActionEvent event) {
+        try {
+            final String command = event.getActionCommand();
+            if (command.equals("addButton")) {
+                session.addQueryImage(new PatchImage());
+                drawer.update(session.getQueryImages());
+            }
+        } catch (Exception e) {
+            VisatApp.getApp().showErrorDialog(e.toString());
+        }
     }
 }

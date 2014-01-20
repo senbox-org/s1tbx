@@ -15,6 +15,8 @@
  */
 package org.esa.beam.visat.toolviews.cbir.taskpanels;
 
+import org.esa.beam.search.CBIRSession;
+import org.esa.beam.visat.toolviews.cbir.BlockDrawer;
 import org.esa.beam.visat.toolviews.cbir.DragScrollListener;
 import org.esa.beam.visat.toolviews.cbir.PatchDrawer;
 import org.esa.beam.visat.toolviews.cbir.TaskPanel;
@@ -28,9 +30,13 @@ import java.awt.*;
 public class LabelingPanel extends TaskPanel {
 
     private final static String instructionsStr = "Click and drag patches in the relevant list and drop into the irrelevant list";
+    private final CBIRSession session;
 
-    public LabelingPanel() {
+    public LabelingPanel(final CBIRSession session) {
         super("Training Images");
+        this.session = session;
+
+        session.trainClassifier();
 
         createPanel();
 
@@ -53,7 +59,7 @@ public class LabelingPanel extends TaskPanel {
     }
 
     public TaskPanel getNextPanel() {
-        return new RetrievedImagesPanel();
+        return new RetrievedImagesPanel(session);
     }
 
     public boolean validateInput() {
@@ -67,7 +73,7 @@ public class LabelingPanel extends TaskPanel {
         final JPanel relPanel = new JPanel(new BorderLayout(2, 2));
         relPanel.setBorder(BorderFactory.createTitledBorder("Relevant Images"));
 
-        final PatchDrawer drawer = new PatchDrawer(2500, 100);
+        final PatchDrawer drawer = new PatchDrawer(session.getRelevantTrainingImages());
         final JScrollPane scrollPane1 = new JScrollPane(drawer, JScrollPane.VERTICAL_SCROLLBAR_NEVER,
                                                                 JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 
@@ -81,7 +87,7 @@ public class LabelingPanel extends TaskPanel {
         final JPanel irrelPanel = new JPanel(new BorderLayout(2, 2));
         irrelPanel.setBorder(BorderFactory.createTitledBorder("Irrelevant Images"));
 
-        final PatchDrawer drawer2 = new PatchDrawer(2500, 100);
+        final PatchDrawer drawer2 = new PatchDrawer(session.getIrrelevantTrainingImages());
         final JScrollPane scrollPane2 = new JScrollPane(drawer2, JScrollPane.VERTICAL_SCROLLBAR_NEVER,
                                                                  JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 

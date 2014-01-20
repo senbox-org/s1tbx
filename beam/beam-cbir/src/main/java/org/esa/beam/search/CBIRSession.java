@@ -17,6 +17,7 @@ package org.esa.beam.search;
 
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -24,15 +25,45 @@ import java.util.List;
  */
 public class CBIRSession {
 
-    private List<QueryImage> queryImageList = new ArrayList<QueryImage>(3);
+    private List<PatchImage> queryImageList = new ArrayList<PatchImage>(3);
+    private List<PatchImage> relevantImageList = new ArrayList<PatchImage>(50);
+    private List<PatchImage> irrelevantImageList = new ArrayList<PatchImage>(50);
+    private List<PatchImage> retrievedImageList = new ArrayList<PatchImage>(500);
 
     public CBIRSession() {
 
     }
 
-    public void addQueryImage(final QueryImage queryImage) {
+    public void addQueryImage(final PatchImage queryImage) {
         queryImageList.add(queryImage);
     }
 
+    public PatchImage[] getQueryImages() {
+        return queryImageList.toArray(new PatchImage[queryImageList.size()]);
+    }
 
+    public void trainClassifier() {
+        SearchToolStub.instance().trainClassifier(getQueryImages());
+
+        relevantImageList.addAll(Arrays.asList(SearchToolStub.instance().getRelavantTrainingImages()));
+        irrelevantImageList.addAll(Arrays.asList(SearchToolStub.instance().getIrrelavantTrainingImages()));
+    }
+
+    public PatchImage[] getRelevantTrainingImages() {
+        return relevantImageList.toArray(new PatchImage[relevantImageList.size()]);
+    }
+
+    public PatchImage[] getIrrelevantTrainingImages() {
+        return irrelevantImageList.toArray(new PatchImage[irrelevantImageList.size()]);
+    }
+
+    public void retrieveImages(final int numImages) {
+        SearchToolStub.instance().retrieveImages(getRelevantTrainingImages(), getIrrelevantTrainingImages());
+
+        retrievedImageList.addAll(Arrays.asList(SearchToolStub.instance().getRetrievedImages(numImages)));
+    }
+
+    public PatchImage[] getRetrievedImages() {
+        return retrievedImageList.toArray(new PatchImage[retrievedImageList.size()]);
+    }
 }

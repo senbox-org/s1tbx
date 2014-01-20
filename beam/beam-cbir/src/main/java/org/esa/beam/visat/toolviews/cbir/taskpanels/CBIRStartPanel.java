@@ -22,6 +22,7 @@ import org.esa.beam.framework.PFAApplicationDescriptor;
 import org.esa.beam.framework.PFAApplicationRegistry;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.ui.SourceProductSelector;
+import org.esa.beam.search.CBIRSession;
 import org.esa.beam.search.SearchToolStub;
 import org.esa.beam.visat.VisatApp;
 import org.esa.beam.visat.toolviews.cbir.TaskPanel;
@@ -40,9 +41,8 @@ public class CBIRStartPanel extends TaskPanel {
 
     private final SourceProductSelector sourceProductSelector;
     private JComboBox<String> applicationCombo = new JComboBox<>();
-    private JLabel patchSizeLabel = new JLabel();
 
-    private SearchToolStub searchTool = new SearchToolStub();
+    private CBIRSession session = new CBIRSession();
 
     public CBIRStartPanel() {
         super("Content Based Image Retrieval");
@@ -59,9 +59,6 @@ public class CBIRStartPanel extends TaskPanel {
             public void itemStateChanged(ItemEvent event) {
                 final String fea = (String) applicationCombo.getSelectedItem();
 
-                Dimension patchSize = searchTool.getPatchSize(fea);
-                patchSizeLabel.setVisible(true);
-                patchSizeLabel.setText("Patch " + patchSize.getWidth() + " x " + patchSize.getHeight());
             }
         });
 
@@ -84,7 +81,7 @@ public class CBIRStartPanel extends TaskPanel {
     }
 
     public TaskPanel getNextPanel() {
-        return new QueryPanel();
+        return new QueryPanel(session);
     }
 
     public boolean validateInput() {
@@ -95,21 +92,19 @@ public class CBIRStartPanel extends TaskPanel {
 
         this.add(createInstructionsPanel(null, instructionsStr), BorderLayout.NORTH);
 
-        final TableLayout tableLayout = new TableLayout(1);
+        final TableLayout tableLayout = new TableLayout(2);
         tableLayout.setTableAnchor(TableLayout.Anchor.WEST);
         tableLayout.setTableFill(TableLayout.Fill.HORIZONTAL);
         tableLayout.setTablePadding(4, 4);
-        //for(int i=0; i< 8; i++) {
-       //     tableLayout.setCellColspan(i, 0, 2);
-       // }
+        for(int i=0; i< 3; i++) {
+            tableLayout.setCellColspan(i, 0, 2);
+        }
 
         final JPanel paramPanel = new JPanel(tableLayout);
-        this.add(paramPanel, BorderLayout.CENTER);
+        this.add(paramPanel, BorderLayout.SOUTH);
 
         paramPanel.add(new Label("Application:"));
         paramPanel.add(applicationCombo);
-        paramPanel.add(patchSizeLabel);
-        patchSizeLabel.setVisible(false);
     }
 
     private JPanel createSourceProductPanel() {

@@ -21,10 +21,16 @@ import java.awt.*;
  * Stub for PFA Search Tool
  */
 public class SearchToolStub {
+    private static SearchToolStub instance = null;
 
+    private SearchToolStub() {
 
-    public SearchToolStub() {
+    }
 
+    public static SearchToolStub instance() {
+        if(instance == null)
+            instance = new SearchToolStub();
+        return instance;
     }
 
     public String[] getAvailableFeatureExtractors(final String mission, final String productType) {
@@ -37,5 +43,31 @@ public class SearchToolStub {
         return new Dimension(200, 200);
     }
 
+    public void trainClassifier(final PatchImage[] queryImages) {
 
+    }
+
+    public void retrieveImages(final PatchImage[] rel, final PatchImage[] irrel) {
+
+    }
+
+    public PatchImage[] getRelavantTrainingImages() {
+        return createDummyImageList(20);
+    }
+
+    public PatchImage[] getIrrelavantTrainingImages() {
+        return createDummyImageList(20);
+    }
+
+    public PatchImage[] getRetrievedImages(final int numImages) {
+        return createDummyImageList(numImages);
+    }
+
+    private static PatchImage[] createDummyImageList(final int size) {
+        final PatchImage[] imageList = new PatchImage[size];
+        for(int i=0; i < imageList.length; ++i) {
+            imageList[i] = new PatchImage();
+        }
+        return imageList;
+    }
 }

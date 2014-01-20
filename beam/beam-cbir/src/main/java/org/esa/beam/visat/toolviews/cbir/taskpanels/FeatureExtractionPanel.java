@@ -15,6 +15,8 @@
  */
 package org.esa.beam.visat.toolviews.cbir.taskpanels;
 
+import org.esa.beam.search.CBIRSession;
+import org.esa.beam.visat.toolviews.cbir.BlockDrawer;
 import org.esa.beam.visat.toolviews.cbir.DragScrollListener;
 import org.esa.beam.visat.toolviews.cbir.PatchDrawer;
 import org.esa.beam.visat.toolviews.cbir.TaskPanel;
@@ -28,9 +30,11 @@ import java.awt.*;
 public class FeatureExtractionPanel extends TaskPanel {
 
     private final static String instructionsStr = "Select query images by selecting patch areas in an image view";
+    private final CBIRSession session;
 
-    public FeatureExtractionPanel() {
-        super("Training Images");
+    public FeatureExtractionPanel(final CBIRSession session) {
+        super("Feature Extraction");
+        this.session = session;
 
         createPanel();
 
@@ -53,7 +57,7 @@ public class FeatureExtractionPanel extends TaskPanel {
     }
 
     public TaskPanel getNextPanel() {
-        return new LabelingPanel();
+        return new LabelingPanel(session);
     }
 
     public boolean validateInput() {
@@ -64,24 +68,12 @@ public class FeatureExtractionPanel extends TaskPanel {
 
         this.add(createInstructionsPanel(null, instructionsStr), BorderLayout.NORTH);
 
-        final JPanel relPanel = new JPanel(new BorderLayout(2, 2));
-        relPanel.setBorder(BorderFactory.createTitledBorder("Query Images"));
 
-        final PatchDrawer drawer = new PatchDrawer(2500, 100);
-        final JScrollPane scrollPane1 = new JScrollPane(drawer, JScrollPane.VERTICAL_SCROLLBAR_NEVER,
-                                                                JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-
-        final DragScrollListener dl = new DragScrollListener(drawer);
-        dl.setDraggableElements(DragScrollListener.DRAGABLE_HORIZONTAL_SCROLL_BAR);
-        drawer.addMouseListener(dl);
-        drawer.addMouseMotionListener(dl);
-
-        relPanel.add(scrollPane1, BorderLayout.NORTH);
 
         final JPanel listsPanel = new JPanel();
         final BoxLayout layout = new BoxLayout(listsPanel, BoxLayout.Y_AXIS);
         listsPanel.setLayout(layout);
-        listsPanel.add(relPanel);
+
 
         this.add(listsPanel, BorderLayout.SOUTH);
     }
