@@ -29,7 +29,7 @@ import java.util.Locale;
  */
 public class GPT {
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String... args) throws Exception {
         try {
             run(args);
         } catch (Exception e) {
