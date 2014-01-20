@@ -81,6 +81,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.text.DecimalFormat;
 import java.util.List;
 
 /**
@@ -426,9 +427,16 @@ class StatisticsPanel extends PagePanel implements MultipleRoiComputePanel.Compu
                 final Component label = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
                 if (value instanceof Float || value instanceof Double) {
                     setHorizontalTextPosition(RIGHT);
-                    setText(String.format("%.4f", ((Number) value).doubleValue()));
+                    setText(getFormattedValue((Number) value));
                 }
                 return label;
+            }
+
+            private String getFormattedValue(Number value) {
+                if (value.doubleValue() < 0.001 && value.doubleValue() > -0.001 && value.doubleValue() != 0.0) {
+                    return new DecimalFormat("0.####E0").format(value.doubleValue());
+                }
+                return String.format("%.4f", value.doubleValue());
             }
         });
         table.addMouseListener(popupHandler);

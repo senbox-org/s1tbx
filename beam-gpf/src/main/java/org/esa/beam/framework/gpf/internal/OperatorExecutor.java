@@ -108,13 +108,17 @@ public class OperatorExecutor {
     }
 
     public void execute(ExecutionOrder executionOrder, ProgressMonitor pm) {
+        execute(executionOrder, "Executing operator...", pm);
+    }
+
+    public void execute(ExecutionOrder executionOrder, String executionMessage, ProgressMonitor pm) {
         final Semaphore semaphore = new Semaphore(parallelism, true);
-        final TileComputationListener tcl = new OperatorTileComputationListener(semaphore);
+        final TileComputationListener tcl = new OperatorTileComputationListener(semaphore, pm);
         final TileComputationListener[] listeners = new TileComputationListener[]{tcl};
 
         ImagingListener imagingListener = JAI.getDefaultInstance().getImagingListener();
         JAI.getDefaultInstance().setImagingListener(new GPFImagingListener());
-        pm.beginTask("Executing operator...", tileCountX * tileCountY * images.length);
+        pm.beginTask(executionMessage, tileCountX * tileCountY * images.length);
 
         ExecutionOrder effectiveExecutionOrder = getEffectiveExecutionOrder(executionOrder);
 
@@ -122,7 +126,7 @@ public class OperatorExecutor {
             if (effectiveExecutionOrder == ExecutionOrder.SCHEDULE_ROW_BAND_COLUMN) {
                 scheduleRowBandColumn(semaphore, listeners, pm);
             } else if (effectiveExecutionOrder == ExecutionOrder.SCHEDULE_ROW_COLUMN_BAND) {
-                scheduleRowColumnBand(semaphore, listeners, pm);
+                scheduleRowColumnBand(semaphore, pm);
             } else if (effectiveExecutionOrder == ExecutionOrder.SCHEDULE_BAND_ROW_COLUMN) {
                 scheduleBandRowColumn(semaphore, listeners, pm);
             } else if (effectiveExecutionOrder == ExecutionOrder.PULL_ROW_BAND_COLUMN) {
@@ -184,10 +188,10 @@ public class OperatorExecutor {
         }
     }
 
-    private void scheduleRowColumnBand(Semaphore semaphore, TileComputationListener[] listeners, ProgressMonitor pm) {
+    private void scheduleRowColumnBand(Semaphore semaphore, ProgressMonitor pm) {
         //better handle stack operators, should equal well work for normal operators
-        final TileComputationListener tcl = new OperatorTileComputationListenerStack(semaphore, images);
-        listeners = new TileComputationListener[]{tcl};
+        final TileComputationListener tcl = new OperatorTileComputationListenerStack(semaphore, images, pm);
+        final TileComputationListener[] listeners = new TileComputationListener[]{tcl};
         for (int tileY = 0; tileY < tileCountY; tileY++) {
             for (int tileX = 0; tileX < tileCountX; tileX++) {
                 scheduleTile(images[0], tileX, tileY, semaphore, listeners, pm);
@@ -220,7 +224,6 @@ public class OperatorExecutor {
         tileScheduler.scheduleTiles(image, points, listeners);
         //
         /////////////////////////////////////////////////////////////////////
-        pm.worked(1);
     }
 
     private static void acquirePermits(Semaphore semaphore, int permits) {
@@ -286,10 +289,12 @@ public class OperatorExecutor {
 
         private final Semaphore semaphore;
         private final PlanarImage[] images;
+        private final ProgressMonitor pm;
 
-        OperatorTileComputationListenerStack(Semaphore semaphore, PlanarImage[] images) {
+        OperatorTileComputationListenerStack(Semaphore semaphore, PlanarImage[] images, ProgressMonitor pm) {
             this.semaphore = semaphore;
             this.images = images;
+            this.pm = pm;
         }
 
         @Override
@@ -299,6 +304,7 @@ public class OperatorExecutor {
                 if (image != planarImage) {
                     planarImage.getTile(tileX, tileY);
                 }
+                pm.worked(1);
             }
             semaphore.release();
         }
@@ -324,15 +330,18 @@ public class OperatorExecutor {
     private class OperatorTileComputationListener implements TileComputationListener {
 
         private final Semaphore semaphore;
+        private final ProgressMonitor pm;
 
-        OperatorTileComputationListener(Semaphore semaphore) {
+        OperatorTileComputationListener(Semaphore semaphore, ProgressMonitor pm) {
             this.semaphore = semaphore;
+            this.pm = pm;
         }
 
         @Override
         public void tileComputed(Object eventSource, TileRequest[] requests, PlanarImage image, int tileX, int tileY,
                                  Raster raster) {
             semaphore.release();
+            pm.worked(1);
         }
 
         @Override

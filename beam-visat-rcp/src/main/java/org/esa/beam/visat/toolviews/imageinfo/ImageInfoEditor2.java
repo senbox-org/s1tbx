@@ -28,15 +28,24 @@ import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.util.math.MathUtils;
 
-import javax.swing.*;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.SwingWorker;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.FlowLayout;
+import java.awt.Graphics;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.text.DecimalFormat;
 
 class ImageInfoEditor2 extends ImageInfoEditor {
 
@@ -118,11 +127,14 @@ class ImageInfoEditor2 extends ImageInfoEditor {
         return stxOverlayComponent;
     }
 
-    private double getValueForDisplay(double minSample) {
-        if (!Double.isNaN(minSample)) { // prevents NaN to be converted to zero
-            minSample = MathUtils.round(minSample, 1000.0);
+    private String getValueForDisplay(double value) {
+        if (!Double.isNaN(value)) { // prevents NaN to be converted to zero
+            if (value < 0.001 && value > -0.001 && value != 0.0) {
+                return new DecimalFormat("0.##E0").format(value);
+            }
+            value = MathUtils.round(value, 1000.0);
         }
-        return minSample;
+        return "" + value;
     }
 
     void askUser() {
