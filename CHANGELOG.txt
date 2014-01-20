@@ -48,6 +48,7 @@ Improvements
 
 Bugs
 
+[BEAM-1569] Documentation for 'statistical accuracy' missing
 [BEAM-1190] Export button in the mask manager does not export geometry masks
 [BEAM-1497] Command 'Time Series as Google Earth KMZ' misplaced in tools menu
 [BEAM-1561] Slider labels of colour manipulation tool are all zero for small value ranges

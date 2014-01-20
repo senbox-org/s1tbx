@@ -188,7 +188,6 @@ class StatisticsPanel extends PagePanel implements MultipleRoiComputePanel.Compu
         final GridBagConstraints gbc = new GridBagConstraints();
         final JLabel label = new JLabel("Statistical accuracy:");
 
-
         accuracyModel = new AccuracyModel();
         final BindingContext bindingContext = new BindingContext(PropertyContainer.createObjectBacked(accuracyModel));
         final JTextField textField = new JTextField("3");

@@ -62,6 +62,19 @@ The set of statistical information displayed comprises:
     <a href="MaskManagement.html">Mask Manager</a> tool window.
 </p>
 
+<p>
+    The section "Statistical accuracy" allows the user to specify the accuracy with which the statistics shall be
+    computed. Higher numbers indicate a higher accuracy but may lead to a considerably longer computation time. More
+    precisely, this parameter determines the number of bin cells used for computing the histogram: the number of bin
+    cells is computed by <b>10^a</b> with <b>a</b> the parameter.
+</p>
+
+<p>
+    The export button below allows to export the statistics as CSV file. In case the statistics have been
+    computed for ROI mask(s) which come from a shapefile, they also can be export to this original shapefile, thus
+    enrich that shapefile by the statistical information.
+</p>
+
 <p class="inote"><b>Note:</b> A mouse right-click within the statistics tables
     brings up a context menu with the item <i>Copy data to clipboard</i>.
     This will copy the diagram data as tabulated text to the system clipboard.
