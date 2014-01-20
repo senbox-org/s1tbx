@@ -1,0 +1,11 @@
+target
+build
+local.txt
+beampy.ini
+.idea
+*.iml
+*.class
+*.jar
+*.war
+*.ear
+
