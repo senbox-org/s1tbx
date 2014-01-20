@@ -25,11 +25,11 @@ import java.awt.*;
 /**
     Labeling Panel
  */
-public class QueryImagePanel extends TaskPanel {
+public class QueryPanel extends TaskPanel {
 
     private final static String instructionsStr = "Select query images by selecting patch areas in an image view";
 
-    public QueryImagePanel() {
+    public QueryPanel() {
         super("Training Images");
 
         createPanel();
