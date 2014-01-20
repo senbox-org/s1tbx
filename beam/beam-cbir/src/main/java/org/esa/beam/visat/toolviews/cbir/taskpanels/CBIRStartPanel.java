@@ -23,7 +23,6 @@ import org.esa.beam.framework.PFAApplicationRegistry;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.ui.SourceProductSelector;
 import org.esa.beam.search.CBIRSession;
-import org.esa.beam.search.SearchToolStub;
 import org.esa.beam.visat.VisatApp;
 import org.esa.beam.visat.toolviews.cbir.TaskPanel;
 

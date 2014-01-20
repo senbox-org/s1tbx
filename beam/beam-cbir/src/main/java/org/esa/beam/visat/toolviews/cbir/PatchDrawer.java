@@ -19,20 +19,28 @@ import org.esa.beam.search.PatchImage;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 
 /**
 
  */
-public class PatchDrawer extends JPanel {
+public class PatchDrawer extends JPanel implements MouseListener {
 
     private final static int width = 100;
     private final static int height = 100;
+    private final static int margin = 4;
+
+    private Patch selection = null;
+
+    private final static boolean DEBUG = true;
     private final static Font font = new Font("Ariel", Font.BOLD, 18);
 
     public PatchDrawer(final PatchImage[] imageList) {
         super();
 
+        addMouseListener(this);
         update(imageList);
     }
 
@@ -46,7 +54,46 @@ public class PatchDrawer extends JPanel {
         updateUI();
     }
 
-    private static class Patch extends JLabel {
+    /**
+     * Invoked when the mouse button has been clicked (pressed
+     * and released) on a component.
+     */
+    public void mouseClicked(MouseEvent e){
+        Point p = e.getPoint();
+        int x = p.x / (width + margin);
+        int y = p.y / 100;
+        selection = (Patch)this.getComponent(x);
+
+        System.out.println(x);
+        repaint();
+    }
+
+    /**
+     * Invoked when a mouse button has been pressed on a component.
+     */
+    public void mousePressed(MouseEvent e){
+    }
+
+    /**
+     * Invoked when a mouse button has been released on a component.
+     */
+    public void mouseReleased(MouseEvent e){
+    }
+
+    /**
+     * Invoked when the mouse enters a component.
+     */
+    public void mouseEntered(MouseEvent e){
+    }
+
+    /**
+     * Invoked when the mouse exits a component.
+     */
+    public void mouseExited(MouseEvent e) {
+    }
+
+
+    private class Patch extends JLabel {
         private final PatchImage img;
 
         public Patch(final PatchImage img) {
@@ -57,14 +104,23 @@ public class PatchDrawer extends JPanel {
         }
 
         @Override
-        public void paintComponent(Graphics g) {
-            super.paintComponent(g);
+        public void paintComponent(Graphics graphics) {
+            super.paintComponent(graphics);
+            final Graphics2D g = (Graphics2D) graphics;
 
-            g.setColor(Color.WHITE);
-            g.fillRect(30, 30, 30, 30);
-            g.setColor(Color.RED);
-            g.setFont(font);
-            g.drawString(Integer.toString(img.getID()), 35, 50);
+            if(DEBUG) {
+                g.setColor(Color.WHITE);
+                g.fillRect(30, 30, 40, 30);
+                g.setColor(Color.RED);
+                g.setFont(font);
+                g.drawString(Integer.toString(img.getID()), 35, 50);
+            }
+
+            if(this.equals(selection)) {
+                g.setColor(Color.CYAN);
+                g.setStroke(new BasicStroke(5));
+                g.drawRoundRect(0, 0, width, height-5, 25, 25);
+            }
         }
     }
 }

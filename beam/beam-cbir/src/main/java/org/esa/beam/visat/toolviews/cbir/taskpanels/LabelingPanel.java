@@ -16,7 +16,6 @@
 package org.esa.beam.visat.toolviews.cbir.taskpanels;
 
 import org.esa.beam.search.CBIRSession;
-import org.esa.beam.visat.toolviews.cbir.BlockDrawer;
 import org.esa.beam.visat.toolviews.cbir.DragScrollListener;
 import org.esa.beam.visat.toolviews.cbir.PatchDrawer;
 import org.esa.beam.visat.toolviews.cbir.TaskPanel;
