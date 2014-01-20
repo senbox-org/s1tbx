@@ -241,24 +241,20 @@ public class ImageIOFile {
         final int destSize = destWidth * destHeight;
         final int sampleOffset = imageID + bandSampleOffset;
 
-        if((dataBufferType == DataBuffer.TYPE_INT || dataBufferType == DataBuffer.TYPE_SHORT || dataBufferType == DataBuffer.TYPE_USHORT) &&
-                destBuffer.getElems() instanceof int[]) {
-            sampleModel.getSamples(0, 0, destWidth, destHeight, sampleOffset, (int[])destBuffer.getElems(), dataBuffer);
-        } else if(dataBufferType == DataBuffer.TYPE_FLOAT &&
-                destBuffer.getElems() instanceof float[]) {
+        if(dataBufferType == DataBuffer.TYPE_FLOAT && destBuffer.getElems() instanceof float[]) {
             sampleModel.getSamples(0, 0, destWidth, destHeight, sampleOffset, (float[])destBuffer.getElems(), dataBuffer);
-        } else {
-
+        } else if (dataBufferType == DataBuffer.TYPE_DOUBLE && destBuffer.getElems() instanceof double[]) {
             final double[] dArray = new double[destSize];
             sampleModel.getSamples(0, 0, destWidth, destHeight, sampleOffset, dArray, dataBuffer);
 
-            final int length = dArray.length;
-            if(destBuffer.getElems() instanceof double[]) {
-                System.arraycopy(dArray, 0, destBuffer.getElems(), 0, length);
-            } else {
-                int i=0;
-                for (double val : dArray) {
-                    destBuffer.setElemDoubleAt(i++, val);
+            //noinspection SuspiciousSystemArraycopy
+            System.arraycopy(dArray, 0, destBuffer.getElems(), 0, dArray.length);
+        } else {
+
+            int Offset = 0;
+            for(int i=0; i<destHeight; i++) {
+                for (int j=0; j<destWidth; j++) {
+                    destBuffer.setElemIntAt(Offset++, sampleModel.getSample(j, i, sampleOffset, dataBuffer));
                 }
             }
         }

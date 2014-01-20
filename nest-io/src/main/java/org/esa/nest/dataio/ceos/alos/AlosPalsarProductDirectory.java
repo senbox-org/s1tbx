@@ -283,6 +283,8 @@ class AlosPalsarProductDirectory extends CEOSProductDirectory {
         final GeoPos geo11 = geoCoding.getGeoPos(new PixelPos(w,h), null);
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_far_lat, geo11.getLat());
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_far_long, geo11.getLon());
+
+        ReaderUtils.addMetadataIncidenceAngles(product);
     }
 
     private void addTiePointGrids(final Product product) {
