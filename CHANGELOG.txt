@@ -43,6 +43,7 @@ New BEAM Features
 
 Improvements
 
+[BEAM-1459] Allow aggregating pixel values even if not all pixels of the window are valid
 [BEAM-1513] BEAM shall enable users to use Modified Julian Date (MJD) in band arithmetics
 
 Bugs
