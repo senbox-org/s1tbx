@@ -128,8 +128,6 @@ class PixelExtractionParametersForm {
     }
 
     public Coordinate[] getCoordinates() {
-        System.out.println("org.esa.beam.pixex.visat.PixelExtractionParametersForm.getCoordinates");
-        System.out.println("rowCount = " + coordinateTableModel.getRowCount());
         Coordinate[] coordinates = new Coordinate[coordinateTableModel.getRowCount()];
         for (int i = 0; i < coordinateTableModel.getRowCount(); i++) {
             final Placemark placemark = coordinateTableModel.getPlacemarkAt(i);
