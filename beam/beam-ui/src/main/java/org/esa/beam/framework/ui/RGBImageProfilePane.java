@@ -126,6 +126,12 @@ public class RGBImageProfilePane extends JPanel {
         final String[] bandNames;
         if (_product != null) {
             bandNames = _product.getBandNames();
+            for(int i=0; i < bandNames.length; ++i) {
+                String b = bandNames[i];
+                if(!b.startsWith("\'") && !b.endsWith("\'")) {
+                    bandNames[i] = '\''+b+'\'';
+                }
+            }
         } else {
             bandNames = new String[0];
         }
