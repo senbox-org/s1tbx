@@ -236,9 +236,11 @@
                         </excludePackageNames>
                         <maxmemory>256m</maxmemory>
                         <quiet>false</quiet>
+                        <!--suppress MavenModelInspection - beam.api.version needs to be set before running the maven target -->
                         <doctitle>
                             ${project.name} ${beam.api.version} API
                         </doctitle>
+                        <!--suppress MavenModelInspection - beam.api.version needs to be set before running the maven target -->
                         <windowtitle>
                             ${project.name} ${beam.api.version} API
                         </windowtitle>
