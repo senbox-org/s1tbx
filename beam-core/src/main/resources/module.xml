@@ -42,6 +42,7 @@
     <changelog>
         <![CDATA[
         <p/>Changes in 5.0:<br/>
+        [BEAM-1452] Log-scaling is not correctly applied in scatter plot<br/>
         [BEAM-1527] Add missing Standard Deviation nonlinear image filter<br/>
         [BEAM-953]  No-Data is disregarded in filtered band.<br/>
         [BEAM-1514] ProductUtils.getScanLineTime fails for products with height 1<br/>
