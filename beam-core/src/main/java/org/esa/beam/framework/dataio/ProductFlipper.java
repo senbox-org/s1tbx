@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -278,16 +278,18 @@ public class ProductFlipper extends AbstractProductBuilder {
         }
         if (!isMetadataIgnored()) {
             addMetadataToProduct(product);
-            addTiePointGridsToProduct(product);
-            addFlagCodingsToProduct(product);
-            addIndexCodingsToProduct(product);
         }
+        addTiePointGridsToProduct(product);
+        addFlagCodingsToProduct(product);
+        addIndexCodingsToProduct(product);
         addBandsToProduct(product);
-        if (!isMetadataIgnored()) {
-            addGeoCodingToProduct(product);
-        }
+        addGeoCodingToProduct(product);
         ProductUtils.copyMasks(getSourceProduct(), product);
-        ProductUtils.copyOverlayMasks(getSourceProduct(), product);
+        ProductUtils.copyVectorData(sourceProduct, product);
+        ProductUtils.copyOverlayMasks(sourceProduct, product);
+        ProductUtils.copyPreferredTileSize(sourceProduct, product);
+        product.setStartTime(sourceProduct.getStartTime());
+        product.setEndTime(sourceProduct.getEndTime());
         return product;
     }
 
