@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -21,7 +21,11 @@ import com.bc.ceres.binding.dom.DefaultDomConverter;
 import com.bc.ceres.binding.dom.DefaultDomElement;
 import com.bc.ceres.binding.dom.DomElement;
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.CrsGeoCoding;
+import org.esa.beam.framework.datamodel.GeoCoding;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.annotations.ParameterDescriptorFactory;
@@ -35,7 +39,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
-import java.awt.*;
+import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.io.InputStreamReader;
 import java.util.Arrays;
@@ -238,6 +242,29 @@ public class BandMathsOpTest {
         float[] expectedValues = new float[16];
         Arrays.fill(expectedValues, 3.5f);
         assertTrue(Arrays.equals(expectedValues, actualValues));
+    }
+
+    @Test
+    public void testDivisionByZero() throws Exception {
+        Map<String, Object> parameters = new HashMap<String, Object>();
+        BandMathsOp.BandDescriptor[] bandDescriptors = new BandMathsOp.BandDescriptor[1];
+        bandDescriptors[0] = createBandDescription("aBandName", "band1/0.0", ProductData.TYPESTRING_FLOAT32, "bigUnits");
+        parameters.put("targetBands", bandDescriptors);
+        Product sourceProduct = createTestProduct(4, 4);
+        Product targetProduct = GPF.createProduct("BandMaths", parameters, sourceProduct);
+
+        assertNotNull(targetProduct);
+        Band band = targetProduct.getBand("aBandName");
+        assertNotNull(band);
+        assertEquals("aDescription", band.getDescription());
+        assertEquals("bigUnits", band.getUnit());
+        assertEquals(ProductData.TYPE_FLOAT32, band.getDataType());
+
+        float[] floatValues = new float[16];
+        band.readPixels(0, 0, 4, 4, floatValues, ProgressMonitor.NULL);
+        float[] expectedValues = new float[16];
+        Arrays.fill(expectedValues, Float.NaN);
+        assertTrue(Arrays.equals(expectedValues, floatValues));
     }
 
     @Test
