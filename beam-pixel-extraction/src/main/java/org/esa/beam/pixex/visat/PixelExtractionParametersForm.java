@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -18,12 +18,19 @@ package org.esa.beam.pixex.visat;
 
 import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.PropertyDescriptor;
+import com.bc.ceres.binding.ValidationException;
+import com.bc.ceres.binding.Validator;
+import com.bc.ceres.binding.ValueRange;
 import com.bc.ceres.swing.TableLayout;
 import com.bc.ceres.swing.binding.BindingContext;
+import com.bc.ceres.swing.binding.Enablement;
 import com.jidesoft.combobox.DefaultDateModel;
 import com.jidesoft.grid.DateCellEditor;
 import com.vividsolutions.jts.geom.Point;
+import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.Placemark;
+import org.esa.beam.framework.datamodel.PlacemarkDescriptor;
 import org.esa.beam.framework.datamodel.PlacemarkGroup;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
@@ -36,8 +43,15 @@ import org.esa.beam.framework.ui.product.ProductExpressionPane;
 import org.esa.beam.framework.ui.tool.ToolButtonFactory;
 import org.esa.beam.pixex.Coordinate;
 import org.esa.beam.pixex.PixExOp;
+import org.geotools.feature.NameImpl;
+import org.geotools.feature.simple.SimpleFeatureBuilder;
+import org.geotools.feature.type.AttributeDescriptorImpl;
+import org.geotools.feature.type.AttributeTypeImpl;
 import org.jfree.ui.DateCellRenderer;
 import org.opengis.feature.simple.SimpleFeature;
+import org.opengis.feature.simple.SimpleFeatureType;
+import org.opengis.feature.type.AttributeDescriptor;
+import org.opengis.feature.type.AttributeType;
 
 import javax.swing.AbstractButton;
 import javax.swing.BoxLayout;
@@ -74,7 +88,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 class PixelExtractionParametersForm {
 
@@ -96,9 +112,9 @@ class PixelExtractionParametersForm {
     private JLabel expressionNoteLabel;
     private JSpinner timeSpinner;
     private JComboBox timeUnitComboBox;
-    private String allowedTimeDifference = "";
-    private JComboBox aggregationStrategyChooser;
     private JCheckBox includeOriginalInputBox;
+    private Enablement aggregationEneblement;
+    private JCheckBox timeBox;
 
     PixelExtractionParametersForm(AppContext appContext, PropertyContainer container) {
         this.appContext = appContext;
@@ -112,6 +128,8 @@ class PixelExtractionParametersForm {
     }
 
     public Coordinate[] getCoordinates() {
+        System.out.println("org.esa.beam.pixex.visat.PixelExtractionParametersForm.getCoordinates");
+        System.out.println("rowCount = " + coordinateTableModel.getRowCount());
         Coordinate[] coordinates = new Coordinate[coordinateTableModel.getRowCount()];
         for (int i = 0; i < coordinateTableModel.getRowCount(); i++) {
             final Placemark placemark = coordinateTableModel.getPlacemarkAt(i);
@@ -130,6 +148,40 @@ class PixelExtractionParametersForm {
         return coordinates;
     }
 
+    void setCoordinates(Coordinate[] coordinates) {
+        Placemark[] toDelete = coordinateTableModel.getPlacemarks();
+        for (Placemark placemark : toDelete) {
+            coordinateTableModel.removePlacemark(placemark);
+        }
+        PlacemarkDescriptor placemarkDescriptor = coordinateTableModel.getPlacemarkDescriptor();
+        final SimpleFeatureType placemarkFT = placemarkDescriptor.getBaseFeatureType();
+        SimpleFeatureBuilder fb = new SimpleFeatureBuilder(placemarkFT);
+        AttributeType at = new AttributeTypeImpl(new NameImpl("label"), String.class,
+                                                 false, false, null, null, null);
+
+        for (Coordinate coordinate : coordinates) {
+            List<AttributeDescriptor> attributeDescriptors = new ArrayList<>();
+            List<String> attributeValues = new ArrayList<>();
+            for (Coordinate.OriginalValue originalValue : coordinate.getOriginalValues()) {
+                attributeDescriptors.add(new AttributeDescriptorImpl(at,
+                                                                     new NameImpl(originalValue.getVariableName()),
+                                                                     0, 1,
+                                                                     false,
+                                                                     null));
+                attributeValues.add(originalValue.getValue());
+            }
+            placemarkFT.getUserData().put("originalAttributeDescriptors", attributeDescriptors);
+            int attributeCount = placemarkFT.getAttributeCount();
+            final SimpleFeature f = fb.buildFeature(coordinate.getName(), new Object[attributeCount]);
+            f.getUserData().put("originalAttributes", attributeValues);
+            f.setAttribute(Placemark.PROPERTY_NAME_DATETIME, coordinate.getDateTime());
+            final Placemark placemark = placemarkDescriptor.createPlacemark(f);
+            placemark.setGeoPos(new GeoPos(coordinate.getLat(), coordinate.getLon()));
+            placemark.setName(coordinate.getName());
+            coordinateTableModel.addPlacemark(placemark);
+        }
+    }
+
     public String getExpression() {
         if (useExpressionCheckBox.isSelected()) {
             return expressionArea.getText();
@@ -138,16 +190,45 @@ class PixelExtractionParametersForm {
         }
     }
 
+    void setExpression(String expression) {
+        useExpressionCheckBox.setSelected(expression != null);
+        expressionArea.setText(expression);
+    }
+
     public String getAllowedTimeDifference() {
-        return allowedTimeDifference;
+        return createAllowedTimeDifferenceString();
+    }
+
+    void setAllowedTimeDifference(String timeDifference) {
+        if (timeDifference != null && !timeDifference.isEmpty()) {
+            timeBox.setSelected(true);
+            String timePart = timeDifference.substring(0, timeDifference.length() - 1);
+            timeSpinner.setValue(Integer.parseInt(timePart));
+            char lastChar = timeDifference.charAt(timeDifference.length() - 1);
+            int index = 0;
+            switch (lastChar) {
+                case 'D':
+                    index = 0;
+                    break;
+                case 'H':
+                    index = 1;
+                    break;
+                case 'M':
+                    index = 2;
+                    break;
+            }
+            timeUnitComboBox.setSelectedIndex(index);
+        } else {
+            timeBox.setSelected(false);
+        }
     }
 
     public boolean isExportExpressionResultSelected() {
         return exportExpressionResultButton.isSelected();
     }
 
-    public String getPixelValueAggregationMethod() {
-        return aggregationStrategyChooser.getSelectedItem().toString();
+    void setExportExpressionResultSelected(boolean isSelected) {
+        exportExpressionResultButton.setSelected(isSelected);
     }
 
     private void createUi(PropertyContainer container) {
@@ -209,13 +290,16 @@ class PixelExtractionParametersForm {
         mainPanel.add(windowLabel);
 
         mainPanel.add(new JLabel("Pixel value aggregation method:"));
-        aggregationStrategyChooser = new JComboBox(new String[]{
-                PixExOp.NO_AGGREGATION,
-                PixExOp.MEAN_AGGREGATION,
-                PixExOp.MIN_AGGREGATION,
-                PixExOp.MAX_AGGREGATION,
-                PixExOp.MEDIAN_AGGREGATION
+        JComboBox aggregationStrategyChooser = new JComboBox();
+        bindingContext.bind("aggregatorStrategyType", aggregationStrategyChooser);
+        aggregationEneblement = bindingContext.bindEnabledState("aggregatorStrategyType", true, new Enablement.Condition() {
+            @Override
+            public boolean evaluate(BindingContext bindingContext) {
+                final Integer windowSize = (Integer) windowSpinner.getValue();
+                return windowSize > 1;
+            }
         });
+
         mainPanel.add(aggregationStrategyChooser);
         mainPanel.add(tableLayout.createVerticalSpacer());
 
@@ -292,46 +376,32 @@ class PixelExtractionParametersForm {
 
     private Component[] createTimeDeltaComponents(TableLayout tableLayout) {
         final JLabel boxLabel = new JLabel("Allowed time difference:");
-        final JCheckBox box = new JCheckBox("Use time difference constraint");
+        timeBox = new JCheckBox("Use time difference constraint");
         final Component horizontalSpacer = tableLayout.createHorizontalSpacer();
 
         final Component horizontalSpacer2 = tableLayout.createHorizontalSpacer();
         timeSpinner = new JSpinner(new SpinnerNumberModel(1, 1, null, 1));
         timeSpinner.setEnabled(false);
-        timeSpinner.addChangeListener(new ChangeListener() {
-            @Override
-            public void stateChanged(ChangeEvent e) {
-                allowedTimeDifference = createAllowedTimeDifferenceString();
-            }
-        });
         timeUnitComboBox = new JComboBox(new String[]{"Day(s)", "Hour(s)", "Minute(s)"});
         timeUnitComboBox.setEnabled(false);
-        timeUnitComboBox.addActionListener(new ActionListener() {
+
+        timeBox.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                allowedTimeDifference = createAllowedTimeDifferenceString();
+                timeSpinner.setEnabled(timeBox.isSelected());
+                timeUnitComboBox.setEnabled(timeBox.isSelected());
             }
         });
 
-        box.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                timeSpinner.setEnabled(box.isSelected());
-                timeUnitComboBox.setEnabled(box.isSelected());
-                allowedTimeDifference = box.isSelected() ? createAllowedTimeDifferenceString() : "";
-            }
-        });
-
-        allowedTimeDifference = box.isSelected() ? createAllowedTimeDifferenceString() : "";
-        return new Component[]{boxLabel, box, horizontalSpacer, horizontalSpacer2, timeSpinner, timeUnitComboBox};
+        return new Component[]{boxLabel, timeBox, horizontalSpacer, horizontalSpacer2, timeSpinner, timeUnitComboBox};
     }
 
     private String createAllowedTimeDifferenceString() {
-        return String.valueOf(
-                timeSpinner.getValue()) + timeUnitComboBox.getSelectedItem().toString().charAt(0);
+        return timeBox.isSelected() ? String.valueOf(
+                timeSpinner.getValue()) + timeUnitComboBox.getSelectedItem().toString().charAt(0) : "";
     }
 
-    private void updateUi() {
+    void updateUi() {
         handleWindowSpinnerChange();
         updateExpressionComponents();
         updateIncludeOriginalInputBox();
@@ -366,9 +436,9 @@ class PixelExtractionParametersForm {
     private void handleWindowSpinnerChange() {
         final Integer windowSize = (Integer) windowSpinner.getValue();
         windowLabel.setText(String.format("%1$d x %1$d", windowSize));
-        final boolean pixelsNeedToBeAggregated = windowSize > 1;
-        aggregationStrategyChooser.setEnabled(pixelsNeedToBeAggregated);
+        aggregationEneblement.apply();
     }
+
 
     private JPanel createExportPanel(BindingContext bindingContext) {
         final TableLayout tableLayout = new TableLayout(4);
@@ -385,7 +455,6 @@ class PixelExtractionParametersForm {
         exportPanel.add(tableLayout.createHorizontalSpacer());
         return exportPanel;
     }
-
 
     private JCheckBox createIncludeCheckbox(BindingContext bindingContext, String labelText, String propertyName) {
         final Property windowProperty = bindingContext.getPropertySet().getProperty(propertyName);
@@ -498,21 +567,19 @@ class PixelExtractionParametersForm {
     }
 
     private JSpinner createWindowSizeEditor(BindingContext bindingContext) {
-        final Property windowSizeProperty = bindingContext.getPropertySet().getProperty("windowSize");
-        final Number defaultValue = (Number) windowSizeProperty.getDescriptor().getDefaultValue();
-        final JSpinner spinner = new JSpinner(new SpinnerNumberModel(defaultValue, 1, null, 2));
-        spinner.addChangeListener(new ChangeListener() {
+        final PropertyDescriptor windowSizeDescriptor = bindingContext.getPropertySet().getProperty("windowSize").getDescriptor();
+        windowSizeDescriptor.setValueRange(new ValueRange(1, Double.POSITIVE_INFINITY));
+        windowSizeDescriptor.setAttribute("stepSize", 2);
+        windowSizeDescriptor.setValidator(new Validator() {
             @Override
-            public void stateChanged(ChangeEvent e) {
-                final Object value = spinner.getValue();
-                if (value instanceof Integer) {
-                    int intValue = (Integer) value;
-                    if (intValue % 2 == 0) {
-                        spinner.setValue(intValue + 1);
-                    }
+            public void validateValue(Property property, Object value) throws ValidationException {
+                if (((Number) value).intValue() % 2 == 0) {
+                    throw new ValidationException("Only odd values allowed as window size.");
                 }
             }
         });
+
+        final JSpinner spinner = new JSpinner();
         bindingContext.bind("windowSize", spinner);
         return spinner;
     }
