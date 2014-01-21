@@ -1,13 +1,11 @@
 package org.esa.beam.statistics.percentile.interpolated;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
-
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
@@ -16,6 +14,9 @@ import java.awt.Rectangle;
 import java.awt.geom.Area;
 import java.util.Date;
 import java.util.logging.Logger;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(Utils.class)
@@ -44,22 +45,22 @@ public class ProductValidatorTest {
         PowerMockito.when(Utils.createProductArea(any(Product.class))).thenReturn(intersectingArea);
 
         final Logger logger = Logger.getAnonymousLogger();
-        S_logger = spy(logger);
+        S_logger = PowerMockito.spy(logger);
 
         _productValidator = new ProductValidator(sourceBandName, null, null, _timeRangeStart, _timeRangeEnd, targetArea, S_logger);
 
-        M_geoCoding = mock(GeoCoding.class);
-        when(M_geoCoding.canGetPixelPos()).thenReturn(true);
+        M_geoCoding = PowerMockito.mock(GeoCoding.class);
+        PowerMockito.when(M_geoCoding.canGetPixelPos()).thenReturn(true);
 
         final ProductData.UTC productStartTime = ProductData.UTC.parse("2012-05-22 00:00:00", TemporalPercentileOp.DATETIME_PATTERN);
         final ProductData.UTC productEndTime = ProductData.UTC.parse("2012-07-07 00:00:00", TemporalPercentileOp.DATETIME_PATTERN);
 
-        M_product = mock(Product.class);
-        when(M_product.getName()).thenReturn("ProductMock");
-        when(M_product.getGeoCoding()).thenReturn(M_geoCoding);
-        when(M_product.getStartTime()).thenReturn(productStartTime);
-        when(M_product.getEndTime()).thenReturn(productEndTime);
-        when(M_product.containsBand(sourceBandName)).thenReturn(true);
+        M_product = PowerMockito.mock(Product.class);
+        PowerMockito.when(M_product.getName()).thenReturn("ProductMock");
+        PowerMockito.when(M_product.getGeoCoding()).thenReturn(M_geoCoding);
+        PowerMockito.when(M_product.getStartTime()).thenReturn(productStartTime);
+        PowerMockito.when(M_product.getEndTime()).thenReturn(productEndTime);
+        PowerMockito.when(M_product.containsBand(sourceBandName)).thenReturn(true);
     }
 
     @Test
@@ -72,7 +73,7 @@ public class ProductValidatorTest {
 
     @Test
     public void testThatVerificationFailsIfProductHasNoGeoCoding() {
-        when(M_product.getGeoCoding()).thenReturn(null);
+        PowerMockito.when(M_product.getGeoCoding()).thenReturn(null);
 
         boolean result = _productValidator.isValid(M_product);
 
@@ -82,7 +83,7 @@ public class ProductValidatorTest {
 
     @Test
     public void testThatVerificationFailsIfTheGeoCodingCanNotGetPixelPositionFromGeoPos() {
-        when(M_geoCoding.canGetPixelPos()).thenReturn(false);
+        PowerMockito.when(M_geoCoding.canGetPixelPos()).thenReturn(false);
 
         boolean result = _productValidator.isValid(M_product);
 
@@ -92,7 +93,7 @@ public class ProductValidatorTest {
 
     @Test
     public void testThatVerificationFailsIfTheProductDoesNotContainAStartTime() {
-        when(M_product.getStartTime()).thenReturn(null);
+        PowerMockito.when(M_product.getStartTime()).thenReturn(null);
 
         boolean result = _productValidator.isValid(M_product);
 
@@ -102,7 +103,7 @@ public class ProductValidatorTest {
 
     @Test
     public void testThatVerificationFailsIfTheProductDoesNotContainAnEndTime() {
-        when(M_product.getEndTime()).thenReturn(null);
+        PowerMockito.when(M_product.getEndTime()).thenReturn(null);
 
         boolean result = _productValidator.isValid(M_product);
 
@@ -112,7 +113,7 @@ public class ProductValidatorTest {
 
     @Test
     public void testThatVerificationFailsIfTheProductCanNotHandleTheBandConfiguration() {
-        when(M_product.containsBand(sourceBandName)).thenReturn(false);
+        PowerMockito.when(M_product.containsBand(sourceBandName)).thenReturn(false);
 
         boolean result = _productValidator.isValid(M_product);
 
@@ -124,7 +125,7 @@ public class ProductValidatorTest {
     public void testThatVerificationFailsIfTheProductStartsBeforeTimeRange() {
         final long timeRangeStartTime = _timeRangeStart.getAsDate().getTime();
         final Date beforeTime = new Date(timeRangeStartTime - 1);
-        when(M_product.getStartTime()).thenReturn(ProductData.UTC.create(beforeTime, 0));
+        PowerMockito.when(M_product.getStartTime()).thenReturn(ProductData.UTC.create(beforeTime, 0));
 
         boolean result = _productValidator.isValid(M_product);
 
@@ -136,7 +137,7 @@ public class ProductValidatorTest {
     public void testThatVerificationFailsIfTheProductEndsAfterTimeRange() {
         final long timeRangeEndTime = _timeRangeEnd.getAsDate().getTime();
         final Date afterTime = new Date(timeRangeEndTime + 1000);
-        when(M_product.getEndTime()).thenReturn(ProductData.UTC.create(afterTime, 0));
+        PowerMockito.when(M_product.getEndTime()).thenReturn(ProductData.UTC.create(afterTime, 0));
 
         boolean result = _productValidator.isValid(M_product);
 
