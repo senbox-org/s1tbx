@@ -124,7 +124,12 @@ public class GraphExecuter extends Observable {
 
     public GraphNode addOperator(final String opName) {
 
-        final String id = "" + ++idCount + '-' + opName;
+        String id = opName;
+        int cnt = 1;
+        while(findGraphNode(id) != null) {
+            ++cnt;
+            id = opName+'('+cnt+')';
+        }
         final GraphNode newGraphNode = createNewGraphNode(opName, id);
 
         setChanged();
