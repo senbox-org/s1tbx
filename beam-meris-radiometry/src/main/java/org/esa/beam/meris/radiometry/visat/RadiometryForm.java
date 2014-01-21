@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -65,10 +65,10 @@ class RadiometryForm extends JTabbedPane {
         addTab("I/O Parameters", ioParamPanel);
         addTab("Processing Parameters", createProcessingParamTab());
         final PropertyContainer targetProductPC = targetProductSelector.getModel().getValueContainer();
-        targetProductPC.addPropertyChangeListener("formatName", new FormatChangeListener());
-        String formatName = targetProductPC.getProperty("formatName").getValue();
-        final boolean isEnvisatFormatSelected = EnvisatConstants.ENVISAT_FORMAT_NAME.equals(formatName);
-        updateEnabledState(isEnvisatFormatSelected);
+        FormatChangeListener formatChangeListener = new FormatChangeListener();
+        targetProductPC.addPropertyChangeListener("formatName", formatChangeListener);
+        targetProductPC.addPropertyChangeListener("saveToFileSelected", formatChangeListener);
+        updateEnabledState(isSaveToEnvisatFormatSelected());
     }
 
     public void prepareShow() {
@@ -109,6 +109,14 @@ class RadiometryForm extends JTabbedPane {
         }
     }
 
+    private boolean isSaveToEnvisatFormatSelected() {
+        final PropertyContainer targetProductPC = targetProductSelector.getModel().getValueContainer();
+        String formatName = targetProductPC.getProperty("formatName").getValue();
+        final boolean isEnvisatFormatSelected = EnvisatConstants.ENVISAT_FORMAT_NAME.equals(formatName);
+        boolean isSaveToFileSelected = targetProductPC.getProperty("saveToFileSelected").getValue();
+        return isEnvisatFormatSelected && isSaveToFileSelected;
+    }
+
     private class SourceProductChangeListener extends AbstractSelectionChangeListener {
 
         private static final String TARGET_PRODUCT_NAME_SUFFIX = "_radiometry";
@@ -139,11 +147,11 @@ class RadiometryForm extends JTabbedPane {
 
         @Override
         public void propertyChange(PropertyChangeEvent evt) {
-            final boolean isEnvisatFormatSelected = EnvisatConstants.ENVISAT_FORMAT_NAME.equals(evt.getNewValue());
-            updateEnabledState(isEnvisatFormatSelected);
+            boolean saveToEnvisatFormatSelected = isSaveToEnvisatFormatSelected();
+            updateEnabledState(saveToEnvisatFormatSelected);
 
-            if (isEnvisatFormatSelected) {
-                if ((Boolean) propertySet.getValue("doRadToRefl")) {
+            if (saveToEnvisatFormatSelected) {
+                if (propertySet.getValue("doRadToRefl")) {
                     propertySet.setValue("doRadToRefl", false);
                     SwingUtilities.invokeLater(new Runnable() {
                         @Override
