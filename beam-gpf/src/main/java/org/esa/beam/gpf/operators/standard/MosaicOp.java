@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -348,6 +348,11 @@ public class MosaicOp extends Operator {
         List<Product> reprojProductList = new ArrayList<Product>(sourceProducts.length);
         final HashMap<String, Object> projParameters = createProjectionParameters();
         for (Product sourceProduct : sourceProducts) {
+            if (sourceProduct.getGeoCoding() == null) {
+                String msg = "Source product: '" + sourceProduct.getName() + "' contains no geo-coding. Skipped for further processing.";
+                getLogger().warning(msg);
+                continue;
+            }
             HashMap<String, Product> projProducts = new HashMap<String, Product>();
             projProducts.put("source", sourceProduct);
             projProducts.put("collocateWith", targetProduct);
