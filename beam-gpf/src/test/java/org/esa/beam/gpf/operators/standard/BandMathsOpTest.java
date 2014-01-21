@@ -42,6 +42,7 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.io.InputStreamReader;
+import java.text.ParseException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -88,6 +89,11 @@ public class BandMathsOpTest {
         float[] expectedValues = new float[16];
         Arrays.fill(expectedValues, 1.0f);
         assertTrue(Arrays.equals(expectedValues, floatValues));
+
+        assertNotNull(targetProduct.getStartTime());
+        assertEquals(sourceProduct.getStartTime(), targetProduct.getStartTime());
+        assertNotNull(targetProduct.getEndTime());
+        assertEquals(sourceProduct.getEndTime(), targetProduct.getEndTime());
     }
 
     @Test
@@ -323,7 +329,7 @@ public class BandMathsOpTest {
     }
 
 
-    private static Product createTestProduct(int w, int h) {
+    private static Product createTestProduct(int w, int h) throws ParseException {
         Product testProduct = new Product("p", "t", w, h);
         Band band1 = testProduct.addBand("band1", ProductData.TYPE_INT32);
         int[] intValues = new int[w * h];
@@ -340,6 +346,9 @@ public class BandMathsOpTest {
         short[] shortValues = new short[w * h];
         Arrays.fill(shortValues, (short) 6);
         band3.setData(ProductData.createInstance(shortValues));
+
+        testProduct.setStartTime(ProductData.UTC.parse("01-APR-2011 11:22:33"));
+        testProduct.setEndTime(ProductData.UTC.parse("02-APR-2011 11:22:33"));
         return testProduct;
     }
 

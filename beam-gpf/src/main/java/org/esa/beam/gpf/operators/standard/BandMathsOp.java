@@ -260,6 +260,13 @@ public class BandMathsOp extends Operator {
 
         ProductUtils.copyMetadata(sourceProducts[0], targetProduct);
         ProductUtils.copyGeoCoding(sourceProducts[0], targetProduct);
+        for (Product sourceProduct : sourceProducts) {
+            if (sourceProduct.getStartTime() != null && sourceProduct.getEndTime() != null) {
+                targetProduct.setStartTime(sourceProduct.getStartTime());
+                targetProduct.setEndTime(sourceProduct.getEndTime());
+                break;
+            }
+        }
     }
 
     @Override
