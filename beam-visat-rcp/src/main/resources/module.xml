@@ -28,6 +28,7 @@
     <changelog>
         <![CDATA[
         <p>Changes in 5.0<br/>
+          [BEAM-1512] Saving time has increased significantly with 5.0 alpha<br/>
           [BEAM-1569] Documentation for 'statistical accuracy' missing</br>
           [BEAM-1190] Export button in the mask manager does not export geometry masks<br/>
           [BEAM-1568] Numbers are displayed with too little #places after the comma<br/>
