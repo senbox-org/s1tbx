@@ -27,6 +27,7 @@
     <changelog>
         <![CDATA[
         <p>From 1.1.1 to 1.1.2:<br/>
+        [BEAM-1460] Component enablement in Radiometry Processor Dialog is wrong<br/>
         [BEAM-1481] Explain the radiometric correction files<br/>
         <p>From 1.1 to 1.1.1:<br/>
         Adapted to new Maven-architecture<br/>

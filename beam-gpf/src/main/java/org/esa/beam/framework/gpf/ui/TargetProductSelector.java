@@ -37,7 +37,6 @@ import java.awt.FlowLayout;
 import java.awt.Insets;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.beans.PropertyChangeEvent;
@@ -98,15 +97,6 @@ public class TargetProductSelector {
             formatNameComboBox = new JComboBox(model.getFormatNames());
             openInAppCheckBox = new JCheckBox("Open in application");
 
-            saveToFileCheckBox.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    if (!model.canReadOutputFormat()) {
-                        model.setOpenInAppSelected(false);
-                    }
-                    updateUIState();
-                }
-            });
             formatNameComboBox.addItemListener(new ItemListener() {
                 @Override
                 public void itemStateChanged(ItemEvent e) {
@@ -137,6 +127,12 @@ public class TargetProductSelector {
             }
         });
         model.getValueContainer().addPropertyChangeListener("formatName", new PropertyChangeListener() {
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                updateUIState();
+            }
+        });
+        model.getValueContainer().addPropertyChangeListener("saveToFileSelected", new PropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
                 updateUIState();

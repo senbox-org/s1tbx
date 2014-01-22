@@ -64,14 +64,16 @@ public class TargetProductSelectorModel {
         propertyContainer = PropertyContainer.createObjectBacked(this);
         propertyContainer.addPropertyChangeListener("saveToFileSelected", new PropertyChangeListener() {
             public void propertyChange(PropertyChangeEvent evt) {
-                if (!(Boolean) evt.getNewValue()) {
+                boolean changesToDeselected = !(Boolean) evt.getNewValue();
+                if (changesToDeselected && !isOpenInAppSelected()) {
                     setOpenInAppSelected(true);
                 }
             }
         });
         propertyContainer.addPropertyChangeListener("openInAppSelected", new PropertyChangeListener() {
             public void propertyChange(PropertyChangeEvent evt) {
-                if (!(Boolean) evt.getNewValue()) {
+                boolean changesToDeselected = !(Boolean) evt.getNewValue();
+                if (changesToDeselected && !isSaveToFileSelected()) {
                     setSaveToFileSelected(true);
                 }
             }
