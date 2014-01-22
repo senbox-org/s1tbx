@@ -49,7 +49,7 @@
             <targetProductNameSuffix>_kmeans_opt</targetProductNameSuffix>
         </action>
 
-        <<action>
+        <action>
             <id>MeanShiftCanopyOp</id>
             <helpId>MeanShiftCanopyOp</helpId>
             <class>org.esa.nest.dat.actions.OperatorAction</class>
@@ -73,6 +73,6 @@
             <dialogTitle>Dirichlet Analysis</dialogTitle>
             <shortDescr>Invoke Dirichlet Analysis</shortDescr>
             <targetProductNameSuffix>_dirichlet</targetProductNameSuffix>
-        </action>>
-        
+        </action>
+    </extension>    
 </module>
