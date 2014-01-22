@@ -28,6 +28,7 @@
     <changelog>
         <![CDATA[
         <p>Changes in 5.0<br/>
+          [BEAM-1139] Function to convert a virtual band into a real band<br/>
           [BEAM-1512] Saving time has increased significantly with 5.0 alpha<br/>
           [BEAM-1569] Documentation for 'statistical accuracy' missing</br>
           [BEAM-1190] Export button in the mask manager does not export geometry masks<br/>
@@ -1368,13 +1369,22 @@
             <helpId>bandArithmetic</helpId>
         </action>
 
+        <action>
+            <id>virtualBand2Band</id>
+            <parent>tools</parent>
+            <class>org.esa.beam.visat.actions.ConvertVirtualBandIntoBandAction</class>
+            <text>Convert Virtual Band into Band</text>
+            <shortDescr>Converts a Virtual Band into a Band containing data</shortDescr>
+            <context>virtualBand</context>
+            <placeAfter>bandArithmetic</placeAfter>
+            <helpId>virtualBand2Band</helpId>
+        </action>
 
         <action>
             <id>createDemRelatedBands</id>
             <class>org.esa.beam.visat.actions.CreateDemRelatedBandsAction</class>
             <text>Create DEM-related Bands...</text>
-            <description>Creates DEM elevation and optionally DEM-corrected lat/lon bands from a selected DEM
-            </description>
+            <description>Creates DEM elevation and optionally DEM-corrected lat/lon bands from a selected DEM</description>
             <context>product</context>
             <helpId>createDemRelatedBands</helpId>
             <parent>tools</parent>
