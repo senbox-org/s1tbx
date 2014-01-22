@@ -139,8 +139,9 @@ public class BandMathsOpTest {
     @Test
     public void testScaledInputBand() throws Exception {
         Map<String, Object> parameters = new HashMap<String, Object>();
-        BandMathsOp.BandDescriptor[] bandDescriptors = new BandMathsOp.BandDescriptor[1];
+        BandMathsOp.BandDescriptor[] bandDescriptors = new BandMathsOp.BandDescriptor[2];
         bandDescriptors[0] = createBandDescription("aBandName", "band3", ProductData.TYPESTRING_FLOAT32, "milliUnits");
+        bandDescriptors[1] = createBandDescription("bBandName", "band3.raw & 64", ProductData.TYPESTRING_INT32, "noUnits");
         parameters.put("targetBands", bandDescriptors);
         Product sourceProduct = createTestProduct(4, 4);
         Product targetProduct = GPF.createProduct("BandMaths", parameters, sourceProduct);
@@ -157,6 +158,13 @@ public class BandMathsOpTest {
         float[] expectedValues = new float[16];
         Arrays.fill(expectedValues, 3.0f);
         assertTrue(Arrays.equals(expectedValues, floatValues));
+
+        Band bband = targetProduct.getBand("bBandName");
+        int[] intValues = new int[16];
+        bband.readPixels(0, 0, 4, 4, intValues, ProgressMonitor.NULL);
+        int[] expectedIntValues = new int[16];
+        Arrays.fill(expectedValues, (3 & 64));
+        assertTrue(Arrays.equals(expectedIntValues, intValues));
     }
 
     @Test
