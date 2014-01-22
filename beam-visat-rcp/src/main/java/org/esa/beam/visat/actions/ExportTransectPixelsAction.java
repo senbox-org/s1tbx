@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -17,6 +17,7 @@
 package org.esa.beam.visat.actions;
 
 import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.swing.figure.Figure;
 import com.bc.ceres.swing.figure.ShapeFigure;
 import com.bc.ceres.swing.progress.DialogProgressMonitor;
 import org.esa.beam.framework.datamodel.Band;
@@ -79,7 +80,7 @@ public class ExportTransectPixelsAction extends ExecCommand {
     @Override
     public void updateState(CommandEvent event) {
         ProductSceneView view = VisatApp.getApp().getSelectedProductSceneView();
-        boolean enabled = view != null && view.getCurrentShapeFigure() != null;
+        boolean enabled = view != null && view.getFigureEditor().getFigureSelection().getFigureCount() > 0;
         setEnabled(enabled);
     }
 
@@ -93,12 +94,13 @@ public class ExportTransectPixelsAction extends ExecCommand {
         // Get the displayed raster data node (band or tie-point grid)
         final RasterDataNode raster = view.getRaster();
         // Get the transect of the displayed raster data node
-        final ShapeFigure transect = view.getCurrentShapeFigure();
-        if (transect == null) {
+        Figure transectFigure = view.getFigureEditor().getFigureSelection().getFigure(0);
+        if (transectFigure == null || !(transectFigure instanceof ShapeFigure)) {
             VisatApp.getApp().showErrorDialog(DLG_TITLE,
                                               ERR_MSG_BASE + "There is no transect defined in the selected band.");  /*I18N*/
             return;
         }
+        ShapeFigure transect = (ShapeFigure) transectFigure;
 
         final TransectProfileData transectProfileData;
         try {
