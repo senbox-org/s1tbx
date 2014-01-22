@@ -805,4 +805,19 @@ public class StringUtils {
         return indexOfLastOccurrence;
     }
 
+    /**
+     * Adds padding to an integer
+     * 1 becomes 001 or __1
+     * @param num the integer value
+     * @param max the desired string length
+     * @param c the inserted character
+     * @return
+     */
+    public static String padNum(final int num, final int max, final char c) {
+        final StringBuilder str = new StringBuilder(String.valueOf(num));
+        while(str.length() < max) {
+            str.insert(0, c);
+        }
+        return str.toString();
+    }
 }
