@@ -308,7 +308,8 @@ public class GraphNode {
     void updateParameterMap(final XppDomElement parentElement) throws GraphException {
         if(operatorUI != null) {
             try {
-                operatorUI.updateParameters();
+                //if(operatorUI.hasSourceProducts())
+                    operatorUI.updateParameters();
                 operatorUI.convertToDOM(parentElement);
             } catch (Exception e) {
                 throw new GraphException(operatorUI.getOperatorName()+" error setting parameter "+e.getMessage());

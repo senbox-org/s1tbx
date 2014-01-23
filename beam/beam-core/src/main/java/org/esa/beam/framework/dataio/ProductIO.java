@@ -268,6 +268,11 @@ public class ProductIO {
     public static ProductReader getProductReaderForInput(Object input) {
         Logger logger = BeamLogManager.getSystemLogger();
         logger.fine("Searching reader plugin for '" + input + "'");
+        if(input instanceof File) {        //NESTMOD
+            final ProductReader reader = ProductFunctions.findCommonProductReader((File)input);
+            if(reader != null)
+                return reader;
+        }
         ProductIOPlugInManager registry = ProductIOPlugInManager.getInstance();
         Iterator<ProductReaderPlugIn> it = registry.getAllReaderPlugIns();
         ProductReaderPlugIn selectedPlugIn = null;

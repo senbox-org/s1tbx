@@ -77,6 +77,10 @@ public abstract class BaseOperatorUI implements OperatorUI {
         }
     }
 
+    public boolean hasSourceProducts() {
+        return sourceProducts != null;
+    }
+
     public void convertToDOM(final XppDomElement parentElement) {
 
         if(valueContainer == null) {

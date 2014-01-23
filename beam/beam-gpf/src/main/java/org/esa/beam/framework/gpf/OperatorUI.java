@@ -28,5 +28,7 @@ public interface OperatorUI {
 
     public void setSourceProducts(Product[] products);
 
+    public boolean hasSourceProducts();
+
     public void convertToDOM(XppDomElement parentElement);
 }

@@ -159,4 +159,30 @@ public class ProductFunctions {
         }
         return null;
     }
+
+    /**
+     * Quickly return the product reader without testing many readers
+     * @param file input file
+     * @return the product reader or null
+     */
+    public static ProductReader findCommonProductReader(final File file) {
+        final String filename = file.getName().toLowerCase();
+        if(filename.endsWith("n1")) {
+            return ProductIO.getProductReader("ENVISAT");
+        } else if(filename.endsWith("e1") || filename.endsWith("e2")) {
+            return ProductIO.getProductReader("ERS1/2");
+        } else if(filename.endsWith("dim")) {
+            return ProductIO.getProductReader("BEAM-DIMAP");
+        } else if((filename.startsWith("TSX") || filename.startsWith("TDX")) && filename.endsWith("xml")) {
+            return ProductIO.getProductReader("TerraSarX");
+        } else if(filename.equals("product.xml")) {
+            // can't tell difference between RS2 and RS2-NITF
+            return null;
+        } else if(filename.endsWith("tif")) {
+            return ProductIO.getProductReader("GeoTIFF");
+        } else if(filename.endsWith("dbl")) {
+            return ProductIO.getProductReader("SMOS-DBL");
+        }
+        return null;
+    }
 }
