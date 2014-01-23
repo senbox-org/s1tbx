@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -268,10 +268,10 @@ public class VirtualBandOpImage extends SingleBandedOpImage {
                     for (int j = 0, l = x; j < colCount; j++, l++) {
                         env.setElemIndex(i + j);
                         final double v = term.evalD(env);
-                        if (!Double.isNaN(v) && !Double.isInfinite(v)) {
-                            productData.setElemDoubleAt(k + l, v);
-                        } else {
+                        if (Double.isNaN(v) || Double.isInfinite(v)) {
                             productData.setElemDoubleAt(k + l, fv);
+                        } else {
+                            productData.setElemDoubleAt(k + l, v);
                         }
                     }
                 }

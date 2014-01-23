@@ -38,6 +38,7 @@ import org.esa.beam.framework.dataop.barithm.BandArithmetic;
 import org.esa.beam.framework.ui.GridBagUtils;
 import org.esa.beam.framework.ui.application.ToolView;
 import org.esa.beam.jai.ImageManager;
+import org.esa.beam.util.logging.BeamLogManager;
 import org.esa.beam.util.math.MathUtils;
 import org.geotools.feature.FeatureCollection;
 import org.jfree.chart.ChartFactory;
@@ -104,7 +105,7 @@ import java.util.Map;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 
-import static org.esa.beam.visat.toolviews.stat.StatisticChartStyling.getAxisLabel;
+import static org.esa.beam.visat.toolviews.stat.StatisticChartStyling.*;
 
 /**
  * The scatter plot pane within the statistics window.
@@ -116,13 +117,13 @@ class ScatterPlotPanel extends ChartPagePanel {
 
     public static final String CHART_TITLE = "Correlative Plot";
     private static final String NO_DATA_MESSAGE = "No correlative plot computed yet.\n" +
-            "To create a correlative plot\n" +
-            "   -Select a band" + "\n" +
-            "   -Select vector data (e.g., a SeaDAS 6.x track)" + "\n" +
-            "   -Select the data as point data source" + "\n" +
-            "   -Select a data field" + "\n" +
-            HELP_TIP_MESSAGE + "\n" +
-            ZOOM_TIP_MESSAGE;
+                                                  "To create a correlative plot\n" +
+                                                  "   -Select a band" + "\n" +
+                                                  "   -Select vector data (e.g., a SeaDAS 6.x track)" + "\n" +
+                                                  "   -Select the data as point data source" + "\n" +
+                                                  "   -Select a data field" + "\n" +
+                                                  HELP_TIP_MESSAGE + "\n" +
+                                                  ZOOM_TIP_MESSAGE;
 
     private final String PROPERTY_NAME_X_AXIS_LOG_SCALED = "xAxisLogScaled";
     private final String PROPERTY_NAME_Y_AXIS_LOG_SCALED = "yAxisLogScaled";
@@ -317,7 +318,7 @@ class ScatterPlotPanel extends ChartPagePanel {
         final PropertyChangeListener recomputeListener = new PropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
-                System.out.println("     recomputeListener");
+                BeamLogManager.getSystemLogger().finest("ScatterPlotPanel -> recomputeListener");
                 computeChartDataIfPossible();
             }
         };
@@ -642,14 +643,14 @@ class ScatterPlotPanel extends ChartPagePanel {
 
     private void computeChartDataIfPossible() {
         if (scatterPlotModel.pointDataSource != null
-                && scatterPlotModel.dataField != null
-                && scatterPlotModel.pointDataSource.getFeatureCollection() != null
-                && scatterPlotModel.pointDataSource.getFeatureCollection().features() != null
-                && scatterPlotModel.pointDataSource.getFeatureCollection().features().hasNext()
-                && scatterPlotModel.pointDataSource.getFeatureCollection().features().next() != null
-                && scatterPlotModel.pointDataSource.getFeatureCollection().features().next().getAttribute(
+            && scatterPlotModel.dataField != null
+            && scatterPlotModel.pointDataSource.getFeatureCollection() != null
+            && scatterPlotModel.pointDataSource.getFeatureCollection().features() != null
+            && scatterPlotModel.pointDataSource.getFeatureCollection().features().hasNext()
+            && scatterPlotModel.pointDataSource.getFeatureCollection().features().next() != null
+            && scatterPlotModel.pointDataSource.getFeatureCollection().features().next().getAttribute(
                 scatterPlotModel.dataField.getLocalName()) != null
-                && getRaster() != null) {
+            && getRaster() != null) {
             compute(scatterPlotModel.useRoiMask ? scatterPlotModel.roiMask : null);
         } else {
             scatterpointsDataset.removeAllSeries();
@@ -673,7 +674,7 @@ class ScatterPlotPanel extends ChartPagePanel {
 
             @Override
             protected ComputedData[] doInBackground() throws Exception {
-                System.out.println("     startComputing scatter data;");
+                BeamLogManager.getSystemLogger().finest("start computing scatter data");
 
                 final ArrayList<ComputedData> computedDataList = new ArrayList<ComputedData>();
 
@@ -824,7 +825,7 @@ class ScatterPlotPanel extends ChartPagePanel {
                     e.printStackTrace();
                     JOptionPane.showMessageDialog(getParentDialogContentPane(),
                                                   "Failed to compute correlative plot.\n" +
-                                                          "Calculation canceled.",
+                                                  "Calculation canceled.",
                                                   /*I18N*/
                                                   CHART_TITLE, /*I18N*/
                                                   JOptionPane.ERROR_MESSAGE);
@@ -832,7 +833,7 @@ class ScatterPlotPanel extends ChartPagePanel {
                     e.printStackTrace();
                     JOptionPane.showMessageDialog(getParentDialogContentPane(),
                                                   "Failed to compute correlative plot.\n" +
-                                                          "Calculation canceled.",
+                                                  "Calculation canceled.",
                                                   /*I18N*/
                                                   CHART_TITLE, /*I18N*/
                                                   JOptionPane.ERROR_MESSAGE);
@@ -840,8 +841,8 @@ class ScatterPlotPanel extends ChartPagePanel {
                     e.printStackTrace();
                     JOptionPane.showMessageDialog(getParentDialogContentPane(),
                                                   "Failed to compute correlative plot.\n" +
-                                                          "An error occurred:\n" +
-                                                          e.getCause().getMessage(),
+                                                  "An error occurred:\n" +
+                                                  e.getCause().getMessage(),
                                                   CHART_TITLE, /*I18N*/
                                                   JOptionPane.ERROR_MESSAGE);
                 }
@@ -882,7 +883,7 @@ class ScatterPlotPanel extends ChartPagePanel {
             return xyIntervalRegression;
         } else {
             JOptionPane.showMessageDialog(this, "Unable to compute regression line.\n" +
-                    "At least 2 values are needed to compute regression coefficients.");
+                                                "At least 2 values are needed to compute regression coefficients.");
             return null;
         }
     }
@@ -906,7 +907,8 @@ class ScatterPlotPanel extends ChartPagePanel {
             varX += Math.pow(scatterpointsDataset.getXValue(0, i) - arithmeticMeanOfX, 2);
             varY += Math.pow(scatterpointsDataset.getYValue(0, i) - arithmeticMeanOfY, 2);
             coVarXY += (scatterpointsDataset.getXValue(0, i) - arithmeticMeanOfX) * (scatterpointsDataset.getYValue(0,
-                                                                                                                    i) - arithmeticMeanOfY);
+                                                                                                                    i) -
+                                                                                     arithmeticMeanOfY);
         }
         //computation of coefficient of determination
         double r2 = Math.pow(coVarXY, 2) / (varX * varY);
@@ -965,6 +967,7 @@ class ScatterPlotPanel extends ChartPagePanel {
     // The fields of this class are used by the binding framework
     @SuppressWarnings("UnusedDeclaration")
     static class ScatterPlotModel {
+
         private int boxSize = 1;
         private boolean useRoiMask;
         private Mask roiMask;
@@ -978,6 +981,7 @@ class ScatterPlotPanel extends ChartPagePanel {
     }
 
     static class ComputedData {
+
         final float x;
         final float y;
         final float lat;
@@ -1023,6 +1027,7 @@ class ScatterPlotPanel extends ChartPagePanel {
     }
 
     private static class UserSettings {
+
         Map<String, VectorDataNode> pointDataSource = new HashMap<String, VectorDataNode>();
         Map<String, AttributeDescriptor> dataField = new HashMap<String, AttributeDescriptor>();
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -18,8 +18,8 @@
 package org.esa.beam.binning.operator;
 
 import com.vividsolutions.jts.geom.Geometry;
-import org.esa.beam.binning.BinningContext;
 import org.esa.beam.binning.PlanetaryGrid;
+import org.esa.beam.binning.ProductCustomizer;
 import org.esa.beam.binning.Reprojector;
 import org.esa.beam.binning.TemporalBinRenderer;
 import org.esa.beam.binning.TemporalBinSource;
@@ -36,37 +36,40 @@ import java.io.File;
  */
 public class Formatter {
 
-    public static void format(BinningContext binningContext,
+    public static void format(PlanetaryGrid planetaryGrid,
                               TemporalBinSource temporalBinSource,
+                              String[] featureNames,
                               FormatterConfig formatterConfig,
                               Geometry roiGeometry,
                               ProductData.UTC startTime,
                               ProductData.UTC stopTime,
                               MetadataElement... metadataElements) throws Exception {
 
-        if (binningContext.getBinManager().getAggregatorCount() == 0) {
-            throw new IllegalArgumentException("Illegal binning context: aggregatorCount == 0");
+        if (featureNames.length == 0) {
+            throw new IllegalArgumentException("Illegal binning context: featureNames.length == 0");
         }
 
         final File outputFile = new File(formatterConfig.getOutputFile());
         final String outputType = formatterConfig.getOutputType();
         final String outputFormat = getOutputFormat(formatterConfig, outputFile);
 
-        final PlanetaryGrid planetaryGrid = binningContext.getPlanetaryGrid();
         final Rectangle outputRegion = Reprojector.computeRasterSubRegion(planetaryGrid, roiGeometry);
+
+        ProductCustomizer productCustomizer = formatterConfig.getProductCustomizer();
 
         final TemporalBinRenderer temporalBinRenderer;
         if (outputType.equalsIgnoreCase("Product")) {
-            temporalBinRenderer = new ProductTemporalBinRenderer(binningContext,
+            temporalBinRenderer = new ProductTemporalBinRenderer(featureNames,
                                                                  outputFile,
                                                                  outputFormat,
                                                                  outputRegion,
                                                                  Reprojector.getRasterPixelSize(planetaryGrid),
                                                                  startTime,
                                                                  stopTime,
+                                                                 productCustomizer,
                                                                  metadataElements);
         } else {
-            temporalBinRenderer = new ImageTemporalBinRenderer(binningContext,
+            temporalBinRenderer = new ImageTemporalBinRenderer(featureNames,
                                                                outputFile,
                                                                outputFormat,
                                                                outputRegion,
@@ -74,10 +77,10 @@ public class Formatter {
                                                                outputType.equalsIgnoreCase("RGB"));
         }
 
-        Reprojector.reproject(binningContext, temporalBinSource, temporalBinRenderer);
+        Reprojector.reproject(planetaryGrid, temporalBinSource, temporalBinRenderer);
     }
 
-    private static String getOutputFormat(FormatterConfig formatterConfig, File outputFile) {
+    static String getOutputFormat(FormatterConfig formatterConfig, File outputFile) {
         final String fileName = outputFile.getName();
         final int extPos = fileName.lastIndexOf(".");
         String outputFileNameExt = fileName.substring(extPos + 1);

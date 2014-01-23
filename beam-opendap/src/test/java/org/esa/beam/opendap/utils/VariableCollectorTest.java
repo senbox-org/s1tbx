@@ -2,7 +2,7 @@ package org.esa.beam.opendap.utils;
 
 import opendap.dap.DAP2Exception;
 import opendap.dap.DDS;
-import opendap.dap.parser.ParseException;
+import opendap.dap.parsers.ParseException;
 import org.esa.beam.opendap.datamodel.DAPVariable;
 import org.junit.Before;
 import org.junit.Test;
@@ -74,7 +74,7 @@ public class VariableCollectorTest {
         assertTrue(containsDAPVariableAsExpected(variableNames[5], "Array", "Int32", dapVariables));
     }
 
-    private DDS getDDS(String[] variableNames) throws ParseException, DAP2Exception {
+    private DDS getDDS(String[] variableNames) throws DAP2Exception, ParseException {
         final DDS dds = new DDS();
         final String ddsString = getDDSString(variableNames);
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(ddsString.getBytes());

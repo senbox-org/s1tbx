@@ -15,6 +15,7 @@ package org.esa.beam.framework.datamodel;/*
  */
 
 import org.esa.beam.util.jai.SingleBandedSampleModel;
+import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -27,7 +28,6 @@ import javax.media.jai.SourcelessOpImage;
 import javax.media.jai.operator.ConstantDescriptor;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
-import java.awt.geom.Dimension2D;
 import java.awt.geom.Point2D;
 import java.awt.image.DataBuffer;
 import java.awt.image.Raster;
@@ -38,20 +38,9 @@ import static org.junit.Assert.assertTrue;
 
 public class PixelPosEstimatorTest {
 
-    @Test
-    public void testCalculateTileCount() throws Exception {
-        final int nx = 500;
-        final int ny = 4000;
-        final PlanarImage[] images = generateSwathCoordinates(nx, ny, 0.01, 0.01, new Rotator(0.0, 0.0, 265.0));
-
-        final Dimension2D pixelDimension = new SimplePixelDimensionEstimator().getPixelDimension(images[0],
-                                                                                                 images[1],
-                                                                                                 images[2]);
-        assertEquals(0.01, pixelDimension.getWidth(), 0.001);
-        assertEquals(0.01, pixelDimension.getHeight(), 0.001);
-
-        final int tileCount = PixelPosEstimator.calculateTileCount(images[0], images[1], 10.0, pixelDimension);
-        assertEquals(5, tileCount);
+    @BeforeClass
+    public static void init() throws Exception {
+        JAI.getDefaultInstance().getTileCache().setMemoryCapacity(134217728);
     }
 
     @Test
@@ -64,62 +53,20 @@ public class PixelPosEstimatorTest {
         final PlanarImage lonImage = images[0];
         final PlanarImage latImage = images[1];
         final PlanarImage maskImage = images[2];
-        final Dimension2D pixelDimension = new SimplePixelDimensionEstimator().getPixelDimension(lonImage,
-                                                                                                 latImage,
-                                                                                                 maskImage);
-        final PixelPosEstimator estimator = new PixelPosEstimator(lonImage, latImage, maskImage, 0.5, 10.0,
-                                                                  new PixelPosEstimator.PixelSteppingFactory(),
-                                                                  pixelDimension);
-
-        final Raster lonData = lonImage.getData();
-        final Raster latData = latImage.getData();
+        final PixelPosEstimator estimator = new PixelPosEstimator(lonImage, latImage, maskImage, 0.5);
 
         final GeoPos g = new GeoPos();
         final PixelPos p = new PixelPos();
 
         for (int y = 0; y < ny; y++) {
+            final Rectangle region = new Rectangle(0, y, nx, 1);
+            final Raster lonData = lonImage.getData(region);
+            final Raster latData = latImage.getData(region);
             for (int x = 0; x < nx; x++) {
                 final float lon = lonData.getSampleFloat(x, y, 0);
                 final float lat = latData.getSampleFloat(x, y, 0);
                 g.setLocation(lat, lon);
                 estimator.getPixelPos(g, p);
-
-                assertTrue(p.isValid());
-                assertEquals(x + 0.5, p.getX(), 0.5);
-                assertEquals(y + 0.5, p.getY(), 0.5);
-            }
-        }
-    }
-
-    @Test
-    public void testGetPixelPosWithPixelGeoCoding() {
-        final int nx = 512;
-        final int ny = 256;
-
-        final PlanarImage[] images = generateSwathCoordinates(nx, ny, 0.009, 0.009, new Rotator(0.0, -5.0, 269.0));
-        final PlanarImage lonImage = images[0];
-        final PlanarImage latImage = images[1];
-
-        final Product product = new Product("P", "T", nx, ny);
-        final Band latBand = product.addBand("lat", ProductData.TYPE_FLOAT64);
-        final Band lonBand = product.addBand("lon", ProductData.TYPE_FLOAT64);
-        latBand.setSourceImage(latImage);
-        lonBand.setSourceImage(lonImage);
-        final GeoCoding geoCoding = new PixelGeoCoding2(latBand, lonBand, "true");
-        product.setGeoCoding(geoCoding);
-
-        final Raster lonData = lonImage.getData();
-        final Raster latData = latImage.getData();
-
-        final GeoPos g = new GeoPos();
-        final PixelPos p = new PixelPos();
-
-        for (int y = 0; y < ny; y++) {
-            for (int x = 0; x < nx; x++) {
-                final float lon = lonData.getSampleFloat(x, y, 0);
-                final float lat = latData.getSampleFloat(x, y, 0);
-                g.setLocation(lat, lon);
-                geoCoding.getPixelPos(g, p);
 
                 assertTrue(p.isValid());
                 assertEquals(x + 0.5, p.getX(), 0.5);
@@ -145,7 +92,7 @@ public class PixelPosEstimatorTest {
                 rectangle, 1000);
 
         final double[][] data = PixelPosEstimator.extractWarpPoints(lonImage, latImage, maskImage, stepping);
-        final PixelPosEstimator.Approximation a = PixelPosEstimator.createApproximation(data, 0.5, stepping);
+        final PixelPosEstimator.Approximation a = PixelPosEstimator.Approximation.create(data, 0.5, rectangle);
         final RationalFunctionModel fx = a.getFX();
         final RationalFunctionModel fy = a.getFY();
 

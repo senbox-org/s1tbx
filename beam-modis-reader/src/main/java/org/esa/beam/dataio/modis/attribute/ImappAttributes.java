@@ -97,7 +97,7 @@ public class ImappAttributes implements ModisGlobalAttributes {
         final String[] dimensionNames = new String[dimensions.size()];
         for (int i = 0; i < dimensions.size(); i++) {
             ucar.nc2.Dimension dimension = dimensions.get(i);
-            dimensionNames[i] = dimension.getName();
+            dimensionNames[i] = dimension.getShortName();
         }
         result.setDimensionNames(dimensionNames);
         return result;
@@ -160,13 +160,13 @@ public class ImappAttributes implements ModisGlobalAttributes {
             final ucar.nc2.Dimension heightDimension = variable.getDimension(0);
             final String line_numbers = NetCDFUtils.getNamedStringAttribute("line_numbers", netCDFAttributes);
             if (StringUtils.isNotNullAndNotEmpty(line_numbers)) {
-                subsamplingMap.put(heightDimension.getName(), ModisUtils.getIncrementOffset(line_numbers));
+                subsamplingMap.put(heightDimension.getShortName(), ModisUtils.getIncrementOffset(line_numbers));
             }
 
             final ucar.nc2.Dimension widthDimension = variable.getDimension(1);
             final String frame_numbers = NetCDFUtils.getNamedStringAttribute("frame_numbers", netCDFAttributes);
             if (StringUtils.isNotNullAndNotEmpty(frame_numbers)) {
-                subsamplingMap.put(widthDimension.getName(), ModisUtils.getIncrementOffset(frame_numbers));
+                subsamplingMap.put(widthDimension.getShortName(), ModisUtils.getIncrementOffset(frame_numbers));
             }
         }
     }

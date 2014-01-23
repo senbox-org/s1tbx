@@ -210,8 +210,6 @@ class CommandLineTool implements GraphProcessingObserver {
             final String message = String.format("Failed to read metadata file '%s': %s", path, e.getMessage());
             if (commandLineContext.fileExists(path)) {
                 logSevereProblem(message, e);
-            } else {
-                commandLineContext.getLogger().warning(message);
             }
         }
     }
@@ -245,8 +243,8 @@ class CommandLineTool implements GraphProcessingObserver {
     private void runOperator() throws Exception {
         Map<String, String> parameterMap = getRawParameterMap();
         String operatorName = commandLineArgs.getOperatorName();
-        Map<String, Object> parameters = convertParameterMap(operatorName, parameterMap);
         Map<String, Product> sourceProducts = getSourceProductMap();
+        Map<String, Object> parameters = convertParameterMap(operatorName, parameterMap, sourceProducts);
         Product targetProduct = createOpProduct(operatorName, parameters, sourceProducts);
         // write product only if Operator does not implement the Output interface
         OperatorProductReader opProductReader = null;
@@ -338,11 +336,12 @@ class CommandLineTool implements GraphProcessingObserver {
         metadataResourceEngine.readResource("graphXml", graphFile.getPath());
     }
 
-    private Map<String, Object> convertParameterMap(String operatorName, Map<String, String> parameterMap) throws
-                                                                                                           ValidationException {
+    private Map<String, Object> convertParameterMap(String operatorName, Map<String, String> parameterMap,
+                                                    Map<String, Product> sourceProductMap) throws ValidationException {
         HashMap<String, Object> parameters = new HashMap<String, Object>();
         PropertyContainer container = ParameterDescriptorFactory.createMapBackedOperatorPropertyContainer(operatorName,
-                                                                                                          parameters);
+                                                                                                          parameters,
+                                                                                                          new ParameterDescriptorFactory(sourceProductMap));
         // explicitly set default values for putting them into the backing map
         container.setDefaultValues();
 
@@ -361,8 +360,8 @@ class CommandLineTool implements GraphProcessingObserver {
                 try {
                     domConverter.convertDomToValue(parametersElement, container);
                 } catch (ConversionException e) {
-                    String msgPattern = "Can not convert XML parameters for operator '%s'";
-                    throw new RuntimeException(String.format(msgPattern, operatorName));
+                    String msgPattern = "Can not convert XML parameters for operator '%s'. Reason: %s";
+                    throw new RuntimeException(String.format(msgPattern, operatorName, e.getMessage()), e);
                 }
             }
         }
@@ -492,10 +491,13 @@ class CommandLineTool implements GraphProcessingObserver {
     private void runVelocityTemplates() {
         String velocityDirPath = commandLineArgs.getVelocityTemplateDirPath();
         File velocityDir;
+        boolean velocityDirPathGiven;
         if (velocityDirPath != null) {
             velocityDir = new File(velocityDirPath);
+            velocityDirPathGiven = true;
         } else {
             velocityDir = new File(CommandLineArgs.DEFAULT_VELOCITY_TEMPLATE_DIRPATH);
+            velocityDirPathGiven = false;
         }
 
         String[] templateNames = velocityDir.list(new FilenameFilter() {
@@ -506,28 +508,41 @@ class CommandLineTool implements GraphProcessingObserver {
         });
 
         Logger logger = commandLineContext.getLogger();
+
         if (templateNames == null) {
-            String msgPattern = "Velocity template directory '%s' does not exist or inaccessible";
-            logger.severe(String.format(msgPattern, velocityDir));
+            if (velocityDirPathGiven) {
+                String msgPattern = "Velocity template directory '%s' does not exist or inaccessible";
+                logger.severe(String.format(msgPattern, velocityDir));
+            }
             return;
         }
+
         if (templateNames.length == 0) {
-            String msgPattern = "Velocity template directory '%s' does not contain any templates (*.vm)";
-            logger.warning(String.format(msgPattern, velocityDir));
+            if (velocityDirPathGiven) {
+                String msgPattern = "Velocity template directory '%s' does not contain any templates (*.vm)";
+                logger.warning(String.format(msgPattern, velocityDir));
+            }
             return;
         }
 
 
         // It can happen that we have no target file when the operator implements the Output interface
         if (!commandLineContext.isFile(commandLineArgs.getTargetFilePath())) {
-            String msgPattern = "Target file '%s' does not exist, but is required to process velocity templates";
-            logger.warning(String.format(msgPattern, commandLineArgs.getTargetFilePath()));
+            if (velocityDirPathGiven) {
+                String msgPattern = "Target file '%s' does not exist, but is required to process velocity templates";
+                logger.warning(String.format(msgPattern, commandLineArgs.getTargetFilePath()));
+            }
             return;
         }
 
         for (String templateName : templateNames) {
             try {
-                metadataResourceEngine.writeRelatedResource(velocityDir + "/" + templateName,
+                String templatePath = velocityDir + "/" + templateName;
+
+                String msgPattern = "Processing metadata template " + templatePath;
+                logger.info(String.format(msgPattern, commandLineArgs.getTargetFilePath()));
+
+                metadataResourceEngine.writeRelatedResource(templatePath,
                                                             commandLineArgs.getTargetFilePath());
             } catch (IOException e) {
                 String msgPattern = "Can't write related resource using template file '%s': %s";

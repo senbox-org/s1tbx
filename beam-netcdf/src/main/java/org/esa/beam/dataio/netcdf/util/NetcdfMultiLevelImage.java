@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2013 Brockmann Consult GmbH (info@brockmann-consult.de) 
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -70,19 +70,19 @@ public class NetcdfMultiLevelImage extends AbstractNetcdfMultiLevelImage {
         int sceneRasterWidth = rdn.getSceneRasterWidth();
         int sceneRasterHeight = rdn.getSceneRasterHeight();
         ResolutionLevel resolutionLevel = ResolutionLevel.create(getModel(), level);
-        Dimension tileSize = getPreferredTileSize(rdn);
+        Dimension imageTileSize = new Dimension(getTileWidth(), getTileHeight());
 
         if (variable.getDataType() == DataType.LONG) {
             if (rdn.getName().endsWith("_lsb")) {
                 return NetcdfOpImage.createLsbImage(variable, imageOrigin, isYFlipped, lock, dataBufferType,
-                                                    sceneRasterWidth, sceneRasterHeight, tileSize, resolutionLevel);
+                                                    sceneRasterWidth, sceneRasterHeight, imageTileSize, resolutionLevel);
             } else {
                 return NetcdfOpImage.createMsbImage(variable, imageOrigin, isYFlipped, lock, dataBufferType,
-                                                    sceneRasterWidth, sceneRasterHeight, tileSize, resolutionLevel);
+                                                    sceneRasterWidth, sceneRasterHeight, imageTileSize, resolutionLevel);
             }
         } else {
             return new NetcdfOpImage(variable, imageOrigin, isYFlipped, lock,
-                                     dataBufferType, sceneRasterWidth, sceneRasterHeight, tileSize, resolutionLevel);
+                                     dataBufferType, sceneRasterWidth, sceneRasterHeight, imageTileSize, resolutionLevel);
         }
     }
 }

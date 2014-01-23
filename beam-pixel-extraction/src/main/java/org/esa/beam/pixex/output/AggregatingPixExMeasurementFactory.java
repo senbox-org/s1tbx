@@ -93,16 +93,25 @@ public class AggregatingPixExMeasurementFactory extends AbstractMeasurementFacto
                     if (!raster.isPixelValid(x, y)) {
                         bandValues[pixelIndex] = Float.NaN;
                     } else if (raster.isFloatingPointType()) {
-                        bandValues[pixelIndex] = raster.getSampleFloat(x, y);
+                        float sampleFloat = raster.getSampleFloat(x, y);
+                        bandValues[pixelIndex] = isNoDataValue(raster, sampleFloat) ? Float.NaN : sampleFloat;
                     } else {
                         int temp = raster.getSampleInt(x, y);
                         if (raster instanceof Mask) {
                             bandValues[pixelIndex] = (float) (temp == 0 ? 0 : 1); // normalize to 0 for false and 1 for true
                         } else {
                             if (raster.getDataType() == ProductData.TYPE_UINT32) {
-                                bandValues[pixelIndex] = (float) (temp & 0xffffL);
+                                if (isNoDataValue(raster, temp)) {
+                                    bandValues[pixelIndex] = Float.NaN;
+                                } else {
+                                    bandValues[pixelIndex] = (float) (temp & 0xffffL);
+                                }
                             } else {
-                                bandValues[pixelIndex] = (float) temp;
+                                if (isNoDataValue(raster, temp)) {
+                                    bandValues[pixelIndex] = Float.NaN;
+                                } else {
+                                    bandValues[pixelIndex] = (float) temp;
+                                }
                             }
                         }
                     }
@@ -110,6 +119,14 @@ public class AggregatingPixExMeasurementFactory extends AbstractMeasurementFacto
                 pixelIndex++;
             }
         }
+    }
+
+    private static boolean isNoDataValue(RasterDataNode raster, int sample) {
+        return !raster.isNoDataValueUsed() && sample == raster.getNoDataValue();
+    }
+
+    private static boolean isNoDataValue(RasterDataNode raster, float sample) {
+        return !raster.isNoDataValueUsed() && sample == raster.getNoDataValue();
     }
 
 }

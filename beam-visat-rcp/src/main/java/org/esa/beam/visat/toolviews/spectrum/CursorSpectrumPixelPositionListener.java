@@ -89,15 +89,12 @@ public class CursorSpectrumPixelPositionListener implements PixelPositionListene
         protected Void doInBackground() throws Exception {
             if (pixelPosValid) {
                 if (shouldUpdateCursorPosition()) {
-                    toolView.updateSpectra(pixelX, pixelY, currentLevel);
+                    toolView.updateSpectra(pixelX, pixelY, currentLevel, adjustAxes);
                 }
             } else {
                 if (toolView.hasValidCursorPosition()) {
                     toolView.removeCursorSpectra();
                 }
-            }
-            if (adjustAxes) {
-                //todo decide on how to / whether to adjust axes
             }
             return null;
         }

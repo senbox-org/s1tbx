@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2013 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -72,7 +72,7 @@ import static java.lang.Math.*;
  */
 @OperatorMetadata(alias = "Subset",
                   authors = "Marco Zuehlke, Norman Fomferra, Marco Peters",
-                  version = "1.0",
+                  version = "1.1",
                   copyright = "(c) 2011 by Brockmann Consult",
                   description = "Create a spatial and/or spectral subset of a data product.")
 public class SubsetOp extends Operator {
@@ -83,13 +83,13 @@ public class SubsetOp extends Operator {
     private Product targetProduct;
 
     @Parameter(description = "The subset region in pixel coordinates.\n" +
-                             "If not given, the entire scene is used. Either 'region' or 'geoRegion must be given.")
+                             "If not given, the entire scene is used. The 'geoRegion' parameter has precedence over this parameter.")
     private Rectangle region;
     @Parameter(converter = JtsGeometryConverter.class,
                description = "The subset region in geographical coordinates using WKT-format,\n" +
                              "e.g. POLYGON((<lon1> <lat1>, <lon2> <lat2>, ..., <lon1> <lat1>))\n" +
                              "(make sure to quote the option due to spaces in <geometry>).\n" +
-                             "If not given, the entire scene is used. Either 'region' or 'geoRegion must be given.")
+                             "If not given, the entire scene is used.")
     private Geometry geoRegion;
     @Parameter(defaultValue = "1",
                description = "The pixel sub-sampling step in X (horizontal image direction)")
@@ -200,10 +200,7 @@ public class SubsetOp extends Operator {
         }
 
         subsetDef.setSubSampling(subSamplingX, subSamplingY);
-
-        if (copyMetadata) {
-            subsetDef.setIgnoreMetadata(false);
-        }
+        subsetDef.setIgnoreMetadata(!copyMetadata);
 
         try {
             targetProduct = subsetReader.readProductNodes(sourceProduct, subsetDef);
@@ -264,6 +261,11 @@ public class SubsetOp extends Operator {
         }
     }
 
+    // todo - nf/mz 20131105 - move this method to a more prominent location (e.g. FeatureUtils)
+
+    /**
+     * Non-API (yet).
+     */
     public static Rectangle computePixelRegion(Product product, Geometry geoRegion, int numBorderPixels) {
         final Geometry productGeometry = computeProductGeometry(product);
         final Geometry regionIntersection = geoRegion.intersection(productGeometry);
@@ -352,7 +354,7 @@ public class SubsetOp extends Operator {
         }
 
         public Rectangle getPixelRegion() {
-            return new Rectangle(x1, y1, x2 - x1 + 1, y2 - y1 + 1);
+            return new Rectangle(x1, y1, x2 - x1, y2 - y1);
         }
     }
 }

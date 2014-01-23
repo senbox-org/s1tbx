@@ -18,9 +18,9 @@ package org.esa.beam.binning;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * Produces spatial bins by processing a given "slice" of observations.
@@ -54,8 +54,8 @@ public class SpatialBinner {
         this.planetaryGrid = binningContext.getPlanetaryGrid();
         this.binManager = binningContext.getBinManager();
         this.consumer = consumer;
-        this.activeBinMap = new HashMap<Long, SpatialBin>();
-        this.finalizedBinMap = new HashMap<Long, SpatialBin>();
+        this.activeBinMap = new TreeMap<Long, SpatialBin>();
+        this.finalizedBinMap = new TreeMap<Long, SpatialBin>();
         this.exceptions = new ArrayList<Exception>();
     }
 
@@ -99,10 +99,10 @@ public class SpatialBinner {
         }
 
         if (!finalizedBinMap.isEmpty()) {
-            emitSliceBins(finalizedBinMap);
             for (Long key : finalizedBinMap.keySet()) {
                 activeBinMap.remove(key);
             }
+            emitSliceBins(finalizedBinMap);
             finalizedBinMap.clear();
         }
 

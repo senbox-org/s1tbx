@@ -1,0 +1,56 @@
+{
+    "id": "IDL_TIFF_file",
+    "decodeQualification": "SUITABLE",
+    "expectedContent": {
+        "sceneWidth": 300,
+        "sceneHeight": 290,
+        "geoCoding": {
+            "coordinates": [
+                {
+                    "x": 129.0,
+                    "y": 155.0,
+                    "lat": 55.15919,
+                    "lon": 8.522112
+                },
+                {
+                    "x": 222.0,
+                    "y": 188.0,
+                    "lat": 55.15046,
+                    "lon": 8.565994
+                }
+            ],
+            "reverseAccuracy": 0.007
+        },
+        "bands": [
+            {
+                "name": "band_1",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 15,
+                        "y": 51,
+                        "value": 77.0
+                    },
+                    {
+                        "x": 205,
+                        "y": 246,
+                        "value": 73.0
+                    }
+                ]
+            }
+        ],
+        "metadata": [
+            {
+                "path": "TIFF Metadata/GeoTIFF Metadata/GeoKeyDirectory/GTCitationGeoKey",
+                "value": "IMAGINE GeoTIFF Support\nCopyright 1991 - 2001 by ERDAS, Inc. All Rights Reserved\n@(#)$RCSfile: egtf.c $ $Revision: 1.6.1.4 $ $Date: 2001/04/23 14:58:04 $\nProjection Name = UTM\nUnits = meters\nGeoTIFF Units = meters"
+            },
+            {
+                "path": "TIFF Metadata/GeoTIFF Metadata/GeoKeyDirectory/ProjLinearUnitsGeoKey",
+                "value": "Linear_Meter"
+            }
+        ]
+    }
+}

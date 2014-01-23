@@ -4,14 +4,6 @@ import com.jidesoft.utils.Lm;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.ProductData;
 
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import java.awt.Dimension;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.ArrayList;
-import java.util.List;
-
 public class SpectrumChooserMainForManualTesting {
     /*
      * Used for testing UI
@@ -19,37 +11,40 @@ public class SpectrumChooserMainForManualTesting {
     public static void main(String[] args) {
         Lm.verifyLicense("Brockmann Consult", "BEAM", "lCzfhklpZ9ryjomwWxfdupxIcuIoCxg2");
 
-        String name = "Radiances";
-        int numBands = 5;
-        Band[] bands = new Band[numBands];
-        for (int i = 0; i < bands.length; i++) {
-            bands[i] = createBand(i);
-        }
-        DisplayableSpectrum spectrum = new DisplayableSpectrum(name, bands);
-        final List<DisplayableSpectrum> spectra = new ArrayList<DisplayableSpectrum>();
-        spectra.add(spectrum);
-        final JFrame frame = new JFrame();
-        frame.setSize(new Dimension(100, 100));
-        JButton button = new JButton("Choose Spectrum");
-        button.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                SpectrumChooser chooser = new SpectrumChooser(frame, spectra, "");
-                chooser.show();
-            }
-        });
-        frame.add(button);
-        frame.setVisible(true);
+        final DisplayableSpectrum[] spectra = new DisplayableSpectrum[3];
+
+        spectra[0] = createSpectrum(0);
+        spectra[1] = createSpectrum(1);
+        spectra[2] = new DisplayableSpectrum(DisplayableSpectrum.ALTERNATIVE_DEFAULT_SPECTRUM_NAME);
+        spectra[2].addBand(createBand(11), spectra[2].isSelected());
+
+        SpectrumChooser chooser = new SpectrumChooser(null, spectra, "");
+        chooser.show();
+        System.exit(0);
     }
 
-    /*
-     * Used for testing UI
-     */
+    private static DisplayableSpectrum createSpectrum(int offset) {
+        int numBands = 5;
+        String name = "Radiances";
+        final DisplayableSpectrum spectrum = new DisplayableSpectrum(name + " " + (offset + 1));
+        final boolean selected = offset % 2 == 1;
+        spectrum.setSelected(selected);
+        final int bandOffset = numBands * offset;
+        for (int i = 0; i < numBands; i++) {
+            spectrum.addBand(createBand(i + bandOffset), selected);
+        }
+        return spectrum;
+    }
+
     static private Band createBand(int index) {
         final Band band = new Band("Radiance_" + (index + 1), ProductData.TYPE_INT16, 100, 100);
         band.setDescription("Radiance for band " + (index + 1));
         band.setSpectralWavelength((float) Math.random());
         band.setSpectralBandwidth((float) Math.random());
+        band.setUnit("sr^-1");
+        if (index == 7) {
+            band.setUnit("dl");
+        }
         return band;
     }
 

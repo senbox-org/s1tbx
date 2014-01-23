@@ -18,6 +18,7 @@ package org.esa.beam.dataio.merisl3;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.dataio.netcdf.util.MetadataUtils;
+import org.esa.beam.dataio.netcdf.util.SimpleNetcdfFile;
 import org.esa.beam.framework.dataio.AbstractProductReader;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.CrsGeoCoding;
@@ -79,7 +80,7 @@ public class MerisL3ProductReader extends AbstractProductReader {
     @Override
     protected Product readProductNodesImpl() throws IOException {
         String path = getInput().toString();
-        _netcdfFile = NetcdfFile.open(path);
+        _netcdfFile = SimpleNetcdfFile.openNetcdf(path);
         bandMap = new HashMap<Band, VariableMetadata>(10);
         try {
             _grid = new ISINGrid(ISINGrid.detectRowCount(path));

@@ -36,14 +36,14 @@ public class BinningOpRobustnessTest {
     @Test
     public void testBinningConfigNotSet() throws Exception {
         final BinningOp binningOp = new BinningOp();
-        binningOp.setSourceProduct(BinningOpTest.createSourceProduct());
+        binningOp.setSourceProduct(BinningOpTest.createSourceProduct(1, 0.3f));
         testThatOperatorExceptionIsThrown(binningOp, ".*parameter 'binningConfig'.*");
     }
 
     @Test
     public void testInvalidConfigsSet() throws Exception {
         final BinningOp binningOp = new BinningOp();
-        binningOp.setSourceProduct(BinningOpTest.createSourceProduct());
+        binningOp.setSourceProduct(BinningOpTest.createSourceProduct(1, 0.3f));
         binningOp.setBinningConfig(new BinningConfig());        // not ok, numRows == 0
         testThatOperatorExceptionIsThrown(binningOp, ".*parameter 'binningConfig.numRows'.*");
     }

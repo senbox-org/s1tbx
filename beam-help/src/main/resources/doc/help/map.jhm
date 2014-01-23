@@ -50,7 +50,7 @@
     <mapID target="importMermaid" url="visat/ImportMermaid.html"/>
     <mapID target="importSeaDASTrack" url="visat/ImportSeaDASTrack.html"/>
     <mapID target="importShapefile" url="visat/ImportShapefile.html"/>
-    <mapID target="importLandsatTMProduct" url="visat/ImportLandsatTM.html"/>
+    <mapID target="importLandsatTMProduct" url="visat/ImportLandsat.html"/>
     <mapID target="importAVHRR" url="visat/ImportAVHRR.html"/>
     <mapID target="importAvnir2Product" url="visat/ImportAVNIR2.html"/>
     <mapID target="importNasaObpgProduct" url="visat/ImportNasaObpgHDF.html"/>

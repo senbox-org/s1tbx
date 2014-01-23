@@ -27,9 +27,9 @@ import org.esa.beam.dataio.netcdf.util.ReaderUtils;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.CrsGeoCoding;
 import org.esa.beam.framework.datamodel.GeoCoding;
+import org.esa.beam.framework.datamodel.GeoCodingFactory;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.MapGeoCoding;
-import org.esa.beam.framework.datamodel.PixelGeoCoding;
 import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
@@ -71,7 +71,8 @@ public class CfGeocodingPart extends ProfilePartIO {
     }
 
     private void hdfDecode(ProfileReadContext ctx, Product p) throws IOException {
-        final CfHdfEosGeoInfoExtractor cfHdfEosGeoInfoExtractor = new CfHdfEosGeoInfoExtractor(ctx.getNetcdfFile().getGlobalAttributes());
+        final CfHdfEosGeoInfoExtractor cfHdfEosGeoInfoExtractor = new CfHdfEosGeoInfoExtractor(
+                ctx.getNetcdfFile().getGlobalAttributes());
         cfHdfEosGeoInfoExtractor.extractInfo();
 
         String projection = cfHdfEosGeoInfoExtractor.getProjection();
@@ -86,7 +87,7 @@ public class CfGeocodingPart extends ProfilePartIO {
 
     private boolean hasHdfMetadataOrigin(List<Attribute> netcdfAttributes) {
         for (Attribute att : netcdfAttributes) {
-            if (att.getName().startsWith("StructMetadata")) {
+            if (att.getShortName().startsWith("StructMetadata")) {
                 return true;
             }
         }
@@ -173,7 +174,7 @@ public class CfGeocodingPart extends ProfilePartIO {
 
     static boolean isGeographicCRS(final GeoCoding geoCoding) {
         return (geoCoding instanceof CrsGeoCoding || geoCoding instanceof MapGeoCoding) &&
-                CRS.equalsIgnoreMetadata(geoCoding.getMapCRS(), DefaultGeographicCRS.WGS84);
+               CRS.equalsIgnoreMetadata(geoCoding.getMapCRS(), DefaultGeographicCRS.WGS84);
     }
 
     private void addGeographicCoordinateVariables(NFileWriteable ncFile, GeoPos ul, GeoPos br) throws IOException {
@@ -324,7 +325,7 @@ public class CfGeocodingPart extends ProfilePartIO {
             latBand = product.getBand(Constants.LATITUDE_VAR_NAME);
         }
         if (latBand != null && lonBand != null) {
-            return new PixelGeoCoding(latBand, lonBand, latBand.getValidMaskExpression(), 5);
+            return GeoCodingFactory.createPixelGeoCoding(latBand, lonBand, latBand.getValidMaskExpression(), 5);
         }
         return null;
     }

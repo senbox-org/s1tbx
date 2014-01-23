@@ -7,8 +7,9 @@ import org.esa.beam.binning.aggregators.AggregatorOnMaxSet;
 import org.esa.beam.binning.aggregators.AggregatorPercentile;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import java.util.List;
+
+import static org.junit.Assert.*;
 
 public class AggregatorDescriptorRegistryTest {
 
@@ -56,14 +57,14 @@ public class AggregatorDescriptorRegistryTest {
 
     @Test
     public void testGetAllRegisteredAggregatorDescriptors() throws Exception {
-        final AggregatorDescriptorRegistry registry = AggregatorDescriptorRegistry.getInstance();
-        final AggregatorDescriptor[] aggregatorDescriptors = registry.getAggregatorDescriptors();
-        assertEquals(6, aggregatorDescriptors.length);
+        TypedDescriptorsRegistry registry = TypedDescriptorsRegistry.getInstance();
+        List<AggregatorDescriptor> aggregatorDescriptors = registry.getDescriptors(AggregatorDescriptor.class);
+        assertEquals(6, aggregatorDescriptors.size());
     }
 
     private AggregatorDescriptor assertRegistered(String name) {
-        AggregatorDescriptorRegistry registry = AggregatorDescriptorRegistry.getInstance();
-        AggregatorDescriptor descriptor = registry.getAggregatorDescriptor(name);
+        TypedDescriptorsRegistry registry = TypedDescriptorsRegistry.getInstance();
+        AggregatorDescriptor descriptor = registry.getDescriptor(AggregatorDescriptor.class, name);
         assertNotNull(descriptor);
         assertEquals(name, descriptor.getName());
         return descriptor;

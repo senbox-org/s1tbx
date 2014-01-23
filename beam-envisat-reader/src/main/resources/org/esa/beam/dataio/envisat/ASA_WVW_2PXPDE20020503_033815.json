@@ -1,0 +1,41 @@
+{
+    "id": "ASA_WVW_2PXPDE20020503_033815",
+    "decodeQualification": "INTENDED",
+    "expectedContent": {
+        "sceneWidth": 864,
+        "sceneHeight": 25,
+        "bands": [
+            {
+                "name": "Wave_Spectra",
+                "description": "Ocean Wave Spectra",
+                "geophysicalUnit": "amplitude",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 372,
+                        "y": 13,
+                        "value": "NaN"
+                    },
+                    {
+                        "x": 641,
+                        "y": 16,
+                        "value": "NaN"
+                    }
+                ]
+            }
+        ],
+        "metadata": [
+            {
+                "path": "Abstracted Metadata/MISSION",
+                "value": "ENVISAT"
+            },
+            {
+                "path": "GEOLOCATION_GRID_ADS/GEOLOCATION_GRID_ADS.22/attach_flag",
+                "value": "0"
+            }
+        ]
+    }
+}

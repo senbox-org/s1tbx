@@ -25,7 +25,8 @@
 <table class="header">
     <tr class="header">
         <td class="header">&nbsp;
-            BEAM Data Processors</td>
+            BEAM Data Processors
+        </td>
         <td class="header" align="right"><a href="../general/BeamOverview.html"><img src="../images/BeamHeader.jpg" border=0></a>
         </td>
     </tr>
@@ -57,18 +58,18 @@
 
 <p>The processing request file contains some standard elements required for all
     processors. The general structure of a processing request file is
+<blockquote>
+    <code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;ISO-8859-1&quot;?&gt;<br>
+        &lt;RequestList&gt;</code>
     <blockquote>
-        <code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;ISO-8859-1&quot;?&gt;<br>
-            &lt;RequestList&gt;</code>
-        <blockquote>
-            <code>&lt;Request type=&quot;SST&quot;&gt;<br>
-                &lt;/Request&gt;<br><br>
-                &lt;Request type=&quot;SST&quot;&gt;<br>
-                &lt;/Request&gt;<br><br>
-                ...</code>
-        </blockquote>
-        <code>&lt;/RequestList&gt;</code>
+        <code>&lt;Request type=&quot;SST&quot;&gt;<br>
+            &lt;/Request&gt;<br><br>
+            &lt;Request type=&quot;SST&quot;&gt;<br>
+            &lt;/Request&gt;<br><br>
+            ...</code>
     </blockquote>
+    <code>&lt;/RequestList&gt;</code>
+</blockquote>
 </p>
 
 <p>The first line in each file is the XML version specification and encoding.</p>
@@ -103,15 +104,18 @@
             for each processor.
             Common to all processing requests are the
             two parameters defining the logging behaviour of the processor:
+            <a name="processor_logging"></a>
             <ul>
                 <li>&quot;log_prefix&quot;: defines the prefix of the log file to be written.
                     The real name of the logfile consists of the prefix, a generation number
                     (to be able to reuse the logfile name) and a unique identifier (to resolve
                     file name conflicts). Logfiles are always written to the log directory
-                    of the BEAM installation.</li>
+                    of the BEAM installation.
+                </li>
                 <li>&quot;log_to_output&quot;: a boolean parameter. When set to &quot;true&quot;,
                     an additional logfile is written to the directory selected for the output
-                    product. </li>
+                    product.
+                </li>
             </ul>
         </blockquote>
     </li>
@@ -135,9 +139,11 @@
 
 <ul>
     <li><code>-i</code> or <code>--interactive</code> - run the processor in interactive
-        mode (i.e. with graphical user interface).</li>
+        mode (i.e. with graphical user interface).
+    </li>
     <li><code>-q</code> or <code>--quiet</code> - disable most logging messages.
-        Just severe errors are logged.</li>
+        Just severe errors are logged.
+    </li>
     <li><code>-v</code> or <code>--verbose</code> - enable most logging messages..</li>
     <li><code>-d</code> or <code>--debug</code> - enable debug messages on the console.</li>
 </ul>
@@ -160,13 +166,17 @@
     <li><b>Open Request</b>:
         Opens a standard file dialog to open a request file. The processor specific
         UI controls are set according to the content of the request file. During the
-        load operation, the request file is validated for correct value ranges.</li>
+        load operation, the request file is validated for correct value ranges.
+    </li>
     <li><b>Save Request</b>:
-        Saves the request currently edited.</li>
+        Saves the request currently edited.
+    </li>
     <li><b>Save Request As</b>:
-        Opens a standard file dialog to save the current request to another file.</li>
+        Opens a standard file dialog to save the current request to another file.
+    </li>
     <li><b>New Request</b>:
-        Creates a new request with default parameter values set.</li>
+        Creates a new request with default parameter values set.
+    </li>
 </ul>
 
 

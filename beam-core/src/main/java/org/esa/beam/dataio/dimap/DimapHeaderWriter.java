@@ -473,8 +473,8 @@ public final class DimapHeaderWriter extends XmlWriter {
                 writeGeoCoding((TiePointGeoCoding) geoCoding, indent);
             } else if (geoCoding instanceof MapGeoCoding) {
                 writeGeoCoding((MapGeoCoding) geoCoding, indent);
-            } else if (geoCoding instanceof PixelGeoCoding) {
-                writeGeoCoding((PixelGeoCoding) geoCoding, indent, index);
+            } else if (geoCoding instanceof BasicPixelGeoCoding) {
+                writeGeoCoding((BasicPixelGeoCoding) geoCoding, indent, index);
             } else if (geoCoding instanceof FXYGeoCoding) {
                 writeGeoCoding((FXYGeoCoding) geoCoding, indent, index);
             } else if (geoCoding instanceof GcpGeoCoding) {
@@ -689,7 +689,7 @@ public final class DimapHeaderWriter extends XmlWriter {
         println(crsTags[1]);
     }
 
-    private void writeGeoCoding(final PixelGeoCoding pixelGeoCoding, final int indent, final int index) {
+    private void writeGeoCoding(final BasicPixelGeoCoding pixelGeoCoding, final int indent, final int index) {
         final String latBandName = pixelGeoCoding.getLatBand().getName();
         final String lonBandName = pixelGeoCoding.getLonBand().getName();
         final String validMask = pixelGeoCoding.getValidMask();

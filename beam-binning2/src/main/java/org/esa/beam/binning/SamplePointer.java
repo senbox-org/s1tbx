@@ -1,20 +1,24 @@
 package org.esa.beam.binning;
 
+import javax.media.jai.PlanarImage;
 import java.awt.Rectangle;
 import java.awt.geom.Point2D;
 import java.awt.image.Raster;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * @author Marco Peters
  */
 abstract class SamplePointer {
 
-    public static SamplePointer create(Raster[] sourceTiles, Rectangle bounds) {
-        return new SamplePointerNoSuperSampling(sourceTiles, bounds);
+    public static SamplePointer create(PlanarImage[] sourceImages, Rectangle[] bounds) {
+        return new SamplePointerNoSuperSampling(sourceImages, bounds);
     }
 
-    public static SamplePointer create(Raster[] sourceTiles, Rectangle bounds, Point2D.Float[] superSamplingPoints) {
-        return new SamplePointerImpl(sourceTiles, bounds, superSamplingPoints);
+    public static SamplePointer create(PlanarImage[] sourceImages, Rectangle[] bounds, Point2D.Float[] superSamplingPoints) {
+        return new SamplePointerImpl(sourceImages, bounds, superSamplingPoints);
     }
 
     public static Point2D.Float[] createSamplingPoints(float[] samplingSteps) {
@@ -44,31 +48,49 @@ abstract class SamplePointer {
 
     private static final class SamplePointerImpl extends SamplePointer {
 
+        private final PlanarImage[] sourceImages;
+        private final Raster[] sourceTiles;
+        private final Point2D.Float[] superSamplingPoints;
+        private final float[] lastSamples;
+        private final List<Rectangle> boundsList;
+
+        private  int x1;
+        private  int x2;
+        private  int y2;
         private int x;
         private int y;
-        private int x1;
-        private int x2;
-        private int y2;
-        private Raster[] sourceTiles;
-        private final Point2D.Float[] superSamplingPoints;
-        private int superSamplingIndex;
+
         private int lastX;
         private int lastY;
-        private float[] lastSamples;
+        private int superSamplingIndex;
 
 
-        SamplePointerImpl(Raster[] sourceTiles, Rectangle bounds, Point2D.Float[] superSamplingPoints) {
-            this.sourceTiles = sourceTiles;
+        SamplePointerImpl(PlanarImage[] sourceImages, Rectangle[] bounds, Point2D.Float[] superSamplingPoints) {
+            this.sourceImages = sourceImages;
+            this.boundsList =new LinkedList<Rectangle>();
+            Collections.addAll(boundsList, bounds);
             this.superSamplingPoints = superSamplingPoints;
-            x1 = bounds.x;
-            x2 = x1 + bounds.width;
-            x = x1;
-            y = bounds.y;
-            y2 = bounds.y + bounds.height;
+            this.sourceTiles = new Raster[sourceImages.length];
+
+            updateBounds();
             superSamplingIndex = -1;
             lastX = x - 1;
             lastY = y - 1;
-            lastSamples = new float[sourceTiles.length];
+            lastSamples = new float[sourceImages.length];
+        }
+
+        private void updateBounds() {
+            Rectangle currentBounds = boundsList.remove(0);
+            x1 = currentBounds.x;
+            x2 = x1 + currentBounds.width;
+            x = x1;
+            y = currentBounds.y;
+            y2 = currentBounds.y + currentBounds.height;
+
+            for (int i = 0; i < sourceImages.length; i++) {
+                sourceTiles[i] = sourceImages[i].getData(currentBounds);
+            }
+
         }
 
         @Override
@@ -132,21 +154,24 @@ abstract class SamplePointer {
 
         private static final Point2D.Float CENTER = new Point2D.Float(0.5f, 0.5f);
 
-        private int x;
-        private int y;
+        private final PlanarImage[] sourceImages;
+        private final List<Rectangle> boundsList;
+
         private int x1;
         private int x2;
         private int y2;
+        private int x;
+        private int y;
         private Raster[] sourceTiles;
+        private Rectangle currentBounds;
 
 
-        SamplePointerNoSuperSampling(Raster[] sourceTiles, Rectangle bounds) {
-            this.sourceTiles = sourceTiles;
-            x1 = bounds.x;
-            x2 = x1 + bounds.width;
-            x = x1 - 1;
-            y = bounds.y;
-            y2 = bounds.y + bounds.height;
+        SamplePointerNoSuperSampling(PlanarImage[] sourceImages, Rectangle[] bounds) {
+            this.sourceImages = sourceImages;
+            sourceTiles = new Raster[sourceImages.length];
+            boundsList =new LinkedList<Rectangle>();
+            Collections.addAll(boundsList, bounds);
+            updateBounds();
         }
 
         @Override
@@ -173,6 +198,10 @@ abstract class SamplePointer {
             if (x == x2) {
                 x = x1;
                 y++;
+                if (y == y2) {
+                    updateBounds();
+                    x++;
+                }
             }
         }
 
@@ -189,7 +218,21 @@ abstract class SamplePointer {
         public boolean canMove() {
             boolean canMoveX = x < x2 - 1;
             boolean canMoveY = y < y2 - 1;
-            return canMoveX || canMoveY;
+            return canMoveX || canMoveY || !boundsList.isEmpty();
         }
+
+        private void updateBounds() {
+            currentBounds = boundsList.remove(0);
+            x1 = currentBounds.x;
+            x2 = x1 + currentBounds.width;
+            x = x1 - 1;
+            y = currentBounds.y;
+            y2 = currentBounds.y + currentBounds.height;
+
+            for (int i = 0; i < sourceImages.length; i++) {
+                sourceTiles[i] = sourceImages[i].getData(currentBounds);
+            }
+        }
+
     }
 }

@@ -1,0 +1,253 @@
+{
+    "id": "MODOCL2B_A2002074_1650_004_2002224193847",
+    "decodeQualification": "INTENDED",
+    "expectedContent": {
+        "sceneWidth": 1354,
+        "sceneHeight": 2030,
+        "startTime": "15-MAR-2002 15:50:00.000000",
+        "endTime": "15-MAR-2002 15:55:00.000000",
+        "bands": [
+            {
+                "name": "chlor_a_2",
+                "description": "Chlorophyll-a concentration (SeaWiFS analog - OC3M)",
+                "geophysicalUnit": "mg/m^3",
+                "noDataValue": "-5.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 584,
+                        "y": 1091,
+                        "value": 0.79000026
+                    },
+                    {
+                        "x": 1005,
+                        "y": 1317,
+                        "value": 2.3748726E-7
+                    }
+                ]
+            },
+            {
+                "name": "chlor_a_3",
+                "description": "Chlorophyll-a concentration (semianalytic)",
+                "geophysicalUnit": "mg/m^3",
+                "noDataValue": "-5.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 70,
+                        "y": 361,
+                        "value": -0.9999998
+                    },
+                    {
+                        "x": 927,
+                        "y": 1726,
+                        "value": -0.9999998
+                    }
+                ]
+            },
+            {
+                "name": "ipar",
+                "description": "Instaneous photosynthetically available radiation",
+                "geophysicalUnit": "Ein/m^2/sec",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 393,
+                        "y": 521,
+                        "value": 0.0016865539
+                    },
+                    {
+                        "x": 826,
+                        "y": 741,
+                        "value": 0.0017947344
+                    }
+                ]
+            },
+            {
+                "name": "arp",
+                "description": "Instaneaous Absorbed radiation by phytoplankton for fluorescence",
+                "geophysicalUnit": "Ein/m^2/sec",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 744,
+                        "y": 1513,
+                        "value": 2.6853468E-5
+                    },
+                    {
+                        "x": 823,
+                        "y": 1884,
+                        "value": 1.0E-9
+                    }
+                ]
+            },
+            {
+                "name": "absorp_coef_gelb",
+                "description": "Gelbstoff absorption coefficient 400 nm",
+                "geophysicalUnit": "1/m",
+                "noDataValue": "-5.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 214,
+                        "y": 1352,
+                        "value": 2.3748726E-7
+                    },
+                    {
+                        "x": 702,
+                        "y": 1854,
+                        "value": 2.3748726E-7
+                    }
+                ]
+            },
+            {
+                "name": "chlor_absorb",
+                "description": "Phytoplankton absorption coefficient at 675nm",
+                "geophysicalUnit": "1/m",
+                "noDataValue": "-5.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 1023,
+                        "y": 983,
+                        "value": -1.2631062E-7
+                    },
+                    {
+                        "x": 1287,
+                        "y": 986,
+                        "value": -1.2631062E-7
+                    }
+                ]
+            },
+            {
+                "name": "tot_absorb_412",
+                "description": "Total absorption coefficient at 412nm",
+                "geophysicalUnit": "1/m",
+                "noDataValue": "-5.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 460,
+                        "y": 1825,
+                        "value": 0.06300024
+                    },
+                    {
+                        "x": 13,
+                        "y": 955,
+                        "value": 0.03700024
+                    }
+                ]
+            },
+            {
+                "name": "tot_absorb_443",
+                "description": "Total absorption coefficient at 443nm",
+                "geophysicalUnit": "1/m",
+                "noDataValue": "-5.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 443,
+                        "y": 400,
+                        "value": 2.3748726E-7
+                    },
+                    {
+                        "x": 369,
+                        "y": 87,
+                        "value": 0.02900024
+                    }
+                ]
+            },
+            {
+                "name": "tot_absorb_488",
+                "description": "Total absorption coefficient at 488nm",
+                "geophysicalUnit": "1/m",
+                "noDataValue": "-5.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 1315,
+                        "y": 1227,
+                        "value": 2.3748726E-7
+                    },
+                    {
+                        "x": 774,
+                        "y": 1455,
+                        "value": 0.03100024
+                    }
+                ]
+            },
+            {
+                "name": "tot_absorb_531",
+                "description": "Total absorption coefficient at 531nm",
+                "geophysicalUnit": "1/m",
+                "noDataValue": "-5.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 314,
+                        "y": 1009,
+                        "value": 0.04800024
+                    },
+                    {
+                        "x": 434,
+                        "y": 1466,
+                        "value": 0.03900024
+                    }
+                ]
+            },
+            {
+                "name": "tot_absorb_551",
+                "description": "Total absorption coefficient at 551nm",
+                "geophysicalUnit": "1/m",
+                "noDataValue": "-5.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 484,
+                        "y": 1011,
+                        "value": 0.06100024
+                    },
+                    {
+                        "x": 545,
+                        "y": 897,
+                        "value": 0.06200024
+                    }
+                ]
+            }
+        ],
+        "metadata": [
+            {
+                "path": "GLOBAL_METADATA/Descending_End",
+                "value": "2030"
+            },
+            {
+                "path": "GLOBAL_METADATA/HDF4_Version",
+                "value": "4.1.1 (NCSA HDF Version 4.1 Release 1, February 21, 1997)"
+            }
+        ]
+    }
+}

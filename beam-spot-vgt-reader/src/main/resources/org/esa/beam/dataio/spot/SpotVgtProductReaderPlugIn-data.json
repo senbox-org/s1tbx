@@ -1,0 +1,29 @@
+{
+    "testProducts": [
+        {
+            "id": "V2KRNS1___20050521F",
+            "relativePath": "sensors_platforms/SPOT_VGT/SPOT_S/S0010419_0611_0002.zip",
+            "description": "VGT PRODUCT FORMAT V1.7"
+        },
+        {
+            "id": "V1KRNP____20081201E174",
+            "relativePath": "sensors_platforms/SPOT_VGT/V1/C0029343_0001_0001.zip",
+            "description": "VGT PRODUCT FORMAT V1.7"
+        },
+        {
+            "id": "V2KRNP____20040101F003",
+            "relativePath": "sensors_platforms/SPOT_VGT/V2/V2KRNP____20040101F003.zip",
+            "description": "VGT PRODUCT FORMAT V1.7"
+        },
+        {
+            "id": "V2KRNP____20040101F001",
+            "relativePath": "sensors_platforms/SPOT_VGT/V2/V2KRNP____20040101F001.zip",
+            "description": "VGT PRODUCT FORMAT V1.7"
+        },
+        {
+            "id": "V2KRNP____20040101F238",
+            "relativePath": "sensors_platforms/SPOT_VGT/V2/V2KRNP____20040101F238/PHYS_VOL.TXT",
+            "description": "VGT PRODUCT FORMAT V1.7"
+        }
+    ]
+}

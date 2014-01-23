@@ -150,9 +150,9 @@ public class ReprojectionOp extends Operator {
     private File wktFile;
 
     @Parameter(description = "A text specifying the target Coordinate Reference System, either in WKT or as an " +
-            "authority code. For appropriate EPSG authority codes see (www.epsg-registry.org). " +
-            "AUTO authority can be used with code 42001 (UTM), and 42002 (Transverse Mercator) " +
-            "where the scene center is used as reference. Examples: EPSG:4326, AUTO:42001")
+                             "authority code. For appropriate EPSG authority codes see (www.epsg-registry.org). " +
+                             "AUTO authority can be used with code 42001 (UTM), and 42002 (Transverse Mercator) " +
+                             "where the scene center is used as reference. Examples: EPSG:4326, AUTO:42001")
     private String crs;
 
     @Parameter(alias = "resampling",
@@ -183,7 +183,7 @@ public class ReprojectionOp extends Operator {
     private Integer height;
     @Parameter(description = "The tile size in X direction.")
     private Integer tileSizeX;
-    @Parameter(description = "The pixel size in Y direction.")
+    @Parameter(description = "The tile size in Y direction.")
     private Integer tileSizeY;
 
     @Parameter(description = "Whether the source product should be orthorectified. (Not applicable to all products)",
@@ -191,7 +191,7 @@ public class ReprojectionOp extends Operator {
     private boolean orthorectify;
 
     @Parameter(description = "The name of the elevation model for the orthorectification. " +
-            "If not given tie-point data is used.")
+                             "If not given tie-point data is used.")
     private String elevationModelName;
 
     @Parameter(description = "The value used to indicate no-data.")
@@ -266,6 +266,10 @@ public class ReprojectionOp extends Operator {
         } catch (Exception e) {
             throw new OperatorException(e);
         }
+
+        ProductData.UTC meanTime = getSourceMeanTime();
+        targetProduct.setStartTime(meanTime);
+        targetProduct.setEndTime(meanTime);
 
         srcModel = ImageManager.getMultiLevelModel(sourceProduct.getBandAt(0));
         targetModel = ImageManager.createMultiLevelModel(targetProduct);
@@ -347,7 +351,7 @@ public class ReprojectionOp extends Operator {
         final GeoCoding sourceGeoCoding = getSourceGeoCoding(sourceRaster);
         final String exp = sourceRaster.getValidMaskExpression();
         if (exp != null) {
-            sourceImage = createNoDataReplacedImage(sourceImage, sourceRaster.getValidMaskImage(), targetNoDataValue);
+            sourceImage = createNoDataReplacedImage(sourceRaster, targetNoDataValue);
         }
 
         final Interpolation resampling = getResampling(targetBand);
@@ -417,16 +421,8 @@ public class ReprojectionOp extends Operator {
         });
     }
 
-    private MultiLevelImage createNoDataReplacedImage(final MultiLevelImage srcImage, final MultiLevelImage maskImage,
-                                                      final double noData) {
-
-        return new DefaultMultiLevelImage(new AbstractMultiLevelSource(srcModel) {
-
-            @Override
-            public RenderedImage createImage(int sourceLevel) {
-                return new InsertNoDataValueOpImage(srcImage.getImage(sourceLevel), maskImage.getImage(sourceLevel), noData);
-            }
-        });
+    private MultiLevelImage createNoDataReplacedImage(final RasterDataNode rasterDataNode, final double noData) {
+        return ImageManager.createMaskedGeophysicalImage(rasterDataNode, noData);
     }
 
     private MultiLevelImage createProjectedImage(final GeoCoding sourceGeoCoding, final MultiLevelImage sourceImage,
@@ -498,6 +494,22 @@ public class ReprojectionOp extends Operator {
         return maxSourceLevel < targetLevel ? maxSourceLevel : targetLevel;
     }
 
+    private ProductData.UTC getSourceMeanTime() {
+        ProductData.UTC startTime = sourceProduct.getStartTime();
+        ProductData.UTC endTime = sourceProduct.getEndTime();
+        ProductData.UTC meanTime;
+        if (startTime != null && endTime != null) {
+            meanTime = new ProductData.UTC(0.5 * (startTime.getMJD() + endTime.getMJD()));
+        } else if (startTime != null) {
+            meanTime = startTime;
+        } else if (endTime != null) {
+            meanTime = endTime;
+        } else {
+            meanTime = null;
+        }
+        return meanTime;
+    }
+
     private void copyIndexCoding() {
         final ProductNodeGroup<IndexCoding> indexCodingGroup = sourceProduct.getIndexCodingGroup();
         for (int i = 0; i < indexCodingGroup.getNodeCount(); i++) {
@@ -549,7 +561,7 @@ public class ReprojectionOp extends Operator {
 
     protected void validateCrsParameters() {
         final String msgPattern = "Invalid target CRS specification.\nSpecify {0} one of the " +
-                "''wktFile'', ''crs'' or ''collocationProduct'' parameters.";
+                                  "''wktFile'', ''crs'' or ''collocationProduct'' parameters.";
 
         if (wktFile == null && crs == null && collocationProduct == null) {
             throw new OperatorException(MessageFormat.format(msgPattern, "at least"));
@@ -603,15 +615,15 @@ public class ReprojectionOp extends Operator {
 
     void validateReferencingParameters() {
         if (!((referencePixelX == null && referencePixelY == null && easting == null && northing == null)
-                || (referencePixelX != null && referencePixelY != null && easting != null && northing != null))) {
+              || (referencePixelX != null && referencePixelY != null && easting != null && northing != null))) {
             throw new OperatorException("Invalid referencing parameters: \n" +
-                                                "'referencePixelX', 'referencePixelY', 'easting' and 'northing' have to be specified either all or not at all.");
+                                        "'referencePixelX', 'referencePixelY', 'easting' and 'northing' have to be specified either all or not at all.");
         }
     }
 
     void validateTargetGridParameters() {
         if ((pixelSizeX != null && pixelSizeY == null) ||
-                (pixelSizeX == null && pixelSizeY != null)) {
+            (pixelSizeX == null && pixelSizeY != null)) {
             throw new OperatorException("'pixelSizeX' and 'pixelSizeY' must be specified both or not at all.");
         }
     }

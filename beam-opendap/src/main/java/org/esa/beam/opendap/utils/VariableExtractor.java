@@ -70,7 +70,7 @@ public class VariableExtractor {
             return convertToAtomicDAPVariable(ddsVariable);
         }
 
-        final String name = ddsVariable.getName();
+        final String name = ddsVariable.getEncodedName();
         final String typeName = ddsVariable.getTypeName();
         final String dataTypeName = getDataTypeName(array);
         final DArrayDimension[] dimensions = getDimensions(array);
@@ -79,7 +79,7 @@ public class VariableExtractor {
     }
 
     private static DAPVariable convertToAtomicDAPVariable(BaseType ddsVariable) {
-        final String name = ddsVariable.getName();
+        final String name = ddsVariable.getEncodedName();
         final String typeName = "atomic";
         final String dataTypeName = ddsVariable.getTypeName();
         final DArrayDimension[] dimensions = new DArrayDimension[0];

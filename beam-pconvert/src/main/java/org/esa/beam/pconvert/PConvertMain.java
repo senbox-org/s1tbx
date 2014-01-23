@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2013 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -19,8 +19,19 @@ import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.dataio.dimap.DimapProductWriterPlugIn;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.dataio.ProductSubsetDef;
-import org.esa.beam.framework.datamodel.*;
-import org.esa.beam.util.*;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.ColorPaletteDef;
+import org.esa.beam.framework.datamodel.ImageInfo;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.RGBImageProfile;
+import org.esa.beam.framework.datamodel.Stx;
+import org.esa.beam.framework.datamodel.VirtualBand;
+import org.esa.beam.util.BeamConstants;
+import org.esa.beam.util.Debug;
+import org.esa.beam.util.ProductUtils;
+import org.esa.beam.util.StringUtils;
+import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.geotiff.GeoTIFF;
 import org.esa.beam.util.geotiff.GeoTIFFMetadata;
 import org.esa.beam.util.io.FileUtils;
@@ -29,7 +40,7 @@ import org.esa.beam.util.jai.JAIUtils;
 import javax.media.jai.Interpolation;
 import javax.media.jai.JAI;
 import javax.media.jai.operator.BandSelectDescriptor;
-import java.awt.*;
+import java.awt.Color;
 import java.awt.image.RenderedImage;
 import java.io.File;
 import java.io.IOException;
@@ -317,6 +328,14 @@ public class PConvertMain {
             _formatName = "TIFF";
             _imageFormat = true;
         } else {
+            String[] extensions = ProductIO.getProductWriterExtensions(_formatExt);
+            if (extensions != null && extensions.length > 0) {
+                _formatName = _formatExt;
+                _formatExt = extensions[0].substring(1); // strip leading DOT off
+                _imageFormat = false;
+            }
+        }
+        if (_formatName == null) {
             error("unknown output format '" + _formatExt + "'");
         }
 

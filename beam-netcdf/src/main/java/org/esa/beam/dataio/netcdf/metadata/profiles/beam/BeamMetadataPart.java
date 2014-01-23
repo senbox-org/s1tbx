@@ -50,7 +50,7 @@ public class BeamMetadataPart extends ProfilePartIO {
         MetadataUtils.readNetcdfMetadata(netcdfFile, p.getMetadataRoot());
         if (metadata != null) {
             for (Attribute attribute : metadata.getAttributes()) {
-                String attrName = attribute.getName();
+                String attrName = attribute.getShortName();
                 if (attrName.startsWith(SPLITTER)) {
                     attrName = attrName.substring(1, attrName.length());
                 }
@@ -78,7 +78,7 @@ public class BeamMetadataPart extends ProfilePartIO {
             metadataRoot.addElement(metadataElement);
         }
         // cut prefix of attribute name
-        String temp = attribute.getName();
+        String temp = attribute.getShortName();
         if (temp.startsWith(SPLITTER)) {
             temp = temp.substring(1, temp.length());
         }
@@ -94,7 +94,7 @@ public class BeamMetadataPart extends ProfilePartIO {
             readMetadata(attribute, metadataElement, prefix + SPLITTER + temp);
         } else {
             // attribute is leaf, add attribute into subgroup
-            String newAttributeName = attribute.getName().replaceFirst(prefix, "").replace(SPLITTER, "");
+            String newAttributeName = attribute.getShortName().replaceFirst(prefix, "").replace(SPLITTER, "");
             if (newAttributeName.endsWith("." + UNIT_SUFFIX)) {
                 // setting the unit this way requires that it is written AFTER its attribute
                 newAttributeName = newAttributeName.substring(0, newAttributeName.length() - UNIT_SUFFIX.length() - 1);

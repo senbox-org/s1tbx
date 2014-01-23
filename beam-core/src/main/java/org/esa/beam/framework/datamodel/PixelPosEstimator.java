@@ -15,21 +15,23 @@ package org.esa.beam.framework.datamodel;
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-import org.esa.beam.util.math.CosineDistanceCalculator;
 import org.esa.beam.util.math.DistanceCalculator;
-import org.esa.beam.util.math.MathUtils;
 import org.esa.beam.util.math.SphericalDistanceCalculator;
 
 import javax.media.jai.PlanarImage;
 import javax.media.jai.operator.ConstantDescriptor;
-import java.awt.Dimension;
 import java.awt.Rectangle;
-import java.awt.geom.Dimension2D;
 import java.awt.geom.Point2D;
 import java.awt.image.Raster;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * A class for estimating the pixel position for a given geo-location. To be used with
+ * pixel geo-codings in order to obtain a fast and accurate estimate.
+ *
+ * @author Ralf Quast
+ */
 public class PixelPosEstimator {
 
     private static final int LAT = 0;
@@ -39,19 +41,21 @@ public class PixelPosEstimator {
     private static final int MAX_POINT_COUNT_PER_TILE = 1000;
 
     private final Approximation[] approximations;
+    private final Rectangle bounds;
 
-    public PixelPosEstimator(PlanarImage lonImage, PlanarImage latImage, PlanarImage maskImage, double accuracy,
-                             double tiling, SteppingFactory steppingFactory, Dimension2D pixelDimension) {
-        if (maskImage == null) {
-            maskImage = ConstantDescriptor.create((float) lonImage.getWidth(), (float) lonImage.getHeight(),
-                                                  new Byte[]{1}, null);
-        }
-        approximations = createApproximations(lonImage, latImage, maskImage, accuracy, tiling, steppingFactory,
-                                              pixelDimension);
+    public PixelPosEstimator(PlanarImage lonImage, PlanarImage latImage, PlanarImage maskImage, double accuracy) {
+        this(lonImage, latImage, maskImage, accuracy, new PixelSteppingFactory());
     }
 
-    public final Approximation[] getApproximations() {
-        return approximations;
+    private PixelPosEstimator(PlanarImage lonImage, PlanarImage latImage, PlanarImage maskImage, double accuracy,
+                              SteppingFactory steppingFactory) {
+        if (maskImage == null) {
+            maskImage = ConstantDescriptor.create((float) lonImage.getWidth(),
+                                                  (float) lonImage.getHeight(),
+                                                  new Byte[]{1}, null);
+        }
+        approximations = createApproximations(lonImage, latImage, maskImage, accuracy, steppingFactory);
+        bounds = lonImage.getBounds();
     }
 
     public final boolean canGetPixelPos() {
@@ -59,7 +63,6 @@ public class PixelPosEstimator {
     }
 
     public Approximation getPixelPos(GeoPos geoPos, PixelPos pixelPos) {
-        // TODO? - self-overlapping AATSR products (found in TiePointGeoCoding)
         Approximation approximation = null;
         if (approximations != null) {
             if (pixelPos == null) {
@@ -68,15 +71,25 @@ public class PixelPosEstimator {
             if (geoPos.isValid()) {
                 double lat = geoPos.getLat();
                 double lon = geoPos.getLon();
-                approximation = findBestApproximation(lat, lon);
+                approximation = Approximation.findMostSuitable(approximations, lat, lon);
                 if (approximation != null) {
                     final Rotator rotator = approximation.getRotator();
                     final Point2D p = new Point2D.Double(lon, lat);
                     rotator.transform(p);
                     lon = p.getX();
                     lat = p.getY();
-                    pixelPos.x = (float) approximation.getFX().getValue(lat, lon);
-                    pixelPos.y = (float) approximation.getFY().getValue(lat, lon);
+                    final double x = approximation.getFX().getValue(lat, lon);
+                    if (false && (x < bounds.getMinX() || x > bounds.getMaxX())) {
+                        pixelPos.setInvalid();
+                    } else {
+                        final double y = approximation.getFY().getValue(lat, lon);
+                        if (false && (y < bounds.getMinY() || y > bounds.getMaxY())) {
+                            pixelPos.setInvalid();
+                        } else {
+                            pixelPos.x = (float) x;
+                            pixelPos.y = (float) y;
+                        }
+                    }
                 } else {
                     pixelPos.setInvalid();
                 }
@@ -87,209 +100,362 @@ public class PixelPosEstimator {
         return approximation;
     }
 
-    Approximation findBestApproximation(double lat, double lon) {
-        Approximation bestApproximation = null;
-        if (approximations.length == 1) {
-            Approximation a = approximations[0];
-            final double distance = a.getDistance(lat, lon);
-            if (distance < a.getMaxDistance()) {
-                bestApproximation = a;
-            }
-        } else {
-            double minDistance = Double.MAX_VALUE;
-            for (final Approximation a : approximations) {
-                final double distance = a.getDistance(lat, lon);
-                if (distance < minDistance && distance < a.getMaxDistance()) {
-                    minDistance = distance;
-                    bestApproximation = a;
-                }
-            }
+    private static Approximation[] createApproximations(PlanarImage lonImage,
+                                                        PlanarImage latImage,
+                                                        PlanarImage maskImage,
+                                                        double accuracy,
+                                                        SteppingFactory steppingFactory) {
+        final SampleSource lonSamples = new PlanarImageSampleSource(lonImage);
+        final SampleSource latSamples = new PlanarImageSampleSource(latImage);
+        final SampleSource maskSamples = new PlanarImageSampleSource(maskImage);
+        final Raster[] tiles = lonImage.getTiles();
+        final Rectangle[] rectangles = new Rectangle[tiles.length];
+        for (int i = 0; i < rectangles.length; i++) {
+            rectangles[i] = tiles[i].getBounds();
         }
-        return bestApproximation;
+
+        return Approximation.createApproximations(lonSamples, latSamples, maskSamples, accuracy, rectangles,
+                                                  steppingFactory);
     }
 
-    static Approximation[] createApproximations(PlanarImage lonImage,
-                                                PlanarImage latImage,
-                                                PlanarImage maskImage,
-                                                double accuracy,
-                                                double tiling,
-                                                SteppingFactory steppingFactory, Dimension2D pixelDimension) {
-        final int w = latImage.getWidth();
-        final int h = latImage.getHeight();
-        final int tileCount = calculateTileCount(lonImage, latImage, tiling, pixelDimension);
+    public interface SampleSource {
 
-        final Dimension tileCounts = MathUtils.fitDimension(tileCount, w, h);
-        final int tileCountX = tileCounts.width;
-        final int tileCountY = tileCounts.height;
+        int getSample(int x, int y);
 
-        final Rectangle[] rectangles = MathUtils.subdivideRectangle(w, h, tileCountX, tileCountY, 1);
-        final Approximation[] approximations = new Approximation[rectangles.length];
-        for (int i = 0; i < rectangles.length; i++) {
-            final Stepping stepping = steppingFactory.createStepping(rectangles[i], MAX_POINT_COUNT_PER_TILE);
-            final double[][] data = extractWarpPoints(lonImage, latImage, maskImage, stepping);
-            final Approximation approximation = createApproximation(data, accuracy, stepping);
-            if (approximation == null) {
+        double getSampleDouble(int x, int y);
+    }
+
+    /**
+     * Approximates the x(lat, lon) and y(lat, lon) functions.
+     */
+    public static final class Approximation {
+
+        private final RationalFunctionModel fX;
+        private final RationalFunctionModel fY;
+        private final double maxDistance;
+        private final Rotator rotator;
+        private final DistanceCalculator calculator;
+        private final Rectangle range;
+
+
+        /**
+         * Creates an array of approximations for given set of (x, y) rectangles.
+         *
+         * @param lonSamples  The longitude samples.
+         * @param latSamples  The latitude samples.
+         * @param maskSamples The mask samples.
+         * @param accuracy    The accuracy goal.
+         * @param rectangles  The (x, y) rectangles.
+         *
+         * @return a new approximation or {@code null} if the accuracy goal cannot not be met.
+         */
+        public static Approximation[] createApproximations(SampleSource lonSamples,
+                                                           SampleSource latSamples,
+                                                           SampleSource maskSamples,
+                                                           double accuracy,
+                                                           Rectangle[] rectangles) {
+            return createApproximations(lonSamples, latSamples, maskSamples, accuracy, rectangles,
+                                        new PixelSteppingFactory());
+        }
+
+        /**
+         * Creates a new instance of this class.
+         *
+         * @param lonSamples  The longitude samples.
+         * @param latSamples  The latitude samples.
+         * @param maskSamples The mask samples.
+         * @param accuracy    The accuracy goal.
+         * @param range       The range of the x(lat, lon) and y(lat, lon) functions.
+         *
+         * @return a new approximation or {@code null} if the accuracy goal cannot not be met.
+         */
+        public static Approximation create(SampleSource lonSamples,
+                                    SampleSource latSamples,
+                                    SampleSource maskSamples,
+                                    double accuracy,
+                                    Rectangle range) {
+            return create(lonSamples, latSamples, maskSamples, accuracy, range, new PixelSteppingFactory());
+        }
+
+        /**
+         * Creates a new instance of this class.
+         *
+         * @param lonSamples      The longitude samples.
+         * @param latSamples      The latitude samples.
+         * @param maskSamples     The mask samples.
+         * @param accuracy        The accuracy goal.
+         * @param range           The range of the x(lat, lon) and y(lat, lon) functions.
+         * @param steppingFactory The stepping factory.
+         *
+         * @return a new approximation or {@code null} if the accuracy goal cannot not be met.
+         */
+        public static Approximation create(SampleSource lonSamples,
+                                    SampleSource latSamples,
+                                    SampleSource maskSamples,
+                                    double accuracy,
+                                    Rectangle range,
+                                    SteppingFactory steppingFactory) {
+            final Stepping stepping = steppingFactory.createStepping(range, MAX_POINT_COUNT_PER_TILE);
+            final double[][] data = extractWarpPoints(lonSamples, latSamples, maskSamples, stepping);
+            return Approximation.create(data, accuracy, range);
+        }
+
+        /**
+         * Creates a new instance of this class.
+         *
+         * @param data     The array of (lat, lon, x, y) points that is used to compute the approximations to the
+         *                 x(lat, lon) and y(lat, lon) functions. Note that the contents of the data array is modified
+         *                 by this method.
+         * @param accuracy The accuracy goal.
+         * @param range    The range of the x(lat, lon) and y(lat, lon) functions.
+         *
+         * @return a new approximation or {@code null} if the accuracy goal cannot not be met.
+         */
+        public static Approximation create(double[][] data, double accuracy, Rectangle range) {
+            final Point2D centerPoint = Rotator.calculateCenter(data, LON, LAT);
+            final double centerLon = centerPoint.getX();
+            final double centerLat = centerPoint.getY();
+            final double maxDistance = maxDistance(data, centerLon, centerLat);
+
+            final Rotator rotator = new Rotator(centerLon, centerLat);
+            rotator.transform(data, LON, LAT);
+
+            final int[] xIndices = new int[]{LAT, LON, X};
+            final int[] yIndices = new int[]{LAT, LON, Y};
+
+            final RationalFunctionModel fX = findBestModel(data, xIndices, accuracy);
+            final RationalFunctionModel fY = findBestModel(data, yIndices, accuracy);
+            if (fX == null || fY == null) {
                 return null;
             }
-            approximations[i] = approximation;
+
+            return new Approximation(fX, fY, maxDistance * 1.1, rotator,
+                                     new SphericalDistanceCalculator(centerLon, centerLat), range);
         }
 
-        return approximations;
-    }
-
-    static int calculateTileCount(PlanarImage lonImage, PlanarImage latImage, double tiling,
-                                  Dimension2D pixelDimension) {
-        final int w = latImage.getWidth();
-        final int h = latImage.getHeight();
-        final double tileSizeX = tiling / pixelDimension.getWidth();
-        final double tileSizeY = tiling / pixelDimension.getHeight();
-        int tileCountX = (int) (w / tileSizeX + 1.0);
-        int tileCountY = (int) (h / tileSizeY + 1.0);
-
-        if (tileCountX == 0) { // calculation has failed due to NaN values
-            tileCountX = lonImage.getNumXTiles();
-        }
-        if (tileCountY == 0) { // calculation has failed due to NaN values
-            tileCountY = lonImage.getNumYTiles();
-        }
-
-        return tileCountX * tileCountY;
-    }
-
-    static Approximation createApproximation(double[][] data, double accuracy, Stepping stepping) {
-        final Point2D centerPoint = Rotator.calculateCenter(data, LON, LAT);
-        final double centerLon = centerPoint.getX();
-        final double centerLat = centerPoint.getY();
-        final double maxDistance = maxDistance(data, centerLon, centerLat);
-
-        final Rotator rotator = new Rotator(centerLon, centerLat);
-        rotator.transform(data, LON, LAT);
-
-        final int[] xIndices = new int[]{LAT, LON, X};
-        final int[] yIndices = new int[]{LAT, LON, Y};
-
-        final RationalFunctionModel fX = findBestModel(data, xIndices, accuracy);
-        final RationalFunctionModel fY = findBestModel(data, yIndices, accuracy);
-        if (fX == null || fY == null) {
-            return null;
-        }
-
-        return new Approximation(fX, fY, maxDistance * 1.1, rotator,
-                                 new CosineDistanceCalculator(centerLon, centerLat), stepping);
-    }
-
-    static double maxDistance(final double[][] data, double centerLon, double centerLat) {
-        final DistanceCalculator distanceCalculator = new SphericalDistanceCalculator(centerLon, centerLat);
-        double maxDistance = 0.0;
-        for (final double[] p : data) {
-            final double d = distanceCalculator.distance(p[LON], p[LAT]);
-            if (d > maxDistance) {
-                maxDistance = d;
+        /**
+         * Among several approximations, returns the approximation that is most suitable for a given (lat, lon) point.
+         *
+         * @param approximations The approximations.
+         * @param lat            The latitude.
+         * @param lon            The longitude.
+         *
+         * @return the approximation that is most suitable for the given (lat, lon) point,
+         *         or {@code null}, if none is suitable.
+         */
+        public static Approximation findMostSuitable(Approximation[] approximations, double lat, double lon) {
+            Approximation bestApproximation = null;
+            if (approximations.length == 1) {
+                Approximation a = approximations[0];
+                final double distance = a.getDistance(lat, lon);
+                if (distance < a.getMaxDistance()) {
+                    bestApproximation = a;
+                }
+            } else {
+                double minDistance = Double.MAX_VALUE;
+                for (final Approximation a : approximations) {
+                    final double distance = a.getDistance(lat, lon);
+                    if (distance < minDistance && distance < a.getMaxDistance()) {
+                        minDistance = distance;
+                        bestApproximation = a;
+                    }
+                }
             }
+            return bestApproximation;
         }
-        return maxDistance;
+
+        static Approximation[] createApproximations(SampleSource lonSamples,
+                                                    SampleSource latSamples,
+                                                    SampleSource maskSamples,
+                                                    double accuracy,
+                                                    Rectangle[] rectangles,
+                                                    SteppingFactory steppingFactory) {
+            final ArrayList<Approximation> approximations = new ArrayList<Approximation>();
+            for (final Rectangle rectangle : rectangles) {
+                final Approximation approximation = create(lonSamples, latSamples, maskSamples, accuracy,
+                                                           rectangle, steppingFactory);
+                if (approximation == null) {
+                    return null;
+                }
+                approximations.add(approximation);
+            }
+
+            return approximations.toArray(new Approximation[approximations.size()]);
+        }
+
+        /**
+         * Returns the (approximation to) the x(lat, lon) function.
+         *
+         * @return the (approximation to) the x(lat, lon) function.
+         */
+        public RationalFunctionModel getFX() {
+            return fX;
+        }
+
+        /**
+         * Returns the (approximation to) the y(lat, lon) function.
+         *
+         * @return the (approximation to) the y(lat, lon) function.
+         */
+        public RationalFunctionModel getFY() {
+            return fY;
+        }
+
+        /**
+         * Returns the maximum distance (in radian) within which this approximation is valid.
+         *
+         * @return the maximum distance (in radian).
+         */
+        public double getMaxDistance() {
+            return maxDistance;
+        }
+
+        /**
+         * Returns the distance (in radian) of 'the center of this approximation' to a given (lat, lon) point.
+         *
+         * @param lat The latitude.
+         * @param lon The longitude.
+         *
+         * @return the distance (in radian).
+         */
+        public double getDistance(double lat, double lon) {
+            return calculator.distance(lon, lat);
+        }
+
+        /**
+         * Returns the {@code Rotator} associated with this approximation.
+         *
+         * @return the {@code Rotator} associated with this approximation.
+         */
+        public Rotator getRotator() {
+            return rotator;
+        }
+
+        /**
+         * Returns the range of the x(lat, lon) and y(lat, lon) functions.
+         *
+         * @return the range of the x(lat, lon) and y(lat, lon) functions.
+         */
+        public Rectangle getRange() {
+            return range;
+        }
+
+        private Approximation(RationalFunctionModel fX, RationalFunctionModel fY, double maxDistance,
+                              Rotator rotator, DistanceCalculator calculator, Rectangle range) {
+            this.fX = fX;
+            this.fY = fY;
+            this.maxDistance = maxDistance;
+            this.rotator = rotator;
+            this.calculator = calculator;
+            this.range = range;
+        }
+
+        private static double maxDistance(final double[][] data, double centerLon, double centerLat) {
+            final DistanceCalculator distanceCalculator = new SphericalDistanceCalculator(centerLon, centerLat);
+            double maxDistance = 0.0;
+            for (final double[] p : data) {
+                final double d = distanceCalculator.distance(p[LON], p[LAT]);
+                if (d > maxDistance) {
+                    maxDistance = d;
+                }
+            }
+            return maxDistance;
+        }
+
+        private static RationalFunctionModel findBestModel(double[][] data, int[] indexes, double accuracy) {
+            RationalFunctionModel bestModel = null;
+            search:
+            for (int degreeP = 0; degreeP <= 4; degreeP++) {
+                for (int degreeQ = 0; degreeQ <= degreeP; degreeQ++) {
+                    final int termCountP = RationalFunctionModel.getTermCountP(degreeP);
+                    final int termCountQ = RationalFunctionModel.getTermCountQ(degreeQ);
+                    if (data.length >= termCountP + termCountQ) {
+                        final RationalFunctionModel model = createModel(degreeP, degreeQ, data, indexes);
+                        if (bestModel == null || model.getRmse() < bestModel.getRmse()) {
+                            bestModel = model;
+                        }
+                        if (bestModel.getRmse() < accuracy) {
+                            break search;
+                        }
+                    }
+                }
+            }
+            return bestModel;
+        }
+
+        private static RationalFunctionModel createModel(int degreeP, int degreeQ, double[][] data, int[] indexes) {
+            final int ix = indexes[0];
+            final int iy = indexes[1];
+            final int iz = indexes[2];
+            final double[] x = new double[data.length];
+            final double[] y = new double[data.length];
+            final double[] g = new double[data.length];
+            for (int i = 0; i < data.length; i++) {
+                x[i] = data[i][ix];
+                y[i] = data[i][iy];
+                g[i] = data[i][iz];
+            }
+
+            return new RationalFunctionModel(degreeP, degreeQ, x, y, g);
+        }
+
+        private static double[][] extractWarpPoints(SampleSource lonSamples,
+                                                    SampleSource latSamples,
+                                                    SampleSource maskSamples,
+                                                    Stepping stepping) {
+            final int minX = stepping.getMinX();
+            final int maxX = stepping.getMaxX();
+            final int minY = stepping.getMinY();
+            final int maxY = stepping.getMaxY();
+            final int pointCountX = stepping.getPointCountX();
+            final int pointCountY = stepping.getPointCountY();
+            final int stepX = stepping.getStepX();
+            final int stepY = stepping.getStepY();
+            final int pointCount = stepping.getPointCount();
+            final List<double[]> pointList = new ArrayList<double[]>(pointCount);
+
+            for (int j = 0, k = 0; j < pointCountY; j++) {
+                int y = minY + j * stepY;
+                // adjust bottom border
+                if (y > maxY) {
+                    y = maxY;
+                }
+                for (int i = 0; i < pointCountX; i++, k++) {
+                    int x = minX + i * stepX;
+                    // adjust right border
+                    if (x > maxX) {
+                        x = maxX;
+                    }
+                    final int mask = maskSamples.getSample(x, y);
+                    if (mask != 0) {
+                        final double lat = latSamples.getSampleDouble(x, y);
+                        final double lon = lonSamples.getSampleDouble(x, y);
+                        if (lon >= -180.0 && lon <= 180.0 && lat >= -90.0 && lat <= 90.0) {
+                            final double[] point = new double[4];
+                            point[LAT] = lat;
+                            point[LON] = lon;
+                            point[X] = x + 0.5;
+                            point[Y] = y + 0.5;
+                            pointList.add(point);
+                        }
+                    }
+                }
+            }
+
+            return pointList.toArray(new double[pointList.size()][4]);
+        }
     }
 
-    private static int getSample(int pixelX, int pixelY, PlanarImage image) {
-        final int x = image.getMinX() + pixelX;
-        final int y = image.getMinY() + pixelY;
-        final int tileX = image.XToTileX(x);
-        final int tileY = image.YToTileY(y);
-        final Raster data = image.getTile(tileX, tileY);
-
-        return data.getSample(x, y, 0);
-    }
-
-    private static double getSampleDouble(int pixelX, int pixelY, PlanarImage image) {
-        final int x = image.getMinX() + pixelX;
-        final int y = image.getMinY() + pixelY;
-        final int tileX = image.XToTileX(x);
-        final int tileY = image.YToTileY(y);
-        final Raster data = image.getTile(tileX, tileY);
-
-        return data.getSampleDouble(x, y, 0);
-    }
-
-    static double[][] extractWarpPoints(PlanarImage lonImage, PlanarImage latImage, PlanarImage maskImage,
+    static double[][] extractWarpPoints(PlanarImage lonImage,
+                                        PlanarImage latImage,
+                                        PlanarImage maskImage,
                                         Stepping stepping) {
-        final int minX = stepping.getMinX();
-        final int maxX = stepping.getMaxX();
-        final int minY = stepping.getMinY();
-        final int maxY = stepping.getMaxY();
-        final int pointCountX = stepping.getPointCountX();
-        final int pointCountY = stepping.getPointCountY();
-        final int stepX = stepping.getStepX();
-        final int stepY = stepping.getStepY();
-        final int pointCount = stepping.getPointCount();
-        final List<double[]> pointList = new ArrayList<double[]>(pointCount);
-
-        for (int j = 0, k = 0; j < pointCountY; j++) {
-            int y = minY + j * stepY;
-            // adjust bottom border
-            if (y > maxY) {
-                y = maxY;
-            }
-            for (int i = 0; i < pointCountX; i++, k++) {
-                int x = minX + i * stepX;
-                // adjust right border
-                if (x > maxX) {
-                    x = maxX;
-                }
-                final int mask = getSample(x, y, maskImage);
-                if (mask != 0) {
-                    final double lat = getSampleDouble(x, y, latImage);
-                    final double lon = getSampleDouble(x, y, lonImage);
-                    if (lon >= -180.0 && lon <= 180.0 && lat >= -90.0 && lat <= 90.0) {
-                        final double[] point = new double[4];
-                        point[LAT] = lat;
-                        point[LON] = lon;
-                        point[X] = x + 0.5;
-                        point[Y] = y + 0.5;
-                        pointList.add(point);
-                    }
-                }
-            }
-        }
-
-        return pointList.toArray(new double[pointList.size()][4]);
+        return Approximation.extractWarpPoints(new PlanarImageSampleSource(lonImage),
+                                               new PlanarImageSampleSource(latImage),
+                                               new PlanarImageSampleSource(maskImage),
+                                               stepping);
     }
 
-    static RationalFunctionModel findBestModel(double[][] data, int[] indexes, double accuracy) {
-        RationalFunctionModel bestModel = null;
-        search:
-        for (int degreeP = 0; degreeP <= 4; degreeP++) {
-            for (int degreeQ = 0; degreeQ <= degreeP; degreeQ++) {
-                final int termCountP = RationalFunctionModel.getTermCountP(degreeP);
-                final int termCountQ = RationalFunctionModel.getTermCountQ(degreeQ);
-                if (data.length >= termCountP + termCountQ) {
-                    final RationalFunctionModel model = createModel(degreeP, degreeQ, data, indexes);
-                    if (bestModel == null || model.getRmse() < bestModel.getRmse()) {
-                        bestModel = model;
-                    }
-                    if (bestModel.getRmse() < accuracy) {
-                        break search;
-                    }
-                }
-            }
-        }
-        return bestModel;
-    }
-
-    static RationalFunctionModel createModel(int degreeP, int degreeQ, double[][] data, int[] indexes) {
-        final int ix = indexes[0];
-        final int iy = indexes[1];
-        final int iz = indexes[2];
-        final double[] x = new double[data.length];
-        final double[] y = new double[data.length];
-        final double[] g = new double[data.length];
-        for (int i = 0; i < data.length; i++) {
-            x[i] = data[i][ix];
-            y[i] = data[i][iy];
-            g[i] = data[i][iz];
-        }
-
-        return new RationalFunctionModel(degreeP, degreeQ, x, y, g);
-    }
 
     static final class Stepping {
 
@@ -350,50 +516,6 @@ public class PixelPosEstimator {
         }
     }
 
-    static final class Approximation {
-
-        private final RationalFunctionModel fX;
-        private final RationalFunctionModel fY;
-        private final double maxDistance;
-        private final Rotator rotator;
-        private final DistanceCalculator calculator;
-        private final Stepping stepping;
-
-        public Approximation(RationalFunctionModel fX, RationalFunctionModel fY, double maxDistance,
-                             Rotator rotator, DistanceCalculator calculator, Stepping stepping) {
-            this.fX = fX;
-            this.fY = fY;
-            this.maxDistance = maxDistance;
-            this.rotator = rotator;
-            this.calculator = calculator;
-            this.stepping = stepping;
-        }
-
-        public RationalFunctionModel getFX() {
-            return fX;
-        }
-
-        public RationalFunctionModel getFY() {
-            return fY;
-        }
-
-        public double getMaxDistance() {
-            return maxDistance;
-        }
-
-        public double getDistance(double lat, double lon) {
-            return calculator.distance(lon, lat);
-        }
-
-        public Rotator getRotator() {
-            return rotator;
-        }
-
-        public Stepping getStepping() {
-            return stepping;
-        }
-    }
-
     static interface SteppingFactory {
 
         Stepping createStepping(Rectangle rectangle, int maxPointCount);
@@ -447,4 +569,42 @@ public class PixelPosEstimator {
         }
     }
 
+    private static class PlanarImageSampleSource implements SampleSource {
+
+        private final PlanarImage image;
+
+        public PlanarImageSampleSource(PlanarImage image) {
+            this.image = image;
+        }
+
+        @Override
+        public int getSample(int x, int y) {
+            return getSample(x, y, image);
+        }
+
+        @Override
+        public double getSampleDouble(int x, int y) {
+            return getSampleDouble(x, y, image);
+        }
+
+        private static int getSample(int pixelX, int pixelY, PlanarImage image) {
+            final int x = image.getMinX() + pixelX;
+            final int y = image.getMinY() + pixelY;
+            final int tileX = image.XToTileX(x);
+            final int tileY = image.YToTileY(y);
+            final Raster data = image.getTile(tileX, tileY);
+
+            return data.getSample(x, y, 0);
+        }
+
+        private static double getSampleDouble(int pixelX, int pixelY, PlanarImage image) {
+            final int x = image.getMinX() + pixelX;
+            final int y = image.getMinY() + pixelY;
+            final int tileX = image.XToTileX(x);
+            final int tileY = image.YToTileY(y);
+            final Raster data = image.getTile(tileX, tileY);
+
+            return data.getSampleDouble(x, y, 0);
+        }
+    }
 }

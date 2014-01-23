@@ -113,6 +113,8 @@ public class JavaMathTest extends TestCase {
         assertFalse(Double.NaN < Double.NEGATIVE_INFINITY);
         assertFalse(Double.NaN > Double.NEGATIVE_INFINITY);
 
+        assertTrue(Double.isNaN(0.0 * Double.NaN));
+
     }
 
     /**

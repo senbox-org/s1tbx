@@ -43,6 +43,7 @@ public class AggregatorPercentile extends AbstractAggregator {
     private final int varIndex;
     private final int percentage;
     private final String mlName;
+    private final String icName;
 
     public AggregatorPercentile(VariableContext varCtx, String varName, Integer percentage) {
         this(getVarIndex(varCtx, varName), varName, getEffectivePercentage(percentage));
@@ -63,22 +64,36 @@ public class AggregatorPercentile extends AbstractAggregator {
         this.varIndex = varIndex;
         this.percentage = percentage;
         this.mlName = "ml." + varName;
+        this.icName = "ic." + varName;
     }
 
     @Override
     public void initSpatial(BinContext ctx, WritableVector vector) {
         vector.set(0, 0.0f);
+        ctx.put(icName, new int[1]);
     }
 
     @Override
     public void aggregateSpatial(BinContext ctx, Observation observationVector, WritableVector spatialVector) {
-        final float value = observationVector.get(varIndex);
-        spatialVector.set(0, spatialVector.get(0) + value);
+        float value = observationVector.get(varIndex);
+        if (!Float.isNaN(value)) {
+            spatialVector.set(0, spatialVector.get(0) + value);
+        } else {
+            // We count invalids rather than valid because it is more efficient.
+            // (Key/value map operations are relatively slow, and it is more likely that we will receive valid measurements.)
+            ((int[]) ctx.get(icName))[0]++;
+        }
     }
 
     @Override
     public void completeSpatial(BinContext ctx, int numSpatialObs, WritableVector spatialVector) {
-        spatialVector.set(0, spatialVector.get(0) / numSpatialObs);
+        Integer invalidCount = ((int[]) ctx.get(icName))[0];
+        int effectiveCount = numSpatialObs - invalidCount;
+        if (effectiveCount > 0) {
+            spatialVector.set(0, spatialVector.get(0) / effectiveCount);
+        } else {
+            spatialVector.set(0, Float.NaN);
+        }
     }
 
     @Override
@@ -90,21 +105,33 @@ public class AggregatorPercentile extends AbstractAggregator {
     @Override
     public void aggregateTemporal(BinContext ctx, Vector spatialVector, int numSpatialObs, WritableVector temporalVector) {
         GrowableVector measurementsVec = ctx.get(mlName);
-        measurementsVec.add(spatialVector.get(0));
+        float value = spatialVector.get(0);
+        if (!Float.isNaN(value)) {
+            measurementsVec.add(value);
+        }
     }
 
     @Override
     public void completeTemporal(BinContext ctx, int numTemporalObs, WritableVector temporalVector) {
         GrowableVector measurementsVec = ctx.get(mlName);
         float[] measurements = measurementsVec.getElements();
-        Arrays.sort(measurements);
-        temporalVector.set(0, computePercentile(percentage, measurements));
+        if (measurements.length > 0) {
+            Arrays.sort(measurements);
+            temporalVector.set(0, computePercentile(percentage, measurements));
+        } else {
+            temporalVector.set(0, Float.NaN);
+        }
     }
 
 
     @Override
     public void computeOutput(Vector temporalVector, WritableVector outputVector) {
-        outputVector.set(0, temporalVector.get(0));
+        float value = temporalVector.get(0);
+        if (!Float.isNaN(value)) {
+            outputVector.set(0, value);
+        } else {
+            outputVector.set(0, Float.NaN);
+        }
     }
 
     @Override
@@ -151,8 +178,6 @@ public class AggregatorPercentile extends AbstractAggregator {
         String varName;
         @Parameter
         Integer percentage;
-        @Parameter
-        Float fillValue;
 
         public Config() {
             super(Descriptor.NAME);
@@ -195,7 +220,7 @@ public class AggregatorPercentile extends AbstractAggregator {
         }
 
         @Override
-        public AggregatorConfig createAggregatorConfig() {
+        public AggregatorConfig createConfig() {
             return new Config();
         }
 

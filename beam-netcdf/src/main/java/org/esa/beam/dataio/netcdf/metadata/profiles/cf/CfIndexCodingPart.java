@@ -28,6 +28,7 @@ import ucar.ma2.Array;
 import ucar.nc2.Attribute;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
+import ucar.nc2.util.EscapeStrings;
 
 import java.io.IOException;
 
@@ -41,7 +42,8 @@ public class CfIndexCodingPart extends ProfilePartIO {
     public void decode(ProfileReadContext ctx, Product p) throws IOException {
         final Band[] bands = p.getBands();
         for (Band band : bands) {
-            Variable variable = ctx.getNetcdfFile().findVariable(NetcdfFile.escapeName(band.getName()));
+            String varName = EscapeStrings.backslashEscape(band.getName(), NetcdfFile.reservedSectionSpec);
+            Variable variable = ctx.getNetcdfFile().findVariable(varName);
             final IndexCoding indexCoding = readIndexCoding(variable, band.getName());
             if (indexCoding != null) {
                 p.getIndexCodingGroup().add(indexCoding);

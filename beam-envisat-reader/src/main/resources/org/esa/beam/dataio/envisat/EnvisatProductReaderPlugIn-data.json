@@ -1,0 +1,209 @@
+{
+    "testProducts": [
+        {
+            "id": "ATS_NR__2CNPDE20030327_010543",
+            "relativePath": "sensors_platforms/AATSR/NR/N1/ATS_NR__2CNPDE20030327_010543_000000762015_00031_05596_0054.N1",
+            "description": "AATSR geophysical product (full resolution).SOFTWARE_VER: AATSR/05.58"
+        },
+        {
+            "id": "ATS_NR__2PNPDK20101103_144346",
+            "relativePath": "sensors_platforms/AATSR/NR/N1/ATS_NR__2PNPDK20101103_144346_000060673096_00097_45370_7126.N1",
+            "description": "AATSR geophysical product (full resolution),SOFTWARE_VER: AATS/06.02,overlapping"
+        },
+        {
+            "id": "ATS_TOA_1CPLRA20030427_093842",
+            "relativePath": "sensors_platforms/AATSR/TOA/N1/ATS_TOA_1CPLRA20030427_093842_000000752015_00480_06045_1343.N1",
+            "description": "AATSR Gridded brightness temperature and reflectance,SOFTWARE_VER: AATSR/5.59"
+        },
+        {
+            "id": "ATS_TOA_1PRBCM20111204_214526",
+            "relativePath": "sensors_platforms/AATSR/TOA/N1/ATS_TOA_1PRBCM20111204_214526_000005093109_00186_51062_0045.N1.zip",
+            "description": "AATSR Gridded brightness temperature and reflectance,SOFTWARE_VER: AATS/06.03, intersecting anti meridian"
+        },
+        {
+            "id": "MER_FRS_1PNACR20040515_101402",
+            "relativePath": "sensors_platforms/MERIS/MER_FRS_1P/N1/MER_FRS_1PNACR20040515_101402_000002112026_00466_11542_0000.N1",
+            "description": "MERIS Full Resolution Geolocated and Calibrated TOA Radiance, Proc.Ver. MEGS-PC/x.x"
+        },
+        {
+            "id": "MER_FR__1PNUPA20040401_001107",
+            "relativePath": "sensors_platforms/MERIS/MER_FR__1P/N1/MER_FR__1PNUPA20040401_001107_000000982025_00331_10906_0250.N1",
+            "description": "MERIS Full Resolution Geolocated and Calibrated TOA Radiance, SOFTWARE_VER: MERIS/4.07"
+        },
+        {
+            "id": "MER_FSG_1PNUPA20050515_104058",
+            "relativePath": "sensors_platforms/MERIS/MER_FSG_1P/N1/MER_FSG_1PNUPA20050515_104058_000001852037_00180_16767_4878.N1",
+            "description": "MERIS Full Resolution Full Swath Geo/Ortho-corrected TOA Radiance, SOFTWARE_VER: MERIS/4.10"
+        },
+        {
+            "id": "MER_RR__1PPBCM20110406_211743",
+            "relativePath": "sensors_platforms/MERIS/MER_RR__1P/N1/MER_RR__1PPBCM20110406_211743_000003973101_00158_47586_0408.N1",
+            "description": "MERIS Reduced Resolution Geolocated and Calibrated TOA Radiance, SOFTWARE_VER: MERIS/5.06, intersecting anti meridian"
+        },
+        {
+            "id": "MER_RR__1PTACR20080617_090305",
+            "relativePath": "sensors_platforms/MERIS/MER_RR__1P/N1/MER_RR__1PTACR20080617_090305_000026432069_00308_32927_0000.N1",
+            "description": "MERIS Reduced Resolution Geolocated and Calibrated TOA Radiance, SOFTWARE_VER: MEGS-PC/8.0h, full orbit"
+        },
+        {
+            "id": "MER_RRG_1PQBCM20050504_080734",
+            "relativePath": "sensors_platforms/MERIS/MER_RRG_1P/N1/MER_RRG_1PQBCM20050504_080734_000003972037_00021_16608_0005.N1",
+            "description": "MERIS Reduced Resolution Geo/Ortho-corrected TOA Radiance, SOFTWARE_VER: MEGS-PC/7.4.1"
+        },
+        {
+            "id": "MER_FRS_2PNMAP20090716_111956",
+            "relativePath": "sensors_platforms/MERIS/MER_FRS_2P/N1/MER_FRS_2PNMAP20090716_111956_000001632080_00438_38568_0001.N1",
+            "description": "MERIS Full Resolution Geophysical Product, SOFTWARE_VER: MERIS/5.05"
+        },
+        {
+            "id": "MER_FR__2PNEPA20060716_101936",
+            "relativePath": "sensors_platforms/MERIS/MER_FR__2P/N1/MER_FR__2PNEPA20060716_101936_000000982049_00280_22879_0373.N1",
+            "description": "MERIS Full Resolution Geophysical Product, SOFTWARE_VER: MERIS/5.02"
+        },
+        {
+            "id": "MER_FSG_2PNMAP20050528_021222",
+            "relativePath": "sensors_platforms/MERIS/MER_FSG_2P/N1/MER_FSG_2PNMAP20050528_021222_000000732037_00361_16948_0001.N1",
+            "description": "MERIS Full Resolution Full Swath Geo/Ortho-corrected TOA Reflectance, SOFTWARE_VER: MEGS/8.0 L"
+        },
+        {
+            "id": "MER_RRC_2PNPDE20090225_064119",
+            "relativePath": "sensors_platforms/MERIS/MER_RRC_2P/N1/MER_RRC_2PNPDE20090225_064119_000018462076_00421_36547_0776.gz",
+            "description": "MERIS Extracted Cloud Thickness and Water Vapour, SOFTWARE_VER: MERIS/5.05"
+        },
+        {
+            "id": "MER_RRV_2PNPDE20090225_064119",
+            "relativePath": "sensors_platforms/MERIS/MER_RRV_2P/N1/MER_RRV_2PNPDE20090225_064119_000018462076_00421_36547_0775.gz",
+            "description": "MERIS Extracted Vegetation Indices, SOFTWARE_VER: MERIS/5.05"
+        },
+        {
+            "id": "MER_RR__2PNBCG20070408_091816",
+            "relativePath": "sensors_platforms/MERIS/MER_RR__2P/N1/MER_RR__2PNBCG20070408_091816_000001632057_00079_26686_0001.N1",
+            "description": "MERIS Reduced Resolution Geophysical Product, SOFTWARE_VER: MERIS/5.04"
+        },
+        {
+            "id": "MER_RR__2PQACR20030601_010333",
+            "relativePath": "sensors_platforms/MERIS/MER_RR__2P/N1/MER_RR__2PQACR20030601_010333_000026422016_00475_06541_0000.N1",
+            "description": "MERIS Reduced Resolution Geophysical Product, SOFTWARE_VER: MEGS-PC/7.4, full orbit"
+        },
+        {
+            "id": "ASA_AP__BPXPDE20020819_093008",
+            "relativePath": "sensors_platforms/ASAR/AP/N1/ASA_AP__BPXPDE20020819_093008_000000622008_00394_02452_0009.N1",
+            "description": "SAR Alternating Polarization Browse Product, SOFTWARE_VER: ASAR/3.00S00"
+        },
+        {
+            "id": "ASA_APG_1PXPDE20020819_093043",
+            "relativePath": "sensors_platforms/ASAR/APG/N1/ASA_APG_1PXPDE20020819_093043_000000152008_00394_02452_0000.N1",
+            "description": "ASAR Alternating Polarization Ellipsoid Geocoded Image, SOFTWARE_VER, ASAR/3.00S00"
+        },
+        {
+            "id": "ASA_APM_1PNPDE20040816_024450",
+            "relativePath": "sensors_platforms/ASAR/APM/N1/ASA_APM_1PNPDE20040816_024450_000000432029_00290_12869_1071.N1",
+            "description": "ASAR Alternating Polarization Medium Resolution Image product, SOFTWARE_VER: ASAR/3.08"
+        },
+        {
+            "id": "ASA_APP_1PNPDE20080210_031331",
+            "relativePath": "sensors_platforms/ASAR/APP/N1/ASA_APP_1PNPDE20080210_031331_000000162065_00476_31091_7329.N1",
+            "description": "ASAR Alternating Polarization Mode Precision Image, SOFTWARE_VER: ASAR/4.05"
+        },
+        {
+            "id": "ASA_APS_1PXPDE20020819_093043",
+            "relativePath": "sensors_platforms/ASAR/APS/N1/ASA_APS_1PXPDE20020819_093043_000000072008_00394_02452_0000.N1",
+            "description": "ASAR Alternating Polarization Mode Single Look Complex, SOFTWARE_VER: ASAR/3.00S00"
+        },
+        {
+            "id": "ASA_GM1_1PXPDE20020317_170454",
+            "relativePath": "sensors_platforms/ASAR/GM/N1/ASA_GM1_1PXPDE20020317_170454_000001501002_02644_00238_0009.N1",
+            "description": "ASAR Global Monitoring Mode Image, SOFTWARE_VER: ASAR/3.00S00"
+        },
+        {
+            "id": "ASA_IM__BPXPDE20020730_095830",
+            "relativePath": "sensors_platforms/ASAR/IM/N1/ASA_IM__BPXPDE20020730_095830_000001002008_00108_02166_0065.N1",
+            "description": "ASAR Image Mode Browse Product, SOFTWARE_VER: ASAR/3.00S00"
+        },
+        {
+            "id": "ASA_IMG_1PXPDE20020730_095910",
+            "relativePath": "sensors_platforms/ASAR/IMG/N1/ASA_IMG_1PXPDE20020730_095910_000000162008_00108_02166_0007.N1",
+            "description": "ASAR Image Mode Ellipsoid Geocoded Image, SOFTWARE_VER: ASAR/3.00S00"
+        },
+        {
+            "id": "ASA_IMM_1PNPDE20040816_012846",
+            "relativePath": "sensors_platforms/ASAR/IMM/N1/ASA_IMM_1PNPDE20040816_012846_000000622029_00289_12868_4399.N1",
+            "description": "ASAR Image Mode Medium Resolution Image"
+        },
+        {
+            "id": "ASA_IMP_1PNUPA20060202_062233",
+            "relativePath": "sensors_platforms/ASAR/IMP/N1/ASA_IMP_1PNUPA20060202_062233_000000152044_00435_20529_3110.N1",
+            "description": "ASAR Image Mode Precision Image"
+        },
+        {
+            "id": "ASA_IMS_1PXPDE20020730_095910",
+            "relativePath": "sensors_platforms/ASAR/IMS/N1/ASA_IMS_1PXPDE20020730_095910_000000142008_00108_02166_0010.N1",
+            "description": "ASAR Image Mode Single Look Complex"
+        },
+        {
+            "id": "ASA_WS__BPXPDE20020714_100425",
+            "relativePath": "sensors_platforms/ASAR/WS/N1/ASA_WS__BPXPDE20020714_100425_000001202007_00380_01937_0053.N1",
+            "description": "ASAR Wide Swath Mode Browse Image"
+        },
+        {
+            "id": "ASA_WSM_1PNPDE20061218_230836",
+            "relativePath": "sensors_platforms/ASAR/WSM/N1/ASA_WSM_1PNPDE20061218_230836_000001282054_00001_25105_3826.N1",
+            "description": "ASAR Wide Swath Medium Resolution Image"
+        },
+        {
+            "id": "ASA_WVS_1PXPDE20020503_033815",
+            "relativePath": "sensors_platforms/ASAR/WVS/N1/ASA_WVS_1PXPDE20020503_033815_000003592005_00347_00902_0042.N1",
+            "description": "ASAR Wave Mode Imagette Cross Spectra"
+        },
+        {
+            "id": "ASA_WVW_2PXPDE20020503_033815",
+            "relativePath": "sensors_platforms/ASAR/WVW/N1/ASA_WVW_2PXPDE20020503_033815_000003592005_00347_00902_0042.N1",
+            "description": "ASAR Wave Mode Wave Spectra"
+        },
+        {
+            "id": "ATS_TOA_1PRUPA20051211_100417",
+            "relativePath": "problems/jira/180_meridian/ATS_TOA_1PRUPA20051211_100417_000065272043_00179_19772_4909.N1",
+            "description": "AATSR TOA L1 product intersecting anti meridian twice, Proc.Ver. AATSR/6.01"
+        },
+        {
+            "id": "AT1_NR__2PTRAL19930614_131152",
+            "relativePath": "sensors_platforms/ERS/ATSR1/E1/NR_ENVISAT_format/AT1_NR__2PTRAL19930614_131152_000000004013_00338_10002_0000.E1",
+            "description": "ATSR1/ERS geophysical product (full resolution), SOFTWARE_VER: proto2_static"
+        },
+        {
+            "id": "AT1_TOA_1PTRAL19930608_061757",
+            "relativePath": "sensors_platforms/ERS/ATSR1/E1/TOA_ENVISAT_format/AT1_TOA_1PTRAL19930608_061757_000000004013_00248_09912_0000.E1",
+            "description": "ERS/ATSR Gridded brightness temperature and reflectance, SOFTWARE_VER: STEP/1.3"
+        },
+        {
+            "id": "AT2_NR__2PTRAL19990217_110232",
+            "relativePath": "sensors_platforms/ERS/ATSR2/E2/NR_ENVISAT_format/AT2_NR__2PTRAL19990217_110232_000000001040_00122_20016_0000.E2",
+            "description": "ATSR2/ERS geophysical product (full resolution) SOFTWARE_VER: prt2-L/0.5"
+        },
+        {
+            "id": "AT2_TOA_1PTRAL20010107_011326",
+            "relativePath": "sensors_platforms/ERS/ATSR2/E2/TOA_ENVISAT_format/AT2_TOA_1PTRAL20010107_011326_000000001059_00474_29887_0000.E2",
+            "description": "ERS-2/ATSR-2 Gridded brightness temperature and reflectance, SOFTWARE_VER: STEP/0.0+"
+        },
+        {
+            "id": "SAR_IMP_1PXESA19940320_075713_E1",
+            "relativePath": "sensors_platforms/ERS/SAR/E1/SAR_IMP_1PXESA19940320_075713_00000015D131_00021_13995_0737.E1",
+            "description": "SAR Image Mode Precision Image, SOFTWARE_VER: ASAR/4.02P00"
+        },
+        {
+            "id": "SAR_IMG_1PXDLR19960402_104212_E2",
+            "relativePath": "sensors_platforms/ERS/SAR/E2/SAR_IMG_1PXDLR19960402_104212_00000015A010_00108_04972_0002.E2",
+            "description": "SAR Image Mode Ellipsoid Geocoded Image, SOFTWARE_VER: ASAR/4.02P00"
+        },
+        {
+            "id": "SAR_IMM_1PXKSS20080911_080647_E2",
+            "relativePath": "sensors_platforms/ERS/SAR/E2/SAR_IMM_1PXKSS20080911_080647_00000043A140_00035_70029_2012.E2",
+            "description": "SAR Image Mode Precision Image, SOFTWARE_VER: ASAR/5.00P01"
+        },
+        {
+            "id": "SAR_IM__BPXKSS20080911_080647_E2",
+            "relativePath": "sensors_platforms/ERS/SAR/E2/SAR_IM__BPXKSS20080911_080647_00000043A140_00035_70029_2012.E2",
+            "description": ""
+        }
+    ]
+}

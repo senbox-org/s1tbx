@@ -19,6 +19,7 @@ package org.esa.beam.statistics.percentile.interpolated;
 import com.bc.ceres.binding.ConversionException;
 import com.bc.ceres.binding.Converter;
 import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.glevel.MultiLevelImage;
 import org.esa.beam.dataio.dimap.DimapProductConstants;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.dataio.ProductWriter;
@@ -38,6 +39,7 @@ import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProducts;
 import org.esa.beam.interpolators.Interpolator;
 import org.esa.beam.interpolators.InterpolatorFactory;
+import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.DateTimeUtils;
 import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.io.FileUtils;
@@ -396,9 +398,7 @@ public class TemporalPercentileOp extends Operator {
             } else {
                 band = collocatedProduct.getBand(BAND_MATH_EXPRESSION_BAND_NAME);
             }
-            final InsertNoDataValueOpImage nanImage = new InsertNoDataValueOpImage(
-                        band.getGeophysicalImage(), band.getValidMaskImage(), Double.NaN);
-
+            MultiLevelImage nanImage = ImageManager.createMaskedGeophysicalImage(band, Double.NaN);
             sources.add(nanImage);
         }
         return new MeanOpImage(sources);
@@ -483,8 +483,8 @@ public class TemporalPercentileOp extends Operator {
         timeSeriesDataProduct.setName(year + "_" + targetName + SUFFIX_PERCENTILE_OP_DATA_PRODUCT);
         addExpectedMetadataForTimeSeriesTool(targetName);
         timeSeriesDataProduct.setAutoGrouping(targetName);
-        timeSeriesDataProduct.setStartTime(new ProductData.UTC(timeSeriesStartMJD));
-        timeSeriesDataProduct.setEndTime(new ProductData.UTC(timeSeriesEndMJD));
+        timeSeriesDataProduct.setStartTime(ProductData.UTC.create(DateTimeUtils.jdToUTC(DateTimeUtils.mjdToJD(timeSeriesStartMJD)),0));
+        timeSeriesDataProduct.setEndTime(ProductData.UTC.create(DateTimeUtils.jdToUTC(DateTimeUtils.mjdToJD(timeSeriesEndMJD)),0));
         for (long mjd : dailyGroupedSourceProducts.keySet()) {
             final String dayMeanBandName = createNameForMeanBand(mjd);
             final int dayIdx = (int) (mjd - timeSeriesStartMJD);

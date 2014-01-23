@@ -88,7 +88,8 @@ public class WildcardMatcher {
             throw new IOException(String.format("Failed to access directory '%s'", dir));
         }
         for (File file : files) {
-            if (matcher.matches(file.getCanonicalPath())) {
+            // check for both to catch symlinks as well
+            if (matcher.matches(file.getCanonicalPath()) || matcher.matches(file.getPath())) {
                 fileSet.add(file);
             }
             if (file.isDirectory()) {

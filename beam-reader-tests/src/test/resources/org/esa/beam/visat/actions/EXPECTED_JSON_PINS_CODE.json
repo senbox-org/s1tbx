@@ -1,0 +1,81 @@
+{
+    "id": "Hans_Wurst",
+    "decodeQualification": "INTENDED",
+    "expectedContent": {
+        "sceneWidth": 10,
+        "sceneHeight": 20,
+        "startTime": "23-AUG-1983 12:10:10.000000",
+        "endTime": "23-AUG-1983 12:14:41.000000",
+        "geoCoding": {
+            "coordinates": [
+                {
+                    "x": 3.0,
+                    "y": 7.0,
+                    "lat": 6.5,
+                    "lon": 2.5
+                },
+                {
+                    "x": 8.0,
+                    "y": 16.5,
+                    "lat": 16.0,
+                    "lon": 7.5
+                }
+            ],
+            "reverseAccuracy": 0.0
+        },
+        "bands": [
+            {
+                "name": "band_1",
+                "description": "description_1",
+                "geophysicalUnit": "abc",
+                "noDataValue": "1.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 3,
+                        "y": 7,
+                        "value": "NaN"
+                    },
+                    {
+                        "x": 8,
+                        "y": 16,
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "band_2",
+                "description": "description_2",
+                "geophysicalUnit": "m/w^2",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 3,
+                        "y": 7,
+                        "value": 2.0
+                    },
+                    {
+                        "x": 8,
+                        "y": 16,
+                        "value": 2.0
+                    }
+                ]
+            }
+        ],
+        "metadata": [
+            {
+                "path": "test_1/ABC[3]/Name",
+                "value": "ABC_3"
+            },
+            {
+                "path": "test_2/attrib[3]",
+                "value": "ghi"
+            }
+        ]
+    }
+}

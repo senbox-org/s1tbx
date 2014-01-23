@@ -16,7 +16,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 public class AggregatingPixExMeasurementFactoryTest {
 
@@ -133,6 +133,117 @@ public class AggregatingPixExMeasurementFactoryTest {
 
         Measurement expectedMeasurement = createExpectedMeasurement(pixelX, pixelY, coordinateID,
                                                                     coordsName, 17, 25.5f);
+        assertEquals(expectedMeasurement, measurements[0]);
+    }
+
+    @Test
+    public void testMeanWithFillValues_float() throws Exception {
+        // preparation
+        final AggregatorStrategy aggregatorStrategy = new MeanAggregatorStrategy();
+        final MeasurementFactory factory = new AggregatingPixExMeasurementFactory(rasterNamesFactory, 5,
+                                                                                  productRegistry, aggregatorStrategy);
+        Product fillValueContainingProduct = new Product("p0", "t0", 5, 5);
+        Band band = fillValueContainingProduct.addBand("b0", ProductData.TYPE_FLOAT32);
+        band.setNoDataValue(-1.0);
+        band.setData(new ProductData.Float(new float[]{
+                1.0F, 1.0F, 1.0F, 1.0F, 1.0F,
+                1.0F, 1.0F, 1.0F, 1.0F, 1.0F,
+                1.0F, 1.0F, 1.0F, 1.0F, 1.0F,
+                1.0F, 1.0F, 1.0F, 1.0F, 1.0F,
+                -1.0F, -1.0F, -1.0F, -1.0F, -1.0F
+        }));
+
+        // execution
+        final int pixelX = 2;
+        final int pixelY = 2;
+        final int coordinateID = 2345;
+        final String coordsName = "coordsName";
+        final Measurement[] measurements = factory.createMeasurements(pixelX, pixelY, coordinateID, coordsName, fillValueContainingProduct,
+                                                                      null);
+
+        // verifying
+        assertEquals(1, measurements.length);
+
+        Number[] expectedValues = {
+                1.0F, 0.0F // mean, sigma
+        };
+        final Measurement expectedMeasurement = new Measurement(coordinateID, coordsName, 1234L, 2.5F, 2.5F, null,
+                                                                new GeoPos(),
+                                                                expectedValues, true);
+        assertEquals(expectedMeasurement, measurements[0]);
+    }
+
+    @Test
+    public void testMeanWithFillValues_int() throws Exception {
+        // preparation
+        final AggregatorStrategy aggregatorStrategy = new MeanAggregatorStrategy();
+        final MeasurementFactory factory = new AggregatingPixExMeasurementFactory(rasterNamesFactory, 5,
+                                                                                  productRegistry, aggregatorStrategy);
+        Product fillValueContainingProduct = new Product("p0", "t0", 5, 5);
+        Band band = fillValueContainingProduct.addBand("b0", ProductData.TYPE_INT16);
+        band.setNoDataValue(16);
+        band.setData(new ProductData.Short(new short[]{
+                1, 1, 1, 1, 1,
+                1, 1, 1, 1, 1,
+                1, 1, 1, 1, 1,
+                1, 1, 1, 1, 1,
+                16, 16, 16, 16, 16
+        }));
+
+        // execution
+        final int pixelX = 2;
+        final int pixelY = 2;
+        final int coordinateID = 2345;
+        final String coordsName = "coordsName";
+        final Measurement[] measurements = factory.createMeasurements(pixelX, pixelY, coordinateID, coordsName, fillValueContainingProduct,
+                                                                      null);
+
+        // verifying
+        assertEquals(1, measurements.length);
+
+        Number[] expectedValues = {
+                1.0F, 0.0F // mean, sigma
+        };
+        final Measurement expectedMeasurement = new Measurement(coordinateID, coordsName, 1234L, 2.5F, 2.5F, null,
+                                                                new GeoPos(),
+                                                                expectedValues, true);
+        assertEquals(expectedMeasurement, measurements[0]);
+    }
+
+    @Test
+    public void testMeanWithFillValues_uint32() throws Exception {
+        // preparation
+        final AggregatorStrategy aggregatorStrategy = new MeanAggregatorStrategy();
+        final MeasurementFactory factory = new AggregatingPixExMeasurementFactory(rasterNamesFactory, 5,
+                                                                                  productRegistry, aggregatorStrategy);
+        Product fillValueContainingProduct = new Product("p0", "t0", 5, 5);
+        Band band = fillValueContainingProduct.addBand("b0", ProductData.TYPE_UINT32);
+        band.setNoDataValue(16);
+        band.setData(new ProductData.UInt(new int[]{
+                1, 1, 1, 1, 1,
+                1, 1, 1, 1, 1,
+                1, 1, 1, 1, 1,
+                1, 1, 1, 1, 1,
+                16, 16, 16, 16, 16
+        }));
+
+        // execution
+        final int pixelX = 2;
+        final int pixelY = 2;
+        final int coordinateID = 2345;
+        final String coordsName = "coordsName";
+        final Measurement[] measurements = factory.createMeasurements(pixelX, pixelY, coordinateID, coordsName, fillValueContainingProduct,
+                                                                      null);
+
+        // verifying
+        assertEquals(1, measurements.length);
+
+        Number[] expectedValues = {
+                1.0F, 0.0F // mean, sigma
+        };
+        final Measurement expectedMeasurement = new Measurement(coordinateID, coordsName, 1234L, 2.5F, 2.5F, null,
+                                                                new GeoPos(),
+                                                                expectedValues, true);
         assertEquals(expectedMeasurement, measurements[0]);
     }
 

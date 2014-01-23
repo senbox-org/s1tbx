@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2013 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -22,7 +22,7 @@ import org.esa.beam.binning.support.VectorImpl;
 import org.junit.Before;
 import org.junit.Test;
 
-import static java.lang.Float.*;
+import static java.lang.Float.NaN;
 import static org.esa.beam.binning.aggregators.AggregatorTestUtils.*;
 import static org.junit.Assert.*;
 
@@ -104,4 +104,61 @@ public class AggregatorPercentileTest {
         assertEquals(0.77f, out.get(0), 1e-5f);
     }
 
+    @Test
+    public void testAggregatorPercentileWithNaN() {
+        AggregatorPercentile agg = new AggregatorPercentile(new MyVariableContext("c"), "c", 50);
+
+        VectorImpl svec = vec(NaN);
+        VectorImpl tvec = vec(NaN);
+        VectorImpl out = vec(NaN);
+
+        agg.initSpatial(ctx, svec);
+        assertEquals(0.0f, svec.get(0), 0.0f);
+
+        agg.aggregateSpatial(ctx, obsNT(1.5f), svec);
+        agg.aggregateSpatial(ctx, obsNT(2.5f), svec);
+        agg.aggregateSpatial(ctx, obsNT(NaN), svec);
+        float sumX = 1.5f + 2.5f;
+        assertEquals(sumX, svec.get(0), 1e-5f);
+
+        agg.completeSpatial(ctx, 3, svec);
+        assertEquals(sumX / 2, svec.get(0), 1e-5f);
+
+        agg.initTemporal(ctx, tvec);
+        assertEquals(0.0f, tvec.get(0), 0.0f);
+
+        agg.aggregateTemporal(ctx, vec(NaN), 1, tvec);
+        agg.aggregateTemporal(ctx, vec(NaN), 1, tvec);
+        agg.aggregateTemporal(ctx, vec(NaN), 1, tvec);
+        agg.aggregateTemporal(ctx, vec(0.4f), 1, tvec);
+        agg.aggregateTemporal(ctx, vec(0.5f), 1, tvec);
+        agg.aggregateTemporal(ctx, vec(0.6f), 1, tvec);
+        agg.aggregateTemporal(ctx, vec(0.7f), 1, tvec);
+        agg.aggregateTemporal(ctx, vec(NaN), 1, tvec);
+        agg.aggregateTemporal(ctx, vec(0.9f), 1, tvec);
+        agg.aggregateTemporal(ctx, vec(NaN), 1, tvec);
+        assertEquals(0.0f, tvec.get(0), 1e-5f);
+
+        agg.completeTemporal(ctx, 10, tvec);
+        assertEquals(0.6f, tvec.get(0), 1e-5f);
+
+        agg.computeOutput(tvec, out);
+        assertEquals(0.6f, out.get(0), 1e-5f);
+    }
+
+    @Test
+    public void testAggregatorPercentileWithZeroValues() {
+        AggregatorPercentile agg = new AggregatorPercentile(new MyVariableContext("c"), "c", 50);
+
+        VectorImpl svec = vec(NaN);
+        VectorImpl tvec = vec(NaN);
+        VectorImpl out = vec(NaN);
+
+        agg.initSpatial(ctx, svec);
+        agg.completeSpatial(ctx, 0, svec);
+        agg.initTemporal(ctx, tvec);
+        agg.completeTemporal(ctx, 0, tvec);
+        agg.computeOutput(tvec, out);
+        assertTrue(Float.isNaN(out.get(0)));
+    }
 }

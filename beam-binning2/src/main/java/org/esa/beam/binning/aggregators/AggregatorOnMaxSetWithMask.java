@@ -198,7 +198,7 @@ public final class AggregatorOnMaxSetWithMask extends AbstractAggregator {
         }
 
         @Override
-        public AggregatorConfig createAggregatorConfig() {
+        public AggregatorConfig createConfig() {
             return new Config();
         }
 

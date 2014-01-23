@@ -1,4 +1,22 @@
+/*
+ * Copyright (C) 2013 Brockmann Consult GmbH (info@brockmann-consult.de)
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 3 of the License, or (at your option)
+ * any later version.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, see http://www.gnu.org/licenses/
+ */
+
 package org.esa.beam.binning;
+
+import com.vividsolutions.jts.geom.Geometry;
 
 /**
  * The binning context.
@@ -32,4 +50,16 @@ public interface BinningContext {
      */
     Integer getSuperSampling();
 
+    /**
+     * @return The definition of a "spatial data-day", or more generally, a spatial data-period used for the binning.
+     * May be {@code null}, if not used.
+     * @since BEAM 5
+     */
+    DataPeriod getDataPeriod();
+
+    /**
+     * @return The region that should be considered for binning.  May be {@code null}, if not used.
+     * @since BEAM 5
+     */
+    Geometry getRegion();
 }

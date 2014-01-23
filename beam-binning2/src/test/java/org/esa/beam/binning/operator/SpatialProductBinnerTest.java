@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2013 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -20,6 +20,7 @@ import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.binning.BinManager;
 import org.esa.beam.binning.BinningContext;
 import org.esa.beam.binning.CompositingType;
+import org.esa.beam.binning.DataPeriod;
 import org.esa.beam.binning.PlanetaryGrid;
 import org.esa.beam.binning.SpatialBin;
 import org.esa.beam.binning.SpatialBinConsumer;
@@ -31,6 +32,7 @@ import org.esa.beam.binning.support.SEAGrid;
 import org.esa.beam.binning.support.VariableContextImpl;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.TiePointGeoCoding;
 import org.esa.beam.framework.datamodel.TiePointGrid;
 import org.junit.Assert;
@@ -45,7 +47,7 @@ public class SpatialProductBinnerTest {
 
     @Test
     public void testThatProductMustHaveAGeoCoding() throws Exception {
-        BinningContext ctx = createValidCtx();
+        BinningContext ctx = createValidCtx(1, null);
 
         try {
             MySpatialBinConsumer mySpatialBinProcessor = new MySpatialBinConsumer();
@@ -61,7 +63,7 @@ public class SpatialProductBinnerTest {
     @Test
     public void testProcessProduct() throws Exception {
 
-        BinningContext ctx = createValidCtx();
+        BinningContext ctx = createValidCtx(1, null);
         Product product = createProduct();
 
         MySpatialBinConsumer mySpatialBinProcessor = new MySpatialBinConsumer();
@@ -71,13 +73,40 @@ public class SpatialProductBinnerTest {
     }
 
     @Test
-    public void testProcessProductWithSuperSampling() throws Exception {
+    public void testProcessProductWithDataPeriod() throws Exception {
 
-        BinningContext ctx = createValidCtx();
+        DataPeriod testDataPeriod = new DataPeriod() {
+            @Override
+            public double getStartTime() {
+                return 0; // unused
+            }
+
+            @Override
+            public int getDuration() {
+                return 0; // unused
+            }
+
+            @Override
+            public Membership getObservationMembership(double lon, double time) {
+                return Membership.SUBSEQUENT_PERIODS;
+            }
+        };
+        BinningContext ctx = createValidCtx(1, testDataPeriod);
+        Product product = createProduct();
+
+        MySpatialBinConsumer mySpatialBinProcessor = new MySpatialBinConsumer();
+        SpatialProductBinner.processProduct(product, new SpatialBinner(ctx, mySpatialBinProcessor),
+                                            1, new HashMap<Product, List<Band>>(), ProgressMonitor.NULL);
+        Assert.assertEquals(0, mySpatialBinProcessor.numObs); // all are pixels are rejected
+    }
+
+    @Test
+    public void testProcessProductWithSuperSampling() throws Exception {
+        int superSampling = 3;
+        BinningContext ctx = createValidCtx(superSampling, null);
         Product product = createProduct();
 
         MySpatialBinConsumer mySpatialBinConsumer = new MySpatialBinConsumer();
-        int superSampling = 3;
         SpatialProductBinner.processProduct(product, new SpatialBinner(ctx, mySpatialBinConsumer),
                                             superSampling, new HashMap<Product, List<Band>>(), ProgressMonitor.NULL);
         Assert.assertEquals(32 * 256 * superSampling * superSampling, mySpatialBinConsumer.numObs);
@@ -86,7 +115,7 @@ public class SpatialProductBinnerTest {
     @Test
     public void testAddedBands() throws Exception {
 
-        BinningContext ctx = createValidCtx();
+        BinningContext ctx = createValidCtx(1, null);
         Product product = createProduct();
 
         HashMap<Product, List<Band>> productBandListMap = new HashMap<Product, List<Band>>();
@@ -107,7 +136,7 @@ public class SpatialProductBinnerTest {
     @Test
     public void testProcessProductWithMask() throws Exception {
 
-        BinningContext ctx = createValidCtx();
+        BinningContext ctx = createValidCtx(1, null);
         VariableContextImpl variableContext = (VariableContextImpl) ctx.getVariableContext();
         variableContext.setMaskExpr("floor(X) % 2");
         Product product = createProduct();
@@ -123,14 +152,13 @@ public class SpatialProductBinnerTest {
 
     @Test
     public void testProcessProductWithMaskAndSuperSampling() throws Exception {
-
-        BinningContext ctx = createValidCtx();
+        int superSampling = 3;
+        BinningContext ctx = createValidCtx(superSampling, null);
         VariableContextImpl variableContext = (VariableContextImpl) ctx.getVariableContext();
         variableContext.setMaskExpr("floor(X) % 2");
         Product product = createProduct();
 
         MySpatialBinConsumer mySpatialBinConsumer = new MySpatialBinConsumer();
-        int superSampling = 3;
         SpatialBinner spatialBinner = new SpatialBinner(ctx, mySpatialBinConsumer);
         long numObservations = SpatialProductBinner.processProduct(product, spatialBinner, superSampling,
                                                                    new HashMap<Product, List<Band>>(),
@@ -161,7 +189,7 @@ public class SpatialProductBinnerTest {
     }
 
 
-    private Product createProduct() {
+    private static Product createProduct() throws Exception {
         Product product = new Product("p", "t", 32, 256);
         final TiePointGrid lat = new TiePointGrid("lat", 2, 2, 0f, 0f, 32f, 256f,
                                                   new float[]{+40f, +40f, -40f, -40f});
@@ -171,10 +199,12 @@ public class SpatialProductBinnerTest {
         product.addTiePointGrid(lon);
         product.setGeoCoding(new TiePointGeoCoding(lat, lon));
         product.setPreferredTileSize(32, 16);
+        product.setStartTime(ProductData.UTC.parse("2003-01-01", "yyyy-MM-dd"));
+        product.setEndTime(ProductData.UTC.parse("2003-01-02", "yyyy-MM-dd"));
         return product;
     }
 
-    private static BinningContext createValidCtx() {
+    private static BinningContext createValidCtx(int superSampling, DataPeriod dataPeriod) {
         VariableContextImpl variableContext = new VariableContextImpl();
         variableContext.setMaskExpr("!invalid");
         variableContext.defineVariable("invalid", "0");
@@ -186,7 +216,7 @@ public class SpatialProductBinnerTest {
                                                new AggregatorAverage(variableContext, "a", null),
                                                new AggregatorAverage(variableContext, "b", null));
 
-        return new BinningContextImpl(planetaryGrid, binManager, CompositingType.BINNING, 1);
+        return new BinningContextImpl(planetaryGrid, binManager, CompositingType.BINNING, superSampling, dataPeriod, null);
     }
 
     private static class MySpatialBinConsumer implements SpatialBinConsumer {

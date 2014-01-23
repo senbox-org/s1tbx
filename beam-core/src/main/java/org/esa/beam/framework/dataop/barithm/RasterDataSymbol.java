@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -64,7 +64,7 @@ public class RasterDataSymbol implements Symbol {
     }
 
     public RasterDataSymbol(final String symbolName, final RasterDataNode raster, final Source source) {
-        this(symbolName, computeSymbolType(raster), raster, source);
+        this(symbolName, computeSymbolType(raster, source), raster, source);
     }
 
     private RasterDataSymbol(String symbolName, int symbolType, RasterDataNode raster, Source source) {
@@ -74,11 +74,18 @@ public class RasterDataSymbol implements Symbol {
         this.source = source;
     }
 
-    private static int computeSymbolType(RasterDataNode raster) {
+    private static int computeSymbolType(RasterDataNode raster, Source source) {
         if (raster instanceof Mask) {
             return Term.TYPE_B;
         }
-        return raster.isFloatingPointType() ? Term.TYPE_D : Term.TYPE_I;
+        int dataType = raster.getDataType();
+        boolean isFloatingPointType = ProductData.isFloatingPointType(dataType);
+        boolean isScaled = raster.isScalingApplied();
+        switch (source) {
+            case RAW: return isFloatingPointType ? Term.TYPE_D : Term.TYPE_I;
+            case GEOPHYSICAL: return isScaled || isFloatingPointType ? Term.TYPE_D : Term.TYPE_I;
+        }
+        throw new IllegalArgumentException("Source not supported: " + source);
     }
 
     @Override

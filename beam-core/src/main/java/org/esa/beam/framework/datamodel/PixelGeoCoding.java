@@ -22,7 +22,6 @@ import com.bc.ceres.core.SubProgressMonitor;
 import com.bc.ceres.glevel.MultiLevelImage;
 import com.bc.jexp.ParseException;
 import org.esa.beam.framework.dataio.ProductSubsetDef;
-import org.esa.beam.framework.dataop.barithm.BandArithmetic;
 import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.BitRaster;
@@ -40,7 +39,6 @@ import javax.media.jai.RasterAccessor;
 import javax.media.jai.RasterFactory;
 import javax.media.jai.RasterFormatTag;
 import javax.media.jai.RenderedOp;
-import javax.media.jai.operator.CropDescriptor;
 import javax.media.jai.operator.ScaleDescriptor;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
@@ -96,7 +94,7 @@ import java.util.Vector;
  * The advantage of this algorithm is that it obviously avoids problems related
  * to the antimeridian and poles included in the source region.
  */
-public class PixelGeoCoding extends AbstractGeoCoding {
+public class PixelGeoCoding extends AbstractGeoCoding implements BasicPixelGeoCoding {
 
     /**
      * @since BEAM 4.9
@@ -210,8 +208,12 @@ public class PixelGeoCoding extends AbstractGeoCoding {
             int numTiePoints = tpGridWidth * tpGridHeight;
             final boolean containsAngles = true;
 
-            final float[] latTiePoints = tempLatImg.getAsBufferedImage().getRaster().getPixels(minX, minY, tpGridWidth, tpGridHeight, new float[numTiePoints]);
-            final float[] lonTiePoints = tempLonImg.getAsBufferedImage().getRaster().getPixels(minX, minY, tpGridWidth, tpGridHeight, new float[numTiePoints]);
+            final float[] latTiePoints = tempLatImg.getAsBufferedImage().getRaster().getPixels(minX, minY, tpGridWidth,
+                                                                                               tpGridHeight,
+                                                                                               new float[numTiePoints]);
+            final float[] lonTiePoints = tempLonImg.getAsBufferedImage().getRaster().getPixels(minX, minY, tpGridWidth,
+                                                                                               tpGridHeight,
+                                                                                               new float[numTiePoints]);
 
             final TiePointGrid tpLatGrid = new TiePointGrid("lat", tpGridWidth, tpGridHeight, tpOffsetX, tpOffsetY,
                                                             subSampling, subSampling, latTiePoints, containsAngles);
@@ -255,6 +257,7 @@ public class PixelGeoCoding extends AbstractGeoCoding {
      *                     e.g. for 300 meter pixels a search radius of 5 is a good choice. This parameter is ignored
      *                     if the source product is not geo-coded.
      * @param pm           a monitor to inform the user about progress
+     *
      * @throws IOException if an I/O error occurs while additional data is loaded from the source product
      */
     public PixelGeoCoding(final Band latBand, final Band lonBand, final String validMask, final int searchRadius,
@@ -358,14 +361,17 @@ public class PixelGeoCoding extends AbstractGeoCoding {
         return size;
     }
 
+    @Override
     public Band getLatBand() {
         return latBand;
     }
 
+    @Override
     public Band getLonBand() {
         return lonBand;
     }
 
+    @Override
     public String getValidMask() {
         return validMaskExpression;
     }
@@ -375,6 +381,7 @@ public class PixelGeoCoding extends AbstractGeoCoding {
      *
      * @return the underlying delegate geo-coding, can be null
      */
+    @Override
     public GeoCoding getPixelPosEstimator() {
         if (estimatorCreatedInternally) {
             return null;
@@ -387,6 +394,7 @@ public class PixelGeoCoding extends AbstractGeoCoding {
      *
      * @return the search radius in pixels
      */
+    @Override
     public int getSearchRadius() {
         return searchRadius;
     }
@@ -447,6 +455,7 @@ public class PixelGeoCoding extends AbstractGeoCoding {
      * @param geoPos   the geographical position as lat/lon.
      * @param pixelPos an instance of <code>Point</code> to be used as retun value. If this parameter is
      *                 <code>null</code>, the method creates a new instance which it then returns.
+     *
      * @return the pixel co-ordinates as x/y
      */
     @Override
@@ -638,6 +647,7 @@ public class PixelGeoCoding extends AbstractGeoCoding {
      * @param pixelPos the pixel's co-ordinates given as x,y
      * @param geoPos   an instance of <code>GeoPos</code> to be used as retun value. If this parameter is
      *                 <code>null</code>, the method creates a new instance which it then returns.
+     *
      * @return the geographical position as lat/lon.
      */
     @Override
@@ -1023,13 +1033,13 @@ public class PixelGeoCoding extends AbstractGeoCoding {
             int dy = bestY - y0;
             if (Math.abs(dx) >= searchRadius || Math.abs(dy) >= searchRadius) {
                 Debug.trace("WARNING: search radius reached at " +
-                                    "(x0 = " + x0 + ", y0 = " + y0 + "), " +
-                                    "(dx = " + dx + ", dy = " + dy + "), " +
-                                    "#best = " + bestCount);
+                            "(x0 = " + x0 + ", y0 = " + y0 + "), " +
+                            "(dx = " + dx + ", dy = " + dy + "), " +
+                            "#best = " + bestCount);
             }
         } else {
             Debug.trace("WARNING: no better pixel found at " +
-                                "(x0 = " + x0 + ", y0 = " + y0 + ")");
+                        "(x0 = " + x0 + ", y0 = " + y0 + ")");
         }
     }
 
@@ -1040,6 +1050,7 @@ public class PixelGeoCoding extends AbstractGeoCoding {
      * @param srcScene  the source scene
      * @param destScene the destination scene
      * @param subsetDef the definition of the subset, may be <code>null</code>
+     *
      * @return true, if the geo-coding could be transferred.
      */
     @Override
@@ -1048,13 +1059,13 @@ public class PixelGeoCoding extends AbstractGeoCoding {
         final Product destProduct = destScene.getProduct();
         Band latBand = destProduct.getBand(srcLatBand.getName());
         if (latBand == null) {
-            latBand = createSubset(srcLatBand, destScene, subsetDef);
+            latBand = GeoCodingFactory.createSubset(srcLatBand, destScene, subsetDef);
             destProduct.addBand(latBand);
         }
         final Band srcLonBand = getLonBand();
         Band lonBand = destProduct.getBand(srcLonBand.getName());
         if (lonBand == null) {
-            lonBand = createSubset(srcLonBand, destScene, subsetDef);
+            lonBand = GeoCodingFactory.createSubset(srcLonBand, destScene, subsetDef);
             destProduct.addBand(lonBand);
         }
         if (pixelPosEstimator instanceof AbstractGeoCoding && !estimatorCreatedInternally) {
@@ -1064,7 +1075,7 @@ public class PixelGeoCoding extends AbstractGeoCoding {
         String validMaskExpression = getValidMask();
         try {
             if (validMaskExpression != null) {
-                copyReferencedRasters(validMaskExpression, srcScene, destScene, subsetDef);
+                GeoCodingFactory.copyReferencedRasters(validMaskExpression, srcScene, destScene, subsetDef);
             }
         } catch (ParseException ignored) {
             validMaskExpression = null;
@@ -1073,81 +1084,6 @@ public class PixelGeoCoding extends AbstractGeoCoding {
                                                   validMaskExpression,
                                                   getSearchRadius()));
         return true;
-    }
-
-    private void copyReferencedRasters(String validMaskExpression, Scene srcScene, Scene destScene,
-                                       ProductSubsetDef subsetDef) throws ParseException {
-        Product destProduct = destScene.getProduct();
-        final RasterDataNode[] dataNodes = BandArithmetic.getRefRasters(validMaskExpression,
-                                                                        srcScene.getProduct());
-        for (RasterDataNode dataNode : dataNodes) {
-            if (!destProduct.containsRasterDataNode(dataNode.getName())) {
-                if (dataNode instanceof TiePointGrid) {
-                    TiePointGrid tpg = TiePointGrid.createSubset((TiePointGrid) dataNode, subsetDef);
-                    destProduct.addTiePointGrid(tpg);
-                }
-                if (dataNode instanceof Band) {
-                    final Band srcBand = (Band) dataNode;
-                    Band band = createSubset(srcBand, destScene, subsetDef);
-                    destProduct.addBand(band);
-                    setFlagCoding(band, srcBand.getFlagCoding());
-                }
-            }
-        }
-    }
-
-    private static void setFlagCoding(Band band, FlagCoding flagCoding) {
-        if (flagCoding != null) {
-            String flagCodingName = flagCoding.getName();
-            final Product product = band.getProduct();
-            if (!product.getFlagCodingGroup().contains(flagCodingName)) {
-                addFlagCoding(product, flagCoding);
-            }
-            band.setSampleCoding(product.getFlagCodingGroup().get(flagCodingName));
-        }
-    }
-
-    private static void addFlagCoding(Product product, FlagCoding flagCoding) {
-        final FlagCoding targetFlagCoding = new FlagCoding(flagCoding.getName());
-
-        targetFlagCoding.setDescription(flagCoding.getDescription());
-        ProductUtils.copyMetadata(flagCoding, targetFlagCoding);
-        product.getFlagCodingGroup().add(targetFlagCoding);
-    }
-
-    private Band createSubset(Band srcBand, Scene destScene, ProductSubsetDef subsetDef) {
-        Band band = new Band(srcBand.getName(),
-                             srcBand.getDataType(),
-                             destScene.getRasterWidth(),
-                             destScene.getRasterHeight());
-        ProductUtils.copyRasterDataNodeProperties(srcBand, band);
-        band.setSourceImage(getSourceImage(subsetDef, srcBand));
-        return band;
-    }
-
-    private RenderedImage getSourceImage(ProductSubsetDef subsetDef, Band band) {
-        RenderedImage image = band.getSourceImage();
-        if (subsetDef != null) {
-            final Rectangle region = subsetDef.getRegion();
-            if (region != null) {
-                float x = region.x;
-                float y = region.y;
-                float width = region.width;
-                float height = region.height;
-                image = CropDescriptor.create(image, x, y, width, height, null);
-            }
-            final int subSamplingX = subsetDef.getSubSamplingX();
-            final int subSamplingY = subsetDef.getSubSamplingY();
-            if (subSamplingX != 1 || subSamplingY != 1) {
-                float scaleX = 1.0f / subSamplingX;
-                float scaleY = 1.0f / subSamplingY;
-                float transX = 0.0f;
-                float transY = 0.0f;
-                Interpolation interpolation = Interpolation.getInstance(Interpolation.INTERP_NEAREST);
-                image = ScaleDescriptor.create(image, scaleX, scaleY, transX, transY, interpolation, null);
-            }
-        }
-        return image;
     }
 
     private static class PixelGrid extends TiePointGrid {

@@ -33,6 +33,8 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.JTree;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreePath;
@@ -70,91 +72,91 @@ public class CreateFilteredBandAction extends ExecCommand {
     }
 
     Filter[] LINE_DETECTION_FILTERS = {
-            new KernelFilter("Horizontal Edges", new Kernel(3, 3, new double[]{
+            new KernelFilter("Horizontal Edges", "he", new Kernel(3, 3, new double[]{
                     -1, -1, -1,
                     +2, +2, +2,
                     -1, -1, -1
             })),
-            new KernelFilter("Vertical Edges", new Kernel(3, 3, new double[]{
+            new KernelFilter("Vertical Edges", "ve", new Kernel(3, 3, new double[]{
                     -1, +2, -1,
                     -1, +2, -1,
                     -1, +2, -1
             })),
-            new KernelFilter("Left Diagonal Edges", new Kernel(3, 3, new double[]{
+            new KernelFilter("Left Diagonal Edges", "lde", new Kernel(3, 3, new double[]{
                     +2, -1, -1,
                     -1, +2, -1,
                     -1, -1, +2
             })),
-            new KernelFilter("Right Diagonal Edges", new Kernel(3, 3, new double[]{
+            new KernelFilter("Right Diagonal Edges", "rde", new Kernel(3, 3, new double[]{
                     -1, -1, +2,
                     -1, +2, -1,
                     +2, -1, -1
             })),
 
-            new KernelFilter("Compass Edge Detector", new Kernel(3, 3, new double[]{
+            new KernelFilter("Compass Edge Detector", "ced", new Kernel(3, 3, new double[]{
                     -1, +1, +1,
                     -1, -2, +1,
                     -1, +1, +1,
             })),
 
-            new KernelFilter("Diagonal Compass Edge Detector", new Kernel(3, 3, new double[]{
+            new KernelFilter("Diagonal Compass Edge Detector", "dced", new Kernel(3, 3, new double[]{
                     +1, +1, +1,
                     -1, -2, +1,
                     -1, -1, +1,
             })),
 
-            new KernelFilter("Roberts Cross North-West", new Kernel(2, 2, new double[]{
+            new KernelFilter("Roberts Cross North-West", "rcnw", new Kernel(2, 2, new double[]{
                     +1, 0,
                     0, -1,
             })),
 
-            new KernelFilter("Roberts Cross North-East", new Kernel(2, 2, new double[]{
+            new KernelFilter("Roberts Cross North-East", "rcne", new Kernel(2, 2, new double[]{
                     0, +1,
                     -1, 0,
             })),
     };
     Filter[] GRADIENT_DETECTION_FILTERS = {
-            new KernelFilter("Sobel North", new Kernel(3, 3, new double[]{
+            new KernelFilter("Sobel North", "sn", new Kernel(3, 3, new double[]{
                     -1, -2, -1,
                     +0, +0, +0,
                     +1, +2, +1,
             })),
-            new KernelFilter("Sobel South", new Kernel(3, 3, new double[]{
+            new KernelFilter("Sobel South", "ss", new Kernel(3, 3, new double[]{
                     +1, +2, +1,
                     +0, +0, +0,
                     -1, -2, -1,
             })),
-            new KernelFilter("Sobel West", new Kernel(3, 3, new double[]{
+            new KernelFilter("Sobel West", "sw", new Kernel(3, 3, new double[]{
                     -1, 0, +1,
                     -2, 0, +2,
                     -1, 0, +1,
             })),
-            new KernelFilter("Sobel East", new Kernel(3, 3, new double[]{
+            new KernelFilter("Sobel East", "se", new Kernel(3, 3, new double[]{
                     +1, 0, -1,
                     +2, 0, -2,
                     +1, 0, -1,
             })),
-            new KernelFilter("Sobel North East", new Kernel(3, 3, new double[]{
+            new KernelFilter("Sobel North East", "sne", new Kernel(3, 3, new double[]{
                     +0, -1, -2,
                     +1, +0, -1,
                     +2, +1, -0,
             })),
     };
     Filter[] SMOOTHING_FILTERS = {
-            new KernelFilter("Arithmetic 3x3 Mean", new Kernel(3, 3, 1.0 / 9.0, new double[]{
+            new KernelFilter("Arithmetic Mean 3x3", "am3", new Kernel(3, 3, 1.0 / 9.0, new double[]{
                     +1, +1, +1,
                     +1, +1, +1,
                     +1, +1, +1,
             })),
 
-            new KernelFilter("Arithmetic 4x4 Mean", new Kernel(4, 4, 1.0 / 16.0, new double[]{
+            new KernelFilter("Arithmetic Mean 4x4", "am4", new Kernel(4, 4, 1.0 / 16.0, new double[]{
                     +1, +1, +1, +1,
                     +1, +1, +1, +1,
                     +1, +1, +1, +1,
                     +1, +1, +1, +1,
             })),
 
-            new KernelFilter("Arithmetic 5x5 Mean", new Kernel(5, 5, 1.0 / 25.0, new double[]{
+            new KernelFilter("Arithmetic Mean 5x5", "am5", new Kernel(5, 5, 1.0 / 25.0, new double[]{
                     +1, +1, +1, +1, +1,
                     +1, +1, +1, +1, +1,
                     +1, +1, +1, +1, +1,
@@ -162,12 +164,12 @@ public class CreateFilteredBandAction extends ExecCommand {
                     +1, +1, +1, +1, +1,
             })),
 
-            new KernelFilter("Low-Pass 3x3", new Kernel(3, 3, 1.0 / 16.0, new double[]{
+            new KernelFilter("Low-Pass 3x3", "lp3", new Kernel(3, 3, 1.0 / 16.0, new double[]{
                     +1, +2, +1,
                     +2, +4, +2,
                     +1, +2, +1,
             })),
-            new KernelFilter("Low-Pass 5x5", new Kernel(5, 5, 1.0 / 60.0, new double[]{
+            new KernelFilter("Low-Pass 5x5", "lp5", new Kernel(5, 5, 1.0 / 60.0, new double[]{
                     +1, +1, +1, +1, +1,
                     +1, +4, +4, +4, +1,
                     +1, +4, 12, +4, +1,
@@ -176,20 +178,20 @@ public class CreateFilteredBandAction extends ExecCommand {
             })),
     };
     Filter[] SHARPENING_FILTERS = {
-            new KernelFilter("High-Pass 3x3 #1", new Kernel(3, 3, new double[]{
+            new KernelFilter("High-Pass 3x3 #1", "hp31", new Kernel(3, 3, new double[]{
                     -1, -1, -1,
                     -1, +9, -1,
                     -1, -1, -1
             })),
 
 
-            new KernelFilter("High-Pass 3x3 #2", new Kernel(3, 3, new double[]{
+            new KernelFilter("High-Pass 3x3 #2", "hp32", new Kernel(3, 3, new double[]{
                     +0, -1, +0,
                     -1, +5, -1,
                     +0, -1, +0
             })),
 
-            new KernelFilter("High-Pass 5x5", new Kernel(5, 5, new double[]{
+            new KernelFilter("High-Pass 5x5", "hp5", new Kernel(5, 5, new double[]{
                     +0, -1, -1, -1, +0,
                     -1, +2, -4, +2, -1,
                     -1, -4, 13, -4, -1,
@@ -199,12 +201,12 @@ public class CreateFilteredBandAction extends ExecCommand {
 
     };
     Filter[] LAPLACIAN_FILTERS = {
-            new KernelFilter("Laplace 3x3", new Kernel(3, 3, new double[]{
+            new KernelFilter("Laplace 3x3", "l3", new Kernel(3, 3, new double[]{
                     +0, -1, +0,
                     -1, +4, -1,
                     +0, -1, +0,
             })),
-            new KernelFilter("Laplace 5x5", new Kernel(5, 5, new double[]{
+            new KernelFilter("Laplace 5x5", "l5", new Kernel(5, 5, new double[]{
                     +1, +1, +1, +1, +1,
                     +1, +1, +1, +1, +1,
                     +1, +1, 24, +1, +1,
@@ -214,19 +216,21 @@ public class CreateFilteredBandAction extends ExecCommand {
     };
 
     Filter[] NON_LINEAR_FILTERS = {
-            new GeneralFilter("Minimum 3x3", 3, 3, GeneralFilterBand.MIN),
-            new GeneralFilter("Minimum 5x5", 5, 5, GeneralFilterBand.MIN),
-            new GeneralFilter("Maximum 3x3", 3, 3, GeneralFilterBand.MAX),
-            new GeneralFilter("Maximum 5x5", 5, 5, GeneralFilterBand.MAX),
-            new GeneralFilter("Mean 3x3", 3, 3, GeneralFilterBand.MEAN),
-            new GeneralFilter("Mean 5x5", 5, 5, GeneralFilterBand.MEAN),
-            new GeneralFilter("Median 3x3", 3, 3, GeneralFilterBand.MEDIAN),
-            new GeneralFilter("Median 5x5", 5, 5, GeneralFilterBand.MEDIAN),
-// TODO(mp - 08.10.2008) - removed till the JAI operator is implemented
-//            new GeneralFilter("Standard Deviation 3x3", 3, 3, GeneralFilterBand.STDDEV),
-//            new GeneralFilter("Standard Deviation 5x5", 5, 5, GeneralFilterBand.STDDEV),
-//            new GeneralFilter("Root-Mean-Square 3x3", 3, 3, GeneralFilterBand.RMS),
-//            new GeneralFilter("Root-Mean-Square 5x5", 5, 5, GeneralFilterBand.RMS),
+            new GeneralFilter("Minimum 3x3", "min3", 3, GeneralFilterBand.MIN),
+            new GeneralFilter("Minimum 5x5", "min5", 5, GeneralFilterBand.MIN),
+            new GeneralFilter("Minimum 7x7", "min7", 5, GeneralFilterBand.MIN),
+            new GeneralFilter("Maximum 3x3", "max3", 3, GeneralFilterBand.MAX),
+            new GeneralFilter("Maximum 5x5", "max5", 5, GeneralFilterBand.MAX),
+            new GeneralFilter("Maximum 7x7", "max7", 5, GeneralFilterBand.MAX),
+            new GeneralFilter("Mean 3x3", "mean3", 3, GeneralFilterBand.MEAN),
+            new GeneralFilter("Mean 5x5", "mean5", 5, GeneralFilterBand.MEAN),
+            new GeneralFilter("Mean 7x7", "mean7", 5, GeneralFilterBand.MEAN),
+            new GeneralFilter("Median 3x3", "median3", 3, GeneralFilterBand.MEDIAN),
+            new GeneralFilter("Median 5x5", "median5", 5, GeneralFilterBand.MEDIAN),
+            new GeneralFilter("Median 7x7", "median7", 5, GeneralFilterBand.MEDIAN),
+            new GeneralFilter("Standard Deviation 3x3", "stddev3", 3, GeneralFilterBand.STDDEV),
+            new GeneralFilter("Standard Deviation 5x5", "stddev5", 5, GeneralFilterBand.STDDEV),
+            new GeneralFilter("Standard Deviation 7x7", "stddev7", 5, GeneralFilterBand.STDDEV),
     };
 
     private void applyImageKernel() {
@@ -250,7 +254,7 @@ public class CreateFilteredBandAction extends ExecCommand {
             filterBand = new ConvolutionFilterBand(bandName, raster, kernelFilter.kernel);
         } else {
             final GeneralFilter generalFilter = (GeneralFilter) filter;
-            filterBand = new GeneralFilterBand(bandName, raster, generalFilter.width, generalFilter.operator);
+            filterBand = new GeneralFilterBand(bandName, raster, generalFilter.size, generalFilter.operator);
         }
         final String descr = MessageFormat.format("Filter ''{0}'' applied to ''{1}''",
                                                   filter.toString(),
@@ -275,9 +279,21 @@ public class CreateFilteredBandAction extends ExecCommand {
         final Product product = selectedNode.getProduct();
         final JPanel namePanel = new JPanel(new BorderLayout(4, 4));
         namePanel.add(new JLabel("Band name:"), BorderLayout.WEST);     /*I18N*/
-        final JTextField nameField = new JTextField("filtered_" + selectedNode.getName());
+        final JTextField nameField = new JTextField(selectedNode.getName());
         namePanel.add(nameField, BorderLayout.CENTER);
         contentPane.add(namePanel, BorderLayout.SOUTH);
+
+        tree.getSelectionModel().addTreeSelectionListener(new TreeSelectionListener() {
+            @Override
+            public void valueChanged(TreeSelectionEvent e) {
+                final Object lastPathComponent = e.getPath().getLastPathComponent();
+                if (lastPathComponent instanceof DefaultMutableTreeNode) {
+                    DefaultMutableTreeNode treeNode = (DefaultMutableTreeNode) lastPathComponent;
+                    Filter filter = (Filter) treeNode.getUserObject();
+                    nameField.setText(selectedNode.getName() + "_" + filter.suffix);
+                }
+            }
+        });
 
         final ModalDialog dialog = new CreateFilteredBandDialog(nameField, product, tree);
         dialog.setContent(contentPane);
@@ -386,10 +402,12 @@ public class CreateFilteredBandAction extends ExecCommand {
 
     private static abstract class Filter {
 
-        private String name;
+        final String name;
+        final String suffix;
 
-        public Filter(String name) {
+        public Filter(String name, String suffix) {
             this.name = name;
+            this.suffix = suffix;
         }
 
         @Override
@@ -398,54 +416,46 @@ public class CreateFilteredBandAction extends ExecCommand {
         }
 
         @Override
-        public abstract boolean equals(Object obj);
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            Filter filter = (Filter) o;
+
+            if (!name.equals(filter.name)) return false;
+            if (!suffix.equals(filter.suffix)) return false;
+
+            return true;
+        }
+
+        @Override
+        public int hashCode() {
+            return name.hashCode() + 31 * suffix.hashCode();
+        }
     }
 
     private static class KernelFilter extends Filter {
 
         private Kernel kernel;
 
-        public KernelFilter(String name, Kernel kernel) {
-            super(name);
+        public KernelFilter(String name, String suffix, Kernel kernel) {
+            super(name, suffix);
             this.kernel = kernel;
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (obj == this) {
-                return true;
-            } else if (obj instanceof KernelFilter) {
-                KernelFilter other = (KernelFilter) obj;
-                return toString().equals(other.toString()) && kernel.equals(other.kernel);
-            }
-            return false;
         }
     }
 
     private static class GeneralFilter extends Filter {
 
-        int width;
-        int height;
-        GeneralFilterBand.Operator operator;
+        final int size;
+        final GeneralFilterBand.Operator operator;
 
-        public GeneralFilter(String name, int width, int height, GeneralFilterBand.Operator operator) {
-            super(name);
-            this.width = width;
-            this.height = height;
+        public GeneralFilter(String name, String suffix, int size, GeneralFilterBand.Operator operator) {
+            super(name, suffix);
+            this.size = size;
             this.operator = operator;
         }
 
-        @Override
-        public boolean equals(Object obj) {
-            if (obj == this) {
-                return true;
-            } else if (obj instanceof GeneralFilter) {
-                GeneralFilter other = (GeneralFilter) obj;
-                return toString().equals(other.toString()) && operator == other.operator;
-            }
-            return false;
-        }
-    }
+     }
 
     class CreateFilteredBandDialog extends ModalDialog {
 

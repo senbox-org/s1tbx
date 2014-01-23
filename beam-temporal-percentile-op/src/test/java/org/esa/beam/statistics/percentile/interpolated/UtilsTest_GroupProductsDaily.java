@@ -1,16 +1,17 @@
 package org.esa.beam.statistics.percentile.interpolated;
 
-import static org.junit.Assert.*;
-
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
-import org.junit.*;
+import org.esa.beam.util.DateTimeUtils;
+import org.junit.Test;
 
 import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.TreeMap;
+
+import static org.junit.Assert.*;
 
 public class UtilsTest_GroupProductsDaily {
 
@@ -28,7 +29,9 @@ public class UtilsTest_GroupProductsDaily {
         assertEquals(2, longListTreeMap.size());
         final Long[] mjdKeys = longListTreeMap.keySet().toArray(new Long[2]);
         assertEquals("means 2013-03-05", 56356L, mjdKeys[0].longValue());
-        assertEquals("means 2013-03-05", 56357L, mjdKeys[1].longValue());
+        assertEquals("means 2013-03-06", 56357L, mjdKeys[1].longValue());
+        assertEquals("05-MAR-2013 00:00:00.000000", ProductData.UTC.create(DateTimeUtils.jdToUTC(DateTimeUtils.mjdToJD(mjdKeys[0])),0).format());
+        assertEquals("06-MAR-2013 00:00:00.000000", ProductData.UTC.create(DateTimeUtils.jdToUTC(DateTimeUtils.mjdToJD(mjdKeys[1])),0).format());
 
         final List<Product> productList1 = longListTreeMap.get(mjdKeys[0]);
         assertEquals(2, productList1.size());

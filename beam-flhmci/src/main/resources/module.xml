@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-flhmci</symbolicName>
-    <version>1.6.204</version>
+    <version>1.7</version>
     <name>MERIS FLH/MCI Processor</name>
 
     <description>
@@ -25,6 +25,8 @@
 
     <changelog>
         <![CDATA[
+        Changes in 1.7 (SNAPSHOT):<br/>
+        [BEAM-1528] FLH/MCI operator does not set valid mask of output bands<br>
         Changes in 1.6.204:<br/>
         Aligned version numbers of module.xml and pom.xml<br>
         Changes in 1.6.203:<br/>
@@ -43,19 +45,6 @@
     <categories>Application,Processor,MERIS,AVHRR</categories>
 
     <extension point="beam-ui:actions">
-        <!-- old FLH/MCI processor action
-        <action>
-            <id>flhMciScientificTool</id>
-            <class>org.esa.beam.visat.actions.ProcessorAction</class>
-            <processor>org.esa.beam.processor.flh_mci.FlhMciProcessor</processor>
-            <text>FLH/MCI Processor...</text>
-            <shortDescr>Invoke the FLH/MCI processor.</shortDescr>
-            <mnemonic>F</mnemonic>
-            <parent>tools</parent>
-            <helpId>flhMciScientificTool</helpId>
-            <placeAfter>imageAnalysis</placeAfter>
-        </action>
-        -->
         <action>
             <id>flhMciScientificTool</id>
             <helpId>flhMciScientificTool</helpId>

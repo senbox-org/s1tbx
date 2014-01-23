@@ -30,8 +30,8 @@ import java.util.List;
  */
 public class DimKey {
 
-    private static final String[] TYPICAL_X_DIM_NAMES = new String[]{"lon", "long", "longitude", "ni", "NX", "SX", "x",};
-    private static final String[] TYPICAL_Y_DIM_NAMES = new String[]{"lat", "lat", "latitude", "nj", "NY", "SY", "y",};
+    private static final String[] TYPICAL_X_DIM_NAMES = new String[]{"lon", "long", "longitude", "ni", "NX", "SX", "x", "xc", "across_track", "numRows"};
+    private static final String[] TYPICAL_Y_DIM_NAMES = new String[]{"lat", "lat", "latitude", "nj", "NY", "SY", "y", "yc", "along_track", "numCells"};
 
     private final Dimension[] dims;
     private final int xDimIndex;
@@ -49,7 +49,7 @@ public class DimKey {
 
     public int findXDimensionIndex() {
         for (int i = 0; i < dims.length; i++) {
-            final String dimName = dims[i].getName();
+            final String dimName = dims[i].getShortName();
             if (dimName != null) {
                 for (String typicalXDimName : TYPICAL_X_DIM_NAMES) {
                     if (dimName.equalsIgnoreCase(typicalXDimName)) {
@@ -64,10 +64,10 @@ public class DimKey {
 
     public int findYDimensionIndex() {
         for (int i = 0; i < dims.length; i++) {
-            final String dimName = dims[i].getName();
+            final String dimName = dims[i].getShortName();
             if (dimName != null) {
                 for (String typicalYDimName : TYPICAL_Y_DIM_NAMES) {
-                    if (dims[i].getName().equalsIgnoreCase(typicalYDimName)) {
+                    if (dims[i].getShortName().equalsIgnoreCase(typicalYDimName)) {
                         return i;
                     }
                 }
@@ -145,9 +145,9 @@ public class DimKey {
     }
 
     private boolean matchesXYDimNames(final String xName, final String yName) {
-        if (getDimensionX().getName() != null && getDimensionY().getName() != null) {
-            return getDimensionX().getName().equalsIgnoreCase(xName)
-                    && getDimensionY().getName().equalsIgnoreCase(yName);
+        if (getDimensionX().getShortName() != null && getDimensionY().getShortName() != null) {
+            return getDimensionX().getShortName().equalsIgnoreCase(xName)
+                    && getDimensionY().getShortName().equalsIgnoreCase(yName);
         } else {
             return false;
         }

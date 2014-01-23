@@ -27,16 +27,18 @@ import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
-import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -48,25 +50,26 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 class FileBackedSpatialBinCollector implements SpatialBinCollector {
 
-    private static final int NUM_BINS_PER_FILE = 100000;
-    private static final int MAX_NUMBER_OF_CACHE_FILES = 100;
-    private static final String FILE_NAME_PATTERN = "bins-%03d.tmp";
+    private static final int DEFAULT_NUM_BINS_PER_FILE = 100000;
+    private static final int MAX_NUMBER_OF_CACHE_FILES = 10000;
+    private static final String FILE_NAME_PATTERN = "bins-%05d.tmp"; // at least 5 digits; zero padded
 
-    private final long maximumNumberOfBins;
+    private final int numBinsPerFile;
     private final SortedMap<Long, List<SpatialBin>> map;
-    private final TreeSet<Long> binIndexSet;
     private final AtomicBoolean consumingCompleted;
     private final File tempDir;
     private long currentFileIndex;
+    private long numBinsComsumed;
 
     public FileBackedSpatialBinCollector(long maximumNumberOfBins) throws IOException {
         Assert.argument(maximumNumberOfBins > 0, "maximumNumberOfBins > 0");
-        this.maximumNumberOfBins = maximumNumberOfBins;
+        numBinsPerFile = getNumBinsPerFile(maximumNumberOfBins);
         tempDir = VirtualDir.createUniqueTempDir();
-        binIndexSet = new TreeSet<Long>();
+        Runtime.getRuntime().addShutdownHook(new DeleteDirThread(tempDir));
         map = new TreeMap<Long, List<SpatialBin>>();
         consumingCompleted = new AtomicBoolean(false);
-        currentFileIndex = -1;
+        currentFileIndex = 0;
+        numBinsComsumed = 0;
     }
 
     @Override
@@ -76,6 +79,7 @@ class FileBackedSpatialBinCollector implements SpatialBinCollector {
         }
         synchronized (map) {
             for (SpatialBin spatialBin : spatialBins) {
+                numBinsComsumed++;
                 long spatialBinIndex = spatialBin.getIndex();
                 int nextFileIndex = calculateNextFileIndex(spatialBinIndex);
                 if (nextFileIndex != currentFileIndex) {
@@ -84,7 +88,6 @@ class FileBackedSpatialBinCollector implements SpatialBinCollector {
                     readFromFile(nextFileIndex);
                     currentFileIndex = nextFileIndex;
                 }
-                binIndexSet.add(spatialBinIndex);
                 List<SpatialBin> spatialBinList = map.get(spatialBinIndex);
                 if (spatialBinList == null) {
                     spatialBinList = new ArrayList<SpatialBin>();
@@ -105,7 +108,7 @@ class FileBackedSpatialBinCollector implements SpatialBinCollector {
 
     @Override
     public SpatialBinCollection getSpatialBinCollection() throws IOException {
-        return new FileBackedBinCollection(binIndexSet);
+        return new FileBackedBinCollection(numBinsComsumed);
     }
 
     public void close() {
@@ -138,6 +141,13 @@ class FileBackedSpatialBinCollector implements SpatialBinCollector {
         }
     }
 
+    private static int getNumBinsPerFile(long maxBinCount) {
+        int numCacheFiles = (int) Math.ceil(maxBinCount / (float) DEFAULT_NUM_BINS_PER_FILE);
+        numCacheFiles = Math.min(numCacheFiles, MAX_NUMBER_OF_CACHE_FILES);
+        int binsPerFile = (int) Math.ceil(maxBinCount / (float) numCacheFiles);
+        return Math.max(DEFAULT_NUM_BINS_PER_FILE, binsPerFile);
+    }
+
     private void writeMapToFile(long fileIndex) throws IOException {
         if (!map.isEmpty()) {
             File file = getFile(fileIndex);
@@ -148,7 +158,7 @@ class FileBackedSpatialBinCollector implements SpatialBinCollector {
 
     private void writeToFile(SortedMap<Long, List<SpatialBin>> map, File file) throws IOException {
         FileOutputStream fos = new FileOutputStream(file);
-        DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(fos, 1024 * 1024));
+        DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(fos, 5 * 1024 * 1024));
         try {
             writeToStream(map, dos);
         } finally {
@@ -167,7 +177,7 @@ class FileBackedSpatialBinCollector implements SpatialBinCollector {
 
     private static void readIntoMap(File file, SortedMap<Long, List<SpatialBin>> map) throws IOException {
         FileInputStream fis = new FileInputStream(file);
-        DataInputStream dis = new DataInputStream(new BufferedInputStream(fis, 1024 * 1024));
+        DataInputStream dis = new DataInputStream(new BufferedInputStream(fis, 5 * 1024 * 1024));
         try {
             readFromStream(dis, map);
         } finally {
@@ -180,23 +190,16 @@ class FileBackedSpatialBinCollector implements SpatialBinCollector {
     }
 
     private int calculateNextFileIndex(long binIndex) {
-        int numBinsPerFile = getNumBinsPerFile(maximumNumberOfBins);
         return (int) (binIndex / numBinsPerFile);
-    }
-
-    private static int getNumBinsPerFile(long maxBinCount) {
-        int numCacheFiles = (int) Math.ceil(maxBinCount / NUM_BINS_PER_FILE);
-        numCacheFiles = Math.min(numCacheFiles, MAX_NUMBER_OF_CACHE_FILES);
-        int binsPerFile = (int) Math.ceil(maxBinCount / (float) numCacheFiles);
-        return binsPerFile < NUM_BINS_PER_FILE ? NUM_BINS_PER_FILE : binsPerFile;
     }
 
     private class FileBackedBinCollection implements SpatialBinCollection {
 
-        private TreeSet<Long> binIndexSet;
 
-        public FileBackedBinCollection(TreeSet<Long> binIndexSet) {
-            this.binIndexSet = binIndexSet;
+        private final long size;
+
+        public FileBackedBinCollection(long size) {
+            this.size = size;
         }
 
         @Override
@@ -204,59 +207,94 @@ class FileBackedSpatialBinCollector implements SpatialBinCollector {
             return new Iterable<List<SpatialBin>>() {
                 @Override
                 public Iterator<List<SpatialBin>> iterator() {
-                    return new FileBackedBinIterator(binIndexSet.iterator());
+                    return new FileBackedBinIterator(tempDir);
                 }
             };
         }
 
         @Override
         public long size() {
-            return binIndexSet.size();
+            return size;
         }
 
         @Override
         public boolean isEmpty() {
-            return binIndexSet.isEmpty();
+            return false;
         }
+
 
         private class FileBackedBinIterator implements Iterator<List<SpatialBin>> {
 
-            private final Iterator<Long> binIterator;
-            private final SortedMap<Long, List<SpatialBin>> currentMap;
-            private int currentFileIndex = -1;
-            private long currentBinIndex;
+            private final List<File> cacheFiles;
+            private final List<List<SpatialBin>> currentList;
 
-            private FileBackedBinIterator(Iterator<Long> iterator) {
-                binIterator = iterator;
-                currentMap = new TreeMap<Long, List<SpatialBin>>();
+            private FileBackedBinIterator(File tempCacheDir) {
+                this.cacheFiles = getCacheFiles(tempCacheDir);
+                // We use a linked list here because we use the remove method, which is expensive for an ArrayList
+                currentList = new LinkedList<List<SpatialBin>>();
             }
 
             @Override
             public boolean hasNext() {
-                return binIterator.hasNext();
+                return !(currentList.isEmpty() && cacheFiles.isEmpty());
             }
 
             @Override
             public List<SpatialBin> next() {
-                currentBinIndex = binIterator.next();
-                try {
-                    int nextFileIndex = calculateNextFileIndex(currentBinIndex);
-                    if (nextFileIndex != currentFileIndex) {
-                        File nextFile = getFile(nextFileIndex);
-                        currentMap.clear();
-                        readIntoMap(nextFile, currentMap);
-                        File currentFile = getFile(currentFileIndex);
+                if (currentList.isEmpty()) {
+                    File currentFile = cacheFiles.remove(0);
+                    if (currentFile.exists()) {
+                        try {
+                            readIntoList(currentFile, currentList);
+                        } catch (IOException e) {
+                            throw new IllegalStateException(e.getMessage(), e);
+                        }
                         if (!currentFile.delete()) {
                             currentFile.deleteOnExit();
                         }
                     }
-                    currentFileIndex = nextFileIndex;
-                } catch (IOException e) {
-                    throw new IllegalStateException(e.getMessage(), e);
                 }
+                return currentList.remove(0);
 
-                return currentMap.get(currentBinIndex);
             }
+
+            private List<File> getCacheFiles(File cacheFileDir) {
+                File[] files = cacheFileDir.listFiles(new FileFilter() {
+                    @Override
+                    public boolean accept(File file) {
+                        String fileName = file.getName();
+                        return file.isFile() && fileName.startsWith("bins-") && fileName.endsWith(".tmp");
+                    }
+                });
+                List<File> fileList = new LinkedList<File>();
+                Collections.addAll(fileList, files);
+                Collections.sort(fileList);
+                return fileList;
+
+            }
+
+            private void readIntoList(File file, List<List<SpatialBin>> lists) throws IOException {
+                FileInputStream fis = new FileInputStream(file);
+                DataInputStream dis = new DataInputStream(new BufferedInputStream(fis, 5 * 1024 * 1024));
+                try {
+                    readIntoList(dis, lists);
+                } finally {
+                    dis.close();
+                }
+            }
+
+            private void readIntoList(DataInputStream dis, List<List<SpatialBin>> list) throws IOException {
+                while (dis.available() != 0) {
+                    long binIndex = dis.readLong();
+                    int numBins = dis.readInt();
+                    List<SpatialBin> spatialBins = new ArrayList<SpatialBin>(numBins);
+                    for (int i = numBins; i > 0; i--) {
+                        spatialBins.add(SpatialBin.read(binIndex, dis));
+                    }
+                    list.add(spatialBins);
+                }
+            }
+
 
             @Override
             public void remove() {
@@ -264,4 +302,5 @@ class FileBackedSpatialBinCollector implements SpatialBinCollector {
             }
         }
     }
+
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -18,7 +18,6 @@ package org.esa.beam.framework.gpf.ui;
 
 import com.bc.ceres.swing.TableLayout;
 import com.bc.ceres.swing.binding.BindingContext;
-import org.esa.beam.framework.dataio.ProductIOPlugInManager;
 import org.esa.beam.util.io.FileChooserFactory;
 
 import javax.swing.AbstractAction;
@@ -38,7 +37,6 @@ import java.awt.FlowLayout;
 import java.awt.Insets;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.beans.PropertyChangeEvent;
@@ -99,12 +97,10 @@ public class TargetProductSelector {
             formatNameComboBox = new JComboBox(model.getFormatNames());
             openInAppCheckBox = new JCheckBox("Open in application");
 
-            saveToFileCheckBox.addActionListener(new UIStateUpdater());
             formatNameComboBox.addItemListener(new ItemListener() {
                 @Override
                 public void itemStateChanged(ItemEvent e) {
-                    final String formatName = (String) formatNameComboBox.getSelectedItem();
-                    if (!canReadOutputFormat(formatName)) {
+                    if (!model.canReadOutputFormat()) {
                         model.setOpenInAppSelected(false);
                     }
                 }
@@ -131,6 +127,12 @@ public class TargetProductSelector {
             }
         });
         model.getValueContainer().addPropertyChangeListener("formatName", new PropertyChangeListener() {
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                updateUIState();
+            }
+        });
+        model.getValueContainer().addPropertyChangeListener("saveToFileSelected", new PropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
                 updateUIState();
@@ -220,7 +222,7 @@ public class TargetProductSelector {
     private void updateUIState() {
         if (model.isSaveToFileSelected()) {
             if (!alwaysWriteOutput) {
-                openInAppCheckBox.setEnabled(canReadOutputFormat(model.getFormatName()));
+                openInAppCheckBox.setEnabled(model.canReadOutputFormat());
                 formatNameComboBox.setEnabled(true);
             }
             productDirLabel.setEnabled(true);
@@ -248,21 +250,6 @@ public class TargetProductSelector {
         productDirLabel.setEnabled(enabled);
         productDirTextField.setEnabled(enabled);
         productDirChooserButton.setEnabled(enabled);
-    }
-
-    private static boolean canReadOutputFormat(String formatName) {
-        return ProductIOPlugInManager.getInstance().getReaderPlugIns(formatName).hasNext();
-    }
-
-    private class UIStateUpdater implements ActionListener {
-
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            if (!canReadOutputFormat(model.getFormatName())) {
-                model.setOpenInAppSelected(false);
-            }
-            updateUIState();
-        }
     }
 
     private class ProductDirChooserAction extends AbstractAction {

@@ -24,6 +24,8 @@ import org.esa.beam.framework.datamodel.ProductManager;
 import org.esa.beam.framework.datamodel.ProductNodeEvent;
 import org.esa.beam.framework.datamodel.ProductNodeGroup;
 import org.esa.beam.framework.datamodel.ProductNodeListenerAdapter;
+import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.datamodel.VirtualBand;
 import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.framework.ui.GridBagUtils;
 import org.esa.beam.framework.ui.ModalDialog;
@@ -33,7 +35,7 @@ import org.esa.beam.framework.ui.application.support.AbstractToolView;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.framework.ui.product.spectrum.DisplayableSpectrum;
 import org.esa.beam.framework.ui.product.spectrum.SpectrumChooser;
-import org.esa.beam.framework.ui.product.spectrum.SpectrumConstants;
+import org.esa.beam.framework.ui.product.spectrum.SpectrumStrokeProvider;
 import org.esa.beam.framework.ui.tool.ToolButtonFactory;
 import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.Debug;
@@ -49,6 +51,7 @@ import org.jfree.chart.LegendItem;
 import org.jfree.chart.LegendItemCollection;
 import org.jfree.chart.LegendItemSource;
 import org.jfree.chart.annotations.XYTitleAnnotation;
+import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.block.BlockBorder;
 import org.jfree.chart.block.LineBorder;
 import org.jfree.chart.plot.PlotOrientation;
@@ -57,6 +60,7 @@ import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.chart.title.LegendTitle;
 import org.jfree.chart.title.TextTitle;
+import org.jfree.data.Range;
 import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
@@ -105,7 +109,7 @@ public class SpectrumToolView extends AbstractToolView {
 
     private static final String SUPPRESS_MESSAGE_KEY = "plugin.spectrum.tip";
 
-    private final Map<Product, List<DisplayableSpectrum>> productToAllSpectraMap;
+    private final Map<Product, DisplayableSpectrum[]> productToAllSpectraMap;
 
     private final ProductNodeListenerAdapter productNodeHandler;
     private final PinSelectionChangeListener pinSelectionChangeListener;
@@ -120,6 +124,8 @@ public class SpectrumToolView extends AbstractToolView {
 //    private AbstractButton showAveragePinSpectrumButton;
     //    private AbstractButton showGraphPointsButton;
 
+//    private static AxisRangeControl axisRangeControl;
+
     private String titleBase;
     private boolean tipShown;
     private ProductSceneView currentView;
@@ -131,9 +137,9 @@ public class SpectrumToolView extends AbstractToolView {
     public SpectrumToolView() {
         productNodeHandler = new ProductNodeHandler();
         pinSelectionChangeListener = new PinSelectionChangeListener();
-        productToAllSpectraMap = new HashMap<Product, List<DisplayableSpectrum>>();
+        productToAllSpectraMap = new HashMap<Product, DisplayableSpectrum[]>();
         pixelPositionListener = new CursorSpectrumPixelPositionListener(this);
-        final JFreeChart chart = ChartFactory.createXYLineChart(CHART_TITLE, "Wavelength (nm)", "mW/(m^2*sr*nm)", null, PlotOrientation.VERTICAL, true, true, false);
+        final JFreeChart chart = ChartFactory.createXYLineChart(CHART_TITLE, "Wavelength (nm)", "", null, PlotOrientation.VERTICAL, true, true, false);
         chartPanel = new ChartPanel(chart);
         chartHandler = new ChartHandler(chart);
     }
@@ -170,7 +176,7 @@ public class SpectrumToolView extends AbstractToolView {
             }
             if (currentProduct != null) {
                 currentProduct.addProductNodeListener(productNodeHandler);
-                initSpectra();
+                setUpSpectra();
                 recreateChart();
             }
             if (currentProduct == null) {
@@ -209,16 +215,22 @@ public class SpectrumToolView extends AbstractToolView {
         }
     }
 
-    protected void updateSpectra(int pixelX, int pixelY, int level) {
+    @Override
+    public void componentShown() {
+        super.componentShown();
+
+    }
+
+    protected void updateSpectra(int pixelX, int pixelY, int level, boolean adjustAxes) {
         maybeShowTip();
         chartHandler.setPosition(pixelX, pixelY);
         chartHandler.setLevel(level);
+        chartHandler.setAutomaticRangeAdjustment(adjustAxes);
         chartHandler.updateChart();
         chartPanel.repaint();
     }
 
     private void maybeShowTip() {
-        //todo remove when axes cannot be adjusted anymore
         if (!tipShown) {
             final String message = "Tip: If you press the SHIFT key while moving the mouse cursor over \n" +
                     "an image, " + VisatApp.getApp().getAppName() + " adjusts the diagram axes " +
@@ -235,13 +247,17 @@ public class SpectrumToolView extends AbstractToolView {
         Band[] bands = getCurrentProduct().getBands();
         ArrayList<Band> spectralBands = new ArrayList<Band>(15);
         for (Band band : bands) {
-            if (band.getSpectralWavelength() > 0.0) {
+            if (isSpectralBand(band)) {
                 if (!band.isFlagBand()) {
                     spectralBands.add(band);
                 }
             }
         }
         return spectralBands.toArray(new Band[spectralBands.size()]);
+    }
+
+    private boolean isSpectralBand(Band band) {
+        return band.getSpectralWavelength() > 0.0;
     }
 
     @Override
@@ -447,12 +463,12 @@ public class SpectrumToolView extends AbstractToolView {
     }
 
     private void selectSpectralBands() {
-        final List<DisplayableSpectrum> allSpectra = productToAllSpectraMap.get(getCurrentProduct());
+        final DisplayableSpectrum[] allSpectra = productToAllSpectraMap.get(getCurrentProduct());
         final SpectrumChooser spectrumChooser = new SpectrumChooser(getPaneWindow(), allSpectra,
                                                                     getDescriptor().getHelpId());
         if (spectrumChooser.show() == ModalDialog.ID_OK) {
-            final List<DisplayableSpectrum> spectra = spectrumChooser.getSpectra();
-            productToAllSpectraMap.put(getCurrentProduct(), spectra);
+            final DisplayableSpectrum[] spectra = spectrumChooser.getSpectra();
+            productToAllSpectraMap.put(currentProduct, spectra);
         }
     }
 
@@ -485,43 +501,47 @@ public class SpectrumToolView extends AbstractToolView {
         }
     }
 
-    private void initSpectra() {
+    private void setUpSpectra() {
+        productToAllSpectraMap.clear();
+        DisplayableSpectrum[] spectra;
         if (!areSpectralBandsAvailable()) {
-            final ArrayList<DisplayableSpectrum> emptySpectraList = new ArrayList<DisplayableSpectrum>();
-            productToAllSpectraMap.put(getCurrentProduct(), emptySpectraList);
-        }
-        final Product.AutoGrouping autoGrouping = this.getCurrentProduct().getAutoGrouping();
-        if (autoGrouping != null) {
-            List<DisplayableSpectrum> spectra = new ArrayList<DisplayableSpectrum>();
-            final Band[] availableSpectralBands = getAvailableSpectralBands();
-            final Iterator<String[]> iterator = autoGrouping.iterator();
-            int groupIndex = 0;
-            while (iterator.hasNext()) {
-                final String spectrumName = iterator.next()[0];
-                DisplayableSpectrum spectrum = new DisplayableSpectrum(spectrumName);
+            spectra = new DisplayableSpectrum[]{};
+        } else {
+            final Product.AutoGrouping autoGrouping = currentProduct.getAutoGrouping();
+            if (autoGrouping != null) {
+                final int selectedSpectrumIndex = autoGrouping.indexOf(getCurrentView().getRaster().getName());
+                spectra = new DisplayableSpectrum[autoGrouping.size() + 1];
+                final Iterator<String[]> iterator = autoGrouping.iterator();
+                int i = 0;
+                while (iterator.hasNext()) {
+                    final String spectrumName = iterator.next()[0];
+                    DisplayableSpectrum spectrum = new DisplayableSpectrum(spectrumName);
+                    spectrum.setSelected(i == selectedSpectrumIndex);
+                    spectra[i++] = spectrum;
+                }
+                DisplayableSpectrum defaultSpectrum = new DisplayableSpectrum(DisplayableSpectrum.ALTERNATIVE_DEFAULT_SPECTRUM_NAME);
+                defaultSpectrum.setSelected(selectedSpectrumIndex == -1);
+                spectra[spectra.length - 1] = defaultSpectrum;
+                final Band[] availableSpectralBands = getAvailableSpectralBands();
                 for (Band availableSpectralBand : availableSpectralBands) {
-                    if (autoGrouping.indexOf(availableSpectralBand.getName()) == groupIndex) {
-                        spectrum.addBand(availableSpectralBand);
+                    final String bandName = availableSpectralBand.getName();
+                    final int spectrumIndex = autoGrouping.indexOf(bandName);
+                    if (spectrumIndex != -1) {
+                        spectra[spectrumIndex].addBand(availableSpectralBand, spectrumIndex == selectedSpectrumIndex);
+                    } else {
+                        spectra[spectra.length - 1].addBand(availableSpectralBand, spectrumIndex == selectedSpectrumIndex);
                     }
                 }
-                if (groupIndex != 0) {
-                    spectrum.setSelected(false);
-                }
-                groupIndex++;
-                if (spectrum.hasBands()) {
-                    spectra.add(spectrum);
-                }
+            } else {
+                spectra = new DisplayableSpectrum[1];
+                spectra[0] = new DisplayableSpectrum(DisplayableSpectrum.DEFAULT_SPECTRUM_NAME, getAvailableSpectralBands());
             }
-            productToAllSpectraMap.put(getCurrentProduct(), spectra);
-        } else {
-            final ArrayList<DisplayableSpectrum> spectra = new ArrayList<DisplayableSpectrum>();
-            spectra.add(new DisplayableSpectrum("Available spectral bands", getAvailableSpectralBands()));
-            productToAllSpectraMap.put(getCurrentProduct(), spectra);
         }
+        productToAllSpectraMap.put(currentProduct, spectra);
     }
 
-    private List<DisplayableSpectrum> getAllSpectra() {
-        return productToAllSpectraMap.get(getCurrentProduct());
+    private DisplayableSpectrum[] getAllSpectra() {
+        return productToAllSpectraMap.get(currentProduct);
     }
 
     private boolean areSpectralBandsAvailable() {
@@ -534,7 +554,7 @@ public class SpectrumToolView extends AbstractToolView {
 
     List<DisplayableSpectrum> getSelectedSpectra() {
         List<DisplayableSpectrum> selectedSpectra = new ArrayList<DisplayableSpectrum>();
-        List<DisplayableSpectrum> allSpectra = productToAllSpectraMap.get(getCurrentProduct());
+        DisplayableSpectrum[] allSpectra = productToAllSpectraMap.get(currentProduct);
         if (allSpectra != null) {
             for (DisplayableSpectrum displayableSpectrum : allSpectra) {
                 if (displayableSpectrum.isSelected()) {
@@ -543,6 +563,29 @@ public class SpectrumToolView extends AbstractToolView {
             }
         }
         return selectedSpectra;
+    }
+
+    private void addBandToSpectra(Band band) {
+        DisplayableSpectrum[] allSpectra = productToAllSpectraMap.get(getCurrentProduct());
+        Product.AutoGrouping autoGrouping = currentProduct.getAutoGrouping();
+        if (autoGrouping != null) {
+            final int bandIndex = autoGrouping.indexOf(band.getName());
+            final DisplayableSpectrum spectrum;
+            if (bandIndex != -1) {
+                spectrum = allSpectra[bandIndex];
+            } else {
+                spectrum = allSpectra[allSpectra.length - 1];
+            }
+            spectrum.addBand(band, spectrum.isSelected());
+        } else {
+            allSpectra[0].addBand(band, true);
+        }
+    }
+
+    private void updateSpectraUnits() {
+        for(DisplayableSpectrum spectrum : getAllSpectra()) {
+            spectrum.updateUnit();
+        }
     }
 
     void removeCursorSpectra() {
@@ -581,11 +624,25 @@ public class SpectrumToolView extends AbstractToolView {
             chartUpdater = new ChartUpdater();
             this.chart = chart;
             setLegend(chart);
-            final XYPlot plot = chart.getXYPlot();
-            final XYLineAndShapeRenderer renderer = (XYLineAndShapeRenderer) plot.getRenderer();
+            setAutomaticRangeAdjustment(false);
+            final XYLineAndShapeRenderer renderer = (XYLineAndShapeRenderer) chart.getXYPlot().getRenderer();
             renderer.setBaseShapesVisible(true);
             renderer.setBaseShapesFilled(false);
             setPlotMessage(MESSAGE_NO_PRODUCT_SELECTED);
+        }
+
+        private void setAutomaticRangeAdjustment(boolean adjustAxes) {
+            if (adjustAxes != isAutomaticAdjustmentSet()) {
+                final XYPlot plot = chart.getXYPlot();
+                plot.getDomainAxis().setAutoRange(adjustAxes);
+                plot.getRangeAxis().setAutoRange(adjustAxes);
+                chartUpdater.invalidatePlotBounds();
+            }
+        }
+
+        private boolean isAutomaticAdjustmentSet() {
+            return chart.getXYPlot().getDomainAxis().isAutoRange() ||
+                    chart.getXYPlot().getRangeAxis().isAutoRange();
         }
 
         private void setLegend(JFreeChart chart) {
@@ -620,7 +677,7 @@ public class SpectrumToolView extends AbstractToolView {
             chart.getXYPlot().setDataset(null);
             if (getCurrentProduct() == null) {
                 setPlotMessage(MESSAGE_NO_PRODUCT_SELECTED);
-            } else if (!getAllSpectra().isEmpty()) {
+            } else if (getAllSpectra().length == 0) {
                 setPlotMessage(MESSAGE_NO_SPECTRA_SELECTED);
             } else {
                 setPlotMessage(MESSAGE_NO_SPECTRAL_BANDS);
@@ -664,13 +721,25 @@ public class SpectrumToolView extends AbstractToolView {
 
     private class ChartUpdater {
 
+        private final static int domain_axis_index = 0;
+        private final static int range_axis_index = 1;
+        private final static double relativePlotInset = 0.05;
+
         private final Map<Placemark, Map<Band, Double>> pinToEnergies;
         private int pixelX;
         private int pixelY;
         private int level;
+        private Range[] plotBounds;
 
         private ChartUpdater() {
             pinToEnergies = new HashMap<Placemark, Map<Band, Double>>();
+            plotBounds = new Range[2];
+            invalidatePlotBounds();
+        }
+
+        void invalidatePlotBounds() {
+            plotBounds[domain_axis_index] = null;
+            plotBounds[range_axis_index] = null;
         }
 
         private void setLevel(int level) {
@@ -690,7 +759,63 @@ public class SpectrumToolView extends AbstractToolView {
                     fillDatasetWithCursorSeries(spectra, dataset, chart);
                 }
             }
-            chart.getXYPlot().setDataset(dataset);
+            final XYPlot plot = chart.getXYPlot();
+            if (!chartHandler.isAutomaticAdjustmentSet()) {
+                updatePlotBounds(dataset, plot);
+            }
+            plot.setDataset(dataset);
+            String unitToBeDisplayed = spectra.get(0).getUnit();
+            int i = 1;
+            while (i < spectra.size() && !unitToBeDisplayed.equals(DisplayableSpectrum.MIXED_UNITS)) {
+                DisplayableSpectrum displayableSpectrum = spectra.get(i++);
+                if (!unitToBeDisplayed.equals(displayableSpectrum.getUnit())) {
+                    unitToBeDisplayed = DisplayableSpectrum.MIXED_UNITS;
+                }
+            }
+            plot.getRangeAxis().setLabel(unitToBeDisplayed);
+        }
+
+        private void updatePlotBounds(XYSeriesCollection dataset, XYPlot plot) {
+            final ValueAxis domainAxis = plot.getDomainAxis();
+            final Range newDomainBounds = dataset.getDomainBounds(true);
+            if (newDomainBounds != null) {
+                updatePlotBounds(domainAxis, newDomainBounds, domain_axis_index);
+            }
+
+            final ValueAxis rangeAxis = plot.getRangeAxis();
+            final Range newRangeBounds = dataset.getRangeBounds(true);
+            if (newRangeBounds != null) {
+                updatePlotBounds(rangeAxis, newRangeBounds, range_axis_index);
+            }
+        }
+
+        private void updatePlotBounds(ValueAxis axis, Range newBounds, int index) {
+            final Range plotBounds = axis.getRange();
+            final Range oldBounds = this.plotBounds[index];
+            this.plotBounds[index] = getNewRange(newBounds, this.plotBounds[index], plotBounds);
+            if (oldBounds != this.plotBounds[index]) {
+                axis.setRange(getNewPlotBounds(this.plotBounds[index]));
+            }
+        }
+
+        private Range getNewRange(Range newBounds, Range currentBounds, Range plotBounds) {
+            if (currentBounds == null) {
+                currentBounds = newBounds;
+            } else {
+                if (plotBounds.getLowerBound() > 0 && newBounds.getLowerBound() < currentBounds.getLowerBound() ||
+                        newBounds.getUpperBound() > currentBounds.getUpperBound()) {
+                    currentBounds = new Range(Math.min(currentBounds.getLowerBound(), newBounds.getLowerBound()),
+                                              Math.max(currentBounds.getUpperBound(), newBounds.getUpperBound()));
+                }
+            }
+            return currentBounds;
+        }
+
+        private Range getNewPlotBounds(Range bounds) {
+            double range = bounds.getLength();
+            double delta = range * relativePlotInset;
+            return new Range(Math.max(0, bounds.getLowerBound() - delta),
+                             bounds.getUpperBound() + delta);
         }
 
         private void fillDatasetWithCursorSeries(List<DisplayableSpectrum> spectra, XYSeriesCollection dataset, JFreeChart chart) {
@@ -725,7 +850,7 @@ public class SpectrumToolView extends AbstractToolView {
             List<XYSeries> pinSeries = new ArrayList<XYSeries>();
             Color pinColor = PlacemarkUtils.getPlacemarkColor(pin, getCurrentView());
             for (DisplayableSpectrum spectrum : spectra) {
-                XYSeries series = new XYSeries(spectrum.getName() + "_" + pin.getName());
+                XYSeries series = new XYSeries(spectrum.getName() + "_" + pin.getLabel());
                 final Band[] spectralBands = spectrum.getSelectedBands();
                 Map<Band, Double> bandToEnergy;
                 if (pinToEnergies.containsKey(pin)) {
@@ -760,14 +885,10 @@ public class SpectrumToolView extends AbstractToolView {
             if (lineStyle != null) {
                 renderer.setSeriesStroke(seriesIndex, lineStyle);
             } else {
-                renderer.setSeriesStroke(seriesIndex, SpectrumConstants.strokes[0]);
+                renderer.setSeriesStroke(seriesIndex, SpectrumStrokeProvider.strokes[0]);
             }
-            final Shape symbol = spectrum.getSymbol();
-            if (symbol != null) {
-                renderer.setSeriesShape(seriesIndex, symbol);
-            } else {
-                renderer.setSeriesShape(seriesIndex, SpectrumConstants.shapes[0]);
-            }
+            Shape symbol = spectrum.getScaledShape();
+            renderer.setSeriesShape(seriesIndex, symbol);
         }
 
         private double readEnergy(Placemark pin, Band spectralBand) {
@@ -805,7 +926,7 @@ public class SpectrumToolView extends AbstractToolView {
             for (Placemark pin : displayedPins) {
                 Paint pinPaint = PlacemarkUtils.getPlacemarkColor(pin, getCurrentView());
                 for (DisplayableSpectrum spectrum : spectra) {
-                    String legendLabel = pin.getName() + "_" + spectrum.getName();
+                    String legendLabel = pin.getLabel() + "_" + spectrum.getName();
                     LegendItem item = createLegendItem(spectrum, pinPaint, legendLabel);
                     itemCollection.add(item);
                 }
@@ -825,12 +946,9 @@ public class SpectrumToolView extends AbstractToolView {
             Line2D lineShape = new Line2D.Double(0, 5, 40, 5);
             Stroke lineStyle = spectrum.getLineStyle();
             if (lineStyle == null) {
-                lineStyle = SpectrumConstants.strokes[0];
+                lineStyle = SpectrumStrokeProvider.strokes[0];
             }
-            Shape symbol = spectrum.getSymbol();
-            if (symbol == null) {
-                symbol = SpectrumConstants.shapes[0];
-            }
+            Shape symbol = spectrum.getScaledShape();
             return new LegendItem(legendLabel, legendLabel, legendLabel, legendLabel,
                                   true, symbol, false,
                                   paint, true, paint, outlineStroke,
@@ -868,24 +986,37 @@ public class SpectrumToolView extends AbstractToolView {
 
         @Override
         public void nodeChanged(final ProductNodeEvent event) {
-            if (!isActive()) {
-                return;
-            }
+            boolean chartHasChanged = false;
             if (event.getSourceNode() instanceof Band) {
                 final String propertyName = event.getPropertyName();
-                if (propertyName.equals(DataNode.PROPERTY_NAME_UNIT)
-                        || propertyName.equals(Band.PROPERTY_NAME_SPECTRAL_WAVELENGTH)) {
-                    recreateChart();
+                if (propertyName.equals(DataNode.PROPERTY_NAME_UNIT)) {
+                    updateSpectraUnits();
+                    chartHasChanged = true;
+                } else if(propertyName.equals(Band.PROPERTY_NAME_SPECTRAL_WAVELENGTH)) {
+                    chartHasChanged = true;
+                } else if (propertyName.equals(RasterDataNode.PROPERTY_NAME_STX)) {
+                    final Band newBand = (Band) event.getSourceNode();
+                    if (newBand instanceof VirtualBand && isSpectralBand(newBand)) {
+                        addBandToSpectra(newBand);
+                        chartHasChanged = true;
+                    }
                 }
             } else if (event.getSourceNode() instanceof Placemark) {
                 if (event.getPropertyName().equals("geoPos") || event.getPropertyName().equals("pixelPos")) {
                     chartHandler.removePinInformation((Placemark) event.getSourceNode());
                 }
                 if (isShowingPinSpectra()) {
-                    recreateChart();
+                    chartHasChanged = true;
+                }
+            } else if (event.getSourceNode() instanceof Product) {
+                if (event.getPropertyName().equals("autoGrouping")) {
+                    setUpSpectra();
+                    chartHasChanged = true;
                 }
             }
-            updateUIState();
+            if (isActive() && chartHasChanged) {
+                recreateChart();
+            }
         }
 
         @Override
@@ -900,7 +1031,6 @@ public class SpectrumToolView extends AbstractToolView {
                     recreateChart();
                 }
             }
-            updateUIState();
         }
 
         @Override
@@ -915,7 +1045,6 @@ public class SpectrumToolView extends AbstractToolView {
                     recreateChart();
                 }
             }
-            updateUIState();
         }
 
         private boolean isActive() {

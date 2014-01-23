@@ -42,6 +42,13 @@
     <changelog>
         <![CDATA[
         <p/>Changes in 5.0:<br/>
+        [BEAM-1474] Data type raw symbols in band maths do not consider the raw data type of the raster<br/>
+        [BEAM-276]  Product flipping removes important metadata attributes<br/>
+        [BEAM-1452] Log-scaling is not correctly applied in scatter plot<br/>
+        [BEAM-1527] Add missing Standard Deviation nonlinear image filter<br/>
+        [BEAM-953]  No-Data is disregarded in filtered band.<br/>
+        [BEAM-1514] ProductUtils.getScanLineTime fails for products with height 1<br/>
+        [BEAM-1513] BEAM shall enable users to use Modified Julian Date (MJD) in band arithmetics<br/>
         [BEAM-1456] All bands shall use same image pyramid model<br/>
         <p/>Changes in 4.11:<br/>
         [BEAM-1420] Support (A)ATSR Autumn 2012 reprocessed data products<br/>

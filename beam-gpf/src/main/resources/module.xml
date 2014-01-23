@@ -30,7 +30,19 @@
 
     <changelog>
         <![CDATA[
-        <p>From 4.10 to 4.11:<br/>
+        <p>From 4.x to 5.0:<br/>
+            [BEAM-1460] Component enablement in Radiometry Processor Dialog is wrong<br/>
+            [BEAM-1507] mosaic operator aborts with NullPointer exception when one of input products has no geo-coding<br/>
+            [BEAM-1418] The BandMaths Operator cannot handle "division by 0" cases<br/>
+            [BEAM-1518] BandMaths operator does not copy time information to its target product<br/>
+            [BEAM-1508] No progress indication in VISAT when writing files<br/>
+            [BEAM-1582] Too many tile (stack) computations using GPT with single operator<br/>
+            [BEAM-1562] Add version and name of module in metadata<br/>
+            [BEAM-1557] Cannot configure SubsetOp to not copy metadata<br/>
+            [BEAM-1551] Improve GPT logging output<br/>
+        <p>From 4.11.0 to 4.11.1:<br/>
+            [BEAM-1092] Time information gets lost when reprojecting.<br/>
+        <p>From 4.10 to 4.10.4:<br/>
             [BEAM-1225] gpt command-line. No data product writer for the 'HDF5' format available<br/>
         <p>From 4.9 to 4.10:<br/>
             [BEAM-1386] WriteOp shall never delete output on failure if source file already exists<br/>

@@ -27,6 +27,7 @@ import org.esa.beam.framework.datamodel.FlagCoding;
 import org.esa.beam.framework.datamodel.GcpDescriptor;
 import org.esa.beam.framework.datamodel.GcpGeoCoding;
 import org.esa.beam.framework.datamodel.GeoCoding;
+import org.esa.beam.framework.datamodel.GeoCodingFactory;
 import org.esa.beam.framework.datamodel.ImageInfo;
 import org.esa.beam.framework.datamodel.IndexCoding;
 import org.esa.beam.framework.datamodel.MapGeoCoding;
@@ -34,7 +35,6 @@ import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.MetadataAttribute;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.PinDescriptor;
-import org.esa.beam.framework.datamodel.PixelGeoCoding;
 import org.esa.beam.framework.datamodel.Placemark;
 import org.esa.beam.framework.datamodel.PlacemarkGroup;
 import org.esa.beam.framework.datamodel.PointingFactory;
@@ -108,6 +108,7 @@ public class DimapProductHelpers {
      * Creates a in-memory data product represenation from the given DOM (BEAM-DIMAP format).
      *
      * @param dom the DOM in BEAM-DIMAP format
+     *
      * @return an in-memory data product represenation
      */
     public static Product createProduct(Document dom) {
@@ -121,8 +122,10 @@ public class DimapProductHelpers {
      * @param dom      the JDOM in BEAM-DIMAP format
      * @param product  the product to retrieve the data files for
      * @param inputDir the directory where to search for the data files
+     *
      * @return a <code>Map</code> object which contains all the band data references from the given jDom.<br> Returns
      *         an empty <code>Map</code> if the jDom does not contain band data files
+     *
      * @throws IllegalArgumentException if one of the parameters is null.
      */
     public static Map<Band, File> getBandDataFiles(final Document dom, final Product product,
@@ -170,7 +173,9 @@ public class DimapProductHelpers {
      *
      * @param dom              the DOM in BEAM-DIMAP format
      * @param tiePointGridName the name of the tie point grid
+     *
      * @return the <code>String</code> object which points to the data for the tie point grid.
+     *
      * @throws IllegalArgumentException if the parameter dom is null or the parameter tiePointGridName is null or empty
      */
     public static String getTiePointDataFile(Document dom, String tiePointGridName) throws IllegalArgumentException {
@@ -259,10 +264,10 @@ public class DimapProductHelpers {
                     bandIndex = 0;
                 }
                 if (geoPosElem.getChild(DimapProductConstants.TAG_SIMPLIFIED_LOCATION_MODEL) != null &&
-                        geoPosElem.getChild(DimapProductConstants.TAG_GEOPOSITION_INSERT) != null) {
+                    geoPosElem.getChild(DimapProductConstants.TAG_GEOPOSITION_INSERT) != null) {
                     geoCodings[bandIndex] = createFXYGeoCoding(datum, geoPosElem);
                 } else if (geoPosElem.getChild(DimapProductConstants.TAG_SEARCH_RADIUS) != null &&
-                        geoPosElem.getChild(DimapProductConstants.TAG_LATITUDE_BAND) != null) {
+                           geoPosElem.getChild(DimapProductConstants.TAG_LATITUDE_BAND) != null) {
                     geoCodings[bandIndex] = createPixelGeoCoding(product, datum, geoPosElem);
                 } else {
                     final Element geopositionPointsElement
@@ -295,7 +300,7 @@ public class DimapProductHelpers {
                 }
             } else {
                 Debug.trace("DimapProductHelpers.ProductBuilder.createGeoCoding(): " +
-                                    "the tag <" + tagCoordRefSys + "> contains no tag <" + tagHorizontalCs + ">"); /*I18N*/
+                            "the tag <" + tagCoordRefSys + "> contains no tag <" + tagHorizontalCs + ">"); /*I18N*/
             }
             // 1. fallback: try to find a TiePointGeoCoding
             final Element tpgElem = coordRefSysElem.getChild(DimapProductConstants.TAG_GEOCODING_TIE_POINT_GRIDS);
@@ -324,7 +329,7 @@ public class DimapProductHelpers {
                 }
             } else {
                 Debug.trace("DimapProductHelpers.ProductBuilder.createGeoCoding(): " +
-                                    "the coordinate reference system tag contains no horizontal coordinat system tag"); /*I18N*/
+                            "the coordinate reference system tag contains no horizontal coordinat system tag"); /*I18N*/
             }
             // 2. fallback: try to find a MapGeoCoding
             final Element mapElem = coordRefSysElem.getChild(DimapProductConstants.TAG_GEOCODING_MAP);
@@ -379,13 +384,13 @@ public class DimapProductHelpers {
                 }
             } else {
                 Debug.trace("DimapProductHelpers.ProductBuilder.createGeoCoding(): neither '" /*I18N*/
-                                    + DimapProductConstants.TAG_GEOCODING_TIE_POINT_GRIDS + "' nor '" /*I18N*/
-                                    + DimapProductConstants.TAG_GEOCODING_MAP + "' found in '" /*I18N*/
-                                    + tagCoordRefSys + "' element"); /*I18N*/
+                            + DimapProductConstants.TAG_GEOCODING_TIE_POINT_GRIDS + "' nor '" /*I18N*/
+                            + DimapProductConstants.TAG_GEOCODING_MAP + "' found in '" /*I18N*/
+                            + tagCoordRefSys + "' element"); /*I18N*/
             }
         } else {
             Debug.trace("DimapProductHelpers.ProductBuilder.createGeoCoding(): missing '" /*I18N*/
-                                + tagCoordRefSys + "' element"); /*I18N*/
+                        + tagCoordRefSys + "' element"); /*I18N*/
         }
 
         // 3. fallback: try to create a TiePointGeoCoding from "latitude" and "longitude"
@@ -518,7 +523,7 @@ public class DimapProductHelpers {
             product.setGeoCoding(createGeoCoding(dom, product)[0]);
         }
 
-        return new PixelGeoCoding(latBand, lonBand, validMask, searchRadius);
+        return GeoCodingFactory.createPixelGeoCoding(latBand, lonBand, validMask, searchRadius);
     }
 
     private static FXYGeoCoding createFXYGeoCoding(Datum datum, Element geoPosElem) {
@@ -853,7 +858,8 @@ public class DimapProductHelpers {
         }
         for (Object elementObj : elements) {
             final Element element = (Element) elementObj;
-            final Placemark placemark = PlacemarkIO.createPlacemark(element, GcpDescriptor.getInstance(), product.getGeoCoding());
+            final Placemark placemark = PlacemarkIO.createPlacemark(element, GcpDescriptor.getInstance(),
+                                                                    product.getGeoCoding());
             if (placemark != null) {
                 product.getGcpGroup().add(placemark);
             }
@@ -924,6 +930,7 @@ public class DimapProductHelpers {
      * Creates a {@link FileFilter} for BEAM-DIMAP files.
      *
      * @return a FileFilter for use with a {@link javax.swing.JFileChooser}
+     *
      * @see org.esa.beam.util.io.BeamFileChooser
      */
     public static FileFilter createDimapFileFilter() {
@@ -936,6 +943,7 @@ public class DimapProductHelpers {
      * Creates a parsed {@link Document} from the given {@link InputStream inputStream}.
      *
      * @param inputStream the stream to be parsed
+     *
      * @return a parsed inputStream
      */
     public static Document createDom(final InputStream inputStream) {
@@ -958,7 +966,9 @@ public class DimapProductHelpers {
      * Converts a given BEAM <code>unit</code> into a DIMAP conform unit.
      *
      * @param unit a BEAM unit
+     *
      * @return the converted unit
+     *
      * @see DimapProductHelpers#convertDimapUnitToBeamUnit(String)
      */
     public static String convertBeamUnitToDimapUnit(final String unit) {
@@ -979,7 +989,9 @@ public class DimapProductHelpers {
      * Converts a given DIMAP <code>unit</code> into a BEAM conform unit.
      *
      * @param unit a DIMAP unit
+     *
      * @return the converted unit
+     *
      * @see DimapProductHelpers#convertBeamUnitToDimapUnit(String)
      */
     public static String convertDimapUnitToBeamUnit(final String unit) {
@@ -1387,11 +1399,13 @@ public class DimapProductHelpers {
                     product.getFlagCodingGroup().add(flagCoding);
                     sampleCoding = flagCoding;
                 }
-                addSamples(tagNameSampleElements, tagNameSampleName, tagNameSampleValue, tagNameSampleDescription, flagCodingElem, sampleCoding);
+                addSamples(tagNameSampleElements, tagNameSampleName, tagNameSampleValue, tagNameSampleDescription,
+                           flagCodingElem, sampleCoding);
             }
         }
 
-        private void addSamples(String tagNameSampleElements, String tagNameSampleName, String tagNameSampleValue, String tagNameSampleDescription,
+        private void addSamples(String tagNameSampleElements, String tagNameSampleName, String tagNameSampleValue,
+                                String tagNameSampleDescription,
                                 Element sampleCodingElement, SampleCoding sampleCoding) {
             final List list = sampleCodingElement.getChildren(tagNameSampleElements);
             for (Object o : list) {

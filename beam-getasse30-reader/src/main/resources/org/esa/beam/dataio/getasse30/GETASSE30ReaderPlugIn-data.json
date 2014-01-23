@@ -1,0 +1,19 @@
+{
+    "testProducts": [
+        {
+            "id": "GETASSE30_00N000E",
+            "relativePath": "applications/dem/GETASSE30/00N000E.GETASSE30",
+            "description": ""
+        },
+        {
+            "id": "GETASSE30_75N165E",
+            "relativePath": "applications/dem/GETASSE30/75N165E.GETASSE30",
+            "description": ""
+        },
+        {
+            "id": "GETASSE30_90S180W",
+            "relativePath": "applications/dem/GETASSE30/90S180W.GETASSE30",
+            "description": ""
+        }
+    ]
+}

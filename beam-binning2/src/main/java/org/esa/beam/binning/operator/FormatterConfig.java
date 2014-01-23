@@ -19,6 +19,10 @@ package org.esa.beam.binning.operator;
 
 import com.bc.ceres.binding.BindingException;
 import com.bc.ceres.binding.ConversionException;
+import org.esa.beam.binning.ProductCustomizer;
+import org.esa.beam.binning.ProductCustomizerConfig;
+import org.esa.beam.binning.ProductCustomizerDescriptor;
+import org.esa.beam.binning.TypedDescriptorsRegistry;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.ParameterBlockConverter;
 
@@ -69,6 +73,10 @@ public class FormatterConfig {
     @Parameter(alias = "outputBands", itemAlias = "band", description = "Configures the target bands. Not needed " +
             "if output type 'Product' is chosen.")
     private BandConfiguration[] bandConfigurations;
+    @Parameter(alias = "productCustomizer", domConverter = ProductCustomizerConfigDomConverter.class)
+    private ProductCustomizerConfig productCustomizerConfig;
+
+    private transient ProductCustomizer productCustomizer;
 
     public FormatterConfig() {
         // used by DOM converter
@@ -144,4 +152,16 @@ public class FormatterConfig {
         this.bandConfigurations = bandConfigurations;
     }
 
+    public ProductCustomizer getProductCustomizer() {
+        if (productCustomizer == null && productCustomizerConfig != null) {
+            TypedDescriptorsRegistry registry = TypedDescriptorsRegistry.getInstance();
+            ProductCustomizerDescriptor descriptor = registry.getDescriptor(ProductCustomizerDescriptor.class, productCustomizerConfig.getName());
+            if (descriptor != null) {
+                productCustomizer = descriptor.createProductCustomizer(productCustomizerConfig);
+            } else {
+                throw new IllegalArgumentException("Unknown cell processor type: " + productCustomizerConfig.getName());
+            }
+        }
+        return productCustomizer;
+    }
 }

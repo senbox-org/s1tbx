@@ -1,0 +1,201 @@
+{
+    "id": "LM32170241982254XXX01_nc",
+    "decodeQualification": "SUITABLE",
+    "expectedContent": {
+        "sceneWidth": 4181,
+        "sceneHeight": 3770,
+        "startTime": "11-SEP-1982 10:21:12.013000",
+        "endTime": "11-SEP-1982 10:21:12.013000",
+        "geoCoding": {
+            "coordinates": [
+                {
+                    "x": 2772.5,
+                    "y": 3433.5,
+                    "lat": 50.627926,
+                    "lon": 0.7068877
+                },
+                {
+                    "x": 2320.5,
+                    "y": 2011.5,
+                    "lat": 51.40541,
+                    "lon": 0.37942147
+                },
+                {
+                    "x": 2640.5,
+                    "y": 947.5,
+                    "lat": 51.969967,
+                    "lon": 0.70139134
+                }
+            ],
+            "reverseAccuracy": 0.01
+        },
+        "bands": [
+            {
+                "name": "radiance_4",
+                "description": "Near-Infrared (30m)",
+                "geophysicalUnit": "W/(m^2*sr*µm)",
+                "noDataValue": "2.690551181102362",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 2772,
+                        "y": 3433,
+                        "value": 128.19449
+                    },
+                    {
+                        "x": 2320,
+                        "y": 2011,
+                        "value": 169.11969
+                    },
+                    {
+                        "x": 2640,
+                        "y": 947,
+                        "value": 98.18268
+                    }
+                ]
+            },
+            {
+                "name": "radiance_5",
+                "description": "Near-Infrared (30m)",
+                "geophysicalUnit": "W/(m^2*sr*µm)",
+                "noDataValue": "2.164566929133858",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 2772,
+                        "y": 3433,
+                        "value": 94.30236
+                    },
+                    {
+                        "x": 2320,
+                        "y": 2011,
+                        "value": 129.88661
+                    },
+                    {
+                        "x": 2640,
+                        "y": 947,
+                        "value": 77.14567
+                    }
+                ]
+            },
+            {
+                "name": "radiance_6",
+                "description": "Thermal (120m)",
+                "geophysicalUnit": "W/(m^2*sr*µm)",
+                "noDataValue": "2.3358267716535432",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 2772,
+                        "y": 3433,
+                        "value": 72.85748
+                    },
+                    {
+                        "x": 2320,
+                        "y": 2011,
+                        "value": 107.83622
+                    },
+                    {
+                        "x": 2640,
+                        "y": 947,
+                        "value": 66.65157
+                    }
+                ]
+            },
+            {
+                "name": "radiance_7",
+                "description": "Mid-Infrared (30m)",
+                "geophysicalUnit": "W/(m^2*sr*µm)",
+                "noDataValue": "0.5248031496062993",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 2772,
+                        "y": 3433,
+                        "value": 44.242912
+                    },
+                    {
+                        "x": 2320,
+                        "y": 2011,
+                        "value": 71.32913
+                    },
+                    {
+                        "x": 2640,
+                        "y": 947,
+                        "value": 45.193306
+                    }
+                ]
+            },
+            {
+                "name": "lat",
+                "description": "latitude coordinate",
+                "geophysicalUnit": "degrees_north",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 2772,
+                        "y": 3433,
+                        "value": 50.627926
+                    },
+                    {
+                        "x": 2320,
+                        "y": 2011,
+                        "value": 51.40541
+                    },
+                    {
+                        "x": 2640,
+                        "y": 947,
+                        "value": 51.969967
+                    }
+                ]
+            },
+            {
+                "name": "lon",
+                "description": "longitude coordinate",
+                "geophysicalUnit": "degrees_east",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 2772,
+                        "y": 3433,
+                        "value": 0.7068877
+                    },
+                    {
+                        "x": 2320,
+                        "y": 2011,
+                        "value": 0.37942147
+                    },
+                    {
+                        "x": 2640,
+                        "y": 947,
+                        "value": 0.70139134
+                    }
+                ]
+            }
+        ],
+        "metadata": [
+            {
+                "path": "Global_Attributes/start_date",
+                "value": "11-SEP-1982 10:21:12.013000"
+            },
+            {
+                "path": "Variable_Attributes/radiance_7/long_name",
+                "value": "Mid-Infrared (30m)"
+            }
+        ]
+    }
+}

@@ -42,7 +42,7 @@ public class ScaledVariable {
     public String toString() {
         return "ScaledVariable{" +
                 "scaleFactor=" + scaleFactor +
-                ", variable=" + variable.getName() +
+                ", variable=" + variable.getFullName() +
                 '}';
     }
 }

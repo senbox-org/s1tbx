@@ -25,7 +25,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 public class TimeRangeFilter implements FilterComponent {
 
@@ -44,12 +43,10 @@ public class TimeRangeFilter implements FilterComponent {
 
     public TimeRangeFilter(final JCheckBox filterCheckBox) {
         this.filterCheckBox = filterCheckBox;
-        final SimpleDateFormat dateFormat = new SimpleDateFormat("MM-dd-yyyy");
+        final SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
         startTimePicker = new DateExComboBox();
-        startTimePicker.setLocale(Locale.ENGLISH);
         startTimePicker.setFormat(dateFormat);
         stopTimePicker = new DateExComboBox();
-        stopTimePicker.setLocale(Locale.ENGLISH);
         stopTimePicker.setFormat(dateFormat);
 
         final int width = 150;
@@ -94,7 +91,7 @@ public class TimeRangeFilter implements FilterComponent {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (StringUtils.isNotNullAndNotEmpty(datePatternComboBox.getEditor().getItem().toString())
-                        && StringUtils.isNotNullAndNotEmpty(fileNamePatternComboBox.getEditor().getItem().toString())) {
+                    && StringUtils.isNotNullAndNotEmpty(fileNamePatternComboBox.getEditor().getItem().toString())) {
                     timeStampExtractor = new TimeStampExtractor(datePatternComboBox.getSelectedItem().toString(),
                                                                 fileNamePatternComboBox.getSelectedItem().toString());
                 } else {
@@ -237,7 +234,8 @@ public class TimeRangeFilter implements FilterComponent {
         try {
             final ProductData.UTC[] timeStamps = timeStampExtractor.extractTimeStamps(leaf.getName());
 
-            final boolean startDateEqualsEndDate = timeStamps[0].getAsDate().getTime() == timeStamps[1].getAsDate().getTime();
+            final boolean startDateEqualsEndDate =
+                    timeStamps[0].getAsDate().getTime() == timeStamps[1].getAsDate().getTime();
             if (startDateEqualsEndDate) {
                 timeStamps[1] = null;
             }

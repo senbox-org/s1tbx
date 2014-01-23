@@ -2473,7 +2473,7 @@ public abstract class ProductData implements Cloneable {
         }
 
         /**
-         * Returns a textual representation of this value's value. The text returned is a string cretaed from the bytes
+         * Returns a textual representation of this value's value. The text returned is a string created from the bytes
          * array elements in this value interpreted as ASCII values.
          *
          * @return a text representing this product data, never <code>null</code>

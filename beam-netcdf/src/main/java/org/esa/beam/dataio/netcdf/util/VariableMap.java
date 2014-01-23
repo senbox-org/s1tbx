@@ -111,6 +111,6 @@ public class VariableMap {
      * @return The absolute path name.
      */
     public static String getAbsoluteName(Variable variable) {
-        return variable.getName();
+        return variable.getFullName();
     }
 }

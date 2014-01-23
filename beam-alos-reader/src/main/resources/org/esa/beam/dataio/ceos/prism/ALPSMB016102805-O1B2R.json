@@ -1,0 +1,59 @@
+{
+    "id": "ALPSMB016102805-O1B2R",
+    "decodeQualification": "INTENDED",
+    "expectedContent": {
+        "sceneWidth": 16325,
+        "sceneHeight": 14000,
+        "startTime": "13-MAY-2006 22:00:00.000000",
+        "endTime": "13-MAY-2006 22:00:00.000000",
+        "geoCoding": {
+            "coordinates": [
+                {
+                    "x": 7041.0,
+                    "y": 7525.0,
+                    "lat": 42.078953,
+                    "lon": -7.345689
+                },
+                {
+                    "x": 12120.0,
+                    "y": 9084.0,
+                    "lat": 42.049206,
+                    "lon": -7.1904454
+                }
+            ],
+            "reverseAccuracy": 0.07
+        },
+        "bands": [
+            {
+                "name": "radiance_1",
+                "geophysicalUnit": "mw / (m^2*sr*nm)",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "645.0",
+                "spectralBandwidth": "250.0",
+                "expectedPixels": [
+                    {
+                        "x": 851,
+                        "y": 2494,
+                        "value": 73.035
+                    },
+                    {
+                        "x": 11184,
+                        "y": 11908,
+                        "value": 73.035
+                    }
+                ]
+            }
+        ],
+        "metadata": [
+            {
+                "path": "SPH/Map Projection/PIXELS_PER_LINE",
+                "value": "16325.0"
+            },
+            {
+                "path": "SPH/Radiometric Calibration/ABSOLUTE_GAIN_BAND",
+                "value": "0.541"
+            }
+        ]
+    }
+}

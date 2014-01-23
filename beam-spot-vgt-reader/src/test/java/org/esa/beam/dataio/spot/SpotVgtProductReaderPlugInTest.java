@@ -107,7 +107,7 @@ public class SpotVgtProductReaderPlugInTest {
     }
 
     public static void main(String[] args) throws IOException {
-//        final NetcdfFile netcdfFile = NetcdfFile.open("C:\\Users\\Norman\\EOData\\SPOT-VGT\\V2KRNS10__20060721_RADIO_Europe\\0001\\0001_B3.HDF");
+//        final NetcdfFile netcdfFile = SimpleNetcdfFile.openNetcdf("C:\\Users\\Norman\\EOData\\SPOT-VGT\\V2KRNS10__20060721_RADIO_Europe\\0001\\0001_B3.HDF");
 //        netcdfFile.writeCDL(System.out, false);
 
         Product product = ProductIO.readProduct(new File(args[0]));

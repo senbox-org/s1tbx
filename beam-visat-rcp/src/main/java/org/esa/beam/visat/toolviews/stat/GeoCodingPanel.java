@@ -16,6 +16,7 @@
 
 package org.esa.beam.visat.toolviews.stat;
 
+import org.esa.beam.framework.datamodel.BasicPixelGeoCoding;
 import org.esa.beam.framework.datamodel.CombinedFXYGeoCoding;
 import org.esa.beam.framework.datamodel.CrsGeoCoding;
 import org.esa.beam.framework.datamodel.FXYGeoCoding;
@@ -23,8 +24,6 @@ import org.esa.beam.framework.datamodel.GcpGeoCoding;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.MapGeoCoding;
-import org.esa.beam.framework.datamodel.PixelGeoCoding;
-import org.esa.beam.framework.datamodel.PixelGeoCoding2;
 import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.Placemark;
 import org.esa.beam.framework.datamodel.Product;
@@ -179,10 +178,8 @@ class GeoCodingPanel extends TextPagePanel {
 
         if (geoCoding instanceof TiePointGeoCoding) {
             writeTiePointGeoCoding((TiePointGeoCoding) geoCoding, nodeType, sb);
-        } else if (geoCoding instanceof PixelGeoCoding) {
-            writePixelGeoCoding((PixelGeoCoding) geoCoding, nodeType, sb);
-        } else if (geoCoding instanceof PixelGeoCoding2) {
-            writePixelGeoCoding2((PixelGeoCoding2) geoCoding, nodeType, sb);
+        } else if (geoCoding instanceof BasicPixelGeoCoding) {
+            writePixelGeoCoding((BasicPixelGeoCoding) geoCoding, nodeType, sb);
         } else if (geoCoding instanceof MapGeoCoding) {
             writeMapGeoCoding((MapGeoCoding) geoCoding, nodeType, sb);
         } else if (geoCoding instanceof FXYGeoCoding) {
@@ -209,7 +206,8 @@ class GeoCodingPanel extends TextPagePanel {
 
     private void writeGcpGeoCoding(GcpGeoCoding gcpGeoCoding, String nodeType, StringBuffer sb) {
         sb.append("\n");
-        sb.append("\nThe ").append(nodeType).append(" uses a geo-coding which is based on ground control points (GCPs).\n");
+        sb.append("\nThe ").append(nodeType).append(
+                " uses a geo-coding which is based on ground control points (GCPs).\n");
         sb.append("\n");
 
         ProductNodeGroup<Placemark> gcpGroup = getProduct().getGcpGroup();
@@ -284,12 +282,12 @@ class GeoCodingPanel extends TextPagePanel {
 
             final FXYGeoCoding fxyGeoCoding = codingWrapper.getGeoGoding();
             sb.append("Geographic coordinates (lat,lon) are computed from pixel coordinates (x,y)\n" +
-                              "by using following polynomial equations: \n\n");
+                      "by using following polynomial equations: \n\n");
             sb.append(fxyGeoCoding.getLatFunction().createCFunctionCode("latitude", "x", "y")).append("\n");
             sb.append(fxyGeoCoding.getLonFunction().createCFunctionCode("longitude", "x", "y")).append("\n");
             sb.append("\n");
             sb.append("Pixels (x,y) are computed from geographic coordinates (lat,lon)\n" +
-                              "by using the following polynomial equations: \n\n");
+                      "by using the following polynomial equations: \n\n");
             sb.append(fxyGeoCoding.getPixelXFunction().createCFunctionCode("x", "lat", "lon")).append("\n");
             sb.append(fxyGeoCoding.getPixelYFunction().createCFunctionCode("y", "lat", "lon")).append("\n");
             sb.append("\n");
@@ -303,12 +301,12 @@ class GeoCodingPanel extends TextPagePanel {
         sb.append("\n");
 
         sb.append("Geographic coordinates (lat,lon) are computed from pixel coordinates (x,y)\n" +
-                          "by using following polynomial equations: \n\n");
+                  "by using following polynomial equations: \n\n");
         sb.append(fxyGeoCoding.getLatFunction().createCFunctionCode("latitude", "x", "y")).append("\n");
         sb.append(fxyGeoCoding.getLonFunction().createCFunctionCode("longitude", "x", "y")).append("\n");
         sb.append("\n");
         sb.append("Pixels (x,y) are computed from geographic coordinates (lat,lon)\n" +
-                          "by using the following polynomial equations: \n\n");
+                  "by using the following polynomial equations: \n\n");
         sb.append(fxyGeoCoding.getPixelXFunction().createCFunctionCode("x", "lat", "lon")).append("\n");
         sb.append(fxyGeoCoding.getPixelYFunction().createCFunctionCode("y", "lat", "lon")).append("\n");
         sb.append("\n");
@@ -386,61 +384,33 @@ class GeoCodingPanel extends TextPagePanel {
                                 mi.getMapProjection().getMapUnit()));
     }
 
-    private void writePixelGeoCoding(PixelGeoCoding pgc, String nodeType, StringBuffer sb) {
+    private void writePixelGeoCoding(BasicPixelGeoCoding gc, String nodeType, StringBuffer sb) {
         sb.append("\n");
         sb.append("\nThe ").append(nodeType).append(" uses a pixel based geo-coding.\n");
         sb.append("\n");
 
         sb.append(String.format("%1$-35s \t%2$s\n",
-                                "Name of latitude band:", pgc.getLatBand().getName()));
+                                "Name of latitude band:", gc.getLatBand().getName()));
         sb.append(String.format("%1$-35s \t%2$s\n",
-                                "Name of longitude band:", pgc.getLonBand().getName()));
+                                "Name of longitude band:", gc.getLonBand().getName()));
 
         sb.append(String.format("%1$-35s \t%2$d \t%3$s\n",
-                                "Search radius:", pgc.getSearchRadius(), "pixels"));
+                                "Search radius:", gc.getSearchRadius(), "pixels"));
 
         sb.append(String.format("%1$-35s \t%2$s\n",
-                                "Valid pixel mask:", pgc.getValidMask()));
-
-        sb.append(String.format("%1$-35s \t%2$s\n",
-                                "Crossing 180 degree meridian:",
-                                String.valueOf(pgc.isCrossingMeridianAt180())));
-
-        sb.append("\n");
-        sb.append("Geographic coordinates (lat,lon) are computed from pixel coordinates (x,y)\n" +
-                          "by linear interpolation between pixels.\n");
-
-        sb.append("\n");
-        sb.append("Pixel coordinates (x,y) are computed from geographic coordinates (lat,lon)\n" +
-                          "by a search algorithm.\n");
-        sb.append("\n");
-    }
-
-    private void writePixelGeoCoding2(PixelGeoCoding2 pgc, String nodeType, StringBuffer sb) {
-        sb.append("\n");
-        sb.append("\nThe ").append(nodeType).append(" uses a pixel based geo-coding.\n");
-        sb.append("\n");
-
-        sb.append(String.format("%1$-35s \t%2$s\n",
-                                "Name of latitude band:", pgc.getLatBand().getName()));
-        sb.append(String.format("%1$-35s \t%2$s\n",
-                                "Name of longitude band:", pgc.getLonBand().getName()));
-
-
-        sb.append(String.format("%1$-35s \t%2$s\n",
-                                "Valid pixel mask:", pgc.getValidMask()));
+                                "Valid pixel mask:", gc.getValidMask()));
 
         sb.append(String.format("%1$-35s \t%2$s\n",
                                 "Crossing 180 degree meridian:",
-                                String.valueOf(pgc.isCrossingMeridianAt180())));
+                                String.valueOf(gc.isCrossingMeridianAt180())));
 
         sb.append("\n");
         sb.append("Geographic coordinates (lat,lon) are computed from pixel coordinates (x,y)\n" +
-                          "by linear interpolation between pixels.\n");
+                  "by linear interpolation between pixels.\n");
 
         sb.append("\n");
         sb.append("Pixel coordinates (x,y) are computed from geographic coordinates (lat,lon)\n" +
-                          "by a search algorithm.\n");
+                  "by a search algorithm.\n");
         sb.append("\n");
     }
 
@@ -460,13 +430,13 @@ class GeoCodingPanel extends TextPagePanel {
 
         sb.append("\n");
         sb.append("Geographic coordinates (lat,lon) are computed from pixel coordinates (x,y)\n" +
-                          "by linear interpolation between tie points.\n");
+                  "by linear interpolation between tie points.\n");
 
         final int numApproximations = tgc.getNumApproximations();
         if (numApproximations > 0) {
             sb.append("\n");
             sb.append("Pixel coordinates (x,y) are computed from geographic coordinates (lat,lon)\n" +
-                              "by polynomial approximations for ").append(numApproximations).append(" tile(s).\n");
+                      "by polynomial approximations for ").append(numApproximations).append(" tile(s).\n");
             sb.append("\n");
 
             for (int i = 0; i < numApproximations; i++) {
@@ -529,7 +499,7 @@ class GeoCodingPanel extends TextPagePanel {
             sb.append("\n");
             sb.append(
                     "WARNING: Pixel coordinates (x,y) cannot be computed from geographic coordinates (lat,lon)\n" +
-                            "because appropriate polynomial approximations could not be found.\n");
+                    "because appropriate polynomial approximations could not be found.\n");
         }
     }
 

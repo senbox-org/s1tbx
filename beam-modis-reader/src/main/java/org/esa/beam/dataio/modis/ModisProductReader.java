@@ -23,6 +23,7 @@ import org.esa.beam.dataio.modis.netcdf.NetCDFAttributes;
 import org.esa.beam.dataio.modis.netcdf.NetCDFUtils;
 import org.esa.beam.dataio.modis.netcdf.NetCDFVariables;
 import org.esa.beam.dataio.modis.productdb.ModisProductDb;
+import org.esa.beam.dataio.netcdf.util.SimpleNetcdfFile;
 import org.esa.beam.framework.dataio.AbstractProductReader;
 import org.esa.beam.framework.dataio.ProductIOException;
 import org.esa.beam.framework.datamodel.Band;
@@ -81,9 +82,9 @@ public class ModisProductReader extends AbstractProductReader {
 
     // package access for testing only tb 2012-06-19
     static boolean isGlobalAttributeName(String variableName) {
-        return "StructMetadata.0".equalsIgnoreCase(variableName)
-                || "CoreMetadata.0".equalsIgnoreCase(variableName)
-                || "ArchiveMetadata.0".equalsIgnoreCase(variableName);
+        return ModisConstants.STRUCT_META_KEY.equalsIgnoreCase(variableName)
+                || ModisConstants.CORE_META_KEY.equalsIgnoreCase(variableName)
+                || ModisConstants.ARCHIVE_META_KEY.equalsIgnoreCase(variableName);
     }
 
     /**
@@ -144,7 +145,7 @@ public class ModisProductReader extends AbstractProductReader {
         final File inFile = getInputFile();
         final String inputFilePath = inFile.getPath();
 
-        netcdfFile = NetcdfFile.open(inputFilePath, null);
+        netcdfFile = SimpleNetcdfFile.openNetcdf(inputFilePath);
 
         readGlobalMetaData(inFile);
         checkProductType();
@@ -252,9 +253,8 @@ public class ModisProductReader extends AbstractProductReader {
         // we need to scan the variables because the NetCDF lib puts three important
         // global attributes into the list of variables tb 2012-06-19
         final Variable[] variables = netCDFVariables.getAll();
-        for (int i = 0; i < variables.length; i++) {
-            final Variable variable = variables[i];
-            if (isGlobalAttributeName(variable.getName())) {
+        for (final Variable variable : variables) {
+            if (isGlobalAttributeName(variable.getFullName())) {
                 globalElem.addAttribute(NetCDFUtils.toMetadataAttribute(variable));
             }
         }

@@ -24,7 +24,8 @@ import javax.media.jai.PixelAccessor;
 import javax.media.jai.PlanarImage;
 import javax.media.jai.UnpackedImageData;
 import javax.media.jai.operator.MinDescriptor;
-import java.awt.*;
+import java.awt.Rectangle;
+import java.awt.Shape;
 import java.awt.geom.Area;
 import java.awt.image.DataBuffer;
 import java.awt.image.Raster;
@@ -64,10 +65,10 @@ public class DensityPlot {
         Assert.notNull(raster2, "raster2");
         Assert.notNull(pm, "pm");
 
-        DensityPlotOp densityPlotOp = new DensityPlotOp(raster1.scaleInverse(sampleMin1),
-                                                        raster1.scaleInverse(sampleMax1),
-                                                        raster2.scaleInverse(sampleMin2),
-                                                        raster2.scaleInverse(sampleMax2),
+        DensityPlotOp densityPlotOp = new DensityPlotOp(sampleMin1,
+                                                        sampleMax1,
+                                                        sampleMin2,
+                                                        sampleMax2,
                                                         width, height);
         Shape maskShape = null;
         RenderedImage maskImage = null;
@@ -114,9 +115,9 @@ public class DensityPlot {
 
         public void accumulate(RasterDataNode raster1, RasterDataNode raster2, RenderedImage roiImage, Shape roiShape, byte[] pixelValues, ProgressMonitor pm) {
 
-            PlanarImage dataImage = raster1.getSourceImage();
-            RenderedImage dataImage1 = raster1.getSourceImage();
-            RenderedImage dataImage2 = raster2.getSourceImage();
+            PlanarImage dataImage = raster1.getGeophysicalImage();
+            RenderedImage dataImage1 = raster1.getGeophysicalImage();
+            RenderedImage dataImage2 = raster2.getGeophysicalImage();
             final SampleModel dataSampleModel1 = dataImage1.getSampleModel();
             checkSampleModelForOneBand(dataSampleModel1);
             final SampleModel dataSampleModel2 = dataImage2.getSampleModel();

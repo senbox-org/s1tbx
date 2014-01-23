@@ -33,7 +33,7 @@
                     <tocitem text="ERS1/2" target="importErsProduct"/>
                     <tocitem text="GETASSE30 Tile" target="importGETASSE30"/>
                     <tocitem text="HDF-EOS" target="importNetCdfProduct"/>
-                    <tocitem text="LANDSAT 5 TM" target="importLandsatTMProduct"/>
+                    <tocitem text="LANDSAT" target="importLandsatProduct"/>
                     <tocitem text="MERIS Binned Level-3" target="importMerisBinnedL3Product"/>
                     <tocitem text="MODIS" target="importModisProduct"/>
                     <tocitem text="NASA Ocean Color" target="importNasaObpgProduct"/>

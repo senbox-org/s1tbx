@@ -19,6 +19,7 @@ import com.bc.ceres.binding.Property;
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.VirtualDir;
+import org.esa.beam.dataio.netcdf.util.SimpleNetcdfFile;
 import org.esa.beam.framework.dataio.AbstractProductReader;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.FlagCoding;
@@ -56,8 +57,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-import static org.esa.beam.dataio.spot.SpotVgtProductReaderPlugIn.getBandName;
-import static org.esa.beam.dataio.spot.SpotVgtProductReaderPlugIn.getFileInput;
+import static org.esa.beam.dataio.spot.SpotVgtProductReaderPlugIn.*;
 
 /**
  * Reader for SPOT VGT products.
@@ -126,12 +126,7 @@ public class SpotVgtProductReader extends AbstractProductReader {
             if (logVolFileName.endsWith(".hdf") || logVolFileName.endsWith(".HDF")) {
 
                 File hdfFile = virtualDir.getFile(physVolDescriptor.getLogVolDirName() + "/" + logVolFileName);
-                NetcdfFile netcdfFile = NetcdfFile.open(hdfFile.getPath());
-
-                HashMap<String, Variable> variables = new HashMap<String, Variable>();
-                for (Variable variable : netcdfFile.getVariables()) {
-                    variables.put(variable.getName(), variable);
-                }
+                NetcdfFile netcdfFile = SimpleNetcdfFile.openNetcdf(hdfFile.getPath());
 
                 Variable variable = findPixelDataVariable(netcdfFile);
                 if (isPotentialPixelDataVariable(variable)) {
@@ -242,7 +237,7 @@ public class SpotVgtProductReader extends AbstractProductReader {
 
     private Variable findPixelDataVariable(NetcdfFile netcdfFile) {
         for (String name : PIXEL_DATA_VAR_NAMES) {
-            Variable pixelDataVar = netcdfFile.findTopVariable(name);
+            Variable pixelDataVar = netcdfFile.getRootGroup().findVariable(name);
             if (pixelDataVar != null) {
                 return pixelDataVar;
             }

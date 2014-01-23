@@ -15,6 +15,8 @@
  */
 package org.esa.beam.util.logging;
 
+import com.bc.ceres.core.runtime.RuntimeConfigException;
+import com.bc.ceres.core.runtime.internal.DefaultRuntimeConfig;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.SystemUtils;
 
@@ -29,12 +31,21 @@ import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
 /**
- * This class is the central manager class for logging. It exposes a set of convenience methods for the initializytion
+ * This class is the central manager class for logging. It exposes a set of convenience methods for the initialisation
  * and configuration of the logging framework.
  */
 public class BeamLogManager {
 
-    private static String _systemLoggerName = "beam";
+    private static Logger logger;
+
+    static {
+        try {
+            DefaultRuntimeConfig defaultRuntimeConfig = new DefaultRuntimeConfig();
+            logger = defaultRuntimeConfig.getLogger();
+        } catch (RuntimeConfigException e) {
+            logger = Logger.getLogger(System.getProperty("ceres.context", "beam"));
+        }
+    }
 
     /**
      * Gets the name of the system logger. This method is used to determine the system logger used by all low-level
@@ -44,9 +55,11 @@ public class BeamLogManager {
      * @return the name of the system logger, must not be <code>null</code>
      * @see #setSystemLoggerName
      * @see #getSystemLogger
+     * @deprecated no replacement, use {@code getSystemLogger().getName()}
      */
+    @Deprecated
     public static String getSystemLoggerName() {
-        return _systemLoggerName;
+        return logger.getName();
     }
 
     /**
@@ -57,11 +70,10 @@ public class BeamLogManager {
      * @param systemLoggerName the name of the system logger, must not be <code>null</code>
      * @see #getSystemLoggerName
      * @see #getSystemLogger
+     * @deprecated no replacement, system logger name is taken from system property "ceres.context"
      */
+    @Deprecated
     public static void setSystemLoggerName(String systemLoggerName) {
-        Guardian.assertNotNull("systemLoggerName", systemLoggerName);
-
-        _systemLoggerName = systemLoggerName;
     }
 
     /**
@@ -83,7 +95,7 @@ public class BeamLogManager {
      * @see #setSystemLoggerName
      */
     public static Logger getSystemLogger() {
-        return Logger.getLogger(getSystemLoggerName());
+        return logger;
     }
 
     /**
@@ -94,7 +106,9 @@ public class BeamLogManager {
      * @param logFilenamePrefix the log filename prefix
      * @return a log file pattern for the given filname prefix
      * @see #getLogFilePattern(File, String)
+     * @deprecated no replacement
      */
+    @Deprecated
     public static String getLogFilePattern(String logFilenamePrefix) {
         return getLogFilePattern(new File(SystemUtils.getApplicationHomeDir(), "log"), logFilenamePrefix);
     }
@@ -107,7 +121,9 @@ public class BeamLogManager {
      * @param logFilenamePrefix the log filename prefix
      * @return a log file pattern for the given filname prefix
      * @see BeamLogManager#getLogFilePattern(String)
+     * @deprecated no replacement
      */
+    @Deprecated
     public static String getLogFilePattern(File outDir, String logFilenamePrefix) {
         Guardian.assertNotNull("outDir", outDir);
         Guardian.assertNotNull("logFilenamePrefix", logFilenamePrefix);
@@ -121,7 +137,9 @@ public class BeamLogManager {
      *
      * @param formatter   the formatter to be used
      * @param consoleEcho if true, a console handler will be installed
+     * @deprecated no replacement
      */
+    @Deprecated
     public static void configureSystemLogger(Formatter formatter,
                                              boolean consoleEcho) {
         Logger sysLogger = getSystemLogger();
@@ -156,7 +174,9 @@ public class BeamLogManager {
      * Retrieves the first registered CacheHandler in the list of handlers attached to the system logger.
      *
      * @return a CacheHandler
+     * @deprecated no replacement
      */
+    @Deprecated
     public static CacheHandler getRegisteredCacheHandler() {
         Logger sysLogger = getSystemLogger();
         Handler[] handlers = sysLogger.getHandlers();
@@ -177,7 +197,9 @@ public class BeamLogManager {
      * @param appVersion    the application version string
      * @param copyrightInfo the application copyright information
      * @return a formatter
+     * @deprecated no replacement
      */
+    @Deprecated
     public static BeamFormatter createFormatter(String appName, String appVersion, String copyrightInfo) {
         final String logHeader = createLogHeader(appName, appVersion, copyrightInfo);
         return new BeamFormatter(logHeader);
@@ -187,7 +209,9 @@ public class BeamLogManager {
      * Removes all logging handlers from the root logger.
      * By default, all BEAM log messages are echoed to the console.
      * Call this method if you don't want this behaviour.
+     * @deprecated no replacement
      */
+    @Deprecated
     public static void removeRootLoggerHandlers() {
         Logger rootLogger = LogManager.getLogManager().getLogger("");
         Handler[] handlers = rootLogger.getHandlers();
@@ -196,6 +220,7 @@ public class BeamLogManager {
         }
     }
 
+    @Deprecated
     public static void ensureLogPathFromPatternExists(String logPattern) {
         File logDir = new File(logPattern).getParentFile();
         if (logDir != null && !logDir.exists()) {
@@ -203,6 +228,7 @@ public class BeamLogManager {
         }
     }
 
+    @Deprecated
     public static String createLogHeader(String appName, String appVersion, String copyrightInfo) {
         final StringWriter stringWriter = new StringWriter();
         final PrintWriter printWriter = new PrintWriter(stringWriter);

@@ -1,18 +1,18 @@
 package org.esa.beam.opendap.utils;
 
 import com.bc.io.FileDownloader;
-import org.esa.beam.opendap.ui.OpendapAccessPanel;
+import org.esa.beam.opendap.ui.DownloadProgressBarPM;
 import org.esa.beam.util.StringUtils;
-import org.esa.beam.util.logging.BeamLogManager;
 import ucar.ma2.Array;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Attribute;
 import ucar.nc2.Dimension;
-import ucar.nc2.FileWriter;
+import ucar.nc2.FileWriter2;
 import ucar.nc2.NetcdfFile;
-import ucar.nc2.NetcdfFileWriteable;
+import ucar.nc2.NetcdfFileWriter;
 import ucar.nc2.Variable;
 import ucar.nc2.dods.DODSNetcdfFile;
+import ucar.nc2.util.EscapeStrings;
 
 import java.io.File;
 import java.io.IOException;
@@ -32,14 +32,14 @@ public class DAPDownloader {
 
     final Map<String, Boolean> dapUris;
     final List<String> fileURIs;
-    private final FileCountProvider fileCountProvider;
-    private final OpendapAccessPanel.DownloadProgressBarProgressMonitor pm;
+    private final DownloadContext downloadContext;
+    private final DownloadProgressBarPM pm;
 
-    public DAPDownloader(Map<String, Boolean> dapUris, List<String> fileURIs, FileCountProvider fileCountProvider,
-                         OpendapAccessPanel.DownloadProgressBarProgressMonitor pm) {
+    public DAPDownloader(Map<String, Boolean> dapUris, List<String> fileURIs, DownloadContext downloadContext,
+                         DownloadProgressBarPM pm) {
         this.dapUris = dapUris;
         this.fileURIs = fileURIs;
-        this.fileCountProvider = fileCountProvider;
+        this.downloadContext = downloadContext;
         this.pm = pm;
     }
 
@@ -73,21 +73,53 @@ public class DAPDownloader {
         writeNetcdfFile(targetDir, fileName, constraintExpression, netcdfFile, isLargeFile);
     }
 
-    void writeNetcdfFile(File targetDir, String fileName, String constraintExpression, DODSNetcdfFile sourceNetcdfFile, boolean isLargeFile) throws IOException {
+    void writeNetcdfFile(File targetDir, String fileName, String constraintExpression, final DODSNetcdfFile sourceNetcdfFile, final boolean isLargeFile) throws IOException {
         final File file = new File(targetDir, fileName);
+
+        if (file.exists() && !downloadContext.mayOverwrite(fileName)) {
+            downloadContext.notifyFileDownloaded(file);
+            updateProgressBar(fileName, (int) (file.length() / 1024));
+            return;
+        }
+
         if (StringUtils.isNullOrEmpty(constraintExpression)) {
             try {
-                FileWriter.writeToFile(sourceNetcdfFile, file.getAbsolutePath(), true, isLargeFile);
-            } catch (NullPointerException e) {
-                // this can happen when products have a string as fill value, which is not considered correct NetCDF but can be handled.
-                final String msg = String.format("Unable to store file '%s' in fill mode. Using non-fill mode as fallback.", sourceNetcdfFile.getLocation());
-                BeamLogManager.getSystemLogger().warning(msg);
-                FileWriter.writeToFile(sourceNetcdfFile, file.getAbsolutePath(), false, isLargeFile);
+                Thread thread = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            FileWriter2 fileWriter = new FileWriter2(sourceNetcdfFile, file.getAbsolutePath(), NetcdfFileWriter.Version.netcdf3, null);
+                            fileWriter.write();
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                });
+                thread.start();
+                int downloadedBefore = 0;
+                while (thread.isAlive()) {
+                    try {
+                        Thread.sleep(1000L);
+                    } catch (InterruptedException ignore) {
+                        // ignore
+                    }
+                    int downloaded = (int) (file.length() / 1024);
+                    int delta = downloaded - downloadedBefore;
+                    if (delta > 0) {
+                        updateProgressBar(fileName, delta);
+                        downloadedBefore = downloaded;
+                    }
+                }
+            } catch (RuntimeException e) {
+                if (e.getCause() instanceof IOException) {
+                    throw (IOException) e.getCause();
+                } else {
+                    throw e;
+                }
             }
+
             if (!pm.isCanceled()) {
-                fileCountProvider.notifyFileDownloaded(file);
-                final int work = (int) (file.length() / 1024);
-                updateProgressBar(fileName, work);
+                downloadContext.notifyFileDownloaded(file);
             }
             return;
         }
@@ -108,45 +140,47 @@ public class DAPDownloader {
         final List<Variable> variables = sourceNetcdfFile.getVariables();
         final List<String> variableNames = new ArrayList<String>();
         for (Variable variable : variables) {
-            variableNames.add(variable.getName());
+            variableNames.add(variable.getFullName());
         }
         final List<String> filteredVariables = filterVariables(variableNames, constraintExpression);
         final List<Dimension> filteredDimensions = filterDimensions(filteredVariables, sourceNetcdfFile);
 
-        final NetcdfFileWriteable targetNetCDF = NetcdfFileWriteable.createNew(file.getAbsolutePath());
+        NetcdfFileWriter targetNetCDF = NetcdfFileWriter.createNew(NetcdfFileWriter.Version.netcdf3, file.getAbsolutePath());
         for (Dimension filteredDimension : filteredDimensions) {
-            targetNetCDF.addDimension(filteredDimension.getName(), filteredDimension.getLength(),
+            targetNetCDF.addDimension(null, filteredDimension.getFullName(), filteredDimension.getLength(),
                                       filteredDimension.isShared(), filteredDimension.isUnlimited(),
                                       filteredDimension.isVariableLength());
         }
         for (String filteredVariable : filteredVariables) {
-            final Variable variable = sourceNetcdfFile.findVariable(NetcdfFile.escapeName(filteredVariable));
-            final Variable targetVariable = targetNetCDF.addVariable(variable.getName(), variable.getDataType(),
+            String varName = EscapeStrings.backslashEscape(filteredVariable, NetcdfFile.reservedSectionSpec);
+            final Variable variable = sourceNetcdfFile.findVariable(varName);
+            final Variable targetVariable = targetNetCDF.addVariable(null, variable.getFullName(), variable.getDataType(),
                                                                      variable.getDimensions());
             for (Attribute attribute : variable.getAttributes()) {
                 targetVariable.addAttribute(attribute);
             }
         }
         for (Attribute attribute : sourceNetcdfFile.getGlobalAttributes()) {
-            targetNetCDF.addGlobalAttribute(attribute);
+            targetNetCDF.addGroupAttribute(null, attribute);
         }
         targetNetCDF.create();
 
         for (String filteredVariable : filteredVariables) {
-            final Variable sourceVariable = sourceNetcdfFile.findVariable(NetcdfFile.escapeName(filteredVariable));
+            String varName = EscapeStrings.backslashEscape(filteredVariable, NetcdfFile.reservedSectionSpec);
+            final Variable sourceVariable = sourceNetcdfFile.findVariable(varName);
             String ceForVariable = getConstraintExpression(filteredVariable, constraintExpression);
             final Array values = sourceNetcdfFile.readWithCE(sourceVariable, ceForVariable);
             final int[] origin = getOrigin(filteredVariable, constraintExpression,
                                            sourceVariable.getDimensions().size());
             try {
-                targetNetCDF.write(NetcdfFile.escapeName(filteredVariable), origin, values);
+                targetNetCDF.write(sourceVariable, origin, values);
             } catch (InvalidRangeException e) {
                 throw new IOException(MessageFormat.format("Unable to download variable ''{0}'' into file ''{1}''.",
                                                            filteredVariable, fileName), e);
             }
         }
         targetNetCDF.close();
-        fileCountProvider.notifyFileDownloaded(file);
+        downloadContext.notifyFileDownloaded(file);
     }
 
     private void updateProgressBar(String fileName, int work) {
@@ -154,9 +188,9 @@ public class DAPDownloader {
         StringBuilder preMessageBuilder = new StringBuilder(fileName);
         int currentWork = pm.getCurrentWork();
         preMessageBuilder.append(" (")
-                .append(fileCountProvider.getAllDownloadedFilesCount() + 1)
+                .append(downloadContext.getAllDownloadedFilesCount() + 1)
                 .append("/")
-                .append(fileCountProvider.getAllFilesCount())
+                .append(downloadContext.getAllFilesCount())
                 .append(")");
         if (currentWork != 0) {
             final long currentTime = new GregorianCalendar().getTimeInMillis();
@@ -168,7 +202,7 @@ public class DAPDownloader {
             preMessageBuilder.append(" @ ").append(speedString).append(" ").append(sizeIdentifier).append("B/s");
         }
         int totalWork = pm.getTotalWork();
-        final double percentage = ((double) currentWork / totalWork) * 100.0;
+        double percentage = ((double) currentWork / totalWork) * 100.0;
         String workDone = OpendapUtils.format(currentWork / 1024.0);
         String totalWorkString = OpendapUtils.format(totalWork / 1024.0);
         pm.setPostMessage(workDone + " MB/" + totalWorkString + " MB (" + OpendapUtils.format(percentage) + "%)");
@@ -246,7 +280,7 @@ public class DAPDownloader {
         final List<Dimension> filteredDimensions = new ArrayList<Dimension>();
 
         for (String variableName : variables) {
-            final Variable variable = netcdfFile.findVariable(NetcdfFile.escapeName(variableName));
+            final Variable variable = netcdfFile.findVariable(variableName);
             for (Dimension dimension : variable.getDimensions()) {
                 if (!filteredDimensions.contains(dimension)) {
                     filteredDimensions.add(dimension);
@@ -290,15 +324,17 @@ public class DAPDownloader {
         final URL fileUrl = new URI(fileURI).toURL();
         updateProgressBar(fileUrl.getFile(), 0);
         final File file = FileDownloader.downloadFile(fileUrl, targetDir, null);
-        fileCountProvider.notifyFileDownloaded(file);
+        downloadContext.notifyFileDownloaded(file);
     }
 
-    public interface FileCountProvider {
+    public interface DownloadContext {
 
         int getAllFilesCount();
 
         int getAllDownloadedFilesCount();
 
         void notifyFileDownloaded(File downloadedFile);
+
+        boolean mayOverwrite(String filename);
     }
 }

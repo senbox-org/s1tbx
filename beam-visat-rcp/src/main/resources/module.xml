@@ -27,6 +27,15 @@
 
     <changelog>
         <![CDATA[
+        <p>Changes in 5.0<br/>
+          [BEAM-1139] Function to convert a virtual band into a real band<br/>
+          [BEAM-1512] Saving time has increased significantly with 5.0 alpha<br/>
+          [BEAM-1569] Documentation for 'statistical accuracy' missing</br>
+          [BEAM-1190] Export button in the mask manager does not export geometry masks<br/>
+          [BEAM-1568] Numbers are displayed with too little #places after the comma<br/>
+          [BEAM-1563] Copy WKT of selected geometry<br/>
+          [BEAM-1533] KMZ exports have slightly wrong image envelope coordinates<br/>
+          [BEAM-1527] Add missing Standard Deviation nonlinear image filter<br/>
         <p>Changes in 4.11.1<br/>
           [BEAM-1416] The export of transect pixels from a reprojected data product results in an empty file<br/>
         <p>Changes in 4.11<br/>
@@ -1047,7 +1056,7 @@
             <class>org.esa.beam.visat.actions.ExportGeometryAction</class>
             <text>Geometry as Shapefile</text>
             <mnemonic>M</mnemonic>
-            <shortDescr>Exports the currently selected geometry.</shortDescr>
+            <shortDescr>Exports the currently selected geometry as ESRI Shapefile.</shortDescr>
             <description>Exports the currently selected geometry as ESRI Shapefile.</description>
             <context>vectorDataNode</context>
             <popuptext>Export Geometry as Shapefile...</popuptext>
@@ -1360,13 +1369,22 @@
             <helpId>bandArithmetic</helpId>
         </action>
 
+        <action>
+            <id>virtualBand2Band</id>
+            <parent>tools</parent>
+            <class>org.esa.beam.visat.actions.ConvertVirtualBandIntoBandAction</class>
+            <text>Convert Virtual Band into Band</text>
+            <shortDescr>Converts a Virtual Band into a Band containing data</shortDescr>
+            <context>virtualBand</context>
+            <placeAfter>bandArithmetic</placeAfter>
+            <helpId>virtualBand2Band</helpId>
+        </action>
 
         <action>
             <id>createDemRelatedBands</id>
             <class>org.esa.beam.visat.actions.CreateDemRelatedBandsAction</class>
             <text>Create DEM-related Bands...</text>
-            <description>Creates DEM elevation and optionally DEM-corrected lat/lon bands from a selected DEM
-            </description>
+            <description>Creates DEM elevation and optionally DEM-corrected lat/lon bands from a selected DEM</description>
             <context>product</context>
             <helpId>createDemRelatedBands</helpId>
             <parent>tools</parent>
@@ -1453,6 +1471,17 @@
             <parent>tools</parent>
             <placeAfter>detachPixelGeoCoding</placeAfter>
             <placeBefore>flipping</placeBefore>
+        </action>
+
+        <action>
+            <id>showGeometryAsWkt</id>
+            <class>org.esa.beam.visat.actions.ShowGeometryWktAction</class>
+            <text>Show Well-Known-Text (WKT)...</text>
+            <popuptext>Well-Known-Text (WKT)...</popuptext>
+            <shortDescr>Show geometry as WKT.</shortDescr>
+            <description>Show geometry as WKT.</description>
+            <context>image</context>
+            <helpId>showGeometryAsWkt</helpId>
         </action>
 
         <action>
@@ -1820,20 +1849,19 @@
             <shortDescr>Reset to initial layout.</shortDescr>
         </action>
 
-        <!--
-                <action>
-                    <id>createXYDisplacementBandsAction</id>
-                    <class>org.esa.beam.visat.actions.CreateXYDisplacementBandsAction</class>
-                    <text>Create X,Y Displacement Bands...</text>
-                    <description>Creates X,Y displacement bands for a selected product</description>
-                    <context>createXYDisplacementBandsAction</context>
-                    <helpId>createXYDisplacementBandsAction</helpId>
-                    <parent>tools</parent>
-                    <placeAfter>createElevationBand</placeAfter>
-                    <separatorAfter>false</separatorAfter>
-                </action>
 
-        -->
+        <action>
+            <id>createXYDisplacementBandsAction</id>
+            <class>org.esa.beam.visat.actions.CreateGeoCodingDisplacementBandsAction</class>
+            <text>Add Geo-Coding Displacement Bands...</text>
+            <description>Add displacement bands as a test for the geo-coding accuracy</description>
+            <context>createXYDisplacementBandsAction</context>
+            <helpId>createXYDisplacementBandsAction</helpId>
+            <parent>tools</parent>
+            <placeAfter>createElevationBand</placeAfter>
+            <separatorAfter>false</separatorAfter>
+        </action>
+
     </extension>
 
 </module>

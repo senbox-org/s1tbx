@@ -82,7 +82,7 @@ public class MetadataUtils {
                     }
                 }
                 if (productData != null) {
-                    MetadataAttribute metadataAttribute = new MetadataAttribute(attribute.getName(),
+                    MetadataAttribute metadataAttribute = new MetadataAttribute(attribute.getShortName(),
                                                                                 productData,
                                                                                 true);
                     metadataElement.addAttribute(metadataAttribute);
@@ -107,7 +107,7 @@ public class MetadataUtils {
     }
 
     private static MetadataElement createMetadataElement(Variable variable, int maxNumValuesRead) {
-        final MetadataElement element = readAttributeList(variable.getAttributes(), variable.getName());
+        final MetadataElement element = readAttributeList(variable.getAttributes(), variable.getFullName());
         if (variable.getRank() == 1) {
             final MetadataElement valuesElem = new MetadataElement("Values");
             element.addElement(valuesElem);

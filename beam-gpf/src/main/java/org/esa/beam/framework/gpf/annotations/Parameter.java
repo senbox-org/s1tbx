@@ -52,9 +52,9 @@ public @interface Parameter {
     String itemAlias() default "";
 
     /**
-     * @return If {@code true} items of parameter array values are inlined (not
+     * @return If {@code true}, items of parameter array values are inlined (not
      *         enclosed by the parameter name) in the DOM representation of the
-     *         array. In this case also an ({@code itemAlias} has to be set.
+     *         array. In this case {@code itemAlias} has to be set.
      *         Defaults to {@code false}.
      * @see #itemAlias()
      */

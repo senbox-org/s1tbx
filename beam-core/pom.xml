@@ -72,8 +72,8 @@
             <artifactId>clibwrapper-jiio</artifactId>
         </dependency>
         <dependency>
-            <groupId>jdom</groupId>
-            <artifactId>jdom</artifactId>
+            <groupId>org.jdom</groupId>
+            <artifactId>jdom2</artifactId>
         </dependency>
         <dependency>
             <groupId>com.bc.jnn</groupId>

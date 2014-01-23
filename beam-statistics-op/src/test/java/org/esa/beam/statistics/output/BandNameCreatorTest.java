@@ -51,6 +51,9 @@ public class BandNameCreatorTest {
             public void close() throws SecurityException {
             }
         };
+
+        final Level level = BeamLogManager.getSystemLogger().getLevel();
+        BeamLogManager.getSystemLogger().setLevel(Level.WARNING);
         BeamLogManager.getSystemLogger().addHandler(handler);
 
         BandNameCreator bandNameCreator = new BandNameCreator();
@@ -89,6 +92,7 @@ public class BandNameCreatorTest {
         assertEquals(19, warningCount[0]);
 
         BeamLogManager.getSystemLogger().removeHandler(handler);
+        BeamLogManager.getSystemLogger().setLevel(level);
     }
 
     @Test

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -181,7 +181,7 @@ public class PixExOp extends Operator implements Output {
             description = "If the window size is larger than 1, this parameter describes by which method a single \n" +
                     "value shall be derived from the pixels.",
             defaultValue = NO_AGGREGATION,
-            valueSet = {MIN_AGGREGATION, MAX_AGGREGATION, MEAN_AGGREGATION, MEDIAN_AGGREGATION, NO_AGGREGATION})
+            valueSet = {NO_AGGREGATION, MEAN_AGGREGATION, MIN_AGGREGATION, MAX_AGGREGATION, MEDIAN_AGGREGATION})
     private String aggregatorStrategyType;
 
     @Parameter(description = "If set to true, sub-scenes of the regions, where pixels are found, are exported.",

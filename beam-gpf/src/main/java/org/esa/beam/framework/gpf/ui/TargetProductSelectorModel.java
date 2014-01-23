@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -64,14 +64,16 @@ public class TargetProductSelectorModel {
         propertyContainer = PropertyContainer.createObjectBacked(this);
         propertyContainer.addPropertyChangeListener("saveToFileSelected", new PropertyChangeListener() {
             public void propertyChange(PropertyChangeEvent evt) {
-                if (!(Boolean) evt.getNewValue()) {
+                boolean changesToDeselected = !(Boolean) evt.getNewValue();
+                if (changesToDeselected && !isOpenInAppSelected()) {
                     setOpenInAppSelected(true);
                 }
             }
         });
         propertyContainer.addPropertyChangeListener("openInAppSelected", new PropertyChangeListener() {
             public void propertyChange(PropertyChangeEvent evt) {
-                if (!(Boolean) evt.getNewValue()) {
+                boolean changesToDeselected = !(Boolean) evt.getNewValue();
+                if (changesToDeselected && !isSaveToFileSelected()) {
                     setSaveToFileSelected(true);
                 }
             }
@@ -144,6 +146,10 @@ public class TargetProductSelectorModel {
 
     public String[] getFormatNames() {
         return formatNames;
+    }
+
+    public boolean canReadOutputFormat() {
+        return ProductIOPlugInManager.getInstance().getReaderPlugIns(formatName).hasNext();
     }
 
     public void setProductName(String productName) {

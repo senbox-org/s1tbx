@@ -599,6 +599,7 @@ public class SystemUtils {
     }
 
     private static void initJAI(ClassLoader cl) {
+        // Suppress ugly (and harmless) JAI error messages saying that a JAI is going to continue in pure Java mode.
         System.setProperty("com.sun.media.jai.disableMediaLib", "true");  // disable native libraries for JAI
         // Must use a new operation registry in order to register JAI operators defined in Ceres and BEAM
         OperationRegistry operationRegistry = OperationRegistry.getThreadSafeOperationRegistry();

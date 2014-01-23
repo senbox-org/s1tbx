@@ -1,6 +1,7 @@
 package org.esa.beam.dataio.netcdf;
 
 import org.esa.beam.dataio.netcdf.metadata.profiles.cf.CfNetCdfReaderPlugIn;
+import org.esa.beam.dataio.netcdf.util.SimpleNetcdfFile;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
@@ -48,7 +49,7 @@ public class S3L2PPTest {
     }
 
     private static void ncdump(File ncFile) throws IOException {
-        NetcdfFile netcdfFile = NetcdfFile.open("file:" + ncFile.getPath());
+        NetcdfFile netcdfFile = SimpleNetcdfFile.openNetcdf("file:" + ncFile.getPath());
         System.out.println(netcdfFile);
         netcdfFile.close();
     }

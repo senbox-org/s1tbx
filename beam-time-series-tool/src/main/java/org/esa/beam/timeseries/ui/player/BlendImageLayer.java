@@ -123,14 +123,12 @@ class BlendImageLayer extends ImageLayer {
         blendLayer.dispose();
     }
 
-    public void swap(BandImageMultiLevelSource multiLevelSource, boolean forward) {
-        if (forward) {
-            baseLayer = blendLayer;
-            blendLayer = new ImageLayer(multiLevelSource);
-        } else {
-            blendLayer = baseLayer;
-            baseLayer = new ImageLayer(multiLevelSource);
-        }
+    void setBaseLayer(BandImageMultiLevelSource multiLevelSource) {
+        baseLayer = new ImageLayer(multiLevelSource);
+    }
+
+    void setBlendLayer(BandImageMultiLevelSource multiLevelSource) {
+        blendLayer = new ImageLayer(multiLevelSource);
     }
 
 }

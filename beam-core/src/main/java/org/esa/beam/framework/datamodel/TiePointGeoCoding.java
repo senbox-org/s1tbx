@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2013 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -395,11 +395,13 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
         normalizedLonMax = -Float.MAX_VALUE;
         latMin = +Float.MAX_VALUE;
         latMax = -Float.MAX_VALUE;
-        for (int i = 0; i < lonPoints.length; i++) {
-            normalizedLonMin = Math.min(normalizedLonMin, lonPoints[i]);
-            normalizedLonMax = Math.max(normalizedLonMax, lonPoints[i]);
-            latMin = Math.min(latMin, latPoints[i]);
-            latMax = Math.max(latMax, latPoints[i]);
+        for (float lonPoint : lonPoints) {
+            normalizedLonMin = Math.min(normalizedLonMin, lonPoint);
+            normalizedLonMax = Math.max(normalizedLonMax, lonPoint);
+        }
+        for (float latPoint : latPoints) {
+            latMin = Math.min(latMin, latPoint);
+            latMax = Math.max(latMax, latPoint);
         }
 
         overlapStart = normalizedLonMin;

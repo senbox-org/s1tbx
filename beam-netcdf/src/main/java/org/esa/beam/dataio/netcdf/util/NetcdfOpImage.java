@@ -181,7 +181,7 @@ public class NetcdfOpImage extends SingleBandedOpImage {
     private boolean isGlobalShifted180() {
         for (Attribute attribute : variable.getAttributes()) {
             // for the special case of a global image shifted by 180deg longitude, this attribute was added in CfGeocodingPart
-            if (attribute.getName().equals("LONGITUDE_SHIFTED_180")) {
+            if (attribute.getShortName().equals("LONGITUDE_SHIFTED_180")) {
                 return true;
             }
         }

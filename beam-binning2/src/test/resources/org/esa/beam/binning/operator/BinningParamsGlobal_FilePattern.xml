@@ -14,13 +14,11 @@
                 <type>AVG</type>
                 <varName>chl</varName>
                 <weightCoeff>1.0</weightCoeff>
-                <fillValue>NaN</fillValue>
             </aggregator>
             <aggregator>
                 <type>PERCENTILE</type>
                 <varName>chl</varName>
                 <percentage>70</percentage>
-                <fillValue>NaN</fillValue>
             </aggregator>
         </aggregators>
     </binningConfig>

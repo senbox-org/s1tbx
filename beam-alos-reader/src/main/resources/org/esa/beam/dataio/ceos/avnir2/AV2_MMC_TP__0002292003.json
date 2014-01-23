@@ -1,0 +1,123 @@
+{
+    "id": "AV2_MMC_TP__0002292003",
+    "decodeQualification": "INTENDED",
+    "expectedContent": {
+        "sceneWidth": 7100,
+        "sceneHeight": 8000,
+        "startTime": "14-AUG-2008 07:18:16.270169",
+        "endTime": "14-AUG-2008 07:18:28.108406",
+        "geoCoding": {
+            "coordinates": [
+                {
+                    "x": 3062.0,
+                    "y": 4300.0,
+                    "lat": 38.206867,
+                    "lon": 23.552744
+                },
+                {
+                    "x": 5271.0,
+                    "y": 5191.0,
+                    "lat": 38.08102,
+                    "lon": 23.775236
+                }
+            ],
+            "reverseAccuracy": 0.022460938
+        },
+        "bands": [
+            {
+                "name": "radiance_1",
+                "description": "Radiance band 1",
+                "geophysicalUnit": "mw / (m^2*sr*nm)",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "420.0",
+                "spectralBandwidth": "80.0",
+                "expectedPixels": [
+                    {
+                        "x": 370,
+                        "y": 1425,
+                        "value": 62.328
+                    },
+                    {
+                        "x": 4864,
+                        "y": 6804,
+                        "value": 68.208
+                    }
+                ]
+            },
+            {
+                "name": "radiance_2",
+                "description": "Radiance band 2",
+                "geophysicalUnit": "mw / (m^2*sr*nm)",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "520.0",
+                "spectralBandwidth": "80.0",
+                "expectedPixels": [
+                    {
+                        "x": 2065,
+                        "y": 2054,
+                        "value": 51.57
+                    },
+                    {
+                        "x": 4334,
+                        "y": 2922,
+                        "value": 61.884
+                    }
+                ]
+            },
+            {
+                "name": "radiance_3",
+                "description": "Radiance band 3",
+                "geophysicalUnit": "mw / (m^2*sr*nm)",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "610.0",
+                "spectralBandwidth": "80.0",
+                "expectedPixels": [
+                    {
+                        "x": 3905,
+                        "y": 5962,
+                        "value": 128.01
+                    },
+                    {
+                        "x": 4319,
+                        "y": 7427,
+                        "value": 25.1
+                    }
+                ]
+            },
+            {
+                "name": "radiance_4",
+                "description": "Radiance band 4",
+                "geophysicalUnit": "mw / (m^2*sr*nm)",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "760.0",
+                "spectralBandwidth": "130.0",
+                "expectedPixels": [
+                    {
+                        "x": 1123,
+                        "y": 5328,
+                        "value": 84.335
+                    },
+                    {
+                        "x": 3685,
+                        "y": 7308,
+                        "value": 60.955
+                    }
+                ]
+            }
+        ],
+        "metadata": [
+            {
+                "path": "VOLUME_DESCRIPTOR/Logical volume ID",
+                "value": "AL1AV220080926  "
+            },
+            {
+                "path": "VOLUME_DESCRIPTOR/Logical volume ID",
+                "value": "AL1AV220080926  "
+            }
+        ]
+    }
+}

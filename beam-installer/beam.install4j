@@ -37,7 +37,6 @@
   </files>
   <launchers>
     <launcher name="visat" id="19" customizedId="" external="false" excludeFromMenu="false" unixMode="755" menuName="BEAM VISAT" icnsFile="./src/main/resources/images/visat-icon.icns" customMacBundleIdentifier="false" macBundleIdentifier="" swtApp="false" fileset="" macBundleBinary="JavaApplicationStub" addMacEntitlements="false" macEntitlementsFile="">
-BEAM VISAT" icnsFile="./src/main/resources/images/visat-icon.icns" customMacBundleIdentifier="false" macBundleIdentifier="" swtApp="false" fileset="" macBundleBinary="JavaApplicationStub" addMacEntitlements="false" macEntitlementsFile="">
       <executable name="visat" type="1" iconSet="true" iconFile="" executableDir="bin" redirectStderr="true" stderrFile="error.log" stderrMode="overwrite" redirectStdout="false" stdoutFile="output.log" stdoutMode="overwrite" failOnStderrOutput="true" executableMode="1" changeWorkingDirectory="true" workingDirectory=".." singleInstance="false" serviceStartType="2" serviceDependencies="" serviceDescription="" jreLocation="" executionLevel="asInvoker" checkConsoleParameter="false" globalSingleInstance="false">
         <versionInfo include="false" fileVersion="" fileDescription="" legalCopyright="" internalName="" productName="" />
       </executable>
@@ -277,7 +276,7 @@ if (isBeamInstallation &amp;&amp; !context.getBooleanVariable("sys.confirmedUpda
                       <void property="script">
                         <object class="com.install4j.api.beans.ScriptProperty">
                           <void property="value">
-                            <string>(int)Math.max(1024, context.getMediaName().contains("32") ? 1300 : (SystemInfo.getPhysicalMemory() * 0.5f) / (1024 * 1024)) + "M"</string>
+                            <string>(int)Math.max(1024, context.getMediaName().contains("32") || context.getMediaName().contains("Unix") ? 1300 : (SystemInfo.getPhysicalMemory() * 0.5f) / (1024 * 1024)) + "M"</string>
                           </void>
                         </object>
                       </void>

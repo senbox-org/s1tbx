@@ -1,0 +1,146 @@
+{
+    "id": "MOD28L2_A2001185_0830_003_2001308112641",
+    "decodeQualification": "INTENDED",
+    "expectedContent": {
+        "sceneWidth": 1354,
+        "sceneHeight": 2030,
+        "startTime": "04-JUL-2001 06:30:00.000000",
+        "endTime": "04-JUL-2001 06:35:00.000000",
+        "bands": [
+            {
+                "name": "sst",
+                "description": "Sea Surface Temperature",
+                "geophysicalUnit": "Deg C",
+                "noDataValue": "-300.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 584,
+                        "y": 1091,
+                        "value": 47.679993
+                    },
+                    {
+                        "x": 1005,
+                        "y": 1317,
+                        "value": 30.489992
+                    }
+                ]
+            },
+            {
+                "name": "sst4",
+                "description": "Sea Surface Temperature, 4 micrometer",
+                "geophysicalUnit": "Deg C",
+                "noDataValue": "-300.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 70,
+                        "y": 361,
+                        "value": 45.949993
+                    },
+                    {
+                        "x": 927,
+                        "y": 1726,
+                        "value": -299.98
+                    }
+                ]
+            },
+            {
+                "name": "cldmsk_flags",
+                "description": "First four bytes from MOD35 Cloud_Mask product",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 393,
+                        "y": 521,
+                        "value": 4.29496678E9
+                    },
+                    {
+                        "x": 826,
+                        "y": 741,
+                        "value": 4.29495859E9
+                    }
+                ]
+            },
+            {
+                "name": "common_flags",
+                "description": "Ocean data common flags",
+                "geophysicalUnit": "bits",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 744,
+                        "y": 1513,
+                        "value": 160.0
+                    },
+                    {
+                        "x": 823,
+                        "y": 1884,
+                        "value": 160.0
+                    }
+                ]
+            },
+            {
+                "name": "L2_flags",
+                "description": "Ocean L2 bit mask and flags",
+                "geophysicalUnit": "bits",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 214,
+                        "y": 1352,
+                        "value": 49248.0
+                    },
+                    {
+                        "x": 702,
+                        "y": 1854,
+                        "value": 49248.0
+                    }
+                ]
+            },
+            {
+                "name": "quality",
+                "description": "Product quality",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 1023,
+                        "y": 983,
+                        "value": 15.0
+                    },
+                    {
+                        "x": 1287,
+                        "y": 986,
+                        "value": 15.0
+                    }
+                ]
+            }
+        ],
+        "metadata": [
+            {
+                "path": "GLOBAL_METADATA/ArchiveMetadata\\.0",
+                "value": "\nGROUP                  = ARCHIVEDMETADATA\n  GROUPTYPE            = MASTERGROUP\n\n  OBJECT                 = DESCRREVISION\n    NUM_VAL              = 1\n    VALUE                = \"3.0\"\n  END_OBJECT             = DESCRREVISION\n\n  GROUP                  = BOUNDINGRECTANGLE\n\n    OBJECT                 = NORTHBOUNDINGCOORDINATE\n      NUM_VAL              = 1\n      VALUE                = 34.360072\n    END_OBJECT             = NORTHBOUNDINGCOORDINATE\n\n    OBJECT                 = SOUTHBOUNDINGCOORDINATE\n      NUM_VAL              = 1\n      VALUE                = 13.256212\n    END_OBJECT             = SOUTHBOUNDINGCOORDINATE\n\n    OBJECT                 = EASTBOUNDINGCOORDINATE\n      NUM_VAL              = 1\n      VALUE                = 49.322520\n    END_OBJECT             = EASTBOUNDINGCOORDINATE\n\n    OBJECT                 = WESTBOUNDINGCOORDINATE\n      NUM_VAL              = 1\n      VALUE                = 22.174413\n    END_OBJECT             = WESTBOUNDINGCOORDINATE\n\n  END_GROUP              = BOUNDINGRECTANGLE\n\n  OBJECT                 = LONGNAME\n    NUM_VAL              = 1\n    VALUE                = \"MODIS/Terra Sea Surface Temperature Products 5-Min L2 Swath 1km\"\n  END_OBJECT             = LONGNAME\n\nEND_GROUP              = ARCHIVEDMETADATA\n\nEND\n"
+            },
+            {
+                "path": "GLOBAL_METADATA/Ascending_Start",
+                "value": "0"
+            }
+        ]
+    }
+}

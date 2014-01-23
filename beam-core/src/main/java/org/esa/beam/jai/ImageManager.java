@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2013 Brockmann Consult GmbH (info@brockmann-consult.de) 
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -89,6 +89,7 @@ import java.awt.image.renderable.ParameterBlock;
 import java.lang.ref.WeakReference;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -768,6 +769,18 @@ public class ImageManager {
         }
     }
 
+    public void clearMaskImageCache(Product product) {
+        synchronized (maskImageMap) {
+            final Iterator<MaskKey> keySetIterator = maskImageMap.keySet().iterator();
+            while (keySetIterator.hasNext()) {
+                MaskKey next = keySetIterator.next();
+                if (next.product.get() == product) {
+                    keySetIterator.remove();
+                }
+            }
+        }
+    }
+
     public ImageInfo getImageInfo(RasterDataNode[] rasters) {
         Assert.notNull(rasters, "rasters");
         Assert.argument(rasters.length == 1 || rasters.length == 3, "rasters.length == 1 || rasters.length == 3");
@@ -854,6 +867,43 @@ public class ImageManager {
                                 (byte) color.getBlue(),
                         }, hints);
         return BandMergeDescriptor.create(colorImage, alphaImage, hints);
+    }
+
+    public static MultiLevelImage createMaskedGeophysicalImage(final RasterDataNode node, Number maskValue) {
+        MultiLevelImage varImage = node.getGeophysicalImage();
+        if (node.getValidPixelExpression() != null) {
+            varImage = replaceInvalidValuesByNaN(node, varImage, node.getValidMaskImage(), maskValue);
+        }else if (node.isNoDataValueSet() && node.isNoDataValueUsed() && Double.compare(maskValue.doubleValue(), node.getGeophysicalNoDataValue()) != 0) {
+            varImage =  replaceNoDataValueByNaN(node, varImage, node.getGeophysicalNoDataValue(), maskValue);
+        }
+        return varImage;
+    }
+
+    private static MultiLevelImage replaceInvalidValuesByNaN(final RasterDataNode rasterDataNode, final MultiLevelImage srcImage,
+                                                             final MultiLevelImage maskImage, final Number fillValue) {
+
+        final MultiLevelModel multiLevelModel = getMultiLevelModel(rasterDataNode);
+        return new DefaultMultiLevelImage(new AbstractMultiLevelSource(multiLevelModel) {
+
+            @Override
+            public RenderedImage createImage(int sourceLevel) {
+                return new FillConstantOpImage(srcImage.getImage(sourceLevel), maskImage.getImage(sourceLevel), fillValue);
+            }
+        });
+    }
+
+    private static MultiLevelImage replaceNoDataValueByNaN(final RasterDataNode rasterDataNode, final MultiLevelImage srcImage,
+                                                           final double noDataValue, final Number newValue) {
+
+        final MultiLevelModel multiLevelModel = getMultiLevelModel(rasterDataNode);
+        final int targetDataType = ImageManager.getDataBufferType(rasterDataNode.getGeophysicalDataType());
+        return new DefaultMultiLevelImage(new AbstractMultiLevelSource(multiLevelModel) {
+
+            @Override
+            public RenderedImage createImage(int sourceLevel) {
+                return new ReplaceValueOpImage(srcImage, noDataValue, newValue, targetDataType);
+            }
+        });
     }
 
     public static RenderedImage createFormatOp(RenderedImage image, int dataType) {

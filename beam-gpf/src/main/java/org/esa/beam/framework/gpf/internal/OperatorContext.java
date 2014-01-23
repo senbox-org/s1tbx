@@ -28,6 +28,7 @@ import com.bc.ceres.binding.dom.DomElement;
 import com.bc.ceres.binding.dom.XppDomElement;
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.core.runtime.Module;
 import com.bc.ceres.glevel.MultiLevelImage;
 import com.bc.ceres.jai.tilecache.DefaultSwapSpace;
 import com.bc.ceres.jai.tilecache.SwappingTileCache;
@@ -86,6 +87,8 @@ import java.util.regex.Pattern;
  */
 public class OperatorContext {
 
+    static final String PROCESSING_GRAPH_ELEMENT_NAME = "Processing_Graph";
+
     private static TileCache tileCache;
     private static TileComputationObserver tileComputationObserver;
 
@@ -139,7 +142,7 @@ public class OperatorContext {
             image.setTileCache(null);
         } else if (image.getTileCache() == null) {
             image.setTileCache(getTileCache());
-            BeamLogManager.getSystemLogger().info(String.format("Tile cache assigned to %s", image));
+            BeamLogManager.getSystemLogger().finest(String.format("Tile cache assigned to %s", image));
         }
     }
 
@@ -484,9 +487,9 @@ public class OperatorContext {
 
     private void initGraphMetadata() {
         final MetadataElement metadataRoot = targetProduct.getMetadataRoot();
-        MetadataElement targetGraphME = metadataRoot.getElement("Processing_Graph");
+        MetadataElement targetGraphME = metadataRoot.getElement(PROCESSING_GRAPH_ELEMENT_NAME);
         if (targetGraphME == null) {
-            targetGraphME = new MetadataElement("Processing_Graph");
+            targetGraphME = new MetadataElement(PROCESSING_GRAPH_ELEMENT_NAME);
             metadataRoot.addElement(targetGraphME);
         }
         convertOperatorContextToMetadata(this, targetGraphME);
@@ -508,24 +511,33 @@ public class OperatorContext {
         if (contains) {
             return;
         }
-        final String opName = OperatorSpi.getOperatorAlias(context.operator.getClass());
+        Class<? extends Operator> operatorClass = context.operator.getClass();
+        final String opName = OperatorSpi.getOperatorAlias(operatorClass);
         MetadataElement targetNodeME = new MetadataElement(String.format("node.%d", nodeElementCount));
         targetGraphME.addElement(targetNodeME);
         targetNodeME.addAttribute(new MetadataAttribute("id", ProductData.createInstance(opId), false));
         targetNodeME.addAttribute(new MetadataAttribute("operator", ProductData.createInstance(opName), false));
 
-        OperatorMetadata operatorMetadata = context.operator.getClass().getAnnotation(OperatorMetadata.class);
+        Module module = operatorSpi.getModule();
+        if (module == null) {
+            logger.warning("Could not read module information");
+        }else {
+            ProductData nameValue = ProductData.createInstance(module.getSymbolicName());
+            targetNodeME.addAttribute(new MetadataAttribute("moduleName", nameValue, false));
+
+            ProductData versionValue = ProductData.createInstance(module.getVersion().toString());
+            targetNodeME.addAttribute(new MetadataAttribute("moduleVersion", versionValue, false));
+        }
+        OperatorMetadata operatorMetadata = operatorClass.getAnnotation(OperatorMetadata.class);
         if (operatorMetadata != null) {
-            targetNodeME.addAttribute(
-                    new MetadataAttribute("purpose", ProductData.createInstance(operatorMetadata.description()),
-                                          false));
-            targetNodeME.addAttribute(
-                    new MetadataAttribute("authors", ProductData.createInstance(operatorMetadata.authors()), false));
-            targetNodeME.addAttribute(
-                    new MetadataAttribute("version", ProductData.createInstance(operatorMetadata.version()), false));
-            targetNodeME.addAttribute(
-                    new MetadataAttribute("copyright", ProductData.createInstance(operatorMetadata.copyright()),
-                                          false));
+            ProductData purposeValue = ProductData.createInstance(operatorMetadata.description());
+            targetNodeME.addAttribute(new MetadataAttribute("purpose", purposeValue, false));
+            ProductData authorsValue = ProductData.createInstance(operatorMetadata.authors());
+            targetNodeME.addAttribute(new MetadataAttribute("authors", authorsValue, false));
+            ProductData opVersionValue = ProductData.createInstance(operatorMetadata.version());
+            targetNodeME.addAttribute(new MetadataAttribute("version", opVersionValue, false));
+            ProductData copyrightValue = ProductData.createInstance(operatorMetadata.copyright());
+            targetNodeME.addAttribute(new MetadataAttribute("copyright", copyrightValue, false));
         }
 
 
@@ -550,9 +562,8 @@ public class OperatorContext {
         }
         targetNodeME.addElement(targetSourcesME);
 
-        final DefaultDomConverter domConverter = new DefaultDomConverter(context.operator.getClass(),
-                                                                         new ParameterDescriptorFactory(
-                                                                                 sourceProductMap));
+        final DefaultDomConverter domConverter = new DefaultDomConverter(operatorClass,
+                                                                         new ParameterDescriptorFactory(sourceProductMap));
         final XppDomElement parametersDom = new XppDomElement("parameters");
         try {
             domConverter.convertValueToDom(context.operator, parametersDom);

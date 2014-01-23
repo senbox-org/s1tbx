@@ -19,12 +19,12 @@ package org.esa.beam.util;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.FlagCoding;
 import org.esa.beam.framework.datamodel.GeoCoding;
+import org.esa.beam.framework.datamodel.GeoCodingFactory;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.IndexCoding;
 import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.MetadataAttribute;
 import org.esa.beam.framework.datamodel.MetadataElement;
-import org.esa.beam.framework.datamodel.PixelGeoCoding2;
 import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
@@ -44,7 +44,14 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class ProductUtilsTest {
 
@@ -530,6 +537,31 @@ public class ProductUtilsTest {
     }
 
     @Test
+    public void testGetScanLineTime_1_pixel() throws Exception {
+        Product product = new Product("name", "type", 1, 1);
+        ProductData.UTC startTime = ProductData.UTC.parse("01-01-2010", "dd-MM-yyyy");
+        ProductData.UTC endTime = ProductData.UTC.parse("02-01-2010", "dd-MM-yyyy");
+        product.setStartTime(startTime);
+        product.setEndTime(endTime);
+        double startTimeMJD = startTime.getMJD();
+        assertEquals(startTimeMJD, ProductUtils.getScanLineTime(product, 0).getMJD(), 1E-6);
+        assertNotSame(startTime, ProductUtils.getScanLineTime(product, 0));
+    }
+
+    @Test
+    public void testGetScanLineTime() throws Exception {
+        Product product = new Product("name", "type", 10, 10);
+        ProductData.UTC startTime = ProductData.UTC.parse("01-01-2010", "dd-MM-yyyy");
+        ProductData.UTC endTime = ProductData.UTC.parse("02-01-2010", "dd-MM-yyyy");
+        product.setStartTime(startTime);
+        product.setEndTime(endTime);
+        double startTimeMJD = startTime.getMJD();
+        double endTimeMJD = endTime.getMJD();
+        assertEquals(startTimeMJD, ProductUtils.getScanLineTime(product, 0).getMJD(), 1E-6);
+        assertEquals(endTimeMJD, ProductUtils.getScanLineTime(product, 9).getMJD(), 1E-6);
+    }
+
+    @Test
     public void testCopyMetadata() {
         try {
             ProductUtils.copyMetadata((Product) null, null);
@@ -598,7 +630,7 @@ public class ProductUtilsTest {
                 float latValue = Float.NaN;
                 float lonValue = Float.NaN;
                 if (i >= sceneRasterWidth / 4 && i <= 3 * (sceneRasterWidth / 4) &&
-                        j >= sceneRasterHeight / 4 && j <= 3 * (sceneRasterHeight / 4)) {
+                    j >= sceneRasterHeight / 4 && j <= 3 * (sceneRasterHeight / 4)) {
                     latValue = i;
                     lonValue = j;
                 }
@@ -614,7 +646,7 @@ public class ProductUtilsTest {
         lonBand.setNoDataValueUsed(true);
         product.addBand(latBand);
         product.addBand(lonBand);
-        PixelGeoCoding2 geoCoding = new PixelGeoCoding2(latBand, lonBand, "");
+        GeoCoding geoCoding = GeoCodingFactory.createPixelGeoCoding(latBand, lonBand, "", 5);
         Rectangle region = new Rectangle(0, 0, sceneRasterWidth, sceneRasterHeight);
 
         for (int x = 0; x < 3; x++) {

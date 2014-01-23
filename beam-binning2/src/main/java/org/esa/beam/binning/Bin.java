@@ -17,6 +17,8 @@
 
 package org.esa.beam.binning;
 
+import org.esa.beam.binning.support.VectorImpl;
+
 import java.util.HashMap;
 
 
@@ -65,6 +67,10 @@ public abstract class Bin implements BinContext {
 
     public float[] getFeatureValues() {
         return featureValues;
+    }
+
+    public WritableVector toVector() {
+        return new VectorImpl(getFeatureValues());
     }
 
     @Override

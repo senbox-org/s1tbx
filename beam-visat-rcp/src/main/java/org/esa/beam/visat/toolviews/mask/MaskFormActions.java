@@ -532,7 +532,7 @@ class MaskFormActions {
     private static class ExportAction extends MaskIOAction {
 
         private ExportAction(AbstractToolView maskToolView, MaskForm maskForm) {
-            super(maskToolView, maskForm, "icons/Export24.gif", "exportButton", "Export masks to file.");
+            super(maskToolView, maskForm, "icons/Export24.gif", "exportButton", "Export masks to XML file.");
         }
 
         @Override
@@ -550,48 +550,155 @@ class MaskFormActions {
             if (masks.length == 0) {
                 return;
             }
-            final JFileChooser fileChooser = new BeamFileChooser();
-            fileChooser.setDialogTitle("Export Masks to XML");
-            final FileFilter fileFilter = new BeamFileFilter("XML", ".xml", "XML files (*.xml)");
-            fileChooser.setFileFilter(fileFilter);
-            final File targetDirectory = getDirectory();
-            fileChooser.setCurrentDirectory(targetDirectory);
-            fileChooser.setSelectedFile(new File(targetDirectory, masks[0].getName()));
-            final int result = fileChooser.showSaveDialog(getMaskToolView().getPaneWindow());
-            if (result == JFileChooser.APPROVE_OPTION) {
-                File file = fileChooser.getSelectedFile();
-                if (file != null) {
-                    if (!VisatApp.getApp().promptForOverwrite(file)) {
-                        return;
-                    }
-                    setDirectory(file.getAbsoluteFile().getParentFile());
-                    file = FileUtils.ensureExtension(file, ".xml");
 
-                    final Document document = new Document(new Element(DimapProductConstants.TAG_MASKS));
-                    for (final Mask mask : masks) {
-                        final DimapPersistable persistable = DimapPersistence.getPersistable(mask);
-                        if (persistable != null) {
-                            final Element element = persistable.createXmlFromObject(mask);
-                            document.getRootElement().addContent(element);
+            Document document = new Document(new Element(DimapProductConstants.TAG_MASKS));
+            boolean[] masksExported = addContent(masks, document);
+            if (hasAtLeastOneMaskExported(masksExported)) {
+                final JFileChooser fileChooser = new BeamFileChooser();
+                fileChooser.setDialogTitle("Export Masks to XML");
+                final FileFilter fileFilter = new BeamFileFilter("XML", ".xml", "XML files (*.xml)");
+                fileChooser.setFileFilter(fileFilter);
+                final File targetDirectory = getDirectory();
+                fileChooser.setCurrentDirectory(targetDirectory);
+                fileChooser.setSelectedFile(new File(targetDirectory, masks[0].getName()));
+                final int result = fileChooser.showSaveDialog(getMaskToolView().getPaneWindow());
+                if (result == JFileChooser.APPROVE_OPTION) {
+                    File file = fileChooser.getSelectedFile();
+                    if (file != null) {
+                        if (!VisatApp.getApp().promptForOverwrite(file)) {
+                            return;
                         }
+                        setDirectory(file.getAbsoluteFile().getParentFile());
+                        file = FileUtils.ensureExtension(file, ".xml");
+                        writeXml(file, document);
                     }
+                }
+            }
 
-                    FileWriter writer = null;
+            showUserFeedback(masks, masksExported);
+        }
+
+        private void showUserFeedback(Mask[] masks, boolean[] masksExported) {
+            StringBuilder stringBuilder = new StringBuilder();
+            if (countExportedMasks(masksExported) > 0) {
+                stringBuilder.append("Successfully exported mask");
+                if (countExportedMasks(masksExported) > 1) {
+                    stringBuilder.append("s");
+                }
+                stringBuilder.append(" ");
+                int maskIndex = 0;
+                for (int i = 0; i < masks.length; i++) {
+                    final Mask mask = masks[i];
+                    if (masksExported[i]) {
+                        addMaskName(stringBuilder, maskIndex++, mask.getName(), countExportedMasks(masksExported));
+                    }
+                }
+            }
+            if (countFailedMasks(masksExported) > 0) {
+                stringBuilder.append("\n");
+                stringBuilder.append("Unable to export mask");
+                if (countFailedMasks(masksExported) > 1) {
+                    stringBuilder.append("s");
+                }
+                stringBuilder.append(" ");
+                int maskIndex = 0;
+                for (int i = 0; i < masks.length; i++) {
+                    final Mask mask = masks[i];
+                    if (!masksExported[i]) {
+                        addMaskName(stringBuilder, maskIndex++, mask.getName(), countFailedMasks(masksExported));
+                    }
+                }
+            }
+            JOptionPane.showMessageDialog(getMaskToolView().getControl(),
+                                          stringBuilder.toString(),
+                                          getMaskToolView().getDescriptor().getTitle(),    /*I18N*/
+                                          JOptionPane.INFORMATION_MESSAGE);
+        }
+
+        private static int countExportedMasks(boolean[] masksExported) {
+            int exportedMaskCount = 0;
+            for (boolean maskExported : masksExported) {
+                if (maskExported) {
+                    exportedMaskCount++;
+                }
+            }
+            return exportedMaskCount;
+        }
+
+        private static int countFailedMasks(boolean[] masksExported) {
+            int exportedMaskCount = 0;
+            for (boolean maskExported : masksExported) {
+                if (!maskExported) {
+                    exportedMaskCount++;
+                }
+            }
+            return exportedMaskCount;
+        }
+
+        private static void addMaskName(StringBuilder stringBuilder, int index, String maskName, int maskCount) {
+            if (maskCount < 2) {
+                stringBuilder.append(maskName);
+                stringBuilder.append(".");
+            } else if (index < maskCount - 2) {
+                stringBuilder.append(maskName);
+                stringBuilder.append(", ");
+            } else if (index < maskCount - 1) {
+                stringBuilder.append(maskName);
+                stringBuilder.append(" ");
+            } else if (index == maskCount - 1) {
+                stringBuilder.append("and ");
+                stringBuilder.append(maskName);
+                stringBuilder.append(".");
+            }
+        }
+
+        private static boolean hasAtLeastOneMaskExported(boolean[] masksExported) {
+            for (boolean maskExported : masksExported) {
+                if (maskExported) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private static boolean hasFailedExports(boolean[] masksExported) {
+            for (boolean maskExported : masksExported) {
+                if (!maskExported) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private boolean[] addContent(Mask[] masks, Document document) {
+            boolean[] masksExported = new boolean[masks.length];
+            for (int i = 0; i < masks.length; i++) {
+                final Mask mask = masks[i];
+                final DimapPersistable persistable = DimapPersistence.getPersistable(mask);
+                if (persistable != null) {
+                    final Element element = persistable.createXmlFromObject(mask);
+                    document.getRootElement().addContent(element);
+                    masksExported[i] = true;
+                }
+            }
+            return masksExported;
+        }
+
+        private void writeXml(File file, Document document) {
+            FileWriter writer = null;
+            try {
+                writer = new FileWriter(file);
+                final Format format = Format.getPrettyFormat();
+                final XMLOutputter outputter = new XMLOutputter(format);
+                outputter.output(document, writer);
+            } catch (IOException e) {
+                showErrorDialog("Failed to export mask(s): " + e.getMessage());
+            } finally {
+                if (writer != null) {
                     try {
-                        writer = new FileWriter(file);
-                        final Format format = Format.getPrettyFormat();
-                        final XMLOutputter outputter = new XMLOutputter(format);
-                        outputter.output(document, writer);
+                        writer.close();
                     } catch (IOException e) {
-                        showErrorDialog("Failed to export mask(s): " + e.getMessage());
-                    } finally {
-                        if (writer != null) {
-                            try {
-                                writer.close();
-                            } catch (IOException e) {
-                                // ignore
-                            }
-                        }
+                        // ignore
                     }
                 }
             }

@@ -50,9 +50,16 @@ import org.esa.beam.util.geotiff.EPSGCodes;
 import org.esa.beam.util.geotiff.GeoTIFFCodes;
 import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.util.jai.JAIUtils;
+import org.esa.beam.util.logging.BeamLogManager;
+import org.geotools.coverage.grid.io.imageio.geotiff.GeoTiffConstants;
+import org.geotools.coverage.grid.io.imageio.geotiff.GeoTiffException;
 import org.geotools.coverage.grid.io.imageio.geotiff.GeoTiffIIOMetadataDecoder;
 import org.geotools.coverage.grid.io.imageio.geotiff.GeoTiffMetadata2CRSAdapter;
+import org.geotools.coverage.grid.io.imageio.geotiff.PixelScale;
+import org.geotools.coverage.grid.io.imageio.geotiff.TiePoint;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
+import org.geotools.referencing.operation.matrix.GeneralMatrix;
+import org.geotools.referencing.operation.transform.ProjectiveTransform;
 import org.jdom.Document;
 import org.jdom.input.DOMBuilder;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -85,6 +92,7 @@ import java.util.Map;
 import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.logging.Level;
 
 public class GeoTiffProductReader extends AbstractProductReader {
 
@@ -137,22 +145,37 @@ public class GeoTiffProductReader extends AbstractProductReader {
                                              destOffsetX, destOffsetY, destWidth, destHeight);
                 pm.worked(1);
 
-                double[] dArray = new double[destSize];
                 Integer bandIdx = bandMap.get(destBand);
                 if (bandIdx == null) {
                     bandIdx = 0;
                 }
                 final DataBuffer dataBuffer = data.getDataBuffer();
                 final SampleModel sampleModel = data.getSampleModel();
-                sampleModel.getSamples(0, 0, data.getWidth(), data.getHeight(), bandIdx, dArray, dataBuffer);
-                pm.worked(1);
+                final int dataBufferType = dataBuffer.getDataType();
 
-                for (int i = 0; i < dArray.length; i++) {
-                    destBuffer.setElemDoubleAt(i, dArray[i]);
+                boolean isInteger = dataBufferType == DataBuffer.TYPE_SHORT
+                                    || dataBufferType == DataBuffer.TYPE_USHORT
+                                    || dataBufferType == DataBuffer.TYPE_INT;
+                boolean isIntegerTarget = destBuffer.getElems() instanceof int[];
+                if (isInteger && isIntegerTarget) {
+                    sampleModel.getSamples(0, 0, data.getWidth(), data.getHeight(), bandIdx, (int[]) destBuffer.getElems(), dataBuffer);
+                } else if (dataBufferType == DataBuffer.TYPE_FLOAT && destBuffer.getElems() instanceof float[]) {
+                    sampleModel.getSamples(0, 0, data.getWidth(), data.getHeight(), bandIdx, (float[]) destBuffer.getElems(), dataBuffer);
+                } else {
+                    final double[] dArray = new double[destSize];
+                    sampleModel.getSamples(0, 0, data.getWidth(), data.getHeight(), bandIdx, dArray, dataBuffer);
+
+                    if (destBuffer.getElems() instanceof double[]) {
+                        //noinspection SuspiciousSystemArraycopy
+                        System.arraycopy(dArray, 0, destBuffer.getElems(), 0, dArray.length);
+                    } else {
+                        int i = 0;
+                        for (double value : dArray) {
+                            destBuffer.setElemDoubleAt(i++, value);
+                        }
+                    }
                 }
-
                 pm.worked(1);
-
             } finally {
                 pm.done();
             }
@@ -209,7 +232,7 @@ public class GeoTiffProductReader extends AbstractProductReader {
 
     private synchronized Raster readRect(int sourceOffsetX, int sourceOffsetY, int sourceStepX, int sourceStepY,
                                          int destOffsetX, int destOffsetY, int destWidth, int destHeight) throws
-            IOException {
+                                                                                                          IOException {
         ImageReadParam readParam = imageReader.getDefaultReadParam();
         int subsamplingXOffset = sourceOffsetX % sourceStepX;
         int subsamplingYOffset = sourceOffsetY % sourceStepY;
@@ -307,6 +330,7 @@ public class GeoTiffProductReader extends AbstractProductReader {
      *
      * @param product   the Product
      * @param inputFile the source tiff file
+     *
      * @throws IOException in case of an IO error
      */
     @SuppressWarnings({"UnusedDeclaration"})
@@ -334,7 +358,7 @@ public class GeoTiffProductReader extends AbstractProductReader {
     }
 
     private void addBandsToProduct(TiffFileInfo tiffInfo, Product product) throws
-            IOException {
+                                                                           IOException {
         final ImageReadParam readParam = imageReader.getDefaultReadParam();
         TIFFRenderedImage baseImage = (TIFFRenderedImage) imageReader.readAsRenderedImage(FIRST_IMAGE, readParam);
         SampleModel sampleModel = baseImage.getSampleModel();
@@ -396,11 +420,12 @@ public class GeoTiffProductReader extends AbstractProductReader {
 
             double[] tiePoints = info.getField(GeoTIFFTagSet.TAG_MODEL_TIE_POINT).getAsDoubles();
 
+            boolean isGlobal = isGlobal(product, info);
+
             // check if we have a global geographic lat/lon with lon from 0..360 instead of -180..180
-            // todo: very draft implementation, works for NCEP air temperature files. to be further investigated!!
             final double deltaX = Math.ceil(360. / product.getSceneRasterWidth());
-            if (tiePoints.length == 6 && Math.abs(tiePoints[3]) < deltaX) {
-                // e.g. tiePoints[3] = -0.5, productWidth=722 --> we have a lon range of 360 which should start
+            if (isGlobal && tiePoints.length == 6 && Math.abs(tiePoints[3]) < deltaX) {
+                // e.g. tiePoints[3] = -0.5, productWidth=722 --> we have a lon range of 361 which should start
                 // at or near -180 but not at zero
                 isGlobalShifted180 = true;
                 // subtract 180 from the longitudes
@@ -420,15 +445,32 @@ public class GeoTiffProductReader extends AbstractProductReader {
             } catch (Exception ignored) {
             }
         }
+    }
 
+    private boolean isGlobal(Product product, TiffFileInfo info) {
+        boolean isGlobal = false;
+        double[] pixelScales = info.getField(GeoTIFFTagSet.TAG_MODEL_PIXEL_SCALE).getAsDoubles();
+
+        if (isPixelScaleValid(pixelScales)) {
+            final double widthInDegree = pixelScales[0] * product.getSceneRasterWidth();
+            isGlobal = Math.ceil(widthInDegree) >= 360;
+        }
+        return isGlobal;
+    }
+
+    private boolean isPixelScaleValid(double[] pixelScales) {
+        return pixelScales != null &&
+               !Double.isNaN(pixelScales[0]) && !Double.isInfinite(pixelScales[0]) &&
+               !Double.isNaN(pixelScales[1]) && !Double.isInfinite(pixelScales[1]);
     }
 
     private static void applyGeoCodingFromGeoTiff(TIFFImageMetadata metadata, Product product) throws Exception {
-        final Rectangle imageBounds = new Rectangle(product.getSceneRasterWidth(),
-                                                    product.getSceneRasterHeight());
+        final Rectangle imageBounds = new Rectangle(product.getSceneRasterWidth(), product.getSceneRasterHeight());
         final GeoTiffIIOMetadataDecoder metadataDecoder = new GeoTiffIIOMetadataDecoder(metadata);
         final GeoTiffMetadata2CRSAdapter geoTiff2CRSAdapter = new GeoTiffMetadata2CRSAdapter(null);
-        final MathTransform toModel = GeoTiffMetadata2CRSAdapter.getRasterToModel(metadataDecoder, false);
+        // todo reactivate the following line if geotools has fixed the problem. (see BEAM-1510)
+        // final MathTransform toModel = GeoTiffMetadata2CRSAdapter.getRasterToModel(metadataDecoder, false);
+        final MathTransform toModel = getRasterToModel(metadataDecoder, false);
         CoordinateReferenceSystem crs;
         try {
             crs = geoTiff2CRSAdapter.createCoordinateSystem(metadataDecoder);
@@ -442,6 +484,104 @@ public class GeoTiffProductReader extends AbstractProductReader {
         }
         final CrsGeoCoding geoCoding = new CrsGeoCoding(crs, imageBounds, (AffineTransform) toModel);
         product.setGeoCoding(geoCoding);
+    }
+
+    /*
+     * Copied from geotools GeoTiffMetadata2CRSAdapter because the given tie-point offset is
+     * probably not correctly interpreted in geotools. The tie-point should be placed at the pixel corner
+     * but is placed in the pixel center.
+     * See Beam Issue: http://www.brockmann-consult.de/beam-jira/browse/BEAM-1510
+     * todo remove this method if geotools has fixed the problem
+     */
+    private static MathTransform getRasterToModel(
+            final GeoTiffIIOMetadataDecoder metadata,
+            final boolean forceToCellCenter) throws GeoTiffException {
+        //
+        // Load initials
+        //
+        final boolean hasTiePoints = metadata.hasTiePoints();
+        final boolean hasPixelScales = metadata.hasPixelScales();
+        final boolean hasModelTransformation = metadata.hasModelTrasformation();
+        int rasterType = getGeoKeyAsInt(GeoTiffConstants.GTRasterTypeGeoKey, metadata);
+        // geotiff spec says that PixelIsArea is the default
+        if (rasterType == GeoTiffConstants.UNDEFINED) {
+            rasterType = GeoTiffConstants.RasterPixelIsArea;
+        }
+        MathTransform xform = null;
+        if (hasTiePoints && hasPixelScales) {
+
+            //
+            // we use tie points and pixel scales to build the grid to world
+            //
+            // model space
+            final TiePoint[] tiePoints = metadata.getModelTiePoints();
+            final PixelScale pixScales = metadata.getModelPixelScales();
+
+
+            // here is the matrix we need to build
+            final GeneralMatrix gm = new GeneralMatrix(3);
+            final double scaleRaster2ModelLongitude = pixScales.getScaleX();
+            final double scaleRaster2ModelLatitude = -pixScales.getScaleY();
+            // "raster" space
+            final double tiePointColumn = tiePoints[0].getValueAt(0);
+            // bc-comment: original geotools code
+            // final double tiePointColumn = tiePoints[0].getValueAt(0)
+            //       + ((forceToCellCenter || rasterType == GeoTiffConstants.RasterPixelIsArea) ? - 0.5: 0);
+
+            // coordinates
+            // (indicies)
+            final double tiePointRow = tiePoints[0].getValueAt(1);
+            // bc-comment: original geotools code
+            // final double tiePointRow = tiePoints[0].getValueAt(1)
+            //       + ((forceToCellCenter || rasterType == GeoTiffConstants.RasterPixelIsArea) ? - 0.5: 0);
+
+            // compute an "offset and scale" matrix
+            gm.setElement(0, 0, scaleRaster2ModelLongitude);
+            gm.setElement(1, 1, scaleRaster2ModelLatitude);
+            gm.setElement(0, 1, 0);
+            gm.setElement(1, 0, 0);
+
+            gm.setElement(0, 2, tiePoints[0].getValueAt(3)
+                                - (scaleRaster2ModelLongitude * tiePointColumn));
+            gm.setElement(1, 2, tiePoints[0].getValueAt(4)
+                                - (scaleRaster2ModelLatitude * tiePointRow));
+
+            // make it a LinearTransform
+            xform = ProjectiveTransform.create(gm);
+
+        } else if (hasModelTransformation) {
+            if (rasterType == GeoTiffConstants.RasterPixelIsArea) {
+                final AffineTransform tempTransform = new AffineTransform(
+                        metadata.getModelTransformation());
+                if (forceToCellCenter) {
+                    tempTransform.concatenate(AffineTransform.getTranslateInstance(0.5, 0.5));
+                }
+                xform = ProjectiveTransform.create(tempTransform);
+
+            } else {
+                assert rasterType == GeoTiffConstants.RasterPixelIsPoint;
+                xform = ProjectiveTransform.create(metadata
+                                                           .getModelTransformation());
+
+            }
+        } else {
+            throw new GeoTiffException(metadata,
+                                       "Unknown Raster to Model configuration.", null);
+        }
+
+        return xform;
+    }
+
+    private static int getGeoKeyAsInt(final int key,
+                                      final GeoTiffIIOMetadataDecoder metadata) {
+
+        try {
+            return Integer.parseInt(metadata.getGeoKey(key));
+        } catch (NumberFormatException ne) {
+            BeamLogManager.getSystemLogger().log(Level.FINE, ne.getMessage(), ne);
+            return GeoTiffConstants.UNDEFINED;
+        }
+
     }
 
 

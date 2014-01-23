@@ -99,6 +99,7 @@
                 <exclude>org.esa.beam:beam-installer</exclude>
                 <exclude>org.esa.beam:beam-rtp-codec</exclude>
                 <exclude>org.esa.beam:beam-examples</exclude>
+                <exclude>org.esa.beam:beam-reader-tests</exclude>
             </excludes>
             <binaries>
                 <outputDirectory>modules</outputDirectory>

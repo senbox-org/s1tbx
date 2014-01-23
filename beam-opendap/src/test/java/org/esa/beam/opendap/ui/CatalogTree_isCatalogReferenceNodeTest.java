@@ -7,21 +7,21 @@ import thredds.catalog.InvDataset;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 public class CatalogTree_isCatalogReferenceNodeTest {
 
     @Test
     public void testThatNullIsResolvedToFalse() {
         final Object notADapNode = null;
-        assertEquals(false, CatalogTree.isCatalogReferenceNode(notADapNode));
+        assertEquals(false, CatalogTreeUtils.isCatalogReferenceNode(notADapNode));
     }
 
     @Test
     public void testThatUserObjectWhichIsNoStringIsResolvedToFalse() {
         final Integer userObject = 4;
         final DefaultMutableTreeNode notADapNode = new DefaultMutableTreeNode(userObject);
-        assertEquals(false, CatalogTree.isCatalogReferenceNode(notADapNode));
+        assertEquals(false, CatalogTreeUtils.isCatalogReferenceNode(notADapNode));
     }
 
     @Test
@@ -29,13 +29,13 @@ public class CatalogTree_isCatalogReferenceNodeTest {
         final Object userObject = new OpendapLeaf("any", new InvDataset(null, "") {
         });
         final DefaultMutableTreeNode noDapNode = new DefaultMutableTreeNode(userObject);
-        assertEquals(false, CatalogTree.isCatalogReferenceNode(noDapNode));
+        assertEquals(false, CatalogTreeUtils.isCatalogReferenceNode(noDapNode));
     }
 
     @Test
     public void testThatOpendapLeafWhichIsCatalogRefIsResolvedToTrue() {
         final CatalogNode opendapLeaf = new CatalogNode("any", null);
         final DefaultMutableTreeNode notDapNode = new DefaultMutableTreeNode(opendapLeaf);
-        assertEquals(true, CatalogTree.isCatalogReferenceNode(notDapNode));
+        assertEquals(true, CatalogTreeUtils.isCatalogReferenceNode(notDapNode));
     }
 }

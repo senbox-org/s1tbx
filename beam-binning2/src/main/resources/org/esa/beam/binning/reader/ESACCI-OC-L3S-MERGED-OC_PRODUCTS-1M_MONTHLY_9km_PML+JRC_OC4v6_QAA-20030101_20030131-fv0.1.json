@@ -1,0 +1,88 @@
+{
+    "id": "ESACCI-OC-L3S-MERGED-OC_PRODUCTS-1M_MONTHLY_9km_PML+JRC_OC4v6_QAA-20030101_20030131-fv0.1",
+    "decodeQualification": "intended",
+    "expectedContent": {
+        "sceneWidth": 4320,
+        "sceneHeight": 2160,
+        "startTime": "01-JAN-2003 00:00:00.000000",
+        "endTime": "25-JAN-2003 23:59:00.000000",
+        "geoCoding": {
+            "coordinates": [
+                {
+                    "x": 608.5,
+                    "y": 737.5,
+                    "lon": -129.29167,
+                    "lat": 28.541666
+                },
+                {
+                    "x": 4178.5,
+                    "y": 1814.5,
+                    "lon": 168.20833,
+                    "lat": -61.208332
+                }
+            ]
+        },
+        "bands": [
+            {
+                "name": "longitude",
+                "expectedPixels": [
+                    {
+                        "x": "252",
+                        "y": "1934",
+                        "value": "21.077585"
+                    },
+                    {
+                        "x": "4076",
+                        "y": "172",
+                        "value": "339.70178"
+                    }
+                ]
+            },
+            {
+                "name": "latitude",
+                "expectedPixels": [
+                    {
+                        "x": "239",
+                        "y": "564",
+                        "value": "42.958332"
+                    },
+                    {
+                        "x": "3535",
+                        "y": "1057",
+                        "value": "1.875"
+                    }
+                ]
+            },
+            {
+                "name": "aph_412",
+                "expectedPixels": [
+                    {
+                        "x": "2187",
+                        "y": "368",
+                        "value": "0.11659921"
+                    },
+                    {
+                        "x": "2166",
+                        "y": "0",
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "aph_412_bias_uncertainty",
+                "expectedPixels": [
+                    {
+                        "x": "408",
+                        "y": "1383",
+                        "value": "1.00000005E-4"
+                    },
+                    {
+                        "x": "541",
+                        "y": "1357",
+                        "value": "NaN"
+                    }
+                ]
+            }
+        ]
+    }
+}

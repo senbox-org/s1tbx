@@ -56,7 +56,6 @@ public class GeoCodingMathTransform extends AbstractMathTransform implements Mat
     @Override
     public ParameterDescriptorGroup getParameterDescriptors() {
         return new DefaultParameterDescriptorGroup(getClass().getSimpleName(), new GeneralParameterDescriptor[0]);
-
     }
 
     @Override
@@ -98,7 +97,7 @@ public class GeoCodingMathTransform extends AbstractMathTransform implements Mat
             return false;
         }
 
-        return geoCoding.equals(that.geoCoding);
+        return geoCoding == that.geoCoding;
     }
 
     @Override
@@ -133,7 +132,7 @@ public class GeoCodingMathTransform extends AbstractMathTransform implements Mat
                     pixelPos.y = (float) srcPts[srcOff + secondIndex];
 
                     geoCoding.getGeoPos(pixelPos, geoPos);
-                    //todo remove this when ImageGeometry.createValidRect is used
+                    //todo remove this when ImageGeometry.createValidRect is used in ImageGeometry.createMapBoundary()
                     if (!geoPos.isValid()) {
                         if (geoCoding instanceof PixelGeoCoding2) {
                             Rectangle region = new Rectangle(0, 0, ((PixelGeoCoding2) geoCoding).getRasterWidth(),
@@ -175,7 +174,7 @@ public class GeoCodingMathTransform extends AbstractMathTransform implements Mat
                     dstPts[dstOff + secondIndex] = pixelPos.y;
                 }
             } catch (Exception e) {
-                TransformException transformException = new TransformException();
+                final TransformException transformException = new TransformException();
                 transformException.initCause(e);
                 throw transformException;
             }

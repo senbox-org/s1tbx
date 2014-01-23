@@ -1,0 +1,54 @@
+{
+    "testProducts": [
+        {
+            "id": "CHRIS_IL_030902_377D_41",
+            "relativePath": "sensors_platforms/CHRIS_PROBA/HDF4/CHRIS_IL_030902_377D_41.hdf",
+            "description": "Product type: CHRIS_M0"
+        },
+        {
+            "id": "CHRIS_AM_080805_A34A_41",
+            "relativePath": "sensors_platforms/CHRIS_PROBA/HDF4/CHRIS_AM_080805_A34A_41.hdf",
+            "description": "Product type: CHRIS_M1"
+        },
+        {
+            "id": "CHRIS_MZ_080731_A2E4_41",
+            "relativePath": "sensors_platforms/CHRIS_PROBA/HDF4/CHRIS_MZ_080731_A2E4_41.hdf",
+            "description": "Product type: CHRIS_M1"
+        },
+        {
+            "id": "CHRIS_HR_050623_560E_41",
+            "relativePath": "sensors_platforms/CHRIS_PROBA/HDF4/CHRIS_HR_050623_560E_41.hdf",
+            "description": "Product type: CHRIS_M2"
+        },
+        {
+            "id": "CHRIS_VI_080801_A2FB_41",
+            "relativePath": "sensors_platforms/CHRIS_PROBA/HDF4/CHRIS_VI_080801_A2FB_41.hdf",
+            "description": "Product type: CHRIS_M2"
+        },
+        {
+            "id": "CHRIS_DZ_080726_A294_41",
+            "relativePath": "sensors_platforms/CHRIS_PROBA/HDF4/CHRIS_DZ_080726_A294_41.hdf",
+            "description": "Product type: CHRIS_M3"
+        },
+        {
+            "id": "CHRIS_UK_080723_A24E_41",
+            "relativePath": "sensors_platforms/CHRIS_PROBA/HDF4/CHRIS_UK_080723_A24E_41.hdf",
+            "description": "Product type: CHRIS_M3"
+        },
+        {
+            "id": "CHRIS_CG_080804_A334_41",
+            "relativePath": "sensors_platforms/CHRIS_PROBA/HDF4/CHRIS_CG_080804_A334_41.hdf",
+            "description": "Product type: CHRIS_M4"
+        },
+        {
+            "id": "CHRIS_KH_080725_A27B_41",
+            "relativePath": "sensors_platforms/CHRIS_PROBA/HDF4/CHRIS_KH_080725_A27B_41.hdf",
+            "description": "Product type: CHRIS_M5"
+        },
+        {
+            "id": "CHRIS_PU_080801_A315_41",
+            "relativePath": "sensors_platforms/CHRIS_PROBA/HDF4/CHRIS_PU_080801_A315_41.hdf",
+            "description": "Product type: CHRIS_M20"
+        }
+     ]
+}

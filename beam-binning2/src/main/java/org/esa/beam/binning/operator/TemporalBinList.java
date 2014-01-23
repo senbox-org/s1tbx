@@ -32,7 +32,8 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.AbstractList;
-import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -42,19 +43,20 @@ import java.util.logging.Logger;
  */
 class TemporalBinList extends AbstractList<TemporalBin> {
 
-    public static final int DEFAULT_MAX_CACHE_FILES = 100;
-    public static final int DEFAULT_BINS_PER_FILE = 10000;
+    public static final int DEFAULT_MAX_CACHE_FILES = 10000;
+    public static final int DEFAULT_BINS_PER_FILE = 1000;
 
-    private static final String FILE_NAME_PATTERN = "temporal-bins-%03d.tmp";
+    private static final String FILE_NAME_PATTERN = "temporal-bins-%05d.tmp"; // at least 5 digits; zero padded
     private static final Logger logger = BeamLogManager.getSystemLogger();
 
 
     private final long numberOfBins;
     private final int binsPerFile;
-    private final ArrayList<TemporalBin> currentBinList;
+    private final List<TemporalBin> currentBinList;
     private final File tempDir;
     private int size;
     private int lastFileIndex;
+    private boolean firstGet;
 
     public TemporalBinList(int numberOfBins) throws IOException {
         this(numberOfBins, DEFAULT_MAX_CACHE_FILES, DEFAULT_BINS_PER_FILE);
@@ -62,11 +64,13 @@ class TemporalBinList extends AbstractList<TemporalBin> {
 
     TemporalBinList(int numberOfBins, int maxNumberOfCacheFiles, int preferredBinsPerFile) throws IOException {
         tempDir = VirtualDir.createUniqueTempDir();
+        Runtime.getRuntime().addShutdownHook(new DeleteDirThread(tempDir));
         this.numberOfBins = numberOfBins;
         binsPerFile = computeBinsPerFile(numberOfBins, maxNumberOfCacheFiles, preferredBinsPerFile);
-        currentBinList = new ArrayList<TemporalBin>();
+        currentBinList = new LinkedList<TemporalBin>();
         size = 0;
-        lastFileIndex = -1;
+        lastFileIndex = 0;
+        firstGet = true;
     }
 
     @Override
@@ -96,13 +100,22 @@ class TemporalBinList extends AbstractList<TemporalBin> {
     @Override
     public TemporalBin get(int index) {
         if (index >= numberOfBins) {
-            throw new IllegalStateException("Number of add operations exceed maximum number of bins");
+            throw new IllegalStateException(String.format("Index out of range. Maximum is %d but was %d", numberOfBins - 1, index));
+        }
+        if (firstGet) {
+            try {
+                writeBinList(lastFileIndex, currentBinList);
+            } catch (IOException e) {
+                logger.log(Level.SEVERE, "Error storing temporal bins.", e);
+                return null;
+            }finally {
+                firstGet = false;
+            }
         }
         synchronized (currentBinList) {
             try {
                 int currentFileIndex = calculateFileIndex(index);
                 if (currentFileIndex != lastFileIndex) {
-                    writeBinList(lastFileIndex, currentBinList);
                     currentBinList.clear();
                     readBinList(currentFileIndex, currentBinList);
                     lastFileIndex = currentFileIndex;
@@ -143,21 +156,21 @@ class TemporalBinList extends AbstractList<TemporalBin> {
         return new File(tempDir, String.format(FILE_NAME_PATTERN, fileIndex));
     }
 
-    private void writeBinList(int currentFileIndex, ArrayList<TemporalBin> binList) throws IOException {
+    private void writeBinList(int currentFileIndex, List<TemporalBin> binList) throws IOException {
         File file = getFile(currentFileIndex);
         writeToFile(binList, file);
     }
 
-    private void readBinList(int currentFileIndex, ArrayList<TemporalBin> binList) throws IOException {
+    private void readBinList(int currentFileIndex, List<TemporalBin> binList) throws IOException {
         File file = getFile(currentFileIndex);
         if (file.exists()) {
             readFromFile(file, binList);
         }
     }
 
-    private static void writeToFile(ArrayList<TemporalBin> temporalBins, File file) throws IOException {
+    private static void writeToFile(List<TemporalBin> temporalBins, File file) throws IOException {
         FileOutputStream fos = new FileOutputStream(file);
-        DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(fos, 1024 * 1024));
+        DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(fos, 5 * 1024 * 1024));
         try {
             for (TemporalBin bin : temporalBins) {
                 dos.writeLong(bin.getIndex());
@@ -168,9 +181,9 @@ class TemporalBinList extends AbstractList<TemporalBin> {
         }
     }
 
-    private static void readFromFile(File file, ArrayList<TemporalBin> temporalBins) throws IOException {
+    private static void readFromFile(File file, List<TemporalBin> temporalBins) throws IOException {
         FileInputStream fis = new FileInputStream(file);
-        DataInputStream dis = new DataInputStream(new BufferedInputStream(fis, 1024 * 1024));
+        DataInputStream dis = new DataInputStream(new BufferedInputStream(fis, 5 * 1024 * 1024));
         try {
             while (dis.available() != 0) {
                 long binIndex = dis.readLong();

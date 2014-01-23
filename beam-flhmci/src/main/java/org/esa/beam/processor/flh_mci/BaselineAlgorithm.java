@@ -15,8 +15,7 @@
  */
 package org.esa.beam.processor.flh_mci;
 
-import org.esa.beam.framework.processor.ProcessorException;
-import org.esa.beam.util.Guardian;
+import org.esa.beam.framework.gpf.OperatorException;
 
 /**
  * Implements a general baseline height algorithm with optional baseline slope calculation.
@@ -27,7 +26,6 @@ public final class BaselineAlgorithm {
     private double lambdaFactor;
     private double inverseDelta;
     private double cloudCorrectionFactor;
-    private float invalidValue;
 
     /**
      * Constructs the object with default parameters
@@ -35,7 +33,6 @@ public final class BaselineAlgorithm {
     public BaselineAlgorithm() {
         lambdaFactor = 1.0;
         inverseDelta = 1.0;
-        invalidValue = 0.f;
         cloudCorrectionFactor = DEFAULT_CLOUD_CORRECT;
     }
 
@@ -47,41 +44,34 @@ public final class BaselineAlgorithm {
      * @param high   higher band wavelength in nm
      * @param signal signal band wavelength in nm
      */
-    public final void setWavelengths(float low, float high, float signal) throws ProcessorException {
+    public final void setWavelengths(float low, float high, float signal) throws OperatorException {
         double num;
         double denom;
 
         // check for correct wavelengths
         // -----------------------------
         if (low < 0.f || high < 0.f || signal < 0.f) {
-            throw new ProcessorException(FlhMciConstants.ERROR_MSG_NEGATIVE_WAVELENGTH);
+            throw new OperatorException("Negative wavelengths");
         }
 
         // set numerator and check for validity
         // ------------------------------------
         num = signal - low;
         if (num == 0.0) {
-            throw new ProcessorException(FlhMciConstants.ERROR_MSG_NUMERATOR_ZERO);
+            throw new OperatorException("Numerator is 0, low and signal wavelength are identical!");
         }
 
         // set denominator and check for validity
         // --------------------------------------
         denom = high - low;
         if (denom == 0.0) {
-            throw new ProcessorException(FlhMciConstants.ERROR_MSG_DENOM_ZERO);
+            throw new OperatorException("Denominator is 0, low and high wavelength are identical");
         }
         // inverse wavelength delta needed for baseline slope calculation
         inverseDelta = 1.0 / denom;
 
         // wavelength factor
         lambdaFactor = num / denom;
-    }
-
-    /**
-     * Sets the value used for invalid pixel.
-     */
-    public final void setInvalidValue(float invalid) {
-        this.invalidValue = invalid;
     }
 
     /**
@@ -93,101 +83,8 @@ public final class BaselineAlgorithm {
         cloudCorrectionFactor = factor;
     }
 
-    /**
-     * Processes the baseline height algorithm.
-     *
-     * @param low     array of low baseline wavelength radiances
-     * @param high    array of high baseline wavelength radiances
-     * @param signal  array of signal wavelength radiances
-     * @param process array of boolean determining the pixels to be processed
-     * @param recycle if not <code>null</code> and of correct size this array will be reused for the return values
-     *
-     * @return array of baseline height values
-     *
-     * @deprecated since BEAM 4.10 - no replacement.
-     */
-    @Deprecated
-    public final float[] process(float[] low, float[] high, float[] signal, boolean[] process, float[] recycle) {
-        Guardian.assertNotNull("low data", low);
-        Guardian.assertNotNull("high data", high);
-        Guardian.assertNotNull("signal data", signal);
-        Guardian.assertNotNull("process data", process);
-
-        float[] line_ret;
-        double delta;
-
-        // try to reuse the recyle array to prevent memory waste. We can reuse if
-        // a) it's present and
-        // b) has the same size one of the input vectors
-        if ((recycle == null) || (recycle.length != low.length)) {
-            line_ret = new float[low.length];
-        } else {
-            line_ret = recycle;
-        }
-
-        // now loop over vector
-        for (int n = 0; n < low.length; n++) {
-            // check if the pixel shall be processed
-            if (!process[n]) {
-                line_ret[n] = invalidValue;
-                continue;
-            }
-
-            // calculate line height
-            delta = high[n] - low[n];
-            line_ret[n] = (float) (signal[n] - cloudCorrectionFactor * (low[n] + (delta * lambdaFactor)));
-        }
-
-        return line_ret;
-    }
-
     final double computeLineHeight(double lower, double upper, double peak) {
         return peak - cloudCorrectionFactor * (lower + (upper - lower) * lambdaFactor);
-    }
-
-    /**
-     * Processes the baseline slope of the linear equation y = a * x + b. [a] = 1 / nm
-     *
-     * @param low     array of low band radiances
-     * @param high    array of high band radiances
-     * @param process array of boolean determining the pixels to be processed
-     * @param recycle if not <code>null</code> and of correct size this array will be reused for the return values
-     *
-     * @return array of baseline height values
-     *
-     * @deprecated since BEAM 4.10 - no replacement.
-     */
-    @Deprecated
-    public final float[] processSlope(float[] low, float[] high, boolean[] process, float[] recycle) {
-        Guardian.assertNotNull("low data", low);
-        Guardian.assertNotNull("high data", high);
-        Guardian.assertNotNull("process data", process);
-
-        float[] slope_ret;
-        double radianceDelta;
-
-        // try to reuse the recyle array to prevent memory waste. We can reuse if
-        // a) it's present and
-        // b) has the same size one of the input vectors
-        if ((recycle == null) || (recycle.length != low.length)) {
-            slope_ret = new float[low.length];
-        } else {
-            slope_ret = recycle;
-        }
-
-        // loop over vectors
-        for (int n = 0; n < low.length; n++) {
-            // check if the pixel shall be processed
-            if (!process[n]) {
-                slope_ret[n] = invalidValue;
-                continue;
-            }
-
-            radianceDelta = high[n] - low[n];
-            slope_ret[n] = (float) (radianceDelta * inverseDelta);
-        }
-
-        return slope_ret;
     }
 
     final double computeSlope(double lower, double upper) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -21,12 +21,14 @@ import org.esa.beam.dataio.dimap.DimapProductConstants;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.util.Guardian;
+import org.esa.beam.util.logging.BeamLogManager;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.logging.Logger;
 
 /**
  * The <code>ProductIO</code> class provides several utility methods concerning data I/O for remote sensing data
@@ -210,7 +212,12 @@ public class ProductIO {
         }
         final ProductReader productReader = getProductReaderForInput(file);
         if (productReader != null) {
-            return productReader.readProductNodes(file, subsetDef);
+            final long startTime = System.currentTimeMillis();
+            Product product = productReader.readProductNodes(file, subsetDef);
+            final long endTime = System.currentTimeMillis();
+            String msg = String.format("Read product nodes (took %d ms)", (endTime - startTime));
+            BeamLogManager.getSystemLogger().fine(msg);
+            return product;
         }
         return null;
     }
@@ -246,12 +253,19 @@ public class ProductIO {
      * @see ProductReader#readProductNodes(Object, ProductSubsetDef)
      */
     public static ProductReader getProductReaderForInput(Object input) {
+        final long startTimeTotal = System.currentTimeMillis();
+        Logger logger = BeamLogManager.getSystemLogger();
+        logger.fine("Searching reader plugin for '" + input + "'");
         ProductIOPlugInManager registry = ProductIOPlugInManager.getInstance();
         Iterator<ProductReaderPlugIn> it = registry.getAllReaderPlugIns();
         ProductReaderPlugIn selectedPlugIn = null;
         while (it.hasNext()) {
             ProductReaderPlugIn plugIn = it.next();
+
+            final long startTime = System.currentTimeMillis();
             DecodeQualification decodeQualification = plugIn.getDecodeQualification(input);
+            final long endTime = System.currentTimeMillis();
+            logger.fine(String.format("Checking reader plugin %s (took %d ms)", plugIn.getClass().getName(), (endTime - startTime)));
             if (decodeQualification == DecodeQualification.INTENDED) {
                 selectedPlugIn = plugIn;
                 break;
@@ -259,10 +273,15 @@ public class ProductIO {
                 selectedPlugIn = plugIn;
             }
         }
+        final long endTimeTotal = System.currentTimeMillis();
+        logger.fine(String.format("Searching reader plugin took %d ms", (endTimeTotal - startTimeTotal)));
         if (selectedPlugIn != null) {
+            logger.fine("Selected " + selectedPlugIn.getClass().getName());
             return selectedPlugIn.createReaderInstance();
+        } else {
+            logger.fine("No suitable reader plugin found");
+            return null;
         }
-        return null;
     }
 
     /**

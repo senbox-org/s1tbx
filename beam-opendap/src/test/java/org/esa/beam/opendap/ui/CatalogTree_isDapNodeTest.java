@@ -6,21 +6,21 @@ import thredds.catalog.InvDataset;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 public class CatalogTree_isDapNodeTest {
 
     @Test
     public void testThatNullIsResolvedToFalse() {
         final Object noDapNode = null;
-        assertEquals(false, CatalogTree.isDapNode(noDapNode));
+        assertEquals(false, CatalogTreeUtils.isDapNode(noDapNode));
     }
 
     @Test
     public void testThatUserObjectWhichIsNoOpendapLeafIsResolvedToFalse() {
         final Integer userObject = 4;
         final DefaultMutableTreeNode noDapNode = new DefaultMutableTreeNode(userObject);
-        assertEquals(false, CatalogTree.isDapNode(noDapNode));
+        assertEquals(false, CatalogTreeUtils.isDapNode(noDapNode));
     }
 
     @Test
@@ -29,7 +29,7 @@ public class CatalogTree_isDapNodeTest {
         });
         userObject.setDapAccess(false);
         final DefaultMutableTreeNode noDapNode = new DefaultMutableTreeNode(userObject);
-        assertEquals(false, CatalogTree.isDapNode(noDapNode));
+        assertEquals(false, CatalogTreeUtils.isDapNode(noDapNode));
     }
 
     @Test
@@ -38,6 +38,6 @@ public class CatalogTree_isDapNodeTest {
         });
         userObject.setDapAccess(true);
         final DefaultMutableTreeNode notADapNode = new DefaultMutableTreeNode(userObject);
-        assertEquals(true, CatalogTree.isDapNode(notADapNode));
+        assertEquals(true, CatalogTreeUtils.isDapNode(notADapNode));
     }
 }

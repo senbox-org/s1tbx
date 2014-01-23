@@ -16,10 +16,11 @@
 
 package org.esa.beam.framework.ui;
 
-import junit.framework.TestCase;
 import org.esa.beam.framework.param.ParamProperties;
 import org.esa.beam.framework.param.Parameter;
+import org.junit.Test;
 
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JInternalFrame;
 import javax.swing.JSpinner;
 import java.awt.Component;
@@ -28,8 +29,11 @@ import java.awt.HeadlessException;
 import java.awt.Panel;
 import java.awt.Rectangle;
 
-public class UIUtilsTest extends TestCase {
+import static org.junit.Assert.*;
 
+public class UIUtilsTest {
+
+    @Test
     public void testCenterComponent() {
         try {
             Dimension screenSize = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
@@ -49,6 +53,7 @@ public class UIUtilsTest extends TestCase {
         }
     }
 
+    @Test
     public void testGetScreenSize() {
         try {
             Dimension screenSize = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
@@ -59,6 +64,7 @@ public class UIUtilsTest extends TestCase {
         }
     }
 
+    @Test
     public void testGetScreenWidth() {
         try {
             Dimension screenSize = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
@@ -68,6 +74,7 @@ public class UIUtilsTest extends TestCase {
         }
     }
 
+    @Test
     public void testGetScreenHeight() {
         try {
             Dimension screenSize = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
@@ -78,6 +85,7 @@ public class UIUtilsTest extends TestCase {
     }
 
 
+    @Test
     public void testGetUniqueFrameTitle() {
         String title;
 
@@ -131,6 +139,7 @@ public class UIUtilsTest extends TestCase {
         assertEquals("Image (4)", title);
     }
 
+    @Test
     public void testCreateSpinner_WithParameter() {
         final String labelname = "paramLabel";
         final ParamProperties properties = new ParamProperties(Integer.class, Integer.valueOf(3));
@@ -139,6 +148,31 @@ public class UIUtilsTest extends TestCase {
 
         final JSpinner spinner = UIUtils.createSpinner(parameter, Integer.valueOf(10), "#0");
         assertEquals(labelname, spinner.getName());
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testSelectProfile() throws Exception {
+        DefaultComboBoxModel profileModel = new DefaultComboBoxModel(new String[]{
+                "wrong_name_1",
+                "this_is_the_correct_name",
+                "wrong_name_2",
+                "wrong_name_3"
+        });
+        UIUtils.selectProfileThatContains("correct_name", profileModel);
+        assertEquals("this_is_the_correct_name", profileModel.getSelectedItem());
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testSelectProfile_NotFound() throws Exception {
+        DefaultComboBoxModel profileModel = new DefaultComboBoxModel(new String[]{
+                "wrong_name_1",
+                "wrong_name_2",
+                "wrong_name_3"
+        });
+        UIUtils.selectProfileThatContains("i_am_not_included", profileModel);
+        assertFalse("i_am_not_included".equals(profileModel.getSelectedItem()));
     }
 
     private void warnHeadless() {

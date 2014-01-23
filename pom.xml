@@ -57,6 +57,7 @@
         <!--This property needs to be set here and not in the one of the other parent poms, because it is used for
         filtering the gpt scripts during the assembly phase. -->
         <hdf.version>2.7</hdf.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
     <repositories>
@@ -77,6 +78,11 @@
             <id>maven2-repository.dev.java.net</id>
             <name>Java.net repository</name>
             <url>http://download.java.net/maven/2</url>
+        </repository>
+        <repository>
+            <id>maven-repository.unidata.ucar.edu</id>
+            <name>Unidata Repository</name>
+            <url>http://artifacts.unidata.ucar.edu/content/repositories/unidata-releases</url>
         </repository>
         <repository>
             <id>osgeo</id>
@@ -136,10 +142,10 @@
 
                 <plugin>
                     <artifactId>maven-compiler-plugin</artifactId>
-                    <version>2.5.1</version>
+                    <version>3.1</version>
                     <configuration>
-                        <source>1.6</source>
-                        <target>1.6</target>
+                        <source>1.7</source>
+                        <target>1.7</target>
                         <debug>true</debug>
                         <encoding>UTF-8</encoding>
                         <excludes>
@@ -151,6 +157,12 @@
                 <plugin>
                     <artifactId>maven-assembly-plugin</artifactId>
                     <version>2.2-beta-3</version>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-jar-plugin</artifactId>
+                    <version>2.4</version>
                 </plugin>
 
                 <plugin>
@@ -201,19 +213,16 @@
                             <include>**/*Test*.java</include>
                             <include>**/*TestCase.java</include>
                         </includes>
-                        <systemProperties>
-                            <property>
-                                <name>org.esa.beam.testdata.out</name>
-                                <value>target/test-data</value>
-                            </property>
-                        </systemProperties>
-                        <argLine>-Xmx512M -enableassertions</argLine>
+                        <systemPropertyVariables>
+                            <org.esa.beam.testdata.out>target/test-data</org.esa.beam.testdata.out>
+                        </systemPropertyVariables>
+                        <argLine>-Xmx1024M -enableassertions -Dfile.encoding=UTF-8</argLine>
                     </configuration>
                 </plugin>
 
                 <plugin>
                     <artifactId>maven-javadoc-plugin</artifactId>
-                    <version>2.8.1</version>
+                    <version>2.9.1</version>
                     <configuration>
                         <links>
                             <link>http://java.sun.com/javase/6/docs/api/</link>
@@ -227,6 +236,14 @@
                         </excludePackageNames>
                         <maxmemory>256m</maxmemory>
                         <quiet>false</quiet>
+                        <!--suppress MavenModelInspection - beam.api.version needs to be set before running the maven target -->
+                        <doctitle>
+                            ${project.name} ${beam.api.version} API
+                        </doctitle>
+                        <!--suppress MavenModelInspection - beam.api.version needs to be set before running the maven target -->
+                        <windowtitle>
+                            ${project.name} ${beam.api.version} API
+                        </windowtitle>
                     </configuration>
                 </plugin>
 

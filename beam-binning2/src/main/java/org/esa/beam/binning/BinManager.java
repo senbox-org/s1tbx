@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2013 Brockmann Consult GmbH (info@brockmann-consult.de) 
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -30,7 +30,7 @@ import java.util.Map;
 public class BinManager {
 
     private final VariableContext variableContext;
-    private final PostProcessor postProcessor;
+    private final CellProcessor cellProcessor;
     private final Aggregator[] aggregators;
     private final int spatialFeatureCount;
     private final int temporalFeatureCount;
@@ -50,7 +50,7 @@ public class BinManager {
         this(variableContext, null, aggregators);
     }
 
-    public BinManager(VariableContext variableContext, PostProcessorConfig postProcessorConfig, Aggregator... aggregators) {
+    public BinManager(VariableContext variableContext, CellProcessorConfig cellProcessorConfig, Aggregator... aggregators) {
         this.variableContext = variableContext;
         this.aggregators = aggregators;
         this.spatialFeatureOffsets = new int[aggregators.length];
@@ -80,28 +80,28 @@ public class BinManager {
                 k++;
             }
         }
-        if (postProcessorConfig != null) {
-            this.postProcessor = createPostProcessor(postProcessorConfig, outputFeatureNames);
-            this.postFeatureCount = outputFeatureCount;
-            this.postFeatureNames = postProcessor.getOutputFeatureNames();
+        if (cellProcessorConfig != null) {
+            this.cellProcessor = createPostProcessor(cellProcessorConfig, outputFeatureNames);
+            this.postFeatureNames = cellProcessor.getOutputFeatureNames();
+            this.postFeatureCount = this.postFeatureNames.length;
         } else {
-            this.postProcessor = null;
+            this.cellProcessor = null;
             this.postFeatureCount = 0;
             this.postFeatureNames = new String[0];
         }
     }
 
-    private static PostProcessor createPostProcessor(PostProcessorConfig config, String[] outputFeatureNames) {
+    private static CellProcessor createPostProcessor(CellProcessorConfig config, String[] outputFeatureNames) {
         VariableContextImpl variableContextAgg = new VariableContextImpl();
         for (String outputFeatureName : outputFeatureNames) {
             variableContextAgg.defineVariable(outputFeatureName);
         }
-        PostProcessorDescriptorRegistry registry = PostProcessorDescriptorRegistry.getInstance();
-        PostProcessorDescriptor descriptor = registry.getPostProcessorDescriptor(config.getPostProcessorName());
+        TypedDescriptorsRegistry registry = TypedDescriptorsRegistry.getInstance();
+        CellProcessorDescriptor descriptor = registry.getDescriptor(CellProcessorDescriptor.class, config.getName());
         if (descriptor != null) {
-            return descriptor.createPostProcessor(variableContextAgg, config);
+            return descriptor.createCellProcessor(variableContextAgg, config);
         } else {
-            throw new IllegalArgumentException("Unknown post processor type: " + config.getPostProcessorName());
+            throw new IllegalArgumentException("Unknown cell processor type: " + config.getName());
         }
     }
 
@@ -117,12 +117,28 @@ public class BinManager {
         return temporalFeatureCount;
     }
 
-    final String[] getOutputFeatureNames() {
+    public final int getOutputFeatureCount() {
+        return outputFeatureCount;
+    }
+
+    public int getPostProcessFeatureCount() {
+        return postFeatureCount;
+    }
+
+    public final String[] getOutputFeatureNames() {
         return outputFeatureNames;
     }
 
     final String[] getPostProcessFeatureNames() {
         return postFeatureNames;
+    }
+
+    public int getResultFeatureCount() {
+        if (hasPostProcessor()) {
+            return postFeatureCount;
+        } else {
+            return outputFeatureCount;
+        }
     }
 
     public final String[] getResultFeatureNames() {
@@ -155,6 +171,7 @@ public class BinManager {
         return vector;
     }
 
+    // method is used in Calvalus - undocumented API :-) don't remove
     public WritableVector createOutputVector() {
         return new VectorImpl(new float[outputFeatureCount]);
     }
@@ -204,6 +221,7 @@ public class BinManager {
         outputBin.numPasses++;
     }
 
+    // method is used in Calvalus - undocumented API :-) don't remove
     public void aggregateTemporalBin(TemporalBin inputBin, TemporalBin outputBin) {
         aggregateBin(inputBin, outputBin);
         outputBin.numPasses += inputBin.numPasses;
@@ -228,6 +246,10 @@ public class BinManager {
             temporalVector.setOffsetAndSize(temporalFeatureOffsets[i], aggregator.getTemporalFeatureNames().length);
             aggregator.completeTemporal(temporalBin, temporalBin.numObs, temporalVector);
         }
+    }
+
+    public TemporalBin createOutputBin(long binIndex) {
+        return new TemporalBin(binIndex, outputFeatureCount);
     }
 
     public void computeOutput(TemporalBin temporalBin, WritableVector outputVector) {
@@ -261,33 +283,15 @@ public class BinManager {
     }
 
     public boolean hasPostProcessor() {
-        return postProcessor != null;
+        return cellProcessor != null;
     }
 
-    public WritableVector createResultVector() {
-        if (hasPostProcessor()) {
-            return createPostVector();
-        } else {
-            return createOutputVector();
-        }
-    }
-
-    public WritableVector createPostVector() {
-        return new VectorImpl(new float[postFeatureCount]);
+    public TemporalBin createProcessBin(long binIndex) {
+        return new TemporalBin(binIndex, postFeatureCount);
     }
 
     public void postProcess(Vector outputVector, WritableVector postVector) {
-        postProcessor.compute(outputVector, postVector);
-    }
-
-    public void computeResult(TemporalBin temporalBin, WritableVector resultVector) {
-        if (hasPostProcessor()) {
-            WritableVector outputVector = createOutputVector();
-            computeOutput(temporalBin, outputVector);
-            postProcess(outputVector, resultVector);
-        } else {
-            computeOutput(temporalBin, resultVector);
-        }
+        cellProcessor.compute(outputVector, postVector);
     }
 
     static class NameUnifier {

@@ -55,7 +55,7 @@ public class CfBandPart extends ProfilePartIO {
         for (final Variable variable : ctx.getRasterDigest().getRasterVariables()) {
             final List<Dimension> dimensions = variable.getDimensions();
             final int rank = dimensions.size();
-            final String bandBasename = variable.getName();
+            final String bandBasename = variable.getFullName();
 
             if (rank == 2) {
                 addBand(ctx, p, variable, new int[]{}, bandBasename);
@@ -69,7 +69,7 @@ public class CfBandPart extends ProfilePartIO {
                         final StringBuilder bandNameBuilder = new StringBuilder(bandBasename);
                         for (int i = 0; i < sizes.length; i++) {
                             final Dimension zDim = dimensions.get(i + startIndexToCopy);
-                            String zName = zDim.getName();
+                            String zName = zDim.getShortName();
                             final String skipPrefix = "n_";
                             if (zName.toLowerCase().startsWith(skipPrefix)
                                 && zName.length() > skipPrefix.length()) {
@@ -98,7 +98,7 @@ public class CfBandPart extends ProfilePartIO {
                 lowerBand.setDescription(lowerBand.getDescription() + "(least significant bytes)");
             }
             lowerBand.setSourceImage(new NetcdfMultiLevelImage(lowerBand, variable, origin, ctx));
-            addSampleCodingOrMasksIfApplicable(p, lowerBand, variable, variable.getName() + "_lsb", false);
+            addSampleCodingOrMasksIfApplicable(p, lowerBand, variable, variable.getFullName() + "_lsb", false);
 
             final Band upperBand = p.addBand(bandBasename + "_msb", rasterDataType);
             readCfBandAttributes(variable, upperBand);
@@ -106,12 +106,12 @@ public class CfBandPart extends ProfilePartIO {
                 upperBand.setDescription(upperBand.getDescription() + "(most significant bytes)");
             }
             upperBand.setSourceImage(new NetcdfMultiLevelImage(upperBand, variable, origin, ctx));
-            addSampleCodingOrMasksIfApplicable(p, upperBand, variable, variable.getName() + "_msb", true);
+            addSampleCodingOrMasksIfApplicable(p, upperBand, variable, variable.getFullName() + "_msb", true);
         } else {
             final Band band = p.addBand(bandBasename, rasterDataType);
             readCfBandAttributes(variable, band);
             band.setSourceImage(new NetcdfMultiLevelImage(band, variable, origin, ctx));
-            addSampleCodingOrMasksIfApplicable(p, band, variable, variable.getName(), false);
+            addSampleCodingOrMasksIfApplicable(p, band, variable, variable.getFullName(), false);
         }
     }
 
@@ -123,7 +123,7 @@ public class CfBandPart extends ProfilePartIO {
             for (int i = 0; i < rank - 2; i++) {
                 Dimension dim = dimensions.get(i);
                 if (dim.getLength() > 1) {
-                    bandNames.add(variable.getName());
+                    bandNames.add(variable.getFullName());
                     break;
                 }
             }
@@ -220,7 +220,10 @@ public class CfBandPart extends ProfilePartIO {
         if (attribute == null) {
             attribute = variable.findAttribute("scaling_factor");
         }
-        return attribute != null ? attribute.getNumericValue().doubleValue() : 1.0;
+        if (attribute != null) {
+            return getAttributeValue(attribute).doubleValue();
+        }
+        return 1.0;
     }
 
     private static double getAddOffset(Variable variable) {
@@ -228,7 +231,10 @@ public class CfBandPart extends ProfilePartIO {
         if (attribute == null) {
             attribute = variable.findAttribute(Constants.INTERCEPT_ATT_NAME);
         }
-        return attribute != null ? attribute.getNumericValue().doubleValue() : 0.0;
+        if (attribute != null) {
+            return getAttributeValue(attribute).doubleValue();
+        }
+        return 0.0;
     }
 
     private static Number getNoDataValue(Variable variable) {
@@ -236,12 +242,29 @@ public class CfBandPart extends ProfilePartIO {
         if (attribute == null) {
             attribute = variable.findAttribute(Constants.MISSING_VALUE_ATT_NAME);
         }
-        return attribute != null ? attribute.getNumericValue().doubleValue() : null;
+        if (attribute != null) {
+            return getAttributeValue(attribute);
+        }
+        return null;
+    }
+
+    private static Number getAttributeValue(Attribute attribute) {
+        if (attribute.isString()) {
+            String stringValue = attribute.getStringValue();
+            if (stringValue.endsWith("b")) {
+                // Special management for bytes; Can occur in e.g. ASCAT files from EUMETSAT
+                return Byte.parseByte(stringValue.substring(0, stringValue.length() - 1));
+            } else {
+                return Double.parseDouble(stringValue);
+            }
+        } else {
+            return attribute.getNumericValue();
+        }
     }
 
     private static int getRasterDataType(Variable variable, DataTypeWorkarounds workarounds) {
-        if (workarounds != null && workarounds.hasWorkaround(variable.getName(), variable.getDataType())) {
-            return workarounds.getRasterDataType(variable.getName(), variable.getDataType());
+        if (workarounds != null && workarounds.hasWorkaround(variable.getFullName(), variable.getDataType())) {
+            return workarounds.getRasterDataType(variable.getFullName(), variable.getDataType());
         }
         int rasterDataType = DataTypeUtils.getRasterDataType(variable);
         if (rasterDataType == -1) {

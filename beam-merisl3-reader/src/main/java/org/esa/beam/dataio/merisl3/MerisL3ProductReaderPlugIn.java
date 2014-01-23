@@ -16,6 +16,7 @@
 
 package org.esa.beam.dataio.merisl3;
 
+import org.esa.beam.dataio.netcdf.util.SimpleNetcdfFile;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 import org.esa.beam.framework.dataio.DecodeQualification;
@@ -73,7 +74,7 @@ public class MerisL3ProductReaderPlugIn implements ProductReaderPlugIn {
         }
         final NetcdfFile netcdfFile;
         try {
-            netcdfFile = NetcdfFile.open(path);
+            netcdfFile = SimpleNetcdfFile.openNetcdf(path);
         } catch (IOException e) {
             return DecodeQualification.UNABLE;
         }

@@ -53,7 +53,7 @@ public class NetCDFUtils {
         }
 
         if (prodData != null) {
-            attrib = new MetadataAttribute(attribute.getName(), prodData, true);
+            attrib = new MetadataAttribute(attribute.getShortName(), prodData, true);
         }
 
         return attrib;
@@ -63,7 +63,7 @@ public class NetCDFUtils {
         final String variableValue = variable.readScalarString();
         ProductData prodData = ProductData.createInstance(variableValue);
 
-        return new MetadataAttribute(variable.getName(), prodData, true);
+        return new MetadataAttribute(variable.getFullName(), prodData, true);
     }
 
     public static float[] getFloatValues(Attribute attribute) {

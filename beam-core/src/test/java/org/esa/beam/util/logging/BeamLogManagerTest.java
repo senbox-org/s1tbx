@@ -19,23 +19,9 @@ import junit.framework.TestCase;
 
 public class BeamLogManagerTest extends TestCase {
 
-    private final String _name = "a name";
-    private final String _version = "a version";
-    private final String _copyright = "a copyright";
-
-    public void testGetHeader() {
-        final String logHeader = BeamLogManager.createLogHeader(_name, _version, _copyright);
-        assertNotNull(logHeader);
-        assertTrue(logHeader.indexOf(_name) > 0);
-        assertTrue(logHeader.indexOf(_version) > 0);
-        assertTrue(logHeader.indexOf(_copyright) > 0);
+    public void testThatLoggerExists() {
+        assertNotNull(BeamLogManager.getSystemLogger());
     }
 
-    public void testCreateFormatter() {
-        final BeamFormatter formatter = BeamLogManager.createFormatter(_name, _version, _copyright);
-        assertNotNull(formatter);
-        assertTrue(formatter instanceof BeamFormatter);
-        assertEquals(formatter.getHead(null), BeamLogManager.createLogHeader(_name, _version, _copyright));
-    }
 }
 

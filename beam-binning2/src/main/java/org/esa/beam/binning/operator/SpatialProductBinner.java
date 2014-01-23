@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2013 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -19,6 +19,7 @@ package org.esa.beam.binning.operator;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.glevel.MultiLevelImage;
 import com.vividsolutions.jts.geom.Geometry;
+import org.esa.beam.binning.BinningContext;
 import org.esa.beam.binning.CompositingType;
 import org.esa.beam.binning.ObservationSlice;
 import org.esa.beam.binning.PlanetaryGrid;
@@ -33,16 +34,18 @@ import org.esa.beam.framework.datamodel.VirtualBand;
 import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.StopWatch;
 import org.esa.beam.util.StringUtils;
+import org.esa.beam.util.logging.BeamLogManager;
 import org.esa.beam.util.math.MathUtils;
 
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.image.Raster;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Utility class which performs a spatial binning of single input products.
@@ -51,6 +54,8 @@ import java.util.Map;
  * @author Marco Zühlke
  */
 public class SpatialProductBinner {
+
+    private static final String PROPERTY_KEY_SLICE_HEIGHT = "beam.binning.sliceHeight";
 
     /**
      * Processes a source product and generated spatial bins.
@@ -70,14 +75,17 @@ public class SpatialProductBinner {
                                       Integer superSampling,
                                       Map<Product, List<Band>> addedBands,
                                       ProgressMonitor progressMonitor) throws IOException {
+
+        //TODO mz/nf 2013-11-05 superSampling must not be a parameter, spatialBinner.getBinnigContext() has it !!
         if (product.getGeoCoding() == null) {
             throw new IllegalArgumentException("product.getGeoCoding() == null");
         }
-        final VariableContext variableContext = spatialBinner.getBinningContext().getVariableContext();
+        BinningContext binningContext = spatialBinner.getBinningContext();
+        final VariableContext variableContext = binningContext.getVariableContext();
         addVariablesToProduct(variableContext, product, addedBands);
 
-        PlanetaryGrid planetaryGrid = spatialBinner.getBinningContext().getPlanetaryGrid();
-        CompositingType compositingType = spatialBinner.getBinningContext().getCompositingType();
+        PlanetaryGrid planetaryGrid = binningContext.getPlanetaryGrid();
+        CompositingType compositingType = binningContext.getCompositingType();
         Geometry sourceProductGeometry = null;
         final MultiLevelImage maskImage;
         if (CompositingType.MOSAICKING.equals(compositingType)) {
@@ -98,18 +106,21 @@ public class SpatialProductBinner {
             Dimension tileSize = product.getPreferredTileSize();
             sliceRectangles = plateCarreeGrid.getDataSliceRectangles(sourceProductGeometry, tileSize);
         } else {
-            final Dimension defaultSliceDimension = getDefaultSliceDimension(product);
+            final Dimension defaultSliceDimension = computeDefaultSliceDimension(product);
             sliceRectangles = computeDataSliceRectangles(maskImage, varImages, defaultSliceDimension);
         }
-        final float[] superSamplingSteps = getSuperSamplingSteps(superSampling);
+        final float[] superSamplingSteps = getSuperSamplingSteps(binningContext.getSuperSampling());
         long numObsTotal = 0;
         progressMonitor.beginTask("Spatially binning of " + product.getName(), sliceRectangles.length);
+        final Logger logger = BeamLogManager.getSystemLogger();
         for (int idx = 0; idx < sliceRectangles.length; idx++) {
             StopWatch stopWatch = new StopWatch();
             stopWatch.start();
             numObsTotal += processSlice(spatialBinner, progressMonitor, superSamplingSteps, maskImage, varImages,
                                         product, sliceRectangles[idx]);
-            stopWatch.stopAndTrace(String.format("Processed slice %d of %d", idx, sliceRectangles.length));
+            final String label = String.format("Processed slice %d of %d : ", idx + 1, sliceRectangles.length);
+            stopWatch.stop();
+            logger.info(label + stopWatch.getTimeDiffString());
         }
         spatialBinner.complete();
         return numObsTotal;
@@ -120,11 +131,11 @@ public class SpatialProductBinner {
         for (int i = 0; i < variableContext.getVariableCount(); i++) {
             final String nodeName = variableContext.getVariableName(i);
             final RasterDataNode node = getRasterDataNode(product, nodeName);
-            final MultiLevelImage varImage = node.getGeophysicalImage();
-            varImages[i] = varImage;
+            varImages[i] = ImageManager.createMaskedGeophysicalImage(node, Float.NaN);
         }
         return varImages;
     }
+
 
     private static MultiLevelImage getMaskImage(Product product, String maskExpr) {
         MultiLevelImage maskImage = null;
@@ -185,21 +196,14 @@ public class SpatialProductBinner {
     private static long processSlice(SpatialBinner spatialBinner, ProgressMonitor progressMonitor,
                                      float[] superSamplingSteps, MultiLevelImage maskImage, MultiLevelImage[] varImages,
                                      Product product, Rectangle sliceRect) {
-        final Raster maskTile = maskImage != null ? maskImage.getData(sliceRect) : null;
-        final Raster[] varTiles = new Raster[varImages.length];
-        for (int i = 0; i < varImages.length; i++) {
-            varTiles[i] = varImages[i].getData(sliceRect);
-        }
-
-        final ObservationSlice observationSlice = new ObservationSlice(varTiles, maskTile, product,
-                                                                       superSamplingSteps);
+        final ObservationSlice observationSlice = new ObservationSlice(varImages, maskImage, product, superSamplingSteps, sliceRect, spatialBinner.getBinningContext());
         long numObservations = spatialBinner.processObservationSlice(observationSlice);
         progressMonitor.worked(1);
         return numObservations;
     }
 
 
-    private static Dimension getDefaultSliceDimension(Product product) {
+    private static Dimension computeDefaultSliceDimension(Product product) {
         final int sliceWidth = product.getSceneRasterWidth();
         Dimension preferredTileSize = product.getPreferredTileSize();
         int sliceHeight;
@@ -208,7 +212,13 @@ public class SpatialProductBinner {
         } else {
             sliceHeight = ImageManager.getPreferredTileSize(product).height;
         }
-        return new Dimension(sliceWidth, sliceHeight);
+
+        // TODO make this a parameter nf/mz 2013-11-05
+        String sliceHeightString = System.getProperty(PROPERTY_KEY_SLICE_HEIGHT, String.valueOf(sliceHeight));
+        Dimension dimension = new Dimension(sliceWidth, Integer.parseInt(sliceHeightString));
+        String logMsg = String.format("Using slice dimension [width=%d, height=%d] in binning", dimension.width, dimension.height);
+        BeamLogManager.getSystemLogger().log(Level.INFO, logMsg);
+        return dimension;
     }
 
     private static void addVariablesToProduct(VariableContext variableContext, Product product,

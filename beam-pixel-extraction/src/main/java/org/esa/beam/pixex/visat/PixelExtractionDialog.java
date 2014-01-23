@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -27,8 +27,10 @@ import org.esa.beam.framework.gpf.annotations.ParameterDescriptorFactory;
 import org.esa.beam.framework.gpf.ui.DefaultAppContext;
 import org.esa.beam.framework.gpf.ui.OperatorMenu;
 import org.esa.beam.framework.gpf.ui.OperatorParameterSupport;
+import org.esa.beam.framework.gpf.ui.ParameterUpdater;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.ModelessDialog;
+import org.esa.beam.pixex.Coordinate;
 import org.esa.beam.pixex.PixExOp;
 import org.esa.beam.util.io.WildcardMatcher;
 import org.esa.beam.util.logging.BeamLogManager;
@@ -52,7 +54,7 @@ import java.util.TreeSet;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Logger;
 
-class PixelExtractionDialog extends ModelessDialog {
+class PixelExtractionDialog extends ModelessDialog implements ParameterUpdater {
 
     public final static String HELP_ID_JAVA_HELP = "pixelExtraction";
 
@@ -75,13 +77,13 @@ class PixelExtractionDialog extends ModelessDialog {
 
         final Class<PixExOp> operatorClass = PixExOp.class;
         final OperatorParameterSupport parameterSupport = new OperatorParameterSupport(operatorClass,
-                                                                                       propertyContainer,
-                                                                                       parameterMap,
-                                                                                       null);
+                propertyContainer,
+                parameterMap,
+                this);
         final OperatorMenu operatorMenu = new OperatorMenu(this.getJDialog(),
-                                                           operatorClass,
-                                                           parameterSupport,
-                                                           HELP_ID_JAVA_HELP);
+                operatorClass,
+                parameterSupport,
+                HELP_ID_JAVA_HELP);
         getJDialog().setJMenuBar(operatorMenu.createDefaultMenu());
 
         ioForm = new PixelExtractionIOForm(appContext, propertyContainer);
@@ -150,11 +152,7 @@ class PixelExtractionDialog extends ModelessDialog {
 
     @Override
     protected void onOK() {
-        parameterMap.put("coordinates", parametersForm.getCoordinates());
-        parameterMap.put("expression", parametersForm.getExpression());
-        parameterMap.put("timeDifference", parametersForm.getAllowedTimeDifference());
-        parameterMap.put("exportExpressionResult", parametersForm.isExportExpressionResultSelected());
-        parameterMap.put("aggregatorStrategyType", parametersForm.getPixelValueAggregationMethod());
+        handleParameterSaveRequest(parameterMap);
         ProgressMonitorSwingWorker worker = new MyProgressMonitorSwingWorker(getParent(), "Creating output file(s)...");
         worker.executeWithBlocking();
     }
@@ -177,6 +175,41 @@ class PixelExtractionDialog extends ModelessDialog {
                                                                               parameterDescriptorFactory);
         container.setDefaultValues();
         return container;
+    }
+
+    @Override
+    public void handleParameterSaveRequest(Map<String, Object> parameterMap) {
+        parameterMap.put("expression", parametersForm.getExpression());
+        parameterMap.put("exportExpressionResult", parametersForm.isExportExpressionResultSelected());
+        parameterMap.put("timeDifference", parametersForm.getAllowedTimeDifference());
+        parameterMap.put("coordinates", parametersForm.getCoordinates());
+    }
+
+    @Override
+    public void handleParameterLoadRequest(Map<String, Object> parameterMap) {
+        Object expressionObject = parameterMap.get("expression");
+        String expression = "";
+        if (expressionObject instanceof String) {
+            expression = (String) expressionObject;
+        }
+        parametersForm.setExpression(expression);
+        Object exportExpressionResultObject = parameterMap.get("exportExpressionResult");
+        if (exportExpressionResultObject instanceof Boolean) {
+            parametersForm.setExportExpressionResultSelected((Boolean) exportExpressionResultObject);
+        }
+        Object timeDifferenceObject = parameterMap.get("timeDifference");
+        String timeDifference = null;
+        if (timeDifferenceObject instanceof String) {
+            timeDifference = (String) timeDifferenceObject;
+        }
+        parametersForm.setAllowedTimeDifference(timeDifference);
+        Object coordinatesObject = parameterMap.get("coordinates");
+        Coordinate[] coordinates = new Coordinate[0];
+        if (coordinatesObject instanceof Coordinate[]) {
+            coordinates = (Coordinate[]) coordinatesObject;
+        }
+        parametersForm.setCoordinates(coordinates);
+        parametersForm.updateUi();
     }
 
     private class MyProgressMonitorSwingWorker extends ProgressMonitorSwingWorker<Void, Void> {

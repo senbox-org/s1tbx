@@ -50,6 +50,7 @@ import java.util.List;
 
 /**
  * Main class for the player tool.
+ *
  * @author Thomas Storm
  */
 public class TimeSeriesPlayerToolView extends AbstractToolView {
@@ -76,8 +77,8 @@ public class TimeSeriesPlayerToolView extends AbstractToolView {
         if (view != null) {
             final String viewProductType = view.getProduct().getProductType();
             if (!view.isRGB() &&
-                viewProductType.equals(AbstractTimeSeries.TIME_SERIES_PRODUCT_TYPE) &&
-                TimeSeriesMapper.getInstance().getTimeSeries(view.getProduct()) != null) {
+                    viewProductType.equals(AbstractTimeSeries.TIME_SERIES_PRODUCT_TYPE) &&
+                    TimeSeriesMapper.getInstance().getTimeSeries(view.getProduct()) != null) {
                 setCurrentView(view);
             }
         }
@@ -177,9 +178,9 @@ public class TimeSeriesPlayerToolView extends AbstractToolView {
                 final RasterDataNode viewRaster = view.getRaster();
                 final String viewProductType = viewRaster.getProduct().getProductType();
                 if (currentView != view &&
-                    !view.isRGB() &&
-                    viewProductType.equals(AbstractTimeSeries.TIME_SERIES_PRODUCT_TYPE) &&
-                    TimeSeriesMapper.getInstance().getTimeSeries(view.getProduct()) != null) {
+                        !view.isRGB() &&
+                        viewProductType.equals(AbstractTimeSeries.TIME_SERIES_PRODUCT_TYPE) &&
+                        TimeSeriesMapper.getInstance().getTimeSeries(view.getProduct()) != null) {
                     setCurrentView(view);
                 }
             }
@@ -213,29 +214,24 @@ public class TimeSeriesPlayerToolView extends AbstractToolView {
                 int stepsPerTimespan = form.getStepsPerTimespan();
                 final float transparency = (currentValue % stepsPerTimespan) / (float) stepsPerTimespan;
                 blendLayer.setBlendFactor(transparency);
-                boolean forward = currentValue > value;
                 final List<Band> bandList = form.getBandList(currentView.getRaster().getName());
                 value = currentValue;
                 final int firstBandIndex = MathUtils.floorInt(currentValue / (float) stepsPerTimespan);
                 final int secondBandIndex = MathUtils.ceilInt(currentValue / (float) stepsPerTimespan);
-                BandImageMultiLevelSource newSource;
-                if (!forward) {
-                    // go backwards in time
-                    newSource = BandImageMultiLevelSource.create(bandList.get(firstBandIndex), ProgressMonitor.NULL);
-                } else {
-                    // go forward in time
-                    newSource = BandImageMultiLevelSource.create(bandList.get(secondBandIndex), ProgressMonitor.NULL);
-                }
+                BandImageMultiLevelSource newSource =
+                        BandImageMultiLevelSource.create(bandList.get(secondBandIndex), ProgressMonitor.NULL);
                 if (secondBandIndex == firstBandIndex) {
-
-                    exchangeRasterInProductSceneView(bandList.get(forward ? firstBandIndex : secondBandIndex));
-                    blendLayer.swap(newSource, forward);
+                    exchangeRasterInProductSceneView(bandList.get(firstBandIndex));
+                    blendLayer.setBaseLayer(newSource);
 
                     configureSceneView(currentView, blendLayer.getBaseMultiLevelSource());
                     blendLayer.setName(currentView.getRaster().getDisplayName());
 //                 todo why use view to fire property changes and not time series itself?
                     currentView.firePropertyChange(TIME_PROPERTY, -1, firstBandIndex);
                 } else {
+                    if (transparency == (float) 1 / stepsPerTimespan) {
+                        blendLayer.setBlendLayer(newSource);
+                    }
                     currentView.getLayerCanvas().repaint();
                 }
             }
@@ -248,7 +244,7 @@ public class TimeSeriesPlayerToolView extends AbstractToolView {
         @Override
         public void timeSeriesChanged(TimeSeriesChangeEvent event) {
             if (event.getType() == TimeSeriesChangeEvent.PROPERTY_PRODUCT_LOCATIONS ||
-                event.getType() == TimeSeriesChangeEvent.PROPERTY_EO_VARIABLE_SELECTION) {
+                    event.getType() == TimeSeriesChangeEvent.PROPERTY_EO_VARIABLE_SELECTION) {
                 form.configureTimeSlider(currentView.getRaster());
             }
         }
@@ -265,7 +261,7 @@ public class TimeSeriesPlayerToolView extends AbstractToolView {
         public void nodeRemoved(ProductNodeEvent event) {
             final ProductNode productNode = event.getSourceNode();
             if (isValidProductNode(productNode) && currentView != null) {
-                if(currentView.getRaster() == productNode) {
+                if (currentView.getRaster() == productNode) {
                     form.configureTimeSlider((RasterDataNode) productNode);
                 }
             }

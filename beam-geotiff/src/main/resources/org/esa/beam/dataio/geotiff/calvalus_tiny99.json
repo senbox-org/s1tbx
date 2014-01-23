@@ -1,0 +1,704 @@
+{
+    "id": "calvalus_tiny99",
+    "decodeQualification": "SUITABLE",
+    "expectedContent": {
+        "sceneWidth": 743,
+        "sceneHeight": 1114,
+        "startTime": "11-MAY-2005 00:00:00.000000",
+        "endTime": "20-MAY-2005 00:00:00.000000",
+        "geoCoding": {
+            "coordinates": [
+                {
+                    "x": 122.36793,
+                    "y": 140.64647,
+                    "lat": 42.621326,
+                    "lon": -5.6718435
+                },
+                {
+                    "x": 466.2289,
+                    "y": 1032.2375,
+                    "lat": 40.218548,
+                    "lon": -4.745161
+                }
+            ],
+            "reverseAccuracy": 0.01
+        },
+        "bands": [
+            {
+                "name": "num_obs",
+                "noDataValue": "-1.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 122,
+                        "y": 140,
+                        "value": 45.0
+                    },
+                    {
+                        "x": 466,
+                        "y": 1032,
+                        "value": 45.0
+                    }
+                ]
+            },
+            {
+                "name": "num_passes",
+                "noDataValue": "-1.0",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 122,
+                        "y": 140,
+                        "value": 5.0
+                    },
+                    {
+                        "x": 466,
+                        "y": 1032,
+                        "value": 5.0
+                    }
+                ]
+            },
+            {
+                "name": "status",
+                "noDataValue": "NaN",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 122,
+                        "y": 140,
+                        "value": 1.0
+                    },
+                    {
+                        "x": 466,
+                        "y": 1032,
+                        "value": 1.0
+                    }
+                ]
+            },
+            {
+                "name": "status_count",
+                "noDataValue": "NaN",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 122,
+                        "y": 140,
+                        "value": 3.0
+                    },
+                    {
+                        "x": 466,
+                        "y": 1032,
+                        "value": 1.0
+                    }
+                ]
+            },
+            {
+                "name": "sr_1_mean",
+                "noDataValue": "NaN",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 122,
+                        "y": 140,
+                        "value": 0.035111528
+                    },
+                    {
+                        "x": 466,
+                        "y": 1032,
+                        "value": 0.046416238
+                    }
+                ]
+            },
+            {
+                "name": "sr_2_mean",
+                "noDataValue": "NaN",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 122,
+                        "y": 140,
+                        "value": 0.03804569
+                    },
+                    {
+                        "x": 466,
+                        "y": 1032,
+                        "value": 0.0533867
+                    }
+                ]
+            },
+            {
+                "name": "sr_3_mean",
+                "noDataValue": "NaN",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 122,
+                        "y": 140,
+                        "value": 0.042638037
+                    },
+                    {
+                        "x": 466,
+                        "y": 1032,
+                        "value": 0.059954394
+                    }
+                ]
+            },
+            {
+                "name": "sr_4_mean",
+                "noDataValue": "NaN",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 122,
+                        "y": 140,
+                        "value": 0.046720833
+                    },
+                    {
+                        "x": 466,
+                        "y": 1032,
+                        "value": 0.06559684
+                    }
+                ]
+            },
+            {
+                "name": "sr_5_mean",
+                "noDataValue": "NaN",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 122,
+                        "y": 140,
+                        "value": 0.065600395
+                    },
+                    {
+                        "x": 466,
+                        "y": 1032,
+                        "value": 0.09055095
+                    }
+                ]
+            },
+            {
+                "name": "sr_6_mean",
+                "noDataValue": "NaN",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 122,
+                        "y": 140,
+                        "value": 0.06983578
+                    },
+                    {
+                        "x": 466,
+                        "y": 1032,
+                        "value": 0.09794717
+                    }
+                ]
+            },
+            {
+                "name": "sr_7_mean",
+                "noDataValue": "NaN",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 122,
+                        "y": 140,
+                        "value": 0.0721139
+                    },
+                    {
+                        "x": 466,
+                        "y": 1032,
+                        "value": 0.099876344
+                    }
+                ]
+            },
+            {
+                "name": "sr_8_mean",
+                "noDataValue": "NaN",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 122,
+                        "y": 140,
+                        "value": 0.07316772
+                    },
+                    {
+                        "x": 466,
+                        "y": 1032,
+                        "value": 0.10074901
+                    }
+                ]
+            },
+            {
+                "name": "sr_9_mean",
+                "noDataValue": "NaN",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 122,
+                        "y": 140,
+                        "value": 0.110750236
+                    },
+                    {
+                        "x": 466,
+                        "y": 1032,
+                        "value": 0.14843291
+                    }
+                ]
+            },
+            {
+                "name": "sr_10_mean",
+                "noDataValue": "NaN",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 122,
+                        "y": 140,
+                        "value": 0.17192449
+                    },
+                    {
+                        "x": 466,
+                        "y": 1032,
+                        "value": 0.24329813
+                    }
+                ]
+            },
+            {
+                "name": "sr_11_mean",
+                "noDataValue": "NaN",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 122,
+                        "y": 140,
+                        "value": 0.17227829
+                    },
+                    {
+                        "x": 466,
+                        "y": 1032,
+                        "value": 0.24979803
+                    }
+                ]
+            },
+            {
+                "name": "sr_12_mean",
+                "noDataValue": "NaN",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 122,
+                        "y": 140,
+                        "value": 0.18019934
+                    },
+                    {
+                        "x": 466,
+                        "y": 1032,
+                        "value": 0.25592092
+                    }
+                ]
+            },
+            {
+                "name": "sr_13_mean",
+                "noDataValue": "NaN",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 122,
+                        "y": 140,
+                        "value": 0.20290229
+                    },
+                    {
+                        "x": 466,
+                        "y": 1032,
+                        "value": 0.28000626
+                    }
+                ]
+            },
+            {
+                "name": "sr_14_mean",
+                "noDataValue": "NaN",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 122,
+                        "y": 140,
+                        "value": 0.20751478
+                    },
+                    {
+                        "x": 466,
+                        "y": 1032,
+                        "value": 0.28383753
+                    }
+                ]
+            },
+            {
+                "name": "sr_15_mean",
+                "noDataValue": "NaN",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 122,
+                        "y": 140,
+                        "value": 0.24101324
+                    },
+                    {
+                        "x": 466,
+                        "y": 1032,
+                        "value": 0.3106799
+                    }
+                ]
+            },
+            {
+                "name": "ndvi_mean",
+                "noDataValue": "NaN",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 122,
+                        "y": 140,
+                        "value": 0.47786924
+                    },
+                    {
+                        "x": 466,
+                        "y": 1032,
+                        "value": 0.47306758
+                    }
+                ]
+            },
+            {
+                "name": "sr_1_sigma",
+                "noDataValue": "NaN",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 122,
+                        "y": 140,
+                        "value": 2.259736E-7
+                    },
+                    {
+                        "x": 466,
+                        "y": 1032,
+                        "value": 8.7858996E-7
+                    }
+                ]
+            },
+            {
+                "name": "sr_2_sigma",
+                "noDataValue": "NaN",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 122,
+                        "y": 140,
+                        "value": 1.205158E-7
+                    },
+                    {
+                        "x": 466,
+                        "y": 1032,
+                        "value": 4.7929797E-7
+                    }
+                ]
+            },
+            {
+                "name": "sr_3_sigma",
+                "noDataValue": "NaN",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 122,
+                        "y": 140,
+                        "value": 5.386456E-8
+                    },
+                    {
+                        "x": 466,
+                        "y": 1032,
+                        "value": 1.9944824E-7
+                    }
+                ]
+            },
+            {
+                "name": "sr_4_sigma",
+                "noDataValue": "NaN",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 122,
+                        "y": 140,
+                        "value": 4.228654E-8
+                    },
+                    {
+                        "x": 466,
+                        "y": 1032,
+                        "value": 1.4395071E-7
+                    }
+                ]
+            },
+            {
+                "name": "sr_5_sigma",
+                "noDataValue": "NaN",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 122,
+                        "y": 140,
+                        "value": 2.8622448E-8
+                    },
+                    {
+                        "x": 466,
+                        "y": 1032,
+                        "value": 6.8133616E-8
+                    }
+                ]
+            },
+            {
+                "name": "sr_6_sigma",
+                "noDataValue": "NaN",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 122,
+                        "y": 140,
+                        "value": 2.3890506E-8
+                    },
+                    {
+                        "x": 466,
+                        "y": 1032,
+                        "value": 3.3355303E-8
+                    }
+                ]
+            },
+            {
+                "name": "sr_7_sigma",
+                "noDataValue": "NaN",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 122,
+                        "y": 140,
+                        "value": 2.5831211E-8
+                    },
+                    {
+                        "x": 466,
+                        "y": 1032,
+                        "value": 2.092979E-8
+                    }
+                ]
+            },
+            {
+                "name": "sr_8_sigma",
+                "noDataValue": "NaN",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 122,
+                        "y": 140,
+                        "value": 2.7031E-8
+                    },
+                    {
+                        "x": 466,
+                        "y": 1032,
+                        "value": 1.8524947E-8
+                    }
+                ]
+            },
+            {
+                "name": "sr_9_sigma",
+                "noDataValue": "NaN",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 122,
+                        "y": 140,
+                        "value": 2.6347644E-8
+                    },
+                    {
+                        "x": 466,
+                        "y": 1032,
+                        "value": 1.8687395E-8
+                    }
+                ]
+            },
+            {
+                "name": "sr_10_sigma",
+                "noDataValue": "NaN",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 122,
+                        "y": 140,
+                        "value": 4.0353658E-8
+                    },
+                    {
+                        "x": 466,
+                        "y": 1032,
+                        "value": 8.635878E-8
+                    }
+                ]
+            },
+            {
+                "name": "sr_11_sigma",
+                "noDataValue": "NaN",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 122,
+                        "y": 140,
+                        "value": 9.663789E-9
+                    },
+                    {
+                        "x": 466,
+                        "y": 1032,
+                        "value": 2.229828E-8
+                    }
+                ]
+            },
+            {
+                "name": "sr_12_sigma",
+                "noDataValue": "NaN",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 122,
+                        "y": 140,
+                        "value": 4.036469E-8
+                    },
+                    {
+                        "x": 466,
+                        "y": 1032,
+                        "value": 9.054353E-8
+                    }
+                ]
+            },
+            {
+                "name": "sr_13_sigma",
+                "noDataValue": "NaN",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 122,
+                        "y": 140,
+                        "value": 4.9375412E-8
+                    },
+                    {
+                        "x": 466,
+                        "y": 1032,
+                        "value": 7.0425244E-8
+                    }
+                ]
+            },
+            {
+                "name": "sr_14_sigma",
+                "noDataValue": "NaN",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 122,
+                        "y": 140,
+                        "value": 4.8881155E-8
+                    },
+                    {
+                        "x": 466,
+                        "y": 1032,
+                        "value": 6.511163E-8
+                    }
+                ]
+            },
+            {
+                "name": "sr_15_sigma",
+                "noDataValue": "NaN",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 122,
+                        "y": 140,
+                        "value": 3.5362557E-8
+                    },
+                    {
+                        "x": 466,
+                        "y": 1032,
+                        "value": 4.1232255E-8
+                    }
+                ]
+            }
+        ],
+        "metadata": [
+            {
+                "path": "Variable_Attributes/ndvi_mean/_FillValue",
+                "value": "NaN"
+            },
+            {
+                "path": "history/SubsetInfo/SourceProduct.name",
+                "value": "tiny99"
+            }
+        ]
+    }
+}

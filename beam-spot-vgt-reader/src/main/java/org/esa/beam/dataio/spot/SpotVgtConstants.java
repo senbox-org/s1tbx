@@ -15,20 +15,9 @@
  */
 package org.esa.beam.dataio.spot;
 
-import java.io.File;
-import java.io.FilenameFilter;
-
 public class SpotVgtConstants {
 
     public static final String PHYS_VOL_FILENAME = "PHYS_VOL.TXT";
     public static final String READER_DESCRIPTION = "SPOT VGT Data Products";
     public static final String FORMAT_NAME = "SPOT-VGT";
-    public static final HdfFilenameFilter HDF_FILTER = new HdfFilenameFilter();
-
-    private static class HdfFilenameFilter implements FilenameFilter {
-        @Override
-        public boolean accept(File dir, String name) {
-            return name.endsWith(".hdf") || name.endsWith(".HDF");
-        }
-    }
 }

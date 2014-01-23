@@ -15,17 +15,16 @@
  */
 package org.esa.beam.dataio.chris;
 
+import org.esa.beam.dataio.netcdf.util.SimpleNetcdfFile;
 import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 import org.esa.beam.util.io.BeamFileFilter;
-
 import ucar.ma2.DataType;
 import ucar.nc2.Attribute;
 import ucar.nc2.NetcdfFile;
 
 import java.io.File;
-import java.util.List;
 import java.util.Locale;
 
 public class ChrisProductReaderPlugIn implements ProductReaderPlugIn {
@@ -49,7 +48,7 @@ public class ChrisProductReaderPlugIn implements ProductReaderPlugIn {
         if (file.isFile() && file.getPath().toLowerCase().endsWith(ChrisConstants.DEFAULT_FILE_EXTENSION)) {
             NetcdfFile ncFile = null;
             try {
-                ncFile = NetcdfFile.open(file.getAbsolutePath());
+                ncFile = SimpleNetcdfFile.openNetcdf(file.getAbsolutePath());
                 
                 if (isSensorTypeAttributeCorrect(ncFile)) {
                     return DecodeQualification.INTENDED;
@@ -143,7 +142,7 @@ public class ChrisProductReaderPlugIn implements ProductReaderPlugIn {
     }
 
     private static boolean isSensorTypeAttributeCorrect(NetcdfFile ncFile) throws Exception {
-        Attribute attribute = ncFile.findGlobalAttributeIgnoreCase("Sensor Type");
+        Attribute attribute = ncFile.findGlobalAttributeIgnoreCase(ChrisConstants.ATTR_NAME_SENSOR_TYPE);
         return (attribute != null && 
                 attribute.getDataType() == DataType.STRING &&
                 attribute.getStringValue().equalsIgnoreCase("CHRIS"));

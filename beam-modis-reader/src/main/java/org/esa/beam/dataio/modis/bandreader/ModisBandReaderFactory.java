@@ -70,7 +70,7 @@ public class ModisBandReaderFactory {
                     modisBandReaders[i] = new ModisUint32BandReader(variable, i, is3d);
                 }
             }
-            final String bandName = ModisUtils.extractBandName(variable.getName());
+            final String bandName = ModisUtils.extractBandName(variable.getFullName());
             modisBandReaders[i].setName(bandName);
         }
 

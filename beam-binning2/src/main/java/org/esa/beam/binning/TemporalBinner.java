@@ -35,4 +35,15 @@ public class TemporalBinner {
     public TemporalBin processSpatialBins(long binIndex, Iterable<? extends SpatialBin> spatialBins) throws IOException {
         return binManager.createTemporalBin(binIndex, spatialBins);
     }
+
+    public TemporalBin computeOutput(long binIndex, TemporalBin temporalBin) {
+        TemporalBin outputBin = binManager.createOutputBin(binIndex);
+        binManager.computeOutput(temporalBin, outputBin.toVector());
+
+        // will be removed soon TODO
+        outputBin.setNumObs(temporalBin.getNumObs());
+        outputBin.setNumPasses(temporalBin.getNumPasses());
+
+        return outputBin;
+    }
 }

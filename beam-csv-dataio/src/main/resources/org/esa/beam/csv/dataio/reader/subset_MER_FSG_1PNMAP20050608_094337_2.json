@@ -1,0 +1,105 @@
+{
+    "id": "subset_MER_FSG_1PNMAP20050608_094337_2",
+    "decodeQualification": "INTENDED",
+    "expectedContent": {
+        "sceneWidth": 58,
+        "sceneHeight": 58,
+        "bands": [
+            {
+                "name": "corr_longitude",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 25,
+                        "y": 31,
+                        "value": 27.404032
+                    },
+                    {
+                        "x": 43,
+                        "y": 37,
+                        "value": 27.341099
+                    }
+                ]
+            },
+            {
+                "name": "corr_latitude",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 3,
+                        "y": 10,
+                        "value": 59.208076
+                    },
+                    {
+                        "x": 39,
+                        "y": 49,
+                        "value": 58.86464
+                    }
+                ]
+            },
+            {
+                "name": "l1_flags",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 16,
+                        "y": 14,
+                        "value": 16.0
+                    },
+                    {
+                        "x": 35,
+                        "y": 21,
+                        "value": 16.0
+                    }
+                ]
+            },
+            {
+                "name": "latitude",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 31,
+                        "y": 43,
+                        "value": 58.922398
+                    },
+                    {
+                        "x": 35,
+                        "y": 53,
+                        "value": 58.840763
+                    }
+                ]
+            },
+            {
+                "name": "longitude",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 9,
+                        "y": 38,
+                        "value": 27.350615
+                    },
+                    {
+                        "x": 30,
+                        "y": 52,
+                        "value": 27.197716
+                    }
+                ]
+            }
+        ]
+    }
+}

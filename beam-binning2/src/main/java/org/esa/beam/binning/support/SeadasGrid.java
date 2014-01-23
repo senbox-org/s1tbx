@@ -61,11 +61,11 @@ public class SeadasGrid {
         return baseGrid.getNumRows() - rowIndex - 1;
     }
 
-    public int convertBinIndex(long binIndex) {
+    public int convertBinIndex(long beamBinIndex) {
 
-        int rowIndex1 = baseGrid.getRowIndex(binIndex);
+        int rowIndex1 = baseGrid.getRowIndex(beamBinIndex);
         long binIndex1 = baseGrid.getFirstBinIndex(rowIndex1);
-        long colIndex = binIndex - binIndex1;
+        long colIndex = beamBinIndex - binIndex1;
 
         int rowIndex2 = baseGrid.getNumRows() - (rowIndex1 + 1);
         long binIndex2 = baseGrid.getFirstBinIndex(rowIndex2);
@@ -74,5 +74,15 @@ public class SeadasGrid {
         return (int) (binIndex2 + colIndex + 1L);
     }
 
+    public long reverseBinIndex(long seadasBinIndex) {
+        long zeroBaseIndex = seadasBinIndex - 1;
+        int rowIndex1 = baseGrid.getRowIndex(zeroBaseIndex);
+        long binIndex1 = baseGrid.getFirstBinIndex(rowIndex1);
+        long colIndex = zeroBaseIndex - binIndex1;
 
+        int rowIndex2 = baseGrid.getNumRows() - (rowIndex1 + 1);
+        long binIndex2 = baseGrid.getFirstBinIndex(rowIndex2);
+
+        return binIndex2 + colIndex;
+    }
 }

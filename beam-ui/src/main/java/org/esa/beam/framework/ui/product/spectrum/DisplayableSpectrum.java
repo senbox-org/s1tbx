@@ -1,20 +1,25 @@
 package org.esa.beam.framework.ui.product.spectrum;
 
-import org.esa.beam.framework.datamodel.Band;
-
 import java.awt.Shape;
 import java.awt.Stroke;
 import java.util.ArrayList;
 import java.util.List;
+import org.esa.beam.framework.datamodel.Band;
 
 public class DisplayableSpectrum implements Spectrum {
+
+    public final static String MIXED_UNITS = "mixed units";
+    public final static String DEFAULT_SPECTRUM_NAME = "Available spectral bands";
+    public final static String ALTERNATIVE_DEFAULT_SPECTRUM_NAME = "Further spectral bands";
 
     private List<Band> bands;
     private List<Boolean> areBandsSelected;
     private String name;
     private Stroke lineStyle;
-    private Shape Symbol;
+    private int symbolIndex;
+    private int symbolSize;
     private boolean isSelected;
+    private String unit;
 
     public DisplayableSpectrum(String spectrumName) {
         this(spectrumName, new Band[]{});
@@ -24,16 +29,37 @@ public class DisplayableSpectrum implements Spectrum {
         this.name = spectrumName;
         bands = new ArrayList<Band>(spectralBands.length);
         areBandsSelected = new ArrayList<Boolean>();
+        symbolIndex = -1;
+        symbolSize = SpectrumShapeProvider.DEFAULT_SCALE_GRADE;
         for (Band spectralBand : spectralBands) {
-            bands.add(spectralBand);
-            areBandsSelected.add(true);
+            addBand(spectralBand, true);
         }
         setSelected(true);
     }
 
-    public void addBand(Band band) {
+    public void addBand(Band band, boolean selected) {
         bands.add(band);
-        areBandsSelected.add(true);
+        areBandsSelected.add(selected);
+        updateUnit();
+    }
+
+    public Shape getScaledShape() {
+        int usedSymbolIndex = getSymbolIndex();
+        Shape symbol;
+        if (symbolIndex == -1) {
+            symbol = SpectrumShapeProvider.shapes[1];
+            usedSymbolIndex = 1;
+        } else {
+            symbol = SpectrumShapeProvider.shapes[getSymbolIndex()];
+        }
+        if (getSymbolSize() != 3) {
+            symbol = SpectrumShapeProvider.getScaledShape(usedSymbolIndex, getSymbolSize());
+        }
+        return symbol;
+    }
+
+    public boolean isDefaultSpectrum() {
+        return name.equals(DEFAULT_SPECTRUM_NAME) || name.equals(ALTERNATIVE_DEFAULT_SPECTRUM_NAME);
     }
 
     public boolean hasBands() {
@@ -72,19 +98,14 @@ public class DisplayableSpectrum implements Spectrum {
     }
 
     public Stroke getLineStyle() {
+        if (isDefaultSpectrum()) {
+            return SpectrumStrokeProvider.EMPTY_STROKE;
+        }
         return lineStyle;
     }
 
     public void setLineStyle(Stroke lineStyle) {
         this.lineStyle = lineStyle;
-    }
-
-    public Shape getSymbol() {
-        return Symbol;
-    }
-
-    public void setSymbol(Shape symbol) {
-        Symbol = symbol;
     }
 
     public void setSelected(boolean selected) {
@@ -93,5 +114,39 @@ public class DisplayableSpectrum implements Spectrum {
 
     public boolean isSelected() {
         return isSelected;
+    }
+
+    public String getUnit() {
+        return unit;
+    }
+
+    public int getSymbolSize() {
+        return symbolSize;
+    }
+
+    public void setSymbolSize(int symbolSize) {
+        this.symbolSize = symbolSize;
+    }
+
+    public int getSymbolIndex() {
+        return symbolIndex;
+    }
+
+    public void setSymbolIndex(int symbolIndex) {
+        this.symbolIndex = symbolIndex;
+    }
+
+    public void updateUnit() {
+        if (bands.size() > 0) {
+            unit = bands.get(0).getUnit();
+        }
+        if (bands.size() > 1) {
+            for (int i = 1; i < bands.size(); i++) {
+                if (!unit.equals(bands.get(i).getUnit())) {
+                    unit = MIXED_UNITS;
+                    return;
+                }
+            }
+        }
     }
 }

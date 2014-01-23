@@ -1,0 +1,14 @@
+{
+    "testProducts": [
+        {
+            "id": "L3_ENV_MER_ABSD_m__20030701_GLOB_SI_ACR",
+            "relativePath": "projects/L3_ENV_MER/L3_ENV_MER_ABSD_m__20030701_GLOB_SI_ACR_9277x9277_-90+90+-180+180_0000.nc",
+            "description": "MERIS binned Level-3 netCDF format"
+        },
+        {
+            "id": "L3_ENV_MER_A443_m__20030301_GLOB_SI_ACR",
+            "relativePath": "projects/L3_ENV_MER/L3_ENV_MER_A443_m__20030301_GLOB_SI_ACR_9277x9277_-90+90+-180+180_0000.nc",
+            "description": "MERIS binned Level-3 netCDF format"
+        }
+    ]
+}
