@@ -37,8 +37,6 @@ import java.awt.FlowLayout;
 import java.awt.Insets;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
@@ -96,15 +94,6 @@ public class TargetProductSelector {
             saveToFileCheckBox = new JCheckBox("Save as:");
             formatNameComboBox = new JComboBox(model.getFormatNames());
             openInAppCheckBox = new JCheckBox("Open in application");
-
-            formatNameComboBox.addItemListener(new ItemListener() {
-                @Override
-                public void itemStateChanged(ItemEvent e) {
-                    if (!model.canReadOutputFormat()) {
-                        model.setOpenInAppSelected(false);
-                    }
-                }
-            });
         }
     }
 
@@ -120,22 +109,33 @@ public class TargetProductSelector {
             bc.bind("formatName", formatNameComboBox);
         }
 
-        model.getValueContainer().addPropertyChangeListener("productDir", new PropertyChangeListener() {
+        model.getValueContainer().addPropertyChangeListener(new PropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
-                productDirTextField.setToolTipText(model.getProductDir().getPath());
-            }
-        });
-        model.getValueContainer().addPropertyChangeListener("formatName", new PropertyChangeListener() {
-            @Override
-            public void propertyChange(PropertyChangeEvent evt) {
-                updateUIState();
-            }
-        });
-        model.getValueContainer().addPropertyChangeListener("saveToFileSelected", new PropertyChangeListener() {
-            @Override
-            public void propertyChange(PropertyChangeEvent evt) {
-                updateUIState();
+                String propertyName = evt.getPropertyName();
+
+                if (propertyName.equals("saveToFileSelected")) {
+                    boolean changesToDeselected = !(Boolean) evt.getNewValue();
+                    if (changesToDeselected) {
+                        model.setOpenInAppSelected(true);
+                    } else if (!model.canReadOutputFormat()) {
+                        model.setOpenInAppSelected(false);
+                    }
+                    updateUIState();
+                } else if (propertyName.equals("openInAppSelected")) {
+                    boolean changesToDeselected = !(Boolean) evt.getNewValue();
+                    if (changesToDeselected) {
+                        model.setSaveToFileSelected(true);
+                    }
+                    updateUIState();
+                } else if (propertyName.equals("formatName")) {
+                    if (!model.canReadOutputFormat()) {
+                        model.setOpenInAppSelected(false);
+                    }
+                    updateUIState();
+                } else if (propertyName.equals("productDir")) {
+                    productDirTextField.setToolTipText(model.getProductDir().getPath());
+                }
             }
         });
     }
@@ -230,10 +230,10 @@ public class TargetProductSelector {
             productDirChooserButton.setEnabled(true);
         } else {
             if (!alwaysWriteOutput) {
-                openInAppCheckBox.setEnabled(false);
+                openInAppCheckBox.setEnabled(true);
                 formatNameComboBox.setEnabled(false);
             }
-            productDirTextField.setEnabled(false);
+            productDirLabel.setEnabled(false);
             productDirTextField.setEnabled(false);
             productDirChooserButton.setEnabled(false);
         }

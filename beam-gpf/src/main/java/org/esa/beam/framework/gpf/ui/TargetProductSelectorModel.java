@@ -29,8 +29,6 @@ import org.esa.beam.framework.datamodel.ProductNode;
 import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.io.FileUtils;
 
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.text.MessageFormat;
 import java.util.Arrays;
@@ -62,22 +60,6 @@ public class TargetProductSelectorModel {
 
     public TargetProductSelectorModel(String[] formatNames) {
         propertyContainer = PropertyContainer.createObjectBacked(this);
-        propertyContainer.addPropertyChangeListener("saveToFileSelected", new PropertyChangeListener() {
-            public void propertyChange(PropertyChangeEvent evt) {
-                boolean changesToDeselected = !(Boolean) evt.getNewValue();
-                if (changesToDeselected && !isOpenInAppSelected()) {
-                    setOpenInAppSelected(true);
-                }
-            }
-        });
-        propertyContainer.addPropertyChangeListener("openInAppSelected", new PropertyChangeListener() {
-            public void propertyChange(PropertyChangeEvent evt) {
-                boolean changesToDeselected = !(Boolean) evt.getNewValue();
-                if (changesToDeselected && !isSaveToFileSelected()) {
-                    setSaveToFileSelected(true);
-                }
-            }
-        });
         PropertyDescriptor productNameDescriptor = propertyContainer.getDescriptor("productName");
         productNameDescriptor.setValidator(new ProductNameValidator());
         productNameDescriptor.setDisplayName("target product name");
