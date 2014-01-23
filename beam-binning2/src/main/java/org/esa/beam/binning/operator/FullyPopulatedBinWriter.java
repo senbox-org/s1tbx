@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -61,6 +61,7 @@ class FullyPopulatedBinWriter extends AbstractBinWriter {
     @Override
     public void write(Map<String, String> metadataProperties, List<TemporalBin> temporalBins) throws IOException {
         final NetcdfFileWriteable netcdfFile = NetcdfFileWriteable.createNew(getTargetFilePath());
+        netcdfFile.setLargeFile(true);
 
         netcdfFile.addGlobalAttribute("title", "Level-3 Binned Data");
         netcdfFile.addGlobalAttribute("super_sampling", binningContext.getSuperSampling());
