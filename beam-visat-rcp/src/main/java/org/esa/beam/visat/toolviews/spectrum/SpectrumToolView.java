@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -993,6 +993,7 @@ public class SpectrumToolView extends AbstractToolView {
                     updateSpectraUnits();
                     chartHasChanged = true;
                 } else if(propertyName.equals(Band.PROPERTY_NAME_SPECTRAL_WAVELENGTH)) {
+                    setUpSpectra();
                     chartHasChanged = true;
                 } else if (propertyName.equals(RasterDataNode.PROPERTY_NAME_STX)) {
                     final Band newBand = (Band) event.getSourceNode();
