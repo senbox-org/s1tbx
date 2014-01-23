@@ -56,7 +56,9 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class RGBImageProfilePane extends JPanel {
 
@@ -100,7 +102,7 @@ public class RGBImageProfilePane extends JPanel {
 
         saveAsAction = new AbstractAction() {
             public void actionPerformed(ActionEvent e) {
-                performSafeAs();
+                performSaveAs();
             }
         };
         saveAsAction.putValue(Command.ACTION_KEY_LARGE_ICON, UIUtils.loadImageIcon("icons/Save24.gif"));
@@ -178,9 +180,16 @@ public class RGBImageProfilePane extends JPanel {
                     addNewProfile(productProfile);
                     selectProfile(productProfile);
                 }
+            } else {
+                List<RGBImageProfile> selectableProfiles = new ArrayList<>();
+                for (int i = 0; i < profileModel.getSize(); i++) {
+                    selectableProfiles.add(profileModel.getElementAt(i).getProfile());
+                }
+                RGBImageProfile[] selectableProfileArray = selectableProfiles.toArray(new RGBImageProfile[selectableProfiles.size()]);
+                RGBImageProfile profile = findProfileForProductPattern(selectableProfileArray, product);
+                selectProfile(profile);
             }
         }
-
         setRgbaExpressionsFromSelectedProfile();
     }
 
@@ -331,7 +340,7 @@ public class RGBImageProfilePane extends JPanel {
         addNewProfile(profile);
     }
 
-    private void performSafeAs() {
+    private void performSaveAs() {
         File file = promptForSaveFile();
         if (file == null) {
             return;
@@ -573,6 +582,34 @@ public class RGBImageProfilePane extends JPanel {
     private void setPrefferedWidth(final JComboBox comboBox, final int width) {
         final Dimension preferredSize = comboBox.getPreferredSize();
         comboBox.setPreferredSize(new Dimension(width, preferredSize.height));
+    }
+
+    public static RGBImageProfile findProfileForProductPattern(RGBImageProfile[] rgbImageProfiles, Product product) {
+        String productType = product.getProductType();
+        String productName = product.getName();
+        String productDesc = product.getDescription();
+        RGBImageProfile bestProfile = rgbImageProfiles[0];
+        int bestMatchScore = 0;
+        for (RGBImageProfile rgbImageProfile : rgbImageProfiles) {
+            String[] pattern = rgbImageProfile.getPattern();
+            if (pattern == null) {
+                continue;
+            }
+            boolean productTypeMatches = matches(productType, pattern[0]);
+            boolean productNameMatches = matches(productName, pattern[1]);
+            boolean productDescMatches = matches(productDesc, pattern[2]);
+            int currentMatchScore = (productTypeMatches ? 100 : 0) + (productNameMatches ? 10 : 0) + (productDescMatches ? 1 : 0);
+            if (currentMatchScore > bestMatchScore) {
+                bestProfile = rgbImageProfile;
+                bestMatchScore = currentMatchScore;
+            }
+        }
+        return bestProfile;
+    }
+
+    private static boolean matches(String s, String pattern) {
+        return pattern != null &&
+               s.matches(pattern.replace("*", ".*").replace("?", "."));
     }
 
 

@@ -15,6 +15,7 @@
  */
 package org.esa.beam.framework.datamodel;
 
+import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.CoreException;
 import com.bc.ceres.core.runtime.ConfigurableExtension;
 import com.bc.ceres.core.runtime.ConfigurationElement;
@@ -29,6 +30,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.Properties;
 
 /**
@@ -76,12 +78,15 @@ public class RGBImageProfile implements ConfigurableExtension {
     public static final String FILENAME_EXTENSION = ".rgb";
 
 
-    public final static String PROPERTY_KEY_NAME = "name";
-    public final static String PROPERTY_KEY_RED = "red";
-    public final static String PROPERTY_KEY_GREEN = "green";
-    public final static String PROPERTY_KEY_BLUE = "blue";
-    public final static String PROPERTY_KEY_ALPHA = "alpha";
-    public final static String PROPERTY_KEY_INTERNAL = "internal";
+    public static final String PROPERTY_KEY_NAME = "name";
+    public static final String PROPERTY_KEY_RED = "red";
+    public static final String PROPERTY_KEY_GREEN = "green";
+    public static final String PROPERTY_KEY_BLUE = "blue";
+    public static final String PROPERTY_KEY_ALPHA = "alpha";
+    public static final String PROPERTY_KEY_INTERNAL = "internal";
+    public static final String PROPERTY_KEY_PATTERN_PRODUCT_TYPE = "productType";
+    public static final String PROPERTY_KEY_PATTERN_PRODUCT_NAME = "productName";
+    public static final String PROPERTY_KEY_PATTERN_PRODUCT_DESC = "productDesc";
 
     /**
      * Preferences key for RGB profile entries
@@ -96,22 +101,28 @@ public class RGBImageProfile implements ConfigurableExtension {
     private String name;
     private boolean internal;
     private String[] rgbaExpressions;
+    private String[] pattern;
 
     public RGBImageProfile() {
         this("");
     }
 
     public RGBImageProfile(final String name) {
-        this(name, new String[]{"", "", ""});
+        this(name, new String[]{"", "", ""}, null);
     }
 
     public RGBImageProfile(final String name, String[] rgbaExpressions) {
-        Guardian.assertTrue("name != null",
-                            name != null);
-        Guardian.assertTrue("rgbaExpressions != null",
-                            rgbaExpressions != null);
-        Guardian.assertTrue("rgbaExpressions.length == 3 || rgbaExpressions.length == 4",
-                            rgbaExpressions.length == 3 || rgbaExpressions.length == 4);
+        this(name, rgbaExpressions, null);
+    }
+
+    public RGBImageProfile(final String name, String[] rgbaExpressions, String pattern[]) {
+        Assert.argument(name != null, "name != null");
+        Assert.argument(rgbaExpressions != null, "rgbaExpressions != null");
+        Assert.argument(rgbaExpressions.length == 3 || rgbaExpressions.length == 4,
+                        "rgbaExpressions.length == 3 || rgbaExpressions.length == 4");
+        if (pattern != null) {
+            Assert.argument(pattern.length == 3, "pattern.length == 3");
+        }
 
         this.name = name;
         this.rgbaExpressions = new String[4];
@@ -119,6 +130,7 @@ public class RGBImageProfile implements ConfigurableExtension {
         this.rgbaExpressions[G] = rgbaExpressions[G];
         this.rgbaExpressions[B] = rgbaExpressions[B];
         this.rgbaExpressions[A] = rgbaExpressions.length == 4 ? rgbaExpressions[A] : "";
+        this.pattern = pattern;
     }
 
     public String getName() {
@@ -174,7 +186,7 @@ public class RGBImageProfile implements ConfigurableExtension {
     }
 
     public String[] getRgbaExpressions() {
-        return (String[]) rgbaExpressions.clone();
+        return rgbaExpressions.clone();
     }
 
     public void setRgbaExpressions(String[] rgbaExpressions) {
@@ -220,6 +232,14 @@ public class RGBImageProfile implements ConfigurableExtension {
         return !getAlphaExpression().equals("");
     }
 
+    public String[] getPattern() {
+        return pattern;
+    }
+
+    public void setPattern(String[] pattern) {
+        this.pattern = pattern;
+    }
+
     /**
      * Tests whether this profile is applicable to the given product. With other words, the method tests
      * if an RGB image can be created from the given product.
@@ -235,8 +255,7 @@ public class RGBImageProfile implements ConfigurableExtension {
         }
         final Parser parser = product.createBandArithmeticParser();
         final String[] expressions = getRgbExpressions();
-        for (int i = 0; i < expressions.length; i++) {
-            final String expression = expressions[i];
+        for (final String expression : expressions) {
             if (!expression.equals("")) {
                 if (!product.isCompatibleBandArithmeticExpression(expression, parser)) {
                     return false;
@@ -256,10 +275,9 @@ public class RGBImageProfile implements ConfigurableExtension {
         final String[][] allBandNames = new String[][]{rBandNames, gBandNames, bBandNames, aBandNames};
         for (int i = 0; i < allBandNames.length; i++) {
             final String[] names = allBandNames[i];
-            for (int j = 0; j < names.length; j++) {
+            for (final String currentBandName : names) {
                 if (rgbaExpressions[i].equals("")) {
-                    final String bandName = names[j];
-                    final Band band = product.getBand(bandName);
+                    final Band band = product.getBand(currentBandName);
                     if (band != null) {
                         if (band instanceof VirtualBand) {
                             rgbaExpressions[i] = ((VirtualBand) band).getExpression();
@@ -286,11 +304,8 @@ public class RGBImageProfile implements ConfigurableExtension {
      */
     public static RGBImageProfile loadProfile(final File file) throws IOException {
         Properties properties = new Properties();
-        final InputStream inStream = new FileInputStream(file);
-        try {
+        try (InputStream inStream = new FileInputStream(file)) {
             properties.load(inStream);
-        } finally {
-            inStream.close();
         }
         final String defaultName = FileUtils.getFilenameWithoutExtension(file);
         final RGBImageProfile profile = new RGBImageProfile(defaultName);
@@ -310,11 +325,8 @@ public class RGBImageProfile implements ConfigurableExtension {
      */
     public static RGBImageProfile loadProfile(final URL url) throws IOException {
         Properties properties = new Properties();
-        final InputStream inStream = url.openStream();
-        try {
+        try (InputStream inStream = url.openStream()) {
             properties.load(inStream);
-        } finally {
-            inStream.close();
         }
         String urlExtForm = url.toExternalForm();
         int lastPathSeperatorIndex = urlExtForm.lastIndexOf('/');
@@ -334,13 +346,10 @@ public class RGBImageProfile implements ConfigurableExtension {
      * @see #getProperties(java.util.Properties)
      */
     public void store(final File file) throws IOException {
-        final OutputStream outStream = new FileOutputStream(file);
-        try {
+        try (OutputStream outStream = new FileOutputStream(file)) {
             final Properties properties = new Properties();
             getProperties(properties);
             properties.store(outStream, "RGB-Image Profile");
-        } finally {
-            outStream.close();
         }
     }
 
@@ -364,6 +373,11 @@ public class RGBImageProfile implements ConfigurableExtension {
         } else {
             properties.remove(PROPERTY_KEY_INTERNAL);
         }
+        if (pattern != null) {
+            properties.setProperty(PROPERTY_KEY_PATTERN_PRODUCT_TYPE, pattern[0]);
+            properties.setProperty(PROPERTY_KEY_PATTERN_PRODUCT_NAME, pattern[1]);
+            properties.setProperty(PROPERTY_KEY_PATTERN_PRODUCT_DESC, pattern[2]);
+        }
     }
 
     /**
@@ -371,6 +385,7 @@ public class RGBImageProfile implements ConfigurableExtension {
      *
      * @param properties the property map which provides the properties for this profiles
      */
+    @SuppressWarnings("LocalVariableHidesMemberVariable")
     public void setProperties(Properties properties) {
         final String name = properties.getProperty(PROPERTY_KEY_NAME);
         final String[] rgbaExpressions = new String[]{
@@ -380,6 +395,12 @@ public class RGBImageProfile implements ConfigurableExtension {
                 getProperty(properties, new String[]{PROPERTY_KEY_ALPHA, "a"}, "")
         };
         final boolean internal = Boolean.parseBoolean(properties.getProperty(PROPERTY_KEY_INTERNAL, "false"));
+        String productType = properties.getProperty(PROPERTY_KEY_PATTERN_PRODUCT_TYPE, null);
+        String productName = properties.getProperty(PROPERTY_KEY_PATTERN_PRODUCT_NAME, null);
+        String productDesc = properties.getProperty(PROPERTY_KEY_PATTERN_PRODUCT_DESC, null);
+        if (productType != null || productName != null || productDesc != null) {
+            setPattern(new String[] {productType, productName, productDesc});
+        }
 
         if (name != null) {
             setName(name);
@@ -434,7 +455,8 @@ public class RGBImageProfile implements ConfigurableExtension {
         }
         if (obj instanceof RGBImageProfile) {
             RGBImageProfile profile = (RGBImageProfile) obj;
-            return getName().equals(profile.getName()) && equalExpressions(profile);
+            return getName().equals(profile.getName()) && equalExpressions(profile) &&
+                   Arrays.equals(getPattern(), profile.getPattern());
         }
         return false;
     }
@@ -460,8 +482,7 @@ public class RGBImageProfile implements ConfigurableExtension {
 
     private static String getProperty(Properties properties, String[] keys, String defaultValue) {
         String value = null;
-        for (int i = 0; i < keys.length; i++) {
-            String key = keys[i];
+        for (String key : keys) {
             value = properties.getProperty(key);
             if (value != null) {
                 break;
@@ -487,6 +508,22 @@ public class RGBImageProfile implements ConfigurableExtension {
             alpha = "";
         }
         rgbaExpressions[A] = alpha;
+        ConfigurationElement patternConfig = config.getChild("pattern");
+        if (patternConfig != null) {
+            pattern = new String[3];
+            ConfigurationElement productType = patternConfig.getChild("productType");
+            ConfigurationElement productName = patternConfig.getChild("productName");
+            ConfigurationElement productDesc = patternConfig.getChild("productDesc");
+            if (productType != null) {
+                pattern[0] = productType.getValue();
+            }
+            if (productName != null) {
+                pattern[1] = productName.getValue();
+            }
+            if (productDesc != null) {
+                pattern[2] = productDesc.getValue();
+            }
+        }
     }
 
     private static String getChildValue(ConfigurationElement config, String childName) throws CoreException {

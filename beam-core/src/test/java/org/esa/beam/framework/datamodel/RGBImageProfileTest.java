@@ -15,10 +15,18 @@
  */
 package org.esa.beam.framework.datamodel;
 
-import junit.framework.TestCase;
+import com.bc.ceres.core.runtime.ConfigurationElement;
+import org.junit.Test;
 
-public class RGBImageProfileTest extends TestCase {
+import java.util.Arrays;
+import java.util.Properties;
 
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
+
+public class RGBImageProfileTest {
+
+    @Test
     public void testDefaults() {
         final RGBImageProfile profile = new RGBImageProfile("X");
         assertEquals("X", profile.getName());
@@ -31,28 +39,46 @@ public class RGBImageProfileTest extends TestCase {
         assertEquals(3, profile.getRgbExpressions().length);
         assertNotNull(profile.getRgbaExpressions());
         assertEquals(4, profile.getRgbaExpressions().length);
+        assertNull(profile.getPattern());
     }
 
+    @Test
     public void testEqualsAndHashCode() {
-        final RGBImageProfile profile1 = new RGBImageProfile("X", new String[] {"A", "B", "C"});
-        final RGBImageProfile profile2 = new RGBImageProfile("X", new String[] {"A", "B", "C"});
-        final RGBImageProfile profile3 = new RGBImageProfile("Y", new String[] {"A", "B", "C"});
-        final RGBImageProfile profile4 = new RGBImageProfile("X", new String[] {"A", "B", "V"});
-        final RGBImageProfile profile5 = new RGBImageProfile("X", new String[] {"A", "B", "C", "D"});
+        final RGBImageProfile profile1 = new RGBImageProfile("X", new String[]{"A", "B", "C"}, new String[]{
+                "prod_type",
+                "prod_name",
+                "prod_desc"
+        });
+        final RGBImageProfile profile2 = new RGBImageProfile("X", new String[]{"A", "B", "C"}, new String[]{
+                "prod_type",
+                "prod_name",
+                "prod_desc"
+        });
+        final RGBImageProfile profile3 = new RGBImageProfile("X", new String[]{"A", "B", "C"}, new String[]{
+                "different_pattern",
+                "diff",
+                "diff"
+        });
+        final RGBImageProfile profile4 = new RGBImageProfile("Y", new String[]{"A", "B", "C"});
+        final RGBImageProfile profile5 = new RGBImageProfile("X", new String[] {"A", "B", "V"});
+        final RGBImageProfile profile6 = new RGBImageProfile("X", new String[] {"A", "B", "C", "D"});
 
         assertTrue(profile1.equals(profile1));
-        assertFalse(profile1.equals(null));
-        assertTrue(profile1.equals(profile2));
         assertFalse(profile1.equals(profile3));
+        assertNull(profile1);
+        assertTrue(profile1.equals(profile2));
         assertFalse(profile1.equals(profile4));
         assertFalse(profile1.equals(profile5));
+        assertFalse(profile1.equals(profile6));
 
         assertTrue(profile1.hashCode() == profile2.hashCode());
         assertTrue(profile1.hashCode() == profile3.hashCode());
-        assertTrue(profile1.hashCode() != profile4.hashCode());
-        assertTrue(profile1.hashCode() == profile5.hashCode());
+        assertTrue(profile1.hashCode() == profile4.hashCode());
+        assertTrue(profile1.hashCode() != profile5.hashCode());
+        assertTrue(profile1.hashCode() == profile6.hashCode());
     }
 
+    @Test
     public void testThatComponentsMustNotBeNull() {
         final RGBImageProfile profile = new RGBImageProfile("X");
         try {
@@ -77,6 +103,7 @@ public class RGBImageProfileTest extends TestCase {
         }
     }
 
+    @Test
     public void testComponentsAsArrays() {
         final RGBImageProfile profile = new RGBImageProfile("X");
         profile.setRedExpression("radiance_1");
@@ -100,11 +127,13 @@ public class RGBImageProfileTest extends TestCase {
         assertEquals("l1_flags.LAND ? 0 : 1", rgbaExpressions[3]);
     }
 
+    @Test
     public void testApplicabilityOfEmptyProfile() {
         final RGBImageProfile profile = new RGBImageProfile("X");
         assertEquals(false, profile.isApplicableTo(createTestProduct()));
     }
 
+    @Test
     public void testApplicabilityIfAlphaComponentIsMissing() {
         final RGBImageProfile profile = new RGBImageProfile("X");
         profile.setRedExpression("U+V");
@@ -114,6 +143,7 @@ public class RGBImageProfileTest extends TestCase {
         assertEquals(true, profile.isApplicableTo(createTestProduct()));
     }
 
+    @Test
     public void testApplicabilityIfOneComponentIsMissing() {
         final RGBImageProfile profile = new RGBImageProfile("X");
         profile.setRedExpression("U+V");
@@ -123,6 +153,7 @@ public class RGBImageProfileTest extends TestCase {
         assertEquals(true, profile.isApplicableTo(createTestProduct()));
     }
 
+    @Test
     public void testApplicabilityIfUnknownBandIsUsed() {
         final RGBImageProfile profile = new RGBImageProfile("X");
         profile.setRedExpression("U+V");
@@ -132,6 +163,7 @@ public class RGBImageProfileTest extends TestCase {
         assertEquals(false, profile.isApplicableTo(createTestProduct()));
     }
 
+    @Test
     public void testStoreRgbaExpressions() {
         final Product p1 = createTestProduct();
         RGBImageProfile.storeRgbaExpressions(p1, new String[]{"U", "V", "W", "X"});
@@ -141,6 +173,7 @@ public class RGBImageProfileTest extends TestCase {
         assertNotNull(p1.getBand(RGBImageProfile.ALPHA_BAND_NAME));
     }
 
+    @Test
     public void testStoreRgbaExpressionsWithoutAlpha() {
         final Product p1 = createTestProduct();
         RGBImageProfile.storeRgbaExpressions(p1, new String[]{"U", "V", "W", ""});
@@ -150,6 +183,7 @@ public class RGBImageProfileTest extends TestCase {
         assertNull(p1.getBand(RGBImageProfile.ALPHA_BAND_NAME));
     }
 
+    @Test
     public void testStoreRgbaExpressionsWithoutGreen() {
         final Product p1 = createTestProduct();
         RGBImageProfile.storeRgbaExpressions(p1, new String[]{"U", "", "W", ""});
@@ -161,6 +195,7 @@ public class RGBImageProfileTest extends TestCase {
         assertEquals("0", ((VirtualBand) p1.getBand(RGBImageProfile.GREEN_BAND_NAME)).getExpression());
     }
 
+    @Test
     public void testStoreRgbaExpressionsOverwrite() {
         final Product p1 = createTestProduct();
         RGBImageProfile.storeRgbaExpressions(p1, new String[]{"U", "V", "W", "X"});
@@ -190,5 +225,99 @@ public class RGBImageProfileTest extends TestCase {
         return product;
     }
 
+    @Test
+    public void testConfigure_withoutPattern() throws Exception {
+        RGBImageProfile profile = new RGBImageProfile();
+        ConfigurationElement config = mock(ConfigurationElement.class);
+        ConfigurationElement nameConfig = mock(ConfigurationElement.class);
+        ConfigurationElement redConfig = mock(ConfigurationElement.class);
+        ConfigurationElement greenConfig = mock(ConfigurationElement.class);
+        ConfigurationElement blueConfig = mock(ConfigurationElement.class);
 
+        when(nameConfig.getValue()).thenReturn("test_name");
+
+        when(redConfig.getValue()).thenReturn("radiance_12");
+        when(greenConfig.getValue()).thenReturn("radiance_6");
+        when(blueConfig.getValue()).thenReturn("radiance_2");
+
+
+        when(config.getChild("name")).thenReturn(nameConfig);
+        when(config.getChild("red")).thenReturn(redConfig);
+        when(config.getChild("green")).thenReturn(greenConfig);
+        when(config.getChild("blue")).thenReturn(blueConfig);
+        when(config.getChild("alpha")).thenReturn(null);
+
+        profile.configure(config);
+
+        assertEquals("test_name", profile.getName());
+        assertEquals("", profile.getAlphaExpression());
+        assertEquals("radiance_2", profile.getBlueExpression());
+        assertEquals("radiance_12", profile.getRedExpression());
+        assertEquals("radiance_6", profile.getGreenExpression());
+        assertNull(profile.getPattern());
+    }
+
+    @Test
+    public void testConfigure() throws Exception {
+        RGBImageProfile profile = new RGBImageProfile();
+        ConfigurationElement config = mock(ConfigurationElement.class);
+        ConfigurationElement nameConfig = mock(ConfigurationElement.class);
+        ConfigurationElement redConfig = mock(ConfigurationElement.class);
+        ConfigurationElement greenConfig = mock(ConfigurationElement.class);
+        ConfigurationElement blueConfig = mock(ConfigurationElement.class);
+        ConfigurationElement patternConfig = mock(ConfigurationElement.class);
+        ConfigurationElement productTypeConfig = mock(ConfigurationElement.class);
+        ConfigurationElement productNameConfig = mock(ConfigurationElement.class);
+        ConfigurationElement productDescConfig = mock(ConfigurationElement.class);
+
+        when(nameConfig.getValue()).thenReturn("test_name");
+
+        when(redConfig.getValue()).thenReturn("radiance_12");
+        when(greenConfig.getValue()).thenReturn("radiance_6");
+        when(blueConfig.getValue()).thenReturn("radiance_2");
+
+        when(productTypeConfig.getValue()).thenReturn("MER_*_1*");
+        when(productNameConfig.getValue()).thenReturn("ATS_*_1*");
+        when(productDescConfig.getValue()).thenReturn("");
+
+        when(config.getChild("name")).thenReturn(nameConfig);
+        when(config.getChild("red")).thenReturn(redConfig);
+        when(config.getChild("green")).thenReturn(greenConfig);
+        when(config.getChild("blue")).thenReturn(blueConfig);
+        when(config.getChild("alpha")).thenReturn(null);
+        when(config.getChild("pattern")).thenReturn(patternConfig);
+        when(patternConfig.getChild("productType")).thenReturn(productTypeConfig);
+        when(patternConfig.getChild("productName")).thenReturn(productNameConfig);
+        when(patternConfig.getChild("productDesc")).thenReturn(productDescConfig);
+
+        profile.configure(config);
+
+        assertEquals("test_name", profile.getName());
+        assertEquals("", profile.getAlphaExpression());
+        assertEquals("radiance_2", profile.getBlueExpression());
+        assertEquals("radiance_12", profile.getRedExpression());
+        assertEquals("radiance_6", profile.getGreenExpression());
+        assertTrue(Arrays.equals(new String[]{"MER_*_1*", "ATS_*_1*", ""}, profile.getPattern()));
+    }
+
+    @Test
+    public void testSetProperties() throws Exception {
+        RGBImageProfile profile = new RGBImageProfile();
+        Properties properties = new Properties();
+        properties.setProperty(RGBImageProfile.PROPERTY_KEY_NAME, "name");
+        properties.setProperty(RGBImageProfile.PROPERTY_KEY_ALPHA, "alpha");
+        properties.setProperty(RGBImageProfile.PROPERTY_KEY_BLUE, "blue");
+        properties.setProperty(RGBImageProfile.PROPERTY_KEY_GREEN, "green");
+        properties.setProperty(RGBImageProfile.PROPERTY_KEY_RED, "red");
+        properties.setProperty(RGBImageProfile.PROPERTY_KEY_INTERNAL, String.valueOf(true));
+        properties.setProperty(RGBImageProfile.PROPERTY_KEY_PATTERN_PRODUCT_TYPE, "type");
+        properties.setProperty(RGBImageProfile.PROPERTY_KEY_PATTERN_PRODUCT_NAME, "name");
+        properties.setProperty(RGBImageProfile.PROPERTY_KEY_PATTERN_PRODUCT_DESC, "desc");
+        profile.setProperties(properties);
+
+        assertEquals("name", profile.getName());
+        assertTrue(profile.isInternal());
+        assertTrue(Arrays.equals(new String[] {"red", "green", "blue", "alpha"}, profile.getRgbaExpressions()));
+        assertTrue(Arrays.equals(new String[] {"type", "name", "desc"}, profile.getPattern()));
+    }
 }
