@@ -26,7 +26,6 @@ import org.esa.beam.util.StringUtils;
 import javax.swing.AbstractAction;
 import javax.swing.ActionMap;
 import javax.swing.BorderFactory;
-import javax.swing.ComboBoxModel;
 import javax.swing.ImageIcon;
 import javax.swing.InputMap;
 import javax.swing.JComponent;
@@ -507,14 +506,4 @@ public class UIUtils {
         return spinner;
     }
 
-    public static void selectProfileThatContains(String name, ComboBoxModel profileModel) {
-        for (int i = 0; i < profileModel.getSize(); i++) {
-            Object profileItem = profileModel.getElementAt(i);
-            String profileName = profileItem.toString();
-            if (profileName.contains(name)) {
-                profileModel.setSelectedItem(profileItem);
-                break;
-            }
-        }
-    }
 }

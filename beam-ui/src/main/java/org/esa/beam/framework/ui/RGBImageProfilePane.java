@@ -178,10 +178,6 @@ public class RGBImageProfilePane extends JPanel {
                     addNewProfile(productProfile);
                     selectProfile(productProfile);
                 }
-            } else {
-                // special code for solving http://www.brockmann-consult.de/beam-jira/browse/BEAM-1287:
-                // if Tristimulus is in list, it shall be the default, instead of simply the last entry in the list
-                UIUtils.selectProfileThatContains("Tristimulus", profileModel);
             }
         }
 

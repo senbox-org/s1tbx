@@ -49,7 +49,6 @@ Improvements
 Bugs
 
 [BEAM-1452] Log-scaling is not correctly applied in scatter plot
-[BEAM-1287] Default RGB profile of MERIS L1b is Landsat but should be Tristimulus
 [BEAM-1496] ApiDoc is generated with wrong version
 [BEAM-1569] Documentation for 'statistical accuracy' missing
 [BEAM-1190] Export button in the mask manager does not export geometry masks

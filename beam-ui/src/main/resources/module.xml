@@ -28,7 +28,6 @@
         <p>Changes in 5.0<br/>
         [BEAM-1395] Action 'Export -> Transect Pixels' shall be greyed out when no transect is selected<br/>
         [BEAM-1423] Negative value used as stroke-width in vector data layer editor leads to Exception<br/>
-        [BEAM-1287] Default RGB profile of MERIS L1b is Landsat but should be Tristimulus<br/>
         [BEAM-1561] Slider labels of colour manipulation tool are all zero for small value ranges <br/>
         [BEAM-1457] Display a spectral band's wavelengths next to its name<br/>
         <p>Changes in 4.10.1<br/>

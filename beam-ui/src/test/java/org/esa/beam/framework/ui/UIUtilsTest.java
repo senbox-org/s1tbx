@@ -20,7 +20,6 @@ import org.esa.beam.framework.param.ParamProperties;
 import org.esa.beam.framework.param.Parameter;
 import org.junit.Test;
 
-import javax.swing.DefaultComboBoxModel;
 import javax.swing.JInternalFrame;
 import javax.swing.JSpinner;
 import java.awt.Component;
@@ -148,31 +147,6 @@ public class UIUtilsTest {
 
         final JSpinner spinner = UIUtils.createSpinner(parameter, Integer.valueOf(10), "#0");
         assertEquals(labelname, spinner.getName());
-    }
-
-    @SuppressWarnings("unchecked")
-    @Test
-    public void testSelectProfile() throws Exception {
-        DefaultComboBoxModel profileModel = new DefaultComboBoxModel(new String[]{
-                "wrong_name_1",
-                "this_is_the_correct_name",
-                "wrong_name_2",
-                "wrong_name_3"
-        });
-        UIUtils.selectProfileThatContains("correct_name", profileModel);
-        assertEquals("this_is_the_correct_name", profileModel.getSelectedItem());
-    }
-
-    @SuppressWarnings("unchecked")
-    @Test
-    public void testSelectProfile_NotFound() throws Exception {
-        DefaultComboBoxModel profileModel = new DefaultComboBoxModel(new String[]{
-                "wrong_name_1",
-                "wrong_name_2",
-                "wrong_name_3"
-        });
-        UIUtils.selectProfileThatContains("i_am_not_included", profileModel);
-        assertFalse("i_am_not_included".equals(profileModel.getSelectedItem()));
     }
 
     private void warnHeadless() {
