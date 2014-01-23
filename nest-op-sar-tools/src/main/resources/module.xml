@@ -188,8 +188,37 @@
 	        <dialogTitle>Apply Orbit File to Product</dialogTitle>
             <targetProductNameSuffix>_Orb</targetProductNameSuffix>
 			<placeBefore>Calibration</placeBefore>
-            <separatorAfter>true</separatorAfter>
 	    </action>
+
+        <action>
+	        <id>GeoCorrectionOp1</id>
+	        <helpId>GeoCorrectionOp1</helpId>
+	        <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <icon>esaIcon</icon>
+            <parent>tools</parent>
+	        <text>Geo Correction 1</text>
+	        <operatorName>Geo-Correction-1</operatorName>
+	        <dialogTitle>Geo Correction 1</dialogTitle>
+            <shortDescr>Geo Correction 1</shortDescr>
+            <targetProductNameSuffix>_GeoCorr1</targetProductNameSuffix>
+			<placeAfter>applyOrbitFile</placeAfter>
+        </action>
+
+
+        <action>
+	        <id>GeoCorrectionOp2</id>
+	        <helpId>GeoCorrectionOp2</helpId>
+	        <class>org.esa.nest.dat.actions.OperatorAction</class>
+            <icon>esaIcon</icon>
+            <parent>tools</parent>
+	        <text>Geo Correction 2</text>
+	        <operatorName>Geo-Correction-2</operatorName>
+	        <dialogTitle>Geo Correction 2</dialogTitle>
+            <shortDescr>Geo Correction 2</shortDescr>
+            <targetProductNameSuffix>_GeoCorr2</targetProductNameSuffix>
+			<placeAfter>GeoCorrectionOp1</placeAfter>
+            <separatorAfter>true</separatorAfter>
+        </action>
 
         <action>
             <id>replaceMetadata</id>
