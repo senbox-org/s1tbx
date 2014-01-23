@@ -531,8 +531,10 @@ class MaskFormActions {
 
     private static class ExportAction extends MaskIOAction {
 
+        private static final String ACTION_NAME = "Export mask definition(s) to XML file.";
+
         private ExportAction(AbstractToolView maskToolView, MaskForm maskForm) {
-            super(maskToolView, maskForm, "icons/Export24.gif", "exportButton", "Export masks to XML file.");
+            super(maskToolView, maskForm, "icons/Export24.gif", "exportButton", ACTION_NAME);
         }
 
         @Override
@@ -553,16 +555,18 @@ class MaskFormActions {
 
             Document document = new Document(new Element(DimapProductConstants.TAG_MASKS));
             boolean[] masksExported = addContent(masks, document);
+            boolean dialogApproved = false;
             if (hasAtLeastOneMaskExported(masksExported)) {
                 final JFileChooser fileChooser = new BeamFileChooser();
-                fileChooser.setDialogTitle("Export Masks to XML");
+                fileChooser.setDialogTitle(ACTION_NAME);
                 final FileFilter fileFilter = new BeamFileFilter("XML", ".xml", "XML files (*.xml)");
                 fileChooser.setFileFilter(fileFilter);
                 final File targetDirectory = getDirectory();
                 fileChooser.setCurrentDirectory(targetDirectory);
                 fileChooser.setSelectedFile(new File(targetDirectory, masks[0].getName()));
                 final int result = fileChooser.showSaveDialog(getMaskToolView().getPaneWindow());
-                if (result == JFileChooser.APPROVE_OPTION) {
+                dialogApproved = result == JFileChooser.APPROVE_OPTION;
+                if (dialogApproved) {
                     File file = fileChooser.getSelectedFile();
                     if (file != null) {
                         if (!VisatApp.getApp().promptForOverwrite(file)) {
@@ -574,8 +578,10 @@ class MaskFormActions {
                     }
                 }
             }
-
-            showUserFeedback(masks, masksExported);
+            boolean allExportsFailed = countFailedMasks(masksExported) == masksExported.length;
+            if (dialogApproved || allExportsFailed) {
+                showUserFeedback(masks, masksExported);
+            }
         }
 
         private void showUserFeedback(Mask[] masks, boolean[] masksExported) {
@@ -593,6 +599,7 @@ class MaskFormActions {
                         addMaskName(stringBuilder, maskIndex++, mask.getName(), countExportedMasks(masksExported));
                     }
                 }
+                stringBuilder.append(".");
             }
             if (countFailedMasks(masksExported) > 0) {
                 stringBuilder.append("\n");
@@ -608,10 +615,11 @@ class MaskFormActions {
                         addMaskName(stringBuilder, maskIndex++, mask.getName(), countFailedMasks(masksExported));
                     }
                 }
+                stringBuilder.append(" to XML.");
             }
             JOptionPane.showMessageDialog(getMaskToolView().getControl(),
                                           stringBuilder.toString(),
-                                          getMaskToolView().getDescriptor().getTitle(),    /*I18N*/
+                                          ACTION_NAME,
                                           JOptionPane.INFORMATION_MESSAGE);
         }
 
@@ -638,7 +646,6 @@ class MaskFormActions {
         private static void addMaskName(StringBuilder stringBuilder, int index, String maskName, int maskCount) {
             if (maskCount < 2) {
                 stringBuilder.append(maskName);
-                stringBuilder.append(".");
             } else if (index < maskCount - 2) {
                 stringBuilder.append(maskName);
                 stringBuilder.append(", ");
@@ -648,7 +655,6 @@ class MaskFormActions {
             } else if (index == maskCount - 1) {
                 stringBuilder.append("and ");
                 stringBuilder.append(maskName);
-                stringBuilder.append(".");
             }
         }
 
