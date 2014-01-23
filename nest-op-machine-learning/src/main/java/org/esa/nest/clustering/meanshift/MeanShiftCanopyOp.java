@@ -54,7 +54,7 @@ import org.esa.nest.datamodel.Unit;
  */
 @OperatorMetadata(alias = "MeanShiftClusterAnalysis",
         version = "1.0",
-        category = "Classification",
+        category = "Classification\\Clustering",
         description = "Performs a MeanShift cluster analysis.")
 public class MeanShiftCanopyOp extends Operator {
 

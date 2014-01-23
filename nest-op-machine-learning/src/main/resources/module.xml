@@ -43,7 +43,7 @@
             <text>Fuzzy KMeans</text>
             <shortDescr>Estimate FuzzyKMeans</shortDescr>
             <icon>esaIcon</icon>
-            <parent>classification</parent>
+            <parent>ClusteringGroup</parent>
             <operatorName>FuzzyKMeansClusterAnalysis</operatorName>
             <dialogTitle>Estimate FuzzyKMeans</dialogTitle>
             <targetProductNameSuffix>_kmeans_opt</targetProductNameSuffix>
@@ -54,7 +54,7 @@
             <helpId>MeanShiftCanopyOp</helpId>
             <class>org.esa.nest.dat.actions.OperatorAction</class>
             <icon>esaIcon</icon>
-            <parent>classification</parent>
+            <parent>ClusteringGroup</parent>
             <text>MeanShiftCanopy Clustering</text>
             <operatorName>MeanShiftClusterAnalysis</operatorName>
             <dialogTitle>Mean Shift Cluster Analysis</dialogTitle>
@@ -67,7 +67,7 @@
             <helpId>DirichletOp</helpId>
             <class>org.esa.nest.dat.actions.OperatorAction</class>
             <icon>esaIcon</icon>
-            <parent>classification</parent>
+            <parent>ClusteringGroup</parent>
             <text>DirichletOp Clustering</text>
             <operatorName>DirichletClusterAnalysis</operatorName>
             <dialogTitle>Dirichlet Analysis</dialogTitle>

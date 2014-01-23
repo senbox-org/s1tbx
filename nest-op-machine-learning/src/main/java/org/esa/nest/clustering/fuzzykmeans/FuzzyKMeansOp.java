@@ -41,7 +41,7 @@ import org.esa.nest.gpf.OperatorUtils;
  * Operator for k-means cluster analysis.
  */
 @OperatorMetadata(alias = "FuzzyKMeansClusterAnalysis",
-        category = "Classification",
+        category = "Classification\\Clustering",
         authors = "Emanuela Boros",
         copyright = "Copyright (C) 2013 by Array Systems Computing Inc.",
         description = "Performs a Fuzzy K-Means cluster analysis.")

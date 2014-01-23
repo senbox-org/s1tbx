@@ -56,7 +56,7 @@ import org.esa.nest.datamodel.Unit;
  */
 @OperatorMetadata(alias = "DirichletClusterAnalysis",
         version = "1.0",
-        category = "Classification",
+        category = "Classification\\Clustering",
         description = "Performs a Dirichlet cluster analysis.")
 public class DirichletOp extends Operator {
 
