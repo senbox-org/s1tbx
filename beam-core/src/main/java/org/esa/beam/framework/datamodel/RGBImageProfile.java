@@ -373,11 +373,6 @@ public class RGBImageProfile implements ConfigurableExtension {
         } else {
             properties.remove(PROPERTY_KEY_INTERNAL);
         }
-        if (pattern != null) {
-            properties.setProperty(PROPERTY_KEY_PATTERN_PRODUCT_TYPE, pattern[0]);
-            properties.setProperty(PROPERTY_KEY_PATTERN_PRODUCT_NAME, pattern[1]);
-            properties.setProperty(PROPERTY_KEY_PATTERN_PRODUCT_DESC, pattern[2]);
-        }
     }
 
     /**
@@ -395,13 +390,6 @@ public class RGBImageProfile implements ConfigurableExtension {
                 getProperty(properties, new String[]{PROPERTY_KEY_ALPHA, "a"}, "")
         };
         final boolean internal = Boolean.parseBoolean(properties.getProperty(PROPERTY_KEY_INTERNAL, "false"));
-        String productType = properties.getProperty(PROPERTY_KEY_PATTERN_PRODUCT_TYPE, null);
-        String productName = properties.getProperty(PROPERTY_KEY_PATTERN_PRODUCT_NAME, null);
-        String productDesc = properties.getProperty(PROPERTY_KEY_PATTERN_PRODUCT_DESC, null);
-        if (productType != null || productName != null || productDesc != null) {
-            setPattern(new String[] {productType, productName, productDesc});
-        }
-
         if (name != null) {
             setName(name);
         }
