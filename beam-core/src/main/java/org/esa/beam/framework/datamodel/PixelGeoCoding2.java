@@ -16,10 +16,15 @@
 package org.esa.beam.framework.datamodel;
 
 import com.bc.ceres.glevel.MultiLevelImage;
+import com.bc.ceres.glevel.MultiLevelModel;
+import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
+import com.bc.ceres.glevel.support.DefaultMultiLevelImage;
 import com.bc.jexp.ParseException;
 import org.esa.beam.framework.dataio.ProductSubsetDef;
 import org.esa.beam.framework.dataop.maptransf.Datum;
+import org.esa.beam.jai.FillConstantOpImage;
 import org.esa.beam.jai.ImageManager;
+import org.esa.beam.jai.ReplaceValueOpImage;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.jai.SingleBandedSampleModel;
 import org.esa.beam.util.math.DistanceCalculator;
@@ -161,14 +166,9 @@ class PixelGeoCoding2 extends AbstractGeoCoding implements BasicPixelGeoCoding {
 
         boolean disableTiling = "false".equalsIgnoreCase(System.getProperty(SYSPROP_PIXEL_GEO_CODING_USE_TILING));
         if (disableTiling) {
-            dataProvider = new ArrayDataProvider(lonBand, latBand);
+            dataProvider = new ArrayDataProvider(lonBand, latBand, maskImage);
         } else {
-            MultiLevelImage lonMultiMaskImage = lonBand.getValidMaskImage();
-            MultiLevelImage latMultiMaskImage = latBand.getValidMaskImage();
-            dataProvider = new ImageDataProvider(lonImage,
-                                                 lonMultiMaskImage != null ? lonMultiMaskImage.getImage(0) : null,
-                                                 latImage,
-                                                 latMultiMaskImage != null ? latMultiMaskImage.getImage(0) : null);
+            dataProvider = new ImageDataProvider(lonImage, maskImage, latImage, maskImage);
         }
     }
 
@@ -651,13 +651,21 @@ class PixelGeoCoding2 extends AbstractGeoCoding implements BasicPixelGeoCoding {
         private final float[] latData;
         private final int width;
 
-        ArrayDataProvider(RasterDataNode lonBand, RasterDataNode latBand) {
+        ArrayDataProvider(RasterDataNode lonBand, RasterDataNode latBand, PlanarImage maskImage) {
             width = lonBand.getSceneRasterWidth();
             int height = lonBand.getSceneRasterHeight();
             MultiLevelImage lonImage = ImageManager.createMaskedGeophysicalImage(lonBand, Float.NaN);
             lonData = lonImage.getData().getSamples(0, 0, width, height, 0, (float[]) null);
             MultiLevelImage latImage = ImageManager.createMaskedGeophysicalImage(latBand, Float.NaN);
             latData = latImage.getData().getSamples(0, 0, width, height, 0, (float[]) null);
+            final int[] maskValues = maskImage.getData().getSamples(0, 0, width, height, 0, (int[]) null);
+
+            for (int i = 0; i < maskValues.length; i++) {
+                if (maskValues[i] == 0) {
+                    lonData[i] = Float.NaN;
+                    latData[i] = Float.NaN;
+                }
+            }
         }
 
         @Override
