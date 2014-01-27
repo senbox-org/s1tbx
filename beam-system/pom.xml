@@ -57,6 +57,7 @@
         <module>../beam-visat-rcp</module>
         <module>../beam-installer</module>
         <module>../beam-reader-tests</module>
+        <module>../beam-python</module>
     </modules>
 
     <dependencyManagement>

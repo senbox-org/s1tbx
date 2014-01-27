@@ -6,15 +6,13 @@ import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
-import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.Tile;
 import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
-import org.jpy.python.PyInterpreter;
-import org.jpy.python.PyLib;
-import org.jpy.python.PyModule;
-import org.jpy.python.PyObject;
+import org.jpy.PyLib;
+import org.jpy.PyModule;
+import org.jpy.PyObject;
 
 import java.awt.Rectangle;
 import java.util.Map;
@@ -47,33 +45,36 @@ public class PyOperator extends Operator {
     Map<String, Object> parameters;
 
     private transient PyModule pyModule;
-    private transient TileComputer tileComputer;
-
+    private transient TileStackComputer tileStackComputer;
 
     @Override
     public void initialize() throws OperatorException {
-        PyInterpreter.initialize(null);
-        PyModule pySysModule = PyInterpreter.importModule("sys");
-        PyObject pyPathList = pySysModule.getAttributeObject("path");
+
+        System.out.println("initialize: thread = " + Thread.currentThread());
+        PyLib.startPython(null);
+        PyModule pySysModule = PyModule.importModule("sys");
+        PyObject pyPathList = pySysModule.getAttribute("path");
         pyPathList.callMethod("append", ".\\examples");
 
-
         PyLib.Diag.setFlags(PyLib.Diag.F_EXEC);
-
-        pyModule = PyInterpreter.importModule(pythonModuleName);
+        pyModule = PyModule.importModule(pythonModuleName);
         PyObject pyTileComputer = pyModule.call(tileComputerClassName);
-        tileComputer = pyTileComputer.cast(TileComputer.class);
-        tileComputer.initialize(this);
+        tileStackComputer = pyTileComputer.createProxy(TileStackComputer.class);
+        tileStackComputer.initialize(this);
     }
 
     @Override
-    public void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
-        tileComputer.computeTile(this, targetBand, targetTile);
+    public void computeTileStack(Map<Band, Tile> targetTiles, Rectangle targetRectangle, ProgressMonitor pm) throws OperatorException {
+        System.out.println("computeTileStack: thread = " + Thread.currentThread());
+        PyLib.Diag.setFlags(PyLib.Diag.F_EXEC);
+        tileStackComputer.computeTileStack(this, targetTiles, targetRectangle);
+        //PyLib.Diag.setFlags(PyLib.Diag.F_OFF);
     }
 
     @Override
     public void dispose() {
-        tileComputer.dispose(this);
+        System.out.println("dispose: thread = " + Thread.currentThread());
+        tileStackComputer.dispose(this);
     }
 
     public interface TileComputer {
@@ -92,9 +93,4 @@ public class PyOperator extends Operator {
         void dispose(Operator operator);
     }
 
-    public static class Spi extends OperatorSpi {
-        public Spi() {
-            super(PyOperator.class);
-        }
-    }
 }
