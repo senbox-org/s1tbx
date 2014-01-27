@@ -21,6 +21,7 @@ import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.Tile;
+import org.junit.Ignore;
 
 import java.util.Arrays;
 
@@ -119,6 +120,10 @@ public class TileImplTest extends TestCase {
 
     }
 
+    // Note: NF ignored this test, because I have removed the automatic cropping of out-of-range samples.
+    // Cropping is something that should be done in a user-specific way.
+    //
+    @Ignore
     public void testSetSamplePreventsOverflow() {
         Product product = new Product("n", "t", 1, 1);
         Band band = product.addBand("x", ProductData.TYPE_INT8);
