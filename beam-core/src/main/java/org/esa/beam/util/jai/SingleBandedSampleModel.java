@@ -19,7 +19,11 @@ package org.esa.beam.util.jai;
 import org.esa.beam.util.ImageUtils;
 
 import javax.media.jai.ComponentSampleModelJAI;
-import java.awt.image.*;
+import java.awt.image.DataBuffer;
+import java.awt.image.DataBufferDouble;
+import java.awt.image.DataBufferFloat;
+import java.awt.image.DataBufferInt;
+import java.awt.image.SampleModel;
 
 /**
  * This class represents image data which is composed of a single band so that
@@ -406,7 +410,7 @@ public class SingleBandedSampleModel extends ComponentSampleModelJAI {
 
     private void checkBounds(int x, int y) {
         if ((x < 0) || (y < 0) || (x >= width) || (y >= height)) {
-            throw new ArrayIndexOutOfBoundsException("Coordinate out of bounds!");
+            throw new ArrayIndexOutOfBoundsException(String.format("(x < 0) || (y < 0) || (x >= %d) || (y >= %d) for x=%d,y=%d", width, height, x, y));
         }
     }
 }
