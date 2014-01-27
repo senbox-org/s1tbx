@@ -18,6 +18,10 @@ package com.bc.ceres.core.runtime;
 
 import com.bc.ceres.core.runtime.internal.RuntimeActivator;
 
+import java.io.IOException;
+import java.net.URL;
+import java.util.Enumeration;
+
 /**
  * The Ceres {@code Runtime} class provides access to the system module, which
  * can be used to access the runtime's configuration and all of its
@@ -56,5 +60,32 @@ public final class RuntimeContext {
     public static ModuleContext getModuleContext() {
         final RuntimeActivator instance = RuntimeActivator.getInstance();
         return instance != null ? instance.getModuleContext() : null;
+    }
+
+    /**
+     * Finds all the resources within all runtime modules with the given name.
+     * A resource is some data
+     * (images, audio, text, etc) that can be accessed by class code in a way
+     * that is independent of the location of the code.
+     * <p/>
+     * <p>The name of a resource is a <tt>/</tt>-separated path name that
+     * identifies the resource.
+     *
+     * @param name The resource name
+     *
+     * @return An enumeration of {@link java.net.URL <tt>URL</tt>} objects for
+     *         the resource.  If no resources could  be found, the enumeration
+     *         will be empty.  Resources that the module runtime doesn't have
+     *         access to will not be in the enumeration.
+     *
+     * @throws java.io.IOException If I/O errors occur
+     * @see ClassLoader#getResources(String)
+     * @since 0.14
+     */
+    public static Enumeration<URL> getResources(String resourceName)  throws IOException {
+        final RuntimeActivator instance = RuntimeActivator.getInstance();
+        return instance != null
+                ? instance.getResourcesClassLoader().getResources(resourceName)
+                : Thread.currentThread().getContextClassLoader().getResources(resourceName);
     }
 }
