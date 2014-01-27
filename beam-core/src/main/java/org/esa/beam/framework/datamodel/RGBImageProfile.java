@@ -84,9 +84,6 @@ public class RGBImageProfile implements ConfigurableExtension {
     public static final String PROPERTY_KEY_BLUE = "blue";
     public static final String PROPERTY_KEY_ALPHA = "alpha";
     public static final String PROPERTY_KEY_INTERNAL = "internal";
-    public static final String PROPERTY_KEY_PATTERN_PRODUCT_TYPE = "productType";
-    public static final String PROPERTY_KEY_PATTERN_PRODUCT_NAME = "productName";
-    public static final String PROPERTY_KEY_PATTERN_PRODUCT_DESC = "productDesc";
 
     /**
      * Preferences key for RGB profile entries

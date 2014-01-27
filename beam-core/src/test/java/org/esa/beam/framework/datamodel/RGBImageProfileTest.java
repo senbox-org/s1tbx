@@ -65,7 +65,6 @@ public class RGBImageProfileTest {
 
         assertTrue(profile1.equals(profile1));
         assertFalse(profile1.equals(profile3));
-        assertNull(profile1);
         assertTrue(profile1.equals(profile2));
         assertFalse(profile1.equals(profile4));
         assertFalse(profile1.equals(profile5));
@@ -310,14 +309,10 @@ public class RGBImageProfileTest {
         properties.setProperty(RGBImageProfile.PROPERTY_KEY_GREEN, "green");
         properties.setProperty(RGBImageProfile.PROPERTY_KEY_RED, "red");
         properties.setProperty(RGBImageProfile.PROPERTY_KEY_INTERNAL, String.valueOf(true));
-        properties.setProperty(RGBImageProfile.PROPERTY_KEY_PATTERN_PRODUCT_TYPE, "type");
-        properties.setProperty(RGBImageProfile.PROPERTY_KEY_PATTERN_PRODUCT_NAME, "name");
-        properties.setProperty(RGBImageProfile.PROPERTY_KEY_PATTERN_PRODUCT_DESC, "desc");
         profile.setProperties(properties);
 
         assertEquals("name", profile.getName());
         assertTrue(profile.isInternal());
         assertTrue(Arrays.equals(new String[] {"red", "green", "blue", "alpha"}, profile.getRgbaExpressions()));
-        assertTrue(Arrays.equals(new String[] {"type", "name", "desc"}, profile.getPattern()));
     }
 }
