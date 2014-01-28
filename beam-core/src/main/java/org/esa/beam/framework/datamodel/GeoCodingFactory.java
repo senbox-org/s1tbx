@@ -130,15 +130,23 @@ public class GeoCodingFactory {
             }
             final int subSamplingX = subsetDef.getSubSamplingX();
             final int subSamplingY = subsetDef.getSubSamplingY();
-            if (subSamplingX != 1 || subSamplingY != 1) {
+            if (mustSubSample(subSamplingX, subSamplingY) || mustTranslate(region)) {
                 float scaleX = 1.0f / subSamplingX;
                 float scaleY = 1.0f / subSamplingY;
-                float transX = 0.0f;
-                float transY = 0.0f;
+                float transX = region != null ? -region.x : 0;
+                float transY = region != null ? -region.y : 0;
                 Interpolation interpolation = Interpolation.getInstance(Interpolation.INTERP_NEAREST);
                 sourceImage = ScaleDescriptor.create(sourceImage, scaleX, scaleY, transX, transY, interpolation, null);
             }
         }
         return sourceImage;
+    }
+
+    private static boolean mustTranslate(Rectangle region) {
+        return (region != null && (region.x != 0 || region.y != 0));
+    }
+
+    private static boolean mustSubSample(int subSamplingX, int subSamplingY) {
+        return subSamplingX != 1 || subSamplingY != 1;
     }
 }
