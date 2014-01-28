@@ -49,7 +49,7 @@ import java.util.zip.ZipInputStream;
 /**
  * For opening a {@see NetcdfFile}, only nc3, nc4, hdf4 nad hdf5 is supported.
  */
-public class SimpleNetcdfFile extends NetcdfFile {
+public class SimpleNetcdfFile {
 
     private static final Logger LOG = BeamLogManager.getSystemLogger();
 
@@ -59,10 +59,6 @@ public class SimpleNetcdfFile extends NetcdfFile {
     private static final byte[] H5_MAGIC = {(byte) 0x89, 'H', 'D', 'F', '\r', '\n', 0x1a, '\n'};
 
 //    private static final IOServiceProvider[] IOSPs = new IOServiceProvider[]{new N3raf(), new H5iosp(), new H4iosp() };
-
-    private SimpleNetcdfFile(IOServiceProvider spi, RandomAccessFile raf, String location) throws IOException {
-        super(spi, raf, location, null);
-    }
 
     // currently unused
 //    public static boolean canOpenNetcdf(Object input) throws IOException {
@@ -118,7 +114,7 @@ public class SimpleNetcdfFile extends NetcdfFile {
             raf.close();
             throw new IOException("Cant read " + location + ": not a valid CDM file.");
         }
-        return new SimpleNetcdfFile(spi, raf, location);
+        return new BeamNetcdfFile(spi, raf, location);
     }
 
     private static boolean isMagic(byte[] buffer, byte[] magic) {
@@ -239,8 +235,6 @@ public class SimpleNetcdfFile extends NetcdfFile {
                         }
                     }
                 }
-
-                if (debugCompress) System.out.println("found uncompressed " + uncompressedFile + " for " + filename);
                 return uncompressedFile.getPath();
             } finally {
                 if (lock != null) lock.release();
@@ -276,29 +270,19 @@ public class SimpleNetcdfFile extends NetcdfFile {
             if (suffix.equalsIgnoreCase("Z")) {
                 in = new UncompressInputStream(new FileInputStream(filename));
                 copy(in, fout, 100000);
-                if (debugCompress) System.out.println("uncompressed " + filename + " to " + uncompressedFile);
-
             } else if (suffix.equalsIgnoreCase("zip")) {
                 ZipInputStream zin = new ZipInputStream(new FileInputStream(filename));
                 ZipEntry ze = zin.getNextEntry();
                 if (ze != null) {
                     in = zin;
                     copy(in, fout, 100000);
-                    if (debugCompress)
-                        System.out.println("unzipped " + filename + " entry " + ze.getName() + " to " + uncompressedFile);
                 }
-
             } else if (suffix.equalsIgnoreCase("bz2")) {
                 in = new CBZip2InputStream(new FileInputStream(filename), true);
                 copy(in, fout, 100000);
-                if (debugCompress) System.out.println("unbzipped " + filename + " to " + uncompressedFile);
-
             } else if (suffix.equalsIgnoreCase("gzip") || suffix.equalsIgnoreCase("gz")) {
-
                 in = new GZIPInputStream(new FileInputStream(filename));
                 copy(in, fout, 100000);
-
-                if (debugCompress) System.out.println("ungzipped " + filename + " to " + uncompressedFile);
             }
         } catch (Exception e) {
 
@@ -329,6 +313,12 @@ public class SimpleNetcdfFile extends NetcdfFile {
             int bytesRead = in.read(buffer);
             if (bytesRead == -1) break;
             out.write(buffer, 0, bytesRead);
+        }
+    }
+
+    private static class BeamNetcdfFile extends NetcdfFile {
+        private BeamNetcdfFile(IOServiceProvider spi, RandomAccessFile raf, String location) throws IOException {
+            super(spi, raf, location, null);
         }
     }
 
