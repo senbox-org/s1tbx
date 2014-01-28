@@ -20,7 +20,7 @@ import java.util.Map;
 /**
  * @author Norman Fomferra
  */
-@OperatorMetadata(alias = "PyOp")
+@OperatorMetadata(alias = "PyOperator", internal=true)
 public class PyOperator extends Operator {
 
     /**
