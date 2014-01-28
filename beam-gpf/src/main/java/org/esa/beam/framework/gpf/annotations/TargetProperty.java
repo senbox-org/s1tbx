@@ -36,7 +36,7 @@ public @interface TargetProperty {
      * @return A human-readable version of the name to be used in user interfaces.
      *         Defaults to the empty string (= not set).
      */
-    String label();
+    String label() default "";
 
     /**
      * @return A brief description of the target property.
