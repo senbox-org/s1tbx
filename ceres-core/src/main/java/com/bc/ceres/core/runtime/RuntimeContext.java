@@ -71,7 +71,7 @@ public final class RuntimeContext {
      * <p>The name of a resource is a <tt>/</tt>-separated path name that
      * identifies the resource.
      *
-     * @param name The resource name
+     * @param resourceName The resource name
      *
      * @return An enumeration of {@link java.net.URL <tt>URL</tt>} objects for
      *         the resource.  If no resources could  be found, the enumeration
