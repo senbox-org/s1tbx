@@ -113,28 +113,10 @@ public class TargetProductSelector {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
                 String propertyName = evt.getPropertyName();
-
-                if (propertyName.equals("saveToFileSelected")) {
-                    boolean changesToDeselected = !(Boolean) evt.getNewValue();
-                    if (changesToDeselected) {
-                        model.setOpenInAppSelected(true);
-                    } else if (!model.canReadOutputFormat()) {
-                        model.setOpenInAppSelected(false);
-                    }
-                    updateUIState();
-                } else if (propertyName.equals("openInAppSelected")) {
-                    boolean changesToDeselected = !(Boolean) evt.getNewValue();
-                    if (changesToDeselected) {
-                        model.setSaveToFileSelected(true);
-                    }
-                    updateUIState();
-                } else if (propertyName.equals("formatName")) {
-                    if (!model.canReadOutputFormat()) {
-                        model.setOpenInAppSelected(false);
-                    }
-                    updateUIState();
-                } else if (propertyName.equals("productDir")) {
+                if (propertyName.equals(TargetProductSelectorModel.PROPERTY_PRODUCT_DIR)) {
                     productDirTextField.setToolTipText(model.getProductDir().getPath());
+                } else {
+                    updateUIState();
                 }
             }
         });
