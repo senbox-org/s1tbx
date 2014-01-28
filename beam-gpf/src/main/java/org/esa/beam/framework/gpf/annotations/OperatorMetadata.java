@@ -32,6 +32,13 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface OperatorMetadata {
+
+    /**
+     * @return A human-readable version of the name to be used in user interfaces.
+     *         Defaults to the empty string (= not set).
+     */
+    String label() default "";
+
     /**
      * @return An alias name for the operator.
      */
@@ -67,4 +74,5 @@ public @interface OperatorMetadata {
      *         may not be exposed in user interfaces.
      */
     boolean internal() default false;
+
 }

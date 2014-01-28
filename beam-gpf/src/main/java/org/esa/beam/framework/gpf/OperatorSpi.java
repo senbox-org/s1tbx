@@ -54,7 +54,11 @@ public abstract class OperatorSpi {
     private final Class<? extends Operator> operatorClass;
     private final String operatorAlias;
     private Module module;
-    //private final OperatorDescriptor operatorDescriptor;
+    private OperatorDescriptor operatorDescriptor;
+    private SourceProductDescriptor[] sourceProductDescriptors;
+    private TargetProductDescriptor targetProductDescriptor;
+    private TargetPropertyDescriptor targetPropertyDescriptor;
+    private ParameterDescriptor[] parameterDescriptors;
 
     /**
      * Constructs an operator SPI for the given operator class. The alias name
@@ -103,9 +107,7 @@ public abstract class OperatorSpi {
             final Operator operator = getOperatorClass().newInstance();
             operator.setSpi(this);
             return operator;
-        } catch (InstantiationException e) {
-            throw new OperatorException(e);
-        } catch (IllegalAccessException e) {
+        } catch (InstantiationException | IllegalAccessException e) {
             throw new OperatorException(e);
         }
     }
@@ -155,6 +157,8 @@ public abstract class OperatorSpi {
     /**
      * Gets the operator class.
      * The operator class must be public and provide a public zero-argument constructor.
+     * <p/>
+     * Shorthand for {@code getOperatorDescriptor().getDataType()}.
      *
      * @return the operator class
      */
@@ -164,6 +168,8 @@ public abstract class OperatorSpi {
 
     /**
      * The alias name under which the operator can be accessed.
+     * <p/>
+     * Shorthand for {@code getOperatorDescriptor().getAlias()}.
      *
      * @return The alias name of the (@link Operator).
      */
@@ -175,12 +181,57 @@ public abstract class OperatorSpi {
      * The module containing the operator.
      *
      * @return The {@link Module module} containing the operator or {@code null} if no module is defined.
+     * @since BEAM 5
      */
     public Module getModule() {
         if (module == null) {
             this.module = loadModule();
         }
         return module;
+    }
+
+    /**
+     * @return The operator descriptor.
+     * @since BEAM 5
+     */
+    public OperatorDescriptor getOperatorDescriptor() {
+        return operatorDescriptor;
+    }
+
+    /**
+     * @return The source product descriptors.
+     * The array will be empty if the operator does not have any source products.
+     * @since BEAM 5
+     */
+    public SourceProductDescriptor[] getSourceProductDescriptors() {
+        return sourceProductDescriptors;
+    }
+
+    /**
+     * @return The target product descriptor or {@code null},
+     * if the operator returns a {@link #getTargetPropertyDescriptor target property} instead.
+     * @since BEAM 5
+     */
+    public TargetProductDescriptor getTargetProductDescriptor() {
+        return targetProductDescriptor;
+    }
+
+    /**
+     * @return The target property descriptor or {@code null},
+     * if the operator returns a {@link #getTargetProductDescriptor target product} only.
+     * @since BEAM 5
+     */
+    public TargetPropertyDescriptor getTargetPropertyDescriptor() {
+        return targetPropertyDescriptor;
+    }
+
+    /**
+     * @return The parameter descriptors.
+     * The array will be empty if the operator does not have any parameters.
+     * @since BEAM 5
+     */
+    public ParameterDescriptor[] getParameterDescriptors() {
+        return parameterDescriptors;
     }
 
     public static String getOperatorAlias(Class<? extends Operator> operatorClass) {
@@ -202,449 +253,239 @@ public abstract class OperatorSpi {
         return null;
     }
 
-/*
-    public OperatorDescriptor getOperatorDescriptor() {
-        return operatorDescriptor;
-    }
-
-    public SourceProductDescriptor[] getSourceProductDescriptors() {
-
-    }
-
-    public TargetProductDescriptor getTargetProductDescriptor() {
-
-    }
-
-    public ParameterDescriptor[] getParameterDescriptors() {
-
-    }
-  */
-    public static interface ItemDescriptor {
+    /**
+     * Metadata used to describe elements of an operator.
+     * @since BEAM 5
+     */
+    public static interface ElementDescriptor {
         /**
-         * @return The name of the operator.
+         * @return The symbolic name used to unambiguously identify this element.
+         * E.g. the fully qualified name of a Java class.
          */
         String getName();
 
         /**
-         * @return The item description.
+         * @return A short form of the symbolic name.
+         * Defaults to the empty string (= not set).
          */
-        String getDescription();
-    }
-
-    public static interface OperatorDescriptor extends ItemDescriptor {
+        String getAlias();
 
         /**
+         * @return A human-readable version of the symbolic name to be used in user interfaces.
+         * Defaults to the empty string (= not set).
+         */
+        String getLabel();
+
+        /**
+         * @return A short description.
+         * Defaults to the empty string (= not set).
+         */
+        String getDescription();
+
+        /**
+         * @return The element's data type.
+         * Defaults to {@link java.lang.Object}.
+         */
+        Class<?> getDataType();
+    }
+
+    /**
+     * Operator metadata.
+     * @since BEAM 5
+     */
+    public static interface OperatorDescriptor extends ElementDescriptor {
+        /**
          * @return The version of the operator.
-         *         Defaults to the empty string (= not set).
+         * Defaults to the empty string (= not set).
          */
         String getVersion();
 
         /**
          * @return The author(s) of the operator.
-         *         Defaults to the empty string (= not set).
+         * Defaults to the empty string (= not set).
          */
         String getAuthors();
 
         /**
          * @return The copyright notice for the operator code.
-         *         Defaults to the empty string (= not set).
+         * Defaults to the empty string (= not set).
          */
-        String getCopyright() ;
+        String getCopyright();
 
         /**
          * @return If {@code true}, this operator is considered for internal use only and thus
-         *         may not be exposed in user interfaces.
+         * may not be exposed in user interfaces.
          */
         boolean isInternal();
     }
 
-    public static interface SourceProductDescriptor {
+    /**
+     * Source product element metadata.
+     * @since BEAM 5
+     */
+    public static interface SourceProductDescriptor extends ElementDescriptor {
+
         /**
          * @return {@code true} if the source product is optional.
-         *         In this case the field value thus may be {@code null}.
-         *         Defaults to {@code false}.
+         * In this case the field value thus may be {@code null}.
+         * Defaults to {@code false}.
          */
         boolean isOptional();
 
         /**
          * @return The product type or a regular expression identifying the allowed product types.
-         *         Defaults to the empty string (= not set).
+         * Defaults to the empty string (= not set).
          * @see java.util.regex.Pattern
          */
-        String getType();
+        String getProductType();
 
         /**
          * @return The names of the bands which need to be present in the source product.
-         *         Defaults to an empty array (= not set).
+         * Defaults to an empty array (= not set).
          */
         String[] getBands();
-
-        String getLabel();
     }
 
-    public static interface TargetProductDescriptor {
+    /**
+     * Target product element metadata.
+     * @since BEAM 5
+     */
+    public static interface TargetProductDescriptor extends ElementDescriptor {
     }
 
-    public static interface ParameterDescriptor {
-       /**
-        * @return An alias name for the elements of a parameter array.
-        *         Forces element-wise array conversion from and to DOM representation.
-        *         Defaults to the empty string (= not set).
-        * @see #areItemsInlined()
-        */
-       String getItemName();
+    /**
+     * Target property element metadata.
+     * @since BEAM 5
+     */
+    public static interface TargetPropertyDescriptor extends ElementDescriptor {
+    }
 
-       /**
-        * @return If {@code true} items of parameter array values are inlined (not
-        *         enclosed by the parameter name) in the DOM representation of the
-        *         array. In this case also the ({@code itemName} must be given.
-        *         Defaults to {@code false}.
-        * @see #getItemName()
-        */
-       boolean areItemsInlined();
-
-       /**
-        * Gets the parameter's default value.
-        * The default value set is given as a textual representations of the actual value.
-        * The framework creates the actual value set by converting the text value to
-        * an object using the associated {@link com.bc.ceres.binding.Converter}.
-        *
-        * @return The default value.
-        *         Defaults to the empty string (= not set).
-        * @see #getConverter()
-        */
-       String getDefaultValue();
-
-       /**
-        * @return A parameter label.
-        *         Defaults to the empty string (= not set).
-        */
-       String getLabel();
-
-       /**
-        * @return The parameter physical unit.
-        *         Defaults to the empty string (= not set).
-        */
-       String getUnit();
-
-       /**
-        * @return The parameter description.
-        *         Defaults to the empty string (= not set).
-        */
-       String getDescription();
-
-       /**
-        * Gets the set of values which can be assigned to a parameter field.
-        * The value set is given as textual representations of the actual values.
-        * The framework creates the actual value set by converting each text value to
-        * an object value using the associated {@link com.bc.ceres.binding.Converter}.
-        *
-        * @return The value set.Defaults to empty array (= not set).
-        * @see #getConverter()
-        */
-       String[] getValueSet();
-
-       /**
-        * Gets the valid interval for numeric parameters, e.g. {@code "[10,20)"}: in the range 10 (inclusive) to 20 (exclusive).
-        *
-        * @return The valid interval. Defaults to empty string (= not set).
-        */
-       String getInterval();
-
-       /**
-        * Gets a conditional expression which must return {@code true} in order to indicate
-        * that the parameter value is valid, e.g. {@code "value > 2.5"}.
-        *
-        * @return A conditional expression. Defaults to empty string (= not set).
-        */
-       String getCondition();
-
-       /**
-        * Gets a regular expression pattern to which a textual parameter value must match in order to indicate
-        * a valid value, e.g. {@code "a*"}.
-        *
-        * @return A regular expression pattern. Defaults to empty string (= not set).
-        * @see java.util.regex.Pattern
-        */
-       String getPattern();
-
-       /**
-        * Gets a format string to which a textual parameter value must match in order to indicate
-        * a valid value, e.g. {@code "yyyy-MM-dd HH:mm:ss.Z"}.
-        *
-        * @return A format string. Defaults to empty string (= not set).
-        * @see java.text.Format
-        */
-       String getFormat();
-
-       /**
-        * Parameter value must not be {@code null}?
-        *
-        * @return {@code true}, if so. Defaults to {@code false}.
-        */
-       boolean isNotNull();
-
-       /**
-        * Parameter value must not be an empty string?
-        *
-        * @return {@code true}, if so. Defaults to {@code false}.
-        */
-       boolean isNotEmpty();
-
-       /**
-        * A validator to be used to validate a parameter value.
-        *
-        * @return The validator class.
-        */
-       Class<? extends Validator> getValidator();
-
-       /**
-        * A converter to be used to convert a text to the parameter value and vice versa.
-        *
-        * @return The converter class.
-        */
-       Class<? extends Converter> getConverter();
-
-       /**
-        * A converter to be used to convert an (XML) DOM to the parameter value and vice versa.
-        *
-        * @return The DOM converter class.
-        */
-       Class<? extends DomConverter> getDomConverter();
+    /**
+     * Target parameter element metadata.
+     * @since BEAM 5
+     */
+    public static interface ParameterDescriptor extends ElementDescriptor {
 
         /**
-        * Specifies which {@code RasterDataNode} subclass of the source products is used
-        * to fill the {@link #getValueSet()} for this parameter.
-        *
-        * @return The raster data node type.
-        */
-       Class<? extends RasterDataNode> getRasterDataNodeType();
+         * @return An alias name for the elements of a parameter array.
+         * Forces element-wise array conversion from and to DOM representation.
+         * Defaults to the empty string (= not set).
+         * @see #areItemsInlined()
+         */
+        String getItemAlias();
+
+        /**
+         * @return If {@code true} items of parameter array values are inlined (not
+         * enclosed by the parameter name) in the DOM representation of the
+         * array. In this case also the ({@code itemName} must be given.
+         * Defaults to {@code false}.
+         * @see #getItemAlias()
+         */
+        boolean areItemsInlined();
+
+        /**
+         * Gets the parameter's default value.
+         * The default value set is given as a textual representations of the actual value.
+         * The framework creates the actual value set by converting the text value to
+         * an object using the associated {@link com.bc.ceres.binding.Converter}.
+         *
+         * @return The default value.
+         * Defaults to the empty string (= not set).
+         * @see #getConverter()
+         */
+        String getDefaultValue();
+
+        /**
+         * @return The parameter physical unit.
+         * Defaults to the empty string (= not set).
+         */
+        String getUnit();
+
+        /**
+         * Gets the set of values which can be assigned to a parameter field.
+         * The value set is given as textual representations of the actual values.
+         * The framework creates the actual value set by converting each text value to
+         * an object value using the associated {@link com.bc.ceres.binding.Converter}.
+         *
+         * @return The value set.Defaults to empty array (= not set).
+         * @see #getConverter()
+         */
+        String[] getValueSet();
+
+        /**
+         * Gets the valid interval for numeric parameters, e.g. {@code "[10,20)"}: in the range 10 (inclusive) to 20 (exclusive).
+         *
+         * @return The valid interval. Defaults to empty string (= not set).
+         */
+        String getInterval();
+
+        /**
+         * Gets a conditional expression which must return {@code true} in order to indicate
+         * that the parameter value is valid, e.g. {@code "value > 2.5"}.
+         *
+         * @return A conditional expression. Defaults to empty string (= not set).
+         */
+        String getCondition();
+
+        /**
+         * Gets a regular expression pattern to which a textual parameter value must match in order to indicate
+         * a valid value, e.g. {@code "a*"}.
+         *
+         * @return A regular expression pattern. Defaults to empty string (= not set).
+         * @see java.util.regex.Pattern
+         */
+        String getPattern();
+
+        /**
+         * Gets a format string to which a textual parameter value must match in order to indicate
+         * a valid value, e.g. {@code "yyyy-MM-dd HH:mm:ss.Z"}.
+         *
+         * @return A format string. Defaults to empty string (= not set).
+         * @see java.text.Format
+         */
+        String getFormat();
+
+        /**
+         * Parameter value must not be {@code null}?
+         *
+         * @return {@code true}, if so. Defaults to {@code false}.
+         */
+        boolean isNotNull();
+
+        /**
+         * Parameter value must not be an empty string?
+         *
+         * @return {@code true}, if so. Defaults to {@code false}.
+         */
+        boolean isNotEmpty();
+
+        /**
+         * A validator to be used to validate a parameter value.
+         *
+         * @return The validator class.
+         */
+        Class<? extends Validator> getValidator();
+
+        /**
+         * A converter to be used to convert a text to the parameter value and vice versa.
+         *
+         * @return The converter class.
+         */
+        Class<? extends Converter> getConverter();
+
+        /**
+         * A converter to be used to convert an (XML) DOM to the parameter value and vice versa.
+         *
+         * @return The DOM converter class.
+         */
+        Class<? extends DomConverter> getDomConverter();
+
+        /**
+         * Specifies which {@code RasterDataNode} subclass of the source products is used
+         * to fill the {@link #getValueSet()} for this parameter.
+         *
+         * @return The raster data node type.
+         */
+        Class<? extends RasterDataNode> getRasterDataNodeType();
     }
-/*
-    private static class AnnotationOperatorDescriptor implements OperatorDescriptor {
-        private final OperatorMetadata annotation;
-
-        public AnnotationOperatorDescriptor(OperatorMetadata annotation) {
-            this.annotation = annotation;
-        }
-
-        @Override
-        public String getAlias() {
-            return annotation.alias();
-        }
-
-        @Override
-        public String getVersion() {
-            return annotation.version();
-        }
-
-        @Override
-        public String getAuthors() {
-            return annotation.authors();
-        }
-
-        @Override
-        public String getCopyright() {
-            return annotation.copyright();
-        }
-
-        @Override
-        public String getDescription() {
-            return annotation.description();
-        }
-
-        @Override
-        public boolean isInternal() {
-            return annotation.internal();
-        }
-    }
-
-    private static class DefaultOperatorDescriptor implements OperatorDescriptor {
-
-        public AnnotationOperatorDescriptor(OperatorMetadata annotation) {
-            this.annotation = annotation;
-        }
-
-        @Override
-        public String getAlias() {
-            return annotation.alias();
-        }
-
-        @Override
-        public String getVersion() {
-            return annotation.version();
-        }
-
-        @Override
-        public String getAuthors() {
-            return annotation.authors();
-        }
-
-        @Override
-        public String getCopyright() {
-            return annotation.copyright();
-        }
-
-        @Override
-        public String getDescription() {
-            return annotation.description();
-        }
-
-        @Override
-        public boolean isInternal() {
-            return annotation.internal();
-        }
-    }
-
-    private static class AnnotationSourceProductDescriptor implements SourceProductDescriptor {
-        private final SourceProduct annotation;
-
-        public AnnotationSourceProductDescriptor(SourceProduct annotation) {
-            this.annotation = annotation;
-        }
-
-        @Override
-        public boolean isOptional() {
-            return annotation.optional();
-        }
-
-        @Override
-        public String getType() {
-            return annotation.type();
-        }
-
-        @Override
-        public String[] getBands() {
-            return annotation.bands();
-        }
-
-        @Override
-        public String getAlias() {
-            return annotation.alias();
-        }
-
-        @Override
-        public String getDescription() {
-            return annotation.description();
-        }
-
-        @Override
-        public String getLabel() {
-            return annotation.label();
-        }
-    }
-
-    private static class AnnotationTargetProductDescriptor implements TargetProductDescriptor {
-
-        private final TargetProduct annotation;
-
-        public AnnotationTargetProductDescriptor(TargetProduct annotation) {
-            this.annotation = annotation;
-        }
-
-        @Override
-        public String getDescription() {
-            return annotation.description();
-        }
-    }
-
-    private static class AnnotationParameterDescriptor implements ParameterDescriptor {
-        private final Parameter annotation;
-
-        public AnnotationParameterDescriptor(Parameter annotation) {
-            this.annotation = annotation;
-        }
-
-        @Override
-        public String getAlias() {
-            return annotation.alias();
-        }
-
-        @Override
-        public String getItemAlias() {
-            return annotation.itemAlias();
-        }
-
-        @Override
-        public boolean areItemsInlined() {
-            return annotation.itemsInlined();
-        }
-
-        @Override
-        public String getDefaultValue() {
-            return annotation.defaultValue();
-        }
-
-        @Override
-        public String getLabel() {
-            return annotation.label();
-        }
-
-        @Override
-        public String getUnit() {
-            return annotation.unit();
-        }
-
-        @Override
-        public String getDescription() {
-            return annotation.description();
-        }
-
-        @Override
-        public String[] getValueSet() {
-            return annotation.valueSet();
-        }
-
-        @Override
-        public String getInterval() {
-            return annotation.interval();
-        }
-
-        @Override
-        public String getCondition() {
-            return annotation.condition();
-        }
-
-        @Override
-        public String getPattern() {
-            return annotation.pattern();
-        }
-
-        @Override
-        public String getFormat() {
-            return annotation.format();
-        }
-
-        @Override
-        public boolean isNotNull() {
-            return annotation.notNull();
-        }
-
-        @Override
-        public boolean isNotEmpty() {
-            return annotation.notEmpty();
-        }
-
-        @Override
-        public Class<? extends Validator> getValidator() {
-            return annotation.validator();
-        }
-
-        @Override
-        public Class<? extends Converter> getConverter() {
-            return annotation.converter();
-        }
-
-        @Override
-        public Class<? extends DomConverter> getDomConverter() {
-            return annotation.domConverter();
-        }
-
-        @Override
-        public Class<? extends RasterDataNode> getRasterDataNodeType() {
-            return annotation.rasterDataNodeType();
-        }
-    }
-
-*/
 }
