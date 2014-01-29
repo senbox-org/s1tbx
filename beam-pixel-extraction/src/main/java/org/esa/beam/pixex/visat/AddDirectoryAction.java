@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -82,21 +82,24 @@ class AddDirectoryAction extends AbstractAction {
         File[] selectedDirs;
         if (recursive) {
             File selectedDir = folderChooser.getSelectedFolder();
+            lastDir = selectedDir.getAbsolutePath();
             selectedDir = new File(selectedDir, "**");
             selectedDir = new File(selectedDir, pattern);
             selectedDirs = new File[]{selectedDir};
         } else {
             final File[] selectedPaths = folderChooser.getSelectedFiles();
+            if (selectedPaths.length > 0) {
+                lastDir = selectedPaths[0].getAbsolutePath();
+            }
             selectedDirs = new File[selectedPaths.length];
             for (int i = 0; i < selectedPaths.length; i++) {
                 File selectedFile = selectedPaths[i];
                 selectedDirs[i] = new File(selectedFile, pattern);
             }
         }
+        preferences.setPropertyString(PixelExtractionIOForm.LAST_OPEN_INPUT_DIR, lastDir);
         try {
             listModel.addElements(selectedDirs);
-            preferences.setPropertyString(PixelExtractionIOForm.LAST_OPEN_INPUT_DIR,
-                                          selectedDirs[0].getAbsolutePath());
 
         } catch (ValidationException ve) {
             // not expected to ever come here
