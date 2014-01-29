@@ -235,6 +235,7 @@ public class SimpleNetcdfFile {
                         }
                     }
                 }
+                LOG.fine("found uncompressed " + uncompressedFile + " for " + filename);
                 return uncompressedFile.getPath();
             } finally {
                 if (lock != null) lock.release();
@@ -270,19 +271,23 @@ public class SimpleNetcdfFile {
             if (suffix.equalsIgnoreCase("Z")) {
                 in = new UncompressInputStream(new FileInputStream(filename));
                 copy(in, fout, 100000);
+                LOG.fine("uncompressed " + filename + " to " + uncompressedFile);
             } else if (suffix.equalsIgnoreCase("zip")) {
                 ZipInputStream zin = new ZipInputStream(new FileInputStream(filename));
                 ZipEntry ze = zin.getNextEntry();
                 if (ze != null) {
                     in = zin;
                     copy(in, fout, 100000);
+                    LOG.fine("unzipped " + filename + " entry " + ze.getName() + " to " + uncompressedFile);
                 }
             } else if (suffix.equalsIgnoreCase("bz2")) {
                 in = new CBZip2InputStream(new FileInputStream(filename), true);
                 copy(in, fout, 100000);
+                LOG.fine("unbzipped " + filename + " to " + uncompressedFile);
             } else if (suffix.equalsIgnoreCase("gzip") || suffix.equalsIgnoreCase("gz")) {
                 in = new GZIPInputStream(new FileInputStream(filename));
                 copy(in, fout, 100000);
+                LOG.fine("ungzipped " + filename + " to " + uncompressedFile);
             }
         } catch (Exception e) {
 
@@ -316,6 +321,7 @@ public class SimpleNetcdfFile {
         }
     }
 
+    // use internal class to defer execution of static initializer
     private static class BeamNetcdfFile extends NetcdfFile {
         private BeamNetcdfFile(IOServiceProvider spi, RandomAccessFile raf, String location) throws IOException {
             super(spi, raf, location, null);
