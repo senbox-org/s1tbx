@@ -66,4 +66,28 @@ public class AnnotationOperatorDescriptor implements OperatorSpi.OperatorDescrip
     public Class<? extends Operator> getDataType() {
         return dataType;
     }
+
+    @Override
+    public OperatorSpi.SourceProductDescriptor[] getSourceProductDescriptors() {
+        // todo - implement getSourceProductDescriptors (Norman, 29.01.14)
+        return new OperatorSpi.SourceProductDescriptor[0];
+    }
+
+    @Override
+    public OperatorSpi.TargetProductDescriptor getTargetProductDescriptor() {
+        // todo - implement getTargetProductDescriptor (Norman, 29.01.14)
+        return null;
+    }
+
+    @Override
+    public OperatorSpi.TargetPropertyDescriptor[] getTargetPropertyDescriptors() {
+        // todo - implement getTargetPropertyDescriptors (Norman, 29.01.14)
+        return new OperatorSpi.TargetPropertyDescriptor[0];
+    }
+
+    @Override
+    public OperatorSpi.ParameterDescriptor[] getParameterDescriptors() {
+        // todo - implement getParameterDescriptors (Norman, 29.01.14)
+        return new OperatorSpi.ParameterDescriptor[0];
+    }
 }

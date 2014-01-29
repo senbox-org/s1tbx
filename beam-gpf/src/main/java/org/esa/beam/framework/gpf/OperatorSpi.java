@@ -198,41 +198,6 @@ public abstract class OperatorSpi {
         return operatorDescriptor;
     }
 
-    /**
-     * @return The source product descriptors.
-     * The array will be empty if the operator does not have any source products.
-     * @since BEAM 5
-     */
-    public SourceProductDescriptor[] getSourceProductDescriptors() {
-        return sourceProductDescriptors;
-    }
-
-    /**
-     * @return The target product descriptor or {@code null},
-     * if the operator returns a {@link #getTargetPropertyDescriptor target property} instead.
-     * @since BEAM 5
-     */
-    public TargetProductDescriptor getTargetProductDescriptor() {
-        return targetProductDescriptor;
-    }
-
-    /**
-     * @return The target property descriptor or {@code null},
-     * if the operator returns a {@link #getTargetProductDescriptor target product} only.
-     * @since BEAM 5
-     */
-    public TargetPropertyDescriptor getTargetPropertyDescriptor() {
-        return targetPropertyDescriptor;
-    }
-
-    /**
-     * @return The parameter descriptors.
-     * The array will be empty if the operator does not have any parameters.
-     * @since BEAM 5
-     */
-    public ParameterDescriptor[] getParameterDescriptors() {
-        return parameterDescriptors;
-    }
 
     public static String getOperatorAlias(Class<? extends Operator> operatorClass) {
         OperatorMetadata annotation = operatorClass.getAnnotation(OperatorMetadata.class);
@@ -255,6 +220,7 @@ public abstract class OperatorSpi {
 
     /**
      * Metadata used to describe elements of an operator.
+     *
      * @since BEAM 5
      */
     public static interface ElementDescriptor {
@@ -291,6 +257,7 @@ public abstract class OperatorSpi {
 
     /**
      * Operator metadata.
+     *
      * @since BEAM 5
      */
     public static interface OperatorDescriptor extends ElementDescriptor {
@@ -317,10 +284,40 @@ public abstract class OperatorSpi {
          * may not be exposed in user interfaces.
          */
         boolean isInternal();
+
+        /**
+         * @return The operator class.
+         * Defaults to {@link Operator}.
+         */
+        Class<? extends Operator> getDataType();
+
+        /**
+         * @return The source product descriptors.
+         * The array will be empty if the operator does not have any source products.
+         */
+        SourceProductDescriptor[] getSourceProductDescriptors();
+
+        /**
+         * @return The target product descriptor.
+         */
+        TargetProductDescriptor getTargetProductDescriptor();
+
+        /**
+         * @return The target property descriptors.
+         * The array will be empty if the operator does not produce any target properties.
+         */
+        TargetPropertyDescriptor[] getTargetPropertyDescriptors();
+
+        /**
+         * @return The parameter descriptors.
+         * The array will be empty if the operator does not have any parameters.
+         */
+        ParameterDescriptor[] getParameterDescriptors();
     }
 
     /**
      * Source product element metadata.
+     *
      * @since BEAM 5
      */
     public static interface SourceProductDescriptor extends ElementDescriptor {
@@ -344,17 +341,30 @@ public abstract class OperatorSpi {
          * Defaults to an empty array (= not set).
          */
         String[] getBands();
+
+        /**
+         * @return The source product type.
+         * Defaults to {@link Product}.
+         */
+        Class<? extends Product> getDataType();
     }
 
     /**
      * Target product element metadata.
+     *
      * @since BEAM 5
      */
     public static interface TargetProductDescriptor extends ElementDescriptor {
+        /**
+         * @return The target product type.
+         * Defaults to {@link Product}.
+         */
+        Class<? extends Product> getDataType();
     }
 
     /**
      * Target property element metadata.
+     *
      * @since BEAM 5
      */
     public static interface TargetPropertyDescriptor extends ElementDescriptor {
@@ -362,6 +372,7 @@ public abstract class OperatorSpi {
 
     /**
      * Target parameter element metadata.
+     *
      * @since BEAM 5
      */
     public static interface ParameterDescriptor extends ElementDescriptor {

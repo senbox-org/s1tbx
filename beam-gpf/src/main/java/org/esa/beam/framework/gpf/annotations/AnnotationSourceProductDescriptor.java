@@ -55,7 +55,7 @@ public class AnnotationSourceProductDescriptor implements OperatorSpi.SourceProd
     }
 
     @Override
-    public Class<?> getDataType() {
+    public Class<? extends Product> getDataType() {
         return Product.class;
     }
 }

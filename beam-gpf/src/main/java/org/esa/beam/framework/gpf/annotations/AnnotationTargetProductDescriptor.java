@@ -38,7 +38,7 @@ public class AnnotationTargetProductDescriptor implements OperatorSpi.TargetProd
     }
 
     @Override
-    public Class<?> getDataType() {
+    public Class<? extends Product> getDataType() {
         return Product.class;
     }
 }

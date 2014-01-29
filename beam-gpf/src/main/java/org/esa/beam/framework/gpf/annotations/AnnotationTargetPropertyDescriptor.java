@@ -7,7 +7,7 @@ import org.esa.beam.framework.gpf.OperatorSpi;
  * @author Norman Fomferra
  * @since BEAM 5
  */
-public class AnnotationTargetPropertyDescriptor implements OperatorSpi.TargetProductDescriptor {
+public class AnnotationTargetPropertyDescriptor implements OperatorSpi.TargetPropertyDescriptor {
 
     private final String name;
     private final Class<?> dataType;
