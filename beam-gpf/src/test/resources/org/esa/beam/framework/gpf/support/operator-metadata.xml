@@ -1,0 +1,35 @@
+<operator>
+    <name>org.esa.beam.framework.gpf.jpy.PyOperator</name>
+    <alias>PyOp</alias>
+    <label>Python operator</label>
+    <internal>true</internal>
+
+    <sourcesProducts>
+        <sourceProduct>
+            <name>masterProduct</name>
+            <alias>master</alias>
+        </sourceProduct>
+        <sourceProduct>
+            <optional>true</optional>
+            <name>slaveProduct</name>
+            <alias>slave</alias>
+        </sourceProduct>
+    </sourcesProducts>
+
+    <parameters>
+        <parameter>
+            <name>threshold</name>
+            <dataType>double</dataType>
+        </parameter>
+        <parameter>
+            <name>ignoreInvalids</name>
+            <dataType>boolean</dataType>
+        </parameter>
+        <parameter>
+            <name>algorithmName</name>
+            <dataType>java.lang.String</dataType>
+        </parameter>
+    </parameters>
+
+    <targetProduct/>
+</operator>
