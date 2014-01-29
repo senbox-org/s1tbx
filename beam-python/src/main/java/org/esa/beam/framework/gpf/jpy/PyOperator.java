@@ -3,13 +3,11 @@ package org.esa.beam.framework.gpf.jpy;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.Tile;
 import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.Parameter;
-import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.jpy.PyLib;
 import org.jpy.PyModule;
 import org.jpy.PyObject;
@@ -18,78 +16,93 @@ import java.awt.Rectangle;
 import java.util.Map;
 
 /**
+ * An operator which uses Python code to process data products.
+ *
  * @author Norman Fomferra
+ * @since BEAM 5
  */
-@OperatorMetadata(alias = "PyOperator", internal=true)
+@OperatorMetadata(alias = "PyOp",
+                  description = "Uses Python code to process data products",
+                  version = "0.5",
+                  authors = "N. Fomferra")
 public class PyOperator extends Operator {
 
-    /**
-     * The single source product.
-     */
-    @SourceProduct(optional = true)
-    private Product sourceProduct;
+    //@SourceProduct(description = "The single source product.")
+    //private Product sourceProduct;
 
-    /**
-     * Name of the Python module.
-     */
-    @Parameter
+    //@Parameter
+    //Map<String, Object> parameters;
+
+    @Parameter(description = "Path to the Python module(s). Can be either an absolute path or relative to the current working directory.")
+    private String pythonModulePath;
+
+    @Parameter(description = "Name of the Python module.")
     private String pythonModuleName;
 
     /**
-     * Name of the Python class.
+     * Name of the Python class which implements the {@link org.esa.beam.framework.gpf.jpy.PyOperator.PythonProcessor} interface.
      */
-    @Parameter
-    private String tileComputerClassName;
-
-    @Parameter
-    Map<String, Object> parameters;
+    @Parameter(description = "Name of the Python class which implements the operator.")
+    private String pythonClassName;
 
     private transient PyModule pyModule;
-    private transient TileStackComputer tileStackComputer;
+    private transient PythonProcessor pythonProcessor;
 
     @Override
     public void initialize() throws OperatorException {
 
         System.out.println("initialize: thread = " + Thread.currentThread());
         PyLib.startPython(null);
-        PyModule pySysModule = PyModule.importModule("sys");
-        PyObject pyPathList = pySysModule.getAttribute("path");
-        pyPathList.callMethod("append", ".\\examples");
 
-        PyLib.Diag.setFlags(PyLib.Diag.F_EXEC);
+        if (pythonModulePath != null) {
+            PyModule pySysModule = PyModule.importModule("sys");
+            PyObject pyPathList = pySysModule.getAttribute("path");
+            pyPathList.callMethod("append", pythonModulePath);
+        }
+
+        //PyLib.Diag.setFlags(PyLib.Diag.F_EXEC);
         pyModule = PyModule.importModule(pythonModuleName);
-        PyObject pyTileComputer = pyModule.call(tileComputerClassName);
-        tileStackComputer = pyTileComputer.createProxy(TileStackComputer.class);
-        tileStackComputer.initialize(this);
+        PyObject pyTileComputer = pyModule.call(pythonClassName);
+        pythonProcessor = pyTileComputer.createProxy(PythonProcessor.class);
+        pythonProcessor.initialize(this);
     }
 
     @Override
     public void computeTileStack(Map<Band, Tile> targetTiles, Rectangle targetRectangle, ProgressMonitor pm) throws OperatorException {
-        System.out.println("computeTileStack: thread = " + Thread.currentThread());
-        PyLib.Diag.setFlags(PyLib.Diag.F_EXEC);
-        tileStackComputer.computeTileStack(this, targetTiles, targetRectangle);
+        //System.out.println("computeTileStack: thread = " + Thread.currentThread());
+        //PyLib.Diag.setFlags(PyLib.Diag.F_EXEC);
+        pythonProcessor.compute(this, targetTiles, targetRectangle);
         //PyLib.Diag.setFlags(PyLib.Diag.F_OFF);
     }
 
     @Override
     public void dispose() {
-        System.out.println("dispose: thread = " + Thread.currentThread());
-        tileStackComputer.dispose(this);
+        //System.out.println("dispose: thread = " + Thread.currentThread());
+        pythonProcessor.dispose(this);
     }
 
-    public interface TileComputer {
+    /**
+     * The interface that the given Python class must implement.
+     */
+    public interface PythonProcessor {
+        /**
+         * Initialize the operator.
+         * @param operator The GPF operator which called the Python code.
+         */
         void initialize(Operator operator);
 
-        void computeTile(Operator operator, Band targetBand, Tile targetTile);
+        /**
+         * Compute the tiles associated with the given bands.
+         * @param operator The GPF operator which called the Python code.
+         * @param targetTiles a mapping from {@link Band} objects to {@link Tile} objects.
+         * @param targetRectangle the target rectangle to process in pixel coordinates.
+         */
+        void compute(Operator operator, Map<Band, Tile> targetTiles, Rectangle targetRectangle);
 
-        void dispose(Operator operator);
-    }
-
-    public interface TileStackComputer {
-        void initialize(Operator operator);
-
-        void computeTileStack(Operator operator, Map<Band, Tile> targetTiles, Rectangle targetRectangle);
-
+        /**
+         * Disposes the operator and all the resources associated with it.
+         * @param operator  The GPF operator which called the Python code.
+         */
         void dispose(Operator operator);
     }
 

@@ -1,24 +1,17 @@
-
 import beampy
 import numpy
 
 jpy = beampy.jpy
 
-Rectangle = jpy.get_class('java.awt.Rectangle')
-Tile = jpy.get_class('org.esa.beam.framework.gpf.Tile')
-
-import sys
-
-#numpy.set_printoptions(threshold=10000*10000)
+Rectangle = jpy.get_type('java.awt.Rectangle')
+Tile = jpy.get_type('org.esa.beam.framework.gpf.Tile')
 
 class MerisNdviTileComputer:
-
-    def __init__(self):
-        pass
 
     def initialize(self, operator):
 
         merisProduct = operator.getSourceProduct()
+        print('initialize: source product is ', merisProduct.getFileLocation())
 
         width = merisProduct.getSceneRasterWidth()
         height = merisProduct.getSceneRasterHeight()
@@ -27,7 +20,7 @@ class MerisNdviTileComputer:
         self.b10 = merisProduct.getBand('radiance_10')
 
         ndviProduct = beampy.Product('pyNDVI', 'pyNDVI', width, height)
-        ndviProduct.setPreferredTileSize(200, 200)
+        #ndviProduct.setPreferredTileSize(200, 200)
         #ndviProduct.setPreferredTileSize(width, height)
         self.ndviBand = ndviProduct.addBand('ndvi', beampy.ProductData.TYPE_FLOAT32)
         self.ndviFlagsBand = ndviProduct.addBand('ndvi_flags', beampy.ProductData.TYPE_UINT8)
@@ -64,7 +57,3 @@ class MerisNdviTileComputer:
     def dispose(self, operator):
         pass
 
-    def dump(self, name, array):
-        self.log.write(str(name) + ' = numpy.' + repr(array[0:100]))
-        self.log.write('\n')
-        self.log.flush()
