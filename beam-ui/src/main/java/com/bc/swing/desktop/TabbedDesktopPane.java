@@ -521,7 +521,9 @@ public class TabbedDesktopPane extends JPanel {
          */
         @Override
         public void mouseReleased(MouseEvent e) {
-            // check: Context menu does not work anymore!!!
+            if (e.getButton() == MouseEvent.BUTTON2) {
+                closeFrame(getSelectedFrame());
+            }
             if (e.isPopupTrigger()) {
                 final int index = tabbedPane.indexAtLocation(e.getX(), e.getY());
                 if (index >= 0) {
