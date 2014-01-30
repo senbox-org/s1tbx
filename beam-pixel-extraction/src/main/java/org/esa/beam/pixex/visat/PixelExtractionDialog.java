@@ -77,13 +77,14 @@ class PixelExtractionDialog extends ModelessDialog implements ParameterUpdater {
 
         final Class<PixExOp> operatorClass = PixExOp.class;
         final OperatorParameterSupport parameterSupport = new OperatorParameterSupport(operatorClass,
-                propertyContainer,
-                parameterMap,
-                this);
+                                                                                       propertyContainer,
+                                                                                       parameterMap,
+                                                                                       this);
         final OperatorMenu operatorMenu = new OperatorMenu(this.getJDialog(),
-                operatorClass,
-                parameterSupport,
-                HELP_ID_JAVA_HELP);
+                                                           operatorClass,
+                                                           parameterSupport,
+                                                           appContext,
+                                                           HELP_ID_JAVA_HELP);
         getJDialog().setJMenuBar(operatorMenu.createDefaultMenu());
 
         ioForm = new PixelExtractionIOForm(appContext, propertyContainer);

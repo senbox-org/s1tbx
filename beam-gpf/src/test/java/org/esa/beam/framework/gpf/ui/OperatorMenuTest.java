@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -41,7 +41,9 @@ public class OperatorMenuTest {
 
     @Test
     public void testOperatorDescription() throws Exception {
-        final OperatorMenu support = new OperatorMenu(null, OperatorParameterSupportTest.TestOp.class, null, "");
+        DefaultAppContext appContext = new DefaultAppContext("test");
+
+        final OperatorMenu support = new OperatorMenu(null, OperatorParameterSupportTest.TestOp.class, null, appContext, "");
 
         assertEquals("Tester", support.getOperatorName());
 

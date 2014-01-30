@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -18,9 +18,7 @@ package org.esa.beam.framework.gpf.ui;
 
 import com.bc.ceres.binding.dom.DomElement;
 import com.bc.ceres.binding.dom.XppDomElement;
-import com.jidesoft.action.CommandBar;
 import com.jidesoft.action.CommandMenuBar;
-import com.jidesoft.action.DockableBar;
 import com.thoughtworks.xstream.io.copy.HierarchicalStreamCopier;
 import com.thoughtworks.xstream.io.xml.XppDomWriter;
 import com.thoughtworks.xstream.io.xml.XppReader;
@@ -29,17 +27,33 @@ import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.framework.ui.AbstractDialog;
+import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.io.FileUtils;
 
-import javax.swing.*;
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.JFileChooser;
+import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JTextArea;
 import javax.swing.filechooser.FileNameExtensionFilter;
-import java.awt.*;
+import java.awt.Component;
 import java.awt.event.ActionEvent;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Reader;
+import java.io.StringReader;
 
 /**
  * WARNING: This class belongs to a preliminary API and may change in future releases.
@@ -55,20 +69,25 @@ public class OperatorMenu {
     private final Component parentComponent;
     private final OperatorParameterSupport parameterSupport;
     private final Class<? extends Operator> opType;
+    private final AppContext appContext;
     private final String helpId;
     private final Action openParametersAction;
     private final Action saveParametersAction;
     private final Action displayParametersAction;
     private final Action aboutAction;
+    private final String lastDirPreferenceKey;
 
     public OperatorMenu(Component parentComponent,
                         Class<? extends Operator> opType,
                         OperatorParameterSupport parameterSupport,
+                        AppContext appContext,
                         String helpId) {
         this.parentComponent = parentComponent;
         this.parameterSupport = parameterSupport;
         this.opType = opType;
+        this.appContext = appContext;
         this.helpId = helpId;
+        lastDirPreferenceKey = opType.getCanonicalName() + ".lastDir";
         openParametersAction = new OpenParametersAction();
         saveParametersAction = new SaveParametersAction();
         displayParametersAction = new DisplayParametersAction();
@@ -131,6 +150,8 @@ public class OperatorMenu {
 
     private class OpenParametersAction extends AbstractAction {
 
+        private static final String TITLE = "Open Parameters";
+
         OpenParametersAction() {
             super("Open Parameters...");
         }
@@ -139,18 +160,18 @@ public class OperatorMenu {
         public void actionPerformed(ActionEvent event) {
             JFileChooser fileChooser = new JFileChooser();
             fileChooser.addChoosableFileFilter(createParameterFileFilter());
-            String title = "Open Parameters";
-            fileChooser.setDialogTitle(title);
+            fileChooser.setDialogTitle(TITLE);
             fileChooser.setDialogType(JFileChooser.OPEN_DIALOG);
+            applyCurrentDirectory(fileChooser);
             int response = fileChooser.showDialog(parentComponent, "Open");
             if (JFileChooser.APPROVE_OPTION == response) {
                 try {
-                    File selectedFile = fileChooser.getSelectedFile();
-                    readFromFile(selectedFile);
+                    preserveCurrentDirectory(fileChooser);
+                    readFromFile(fileChooser.getSelectedFile());
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    Debug.trace(e);
                     JOptionPane.showMessageDialog(parentComponent, "Could not open parameters.\n" + e.getMessage(),
-                                                  title, JOptionPane.ERROR_MESSAGE);
+                                                  TITLE, JOptionPane.ERROR_MESSAGE);
                 }
             }
         }
@@ -190,11 +211,11 @@ public class OperatorMenu {
             new HierarchicalStreamCopier().copy(new XppReader(new StringReader(xml)), domWriter);
             return domWriter.getConfiguration();
         }
-
-
     }
 
     private class SaveParametersAction extends AbstractAction {
+
+        private static final String TITLE = "Save Parameters";
 
         SaveParametersAction() {
             super("Save Parameters...");
@@ -206,21 +227,22 @@ public class OperatorMenu {
             final FileNameExtensionFilter parameterFileFilter = createParameterFileFilter();
             fileChooser.addChoosableFileFilter(parameterFileFilter);
             fileChooser.setAcceptAllFileFilterUsed(false);
-            String title = "Save Parameters";
-            fileChooser.setDialogTitle(title);
+            fileChooser.setDialogTitle(TITLE);
             fileChooser.setDialogType(JFileChooser.SAVE_DIALOG);
+            applyCurrentDirectory(fileChooser);
             int response = fileChooser.showDialog(parentComponent, "Save");
             if (JFileChooser.APPROVE_OPTION == response) {
                 try {
+                    preserveCurrentDirectory(fileChooser);
                     File selectedFile = fileChooser.getSelectedFile();
                     selectedFile = FileUtils.ensureExtension(selectedFile,
                                                              "." + parameterFileFilter.getExtensions()[0]);
                     String xmlString = parameterSupport.toDomElement().toXml();
                     writeToFile(xmlString, selectedFile);
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    Debug.trace(e);
                     JOptionPane.showMessageDialog(parentComponent, "Could not save parameters.\n" + e.getMessage(),
-                                                  title, JOptionPane.ERROR_MESSAGE);
+                                                  TITLE, JOptionPane.ERROR_MESSAGE);
                 }
             }
         }
@@ -265,7 +287,6 @@ public class OperatorMenu {
         public boolean isEnabled() {
             return super.isEnabled() && parameterSupport != null;
         }
-
     }
 
 
@@ -279,7 +300,6 @@ public class OperatorMenu {
         public void actionPerformed(ActionEvent event) {
             showMessageDialog("About " + getOperatorName(), new JLabel(getOperatorDescription()));
         }
-
     }
 
     private void showMessageDialog(String title, Component component) {
@@ -322,6 +342,24 @@ public class OperatorMenu {
 
     private static String makeHtmlConform(String text) {
         return text.replace("\n", "<br/>");
+    }
+
+    private void applyCurrentDirectory(JFileChooser fileChooser) {
+        String homeDirPath = SystemUtils.getUserHomeDir().getPath();
+        String lastDir = appContext.getPreferences().getPropertyString(lastDirPreferenceKey, homeDirPath);
+        System.out.println("org.esa.beam.framework.gpf.ui.OperatorMenu.applyCurrentDirectory");
+        System.out.println("lastDir = " + lastDir);
+        System.out.println("lastDirPreferenceKey = " + lastDirPreferenceKey);
+        fileChooser.setCurrentDirectory(new File(lastDir));
+    }
+
+    private void preserveCurrentDirectory(JFileChooser fileChooser) {
+        String lastDir = fileChooser.getCurrentDirectory().getAbsolutePath();
+        appContext.getPreferences().setPropertyString(lastDirPreferenceKey, lastDir);
+        System.out.println("org.esa.beam.framework.gpf.ui.OperatorMenu.preserveCurrentDirectory");
+        System.out.println("lastDir = " + lastDir);
+        System.out.println("lastDirPreferenceKey = " + lastDirPreferenceKey);
+
     }
 
 }
