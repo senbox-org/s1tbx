@@ -220,7 +220,7 @@ public class TabbedDesktopPane extends JPanel {
 //        desktopPane.setBackground(BACKGROUND_COLOR);
 // </old-UI>
         tabbedPane.setBackground(desktopPane.getBackground());
-
+        tabbedPane.setShowCloseButtonOnTab(true);
 // <JIDE>
         tabbedPane.setCloseAction(new AbstractAction() {
             @Override
@@ -236,7 +236,7 @@ public class TabbedDesktopPane extends JPanel {
                 }
             }
         });
-        tabbedPane.setShowCloseButton(true);
+//        tabbedPane.setShowCloseButton(true);
 //        tabbedPane.setTabShape(JideTabbedPane.SHAPE_BOX);
 //        tabbedPane.setTabResizeMode(JideTabbedPane.RESIZE_MODE_FIXED);
 // </JIDE>
