@@ -3,11 +3,13 @@ package org.esa.beam.framework.gpf.jpy;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.Tile;
 import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.Parameter;
+import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.jpy.PyLib;
 import org.jpy.PyModule;
 import org.jpy.PyObject;
@@ -27,13 +29,14 @@ import java.util.Map;
                   authors = "N. Fomferra")
 public class PyOperator extends Operator {
 
-    //@SourceProduct(description = "The single source product.")
-    //private Product sourceProduct;
+    // todo - remove this later
+    @SourceProduct(description = "The (currently) single source product.")
+    private Product sourceProduct;
 
     //@Parameter
     //Map<String, Object> parameters;
 
-    @Parameter(description = "Path to the Python module(s). Can be either an absolute path or relative to the current working directory.")
+    @Parameter(description = "Path to the Python module(s). Can be either an absolute path or relative to the current working directory.", defaultValue = ".")
     private String pythonModulePath;
 
     @Parameter(description = "Name of the Python module.")
@@ -42,7 +45,7 @@ public class PyOperator extends Operator {
     /**
      * Name of the Python class which implements the {@link org.esa.beam.framework.gpf.jpy.PyOperator.PythonProcessor} interface.
      */
-    @Parameter(description = "Name of the Python class which implements the operator.")
+    @Parameter(description = "Name of the Python class which implements the operator. Please refer to the BEAM help for details.")
     private String pythonClassName;
 
     private transient PyModule pyModule;
@@ -50,8 +53,8 @@ public class PyOperator extends Operator {
 
     @Override
     public void initialize() throws OperatorException {
+        //PyLib.Diag.setFlags(PyLib.Diag.F_JVM);
 
-        System.out.println("initialize: thread = " + Thread.currentThread());
         PyLib.startPython(null);
 
         if (pythonModulePath != null) {
@@ -60,10 +63,11 @@ public class PyOperator extends Operator {
             pyPathList.callMethod("append", pythonModulePath);
         }
 
-        //PyLib.Diag.setFlags(PyLib.Diag.F_EXEC);
+        PyLib.execScript(String.format("if '%s' in globals(): del %s", pythonModuleName, pythonModuleName));
+
         pyModule = PyModule.importModule(pythonModuleName);
-        PyObject pyTileComputer = pyModule.call(pythonClassName);
-        pythonProcessor = pyTileComputer.createProxy(PythonProcessor.class);
+        PyObject pythonProcessorImpl = pyModule.call(pythonClassName);
+        pythonProcessor = pythonProcessorImpl.createProxy(PythonProcessor.class);
         pythonProcessor.initialize(this);
     }
 

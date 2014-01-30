@@ -19,6 +19,7 @@
     <symbolicName>beam-python</symbolicName>
     <version>5.0</version>
     <name>BEAM Python Interface</name>
+    <packaging>dir</packaging>
 
     <description>
     </description>
@@ -44,7 +45,25 @@
     <dependency>
         <module>beam-visat-rcp</module>
     </dependency>
+    <dependency>
+        <lib>lib/jpy-0.7-SNAPSHOT.jar</lib>
+    </dependency>
 
-    <categories>VISAT,Operator,Processor,System</categories>
+
+    <categories>Processor,System</categories>
+
+
+    <extension point="beam-ui:actions">
+        <action>
+            <id>pythonOperator</id>
+            <helpId>pythonOperator</helpId>
+            <class>org.esa.beam.visat.actions.DefaultOperatorAction</class>
+            <parent>tools</parent>
+            <text>Python Processor...</text>
+            <operatorName>PyOp</operatorName>
+            <dialogTitle>Python operator</dialogTitle>
+            <!--<targetProductNameSuffix></targetProductNameSuffix>-->
+        </action>
+    </extension>
 
 </module>
