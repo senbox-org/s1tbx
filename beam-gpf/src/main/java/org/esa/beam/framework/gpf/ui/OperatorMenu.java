@@ -72,7 +72,7 @@ public class OperatorMenu {
     private final Class<? extends Operator> opType;
     private final AppContext appContext;
     private final String helpId;
-    private final Action openParametersAction;
+    private final Action loadParametersAction;
     private final Action saveParametersAction;
     private final Action displayParametersAction;
     private final Action aboutAction;
@@ -89,26 +89,10 @@ public class OperatorMenu {
         this.appContext = appContext;
         this.helpId = helpId;
         lastDirPreferenceKey = opType.getCanonicalName() + ".lastDir";
-        openParametersAction = new OpenParametersAction();
+        loadParametersAction = new LoadParametersAction();
         saveParametersAction = new SaveParametersAction();
         displayParametersAction = new DisplayParametersAction();
         aboutAction = new AboutOperatorAction();
-    }
-
-    public Action getSaveParametersAction() {
-        return saveParametersAction;
-    }
-
-    public Action getDisplayParametersAction() {
-        return displayParametersAction;
-    }
-
-    public Action getOpenParametersAction() {
-        return openParametersAction;
-    }
-
-    public Action getAboutOperatorAction() {
-        return aboutAction;
     }
 
     /**
@@ -118,7 +102,7 @@ public class OperatorMenu {
      */
     public JMenuBar createDefaultMenu() {
         JMenu fileMenu = new JMenu("File");
-        fileMenu.add(openParametersAction);
+        fileMenu.add(loadParametersAction);
         fileMenu.add(saveParametersAction);
         fileMenu.addSeparator();
         fileMenu.add(displayParametersAction);
@@ -149,12 +133,12 @@ public class OperatorMenu {
         return menuItem;
     }
 
-    private class OpenParametersAction extends AbstractAction {
+    private class LoadParametersAction extends AbstractAction {
 
-        private static final String TITLE = "Open Parameters";
+        private static final String TITLE = "Load Parameters";
 
-        OpenParametersAction() {
-            super("Open Parameters...");
+        LoadParametersAction() {
+            super(TITLE + "...");
         }
 
         @Override
@@ -164,14 +148,14 @@ public class OperatorMenu {
             fileChooser.setDialogTitle(TITLE);
             fileChooser.setDialogType(JFileChooser.OPEN_DIALOG);
             applyCurrentDirectory(fileChooser);
-            int response = fileChooser.showDialog(parentComponent, "Open");
+            int response = fileChooser.showDialog(parentComponent, "Load");
             if (JFileChooser.APPROVE_OPTION == response) {
                 try {
                     preserveCurrentDirectory(fileChooser);
                     readFromFile(fileChooser.getSelectedFile());
                 } catch (Exception e) {
                     Debug.trace(e);
-                    JOptionPane.showMessageDialog(parentComponent, "Could not open parameters.\n" + e.getMessage(),
+                    JOptionPane.showMessageDialog(parentComponent, "Could not load parameters.\n" + e.getMessage(),
                                                   TITLE, JOptionPane.ERROR_MESSAGE);
                 }
             }
@@ -213,7 +197,7 @@ public class OperatorMenu {
         private static final String TITLE = "Save Parameters";
 
         SaveParametersAction() {
-            super("Save Parameters...");
+            super(TITLE + "...");
         }
 
         @Override
