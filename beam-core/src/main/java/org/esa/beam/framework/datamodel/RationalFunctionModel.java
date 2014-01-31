@@ -45,6 +45,10 @@ public class RationalFunctionModel implements Cloneable {
      * The root mean square error of the approximation.
      */
     private final double rmse;
+    /**
+     * The root maximum error of the approximation.
+     */
+    private double maxError;
 
     /**
      * Constructs a rational function model for  approximating a function
@@ -131,6 +135,7 @@ public class RationalFunctionModel implements Cloneable {
         }
 
         rmse = rmse(x, y, g);
+        maxError = maxError(x, y, g);
     }
 
     public static int getTermCountP(int degreeP) {
@@ -161,6 +166,15 @@ public class RationalFunctionModel implements Cloneable {
      */
     public double getRmse() {
         return rmse;
+    }
+
+    /**
+     * Returns the maximum error of the approximation.
+     *
+     * @return the maximum error.
+     */
+    public double getMaxError() {
+        return maxError;
     }
 
     private double[] getTerms(double x, double y) {
@@ -202,7 +216,7 @@ public class RationalFunctionModel implements Cloneable {
     }
 
     private static void fit(double[][] terms, double[] g, double[] c, double[] d) {
-        assert(g.length == terms.length);
+        assert (g.length == terms.length);
 
         final int l = c.length;
         final int r = d.length;
@@ -227,7 +241,7 @@ public class RationalFunctionModel implements Cloneable {
     }
 
     private static void refineFit(double[][] terms, double[] g, double[] c, double[] d) {
-        assert(g.length == terms.length);
+        assert (g.length == terms.length);
 
         final int l = c.length;
         final int r = d.length;
@@ -272,6 +286,17 @@ public class RationalFunctionModel implements Cloneable {
         return Math.sqrt(sum / g.length);
     }
 
+    private double maxError(double[] x, double[] y, double[] g) {
+        double maxError = 0.0;
+        for (int i = 0; i < g.length; i++) {
+            final double d = Math.abs(getValue(x[i], y[i]) - g[i]);
+            if (d > maxError) {
+                maxError = d;
+            }
+        }
+        return maxError;
+    }
+
     private static void solve(double[][] a, double[] b, double[] x) {
         final int m = b.length;
         final int n = x.length;
@@ -306,5 +331,9 @@ public class RationalFunctionModel implements Cloneable {
                 x[j] += v.get(j, i) * s[i];
             }
         }
+    }
+
+    public String createCFunctionCode(String compute_x, String lat, String lon) {
+        return null;
     }
 }
