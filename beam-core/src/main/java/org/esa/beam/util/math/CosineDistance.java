@@ -54,6 +54,7 @@ public final class CosineDistance implements DistanceMeasure {
     @Override
     public double distance(double lon, double lat) {
         final double phi = Math.toRadians(lat);
-        return 1.0 - (si * Math.sin(phi) + co * Math.cos(phi) * Math.cos(Math.toRadians(lon - this.lon)));
+        final double cos = si * Math.sin(phi) + co * Math.cos(phi) * Math.cos(Math.toRadians(lon - this.lon));
+        return 1.0 - cos;
     }
 }

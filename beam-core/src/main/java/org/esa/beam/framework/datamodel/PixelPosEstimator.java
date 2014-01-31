@@ -35,6 +35,8 @@ import java.util.List;
  */
 public class PixelPosEstimator {
 
+    private static final boolean EXTRAPOLATE = true;
+
     private static final int LAT = 0;
     private static final int LON = 1;
     private static final int X = 2;
@@ -83,12 +85,8 @@ public class PixelPosEstimator {
                     approximation.g2p(p);
                     final double x = p.getX();
                     final double y = p.getY();
-                    if (false && (x < bounds.getMinX() || x > bounds.getMaxX())) {
+                    if (!EXTRAPOLATE && (x < bounds.getMinX() || x > bounds.getMaxX() || y < bounds.getMinY() || y > bounds.getMaxY())) {
                         p.setInvalid();
-                    } else {
-                        if (false && (y < bounds.getMinY() || y > bounds.getMaxY())) {
-                            p.setInvalid();
-                        }
                     }
                 } else {
                     p.setInvalid();
@@ -215,7 +213,8 @@ public class PixelPosEstimator {
             final Point2D centerPoint = Rotator.calculateCenter(data, LON, LAT);
             final double centerLon = centerPoint.getX();
             final double centerLat = centerPoint.getY();
-            final double maxDistance = maxDistance(data, centerLon, centerLat);
+            // the equation below is correct, if and only if, the cosine distance is used for calculating distances
+            final double maxDistance = 1.0 - Math.cos(1.1 * Math.acos(1.0 - maxDistance(data, centerLon, centerLat)));
 
             final Rotator rotator = new Rotator(centerLon, centerLat);
             rotator.transform(data, LON, LAT);
@@ -269,7 +268,7 @@ public class PixelPosEstimator {
                                                     double accuracy,
                                                     Rectangle[] rectangles,
                                                     SteppingFactory steppingFactory) {
-            final ArrayList<Approximation> approximations = new ArrayList<>(20);
+            final ArrayList<Approximation> approximations = new ArrayList<>(rectangles.length);
             for (final Rectangle rectangle : rectangles) {
                 final Approximation approximation = create(lonSamples, latSamples, maskSamples, accuracy,
                                                            rectangle, steppingFactory);
