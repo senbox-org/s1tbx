@@ -17,8 +17,11 @@ package org.esa.beam.util.math;/*
 /**
  * This class uses the negative cosine of the spherical distance as a distance
  * measure between two (lon, lat) points.
+ * <p/>
+ * This distance measure is computationally much less expensive than the spherical
+ * distance, because it is not necessary to evaluate the inverse of the cosine.
  */
-public class CosineDistanceCalculator implements DistanceCalculator {
+public final class CosineDistanceCalculator implements DistanceCalculator {
 
     private final double lon;
     private final double si;
@@ -37,18 +40,18 @@ public class CosineDistanceCalculator implements DistanceCalculator {
     }
 
     /**
-     * Returns the negative cosine of the spherical distance of a given (lon, lat) point to
+     * Returns the distance of a given (lon, lat) point to
      * the reference (lon, lat) point.
      *
      * @param lon The longitude.
      * @param lat The latitude.
      *
-     * @return the negative cosine of the spherical distance of the given (lon, lat) point
-     *         to the reference (lon, lat) point.
+     * @return the distance of the given (lon, lat) point to the
+     * reference (lon, lat) point.
      */
     @Override
     public double distance(double lon, double lat) {
         final double phi = Math.toRadians(lat);
-        return -(si * Math.sin(phi) + co * Math.cos(phi) * Math.cos(Math.toRadians(lon - this.lon)));
+        return 1.0 - (si * Math.sin(phi) + co * Math.cos(phi) * Math.cos(Math.toRadians(lon - this.lon)));
     }
 }

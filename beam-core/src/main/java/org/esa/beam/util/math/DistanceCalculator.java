@@ -17,6 +17,13 @@ package org.esa.beam.util.math;/*
 /**
  * Interface for calculating the distance of a (lon, lat) point to a reference
  * (lon, lat) point, which is defined by the implementing class.
+ * <p/>
+ * Let p and q denote two points en the Earth. Then, loosely speaking, any
+ * distance measure d(p, q) has to satisfy the following properties:
+ * <p/>
+ * (1) d(p, q) = 0, if p = q
+ * <p/>
+ * (2) d(p, q) > 0, if p ≠ q
  */
 public interface DistanceCalculator {
 
