@@ -323,19 +323,12 @@ public class OperatorMenu {
     private void applyCurrentDirectory(JFileChooser fileChooser) {
         String homeDirPath = SystemUtils.getUserHomeDir().getPath();
         String lastDir = appContext.getPreferences().getPropertyString(lastDirPreferenceKey, homeDirPath);
-        System.out.println("org.esa.beam.framework.gpf.ui.OperatorMenu.applyCurrentDirectory");
-        System.out.println("lastDir = " + lastDir);
-        System.out.println("lastDirPreferenceKey = " + lastDirPreferenceKey);
         fileChooser.setCurrentDirectory(new File(lastDir));
     }
 
     private void preserveCurrentDirectory(JFileChooser fileChooser) {
         String lastDir = fileChooser.getCurrentDirectory().getAbsolutePath();
         appContext.getPreferences().setPropertyString(lastDirPreferenceKey, lastDir);
-        System.out.println("org.esa.beam.framework.gpf.ui.OperatorMenu.preserveCurrentDirectory");
-        System.out.println("lastDir = " + lastDir);
-        System.out.println("lastDirPreferenceKey = " + lastDirPreferenceKey);
-
     }
 
 }
