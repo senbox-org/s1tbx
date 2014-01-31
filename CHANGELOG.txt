@@ -52,6 +52,7 @@ Improvements
 
 Bugs
 
+[BEAM-1593] Harmonise transect + mask pixels outputs
 [BEAM-1287] Default RGB profile of MERIS L1b is Landsat but should be Tristimulus
 [BEAM-1452] Log-scaling is not correctly applied in scatter plot
 [BEAM-1496] ApiDoc is generated with wrong version
