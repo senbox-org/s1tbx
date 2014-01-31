@@ -144,7 +144,9 @@ public class OperatorMenu {
         @Override
         public void actionPerformed(ActionEvent event) {
             JFileChooser fileChooser = new JFileChooser();
-            fileChooser.addChoosableFileFilter(createParameterFileFilter());
+            FileNameExtensionFilter parameterFileFilter = createParameterFileFilter();
+            fileChooser.addChoosableFileFilter(parameterFileFilter);
+            fileChooser.setFileFilter(parameterFileFilter);
             fileChooser.setDialogTitle(TITLE);
             fileChooser.setDialogType(JFileChooser.OPEN_DIALOG);
             applyCurrentDirectory(fileChooser);
@@ -205,7 +207,7 @@ public class OperatorMenu {
             JFileChooser fileChooser = new JFileChooser();
             final FileNameExtensionFilter parameterFileFilter = createParameterFileFilter();
             fileChooser.addChoosableFileFilter(parameterFileFilter);
-            fileChooser.setAcceptAllFileFilterUsed(false);
+            fileChooser.setFileFilter(parameterFileFilter);
             fileChooser.setDialogTitle(TITLE);
             fileChooser.setDialogType(JFileChooser.SAVE_DIALOG);
             applyCurrentDirectory(fileChooser);
