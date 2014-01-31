@@ -15,8 +15,8 @@ package org.esa.beam.framework.datamodel;
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
+import org.esa.beam.util.math.CosineDistanceCalculator;
 import org.esa.beam.util.math.DistanceCalculator;
-import org.esa.beam.util.math.SphericalDistanceCalculator;
 
 import javax.media.jai.PlanarImage;
 import javax.media.jai.operator.ConstantDescriptor;
@@ -47,6 +47,11 @@ public class PixelPosEstimator {
         this(lonImage, latImage, maskImage, accuracy, new PixelSteppingFactory());
     }
 
+    public PixelPosEstimator(Approximation[] approximations, Rectangle bounds) {
+        this.approximations = approximations;
+        this.bounds = bounds;
+    }
+
     private PixelPosEstimator(PlanarImage lonImage, PlanarImage latImage, PlanarImage maskImage, double accuracy,
                               SteppingFactory steppingFactory) {
         if (maskImage == null) {
@@ -62,39 +67,33 @@ public class PixelPosEstimator {
         return approximations != null;
     }
 
-    public Approximation getPixelPos(GeoPos geoPos, PixelPos pixelPos) {
+    public Approximation getPixelPos(GeoPos g, PixelPos p) {
         Approximation approximation = null;
         if (approximations != null) {
-            if (pixelPos == null) {
-                pixelPos = new PixelPos();
+            if (p == null) {
+                p = new PixelPos();
             }
-            if (geoPos.isValid()) {
-                double lat = geoPos.getLat();
-                double lon = geoPos.getLon();
+            if (g.isValid()) {
+                final double lat = g.getLat();
+                final double lon = g.getLon();
                 approximation = Approximation.findMostSuitable(approximations, lat, lon);
                 if (approximation != null) {
-                    final Rotator rotator = approximation.getRotator();
-                    final Point2D p = new Point2D.Double(lon, lat);
-                    rotator.transform(p);
-                    lon = p.getX();
-                    lat = p.getY();
-                    final double x = approximation.getFX().getValue(lat, lon);
+                    p.setLocation(lon, lat);
+                    approximation.g2p(p);
+                    final double x = p.getX();
+                    final double y = p.getY();
                     if (false && (x < bounds.getMinX() || x > bounds.getMaxX())) {
-                        pixelPos.setInvalid();
+                        p.setInvalid();
                     } else {
-                        final double y = approximation.getFY().getValue(lat, lon);
                         if (false && (y < bounds.getMinY() || y > bounds.getMaxY())) {
-                            pixelPos.setInvalid();
-                        } else {
-                            pixelPos.x = (float) x;
-                            pixelPos.y = (float) y;
+                            p.setInvalid();
                         }
                     }
                 } else {
-                    pixelPos.setInvalid();
+                    p.setInvalid();
                 }
             } else {
-                pixelPos.setInvalid();
+                p.setInvalid();
             }
         }
         return approximation;
@@ -170,10 +169,10 @@ public class PixelPosEstimator {
          * @return a new approximation or {@code null} if the accuracy goal cannot not be met.
          */
         public static Approximation create(SampleSource lonSamples,
-                                    SampleSource latSamples,
-                                    SampleSource maskSamples,
-                                    double accuracy,
-                                    Rectangle range) {
+                                           SampleSource latSamples,
+                                           SampleSource maskSamples,
+                                           double accuracy,
+                                           Rectangle range) {
             return create(lonSamples, latSamples, maskSamples, accuracy, range, new PixelSteppingFactory());
         }
 
@@ -190,11 +189,11 @@ public class PixelPosEstimator {
          * @return a new approximation or {@code null} if the accuracy goal cannot not be met.
          */
         public static Approximation create(SampleSource lonSamples,
-                                    SampleSource latSamples,
-                                    SampleSource maskSamples,
-                                    double accuracy,
-                                    Rectangle range,
-                                    SteppingFactory steppingFactory) {
+                                           SampleSource latSamples,
+                                           SampleSource maskSamples,
+                                           double accuracy,
+                                           Rectangle range,
+                                           SteppingFactory steppingFactory) {
             final Stepping stepping = steppingFactory.createStepping(range, MAX_POINT_COUNT_PER_TILE);
             final double[][] data = extractWarpPoints(lonSamples, latSamples, maskSamples, stepping);
             return Approximation.create(data, accuracy, range);
@@ -230,7 +229,7 @@ public class PixelPosEstimator {
             }
 
             return new Approximation(fX, fY, maxDistance * 1.1, rotator,
-                                     new SphericalDistanceCalculator(centerLon, centerLat), range);
+                                     new CosineDistanceCalculator(centerLon, centerLat), range);
         }
 
         /**
@@ -241,7 +240,7 @@ public class PixelPosEstimator {
          * @param lon            The longitude.
          *
          * @return the approximation that is most suitable for the given (lat, lon) point,
-         *         or {@code null}, if none is suitable.
+         * or {@code null}, if none is suitable.
          */
         public static Approximation findMostSuitable(Approximation[] approximations, double lat, double lon) {
             Approximation bestApproximation = null;
@@ -270,7 +269,7 @@ public class PixelPosEstimator {
                                                     double accuracy,
                                                     Rectangle[] rectangles,
                                                     SteppingFactory steppingFactory) {
-            final ArrayList<Approximation> approximations = new ArrayList<Approximation>();
+            final ArrayList<Approximation> approximations = new ArrayList<>(20);
             for (final Rectangle rectangle : rectangles) {
                 final Approximation approximation = create(lonSamples, latSamples, maskSamples, accuracy,
                                                            rectangle, steppingFactory);
@@ -340,6 +339,20 @@ public class PixelPosEstimator {
             return range;
         }
 
+        /**
+         * This method yields the pixel position corresponding to a geographic position.
+         *
+         * @param g The geographic position on input, the pixel position on output.
+         */
+        private void g2p(final Point2D g) {
+            rotator.transform(g);
+            final double lon = g.getX();
+            final double lat = g.getY();
+            final double x = fX.getValue(lat, lon);
+            final double y = fY.getValue(lat, lon);
+            g.setLocation(x, y);
+        }
+
         private Approximation(RationalFunctionModel fX, RationalFunctionModel fY, double maxDistance,
                               Rotator rotator, DistanceCalculator calculator, Rectangle range) {
             this.fX = fX;
@@ -351,7 +364,7 @@ public class PixelPosEstimator {
         }
 
         private static double maxDistance(final double[][] data, double centerLon, double centerLat) {
-            final DistanceCalculator distanceCalculator = new SphericalDistanceCalculator(centerLon, centerLat);
+            final DistanceCalculator distanceCalculator = new CosineDistanceCalculator(centerLon, centerLat);
             double maxDistance = 0.0;
             for (final double[] p : data) {
                 final double d = distanceCalculator.distance(p[LON], p[LAT]);
@@ -412,7 +425,7 @@ public class PixelPosEstimator {
             final int stepX = stepping.getStepX();
             final int stepY = stepping.getStepY();
             final int pointCount = stepping.getPointCount();
-            final List<double[]> pointList = new ArrayList<double[]>(pointCount);
+            final List<double[]> pointList = new ArrayList<>(pointCount);
 
             for (int j = 0, k = 0; j < pointCountY; j++) {
                 int y = minY + j * stepY;
