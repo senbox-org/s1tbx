@@ -33,6 +33,7 @@ import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.io.FileUtils;
+import org.xmlpull.mxp1.MXParser;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -182,18 +183,14 @@ public class OperatorMenu {
         }
 
         private void readFromFile(File selectedFile) throws Exception {
-            FileReader reader = new FileReader(selectedFile);
-            try {
+            try (FileReader reader = new FileReader(selectedFile)) {
                 DomElement domElement = readXml(reader);
                 parameterSupport.fromDomElement(domElement);
-            } finally {
-                reader.close();
             }
         }
 
         private DomElement readXml(Reader reader) throws IOException {
-            final BufferedReader br = new BufferedReader(reader);
-            try {
+            try (BufferedReader br = new BufferedReader(reader)) {
                 StringBuilder sb = new StringBuilder();
                 String line = br.readLine();
                 while (line != null) {
@@ -201,14 +198,12 @@ public class OperatorMenu {
                     line = br.readLine();
                 }
                 return new XppDomElement(createDom(sb.toString()));
-            } finally {
-                br.close();
             }
         }
 
         private XppDom createDom(String xml) {
             XppDomWriter domWriter = new XppDomWriter();
-            new HierarchicalStreamCopier().copy(new XppReader(new StringReader(xml)), domWriter);
+            new HierarchicalStreamCopier().copy(new XppReader(new StringReader(xml), new MXParser()), domWriter);
             return domWriter.getConfiguration();
         }
     }
@@ -253,11 +248,8 @@ public class OperatorMenu {
         }
 
         private void writeToFile(String s, File outputFile) throws IOException {
-            final BufferedWriter bw = new BufferedWriter(new FileWriter(outputFile));
-            try {
+            try (BufferedWriter bw = new BufferedWriter(new FileWriter(outputFile))) {
                 bw.write(s);
-            } finally {
-                bw.close();
             }
         }
     }
