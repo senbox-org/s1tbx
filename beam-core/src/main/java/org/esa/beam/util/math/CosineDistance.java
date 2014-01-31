@@ -20,8 +20,10 @@ package org.esa.beam.util.math;/*
  * <p/>
  * This distance measure is computationally much less expensive than the spherical
  * distance, because it is not necessary to evaluate the inverse of the cosine.
+ *
+ * @author Ralf Quast
  */
-public final class CosineDistanceCalculator implements DistanceCalculator {
+public final class CosineDistance implements DistanceMeasure {
 
     private final double lon;
     private final double si;
@@ -33,7 +35,7 @@ public final class CosineDistanceCalculator implements DistanceCalculator {
      * @param lon The reference longitude of this distance calculator.
      * @param lat The reference latitude of this distance calculator.
      */
-    public CosineDistanceCalculator(double lon, double lat) {
+    public CosineDistance(double lon, double lat) {
         this.lon = lon;
         this.si = Math.sin(Math.toRadians(lat));
         this.co = Math.cos(Math.toRadians(lat));

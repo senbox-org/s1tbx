@@ -14,26 +14,18 @@ package org.esa.beam.util.math;/*
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-/**
- * Interface for calculating the distance of a (lon, lat) point to a reference
- * (lon, lat) point, which is defined by the implementing class.
- * <p/>
- * Let p and q denote two points en the Earth. Then, loosely speaking, any
- * distance measure d(p, q) has to satisfy the following properties:
- * <p/>
- * (1) d(p, q) = 0, if p = q
- * <p/>
- * (2) d(p, q) > 0, if p ≠ q
- */
-public interface DistanceCalculator {
+import org.junit.Test;
 
-    /**
-     * Returns the distance of a given (lon, lat) point to the reference (lon, lat) point.
-     *
-     * @param lon The longitude.
-     * @param lat The latitude.
-     *
-     * @return the distance.
-     */
-    double distance(double lon, double lat);
+import static org.junit.Assert.assertEquals;
+
+public class SphericalDistanceTest {
+
+    @Test
+    public void testDistance() {
+        final DistanceMeasure distanceMeasure = new SphericalDistance(0.0, 0.0);
+
+        assertEquals(0.0, distanceMeasure.distance(0.0, 0.0), 0.0);
+        assertEquals(1.0, Math.toDegrees(distanceMeasure.distance(1.0, 0.0)), 1.0e-10);
+        assertEquals(1.0, Math.toDegrees(distanceMeasure.distance(0.0, 1.0)), 1.0e-10);
+    }
 }

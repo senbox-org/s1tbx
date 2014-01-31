@@ -15,8 +15,8 @@ package org.esa.beam.framework.datamodel;
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-import org.esa.beam.util.math.CosineDistanceCalculator;
-import org.esa.beam.util.math.DistanceCalculator;
+import org.esa.beam.util.math.CosineDistance;
+import org.esa.beam.util.math.DistanceMeasure;
 
 import javax.media.jai.PlanarImage;
 import javax.media.jai.operator.ConstantDescriptor;
@@ -31,6 +31,7 @@ import java.util.List;
  * pixel geo-codings in order to obtain a fast and accurate estimate.
  *
  * @author Ralf Quast
+ * @since Version 5.0
  */
 public class PixelPosEstimator {
 
@@ -133,7 +134,7 @@ public class PixelPosEstimator {
         private final RationalFunctionModel fY;
         private final double maxDistance;
         private final Rotator rotator;
-        private final DistanceCalculator calculator;
+        private final DistanceMeasure calculator;
         private final Rectangle range;
 
 
@@ -229,7 +230,7 @@ public class PixelPosEstimator {
             }
 
             return new Approximation(fX, fY, maxDistance * 1.1, rotator,
-                                     new CosineDistanceCalculator(centerLon, centerLat), range);
+                                     new CosineDistance(centerLon, centerLat), range);
         }
 
         /**
@@ -354,7 +355,7 @@ public class PixelPosEstimator {
         }
 
         private Approximation(RationalFunctionModel fX, RationalFunctionModel fY, double maxDistance,
-                              Rotator rotator, DistanceCalculator calculator, Rectangle range) {
+                              Rotator rotator, DistanceMeasure calculator, Rectangle range) {
             this.fX = fX;
             this.fY = fY;
             this.maxDistance = maxDistance;
@@ -364,10 +365,10 @@ public class PixelPosEstimator {
         }
 
         private static double maxDistance(final double[][] data, double centerLon, double centerLat) {
-            final DistanceCalculator distanceCalculator = new CosineDistanceCalculator(centerLon, centerLat);
+            final DistanceMeasure distanceMeasure = new CosineDistance(centerLon, centerLat);
             double maxDistance = 0.0;
             for (final double[] p : data) {
-                final double d = distanceCalculator.distance(p[LON], p[LAT]);
+                final double d = distanceMeasure.distance(p[LON], p[LAT]);
                 if (d > maxDistance) {
                     maxDistance = d;
                 }

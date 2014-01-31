@@ -14,8 +14,8 @@ package org.esa.beam.framework.datamodel;/*
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-import org.esa.beam.util.math.DistanceCalculator;
-import org.esa.beam.util.math.SphericalDistanceCalculator;
+import org.esa.beam.util.math.DistanceMeasure;
+import org.esa.beam.util.math.SphericalDistance;
 
 import javax.media.jai.PlanarImage;
 import java.awt.geom.Dimension2D;
@@ -35,7 +35,7 @@ class SimplePixelDimensionEstimator implements PixelDimensionEstimator {
                 if (getSampleBoolean(maskImage, x0, y0)) {
                     final double lat0 = getSampleDouble(latImage, x0, y0, -90.0, 90.0);
                     final double lon0 = getSampleDouble(lonImage, x0, y0, -180.0, 180.0);
-                    final DistanceCalculator calculator = new SphericalDistanceCalculator(lon0, lat0);
+                    final DistanceMeasure calculator = new SphericalDistance(lon0, lat0);
                     final int x1 = ((i - 1) * w) / i;
 
                     if (getSampleBoolean(maskImage, x1, y0)) {

@@ -16,20 +16,15 @@
 package org.esa.beam.framework.datamodel;
 
 import com.bc.ceres.glevel.MultiLevelImage;
-import com.bc.ceres.glevel.MultiLevelModel;
-import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
-import com.bc.ceres.glevel.support.DefaultMultiLevelImage;
 import com.bc.jexp.ParseException;
 import org.esa.beam.framework.dataio.ProductSubsetDef;
 import org.esa.beam.framework.dataop.maptransf.Datum;
-import org.esa.beam.jai.FillConstantOpImage;
 import org.esa.beam.jai.ImageManager;
-import org.esa.beam.jai.ReplaceValueOpImage;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.jai.SingleBandedSampleModel;
-import org.esa.beam.util.math.DistanceCalculator;
+import org.esa.beam.util.math.DistanceMeasure;
 import org.esa.beam.util.math.MathUtils;
-import org.esa.beam.util.math.SinusoidalDistanceCalculator;
+import org.esa.beam.util.math.SinusoidalDistance;
 
 import javax.media.jai.ImageLayout;
 import javax.media.jai.JAI;
@@ -461,7 +456,7 @@ class PixelGeoCoding2 extends AbstractGeoCoding implements BasicPixelGeoCoding {
 
                 final double lat0 = geoPos.lat;
                 final double lon0 = geoPos.lon;
-                final DistanceCalculator dc = new SinusoidalDistanceCalculator(lon0, lat0);
+                final DistanceMeasure dc = new SinusoidalDistance(lon0, lat0);
 
                 double minDistance;
                 if (getSample(x0, y0, maskImage) != 0) {

@@ -14,13 +14,19 @@ package org.esa.beam.util.math;/*
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-public final class SinusoidalDistanceCalculator implements DistanceCalculator {
+/**
+ * Distance measure that takes into account the decrease of the Euclidean
+ * distance with increasing latitude of the reference point.
+ *
+ * @author Ralf Quast
+ */
+public final class SinusoidalDistance implements DistanceMeasure {
 
     private final double lon0;
     private final double lat0;
     private final double lonFactor;
 
-    public SinusoidalDistanceCalculator(double lon0, double lat0) {
+    public SinusoidalDistance(double lon0, double lat0) {
         this.lon0 = lon0;
         this.lat0 = lat0;
         this.lonFactor = Math.cos(Math.toRadians(lat0));

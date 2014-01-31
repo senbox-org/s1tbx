@@ -17,13 +17,15 @@ package org.esa.beam.util.math;/*
 /**
  * Distance measure based on the Euclidean 'flat' distance. In fact the square
  * of the Euclidean distance is used to avoid computation of the square root.
+ *
+ * @author Ralf Quast
  */
-public class EuclideanDistanceCalculator implements DistanceCalculator {
+public class EuclideanDistance implements DistanceMeasure {
 
     private final double lon0;
     private final double lat0;
 
-    public EuclideanDistanceCalculator(double lon0, double lat0) {
+    public EuclideanDistance(double lon0, double lat0) {
         this.lon0 = lon0;
         this.lat0 = lat0;
     }
