@@ -28,6 +28,9 @@
     <changelog>
         <![CDATA[
         <p>Changes in 5.0<br/>
+          [BEAM-1591] - After drawing a geometry, the selection tool shall be selected again<br/>
+          [BEAM-1588] Show close button on internal frames' tabs<br/>
+          [BEAM-1587] Allow closing internal frames by click with middle mouse button<br/>
           [BEAM-1139] Function to convert a virtual band into a real band<br/>
           [BEAM-1512] Saving time has increased significantly with 5.0 alpha<br/>
           [BEAM-1569] Documentation for 'statistical accuracy' missing</br>

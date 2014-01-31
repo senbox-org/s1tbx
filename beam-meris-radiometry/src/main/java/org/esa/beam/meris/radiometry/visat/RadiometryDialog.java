@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -49,6 +49,7 @@ class RadiometryDialog extends SingleTargetProductDialog {
         OperatorMenu operatorMenu = new OperatorMenu(this.getJDialog(),
                                                      operatorSpi.getOperatorClass(),
                                                      parameterSupport,
+                                                     appContext,
                                                      helpId);
         getJDialog().setJMenuBar(operatorMenu.createDefaultMenu());
     }

@@ -22,8 +22,10 @@ import com.bc.ceres.swing.actions.CutAction;
 import com.bc.ceres.swing.actions.DeleteAction;
 import com.bc.ceres.swing.actions.PasteAction;
 import com.bc.ceres.swing.actions.SelectAllAction;
+import com.bc.ceres.swing.figure.AbstractInteractorListener;
 import com.bc.ceres.swing.figure.FigureEditor;
 import com.bc.ceres.swing.figure.FigureEditorAware;
+import com.bc.ceres.swing.figure.FigureEditorInteractor;
 import com.bc.ceres.swing.figure.Interactor;
 import com.bc.ceres.swing.figure.interactions.NullInteractor;
 import com.bc.ceres.swing.progress.DialogProgressMonitor;
@@ -98,6 +100,7 @@ import org.esa.beam.visat.actions.ShowImageViewAction;
 import org.esa.beam.visat.actions.ShowImageViewRGBAction;
 import org.esa.beam.visat.actions.ShowToolBarAction;
 import org.esa.beam.visat.toolviews.diag.TileCacheDiagnosisToolView;
+import org.esa.beam.visat.toolviews.placemark.InsertPlacemarkInteractor;
 import org.esa.beam.visat.toolviews.stat.DensityPlotToolView;
 import org.esa.beam.visat.toolviews.stat.GeoCodingToolView;
 import org.esa.beam.visat.toolviews.stat.HistogramPlotToolView;
@@ -132,6 +135,7 @@ import java.awt.Dimension;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.InputEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyVetoException;
@@ -214,11 +218,13 @@ public class VisatApp extends BasicApp implements AppContext {
     /**
      * Preferences key for on-line version check
      */
-    public static final String PROPERTY_KEY_VERSION_CHECK_ENABLED = "visat.versionCheck" + SuppressibleOptionPane.KEY_PREFIX_ENABLED;
+    public static final String PROPERTY_KEY_VERSION_CHECK_ENABLED =
+            "visat.versionCheck" + SuppressibleOptionPane.KEY_PREFIX_ENABLED;
     /**
      * Preferences key for on-line version question
      */
-    public static final String PROPERTY_KEY_VERSION_CHECK_DONT_ASK = "visat.versionCheck" + SuppressibleOptionPane.KEY_PREFIX_DONT_SHOW;
+    public static final String PROPERTY_KEY_VERSION_CHECK_DONT_ASK =
+            "visat.versionCheck" + SuppressibleOptionPane.KEY_PREFIX_DONT_SHOW;
     /**
      * Preferences key for pixel offset-X for display pixel positions
      */
@@ -1650,8 +1656,8 @@ public class VisatApp extends BasicApp implements AppContext {
         final String oldProductName = product.getName();
         final File oldFile = product.getFileLocation();
 
-// For DIMAP products, check if file path has really changed
-// if not, just save product
+//  For DIMAP products, check if file path has really changed
+//  if not, just save product
         if (reader instanceof DimapProductReader && newFile.equals(oldFile)) {
             saveProduct(product);
             return;
@@ -1786,10 +1792,10 @@ public class VisatApp extends BasicApp implements AppContext {
             if (checker.arePropertiesChanged()) {
                 configureJaiTileCache();
                 applyLookAndFeelPreferences();
-// @todo 1 nf/nf - extract layer properties dialog from VISAT preferences
-// note: the following line is necessary in order to transfer layer proerties from
-// preferences to current product scene view. Only the current view is affected by
-// the preferences change.
+//  @todo 1 nf/nf - extract layer properties dialog from VISAT preferences
+//  note: the following line is necessary in order to transfer layer proerties from
+//  preferences to current product scene view. Only the current view is affected by
+//  the preferences change.
                 applyProductSceneViewPreferences();
                 firePreferencesChanged();
             }
@@ -1985,7 +1991,7 @@ public class VisatApp extends BasicApp implements AppContext {
             }
         }
 
-        List<CommandBar> viewToolBars = new ArrayList<CommandBar>(5);
+        List<CommandBar> viewToolBars = new ArrayList<>(5);
         viewToolBars.add(createToolBar(VIEWS_TOOL_BAR_ID, "Views"));
         for (String toolBarId : toolBar2commandIds.keySet()) {
             CommandBar toolBar = getToolBar(toolBarId);
@@ -2011,7 +2017,7 @@ public class VisatApp extends BasicApp implements AppContext {
         return viewToolBars.toArray(new CommandBar[viewToolBars.size()]);
     }
 
-    private void addCommandsToToolBar(CommandBar toolBar, String[] commandIDs) {
+    private void addCommandsToToolBar(final CommandBar toolBar, final String[] commandIDs) {
         for (final String commandID : commandIDs) {
             if (commandID == null) {
                 toolBar.add(ToolButtonFactory.createToolBarSeparator());
@@ -2021,12 +2027,42 @@ public class VisatApp extends BasicApp implements AppContext {
                     final AbstractButton toolBarButton = command.createToolBarButton();
                     toolBarButton.addMouseListener(getMouseOverActionHandler());
                     toolBar.add(toolBarButton);
+                    addResetSelectionOnFinishListener(commandIDs, command);
                 } else {
                     getLogger().warning(String.format("Toolbar '%s': No command found for ID = '%s'", toolBar.getName(),
                                                       commandID));
                 }
             }
             toolBar.add(Box.createHorizontalStrut(1));
+        }
+    }
+
+    // accounts for [BEAM-1591] - After drawing a geometry, the selection tool shall be selected again
+    private void addResetSelectionOnFinishListener(final String[] commandIDs, Command command) {
+        if (command instanceof ToolCommand) {
+            ToolCommand toolCommand = (ToolCommand) command;
+            Interactor interactor = toolCommand.getInteractor();
+            boolean isFigure = interactor instanceof FigureEditorInteractor;
+            boolean isPlacemark = interactor instanceof InsertPlacemarkInteractor;
+            if (isFigure && !isPlacemark) {
+                interactor.addListener(new AbstractInteractorListener() {
+                    @Override
+                    public void interactionStopped(Interactor interactor, InputEvent inputEvent) {
+                        selectTool(Arrays.asList(commandIDs), "selectTool");
+                    }
+                });
+            }
+        }
+    }
+
+    private void selectTool(List<String> commandIds, String toolName) {
+        for (String commandId : commandIds) {
+            if (toolName.equals(commandId)) {
+                ToolCommand toolCommand = (ToolCommand) getCommandManager().getCommand(commandId);
+                selectionInteractor = toolCommand.getInteractor();
+                setActiveInteractor(selectionInteractor);
+                toolCommand.setSelected(true);
+            }
         }
     }
 
@@ -2193,8 +2229,8 @@ public class VisatApp extends BasicApp implements AppContext {
         Action selectAllAction = new SelectAllAction(selectionManager);
         Action deleteAction = new DeleteAction(selectionManager);
 
-// TODO: Not included in BEAM 4.7
-// enable source code when undo/redo shall be supported
+//  TODO: Not included in BEAM 4.7
+//  enable source code when undo/redo shall be supported
 //        menu.insert(undoAction, 0);
 //        menu.insert(redoAction, 1);
         menu.insertSeparator(0);
@@ -2292,7 +2328,7 @@ public class VisatApp extends BasicApp implements AppContext {
             }
         }
 
-// force frame to be activated so that the frame listeners are informed
+//  force frame to be activated so that the frame listeners are informed
         try {
             frame.setSelected(true);
         } catch (PropertyVetoException ignored) {

@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
- * 
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation; either version 3 of the License, or (at your option)
@@ -9,7 +9,7 @@
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
  * more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
@@ -26,7 +26,6 @@ import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.util.logging.BeamLogManager;
-import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.type.AttributeDescriptor;
 
 import java.io.IOException;
@@ -89,6 +88,7 @@ public class CsvProductReader extends AbstractProductReader {
         // todo - get name and type from properties, if existing
 
         final Product product = new Product(getInput().toString(), "CSV", sceneRasterWidth, sceneRasterHeight);
+        product.setPreferredTileSize(sceneRasterWidth, sceneRasterHeight);
         for (AttributeDescriptor descriptor : source.getFeatureType().getAttributeDescriptors()) {
             if (isAccessibleBandType(descriptor.getType().getBinding())) {
                 int type = getProductDataType(descriptor.getType().getBinding());
@@ -110,18 +110,12 @@ public class CsvProductReader extends AbstractProductReader {
                 "reading band data (" + destBand.getName() + ") from {0} to {1}",
                 destOffsetY * destWidth, sourceOffsetY * destWidth + destWidth * destHeight));
         pm.beginTask("reading band data...", destWidth * destHeight);
+
+        Object[] values;
         synchronized (parser) {
-            parser.parseRecords(destOffsetY * destWidth, destWidth * destHeight);
+            values = parser.parseRecords(destOffsetY * destWidth, destWidth * destHeight, destBand.getName());
         }
-        final SimpleFeature[] simpleFeatures = source.getSimpleFeatures();
-        final Object[] elems = new Object[simpleFeatures.length];
-        int featureIndex = 0;
-        for (SimpleFeature simpleFeature : simpleFeatures) {
-            final Object attribute = simpleFeature.getAttribute(destBand.getName());
-            elems[featureIndex++] = attribute;
-            pm.worked(1);
-        }
-        getProductData(elems, destBuffer);
+        getProductData(values, destBuffer);
         pm.done();
     }
 
@@ -131,7 +125,7 @@ public class CsvProductReader extends AbstractProductReader {
                 for (int i = 0; i < destBuffer.getNumElems(); i++) {
                     final Object elem;
                     if (i < elems.length) {
-                        elem = elems[i];
+                        elem = elems[i] != null ? elems[i]  : Float.NaN;
                     } else {
                         elem = Float.NaN;
                     }
@@ -143,7 +137,7 @@ public class CsvProductReader extends AbstractProductReader {
                 for (int i = 0; i < destBuffer.getNumElems(); i++) {
                     final Object elem;
                     if (i < elems.length) {
-                        elem = elems[i];
+                        elem = elems[i] != null ? elems[i]  : Double.NaN;
                     } else {
                         elem = Double.NaN;
                     }
@@ -153,21 +147,21 @@ public class CsvProductReader extends AbstractProductReader {
             }
             case ProductData.TYPE_INT8: {
                 for (int i = 0; i < elems.length; i++) {
-                    final Object elem = elems[i];
+                    final Object elem = elems[i] != null ? elems[i]  : 0;
                     destBuffer.setElemIntAt(i, (Byte) elem);
                 }
                 break;
             }
             case ProductData.TYPE_INT16: {
                 for (int i = 0; i < elems.length; i++) {
-                    final Object elem = elems[i];
+                    final Object elem = elems[i] != null ? elems[i]  : 0;
                     destBuffer.setElemIntAt(i, (Short) elem);
                 }
                 break;
             }
             case ProductData.TYPE_INT32: {
                 for (int i = 0; i < elems.length; i++) {
-                    final Object elem = elems[i];
+                    final Object elem = elems[i] != null ? elems[i]  : 0;
                     destBuffer.setElemIntAt(i, (Integer) elem);
                 }
                 break;
