@@ -229,8 +229,7 @@ public class PixelPosEstimator {
                 return null;
             }
 
-            return new Approximation(fX, fY, maxDistance * 1.1, rotator,
-                                     new CosineDistance(centerLon, centerLat), range);
+            return new Approximation(fX, fY, maxDistance, rotator, new CosineDistance(centerLon, centerLat), range);
         }
 
         /**
