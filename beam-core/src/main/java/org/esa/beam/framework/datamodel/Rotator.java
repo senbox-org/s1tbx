@@ -18,7 +18,12 @@ package org.esa.beam.framework.datamodel;
 
 import java.awt.geom.Point2D;
 
-import static java.lang.Math.*;
+import static java.lang.Math.asin;
+import static java.lang.Math.atan2;
+import static java.lang.Math.cos;
+import static java.lang.Math.sin;
+import static java.lang.Math.toDegrees;
+import static java.lang.Math.toRadians;
 
 /**
  * Class for rotating geographical positions.
@@ -29,7 +34,7 @@ import static java.lang.Math.*;
  * @author Ralf Quast
  * @version $Revision$ $Date$
  */
-public class Rotator {
+public final class Rotator {
 
     private final double a11;
     private final double a12;
@@ -40,6 +45,10 @@ public class Rotator {
     private final double a31;
     private final double a32;
     private final double a33;
+
+    private final double lon;
+    private final double lat;
+    private final double alpha;
 
     /**
      * Constructs a new rotation. In the rotated system, the point defined
@@ -76,6 +85,10 @@ public class Rotator {
      * @param alpha the rotation angle (degrees) corresponding to the x-axis.
      */
     public Rotator(double lon, double lat, double alpha) {
+        this.lon = lon;
+        this.lat = lat;
+        this.alpha = alpha;
+
         final double u = toRadians(lon);
         final double v = toRadians(lat);
         final double w = toRadians(alpha);
@@ -98,6 +111,33 @@ public class Rotator {
         a31 = sw * -su - cw * (cu * sv);
         a32 = sw * cu - cw * (su * sv);
         a33 = cw * cv;
+    }
+
+    /**
+     * Returns the central longitude of rotation.
+     *
+     * @return the central longitude of rotation.
+     */
+    public double getLon() {
+        return lon;
+    }
+
+    /**
+     * Returns the central latitude of rotation.
+     *
+     * @return the central latitude of rotation.
+     */
+    public double getLat() {
+        return lat;
+    }
+
+    /**
+     * Returns the x-axis rotation angle.
+     *
+     * @return the x-axis rotation angle.
+     */
+    public double getAlpha() {
+        return alpha;
     }
 
     /**
@@ -185,11 +225,25 @@ public class Rotator {
      * @param point the point.
      */
     public void transform(Point2D point) {
-        final double[] lon = new double[]{point.getX()};
-        final double[] lat = new double[]{point.getY()};
+        double lon = point.getX();
+        double lat = point.getY();
 
-        transform(lon, lat);
-        point.setLocation(lon[0], lat[0]);
+        final double u = toRadians(lon);
+        final double v = toRadians(lat);
+
+        final double w = cos(v);
+        final double x = cos(u) * w;
+        final double y = sin(u) * w;
+        final double z = sin(v);
+
+        final double x2 = a11 * x + a12 * y + a13 * z;
+        final double y2 = a21 * x + a22 * y + a23 * z;
+        final double z2 = a31 * x + a32 * y + a33 * z;
+
+        lat = toDegrees(asin(z2));
+        lon = toDegrees(atan2(y2, x2));
+
+        point.setLocation(lon, lat);
     }
 
     /**
@@ -244,11 +298,25 @@ public class Rotator {
      * @param point the point.
      */
     public void transformInversely(Point2D point) {
-        final double[] lon = new double[]{point.getX()};
-        final double[] lat = new double[]{point.getY()};
+        double lon = point.getX();
+        double lat = point.getY();
 
-        transformInversely(lon, lat);
-        point.setLocation(lon[0], lat[0]);
+        final double u = toRadians(lon);
+        final double v = toRadians(lat);
+
+        final double w = cos(v);
+        final double x = cos(u) * w;
+        final double y = sin(u) * w;
+        final double z = sin(v);
+
+        final double x2 = a11 * x + a21 * y + a31 * z;
+        final double y2 = a12 * x + a22 * y + a32 * z;
+        final double z2 = a13 * x + a23 * y + a33 * z;
+
+        lat = toDegrees(asin(z2));
+        lon = toDegrees(atan2(y2, x2));
+
+        point.setLocation(lon, lat);
     }
 
     /**
