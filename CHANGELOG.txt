@@ -43,6 +43,7 @@ New BEAM Features
 
 Improvements
 
+[BEAM-1591] - After drawing a geometry, the selection tool shall be selected again
 [BEAM-1588] Show close button on internal frames' tabs
 [BEAM-1587] Allow closing internal frames by click with middle mouse button
 [BEAM-1459] Allow aggregating pixel values even if not all pixels of the window are valid
