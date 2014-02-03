@@ -63,6 +63,7 @@ public class ProductReaderAcceptanceTest {
 
     private static final String PROPERTYNAME_DATA_DIR = "beam.reader.tests.data.dir";
     private static final String PROPERTYNAME_FAIL_ON_MISSING_DATA = "beam.reader.tests.failOnMissingData";
+    private static final String PROPERTYNAME_FAIL_ON_INTENDED = "beam.reader.tests.failOnMultipleIntendedReaders";
     private static final String PROPERTYNAME_LOG_FILE_PATH = "beam.reader.tests.log.file";
     private static final String PROPERTYNAME_CASS_NAME = "beam.reader.tests.class.name";
     private static final boolean FAIL_ON_MISSING_DATA = Boolean.parseBoolean(System.getProperty(PROPERTYNAME_FAIL_ON_MISSING_DATA, "true"));
@@ -84,12 +85,17 @@ public class ProductReaderAcceptanceTest {
         loadProductReaderTestDefinitions();
 
         createGlobalProductList();
-
-        checkForOnlyOneIntendedReader();
     }
 
-    private static void checkForOnlyOneIntendedReader() {
-        logInfoWithStars("Checking for only one INTENDED ProductReader per file");
+    @AfterClass
+    public static void tearDown() throws Exception {
+        logInfoWithStars("Finished / " + DATE_FORMAT.format(CALENDAR.getTime()));
+    }
+
+    @Test
+    public void testOneIntendedReader() {
+        logInfoWithStars("Testing OneIntendedReader");
+        boolean duplicates = false;
         for (TestProduct testProduct : testProductList) {
             if (testProduct.exists()) {
                 List<ProductReaderPlugIn> intendedPlugins = new ArrayList<>();
@@ -103,14 +109,13 @@ public class ProductReaderAcceptanceTest {
                     for (ProductReaderPlugIn intendedPlugin : intendedPlugins) {
                         logger.info(INDENT + INDENT + intendedPlugin.getClass().getName());
                     }
+                    duplicates = true;
                 }
             }
         }
-    }
-
-    @AfterClass
-    public static void tearDown() throws Exception {
-        logInfoWithStars("Finished / " + DATE_FORMAT.format(CALENDAR.getTime()));
+        if (duplicates && Boolean.parseBoolean(System.getProperty(PROPERTYNAME_FAIL_ON_INTENDED, "false"))) {
+            fail("Products are accepted by more than one ReaderPlugin as 'INTENDED'");
+        }
     }
 
     @Test
