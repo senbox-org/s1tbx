@@ -45,7 +45,7 @@ import java.util.Vector;
  * @deprecated since BEAM 4.11. No replacement.
  */
 @Deprecated
-class SensorCoefficientManager {
+public class SensorCoefficientManager {
 
     public static final String AER_DES_NAME = "DES";
     public static final String AER_CONT_NAME = "CONT";

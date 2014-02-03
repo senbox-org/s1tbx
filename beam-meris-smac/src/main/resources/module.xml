@@ -72,4 +72,8 @@
         </helpSet>
     </extension>
 
+    <extension point="ceres-core:serviceProviders">
+        <serviceProvider>org.esa.beam.framework.gpf.OperatorSpi</serviceProvider>
+    </extension>
+
 </module>

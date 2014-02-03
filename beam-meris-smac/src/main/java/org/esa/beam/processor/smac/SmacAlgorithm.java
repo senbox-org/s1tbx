@@ -23,7 +23,7 @@ import org.esa.beam.util.Guardian;
  * @deprecated since BEAM 4.11. No replacement.
  */
 @Deprecated
-final class SmacAlgorithm {
+public final class SmacAlgorithm {
 
     private static final double _cdr = Math.PI / 180.0;
     private static final double _crd = 180.0 / Math.PI;
