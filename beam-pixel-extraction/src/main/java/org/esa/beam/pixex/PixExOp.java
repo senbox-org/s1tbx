@@ -95,7 +95,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.ZipOutputStream;
 
-import static java.lang.Math.*;
+import static java.lang.Math.floor;
+import static java.lang.Math.max;
+import static java.lang.Math.min;
 
 /**
  * This operator is used to extract pixels from given locations and source products.
@@ -111,7 +113,8 @@ import static java.lang.Math.*;
         version = "1.3",
         authors = "Marco Peters, Thomas Storm, Norman Fomferra",
         copyright = "(c) 2011 by Brockmann Consult",
-        description = "Extracts pixels from given locations and source products.")
+        description = "Extracts pixels from given locations and source products.",
+        suppressWrite = true)
 public class PixExOp extends Operator implements Output {
 
     public static final String RECURSIVE_INDICATOR = "**";

@@ -246,7 +246,7 @@ public class TestOps {
         }
     }
 
-    @OperatorMetadata(alias = "OutputOp")
+    @OperatorMetadata(alias = "OutputOp", suppressWrite = true)
     public static class OpImplementingOutput extends Operator implements Output {
 
         @TargetProduct

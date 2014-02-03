@@ -33,7 +33,7 @@ import javax.imageio.stream.FileImageInputStream;
 import javax.imageio.stream.FileImageOutputStream;
 import javax.imageio.stream.ImageInputStream;
 import javax.imageio.stream.ImageOutputStream;
-import java.awt.*;
+import java.awt.Rectangle;
 import java.io.File;
 import java.io.IOException;
 
@@ -53,7 +53,8 @@ import java.io.IOException;
 @OperatorMetadata(alias = "Meris.N1Patcher",
                   description = "Copies an existing N1 file and replaces the data for the radiance bands",
                   version = "1.1",
-                  authors = "Marco Zuehlke, Olaf Danne, Marco Peters")
+                  authors = "Marco Zuehlke, Olaf Danne, Marco Peters",
+                  suppressWrite = true)
 public class N1PatcherOp extends MerisBasisOp implements Output {
 
     // MPH:

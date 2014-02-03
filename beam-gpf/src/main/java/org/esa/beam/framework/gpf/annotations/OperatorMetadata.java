@@ -35,7 +35,7 @@ public @interface OperatorMetadata {
 
     /**
      * @return A human-readable version of the name to be used in user interfaces.
-     *         Defaults to the empty string (= not set).
+     * Defaults to the empty string (= not set).
      */
     String label() default "";
 
@@ -46,32 +46,45 @@ public @interface OperatorMetadata {
 
     /**
      * @return The version of the operator.
-     *         Defaults to the empty string (= not set).
+     * Defaults to the empty string (= not set).
      */
     String version() default "";
 
     /**
      * @return The author(s) of the operator.
-     *         Defaults to the empty string (= not set).
+     * Defaults to the empty string (= not set).
      */
     String authors() default "";
 
     /**
      * @return The copyright notice for the operator code.
-     *         Defaults to the empty string (= not set).
+     * Defaults to the empty string (= not set).
      */
     String copyright() default "";
 
     /**
      * @return A brief description of the operator's purpose.
-     *         Defaults to the empty string (= not set).
+     * Defaults to the empty string (= not set).
      */
     String description() default "";
 
+    /**
+     * @return If {@code true}, the framework will not automatically write the target product of this
+     * operator. Usually, the framework writes the target products of single operators or processing graphs
+     * when executed from the GPT commandline operator's GUI.
+     * <p/>
+     * Setting this property may be useful if your operator does not generate a new target
+     * {@link org.esa.beam.framework.datamodel.Product Product} and/or if it
+     * does its own writing of non-{@link org.esa.beam.framework.datamodel.Product Product}
+     * targets to external files in any format.
+     *
+     * @since BEAM 5.0
+     */
+    boolean suppressWrite() default false;
 
     /**
      * @return If {@code true}, this operator is considered for internal use only and thus
-     *         may not be exposed in user interfaces.
+     * may not be exposed in user interfaces.
      */
     boolean internal() default false;
 

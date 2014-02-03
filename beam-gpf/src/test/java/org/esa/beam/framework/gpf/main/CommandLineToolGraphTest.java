@@ -21,7 +21,6 @@ import com.sun.media.jai.util.SunTileScheduler;
 import junit.framework.TestCase;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.GPF;
-import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.TestOps;
 import org.esa.beam.framework.gpf.graph.Graph;
 import org.esa.beam.framework.gpf.graph.GraphException;
@@ -338,13 +337,6 @@ public class CommandLineToolGraphTest extends TestCase {
             executedGraph = graph;
         }
 
-
-        @Override
-        public Product createOpProduct(String opName, Map<String, Object> parameters,
-                                       Map<String, Product> sourceProducts) throws OperatorException {
-            fail("did not expect to come here");
-            return null;
-        }
 
         @Override
         public Reader createReader(String fileName) throws FileNotFoundException {

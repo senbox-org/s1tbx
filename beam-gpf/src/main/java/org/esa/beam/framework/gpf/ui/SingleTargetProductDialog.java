@@ -22,6 +22,8 @@ import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
+import org.esa.beam.framework.gpf.OperatorSpi;
+import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.experimental.Output;
 import org.esa.beam.framework.gpf.internal.OperatorExecutor;
 import org.esa.beam.framework.gpf.internal.OperatorProductReader;
@@ -46,7 +48,6 @@ import java.util.concurrent.ExecutionException;
  *
  * @author Norman Fomferra
  * @author Marco Peters
- * @version $Revision$ $Date$
  */
 public abstract class SingleTargetProductDialog extends ModelessDialog {
 
@@ -305,21 +306,27 @@ public abstract class SingleTargetProductDialog extends ModelessDialog {
             Product product = null;
             try {
                 long t0 = System.currentTimeMillis();
-                Operator operator = null;
+                Operator execOp = null;
                 if (targetProduct.getProductReader() instanceof OperatorProductReader) {
                     final OperatorProductReader opReader = (OperatorProductReader) targetProduct.getProductReader();
-                    if (opReader.getOperatorContext().getOperator() instanceof Output) {
-                        operator = opReader.getOperatorContext().getOperator();
+                    Operator operator = opReader.getOperatorContext().getOperator();
+                    OperatorSpi operatorSpi = operator.getSpi();
+                    OperatorMetadata operatorMetadata = operatorSpi.getClass().getAnnotation(OperatorMetadata.class);
+
+                    if (operator instanceof Output
+                        || operatorMetadata != null && operatorMetadata.suppressWrite()) {
+                        execOp = operator;
                     }
                 }
-                if (operator == null) {
+                if (execOp == null) {
                     WriteOp writeOp = new WriteOp(targetProduct, model.getProductFile(), model.getFormatName());
                     writeOp.setDeleteOutputOnFailure(true);
                     writeOp.setWriteEntireTileRows(true);
                     writeOp.setClearCacheAfterRowWrite(false);
-                    operator = writeOp;
+                    execOp = writeOp;
                 }
-                final OperatorExecutor executor = OperatorExecutor.create(operator);
+
+                final OperatorExecutor executor = OperatorExecutor.create(execOp);
                 executor.execute(SubProgressMonitor.create(pm, 95));
 
                 saveTime = System.currentTimeMillis() - t0;

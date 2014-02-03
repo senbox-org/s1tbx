@@ -90,7 +90,8 @@ import java.util.Map;
                   version = "1.3",
                   authors = "Marco Zuehlke, Norman Fomferra",
                   copyright = "(c) 2010 by Brockmann Consult",
-                  description = "Writes a data product to a file.")
+                  description = "Writes a data product to a file.",
+                  suppressWrite = true)
 public class WriteOp extends Operator implements Output {
 
     @TargetProduct

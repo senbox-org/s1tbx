@@ -19,7 +19,6 @@ package org.esa.beam.framework.gpf.main;
 import com.bc.ceres.binding.dom.DomElement;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.GPF;
-import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.TestOps;
 import org.esa.beam.framework.gpf.graph.Graph;
 import org.esa.beam.framework.gpf.graph.GraphException;
@@ -40,7 +39,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 public class CommandLineToolMultiSourceGraphTest {
 
@@ -227,13 +227,6 @@ public class CommandLineToolMultiSourceGraphTest {
             executedGraph = graph;
         }
 
-
-        @Override
-        public Product createOpProduct(String opName, Map<String, Object> parameters,
-                                       Map<String, Product> sourceProducts) throws OperatorException {
-            fail("did not expect to come here");
-            return null;
-        }
 
         @Override
         public void print(String m) {
