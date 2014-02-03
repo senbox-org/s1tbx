@@ -22,10 +22,8 @@ import com.bc.ceres.swing.actions.CutAction;
 import com.bc.ceres.swing.actions.DeleteAction;
 import com.bc.ceres.swing.actions.PasteAction;
 import com.bc.ceres.swing.actions.SelectAllAction;
-import com.bc.ceres.swing.figure.AbstractInteractorListener;
 import com.bc.ceres.swing.figure.FigureEditor;
 import com.bc.ceres.swing.figure.FigureEditorAware;
-import com.bc.ceres.swing.figure.FigureEditorInteractor;
 import com.bc.ceres.swing.figure.Interactor;
 import com.bc.ceres.swing.figure.interactions.NullInteractor;
 import com.bc.ceres.swing.progress.DialogProgressMonitor;
@@ -100,7 +98,6 @@ import org.esa.beam.visat.actions.ShowImageViewAction;
 import org.esa.beam.visat.actions.ShowImageViewRGBAction;
 import org.esa.beam.visat.actions.ShowToolBarAction;
 import org.esa.beam.visat.toolviews.diag.TileCacheDiagnosisToolView;
-import org.esa.beam.visat.toolviews.placemark.InsertPlacemarkInteractor;
 import org.esa.beam.visat.toolviews.stat.DensityPlotToolView;
 import org.esa.beam.visat.toolviews.stat.GeoCodingToolView;
 import org.esa.beam.visat.toolviews.stat.HistogramPlotToolView;
@@ -135,7 +132,6 @@ import java.awt.Dimension;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.InputEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyVetoException;
@@ -2027,42 +2023,12 @@ public class VisatApp extends BasicApp implements AppContext {
                     final AbstractButton toolBarButton = command.createToolBarButton();
                     toolBarButton.addMouseListener(getMouseOverActionHandler());
                     toolBar.add(toolBarButton);
-                    addResetSelectionOnFinishListener(commandIDs, command);
                 } else {
                     getLogger().warning(String.format("Toolbar '%s': No command found for ID = '%s'", toolBar.getName(),
                                                       commandID));
                 }
             }
             toolBar.add(Box.createHorizontalStrut(1));
-        }
-    }
-
-    // accounts for [BEAM-1591] - After drawing a geometry, the selection tool shall be selected again
-    private void addResetSelectionOnFinishListener(final String[] commandIDs, Command command) {
-        if (command instanceof ToolCommand) {
-            ToolCommand toolCommand = (ToolCommand) command;
-            Interactor interactor = toolCommand.getInteractor();
-            boolean isFigure = interactor instanceof FigureEditorInteractor;
-            boolean isPlacemark = interactor instanceof InsertPlacemarkInteractor;
-            if (isFigure && !isPlacemark) {
-                interactor.addListener(new AbstractInteractorListener() {
-                    @Override
-                    public void interactionStopped(Interactor interactor, InputEvent inputEvent) {
-                        selectTool(Arrays.asList(commandIDs), "selectTool");
-                    }
-                });
-            }
-        }
-    }
-
-    private void selectTool(List<String> commandIds, String toolName) {
-        for (String commandId : commandIds) {
-            if (toolName.equals(commandId)) {
-                ToolCommand toolCommand = (ToolCommand) getCommandManager().getCommand(commandId);
-                selectionInteractor = toolCommand.getInteractor();
-                setActiveInteractor(selectionInteractor);
-                toolCommand.setSelected(true);
-            }
         }
     }
 
