@@ -34,6 +34,8 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import javax.media.jai.OpImage;
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
@@ -274,8 +276,17 @@ public class ProductReaderAcceptanceTest {
                             RenderedImage viewImage = band0.getSourceImage().getImage(viewLevel);
 
                             stopWatch.start();
-                            Raster data = viewImage.getData();
-                            assertNotNull(data);
+                            if (viewImage instanceof OpImage) {
+                                OpImage opImage = (OpImage) viewImage;
+                                Point[] tileIndices = opImage.getTileIndices(null);
+                                for (Point tileIndice : tileIndices) {
+                                    Raster tileRaster = opImage.getTile(tileIndice.x, tileIndice.y);
+                                    assertNotNull("tileRaster", tileRaster);
+                                }
+                            } else {
+                                Raster imageRaster = viewImage.getData();
+                                assertNotNull("imageRaster", imageRaster);
+                            }
                             stopWatch.stop();
                             getViewDataTime = stopWatch.getTimeDiffString();
                         }
