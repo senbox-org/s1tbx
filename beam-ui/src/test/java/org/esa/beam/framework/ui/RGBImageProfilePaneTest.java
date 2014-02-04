@@ -101,4 +101,13 @@ public class RGBImageProfilePaneTest {
         assertNotNull(profile);
         assertSame(rgbImageProfiles[2], profile);   // equal, so earlier profile is chosen
     }
+
+    @Test
+    public void testSelectProfile_6() throws Exception {
+        RGBImageProfile[] rgbImageProfiles = new RGBImageProfile[0];
+        Product product = new Product("some_name_123", "some_type_123", 1, 1);
+        product.setDescription("This is some description text.");
+        RGBImageProfile profile = RGBImageProfilePane.findProfileForProductPattern(rgbImageProfiles, product);
+        assertNull(profile);
+    }
 }

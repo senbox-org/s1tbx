@@ -187,7 +187,9 @@ public class RGBImageProfilePane extends JPanel {
                 }
                 RGBImageProfile[] selectableProfileArray = selectableProfiles.toArray(new RGBImageProfile[selectableProfiles.size()]);
                 RGBImageProfile profile = findProfileForProductPattern(selectableProfileArray, product);
-                selectProfile(profile);
+                if (profile != null) {
+                    selectProfile(profile);
+                }
             }
         }
         setRgbaExpressionsFromSelectedProfile();
@@ -585,6 +587,10 @@ public class RGBImageProfilePane extends JPanel {
     }
 
     public static RGBImageProfile findProfileForProductPattern(RGBImageProfile[] rgbImageProfiles, Product product) {
+        if (rgbImageProfiles.length == 0) {
+            return null;
+        }
+
         String productType = product.getProductType();
         String productName = product.getName();
         String productDesc = product.getDescription();
