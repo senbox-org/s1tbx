@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -17,7 +17,6 @@
 package org.esa.beam.visat.actions;
 
 import com.bc.ceres.core.ProgressMonitor;
-import com.bc.ceres.swing.figure.Figure;
 import com.bc.ceres.swing.figure.ShapeFigure;
 import com.bc.ceres.swing.progress.DialogProgressMonitor;
 import org.esa.beam.framework.datamodel.Band;
@@ -27,6 +26,7 @@ import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.datamodel.TiePointGrid;
 import org.esa.beam.framework.datamodel.TransectProfileData;
 import org.esa.beam.framework.datamodel.TransectProfileDataBuilder;
 import org.esa.beam.framework.ui.SelectExportMethodDialog;
@@ -40,6 +40,7 @@ import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.visat.VisatApp;
 
+import javax.swing.JCheckBox;
 import javax.swing.SwingWorker;
 import java.awt.Dialog;
 import java.awt.Shape;
@@ -80,7 +81,7 @@ public class ExportTransectPixelsAction extends ExecCommand {
     @Override
     public void updateState(CommandEvent event) {
         ProductSceneView view = VisatApp.getApp().getSelectedProductSceneView();
-        boolean enabled = view != null && view.getFigureEditor().getFigureSelection().getFigureCount() > 0;
+        boolean enabled = view != null && view.getCurrentShapeFigure() != null;
         setEnabled(enabled);
     }
 
@@ -94,13 +95,12 @@ public class ExportTransectPixelsAction extends ExecCommand {
         // Get the displayed raster data node (band or tie-point grid)
         final RasterDataNode raster = view.getRaster();
         // Get the transect of the displayed raster data node
-        Figure transectFigure = view.getFigureEditor().getFigureSelection().getFigure(0);
-        if (transectFigure == null || !(transectFigure instanceof ShapeFigure)) {
+        final ShapeFigure transect = view.getCurrentShapeFigure();
+        if (transect == null) {
             VisatApp.getApp().showErrorDialog(DLG_TITLE,
                                               ERR_MSG_BASE + "There is no transect defined in the selected band.");  /*I18N*/
             return;
         }
-        ShapeFigure transect = (ShapeFigure) transectFigure;
 
         final TransectProfileData transectProfileData;
         try {
@@ -125,8 +125,15 @@ public class ExportTransectPixelsAction extends ExecCommand {
         }
         // Get export method from user
         final String questionText = "How do you want to export the pixel values?\n"; /*I18N*/
+        final JCheckBox createHeaderBox = new JCheckBox("Create header");
+        final JCheckBox exportTiePointsBox = new JCheckBox("Export tie-points");
+        final JCheckBox exportWavelengthsAndSFBox = new JCheckBox("Export wavelengths + solar fluxes");
         final int method = SelectExportMethodDialog.run(VisatApp.getApp().getMainFrame(), getWindowTitle(),
-                                                        questionText + numPixelsText, getHelpId());
+                                                        questionText + numPixelsText, new JCheckBox[]{
+                createHeaderBox,
+                exportTiePointsBox,
+                exportWavelengthsAndSFBox
+        }, getHelpId());
 
         final PrintWriter out;
         final StringBuffer clipboardText;
@@ -164,7 +171,10 @@ public class ExportTransectPixelsAction extends ExecCommand {
                 ProgressMonitor pm = new DialogProgressMonitor(VisatApp.getApp().getMainFrame(), DLG_TITLE,
                                                                Dialog.ModalityType.APPLICATION_MODAL);
                 try {
-                    TransectExporter exporter = new TransectExporter();
+                    final boolean mustCreateHeader = createHeaderBox.isSelected();
+                    final boolean mustExportWavelengthsAndSF = exportWavelengthsAndSFBox.isSelected();
+                    final boolean mustExportTiePoints = exportTiePointsBox.isSelected();
+                    TransectExporter exporter = new TransectExporter(mustCreateHeader, mustExportWavelengthsAndSF, mustExportTiePoints);
                     boolean success = exporter.exportTransectPixels(out, raster.getProduct(),
                                                                     transectProfileData,
                                                                     numTransectPixels,
@@ -263,6 +273,16 @@ public class ExportTransectPixelsAction extends ExecCommand {
 
     static class TransectExporter {
 
+        private final boolean mustCreateHeader;
+        private final boolean mustExportWavelengthsAndSF;
+        private final boolean mustExportTiePoints;
+
+        TransectExporter(boolean mustCreateHeader, boolean mustExportWavelengthsAndSF, boolean mustExportTiePoints) {
+            this.mustCreateHeader = mustCreateHeader;
+            this.mustExportWavelengthsAndSF = mustExportWavelengthsAndSF;
+            this.mustExportTiePoints = mustExportTiePoints;
+        }
+
         /**
          * Writes all pixel values of the given product within the given ROI to the specified out.
          *
@@ -278,9 +298,12 @@ public class ExportTransectPixelsAction extends ExecCommand {
                                              ProgressMonitor pm) {
 
             final Band[] bands = product.getBands();
+            final TiePointGrid[] tiePointGrids = product.getTiePointGrids();
             final GeoCoding geoCoding = product.getGeoCoding();
-            writeFileHeader(out, bands);
-            writeTableHeader(out, geoCoding, bands);
+            if (mustCreateHeader) {
+                writeFileHeader(out, bands);
+            }
+            writeTableHeader(out, geoCoding, bands, mustExportTiePoints, tiePointGrids, mustExportWavelengthsAndSF);
             final Point2D[] pixelPositions = transectProfileData.getPixelPositions();
 
             pm.beginTask("Writing pixel data...", numTransectPixels);
@@ -290,7 +313,7 @@ public class ExportTransectPixelsAction extends ExecCommand {
                     int y = (int) Math.floor(pixelPosition.getY());
                     if (x >= 0 && x < product.getSceneRasterWidth()
                         && y >= 0 && y < product.getSceneRasterHeight()) {
-                        writeDataLine(out, geoCoding, bands, x, y);
+                        writeDataLine(out, geoCoding, bands, mustExportTiePoints, tiePointGrids, x, y);
                         pm.worked(1);
                         if (pm.isCanceled()) {
                             return false;
@@ -321,34 +344,41 @@ public class ExportTransectPixelsAction extends ExecCommand {
 
         private void writeTableHeader(final PrintWriter out,
                                       final GeoCoding geoCoding,
-                                      final Band[] bands) {
-            float[] wavelengthArray = new float[bands.length];
-            for (int i = 0; i < bands.length; i++) {
-                wavelengthArray[i] = bands[i].getSpectralWavelength();
-            }
-            out.printf("# Wavelength:\t \t \t \t%s\n", StringUtils.arrayToString(wavelengthArray, "\t"));
+                                      final Band[] bands,
+                                      boolean mustExportTiePoints,
+                                      TiePointGrid[] tiePointGrids,
+                                      boolean mustExportWavelengthsAndSF) {
+            if (mustExportWavelengthsAndSF) {
+                float[] wavelengthArray = new float[bands.length];
+                for (int i = 0; i < bands.length; i++) {
+                    wavelengthArray[i] = bands[i].getSpectralWavelength();
+                }
+                out.printf("# Wavelength:\t \t \t \t%s\n", StringUtils.arrayToString(wavelengthArray, "\t"));
 
-            float[] solarFluxArray = new float[bands.length];
-            for (int i = 0; i < bands.length; i++) {
-                solarFluxArray[i] = bands[i].getSolarFlux();
+                float[] solarFluxArray = new float[bands.length];
+                for (int i = 0; i < bands.length; i++) {
+                    solarFluxArray[i] = bands[i].getSolarFlux();
+                }
+                out.printf("# Solar flux:\t \t \t \t%s%n", StringUtils.arrayToString(solarFluxArray, "\t"));
             }
-            out.printf("# Solar flux:\t \t \t \t%s%n", StringUtils.arrayToString(solarFluxArray, "\t"));
 
             out.print("Pixel-X");
             out.print("\t");
             out.print("Pixel-Y");
-            out.print("\t");
             if (geoCoding != null) {
+                out.print("\t");
                 out.print("Longitude");
                 out.print("\t");
                 out.print("Latitude");
-                out.print("\t");
             }
-            for (int i = 0; i < bands.length; i++) {
-                final Band band = bands[i];
+            for (final Band band : bands) {
+                out.print("\t");
                 out.print(band.getName());
-                if (i < bands.length - 1) {
+            }
+            if (mustExportTiePoints) {
+                for (final TiePointGrid grid : tiePointGrids) {
                     out.print("\t");
+                    out.print(grid.getName());
                 }
             }
             out.print("\n");
@@ -357,38 +387,44 @@ public class ExportTransectPixelsAction extends ExecCommand {
         /**
          * Writes a data line of the dataset to be exported for the given pixel position.
          *
-         * @param out       the data output writer
-         * @param geoCoding the product's geo-coding
-         * @param bands     the array of bands that provide pixel values
-         * @param x         the current pixel's X coordinate
-         * @param y         the current pixel's Y coordinate
+         * @param out                 the data output writer
+         * @param geoCoding           the product's geo-coding
+         * @param bands               the array of bands that provide pixel values
+         * @param mustExportTiePoints if tie-points shall be exported
+         * @param tiePointGrids       the array of tie-points that provide pixel values
+         * @param x                   the current pixel's X coordinate
+         * @param y                   the current pixel's Y coordinate
          */
         private void writeDataLine(final PrintWriter out,
                                    final GeoCoding geoCoding,
                                    final Band[] bands,
-                                   int x,
-                                   int y) {
+                                   boolean mustExportTiePoints,
+                                   TiePointGrid[] tiePointGrids,
+                                   int x, int y) {
             final PixelPos pixelPos = new PixelPos(x + 0.5f, y + 0.5f);
 
             out.print(String.valueOf(pixelPos.x));
             out.print("\t");
             out.print(String.valueOf(pixelPos.y));
-            out.print("\t");
             if (geoCoding != null) {
+                out.print("\t");
                 final GeoPos geoPos = geoCoding.getGeoPos(pixelPos, null);
                 out.print(String.valueOf(geoPos.lon));
                 out.print("\t");
                 out.print(String.valueOf(geoPos.lat));
-                out.print("\t");
             }
-            for (int i = 0; i < bands.length; i++) {
-                final Band band = bands[i];
+            for (final Band band : bands) {
+                out.print("\t");
                 final String pixelString = band.getPixelString(x, y);
                 out.print(pixelString);
-                if (i < bands.length - 1) {
+            }
+            if (mustExportTiePoints) {
+                for (final TiePointGrid grid : tiePointGrids) {
                     out.print("\t");
+                    out.print(grid.getPixelString(x, y));
                 }
             }
+
             out.print("\n");
         }
     }

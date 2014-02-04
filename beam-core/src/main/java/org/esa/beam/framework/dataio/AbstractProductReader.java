@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Brockmann Consult GmbH (info@brockmann-consult.de) 
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -24,6 +24,7 @@ import org.esa.beam.framework.datamodel.TiePointGrid;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.TreeNode;
+import org.esa.beam.util.logging.BeamLogManager;
 
 import java.awt.Dimension;
 import java.io.File;
@@ -165,6 +166,7 @@ public abstract class AbstractProductReader implements ProductReader {
         if (input != null && !isInstanceOfValidInputType(input)) {
             throw new IllegalArgumentException("invalid input source: " + input);
         }
+        final long startTime = System.currentTimeMillis();
         setInput(input);
         setSubsetDef(subsetDef);
         final Product product = readProductNodesImpl();
@@ -173,6 +175,9 @@ public abstract class AbstractProductReader implements ProductReader {
         if (product.getProductReader() == null) {
             product.setProductReader(this);
         }
+        final long endTime = System.currentTimeMillis();
+        String msg = String.format("Read product nodes (took %d ms)", (endTime - startTime));
+        BeamLogManager.getSystemLogger().fine(msg);
         return product;
     }
 
@@ -421,8 +426,8 @@ public abstract class AbstractProductReader implements ProductReader {
         final int gridDiscontinutity = getGridDiscontinutity(gridName);
         if (gridDiscontinutity != 0) {
             Debug.trace("creating tie-point grid '" + gridName +
-                                "' with discontinuity at " + gridDiscontinutity +
-                                " degree");
+                        "' with discontinuity at " + gridDiscontinutity +
+                        " degree");
         }
         return new TiePointGrid(gridName,
                                 gridWidth,
@@ -444,11 +449,11 @@ public abstract class AbstractProductReader implements ProductReader {
             if (oldSize == null) {
                 product.setPreferredTileSize(newSize);
                 getSystemLogger().fine(String.format("Product '%s': tile size set to %d x %d pixels",
-                                                                    product.getName(), newSize.width, newSize.height));
+                                                     product.getName(), newSize.width, newSize.height));
             } else if (!oldSize.equals(newSize)) {
                 product.setPreferredTileSize(newSize);
                 getSystemLogger().fine(String.format("Product '%s': tile size set to %d x %d pixels, was %d x %d pixels",
-                                                                    product.getName(), newSize.width, newSize.height, oldSize.width, oldSize.height));
+                                                     product.getName(), newSize.width, newSize.height, oldSize.width, oldSize.height));
             }
         }
     }
@@ -501,7 +506,7 @@ public abstract class AbstractProductReader implements ProductReader {
 
     private static boolean isNameOfLongitudeGrid(String name) {
         return name.equalsIgnoreCase("lon") ||
-                name.equalsIgnoreCase("long") ||
-                name.equalsIgnoreCase("longitude");
+               name.equalsIgnoreCase("long") ||
+               name.equalsIgnoreCase("longitude");
     }
 }

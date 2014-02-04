@@ -64,7 +64,18 @@ import java.io.IOException;
 import java.io.Writer;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Properties;
+import java.util.SortedMap;
+import java.util.SortedSet;
+import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.logging.Level;
 
 /*
@@ -102,7 +113,8 @@ todo - address the following BinningOp requirements (nf, 2012-03-09)
                   version = "0.8.2",
                   authors = "Norman Fomferra, Marco Zühlke, Thomas Storm",
                   copyright = "(c) 2012 by Brockmann Consult GmbH",
-                  description = "Performs spatial and temporal aggregation of pixel values into 'bin' cells")
+                  description = "Performs spatial and temporal aggregation of pixel values into 'bin' cells",
+                  suppressWrite = true)
 public class BinningOp extends Operator implements Output {
 
     public static final String DATE_PATTERN = "yyyy-MM-dd";

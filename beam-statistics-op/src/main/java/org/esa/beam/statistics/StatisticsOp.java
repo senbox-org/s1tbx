@@ -81,7 +81,8 @@ import java.util.logging.Level;
                   version = "1.0",
                   authors = "Sabine Embacher, Tonio Fincke, Thomas Storm",
                   copyright = "(c) 2012 by Brockmann Consult GmbH",
-                  description = "Computes statistics for an arbitrary number of source products.")
+                  description = "Computes statistics for an arbitrary number of source products.",
+                  suppressWrite = true)
 public class StatisticsOp extends Operator implements Output {
 
     public static final String DATETIME_PATTERN = "yyyy-MM-dd HH:mm:ss";

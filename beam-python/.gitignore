@@ -5,7 +5,6 @@ beampy.ini
 .idea
 *.iml
 *.class
-*.jar
 *.war
 *.ear
 

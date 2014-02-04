@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -18,9 +18,7 @@ package org.esa.beam.framework.gpf.ui;
 
 import com.bc.ceres.binding.dom.DomElement;
 import com.bc.ceres.binding.dom.XppDomElement;
-import com.jidesoft.action.CommandBar;
 import com.jidesoft.action.CommandMenuBar;
-import com.jidesoft.action.DockableBar;
 import com.thoughtworks.xstream.io.copy.HierarchicalStreamCopier;
 import com.thoughtworks.xstream.io.xml.XppDomWriter;
 import com.thoughtworks.xstream.io.xml.XppReader;
@@ -29,17 +27,34 @@ import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.framework.ui.AbstractDialog;
+import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.io.FileUtils;
+import org.xmlpull.mxp1.MXParser;
 
-import javax.swing.*;
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.JFileChooser;
+import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JTextArea;
 import javax.swing.filechooser.FileNameExtensionFilter;
-import java.awt.*;
+import java.awt.Component;
 import java.awt.event.ActionEvent;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Reader;
+import java.io.StringReader;
 
 /**
  * WARNING: This class belongs to a preliminary API and may change in future releases.
@@ -55,40 +70,29 @@ public class OperatorMenu {
     private final Component parentComponent;
     private final OperatorParameterSupport parameterSupport;
     private final Class<? extends Operator> opType;
+    private final AppContext appContext;
     private final String helpId;
-    private final Action openParametersAction;
+    private final Action loadParametersAction;
     private final Action saveParametersAction;
     private final Action displayParametersAction;
     private final Action aboutAction;
+    private final String lastDirPreferenceKey;
 
     public OperatorMenu(Component parentComponent,
                         Class<? extends Operator> opType,
                         OperatorParameterSupport parameterSupport,
+                        AppContext appContext,
                         String helpId) {
         this.parentComponent = parentComponent;
         this.parameterSupport = parameterSupport;
         this.opType = opType;
+        this.appContext = appContext;
         this.helpId = helpId;
-        openParametersAction = new OpenParametersAction();
+        lastDirPreferenceKey = opType.getCanonicalName() + ".lastDir";
+        loadParametersAction = new LoadParametersAction();
         saveParametersAction = new SaveParametersAction();
         displayParametersAction = new DisplayParametersAction();
         aboutAction = new AboutOperatorAction();
-    }
-
-    public Action getSaveParametersAction() {
-        return saveParametersAction;
-    }
-
-    public Action getDisplayParametersAction() {
-        return displayParametersAction;
-    }
-
-    public Action getOpenParametersAction() {
-        return openParametersAction;
-    }
-
-    public Action getAboutOperatorAction() {
-        return aboutAction;
     }
 
     /**
@@ -98,7 +102,7 @@ public class OperatorMenu {
      */
     public JMenuBar createDefaultMenu() {
         JMenu fileMenu = new JMenu("File");
-        fileMenu.add(openParametersAction);
+        fileMenu.add(loadParametersAction);
         fileMenu.add(saveParametersAction);
         fileMenu.addSeparator();
         fileMenu.add(displayParametersAction);
@@ -129,28 +133,32 @@ public class OperatorMenu {
         return menuItem;
     }
 
-    private class OpenParametersAction extends AbstractAction {
+    private class LoadParametersAction extends AbstractAction {
 
-        OpenParametersAction() {
-            super("Open Parameters...");
+        private static final String TITLE = "Load Parameters";
+
+        LoadParametersAction() {
+            super(TITLE + "...");
         }
 
         @Override
         public void actionPerformed(ActionEvent event) {
             JFileChooser fileChooser = new JFileChooser();
-            fileChooser.addChoosableFileFilter(createParameterFileFilter());
-            String title = "Open Parameters";
-            fileChooser.setDialogTitle(title);
+            FileNameExtensionFilter parameterFileFilter = createParameterFileFilter();
+            fileChooser.addChoosableFileFilter(parameterFileFilter);
+            fileChooser.setFileFilter(parameterFileFilter);
+            fileChooser.setDialogTitle(TITLE);
             fileChooser.setDialogType(JFileChooser.OPEN_DIALOG);
-            int response = fileChooser.showDialog(parentComponent, "Open");
+            applyCurrentDirectory(fileChooser);
+            int response = fileChooser.showDialog(parentComponent, "Load");
             if (JFileChooser.APPROVE_OPTION == response) {
                 try {
-                    File selectedFile = fileChooser.getSelectedFile();
-                    readFromFile(selectedFile);
+                    preserveCurrentDirectory(fileChooser);
+                    readFromFile(fileChooser.getSelectedFile());
                 } catch (Exception e) {
-                    e.printStackTrace();
-                    JOptionPane.showMessageDialog(parentComponent, "Could not open parameters.\n" + e.getMessage(),
-                                                  title, JOptionPane.ERROR_MESSAGE);
+                    Debug.trace(e);
+                    JOptionPane.showMessageDialog(parentComponent, "Could not load parameters.\n" + e.getMessage(),
+                                                  TITLE, JOptionPane.ERROR_MESSAGE);
                 }
             }
         }
@@ -161,18 +169,14 @@ public class OperatorMenu {
         }
 
         private void readFromFile(File selectedFile) throws Exception {
-            FileReader reader = new FileReader(selectedFile);
-            try {
+            try (FileReader reader = new FileReader(selectedFile)) {
                 DomElement domElement = readXml(reader);
                 parameterSupport.fromDomElement(domElement);
-            } finally {
-                reader.close();
             }
         }
 
         private DomElement readXml(Reader reader) throws IOException {
-            final BufferedReader br = new BufferedReader(reader);
-            try {
+            try (BufferedReader br = new BufferedReader(reader)) {
                 StringBuilder sb = new StringBuilder();
                 String line = br.readLine();
                 while (line != null) {
@@ -180,24 +184,22 @@ public class OperatorMenu {
                     line = br.readLine();
                 }
                 return new XppDomElement(createDom(sb.toString()));
-            } finally {
-                br.close();
             }
         }
 
         private XppDom createDom(String xml) {
             XppDomWriter domWriter = new XppDomWriter();
-            new HierarchicalStreamCopier().copy(new XppReader(new StringReader(xml)), domWriter);
+            new HierarchicalStreamCopier().copy(new XppReader(new StringReader(xml), new MXParser()), domWriter);
             return domWriter.getConfiguration();
         }
-
-
     }
 
     private class SaveParametersAction extends AbstractAction {
 
+        private static final String TITLE = "Save Parameters";
+
         SaveParametersAction() {
-            super("Save Parameters...");
+            super(TITLE + "...");
         }
 
         @Override
@@ -205,22 +207,23 @@ public class OperatorMenu {
             JFileChooser fileChooser = new JFileChooser();
             final FileNameExtensionFilter parameterFileFilter = createParameterFileFilter();
             fileChooser.addChoosableFileFilter(parameterFileFilter);
-            fileChooser.setAcceptAllFileFilterUsed(false);
-            String title = "Save Parameters";
-            fileChooser.setDialogTitle(title);
+            fileChooser.setFileFilter(parameterFileFilter);
+            fileChooser.setDialogTitle(TITLE);
             fileChooser.setDialogType(JFileChooser.SAVE_DIALOG);
+            applyCurrentDirectory(fileChooser);
             int response = fileChooser.showDialog(parentComponent, "Save");
             if (JFileChooser.APPROVE_OPTION == response) {
                 try {
+                    preserveCurrentDirectory(fileChooser);
                     File selectedFile = fileChooser.getSelectedFile();
                     selectedFile = FileUtils.ensureExtension(selectedFile,
                                                              "." + parameterFileFilter.getExtensions()[0]);
                     String xmlString = parameterSupport.toDomElement().toXml();
                     writeToFile(xmlString, selectedFile);
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    Debug.trace(e);
                     JOptionPane.showMessageDialog(parentComponent, "Could not save parameters.\n" + e.getMessage(),
-                                                  title, JOptionPane.ERROR_MESSAGE);
+                                                  TITLE, JOptionPane.ERROR_MESSAGE);
                 }
             }
         }
@@ -231,11 +234,8 @@ public class OperatorMenu {
         }
 
         private void writeToFile(String s, File outputFile) throws IOException {
-            final BufferedWriter bw = new BufferedWriter(new FileWriter(outputFile));
-            try {
+            try (BufferedWriter bw = new BufferedWriter(new FileWriter(outputFile))) {
                 bw.write(s);
-            } finally {
-                bw.close();
             }
         }
     }
@@ -265,7 +265,6 @@ public class OperatorMenu {
         public boolean isEnabled() {
             return super.isEnabled() && parameterSupport != null;
         }
-
     }
 
 
@@ -279,7 +278,6 @@ public class OperatorMenu {
         public void actionPerformed(ActionEvent event) {
             showMessageDialog("About " + getOperatorName(), new JLabel(getOperatorDescription()));
         }
-
     }
 
     private void showMessageDialog(String title, Component component) {
@@ -322,6 +320,17 @@ public class OperatorMenu {
 
     private static String makeHtmlConform(String text) {
         return text.replace("\n", "<br/>");
+    }
+
+    private void applyCurrentDirectory(JFileChooser fileChooser) {
+        String homeDirPath = SystemUtils.getUserHomeDir().getPath();
+        String lastDir = appContext.getPreferences().getPropertyString(lastDirPreferenceKey, homeDirPath);
+        fileChooser.setCurrentDirectory(new File(lastDir));
+    }
+
+    private void preserveCurrentDirectory(JFileChooser fileChooser) {
+        String lastDir = fileChooser.getCurrentDirectory().getAbsolutePath();
+        appContext.getPreferences().setPropertyString(lastDirPreferenceKey, lastDir);
     }
 
 }

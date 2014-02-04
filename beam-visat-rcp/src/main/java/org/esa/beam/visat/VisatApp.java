@@ -214,11 +214,13 @@ public class VisatApp extends BasicApp implements AppContext {
     /**
      * Preferences key for on-line version check
      */
-    public static final String PROPERTY_KEY_VERSION_CHECK_ENABLED = "visat.versionCheck" + SuppressibleOptionPane.KEY_PREFIX_ENABLED;
+    public static final String PROPERTY_KEY_VERSION_CHECK_ENABLED =
+            "visat.versionCheck" + SuppressibleOptionPane.KEY_PREFIX_ENABLED;
     /**
      * Preferences key for on-line version question
      */
-    public static final String PROPERTY_KEY_VERSION_CHECK_DONT_ASK = "visat.versionCheck" + SuppressibleOptionPane.KEY_PREFIX_DONT_SHOW;
+    public static final String PROPERTY_KEY_VERSION_CHECK_DONT_ASK =
+            "visat.versionCheck" + SuppressibleOptionPane.KEY_PREFIX_DONT_SHOW;
     /**
      * Preferences key for pixel offset-X for display pixel positions
      */
@@ -1650,8 +1652,8 @@ public class VisatApp extends BasicApp implements AppContext {
         final String oldProductName = product.getName();
         final File oldFile = product.getFileLocation();
 
-// For DIMAP products, check if file path has really changed
-// if not, just save product
+//  For DIMAP products, check if file path has really changed
+//  if not, just save product
         if (reader instanceof DimapProductReader && newFile.equals(oldFile)) {
             saveProduct(product);
             return;
@@ -1786,10 +1788,10 @@ public class VisatApp extends BasicApp implements AppContext {
             if (checker.arePropertiesChanged()) {
                 configureJaiTileCache();
                 applyLookAndFeelPreferences();
-// @todo 1 nf/nf - extract layer properties dialog from VISAT preferences
-// note: the following line is necessary in order to transfer layer proerties from
-// preferences to current product scene view. Only the current view is affected by
-// the preferences change.
+//  @todo 1 nf/nf - extract layer properties dialog from VISAT preferences
+//  note: the following line is necessary in order to transfer layer proerties from
+//  preferences to current product scene view. Only the current view is affected by
+//  the preferences change.
                 applyProductSceneViewPreferences();
                 firePreferencesChanged();
             }
@@ -1985,7 +1987,7 @@ public class VisatApp extends BasicApp implements AppContext {
             }
         }
 
-        List<CommandBar> viewToolBars = new ArrayList<CommandBar>(5);
+        List<CommandBar> viewToolBars = new ArrayList<>(5);
         viewToolBars.add(createToolBar(VIEWS_TOOL_BAR_ID, "Views"));
         for (String toolBarId : toolBar2commandIds.keySet()) {
             CommandBar toolBar = getToolBar(toolBarId);
@@ -2011,7 +2013,7 @@ public class VisatApp extends BasicApp implements AppContext {
         return viewToolBars.toArray(new CommandBar[viewToolBars.size()]);
     }
 
-    private void addCommandsToToolBar(CommandBar toolBar, String[] commandIDs) {
+    private void addCommandsToToolBar(final CommandBar toolBar, final String[] commandIDs) {
         for (final String commandID : commandIDs) {
             if (commandID == null) {
                 toolBar.add(ToolButtonFactory.createToolBarSeparator());
@@ -2193,8 +2195,8 @@ public class VisatApp extends BasicApp implements AppContext {
         Action selectAllAction = new SelectAllAction(selectionManager);
         Action deleteAction = new DeleteAction(selectionManager);
 
-// TODO: Not included in BEAM 4.7
-// enable source code when undo/redo shall be supported
+//  TODO: Not included in BEAM 4.7
+//  enable source code when undo/redo shall be supported
 //        menu.insert(undoAction, 0);
 //        menu.insert(redoAction, 1);
         menu.insertSeparator(0);
@@ -2292,7 +2294,7 @@ public class VisatApp extends BasicApp implements AppContext {
             }
         }
 
-// force frame to be activated so that the frame listeners are informed
+//  force frame to be activated so that the frame listeners are informed
         try {
             frame.setSelected(true);
         } catch (PropertyVetoException ignored) {

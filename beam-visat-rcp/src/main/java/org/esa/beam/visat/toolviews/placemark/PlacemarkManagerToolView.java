@@ -137,8 +137,8 @@ public class PlacemarkManagerToolView extends AbstractToolView {
         this.placemarkDescriptor = placemarkDescriptor;
         visatApp = VisatApp.getApp();
         propertyMap = visatApp.getPreferences();
-        productToSelectedBands = new HashMap<Product, Band[]>(50);
-        productToSelectedGrids = new HashMap<Product, TiePointGrid[]>(50);
+        productToSelectedBands = new HashMap<>(50);
+        productToSelectedGrids = new HashMap<>(50);
         placemarkTableModel = modelFactory.createTableModel(placemarkDescriptor, product, null, null);
         selectionChangeHandler = new ViewSelectionChangeHandler();
     }
@@ -670,20 +670,17 @@ public class PlacemarkManagerToolView extends AbstractToolView {
                     if (beamFileFilter.getFormatName().equals(
                             PlacemarkIO.createPlacemarkFileFilter().getFormatName())) {
 
-                        int[] sortedRowIndexes = placemarkTable.getSelectedRows();
+                        boolean noPlacemarksSelected = placemarkTable.getSelectionModel().isSelectionEmpty();
                         final List<Placemark> placemarkList;
-                        if (sortedRowIndexes != null) {
-                            placemarkList = getSelectedPlacemarks();
-                        } else {
+                        if (noPlacemarksSelected) {
                             placemarkList = Arrays.asList(placemarkTableModel.getPlacemarks());
+                        } else {
+                            placemarkList = getSelectedPlacemarks();
                         }
                         PlacemarkIO.writePlacemarksFile(new FileWriter(file), placemarkList);
                     } else {
-                        Writer writer = new FileWriter(file);
-                        try {
+                        try (Writer writer = new FileWriter(file)) {
                             writePlacemarkDataTableText(writer);
-                        } finally {
-                            writer.close();
                         }
                     }
                 } catch (IOException ioe) {
@@ -720,11 +717,8 @@ public class PlacemarkManagerToolView extends AbstractToolView {
                 setIODir(file.getAbsoluteFile().getParentFile());
                 file = FileUtils.ensureExtension(file, PlacemarkIO.FILE_EXTENSION_FLAT_TEXT);
                 try {
-                    Writer writer = new FileWriter(file);
-                    try {
+                    try (Writer writer = new FileWriter(file)) {
                         writePlacemarkDataTableText(writer);
-                    } finally {
-                        writer.close();
                     }
                 } catch (IOException ignored) {
                     showErrorDialog(MessageFormat.format("I/O Error.\nFailed to export {0} data table.",  /*I18N*/
@@ -747,7 +741,8 @@ public class PlacemarkManagerToolView extends AbstractToolView {
         List<Placemark> placemarkList = new ArrayList<Placemark>();
         List<Object[]> valueList = new ArrayList<Object[]>();
         for (int sortedRow = 0; sortedRow < placemarkTable.getRowCount(); ++sortedRow) {
-            if (placemarkTable.getSelectionModel().isSelectedIndex(sortedRow)) {
+            ListSelectionModel selectionModel = placemarkTable.getSelectionModel();
+            if (selectionModel.isSelectionEmpty() || selectionModel.isSelectedIndex(sortedRow)) {
                 final int modelRow = placemarkTable.getActualRowAt(sortedRow);
                 placemarkList.add(placemarkTableModel.getPlacemarkAt(modelRow));
                 Object[] values = new Object[columnCount];

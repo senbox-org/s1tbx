@@ -45,7 +45,14 @@ import java.util.Iterator;
 @SuppressWarnings({"UnusedDeclaration"})
 public class TargetProductSelectorModel {
 
+    public static final String PROPERTY_PRODUCT_NAME = "productName";
+    public static final String PROPERTY_SAVE_TO_FILE_SELECTED = "saveToFileSelected";
+    public static final String PROEPRTY_OPEN_IN_APP_SELECTED = "openInAppSelected";
+    public static final String PROPERTY_PRODUCT_DIR = "productDir";
+    public static final String PROPERTY_FORMAT_NAME = "formatName";
+
     private static final String ENVISAT_FORMAT_NAME = "ENVISAT";
+
     // used by object binding
     private String productName;
     private boolean saveToFileSelected;
@@ -62,23 +69,7 @@ public class TargetProductSelectorModel {
 
     public TargetProductSelectorModel(String[] formatNames) {
         propertyContainer = PropertyContainer.createObjectBacked(this);
-        propertyContainer.addPropertyChangeListener("saveToFileSelected", new PropertyChangeListener() {
-            public void propertyChange(PropertyChangeEvent evt) {
-                boolean changesToDeselected = !(Boolean) evt.getNewValue();
-                if (changesToDeselected && !isOpenInAppSelected()) {
-                    setOpenInAppSelected(true);
-                }
-            }
-        });
-        propertyContainer.addPropertyChangeListener("openInAppSelected", new PropertyChangeListener() {
-            public void propertyChange(PropertyChangeEvent evt) {
-                boolean changesToDeselected = !(Boolean) evt.getNewValue();
-                if (changesToDeselected && !isSaveToFileSelected()) {
-                    setSaveToFileSelected(true);
-                }
-            }
-        });
-        PropertyDescriptor productNameDescriptor = propertyContainer.getDescriptor("productName");
+        PropertyDescriptor productNameDescriptor = propertyContainer.getDescriptor(PROPERTY_PRODUCT_NAME);
         productNameDescriptor.setValidator(new ProductNameValidator());
         productNameDescriptor.setDisplayName("target product name");
 
@@ -88,12 +79,44 @@ public class TargetProductSelectorModel {
 
         setOpenInAppSelected(true);
         setSaveToFileSelected(true);
+
         this.formatNames = formatNames;
         if (StringUtils.contains(this.formatNames, ProductIO.DEFAULT_FORMAT_NAME)) {
             setFormatName(ProductIO.DEFAULT_FORMAT_NAME);
         } else {
             setFormatName(formatNames[0]);
         }
+
+        propertyContainer.addPropertyChangeListener(new PropertyChangeListener() {
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                String propertyName = evt.getPropertyName();
+                switch (propertyName) {
+                    case "saveToFileSelected": {
+                        boolean changesToDeselected = !(Boolean) evt.getNewValue();
+                        if (changesToDeselected) {
+                            setOpenInAppSelected(true);
+                        } else if (!canReadOutputFormat()) {
+                            setOpenInAppSelected(false);
+                        }
+                        break;
+                    }
+                    case "openInAppSelected": {
+                        boolean changesToDeselected = !(Boolean) evt.getNewValue();
+                        if (changesToDeselected) {
+                            setSaveToFileSelected(true);
+                        }
+                        break;
+                    }
+                    case "formatName":
+                        if (!canReadOutputFormat()) {
+                            setOpenInAppSelected(false);
+                        }
+                        break;
+                }
+            }
+        });
+
     }
 
     public static TargetProductSelectorModel createEnvisatTargetProductSelectorModel() {
@@ -153,23 +176,23 @@ public class TargetProductSelectorModel {
     }
 
     public void setProductName(String productName) {
-        setValueContainerValue("productName", productName);
+        setValueContainerValue(PROPERTY_PRODUCT_NAME, productName);
     }
 
     public void setSaveToFileSelected(boolean saveToFileSelected) {
-        setValueContainerValue("saveToFileSelected", saveToFileSelected);
+        setValueContainerValue(PROPERTY_SAVE_TO_FILE_SELECTED, saveToFileSelected);
     }
 
     public void setOpenInAppSelected(boolean openInAppSelected) {
-        setValueContainerValue("openInAppSelected", openInAppSelected);
+        setValueContainerValue(PROEPRTY_OPEN_IN_APP_SELECTED, openInAppSelected);
     }
 
     public void setProductDir(File productDir) {
-        setValueContainerValue("productDir", productDir);
+        setValueContainerValue(PROPERTY_PRODUCT_DIR, productDir);
     }
 
     public void setFormatName(String formatName) {
-        setValueContainerValue("formatName", formatName);
+        setValueContainerValue(PROPERTY_FORMAT_NAME, formatName);
     }
 
     public PropertyContainer getValueContainer() {

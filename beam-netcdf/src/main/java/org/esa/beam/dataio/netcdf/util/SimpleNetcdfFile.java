@@ -1,3 +1,19 @@
+/*
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 3 of the License, or (at your option)
+ * any later version.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, see http://www.gnu.org/licenses/
+ */
+
 package org.esa.beam.dataio.netcdf.util;
 
 import org.esa.beam.util.logging.BeamLogManager;
@@ -8,13 +24,19 @@ import ucar.nc2.iosp.hdf5.H5iosp;
 import ucar.nc2.iosp.netcdf3.N3raf;
 import ucar.nc2.util.DiskCache;
 import ucar.nc2.util.IO;
-import ucar.unidata.io.*;
+import ucar.unidata.io.InMemoryRandomAccessFile;
 import ucar.unidata.io.RandomAccessFile;
+import ucar.unidata.io.UncompressInputStream;
 import ucar.unidata.io.bzip2.CBZip2InputStream;
 import ucar.unidata.util.StringUtil2;
 
 import javax.imageio.stream.ImageInputStream;
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileLock;
 import java.nio.channels.OverlappingFileLockException;
@@ -27,37 +49,38 @@ import java.util.zip.ZipInputStream;
 /**
  * For opening a {@see NetcdfFile}, only nc3, nc4, hdf4 nad hdf5 is supported.
  */
-public class SimpleNetcdfFile extends NetcdfFile {
+public class SimpleNetcdfFile {
 
     private static final Logger LOG = BeamLogManager.getSystemLogger();
 
-    private static final IOServiceProvider[] IOSPs = new IOServiceProvider[]{new N3raf(), new H5iosp(), new H4iosp() };
+    private static final byte[] NC3_MAGIC = {0x43, 0x44, 0x46, 0x01};
+    private static final byte[] NC3_MAGIC_LONG = {0x43, 0x44, 0x46, 0x02}; // 64-bit offset format : only affects the variable offset value
+    private static final byte[] H4_MAGIC = {0x0e, 0x03, 0x13, 0x01};
+    private static final byte[] H5_MAGIC = {(byte) 0x89, 'H', 'D', 'F', '\r', '\n', 0x1a, '\n'};
 
-    private SimpleNetcdfFile(IOServiceProvider spi, RandomAccessFile raf, String location) throws IOException {
-        super(spi, raf, location, null);
-    }
+//    private static final IOServiceProvider[] IOSPs = new IOServiceProvider[]{new N3raf(), new H5iosp(), new H4iosp() };
 
     // currently unused
-    public static boolean canOpenNetcdf(Object input) throws IOException {
-        ucar.unidata.io.RandomAccessFile raf = null;
-        try {
-            raf = getRaf(input);
-            return (raf != null) ? canOpen(raf) : false;
-        } finally {
-            if (raf != null) {
-                raf.close();
-            }
-        }
-    }
-
-    private static boolean canOpen(ucar.unidata.io.RandomAccessFile raf) throws IOException {
-        for (IOServiceProvider iosp : IOSPs) {
-            if (iosp.isValidFile(raf)) {
-                return true;
-            }
-        }
-        return false;
-    }
+//    public static boolean canOpenNetcdf(Object input) throws IOException {
+//        ucar.unidata.io.RandomAccessFile raf = null;
+//        try {
+//            raf = getRaf(input);
+//            return (raf != null) ? canOpen(raf) : false;
+//        } finally {
+//            if (raf != null) {
+//                raf.close();
+//            }
+//        }
+//    }
+//
+//    private static boolean canOpen(ucar.unidata.io.RandomAccessFile raf) throws IOException {
+//        for (IOServiceProvider iosp : IOSPs) {
+//            if (iosp.isValidFile(raf)) {
+//                return true;
+//            }
+//        }
+//        return false;
+//    }
 
     public static NetcdfFile openNetcdf(Object input) throws IOException {
         ucar.unidata.io.RandomAccessFile raf = getRaf(input);
@@ -74,25 +97,33 @@ public class SimpleNetcdfFile extends NetcdfFile {
 
     private static NetcdfFile open(ucar.unidata.io.RandomAccessFile raf, String location) throws IOException {
         // avoid opening file more than once, so pass around the raf.
-        IOServiceProvider spiProvider = null;
-        for (IOServiceProvider iosp : IOSPs) {
-            if (iosp.isValidFile(raf)) {
-                spiProvider = iosp;
-            }
+        raf.seek(0);
+        byte[] buffer = new byte[8];
+        raf.read(buffer);
+        IOServiceProvider spi = null;
+        if (isMagic(buffer, NC3_MAGIC)) {
+            spi = new N3raf();
+        } else if (isMagic(buffer, NC3_MAGIC_LONG)) {
+            spi = new N3raf();
+        } else if (isMagic(buffer, H4_MAGIC)) {
+            spi = new H4iosp();
+        } else if (isMagic(buffer, H5_MAGIC)) {
+            spi = new H5iosp();
         }
-        if (spiProvider == null) {
+        if (spi == null) {
             raf.close();
             throw new IOException("Cant read " + location + ": not a valid CDM file.");
         }
-        // need a new instance for thread safety
-        Class c = spiProvider.getClass();
-        IOServiceProvider spi;
-        try {
-            spi = (IOServiceProvider) c.newInstance();
-        } catch (Exception shouldNotHappen) {
-            throw new IOException(shouldNotHappen);
+        return new BeamNetcdfFile(spi, raf, location);
+    }
+
+    private static boolean isMagic(byte[] buffer, byte[] magic) {
+        for (int i = 0; i < magic.length; i++) {
+            if (buffer[i] != magic[i]) {
+                return false;
+            }
         }
-        return new SimpleNetcdfFile(spi, raf, location);
+        return true;
     }
 
     private static ucar.unidata.io.RandomAccessFile getRaf(Object input) throws IOException {
@@ -139,10 +170,10 @@ public class SimpleNetcdfFile extends NetcdfFile {
             // added to exclude tar archives (mz)
             String lowerCaseUri = uriString.toLowerCase();
             if (lowerCaseUri.endsWith(".tar.gz") ||
-                    lowerCaseUri.endsWith(".tar.Z") ||
-                    lowerCaseUri.endsWith(".tar.gzip") ||
-                    lowerCaseUri.endsWith(".tgz") ||
-                    lowerCaseUri.endsWith(".tar.bz2")) {
+                lowerCaseUri.endsWith(".tar.Z") ||
+                lowerCaseUri.endsWith(".tar.gzip") ||
+                lowerCaseUri.endsWith(".tgz") ||
+                lowerCaseUri.endsWith(".tar.bz2")) {
                 return null;
             }
 
@@ -179,7 +210,7 @@ public class SimpleNetcdfFile extends NetcdfFile {
         String uncompressedFilename = filename.substring(0, pos);
 
         if (!suffix.equalsIgnoreCase("Z") && !suffix.equalsIgnoreCase("zip") && !suffix.equalsIgnoreCase("gzip")
-                && !suffix.equalsIgnoreCase("gz") && !suffix.equalsIgnoreCase("bz2"))
+            && !suffix.equalsIgnoreCase("gz") && !suffix.equalsIgnoreCase("bz2"))
             return null;
 
         // see if already decompressed, look in cache if need be
@@ -204,8 +235,7 @@ public class SimpleNetcdfFile extends NetcdfFile {
                         }
                     }
                 }
-
-                if (debugCompress) System.out.println("found uncompressed " + uncompressedFile + " for " + filename);
+                LOG.fine("found uncompressed " + uncompressedFile + " for " + filename);
                 return uncompressedFile.getPath();
             } finally {
                 if (lock != null) lock.release();
@@ -241,29 +271,23 @@ public class SimpleNetcdfFile extends NetcdfFile {
             if (suffix.equalsIgnoreCase("Z")) {
                 in = new UncompressInputStream(new FileInputStream(filename));
                 copy(in, fout, 100000);
-                if (debugCompress) System.out.println("uncompressed " + filename + " to " + uncompressedFile);
-
+                LOG.fine("uncompressed " + filename + " to " + uncompressedFile);
             } else if (suffix.equalsIgnoreCase("zip")) {
                 ZipInputStream zin = new ZipInputStream(new FileInputStream(filename));
                 ZipEntry ze = zin.getNextEntry();
                 if (ze != null) {
                     in = zin;
                     copy(in, fout, 100000);
-                    if (debugCompress)
-                        System.out.println("unzipped " + filename + " entry " + ze.getName() + " to " + uncompressedFile);
+                    LOG.fine("unzipped " + filename + " entry " + ze.getName() + " to " + uncompressedFile);
                 }
-
             } else if (suffix.equalsIgnoreCase("bz2")) {
                 in = new CBZip2InputStream(new FileInputStream(filename), true);
                 copy(in, fout, 100000);
-                if (debugCompress) System.out.println("unbzipped " + filename + " to " + uncompressedFile);
-
+                LOG.fine("unbzipped " + filename + " to " + uncompressedFile);
             } else if (suffix.equalsIgnoreCase("gzip") || suffix.equalsIgnoreCase("gz")) {
-
                 in = new GZIPInputStream(new FileInputStream(filename));
                 copy(in, fout, 100000);
-
-                if (debugCompress) System.out.println("ungzipped " + filename + " to " + uncompressedFile);
+                LOG.fine("ungzipped " + filename + " to " + uncompressedFile);
             }
         } catch (Exception e) {
 
@@ -294,6 +318,13 @@ public class SimpleNetcdfFile extends NetcdfFile {
             int bytesRead = in.read(buffer);
             if (bytesRead == -1) break;
             out.write(buffer, 0, bytesRead);
+        }
+    }
+
+    // use internal class to defer execution of static initializer
+    private static class BeamNetcdfFile extends NetcdfFile {
+        private BeamNetcdfFile(IOServiceProvider spi, RandomAccessFile raf, String location) throws IOException {
+            super(spi, raf, location, null);
         }
     }
 

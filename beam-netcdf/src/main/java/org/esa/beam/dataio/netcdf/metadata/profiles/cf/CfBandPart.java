@@ -55,7 +55,7 @@ public class CfBandPart extends ProfilePartIO {
         for (final Variable variable : ctx.getRasterDigest().getRasterVariables()) {
             final List<Dimension> dimensions = variable.getDimensions();
             final int rank = dimensions.size();
-            final String bandBasename = variable.getFullName();
+            final String bandBasename = variable.getShortName();
 
             if (rank == 2) {
                 addBand(ctx, p, variable, new int[]{}, bandBasename);
@@ -165,7 +165,7 @@ public class CfBandPart extends ProfilePartIO {
         }
         final boolean unsigned = isUnsigned(rasterDataNode);
         if (unsigned) {
-            variable.addAttribute("_Unsigned", String.valueOf(unsigned));
+            variable.addAttribute("_Unsigned", String.valueOf(true));
         }
 
         double noDataValue;

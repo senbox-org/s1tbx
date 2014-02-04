@@ -22,9 +22,9 @@ import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.jai.SingleBandedSampleModel;
-import org.esa.beam.util.math.DistanceCalculator;
+import org.esa.beam.util.math.DistanceMeasure;
 import org.esa.beam.util.math.MathUtils;
-import org.esa.beam.util.math.SinusoidalDistanceCalculator;
+import org.esa.beam.util.math.SinusoidalDistance;
 
 import javax.media.jai.ImageLayout;
 import javax.media.jai.JAI;
@@ -161,14 +161,9 @@ class PixelGeoCoding2 extends AbstractGeoCoding implements BasicPixelGeoCoding {
 
         boolean disableTiling = "false".equalsIgnoreCase(System.getProperty(SYSPROP_PIXEL_GEO_CODING_USE_TILING));
         if (disableTiling) {
-            dataProvider = new ArrayDataProvider(lonBand, latBand);
+            dataProvider = new ArrayDataProvider(lonBand, latBand, maskImage);
         } else {
-            MultiLevelImage lonMultiMaskImage = lonBand.getValidMaskImage();
-            MultiLevelImage latMultiMaskImage = latBand.getValidMaskImage();
-            dataProvider = new ImageDataProvider(lonImage,
-                                                 lonMultiMaskImage != null ? lonMultiMaskImage.getImage(0) : null,
-                                                 latImage,
-                                                 latMultiMaskImage != null ? latMultiMaskImage.getImage(0) : null);
+            dataProvider = new ImageDataProvider(lonImage, maskImage, latImage, maskImage);
         }
     }
 
@@ -461,7 +456,7 @@ class PixelGeoCoding2 extends AbstractGeoCoding implements BasicPixelGeoCoding {
 
                 final double lat0 = geoPos.lat;
                 final double lon0 = geoPos.lon;
-                final DistanceCalculator dc = new SinusoidalDistanceCalculator(lon0, lat0);
+                final DistanceMeasure dc = new SinusoidalDistance(lon0, lat0);
 
                 double minDistance;
                 if (getSample(x0, y0, maskImage) != 0) {
@@ -651,13 +646,21 @@ class PixelGeoCoding2 extends AbstractGeoCoding implements BasicPixelGeoCoding {
         private final float[] latData;
         private final int width;
 
-        ArrayDataProvider(RasterDataNode lonBand, RasterDataNode latBand) {
+        ArrayDataProvider(RasterDataNode lonBand, RasterDataNode latBand, PlanarImage maskImage) {
             width = lonBand.getSceneRasterWidth();
             int height = lonBand.getSceneRasterHeight();
             MultiLevelImage lonImage = ImageManager.createMaskedGeophysicalImage(lonBand, Float.NaN);
             lonData = lonImage.getData().getSamples(0, 0, width, height, 0, (float[]) null);
             MultiLevelImage latImage = ImageManager.createMaskedGeophysicalImage(latBand, Float.NaN);
             latData = latImage.getData().getSamples(0, 0, width, height, 0, (float[]) null);
+            final int[] maskValues = maskImage.getData().getSamples(0, 0, width, height, 0, (int[]) null);
+
+            for (int i = 0; i < maskValues.length; i++) {
+                if (maskValues[i] == 0) {
+                    lonData[i] = Float.NaN;
+                    latData[i] = Float.NaN;
+                }
+            }
         }
 
         @Override

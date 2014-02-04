@@ -60,7 +60,7 @@ public class DimapProductReaderPlugIn implements ProductReaderPlugIn {
 
     /**
      * Gets the default file extensions associated with each of the format names returned by the <code>{@link
-     * #getFormatNames}</code> method. <p>The string array returned shall always have the same lenhth as the array
+     * #getFormatNames}</code> method. <p>The string array returned shall always have the same length as the array
      * returned by the <code>{@link #getFormatNames}</code> method. <p>The extensions returned in the string array shall
      * always include a leading colon ('.') character, e.g. <code>".hdf"</code>
      *
@@ -76,7 +76,7 @@ public class DimapProductReaderPlugIn implements ProductReaderPlugIn {
      * <p/>
      * <p> In a GUI, the description returned could be used as tool-tip text.
      *
-     * @param name the local for the given decription string, if <code>null</code> the default locale is used
+     * @param name the local for the given description string, if <code>null</code> the default locale is used
      * @return a textual description of this product reader/writer
      */
     public String getDescription(Locale name) {
@@ -112,7 +112,7 @@ public class DimapProductReaderPlugIn implements ProductReaderPlugIn {
                 if (fr.read(cbuf) != -1) {
                     final String s = new String(cbuf);
                     fr.close();
-                    if (s.indexOf("<Dimap_Document") != -1) {
+                    if (s.contains("<Dimap_Document")) {
                         return DecodeQualification.INTENDED;
                     }
                 }
@@ -133,7 +133,7 @@ public class DimapProductReaderPlugIn implements ProductReaderPlugIn {
     /**
      * Returns an array containing the classes that represent valid input types for an BEAM-DIMAP product reader.
      * <p/>
-     * <p> Intances of the classes returned in this array are valid objects for the <code>setInput</code> method of the
+     * <p> Instances of the classes returned in this array are valid objects for the <code>setInput</code> method of the
      * <code>DimapProductReader</code> class (the method will not throw an <code>InvalidArgumentException</code> in this
      * case).
      *

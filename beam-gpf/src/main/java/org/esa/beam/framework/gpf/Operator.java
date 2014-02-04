@@ -324,7 +324,7 @@ public abstract class Operator {
      *
      * @param targetProduct The target product.
      */
-    protected final void setTargetProduct(Product targetProduct) {
+    public final void setTargetProduct(Product targetProduct) {
         context.setTargetProduct(targetProduct);
     }
 

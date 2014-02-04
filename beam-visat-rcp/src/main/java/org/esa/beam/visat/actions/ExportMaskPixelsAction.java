@@ -38,6 +38,7 @@ import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.visat.VisatApp;
 
 import javax.swing.BoxLayout;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -50,6 +51,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.text.SimpleDateFormat;
+import java.util.GregorianCalendar;
 
 public class ExportMaskPixelsAction extends ExecCommand {
 
@@ -103,7 +106,7 @@ public class ExportMaskPixelsAction extends ExecCommand {
         final RasterDataNode raster = view.getRaster();
         
         String[] maskNames = raster.getProduct().getMaskGroup().getNodeNames();
-        String maskName;
+        final String maskName;
         if (maskNames.length == 1) {
             maskName = maskNames[0];
         } else {
@@ -139,8 +142,20 @@ public class ExportMaskPixelsAction extends ExecCommand {
         }
         // Get export method from user
         final String questionText = "How do you want to export the pixel values?\n";
+        final JCheckBox createHeaderBox = new JCheckBox("Create header");
+        final JCheckBox exportTiePointsBox = new JCheckBox("Export tie-points");
+        final JCheckBox exportWavelengthsAndSFBox = new JCheckBox("Export wavelengths + solar fluxes");
         final int method = SelectExportMethodDialog.run(VisatApp.getApp().getMainFrame(), getWindowTitle(),
-                                                        questionText + numPixelsText, getHelpId());
+                                                        questionText + numPixelsText, new JCheckBox[]{
+                createHeaderBox,
+                exportTiePointsBox,
+                exportWavelengthsAndSFBox
+        }, getHelpId());
+
+        final boolean mustCreateHeader = createHeaderBox.isSelected();
+        final boolean mustExportTiePoints = exportTiePointsBox.isSelected();
+        final boolean mustExportWavelengthsAndSF = exportWavelengthsAndSFBox.isSelected();
+
         final PrintWriter out;
         final StringBuffer clipboardText;
         final int initialBufferSize = 256000;
@@ -176,7 +191,7 @@ public class ExportMaskPixelsAction extends ExecCommand {
             protected Exception doInBackground(ProgressMonitor pm) throws Exception {
                 Exception returnValue = null;
                 try {
-                    boolean success = exportMaskPixels(out, raster.getProduct(), maskImage, pm);
+                    boolean success = exportMaskPixels(out, raster.getProduct(), maskImage, maskName, mustCreateHeader, mustExportTiePoints, mustExportWavelengthsAndSF, pm);
                     if (success && clipboardText != null) {
                         SystemUtils.copyToClipboard(clipboardText.toString());
                         clipboardText.setLength(0);
@@ -256,9 +271,9 @@ public class ExportMaskPixelsAction extends ExecCommand {
      * @param maskImage the mask image for the Mask
      * @return <code>true</code> for success, <code>false</code> if export has been terminated (by user)
      */
-    private static boolean exportMaskPixels(final PrintWriter out,
-                                           final Product product,
-                                           final RenderedImage maskImage, ProgressMonitor pm) throws IOException {
+    private static boolean exportMaskPixels(final PrintWriter out, final Product product, final RenderedImage maskImage,
+                                            String maskName, boolean mustCreateHeader, boolean mustExportTiePoints,
+                                            boolean mustExportWavelengthsAndSF, ProgressMonitor pm) throws IOException {
 
         final Band[] bands = product.getBands();
         final TiePointGrid[] tiePointGrids = product.getTiePointGrids();
@@ -274,9 +289,13 @@ public class ExportMaskPixelsAction extends ExecCommand {
         final int h = product.getSceneRasterHeight();
         final Rectangle imageRect = new Rectangle(0, 0, w, h);
         
-        pm.beginTask("Writing pixel data...", numXTiles * numYTiles + 1);
+        pm.beginTask("Writing pixel data...", numXTiles * numYTiles + 2);
         try {
-            writeHeaderLine(out, geoCoding, bands, tiePointGrids);
+            if (mustCreateHeader) {
+                createHeader(out, product, maskName, mustExportWavelengthsAndSF);
+            }
+            pm.worked(1);
+            writeColumnNames(out, geoCoding, bands, mustExportTiePoints, tiePointGrids);
             pm.worked(1);
 
             for (int tileX = minTileX; tileX < minTileX + numXTiles; ++tileX) {
@@ -294,7 +313,7 @@ public class ExportMaskPixelsAction extends ExecCommand {
                         for (int y = r.y; y < r.y + r.height; y++) {
                             for (int x = r.x; x < r.x + r.width; x++) {
                                 if (maskTile.getSample(x, y, 0) != 0) {
-                                    writeDataLine(out, geoCoding, bands, tiePointGrids, x, y);
+                                    writeDataLine(out, geoCoding, bands, mustExportTiePoints, tiePointGrids, x, y);
                                 }
                             }
                         }
@@ -309,17 +328,46 @@ public class ExportMaskPixelsAction extends ExecCommand {
         return true;
     }
 
+    private static void createHeader(PrintWriter out, Product product, String maskName, boolean mustExportWavelengthsAndSF) {
+        out.write("# Exported mask '" + maskName + "' on " +
+                  new SimpleDateFormat("dd-MMM-yyyy HH:mm:ss.mmmmmm").format(new GregorianCalendar().getTime()) + "\n");
+        out.write("# Product name: " + product.getName() + "\n");
+        if (product.getFileLocation() != null) {
+            out.write("# Product file location: " + product.getFileLocation() + "\n");
+        }
+        out.write("\n");
+        if (mustExportWavelengthsAndSF) {
+            out.write("# Wavelength:");
+            out.write("\t\t\t"); // account for pixel-x, pixel-y, lon, lat columns
+            for (final Band band : product.getBands()) {
+                out.print("\t");
+                out.print("" + band.getSpectralWavelength());
+            }
+            out.print("\n");
+            out.write("# Solar flux:");
+            out.write("\t\t\t"); // account for pixel-x, pixel-y, lon, lat columns
+            for (final Band band : product.getBands()) {
+                out.print("\t");
+                out.print("" + band.getSolarFlux());
+            }
+            out.print("\n");
+        }
+    }
+
     /*
      * Writes the header line of the dataset to be exported.
      *
-     * @param out           the data output writer
-     * @param geoCoding     the product's geo-coding
-     * @param bands         the array of bands to be considered
-     * @param tiePointGrids
+     * @param out                     the data output writer
+     * @param geoCoding               the product's geo-coding
+     * @param bands                   the array of bands to be considered
+     * @param mustExportTiePointGrids if tie-point grids shall be considered
+     * @param tiePointGrids           the array of tie-point grids to be considered
      */
-    private static void writeHeaderLine(final PrintWriter out,
-                                        final GeoCoding geoCoding,
-                                        final Band[] bands, TiePointGrid[] tiePointGrids) {
+    private static void writeColumnNames(final PrintWriter out,
+                                         final GeoCoding geoCoding,
+                                         final Band[] bands,
+                                         boolean mustExportTiePointGrids,
+                                         TiePointGrid[] tiePointGrids) {
         out.print("Pixel-X");
         out.print("\t");
         out.print("Pixel-Y");
@@ -333,9 +381,11 @@ public class ExportMaskPixelsAction extends ExecCommand {
             out.print("\t");
             out.print(band.getName());
         }
-        for (final TiePointGrid tiePointGrid : tiePointGrids) {
-            out.print("\t");
-            out.print(tiePointGrid.getName());
+        if (mustExportTiePointGrids) {
+            for (final TiePointGrid grid : tiePointGrids) {
+                out.print("\t");
+                out.print(grid.getName());
+            }
         }
         out.print("\n");
     }
@@ -343,16 +393,18 @@ public class ExportMaskPixelsAction extends ExecCommand {
     /*
      * Writes a data line of the dataset to be exported for the given pixel position.
      *
-     * @param out           the data output writer
-     * @param geoCoding     the product's geo-coding
-     * @param bands         the array of bands that provide pixel values
-     * @param tiePointGrids
-     * @param x             the current pixel's X coordinate
-     * @param y             the current pixel's Y coordinate
+     * @param out                     the data output writer
+     * @param geoCoding               the product's geo-coding
+     * @param bands                   the array of bands that provide pixel values
+     * @param mustExportTiePointGrids if tie-point grids shall be exported
+     * @param tiePointGrids           the array of tie-point grids that provide pixel values
+     * @param x                       the current pixel's X coordinate
+     * @param y                       the current pixel's Y coordinate
      */
     private static void writeDataLine(final PrintWriter out,
                                       final GeoCoding geoCoding,
                                       final Band[] bands,
+                                      boolean mustExportTiePoints,
                                       TiePointGrid[] tiePointGrids, int x,
                                       int y) throws IOException {
         final PixelPos pixelPos = new PixelPos(x + 0.5f, y + 0.5f);
@@ -383,10 +435,12 @@ public class ExportMaskPixelsAction extends ExecCommand {
                 out.print("NaN");
             }
         }
-        for (final TiePointGrid grid : tiePointGrids) {
-            grid.readPixels(x, y, 1, 1, floatPixel, ProgressMonitor.NULL);
-            out.print("\t");
-            out.print(floatPixel[0]);
+        if (mustExportTiePoints) {
+            for (final TiePointGrid grid : tiePointGrids) {
+                grid.readPixels(x, y, 1, 1, floatPixel, ProgressMonitor.NULL);
+                out.print("\t");
+                out.print(floatPixel[0]);
+            }
         }
         out.print("\n");
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -16,13 +16,16 @@
 
 package org.esa.beam.framework.gpf.ui;
 
+import org.esa.beam.HeadlessTestRunner;
 import org.esa.beam.framework.gpf.GPF;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import static org.junit.Assert.*;
 
+@RunWith(HeadlessTestRunner.class)
 public class OperatorMenuTest {
 
     private static OperatorParameterSupportTest.TestOpSpi testOpSpi;
@@ -41,7 +44,9 @@ public class OperatorMenuTest {
 
     @Test
     public void testOperatorDescription() throws Exception {
-        final OperatorMenu support = new OperatorMenu(null, OperatorParameterSupportTest.TestOp.class, null, "");
+        DefaultAppContext appContext = new DefaultAppContext("test");
+
+        final OperatorMenu support = new OperatorMenu(null, OperatorParameterSupportTest.TestOp.class, null, appContext, "");
 
         assertEquals("Tester", support.getOperatorName());
 

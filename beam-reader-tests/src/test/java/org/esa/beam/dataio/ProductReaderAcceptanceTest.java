@@ -17,12 +17,16 @@
 package org.esa.beam.dataio;
 
 
+import com.bc.ceres.glayer.support.ImageLayer;
+import com.bc.ceres.grender.support.DefaultViewport;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
+import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.Stx;
 import org.esa.beam.util.StopWatch;
 import org.esa.beam.util.SystemUtils;
 import org.junit.AfterClass;
@@ -30,11 +34,17 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import javax.media.jai.OpImage;
+import java.awt.Point;
+import java.awt.Rectangle;
+import java.awt.image.Raster;
+import java.awt.image.RenderedImage;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -55,6 +65,7 @@ public class ProductReaderAcceptanceTest {
 
     private static final String PROPERTYNAME_DATA_DIR = "beam.reader.tests.data.dir";
     private static final String PROPERTYNAME_FAIL_ON_MISSING_DATA = "beam.reader.tests.failOnMissingData";
+    private static final String PROPERTYNAME_FAIL_ON_INTENDED = "beam.reader.tests.failOnMultipleIntendedReaders";
     private static final String PROPERTYNAME_LOG_FILE_PATH = "beam.reader.tests.log.file";
     private static final String PROPERTYNAME_CASS_NAME = "beam.reader.tests.class.name";
     private static final boolean FAIL_ON_MISSING_DATA = Boolean.parseBoolean(System.getProperty(PROPERTYNAME_FAIL_ON_MISSING_DATA, "true"));
@@ -81,6 +92,32 @@ public class ProductReaderAcceptanceTest {
     @AfterClass
     public static void tearDown() throws Exception {
         logInfoWithStars("Finished / " + DATE_FORMAT.format(CALENDAR.getTime()));
+    }
+
+    @Test
+    public void testOneIntendedReader() {
+        logInfoWithStars("Testing OneIntendedReader");
+        boolean duplicates = false;
+        for (TestProduct testProduct : testProductList) {
+            if (testProduct.exists()) {
+                List<ProductReaderPlugIn> intendedPlugins = new ArrayList<>();
+                for (TestDefinition testDefinition : testDefinitionList) {
+                    if (DecodeQualification.INTENDED == getExpectedDecodeQualification(testDefinition, testProduct)) {
+                        intendedPlugins.add(testDefinition.getProductReaderPlugin());
+                    }
+                }
+                if (intendedPlugins.size() > 1) {
+                    logger.info(INDENT + testProduct.getId());
+                    for (ProductReaderPlugIn intendedPlugin : intendedPlugins) {
+                        logger.info(INDENT + INDENT + intendedPlugin.getClass().getName());
+                    }
+                    duplicates = true;
+                }
+            }
+        }
+        if (duplicates && Boolean.parseBoolean(System.getProperty(PROPERTYNAME_FAIL_ON_INTENDED, "false"))) {
+            fail("Products are accepted by more than one ReaderPlugin as 'INTENDED'");
+        }
     }
 
     @Test
@@ -172,21 +209,9 @@ public class ProductReaderAcceptanceTest {
                 Product product = null;
                 try {
                     stopWatch.start();
-
-                    //product = ProductIO.readProduct(testProductFile);
-                    // method inlined for detailed time measuring
-                    final ProductReader productReader = ProductIO.getProductReaderForInput(testProductFile);
+                    product = ProductIO.readProduct(testProductFile);
                     stopWatch.stop();
-                    String findProductReaderTime = stopWatch.getTimeDiffString();
-
-                    String readProductNodesTime = "--:--:--.---";
-                    if (productReader != null) {
-                        stopWatch.start();
-                        product = productReader.readProductNodes(testProductFile, null);
-                        stopWatch.stop();
-                        readProductNodesTime = stopWatch.getTimeDiffString();
-                    }
-                    logger.info(INDENT + findProductReaderTime + " - " + readProductNodesTime + " - " + testProduct.getId());
+                    logger.info(INDENT + stopWatch.getTimeDiffString() + " - " + testProduct.getId());
                 } catch (Exception e) {
                     final String message = "ProductIO.readProduct " + testProduct.getId() + " caused an exception.\n" +
                             "Should only return NULL or a product instance but should not cause any exception.";
@@ -204,6 +229,90 @@ public class ProductReaderAcceptanceTest {
         }
         stopWatchTotal.stop();
         logInfoWithStars(String.format("Tested ProductIO.readProduct: %d tests in %s", testCounter, stopWatchTotal.getTimeDiffString()));
+    }
+
+    @Test
+    public void testProductReadTimes() throws Exception {
+        logInfoWithStars("Testing product read times");
+        logger.info(String.format("%s%s - %s - %s - %s", INDENT,
+                                    " findReader ",
+                                    " readNodes  ",
+                                    "   getStx   ",
+                                    " getViewData"));
+        final StopWatch stopWatchTotal = new StopWatch();
+        stopWatchTotal.start();
+        int testCounter = 0;
+        final StopWatch stopWatch = new StopWatch();
+        for (TestProduct testProduct : testProductList) {
+            if (testProduct.exists()) {
+                final File testProductFile = getTestProductFile(testProduct);
+                Product product = null;
+                try {
+                    stopWatch.start();
+
+                    //product = ProductIO.readProduct(testProductFile);
+                    // method inlined for detailed time measuring
+                    final ProductReader productReader = ProductIO.getProductReaderForInput(testProductFile);
+                    stopWatch.stop();
+                    String findProductReaderTime = stopWatch.getTimeDiffString();
+
+                    String readProductNodesTime = "--:--:--.---";
+                    String getStxTime = "--:--:--.---";
+                    String getViewDataTime = "--:--:--.---";
+                    if (productReader != null) {
+                        stopWatch.start();
+                        product = productReader.readProductNodes(testProductFile, null);
+                        stopWatch.stop();
+                        readProductNodesTime = stopWatch.getTimeDiffString();
+                        if (product.getNumBands() > 0) {
+                            Band band0 = product.getBandAt(0);
+                            stopWatch.start();
+                            Stx stx = band0.getStx();
+                            assertNotNull(stx);
+                            stopWatch.stop();
+                            getStxTime = stopWatch.getTimeDiffString();
+                            DefaultViewport viewport = new DefaultViewport(new Rectangle(1000, 1000));
+                            int viewLevel = ImageLayer.getLevel(band0.getSourceImage().getModel(), viewport);
+                            RenderedImage viewImage = band0.getSourceImage().getImage(viewLevel);
+
+                            stopWatch.start();
+                            if (viewImage instanceof OpImage) {
+                                OpImage opImage = (OpImage) viewImage;
+                                Point[] tileIndices = opImage.getTileIndices(null);
+                                for (Point tileIndice : tileIndices) {
+                                    Raster tileRaster = opImage.getTile(tileIndice.x, tileIndice.y);
+                                    assertNotNull("tileRaster", tileRaster);
+                                }
+                            } else {
+                                Raster imageRaster = viewImage.getData();
+                                assertNotNull("imageRaster", imageRaster);
+                            }
+                            stopWatch.stop();
+                            getViewDataTime = stopWatch.getTimeDiffString();
+                        }
+                    }
+                    logger.info(String.format("%s%s - %s - %s - %s - %s", INDENT,
+                            findProductReaderTime,
+                            readProductNodesTime,
+                            getStxTime,
+                            getViewDataTime,
+                            testProduct.getId()));
+                } catch (Exception e) {
+                    final String message = "Product reading " + testProduct.getId() + " caused an exception.";
+                    logger.log(Level.SEVERE, message, e);
+                    fail(message);
+                } finally {
+                    if (product != null) {
+                        product.dispose();
+                    }
+                }
+                testCounter++;
+            } else {
+                logProductNotExistent(1, testProduct);
+            }
+        }
+        stopWatchTotal.stop();
+        logInfoWithStars(String.format("Testing product read times: %d tests in %s", testCounter, stopWatchTotal.getTimeDiffString()));
     }
 
     private static void assertExpectedContent(TestDefinition testDefinition, String productId, Product product) {

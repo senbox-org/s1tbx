@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <parent>
+        <artifactId>beam-system</artifactId>
+        <groupId>org.esa.beam</groupId>
+        <version>5.0-SNAPSHOT</version>
+        <relativePath>../beam-system/pom.xml</relativePath>
+    </parent>
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <name>BEAM Python Integration</name>
+    <artifactId>beam-python</artifactId>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.esa.beam</groupId>
+            <artifactId>beam-gpf</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.esa.beam</groupId>
+            <artifactId>beam-envisat-reader</artifactId>
+            <version>1.5.2.5.0-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jpy</groupId>
+            <artifactId>jpy</artifactId>
+            <version>0.7-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+
+</project>

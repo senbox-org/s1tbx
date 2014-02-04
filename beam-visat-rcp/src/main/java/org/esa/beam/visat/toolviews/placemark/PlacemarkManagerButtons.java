@@ -19,8 +19,11 @@ import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.tool.ToolButtonFactory;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.AbstractButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -184,6 +187,7 @@ public class PlacemarkManagerButtons extends JPanel {
 
     void updateUIState(final boolean productSelected, int numPins, final int numSelectedPins) {
 
+        boolean pinsAvailable = numPins > 0;
         boolean hasSelectedPins = numSelectedPins > 0;
         boolean hasActivePin = numSelectedPins == 1;
 
@@ -193,8 +197,8 @@ public class PlacemarkManagerButtons extends JPanel {
         removeButton.setEnabled(hasSelectedPins);
         zoomToPlacemarkButton.setEnabled(hasActivePin);
         importButton.setEnabled(productSelected);
-        exportButton.setEnabled(numPins > 0);
-        exportTableButton.setEnabled(hasSelectedPins);
+        exportButton.setEnabled(pinsAvailable);
+        exportTableButton.setEnabled(pinsAvailable);
         filterButton.setEnabled(productSelected);
     }
 

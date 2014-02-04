@@ -49,7 +49,6 @@ import org.esa.beam.framework.gpf.graph.Node;
 import org.esa.beam.framework.gpf.graph.NodeContext;
 import org.esa.beam.framework.gpf.graph.NodeSource;
 import org.esa.beam.framework.gpf.internal.OperatorExecutor;
-import org.esa.beam.framework.gpf.internal.OperatorProductReader;
 import org.esa.beam.gpf.operators.standard.ReadOp;
 import org.esa.beam.gpf.operators.standard.WriteOp;
 import org.esa.beam.util.io.FileUtils;
@@ -245,27 +244,41 @@ class CommandLineTool implements GraphProcessingObserver {
         String operatorName = commandLineArgs.getOperatorName();
         Map<String, Product> sourceProducts = getSourceProductMap();
         Map<String, Object> parameters = convertParameterMap(operatorName, parameterMap, sourceProducts);
-        Product targetProduct = createOpProduct(operatorName, parameters, sourceProducts);
-        // write product only if Operator does not implement the Output interface
-        OperatorProductReader opProductReader = null;
-        if (targetProduct.getProductReader() instanceof OperatorProductReader) {
-            opProductReader = (OperatorProductReader) targetProduct.getProductReader();
+
+        OperatorSpiRegistry operatorSpiRegistry = GPF.getDefaultInstance().getOperatorSpiRegistry();
+        OperatorSpi operatorSpi = operatorSpiRegistry.getOperatorSpi(operatorName);
+        if (operatorSpi == null) {
+            throw new OperatorException(String.format("Unknown operator name '%s'.", operatorName));
         }
-        Operator operator = opProductReader != null ? opProductReader.getOperatorContext().getOperator() : null;
-        if (operator instanceof Output) {
+        Operator operator = operatorSpi.createOperator(parameters, sourceProducts, null);
+        OperatorMetadata operatorMetadata = operatorSpi.getOperatorClass().getAnnotation(OperatorMetadata.class);
+
+        boolean suppressWrite = false;
+        if (operator instanceof Output
+            || operatorMetadata != null && operatorMetadata.suppressWrite()) {
+            suppressWrite = true;
+        }
+
+        // Force call to Operator.initialize()
+        Product targetProduct = operator.getTargetProduct();
+
+        if (suppressWrite) {
+            // operator has its own output management, we "execute" by pulling at tiles
             final OperatorExecutor executor = OperatorExecutor.create(operator);
             executor.execute(ProgressMonitor.NULL);
         } else {
+            // framework writes target product
             String filePath = commandLineArgs.getTargetFilePath();
             String formatName = commandLineArgs.getTargetFormatName();
             writeProduct(targetProduct, filePath, formatName, commandLineArgs.isClearCacheAfterRowWrite());
         }
+
+        // Fill velocity context with operator metadata
         VelocityContext velocityContext = metadataResourceEngine.getVelocityContext();
         if (operator != null) {
-            OperatorSpi spi = operator.getSpi();
             velocityContext.put("operator", operator);
-            velocityContext.put("operatorSpi", spi);
-            velocityContext.put("operatorMetadata", spi.getOperatorClass().getAnnotation(OperatorMetadata.class));
+            velocityContext.put("operatorSpi", operatorSpi);
+            velocityContext.put("operatorMetadata", operatorMetadata);
         }
         velocityContext.put("operatorName", operatorName);
         velocityContext.put("parameters", parameters); // Check if we should use parameterMap here (nf)
@@ -306,14 +319,20 @@ class CommandLineTool implements GraphProcessingObserver {
         }
 
         final String operatorName = lastNode.getOperatorName();
-        final OperatorSpi lastOpSpi = operatorSpiRegistry.getOperatorSpi(operatorName);
-        if (lastOpSpi == null) {
-            throw new GraphException(String.format("Unknown operator name '%s'. No SPI found.", operatorName));
+        final OperatorSpi operatorSpi = operatorSpiRegistry.getOperatorSpi(operatorName);
+        if (operatorSpi == null) {
+            throw new GraphException(String.format("Unknown operator name '%s'.", operatorName));
+        }
+        OperatorMetadata operatorMetadata = operatorSpi.getOperatorClass().getAnnotation(OperatorMetadata.class);
+
+        boolean suppressWrite = false;
+        if (Output.class.isAssignableFrom(operatorSpi.getOperatorClass())
+            || operatorMetadata != null && operatorMetadata.suppressWrite()) {
+            suppressWrite = true;
         }
 
-        if (!Output.class.isAssignableFrom(lastOpSpi.getOperatorClass())) {
-
-            // If the graph's last node does not implement Output, then add a WriteOp
+        if (!suppressWrite) {
+            // Writing is not suppressed, so add a WriteOp as last node
             String writeOperatorAlias = OperatorSpi.getOperatorAlias(WriteOp.class);
 
             DomElement configuration = new DefaultDomElement("parameters");
@@ -328,7 +347,9 @@ class CommandLineTool implements GraphProcessingObserver {
 
             graph.addNode(targetNode);
         }
+
         executeGraph(graph);
+
         VelocityContext velocityContext = metadataResourceEngine.getVelocityContext();
         File graphFile = new File(commandLineArgs.getGraphFilePath());
         velocityContext.put("graph", graph);
@@ -481,11 +502,6 @@ class CommandLineTool implements GraphProcessingObserver {
 
     void executeGraph(Graph graph) throws GraphException {
         commandLineContext.executeGraph(graph, this);
-    }
-
-    private Product createOpProduct(String opName, Map<String, Object> parameters,
-                                    Map<String, Product> sourceProducts) throws OperatorException {
-        return commandLineContext.createOpProduct(opName, parameters, sourceProducts);
     }
 
     private void runVelocityTemplates() {

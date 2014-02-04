@@ -1,5 +1,5 @@
 package org.esa.beam.util.math;/*
- * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -14,16 +14,20 @@ package org.esa.beam.util.math;/*
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-public final class SinusoidalDistanceCalculator implements DistanceCalculator {
+/**
+ * Distance measure based on the Euclidean 'flat' distance. In fact the square
+ * of the Euclidean distance is used to avoid computation of the square root.
+ *
+ * @author Ralf Quast
+ */
+public class EuclideanDistance implements DistanceMeasure {
 
     private final double lon0;
     private final double lat0;
-    private final double lonFactor;
 
-    public SinusoidalDistanceCalculator(double lon0, double lat0) {
+    public EuclideanDistance(double lon0, double lat0) {
         this.lon0 = lon0;
         this.lat0 = lat0;
-        this.lonFactor = Math.cos(Math.toRadians(lat0));
     }
 
     @Override
@@ -36,7 +40,6 @@ public final class SinusoidalDistanceCalculator implements DistanceCalculator {
         if (deltaLon > 180.0) {
             deltaLon = 360.0 - deltaLon;
         }
-        deltaLon *= lonFactor;
         return deltaLat * deltaLat + deltaLon * deltaLon;
     }
 }

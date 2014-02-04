@@ -16,8 +16,10 @@ package org.esa.beam.util.math;/*
 
 /**
  * This class computes the spherical distance (in Radian) between two (lon, lat) points.
+ *
+ * @author Ralf Quast
  */
-public final class SphericalDistanceCalculator implements DistanceCalculator {
+public final class SphericalDistance implements DistanceMeasure {
 
     private final double lon;
     private final double si;
@@ -29,7 +31,7 @@ public final class SphericalDistanceCalculator implements DistanceCalculator {
      * @param lon The reference longitude of this distance calculator.
      * @param lat The reference latitude of this distance calculator.
      */
-    public SphericalDistanceCalculator(double lon, double lat) {
+    public SphericalDistance(double lon, double lat) {
         this.lon = lon;
         this.si = Math.sin(Math.toRadians(lat));
         this.co = Math.cos(Math.toRadians(lat));
@@ -43,7 +45,7 @@ public final class SphericalDistanceCalculator implements DistanceCalculator {
      * @param lat The latitude.
      *
      * @return the spherical distance (in Radian) of the given (lon, lat) point
-     *         to the reference (lon, lat) point.
+     * to the reference (lon, lat) point.
      */
     @Override
     public double distance(double lon, double lat) {

@@ -212,12 +212,7 @@ public class ProductIO {
         }
         final ProductReader productReader = getProductReaderForInput(file);
         if (productReader != null) {
-            final long startTime = System.currentTimeMillis();
-            Product product = productReader.readProductNodes(file, subsetDef);
-            final long endTime = System.currentTimeMillis();
-            String msg = String.format("Read product nodes (took %d ms)", (endTime - startTime));
-            BeamLogManager.getSystemLogger().fine(msg);
-            return product;
+            return productReader.readProductNodes(file, subsetDef);
         }
         return null;
     }
