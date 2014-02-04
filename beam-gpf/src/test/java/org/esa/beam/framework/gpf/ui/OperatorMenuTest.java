@@ -16,13 +16,16 @@
 
 package org.esa.beam.framework.gpf.ui;
 
+import org.esa.beam.HeadlessTestRunner;
 import org.esa.beam.framework.gpf.GPF;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import static org.junit.Assert.*;
 
+@RunWith(HeadlessTestRunner.class)
 public class OperatorMenuTest {
 
     private static OperatorParameterSupportTest.TestOpSpi testOpSpi;
