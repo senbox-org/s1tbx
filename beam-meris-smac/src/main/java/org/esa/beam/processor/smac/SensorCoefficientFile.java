@@ -31,7 +31,7 @@ import java.io.StreamTokenizer;
  * @deprecated since BEAM 4.11. No replacement.
  */
 @Deprecated
-class SensorCoefficientFile implements SmacSensorCoefficients {
+public class SensorCoefficientFile implements SmacSensorCoefficients {
 
     private double _ah2o;
     private double _nh2o;

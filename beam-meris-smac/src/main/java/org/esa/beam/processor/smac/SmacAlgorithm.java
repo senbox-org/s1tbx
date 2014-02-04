@@ -99,12 +99,6 @@ public final class SmacAlgorithm {
     private boolean _calcUco;
 
     /**
-     * Constructs the object with default parameters
-     */
-    public SmacAlgorithm() {
-    }
-
-    /**
      * Sets the sensor adjustment coefficients. Must be set BEFORE running the algorithm.
      *
      * @param coeffs a class implementing the <code>SmacSensorCoefficients</code>

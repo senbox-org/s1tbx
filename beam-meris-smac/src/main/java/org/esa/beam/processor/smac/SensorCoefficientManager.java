@@ -98,8 +98,7 @@ public class SensorCoefficientManager {
 
         setLocationPath(location);
 
-        final InputStream in = mapFileURL.openStream();
-        try {
+        try (InputStream in = mapFileURL.openStream()) {
             _csvReader = new CsvReader(new InputStreamReader(in),
                                        _fieldSeparators);
 
@@ -121,8 +120,6 @@ public class SensorCoefficientManager {
                 bandDb = new BandDb(record[1], record[2], record[3]);
                 sensorDb.addBand(bandDb);
             }
-        } finally {
-            in.close();
         }
     }
 

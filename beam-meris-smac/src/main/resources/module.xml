@@ -47,6 +47,9 @@
         <module>beam-visat-rcp</module>
         <optional>true</optional>
     </dependency>
+    <dependency>
+        <module>beam-gpf</module>
+    </dependency>
 
     <categories>Application,Processor,MERIS,AATSR,Atmosphere</categories>
 
@@ -70,10 +73,6 @@
             <parent>beam-help</parent>
             <path>doc/help/smac.hs</path>
         </helpSet>
-    </extension>
-
-    <extension point="ceres-core:serviceProviders">
-        <serviceProvider>org.esa.beam.framework.gpf.OperatorSpi</serviceProvider>
     </extension>
 
 </module>

@@ -16,7 +16,6 @@
 package org.esa.beam.processor.smac;
 
 import org.esa.beam.dataio.envisat.EnvisatConstants;
-import org.esa.beam.framework.processor.ProcessorException;
 import org.esa.beam.util.Guardian;
 
 import java.util.regex.Pattern;
@@ -34,9 +33,9 @@ public class SmacUtils {
      * <code>SensorCoefficientManager</code>.
      *
      * @param productType the request type string
-     * @throws ProcessorException on unsupported input product type
+     * @throws java.lang.IllegalArgumentException on unsupported input product type
      */
-    public static String getSensorType(String productType) throws ProcessorException {
+    public static String getSensorType(String productType) {
         Guardian.assertNotNull("productType", productType);
 
         if (isSupportedAatsrProductType(productType)) {
@@ -44,7 +43,7 @@ public class SmacUtils {
         } else if (isSupportedMerisProductType(productType)) {
             return SensorCoefficientManager.MERIS_NAME;
         } else {
-            throw new ProcessorException(
+            throw new IllegalArgumentException(
                     SmacConstants.LOG_MSG_UNSUPPORTED_INPUT_1 + productType + SmacConstants.LOG_MSG_UNSUPPORTED_INPUT_2);
         }
     }

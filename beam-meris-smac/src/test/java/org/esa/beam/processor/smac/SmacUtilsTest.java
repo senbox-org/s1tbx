@@ -18,7 +18,6 @@ package org.esa.beam.processor.smac;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-
 import org.esa.beam.dataio.envisat.EnvisatConstants;
 import org.esa.beam.framework.processor.ProcessorException;
 
@@ -57,19 +56,19 @@ public class SmacUtilsTest extends TestCase {
         try {
             SmacUtils.getSensorType("Nasenann");
             fail("ProcessorException expected");
-        } catch (ProcessorException expected) {
+        } catch (IllegalArgumentException expected) {
         }
 
         try {
             SmacUtils.getSensorType("strange");
             fail("ProcessorException expected");
-        } catch (ProcessorException expected) {
+        } catch (IllegalArgumentException expected) {
         }
 
         try {
             SmacUtils.getSensorType("");
             fail("ProcessorException expected");
-        } catch (ProcessorException expected) {
+        } catch (IllegalArgumentException expected) {
         }
     }
 
