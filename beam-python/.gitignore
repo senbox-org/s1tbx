@@ -7,4 +7,6 @@ beampy.ini
 *.class
 *.war
 *.ear
+*.dim
+*.data
 
