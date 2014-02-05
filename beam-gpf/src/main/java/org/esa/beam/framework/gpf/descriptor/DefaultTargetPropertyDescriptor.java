@@ -1,17 +1,18 @@
-package org.esa.beam.framework.gpf.support;
-
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.gpf.OperatorSpi;
+package org.esa.beam.framework.gpf.descriptor;
 
 /**
+ * Default implementation of the {@link TargetPropertyDescriptor} interface.
+ *
  * @author Norman Fomferra
+ * @since BEAM 5
  */
-public class DefaultTargetProductDescriptor implements OperatorSpi.TargetProductDescriptor {
+public class DefaultTargetPropertyDescriptor implements TargetPropertyDescriptor {
 
     String name;
     String alias;
     String label;
     String description;
+    Class<?> dataType;
 
     @Override
     public String getName() {
@@ -34,7 +35,7 @@ public class DefaultTargetProductDescriptor implements OperatorSpi.TargetProduct
     }
 
     @Override
-    public Class<? extends Product> getDataType() {
-        return Product.class;
+    public Class<?> getDataType() {
+        return dataType;
     }
 }

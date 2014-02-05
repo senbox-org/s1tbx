@@ -16,6 +16,7 @@
 
 package org.esa.beam.framework.gpf.main;
 
+import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
@@ -30,7 +31,12 @@ import org.junit.Test;
 import java.util.SortedMap;
 
 import static org.esa.beam.framework.gpf.main.CommandLineArgs.parseArgs;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class CommandLineArgsTest {
 
@@ -281,12 +287,14 @@ public class CommandLineArgsTest {
 
     @Test
     public void testUsageTextForOperator() throws Exception {
+
         final String opName = "TestOpName";
         final String opDesc = "Creates a thing";
         final String srcProdAlias = "wasweissich";
         final String paramDefaultValue = "24.5";
-        final String paramUnit = "Zwetschken";
+        final String paramUnit = "Zwetschgen";
         final String paramDesc = "Wert Beschreibung";
+
         @OperatorMetadata(alias = opName, description = opDesc)
         class TestOp extends Operator {
 
@@ -294,15 +302,16 @@ public class CommandLineArgsTest {
             double value;
 
             @SourceProduct(alias = srcProdAlias)
-            Object sourceProduct;
+            Product sourceProduct;
 
             @TargetProduct
-            Object targetProduct;
+            Product targetProduct;
 
             @Override
             public void initialize() throws OperatorException {
             }
         }
+
         class TestSpi extends OperatorSpi {
 
             public TestSpi() {
@@ -317,13 +326,37 @@ public class CommandLineArgsTest {
         spiRegistry.addOperatorSpi(testSpi);
         assertSame(testSpi, spiRegistry.getOperatorSpi(opName));
         String usageText = CommandLineUsage.getUsageTextForOperator(opName);
-        assertNotNull(usageText);
-        assertTrue(usageText.contains(opName));
-        assertTrue(usageText.contains(opDesc));
-        assertTrue(usageText.contains(srcProdAlias));
-        assertTrue(usageText.contains(paramDefaultValue));
-        assertTrue(usageText.contains(paramDesc));
-        assertTrue(usageText.contains(paramUnit));
+
+        assertEquals("Usage:\n" +
+                     "  gpt TestOpName [options] \n" +
+                     "\n" +
+                     "Description:\n" +
+                     "  Creates a thing\n" +
+                     "\n" +
+                     "\n" +
+                     "Source Options:\n" +
+                     "  -Swasweissich=<file>    Sets source 'wasweissich' to <filepath>.\n" +
+                     "                          This is a mandatory source.\n" +
+                     "\n" +
+                     "Parameter Options:\n" +
+                     "  -Pvalue=<double>    Wert Beschreibung\n" +
+                     "                      Default value is '24.5'.\n" +
+                     "                      Parameter unit is 'Zwetschgen'.\n" +
+                     "\n" +
+                     "Graph XML Format:\n" +
+                     "  <graph id=\"someGraphId\">\n" +
+                     "    <version>1.0</version>\n" +
+                     "    <node id=\"someNodeId\">\n" +
+                     "      <operator>TestOpName</operator>\n" +
+                     "      <sources>\n" +
+                     "        <wasweissich>${wasweissich}</wasweissich>\n" +
+                     "      </sources>\n" +
+                     "      <parameters>\n" +
+                     "        <value>double</value>\n" +
+                     "      </parameters>\n" +
+                     "    </node>\n" +
+                     "  </graph>\n",
+                     usageText);
     }
 
     @Test

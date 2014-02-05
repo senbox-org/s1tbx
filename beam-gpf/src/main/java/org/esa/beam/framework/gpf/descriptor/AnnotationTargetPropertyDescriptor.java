@@ -1,13 +1,16 @@
-package org.esa.beam.framework.gpf.annotations;
+package org.esa.beam.framework.gpf.descriptor;
 
 import com.bc.ceres.core.Assert;
-import org.esa.beam.framework.gpf.OperatorSpi;
+import org.esa.beam.framework.gpf.annotations.TargetProperty;
 
 /**
+ * A {@link TargetPropertyDescriptor} implementation for the
+ * {@link org.esa.beam.framework.gpf.annotations.TargetProperty TargetProperty} annotation.
+ *
  * @author Norman Fomferra
  * @since BEAM 5
  */
-public class AnnotationTargetPropertyDescriptor implements OperatorSpi.TargetPropertyDescriptor {
+public class AnnotationTargetPropertyDescriptor implements TargetPropertyDescriptor {
 
     private final String name;
     private final Class<?> dataType;
@@ -38,16 +41,20 @@ public class AnnotationTargetPropertyDescriptor implements OperatorSpi.TargetPro
 
     @Override
     public String getAlias() {
-        return annotation.alias();
+        return getNonEmptyStringOrNull(annotation.alias());
     }
 
     @Override
     public String getLabel() {
-        return annotation.label();
+        return getNonEmptyStringOrNull(annotation.label());
     }
 
     @Override
     public String getDescription() {
-        return annotation.description();
+        return getNonEmptyStringOrNull(annotation.description());
+    }
+
+    private static String getNonEmptyStringOrNull(String label) {
+        return label == null || label.isEmpty() ? null : label;
     }
 }

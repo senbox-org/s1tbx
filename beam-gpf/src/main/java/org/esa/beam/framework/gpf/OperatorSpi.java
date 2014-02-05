@@ -16,15 +16,21 @@
 
 package org.esa.beam.framework.gpf;
 
-import com.bc.ceres.binding.Converter;
-import com.bc.ceres.binding.Validator;
-import com.bc.ceres.binding.dom.DomConverter;
+import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.CoreException;
 import com.bc.ceres.core.runtime.Module;
 import com.bc.ceres.core.runtime.internal.ModuleReader;
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
+import org.esa.beam.framework.gpf.descriptor.AnnotationOperatorDescriptor;
+import org.esa.beam.framework.gpf.descriptor.AnnotationOperatorDescriptorBody;
+import org.esa.beam.framework.gpf.descriptor.DefaultOperatorDescriptor;
+import org.esa.beam.framework.gpf.descriptor.OperatorDescriptor;
+import org.esa.beam.framework.gpf.descriptor.ParameterDescriptor;
+import org.esa.beam.framework.gpf.descriptor.SourceProductDescriptor;
+import org.esa.beam.framework.gpf.descriptor.SourceProductsDescriptor;
+import org.esa.beam.framework.gpf.descriptor.TargetProductDescriptor;
+import org.esa.beam.framework.gpf.descriptor.TargetPropertyDescriptor;
 
 import java.awt.RenderingHints;
 import java.net.URL;
@@ -51,14 +57,35 @@ import java.util.logging.Logger;
  */
 public abstract class OperatorSpi {
 
-    private final Class<? extends Operator> operatorClass;
+    private final OperatorDescriptor operatorDescriptor;
+    // Note: We need this only for backward compatibility with BEAM 4.11.
     private final String operatorAlias;
+
+    // lazily loaded
     private Module module;
-    private OperatorDescriptor operatorDescriptor;
-    private SourceProductDescriptor[] sourceProductDescriptors;
-    private TargetProductDescriptor targetProductDescriptor;
-    private TargetPropertyDescriptor targetPropertyDescriptor;
-    private ParameterDescriptor[] parameterDescriptors;
+
+    /**
+     * Constructs an operator SPI for the given operator descriptor.
+     *
+     * @param operatorDescriptor The operator descriptor.
+     * @since BEAM 5
+     */
+    protected OperatorSpi(OperatorDescriptor operatorDescriptor) {
+        Assert.notNull(operatorDescriptor, "operatorDescriptor");
+        this.operatorDescriptor = operatorDescriptor;
+        this.operatorAlias = operatorDescriptor.getAlias();
+        Assert.notNull(operatorAlias, "operatorAlias");
+    }
+
+    /**
+     * Constructs an operator SPI for the given URL pointing to a valid operator descriptor XML document.
+     *
+     * @param operatorDescriptorUrl The operator descriptor URL.
+     * @since BEAM 5
+     */
+    protected OperatorSpi(URL operatorDescriptorUrl) {
+        this(DefaultOperatorDescriptor.fromXml(operatorDescriptorUrl));
+    }
 
     /**
      * Constructs an operator SPI for the given operator class. The alias name
@@ -78,18 +105,19 @@ public abstract class OperatorSpi {
      *
      * @param operatorClass The operator class.
      * @param operatorAlias The alias name for the operator.
+     * @deprecated since BEAM 5, no replacement.
      */
+    @Deprecated
     protected OperatorSpi(Class<? extends Operator> operatorClass, String operatorAlias) {
-        this.operatorClass = operatorClass;
-        this.operatorAlias = operatorAlias;
-       /*
+        Assert.notNull(operatorClass, "operatorClass");
+        Assert.notNull(operatorAlias, "operatorAlias");
         OperatorMetadata annotation = operatorClass.getAnnotation(OperatorMetadata.class);
         if (annotation != null) {
-            operatorDescriptor = new AnnotationOperatorDescriptor(annotation);
+            operatorDescriptor = new AnnotationOperatorDescriptor(operatorClass, annotation);
         } else {
-            operatorDescriptor = new AnnotationOperatorDescriptor(new OperatorMetadata());
+            operatorDescriptor = new NoMetadataOperatorDescriptor(operatorClass, operatorAlias);
         }
-        */
+        this.operatorAlias = operatorAlias;
     }
 
     /**
@@ -163,7 +191,7 @@ public abstract class OperatorSpi {
      * @return the operator class
      */
     public final Class<? extends Operator> getOperatorClass() {
-        return operatorClass;
+        return operatorDescriptor.getOperatorClass();
     }
 
     /**
@@ -174,13 +202,17 @@ public abstract class OperatorSpi {
      * @return The alias name of the (@link Operator).
      */
     public final String getOperatorAlias() {
-        return operatorAlias;
+        if (operatorAlias != null && !operatorAlias.isEmpty()) {
+            return operatorAlias;
+        }
+        return operatorDescriptor.getAlias();
     }
 
     /**
-     * The module containing the operator.
+     * Gets the {@link Module module} providing the operator code or {@code null} if it is not possible to
+     * determine the module.
      *
-     * @return The {@link Module module} containing the operator or {@code null} if no module is defined.
+     * @return The module containing the operator.
      * @since BEAM 5
      */
     public Module getModule() {
@@ -198,7 +230,14 @@ public abstract class OperatorSpi {
         return operatorDescriptor;
     }
 
-
+    /**
+     * Gets the alias name of the operator given by it's class.
+     * The method returns the 'alias' element of the operator's {@link OperatorMetadata}, if any.
+     * Otherwise it returns the class' simple name (without package path).
+     *
+     * @param operatorClass The operator class.
+     * @return An operator alias name.
+     */
     public static String getOperatorAlias(Class<? extends Operator> operatorClass) {
         OperatorMetadata annotation = operatorClass.getAnnotation(OperatorMetadata.class);
         if (annotation != null && !annotation.alias().isEmpty()) {
@@ -209,7 +248,7 @@ public abstract class OperatorSpi {
 
     private Module loadModule() {
         ModuleReader moduleReader = new ModuleReader(Logger.getAnonymousLogger());
-        URL moduleLocation = operatorClass.getProtectionDomain().getCodeSource().getLocation();
+        URL moduleLocation = getOperatorClass().getProtectionDomain().getCodeSource().getLocation();
         try {
             return moduleReader.readFromLocation(moduleLocation);
         } catch (CoreException e) {
@@ -218,285 +257,84 @@ public abstract class OperatorSpi {
         return null;
     }
 
-    /**
-     * Metadata used to describe elements of an operator.
-     *
-     * @since BEAM 5
-     */
-    public static interface ElementDescriptor {
-        /**
-         * @return The symbolic name used to unambiguously identify this element.
-         * E.g. the fully qualified name of a Java class.
-         */
-        String getName();
+    private static class NoMetadataOperatorDescriptor implements OperatorDescriptor {
 
-        /**
-         * @return A short form of the symbolic name.
-         * Defaults to the empty string (= not set).
-         */
-        String getAlias();
+        private final AnnotationOperatorDescriptorBody body;
+        private final String operatorAlias;
 
-        /**
-         * @return A human-readable version of the symbolic name to be used in user interfaces.
-         * Defaults to the empty string (= not set).
-         */
-        String getLabel();
+        public NoMetadataOperatorDescriptor(Class<? extends Operator> operatorClass, String operatorAlias) {
+            this.body = new AnnotationOperatorDescriptorBody(operatorClass);
+            this.operatorAlias = operatorAlias;
+        }
 
-        /**
-         * @return A short description.
-         * Defaults to the empty string (= not set).
-         */
-        String getDescription();
+        @Override
+        public String getName() {
+            return body.getOperatorClass().getName();
+        }
 
-        /**
-         * @return The element's data type.
-         * Defaults to {@link java.lang.Object}.
-         */
-        Class<?> getDataType();
-    }
+        @Override
+        public String getAlias() {
+            return operatorAlias;
+        }
 
-    /**
-     * Operator metadata.
-     *
-     * @since BEAM 5
-     */
-    public static interface OperatorDescriptor extends ElementDescriptor {
-        /**
-         * @return The version of the operator.
-         * Defaults to the empty string (= not set).
-         */
-        String getVersion();
+        @Override
+        public Class<? extends Operator> getOperatorClass() {
+            return body.getOperatorClass();
+        }
 
-        /**
-         * @return The author(s) of the operator.
-         * Defaults to the empty string (= not set).
-         */
-        String getAuthors();
+        @Override
+        public String getVersion() {
+            return null;
+        }
 
-        /**
-         * @return The copyright notice for the operator code.
-         * Defaults to the empty string (= not set).
-         */
-        String getCopyright();
+        @Override
+        public String getAuthors() {
+            return null;
+        }
 
-        /**
-         * @return If {@code true}, this operator is considered for internal use only and thus
-         * may not be exposed in user interfaces.
-         */
-        boolean isInternal();
+        @Override
+        public String getCopyright() {
+            return null;
+        }
 
-        /**
-         * @return The operator class.
-         * Defaults to {@link Operator}.
-         */
-        Class<? extends Operator> getDataType();
+        @Override
+        public boolean isInternal() {
+            return false;
+        }
 
-        /**
-         * @return The source product descriptors.
-         * The array will be empty if the operator does not have any source products.
-         */
-        SourceProductDescriptor[] getSourceProductDescriptors();
+        @Override
+        public String getLabel() {
+            return null;
+        }
 
-        /**
-         * @return The target product descriptor.
-         */
-        TargetProductDescriptor getTargetProductDescriptor();
+        @Override
+        public String getDescription() {
+            return null;
+        }
 
-        /**
-         * @return The target property descriptors.
-         * The array will be empty if the operator does not produce any target properties.
-         */
-        TargetPropertyDescriptor[] getTargetPropertyDescriptors();
+        @Override
+        public SourceProductDescriptor[] getSourceProductDescriptors() {
+            return body.getSourceProductDescriptors();
+        }
 
-        /**
-         * @return The parameter descriptors.
-         * The array will be empty if the operator does not have any parameters.
-         */
-        ParameterDescriptor[] getParameterDescriptors();
-    }
+        @Override
+        public SourceProductsDescriptor getSourceProductsDescriptor() {
+            return body.getSourceProductsDescriptor();
+        }
 
-    /**
-     * Source product element metadata.
-     *
-     * @since BEAM 5
-     */
-    public static interface SourceProductDescriptor extends ElementDescriptor {
+        @Override
+        public TargetProductDescriptor getTargetProductDescriptor() {
+            return body.getTargetProductDescriptor();
+        }
 
-        /**
-         * @return {@code true} if the source product is optional.
-         * In this case the field value thus may be {@code null}.
-         * Defaults to {@code false}.
-         */
-        boolean isOptional();
+        @Override
+        public TargetPropertyDescriptor[] getTargetPropertyDescriptors() {
+            return body.getTargetPropertyDescriptors();
+        }
 
-        /**
-         * @return The product type or a regular expression identifying the allowed product types.
-         * Defaults to the empty string (= not set).
-         * @see java.util.regex.Pattern
-         */
-        String getProductType();
-
-        /**
-         * @return The names of the bands which need to be present in the source product.
-         * Defaults to an empty array (= not set).
-         */
-        String[] getBands();
-
-        /**
-         * @return The source product type.
-         * Defaults to {@link Product}.
-         */
-        Class<? extends Product> getDataType();
-    }
-
-    /**
-     * Target product element metadata.
-     *
-     * @since BEAM 5
-     */
-    public static interface TargetProductDescriptor extends ElementDescriptor {
-        /**
-         * @return The target product type.
-         * Defaults to {@link Product}.
-         */
-        Class<? extends Product> getDataType();
-    }
-
-    /**
-     * Target property element metadata.
-     *
-     * @since BEAM 5
-     */
-    public static interface TargetPropertyDescriptor extends ElementDescriptor {
-    }
-
-    /**
-     * Target parameter element metadata.
-     *
-     * @since BEAM 5
-     */
-    public static interface ParameterDescriptor extends ElementDescriptor {
-
-        /**
-         * @return An alias name for the elements of a parameter array.
-         * Forces element-wise array conversion from and to DOM representation.
-         * Defaults to the empty string (= not set).
-         * @see #areItemsInlined()
-         */
-        String getItemAlias();
-
-        /**
-         * @return If {@code true} items of parameter array values are inlined (not
-         * enclosed by the parameter name) in the DOM representation of the
-         * array. In this case also the ({@code itemName} must be given.
-         * Defaults to {@code false}.
-         * @see #getItemAlias()
-         */
-        boolean areItemsInlined();
-
-        /**
-         * Gets the parameter's default value.
-         * The default value set is given as a textual representations of the actual value.
-         * The framework creates the actual value set by converting the text value to
-         * an object using the associated {@link com.bc.ceres.binding.Converter}.
-         *
-         * @return The default value.
-         * Defaults to the empty string (= not set).
-         * @see #getConverter()
-         */
-        String getDefaultValue();
-
-        /**
-         * @return The parameter physical unit.
-         * Defaults to the empty string (= not set).
-         */
-        String getUnit();
-
-        /**
-         * Gets the set of values which can be assigned to a parameter field.
-         * The value set is given as textual representations of the actual values.
-         * The framework creates the actual value set by converting each text value to
-         * an object value using the associated {@link com.bc.ceres.binding.Converter}.
-         *
-         * @return The value set.Defaults to empty array (= not set).
-         * @see #getConverter()
-         */
-        String[] getValueSet();
-
-        /**
-         * Gets the valid interval for numeric parameters, e.g. {@code "[10,20)"}: in the range 10 (inclusive) to 20 (exclusive).
-         *
-         * @return The valid interval. Defaults to empty string (= not set).
-         */
-        String getInterval();
-
-        /**
-         * Gets a conditional expression which must return {@code true} in order to indicate
-         * that the parameter value is valid, e.g. {@code "value > 2.5"}.
-         *
-         * @return A conditional expression. Defaults to empty string (= not set).
-         */
-        String getCondition();
-
-        /**
-         * Gets a regular expression pattern to which a textual parameter value must match in order to indicate
-         * a valid value, e.g. {@code "a*"}.
-         *
-         * @return A regular expression pattern. Defaults to empty string (= not set).
-         * @see java.util.regex.Pattern
-         */
-        String getPattern();
-
-        /**
-         * Gets a format string to which a textual parameter value must match in order to indicate
-         * a valid value, e.g. {@code "yyyy-MM-dd HH:mm:ss.Z"}.
-         *
-         * @return A format string. Defaults to empty string (= not set).
-         * @see java.text.Format
-         */
-        String getFormat();
-
-        /**
-         * Parameter value must not be {@code null}?
-         *
-         * @return {@code true}, if so. Defaults to {@code false}.
-         */
-        boolean isNotNull();
-
-        /**
-         * Parameter value must not be an empty string?
-         *
-         * @return {@code true}, if so. Defaults to {@code false}.
-         */
-        boolean isNotEmpty();
-
-        /**
-         * A validator to be used to validate a parameter value.
-         *
-         * @return The validator class.
-         */
-        Class<? extends Validator> getValidator();
-
-        /**
-         * A converter to be used to convert a text to the parameter value and vice versa.
-         *
-         * @return The converter class.
-         */
-        Class<? extends Converter> getConverter();
-
-        /**
-         * A converter to be used to convert an (XML) DOM to the parameter value and vice versa.
-         *
-         * @return The DOM converter class.
-         */
-        Class<? extends DomConverter> getDomConverter();
-
-        /**
-         * Specifies which {@code RasterDataNode} subclass of the source products is used
-         * to fill the {@link #getValueSet()} for this parameter.
-         *
-         * @return The raster data node type.
-         */
-        Class<? extends RasterDataNode> getRasterDataNodeType();
+        @Override
+        public ParameterDescriptor[] getParameterDescriptors() {
+            return body.getParameterDescriptors();
+        }
     }
 }

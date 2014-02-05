@@ -13,25 +13,33 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.beam.framework.gpf.support;
+package org.esa.beam.framework.gpf.descriptor;
 
 import com.bc.ceres.binding.Converter;
+import com.bc.ceres.binding.ConverterRegistry;
 import com.bc.ceres.binding.Validator;
 import com.bc.ceres.binding.dom.DomConverter;
+import com.bc.ceres.core.Assert;
 import com.thoughtworks.xstream.converters.ConversionException;
 import com.thoughtworks.xstream.converters.MarshallingContext;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 import org.esa.beam.framework.datamodel.RasterDataNode;
-import org.esa.beam.framework.gpf.OperatorSpi;
+import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.util.StringUtils;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+
 /**
- * @author Norman
+ * Default implementation of the {@link ParameterDescriptor} interface.
+ *
+ * @author Norman Fomferra
  * @since BEAM 5
  */
-public class DefaultParameterDescriptor implements OperatorSpi.ParameterDescriptor {
+public class DefaultParameterDescriptor implements ParameterDescriptor {
     String name;
     String alias;
     Class<?> dataType;
@@ -46,11 +54,22 @@ public class DefaultParameterDescriptor implements OperatorSpi.ParameterDescript
     String format;
     Boolean notNull;
     Boolean notEmpty;
-    Class<? extends Validator> validator;
-    Class<? extends Converter> converter;
-    Class<? extends DomConverter> domConverter;
+    Class<? extends RasterDataNode> rasterDataNodeClass;
+    Class<? extends Validator> validatorClass;
+    Class<? extends Converter> converterClass;
+    Class<? extends DomConverter> domConverterClass;
     String itemAlias;
     Boolean itemsInlined;
+
+    public DefaultParameterDescriptor() {
+    }
+
+    public DefaultParameterDescriptor(String name, Class<?> dataType) {
+        Assert.notNull(name, "name");
+        Assert.notNull(dataType, "dataType");
+        this.name = name;
+        this.dataType = dataType;
+    }
 
     @Override
     public String getName() {
@@ -179,35 +198,39 @@ public class DefaultParameterDescriptor implements OperatorSpi.ParameterDescript
     }
 
     @Override
-    public Class<? extends RasterDataNode> getRasterDataNodeType() {
-        return null;
+    public Class<? extends RasterDataNode> getRasterDataNodeClass() {
+        return rasterDataNodeClass;
+    }
+
+    public void setRasterDataNodeClass(Class<? extends RasterDataNode> rasterDataNodeClass) {
+        this.rasterDataNodeClass = rasterDataNodeClass;
     }
 
     @Override
-    public Class<? extends Validator> getValidator() {
-        return validator;
+    public Class<? extends Validator> getValidatorClass() {
+        return validatorClass;
     }
 
-    public void setValidator(Class<? extends Validator> validator) {
-        this.validator = validator;
-    }
-
-    @Override
-    public Class<? extends Converter> getConverter() {
-        return converter;
-    }
-
-    public void setConverter(Class<? extends Converter> converter) {
-        this.converter = converter;
+    public void setValidatorClass(Class<? extends Validator> validator) {
+        this.validatorClass = validator;
     }
 
     @Override
-    public Class<? extends DomConverter> getDomConverter() {
-        return domConverter;
+    public Class<? extends Converter> getConverterClass() {
+        return converterClass;
     }
 
-    public void setDomConverter(Class<? extends DomConverter> domConverter) {
-        this.domConverter = domConverter;
+    public void setConverterClass(Class<? extends Converter> converter) {
+        this.converterClass = converter;
+    }
+
+    @Override
+    public Class<? extends DomConverter> getDomConverterClass() {
+        return domConverterClass;
+    }
+
+    public void setDomConverterClass(Class<? extends DomConverter> domConverter) {
+        this.domConverterClass = domConverter;
     }
 
     @Override
@@ -226,6 +249,45 @@ public class DefaultParameterDescriptor implements OperatorSpi.ParameterDescript
 
     public void setItemsInlined(boolean itemsInlined) {
         this.itemsInlined = itemsInlined;
+    }
+
+    @Override
+    public boolean isSimple() {
+        return isSimple(getDataType());
+    }
+
+    @Override
+    public ParameterDescriptor[] getDataMemberDescriptors() {
+        return getDataMemberDescriptors(getDataType());
+    }
+
+    public static boolean isSimple(Class<?> type) {
+        return type.isPrimitive()
+               || Boolean.class.isAssignableFrom(type)
+               || Character.class.isAssignableFrom(type)
+               || Number.class.isAssignableFrom(type)
+               || CharSequence.class.isAssignableFrom(type)
+               || ConverterRegistry.getInstance().getConverter(type) != null;
+    }
+
+    public static ParameterDescriptor[] getDataMemberDescriptors(Class<?> dataType) {
+        if (isSimple(dataType)) {
+            return new ParameterDescriptor[0];
+        }
+        ArrayList<ParameterDescriptor> parameterDescriptors = new ArrayList<>();
+        Field[] declaredFields = dataType.getDeclaredFields();
+        for (Field declaredField : declaredFields) {
+            int modifiers = declaredField.getModifiers();
+            if (!(Modifier.isTransient(modifiers) || Modifier.isFinal(modifiers) || Modifier.isStatic(modifiers))) {
+                Parameter annotation = declaredField.getAnnotation(Parameter.class);
+                if (annotation != null) {
+                    parameterDescriptors.add(new AnnotationParameterDescriptor(declaredField.getName(), declaredField.getType(), annotation));
+                } else {
+                    parameterDescriptors.add(new DefaultParameterDescriptor(declaredField.getName(), declaredField.getType()));
+                }
+            }
+        }
+        return parameterDescriptors.toArray(new ParameterDescriptor[parameterDescriptors.size()]);
     }
 
     public static class XStreamConverter implements com.thoughtworks.xstream.converters.Converter {

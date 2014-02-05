@@ -37,6 +37,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.FIELD})
 public @interface Parameter {
+
     /**
      * @return An alias name for the parameter.
      *         Defaults to the empty string (= not set).
@@ -73,7 +74,7 @@ public @interface Parameter {
     String defaultValue() default "";
 
     /**
-     * @return A parameter label.
+     * @return A human-readable version of the name to be used in user interfaces.
      *         Defaults to the empty string (= not set).
      */
     String label() default "";

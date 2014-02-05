@@ -25,6 +25,7 @@ import org.esa.beam.framework.gpf.graph.GraphException;
 import org.esa.beam.framework.gpf.graph.GraphIO;
 import org.esa.beam.framework.gpf.graph.GraphProcessingObserver;
 import org.esa.beam.framework.gpf.graph.Node;
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -53,7 +54,7 @@ public class CommandLineToolMultiSourceGraphTest {
         GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(OP5_SPI);
     }
 
-    @BeforeClass
+    @AfterClass
     public static void tearDownTest() {
         GPF.getDefaultInstance().getOperatorSpiRegistry().removeOperatorSpi(OP5_SPI);
     }
