@@ -38,7 +38,7 @@ public interface ParameterDescriptor extends DataElementDescriptor {
      *
      * @return The default value.
      * Defaults to the empty string (= not set).
-     * @see #getConverter()
+     * @see #getConverterClass()
      */
     String getDefaultValue();
 
@@ -54,8 +54,8 @@ public interface ParameterDescriptor extends DataElementDescriptor {
      * The framework creates the actual value set by converting each text value to
      * an object value using the associated {@link com.bc.ceres.binding.Converter}.
      *
-     * @return The value set.Defaults to empty array (= not set).
-     * @see #getConverter()
+     * @return The value set. Defaults to empty array (= not set).
+     * @see #getConverterClass()
      */
     String[] getValueSet();
 
@@ -111,21 +111,21 @@ public interface ParameterDescriptor extends DataElementDescriptor {
      *
      * @return The validator class.
      */
-    Class<? extends Validator> getValidator();
+    Class<? extends Validator> getValidatorClass();
 
     /**
      * A converter to be used to convert a text to the parameter value and vice versa.
      *
      * @return The converter class.
      */
-    Class<? extends Converter> getConverter();
+    Class<? extends Converter> getConverterClass();
 
     /**
      * A converter to be used to convert an (XML) DOM to the parameter value and vice versa.
      *
      * @return The DOM converter class.
      */
-    Class<? extends DomConverter> getDomConverter();
+    Class<? extends DomConverter> getDomConverterClass();
 
     /**
      * Specifies which {@code RasterDataNode} subclass of the source products is used
@@ -133,5 +133,20 @@ public interface ParameterDescriptor extends DataElementDescriptor {
      *
      * @return The raster data node type.
      */
-    Class<? extends RasterDataNode> getRasterDataNodeType();
+    Class<? extends RasterDataNode> getRasterDataNodeClass();
+
+    /**
+     * @return {@code true} if this parameter's value is a data structure.
+     * @see #getDataType()
+     * @see #getDataMemberDescriptors()
+     */
+    boolean isSimple();
+
+    /**
+     * @return The descriptors for the structure members of this parameter. The returned array will be empty, if
+     * this parameter doesn't have a structure data type.
+     * @see #getDataType()
+     * @see #isSimple()
+     */
+    ParameterDescriptor[] getDataMemberDescriptors();
 }

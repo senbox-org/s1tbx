@@ -16,40 +16,35 @@
 
 package org.esa.beam.framework.gpf.main;
 
-import com.bc.ceres.binding.Converter;
 import com.bc.ceres.binding.ConverterRegistry;
 import com.bc.ceres.binding.dom.DomElement;
 import com.bc.ceres.binding.dom.XppDomElement;
 import com.bc.ceres.core.ServiceRegistry;
 import org.esa.beam.framework.gpf.GPF;
-import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.OperatorSpiRegistry;
-import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
-import org.esa.beam.framework.gpf.annotations.Parameter;
-import org.esa.beam.framework.gpf.annotations.SourceProduct;
-import org.esa.beam.framework.gpf.annotations.SourceProducts;
-import org.esa.beam.framework.gpf.annotations.TargetProperty;
+import org.esa.beam.framework.gpf.descriptor.DefaultParameterDescriptor;
+import org.esa.beam.framework.gpf.descriptor.ElementDescriptor;
+import org.esa.beam.framework.gpf.descriptor.OperatorDescriptor;
+import org.esa.beam.framework.gpf.descriptor.ParameterDescriptor;
+import org.esa.beam.framework.gpf.descriptor.SourceProductDescriptor;
+import org.esa.beam.framework.gpf.descriptor.SourceProductsDescriptor;
+import org.esa.beam.framework.gpf.descriptor.TargetPropertyDescriptor;
 import org.esa.beam.framework.gpf.graph.Graph;
 import org.esa.beam.framework.gpf.graph.GraphException;
 import org.esa.beam.framework.gpf.graph.Header;
 import org.esa.beam.framework.gpf.graph.HeaderParameter;
 import org.esa.beam.framework.gpf.graph.HeaderSource;
-import org.esa.beam.framework.gpf.internal.OperatorClassDescriptor;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.StringTokenizer;
 
@@ -57,23 +52,23 @@ class CommandLineUsage {
     private static final String COMMAND_LINE_USAGE_RESOURCE = "CommandLineUsage.txt";
 
     public static String getUsageText() {
-        final String usagePattern = getUsagePattern();
+        String usagePattern = getUsagePattern();
 
-        final OperatorSpiRegistry registry = GPF.getDefaultInstance().getOperatorSpiRegistry();
-        final ServiceRegistry<OperatorSpi> serviceRegistry = registry.getServiceRegistry();
-        final Set<OperatorSpi> spiSet = serviceRegistry.getServices();
-        final ArrayList<DocElement> docElementList = new ArrayList<DocElement>(spiSet.size());
+        OperatorSpiRegistry registry = GPF.getDefaultInstance().getOperatorSpiRegistry();
+        ServiceRegistry<OperatorSpi> serviceRegistry = registry.getServiceRegistry();
+        Set<OperatorSpi> spiSet = serviceRegistry.getServices();
+        ArrayList<DocElement> docElementList = new ArrayList<>(spiSet.size());
         for (OperatorSpi operatorSpi : spiSet) {
-            final String opAlias = operatorSpi.getOperatorAlias();
-            final OperatorMetadata operatorMetadata = operatorSpi.getOperatorClass().getAnnotation(OperatorMetadata.class);
-            if (operatorMetadata != null && !operatorMetadata.internal()) {
+            OperatorDescriptor operatorDescriptor = operatorSpi.getOperatorDescriptor();
+            String opName = operatorDescriptor.getAlias() != null ? operatorDescriptor.getAlias() : operatorDescriptor.getName();
+            if (!operatorDescriptor.isInternal()) {
                 final String descriptionLine;
-                if (!operatorMetadata.description().isEmpty()) {
-                    descriptionLine = operatorMetadata.description();
+                if (operatorDescriptor.getDescription() != null) {
+                    descriptionLine = operatorDescriptor.getDescription();
                 } else {
                     descriptionLine = "No description available.";
                 }
-                docElementList.add(new DocElement("  " + opAlias, new String[]{descriptionLine}));
+                docElementList.add(new DocElement("  " + opName, new String[]{descriptionLine}));
             }
         }
         StringBuilder opListText = new StringBuilder(1024);
@@ -90,9 +85,8 @@ class CommandLineUsage {
     private static String getUsagePattern() {
         StringBuilder sb = new StringBuilder(1024);
         try {
-            BufferedReader bufferedReader = new BufferedReader(
-                    new InputStreamReader(CommandLineArgs.class.getResourceAsStream(COMMAND_LINE_USAGE_RESOURCE)));
-            try {
+            try (BufferedReader bufferedReader = new BufferedReader(
+                    new InputStreamReader(CommandLineArgs.class.getResourceAsStream(COMMAND_LINE_USAGE_RESOURCE)))) {
                 while (true) {
                     String line = bufferedReader.readLine();
                     if (line == null) {
@@ -100,8 +94,6 @@ class CommandLineUsage {
                     }
                     sb.append(line).append('\n');
                 }
-            } finally {
-                bufferedReader.close();
             }
         } catch (IOException ignored) {
             // ignore
@@ -143,7 +135,7 @@ class CommandLineUsage {
     }
 
     private static ArrayList<DocElement> createSourceDocuElementList(List<HeaderSource> sources) {
-        ArrayList<DocElement> docElementList = new ArrayList<DocElement>(10);
+        ArrayList<DocElement> docElementList = new ArrayList<>(10);
         for (HeaderSource headerSource : sources) {
             String sourceSyntax = MessageFormat.format("  -S{0}=<file>", headerSource.getName());
             final ArrayList<String> descriptionLines = createSourceDecriptionLines(headerSource);
@@ -154,7 +146,7 @@ class CommandLineUsage {
     }
 
     private static ArrayList<DocElement> createParamDocuElementList(List<HeaderParameter> parameterList) {
-        ArrayList<DocElement> docElementList = new ArrayList<DocElement>(10);
+        ArrayList<DocElement> docElementList = new ArrayList<>(10);
 
         for (HeaderParameter parameter : parameterList) {
             String paramSyntax = MessageFormat.format("  -P{0}=<{1}>", parameter.getName(), parameter.getType());
@@ -211,7 +203,7 @@ class CommandLineUsage {
     }
 
     private static ArrayList<String> createSourceDecriptionLines(HeaderSource headerSource) {
-        final ArrayList<String> descriptionLines = new ArrayList<String>();
+        final ArrayList<String> descriptionLines = new ArrayList<>();
 
         final String description = headerSource.getDescription();
         if (!(description == null || description.isEmpty())) {
@@ -234,22 +226,22 @@ class CommandLineUsage {
         if (operatorSpi == null) {
             return MessageFormat.format("Unknown operator ''{0}''.", operatorName);
         }
-        final OperatorClassDescriptor operatorClassDescriptor = new OperatorClassDescriptor(operatorSpi.getOperatorClass());
+        OperatorDescriptor operatorDescriptor = operatorSpi.getOperatorDescriptor();
         StringBuilder usageText = new StringBuilder(1024);
         usageText.append("Usage:\n");
         usageText.append(MessageFormat.format("  {0} {1} [options] ", CommandLineTool.TOOL_NAME, operatorName));
-        ArrayList<DocElement> sourceDocElementList = createSourceDocuElementList(operatorClassDescriptor);
-        ArrayList<DocElement> paramDocElementList = createParamDocuElementList(operatorClassDescriptor);
-        ArrayList<DocElement> propertyDocElementList = createPropertyDocuElementList(operatorClassDescriptor);
-        final SourceProducts productsDescriptor = operatorClassDescriptor.getSourceProducts();
+        ArrayList<DocElement> sourceDocElementList = createSourceDocuElementList(operatorDescriptor);
+        ArrayList<DocElement> paramDocElementList = createParamDocuElementList(operatorDescriptor);
+        ArrayList<DocElement> propertyDocElementList = createPropertyDocuElementList(operatorDescriptor);
+        final SourceProductsDescriptor productsDescriptor = operatorDescriptor.getSourceProductsDescriptor();
         if (productsDescriptor != null) {
             appendSourceFiles(usageText, productsDescriptor);
         }
         usageText.append("\n");
 
-        if (operatorClassDescriptor.getOperatorMetadata() != null && !operatorClassDescriptor.getOperatorMetadata().description().isEmpty()) {
+        if (operatorDescriptor.getDescription() != null) {
             usageText.append("\nDescription:\n");
-            final String description = operatorClassDescriptor.getOperatorMetadata().description();
+            final String description = operatorDescriptor.getDescription();
             final String[] lines = description.split("\n");
             for (String line : lines) {
                 usageText.append("  ");
@@ -271,117 +263,110 @@ class CommandLineUsage {
             usageText.append("\nParameter Options:\n");
             appendDocElementList(usageText, paramDocElementList);
         }
-        if (!operatorClassDescriptor.getParameters().isEmpty()) {
-            usageText.append("\nGraph XML Format:\n");
-            appendXmlUsage(usageText, operatorClassDescriptor);
-        }
+
+        usageText.append("\nGraph XML Format:\n");
+        appendXmlUsage(usageText, operatorDescriptor);
 
         return usageText.toString();
     }
 
-    private static void appendSourceFiles(StringBuilder usageText, SourceProducts productsDescriptor) {
-        if (productsDescriptor.count() < 0) {
+    private static void appendSourceFiles(StringBuilder usageText, SourceProductsDescriptor productsDescriptor) {
+        if (productsDescriptor.getCount() < 0) {
             usageText.append("<source-file-1> <source-file-2> ...");
-        } else if (productsDescriptor.count() == 1) {
+        } else if (productsDescriptor.getCount() == 1) {
             usageText.append("<source-file>");
-        } else if (productsDescriptor.count() == 2) {
+        } else if (productsDescriptor.getCount() == 2) {
             usageText.append("<source-file-1> <source-file-2>");
-        } else if (productsDescriptor.count() == 3) {
+        } else if (productsDescriptor.getCount() == 3) {
             usageText.append("<source-file-1> <source-file-2> <source-file-3>");
-        } else if (productsDescriptor.count() > 3) {
+        } else if (productsDescriptor.getCount() > 3) {
             usageText.append(MessageFormat.format("<source-file-1> <source-file-2> ... <source-file-{0}>",
-                                                  productsDescriptor.count()));
+                                                  productsDescriptor.getCount()));
         }
     }
 
-    private static ArrayList<DocElement> createParamDocuElementList(OperatorClassDescriptor operatorClassDescriptor) {
-        ArrayList<DocElement> docElementList = new ArrayList<DocElement>(10);
-        final Map<Field, Parameter> parameterMap = operatorClassDescriptor.getParameters();
-        for (Entry<Field, Parameter> entry : parameterMap.entrySet()) {
-            final Field paramField = entry.getKey();
-            final Parameter parameter = entry.getValue();
-            if (isConverterAvailable(paramField.getType(), parameter)) {
-                String paramSyntax = MessageFormat.format("  -P{0}=<{1}>", getParameterName(paramField, parameter), getTypeName(paramField.getType()));
-                final ArrayList<String> descriptionLines = createParamDescriptionLines(paramField, parameter);
+    private static ArrayList<DocElement> createParamDocuElementList(OperatorDescriptor operatorDescriptor) {
+        ArrayList<DocElement> docElementList = new ArrayList<>(10);
+        ParameterDescriptor[] parameterDescriptors = operatorDescriptor.getParameterDescriptors();
+        for (ParameterDescriptor parameter: parameterDescriptors) {
+            if (isConverterAvailable(parameter)) {
+                String paramSyntax = String.format("  -P%s=<%s>", getName(parameter), getTypeName(parameter.getDataType()));
+                final ArrayList<String> descriptionLines = createParamDescriptionLines(parameter);
                 docElementList.add(new DocElement(paramSyntax, descriptionLines.toArray(new String[descriptionLines.size()])));
             }
         }
         return docElementList;
     }
 
-    private static ArrayList<DocElement> createPropertyDocuElementList(OperatorClassDescriptor operatorClassDescriptor) {
-        ArrayList<DocElement> docElementList = new ArrayList<DocElement>(10);
-        final Map<Field, TargetProperty> propertyMap = operatorClassDescriptor.getTargetProperties();
-        for (Entry<Field, TargetProperty> entry : propertyMap.entrySet()) {
-            final Field propertyField = entry.getKey();
-            final TargetProperty property = entry.getValue();
-            String propertySyntax = MessageFormat.format("{0} {1}", propertyField.getType().getSimpleName(), getTargetPropertyName(propertyField, property));
+    private static ArrayList<DocElement> createPropertyDocuElementList(OperatorDescriptor operatorDescriptor) {
+        ArrayList<DocElement> docElementList = new ArrayList<>(10);
+        TargetPropertyDescriptor[] targetPropertyDescriptors = operatorDescriptor.getTargetPropertyDescriptors();
+        for (TargetPropertyDescriptor property : targetPropertyDescriptors) {
+            String propertySyntax = MessageFormat.format("{0} {1}", property.getDataType().getSimpleName(), getName(property));
             final ArrayList<String> descriptionLines = createTargetPropertyDescriptionLines(property);
             docElementList.add(new DocElement(propertySyntax, descriptionLines.toArray(new String[descriptionLines.size()])));
         }
         return docElementList;
     }
 
-    private static ArrayList<DocElement> createSourceDocuElementList(OperatorClassDescriptor operatorClassDescriptor) {
-        ArrayList<DocElement> docElementList = new ArrayList<DocElement>(10);
-        final Map<Field, SourceProduct> sourceProductMap = operatorClassDescriptor.getSourceProductMap();
-        for (Entry<Field, SourceProduct> entry : sourceProductMap.entrySet()) {
-            final Field sourceIdField = entry.getKey();
-            final SourceProduct sourceProduct = entry.getValue();
-            String sourceSyntax = MessageFormat.format("  -S{0}=<file>", getSourceProductId(sourceIdField, sourceProduct));
-            final ArrayList<String> descriptionLines = createSourceDecriptionLines(sourceIdField, sourceProduct);
+    private static ArrayList<DocElement> createSourceDocuElementList(OperatorDescriptor operatorDescriptor) {
+        ArrayList<DocElement> docElementList = new ArrayList<>(10);
+        SourceProductDescriptor[] sourceProductDescriptors = operatorDescriptor.getSourceProductDescriptors();
+        for (SourceProductDescriptor sourceProduct : sourceProductDescriptors) {
+            String sourceSyntax = MessageFormat.format("  -S{0}=<file>", getName(sourceProduct));
+            final ArrayList<String> descriptionLines = createSourceDecriptionLines(sourceProduct);
             docElementList.add(new DocElement(sourceSyntax, descriptionLines.toArray(new String[descriptionLines.size()])));
         }
         return docElementList;
     }
 
-    private static ArrayList<String> createParamDescriptionLines(Field paramField, Parameter parameter) {
+    private static ArrayList<String> createParamDescriptionLines(ParameterDescriptor parameter) {
         final ArrayList<String> descriptionLines = new ArrayList<String>();
-        if (!parameter.description().isEmpty()) {
-            descriptionLines.add(parameter.description());
+        if (parameter.getDescription() != null) {
+            descriptionLines.add(parameter.getDescription());
         } else {
             descriptionLines.add(MessageFormat.format("Sets parameter ''{0}'' to <{1}>.",
-                                                      getParameterName(paramField, parameter),
-                                                      getTypeName(paramField.getType())));
+                                                      getName(parameter),
+                                                      getTypeName(parameter.getDataType())));
         }
-        if (!parameter.interval().isEmpty()) {
-            descriptionLines.add(MessageFormat.format("Valid interval is {0}.", parameter.interval()));
+        if (parameter.getInterval() != null) {
+            descriptionLines.add(MessageFormat.format("Valid interval is {0}.", parameter.getInterval()));
         }
-        if (!parameter.pattern().isEmpty()) {
-            descriptionLines.add(MessageFormat.format("Pattern for valid values is ''{0}''.", parameter.pattern()));
+        if (parameter.getPattern() != null) {
+            descriptionLines.add(MessageFormat.format("Pattern for valid values is ''{0}''.", parameter.getPattern()));
         }
-        if (!parameter.format().isEmpty()) {
-            descriptionLines.add(MessageFormat.format("Format for valid values is ''{0}''.", parameter.format()));
+        if (parameter.getFormat() != null) {
+            descriptionLines.add(MessageFormat.format("Format for valid values is ''{0}''.", parameter.getFormat()));
         }
-        if (parameter.valueSet().length > 0) {
-            descriptionLines.add(MessageFormat.format("Value must be one of {0}.", toString(parameter.valueSet())));
+        if (parameter.getValueSet().length > 0) {
+            descriptionLines.add(MessageFormat.format("Value must be one of {0}.", toString(parameter.getValueSet())));
         }
-        if (!parameter.defaultValue().isEmpty()) {
-            descriptionLines.add(MessageFormat.format("Default value is ''{0}''.", parameter.defaultValue()));
+        if (parameter.getDefaultValue() != null) {
+            descriptionLines.add(MessageFormat.format("Default value is ''{0}''.", parameter.getDefaultValue()));
         }
-        if (!parameter.unit().isEmpty()) {
-            descriptionLines.add(MessageFormat.format("Parameter Unit is ''{0}''.", parameter.unit()));
+        if (parameter.getUnit() != null) {
+            descriptionLines.add(MessageFormat.format("Parameter unit is ''{0}''.", parameter.getUnit()));
         }
-        if (parameter.notNull()) {
+        if (parameter.isNotNull()) {
             descriptionLines.add("This is a mandatory parameter.");
         }
-        if (parameter.notEmpty()) {
+        if (parameter.isNotEmpty()) {
             descriptionLines.add("Value must not be empty.");
         }
         return descriptionLines;
     }
 
-    private static ArrayList<String> createSourceDecriptionLines(Field sourceIdField, SourceProduct sourceProduct) {
+    private static ArrayList<String> createSourceDecriptionLines(SourceProductDescriptor sourceProduct) {
         final ArrayList<String> descriptionLines = new ArrayList<String>();
-        if (!sourceProduct.description().isEmpty()) {
-            descriptionLines.add(sourceProduct.description());
+        if (sourceProduct.getDescription() != null) {
+            descriptionLines.add(sourceProduct.getDescription());
         } else {
-            descriptionLines.add(MessageFormat.format("Sets source ''{0}'' to <filepath>.", getSourceProductId(sourceIdField, sourceProduct)));
+            descriptionLines.add(MessageFormat.format("Sets source ''{0}'' to <filepath>.", getName(sourceProduct)));
         }
-        if (!sourceProduct.type().isEmpty()) {
-            descriptionLines.add(MessageFormat.format("Valid product types must match ''{0}''.", sourceProduct.type()));
+        if (sourceProduct.getProductType() != null) {
+            descriptionLines.add(MessageFormat.format("Valid product types must match ''{0}''.", sourceProduct.getProductType()));
         }
-        if (sourceProduct.optional()) {
+        if (sourceProduct.isOptional()) {
             descriptionLines.add("This is an optional source.");
         } else {
             descriptionLines.add("This is a mandatory source.");
@@ -389,10 +374,10 @@ class CommandLineUsage {
         return descriptionLines;
     }
 
-    private static ArrayList<String> createTargetPropertyDescriptionLines(TargetProperty property) {
-        final ArrayList<String> descriptionLines = new ArrayList<String>();
-        if (!property.description().isEmpty()) {
-            descriptionLines.add(property.description());
+    private static ArrayList<String> createTargetPropertyDescriptionLines(TargetPropertyDescriptor property) {
+        final ArrayList<String> descriptionLines = new ArrayList<>();
+        if (property.getDescription() != null) {
+            descriptionLines.add(property.getDescription());
         }
 
         return descriptionLines;
@@ -441,7 +426,7 @@ class CommandLineUsage {
         });
     }
 
-    private static void appendXmlUsage(StringBuilder usageText, OperatorClassDescriptor operatorClassDescriptor) {
+    private static void appendXmlUsage(StringBuilder usageText, OperatorDescriptor operatorDescriptor) {
 
         final DomElement graphElem = new XppDomElement("graph");
         graphElem.setAttribute("id", "someGraphId");
@@ -450,18 +435,19 @@ class CommandLineUsage {
         final DomElement nodeElem = graphElem.createChild("node");
         nodeElem.setAttribute("id", "someNodeId");
         final DomElement operatorElem = nodeElem.createChild("operator");
-        operatorElem.setValue(OperatorSpi.getOperatorAlias(operatorClassDescriptor.getOperatorClass()));
+        operatorElem.setValue(OperatorSpi.getOperatorAlias(operatorDescriptor.getOperatorClass()));
         DomElement sourcesElem = nodeElem.createChild("sources");
-        for (Field sourceField : operatorClassDescriptor.getSourceProductMap().keySet()) {
-            convertSourceProductFieldToDom(sourceField, sourcesElem);
+        for (SourceProductDescriptor sourceProduct : operatorDescriptor.getSourceProductDescriptors()) {
+            convertSourceProductFieldToDom(sourceProduct, sourcesElem);
         }
-        if (operatorClassDescriptor.getSourceProducts() != null) {
-            final DomElement child = sourcesElem.createChild("sourceProducts");
-            child.setValue("${sourceProducts}");
+        if (operatorDescriptor.getSourceProductsDescriptor() != null) {
+            String name = getName(operatorDescriptor.getSourceProductsDescriptor());
+            final DomElement child = sourcesElem.createChild(name);
+            child.setValue(String.format("${%s}", name));
         }
         DomElement parametersElem = nodeElem.createChild("parameters");
-        for (Field paramField : operatorClassDescriptor.getParameters().keySet()) {
-            convertParameterFieldToDom(paramField, parametersElem);
+        for (ParameterDescriptor parameter : operatorDescriptor.getParameterDescriptors()) {
+            convertParameterFieldToDom(parameter, parametersElem);
         }
 
         final StringTokenizer st = new StringTokenizer(graphElem.toXml().replace('\r', ' '), "\n");
@@ -470,63 +456,43 @@ class CommandLineUsage {
         }
     }
 
-    static void convertSourceProductFieldToDom(Field sourceField, DomElement sourcesElem) {
-        final int mod = sourceField.getModifiers();
-        if (Modifier.isTransient(mod) || Modifier.isFinal(mod) || Modifier.isStatic(mod)) {
-            return;
-        }
-        final SourceProduct sourceProduct = sourceField.getAnnotation(SourceProduct.class);
-        String name = sourceField.getName();
-        if (sourceProduct != null && !sourceProduct.alias().isEmpty()) {
-            name = sourceProduct.alias();
-        }
+    static void convertSourceProductFieldToDom(SourceProductDescriptor sourceProduct, DomElement sourcesElem) {
+        String name = getName(sourceProduct);
         final DomElement child = sourcesElem.createChild(name);
-        child.setValue("${" + name + "}");
+        child.setValue(String.format("${%s}", name));
     }
 
-    static void convertParameterFieldToDom(Field paramField, DomElement parametersElem) {
-        final int mod = paramField.getModifiers();
-        if (Modifier.isTransient(mod) || Modifier.isFinal(mod) || Modifier.isStatic(mod)) {
-            return;
-        }
-        final Parameter parameter = paramField.getAnnotation(Parameter.class);
-        final boolean thisIsAnOperator = Operator.class.isAssignableFrom(paramField.getDeclaringClass());
-        if (thisIsAnOperator && parameter != null || !thisIsAnOperator) {
-            String name = paramField.getName();
-            if (parameter != null && !parameter.alias().isEmpty()) {
-                name = parameter.alias();
-            }
-            if (paramField.getType().isArray() && parameter != null && !parameter.itemAlias().isEmpty()) {
-                DomElement childElem = parameter.itemsInlined() ? parametersElem : parametersElem.createChild(name);
-                String itemName = parameter.itemAlias();
-                final DomElement element = childElem.createChild(itemName);
-                if (isConverterAvailable(paramField.getType(), parameter)) {
-                    element.setValue(getTypeName(paramField.getType().getComponentType()));
-                } else {
-                    final Field[] declaredFields = paramField.getType().getComponentType().getDeclaredFields();
-                    for (Field declaredField : declaredFields) {
-                        convertParameterFieldToDom(declaredField, element);
-                    }
-                }
-                childElem.createChild("...");
+    static void convertParameterFieldToDom(ParameterDescriptor parameter, DomElement parametersElem) {
+        String name = getName(parameter);
+        if (parameter.getDataType().isArray() && parameter.getItemAlias() != null) {
+            DomElement childElem = parameter.areItemsInlined() ? parametersElem : parametersElem.createChild(name);
+            String itemName = parameter.getItemAlias();
+            DomElement element = childElem.createChild(itemName);
+            if (parameter.isSimple()) {
+                element.setValue(getTypeName(parameter.getDataType().getComponentType()));
             } else {
-                final DomElement childElem = parametersElem.createChild(name);
-                Class<?> type = paramField.getType();
-                if (isConverterAvailable(type, parameter)) {
-                    childElem.setValue(getTypeName(type));
-                } else {
-                    final Field[] declaredFields = type.getDeclaredFields();
-                    for (Field declaredField : declaredFields) {
-                        convertParameterFieldToDom(declaredField, childElem);
-                    }
+                ParameterDescriptor[] members = DefaultParameterDescriptor.getDataMemberDescriptors(parameter.getDataType().getComponentType());
+                for (ParameterDescriptor member : members) {
+                    convertParameterFieldToDom(member, element);
+                }
+            }
+            childElem.createChild("...");
+        } else {
+            DomElement childElem = parametersElem.createChild(name);
+            if (parameter.isSimple()) {
+                childElem.setValue(getTypeName(parameter.getDataType()));
+            } else {
+                ParameterDescriptor[] members = parameter.getDataMemberDescriptors();
+                for (ParameterDescriptor member : members) {
+                    convertParameterFieldToDom(member, childElem);
                 }
             }
         }
     }
 
-    private static boolean isConverterAvailable(Class<?> type, Parameter parameter) {
-        return (parameter != null && parameter.converter() != Converter.class)
-                || ConverterRegistry.getInstance().getConverter(type) != null;
+    private static boolean isConverterAvailable(ParameterDescriptor parameter) {
+        return parameter.getConverterClass() != null
+                || ConverterRegistry.getInstance().getConverter(parameter.getDataType()) != null;
     }
 
     private static String spaces(int n) {
@@ -550,16 +516,8 @@ class CommandLineUsage {
         return sb.toString();
     }
 
-    private static String getParameterName(Field paramField, Parameter parameter) {
-        return parameter.alias().isEmpty() ? paramField.getName() : parameter.alias();
-    }
-
-    private static String getTargetPropertyName(Field paramField, TargetProperty property) {
-        return property.alias().isEmpty() ? paramField.getName() : property.alias();
-    }
-
-    private static String getSourceProductId(Field sourceProductField, SourceProduct sourceProduct) {
-        return sourceProduct.alias().isEmpty() ? sourceProductField.getName() : sourceProduct.alias();
+    private static String getName(ElementDescriptor descriptor) {
+        return descriptor.getAlias() != null && !descriptor.getAlias().isEmpty() ? descriptor.getAlias() : descriptor.getName();
     }
 
     private static String getTypeName(Class type) {

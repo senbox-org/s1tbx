@@ -17,91 +17,97 @@
 package org.esa.beam.framework.gpf.main;
 
 
-import com.bc.ceres.binding.dom.DefaultDomElement;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.gpf.GPF;
+import org.esa.beam.framework.gpf.Operator;
+import org.esa.beam.framework.gpf.OperatorException;
+import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
+import org.junit.AfterClass;
+import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
-
 public class CommandLineUsageTest {
+    final static FooOpSpi FOO_OP_SPI = new FooOpSpi();
+
+    @BeforeClass
+    public static void setupTest() {
+        GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(FOO_OP_SPI);
+    }
+
+    @AfterClass
+    public static void tearDownTest() {
+        GPF.getDefaultInstance().getOperatorSpiRegistry().removeOperatorSpi(FOO_OP_SPI);
+    }
+
     @Test
     public void testConvertSourceProductFieldToDom() throws NoSuchFieldException {
-        DefaultDomElement parent = new DefaultDomElement("parent");
-        CommandLineUsage.convertSourceProductFieldToDom(Foo.class.getDeclaredField("source1"), parent);
-        assertEquals("<parent>\n" +
-                             "    <input1>${input1}</input1>\n" +
-                             "</parent>",
-                     parent.toXml());
-
-        parent = new DefaultDomElement("parent");
-        CommandLineUsage.convertSourceProductFieldToDom(Foo.class.getDeclaredField("source2"), parent);
-        assertEquals("<parent>\n" +
-                             "    <source2>${source2}</source2>\n" +
-                             "</parent>",
-                     parent.toXml());
-
-        parent = new DefaultDomElement("parent");
-        CommandLineUsage.convertSourceProductFieldToDom(Foo.class.getDeclaredField("notMe1"), parent);
-        assertEquals("<parent/>", parent.toXml());
-
-        parent = new DefaultDomElement("parent");
-        CommandLineUsage.convertSourceProductFieldToDom(Foo.class.getDeclaredField("notMe2"), parent);
-        assertEquals("<parent/>", parent.toXml());
-
-        parent = new DefaultDomElement("parent");
-        CommandLineUsage.convertSourceProductFieldToDom(Foo.class.getDeclaredField("notMe3"), parent);
-        assertEquals("<parent/>", parent.toXml());
+        String usageText = CommandLineUsage.getUsageTextForOperator("FooOp");
+        Assert.assertEquals("Usage:\n" +
+                            "  gpt FooOp [options] \n" +
+                            "\n" +
+                            "\n" +
+                            "Source Options:\n" +
+                            "  -Sinput1=<file>    Sets source 'input1' to <filepath>.\n" +
+                            "                     This is a mandatory source.\n" +
+                            "  -Sinput2=<file>    Sets source 'input2' to <filepath>.\n" +
+                            "                     This is a mandatory source.\n" +
+                            "\n" +
+                            "Parameter Options:\n" +
+                            "  -Py=<string>    Sets parameter 'y' to <string>.\n" +
+                            "  -Pz=<float>     Sets parameter 'z' to <float>.\n" +
+                            "\n" +
+                            "Graph XML Format:\n" +
+                            "  <graph id=\"someGraphId\">\n" +
+                            "    <version>1.0</version>\n" +
+                            "    <node id=\"someNodeId\">\n" +
+                            "      <operator>FooOp</operator>\n" +
+                            "      <sources>\n" +
+                            "        <input1>${input1}</input1>\n" +
+                            "        <input2>${input2}</input2>\n" +
+                            "      </sources>\n" +
+                            "      <parameters>\n" +
+                            "        <z>float</z>\n" +
+                            "        <y>string</y>\n" +
+                            "        <bar>\n" +
+                            "          <c>float</c>\n" +
+                            "          <b>string</b>\n" +
+                            "        </bar>\n" +
+                            "      </parameters>\n" +
+                            "    </node>\n" +
+                            "  </graph>\n",
+                            usageText);
     }
 
-    @Test
-    public void testConvertParameterFieldToDom() throws NoSuchFieldException {
-        DefaultDomElement parent = new DefaultDomElement("parent");
-        CommandLineUsage.convertParameterFieldToDom(Foo.class.getDeclaredField("x"), parent);
-        assertEquals("<parent>\n" +
-                             "    <z>float</z>\n" +
-                             "</parent>",
-                     parent.toXml());
 
-        parent = new DefaultDomElement("parent");
-        CommandLineUsage.convertParameterFieldToDom(Foo.class.getDeclaredField("y"), parent);
-        assertEquals("<parent>\n" +
-                             "    <y>string</y>\n" +
-                             "</parent>",
-                     parent.toXml());
-
-        parent = new DefaultDomElement("parent");
-        CommandLineUsage.convertParameterFieldToDom(Foo.class.getDeclaredField("bar"), parent);
-        assertEquals("<parent>\n" +
-                             "    <bar>\n" +
-                             "        <c>float</c>\n" +
-                             "        <b>string</b>\n" +
-                             "    </bar>\n" +
-                             "</parent>",
-                     parent.toXml());
+    public static class FooOpSpi extends OperatorSpi {
+        public FooOpSpi() {
+            super(FooOp.class);
+        }
     }
 
-    static class Foo {
+
+    static class FooOp extends Operator {
         @SourceProduct(alias = "input1")
-        Product source1;
+        Product sourceProduct1;
 
-        Product source2;
-
-        @SourceProduct()
-        static Product notMe1;
-        @SourceProduct()
-        final Product notMe2 = new Product("name", "t", 10,10);
-        @SourceProduct()
-        transient Product notMe3;
+        @SourceProduct(alias = "input2")
+        Product sourceProduct2;
 
         @Parameter(alias = "z")
         float x;
 
+        @Parameter
         String y;
 
-
+        @Parameter
         Bar bar;
+
+        @Override
+        public void initialize() throws OperatorException {
+        }
     }
 
     static class Bar {

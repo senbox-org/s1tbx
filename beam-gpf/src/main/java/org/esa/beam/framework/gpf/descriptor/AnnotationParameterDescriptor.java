@@ -113,26 +113,40 @@ public class AnnotationParameterDescriptor implements ParameterDescriptor {
     }
 
     @Override
-    public Class<? extends Validator> getValidator() {
-        return annotation.validator();
+    public Class<? extends Validator> getValidatorClass() {
+        return getDerivedClassOrNull(annotation.validator(), Validator.class);
     }
 
     @Override
-    public Class<? extends Converter> getConverter() {
-        return annotation.converter();
+    public Class<? extends Converter> getConverterClass() {
+        return getDerivedClassOrNull(annotation.converter(), Converter.class);
     }
 
     @Override
-    public Class<? extends DomConverter> getDomConverter() {
-        return annotation.domConverter();
+    public Class<? extends DomConverter> getDomConverterClass() {
+        return getDerivedClassOrNull(annotation.domConverter(), DomConverter.class);
     }
 
     @Override
-    public Class<? extends RasterDataNode> getRasterDataNodeType() {
-        return annotation.rasterDataNodeType();
+    public Class<? extends RasterDataNode> getRasterDataNodeClass() {
+        return getDerivedClassOrNull(annotation.rasterDataNodeType(), RasterDataNode.class);
     }
 
-    private static String getNonEmptyStringOrNull(String label) {
-        return label == null || label.isEmpty() ? null : label;
+    @Override
+    public boolean isSimple() {
+        return DefaultParameterDescriptor.isSimple(getDataType());
+    }
+
+    @Override
+    public ParameterDescriptor[] getDataMemberDescriptors() {
+        return DefaultParameterDescriptor.getDataMemberDescriptors(getDataType());
+    }
+
+    private static String getNonEmptyStringOrNull(String value) {
+        return value == null || value.isEmpty() ? null : value;
+    }
+
+    private static <T> Class<? extends T> getDerivedClassOrNull(Class<? extends T> value, Class<T> abstractBaseType) {
+        return !value.equals(abstractBaseType) && abstractBaseType.isAssignableFrom(value) ? value : null;
     }
 }
