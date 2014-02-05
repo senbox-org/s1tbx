@@ -262,10 +262,10 @@ public class GraphCallSequenceTest extends TestCase {
                 "N1:Product.dispose",
         };
 
-        for (int i = 0; i < expectedRecords.length; i++) {
+        for (String expectedRecord : expectedRecords) {
 //            System.out.println("callRecordList = " + callRecordList.get(i).toString());
-            boolean contains = callRecordList.contains(expectedRecords[i]);
-            assertTrue("Graph must call "+expectedRecords[i], contains);
+            boolean contains = callRecordList.contains(expectedRecord);
+            assertTrue("Graph must call " + expectedRecord, contains);
         }
     }
 
@@ -343,10 +343,10 @@ public class GraphCallSequenceTest extends TestCase {
                 "N1:Product.dispose",
         };
 
-        for (int i = 0; i < expectedRecords.length; i++) {
+        for (String expectedRecord : expectedRecords) {
 //          System.out.println("callRecordList = " + callRecordList.get(i).toString());
-            boolean contains = callRecordList.contains(expectedRecords[i]);
-            assertTrue("Graph must call "+expectedRecords[i], contains);
+            boolean contains = callRecordList.contains(expectedRecord);
+            assertTrue("Graph must call " + expectedRecord, contains);
         }
     }
 

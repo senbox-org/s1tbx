@@ -21,7 +21,12 @@ import junit.framework.TestCase;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.gpf.*;
+import org.esa.beam.framework.gpf.GPF;
+import org.esa.beam.framework.gpf.Operator;
+import org.esa.beam.framework.gpf.OperatorException;
+import org.esa.beam.framework.gpf.OperatorSpi;
+import org.esa.beam.framework.gpf.Tile;
+import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 
 import java.awt.Dimension;
@@ -72,6 +77,7 @@ public class GraphProcessingObserverTest extends TestCase {
         assertEquals("graph [test-graph] stopped", observerMock.entries.get(5));
     }
 
+    @OperatorMetadata(alias = "OpMock")
     public static class OpMock extends Operator {
         @TargetProduct
         private Product product;
@@ -89,7 +95,7 @@ public class GraphProcessingObserverTest extends TestCase {
 
         public static class Spi extends OperatorSpi {
             public Spi() {
-                super(OpMock.class, "OpMock");
+                super(OpMock.class);
             }
         }
     }

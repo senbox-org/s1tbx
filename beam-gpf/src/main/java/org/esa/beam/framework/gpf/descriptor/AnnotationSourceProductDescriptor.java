@@ -1,14 +1,17 @@
-package org.esa.beam.framework.gpf.annotations;
+package org.esa.beam.framework.gpf.descriptor;
 
 import com.bc.ceres.core.Assert;
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.gpf.OperatorSpi;
+import org.esa.beam.framework.gpf.annotations.SourceProduct;
 
 /**
+ * A {@link SourceProductDescriptor} implementation for the
+ * {@link org.esa.beam.framework.gpf.annotations.SourceProduct SourceProduct} annotation.
+ *
  * @author Norman Fomferra
  * @since BEAM 5
  */
-public class AnnotationSourceProductDescriptor implements OperatorSpi.SourceProductDescriptor {
+public class AnnotationSourceProductDescriptor implements SourceProductDescriptor {
     private final SourceProduct annotation;
     private final String name;
 
@@ -24,6 +27,10 @@ public class AnnotationSourceProductDescriptor implements OperatorSpi.SourceProd
         return name;
     }
 
+    public SourceProduct getAnnotation() {
+        return annotation;
+    }
+
     @Override
     public boolean isOptional() {
         return annotation.optional();
@@ -31,7 +38,7 @@ public class AnnotationSourceProductDescriptor implements OperatorSpi.SourceProd
 
     @Override
     public String getProductType() {
-        return annotation.type();
+        return getNonEmptyStringOrNull(annotation.type());
     }
 
     @Override
@@ -41,21 +48,25 @@ public class AnnotationSourceProductDescriptor implements OperatorSpi.SourceProd
 
     @Override
     public String getAlias() {
-        return annotation.alias();
+        return getNonEmptyStringOrNull(annotation.alias());
     }
 
     @Override
     public String getDescription() {
-        return annotation.description();
+        return getNonEmptyStringOrNull(annotation.description());
     }
 
     @Override
     public String getLabel() {
-        return annotation.label();
+        return getNonEmptyStringOrNull(annotation.label());
     }
 
     @Override
     public Class<? extends Product> getDataType() {
         return Product.class;
+    }
+
+    private static String getNonEmptyStringOrNull(String label) {
+        return label == null || label.isEmpty() ? null : label;
     }
 }

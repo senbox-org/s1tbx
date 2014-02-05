@@ -1,10 +1,10 @@
 <operator>
-    <name>org.esa.beam.framework.gpf.jpy.PyOperator</name>
-    <alias>PyOp</alias>
-    <label>Python operator</label>
+    <name>com.acme.CollocOp</name>
+    <alias>colloc</alias>
+    <label>Collocation</label>
     <internal>true</internal>
 
-    <sourcesProducts>
+    <namedSourceProducts>
         <sourceProduct>
             <name>masterProduct</name>
             <alias>master</alias>
@@ -14,7 +14,7 @@
             <name>slaveProduct</name>
             <alias>slave</alias>
         </sourceProduct>
-    </sourcesProducts>
+    </namedSourceProducts>
 
     <parameters>
         <parameter>

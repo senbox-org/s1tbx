@@ -73,7 +73,7 @@ public @interface Parameter {
     String defaultValue() default "";
 
     /**
-     * @return A parameter label.
+     * @return A human-readable version of the name to be used in user interfaces.
      *         Defaults to the empty string (= not set).
      */
     String label() default "";

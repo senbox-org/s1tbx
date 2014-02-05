@@ -16,7 +16,12 @@
 
 package org.esa.beam.framework.gpf.annotations;
 
-import java.lang.annotation.*;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Inherited;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  * Marks a source product array field of an {@link org.esa.beam.framework.gpf.Operator Operator}.
@@ -27,6 +32,11 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.FIELD})
 public @interface SourceProducts {
+    /**
+     * @return The alias identifier.
+     *         Defaults to the empty string (= not set).
+     */
+    String alias() default "";
 
     /**
      * @return the number of source products expected.
@@ -52,4 +62,10 @@ public @interface SourceProducts {
      *         Defaults to the empty string (= not set).
      */
     String description() default "";
+
+    /**
+     * @return A human-readable version of the name to be used in user interfaces.
+     *         Defaults to the empty string (= not set).
+     */
+    String label() default "";
 }

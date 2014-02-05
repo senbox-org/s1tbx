@@ -1,17 +1,20 @@
-package org.esa.beam.framework.gpf.annotations;
+package org.esa.beam.framework.gpf.descriptor;
 
 import com.bc.ceres.binding.Converter;
 import com.bc.ceres.binding.Validator;
 import com.bc.ceres.binding.dom.DomConverter;
 import com.bc.ceres.core.Assert;
 import org.esa.beam.framework.datamodel.RasterDataNode;
-import org.esa.beam.framework.gpf.OperatorSpi;
+import org.esa.beam.framework.gpf.annotations.Parameter;
 
 /**
+ * A {@link ParameterDescriptor} implementation for the
+ * {@link org.esa.beam.framework.gpf.annotations.Parameter Parameter} annotation.
+ *
  * @author Norman Fomferra
  * @since BEAM 5
  */
-public class AnnotationParameterDescriptor implements OperatorSpi.ParameterDescriptor {
+public class AnnotationParameterDescriptor implements ParameterDescriptor {
     private final String name;
     private final Class<?> dataType;
     private final Parameter annotation;
@@ -35,15 +38,18 @@ public class AnnotationParameterDescriptor implements OperatorSpi.ParameterDescr
         return dataType;
     }
 
-    @Override
-    public String getAlias() {
-        return annotation.alias();
+    public Parameter getAnnotation() {
+        return annotation;
     }
 
+    @Override
+    public String getAlias() {
+        return getNonEmptyStringOrNull(annotation.alias());
+    }
 
     @Override
     public String getItemAlias() {
-        return annotation.itemAlias();
+        return getNonEmptyStringOrNull(annotation.itemAlias());
     }
 
     @Override
@@ -53,22 +59,22 @@ public class AnnotationParameterDescriptor implements OperatorSpi.ParameterDescr
 
     @Override
     public String getDefaultValue() {
-        return annotation.defaultValue();
+        return getNonEmptyStringOrNull(annotation.defaultValue());
     }
 
     @Override
     public String getLabel() {
-        return annotation.label();
+        return getNonEmptyStringOrNull(annotation.label());
     }
 
     @Override
     public String getUnit() {
-        return annotation.unit();
+        return getNonEmptyStringOrNull(annotation.unit());
     }
 
     @Override
     public String getDescription() {
-        return annotation.description();
+        return getNonEmptyStringOrNull(annotation.description());
     }
 
     @Override
@@ -78,22 +84,22 @@ public class AnnotationParameterDescriptor implements OperatorSpi.ParameterDescr
 
     @Override
     public String getInterval() {
-        return annotation.interval();
+        return getNonEmptyStringOrNull(annotation.interval());
     }
 
     @Override
     public String getCondition() {
-        return annotation.condition();
+        return getNonEmptyStringOrNull(annotation.condition());
     }
 
     @Override
     public String getPattern() {
-        return annotation.pattern();
+        return getNonEmptyStringOrNull(annotation.pattern());
     }
 
     @Override
     public String getFormat() {
-        return annotation.format();
+        return getNonEmptyStringOrNull(annotation.format());
     }
 
     @Override
@@ -124,5 +130,9 @@ public class AnnotationParameterDescriptor implements OperatorSpi.ParameterDescr
     @Override
     public Class<? extends RasterDataNode> getRasterDataNodeType() {
         return annotation.rasterDataNodeType();
+    }
+
+    private static String getNonEmptyStringOrNull(String label) {
+        return label == null || label.isEmpty() ? null : label;
     }
 }

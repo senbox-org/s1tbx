@@ -49,7 +49,7 @@ public class PassThroughOp extends Operator {
 
     public static class Spi extends OperatorSpi {
         public Spi() {
-            super(PassThroughOp.class, "PassThrough");
+            super(PassThroughOp.class);
         }
     }
 }

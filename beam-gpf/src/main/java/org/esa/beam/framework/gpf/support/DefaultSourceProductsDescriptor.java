@@ -1,12 +1,12 @@
 package org.esa.beam.framework.gpf.support;
 
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.gpf.OperatorSpi;
+import org.esa.beam.framework.gpf.descriptor.SourceProductDescriptor;
 
 /**
  * @author Norman Fomferra
  */
-public class DefaultSourceProductDescriptor implements OperatorSpi.SourceProductDescriptor {
+public class DefaultSourceProductsDescriptor implements SourceProductDescriptor {
 
     String name;
     String alias;

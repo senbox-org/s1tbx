@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.beam.framework.gpf.support;
+package org.esa.beam.framework.gpf.descriptor;
 
 import com.bc.ceres.binding.Converter;
 import com.bc.ceres.binding.Validator;
@@ -24,14 +24,15 @@ import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 import org.esa.beam.framework.datamodel.RasterDataNode;
-import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.util.StringUtils;
 
 /**
- * @author Norman
+ * Default implementation of the {@link ParameterDescriptor} interface.
+ *
+ * @author Norman Fomferra
  * @since BEAM 5
  */
-public class DefaultParameterDescriptor implements OperatorSpi.ParameterDescriptor {
+public class DefaultParameterDescriptor implements ParameterDescriptor {
     String name;
     String alias;
     Class<?> dataType;

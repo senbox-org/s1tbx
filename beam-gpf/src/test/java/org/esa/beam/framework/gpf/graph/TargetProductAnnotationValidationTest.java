@@ -25,6 +25,7 @@ import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.Tile;
+import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 
 public class TargetProductAnnotationValidationTest extends TestCase {
@@ -58,6 +59,7 @@ public class TargetProductAnnotationValidationTest extends TestCase {
     }
 
 
+    @OperatorMetadata(alias = "NotInitOutputOperator")
     public static class NotInitOutputOperator extends Operator {
 
         @TargetProduct
@@ -74,7 +76,7 @@ public class TargetProductAnnotationValidationTest extends TestCase {
 
         public static class Spi extends OperatorSpi {
             public Spi() {
-                super(NotInitOutputOperator.class, "NotInitOutputOperator");
+                super(NotInitOutputOperator.class);
             }
         }
     }
