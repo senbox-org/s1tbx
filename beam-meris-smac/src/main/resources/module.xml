@@ -65,6 +65,19 @@
             <helpId>smacScientificTool</helpId>
             <placeAfter>NDVIProcessorPlugIn</placeAfter>
         </action>
+
+    <action>
+        <id>smacTool</id>
+        <helpId>smacScientificTool</helpId>
+        <class>org.esa.beam.visat.actions.DefaultOperatorAction</class>
+        <text>SMAC Processor (MERIS/(A)ATSR)...</text>
+        <parent>tools</parent>
+        <operatorName>SmacOp</operatorName>
+        <dialogTitle>Smac Scientific Operator</dialogTitle>
+        <placeAfter>NDVIProcessorPlugIn</placeAfter>
+        <shortDescr>Invoke the MERIS/(A)ATSR SMAC Processor.</shortDescr>
+        <targetProductNameSuffix>_smac</targetProductNameSuffix>
+    </action>
     </extension>
 
 
