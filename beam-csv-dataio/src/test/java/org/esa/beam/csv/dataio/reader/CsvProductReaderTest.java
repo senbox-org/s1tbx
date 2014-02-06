@@ -31,6 +31,7 @@ import java.awt.image.Raster;
 import java.io.IOException;
 
 import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Olaf Danne
@@ -87,6 +88,25 @@ public class CsvProductReaderTest {
         assertEquals(ProductData.TYPE_FLOAT32, bands[1].getDataType());
         assertEquals(ProductData.TYPE_FLOAT32, bands[2].getDataType());
         assertEquals(ProductData.TYPE_FLOAT32, bands[3].getDataType());
+    }
+
+    @Test
+    public void testRead_ProductWithIntegerValues() throws Exception {
+        final Product product = readTestProduct("simple_format_4_integer_features.txt");
+
+        assertNotNull(product);
+        assertEquals(2, product.getSceneRasterWidth());
+        assertEquals(2, product.getSceneRasterHeight());
+
+        final Band[] bands = product.getBands();
+        assertEquals(3, bands.length);
+        assertEquals("class", bands[0].getName());
+        assertEquals("radiance", bands[1].getName());
+        assertEquals("anotherOne", bands[2].getName());
+
+        assertEquals(ProductData.TYPE_INT32, bands[0].getDataType());
+        assertEquals(ProductData.TYPE_FLOAT32, bands[1].getDataType());
+        assertEquals(ProductData.TYPE_INT32, bands[2].getDataType());
     }
 
     @Test
