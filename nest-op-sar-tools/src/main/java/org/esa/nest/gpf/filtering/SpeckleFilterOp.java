@@ -1046,7 +1046,11 @@ public class SpeckleFilterOp extends Operator {
         }
 
         final double varY = getLocalVarianceValue(meanY, neighborPixelValues, noDataValue);
-        if (varY == 0.0 || varY == noDataValue) {
+        if (varY == 0.0) {
+            return meanY;
+        }
+
+        if (varY == noDataValue) {
             return noDataValue;
         }
 
