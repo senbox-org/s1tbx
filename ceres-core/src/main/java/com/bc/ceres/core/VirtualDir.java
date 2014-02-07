@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -247,7 +247,7 @@ public abstract class VirtualDir {
                 path += "/";
             }
             boolean dirSeen = false;
-            TreeSet<String> nameSet = new TreeSet<String>();
+            TreeSet<String> nameSet = new TreeSet<>();
             Enumeration<? extends ZipEntry> enumeration = zipFile.entries();
             while (enumeration.hasMoreElements()) {
                 ZipEntry zipEntry = enumeration.nextElement();
@@ -328,23 +328,18 @@ public abstract class VirtualDir {
         }
 
         private void unzip(ZipEntry zipEntry, File tempFile) throws IOException {
-            InputStream is = zipFile.getInputStream(zipEntry);
-            if (is != null) {
-                try {
+            try (BufferedOutputStream os = new BufferedOutputStream(new FileOutputStream(tempFile), BUFFER_SIZE);
+                 InputStream is = zipFile.getInputStream(zipEntry)) {
+                if (is != null) {
                     tempFile.getParentFile().mkdirs();
-                    BufferedOutputStream os = new BufferedOutputStream(new FileOutputStream(tempFile), BUFFER_SIZE);
-                    try {
-                        byte[] bytes = new byte[1024];
-                        int n;
-                        while ((n = is.read(bytes)) > 0) {
-                            os.write(bytes, 0, n);
-                        }
-                    } finally {
-                        os.close();
+                    byte[] bytes = new byte[1024];
+                    int n;
+                    while ((n = is.read(bytes)) > 0) {
+                        os.write(bytes, 0, n);
                     }
-                } finally {
-                    is.close();
                 }
+            } catch (IOException ioe) {
+                throw new IOException("Failed to unzip '" + zipEntry.getName() + "'to '" + tempFile.getAbsolutePath() + "'", ioe);
             }
         }
     }
