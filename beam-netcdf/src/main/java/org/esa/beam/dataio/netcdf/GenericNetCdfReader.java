@@ -17,7 +17,7 @@
 package org.esa.beam.dataio.netcdf;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.beam.dataio.netcdf.util.SimpleNetcdfFile;
+import org.esa.beam.dataio.netcdf.util.NetcdfFileOpener;
 import org.esa.beam.framework.dataio.AbstractProductReader;
 import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.dataio.ProductReader;
@@ -54,7 +54,7 @@ public class GenericNetCdfReader extends AbstractProductReader {
     protected Product readProductNodesImpl() throws IOException {
 
         final File fileLocation = new File(getInput().toString());
-        netcdfFile = SimpleNetcdfFile.openNetcdf(fileLocation.getPath());
+        netcdfFile = NetcdfFileOpener.open(fileLocation.getPath());
         AbstractNetCdfReaderPlugIn[] plugIns = GenericNetCdfReaderPlugIn.getAllNetCdfReaderPlugIns();
         AbstractNetCdfReaderPlugIn bestPlugIn = null;
         for (AbstractNetCdfReaderPlugIn plugIn : plugIns) {

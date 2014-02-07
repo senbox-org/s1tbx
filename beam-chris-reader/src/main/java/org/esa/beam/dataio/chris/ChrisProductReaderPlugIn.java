@@ -15,7 +15,7 @@
  */
 package org.esa.beam.dataio.chris;
 
-import org.esa.beam.dataio.netcdf.util.SimpleNetcdfFile;
+import org.esa.beam.dataio.netcdf.util.NetcdfFileOpener;
 import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
@@ -48,7 +48,7 @@ public class ChrisProductReaderPlugIn implements ProductReaderPlugIn {
         if (file.isFile() && file.getPath().toLowerCase().endsWith(ChrisConstants.DEFAULT_FILE_EXTENSION)) {
             NetcdfFile ncFile = null;
             try {
-                ncFile = SimpleNetcdfFile.openNetcdf(file.getAbsolutePath());
+                ncFile = NetcdfFileOpener.open(file.getAbsolutePath());
                 
                 if (isSensorTypeAttributeCorrect(ncFile)) {
                     return DecodeQualification.INTENDED;

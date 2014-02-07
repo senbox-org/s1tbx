@@ -19,7 +19,7 @@ import com.bc.ceres.binding.Property;
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.VirtualDir;
-import org.esa.beam.dataio.netcdf.util.SimpleNetcdfFile;
+import org.esa.beam.dataio.netcdf.util.NetcdfFileOpener;
 import org.esa.beam.framework.dataio.AbstractProductReader;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.FlagCoding;
@@ -126,7 +126,7 @@ public class SpotVgtProductReader extends AbstractProductReader {
             if (logVolFileName.endsWith(".hdf") || logVolFileName.endsWith(".HDF")) {
 
                 File hdfFile = virtualDir.getFile(physVolDescriptor.getLogVolDirName() + "/" + logVolFileName);
-                NetcdfFile netcdfFile = SimpleNetcdfFile.openNetcdf(hdfFile.getPath());
+                NetcdfFile netcdfFile = NetcdfFileOpener.open(hdfFile.getPath());
 
                 Variable variable = findPixelDataVariable(netcdfFile);
                 if (isPotentialPixelDataVariable(variable)) {

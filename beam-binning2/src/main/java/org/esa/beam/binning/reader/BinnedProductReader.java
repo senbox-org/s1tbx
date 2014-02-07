@@ -19,7 +19,7 @@ package org.esa.beam.binning.reader;
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.binning.support.SEAGrid;
 import org.esa.beam.dataio.netcdf.util.MetadataUtils;
-import org.esa.beam.dataio.netcdf.util.SimpleNetcdfFile;
+import org.esa.beam.dataio.netcdf.util.NetcdfFileOpener;
 import org.esa.beam.framework.dataio.AbstractProductReader;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.CrsGeoCoding;
@@ -77,7 +77,7 @@ public class BinnedProductReader extends AbstractProductReader {
     @Override
     protected Product readProductNodesImpl() throws IOException {
         final String path = getInput().toString();
-        netcdfFile = SimpleNetcdfFile.openNetcdf(path);
+        netcdfFile = NetcdfFileOpener.open(path);
 
         if (isSparseGridded(netcdfFile)) {
             gridAccessor = new SparseGridAccessor(netcdfFile);

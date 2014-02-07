@@ -20,7 +20,7 @@ import org.esa.beam.dataio.modis.attribute.ImappAttributes;
 import org.esa.beam.dataio.modis.netcdf.NetCDFAttributes;
 import org.esa.beam.dataio.modis.netcdf.NetCDFVariables;
 import org.esa.beam.dataio.modis.productdb.ModisProductDb;
-import org.esa.beam.dataio.netcdf.util.SimpleNetcdfFile;
+import org.esa.beam.dataio.netcdf.util.NetcdfFileOpener;
 import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
@@ -48,7 +48,7 @@ public class ModisProductReaderPlugIn implements ProductReaderPlugIn {
         NetcdfFile netcdfFile = null;
         try {
             final String inputFilePath = inputFile.getPath();
-            netcdfFile = SimpleNetcdfFile.openNetcdf(inputFilePath);
+            netcdfFile = NetcdfFileOpener.open(inputFilePath);
             if (netcdfFile == null) {
                 return DecodeQualification.UNABLE;
             }

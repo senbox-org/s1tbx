@@ -23,7 +23,7 @@ import org.esa.beam.dataio.modis.netcdf.NetCDFAttributes;
 import org.esa.beam.dataio.modis.netcdf.NetCDFUtils;
 import org.esa.beam.dataio.modis.netcdf.NetCDFVariables;
 import org.esa.beam.dataio.modis.productdb.ModisProductDb;
-import org.esa.beam.dataio.netcdf.util.SimpleNetcdfFile;
+import org.esa.beam.dataio.netcdf.util.NetcdfFileOpener;
 import org.esa.beam.framework.dataio.AbstractProductReader;
 import org.esa.beam.framework.dataio.ProductIOException;
 import org.esa.beam.framework.datamodel.Band;
@@ -145,7 +145,7 @@ public class ModisProductReader extends AbstractProductReader {
         final File inFile = getInputFile();
         final String inputFilePath = inFile.getPath();
 
-        netcdfFile = SimpleNetcdfFile.openNetcdf(inputFilePath);
+        netcdfFile = NetcdfFileOpener.open(inputFilePath);
 
         readGlobalMetaData(inFile);
         checkProductType();
