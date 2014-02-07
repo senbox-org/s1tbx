@@ -328,18 +328,19 @@ public abstract class VirtualDir {
         }
 
         private void unzip(ZipEntry zipEntry, File tempFile) throws IOException {
-            try (BufferedOutputStream os = new BufferedOutputStream(new FileOutputStream(tempFile), BUFFER_SIZE);
-                 InputStream is = zipFile.getInputStream(zipEntry)) {
+            try (InputStream is = zipFile.getInputStream(zipEntry)) {
                 if (is != null) {
                     tempFile.getParentFile().mkdirs();
-                    byte[] bytes = new byte[1024];
-                    int n;
-                    while ((n = is.read(bytes)) > 0) {
-                        os.write(bytes, 0, n);
+                    try (BufferedOutputStream os = new BufferedOutputStream(new FileOutputStream(tempFile), BUFFER_SIZE)) {
+                        byte[] bytes = new byte[1024];
+                        int n;
+                        while ((n = is.read(bytes)) > 0) {
+                            os.write(bytes, 0, n);
+                        }
+                    } catch (IOException ioe) {
+                        throw new IOException("Failed to unzip '" + zipEntry.getName() + "'to '" + tempFile.getAbsolutePath() + "'", ioe);
                     }
                 }
-            } catch (IOException ioe) {
-                throw new IOException("Failed to unzip '" + zipEntry.getName() + "'to '" + tempFile.getAbsolutePath() + "'", ioe);
             }
         }
     }
