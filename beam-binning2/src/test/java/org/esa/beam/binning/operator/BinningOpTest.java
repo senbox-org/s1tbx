@@ -38,9 +38,11 @@ import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Set;
+import java.util.SortedMap;
 
-import static java.lang.Math.sqrt;
+import static java.lang.Math.*;
 import static org.junit.Assert.*;
 import static org.junit.matchers.JUnitMatchers.*;
 
@@ -87,8 +89,8 @@ public class BinningOpTest {
         BinningOp binningOp = new BinningOp();
 
         binningOp.setSourceProducts(createSourceProduct(1, 0.1F),
-                createSourceProduct(2, 0.2F),
-                createSourceProduct(3, 0.3F));
+                                    createSourceProduct(2, 0.2F),
+                                    createSourceProduct(3, 0.3F));
 
         binningOp.setStartDate("2002-01-01");
         binningOp.setEndDate("2002-01-10");
@@ -99,32 +101,36 @@ public class BinningOpTest {
 
         assertNull(binningOp.getMetadataProperties());
 
-        binningOp.getTargetProduct();
+        Product targetProduct = binningOp.getTargetProduct();
 
-        SortedMap<String, String> metadataProperties = binningOp.getMetadataProperties();
-        assertNotNull(metadataProperties);
+        try {
+            SortedMap<String, String> metadataProperties = binningOp.getMetadataProperties();
+            assertNotNull(metadataProperties);
 
-        assertEquals(6, metadataProperties.size());
-        Set<String> strings = metadataProperties.keySet();
-        String[] names = strings.toArray(new String[strings.size()]);
-        String[] expectedNames = {
-                "processing_time",
-                "product_name",
-                "software_name",
-                "software_qualified_name",
-                "software_version",
-                "source_products",
-        };
-        assertArrayEquals(expectedNames, names);
+            assertEquals(6, metadataProperties.size());
+            Set<String> strings = metadataProperties.keySet();
+            String[] names = strings.toArray(new String[strings.size()]);
+            String[] expectedNames = {
+                    "processing_time",
+                    "product_name",
+                    "software_name",
+                    "software_qualified_name",
+                    "software_version",
+                    "source_products",
+            };
+            assertArrayEquals(expectedNames, names);
 
-        assertTrue("processing_time", metadataProperties.get("processing_time").startsWith("201"));
-        assertEquals("target-1", metadataProperties.get("product_name"));
-        assertEquals("Binning", metadataProperties.get("software_name"));
-        assertEquals("org.esa.beam.binning.operator.BinningOp", metadataProperties.get("software_qualified_name"));
-        assertEquals("0.8.2", metadataProperties.get("software_version"));
-        assertThat(metadataProperties.get("source_products"), containsString("P1"));
-        assertThat(metadataProperties.get("source_products"), containsString("P2"));
-        assertThat(metadataProperties.get("source_products"), containsString("P3"));
+            assertTrue("processing_time", metadataProperties.get("processing_time").startsWith("201"));
+            assertEquals("target-1", metadataProperties.get("product_name"));
+            assertEquals("Binning", metadataProperties.get("software_name"));
+            assertEquals("org.esa.beam.binning.operator.BinningOp", metadataProperties.get("software_qualified_name"));
+            assertEquals("0.8.2", metadataProperties.get("software_version"));
+            assertThat(metadataProperties.get("source_products"), containsString("P1"));
+            assertThat(metadataProperties.get("source_products"), containsString("P2"));
+            assertThat(metadataProperties.get("source_products"), containsString("P3"));
+        } finally {
+            targetProduct.dispose();
+        }
     }
 
     @Test
@@ -161,6 +167,7 @@ public class BinningOpTest {
 
         final Product targetProduct = binningOp.getTargetProduct();
         assertNotNull(targetProduct);
+        targetProduct.dispose();
     }
 
     @Test
@@ -184,6 +191,7 @@ public class BinningOpTest {
 
         final Product targetProduct = binningOp.getTargetProduct();
         assertNotNull(targetProduct);
+        targetProduct.dispose();
     }
 
     /**
@@ -207,10 +215,10 @@ public class BinningOpTest {
         final BinningOp binningOp = new BinningOp();
 
         binningOp.setSourceProducts(createSourceProduct(1, obs1),
-                createSourceProduct(2, obs2),
-                createSourceProduct(3, obs3),
-                createSourceProduct(4, obs4),
-                createSourceProduct(5, obs5));
+                                    createSourceProduct(2, obs2),
+                                    createSourceProduct(3, obs3),
+                                    createSourceProduct(4, obs4),
+                                    createSourceProduct(5, obs5));
 
         JtsGeometryConverter geometryConverter = new JtsGeometryConverter();
         binningOp.setStartDate("2002-01-01");
@@ -251,10 +259,10 @@ public class BinningOpTest {
         final BinningOp binningOp = new BinningOp();
 
         binningOp.setSourceProducts(createSourceProduct(1, obs1),
-                createSourceProduct(2, obs2),
-                createSourceProduct(3, obs3),
-                createSourceProduct(4, obs4),
-                createSourceProduct(5, obs5));
+                                    createSourceProduct(2, obs2),
+                                    createSourceProduct(3, obs3),
+                                    createSourceProduct(4, obs4),
+                                    createSourceProduct(5, obs5));
 
         GeometryFactory gf = new GeometryFactory();
         binningOp.setRegion(gf.createPolygon(gf.createLinearRing(new Coordinate[]{
@@ -273,7 +281,7 @@ public class BinningOpTest {
         assertNotNull(targetProduct);
         try {
             assertLocalBinningProductIsOk(targetProduct, null, obs1, obs2, obs3, obs4, obs5);
-        } catch (IOException e) {
+        } finally {
             targetProduct.dispose();
         }
     }
@@ -305,16 +313,16 @@ public class BinningOpTest {
         parameters.put("region", "POLYGON ((-180 -90, -180 90, 180 90, 180 -90, -180 -90))");
 
         final Product targetProduct = GPF.createProduct("Binning", parameters,
-                createSourceProduct(1, obs1),
-                createSourceProduct(2, obs2),
-                createSourceProduct(3, obs3),
-                createSourceProduct(4, obs4),
-                createSourceProduct(5, obs5));
+                                                        createSourceProduct(1, obs1),
+                                                        createSourceProduct(2, obs2),
+                                                        createSourceProduct(3, obs3),
+                                                        createSourceProduct(4, obs4),
+                                                        createSourceProduct(5, obs5));
 
         assertNotNull(targetProduct);
         try {
             assertGlobalBinningProductIsOk(targetProduct, null, obs1, obs2, obs3, obs4, obs5);
-        } catch (Exception e) {
+        } finally {
             targetProduct.dispose();
         }
     }
@@ -345,16 +353,16 @@ public class BinningOpTest {
         parameters.put("formatterConfig", formatterConfig);
 
         final Product targetProduct = GPF.createProduct("Binning",
-                parameters,
-                createSourceProduct(1, obs1),
-                createSourceProduct(2, obs2),
-                createSourceProduct(3, obs3),
-                createSourceProduct(4, obs4),
-                createSourceProduct(5, obs5));
+                                                        parameters,
+                                                        createSourceProduct(1, obs1),
+                                                        createSourceProduct(2, obs2),
+                                                        createSourceProduct(3, obs3),
+                                                        createSourceProduct(4, obs4),
+                                                        createSourceProduct(5, obs5));
         assertNotNull(targetProduct);
         try {
             assertLocalBinningProductIsOk(targetProduct, null, obs1, obs2, obs3, obs4, obs5);
-        } catch (IOException e) {
+        } finally {
             targetProduct.dispose();
         }
     }
@@ -405,7 +413,7 @@ public class BinningOpTest {
         assertNotNull(targetProduct);
         try {
             assertGlobalBinningProductIsOk(targetProduct, targetFile, obs1, obs2, obs3, obs4, obs5);
-        } catch (IOException e) {
+        } finally {
             targetProduct.dispose();
         }
     }
@@ -457,7 +465,7 @@ public class BinningOpTest {
         assertNotNull(targetProduct);
         try {
             assertLocalBinningProductIsOk(targetProduct, targetFile, obs1, obs2, obs3, obs4, obs5);
-        } catch (IOException e) {
+        } finally {
             targetProduct.dispose();
         }
     }
@@ -503,7 +511,7 @@ public class BinningOpTest {
         assertNotNull(targetProduct);
         try {
             assertGlobalBinningProductIsOk(targetProduct, targetFile, obs1, obs2, obs3, obs4, obs5);
-        } catch (IOException e) {
+        } finally {
             targetProduct.dispose();
         }
     }
@@ -551,7 +559,7 @@ public class BinningOpTest {
         assertNotNull(targetProduct);
         try {
             assertLocalBinningProductIsOk(targetProduct, targetFile, obs1, obs2, obs3, obs4, obs5);
-        } catch (IOException e) {
+        } finally {
             targetProduct.dispose();
         }
     }
@@ -631,6 +639,7 @@ public class BinningOpTest {
 
         final Product targetProduct = binningOp.getTargetProduct();
         assertNotNull(targetProduct);
+        targetProduct.dispose();
     }
 
     @SuppressWarnings("NullArgumentToVariableArgMethod")
@@ -775,10 +784,8 @@ public class BinningOpTest {
         return binningConfig;
     }
 
-    static int targetProductCounter = 1;
-
     static FormatterConfig createFormatterConfig() throws IOException {
-        final File targetFile = getTestFile("target-" + (targetProductCounter++) + ".dim");
+        final File targetFile = getTestFile("target-1.dim");
         final FormatterConfig formatterConfig = new FormatterConfig();
         formatterConfig.setOutputFile(targetFile.getPath());
         formatterConfig.setOutputType("Product");
