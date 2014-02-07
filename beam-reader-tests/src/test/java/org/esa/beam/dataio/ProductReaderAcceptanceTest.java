@@ -71,6 +71,7 @@ public class ProductReaderAcceptanceTest {
     private static final boolean FAIL_ON_MISSING_DATA = Boolean.parseBoolean(System.getProperty(PROPERTYNAME_FAIL_ON_MISSING_DATA, "true"));
     private static final String INDENT = "\t";
     private static final ProductList testProductList = new ProductList();
+    private static final int DECODE_QUALI_LOG_THRESHOLD = 50;
     private static TestDefinitionList testDefinitionList;
     private static File dataRootDir;
     private static Logger logger;
@@ -128,6 +129,11 @@ public class ProductReaderAcceptanceTest {
         int testCounter = 0;
         final StopWatch stopWatch = new StopWatch();
 
+        logger.info("");
+        logger.info(INDENT + "Number of test products: " + testProductList.size());
+        logger.info(INDENT + "Number of ReaderPlugIns: " + testDefinitionList.size());
+        logger.info("");
+
         for (TestDefinition testDefinition : testDefinitionList) {
             final ProductReaderPlugIn productReaderPlugin = testDefinition.getProductReaderPlugin();
             logger.info(INDENT + productReaderPlugin.getClass().getName());
@@ -143,8 +149,9 @@ public class ProductReaderAcceptanceTest {
 
                     final String message = productReaderPlugin.getClass().getName() + ": " + testProduct.getId();
                     assertEquals(message, expected, decodeQualification);
-
-                    logger.info(INDENT + INDENT + stopWatch.getTimeDiffString() + " - [" + expected + "] " + testProduct.getId());
+                    if (stopWatch.getTimeDiff() > DECODE_QUALI_LOG_THRESHOLD) {
+                        logger.info(INDENT + INDENT + stopWatch.getTimeDiffString() + " - [" + expected + "] " + testProduct.getId());
+                    }
                     testCounter++;
                 } else {
                     logProductNotExistent(2, testProduct);
