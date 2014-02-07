@@ -20,7 +20,6 @@ import com.bc.ceres.binding.ConversionException;
 import com.bc.ceres.binding.Converter;
 import com.bc.ceres.binding.ConverterRegistry;
 import com.bc.ceres.binding.Property;
-import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.PropertyDescriptor;
 import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.binding.ValidationException;
@@ -136,7 +135,7 @@ public abstract class AbstractDomConverter implements DomConverter {
             propertySet = getPropertySet(value);
         }
 
-        final Map<String, List<Object>> inlinedArrays = new HashMap<String, List<Object>>();
+        final Map<String, List<Object>> inlinedArrays = new HashMap<>();
 
         for (final DomElement child : parentElement.getChildren()) {
             convertDomChildToValue(child, propertySet, inlinedArrays);
@@ -178,7 +177,7 @@ public abstract class AbstractDomConverter implements DomConverter {
                         final String name = getNameOrAlias(p);
                         inlinedArray = inlinedArrays.get(name);
                         if (inlinedArray == null) {
-                            inlinedArray = new ArrayList<Object>();
+                            inlinedArray = new ArrayList<>();
                             inlinedArrays.put(name, inlinedArray);
                         }
                         property = p;
@@ -228,16 +227,6 @@ public abstract class AbstractDomConverter implements DomConverter {
             property.setValue(childValue);
         }
     }
-
-    /**
-     * Gets an appropriate {@link com.bc.ceres.binding.PropertyContainer PropertyContainer} for the given value.
-     *
-     * @param value The value.
-     * @return The value container.
-     * @deprecated Since Ceres 0.12, replaced by {@link #getPropertySet(Object)}.
-     */
-    @Deprecated
-    protected abstract PropertyContainer getPropertyContainer(Object value);
 
     /**
      * Gets an appropriate {@link com.bc.ceres.binding.PropertySet PropertySet} for the given value.

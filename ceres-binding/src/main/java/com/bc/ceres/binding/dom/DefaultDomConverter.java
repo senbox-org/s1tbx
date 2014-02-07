@@ -16,9 +16,9 @@
 
 package com.bc.ceres.binding.dom;
 
-import com.bc.ceres.binding.PropertyDescriptorFactory;
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.PropertyDescriptor;
+import com.bc.ceres.binding.PropertyDescriptorFactory;
 import com.bc.ceres.binding.PropertySet;
 
 /**
@@ -26,33 +26,15 @@ import com.bc.ceres.binding.PropertySet;
  */
 public class DefaultDomConverter extends AbstractDomConverter {
 
-    private final PropertyDescriptorFactory valueDescriptorFactory;
+    private final PropertyDescriptorFactory propertyDescriptorFactory;
 
     public DefaultDomConverter(Class<?> valueType) {
         this(valueType, null);
     }
 
-    public DefaultDomConverter(Class<?> valueType, PropertyDescriptorFactory valueDescriptorFactory) {
+    public DefaultDomConverter(Class<?> valueType, PropertyDescriptorFactory propertyDescriptorFactory) {
         super(valueType);
-        this.valueDescriptorFactory = valueDescriptorFactory;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    @Deprecated
-    protected PropertyContainer getPropertyContainer(Object value) {
-        if (value instanceof PropertyContainer) {
-            return (PropertyContainer) value;
-        }
-        final PropertyContainer vc;
-        if (valueDescriptorFactory != null) {
-            vc = PropertyContainer.createObjectBacked(value, valueDescriptorFactory);
-        } else {
-            vc = PropertyContainer.createObjectBacked(value);
-        }
-        return vc;
+        this.propertyDescriptorFactory = propertyDescriptorFactory;
     }
 
     /**
@@ -63,13 +45,13 @@ public class DefaultDomConverter extends AbstractDomConverter {
         if (value instanceof PropertySet) {
             return (PropertySet) value;
         }
-        final PropertySet vc;
-        if (valueDescriptorFactory != null) {
-            vc = PropertyContainer.createObjectBacked(value, valueDescriptorFactory);
+        final PropertySet propertySet;
+        if (propertyDescriptorFactory != null) {
+            propertySet = PropertyContainer.createObjectBacked(value, propertyDescriptorFactory);
         } else {
-            vc = PropertyContainer.createObjectBacked(value);
+            propertySet = PropertyContainer.createObjectBacked(value);
         }
-        return vc;
+        return propertySet;
     }
 
     /**
@@ -85,7 +67,7 @@ public class DefaultDomConverter extends AbstractDomConverter {
                 throw new IllegalArgumentException(e);
             }
         }
-        return new DefaultDomConverter(valueType, valueDescriptorFactory);
+        return new DefaultDomConverter(valueType, propertyDescriptorFactory);
     }
 
     /**
