@@ -5,5 +5,5 @@
 modules/
 target/
 /compile.log
-jdoris-core/target
-jdoris-nest/target
+jlinda-core/target
+jlinda-nest/target

@@ -517,8 +517,8 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
             lngList = flippedLonList;
         }
 
-        float subSamplingX = (float)product.getSceneRasterWidth() / (gridWidth - 1);
-        float subSamplingY = (float)product.getSceneRasterHeight() / (gridHeight - 1);
+        float subSamplingX = (float)(product.getSceneRasterWidth() - 1) / (gridWidth - 1);
+        float subSamplingY = (float)(product.getSceneRasterHeight() - 1) / (gridHeight - 1);
 
         final TiePointGrid latGrid = new TiePointGrid(OperatorUtils.TPG_LATITUDE, gridWidth, gridHeight, 0.5f, 0.5f,
                 subSamplingX, subSamplingY, latList);

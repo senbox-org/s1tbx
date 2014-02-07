@@ -22,7 +22,8 @@ import java.util.List;
  * Manages how many threads are working cuncurrently
  */
 public class ThreadManager {
-    private final static int numCPU = Runtime.getRuntime().availableProcessors();
+    
+    private static int numCPU = Runtime.getRuntime().availableProcessors();
     private final List<Thread> threadList = new ArrayList<Thread>(numCPU);
 
     public ThreadManager() {}
@@ -45,5 +46,9 @@ public class ThreadManager {
                 t.join();
             }
         }
+    }
+
+    public static void setNumCPU(int numCPU) {
+        ThreadManager.numCPU = numCPU;
     }
 }

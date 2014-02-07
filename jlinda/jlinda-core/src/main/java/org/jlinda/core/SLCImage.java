@@ -7,9 +7,7 @@ import org.jlinda.core.utils.DateUtils;
 
 import java.io.File;
 
-import static org.jlinda.core.Constants.EPS;
-import static org.jlinda.core.Constants.LIGHT_SPEED;
-import static org.jlinda.core.Constants.MEGA;
+import static org.jlinda.core.Constants.*;
 
 public final class SLCImage {
 
@@ -329,15 +327,15 @@ public final class SLCImage {
     }
 
     public Point getApproxRadarCentreOriginal() {
-        return approxRadarCentreOriginal;
+        return new Point(approxRadarCentreOriginal);
     }
 
     public GeoPoint getApproxGeoCentreOriginal() {
-        return approxGeoCentreOriginal;
+        return new GeoPoint(approxGeoCentreOriginal);
     }
 
     public Point getApproxXYZCentreOriginal() {
-        return approxXYZCentreOriginal;
+        return new Point(approxXYZCentreOriginal);
     }
 
     public void setCurrentWindow(final Window window) {
@@ -345,11 +343,11 @@ public final class SLCImage {
     }
 
     public Window getCurrentWindow() {
-        return currentWindow;
+        return new Window(currentWindow);
     }
 
     public Window getOriginalWindow() {
-        return originalWindow;
+        return new Window(originalWindow);
     }
 
     public void setOriginalWindow(final Window window) {

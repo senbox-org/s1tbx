@@ -1,0 +1,85 @@
+<graph id="Graph">
+    <version>1.0</version>
+    <node id="1-ProductSet-Reader">
+        <operator>ProductSet-Reader</operator>
+        <sources/>
+        <parameters>
+            <fileList/>
+        </parameters>
+    </node>
+    <node id="2-CreateInSARStack">
+        <operator>CreateInSARStack</operator>
+        <sources>
+            <sourceProduct refid="1-ProductSet-Reader"/>
+        </sources>
+        <parameters>
+            <masterBands/>
+            <sourceBands/>
+            <initialOffsetMethod>ORBIT</initialOffsetMethod>
+        </parameters>
+    </node>
+    <node id="3-CoarseFine-Coregistration">
+        <operator>CoarseFine-Coregistration</operator>
+        <sources>
+            <sourceProduct refid="2-CreateInSARStack"/>
+        </sources>
+        <parameters>
+            <numWindows>200</numWindows>
+            <coarseRegistrationWindowWidth>128</coarseRegistrationWindowWidth>
+            <coarseRegistrationWindowHeight>128</coarseRegistrationWindowHeight>
+            <coarseRegistrationWindowAccAzimuth>2</coarseRegistrationWindowAccAzimuth>
+            <coarseRegistrationWindowAccRange>2</coarseRegistrationWindowAccRange>
+            <fineMethod>Frequency Domain</fineMethod>
+            <fineRegistrationWindowWidth>32</fineRegistrationWindowWidth>
+            <fineRegistrationWindowHeight>32</fineRegistrationWindowHeight>
+            <fineRegistrationWindowAccAzimuth>16</fineRegistrationWindowAccAzimuth>
+            <fineRegistrationWindowAccRange>16</fineRegistrationWindowAccRange>
+            <fineRegistrationOversampling>16</fineRegistrationOversampling>
+            <coherenceThreshold>0.4</coherenceThreshold>
+            <computeOffset>false</computeOffset>
+            <onlyGCPsOnLand>false</onlyGCPsOnLand>
+        </parameters>
+    </node>
+    <node id="4-Resample">
+        <operator>Resample</operator>
+        <sources>
+            <sourceProduct refid="3-CoarseFine-Coregistration"/>
+        </sources>
+        <parameters>
+            <cpmDegree>2</cpmDegree>
+            <cpmInterpKernel>Cubic convolution (6 points)</cpmInterpKernel>
+            <cpmMaxIterations>20</cpmMaxIterations>
+            <cpmAlphaValue>0.05</cpmAlphaValue>
+            <cpmDemRefinement>false</cpmDemRefinement>
+            <openResidualsFile>false</openResidualsFile>
+        </parameters>
+    </node>
+    <node id="5-Write">
+        <operator>Write</operator>
+        <sources>
+            <sourceProduct refid="4-Resample"/>
+        </sources>
+        <parameters>
+            <formatName>BEAM-DIMAP</formatName>
+            <file>insar_coregistered_stack.dim</file>
+        </parameters>
+    </node>
+    <applicationData id="Presentation">
+        <Description/>
+        <node id="1-ProductSet-Reader">
+            <displayPosition y="102.0" x="21.0"/>
+        </node>
+        <node id="2-CreateInSARStack">
+            <displayPosition y="101.0" x="154.0"/>
+        </node>
+        <node id="3-CoarseFine-Coregistration">
+            <displayPosition y="100.0" x="248.0"/>
+        </node>
+        <node id="4-Resample">
+            <displayPosition y="100.0" x="356.0"/>
+        </node>
+        <node id="5-Write">
+            <displayPosition y="100.0" x="434.0"/>
+        </node>
+    </applicationData>
+</graph>

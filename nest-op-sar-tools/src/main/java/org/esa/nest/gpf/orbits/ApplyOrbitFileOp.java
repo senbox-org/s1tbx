@@ -29,8 +29,12 @@ import org.esa.nest.datamodel.AbstractMetadata;
 import org.esa.nest.datamodel.Orbits;
 import org.esa.nest.datamodel.Unit;
 import org.esa.nest.eo.Constants;
-import org.esa.nest.gpf.OperatorUtils;
 import org.esa.nest.eo.GeoUtils;
+import org.esa.nest.gpf.OperatorUtils;
+import org.jlinda.core.Ellipsoid;
+import org.jlinda.core.Orbit;
+import org.jlinda.core.Point;
+import org.jlinda.core.SLCImage;
 
 import java.io.File;
 
@@ -80,7 +84,8 @@ public final class ApplyOrbitFileOp extends Operator {
     private String orbitType = null;
 
     private MetadataElement absRoot = null;
-
+    private MetadataElement tgtAbsRoot = null;
+    
     private int sourceImageWidth;
     private int sourceImageHeight;
     private int targetTiePointGridHeight;
@@ -161,9 +166,14 @@ public final class ApplyOrbitFileOp extends Operator {
 
             createTargetProduct();
 
-            updateTargetProductGEOCoding();
+            setTargetMetadata();
 
+            // first update orbits and then rest of geocoding
+            // ...because of dependence on jLinda in updateTargetProductGEOCodingJLinda
             updateOrbitStateVectors();
+
+            updateTargetProductGEOCodingJLinda();
+
   
         } catch(Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
@@ -201,6 +211,13 @@ public final class ApplyOrbitFileOp extends Operator {
         lineTimeInterval = absRoot.getAttributeDouble(AbstractMetadata.line_time_interval) / Constants.secondsInDay; // s to day
     }
 
+    /**
+     * Set target metadata
+     */
+    private void setTargetMetadata() {
+        tgtAbsRoot = AbstractMetadata.getAbstractedMetadata(targetProduct);
+    }
+    
     /**
      * Create target product.
      */
@@ -361,7 +378,6 @@ public final class ApplyOrbitFileOp extends Operator {
     private void updateOrbitStateVectors() throws Exception {
 
         // get original orbit state vectors
-        final MetadataElement tgtAbsRoot = AbstractMetadata.getAbstractedMetadata(targetProduct);
         final AbstractMetadata.OrbitStateVector[] orbitStateVectors = AbstractMetadata.getOrbitStateVectors(tgtAbsRoot);
 
         // compute new orbit state vectors
@@ -387,6 +403,103 @@ public final class ApplyOrbitFileOp extends Operator {
         tgtAbsRoot.setAttributeString(AbstractMetadata.orbit_state_vector_file, orbType+' '+orbitFile.getName());
     }
 
+    /**
+     * Update target product GEOCoding using jLinda core classes. A new tie point grid for latitude, longitude, slant range 
+     * time and incidence angle is generated.
+     *
+     * @throws Exception The exceptions.
+     */
+    private void updateTargetProductGEOCodingJLinda() throws Exception {
+
+        final float[] targetLatTiePoints = new float[targetTiePointGridHeight * targetTiePointGridWidth];
+        final float[] targetLonTiePoints = new float[targetTiePointGridHeight * targetTiePointGridWidth];
+        final float[] targetIncidenceAngleTiePoints = new float[targetTiePointGridHeight * targetTiePointGridWidth];
+        final float[] targetSlantRangeTimeTiePoints = new float[targetTiePointGridHeight * targetTiePointGridWidth];
+
+        final int subSamplingX = sourceImageWidth / (targetTiePointGridWidth - 1);
+        final int subSamplingY = sourceImageHeight / (targetTiePointGridHeight - 1);
+
+        // put NEST abstracted_metadata into jLinda metadata containers
+        final SLCImage metaData = new SLCImage(tgtAbsRoot);
+        final Orbit orbit = new Orbit(tgtAbsRoot, 3); // New Orbits - assumed metadata updated! 
+        final Orbit oldOrbit = new Orbit(absRoot, 3); // Old Orbits 
+
+        // Create new tie point grid
+        int k = 0;
+        for (int r = 0; r < targetTiePointGridHeight; r++) {
+
+            // get the zero Doppler time for the rth line
+            int y;
+            if (r == targetTiePointGridHeight - 1) { // last row
+                y = sourceImageHeight - 1;
+            } else { // other rows
+                y = r * subSamplingY;
+            }
+
+            for (int c = 0; c < targetTiePointGridWidth; c++) {
+
+                // Note: pixel for the tie-point-grid defined by (range = x, azimuth =y)
+                final int x = getSampleIndex(c, subSamplingX);
+
+                // get reference point - works with geo annotations
+                final float refLat = latitude.getPixelFloat((float) x, (float) y);
+                final float refLon = longitude.getPixelFloat((float) x, (float) y);
+
+                final Point refSarPoint = oldOrbit.ell2lp(new double[]{refLat * org.jlinda.core.Constants.DTOR, refLon * org.jlinda.core.Constants.DTOR, 0}, metaData);
+                final double[] refGeoPoint = orbit.lp2ell(refSarPoint, metaData);
+                final Point refXyzPoint = Ellipsoid.ell2xyz(refGeoPoint);
+
+                final int line = (int) refSarPoint.y;
+                final int pixel = (int) refSarPoint.x;
+
+                final double curLineTime = metaData.line2ta(line); // work in satellite time
+
+                final Point refPointOrbit = orbit.getXYZ(curLineTime);
+                final Point rangeDist = refPointOrbit.min(refXyzPoint);
+                final double incAngle = refXyzPoint.angle(rangeDist);
+                final double slantRangeTime = metaData.pix2tr(pixel) * 2 * org.jlinda.core.Constants.GIGA;
+
+                final double lat = refGeoPoint[0] * org.jlinda.core.Constants.RTOD;
+                final double lon = refGeoPoint[1] * org.jlinda.core.Constants.RTOD;
+
+                targetIncidenceAngleTiePoints[k] = (float) (incAngle * org.jlinda.core.Constants.RTOD);
+                targetSlantRangeTimeTiePoints[k] = (float) slantRangeTime;
+                targetLatTiePoints[k] = (float) (lat);
+                targetLonTiePoints[k] = (float) (lon);
+                k++;
+
+            }
+        }
+
+        final TiePointGrid angleGrid = new TiePointGrid(OperatorUtils.TPG_INCIDENT_ANGLE, targetTiePointGridWidth, targetTiePointGridHeight,
+                0.0f, 0.0f, (float) subSamplingX, (float) subSamplingY, targetIncidenceAngleTiePoints);
+        angleGrid.setUnit(Unit.DEGREES);
+
+        final TiePointGrid slrgtGrid = new TiePointGrid(OperatorUtils.TPG_SLANT_RANGE_TIME, targetTiePointGridWidth, targetTiePointGridHeight,
+                0.0f, 0.0f, (float) subSamplingX, (float) subSamplingY, targetSlantRangeTimeTiePoints);
+        slrgtGrid.setUnit(Unit.NANOSECONDS);
+
+        final TiePointGrid latGrid = new TiePointGrid(OperatorUtils.TPG_LATITUDE, targetTiePointGridWidth, targetTiePointGridHeight,
+                0.0f, 0.0f, (float) subSamplingX, (float) subSamplingY, targetLatTiePoints);
+        latGrid.setUnit(Unit.DEGREES);
+
+        final TiePointGrid lonGrid = new TiePointGrid(OperatorUtils.TPG_LONGITUDE, targetTiePointGridWidth, targetTiePointGridHeight,
+                0.0f, 0.0f, (float) subSamplingX, (float) subSamplingY, targetLonTiePoints, TiePointGrid.DISCONT_AT_180);
+        lonGrid.setUnit(Unit.DEGREES);
+
+        final TiePointGeoCoding tpGeoCoding = new TiePointGeoCoding(latGrid, lonGrid, Datum.WGS_84);
+
+        for (TiePointGrid tpg : targetProduct.getTiePointGrids()) {
+            targetProduct.removeTiePointGrid(tpg);
+        }
+
+        targetProduct.addTiePointGrid(angleGrid);
+        targetProduct.addTiePointGrid(slrgtGrid);
+        targetProduct.addTiePointGrid(latGrid);
+        targetProduct.addTiePointGrid(lonGrid);
+        targetProduct.setGeoCoding(tpGeoCoding);
+    }
+    
     /**
      * The SPI is used to register this operator in the graph processing framework
      * via the SPI configuration file

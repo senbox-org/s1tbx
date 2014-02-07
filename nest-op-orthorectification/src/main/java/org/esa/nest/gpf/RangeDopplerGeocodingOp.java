@@ -380,7 +380,7 @@ public class RangeDopplerGeocodingOp extends Operator {
 
         firstLineUTC = absRoot.getAttributeUTC(AbstractMetadata.first_line_time).getMJD(); // in days
         lastLineUTC = absRoot.getAttributeUTC(AbstractMetadata.last_line_time).getMJD(); // in days
-        lineTimeInterval = absRoot.getAttributeDouble(AbstractMetadata.line_time_interval) / Constants.secondsInDay; // s to day
+        lineTimeInterval = (lastLineUTC - firstLineUTC) / (sourceImageHeight - 1); // in days
         if (lastLineUTC == 0.0) {
             throw new OperatorException("Invalid input for Line Time Interval: " + lineTimeInterval);
         }
@@ -861,7 +861,7 @@ public class RangeDopplerGeocodingOp extends Operator {
 
                 for (int x = x0; x < maxX; x++) {
 
-                    final int index = trgTiles[0].targetTile.getDataBufferIndex(x, y);
+					final int index = trgTiles[0].targetTile.getDataBufferIndex(x, y);
 
                     double alt = localDEM[yy][x-x0+1];
 

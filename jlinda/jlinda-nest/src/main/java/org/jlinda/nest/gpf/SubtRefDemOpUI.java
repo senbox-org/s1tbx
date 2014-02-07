@@ -128,7 +128,7 @@ public class SubtRefDemOpUI extends BaseOperatorUI {
 
     @Override
     public void updateParameters() {
-        paramMap.put("orbitDegree", orbitDegree.getText());
+        paramMap.put("orbitDegree", Integer.parseInt(orbitDegree.getText()));
         paramMap.put("demName", demName.getSelectedItem());
         final String extFileStr = externalDEMFile.getText();
         if(!extFileStr.isEmpty()) {

@@ -495,11 +495,11 @@ public final class OperatorUtils {
         if(geoCoding == null) {
             throw new OperatorException("Product does not contain a geocoding");
         }
-        final GeoPos geoPosFirstNear = geoCoding.getGeoPos(new PixelPos(0,0), null);
-        final GeoPos geoPosFirstFar = geoCoding.getGeoPos(new PixelPos(sourceProduct.getSceneRasterWidth()-1,0), null);
-        final GeoPos geoPosLastNear = geoCoding.getGeoPos(new PixelPos(0,sourceProduct.getSceneRasterHeight()-1), null);
-        final GeoPos geoPosLastFar = geoCoding.getGeoPos(new PixelPos(sourceProduct.getSceneRasterWidth()-1,
-                                                                      sourceProduct.getSceneRasterHeight()-1), null);
+        final GeoPos geoPosFirstNear = geoCoding.getGeoPos(new PixelPos(0.5f,0.5f), null);
+        final GeoPos geoPosFirstFar = geoCoding.getGeoPos(new PixelPos(sourceProduct.getSceneRasterWidth()-0.5f,0.5f), null);
+        final GeoPos geoPosLastNear = geoCoding.getGeoPos(new PixelPos(0.5f,sourceProduct.getSceneRasterHeight()-0.5f), null);
+        final GeoPos geoPosLastFar = geoCoding.getGeoPos(new PixelPos(sourceProduct.getSceneRasterWidth()-0.5f,
+                                                                      sourceProduct.getSceneRasterHeight()-0.5f), null);
 
         final double[] lats  = {geoPosFirstNear.getLat(), geoPosFirstFar.getLat(), geoPosLastNear.getLat(), geoPosLastFar.getLat()};
         final double[] lons  = {geoPosFirstNear.getLon(), geoPosFirstFar.getLon(), geoPosLastNear.getLon(), geoPosLastFar.getLon()};
