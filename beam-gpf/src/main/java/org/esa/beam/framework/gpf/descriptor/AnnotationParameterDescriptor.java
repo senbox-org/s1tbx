@@ -133,12 +133,12 @@ public class AnnotationParameterDescriptor implements ParameterDescriptor {
     }
 
     @Override
-    public boolean isSimple() {
-        return DefaultParameterDescriptor.isSimple(getDataType());
+    public boolean isStructure() {
+        return !DefaultParameterDescriptor.isSimple(getDataType());
     }
 
     @Override
-    public ParameterDescriptor[] getDataMemberDescriptors() {
+    public ParameterDescriptor[] getStructureMemberDescriptors() {
         return DefaultParameterDescriptor.getDataMemberDescriptors(getDataType());
     }
 

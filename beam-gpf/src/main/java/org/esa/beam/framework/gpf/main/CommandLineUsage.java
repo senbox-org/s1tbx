@@ -468,24 +468,24 @@ class CommandLineUsage {
             DomElement childElem = parameter.areItemsInlined() ? parametersElem : parametersElem.createChild(name);
             String itemName = parameter.getItemAlias();
             DomElement element = childElem.createChild(itemName);
-            if (parameter.isSimple()) {
-                element.setValue(getTypeName(parameter.getDataType().getComponentType()));
-            } else {
+            if (!parameter.isStructure()) {
                 ParameterDescriptor[] members = DefaultParameterDescriptor.getDataMemberDescriptors(parameter.getDataType().getComponentType());
                 for (ParameterDescriptor member : members) {
                     convertParameterFieldToDom(member, element);
                 }
+            } else {
+                element.setValue(getTypeName(parameter.getDataType().getComponentType()));
             }
             childElem.createChild("...");
         } else {
             DomElement childElem = parametersElem.createChild(name);
-            if (parameter.isSimple()) {
-                childElem.setValue(getTypeName(parameter.getDataType()));
-            } else {
-                ParameterDescriptor[] members = parameter.getDataMemberDescriptors();
+            if (!parameter.isStructure()) {
+                ParameterDescriptor[] members = parameter.getStructureMemberDescriptors();
                 for (ParameterDescriptor member : members) {
                     convertParameterFieldToDom(member, childElem);
                 }
+            } else {
+                childElem.setValue(getTypeName(parameter.getDataType()));
             }
         }
     }

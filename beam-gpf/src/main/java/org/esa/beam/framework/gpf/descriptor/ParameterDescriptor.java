@@ -136,17 +136,17 @@ public interface ParameterDescriptor extends DataElementDescriptor {
     Class<? extends RasterDataNode> getRasterDataNodeClass();
 
     /**
-     * @return {@code true} if this parameter's value is a data structure.
+     * @return {@code true} if the parameter type is a composite data structure.
      * @see #getDataType()
-     * @see #getDataMemberDescriptors()
+     * @see #getStructureMemberDescriptors()
      */
-    boolean isSimple();
+    boolean isStructure();
 
     /**
-     * @return The descriptors for the structure members of this parameter. The returned array will be empty, if
+     * @return The descriptors for the structure members of this parameter type. The returned array will be empty, if
      * this parameter doesn't have a structure data type.
      * @see #getDataType()
-     * @see #isSimple()
+     * @see #isStructure()
      */
-    ParameterDescriptor[] getDataMemberDescriptors();
+    ParameterDescriptor[] getStructureMemberDescriptors();
 }

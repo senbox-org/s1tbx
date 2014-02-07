@@ -252,12 +252,12 @@ public class DefaultParameterDescriptor implements ParameterDescriptor {
     }
 
     @Override
-    public boolean isSimple() {
+    public boolean isStructure() {
         return isSimple(getDataType());
     }
 
     @Override
-    public ParameterDescriptor[] getDataMemberDescriptors() {
+    public ParameterDescriptor[] getStructureMemberDescriptors() {
         return getDataMemberDescriptors(getDataType());
     }
 
