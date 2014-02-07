@@ -27,8 +27,11 @@ import com.bc.ceres.binding.ValidationException;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 /**
  * {@inheritDoc}
@@ -357,16 +360,23 @@ public abstract class AbstractDomConverter implements DomConverter {
         return itemConverter;
     }
 
-    private Object createValueInstance(Class<?> type) {
-        Object childValue;
-        try {
-            childValue = type.newInstance();
-        } catch (Throwable t) {
-            throw new RuntimeException(
-                    String.format("Failed to create instance of %s (default constructor missing?).", type.getName()),
-                    t);
+    protected Object createValueInstance(Class<?> type) {
+        if (type == Map.class) {
+            // retain add-order of elements
+            return new LinkedHashMap();
+        } else if (type == SortedMap.class) {
+            return new TreeMap();
+        } else {
+            Object childValue;
+            try {
+                childValue = type.newInstance();
+            } catch (Throwable t) {
+                throw new RuntimeException(
+                        String.format("Failed to create instance of %s (default constructor missing?).", type.getName()),
+                        t);
+            }
+            return childValue;
         }
-        return childValue;
     }
 
     private boolean isArrayTypeWithNamedItems(PropertyDescriptor descriptor) {

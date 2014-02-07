@@ -16,58 +16,33 @@
 
 package com.bc.ceres.binding.dom;
 
+import com.bc.ceres.binding.ClassPropertySetDescriptor;
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.PropertyDescriptor;
 import com.bc.ceres.binding.PropertyDescriptorFactory;
 import com.bc.ceres.binding.PropertySet;
+import com.bc.ceres.binding.PropertySetDescriptor;
+
+import java.util.Map;
 
 /**
  * {@inheritDoc}
  */
 public class DefaultDomConverter extends AbstractDomConverter {
 
-    private final PropertyDescriptorFactory propertyDescriptorFactory;
+    private final PropertySetDescriptor propertySetDescriptor;
 
     public DefaultDomConverter(Class<?> valueType) {
-        this(valueType, null);
+        this(valueType, new ClassPropertySetDescriptor(valueType));
     }
 
     public DefaultDomConverter(Class<?> valueType, PropertyDescriptorFactory propertyDescriptorFactory) {
+        this(valueType, new ClassPropertySetDescriptor(valueType, propertyDescriptorFactory));
+    }
+
+    public DefaultDomConverter(Class<?> valueType, PropertySetDescriptor propertySetDescriptor) {
         super(valueType);
-        this.propertyDescriptorFactory = propertyDescriptorFactory;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected PropertySet getPropertySet(Object value) {
-        if (value instanceof PropertySet) {
-            return (PropertySet) value;
-        }
-        final PropertySet propertySet;
-        if (propertyDescriptorFactory != null) {
-            propertySet = PropertyContainer.createObjectBacked(value, propertyDescriptorFactory);
-        } else {
-            propertySet = PropertyContainer.createObjectBacked(value);
-        }
-        return propertySet;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected DomConverter createChildConverter(DomElement element, Class<?> valueType) {
-        final String className = element.getAttribute("class");
-        if (className != null && !className.trim().isEmpty()) {
-            try {
-                valueType = Class.forName(className);
-            } catch (ClassNotFoundException e) {
-                throw new IllegalArgumentException(e);
-            }
-        }
-        return new DefaultDomConverter(valueType, propertyDescriptorFactory);
+        this.propertySetDescriptor = propertySetDescriptor;
     }
 
     /**
@@ -80,6 +55,69 @@ public class DefaultDomConverter extends AbstractDomConverter {
             domConverter = DomConverterRegistry.getInstance().getConverter(descriptor.getType());
         }
         return domConverter;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected PropertySet getPropertySet(Object value) {
+        PropertySet propertySet;
+        if (value instanceof PropertySet) {
+            propertySet = (PropertySet) value;
+        } else if (value instanceof Map) {
+            // todo - this wrong for recursive calls with depth > 0
+            propertySet = PropertyContainer.createMapBacked((Map) value, propertySetDescriptor);
+        } else {
+            // todo - this wrong for recursive calls with depth > 0
+            propertySet = PropertyContainer.createObjectBacked(value, propertySetDescriptor);
+        }
+        return propertySet;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected DomConverter createChildConverter(DomElement element, Class<?> valueType) {
+        String className = element.getAttribute("class");
+        if (className != null && !className.trim().isEmpty()) {
+            try {
+                valueType = Class.forName(className);
+            } catch (ClassNotFoundException e) {
+                throw new IllegalArgumentException(e);
+            }
+        }
+
+        PropertyDescriptor propertyDescriptor = getPropertyDescriptor(element);
+        if (propertyDescriptor != null) {
+            PropertySetDescriptor propertySetDescriptor = propertyDescriptor.getPropertySetDescriptor();
+            if (propertySetDescriptor != null) {
+                return new DefaultDomConverter(valueType, propertySetDescriptor);
+            }
+        }
+
+        return new DefaultDomConverter(valueType);
+    }
+
+    private PropertyDescriptor getPropertyDescriptor(DomElement element) {
+        String elementName = element.getName();
+        PropertyDescriptor propertyDescriptor = propertySetDescriptor.getPropertyDescriptor(elementName);
+        if (propertyDescriptor == null) {
+            propertyDescriptor = getPropertyDescriptorByAlias(elementName);
+        }
+        return propertyDescriptor;
+    }
+
+    private PropertyDescriptor getPropertyDescriptorByAlias(String elementName) {
+        // Note: naive loop may be accelerated by a constant Map since propertySetDescriptor is constant (nf)
+        for (String propertyName : propertySetDescriptor.getPropertyNames()) {
+            PropertyDescriptor propertyDescriptor = propertySetDescriptor.getPropertyDescriptor(propertyName);
+            if (elementName.equals(propertyDescriptor.getAlias())) {
+                return propertyDescriptor;
+            }
+        }
+        return null;
     }
 
 }

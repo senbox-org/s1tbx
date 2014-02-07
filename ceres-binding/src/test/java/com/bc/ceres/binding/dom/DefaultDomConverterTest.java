@@ -46,7 +46,7 @@ import java.util.Stack;
 
 public class DefaultDomConverterTest extends TestCase {
 
-    private static final PropertyDescriptorFactory VALUE_DESCRIPTOR_FACTORY = new PropertyDescriptorFactory() {
+    private static final PropertyDescriptorFactory PROPERTY_DESCRIPTOR_FACTORY = new PropertyDescriptorFactory() {
         @Override
         public PropertyDescriptor createValueDescriptor(java.lang.reflect.Field field) {
             final PropertyDescriptor descriptor = new PropertyDescriptor(field.getName(), field.getType());
@@ -723,14 +723,14 @@ public class DefaultDomConverterTest extends TestCase {
     }
 
     public static void convertValueToDom(Object value, XppDom parentElement) throws ConversionException {
-        DefaultDomConverter domConverter = new DefaultDomConverter(value.getClass(), VALUE_DESCRIPTOR_FACTORY);
+        DefaultDomConverter domConverter = new DefaultDomConverter(value.getClass(), PROPERTY_DESCRIPTOR_FACTORY);
         XppDomElement domElement = new XppDomElement(parentElement);
         domConverter.convertValueToDom(value, domElement);
     }
 
 
     public static void convertDomToValue(XppDom parentElement, Object value) throws Exception {
-        DefaultDomConverter domConverter = new DefaultDomConverter(value.getClass(), VALUE_DESCRIPTOR_FACTORY);
+        DefaultDomConverter domConverter = new DefaultDomConverter(value.getClass(), PROPERTY_DESCRIPTOR_FACTORY);
         XppDomElement domElement = new XppDomElement(parentElement);
         domConverter.convertDomToValue(domElement, value);
     }
