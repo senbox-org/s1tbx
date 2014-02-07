@@ -23,8 +23,6 @@ import ucar.nc2.iosp.hdf4.H4iosp;
 import ucar.nc2.iosp.hdf5.H5iosp;
 import ucar.nc2.iosp.netcdf3.N3raf;
 import ucar.nc2.util.DiskCache;
-import ucar.nc2.util.IO;
-import ucar.unidata.io.InMemoryRandomAccessFile;
 import ucar.unidata.io.RandomAccessFile;
 import ucar.unidata.io.UncompressInputStream;
 import ucar.unidata.io.bzip2.CBZip2InputStream;
@@ -99,7 +97,12 @@ public class NetcdfFileOpener {
 
     private static void readMagicBytes(Object input, byte[] buffer) throws IOException {
         if (input instanceof String) {
-            readMagicBytesFromFile(new File((String) input), buffer);
+            String inputString = (String) input;
+            String filePrefix = "file:";
+            if (inputString.startsWith(filePrefix)) {
+                inputString = inputString.substring(filePrefix.length());
+            }
+            readMagicBytesFromFile(new File(inputString), buffer);
         } else if (input instanceof File) {
             readMagicBytesFromFile((File) input, buffer);
         } else if (input instanceof ImageInputStream) {
@@ -182,19 +185,20 @@ public class NetcdfFileOpener {
         String uriString = location.trim();
 
         ucar.unidata.io.RandomAccessFile raf;
-        if (uriString.startsWith("http:")) { // open through URL
-            raf = new ucar.unidata.io.http.HTTPRandomAccessFile(uriString);
-
-        } else if (uriString.startsWith("nodods:")) { // open through URL
-            uriString = "http" + uriString.substring(6);
-            raf = new ucar.unidata.io.http.HTTPRandomAccessFile(uriString);
-
-        } else if (uriString.startsWith("slurp:")) { // open through URL
-            uriString = "http" + uriString.substring(5);
-            byte[] contents = IO.readURLContentsToByteArray(uriString); // read all into memory
-            raf = new InMemoryRandomAccessFile(uriString, contents);
-
-        } else {
+// Currently those protocols are not supported by BEAM
+//        if (uriString.startsWith("http:")) { // open through URL
+//            raf = new ucar.unidata.io.http.HTTPRandomAccessFile(uriString);
+//
+//        } else if (uriString.startsWith("nodods:")) { // open through URL
+//            uriString = "http" + uriString.substring(6);
+//            raf = new ucar.unidata.io.http.HTTPRandomAccessFile(uriString);
+//
+//        } else if (uriString.startsWith("slurp:")) { // open through URL
+//            uriString = "http" + uriString.substring(5);
+//            byte[] contents = IO.readURLContentsToByteArray(uriString); // read all into memory
+//            raf = new InMemoryRandomAccessFile(uriString, contents);
+//
+//        } else {
             // get rid of crappy microsnot \ replace with happy /
             uriString = StringUtil2.replace(uriString, '\\', "/");
 
@@ -202,17 +206,6 @@ public class NetcdfFileOpener {
                 // uriString = uriString.substring(5);
                 uriString = StringUtil2.unescape(uriString.substring(5));  // 11/10/2010 from erussell@ngs.org
             }
-
-// BEAM added to exclude tar archives (mz)
-            String lowerCaseUri = uriString.toLowerCase();
-            if (lowerCaseUri.endsWith(".tar.gz") ||
-                lowerCaseUri.endsWith(".tar.Z") ||
-                lowerCaseUri.endsWith(".tar.gzip") ||
-                lowerCaseUri.endsWith(".tgz") ||
-                lowerCaseUri.endsWith(".tar.bz2")) {
-                return null;
-            }
-// BEAM added to exclude tar archives (mz)
 
             String uncompressedFileName = null;
             try {
@@ -232,7 +225,7 @@ public class NetcdfFileOpener {
                 raf = new ucar.unidata.io.RandomAccessFile(uriString, "r");
                 //raf = new ucar.unidata.io.MMapRandomAccessFile(uriString, "r");
             }
-        }
+//        }
 
         return raf;
     }
