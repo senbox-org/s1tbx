@@ -132,6 +132,7 @@ public class ProductReaderAcceptanceTest {
         logger.info("");
         logger.info(INDENT + "Number of test products: " + testProductList.size());
         logger.info(INDENT + "Number of ReaderPlugIns: " + testDefinitionList.size());
+        logger.info(INDENT + "Logging only decode qualification tests >"+DECODE_QUALI_LOG_THRESHOLD+"ms");
         logger.info("");
 
         for (TestDefinition testDefinition : testDefinitionList) {
