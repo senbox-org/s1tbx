@@ -203,6 +203,7 @@ public class BinningOp extends Operator implements Output {
 
     // TODO nf/mz 2013-11-05 review before BEAM 5 with thomas, discuss use of this field
     private final Map<Product, List<Band>> addedBands;
+    private Product writtenProduct;
 
     public BinningOp() throws OperatorException {
         addedBands = new HashMap<Product, List<Band>>();
@@ -327,6 +328,14 @@ public class BinningOp extends Operator implements Output {
         stopWatch.stopAndTrace(String.format("Total time for binning %d product(s)", sourceProductNames.size()));
 
         processMetadataTemplates();
+    }
+
+    @Override
+    public void dispose() {
+        if (writtenProduct != null) {
+            writtenProduct.dispose();
+        }
+        super.dispose();
     }
 
     private void validateInput(ProductData.UTC startDateUtc, ProductData.UTC endDateUtc) {
@@ -669,7 +678,7 @@ public class BinningOp extends Operator implements Output {
                 final File outputFile = new File(formatterConfig.getOutputFile());
                 final String outputFormat = Formatter.getOutputFormat(formatterConfig, outputFile);
 
-                Product writtenProduct = ProductIO.readProduct(outputFile, outputFormat);
+                writtenProduct = ProductIO.readProduct(outputFile, outputFormat);
                 this.targetProduct = copyProduct(writtenProduct);
             } else {
                 this.targetProduct = new Product("Dummy", "t", 10, 10);
