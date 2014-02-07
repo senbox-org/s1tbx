@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -467,7 +467,7 @@ public class StringUtils {
 
         for (int i = 0; i < array.length; i++) {
             for (int j = i + 1; j < array.length; j++) {
-                if (array[i].equals(array[j]) || (array[i] != null && array[j] != null && array[i].equals(array[j]))) {
+                if (array[i] == array[j] || (array[i] != null && array[j] != null && array[i].equals(array[j]))) {
                     return false;
                 }
             }
