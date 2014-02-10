@@ -54,7 +54,6 @@ public class DefaultDomConverterTest extends TestCase {
             if (xAnnotation != null) {
                 descriptor.setAlias(xAnnotation.alias());
                 descriptor.setItemAlias(xAnnotation.componentAlias());
-                descriptor.setItemsInlined(xAnnotation.inlined());
                 if (xAnnotation.defaultValue() != null && !xAnnotation.defaultValue().isEmpty()) {
                     try {
                         descriptor.setDefaultConverter();
@@ -389,7 +388,7 @@ public class DefaultDomConverterTest extends TestCase {
                                    + "  </simple>"
                                    + "  <annotatedPojo>"
                                    + "    <targetBand>reflec_4</targetBand>"
-                                   + "  <defaultBandName>userDefault</defaultBandName>"
+                                   + "    <defaultBandName>userDefault</defaultBandName>"
                                    + "    <targetBands>"
                                    + "      <band>real</band>"
                                    + "      <band>imag</band>"
@@ -829,7 +828,7 @@ public class DefaultDomConverterTest extends TestCase {
 
         Endmember defaultEndmember;
 
-        @X(componentAlias = "endmember", inlined = true)
+        @X(componentAlias = "endmember")
         Endmember[] endmembers;
     }
 
@@ -882,8 +881,6 @@ public class DefaultDomConverterTest extends TestCase {
         String alias() default "";
 
         String componentAlias() default "";
-
-        boolean inlined() default false;
 
         String defaultValue() default "";
 

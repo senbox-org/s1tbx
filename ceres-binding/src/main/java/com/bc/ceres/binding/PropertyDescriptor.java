@@ -256,14 +256,6 @@ public class PropertyDescriptor {
         setAttribute("itemAlias", alias);
     }
 
-    public boolean getItemsInlined() {
-        return getBooleanProperty("itemsInlined");
-    }
-
-    public void setItemsInlined(boolean inlined) {
-        setAttribute("itemsInlined", inlined);
-    }
-
     //////////////////////////////////////////////////////////////////////////////
     // Generic attributes
 

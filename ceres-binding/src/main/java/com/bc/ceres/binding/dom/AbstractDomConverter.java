@@ -25,7 +25,6 @@ import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.binding.ValidationException;
 
 import java.lang.reflect.Array;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -70,11 +69,7 @@ public abstract class AbstractDomConverter implements DomConverter {
                     }
                 } else if (isArrayTypeWithNamedItems(descriptor)) {
                     final DomElement childElement;
-                    if (descriptor.getItemsInlined()) {
-                        childElement = parentElement;
-                    } else {
-                        childElement = parentElement.createChild(getNameOrAlias(property));
-                    }
+                    childElement = parentElement.createChild(getNameOrAlias(property));
                     final Object array = property.getValue();
                     if (array != null) {
                         final int arrayLength = Array.getLength(array);
@@ -163,34 +158,11 @@ public abstract class AbstractDomConverter implements DomConverter {
         // todo - convert Java collections (nf - 02.04.2009)
         Property property = propertySet.getProperty(childName);
 
-        if (property != null && property.getDescriptor().isTransient()) {
+        if(property == null) {
             return;
         }
-
-        List<Object> inlinedArray = null;
-
-        if (property == null) {
-            // try to find property as inlined array element
-            final Property[] properties = propertySet.getProperties();
-            for (final Property p : properties) {
-                final boolean inlined = p.getDescriptor().getItemsInlined();
-                if (inlined) {
-                    final String itemAlias = p.getDescriptor().getItemAlias();
-                    if (childName.equals(itemAlias)) {
-                        final String name = getNameOrAlias(p);
-                        inlinedArray = inlinedArrays.get(name);
-                        if (inlinedArray == null) {
-                            inlinedArray = new ArrayList<>();
-                            inlinedArrays.put(name, inlinedArray);
-                        }
-                        property = p;
-                        break;
-                    }
-                }
-            }
-            if (property == null) {
-                throw new ConversionException(String.format("Illegal element '%s'.", childName));
-            }
+        if (property.getDescriptor().isTransient()) {
+            return;
         }
 
         final Object childValue;
@@ -202,27 +174,22 @@ public abstract class AbstractDomConverter implements DomConverter {
         } else if (isArrayTypeWithNamedItems(descriptor)) {
             final Class<?> itemType = descriptor.getType().getComponentType();
             final Converter<?> itemConverter = getItemConverter(descriptor);
-            if (inlinedArray != null) {
-                Object item = convertDomToValueImpl(child, itemConverter, itemType);
-                inlinedArray.add(item);
-            } else {
-                // if and only if an itemAlias is set, we parse the array element-wise
-                final DomElement[] arrayElements = child.getChildren(descriptor.getItemAlias());
-                final DomConverter itemDomConverter = getDomConverter(
-                        new PropertyDescriptor(descriptor.getItemAlias(), itemType));
-                childValue = Array.newInstance(itemType, arrayElements.length);
-                for (int i = 0; i < arrayElements.length; i++) {
-                    Object item;
-                    if (itemDomConverter != null) {
-                        item = itemDomConverter.convertDomToValue(arrayElements[i], null);
-                    } else {
-                        item = convertDomToValueImpl(arrayElements[i], itemConverter, itemType);
-                    }
-                    Array.set(childValue, i, item);
-
+            // if and only if an itemAlias is set, we parse the array element-wise
+            final DomElement[] arrayElements = child.getChildren(descriptor.getItemAlias());
+            final DomConverter itemDomConverter = getDomConverter(
+                    new PropertyDescriptor(descriptor.getItemAlias(), itemType));
+            childValue = Array.newInstance(itemType, arrayElements.length);
+            for (int i = 0; i < arrayElements.length; i++) {
+                Object item;
+                if (itemDomConverter != null) {
+                    item = itemDomConverter.convertDomToValue(arrayElements[i], null);
+                } else {
+                    item = convertDomToValueImpl(arrayElements[i], itemConverter, itemType);
                 }
-                property.setValue(childValue);
+                Array.set(childValue, i, item);
+
             }
+            property.setValue(childValue);
         } else {
             childValue = convertDomToValueImpl(child,
                                                descriptor.getConverter(),
@@ -280,12 +247,7 @@ public abstract class AbstractDomConverter implements DomConverter {
                             domConverter.convertValueToDom(property.getValue(), childElement);
                         }
                     } else if (isArrayTypeWithNamedItems(descriptor)) {
-                        final DomElement childElement;
-                        if (descriptor.getItemsInlined()) {
-                            childElement = element;
-                        } else {
-                            childElement = element.createChild(getNameOrAlias(property));
-                        }
+                        final DomElement childElement = element.createChild(getNameOrAlias(property));
                         final Object array = property.getValue();
                         if (array != null) {
                             final int arrayLength = Array.getLength(array);
