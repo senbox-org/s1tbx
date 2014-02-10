@@ -30,12 +30,6 @@ import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
-import org.esa.beam.framework.processor.ProcessorConstants;
-import org.esa.beam.processor.smac.SensorCoefficientFile;
-import org.esa.beam.processor.smac.SensorCoefficientManager;
-import org.esa.beam.processor.smac.SmacAlgorithm;
-import org.esa.beam.processor.smac.SmacConstants;
-import org.esa.beam.processor.smac.SmacUtils;
 import org.esa.beam.util.ObjectUtils;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.ResourceInstaller;
@@ -59,100 +53,107 @@ import java.util.logging.Logger;
 @SuppressWarnings({"UnusedDeclaration", "MismatchedReadAndWriteOfArray, FieldCanBeLocal"})
 @OperatorMetadata(alias = "SmacOp",
                   version = "1.5.205",
-                  authors = "H. Rahman, G. Dedieu (Algorithm), Tom Block (BEAM Implementation)",
+                  authors = "H. Rahman, G. Dedieu (Algorithm), Tom Block (BEAM Implementation), Thomas Storm (GPF conversion)",
                   copyright = "Copyright (C) 2002-2014 by Brockmann Consult (info@brockmann-consult.de)",
                   description = "Applies the simplified method for atmospheric corrections of satellite measurements.")
 public class SmacOperator extends Operator {
 
+    private static final String DEFAULT_MERIS_FLAGS_VALUE = "l1_flags.LAND_OCEAN and not (l1_flags.INVALID or l1_flags.BRIGHT)";
+    private static final String DEFAULT_FORWARD_FLAGS_VALUE = "cloud_flags_fward.LAND and not cloud_flags_fward.CLOUDY";
+    private static final String DEFAULT_NADIR_FLAGS_VALUE = "cloud_flags_nadir.LAND and not cloud_flags_nadir.CLOUDY";
+    private static final String LOG_MSG_LOADED = "Loaded ";
+    static final String SMAC_AUXDATA_DIR_PROPERTY = "smac.auxdata.dir";
     private static final String PROCESSOR_SYMBOLIC_NAME = "beam-meris-smac";
 
-    private static final int _merisSzaIndex = 6;    // DELETE
-    private static final int _merisSaaIndex = 7;    // DELETE
-    private static final int _merisVzaIndex = 8;    // DELETE
-    private static final int _merisVaaIndex = 9;    // DELETE
-    private static final int _merisPressIndex = 12; // DELETE
-    private static final int _merisElevIndex = 2;
-    private static final int _merisO3Index = 13;    // DELETE
-    private static final int _merisWvIndex = 14;    // DELETE
-    private static final int _aatsrSzaIndex = 7;    // DELETE
-    private static final int _aatsrSzaFwdIndex = 11;    // DELETE
-    private static final int _aatsrSaaIndex = 9;    // DELETE
-    private static final int _aatsrSaaFwdIndex = 13;    // DELETE
-    private static final int _aatsrVzaIndex = 8;    // DELETE
-    private static final int _aatsrVzaFwdIndex = 12;    // DELETE
-    private static final int _aatsrVaaIndex = 10;   // DELETE
-    private static final int _aatsrVaaFwdIndex = 14;    // DELETE
-    private static final int[] _aatsrMDSIndices = {3, 4, 5, 6, 10, 11, 12, 13};
-    private static final float _duToCmAtm = 0.001f;
-    private static final float _relHumTogcm = 0.07f;
+    private static final int merisSzaIndex = 6;
+    private static final int merisSaaIndex = 7;
+    private static final int merisVzaIndex = 8;
+    private static final int merisVaaIndex = 9;
+    private static final int merisPressIndex = 12;
+    private static final int merisElevIndex = 2;
+    private static final int merisO3Index = 13;
+    private static final int merisWvIndex = 14;
+    private static final int aatsrSzaIndex = 7;
+    private static final int aatsrSzaFwdIndex = 11;
+    private static final int aatsrSaaIndex = 9;
+    private static final int aatsrSaaFwdIndex = 13;
+    private static final int aatsrVzaIndex = 8;
+    private static final int aatsrVzaFwdIndex = 12;
+    private static final int aatsrVaaIndex = 10;
+    private static final int aatsrVaaFwdIndex = 14;
+    private static final float duToCmAtm = 0.001f;
+    private static final float relHumTogcm = 0.07f;
 
-    private static final String _merisBandPrefix = "reflec";  // was "reflectance" in version 1.0 - 1.2
+    private static final String merisBandPrefix = "reflec";  // was "reflectance" in version 1.0 - 1.2
     private static final String SMAC_MASK = "smac_mask";
     private static final String SMAC_MASK_FORWARD = "smac_mask_forward";
 
-    private final List<Band> _inputBandList;
-    private final Logger _logger;
-    private String _sensorType;
-    private File _auxdataInstallDir;
+    private final List<Band> inputBandList;
+    private final Logger logger;
+    private String sensorType;
+
+    private File auxdataInstallDir;
     private Map<String, String> bandNameMapping;
+    private HashMap<String, SmacSensorCoefficients> coefficients;
 
-    private TiePointGrid _szaBand;
-    private TiePointGrid _saaBand;
-    private TiePointGrid _vzaBand;
-    private TiePointGrid _vaaBand;
-    private TiePointGrid _wvBand;
-    private TiePointGrid _o3Band;
-    private TiePointGrid _pressBand;
-    private TiePointGrid _elevBand;
-    private TiePointGrid _szaFwdBand;
-    private TiePointGrid _saaFwdBand;
-    private TiePointGrid _vzaFwdBand;
-    private TiePointGrid _vaaFwdBand;
+    private TiePointGrid szaBand;
+    private TiePointGrid saaBand;
+    private TiePointGrid vzaBand;
+    private TiePointGrid vaaBand;
+    private TiePointGrid wvBand;
+    private TiePointGrid o3Band;
+    private TiePointGrid pressBand;
+    private TiePointGrid elevBand;
+    private TiePointGrid szaFwdBand;
+    private TiePointGrid saaFwdBand;
+    private TiePointGrid vzaFwdBand;
+    private TiePointGrid vaaFwdBand;
 
+    @Parameter(description = "Aerosol optical depth", label = "Aerosol optical depth")
+    private Float tau_aero_550 = 0.2F;
 
-    @Parameter(description = "Aerosol optical depth")
-    private Float _tau_aero_550 = 0.2F;
+    @Parameter(description = "Relative humidity", label = "Relative humidity")
+    private Float u_h2o = 3.0F;
 
-    @Parameter(description = "Relative humidity")
-    private Float _u_h2o = 3.0F;
+    @Parameter(description = "Ozone content", label = "Ozone content")
+    private Float u_o3 = 0.15F;
 
-    @Parameter(description = "Ozone content")
-    private Float _u_o3 = 0.15F;
+    @Parameter(description = "Surface pressure", label = "Surface pressure")
+    private Float surf_press = 1013.0F;
 
-    @Parameter(description = "Surface pressure")
-    private Float _surf_press = 1013.0F;
+    @Parameter(description = "Use MERIS ADS", label = "Use MERIS ADS")
+    private Boolean useMerisADS = true;
 
-    @Parameter(description = "Use MERIS ADS")
-    private Boolean _useMerisADS = true;
-
-    @Parameter(description = "Aerosol type", notNull = true, valueSet = {
+    @Parameter(description = "Aerosol type", label = "Aerosol type", notNull = true, valueSet = {
             SensorCoefficientManager.AER_CONT_NAME,
             SensorCoefficientManager.AER_DES_NAME
-    })
-    private String _aerosolType;
+    }, defaultValue = SensorCoefficientManager.AER_CONT_NAME)
+    private String aerosolType;
 
-    @Parameter(description = "Default reflectance for invalid pixel")
-    Float _invalidPixel = 0.0F;
+    @Parameter(description = "Default reflectance for invalid pixel", label = "Default reflectance for invalid pixel")
+    Float invalidPixel = 0.0F;
 
-    @Parameter(description = "Mask expression for the whole view (MERIS) or the nadir view (AATSR)")
-    private String _bitMaskExpression = "";
+    @Parameter(description = "Mask expression for the whole view (MERIS) or the nadir view (AATSR)",
+               label = "Mask expression for the whole view (MERIS) or the nadir view (AATSR)")
+    private String maskExpression = "";
 
-    @Parameter(description = "Mask expression for the forward view (AATSR only)")
-    private String _bitMaskExpressionForward = "";
+    @Parameter(description = "Mask expression for the forward view (AATSR only)", label = "Mask expression for the forward view (AATSR only)")
+    private String maskExpressionForward = "";
 
-    @Parameter(description = "bands", notNull = true)
+    @Parameter(description = "Bands to process", label = "Bands to process", notNull = true)
     private String[] bandNames;
 
-    @SourceProduct(alias = "source")
+    @SourceProduct(alias = "source", label = "Source product")
     private Product sourceProduct;
 
-    @TargetProduct
+    @TargetProduct(label = "SMAC product")
     private Product targetProduct;
 
     public SmacOperator() {
-        _inputBandList = new ArrayList<>();
-        _logger = getLogger();
+        inputBandList = new ArrayList<>();
+        logger = getLogger();
         bandNameMapping = new HashMap<>();
+        coefficients = new HashMap<>();
     }
 
     @Override
@@ -169,25 +170,64 @@ public class SmacOperator extends Operator {
     public void computeTileStack(Map<Band, Tile> targetTiles, Rectangle targetRectangle, ProgressMonitor pm) throws OperatorException {
         // here goes the allocation of data that is constant for the targetRectangle
 
+        // initialize vectors and other data
+        // ---------------------------------
+        int width = targetRectangle.width;
+        int height = targetRectangle.height;
+        int x = targetRectangle.x;
+        int y = targetRectangle.y;
+
+        SourceData sourceData = new SourceData();
+        sourceData.taup550 = new float[width * height];
+        sourceData.process = new boolean[width * height];
+        sourceData.uh2o = new float[width * height];
+        sourceData.uo3 = new float[width * height];
+        sourceData.press = new float[width * height];
+        sourceData.toa = new float[width * height];
+
+        for (int i = 0; i < width * height; i++) {
+            sourceData.taup550[i] = tau_aero_550;
+            sourceData.uh2o[i] = u_h2o;
+            sourceData.uo3[i] = u_o3;
+            sourceData.press[i] = surf_press;
+            sourceData.process[i] = true;
+        }
+
+        sourceData.sza = getSourceTile(szaBand, targetRectangle).getSamplesFloat();
+        sourceData.saa = getSourceTile(saaBand, targetRectangle).getSamplesFloat();
+        sourceData.vza = getSourceTile(vzaBand, targetRectangle).getSamplesFloat();
+        sourceData.vaa = getSourceTile(vaaBand, targetRectangle).getSamplesFloat();
+        if (ObjectUtils.equalObjects(sensorType, SensorCoefficientManager.AATSR_NAME)) {
+            sourceData.szaFwd = getSourceTile(szaFwdBand, targetRectangle).getSamplesFloat();
+            sourceData.saaFwd = getSourceTile(saaFwdBand, targetRectangle).getSamplesFloat();
+            sourceData.vzaFwd = getSourceTile(vzaFwdBand, targetRectangle).getSamplesFloat();
+            sourceData.vaaFwd = getSourceTile(vaaFwdBand, targetRectangle).getSamplesFloat();
+        } else {
+            sourceData.uh2o = getSourceTile(wvBand, targetRectangle).getSamplesFloat();
+            sourceData.uo3 = getSourceTile(o3Band, targetRectangle).getSamplesFloat();
+            sourceData.press = getSourceTile(pressBand, targetRectangle).getSamplesFloat();
+            sourceData.elev = getSourceTile(elevBand, targetRectangle).getSamplesFloat();
+        }
 
         for (Map.Entry<Band, Tile> bandTileEntry : targetTiles.entrySet()) {
             Band sourceBand = sourceProduct.getBand(revertMerisBandName(bandTileEntry.getKey().getName(), bandNameMapping));
             sourceBand.setValidPixelExpression(""); // necessary in order to mimic the processor behavior
             Tile sourceTile = getSourceTile(sourceBand, targetRectangle);
+            sourceData.toa = sourceTile.getSamplesFloat();
             Tile targetTile = bandTileEntry.getValue();
             try {
-                if (ObjectUtils.equalObjects(_sensorType, SensorCoefficientManager.MERIS_NAME)) {
-                    if (_useMerisADS) {
-                        processMerisBandWithADS(sourceBand, sourceTile, targetTile, targetRectangle, new SmacAlgorithm());
+                if (ObjectUtils.equalObjects(sensorType, SensorCoefficientManager.MERIS_NAME)) {
+                    if (useMerisADS) {
+                        processMerisWithADS(sourceBand, sourceData, targetTile, targetRectangle, new SmacAlgorithm());
                     } else {
-                        processMerisBand(sourceBand, sourceTile, targetTile, targetRectangle, new SmacAlgorithm());
+                        processMeris(sourceBand, sourceData, targetTile, targetRectangle, new SmacAlgorithm());
                     }
-                } else if (ObjectUtils.equalObjects(_sensorType, SensorCoefficientManager.AATSR_NAME)) {
-                    processAatsrBand(sourceBand, sourceTile, targetTile, targetRectangle, new SmacAlgorithm());
+                } else if (ObjectUtils.equalObjects(sensorType, SensorCoefficientManager.AATSR_NAME)) {
+                    processAatsr(sourceBand.getName(), sourceData, targetTile, targetRectangle, new SmacAlgorithm());
                 }
             } catch (IOException e) {
-                _logger.severe(ProcessorConstants.LOG_MSG_PROC_ERROR);
-                _logger.severe(e.getMessage());
+                logger.severe("An error occurred during processing: ");
+                logger.severe(e.getMessage());
             }
         }
     }
@@ -200,8 +240,23 @@ public class SmacOperator extends Operator {
         }
     }
 
+    // package private for testing reasons only
+    void installAuxdata() {
+        setAuxdataInstallDir(SMAC_AUXDATA_DIR_PROPERTY, getDefaultAuxdataInstallDir());
+        try {
+            installAuxdata(ResourceInstaller.getSourceUrl(getClass()), "auxdata/", auxdataInstallDir);
+        } catch (IOException e) {
+            throw new OperatorException("Failed to install auxdata into " + auxdataInstallDir, e);
+        }
+    }
+
+    // package private for testing reasons only
+    File getAuxdataInstallDir() {
+        return auxdataInstallDir;
+    }
+
     private void prepareProcessing() throws IOException {
-        _logger.info("Preparing SMAC processing");
+        logger.info("Preparing SMAC processing");
 
         // create a vector of input bands
         // ------------------------------
@@ -216,31 +271,31 @@ public class SmacOperator extends Operator {
     private void loadInputProduct() throws IOException {
         // check what product type the input is and load the appropriate tie point ADS
         // ---------------------------------------------------------------------------
-        _sensorType = SmacUtils.getSensorType(sourceProduct.getProductType());
-        if (ObjectUtils.equalObjects(_sensorType, SensorCoefficientManager.MERIS_NAME)) {
+        sensorType = SmacUtils.getSensorType(sourceProduct.getProductType());
+        if (ObjectUtils.equalObjects(sensorType, SensorCoefficientManager.MERIS_NAME)) {
             loadMERIS_ADS(sourceProduct);
-        } else if (ObjectUtils.equalObjects(_sensorType, SensorCoefficientManager.AATSR_NAME)) {
+        } else if (ObjectUtils.equalObjects(sensorType, SensorCoefficientManager.AATSR_NAME)) {
             loadAATSR_ADS(sourceProduct);
-            _useMerisADS = false;
+            useMerisADS = false;
         } else {
-            throw new OperatorException(SmacConstants.LOG_MSG_UNSUPPORTED_SENSOR);
+            throw new OperatorException("Unsupported sensor type!");
         }
 
         // set up the bands we need for this request
         // -----------------------------------------
         if (bandNames.length == 0) {
-            throw new OperatorException(SmacConstants.LOG_MSG_NO_INPUT_BANDS);
+            throw new OperatorException("No input bands defined, processing cannot be performed");
         }
 
         for (String bandName : bandNames) {
             Band band = sourceProduct.getBand(bandName);
             if (band == null) {
-                _logger.warning("The requested band '" + bandName + "' is not contained in the input product!");
+                logger.warning("The requested band '" + bandName + "' is not contained in the input product!");
             } else {
                 if (band.getSpectralBandIndex() != -1) {
-                    _inputBandList.add(band);
+                    inputBandList.add(band);
                 } else {
-                    _logger.warning(
+                    logger.warning(
                             "The requested band '" + bandName +
                             "' is not a spectral band and will be excluded from processing");
                 }
@@ -249,107 +304,106 @@ public class SmacOperator extends Operator {
     }
 
     private void loadMERIS_ADS(Product product) {
-        _logger.info(SmacConstants.LOG_MSG_LOAD_MERIS_ADS);
+        logger.info("Loading MERIS ADS");
 
         // sun zenith angle
-        _szaBand = product.getTiePointGrid(EnvisatConstants.MERIS_TIE_POINT_GRID_NAMES[_merisSzaIndex]);
-        Assert.notNull(_szaBand);
-        _logger.fine(SmacConstants.LOG_MSG_LOADED + EnvisatConstants.MERIS_TIE_POINT_GRID_NAMES[_merisSzaIndex]);
+        szaBand = product.getTiePointGrid(EnvisatConstants.MERIS_TIE_POINT_GRID_NAMES[merisSzaIndex]);
+        Assert.notNull(szaBand);
+        logger.fine(LOG_MSG_LOADED + EnvisatConstants.MERIS_TIE_POINT_GRID_NAMES[merisSzaIndex]);
 
         // sun azimuth angle
-        _saaBand = product.getTiePointGrid(EnvisatConstants.MERIS_TIE_POINT_GRID_NAMES[_merisSaaIndex]);
-        Assert.notNull(_saaBand);
-        _logger.fine(SmacConstants.LOG_MSG_LOADED + EnvisatConstants.MERIS_TIE_POINT_GRID_NAMES[_merisSaaIndex]);
+        saaBand = product.getTiePointGrid(EnvisatConstants.MERIS_TIE_POINT_GRID_NAMES[merisSaaIndex]);
+        Assert.notNull(saaBand);
+        logger.fine(LOG_MSG_LOADED + EnvisatConstants.MERIS_TIE_POINT_GRID_NAMES[merisSaaIndex]);
 
         // view zenith angle
-        _vzaBand = product.getTiePointGrid(EnvisatConstants.MERIS_TIE_POINT_GRID_NAMES[_merisVzaIndex]);
-        Assert.notNull(_vzaBand);
-        _logger.fine(SmacConstants.LOG_MSG_LOADED + EnvisatConstants.MERIS_TIE_POINT_GRID_NAMES[_merisVzaIndex]);
+        vzaBand = product.getTiePointGrid(EnvisatConstants.MERIS_TIE_POINT_GRID_NAMES[merisVzaIndex]);
+        Assert.notNull(vzaBand);
+        logger.fine(LOG_MSG_LOADED + EnvisatConstants.MERIS_TIE_POINT_GRID_NAMES[merisVzaIndex]);
 
         // view azimuth angle
-        _vaaBand = product.getTiePointGrid(EnvisatConstants.MERIS_TIE_POINT_GRID_NAMES[_merisVaaIndex]);
-        Assert.notNull(_vaaBand);
-        _logger.fine(SmacConstants.LOG_MSG_LOADED + EnvisatConstants.MERIS_TIE_POINT_GRID_NAMES[_merisVaaIndex]);
+        vaaBand = product.getTiePointGrid(EnvisatConstants.MERIS_TIE_POINT_GRID_NAMES[merisVaaIndex]);
+        Assert.notNull(vaaBand);
+        logger.fine(LOG_MSG_LOADED + EnvisatConstants.MERIS_TIE_POINT_GRID_NAMES[merisVaaIndex]);
 
         // if requested load the optional MERIS ADS
         // ----------------------------------------
-        if (_useMerisADS) {
+        if (useMerisADS) {
             // waterVapour
-            _wvBand = product.getTiePointGrid(EnvisatConstants.MERIS_TIE_POINT_GRID_NAMES[_merisWvIndex]);
-            Assert.notNull(_wvBand);
-            _logger.fine(SmacConstants.LOG_MSG_LOADED + EnvisatConstants.MERIS_TIE_POINT_GRID_NAMES[_merisWvIndex]);
+            wvBand = product.getTiePointGrid(EnvisatConstants.MERIS_TIE_POINT_GRID_NAMES[merisWvIndex]);
+            Assert.notNull(wvBand);
+            logger.fine(LOG_MSG_LOADED + EnvisatConstants.MERIS_TIE_POINT_GRID_NAMES[merisWvIndex]);
 
             // ozone
-            _o3Band = product.getTiePointGrid(EnvisatConstants.MERIS_TIE_POINT_GRID_NAMES[_merisO3Index]);
-            Assert.notNull(_o3Band);
-            _logger.fine(SmacConstants.LOG_MSG_LOADED + EnvisatConstants.MERIS_TIE_POINT_GRID_NAMES[_merisO3Index]);
+            o3Band = product.getTiePointGrid(EnvisatConstants.MERIS_TIE_POINT_GRID_NAMES[merisO3Index]);
+            Assert.notNull(o3Band);
+            logger.fine(LOG_MSG_LOADED + EnvisatConstants.MERIS_TIE_POINT_GRID_NAMES[merisO3Index]);
 
             // atmospheric pressure
-            _pressBand = product.getTiePointGrid(EnvisatConstants.MERIS_TIE_POINT_GRID_NAMES[_merisPressIndex]);
-            Assert.notNull(_pressBand);
-            _logger.fine(SmacConstants.LOG_MSG_LOADED + EnvisatConstants.MERIS_TIE_POINT_GRID_NAMES[_merisPressIndex]);
+            pressBand = product.getTiePointGrid(EnvisatConstants.MERIS_TIE_POINT_GRID_NAMES[merisPressIndex]);
+            Assert.notNull(pressBand);
+            logger.fine(LOG_MSG_LOADED + EnvisatConstants.MERIS_TIE_POINT_GRID_NAMES[merisPressIndex]);
 
             // digital elevation
-            _elevBand = product.getTiePointGrid(EnvisatConstants.MERIS_TIE_POINT_GRID_NAMES[_merisElevIndex]);
-            Assert.notNull(_elevBand);
-            _logger.fine(SmacConstants.LOG_MSG_LOADED + EnvisatConstants.MERIS_TIE_POINT_GRID_NAMES[_merisElevIndex]);
+            elevBand = product.getTiePointGrid(EnvisatConstants.MERIS_TIE_POINT_GRID_NAMES[merisElevIndex]);
+            Assert.notNull(elevBand);
+            logger.fine(LOG_MSG_LOADED + EnvisatConstants.MERIS_TIE_POINT_GRID_NAMES[merisElevIndex]);
         }
-        _logger.info(ProcessorConstants.LOG_MSG_SUCCESS);
+        logger.info("... success");
     }
 
-    // Loads the AATSR ADS needed.
     private void loadAATSR_ADS(Product product) {
 
-        _logger.info(SmacConstants.LOG_MSG_LOAD_AATSR_ADS);
+        logger.info("Loading AATSR ADS");
 
         // sun elevation angle nadir
-        _szaBand = product.getTiePointGrid(EnvisatConstants.AATSR_TIE_POINT_GRID_NAMES[_aatsrSzaIndex]);
-        Assert.notNull(_szaBand);
-        _logger.fine(SmacConstants.LOG_MSG_LOADED + EnvisatConstants.AATSR_TIE_POINT_GRID_NAMES[_aatsrSzaIndex]);
+        szaBand = product.getTiePointGrid(EnvisatConstants.AATSR_TIE_POINT_GRID_NAMES[aatsrSzaIndex]);
+        Assert.notNull(szaBand);
+        logger.fine(LOG_MSG_LOADED + EnvisatConstants.AATSR_TIE_POINT_GRID_NAMES[aatsrSzaIndex]);
 
         // sun elevation angle forward
-        _szaFwdBand = product.getTiePointGrid(EnvisatConstants.AATSR_TIE_POINT_GRID_NAMES[_aatsrSzaFwdIndex]);
-        Assert.notNull(_szaFwdBand);
-        _logger.fine(SmacConstants.LOG_MSG_LOADED + EnvisatConstants.AATSR_TIE_POINT_GRID_NAMES[_aatsrSzaFwdIndex]);
+        szaFwdBand = product.getTiePointGrid(EnvisatConstants.AATSR_TIE_POINT_GRID_NAMES[aatsrSzaFwdIndex]);
+        Assert.notNull(szaFwdBand);
+        logger.fine(LOG_MSG_LOADED + EnvisatConstants.AATSR_TIE_POINT_GRID_NAMES[aatsrSzaFwdIndex]);
 
         // sun azimuth angle nadir
-        _saaBand = product.getTiePointGrid(EnvisatConstants.AATSR_TIE_POINT_GRID_NAMES[_aatsrSaaIndex]);
-        Assert.notNull(_saaBand);
-        _logger.fine(SmacConstants.LOG_MSG_LOADED + EnvisatConstants.AATSR_TIE_POINT_GRID_NAMES[_aatsrSaaIndex]);
+        saaBand = product.getTiePointGrid(EnvisatConstants.AATSR_TIE_POINT_GRID_NAMES[aatsrSaaIndex]);
+        Assert.notNull(saaBand);
+        logger.fine(LOG_MSG_LOADED + EnvisatConstants.AATSR_TIE_POINT_GRID_NAMES[aatsrSaaIndex]);
 
         // sun azimuth angle forward
-        _saaFwdBand = product.getTiePointGrid(EnvisatConstants.AATSR_TIE_POINT_GRID_NAMES[_aatsrSaaFwdIndex]);
-        Assert.notNull(_saaFwdBand);
-        _logger.fine(SmacConstants.LOG_MSG_LOADED + EnvisatConstants.AATSR_TIE_POINT_GRID_NAMES[_aatsrSaaFwdIndex]);
+        saaFwdBand = product.getTiePointGrid(EnvisatConstants.AATSR_TIE_POINT_GRID_NAMES[aatsrSaaFwdIndex]);
+        Assert.notNull(saaFwdBand);
+        logger.fine(LOG_MSG_LOADED + EnvisatConstants.AATSR_TIE_POINT_GRID_NAMES[aatsrSaaFwdIndex]);
 
         // view elevation angle nadir
-        _vzaBand = product.getTiePointGrid(EnvisatConstants.AATSR_TIE_POINT_GRID_NAMES[_aatsrVzaIndex]);
-        Assert.notNull(_vzaBand);
-        _logger.fine(SmacConstants.LOG_MSG_LOADED + EnvisatConstants.AATSR_TIE_POINT_GRID_NAMES[_aatsrVzaIndex]);
+        vzaBand = product.getTiePointGrid(EnvisatConstants.AATSR_TIE_POINT_GRID_NAMES[aatsrVzaIndex]);
+        Assert.notNull(vzaBand);
+        logger.fine(LOG_MSG_LOADED + EnvisatConstants.AATSR_TIE_POINT_GRID_NAMES[aatsrVzaIndex]);
 
         // view elevation angle forward
-        _vzaFwdBand = product.getTiePointGrid(EnvisatConstants.AATSR_TIE_POINT_GRID_NAMES[_aatsrVzaFwdIndex]);
-        Assert.notNull(_vzaFwdBand);
-        _logger.fine(SmacConstants.LOG_MSG_LOADED + EnvisatConstants.AATSR_TIE_POINT_GRID_NAMES[_aatsrVzaFwdIndex]);
+        vzaFwdBand = product.getTiePointGrid(EnvisatConstants.AATSR_TIE_POINT_GRID_NAMES[aatsrVzaFwdIndex]);
+        Assert.notNull(vzaFwdBand);
+        logger.fine(LOG_MSG_LOADED + EnvisatConstants.AATSR_TIE_POINT_GRID_NAMES[aatsrVzaFwdIndex]);
 
         // view azimuth angle nadir
-        _vaaBand = product.getTiePointGrid(EnvisatConstants.AATSR_TIE_POINT_GRID_NAMES[_aatsrVaaIndex]);
-        Assert.notNull(_vaaBand);
-        _logger.fine(SmacConstants.LOG_MSG_LOADED + EnvisatConstants.AATSR_TIE_POINT_GRID_NAMES[_aatsrVaaIndex]);
+        vaaBand = product.getTiePointGrid(EnvisatConstants.AATSR_TIE_POINT_GRID_NAMES[aatsrVaaIndex]);
+        Assert.notNull(vaaBand);
+        logger.fine(LOG_MSG_LOADED + EnvisatConstants.AATSR_TIE_POINT_GRID_NAMES[aatsrVaaIndex]);
 
         // view azimuth angle forward
-        _vaaFwdBand = product.getTiePointGrid(EnvisatConstants.AATSR_TIE_POINT_GRID_NAMES[_aatsrVaaFwdIndex]);
-        Assert.notNull(_vaaFwdBand);
-        _logger.fine(SmacConstants.LOG_MSG_LOADED + EnvisatConstants.AATSR_TIE_POINT_GRID_NAMES[_aatsrVaaFwdIndex]);
+        vaaFwdBand = product.getTiePointGrid(EnvisatConstants.AATSR_TIE_POINT_GRID_NAMES[aatsrVaaFwdIndex]);
+        Assert.notNull(vaaFwdBand);
+        logger.fine(LOG_MSG_LOADED + EnvisatConstants.AATSR_TIE_POINT_GRID_NAMES[aatsrVaaFwdIndex]);
 
-        _logger.info(ProcessorConstants.LOG_MSG_SUCCESS);
+        logger.info("... success");
     }
 
     /**
      * Replaces createBitmaskTerm()
      */
     private void createMask() {
-        if (ObjectUtils.equalObjects(_sensorType, SensorCoefficientManager.MERIS_NAME)) {
+        if (ObjectUtils.equalObjects(sensorType, SensorCoefficientManager.MERIS_NAME)) {
             createMerisBitmaskTerm();
         } else {
             createAatsrBitmaskTerm();
@@ -359,15 +413,15 @@ public class SmacOperator extends Operator {
     // Creates a MERIS bitmask term given the bitmask expression from the request. If no expression is set, it uses the
     // default expression
     private void createMerisBitmaskTerm() {
-        if ("".equalsIgnoreCase(_bitMaskExpression)) {
-            _bitMaskExpression = SmacConstants.DEFAULT_MERIS_FLAGS_VALUE;
-            _logger.warning(SmacConstants.LOG_MSG_NO_BITMASK);
-            _logger.warning(SmacConstants.LOG_MSG_DEFAULT_BITMASK + SmacConstants.DEFAULT_MERIS_FLAGS_VALUE);
+        if ("".equalsIgnoreCase(maskExpression)) {
+            maskExpression = DEFAULT_MERIS_FLAGS_VALUE;
+            logger.warning("No mask expression defined");
+            logger.warning("Using default mask expression: " + DEFAULT_MERIS_FLAGS_VALUE);
         } else {
-            _logger.info(SmacConstants.LOG_MSG_BITMASK + _bitMaskExpression);
+            logger.info("Using mask expression: " + maskExpression);
         }
-        Mask mask = sourceProduct.addMask(SMAC_MASK, _bitMaskExpression, "", Color.BLACK, 0.0);
-        mask.setValidPixelExpression(_bitMaskExpression);
+        Mask mask = sourceProduct.addMask(SMAC_MASK, maskExpression, "", Color.BLACK, 0.0);
+        mask.setValidPixelExpression(maskExpression);
     }
 
     // Creates an AATSR bitmask term given the bitmask expression from the request. If no expression is set, it uses the
@@ -375,37 +429,28 @@ public class SmacOperator extends Operator {
     private void createAatsrBitmaskTerm() {
         Mask mask;
         Mask forwardMask;
-        if ("".equalsIgnoreCase(_bitMaskExpression)) {
-            mask = sourceProduct.addMask(SMAC_MASK, SmacConstants.DEFAULT_NADIR_FLAGS_VALUE, "", Color.BLACK, 0.0);
-            forwardMask = sourceProduct.addMask(SMAC_MASK_FORWARD, SmacConstants.DEFAULT_FORWARD_FLAGS_VALUE, "", Color.BLACK, 0.0);
+        if ("".equalsIgnoreCase(maskExpression)) {
+            mask = sourceProduct.addMask(SMAC_MASK, DEFAULT_NADIR_FLAGS_VALUE, "", Color.BLACK, 0.0);
+            forwardMask = sourceProduct.addMask(SMAC_MASK_FORWARD, DEFAULT_FORWARD_FLAGS_VALUE, "", Color.BLACK, 0.0);
 
-            _logger.warning(SmacConstants.LOG_MSG_NO_BITMASK);
-            _logger.warning(SmacConstants.LOG_MSG_DEFAULT_NADIR_BITMASK + SmacConstants.DEFAULT_NADIR_FLAGS_VALUE);
-            _logger.warning(SmacConstants.LOG_MSG_DEFAULT_FORWARD_BITMASK + SmacConstants.DEFAULT_FORWARD_FLAGS_VALUE);
+            logger.warning("No mask expression defined");
+            logger.warning("Using default nadir mask expression: " + DEFAULT_NADIR_FLAGS_VALUE);
+            logger.warning("Using default forward mask expression: " + DEFAULT_FORWARD_FLAGS_VALUE);
         } else {
-            mask = sourceProduct.addMask(SMAC_MASK, _bitMaskExpression, "", Color.BLACK, 0.0);
-            forwardMask = sourceProduct.addMask(SMAC_MASK_FORWARD, _bitMaskExpressionForward, "", Color.BLACK, 0.0);
+            mask = sourceProduct.addMask(SMAC_MASK, maskExpression, "", Color.BLACK, 0.0);
+            forwardMask = sourceProduct.addMask(SMAC_MASK_FORWARD, maskExpressionForward, "", Color.BLACK, 0.0);
 
-            _logger.info(SmacConstants.LOG_MSG_NADIR_BITMASK + _bitMaskExpression);
-            _logger.info(SmacConstants.LOG_MSG_FORWARD_BITMASK + _bitMaskExpressionForward);
+            logger.info("Using nadir mask expression: " + maskExpression);
+            logger.info("Using forward mask expression: " + maskExpressionForward);
         }
-        mask.setValidPixelExpression(_bitMaskExpression);
-        forwardMask.setValidPixelExpression(_bitMaskExpressionForward);
-    }
-
-    private void installAuxdata() {
-        setAuxdataInstallDir(SmacConstants.SMAC_AUXDATA_DIR_PROPERTY, getDefaultAuxdataInstallDir());
-        try {
-            installAuxdata(ResourceInstaller.getSourceUrl(getClass()), "auxdata/", _auxdataInstallDir);
-        } catch (IOException e) {
-            throw new OperatorException("Failed to install auxdata into " + _auxdataInstallDir, e);
-        }
+        mask.setValidPixelExpression(maskExpression);
+        forwardMask.setValidPixelExpression(maskExpressionForward);
     }
 
     private void setAuxdataInstallDir(String auxdataDirPropertyName, File defaultAuxdataInstallDir) {
         Assert.argument(StringUtils.isNotNullAndNotEmpty(auxdataDirPropertyName), "auxdataDirPropertyName is not null and not empty");
         String auxdataDirPath = System.getProperty(auxdataDirPropertyName, defaultAuxdataInstallDir.getAbsolutePath());
-        _auxdataInstallDir = new File(auxdataDirPath);
+        auxdataInstallDir = new File(auxdataDirPath);
     }
 
     private File getDefaultAuxdataInstallDir() {
@@ -426,7 +471,7 @@ public class SmacOperator extends Operator {
 
         // loop over bands and create them
         // -------------------------------
-        if (ObjectUtils.equalObjects(_sensorType, SensorCoefficientManager.MERIS_NAME)) {
+        if (ObjectUtils.equalObjects(sensorType, SensorCoefficientManager.MERIS_NAME)) {
             addBandsToOutput("Atmosphere corrected MERIS band ", true);
         } else {
             addBandsToOutput("Atmosphere corrected band ", false);
@@ -448,7 +493,7 @@ public class SmacOperator extends Operator {
     }
 
     private void addBandsToOutput(String description, boolean convertMerisName) {
-        for (Band inBand : _inputBandList) {
+        for (Band inBand : inputBandList) {
             String newBandName;
             String bandUnit;
             if (convertMerisName) {
@@ -472,7 +517,7 @@ public class SmacOperator extends Operator {
     // Helper Routine. Converts a given MERIS L1b band name (radiance_x) to the band name needed in the output product
     // (reflectance_x).
     static String convertMerisBandName(String bandName, Map<String, String> bandNameMapping) {
-        String outBandName = _merisBandPrefix;
+        String outBandName = merisBandPrefix;
         int blankIndex = bandName.indexOf('_');
         if (blankIndex > 0) {
             outBandName += bandName.substring(blankIndex, bandName.length());
@@ -491,281 +536,150 @@ public class SmacOperator extends Operator {
         return targetBandName;
     }
 
-    // Processes a single band MERIS data using the MERIS ADS.
-    private void processMerisBandWithADS(Band sourceBand, Tile sourceTile, Tile targetTile, Rectangle targetRectangle, SmacAlgorithm algorithm) throws IOException {
-        // load appropriate Sensor coefficientFile and init algorithm
-        // ----------------------------------------------------------
-        if (!loadBandCoefficients(sourceBand, algorithm)) {
-            _logger.severe(
-                    SmacConstants.LOG_MSG_COEFF_NOT_FOUND_1 + sourceBand.getName() +
-                    SmacConstants.LOG_MSG_COEFF_NOT_FOUND_2);
+    private void processMerisWithADS(Band spectralBand, SourceData sourceData, Tile targetTile, Rectangle targetRectangle, SmacAlgorithm algorithm) throws IOException {
+        if (!setBandCoefficients(spectralBand.getName(), algorithm)) {
+            logger.severe(String.format("Sensor coefficient file for spectral band '%s' not found!", spectralBand.getName()));
             return;
         }
 
-        _logger.info(
-                SmacConstants.LOG_MSG_GENERATING_PIXEL_1 + sourceBand.getName() +
-                SmacConstants.LOG_MSG_GENERATING_PIXEL_2);
+        float[] toa = RsMathUtils.radianceToReflectance(sourceData.toa, sourceData.sza, spectralBand.getSolarFlux(), null);
+        float[] press = RsMathUtils.simpleBarometric(sourceData.press, sourceData.elev, null);
+        float[] uo3 = dobsonToCmAtm(sourceData.uo3);
+        float[] uh2o = relativeHumidityTogcm2(sourceData.uh2o);
 
-        // initialize vectors and other data
-        // ---------------------------------
-        int width = targetRectangle.width;
-        int height = targetRectangle.height;
-        int x = targetRectangle.x;
-        int y = targetRectangle.y;
-
-        float[] taup550 = new float[width];
-
-        float[] sza = getSourceTile(_szaBand, targetRectangle).getSamplesFloat();
-        float[] saa = getSourceTile(_saaBand, targetRectangle).getSamplesFloat();
-        float[] vza = getSourceTile(_vzaBand, targetRectangle).getSamplesFloat();
-        float[] vaa = getSourceTile(_vaaBand, targetRectangle).getSamplesFloat();
-        float[] uh2o = getSourceTile(_wvBand, targetRectangle).getSamplesFloat();
-        float[] uo3 = getSourceTile(_o3Band, targetRectangle).getSamplesFloat();
-        float[] press = getSourceTile(_pressBand, targetRectangle).getSamplesFloat();
-        float[] elev = getSourceTile(_elevBand, targetRectangle).getSamplesFloat();
-        boolean[] process = new boolean[width];
-        float[] toa_corr = new float[width];
-        float[] toa = sourceTile.getSamplesFloat();
-
-        // set up vector - this parameter is constant for the request
-        for (int i = 0; i < width; i++) {
-            taup550[i] = _tau_aero_550;
-        }
-
-        // scale radiance to reflectance
-        // -------------------------------
-        toa = RsMathUtils.radianceToReflectance(toa, sza, sourceBand.getSolarFlux(), toa);
-
-        // correct pressure due to elevation
-        // ---------------------------------
-        press = RsMathUtils.simpleBarometric(press, elev, press);
-
-        // scale DU to cm * atm
-        // ----------------------
-        uo3 = dobsonToCmAtm(uo3);
-
-        // scale relative humidity to g/cm^2
-        // -----------------------------------
-        uh2o = relativeHumidityTogcm2(uh2o);
-
-        // forEachPixel bitmask
-        // ----------------
-        // forEachPixel bitmask
         Mask mask = sourceProduct.getMaskGroup().get(SMAC_MASK);
         int i = 0;
-        for (int absY = y; absY < targetRectangle.y + targetRectangle.height; absY++) {
-            for (int absX = x; absX < targetRectangle.x + targetRectangle.width; absX++) {
-                process[i] = mask.getSampleInt(absX, absY) == 255;
+        for (int absY = targetRectangle.y; absY < targetRectangle.y + targetRectangle.height; absY++) {
+            for (int absX = targetRectangle.x; absX < targetRectangle.x + targetRectangle.width; absX++) {
+                sourceData.process[i] = mask.getSampleInt(absX, absY) != 0;
                 i++;
             }
         }
 
-        // process tile
-        // ----------------
-        toa_corr = algorithm.run(sza, saa, vza, vaa, taup550, uh2o, uo3, press, process,
-                                 _invalidPixel, toa, toa_corr);
+        float[] toa_corr = new float[toa.length];
+        toa_corr = algorithm.run(sourceData.sza, sourceData.saa, sourceData.vza, sourceData.vaa, sourceData.taup550,
+                                 uh2o, uo3, press, sourceData.process, invalidPixel,
+                                 toa, toa_corr);
 
-        // write scanline
-        // --------------
         targetTile.setSamples(toa_corr);
-        _logger.info(ProcessorConstants.LOG_MSG_PROC_SUCCESS);
     }
 
-    // Processes a single spectralBand of MERIS data.
-    private void processMerisBand(Band spectralBand, Tile sourceTile, Tile targetTile, Rectangle targetRectangle, SmacAlgorithm algorithm) throws IOException {
-
-        // load appropriate Sensor coefficientFile and init algorithm
-        // ----------------------------------------------------------
-        if (!loadBandCoefficients(spectralBand, algorithm)) {
-            _logger.severe(SmacConstants.LOG_MSG_COEFF_NOT_FOUND_1 + spectralBand.getName() +
-                           SmacConstants.LOG_MSG_COEFF_NOT_FOUND_2);
+    // Processes MERIS data.
+    private void processMeris(Band spectralBand, SourceData sourceData, Tile targetTile, Rectangle targetRectangle, SmacAlgorithm algorithm) throws IOException {
+        if (!setBandCoefficients(spectralBand.getName(), algorithm)) {
+            logger.severe("Sensor coefficient file for spectral band '" + spectralBand.getName() +
+                          "' not found!");
             return;
         }
 
-        _logger.info(SmacConstants.LOG_MSG_GENERATING_PIXEL_1 + spectralBand.getName() +
-                     SmacConstants.LOG_MSG_GENERATING_PIXEL_2);
+        float[] reflectances = RsMathUtils.radianceToReflectance(sourceData.toa, sourceData.sza, spectralBand.getSolarFlux(), null);
 
-        // initialize vectors and other data
-        int width = targetRectangle.width;
-        int height = targetRectangle.height;
-        int x = targetRectangle.x;
-        int y = targetRectangle.y;
-
-        float[] sza;
-        float[] saa;
-        float[] vza;
-        float[] vaa;
-        float[] taup550 = new float[width * height];
-        float[] uh2o = new float[width * height];
-        float[] uo3 = new float[width * height];
-        float[] press = new float[width * height];
-        boolean[] process = new boolean[width * height];
-        float[] toa_corr = new float[width * height];
-        float[] toa = sourceTile.getSamplesFloat();
-
-        for (int n = 0; n < width; n++) {
-            taup550[n] = _tau_aero_550;
-            uh2o[n] = _u_h2o;
-            uo3[n] = _u_o3;
-            press[n] = _surf_press;
-            process[n] = true;
-        }
-
-        Tile szaTile = getSourceTile(_szaBand, targetRectangle);
-        Tile saaTile = getSourceTile(_saaBand, targetRectangle);
-        Tile vzaTile = getSourceTile(_vzaBand, targetRectangle);
-        Tile vaaTile = getSourceTile(_vaaBand, targetRectangle);
-
-        sza = szaTile.getSamplesFloat();
-        saa = saaTile.getSamplesFloat();
-        vza = vzaTile.getSamplesFloat();
-        vaa = vaaTile.getSamplesFloat();
-
-        // scale radiances to reflectances
-        toa = RsMathUtils.radianceToReflectance(toa, sza, spectralBand.getSolarFlux(), toa);
-
-        // forEachPixel bitmask
         Mask mask = sourceProduct.getMaskGroup().get(SMAC_MASK);
         int i = 0;
-        for (int absY = y; absY < targetRectangle.y + targetRectangle.height; absY++) {
-            for (int absX = x; absX < targetRectangle.x + targetRectangle.width; absX++) {
-                process[i] = mask.getSampleInt(absX, absY) == 255;
+        for (int absY = targetRectangle.y; absY < targetRectangle.y + targetRectangle.height; absY++) {
+            for (int absX = targetRectangle.x; absX < targetRectangle.x + targetRectangle.width; absX++) {
+                sourceData.process[i] = mask.getSampleInt(absX, absY) != 0;
                 i++;
             }
         }
 
-        // process scanline
-        toa_corr = algorithm.run(sza, saa, vza, vaa, taup550, uh2o, uo3, press, process,
-                                 _invalidPixel, toa, toa_corr);
+        float[] toa_corr = new float[reflectances.length];
+        toa_corr = algorithm.run(sourceData.sza, sourceData.saa, sourceData.vza, sourceData.vaa, sourceData.taup550,
+                                 sourceData.uh2o, sourceData.uo3, sourceData.press, sourceData.process, invalidPixel,
+                                 reflectances, toa_corr);
 
-        // write scanline
         targetTile.setSamples(toa_corr);
-        _logger.info(ProcessorConstants.LOG_MSG_PROC_SUCCESS);
     }
 
     // Processes a single AATSR band.
-    private void processAatsrBand(Band band, Tile sourceTile, Tile targetTile, Rectangle targetRectangle, SmacAlgorithm algorithm) throws IOException {
-        // load appropriate Sensor coefficientFile and init algorithm
-        // ----------------------------------------------------------
-        if (!loadBandCoefficients(band, algorithm)) {
-            _logger.severe(SmacConstants.LOG_MSG_COEFF_NOT_FOUND_1 + band.getName() +
-                           SmacConstants.LOG_MSG_COEFF_NOT_FOUND_2);
+    private void processAatsr(String bandName, SourceData sourceData, Tile targetTile, Rectangle targetRectangle, SmacAlgorithm algorithm) throws IOException {
+        if (!setBandCoefficients(bandName, algorithm)) {
+            logger.severe("Sensor coefficient file for spectral band '" + bandName +
+                          "' not found!");
             return;
         }
 
-        _logger.info(SmacConstants.LOG_MSG_GENERATING_PIXEL_1 + band.getName() + SmacConstants.LOG_MSG_GENERATING_PIXEL_2);
-
-        // initialize vectors and other data
-        // ---------------------------------
-        int x = targetRectangle.x;
-        int y = targetRectangle.y;
-        int width = targetRectangle.width;
-        int height = targetRectangle.height;
-        boolean isForwardBand = checkForAATSRForwardBand(band);
-        float[] taup550 = new float[width * height];
-        float[] uh2o = new float[width * height];
-        float[] uo3 = new float[width * height];
-        float[] press = new float[width * height];
-        boolean[] process = new boolean[width * height];
-        float[] toa_corr = new float[width * height];
-        float[] toa = sourceTile.getSamplesFloat();
-        float[] sza;
-        float[] saa;
-        float[] vza;
-        float[] vaa;
+        boolean isForwardBand = bandName.contains("fward");
 
         // set the tie point bands and mask according to input band view
-        // ----------------------------------------------------
+        // and scale sun and view elevation to zenith angles
         Mask mask;
+        float[] vza;
+        float[] sza;
         if (isForwardBand) {
-            sza = getSourceTile(_szaFwdBand, targetRectangle).getSamplesFloat();
-            saa = getSourceTile(_saaFwdBand, targetRectangle).getSamplesFloat();
-            vza = getSourceTile(_vzaFwdBand, targetRectangle).getSamplesFloat();
-            vaa = getSourceTile(_vaaFwdBand, targetRectangle).getSamplesFloat();
+            vza = RsMathUtils.elevationToZenith(sourceData.vzaFwd, null);
+            sza = RsMathUtils.elevationToZenith(sourceData.szaFwd, null);
             mask = sourceProduct.getMaskGroup().get(SMAC_MASK_FORWARD);
         } else {
-            sza = getSourceTile(_szaBand, targetRectangle).getSamplesFloat();
-            saa = getSourceTile(_saaBand, targetRectangle).getSamplesFloat();
-            vza = getSourceTile(_vzaBand, targetRectangle).getSamplesFloat();
-            vaa = getSourceTile(_vaaBand, targetRectangle).getSamplesFloat();
+            vza = RsMathUtils.elevationToZenith(sourceData.vza, null);
+            sza = RsMathUtils.elevationToZenith(sourceData.sza, null);
             mask = sourceProduct.getMaskGroup().get(SMAC_MASK);
         }
 
-        // initialize vectors
-        // ------------------
-        for (int i = 0; i < width; i++) {
-            taup550[i] = _tau_aero_550;
-            uh2o[i] = _u_h2o;
-            uo3[i] = _u_o3;
-            press[i] = _surf_press;
-            process[i] = true;
-        }
-
-        // scale sun and view elevation to zenith angles
-        sza = RsMathUtils.elevationToZenith(sza, sza);
-        vza = RsMathUtils.elevationToZenith(vza, vza);
-
-        // forEachPixel bitmask
         int i = 0;
-        for (int absY = y; absY < targetRectangle.y + targetRectangle.height; absY++) {
-            for (int absX = x; absX < targetRectangle.x + targetRectangle.width; absX++) {
-                process[i] = mask.getSampleInt(absX, absY) != 0;
+        for (int absY = targetRectangle.y; absY < targetRectangle.y + targetRectangle.height; absY++) {
+            for (int absX = targetRectangle.x; absX < targetRectangle.x + targetRectangle.width; absX++) {
+                sourceData.process[i] = mask.getSampleInt(absX, absY) != 0;
                 i++;
             }
         }
 
-        // process scanline
-        toa_corr = algorithm.run(sza, saa, vza, vaa, taup550, uh2o, uo3, press, process,
-                                 _invalidPixel, toa, toa_corr);
+        float[] toa_corr = new float[sourceData.toa.length];
+        toa_corr = algorithm.run(sourceData.sza, sourceData.saa, vza, sza, sourceData.taup550,
+                                 sourceData.uh2o, sourceData.uo3, sourceData.press, sourceData.process, invalidPixel,
+                                 sourceData.toa, toa_corr);
 
-        // write tile
         targetTile.setSamples(toa_corr);
-
-        _logger.info(ProcessorConstants.LOG_MSG_PROC_SUCCESS);
     }
 
-    private boolean loadBandCoefficients(Band band, SmacAlgorithm algorithm) {
-        boolean bRet = false;
+
+    private boolean setBandCoefficients(String bandName, SmacAlgorithm algorithm) {
+        if (coefficients.containsKey(bandName)) {
+            algorithm.setSensorCoefficients(coefficients.get(bandName));
+            return true;
+        }
         URL url;
         SensorCoefficientFile coeff = new SensorCoefficientFile();
         boolean handleError = false;
+        boolean success = false;
 
         try {
-            url = getSensorCoefficientManager().getCoefficientFile(_sensorType, band.getName(), _aerosolType);
+            url = getSensorCoefficientManager().getCoefficientFile(sensorType, bandName, aerosolType);
             if (url == null) {
                 handleError = true;
             } else {
                 coeff.readFile(new File(url.toURI()).getAbsolutePath());
-                _logger.info(SmacConstants.LOG_MSG_LOADED_COEFFICIENTS + url.getFile());
+                logger.info("Loaded sensor coefficient file " + url.getFile());
                 algorithm.setSensorCoefficients(coeff);
-                bRet = true;
+                coefficients.put(bandName, coeff);
+                success = true;
             }
         } catch (IOException e) {
             handleError = true;
-            _logger.severe(e.getMessage());
+            logger.severe(e.getMessage());
         } catch (URISyntaxException e) {
             handleError = true;
-            _logger.severe(e.getMessage());
+            logger.severe(e.getMessage());
         }
 
         if (handleError) {
-            _logger.severe(SmacConstants.LOG_MSG_ERROR_COEFFICIENTS + band.getName());
+            logger.severe("Unable to load sensor coefficients for band " + bandName);
         }
 
-        return bRet;
+        return success;
     }
 
     private SensorCoefficientManager getSensorCoefficientManager() {
-        File smacAuxDir = _auxdataInstallDir;
+        File smacAuxDir = auxdataInstallDir;
         String auxPathString = smacAuxDir.toString();
         SensorCoefficientManager coeffMgr = null;
         try {
             coeffMgr = new SensorCoefficientManager(smacAuxDir.toURI().toURL());
-            _logger.fine(SmacConstants.LOG_MSG_AUX_DIR + auxPathString);
+            logger.fine("Using auxiliary data path: " + auxPathString);
         } catch (IOException e) {
-            _logger.severe(SmacConstants.LOG_MSG_AUX_ERROR + auxPathString);
-            _logger.severe(e.getMessage());
-            _logger.log(Level.FINE, e.getMessage(), e);
+            logger.severe("Error reading coefficients from: " + auxPathString);
+            logger.severe(e.getMessage());
+            logger.log(Level.FINE, e.getMessage(), e);
         }
         return coeffMgr;
     }
@@ -774,7 +688,7 @@ public class SmacOperator extends Operator {
     private static float[] dobsonToCmAtm(float[] du) {
         Assert.notNull(du, "du");
         for (int n = 0; n < du.length; n++) {
-            du[n] = du[n] * _duToCmAtm;
+            du[n] = du[n] * duToCmAtm;
         }
         return du;
     }
@@ -785,21 +699,10 @@ public class SmacOperator extends Operator {
         Assert.notNull(relHum, "relHum");
 
         for (int n = 0; n < relHum.length; n++) {
-            relHum[n] = _relHumTogcm * relHum[n];
+            relHum[n] = relHumTogcm * relHum[n];
         }
 
         return relHum;
-    }
-
-    /**
-     * Checks if the given band is an AATSR forward band.
-     *
-     * @param band the <code>Band</code> to be checked.
-     *
-     * @return true when the band is a forward band
-     */
-    private static boolean checkForAATSRForwardBand(Band band) {
-        return band.getName().contains("fward");
     }
 
     public static class Spi extends OperatorSpi {
@@ -810,4 +713,22 @@ public class SmacOperator extends Operator {
 
     }
 
+    private class SourceData {
+
+        float[] sza;
+        float[] saa;
+        float[] vza;
+        float[] vaa;
+        float[] szaFwd;
+        float[] saaFwd;
+        float[] vzaFwd;
+        float[] vaaFwd;
+        float[] uh2o;
+        float[] uo3;
+        float[] press;
+        float[] elev;
+        float[] taup550;
+        boolean[] process;
+        float[] toa;
+    }
 }

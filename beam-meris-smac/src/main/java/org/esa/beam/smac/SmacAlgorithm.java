@@ -13,16 +13,13 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.beam.processor.smac;
+package org.esa.beam.smac;
 
 import org.esa.beam.util.Guardian;
 
 /**
  * Implements the SMAC algorithm as specified by the original source code of H.Rahman and G.Dedieu.
- *
- * @deprecated since BEAM 4.11. No replacement.
  */
-@Deprecated
 public final class SmacAlgorithm {
 
     private static final double _cdr = Math.PI / 180.0;

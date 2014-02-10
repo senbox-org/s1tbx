@@ -13,14 +13,11 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.beam.processor.smac;
+package org.esa.beam.smac;
 
 /**
  * Interface for classes implementing a sensor coefficient set for the <code>SmacAlgorithm</code>.
- *
- * @deprecated since BEAM 4.11. No replacement.
  */
-@Deprecated
 interface SmacSensorCoefficients {
 
     /**

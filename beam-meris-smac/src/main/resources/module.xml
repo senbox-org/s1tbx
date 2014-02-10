@@ -55,29 +55,17 @@
 
     <extension point="beam-ui:actions">
         <action>
-            <id>smacScientificTool</id>
-            <class>org.esa.beam.visat.actions.ProcessorAction</class>
-            <processor>org.esa.beam.processor.smac.SmacProcessor</processor>
-            <text>SMAC Processor (MERIS/(A)ATSR)...</text>
-            <shortDescr>Invoke the MERIS/(A)ATSR SMAC Processor.</shortDescr>
-            <mnemonic>M</mnemonic>
-            <parent>tools</parent>
+            <id>smacTool</id>
             <helpId>smacScientificTool</helpId>
+            <class>org.esa.beam.visat.actions.DefaultOperatorAction</class>
+            <text>SMAC Operator (MERIS/(A)ATSR)...</text>
+            <parent>tools</parent>
+            <operatorName>SmacOp</operatorName>
+            <dialogTitle>Smac Scientific Operator</dialogTitle>
             <placeAfter>NDVIProcessorPlugIn</placeAfter>
+            <shortDescr>Invoke the MERIS/(A)ATSR SMAC Processor.</shortDescr>
+            <targetProductNameSuffix>_smac</targetProductNameSuffix>
         </action>
-
-    <action>
-        <id>smacTool</id>
-        <helpId>smacScientificTool</helpId>
-        <class>org.esa.beam.visat.actions.DefaultOperatorAction</class>
-        <text>SMAC Processor (MERIS/(A)ATSR)...</text>
-        <parent>tools</parent>
-        <operatorName>SmacOp</operatorName>
-        <dialogTitle>Smac Scientific Operator</dialogTitle>
-        <placeAfter>NDVIProcessorPlugIn</placeAfter>
-        <shortDescr>Invoke the MERIS/(A)ATSR SMAC Processor.</shortDescr>
-        <targetProductNameSuffix>_smac</targetProductNameSuffix>
-    </action>
     </extension>
 
 

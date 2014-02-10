@@ -14,14 +14,14 @@
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-package org.esa.beam.processor.smac;
-
-import java.io.FileNotFoundException;
-import java.io.IOException;
+package org.esa.beam.smac;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+
+import java.io.FileNotFoundException;
+import java.io.IOException;
 
 public class SmacAlgorithmTest extends TestCase {
 

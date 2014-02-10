@@ -14,7 +14,7 @@
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-package org.esa.beam.processor.smac;
+package org.esa.beam.smac;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -33,18 +33,18 @@ public class SensorCoefficientFileTest extends TestCase {
 
     @Override
     protected void setUp() throws Exception {
-        oldAuxdataPath = System.getProperty(SmacConstants.SMAC_AUXDATA_DIR_PROPERTY, "");
+        oldAuxdataPath = System.getProperty(SmacOperator.SMAC_AUXDATA_DIR_PROPERTY, "");
         String path = new File(GlobalTestConfig.getBeamTestDataOutputDirectory(), "auxdata/smac").getPath();
-        System.setProperty(SmacConstants.SMAC_AUXDATA_DIR_PROPERTY, path);
-        SmacProcessor processor = new SmacProcessor();
-        processor.installAuxdata(); // just to extract auxdata
-        smacAuxDir = processor.getAuxdataInstallDir();
+        System.setProperty(SmacOperator.SMAC_AUXDATA_DIR_PROPERTY, path);
+        SmacOperator op = new SmacOperator();
+        op.installAuxdata(); // just to extract auxdata
+        smacAuxDir = op.getAuxdataInstallDir();
         assertEquals(path, smacAuxDir.getPath());
     }
 
     @Override
     protected void tearDown() throws Exception {
-        System.setProperty(SmacConstants.SMAC_AUXDATA_DIR_PROPERTY, oldAuxdataPath);
+        System.setProperty(SmacOperator.SMAC_AUXDATA_DIR_PROPERTY, oldAuxdataPath);
     }
 
     public static Test suite() {
@@ -58,15 +58,12 @@ public class SensorCoefficientFileTest extends TestCase {
         try {
             file.readFile(null);
             fail("illegal null argument shall not be accepted");
-        } catch (IllegalArgumentException e) {
-        } catch (FileNotFoundException e) {
-        } catch (IOException e) {
+        } catch (IllegalArgumentException | IOException e) {
         }
         // class shall throw exception when file does not exist
         try {
             file.readFile("gbrmtzewz");
             fail("exception must be thrown when non existent file is passed in");
-        } catch (FileNotFoundException e) {
         } catch (IOException e) {
         }
 

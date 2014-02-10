@@ -14,7 +14,7 @@
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-package org.esa.beam.processor.smac;
+package org.esa.beam.smac;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -34,18 +34,18 @@ public class SensorCoefficientManagerTest extends TestCase {
 
     @Override
      protected void setUp() throws Exception {
-         oldAuxdataPath = System.getProperty(SmacConstants.SMAC_AUXDATA_DIR_PROPERTY, "");
+         oldAuxdataPath = System.getProperty(SmacOperator.SMAC_AUXDATA_DIR_PROPERTY, "");
          String path = new File(GlobalTestConfig.getBeamTestDataOutputDirectory(), "auxdata/smac").getPath();
-         System.setProperty(SmacConstants.SMAC_AUXDATA_DIR_PROPERTY, path);
-         SmacProcessor processor = new SmacProcessor();
-         processor.installAuxdata(); // just to extract auxdata
-         _auxdataDir = processor.getAuxdataInstallDir();
+         System.setProperty(SmacOperator.SMAC_AUXDATA_DIR_PROPERTY, path);
+        SmacOperator op = new SmacOperator();
+        op.installAuxdata(); // just to extract auxdata
+         _auxdataDir = op.getAuxdataInstallDir();
          assertEquals(path, _auxdataDir.getPath());
      }
 
     @Override
     protected void tearDown() throws Exception {
-        System.setProperty(SmacConstants.SMAC_AUXDATA_DIR_PROPERTY, oldAuxdataPath);
+        System.setProperty(SmacOperator.SMAC_AUXDATA_DIR_PROPERTY, oldAuxdataPath);
     }
     public static Test suite() {
         return new TestSuite(SensorCoefficientManagerTest.class);
@@ -74,7 +74,7 @@ public class SensorCoefficientManagerTest extends TestCase {
 
         try {
 //            url = new URL("file", "", _location);
-            url = _auxdataDir.toURL();
+            url = _auxdataDir.toURI().toURL();
         } catch (MalformedURLException e) {
         }
 
@@ -95,7 +95,7 @@ public class SensorCoefficientManagerTest extends TestCase {
 
         try {
 //            url = new URL("file", "", _location);
-            url = _auxdataDir.toURL();
+            url = _auxdataDir.toURI().toURL();
         } catch (MalformedURLException e) {
         }
 
@@ -116,18 +116,16 @@ public class SensorCoefficientManagerTest extends TestCase {
         try {
             mgr.setURL(null);
             fail("IllegalArgumentException expected");
-        } catch (IllegalArgumentException e) {
-        } catch (IOException e) {
+        } catch (IllegalArgumentException | IOException e) {
         }
 
         // if we set a valid url - return something when we ask for it :-)
         URL url;
         try {
 //            url = new URL("file", "", _location);
-            url = _auxdataDir.toURL();
+            url = _auxdataDir.toURI().toURL();
             mgr.setURL(url);
             assertNotNull(mgr.getCoefficientFile("MERIS", "radiance_3", "CONT"));
-        } catch (MalformedURLException e) {
         } catch (IOException e) {
         }
     }

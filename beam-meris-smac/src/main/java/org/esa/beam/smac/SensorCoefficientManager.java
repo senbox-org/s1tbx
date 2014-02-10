@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.beam.processor.smac;
+package org.esa.beam.smac;
 
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.ObjectUtils;
@@ -25,7 +25,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Vector;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Manages the mapping between the satellite sensor bands and the appropriate SMAC coefficient sets.
@@ -42,9 +43,7 @@ import java.util.Vector;
  * the band names defined in <code>BeamConstants</code> ATMOSPHERE_TYPE - dependent on the coefficient set - this
  * string will be seen in the SMAC UI COEFFICIENT_FILE - name of the coefficient file
  *
- * @deprecated since BEAM 4.11. No replacement.
  */
-@Deprecated
 public class SensorCoefficientManager {
 
     public static final String AER_DES_NAME = "DES";
@@ -52,12 +51,11 @@ public class SensorCoefficientManager {
     public static final String MERIS_NAME = "MERIS";
     public static final String AATSR_NAME = "AATSR";
 
-    private static final char[] _fieldSeparators = {'|'};
-    private static final String _mapFileName = "SensorMap.txt";
+    private static final char[] fieldSeparators = {'|'};
+    private static final String mapFileName = "SensorMap.txt";
 
-    private CsvReader _csvReader;
-    private Vector _sensors;
-    private String _locationPath;
+    private List<SensorDb> sensors;
+    private String locationPath;
 
     /**
      * Constructs the object with default parameters.
@@ -87,33 +85,34 @@ public class SensorCoefficientManager {
      */
     public void setURL(URL location) throws IOException {
         Guardian.assertNotNull("location", location);
-        URL mapFileURL = null;
+        URL mapFileURL;
 
+        String file = null;
         try {
-            mapFileURL = new URL(location.getProtocol(), location.getHost(),
-                                 SystemUtils.convertToLocalPath(location.getPath() + "/" + _mapFileName));
+            file = SystemUtils.convertToLocalPath(location.getPath() + "/" + mapFileName);
+            mapFileURL = new URL(location.getProtocol(), location.getHost(), file);
         } catch (MalformedURLException e) {
-            throw new IOException(SmacConstants.LOG_MSG_OPEN_COEFF_ERROR);
+            throw new IOException("Unable to open coefficient map file from URL '" + file + "'", e);
         }
 
         setLocationPath(location);
 
         try (InputStream in = mapFileURL.openStream()) {
-            _csvReader = new CsvReader(new InputStreamReader(in),
-                                       _fieldSeparators);
+            final CsvReader csvReader = new CsvReader(new InputStreamReader(in),
+                                                      fieldSeparators);
 
             // read sensor map file completely and assemble the database
             // ---------------------------------------------------------
             String[] record;
             SensorDb sensorDb;
             BandDb bandDb;
-            while ((record = _csvReader.readRecord()) != null) {
+            while ((record = csvReader.readRecord()) != null) {
                 // retrieve the sensor db entry
                 sensorDb = getSensorDb(record[0]);
                 if (sensorDb == null) {
                     // is not in database yet, create and add to database
                     sensorDb = new SensorDb(record[0]);
-                    _sensors.add(sensorDb);
+                    sensors.add(sensorDb);
                 }
 
                 // add the band entry to sensorDb
@@ -124,38 +123,37 @@ public class SensorCoefficientManager {
     }
 
     /**
-     * Returns the sensor coefficient file URL for a given sensor and band name. Or <code>null</code> when the sensor or
-     * band are not in the database.
+     * Returns the sensor coefficient file URL for a given sensor and bandName name. Or <code>null</code> when the sensor or
+     * bandName are not in the database.
      *
      * @param sensor      the sensor name
-     * @param band        the band name
+     * @param bandName        the bandName name
      * @param aerosolType the aerosol type
      */
-    public URL getCoefficientFile(String sensor, String band, String aerosolType) {
-        URL ret = null;
+    public URL getCoefficientFile(String sensor, String bandName, String aerosolType) {
+        URL url = null;
         SensorDb sensorDb;
 
         sensorDb = getSensorDb(sensor);
         if (sensorDb != null) {
             BandDb bandDb;
 
-            bandDb = sensorDb.getBand(band, aerosolType);
+            bandDb = sensorDb.getBand(bandName, aerosolType);
             if (bandDb == null) {
                 return null;
             }
 
             try {
-                ret = new URL(bandDb.getCoefficientFileName());
+                url = new URL(bandDb.getCoefficientFileName());
             } catch (MalformedURLException e) {
                 try {
-
-                    ret = new URL(_locationPath + bandDb.getCoefficientFileName());
-                } catch (MalformedURLException e1) {
+                    url = new URL(locationPath + bandDb.getCoefficientFileName());
+                } catch (MalformedURLException ignored) {
                 }
             }
         }
 
-        return ret;
+        return url;
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -166,7 +164,7 @@ public class SensorCoefficientManager {
      * Initializes the object.
      */
     private void init() {
-        _sensors = new Vector();
+        sensors = new ArrayList<>();
     }
 
     /**
@@ -176,17 +174,17 @@ public class SensorCoefficientManager {
      * @param name the sensor name
      */
     private SensorDb getSensorDb(String name) {
-        SensorDb ret = null;
+        SensorDb sensorDb = null;
         SensorDb current;
 
-        for (int n = 0; n < _sensors.size(); n++) {
-            current = (SensorDb) _sensors.elementAt(n);
+        for (SensorDb sensor : sensors) {
+            current = sensor;
             if (ObjectUtils.equalObjects(name, current.getName())) {
-                ret = current;
+                sensorDb = current;
             }
         }
 
-        return ret;
+        return sensorDb;
     }
 
     /**
@@ -195,39 +193,23 @@ public class SensorCoefficientManager {
      * @param location the URL
      */
     private void setLocationPath(URL location) {
-        _locationPath = location.toExternalForm();
-
-        // check if the location path ends with a separator. If not -> append.
-//        if (_locationPath.charAt(_locationPath.length() - 1) != File.separatorChar) {
-//            _locationPath += File.separator;
-//        }
+        locationPath = location.toExternalForm();
     }
-
-    ///////////////////////////////////////////////////////////////////////////
-    ////// CLASS //////////////////////////////////////////////////////////////
-    ///////////////////////////////////////////////////////////////////////////
 
     /**
      * Class holding the coefficient file information for one satellite sensor.
      */
     private class SensorDb {
 
-        private String _name;
-        private Vector _bands;
-
-        /**
-         * Creates the object with default parameters.
-         */
-        public SensorDb() {
-            init();
-        }
+        private String name;
+        private List<BandDb> bands;
 
         /**
          * Constructs the class with given sensor name
          *
          * @param name the sensor name
          */
-        public SensorDb(String name) {
+        SensorDb(String name) {
             init();
             setName(name);
         }
@@ -235,8 +217,8 @@ public class SensorCoefficientManager {
         /**
          * Retrieves the name of the sensor.
          */
-        public String getName() {
-            return _name;
+        String getName() {
+            return name;
         }
 
         /**
@@ -244,9 +226,9 @@ public class SensorCoefficientManager {
          *
          * @param name the sensor name
          */
-        public void setName(String name) {
+        void setName(String name) {
             Guardian.assertNotNull("name", name);
-            _name = name;
+            this.name = name;
         }
 
         /**
@@ -254,9 +236,9 @@ public class SensorCoefficientManager {
          *
          * @param band the BandDb entry to be added
          */
-        public void addBand(BandDb band) {
+        void addBand(BandDb band) {
             Guardian.assertNotNull("bandDb", band);
-            _bands.add(band);
+            bands.add(band);
         }
 
         /**
@@ -269,11 +251,11 @@ public class SensorCoefficientManager {
             BandDb ret = null;
             BandDb current;
 
-            for (int n = 0; n < _bands.size(); n++) {
-                current = (BandDb) _bands.elementAt(n);
+            for (BandDb band : bands) {
+                current = band;
 
                 if (ObjectUtils.equalObjects(name, current.getBandName())
-                        && ObjectUtils.equalObjects(aerosolType, current.getAerosolType())) {
+                    && ObjectUtils.equalObjects(aerosolType, current.getAerosolType())) {
                     ret = current;
                     break;
                 }
@@ -290,27 +272,23 @@ public class SensorCoefficientManager {
          * Initializes the object.
          */
         private void init() {
-            _bands = new Vector();
+            bands = new ArrayList<>();
         }
     }
-
-    ///////////////////////////////////////////////////////////////////////////
-    ////// CLASS //////////////////////////////////////////////////////////////
-    ///////////////////////////////////////////////////////////////////////////
 
     /**
      * Class holding the band information of a specific sensor coefficient set.
      */
     private class BandDb {
 
-        String _bandName;
-        String _aerosolType;
-        String _coeffFileName;
+        String bandName;
+        String aerosolType;
+        String coeffFileName;
 
         /**
          * Creates the object with given band name, aerosol tape and coefficient file name
          */
-        public BandDb(String bandName, String aerosolType, String coefficientFileName) {
+        BandDb(String bandName, String aerosolType, String coefficientFileName) {
             setBandName(bandName);
             setAerosolType(aerosolType);
             setCoefficientFileName(coefficientFileName);
@@ -321,16 +299,16 @@ public class SensorCoefficientManager {
          *
          * @param bandName the band name
          */
-        public void setBandName(String bandName) {
+        void setBandName(String bandName) {
             Guardian.assertNotNull("bandName", bandName);
-            _bandName = bandName;
+            this.bandName = bandName;
         }
 
         /**
          * Retrieves the band name of the object.
          */
-        public String getBandName() {
-            return _bandName;
+        String getBandName() {
+            return bandName;
         }
 
         /**
@@ -338,16 +316,16 @@ public class SensorCoefficientManager {
          *
          * @param aerosolType the aerosol type
          */
-        public void setAerosolType(String aerosolType) {
+        void setAerosolType(String aerosolType) {
             Guardian.assertNotNull("aerosolType", aerosolType);
-            _aerosolType = aerosolType;
+            this.aerosolType = aerosolType;
         }
 
         /**
          * Retrieves the aerosol type for this object.
          */
-        public String getAerosolType() {
-            return _aerosolType;
+        String getAerosolType() {
+            return aerosolType;
         }
 
         /**
@@ -355,16 +333,16 @@ public class SensorCoefficientManager {
          *
          * @param coeffFile the coefficient file name
          */
-        public void setCoefficientFileName(String coeffFile) {
+        void setCoefficientFileName(String coeffFile) {
             Guardian.assertNotNull("coeffFile", coeffFile);
-            _coeffFileName = coeffFile;
+            coeffFileName = coeffFile;
         }
 
         /**
          * Retrieves the sensor coefficient file name set in this object.
          */
-        public String getCoefficientFileName() {
-            return _coeffFileName;
+        String getCoefficientFileName() {
+            return coeffFileName;
         }
     }
 }

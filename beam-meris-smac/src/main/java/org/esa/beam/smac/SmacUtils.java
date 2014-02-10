@@ -13,18 +13,14 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.beam.processor.smac;
+package org.esa.beam.smac;
 
 import org.esa.beam.dataio.envisat.EnvisatConstants;
 import org.esa.beam.util.Guardian;
 
 import java.util.regex.Pattern;
 
-/*
- * @deprecated since BEAM 4.11. No replacement.
- */
-@Deprecated
-public class SmacUtils {
+class SmacUtils {
 
     private static Pattern AATSR_L1_TOA_TYPE_PATTERN = Pattern.compile("ATS_TOA_1P");
 
@@ -43,8 +39,7 @@ public class SmacUtils {
         } else if (isSupportedMerisProductType(productType)) {
             return SensorCoefficientManager.MERIS_NAME;
         } else {
-            throw new IllegalArgumentException(
-                    SmacConstants.LOG_MSG_UNSUPPORTED_INPUT_1 + productType + SmacConstants.LOG_MSG_UNSUPPORTED_INPUT_2);
+            throw new IllegalArgumentException(String.format("Unsupported input product of type '%s'.\nSMAC processes AATSR and MERIS L1b products.", productType));
         }
     }
 

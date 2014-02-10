@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.beam.processor.smac;
+package org.esa.beam.smac;
 
 import org.esa.beam.util.Guardian;
 
@@ -28,9 +28,7 @@ import java.io.StreamTokenizer;
  * <p/>
  * The files must conform the format specified by the original source code by H.Rahman and G.Dedieu.
  *
- * @deprecated since BEAM 4.11. No replacement.
  */
-@Deprecated
 public class SensorCoefficientFile implements SmacSensorCoefficients {
 
     private double _ah2o;
@@ -98,9 +96,7 @@ public class SensorCoefficientFile implements SmacSensorCoefficients {
      * @throws java.io.FileNotFoundException
      * @throws java.io.IOException
      */
-    public void readFile(String fileName) throws IllegalArgumentException,
-            FileNotFoundException,
-            IOException {
+    public void readFile(String fileName) throws IllegalArgumentException, IOException {
         Guardian.assertNotNull("fileName", fileName);
         File coeffFile = new File(fileName);
 
@@ -453,8 +449,7 @@ public class SensorCoefficientFile implements SmacSensorCoefficients {
     /**
      * Scans the file for coefficients
      */
-    private void scan(File coeffFile) throws FileNotFoundException,
-            IOException {
+    private void scan(File coeffFile) throws IOException {
         FileReader reader = new FileReader(coeffFile);
         StreamTokenizer tokenizer = new StreamTokenizer(reader);
 
@@ -525,7 +520,7 @@ public class SensorCoefficientFile implements SmacSensorCoefficients {
         if (tokenizer.ttype == StreamTokenizer.TT_NUMBER) {
             ret = tokenizer.nval;
         } else {
-            ret = Double.valueOf(tokenizer.sval).doubleValue();
+            ret = Double.valueOf(tokenizer.sval);
         }
 
         return ret;
