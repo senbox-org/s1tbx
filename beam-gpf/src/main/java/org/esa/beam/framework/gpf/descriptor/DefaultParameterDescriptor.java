@@ -59,7 +59,6 @@ public class DefaultParameterDescriptor implements ParameterDescriptor {
     Class<? extends Converter> converterClass;
     Class<? extends DomConverter> domConverterClass;
     String itemAlias;
-    Boolean itemsInlined;
 
     public DefaultParameterDescriptor() {
     }
@@ -240,15 +239,6 @@ public class DefaultParameterDescriptor implements ParameterDescriptor {
 
     public void setItemAlias(String itemAlias) {
         this.itemAlias = itemAlias;
-    }
-
-    @Override
-    public boolean areItemsInlined() {
-        return itemsInlined != null ? itemsInlined : false;
-    }
-
-    public void setItemsInlined(boolean itemsInlined) {
-        this.itemsInlined = itemsInlined;
     }
 
     @Override

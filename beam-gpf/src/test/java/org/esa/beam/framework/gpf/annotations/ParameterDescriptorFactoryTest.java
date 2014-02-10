@@ -52,7 +52,6 @@ public class ParameterDescriptorFactoryTest {
         assertEquals(0.0, propertyDescriptor.getDefaultValue());
         assertSame(DoubleConverter.class, propertyDescriptor.getConverter().getClass());
         assertEquals("", propertyDescriptor.getDescription());
-        assertEquals(false, propertyDescriptor.getItemsInlined());
         assertEquals("Percentage", propertyDescriptor.getDisplayName());
         assertEquals(null, propertyDescriptor.getDomConverter());
         assertEquals(null, propertyDescriptor.getFormat());
@@ -75,7 +74,6 @@ public class ParameterDescriptorFactoryTest {
         assertEquals(0.0, propertyDescriptor.getDefaultValue());
         assertSame(DoubleConverter.class, propertyDescriptor.getConverter().getClass());
         assertEquals("", propertyDescriptor.getDescription());
-        assertEquals(false, propertyDescriptor.getItemsInlined());
         assertEquals("a nice desciption", propertyDescriptor.getDisplayName());
         assertEquals(null, propertyDescriptor.getDomConverter());
         assertEquals(null, propertyDescriptor.getFormat());
@@ -110,7 +108,6 @@ public class ParameterDescriptorFactoryTest {
         assertEquals(null, propertyDescriptor.getDefaultValue());
         assertSame(ArrayConverter.class, propertyDescriptor.getConverter().getClass());
         assertEquals("", propertyDescriptor.getDescription());
-        assertEquals(false, propertyDescriptor.getItemsInlined());
         assertEquals("Threshold array", propertyDescriptor.getDisplayName());
         assertEquals(null, propertyDescriptor.getDomConverter());
         assertEquals(null, propertyDescriptor.getFormat());

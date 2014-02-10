@@ -48,18 +48,8 @@ public @interface Parameter {
      * @return An alias name for the elements of a parameter array.
      *         Forces element-wise array conversion from and to DOM representation.
      *         Defaults to the empty string (= not set).
-     * @see #itemsInlined()
      */
     String itemAlias() default "";
-
-    /**
-     * @return If {@code true}, items of parameter array values are inlined (not
-     *         enclosed by the parameter name) in the DOM representation of the
-     *         array. In this case {@code itemAlias} has to be set.
-     *         Defaults to {@code false}.
-     * @see #itemAlias()
-     */
-    boolean itemsInlined() default false;
 
     /**
      * Gets the parameter's default value.

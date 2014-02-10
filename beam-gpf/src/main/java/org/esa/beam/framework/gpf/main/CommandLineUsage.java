@@ -464,8 +464,8 @@ class CommandLineUsage {
 
     static void convertParameterFieldToDom(ParameterDescriptor parameter, DomElement parametersElem) {
         String name = getName(parameter);
+        DomElement childElem = parametersElem.createChild(name);
         if (parameter.getDataType().isArray() && parameter.getItemAlias() != null) {
-            DomElement childElem = parameter.areItemsInlined() ? parametersElem : parametersElem.createChild(name);
             String itemName = parameter.getItemAlias();
             DomElement element = childElem.createChild(itemName);
             if (!parameter.isStructure()) {
@@ -478,7 +478,6 @@ class CommandLineUsage {
             }
             childElem.createChild("...");
         } else {
-            DomElement childElem = parametersElem.createChild(name);
             if (!parameter.isStructure()) {
                 ParameterDescriptor[] members = parameter.getStructureMemberDescriptors();
                 for (ParameterDescriptor member : members) {

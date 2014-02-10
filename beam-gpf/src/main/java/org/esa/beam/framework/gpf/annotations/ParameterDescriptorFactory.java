@@ -42,7 +42,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-import static org.esa.beam.util.StringUtils.isNotNullAndNotEmpty;
+import static org.esa.beam.util.StringUtils.*;
 
 public class ParameterDescriptorFactory implements PropertyDescriptorFactory {
 
@@ -123,8 +123,6 @@ public class ParameterDescriptorFactory implements PropertyDescriptorFactory {
         if (propertyDescriptor.getConverter() == null) {
             propertyDescriptor.setDefaultConverter();
         }
-
-        propertyDescriptor.setItemsInlined(parameterDescriptor.areItemsInlined());
 
         if (isNotNullAndNotEmpty(parameterDescriptor.getUnit())) {
             propertyDescriptor.setUnit(parameterDescriptor.getUnit());

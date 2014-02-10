@@ -53,11 +53,6 @@ public class AnnotationParameterDescriptor implements ParameterDescriptor {
     }
 
     @Override
-    public boolean areItemsInlined() {
-        return annotation.itemsInlined();
-    }
-
-    @Override
     public String getDefaultValue() {
         return getNonEmptyStringOrNull(annotation.defaultValue());
     }
