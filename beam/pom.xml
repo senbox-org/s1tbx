@@ -196,7 +196,6 @@
 		<module>beam-arcbingrid-reader</module>
         <module>beam-envi-reader</module>
 		
-		<module>beam-cbir</module>
     </modules>
 
     <dependencyManagement>

@@ -192,6 +192,8 @@
 		
 		<module>nest-io-sentinel1</module>
 		<module>nest-op-sentinel1</module>
+		
+		<module>beam/esa-pfa</module>
   </modules>
 
     <dependencyManagement>

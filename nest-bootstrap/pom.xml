@@ -68,7 +68,18 @@
             <groupId>org.jlinda</groupId>
             <artifactId>jlinda-core</artifactId>
         </dependency>
-		
+
+        <dependency>
+            <groupId>org.esa.pfa</groupId>
+            <artifactId>pfa-core</artifactId>
+            <version>0.1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.pfa</groupId>
+            <artifactId>pfa-database</artifactId>
+            <version>0.1-SNAPSHOT</version>
+        </dependency>
+
         <dependency>
             <groupId>com.jidesoft</groupId>
             <artifactId>jide-dock</artifactId>
