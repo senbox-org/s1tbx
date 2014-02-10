@@ -48,7 +48,13 @@ public class ActiveLearning {
     private double unlabelledDataPercentage = 0.8; // 80% of each class in the whole test data set
     private double initialTrainingDataPercentage = 0.04; // 4% from each class in the unlabelled data set
 
+    private boolean debug = true; // output debugging information
+
     public ActiveLearning(File testDataIndexFile) throws Exception {
+
+        //h = ;
+
+        //m =;
 
         testDataDirectory = testDataIndexFile.getParent();
 
@@ -60,7 +66,7 @@ public class ActiveLearning {
 
         startActiveLearning();
 
-        //classifyTestData();
+        classifyTrainingData();
     }
 
     /**
@@ -68,103 +74,45 @@ public class ActiveLearning {
      * @param testDataIndexFile The summary file of test data.
      * @throws IOException The exceptions.
      */
-    /*
-    private void getTestData(final File testDataIndexFile) throws IOException {
+    private void getTestData(final File testDataIndexFile) throws Exception {
 
         getTestDataSize(testDataIndexFile);
-        System.out.println("numUnlabelledSamples = " + testDataSize + ", featureSize = " + featureSize);
 
-        testData = new Data[testDataSize];
         final FileInputStream stream = new FileInputStream(testDataIndexFile);
         final BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
 
         String line = "";
-        int sampleIndex = 0;
         while ((line = reader.readLine()) != null) {
-            testData[sampleIndex] = new Data();
-            testData[sampleIndex].feature = new double[featureSize];
-            testData[sampleIndex].tileID = getTileID(line);
+            Data data = new Data();
+            data.feature = new double[featureSize];
+            data.tileID = getTileID(line);
             final String tileFeatureFile = getTileFeatureFile(line);
-            getTileFeature(tileFeatureFile, testData[sampleIndex]);
-            sampleIndex++;
-        }
-
-        for (int i = 0; i < numClasses; i++) {
-            System.out.println("number of samples in class " + (i+1) + ": " + numSamples[i]);
+            getTileFeature(tileFeatureFile, data);
+            testData.add(data);
         }
 
         reader.close();
         stream.close();
-    }*/
 
-    // Temp code: Get sample data provided by LIBSVM
-    private void getTestData(final File testDataIndexFile) throws Exception {
-
-        if (testDataIndexFile == null || !testDataIndexFile.exists()) {
-            throw new Exception("No training data file is specified.");
-        } else if (!testDataIndexFile.getName().contains("training_data")) {
-            throw new Exception("Invalid training data file");
+        numClasses = classLabels.size();
+        numSamplesInClasses = new int[numClasses];
+        for (int i = 0; i < numClasses; i++) {
+            final int classLabel = classLabels.get(i);
+            for (Data data:testData) {
+                if (data.label == classLabel) {
+                    numSamplesInClasses[i]++;
+                }
+            }
         }
 
-            getTestDataSize(testDataIndexFile);
-
-            final FileInputStream stream = new FileInputStream(testDataIndexFile);
-            final BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
-
-            testData.clear();
-            String line = "";
-            while ((line = reader.readLine()) != null) {
-
-                Data data = new Data();
-                data.feature = new double[featureSize];
-                int featureIndex = 0;
-                final String[] words = line.split("\\s+");
-                for (String word : words) {
-                    if (!word.contains(":")) {
-                        data.label = (int)Double.parseDouble(word);
-                        if (!classLabels.contains(data.label)) {
-                            classLabels.add(data.label);
-                        }
-                    } else {
-                        final String[] featurePairs = word.split(":");
-                        data.feature[featureIndex] = Double.parseDouble(featurePairs[1]);
-                        featureIndex++;
-                    }
-                }
-                testData.add(data);
-            }
-
-            reader.close();
-            stream.close();
-
-            numClasses = classLabels.size();
-            numSamplesInClasses = new int[numClasses];
-            for (int i = 0; i < numClasses; i++) {
-                final int classLabel = classLabels.get(i);
-                for (Data data:testData) {
-                    if (data.label == classLabel) {
-                        numSamplesInClasses[i]++;
-                    }
-                }
-            }
-
-            System.out.println("Total number of samples: " + testData.size());
+        if (debug) {
             System.out.println("Total number of samples: " + testDataSize);
             System.out.println("Number of features: " + featureSize);
             System.out.println("Number of classes: " + numClasses);
             for (int i = 0; i < numClasses; i++) {
                 System.out.println("Number of samples in class " + i + ": " + numSamplesInClasses[i]);
             }
-    }
-
-    // temp code
-    private void getTestDataSize(final File testDataIndexFile) throws IOException {
-
-            LineNumberReader testDataIndexReader  = new LineNumberReader(new FileReader(testDataIndexFile));
-            String lineRead = testDataIndexReader.readLine();
-            featureSize = lineRead.split(":").length - 1;
-            testDataSize = getNumberOfLines(testDataIndexReader);
-            testDataIndexReader.close();
+        }
     }
 
     /**
@@ -172,8 +120,7 @@ public class ActiveLearning {
      * @param testDataIndexFile The summary file of test data.
      * @throws IOException The exceptions.
      */
-    /*
-    private void getTestDataSize(final File testDataIndexFile) throws IOException {
+    private void getTestDataSize(final File testDataIndexFile) throws Exception {
 
         try {
             LineNumberReader testDataIndexReader  = new LineNumberReader(new FileReader(testDataIndexFile));
@@ -187,26 +134,8 @@ public class ActiveLearning {
             tileFeatureReader.close();
 
         } catch (Throwable e) {
-            throw new OperatorException(e.getMessage());
+            throw new Exception(e.getMessage());
         }
-    }*/
-
-    /**
-     * Get the number of lines of a given text file.
-     * @param reader Reader of the given text file.
-     * @return The number of lines.
-     */
-    private int getNumberOfLines(final LineNumberReader reader) throws IOException {
-
-        int numLines = 0;
-            String lineRead = reader.readLine();
-            while (lineRead != null) {
-                lineRead = reader.readLine();
-            }
-
-            numLines = reader.getLineNumber();
-
-        return numLines;
     }
 
     /**
@@ -214,26 +143,24 @@ public class ActiveLearning {
      * @param line A line in the test data summary file (contains information of a tile).
      * @return The absolute path to the feature file.
      */
-    /*
     private String getTileFeatureFile(final String line) {
 
         final String[] words = line.split("\\s+");
         final String[] parts = words[0].split("/");
         return testDataDirectory + "\\" + parts[0] + "\\" + parts[1] + "\\features.txt";
-    } */
+    }
 
     /**
      * Get tile ID string (e.g. x08y01)
      * @param line A line in the test data summary file (contains information of a tile).
      * @return The tile ID string.
      */
-    /*
     private String getTileID(final String line) {
 
         final String[] words = line.split("\\s+");
         final String[] parts = words[0].split("/");
         return parts[1];
-    } */
+    }
 
     /**
      * Read feature from feature file and save them as a sample in test data.
@@ -241,11 +168,10 @@ public class ActiveLearning {
      * int the following ranges: class 1 (30.0, inf), class 2 (10, 30], class 3 [0, 10]. This should be done
      * by the user when user interface is available.
      * @param tileFeatureFile The tile feature file.
-     * @param testData The test data.
+     * @param data The test data.
      * @throws IOException The exceptions.
      */
-    /*
-    private void getTileFeature(final String tileFeatureFile, final Data testData) throws IOException {
+    private void getTileFeature(final String tileFeatureFile, final Data data) throws Exception {
 
         final FileInputStream stream = new FileInputStream(new File(tileFeatureFile));
         final BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
@@ -253,28 +179,51 @@ public class ActiveLearning {
         int index = 0;
         while ((line = reader.readLine()) != null) {
             final String[] words = line.split("=");
-            testData.feature[index] = Double.parseDouble(words[1]);
+            data.feature[index] = Double.parseDouble(words[1]);
 
             if (words[0].contains("percentOverPnt4")) {
-                if (testData.feature[index] > 30.0) {
-                    testData.label = 1;
-                    numSamples[0]++;
-                } else if (testData.feature[index] > 10.0) {
-                    testData.label = 2;
-                    numSamples[1]++;
+                if (data.feature[index] > 30.0) {
+                    data.label = 1;
+                } else if (data.feature[index] > 10.0) {
+                    data.label = 2;
                 } else {
-                    testData.label = 3;
-                    numSamples[2]++;
+                    data.label = 3;
                 }
             }
 
             index++;
         }
 
-        if (index != testData.feature.length) {
-            throw new OperatorException("Invalid number of features: " + index);
+        if (!classLabels.contains(data.label)) {
+            classLabels.add(data.label);
         }
-    } */
+
+        if (index != data.feature.length) {
+            throw new Exception("Invalid number of features: " + index);
+        }
+    }
+
+    /**
+     * Get the number of lines of a given text file.
+     * @param reader Reader of the given text file.
+     * @return The number of lines.
+     */
+    private int getNumberOfLines(final LineNumberReader reader) throws Exception {
+
+        int numLines = 0;
+        try {
+            String lineRead = reader.readLine();
+            while (lineRead != null) {
+                lineRead = reader.readLine();
+            }
+
+            numLines = reader.getLineNumber();
+        } catch (Throwable e) {
+            throw new Exception(e.getMessage());
+        }
+
+        return numLines;
+    }
 
     /**
      * Select RBF model parameters C and gamma using grid search.
@@ -305,12 +254,14 @@ public class ActiveLearning {
             }
         }
 
-        System.out.println("Number of samples in validation data set: " + validationData.size());
-        for (int i = 0; i < numClasses; i++) {
-            System.out.println("Number of samples in class " + i + ": " +
-                    (int)Math.max(1, Math.round(validationDataPercentage*numSamplesInClasses[i])));
+        if (debug) {
+            System.out.println("Number of samples in validation data set: " + validationData.size());
+            for (int i = 0; i < numClasses; i++) {
+                System.out.println("Number of samples in class " + i + ": " +
+                        (int)Math.max(1, Math.round(validationDataPercentage*numSamplesInClasses[i])));
+            }
+            System.out.println("Number of samples in test data set: " + testData.size());
         }
-        System.out.println("Number of samples in test data set: " + testData.size());
     }
 
     /**
@@ -344,7 +295,6 @@ public class ActiveLearning {
     private void setInitialTrainingDataSet() {
 
         trainingData.clear();
-        //trainingData.addAll(validationData);
 
         final double overallPercentage = initialTrainingDataPercentage*unlabelledDataPercentage;
         for (int i = 0; i < numClasses; i++) {
@@ -361,12 +311,14 @@ public class ActiveLearning {
             }
         }
 
-        System.out.println("Number of samples in the initial training data set: " + trainingData.size());
-        for (int i = 0; i < numClasses; i++) {
-            System.out.println("Number of samples in class " + i + ": " +
-                    (int)Math.max(1, Math.round(overallPercentage*numSamplesInClasses[i])));
+        if (debug) {
+            System.out.println("Number of samples in the initial training data set: " + trainingData.size());
+            for (int i = 0; i < numClasses; i++) {
+                System.out.println("Number of samples in class " + i + ": " +
+                        (int)Math.max(1, Math.round(overallPercentage*numSamplesInClasses[i])));
+            }
+            System.out.println("Number of samples in test data set: " + testData.size());
         }
-        System.out.println("Number of samples in test data set: " + testData.size());
     }
 
     /**
@@ -394,34 +346,18 @@ public class ActiveLearning {
                 count++;
             }
         }
-        /*
-        int count0 = 0, count1 = 0, count2 = 0;  //JL
-        for (Iterator<Data> itr = testData.iterator(); itr.hasNext() & count0 + count1 + count2 < h;) {
-            Data data = itr.next();
-            if (data.label == classLabels.get(0) && count0 < 4) {
-                trainingData.add(data);
-                itr.remove();
-                count0++;
-            } else if (data.label == classLabels.get(1) && count1 < 4) {
-                trainingData.add(data);
-                itr.remove();
-                count1++;
-            } else if (data.label == classLabels.get(2) && count2 < 2) {
-                trainingData.add(data);
-                itr.remove();
-                count2++;
-            }
+
+        if (debug) {
+            System.out.println("Number of samples added to the training data set: " + h);
+            System.out.println("Number of samples in the new training data set: " + trainingData.size());
+            System.out.println("Number of samples in the test data set: " + testData.size());
         }
-        */
-        System.out.println("Number of samples added to the training data set: " + h);
-        System.out.println("Number of samples in the new training data set: " + trainingData.size());
-        System.out.println("Number of samples in the test data set: " + testData.size());
     }
 
     /**
      * Select m unlabelled samples from test data with lower confidence values.
      */
-    private void selectMostUncertainSamples() {
+    private void selectMostUncertainSamples() throws Exception {
 
         // Compute confidence c(x) for all samples in U. (MCLU)
         final double[][] confidence = new double[testData.size()][2];
@@ -454,7 +390,7 @@ public class ActiveLearning {
      * @param x The given sample.
      * @return The confidence value.
      */
-    private double computeConfidence(Data x) {
+    private double computeConfidence(Data x) throws Exception {
 
         final double[] decValues = new double[numClasses*(numClasses-1)/2];
         svmClassifier.classify(x, decValues);
@@ -472,8 +408,12 @@ public class ActiveLearning {
         kkc.clustering();
     }
 
-    private void classifyTestData() {
+    /**
+     * Classify the h samples returned by query function.
+     */
+    private void classifyTestData() throws Exception {
 
+        try {
             int count = 0;
             int countErr = 0;
             final double[] decValues = new double[numClasses*(numClasses-1)/2];
@@ -489,8 +429,17 @@ public class ActiveLearning {
             }
             double accuracy = (1.0 - (double)countErr / (double)h) * 100.0;
             System.out.println("Classifying query data, accuracy: " + accuracy);
+        } catch (Throwable e) {
+            throw new Exception(e.getMessage());
+        }
+    }
 
-            /*
+    /**
+     * Applied the trained model to the training data set to check its accuracy.
+     */
+    private void classifyTrainingData() throws Exception {
+
+        try {
             int countErr = 0;
             final double[] decValues = new double[numClasses*(numClasses-1)/2];
             for (Data data:trainingData) {
@@ -501,17 +450,9 @@ public class ActiveLearning {
             }
             double accuracy = (1.0 - (double)countErr / (double)trainingData.size()) * 100.0;
             System.out.println("Classifying training data, accuracy: " + accuracy);
-
-            countErr = 0;
-            for (Data data:testData) {
-                double p = svmClassifier.classify(data, decValues);
-                if (p != data.label) {
-                    countErr++;
-                }
-            }
-            accuracy = (1.0 - (double)countErr / (double)testData.size()) * 100.0;
-            System.out.println("Classifying test data, accuracy: " + accuracy);
-            */
+        } catch (Throwable e) {
+            throw new Exception(e.getMessage());
+        }
     }
 
     public static class Data {

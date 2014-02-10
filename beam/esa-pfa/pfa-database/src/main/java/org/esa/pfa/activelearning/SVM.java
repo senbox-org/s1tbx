@@ -113,9 +113,7 @@ public class SVM {
 
         setProblem(trainingSet);
 
-		scaleData();
-
-        findOptimalModelParameters();
+        scaleData();
 
         trainSVMModel();
 	}
@@ -146,36 +144,47 @@ public class SVM {
      * @param decValues Decision values.
      * @return The predicted class label.
      */
-    public double classify(ActiveLearning.Data testData, double[] decValues) {
+    public double classify(ActiveLearning.Data testData, double[] decValues) throws Exception {
 
+        try {
 			svm_node[] x = new svm_node[numFeatures];
             for (int i = 0; i < numFeatures; i++) {
                 x[i] = new svm_node();
 				x[i].index = i + 1;
-				x[i].value = testData.feature[i];
+				x[i].value = scale(i, testData.feature[i]);
             }
 
             //return svm.svm_predict(model, x);
             return svm.svm_predict_values(model, x, decValues);
+        } catch (Throwable e) {
+            throw new Exception(e.getMessage());
+        }
     }
 
     /**
      * Scale training data to user specified range [lower, upper].
      */
-    private void scaleData() {
+    private void scaleData() throws Exception {
 
-            double featureValue, lambda;
+        try {
             for (int i = 0; i < numSamples; i++) {
                 for (int j = 0; j < numFeatures; j++) {
-                    featureValue = problem.x[i][j].value;
-                    if (featureMin[j] < featureMax[j]) {
-                        lambda = (featureValue - featureMin[j]) / (featureMax[j] - featureMin[j]);
-                        problem.x[i][j].value = lower + lambda*(upper - lower);
-                    } else {
-                        problem.x[i][j].value = lower;
-                    }
+                    problem.x[i][j].value = scale(j, problem.x[i][j].value);
                 }
             }
+        } catch (Throwable e) {
+            throw new Exception(e.getMessage());
+        }
+    }
+
+    private double scale(final int featureIdx, final double featureValue) {
+
+        if (featureMin[featureIdx] < featureMax[featureIdx]) {
+            double lambda = (featureValue - featureMin[featureIdx]) / (featureMax[featureIdx] - featureMin[featureIdx]);
+            return lower + lambda*(upper - lower);
+        } else {
+            return lower;
+        }
     }
 
     /**

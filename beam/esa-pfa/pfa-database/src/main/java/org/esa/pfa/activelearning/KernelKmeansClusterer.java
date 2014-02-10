@@ -22,8 +22,8 @@ import java.util.List;
 /**
  * Kernel K-means clustering algorithm [1].
  *
- * [1]. B. Demir, C. Persello, and L. Bruzzone, �Batch mode active learning methods for the interactive
- *      classification of remote sensing images,� IEEE Transactions on Geoscience and Remote Sensing,
+ * [1]. B. Demir, C. Persello, and L. Bruzzone, Batch mode active learning methods for the interactive
+ *      classification of remote sensing images, IEEE Transactions on Geoscience and Remote Sensing,
  *      vol. 49, no.3, pp. 1014-1031, 2011.
  */
 
@@ -87,7 +87,7 @@ public class KernelKmeansClusterer {
         ArrayList<Integer> randomNumbers = new ArrayList<Integer>();
         int k = 0;
         while (k < numClusters) {
-            final int idx = k;//JL: (int)(Math.random()*numSamples);
+            final int idx = (int)(Math.random()*numSamples);
             if (!randomNumbers.contains(idx)) {
                 randomNumbers.add(idx);
                 clusters[k] = new Cluster();
