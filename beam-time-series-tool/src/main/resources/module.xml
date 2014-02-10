@@ -156,10 +156,6 @@
         </helpSet>
     </extension>
 
-    <extension point="ceres-core:serviceProviders">
-        <serviceProvider>org.esa.beam.visat.VisatPlugIn</serviceProvider>
-    </extension>
-
-    <activator>org.esa.beam.timeseries.core.TimeSeriesToolActivator</activator>
+   <activator>org.esa.beam.timeseries.core.TimeSeriesToolActivator</activator>
 
 </module>
