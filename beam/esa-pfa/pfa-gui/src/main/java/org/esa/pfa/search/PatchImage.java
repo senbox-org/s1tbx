@@ -27,7 +27,8 @@ import java.io.FileInputStream;
  */
 public class PatchImage {
 
-    private static File dummyFile = new File("C:\\Temp\\sigma0_ql.png");
+    private static final java.net.URL dummyURL = PatchImage.class.getClassLoader().getResource("images/sigma0_ql.png");
+    private static File dummyFile = new File(dummyURL.getPath());
     private BufferedImage image = null;
     private final int uid;
 
