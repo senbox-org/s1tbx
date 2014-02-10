@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -75,6 +75,9 @@ public class MerisL3ProductReaderPlugIn implements ProductReaderPlugIn {
         final NetcdfFile netcdfFile;
         try {
             netcdfFile = NetcdfFileOpener.open(path);
+            if (netcdfFile == null) {
+                return DecodeQualification.UNABLE;
+            }
         } catch (IOException e) {
             return DecodeQualification.UNABLE;
         }

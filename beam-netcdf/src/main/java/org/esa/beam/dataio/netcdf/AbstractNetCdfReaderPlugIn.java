@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -44,6 +44,9 @@ public abstract class AbstractNetCdfReaderPlugIn implements ProductReaderPlugIn 
         NetcdfFile netcdfFile = null;
         try {
             netcdfFile = NetcdfFileOpener.open(input.toString());
+            if (netcdfFile == null) {
+                return DecodeQualification.UNABLE;
+            }
             return getDecodeQualification(netcdfFile);
         } catch (Throwable ignored) {
             // ok -- just clean up and return UNABLE

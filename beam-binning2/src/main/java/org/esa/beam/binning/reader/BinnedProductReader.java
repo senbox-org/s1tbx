@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -78,6 +78,9 @@ public class BinnedProductReader extends AbstractProductReader {
     protected Product readProductNodesImpl() throws IOException {
         final String path = getInput().toString();
         netcdfFile = NetcdfFileOpener.open(path);
+        if (netcdfFile == null) {
+            throw new IOException("Could not open NetCDF file " +  path);
+        }
 
         if (isSparseGridded(netcdfFile)) {
             gridAccessor = new SparseGridAccessor(netcdfFile);

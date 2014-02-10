@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -46,6 +46,9 @@ public class BinnedProductReaderPlugin implements ProductReaderPlugIn {
                 NetcdfFile netcdfFile = null;
                 try {
                     netcdfFile = NetcdfFileOpener.open(path);
+                    if (netcdfFile == null) {
+                        return DecodeQualification.UNABLE;
+                    }
                     for (Variable variable : netcdfFile.getVariables()) {
                         Attribute gridMappingName = variable.findAttribute("grid_mapping_name");
                         if (gridMappingName != null) {

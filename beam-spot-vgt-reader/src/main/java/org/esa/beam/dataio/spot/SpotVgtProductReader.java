@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -57,7 +57,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-import static org.esa.beam.dataio.spot.SpotVgtProductReaderPlugIn.*;
+import static org.esa.beam.dataio.spot.SpotVgtProductReaderPlugIn.getBandName;
+import static org.esa.beam.dataio.spot.SpotVgtProductReaderPlugIn.getFileInput;
 
 /**
  * Reader for SPOT VGT products.
@@ -127,6 +128,9 @@ public class SpotVgtProductReader extends AbstractProductReader {
 
                 File hdfFile = virtualDir.getFile(physVolDescriptor.getLogVolDirName() + "/" + logVolFileName);
                 NetcdfFile netcdfFile = NetcdfFileOpener.open(hdfFile.getPath());
+                if (netcdfFile == null) {
+                    throw new IOException("Failed to open file " + hdfFile.getPath());
+                }
 
                 Variable variable = findPixelDataVariable(netcdfFile);
                 if (isPotentialPixelDataVariable(variable)) {

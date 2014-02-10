@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -55,6 +55,9 @@ public class GenericNetCdfReader extends AbstractProductReader {
 
         final File fileLocation = new File(getInput().toString());
         netcdfFile = NetcdfFileOpener.open(fileLocation.getPath());
+        if (netcdfFile == null) {
+            throw new IOException("Failed to open file " + fileLocation.getPath());
+        }
         AbstractNetCdfReaderPlugIn[] plugIns = GenericNetCdfReaderPlugIn.getAllNetCdfReaderPlugIns();
         AbstractNetCdfReaderPlugIn bestPlugIn = null;
         for (AbstractNetCdfReaderPlugIn plugIn : plugIns) {

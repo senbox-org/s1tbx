@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -81,6 +81,9 @@ public class MerisL3ProductReader extends AbstractProductReader {
     protected Product readProductNodesImpl() throws IOException {
         String path = getInput().toString();
         _netcdfFile = NetcdfFileOpener.open(path);
+        if (_netcdfFile == null) {
+            throw new IOException("Could not open NetCDF file " + path);
+        }
         bandMap = new HashMap<Band, VariableMetadata>(10);
         try {
             _grid = new ISINGrid(ISINGrid.detectRowCount(path));
