@@ -15,12 +15,11 @@
  */
 package org.esa.pfa.ui.toolviews.cbir.taskpanels;
 
-import com.bc.ceres.swing.TableLayout;
 import com.bc.ceres.swing.selection.AbstractSelectionChangeListener;
 import com.bc.ceres.swing.selection.SelectionChangeEvent;
 import org.esa.beam.framework.ui.GridBagUtils;
-import org.esa.pfa.framework.PFAApplicationDescriptor;
-import org.esa.pfa.framework.PFAApplicationRegistry;
+import org.esa.pfa.fe.PFAApplicationDescriptor;
+import org.esa.pfa.fe.PFAApplicationRegistry;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.ui.SourceProductSelector;
 import org.esa.pfa.search.CBIRSession;

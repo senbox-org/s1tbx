@@ -13,19 +13,23 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.pfa.featureextraction;
-
-import org.esa.pfa.framework.AbstractApplicationDescriptor;
+package org.esa.pfa.fe;
 
 import java.awt.*;
 
-public class AlgalBloomApplicationDescriptor extends AbstractApplicationDescriptor {
+/**
 
-    private static final String NAME = "Algal Bloom Detection";
-    private static Dimension patchDimension = new Dimension(200, 200);
+ */
+public abstract class AbstractApplicationDescriptor implements PFAApplicationDescriptor {
 
-    public AlgalBloomApplicationDescriptor() {
-        super(NAME);
+    private String name;
+
+    protected AbstractApplicationDescriptor(final String name) {
+        this.name = name;
+    }
+
+    public String getName() {
+        return name;
     }
 
     /**
@@ -33,8 +37,6 @@ public class AlgalBloomApplicationDescriptor extends AbstractApplicationDescript
      *
      * @return the  dimension
      */
-    public Dimension getPatchDimension() {
-        return patchDimension;
-    }
+    public abstract Dimension getPatchDimension();
 
 }

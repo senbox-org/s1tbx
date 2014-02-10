@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.pfa.fe;
+package org.esa.pfa.fe.op;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.dataio.ProductSubsetBuilder;
@@ -28,10 +28,6 @@ import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.experimental.Output;
 import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.Guardian;
-import org.esa.pfa.fe.op.AttributeType;
-import org.esa.pfa.fe.op.Feature;
-import org.esa.pfa.fe.op.FeatureType;
-import org.esa.pfa.fe.op.Patch;
 import org.esa.pfa.fe.op.out.PatchOutput;
 import org.esa.pfa.fe.op.out.PatchWriter;
 import org.esa.pfa.fe.op.out.PatchWriterFactory;

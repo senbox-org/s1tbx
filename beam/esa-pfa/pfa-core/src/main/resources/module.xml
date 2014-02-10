@@ -11,4 +11,9 @@
     <dependency>
         <module>beam-gpf</module>
     </dependency>
+
+    <extension point="ceres-core:serviceProviders">
+        <serviceProvider>org.esa.pfa.fe.PFAApplicationDescriptor</serviceProvider>
+    </extension>
+
 </module>

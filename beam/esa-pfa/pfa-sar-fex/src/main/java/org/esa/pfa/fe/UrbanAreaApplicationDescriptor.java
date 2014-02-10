@@ -13,9 +13,7 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.pfa.featureextraction;
-
-import org.esa.pfa.framework.AbstractApplicationDescriptor;
+package org.esa.pfa.fe;
 
 import java.awt.*;
 
