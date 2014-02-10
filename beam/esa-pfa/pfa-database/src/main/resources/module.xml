@@ -1,0 +1,8 @@
+
+<module>
+    <manifestVersion>1.0.0</manifestVersion>
+    <symbolicName>pfa-database</symbolicName>
+    <version>0.1-SNAPSHOT</version>
+    <name>pfa-database</name>
+
+</module>

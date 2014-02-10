@@ -1,0 +1,14 @@
+
+<module>
+    <manifestVersion>1.0.0</manifestVersion>
+    <symbolicName>pfa-core</symbolicName>
+    <version>0.1-SNAPSHOT</version>
+    <name>pfa-core</name>
+
+    <dependency>
+        <module>beam-core</module>
+    </dependency>
+    <dependency>
+        <module>beam-gpf</module>
+    </dependency>
+</module>

@@ -1,0 +1,44 @@
+<module>
+    <manifestVersion>1.0.0</manifestVersion>
+    <symbolicName>esa-pfa</symbolicName>
+    <version>1.1</version>
+    <name>ESA PFA Tools</name>
+
+    <description>Product Feature Extraction (PFA) Tools</description>
+
+    <vendor>Brockmann Consult GmbH</vendor>
+    <contactAddress>1120 Finch Ave W. Toronto (Canada)</contactAddress>
+    <copyright>(C) 2013 by Brockmann Consult GmbH</copyright>
+    <url>http://www.brockmann-consult.de/beam</url>
+    <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
+    <funding>European Space Agency</funding>
+
+    <dependency>
+        <module>beam-core</module>
+    </dependency>
+    <dependency>
+        <module>beam-gpf</module>
+    </dependency>
+    <dependency>
+        <module>pfa-core</module>
+    </dependency>
+
+    <categories>Processor</categories>
+
+    <extension point="beam-ui:actions">
+        <action>
+            <id>Meris.Fronts.CloudMask</id>
+            <class>org.esa.beam.visat.actions.DefaultOperatorAction</class>
+            <operatorName>Meris.Fronts.CloudMask</operatorName>
+            <text>Fronts Cloud Classification (MERIS)</text>
+            <shortDescr>
+                A cloud mask algorithm developed by G.Kirches and M.Paperin in the frame of the Fronts project with
+                German BSH.
+            </shortDescr>
+            <mnemonic/>
+            <parent>tool</parent>
+            <placeAfter/>
+        </action>
+    </extension>
+
+</module>

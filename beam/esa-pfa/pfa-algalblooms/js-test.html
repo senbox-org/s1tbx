@@ -1,0 +1,80 @@
+<html>
+<head>
+    <title>Test</title>
+    <script type="text/javascript">
+        function openCsv(doc) {
+            var tableElem = doc.getElementById('dataTable');
+            var numRows = tableElem.rows.length;
+
+            //alert("Type: " + doc.toString())
+            mywin = window.open('about:blank', "_blank");
+
+            mywin.document.writeln("<html>");
+            mywin.document.writeln("<head>");
+            mywin.document.writeln("<title>Result from " + doc.title.value + "</title>");
+            mywin.document.writeln("</head>");
+            mywin.document.writeln("<body>");
+            for (var i = 1; i <= numRows; i++) {
+                var selId = "row" + i;
+                var selElem = doc.getElementById(selId);
+                var value = "";
+                for (var j = 0; j < selElem.length; j++) {
+                    var optElem = selElem[j];
+                    value += (optElem.selected ? "1" : "0");
+                }
+                mywin.document.write(selId + ", " + value);
+                mywin.document.writeln("<br/>");
+            }
+            mywin.document.writeln("</body>");
+            mywin.document.writeln("</html>");
+            mywin.document.close();
+            mywin.focus();
+        }
+    </script>
+</head>
+<body>
+<form>
+    <table id="dataTable">
+        <tr>
+            <td>Row 1</td>
+            <td>
+                <select id="row1" size="2" multiple>
+                    <option value="0" selected>*NONE*</option>
+                    <option value="1">Cyano</option>
+                    <option value="2">Coco</option>
+                    <option value="3">Sargas</option>
+                    <option value="4">Case 1</option>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td>Row 2</td>
+            <td>
+                <select id="row2" size="10" multiple>
+                    <option value="0" selected>*NONE*</option>
+                    <option value="1">Cyano</option>
+                    <option value="2">Coco</option>
+                    <option value="3">Sargas</option>
+                    <option value="4">Case 1</option>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td>Row 3</td>
+            <td>
+                <select id="row3" multiple>
+                    <option value="0" selected>*NONE*</option>
+                    <option value="1">Cyano</option>
+                    <option value="2">Coco</option>
+                    <option value="3">Sargas</option>
+                    <option value="4">Case 1</option>
+                </select>
+            </td>
+        </tr>
+    </table>
+    <p>
+        <input type="button" value="Show Labels" onclick="openCsv(window.document); return false">
+    </p>
+</form>
+</body>
+</html>
