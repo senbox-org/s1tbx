@@ -141,7 +141,7 @@ public class BasicApp {
 
     private static final String _IMAGE_RESOURCE_PATH = "/org/esa/beam/resources/images/";
 
-    private boolean uiDefaultsInitialized;
+    protected boolean uiDefaultsInitialized;
 
     private final ApplicationDescriptor applicationDescriptor;
 
@@ -477,7 +477,7 @@ public class BasicApp {
         logger = BeamLogManager.getSystemLogger();
     }
 
-    private boolean initLookAndFeel() {
+    protected boolean initLookAndFeel() {
 
         try {
             UIManager.installLookAndFeel("SeaGlass", "com.seaglasslookandfeel.SeaGlassLookAndFeel");
@@ -516,7 +516,7 @@ public class BasicApp {
         // UIManager.getDefaults().put("DockableFrameTitlePane.showIcon", Boolean.TRUE);
     }
 
-    private String getDefaultLookAndFeelClassName() {
+    protected String getDefaultLookAndFeelClassName() {
         String defaultLookAndFeelClassName = UIManager.getSystemLookAndFeelClassName();
         String osName = System.getProperty("os.name").toLowerCase();
         // returning Nimbus as default LAF if not Mac OS and not Windows
