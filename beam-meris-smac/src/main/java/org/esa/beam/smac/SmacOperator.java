@@ -30,6 +30,7 @@ import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
+import org.esa.beam.framework.ui.ExpressionConverter;
 import org.esa.beam.util.ObjectUtils;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.ResourceInstaller;
@@ -109,19 +110,19 @@ public class SmacOperator extends Operator {
     private TiePointGrid vzaFwdBand;
     private TiePointGrid vaaFwdBand;
 
-    @Parameter(description = "Aerosol optical depth", label = "Aerosol optical depth")
+    @Parameter(description = "Aerosol optical depth", label = "Aerosol optical depth", defaultValue = "0.2")
     private Float tau_aero_550 = 0.2F;
 
-    @Parameter(description = "Relative humidity", label = "Relative humidity")
+    @Parameter(description = "Relative humidity", label = "Relative humidity", defaultValue = "3.0")
     private Float u_h2o = 3.0F;
 
-    @Parameter(description = "Ozone content", label = "Ozone content")
+    @Parameter(description = "Ozone content", label = "Ozone content", defaultValue = "0.15")
     private Float u_o3 = 0.15F;
 
-    @Parameter(description = "Surface pressure", label = "Surface pressure")
+    @Parameter(description = "Surface pressure", label = "Surface pressure", defaultValue = "1013.0")
     private Float surf_press = 1013.0F;
 
-    @Parameter(description = "Use MERIS ADS", label = "Use MERIS ADS")
+    @Parameter(description = "Use MERIS ADS", label = "Use MERIS ADS", defaultValue = "false")
     private Boolean useMerisADS = true;
 
     @Parameter(description = "Aerosol type", label = "Aerosol type", notNull = true, valueSet = {
@@ -130,7 +131,7 @@ public class SmacOperator extends Operator {
     }, defaultValue = SensorCoefficientManager.AER_CONT_NAME)
     private String aerosolType;
 
-    @Parameter(description = "Default reflectance for invalid pixel", label = "Default reflectance for invalid pixel")
+    @Parameter(description = "Default reflectance for invalid pixel", label = "Default reflectance for invalid pixel", defaultValue = "0.0")
     Float invalidPixel = 0.0F;
 
     @Parameter(description = "Mask expression for the whole view (MERIS) or the nadir view (AATSR)",
@@ -202,7 +203,7 @@ public class SmacOperator extends Operator {
             sourceData.saaFwd = getSourceTile(saaFwdBand, targetRectangle).getSamplesFloat();
             sourceData.vzaFwd = getSourceTile(vzaFwdBand, targetRectangle).getSamplesFloat();
             sourceData.vaaFwd = getSourceTile(vaaFwdBand, targetRectangle).getSamplesFloat();
-        } else {
+        } else if (useMerisADS) {
             sourceData.uh2o = getSourceTile(wvBand, targetRectangle).getSamplesFloat();
             sourceData.uo3 = getSourceTile(o3Band, targetRectangle).getSamplesFloat();
             sourceData.press = getSourceTile(pressBand, targetRectangle).getSamplesFloat();
@@ -229,14 +230,6 @@ public class SmacOperator extends Operator {
                 logger.severe("An error occurred during processing: ");
                 logger.severe(e.getMessage());
             }
-        }
-    }
-
-    @Override
-    public void dispose() {
-        if (sourceProduct != null) {
-            sourceProduct.dispose();
-            sourceProduct = null;
         }
     }
 
@@ -404,15 +397,15 @@ public class SmacOperator extends Operator {
      */
     private void createMask() {
         if (ObjectUtils.equalObjects(sensorType, SensorCoefficientManager.MERIS_NAME)) {
-            createMerisBitmaskTerm();
+            createMerisMask();
         } else {
-            createAatsrBitmaskTerm();
+            createAatsrMask();
         }
     }
 
-    // Creates a MERIS bitmask term given the bitmask expression from the request. If no expression is set, it uses the
+    // Creates a MERIS mask term given the bitmask expression from the request. If no expression is set, it uses the
     // default expression
-    private void createMerisBitmaskTerm() {
+    private void createMerisMask() {
         if ("".equalsIgnoreCase(maskExpression)) {
             maskExpression = DEFAULT_MERIS_FLAGS_VALUE;
             logger.warning("No mask expression defined");
@@ -426,7 +419,7 @@ public class SmacOperator extends Operator {
 
     // Creates an AATSR bitmask term given the bitmask expression from the request. If no expression is set, it uses the
     // default expression
-    private void createAatsrBitmaskTerm() {
+    private void createAatsrMask() {
         Mask mask;
         Mask forwardMask;
         if ("".equalsIgnoreCase(maskExpression)) {

@@ -19,6 +19,7 @@ package org.esa.beam.framework.gpf.ui;
 import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.PropertyDescriptor;
 import com.bc.ceres.binding.PropertySet;
+import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.ValueSet;
 import com.bc.ceres.swing.binding.BindingContext;
 import com.bc.ceres.swing.binding.PropertyPane;
@@ -189,6 +190,15 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
                     }
                     updateTargetProductname();
                     updateValueSets(currentProduct);
+                    try {
+                        Property property = bindingContext.getPropertySet().getProperty("SOURCE_PRODUCT");
+                        if (property != null) {
+                            property.setValue(currentProduct);
+                        }
+                    } catch (ValidationException e) {
+                        // todo
+                        e.printStackTrace();
+                    }
                 }
             }
         }
