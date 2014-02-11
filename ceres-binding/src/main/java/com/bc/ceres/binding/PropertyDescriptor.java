@@ -245,7 +245,7 @@ public class PropertyDescriptor {
         this.propertySetDescriptor = propertySetDescriptor;
     }
 
-//////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////
     // Array/List item attributes
 
     public String getItemAlias() {
@@ -254,6 +254,22 @@ public class PropertyDescriptor {
 
     public void setItemAlias(String alias) {
         setAttribute("itemAlias", alias);
+    }
+
+    /**
+     * @deprecated since BEAM 5
+     */
+    @Deprecated
+    public boolean getItemsInlined() {
+        return getBooleanProperty("itemsInlined");
+    }
+
+    /**
+     * @deprecated since BEAM 5
+     */
+    @Deprecated
+    public void setItemsInlined(boolean inlined) {
+        setAttribute("itemsInlined", inlined);
     }
 
     //////////////////////////////////////////////////////////////////////////////
