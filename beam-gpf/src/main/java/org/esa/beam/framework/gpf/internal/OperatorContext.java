@@ -43,20 +43,16 @@ import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.Tile;
+import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.ParameterDescriptorFactory;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
+import org.esa.beam.framework.gpf.annotations.SourceProducts;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProperty;
-import org.esa.beam.framework.gpf.descriptor.ElementDescriptor;
-import org.esa.beam.framework.gpf.descriptor.OperatorDescriptor;
-import org.esa.beam.framework.gpf.descriptor.SourceProductDescriptor;
-import org.esa.beam.framework.gpf.descriptor.SourceProductsDescriptor;
-import org.esa.beam.framework.gpf.descriptor.TargetPropertyDescriptor;
 import org.esa.beam.framework.gpf.graph.GraphOp;
 import org.esa.beam.framework.gpf.internal.OperatorConfiguration.Reference;
 import org.esa.beam.framework.gpf.monitor.TileComputationEvent;
 import org.esa.beam.framework.gpf.monitor.TileComputationObserver;
-import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.jai.JAIUtils;
 import org.esa.beam.util.logging.BeamLogManager;
 
@@ -99,7 +95,6 @@ public class OperatorContext {
     private final Operator operator;
     private final List<Product> sourceProductList;
     private final Map<String, Product> sourceProductMap;
-    private final Map<String, Object> parameterMap;
     private final Map<String, Object> targetPropertyMap;
     private final RenderingHints renderingHints;
 
@@ -113,6 +108,7 @@ public class OperatorContext {
     private Logger logger;
     private boolean cancelled;
     private boolean disposed;
+    private Map<String, Object> parameters;
     private PropertySet parameterSet;
     private boolean initialising;
     private boolean requiresAllBands;
@@ -125,10 +121,9 @@ public class OperatorContext {
         this.operator = operator;
         this.computeTileMethodUsable = canOperatorComputeTile(operator.getClass());
         this.computeTileStackMethodUsable = canOperatorComputeTileStack(operator.getClass());
-        this.sourceProductList = new ArrayList<>(3);
-        this.sourceProductMap = new HashMap<>(3);
-        this.parameterMap = new HashMap<>(17);
-        this.targetPropertyMap = new HashMap<>(3);
+        this.sourceProductList = new ArrayList<Product>(3);
+        this.sourceProductMap = new HashMap<String, Product>(3);
+        this.targetPropertyMap = new HashMap<String, Object>(3);
         this.logger = BeamLogManager.getSystemLogger();
         this.renderingHints = new RenderingHints(JAI.KEY_TILE_CACHE_METRIC, this);
 
@@ -191,47 +186,16 @@ public class OperatorContext {
         this.logger = logger;
     }
 
-    public boolean isCancelled() {
-        return cancelled;
+    public Product getSourceProduct(String id) {
+        return sourceProductMap.get(id);
     }
 
-    public void setCancelled(boolean cancelled) {
-        this.cancelled = cancelled;
-    }
-
-    public void checkForCancellation() throws OperatorException {
-        if (isCancelled()) {
-            throw new OperatorException("Operation canceled.");
-        }
-    }
-
-    public OperatorSpi getOperatorSpi() {
-        if (operatorSpi == null) {
-            // create anonymous SPI
-            operatorSpi = new OperatorSpi(operator.getClass()) {
-            };
-        }
-        return operatorSpi;
-    }
-
-    public void setOperatorSpi(OperatorSpi operatorSpi) {
-        this.operatorSpi = operatorSpi;
-    }
-
-    public Operator getOperator() {
-        return operator;
-    }
-
-    public Product getSourceProduct(String name) {
-        return sourceProductMap.get(name);
-    }
-
-    public void setSourceProduct(String name, Product product) {
+    public void setSourceProduct(String id, Product product) {
         if (product != null) {
             if (!sourceProductList.contains(product)) {
                 sourceProductList.add(product);
             }
-            sourceProductMap.put(name, product);
+            sourceProductMap.put(id, product);
         }
     }
 
@@ -261,9 +225,9 @@ public class OperatorContext {
         }
     }
 
-    public String getSourceProductName(Product product) {
+    public String getSourceProductId(Product product) {
         Set<Map.Entry<String, Product>> entrySet = sourceProductMap.entrySet();
-        List<String> mappedIds = new ArrayList<>();
+        List<String> mappedIds = new ArrayList<String>();
         for (Map.Entry<String, Product> entry : entrySet) {
             //noinspection ObjectEquality
             if (entry.getValue() == product) {
@@ -296,30 +260,69 @@ public class OperatorContext {
 
     public Object getTargetProperty(String name) {
         getTargetProduct();
+
         return targetPropertyMap.get(name);
     }
 
+
+    public boolean isCancelled() {
+        return cancelled;
+    }
+
+    public void setCancelled(boolean cancelled) {
+        this.cancelled = cancelled;
+    }
+
+    public void checkForCancellation() throws OperatorException {
+        if (isCancelled()) {
+            throw new OperatorException("Operation canceled.");
+        }
+    }
+
+    public OperatorSpi getOperatorSpi() {
+        if (operatorSpi == null) {
+            // create anonymous SPI
+            operatorSpi = new OperatorSpi(operator.getClass()) {
+            };
+        }
+        return operatorSpi;
+    }
+
+    public void setOperatorSpi(OperatorSpi operatorSpi) {
+        this.operatorSpi = operatorSpi;
+    }
+
+    public Operator getOperator() {
+        return operator;
+    }
+
+
     public Object getParameter(String name) {
         Assert.notNull(name, "name");
-        return parameterMap.get(name);
+        if (parameters == null) {
+            return null;
+        }
+        return parameters.get(name);
     }
 
     public void setParameter(String name, Object value) {
         Assert.notNull(name, "name");
         if (value != null) {
-            parameterMap.put(name, value);
-        } else {
-            parameterMap.remove(name);
+            if (parameters == null) {
+                parameters = new HashMap<String, Object>();
+            }
+            parameters.put(name, value);
+        } else if (parameters != null) {
+            parameters.remove(name);
         }
     }
 
     public Map<String, Object> getParameters() {
-        return parameterMap;
+        return parameters;
     }
 
-    public void setParameters(Map<String, Object> parameterMap) {
-        this.parameterMap.clear();
-        this.parameterMap.putAll(parameterMap);
+    public void setParameters(Map<String, Object> parameters) {
+        this.parameters = new HashMap<String, Object>(parameters);
     }
 
     public RenderingHints getRenderingHints() {
@@ -386,10 +389,10 @@ public class OperatorContext {
     public void dispose() {
         if (!disposed) {
             disposed = true;
+            parameters = null;
             configuration = null;
             sourceProductMap.clear();
             sourceProductList.clear();
-            parameterMap.clear();
             Collection<OperatorImage> operatorImages = targetImageMap.values();
             for (OperatorImage image : operatorImages) {
                 image.dispose();
@@ -436,123 +439,21 @@ public class OperatorContext {
         }
     }
 
-    private  static abstract class ValueAccess {
-        final Map<String, String> aliasNames;
-
-        protected ValueAccess(Operator operator) {
-            aliasNames = getFieldAliasNames(operator.getSpi().getOperatorDescriptor());
-        }
-        abstract Object getValue(String name, Class<?> type);
-        abstract void setValue(String name, Class<?> type, Object value);
-    }
-
-    private  static abstract class MapValueAccess extends ValueAccess {
-        final Map<String, Object> map;
-
-        protected MapValueAccess(Operator operator, Map<String, Object> map) {
-            super(operator);
-            this.map = map;
-        }
-
-        Object getValue(String name, Class<?> type) {
-            return map.get(name);
-        }
-
-        void setValue(String name, Class<?> type, Object value) {
-            map.put(name, value);
-        }
-    }
-
-    private static class ValueAccessImpl extends ValueAccess {
-
-        final Map<String, Field> writableFields;
-        private final Operator operator;
-
-        ValueAccessImpl(Operator operator) {
-             super(operator);
-            this.operator = operator;
-            writableFields = getWritableFields(operator.getClass());
-        }
-
-        @Override
-        Object getValue(String name, Class<?> type) {
-            Field field = getAccessibleField(name);
-            try {
-                return field.get(operator);
-            } catch (IllegalAccessException e) {
-// todo - handle exception (${USER}, ${DATE})
-                e.printStackTrace();
-            }
-        }
-
-        @Override
-        void setValue(String name, Class<?> type, Object value) {
-            Field field = getAccessibleField(name);
-            try {
-                field.set(operator, value);
-            } catch (IllegalAccessException e) {
-// todo - handle exception (${USER}, ${DATE})
-                e.printStackTrace();
-            }
-        }
-
-        public Field getAccessibleField(ElementDescriptor descriptor) {
-            return getAccessibleField(descriptor, true);
-        }
-
-        public Field getAccessibleField(ElementDescriptor descriptor, boolean fail) {
-            Field field = null;
-            String alias = descriptor.getAlias();
-            if (StringUtils.isNotNullAndNotEmpty(alias)) {
-                String resolvedName = aliasNames.get(alias);
-                if (resolvedName != null) {
-                    field = getAccessibleField(resolvedName);
-                    if (field == null && fail) {
-                        throw new OperatorException("Operator field '" + alias + "' not found");
-                    }
-                }
-            }
-            Assert.state(StringUtils.isNotNullAndNotEmpty(descriptor.getName()));
-            if (field == null) {
-                field = getAccessibleField(descriptor.getName());
-            }
-            if (field == null && fail) {
-                throw new OperatorException("Operator field '" + descriptor.getName() + "' not found");
-            }
-            return field;
-        }
-
-
-        public Field getAccessibleField(String name) throws OperatorException {
-            Field field = writableFields.get(name);
-            if (field != null) {
-                try {
-                    field.setAccessible(true);
-                } catch (SecurityException e) {
-                    throw new OperatorException("Operator field '" + name + "' is not accessible");
-                }
-            }
-            return field;
-        }
-    }
-
     private void initializeOperator() throws OperatorException {
         Assert.state(targetProduct == null, "targetProduct == null");
         Assert.state(operator != null, "operator != null");
         Assert.state(!initialising, "!initialising, attempt to call getTargetProduct() from within initialise()?");
 
-        ValueAccess valueAccess = new ValueAccess(operator);
-
         try {
             initialising = true;
             if (!(operator instanceof GraphOp)) {
-                initSourceProductFields(valueAccess);
-                injectParameterValues(valueAccess);
+                initSourceProductFields();
+                injectParameterValues();
                 injectConfiguration();
             }
             operator.initialize();
-            initTargetProduct(valueAccess);
-            initTargetProperties(valueAccess);
+            initTargetProduct();
+            initTargetProperties();
             initTargetImages();
             initGraphMetadata();
 
@@ -566,7 +467,8 @@ public class OperatorContext {
      * Updates this operator forcing it to recreate the target product.
      * <i>Warning: Experimental API added by nf (25.02.2010)</i><br/>
      *
-     * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs.
+     * @throws org.esa.beam.framework.gpf.OperatorException
+     *          If an error occurs.
      * @since BEAM 4.8
      */
     public void updateOperator() throws OperatorException {
@@ -593,7 +495,7 @@ public class OperatorContext {
         convertOperatorContextToMetadata(this, targetGraphME);
     }
 
-    private static void convertOperatorContextToMetadata(OperatorContext context, MetadataElement targetGraphME) {
+    private void convertOperatorContextToMetadata(OperatorContext context, MetadataElement targetGraphME) {
         String opId = context.getId();
         boolean contains = false;
         int nodeElementCount = 0;
@@ -609,34 +511,40 @@ public class OperatorContext {
         if (contains) {
             return;
         }
-        Class<? extends Operator> operatorClass = context.operator.getSpi().getOperatorDescriptor().getOperatorClass();
+        Class<? extends Operator> operatorClass = context.operator.getClass();
         final String opName = OperatorSpi.getOperatorAlias(operatorClass);
         MetadataElement targetNodeME = new MetadataElement(String.format("node.%d", nodeElementCount));
         targetGraphME.addElement(targetNodeME);
         targetNodeME.addAttribute(new MetadataAttribute("id", ProductData.createInstance(opId), false));
         targetNodeME.addAttribute(new MetadataAttribute("operator", ProductData.createInstance(opName), false));
 
-        Module module = context.operatorSpi.getModule();
+        Module module = operatorSpi.getModule();
         if (module == null) {
-            context.logger.warning("Could not read module information");
-        } else {
+            logger.warning("Could not read module information");
+        }else {
             ProductData nameValue = ProductData.createInstance(module.getSymbolicName());
             targetNodeME.addAttribute(new MetadataAttribute("moduleName", nameValue, false));
 
             ProductData versionValue = ProductData.createInstance(module.getVersion().toString());
             targetNodeME.addAttribute(new MetadataAttribute("moduleVersion", versionValue, false));
         }
-        OperatorDescriptor operatorDescriptor = context.operatorSpi.getOperatorDescriptor();
-        addStringAttribute(targetNodeME, "name", operatorDescriptor.getName());
-        addStringAttribute(targetNodeME, "description", operatorDescriptor.getDescription());
-        addStringAttribute(targetNodeME, "authors", operatorDescriptor.getAuthors());
-        addStringAttribute(targetNodeME, "version", operatorDescriptor.getVersion());
-        addStringAttribute(targetNodeME, "copyright", operatorDescriptor.getCopyright());
+        OperatorMetadata operatorMetadata = operatorClass.getAnnotation(OperatorMetadata.class);
+        if (operatorMetadata != null) {
+            ProductData purposeValue = ProductData.createInstance(operatorMetadata.description());
+            targetNodeME.addAttribute(new MetadataAttribute("purpose", purposeValue, false));
+            ProductData authorsValue = ProductData.createInstance(operatorMetadata.authors());
+            targetNodeME.addAttribute(new MetadataAttribute("authors", authorsValue, false));
+            ProductData opVersionValue = ProductData.createInstance(operatorMetadata.version());
+            targetNodeME.addAttribute(new MetadataAttribute("version", opVersionValue, false));
+            ProductData copyrightValue = ProductData.createInstance(operatorMetadata.copyright());
+            targetNodeME.addAttribute(new MetadataAttribute("copyright", copyrightValue, false));
+        }
+
 
         final MetadataElement targetSourcesME = new MetadataElement("sources");
 
         for (Product sourceProduct : context.sourceProductList) {
-            final String sourceId = context.getSourceProductName(sourceProduct);
+            final String sourceId = context.getSourceProductId(sourceProduct);
             final String sourceNodeId;
             if (sourceProduct.getFileLocation() != null) {
                 sourceNodeId = sourceProduct.getFileLocation().toURI().toASCIIString();
@@ -655,7 +563,7 @@ public class OperatorContext {
         targetNodeME.addElement(targetSourcesME);
 
         final DefaultDomConverter domConverter = new DefaultDomConverter(operatorClass,
-                                                                         new ParameterDescriptorFactory(context.sourceProductMap));
+                                                                         new ParameterDescriptorFactory(sourceProductMap));
         final XppDomElement parametersDom = new XppDomElement("parameters");
         try {
             domConverter.convertValueToDom(context.operator, parametersDom);
@@ -667,21 +575,14 @@ public class OperatorContext {
         targetNodeME.addElement(targetParametersME);
     }
 
-    private static void addStringAttribute(MetadataElement targetNodeME, String attributeName, String attributeValue) {
-        if (attributeValue != null) {
-            ProductData descriptionValue = ProductData.createInstance(attributeValue);
-            targetNodeME.addAttribute(new MetadataAttribute(attributeName, descriptionValue, false));
-        }
-    }
-
     private static void addDomToMetadata(DomElement parentDE, MetadataElement parentME) {
-        final HashMap<String, List<DomElement>> map = new HashMap<>(
+        final HashMap<String, List<DomElement>> map = new HashMap<String, List<DomElement>>(
                 parentDE.getChildCount() + 5);
         for (DomElement childDE : parentDE.getChildren()) {
             final String name = childDE.getName();
             List<DomElement> elementList = map.get(name);
             if (elementList == null) {
-                elementList = new ArrayList<>(3);
+                elementList = new ArrayList<DomElement>(3);
                 map.put(name, elementList);
             }
             elementList.add(childDE);
@@ -737,7 +638,7 @@ public class OperatorContext {
             int height = targetProduct.getSceneRasterHeight();
             locks = OperatorImageTileStack.createLocks(width, height, tileSize);
         }
-        targetImageMap = new HashMap<>(targetBands.length * 2);
+        targetImageMap = new HashMap<Band, OperatorImage>(targetBands.length * 2);
         for (final Band targetBand : targetBands) {
             // Only register non-virtual bands
             if (isRegularBand(targetBand)) {
@@ -816,7 +717,7 @@ public class OperatorContext {
         return targetBand.getClass() == Band.class;
     }
 
-    private void initTargetProduct(Map<String, String> aliasNames, Map<String, Field> writableFields) throws OperatorException {
+    private void initTargetProduct() throws OperatorException {
         Class<? extends Operator> operatorClass = operator.getClass();
         initTargetProduct(operatorClass);
         if (targetProduct == null) {
@@ -831,7 +732,7 @@ public class OperatorContext {
         }
     }
 
-    private void initTargetProduct(TargetPropertyDescriptor targetPropertyDescriptor) {
+    private void initTargetProduct(Class<? extends Operator> operatorClass) {
         Class<?> superClass = operatorClass.getSuperclass();
         if (superClass != null && !superClass.equals(Operator.class)) {
             initTargetProduct((Class<? extends Operator>) superClass);
@@ -859,7 +760,7 @@ public class OperatorContext {
         }
     }
 
-    private void initTargetProperties(TargetPropertyDescriptor targetPropertyDescriptor) throws OperatorException {
+    private void initTargetProperties() throws OperatorException {
         Field[] declaredFields = operator.getClass().getDeclaredFields();
         for (Field declaredField : declaredFields) {
             TargetProperty targetPropertyAnnotation = declaredField.getAnnotation(TargetProperty.class);
@@ -887,52 +788,63 @@ public class OperatorContext {
         }
     }
 
-    private void initSourceProductFields(ValueAccess valueAccess) throws OperatorException {
-        OperatorDescriptor operatorDescriptor = getOperatorSpi().getOperatorDescriptor();
-        for (SourceProductDescriptor descriptor : operatorDescriptor.getSourceProductDescriptors()) {
-            processSourceProductDescriptor(descriptor, valueAccess);
+    private void initSourceProductFields() throws OperatorException {
+        initSourceProductFields(operator.getClass());
+    }
+
+    private void initSourceProductFields(Class<? extends Operator> operatorClass) {
+        Field[] declaredFields = operatorClass.getDeclaredFields();
+        for (Field declaredField : declaredFields) {
+            SourceProduct sourceProductAnnotation = declaredField.getAnnotation(SourceProduct.class);
+            if (sourceProductAnnotation != null) {
+                processSourceProductField(declaredField, sourceProductAnnotation);
+            }
+            SourceProducts sourceProductsAnnotation = declaredField.getAnnotation(SourceProducts.class);
+            if (sourceProductsAnnotation != null) {
+                processSourceProductsField(declaredField, sourceProductsAnnotation);
+            }
         }
-        SourceProductsDescriptor descriptor = operatorDescriptor.getSourceProductsDescriptor();
-        if (descriptor != null) {
-            processSourceProductsDescriptor(descriptor, valueAccess);
+        Class<?> superClass = operatorClass.getSuperclass();
+        if (superClass != null && !superClass.equals(Operator.class)) {
+            initSourceProductFields((Class<? extends Operator>) superClass);
         }
     }
 
-    private void processSourceProductDescriptor(SourceProductDescriptor descriptor, ValueAccess valueAccess) throws OperatorException {
-        Field declaredField = valueAccess.getAccessibleField(descriptor);
-
-        if (!Product.class.isAssignableFrom(declaredField.getType())) {
-            String text = "Source product field '%s' must have type '%s'.";
+    private void processSourceProductField(Field declaredField, SourceProduct sourceProductAnnotation) throws
+                                                                                                       OperatorException {
+        if (declaredField.getType().equals(Product.class)) {
+            String productMapName = declaredField.getName();
+            Product sourceProduct = getSourceProduct(productMapName);
+            if (sourceProduct == null) {
+                productMapName = sourceProductAnnotation.alias();
+                sourceProduct = getSourceProduct(productMapName);
+            }
+            if (sourceProduct != null) {
+                validateSourceProduct(declaredField.getName(),
+                                      sourceProduct,
+                                      sourceProductAnnotation.type(),
+                                      sourceProductAnnotation.bands());
+                setSourceProductFieldValue(declaredField, sourceProduct);
+                setSourceProduct(productMapName, sourceProduct);
+            } else {
+                sourceProduct = getSourceProductFieldValue(declaredField);
+                if (sourceProduct != null) {
+                    setSourceProduct(declaredField.getName(), sourceProduct);
+                } else if (!sourceProductAnnotation.optional()) {
+                    String text = "Mandatory source product (field '%s') not set.";
+                    String msg = formatExceptionMessage(text, declaredField.getName());
+                    throw new OperatorException(msg);
+                }
+            }
+        } else {
+            String text = "A source product (field '%s') must be of type '%s'.";
             String msg = formatExceptionMessage(text, declaredField.getName(), Product.class.getName());
             throw new OperatorException(msg);
         }
-
-        String id = declaredField.getName();
-        Product sourceProduct = getSourceProduct(id);
-        if (sourceProduct == null) {
-            id = descriptor.getAlias();
-            sourceProduct = getSourceProduct(id);
-        }
-        if (sourceProduct != null) {
-            validateSourceProduct(declaredField.getName(),
-                                  sourceProduct,
-                                  descriptor.type(),
-                                  descriptor.bands());
-            setSourceProductFieldValue(declaredField, sourceProduct);
-            setSourceProduct(id, sourceProduct);
-        } else {
-            sourceProduct = getSourceProductFieldValue(declaredField);
-            if (sourceProduct != null) {
-                setSourceProduct(declaredField.getName(), sourceProduct);
-            } else if (!descriptor.optional()) {
-                String text = "Mandatory source product (field '%s') not set.";
-                String msg = formatExceptionMessage(text, declaredField.getName());
-                throw new OperatorException(msg);
-            }
-        }
     }
 
-    private void processSourceProductsDescriptor(SourceProductsDescriptor descriptor, ValueAccess valueAccess) throws OperatorException {
+    private void processSourceProductsField(Field declaredField, SourceProducts sourceProductsAnnotation) throws
+                                                                                                          OperatorException {
         if (declaredField.getType().equals(Product[].class)) {
             Product[] sourceProducts = getSourceProductsFieldValue(declaredField);
             if (sourceProducts != null) {
@@ -948,23 +860,23 @@ public class OperatorContext {
             if (sourceProducts.length > 0) {
                 setSourceProductsFieldValue(declaredField, getUnnamedProducts());
             }
-            if (descriptor.count() < 0) {
+            if (sourceProductsAnnotation.count() < 0) {
                 if (sourceProducts.length == 0) {
                     String msg = formatExceptionMessage("At least a single source product expected.");
                     throw new OperatorException(msg);
                 }
-            } else if (descriptor.count() > 0) {
-                if (descriptor.count() != sourceProducts.length) {
+            } else if (sourceProductsAnnotation.count() > 0) {
+                if (sourceProductsAnnotation.count() != sourceProducts.length) {
                     String text = "Wrong number of source products. Required %d, found %d.";
-                    String msg = formatExceptionMessage(text, descriptor.count(), sourceProducts.length);
+                    String msg = formatExceptionMessage(text, sourceProductsAnnotation.count(), sourceProducts.length);
                     throw new OperatorException(msg);
                 }
             }
             for (Product sourceProduct : sourceProducts) {
                 validateSourceProduct(declaredField.getName(),
                                       sourceProduct,
-                                      descriptor.type(),
-                                      descriptor.bands());
+                                      sourceProductsAnnotation.type(),
+                                      sourceProductsAnnotation.bands());
             }
         } else {
             String text = "Source products (field '%s') must be of type '%s'.";
@@ -974,20 +886,20 @@ public class OperatorContext {
     }
 
     private Product[] getUnnamedProducts() {
-        final Map<String, Product> map = new HashMap<>(sourceProductMap);
+        final Map<String, Product> map = new HashMap<String, Product>(sourceProductMap);
         final Field[] sourceProductFields = getAnnotatedSourceProductFields(operator);
         for (Field sourceProductField : sourceProductFields) {
             final SourceProduct annotation = sourceProductField.getAnnotation(SourceProduct.class);
             map.remove(sourceProductField.getName());
             map.remove(annotation.alias());
         }
-        Set<Product> productSet = new HashSet<>(map.values());
+        Set<Product> productSet = new HashSet<Product>(map.values());
         return productSet.toArray(new Product[productSet.size()]);
     }
 
     private static Field[] getAnnotatedSourceProductFields(Operator operator1) {
         Field[] declaredFields = operator1.getClass().getDeclaredFields();
-        List<Field> fieldList = new ArrayList<>();
+        List<Field> fieldList = new ArrayList<Field>();
         for (Field declaredField : declaredFields) {
             SourceProduct sourceProductAnnotation = declaredField.getAnnotation(SourceProduct.class);
             //noinspection VariableNotUsedInsideIf
@@ -1073,7 +985,7 @@ public class OperatorContext {
     public void injectConfiguration() throws OperatorException {
         if (configuration != null) {
             try {
-                configureOperator();
+                configureOperator(operator, configuration);
             } catch (OperatorException e) {
                 throw e;
             } catch (Throwable t) {
@@ -1082,14 +994,14 @@ public class OperatorContext {
         }
     }
 
-    private void configureOperator()
+    private void configureOperator(Operator operator, OperatorConfiguration operatorConfiguration)
             throws ValidationException, ConversionException {
         ParameterDescriptorFactory parameterDescriptorFactory = new ParameterDescriptorFactory(sourceProductMap);
         DefaultDomConverter domConverter = new DefaultDomConverter(operator.getClass(), parameterDescriptorFactory);
-        domConverter.convertDomToValue(configuration.getConfiguration(), operator);
+        domConverter.convertDomToValue(operatorConfiguration.getConfiguration(), operator);
         PropertyContainer propertyContainer = PropertyContainer.createObjectBacked(operator,
                                                                                    parameterDescriptorFactory);
-        Set<Reference> referenceSet = configuration.getReferenceSet();
+        Set<Reference> referenceSet = operatorConfiguration.getReferenceSet();
         for (Reference reference : referenceSet) {
             Property property = propertyContainer.getProperty(reference.getParameterName());
             property.setValue(reference.getValue());
@@ -1100,9 +1012,9 @@ public class OperatorContext {
         getParameterSet().setDefaultValues();
     }
 
-    private void injectParameterValues(ValueAccess valueAccess) throws OperatorException {
-        if (parameterMap != null) {
-            for (String parameterName : parameterMap.keySet()) {
+    private void injectParameterValues() throws OperatorException {
+        if (parameters != null) {
+            for (String parameterName : parameters.keySet()) {
                 final Property property = getParameterSet().getProperty(parameterName);
                 if (property == null) {
                     // Note: "Unknown parameter" exception commented out by Norman on 09.02.2011
@@ -1132,7 +1044,7 @@ public class OperatorContext {
                         ValueSet valueSet = new ValueSet(names);
                         descriptor.setValueSet(valueSet);
                     }
-                    Object paramValue = parameterMap.get(parameterName);
+                    Object paramValue = parameters.get(parameterName);
                     if (paramValue instanceof String && !String.class.isAssignableFrom(property.getType())) {
                         property.setValueFromText((String) paramValue);
                     } else {
@@ -1201,55 +1113,6 @@ public class OperatorContext {
 
     public void setRequiresAllBands(boolean requiresAllBands) {
         this.requiresAllBands = requiresAllBands;
-    }
-
-    private static Map<String, Field> getWritableFields(Class<?> type) {
-        Map<String, Field> writableFields = new HashMap<>(33);
-        collectWritableFields(type, writableFields);
-        return writableFields;
-    }
-
-    private static void collectWritableFields(Class<?> type, Map<String, Field> writableFields) {
-        Class<?> superclass = type.getSuperclass();
-        // Don't collect fields of java.lang.Object or pure interfaces
-        if (superclass == null) {
-            return;
-        }
-        // Collect superclass fields *before* collecting the type's fields
-        collectWritableFields(superclass, writableFields);
-        // Now collect the type's fields
-        Field[] fields = type.getDeclaredFields();
-        for (Field field : fields) {
-            int modifiers = field.getModifiers();
-            if (!(Modifier.isFinal(modifiers)
-                  || Modifier.isTransient(modifiers)
-                  || Modifier.isStatic(modifiers))) {
-                writableFields.put(field.getName(), field);
-            }
-        }
-    }
-
-    private static Map<String, String> getFieldAliasNames(OperatorDescriptor operatorDescriptor) {
-        Map<String, String> aliasNames = new HashMap<>();
-        collectFieldAliases(operatorDescriptor.getSourceProductDescriptors(), aliasNames);
-        collectFieldAlias(operatorDescriptor.getSourceProductsDescriptor(), aliasNames);
-        collectFieldAliases(operatorDescriptor.getParameterDescriptors(), aliasNames);
-        collectFieldAlias(operatorDescriptor.getTargetProductDescriptor(), aliasNames);
-        collectFieldAliases(operatorDescriptor.getTargetPropertyDescriptors(), aliasNames);
-        return aliasNames;
-    }
-
-    private static void collectFieldAliases(ElementDescriptor[] descriptors, Map<String, String> aliasNames) {
-        for (ElementDescriptor descriptor : descriptors) {
-            collectFieldAlias(descriptor, aliasNames);
-        }
-    }
-
-    private static void collectFieldAlias(ElementDescriptor descriptor, Map<String, String> aliasNames) {
-        if (StringUtils.isNotNullAndNotEmpty(descriptor.getAlias())) {
-            Assert.state(StringUtils.isNotNullAndNotEmpty(descriptor.getName()));
-            aliasNames.put(descriptor.getAlias(), descriptor.getName());
-        }
     }
 
 }
