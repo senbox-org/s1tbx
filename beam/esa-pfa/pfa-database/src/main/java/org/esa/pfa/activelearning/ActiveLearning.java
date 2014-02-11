@@ -207,6 +207,7 @@ public class ActiveLearning {
      * Get the number of lines of a given text file.
      * @param reader Reader of the given text file.
      * @return The number of lines.
+     * @throws Exception The exception.
      */
     private int getNumberOfLines(final LineNumberReader reader) throws Exception {
 
@@ -227,6 +228,7 @@ public class ActiveLearning {
 
     /**
      * Select RBF model parameters C and gamma using grid search.
+     * @throws Exception The exception.
      */
     private void selectModel() throws Exception {
 
@@ -266,6 +268,7 @@ public class ActiveLearning {
 
     /**
      * Main function for active learning.
+     * @throws Exception The exception.
      */
     private void startActiveLearning() throws Exception {
 
@@ -324,6 +327,7 @@ public class ActiveLearning {
     /**
      * This is the query function that selects the most informative samples from the unlabelled sample set (U)
      * using MCLU-ECBD algorithm.
+     * @throws Exception The exception.
      */
     private void getNewData() throws Exception {
 
@@ -356,6 +360,7 @@ public class ActiveLearning {
 
     /**
      * Select m unlabelled samples from test data with lower confidence values.
+     * @throws Exception The exception.
      */
     private void selectMostUncertainSamples() throws Exception {
 
@@ -389,17 +394,23 @@ public class ActiveLearning {
      * function are the distances from the given sample to the hyperplanes in kernel space.
      * @param x The given sample.
      * @return The confidence value.
+     * @throws Exception The exception.
      */
     private double computeConfidence(Data x) throws Exception {
 
         final double[] decValues = new double[numClasses*(numClasses-1)/2];
         svmClassifier.classify(x, decValues);
-        Arrays.sort(decValues);
-        return Math.abs(decValues[decValues.length-1] - decValues[decValues.length-2]);
+        if (numClasses > 2) {
+            Arrays.sort(decValues);
+            return Math.abs(decValues[decValues.length-1] - decValues[decValues.length-2]);
+        } else {
+            return Math.abs(decValues[0]);
+        }
     }
 
     /**
      * Select h most diverse samples from the m most uncertain samples.
+     * @throws Exception The exception.
      */
     private void selectMostDiverseSamples() throws Exception {
 
@@ -410,6 +421,7 @@ public class ActiveLearning {
 
     /**
      * Classify the h samples returned by query function.
+     * @throws Exception The exception.
      */
     private void classifyTestData() throws Exception {
 
@@ -436,6 +448,7 @@ public class ActiveLearning {
 
     /**
      * Applied the trained model to the training data set to check its accuracy.
+     * @throws Exception The exception.
      */
     private void classifyTrainingData() throws Exception {
 
