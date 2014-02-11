@@ -167,4 +167,13 @@ public @interface Parameter {
      * @return The raster data node type.
      */
     Class<? extends RasterDataNode> rasterDataNodeType() default RasterDataNode.class;
+
+
+    /**
+     * @return An arbitrary Boolean value which will be ignored.
+     * @see #itemAlias()#
+     * @deprecated Since BEAM 5. Not used anymore. No replacement.
+     */
+    @Deprecated
+    boolean itemsInlined() default false;
 }
