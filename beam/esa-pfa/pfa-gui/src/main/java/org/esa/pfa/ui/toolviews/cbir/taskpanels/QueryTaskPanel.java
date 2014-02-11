@@ -19,6 +19,7 @@ import com.bc.ceres.swing.selection.AbstractSelectionChangeListener;
 import com.bc.ceres.swing.selection.SelectionChangeEvent;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.ui.SourceProductSelector;
+import org.esa.beam.util.ProductUtils;
 import org.esa.pfa.fe.op.FeatureWriter;
 import org.esa.pfa.search.CBIRSession;
 import org.esa.pfa.search.PatchImage;
@@ -138,7 +139,7 @@ public class QueryTaskPanel extends TaskPanel implements ActionListener {
                 subY += dim.height;
 
                 session.addQueryProduct(subset);
-                session.addQueryImage(new PatchImage());
+                session.addQueryImage(new PatchImage(subset, ProductUtils.findSuitableQuicklookBandName(subset)));
                 drawer.update(session.getQueryImages());
             }
         } catch (Exception e) {

@@ -35,6 +35,11 @@
         </dependency>
         <dependency>
             <groupId>org.esa.beam</groupId>
+            <artifactId>beam-gpf</artifactId>
+            <version>${beam.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.beam</groupId>
             <artifactId>beam-visat-rcp</artifactId>
             <version>${beam.version}</version>
         </dependency>

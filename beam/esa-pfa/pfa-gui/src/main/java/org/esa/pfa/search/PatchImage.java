@@ -16,11 +16,16 @@
 package org.esa.pfa.search;
 
 
+import com.bc.ceres.core.ProgressMonitor;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.util.ProductUtils;
+
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 
 /**
  * Hold query image data
@@ -36,6 +41,16 @@ public class PatchImage {
 
     public PatchImage() {
         uid = createUniqueID();
+    }
+
+    public PatchImage(final Product subsetProduct, final String bandName) {
+        this();
+
+        try {
+            image = ProductUtils.createColorIndexedImage(subsetProduct.getBand(bandName), ProgressMonitor.NULL);
+        } catch(IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private synchronized int createUniqueID() {
