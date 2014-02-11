@@ -27,7 +27,7 @@ import com.thoughtworks.xstream.io.xml.XppDomWriter;
 import com.thoughtworks.xstream.io.xml.XppReader;
 import com.thoughtworks.xstream.io.xml.xppdom.XppDom;
 import junit.framework.AssertionFailedError;
-import junit.framework.TestCase;
+import org.junit.Test;
 
 import java.awt.Color;
 import java.awt.Rectangle;
@@ -44,7 +44,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
 
-public class DefaultDomConverterTest extends TestCase {
+import static org.junit.Assert.*;
+
+public class DefaultDomConverterTest {
 
     private static final PropertyDescriptorFactory PROPERTY_DESCRIPTOR_FACTORY = new PropertyDescriptorFactory() {
         @Override
@@ -76,6 +78,7 @@ public class DefaultDomConverterTest extends TestCase {
         }
     };
 
+    @Test
     public void testUnknownElement() throws Exception {
         final String xml = ""
                            + "<parameters>"
@@ -90,6 +93,7 @@ public class DefaultDomConverterTest extends TestCase {
         }
     }
 
+    @Test
     public void testDomToSimplePojo() throws Exception {
         final String xml = ""
                            + "<parameters>"
@@ -115,6 +119,7 @@ public class DefaultDomConverterTest extends TestCase {
         assertEquals(-0.034, value.doubleArrayField[2], 1.0e-10);
     }
 
+    @Test
     public void testSimplePojoToDom() throws ValidationException, ConversionException {
         final String expectedXml = ""
                                    + "<parameters>"
@@ -133,6 +138,7 @@ public class DefaultDomConverterTest extends TestCase {
         assertDomEquals(createDom(expectedXml), dom);
     }
 
+    @Test
     public void testSimplePojoWithNullArrayToDom() throws ValidationException, ConversionException {
         final String expectedXml = ""
                                    + "<parameters>"
@@ -151,6 +157,7 @@ public class DefaultDomConverterTest extends TestCase {
         assertDomEquals(createDom(expectedXml), dom);
     }
 
+    @Test
     public void testSimplePojoWithNullObjectToDom() throws ValidationException, ConversionException {
         final String expectedXml = ""
                                    + "<parameters>"
@@ -169,6 +176,7 @@ public class DefaultDomConverterTest extends TestCase {
         assertDomEquals(createDom(expectedXml), dom);
     }
 
+    @Test
     public void testArrayWithDomConverterPojoToDom() throws ValidationException, ConversionException {
         final String expectedXml = ""
                                    + "<parameters>"
@@ -186,6 +194,7 @@ public class DefaultDomConverterTest extends TestCase {
         assertDomEquals(createDom(expectedXml), dom);
     }
 
+    @Test
     public void testArrayWithDomConverterPojoToDom_NullValue() throws ValidationException, ConversionException {
         final String expectedXml = ""
                                    + "<parameters>"
@@ -198,6 +207,7 @@ public class DefaultDomConverterTest extends TestCase {
     }
 
 
+    @Test
     public void testWeirdPojoToDom() throws ValidationException, ConversionException {
         final String expectedXml = ""
                                    + "<parameters>"
@@ -213,6 +223,7 @@ public class DefaultDomConverterTest extends TestCase {
         assertDomEquals(createDom(expectedXml), dom);
     }
 
+    @Test
     public void testDomToArrayPojo() throws ConversionException {
         final String expectedXml = ""
                                    + "<parameters>"
@@ -231,6 +242,7 @@ public class DefaultDomConverterTest extends TestCase {
         assertDomEquals(createDom(expectedXml), dom);
     }
 
+    @Test
     public void testArrayPojoToDom() throws ConversionException {
         ConverterRegistry.getInstance().setConverter(Member.class, new Converter<Member>() {
             @Override
@@ -266,6 +278,7 @@ public class DefaultDomConverterTest extends TestCase {
         assertDomEquals(createDom(expectedXml), dom);
     }
 
+    @Test
     public void testDomToAnnotatedPojo() throws Exception {
 
         final String xml = ""
@@ -288,6 +301,7 @@ public class DefaultDomConverterTest extends TestCase {
         assertEquals("b", value.targetBandNames[1]);
     }
 
+    @Test
     public void testAnnotatedPojoToDom() throws ValidationException, ConversionException {
 
         final String expectedXml = ""
@@ -309,6 +323,7 @@ public class DefaultDomConverterTest extends TestCase {
         assertDomEquals(createDom(expectedXml), dom);
     }
 
+    @Test
     public void testDomToEnumPojo() throws Exception {
 
         final String xml = ""
@@ -322,6 +337,7 @@ public class DefaultDomConverterTest extends TestCase {
         assertEquals(EnumPojo.Muppet.KERMIT, value.character);
     }
 
+    @Test
     public void testEnumPojoToDom() throws ValidationException, ConversionException {
 
         final String expectedXml = ""
@@ -335,6 +351,7 @@ public class DefaultDomConverterTest extends TestCase {
         assertDomEquals(createDom(expectedXml), dom);
     }
 
+    @Test
     public void testDomToComplexPojo() throws Exception {
 
         final String xmlString = ""
@@ -376,6 +393,7 @@ public class DefaultDomConverterTest extends TestCase {
 
     }
 
+    @Test
     public void testComplexPojoToDom() throws ValidationException, ConversionException {
 
         final String expectedXml = ""
@@ -409,6 +427,7 @@ public class DefaultDomConverterTest extends TestCase {
         assertDomEquals(createDom(expectedXml), dom);
     }
 
+    @Test
     public void testDomToInlinedArrayPojo() throws Exception {
 
         final String xml = ""
@@ -471,6 +490,7 @@ public class DefaultDomConverterTest extends TestCase {
         assertNotNull(value.endmembers[2].radiances);
     }
 
+    @Test
     public void testInlinedArrayPojoToDom() throws ValidationException, ConversionException {
 
         final String expectedXml = ""
@@ -516,6 +536,7 @@ public class DefaultDomConverterTest extends TestCase {
         assertDomEquals(createDom(expectedXml), dom);
     }
 
+    @Test
     public void testInterfaceFieldsPojoToDom() throws ConversionException {
         final String expectedXml = ""
                                    + "<parameters>"
@@ -539,6 +560,7 @@ public class DefaultDomConverterTest extends TestCase {
         assertDomEquals(createDom(expectedXml), dom);
     }
 
+    @Test
     public void testDomToInterfaceFieldsPojo() throws Exception {
         final String xml = ""
                            + "<parameters>"
