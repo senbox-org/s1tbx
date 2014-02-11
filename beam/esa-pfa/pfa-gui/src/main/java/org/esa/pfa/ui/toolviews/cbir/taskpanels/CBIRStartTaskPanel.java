@@ -15,15 +15,10 @@
  */
 package org.esa.pfa.ui.toolviews.cbir.taskpanels;
 
-import com.bc.ceres.swing.selection.AbstractSelectionChangeListener;
-import com.bc.ceres.swing.selection.SelectionChangeEvent;
 import org.esa.beam.framework.ui.GridBagUtils;
 import org.esa.pfa.fe.PFAApplicationDescriptor;
 import org.esa.pfa.fe.PFAApplicationRegistry;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.gpf.ui.SourceProductSelector;
 import org.esa.pfa.search.CBIRSession;
-import org.esa.beam.visat.VisatApp;
 import org.esa.pfa.ui.toolviews.cbir.TaskPanel;
 
 import javax.swing.*;
@@ -32,27 +27,23 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 
 /**
-    Instructions Panel
+    Start Panel
  */
 public class CBIRStartTaskPanel extends TaskPanel {
 
     private final static String instructionsStr = "Select a feature extraction application";
 
-    private final SourceProductSelector sourceProductSelector;
     private JComboBox<String> applicationCombo = new JComboBox<>();
 
     private JList<String> classifierList = new JList<String>();
-    private JTextField numTrainingImages = new JTextField();
-    private JTextField numRetrievedImages = new JTextField();
+    private JTextField numTrainingImages = new JTextField("12");
+    private JTextField numRetrievedImages = new JTextField("50");
     private JLabel iterationsLabel = new JLabel();
 
-    private CBIRSession session = new CBIRSession();
+    private CBIRSession session = null;
 
     public CBIRStartTaskPanel() {
         super("Content Based Image Retrieval");
-
-        this.sourceProductSelector = new SourceProductSelector(VisatApp.getApp(), "Source Product:");
-        sourceProductSelector.initProducts();
 
         final PFAApplicationDescriptor[] apps = PFAApplicationRegistry.getInstance().getAllDescriptors();
         for(PFAApplicationDescriptor app : apps) {
@@ -89,7 +80,19 @@ public class CBIRStartTaskPanel extends TaskPanel {
     }
 
     public boolean validateInput() {
-        return true;
+        try {
+            final int numTrainingImg = Integer.parseInt(numTrainingImages.getText());
+            final int numRetrievedImg = Integer.parseInt(numRetrievedImages.getText());
+
+            final String application = (String)applicationCombo.getSelectedItem();
+            final PFAApplicationDescriptor applicationDescriptor = PFAApplicationRegistry.getInstance().getDescriptor(application);
+
+            session = new CBIRSession(applicationDescriptor, numTrainingImg, numRetrievedImg);
+            return true;
+        } catch (Exception e) {
+            showErrorMsg(e.getMessage());
+        }
+        return false;
     }
 
     private void createPanel() {
@@ -142,21 +145,5 @@ public class CBIRStartTaskPanel extends TaskPanel {
         contentPane.add(optionsPane, gbc);
 
         this.add(contentPane, BorderLayout.CENTER);
-    }
-
-    private JPanel createSourceProductPanel() {
-        final JPanel panel = sourceProductSelector.createDefaultPanel();
-        sourceProductSelector.getProductNameLabel().setText("Name:");
-        sourceProductSelector.getProductNameComboBox().setPrototypeDisplayValue(
-                "MER_RR__1PPBCM20030730_071000_000003972018_00321_07389_0000.N1");
-        sourceProductSelector.addSelectionChangeListener(new AbstractSelectionChangeListener() {
-            @Override
-            public void selectionChanged(SelectionChangeEvent event) {
-                final Product sourceProduct = sourceProductSelector.getSelectedProduct();
-
-
-            }
-        });
-        return panel;
     }
 }

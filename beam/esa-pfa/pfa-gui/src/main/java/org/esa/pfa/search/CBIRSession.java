@@ -16,6 +16,9 @@
 package org.esa.pfa.search;
 
 
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.pfa.fe.PFAApplicationDescriptor;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -25,13 +28,42 @@ import java.util.List;
  */
 public class CBIRSession {
 
-    private List<PatchImage> queryImageList = new ArrayList<PatchImage>(3);
+    private List<Product>  queryProductList = new ArrayList<Product>(4);
+    private List<PatchImage> queryImageList = new ArrayList<PatchImage>(4);
     private List<PatchImage> relevantImageList = new ArrayList<PatchImage>(50);
     private List<PatchImage> irrelevantImageList = new ArrayList<PatchImage>(50);
     private List<PatchImage> retrievedImageList = new ArrayList<PatchImage>(500);
 
-    public CBIRSession() {
+    private final PFAApplicationDescriptor applicationDescriptor;
+    private int numTrainingImages;
+    private int numRetrievedImages;
 
+    public CBIRSession(final PFAApplicationDescriptor applicationDescriptor,
+                       final int numTrainingImages, final int numRetrievedImages) {
+        this.applicationDescriptor = applicationDescriptor;
+
+        this.numTrainingImages = numTrainingImages;
+        this.numRetrievedImages = numRetrievedImages;
+    }
+
+    public PFAApplicationDescriptor getApplicationDescriptor() {
+        return applicationDescriptor;
+    }
+
+    public int getNumTrainingImages() {
+        return numTrainingImages;
+    }
+
+    public int getNumRetrievedImages() {
+        return numRetrievedImages;
+    }
+
+    public void addQueryProduct(final Product queryProduct) {
+        queryProductList.add(queryProduct);
+    }
+
+    public Product[] getQueryProducts() {
+        return queryProductList.toArray(new Product[queryProductList.size()]);
     }
 
     public void addQueryImage(final PatchImage queryImage) {

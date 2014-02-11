@@ -15,6 +15,11 @@
  */
 package org.esa.pfa.ui.toolviews.cbir.taskpanels;
 
+import com.bc.ceres.swing.selection.AbstractSelectionChangeListener;
+import com.bc.ceres.swing.selection.SelectionChangeEvent;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.gpf.ui.SourceProductSelector;
+import org.esa.pfa.fe.op.FeatureWriter;
 import org.esa.pfa.search.CBIRSession;
 import org.esa.pfa.search.PatchImage;
 import org.esa.beam.visat.VisatApp;
@@ -36,9 +41,15 @@ public class QueryTaskPanel extends TaskPanel implements ActionListener {
     private final CBIRSession session;
     private PatchDrawer drawer;
 
+    //temp
+    private final SourceProductSelector sourceProductSelector;
+
     public QueryTaskPanel(final CBIRSession session) {
         super("Query Images");
         this.session = session;
+
+        this.sourceProductSelector = new SourceProductSelector(VisatApp.getApp(), "Source Product:");
+        sourceProductSelector.initProducts();
 
         createPanel();
 
@@ -97,8 +108,16 @@ public class QueryTaskPanel extends TaskPanel implements ActionListener {
         addButton.addActionListener(this);
         listsPanel.add(addButton);
 
+        //temp
+        this.add(createSourceProductPanel(), BorderLayout.CENTER);
+
         this.add(listsPanel, BorderLayout.SOUTH);
     }
+
+
+    //temp
+    private static int subX = 0;
+    private static int subY = 0;
 
     /**
      * Handles events.
@@ -109,11 +128,37 @@ public class QueryTaskPanel extends TaskPanel implements ActionListener {
         try {
             final String command = event.getActionCommand();
             if (command.equals("addButton")) {
+                final Product product = sourceProductSelector.getSelectedProduct();
+                if(product == null)
+                    return;
+
+                final Dimension dim = session.getApplicationDescriptor().getPatchDimension();
+                final Product subset = FeatureWriter.createSubset(product, new Rectangle(subX, subY, dim.width, dim.height));
+                subX += dim.width;
+                subY += dim.height;
+
+                session.addQueryProduct(subset);
                 session.addQueryImage(new PatchImage());
                 drawer.update(session.getQueryImages());
             }
         } catch (Exception e) {
             VisatApp.getApp().showErrorDialog(e.toString());
         }
+    }
+
+    private JPanel createSourceProductPanel() {
+        final JPanel panel = sourceProductSelector.createDefaultPanel();
+        sourceProductSelector.getProductNameLabel().setText("Name:");
+        sourceProductSelector.getProductNameComboBox().setPrototypeDisplayValue(
+                "MER_RR__1PPBCM20030730_071000_000003972018_00321_07389_0000.N1");
+        sourceProductSelector.addSelectionChangeListener(new AbstractSelectionChangeListener() {
+            @Override
+            public void selectionChanged(SelectionChangeEvent event) {
+                final Product sourceProduct = sourceProductSelector.getSelectedProduct();
+
+
+            }
+        });
+        return panel;
     }
 }

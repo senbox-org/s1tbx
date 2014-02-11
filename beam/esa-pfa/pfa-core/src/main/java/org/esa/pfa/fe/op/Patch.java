@@ -3,27 +3,28 @@ package org.esa.pfa.fe.op;
 import org.esa.beam.framework.datamodel.Product;
 
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * A Patch contains the basic information for each segmented area
  * @author Norman Fomferra
  */
 public final class Patch {
 
+
     private final int patchX;
     private final int patchY;
-    private Product patchProduct = null;
+    private final Rectangle patchRegion;
+    private final Product patchProduct;
     private final String patchName;
+    private final List<Feature> featureList = new ArrayList<Feature>(10);
 
-    public Patch(final int patchX, final int patchY, final Product patchProduct) {
-        this(patchX, patchY);
-        this.patchProduct = patchProduct;
-    }
-
-    public Patch(final int patchX, final int patchY) {
+    public Patch(int patchX, int patchY, Rectangle patchRegion, Product patchProduct) {
         this.patchX = patchX;
         this.patchY = patchY;
         this.patchName = String.format("x%02dy%02d", patchX, patchY);
+        this.patchRegion = patchRegion;
+        this.patchProduct = patchProduct;
     }
 
     public String getPatchName() {
@@ -38,7 +39,19 @@ public final class Patch {
         return patchY;
     }
 
+    public Rectangle getPatchRegion() {
+        return patchRegion;
+    }
+
     public Product getPatchProduct() {
         return patchProduct;
+    }
+
+    public void addFeature(final Feature fea) {
+        featureList.add(fea);
+    }
+
+    public Feature[] getFeatures() {
+        return featureList.toArray(new Feature[featureList.size()]);
     }
 }

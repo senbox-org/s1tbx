@@ -201,7 +201,7 @@ public abstract class FeatureWriter extends Operator implements Output {
             final int patchX = (int)(targetRectangle.getMinX()/targetRectangle.getWidth());
             final int patchY = (int)(targetRectangle.getMinY()/targetRectangle.getHeight());
 
-            final Patch patch = new Patch(patchX, patchY, patchProduct);
+            final Patch patch = new Patch(patchX, patchY, targetRectangle, patchProduct);
             processPatch(patch, patchWriter);
 
             patchProduct.dispose();
@@ -220,7 +220,7 @@ public abstract class FeatureWriter extends Operator implements Output {
         }
     }
 
-    private static Product createSubset(Product sourceProduct, Rectangle subsetRegion) throws IOException {
+    public static Product createSubset(Product sourceProduct, Rectangle subsetRegion) throws IOException {
         final ProductSubsetDef subsetDef = new ProductSubsetDef();
         subsetDef.addNodeNames(sourceProduct.getTiePointGridNames());
         subsetDef.addNodeNames(sourceProduct.getBandNames());

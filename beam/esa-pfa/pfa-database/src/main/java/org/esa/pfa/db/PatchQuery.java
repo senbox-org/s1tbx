@@ -11,6 +11,8 @@ import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.SimpleFSDirectory;
 import org.apache.lucene.util.NumericUtils;
+import org.esa.pfa.fe.op.Feature;
+import org.esa.pfa.fe.op.FeatureType;
 import org.esa.pfa.fe.op.Patch;
 
 import java.io.File;
@@ -90,7 +92,8 @@ public class PatchQuery implements QueryInterface {
                     int patchX = Integer.parseInt(doc.getValues("px")[0]);
                     int patchY = Integer.parseInt(doc.getValues("py")[0]);
 
-                    Patch patch = new Patch(patchX, patchY);
+                    Patch patch = new Patch(patchX, patchY, null, null);
+                    getFeatures(doc, patch);
                     patchList.add(patch);
 
                     ++i;
@@ -104,6 +107,15 @@ public class PatchQuery implements QueryInterface {
         }
 
         return patchList.toArray(new Patch[patchList.size()]);
+    }
+
+    private void getFeatures(final Document doc, final Patch patch) {
+        for(FeatureType feaType : dsDescriptor.featureTypes) {
+            final String[] values = doc.getValues(feaType.getName());
+            if(values != null) {
+                patch.addFeature(new Feature(feaType, values[0]));
+            }
+        }
     }
 
     public Patch[] getRandomPatches(final int numPatches) {

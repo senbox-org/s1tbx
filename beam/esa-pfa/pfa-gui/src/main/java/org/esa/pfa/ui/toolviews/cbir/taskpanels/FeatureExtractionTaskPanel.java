@@ -22,11 +22,11 @@ import javax.swing.*;
 import java.awt.*;
 
 /**
-    Labeling Panel
+    Feature extraction Panel
  */
 public class FeatureExtractionTaskPanel extends TaskPanel {
 
-    private final static String instructionsStr = "Select query images by selecting patch areas in an image view";
+    private final static String instructionsStr = "Extract features from the query images";
     private final CBIRSession session;
 
     public FeatureExtractionTaskPanel(final CBIRSession session) {

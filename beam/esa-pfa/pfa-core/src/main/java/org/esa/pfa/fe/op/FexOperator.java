@@ -88,7 +88,7 @@ public abstract class FexOperator extends Operator implements Output {
     @Parameter(defaultValue = "false")
     protected boolean skipProductOutput;
 
-    //@Parameter()
+    @Parameter()
     protected HashMap<String, Object> patchWriterConfig;
 
     @Parameter(defaultValue = "org.esa.pfa.fe.op.out.DefaultPatchWriterFactory")
@@ -224,7 +224,7 @@ public abstract class FexOperator extends Operator implements Output {
                     Product patchProduct = createSubset(sourceProduct, patchRegion);
                     patchProduct.setName("patch");
 
-                    Patch patch = new Patch(patchX, patchY, patchProduct);
+                    Patch patch = new Patch(patchX, patchY, patchRegion, patchProduct);
                     processPatch(patch, patchWriter);
 
                     patchProduct.dispose();
