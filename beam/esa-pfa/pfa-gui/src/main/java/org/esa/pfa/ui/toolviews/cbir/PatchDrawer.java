@@ -15,7 +15,7 @@
  */
 package org.esa.pfa.ui.toolviews.cbir;
 
-import org.esa.pfa.search.PatchImage;
+import org.esa.pfa.fe.op.Patch;
 
 import javax.swing.*;
 import java.awt.*;
@@ -41,20 +41,20 @@ public class PatchDrawer extends JPanel implements MouseListener {
     private static enum SelectionMode { CHECK, RECT }
     private SelectionMode mode = SelectionMode.CHECK;
 
-    private Patch selection = null;
+    private PatchDrawing selection = null;
 
-    public PatchDrawer(final PatchImage[] imageList) {
+    public PatchDrawer(final Patch[] imageList) {
         super();
 
         addMouseListener(this);
         update(imageList);
     }
 
-    public void update(final PatchImage[] imageList) {
+    public void update(final Patch[] imageList) {
         this.removeAll();
 
-        for(PatchImage img : imageList) {
-            final Patch label = new Patch(img);
+        for(Patch patch : imageList) {
+            final PatchDrawing label = new PatchDrawing(patch);
             this.add(label);
         }
         updateUI();
@@ -70,7 +70,7 @@ public class PatchDrawer extends JPanel implements MouseListener {
         int x = (p.x / (width + margin+1)) + offset;
         int y = (p.y / (height +  margin+1)) + offset;
         int numColumns = this.getWidth() / (width + margin);
-        selection = (Patch)this.getComponent((y*numColumns) + x);
+        selection = (PatchDrawing)this.getComponent((y*numColumns) + x);
 
         repaint();
     }
@@ -101,14 +101,14 @@ public class PatchDrawer extends JPanel implements MouseListener {
     }
 
 
-    private class Patch extends JLabel {
-        private final PatchImage img;
+    private class PatchDrawing extends JLabel {
+        private final Patch patch;
 
-        public Patch(final PatchImage img) {
+        public PatchDrawing(final Patch patch) {
             super();
-            this.img = img;
+            this.patch = patch;
 
-            setIcon(new ImageIcon(img.getImage().getScaledInstance(width, height, BufferedImage.SCALE_FAST)));
+            setIcon(new ImageIcon(patch.getImage().getScaledInstance(width, height, BufferedImage.SCALE_FAST)));
         }
 
         @Override
@@ -121,7 +121,7 @@ public class PatchDrawer extends JPanel implements MouseListener {
                 g.fillRect(30, 30, 40, 30);
                 g.setColor(Color.RED);
                 g.setFont(font);
-                g.drawString(Integer.toString(img.getID()), 35, 50);
+                g.drawString(Integer.toString(patch.getID()), 35, 50);
             }
 
             if(this.equals(selection)) {

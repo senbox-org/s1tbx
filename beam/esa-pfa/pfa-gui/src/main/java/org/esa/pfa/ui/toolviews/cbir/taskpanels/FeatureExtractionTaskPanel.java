@@ -17,23 +17,30 @@ package org.esa.pfa.ui.toolviews.cbir.taskpanels;
 
 import com.bc.ceres.binding.dom.DefaultDomElement;
 import com.bc.ceres.binding.dom.DomElement;
-import com.bc.ceres.core.*;
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.graph.*;
 import org.esa.beam.gpf.operators.standard.ReadOp;
 import org.esa.beam.gpf.operators.standard.WriteOp;
+import org.esa.beam.util.SystemUtils;
 import org.esa.beam.visat.VisatApp;
+import org.esa.pfa.fe.op.Patch;
 import org.esa.pfa.search.CBIRSession;
+import org.esa.pfa.ui.toolviews.cbir.LabelBarProgressMonitor;
 import org.esa.pfa.ui.toolviews.cbir.TaskPanel;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileReader;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 
 /**
     Feature extraction Panel
@@ -42,6 +49,8 @@ public class FeatureExtractionTaskPanel extends TaskPanel implements ActionListe
 
     private final static String instructionsStr = "Extract features from the query images";
     private final CBIRSession session;
+
+    private Map<Patch, LabelBarProgressMonitor> progressMap = new HashMap<>(5);
 
     public FeatureExtractionTaskPanel(final CBIRSession session) {
         super("Feature Extraction");
@@ -83,12 +92,44 @@ public class FeatureExtractionTaskPanel extends TaskPanel implements ActionListe
         final BoxLayout layout = new BoxLayout(listsPanel, BoxLayout.Y_AXIS);
         listsPanel.setLayout(layout);
 
+        for(Patch patch : session.getQueryPatches()) {
+            listsPanel.add(createProcessingPanel(patch));
+        }
+
         final JButton addButton = new JButton("Process");
         addButton.setActionCommand("processButton");
         addButton.addActionListener(this);
         listsPanel.add(addButton);
 
         this.add(listsPanel, BorderLayout.SOUTH);
+    }
+
+    private JPanel createProcessingPanel(final Patch patch) {
+        final JPanel panel = new JPanel();
+
+        final JLabel imgLabel = new JLabel();
+        imgLabel.setIcon(new ImageIcon(patch.getImage().getScaledInstance(50, 50, BufferedImage.SCALE_FAST)));
+        panel.add(imgLabel);
+
+        JProgressBar progressBar = new JProgressBar();
+        progressBar.setStringPainted(true);
+        panel.add(progressBar);
+
+        LabelBarProgressMonitor progMon = new LabelBarProgressMonitor(progressBar);
+        progMon.addListener(new MyProgressBarListener());
+        progressMap.put(patch, progMon);
+
+        return panel;
+    }
+
+    private class MyProgressBarListener implements LabelBarProgressMonitor.ProgressBarListener {
+        public void notifyStart() {
+
+        }
+
+        public void notifyDone() {
+
+        }
     }
 
     /**
@@ -100,21 +141,12 @@ public class FeatureExtractionTaskPanel extends TaskPanel implements ActionListe
         try {
             final String command = event.getActionCommand();
             if (command.equals("processButton")) {
-                File subsetFile = new File("c:\\Temp\\in\\in.dim");
-                WriteOp writeOp = new WriteOp(session.getQueryProducts()[0], subsetFile, "BEAM-DIMAP");
-                writeOp.setDeleteOutputOnFailure(true);
-                writeOp.setWriteEntireTileRows(true);
-                writeOp.writeProduct(ProgressMonitor.NULL);
 
-                File graphFile = new File("c:\\Temp\\UrbanDetectionFeatureWriter.xml");
-                Graph graph = GraphIO.read(new FileReader(graphFile), null);
-
-                GraphProcessor processor = new GraphProcessor();
-                setIO(graph, subsetFile);
-                GraphContext graphContext = new GraphContext(graph);
-                Product chainOut = processor.executeGraph(graphContext, com.bc.ceres.core.ProgressMonitor.NULL)[0];
-
-                processor.executeGraph(graphContext, ProgressMonitor.NULL);
+                final Set<Patch> keys = progressMap.keySet();
+                for(Patch patch : keys) {
+                    ProcessThread thread = new ProcessThread(patch, progressMap.get(patch));
+                    thread.execute();
+                }
 
             }
         } catch (Exception e) {
@@ -122,21 +154,83 @@ public class FeatureExtractionTaskPanel extends TaskPanel implements ActionListe
         }
     }
 
-    public void setIO(final Graph graph, final File srcFile) {
-        final String readOperatorAlias = OperatorSpi.getOperatorAlias(ReadOp.class);
-        final Node readerNode = findNode(graph, readOperatorAlias);
-        if(readerNode != null) {
-            final DomElement param = new DefaultDomElement("parameters");
-            param.createChild("file").setValue(srcFile.getAbsolutePath());
-            readerNode.setConfiguration(param);
-        }
-    }
+    public final class ProcessThread extends SwingWorker {
 
-    private static Node findNode(final Graph graph, final String alias) {
-        for(Node n : graph.getNodes()) {
-            if(n.getOperatorName().equals(alias))
-                return n;
+        private final Patch patch;
+        private final ProgressMonitor pm;
+
+        public ProcessThread(final Patch patch, final ProgressMonitor pm) {
+            this.patch = patch;
+            this.pm = pm;
         }
-        return null;
+
+        @Override
+        protected Boolean doInBackground() throws Exception {
+
+            pm.beginTask("Processing...", 100);
+            try {
+                final File tmpInFolder = new File(SystemUtils.getApplicationDataDir(),
+                        "tmp"+File.separator+"in"+File.separator+patch.getID());
+                final File tmpOutFolder = new File(SystemUtils.getApplicationDataDir(),
+                        "tmp"+File.separator+"out"+File.separator+patch.getID());
+                final File subsetFile = new File(tmpInFolder, patch.getPatchName()+".dim");
+                final WriteOp writeOp = new WriteOp(patch.getPatchProduct(), subsetFile, "BEAM-DIMAP");
+                writeOp.setDeleteOutputOnFailure(true);
+                writeOp.setWriteEntireTileRows(true);
+                writeOp.writeProduct(ProgressMonitor.NULL);
+
+                final File graphFile = session.getApplicationDescriptor().getGraphFile();
+                final Graph graph = GraphIO.read(new FileReader(graphFile), null);
+                setIO(graph, subsetFile, tmpOutFolder);
+
+                final GraphProcessor processor = new GraphProcessor();
+                processor.executeGraph(graph, pm);
+
+                //loadFeatures(tmpOutFolder);
+
+            } catch(Throwable e) {
+                System.out.println("processing Exception\n"+e.getMessage());
+            } finally {
+                pm.done();
+            }
+            return true;
+        }
+
+        private void loadFeatures(final File featureFile) throws Exception {
+            Properties featureValues = new Properties();
+            try (FileReader reader = new FileReader(featureFile)) {
+                featureValues.load(reader);
+            }
+        }
+
+        private void setIO(final Graph graph, final File srcFile, final File targetFolder) {
+            final String readOperatorAlias = OperatorSpi.getOperatorAlias(ReadOp.class);
+            final Node readerNode = findNode(graph, readOperatorAlias);
+            if(readerNode != null) {
+                final DomElement param = new DefaultDomElement("parameters");
+                param.createChild("file").setValue(srcFile.getAbsolutePath());
+                readerNode.setConfiguration(param);
+            }
+
+            final Node writerNode = findNode(graph, "UrbanAreaFeatureWriter");
+            if(writerNode != null) {
+                final DomElement param = new DefaultDomElement("parameters");
+                param.createChild("targetPath").setValue(targetFolder.getAbsolutePath());
+                writerNode.setConfiguration(param);
+            }
+        }
+
+        private Node findNode(final Graph graph, final String alias) {
+            for(Node n : graph.getNodes()) {
+                if(n.getOperatorName().equals(alias))
+                    return n;
+            }
+            return null;
+        }
+
+        @Override
+        public void done() {
+
+        }
     }
 }

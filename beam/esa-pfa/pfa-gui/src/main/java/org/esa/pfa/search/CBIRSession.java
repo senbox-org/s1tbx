@@ -18,6 +18,7 @@ package org.esa.pfa.search;
 
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.pfa.fe.PFAApplicationDescriptor;
+import org.esa.pfa.fe.op.Patch;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,11 +29,10 @@ import java.util.List;
  */
 public class CBIRSession {
 
-    private List<Product>  queryProductList = new ArrayList<Product>(4);
-    private List<PatchImage> queryImageList = new ArrayList<PatchImage>(4);
-    private List<PatchImage> relevantImageList = new ArrayList<PatchImage>(50);
-    private List<PatchImage> irrelevantImageList = new ArrayList<PatchImage>(50);
-    private List<PatchImage> retrievedImageList = new ArrayList<PatchImage>(500);
+    private List<Patch> queryImageList = new ArrayList<Patch>(4);
+    private List<Patch> relevantImageList = new ArrayList<Patch>(50);
+    private List<Patch> irrelevantImageList = new ArrayList<Patch>(50);
+    private List<Patch> retrievedImageList = new ArrayList<Patch>(500);
 
     private final PFAApplicationDescriptor applicationDescriptor;
     private int numTrainingImages;
@@ -58,35 +58,27 @@ public class CBIRSession {
         return numRetrievedImages;
     }
 
-    public void addQueryProduct(final Product queryProduct) {
-        queryProductList.add(queryProduct);
-    }
-
-    public Product[] getQueryProducts() {
-        return queryProductList.toArray(new Product[queryProductList.size()]);
-    }
-
-    public void addQueryImage(final PatchImage queryImage) {
+    public void addQueryPatch(final Patch queryImage) {
         queryImageList.add(queryImage);
     }
 
-    public PatchImage[] getQueryImages() {
-        return queryImageList.toArray(new PatchImage[queryImageList.size()]);
+    public Patch[] getQueryPatches() {
+        return queryImageList.toArray(new Patch[queryImageList.size()]);
     }
 
     public void trainClassifier() {
-        SearchToolStub.instance().trainClassifier(getQueryImages());
+        //SearchToolStub.instance().trainClassifier(getQueryPatches());
 
         relevantImageList.addAll(Arrays.asList(SearchToolStub.instance().getRelavantTrainingImages()));
         irrelevantImageList.addAll(Arrays.asList(SearchToolStub.instance().getIrrelavantTrainingImages()));
     }
 
-    public PatchImage[] getRelevantTrainingImages() {
-        return relevantImageList.toArray(new PatchImage[relevantImageList.size()]);
+    public Patch[] getRelevantTrainingImages() {
+        return relevantImageList.toArray(new Patch[relevantImageList.size()]);
     }
 
-    public PatchImage[] getIrrelevantTrainingImages() {
-        return irrelevantImageList.toArray(new PatchImage[irrelevantImageList.size()]);
+    public Patch[] getIrrelevantTrainingImages() {
+        return irrelevantImageList.toArray(new Patch[irrelevantImageList.size()]);
     }
 
     public void retrieveImages(final int numImages) {
@@ -95,7 +87,7 @@ public class CBIRSession {
         retrievedImageList.addAll(Arrays.asList(SearchToolStub.instance().getRetrievedImages(numImages)));
     }
 
-    public PatchImage[] getRetrievedImages() {
-        return retrievedImageList.toArray(new PatchImage[retrievedImageList.size()]);
+    public Patch[] getRetrievedImages() {
+        return retrievedImageList.toArray(new Patch[retrievedImageList.size()]);
     }
 }

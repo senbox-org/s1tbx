@@ -20,10 +20,10 @@ import com.bc.ceres.swing.selection.SelectionChangeEvent;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.ui.SourceProductSelector;
 import org.esa.beam.util.ProductUtils;
-import org.esa.pfa.fe.op.FeatureWriter;
-import org.esa.pfa.search.CBIRSession;
-import org.esa.pfa.search.PatchImage;
 import org.esa.beam.visat.VisatApp;
+import org.esa.pfa.fe.op.FeatureWriter;
+import org.esa.pfa.fe.op.Patch;
+import org.esa.pfa.search.CBIRSession;
 import org.esa.pfa.ui.toolviews.cbir.DragScrollListener;
 import org.esa.pfa.ui.toolviews.cbir.PatchDrawer;
 import org.esa.pfa.ui.toolviews.cbir.TaskPanel;
@@ -32,6 +32,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
 
 /**
     Labeling Panel
@@ -88,7 +89,7 @@ public class QueryTaskPanel extends TaskPanel implements ActionListener {
         imageScrollPanel.setBorder(BorderFactory.createTitledBorder("Query Images"));
         imageScrollPanel.setMinimumSize(new Dimension(500, 110));
 
-        drawer = new PatchDrawer(session.getQueryImages());
+        drawer = new PatchDrawer(session.getQueryPatches());
         final JScrollPane scrollPane = new JScrollPane(drawer, JScrollPane.VERTICAL_SCROLLBAR_NEVER,
                                                                 JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 
@@ -138,9 +139,12 @@ public class QueryTaskPanel extends TaskPanel implements ActionListener {
                 subX += dim.width;
                 subY += dim.height;
 
-                session.addQueryProduct(subset);
-                session.addQueryImage(new PatchImage(subset, ProductUtils.findSuitableQuicklookBandName(subset)));
-                drawer.update(session.getQueryImages());
+                BufferedImage image = ProductUtils.createColorIndexedImage(subset.getBand(ProductUtils.findSuitableQuicklookBandName(subset)),
+                                                                           com.bc.ceres.core.ProgressMonitor.NULL);
+                Patch patch = new Patch(0, 0, null, subset);
+                patch.setImage(image);
+                session.addQueryPatch(patch);
+                drawer.update(session.getQueryPatches());
             }
         } catch (Exception e) {
             VisatApp.getApp().showErrorDialog(e.toString());

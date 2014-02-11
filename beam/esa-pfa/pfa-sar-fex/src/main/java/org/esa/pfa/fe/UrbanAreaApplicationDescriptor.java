@@ -16,6 +16,7 @@
 package org.esa.pfa.fe;
 
 import java.awt.*;
+import java.io.File;
 
 public class UrbanAreaApplicationDescriptor extends AbstractApplicationDescriptor {
 
@@ -35,4 +36,7 @@ public class UrbanAreaApplicationDescriptor extends AbstractApplicationDescripto
         return patchDimension;
     }
 
+    public File getGraphFile() {
+        return new File("c:\\Temp\\UrbanDetectionFeatureWriter.xml");
+    }
 }

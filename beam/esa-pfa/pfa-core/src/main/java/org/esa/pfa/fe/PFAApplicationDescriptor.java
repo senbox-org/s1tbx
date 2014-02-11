@@ -16,6 +16,7 @@
 package org.esa.pfa.fe;
 
 import java.awt.*;
+import java.io.File;
 
 /**
  * Describe the feature extraction application
@@ -36,4 +37,10 @@ public interface PFAApplicationDescriptor {
      */
     public Dimension getPatchDimension();
 
+    /**
+     * Gets the graph file with which to apply the feature extraction
+     *
+     * @return the graph file
+     */
+    public File getGraphFile();
 }

@@ -16,9 +16,14 @@
 package org.esa.pfa.search;
 
 import org.esa.pfa.db.PatchQuery;
+import org.esa.pfa.fe.op.Patch;
 
+import javax.imageio.ImageIO;
 import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 
 /**
  * Stub for PFA Search Tool on the server
@@ -27,6 +32,9 @@ public class SearchToolStub {
     private static SearchToolStub instance = null;
 
     private PatchQuery db = null;
+
+    private static final java.net.URL dummyURL = SearchToolStub.class.getClassLoader().getResource("images/sigma0_ql.png");
+    private static File dummyFile = new File(dummyURL.getPath());
 
     private SearchToolStub() {
         try {
@@ -52,31 +60,49 @@ public class SearchToolStub {
         return new Dimension(200, 200);
     }
 
-    public void trainClassifier(final PatchImage[] queryImages) {
+    public void trainClassifier(final Patch[] queryImages) {
 
     }
 
-    public void retrieveImages(final PatchImage[] rel, final PatchImage[] irrel) {
+    public void retrieveImages(final Patch[] rel, final Patch[] irrel) {
 
     }
 
-    public PatchImage[] getRelavantTrainingImages() {
+    public Patch[] getRelavantTrainingImages() {
         return createDummyImageList(20);
     }
 
-    public PatchImage[] getIrrelavantTrainingImages() {
+    public Patch[] getIrrelavantTrainingImages() {
         return createDummyImageList(20);
     }
 
-    public PatchImage[] getRetrievedImages(final int numImages) {
+    public Patch[] getRetrievedImages(final int numImages) {
         return createDummyImageList(numImages);
     }
 
-    private static PatchImage[] createDummyImageList(final int size) {
-        final PatchImage[] imageList = new PatchImage[size];
+    private static Patch[] createDummyImageList(final int size) {
+        final Patch[] imageList = new Patch[size];
         for(int i=0; i < imageList.length; ++i) {
-            imageList[i] = new PatchImage();
+            imageList[i] = new Patch(0,0, null, null);
+            imageList[i].setImage(loadFile(dummyFile));
         }
         return imageList;
+    }
+
+    private static BufferedImage loadFile(final File file) {
+        BufferedImage bufferedImage = null;
+        if (file.canRead()) {
+            try {
+                final BufferedInputStream fis = new BufferedInputStream(new FileInputStream(file));
+                try {
+                    bufferedImage = ImageIO.read(fis);
+                } finally {
+                    fis.close();
+                }
+            } catch(Exception e) {
+                //
+            }
+        }
+        return bufferedImage;
     }
 }

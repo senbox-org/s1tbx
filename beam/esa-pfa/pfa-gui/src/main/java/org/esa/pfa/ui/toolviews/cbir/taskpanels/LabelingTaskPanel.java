@@ -22,9 +22,6 @@ import org.esa.pfa.ui.toolviews.cbir.TaskPanel;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
 
 /**
     Labeling Panel

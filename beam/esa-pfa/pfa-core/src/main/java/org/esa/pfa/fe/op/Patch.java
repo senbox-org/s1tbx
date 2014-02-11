@@ -3,6 +3,7 @@ package org.esa.pfa.fe.op;
 import org.esa.beam.framework.datamodel.Product;
 
 import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,7 +12,6 @@ import java.util.List;
  */
 public final class Patch {
 
-
     private final int patchX;
     private final int patchY;
     private final Rectangle patchRegion;
@@ -19,12 +19,26 @@ public final class Patch {
     private final String patchName;
     private final List<Feature> featureList = new ArrayList<Feature>(10);
 
+    private final int uid;
+    private static int uidCnt = 0;
+
+    private BufferedImage image = null;
+
     public Patch(int patchX, int patchY, Rectangle patchRegion, Product patchProduct) {
+        uid = createUniqueID();
         this.patchX = patchX;
         this.patchY = patchY;
         this.patchName = String.format("x%02dy%02d", patchX, patchY);
         this.patchRegion = patchRegion;
         this.patchProduct = patchProduct;
+    }
+
+    private synchronized int createUniqueID() {
+        return uidCnt++;
+    }
+
+    public int getID() {
+        return uid;
     }
 
     public String getPatchName() {
@@ -45,6 +59,14 @@ public final class Patch {
 
     public Product getPatchProduct() {
         return patchProduct;
+    }
+
+    public void setImage(BufferedImage img) {
+        image = img;
+    }
+
+    public BufferedImage getImage() {
+        return image;
     }
 
     public void addFeature(final Feature fea) {
