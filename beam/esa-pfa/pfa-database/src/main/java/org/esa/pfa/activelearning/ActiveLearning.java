@@ -15,347 +15,72 @@
  */
 package org.esa.pfa.activelearning;
 
-import java.io.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
+import org.esa.pfa.fe.op.Patch;
+
+import java.util.*;
 
 /**
- * Active learning action.
+ * Active learning class.
  */
 
 public class ActiveLearning {
 
     private int h = 0; // number of batch samples selected with diversity criterion
     private int m = 0; // number of uncertainty samples selected with confidence criterion
-    private int numIterations = 0;
-    private int testDataSize = 0;
-    private int featureSize = 0;
     private int numClasses = 0;
-    private int[] numSamplesInClasses = null; // # of samples in each class
-    private String testDataDirectory = null;
-    private ArrayList<Integer> classLabels = new ArrayList<Integer>();
-    private List<Data> testData = new ArrayList<Data>();
-    private List<Data> validationData = new ArrayList<Data>();
-    private List<Data> trainingData = new ArrayList<Data>();
-    private List<Data> uncertainSamples = new ArrayList<Data>();
+    private List<Patch> testData = new ArrayList<Patch>();
+    private List<Patch> validationData = new ArrayList<Patch>();
+    private List<Patch> trainingData = new ArrayList<Patch>();
+    private List<Patch> uncertainSamples = new ArrayList<Patch>();
+    private List<Patch> diverseSamples = new ArrayList<Patch>();
 
     private SVM svmClassifier = new SVM();
 
     private int maxIterationsKmeans = 10;
-    private double validationDataPercentage = 0.2; // 20% of each class in the whole test data set
-    private double unlabelledDataPercentage = 0.8; // 80% of each class in the whole test data set
-    private double initialTrainingDataPercentage = 0.04; // 4% from each class in the unlabelled data set
 
-    private boolean debug = true; // output debugging information
+    // UI: Pass in some parameters
+    public ActiveLearning(final int h, final int m) throws Exception {
 
-    public ActiveLearning(File testDataIndexFile) throws Exception {
-
-        //h = ;
-
-        //m =;
-
-        testDataDirectory = testDataIndexFile.getParent();
-
-        getTestData(testDataIndexFile);
-
-        setValidationDataSet();
-
-        selectModel();
-
-        startActiveLearning();
-
-        classifyTrainingData();
+        this.h = h;
+        this.m = m;
     }
 
-    /**
-     * Get test data from specified folder.
-     * @param testDataIndexFile The summary file of test data.
-     * @throws IOException The exceptions.
-     */
-    private void getTestData(final File testDataIndexFile) throws Exception {
+    // UI: Pass in patches obtained from user's query image. These patch will be used in validation.
+    public void setQueryPatches(Patch[] patchArray) throws Exception {
 
-        getTestDataSize(testDataIndexFile);
-
-        final FileInputStream stream = new FileInputStream(testDataIndexFile);
-        final BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
-
-        String line = "";
-        while ((line = reader.readLine()) != null) {
-            Data data = new Data();
-            data.feature = new double[featureSize];
-            data.tileID = getTileID(line);
-            final String tileFeatureFile = getTileFeatureFile(line);
-            getTileFeature(tileFeatureFile, data);
-            testData.add(data);
-        }
-
-        reader.close();
-        stream.close();
-
-        numClasses = classLabels.size();
-        numSamplesInClasses = new int[numClasses];
-        for (int i = 0; i < numClasses; i++) {
-            final int classLabel = classLabels.get(i);
-            for (Data data:testData) {
-                if (data.label == classLabel) {
-                    numSamplesInClasses[i]++;
-                }
-            }
-        }
-
-        if (debug) {
-            System.out.println("Total number of samples: " + testDataSize);
-            System.out.println("Number of features: " + featureSize);
-            System.out.println("Number of classes: " + numClasses);
-            for (int i = 0; i < numClasses; i++) {
-                System.out.println("Number of samples in class " + i + ": " + numSamplesInClasses[i]);
-            }
-        }
-    }
-
-    /**
-     * Get the number of samples in the test data set and the dimension of each sample (feature size).
-     * @param testDataIndexFile The summary file of test data.
-     * @throws IOException The exceptions.
-     */
-    private void getTestDataSize(final File testDataIndexFile) throws Exception {
-
-        try {
-            LineNumberReader testDataIndexReader  = new LineNumberReader(new FileReader(testDataIndexFile));
-            String lineRead = testDataIndexReader.readLine();
-            testDataSize = getNumberOfLines(testDataIndexReader);
-            testDataIndexReader.close();
-
-            final String tileFeatureFile = getTileFeatureFile(lineRead);
-            LineNumberReader tileFeatureReader  = new LineNumberReader(new FileReader(tileFeatureFile));
-            featureSize = getNumberOfLines(tileFeatureReader);
-            tileFeatureReader.close();
-
-        } catch (Throwable e) {
-            throw new Exception(e.getMessage());
-        }
-    }
-
-    /**
-     * Get the complete path to a feature file of a given tile.
-     * @param line A line in the test data summary file (contains information of a tile).
-     * @return The absolute path to the feature file.
-     */
-    private String getTileFeatureFile(final String line) {
-
-        final String[] words = line.split("\\s+");
-        final String[] parts = words[0].split("/");
-        return testDataDirectory + "\\" + parts[0] + "\\" + parts[1] + "\\features.txt";
-    }
-
-    /**
-     * Get tile ID string (e.g. x08y01)
-     * @param line A line in the test data summary file (contains information of a tile).
-     * @return The tile ID string.
-     */
-    private String getTileID(final String line) {
-
-        final String[] words = line.split("\\s+");
-        final String[] parts = words[0].split("/");
-        return parts[1];
-    }
-
-    /**
-     * Read feature from feature file and save them as a sample in test data.
-     * Here 3 classes are assumed. The 3 classes are defined by samples with their percentOverPnt4 feature
-     * int the following ranges: class 1 (30.0, inf), class 2 (10, 30], class 3 [0, 10]. This should be done
-     * by the user when user interface is available.
-     * @param tileFeatureFile The tile feature file.
-     * @param data The test data.
-     * @throws IOException The exceptions.
-     */
-    private void getTileFeature(final String tileFeatureFile, final Data data) throws Exception {
-
-        final FileInputStream stream = new FileInputStream(new File(tileFeatureFile));
-        final BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
-        String line = "";
-        int index = 0;
-        while ((line = reader.readLine()) != null) {
-            final String[] words = line.split("=");
-            data.feature[index] = Double.parseDouble(words[1]);
-
-            if (words[0].contains("percentOverPnt4")) {
-                if (data.feature[index] > 30.0) {
-                    data.label = 1;
-                } else if (data.feature[index] > 10.0) {
-                    data.label = 2;
-                } else {
-                    data.label = 3;
-                }
-            }
-
-            index++;
-        }
-
-        if (!classLabels.contains(data.label)) {
-            classLabels.add(data.label);
-        }
-
-        if (index != data.feature.length) {
-            throw new Exception("Invalid number of features: " + index);
-        }
-    }
-
-    /**
-     * Get the number of lines of a given text file.
-     * @param reader Reader of the given text file.
-     * @return The number of lines.
-     * @throws Exception The exception.
-     */
-    private int getNumberOfLines(final LineNumberReader reader) throws Exception {
-
-        int numLines = 0;
-        try {
-            String lineRead = reader.readLine();
-            while (lineRead != null) {
-                lineRead = reader.readLine();
-            }
-
-            numLines = reader.getLineNumber();
-        } catch (Throwable e) {
-            throw new Exception(e.getMessage());
-        }
-
-        return numLines;
-    }
-
-    /**
-     * Select RBF model parameters C and gamma using grid search.
-     * @throws Exception The exception.
-     */
-    private void selectModel() throws Exception {
+        validationData.addAll(Arrays.asList(patchArray));
 
         svmClassifier.selectModel(validationData);
-    }
 
-    /**
-     * Select samples from all classes in the test data to form validation data set (V) for grid search.
-     * A percentage of samples from each class are selected.
-     */
-    private void setValidationDataSet() {
-
-        validationData.clear();
-        for (int i = 0; i < numClasses; i++) {
-            final int classLabel = classLabels.get(i);
-            final int samplesToSelect = (int)Math.max(1, Math.round(validationDataPercentage*numSamplesInClasses[i]));
-            int count = 0;
-            for (Iterator<Data> itr = testData.iterator(); itr.hasNext() & count < samplesToSelect;) {
-                Data data = itr.next();
-                if (data.label == classLabel) {
-                    validationData.add(data);
-                    itr.remove();
-                    count++;
-                }
-            }
-        }
-
-        if (debug) {
-            System.out.println("Number of samples in validation data set: " + validationData.size());
-            for (int i = 0; i < numClasses; i++) {
-                System.out.println("Number of samples in class " + i + ": " +
-                        (int)Math.max(1, Math.round(validationDataPercentage*numSamplesInClasses[i])));
-            }
-            System.out.println("Number of samples in test data set: " + testData.size());
-        }
-    }
-
-    /**
-     * Main function for active learning.
-     * @throws Exception The exception.
-     */
-    private void startActiveLearning() throws Exception {
-
-        setInitialTrainingDataSet();
+        trainingData.addAll(validationData);
 
         svmClassifier.train(trainingData);
-
-        numIterations = (testData.size() - m)/h;
-
-        for (int i = 0; i < numIterations; i++) {
-
-            System.out.println("Iteration: " + i);
-
-            getNewData();
-
-            classifyTestData();
-
-            updateTrainingData();
-
-            svmClassifier.train(trainingData);
-        }
     }
 
-    /**
-     * Set initial training data set. A percentage of samples from each class in unlabelled data set (U) are selected.
-     */
-    private void setInitialTrainingDataSet() {
+    // UI: Pass in random patches obtained from archive. These patches will be used in active learning.
+    public void setRandomPatches(Patch[] patchArray) throws Exception {
 
-        trainingData.clear();
-
-        final double overallPercentage = initialTrainingDataPercentage*unlabelledDataPercentage;
-        for (int i = 0; i < numClasses; i++) {
-            final int classLabel = classLabels.get(i);
-            final int samplesToSelect = (int)Math.max(1, Math.round(overallPercentage*numSamplesInClasses[i]));
-            int count = 0;
-            for (Iterator<Data> itr = testData.iterator(); itr.hasNext() & count < samplesToSelect;) {
-                Data data = itr.next();
-                if (data.label == classLabel) {
-                    trainingData.add(data);
-                    itr.remove();
-                    count++;
-                }
-            }
-        }
-
-        if (debug) {
-            System.out.println("Number of samples in the initial training data set: " + trainingData.size());
-            for (int i = 0; i < numClasses; i++) {
-                System.out.println("Number of samples in class " + i + ": " +
-                        (int)Math.max(1, Math.round(overallPercentage*numSamplesInClasses[i])));
-            }
-            System.out.println("Number of samples in test data set: " + testData.size());
-        }
-    }
-
-    /**
-     * This is the query function that selects the most informative samples from the unlabelled sample set (U)
-     * using MCLU-ECBD algorithm.
-     * @throws Exception The exception.
-     */
-    private void getNewData() throws Exception {
+        testData.addAll(Arrays.asList(patchArray));
 
         selectMostUncertainSamples();
 
         selectMostDiverseSamples();
+
+        classifySelectedSamples();
     }
 
-    /**
-     * Add new data to the training data set.
-     */
-    private void updateTrainingData() {
+    // UI: Get the selected most ambiguous patches for user to label.
+    public Patch[] getMostAmbiguousPatches() {
 
-        int count = 0;
-        for (Iterator<Data> itr = testData.iterator(); itr.hasNext() & count < h;) {
-            Data data = itr.next();
-            if (data.queryData) {
-                trainingData.add(data);
-                itr.remove();
-                count++;
-            }
-        }
+        return diverseSamples.toArray(new Patch[diverseSamples.size()]);
+    }
 
-        if (debug) {
-            System.out.println("Number of samples added to the training data set: " + h);
-            System.out.println("Number of samples in the new training data set: " + trainingData.size());
-            System.out.println("Number of samples in the test data set: " + testData.size());
-        }
+    // UI: Pass in user labelled patches and trigger the training.
+    public void train(Patch[] userLabelledPatches) throws Exception {
+
+        trainingData.addAll(Arrays.asList(userLabelledPatches));
+
+        svmClassifier.train(trainingData);
     }
 
     /**
@@ -383,8 +108,8 @@ public class ActiveLearning {
         // Add the selected samples to uncertainSamples list.
         uncertainSamples.clear();
         for (int i = 0; i < m; i++) {
-            Data data = testData.get((int)confidence[i][0]);
-            data.confidence = confidence[i][1];
+            Patch data = testData.get((int)confidence[i][0]);
+            data.setConfidence(confidence[i][1]);
             uncertainSamples.add(data);
         }
     }
@@ -396,7 +121,7 @@ public class ActiveLearning {
      * @return The confidence value.
      * @throws Exception The exception.
      */
-    private double computeConfidence(Data x) throws Exception {
+    private double computeConfidence(Patch x) throws Exception {
 
         final double[] decValues = new double[numClasses*(numClasses-1)/2];
         svmClassifier.classify(x, decValues);
@@ -414,65 +139,45 @@ public class ActiveLearning {
      */
     private void selectMostDiverseSamples() throws Exception {
 
-        KernelKmeansClusterer kkc = new KernelKmeansClusterer(maxIterationsKmeans, h, svmClassifier);
-        kkc.setData(uncertainSamples);
-        kkc.clustering();
-    }
-
-    /**
-     * Classify the h samples returned by query function.
-     * @throws Exception The exception.
-     */
-    private void classifyTestData() throws Exception {
-
         try {
-            int count = 0;
-            int countErr = 0;
-            final double[] decValues = new double[numClasses*(numClasses-1)/2];
-            for (Iterator<Data> itr = testData.iterator(); itr.hasNext() & count < h;) {
-                Data data = itr.next();
-                if (data.queryData) {
-                    double p = svmClassifier.classify(data, decValues);
-                    if (p != data.label) {
-                        countErr++;
+            KernelKmeansClusterer kkc = new KernelKmeansClusterer(maxIterationsKmeans, h, svmClassifier);
+            kkc.setData(uncertainSamples);
+            kkc.clustering();
+            final int[] diverseSampleIDs = kkc.getRepresentatives();
+
+            diverseSamples.clear();
+            for (int patchID : diverseSampleIDs) {
+                for (Iterator<Patch> itr = testData.iterator(); itr.hasNext();) {
+                    Patch patch = itr.next();
+                    if (patch.getID() == patchID) {
+                        diverseSamples.add(patch);
+                        itr.remove();
+                        break;
                     }
-                    count++;
                 }
             }
-            double accuracy = (1.0 - (double)countErr / (double)h) * 100.0;
-            System.out.println("Classifying query data, accuracy: " + accuracy);
+
         } catch (Throwable e) {
             throw new Exception(e.getMessage());
         }
     }
 
     /**
-     * Applied the trained model to the training data set to check its accuracy.
+     * Classify the h selected samples returned by query function.
      * @throws Exception The exception.
      */
-    private void classifyTrainingData() throws Exception {
+    private void classifySelectedSamples() throws Exception {
 
         try {
-            int countErr = 0;
             final double[] decValues = new double[numClasses*(numClasses-1)/2];
-            for (Data data:trainingData) {
-                double p = svmClassifier.classify(data, decValues);
-                if (p != data.label) {
-                    countErr++;
-                }
+            for (Patch patch:diverseSamples) {
+                double p = svmClassifier.classify(patch, decValues);
+                patch.setLabel((int)p);
             }
-            double accuracy = (1.0 - (double)countErr / (double)trainingData.size()) * 100.0;
-            System.out.println("Classifying training data, accuracy: " + accuracy);
+
         } catch (Throwable e) {
             throw new Exception(e.getMessage());
         }
     }
 
-    public static class Data {
-        public String tileID;         // e.g. x08y01
-        public boolean queryData;     // true if this sample is selected by query function
-        public double confidence;     // confidence used by query function in selecting the most informative samples
-        public int label;             // class index (1, 2, 3...) labelled by user
-        public double[] feature;      // array of statistics
-    }
 }

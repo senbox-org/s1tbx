@@ -15,6 +15,9 @@
  */
 package org.esa.pfa.activelearning;
 
+import org.esa.pfa.fe.op.Feature;
+import org.esa.pfa.fe.op.Patch;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,8 +35,7 @@ public class KernelKmeansClusterer {
     private int maxIterations = 0;
     private int numClusters = 0;
     private int numSamples = 0;
-    private ActiveLearning.Data[] samples = null;
-    private double[] confidence = null;
+    private List<Patch> samples = new ArrayList<Patch>();
     private Cluster[] clusters = null;
     private SVM svmClassifier = null;
 
@@ -46,22 +48,18 @@ public class KernelKmeansClusterer {
 	}
 
     /**
-     * Set samples for clustering and their associated confidence values.
+     * Set samples for clustering.
      * @param uncertainSamples List of m most uncertain samples.
      */
-    public void setData(final List<ActiveLearning.Data> uncertainSamples) {
+    public void setData(final List<Patch> uncertainSamples) {
 
         this.numSamples = uncertainSamples.size();
-        this.confidence = new double[numSamples];
-        this.samples = new ActiveLearning.Data[numSamples];
-        for (int sampleIdx = 0; sampleIdx < numSamples; sampleIdx++) {
-            this.confidence[sampleIdx] = uncertainSamples.get(sampleIdx).confidence;
-            this.samples[sampleIdx] = uncertainSamples.get(sampleIdx);
-        }
+        this.samples = uncertainSamples;
     }
 
     /**
      * Perform clustering using Kernel K-means clustering algorithm.
+     * @throws Exception The exception.
      */
     public void clustering() throws Exception {
 
@@ -75,8 +73,6 @@ public class KernelKmeansClusterer {
                 updateClusterCenters();
             }
         }
-
-        getRepresentatives();
     }
 
     /**
@@ -100,6 +96,7 @@ public class KernelKmeansClusterer {
 
     /**
      * Assign samples to their near clusters base on Euclidean distance in kernel space.
+     * @throws Exception The exception.
      */
     private void assignSamplesToClusters() throws Exception {
 
@@ -130,6 +127,7 @@ public class KernelKmeansClusterer {
      * Find the nearest cluster for each given sample.
      * @param sampleIdx Index of the given sample.
      * @return Cluster index.
+     * @throws Exception The exception.
      */
     private int findNearestCluster(final int sampleIdx) throws Exception {
 
@@ -155,17 +153,30 @@ public class KernelKmeansClusterer {
      * @param sampleIdx1 Index of the first sample.
      * @param sampleIdx2 Index of the second sample.
      * @return The kernel space distance.
+     * @throws Exception The exception.
      */
     private double computeDistance(final int sampleIdx1, final int sampleIdx2) throws Exception {
 
-        final double[] x1 = samples[sampleIdx1].feature;
-        final double[] x2 = samples[sampleIdx2].feature;
+        final double[] x1 = getFeatures(samples.get(sampleIdx1));
+        final double[] x2 = getFeatures(samples.get(sampleIdx2));
 
         return svmClassifier.kernel(x1,x1) - 2*svmClassifier.kernel(x1,x2) + svmClassifier.kernel(x2,x2);
     }
 
+    private double[] getFeatures(final Patch patch) {
+
+        final Feature[] features = patch.getFeatures();
+        double[] featureArray = new double[features.length];
+        int idx = 0;
+        for (Feature feature:features) {
+            featureArray[idx++] = (Double)feature.getValue();
+        }
+        return featureArray;
+    }
+
     /**
      * Update centers of the clusters.
+     * @throws Exception The exception.
      */
     private void updateClusterCenters() throws Exception {
 
@@ -197,15 +208,16 @@ public class KernelKmeansClusterer {
      * This summation will be used in the calculation of distance between a given sample and a given cluster.
      * @param memberSampleIndices The list of indices of samples in a given cluster.
      * @return The summation.
+     * @throws Exception The exception.
      */
     private double computeSum2(final List<Integer> memberSampleIndices) throws Exception {
 
         final int numMembers = memberSampleIndices.size();
         double sum2 = 0.0;
         for (int i = 0; i < numMembers; i++) {
-            final double[] xi = samples[memberSampleIndices.get(i)].feature;
+            final double[] xi = getFeatures(samples.get(memberSampleIndices.get(i)));
             for (int j = 0; j < numMembers; j++) {
-                final double[] xj = samples[memberSampleIndices.get(j)].feature;
+                final double[] xj = getFeatures(samples.get(memberSampleIndices.get(j)));
                 sum2 += svmClassifier.kernel(xi,xj);
             }
         }
@@ -218,15 +230,17 @@ public class KernelKmeansClusterer {
      * @param memberSampleIndices The list of indices of samples in the given cluster.
      * @param sum2 The summation computed by computeSum2 function.
      * @return The distance.
+     * @throws Exception The exception.
      */
-    private double computeDistance(final int sampleIdx, final List<Integer> memberSampleIndices, final double sum2) throws Exception {
+    private double computeDistance(final int sampleIdx, final List<Integer> memberSampleIndices, final double sum2)
+            throws Exception {
 
         final int numSamples = memberSampleIndices.size();
-        final double[] x = samples[sampleIdx].feature;
+        final double[] x = getFeatures(samples.get(sampleIdx));
 
         double sum1 = 0.0;
-        for (int i = 0; i < numSamples; i++) {
-            final double[] xi = samples[memberSampleIndices.get(i)].feature;
+        for (Integer idx:memberSampleIndices) {
+            final double[] xi = getFeatures(samples.get(idx));
             sum1 += svmClassifier.kernel(x,xi);
         }
 
@@ -235,13 +249,17 @@ public class KernelKmeansClusterer {
 
     /**
      * Get representatives of the clusters.
+     * @return patchIDs Array of IDs of the selected patches.
      */
-    private void getRepresentatives() {
+    public int[] getRepresentatives() {
 
+        int[] patchIDs = new int[numClusters];
         for (int i = 0; i < numClusters; i++) {
             int sampleIdx = findLeastConfidenceSample(clusters[i]);
-            samples[sampleIdx].queryData = true;
+            patchIDs[i] = samples.get(sampleIdx).getID();
         }
+
+        return patchIDs;
     }
 
     /**
@@ -253,10 +271,11 @@ public class KernelKmeansClusterer {
 
         double leastConfidence = Double.MAX_VALUE;
         int sampleIdx = 0;
-        for (int i = 0; i < cluster.memberSampleIndices.size(); i++) {
-            if (confidence[cluster.memberSampleIndices.get(i)] < leastConfidence) {
-                leastConfidence = confidence[cluster.memberSampleIndices.get(i)];
-                sampleIdx = cluster.memberSampleIndices.get(i);
+        for (Integer idx:cluster.memberSampleIndices) {
+            final double confidence = samples.get(idx).getConfidence();
+            if (confidence < leastConfidence) {
+                leastConfidence = confidence;
+                sampleIdx = idx;
             }
         }
 

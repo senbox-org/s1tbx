@@ -16,6 +16,8 @@
 package org.esa.pfa.activelearning;
 
 import libsvm.*;
+import org.esa.pfa.fe.op.Feature;
+import org.esa.pfa.fe.op.Patch;
 
 import java.util.List;
 
@@ -52,8 +54,9 @@ public class SVM {
     /**
      * Select optimal SVM (RBF) model parameters C and Gamma using grid search and given training data.
      * @param validationSet The data set for grid search.
+     * @throws Exception The exception.
      */
-    public void selectModel(List<ActiveLearning.Data> validationSet) throws Exception {
+    public void selectModel(List<Patch> validationSet) throws Exception {
 
         setProblem(validationSet);
 
@@ -68,10 +71,10 @@ public class SVM {
      * Define SVM problem.
      * @param dataSet The training data set.
      */
-	private void setProblem(List<ActiveLearning.Data> dataSet) {
+	private void setProblem(List<Patch> dataSet) {
 		
 		numSamples = dataSet.size();
-		numFeatures = dataSet.get(0).feature.length;
+		numFeatures = dataSet.get(0).getFeatures().length;
 	    
         featureMin = new double[numFeatures];
         featureMax = new double[numFeatures];
@@ -90,10 +93,11 @@ public class SVM {
         }
 		
 		for (int i = 0; i < numSamples; i++) {
-			problem.y[i] = dataSet.get(i).label;
+			problem.y[i] = dataSet.get(i).getLabel();
+            final Feature[] features = dataSet.get(i).getFeatures();
 			for (int j = 0; j < numFeatures; j++) {
 				problem.x[i][j].index = j+1;
-				problem.x[i][j].value = dataSet.get(i).feature[j];
+				problem.x[i][j].value = (Double)features[j].getValue();
 				if (problem.x[i][j].value < featureMin[j]) {
 					featureMin[j] = problem.x[i][j].value;
 				}
@@ -108,8 +112,9 @@ public class SVM {
 	/**
 	 * Train SVM model with given training data.
      * @param trainingSet The training data set.
+     * @throws Exception The exception.
 	 */
-	public void train(List<ActiveLearning.Data> trainingSet) throws Exception {
+	public void train(List<Patch> trainingSet) throws Exception {
 
         setProblem(trainingSet);
 
@@ -123,6 +128,7 @@ public class SVM {
      * @param x1 The first sample.
      * @param x2 The second sample.
      * @return The kernel function value.
+     * @throws Exception The exception.
      */
     public double kernel(final double[] x1, final double[] x2) throws Exception {
 
@@ -143,15 +149,17 @@ public class SVM {
      * @param testData A sample to classify.
      * @param decValues Decision values.
      * @return The predicted class label.
+     * @throws Exception The exception.
      */
-    public double classify(ActiveLearning.Data testData, double[] decValues) throws Exception {
+    public double classify(Patch testData, double[] decValues) throws Exception {
 
         try {
 			svm_node[] x = new svm_node[numFeatures];
+            final Feature[] features = testData.getFeatures();
             for (int i = 0; i < numFeatures; i++) {
                 x[i] = new svm_node();
 				x[i].index = i + 1;
-				x[i].value = scale(i, testData.feature[i]);
+				x[i].value = scale(i, (Double)features[i].getValue());
             }
 
             //return svm.svm_predict(model, x);
@@ -163,6 +171,7 @@ public class SVM {
 
     /**
      * Scale training data to user specified range [lower, upper].
+     * @throws Exception The exception.
      */
     private void scaleData() throws Exception {
 
@@ -189,6 +198,7 @@ public class SVM {
 
     /**
      * Set parameters used by SVM model.
+     * @throws Exception The exception.
      */
     private void setSVMModelParameters() throws Exception {
 
@@ -206,6 +216,7 @@ public class SVM {
 
     /**
      * Find optimal RBF model parameters (C, gamma) using grid search.
+     * @throws Exception The exception.
      */
     private void findOptimalModelParameters() throws Exception {
 
