@@ -135,7 +135,8 @@ public class SmacOperator extends Operator {
     Float invalidPixel = 0.0F;
 
     @Parameter(description = "Mask expression for the whole view (MERIS) or the nadir view (AATSR)",
-               label = "Mask expression for the whole view (MERIS) or the nadir view (AATSR)")
+               label = "Mask expression for the whole view (MERIS) or the nadir view (AATSR)",
+               converter = ExpressionConverter.class)
     private String maskExpression = "";
 
     @Parameter(description = "Mask expression for the forward view (AATSR only)", label = "Mask expression for the forward view (AATSR only)")
