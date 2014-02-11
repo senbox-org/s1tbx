@@ -29,6 +29,7 @@ import com.bc.ceres.binding.PropertySetDescriptor;
 import com.bc.ceres.binding.ValidationException;
 
 import java.lang.reflect.Array;
+import java.lang.reflect.Modifier;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.SortedMap;
@@ -98,88 +99,24 @@ public class DefaultDomConverter implements DomConverter {
         if (value == null) {
             return;
         }
+
         DomElement childElement = parentElement.createChild(getNameOrAlias(property));
-
-        DomConverter domConverter = getDomConverter(descriptor);
-        if (domConverter != null) {
-            domConverter.convertValueToDom(value, childElement);
-        } else if (isArrayTypeWithNamedItems(descriptor)) {
-            int arrayLength = Array.getLength(value);
-            PropertyDescriptor itemDescriptor = new PropertyDescriptor(descriptor.getItemAlias(),
-                                                                       descriptor.getType().getComponentType());
-            DomConverter itemDomConverter = getDomConverter(itemDescriptor);
-            for (int i = 0; i < arrayLength; i++) {
-                Object component = Array.get(value, i);
-                if (itemDomConverter != null) {
-                    itemDomConverter.convertValueToDom(component,
-                                                       childElement.createChild(descriptor.getItemAlias()));
-                } else {
-                    Converter<?> itemConverter = getItemConverter(descriptor);
-                    DomElement itemElement = childElement.createChild(descriptor.getItemAlias());
-                    convertValueToDomImpl(component, itemElement, itemConverter);
-                }
-            }
-        } else {
-            Class<?> type = property.getDescriptor().getType();
-            if (isExplicitClassNameRequired(type, value)) {
-                // childValue is an implementation of type and it's not of same type
-                // we have to store the implementation class in order to re-construct the object
-                // but only if type is not an enum.
-                childElement.setAttribute("class", value.getClass().getName());
-            }
-            Converter<?> converter = descriptor.getConverter();
-            if (converter == null) {
-                converter = ConverterRegistry.getInstance().getConverter(descriptor.getType());
-            }
-            convertValueToDomImpl(value, childElement, converter);
+        Class<?> type = property.getDescriptor().getType();
+        Class<?> actualType = value.getClass();
+        if (isExplicitClassNameRequired(type, value)) {
+            // childValue is an implementation of type and it's not of same type
+            // we have to store the implementation class in order to re-construct the object
+            // but only if type is not an enum.
+            childElement.setAttribute("class", actualType.getName());
         }
-    }
 
-    protected void convertValueToDomImpl(Object value, DomElement element, Converter converter) throws
-                                                                                                ConversionException {
-        if (converter != null) {
-            String text = converter.format(value);
-            if (text != null && !text.isEmpty()) {
-                element.setValue(text);
-            }
-        } else {
-            if (value != null) {
-                // todo - #1 inline property loop
-                PropertySet propertySet = getPropertySet(value);
-                Property[] properties = propertySet.getProperties();
-                for (Property property : properties) {
-                    PropertyDescriptor descriptor = property.getDescriptor();
-                    DomConverter domConverter = getDomConverter(descriptor);
-                    if (domConverter != null) {
-                        if (property.getValue() != null) {
-                            DomElement childElement = element.createChild(getNameOrAlias(property));
-                            domConverter.convertValueToDom(property.getValue(), childElement);
-                        }
-                    } else if (isArrayTypeWithNamedItems(descriptor)) {
-                        DomElement childElement = element.createChild(getNameOrAlias(property));
-                        Object array = property.getValue();
-                        if (array != null) {
-                            int arrayLength = Array.getLength(array);
-                            Converter<?> itemConverter = getItemConverter(descriptor);
-                            for (int i = 0; i < arrayLength; i++) {
-                                Object component = Array.get(array, i);
-                                DomElement itemElement = childElement.createChild(descriptor.getItemAlias());
-                                // todo - #2 use DomConverter instead of recursion
-                                convertValueToDomImpl(component, itemElement, itemConverter);
-                            }
-                        }
-                    } else {
-                        DomElement childElement = element.createChild(getNameOrAlias(property));
-                        Object childValue = property.getValue();
-                        Converter<?> converter1 = descriptor.getConverter();
-                        // todo - #2 use DomConverter instead of recursion
-                        convertValueToDomImpl(childValue, childElement, converter1);
-                    }
-                }
-            }
+        ChildConverter childConverter = findChildConverter(descriptor, actualType);
+        if (childConverter == null) {
+            throw new ConversionException(String.format("Don't know how to convert property '%s'", childElement.getName()));
         }
-    }
 
+        childConverter.convertValueToDom(value, childElement);
+    }
 
     private static String getNameOrAlias(Property property) {
         String alias = property.getDescriptor().getAlias();
@@ -188,7 +125,6 @@ public class DefaultDomConverter implements DomConverter {
         }
         return property.getDescriptor().getName();
     }
-
 
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -201,21 +137,11 @@ public class DefaultDomConverter implements DomConverter {
      * {@inheritDoc}
      */
     @Override
-    public Object convertDomToValue(DomElement parentElement, Object value) throws ConversionException,
-                                                                                   ValidationException {
+    public Object convertDomToValue(DomElement parentElement, Object value) throws ConversionException, ValidationException {
 
         PropertySet propertySet;
         if (value == null) {
-            Class<?> itemType = getValueType();
-            String itemClassName = parentElement.getAttribute("class");
-            if (itemClassName != null) {  // implementation of an interface ?
-                try {
-                    itemType = Class.forName(itemClassName);
-                } catch (ClassNotFoundException e) {
-                    throw new ConversionException(e);
-                }
-            }
-            value = createValueInstance(itemType);
+            value = createValueInstance(parentElement, getValueType());
             propertySet = getPropertySet(value);
             propertySet.setDefaultValues();
         } else {
@@ -233,105 +159,52 @@ public class DefaultDomConverter implements DomConverter {
         }
     }
 
-    private void convertDomChildToPropertySet(DomElement child, PropertySet propertySet) throws ConversionException,
-                                                                                                ValidationException {
-        // todo - possible bug: write test, assert to check for alias
+    private void convertDomChildToPropertySet(DomElement child, PropertySet propertySet) throws ConversionException, ValidationException {
+
         String childName = child.getName();
         Property property = propertySet.getProperty(childName);
 
         if (property == null) {
-            return;
+            throw new ConversionException(String.format("Unknown element '%s'", childName));
         }
+
         if (property.getDescriptor().isTransient()) {
             return;
         }
 
-        Object childValue;
+        convertDomChildToProperty(child, property);
+    }
+
+    private void convertDomChildToProperty(DomElement childElement, Property property) throws ConversionException, ValidationException {
         PropertyDescriptor descriptor = property.getDescriptor();
-        DomConverter domConverter = getDomConverter(descriptor);
-        if (domConverter != null) {
-            childValue = domConverter.convertDomToValue(child, property.getValue());
-            property.setValue(childValue);
-        } else if (isArrayTypeWithNamedItems(descriptor)) {
-            Class<?> itemType = descriptor.getType().getComponentType();
-            Converter<?> itemConverter = getItemConverter(descriptor);
-            // if and only if an itemAlias is set, we parse the array element-wise
-            DomElement[] arrayElements = child.getChildren(descriptor.getItemAlias());
-            DomConverter itemDomConverter = getDomConverter(new PropertyDescriptor(descriptor.getItemAlias(), itemType));
-            childValue = Array.newInstance(itemType, arrayElements.length);
-            for (int i = 0; i < arrayElements.length; i++) {
-                Object item;
-                if (itemDomConverter != null) {
-                    item = itemDomConverter.convertDomToValue(arrayElements[i], null);
-                } else {
-                    item = convertDomToValueImpl(arrayElements[i], itemConverter, itemType);
-                }
-                Array.set(childValue, i, item);
-            }
-            property.setValue(childValue);
-        } else {
-            childValue = convertDomToValueImpl(child,
-                                               descriptor.getConverter(),
-                                               descriptor.getType());
-            property.setValue(childValue);
+        Object currentValue = property.getValue();
+        Class<?> actualType = getActualType(childElement, currentValue != null ? currentValue.getClass() : null);
+        ChildConverter childConverter = findChildConverter(descriptor, actualType);
+        if (childConverter == null) {
+            throw new ConversionException(String.format("Don't know how to convert element '%s'", childElement.getName()));
         }
+        Object value = childConverter.convertDomToValue(childElement, currentValue);
+        property.setValue(value);
     }
 
-    private Object convertDomToValueImpl(DomElement domElement,
-                                         Converter<?> converter,
-                                         Class<?> valueType) throws ConversionException, ValidationException {
-        Object childValue;
-
-        if (converter == null) {
-            converter = ConverterRegistry.getInstance().getConverter(valueType);
-        }
-        if (converter != null) {
-            String text = domElement.getValue();
-            if (text != null) {
-                try {
-                    childValue = converter.parse(text);
-                } catch (ConversionException e) {
-                    throw new ConversionException(
-                            "In a member of '" + domElement.getName() + "': " + e.getMessage(), e);
-                }
-            } else {
-                childValue = null;
-            }
-        } else {
-            DomConverter domConverter = createDomConverter(domElement, valueType);
-            try {
-                childValue = domConverter.convertDomToValue(domElement, null);
-            } catch (ValidationException e) {
-                throw new ValidationException(
-                        "In a member of '" + domElement.getName() + "': " + e.getMessage(), e);
-            } catch (ConversionException e) {
-                throw new ConversionException(
-                        "In a member of '" + domElement.getName() + "': " + e.getMessage(), e);
-            }
-        }
-
-        return childValue;
+    private Object createValueInstance(DomElement parentElement, Class<?> defaultType) throws ConversionException {
+        Class<?> itemType = getActualType(parentElement, defaultType);
+        return createValueInstance(itemType);
     }
 
-    protected DomConverter createDomConverter(DomElement element, Class<?> valueType) {
-        String className = element.getAttribute("class");
-        if (className != null && !className.trim().isEmpty()) {
+    private Class<?> getActualType(DomElement parentElement, Class<?> defaultType) throws ConversionException {
+        Class<?> itemType;
+        String itemClassName = parentElement.getAttribute("class");
+        if (itemClassName != null) {  // implementation of an interface ?
             try {
-                valueType = Class.forName(className);
+                itemType = Class.forName(itemClassName);
             } catch (ClassNotFoundException e) {
-                throw new IllegalArgumentException(e);
+                throw new ConversionException(e);
             }
+        } else {
+            itemType = defaultType;
         }
-
-        PropertyDescriptor propertyDescriptor = getPropertyDescriptorByNameOrAlias(element);
-        if (propertyDescriptor != null) {
-            PropertySetDescriptor propertySetDescriptor = propertyDescriptor.getPropertySetDescriptor();
-            if (propertySetDescriptor != null) {
-                return new DefaultDomConverter(valueType, propertySetDescriptor);
-            }
-        }
-
-        return new DefaultDomConverter(valueType);
+        return itemType;
     }
 
     protected Object createValueInstance(Class<?> type) {
@@ -345,9 +218,7 @@ public class DefaultDomConverter implements DomConverter {
             try {
                 childValue = type.newInstance();
             } catch (Throwable t) {
-                throw new RuntimeException(
-                        String.format("Failed to create instance of %s (default constructor missing?).", type.getName()),
-                        t);
+                throw new RuntimeException(String.format("Failed to create instance of %s (default constructor missing?).", type.getName()), t);
             }
             return childValue;
         }
@@ -359,74 +230,211 @@ public class DefaultDomConverter implements DomConverter {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
     protected PropertySet getPropertySet(Object value) {
         PropertySet propertySet;
         if (value instanceof PropertySet) {
             propertySet = (PropertySet) value;
         } else if (value instanceof Map) {
-            // todo - this wrong for recursive calls with depth > 0
             propertySet = PropertyContainer.createMapBacked((Map) value, propertySetDescriptor);
         } else {
-            // todo - this wrong for recursive calls with depth > 0
             propertySet = PropertyContainer.createObjectBacked(value, propertySetDescriptor);
         }
         return propertySet;
     }
 
-    protected DomConverter getDomConverter(PropertyDescriptor descriptor) {
-        DomConverter domConverter = descriptor.getDomConverter();
-        if (domConverter != null) {
-            return domConverter;
-        }
-
-        domConverter = DomConverterRegistry.getInstance().getConverter(descriptor.getType());
-        if (domConverter != null) {
-            return domConverter;
-        }
-
-        PropertySetDescriptor childPropertySetDescriptor = descriptor.getPropertySetDescriptor();
-        if (childPropertySetDescriptor != null) {
-            domConverter = new DefaultDomConverter(descriptor.getType(), childPropertySetDescriptor);
-        }
-        return domConverter;
+    /**
+     * Called to create a new DOM converter for a (child) property.
+     * May be overridden by subclasses. The default implementation returns an instance of this class.
+     *
+     * @param valueType             The value type
+     * @param propertySetDescriptor The property set descriptor.
+     * @return a "local" DOM converter or {@code null}.
+     */
+    protected DomConverter createChildDomConverter(Class<?> valueType, PropertySetDescriptor propertySetDescriptor) {
+        return new DefaultDomConverter(valueType, propertySetDescriptor);
     }
 
-    private PropertyDescriptor getPropertyDescriptorByNameOrAlias(DomElement element) {
-        String elementName = element.getName();
-        PropertyDescriptor propertyDescriptor = propertySetDescriptor.getPropertyDescriptor(elementName);
-        if (propertyDescriptor == null) {
-            propertyDescriptor = getPropertyDescriptorByAlias(elementName);
-        }
-        return propertyDescriptor;
-    }
-
-    private PropertyDescriptor getPropertyDescriptorByAlias(String elementName) {
-        // Note: naive loop may be accelerated by a constant Map since propertySetDescriptor is constant (nf)
-        for (String propertyName : propertySetDescriptor.getPropertyNames()) {
-            PropertyDescriptor propertyDescriptor = propertySetDescriptor.getPropertyDescriptor(propertyName);
-            if (elementName.equals(propertyDescriptor.getAlias())) {
-                return propertyDescriptor;
-            }
-        }
+    /**
+     * Called to find a "local" DOM converter for a (child) property.
+     * May be overridden by subclasses. The default implementation returns {@code null}.
+     *
+     * @param descriptor The property descriptor
+     * @return a "local" DOM converter or {@code null}.
+     */
+    protected DomConverter findChildDomConverter(PropertyDescriptor descriptor) {
         return null;
     }
 
-    private static Converter<?> getItemConverter(PropertyDescriptor descriptor) {
-        Converter<?> itemConverter = descriptor.getConverter();
-        if (itemConverter == null) {
-            Class<?> itemType = descriptor.getType().getComponentType();
-            itemConverter = ConverterRegistry.getInstance().getConverter(itemType);
+    private boolean isExplicitClassNameRequired(Class<?> type, Object value) {
+        return type.isInstance(value)
+               && type != value.getClass()
+               && !type.isEnum()
+               && !type.isArray()
+               && Modifier.isPublic(type.getModifiers())
+               && !Modifier.isAbstract(type.getModifiers());
+    }
+
+    private ChildConverter findChildConverter(PropertyDescriptor descriptor, Class<?> actualType) {
+        DomConverter domConverter = findChildDomConverter(descriptor);
+        if (domConverter != null) {
+            return new ComplexChildConverter(domConverter);
         }
-        return itemConverter;
+
+        domConverter = descriptor.getDomConverter();
+        if (domConverter != null) {
+            return new ComplexChildConverter(domConverter);
+        }
+
+        PropertySetDescriptor psd = descriptor.getPropertySetDescriptor();
+        if (psd != null) {
+            return new ComplexChildConverter(createChildDomConverter(descriptor.getType(), psd));
+        }
+
+        if (descriptor.getType().isArray()) {
+            if (descriptor.getItemAlias() != null && !descriptor.getItemAlias().isEmpty()) {
+                String itemName = descriptor.getItemAlias();
+                Class<?> itemType = descriptor.getType().getComponentType();
+                PropertyDescriptor itemDescriptor = new PropertyDescriptor(itemName, itemType);
+                ChildConverter itemChildConverter = findChildConverter(itemDescriptor, actualType != null ? actualType.getComponentType() : null);
+                if (itemChildConverter != null) {
+                    return new ArrayToDomConverter(itemName, itemType, itemChildConverter);
+                }
+            }
+        }
+
+        Converter converter = descriptor.getConverter();
+        if (converter != null) {
+            return new SingleValueChildConverter(converter);
+        }
+
+        ChildConverter globalChildConverter = findGlobalChildConverter(descriptor.getType());
+        if (globalChildConverter != null) {
+            return globalChildConverter;
+        }
+
+        if (actualType != null && !actualType.equals(descriptor.getType())) {
+            return findOrCreateChildConverter(actualType);
+        }
+
+        return null;
     }
 
-    private boolean isArrayTypeWithNamedItems(PropertyDescriptor descriptor) {
-        return descriptor.getType().isArray() && descriptor.getItemAlias() != null && !descriptor.getItemAlias().isEmpty();
+    private ChildConverter findOrCreateChildConverter(Class<?> actualType) {
+        ChildConverter childConverter;
+        childConverter = findGlobalChildConverter(actualType);
+        if (childConverter == null) {
+            ClassPropertySetDescriptor psd = new ClassPropertySetDescriptor(actualType);
+            childConverter = new ComplexChildConverter(createChildDomConverter(actualType, psd));
+        }
+        return childConverter;
     }
 
-    private boolean isExplicitClassNameRequired(Class<?> type, Object childValue) {
-        return type.isInstance(childValue) && type != childValue.getClass() && !type.isEnum();
+    private static ChildConverter findGlobalChildConverter(Class<?> type) {
+        Converter converter = ConverterRegistry.getInstance().getConverter(type);
+        if (converter != null) {
+            return new SingleValueChildConverter(converter);
+        }
+
+        DomConverter domConverter = DomConverterRegistry.getInstance().getConverter(type);
+        if (domConverter != null) {
+            return new ComplexChildConverter(domConverter);
+        }
+
+        return null;
+    }
+
+
+    private static interface ChildConverter {
+        void convertValueToDom(Object value, DomElement childElement) throws ConversionException;
+
+        Object convertDomToValue(DomElement childElement, Object value) throws ConversionException, ValidationException;
+    }
+
+    private static class SingleValueChildConverter implements ChildConverter {
+        final Converter converter;
+
+        private SingleValueChildConverter(Converter converter) {
+            this.converter = converter;
+        }
+
+        @Override
+        public void convertValueToDom(Object value, DomElement childElement) throws ConversionException {
+            String text = converter.format(value);
+            if (text != null && !text.isEmpty()) {
+                childElement.setValue(text);
+            }
+        }
+
+        @Override
+        public Object convertDomToValue(DomElement childElement, Object value) throws ConversionException {
+            String text = childElement.getValue();
+            if (text != null) {
+                return converter.parse(text);
+            } else {
+                return null;
+            }
+        }
+    }
+
+    private static class ComplexChildConverter implements ChildConverter {
+        final DomConverter domConverter;
+
+        private ComplexChildConverter(DomConverter domConverter) {
+            this.domConverter = domConverter;
+        }
+
+        @Override
+        public void convertValueToDom(Object value, DomElement childElement) throws ConversionException {
+            domConverter.convertValueToDom(value, childElement);
+        }
+
+        @Override
+        public Object convertDomToValue(DomElement childElement, Object value) throws ConversionException, ValidationException {
+            return domConverter.convertDomToValue(childElement, value);
+        }
+    }
+
+    private static class ArrayToDomConverter implements ChildConverter {
+        private final String itemName;
+        private final Class<?> itemType;
+        final ChildConverter itemConverter;
+
+        private ArrayToDomConverter(String itemName, Class<?> itemType, ChildConverter itemConverter) {
+            this.itemName = itemName;
+            this.itemType = itemType;
+            this.itemConverter = itemConverter;
+        }
+
+        @Override
+
+        public void convertValueToDom(Object value, DomElement childElement) throws ConversionException {
+            int arrayLength = Array.getLength(value);
+            for (int i = 0; i < arrayLength; i++) {
+                Object item = Array.get(value, i);
+                DomElement itemDomElement = childElement.createChild(itemName);
+                itemConverter.convertValueToDom(item, itemDomElement);
+            }
+        }
+
+        @Override
+        public Object convertDomToValue(DomElement childElement, Object value) throws ConversionException, ValidationException {
+            // if and only if an itemAlias is set, we parse the array element-wise
+            DomElement[] itemElements = childElement.getChildren(itemName);
+            if (value == null) {
+                value = Array.newInstance(itemType, itemElements.length);
+            } else if (value.getClass().getComponentType() == null) {
+                throw new ConversionException(String.format("Incompatible value type: array of type '%s' expected", itemType.getName()));
+            } else if (!itemType.isAssignableFrom(value.getClass().getComponentType())) {
+                throw new ConversionException(String.format("Incompatible array item type: expected '%s', got '%s'", itemType.getName(), value.getClass().getComponentType()));
+            } else if (itemElements.length != Array.getLength(value)) {
+                throw new ConversionException(String.format("Illegal array length: expected %d, got %d", itemElements.length, Array.getLength(value)));
+            }
+            for (int i = 0; i < itemElements.length; i++) {
+                Object item = itemConverter.convertDomToValue(itemElements[i], null);
+                Array.set(value, i, item);
+            }
+            return value;
+        }
     }
 
 
