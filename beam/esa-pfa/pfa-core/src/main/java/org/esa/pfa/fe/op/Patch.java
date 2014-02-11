@@ -22,6 +22,9 @@ public final class Patch {
     private final int uid;
     private static int uidCnt = 0;
 
+    private int label;
+    private double confidence;
+
     private BufferedImage image = null;
 
     public Patch(int patchX, int patchY, Rectangle patchRegion, Product patchProduct) {
@@ -75,5 +78,21 @@ public final class Patch {
 
     public Feature[] getFeatures() {
         return featureList.toArray(new Feature[featureList.size()]);
+    }
+
+    public void setConfidence(final double confidence) {
+        this.confidence = confidence;
+    }
+
+    public double getConfidence() {
+        return confidence;
+    }
+
+    public void setLabel(final int label) {
+        this.label = label;
+    }
+
+    public int getLabel() {
+        return label;
     }
 }
