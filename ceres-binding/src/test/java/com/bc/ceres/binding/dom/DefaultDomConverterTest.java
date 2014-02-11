@@ -428,38 +428,40 @@ public class DefaultDomConverterTest {
     }
 
     @Test
-    public void testDomToInlinedArrayPojo() throws Exception {
+    public void testDomToComplexArrayPojo() throws Exception {
 
         final String xml = ""
                            + "<parameters>"
-                           + "  <endmember>"
-                           + "    <name>Land</name>"
-                           + "    <size>4</size>"
-                           + "    <wavelengths>820,830,840,850</wavelengths>"
-                           + "    <radiances>220,230,240,250</radiances>"
-                           + "  </endmember>"
-                           + "  <defaultEndmember>"      // note the order!
-                           + "    <name>Fallback</name>"
-                           + "    <size>4</size>"
-                           + "    <wavelengths>820,830,840,850</wavelengths>"
-                           + "    <radiances>420,430,440,450</radiances>"
-                           + "  </defaultEndmember>"
-                           + "  <endmember>"
-                           + "    <name>Water</name>"
-                           + "    <size>4</size>"
-                           + "    <wavelengths>820,830,840,850</wavelengths>"
-                           + "    <radiances>620,630,640,650</radiances>"
-                           + "  </endmember>"
-                           + "  <endmember>"
-                           + "    <name>Cloud</name>"
-                           + "    <size>4</size>"
-                           + "    <wavelengths>820,830,840,850</wavelengths>"
-                           + "    <radiances>920,930,940,950</radiances>"
-                           + "  </endmember>"
+                           + "  <endmembers>"
+                           + "    <endmember>"
+                           + "      <name>Land</name>"
+                           + "      <size>4</size>"
+                           + "      <wavelengths>820,830,840,850</wavelengths>"
+                           + "      <radiances>220,230,240,250</radiances>"
+                           + "    </endmember>"
+                           + "    <defaultEndmember>"      // note the order!
+                           + "      <name>Fallback</name>"
+                           + "      <size>4</size>"
+                           + "      <wavelengths>820,830,840,850</wavelengths>"
+                           + "      <radiances>420,430,440,450</radiances>"
+                           + "    </defaultEndmember>"
+                           + "    <endmember>"
+                           + "      <name>Water</name>"
+                           + "      <size>4</size>"
+                           + "      <wavelengths>820,830,840,850</wavelengths>"
+                           + "      <radiances>620,630,640,650</radiances>"
+                           + "    </endmember>"
+                           + "    <endmember>"
+                           + "      <name>Cloud</name>"
+                           + "      <size>4</size>"
+                           + "      <wavelengths>820,830,840,850</wavelengths>"
+                           + "      <radiances>920,930,940,950</radiances>"
+                           + "    </endmember>"
+                           + "  </endmembers>"
                            + "</parameters>";
 
         final XppDom dom = createDom(xml);
-        final InlinedArrayPojo value = new InlinedArrayPojo();
+        final ComplexArrayPojo value = new ComplexArrayPojo();
         assertNull(value.defaultEndmember);
         assertNull(value.endmembers);
 
@@ -491,7 +493,7 @@ public class DefaultDomConverterTest {
     }
 
     @Test
-    public void testInlinedArrayPojoToDom() throws ValidationException, ConversionException {
+    public void testComplexArrayPojoToDom() throws ValidationException, ConversionException {
 
         final String expectedXml = ""
                                    + "<parameters>"
@@ -501,27 +503,29 @@ public class DefaultDomConverterTest {
                                    + "    <wavelengths>820.0,830.0,840.0,850.0</wavelengths>"
                                    + "    <radiances>420.0,430.0,440.0,450.0</radiances>"
                                    + "  </defaultEndmember>"
-                                   + "  <endmember>"
-                                   + "    <name>Land</name>"
-                                   + "    <size>4</size>"
-                                   + "    <wavelengths>820.0,830.0,840.0,850.0</wavelengths>"
-                                   + "    <radiances>220.0,230.0,240.0,250.0</radiances>"
-                                   + "  </endmember>"
-                                   + "  <endmember>"
-                                   + "    <name>Water</name>"
-                                   + "    <size>4</size>"
-                                   + "    <wavelengths>820.0,830.0,840.0,850.0</wavelengths>"
-                                   + "    <radiances>620.0,630.0,640.0,650.0</radiances>"
-                                   + "  </endmember>"
-                                   + "  <endmember>"
-                                   + "    <name>Cloud</name>"
-                                   + "    <size>4</size>"
-                                   + "    <wavelengths>820.0,830.0,840.0,850.0</wavelengths>"
-                                   + "    <radiances>920.0,930.0,940.0,950.0</radiances>"
-                                   + "  </endmember>"
+                                   + "  <endmembers>"
+                                   + "    <endmember>"
+                                   + "      <name>Land</name>"
+                                   + "      <size>4</size>"
+                                   + "      <wavelengths>820.0,830.0,840.0,850.0</wavelengths>"
+                                   + "      <radiances>220.0,230.0,240.0,250.0</radiances>"
+                                   + "    </endmember>"
+                                   + "    <endmember>"
+                                   + "      <name>Water</name>"
+                                   + "      <size>4</size>"
+                                   + "      <wavelengths>820.0,830.0,840.0,850.0</wavelengths>"
+                                   + "      <radiances>620.0,630.0,640.0,650.0</radiances>"
+                                   + "    </endmember>"
+                                   + "    <endmember>"
+                                   + "      <name>Cloud</name>"
+                                   + "      <size>4</size>"
+                                   + "      <wavelengths>820.0,830.0,840.0,850.0</wavelengths>"
+                                   + "      <radiances>920.0,930.0,940.0,950.0</radiances>"
+                                   + "    </endmember>"
+                                   + "  </endmembers>"
                                    + "</parameters>";
 
-        final InlinedArrayPojo value = new InlinedArrayPojo();
+        final ComplexArrayPojo value = new ComplexArrayPojo();
         value.defaultEndmember = new Endmember("Fallback", new double[]{820, 830, 840, 850},
                                                new double[]{420, 430, 440, 450});
         value.endmembers = new Endmember[3];
@@ -846,7 +850,7 @@ public class DefaultDomConverterTest {
         Muppet character;
     }
 
-    public static class InlinedArrayPojo {
+    public static class ComplexArrayPojo {
 
         Endmember defaultEndmember;
 
