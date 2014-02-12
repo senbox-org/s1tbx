@@ -39,10 +39,7 @@ public class ActiveLearning {
     private int maxIterationsKmeans = 10;
 
     // UI: Pass in some parameters
-    public ActiveLearning(final int h, final int m) throws Exception {
-
-        this.h = h;
-        this.m = m;
+    public ActiveLearning() throws Exception {
     }
 
     // UI: Pass in patches obtained from user's query image. These patch will be used in validation.
@@ -61,16 +58,17 @@ public class ActiveLearning {
     public void setRandomPatches(Patch[] patchArray) throws Exception {
 
         testData.addAll(Arrays.asList(patchArray));
+    }
+
+    // UI: Get the selected most ambiguous patches for user to label.
+    public Patch[] getMostAmbiguousPatches(int numImages) throws Exception {
+
+        this.h = numImages;
+        this.m = 4 * h;
 
         selectMostUncertainSamples();
 
         selectMostDiverseSamples();
-
-        classifySelectedSamples();
-    }
-
-    // UI: Get the selected most ambiguous patches for user to label.
-    public Patch[] getMostAmbiguousPatches() {
 
         return diverseSamples.toArray(new Patch[diverseSamples.size()]);
     }
@@ -81,6 +79,25 @@ public class ActiveLearning {
         trainingData.addAll(Arrays.asList(userLabelledPatches));
 
         svmClassifier.train(trainingData);
+    }
+
+    /**
+     * UI: Classify an array of patches. UI needs to sort the patches according to their distances to hyperplane.
+     * @param patchArray The Given patch array.
+     * @throws Exception The exception.
+     */
+    public void classify(Patch[] patchArray) throws Exception {
+
+        try {
+            final double[] decValues = new double[numClasses*(numClasses-1)/2];
+            for (Patch patch:patchArray) {
+                double p = svmClassifier.classify(patch, decValues);
+                patch.setLabel((int)p);
+                patch.setDistance(decValues[0]);
+            }
+        } catch (Throwable e) {
+            throw new Exception(e.getMessage());
+        }
     }
 
     /**
