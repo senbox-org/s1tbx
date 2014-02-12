@@ -45,6 +45,8 @@ public class ActiveLearning {
     // UI: Pass in patches obtained from user's query image. These patch will be used in validation.
     public void setQueryPatches(Patch[] patchArray) throws Exception {
 
+        getNumberOfClasses(patchArray);
+
         validationData.addAll(Arrays.asList(patchArray));
 
         svmClassifier.selectModel(validationData);
@@ -98,6 +100,28 @@ public class ActiveLearning {
         } catch (Throwable e) {
             throw new Exception(e.getMessage());
         }
+    }
+
+    /**
+     * Get the number of classes.
+     * @param patchArray The patch array.
+     * @throws Exception The exception.
+     */
+    private void getNumberOfClasses(final Patch[] patchArray) throws Exception {
+
+        ArrayList<Integer> classLabels = new ArrayList<Integer>();
+        for (Patch patch:patchArray) {
+            final int label = patch.getLabel();
+            if (!classLabels.contains(label)) {
+                classLabels.add(label);
+            }
+
+        }
+        numClasses = classLabels.size();
+        if (numClasses < 2) {
+            throw new Exception("Number of classes cannot less than 2");
+        }
+
     }
 
     /**
@@ -176,24 +200,6 @@ public class ActiveLearning {
                         break;
                     }
                 }
-            }
-
-        } catch (Throwable e) {
-            throw new Exception(e.getMessage());
-        }
-    }
-
-    /**
-     * Classify the h selected samples returned by query function.
-     * @throws Exception The exception.
-     */
-    private void classifySelectedSamples() throws Exception {
-
-        try {
-            final double[] decValues = new double[numClasses*(numClasses-1)/2];
-            for (Patch patch:diverseSamples) {
-                double p = svmClassifier.classify(patch, decValues);
-                patch.setLabel((int)p);
             }
 
         } catch (Throwable e) {
