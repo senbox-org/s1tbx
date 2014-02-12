@@ -63,6 +63,8 @@ public class LabelingTaskPanel extends TaskPanel {
         try {
             session.trainModel();
 
+            session.retrieveImages();
+
             return true;
         } catch(Exception e)  {
             showErrorMsg(e.getMessage());

@@ -104,10 +104,9 @@ public class CBIRSession {
         searchTool.trainModel(labeledList.toArray(new Patch[labeledList.size()]));
     }
 
-    public void retrieveImages(final int numImages) {
-        searchTool.retrieveImages(getRelevantTrainingImages(), getIrrelevantTrainingImages());
+    public void retrieveImages() throws Exception {
 
-        retrievedImageList.addAll(Arrays.asList(searchTool.getRetrievedImages(numImages)));
+        retrievedImageList.addAll(Arrays.asList(searchTool.getRetrievedImages(numRetrievedImages)));
     }
 
     public Patch[] getRetrievedImages() {

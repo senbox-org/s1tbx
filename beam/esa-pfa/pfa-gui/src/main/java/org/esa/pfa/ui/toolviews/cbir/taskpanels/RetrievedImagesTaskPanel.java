@@ -35,8 +35,6 @@ public class RetrievedImagesTaskPanel extends TaskPanel {
         super("Retrieved Images");
         this.session = session;
 
-        session.retrieveImages(200);
-
         createPanel();
 
         repaint();

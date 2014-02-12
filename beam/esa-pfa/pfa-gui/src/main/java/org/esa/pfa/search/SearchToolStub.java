@@ -89,12 +89,12 @@ public class SearchToolStub {
         al.train(labeledImages);
     }
 
-    public void retrieveImages(final Patch[] rel, final Patch[] irrel) {
+    public Patch[] getRetrievedImages(final int numImages) throws Exception {
 
-    }
+       Patch[] archivePatches = db.query("product:ENVI*", numImages);
+       al.classify(archivePatches);
 
-    public Patch[] getRetrievedImages(final int numImages) {
-        return createDummyImageList(numImages);
+       return archivePatches;
     }
 
     private static Patch[] createDummyImageList(final int size) {
