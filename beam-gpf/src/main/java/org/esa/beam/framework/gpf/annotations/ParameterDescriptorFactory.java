@@ -19,13 +19,13 @@ package org.esa.beam.framework.gpf.annotations;
 import com.bc.ceres.binding.ConversionException;
 import com.bc.ceres.binding.Converter;
 import com.bc.ceres.binding.ConverterRegistry;
-import com.bc.ceres.binding.DefaultPropertySetDescriptor;
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.PropertyDescriptor;
 import com.bc.ceres.binding.PropertyDescriptorFactory;
 import com.bc.ceres.binding.Validator;
 import com.bc.ceres.binding.ValueRange;
 import com.bc.ceres.binding.ValueSet;
+import com.bc.ceres.binding.descriptors.DefaultPropertySetDescriptor;
 import com.bc.ceres.binding.dom.DomConverter;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.RasterDataNode;
@@ -42,7 +42,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-import static org.esa.beam.util.StringUtils.*;
+import static org.esa.beam.util.StringUtils.isNotNullAndNotEmpty;
 
 public class ParameterDescriptorFactory implements PropertyDescriptorFactory {
 

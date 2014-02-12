@@ -17,8 +17,8 @@
 package org.esa.beam.framework.gpf.descriptor;
 
 import com.bc.ceres.binding.ConversionException;
-import com.bc.ceres.binding.DefaultPropertySetDescriptor;
 import com.bc.ceres.binding.PropertyDescriptor;
+import com.bc.ceres.binding.descriptors.DefaultPropertySetDescriptor;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.annotations.ParameterDescriptorFactory;
 
