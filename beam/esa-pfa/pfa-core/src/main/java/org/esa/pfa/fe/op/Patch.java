@@ -25,6 +25,7 @@ public final class Patch {
     private int label = -1;
     private double confidence;
 
+    private String pathOnServer;
     private BufferedImage image = null;
 
     public Patch(int patchX, int patchY, Rectangle patchRegion, Product patchProduct) {
@@ -62,6 +63,14 @@ public final class Patch {
 
     public Product getPatchProduct() {
         return patchProduct;
+    }
+
+    public String getPathOnServer() {
+        return pathOnServer;
+    }
+
+    public void setPathOnServer(final String path) {
+        pathOnServer = path;
     }
 
     public void setImage(BufferedImage img) {

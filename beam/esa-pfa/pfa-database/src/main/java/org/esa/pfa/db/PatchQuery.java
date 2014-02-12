@@ -17,7 +17,9 @@ import org.esa.pfa.fe.op.FeatureType;
 import org.esa.pfa.fe.op.Patch;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -99,6 +101,8 @@ public class PatchQuery implements QueryInterface {
                     int patchY = Integer.parseInt(doc.getValues("py")[0]);
 
                     Patch patch = new Patch(patchX, patchY, null, null);
+                    setPathToPatch(patch, productName);
+
                     getFeatures(doc, patch);
                     patchList.add(patch);
 
@@ -113,6 +117,23 @@ public class PatchQuery implements QueryInterface {
         }
 
         return patchList.toArray(new Patch[patchList.size()]);
+    }
+
+    private void setPathToPatch(Patch patch, String productName) {
+        patch.setPathOnServer(datasetDir.getAbsolutePath()+ File.separator+
+                              productName+".fex"+ File.separator+patch.getPatchName());
+    }
+
+    public URL retrievePatchImage(final Patch patch) throws Exception {
+        final File path = new File(patch.getPathOnServer());
+        final File[] imageFiles = path.listFiles(new FileFilter() {
+            @Override
+            public boolean accept(File file) {
+                return file.isFile() && file.getName().toLowerCase().endsWith(".png");
+            }
+        });
+
+        return new URL("file:"+imageFiles[0].getAbsolutePath());
     }
 
     private void getFeatures(final Document doc, final Patch patch) {

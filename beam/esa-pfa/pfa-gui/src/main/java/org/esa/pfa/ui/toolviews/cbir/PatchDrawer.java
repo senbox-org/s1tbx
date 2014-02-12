@@ -123,7 +123,9 @@ public class PatchDrawer extends JPanel implements MouseListener {
             super();
             this.patch = patch;
 
-            setIcon(new ImageIcon(patch.getImage().getScaledInstance(width, height, BufferedImage.SCALE_FAST)));
+            if(patch.getImage() != null) {
+                setIcon(new ImageIcon(patch.getImage().getScaledInstance(width, height, BufferedImage.SCALE_FAST)));
+            }
         }
 
         public Patch getPatch() {

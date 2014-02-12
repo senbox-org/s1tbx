@@ -26,6 +26,7 @@ import java.awt.image.BufferedImage;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.net.URL;
 
 /**
  * Stub for PFA Search Tool on the server
@@ -63,7 +64,25 @@ public class SearchToolStub {
     }
 
     public Patch[] getImagesToLabel() {
-        return al.getMostAmbiguousPatches();
+        Patch[] patchesToLabel = al.getMostAmbiguousPatches();
+        retrievePatchImages(patchesToLabel);
+
+        return patchesToLabel;
+    }
+
+    private void retrievePatchImages(final Patch[] patches) {
+        for(Patch patch : patches) {
+            if(patch.getImage()== null) {
+                try {
+                    URL imageURL = db.retrievePatchImage(patch);
+                    //todo download image
+                    File imageFile = new File(imageURL.getPath());
+                    patch.setImage(loadImageFile(imageFile));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 
     public void trainModel(Patch[] labeledImages) throws Exception {
@@ -82,12 +101,12 @@ public class SearchToolStub {
         final Patch[] imageList = new Patch[size];
         for(int i=0; i < imageList.length; ++i) {
             imageList[i] = new Patch(0,0, null, null);
-            imageList[i].setImage(loadFile(dummyFile));
+            imageList[i].setImage(loadImageFile(dummyFile));
         }
         return imageList;
     }
 
-    private static BufferedImage loadFile(final File file) {
+    private static BufferedImage loadImageFile(final File file) {
         BufferedImage bufferedImage = null;
         if (file.canRead()) {
             try {
