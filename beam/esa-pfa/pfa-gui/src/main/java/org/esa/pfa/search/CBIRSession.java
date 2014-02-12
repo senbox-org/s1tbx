@@ -105,7 +105,7 @@ public class CBIRSession {
     }
 
     public void retrieveImages() throws Exception {
-
+        retrievedImageList.clear();
         retrievedImageList.addAll(Arrays.asList(searchTool.getRetrievedImages(numRetrievedImages)));
     }
 
