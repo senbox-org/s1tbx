@@ -23,7 +23,8 @@ public final class Patch {
     private static int uidCnt = 0;
 
     private int label = -1;
-    private double confidence;
+    private double confidence; // criterion used in ambiguous patch selection
+    private double distance;   // functional distance of a patch to the hyperplane in SVM
 
     private String pathOnServer;
     private BufferedImage image = null;
@@ -103,5 +104,13 @@ public final class Patch {
 
     public int getLabel() {
         return label;
+    }
+
+    public void setDistance(final double distance) {
+        this.distance = distance;
+    }
+
+    public double getDistance() {
+        return distance;
     }
 }
