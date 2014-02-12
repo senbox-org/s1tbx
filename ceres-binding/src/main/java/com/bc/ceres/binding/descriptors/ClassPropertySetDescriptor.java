@@ -52,6 +52,13 @@ public class ClassPropertySetDescriptor extends DefaultPropertySetDescriptor {
         return propertyDescriptorFactory;
     }
 
+    public Map<String, Field> getFields() {
+        if (fields == null) {
+            fields = getFields(valueType);
+        }
+        return fields;
+    }
+
     @Override
     public String[] getPropertyNames() {
         Set<String> strings = getFields().keySet();
@@ -73,15 +80,8 @@ public class ClassPropertySetDescriptor extends DefaultPropertySetDescriptor {
         return propertyDescriptor;
     }
 
-    protected Field getField(String propertyName) {
+    private Field getField(String propertyName) {
         return getFields().get(propertyName);
-    }
-
-    Map<String, Field> getFields() {
-        if (fields == null) {
-            fields = getFields(valueType);
-        }
-        return fields;
     }
 
     public static Map<String, Field> getFields(Class<?> type) {
