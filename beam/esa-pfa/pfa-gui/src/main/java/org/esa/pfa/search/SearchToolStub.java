@@ -36,9 +36,6 @@ public class SearchToolStub {
     private PatchQuery db = null;
     private ActiveLearning al = null;
 
-    private static final java.net.URL dummyURL = SearchToolStub.class.getClassLoader().getResource("images/sigma0_ql.png");
-    private static File dummyFile = new File(dummyURL.getPath());
-
     public SearchToolStub() {
         try {
             db = new PatchQuery(new File("c:\\temp"));
@@ -59,18 +56,18 @@ public class SearchToolStub {
     public void setQueryImages(final Patch[] queryImages) throws Exception {
         al.setQueryPatches(queryImages);
 
-        Patch[] archivePatches = db.query("product:ENVI*", 50);
+        final Patch[] archivePatches = db.query("product:ENVI*", 50);
         al.setRandomPatches(archivePatches);
     }
 
     public Patch[] getImagesToLabel(final int numImages) throws Exception {
-        Patch[] patchesToLabel = al.getMostAmbiguousPatches(numImages);
-        retrievePatchImages(patchesToLabel);
+        final Patch[] patchesToLabel = al.getMostAmbiguousPatches(numImages);
+        getPatchQuicklooks(patchesToLabel);
 
         return patchesToLabel;
     }
 
-    private void retrievePatchImages(final Patch[] patches) {
+    private void getPatchQuicklooks(final Patch[] patches) {
         for(Patch patch : patches) {
             if(patch.getImage()== null) {
                 try {
@@ -91,19 +88,11 @@ public class SearchToolStub {
 
     public Patch[] getRetrievedImages(final int numImages) throws Exception {
 
-       Patch[] archivePatches = db.query("product:ENVI*", numImages);
+       final Patch[] archivePatches = db.query("product:ENVI*", numImages);
        al.classify(archivePatches);
+       getPatchQuicklooks(archivePatches);
 
        return archivePatches;
-    }
-
-    private static Patch[] createDummyImageList(final int size) {
-        final Patch[] imageList = new Patch[size];
-        for(int i=0; i < imageList.length; ++i) {
-            imageList[i] = new Patch(0,0, null, null);
-            imageList[i].setImage(loadImageFile(dummyFile));
-        }
-        return imageList;
     }
 
     private static BufferedImage loadImageFile(final File file) {
