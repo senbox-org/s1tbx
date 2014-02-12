@@ -20,6 +20,7 @@ import com.bc.ceres.binding.ClassPropertySetDescriptor;
 import com.bc.ceres.binding.ConversionException;
 import com.bc.ceres.binding.Converter;
 import com.bc.ceres.binding.ConverterRegistry;
+import com.bc.ceres.binding.DefaultPropertyDescriptorFactory;
 import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.PropertyDescriptor;
@@ -27,6 +28,7 @@ import com.bc.ceres.binding.PropertyDescriptorFactory;
 import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.binding.PropertySetDescriptor;
 import com.bc.ceres.binding.ValidationException;
+import com.bc.ceres.core.Assert;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Modifier;
@@ -40,21 +42,28 @@ import java.util.TreeMap;
  */
 public class DefaultDomConverter implements DomConverter {
 
-    private Class<?> valueType;
+    private final Class<?> valueType;
     private PropertySetDescriptor propertySetDescriptor;
+    private PropertyDescriptorFactory propertyDescriptorFactory;
 
 
     public DefaultDomConverter(Class<?> valueType) {
-        this(valueType, new ClassPropertySetDescriptor(valueType));
+        this(valueType, null, null);
     }
 
     public DefaultDomConverter(Class<?> valueType, PropertyDescriptorFactory propertyDescriptorFactory) {
-        this(valueType, new ClassPropertySetDescriptor(valueType, propertyDescriptorFactory));
+        this(valueType, null, propertyDescriptorFactory);
     }
 
     public DefaultDomConverter(Class<?> valueType, PropertySetDescriptor propertySetDescriptor) {
+        this(valueType, propertySetDescriptor, null);
+    }
+
+    public DefaultDomConverter(Class<?> valueType, PropertySetDescriptor propertySetDescriptor, PropertyDescriptorFactory propertyDescriptorFactory) {
+        Assert.notNull(valueType);
         this.valueType = valueType;
         this.propertySetDescriptor = propertySetDescriptor;
+        this.propertyDescriptorFactory = propertyDescriptorFactory;
     }
 
     /**
@@ -63,6 +72,25 @@ public class DefaultDomConverter implements DomConverter {
     @Override
     public Class<?> getValueType() {
         return valueType;
+    }
+
+    public PropertySetDescriptor getPropertySetDescriptor() {
+        if (propertySetDescriptor == null) {
+            propertySetDescriptor = new ClassPropertySetDescriptor(valueType, propertyDescriptorFactory);
+        }
+        return propertySetDescriptor;
+    }
+
+    public PropertyDescriptorFactory getPropertyDescriptorFactory() {
+        if (propertyDescriptorFactory == null) {
+            if (propertySetDescriptor instanceof ClassPropertySetDescriptor) {
+                ClassPropertySetDescriptor classPropertySetDescriptor = (ClassPropertySetDescriptor) propertySetDescriptor;
+                propertyDescriptorFactory = classPropertySetDescriptor.getPropertyDescriptorFactory();
+            } else {
+                propertyDescriptorFactory = new DefaultPropertyDescriptorFactory();
+            }
+        }
+        return propertyDescriptorFactory;
     }
 
 
@@ -235,9 +263,9 @@ public class DefaultDomConverter implements DomConverter {
         if (value instanceof PropertySet) {
             propertySet = (PropertySet) value;
         } else if (value instanceof Map) {
-            propertySet = PropertyContainer.createMapBacked((Map) value, propertySetDescriptor);
+            propertySet = PropertyContainer.createMapBacked((Map) value, getPropertySetDescriptor());
         } else {
-            propertySet = PropertyContainer.createObjectBacked(value, propertySetDescriptor);
+            propertySet = PropertyContainer.createObjectBacked(value, getPropertySetDescriptor());
         }
         return propertySet;
     }
@@ -265,15 +293,6 @@ public class DefaultDomConverter implements DomConverter {
         return null;
     }
 
-    private boolean isExplicitClassNameRequired(Class<?> type, Object value) {
-        return type.isInstance(value)
-               && type != value.getClass()
-               && !type.isEnum()
-               && !type.isArray()
-               && Modifier.isPublic(type.getModifiers())
-               && !Modifier.isAbstract(type.getModifiers());
-    }
-
     private ChildConverter findChildConverter(PropertyDescriptor descriptor, Class<?> actualType) {
         DomConverter domConverter = findChildDomConverter(descriptor);
         if (domConverter != null) {
@@ -291,7 +310,8 @@ public class DefaultDomConverter implements DomConverter {
         }
 
         if (descriptor.getType().isArray()) {
-            if (descriptor.getItemAlias() != null && !descriptor.getItemAlias().isEmpty()) {
+            boolean hasItemAlias = descriptor.getItemAlias() != null && !descriptor.getItemAlias().isEmpty();
+            if (hasItemAlias) {
                 String itemName = descriptor.getItemAlias();
                 Class<?> itemType = descriptor.getType().getComponentType();
                 PropertyDescriptor itemDescriptor = new PropertyDescriptor(itemName, itemType);
@@ -312,21 +332,42 @@ public class DefaultDomConverter implements DomConverter {
             return globalChildConverter;
         }
 
-        if (actualType != null && !actualType.equals(descriptor.getType())) {
-            return findOrCreateChildConverter(actualType);
+        // up to this point we tried to exploit property descriptor attributes
+        // but didn't find a converter. No we ask the actual type, if any.
+
+        if (actualType != null) {
+            if (!actualType.equals(descriptor.getType())) {
+                ChildConverter childConverter = findGlobalChildConverter(actualType);
+                if (childConverter != null) {
+                    return childConverter;
+                }
+            }
+            return createChildConverter(actualType);
+        } else if (isInstantiable(descriptor.getType())) {
+            return createChildConverter(descriptor.getType());
         }
 
         return null;
     }
 
-    private ChildConverter findOrCreateChildConverter(Class<?> actualType) {
-        ChildConverter childConverter;
-        childConverter = findGlobalChildConverter(actualType);
-        if (childConverter == null) {
-            ClassPropertySetDescriptor psd = new ClassPropertySetDescriptor(actualType);
-            childConverter = new ComplexChildConverter(createChildDomConverter(actualType, psd));
-        }
-        return childConverter;
+    private boolean isInstantiable(Class<?> type) {
+        // Note: we don't check for no-arg constructor here, because we want Java to throw a runtime exception
+        return !type.isInterface()
+               && !Modifier.isAbstract(type.getModifiers())
+               && !type.isEnum()
+               && !type.isArray()
+               && Modifier.isPublic(type.getModifiers());
+    }
+
+    private boolean isExplicitClassNameRequired(Class<?> type, Object value) {
+        return type.isInstance(value)
+               && type != value.getClass()
+               && isInstantiable(value.getClass());
+    }
+
+    private ChildConverter createChildConverter(Class<?> actualType) {
+        ClassPropertySetDescriptor actualTypePsd = new ClassPropertySetDescriptor(actualType, getPropertyDescriptorFactory());
+        return new ComplexChildConverter(createChildDomConverter(actualType, actualTypePsd));
     }
 
     private static ChildConverter findGlobalChildConverter(Class<?> type) {

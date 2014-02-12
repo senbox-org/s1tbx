@@ -199,7 +199,8 @@ public class PropertyDescriptor {
     }
 
     public void setDefaultConverter() {
-        if (!getType().isArray() || getItemAlias() == null || getItemAlias().isEmpty()) {
+        boolean hasItemAlias = getItemAlias() != null && !getItemAlias().isEmpty();
+        if (!getType().isArray() || hasItemAlias) {
             setConverter(ConverterRegistry.getInstance().getConverter(getType()));
         }
     }

@@ -16,6 +16,8 @@
 
 package com.bc.ceres.binding;
 
+import com.bc.ceres.core.Assert;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.Map;
@@ -29,17 +31,26 @@ import java.util.Set;
  */
 public class ClassPropertySetDescriptor extends DefaultPropertySetDescriptor {
 
-    private final Class<?> type;
+    private final Class<?> valueType;
     private final PropertyDescriptorFactory propertyDescriptorFactory;
     private Map<String, Field> fields;
 
-    public ClassPropertySetDescriptor(Class<?> type) {
-        this(type, new DefaultPropertyDescriptorFactory());
+    public ClassPropertySetDescriptor(Class<?> valueType) {
+        this(valueType, null);
     }
 
-    public ClassPropertySetDescriptor(Class<?> type, PropertyDescriptorFactory propertyDescriptorFactory) {
-        this.type = type;
-        this.propertyDescriptorFactory = propertyDescriptorFactory;
+    public ClassPropertySetDescriptor(Class<?> valueType, PropertyDescriptorFactory propertyDescriptorFactory) {
+        Assert.notNull(valueType, "valueType");
+        this.valueType = valueType;
+        this.propertyDescriptorFactory = propertyDescriptorFactory != null ? propertyDescriptorFactory : new DefaultPropertyDescriptorFactory();
+    }
+
+    public Class<?> getValueType() {
+        return valueType;
+    }
+
+    public PropertyDescriptorFactory getPropertyDescriptorFactory() {
+        return propertyDescriptorFactory;
     }
 
     @Override
@@ -69,7 +80,7 @@ public class ClassPropertySetDescriptor extends DefaultPropertySetDescriptor {
 
     Map<String, Field> getFields() {
         if (fields == null) {
-            fields = getFields(type);
+            fields = getFields(valueType);
         }
         return fields;
     }
