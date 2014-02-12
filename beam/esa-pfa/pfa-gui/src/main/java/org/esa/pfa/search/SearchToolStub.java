@@ -42,7 +42,7 @@ public class SearchToolStub {
     public SearchToolStub() {
         try {
             db = new PatchQuery(new File("c:\\temp"));
-            al = new ActiveLearning(10, 40);
+            al = new ActiveLearning();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -63,8 +63,8 @@ public class SearchToolStub {
         al.setRandomPatches(archivePatches);
     }
 
-    public Patch[] getImagesToLabel() {
-        Patch[] patchesToLabel = al.getMostAmbiguousPatches();
+    public Patch[] getImagesToLabel(final int numImages) throws Exception {
+        Patch[] patchesToLabel = al.getMostAmbiguousPatches(numImages);
         retrievePatchImages(patchesToLabel);
 
         return patchesToLabel;

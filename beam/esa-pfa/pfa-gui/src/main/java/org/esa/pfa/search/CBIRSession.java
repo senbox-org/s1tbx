@@ -78,7 +78,7 @@ public class CBIRSession {
         relevantImageList.clear();
         irrelevantImageList.clear();
 
-        final Patch[] imagesToLabel = searchTool.getImagesToLabel();
+        final Patch[] imagesToLabel = searchTool.getImagesToLabel(numTrainingImages);
         for(Patch patch : imagesToLabel) {
             if(patch.getLabel() == 1) {
                 relevantImageList.add(patch);
