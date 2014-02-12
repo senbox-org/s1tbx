@@ -1,4 +1,7 @@
-package com.bc.ceres.binding;
+package com.bc.ceres.binding.descriptors;
+
+import com.bc.ceres.binding.PropertyDescriptor;
+import com.bc.ceres.binding.PropertyDescriptorFactory;
 
 import java.lang.reflect.Field;
 

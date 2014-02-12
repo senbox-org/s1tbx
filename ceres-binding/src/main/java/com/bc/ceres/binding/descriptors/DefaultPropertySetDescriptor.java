@@ -14,7 +14,10 @@
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-package com.bc.ceres.binding;
+package com.bc.ceres.binding.descriptors;
+
+import com.bc.ceres.binding.PropertyDescriptor;
+import com.bc.ceres.binding.PropertySetDescriptor;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -29,6 +32,9 @@ import java.util.Set;
 public class DefaultPropertySetDescriptor implements PropertySetDescriptor {
 
     private Map<String, PropertyDescriptor> propertyDescriptors;
+
+    public DefaultPropertySetDescriptor() {
+    }
 
     @Override
     public String[] getPropertyNames() {

@@ -19,12 +19,13 @@ package com.bc.ceres.binding;
 import com.bc.ceres.binding.accessors.ClassFieldAccessor;
 import com.bc.ceres.binding.accessors.DefaultPropertyAccessor;
 import com.bc.ceres.binding.accessors.MapEntryAccessor;
+import com.bc.ceres.binding.descriptors.ClassPropertySetDescriptor;
+import com.bc.ceres.binding.descriptors.DefaultPropertyDescriptorFactory;
 import com.bc.ceres.core.Assert;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -214,7 +215,7 @@ public class PropertyContainer implements PropertySet {
                                                     PropertyAccessorFactory accessorFactory,
                                                     boolean initValues) {
         PropertyContainer container = new PropertyContainer();
-        collectProperties(container, type, descriptorFactory, accessorFactory);
+        collectProperties(type, descriptorFactory, accessorFactory, container);
         if (initValues) {
             container.setDefaultValues();
         }
@@ -340,24 +341,16 @@ public class PropertyContainer implements PropertySet {
         return propertyChangeSupport;
     }
 
-    private static void collectProperties(PropertySet propertySet,
-                                          Class<?> type,
-                                          PropertyDescriptorFactory descriptorFactory,
-                                          PropertyAccessorFactory accessorFactory) {
-        if (!type.equals(Object.class)) {
-            collectProperties(propertySet, type.getSuperclass(), descriptorFactory, accessorFactory);
-            Field[] declaredFields = type.getDeclaredFields();
-            for (Field field : declaredFields) {
-                int mod = field.getModifiers();
-                if (!Modifier.isTransient(mod) && !Modifier.isStatic(mod)) {
-                    PropertyDescriptor propertyDescriptor = descriptorFactory.createValueDescriptor(field);
-                    if (propertyDescriptor != null) {
-                        propertyDescriptor.initDefaults();
-                        PropertyAccessor accessor = accessorFactory.createValueAccessor(field);
-                        if (accessor != null) {
-                            propertySet.addProperty(new Property(propertyDescriptor, accessor));
-                        }
-                    }
+    private static void collectProperties(Class<?> type, PropertyDescriptorFactory descriptorFactory, PropertyAccessorFactory accessorFactory, PropertySet propertySet) {
+        Map<String, Field> fields = ClassPropertySetDescriptor.getFields(type);
+        for (String key : fields.keySet()) {
+            Field field = fields.get(key);
+            PropertyDescriptor descriptor = descriptorFactory.createValueDescriptor(field);
+            if (descriptor != null) {
+                descriptor.initDefaults();
+                PropertyAccessor accessor = accessorFactory.createValueAccessor(field);
+                if (accessor != null) {
+                    propertySet.addProperty(new Property(descriptor, accessor));
                 }
             }
         }

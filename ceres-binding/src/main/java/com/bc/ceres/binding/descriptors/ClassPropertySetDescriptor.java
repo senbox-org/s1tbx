@@ -14,8 +14,11 @@
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-package com.bc.ceres.binding;
+package com.bc.ceres.binding.descriptors;
 
+import com.bc.ceres.binding.ClassScanner;
+import com.bc.ceres.binding.PropertyDescriptor;
+import com.bc.ceres.binding.PropertyDescriptorFactory;
 import com.bc.ceres.core.Assert;
 
 import java.lang.reflect.Field;
@@ -34,10 +37,6 @@ public class ClassPropertySetDescriptor extends DefaultPropertySetDescriptor {
     private final Class<?> valueType;
     private final PropertyDescriptorFactory propertyDescriptorFactory;
     private Map<String, Field> fields;
-
-    public ClassPropertySetDescriptor(Class<?> valueType) {
-        this(valueType, null);
-    }
 
     public ClassPropertySetDescriptor(Class<?> valueType, PropertyDescriptorFactory propertyDescriptorFactory) {
         Assert.notNull(valueType, "valueType");
@@ -85,7 +84,7 @@ public class ClassPropertySetDescriptor extends DefaultPropertySetDescriptor {
         return fields;
     }
 
-    static Map<String, Field> getFields(Class<?> type) {
+    public static Map<String, Field> getFields(Class<?> type) {
         return ClassScanner.getFields(type, new ClassScanner.FieldFilter() {
             @Override
             public boolean accept(Field field) {

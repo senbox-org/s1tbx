@@ -16,11 +16,9 @@
 
 package com.bc.ceres.binding.dom;
 
-import com.bc.ceres.binding.ClassPropertySetDescriptor;
 import com.bc.ceres.binding.ConversionException;
 import com.bc.ceres.binding.Converter;
 import com.bc.ceres.binding.ConverterRegistry;
-import com.bc.ceres.binding.DefaultPropertyDescriptorFactory;
 import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.PropertyDescriptor;
@@ -28,6 +26,8 @@ import com.bc.ceres.binding.PropertyDescriptorFactory;
 import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.binding.PropertySetDescriptor;
 import com.bc.ceres.binding.ValidationException;
+import com.bc.ceres.binding.descriptors.ClassPropertySetDescriptor;
+import com.bc.ceres.binding.descriptors.DefaultPropertyDescriptorFactory;
 import com.bc.ceres.core.Assert;
 
 import java.lang.reflect.Array;

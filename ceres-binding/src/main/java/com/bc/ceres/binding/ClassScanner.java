@@ -5,9 +5,12 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
+ * Utility class that is used to scan the fields of plain Java objects (POJOs).
+ *
  * @author Norman Fomferra
+ * @since 0.14
  */
-class ClassScanner {
+public class ClassScanner {
 
     public static Map<String, Field> getFields(Class<?> type) {
         return getFields(type, FieldFilter.ALL);
