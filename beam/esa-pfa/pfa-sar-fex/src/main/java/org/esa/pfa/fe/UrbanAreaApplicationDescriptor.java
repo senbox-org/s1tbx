@@ -17,11 +17,14 @@ package org.esa.pfa.fe;
 
 import java.awt.*;
 import java.io.File;
+import java.net.URL;
 
 public class UrbanAreaApplicationDescriptor extends AbstractApplicationDescriptor {
 
     private static final String NAME = "Urban Area Detection";
     private static Dimension patchDimension = new Dimension(200, 200);
+
+    private static final URL graphURL = UrbanAreaApplicationDescriptor.class.getClassLoader().getResource("graphs/UrbanDetectionFeatureWriter.xml");
 
     public UrbanAreaApplicationDescriptor() {
         super(NAME);
@@ -37,6 +40,6 @@ public class UrbanAreaApplicationDescriptor extends AbstractApplicationDescripto
     }
 
     public File getGraphFile() {
-        return new File("c:\\Temp\\UrbanDetectionFeatureWriter.xml");
+        return new File(graphURL.getPath());
     }
 }
