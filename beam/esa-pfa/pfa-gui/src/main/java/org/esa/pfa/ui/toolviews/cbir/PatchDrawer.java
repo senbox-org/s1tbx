@@ -35,8 +35,9 @@ public class PatchDrawer extends JPanel implements MouseListener {
     private static final boolean DEBUG = true;
     private static final Font font = new Font("Ariel", Font.BOLD, 18);
 
-    private static final java.net.URL imageURL = PatchDrawer.class.getClassLoader().getResource("images/check_ball.png");
-    private static final ImageIcon icon = new ImageIcon(imageURL);
+    private static final ImageIcon iconTrue = new ImageIcon(PatchDrawer.class.getClassLoader().getResource("images/check_ball.png"));
+    private static final ImageIcon iconFalse = new ImageIcon(PatchDrawer.class.getClassLoader().getResource("images/x_ball.png"));
+    private static final ImageIcon iconPatch = new ImageIcon(PatchDrawer.class.getClassLoader().getResource("images/patch.png"));
 
     private static enum SelectionMode { CHECK, RECT }
     private SelectionMode mode = SelectionMode.CHECK;
@@ -57,6 +58,12 @@ public class PatchDrawer extends JPanel implements MouseListener {
             final PatchDrawing label = new PatchDrawing(patch);
             this.add(label);
         }
+        if(imageList.length == 0) {
+            JLabel label = new JLabel();
+            label.setIcon(iconPatch);
+            this.add(label);
+        }
+
         updateUI();
     }
 
@@ -66,11 +73,19 @@ public class PatchDrawer extends JPanel implements MouseListener {
      */
     public void mouseClicked(MouseEvent e){
         final Point p = e.getPoint();
-        int offset = 0;
-        int x = (p.x / (width + margin+1)) + offset;
-        int y = (p.y / (height +  margin+1)) + offset;
         int numColumns = this.getWidth() / (width + margin);
+        int x = p.x / (width + margin+1);
+        int y = p.y / (height +  margin+1);
+        if(numColumns > this.getComponentCount())
+            x -= 1;
         selection = (PatchDrawing)this.getComponent((y*numColumns) + x);
+
+        Patch patch = selection.getPatch();
+        if(e.getButton() == 1) {
+            patch.setLabel(1);
+        } else if(e.getButton() == 3) {
+            patch.setLabel(0);
+        }
 
         repaint();
     }
@@ -111,6 +126,10 @@ public class PatchDrawer extends JPanel implements MouseListener {
             setIcon(new ImageIcon(patch.getImage().getScaledInstance(width, height, BufferedImage.SCALE_FAST)));
         }
 
+        public Patch getPatch() {
+            return patch;
+        }
+
         @Override
         public void paintComponent(Graphics graphics) {
             super.paintComponent(graphics);
@@ -124,14 +143,18 @@ public class PatchDrawer extends JPanel implements MouseListener {
                 g.drawString(Integer.toString(patch.getID()), 35, 50);
             }
 
-            if(this.equals(selection)) {
-                if(mode.equals(SelectionMode.CHECK)) {
-                    g.drawImage(icon.getImage(), 0, 0, null);
-                } else {
-                    g.setColor(Color.CYAN);
-                    g.setStroke(new BasicStroke(5));
-                    g.drawRoundRect(0, 0, width, height-5, 25, 25);
+            if(patch.getLabel() > -1) {
+                if(patch.getLabel() == 1) {
+                    g.drawImage(iconTrue.getImage(), 0, 0, null);
+                } else if(patch.getLabel() == 0) {
+                    g.drawImage(iconFalse.getImage(), 0, 0, null);
                 }
+            }
+
+            if(this.equals(selection) && mode == SelectionMode.RECT) {
+                g.setColor(Color.CYAN);
+                g.setStroke(new BasicStroke(5));
+                g.drawRoundRect(0, 0, width, height-5, 25, 25);
             }
         }
     }

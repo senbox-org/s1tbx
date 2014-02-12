@@ -35,8 +35,6 @@ public class LabelingTaskPanel extends TaskPanel {
         super("Training Images");
         this.session = session;
 
-        session.trainClassifier();
-
         createPanel();
 
         repaint();
@@ -62,7 +60,14 @@ public class LabelingTaskPanel extends TaskPanel {
     }
 
     public boolean validateInput() {
-        return true;
+        try {
+            session.trainModel();
+
+            return true;
+        } catch(Exception e)  {
+            showErrorMsg(e.getMessage());
+        }
+        return false;
     }
 
     private void createPanel() {

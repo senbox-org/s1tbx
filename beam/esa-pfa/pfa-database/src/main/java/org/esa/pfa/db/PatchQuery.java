@@ -11,6 +11,7 @@ import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.SimpleFSDirectory;
 import org.apache.lucene.util.NumericUtils;
+import org.esa.pfa.fe.op.AttributeType;
 import org.esa.pfa.fe.op.Feature;
 import org.esa.pfa.fe.op.FeatureType;
 import org.esa.pfa.fe.op.Patch;
@@ -69,6 +70,11 @@ public class PatchQuery implements QueryInterface {
         }
     }
 
+    //todo must be specific to the application
+    public DatasetDescriptor getDsDescriptor() {
+        return dsDescriptor;
+    }
+
     public Patch[] query(String queryExpr, int hitCount) {
         final List<Patch> patchList = new ArrayList<Patch>(100);
 
@@ -111,14 +117,44 @@ public class PatchQuery implements QueryInterface {
 
     private void getFeatures(final Document doc, final Patch patch) {
         for(FeatureType feaType : dsDescriptor.featureTypes) {
-            final String[] values = doc.getValues(feaType.getName());
-            if(values != null) {
-                patch.addFeature(new Feature(feaType, values[0]));
+            if(feaType.hasAttributes()) {
+                for(AttributeType attrib : feaType.getAttributeTypes()) {
+                    final String name = feaType.getName()+'.'+attrib.getName();
+                    final String[] values = doc.getValues(name);
+                    if(values != null && values.length > 0) {
+                        FeatureType newFeaType = new FeatureType(name, attrib.getDescription(), attrib.getValueType());
+                        patch.addFeature(createFeature(newFeaType, values[0]));
+                    }
+                }
+            } else {
+                final String[] values = doc.getValues(feaType.getName());
+                if(values != null && values.length > 0) {
+                    patch.addFeature(createFeature(feaType, values[0]));
+                }
             }
         }
     }
 
+    private static Feature createFeature(FeatureType feaType, final String value) {
+        final Class<?> valueType = feaType.getValueType();
+
+        if(Double.class.isAssignableFrom(valueType)) {
+            return new Feature(feaType, Double.parseDouble(value));
+        } else if(Float.class.isAssignableFrom(valueType)) {
+            return new Feature(feaType, Float.parseFloat(value));
+        } else if(Integer.class.isAssignableFrom(valueType)) {
+            return new Feature(feaType, Integer.parseInt(value));
+        } else if(Boolean.class.isAssignableFrom(valueType)) {
+            return new Feature(feaType, Boolean.parseBoolean(value));
+        } else if(Character.class.isAssignableFrom(valueType)) {
+            return new Feature(feaType, value);
+        } else if(String.class.isAssignableFrom(valueType)) {
+            return new Feature(feaType, value);
+        }
+        return null;
+    }
+
     public Patch[] getRandomPatches(final int numPatches) {
-        return query("product: ENVI*", 30);
+        return query("product: ENVI*", numPatches);
     }
 }

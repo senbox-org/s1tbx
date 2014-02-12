@@ -87,9 +87,9 @@ public class QueryTaskPanel extends TaskPanel implements ActionListener {
 
         final JPanel imageScrollPanel = new JPanel(new BorderLayout(2, 2));
         imageScrollPanel.setBorder(BorderFactory.createTitledBorder("Query Images"));
-        imageScrollPanel.setMinimumSize(new Dimension(500, 110));
 
         drawer = new PatchDrawer(session.getQueryPatches());
+        drawer.setMinimumSize(new Dimension(500, 110));
         final JScrollPane scrollPane = new JScrollPane(drawer, JScrollPane.VERTICAL_SCROLLBAR_NEVER,
                                                                 JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 

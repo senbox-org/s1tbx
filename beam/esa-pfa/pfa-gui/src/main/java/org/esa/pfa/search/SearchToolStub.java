@@ -15,6 +15,8 @@
  */
 package org.esa.pfa.search;
 
+import org.esa.pfa.activelearning.ActiveLearning;
+import org.esa.pfa.db.DatasetDescriptor;
 import org.esa.pfa.db.PatchQuery;
 import org.esa.pfa.fe.op.Patch;
 
@@ -29,51 +31,47 @@ import java.io.FileInputStream;
  * Stub for PFA Search Tool on the server
  */
 public class SearchToolStub {
-    private static SearchToolStub instance = null;
 
     private PatchQuery db = null;
+    private ActiveLearning al = null;
 
     private static final java.net.URL dummyURL = SearchToolStub.class.getClassLoader().getResource("images/sigma0_ql.png");
     private static File dummyFile = new File(dummyURL.getPath());
 
-    private SearchToolStub() {
+    public SearchToolStub() {
         try {
             db = new PatchQuery(new File("c:\\temp"));
+            al = new ActiveLearning(10, 40);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public static SearchToolStub instance() {
-        if(instance == null)
-            instance = new SearchToolStub();
-        return instance;
-    }
-
-    public String[] getAvailableFeatureExtractors(final String mission, final String productType) {
-        return new String[] {
-            "Algal Bloom Detection", "Urban Area Detection"
-        };
+    public DatasetDescriptor getDsDescriptor() {
+        return db.getDsDescriptor();
     }
 
     public Dimension getPatchSize(final String featureExtractor) {
         return new Dimension(200, 200);
     }
 
-    public void trainClassifier(final Patch[] queryImages) {
+    public void setQueryImages(final Patch[] queryImages) throws Exception {
+        al.setQueryPatches(queryImages);
 
+        Patch[] archivePatches = db.query("product:ENVI*", 50);
+        al.setRandomPatches(archivePatches);
+    }
+
+    public Patch[] getImagesToLabel() {
+        return al.getMostAmbiguousPatches();
+    }
+
+    public void trainModel(Patch[] labeledImages) throws Exception {
+        al.train(labeledImages);
     }
 
     public void retrieveImages(final Patch[] rel, final Patch[] irrel) {
 
-    }
-
-    public Patch[] getRelavantTrainingImages() {
-        return createDummyImageList(20);
-    }
-
-    public Patch[] getIrrelavantTrainingImages() {
-        return createDummyImageList(20);
     }
 
     public Patch[] getRetrievedImages(final int numImages) {

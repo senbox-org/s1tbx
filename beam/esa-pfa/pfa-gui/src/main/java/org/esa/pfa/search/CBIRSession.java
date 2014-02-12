@@ -16,7 +16,7 @@
 package org.esa.pfa.search;
 
 
-import org.esa.beam.framework.datamodel.Product;
+import org.esa.pfa.db.DatasetDescriptor;
 import org.esa.pfa.fe.PFAApplicationDescriptor;
 import org.esa.pfa.fe.op.Patch;
 
@@ -38,6 +38,8 @@ public class CBIRSession {
     private int numTrainingImages;
     private int numRetrievedImages;
 
+    private SearchToolStub searchTool = new SearchToolStub();
+
     public CBIRSession(final PFAApplicationDescriptor applicationDescriptor,
                        final int numTrainingImages, final int numRetrievedImages) {
         this.applicationDescriptor = applicationDescriptor;
@@ -48,6 +50,10 @@ public class CBIRSession {
 
     public PFAApplicationDescriptor getApplicationDescriptor() {
         return applicationDescriptor;
+    }
+
+    public DatasetDescriptor getDsDescriptor() {
+        return searchTool.getDsDescriptor();
     }
 
     public int getNumTrainingImages() {
@@ -66,11 +72,20 @@ public class CBIRSession {
         return queryImageList.toArray(new Patch[queryImageList.size()]);
     }
 
-    public void trainClassifier() {
-        //SearchToolStub.instance().trainClassifier(getQueryPatches());
+    public void setQueryImages() throws Exception {
+        searchTool.setQueryImages(getQueryPatches());
 
-        relevantImageList.addAll(Arrays.asList(SearchToolStub.instance().getRelavantTrainingImages()));
-        irrelevantImageList.addAll(Arrays.asList(SearchToolStub.instance().getIrrelavantTrainingImages()));
+        relevantImageList.clear();
+        irrelevantImageList.clear();
+
+        final Patch[] imagesToLabel = searchTool.getImagesToLabel();
+        for(Patch patch : imagesToLabel) {
+            if(patch.getLabel() == 1) {
+                relevantImageList.add(patch);
+            } else {
+                irrelevantImageList.add(patch);
+            }
+        }
     }
 
     public Patch[] getRelevantTrainingImages() {
@@ -81,10 +96,18 @@ public class CBIRSession {
         return irrelevantImageList.toArray(new Patch[irrelevantImageList.size()]);
     }
 
-    public void retrieveImages(final int numImages) {
-        SearchToolStub.instance().retrieveImages(getRelevantTrainingImages(), getIrrelevantTrainingImages());
+    public void trainModel() throws Exception {
+        final List<Patch> labeledList = new ArrayList<Patch>(30);
+        labeledList.addAll(relevantImageList);
+        labeledList.addAll(irrelevantImageList);
 
-        retrievedImageList.addAll(Arrays.asList(SearchToolStub.instance().getRetrievedImages(numImages)));
+        searchTool.trainModel(labeledList.toArray(new Patch[labeledList.size()]));
+    }
+
+    public void retrieveImages(final int numImages) {
+        searchTool.retrieveImages(getRelevantTrainingImages(), getIrrelevantTrainingImages());
+
+        retrievedImageList.addAll(Arrays.asList(searchTool.getRetrievedImages(numImages)));
     }
 
     public Patch[] getRetrievedImages() {

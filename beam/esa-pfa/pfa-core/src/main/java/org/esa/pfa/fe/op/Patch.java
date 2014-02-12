@@ -22,7 +22,7 @@ public final class Patch {
     private final int uid;
     private static int uidCnt = 0;
 
-    private int label;
+    private int label = -1;
     private double confidence;
 
     private BufferedImage image = null;

@@ -163,13 +163,13 @@ public class KernelKmeansClusterer {
         return svmClassifier.kernel(x1,x1) - 2*svmClassifier.kernel(x1,x2) + svmClassifier.kernel(x2,x2);
     }
 
-    private double[] getFeatures(final Patch patch) {
+    private static double[] getFeatures(final Patch patch) {
 
         final Feature[] features = patch.getFeatures();
         double[] featureArray = new double[features.length];
         int idx = 0;
         for (Feature feature:features) {
-            featureArray[idx++] = (Double)feature.getValue();
+            featureArray[idx++] = Double.parseDouble(feature.getValue().toString());
         }
         return featureArray;
     }

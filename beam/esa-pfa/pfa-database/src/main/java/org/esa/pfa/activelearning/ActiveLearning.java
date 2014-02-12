@@ -94,7 +94,11 @@ public class ActiveLearning {
         int k = 0;
         for (int i = 0; i < testData.size(); i++) {
             confidence[k][0] = i;                                  // sample index in testData
-            confidence[k][1] = computeConfidence(testData.get(i)); // sample confidence value
+            try {
+                confidence[k][1] = computeConfidence(testData.get(i)); // sample confidence value
+            } catch(Exception e) {
+                confidence[k][1] = i;
+            }
             k++;
         }
 

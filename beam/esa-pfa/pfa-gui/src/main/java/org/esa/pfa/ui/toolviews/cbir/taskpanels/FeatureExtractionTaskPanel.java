@@ -18,13 +18,19 @@ package org.esa.pfa.ui.toolviews.cbir.taskpanels;
 import com.bc.ceres.binding.dom.DefaultDomElement;
 import com.bc.ceres.binding.dom.DomElement;
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.OperatorSpi;
-import org.esa.beam.framework.gpf.graph.*;
+import org.esa.beam.framework.gpf.graph.Graph;
+import org.esa.beam.framework.gpf.graph.GraphIO;
+import org.esa.beam.framework.gpf.graph.GraphProcessor;
+import org.esa.beam.framework.gpf.graph.Node;
 import org.esa.beam.gpf.operators.standard.ReadOp;
 import org.esa.beam.gpf.operators.standard.WriteOp;
 import org.esa.beam.util.SystemUtils;
 import org.esa.beam.visat.VisatApp;
+import org.esa.pfa.db.DatasetDescriptor;
+import org.esa.pfa.fe.op.AttributeType;
+import org.esa.pfa.fe.op.Feature;
+import org.esa.pfa.fe.op.FeatureType;
 import org.esa.pfa.fe.op.Patch;
 import org.esa.pfa.search.CBIRSession;
 import org.esa.pfa.ui.toolviews.cbir.LabelBarProgressMonitor;
@@ -36,6 +42,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileReader;
 import java.util.HashMap;
 import java.util.Map;
@@ -81,7 +88,19 @@ public class FeatureExtractionTaskPanel extends TaskPanel implements ActionListe
     }
 
     public boolean validateInput() {
-        return true;
+        try {
+            for(Patch patch :session.getQueryPatches()) {
+                if(patch.getFeatures().length == 0) {
+                    throw new Exception("no features found in "+patch.getPatchName());
+                }
+            }
+            session.setQueryImages();
+
+            return true;
+        } catch(Exception e)  {
+            showErrorMsg(e.getMessage());
+        }
+        return false;
     }
 
     private void createPanel() {
@@ -95,20 +114,19 @@ public class FeatureExtractionTaskPanel extends TaskPanel implements ActionListe
         for(Patch patch : session.getQueryPatches()) {
             listsPanel.add(createProcessingPanel(patch));
         }
+        this.add(new JScrollPane(listsPanel), BorderLayout.CENTER);
 
-        final JButton addButton = new JButton("Process");
+        final JButton addButton = new JButton("Process Query Images");
         addButton.setActionCommand("processButton");
         addButton.addActionListener(this);
-        listsPanel.add(addButton);
-
-        this.add(listsPanel, BorderLayout.SOUTH);
+        this.add(addButton, BorderLayout.SOUTH);
     }
 
     private JPanel createProcessingPanel(final Patch patch) {
         final JPanel panel = new JPanel();
 
         final JLabel imgLabel = new JLabel();
-        imgLabel.setIcon(new ImageIcon(patch.getImage().getScaledInstance(50, 50, BufferedImage.SCALE_FAST)));
+        imgLabel.setIcon(new ImageIcon(patch.getImage().getScaledInstance(100, 100, BufferedImage.SCALE_FAST)));
         panel.add(imgLabel);
 
         JProgressBar progressBar = new JProgressBar();
@@ -124,11 +142,9 @@ public class FeatureExtractionTaskPanel extends TaskPanel implements ActionListe
 
     private class MyProgressBarListener implements LabelBarProgressMonitor.ProgressBarListener {
         public void notifyStart() {
-
         }
 
         public void notifyDone() {
-
         }
     }
 
@@ -186,7 +202,12 @@ public class FeatureExtractionTaskPanel extends TaskPanel implements ActionListe
                 final GraphProcessor processor = new GraphProcessor();
                 processor.executeGraph(graph, pm);
 
-                //loadFeatures(tmpOutFolder);
+                loadFeatures(patch, tmpOutFolder);
+
+                //clean up
+                writeOp.dispose();
+                //FileUtils.deleteDirectory(tmpInFolder);
+                //FileUtils.deleteDirectory(tmpOutFolder);
 
             } catch(Throwable e) {
                 System.out.println("processing Exception\n"+e.getMessage());
@@ -196,11 +217,65 @@ public class FeatureExtractionTaskPanel extends TaskPanel implements ActionListe
             return true;
         }
 
-        private void loadFeatures(final File featureFile) throws Exception {
-            Properties featureValues = new Properties();
-            try (FileReader reader = new FileReader(featureFile)) {
-                featureValues.load(reader);
+        private void loadFeatures(final Patch patch, final File datasetDir) throws Exception {
+            final File[] fexDirs = datasetDir.listFiles(new FileFilter() {
+                @Override
+                public boolean accept(File file) {
+                    return file.isDirectory() && file.getName().endsWith(".fex");
+                }
+            });
+            final File[] patchDirs = fexDirs[0].listFiles(new FileFilter() {
+                @Override
+                public boolean accept(File file) {
+                    return file.isDirectory() && file.getName().startsWith("x");
+                }
+            });
+
+            final File featureFile = new File(patchDirs[0], "features.txt");
+            if(featureFile.exists()) {
+                final Properties featureValues = new Properties();
+                try (FileReader reader = new FileReader(featureFile)) {
+                    featureValues.load(reader);
+                }
+
+                final DatasetDescriptor dsDescriptor = session.getDsDescriptor();
+                for(FeatureType feaType : dsDescriptor.getFeatureTypes()) {
+                    if(feaType.hasAttributes()) {
+                        for(AttributeType attrib : feaType.getAttributeTypes()) {
+                            final String name = feaType.getName()+'.'+attrib.getName();
+                            final String value = featureValues.getProperty(name);
+                            if(value != null) {
+                                FeatureType newFeaType = new FeatureType(name, attrib.getDescription(), attrib.getValueType());
+                                patch.addFeature(createFeature(newFeaType, value));
+                            }
+                        }
+                    } else {
+                        final String value = featureValues.getProperty(feaType.getName());
+                        if(value != null) {
+                            patch.addFeature(createFeature(feaType, value));
+                        }
+                    }
+                }
             }
+        }
+
+        private Feature createFeature(FeatureType feaType, final String value) {
+            final Class<?> valueType = feaType.getValueType();
+
+            if(Double.class.isAssignableFrom(valueType)) {
+                return new Feature(feaType, Double.parseDouble(value));
+            } else if(Float.class.isAssignableFrom(valueType)) {
+                return new Feature(feaType, Float.parseFloat(value));
+            } else if(Integer.class.isAssignableFrom(valueType)) {
+                return new Feature(feaType, Integer.parseInt(value));
+            } else if(Boolean.class.isAssignableFrom(valueType)) {
+                return new Feature(feaType, Boolean.parseBoolean(value));
+            } else if(Character.class.isAssignableFrom(valueType)) {
+                return new Feature(feaType, value);
+            } else if(String.class.isAssignableFrom(valueType)) {
+                return new Feature(feaType, value);
+            }
+            return null;
         }
 
         private void setIO(final Graph graph, final File srcFile, final File targetFolder) {

@@ -97,7 +97,7 @@ public class SVM {
             final Feature[] features = dataSet.get(i).getFeatures();
 			for (int j = 0; j < numFeatures; j++) {
 				problem.x[i][j].index = j+1;
-				problem.x[i][j].value = (Double)features[j].getValue();
+				problem.x[i][j].value = Double.valueOf(features[j].getValue().toString());
 				if (problem.x[i][j].value < featureMin[j]) {
 					featureMin[j] = problem.x[i][j].value;
 				}
@@ -159,7 +159,7 @@ public class SVM {
             for (int i = 0; i < numFeatures; i++) {
                 x[i] = new svm_node();
 				x[i].index = i + 1;
-				x[i].value = scale(i, (Double)features[i].getValue());
+				x[i].value = scale(i, Double.valueOf(features[i].getValue().toString()));
             }
 
             //return svm.svm_predict(model, x);
