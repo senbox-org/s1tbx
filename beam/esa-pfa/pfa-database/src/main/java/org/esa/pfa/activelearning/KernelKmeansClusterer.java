@@ -38,6 +38,7 @@ public class KernelKmeansClusterer {
     private List<Patch> samples = new ArrayList<Patch>();
     private Cluster[] clusters = null;
     private SVM svmClassifier = null;
+    private boolean debug = false;
 
 	public KernelKmeansClusterer(final int maxIterations, final int numClusters, final SVM svmClassifier) {
 
@@ -69,8 +70,26 @@ public class KernelKmeansClusterer {
 
             assignSamplesToClusters();
 
+            if (debug) {
+                System.out.println("Iteration: " + i);
+                for (int clusterIdx = 0; clusterIdx < clusters.length; clusterIdx++) {
+                    System.out.print("Cluster " + clusterIdx + ": ");
+                    for (int sampleIdx : clusters[clusterIdx].memberSampleIndices) {
+                        System.out.print(sampleIdx + ", ");
+                    }
+                    System.out.println();
+                }
+            }
+
             if (i != maxIterations - 1) {
                 updateClusterCenters();
+
+                if (debug) {
+                    System.out.println("Updated cluster centers:");
+                    for (int clusterIdx = 0; clusterIdx < clusters.length; clusterIdx++) {
+                        System.out.println("Cluster " + clusterIdx + ": sample index " + clusters[clusterIdx].centerSampleIdx);
+                    }
+                }
             }
         }
     }
@@ -90,6 +109,13 @@ public class KernelKmeansClusterer {
                 clusters[k].memberSampleIndices.add(idx);
                 clusters[k].centerSampleIdx = idx;
                 k++;
+            }
+        }
+
+        if (debug) {
+            System.out.println("Initial cluster centers:");
+            for (int clusterIdx = 0; clusterIdx < clusters.length; clusterIdx++) {
+                System.out.println("Cluster " + clusterIdx + ": sample index " + clusters[clusterIdx].centerSampleIdx);
             }
         }
     }
@@ -253,10 +279,18 @@ public class KernelKmeansClusterer {
      */
     public int[] getRepresentatives() {
 
+        int[] rep = new int[numClusters];
         int[] patchIDs = new int[numClusters];
         for (int i = 0; i < numClusters; i++) {
             int sampleIdx = findLeastConfidenceSample(clusters[i]);
             patchIDs[i] = samples.get(sampleIdx).getID();
+            rep[i] = sampleIdx;
+        }
+
+        if (debug) {
+            for (int clusterIdx = 0; clusterIdx < clusters.length; clusterIdx++) {
+                System.out.println("Cluster " + clusterIdx + ": representative sample index " + rep[clusterIdx]);
+            }
         }
 
         return patchIDs;
