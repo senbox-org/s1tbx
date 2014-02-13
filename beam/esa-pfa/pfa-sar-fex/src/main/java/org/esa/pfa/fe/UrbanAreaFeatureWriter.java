@@ -109,8 +109,8 @@ public class UrbanAreaFeatureWriter extends FeatureWriter {
 
         final double pctOverPnt4 = numSamplesOverThreshold/patchSize;
 
-        //if(pctOverPnt4 < minValidPixels)
-        //    return false;
+        if(pctOverPnt4 < minValidPixels)
+            return false;
 
         final Feature[] features = {
                 new Feature(featureTypes[0], featureProduct),
