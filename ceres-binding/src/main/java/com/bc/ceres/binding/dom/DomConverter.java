@@ -31,7 +31,7 @@ import com.bc.ceres.binding.ValidationException;
 public interface DomConverter {
 
     /**
-     * Gets the value type.
+     * Gets the value type, which may be abstract.
      *
      * @return The value type.
      */
