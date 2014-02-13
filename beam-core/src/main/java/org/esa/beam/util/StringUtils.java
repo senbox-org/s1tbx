@@ -467,7 +467,7 @@ public class StringUtils {
 
         for (int i = 0; i < array.length; i++) {
             for (int j = i + 1; j < array.length; j++) {
-                if (array[i].equals(array[j]) || (array[i] != null && array[j] != null && array[i].equals(array[j]))) {
+                if (array[i] == array[j] || (array[i] != null && array[j] != null && array[i].equals(array[j]))) {
                     return false;
                 }
             }
