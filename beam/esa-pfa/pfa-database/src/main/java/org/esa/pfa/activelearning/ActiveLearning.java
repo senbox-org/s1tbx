@@ -33,12 +33,12 @@ public class ActiveLearning {
     private List<Patch> trainingData = new ArrayList<Patch>();
     private List<Patch> uncertainSamples = new ArrayList<Patch>();
     private List<Patch> diverseSamples = new ArrayList<Patch>();
-
     private SVM svmClassifier = new SVM();
 
     private int maxIterationsKmeans = 10;
+    private boolean debug = false;
 
-    // UI: Pass in some parameters
+    // UI: constructor
     public ActiveLearning() throws Exception {
     }
 
@@ -47,19 +47,32 @@ public class ActiveLearning {
 
         getNumberOfClasses(patchArray);
 
+        validationData.clear();
         validationData.addAll(Arrays.asList(patchArray));
 
         svmClassifier.selectModel(validationData);
 
+        trainingData.clear();
         trainingData.addAll(validationData);
 
         svmClassifier.train(trainingData);
+
+        if (debug) {
+            System.out.println("Number of classes: " + numClasses);
+            System.out.println("Number of patches from query image: " + patchArray.length);
+            System.out.println("Number of patches initially in training data set: " + trainingData.size());
+        }
     }
 
     // UI: Pass in random patches obtained from archive. These patches will be used in active learning.
     public void setRandomPatches(Patch[] patchArray) throws Exception {
 
         testData.addAll(Arrays.asList(patchArray));
+
+        if (debug) {
+            System.out.println("Number of random patches: " + patchArray.length);
+            System.out.println("Number of patches in test data pool: " + testData.size());
+        }
     }
 
     // UI: Get the selected most ambiguous patches for user to label.
@@ -67,6 +80,10 @@ public class ActiveLearning {
 
         this.h = numImages;
         this.m = 4 * h;
+        if (debug) {
+            System.out.println("Number of uncertain patches to select: " + m);
+            System.out.println("Number of diverse patches to select: " + h);
+        }
 
         selectMostUncertainSamples();
 
@@ -81,6 +98,10 @@ public class ActiveLearning {
         trainingData.addAll(Arrays.asList(userLabelledPatches));
 
         svmClassifier.train(trainingData);
+
+        if (debug) {
+            System.out.println("Number of patches in training data set: " + trainingData.size());
+        }
     }
 
     /**
@@ -96,6 +117,10 @@ public class ActiveLearning {
                 double p = svmClassifier.classify(patch, decValues);
                 patch.setLabel((int)p);
                 patch.setDistance(decValues[0]);
+            }
+
+            if (debug) {
+                System.out.println("Number of patches to classify: " + patchArray.length);
             }
         } catch (Throwable e) {
             throw new Exception(e.getMessage());
@@ -157,6 +182,10 @@ public class ActiveLearning {
             data.setConfidence(confidence[i][1]);
             uncertainSamples.add(data);
         }
+
+        if (debug) {
+            System.out.println("Number of uncertain patches selected: " + uncertainSamples.size());
+        }
     }
 
     /**
@@ -200,6 +229,15 @@ public class ActiveLearning {
                         break;
                     }
                 }
+            }
+
+            if (debug) {
+                System.out.println("Number of diverse patches IDs: " + diverseSampleIDs.length);
+                System.out.println("Number of diverse patches selected: " + diverseSamples.size());
+            }
+
+            if (diverseSamples.size() != diverseSampleIDs.length) {
+                throw new Exception("Invalid diverse patch array.");
             }
 
         } catch (Throwable e) {
