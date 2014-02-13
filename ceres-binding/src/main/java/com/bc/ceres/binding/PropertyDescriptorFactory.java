@@ -29,7 +29,7 @@ public interface PropertyDescriptorFactory {
      * Creates a new property descriptor for the given field.
      *
      * @param field The field.
-     * @return The property descriptor.
+     * @return The property descriptor or {@code null}, if it cannot be derived from the given field.
      */
     PropertyDescriptor createValueDescriptor(Field field);
 }

@@ -19,6 +19,8 @@ package com.bc.ceres.binding.dom;
 import com.bc.ceres.binding.ConversionException;
 import com.bc.ceres.binding.Converter;
 import com.bc.ceres.binding.ConverterRegistry;
+import com.bc.ceres.binding.DefaultPropertyDescriptorFactory;
+import com.bc.ceres.binding.DefaultPropertySetDescriptor;
 import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.PropertyDescriptor;
@@ -26,8 +28,6 @@ import com.bc.ceres.binding.PropertyDescriptorFactory;
 import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.binding.PropertySetDescriptor;
 import com.bc.ceres.binding.ValidationException;
-import com.bc.ceres.binding.descriptors.ClassPropertySetDescriptor;
-import com.bc.ceres.binding.descriptors.DefaultPropertyDescriptorFactory;
 import com.bc.ceres.core.Assert;
 
 import java.lang.reflect.Array;
@@ -46,21 +46,18 @@ public class DefaultDomConverter implements DomConverter {
     private PropertySetDescriptor propertySetDescriptor;
     private PropertyDescriptorFactory propertyDescriptorFactory;
 
-
     public DefaultDomConverter(Class<?> valueType) {
-        this(valueType, null, null);
+        this(valueType, new DefaultPropertyDescriptorFactory());
     }
 
     public DefaultDomConverter(Class<?> valueType, PropertyDescriptorFactory propertyDescriptorFactory) {
-        this(valueType, null, propertyDescriptorFactory);
+        this(valueType, propertyDescriptorFactory, DefaultPropertySetDescriptor.createFromClass(valueType, propertyDescriptorFactory));
     }
 
-    public DefaultDomConverter(Class<?> valueType, PropertySetDescriptor propertySetDescriptor) {
-        this(valueType, propertySetDescriptor, null);
-    }
-
-    public DefaultDomConverter(Class<?> valueType, PropertySetDescriptor propertySetDescriptor, PropertyDescriptorFactory propertyDescriptorFactory) {
-        Assert.notNull(valueType);
+    public DefaultDomConverter(Class<?> valueType, PropertyDescriptorFactory propertyDescriptorFactory, PropertySetDescriptor propertySetDescriptor) {
+        Assert.notNull(valueType, "valueType");
+        Assert.notNull(propertyDescriptorFactory, "propertyDescriptorFactory");
+        Assert.notNull(propertySetDescriptor, "propertySetDescriptor");
         this.valueType = valueType;
         this.propertySetDescriptor = propertySetDescriptor;
         this.propertyDescriptorFactory = propertyDescriptorFactory;
@@ -74,25 +71,13 @@ public class DefaultDomConverter implements DomConverter {
         return valueType;
     }
 
-    public PropertySetDescriptor getPropertySetDescriptor() {
-        if (propertySetDescriptor == null) {
-            propertySetDescriptor = new ClassPropertySetDescriptor(valueType, propertyDescriptorFactory);
-        }
-        return propertySetDescriptor;
-    }
-
     public PropertyDescriptorFactory getPropertyDescriptorFactory() {
-        if (propertyDescriptorFactory == null) {
-            if (propertySetDescriptor instanceof ClassPropertySetDescriptor) {
-                ClassPropertySetDescriptor classPropertySetDescriptor = (ClassPropertySetDescriptor) propertySetDescriptor;
-                propertyDescriptorFactory = classPropertySetDescriptor.getPropertyDescriptorFactory();
-            } else {
-                propertyDescriptorFactory = new DefaultPropertyDescriptorFactory();
-            }
-        }
         return propertyDescriptorFactory;
     }
 
+    public PropertySetDescriptor getPropertySetDescriptor() {
+        return propertySetDescriptor;
+    }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -274,12 +259,13 @@ public class DefaultDomConverter implements DomConverter {
      * Called to create a new DOM converter for a (child) property.
      * May be overridden by subclasses. The default implementation returns an instance of this class.
      *
-     * @param valueType             The value type
-     * @param propertySetDescriptor The property set descriptor.
+     * @param valueType                 The value type
+     * @param propertyDescriptorFactory The property descriptor factory.
+     * @param propertySetDescriptor     The property set descriptor.
      * @return a "local" DOM converter or {@code null}.
      */
-    protected DomConverter createChildDomConverter(Class<?> valueType, PropertySetDescriptor propertySetDescriptor) {
-        return new DefaultDomConverter(valueType, propertySetDescriptor);
+    protected DomConverter createChildDomConverter(Class<?> valueType, PropertyDescriptorFactory propertyDescriptorFactory, PropertySetDescriptor propertySetDescriptor) {
+        return new DefaultDomConverter(valueType, propertyDescriptorFactory, propertySetDescriptor);
     }
 
     /**
@@ -306,7 +292,7 @@ public class DefaultDomConverter implements DomConverter {
 
         PropertySetDescriptor psd = descriptor.getPropertySetDescriptor();
         if (psd != null) {
-            return new ComplexChildConverter(createChildDomConverter(descriptor.getType(), psd));
+            return new ComplexChildConverter(createChildDomConverter(descriptor.getType(), getPropertyDescriptorFactory(), psd));
         }
 
         if (descriptor.getType().isArray()) {
@@ -366,8 +352,8 @@ public class DefaultDomConverter implements DomConverter {
     }
 
     private ChildConverter createChildConverter(Class<?> actualType) {
-        ClassPropertySetDescriptor actualTypePsd = new ClassPropertySetDescriptor(actualType, getPropertyDescriptorFactory());
-        return new ComplexChildConverter(createChildDomConverter(actualType, actualTypePsd));
+        PropertySetDescriptor actualTypePsd = DefaultPropertySetDescriptor.createFromClass(actualType, getPropertyDescriptorFactory());
+        return new ComplexChildConverter(createChildDomConverter(actualType, getPropertyDescriptorFactory(), actualTypePsd));
     }
 
     private static ChildConverter findGlobalChildConverter(Class<?> type) {

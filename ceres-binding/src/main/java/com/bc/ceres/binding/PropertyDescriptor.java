@@ -200,7 +200,8 @@ public class PropertyDescriptor {
 
     public void setDefaultConverter() {
         boolean hasItemAlias = getItemAlias() != null && !getItemAlias().isEmpty();
-        if (!getType().isArray() || hasItemAlias) {
+        boolean useItemConverter = getType().isArray() && hasItemAlias;
+        if (!useItemConverter) {
             setConverter(ConverterRegistry.getInstance().getConverter(getType()));
         }
     }

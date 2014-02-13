@@ -14,11 +14,11 @@
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-package com.bc.ceres.binding.descriptors;
+package com.bc.ceres.binding;
 
-import com.bc.ceres.binding.PropertyDescriptor;
-import com.bc.ceres.binding.PropertySetDescriptor;
+import com.bc.ceres.core.Assert;
 
+import java.lang.reflect.Field;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
@@ -34,6 +34,21 @@ public class DefaultPropertySetDescriptor implements PropertySetDescriptor {
     private Map<String, PropertyDescriptor> propertyDescriptors;
 
     public DefaultPropertySetDescriptor() {
+    }
+
+    public static PropertySetDescriptor createFromClass(Class<?> valueType, PropertyDescriptorFactory propertyDescriptorFactory) {
+        Assert.notNull(valueType, "valueType");
+        Assert.notNull(propertyDescriptorFactory, "propertyDescriptorFactory");
+
+        DefaultPropertySetDescriptor propertySetDescriptor = new DefaultPropertySetDescriptor();
+        Map<String, Field> allFields = PropertyContainer.getPropertyFields(valueType);
+        for (Field field : allFields.values()) {
+            PropertyDescriptor descriptor = propertyDescriptorFactory.createValueDescriptor(field);
+            if (descriptor != null) {
+                propertySetDescriptor.addPropertyDescriptor(descriptor);
+            }
+        }
+        return propertySetDescriptor;
     }
 
     @Override

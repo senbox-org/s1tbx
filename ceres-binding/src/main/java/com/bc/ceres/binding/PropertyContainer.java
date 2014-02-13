@@ -19,13 +19,12 @@ package com.bc.ceres.binding;
 import com.bc.ceres.binding.accessors.ClassFieldAccessor;
 import com.bc.ceres.binding.accessors.DefaultPropertyAccessor;
 import com.bc.ceres.binding.accessors.MapEntryAccessor;
-import com.bc.ceres.binding.descriptors.ClassPropertySetDescriptor;
-import com.bc.ceres.binding.descriptors.DefaultPropertyDescriptorFactory;
 import com.bc.ceres.core.Assert;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -84,13 +83,7 @@ public class PropertyContainer implements PropertySet {
 
     public static PropertyContainer createObjectBacked(Object object, PropertySetDescriptor propertySetDescriptor) {
 
-        Map<String, Field> fields;
-
-        if (propertySetDescriptor instanceof ClassPropertySetDescriptor) {
-            fields = ((ClassPropertySetDescriptor) propertySetDescriptor).getFields();
-        } else {
-            fields = ClassPropertySetDescriptor.getFields(object.getClass());
-        }
+        Map<String, Field> fields = getPropertyFields(object.getClass());
 
         PropertyContainer propertySet = new PropertyContainer();
         for (String propertyName : propertySetDescriptor.getPropertyNames()) {
@@ -187,7 +180,7 @@ public class PropertyContainer implements PropertySet {
      * Creates a property container for the given template type.
      * All properties will have their values set to default values (if specified).
      *
-     * @param templateType     the template class used to derive the descriptors from
+     * @param templateType      the template class used to derive the descriptors from
      * @param descriptorFactory a factory used to create {@link PropertyDescriptor}s of the fields of the template type
      * @return The property container.
      */
@@ -220,6 +213,18 @@ public class PropertyContainer implements PropertySet {
             container.setDefaultValues();
         }
         return container;
+    }
+
+    static Map<String, Field> getPropertyFields(Class<?> type) {
+        return ClassScanner.getFields(type, new ClassScanner.FieldFilter() {
+            @Override
+            public boolean accept(Field field) {
+                int modifiers = field.getModifiers();
+                return !(Modifier.isFinal(modifiers)
+                         || Modifier.isTransient(modifiers)
+                         || Modifier.isStatic(modifiers));
+            }
+        });
     }
 
     @Override
@@ -282,6 +287,7 @@ public class PropertyContainer implements PropertySet {
         if (property == null) {
             return null;
         }
+        //noinspection unchecked
         return (T) property.getValue();
     }
 
@@ -342,7 +348,7 @@ public class PropertyContainer implements PropertySet {
     }
 
     private static void collectProperties(Class<?> type, PropertyDescriptorFactory descriptorFactory, PropertyAccessorFactory accessorFactory, PropertySet propertySet) {
-        Map<String, Field> fields = ClassPropertySetDescriptor.getFields(type);
+        Map<String, Field> fields = getPropertyFields(type);
         for (String key : fields.keySet()) {
             Field field = fields.get(key);
             PropertyDescriptor descriptor = descriptorFactory.createValueDescriptor(field);
