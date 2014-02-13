@@ -41,8 +41,8 @@ public class DefaultPropertySetDescriptor implements PropertySetDescriptor {
         Assert.notNull(propertyDescriptorFactory, "propertyDescriptorFactory");
 
         DefaultPropertySetDescriptor propertySetDescriptor = new DefaultPropertySetDescriptor();
-        Map<String, Field> allFields = PropertyContainer.getPropertyFields(valueType);
-        for (Field field : allFields.values()) {
+        Map<String, Field> fields = PropertyContainer.getPropertyFields(valueType);
+        for (Field field : fields.values()) {
             PropertyDescriptor descriptor = propertyDescriptorFactory.createValueDescriptor(field);
             if (descriptor != null) {
                 propertySetDescriptor.addPropertyDescriptor(descriptor);

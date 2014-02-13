@@ -51,16 +51,15 @@ public class DefaultDomConverter implements DomConverter {
     }
 
     public DefaultDomConverter(Class<?> valueType, PropertyDescriptorFactory propertyDescriptorFactory) {
-        this(valueType, propertyDescriptorFactory, DefaultPropertySetDescriptor.createFromClass(valueType, propertyDescriptorFactory));
+        this(valueType, propertyDescriptorFactory, null);
     }
 
     public DefaultDomConverter(Class<?> valueType, PropertyDescriptorFactory propertyDescriptorFactory, PropertySetDescriptor propertySetDescriptor) {
         Assert.notNull(valueType, "valueType");
         Assert.notNull(propertyDescriptorFactory, "propertyDescriptorFactory");
-        Assert.notNull(propertySetDescriptor, "propertySetDescriptor");
         this.valueType = valueType;
-        this.propertySetDescriptor = propertySetDescriptor;
         this.propertyDescriptorFactory = propertyDescriptorFactory;
+        this.propertySetDescriptor = propertySetDescriptor;
     }
 
     /**
@@ -76,13 +75,14 @@ public class DefaultDomConverter implements DomConverter {
     }
 
     public PropertySetDescriptor getPropertySetDescriptor() {
+        if (propertySetDescriptor == null) {
+            propertySetDescriptor = DefaultPropertySetDescriptor.createFromClass(valueType, propertyDescriptorFactory);
+        }
         return propertySetDescriptor;
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // VALUE  -->  DOM
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
@@ -141,9 +141,7 @@ public class DefaultDomConverter implements DomConverter {
 
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // DOM  -->  VALUE
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
@@ -249,8 +247,10 @@ public class DefaultDomConverter implements DomConverter {
             propertySet = (PropertySet) value;
         } else if (value instanceof Map) {
             propertySet = PropertyContainer.createMapBacked((Map) value, getPropertySetDescriptor());
-        } else {
+        } else if (value.getClass().equals(getValueType())) {
             propertySet = PropertyContainer.createObjectBacked(value, getPropertySetDescriptor());
+        } else {
+            propertySet = PropertyContainer.createObjectBacked(value, getPropertyDescriptorFactory());
         }
         return propertySet;
     }
