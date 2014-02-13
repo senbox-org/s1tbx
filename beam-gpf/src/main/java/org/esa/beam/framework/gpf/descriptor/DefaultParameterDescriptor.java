@@ -68,6 +68,15 @@ public class DefaultParameterDescriptor implements ParameterDescriptor {
         Assert.notNull(dataType, "dataType");
         this.name = name;
         this.dataType = dataType;
+        this.valueSet = new String[0];
+    }
+
+    private Object readResolve() {
+        // todo - write test that assert the following
+        //        if (this.dataType == null) {
+        //            this.dataType = Map.class;
+        //        }
+        return this;
     }
 
     @Override
@@ -144,7 +153,7 @@ public class DefaultParameterDescriptor implements ParameterDescriptor {
 
     @Override
     public String[] getValueSet() {
-        return valueSet;
+        return valueSet != null ? valueSet : new String[0];
     }
 
     public void setValueSet(String[] valueSet) {
@@ -243,12 +252,16 @@ public class DefaultParameterDescriptor implements ParameterDescriptor {
 
     @Override
     public boolean isStructure() {
-        return isSimple(getDataType());
+        return isStructure(getDataType());
     }
 
     @Override
     public ParameterDescriptor[] getStructureMemberDescriptors() {
         return getDataMemberDescriptors(getDataType());
+    }
+
+    public static boolean isStructure(Class<?> type) {
+        return !isSimple(type) && !type.isArray();
     }
 
     public static boolean isSimple(Class<?> type) {
@@ -261,7 +274,7 @@ public class DefaultParameterDescriptor implements ParameterDescriptor {
     }
 
     public static ParameterDescriptor[] getDataMemberDescriptors(Class<?> dataType) {
-        if (isSimple(dataType)) {
+        if (!isStructure(dataType)) {
             return new ParameterDescriptor[0];
         }
         ArrayList<ParameterDescriptor> parameterDescriptors = new ArrayList<>();

@@ -30,7 +30,13 @@ import com.bc.ceres.binding.converters.EnumConverter;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class ParameterDescriptorFactoryTest {
 
@@ -51,13 +57,13 @@ public class ParameterDescriptorFactoryTest {
         assertNull(propertyDescriptor.getAlias());
         assertEquals(0.0, propertyDescriptor.getDefaultValue());
         assertSame(DoubleConverter.class, propertyDescriptor.getConverter().getClass());
-        assertEquals("", propertyDescriptor.getDescription());
+        assertEquals(null, propertyDescriptor.getDescription());
         assertEquals("Percentage", propertyDescriptor.getDisplayName());
         assertEquals(null, propertyDescriptor.getDomConverter());
         assertEquals(null, propertyDescriptor.getFormat());
         assertEquals(null, propertyDescriptor.getItemAlias());
         assertEquals("double", propertyDescriptor.getType().getName());
-        assertEquals("", propertyDescriptor.getUnit());
+        assertEquals(null, propertyDescriptor.getUnit());
         assertNull(propertyDescriptor.getValidator());
         assertEquals("(0,100]", propertyDescriptor.getValueRange().toString());
         assertEquals(0.0, propertyDescriptor.getValueRange().getMin(), 0.000001);
@@ -73,13 +79,13 @@ public class ParameterDescriptorFactoryTest {
         assertNull(propertyDescriptor.getAlias());
         assertEquals(0.0, propertyDescriptor.getDefaultValue());
         assertSame(DoubleConverter.class, propertyDescriptor.getConverter().getClass());
-        assertEquals("", propertyDescriptor.getDescription());
+        assertEquals(null, propertyDescriptor.getDescription());
         assertEquals("a nice desciption", propertyDescriptor.getDisplayName());
         assertEquals(null, propertyDescriptor.getDomConverter());
         assertEquals(null, propertyDescriptor.getFormat());
         assertEquals(null, propertyDescriptor.getItemAlias());
         assertFalse(propertyDescriptor.getType().isArray());
-        assertEquals("", propertyDescriptor.getUnit());
+        assertEquals(null, propertyDescriptor.getUnit());
         assertNull(propertyDescriptor.getValidator());
         assertEquals(null, propertyDescriptor.getValueRange());
         assertNotNull(propertyDescriptor.getValueSet());
@@ -107,7 +113,7 @@ public class ParameterDescriptorFactoryTest {
         assertNull(propertyDescriptor.getAlias());
         assertEquals(null, propertyDescriptor.getDefaultValue());
         assertSame(ArrayConverter.class, propertyDescriptor.getConverter().getClass());
-        assertEquals("", propertyDescriptor.getDescription());
+        assertEquals(null, propertyDescriptor.getDescription());
         assertEquals("Threshold array", propertyDescriptor.getDisplayName());
         assertEquals(null, propertyDescriptor.getDomConverter());
         assertEquals(null, propertyDescriptor.getFormat());
@@ -115,7 +121,7 @@ public class ParameterDescriptorFactoryTest {
         Class<?> type = propertyDescriptor.getType();
         assertTrue(type.isArray());
         assertEquals(Double.TYPE, type.getComponentType());
-        assertEquals("", propertyDescriptor.getUnit());
+        assertEquals(null, propertyDescriptor.getUnit());
         assertNull(propertyDescriptor.getValidator());
         assertEquals(null, propertyDescriptor.getValueRange());
         assertNotNull(propertyDescriptor.getValueSet());

@@ -5,12 +5,9 @@
             <type>float</type>
             <expression>radiance_13 / (PI * SOLAR_FLUX_13)</expression>
             <description>TOA reflectance in channel 13</description>
-            <unit/>
             <validExpression>reflec_13 >= 0</validExpression>
             <noDataValue>-999.0</noDataValue>
             <spectralBandIndex>13</spectralBandIndex>
-            <spectralWavelength/>
-            <spectralBandwidth/>
         </targetBand>
         <targetBand>
             <name>reflec_14</name>
@@ -21,8 +18,6 @@
             <validExpression>reflec_14 >= 0</validExpression>
             <noDataValue>-999.0</noDataValue>
             <spectralBandIndex>14</spectralBandIndex>
-            <spectralWavelength/>
-            <spectralBandwidth/>
         </targetBand>
     </targetBands>
     <variables>

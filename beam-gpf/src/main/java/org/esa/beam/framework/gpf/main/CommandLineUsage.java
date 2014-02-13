@@ -478,7 +478,7 @@ class CommandLineUsage {
             }
             childElem.createChild("...");
         } else {
-            if (!parameter.isStructure()) {
+            if (parameter.isStructure()) {
                 ParameterDescriptor[] members = parameter.getStructureMemberDescriptors();
                 for (ParameterDescriptor member : members) {
                     convertParameterFieldToDom(member, childElem);

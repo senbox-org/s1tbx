@@ -18,6 +18,7 @@ package org.esa.beam.visat.actions.session.dom;
 
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.PropertyDescriptor;
+import com.bc.ceres.binding.PropertyDescriptorFactory;
 import com.bc.ceres.binding.PropertySetDescriptor;
 import com.bc.ceres.binding.dom.DefaultDomConverter;
 import com.bc.ceres.binding.dom.DomConverter;
@@ -43,8 +44,8 @@ public class SessionDomConverter extends DefaultDomConverter {
         setDomConverter(PlacemarkDescriptor.class, new PlacemarkDescriptorDomConverter());
     }
 
-    private SessionDomConverter(Class<?> valueType, PropertySetDescriptor propertySetDescriptor, Map<Class<?>, DomConverter> domConverterMap) {
-        super(valueType, propertySetDescriptor);
+    private SessionDomConverter(Class<?> valueType, PropertyDescriptorFactory propertyDescriptorFactory, PropertySetDescriptor propertySetDescriptor, Map<Class<?>, DomConverter> domConverterMap) {
+        super(valueType, propertyDescriptorFactory, propertySetDescriptor);
         this.domConverterMap = domConverterMap;
     }
 
@@ -53,8 +54,8 @@ public class SessionDomConverter extends DefaultDomConverter {
     }
 
     @Override
-    protected DomConverter createChildDomConverter(Class<?> valueType, PropertySetDescriptor propertySetDescriptor) {
-        return new SessionDomConverter(valueType, propertySetDescriptor, domConverterMap);
+    protected DomConverter createChildDomConverter(Class<?> valueType, PropertyDescriptorFactory propertyDescriptorFactory, PropertySetDescriptor propertySetDescriptor) {
+        return new SessionDomConverter(valueType, getPropertyDescriptorFactory(), propertySetDescriptor, domConverterMap);
     }
 
     @Override

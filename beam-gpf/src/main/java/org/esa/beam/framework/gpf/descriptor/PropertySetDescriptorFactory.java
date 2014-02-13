@@ -17,24 +17,23 @@
 package org.esa.beam.framework.gpf.descriptor;
 
 import com.bc.ceres.binding.ConversionException;
+import com.bc.ceres.binding.DefaultPropertySetDescriptor;
 import com.bc.ceres.binding.PropertyDescriptor;
-import com.bc.ceres.binding.descriptors.DefaultPropertySetDescriptor;
+import com.bc.ceres.binding.PropertySetDescriptor;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.annotations.ParameterDescriptorFactory;
 
 import java.util.Map;
 
-public class ParameterPropertySetDescriptor extends DefaultPropertySetDescriptor {
+public class PropertySetDescriptorFactory {
 
-    Map<String, Product> sourceProductMap;
-
-    private ParameterPropertySetDescriptor(OperatorDescriptor operatorDescriptor, Map<String, Product> sourceProductMap) throws ConversionException {
-        this.sourceProductMap = sourceProductMap;
-
+    public static PropertySetDescriptor createForOperator(OperatorDescriptor operatorDescriptor, Map<String, Product> sourceProductMap) throws ConversionException {
+        DefaultPropertySetDescriptor propertySetDescriptor = new DefaultPropertySetDescriptor();
         ParameterDescriptor[] parameterDescriptors = operatorDescriptor.getParameterDescriptors();
         for (ParameterDescriptor parameterDescriptor : parameterDescriptors) {
             PropertyDescriptor propertyDescriptor = ParameterDescriptorFactory.convert(parameterDescriptor, sourceProductMap);
-            addPropertyDescriptor(propertyDescriptor);
+            propertySetDescriptor.addPropertyDescriptor(propertyDescriptor);
         }
+        return propertySetDescriptor;
     }
 }

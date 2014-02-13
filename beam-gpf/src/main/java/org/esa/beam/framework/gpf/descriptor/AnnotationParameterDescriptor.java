@@ -129,7 +129,7 @@ public class AnnotationParameterDescriptor implements ParameterDescriptor {
 
     @Override
     public boolean isStructure() {
-        return !DefaultParameterDescriptor.isSimple(getDataType());
+        return DefaultParameterDescriptor.isStructure(getDataType());
     }
 
     @Override
