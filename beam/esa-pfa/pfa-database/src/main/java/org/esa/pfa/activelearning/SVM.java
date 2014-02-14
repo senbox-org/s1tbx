@@ -37,6 +37,9 @@ public class SVM {
 
     private int numSamples = 0;  // number of samples in the training data
     private int numFeatures = 0; // number of features in each sample
+    private int numFolds = 0;    // number of folds for cross validation
+    private double lower = 0.0;  // training data scaling lower limit
+    private double upper = 1.0;  // training data scaling upper limit
     private double[] featureMin = null;
     private double[] featureMax = null;
 
@@ -44,69 +47,10 @@ public class SVM {
     private svm_parameter modelParameters = new svm_parameter();
     private svm_model model = new svm_model();
 
-    private static int numFolds = 5;    // number of folds for cross validation
-    private static double lower = 0.0;  // training data scaling lower limit
-    private static double upper = 1.0;  // training data scaling upper limit
-
-	public SVM() {
-	}
-
-    /**
-     * Select optimal SVM (RBF) model parameters C and Gamma using grid search and given training data.
-     * @param validationSet The data set for grid search.
-     * @throws Exception The exception.
-     */
-    public void selectModel(List<Patch> validationSet) throws Exception {
-
-        setProblem(validationSet);
-
-        scaleData();
-
-        setSVMModelParameters();
-
-        findOptimalModelParameters();
-    }
-
-    /**
-     * Define SVM problem.
-     * @param dataSet The training data set.
-     */
-	private void setProblem(List<Patch> dataSet) {
-		
-		numSamples = dataSet.size();
-		numFeatures = dataSet.get(0).getFeatures().length;
-	    
-        featureMin = new double[numFeatures];
-        featureMax = new double[numFeatures];
-        for (int i = 0; i < numFeatures; i++) {
-            featureMin[i] = Double.MAX_VALUE;
-            featureMax[i] = -Double.MAX_VALUE;
-        }
-
-		problem.l = numSamples;
-        problem.y = new double[numSamples];
-        problem.x = new svm_node[numSamples][numFeatures];
-        for (int i = 0; i < numSamples; i++) {
-            for (int j = 0; j < numFeatures; j++) {
-                problem.x[i][j] = new svm_node();
-            }
-        }
-		
-		for (int i = 0; i < numSamples; i++) {
-			problem.y[i] = dataSet.get(i).getLabel();
-            final Feature[] features = dataSet.get(i).getFeatures();
-			for (int j = 0; j < numFeatures; j++) {
-				problem.x[i][j].index = j+1;
-				problem.x[i][j].value = Double.valueOf(features[j].getValue().toString());
-				if (problem.x[i][j].value < featureMin[j]) {
-					featureMin[j] = problem.x[i][j].value;
-				}
-				
-				if (problem.x[i][j].value > featureMax[j]) {
-					featureMax[j] = problem.x[i][j].value;
-				}
-			}
-		}
+	public SVM(final int numFolds, final double lower, final double upper) {
+        this.numFolds = numFolds;
+        this.lower = lower;
+        this.upper = upper;
 	}
 
 	/**
@@ -119,6 +63,10 @@ public class SVM {
         setProblem(trainingSet);
 
         scaleData();
+
+        setSVMModelParameters();
+
+        findOptimalModelParameters();
 
         trainSVMModel();
 	}
@@ -168,6 +116,48 @@ public class SVM {
             throw new Exception(e.getMessage());
         }
     }
+
+    /**
+     * Define SVM problem.
+     * @param dataSet The training data set.
+     */
+	private void setProblem(List<Patch> dataSet) {
+
+		numSamples = dataSet.size();
+		numFeatures = dataSet.get(0).getFeatures().length;
+
+        featureMin = new double[numFeatures];
+        featureMax = new double[numFeatures];
+        for (int i = 0; i < numFeatures; i++) {
+            featureMin[i] = Double.MAX_VALUE;
+            featureMax[i] = -Double.MAX_VALUE;
+        }
+
+		problem.l = numSamples;
+        problem.y = new double[numSamples];
+        problem.x = new svm_node[numSamples][numFeatures];
+        for (int i = 0; i < numSamples; i++) {
+            for (int j = 0; j < numFeatures; j++) {
+                problem.x[i][j] = new svm_node();
+            }
+        }
+
+		for (int i = 0; i < numSamples; i++) {
+			problem.y[i] = dataSet.get(i).getLabel();
+            final Feature[] features = dataSet.get(i).getFeatures();
+			for (int j = 0; j < numFeatures; j++) {
+				problem.x[i][j].index = j+1;
+				problem.x[i][j].value = Double.valueOf(features[j].getValue().toString());
+				if (problem.x[i][j].value < featureMin[j]) {
+					featureMin[j] = problem.x[i][j].value;
+				}
+
+				if (problem.x[i][j].value > featureMax[j]) {
+					featureMax[j] = problem.x[i][j].value;
+				}
+			}
+		}
+	}
 
     /**
      * Scale training data to user specified range [lower, upper].
