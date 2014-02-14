@@ -54,6 +54,10 @@ import org.jfree.chart.annotations.XYTitleAnnotation;
 import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.block.BlockBorder;
 import org.jfree.chart.block.LineBorder;
+import org.jfree.chart.event.AxisChangeEvent;
+import org.jfree.chart.event.AxisChangeListener;
+import org.jfree.chart.event.PlotChangeEvent;
+import org.jfree.chart.event.PlotChangeListener;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
@@ -134,14 +138,39 @@ public class SpectrumToolView extends AbstractToolView {
     private final ChartHandler chartHandler;
     private CursorSynchronizer cursorSynchronizer;
 
+    private boolean domainAxisAdjustmentIsFrozen;
+    private boolean rangeAxisAdjustmentIsFrozen;
+    private boolean isCodeInducedDomainAxisChange;
+    private boolean isCodeInducedRangeAxisChange;
+
     public SpectrumToolView() {
         productNodeHandler = new ProductNodeHandler();
         pinSelectionChangeListener = new PinSelectionChangeListener();
         productToAllSpectraMap = new HashMap<Product, DisplayableSpectrum[]>();
         pixelPositionListener = new CursorSpectrumPixelPositionListener(this);
         final JFreeChart chart = ChartFactory.createXYLineChart(CHART_TITLE, "Wavelength (nm)", "", null, PlotOrientation.VERTICAL, true, true, false);
+        chart.getXYPlot().getRangeAxis().addChangeListener(new AxisChangeListener() {
+            @Override
+            public void axisChanged(AxisChangeEvent axisChangeEvent) {
+                if(!isCodeInducedRangeAxisChange) {
+                    rangeAxisAdjustmentIsFrozen = true;
+                }
+            }
+        });
+        chart.getXYPlot().getDomainAxis().addChangeListener(new AxisChangeListener() {
+            @Override
+            public void axisChanged(AxisChangeEvent axisChangeEvent) {
+                if(!isCodeInducedDomainAxisChange) {
+                    domainAxisAdjustmentIsFrozen = true;
+                }
+            }
+        });
         chartPanel = new ChartPanel(chart);
         chartHandler = new ChartHandler(chart);
+        domainAxisAdjustmentIsFrozen = false;
+        rangeAxisAdjustmentIsFrozen = false;
+        isCodeInducedDomainAxisChange = true;
+        isCodeInducedRangeAxisChange = true;
     }
 
     private ProductSceneView getCurrentView() {
@@ -632,17 +661,29 @@ public class SpectrumToolView extends AbstractToolView {
         }
 
         private void setAutomaticRangeAdjustment(boolean adjustAxes) {
-            if (adjustAxes != isAutomaticAdjustmentSet()) {
-                final XYPlot plot = chart.getXYPlot();
+            final XYPlot plot = chart.getXYPlot();
+            boolean adjustmentHasChanged = false;
+            if (adjustAxes != isAutomaticDomainAdjustmentSet()) {
                 plot.getDomainAxis().setAutoRange(adjustAxes);
+                domainAxisAdjustmentIsFrozen = false;
+                adjustmentHasChanged = true;
+            }
+            if (adjustAxes != isAutomaticRangeAdjustmentSet()) {
                 plot.getRangeAxis().setAutoRange(adjustAxes);
+                rangeAxisAdjustmentIsFrozen = false;
+                adjustmentHasChanged = true;
+            }
+            if(adjustmentHasChanged) {
                 chartUpdater.invalidatePlotBounds();
             }
         }
 
-        private boolean isAutomaticAdjustmentSet() {
-            return chart.getXYPlot().getDomainAxis().isAutoRange() ||
-                    chart.getXYPlot().getRangeAxis().isAutoRange();
+        private boolean isAutomaticDomainAdjustmentSet() {
+            return chart.getXYPlot().getDomainAxis().isAutoRange();
+        }
+
+        private boolean isAutomaticRangeAdjustmentSet() {
+            return chart.getXYPlot().getRangeAxis().isAutoRange();
         }
 
         private void setLegend(JFreeChart chart) {
@@ -760,9 +801,19 @@ public class SpectrumToolView extends AbstractToolView {
                 }
             }
             final XYPlot plot = chart.getXYPlot();
-            if (!chartHandler.isAutomaticAdjustmentSet()) {
-                updatePlotBounds(dataset, plot);
+            if(!chartHandler.isAutomaticDomainAdjustmentSet() && !domainAxisAdjustmentIsFrozen) {
+                isCodeInducedDomainAxisChange = true;
+                updatePlotBounds(dataset.getDomainBounds(true), plot.getDomainAxis(), domain_axis_index);
+                isCodeInducedDomainAxisChange = false;
             }
+            if(!chartHandler.isAutomaticRangeAdjustmentSet() && !rangeAxisAdjustmentIsFrozen) {
+                isCodeInducedRangeAxisChange = true;
+                updatePlotBounds(dataset.getRangeBounds(true), plot.getRangeAxis(), range_axis_index);
+                isCodeInducedRangeAxisChange = false;
+            }
+//            if (!chartHandler.isAutomaticAdjustmentSet()) {
+//                updatePlotBounds(dataset, plot);
+//            }
             plot.setDataset(dataset);
             String unitToBeDisplayed = spectra.get(0).getUnit();
             int i = 1;
@@ -775,24 +826,42 @@ public class SpectrumToolView extends AbstractToolView {
             plot.getRangeAxis().setLabel(unitToBeDisplayed);
         }
 
+        private void updatePlotBounds(Range newDomainBounds, ValueAxis axis, int index) {
+            if (newDomainBounds != null) {
+//                updateAxisBounds(axis, newDomainBounds, domain_axis_index);
+                final Range axisBounds = axis.getRange();
+                final Range oldBounds = this.plotBounds[index];
+                this.plotBounds[index] = getNewRange(newDomainBounds, this.plotBounds[index], axisBounds);
+                if (oldBounds != this.plotBounds[index]) {
+                    axis.setRange(getNewPlotBounds(this.plotBounds[index]));
+                }
+            }
+
+//            final ValueAxis rangeAxis = plot.getRangeAxis();
+//            final Range newRangeBounds = dataset.getRangeBounds(true);
+//            if (newRangeBounds != null) {
+//                updateAxisBounds(rangeAxis, newRangeBounds, range_axis_index);
+//            }
+        }
+
         private void updatePlotBounds(XYSeriesCollection dataset, XYPlot plot) {
             final ValueAxis domainAxis = plot.getDomainAxis();
             final Range newDomainBounds = dataset.getDomainBounds(true);
             if (newDomainBounds != null) {
-                updatePlotBounds(domainAxis, newDomainBounds, domain_axis_index);
+                updateAxisBounds(domainAxis, newDomainBounds, domain_axis_index);
             }
 
             final ValueAxis rangeAxis = plot.getRangeAxis();
             final Range newRangeBounds = dataset.getRangeBounds(true);
             if (newRangeBounds != null) {
-                updatePlotBounds(rangeAxis, newRangeBounds, range_axis_index);
+                updateAxisBounds(rangeAxis, newRangeBounds, range_axis_index);
             }
         }
 
-        private void updatePlotBounds(ValueAxis axis, Range newBounds, int index) {
-            final Range plotBounds = axis.getRange();
+        private void updateAxisBounds(ValueAxis axis, Range newBounds, int index) {
+            final Range axisBounds = axis.getRange();
             final Range oldBounds = this.plotBounds[index];
-            this.plotBounds[index] = getNewRange(newBounds, this.plotBounds[index], plotBounds);
+            this.plotBounds[index] = getNewRange(newBounds, this.plotBounds[index], axisBounds);
             if (oldBounds != this.plotBounds[index]) {
                 axis.setRange(getNewPlotBounds(this.plotBounds[index]));
             }
