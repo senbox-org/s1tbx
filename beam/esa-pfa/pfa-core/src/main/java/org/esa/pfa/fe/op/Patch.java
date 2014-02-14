@@ -23,7 +23,6 @@ public final class Patch {
     private static int uidCnt = 0;
 
     private int label = -1;
-    private double confidence; // criterion used in ambiguous patch selection
     private double distance;   // functional distance of a patch to the hyperplane in SVM
 
     private String pathOnServer;
@@ -88,14 +87,6 @@ public final class Patch {
 
     public Feature[] getFeatures() {
         return featureList.toArray(new Feature[featureList.size()]);
-    }
-
-    public void setConfidence(final double confidence) {
-        this.confidence = confidence;
-    }
-
-    public double getConfidence() {
-        return confidence;
     }
 
     public void setLabel(final int label) {
