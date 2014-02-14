@@ -53,12 +53,12 @@
             <dependency>
                 <groupId>org.esa.beam</groupId>
                 <artifactId>beam-gpf</artifactId>
-                <version>${beam.version}</version>
+                <version>5.0.1-4.10.4</version>
             </dependency>
             <dependency>
                 <groupId>org.esa.beam</groupId>
                 <artifactId>beam-envisat-reader</artifactId>
-                <version>1.5</version>
+                <version>5.0-1.5</version>
             </dependency>
             <dependency>
                 <groupId>org.esa.beam</groupId>
