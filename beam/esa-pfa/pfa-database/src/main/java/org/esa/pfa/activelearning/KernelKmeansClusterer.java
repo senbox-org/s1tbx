@@ -274,15 +274,16 @@ public class KernelKmeansClusterer {
     }
 
     /**
-     * Get representatives of the clusters.
+     * Get representatives of the clusters using density criterion.
      * @return patchIDs Array of IDs of the selected patches.
+     * @throws Exception The exception.
      */
-    public int[] getRepresentatives() {
+    public int[] getRepresentatives() throws Exception {
 
         int[] rep = new int[numClusters];
         int[] patchIDs = new int[numClusters];
         for (int i = 0; i < numClusters; i++) {
-            int sampleIdx = findLeastConfidenceSample(clusters[i]);
+            int sampleIdx = findHighestDensitySample(clusters[i]);
             patchIDs[i] = samples.get(sampleIdx).getID();
             rep[i] = sampleIdx;
         }
@@ -297,23 +298,49 @@ public class KernelKmeansClusterer {
     }
 
     /**
-     * Find the representative sample in a given cluster based on the sample confidence.
+     * Find the representative sample in a given cluster based on density criterion.
      * @param cluster The given cluster.
      * @return The representative sample index.
+     * @throws Exception The exception.
      */
-    private int findLeastConfidenceSample(Cluster cluster) {
+    private int findHighestDensitySample(Cluster cluster) throws Exception {
 
-        double leastConfidence = Double.MAX_VALUE;
+        // The density of a sample in a cluster is defined through the average distance of the sample to all other
+        // samples in the cluster. Therefore, the lower the average distance, the higher the density.
+        double leastAverageDistance = Double.MAX_VALUE;
         int sampleIdx = 0;
         for (Integer idx:cluster.memberSampleIndices) {
-            final double confidence = samples.get(idx).getConfidence();
-            if (confidence < leastConfidence) {
-                leastConfidence = confidence;
+            final double averageDistance = computeAverageDistance(idx, cluster.memberSampleIndices);
+            if (averageDistance < leastAverageDistance) {
+                leastAverageDistance = averageDistance;
                 sampleIdx = idx;
             }
         }
 
         return sampleIdx;
+    }
+
+    /**
+     * Compute the average distance of a given sample to all other samples in its cluster.
+     * @param sampleIdx The index of the given sample.
+     * @param memberSampleIndices The list of indices of samples in the cluster.
+     * @return The average distance.
+     * @throws Exception The exception.
+     */
+    private double computeAverageDistance(final int sampleIdx, final List<Integer> memberSampleIndices)
+            throws Exception {
+
+        final int numSamples = memberSampleIndices.size();
+        final double[] x = getFeatures(samples.get(sampleIdx));
+
+        double sum1 = 0.0, sum2 = 0.0;
+        for (Integer idx:memberSampleIndices) {
+            final double[] xi = getFeatures(samples.get(idx));
+            sum1 += svmClassifier.kernel(x,xi);
+            sum2 += svmClassifier.kernel(xi,xi);
+        }
+
+        return svmClassifier.kernel(x,x) - 2.0*sum1/numSamples + sum2/numSamples;
     }
 
 
