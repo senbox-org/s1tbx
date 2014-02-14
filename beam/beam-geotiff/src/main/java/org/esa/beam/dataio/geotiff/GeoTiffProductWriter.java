@@ -54,6 +54,10 @@ public class GeoTiffProductWriter extends AbstractProductWriter {
         super(writerPlugIn);
     }
 
+    public File getOutputDir() {
+        return outputFile;
+    }
+
     /**
      * Writes the in-memory representation of a data product. This method was called by <code>writeProductNodes(product,
      * output)</code> of the AbstractProductWriter.

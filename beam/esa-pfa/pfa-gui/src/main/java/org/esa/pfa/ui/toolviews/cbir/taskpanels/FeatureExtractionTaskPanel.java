@@ -89,11 +89,18 @@ public class FeatureExtractionTaskPanel extends TaskPanel implements ActionListe
 
     public boolean validateInput() {
         try {
-            for(Patch patch :session.getQueryPatches()) {
-                if(patch.getFeatures().length == 0) {
-                    throw new Exception("no features found in "+patch.getPatchName());
+            final Patch[] processedPatches = session.getQueryPatches();
+
+            session.clearQueryPatches();
+            for(Patch patch : processedPatches) {
+                if(patch.getFeatures().length > 0) {
+                    session.addQueryPatch(patch);
                 }
             }
+            if(session.getQueryPatches().length == 0) {
+                throw new Exception("No features found in the query images");
+            }
+
             session.setQueryImages();
 
             return true;

@@ -38,7 +38,10 @@ public class CBIRSession {
     private int numTrainingImages;
     private int numRetrievedImages;
 
-    private SearchToolStub searchTool = new SearchToolStub();
+    //todo configure properly
+    private static final String ARCHIVE_FOLDER = "P:\\pfa\\pfa\\data\\urban_archive";
+
+    private SearchToolStub searchTool = new SearchToolStub(ARCHIVE_FOLDER);
 
     public CBIRSession(final PFAApplicationDescriptor applicationDescriptor,
                        final int numTrainingImages, final int numRetrievedImages) {
@@ -56,12 +59,8 @@ public class CBIRSession {
         return searchTool.getDsDescriptor();
     }
 
-    public int getNumTrainingImages() {
-        return numTrainingImages;
-    }
-
-    public int getNumRetrievedImages() {
-        return numRetrievedImages;
+    public void clearQueryPatches() {
+        queryImageList.clear();
     }
 
     public void addQueryPatch(final Patch queryImage) {

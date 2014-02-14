@@ -36,9 +36,9 @@ public class SearchToolStub {
     private PatchQuery db = null;
     private ActiveLearning al = null;
 
-    public SearchToolStub() {
+    public SearchToolStub(final String archiveFolder) {
         try {
-            db = new PatchQuery(new File("c:\\temp"));
+            db = new PatchQuery(new File(archiveFolder));
             al = new ActiveLearning();
         } catch (Exception e) {
             e.printStackTrace();
