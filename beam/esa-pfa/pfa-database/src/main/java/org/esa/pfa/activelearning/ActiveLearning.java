@@ -15,46 +15,52 @@
  */
 package org.esa.pfa.activelearning;
 
+import org.esa.beam.util.math.Array;
+import org.esa.pfa.fe.op.Feature;
 import org.esa.pfa.fe.op.Patch;
 
 import java.util.*;
 
 /**
  * Active learning class.
+ *
+ * [1] Begum Demir and Lorenzo Bruzzone, "An effective active learning method for interactive content-based retrieval
+ *     in remote sensing images", Geoscience and Remote Sensing Symposium (IGARSS), 2013 IEEE International.
  */
 
 public class ActiveLearning {
 
-    private int h = 0; // number of batch samples selected with diversity criterion
-    private int m = 0; // number of uncertainty samples selected with confidence criterion
-    private int numClasses = 0;
+    private int h = 0; // number of batch samples selected with diversity and density criteria
+    private int q = 0; // number of uncertainty samples selected with uncertainty criterion
+    private int numClasses = 0; // should be 2
+    private int iteration = 0;  // Iteration index in active learning
     private List<Patch> testData = new ArrayList<Patch>();
-    private List<Patch> validationData = new ArrayList<Patch>();
     private List<Patch> trainingData = new ArrayList<Patch>();
     private List<Patch> uncertainSamples = new ArrayList<Patch>();
     private List<Patch> diverseSamples = new ArrayList<Patch>();
-    private SVM svmClassifier = new SVM();
+    private SVM svmClassifier = null;
 
-    private int maxIterationsKmeans = 10;
+    private static int numInitialIterations = 3; // AL parameter
+    private static int maxIterationsKmeans = 10; // KKC parameter
+    private static int numFolds = 5;    // SVM parameter: number of folds for cross validation
+    private static double lower = 0.0;  // SVM parameter: training data scaling lower limit
+    private static double upper = 1.0;  // SVM parameter: training data scaling upper limit
+
     private boolean debug = false;
 
     // UI: constructor
     public ActiveLearning() throws Exception {
+        svmClassifier = new SVM(numFolds, lower, upper);
     }
 
-    // UI: Pass in patches obtained from user's query image. These patch will be used in validation.
+    // UI: Pass in patches obtained from user's query image. These patch forms the initial training data set.
     public void setQueryPatches(Patch[] patchArray) throws Exception {
 
+        iteration = 0;
         getNumberOfClasses(patchArray);
-
-        validationData.clear();
-        validationData.addAll(Arrays.asList(patchArray));
-
-        svmClassifier.selectModel(validationData);
-
         trainingData.clear();
-        trainingData.addAll(validationData);
-
+        setTrainingDataWithValidPatches(patchArray); // temp code
+        //trainingData.addAll(Arrays.asList(patchArray));
         svmClassifier.train(trainingData);
 
         if (debug) {
@@ -79,9 +85,9 @@ public class ActiveLearning {
     public Patch[] getMostAmbiguousPatches(int numImages) throws Exception {
 
         this.h = numImages;
-        this.m = 4 * h;
+        this.q = 4 * h;
         if (debug) {
-            System.out.println("Number of uncertain patches to select: " + m);
+            System.out.println("Number of uncertain patches to select: " + q);
             System.out.println("Number of diverse patches to select: " + h);
         }
 
@@ -98,6 +104,8 @@ public class ActiveLearning {
         trainingData.addAll(Arrays.asList(userLabelledPatches));
 
         svmClassifier.train(trainingData);
+
+        iteration++;
 
         if (debug) {
             System.out.println("Number of patches in training data set: " + trainingData.size());
@@ -149,38 +157,39 @@ public class ActiveLearning {
 
     }
 
+    // Temp code: select patches with valid features.
+    private void setTrainingDataWithValidPatches(Patch[] patchArray) {
+
+        for (Patch patch:patchArray) {
+            Feature[] features = patch.getFeatures();
+            boolean isPatchValid = true;
+            for (Feature f:features) {
+                if (Double.isNaN(Double.parseDouble(f.getValue().toString()))) {
+                    isPatchValid = false;
+                    break;
+                }
+            }
+            if (isPatchValid) {
+                trainingData.add(patch);
+            }
+        }
+    }
+
     /**
-     * Select m unlabelled samples from test data with lower confidence values.
+     * Select uncertain samples from test data.
      * @throws Exception The exception.
      */
     private void selectMostUncertainSamples() throws Exception {
 
-        // Compute confidence c(x) for all samples in U. (MCLU)
-        final double[][] confidence = new double[testData.size()][2];
-        int k = 0;
-        for (int i = 0; i < testData.size(); i++) {
-            confidence[k][0] = i;                                  // sample index in testData
-            try {
-                confidence[k][1] = computeConfidence(testData.get(i)); // sample confidence value
-            } catch(Exception e) {
-                confidence[k][1] = i;
-            }
-            k++;
-        }
+        final double[][] distance = computeFunctionalDistanceForAllSamples();
 
-        // Select m unlabelled samples with lower confidence values. (MCLU)
-        java.util.Arrays.sort(confidence, new java.util.Comparator<double[]>() {
-            public int compare(double[] a, double[] b) {
-                return Double.compare(a[1], b[1]);
+        if (iteration < numInitialIterations) {
+            getAllUncertainSamples(distance);
+            if (uncertainSamples.size() < q) {
+                getMostUncertainSamples(distance);
             }
-        });
-
-        // Add the selected samples to uncertainSamples list.
-        uncertainSamples.clear();
-        for (int i = 0; i < m; i++) {
-            Patch data = testData.get((int)confidence[i][0]);
-            data.setConfidence(confidence[i][1]);
-            uncertainSamples.add(data);
+        } else {
+            getMostUncertainSamples(distance);
         }
 
         if (debug) {
@@ -189,26 +198,74 @@ public class ActiveLearning {
     }
 
     /**
-     * Compute confidence for given sample. Here it is assumed that the decision values returned by svm.classify
-     * function are the distances from the given sample to the hyperplanes in kernel space.
-     * @param x The given sample.
-     * @return The confidence value.
+     * Compute functional distance for all samples in test data set.
+     * @return The distance array.
      * @throws Exception The exception.
      */
-    private double computeConfidence(Patch x) throws Exception {
+    private double[][] computeFunctionalDistanceForAllSamples() throws Exception {
+
+        final double[][] distance = new double[testData.size()][2];
+        int k = 0;
+        for (int i = 0; i < testData.size(); i++) {
+            distance[k][0] = i; // sample index in testData
+            try {
+                distance[k][1] = computeFunctionalDistance(testData.get(i));
+            } catch(Exception e) {
+                throw new Exception(e.getMessage());
+            }
+            k++;
+        }
+
+        return distance;
+    }
+
+    /**
+     * Compute functional distance of a given sample to the SVM hyperplane.
+     * @param x The given sample.
+     * @return The functional distance.
+     * @throws Exception The exception.
+     */
+    private double computeFunctionalDistance(Patch x) throws Exception {
 
         final double[] decValues = new double[numClasses*(numClasses-1)/2];
         svmClassifier.classify(x, decValues);
-        if (numClasses > 2) {
-            Arrays.sort(decValues);
-            return Math.abs(decValues[decValues.length-1] - decValues[decValues.length-2]);
-        } else {
-            return Math.abs(decValues[0]);
+        return Math.abs(decValues[0]);
+    }
+
+    /**
+     * Get all uncertain samples from test data set if their functional distances are less than 1.
+     * @param distance The functional distance array.
+     */
+    private void getAllUncertainSamples(final double[][] distance) {
+
+        uncertainSamples.clear();
+        for (int i = 0; i < testData.size(); i++) {
+            if (distance[i][1] < 1.0) {
+                uncertainSamples.add(testData.get((int)distance[i][0]));
+            }
         }
     }
 
     /**
-     * Select h most diverse samples from the m most uncertain samples.
+     * Get q most uncertain samples from test data set based on their functional distances.
+     * @param distance The functional distance array.
+     */
+    private void getMostUncertainSamples(final double[][] distance) {
+
+        java.util.Arrays.sort(distance, new java.util.Comparator<double[]>() {
+            public int compare(double[] a, double[] b) {
+                return Double.compare(a[1], b[1]);
+            }
+        });
+
+        uncertainSamples.clear();
+        for (int i = 0; i < q; i++) {
+            uncertainSamples.add(testData.get((int)distance[i][0]));
+        }
+    }
+
+    /**
+     * Select h most diverse samples from the q most uncertain samples.
      * @throws Exception The exception.
      */
     private void selectMostDiverseSamples() throws Exception {
