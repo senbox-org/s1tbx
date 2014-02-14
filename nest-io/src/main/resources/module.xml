@@ -198,6 +198,15 @@
             <shortDescr>Export PolSARPro</shortDescr>
             <helpId>exportPolsarPro</helpId>
         </action>
+        <action>
+            <id>exportSafe</id>
+            <class>org.esa.beam.visat.actions.ProductExportAction</class>
+            <formatName>SAFE</formatName>
+            <useAllFileFilter>true</useAllFileFilter>
+            <shortDescr>Export SAFE</shortDescr>
+            <helpId>exportSafe</helpId>
+        </action>
+
 
         <action>
             <id>importRadarsat2Product</id>

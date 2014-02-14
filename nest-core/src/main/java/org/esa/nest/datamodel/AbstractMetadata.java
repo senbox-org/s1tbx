@@ -579,6 +579,22 @@ public final class AbstractMetadata {
     }
 
     /**
+     * Check if abstracted metadata exists.
+     * @param sourceProduct the product
+     * @return true if abstractmetadata exists
+     * @throws OperatorException if abs metadata not found
+     */
+    public static boolean hasAbstractedMetadata(final Product sourceProduct) throws OperatorException {
+
+        final MetadataElement root = sourceProduct.getMetadataRoot();
+        if (root == null) {
+            throw new OperatorException("Root Metadata not found");
+        }
+        MetadataElement abstractedMetadata = root.getElement(AbstractMetadata.ABSTRACT_METADATA_ROOT);
+        return (abstractedMetadata != null);
+    }
+
+    /**
      * Get abstracted metadata.
      * @param sourceProduct the product
      * @return MetadataElement

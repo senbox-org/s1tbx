@@ -33,14 +33,16 @@ public class NestGeoTiffProductReader extends GeoTiffProductReader {
     @Override
     protected void initMetadata(final Product product, final File inputFile) throws IOException {
 
-        final MetadataElement root = product.getMetadataRoot();
-        final MetadataElement absRoot = AbstractMetadata.addAbstractedMetadataHeader(root);
+        if(!AbstractMetadata.hasAbstractedMetadata(product)) {
+            final MetadataElement root = product.getMetadataRoot();
+            final MetadataElement absRoot = AbstractMetadata.addAbstractedMetadataHeader(root);
 
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PRODUCT, product.getName());
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PRODUCT_TYPE, product.getProductType());
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.num_samples_per_line, product.getSceneRasterWidth());
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.num_output_lines, product.getSceneRasterHeight());
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PRODUCT, product.getName());
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PRODUCT_TYPE, product.getProductType());
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.num_samples_per_line, product.getSceneRasterWidth());
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.num_output_lines, product.getSceneRasterHeight());
 
-        AbstractMetadata.loadExternalMetadata(product, absRoot, inputFile);
+            AbstractMetadata.loadExternalMetadata(product, absRoot, inputFile);
+        }
     }
 }

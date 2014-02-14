@@ -133,7 +133,7 @@ public final class AbstractMetadataIO {
             if(valStr == null || valStr.isEmpty())
                 valStr = " ";
             metaAttrib.getData().setElems(valStr);
-        } else if(type == ProductData.TYPE_UTC) {
+        } else if(type == ProductData.TYPE_UTC || typeFromFile == ProductData.TYPE_UTC) {
                 metaAttrib.getData().setElems(AbstractMetadata.parseUTC(valueAttrib.getValue()).getArray());
         } else if(type == ProductData.TYPE_FLOAT64 || type == ProductData.TYPE_FLOAT32) {
             metaAttrib.getData().setElemDouble(Double.parseDouble(valueAttrib.getValue()));
@@ -212,6 +212,9 @@ public final class AbstractMetadataIO {
 
     private static void addTiePointGrid(final Product product, final String name, final List<Float> valueList,
                                         final int inputWidth, final int inputHeight) {
+        if(product.getTiePointGrid(name) != null)
+            return;
+
         int gridWidth = inputWidth;
         int gridHeight = inputHeight;
         if(gridWidth < 5)
