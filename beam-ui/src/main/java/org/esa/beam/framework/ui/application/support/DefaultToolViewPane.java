@@ -161,7 +161,7 @@ public class DefaultToolViewPane extends AbstractPageComponentPane {
                 e.printStackTrace();
                 // todo - delegate to application exception handler service
                 String message = "An internal error occurred.\n " +
-                        "Not able to create user interface control for\n" +
+                        "Not able to create user interface control for \n" +
                         "page component '" + getPageComponent().getDescriptor().getTitle() + "'.";
                 JOptionPane.showMessageDialog(getPageComponent().getContext().getPage().getWindow(),
                                               message, "Internal Error",

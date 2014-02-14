@@ -138,15 +138,24 @@ public class DisplayableSpectrum implements Spectrum {
 
     public void updateUnit() {
         if (bands.size() > 0) {
-            unit = bands.get(0).getUnit();
+            unit = getUnit(bands.get(0));
         }
         if (bands.size() > 1) {
             for (int i = 1; i < bands.size(); i++) {
-                if (!unit.equals(bands.get(i).getUnit())) {
+                if (!unit.equals(getUnit(bands.get(i)))) {
                     unit = MIXED_UNITS;
                     return;
                 }
             }
         }
     }
+
+    private String getUnit(Band band) {
+        String bandUnit = band.getUnit();
+        if(bandUnit == null) {
+            bandUnit = "";
+        }
+        return bandUnit;
+    }
+
 }
