@@ -20,7 +20,7 @@ import org.junit.Test;
 
 import java.net.MalformedURLException;
 
-import static junit.framework.Assert.*;
+import static org.junit.Assert.*;
 
 public class SiteCreatorTest {
 

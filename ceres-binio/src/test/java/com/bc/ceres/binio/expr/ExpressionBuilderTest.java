@@ -16,26 +16,27 @@
 
 package com.bc.ceres.binio.expr;
 
-import com.bc.ceres.binio.CompoundData;
-import com.bc.ceres.binio.SequenceType;
-import com.bc.ceres.binio.SimpleType;
+import com.bc.ceres.binio.*;
+import org.junit.*;
+
+import java.io.*;
+
 import static com.bc.ceres.binio.expr.ExpressionBuilder.*;
-import junit.framework.Assert;
-import junit.framework.TestCase;
+import static org.junit.Assert.*;
 
-import java.io.IOException;
-
-public class ExpressionBuilderTest extends TestCase {
+public class ExpressionBuilderTest {
+    @Test
     public void testSequence() throws IOException {
         SequenceExpr sequence = SEQ(UINT, 42);
         assertEquals(true, sequence.isConstant());
         Object result = sequence.evaluate(null);
         assertTrue(result instanceof SequenceType);
         SequenceType sequenceType = (SequenceType) result;
-        Assert.assertEquals(SimpleType.UINT, sequenceType.getElementType());
+        assertEquals(SimpleType.UINT, sequenceType.getElementType());
         assertEquals(42, sequenceType.getElementCount());
     }
 
+    @Test
     public void testChoice() throws IOException {
         ChoiceExpr choice = IF(CONSTANT(true), INT, DOUBLE);
         assertEquals(true, choice.isConstant());
@@ -50,6 +51,7 @@ public class ExpressionBuilderTest extends TestCase {
         assertEquals(SimpleType.DOUBLE, result);
     }
 
+    @Test
     public void testSelect() throws IOException {
         final VariableExpr condition = new VariableExpr();
         final SelectionExpr selection = SELECT(condition,
@@ -75,6 +77,7 @@ public class ExpressionBuilderTest extends TestCase {
         assertEquals(SimpleType.INT, result);
     }
 
+    @Test
     public void testComplexExpressionTree() {
         final CompoundExpr SNAPSHOT_INFO =
                 COMP("Snapshot_Information",

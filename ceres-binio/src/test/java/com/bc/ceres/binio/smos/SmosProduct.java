@@ -16,16 +16,14 @@
 
 package com.bc.ceres.binio.smos;
 
-import com.bc.ceres.binio.CompoundType;
-import com.bc.ceres.binio.DataFormat;
-import static com.bc.ceres.binio.TypeBuilder.*;
-import junit.framework.Assert;
+import com.bc.ceres.binio.*;
+import org.junit.*;
 
-import javax.imageio.stream.ImageOutputStream;
-import javax.imageio.stream.MemoryCacheImageOutputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.nio.ByteOrder;
+import javax.imageio.stream.*;
+import java.io.*;
+import java.nio.*;
+
+import static com.bc.ceres.binio.TypeBuilder.*;
 
 public class SmosProduct {
     public static final int[] BT_DATA_COUNTERS = new int[]{2, 4, 3, 6};

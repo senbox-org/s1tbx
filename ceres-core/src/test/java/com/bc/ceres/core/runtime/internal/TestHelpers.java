@@ -16,15 +16,14 @@
 
 package com.bc.ceres.core.runtime.internal;
 
-import junit.framework.Assert;
-import com.bc.ceres.core.CoreException;
-import com.bc.ceres.core.runtime.Module;
-import com.bc.ceres.core.runtime.ModuleState;
+import com.bc.ceres.core.*;
+import com.bc.ceres.core.runtime.*;
+import org.junit.*;
 
-import java.io.IOException;
-import java.net.URL;
+import java.io.*;
+import java.net.*;
 
-import org.junit.Ignore;
+import static org.junit.Assert.*;
 
 @Ignore
 public class TestHelpers {
@@ -71,50 +70,50 @@ public class TestHelpers {
             module.setImpliciteLibs(new String[0]);
             module.setImpliciteNativeLibs(new String[0]);
             moduleRegistry.registerModule(module);
-            Assert.assertEquals(moduleId, module.getModuleId());
-            Assert.assertSame(moduleRegistry, module.getRegistry());
+            assertEquals(moduleId, module.getModuleId());
+            assertSame(moduleRegistry, module.getRegistry());
             moduleId++;
         }
         Module[] modules = moduleRegistry.getModules();
-        Assert.assertEquals(resources.length, modules.length);
+        assertEquals(resources.length, modules.length);
         return moduleRegistry;
     }
 
     static void assertModuleIsInstalled(ModuleImpl module) {
-        Assert.assertNotNull(module);
-        Assert.assertEquals(ModuleState.INSTALLED, module.getState());
-        Assert.assertNull(module.getClassLoader());
-        Assert.assertNull(module.getActivator());
-        Assert.assertEquals(0, module.getRefCount());
+        assertNotNull(module);
+        assertEquals(ModuleState.INSTALLED, module.getState());
+        assertNull(module.getClassLoader());
+        assertNull(module.getActivator());
+        assertEquals(0, module.getRefCount());
     }
 
     static void assertModuleIsResolved(ModuleImpl module, int expectedRefCount, ModuleImpl[] expectedModuleDependencies) {
-        Assert.assertNotNull(module);
-        Assert.assertEquals(ModuleState.RESOLVED, module.getState());
-        Assert.assertNotNull(module.getClassLoader());
-        Assert.assertNull(module.getActivator());
-        Assert.assertNotNull(module.getModuleDependencies());
-        Assert.assertEquals(expectedModuleDependencies.length, module.getModuleDependencies().length);
+        assertNotNull(module);
+        assertEquals(ModuleState.RESOLVED, module.getState());
+        assertNotNull(module.getClassLoader());
+        assertNull(module.getActivator());
+        assertNotNull(module.getModuleDependencies());
+        assertEquals(expectedModuleDependencies.length, module.getModuleDependencies().length);
         for (int i = 0; i < expectedModuleDependencies.length; i++) {
             ModuleImpl expectedModuleDependency = expectedModuleDependencies[i];
-            Assert.assertSame(expectedModuleDependency, module.getModuleDependencies()[i]);
+            assertSame(expectedModuleDependency, module.getModuleDependencies()[i]);
         }
-        Assert.assertEquals(expectedRefCount, module.getRefCount());
+        assertEquals(expectedRefCount, module.getRefCount());
     }
 
     static void assertModuleIsActive(ModuleImpl module) {
-        Assert.assertNotNull(module);
-        Assert.assertEquals(ModuleState.ACTIVE, module.getState());
-        Assert.assertNotNull(module.getClassLoader());
-        Assert.assertNotNull(module.getActivator());
+        assertNotNull(module);
+        assertEquals(ModuleState.ACTIVE, module.getState());
+        assertNotNull(module.getClassLoader());
+        assertNotNull(module.getActivator());
     }
 
     public static ModuleImpl getSingleton(ModuleRegistry moduleRegistry, String symbolicName) {
         ModuleImpl[] modules = moduleRegistry.getModules(symbolicName);
-        Assert.assertNotNull(modules);
-        Assert.assertEquals(1, modules.length);
+        assertNotNull(modules);
+        assertEquals(1, modules.length);
         ModuleImpl module = modules[0];
-        Assert.assertNotNull(module);
+        assertNotNull(module);
         return module;
     }
 }
