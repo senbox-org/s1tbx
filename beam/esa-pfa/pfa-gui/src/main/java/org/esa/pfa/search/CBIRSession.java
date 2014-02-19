@@ -73,6 +73,18 @@ public class CBIRSession {
 
     public void setQueryImages() throws Exception {
         searchTool.setQueryImages(getQueryPatches());
+        getImagesToLabel();
+    }
+
+    public Patch[] getRelevantTrainingImages() {
+        return relevantImageList.toArray(new Patch[relevantImageList.size()]);
+    }
+
+    public Patch[] getIrrelevantTrainingImages() {
+        return irrelevantImageList.toArray(new Patch[irrelevantImageList.size()]);
+    }
+
+    public void getImagesToLabel() throws Exception {
 
         relevantImageList.clear();
         irrelevantImageList.clear();
@@ -85,14 +97,6 @@ public class CBIRSession {
                 irrelevantImageList.add(patch);
             }
         }
-    }
-
-    public Patch[] getRelevantTrainingImages() {
-        return relevantImageList.toArray(new Patch[relevantImageList.size()]);
-    }
-
-    public Patch[] getIrrelevantTrainingImages() {
-        return irrelevantImageList.toArray(new Patch[irrelevantImageList.size()]);
     }
 
     public void trainModel() throws Exception {
