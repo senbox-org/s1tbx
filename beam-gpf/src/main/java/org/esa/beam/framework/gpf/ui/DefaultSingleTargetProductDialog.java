@@ -34,6 +34,7 @@ import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.internal.RasterDataNodeValues;
 import org.esa.beam.framework.ui.AppContext;
+import org.esa.beam.framework.ui.UIUtils;
 
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -88,7 +89,7 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
         if (propertyContainer.getProperties().length > 0) {
             if (!sourceProductSelectorList.isEmpty()) {
                 Property[] properties = propertyContainer.getProperties();
-                List<PropertyDescriptor> rdnTypeProperties = new ArrayList<PropertyDescriptor>(properties.length);
+                List<PropertyDescriptor> rdnTypeProperties = new ArrayList<>(properties.length);
                 for (Property property : properties) {
                     PropertyDescriptor parameterDescriptor = property.getDescriptor();
                     if (parameterDescriptor.getAttribute(RasterDataNodeValues.ATTRIBUTE_NAME) != null) {
@@ -172,6 +173,7 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
             if (currentProduct != null) {
                 currentProduct.removeProductNodeListener(this);
                 currentProduct = null;
+                updateSourceProduct();
             }
         }
 
@@ -190,37 +192,40 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
                     }
                     updateTargetProductname();
                     updateValueSets(currentProduct);
-                    try {
-                        Property property = bindingContext.getPropertySet().getProperty("SOURCE_PRODUCT");
-                        if (property != null) {
-                            property.setValue(currentProduct);
-                        }
-                    } catch (ValidationException e) {
-                        // todo
-                        e.printStackTrace();
-                    }
+                    updateSourceProduct();
                 }
             }
         }
 
         @Override
         public void nodeAdded(ProductNodeEvent event) {
-            handleProductNodeEvent(event);
+            handleProductNodeEvent();
         }
 
         @Override
         public void nodeChanged(ProductNodeEvent event) {
-            handleProductNodeEvent(event);
+            handleProductNodeEvent();
         }
 
         @Override
         public void nodeDataChanged(ProductNodeEvent event) {
-            handleProductNodeEvent(event);
+            handleProductNodeEvent();
         }
 
         @Override
         public void nodeRemoved(ProductNodeEvent event) {
-            handleProductNodeEvent(event);
+            handleProductNodeEvent();
+        }
+
+        private void updateSourceProduct() {
+            try {
+                Property property = bindingContext.getPropertySet().getProperty(UIUtils.PROPERTY_SOURCE_PRODUCT);
+                if (property != null) {
+                    property.setValue(currentProduct);
+                }
+            } catch (ValidationException e) {
+                throw new IllegalStateException("Property '" + UIUtils.PROPERTY_SOURCE_PRODUCT + "' must be of type " + Product.class + ".", e);
+            }
         }
 
         private void updateTargetProductname() {
@@ -232,7 +237,7 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
             targetProductSelectorModel.setProductName(productName + getTargetProductNameSuffix());
         }
 
-        private void handleProductNodeEvent(ProductNodeEvent event) {
+        private void handleProductNodeEvent() {
             updateValueSets(currentProduct);
         }
 

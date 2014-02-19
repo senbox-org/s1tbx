@@ -19,6 +19,13 @@ package org.esa.beam.framework.ui;
 import com.bc.ceres.binding.converters.StringConverter;
 
 /**
+ *
+ * Empty marker subclass for StringConverter.
+ *
+ * Purpose: use as converter for band maths or valid pixel expressions in the
+ * {@link org.esa.beam.framework.gpf.annotations.Parameter}-annotation in order to allow for generating a decent
+ * UI-component.
+ *
  * @author Thomas Storm
  */
 public class ExpressionConverter extends StringConverter {

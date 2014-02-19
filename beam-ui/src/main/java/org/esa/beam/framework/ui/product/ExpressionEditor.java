@@ -25,6 +25,7 @@ import com.bc.ceres.swing.binding.internal.TextComponentAdapter;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.ExpressionConverter;
 import org.esa.beam.framework.ui.ModalDialog;
+import org.esa.beam.framework.ui.UIUtils;
 
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -41,7 +42,6 @@ import java.beans.PropertyChangeListener;
  * A value editor for band arithmetic expressions
  *
  * @author Marco Zuehlke
- * @version $Revision$ $Date$
  * @since BEAM 4.6
  */
 public class ExpressionEditor extends PropertyEditor {
@@ -67,14 +67,12 @@ public class ExpressionEditor extends PropertyEditor {
                 }
             }
         });
-        bindingContext.getPropertySet().addProperty(Property.create("SOURCE_PRODUCT", Product.class, null, false));
+        bindingContext.getPropertySet().addProperty(Property.create(UIUtils.PROPERTY_SOURCE_PRODUCT, Product.class, null, false));
         bindingContext.addPropertyChangeListener(new PropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
-                if (evt.getPropertyName().equals("SOURCE_PRODUCT")) {
-                    if (evt.getNewValue() != null) {
-                        currentProduct = (Product) evt.getNewValue();
-                    }
+                if (evt.getPropertyName().equals(UIUtils.PROPERTY_SOURCE_PRODUCT)) {
+                    currentProduct = (Product) evt.getNewValue();
                     etcButton.setEnabled(currentProduct != null);
                 }
             }

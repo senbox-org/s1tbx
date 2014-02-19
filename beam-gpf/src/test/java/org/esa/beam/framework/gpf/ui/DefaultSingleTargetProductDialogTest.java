@@ -29,8 +29,8 @@ import org.esa.beam.framework.gpf.Tile;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
+import org.esa.beam.framework.ui.ExpressionConverter;
 
-import javax.swing.JFrame;
 import javax.swing.UIManager;
 
 
@@ -45,9 +45,6 @@ public class DefaultSingleTargetProductDialogTest extends TestCase {
     @Override
     protected void tearDown() throws Exception {
         GPF.getDefaultInstance().getOperatorSpiRegistry().removeOperatorSpi(SPI);
-    }
-
-    public void testNothing() {
     }
 
     public static void main(String[] args) throws Exception {
@@ -79,6 +76,8 @@ public class DefaultSingleTargetProductDialogTest extends TestCase {
         double threshold;
         @Parameter(valueSet = {"ME-203", "ME-208", "ME-002"}, defaultValue = "ME-208")
         String method;
+        @Parameter(description = "Mask expression", label = "Mask expression", converter = ExpressionConverter.class)
+        String validExpression;
 
         @Override
         public void initialize() throws OperatorException {
@@ -102,49 +101,3 @@ public class DefaultSingleTargetProductDialogTest extends TestCase {
         }
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
