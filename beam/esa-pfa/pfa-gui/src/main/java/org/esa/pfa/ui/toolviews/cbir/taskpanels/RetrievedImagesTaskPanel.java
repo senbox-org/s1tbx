@@ -59,7 +59,8 @@ public class RetrievedImagesTaskPanel extends TaskPanel {
         return new LabelingTaskPanel(session);
     }
 
-    public boolean validateInput() {
+    public boolean validateInput() throws Exception {
+        session.getImagesToLabel();
         return true;
     }
 
