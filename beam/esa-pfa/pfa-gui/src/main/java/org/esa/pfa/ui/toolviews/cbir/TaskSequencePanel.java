@@ -219,7 +219,7 @@ public class TaskSequencePanel extends JPanel implements ActionListener {
     /**
      * Displays the next step in the sequence.
      */
-    public void next() {
+    public void next() throws Exception {
         if (!this.currentPanel.validateInput()) {
             return;
         }
