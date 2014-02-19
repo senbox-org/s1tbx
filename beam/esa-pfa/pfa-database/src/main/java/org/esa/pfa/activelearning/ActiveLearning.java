@@ -101,6 +101,8 @@ public class ActiveLearning {
     // UI: Pass in user labelled patches and trigger the training.
     public void train(Patch[] userLabelledPatches) throws Exception {
 
+        checkLabels(userLabelledPatches);
+
         trainingData.addAll(Arrays.asList(userLabelledPatches));
 
         svmClassifier.train(trainingData);
@@ -123,7 +125,8 @@ public class ActiveLearning {
             final double[] decValues = new double[numClasses*(numClasses-1)/2];
             for (Patch patch:patchArray) {
                 double p = svmClassifier.classify(patch, decValues);
-                patch.setLabel((int)p);
+                final int label = p<1?0:1;
+                patch.setLabel(label);
                 patch.setDistance(decValues[0]);
             }
 
@@ -171,6 +174,20 @@ public class ActiveLearning {
             }
             if (isPatchValid) {
                 trainingData.add(patch);
+            }
+        }
+    }
+
+    /**
+     * Check if there is any unlabeled patch.
+     * @param patchArray Patch array.
+     * @throws Exception The exception.
+     */
+    private void checkLabels(Patch[] patchArray) throws Exception {
+
+        for (Patch patch:patchArray) {
+            if (patch.getLabel() == -1) {
+                throw new Exception("Found unlabeled patch(s)");
             }
         }
     }
