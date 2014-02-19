@@ -259,7 +259,8 @@ public class ActiveLearning {
         });
 
         uncertainSamples.clear();
-        for (int i = 0; i < q; i++) {
+        final int maxUncertainSample = Math.min(q, distance.length);
+        for (int i = 0; i < maxUncertainSample; i++) {
             uncertainSamples.add(testData.get((int)distance[i][0]));
         }
     }
