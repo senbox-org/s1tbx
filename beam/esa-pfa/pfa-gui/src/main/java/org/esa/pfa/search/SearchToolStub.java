@@ -56,7 +56,7 @@ public class SearchToolStub {
     public void setQueryImages(final Patch[] queryImages) throws Exception {
         al.setQueryPatches(queryImages);
 
-        final Patch[] archivePatches = db.query("product:ENVI*", 50);
+        final Patch[] archivePatches = db.query("product:ENVI*", 500);
         al.setRandomPatches(archivePatches);
     }
 
