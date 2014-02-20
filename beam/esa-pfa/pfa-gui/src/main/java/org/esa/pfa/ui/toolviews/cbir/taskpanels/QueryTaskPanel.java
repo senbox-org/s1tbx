@@ -136,12 +136,14 @@ public class QueryTaskPanel extends TaskPanel implements ActionListener {
 
                 final Dimension dim = session.getApplicationDescriptor().getPatchDimension();
                 final Product subset = FeatureWriter.createSubset(product, new Rectangle(subX, subY, dim.width, dim.height));
+                final int patchX = subX/dim.width;
+                final int patchY = subY/dim.height;
                 subX += dim.width;
                 subY += dim.height;
 
                 BufferedImage image = ProductUtils.createColorIndexedImage(subset.getBand(ProductUtils.findSuitableQuicklookBandName(subset)),
                                                                            com.bc.ceres.core.ProgressMonitor.NULL);
-                Patch patch = new Patch(0, 0, null, subset);
+                Patch patch = new Patch(patchX, patchY, null, subset);
                 patch.setImage(image);
                 session.addQueryPatch(patch);
                 drawer.update(session.getQueryPatches());
