@@ -16,280 +16,155 @@
 package org.esa.beam.processor.cloud;
 
 import com.bc.ceres.core.ProgressMonitor;
-import com.bc.ceres.core.SubProgressMonitor;
-import org.esa.beam.dataio.dimap.DimapProductConstants;
+import com.bc.jexp.ParseException;
 import org.esa.beam.dataio.envisat.EnvisatConstants;
-import org.esa.beam.framework.dataio.ProductWriter;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.processor.Processor;
-import org.esa.beam.framework.processor.ProcessorException;
-import org.esa.beam.framework.processor.ProcessorUtils;
-import org.esa.beam.framework.processor.Request;
-import org.esa.beam.framework.processor.ui.ProcessorUI;
-import org.esa.beam.processor.cloud.internal.FrameSizeCalculator;
-import org.esa.beam.processor.cloud.internal.LinebasedFrameSizeCalculator;
-import org.esa.beam.processor.cloud.internal.util.PNHelper;
-import org.esa.beam.util.Debug;
+import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.gpf.Operator;
+import org.esa.beam.framework.gpf.OperatorException;
+import org.esa.beam.framework.gpf.OperatorSpi;
+import org.esa.beam.framework.gpf.Tile;
+import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
+import org.esa.beam.framework.gpf.annotations.SourceProduct;
+import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
+import org.esa.beam.util.ResourceInstaller;
+import org.esa.beam.util.SystemUtils;
 
 import java.awt.Rectangle;
+import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
  * The <code>CloudProcessor</code> implements all specific functionality to calculate a cloud probability.
  *
- * @deprecated since BEAM 4.11. No replacement.
  */
-@Deprecated
-public class CloudProcessor extends Processor {
+@SuppressWarnings({"UnusedDeclaration", "FieldCanBeLocal"})
+@OperatorMetadata(alias = "CloudProb",
+                  version = "1.5.203",
+                  authors = "Rene Preusker (Algorithm), Tom Block (BEAM Implementation), Thomas Storm (GPF conversion)",
+                  copyright = "Copyright (C) 2004-2014 by ESA, FUB and Brockmann Consult",
+                  description = "Applies a clear sky conservative cloud detection algorithm.")
+public class CloudProcessor extends Operator {
 
-    public static final String PROCESSOR_NAME = "Cloud Probability Processor";
-    private static final String PROCESSOR_SYMBOLIC_NAME = "beam-meris-cloud";
-    private static final String PROCESSOR_VERSION = "1.5.203";
-    private static final String PROCESSOR_COPYRIGHT = "Copyright (C) 2004 by ESA, FUB and Brockmann Consult";
+    public static final String AUXDATA_DIR = "meris.cloud/auxdata";
 
-    public static final String DEFAULT_OUTPUT_DIR_NAME = "processor";
-    public static final String DEFAULT_OUTPUT_FORMAT = DimapProductConstants.DIMAP_FORMAT_NAME;
-    public static final String DEFAULT_OUTPUT_PRODUCT_NAME = "MER_CLOUD";
-
-    public static final String REQUEST_TYPE = "MER_L2_CLOUD";
-
+    @SourceProduct(alias = "source", label = "Source product")
     private Product l1bProduct;
+
+    @TargetProduct(label = "Cloud product")
     private Product cloudProduct;
 
-    private Logger _logger;
-
+    private Logger logger;
     private CloudPN cloudNode;
-    private Band[] cloudNodeBands;
-    private FrameSizeCalculator frameSizeCalculator;
-    public static final String HELP_ID = "cloudScientificTool";
-
-    public CloudProcessor() {
-        _logger = Logger.getLogger(CloudConstants.LOGGER_NAME);
-        setDefaultHelpId(HELP_ID);
-
-    }
-
-    /**
-     * Initializes the processor. Override to perform processor specific initialization. Called by the framework after
-     * the loggining is initialized.
-     */
-    @Override
-    public void initProcessor() throws ProcessorException {
-        super.initProcessor();
-
-
-    }
-
 
     @Override
-    public void process(ProgressMonitor pm) throws ProcessorException {
-        ProcessorUtils.setProcessorLoggingHandler(CloudConstants.DEFAULT_LOG_PREFIX, getRequest(),
-                                                  getName(), getVersion(), getCopyrightInformation());
-        pm.beginTask("Processing cloud product...", 10);
+    public void initialize()  {
+        logger = Logger.getLogger(CloudConstants.LOGGER_NAME);
+        logger.info("STARTING REQUEST ...");
+        initCloudNode();
         try {
-            _logger.info(CloudConstants.LOG_MSG_START_REQUEST);
+            initOutputProduct();
+        } catch (IOException | ParseException e) {
+            throw new OperatorException("Unable to initialise output product.", e);
+        }
+    }
 
-            // check the request type
-            Request.checkRequestType(getRequest(), REQUEST_TYPE);
-
-            initCloudNode();
-
-            // create the output product
-            initOutputProduct(SubProgressMonitor.create(pm, 1));
-
-            // and process the processor
-            processCloud(SubProgressMonitor.create(pm, 9));
-
-            _logger.info(CloudConstants.LOG_MSG_SUCCESS);
-        } catch (Exception e) {
-            _logger.log(Level.SEVERE, CloudConstants.LOG_MSG_PROC_ERROR + e.getMessage(), e);
-            throw new ProcessorException(e.getMessage(), e);
-        } finally {
-            pm.done();
-            try {
-                if (isAborted()) {
-                    deleteOutputProduct();
+    @Override
+    public void computeTileStack(Map<Band, Tile> targetTiles, Rectangle targetRectangle, ProgressMonitor pm) throws OperatorException {
+        for (Map.Entry<Band, Tile> entry : targetTiles.entrySet()) {
+            Band targetBand = entry.getKey();
+            Tile targetTile = entry.getValue();
+            if (cloudProduct.containsBand(targetBand.getName())) {
+                Band sourceBand = cloudProduct.getBand(targetBand.getName());
+                ProductData data = sourceBand.createCompatibleProductData(targetTile.getRectangle().width * targetTile.getRectangle().height);
+                try {
+                    copyBandData(sourceBand, targetTile.getRectangle(), targetBand, data);
+                } catch (IOException e) {
+                    throw new OperatorException(e);
                 }
-            } finally {
-                closeProducts();
-                _logger.info(CloudConstants.LOG_MSG_FINISHED_REQUEST);
             }
         }
     }
 
-    /**
-     * Retrieves the name of the processor
-     */
-    @Override
-    public String getName() {
-        return PROCESSOR_NAME;
+    private void copyBandData(Band sourceBand, Rectangle frameRect, Band destBand, ProductData data) throws IOException {
+        sourceBand.readRasterData(frameRect.x, frameRect.y,
+                                  frameRect.width, frameRect.height,
+                                  data, ProgressMonitor.NULL);
+        destBand.writeRasterData(frameRect.x, frameRect.y,
+                                 frameRect.width, frameRect.height,
+                                 data, ProgressMonitor.NULL);
     }
 
-    /**
-     * Returns the symbolic name of the processor.
-     */
-    @Override
-    public String getSymbolicName() {
-        return PROCESSOR_SYMBOLIC_NAME;
-    }
+    private void initCloudNode() {
+        try {
+            installAuxdata();
+        } catch (IOException e) {
+            throw new OperatorException("Unable to install auxiliary data.", e);
+        }
 
-    /**
-     * Retrieves a version string of the processor
-     */
-    @Override
-    public String getVersion() {
-        return PROCESSOR_VERSION;
-    }
-
-    /**
-     * Retrieves copyright information of the processor
-     */
-    @Override
-    public String getCopyrightInformation() {
-        return PROCESSOR_COPYRIGHT;
-    }
-
-    /**
-     * Creates the UI for the processor. Override to perform processor specific
-     * UI initializations.
-     */
-    @Override
-    public ProcessorUI createUI() throws ProcessorException {
-        return new CloudProcessorUI();
-    }
-    ///////////////////////////////////////////////////////////////////////////
-    /////// END OF PUBLIC
-    ///////////////////////////////////////////////////////////////////////////
-
-    private void initCloudNode() throws ProcessorException {
-        installAuxdata();
-
-        // cloud node
-        final Map<String, String> cloudConfig = new HashMap<String, String>();
+        final Map<String, String> cloudConfig = new HashMap<>();
         cloudConfig.put(CloudPN.CONFIG_FILE_NAME, "cloud_config.txt");
-//        cloudConfig.put(CloudPN.INVALID_EXPRESSION, "l1_flags.INVALID OR NOT l1_flags.LAND_OCEAN");
         cloudConfig.put(CloudPN.INVALID_EXPRESSION, "l1_flags.INVALID");
-        cloudNode = new CloudPN();
+        cloudNode = new CloudPN(getAuxdataInstallationPath());
         try {
             cloudNode.setUp(cloudConfig);
         } catch (IOException e) {
-            throw new ProcessorException("Failed to initialise cloud source: " + e.getMessage(), e);
+            throw new OperatorException("Failed to initialise cloud source: " + e.getMessage(), e);
         }
     }
 
-    @Override
-    public void installAuxdata() throws ProcessorException {
-        setAuxdataInstallDir(CloudPN.CLOUD_AUXDATA_DIR_PROPERTY, getDefaultAuxdataInstallDir());
-        super.installAuxdata();
+    // package local for testing purposes
+    void installAuxdata() throws IOException {
+        String auxdataDirPath = getAuxdataInstallationPath();
+        installAuxdata(ResourceInstaller.getSourceUrl(getClass()), "auxdata/", new File(auxdataDirPath));
     }
 
+    // package local for testing purposes
+    String getAuxdataInstallationPath() {
+        File defaultAuxdataDir = new File(SystemUtils.getApplicationDataDir(), AUXDATA_DIR);
+        return System.getProperty(CloudPN.CLOUD_AUXDATA_DIR_PROPERTY, defaultAuxdataDir.getAbsolutePath());
+    }
+
+    private void installAuxdata(URL sourceLocation, String sourceRelPath, File auxdataInstallDir) throws IOException {
+        new ResourceInstaller(sourceLocation, sourceRelPath, auxdataInstallDir)
+                .install(".*", ProgressMonitor.NULL);
+    }
 
     /**
      * Creates the output product skeleton.
      */
-    private void initOutputProduct(ProgressMonitor pm) throws Exception {
-        l1bProduct = loadInputProduct(0);
+    private void initOutputProduct() throws IOException, ParseException {
         if (!EnvisatConstants.MERIS_L1_TYPE_PATTERN.matcher(l1bProduct.getProductType()).matches()) {
-            throw new ProcessorException("Product type '" + l1bProduct.getProductType() + "' is not supported." +
+            throw new OperatorException("Product type '" + l1bProduct.getProductType() + "' is not supported." +
                                                  "It must be a MERIS Level 1b product.");
         }
         cloudProduct = cloudNode.readProductNodes(l1bProduct, null);
-        cloudNodeBands = cloudProduct.getBands();
 
-        copyFlagBands(l1bProduct, cloudProduct);
-//        PNHelper.copyAllBandsToProduct(l1bProduct, cloudProduct, true);
+        ProductUtils.copyFlagBands(l1bProduct, cloudProduct, true);
         ProductUtils.copyTiePointGrids(l1bProduct, cloudProduct);
 
-        copyGeoCoding(l1bProduct, cloudProduct);
+        ProductUtils.copyGeoCoding(l1bProduct, cloudProduct);
+        ProductUtils.copyMetadata(l1bProduct, cloudProduct);
         cloudProduct.setStartTime(l1bProduct.getStartTime());
         cloudProduct.setEndTime(l1bProduct.getEndTime());
-        copyRequestMetaData(cloudProduct);
 
-        prepareProcessing();
-
-        PNHelper.initWriter(getRequest().getOutputProductAt(0), cloudProduct, _logger);
-        copyBandData(getBandNamesToCopy(), l1bProduct, cloudProduct, pm);
-        _logger.info(CloudConstants.LOG_MSG_OUTPUT_CREATED);
-    }
-
-    private void prepareProcessing() throws Exception {
-        final int width = l1bProduct.getSceneRasterWidth();
-        final int height = l1bProduct.getSceneRasterHeight();
-
-        frameSizeCalculator = new LinebasedFrameSizeCalculator(width, height);
-        cloudNode.setFrameSizeCalculator(frameSizeCalculator);
         cloudNode.startProcessing();
+
+        logger.info("Output product successfully initialised");
     }
 
-    /**
-     * Performs the actual processing of the output product. Reads both input bands line
-     * by line, calculates the processor and writes the result to the output band
-     */
-    private void processCloud(ProgressMonitor pm) throws IOException {
-        final int frameCount = frameSizeCalculator.getFrameCount();
+    public static class Spi extends OperatorSpi {
 
-        // Notify process listeners that processing has started
-        pm.beginTask("Generating Cloud product...", frameCount * 2);
-        try {
-            for (int frameNumber = 0; frameNumber < frameCount; frameNumber++) {
-                final Rectangle frameRect = frameSizeCalculator.getFrameRect(frameNumber);
-                _logger.info("processing Cloud frame: " + (frameNumber + 1) + "/" + frameCount);
-                PNHelper.copyBandData(cloudNodeBands, cloudProduct, frameRect, SubProgressMonitor.create(pm, 1));
-                PNHelper.copyBandData(l1bProduct.getBand(EnvisatConstants.MERIS_L1B_FLAGS_DS_NAME), cloudProduct,
-                                      frameRect, SubProgressMonitor.create(pm, 1));
-//                PNHelper.copyBandData(l1bProduct.getBands(), cloudProduct, frameRect);
-
-                // Notify process listeners about processing progress and
-                // check whether or not processing shall be terminated
-                if (pm.isCanceled()) {
-                    // Processing terminated!
-                    setCurrentStatus(CloudConstants.STATUS_ABORTED);
-                    // Immediately terminate now
-                    return;
-                }
-            }
-        } finally {
-            pm.done();
+        public Spi() {
+            super(CloudProcessor.class);
         }
+
     }
 
-    /**
-     * Closes any open products.
-     */
-    private void closeProducts() {
-        if (cloudProduct != null) {
-            cloudProduct.dispose();
-            cloudProduct = null;
-        }
-    }
-
-    private void deleteOutputProduct() throws ProcessorException {
-        if (cloudProduct != null) {
-            final ProductWriter writer = cloudProduct.getProductWriter();
-            if (writer != null) {
-                try {
-                    writer.deleteOutput();
-                } catch (IOException e) {
-                    _logger.warning("Failed to delete uncomplete output product: " + e.getMessage());
-                    Debug.trace(e);
-                    throw new ProcessorException("Failed to delete uncomplete output product.", e);
-                }
-            }
-        }
-    }
-
-
-    /**
-     * Called by framework after a processing failure.
-     */
-    @Override
-    protected final void cleanupAfterFailure() {
-        closeProducts();
-    }
 }

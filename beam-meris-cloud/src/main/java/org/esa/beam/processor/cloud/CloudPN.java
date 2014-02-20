@@ -17,6 +17,7 @@ package org.esa.beam.processor.cloud;
 
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
+import com.bc.jexp.ParseException;
 import com.bc.jexp.Term;
 import org.esa.beam.dataio.envisat.EnvisatConstants;
 import org.esa.beam.framework.datamodel.Band;
@@ -27,7 +28,6 @@ import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.datamodel.TiePointGrid;
 import org.esa.beam.processor.cloud.internal.ProcessingNode;
-import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.logging.BeamLogManager;
 import org.esa.beam.util.math.MathUtils;
 
@@ -43,10 +43,8 @@ import java.util.logging.Logger;
 /**
  * A processing node to compute a cloud_probability mask using a neural network.
  *
- * @deprecated since BEAM 4.11. No replacement.
  */
-@Deprecated
-public class CloudPN extends ProcessingNode {
+class CloudPN extends ProcessingNode {
 
     public static final String CLOUD_AUXDATA_DIR_PROPERTY = "cloud.auxdata.dir";
 
@@ -68,6 +66,7 @@ public class CloudPN extends ProcessingNode {
     private static final int FLAG_CLOUDY = 1;
     private static final int FLAG_CLOUDFREE = 2;
     private static final int FLAG_UNCERTAIN = 4;
+    private final String auxdataDir;
 
     private TiePointGrid szaGrid;
     private TiePointGrid saaGrid;
@@ -97,37 +96,28 @@ public class CloudPN extends ProcessingNode {
      * Pressure scale height to account for altitude.
      */
     private int pressScaleHeight;
-    private static File AUXDATA_DIR;
 
-    static {
-        String symbolicName = "beam-meris-cloud"; // todo - get the symbolicName from processor
-        File defaultAuxdataDir = new File(SystemUtils.getApplicationDataDir(), symbolicName + "/auxdata");
-        String auxdataDirPath = System.getProperty(CloudPN.CLOUD_AUXDATA_DIR_PROPERTY,
-                                                   defaultAuxdataDir.getAbsolutePath());
-        AUXDATA_DIR = new File(auxdataDirPath);
-
-    }
-
-    public CloudPN() {
+    public CloudPN(String auxdataDir) {
         super(null);
+        this.auxdataDir = auxdataDir;
         logger = BeamLogManager.getSystemLogger();
     }
 
     @Override
     public void setUp(final Map config) throws IOException {
 
-        final File propertiesFile = new File(AUXDATA_DIR, (String) config.get(CONFIG_FILE_NAME));
+        final File propertiesFile = new File(auxdataDir, (String) config.get(CONFIG_FILE_NAME));
         final InputStream propertiesStream = new FileInputStream(propertiesFile);
         Properties properties = new Properties();
         properties.load(propertiesStream);
 
-        landAlgo = new CloudAlgorithm(AUXDATA_DIR, properties.getProperty("land"));
-        oceanAlgo = new CloudAlgorithm(AUXDATA_DIR, properties.getProperty("ocean"));
+        landAlgo = new CloudAlgorithm(new File(auxdataDir), properties.getProperty("land"));
+        oceanAlgo = new CloudAlgorithm(new File(auxdataDir), properties.getProperty("ocean"));
 
         pressScaleHeight = Integer.parseInt(properties.getProperty(PRESS_SCALE_HEIGHT_KEY));
 
         centralWavelengthProvider = new CentralWavelengthProvider();
-        centralWavelengthProvider.readAuxData(AUXDATA_DIR);
+        centralWavelengthProvider.readAuxData(new File(auxdataDir));
 
         validLandExpression = landAlgo.getValidExpression();
         if (validLandExpression.isEmpty()) {
@@ -224,10 +214,6 @@ public class CloudPN extends ProcessingNode {
     /**
      * Creates a new color object to be used in the bitmaskDef.
      * The given indices start with 1.
-     *
-     * @param index
-     * @param maxIndex
-     * @return the color
      */
     private static Color createBitmaskColor(int index, int maxIndex) {
         final double rf1 = 0.0;
@@ -302,9 +288,11 @@ public class CloudPN extends ProcessingNode {
                                            SubProgressMonitor.create(pm, 1));
 
             ProductData data = getFrameData(cloudBand);
+            //noinspection MismatchedReadAndWriteOfArray
             short[] cloudScanLine = (short[]) data.getElems();
 
             ProductData flagData = getFrameData(cloudFlagBand);
+            //noinspection MismatchedReadAndWriteOfArray
             byte[] flagScanLine = (byte[]) flagData.getElems();
 
             for (int i = 0; i < frameSize; i++) {
@@ -396,9 +384,8 @@ public class CloudPN extends ProcessingNode {
     }
 
     @Override
-    public void startProcessing() throws Exception {
+    public void startProcessing() throws ParseException {
         final Product l1bProduct = getSourceProduct();
-
 
         szaGrid = l1bProduct.getTiePointGrid(EnvisatConstants.MERIS_SUN_ZENITH_DS_NAME);
         saaGrid = l1bProduct.getTiePointGrid(EnvisatConstants.MERIS_SUN_AZIMUTH_DS_NAME);

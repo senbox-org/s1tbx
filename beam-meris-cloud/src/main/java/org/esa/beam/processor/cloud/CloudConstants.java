@@ -15,21 +15,15 @@
  */
 package org.esa.beam.processor.cloud;
 
-import org.esa.beam.framework.processor.ProcessorConstants;
-
-
 /**
  * Description of CloudConstants
  *
  * @author Marco Peters
- * @deprecated since BEAM 4.11. No replacement.
  */
-@Deprecated
-public class CloudConstants implements ProcessorConstants {
+public class CloudConstants {
 
     public static final String LOGGER_NAME = "beam.processor.cloud";
     public static final String DEFAULT_LOG_PREFIX = "cloud_prob";
     public static final String DEFAULT_OUTPUT_PRODUCT_NAME = "cloud.dim";
 
-    public static final String LOG_MSG_OUTPUT_CREATED = "Output product successfully created";
 }

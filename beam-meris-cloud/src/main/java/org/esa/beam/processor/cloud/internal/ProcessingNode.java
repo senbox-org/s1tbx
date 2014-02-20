@@ -17,7 +17,6 @@
 package org.esa.beam.processor.cloud.internal;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.beam.framework.dataio.IllegalFileFormatException;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 import org.esa.beam.framework.dataio.ProductSubsetDef;
@@ -55,13 +54,13 @@ public abstract class ProcessingNode implements ProductReader {
     private Product[] sourceProducts;
     private Product targetProduct;
     private Rectangle frameRectangle;
-    private Map frameDataMap;
+    private Map<Band, ProductData> frameDataMap;
     private FrameSizeCalculator fsc;
 
     protected ProcessingNode(final ProcessingNodePlugIn plugIn) {
         this.plugIn = plugIn;
         this.frameRectangle = null;
-        this.frameDataMap = new HashMap(31);
+        this.frameDataMap = new HashMap<>(31);
     }
 
     protected Product getTargetProduct() {
@@ -102,7 +101,7 @@ public abstract class ProcessingNode implements ProductReader {
         if (frameRectangle == null) {
             return null;
         }
-        ProductData frameData = (ProductData) frameDataMap.get(targetBand);
+        ProductData frameData = frameDataMap.get(targetBand);
         final int numElems = frameRectangle.width * frameRectangle.height;
         if (frameData == null || frameData.getNumElems() != numElems) {
             frameData = targetBand.createCompatibleProductData(numElems);
@@ -246,8 +245,7 @@ public abstract class ProcessingNode implements ProductReader {
      * @throws org.esa.beam.framework.dataio.IllegalFileFormatException
      *                                  if the file format is illegal
      */
-    public Product readProductNodes(final Object input, final ProductSubsetDef subsetDef) throws IOException,
-                                                                                                 IllegalFileFormatException {
+    public Product readProductNodes(final Object input, final ProductSubsetDef subsetDef) throws IOException {
         if (subsetDef != null) {
             throw new IllegalArgumentException("subsetDef != null (subsets are not supported)");
         }
