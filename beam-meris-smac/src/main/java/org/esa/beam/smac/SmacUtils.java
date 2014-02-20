@@ -28,8 +28,7 @@ class SmacUtils {
      * Converts the sensor type given by the request to a string that can be understood by the
      * <code>SensorCoefficientManager</code>.
      *
-     * @param productType the request type string
-     * @throws java.lang.IllegalArgumentException on unsupported input product type
+     * @param productType the request type string, or <code>null</code> on unsupported input product type
      */
     public static String getSensorType(String productType) {
         Guardian.assertNotNull("productType", productType);
@@ -38,9 +37,8 @@ class SmacUtils {
             return SensorCoefficientManager.AATSR_NAME;
         } else if (isSupportedMerisProductType(productType)) {
             return SensorCoefficientManager.MERIS_NAME;
-        } else {
-            throw new IllegalArgumentException(String.format("Unsupported input product of type '%s'.\nSMAC processes AATSR and MERIS L1b products.", productType));
         }
+        return null;
     }
 
     public static boolean isSupportedMerisProductType(String productType) {

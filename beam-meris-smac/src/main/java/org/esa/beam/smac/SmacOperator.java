@@ -270,12 +270,12 @@ public class SmacOperator extends Operator {
             loadAATSR_ADS(sourceProduct);
             useMerisADS = false;
         } else {
-            throw new OperatorException("Unsupported sensor type!");
+            throw new OperatorException(String.format("Unsupported input product of type '%s'.\nSMAC processes AATSR and MERIS L1b products.", sourceProduct.getProductType()));
         }
 
         // set up the bands we need for this request
         // -----------------------------------------
-        if (bandNames.length == 0) {
+        if (bandNames == null || bandNames.length == 0) {
             throw new OperatorException("No input bands defined, processing cannot be performed");
         }
 
