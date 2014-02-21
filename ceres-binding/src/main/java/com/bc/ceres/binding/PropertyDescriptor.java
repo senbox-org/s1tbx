@@ -30,9 +30,7 @@ import com.bc.ceres.core.Assert;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -56,6 +54,8 @@ public class PropertyDescriptor {
 
     private Map<String, Object> attributes;
     private PropertyChangeSupport attributeChangeSupport;
+
+    private PropertySetDescriptor propertySetDescriptor;
 
     public PropertyDescriptor(String name, Class<?> type) {
         this(name, type, new HashMap<String, Object>(8));
@@ -199,11 +199,11 @@ public class PropertyDescriptor {
     }
 
     public void setDefaultConverter() {
-        Class<?> type = getType();
-        if (getItemAlias() != null && type.isArray()) {
-            type = type.getComponentType();
+        boolean hasItemAlias = getItemAlias() != null && !getItemAlias().isEmpty();
+        boolean useItemConverter = getType().isArray() && hasItemAlias;
+        if (!useItemConverter) {
+            setConverter(ConverterRegistry.getInstance().getConverter(getType()));
         }
-        setConverter(ConverterRegistry.getInstance().getConverter(type));
     }
 
     public void setConverter(Converter<?> converter) {
@@ -237,6 +237,13 @@ public class PropertyDescriptor {
         return effectiveValidator;
     }
 
+    public PropertySetDescriptor getPropertySetDescriptor() {
+        return propertySetDescriptor;
+    }
+
+    public void setPropertySetDescriptor(PropertySetDescriptor propertySetDescriptor) {
+        this.propertySetDescriptor = propertySetDescriptor;
+    }
 
     //////////////////////////////////////////////////////////////////////////////
     // Array/List item attributes
@@ -249,10 +256,18 @@ public class PropertyDescriptor {
         setAttribute("itemAlias", alias);
     }
 
+    /**
+     * @deprecated since BEAM 5
+     */
+    @Deprecated
     public boolean getItemsInlined() {
         return getBooleanProperty("itemsInlined");
     }
 
+    /**
+     * @deprecated since BEAM 5
+     */
+    @Deprecated
     public void setItemsInlined(boolean inlined) {
         setAttribute("itemsInlined", inlined);
     }
@@ -300,26 +315,7 @@ public class PropertyDescriptor {
     /////////////////////////////////////////////////////////////////////////
     // Package Local
 
-    static PropertyDescriptor createPropertyDescriptor(String name, Class<?> type) {
-        final PropertyDescriptor propertyDescriptor = new PropertyDescriptor(name, type);
-        propertyDescriptor.initialize();
-        return propertyDescriptor;
-    }
-
-    static PropertyDescriptor createPropertyDescriptor(Field field,
-                                                       PropertyDescriptorFactory descriptorFactory) {
-        final PropertyDescriptor propertyDescriptor = descriptorFactory.createValueDescriptor(field);
-        if (propertyDescriptor == null) {
-            return null;
-        }
-        propertyDescriptor.initialize();
-        return propertyDescriptor;
-    }
-
-    /////////////////////////////////////////////////////////////////////////
-    // Private
-
-    private void initialize() {
+    void initDefaults() {
         if (getConverter() == null) {
             setDefaultConverter();
         }
@@ -327,6 +323,9 @@ public class PropertyDescriptor {
             setDefaultValue(Property.PRIMITIVE_ZERO_VALUES.get(getType()));
         }
     }
+
+    /////////////////////////////////////////////////////////////////////////
+    // Private
 
     private void firePropertyChange(String propertyName, Object newValue, Object oldValue) {
         if (attributeChangeSupport == null) {

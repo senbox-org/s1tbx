@@ -27,6 +27,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -39,16 +40,16 @@ import java.util.Map.Entry;
  */
 public class PropertyContainer implements PropertySet {
 
-    private final HashMap<String, Property> propertyMap;
-    private final ArrayList<Property> propertyList;
+    private final Map<String, Property> propertyMap;
+    private final List<Property> propertyList;
     private final PropertyChangeSupport propertyChangeSupport;
 
     /**
      * Constructs a new, empty property container.
      */
     public PropertyContainer() {
-        propertyMap = new HashMap<String, Property>(10);
-        propertyList = new ArrayList<Property>(10);
+        propertyMap = new HashMap<>(10);
+        propertyList = new ArrayList<>(10);
         propertyChangeSupport = new PropertyChangeSupport(this);
     }
 
@@ -80,22 +81,57 @@ public class PropertyContainer implements PropertySet {
                                false);
     }
 
+    public static PropertyContainer createObjectBacked(Object object, PropertySetDescriptor propertySetDescriptor) {
+
+        Map<String, Field> fields = getPropertyFields(object.getClass());
+
+        PropertyContainer propertySet = new PropertyContainer();
+        for (String propertyName : propertySetDescriptor.getPropertyNames()) {
+            PropertyDescriptor propertyDescriptor = propertySetDescriptor.getPropertyDescriptor(propertyName);
+            Field field = fields.get(propertyDescriptor.getName());
+            if (field != null) {
+                propertyDescriptor.initDefaults();
+                propertySet.addProperty(new Property(propertyDescriptor, new ClassFieldAccessor(object, field)));
+            }
+        }
+        return propertySet;
+    }
+
     /**
      * Creates a property container for a map backing the values.
-     * The factory method will not modify the given map, thus not setting any default values.
+     * The properties are derived from the current map entries.
      *
      * @param map the map which backs the values
      * @return The property container.
      */
     public static PropertyContainer createMapBacked(Map<String, Object> map) {
-        PropertyContainer vc = new PropertyContainer();
+        PropertyContainer propertyContainer = new PropertyContainer();
         for (Entry<String, Object> entry : map.entrySet()) {
             String name = entry.getKey();
             Object value = entry.getValue();
-            vc.addProperty(new Property(PropertyDescriptor.createPropertyDescriptor(name, value.getClass()),
-                                        new MapEntryAccessor(map, name)));
+            final PropertyDescriptor propertyDescriptor = new PropertyDescriptor(name, value.getClass());
+            propertyDescriptor.initDefaults();
+            propertyContainer.addProperty(new Property(propertyDescriptor, new MapEntryAccessor(map, name)));
         }
-        return vc;
+        return propertyContainer;
+    }
+
+    /**
+     * Creates a property container for a map backing the values.
+     * The factory method will not modify the given map, thus not setting any default values.
+     *
+     * @param map                   the map which backs the values
+     * @param propertySetDescriptor A descriptor the property set to be created.
+     * @return The property container.
+     */
+    public static PropertyContainer createMapBacked(Map<String, Object> map, PropertySetDescriptor propertySetDescriptor) {
+        PropertyContainer propertySet = new PropertyContainer();
+        for (String propertyName : propertySetDescriptor.getPropertyNames()) {
+            PropertyDescriptor propertyDescriptor = propertySetDescriptor.getPropertyDescriptor(propertyName);
+            propertyDescriptor.initDefaults();
+            propertySet.addProperty(new Property(propertyDescriptor, new MapEntryAccessor(map, propertyName)));
+        }
+        return propertySet;
     }
 
     /**
@@ -106,8 +142,7 @@ public class PropertyContainer implements PropertySet {
      * @param templateType the template type
      * @return The property container.
      */
-    public static PropertyContainer createMapBacked(Map<String, Object> map,
-                                                    Class<?> templateType) {
+    public static PropertyContainer createMapBacked(Map<String, Object> map, Class<?> templateType) {
         return createMapBacked(map,
                                templateType,
                                new DefaultPropertyDescriptorFactory());
@@ -122,8 +157,7 @@ public class PropertyContainer implements PropertySet {
      * @param descriptorFactory a factory used to create {@link PropertyDescriptor}s of the fields of the template type
      * @return The property container.
      */
-    public static PropertyContainer createMapBacked(Map<String, Object> map,
-                                                    Class<?> templateType,
+    public static PropertyContainer createMapBacked(Map<String, Object> map, Class<?> templateType,
                                                     PropertyDescriptorFactory descriptorFactory) {
         return createForFields(templateType,
                                descriptorFactory,
@@ -146,13 +180,13 @@ public class PropertyContainer implements PropertySet {
      * Creates a property container for the given template type.
      * All properties will have their values set to default values (if specified).
      *
-     * @param templateClass     the template class used to derive the descriptors from
+     * @param templateType      the template class used to derive the descriptors from
      * @param descriptorFactory a factory used to create {@link PropertyDescriptor}s of the fields of the template type
      * @return The property container.
      */
-    public static PropertyContainer createValueBacked(Class<?> templateClass,
+    public static PropertyContainer createValueBacked(Class<?> templateType,
                                                       PropertyDescriptorFactory descriptorFactory) {
-        return createForFields(templateClass,
+        return createForFields(templateType,
                                descriptorFactory,
                                new ValueBackedPropertyAccessorFactory(),
                                true);
@@ -163,22 +197,34 @@ public class PropertyContainer implements PropertySet {
      * using the {@code descriptorFactory} and the {@code accessorFactory} which
      * are called for each non-static and non-transient class field.
      *
-     * @param fieldProvider     Thje Java class providing the fields.
+     * @param type              The type that provides the fields.
      * @param descriptorFactory The property descriptor factory.
      * @param accessorFactory   The property accessor factory.
      * @param initValues        If {@code true}, properties are initialised by their default values, if specified.
      * @return The property container.
      */
-    public static PropertyContainer createForFields(Class<?> fieldProvider,
+    public static PropertyContainer createForFields(Class<?> type,
                                                     PropertyDescriptorFactory descriptorFactory,
                                                     PropertyAccessorFactory accessorFactory,
                                                     boolean initValues) {
         PropertyContainer container = new PropertyContainer();
-        collectProperties(container, fieldProvider, descriptorFactory, accessorFactory);
+        collectProperties(type, descriptorFactory, accessorFactory, container);
         if (initValues) {
             container.setDefaultValues();
         }
         return container;
+    }
+
+    static Map<String, Field> getPropertyFields(Class<?> type) {
+        return ClassScanner.getFields(type, new ClassScanner.FieldFilter() {
+            @Override
+            public boolean accept(Field field) {
+                int modifiers = field.getModifiers();
+                return !(Modifier.isFinal(modifiers)
+                         || Modifier.isTransient(modifiers)
+                         || Modifier.isStatic(modifiers));
+            }
+        });
     }
 
     @Override
@@ -241,6 +287,7 @@ public class PropertyContainer implements PropertySet {
         if (property == null) {
             return null;
         }
+        //noinspection unchecked
         return (T) property.getValue();
     }
 
@@ -300,24 +347,16 @@ public class PropertyContainer implements PropertySet {
         return propertyChangeSupport;
     }
 
-    private static void collectProperties(PropertyContainer container,
-                                          Class<?> fieldProvider,
-                                          PropertyDescriptorFactory descriptorFactory,
-                                          PropertyAccessorFactory accessorFactory) {
-        if (!fieldProvider.equals(Object.class)) {
-            collectProperties(container, fieldProvider.getSuperclass(), descriptorFactory, accessorFactory);
-            Field[] declaredFields = fieldProvider.getDeclaredFields();
-            for (Field field : declaredFields) {
-                final int mod = field.getModifiers();
-                if (!Modifier.isTransient(mod) && !Modifier.isStatic(mod)) {
-                    final PropertyDescriptor descriptor = PropertyDescriptor.createPropertyDescriptor(field,
-                                                                                                      descriptorFactory);
-                    if (descriptor != null) {
-                        final PropertyAccessor accessor = accessorFactory.createValueAccessor(field);
-                        if (accessor != null) {
-                            container.addProperty(new Property(descriptor, accessor));
-                        }
-                    }
+    private static void collectProperties(Class<?> type, PropertyDescriptorFactory descriptorFactory, PropertyAccessorFactory accessorFactory, PropertySet propertySet) {
+        Map<String, Field> fields = getPropertyFields(type);
+        for (String key : fields.keySet()) {
+            Field field = fields.get(key);
+            PropertyDescriptor descriptor = descriptorFactory.createValueDescriptor(field);
+            if (descriptor != null) {
+                descriptor.initDefaults();
+                PropertyAccessor accessor = accessorFactory.createValueAccessor(field);
+                if (accessor != null) {
+                    propertySet.addProperty(new Property(descriptor, accessor));
                 }
             }
         }
@@ -359,11 +398,4 @@ public class PropertyContainer implements PropertySet {
         }
     }
 
-    private static class DefaultPropertyDescriptorFactory implements PropertyDescriptorFactory {
-
-        @Override
-        public PropertyDescriptor createValueDescriptor(Field field) {
-            return new PropertyDescriptor(field.getName(), field.getType());
-        }
-    }
 }
