@@ -98,7 +98,7 @@ class CloudPN extends ProcessingNode {
     private int pressScaleHeight;
 
     public CloudPN(String auxdataDir) {
-        super(null);
+        super();
         this.auxdataDir = auxdataDir;
         logger = BeamLogManager.getSystemLogger();
     }
@@ -135,7 +135,7 @@ class CloudPN extends ProcessingNode {
      */
     @Override
     protected Product createTargetProductImpl() {
-        Product l1Product = getSourceProduct(0);
+        Product l1Product = getSourceProduct();
 
         String[] radianceBandNames = EnvisatConstants.MERIS_L1B_SPECTRAL_BAND_NAMES;
         radianceBands = new Band[radianceBandNames.length];

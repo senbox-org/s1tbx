@@ -60,14 +60,13 @@ public class CloudOperator extends Operator {
     @TargetProduct(label = "Cloud product")
     private Product targetProduct;
 
-    private Logger logger;
     private CloudPN cloudNode;
     private Product tempCloudProduct;
 
     @Override
     public void initialize()  {
-        logger = Logger.getLogger(CloudConstants.LOGGER_NAME);
-        logger.info("Starting request...");
+        setLogger(Logger.getLogger(CloudConstants.LOGGER_NAME));
+        getLogger().info("Starting request...");
         initCloudNode();
         try {
             initOutputProduct();
@@ -82,18 +81,9 @@ public class CloudOperator extends Operator {
             Band targetBand = entry.getKey();
             Tile targetTile = entry.getValue();
             Band sourceBand = tempCloudProduct.getBand(targetBand.getName());
-            copyBandData(sourceBand, targetTile);
-        }
-    }
-
-    private void copyBandData(Band sourceBand, Tile targetTile) {
-        Rectangle targetRect = targetTile.getRectangle();
-        if (sourceBand.getDataType() == ProductData.TYPE_UINT8) {
-            byte[] samples = getSourceTile(sourceBand, targetRect).getDataBufferByte();
-            targetTile.setSamples(samples);
-        } else if (sourceBand.getDataType() == ProductData.TYPE_INT16) {
-            short[] samples = getSourceTile(sourceBand, targetRect).getDataBufferShort();
-            targetTile.setSamples(samples);
+            Rectangle targetRect = targetTile.getRectangle();
+            ProductData rawSamples = getSourceTile(sourceBand, targetRect).getRawSamples();
+            targetTile.setRawSamples(rawSamples);
         }
     }
 
@@ -153,7 +143,7 @@ public class CloudOperator extends Operator {
 
         cloudNode.startProcessing();
 
-        logger.info("Output product successfully initialised");
+        getLogger().info("Output product successfully initialised");
     }
 
     public static class Spi extends OperatorSpi {
