@@ -1,4 +1,4 @@
 org.esa.nest.dataio.generic.GenericWriterPlugIn
 org.esa.nest.dataio.imageio.ImageIOWriterPlugIn
 org.esa.nest.dataio.polsarpro.PolsarProProductWriterPlugIn
-org.esa.nest.dataio.safe.SafeProductWriterPlugIn
+org.esa.nest.dataio.geotiffxml.GeoTiffXMLProductWriterPlugIn

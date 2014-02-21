@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.nest.dataio.safe;
+package org.esa.nest.dataio.geotiffxml;
 
 import org.esa.beam.dataio.geotiff.GeoTiffProductWriter;
 import org.esa.beam.framework.dataio.ProductWriterPlugIn;
@@ -27,15 +27,43 @@ import java.io.IOException;
  * The product writer for SAFE products.
  *
  */
-public class SafeProductWriter extends GeoTiffProductWriter {
+public class GeoTiffXMLProductWriter extends GeoTiffProductWriter {
 
     /**
      * Construct a new instance of a product writer for the given product writer plug-in.
      *
      * @param writerPlugIn the given product writer plug-in, must not be <code>null</code>
      */
-    public SafeProductWriter(final ProductWriterPlugIn writerPlugIn) {
+    public GeoTiffXMLProductWriter(final ProductWriterPlugIn writerPlugIn) {
         super(writerPlugIn);
+    }
+
+    /**
+     * Retrives the current output destination object. Thie return value might be <code>null</code> if the
+     * <code>setOutput</code> method has not been called so far.
+     *
+     * @return the output
+     */
+    public Object getOutput() {
+        Object output = super.getOutput();
+        if(output != null)   {
+            File file;
+            if (output instanceof String) {
+                file = new File((String)output);
+            } else {
+                file = (File)output;
+            }
+            String filename = file.getName();
+            if(filename.toLowerCase().endsWith(".tif")) {
+                filename = filename.substring(0, filename.length()-4);
+            }
+            File folder = new File(file.getParentFile(), filename);
+            if(!folder.exists()) {
+                folder.mkdirs();
+            }
+            return new File(folder, filename);
+        }
+        return output;
     }
 
     /**
@@ -49,9 +77,11 @@ public class SafeProductWriter extends GeoTiffProductWriter {
     protected void writeProductNodesImpl() throws IOException {
         super.writeProductNodesImpl();
 
+        writeMetadataXML();
+    }
+
+    private void writeMetadataXML() {
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(getSourceProduct());
         AbstractMetadata.saveExternalMetadata(getSourceProduct(), absRoot, new File(getOutputDir().getParentFile(), "metadata.xml"));
     }
-
-
 }

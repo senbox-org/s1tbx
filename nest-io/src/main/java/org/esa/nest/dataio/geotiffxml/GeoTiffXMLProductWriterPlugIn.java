@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.nest.dataio.safe;
+package org.esa.nest.dataio.geotiffxml;
 
 import org.esa.beam.framework.dataio.ProductWriter;
 import org.esa.beam.framework.dataio.ProductWriterPlugIn;
@@ -25,16 +25,15 @@ import java.util.Locale;
 /**
  * The writer
  */
-public class SafeProductWriterPlugIn implements ProductWriterPlugIn {
+public class GeoTiffXMLProductWriterPlugIn implements ProductWriterPlugIn {
 
+    public static final String FORMAT_NAME = "GeoTIFF+XML";
     private final BeamFileFilter fileFilter = new BeamFileFilter(getFormatNames()[0], getDefaultFileExtensions(), getDescription(null));
-
-    public static final String FORMAT_NAME = "SAFE";
 
     /**
      * Constructs a new product writer plug-in instance.
      */
-    public SafeProductWriterPlugIn() {
+    public GeoTiffXMLProductWriterPlugIn() {
     }
 
     /**
@@ -82,7 +81,7 @@ public class SafeProductWriterPlugIn implements ProductWriterPlugIn {
      * @return a textual description of this product reader/writer
      */
     public String getDescription(Locale locale) {
-        return "SAFE product writer";
+        return "GeoTiff+XML product writer";
     }
 
     /**
@@ -91,7 +90,7 @@ public class SafeProductWriterPlugIn implements ProductWriterPlugIn {
      * @return a new instance of the <code>ProductWriter</code> class
      */
     public ProductWriter createWriterInstance() {
-        return new SafeProductWriter(this);
+        return new GeoTiffXMLProductWriter(this);
     }
 
     public BeamFileFilter getProductFileFilter() {

@@ -199,12 +199,12 @@
             <helpId>exportPolsarPro</helpId>
         </action>
         <action>
-            <id>exportSafe</id>
+            <id>exportGeoTiffXML</id>
             <class>org.esa.beam.visat.actions.ProductExportAction</class>
-            <formatName>SAFE</formatName>
+            <formatName>GeoTIFF+XML</formatName>
             <useAllFileFilter>true</useAllFileFilter>
-            <shortDescr>Export SAFE</shortDescr>
-            <helpId>exportSafe</helpId>
+            <shortDescr>Export GeoTIFF+XML</shortDescr>
+            <helpId>exportGeoTiffXML</helpId>
         </action>
 
 
