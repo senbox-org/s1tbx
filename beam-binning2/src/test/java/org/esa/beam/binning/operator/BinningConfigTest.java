@@ -28,22 +28,24 @@ import org.esa.beam.binning.aggregators.AggregatorOnMaxSet;
 import org.esa.beam.binning.support.PlateCarreeGrid;
 import org.esa.beam.binning.support.SEAGrid;
 import org.esa.beam.util.io.FileUtils;
-import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 public class BinningConfigTest {
 
-    private BinningConfig config;
+    private static BinningConfig config;
 
-    @Before
-    public void initBinningConfig() throws IOException, BindingException {
-        config = loadConfig(getClass().getResourceAsStream("BinningConfigTest.xml"));
+    @BeforeClass
+    public static void initBinningConfig() throws IOException, BindingException {
+        config = loadConfig(BinningConfigTest.class.getResourceAsStream("BinningConfigTest.xml"));
     }
 
     @Test

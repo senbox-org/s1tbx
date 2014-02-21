@@ -17,18 +17,8 @@ public interface ParameterDescriptor extends DataElementDescriptor {
      * @return An alias name for the elements of a parameter array.
      * Forces element-wise array conversion from and to DOM representation.
      * Defaults to the empty string (= not set).
-     * @see #areItemsInlined()
      */
     String getItemAlias();
-
-    /**
-     * @return If {@code true} items of parameter array values are inlined (not
-     * enclosed by the parameter name) in the DOM representation of the
-     * array. In this case also the ({@code itemName} must be given.
-     * Defaults to {@code false}.
-     * @see #getItemAlias()
-     */
-    boolean areItemsInlined();
 
     /**
      * Gets the parameter's default value.
@@ -136,17 +126,17 @@ public interface ParameterDescriptor extends DataElementDescriptor {
     Class<? extends RasterDataNode> getRasterDataNodeClass();
 
     /**
-     * @return {@code true} if this parameter's value is a data structure.
+     * @return {@code true} if the parameter type is a composite data structure.
      * @see #getDataType()
-     * @see #getDataMemberDescriptors()
+     * @see #getStructureMemberDescriptors()
      */
-    boolean isSimple();
+    boolean isStructure();
 
     /**
-     * @return The descriptors for the structure members of this parameter. The returned array will be empty, if
+     * @return The descriptors for the structure members of this parameter type. The returned array will be empty, if
      * this parameter doesn't have a structure data type.
      * @see #getDataType()
-     * @see #isSimple()
+     * @see #isStructure()
      */
-    ParameterDescriptor[] getDataMemberDescriptors();
+    ParameterDescriptor[] getStructureMemberDescriptors();
 }

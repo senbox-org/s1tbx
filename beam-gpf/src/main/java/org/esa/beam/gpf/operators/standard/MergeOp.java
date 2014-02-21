@@ -70,12 +70,12 @@ public class MergeOp extends Operator {
     @TargetProduct
     private Product targetProduct;
 
-    @Parameter(itemAlias = "include", itemsInlined = false,
+    @Parameter(itemAlias = "include",
                description = "Defines nodes to be included in the master product. If no includes are provided, all" +
                        " nodes are copied.")
     private NodeDescriptor[] includes;
 
-    @Parameter(itemAlias = "exclude", itemsInlined = false,
+    @Parameter(itemAlias = "exclude",
                description = "Defines nodes to be excluded from the target product (not supported in version 1.0).")
     private NodeDescriptor[] excludes;
 

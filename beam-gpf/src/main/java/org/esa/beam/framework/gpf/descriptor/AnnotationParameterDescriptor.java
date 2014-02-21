@@ -53,11 +53,6 @@ public class AnnotationParameterDescriptor implements ParameterDescriptor {
     }
 
     @Override
-    public boolean areItemsInlined() {
-        return annotation.itemsInlined();
-    }
-
-    @Override
     public String getDefaultValue() {
         return getNonEmptyStringOrNull(annotation.defaultValue());
     }
@@ -133,12 +128,12 @@ public class AnnotationParameterDescriptor implements ParameterDescriptor {
     }
 
     @Override
-    public boolean isSimple() {
-        return DefaultParameterDescriptor.isSimple(getDataType());
+    public boolean isStructure() {
+        return DefaultParameterDescriptor.isStructure(getDataType());
     }
 
     @Override
-    public ParameterDescriptor[] getDataMemberDescriptors() {
+    public ParameterDescriptor[] getStructureMemberDescriptors() {
         return DefaultParameterDescriptor.getDataMemberDescriptors(getDataType());
     }
 
