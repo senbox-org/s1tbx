@@ -46,7 +46,7 @@ import java.util.logging.Logger;
  */
 @SuppressWarnings({"UnusedDeclaration", "FieldCanBeLocal"})
 @OperatorMetadata(alias = "CloudProb",
-                  version = "1.5.203",
+                  version = "1.7",
                   authors = "Rene Preusker (Algorithm), Tom Block (BEAM Implementation), Thomas Storm (GPF conversion)",
                   copyright = "Copyright (C) 2004-2014 by ESA, FUB and Brockmann Consult",
                   description = "Applies a clear sky conservative cloud detection algorithm.")
