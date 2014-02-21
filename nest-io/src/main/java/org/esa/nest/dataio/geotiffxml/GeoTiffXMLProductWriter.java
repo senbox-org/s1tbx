@@ -18,7 +18,9 @@ package org.esa.nest.dataio.geotiffxml;
 import org.esa.beam.dataio.geotiff.GeoTiffProductWriter;
 import org.esa.beam.framework.dataio.ProductWriterPlugIn;
 import org.esa.beam.framework.datamodel.MetadataElement;
+import org.esa.beam.util.io.FileUtils;
 import org.esa.nest.datamodel.AbstractMetadata;
+import org.esa.nest.gpf.ReaderUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -39,34 +41,6 @@ public class GeoTiffXMLProductWriter extends GeoTiffProductWriter {
     }
 
     /**
-     * Retrives the current output destination object. Thie return value might be <code>null</code> if the
-     * <code>setOutput</code> method has not been called so far.
-     *
-     * @return the output
-     */
-    public Object getOutput() {
-        Object output = super.getOutput();
-        if(output != null)   {
-            File file;
-            if (output instanceof String) {
-                file = new File((String)output);
-            } else {
-                file = (File)output;
-            }
-            String filename = file.getName();
-            if(filename.toLowerCase().endsWith(".tif")) {
-                filename = filename.substring(0, filename.length()-4);
-            }
-            File folder = new File(file.getParentFile(), filename);
-            if(!folder.exists()) {
-                folder.mkdirs();
-            }
-            return new File(folder, filename);
-        }
-        return output;
-    }
-
-    /**
      * Writes the in-memory representation of a data product. This method was called by <code>writeProductNodes(product,
      * output)</code> of the AbstractProductWriter.
      *
@@ -82,6 +56,8 @@ public class GeoTiffXMLProductWriter extends GeoTiffProductWriter {
 
     private void writeMetadataXML() {
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(getSourceProduct());
-        AbstractMetadata.saveExternalMetadata(getSourceProduct(), absRoot, new File(getOutputDir().getParentFile(), "metadata.xml"));
+        File file = ReaderUtils.getFileFromInput(getOutput());
+        AbstractMetadata.saveExternalMetadata(getSourceProduct(), absRoot, new File(getOutputDir().getParentFile(),
+                FileUtils.getFilenameWithoutExtension(file.getName())+".xml"));
     }
 }

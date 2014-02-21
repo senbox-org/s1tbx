@@ -13,7 +13,7 @@
     </sources>
     <parameters>
       <formatName>BEAM-DIMAP</formatName>
-      <file>target</file>
+      <file></file>
     </parameters>
   </node>
   <applicationData id="Presentation">

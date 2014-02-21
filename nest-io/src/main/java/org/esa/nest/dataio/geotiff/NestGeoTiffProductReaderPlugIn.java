@@ -20,8 +20,15 @@ import org.esa.beam.framework.dataio.ProductReader;
 
 public class NestGeoTiffProductReaderPlugIn extends GeoTiffProductReaderPlugIn {
 
+    private static final String[] FORMAT_NAMES = new String[]{"GeoTIFF", "GeoTIFF+XML"};
+
     @Override
     public ProductReader createReaderInstance() {
         return new NestGeoTiffProductReader(this);
+    }
+
+    @Override
+    public String[] getFormatNames() {
+        return FORMAT_NAMES;
     }
 }
