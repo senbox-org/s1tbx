@@ -14,29 +14,33 @@
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-package org.esa.beam.processor.cloud;
+package org.esa.beam.operator.cloud;
 
-import junit.framework.TestCase;
-import org.esa.beam.framework.processor.ProcessorException;
 import org.esa.beam.util.math.MathUtils;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-public class CloudPNTest extends TestCase {
+import static org.junit.Assert.*;
+
+public class CloudPNTest {
 
     private CloudPN cloudPn;
 
-    @Override
-	public void setUp() throws IOException, ProcessorException {
-        new CloudProcessor().installAuxdata(); // just to extract auxdata
-        Map<String,String> cloudConfig = new HashMap<String, String>();
+    @Before
+	public void setUp() throws IOException {
+        CloudOperator operator = new CloudOperator();
+        operator.installAuxdata(); // just to extract auxdata
+        Map<String,String> cloudConfig = new HashMap<>();
         cloudConfig.put(CloudPN.CONFIG_FILE_NAME, "cloud_config.txt");
-        cloudPn = new CloudPN();
+        cloudPn = new CloudPN(operator.getAuxdataInstallationPath());
         cloudPn.setUp(cloudConfig);
     }
 
+    @Test
     public void testAltitudeCorrectedPressure() {
         double pressure = 1000;
         double altitude = 100;
@@ -46,6 +50,7 @@ public class CloudPNTest extends TestCase {
         assertEquals("corrected pressure", 1000, correctedPressure, 0.0001);
     }
 
+    @Test
     public void testCalculateI() {
         double radiance = 50;
         float sunSpectralFlux = 10;

@@ -49,6 +49,10 @@
             <artifactId>beam-envisat-reader</artifactId>
             <version>1.5.2.${beam.version}</version>
         </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

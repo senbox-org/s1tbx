@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.beam.processor.cloud;
+package org.esa.beam.operator.cloud;
 
 import com.bc.jnn.Jnn;
 import com.bc.jnn.JnnException;
@@ -27,11 +27,7 @@ import java.io.InputStream;
 import java.util.Properties;
 import java.util.logging.Logger;
 
-/*
- * @deprecated since BEAM 4.11. No replacement.
- */
-@Deprecated
-public class CloudAlgorithm {
+class CloudAlgorithm {
     private static final String PARAM_1_KEY = "param_1";
     private static final String PARAM_2_KEY = "param_2";
     private static final String VALID_KEY = "validExpression";
@@ -81,8 +77,6 @@ public class CloudAlgorithm {
      * Computes the cloudProbability for one pixel
      * using the given array as input for the neural net.
      *
-     * @param cloudIn
-     * @return cloudProbability
      */
     public double computeCloudProbability(double[] cloudIn) {
         // check for input values which are out-of-bounds
@@ -102,8 +96,6 @@ public class CloudAlgorithm {
     /**
      * Computes the cloud parameter that can later be converted into a probability.
      *
-     * @param cloudIn
-     * @return the cloud parameter
      */
     protected double computeCloud(final double[] cloudIn) {
         final double[] output = new double[1];
@@ -119,7 +111,6 @@ public class CloudAlgorithm {
         } else if (a > 80) {
             a = 80;
         }
-        double probability = 1. / (1. + Math.exp(a));
-        return probability;
+        return 1. / (1. + Math.exp(a));
     }
 }

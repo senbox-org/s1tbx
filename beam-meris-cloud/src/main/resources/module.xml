@@ -50,17 +50,17 @@
     <extension point="beam-ui:actions">
         <action>
             <id>cloudScientificTool</id>
-            <class>org.esa.beam.visat.actions.ProcessorAction</class>
-            <processor>org.esa.beam.processor.cloud.CloudProcessor</processor>
-            <text>Cloud Probability Processor (MERIS)...</text>
-            <shortDescr>Invoke the BEAM MERIS Cloud Probability Processor.</shortDescr>
-            <mnemonic>C</mnemonic>
-            <parent>tools</parent>
             <helpId>cloudScientificTool</helpId>
-            <placeAfter>merisPreprocessor</placeAfter>
+            <class>org.esa.beam.visat.actions.DefaultOperatorAction</class>
+            <text>Cloud Probability Processor (MERIS)...</text>
+            <parent>tools</parent>
+            <operatorName>CloudProb</operatorName>
+            <dialogTitle>Cloud Probability Processor</dialogTitle>
+            <placeAfter>merisRadiometryCorrection</placeAfter>
+            <shortDescr>Invoke the BEAM MERIS Cloud Probability Processor.</shortDescr>
+            <targetProductNameSuffix>_cloud</targetProductNameSuffix>
         </action>
     </extension>
-
 
     <extension point="beam-ui:helpSets">
         <helpSet>

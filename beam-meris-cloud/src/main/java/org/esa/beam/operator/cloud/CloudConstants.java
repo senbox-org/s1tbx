@@ -13,23 +13,17 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.beam.processor.cloud.internal.util;
-
+package org.esa.beam.operator.cloud;
 
 /**
- * <p><i><b>IMPORTANT NOTE:</b>
- * This class not an API.
- * It is not intended to be used by clients.</i>
- * </p>
+ * Description of CloudConstants
+ *
+ * @author Marco Peters
  */
-public final class ReturnValue {
+public class CloudConstants {
 
-    /**
-     * The return value.
-     */
-    public double value;
-    /**
-     * The error flag.
-     */
-    public boolean error;
+    public static final String LOGGER_NAME = "beam.processor.cloud";
+    public static final String DEFAULT_LOG_PREFIX = "cloud_prob";
+    public static final String DEFAULT_OUTPUT_PRODUCT_NAME = "cloud.dim";
+
 }

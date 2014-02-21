@@ -14,14 +14,14 @@
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-package org.esa.beam.processor.cloud;
+package org.esa.beam.operator.cloud;
+
+import junit.framework.TestCase;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-
-import junit.framework.TestCase;
 
 public class CentralWavelengthProviderTest extends TestCase {
 

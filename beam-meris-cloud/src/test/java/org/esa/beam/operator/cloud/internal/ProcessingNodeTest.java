@@ -14,10 +14,9 @@
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-package org.esa.beam.processor.cloud.internal;
+package org.esa.beam.operator.cloud.internal;
 
 import com.bc.ceres.core.ProgressMonitor;
-import junit.framework.TestCase;
 import org.esa.beam.framework.dataio.IllegalFileFormatException;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
@@ -25,24 +24,29 @@ import org.esa.beam.framework.dataio.ProductSubsetDef;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.io.IOException;
 
-public class ProcessingNodeTest extends TestCase {
+import static org.junit.Assert.*;
+
+public class ProcessingNodeTest {
 
     private SourceProductReader sourceProductReader;
     private TargetProcessingNode targetProcessingNode;
     private Product sourceProduct;
     private Product targetProduct;
 
-    @Override
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         sourceProductReader = new SourceProductReader();
         sourceProduct = sourceProductReader.readProductNodes(null, null);
         targetProcessingNode = new TargetProcessingNode();
         targetProduct = targetProcessingNode.readProductNodes(sourceProduct, null);
     }
 
+    @Test
     public void testSetUp() throws IOException {
         assertNotNull(sourceProduct.getBand("A"));
         assertNotNull(sourceProduct.getBand("B"));
@@ -58,6 +62,7 @@ public class ProcessingNodeTest extends TestCase {
         assertNull(targetProcessingNode.getFrameData("W"));
     }
 
+    @Test
     public void testThatDataIsProcessedCorrectly() throws IOException {
         final int[] pixelData = new int[4];
         //
@@ -119,10 +124,8 @@ public class ProcessingNodeTest extends TestCase {
 
     private static class TargetProcessingNode extends ProcessingNode {
 
-        StringBuffer callBuffer = new StringBuffer();
-
         public TargetProcessingNode() {
-            super(null);
+            super();
         }
 
         @Override
@@ -138,23 +141,9 @@ public class ProcessingNodeTest extends TestCase {
             return product;
         }
 
-        String getCallString() {
-            return callBuffer.toString();
-        }
-
         @Override
         protected void processFrame(int frameX, int frameY, int frameW, int frameH, ProgressMonitor pm) throws
                                                                                                         IOException {
-            callBuffer.append("processFrame(");
-            callBuffer.append(frameX);
-            callBuffer.append(",");
-            callBuffer.append(frameY);
-            callBuffer.append(",");
-            callBuffer.append(frameW);
-            callBuffer.append(",");
-            callBuffer.append(frameH);
-            callBuffer.append(");");
-
             final ProductData uData = getFrameData("U");
             final ProductData vData = getFrameData("V");
             final ProductData wData = getFrameData("W");
