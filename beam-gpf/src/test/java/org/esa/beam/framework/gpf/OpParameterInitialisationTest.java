@@ -22,7 +22,9 @@ import org.junit.Test;
 
 import java.io.File;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 
 /**
  * Tests the default value initialisation of GPF operators.
@@ -68,10 +70,10 @@ public class OpParameterInitialisationTest {
     public void testDerivedParameterDefaultValueInitialisation() {
         final SomeDerivedOp op = new SomeDerivedOp();
         testParameterValues(op, false);
-        assertEquals(new File("/usr/marco"), op.pf);
+        assertEquals(new File("/usr/marco"), op.pFile);
         op.getTargetProduct(); // force initialisation through framework
         testParameterValues(op, true);
-        assertEquals(new File("/usr/marco"), op.pf);
+        assertEquals(new File("/usr/marco"), op.pFile);
     }
 
     private void testParameterValues(SomeOp op, boolean expectedInitialiseState) {
@@ -162,7 +164,7 @@ public class OpParameterInitialisationTest {
 
     public static class SomeDerivedOp extends SomeOp {
         @Parameter(defaultValue = "/usr/marco")
-        File pf;
+        File pFile;
     }
 
 }

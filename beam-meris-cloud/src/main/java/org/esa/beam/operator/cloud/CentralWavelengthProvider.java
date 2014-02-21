@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.beam.processor.cloud;
+package org.esa.beam.operator.cloud;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -26,10 +26,8 @@ import java.io.InputStreamReader;
  * Provides central wavelengths for meris channel 11.
  * MER_RR could be read from an auxfile. MER_FR is interpolated from them.
  *
- * @deprecated since BEAM 4.11. No replacement.
  */
-@Deprecated
-public class CentralWavelengthProvider {
+class CentralWavelengthProvider {
     private static final String CENTRAL_WAVELENGTH_FILE_NAME = "central_wvl_rr.txt";
     private static final int DETECTOR_LENGTH_RR = 925;
     private static final int DETECTOR_LENGTH_FR = 3700;
