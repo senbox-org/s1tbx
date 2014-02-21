@@ -48,12 +48,15 @@ public class ActiveLearning {
 
     private boolean debug = false;
 
-    // UI: constructor
     public ActiveLearning() throws Exception {
         svmClassifier = new SVM(numFolds, lower, upper);
     }
 
-    // UI: Pass in patches obtained from user's query image. These patch forms the initial training data set.
+    /**
+     * Set patches obtained from user's query image. These patch forms the initial training data set.
+     * @param patchArray The patch array.
+     * @throws Exception The exception.
+     */
     public void setQueryPatches(Patch[] patchArray) throws Exception {
 
         iteration = 0;
@@ -70,7 +73,11 @@ public class ActiveLearning {
         }
     }
 
-    // UI: Pass in random patches obtained from archive. These patches will be used in active learning.
+    /**
+     * Set random patches obtained from archive. These patches will be used in active learning.
+     * @param patchArray The patch array.
+     * @throws Exception The exception.
+     */
     public void setRandomPatches(Patch[] patchArray) throws Exception {
 
         testData.addAll(Arrays.asList(patchArray));
@@ -81,7 +88,12 @@ public class ActiveLearning {
         }
     }
 
-    // UI: Get the selected most ambiguous patches for user to label.
+    /**
+     * Get the most ambiguous patches selected by the active learning algorithm.
+     * @param numImages The number of ambiguous patches.
+     * @return The patch array.
+     * @throws Exception The exceptions.
+     */
     public Patch[] getMostAmbiguousPatches(int numImages) throws Exception {
 
         this.h = numImages;
@@ -95,10 +107,18 @@ public class ActiveLearning {
 
         selectMostDiverseSamples();
 
+        for (Patch patch:diverseSamples) {
+            System.out.println("Ambiguous patch: x" + patch.getPatchX() + "y" + patch.getPatchY());
+        }
+
         return diverseSamples.toArray(new Patch[diverseSamples.size()]);
     }
 
-    // UI: Pass in user labelled patches and trigger the training.
+    /**
+     * Update training set with user labeled patches and train the classifier.
+     * @param userLabelledPatches The user labeled patch array.
+     * @throws Exception The exception.
+     */
     public void train(Patch[] userLabelledPatches) throws Exception {
 
         checkLabels(userLabelledPatches);
@@ -128,6 +148,7 @@ public class ActiveLearning {
                 final int label = p<1?0:1;
                 patch.setLabel(label);
                 patch.setDistance(decValues[0]);
+                System.out.println("Classified patch: x" + patch.getPatchX() + "y" + patch.getPatchY() + ", label: " + label);
             }
 
             if (debug) {
@@ -136,6 +157,14 @@ public class ActiveLearning {
         } catch (Throwable e) {
             throw new Exception(e.getMessage());
         }
+    }
+
+    /**
+     * Get patches in the training set.
+     * @return The patch array.
+     */
+    public Patch[] getTrainingData() {
+        return trainingData.toArray(new Patch[trainingData.size()]);
     }
 
     /**
