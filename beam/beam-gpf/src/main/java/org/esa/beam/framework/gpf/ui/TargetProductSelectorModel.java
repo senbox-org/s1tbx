@@ -35,6 +35,7 @@ import java.io.File;
 import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.List;
 
 /**
  * WARNING: This class belongs to a preliminary API and may change in future releases.
@@ -86,7 +87,13 @@ public class TargetProductSelectorModel {
 
         setOpenInAppSelected(true);
         setSaveToFileSelected(true);
-        this.formatNames = ProductIOPlugInManager.getInstance().getAllProductWriterFormatStrings();  // DEMO_CODE
+        this.formatNames = ProductIOPlugInManager.getInstance().getAllProductWriterFormatStrings();
+
+        // sort the list
+        final List<String> sortedNames = Arrays.asList(this.formatNames);
+        java.util.Collections.sort(sortedNames);
+        this.formatNames = sortedNames.toArray(new String[sortedNames.size()]);
+
         if (StringUtils.contains(this.formatNames, ProductIO.DEFAULT_FORMAT_NAME)) {
             setFormatName(ProductIO.DEFAULT_FORMAT_NAME);
         } else {
