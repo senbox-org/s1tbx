@@ -299,9 +299,9 @@ public class SpectrumEditor extends ModalDialog {
 
     public Spectrum getSpectrum() {
         final List<String> selectedElements = selectedSpectraListModel.getAllElements();
-        Band[] selectedBands = new Band[selectedElements.size()];
+        SpectrumBand[] selectedBands = new SpectrumBand[selectedElements.size()];
         for (int i = 0; i < selectedBands.length; i++) {
-            selectedBands[i] = availableBandsMap.get(selectedElements.get(i));
+            selectedBands[i] = new SpectrumBand(availableBandsMap.get(selectedElements.get(i)), true);
         }
         return new DisplayableSpectrum(nameField.getName(), selectedBands);
     }
