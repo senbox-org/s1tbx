@@ -80,13 +80,13 @@ public class SVM {
      */
     public double kernel(final double[] x1, final double[] x2) throws Exception {
 
-        if (x1.length != x2.length) {
-            throw new Exception("Samples to the kernel function must have the same dimension");
+        if (x1.length != numFeatures || x2.length != numFeatures) {
+            throw new Exception("Invalid feature dimension.");
         }
 
         double sum = 0.0;
         for (int i = 0; i < x1.length; i++) {
-            final double d = x1[i] - x2[i];
+            final double d = scale(i, x1[i]) - scale(i, x2[i]);
             sum += d*d;
         }
         return Math.exp(-modelParameters.gamma*sum);
