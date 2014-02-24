@@ -305,14 +305,22 @@ public class CfGeocodingPart extends ProfilePartIO {
                                 pixelX, pixelY);
     }
 
-    private static boolean isGlobalShifted180(Array lonData) {
-        // todo: very draft implementation, works for NOAA CMAP precipitation files. to be further investigated!!
+    static boolean isGlobalShifted180(Array lonData) {
+        // Idea: lonData values shall closely match [0,360] interval:
+        // - first value of lonData shall be larger or equal 0.0, and less or equal 0.0 + lonDataInterval
+        // - last value of lonData shall be smaller or equal 360.0, and larger or equal 360.0 - lonDataInterval
+        // e.g. lonDataInterval=0.75, lonData={0.0, 0.75, 1.5,..,359.25} --> true
+        // e.g. lonDataInterval=0.75, lonData={0.75, 1.5, 2.25,..,360.0} --> true
+        // e.g. lonDataInterval=0.75, lonData={1.0, 1.75, 2.5,..,360.25} --> false
         final Index i0 = lonData.getIndex().set(0);
         final Index i1 = lonData.getIndex().set(1);
         final Index iN = lonData.getIndex().set((int) lonData.getSize() - 1);
         double lonDelta = (lonData.getDouble(i1) - lonData.getDouble(i0));
 
-        return (lonData.getDouble(0) < lonDelta && lonData.getDouble(iN) > 360.0 - lonDelta);
+        final double firstValue = lonData.getDouble(0);
+        final double lastValue = lonData.getDouble(iN);
+        return (firstValue >= 0.0 && firstValue <= lonDelta &&
+                lastValue >= 360.0 - lonDelta && lastValue <= 360.0);
     }
 
     private static GeoCoding readPixelGeoCoding(Product product) throws IOException {

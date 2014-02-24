@@ -19,7 +19,6 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import org.esa.beam.dataio.envisat.EnvisatConstants;
-import org.esa.beam.framework.processor.ProcessorException;
 
 public class SmacUtilsTest extends TestCase {
 
@@ -31,7 +30,7 @@ public class SmacUtilsTest extends TestCase {
         return new TestSuite(SmacUtilsTest.class);
     }
 
-    public void testGetSensorTypeDoesNotAcceptNullParameter() throws ProcessorException {
+    public void testGetSensorTypeDoesNotAcceptNullParameter() {
         try {
             SmacUtils.getSensorType(null);
             fail("IllegalArgumentException expected");
@@ -39,7 +38,7 @@ public class SmacUtilsTest extends TestCase {
         }
     }
 
-    public void testGetSensorTypeReturnsCorrectType() throws ProcessorException {
+    public void testGetSensorTypeReturnsCorrectType() {
         String type;
 
         type = SmacUtils.getSensorType(EnvisatConstants.AATSR_L1B_TOA_PRODUCT_TYPE_NAME);
@@ -52,24 +51,10 @@ public class SmacUtilsTest extends TestCase {
         assertEquals(SensorCoefficientManager.MERIS_NAME, type);
     }
 
-    public void testGetSensorTypeFailsOnIllegalTypes() {
-        try {
-            SmacUtils.getSensorType("Nasenann");
-            fail("ProcessorException expected");
-        } catch (IllegalArgumentException expected) {
-        }
-
-        try {
-            SmacUtils.getSensorType("strange");
-            fail("ProcessorException expected");
-        } catch (IllegalArgumentException expected) {
-        }
-
-        try {
-            SmacUtils.getSensorType("");
-            fail("ProcessorException expected");
-        } catch (IllegalArgumentException expected) {
-        }
+    public void testGetSensorTypeIsNullOnIllegalTypes() {
+        assertNull(SmacUtils.getSensorType("Nasenann"));
+        assertNull(SmacUtils.getSensorType("strange"));
+        assertNull(SmacUtils.getSensorType(""));
     }
 
     public void testIsSupportedFileType() {

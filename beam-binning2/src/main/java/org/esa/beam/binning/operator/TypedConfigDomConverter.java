@@ -20,12 +20,10 @@ public class TypedConfigDomConverter<TD extends TypedDescriptor, TC extends Type
 
     private final Class<TD> descriptorClass;
     private final Class<TC> configClass;
-    private DefaultDomConverter childConverter;
 
     protected TypedConfigDomConverter(Class<TD> descriptorClass, Class<TC> configClass) {
         this.descriptorClass = descriptorClass;
         this.configClass = configClass;
-        this.childConverter = new DefaultDomConverter(configClass);
     }
 
     @Override
@@ -46,19 +44,28 @@ public class TypedConfigDomConverter<TD extends TypedDescriptor, TC extends Type
         } else {
             config = (TC) value;
         }
+        DomConverter childConverter = createChildConverter(config.getClass());
         childConverter.convertDomToValue(parentElement, config);
         return config;
     }
 
-    protected TC createConfig(String name) {
-        Assert.notNull(name, "name");
-        TypedDescriptor<TC> descriptor = TypedDescriptorsRegistry.getInstance().getDescriptor(descriptorClass, name);
-        Assert.argument(descriptor != null, String.format("Unknown name '%s'", name));
+    @Override
+    public void convertValueToDom(Object value, DomElement parentElement) throws ConversionException {
+        DomConverter childConverter = createChildConverter(value.getClass());
+        childConverter.convertValueToDom(value, parentElement);
+    }
+
+    protected TC createConfig(String typeName) {
+        Assert.notNull(typeName, "typeName");
+        TypedDescriptor<TC> descriptor = TypedDescriptorsRegistry.getInstance().getDescriptor(descriptorClass, typeName);
+        Assert.argument(descriptor != null, String.format("Unknown type name '%s'", typeName));
         return descriptor.createConfig();
     }
 
-    @Override
-    public void convertValueToDom(Object value, DomElement parentElement) throws ConversionException {
-        childConverter.convertValueToDom(value, parentElement);
+    private DomConverter createChildConverter(Class<?> actualConfigType) {
+        // Note that we use @Parameter annotations in the configurations, so we actually must use
+        //return new DefaultDomConverter(actualConfigType, new ParameterDescriptorFactory());
+        return new DefaultDomConverter(actualConfigType);
     }
+
 }

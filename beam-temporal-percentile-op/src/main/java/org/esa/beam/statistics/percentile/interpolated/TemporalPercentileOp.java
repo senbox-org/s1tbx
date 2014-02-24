@@ -363,15 +363,26 @@ public class TemporalPercentileOp extends Operator {
             final int height = timeSeriesDataProduct.getSceneRasterHeight();
             final int width = timeSeriesDataProduct.getSceneRasterWidth();
             try {
-                band.readRasterDataFully();
-                timeSeriesDataProduct.getProductWriter().writeBandRasterData(band, 0, 0, width, height, band.getData(), ProgressMonitor.NULL);
+                int bufferHeight = Math.max(1, Math.min(5000000 / width, height));
+                ProductData rasterData = band.createCompatibleRasterData(width, bufferHeight);
+                for (int y = 0; y < height; y += bufferHeight) {
+                    if (height - y < bufferHeight) {
+                        bufferHeight = height - y;
+                        rasterData = band.createCompatibleRasterData(width, bufferHeight);
+                    }
+                    band.readRasterData(0, y, width, bufferHeight, rasterData, ProgressMonitor.NULL);
+                    timeSeriesDataProduct.getProductWriter().writeBandRasterData(band, 0, y, width, bufferHeight, rasterData, ProgressMonitor.NULL);
+                }
             } catch (IOException e) {
                 throw new OperatorException(UNABLE_TO_WRITE_TIMESERIES_DATA_PRODUCT, e);
             } finally {
                 dispose(collocatedProducts);
                 dispose(dailyGroupedProducts);
-                band.getData().dispose();
-                band.setData(null);
+                final ProductData bandData = band.getData();
+                if (bandData != null) {
+                    bandData.dispose();
+                    band.setData(null);
+                }
                 gc();
             }
         }
@@ -398,7 +409,7 @@ public class TemporalPercentileOp extends Operator {
             } else {
                 band = collocatedProduct.getBand(BAND_MATH_EXPRESSION_BAND_NAME);
             }
-            MultiLevelImage nanImage = ImageManager.createMaskedGeophysicalImage(band, Double.NaN);
+            MultiLevelImage nanImage = ImageManager.createMaskedGeophysicalImage(band, Float.NaN);
             sources.add(nanImage);
         }
         return new MeanOpImage(sources);
@@ -483,8 +494,8 @@ public class TemporalPercentileOp extends Operator {
         timeSeriesDataProduct.setName(year + "_" + targetName + SUFFIX_PERCENTILE_OP_DATA_PRODUCT);
         addExpectedMetadataForTimeSeriesTool(targetName);
         timeSeriesDataProduct.setAutoGrouping(targetName);
-        timeSeriesDataProduct.setStartTime(ProductData.UTC.create(DateTimeUtils.jdToUTC(DateTimeUtils.mjdToJD(timeSeriesStartMJD)),0));
-        timeSeriesDataProduct.setEndTime(ProductData.UTC.create(DateTimeUtils.jdToUTC(DateTimeUtils.mjdToJD(timeSeriesEndMJD)),0));
+        timeSeriesDataProduct.setStartTime(ProductData.UTC.create(DateTimeUtils.jdToUTC(DateTimeUtils.mjdToJD(timeSeriesStartMJD)), 0));
+        timeSeriesDataProduct.setEndTime(ProductData.UTC.create(DateTimeUtils.jdToUTC(DateTimeUtils.mjdToJD(timeSeriesEndMJD)), 0));
         for (long mjd : dailyGroupedSourceProducts.keySet()) {
             final String dayMeanBandName = createNameForMeanBand(mjd);
             final int dayIdx = (int) (mjd - timeSeriesStartMJD);

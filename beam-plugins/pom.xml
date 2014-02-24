@@ -12,7 +12,6 @@
     <packaging>pom</packaging>
 
     <name>BEAM Aggregator of Plugin Modules</name>
-    <groupId>org.esa.beam</groupId>
     <artifactId>beam-plugins</artifactId>
     <description>This POM serves as aggregator for all BEAM plugin modules.</description>
     <!--The version number is never to be changed!
@@ -29,6 +28,7 @@
         <module>../beam-chris-reader</module>
         <module>../beam-cluster-analysis</module>
         <module>../beam-collocation</module>
+        <module>../beam-envi-reader</module>
         <module>../beam-envisat-reader</module>
         <module>../beam-flhmci</module>
         <module>../beam-geotiff</module>

@@ -78,6 +78,14 @@ public class OperatorMenu {
     private final Action aboutAction;
     private final String lastDirPreferenceKey;
 
+    @Deprecated
+    public OperatorMenu(Component parentComponent,
+                        Class<? extends Operator> opType,
+                        OperatorParameterSupport parameterSupport,
+                        String helpId) {
+        this(parentComponent, opType, parameterSupport, null, helpId);
+    }
+
     public OperatorMenu(Component parentComponent,
                         Class<? extends Operator> opType,
                         OperatorParameterSupport parameterSupport,
@@ -323,14 +331,18 @@ public class OperatorMenu {
     }
 
     private void applyCurrentDirectory(JFileChooser fileChooser) {
-        String homeDirPath = SystemUtils.getUserHomeDir().getPath();
-        String lastDir = appContext.getPreferences().getPropertyString(lastDirPreferenceKey, homeDirPath);
-        fileChooser.setCurrentDirectory(new File(lastDir));
+        if (appContext != null) {
+            String homeDirPath = SystemUtils.getUserHomeDir().getPath();
+            String lastDir = appContext.getPreferences().getPropertyString(lastDirPreferenceKey, homeDirPath);
+            fileChooser.setCurrentDirectory(new File(lastDir));
+        }
     }
 
     private void preserveCurrentDirectory(JFileChooser fileChooser) {
-        String lastDir = fileChooser.getCurrentDirectory().getAbsolutePath();
-        appContext.getPreferences().setPropertyString(lastDirPreferenceKey, lastDir);
+        if (appContext != null) {
+            String lastDir = fileChooser.getCurrentDirectory().getAbsolutePath();
+            appContext.getPreferences().setPropertyString(lastDirPreferenceKey, lastDir);
+        }
     }
 
 }

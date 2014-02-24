@@ -29,9 +29,8 @@
     </parent>
 
     <name>BEAM MERIS Cloud Probability Processor</name>
-    <groupId>org.esa.beam</groupId>
     <artifactId>beam-meris-cloud</artifactId>
-    <version>1.6.2.${beam.version}</version>
+    <version>1.7.${beam.version}</version>
 
     <packaging>jar</packaging>
 
@@ -48,6 +47,10 @@
             <groupId>org.esa.beam</groupId>
             <artifactId>beam-envisat-reader</artifactId>
             <version>1.5.2.${beam.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
         </dependency>
     </dependencies>
 

@@ -18,6 +18,8 @@ package org.esa.beam.visat.actions.session.dom;
 
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.PropertyDescriptor;
+import com.bc.ceres.binding.PropertyDescriptorFactory;
+import com.bc.ceres.binding.PropertySetDescriptor;
 import com.bc.ceres.binding.dom.DefaultDomConverter;
 import com.bc.ceres.binding.dom.DomConverter;
 import org.esa.beam.framework.datamodel.BitmaskDef;
@@ -31,15 +33,20 @@ import java.util.Map;
 
 public class SessionDomConverter extends DefaultDomConverter {
 
-    private final Map<Class<?>, DomConverter> domConverterMap = new HashMap<Class<?>, DomConverter>(33);
+    private final Map<Class<?>, DomConverter> domConverterMap;
 
     public SessionDomConverter(ProductManager productManager) {
         super(PropertyContainer.class);
-
+        this.domConverterMap = new HashMap<>(33);
         setDomConverter(Product.class, new ProductDomConverter(productManager));
         setDomConverter(RasterDataNode.class, new RasterDataNodeDomConverter(productManager));
         setDomConverter(BitmaskDef.class, new BitmaskDefDomConverter(productManager));
         setDomConverter(PlacemarkDescriptor.class, new PlacemarkDescriptorDomConverter());
+    }
+
+    private SessionDomConverter(Class<?> valueType, PropertyDescriptorFactory propertyDescriptorFactory, PropertySetDescriptor propertySetDescriptor, Map<Class<?>, DomConverter> domConverterMap) {
+        super(valueType, propertyDescriptorFactory, propertySetDescriptor);
+        this.domConverterMap = domConverterMap;
     }
 
     final void setDomConverter(Class<?> type, DomConverter domConverter) {
@@ -47,15 +54,16 @@ public class SessionDomConverter extends DefaultDomConverter {
     }
 
     @Override
-    protected DomConverter getDomConverter(PropertyDescriptor descriptor) {
-        DomConverter domConverter = getDomConverter(descriptor.getType());
-        if (domConverter == null) {
-            domConverter = super.getDomConverter(descriptor);
-        }
-        return domConverter;
+    protected DomConverter createChildDomConverter(Class<?> valueType, PropertyDescriptorFactory propertyDescriptorFactory, PropertySetDescriptor propertySetDescriptor) {
+        return new SessionDomConverter(valueType, getPropertyDescriptorFactory(), propertySetDescriptor, domConverterMap);
     }
 
-    private DomConverter getDomConverter(Class<?> type) {
+    @Override
+    protected DomConverter findChildDomConverter(PropertyDescriptor descriptor) {
+        return findDomConverter(descriptor.getType());
+    }
+
+    private DomConverter findDomConverter(Class<?> type) {
         DomConverter domConverter = domConverterMap.get(type);
         while (domConverter == null && type != null && type != Object.class) {
             type = type.getSuperclass();

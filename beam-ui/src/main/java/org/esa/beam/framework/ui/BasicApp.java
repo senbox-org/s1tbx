@@ -18,6 +18,8 @@ package org.esa.beam.framework.ui;
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
+import com.bc.ceres.swing.debug.CheckThreadViolationRepaintManager;
+import com.bc.ceres.swing.debug.EventDispatchThreadHangMonitor;
 import com.jidesoft.action.CommandBar;
 import com.jidesoft.action.DefaultDockableBarDockableHolder;
 import com.jidesoft.action.DockableBar;
@@ -316,6 +318,11 @@ public class BasicApp {
             // initLogging();
             logStartUpInfo();
             pm.worked(1);
+
+            if (Boolean.getBoolean("beam.swing.debug")) {
+                RepaintManager.setCurrentManager(new CheckThreadViolationRepaintManager());
+                EventDispatchThreadHangMonitor.initMonitoring();
+            }
 
             pm.setSubTaskName("Creating main frame...");
             initCommandManager();
