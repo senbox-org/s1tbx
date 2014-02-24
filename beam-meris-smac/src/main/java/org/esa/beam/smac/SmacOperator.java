@@ -139,7 +139,9 @@ public class SmacOperator extends Operator {
                converter = ExpressionConverter.class)
     private String maskExpression = "";
 
-    @Parameter(description = "Mask expression for the forward view (AATSR only)", label = "Mask expression for the forward view (AATSR only)")
+    @Parameter(description = "Mask expression for the forward view (AATSR only)",
+               label = "Mask expression for the forward view (AATSR only)",
+               converter = ExpressionConverter.class)
     private String maskExpressionForward = "";
 
     @Parameter(description = "Bands to process", label = "Bands to process", notNull = true)

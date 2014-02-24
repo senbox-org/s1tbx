@@ -32,6 +32,7 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
@@ -51,6 +52,7 @@ public class ExpressionEditor extends PropertyEditor {
     @Override
     public JComponent createEditorComponent(PropertyDescriptor propertyDescriptor, BindingContext bindingContext) {
         JTextField textField = new JTextField();
+        textField.setPreferredSize(new Dimension(100, textField.getPreferredSize().height));
         ComponentAdapter adapter = new TextComponentAdapter(textField);
         final Binding binding = bindingContext.bind(propertyDescriptor.getName(), adapter);
         final JPanel subPanel = new JPanel(new BorderLayout(2, 2));
@@ -67,7 +69,9 @@ public class ExpressionEditor extends PropertyEditor {
                 }
             }
         });
-        bindingContext.getPropertySet().addProperty(Property.create(UIUtils.PROPERTY_SOURCE_PRODUCT, Product.class, null, false));
+        Property property = Property.create(UIUtils.PROPERTY_SOURCE_PRODUCT, Product.class, null, false);
+        property.getDescriptor().setTransient(true);
+        bindingContext.getPropertySet().addProperty(property);
         bindingContext.addPropertyChangeListener(new PropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {

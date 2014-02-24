@@ -154,6 +154,7 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
             final JPanel parametersPanel = parametersPane.createPanel();
             parametersPanel.setBorder(new EmptyBorder(4, 4, 4, 4));
             form.add("Processing Parameters", new JScrollPane(parametersPanel));
+            updateSourceProduct();
         }
     }
 
@@ -163,6 +164,17 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
                                 parameterSupport,
                                 getAppContext(),
                                 getHelpID());
+    }
+
+    private void updateSourceProduct() {
+        try {
+            Property property = bindingContext.getPropertySet().getProperty(UIUtils.PROPERTY_SOURCE_PRODUCT);
+            if (property != null) {
+                property.setValue(productChangedHandler.currentProduct);
+            }
+        } catch (ValidationException e) {
+            throw new IllegalStateException("Property '" + UIUtils.PROPERTY_SOURCE_PRODUCT + "' must be of type " + Product.class + ".", e);
+        }
     }
 
     private class ProductChangedHandler extends AbstractSelectionChangeListener implements ProductNodeListener {
@@ -215,17 +227,6 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
         @Override
         public void nodeRemoved(ProductNodeEvent event) {
             handleProductNodeEvent();
-        }
-
-        private void updateSourceProduct() {
-            try {
-                Property property = bindingContext.getPropertySet().getProperty(UIUtils.PROPERTY_SOURCE_PRODUCT);
-                if (property != null) {
-                    property.setValue(currentProduct);
-                }
-            } catch (ValidationException e) {
-                throw new IllegalStateException("Property '" + UIUtils.PROPERTY_SOURCE_PRODUCT + "' must be of type " + Product.class + ".", e);
-            }
         }
 
         private void updateTargetProductname() {

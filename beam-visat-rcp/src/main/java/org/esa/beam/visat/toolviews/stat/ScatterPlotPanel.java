@@ -104,6 +104,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
+import java.util.logging.Level;
 
 import static org.esa.beam.visat.toolviews.stat.StatisticChartStyling.*;
 
@@ -163,7 +164,7 @@ class ScatterPlotPanel extends ChartPagePanel {
 
     ScatterPlotPanel(ToolView parentDialog, String helpId) {
         super(parentDialog, helpId, CHART_TITLE, false);
-        userSettingsMap = new HashMap<Product, UserSettings>();
+        userSettingsMap = new HashMap<>();
         productRemovedListener = new ProductManager.Listener() {
             @Override
             public void productAdded(ProductManager.Event event) {
@@ -289,7 +290,6 @@ class ScatterPlotPanel extends ChartPagePanel {
     public void nodeRemoved(ProductNodeEvent event) {
         if (event.getSourceNode() instanceof VectorDataNode) {
             updateComponents();
-            System.out.println("     nodeRemoved");
             computeChartDataIfPossible();
         }
     }
@@ -318,7 +318,6 @@ class ScatterPlotPanel extends ChartPagePanel {
         final PropertyChangeListener recomputeListener = new PropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
-                BeamLogManager.getSystemLogger().finest("ScatterPlotPanel -> recomputeListener");
                 computeChartDataIfPossible();
             }
         };
@@ -390,16 +389,20 @@ class ScatterPlotPanel extends ChartPagePanel {
     private void handleAxisRangeControlChanges(PropertyChangeEvent evt, AxisRangeControl axisRangeControl,
                                                ValueAxis valueAxis, Range computedAutoRange) {
         final String propertyName = evt.getPropertyName();
-        if (AxisRangeControl.PROPERTY_NAME_AUTO_MIN_MAX.equals(propertyName)) {
-            if (axisRangeControl.isAutoMinMax()) {
-                final double min = computedAutoRange.getLowerBound();
-                final double max = computedAutoRange.getUpperBound();
-                axisRangeControl.adjustComponents(min, max, 3);
-            }
-        } else if (AxisRangeControl.PROPERTY_NAME_MIN.equals(propertyName)) {
-            valueAxis.setLowerBound(axisRangeControl.getMin());
-        } else if (AxisRangeControl.PROPERTY_NAME_MAX.equals(propertyName)) {
-            valueAxis.setUpperBound(axisRangeControl.getMax());
+        switch (propertyName) {
+            case AxisRangeControl.PROPERTY_NAME_AUTO_MIN_MAX:
+                if (axisRangeControl.isAutoMinMax()) {
+                    final double min = computedAutoRange.getLowerBound();
+                    final double max = computedAutoRange.getUpperBound();
+                    axisRangeControl.adjustComponents(min, max, 3);
+                }
+                break;
+            case AxisRangeControl.PROPERTY_NAME_MIN:
+                valueAxis.setLowerBound(axisRangeControl.getMin());
+                break;
+            case AxisRangeControl.PROPERTY_NAME_MAX:
+                valueAxis.setUpperBound(axisRangeControl.getMax());
+                break;
         }
     }
 
@@ -674,9 +677,9 @@ class ScatterPlotPanel extends ChartPagePanel {
 
             @Override
             protected ComputedData[] doInBackground() throws Exception {
-                BeamLogManager.getSystemLogger().finest("start computing scatter data");
+                BeamLogManager.getSystemLogger().finest("start computing scatter plot data");
 
-                final ArrayList<ComputedData> computedDataList = new ArrayList<ComputedData>();
+                final List<ComputedData> computedDataList = new ArrayList<>();
 
                 final FeatureCollection<SimpleFeatureType, SimpleFeature> collection = scatterPlotModel.pointDataSource.getFeatureCollection();
                 final SimpleFeature[] features = collection.toArray(new SimpleFeature[collection.size()]);
@@ -821,16 +824,8 @@ class ScatterPlotPanel extends ChartPagePanel {
 
                     computeRegressionAndAcceptableDeviationData();
                     computingData = false;
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                    JOptionPane.showMessageDialog(getParentDialogContentPane(),
-                                                  "Failed to compute correlative plot.\n" +
-                                                  "Calculation canceled.",
-                                                  /*I18N*/
-                                                  CHART_TITLE, /*I18N*/
-                                                  JOptionPane.ERROR_MESSAGE);
-                } catch (CancellationException e) {
-                    e.printStackTrace();
+                } catch (InterruptedException | CancellationException e) {
+                    BeamLogManager.getSystemLogger().log(Level.WARNING, "Failed to compute correlative plot.", e);
                     JOptionPane.showMessageDialog(getParentDialogContentPane(),
                                                   "Failed to compute correlative plot.\n" +
                                                   "Calculation canceled.",
@@ -838,7 +833,7 @@ class ScatterPlotPanel extends ChartPagePanel {
                                                   CHART_TITLE, /*I18N*/
                                                   JOptionPane.ERROR_MESSAGE);
                 } catch (ExecutionException e) {
-                    e.printStackTrace();
+                    BeamLogManager.getSystemLogger().log(Level.WARNING, "Failed to compute correlative plot.", e);
                     JOptionPane.showMessageDialog(getParentDialogContentPane(),
                                                   "Failed to compute correlative plot.\n" +
                                                   "An error occurred:\n" +
@@ -1028,8 +1023,8 @@ class ScatterPlotPanel extends ChartPagePanel {
 
     private static class UserSettings {
 
-        Map<String, VectorDataNode> pointDataSource = new HashMap<String, VectorDataNode>();
-        Map<String, AttributeDescriptor> dataField = new HashMap<String, AttributeDescriptor>();
+        Map<String, VectorDataNode> pointDataSource = new HashMap<>();
+        Map<String, AttributeDescriptor> dataField = new HashMap<>();
 
         public void set(String rasterName, VectorDataNode pointDataSourceValue, AttributeDescriptor dataFieldValue) {
             if (pointDataSourceValue != null && dataFieldValue != null) {
