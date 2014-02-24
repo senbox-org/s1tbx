@@ -43,6 +43,7 @@ New BEAM Features
 
 Improvements
 
+[BEAM-1610] Move ENVI-Reader from Glob-Box to BEAM
 [BEAM-1609] Convert Cloud Processor to GPF
 [BEAM-1592] Line-Geometries shall be easier selectable
 [BEAM-1588] Show close button on internal frames' tabs

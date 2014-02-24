@@ -1,0 +1,56 @@
+<module>
+    <manifestVersion>1.0.0</manifestVersion>
+    <symbolicName>beam-envi-reader</symbolicName>
+    <version>3.2</version>
+    <name>ENVI Product Reader</name>
+    <funding>ESA</funding>
+
+    <description>
+        Enables BEAM to read data products in ESRI-ENVI format including products of HICO.
+    </description>
+
+    <vendor>Brockmann Consult GmbH</vendor>
+    <contactAddress>Max Planck Str.2, 21502 Geesthacht (Germany)</contactAddress>
+    <copyright>(C) 2008 by Brockmann Consult GmbH</copyright>
+    <url>http://www.brockmann-consult.de/</url>
+    <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
+
+    <changelog>
+        <![CDATA[
+          <p>Changes in 3.2:<br/>
+          [GBOX-030] Support offset and gain in ENVI header files<br/>
+          <p>Changes in 3.1:<br/>
+          [GBOX-026] Add support for HICO<br/>
+          </p>
+        ]]>
+    </changelog>
+
+    <dependency>
+        <module>beam-core</module>
+    </dependency>
+    <dependency>
+        <module>beam-visat</module>
+        <optional>true</optional>
+    </dependency>
+
+    <categories>Reader</categories>
+
+    <extension point="beam-ui:actions">
+        <action>
+            <id>importEnviProduct</id>
+            <class>org.esa.beam.visat.actions.ProductImportAction</class>
+            <formatName>ENVI</formatName>
+            <useAllFileFilter>false</useAllFileFilter>
+            <shortDescr>Import an ENVI data product.</shortDescr>
+        </action>
+        <action>
+            <id>importHicoProduct</id>
+            <class>org.esa.beam.visat.actions.ProductImportAction</class>
+            <formatName>HICO</formatName>
+            <text>HICO (ENVI format)</text>
+            <useAllFileFilter>false</useAllFileFilter>
+            <shortDescr>Import a HICO data product.</shortDescr>
+        </action>
+    </extension>
+
+</module>
